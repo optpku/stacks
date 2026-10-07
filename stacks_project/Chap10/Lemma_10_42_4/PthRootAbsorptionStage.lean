@@ -1,0 +1,20 @@
+module
+
+public import ReasLib.FieldTheory.PurelyInseparable.Lift
+import StacksCheckRecall
+
+@[expose] public section
+
+/-!
+# Purely inseparable lift support for Lemma 10.42.4
+
+The former `p`th-root absorption proof route is subsumed by the neutral finite purely
+inseparable lift API.
+
+@stack 04KM
+-/
+
+/- Lemma 10.42.4, tag `04KM`: every essentially finite-type field extension admits a finite
+purely inseparable lift whose top extension is separably generated. -/
+@[stacks 04KM "finite purely inseparable lift"]
+#check @FieldExtension.PurelyInseparable.Lift.existsOfEssFiniteType

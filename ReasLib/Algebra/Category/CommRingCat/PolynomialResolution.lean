@@ -1,0 +1,13 @@
+module
+
+public import ReasLib.Algebra.Category.CommRingCat.PolynomialResolution.Generators
+public import ReasLib.Algebra.Category.CommRingCat.PolynomialResolution.Contraction
+public import ReasLib.Algebra.Category.CommRingCat.PolynomialResolution.AlternatingFace
+
+/-!
+# Polynomial resolutions over a fixed ring
+
+This compatibility facade preserves the original import path. Reusable clients should prefer
+the smallest semantic leaf: `Construction`, `Generators`, `Contraction.UnderlyingSet`,
+`Contraction.FreeResolution`, or `AlternatingFace`.
+-/

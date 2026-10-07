@@ -1,0 +1,36 @@
+module
+
+public import stacks_project.Chap67.Definition_67_40_1_FiniteType
+public import stacks_project.Chap67.Lemma_67_34_4_FiberDimensionLocus
+public import stacks_project.Chap67.Lemma_67_53_4_UniversalHomeomorphism
+
+/-!
+# Openness of bounded fibre-dimension loci
+
+For a locally finite-type morphism of algebraic spaces, the locus of points
+at which the relative dimension is at most a given natural number is open in
+the canonical topology on points.
+-/
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry AlgebraicSpace
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace
+
+/-- Lemma 67.34.4: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
+algebraic spaces over `S`. Let `n : ℕ`. Assume `f` is locally of finite type.
+The set `W_n` of points of `Points X` at which the relative dimension of `f`
+is at most `n` is open in the canonical topology on `Points X`. -/
+@[stacks 04NT]
+theorem isOpen_fiberDimensionLELocus {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) [LocallyOfFiniteType f] (n : ℕ)
+    {τ : TopologicalSpace (Points X)} (hτ : IsPointsTopology X τ) :
+    @IsOpen (Points X) τ (fiberDimensionLELocus f n) :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicSpace

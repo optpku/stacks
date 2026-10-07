@@ -1,0 +1,12 @@
+module
+
+public import StacksCheckRecall.CommandCrossRef
+public import ReasLib.CategoryTheory.Sites.Localization.Representable.BaseChange
+
+@[expose] public section
+
+/- Lemma 7.31.4 (04IW): for `c : U ⟶ u.obj V`, the localized slice-site
+inverse image agrees with pullback along the canonical representable
+base-change map. This is exactly the reusable functor-level comparison owned
+by ReasLib. -/
+@[stacks 04IW] #check @CategoryTheory.GrothendieckTopology.RepresentableLocalization.sheafPullbackOverPullback

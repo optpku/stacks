@@ -1,0 +1,15 @@
+module
+
+public import ReasLib.CategoryTheory.Limits.Shapes.Preorder.CoconeToIic.Basic
+public import ReasLib.CategoryTheory.Limits.Shapes.Preorder.CoconeToIic.Computations
+
+/-!
+# Closed extensions of preorder diagrams by cocones
+
+This umbrella exports the data and computation API for extending a functor on
+`Set.Iio j` to `Set.Iic j` using a cocone point.
+-/
+
+@[expose] public section
+
+open CategoryTheory Limits

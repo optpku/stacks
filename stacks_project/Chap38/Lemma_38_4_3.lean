@@ -1,0 +1,38 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Module.OneStepDevissage.Existence
+import StacksCheckRecall
+
+@[expose] public section
+
+open CategoryTheory
+open scoped AlgebraicGeometry
+
+universe u
+
+namespace AlgebraicGeometry.Scheme.Modules
+
+/- Lemma 38.4.3: a finite-type quasicoherent module on a locally finite-type scheme
+morphism admits, after elementary étale refinement of the source and base at the chosen
+point, a one-step dévissage of its pullback at the refined ambient point. -/
+@[stacks 05H6] #check
+  (AlgebraicGeometry.Scheme.Modules.exists_oneStepDevissageAtAmbientPoint :
+    ∀ {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] (ℱ : X.Modules)
+      [h_quasicoherent : ℱ.IsQuasicoherent] [h_finiteType : ℱ.IsFiniteType] (x : X),
+      ∃ U : EtaleNeighborhood.Elementary X x,
+        let X' := U.obj
+        let ℱ' := (Scheme.Modules.pullback X'.toEtale.hom).obj ℱ
+        let h_quasicoherent' : ℱ'.IsQuasicoherent :=
+          @pullback_isQuasicoherent _ _ X'.toEtale.hom ℱ h_quasicoherent
+        let h_finiteType' : ℱ'.IsFiniteType :=
+          @pullback_isFiniteType _ _ X'.toEtale.hom ℱ h_finiteType
+        ∃ V : EtaleNeighborhood.Elementary S (f x),
+          let S' := V.obj
+          ∃ f' : X'.toEtale.left ⟶ S'.toEtale.left,
+            ∃ (_ : CommSq X'.toEtale.hom f' f S'.toEtale.hom)
+              (_ : f' X'.point = S'.point)
+              (h_refined_finiteType : LocallyOfFiniteType (Over.mk f').hom),
+              Nonempty (@OneStepDevissageAtAmbientPoint _ (Over.mk f') ℱ'
+                h_refined_finiteType h_quasicoherent' h_finiteType' X'.point))
+
+end AlgebraicGeometry.Scheme.Modules

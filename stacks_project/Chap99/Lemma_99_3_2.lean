@@ -1,0 +1,34 @@
+module
+
+public import Mathlib.CategoryTheory.Sites.Sheaf
+public import stacks_project.Chap77.Lemma_77_7_2_FpqcTopology
+public import stacks_project.Chap99.«99_3_1_1»
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Opposite
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace.Modules
+
+/-- Lemma 99.3.2: in Situation 99.3.1 the functor `Hom(F, G)` on `(Sch/B)ᵒᵖ`
+satisfies the sheaf property for the fpqc topology. -/
+@[stacks 08JV]
+theorem homFunctor_isSheaf_fpqc {S : Scheme.{u}} {X B : AlgebraicSpace S}
+    (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent] :
+    Presheaf.IsSheaf (SchemeOver.fpqcTopology B) (homFunctor f F G) :=
+  sorry
+
+/-- Compatible families of maps `F_{T_i} ⟶ G_{T_i}` on an fpqc covering of
+schemes over `B` glue uniquely to a map `F_T ⟶ G_T`. -/
+theorem homFunctor_isSheafFor_fpqcCovering {S : Scheme.{u}} {X B : AlgebraicSpace S}
+    (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent]
+    {ι : Type u} {U : SchemeOver B} {V : ι → SchemeOver B} (h : ∀ i, V i ⟶ U)
+    (h_cover : Presieve.ofArrows V h ∈ SchemeOver.fpqcPrecoverage B U) :
+    Presieve.IsSheafFor (homFunctor f F G) (Presieve.ofArrows V h) :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicSpace.Modules

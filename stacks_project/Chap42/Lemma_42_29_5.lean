@@ -1,0 +1,80 @@
+module
+
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.ChowGroup.Gysin.AssociatedCycle
+
+@[expose] public section
+
+open CategoryTheory
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.Scheme.Modules
+
+/- Lemma 42.29.5 (1): Gysin pullback of the degree-`k + 1` cycle of a closed
+subscheme is the degree-`k` cycle of its scheme-theoretic intersection with the zero
+scheme, provided that intersection is an effective Cartier divisor. -/
+@[stacks 02TB] #check
+  (AlgebraicGeometry.Scheme.Modules.gysin_closedSubschemeCycle :
+    ∀ {S X : Scheme.{u}} (p : X ⟶ S) [UniversallyCatenary S] [LocallyOfFiniteType p]
+      (δ : S → ℤ) [IsDimensionFunction δ]
+      (ℒ : X.Modules) [Invertible ℒ] (s : ℒ.sections)
+      (Z : X.IdealSheafData) (k : ℤ)
+      (hZ : p.closedSubschemeDeltaDimension δ Z ≤ ((k + 1 : ℤ) : EInt))
+      [IsEffectiveCartierDivisor
+        (((zeroIdealSheaf ℒ s).comap Z.subschemeι).subschemeι)],
+      gysin p δ ℒ s k (p.closedSubschemeCycle δ Z (k + 1) hZ) =
+        @chowClass (zeroScheme ℒ s)
+          (@zeroSchemeIsLocallyNoetherian X
+            (LocallyOfFiniteType.isLocallyNoetherian p) ℒ inferInstance s)
+          ((zeroSchemeι ℒ s ≫ p).relativeDimensionFunction δ) inferInstance k
+          (@Scheme.IdealSheafData.associatedCycle (zeroScheme ℒ s)
+            (@zeroSchemeIsLocallyNoetherian X
+              (LocallyOfFiniteType.isLocallyNoetherian p) ℒ inferInstance s)
+            (Z.comap (zeroSchemeι ℒ s))
+            ((zeroSchemeι ℒ s ≫ p).relativeDimensionFunction δ) k))
+
+/- Lemma 42.29.5 (2): if multiplication by `s` is injective on a coherent module
+`ℱ`, then Gysin pullback of its degree-`k + 1` associated cycle is the degree-`k`
+associated cycle of its pullback to the zero scheme. -/
+@[stacks 02TB] #check
+  (AlgebraicGeometry.Scheme.Modules.gysin_associatedCycle :
+    ∀ {S X : Scheme.{u}} (p : X ⟶ S) [UniversallyCatenary S] [LocallyOfFiniteType p]
+      (δ : S → ℤ) [IsDimensionFunction δ]
+      (ℒ : X.Modules) [Invertible ℒ] (s : ℒ.sections)
+      (ℱ : X.Modules) [ℱ.IsCoherent] (k : ℤ)
+      (hℱ : ∀ x ∈ RingedSpace.moduleSupport ℱ,
+        p.relativeDimensionFunction δ x ≤ k + 1)
+      [Mono (RingedSpace.tensorSectionHom ℱ ℒ s)],
+      gysin p δ ℒ s k
+          ⟨@associatedCycle X (LocallyOfFiniteType.isLocallyNoetherian p) ℱ inferInstance
+              (p.relativeDimensionFunction δ) (k + 1),
+            @associatedCycle_mem_dimensionSubgroup X
+              (LocallyOfFiniteType.isLocallyNoetherian p) ℱ inferInstance
+              (p.relativeDimensionFunction δ) (k + 1)⟩ =
+        @chowClass (zeroScheme ℒ s)
+          (@zeroSchemeIsLocallyNoetherian X
+            (LocallyOfFiniteType.isLocallyNoetherian p) ℒ inferInstance s)
+          ((zeroSchemeι ℒ s ≫ p).relativeDimensionFunction δ) inferInstance k
+          ⟨@associatedCycle (zeroScheme ℒ s)
+              (@zeroSchemeIsLocallyNoetherian X
+                (LocallyOfFiniteType.isLocallyNoetherian p) ℒ inferInstance s)
+              ((pullback (zeroSchemeι ℒ s)).obj ℱ)
+              (@pullback_isCoherent (zeroScheme ℒ s) X
+                (@zeroSchemeIsLocallyNoetherian X
+                  (LocallyOfFiniteType.isLocallyNoetherian p) ℒ inferInstance s)
+                (LocallyOfFiniteType.isLocallyNoetherian p) (zeroSchemeι ℒ s) ℱ inferInstance)
+              ((zeroSchemeι ℒ s ≫ p).relativeDimensionFunction δ) k,
+            @associatedCycle_mem_dimensionSubgroup (zeroScheme ℒ s)
+              (@zeroSchemeIsLocallyNoetherian X
+                (LocallyOfFiniteType.isLocallyNoetherian p) ℒ inferInstance s)
+              ((pullback (zeroSchemeι ℒ s)).obj ℱ)
+              (@pullback_isCoherent (zeroScheme ℒ s) X
+                (@zeroSchemeIsLocallyNoetherian X
+                  (LocallyOfFiniteType.isLocallyNoetherian p) ℒ inferInstance s)
+                (LocallyOfFiniteType.isLocallyNoetherian p) (zeroSchemeι ℒ s) ℱ inferInstance)
+              ((zeroSchemeι ℒ s ≫ p).relativeDimensionFunction δ) k⟩)
+
+end AlgebraicGeometry.Scheme.Modules

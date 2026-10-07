@@ -1,0 +1,19 @@
+module
+
+public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.ProductSlice
+public import ReasLib.CategoryTheory.Fibered.RelativelyRepresentable.DiagonalBaseChange.SourceSquare
+public import ReasLib.CategoryTheory.Fibered.RelativelyRepresentable.DiagonalBaseChange.Diagonal
+public import ReasLib.CategoryTheory.Limits.CategoricalPullback.ProductSlice.RightVertical
+public import ReasLib.CategoryTheory.Fibered.RelativelyRepresentable.DiagonalBaseChange.Comparison.OverBase
+
+/-!
+# Product-slice diagonal base change
+
+Compatibility aggregate for the product-slice functor, its source square,
+the diagonal/right-vertical comparisons, and representability transport.
+
+New developments should import the smallest leaf for the construction or
+computation layer they use.
+-/
+
+@[expose] public section

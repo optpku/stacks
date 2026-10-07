@@ -1,0 +1,31 @@
+module
+
+public import stacks_project.Chap101.Lemma_101_38_5_SchemeTheoreticImage
+import StacksCheckRecall
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry
+open scoped Bicategory
+
+universe u
+
+/- Lemma 101.38.5: Let `f : 𝒳 ⟶ 𝒴` be a quasi-compact morphism of algebraic
+stacks. Then formation of the scheme-theoretic image commutes with flat base
+change. -/
+@[stacks 0CMK] #check
+  (@AlgebraicGeometry.AlgebraicStack.IsSchemeTheoreticImage.of_twoFibreProduct_flat :
+    ∀ {S : Scheme.{u}} {X Y Y' Z : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y]
+      [AlgebraicStack Y'] [AlgebraicStack Z]
+      (f : X ⟶ Y) [AlgebraicGeometry.AlgebraicStack.QuasiCompact f]
+      (g : Y' ⟶ Y) [AlgebraicGeometry.AlgebraicStack.Flat g]
+      (toImage : X ⟶ Z) (ι : Z ⟶ Y)
+      [AlgebraicGeometry.AlgebraicStack.IsSchemeTheoreticImage f toImage ι]
+      [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)]
+      [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} ι g)],
+      AlgebraicGeometry.AlgebraicStack.IsSchemeTheoreticImage
+        (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g)
+        (AlgebraicGeometry.AlgebraicStack.IsSchemeTheoreticImage.pullbackToImage
+          f toImage ι g)
+        (TwoFibreProduct.snd.{u + 1, u, u + 1, u} ι g))

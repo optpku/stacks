@@ -1,0 +1,64 @@
+module
+
+public import ReasLib.CategoryTheory.Filtration.Morphism
+
+/-!
+# Category of Filtered Objects
+
+The filtered objects in `C` form a category with the filtration-preserving morphisms.
+The forgetful functor to `C` is faithful.
+-/
+
+@[expose] public section
+
+open CategoryTheory CategoryTheory.Limits
+
+universe v u
+
+namespace CategoryTheory
+
+variable {C : Type u} [Category.{v} C]
+
+namespace FilteredObject
+
+/-- The category of filtered objects over `C`. -/
+instance : Category (FilteredObject C) where
+  Hom X Y := FilteredObject.Hom X Y
+  id X := Hom.id X
+  comp f g := Hom.comp f g
+  id_comp := id_comp_eq
+  comp_id := comp_id_eq
+  assoc := assoc_eq
+
+@[simp] theorem id_hom (X : FilteredObject C) : (𝟙 X : X ⟶ X).hom = 𝟙 X.obj := rfl
+
+@[simp] theorem comp_hom {X Y Z : FilteredObject C} (f : X ⟶ Y) (g : Y ⟶ Z) :
+    (f ≫ g).hom = f.hom ≫ g.hom := rfl
+
+/-- The forgetful functor from filtered objects to the ambient category. -/
+def forget : FilteredObject C ⥤ C where
+  obj X := X.obj
+  map f := f.hom
+
+/-- Evaluating the forgetful functor on a filtered object gives its underlying object. -/
+@[simp]
+theorem forget_obj (X : FilteredObject C) : forget.obj X = X.obj := sorry
+
+/-- Evaluating the forgetful functor on a filtered morphism gives its underlying morphism. -/
+@[simp]
+theorem forget_map {X Y : FilteredObject C} (f : X ⟶ Y) : forget.map f = f.hom := sorry
+
+instance : (forget : FilteredObject C ⥤ C).Faithful where
+  map_injective {_ _} _ _ h := FilteredObject.Hom.ext h
+
+variable {X Y : FilteredObject C}
+
+instance (f : X ⟶ Y) [Epi f.hom] : Epi f :=
+  (forget : FilteredObject C ⥤ C).epi_of_epi_map (by simpa)
+
+instance (f : X ⟶ Y) [Mono f.hom] : Mono f :=
+  (forget : FilteredObject C ⥤ C).mono_of_mono_map (by simpa)
+
+end FilteredObject
+
+end CategoryTheory

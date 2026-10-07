@@ -1,0 +1,19 @@
+module
+
+public import ReasLib.Algebra.Homology.DerivedCategory.Perfect.StrongGenerator
+import StacksCheckRecall
+
+/-!
+# Lemma 15.80.2 (0FXI)
+
+@stack 0FXI
+-/
+
+@[expose] public section
+
+open CategoryTheory
+
+/- Lemma 15.80.2 (0FXI): strong generation by `R[0]` forces regularity and finite Krull
+dimension. -/
+@[stacks 0FXI "Lemma 15.80.2"]
+#check @regularFiniteKrullDimension_of_ringSingleInPerfectDerived_isStrongGenerator

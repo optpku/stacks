@@ -1,0 +1,42 @@
+module
+
+public import ReasLib.AlgebraicGeometry.WeilCohomology.PreWeil.SchemePushforward
+import StacksCheckRecall
+
+@[expose] public section
+
+universe u v w x y z
+
+open CategoryTheory
+
+namespace WeilCohomology
+
+variable {k : Type u} [Field k]
+variable {F : Type v} [Field F] [CharZero F]
+variable {TateLine : Type x} [AddCommGroup TateLine] [Module F TateLine]
+variable {V : Type w} [Category.{z} V]
+variable {dimension : V → ℕ} {product : V → V → V}
+variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
+variable {point : V} {CH : V → Type y} [∀ X, CommRing (CH X)]
+variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)} [∀ X, GradedAlgebra (CHgrade X)]
+variable {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
+variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
+variable {pointCycle : CHgrade point 0} {H Picard : V → Type x}
+variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Picard X)]
+
+/- Lemma 45.14.9: data (D0), (D1), and (D2') satisfying axioms (A1)–(A7),
+with p : P ⟶ X an axiom-(A3) projective bundle of positive rank over a nonempty
+equidimensional base, the cycle-class map commutes with pushforward along p. -/
+@[stacks 0FIN] #check
+  (WeilCohomology.SchemePreWeilTheory.cycleClass_pushforward_of_isProjectiveBundle :
+    ∀ (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
+      cyclePullback cyclePushforward pointCycle H Picard)
+      {P X : V} (p : P ⟶ X) {d r : ℕ} (hr : 0 < r)
+      (hp : T.IsProjectiveBundle p r)
+      (hX : T.IsNonemptyEquidimensional X d)
+      (hP : T.IsNonemptyEquidimensional P (d + r - 1))
+      (alpha : CH P),
+      T.cycleClass X (cyclePushforward p alpha) =
+        T.pushforward hP hX p (T.cycleClass P alpha))
+
+end WeilCohomology

@@ -1,0 +1,13 @@
+module
+
+public import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.SpectralSequence.Targets.Abutment
+public import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.SpectralSequence.Targets.PageOne
+
+/-!
+# Targets of finite filtered right-derived spectral sequences
+
+Compatibility facade for complex views, pointwise right-derived values, the first page, and the
+abutment.  Downstream files needing only one layer should import its semantic leaf directly.
+-/
+
+@[expose] public section

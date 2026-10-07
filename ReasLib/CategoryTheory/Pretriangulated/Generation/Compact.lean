@@ -1,0 +1,63 @@
+module
+
+public import ReasLib.CategoryTheory.Preadditive.CompactObject
+public import ReasLib.CategoryTheory.Pretriangulated.Generation.Orthogonal
+public import Mathlib.Tactic.CrossRefAttribute
+
+@[expose] public section
+
+/-!
+# Compact Generation
+
+Compact generation is an existential wrapper around the generic compact-object
+and weak-generation owners.  The companion equivalences expose both an
+unbundled compact generating family and a family in the compact full
+subcategory.
+-/
+
+open CategoryTheory
+open CategoryTheory.Limits
+
+universe w v u
+
+namespace CategoryTheory
+
+section
+
+variable {D : Type u} [Category.{v} D] [HasZeroMorphisms D] [HasShift D ℤ]
+
+/-- A family generates if and only if its coproduct is a weak generator. -/
+theorem isWeakGenerator_coproduct_iff_isGeneratingFamily {I : Type w} (E : I → D)
+    [HasCoproduct E] :
+    IsWeakGenerator (∐ E) ↔ IsGeneratingFamily E := sorry
+
+end
+
+section
+
+variable (D : Type u) [Category.{v} D] [Preadditive D] [HasShift D ℤ]
+  [HasCoproducts.{max u v} D]
+
+/-- A category is compactly generated when it has a universe-sized family of compact objects
+whose coproduct is a weak generator. -/
+@[stacks 09SQ]
+def IsCompactlyGenerated : Prop :=
+  ∃ (I : Type (max u v)) (E : I → D),
+    (∀ i, IsCompactObject (E i)) ∧ IsWeakGenerator (∐ E)
+
+/-- Compact generation is equivalent to the existence of a compact generating family. -/
+theorem isCompactlyGenerated_iff_exists_compact_generatingFamily :
+    IsCompactlyGenerated D ↔
+      ∃ (I : Type (max u v)) (E : I → D),
+        (∀ i, IsCompactObject (E i)) ∧ IsGeneratingFamily E := sorry
+
+/-- Compact generation is equivalent to a generating family valued in the compact full
+subcategory. -/
+theorem isCompactlyGenerated_iff_exists_compactSubcategory_generatingFamily :
+    IsCompactlyGenerated D ↔
+      ∃ (I : Type (max u v)) (E : I → compactObjectSubcategory D),
+        IsGeneratingFamily (fun i ↦ (E i).obj) := sorry
+
+end
+
+end CategoryTheory

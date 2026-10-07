@@ -1,0 +1,14 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.ZariskiSite.SheafEquivalence
+import StacksCheckRecall
+
+universe u v
+
+/- Lemma 34.3.12: the category of sheaves on `S_{Zar}` is equivalent to the category of sheaves
+on the underlying topological space of `S`. -/
+@[stacks 020X] #check
+  (AlgebraicGeometry.Scheme.smallZariskiTypeSheafEquiv :
+    (S : AlgebraicGeometry.Scheme.{u}) →
+      CategoryTheory.Sheaf S.smallZariskiTopology (Type v) ≌
+        TopCat.Sheaf (Type v) (S.toPresheafedSpace : TopCat))

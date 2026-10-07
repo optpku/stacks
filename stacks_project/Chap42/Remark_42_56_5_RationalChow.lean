@@ -1,0 +1,15 @@
+module
+
+public import ReasLib.AlgebraicGeometry.ChowCohomology.Completion.Rational
+public import ReasLib.AlgebraicGeometry.ChowCohomology.ChernClass.ChernCharacter
+
+universe u
+
+open AlgebraicGeometry CategoryTheory
+
+/- The rational-completion compatibility module exposes the dependent product
+of rationalized nonnegative Chow-cohomology degrees. -/
+#check (ChowCohomology.Nonnegative.RationalCompletion :
+  ∀ {S X : Scheme.{u}} (δ : S → ℤ) (p : X ⟶ S)
+    [UniversallyCatenary S] [IsDimensionFunction δ] [LocallyOfFiniteType p],
+    Type (u + 1))

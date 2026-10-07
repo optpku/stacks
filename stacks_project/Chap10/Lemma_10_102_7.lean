@@ -1,0 +1,15 @@
+module
+
+public import ReasLib.Algebra.Homology.ChainComplex.FiniteFree.RegularQuotient
+import StacksCheckRecall
+
+/-!
+# Exactness modulo a nonzerodivisor
+
+@stack 00MZ
+-/
+
+/- Lemma 10.102.7: quotienting a bounded finite free complex by a regular
+maximal-ideal element preserves exactness from degree two onward. -/
+@[stacks 00MZ]
+#check @FiniteFreeComplex.exact_mod_nonzerodivisor_of_exact

@@ -1,0 +1,18 @@
+module
+
+public import ReasLib.Topology.Specialization.Dimension.Catenary
+import StacksCheckRecall
+
+@[expose] public section
+
+/-!
+# Lemma 5.20.4
+
+The reusable local-existence API is owned by
+`ReasLib.Topology.Specialization.Dimension.Catenary`.
+-/
+
+/- Lemma 5.20.4: every point of a locally Noetherian sober catenary space has an open
+neighbourhood whose induced topology admits a dimension function. -/
+@[stacks 02IC]
+#check @TopologicalSpace.CatenarySpace.exists_open_dimensionFunction

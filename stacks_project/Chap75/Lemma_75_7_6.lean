@@ -1,0 +1,24 @@
+module
+
+public import stacks_project.Chap75.Lemma_75_7_6_FiniteUnion
+import StacksCheckRecall
+
+@[expose] public section
+
+open CategoryTheory
+
+universe u v
+
+/- Lemma 75.7.6
+
+For a locally finite type morphism of algebraic spaces, a finite union of closed
+subsets proper over the base is proper over the base.
+-/
+@[stacks 0CZH] #check
+  (AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver.iSup :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Y : AlgebraicGeometry.AlgebraicSpace S}
+      (f : X ⟶ Y) [AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType f]
+      {ι : Type v} [Finite ι]
+      (T : ι → TopologicalSpace.Closeds (AlgebraicGeometry.AlgebraicSpace.Points X)),
+      (∀ i, AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f (T i)) →
+        AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f (iSup T))

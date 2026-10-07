@@ -1,0 +1,21 @@
+module
+
+public import Mathlib.RingTheory.DedekindDomain.Basic
+import StacksCheckRecall
+
+/-!
+# Principal ideal domains are Dedekind domains
+
+@stack 0AUQ
+-/
+
+@[expose] public section
+
+universe u
+
+variable (R : Type u) [CommRing R] [IsDomain R] [IsPrincipalIdealRing R]
+
+/- Lemma 10.120.15 (Stacks `0AUQ`): a principal ideal domain has Mathlib's canonical
+Dedekind-domain instance. -/
+@[stacks 0AUQ]
+#check (IsPrincipalIdealRing.isDedekindDomain R : IsDedekindDomain R)

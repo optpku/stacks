@@ -1,0 +1,64 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.LocallyConstant
+import StacksCheckRecall
+
+@[expose] public section
+
+open CategoryTheory
+open AlgebraicGeometry
+
+noncomputable section
+
+universe u v w
+
+/- Lemma 59.64.2 (1): inverse image preserves locally constant sheaves of sets. -/
+@[stacks 095A] #check (AlgebraicGeometry.Scheme.sheafPullback_isLocallyConstant_sets :
+  ∀ {X Y : Scheme.{u}} (f : X ⟶ Y)
+    [HasWeakSheafify X.smallEtaleTopology (Type v)]
+    [∀ U : X.Etale, HasWeakSheafify (X.smallEtaleTopology.over U) (Type v)]
+    [HasWeakSheafify Y.smallEtaleTopology (Type v)]
+    [∀ U : Y.Etale, HasWeakSheafify (Y.smallEtaleTopology.over U) (Type v)]
+    [∀ P : Y.Etaleᵒᵖ ⥤ Type v,
+      (Scheme.smallEtalePullback f).op.HasLeftKanExtension P]
+    (G : Sheaf Y.smallEtaleTopology (Type v)) [Sheaf.IsLocallyConstant G],
+    Sheaf.IsLocallyConstant
+      ((Functor.sheafPullbackConstruction.sheafPullback
+        (Scheme.smallEtalePullback f) (Type v)
+        Y.smallEtaleTopology X.smallEtaleTopology).obj G))
+
+/- Lemma 59.64.2 (2): inverse image preserves locally constant sheaves of abelian groups. -/
+@[stacks 095A] #check (AlgebraicGeometry.Scheme.sheafPullback_isLocallyConstant_addCommGrp :
+  ∀ {X Y : Scheme.{u}} (f : X ⟶ Y)
+    [HasWeakSheafify X.smallEtaleTopology AddCommGrpCat.{w}]
+    [∀ U : X.Etale,
+      HasWeakSheafify (X.smallEtaleTopology.over U) AddCommGrpCat.{w}]
+    [HasWeakSheafify Y.smallEtaleTopology AddCommGrpCat.{w}]
+    [∀ U : Y.Etale,
+      HasWeakSheafify (Y.smallEtaleTopology.over U) AddCommGrpCat.{w}]
+    [∀ P : Y.Etaleᵒᵖ ⥤ AddCommGrpCat.{w},
+      (Scheme.smallEtalePullback f).op.HasLeftKanExtension P]
+    (G : Sheaf Y.smallEtaleTopology AddCommGrpCat.{w})
+    [Sheaf.IsLocallyConstant G],
+    Sheaf.IsLocallyConstant
+      ((Functor.sheafPullbackConstruction.sheafPullback
+        (Scheme.smallEtalePullback f) AddCommGrpCat.{w}
+        Y.smallEtaleTopology X.smallEtaleTopology).obj G))
+
+/- Lemma 59.64.2 (3): inverse image preserves locally constant sheaves of `Λ`-modules. -/
+@[stacks 095A] #check (AlgebraicGeometry.Scheme.sheafPullback_isLocallyConstant_module :
+  ∀ {X Y : Scheme.{u}} {Λ : Type w} [Ring Λ] (f : X ⟶ Y)
+    [HasWeakSheafify X.smallEtaleTopology (ModuleCat.{w} Λ)]
+    [∀ U : X.Etale,
+      HasWeakSheafify (X.smallEtaleTopology.over U) (ModuleCat.{w} Λ)]
+    [HasWeakSheafify Y.smallEtaleTopology (ModuleCat.{w} Λ)]
+    [∀ U : Y.Etale,
+      HasWeakSheafify (Y.smallEtaleTopology.over U) (ModuleCat.{w} Λ)]
+    [∀ P : Y.Etaleᵒᵖ ⥤ ModuleCat.{w} Λ,
+      (Scheme.smallEtalePullback f).op.HasLeftKanExtension P]
+    (G : Sheaf Y.smallEtaleTopology (ModuleCat.{w} Λ))
+    [Sheaf.IsLocallyConstant G],
+    Sheaf.IsLocallyConstant
+      ((Functor.sheafPullbackConstruction.sheafPullback
+        (Scheme.smallEtalePullback f) (ModuleCat.{w} Λ)
+        Y.smallEtaleTopology X.smallEtaleTopology).obj G))

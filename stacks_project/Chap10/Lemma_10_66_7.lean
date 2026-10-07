@@ -1,0 +1,17 @@
+module
+
+public import ReasLib.RingTheory.Ideal.AssociatedPrime.Weak.ZeroDivisor
+import StacksCheckRecall
+
+/-!
+# Weakly associated primes and zero divisors
+
+@stack 05C3
+-/
+
+@[expose] public section
+
+/- Lemma 10.66.7: the union of the weakly associated primes of an `R`-module is
+the set of zero divisors on that module. -/
+@[stacks 05C3]
+#check @weaklyAssociatedPrimes.biUnion_eq_zero_divisors

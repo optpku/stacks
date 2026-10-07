@@ -1,0 +1,57 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Unramified.Characterization
+import StacksCheckRecall
+
+@[expose] public section
+
+open CategoryTheory CategoryTheory.Limits
+open TopCat.Sheaf.RelativeDifferentials.Stalk
+open scoped AlgebraicGeometry
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.Scheme.Hom
+
+/- Theorem 41.4.1: for a locally finite-type morphism to a locally Noetherian scheme,
+unramifiedness at a point is equivalent to vanishing of the relative-differential stalk, to an
+affine closed-immersion presentation whose defining-ideal differentials span, and to the
+diagonal being a local isomorphism at that point. -/
+@[stacks 024P] #check
+  (AlgebraicGeometry.Scheme.Hom.unramifiedAt_tfae_differentials_affinePresentation_diagonal :
+    ∀ {X Y : Scheme.{u}} (f : X ⟶ Y) [IsLocallyNoetherian Y] [LocallyOfFiniteType f]
+      (x : X),
+      List.TFAE
+        [ f.UnramifiedAt x
+        , IsZero (RingedSpace.stalkModuleCat (Ω[f.toShHom]) x)
+        , ∃ n : ℕ, ∃ V : Y.affineOpens, ∃ U : X.affineOpens, ∃ hxU : x ∈ (U : X.Opens),
+            ∃ e : (U : X.Opens) ≤ f ⁻¹ᵁ (V : Y.Opens),
+              ∃ i : (U : X.Opens).toScheme ⟶
+                  AffineSpace (ULift.{u} (Fin n)) (V : Y.Opens).toScheme,
+                IsClosedImmersion i ∧
+                  let π : AffineSpace (ULift.{u} (Fin n)) (V : Y.Opens).toScheme ⟶
+                      (V : Y.Opens).toScheme :=
+                    AffineSpace (ULift.{u} (Fin n)) (V : Y.Opens).toScheme ↘
+                      (V : Y.Opens).toScheme
+                  i ≫ π = f.resLE V U e ∧
+                  let p : AffineSpace (ULift.{u} (Fin n)) (V : Y.Opens).toScheme := i ⟨x, hxU⟩
+                  let I := RingedSpace.idealSheafStalkIdeal
+                    (RingedSpace.Hom.kernelIdealSubobject i.toShHom) p
+                  let d :
+                      ((AffineSpace (ULift.{u} (Fin n))
+                        (V : Y.Opens).toScheme).presheaf.stalk p) →
+                        RingedSpace.stalkModuleCat (Ω[π.toShHom]) p :=
+                    (derivation
+                      (RingedSpace.Hom.inverseImageStructureSheafHomComm π.toShHom) p).d
+                  Submodule.span
+                      ((AffineSpace (ULift.{u} (Fin n)) (V : Y.Opens).toScheme).presheaf.stalk p)
+                      (d '' (I : Set
+                        ((AffineSpace (ULift.{u} (Fin n))
+                          (V : Y.Opens).toScheme).presheaf.stalk p))) = ⊤
+        , x ∈ (@IsOpenImmersion : MorphismProperty Scheme.{u}).sourceLocus
+            (pullback.diagonal f)
+        ])
+
+end AlgebraicGeometry.Scheme.Hom

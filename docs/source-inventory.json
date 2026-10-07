@@ -1,0 +1,13 @@
+{
+  "method": "Lexical source scan; comments, strings and escaped identifiers skipped.",
+  "local_compilation_performed": false,
+  "counts": {
+    "ReasLib_lean_files": 18148,
+    "lean_files": 40428,
+    "files_with_explicit_sorry": 23139,
+    "explicit_sorry_occurrences": 143247,
+    "stacks_project_lean_files": 22255,
+    "M2FQualityAudits_lean_files": 23
+  },
+  "limitations": "No elaboration or transitive axiom analysis. Absence of explicit sorry is not proof certification."
+}

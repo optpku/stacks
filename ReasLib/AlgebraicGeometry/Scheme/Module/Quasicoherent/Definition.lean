@@ -1,0 +1,17 @@
+module
+
+public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Quasicoherent
+public import Mathlib.AlgebraicGeometry.Modules.Sheaf
+
+universe u
+
+@[expose] public section
+
+open AlgebraicGeometry
+
+namespace SheafOfModules
+
+/-- A scheme module is quasi-coherent when its underlying sheaf of modules is quasi-coherent. -/
+def isQuasicoherentModule {X : Scheme.{u}} (F : X.Modules) : Prop := F.IsQuasicoherent
+
+end SheafOfModules

@@ -1,0 +1,29 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Intersection.Whole.ProjectionFormula
+import StacksCheckRecall
+
+@[expose] public section
+
+open AlgebraicGeometry CategoryTheory
+open scoped AlgebraicGeometry
+
+universe u
+
+/- Lemma 33.45.11: let `k` be a field, let `f : Y ⟶ X` be a finite dominant morphism of proper
+varieties over `k`, and let `L` be an ample invertible `𝒪_X`-module. Then the degree of `Y` with
+respect to `f^*L` is the induced function-field degree of `f` times the degree of `X` with
+respect to `L`. -/
+@[stacks 0BEX] #check
+  (AlgebraicGeometry.Scheme.Modules.Intersection.wholeDegree_pullback_eq_inducedFunctionFieldDegree_mul :
+    ∀ {k : Type u} [Field k]
+      {X Y : SchemeOverField k} [ProperVariety X] [ProperVariety Y]
+      (f : Y ⟶ X) [IsFinite f.left] [IsDominant f.left]
+      {dX dY : ℕ}
+      (hXdim : topologicalKrullDim X.left = dX)
+      (hYdim : topologicalKrullDim Y.left = dY)
+      (L : X.left.Modules) [Scheme.Modules.Invertible L] [Scheme.Modules.IsAmple L],
+      Scheme.Modules.Intersection.wholeDegree k Y.hom
+          ((Scheme.Modules.pullback f.left).obj L) hYdim =
+        (f.left.inducedFunctionFieldDegree : ℚ) *
+          Scheme.Modules.Intersection.wholeDegree k X.hom L hXdim)

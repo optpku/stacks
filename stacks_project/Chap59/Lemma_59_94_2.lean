@@ -1,0 +1,53 @@
+module
+
+public import stacks_project.Chap59.Lemma_59_94_2_Cospecialization
+import Mathlib.Tactic.CrossRefAttribute
+
+@[expose] public section
+
+open CategoryTheory CategoryTheory.Limits CategoryTheory.Functor
+open AlgebraicGeometry AlgebraicGeometry.Scheme
+open AlgebraicGeometry.Scheme.Etale AlgebraicGeometry.Scheme.EtaleVanishingCycles
+open DerivedCategory.TStructure
+
+universe u
+
+noncomputable section
+
+namespace AlgebraicGeometry.Scheme
+
+variable {X S : Scheme.{u}} (f : X ⟶ S) (sbar : GeometricPoint S)
+variable (Rsh : Type u) [CommRing Rsh]
+variable [Algebra (S.presheaf.stalk sbar.image) Rsh]
+variable [IsStrictHenselizationOf (S.presheaf.stalk sbar.image) Rsh]
+variable (tbar : GeometricPoint (strictHenselizationScheme S sbar Rsh))
+variable (iS : Spec (.of sbar.K) ⟶ strictHenselizationScheme S sbar Rsh)
+variable (hiS : iS ≫ strictHenselizationMap S sbar Rsh = sbar.hom)
+variable [QuasiCompact f] [QuasiSeparated f]
+variable
+    [((smallEtalePullback (cospecializationH f sbar Rsh tbar)).sheafPushforwardContinuous
+        AddCommGrpCat.{u + 1} (henselizedFiber f sbar Rsh).smallEtaleTopology
+        (pullback (pullback.snd f (strictHenselizationMap S sbar Rsh))
+          tbar.hom).smallEtaleTopology).IsRightAdjoint]
+    [HasRightDerivedFunctor
+      (RightDerived.Cochain.toDerived
+        (directImage (cospecializationH f sbar Rsh tbar)))
+      (HomologicalComplex.quasiIso
+        (Coefficients
+          (pullback (pullback.snd f (strictHenselizationMap S sbar Rsh)) tbar.hom))
+        (ComplexShape.up ℤ))]
+
+/-- Lemma 59.94.2: in the §59.94 setup, if `f` is quasi-compact and quasi-separated,
+then the xymatrix with top horizontal `(Rf_* K)_sbar ⟶ RΓ(X_sbar, K)`, left vertical
+specialization `sp : (Rf_* K)_sbar ⟶ (Rf_* K)_tbar`, bottom horizontal
+`(Rf_* K)_tbar ⟶ RΓ(X_tbar, K)`, and right vertical
+`cosp : RΓ(X_tbar, K) ⟶ RΓ(X_sbar, K)` (pointing up) commutes in `D(Ab)`. -/
+@[stacks 0GJV]
+theorem etaleCohomologyCospecialization_commSq (K : Complexes X)
+    (hK : t.plus K) [LocallyAcyclicRelative f K] :
+    pushforwardStalkToGeometricFiberS f sbar Rsh iS hiS K =
+      derivedPushforwardSpecialization f sbar Rsh tbar K ≫
+        pushforwardStalkToGeometricFiberT f sbar Rsh tbar K ≫
+          cospecializationMap f sbar Rsh tbar iS hiS K hK := sorry
+
+end AlgebraicGeometry.Scheme

@@ -1,0 +1,23 @@
+module
+
+public import stacks_project.Chap80.Definition_80_3_1_RelativelyRepresentable
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace
+
+/-- Lemma 80.3.6: let `S` be a scheme contained in `Sch_fppf`. Let
+`F, G : (Over S)ᵒᵖ ⥤ Type u` be functors on `(Sch/S)_fppf`, and let
+`a : F ⟶ G` be representable by algebraic spaces. If `G` is an algebraic space,
+then so is `F`. -/
+@[stacks 02YS]
+theorem IsAlgebraicSpace.of_representableByAlgebraicSpaces {S : Scheme.{u}}
+    {F G : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G) [IsAlgebraicSpace G]
+    (ha : representableByAlgebraicSpaces a) : IsAlgebraicSpace F :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicSpace

@@ -1,0 +1,36 @@
+module
+
+public import ReasLib.RingTheory.LocalRing.DimensionOne.CommonFactor
+public import ReasLib.RingTheory.LocalRing.DimensionOne.PowerFactorization
+public import ReasLib.RingTheory.Localization.AtPrime.MaximalPatching
+
+/-!
+# Simultaneous power factorizations in one-dimensional local rings
+-/
+
+@[expose] public section
+
+universe u
+
+namespace IsLocalRing
+
+/-- A finite family of nonzerodivisors in a one-dimensional Noetherian local ring,
+not all units, becomes a family of unit multiples of powers of one nonzerodivisor in
+each maximal localization of a suitable finite injective extension whose additive
+quotient is annihilated by a power of the maximal ideal. -/
+theorem existsFiniteExtensionWithLocalPowerFactorizations
+    {A : Type u} [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
+    (hdim : ringKrullDim A = 1) {r : ℕ} (hr : 2 ≤ r) (a : Fin r → A)
+    (ha : ∀ i, a i ∈ nonZeroDivisors A) (ha_nonunit : ¬ ∀ i, IsUnit (a i)) :
+    ∃ (B : Type u) (_ : CommRing B) (_ : Algebra A B) (_ : Module.Finite A B)
+        (_ : Function.Injective (algebraMap A B))
+        (_ : Module.IsAnnihilatedByPower (IsLocalRing.maximalIdeal A)
+          (B ⧸ (Algebra.linearMap A B).range)),
+      ∀ (p : Ideal B) [p.IsMaximal],
+        ∃ π : Localization.AtPrime p,
+          π ∈ nonZeroDivisors (Localization.AtPrime p) ∧
+            ∀ i, ∃ (u : (Localization.AtPrime p)ˣ) (e : ℕ),
+              algebraMap B (Localization.AtPrime p) (algebraMap A B (a i)) =
+                (u : Localization.AtPrime p) * π ^ e := sorry
+
+end IsLocalRing

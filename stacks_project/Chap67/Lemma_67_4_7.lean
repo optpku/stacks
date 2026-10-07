@@ -1,0 +1,106 @@
+module
+
+public import Mathlib.AlgebraicGeometry.Morphisms.FiniteType
+public import Mathlib.AlgebraicGeometry.Morphisms.QuasiFinite
+public import Mathlib.AlgebraicGeometry.Morphisms.Separated
+public import Mathlib.CategoryTheory.MorphismProperty.Comma
+public import Mathlib.CategoryTheory.MorphismProperty.Limits
+public import Mathlib.CategoryTheory.MorphismProperty.Representable
+public import stacks_project.Chap65.Lemma_65_12_4_Immersion
+public import stacks_project.Chap67.Definition_67_4_2_Separation
+
+/-!
+# Sections of morphisms of algebraic spaces
+
+A section of a morphism of algebraic spaces over a scheme is representable,
+locally of finite type, locally quasi-finite, separated, and a monomorphism in
+the sense of Definition 65.5.1. If the morphism is locally separated then the
+section is an immersion; if it is separated then the section is a closed
+immersion; if it is quasi-separated then the section is quasi-compact.
+-/
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry Limits
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace
+
+/-- Lemma 67.4.7 (1): let `S` be a scheme, let `f : X ⟶ T` be a morphism of
+algebraic spaces over `S`, and let `s : T ⟶ X` be a section of `f`. Then `s`
+is representable. -/
+@[stacks 03KP]
+theorem relativelyRepresentable_section {S : Scheme.{u}} {X T : AlgebraicSpace S}
+    (f : X ⟶ T) (s : T ⟶ X) (hs : s ≫ f = 𝟙 T) :
+    yoneda.relativelyRepresentable s :=
+  sorry
+
+/-- Lemma 67.4.7 (2): let `S` be a scheme, let `f : X ⟶ T` be a morphism of
+algebraic spaces over `S`, and let `s : T ⟶ X` be a section of `f`. Then `s`
+is locally of finite type in the sense of Definition 65.5.1. -/
+@[stacks 03KP]
+theorem locallyOfFiniteType_section {S : Scheme.{u}} {X T : AlgebraicSpace S}
+    (f : X ⟶ T) (s : T ⟶ X) (hs : s ≫ f = 𝟙 T) :
+    (MorphismProperty.over (@AlgebraicGeometry.LocallyOfFiniteType :
+        MorphismProperty Scheme.{u})).presheaf s :=
+  sorry
+
+/-- Lemma 67.4.7 (3): let `S` be a scheme, let `f : X ⟶ T` be a morphism of
+algebraic spaces over `S`, and let `s : T ⟶ X` be a section of `f`. Then `s`
+is locally quasi-finite in the sense of Definition 65.5.1. -/
+@[stacks 03KP]
+theorem locallyQuasiFinite_section {S : Scheme.{u}} {X T : AlgebraicSpace S}
+    (f : X ⟶ T) (s : T ⟶ X) (hs : s ≫ f = 𝟙 T) :
+    (MorphismProperty.over (@AlgebraicGeometry.LocallyOfFiniteType ⊓
+      @AlgebraicGeometry.LocallyQuasiFinite : MorphismProperty Scheme.{u})).presheaf s :=
+  sorry
+
+/-- Lemma 67.4.7 (4): let `S` be a scheme, let `f : X ⟶ T` be a morphism of
+algebraic spaces over `S`, and let `s : T ⟶ X` be a section of `f`. Then `s`
+is separated in the sense of Definition 65.5.1. -/
+@[stacks 03KP]
+theorem isSeparated_section {S : Scheme.{u}} {X T : AlgebraicSpace S}
+    (f : X ⟶ T) (s : T ⟶ X) (hs : s ≫ f = 𝟙 T) :
+    (MorphismProperty.over (@AlgebraicGeometry.IsSeparated :
+        MorphismProperty Scheme.{u})).presheaf s :=
+  sorry
+
+/-- Lemma 67.4.7 (5): let `S` be a scheme, let `f : X ⟶ T` be a morphism of
+algebraic spaces over `S`, and let `s : T ⟶ X` be a section of `f`. Then `s`
+is a monomorphism in the sense of Definition 65.5.1. -/
+@[stacks 03KP]
+theorem monomorphisms_section {S : Scheme.{u}} {X T : AlgebraicSpace S}
+    (f : X ⟶ T) (s : T ⟶ X) (hs : s ≫ f = 𝟙 T) :
+    (MorphismProperty.over (MorphismProperty.monomorphisms Scheme.{u})).presheaf s :=
+  sorry
+
+/-- Lemma 67.4.7 (6): let `S` be a scheme, let `f : X ⟶ T` be a morphism of
+algebraic spaces over `S`, and let `s : T ⟶ X` be a section of `f`. If `f` is
+locally separated, then `s` is an immersion. -/
+@[stacks 03KP]
+theorem isImmersion_section {S : Scheme.{u}} {X T : AlgebraicSpace S}
+    (f : X ⟶ T) (s : T ⟶ X) (hs : s ≫ f = 𝟙 T) [LocallySeparated f] :
+    IsImmersion s :=
+  sorry
+
+/-- Lemma 67.4.7 (7): let `S` be a scheme, let `f : X ⟶ T` be a morphism of
+algebraic spaces over `S`, and let `s : T ⟶ X` be a section of `f`. If `f` is
+separated, then `s` is a closed immersion. -/
+@[stacks 03KP]
+theorem isClosedImmersion_section {S : Scheme.{u}} {X T : AlgebraicSpace S}
+    (f : X ⟶ T) (s : T ⟶ X) (hs : s ≫ f = 𝟙 T) [Separated f] :
+    IsClosedImmersion s :=
+  sorry
+
+/-- Lemma 67.4.7 (8): let `S` be a scheme, let `f : X ⟶ T` be a morphism of
+algebraic spaces over `S`, and let `s : T ⟶ X` be a section of `f`. If `f` is
+quasi-separated, then `s` is quasi-compact in the sense of Definition 65.5.1. -/
+@[stacks 03KP]
+theorem quasiCompact_section {S : Scheme.{u}} {X T : AlgebraicSpace S}
+    (f : X ⟶ T) (s : T ⟶ X) (hs : s ≫ f = 𝟙 T) [QuasiSeparated f] :
+    (MorphismProperty.over (@AlgebraicGeometry.QuasiCompact :
+        MorphismProperty Scheme.{u})).presheaf s :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicSpace

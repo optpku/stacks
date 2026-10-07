@@ -1,0 +1,12 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.PropertyA
+
+@[expose] public section
+
+open AlgebraicGeometry
+
+universe u
+
+/- The source-facing Property (A) notation is provided by the shared algebraic-geometric owner. -/
+#check (AlgebraicGeometry.hasPropertyA : ∀ {X Y : Scheme.{u}} (f : X ⟶ Y), Prop)

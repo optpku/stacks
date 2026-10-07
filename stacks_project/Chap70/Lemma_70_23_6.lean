@@ -1,0 +1,42 @@
+module
+
+public import stacks_project.Chap70.Lemma_70_23_6_Flat
+import StacksCheckRecall
+
+@[expose] public section
+
+open CategoryTheory Limits AlgebraicGeometry AlgebraicSpace
+
+universe u
+
+/- Lemma 70.23.6: in the Lemma 70.23.4 good-diagram setup, a flat finite-presentation
+morphism of algebraic spaces is eventually flat, and both later-stage squares and the
+limit square are cartesian base change from a fixed stage. -/
+@[stacks 0CPC] #check
+  (AlgebraicGeometry.AlgebraicSpace.FiniteTypeApproximationLimitSystem.exists_flatBaseChange :
+    ∀ {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
+      {S : Scheme.{u}} (D : OrderDual I ⥤ AlgebraicSpace S) (c : Cone D) (hc : IsLimit c)
+      [∀ j : I, IsNoetherian (D.obj j)]
+      [∀ {j j' : I} (hjj' : j ≤ j'), Affine (D.map (homOfLE hjj'))]
+      {i₀ : I}
+      {Xsys Ysys : Over (OrderDual.toDual i₀) ⥤ AlgebraicSpace S}
+      (xCone : Cone Xsys) (yCone : Cone Ysys)
+      (xToBase : Xsys ⟶ tailBaseDiagram D i₀)
+      (yToBase : Ysys ⟶ tailBaseDiagram D i₀)
+      (xToS : xCone.pt ⟶ c.pt) (yToS : yCone.pt ⟶ c.pt)
+      (xCone_toBase : ∀ j : Over (OrderDual.toDual i₀),
+        xCone.π.app j ≫ xToBase.app j = xToS ≫ c.π.app j.left)
+      (yCone_toBase : ∀ j : Over (OrderDual.toDual i₀),
+        yCone.π.app j ≫ yToBase.app j = yToS ≫ c.π.app j.left)
+      [QuasiSeparated xToS] [FiniteType xToS]
+      [QuasiSeparated yToS] [FiniteType yToS]
+      (Xapprox : FiniteTypeApproximationLimitSystem D c i₀ Xsys xCone xToS)
+      (Yapprox : FiniteTypeApproximationLimitSystem D c i₀ Ysys yCone yToS)
+      (φ : InverseSystemMorphismOverBase D i₀ Xsys Ysys xToBase yToBase)
+      (f : xCone.pt ⟶ yCone.pt) (hf_overS : f ≫ yToS = xToS)
+      (hf_limit : φ.IsLimitMorphism xCone yCone f)
+      (hflat : AlgebraicSpace.Flat f)
+      (hfp : AlgebraicSpace.FinitePresentation f),
+      ∃ (i₃ : I) (hi₀i₃ : i₀ ≤ i₃),
+        AlgebraicGeometry.AlgebraicSpace.InverseSystemMorphismOverBase.FlatBaseChangeAt
+          hi₀i₃ xCone yCone φ f)

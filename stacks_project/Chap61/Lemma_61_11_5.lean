@@ -1,0 +1,24 @@
+module
+
+public import ReasLib.RingTheory.Spectrum.Prime.ExtremallyDisconnected
+import StacksCheckRecall
+
+@[expose] public section
+
+universe u v
+
+namespace PrimeSpectrum
+
+/- Lemma 61.11.5: if `algebraMap A B` is quasi-finite and finitely presented, every
+residue field of `A` is separably algebraically closed, and `PrimeSpectrum A` is
+Hausdorff and extremally disconnected, then `PrimeSpectrum B` is extremally
+disconnected. -/
+@[stacks 0985] #check
+  (PrimeSpectrum.extremallyDisconnected_of_quasiFinite_finitePresentation :
+    ∀ {A : Type u} {B : Type v} [CommRing A] [CommRing B] [Algebra A B]
+      [Algebra.QuasiFinite A B] [Algebra.FinitePresentation A B]
+      [T2Space (PrimeSpectrum A)] [ExtremallyDisconnected (PrimeSpectrum A)]
+      (h_res : ∀ p : PrimeSpectrum A, IsSepClosed p.asIdeal.ResidueField),
+      ExtremallyDisconnected (PrimeSpectrum B))
+
+end PrimeSpectrum

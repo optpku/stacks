@@ -1,0 +1,31 @@
+# Lean and Lake build artifacts
+.lake/
+*.olean
+*.olean.*
+*.ilean
+*.ilean.*
+*.ir
+*.ir.*
+*.trace
+
+# Python and editor caches
+__pycache__/
+*.py[cod]
+.DS_Store
+.vscode/
+
+# Credentials and local runtime state
+.env
+.env.*
+auth.json
+api/
+.codex*/
+.claude/
+.m2f*/
+
+# Downloads, logs, and local scratch directories
+*.zip
+*.log
+*.out
+scratch/
+scratchpad/

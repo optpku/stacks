@@ -1,0 +1,92 @@
+module
+
+public import ReasLib.AlgebraicGeometry.BivariantClass.Composition
+
+@[expose] public section
+
+open CategoryTheory CategoryTheory.Limits
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.BivariantClass
+
+/-- Two bivariant classes commute when the cap families obtained by restricting them to
+their canonical common pullback and composing in the two orders agree. -/
+def Commute
+    {S : Scheme.{u}} [UniversallyCatenary S] (delta : S → ℤ) [IsDimensionFunction delta]
+    {X Z₁ Z₂ : Over S} [LocallyOfFiniteType X.hom]
+    [LocallyOfFiniteType Z₁.hom] [LocallyOfFiniteType Z₂.hom]
+    (f₁ : Z₁ ⟶ X) (f₂ : Z₂ ⟶ X)
+    [LocallyOfFiniteType f₁.left] [LocallyOfFiniteType f₂.left]
+    {p₁ p₂ : ℤ} (c₁ : BivariantClass delta f₁ p₁)
+    (c₂ : BivariantClass delta f₂ p₂) : Prop :=
+  let P : Over S := ComponentRestriction.baseChange f₁ f₂
+  -- Local instance justification (proof-local temporary data): the restricted composites require the canonical pullback to be locally of finite type over the base.
+  letI := ComponentRestriction.locallyOfFiniteTypeBaseChange f₁ f₂
+  let π₁ : P ⟶ Z₁ := ComponentRestriction.baseChangeToSource f₁ f₂
+  let π₂ : P ⟶ Z₂ := ComponentRestriction.baseChangeToTarget f₁ f₂
+  let square : IsPullback π₁.left π₂.left f₁.left f₂.left :=
+    ComponentRestriction.baseChange_isPullback f₁ f₂
+  let r₁ : BivariantClass delta π₂ p₁ := restrict delta π₁ π₂ f₂ square p₁ c₁
+  let r₂ : BivariantClass delta π₁ p₂ := restrict delta π₂ π₁ f₁ square.flip p₂ c₂
+  let d₁ : BivariantClass delta (π₂ ≫ f₂) (p₁ + p₂) := comp delta π₂ f₂ r₁ c₂
+  let d₂ : BivariantClass delta (π₁ ≫ f₁) (p₂ + p₁) := comp delta π₁ f₁ r₂ c₁
+  HEq
+    (d₁.cap : CapFamily delta (π₂ ≫ f₂) (p₁ + p₂))
+    (d₂.cap : CapFamily delta (π₁ ≫ f₁) (p₂ + p₁))
+
+namespace Commute
+
+/-- A commuting pair has equal complete cap families on its canonical common pullback. -/
+theorem cap_eq
+    {S : Scheme.{u}} [UniversallyCatenary S] (delta : S → ℤ) [IsDimensionFunction delta]
+    {X Z₁ Z₂ : Over S} [LocallyOfFiniteType X.hom]
+    [LocallyOfFiniteType Z₁.hom] [LocallyOfFiniteType Z₂.hom]
+    (f₁ : Z₁ ⟶ X) (f₂ : Z₂ ⟶ X)
+    [LocallyOfFiniteType f₁.left] [LocallyOfFiniteType f₂.left]
+    {p₁ p₂ : ℤ} (c₁ : BivariantClass delta f₁ p₁)
+    (c₂ : BivariantClass delta f₂ p₂) (h : Commute delta f₁ f₂ c₁ c₂) :
+    let P : Over S := ComponentRestriction.baseChange f₁ f₂
+    -- Local instance justification (proof-local temporary data): the restricted composites require the canonical pullback to be locally of finite type over the base.
+    letI := ComponentRestriction.locallyOfFiniteTypeBaseChange f₁ f₂
+    let π₁ : P ⟶ Z₁ := ComponentRestriction.baseChangeToSource f₁ f₂
+    let π₂ : P ⟶ Z₂ := ComponentRestriction.baseChangeToTarget f₁ f₂
+    let square : IsPullback π₁.left π₂.left f₁.left f₂.left :=
+      ComponentRestriction.baseChange_isPullback f₁ f₂
+    let r₁ : BivariantClass delta π₂ p₁ := restrict delta π₁ π₂ f₂ square p₁ c₁
+    let r₂ : BivariantClass delta π₁ p₂ := restrict delta π₂ π₁ f₁ square.flip p₂ c₂
+    let d₁ : BivariantClass delta (π₂ ≫ f₂) (p₁ + p₂) := comp delta π₂ f₂ r₁ c₂
+    let d₂ : BivariantClass delta (π₁ ≫ f₁) (p₂ + p₁) := comp delta π₁ f₁ r₂ c₁
+    HEq
+      (d₁.cap : CapFamily delta (π₂ ≫ f₂) (p₁ + p₂))
+      (d₂.cap : CapFamily delta (π₁ ≫ f₁) (p₂ + p₁)) := sorry
+
+end Commute
+
+/-- Commutation is equivalent to equality, with its canonical morphism and grading
+transport, of the two restricted composite bivariant classes. -/
+theorem commute_iff_comp
+    {S : Scheme.{u}} [UniversallyCatenary S] (delta : S → ℤ) [IsDimensionFunction delta]
+    {X Z₁ Z₂ : Over S} [LocallyOfFiniteType X.hom]
+    [LocallyOfFiniteType Z₁.hom] [LocallyOfFiniteType Z₂.hom]
+    (f₁ : Z₁ ⟶ X) (f₂ : Z₂ ⟶ X)
+    [LocallyOfFiniteType f₁.left] [LocallyOfFiniteType f₂.left]
+    {p₁ p₂ : ℤ} (c₁ : BivariantClass delta f₁ p₁)
+    (c₂ : BivariantClass delta f₂ p₂) :
+    Commute delta f₁ f₂ c₁ c₂ ↔
+      let P : Over S := ComponentRestriction.baseChange f₁ f₂
+      -- Local instance justification (proof-local temporary data): the restricted composites require the canonical pullback to be locally of finite type over the base.
+      letI := ComponentRestriction.locallyOfFiniteTypeBaseChange f₁ f₂
+      let π₁ : P ⟶ Z₁ := ComponentRestriction.baseChangeToSource f₁ f₂
+      let π₂ : P ⟶ Z₂ := ComponentRestriction.baseChangeToTarget f₁ f₂
+      let square : IsPullback π₁.left π₂.left f₁.left f₂.left :=
+        ComponentRestriction.baseChange_isPullback f₁ f₂
+      let r₁ : BivariantClass delta π₂ p₁ := restrict delta π₁ π₂ f₂ square p₁ c₁
+      let r₂ : BivariantClass delta π₁ p₂ := restrict delta π₂ π₁ f₁ square.flip p₂ c₂
+      let d₁ : BivariantClass delta (π₂ ≫ f₂) (p₁ + p₂) := comp delta π₂ f₂ r₁ c₂
+      let d₂ : BivariantClass delta (π₁ ≫ f₁) (p₂ + p₁) := comp delta π₁ f₁ r₂ c₁
+      HEq d₁ d₂ := sorry
+
+end AlgebraicGeometry.BivariantClass

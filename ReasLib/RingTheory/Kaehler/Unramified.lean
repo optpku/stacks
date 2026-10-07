@@ -1,0 +1,66 @@
+module
+
+public import Mathlib.RingTheory.Etale.Basic
+public import Mathlib.RingTheory.Unramified.Basic
+public import Mathlib.Tactic.CrossRefAttribute
+
+/-!
+# Kähler differentials under unramified source change
+
+This leaf records the atomic source-change consequences of the Kähler
+transitivity sequence when the source extension has trivial differentials.
+
+@stack 00S2
+@stack 00RT
+-/
+
+@[expose] public section
+
+open scoped TensorProduct
+
+universe u v w
+
+namespace KaehlerDifferential
+
+variable {R : Type u} {S : Type v} {T : Type w}
+variable [CommRing R] [CommRing S] [CommRing T]
+variable [Algebra R S] [Algebra R T] [Algebra S T] [IsScalarTower R S T]
+
+/-- Tag `00S2`: if the source Kähler differentials are subsingleton, then the
+terminal Kähler map in the transitivity sequence is injective.  The vanishing
+hypothesis is explicit so callers can supply a one-off argument without a
+temporary instance. -/
+@[stacks 00S2 "Kahler source-change injectivity"]
+theorem map_injective_of_subsingleton
+    (hΩ : Subsingleton Ω[S⁄R]) :
+    Function.Injective (map R S T T) := sorry
+
+/-- Tag `00S2`: if the source Kähler differentials are subsingleton, then the
+terminal Kähler map in the transitivity sequence is bijective. -/
+@[stacks 00S2 "Kahler source-change bijectivity"]
+theorem map_bijective_of_subsingleton
+    (hΩ : Subsingleton Ω[S⁄R]) :
+    Function.Bijective (map R S T T) := sorry
+
+/-- Tag `00S2`: a formally unramified source map makes the terminal Kähler
+map in the transitivity sequence bijective. -/
+@[stacks 00S2 "Kahler source-change bijectivity for formally unramified maps"]
+theorem map_bijective_of_formallyUnramified
+    [Algebra.FormallyUnramified R S] :
+    Function.Bijective (map R S T T) := sorry
+
+/-- Tag `00S2`: a formally etale source map makes the terminal Kähler map in
+the transitivity sequence bijective. -/
+@[stacks 00S2 "Kahler source-change bijectivity for formally etale maps"]
+theorem map_bijective_of_formallyEtale
+    [Algebra.FormallyEtale R S] :
+    Function.Bijective (map R S T T) := sorry
+
+/-- Lemma 10.131.8 (1), tag `00RT`: localizing the source algebra induces a
+bijective canonical map on Kähler differentials. -/
+@[stacks 00RT]
+theorem map_bijective_of_isLocalization_source
+    (M : Submonoid R) [IsLocalization M S] :
+    Function.Bijective (map R S T T) := sorry
+
+end KaehlerDifferential

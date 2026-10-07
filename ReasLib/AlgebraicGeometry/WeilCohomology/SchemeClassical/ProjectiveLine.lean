@@ -1,0 +1,56 @@
+module
+
+public import ReasLib.AlgebraicGeometry.WeilCohomology.SchemeClassical.Diagonal
+public import ReasLib.AlgebraicGeometry.WeilCohomology.SchemeClassical.Nontriviality
+public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Over
+
+@[expose] public section
+
+noncomputable section
+
+universe u v w x y z
+
+namespace WeilCohomology.SchemeClassicalTheory
+
+open AlgebraicGeometry CategoryTheory
+
+variable {k : Type u} [Field k]
+variable {F : Type v} [Field F] [CharZero F]
+variable {TateLine : Type w} [AddCommGroup TateLine] [Module F TateLine]
+variable {V : Type w} [Category.{z} V]
+variable {dimension : V → ℕ} {product : V → V → V}
+variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
+variable {point : V} {H : V → Type x} {CH : V → Type y}
+variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
+variable {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
+variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
+variable {cyclePullback : ∀ {X Y : V},
+  (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
+variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
+
+variable (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
+  H CH Hgrade CHgrade cyclePullback cyclePushforward)
+
+/-- The untwisted cohomology of a represented projective line has finrank one in degree zero. -/
+theorem projectiveLineCohomologyFinrankZero (X : V)
+    (eX : T.scheme.obj X ≅ ProjectiveSpace.schemeOver k 1) :
+    Module.finrank F (Hgrade X (0, 0)) = 1 := sorry
+
+/-- The untwisted cohomology of a represented projective line has finrank one in degree two. -/
+theorem projectiveLineCohomologyFinrankTwo (X : V)
+    (eX : T.scheme.obj X ≅ ProjectiveSpace.schemeOver k 1) :
+    Module.finrank F (Hgrade X (2, 0)) = 1 := sorry
+
+/-- The untwisted cohomology of a represented projective line vanishes outside degrees zero and two. -/
+theorem projectiveLineCohomologyEqBot (X : V)
+    (eX : T.scheme.obj X ≅ ProjectiveSpace.schemeOver k 1)
+    (i : ℤ) (hi0 : i ≠ 0) (hi2 : i ≠ 2) :
+    Hgrade X (i, 0) = ⊥ := sorry
+
+/-- The finrank of untwisted cohomology of a represented projective line is one in degrees zero and two and zero otherwise. -/
+theorem projectiveLineCohomologyFinrank (X : V)
+    (eX : T.scheme.obj X ≅ ProjectiveSpace.schemeOver k 1) (i : ℤ) :
+    Module.finrank F (Hgrade X (i, 0)) = if i = 0 ∨ i = 2 then 1 else 0 := sorry
+
+end WeilCohomology.SchemeClassicalTheory

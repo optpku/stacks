@@ -1,0 +1,50 @@
+module
+
+public import Mathlib.FieldTheory.IsAlgClosed.Basic
+public import Mathlib.Tactic.CrossRefAttribute
+public import Mathlib.Topology.JacobsonSpace
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.Basic
+public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve
+public import stacks_project.Chap111.Exercise_111_46_2_Coincidence
+public import stacks_project.Chap111.Exercise_111_46_4_NegTwist
+public import stacks_project.Chap111.Exercise_111_46_4_PointSum
+
+/-!
+# Closed points of the negative-twist section locus on `X^r`
+
+The closed-point characterisation of the locus of tuples whose point-sum
+negative twist of an invertible module has a nonzero global section.
+-/
+
+@[expose] public section
+
+open AlgebraicGeometry CategoryTheory
+open AlgebraicGeometry.SchemeOverField
+open AlgebraicGeometry.Scheme.Modules
+open CategoryTheory.MonoidalCategory
+open scoped AlgebraicGeometry
+
+universe u
+
+namespace AlgebraicGeometry.Curve
+
+/-- Exercise 111.46.5: let `k` be an algebraically closed field, let `X` be a
+smooth projective curve over `k`, and let `L` be an invertible `𝒪_X`-module.
+There is a natural closed subset `Z ⊂ X^r` whose closed points `(x 1, …, x r)`
+are exactly those for which `L(-x 1 - ⋯ - x r)` has a nonzero global section. -/
+@[stacks 0EGD]
+theorem exists_negTwistHasNonzeroSectionLocus
+    {k : Type u} [Field k] [IsAlgClosed k]
+    (X : SchemeOverField k) [Curve X] [Projective X.hom] [Smooth X.hom]
+    (L : X.left.Modules) [Invertible L] (r : ℕ) :
+    ∃ Z : (tensorPower X r).left.IdealSheafData,
+      ∀ {x : Fin r → X.left} (hx : ∀ i, x i ∈ closedPoints X.left)
+        {z : (tensorPower X r).left}
+        (hz : z ∈ closedPoints (tensorPower X r).left),
+        (∀ i, (coord X r i).left.base z = x i) →
+          (z ∈ Z.support ↔
+            ∃ s : (negTwist L (pointSumDivisor X x hx)).sections,
+              (negTwist L (pointSumDivisor X x hx)).unitHomEquiv.symm s ≠ 0) :=
+  sorry
+
+end AlgebraicGeometry.Curve

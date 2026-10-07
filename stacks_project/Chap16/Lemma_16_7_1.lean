@@ -1,0 +1,21 @@
+module
+
+import StacksCheckRecall
+public import ReasLib.RingTheory.Smooth.Resolution.PrincipalAnnihilator.Factorisation
+
+@[expose] public section
+
+/- Lemma 16.7.1 is the source-facing existence view of the reusable bundled
+principal-annihilator factorisation API. -/
+@[stacks 07CR]
+#check @Algebra.PrincipalAnnihilator.Factorisation.nonempty_of_exists
+
+#check @Algebra.PrincipalAnnihilator.Factorisation
+#check @AlgHom.Factorisation.Finite.BaseControl
+#check @Algebra.PrincipalAnnihilator.Factorisation.nonempty
+#check @Algebra.PrincipalAnnihilator.Factorisation.spec
+#check @Module.torsionStepAnnihilator
+#check @Module.self_mem_torsionStepAnnihilator
+#check @Module.IsTorsionStable
+#check @Submodule.TorsionStep
+#check @Algebra.PrincipalQuotient.map

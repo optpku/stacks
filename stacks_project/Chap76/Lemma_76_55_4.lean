@@ -1,0 +1,46 @@
+module
+
+public import stacks_project.Chap76.Lemma_76_55_4_SourceLocus
+
+/-!
+# Maximal open subspace where a morphism of algebraic spaces is at-worst-nodal
+
+For a flat, locally finitely presented morphism of algebraic spaces, there is a
+maximal open subspace of the source on which the restriction is at-worst-nodal
+of relative dimension 1, and formation of this open commutes with arbitrary
+base change.
+-/
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry AlgebraicSpace CategoryTheory.Limits
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace.AtWorstNodal
+
+/-- Lemma 76.55.4 (1): Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
+algebraic spaces over `S` which is flat and locally of finite presentation.
+Then there is a maximal open subspace `sourceLocus f ⊂ X` such that
+`(sourceLocus f).ι ≫ f` is at-worst-nodal of relative dimension 1. -/
+@[stacks 0DSH]
+theorem sourceLocus_isLargest {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) [Flat f] [LocallyOfFinitePresentation f] :
+    AtWorstNodal ((sourceLocus f).ι ≫ f) ∧
+      ∀ {U : AlgebraicSpace S} (i : U ⟶ X) [IsOpenImmersion i],
+        AtWorstNodal (i ≫ f) →
+          Set.range (Points.map i) ⊆ (sourceLocus f).pointsSet :=
+  sorry
+
+/-- Lemma 76.55.4 (2): Formation of the maximal open subspace on which `f` is
+at-worst-nodal of relative dimension 1 commutes with arbitrary cartesian base
+change. -/
+@[stacks 0DSH]
+theorem sourceLocus_eq_preimage_of_isPullback {S : Scheme.{u}}
+    {X Y X' Y' : AlgebraicSpace S} (g' : X' ⟶ X) (f' : X' ⟶ Y') (f : X ⟶ Y)
+    (g : Y' ⟶ Y) (hcart : IsPullback g' f' f g) [Flat f]
+    [LocallyOfFinitePresentation f] :
+    (sourceLocus f').pointsSet = Points.map g' ⁻¹' (sourceLocus f).pointsSet :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicSpace.AtWorstNodal

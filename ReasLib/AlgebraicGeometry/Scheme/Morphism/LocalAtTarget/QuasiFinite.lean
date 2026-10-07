@@ -1,0 +1,34 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.QuasiFinite.Operations
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.LocalAtTarget.LocallyOfFiniteType
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.LocalAtTarget.QuasiCompact
+
+@[expose] public section
+
+universe u
+
+open CategoryTheory
+
+namespace AlgebraicGeometry.Scheme.Hom.FiniteType
+
+/-- Finite-type local quasi-finiteness of scheme morphisms is local on the target for the
+fpqc precoverage. -/
+theorem locallyQuasiFinite_isLocalAtTargetFpqc :
+    MorphismProperty.IsLocalAtTarget
+      ((@AlgebraicGeometry.LocallyOfFiniteType ⊓ @AlgebraicGeometry.LocallyQuasiFinite) :
+        MorphismProperty AlgebraicGeometry.Scheme.{u})
+      AlgebraicGeometry.Scheme.fpqcPrecoverage := sorry
+
+end AlgebraicGeometry.Scheme.Hom.FiniteType
+
+namespace AlgebraicGeometry.Scheme.Hom.QuasiFinite
+
+/-- Quasi-finiteness of scheme morphisms is local on the target for the fpqc precoverage. -/
+theorem isLocalAtTargetFpqc :
+    MorphismProperty.IsLocalAtTarget
+      (@AlgebraicGeometry.Scheme.Hom.QuasiFinite :
+        MorphismProperty AlgebraicGeometry.Scheme.{u})
+      AlgebraicGeometry.Scheme.fpqcPrecoverage := sorry
+
+end AlgebraicGeometry.Scheme.Hom.QuasiFinite

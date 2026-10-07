@@ -1,0 +1,21 @@
+module
+
+public import ReasLib.RingTheory.DividedPowers.Envelope.Polynomial
+
+universe u
+
+/- The polynomial-envelope comparison is provided by the reusable divided-power envelope API. -/
+#check (DividedPowerEnvelope.polynomialExtensionIso :
+    ∀ {A B : Type u} [CommRing A] [CommRing B] [Algebra A B]
+      {I : Ideal A} {γ : DividedPowers I} {J : Ideal B}
+      (hIJ : Ideal.map (algebraMap A B) I ≤ J)
+      (E : DividedPowerEnvelope I γ (algebraMap A B) J hIJ)
+      (hE : DividedPowerEnvelope.IsUniversal γ (algebraMap A B) hIJ E)
+      (ι : Type u)
+      (Epoly : DividedPowerEnvelope I γ (algebraMap A (MvPolynomial ι B))
+        (DividedPowerEnvelope.polynomialIdeal J ι)
+        (DividedPowerEnvelope.map_le_polynomialIdeal hIJ ι))
+      (hEpoly : DividedPowerEnvelope.IsUniversal γ
+        (algebraMap A (MvPolynomial ι B))
+        (DividedPowerEnvelope.map_le_polynomialIdeal hIJ ι) Epoly),
+      Epoly.D ≅ DividedPowerEnvelope.adjoinVariables hIJ E ι)

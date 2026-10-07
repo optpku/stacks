@@ -1,0 +1,38 @@
+module
+
+public import stacks_project.Chap106.Definition_106_12_1_Moduli
+import StacksCheckRecall
+
+@[expose] public section
+
+open AlgebraicGeometry AlgebraicGeometry.AlgebraicStack CategoryTheory
+
+universe u
+
+variable {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+variable {Y : AlgebraicSpace S} (f : X ⟶ Y.toGroupoids)
+variable (C : ObjectProperty (AlgebraicSpace S))
+
+/- Definition 106.12.1 (1): a morphism `f : X ⟶ Y` from an algebraic stack to an
+algebraic space is a categorical moduli space if any morphism `X ⟶ W` to an
+algebraic space factors uniquely through `f`. -/
+@[stacks 0DUG] #check (IsCategoricalModuliSpace f : Prop)
+
+/- Definition 106.12.1 (2): a morphism `f : X ⟶ Y` from an algebraic stack to an
+algebraic space is a uniform categorical moduli space if for any flat morphism
+`Y' ⟶ Y` of algebraic spaces the base change `pullbackSnd f h : Y' ×_Y X ⟶ Y'`
+is a categorical moduli space. -/
+@[stacks 0DUG] #check (IsUniformCategoricalModuliSpace f : Prop)
+
+/- Definition 106.12.1 (3): a morphism `f : X ⟶ Y` from an algebraic stack to an
+algebraic space is a categorical moduli space in a full subcategory `C` of
+algebraic spaces if `Y` lies in `C` and any morphism `X ⟶ W` with `W` in `C`
+factors uniquely through `f`. -/
+@[stacks 0DUG] #check (IsCategoricalModuliSpaceIn C f : Prop)
+
+/- Definition 106.12.1 (4): a morphism `f : X ⟶ Y` from an algebraic stack to an
+algebraic space is a uniform categorical moduli space in a full subcategory `C`
+of algebraic spaces if `Y` lies in `C` and for every flat morphism `Y' ⟶ Y` in
+`C` the base change `pullbackSnd f h : Y' ×_Y X ⟶ Y'` is a categorical moduli
+space in `C`. -/
+@[stacks 0DUG] #check (IsUniformCategoricalModuliSpaceIn C f : Prop)

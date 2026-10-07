@@ -1,0 +1,18 @@
+module
+
+public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Polynomial
+import StacksCheckRecall
+
+@[expose] public section
+
+open AlgebraicGeometry CategoryTheory
+
+universe u
+
+variable (A : Type u) [CommRing A]
+
+/- Exercise 111.53.6: for a ring `A` and `S = A[X]` with `X` in degree `1`,
+`Proj(S)` is canonically isomorphic to `Spec(A)` as schemes over `A`. -/
+@[stacks 069W] #check
+  (AlgebraicGeometry.PolynomialProj.toSpec_isIso A :
+    IsIso (AlgebraicGeometry.PolynomialProj.toSpec A))

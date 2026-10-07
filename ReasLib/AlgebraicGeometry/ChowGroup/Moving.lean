@@ -1,0 +1,33 @@
+module
+
+public import ReasLib.AlgebraicGeometry.ChowGroup
+public import ReasLib.AlgebraicGeometry.AlgebraicCycle.ProperIntersection
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.DimensionFunction
+public import ReasLib.AlgebraicGeometry.Scheme.Regular
+public import ReasLib.AlgebraicGeometry.Scheme.Variety.Properties
+public import ReasLib.AlgebraicGeometry.Scheme.UniversallyCatenary.Affine
+public import ReasLib.RingTheory.Catenary.Field
+
+@[expose] public section
+
+universe u
+
+namespace AlgebraicGeometry.CycleGroup
+
+variable {k : Type u} [Field k] [IsAlgClosed k]
+
+/-- On a nonsingular projective variety, every cycle is rationally equivalent to one
+that intersects a given cycle properly. -/
+theorem existsRationallyEquivalentIntersectProperly
+    (X : SchemeOverField k) [ProjectiveVariety X] [Scheme.Regular X.left]
+    (r s : ℤ)
+    (α : CycleGroup X.left (X.hom.relativeDimensionFunction (fun _ ↦ 0)) r)
+    (β : CycleGroup X.left (X.hom.relativeDimensionFunction (fun _ ↦ 0)) s) :
+    ∃ α' : CycleGroup X.left (X.hom.relativeDimensionFunction (fun _ ↦ 0)) r,
+      RationalEquivalence.RationallyEquivalent
+          (X.hom.relativeDimensionFunction (fun _ ↦ 0)) r α' α ∧
+        AlgebraicCycle.IntersectProperly
+          (toAlgebraicCycle (X.hom.relativeDimensionFunction (fun _ ↦ 0)) r α')
+          (toAlgebraicCycle (X.hom.relativeDimensionFunction (fun _ ↦ 0)) s β) := sorry
+
+end AlgebraicGeometry.CycleGroup

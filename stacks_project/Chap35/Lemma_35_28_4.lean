@@ -1,0 +1,17 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.UniversallyOpen.Locality
+import StacksCheckRecall
+
+@[expose] public section
+
+universe u
+
+/- Lemma 35.28.4: universal openness of scheme morphisms is local on the source for the
+fppf precoverage. -/
+@[stacks 036Q] #check
+  (AlgebraicGeometry.UniversallyOpen.isLocalAtSourceFppf :
+    CategoryTheory.MorphismProperty.IsLocalAtSource
+      (@AlgebraicGeometry.UniversallyOpen :
+        CategoryTheory.MorphismProperty AlgebraicGeometry.Scheme.{u})
+      AlgebraicGeometry.Scheme.fppfPrecoverage)

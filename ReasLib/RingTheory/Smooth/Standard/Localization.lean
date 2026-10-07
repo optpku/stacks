@@ -1,0 +1,12 @@
+module
+
+public import ReasLib.RingTheory.Smooth.Standard.Localization.Fin
+public import ReasLib.RingTheory.Smooth.Standard.Localization.Selected
+
+/-!
+# Standard elements and principal localizations
+
+This is the stable aggregate for standard-element localization. Generic
+clients should import `Localization.Selected`; finite-coordinate clients should
+import `Localization.Fin`.
+-/

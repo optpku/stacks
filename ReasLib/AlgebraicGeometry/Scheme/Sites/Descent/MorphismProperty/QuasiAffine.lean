@@ -1,0 +1,19 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.QuasiAffine.Basic
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Descent.MorphismProperty
+
+@[expose] public section
+
+universe u
+
+namespace AlgebraicGeometry.QuasiAffineHom
+
+/-- Every scheme descent datum over an fpqc covering whose component structure morphisms
+are quasi-affine is effective. -/
+theorem satisfiesDescentFpqc :
+    CategoryTheory.MorphismProperty.SatisfiesDescent
+      (@AlgebraicGeometry.QuasiAffineHom :
+        CategoryTheory.MorphismProperty AlgebraicGeometry.Scheme.{u}) .fpqc := sorry
+
+end AlgebraicGeometry.QuasiAffineHom

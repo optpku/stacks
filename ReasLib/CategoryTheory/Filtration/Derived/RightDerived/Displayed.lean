@@ -1,0 +1,12 @@
+module
+
+public import ReasLib.CategoryTheory.Filtration.Derived.RightDerived.SpectralSequence.Realization.Displayed
+
+/-!
+# Compatibility import for displayed right-derived realizations
+
+The canonical owner now lives under `SpectralSequence.Realization.Displayed`, alongside the
+realization and realization-map API.  This module preserves the former import path.
+-/
+
+@[expose] public section

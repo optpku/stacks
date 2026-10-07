@@ -1,0 +1,14 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.RelativeProj.Degree.Functor
+public import ReasLib.AlgebraicGeometry.Scheme.RelativeProj.Degree.GradedPullback
+public import ReasLib.AlgebraicGeometry.Scheme.RelativeProj.Degree.Comparison
+public import ReasLib.AlgebraicGeometry.Scheme.RelativeProj.Degree.BaseChange
+
+/-!
+# Degreewise relative projective-spectrum functors
+
+Convenience import for the data and base-change API of degreewise relative
+projective-spectrum functors.
+-/
+@[expose] public section

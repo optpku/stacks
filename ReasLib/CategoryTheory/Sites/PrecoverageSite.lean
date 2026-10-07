@@ -1,0 +1,48 @@
+module
+
+public import Mathlib.CategoryTheory.Sites.Pretopology
+public import ReasLib.CategoryTheory.Sites.PrecoverageStability
+
+/-!
+# Site axioms for a precoverage
+
+A site precoverage contains singleton isomorphisms, is stable under composition
+of covering families, and admits covering pullback families. These axioms also
+provide the family-level factoring-pullback capability.
+-/
+
+@[expose] public section
+
+universe u v
+
+namespace CategoryTheory
+
+open Limits
+
+namespace Precoverage
+
+/-- A precoverage is a site when singleton isomorphisms cover, covering families
+are stable under bind, covering arrows admit pullbacks, and those pullback
+families cover. -/
+class IsSite {C : Type u} [Category.{v} C] (J : Precoverage C) : Prop extends
+    J.HasIsos, J.HasPullbacks, J.IsStableUnderBind, J.IsStableUnderPullbackArrows
+
+/-- A site precoverage has family-level factoring pullbacks. -/
+instance IsSite.hasFactoringPullbacks {C : Type u} [Category.{v} C]
+    (J : Precoverage C) [J.IsSite] : J.HasFactoringPullbacks :=
+  instHasFactoringPullbacks J
+
+/-- The four defining site axioms of a precoverage, exposed together. -/
+theorem IsSite.iff {C : Type u} [Category.{v} C] (J : Precoverage C) :
+    J.IsSite ↔
+      J.HasIsos ∧ J.HasPullbacks ∧ J.IsStableUnderBind ∧ J.IsStableUnderPullbackArrows :=
+  sorry
+
+end Precoverage
+
+/-- A Grothendieck pretopology is a site on its underlying precoverage. -/
+instance Pretopology.instIsSite {C : Type u} [Category.{v} C] [HasPullbacks C]
+    (P : Pretopology C) : P.toPrecoverage.IsSite :=
+  sorry
+
+end CategoryTheory

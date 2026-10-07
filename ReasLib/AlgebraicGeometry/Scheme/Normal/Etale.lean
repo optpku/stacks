@@ -1,0 +1,20 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Normal
+public import Mathlib.AlgebraicGeometry.Sites.Etale
+public import Mathlib.CategoryTheory.ObjectProperty.SiteLocal
+
+@[expose] public section
+
+universe u
+
+open CategoryTheory
+
+namespace AlgebraicGeometry.Scheme.isNormal
+
+/-- Normality of schemes is local for the étale precoverage. -/
+instance isLocalEtale :
+    ObjectProperty.IsLocal
+      (Scheme.isNormal : ObjectProperty Scheme.{u}) Scheme.etalePrecoverage := sorry
+
+end AlgebraicGeometry.Scheme.isNormal

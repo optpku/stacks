@@ -1,0 +1,12 @@
+module
+
+public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.ObjectProperty.Equivalence
+public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.ObjectProperty.Identity
+public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.ObjectProperty.Congruence
+public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.ObjectProperty.Projection
+
+/-!
+# Object-property transport for explicit two-fibre products
+
+This aggregate re-exports equivalence, identity, congruence, and projection transport APIs.
+-/

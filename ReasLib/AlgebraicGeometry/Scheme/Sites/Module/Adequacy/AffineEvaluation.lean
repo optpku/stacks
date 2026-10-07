@@ -1,0 +1,25 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Module.Adequacy
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Module.AffineEvaluation.Underlying
+
+@[expose] public section
+
+open CategoryTheory Opposite
+open AlgebraicGeometry
+
+universe u
+
+variable {S : Scheme.{u}} {τ : StandardTopology}
+
+/--
+An adequate module sheaf has an adequate affine-evaluation functor over every
+affine algebra over its base scheme.
+-/
+theorem SheafOfModules.IsAdequate.affineEvaluation
+    {ℱ : RingedSite.ModuleCat.{u} (StandardTopology.Big.ringedSite τ S)}
+    (hℱ : SheafOfModules.IsAdequate ModuleValuedFunctor.tensorExtensionUnderlying
+      SheafOfModules.affineEvaluationUnderlying ℱ)
+    (A : CommRingCat.{u}) (f : Scheme.Spec.obj (op A) ⟶ S) :
+    Adequate A (ModuleValuedFunctor.tensorExtensionUnderlying A)
+      (SheafOfModules.affineEvaluationUnderlying ℱ A f) := sorry

@@ -2,13 +2,13 @@
 
 English | [简体中文](README.zh-CN.md)
 
-We organize mathematics from the [Stacks Project](https://stacks.math.columbia.edu/)
-into a **reusable Lean 4 library**. Building on mathlib, we extract shared
+We formalize mathematics from the [Stacks Project](https://stacks.math.columbia.edu/)
+into a **reusable Lean 4 library**. Building on Mathlib, we extract shared
 mathematical definitions, constructions, and lemmas into `ReasLib`, while keeping
 chapter-specific statements and their source references in `stacks_project`.
 
 The core of this work is library organization: results that share mathematical
-infrastructure can use a common API, and further formalizations can import the
+infrastructure can use a common declaration, and further formalizations can import the
 relevant modules instead of rebuilding that infrastructure for each theorem.
 The library is under development, with proofs and mathematical interfaces still
 being completed and reviewed.

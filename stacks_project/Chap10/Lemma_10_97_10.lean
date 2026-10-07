@@ -1,0 +1,17 @@
+module
+
+public import ReasLib.RingTheory.AdicCompletion.Completeness.Quotient
+import StacksCheckRecall
+
+@[expose] public section
+
+/-!
+@stack 0DYC
+
+# Adic completeness from a complete quotient
+-/
+
+/- Lemma 10.97.10: if `A` is `I`-adically complete and `A ⧸ I` is complete for the
+adic topology defined by the image of `J`, then `A` is `J`-adically complete. -/
+@[stacks 0DYC]
+#check @IsAdicComplete.of_quotient

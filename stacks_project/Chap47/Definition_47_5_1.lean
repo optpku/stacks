@@ -1,0 +1,15 @@
+module
+
+public import ReasLib.Algebra.Module.Injective.Hull
+import StacksCheckRecall
+
+@[expose] public section
+
+universe u v w
+
+variable {R : Type u} [Ring R] {M : Type v} [AddCommGroup M] [Module R M]
+  {I : Type w} [AddCommGroup I] [Module R I] [Module.Injective R I]
+
+/- Definition 47.5.1: An injection `f : M →ₗ[R] I` is an injective hull if `I` is an
+injective `R`-module and the range of `f` is essential in `I`. -/
+@[stacks 08Y2] #check (LinearMap.IsInjectiveHull : (M →ₗ[R] I) → Prop)

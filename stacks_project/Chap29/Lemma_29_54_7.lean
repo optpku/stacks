@@ -1,0 +1,14 @@
+module
+
+import StacksCheckRecall
+import ReasLib.AlgebraicGeometry.Scheme.Normalization.FiniteComponents
+
+universe u
+
+/- Lemma 29.54.7: let `X` be a reduced scheme with finitely many irreducible components. Then
+the normalization morphism `X.normalizationTo` is birational. -/
+@[stacks 0BXC] #check
+  (AlgebraicGeometry.Scheme.Normalization.isBirational_of_isReduced_finiteComponents :
+    ∀ (X : AlgebraicGeometry.Scheme.{u}) [AlgebraicGeometry.IsReduced X]
+      [Finite (irreducibleComponents X)],
+      AlgebraicGeometry.IsBirational X.normalizationTo)

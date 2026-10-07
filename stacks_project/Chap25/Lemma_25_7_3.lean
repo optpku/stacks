@@ -1,0 +1,13 @@
+module
+
+public import ReasLib.CategoryTheory.Sites.Hypercovering.Refinement
+import StacksCheckRecall
+
+namespace CategoryTheory
+
+/- Lemma 25.7.3 [stacks 01GJ]: a covering map into degree `k` of a hypercovering can be factored
+through the degree-`k` map of a refining hypercovering. The topology-relative, fixed-target API
+is owned by `CategoryTheory.Hypercovering.Refinement.existsDegreeFactorization`. -/
+@[stacks 01GJ] #check @Hypercovering.Refinement.existsDegreeFactorization
+
+end CategoryTheory

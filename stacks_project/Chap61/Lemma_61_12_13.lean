@@ -1,0 +1,61 @@
+module
+
+import StacksCheckRecall
+public import stacks_project.Chap61.Lemma_61_12_13_Identity
+
+@[expose] public section
+
+open CategoryTheory
+open CategoryTheory.Limits
+open Opposite
+open AlgebraicGeometry
+open scoped MorphismOfTopoiIn
+
+noncomputable section
+
+universe u v
+
+namespace AlgebraicGeometry.ChosenBigProetaleSite
+
+variable (X : ChosenBigProetaleSite.{u, v}) (S : X.carrier)
+
+/- Lemma 61.12.13 (1): the identity-base relocalization functor defines a morphism
+of small-to-big pro-étale sites. -/
+@[stacks 098Q] #check
+  (SmallToBig.identity_isMorphismOfSites X S :
+    IsMorphismOfSites (smallTopology X S) (bigTopology X S)
+      (SmallToBig.relocalizationFunctor (𝟙 S)))
+
+/- Lemma 61.12.13 (2): the identity-base site morphism induces the morphism of
+topoi `π_S`. -/
+@[stacks 098Q] #check
+  (SmallToBig.siteMorphismOfTopoi.{u, v, max u v} X S :
+    MorphismOfTopoiIn.{max u v, max u v, v, v, max u v}
+      (smallTopology X S) (bigTopology X S))
+
+/- Lemma 61.12.13 (3): the site-induced morphism `π_S` composed with
+`i_S = i_{𝟙 S}` is the identity on the small pro-étale topos. -/
+@[stacks 098Q] #check
+  (SmallToBig.siteMorphismOfTopoi_comp_morphismOfTopoi_id.{u, v, max u v} X S :
+    MorphismOfTopoiIn.comp
+        (SmallToBig.siteMorphismOfTopoi.{u, v, max u v} X S)
+        (SmallToBig.morphismOfTopoi (𝟙 S)) =
+      MorphismOfTopoiIn.id (smallTopology X S))
+
+/- Lemma 61.12.13 (4): the inverse image `i_S⁻¹` equals the direct image
+`π_{S,*}`. -/
+@[stacks 098Q] #check
+  (SmallToBig.morphismOfTopoi_id_inverseImage_eq_siteMorphismOfTopoi_pushforward.{u, v, max u v} X S :
+    (SmallToBig.morphismOfTopoi (𝟙 S))⁻¹ =
+      (SmallToBig.siteMorphismOfTopoi.{u, v, max u v} X S).pushforward)
+
+/- Lemma 61.12.13 (5): the direct image `π_{S,*}` evaluates a big pro-étale sheaf
+on the relocalized small pro-étale object. -/
+@[stacks 098Q] #check
+  (SmallToBig.siteMorphismOfTopoi_pushforward_obj_obj.{u, v, max u v} X S :
+    ∀ (𝒢 : Sheaf (bigTopology X S) (Type (max u v))) (U : smallSite X S),
+      ((SmallToBig.siteMorphismOfTopoi.{u, v, max u v} X S).pushforward.obj 𝒢).1.obj
+          (op U) =
+        𝒢.1.obj (op ((SmallToBig.relocalizationFunctor (𝟙 S)).obj U)))
+
+end AlgebraicGeometry.ChosenBigProetaleSite

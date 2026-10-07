@@ -1,0 +1,15 @@
+module
+
+import StacksCheckRecall
+import ReasLib.AlgebraicGeometry.Correspondence.Graded.GraphFunctor
+
+open CategoryTheory
+
+universe u
+
+/- Lemma 45.3.4: The graph construction is a contravariant functor from smooth
+projective schemes over `k` to degree-zero rational Chow correspondences. -/
+@[stacks 0FG3] #check (@AlgebraicGeometry.Correspondence.Graded.graphFunctor :
+  (k : Type u) → [Field k] →
+    (AlgebraicGeometry.Correspondence.Graded.SchemeCategory k)ᵒᵖ ⥤
+      AlgebraicGeometry.Correspondence.Graded.DegreeZero (k := k))

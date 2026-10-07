@@ -1,0 +1,11 @@
+module
+
+public import Mathlib.Topology.Sheaves.AddCommGrpCat
+import StacksCheckRecall
+
+@[expose] public section
+
+/- Lemma 20.9.2: the degree-zero Čech comparison is bijective on every open cover exactly when
+the abelian presheaf satisfies the canonical unique-gluing sheaf condition. -/
+@[stacks 01EG "degree-zero Cech sheaf criterion"]
+#check @TopCat.Presheaf.isSheaf_iff_isSheafUniqueGluing

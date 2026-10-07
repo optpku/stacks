@@ -1,0 +1,19 @@
+module
+
+public import ReasLib.Algebra.Homology.DerivedCategory.LocalCohomology.Affine
+import StacksCheckRecall
+
+open AlgebraicGeometry
+open CategoryTheory
+open CategoryTheory.DerivedCategory
+open CategoryTheory.DerivedCategory.LocalCohomology
+
+universe u
+
+/- Lemma 51.2.1 -/
+@[stacks 0A6T] #check (CategoryTheory.DerivedCategory.LocalCohomology.affineComparison_isomorphic :
+  ∀ {A : CommRingCat.{u}} (I : Ideal A) (_ : I.FG),
+    ∀ (RΓ : (DerivedCategory (ModuleCat A) ⥤ IdealPowerTorsion I)),
+      (IdealPowerTorsion.inclusion I ⊣ RΓ) →
+        IsIsomorphic (RΓ ⋙ IdealPowerTorsion.inclusion I)
+          (AlgebraicGeometry.Scheme.DerivedQCoh.affineGlobalSectionsWithSupport I))

@@ -1,0 +1,14 @@
+module
+
+public import ReasLib.CategoryTheory.Fibered.LocallyInducedTwoFibreProduct.Functoriality.Map.Action
+public import ReasLib.CategoryTheory.Fibered.LocallyInducedTwoFibreProduct.Functoriality.Map.Construction
+public import ReasLib.CategoryTheory.Fibered.LocallyInducedTwoFibreProduct.Functoriality.Map.Functor
+public import ReasLib.CategoryTheory.Fibered.LocallyInducedTwoFibreProduct.Functoriality.Map.Naturality
+public import ReasLib.CategoryTheory.Fibered.LocallyInducedTwoFibreProduct.Functoriality.Map.Projections
+
+/-!
+# Maps of locally induced two-fibre products
+
+This aggregate collects construction, `2`-cell action, hom-functor, projection comparison, and
+naturality APIs for locally induced two-fibre-product maps.
+-/

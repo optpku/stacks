@@ -1,0 +1,35 @@
+module
+
+public import Mathlib.CategoryTheory.HomCongr
+
+/-!
+# Isomorphisms and transport of invertible morphisms
+
+This module records the categorical properties of `Iso.homCongr` that are
+independent of any additive or fibred structure.
+-/
+
+@[expose] public section
+
+universe u v
+
+namespace CategoryTheory.Iso
+
+variable {C : Type u} [Category.{v} C]
+
+/-- Transporting a morphism along isomorphisms at its source and target
+preserves and reflects invertibility. -/
+theorem isIso_homCongr_iff
+    {X Y X' Y' : C} (eX : X ≅ X') (eY : Y ≅ Y') (f : X ⟶ Y) :
+    IsIso (eX.homCongr eY f) ↔ IsIso f := by
+  constructor
+  · intro h
+    letI := h
+    rw [show f = eX.hom ≫ eX.homCongr eY f ≫ eY.inv by simp]
+    infer_instance
+  · intro h
+    letI := h
+    change IsIso (eX.inv ≫ f ≫ eY.hom)
+    infer_instance
+
+end CategoryTheory.Iso

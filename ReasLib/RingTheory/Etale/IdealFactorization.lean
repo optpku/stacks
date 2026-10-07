@@ -1,0 +1,29 @@
+module
+
+public import ReasLib.RingTheory.FittingIdeal.Etale
+public import Mathlib.RingTheory.Unramified.LocalStructure
+import Mathlib.Tactic.CrossRefAttribute
+
+@[expose] public section
+
+universe u v
+
+namespace Algebra.Etale
+
+/-- An ideal of finite type in an étale algebra, supported over the zero locus of a
+regular element, locally factors over every prime as the extension of an ideal of
+finite type from the base times another ideal of finite type. -/
+@[stacks 0813]
+theorem exists_away_factor
+    {A : Type u} {B : Type v} [CommRing A] [CommRing B] [Algebra A B] [Algebra.Etale A B]
+    (a : A) (h_regular : IsRegular a) (J : Ideal B) (hJ : J.FG)
+    (hV : PrimeSpectrum.zeroLocus (J : Set B) ⊆
+      PrimeSpectrum.zeroLocus ({algebraMap A B a} : Set B)) (q : PrimeSpectrum B) :
+    ∃ (I : Ideal A) (g : B) (J' : Ideal (Localization.Away g)),
+      I.FG ∧ PrimeSpectrum.zeroLocus (I : Set A) ⊆
+          PrimeSpectrum.zeroLocus ({a} : Set A) ∧
+        g ∉ q.asIdeal ∧ J'.FG ∧
+          Ideal.map (algebraMap A (Localization.Away g)) I =
+            Ideal.map (algebraMap B (Localization.Away g)) J * J' := sorry
+
+end Algebra.Etale

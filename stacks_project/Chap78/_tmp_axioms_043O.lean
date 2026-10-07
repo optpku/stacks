@@ -1,0 +1,15 @@
+module
+
+public import stacks_project.Chap78.Example_78_7_6_Constant_group_algebraic_space_Group
+public import stacks_project.Chap78.Example_78_7_6_Constant_group_algebraic_space_Points
+
+#print axioms AlgebraicGeometry.ConstantGroup.space
+#print axioms AlgebraicGeometry.ConstantGroup.tensorComparison
+#print axioms AlgebraicGeometry.ConstantGroup.ofOverPullbackHom
+#print axioms AlgebraicGeometry.ConstantGroup.ofOverPullback
+#print axioms AlgebraicGeometry.ConstantGroup.homMulEquiv
+#print axioms AlgebraicGeometry.ConstantGroup.ofOverSlice
+#print axioms AlgebraicGeometry.ConstantGroup.ofOverPoint
+#print axioms AlgebraicGeometry.ConstantGroup.ofOverIdPoint
+#print axioms AlgebraicGeometry.ConstantGroup.pointsFibreEquiv
+#print axioms AlgebraicGeometry.ConstantGroup.instGrpObjOfOver

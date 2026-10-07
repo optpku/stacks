@@ -1,0 +1,26 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Chow.Qcqs
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Graph
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.Constructors
+
+/-!
+# Projectivity of qcqs Chow modifications
+
+This file records the projectivity property of the morphism underlying a qcqs Chow modification.
+-/
+
+@[expose] public section
+
+open CategoryTheory
+open scoped AlgebraicGeometry
+
+universe u
+
+namespace AlgebraicGeometry.ChowLemmaQcqsModification
+
+/-- The morphism from a qcqs Chow modification to the original scheme is H-projective. -/
+theorem hProjective {X S : Scheme.{u}} {f : X ⟶ S} (M : ChowLemmaQcqsModification f) :
+    HProjective M.π := sorry
+
+end AlgebraicGeometry.ChowLemmaQcqsModification

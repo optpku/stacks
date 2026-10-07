@@ -1,0 +1,17 @@
+module
+
+public import ReasLib.RingTheory.Length.Localization
+import StacksCheckRecall
+
+@[expose] public section
+
+/-!
+# Length after localization
+
+@stack 00IZ
+
+Lemma 10.52.7 is the canonical localization-length inequality owned by ReasLib.
+-/
+
+@[stacks 00IZ]
+#check @length_localizedModule_le

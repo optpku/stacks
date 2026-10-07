@@ -1,0 +1,141 @@
+module
+
+public import ReasLib.CategoryTheory.Fibered.Cleavage.ReindexIso.Composition
+public import ReasLib.CategoryTheory.Fibered.Fiber.Isomorphism
+public import Mathlib.Tactic.CrossRefAttribute
+
+/-!
+# Comparing reindexing for different cleavages
+
+Any two strongly cartesian lifts of the same base arrow and codomain have canonically isomorphic
+domains. This leaf packages that uniqueness comparison in the standard fiber, proves its
+factorization and naturality interfaces, and assembles it into a natural isomorphism between the
+two reindexing functors.
+-/
+
+@[expose] public section
+
+universe vC vS uC uS
+
+namespace CategoryTheory
+
+open Functor
+
+variable {C : Type uC} [Category.{vC} C]
+variable {S : Type uS} [Category.{vS} S]
+
+namespace Functor.Cleavage
+
+variable {p : S ⥤ C}
+
+/-- The ambient canonical isomorphism between the reindexing objects selected by two cleavages.
+It is the domain comparison between their strongly cartesian arrows over the same base arrow. -/
+noncomputable def Reindex.uniqueAmbientIso
+    (chi₁ chi₂ : p.Cleavage) {U V : C} (f : V ⟶ U) (x : Fiber p U) :
+    (chi₁.reindexObj f x).1 ≅ (chi₂.reindexObj f x).1 :=
+  IsStronglyCartesian.DomainIso.ofBaseIso (g := Iso.refl V) p
+    (Category.id_comp f).symm
+    (chi₂.cartesianHom f x) (chi₁.cartesianHom f x)
+    (chi₂.reindexLift f x).isStronglyCartesian
+    (chi₁.reindexLift f x).isStronglyCartesian
+
+/-- The forward ambient comparison between two cleavage choices lies over the identity of the
+reindexing base object. -/
+theorem Reindex.uniqueAmbientIso.hom.isHomLift
+    (chi₁ chi₂ : p.Cleavage) {U V : C} (f : V ⟶ U) (x : Fiber p U) :
+    p.IsHomLift (𝟙 V) (Reindex.uniqueAmbientIso chi₁ chi₂ f x).hom := sorry
+
+/-- The inverse ambient comparison between two cleavage choices lies over the identity of the
+reindexing base object. -/
+theorem Reindex.uniqueAmbientIso.inv.isHomLift
+    (chi₁ chi₂ : p.Cleavage) {U V : C} (f : V ⟶ U) (x : Fiber p U) :
+    p.IsHomLift (𝟙 V) (Reindex.uniqueAmbientIso chi₁ chi₂ f x).inv := sorry
+
+/-- The canonical isomorphism in the standard fiber between the reindexing objects selected by
+two cleavages. Its maps are the unique vertical comparisons of their cartesian arrows. -/
+noncomputable def Reindex.uniqueIsoApp
+    (chi₁ chi₂ : p.Cleavage) {U V : C} (f : V ⟶ U) (x : Fiber p U) :
+    (chi₁.reindex f).obj x ≅ (chi₂.reindex f).obj x :=
+  Fiber.isoMk (Reindex.uniqueAmbientIso chi₁ chi₂ f x)
+    (Reindex.uniqueAmbientIso.hom.isHomLift chi₁ chi₂ f x)
+
+/-- The underlying total-category map of the forward choice comparison is the canonical ambient
+domain comparison. -/
+@[simp]
+theorem Reindex.uniqueIsoApp.hom.val
+    (chi₁ chi₂ : p.Cleavage) {U V : C} (f : V ⟶ U) (x : Fiber p U) :
+    (Reindex.uniqueIsoApp chi₁ chi₂ f x).hom.1 =
+      (Reindex.uniqueAmbientIso chi₁ chi₂ f x).hom := sorry
+
+/-- The underlying total-category map of the inverse choice comparison is the inverse canonical
+ambient domain comparison. -/
+@[simp]
+theorem Reindex.uniqueIsoApp.inv.val
+    (chi₁ chi₂ : p.Cleavage) {U V : C} (f : V ⟶ U) (x : Fiber p U) :
+    (Reindex.uniqueIsoApp chi₁ chi₂ f x).inv.1 =
+      (Reindex.uniqueAmbientIso chi₁ chi₂ f x).inv := sorry
+
+/-- The forward change-of-cleavage comparison identifies the second selected cartesian arrow
+with the first. -/
+@[reassoc]
+theorem Reindex.uniqueIsoApp.hom.fac
+    (chi₁ chi₂ : p.Cleavage) {U V : C} (f : V ⟶ U) (x : Fiber p U) :
+    (Reindex.uniqueIsoApp chi₁ chi₂ f x).hom.1 ≫
+        chi₂.cartesianHom f x =
+      chi₁.cartesianHom f x := sorry
+
+/-- The inverse change-of-cleavage comparison identifies the first selected cartesian arrow
+with the second. -/
+@[reassoc]
+theorem Reindex.uniqueIsoApp.inv.fac
+    (chi₁ chi₂ : p.Cleavage) {U V : C} (f : V ⟶ U) (x : Fiber p U) :
+    (Reindex.uniqueIsoApp chi₁ chi₂ f x).inv.1 ≫
+        chi₁.cartesianHom f x =
+      chi₂.cartesianHom f x := sorry
+
+/-- The forward canonical comparison between two cleavage choices is natural in the fiber
+object. -/
+theorem Reindex.uniqueIsoApp.hom.naturality
+    (chi₁ chi₂ : p.Cleavage) {U V : C} (f : V ⟶ U)
+    {x y : Fiber p U} (phi : x ⟶ y) :
+    (chi₁.reindex f).map phi ≫
+        (Reindex.uniqueIsoApp chi₁ chi₂ f y).hom =
+      (Reindex.uniqueIsoApp chi₁ chi₂ f x).hom ≫
+        (chi₂.reindex f).map phi := sorry
+
+/-- Naturality of the inverse canonical comparison between two cleavage choices. -/
+theorem Reindex.uniqueIsoApp.inv.naturality
+    (chi₁ chi₂ : p.Cleavage) {U V : C} (f : V ⟶ U)
+    {x y : Fiber p U} (phi : x ⟶ y) :
+    (chi₂.reindex f).map phi ≫
+        (Reindex.uniqueIsoApp chi₁ chi₂ f y).inv =
+      (Reindex.uniqueIsoApp chi₁ chi₂ f x).inv ≫
+        (chi₁.reindex f).map phi := sorry
+
+/-- Reindexing functors induced by two cleavages are canonically naturally isomorphic. -/
+@[stacks 02XN]
+noncomputable def Reindex.uniqueIso
+    (chi₁ chi₂ : p.Cleavage) {U V : C} (f : V ⟶ U) :
+    chi₁.reindex f ≅ chi₂.reindex f :=
+  NatIso.ofComponents (Reindex.uniqueIsoApp chi₁ chi₂ f)
+    (fun phi ↦ Reindex.uniqueIsoApp.hom.naturality chi₁ chi₂ f phi)
+
+/-- The forward component of the bundled change-of-cleavage comparison is the canonical
+objectwise comparison. -/
+@[simp]
+theorem Reindex.uniqueIso.hom.app
+    (chi₁ chi₂ : p.Cleavage) {U V : C} (f : V ⟶ U) (x : Fiber p U) :
+    (Reindex.uniqueIso chi₁ chi₂ f).hom.app x =
+      (Reindex.uniqueIsoApp chi₁ chi₂ f x).hom := sorry
+
+/-- The inverse component of the bundled change-of-cleavage comparison is the canonical
+objectwise inverse comparison. -/
+@[simp]
+theorem Reindex.uniqueIso.inv.app
+    (chi₁ chi₂ : p.Cleavage) {U V : C} (f : V ⟶ U) (x : Fiber p U) :
+    (Reindex.uniqueIso chi₁ chi₂ f).inv.app x =
+      (Reindex.uniqueIsoApp chi₁ chi₂ f x).inv := sorry
+
+end Functor.Cleavage
+
+end CategoryTheory

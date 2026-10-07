@@ -1,0 +1,23 @@
+module
+
+public import Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion
+public import ReasLib.RingTheory.Localization.Specializing
+
+@[expose] public section
+
+open AlgebraicGeometry Localization
+
+universe u
+
+namespace Localization.Specializing
+
+variable {A : Type u} [CommRing A]
+
+/-- The morphism from the specializing affine scheme to the basic locally
+closed subscheme is a closed immersion. -/
+noncomputable instance specMap_toAwayQuotient (f : A) (I : Ideal A) :
+    IsClosedImmersion
+      (Spec.map (CommRingCat.ofHom (toAwayQuotient f I))) :=
+  sorry
+
+end Localization.Specializing

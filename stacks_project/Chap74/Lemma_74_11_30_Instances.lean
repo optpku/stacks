@@ -1,0 +1,39 @@
+module
+
+public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
+public import Mathlib.CategoryTheory.MorphismProperty.Local
+public import stacks_project.Chap74.Lemma_74_11_6_Precoverage
+
+/-!
+# Monomorphisms are fpqc local on the target
+
+Monomorphisms of algebraic spaces over a scheme `S` satisfy `IsLocalAtTarget`
+for the fpqc precoverage.
+-/
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry AlgebraicSpace Limits
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace.Monomorphisms
+
+/-- Monomorphisms of algebraic spaces are local on the target for the fpqc
+precoverage. -/
+instance isLocalAtTargetFpqc {S : Scheme.{u}} :
+    MorphismProperty.IsLocalAtTarget
+      (MorphismProperty.monomorphisms (AlgebraicSpace S))
+      (fpqcPrecoverage S) :=
+  sorry
+
+/-- A morphism of algebraic spaces is a monomorphism if and only if every base
+change along a member of an fpqc covering of the target is a monomorphism. -/
+theorem iff_forall_pullbackSnd_fpqc {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) {R : Presieve Y} (hR : R ∈ (fpqcPrecoverage S).coverings Y) :
+    Mono f ↔
+      ∀ {U : AlgebraicSpace S} (g : U ⟶ Y) [HasPullback f g],
+        R g → Mono (pullback.snd f g) :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicSpace.Monomorphisms

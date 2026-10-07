@@ -1,0 +1,32 @@
+module
+
+import ReasLib.AlgebraicGeometry.Scheme.Module.ZeroScheme.TensorSplitting
+import StacksCheckRecall
+
+@[expose] public section
+
+open CategoryTheory CategoryTheory.MonoidalCategory
+open AlgebraicGeometry
+open scoped AlgebraicGeometry
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.Scheme
+
+/- Lemma 42.32.5: the zero scheme of a section of the tensor product of two
+invertible modules admits a finite-type flat relative-dimension-one splitting
+into two line bundles, with scheme-theoretic union and intersection properties,
+and the construction is compatible with arbitrary same-universe base change. -/
+@[stacks 0F97] #check (AlgebraicGeometry.Scheme.existsTensorSectionSplitting :
+  ∀ (Y : Scheme.{u}) (L₁ L₂ : Y.Modules)
+      [Modules.Invertible L₁] [Modules.Invertible L₂]
+      (s : (L₁ ⊗ L₂).sections),
+    ∃ C : TensorSectionSplitting L₁ L₂ s,
+      ∀ {Y' : Scheme.{u}} (g : Y' ⟶ Y),
+        ∃ C' : TensorSectionSplitting ((Modules.pullback g).obj L₁)
+          ((Modules.pullback g).obj L₂) (Modules.pullbackTensorSection g s),
+          Nonempty (C.BaseChange g C'))
+
+end AlgebraicGeometry.Scheme

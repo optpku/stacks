@@ -1,0 +1,28 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Blowup.Domination
+public import ReasLib.AlgebraicGeometry.Scheme.Blowup.IdealPrincipalization
+public import ReasLib.AlgebraicGeometry.Scheme.Blowup.UniversalProperty
+
+@[expose] public section
+
+open CategoryTheory TopologicalSpace
+open scoped AlgebraicGeometry
+
+universe u
+
+namespace AlgebraicGeometry.Scheme.Hom
+
+/-- A proper morphism to a Noetherian scheme that is an isomorphism away from finitely many
+regular closed points of local dimension two is dominated by a finite sequence of point blowups.
+-/
+theorem exists_pointBlowupSequence_lift {X Y : Scheme.{u}} [IsNoetherian X]
+    (T : Set X) (hT_finite : T.Finite) (hT_closed : T ⊆ closedPoints X)
+    (hT_regular : ∀ x, x ∈ T → IsRegularLocalRing (X.presheaf.stalk x))
+    (hT_dimension : ∀ x, x ∈ T → ringKrullDim (X.presheaf.stalk x) = 2)
+    (U : X.Opens) (hU : (U : Set X) = Tᶜ) (f : Y ⟶ X) [IsProper f]
+    [IsIso (f ∣_ U)] :
+    ∃ (Xn : Scheme.{u}) (s : Scheme.PointBlowupSequence X Xn) (g : Xn ⟶ Y),
+      s.EveryCenterOver T ∧ g ≫ f = s.toSource := sorry
+
+end AlgebraicGeometry.Scheme.Hom

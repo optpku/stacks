@@ -1,0 +1,29 @@
+module
+
+public import ReasLib.Algebra.Category.CommRingCat.Under.ModuleValuedFunctor.Tangent
+import StacksCheckRecall
+
+open CategoryTheory
+
+namespace ModuleValuedFunctor
+
+universe u
+
+variable {A : CommRingCat.{u}}
+
+/- The promoted tangent decomposition is available through the compatibility import. -/
+#check (tangentDecomposition :
+  ∀ (F : ModuleValuedFunctor.{u, u} A) (B : Under A)
+    (N : ModuleCat.{u} B.right), F.squareZeroValue B N ≅
+      F.obj B ⊞ F.tangentObj B N)
+
+/- The promoted tangent functor is available through the compatibility import. -/
+#check (tangent :
+  ∀ (F : ModuleValuedFunctor.{u, u} A), ModulePairFunctor A)
+
+/- The promoted tensor-to-tangent transformation is available through the compatibility import. -/
+#check (tensorToTangent :
+  ∀ (F : ModuleValuedFunctor.{u, u} A),
+    ModulePairFunctor.Hom F.tangentTensor F.tangent)
+
+end ModuleValuedFunctor

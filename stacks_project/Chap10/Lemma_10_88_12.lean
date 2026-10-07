@@ -1,0 +1,22 @@
+module
+
+import StacksCheckRecall
+public import ReasLib.RingTheory.Flatness.MittagLeffler.RestrictScalars
+
+@[expose] public section
+
+/-!
+Chapter 10, Lemma 10.88.12 is the quotient specialization of the reusable restriction-of-scalars
+criterion for Mittag-Leffler modules.
+
+@stack 05CR
+-/
+
+@[stacks 05CR]
+#check @Module.MittagLeffler.RestrictScalars.iff_quotient
+
+@[stacks 05CR "finite-presentation restriction criterion"]
+#check @Module.MittagLeffler.RestrictScalars.Surjective.iff_of_finitePresentation
+
+@[stacks 05CR "surjective restriction criterion"]
+#check @Module.MittagLeffler.RestrictScalars.iff_of_surjective

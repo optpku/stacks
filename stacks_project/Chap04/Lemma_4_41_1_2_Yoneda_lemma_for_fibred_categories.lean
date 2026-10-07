@@ -1,0 +1,21 @@
+module
+
+public import ReasLib.CategoryTheory.Fibered.YonedaEvaluation.Basic.Chosen
+import StacksCheckRecall
+
+@[expose] public section
+
+universe u v
+
+namespace CategoryTheory
+
+variable {C : Type u} [Category.{v} C]
+variable (X : FiberedCategoryOver C) (U : C)
+
+/- Lemma 4.41.1 (2-Yoneda lemma for fibred categories): the canonical neutral statement is
+`FiberedCategoryOver.YonedaSlice.evaluation.isEquivalence`. -/
+@[stacks 0GWI]
+#check (FiberedCategoryOver.YonedaSlice.evaluation.isEquivalence X U :
+  (FiberedCategoryOver.YonedaSlice.evaluation X U).IsEquivalence)
+
+end CategoryTheory

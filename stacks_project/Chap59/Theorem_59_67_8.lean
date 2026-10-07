@@ -1,0 +1,10 @@
+module
+
+public import ReasLib.Algebra.CentralSimple.BrauerGroup.Cr
+import StacksCheckRecall
+
+universe u
+
+/- Theorem 59.67.8: if `K` is a `C₁` field, every Brauer class over `K` is the neutral class. -/
+@[stacks 03RC] #check (BrauerGroup.eq_one_of_isCr : ∀ {K : Type u} [Field K]
+  (hC1 : Field.IsCr K 1) (A : Br(K)), A = 1)

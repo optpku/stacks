@@ -1,0 +1,97 @@
+module
+
+public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Abelian
+public import Mathlib.CategoryTheory.Subobject.Lattice
+public import stacks_project.Chap66.Definition_66_29_1_QCoh
+
+/-!
+# Quasi-coherent ideal sheaves on algebraic spaces
+
+An ideal sheaf on an algebraic space is a subobject of `𝒪_X` on the small étale
+site. Quasi-coherence is recorded as an ambient property of that subobject, so
+sums and intersections of quasi-coherent ideals remain quasi-coherent.
+-/
+
+@[expose]
+public section
+
+open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace
+
+/-- An ideal subobject of an algebraic space is a subobject of `𝒪_X`, viewed as a
+module over itself on the small étale site. -/
+abbrev IdealSubobject {S : Scheme.{u}} (X : AlgebraicSpace S) :=
+  Subobject (SheafOfModules.unit (structureSheaf X) : X.Modules)
+
+/-- The module sheaf represented by an ideal subobject. -/
+noncomputable abbrev IdealSubobject.toModule {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (I : IdealSubobject X) : X.Modules :=
+  Subobject.underlying.obj I
+
+/-- The module represented by an ideal subobject is the chosen underlying object of
+the subobject. -/
+theorem IdealSubobject.toModule_def {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (I : IdealSubobject X) :
+    I.toModule = Subobject.underlying.obj I :=
+  rfl
+
+/-- `toModule` recovers the coercion of an ideal subobject to an `𝒪_X`-module. -/
+theorem IdealSubobject.toModule_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (I : IdealSubobject X) :
+    I.toModule = (I : X.Modules) :=
+  rfl
+
+/-- Sheafification of abelian-group-valued presheaves on the small étale site of
+an algebraic space is left exact. -/
+instance smallEtaleTopology_hasSheafify_addCommGrp {S : Scheme.{u}}
+    (X : AlgebraicSpace S) :
+    HasSheafify (smallEtaleTopology X) AddCommGrpCat.{u} where
+  isRightAdjoint := inferInstance
+  isLeftExact := sorry
+
+/-- A quasi-coherent ideal sheaf on an algebraic space is a quasi-coherent
+`𝒪_X`-submodule of `𝒪_X`. -/
+@[mk_iff]
+class IsQuasiCoherent {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (I : IdealSubobject X) : Prop where
+  /-- The underlying module sheaf of `I` is quasi-coherent. -/
+  quasiCoherent : quasiCoherentModuleProperty X I.toModule
+
+namespace IsQuasiCoherent
+
+/-- The zero ideal sheaf on an algebraic space is quasi-coherent. -/
+instance bot {S : Scheme.{u}} {X : AlgebraicSpace S} :
+    IsQuasiCoherent (⊥ : IdealSubobject X) :=
+  sorry
+
+/-- The unit ideal sheaf on an algebraic space is quasi-coherent. -/
+instance top {S : Scheme.{u}} {X : AlgebraicSpace S} :
+    IsQuasiCoherent (⊤ : IdealSubobject X) :=
+  sorry
+
+/-- The intersection of quasi-coherent ideal sheaves is quasi-coherent. -/
+instance inf {S : Scheme.{u}} {X : AlgebraicSpace S} (I J : IdealSubobject X)
+    [IsQuasiCoherent I] [IsQuasiCoherent J] :
+    IsQuasiCoherent (I ⊓ J) :=
+  sorry
+
+/-- The sum of quasi-coherent ideal sheaves is quasi-coherent. -/
+instance sup {S : Scheme.{u}} {X : AlgebraicSpace S} (I J : IdealSubobject X)
+    [IsQuasiCoherent I] [IsQuasiCoherent J] :
+    IsQuasiCoherent (I ⊔ J) :=
+  sorry
+
+/-- Quasi-coherence of an ideal sheaf is quasi-coherence of its underlying
+`𝒪_X`-module. -/
+theorem spec {S : Scheme.{u}} {X : AlgebraicSpace S} (I : IdealSubobject X) :
+    IsQuasiCoherent I ↔ quasiCoherentModuleProperty X I.toModule :=
+  isQuasiCoherent_iff I
+
+end IsQuasiCoherent
+
+end AlgebraicGeometry.AlgebraicSpace

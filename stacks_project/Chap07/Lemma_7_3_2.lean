@@ -1,0 +1,18 @@
+module
+
+public import ReasLib.CategoryTheory.Presheaf.MonoEpi
+
+import StacksCheckRecall
+
+@[expose] public section
+
+/-!
+[stacks 00V7]
+
+Lemma 7.3.2 is the objectwise injective/surjective characterization of isomorphisms of
+set-valued presheaves.
+-/
+
+#check CategoryTheory.Presheaf.mono_iff_injective
+#check CategoryTheory.Presheaf.epi_iff_surjective
+@[stacks 00V7] #check CategoryTheory.Presheaf.isIso_iff_injective_and_surjective

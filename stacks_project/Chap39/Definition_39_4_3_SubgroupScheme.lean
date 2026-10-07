@@ -1,0 +1,13 @@
+module
+
+public import ReasLib.AlgebraicGeometry.GroupScheme.Subgroup
+
+universe u
+
+#check (AlgebraicGeometry.Scheme.ClosedSubgroup :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (G : CategoryTheory.Over S)
+    [CategoryTheory.GrpObj G], Type (u + 1))
+
+#check (AlgebraicGeometry.Scheme.OpenSubgroup :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (G : CategoryTheory.Over S)
+    [CategoryTheory.GrpObj G], Type (u + 1))

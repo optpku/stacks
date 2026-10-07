@@ -1,0 +1,21 @@
+module
+
+public import ReasLib.GroupTheory.Perm.DeletedIndex
+import StacksCheckRecall
+
+/-! @stack 01FH -/
+
+@[expose] public section
+
+/-
+Definition 20.23.1 (01FH): the alternating Čech differential reindexes a tuple after deleting
+one index.  The reusable owner is `Equiv.Perm.deleteAt`, together with its `succAbove` and sign
+compatibility laws.
+-/
+@[stacks 01FH "deleted-index permutation for the alternating Cech differential"]
+#check @Equiv.Perm.deleteAt
+
+#check @Equiv.Perm.deleteAt_comp_succAbove
+#check @Equiv.Perm.deleteAt_sign
+
+end

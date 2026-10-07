@@ -1,0 +1,15 @@
+module
+
+import Mathlib.AlgebraicGeometry.Morphisms.Etale
+import StacksCheckRecall
+
+open AlgebraicGeometry
+open CategoryTheory
+
+universe u
+
+/- Lemma 29.36.3: The composition of two morphisms which are étale is étale. -/
+@[stacks 02GN] #check
+  (AlgebraicGeometry.Etale.etale_comp :
+    ∀ {X Y : Scheme.{u}} (f : X ⟶ Y) {Z : Scheme.{u}} (g : Y ⟶ Z)
+      [Etale f] [Etale g], Etale (f ≫ g))

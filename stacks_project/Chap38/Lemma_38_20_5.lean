@@ -1,0 +1,28 @@
+module
+
+public import ReasLib.RingTheory.Flat.LocalAlgebra.Flattening.Finite
+import StacksCheckRecall
+
+@[expose] public section
+
+universe u v w x
+
+namespace LocalAlgCat.Flattening
+
+variable (A : Type u) (B C : Type v) (M : Type w) (N : Type x)
+variable [CommRing A] [IsLocalRing A]
+variable [CommRing B] [IsLocalRing B] [CommRing C] [IsLocalRing C]
+variable [Algebra A B] [Algebra A C] [Algebra B C] [IsScalarTower A B C]
+variable [IsLocalHom (algebraMap A B)] [IsLocalHom (algebraMap A C)]
+variable [IsLocalHom (algebraMap B C)] [Module.Finite B C]
+variable [AddCommGroup M] [Module B M]
+variable [AddCommGroup N] [Module C N] [Module B N] [IsScalarTower B C N]
+
+/- Lemma 38.20.5: if `B ⟶ C` is a finite local map of local `A`-algebras and
+`M ≃ₗ[B] N`, then the flattening functors associated to `(B, M)` and `(C, N)` are equal. -/
+@[stacks 05P4] #check
+  (LocalAlgCat.Flattening.functor_eq_of_linearEquiv A B C M N :
+    (M ≃ₗ[B] N) → LocalAlgCat.Flattening.functor A B M =
+      LocalAlgCat.Flattening.functor A C N)
+
+end LocalAlgCat.Flattening

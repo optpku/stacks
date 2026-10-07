@@ -1,0 +1,42 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.FieldExtension.Basic
+public import stacks_project.Chap72.Lemma_72_14_3_Geometrically
+
+/-!
+# Geometric connectedness after field extension
+
+Geometric connectedness of an algebraic space over a field is invariant under
+extension of the ground field.
+-/
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry CommRingCat
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace.GeometricallyConnected
+
+/-- Lemma 72.12.2: Let `X` be an algebraic space over the field `k`. Let `k'/k` be
+a field extension. Then `X` is geometrically connected over `k` if and only if
+the base change of `X` along `FieldExtension.specMap k k'` is geometrically
+connected over `k'`. -/
+@[stacks 0A10]
+theorem iff_fieldExtension {k : Type u} [Field k] {k' : Type u} [Field k']
+    [Algebra k k'] (X : AlgebraicSpace (Spec (of k))) :
+    GeometricallyConnected X ↔
+      GeometricallyConnected (baseChange (FieldExtension.specMap k k') X) :=
+  sorry
+
+/-- A geometrically connected algebraic space remains geometrically connected after
+base change along a field extension. -/
+instance instGeometricallyConnected_baseChange {k : Type u} [Field k] {k' : Type u}
+    [Field k'] [Algebra k k'] (X : AlgebraicSpace (Spec (of k)))
+    [GeometricallyConnected X] :
+    GeometricallyConnected (baseChange (FieldExtension.specMap k k') X) :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicSpace.GeometricallyConnected

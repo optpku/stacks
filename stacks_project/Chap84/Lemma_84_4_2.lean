@@ -1,0 +1,40 @@
+module
+
+public import Mathlib.RingTheory.Henselian
+public import stacks_project.Chap67.Definition_67_40_1_Proper
+public import stacks_project.Chap84.Lemma_84_4_2_Sections
+
+/-!
+# Lemma 84.4.2
+
+For a proper algebraic space over a henselian pair, restriction identifies
+global sections of any sheaf of sets on the small étale site with those of
+its inverse image on the special fibre.
+-/
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry CategoryTheory.Limits
+open scoped MorphismOfTopoiIn
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace
+
+/-- Lemma 84.4.2: if `(A, I)` is a henselian pair and `X` is an algebraic space
+over `Spec A` whose structure morphism is proper, then for the inclusion `i` of
+the special fibre `X ×_{Spec A} Spec(A / I)` into `X`, restriction identifies
+`Γ(X, F)` with `Γ(X₀, i⁻¹ F)` for every sheaf of sets `F` on `X_étale`. -/
+@[stacks 0DFY]
+theorem smallEtaleGlobalSections_bijective_of_properHenselianPair
+    {A : Type u} [CommRing A] (I : Ideal A) [HenselianRing A I]
+    {X : AlgebraicSpace (Spec (CommRingCat.of A))} [Proper (toBase X)]
+    (F : Sheaf (smallEtaleTopology X) (Type (u + 1))) :
+    Function.Bijective
+      (smallEtaleGlobalSectionsPullback
+        (pullback.fst (toBase X) (ofOverSpecQuotientι I)) F) :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicSpace

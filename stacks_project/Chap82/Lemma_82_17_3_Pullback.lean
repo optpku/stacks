@@ -1,0 +1,106 @@
+module
+
+public import stacks_project.Chap65.Lemma_65_7_3_Pullback
+public import stacks_project.Chap82.Lemma_82_17_3_Torsor
+
+/-!
+# Base change of the G_m-torsor of an invertible module
+
+Formation of `T = Spec_X(⨁_n L^{⊗ n})` and of the tautological trivialization
+`α : q^* L ≅ 𝒪_T` commutes with arbitrary base change on algebraic spaces.
+-/
+
+@[expose] public section
+
+open CategoryTheory CategoryTheory.Limits CategoryTheory.MonoidalCategory
+open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
+open AlgebraicGeometry.AlgebraicSpace.Modules
+open Opposite
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace.Modules
+
+variable {S : Scheme.{u}} {X : AlgebraicSpace S}
+
+/-- The comparison morphism `Spec_Y(⨁_n (g^* L)^{⊗ n}) ⟶ Spec_X(⨁_n L^{⊗ n})`
+induced by a morphism `g : Y ⟶ X`. -/
+noncomputable def gmTorsorMap {Y : AlgebraicSpace S} (g : Y ⟶ X)
+    (L : X.Modules) [isInvertibleObject L] :
+    gmTorsor ((pullback g).obj L) ⟶ gmTorsor L where
+  app T :=
+    TypeCat.ofHom fun
+      p : relativeSpectrumPair (invertibleLaurentAlgebra ((pullback g).obj L))
+          T.unop =>
+      relativeSpectrumPairMk (yonedaEquiv.symm p.1 ≫ g)
+        (invertibleLaurentToRelativeSpectrumTarget
+          (yonedaEquiv.symm p.1 ≫ g) L)
+  naturality := fun _ _ _ => sorry
+
+/-- The structure morphisms identify `gmTorsorMap` with base change of `q`. -/
+theorem gmTorsorMap_comp_π {Y : AlgebraicSpace S} (g : Y ⟶ X)
+    (L : X.Modules) [isInvertibleObject L] :
+    gmTorsorπ ((pullback g).obj L) ≫ g =
+      gmTorsorMap g L ≫ gmTorsorπ L :=
+  sorry
+
+/-- The mediating morphism of the base-change square for `q`. -/
+noncomputable def gmTorsorPullbackIso_hom {Y : AlgebraicSpace S} (g : Y ⟶ X)
+    (L : X.Modules) [isInvertibleObject L] :
+    gmTorsor ((pullback g).obj L) ⟶ Limits.pullback g (gmTorsorπ L) :=
+  Limits.pullback.lift (gmTorsorπ ((pullback g).obj L)) (gmTorsorMap g L)
+    (gmTorsorMap_comp_π g L)
+
+/-- The reverse comparison of the base-change square for `q`. -/
+noncomputable def gmTorsorPullbackIso_inv {Y : AlgebraicSpace S} (g : Y ⟶ X)
+    (L : X.Modules) [isInvertibleObject L] :
+    Limits.pullback g (gmTorsorπ L) ⟶ gmTorsor ((pullback g).obj L) where
+  app T :=
+    TypeCat.ofHom fun z =>
+      relativeSpectrumPairMk
+        (yonedaEquiv.symm ((Limits.pullback.fst g (gmTorsorπ L)).app T z))
+        (invertibleLaurentToRelativeSpectrumTarget
+          (yonedaEquiv.symm ((Limits.pullback.fst g (gmTorsorπ L)).app T z))
+          ((pullback g).obj L))
+  naturality := fun _ _ _ => sorry
+
+/-- Formation of `q : T ⟶ X` commutes with base change along `g : Y ⟶ X`. -/
+noncomputable def gmTorsorPullbackIso {Y : AlgebraicSpace S} (g : Y ⟶ X)
+    (L : X.Modules) [isInvertibleObject L] :
+    gmTorsor ((pullback g).obj L) ≅ Limits.pullback g (gmTorsorπ L) where
+  hom := gmTorsorPullbackIso_hom g L
+  inv := gmTorsorPullbackIso_inv g L
+  hom_inv_id := sorry
+  inv_hom_id := sorry
+
+/-- The base-change isomorphism identifies the structure morphism of `g^* L`
+with the first projection. -/
+theorem gmTorsorPullbackIso_hom_fst {Y : AlgebraicSpace S} (g : Y ⟶ X)
+    (L : X.Modules) [isInvertibleObject L] :
+    (gmTorsorPullbackIso g L).hom ≫ Limits.pullback.fst g (gmTorsorπ L) =
+      gmTorsorπ ((pullback g).obj L) :=
+  sorry
+
+/-- The base-change isomorphism identifies `gmTorsorMap` with the second
+projection. -/
+theorem gmTorsorPullbackIso_hom_snd {Y : AlgebraicSpace S} (g : Y ⟶ X)
+    (L : X.Modules) [isInvertibleObject L] :
+    (gmTorsorPullbackIso g L).hom ≫ Limits.pullback.snd g (gmTorsorπ L) =
+      gmTorsorMap g L :=
+  sorry
+
+/-- Base change of the tautological trivialization `α` is compatible with
+`gmTorsorMap`. Both sides are morphisms into `𝒪_T`. -/
+theorem gmTorsorTriv_pullback {Y : AlgebraicSpace S} (g : Y ⟶ X)
+    (L : X.Modules) [isInvertibleObject L] :
+    (gmTorsorTriv ((pullback g).obj L)).hom =
+      (pullbackComp (gmTorsorπ ((pullback g).obj L)) g).hom.app L ≫
+        eqToHom (congrArg (fun f ↦ (pullback f).obj L) (gmTorsorMap_comp_π g L)) ≫
+        (pullbackComp (gmTorsorMap g L) (gmTorsorπ L)).inv.app L ≫
+        (pullback (gmTorsorMap g L)).map (gmTorsorTriv L).hom ≫
+        (pullbackMonoidalUnitIso (gmTorsorMap g L)).hom :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicSpace.Modules

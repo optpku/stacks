@@ -1,0 +1,4 @@
+module
+
+public import ReasLib.CategoryTheory.Functor.OfSequence.InitialThenMapThenIdentityTail.Basic
+public import ReasLib.CategoryTheory.Functor.OfSequence.InitialThenMapThenIdentityTail.Map

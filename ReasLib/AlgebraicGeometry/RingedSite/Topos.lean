@@ -1,0 +1,93 @@
+module
+
+public import ReasLib.AlgebraicGeometry.RingedSite.Basic
+public import Mathlib.Tactic.CrossRefAttribute
+
+/-!
+# Underlying topoi of ringed-site morphisms
+
+This module exposes the site-presented morphism of topoi underlying a morphism of ringed sites.
+The separate `Topos/TwoMorphism` leaf contains the corresponding structure-sheaf `2`-cell API.
+-/
+
+@[expose] public section
+
+open CategoryTheory
+open CategoryTheory.Limits
+open scoped MorphismOfTopoiIn
+
+noncomputable section
+
+universe uX vX uY vY w t
+
+namespace RingedSite.Hom
+
+variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
+
+section PresentedTopos
+
+variable [UnivLE.{max uX vX, t}] [UnivLE.{max uY vX, t}]
+
+/-- The morphism of topoi presented by a morphism of ringed sites. -/
+@[stacks 01D3 "(2)"]
+noncomputable abbrev toMorphismOfTopoi (f : X.Hom Y)
+    [PreservesFiniteLimits
+      (f.base.sheafPullback (Type t) Y.siteTopology X.siteTopology)] :
+    MorphismOfTopoiIn Y.siteTopology X.siteTopology :=
+  Functor.morphismOfTopoiInOfContinuous.{t} f.base
+    Y.siteTopology X.siteTopology
+
+/-- The direct image of the topos morphism underlying a ringed-site morphism is the continuous
+sheaf pushforward along its base functor. -/
+@[simp] theorem toMorphismOfTopoi_pushforward
+    (f : X.Hom Y)
+    [PreservesFiniteLimits
+      (f.base.sheafPullback (Type t) Y.siteTopology X.siteTopology)] :
+    (f.toMorphismOfTopoi).pushforward =
+      f.base.sheafPushforwardContinuous (Type t) Y.siteTopology X.siteTopology := sorry
+
+/-- The inverse image of the topos morphism underlying a ringed-site morphism is the sheaf
+pullback along its base functor. -/
+@[simp] theorem toMorphismOfTopoi_inverseImage
+    (f : X.Hom Y)
+    [PreservesFiniteLimits
+      (f.base.sheafPullback (Type t) Y.siteTopology X.siteTopology)] :
+    (f.toMorphismOfTopoi).inverseImage =
+      f.base.sheafPullback (Type t) Y.siteTopology X.siteTopology := sorry
+
+end PresentedTopos
+
+/-- A ringed-site morphism is an equivalence when its inverse image on underlying topoi and its
+structure-sheaf map are both invertible.  The inverse image is tested in the canonical universe
+large enough for both site presentations, so this property has no ambiguous universe parameter. -/
+@[stacks 03CR "ringed equivalence criterion"]
+class IsRingedEquivalence (f : X.Hom Y) : Prop where
+  /-- The inverse-image functor of the underlying morphism of topoi is an equivalence. -/
+  inverseImage_isEquivalence :
+    Functor.IsEquivalence
+      (f.base.sheafPullback (Type (max uX vX uY vY))
+        Y.siteTopology X.siteTopology)
+  /-- The structure-sheaf map is an isomorphism. -/
+  structureSheafMap_isIso : IsIso f.structureSheafMap
+
+attribute [instance] IsRingedEquivalence.inverseImage_isEquivalence
+attribute [instance] IsRingedEquivalence.structureSheafMap_isIso
+
+section PresentedTopos
+
+variable [UnivLE.{max uX vX, t}] [UnivLE.{max uY vX, t}]
+
+/-- A ringed equivalence induces an equivalence on the inverse-image functor of its underlying
+morphism of topoi. -/
+theorem toMorphismOfTopoi_inverseImage_isEquivalence
+    (f : X.Hom Y)
+    [PreservesFiniteLimits
+      (f.base.sheafPullback (Type t) Y.siteTopology X.siteTopology)]
+    [f.IsRingedEquivalence] :
+    Functor.IsEquivalence (f.toMorphismOfTopoi).inverseImage := sorry
+
+attribute [instance] toMorphismOfTopoi_inverseImage_isEquivalence
+
+end PresentedTopos
+
+end RingedSite.Hom

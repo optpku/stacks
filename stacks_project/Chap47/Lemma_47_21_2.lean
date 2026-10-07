@@ -1,0 +1,13 @@
+module
+
+import ReasLib.RingTheory.Gorenstein.CohenMacaulay
+import StacksCheckRecall
+
+@[expose] public section
+
+universe u
+
+/- Lemma 47.21.2: A Gorenstein ring is Cohen-Macaulay. -/
+@[stacks 0DW8] #check
+  (IsGorensteinRing.instCohenMacaulayRing :
+    ∀ (R : Type u) [CommRing R] [IsGorensteinRing R], CohenMacaulayRing R)

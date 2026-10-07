@@ -1,0 +1,30 @@
+module
+
+import ReasLib.AlgebraicGeometry.Scheme.Module.CompleteDevissage.BaseChange
+import StacksCheckRecall
+
+universe u
+
+open AlgebraicGeometry CategoryTheory
+open scoped AlgebraicGeometry
+
+/- Lemma 38.5.3: an affine pointed base change carries a complete dévissage to the
+complete dévissage whose stages, modules, comparison maps, and transitions are the canonical
+base changes of the original data. -/
+@[stacks 05HJ] #check
+  (AlgebraicGeometry.Scheme.Modules.CompleteDevissageOver.baseChangeCanonical :
+    {S S' X : Scheme.{u}} → {f : X ⟶ S} → {F : X.Modules} → {s : S} →
+      [h_f : LocallyOfFiniteType f] → [h_Fqc : F.IsQuasicoherent] →
+        [h_Fft : F.IsFiniteType] → (D : Scheme.Modules.CompleteDevissageOver f F s) →
+          (g : S' ⟶ S) → (s' : S') → g s' = s → [IsAffine S'] →
+            @Scheme.Modules.CompleteDevissageOver S'
+              ((Over.pullback g).obj (Over.mk f)).left
+              ((Over.pullback g).obj (Over.mk f)).hom
+              (Scheme.Modules.baseChangeModule f g F :
+                ((Over.pullback g).obj (Over.mk f)).left.Modules)
+              (@Scheme.Modules.OneStepDevissage.baseChange_locallyOfFiniteType
+                S S' (Over.mk f) g h_f)
+              (@Scheme.Modules.OneStepDevissage.baseChangeModule_isQuasicoherent
+                S S' (Over.mk f) F g h_Fqc)
+              (@Scheme.Modules.OneStepDevissage.baseChangeModule_isFiniteType
+                S S' (Over.mk f) F g h_Fft) s')

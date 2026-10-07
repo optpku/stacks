@@ -1,0 +1,21 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.LocalAtTarget.AffineDescent
+public import Mathlib.AlgebraicGeometry.Morphisms.FlatDescent
+
+@[expose] public section
+
+universe u
+
+open CategoryTheory
+
+namespace AlgebraicGeometry.UniversallyInjective
+
+/-- Universal injectivity of scheme morphisms is local on the target for the fpqc
+precoverage. -/
+instance isLocalAtTargetFpqc :
+    MorphismProperty.IsLocalAtTarget
+      (@AlgebraicGeometry.UniversallyInjective : MorphismProperty AlgebraicGeometry.Scheme.{u})
+      AlgebraicGeometry.Scheme.fpqcPrecoverage := sorry
+
+end AlgebraicGeometry.UniversallyInjective

@@ -1,0 +1,15 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.WeaklyEtale.UniversalHomeomorphism
+
+@[expose] public section
+
+open CategoryTheory
+
+universe u
+
+#check
+  (AlgebraicGeometry.WeaklyEtale.instIsIsoOfUniversalHomeomorphism :
+    ∀ {X Y : AlgebraicGeometry.Scheme.{u}} (f : X ⟶ Y)
+      [AlgebraicGeometry.WeaklyEtale f] [AlgebraicGeometry.UniversalHomeomorphism f],
+        IsIso f)

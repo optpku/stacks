@@ -1,0 +1,12 @@
+module
+
+public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.MapCospan.Basic
+public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.MapCospan.Uniqueness
+public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.MapCospan.Projections
+
+/-!
+# Universal maps induced by cospan transformations
+
+Compatibility aggregate for the focused `MapCospan` leaves. Import `Basic`, `Uniqueness`, or
+`Projections` directly when only one part of the API is needed.
+-/

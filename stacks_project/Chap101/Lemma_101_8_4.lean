@@ -1,0 +1,20 @@
+module
+
+public import stacks_project.Chap101.Lemma_101_8_4_QuasiSober
+import StacksCheckRecall
+
+@[expose] public section
+
+universe u
+
+open CategoryTheory AlgebraicGeometry
+
+/- Lemma 101.8.4: if an algebraic stack `X` over a scheme `S` is locally Noetherian,
+then `|X|` is quasi-sober in the sense of Topology, Definition 5.8.6. -/
+@[stacks 0GVX] #check
+  (AlgebraicGeometry.AlgebraicStack.IsLocallyNoetherian.quasiSober :
+    ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
+      [AlgebraicStack.IsLocallyNoetherian X]
+      (τ : TopologicalSpace (AlgebraicStack.Points X))
+      (_ : AlgebraicStack.IsPointsTopology X τ),
+      @QuasiSober (AlgebraicStack.Points X) τ)

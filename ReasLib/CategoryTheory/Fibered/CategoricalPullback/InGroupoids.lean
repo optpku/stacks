@@ -1,0 +1,40 @@
+module
+
+public import ReasLib.CategoryTheory.Fibered.CategoricalPullback.Cleavage
+public import ReasLib.CategoryTheory.Fibered.InGroupoids
+
+/-!
+# Categorical pullbacks of categories fibred in groupoids
+
+The first projection of a categorical pullback of a category fibred in groupoids is again
+fibred in groupoids.  This statement is independent of topologies and is the structural input
+for pullback of stacks in groupoids.
+-/
+
+@[expose] public section
+
+universe uC uD uS vC vD vS
+
+namespace CategoryTheory
+
+open Limits
+
+namespace Limits.CategoricalPullback
+
+variable {C : Type uC} {D : Type uD} {S : Type uS}
+variable [Category.{vC} C] [Category.{vD} D] [Category.{vS} S]
+
+namespace Left
+
+/-- Lemma 8.12.3 (tag 04WD): the fibred-in-groupoids structure on the first projection of a
+categorical pullback is canonical, so consumers need not introduce a local instance. -/
+@[stacks 04WD "categorical pullback remains fibred in groupoids"]
+instance isFiberedInGroupoids
+    (u : C ⥤ D) (p : S ⥤ D) [Functor.IsFibered.InGroupoids p] :
+    Functor.IsFibered.InGroupoids (π₁ u p) := sorry
+
+end Left
+
+end Limits.CategoricalPullback
+
+end CategoryTheory

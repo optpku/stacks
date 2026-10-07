@@ -1,0 +1,22 @@
+module
+
+public import Mathlib.AlgebraicGeometry.Morphisms.Etale
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Unramified.Local
+
+/-!
+# Étale morphisms are locally quasi-finite
+-/
+
+@[expose] public section
+
+open CategoryTheory
+
+universe u
+
+namespace AlgebraicGeometry.Etale
+
+/-- An étale morphism of schemes is locally quasi-finite. -/
+theorem locallyQuasiFinite {X S : Scheme.{u}} {f : X ⟶ S} (h : Etale f) :
+    LocallyQuasiFinite f := sorry
+
+end AlgebraicGeometry.Etale

@@ -1,0 +1,50 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Kunneth
+
+open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
+open CategoryTheory.MonoidalCategory
+open AlgebraicGeometry.RingedSpace.Hom
+open scoped RingedSpace.Hom RingedSpaceDerivedPullback RingedSpaceDerivedPushforward
+
+universe u
+
+/- The scheme-level derived Künneth morphism provided by the shared mathematical owner. -/
+#check (AlgebraicGeometry.Scheme.ModuleDerived.Kunneth.map :
+  ∀ {S X Y : Scheme.{u}} (a : X ⟶ S) (b : Y ⟶ S)
+    [RingedSpace.ModuleDerived.KFlat.HomotopyTensorDescends S.toRingedSpace]
+    [RingedSpace.ModuleDerived.KFlat.TensorDescends S.toRingedSpace]
+    [RingedSpace.ModuleDerived.KFlat.IsLocalization S.toRingedSpace]
+    [RingedSpace.ModuleDerived.KFlat.HomotopyTensorDescends
+      (Limits.pullback a b).toRingedSpace]
+    [RingedSpace.ModuleDerived.KFlat.TensorDescends
+      (Limits.pullback a b).toRingedSpace]
+    [RingedSpace.ModuleDerived.KFlat.IsLocalization
+      (Limits.pullback a b).toRingedSpace]
+    [RingedSite.Hom.DerivedAdjunction.HasPair
+      (RingedSpace.opensRingedSiteHom a.toLRSHom.toShHom)]
+    [RingedSite.Hom.DerivedAdjunction.HasPair
+      (RingedSpace.opensRingedSiteHom b.toLRSHom.toShHom)]
+    [RingedSite.Hom.DerivedAdjunction.HasPair
+      (RingedSpace.opensRingedSiteHom (Limits.pullback.fst a b).toLRSHom.toShHom)]
+    [RingedSite.Hom.DerivedAdjunction.HasPair
+      (RingedSpace.opensRingedSiteHom (Limits.pullback.snd a b).toLRSHom.toShHom)]
+    [RingedSite.Hom.DerivedAdjunction.HasPair
+      (RingedSpace.opensRingedSiteHom (Limits.pullback.fst a b ≫ a).toLRSHom.toShHom)]
+    [RingedSite.Hom.DerivedAdjunction.HasPair
+      (RingedSpace.opensRingedSiteHom
+        ((Limits.pullback.fst a b).toLRSHom.toShHom ≫ a.toLRSHom.toShHom))]
+    [RingedSite.Hom.DerivedAdjunction.HasPair
+      (RingedSpace.opensRingedSiteHom
+        ((Limits.pullback.snd a b).toLRSHom.toShHom ≫ b.toLRSHom.toShHom))]
+    [IsIso (RingedSpace.modulePullbackDerived.compComparison
+      (Limits.pullback.fst a b).toLRSHom.toShHom a.toLRSHom.toShHom)]
+    [IsIso (RingedSpace.modulePullbackDerived.compComparison
+      (Limits.pullback.snd a b).toLRSHom.toShHom b.toLRSHom.toShHom)]
+    [(RingedSpace.modulePullbackDerived
+      (Limits.pullback.fst a b ≫ a).toLRSHom.toShHom).OplaxMonoidal]
+    (K : RingedSpace.ModuleDerived X.toRingedSpace)
+    (M : RingedSpace.ModuleDerived Y.toRingedSpace),
+    (R(a.toLRSHom.toShHom)_*).obj K ⊗ (R(b.toLRSHom.toShHom)_*).obj M ⟶
+      (R((Limits.pullback.fst a b ≫ a).toLRSHom.toShHom)_*).obj
+        (AlgebraicGeometry.Scheme.ModuleDerived.Kunneth.externalTensorProduct a b K M))

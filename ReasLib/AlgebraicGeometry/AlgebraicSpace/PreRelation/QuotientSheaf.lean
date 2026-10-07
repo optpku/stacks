@@ -1,0 +1,120 @@
+module
+
+public import Mathlib.CategoryTheory.Sites.LeftExact
+public import Mathlib.CategoryTheory.Sites.Limits
+public import Mathlib.CategoryTheory.Whiskering
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.PreRelation.QuotientPresheaf
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Sheaf
+
+/-!
+# Quotient sheaves of pre-relations on algebraic spaces
+
+The quotient sheaf of a pre-relation is the fppf sheafification of its objectwise
+quotient presheaf, together with the canonical map from the sheaf of points of the
+ambient algebraic space.
+-/
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry Opposite Limits
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace.PreRelation
+
+/-- The fppf quotient sheaf `U/R` of a pre-relation, obtained by sheafifying the
+universe-raised objectwise quotient presheaf. -/
+noncomputable def quotientSheaf {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
+    (P : PreRelation U) :
+    Sheaf (Scheme.fppfTopology.over S) (Type (u + 1)) :=
+  (presheafToSheaf (Scheme.fppfTopology.over S) (Type (u + 1))).obj
+    (P.quotientPresheaf ⋙ uliftFunctor.{u + 1, u})
+
+/-- The underlying presheaf of `quotientSheaf` is the sheafification of the universe-raised
+quotient presheaf. -/
+theorem quotientSheaf_val {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
+    (P : PreRelation U) :
+    (P.quotientSheaf).obj =
+      sheafify (Scheme.fppfTopology.over S)
+        (P.quotientPresheaf ⋙ uliftFunctor.{u + 1, u}) :=
+  sorry
+
+/-- The section of the quotient sheaf represented by a scheme-valued point of `U`. -/
+noncomputable def quotientClass {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
+    (P : PreRelation U) (T : Over S) (a : U.left.functorOfPoints.obj (op T)) :
+    P.quotientSheaf.obj.obj (op T) :=
+  (toSheafify (Scheme.fppfTopology.over S)
+    (P.quotientPresheaf ⋙ uliftFunctor.{u + 1, u})).app (op T)
+      (ULift.up (Quot.mk (P.schemePointRel T) a))
+
+/-- A quotient section is the image of its universe-raised quotient class under the
+sheafification unit. -/
+theorem quotientClass_def {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
+    (P : PreRelation U) (T : Over S) (a : U.left.functorOfPoints.obj (op T)) :
+    P.quotientClass T a =
+      (toSheafify (Scheme.fppfTopology.over S)
+        (P.quotientPresheaf ⋙ uliftFunctor.{u + 1, u})).app (op T)
+          (ULift.up (Quot.mk (P.schemePointRel T) a)) := sorry
+
+/-- The canonical morphism `U ⟶ U/R` of fppf sheaves. -/
+noncomputable def quotientMap {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
+    (P : PreRelation U) :
+    toSheaf.obj U.left ⟶ P.quotientSheaf :=
+  Sheaf.homEquiv.symm
+    (Functor.whiskerRight P.quotientMk uliftFunctor.{u + 1, u} ≫
+      toSheafify (Scheme.fppfTopology.over S)
+        (P.quotientPresheaf ⋙ uliftFunctor.{u + 1, u}))
+
+/-- The quotient map equalizes the source and target projections of the pre-relation. -/
+theorem quotientMap_s_eq_t {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
+    (P : PreRelation U) :
+    toSheaf.map P.t.left ≫ P.quotientMap =
+      toSheaf.map P.s.left ≫ P.quotientMap :=
+  sorry
+
+/-- The canonical morphism from the quotient sheaf to the sheaf of points of the base. -/
+noncomputable def toBaseSheaf {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
+    (P : PreRelation U) : P.quotientSheaf ⟶ toSheaf.obj B :=
+  ((sheafificationAdjunction (Scheme.fppfTopology.over S) (Type (u + 1))).homEquiv
+    (P.quotientPresheaf ⋙ uliftFunctor.{u + 1, u}) (toSheaf.obj B)).symm
+      (Functor.whiskerRight P.toBase uliftFunctor.{u + 1, u})
+
+/-- Composing the sheafification unit with the descended base map gives the
+universe-raised transformation from the quotient presheaf to the base. -/
+theorem toBaseSheaf_hom {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
+    (P : PreRelation U) :
+    toSheafify (Scheme.fppfTopology.over S)
+        (P.quotientPresheaf ⋙ uliftFunctor.{u + 1, u}) ≫ P.toBaseSheaf.hom =
+      Functor.whiskerRight P.toBase uliftFunctor.{u + 1, u} := sorry
+
+/-- Restricting a quotient class along a morphism of schemes over `S` gives the quotient
+class of the restricted point. -/
+theorem quotientClass_map {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
+    (P : PreRelation U) {T T' : Over S} (f : T' ⟶ T)
+    (a : U.left.functorOfPoints.obj (op T)) :
+    P.quotientSheaf.obj.map f.op (P.quotientClass T a) =
+      P.quotientClass T' (U.left.functorOfPoints.map f.op a) := sorry
+
+/-- The canonical morphism of fppf sheaves `R ⟶ U ×_{U/R} U` is the lift of the
+universe-raised source and target maps through the kernel pair of the quotient map. -/
+noncomputable def relationToKernelPair {S : Scheme.{u}} {B : AlgebraicSpace S}
+    {U : Over B} (P : PreRelation U) :
+    toSheaf.obj P.left.left ⟶ pullback P.quotientMap P.quotientMap :=
+  pullback.lift (toSheaf.map P.s.left) (toSheaf.map P.t.left) P.quotientMap_s_eq_t.symm
+
+/-- The first projection of the kernel-pair comparison is the universe-raised source map. -/
+theorem relationToKernelPair_fst {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
+    (P : PreRelation U) :
+    P.relationToKernelPair ≫ pullback.fst P.quotientMap P.quotientMap =
+      toSheaf.map P.s.left := sorry
+
+/-- The second projection of the kernel-pair comparison is the universe-raised target map. -/
+theorem relationToKernelPair_snd {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
+    (P : PreRelation U) :
+    P.relationToKernelPair ≫ pullback.snd P.quotientMap P.quotientMap =
+      toSheaf.map P.t.left := sorry
+
+end AlgebraicGeometry.AlgebraicSpace.PreRelation

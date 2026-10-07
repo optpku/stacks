@@ -1,0 +1,13 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.AffineStratification
+import StacksCheckRecall
+
+universe u v
+
+/- Definition 37.73.1: an affine stratification of a scheme is a locally finite stratification
+by affine strata whose canonical inclusion morphisms into the ambient scheme are affine. -/
+@[stacks 0F2S] #check
+  (AlgebraicGeometry.Scheme.IsAffineStratification :
+    {X : AlgebraicGeometry.Scheme.{u}} → {I : Type v} → [PartialOrder I] →
+      (I → Set X) → Prop)

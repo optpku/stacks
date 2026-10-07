@@ -1,0 +1,41 @@
+module
+
+public import Mathlib.RingTheory.Ideal.Quotient.Basic
+public import ReasLib.RingTheory.Spectrum.Prime.Irreducible
+public import Mathlib.Tactic.CrossRefAttribute
+
+/-!
+# Rings with a unique minimal prime
+
+This file collects the canonical ring-theoretic forms of the condition that a prime spectrum has
+one generic point. The quotient by the nilradical is used directly, so this API is independent of
+any chapter-specific name for the reduction.
+-/
+
+@[expose] public section
+
+universe u
+
+namespace PrimeSpectrum.UniqueMinimalPrime
+
+variable {R : Type u} [CommRing R]
+
+/-- A commutative ring has a unique minimal prime exactly when its nilradical is prime. -/
+@[stacks 00I7 "unique minimal prime and prime nilradical"]
+theorem iff_isPrime_nilradical :
+    (∃! p : Ideal R, p ∈ minimalPrimes R) ↔ (nilradical R).IsPrime := sorry
+
+/-- A commutative ring has a unique minimal prime exactly when its reduction is a domain. -/
+@[stacks 00I7 "unique minimal prime and domain reduction"]
+theorem iff_isDomain_quotient_nilradical :
+    (∃! p : Ideal R, p ∈ minimalPrimes R) ↔
+      IsDomain (R ⧸ nilradical R) := sorry
+
+/-- A commutative ring has a unique minimal prime exactly when the nilradical is its only
+minimal prime. -/
+@[stacks 00I7 "unique minimal prime and singleton minimal-prime set"]
+theorem iff_minimalPrimes_eq_singleton_nilradical :
+    (∃! p : Ideal R, p ∈ minimalPrimes R) ↔
+      minimalPrimes R = {nilradical R} := sorry
+
+end PrimeSpectrum.UniqueMinimalPrime

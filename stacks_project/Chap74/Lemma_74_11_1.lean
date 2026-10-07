@@ -1,0 +1,20 @@
+module
+
+public import stacks_project.Chap74.Lemma_74_11_1_Instances
+import StacksCheckRecall
+
+@[expose] public section
+
+universe u
+
+open CategoryTheory AlgebraicGeometry AlgebraicSpace
+
+variable (S : Scheme.{u})
+
+/- Lemma 74.11.1: the property `P(f)` given by “`f` is quasi-compact” is fpqc
+local on the base. -/
+@[stacks 041L] #check
+  (AlgebraicSpace.QuasiCompact.isLocalAtTargetFpqc :
+    MorphismProperty.IsLocalAtTarget
+      (@AlgebraicSpace.QuasiCompact S : MorphismProperty (AlgebraicSpace S))
+      (fpqcPrecoverage S))

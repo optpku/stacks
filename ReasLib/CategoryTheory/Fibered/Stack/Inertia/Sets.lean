@@ -1,0 +1,13 @@
+module
+
+public import ReasLib.CategoryTheory.Fibered.Stack.Inertia.Sets.AbsoluteMaps
+
+/-!
+# Inertia of stacks in sets
+
+Public umbrella for relative and absolute inertia of stacks in sets, including owner equations,
+structure maps, square functoriality, equivalences, and normalized readouts to the underlying
+set-fibred and setoid-stack owners.
+-/
+
+@[expose] public section

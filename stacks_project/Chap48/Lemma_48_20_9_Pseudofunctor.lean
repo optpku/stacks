@@ -1,0 +1,19 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Dualizing.NewUpperShriek.Assignment
+
+@[expose] public section
+open AlgebraicGeometry CategoryTheory Opposite
+open scoped CategoryTheory.Bicategory DerivedCategory.CohomologyIn
+
+/-! Public compatibility surface for the normalized new-upper-shriek assignment. -/
+#check AlgebraicGeometry.Scheme.NewUpperShriekAssignment
+#check AlgebraicGeometry.Scheme.NewUpperShriekAssignment.pseudofunctor
+#check AlgebraicGeometry.Scheme.NewUpperShriekAssignment.mapId
+#check AlgebraicGeometry.Scheme.NewUpperShriekAssignment.mapComp
+#check AlgebraicGeometry.Scheme.NewUpperShriekAssignment.coherentDualityInvolutive
+#check AlgebraicGeometry.Scheme.NewUpperShriekAssignment.plusDualityIsEquivalence
+#check AlgebraicGeometry.Scheme.NewUpperShriekAssignment.boundedDualityIsEquivalence
+#check AlgebraicGeometry.Scheme.NewUpperShriekAssignment.map_obj_obj
+#check AlgebraicGeometry.Scheme.NewUpperShriekAssignment.omega_isIsomorphic_mapToBase
+#check AlgebraicGeometry.Scheme.NewUpperShriekAssignment.omega_isIsomorphic_map

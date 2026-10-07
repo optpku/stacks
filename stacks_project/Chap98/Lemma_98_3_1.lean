@@ -1,0 +1,38 @@
+module
+
+public import stacks_project.Chap98.«98_3_0_2»
+import Mathlib.Tactic.CrossRefAttribute
+
+/-!
+# Predeformation categories from categories fibred in groupoids over schemes
+
+The functor `p : ℱ_{X, k, x0} ⟶ ArtinianLocalAlgCat Λ k` constructed in
+98.3.0.2 is a predeformation category.
+-/
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.GroupoidsOver.Predeformation
+
+/-- Lemma 98.3.1: the functor `p : ℱ_{X, k, x0} ⟶ ArtinianLocalAlgCat Λ k`
+defined above is a predeformation category. -/
+@[stacks 07T5]
+instance instIsPredeformationCategory_predeformationFunctor
+    {S : Scheme.{u}} [IsLocallyNoetherian S] {Λ k : Type u}
+    [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k] [Module.Finite Λ k]
+    (X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u} (Over S))
+    (openImmersion : Spec (CommRingCat.of Λ) ⟶ S) [IsOpenImmersion openImmersion]
+    (kToS : Spec (CommRingCat.of k) ⟶ S) [LocallyOfFiniteType kToS]
+    (h_factor : Spec.map (CommRingCat.ofHom (algebraMap Λ k)) ≫ openImmersion = kToS)
+    (x0 : X.p.Fiber (Over.mk kToS)) :
+    Functor.IsPredeformationCategory
+      (predeformationFunctor X openImmersion kToS h_factor x0) :=
+  sorry
+
+end AlgebraicGeometry.GroupoidsOver.Predeformation

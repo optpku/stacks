@@ -1,0 +1,13 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Syntomic.Affine
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Syntomic.StandardAffine
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Syntomic.Big
+
+/-!
+# Syntomic site infrastructure
+
+Convenience import for the canonical syntomic affine restriction, the separate
+finite-standard-chart presentation, and the big-slice sheaf functor API.
+Applications needing only one layer should import its narrower leaf directly.
+-/

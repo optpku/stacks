@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Graded.Commutative
@@ -121,46 +127,7 @@ namespace Quadruple
 /-- Construct a relative projective quadruple from a positive degree, morphism, invertible
 module, graded map, unit and multiplication laws, and the pullback-side degree-one
 epimorphism. -/
-def of {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} {T : Over S} (degree : ℕ) (positive : 1 ≤ degree)
-    (morphism : ofOver T ⟶ X) (lineBundle : (ofOver T).Modules)
-    (lineBundle_invertible : isInvertibleObject lineBundle)
-    (psi : ∀ n : ℕ,
-      (Modules.pullback morphism).obj (deg.obj (n * degree)) ⟶ tensorPowerUnit lineBundle n)
-    (psi_map_one :
-      Modules.structureModulePullbackInv morphism ≫
-          (Modules.pullback morphism).map (degreeZeroUnit deg) ≫
-            eqToHom
-                (congrArg (fun k : ℕ ↦ (Modules.pullback morphism).obj (deg.obj k))
-                  (Nat.zero_mul degree).symm) ≫
-              psi 0 =
-        eqToHom (tensorPowerUnit_zero lineBundle).symm)
-    (psi_map_mul :
-      ∀ i j : ℕ,
-        pullbackTensorLax morphism (deg.obj (i * degree)) (deg.obj (j * degree)) ≫
-            (Modules.pullback morphism).map (deg.mul (i * degree) (j * degree)) ≫
-              eqToHom
-                  (congrArg (fun k : ℕ ↦ (Modules.pullback morphism).obj (deg.obj k))
-                    (veronese_add i j degree).symm) ≫
-                psi (i + j) =
-          tensorHom (psi i) (psi j) ≫ (tensorPowerUnitAddIso lineBundle i j).hom)
-    (degreeOneMap :
-      (Modules.pullback morphism).obj (deg.obj (1 * degree)) ⟶ tensorPowerUnit lineBundle 1)
-    (degreeOneMap_spec : degreeOneMap = psi 1)
-    (degreeOne_surjective : Epi degreeOneMap) :
-    Quadruple 𝒜 deg T where
-  degree := degree
-  positive := positive
-  morphism := morphism
-  lineBundle := lineBundle
-  lineBundle_invertible := lineBundle_invertible
-  psi := psi
-  psi_map_one := psi_map_one
-  psi_map_mul := psi_map_mul
-  degreeOneMap := degreeOneMap
-  degreeOneMap_spec := degreeOneMap_spec
-  degreeOne_surjective := degreeOne_surjective
+abbrev of := @Quadruple.mk
 
 /-- The positivity, invertibility, degree-one identification, and epimorphism conditions
 hold simultaneously. -/

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.Cone
@@ -113,10 +119,9 @@ def stabilizerPreInertiaAut (x : (stabilizerSpace P).toGroupoids.total) :
 /-- The object of `I_{[U /ₚ R]}` sending a stabilizer point to its atlas image equipped with
 the automorphism given by `stabilizerToArrows`. -/
 def stabilizerToPreInertiaObj (x : (stabilizerSpace P).toGroupoids.total) :
-    RelativeInertia P.groupoid.preQuotient.p where
-  obj := stabilizerPreInertiaObj P x
-  aut := stabilizerPreInertiaAut P x
-  mapAut_eq_one := sorry
+    RelativeInertia P.groupoid.preQuotient.p :=
+  RelativeInertia.mk (Inertia.mk (stabilizerPreInertiaObj P x) (stabilizerPreInertiaAut P x))
+    sorry
 
 /-- The morphism of `I_{[U /ₚ R]}` induced by a morphism of `𝒮_G`. -/
 def stabilizerToPreInertiaMap {x y : (stabilizerSpace P).toGroupoids.total} (φ : x ⟶ y) :

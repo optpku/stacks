@@ -1,7 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap90.Definition_90_12_1_DualNumber
-public import stacks_project.Chap90.Definition_90_12_1_TangentSpace
+public import ReasLib.AlgebraicGeometry.FormalDeformation.TangentSpace
 import StacksCheckRecall
 
 /-!
@@ -25,11 +30,4 @@ variable (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsPredeformationCategory 
 /- Definition 90.12.1: the tangent space `T F` of a predeformation category `F` is the set of
 isomorphism classes of objects in the fibre category `F(DualNumber k)`. -/
 @[stacks 06IG]
-#check Functor.tangentSpace
-
-/-- The tangent space of a predeformation category is the set of isomorphism classes of
-objects in the fibre over `DualNumber k`. -/
-@[stacks 06IG]
-theorem Functor.tangentSpace_eq_isoClasses :
-    Functor.tangentSpace p =
-      isomorphismClasses.obj (Cat.of (p.Fiber (dualNumber Λ k))) := sorry
+#check (CategoryTheory.Functor.tangentSpace p : Type v)

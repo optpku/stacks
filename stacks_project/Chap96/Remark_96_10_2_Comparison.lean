@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Sites.Topos.Composition
@@ -253,17 +259,9 @@ def etaleDirectImageIso_leftEval (𝒢 : Sheaf (AlgebraicSpace.smallEtaleTopolog
     (V : AlgebraicSpace.smallEtaleSite G) :
     ((AlgebraicSpace.typePushforward (inducedHom eX eY f)).obj 𝒢).obj.obj (op V) ≅
       limit (etaleBaseChangeDiag eX eY f 𝒢 V) :=
-  sheafPushforwardContinuousObjObjIso
-      (AlgebraicSpace.etaleBaseChange (inducedHom eX eY f)) (Type u)
-      (((AlgebraicSpace.smallEtaleInclusion F).sheafPushforwardCocontinuous (Type u)
-          (AlgebraicSpace.smallEtaleTopology F)
-          (AlgebraicSpace.spacesEtaleTopology F)).obj 𝒢) V ≪≫
-    (((AlgebraicSpace.smallEtaleInclusion F).sheafPushforwardCocontinuousCompSheafToPresheafIso
-          (Type u) (AlgebraicSpace.smallEtaleTopology F)
-          (AlgebraicSpace.spacesEtaleTopology F)).app 𝒢).app
-      (op ((AlgebraicSpace.etaleBaseChange (inducedHom eX eY f)).obj V)) ≪≫
-      (AlgebraicSpace.smallEtaleInclusion F).op.ranObjObjIsoLimit 𝒢.obj
-        (op ((AlgebraicSpace.etaleBaseChange (inducedHom eX eY f)).obj V))
+  (AlgebraicSpace.EtaleTopos.allChartIsLimit F 𝒢
+      ((AlgebraicSpace.etaleBaseChange (inducedHom eX eY f)).obj V)).conePointUniqueUpToIso
+    (limit.isLimit (etaleBaseChangeDiag eX eY f 𝒢 V))
 
 /-- Evaluation of `etaleRestriction_* 𝒢` at `V` recovers the étale-restriction Kan limit. -/
 def etaleDirectImageIso_rightEval (𝒢 : Sheaf (AlgebraicSpace.smallEtaleTopology F) (Type u))

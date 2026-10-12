@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Functor.KanExtension.Adjunction
@@ -634,7 +640,9 @@ instance compareBigDiagType_hasLimit (V : smallEtaleSite G) :
 /-- Type-valued limits exist for the Type-`u` small-étale Kan diagram. -/
 instance compareSmallDiagType_hasLimit (V : smallEtaleSite G) :
     HasLimit (compareSmallDiagType f ℳ V) :=
-  sorry
+  EtaleTopos.allChartHasLimit F
+    ((ToInternal.underlying (structureSheaf F)).obj ((restrictEtaleModules F).obj ℳ))
+    ((etaleBaseChange f).obj V)
 
 /-- Type-valued limits exist after restriction along `compareIndexMap`. -/
 instance compareIndexBigDiagType_hasLimit (V : smallEtaleSite G) :
@@ -710,10 +718,13 @@ def compareBigSmall_modules_rightEval (V : smallEtaleSite G) :
     limit (compareSmallDiagType f ℳ V) ≅
       ((ToInternal.underlying (structureSheaf G)).obj
         ((Modules.pushforward f).obj ((restrictEtaleModules F).obj ℳ))).obj.obj (op V) :=
-  ((smallEtaleInclusion F).op.ranObjObjIsoLimit
-      ((ToInternal.underlying (structureSheaf F)).obj
-        ((restrictEtaleModules F).obj ℳ)).obj
-      (op ((etaleBaseChange f).obj V))).symm ≪≫
+  (limit.isoLimitCone
+    ⟨EtaleTopos.allChartCone F
+      ((ToInternal.underlying (structureSheaf F)).obj ((restrictEtaleModules F).obj ℳ))
+      ((etaleBaseChange f).obj V),
+     EtaleTopos.allChartIsLimit F
+      ((ToInternal.underlying (structureSheaf F)).obj ((restrictEtaleModules F).obj ℳ))
+      ((etaleBaseChange f).obj V)⟩) ≪≫
     ((sheafToPresheaf (smallEtaleTopology G) (Type u)).mapIso
         ((RingedSite.ToposHom.ModulePushforward.forgetIso (ringedToposHom f)).app
           ((restrictEtaleModules F).obj ℳ))).symm.app (op V)

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Hom.OneCell
@@ -143,7 +149,7 @@ def asPullbackGroupHom {U : Over S} {b : ofOver U ⟶ B} {V : Over U.left}
     (gp : SheafTorsors.FiberPoint G b V) :
     Over.mk (ofOverMap (SheafTorsors.overMapHom V)) ⟶ (grpOverPullback G b).X :=
   Over.homMk
-    (pullbackLift G.X.hom b (yonedaEquiv.symm gp.val)
+    (Limits.pullback.lift (C := AlgebraicSpace S) (f := G.X.hom) (g := b) (yonedaEquiv.symm gp.val)
       (ofOverMap (SheafTorsors.overMapHom V)) sorry)
     sorry
 
@@ -282,7 +288,7 @@ def functorMapRelativePoint {ξ ξ' : Torsors.Obj G} (α : Torsors.Hom ξ ξ')
     RelativePoint G ξ'.X ((Over.map α.f.left).obj V) where
   val :=
     ξ'.X.X.left.functorOfPoints.map (baseOverIso α.f V).symm.hom.op
-      ((overPullbackFst (ofOverMap α.f) ξ'.X.X).app
+      ((Limits.pullback.fst (C := AlgebraicSpace S) ξ'.X.X.hom (ofOverMap α.f)).app
         (op ((Over.map ξ.U.hom).obj V))
         (α.g.hom.left.app (op ((Over.map ξ.U.hom).obj V)) x.val))
   over_U := sorry
@@ -303,7 +309,7 @@ def functorMapRelativePointInv {ξ ξ' : Torsors.Obj G} (α : Torsors.Hom ξ ξ'
   val :=
     α.g.inv.left.app (op ((Over.map ξ.U.hom).obj V))
       (yonedaEquiv
-        (pullbackLift ξ'.X.X.hom (ofOverMap α.f)
+        (Limits.pullback.lift (C := AlgebraicSpace S)
           (yonedaEquiv.symm
             (ξ'.X.X.left.functorOfPoints.map (baseOverIso α.f V).hom.op x.val))
           (ofOverMap (SheafTorsors.overMapHom V))

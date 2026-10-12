@@ -1,8 +1,14 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.CategoryTheory.Yoneda
-public import Mathlib.CategoryTheory.Sites.SheafCohomology.MayerVietoris
-public import stacks_project.Chap20.Proposition_20_20_7_Grothendieck
+public import ReasLib.CategoryTheory.RepresentablePresheaf
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Cohomology.MayerVietoris
+public import ReasLib.Topology.Sheaf.Cohomology.Spectral
 public import ReasLib.AlgebraicGeometry.ProjectiveSpace.HilbertPolynomial
 public import ReasLib.AlgebraicGeometry.ProjectiveSpace.TwistCohomology
 import StacksCheckRecall
@@ -11,36 +17,32 @@ import StacksCheckRecall
 
 open CategoryTheory Limits TopologicalSpace
 
-universe u v w
+universe u v
 
 /- Exercise 111.60.2 (Theorems) (1): Yoneda lemma: natural transformations
 `yoneda.obj X ⟶ F` are equivalent to elements of `F.obj (Opposite.op X)`. -/
 @[stacks 0EEL] #check
-  (CategoryTheory.yonedaEquiv :
+  (CategoryTheory.RepresentablePresheaf.homEquiv :
     ∀ {C : Type u} [Category.{v} C] {X : C} {F : Cᵒᵖ ⥤ Type v},
       (yoneda.obj X ⟶ F) ≃ F.obj (Opposite.op X))
 
-/- Exercise 111.60.2 (Theorems) (2): Mayer–Vietoris: the five-arrow sheaf-cohomology
-sequence of a Mayer–Vietoris square is exact; this includes the two-open cover. -/
+/- Exercise 111.60.2 (Theorems) (2): Mayer–Vietoris: the five-arrow sequence for
+module cohomology over a two-open cover of a ringed space is exact. -/
 @[stacks 0EEL] #check
-  (CategoryTheory.GrothendieckTopology.MayerVietorisSquare.sequence_exact :
-    ∀ {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
-      [HasWeakSheafify J (Type v)] [HasSheafify J AddCommGrpCat.{v}]
-      [HasExt.{w} (Sheaf J AddCommGrpCat.{v})]
-      (S : J.MayerVietorisSquare) (F : Sheaf J AddCommGrpCat.{v})
-      (n₀ n₁ : ℕ) (h : n₀ + 1 = n₁),
-      (S.sequence F n₀ n₁ h).Exact)
-
-/- Exercise 111.60.2 (Theorems) (3): dimension and cohomology: on a Noetherian space of
-Krull dimension at most `d`, abelian sheaf cohomology vanishes in degrees `p > d`. -/
-@[stacks 0EEL] #check
-  (CategoryTheory.Sheaf.isZero_higherCohomology_of_noetherianSpace_of_topologicalKrullDim_le :
-    ∀ {X : TopCat.{u}} [NoetherianSpace X]
+  (AlgebraicGeometry.RingedSpace.Module.Cohomology.MayerVietoris.sequence_exact :
+    ∀ {X : AlgebraicGeometry.RingedSpace.{u}}
       [HasSheafify (Opens.grothendieckTopology X) AddCommGrpCat.{u}]
-      [HasExt.{u} (X.Sheaf AddCommGrpCat.{u})] (d : ℕ),
-      topologicalKrullDim X ≤ d →
-        ∀ (F : X.Sheaf AddCommGrpCat.{u}) {p : ℕ}, d < p →
-          IsZero (F.H' p (⊤ : Opens X)))
+      [HasExt.{u} (Sheaf (Opens.grothendieckTopology X) AddCommGrpCat.{u})]
+      (U V : Opens X.carrier) (hUV : U ⊔ V = ⊤) (F : X.Modules) (n : ℕ),
+      (AlgebraicGeometry.RingedSpace.Module.Cohomology.MayerVietoris.sequence U V hUV F n).Exact)
+
+/- Exercise 111.60.2 (Theorems) (3): dimension and cohomology: on a spectral space
+of Krull dimension at most `d`, abelian sheaf cohomology vanishes in degrees `q > d`. -/
+@[stacks 0EEL] #check
+  (TopCat.Sheaf.Cohomology.Spectral.isZero_of_krullDim_le :
+    ∀ {X : TopCat.{u}} [SpectralSpace X] (F : X.Sheaf AddCommGrpCat.{u}) (d : ℕ),
+      topologicalKrullDim X ≤ d → ∀ {q : ℕ}, d < q →
+        IsZero (F.H' q (⊤ : Opens X)))
 
 /- Exercise 111.60.2 (Theorems) (4): Hilbert polynomial: Euler characteristics of canonical
 twists of a coherent module on `P^n` over a field form a numerical polynomial. -/

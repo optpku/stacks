@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 import Mathlib.CategoryTheory.InducedCategory
@@ -30,8 +36,8 @@ variable {S' : Type uS'} [Category.{vS'} S']
 and kernel laws; no non-Prop witness is supplied by `sorry`. -/
 
 /- `RelativeInertia F` is the full subcategory of `Inertia S` cut out by the kernel condition
-`F.mapAut X.obj X.aut = 1`. The structure extension keeps the mathematically useful flattened
-fields `.obj` and `.aut`, while its category is induced from the generic inertia category below;
+`F.mapAut X.obj X.aut = 1`. The kernel subtype has named projections `.obj` and `.aut`,
+while its category is induced from the generic inertia category below;
 there is no second implementation of intertwiners or category laws.
 
 The later `BasedCategory.PseudoPullback` constructions are semantic models in `Cat/C`, not the
@@ -55,9 +61,27 @@ with equation `α.hom ≫ φ = φ ≫ β.hom`. -/
 /-- An object of the relative inertia of `F : S ⥤ S'` is an inertia object whose automorphism
 maps to the neutral automorphism under `F`. -/
 @[stacks 034I "abstract relative inertia category"]
-structure RelativeInertia (F : S ⥤ S') extends Inertia S where
-  /-- The chosen automorphism becomes neutral after applying `F`. -/
-  mapAut_eq_one : F.mapAut obj aut = 1
+def RelativeInertia (F : S ⥤ S') :=
+  { X : Inertia S // F.mapAut X.obj X.aut = 1 }
+
+/-- Construct a relative-inertia object from an inertia object satisfying the kernel condition. -/
+def RelativeInertia.mk {F : S ⥤ S'} (toInertia : Inertia S)
+    (mapAut_eq_one : F.mapAut toInertia.obj toInertia.aut = 1) : RelativeInertia F :=
+  ⟨toInertia, mapAut_eq_one⟩
+
+/-- The underlying inertia object. -/
+abbrev RelativeInertia.toInertia {F : S ⥤ S'} (X : RelativeInertia F) : Inertia S := X.1
+
+/-- The underlying object of relative inertia. -/
+abbrev RelativeInertia.obj {F : S ⥤ S'} (X : RelativeInertia F) : S := X.toInertia.obj
+
+/-- The chosen automorphism of a relative-inertia object. -/
+abbrev RelativeInertia.aut {F : S ⥤ S'} (X : RelativeInertia F) : Aut X.obj :=
+  X.toInertia.aut
+
+/-- The chosen automorphism has neutral image. -/
+theorem RelativeInertia.mapAut_eq_one {F : S ⥤ S'} (X : RelativeInertia F) :
+    F.mapAut X.obj X.aut = 1 := X.2
 
 attribute [stacks 034I "relative inertia underlying inertia field"] RelativeInertia.toInertia
 attribute [stacks 034I "relative inertia kernel field"] RelativeInertia.mapAut_eq_one
@@ -229,9 +253,9 @@ private theorem RelativeInertia.identitySection.impl.mapAut_eq_one (X : S) :
 /-- The relative neutral object is the generic inertia identity-section object equipped with the
 kernel proof. -/
 @[stacks 04Z3 "relative inertia neutral object"]
-def RelativeInertia.identitySection.obj (X : S) : RelativeInertia F where
-  toInertia := (Inertia.identitySection S).obj X
-  mapAut_eq_one := RelativeInertia.identitySection.impl.mapAut_eq_one F X
+def RelativeInertia.identitySection.obj (X : S) : RelativeInertia F :=
+  RelativeInertia.mk ((Inertia.identitySection S).obj X)
+    (RelativeInertia.identitySection.impl.mapAut_eq_one F X)
 
 /-- The relative neutral-section morphism is the generic inertia identity-section morphism,
 viewed in the induced subcategory. -/
@@ -313,9 +337,9 @@ private def RelativeInertia.Map.obj
     {S₁ S₁' S₂ S₂' : Type*}
     [Category S₁] [Category S₁'] [Category S₂] [Category S₂']
     {F₁ : S₁ ⥤ S₁'} {F₂ : S₂ ⥤ S₂'} (G : S₁ ⥤ S₂) (G' : S₁' ⥤ S₂')
-    (τ : F₁ ⋙ G' ≅ G ⋙ F₂) (X : RelativeInertia F₁) : RelativeInertia F₂ where
-  toInertia := (Inertia.map G).obj X.toInertia
-  mapAut_eq_one := RelativeInertia.Map.obj_mapAut_eq_one G G' τ X
+    (τ : F₁ ⋙ G' ≅ G ⋙ F₂) (X : RelativeInertia F₁) : RelativeInertia F₂ :=
+  RelativeInertia.mk ((Inertia.map G).obj X.toInertia)
+    (RelativeInertia.Map.obj_mapAut_eq_one G G' τ X)
 
 /-- Morphism map induced on relative inertia by an invertibly commuting functor square. It is the
 generic inertia map viewed in the induced subcategory. -/

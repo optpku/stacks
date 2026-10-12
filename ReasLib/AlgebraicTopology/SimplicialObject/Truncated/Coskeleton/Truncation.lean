@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicTopology.SimplicialObject.Truncated.KanExtension.Between.Restriction
@@ -140,32 +146,6 @@ noncomputable def inv {n m : ℕ} (U : SimplicialObject.Truncated C n)
         ((truncation m).obj U.coskeleton))) ≫
       Between.coskeleton.restriction.counit U m h)
 
-/-- A chosen pointwise `n`-coskeleton is canonically isomorphic to the chosen coskeleton of its
-`m`-truncation for every `n ≤ m`. -/
-@[stacks 018B "objectwise higher-coskeleton isomorphism"]
-noncomputable def iso {n m : ℕ} (U : SimplicialObject.Truncated C n)
-    [U.HasPointwiseCoskeleton] (h : n ≤ m)
-    [((truncation m).obj U.coskeleton).HasCoskeleton] :
-    U.coskeleton ≅ ((truncation m).obj U.coskeleton).coskeleton :=
-  { hom := hom (m := m) U
-    inv := inv U h
-    hom_inv_id := sorry
-    inv_hom_id := sorry }
-
-/-- The forward map of the objectwise higher-coskeleton isomorphism is its universal lift. -/
-@[simp, stacks 018B "objectwise higher-coskeleton isomorphism forward map"]
-theorem iso_hom {n m : ℕ} (U : SimplicialObject.Truncated C n)
-    [U.HasPointwiseCoskeleton] (h : n ≤ m)
-    [((truncation m).obj U.coskeleton).HasCoskeleton] :
-    (iso U h).hom = hom (m := m) U := sorry
-
-/-- The inverse map of the objectwise higher-coskeleton isomorphism is the named inverse. -/
-@[simp, stacks 018B "objectwise higher-coskeleton isomorphism inverse map"]
-theorem iso_inv {n m : ℕ} (U : SimplicialObject.Truncated C n)
-    [U.HasPointwiseCoskeleton] (h : n ≤ m)
-    [((truncation m).obj U.coskeleton).HasCoskeleton] :
-    (iso U h).inv = inv U h := sorry
-
 /-- The objectwise higher-coskeleton comparison followed by its inverse is the identity. -/
 @[simp, stacks 018B "objectwise higher-coskeleton forward-inverse law"]
 theorem hom_inv_id {n m : ℕ} (U : SimplicialObject.Truncated C n)
@@ -180,6 +160,32 @@ theorem inv_hom_id {n m : ℕ} (U : SimplicialObject.Truncated C n)
     [((truncation m).obj U.coskeleton).HasCoskeleton] :
     inv U h ≫ hom (m := m) U =
       𝟙 ((truncation m).obj U.coskeleton).coskeleton := sorry
+
+/-- A chosen pointwise `n`-coskeleton is canonically isomorphic to the chosen coskeleton of its
+`m`-truncation for every `n ≤ m`. -/
+@[stacks 018B "objectwise higher-coskeleton isomorphism"]
+noncomputable def iso {n m : ℕ} (U : SimplicialObject.Truncated C n)
+    [U.HasPointwiseCoskeleton] (h : n ≤ m)
+    [((truncation m).obj U.coskeleton).HasCoskeleton] :
+    U.coskeleton ≅ ((truncation m).obj U.coskeleton).coskeleton :=
+  { hom := hom (m := m) U
+    inv := inv U h
+    hom_inv_id := hom_inv_id U h
+    inv_hom_id := inv_hom_id U h }
+
+/-- The forward map of the objectwise higher-coskeleton isomorphism is its universal lift. -/
+@[simp, stacks 018B "objectwise higher-coskeleton isomorphism forward map"]
+theorem iso_hom {n m : ℕ} (U : SimplicialObject.Truncated C n)
+    [U.HasPointwiseCoskeleton] (h : n ≤ m)
+    [((truncation m).obj U.coskeleton).HasCoskeleton] :
+    (iso U h).hom = hom (m := m) U := sorry
+
+/-- The inverse map of the objectwise higher-coskeleton isomorphism is the named inverse. -/
+@[simp, stacks 018B "objectwise higher-coskeleton isomorphism inverse map"]
+theorem iso_inv {n m : ℕ} (U : SimplicialObject.Truncated C n)
+    [U.HasPointwiseCoskeleton] (h : n ≤ m)
+    [((truncation m).obj U.coskeleton).HasCoskeleton] :
+    (iso U h).inv = inv U h := sorry
 
 end ofLE
 
@@ -283,7 +289,7 @@ theorem natIso_app (n m : ℕ) (h : n ≤ m)
     (U : SimplicialObject.Truncated C n) :
     (natIso n m h).app U = iso n m h U := sorry
 
-/-- Lemma 14.19.10 (3) (018B): taking the `m`-coskeleton of the `m`-truncation of an
+/-- Taking the `m`-coskeleton of the `m`-truncation of an
 `n`-coskeleton recovers the original `n`-coskeleton. -/
 @[stacks 018B "iterated coskeleton comparison"]
 noncomputable def compIso (n m : ℕ) (h : n ≤ m)
@@ -327,9 +333,8 @@ theorem naturality (n m : ℕ) (h : n ≤ m)
 
 end ranIso
 
-/-- Remark 14.19.9 (018A): the generic right Kan extension between truncation levels agrees with
-truncating the ambient `n`-coskeleton.  This is the canonical, nonrecursive owner of the source's
-successive coskeleton stages. -/
+/-- The generic right Kan extension between truncation levels agrees with
+truncating the ambient `n`-coskeleton. -/
 @[stacks 018A "right Kan extension description of successive coskeleton stages"]
 noncomputable def ranIso (n m : ℕ) (h : n ≤ m)
     [SimplicialObject.Truncated.HasPointwiseCoskeletons C n] :
@@ -348,7 +353,7 @@ theorem ranIso_app (n m : ℕ) (h : n ≤ m)
     (U : SimplicialObject.Truncated C n) :
     (ranIso n m h).app U = Between.coskeleton.restriction.iso U m h := sorry
 
-/-- Lemma 14.19.10 (2) (018B): further truncation has right adjoint given by truncating the
+/-- Further truncation has right adjoint given by truncating the
 ambient `n`-coskeleton. -/
 @[stacks 018B "coskeleton adjunction between truncation levels"]
 noncomputable def adjunction (n m : ℕ) (h : n ≤ m)

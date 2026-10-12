@@ -1,28 +1,21 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.RingTheory.Spectrum.Prime.Basic
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.RingTheory.Spectrum.Prime.ZeroLocus
+import StacksCheckRecall
 
 @[expose] public section
 
 universe u
 
-namespace PrimeSpectrum
-
-/-- Exercise 111.6.25: for ideals `I` and `J` of a commutative semiring `R`, the closed sets
-`V(I)` and `V(J)` in `PrimeSpectrum R` are disjoint if and only if `I ⊔ J = ⊤`, equivalently
-`I + J` is the unit ideal. -/
-@[stacks 02DF]
-theorem disjoint_zeroLocus_iff {R : Type u} [CommSemiring R] (I J : Ideal R) :
-    Disjoint (zeroLocus (I : Set R)) (zeroLocus (J : Set R)) ↔ I ⊔ J = ⊤ := sorry
-
-end PrimeSpectrum
-
-/- Companion: `zeroLocus (I ⊔ J) = zeroLocus I ∩ zeroLocus J`. -/
-#check @PrimeSpectrum.zeroLocus_sup
-
-/- Companion: `zeroLocus K = ∅` if and only if `K` is the unit ideal. -/
-#check @PrimeSpectrum.zeroLocus_empty_iff_eq_top
-
-/- Companion: `IsCoprime I J` if and only if `I ⊔ J = ⊤`. -/
-#check @Ideal.isCoprime_iff_sup_eq
+/- Exercise 111.6.25: for ideals `I` and `J` of a commutative ring `A`, the closed sets
+`V(I)` and `V(J)` in `PrimeSpectrum A` are disjoint if and only if `I ⊔ J = ⊤`. -/
+@[stacks 02DF] #check (PrimeSpectrum.disjoint_zeroLocus_iff :
+  ∀ {A : Type u} [CommRing A] (I J : Ideal A),
+    Disjoint (PrimeSpectrum.zeroLocus (I : Set A))
+      (PrimeSpectrum.zeroLocus (J : Set A)) ↔ I ⊔ J = ⊤)

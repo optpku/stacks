@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Fibered.Cleavage.Pseudofunctor.Coherence
@@ -27,9 +33,8 @@ namespace Functor.Cleavage
 
 variable {p : S ⥤ C} (χ : p.Cleavage)
 
-/-- Lemma 4.33.7 (3) (Stacks 02XO): the fiber categories, pullback functors, composition
-comparisons `α_{g,f}`, and unit comparisons `α_U` assemble into the canonical pseudofunctor
-`Cᵒᵖ ⥤ᵖ Cat`. -/
+/-- The fiber categories, pullback functors, composition comparisons `α_{g,f}`, and unit
+comparisons `α_U` assemble into the canonical pseudofunctor `Cᵒᵖ ⥤ᵖ Cat`. -/
 @[stacks 02XO "(3)"]
 noncomputable def toPseudofunctor :
     LocallyDiscrete Cᵒᵖ ⥤ᵖ Cat :=

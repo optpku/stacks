@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Presheaf.Basic
@@ -17,8 +23,12 @@ to Sets. Morphisms of presheaves are transformations of functors. The category
 of presheaves of sets is denoted PSh(C). This is the Type-valued functor
 Presheaf C, i.e. Cᵒᵖ ⥤ Type w, with morphisms NatTrans and the functor-category
 instance Functor.category. -/
-@[stacks 00V2] #check Presheaf C
+@[stacks 00V2] #check (CategoryTheory.Presheaf.{u, v, w} C : Type (max u v (w + 1)))
 
 #check (Cᵒᵖ ⥤ Type w)
-#check (inferInstance : Category (Presheaf C))
-#check NatTrans
+#check (CategoryTheory.Functor.category : Category.{max u w} (Cᵒᵖ ⥤ Type w))
+
+variable (F G : Cᵒᵖ ⥤ Type w) (α : CategoryTheory.NatTrans F G)
+
+#check (CategoryTheory.NatTrans F G : Type (max u w))
+#check (α : F ⟶ G)

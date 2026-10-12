@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Abelian.ShortExact
@@ -53,22 +59,22 @@ abbrev FullSubcategory := B.carrier.FullSubcategory
 protected def Contains (E : ObjectProperty A) : Prop := E ≤ B.carrier
 
 /-- The carrier of a small abelian subcategory is small. -/
-instance smallCarrier : ObjectProperty.Small.{w} B.carrier :=
+def smallCarrier : ObjectProperty.Small.{w} B.carrier :=
   Small.mk' B.equivObjectModel
 
 /-- The full subcategory selected by `B` carries its specified abelian structure. -/
-instance abelianFullSubcategory : Abelian B.FullSubcategory := B.abelian
+def abelianFullSubcategory : Abelian B.FullSubcategory := B.abelian
 
 /-- An object property is contained in `B` exactly when it is pointwise bounded by the carrier. -/
 @[simp]
 theorem contains_iff (E : ObjectProperty A) : B.Contains E ↔ E ≤ B.carrier := sorry
 
 /-- The inclusion of a small abelian subcategory preserves finite limits. -/
-instance inclusion_preservesFiniteLimits : PreservesFiniteLimits B.carrier.ι :=
+def inclusion_preservesFiniteLimits : PreservesFiniteLimits B.carrier.ι :=
   B.inclusionExact.1
 
 /-- The inclusion of a small abelian subcategory preserves finite colimits. -/
-instance inclusion_preservesFiniteColimits : PreservesFiniteColimits B.carrier.ι :=
+def inclusion_preservesFiniteColimits : PreservesFiniteColimits B.carrier.ι :=
   B.inclusionExact.2
 
 /-- The inclusion of a small abelian subcategory, bundled as an exact functor. -/
@@ -105,20 +111,28 @@ theorem exists_containingAt (E : ObjectProperty A) [ObjectProperty.Small.{w} E]
     [LocallySmall.{w} A] :
     ∃ B : SmallAbelianSubcategory.{w, v, u} A, B.Contains E := sorry
 
-/-- Remark 19.9.4: every small family of objects in an abelian category is contained in a small
-abelian full subcategory.  The output universe also accommodates the ambient Hom types. -/
+/-- Every small object property in an abelian category is contained in a small abelian full
+subcategory.  The output universe also accommodates the ambient Hom types. -/
 @[stacks 05PQ]
 theorem exists_containing (E : ObjectProperty A) [ObjectProperty.Small.{w} E] :
     ∃ B : SmallAbelianSubcategory.{max v w, v, u} A, B.Contains E := sorry
 
-/-- Family-indexed form of `exists_containing`. -/
+/-- A set-sized family of objects lies in a small abelian full subcategory with exact inclusion. -/
 theorem exists_containingFamily {I : Type i} [Small.{w} I] (X : I → A) :
     ∃ B : SmallAbelianSubcategory.{max v w, v, u} A, ∀ i, B.carrier (X i) := sorry
 
-#synth Abelian B.FullSubcategory
-#synth PreservesFiniteLimits B.carrier.ι
-#synth PreservesFiniteColimits B.carrier.ι
-#synth B.carrier.isoClosure.IsClosedUnderIsomorphisms
+/-- Construct a small abelian subcategory from its object property, model, abelian structure,
+and exact inclusion data. -/
+def ofProperty (carrier : ObjectProperty A) (objectModel : Type w)
+    (equivObjectModel : Subtype carrier ≃ objectModel)
+    (abelian : Abelian carrier.FullSubcategory)
+    (inclusionExact : exactFunctor carrier.FullSubcategory A carrier.ι) :
+    SmallAbelianSubcategory.{w, v, u} A :=
+  { carrier, objectModel, equivObjectModel, abelian, inclusionExact }
+
+/-- The selected carrier is small and its inclusion into the ambient category is exact. -/
+theorem spec : ObjectProperty.Small.{w} B.carrier ∧
+    exactFunctor B.FullSubcategory A B.carrier.ι := sorry
 
 end SmallAbelianSubcategory
 

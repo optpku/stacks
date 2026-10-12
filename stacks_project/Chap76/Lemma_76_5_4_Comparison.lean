@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Immersion
@@ -665,12 +671,7 @@ noncomputable def ofOverTypePushforwardComparison {Z Z' : Over S} (f : Z ⟶ Z')
         (smallEtaleTopology (ofOver Z')) (smallEtaleTopology (ofOver Z))).obj G :=
   InducedCategory.homMk
     { app := fun V ↦
-        (((smallEtaleInclusion (ofOver Z)).sheafPushforwardCocontinuous (Type u)
-          (smallEtaleTopology (ofOver Z)) (spacesEtaleTopology (ofOver Z))).obj G).obj.map
-            (smallPullbackSpaceIso f V.unop).hom.op ≫
-        (((smallEtaleInclusion (ofOver Z)).sheafAdjunctionCocontinuous (Type u)
-          (smallEtaleTopology (ofOver Z)) (spacesEtaleTopology (ofOver Z))).counit.app G).hom.app
-            (Opposite.op (ofOverSmallEtalePullbackObj f V.unop))
+        EtaleTopos.extensionEvaluation (ofOver Z) G (smallPullbackSpaceIso f V.unop).hom
       naturality := sorry }
 
 /-- Direct-image comparison of modules induced by the pullback projection and Kan counit. -/

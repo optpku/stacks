@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.FieldTheory.LinearDisjoint
@@ -322,7 +328,7 @@ private lemma finrankAlgebraicFieldLeFinrankOverBasis
     (k := k) (K := K) (L := L) (x := x)
     (basisFieldLinearDisjointOfFiniteAlgebraic (k := k) (K := K) (L := L) hx)
 
-/-- Lemma 9.26.11 (Tag 037J): the relative algebraic closure of a finitely generated field
+/-- The relative algebraic closure of a finitely generated field
 extension is finite-dimensional over its base field. -/
 theorem finiteDimensionalAlgebraicClosureOfEssFiniteType [Algebra.EssFiniteType k K] :
     FiniteDimensional k (algebraicClosure k K) := by

@@ -1,6 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap90.Definition_90_17_1_ObjectLift
+public import ReasLib.CategoryTheory.Fibered.Lifts
 public import stacks_project.Chap90.Definition_90_7_3_ArtinianLocal
 import StacksCheckRecall
 
@@ -28,9 +34,9 @@ variable {A' A : ArtinianLocalAlgCat Λ k} (f : A' ⟶ A) (x : p.Fiber A)
 morphisms `x' ⟶ x` lying over `f`, and morphisms the morphisms in the fibre over
 `A'` making the over-triangle commute. -/
 @[stacks 06JE]
-#check Functor.ObjectLift p f x
+#check (CategoryTheory.Functor.ObjectLift p f x : Type (max v w))
 
 /- Definition 90.17.1 (2): the set of lifts of `x` along `f` is the type of
 isomorphism classes of the category of lifts. -/
 @[stacks 06JE]
-#check Functor.lifts p f x
+#check (CategoryTheory.Functor.lifts p f x : Type (max v w))

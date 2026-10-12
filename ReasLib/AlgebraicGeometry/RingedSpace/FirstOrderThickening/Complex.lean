@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Homology.ShortComplex.ShortExact
@@ -53,7 +59,7 @@ theorem isComplex_kernel_le (f : Hom i₁ i₂) (g : Hom i₂ i₃) (hC : IsComp
 
 /-- Transporting the pushforward along the composite by the inverse of the third
 inclusion agrees with pushforward along the inverse of the first inclusion. -/
-private theorem complex_pushforward_eq (f : Hom i₁ i₂) (g : Hom i₂ i₃) :
+theorem complex_pushforward_eq (f : Hom i₁ i₂) (g : Hom i₂ i₃) :
     ((TopCat.Presheaf.presheafEquivOfIso CommRingCat.{u} (asIso i₃.hom.base)).inverse.obj
         ((TopCat.Sheaf.pushforward CommRingCat.{u} (f.hom ≫ g.hom).hom.base).obj
           X₁.sheaf).1) =

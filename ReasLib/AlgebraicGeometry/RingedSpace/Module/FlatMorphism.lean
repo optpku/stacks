@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Flat
@@ -80,6 +86,7 @@ theorem isFlat_iff_flat :
     IsFlat f.toLRSHom.toShHom ↔ Flat f := sorry
 
 /-- Scheme-theoretic flatness implies flatness of the underlying ringed-space morphism. -/
+@[instance]
 theorem isFlat_of_flat [Flat f] : IsFlat f.toLRSHom.toShHom :=
   (isFlat_iff_flat f).2 inferInstance
 

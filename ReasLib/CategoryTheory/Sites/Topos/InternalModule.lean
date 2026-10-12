@@ -1,8 +1,15 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.Algebra.Category.Module.Internal.ChangeOfRings
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Internal
 public import ReasLib.CategoryTheory.Sites.Topos.InternalRing
+public import Mathlib.Algebra.Homology.Additive
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -121,7 +128,7 @@ noncomputable def moduleInverseImageRingComparison
   fromToIso.hom.app (f.internalRingInverseImage.obj (toInternal.obj R))
 
 /-- The internal-ring comparison used in module inverse image is an isomorphism. -/
-noncomputable instance moduleInverseImageRingComparison_isIso
+theorem moduleInverseImageRingComparison_isIso
     (f : MorphismOfTopoiIn.{u₀, u₁, v₀, v₁, w} J₀ J₁)
     (R : Sheaf J₀ RingCat.{w}) :
     IsIso (f.moduleInverseImageRingComparison R) :=
@@ -240,7 +247,7 @@ noncomputable def moduleDirectImageRingComparison
   fromToIso.hom.app (f.internalRingDirectImage.obj (toInternal.obj R))
 
 /-- The internal-ring comparison used in module direct image is an isomorphism. -/
-noncomputable instance moduleDirectImageRingComparison_isIso
+theorem moduleDirectImageRingComparison_isIso
     (f : MorphismOfTopoiIn.{u₀, u₁, v₀, v₁, w} J₀ J₁)
     (R : Sheaf J₁ RingCat.{w}) :
     IsIso (f.moduleDirectImageRingComparison R) :=
@@ -325,5 +332,12 @@ theorem moduleDirectImageForgetIso_naturality
         (f.moduleDirectImageForgetIso R).hom.app N =
       (f.moduleDirectImageForgetIso R).hom.app M ≫
         f.pushforward.map ((Sheaf.InternalModule.ToInternal.underlying R).map g) := sorry
+
+/-- Inverse image of modules along a morphism of topoi preserves additive structure. -/
+theorem moduleInverseImage_additive
+    (f : MorphismOfTopoiIn.{u₀, u₁, v₀, v₁, w} J₀ J₁)
+    (R : Sheaf J₀ RingCat.{w}) :
+    (f.moduleInverseImage R).Additive :=
+  sorry
 
 end CategoryTheory.MorphismOfTopoiIn

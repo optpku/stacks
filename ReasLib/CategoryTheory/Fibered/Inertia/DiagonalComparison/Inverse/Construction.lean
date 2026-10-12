@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Fibered.Inertia.DiagonalComparison.RelativeDiagonal.Construction
@@ -90,10 +96,10 @@ diagonal. -/
 @[stacks 034H "diagonal-comparison inverse object"]
 noncomputable def RelativeInertia.diagonalComparison.inverse.obj (F : X ⥤ᵇ Y)
     (P : (PseudoPullback (relativeDiagonal F) (relativeDiagonal F)).obj) :
-    CategoryTheory.RelativeInertia F.toFunctor where
-  obj := PseudoPullback.fstObj P
-  aut := RelativeInertia.diagonalComparison.inverse.aut F P
-  mapAut_eq_one := RelativeInertia.diagonalComparison.inverse.aut.map_eq_one F P
+    CategoryTheory.RelativeInertia F.toFunctor :=
+  CategoryTheory.RelativeInertia.mk
+    (Inertia.mk (PseudoPullback.fstObj P) (RelativeInertia.diagonalComparison.inverse.aut F P))
+    (RelativeInertia.diagonalComparison.inverse.aut.map_eq_one F P)
 
 /-- The first component of a self-pullback morphism intertwines the recovered relative-inertia
 automorphisms. -/

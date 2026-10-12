@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Fibered.Cleavage.Basic.Reindex.Factorization
@@ -32,15 +38,13 @@ morphism. This private owner supplies the non-Prop payload of `reindexMap`. -/
 private noncomputable def reindexMapHom (chi : p.Cleavage)
     {U V : C} (f : V ⟶ U) {x y : Fiber p U} (phi : x ⟶ y) :
     (chi.reindexObj f x).1 ⟶ (chi.reindexObj f y).1 :=
-  -- These direct witnesses keep the private non-Prop factor independent of deferred instances.
-  letI : p.IsStronglyCartesian f (chi.cartesianHom f y) :=
-    (chi.reindexLift f y).isStronglyCartesian
-  letI : p.IsHomLift f (chi.cartesianHom f x ≫ phi.1) :=
-    @IsHomLift.comp_lift_id_right' C S _ _ p V U
-      (chi.reindexObj f x).1 x.1 y.1 f (chi.cartesianHom f x)
-      (chi.reindexLift f x).isStronglyCartesian.toIsHomLift U phi.1 phi.2
-  IsStronglyCartesian.map p f (chi.cartesianHom f y) (Category.id_comp f).symm
+  @IsStronglyCartesian.map C S _ _ p V U (chi.reindexObj f y).1 y.1
+    f (chi.cartesianHom f y) (chi.reindexLift f y).isStronglyCartesian
+    V (chi.reindexObj f x).1 (𝟙 V) f (Category.id_comp f).symm
     (chi.cartesianHom f x ≫ phi.1)
+    (@IsHomLift.comp_lift_id_right' C S _ _ p V U
+      (chi.reindexObj f x).1 x.1 y.1 f (chi.cartesianHom f x)
+      (chi.reindexLift f x).isStronglyCartesian.toIsHomLift U phi.1 phi.2)
 
 set_option backward.privateInPublic true in
 /-- The ambient arrow selected by `reindexMapHom` lies over the identity of the source fiber. -/

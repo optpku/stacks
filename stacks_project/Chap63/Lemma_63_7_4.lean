@@ -1,7 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap63.Lemma_63_7_4_ClosedOpen
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.ClosedOpen
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -72,14 +78,13 @@ variable [∀ U : (closedImmersionComplement i).toScheme.Etale,
 
 namespace AlgebraicGeometry.Scheme.Etale
 
-variable (K : EtaleDerived X Λ)
+variable (K : DerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ)))
 
-/-- Lemma 63.7.4: if `i : Z ⟶ X` is a closed immersion with open complement
-inclusion `j = (closedImmersionComplement i).ι`, then for a ring `Λ` and
-`K : EtaleDerived X Λ` the complementary triangle
-`j_! (j⁻¹ K) ⟶ K ⟶ i_* (i⁻¹ K) ⟶ j_! (j⁻¹ K)⟦1⟧` is distinguished. -/
-@[stacks 0GKL]
-theorem etaleDerivedClosedOpenTriangle_distinguished :
-    etaleDerivedClosedOpenTriangle i Λ K ∈ distTriang (EtaleDerived X Λ) := sorry
+/- Lemma 63.7.4 -/
+@[stacks 0GKL] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedClosedOpenTriangle_distinguished
+    (i := i) (Λ := Λ) K :
+      etaleDerivedClosedOpenTriangle i Λ K ∈
+        distTriang (DerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ))))
 
 end AlgebraicGeometry.Scheme.Etale

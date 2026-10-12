@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FinitePresentation
@@ -28,7 +34,7 @@ instance instFinitePresentationOfIsOpenImmersion
     {X Y : Scheme.{u}} (f : X ⟶ Y) [IsOpenImmersion f] [QuasiCompact f] :
     FinitePresentation f := sorry
 
-/-- Lemma 29.21.6: an open immersion is of finite presentation exactly when it is quasi-compact. -/
+/-- An open immersion is of finite presentation if and only if it is quasi-compact. -/
 @[stacks 01TU]
 theorem finitePresentation_iff_quasiCompact_of_isOpenImmersion
     {X Y : Scheme.{u}} (f : X ⟶ Y) [IsOpenImmersion f] :

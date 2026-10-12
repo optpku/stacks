@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Sites.SpecialCocontinuous
@@ -10,6 +16,10 @@ cocontinuous functor of sites satisfying the five comparison conditions of Lemma
 (continuous, cocontinuous, source-locally faithful, source-locally full, and cover-dense).
 This is the unbundled Prop class Functor.IsSpecialCocontinuous J K; the induced
 equivalence of topoi is the comparison theorem, not a definition field. -/
-@[stacks 03CG] #check @CategoryTheory.Functor.IsSpecialCocontinuous
+@[stacks 03CG] #check (@CategoryTheory.Functor.IsSpecialCocontinuous :
+  {C : Type _} → [CategoryTheory.Category C] → {D : Type _} →
+    [CategoryTheory.Category D] → CategoryTheory.Functor C D →
+      CategoryTheory.GrothendieckTopology C →
+        CategoryTheory.GrothendieckTopology D → Prop)
 
 #check @CategoryTheory.Functor.isSpecialCocontinuous_iff

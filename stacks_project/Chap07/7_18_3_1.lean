@@ -1,7 +1,15 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 import StacksCheckRecall
 public import ReasLib.CategoryTheory.Sites.Cofiltered.ColimitPullback
+
+universe u
 
 @[expose] public section
 
@@ -14,7 +22,12 @@ This is invertibility of ColimitPullback.comparison :
 colimit (sectionDiagram S F X) ⟶
 ((stageCoconeFunctor i).sheafPullback (Type u) (stageTopology i)
 colimitTopology).obj F evaluated at u_i(X). -/
-@[stacks 09YM] #check @CategoryTheory.CofilteredSiteDiagram.ColimitPullback.comparison_isIso
+@[stacks 09YM] #check
+  (CategoryTheory.CofilteredSiteDiagram.ColimitPullback.comparison_isIso :
+    ∀ (S : CategoryTheory.CofilteredSiteDiagram.{u, u, u}) {i : S.I}
+      (F : CategoryTheory.Sheaf (S.stageTopology i) (Type u)) (X : S.stage i),
+      CategoryTheory.IsIso
+        (CategoryTheory.CofilteredSiteDiagram.ColimitPullback.comparison S F X))
 
 #check @CategoryTheory.CofilteredSiteDiagram.ColimitPullback.comparison
 #check @CategoryTheory.CofilteredSiteDiagram.ColimitPullback.sectionDiagram

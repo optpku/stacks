@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap71.Lemma_71_6_12_Pullback
@@ -33,7 +39,7 @@ variable (δ : Points B → ℤ) [IsDimensionFunction δ]
 /-- The degree-`k` cycle of a closed subspace is a `k`-cycle. -/
 theorem closedSubspaceCycle_mem (Z : ClosedSubspace X) (k : ℤ) :
     @ClosedSubspace.cycle S X (LocallyOfFiniteType.isLocallyNoetherian f) Z
-        (f.relativeDimensionFunction δ) k ∈ f.cycleGroup δ k :=
+        ((Hom.relativeDimensionFunction (f)) δ) k ∈ (Hom.cycleGroup (f)) δ k :=
   sorry
 
 /-- The associated cycle of the scheme-theoretic inverse image of a closed
@@ -43,23 +49,23 @@ theorem associatedCycle_inverseImage_mem (L : X.Modules) [isInvertibleObject L]
     @ClosedSubspace.cycle S (zeroScheme L s).X
         (LocallyOfFiniteType.isLocallyNoetherian (zeroSchemeι L s ≫ f))
         (Z.inverseImage (zeroSchemeι L s))
-        ((zeroSchemeι L s ≫ f).relativeDimensionFunction δ) k ∈
-      (zeroSchemeι L s ≫ f).cycleGroup δ k :=
+        ((Hom.relativeDimensionFunction (zeroSchemeι L s ≫ f)) δ) k ∈
+      (Hom.cycleGroup (zeroSchemeι L s ≫ f)) δ k :=
   sorry
 
 /-- The Gysin cycle of `[Z]_{k+1}` equals the associated cycle of `D ∩ Z` on
 `|D|`, when that intersection is an effective Cartier divisor on `Z`. -/
 theorem gysinCycle_closedSubspaceCycle (L : X.Modules) [isInvertibleObject L]
     (s : L.sections) (Z : ClosedSubspace X) (k : ℤ)
-    (hZ : f.closedSubspaceDeltaDimension δ Z ≤ ((k + 1 : ℤ) : EInt))
+    (hZ : (Hom.closedSubspaceDeltaDimension (f)) δ Z ≤ ((k + 1 : ℤ) : EInt))
     [IsEffectiveCartierDivisor ((zeroScheme L s).inverseImage Z.ι).ι] :
     gysinCycle f δ k L s
         (@ClosedSubspace.cycle S X (LocallyOfFiniteType.isLocallyNoetherian f) Z
-          (f.relativeDimensionFunction δ) (k + 1)) =
+          ((Hom.relativeDimensionFunction (f)) δ) (k + 1)) =
       @ClosedSubspace.cycle S (zeroScheme L s).X
         (LocallyOfFiniteType.isLocallyNoetherian (zeroSchemeι L s ≫ f))
         (Z.inverseImage (zeroSchemeι L s))
-        ((zeroSchemeι L s ≫ f).relativeDimensionFunction δ) k :=
+        ((Hom.relativeDimensionFunction (zeroSchemeι L s ≫ f)) δ) k :=
   sorry
 
 /-- Lemma 82.22.7: In Situation 82.2.1 let `X / B` be good. Let
@@ -69,17 +75,17 @@ Cartier divisor on `Z`. Then `i*([Z]_{k+1}) = [D ∩ Z]_k` in `CH_k(D)`. -/
 @[stacks 0ER7]
 theorem gysin_closedSubspaceCycle (L : X.Modules) [isInvertibleObject L]
     (s : L.sections) (Z : ClosedSubspace X) (k : ℤ)
-    (hZ : f.closedSubspaceDeltaDimension δ Z ≤ ((k + 1 : ℤ) : EInt))
+    (hZ : (Hom.closedSubspaceDeltaDimension (f)) δ Z ≤ ((k + 1 : ℤ) : EInt))
     [IsEffectiveCartierDivisor ((zeroScheme L s).inverseImage Z.ι).ι] :
     gysin f δ k L s
         ⟨@ClosedSubspace.cycle S X (LocallyOfFiniteType.isLocallyNoetherian f) Z
-            (f.relativeDimensionFunction δ) (k + 1),
+            ((Hom.relativeDimensionFunction (f)) δ) (k + 1),
           closedSubspaceCycle_mem f δ Z (k + 1)⟩ =
-      (zeroSchemeι L s ≫ f).chowMk δ k
+      (Hom.chowMk (zeroSchemeι L s ≫ f)) δ k
         ⟨@ClosedSubspace.cycle S (zeroScheme L s).X
             (LocallyOfFiniteType.isLocallyNoetherian (zeroSchemeι L s ≫ f))
             (Z.inverseImage (zeroSchemeι L s))
-            ((zeroSchemeι L s ≫ f).relativeDimensionFunction δ) k,
+            ((Hom.relativeDimensionFunction (zeroSchemeι L s ≫ f)) δ) k,
           associatedCycle_inverseImage_mem f δ L s Z k⟩ :=
   sorry
 

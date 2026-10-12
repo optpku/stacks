@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Homology.Additive
@@ -201,7 +207,7 @@ instance etaleRestriction_comp_smallEtaleInclusion_isCocontinuous
 
 /-- The opposite of the composite of small étale inclusion with spaces étale restriction has
 pointwise right Kan extensions on type-valued presheaves. -/
-instance smallEtaleInclusion_comp_spacesEtaleRestriction_op_hasPointwiseRightKanExtension_type
+instance inclusionRestriction_hasPointwiseRan
     {U X : AlgebraicSpace S} (p : U ⟶ X) [Etale p]
     (P : (smallEtaleSite U)ᵒᵖ ⥤ Type u) :
     (smallEtaleInclusion U ⋙ spacesEtaleRestriction p).op.HasPointwiseRightKanExtension P :=
@@ -209,7 +215,7 @@ instance smallEtaleInclusion_comp_spacesEtaleRestriction_op_hasPointwiseRightKan
 
 /-- The opposite of the composite of étale restriction with the spaces inclusion has pointwise
 right Kan extensions on type-valued presheaves. -/
-instance etaleRestriction_comp_smallEtaleInclusion_op_hasPointwiseRightKanExtension_type
+instance restrictionInclusion_hasPointwiseRan
     {U X : AlgebraicSpace S} (p : U ⟶ X) [Etale p]
     (P : (smallEtaleSite U)ᵒᵖ ⥤ Type u) :
     (etaleRestriction p ⋙ smallEtaleInclusion X).op.HasPointwiseRightKanExtension P :=
@@ -260,10 +266,13 @@ def smallEtaleInclusionCocontinuousContinuousIso (Y : AlgebraicSpace S) :
       (smallEtaleInclusion Y).sheafPushforwardContinuous (Type u)
         (smallEtaleTopology Y) (spacesEtaleTopology Y) ≅
     𝟭 (Sheaf (smallEtaleTopology Y) (Type u)) :=
-  let adj :=
-    (smallEtaleInclusion Y).sheafAdjunctionCocontinuous (Type u)
-      (smallEtaleTopology Y) (spacesEtaleTopology Y)
-  NatIso.ofComponents (fun F ↦ asIso (adj.counit.app F)) sorry
+  isoWhiskerRight
+    (Adjunction.rightAdjointUniq (EtaleTopos.siteEquivalence Y).toAdjunction
+      ((smallEtaleInclusion Y).sheafAdjunctionCocontinuous (Type u)
+        (smallEtaleTopology Y) (spacesEtaleTopology Y))).symm
+    ((smallEtaleInclusion Y).sheafPushforwardContinuous (Type u)
+      (smallEtaleTopology Y) (spacesEtaleTopology Y)) ≪≫
+    EtaleTopos.extensionRestrictionIso Y
 
 /-- Direct image of type-valued sheaves along an étale morphism agrees with cocontinuous
 pushforward of `etaleRestriction`. -/
@@ -287,6 +296,12 @@ def typePushforwardIsoEtaleCocontinuous {U X : AlgebraicSpace S} (p : U ⟶ X) [
     (etaleRestriction p).sheafPushforwardCocontinuous (Type u)
       (smallEtaleTopology U) (smallEtaleTopology X)
   typePushforwardFactor p ≪≫
+    isoWhiskerRight
+      (Adjunction.rightAdjointUniq (EtaleTopos.siteEquivalence U).toAdjunction
+        ((smallEtaleInclusion U).sheafAdjunctionCocontinuous (Type u)
+          (smallEtaleTopology U) (spacesEtaleTopology U)))
+      ((spacesEtalePullback p).sheafPushforwardContinuous (Type u)
+          (spacesEtaleTopology X) (spacesEtaleTopology U) ⋙ iXrestrict) ≪≫
     isoWhiskerLeft iU (isoWhiskerRight
       (Functor.ContinuousRightAdjoint.pushforwardContinuousIso
         (spacesEtaleRestriction p) (spacesEtalePullback p) (Type u)
@@ -470,8 +485,11 @@ and their composite, through `g⁻¹𝒪_V(W)`. -/
 theorem square_isScalarTower_inverseImage {U V X Y : AlgebraicSpace S}
     (p : U ⟶ X) (g : U ⟶ V) (f : X ⟶ Y) (q : V ⟶ Y) [Etale p] [Etale q]
     (hcomm : p ≫ f = g ≫ q) (W : (smallEtaleSite U)ᵒᵖ) :
+    -- Local instance justification (defeq pin): use the scalar action from this square's inverse-image coefficient map at W.
     letI := RingHom.toAlgebra (inverseImageCoeff p g f q hcomm W).hom
+    -- Local instance justification (defeq pin): use g's inverse-image algebra at the fixed chart W in the tensor product.
     letI := inverseImageAlgebra g W
+    -- Local instance justification (defeq pin): the composite scalar action below is the one specified by the preceding two coefficient maps.
     letI : Algebra
         ((commInverseImageStructureSheaf f).obj.obj (restrictChart p W))
         ((commStructureSheaf U).obj.obj W) :=
@@ -489,8 +507,11 @@ and the composite `commInverseImageStructureSheafMap g` after `inverseImageCoeff
 theorem square_isScalarTower_structure {U V X Y : AlgebraicSpace S}
     (p : U ⟶ X) (g : U ⟶ V) (f : X ⟶ Y) (q : V ⟶ Y) [Etale p] [Etale q]
     (hcomm : p ≫ f = g ≫ q) (W : (smallEtaleSite U)ᵒᵖ) :
+    -- Local instance justification (defeq pin): use f's inverse-image algebra on the restricted chart for this scalar-extension map.
     letI := inverseImageAlgebra f (restrictChart p W)
+    -- Local instance justification (defeq pin): the target scalar action is induced by the chart's structure-coefficient homomorphism.
     letI := RingHom.toAlgebra (structureCoeff p W).hom
+    -- Local instance justification (defeq pin): use the composite of these two chartwise scalar actions in the tensor construction below.
     letI : Algebra
         ((commInverseImageStructureSheaf f).obj.obj (restrictChart p W))
         ((commStructureSheaf U).obj.obj W) :=
@@ -632,8 +653,11 @@ def squarePresentationAlgHomInv {U V X Y : AlgebraicSpace S}
 theorem square_isScalarTower_inverseImage_inv {U V X Y : AlgebraicSpace S}
     (p : U ⟶ X) (g : U ⟶ V) (f : X ⟶ Y) (q : V ⟶ Y) [Etale p] [Etale q]
     (hcomm : p ≫ f = g ≫ q) (W : (smallEtaleSite U)ᵒᵖ) :
+    -- Local instance justification (defeq pin): use the inverse coefficient homomorphism's scalar action for this inverse comparison.
     letI := RingHom.toAlgebra (inverseImageCoeffInv p g f q hcomm W).hom
+    -- Local instance justification (defeq pin): use f's inverse-image algebra at the restricted chart in the inverse tensor map.
     letI := inverseImageAlgebra f (restrictChart p W)
+    -- Local instance justification (defeq pin): compose these fixed chartwise actions to match the source algebra of the inverse map.
     letI : Algebra
         ((commInverseImageStructureSheaf g).obj.obj W)
         ((commStructureSheaf X).obj.obj (restrictChart p W)) :=

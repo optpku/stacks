@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.Basic
@@ -229,9 +235,8 @@ theorem derivedComparisonIso_inv
     [Sheaf.IsLocallySurjective (FreeAlgebra.evaluation B E α).right] :
     (derivedComparisonIso E α).inv = derivedComparisonInv E α := sorry
 
-/-- Lemma 17.31.2 (08TL); Lemma 18.35.2 (08TY): a locally surjective family of generators
-gives a canonical derived identification of its polynomial presentation model with the naive
-cotangent complex. -/
+/-- A locally surjective family of generators gives a canonical derived identification of its
+polynomial presentation model with the naive cotangent complex. -/
 @[stacks 08TL, stacks 08TY]
 noncomputable def ofGeneratorsIso
     (E : Sheaf J (Type w))
@@ -241,8 +246,8 @@ noncomputable def ofGeneratorsIso
       DerivedCategory.Q.obj (NaiveCotangent.obj A B) :=
   derivedComparisonIso E α
 
-/-- The forward map of the source-facing generator-presentation isomorphism is the canonical
-derived comparison. -/
+/-- The forward map of the generator-presentation isomorphism is the canonical derived
+comparison. -/
 @[simp]
 theorem ofGeneratorsIso_hom
     (E : Sheaf J (Type w))

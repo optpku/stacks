@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf
@@ -104,7 +110,8 @@ def structureModulePullbackInv {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
       (pullback f).obj (SheafOfModules.unit (structureSheaf Y)) :=
   extendScalarsUnitFromStructure f ≫
     (SheafOfModules.ChangeOfRings.extendScalars (ringedToposHom f).structureMap).map
-      (moduleInverseImageUnitIso f).inv
+      (moduleInverseImageUnitIso f).inv ≫
+    (pullbackIsoTopos f).inv.app (SheafOfModules.unit (structureSheaf Y))
 
 /-- Pullback of a compatible section along a morphism of algebraic spaces. -/
 def sectionsPullback {X Y : AlgebraicSpace S} (f : X ⟶ Y) (F : Y.Modules)

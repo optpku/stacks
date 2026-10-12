@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Fibered.Cleavage.Basic.Reindex.Lift
@@ -32,13 +38,12 @@ noncomputable def cartesianFactor (chi : p.Cleavage)
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : Fiber p U)
     {y : S} (phi : y ⟶ x.1) [p.IsHomLift (g ≫ f) phi] :
     y ⟶ (chi.reindexObj f x).1 :=
-  -- Keep this data owner on the cleavage witness itself; the public instance is proof-deferred.
-  letI : p.IsStronglyCartesian f (chi.cartesianHom f x) :=
-    (chi.reindexLift f x).isStronglyCartesian
-  IsStronglyCartesian.map (g := g) (f' := g ≫ f) p f (chi.cartesianHom f x) rfl phi
+  @IsStronglyCartesian.map C S _ _ p V U (chi.reindexObj f x).1 x.1
+    f (chi.cartesianHom f x) (chi.reindexLift f x).isStronglyCartesian
+    W y g (g ≫ f) rfl phi inferInstance
 
 /-- The canonical factor through a selected cartesian arrow lies over the remaining base arrow. -/
-instance cartesianFactor.isHomLift (chi : p.Cleavage)
+theorem cartesianFactor.isHomLift (chi : p.Cleavage)
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : Fiber p U)
     {y : S} (phi : y ⟶ x.1) [p.IsHomLift (g ≫ f) phi] :
     p.IsHomLift g (chi.cartesianFactor f g x phi) := sorry
@@ -93,7 +98,7 @@ noncomputable def verticalFactorHom (chi : p.Cleavage) {x y : S} (phi : x ⟶ y)
     (IsHomLift.lift_id_comp p (p.map phi) phi)
 
 /-- The ambient vertical factor lies over the identity of the source base object. -/
-instance verticalFactorHom.isHomLift (chi : p.Cleavage) {x y : S} (phi : x ⟶ y) :
+theorem verticalFactorHom.isHomLift (chi : p.Cleavage) {x y : S} (phi : x ⟶ y) :
     p.IsHomLift (𝟙 (p.obj x)) (chi.verticalFactorHom phi) := sorry
 
 /-- The vertical factor of an ambient morphism, bundled in the source fiber. -/
@@ -160,7 +165,7 @@ theorem cartesianHom.ext (chi : p.Cleavage) {U V : C} (f : V ⟶ U)
 
 /-- Composing the chosen cartesian arrow with a morphism in the target fiber remains a lift of
 the original base arrow. -/
-instance cartesianHom.comp.isHomLift (chi : p.Cleavage) {U V : C} (f : V ⟶ U)
+theorem cartesianHom.comp.isHomLift (chi : p.Cleavage) {U V : C} (f : V ⟶ U)
     {x y : Fiber p U} (phi : x ⟶ y) :
     p.IsHomLift f (chi.cartesianHom f x ≫ phi.1) := sorry
 

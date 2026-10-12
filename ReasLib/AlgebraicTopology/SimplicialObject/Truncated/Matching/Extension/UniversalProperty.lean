@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicTopology.SimplicialObject.Truncated.Matching.Representability
@@ -37,7 +43,7 @@ structure Extension {n : ℕ} {U : SimplicialObject.Truncated C n} {T : C}
   /-- The new top-degree term is the chosen representing object. -/
   topIso : obj.obj (op ⦋n + 1⦌ₙ₊₁) ≅ T
   /-- The extension object is a right Kan extension along one-step truncation. -/
-  [isRightKanExtension : obj.IsRightKanExtension truncIso.hom]
+  isRightKanExtension : obj.IsRightKanExtension truncIso.hom
   /-- After transporting along the comparison isomorphisms, each face is the corresponding
   coordinate of the universal matching family. -/
   face_eq_π (i : Fin (n + 2)) :
@@ -53,7 +59,6 @@ structure Extension {n : ℕ} {U : SimplicialObject.Truncated C n} {T : C}
 
 attribute [stacks 0187 "right Kan universal property of a one-step extension"]
   Extension.isRightKanExtension
-attribute [instance] Extension.isRightKanExtension
 attribute [stacks 0188 "one-step extension object"] Extension.obj
 attribute [stacks 0188 "one-step extension truncation comparison"] Extension.truncIso
 attribute [stacks 0188 "one-step extension top-degree comparison"] Extension.topIso
@@ -62,6 +67,26 @@ attribute [stacks 0188 "one-step extension degeneracy identification"]
   Extension.degeneracy_eq_σ
 
 namespace Extension
+
+/-- Changing the representing object preserves the universal face identifications after
+transporting the top-degree comparison. -/
+theorem changeRepresentation_face_eq_π {n : ℕ}
+    {U : SimplicialObject.Truncated C n} {T T' : C}
+    {R : (FaceFamily.presheaf U).RepresentableBy T} (E : Extension R)
+    (R' : (FaceFamily.presheaf U).RepresentableBy T') (i : Fin (n + 2)) :
+    (E.topIso ≪≫ R.uniqueUpToIso R').inv ≫ E.obj.δ i ≫
+        E.truncIso.hom.app (op (⦋n⦌ₙ : SimplexCategory.Truncated n)) =
+      FaceFamily.π R' i := sorry
+
+/-- Changing the representing object preserves the universal degeneracy identifications after
+transporting the top-degree comparison. -/
+theorem changeRepresentation_degeneracy_eq_σ {n : ℕ}
+    {U : SimplicialObject.Truncated C n} {T T' : C}
+    {R : (FaceFamily.presheaf U).RepresentableBy T} (E : Extension R)
+    (R' : (FaceFamily.presheaf U).RepresentableBy T') (j : Fin (n + 1)) :
+    E.truncIso.inv.app (op (⦋n⦌ₙ : SimplexCategory.Truncated n)) ≫
+        E.obj.σ j ≫ (E.topIso ≪≫ R.uniqueUpToIso R').hom =
+      FaceFamily.σ R' j := sorry
 
 /-- Transport a one-step extension along a change of representing object. The successor-truncated
 object and its old-degree comparison are unchanged; only the top-degree comparison is transported
@@ -75,8 +100,8 @@ noncomputable def changeRepresentation {n : ℕ}
   truncIso := E.truncIso
   topIso := E.topIso ≪≫ R.uniqueUpToIso R'
   isRightKanExtension := E.isRightKanExtension
-  face_eq_π := sorry
-  degeneracy_eq_σ := sorry
+  face_eq_π := changeRepresentation_face_eq_π E R'
+  degeneracy_eq_σ := changeRepresentation_degeneracy_eq_σ E R'
 
 /-- The universal Hom equivalence of a one-step matching extension. -/
 @[stacks 0187 "one-step extension Hom equivalence"]
@@ -85,7 +110,8 @@ noncomputable def homEquiv {n : ℕ} {U : SimplicialObject.Truncated C n} {T : C
     {V : SimplicialObject.Truncated C (n + 1)} :
     (V ⟶ E.obj) ≃
       ((Truncated.trunc C (n + 1) n).obj V ⟶ U) :=
-  E.obj.homEquivOfIsRightKanExtension E.truncIso.hom V
+  @Functor.homEquivOfIsRightKanExtension _ _ _ _ _ _ E.obj _ _
+    E.truncIso.hom E.isRightKanExtension V
 
 /-- The Hom equivalence of an extension sends a morphism to its truncation followed by the
 comparison with the original truncated object. -/
@@ -136,7 +162,8 @@ matching object. -/
 noncomputable def uniqueIso {n : ℕ} {U : SimplicialObject.Truncated C n} {T : C}
     {R : (FaceFamily.presheaf U).RepresentableBy T} (E E' : Extension R) :
     E.obj ≅ E'.obj :=
-  E.obj.rightKanExtensionUnique E.truncIso.hom E'.obj E'.truncIso.hom
+  @Functor.rightKanExtensionUnique _ _ _ _ _ _ E.obj _ _
+    E.truncIso.hom E.isRightKanExtension E'.obj E'.truncIso.hom E'.isRightKanExtension
 
 /-- The uniqueness isomorphism from an extension to itself is the identity. -/
 @[simp, stacks 0187 "self-coherence of extension uniqueness"]

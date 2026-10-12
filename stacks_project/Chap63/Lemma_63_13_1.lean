@@ -1,16 +1,17 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.Module.FiniteLocallyFree.Rank
-public import ReasLib.CategoryTheory.Sites.LocallyConstant.Finite
-public import stacks_project.Chap59.Definition_59_71_1_Constructible
-public import stacks_project.Chap59.Lemma_59_80_9_Pullback
-public import stacks_project.Chap63.Lemma_63_13_1_Frobenius
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Frobenius
+import StacksCheckRecall
 
 @[expose] public section
 
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
-open AlgebraicGeometry.Scheme.Hom
 open CategoryTheory.Sheaf
 
 noncomputable section
@@ -18,27 +19,26 @@ noncomputable section
 universe u
 
 namespace AlgebraicGeometry.Scheme.Etale
-open Frobenius
 
 variable {S : Scheme.{u}} (p : ℕ) [Fact p.Prime] [S.IsCharP p]
-variable (E : S.Modules) [E.IsFiniteLocallyFree]
-variable [Abelian (Sheaf S.smallEtaleTopology AddCommGrpCat.{u})]
-variable (F : smallEtaleAbelian S E ⟶ smallEtaleAbelian S E)
+variable (E : S.Modules) [SheafOfModules.IsFiniteLocallyFree E]
+variable (F : Frobenius.smallEtaleAbelian S E ⟶ Frobenius.smallEtaleAbelian S E)
 
-/-- Lemma 63.13.1 (1): the cokernel of `F - 𝟙` vanishes for a Frobenius-semilinear
+/- Lemma 63.13.1 (1): the cokernel of `F - 𝟙` vanishes for a Frobenius-semilinear
 endomorphism of a finite locally free module on `S_étale`. -/
-@[stacks 0GKU]
-theorem coker_subId_isZero (hF : IsFrobeniusSemilinear p E F) :
-    IsZero (cokernel (subId F)) := sorry
+@[stacks 0GKU] #check
+  (AlgebraicGeometry.Scheme.Etale.Frobenius.isZero_cokernel_sub_id p E F :
+    Frobenius.IsFrobeniusSemilinear p E F → IsZero (cokernel (F - 𝟙 _)))
 
-/-- Lemma 63.13.1 (2): the kernel of `F - 𝟙` is a constructible abelian sheaf on
+/- Lemma 63.13.1 (2): the kernel of `F - 𝟙` is a constructible abelian sheaf on
 `S_étale`. -/
-@[stacks 0GKU]
-theorem ker_subId_isConstructible (hF : IsFrobeniusSemilinear p E F)
-    [∀ (Y : Scheme.{u}) (V : Y.Etale),
-      HasWeakSheafify (Y.smallEtaleTopology.over V) AddCommGrpCat.{u}] :
-    IsConstructibleEtale (fun {Y} f ↦ (etaleAbelianSheafPullback f).obj)
-      (fun {Y} G ↦ IsFiniteLocallyConstantAddCommGrp G) (kernel (subId F)) :=
-  sorry
+@[stacks 0GKU] #check
+  (AlgebraicGeometry.Scheme.Etale.Frobenius.isConstructibleEtale_kernel_sub_id p E F :
+    Frobenius.IsFrobeniusSemilinear p E F →
+      IsConstructibleEtale
+        (fun {Y} f ↦ ((Scheme.smallEtalePullback f).sheafPullback AddCommGrpCat.{u}
+          S.smallEtaleTopology Y.smallEtaleTopology).obj)
+        (fun {Y} G ↦ IsFiniteLocallyConstantAddCommGrp G)
+        (kernel (F - 𝟙 _)))
 
 end AlgebraicGeometry.Scheme.Etale

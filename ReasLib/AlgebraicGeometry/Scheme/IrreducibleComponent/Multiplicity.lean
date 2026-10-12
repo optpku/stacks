@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.AlgebraicGeometry.Noetherian
+public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
 public import Mathlib.RingTheory.Length
 
 /-!
@@ -12,7 +19,7 @@ ambient local ring at the component's generic point.
 
 @[expose] public section
 
-open AlgebraicGeometry
+open AlgebraicGeometry CategoryTheory TopologicalSpace
 
 noncomputable section
 
@@ -34,5 +41,14 @@ theorem coe_irreducibleComponentMultiplicity (X : Scheme.{u}) [IsLocallyNoetheri
     (X.irreducibleComponentMultiplicity Z : ℕ∞) =
       Module.length (X.presheaf.stalk Z.2.1.genericPoint)
         (X.presheaf.stalk Z.2.1.genericPoint) := sorry
+
+/-- A smooth morphism of locally Noetherian schemes preserves the multiplicity of an
+irreducible component whose image is dense in an irreducible component of the target. -/
+theorem Hom.irreducibleComponentMultiplicity_eq_of_smooth
+    {U X : Scheme.{u}} [IsLocallyNoetherian U] [IsLocallyNoetherian X]
+    (f : U ⟶ X) [Smooth f] (T' : irreducibleComponents U)
+    (T : irreducibleComponents X)
+    (hT : closure (Set.image f.base (T' : Set U)) = (T : Set X)) :
+    U.irreducibleComponentMultiplicity T' = X.irreducibleComponentMultiplicity T := sorry
 
 end AlgebraicGeometry.Scheme

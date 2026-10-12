@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap82.Definition_82_22_1_Gysin
@@ -37,7 +43,7 @@ variable (htriv : isUnitObject ((Modules.pullback (zeroSchemeι L s)).obj L))
 to `Z(s)` is a unit: it is zero on `Z(s)` and the scheme-theoretic intersection
 cycle away from `Z(s)`. -/
 noncomputable def trivialGysinGeneratorCycle (x : Points X)
-    (hx : f.relativeDimensionFunction δ x = k + 1) :
+    (hx : (Hom.relativeDimensionFunction (f)) δ x = k + 1) :
     Function.locallyFinsupp (Points (zeroScheme L s).X) ℤ :=
   let _ := htriv
   let _ := hx
@@ -49,7 +55,7 @@ noncomputable def trivialGysinGeneratorCycle (x : Points X)
 /-- A generator supported on `Z(s)` contributes zero to the trivial-restriction
 Gysin cycle. -/
 theorem trivialGysinGeneratorCycle_of_mem (x : Points X)
-    (hx : f.relativeDimensionFunction δ x = k + 1)
+    (hx : (Hom.relativeDimensionFunction (f)) δ x = k + 1)
     (hmem : x ∈ (zeroScheme L s).pointsSet) :
     trivialGysinGeneratorCycle f δ k L s htriv x hx = 0 :=
   sorry
@@ -57,7 +63,7 @@ theorem trivialGysinGeneratorCycle_of_mem (x : Points X)
 /-- A generator away from `Z(s)` contributes the associated cycle of
 `Z(s) ∩ closure({x})`. -/
 theorem trivialGysinGeneratorCycle_of_not_mem (x : Points X)
-    (hx : f.relativeDimensionFunction δ x = k + 1)
+    (hx : (Hom.relativeDimensionFunction (f)) δ x = k + 1)
     (hmem : x ∉ (zeroScheme L s).pointsSet) :
     trivialGysinGeneratorCycle f δ k L s htriv x hx =
       gysinIntersectionCycle f δ k L s x :=
@@ -68,7 +74,7 @@ locally finite family on `Z(s)`. -/
 theorem trivialGysinGeneratorTermsLocallyFinite
     (α : Function.locallyFinsupp (Points X) ℤ) :
     LocallyFinite fun x : Points X ↦
-      (if hx : f.relativeDimensionFunction δ x = k + 1 then
+      (if hx : (Hom.relativeDimensionFunction (f)) δ x = k + 1 then
         α x • trivialGysinGeneratorCycle f δ k L s htriv x hx
       else 0).support :=
   sorry
@@ -79,7 +85,7 @@ noncomputable def trivialGysinCycle (α : Function.locallyFinsupp (Points X) ℤ
     Function.locallyFinsupp (Points (zeroScheme L s).X) ℤ :=
   AlgebraicCycle.locallyFiniteSum
     (fun x : Points X ↦
-      if hx : f.relativeDimensionFunction δ x = k + 1 then
+      if hx : (Hom.relativeDimensionFunction (f)) δ x = k + 1 then
         α x • trivialGysinGeneratorCycle f δ k L s htriv x hx
       else 0)
     (trivialGysinGeneratorTermsLocallyFinite f δ k L s htriv α)
@@ -90,16 +96,16 @@ theorem trivialGysinCycle_apply (α : Function.locallyFinsupp (Points X) ℤ)
     (z : Points (zeroScheme L s).X) :
     trivialGysinCycle f δ k L s htriv α z =
       ∑ᶠ x : Points X,
-        (if hx : f.relativeDimensionFunction δ x = k + 1 then
+        (if hx : (Hom.relativeDimensionFunction (f)) δ x = k + 1 then
           α x • trivialGysinGeneratorCycle f δ k L s htriv x hx
         else 0) z :=
   sorry
 
 /-- The trivial-restriction Gysin cycle of a `(k + 1)`-cycle is a `k`-cycle on
 `Z(s)`. -/
-theorem trivialGysinCycle_mem (α : f.cycleGroup δ (k + 1)) :
+theorem trivialGysinCycle_mem (α : (Hom.cycleGroup (f)) δ (k + 1)) :
     trivialGysinCycle f δ k L s htriv (α : Function.locallyFinsupp (Points X) ℤ) ∈
-      (zeroSchemeι L s ≫ f).cycleGroup δ k :=
+      (Hom.cycleGroup (zeroSchemeι L s ≫ f)) δ k :=
   sorry
 
 /-- The concrete trivial-restriction Gysin cycle sends zero to zero. -/
@@ -118,7 +124,7 @@ theorem trivialGysinCycle_add (α β : Function.locallyFinsupp (Points X) ℤ) :
 /-- The canonical additive cycle map associated to a section whose invertible
 module becomes a unit on its zero scheme. -/
 noncomputable def trivialGysin :
-    f.cycleGroup δ (k + 1) →+ (zeroSchemeι L s ≫ f).cycleGroup δ k where
+    (Hom.cycleGroup (f)) δ (k + 1) →+ (Hom.cycleGroup (zeroSchemeι L s ≫ f)) δ k where
   toFun := fun α ↦
     ⟨trivialGysinCycle f δ k L s htriv (α : Function.locallyFinsupp (Points X) ℤ),
       trivialGysinCycle_mem f δ k L s htriv α⟩
@@ -128,7 +134,7 @@ noncomputable def trivialGysin :
 /-- On a point generator contained in `Z(s)`, the trivial-restriction Gysin map
 is zero. -/
 theorem trivialGysin_point_of_mem (x : Points X)
-    (hx : f.relativeDimensionFunction δ x = k + 1)
+    (hx : (Hom.relativeDimensionFunction (f)) δ x = k + 1)
     (hmem : x ∈ (zeroScheme L s).pointsSet) :
     trivialGysin f δ k L s htriv ⟨pointCycle x, pointCycle_mem f δ k x hx⟩ = 0 :=
   sorry
@@ -136,7 +142,7 @@ theorem trivialGysin_point_of_mem (x : Points X)
 /-- On a point generator away from `Z(s)`, the trivial-restriction Gysin map is
 the associated cycle of `Z(s) ∩ closure({x})`. -/
 theorem trivialGysin_point_of_not_mem (x : Points X)
-    (hx : f.relativeDimensionFunction δ x = k + 1)
+    (hx : (Hom.relativeDimensionFunction (f)) δ x = k + 1)
     (hmem : x ∉ (zeroScheme L s).pointsSet) :
     trivialGysin f δ k L s htriv ⟨pointCycle x, pointCycle_mem f δ k x hx⟩ =
       ⟨gysinIntersectionCycle f δ k L s x,
@@ -145,8 +151,8 @@ theorem trivialGysin_point_of_not_mem (x : Points X)
 
 /-- Passage to Chow classes identifies the trivial-restriction cycle map with
 the refined Gysin homomorphism. -/
-theorem trivialGysin_chowClass (α : f.cycleGroup δ (k + 1)) :
-    (zeroSchemeι L s ≫ f).chowMk δ k (trivialGysin f δ k L s htriv α) =
+theorem trivialGysin_chowClass (α : (Hom.cycleGroup (f)) δ (k + 1)) :
+    (Hom.chowMk (zeroSchemeι L s ≫ f)) δ k (trivialGysin f δ k L s htriv α) =
       gysin f δ k L s α :=
   sorry
 

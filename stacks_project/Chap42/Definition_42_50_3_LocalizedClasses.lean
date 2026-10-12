@@ -1,8 +1,15 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap42.Definition_42_50_3_RationalBivariant
 public import stacks_project.Chap42.Lemma_42_49_3_AtZero
 public import stacks_project.Chap42.Lemma_42_50_2
+public import ReasLib.AlgebraicGeometry.LocalizedChern.GlobalProducer
 
 @[expose] public section
 
@@ -13,6 +20,14 @@ noncomputable section
 universe u
 
 namespace AlgebraicGeometry.LocalizedChern
+
+/-- The canonical closed immersion keeps the same underlying map in Over.
+Shared by FBA and FBC, rather than redeclared in each consumer. -/
+instance instIsClosedImmersion_overHomMk
+    {S : Scheme.{u}} {X : Over S} {Z : Scheme.{u}}
+    (i : Z ⟶ X.left) [IsClosedImmersion i] :
+    IsClosedImmersion (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X).left :=
+  ‹IsClosedImmersion i›
 
 /-- Restriction of the deformation complex to the lifted zero fibre. -/
 def zeroFiberRestriction
@@ -353,6 +368,44 @@ theorem result_pushforward_eq
           ChernClass.Derived.totalClass δ X.hom classes E situation.perfect
             situation.isDefined p := sorry
 
+/-- Construct the complete deformation datum from the original Situation.
+Every data field is the displayed graph/cell/quotient construction. The
+remaining fields are laws about those specific objects and maps. -/
+def fromSituation
+    {S : Scheme.{u}} [UniversallyCatenary S] {δ : S → ℤ} [IsDimensionFunction δ]
+    {X : Over S} [LocallyOfFiniteType X.hom] {Z : Scheme.{u}}
+    {i : Z ⟶ X.left} [IsClosedImmersion i]
+    (classes : ChernClass.Theory δ X.hom)
+    (E : RingedSpace.ModuleDerived X.left.toRingedSpace) (p : ℕ)
+    (mode : RestrictionBehavior) (situation : Situation S δ X i E p mode) :
+    ClassConstruction δ i classes E p mode situation where
+  W := GlobalProducer.W δ X i E p mode situation
+  b := GlobalProducer.b δ X i E p mode situation
+  b_isProper := GlobalProducer.b_proper δ X i E p mode situation
+  b_affinePart_isIso := GlobalProducer.b_affine_iso δ X i E p mode situation
+  Q := GlobalProducer.Q δ X i E p mode situation
+  Q_isPerfect := Scheme.PerfectGraphAtlas.globalQ_isPerfect E situation.perfect
+    (GlobalProducer.projection X) (GlobalProducer.divisor X)
+  affineDeformation_iso := by sorry
+  zeroFiber_iso := by sorry
+  T := GlobalProducer.T δ X i E p mode situation
+  t := GlobalProducer.t δ X i E p mode situation
+  t_isClosedImmersion := GlobalProducer.t_closed δ X i E p mode situation
+  T' := GlobalProducer.Tprime δ X i E p mode situation
+  t' := GlobalProducer.tprime δ X i E p mode situation
+  t'_isOpenImmersion := GlobalProducer.tprime_open δ X i E p mode situation
+  t'_isClosedImmersion := GlobalProducer.tprime_closed δ X i E p mode situation
+  containsComplement := by sorry
+  infinityFiber_complement_isIso := by sorry
+  T_complement_isIso := by sorry
+  T'_complement_isIso := by sorry
+  onT' := by sorry
+  infinityCenter_isPerfect := GlobalProducer.centerInput_perfect δ X i E p mode situation
+  infinityCenter_isDefined := GlobalProducer.centerInput_defined δ X i E p mode situation
+  infinityCenter_isClosedImmersion := GlobalProducer.center_closed δ X i E p mode situation
+  localizedAtInfinity := GlobalProducer.localizedInfinity δ X i classes E p mode situation
+  localizedAtInfinity_spec := by sorry
+
 /-- Lemma 42.50.2 supplies a deformation construction satisfying the full affine and
 infinity-fibre specification. -/
 theorem construction_nonempty
@@ -362,7 +415,8 @@ theorem construction_nonempty
     (classes : ChernClass.Theory δ X.hom)
     (E : RingedSpace.ModuleDerived X.left.toRingedSpace) (p : ℕ)
     (mode : RestrictionBehavior) (situation : Situation S δ X i E p mode) :
-    Nonempty (ClassConstruction δ i classes E p mode situation) := sorry
+    Nonempty (ClassConstruction δ i classes E p mode situation) :=
+  ⟨fromSituation classes E p mode situation⟩
 
 /-- Comparison data for passing from one valid Lemma 42.50.2 construction to a
 modification of it. -/
@@ -601,8 +655,8 @@ noncomputable def newtonClass
     (vanishing : IsZero (restrictAway i E)) (finiteness : TechnicalCondition X E)
     (p : ℕ) :
     BivariantClass δ (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X) (p : ℤ) :=
-  Classical.epsilon (ClassConstruction.IsResult classes E p .vanishing
-    (Situation.vanishing perfect vanishing finiteness))
+  (ClassConstruction.fromSituation classes E p .vanishing
+    (Situation.vanishing perfect vanishing finiteness)).result
 
 /-- The canonical localized Newton class is represented by the full deformation
 construction of Lemma 42.50.2. -/
@@ -722,8 +776,8 @@ noncomputable def chernClass
     (rankBound : Scheme.ModuleDerived.IsVectorBundleOfRankLTInDegree
       (restrictAway i E) 0 p) (finiteness : TechnicalCondition X E) :
     BivariantClass δ (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X) (p : ℤ) :=
-  Classical.epsilon (ClassConstruction.IsResult classes E p .rankBound
-    (Situation.rankBound perfect rankBound finiteness))
+  (ClassConstruction.fromSituation classes E p .rankBound
+    (Situation.rankBound perfect rankBound finiteness)).result
 
 /-- The canonical localized Chern class is represented by the full deformation
 construction of Lemma 42.50.2. -/

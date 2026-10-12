@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.RingTheory.Extension.Presentation.Basic
@@ -20,34 +26,34 @@ variable {k : Type u} [Field k]
 variable {S : Type v} [CommRing S] [Algebra k S]
 
 /-- A `k`-algebra is a global complete intersection when it is subsingleton or
-admits a finite presentation whose presentation dimension equals its Krull
-dimension. -/
+admits a presentation with `c ≤ n` relations and variables and with presentation
+dimension equal to its Krull dimension. -/
 @[stacks 00S9]
 class IsGlobalCompleteIntersection (k : Type u) (S : Type v) [Field k] [CommRing S]
     [Algebra k S] : Prop where
-  /-- A finite presentation of the expected dimension, unless the algebra is subsingleton. -/
+  /-- A presentation with `c ≤ n` and the expected dimension, unless the algebra is subsingleton. -/
   presentation_or_subsingleton :
     Subsingleton S ∨
       ∃ (n c : ℕ) (P : Algebra.Presentation k S (Fin n) (Fin c)),
-        ringKrullDim S = P.dimension
+        c ≤ n ∧ ringKrullDim S = P.dimension
 
-/-- The global complete-intersection condition is exactly its finite-presentation dimension
-criterion, together with the subsingleton convention. -/
+/-- The global complete-intersection condition is exactly the existence of a presentation with
+`c ≤ n` and the expected dimension, together with the subsingleton convention. -/
 @[stacks 00S9 "global complete-intersection specification"]
 theorem isGlobalCompleteIntersection_iff :
     IsGlobalCompleteIntersection k S ↔
       Subsingleton S ∨
         ∃ (n c : ℕ) (P : Algebra.Presentation k S (Fin n) (Fin c)),
-          ringKrullDim S = P.dimension := sorry
+          c ≤ n ∧ ringKrullDim S = P.dimension := sorry
 
 namespace IsGlobalCompleteIntersection
 
-/-- Build a global complete intersection from the presentation-dimension criterion or the
-subsingleton convention. -/
+/-- Build a global complete intersection from a presentation with `c ≤ n` and the
+dimension criterion, or from the subsingleton convention. -/
 theorem of_presentation_or_subsingleton
     (h : Subsingleton S ∨
       ∃ (n c : ℕ) (P : Algebra.Presentation k S (Fin n) (Fin c)),
-        ringKrullDim S = P.dimension) :
+        c ≤ n ∧ ringKrullDim S = P.dimension) :
     IsGlobalCompleteIntersection k S := sorry
 
 /-- Global complete intersections are invariant under equivalences of `k`-algebras. -/
@@ -59,12 +65,13 @@ theorem of_algEquiv {T : Type*} [CommRing T] [Algebra k T]
 instance instFinitePresentation [h : IsGlobalCompleteIntersection k S] :
     Algebra.FinitePresentation k S := sorry
 
-/-- The quotient-presentation characterization of a global complete intersection. -/
+/-- A global complete intersection is subsingleton or has a quotient presentation with `c ≤ n`
+relations and Krull dimension `n - c`. -/
 theorem quotientPresentation_or_subsingleton [IsGlobalCompleteIntersection k S] :
     Subsingleton S ∨
       ∃ (n c : ℕ) (f : Fin c → MvPolynomial (Fin n) k),
         Nonempty ((MvPolynomial (Fin n) k ⧸ Ideal.span (Set.range f)) ≃ₐ[k] S) ∧
-          ringKrullDim S = n - c := sorry
+          c ≤ n ∧ ringKrullDim S = n - c := sorry
 
 /-- Subsingleton algebras are global complete intersections by convention. -/
 instance instOfSubsingleton [Subsingleton S] : IsGlobalCompleteIntersection k S := sorry

@@ -1,7 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
-public import Mathlib.Algebra.DirectSum.Ring
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.FiniteLocallyFree.Rank
 public import ReasLib.CategoryTheory.Monoidal.Invertible
 public import stacks_project.Chap69.Lemma_69_12_5_Monoidal
@@ -10,8 +15,8 @@ public import stacks_project.Chap82.Remark_82_28_5_ChernClass
 /-!
 # Tensor-twist formula for Chern classes on algebraic spaces
 
-The binomial identity for `c_i(E ⊗ L)` in the Chow cohomology ring `A^*(X)` of
-a good algebraic space, using the operational classes of Remark 82.28.5.
+The binomial identity for `c_i(E ⊗ L)` as an equality of cap operations on all
+good tests `Y ⟶ X`, using the operational classes of Remark 82.28.5.
 -/
 
 @[expose] public section
@@ -19,7 +24,7 @@ a good algebraic space, using the operational classes of Remark 82.28.5.
 open CategoryTheory CategoryTheory.MonoidalCategory
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.Hom
-open scoped BigOperators DirectSum MonoidalCategory
+open scoped BigOperators MonoidalCategory
 
 noncomputable section
 
@@ -40,236 +45,80 @@ instance instIsFiniteLocallyFree_tensor {S : Scheme.{u}} {X : AlgebraicSpace S}
     SheafOfModules.IsFiniteLocallyFree (E ⊗ L) :=
   sorry
 
-namespace ChowCohomology
-
 variable {S : Scheme.{u}} {B X : AlgebraicSpace S}
   [UniversallyCatenary B] [IsQuasiSeparated B]
-variable (δ : Points B → ℤ) [IsDimensionFunction δ]
-variable (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
+variable {δ : Points B → ℤ} [IsDimensionFunction δ]
+variable {f : X ⟶ B} [QuasiSeparated f] [LocallyOfFiniteType f]
 
-/-- Pointwise addition of identity classes. -/
-def addCap {p : ℤ} (c d : degree δ f p) : degree δ f p :=
-  ofCap δ f
-    (fun {Y} (g : Y ⟶ X) [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)]
-      (k : ℤ) ↦ c.cap g k + d.cap g k)
-    sorry sorry sorry
-
-/-- Evaluation of pointwise addition is addition of the evaluated maps. -/
-theorem addCap_apply {p : ℤ} (c d : degree δ f p) {Y : AlgebraicSpace S}
-    (g : Y ⟶ X) [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)]
-    (k : ℤ) :
-    (addCap δ f c d).cap g k = c.cap g k + d.cap g k :=
+/-- Integer reindex `(k - j) - 1 = k - (j + 1)` for iterated degree-1 caps. -/
+theorem powCap_degree_succ (k : ℤ) (j : ℕ) :
+    (k - (j : ℤ)) - 1 = k - ((j + 1 : ℕ) : ℤ) :=
   sorry
 
-/-- Pointwise negation of an identity class. -/
-def negCap {p : ℤ} (c : degree δ f p) : degree δ f p :=
-  ofCap δ f
-    (fun {Y} (g : Y ⟶ X) [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)]
-      (k : ℤ) ↦ -c.cap g k)
-    sorry sorry sorry
+/-- Zero-fold iteration of a degree-1 cap, reindexing along `k - 0 = k`. -/
+def powCapZero : ChowCohomology.CapFamily δ f 0 :=
+  fun {Y : AlgebraicSpace S} (g : Y ⟶ X)
+      [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ) ↦
+    ChowCohomology.castChowGroup δ (g ≫ f) (sub_zero k).symm
 
-/-- Evaluation of pointwise negation is negation of the evaluated map. -/
-theorem negCap_apply {p : ℤ} (c : degree δ f p) {Y : AlgebraicSpace S}
-    (g : Y ⟶ X) [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)]
-    (k : ℤ) :
-    (negCap δ f c).cap g k = -c.cap g k :=
+/-- One further composition of a degree-1 cap with a degree-`j` iterated cap. -/
+def powCapSucc (c : ChowCohomology.degree δ f 1) (j : ℕ)
+    (ih : ChowCohomology.CapFamily δ f j) :
+    ChowCohomology.CapFamily δ f (j + 1) :=
+  fun {Y : AlgebraicSpace S} (g : Y ⟶ X)
+      [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ) ↦
+    (ChowCohomology.castChowGroup δ (g ≫ f)
+        ((congrArg (fun n : ℤ ↦ k - n) (Nat.cast_add_one j)).trans
+          (sub_add_eq_sub_sub k (j : ℤ) 1)).symm).comp
+      ((c.cap g (k - (j : ℤ))).comp (ih g k))
+
+/-- Iterate a degree-1 identity class by composing its cap maps. -/
+def powCap (c : ChowCohomology.degree δ f 1) :
+    (j : ℕ) → ChowCohomology.CapFamily δ f j :=
+  Nat.rec powCapZero (fun j ih ↦ powCapSucc c j ih)
+
+/-- The 0-fold iterated cap is reindexing along `k - 0 = k`. -/
+theorem powCap_zero (c : ChowCohomology.degree δ f 1) {Y : AlgebraicSpace S}
+    (g : Y ⟶ X) [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ) :
+    powCap c 0 g k = ChowCohomology.castChowGroup δ (g ≫ f) (sub_zero k).symm :=
   sorry
 
-/-- Natural scalar multiplication of an identity class. -/
-def nsmulCap {p : ℤ} (n : ℕ) (c : degree δ f p) : degree δ f p :=
-  ofCap δ f
-    (fun {Y} (g : Y ⟶ X) [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)]
-      (k : ℤ) ↦ n • c.cap g k)
-    sorry sorry sorry
-
-/-- Natural scalar multiplication evaluates pointwise. -/
-theorem nsmulCap_apply {p : ℤ} (n : ℕ) (c : degree δ f p)
+/-- Recursive unfolding of iterated degree-1 caps. -/
+theorem powCap_succ (c : ChowCohomology.degree δ f 1) (j : ℕ)
     {Y : AlgebraicSpace S} (g : Y ⟶ X)
     [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ) :
-    (nsmulCap δ f n c).cap g k = n • c.cap g k :=
+    powCap c (j + 1) g k =
+      (ChowCohomology.castChowGroup δ (g ≫ f) (powCap_degree_succ k j)).comp
+        ((c.cap g (k - (j : ℤ))).comp (powCap c j g k)) :=
   sorry
 
-/-- Integer scalar multiplication of an identity class. -/
-def zsmulCap {p : ℤ} (z : ℤ) (c : degree δ f p) : degree δ f p :=
-  ofCap δ f
-    (fun {Y} (g : Y ⟶ X) [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)]
-      (k : ℤ) ↦ z • c.cap g k)
-    sorry sorry sorry
-
-/-- Integer scalar multiplication evaluates pointwise. -/
-theorem zsmulCap_apply {p : ℤ} (z : ℤ) (c : degree δ f p)
-    {Y : AlgebraicSpace S} (g : Y ⟶ X)
-    [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ) :
-    (zsmulCap δ f z c).cap g k = z • c.cap g k :=
+/-- Reindex `(k - j) - (i - j) = k - i` when `j ≤ i`. -/
+theorem powCap_comp_degree (k : ℤ) {i j : ℕ} (h : j ≤ i) :
+    (k - (j : ℤ)) - ((i - j : ℕ) : ℤ) = k - (i : ℤ) :=
   sorry
-
-/-- Every identity bivariant degree is an additive commutative group under
-pointwise operations. -/
-instance instAddCommGroupDegree (p : ℤ) : AddCommGroup (degree δ f p) where
-  zero := zeroCap δ f p
-  add := addCap δ f
-  neg := negCap δ f
-  sub := fun c d ↦ addCap δ f c (negCap δ f d)
-  nsmul := nsmulCap δ f
-  zsmul := zsmulCap δ f
-  zero_add := sorry
-  add_zero := sorry
-  add_assoc := sorry
-  add_comm := sorry
-  neg_add_cancel := sorry
-  nsmul_zero := sorry
-  nsmul_succ := sorry
-  zsmul_zero' := sorry
-  zsmul_succ' := sorry
-  zsmul_neg' := sorry
-  sub_eq_add_neg := sorry
-
-/-- Composition of identity caps reindexes along `(k - q) - p = k - (p + q)`. -/
-theorem mulCap_degree_eq (k p q : ℤ) : (k - q) - p = k - (p + q) :=
-  sorry
-
-/-- Homogeneous multiplication is composition of identity bivariant classes,
-with the right factor acting first. -/
-def mulCap {p q : ℤ} (c : degree δ f p) (d : degree δ f q) :
-    degree δ f (p + q) :=
-  ofCap δ f
-    (fun {Y} (g : Y ⟶ X) [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)]
-      (k : ℤ) ↦
-      (castChowGroup δ (g ≫ f) (mulCap_degree_eq k p q)).comp
-        ((c.cap g (k - q)).comp (d.cap g k)))
-    sorry sorry sorry
-
-/-- Cap-family multiplication is composition of the shifted additive maps,
-reindexed along `(k - q) - p = k - (p + q)`. -/
-theorem mulCap_apply {p q : ℤ} (c : degree δ f p) (d : degree δ f q)
-    {Y : AlgebraicSpace S} (g : Y ⟶ X)
-    [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ) :
-    (mulCap δ f c d).cap g k =
-      (castChowGroup δ (g ≫ f) (mulCap_degree_eq k p q)).comp
-        ((c.cap g (k - q)).comp (d.cap g k)) :=
-  sorry
-
-/-- Natural-number casts in degree zero, as multiples of the identity class. -/
-def natCastCap (n : ℕ) : degree δ f 0 :=
-  nsmulCap δ f n (oneCap δ f)
-
-/-- `natCastCap n` is `n` copies of the identity class. -/
-theorem natCastCap_eq (n : ℕ) :
-    natCastCap δ f n = nsmulCap δ f n (oneCap δ f) :=
-  sorry
-
-/-- Integer casts in degree zero. -/
-def intCastCap (z : ℤ) : degree δ f 0 :=
-  zsmulCap δ f z (oneCap δ f)
-
-/-- `intCastCap z` is the integer multiple of the identity class. -/
-theorem intCastCap_eq (z : ℤ) :
-    intCastCap δ f z = zsmulCap δ f z (oneCap δ f) :=
-  sorry
-
-/-- The Chow cohomology ring `A^*(X)` of a good algebraic space `X / B`. -/
-abbrev ring : Type (u + 1) :=
-  ⨁ p : ℤ, degree δ f p
-
-/-- Chow cohomology is the external direct sum of the identity bivariant
-groups. -/
-theorem ring_def : ring δ f = ⨁ p : ℤ, degree δ f p :=
-  sorry
-
-/-- Homogeneous multiplication by zero on the right vanishes. -/
-theorem mulCap_zero {p q : ℤ} (c : degree δ f p) :
-    mulCap δ f c (0 : degree δ f q) = 0 :=
-  sorry
-
-/-- Homogeneous multiplication by zero on the left vanishes. -/
-theorem zero_mulCap {p q : ℤ} (d : degree δ f q) :
-    mulCap δ f (0 : degree δ f p) d = 0 :=
-  sorry
-
-/-- Homogeneous multiplication distributes over addition in the right
-variable. -/
-theorem mulCap_add {p q : ℤ} (c : degree δ f p) (d e : degree δ f q) :
-    mulCap δ f c (d + e) = mulCap δ f c d + mulCap δ f c e :=
-  sorry
-
-/-- Homogeneous multiplication distributes over addition in the left
-variable. -/
-theorem add_mulCap {p q : ℤ} (c d : degree δ f p) (e : degree δ f q) :
-    mulCap δ f (c + d) e = mulCap δ f c e + mulCap δ f d e :=
-  sorry
-
-/-- Natural-number casts send zero to zero. -/
-theorem natCastCap_zero : natCastCap δ f 0 = 0 :=
-  sorry
-
-/-- Natural-number casts respect successors. -/
-theorem natCastCap_succ (n : ℕ) :
-    natCastCap δ f (n + 1) = natCastCap δ f n + oneCap δ f :=
-  sorry
-
-/-- Integer casts extend natural-number casts. -/
-theorem intCastCap_ofNat (n : ℕ) : intCastCap δ f n = natCastCap δ f n :=
-  sorry
-
-/-- Integer casts of negative successors are negatives of natural-number
-casts. -/
-theorem intCastCap_negSucc (n : ℕ) :
-    intCastCap δ f (Int.negSucc n) = -(natCastCap δ f (n + 1)) :=
-  sorry
-
-/-- Graded ring operations on identity bivariant classes, with real
-one/mul/natCast/intCast data. -/
-instance instGRing : DirectSum.GRing (degree δ f) where
-  mul := mulCap δ f
-  mul_zero := mulCap_zero δ f
-  zero_mul := zero_mulCap δ f
-  mul_add := mulCap_add δ f
-  add_mul := add_mulCap δ f
-  one := oneCap δ f
-  one_mul := sorry
-  mul_one := sorry
-  mul_assoc := sorry
-  gnpow_zero' := sorry
-  gnpow_succ' := sorry
-  natCast := natCastCap δ f
-  natCast_zero := natCastCap_zero δ f
-  natCast_succ := natCastCap_succ δ f
-  intCast := intCastCap δ f
-  intCast_ofNat := intCastCap_ofNat δ f
-  intCast_negSucc_ofNat := intCastCap_negSucc δ f
-
-/-- The Chow cohomology ring `A^*(X)` carries the ring structure induced by
-graded composition of identity bivariant classes. -/
-instance instRing : Ring (ring δ f) :=
-  inferInstanceAs (Ring (⨁ p : ℤ, degree δ f p))
-
-/-- Embed a homogeneous identity class in the full Chow cohomology ring. -/
-def homogeneous (p : ℤ) (c : degree δ f p) : ring δ f :=
-  DirectSum.of (degree δ f) p c
-
-/-- `homogeneous p c` is the direct-sum inclusion of the degree-`p` class. -/
-theorem homogeneous_eq (p : ℤ) (c : degree δ f p) :
-    homogeneous δ f p c = DirectSum.of (degree δ f) p c :=
-  sorry
-
-end ChowCohomology
 
 /-- For a good algebraic space `X` over a universally catenary quasi-separated
 base `B`, a finite locally free `𝒪_X`-module `E` of rank `r`, and an invertible
-`𝒪_X`-module `L`, the degree-`i` operational Chern class of `E ⊗ L` equals the
-corresponding binomial sum in Chow cohomology of `X` relative to `f` and `δ`. -/
+`𝒪_X`-module `L`, the identity `c_i(E ⊗ L) = ∑ j, Nat.choose (r + j - i) j •
+c_{i-j}(E) * c_1(L)^j` holds as an equality of cap operations on every good
+test `g : Y ⟶ X`. -/
 theorem chernClass_tensor_invertible {S : Scheme.{u}} {B X : AlgebraicSpace S}
     [UniversallyCatenary B] [IsQuasiSeparated B]
     (δ : Points B → ℤ) [IsDimensionFunction δ]
     (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
     (E L : X.Modules) (r i : ℕ)
-    [SheafOfModules.IsFiniteLocallyFreeOfRank r E] [isInvertibleObject L] :
-    ChowCohomology.homogeneous δ f i (ChernClass.chernClass δ f (E ⊗ L) i) =
+    [SheafOfModules.IsFiniteLocallyFreeOfRank r E] [isInvertibleObject L]
+    {Y : AlgebraicSpace S} (g : Y ⟶ X)
+    [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)]
+    (k : ℤ) (α : chowGroup (g ≫ f) δ k) :
+    (ChernClass.chernClass δ f (E ⊗ L) i).cap g k α =
       ∑ j ∈ Finset.range (i + 1),
-        (Nat.choose (r + j - i) j : ChowCohomology.ring δ f) *
-          ChowCohomology.homogeneous δ f (i - j : ℕ)
-            (ChernClass.chernClass δ f E (i - j)) *
-            ChowCohomology.homogeneous δ f 1 (ChernClass.chernClass δ f L 1) ^ j :=
+        Nat.choose (r + j - i) j •
+          (if hj : j ≤ i then
+            ChowCohomology.castChowGroup δ (g ≫ f) (powCap_comp_degree k hj)
+              ((ChernClass.chernClass δ f E (i - j)).cap g (k - (j : ℤ))
+                (powCap (ChernClass.chernClass δ f L 1) j g k α))
+          else 0) :=
   sorry
 
 end AlgebraicGeometry.AlgebraicSpace

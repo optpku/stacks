@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.Algebra.Homology.CochainComplex.Bounded.Fixed
@@ -65,6 +71,7 @@ degrees. -/
 lemma minus_iff (K : CochainComplex C ℤ) :
     CochainComplex.minus C K ↔ ∃ n : ℤ, K.IsStrictlyLE n := Iff.rfl
 
+/-- Bounded-above cochain complexes are closed under isomorphisms. -/
 instance : (CochainComplex.minus C).IsClosedUnderIsomorphisms where
   of_iso := by
     rintro _ _ e ⟨n, hn⟩
@@ -81,6 +88,7 @@ namespace Minus
 abbrev ι : Minus C ⥤ CochainComplex C ℤ :=
   (CochainComplex.minus C).ι
 
+/-- Finite limits of bounded-above cochain complexes are bounded above. -/
 instance (J : Type*) [SmallCategory J] [FinCategory J]
     [HasLimitsOfShape J C] :
     (CochainComplex.minus C).IsClosedUnderLimitsOfShape J where
@@ -107,6 +115,7 @@ instance (J : Type*) [SmallCategory J] [FinCategory J]
       haveI := hn j
       exact (isZero_of_isStrictlyLE (p.diag.obj j) n i).eq_of_tgt _ _
 
+/-- Finite colimits of bounded-above cochain complexes are bounded above. -/
 instance (J : Type*) [SmallCategory J] [FinCategory J]
     [HasColimitsOfShape J C] :
     (CochainComplex.minus C).IsClosedUnderColimitsOfShape J where
@@ -133,9 +142,11 @@ instance (J : Type*) [SmallCategory J] [FinCategory J]
       haveI := hn j
       exact (isZero_of_isStrictlyLE (p.diag.obj j) n i).eq_of_src _ _
 
+/-- Bounded-above cochain complexes admit finite limits when the coefficient category does. -/
 instance [HasFiniteLimits C] : HasFiniteLimits (Minus C) where
   out J _ _ := by infer_instance
 
+/-- Bounded-above cochain complexes admit finite colimits when the coefficient category does. -/
 instance [HasFiniteColimits C] : HasFiniteColimits (Minus C) where
   out J _ _ := by infer_instance
 
@@ -163,6 +174,7 @@ namespace Bounded
 abbrev ι : Bounded C ⥤ CochainComplex C ℤ :=
   (CochainComplex.bounded C).ι
 
+/-- Finite limits of bounded cochain complexes are bounded. -/
 instance (J : Type*) [SmallCategory J] [FinCategory J]
     [HasLimitsOfShape J C] :
     (CochainComplex.bounded C).IsClosedUnderLimitsOfShape J where
@@ -172,6 +184,7 @@ instance (J : Type*) [SmallCategory J] [FinCategory J]
     · exact (CochainComplex.plus C).prop_of_isLimit p.isLimit fun j ↦ (p.prop_diag_obj j).1
     · exact (CochainComplex.minus C).prop_of_isLimit p.isLimit fun j ↦ (p.prop_diag_obj j).2
 
+/-- Finite colimits of bounded cochain complexes are bounded. -/
 instance (J : Type*) [SmallCategory J] [FinCategory J]
     [HasColimitsOfShape J C] :
     (CochainComplex.bounded C).IsClosedUnderColimitsOfShape J where
@@ -181,9 +194,11 @@ instance (J : Type*) [SmallCategory J] [FinCategory J]
     · exact (CochainComplex.plus C).prop_of_isColimit p.isColimit fun j ↦ (p.prop_diag_obj j).1
     · exact (CochainComplex.minus C).prop_of_isColimit p.isColimit fun j ↦ (p.prop_diag_obj j).2
 
+/-- Bounded cochain complexes admit finite limits when the coefficient category does. -/
 instance [HasFiniteLimits C] : HasFiniteLimits (Bounded C) where
   out J _ _ := by infer_instance
 
+/-- Bounded cochain complexes admit finite colimits when the coefficient category does. -/
 instance [HasFiniteColimits C] : HasFiniteColimits (Bounded C) where
   out J _ _ := by infer_instance
 
@@ -227,12 +242,17 @@ variable [Preadditive C]
 
 namespace Minus
 
+/-- Bounded-above cochain complexes have finite biproducts when coefficients have finite
+colimits. -/
 instance [HasFiniteColimits C] : HasFiniteBiproducts (Minus C) :=
   HasFiniteBiproducts.of_hasFiniteCoproducts
 
+/-- Bounded-above cochain complexes have binary biproducts when coefficients have finite
+colimits. -/
 instance [HasFiniteColimits C] : HasBinaryBiproducts (Minus C) :=
   hasBinaryBiproducts_of_finite_biproducts _
 
+/-- Binary biproducts of coefficients induce binary biproducts of bounded-above complexes. -/
 @[instance 10] instance [HasBinaryBiproducts C] : HasBinaryBiproducts (Minus C) := by
   -- Local instance justification (defeq pin): select the full-subcategory coproduct instance
   -- before constructing biproducts to avoid search considering the instance being defined.
@@ -241,18 +261,22 @@ instance [HasFiniteColimits C] : HasBinaryBiproducts (Minus C) :=
 
 end Minus
 
+/-- Bounded-above cochain complexes remain bounded above under every integer shift. -/
 instance : (CochainComplex.minus C).IsStableUnderShift ℤ where
   isStableUnderShiftBy n :=
     ⟨fun K ⟨k, hk⟩ ↦ ⟨k - n, K.isStrictlyLE_shift k n _ (by lia)⟩⟩
 
 namespace Bounded
 
+/-- Bounded cochain complexes have finite biproducts when coefficients have finite colimits. -/
 instance [HasFiniteColimits C] : HasFiniteBiproducts (Bounded C) :=
   HasFiniteBiproducts.of_hasFiniteCoproducts
 
+/-- Bounded cochain complexes have binary biproducts when coefficients have finite colimits. -/
 instance [HasFiniteColimits C] : HasBinaryBiproducts (Bounded C) :=
   hasBinaryBiproducts_of_finite_biproducts _
 
+/-- Binary biproducts of coefficients induce binary biproducts of bounded complexes. -/
 @[instance 10] instance [HasBinaryBiproducts C] : HasBinaryBiproducts (Bounded C) := by
   -- Local instance justification (defeq pin): select the full-subcategory coproduct instance
   -- before constructing biproducts to avoid search considering the instance being defined.
@@ -261,6 +285,7 @@ instance [HasFiniteColimits C] : HasBinaryBiproducts (Bounded C) :=
 
 end Bounded
 
+/-- Bounded cochain complexes remain bounded under every integer shift. -/
 instance : (CochainComplex.bounded C).IsStableUnderShift ℤ := by
   refine ⟨fun n ↦ ?_⟩
   refine ⟨fun K hK ↦ ?_⟩
@@ -269,12 +294,17 @@ instance : (CochainComplex.bounded C).IsStableUnderShift ℤ := by
 
 namespace Plus
 
+/-- Bounded-below cochain complexes have finite biproducts when coefficients have finite
+colimits. -/
 instance [HasFiniteColimits C] : HasFiniteBiproducts (CochainComplex.Plus C) :=
   HasFiniteBiproducts.of_hasFiniteCoproducts
 
+/-- Bounded-below cochain complexes have binary biproducts when coefficients have finite
+colimits. -/
 instance [HasFiniteColimits C] : HasBinaryBiproducts (CochainComplex.Plus C) :=
   hasBinaryBiproducts_of_finite_biproducts _
 
+/-- Binary biproducts of coefficients induce binary biproducts of bounded-below complexes. -/
 @[instance 10] instance [HasBinaryBiproducts C] :
     HasBinaryBiproducts (CochainComplex.Plus C) := by
   -- Local instance justification (defeq pin): select the full-subcategory coproduct instance

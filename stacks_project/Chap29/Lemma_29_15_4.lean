@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.FiniteType
@@ -9,17 +15,12 @@ open CategoryTheory Limits
 
 universe u
 
-section
-
-variable {X S S' : Scheme.{u}} (f : X ⟶ S) (g : S' ⟶ S)
-
 /- Lemma 29.15.4 (1): the base change of a morphism which is locally of finite type is locally of
 finite type. -/
 @[stacks 01T4] #check
-  (MorphismProperty.pullback_snd (P := @LocallyOfFiniteType) f g :
-    LocallyOfFiniteType f → LocallyOfFiniteType (pullback.snd f g))
-
-end
+  (AlgebraicGeometry.LocallyOfFiniteType.pullback_snd :
+    ∀ {X S S' : Scheme.{u}} {f : X ⟶ S},
+      LocallyOfFiniteType f → ∀ g : S' ⟶ S, LocallyOfFiniteType (pullback.snd f g))
 
 /- Lemma 29.15.4 (2): the base change of a morphism of finite type is of finite type. -/
 @[stacks 01T4] #check

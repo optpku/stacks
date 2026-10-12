@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Category.FGModuleCat.Basic
@@ -31,7 +37,8 @@ instance isFG.isClosedUnderIsomorphisms :
     exact Module.Finite.equiv e.toLinearEquiv
 
 /-- The zero bundled module is finitely generated. -/
-instance isFGContainsZero : (isFG.{v} R).ContainsZero := sorry
+instance isFGContainsZero : (isFG.{v} R).ContainsZero where
+  exists_zero := ⟨ModuleCat.of R PUnit, isZero_of_subsingleton _, Module.Finite.of_finite⟩
 
 /-- A subsingleton bundled module is finitely generated. -/
 @[stacks 00JH "subsingleton module is finite"]

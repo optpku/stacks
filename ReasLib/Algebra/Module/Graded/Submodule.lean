@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.DirectSum.Decomposition
@@ -28,7 +34,7 @@ variable {ι : Type u} [DecidableEq ι]
 variable {R : Type v} [Semiring R]
 variable {M : Type w} [AddCommMonoid M] [Module R M]
 
-/-- Stacks `052N`: the degree-`i` piece of a homogeneous submodule, represented as the comap of
+/-- The degree-`i` piece of a homogeneous submodule, represented as the comap of
 the ambient degree piece along the subtype inclusion. -/
 @[reducible, stacks 052N "homogeneous submodule grading family"]
 def submoduleGrading
@@ -38,7 +44,7 @@ def submoduleGrading
 
 namespace submoduleGrading
 
-/-- Stacks `052N`: package the ambient homogeneous components of an element of a homogeneous
+/-- Package the ambient homogeneous components of an element of a homogeneous
 submodule as an element of its inherited direct sum. -/
 @[stacks 052N "homogeneous submodule grading witness"]
 noncomputable def witness
@@ -51,7 +57,7 @@ noncomputable def witness
     ⟨⟨((DirectSum.decompose 𝒜 (x : M) i.1 : 𝒜 i.1) : M), hP i.1 x.2⟩,
       (DirectSum.decompose 𝒜 (x : M) i.1).2⟩
 
-/-- Stacks `052N`: recomposing the explicit inherited-grading witness recovers the original
+/-- Recomposing the explicit inherited-grading witness recovers the original
 submodule element. -/
 @[stacks 052N "homogeneous submodule grading witness recomposition"]
 theorem witness_recompose
@@ -59,7 +65,7 @@ theorem witness_recompose
     (P : Submodule R M) (hP : SetLike.IsHomogeneous 𝒜 P) (x : P) :
     DirectSum.coeAddMonoidHom (submoduleGrading 𝒜 P) (witness 𝒜 P hP x) = x := sorry
 
-/-- Stacks `052N`: projecting the ambient recomposition of arbitrary inherited homogeneous pieces
+/-- Projecting the ambient recomposition of arbitrary inherited homogeneous pieces
 reads off the corresponding submodule coordinate. -/
 @[stacks 052N "homogeneous submodule ambient recomposition coordinate"]
 theorem ambient_component_recompose
@@ -69,7 +75,7 @@ theorem ambient_component_recompose
       ((DirectSum.coeAddMonoidHom (submoduleGrading 𝒜 P) z : P) : M) i : 𝒜 i) : M) =
         (((z i).1 : P) : M) := sorry
 
-/-- Stacks `052N`: the componentwise comaps of a homogeneous submodule form an internal direct
+/-- The componentwise comaps of a homogeneous submodule form an internal direct
 sum. -/
 @[stacks 052N "homogeneous submodule internal decomposition"]
 theorem isInternal
@@ -77,7 +83,7 @@ theorem isInternal
     (P : Submodule R M) (hP : SetLike.IsHomogeneous 𝒜 P) :
     DirectSum.IsInternal (submoduleGrading 𝒜 P) := sorry
 
-/-- Stacks `052N`: the direct-sum decomposition inherited by a homogeneous submodule.
+/-- The direct-sum decomposition inherited by a homogeneous submodule.
 
 This is a named construction rather than a global instance because the decomposition depends on
 the supplied homogeneity witness.  Consumers install it locally only when they need the
@@ -90,7 +96,7 @@ noncomputable def decomposition
   DirectSum.IsInternal.chooseDecomposition
     (submoduleGrading 𝒜 P) (isInternal 𝒜 P hP)
 
-/-- Stacks `052N`: the degree-`i` coordinate map for the inherited grading of a homogeneous
+/-- The degree-`i` coordinate map for the inherited grading of a homogeneous
 submodule.
 
 The decomposition selected by `hP` stays internal to this construction.  Consumers can therefore
@@ -105,7 +111,7 @@ noncomputable def component
     (DirectSum.component R ι (fun j ↦ submoduleGrading 𝒜 P j) i).comp
       (DirectSum.decomposeLinearEquiv (submoduleGrading 𝒜 P)).toLinearMap
 
-/-- Stacks `052N`: after coercion to the ambient module, the inherited degree coordinate is the
+/-- After coercion to the ambient module, the inherited degree coordinate is the
 corresponding coordinate of the ambient decomposition. -/
 @[stacks 052N "homogeneous submodule component formula"]
 theorem component_coe
@@ -115,7 +121,7 @@ theorem component_coe
     (((component 𝒜 P hP i x : submoduleGrading 𝒜 P i) : P) : M) =
       ((DirectSum.decompose 𝒜 (x : M) i : 𝒜 i) : M) := sorry
 
-/-- Stacks `052N`: the decomposition coordinates of a homogeneous submodule are the explicit
+/-- The decomposition coordinates of a homogeneous submodule are the explicit
 ambient-component witness. -/
 @[stacks 052N "homogeneous submodule decomposition witness formula"]
 theorem decompose_eq_witness
@@ -124,7 +130,7 @@ theorem decompose_eq_witness
     letI : DirectSum.Decomposition (submoduleGrading 𝒜 P) := decomposition 𝒜 P hP
     DirectSum.decompose (submoduleGrading 𝒜 P) x = witness 𝒜 P hP x := sorry
 
-/-- Stacks `052N`: after coercion to the ambient module, an inherited homogeneous coordinate is
+/-- After coercion to the ambient module, an inherited homogeneous coordinate is
 the corresponding coordinate of the ambient decomposition. -/
 @[stacks 052N "homogeneous submodule ambient coordinate formula"]
 theorem decompose_coe
@@ -139,7 +145,7 @@ variable {ιA : Type uA} [VAdd ιA ι]
 variable {S : Type uS} [Semiring S] [Module R S]
 variable [Module S M] [IsScalarTower R S M]
 
-/-- Stacks `052N`: the degreewise scalar action on a homogeneous submodule obtained by
+/-- The degreewise scalar action on a homogeneous submodule obtained by
 restricting scalars to the base ring. -/
 @[stacks 052N "homogeneous submodule graded scalar action membership"]
 theorem smul_mem
@@ -150,10 +156,10 @@ theorem smul_mem
     (hx : x ∈ submoduleGrading ℳ (P.restrictScalars R) j) :
     a • x ∈ submoduleGrading ℳ (P.restrictScalars R) (i +ᵥ j) := sorry
 
-/-- Stacks `052N`: package the inherited graded scalar action on a restricted-scalar submodule.
+/-- Package the inherited graded scalar action on a restricted-scalar submodule.
 
 The construction is the canonical `Submodule.comapGradedSMul` along the subtype inclusion; no
-chapter-specific scalar or polynomial data is part of this owner. -/
+other scalar or polynomial data is required. -/
 @[reducible, stacks 052N "homogeneous submodule graded scalar action"]
 def gradedSMul
     (𝒜 : ιA → Submodule R S) (ℳ : ι → Submodule R M) (P : Submodule S M)

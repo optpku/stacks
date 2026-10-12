@@ -1,7 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap93.Example_93_6_1_Representations_of_a_topological_group_Category
-public import stacks_project.Chap93.Example_93_6_1_Representations_of_a_topological_group_Deformation
+public import ReasLib.AlgebraicGeometry.FormalDeformation.ContinuousRepresentation
 import StacksCheckRecall
 
 /-!
@@ -32,18 +37,22 @@ morphism f : B ⟶ A in ArtinianLocalAlgCat Λ k together with an f-linear
 Γ-equivariant map g : N → M inducing N ⊗[B, f] A ≅ M. The functor
 p = ContinuousRep.forget sends (A, M, ρ) to A and (f, g) to f. -/
 @[stacks 0D3K]
-#check ContinuousRep
+#check (ContinuousRep.category : CategoryTheory.Category.{u} (ContinuousRep Γ Λ k))
 
 /- Example 93.6.1 (Representations of a topological group) (2)
 The functor p : ContinuousRep Γ Λ k ⥤ ArtinianLocalAlgCat Λ k is cofibered in
 groupoids. -/
 @[stacks 0D3K]
-#check (instIsCofiberedInGroupoids Γ Λ k :
-  Functor.IsFibered.InGroupoids (forget Γ Λ k).op)
+#check (ContinuousRep.instIsCofiberedInGroupoids Γ Λ k :
+  Functor.IsFibered.InGroupoids (ContinuousRep.forget Γ Λ k).op)
+
+variable {V : Type u} [AddCommGroup V] [Module k V] [FiniteDimensional k V]
 
 /- Example 93.6.1 (Representations of a topological group) (3)
 Given a finite-dimensional k-vector space V and a continuous representation
 ρ0 : Γ →* LinearMap.GeneralLinearGroup k V, the object x0 = (k, V, ρ0) is
 ofResidue V ρ0, and Def_{V, ρ0} is deformationCategory V ρ0 = F_{x0}. -/
 @[stacks 0D3K]
-#check deformationCategory
+#check (ContinuousRep.deformationCategory Γ Λ k :
+  (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V) →
+    ContinuousRep.IsContinuousDiscrete ρ0 → Type (u + 1))

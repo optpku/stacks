@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Category.Grp.Biproducts
@@ -136,9 +142,10 @@ instance instIsLocallySurjective_generatorBiprodToPushout
     (h_comm : h ≫ π1 = π2) (k : K2 ⟶ K1) (F'2 : ModuleExtension hπ2 F K2 c2) :
     IsLocallySurjective J (generatorBiprodToPushout h h_comm k F'2) := sorry
 
-/-- The kernel-ideal section of a - h(b) when π₁(a) = π₂(b). -/
+/-- The kernel-ideal section of a - h(b) for a compatible lift with π₁(a) = π₂(b). -/
 noncomputable def idealSectionOfDifference (U : Cᵒᵖ)
-    (a : 𝒪1.obj.obj U) (b : 𝒪2.obj.obj U) :
+    (a : 𝒪1.obj.obj U) (b : 𝒪2.obj.obj U)
+    (hb : (π2.hom.app U).hom b = (π1.hom.app U).hom a) :
     (KernelIdeal.sheaf π1).val.obj U :=
   (KernelIdeal.sectionsIso π1 U).inv
     ⟨a - (h.hom.app U).hom b, sorry⟩
@@ -147,12 +154,14 @@ noncomputable def idealSectionOfDifference (U : Cᵒᵖ)
 noncomputable def c1Correction (hπ1 : KernelIdeal.IsSquareZero π1)
     (c1 : moduleTensor (idealModule hπ1) F ⟶ K1)
     (F'2 : ModuleExtension hπ2 F K2 c2) (U : Cᵒᵖ)
-    (a : 𝒪1.obj.obj U) (b : 𝒪2.obj.obj U) (s' : F'2.module.val.obj U) :
+    (a : 𝒪1.obj.obj U) (b : 𝒪2.obj.obj U)
+    (hb : (π2.hom.app U).hom b = (π1.hom.app U).hom a)
+    (s' : F'2.module.val.obj U) :
     K1.val.obj U :=
   (c1.val.app U).hom
     (tensorSection 𝒪 U
       (((restrictIdealModuleIso hπ1).inv.val.app U).hom
-        (idealSectionOfDifference h U a b))
+        (idealSectionOfDifference h U a b hb))
       ((F'2.proj.val.app U).hom s'))
 
 /-- Local 𝒪'₁-action on a class coming from s' in ℱ'₂: act by a lift of π₁(a) through π₂,
@@ -160,11 +169,13 @@ then correct by c₁((a - h(lift)) ⊗ proj(s')). -/
 noncomputable def actionOnClassFrom (h_comm : h ≫ π1 = π2) (k : K2 ⟶ K1)
     (c1 : moduleTensor (idealModule hπ1) F ⟶ K1)
     (F'2 : ModuleExtension hπ2 F K2 c2) (U : Cᵒᵖ)
-    (a : 𝒪1.obj.obj U) (b : 𝒪2.obj.obj U) (s' : F'2.module.val.obj U) :
+    (a : 𝒪1.obj.obj U) (b : 𝒪2.obj.obj U)
+    (hb : (π2.hom.app U).hom b = (π1.hom.app U).hom a)
+    (s' : F'2.module.val.obj U) :
     (pushoutUnderlying h h_comm k F'2).obj.obj U :=
   let bR : (forget₂ CommRingCat.{max u v} RingCat.{max u v}).obj (𝒪2.obj.obj U) := b
   let sAct := CategoryTheory.ConcreteCategory.hom ((F'2.module.val.obj U).smul bR) s'
-  let corr : K1.val.obj U := c1Correction h hπ1 c1 F'2 U a b s'
+  let corr : K1.val.obj U := c1Correction h hπ1 c1 F'2 U a b hb s'
   ((InducedCategory.Hom.hom (pushoutInlSheaf h h_comm k F'2)).app U) sAct +
     ((InducedCategory.Hom.hom (pushoutInrSheaf h h_comm k F'2)).app U) corr
 
@@ -192,6 +203,16 @@ theorem pushoutActionSieve_mem (h_comm : h ≫ π1 = π2) (k : K2 ⟶ K1)
     (F'2 : ModuleExtension hπ2 F K2 c2) (U : Cᵒᵖ)
     (a : 𝒪1.obj.obj U) (s : (pushoutUnderlying h h_comm k F'2).obj.obj U) :
     pushoutActionSieve h h_comm k F'2 U a s ∈ J U.unop := sorry
+
+/-- A local preimage on the action sieve has the required equality of the two base sections. -/
+theorem localPreimage_lift_eq (h_comm : h ≫ π1 = π2) (k : K2 ⟶ K1)
+    (F'2 : ModuleExtension hπ2 F K2 c2) {U : Cᵒᵖ} {V : C}
+    (g : V ⟶ U.unop) (a : 𝒪1.obj.obj U)
+    (s : (pushoutUnderlying h h_comm k F'2).obj.obj U)
+    (hg : pushoutActionSieve h h_comm k F'2 U a s g) :
+    (π2.hom.app (op V)).hom
+        (localPreimage π2.hom ((π1.hom.app U).hom a) g hg.1) =
+      (π1.hom.app (op V)).hom ((𝒪1.obj).map g.op a) := sorry
 
 /-- Type-valued underlying presheaf of the abelian pushout. -/
 noncomputable abbrev pushoutUnderlyingType (h_comm : h ≫ π1 = π2) (k : K2 ⟶ K1)
@@ -221,7 +242,8 @@ noncomputable def actionOnGeneratingPair (h_comm : h ≫ π1 = π2) (k : K2 ⟶ 
       (abelianSheaf K1).obj.obj (op V) := biprod.snd
   let s' := CategoryTheory.ConcreteCategory.hom fst pair
   let x := CategoryTheory.ConcreteCategory.hom snd pair
-  actionOnClassFrom h h_comm k c1 F'2 (op V) (𝒪1.obj.map g.op a) b s' +
+  let hb := localPreimage_lift_eq h h_comm k F'2 g a s hg
+  actionOnClassFrom h h_comm k c1 F'2 (op V) (𝒪1.obj.map g.op a) b hb s' +
     actionOnKernel h h_comm k F'2 (op V) (𝒪1.obj.map g.op a) x
 
 /-- The local action family on the covering sieve, as a type-valued family of elements. -/
@@ -361,7 +383,7 @@ theorem pushoutSMul_spec (h_comm : h ≫ π1 = π2) (k : K2 ⟶ K1)
     pushoutSMul h h_comm k hc F'2 U a
         (CategoryTheory.ConcreteCategory.hom
           ((InducedCategory.Hom.hom (pushoutInlSheaf h h_comm k F'2)).app U) s') =
-      actionOnClassFrom h h_comm k c1 F'2 U a b s' := sorry
+      actionOnClassFrom h h_comm k c1 F'2 U a b hb s' := sorry
 
 end ModuleExtension
 end SheafOfModules.RingedSite.FirstOrderThickening

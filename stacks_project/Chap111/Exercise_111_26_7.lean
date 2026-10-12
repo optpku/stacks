@@ -1,10 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap111.Definition_111_26_2_LocallyFinite
-public import ReasLib.Algebra.Module.Graded.HomogeneousMap
-public import ReasLib.Algebra.Module.Graded.Submodule
-public import Mathlib.RingTheory.Noetherian.Defs
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.Algebra.Module.Graded.LocallyFinite.Kernel
+import StacksCheckRecall
 
 /-!
 # Kernel of a map of locally finite graded modules
@@ -21,24 +24,17 @@ open GradedModule
 
 namespace GradedModule
 
-/-- Exercise 111.26.7: if `A` is Noetherian, the kernel of a map of locally finite graded
-`A`-modules is locally finite. -/
-@[stacks 02E5]
-instance LocallyFinite.ker {A : Type u} {M : Type v} {N : Type w}
-    [CommRing A] [IsNoetherianRing A] [AddCommGroup M] [Module A M]
-    [AddCommGroup N] [Module A N] {ℳ : ℤ → Submodule A M} {𝒩 : ℤ → Submodule A N}
-    [DirectSum.Decomposition ℳ] [DirectSum.Decomposition 𝒩]
-    [LocallyFinite ℳ] [LocallyFinite 𝒩] (f : MapsTo A ℳ 𝒩 (id : ℤ → ℤ)) :
+/- Exercise 111.26.7: over a Noetherian ring, the kernel of a degree-preserving map of
+locally finite graded modules is locally finite. -/
+@[stacks 02E5] #check (GradedModule.LocallyFinite.ker :
+  {A : Type u} → {M : Type v} → {N : Type w} →
+    [CommRing A] → [IsNoetherianRing A] → [AddCommGroup M] → [Module A M] →
+    [AddCommGroup N] → [Module A N] →
+    {ℳ : ℤ → Submodule A M} → {𝒩 : ℤ → Submodule A N} →
+    [DirectSum.Decomposition ℳ] → [DirectSum.Decomposition 𝒩] →
+    [LocallyFinite ℳ] → [LocallyFinite 𝒩] →
+    (f : MapsTo A ℳ 𝒩 (id : ℤ → ℤ)) →
     LocallyFinite (DirectSum.Decomposition.submoduleGrading ℳ
-      (LinearMap.ker (MapsTo.toLinearMap f))) := sorry
-
-/-- The intersection of a degree piece with the kernel of a degree-preserving map is a finite
-`A`-module. -/
-instance LocallyFinite.finite_inf_ker {A : Type u} {M : Type v} {N : Type w}
-    [CommRing A] [IsNoetherianRing A] [AddCommGroup M] [Module A M]
-    [AddCommGroup N] [Module A N] {ℳ : ℤ → Submodule A M} {𝒩 : ℤ → Submodule A N}
-    [DirectSum.Decomposition ℳ] [DirectSum.Decomposition 𝒩]
-    [LocallyFinite ℳ] [LocallyFinite 𝒩] (f : MapsTo A ℳ 𝒩 (id : ℤ → ℤ)) (n : ℤ) :
-    Module.Finite A (ℳ n ⊓ LinearMap.ker (MapsTo.toLinearMap f) : Submodule A M) := sorry
+      (LinearMap.ker (MapsTo.toLinearMap f))))
 
 end GradedModule

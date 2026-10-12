@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Limits.Preserves.Finite
@@ -5,7 +11,6 @@ public import ReasLib.Algebra.Category.ModuleCat.Sheaf.PushforwardContinuous.Add
 public import ReasLib.CategoryTheory.Fibered.YonedaEvaluation.Groupoids
 public import stacks_project.Chap96.Lemma_96_10_1_Comparison
 public import stacks_project.Chap96.Lemma_96_12_3_Pullback
-public import stacks_project.Chap103.Lemma_103_6_2
 
 /-!
 # Small-étale restriction of étale modules at an object
@@ -64,20 +69,6 @@ theorem restrictAt_eq {Y : GroupoidsOver S} (y : Y.total) :
     restrictAt y =
       moduleInverseImage (sliceHom y) ⋙
         restrictAlong (AlgebraicSpace.ofOverSliceEquiv (Y.p.obj y)) :=
-  rfl
-
-/-- Restriction of `moduleHigherDirectImage f F i` to the small étale site of
-`ofOver (p(y))`. -/
-def restrictHigherDirectImage {X Y : GroupoidsOver S} (f : X ⟶ Y)
-    (F : etaleModules X) (y : Y.total) (i : ℕ) :
-    AlgebraicSpace.Modules (AlgebraicSpace.ofOver (Y.p.obj y)) :=
-  (restrictAt y).obj (moduleHigherDirectImage f F i)
-
-/-- `restrictHigherDirectImage` is `restrictAt` applied to étale `R^i f_* F`. -/
-theorem restrictHigherDirectImage_eq {X Y : GroupoidsOver S} (f : X ⟶ Y)
-    (F : etaleModules X) (y : Y.total) (i : ℕ) :
-    restrictHigherDirectImage f F y i =
-      (restrictAt y).obj (moduleHigherDirectImage f F i) :=
   rfl
 
 /-- The second projection of the slice 2-fibre product of `f` along `sliceHom y`. -/

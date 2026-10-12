@@ -48,6 +48,46 @@ Lake configuration when working with the library. See the
 [Lean installation guide](https://leanprover-community.github.io/get_started.html)
 and [contributor setup](CONTRIBUTING.md#contributor-setup-and-validation) to get started.
 
+## Project status
+
+The project organizes mathematics from the Stacks Project into chapter-based Lean
+formalizations and the reusable library `ReasLib`, including material from
+chapters 1–26 and later chapters. Work continues on completing proofs, improving
+shared mathematical interfaces, and reviewing correspondence with the original text.
+
+| Metric | Count |
+| --- | --- |
+| Distinct Stacks tags in chapter sources | 17,350 |
+| Lean source files | 41,072 |
+| Mathematical declarations (including definitions, structures, instances, and theorems) | 219,381 |
+| Mathematical declarations in the shared library `ReasLib` | 144,213 |
+| Proof entries | 122,179 |
+| Proof entries without explicit placeholders | 9,351 |
+| Unfinished proof entries with explicit placeholders | 112,828 |
+
+Proof entries count `theorem`, `lemma`, and `example` commands. Absence of explicit
+`sorry` or `admit` does not establish verification of a proof and its dependencies.
+
+### Chapter coverage
+
+| Chapters | Lean files | Distinct Stacks tags |
+| --- | --- | --- |
+| 1–26 | 6,178 | 5,824 |
+| 27–34 | 1,800 | 1,761 |
+| 35–111 | 14,441 | 9,766 |
+
+Chapter counts cover sources in chapter directories and exclude the shared library.
+A tag may occur in multiple chapters. See the [chapter-by-chapter table](docs/chapter-statistics.tsv)
+and [statistics notes](docs/formalization-statistics.json) for details.
+
+## Formalization authors
+
+- **Statement formalization:** ReasBook team
+- **Proof formalization:** ReasBook team
+
+Author credits are recorded in code headers and updated as contributions are made.
+See [ATTRIBUTION.md](ATTRIBUTION.md) for source attribution and license details.
+
 ## Contributions
 
 **Everyone is welcome to submit Lean proofs through GitHub Pull Requests.**

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Homology.ShortComplex.Exact
@@ -387,16 +393,20 @@ abbrev preimageFst (f : X ⟶ B) (F : X.Modules) {σ σ' : SchemesOver B}
     (hF : Modules.flatOver F f) (x : Point f F σ) :
     preimageModule f F h hF x ⟶
       (Modules.pushforward (fiberMap f h)).obj (kernel x.map) :=
-  Limits.pullback.fst ((Modules.pushforward (fiberMap f h)).map (kernel.ι x.map))
+  @Limits.pullback.fst (fiber f σ').Modules _ _ _ _
+    ((Modules.pushforward (fiberMap f h)).map (kernel.ι x.map))
     (unitToPushforward f F h)
+    (HasLimitsOfShape.has_limit (C := (fiber f σ').Modules) _)
 
 /-- The second projection of `π⁻¹(K)` lands in `F_{T'}`. -/
 abbrev preimageSnd (f : X ⟶ B) (F : X.Modules) {σ σ' : SchemesOver B}
     (h : σ ⟶ σ') [AlgebraicGeometry.IsFirstOrderThickening h.left.left]
     (hF : Modules.flatOver F f) (x : Point f F σ) :
     preimageModule f F h hF x ⟶ fiberF f F σ' :=
-  Limits.pullback.snd ((Modules.pushforward (fiberMap f h)).map (kernel.ι x.map))
+  @Limits.pullback.snd (fiber f σ').Modules _ _ _ _
+    ((Modules.pushforward (fiberMap f h)).map (kernel.ι x.map))
     (unitToPushforward f F h)
+    (HasLimitsOfShape.has_limit (C := (fiber f σ').Modules) _)
 
 /-- Compatibility of `kernelToPushforwardKernel` with the pullback defining `π⁻¹(K)`. -/
 theorem kernelToPreimage_condition (f : X ⟶ B) (F : X.Modules) {σ σ' : SchemesOver B}

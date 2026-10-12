@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.RingTheory.EssentialFiniteness
@@ -102,12 +108,14 @@ theorem isLocalizationOfQuotient_of_surjective (f : R →+* S)
 property. -/
 @[stacks 00QM, algebraize Algebra.EssFinitePresentation]
 def EssFinitePresentation (f : R →+* S) : Prop :=
+  -- Local instance justification (noncanonical choice): The explicit ring map f selects the R-algebra structure on S used by this predicate.
   letI := f.toAlgebra
   Algebra.EssFinitePresentation R S
 
 /-- Characterize an essentially finitely presented ring map using an algebra localization model. -/
 theorem essFinitePresentation_iff (f : R →+* S) :
     f.EssFinitePresentation ↔
+      -- Local instance justification (noncanonical choice): The localization model and its scalar tower must use the R-algebra structure on S induced by f.
       letI := f.toAlgebra
       ∃ (P : Type (max u v)) (_ : CommRing P) (_ : Algebra R P) (_ : Algebra P S)
         (_ : IsScalarTower R P S) (_ : Algebra.FinitePresentation R P) (M : Submonoid P),

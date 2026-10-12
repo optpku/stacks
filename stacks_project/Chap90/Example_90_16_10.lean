@@ -1,10 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.CategoryTheory.Elements
-public import stacks_project.Chap90.Definition_90_16_8
-public import stacks_project.Chap90.Definition_90_6_1_Prorepresentable
-public import stacks_project.Chap90.Example_90_16_10_ResidueHom
-public import stacks_project.Chap90.Remark_90_6_3_PredeformationFunctor
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Prorepresentable
+import StacksCheckRecall
 
 /-!
 # Prorepresentable functors are deformation functors
@@ -22,20 +25,13 @@ universe u
 variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-namespace CategoryTheory.Functor
-
-/-- Example 90.16.10: a prorepresentable functor `F : ArtinianLocalAlgCat Λ k ⥤ Type u`
+/- Example 90.16.10: a prorepresentable functor `F : ArtinianLocalAlgCat Λ k ⥤ Type u`
 is a deformation functor, in the sense that the associated cofibered set
 `CategoryOfElements.π F` is a deformation category. -/
-@[stacks 06JB]
-instance instIsDeformationCategory_π
-    {F : ArtinianLocalAlgCat Λ k ⥤ Type u} [IsProrepresentable F] :
-    IsDeformationCategory (π F) := sorry
+@[stacks 06JB] #check (CategoryTheory.Functor.instIsDeformationCategory_π :
+  ∀ {F : ArtinianLocalAlgCat Λ k ⥤ Type u} [Functor.IsProrepresentable F],
+    Functor.IsDeformationCategory (CategoryOfElements.π F))
 
-/-- A prorepresentable functor is a predeformation functor: its value at the residue
-field is a singleton. -/
-instance instIsPredeformationFunctor_of_isProrepresentable
-    {F : ArtinianLocalAlgCat Λ k ⥤ Type u} [IsProrepresentable F] :
-    IsPredeformationFunctor F := sorry
-
-end CategoryTheory.Functor
+#check (CategoryTheory.Functor.instIsPredeformationFunctor_of_isProrepresentable :
+  ∀ {F : ArtinianLocalAlgCat Λ k ⥤ Type u} [Functor.IsProrepresentable F],
+    Functor.IsPredeformationFunctor F)

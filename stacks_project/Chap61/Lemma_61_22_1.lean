@@ -1,61 +1,73 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import Mathlib.Topology.Algebra.Nonarchimedean.AdicTopology
-public import stacks_project.Chap61.Lemma_61_22_1_Comparison
-public import stacks_project.Chap61.Lemma_61_22_1_Sheaf
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Proetale.Cohomology.Galois
 
 /-!
 # Lemma 61.22.1
 
-Pro-étale cohomology of the completed Galois sheaf of a profinite abelian
-continuous Galois module, or of an I-adically complete module, is Tate
-continuous Galois cohomology.
+Pro-étale cohomology of completed Galois sheaves agrees with continuous Galois
+cohomology for profinite and adically complete coefficients.
 -/
 
 @[expose] public section
 
 open CategoryTheory
 open AlgebraicGeometry AlgebraicGeometry.Scheme
-open AlgebraicGeometry.Scheme.ProEt
 
 noncomputable section
 
 universe u
 
-/-- Lemma 61.22.1 (1): if `M` is a profinite abelian group with a continuous
-action of `G = Gal(k^sep/k)`, then the pro-étale cohomology of the completed
-Galois sheaf `underline{M}^∧` on `Spec k_proétale` is Tate continuous Galois
-cohomology `H^i_cont(G, M)`, as abelian groups. -/
-@[stacks 09B4]
-theorem profiniteGaloisSheaf_proetaleCohomology
-    (k : Type u) [Field k] (s : GeometricPoint (Spec (.of k)))
-    (M : Type u) [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
-    [CompactSpace M] [T2Space M] [TotallyDisconnectedSpace M]
-    [DistribMulAction s.absoluteGaloisGroup M]
-    [ContinuousSMul s.absoluteGaloisGroup M] (i : ℕ) :
-    IsIsomorphic
-      (proEtaleCohomology (Spec (.of k)) (profiniteGaloisSheaf k s M) i)
-      (continuousCohomologyAb s.absoluteGaloisGroup
-        (profiniteGaloisTopRep k s M) i) := sorry
+namespace AlgebraicGeometry.Scheme.ProEt
 
-/-- Lemma 61.22.1 (2): if `Λ` is a Noetherian ring, `I ⊆ Λ` an ideal, and `M`
-an `I`-adically complete `Λ`-module with a continuous action of
-`G = Gal(k^sep/k)` for the `I`-adic topology, then the pro-étale cohomology of
-the completed Galois sheaf `underline{M}^∧` on `Spec k_proétale` is Tate
-continuous Galois cohomology `H^i_cont(G, M)`, as `Λ`-modules. -/
+section Profinite
+
+variable (K Ksep : Type u) [Field K] [Field Ksep] [Algebra K Ksep]
+  [IsSepClosure K Ksep] (M : Type u) [AddCommGroup M] [TopologicalSpace M]
+  [IsTopologicalAddGroup M] [CompactSpace M] [T2Space M]
+  [TotallyDisconnectedSpace M] [DistribMulAction (Gal(Ksep / K)) M]
+  [ContinuousSMul (Gal(Ksep / K)) M]
+
+/- Lemma 61.22.1 (1) -/
 @[stacks 09B4]
-theorem completedGaloisSheaf_proetaleCohomology
-    (k : Type u) [Field k] (s : GeometricPoint (Spec (.of k)))
-    (Λ : Type u) [CommRing Λ] [IsNoetherianRing Λ] (I : Ideal Λ)
-    (M : Type u) [AddCommGroup M] [Module Λ M] [IsAdicComplete I M]
-    [DistribMulAction s.absoluteGaloisGroup M]
-    [SMulCommClass s.absoluteGaloisGroup Λ M]
-    [hcont : @ContinuousSMul s.absoluteGaloisGroup M _ _ (Ideal.adicModuleTopology I M)]
-    (i : ℕ) :
+#check (AlgebraicGeometry.Scheme.ProEt.profiniteGaloisSheaf_proetaleCohomology K Ksep M :
+  ∀ i : ℕ,
+    IsIsomorphic
+      (proEtaleCohomology (Spec (.of K)) (profiniteGaloisSheaf K Ksep M) i)
+      (ContinuousCohomology.abelian (Gal(Ksep / K))
+        (ContinuousModule.profiniteTopRep (Gal(Ksep / K)) M) i))
+
+end Profinite
+
+section Adic
+
+variable (K Ksep : Type u) [Field K] [Field Ksep] [Algebra K Ksep]
+  [IsSepClosure K Ksep] (Λ : Type u) [CommRing Λ] [IsNoetherianRing Λ]
+  (I : Ideal Λ) (M : Type u) [AddCommGroup M] [Module Λ M]
+  [IsAdicComplete I M] [DistribMulAction (Gal(Ksep / K)) M]
+  [SMulCommClass (Gal(Ksep / K)) Λ M]
+  [hcont : @ContinuousSMul (Gal(Ksep / K)) M _ _ (Ideal.adicModuleTopology I M)]
+
+/- Lemma 61.22.1 (2) -/
+@[stacks 09B4]
+#check (AlgebraicGeometry.Scheme.ProEt.completedGaloisSheaf_proetaleCohomology K Ksep Λ I M :
+  ∀ i : ℕ,
     IsIsomorphic
       (ModuleCat.of Λ
-        (proEtaleCohomology (Spec (.of k)) (completedGaloisSheaf k s I M) i))
+        (proEtaleCohomology (Spec (.of K)) (completedGaloisSheaf K Ksep I M) i))
       (ModuleCat.of Λ
-        (continuousCohomologyAb s.absoluteGaloisGroup
-          (completedGaloisTopRep k s I M) i)) := sorry
+        (ContinuousCohomology.abelian (Gal(Ksep / K))
+          (ContinuousModule.adicTopRep (Gal(Ksep / K)) I M) i)))
+
+end Adic
+
+end AlgebraicGeometry.Scheme.ProEt
+
+end

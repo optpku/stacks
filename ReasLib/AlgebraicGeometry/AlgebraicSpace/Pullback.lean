@@ -1,4 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
+
+public import ReasLib.CategoryTheory.MorphismProperty.Representable.PullbackDiagonal
 
 public import Mathlib.AlgebraicGeometry.Limits
 public import Mathlib.AlgebraicGeometry.Pullbacks
@@ -43,7 +51,8 @@ has representable diagonal. -/
 theorem pullbackOver_representableDiagonal {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u}
     {F G : AlgebraicSpace S} (f : F.functorOfPoints ⟶ H) (g : G.functorOfPoints ⟶ H)
     (hΔ : yoneda.relativelyRepresentable (Limits.diag H)) :
-    yoneda.relativelyRepresentable (Limits.diag (Limits.pullback f g)) := sorry
+    yoneda.relativelyRepresentable (Limits.diag (Limits.pullback f g)) :=
+  CategoryTheory.Functor.relativelyRepresentable.PullbackDiagonal.diagonal f g F.representableDiagonal G.representableDiagonal hΔ
 
 /-- The presheaf fibre product of algebraic spaces over a presheaf with representable diagonal
 admits a representable étale locally-surjective atlas. -/
@@ -52,7 +61,15 @@ theorem pullbackOver_hasAtlas {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u}
     (hΔ : yoneda.relativelyRepresentable (Limits.diag H)) :
     ∃ (U : Over S) (p : yoneda.obj U ⟶ Limits.pullback f g),
       MorphismProperty.presheaf (MorphismProperty.over (@Etale)) p ∧
-        Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p := sorry
+        Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p := by
+  let a := F.atlas.choose_spec.choose
+  let b := G.atlas.choose_spec.choose
+  let r := Functor.relativelyRepresentable.of_diag hΔ (a ≫ f)
+  let W := r.pullback (b ≫ g)
+  let p : yoneda.obj W ⟶ Limits.pullback f g :=
+    Limits.pullback.lift (r.fst (b ≫ g) ≫ a) (yoneda.map (r.snd (b ≫ g)) ≫ b)
+      (((Category.assoc _ _ _).trans (r.w (b ≫ g))).trans (Category.assoc _ _ _).symm)
+  exact ⟨W, p, by sorry, by sorry⟩
 
 /-- The algebraic space `F ×_H G` obtained as the sheaf fibre product of algebraic spaces `F`
 and `G` over an fppf sheaf `H` with representable diagonal. -/
@@ -234,17 +251,34 @@ theorem pullbackLift_snd {S : Scheme.{u}} {W F G H : AlgebraicSpace S} (f : F �
     (h : W ⟶ F) (k : W ⟶ G) (w : h ≫ f = k ≫ g) :
     pullbackLift f g h k w ≫ pullbackOverSnd f g H.isSheaf H.representableDiagonal = k := sorry
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The projections of the algebraic-space pullback satisfy its universal property. -/
 theorem isPullback {S : Scheme.{u}} {F G H : AlgebraicSpace S} (f : F ⟶ H) (g : G ⟶ H) :
     IsPullback (pullbackOverFst f g H.isSheaf H.representableDiagonal)
-      (pullbackOverSnd f g H.isSheaf H.representableDiagonal) f g := sorry
+      (pullbackOverSnd f g H.isSheaf H.representableDiagonal) f g := by
+  let fp : F.functorOfPoints ⟶ H.functorOfPoints := f
+  let gp : G.functorOfPoints ⟶ H.functorOfPoints := g
+  let w : pullbackOverFst f g H.isSheaf H.representableDiagonal ≫ f =
+      pullbackOverSnd f g H.isSheaf H.representableDiagonal ≫ g :=
+    Limits.pullback.condition (f := fp) (g := gp)
+  exact IsPullback.of_isLimit (PullbackCone.IsLimit.mk w
+    (fun c ↦ pullbackLift f g c.fst c.snd c.condition)
+    (fun c ↦ Limits.pullback.lift_fst (f := fp) (g := gp)
+      (c.fst : c.pt.functorOfPoints ⟶ F.functorOfPoints) c.snd c.condition)
+    (fun c ↦ Limits.pullback.lift_snd (f := fp) (g := gp)
+      (c.fst : c.pt.functorOfPoints ⟶ F.functorOfPoints) c.snd c.condition)
+    (fun c m hm₁ hm₂ ↦ Limits.pullback.hom_ext (f := fp) (g := gp)
+      (hm₁.trans (Limits.pullback.lift_fst (f := fp) (g := gp)
+        (c.fst : c.pt.functorOfPoints ⟶ F.functorOfPoints) c.snd c.condition).symm)
+      (hm₂.trans (Limits.pullback.lift_snd (f := fp) (g := gp)
+        (c.fst : c.pt.functorOfPoints ⟶ F.functorOfPoints) c.snd c.condition).symm)))
 
 /-- A morphism of algebraic spaces admits the explicitly constructed pullback object. -/
 instance hasPullback {S : Scheme.{u}} {F G H : AlgebraicSpace S} (f : F ⟶ H) (g : G ⟶ H) :
     HasPullback f g :=
   HasLimit.mk
     { cone := PullbackCone.mk (pullbackOverFst f g H.isSheaf H.representableDiagonal)
-        (pullbackOverSnd f g H.isSheaf H.representableDiagonal) sorry
+        (pullbackOverSnd f g H.isSheaf H.representableDiagonal) (isPullback f g).w
       isLimit := (isPullback f g).isLimit }
 
 /-- The category of algebraic spaces over a scheme has all pullbacks. -/

@@ -1,33 +1,26 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.RingTheory.Etale.Basic
-public import Mathlib.RingTheory.Ideal.Pure
-public import Mathlib.RingTheory.LocalRing.ResidueField.Defs
-public import Mathlib.RingTheory.RingHom.Flat
+public import ReasLib.RingTheory.Ideal.Quotient.FormallyEtale
+public import ReasLib.RingTheory.LocalRing.ResidueField.NonFlat
 
 @[expose] public section
 
 universe u
 
-namespace Ideal.Quotient
+#check (Ideal.Quotient.formallyEtale_mk_iff :
+  ∀ {R : Type u} [CommRing R] (J : Ideal R),
+    (Ideal.Quotient.mk J).FormallyEtale ↔ IsIdempotentElem J)
 
-/-- The quotient map `R →+* R ⧸ J` is formally étale if and only if `J` is an
-idempotent ideal. -/
-theorem formallyEtale_mk_iff {R : Type u} [CommRing R] (J : Ideal R) :
-    (mk J).FormallyEtale ↔ IsIdempotentElem J := sorry
+#check (Ideal.Quotient.not_flat_mk_of_isLocalRing :
+  ∀ {R : Type u} [CommRing R] [IsLocalRing R] {J : Ideal R},
+    J ≠ ⊥ → J ≠ ⊤ → ¬ (Ideal.Quotient.mk J).Flat)
 
-/-- If `R` is local and `J` is a nonzero proper ideal, then the quotient map
-`R →+* R ⧸ J` is not flat. -/
-theorem not_flat_mk_of_isLocalRing {R : Type u} [CommRing R] [IsLocalRing R]
-    {J : Ideal R} (h_bot : J ≠ ⊥) (h_top : J ≠ ⊤) :
-    ¬ (mk J).Flat := sorry
-
-end Ideal.Quotient
-
-namespace IsLocalRing
-
-/-- The residue map of a local ring that is not a field is not flat. -/
-theorem residue_not_flat {R : Type u} [CommRing R] [IsLocalRing R]
-    (h : ¬ IsField R) : ¬ (residue R).Flat := sorry
-
-end IsLocalRing
+#check (IsLocalRing.residue_not_flat :
+  ∀ {R : Type u} [CommRing R] [IsLocalRing R],
+    ¬ IsField R → ¬ (IsLocalRing.residue R).Flat)

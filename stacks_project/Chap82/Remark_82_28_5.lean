@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap82.Remark_82_28_5_RankLocus
@@ -57,7 +63,8 @@ theorem rankDecomposition_pullback {S : Scheme.{u}} {B : AlgebraicSpace S}
   sorry
 
 /-- Remark 82.28.5 (3): The pulled-back rank decomposition identifies Chow
-groups `CH_*(X') ≃+ ∏_r CH_*(X'_r)` by restriction to the rank loci. -/
+groups `CH_*(X') ≃+ ∏_r CH_*(X'_r)` by the existing additive equivalence
+`IntersectionTheory.pullbackRankProduct` / `IntersectionTheory.chowProduct`. -/
 @[stacks 0ES2]
 theorem chowGroup_product_rankLoci {S : Scheme.{u}} {B : AlgebraicSpace S}
     [UniversallyCatenary B] [IsQuasiSeparated B]
@@ -67,16 +74,14 @@ theorem chowGroup_product_rankLoci {S : Scheme.{u}} {B : AlgebraicSpace S}
     (E : X.Modules) [SheafOfModules.IsFiniteLocallyFree E]
     (g : Y ⟶ X) [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)]
     (k : ℤ) :
-    Function.Bijective
-      (fun α : chowGroup (g ≫ f) δ k ↦
-        fun r : ℕ ↦
-          openPullback (g ≫ f) δ (rankOpenSubspace ((pullback g).obj E) r) k α) :=
+    IntersectionTheory.pullbackRankProduct E f δ k g =
+      IntersectionTheory.chowProduct ((Modules.pullback g).obj E) (g ≫ f) δ k :=
   sorry
 
 /-- Remark 82.28.5 (4): The Chern class `c_i(E)` is the bivariant identity
 class in `A^i(X)` which preserves these product decompositions and acts by
 the already-defined constant-rank operations `c_i(E|_{X_r}) ∩ -` on the
-factors. In this setting `c_i(E)` may be nonzero for infinitely many `i`. -/
+factors. -/
 @[stacks 0ES2]
 theorem chernClass_preserves_product {S : Scheme.{u}} {B : AlgebraicSpace S}
     [UniversallyCatenary B] [IsQuasiSeparated B]
@@ -85,11 +90,26 @@ theorem chernClass_preserves_product {S : Scheme.{u}} {B : AlgebraicSpace S}
     [QuasiSeparated f] [LocallyOfFiniteType f]
     (E : X.Modules) [SheafOfModules.IsFiniteLocallyFree E]
     (g : Y ⟶ X) [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)]
-    (i r : ℕ) (k : ℤ) (α : chowGroup (g ≫ f) δ k) :
+    (i r : ℕ) (k : ℤ) (α : Hom.chowGroup (g ≫ f) δ k) :
     chowProductEquiv δ (g ≫ f) ((pullback g).obj E) (k - (i : ℤ))
         ((chernClass δ f E i).cap g k α) r =
       rankwiseCap δ (g ≫ f) ((pullback g).obj E) i r k
         (chowProductEquiv δ (g ≫ f) ((pullback g).obj E) k α r) :=
+  sorry
+
+/-- Remark 82.28.5 (5): In this setting it may happen that `c_i(E)` is nonzero
+for infinitely many `i`; there is no uniform vanishing bound for Chern classes
+of arbitrary finite locally free modules. -/
+@[stacks 0ES2]
+theorem chernClass_not_eventually_zero :
+    ¬ ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
+        [UniversallyCatenary B] [IsQuasiSeparated B]
+        (δ : Points B → ℤ) [IsDimensionFunction δ]
+        {X : AlgebraicSpace S} (f : X ⟶ B)
+        [QuasiSeparated f] [LocallyOfFiniteType f]
+        (E : X.Modules) [SheafOfModules.IsFiniteLocallyFree E],
+      ∃ N : ℕ, ∀ i : ℕ, N < i →
+        chernClass δ f E i = ChowCohomology.zeroCap δ f (i : ℤ) :=
   sorry
 
 end AlgebraicGeometry.AlgebraicSpace.ChernClass

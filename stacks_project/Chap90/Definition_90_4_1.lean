@@ -1,6 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap90.Definition_90_7_3_CompleteLocal
+public import ReasLib.AlgebraicGeometry.FormalDeformation.CompleteLocal
 import StacksCheckRecall
 
 @[expose] public section
@@ -17,10 +23,10 @@ complete local Λ-algebra and φ : ResidueField R ≃ₐ[Λ] k is a Λ-algebra i
 morphisms (S, ψ) ⟶ (R, φ) are local Λ-algebra maps f : S → R satisfying
 φ.comp (ResidueField.mapAlgHom f) = ψ. -/
 @[stacks 06GW]
-#check (CompleteLocalAlgCat Λ k)
+#check (CompleteLocalAlgCat Λ k : Type (u + 1))
 
 variable (R S : CompleteLocalAlgCat Λ k)
 
-#check (CompleteLocalAlgCat.Hom R S)
+#check (CompleteLocalAlgCat.Hom R S : Type u)
 
-#check (inferInstance : Category.{u} (CompleteLocalAlgCat Λ k))
+#check (CompleteLocalAlgCat.category : Category.{u} (CompleteLocalAlgCat Λ k))

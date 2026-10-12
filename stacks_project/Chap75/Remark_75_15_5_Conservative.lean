@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Pretriangulated.Generation.Orthogonal
@@ -5,7 +11,7 @@ public import stacks_project.Chap65.Lemma_65_12_4_Immersion
 public import stacks_project.Chap67.Lemma_67_4_8
 public import stacks_project.Chap67.Lemma_67_8_5
 public import stacks_project.Chap75.Lemma_75_6_1_Pushforward
-public import stacks_project.Chap75.Lemma_75_21_1_Pullback
+public import stacks_project.Chap75.Remark_75_6_3
 
 /-!
 # Conservativity of derived pushforward on algebraic spaces
@@ -41,7 +47,7 @@ theorem reflectsZero_iff_pullback_isWeakGenerator {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) [QuasiCompact f] [QuasiSeparated f]
     (E : DerivedQCoh Y) (hE : IsWeakGenerator E) :
     (∀ K : DerivedQCoh X, IsZero ((pushforward f).obj K) ↔ IsZero K) ↔
-      IsWeakGenerator ((pullback f).obj E) := sorry
+      IsWeakGenerator ((AlgebraicSpace.DerivedQCoh.pullback f).obj E) := sorry
 
 /-- Derived pushforward along a quasi-compact open immersion of algebraic spaces
 reflects isomorphisms. -/

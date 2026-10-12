@@ -1,96 +1,56 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.CategoryTheory.ObjectProperty.CompleteLattice
-public import ReasLib.AlgebraicGeometry.Scheme.GlobalSections
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Ample
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.ProperDualizingComplex
-public import ReasLib.AlgebraicGeometry.Scheme.OverField.Nodal
-public import ReasLib.AlgebraicGeometry.Scheme.OverField.RationalTail
-public import ReasLib.AlgebraicGeometry.Scheme.OverField.RationalBridge
-public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve.ArithmeticGenus
-public import stacks_project.Chap109.Lemma_109_22_5_Substack
-
-/-!
-# Stable curves of a given genus
-
-There is a decomposition of `𝒞urves^{stable}` into open-and-closed
-substacks `𝒞urves^{stable}_g` for `g ≥ 2`, classifying stable families
-of curves for which `R¹ f_* 𝒪_X` is locally free of rank `g`, equivalently
-proper schemes of dimension `1` over a field with at-worst-nodal
-singularities, `H⁰(X, 𝒪_X) = k`, genus `g`, and either no rational tails
-or bridges, or with `ω_X` ample.
--/
+public import ReasLib.AlgebraicGeometry.Curve.StableOfGenus
+import StacksCheckRecall
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
+open CategoryTheory AlgebraicGeometry CategoryTheory.Limits
+open AlgebraicGeometry.RingedSpace.Hom
 open AlgebraicGeometry.Scheme
+open AlgebraicGeometry.SchemeOverField
 open Scheme.DerivedQCoh.ProperDualizingComplex
-
-noncomputable section
+open SheafOfModules
+open TopologicalSpace
+open scoped AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-namespace Spaces
-namespace Curves
+/- Lemma 109.22.5: a proper scheme of dimension at most one over a field is a
+stable curve if and only if it is a stable family of some genus `g ≥ 2`,
+equivalently at-worst-nodal of genus `g` with no rational tails or bridges,
+equivalently with ample canonical dualizing module. -/
+@[stacks 0E78] #check (AlgebraicGeometry.exists_isStableFamilyOfGenus_iff :
+  ∀ {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
+    (hdim : topologicalKrullDim X.left ≤ 1),
+    isStableCurve X ↔ ∃ g : ℕ, IsStableFamilyOfGenus (g + 2) X.hom)
 
-/-- Lemma 109.22.5 (1): the stable locus `𝒞urves^{stable}` decomposes as the
-coproduct of open-and-closed substacks `𝒞urves^{stable}_g` for `g ≥ 2`. -/
-@[stacks 0E78]
-theorem stable_eq_iSup_stableOfGenus (S : Scheme.{u}) :
-    stable S = ⨆ g : ℕ, stableOfGenus (g + 2) S :=
-  sorry
+#check (AlgebraicGeometry.eq_of_isStableFamilyOfGenus :
+  ∀ {X S : Scheme.{u}} {f : X ⟶ S} {g g' : ℕ},
+    IsStableFamilyOfGenus g f → IsStableFamilyOfGenus g' f → g = g')
 
-/-- Lemma 109.22.5 (2): given a family of curves `X ⟶ S`, the classifying
-morphism `S ⟶ 𝒞urves` factors through `𝒞urves^{stable}_g` if and only if
-`X ⟶ S` is a stable family of curves and `R¹ f_* 𝒪_X` is a locally free
-`𝒪_S`-module of rank `g`. -/
-@[stacks 0E78]
-theorem classifying_factorsThrough_stableOfGenus_iff
-    {S : Scheme.{u}} (P : Obj S) (g : ℕ) :
-    stableOfGenus g S P ↔
-      AlgebraicSpace.IsStableFamily (hom P) ∧
-        SheafOfModules.IsFiniteLocallyFreeOfRank g
-          (higherDirectImageOne (hom P)) :=
-  sorry
-
-/-- Lemma 109.22.5 (3): given a scheme `X` proper over a field `k` with
-dimension at most one and `g ≥ 2`, the classifying morphism
-`Spec k ⟶ 𝒞urves` factors through `𝒞urves^{stable}_g` if and only if
-the singularities of `X` are at-worst-nodal, `dim(X) = 1`,
-`k = H⁰(X, 𝒪_X)`, the genus of `X` is `g`, and `X` has no rational tails
-or bridges. -/
-@[stacks 0E78]
-theorem classifying_factorsThrough_stableOfGenus_iff_scheme
-    {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
-    (hdim : topologicalKrullDim X.left ≤ 1) (g : ℕ) (hg : 2 ≤ g) :
-    stableOfGenus g (Spec (CommRingCat.of k)) (mkOfSchemeOverField X hdim) ↔
-      SchemeOverField.atWorstNodal X ∧
+#check (AlgebraicGeometry.isStableFamilyOfGenus_iff_atWorstNodal_genus :
+  ∀ {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
+    (hdim : topologicalKrullDim X.left ≤ 1) (g : ℕ) (hg : 2 ≤ g),
+    IsStableFamilyOfGenus g X.hom ↔
+      atWorstNodal X ∧
         ∃ (hdim1 : topologicalKrullDim X.left = 1)
           (hΓ : Function.Bijective (Scheme.Hom.globalSectionsMap X.hom)),
-          SchemeOverField.genus X hdim1 hΓ = g ∧
-            ¬ Nonempty (SchemeOverField.RationalTail X) ∧
-            ¬ Nonempty (RationalBridge X) :=
-  sorry
+          genus X hdim1 hΓ = g ∧
+            ¬ Nonempty (RationalTail X) ∧ ¬ Nonempty (RationalBridge X))
 
-/-- Lemma 109.22.5 (4): given a scheme `X` proper over a field `k` with
-dimension at most one and `g ≥ 2`, the classifying morphism
-`Spec k ⟶ 𝒞urves` factors through `𝒞urves^{stable}_g` if and only if
-the singularities of `X` are at-worst-nodal, `dim(X) = 1`,
-`k = H⁰(X, 𝒪_X)`, the genus of `X` is `g`, and `ω_X` is ample. -/
-@[stacks 0E78]
-theorem classifying_factorsThrough_stableOfGenus_iff_scheme_dualizing
-    {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
-    (hdim : topologicalKrullDim X.left ≤ 1) (g : ℕ) (hg : 2 ≤ g) :
-    stableOfGenus g (Spec (CommRingCat.of k)) (mkOfSchemeOverField X hdim) ↔
-      SchemeOverField.atWorstNodal X ∧
+#check (AlgebraicGeometry.isStableFamilyOfGenus_iff_curveDualizingModule_isAmple :
+  ∀ {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
+    (hdim : topologicalKrullDim X.left ≤ 1) (g : ℕ) (hg : 2 ≤ g),
+    IsStableFamilyOfGenus g X.hom ↔
+      atWorstNodal X ∧
         ∃ (hdim1 : topologicalKrullDim X.left = 1)
           (hΓ : Function.Bijective (Scheme.Hom.globalSectionsMap X.hom)),
-          SchemeOverField.genus X hdim1 hΓ = g ∧
-            Scheme.Modules.isAmpleObject (dualizingModule X.hom) :=
-  sorry
-
-end Curves
-end Spaces
-end AlgebraicGeometry.AlgebraicSpace
+          genus X hdim1 hΓ = g ∧
+            Scheme.Modules.isAmpleObject (curveDualizingModule X.hom))

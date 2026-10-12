@@ -1,6 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap42.Lemma_42_50_2
+public import stacks_project.Chap42.Definition_42_50_3_LocalizedClasses
 public import stacks_project.Chap42.Remark_42_34_7_Cutoff
 
 @[expose] public section
@@ -21,12 +27,6 @@ instance closedOverSourceLocallyOfFiniteType
     {Z : Scheme.{u}} (i : Z ⟶ X.left) [IsClosedImmersion i] :
     LocallyOfFiniteType (Over.mk (i ≫ X.hom)).hom := sorry
 
-/-- The closed immersion `i` remains a closed immersion as a morphism of `S`-schemes. -/
-instance instIsClosedImmersion_overHomMk
-    {S : Scheme.{u}} {X : Over S} {Z : Scheme.{u}}
-    (i : Z ⟶ X.left) [IsClosedImmersion i] :
-    IsClosedImmersion (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X).left :=
-  ‹IsClosedImmersion i›
 
 /-- A zero derived module is a degree-zero vector bundle of rank strictly less than
 any positive bound. -/
@@ -38,86 +38,6 @@ theorem rankBound_of_isZero {X : Scheme.{u}}
 /-- Complementary relative degrees in the Newton recurrence add to the successor degree. -/
 theorem newtonClass_succ_degree (n j : ℕ) (hj : j ∈ Finset.range n) :
     ((j + 1 : ℕ) : ℤ) + ((n - j : ℕ) : ℤ) = ((n + 1 : ℕ) : ℤ) := sorry
-
-/-- The selected localized Newton class of `E` along `Z ⟶ X` in degree `p`, specified by
-proper pushforward to the ambient Newton class. -/
-noncomputable def newtonClass
-    {S : Scheme.{u}} [UniversallyCatenary S] {δ : S → ℤ} [IsDimensionFunction δ]
-    {X : Over S} [LocallyOfFiniteType X.hom] {Z : Scheme.{u}}
-    (i : Z ⟶ X.left) [IsClosedImmersion i]
-    (classes : ChernClass.Theory δ X.hom)
-    (E : RingedSpace.ModuleDerived X.left.toRingedSpace)
-    (perfect : RingedSpace.ModuleDerived.IsPerfect E)
-    (vanishing : IsZero (restrictAway i E)) (finiteness : TechnicalCondition X E)
-    (p : ℕ) :
-    BivariantClass δ (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X) (p : ℤ) :=
-  let f : Over.mk (i ≫ X.hom) ⟶ X := Over.homMk i
-  let sit : Situation S δ X i E p RestrictionBehavior.vanishing :=
-    { perfect := perfect, offCenter := vanishing, finiteness := finiteness }
-  @Classical.epsilon (BivariantClass δ f (p : ℤ))
-    ⟨BivariantClass.pointwiseZero δ f (p : ℤ)⟩
-    (fun c : BivariantClass δ f (p : ℤ) ↦
-      (BivariantClass.pushforwardToTarget δ f (p : ℤ) c :
-          ChowCohomology.degree δ X.hom p) =
-        ChernClass.Derived.newtonClass δ X.hom classes E perfect sit.isDefined p)
-
-/-- Proper pushforward of `newtonClass` recovers the ambient Newton class. -/
-theorem newtonClass_spec
-    {S : Scheme.{u}} [UniversallyCatenary S] {δ : S → ℤ} [IsDimensionFunction δ]
-    {X : Over S} [LocallyOfFiniteType X.hom] {Z : Scheme.{u}}
-    (i : Z ⟶ X.left) [IsClosedImmersion i]
-    (classes : ChernClass.Theory δ X.hom)
-    (E : RingedSpace.ModuleDerived X.left.toRingedSpace)
-    (perfect : RingedSpace.ModuleDerived.IsPerfect E)
-    (vanishing : IsZero (restrictAway i E)) (finiteness : TechnicalCondition X E)
-    (p : ℕ) :
-    (BivariantClass.pushforwardToTarget δ
-        (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X) (p : ℤ)
-        (newtonClass i classes E perfect vanishing finiteness p) :
-      ChowCohomology.degree δ X.hom p) =
-      ChernClass.Derived.newtonClass δ X.hom classes E perfect
-        ({ perfect := perfect, offCenter := vanishing, finiteness := finiteness } :
-          Situation S δ X i E p RestrictionBehavior.vanishing).isDefined p := sorry
-
-/-- The selected localized Chern class of `E` along `Z ⟶ X` in degree `p`, specified by
-proper pushforward to the ambient Chern class. -/
-noncomputable def chernClass
-    {S : Scheme.{u}} [UniversallyCatenary S] {δ : S → ℤ} [IsDimensionFunction δ]
-    {X : Over S} [LocallyOfFiniteType X.hom] {Z : Scheme.{u}}
-    (i : Z ⟶ X.left) [IsClosedImmersion i]
-    (classes : ChernClass.Theory δ X.hom)
-    (E : RingedSpace.ModuleDerived X.left.toRingedSpace)
-    (perfect : RingedSpace.ModuleDerived.IsPerfect E) (p : ℕ)
-    (rankBound : Scheme.ModuleDerived.IsVectorBundleOfRankLTInDegree
-      (restrictAway i E) 0 p) (finiteness : TechnicalCondition X E) :
-    BivariantClass δ (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X) (p : ℤ) :=
-  let f : Over.mk (i ≫ X.hom) ⟶ X := Over.homMk i
-  let sit : Situation S δ X i E p RestrictionBehavior.rankBound :=
-    { perfect := perfect, offCenter := rankBound, finiteness := finiteness }
-  @Classical.epsilon (BivariantClass δ f (p : ℤ))
-    ⟨BivariantClass.pointwiseZero δ f (p : ℤ)⟩
-    (fun c : BivariantClass δ f (p : ℤ) ↦
-      (BivariantClass.pushforwardToTarget δ f (p : ℤ) c :
-          ChowCohomology.degree δ X.hom p) =
-        ChernClass.Derived.totalClass δ X.hom classes E perfect sit.isDefined p)
-
-/-- Proper pushforward of `chernClass` recovers the ambient Chern class. -/
-theorem chernClass_spec
-    {S : Scheme.{u}} [UniversallyCatenary S] {δ : S → ℤ} [IsDimensionFunction δ]
-    {X : Over S} [LocallyOfFiniteType X.hom] {Z : Scheme.{u}}
-    (i : Z ⟶ X.left) [IsClosedImmersion i]
-    (classes : ChernClass.Theory δ X.hom)
-    (E : RingedSpace.ModuleDerived X.left.toRingedSpace)
-    (perfect : RingedSpace.ModuleDerived.IsPerfect E) (p : ℕ)
-    (rankBound : Scheme.ModuleDerived.IsVectorBundleOfRankLTInDegree
-      (restrictAway i E) 0 p) (finiteness : TechnicalCondition X E) :
-    (BivariantClass.pushforwardToTarget δ
-        (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X) (p : ℤ)
-        (chernClass i classes E perfect p rankBound finiteness) :
-      ChowCohomology.degree δ X.hom p) =
-      ChernClass.Derived.totalClass δ X.hom classes E perfect
-        ({ perfect := perfect, offCenter := rankBound, finiteness := finiteness } :
-          Situation S δ X i E p RestrictionBehavior.rankBound).isDefined p := sorry
 
 /-- File-local additive structure on homogeneous bivariant classes. -/
 -- Local instance justification (instance diamond): Lemma_42_35_4_Additive.instAddCommGroup cannot be imported with Lemma_42_35_3_Vanishing (duplicate zeroClass); a global pointwiseAddCommGroup instance diamonds with ChowCohomology.instAddCommGroupDegree.

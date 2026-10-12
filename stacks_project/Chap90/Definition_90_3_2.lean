@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap90.Definition_90_3_2_SmallExtension
+public import ReasLib.AlgebraicGeometry.FormalDeformation.SmallExtension
+import StacksCheckRecall
 
 /-!
 # Small extensions
@@ -12,24 +19,19 @@ ideal.
 
 @[expose] public section
 
-open CategoryTheory IsLocalRing
+open CategoryTheory
 
 universe u
 
 variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-namespace ArtinianLocalAlgCat
-
-/-- Definition 90.3.2: a morphism `f : B ⟶ A` in `ArtinianLocalAlgCat Λ k` is a small
-extension if and only if it is surjective and `RingHom.ker f.hom.toRingHom` is a nonzero
-principal ideal annihilated by `maximalIdeal B.carrier`. -/
-@[stacks 06GD]
-theorem isSmallExtension_iff {B A : ArtinianLocalAlgCat Λ k} (f : B ⟶ A) :
-    IsSmallExtension f ↔
-      Function.Surjective f.hom ∧
-        (RingHom.ker f.hom.toRingHom).IsPrincipal ∧
-        RingHom.ker f.hom.toRingHom ≠ ⊥ ∧
-        maximalIdeal B.carrier * RingHom.ker f.hom.toRingHom = ⊥ := sorry
-
-end ArtinianLocalAlgCat
+/- Definition 90.3.2: a morphism in the base category is small exactly when it is
+surjective with a nonzero principal kernel annihilated by the source maximal ideal. -/
+@[stacks 06GD] #check (ArtinianLocalAlgCat.isSmallExtension_iff :
+  ∀ {B A : ArtinianLocalAlgCat Λ k} (f : B ⟶ A),
+    ArtinianLocalAlgCat.IsSmallExtension f ↔
+      Function.Surjective f.toRingHom ∧
+        (RingHom.ker f.toRingHom).IsPrincipal ∧
+        RingHom.ker f.toRingHom ≠ ⊥ ∧
+        ArtinianLocalAlgCat.maximalIdeal B * RingHom.ker f.toRingHom = ⊥)

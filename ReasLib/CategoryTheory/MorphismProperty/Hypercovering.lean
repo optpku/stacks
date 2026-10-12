@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.MorphismProperty.Limits
@@ -29,7 +35,7 @@ variable {C : Type u} [Category.{v} C]
 
 namespace MorphismProperty
 
-/-- Remark 25.8.4 (1): a relative simplicial hypercovering whose degree-zero arrow and every
+/-- A relative simplicial hypercovering whose degree-zero arrow and every
 matching map belong to a prescribed morphism property. -/
 @[stacks 0DER]
 structure Hypercovering (P : MorphismProperty C) {X : C} [HasPullbacks C]
@@ -40,6 +46,23 @@ structure Hypercovering (P : MorphismProperty C) {X : C} [HasPullbacks C]
   matching_mem (n : ℕ) : P ((SimplicialObject.matchingMap U n).left)
 
 namespace Hypercovering
+
+/-- A degree-zero augmentation and relative matching maps in `P` define a hypercovering. -/
+def ofConditions {P : MorphismProperty C} {X : C} [HasPullbacks C]
+    {U : SimplicialObject (Over X)}
+    (h_zero : P ((U.obj (Opposite.op ⦋0⦌)).hom))
+    (h_matching : ∀ n : ℕ, P ((SimplicialObject.matchingMap U n).left)) :
+    Hypercovering P U where
+  zero_mem := h_zero
+  matching_mem := h_matching
+
+/-- A relative simplicial object is a hypercovering for `P` exactly when its degree-zero
+augmentation and all relative matching maps belong to `P`. -/
+theorem iff_zero_matching {P : MorphismProperty C} {X : C} [HasPullbacks C]
+    (U : SimplicialObject (Over X)) :
+    Hypercovering P U ↔
+      P ((U.obj (Opposite.op ⦋0⦌)).hom) ∧
+        ∀ n : ℕ, P ((SimplicialObject.matchingMap U n).left) := sorry
 
 /-- The degree-one relative matching map belongs to `P`. -/
 theorem one_mem {P : MorphismProperty C} {X : C} [HasPullbacks C]
@@ -60,7 +83,7 @@ theorem of_zero_one_higher {P : MorphismProperty C} {X : C} [HasPullbacks C]
     (h_higher : ∀ n : ℕ, P ((SimplicialObject.matchingMap U (n + 1)).left)) :
     Hypercovering P U := sorry
 
-/-- Remark 25.8.4 (2): every augmentation of a relative hypercovering belongs to `P` when `P`
+/-- Every augmentation of a relative hypercovering belongs to `P` when `P`
 is stable under base change and multiplicative. -/
 @[stacks 0DER]
 theorem augmentation_mem
@@ -78,7 +101,7 @@ theorem augmentation_mem_of_isomorphisms
     {U : SimplicialObject (Over X)} (hU : Hypercovering P U) (n : ℕ) :
     P ((U.obj (Opposite.op ⦋n⦌)).hom) := sorry
 
-/-- Remark 25.8.4 (3): every face map of a relative hypercovering belongs to `P` when `P` is
+/-- Every face map of a relative hypercovering belongs to `P` when `P` is
 stable under base change and multiplicative. -/
 @[stacks 0DER]
 theorem faceMap_mem

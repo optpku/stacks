@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Adjunction.Limits
@@ -311,7 +317,7 @@ instance instOverPost_smallEtaleInclusion_hasPointwiseRightKanExtension_type
 
 /-- The forgetful functor on rings preserves the right Kan extensions of
 `smallEtaleOverPost X U`. -/
-instance instOverPost_smallEtaleInclusion_forgetRingCat_preservesRightKanExtensions
+instance smallEtaleOverPost_forget_preservesRan
     (X : AlgebraicSpace S) (U : smallEtaleSite X) :
     (forget RingCat.{u}).PreservesRightKanExtensions
       (smallEtaleOverPost X U).op :=
@@ -338,7 +344,7 @@ def smallEtaleLocalizationSheafEquivalence (X : AlgebraicSpace S) (U : smallEtal
 
 /-- Cocontinuous type-valued pushforward along `smallEtaleOverPost X U` is a
 right adjoint. -/
-instance instOverPost_smallEtaleInclusion_sheafPushforwardCocontinuous_type_isRightAdjoint
+instance smallEtaleOverPost_cocontinuous_rightAdjoint
     (X : AlgebraicSpace S) (U : smallEtaleSite X) :
     ((smallEtaleOverPost X U).sheafPushforwardCocontinuous (Type u)
       ((smallEtaleTopology X).over U)
@@ -369,7 +375,7 @@ instance instOverPost_smallEtaleInclusion_leftAdjoint_preservesFiniteLimits
 
 /-- Continuous type-valued pushforward along `smallEtaleOverPost X U` is a
 right adjoint. -/
-instance instOverPost_smallEtaleInclusion_sheafPushforwardContinuous_type_isRightAdjoint
+instance smallEtaleOverPost_continuous_rightAdjoint
     (X : AlgebraicSpace S) (U : smallEtaleSite X) :
     ((smallEtaleOverPost X U).sheafPushforwardContinuous (Type u)
       ((smallEtaleTopology X).over U)
@@ -378,7 +384,7 @@ instance instOverPost_smallEtaleInclusion_sheafPushforwardContinuous_type_isRigh
 
 /-- The left adjoint of type-valued continuous pushforward along
 `smallEtaleOverPost X U` preserves finite limits. -/
-instance instOverPost_smallEtaleInclusion_continuous_leftAdjoint_preservesFiniteLimits
+instance smallEtaleOverPost_leftAdjoint_preservesFiniteLimits
     (X : AlgebraicSpace S) (U : smallEtaleSite X) :
     PreservesFiniteLimits
       ((smallEtaleOverPost X U).sheafPushforwardContinuous (Type u)
@@ -443,8 +449,7 @@ def smallEtaleLocalizationComparisonRestrictMapApp (X : AlgebraicSpace S)
         (spacesStructureSheaf X) ((smallEtaleOverPost X U).obj (unop W))).hom ≫
       (Functor.sheafPushforwardContinuousObjObjIso (smallEtaleInclusion X) RingCat.{u}
           (spacesStructureSheaf X) (unop W).left).inv ≫
-        (((smallEtaleInclusion X).sheafAdjunctionCocontinuous RingCat.{u}
-            (smallEtaleTopology X) (spacesEtaleTopology X)).counit.app
+        ((EtaleRingedTopos.ringExtensionRestrictionIso X).hom.app
           (structureSheaf X)).hom.app (op (unop W).left) ≫
           (Functor.sheafPushforwardContinuousObjObjIso (Over.forget U) RingCat.{u}
               (structureSheaf X) (unop W)).inv
@@ -559,9 +564,8 @@ def smallEtaleLocalizationComparisonInvStructureMapApp (X : AlgebraicSpace S)
         ((spacesStructureSheaf X).over ((smallEtaleInclusion X).obj U))).obj.obj W :=
   (Functor.sheafPushforwardContinuousObjObjIso (Over.forget U) RingCat.{u}
       (structureSheaf X) (unop W)).hom ≫
-    (inv (((smallEtaleInclusion X).sheafAdjunctionCocontinuous RingCat.{u}
-            (smallEtaleTopology X) (spacesEtaleTopology X)).counit.app
-          (structureSheaf X))).hom.app (op (unop W).left) ≫
+    ((EtaleRingedTopos.ringExtensionRestrictionIso X).inv.app
+          (structureSheaf X)).hom.app (op (unop W).left) ≫
       (Functor.sheafPushforwardContinuousObjObjIso (smallEtaleInclusion X) RingCat.{u}
           (spacesStructureSheaf X) (unop W).left).hom ≫
         (Functor.sheafPushforwardContinuousObjObjIso

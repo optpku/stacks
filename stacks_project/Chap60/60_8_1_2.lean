@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap60.«60_8_1_2_CrystallineObject»
@@ -49,6 +55,38 @@ noncomputable def crystallineTrivialFunctor (p : ℕ) [Fact (Nat.Prime p)]
   map := fun {U V} φ ↦ trivialCrystallineObjectHom I γ h_compatible X x₀ φ
   map_id := sorry
   map_comp := sorry
+
+/-- The trivial functor is a one-sided inverse of the forgetful functor, expressed
+as a natural isomorphism rather than a definitional equality of functors. -/
+@[stacks 07I8]
+theorem crystallineTrivialFunctor_oneSidedInverse (p : ℕ) [Fact (Nat.Prime p)]
+    (S : Scheme.{u}) (I : S.IdealSheafData)
+    (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
+    (h_compatible :
+      ∀ (V : S.affineOpens) (f : Γ(S, V)),
+        (γ V).IsDPMorphism (γ (S.affineBasicOpen f))
+          (S.presheaf.map (homOfLE (S.basicOpen_le f)).op).hom)
+    (s : S ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
+    (X : Scheme.{u}) (x₀ : X ⟶ I.subscheme)
+    (h_p : ∀ U : X.affineOpens, IsNilpotent (p : Γ(X, U))) :
+    Nonempty ((crystallineTrivialFunctor p S I γ h_compatible s X x₀ h_p) ⋙
+      crystallineForgetful S I γ h_compatible s X x₀ h_p ≅ 𝟭 (Over X)) := sorry
+
+/-- The trivial functor is left adjoint to the specified crystalline forgetful
+functor. -/
+@[stacks 07I8]
+theorem crystallineTrivialFunctor_leftAdjoint (p : ℕ) [Fact (Nat.Prime p)]
+    (S : Scheme.{u}) (I : S.IdealSheafData)
+    (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
+    (h_compatible :
+      ∀ (V : S.affineOpens) (f : Γ(S, V)),
+        (γ V).IsDPMorphism (γ (S.affineBasicOpen f))
+          (S.presheaf.map (homOfLE (S.basicOpen_le f)).op).hom)
+    (s : S ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
+    (X : Scheme.{u}) (x₀ : X ⟶ I.subscheme)
+    (h_p : ∀ U : X.affineOpens, IsNilpotent (p : Γ(X, U))) :
+    Nonempty (crystallineTrivialFunctor p S I γ h_compatible s X x₀ h_p ⊣
+      crystallineForgetful S I γ h_compatible s X x₀ h_p) := sorry
 
 /-- The object map of the crystalline trivial functor is the explicit identity thickening. -/
 @[stacks 07I8]

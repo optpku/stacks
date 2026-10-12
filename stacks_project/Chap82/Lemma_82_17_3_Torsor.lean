@@ -1,5 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RelativeSpectrum.Universal
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.HenselianLocalRing.Functoriality
 public import Mathlib.Algebra.DirectSum.Module
 public import Mathlib.Algebra.DirectSum.Ring
 public import Mathlib.RingTheory.Ideal.Maps
@@ -318,40 +326,11 @@ noncomputable def degreeZeroToStructure (L : X.Modules) [isInvertibleObject L]
         (𝒪 := commStructureSheaf X)).inv).val.app U).hom
     (((InvertiblePower.zeroIso L).hom.val.app U).hom x)
 
-/-- Presheaf comparison `⨁_n L^{⊗ n} ⟶ h_* 𝒪_Y` sending a homogeneous section
-to the image of its degree-zero part along `h^♯`. -/
-noncomputable def invertibleLaurentPresheafToPushforward {Y : AlgebraicSpace S}
-    (h : Y ⟶ X) (L : X.Modules) [isInvertibleObject L] :
-    invertibleLaurentPresheaf L ⟶
-      ((commRingPushforward h).obj (commRingStructureSheaf Y)).obj where
-  app U :=
-    CommRingCat.ofHom
-      { toFun := fun s =>
-          ((InducedCategory.Hom.hom (commRingStructureSheafMap h)).app U).hom
-            (degreeZeroToStructure L U (s 0))
-        map_one' := sorry
-        map_mul' := sorry
-        map_zero' := sorry
-        map_add' := sorry }
-  naturality := fun _ _ _ => sorry
-
-/-- Sheaf comparison `⨁_n L^{⊗ n} ⟶ h_* 𝒪_Y` obtained by sheafifying
-`invertibleLaurentPresheafToPushforward`. -/
-noncomputable def invertibleLaurentToPushforward {Y : AlgebraicSpace S}
-    (h : Y ⟶ X) (L : X.Modules) [isInvertibleObject L] :
+/-- The Laurent algebra maps to the structure sheaf of its own relative spectrum by the universal counit. -/
+noncomputable def invertibleLaurentToPushforward (L : X.Modules) [isInvertibleObject L] :
     invertibleLaurentSheaf L ⟶
-      (commRingPushforward h).obj (commRingStructureSheaf Y) :=
-  ((sheafificationAdjunction (smallEtaleTopology X) CommRingCat.{u}).homEquiv
-      (invertibleLaurentPresheaf L)
-      ((commRingPushforward h).obj (commRingStructureSheaf Y))).symm
-    (invertibleLaurentPresheafToPushforward h L)
-
-/-- The algebra map `⨁_n L^{⊗ n} ⟶ g_* 𝒪_T` classifying a test morphism
-`g : ofOver T ⟶ X`. -/
-noncomputable def invertibleLaurentToRelativeSpectrumTarget {T : Over S}
-    (g : ofOver T ⟶ X) (L : X.Modules) [isInvertibleObject L] :
-    (invertibleLaurentAlgebra L).obj ⟶ relativeSpectrumTarget g :=
-  Under.homMk (invertibleLaurentToPushforward g L) sorry
+      (commRingPushforward (gmTorsorπ L)).obj (commRingStructureSheaf (gmTorsor L)) :=
+  (relativeSpecUniversalAlgebraMap (invertibleLaurentAlgebra L)).right
 
 /-- The commutative pushforward `q_* 𝒪_T`, regarded as an `𝒪_X`-module by restriction
 of scalars along `q^♯`. -/
@@ -378,7 +357,7 @@ noncomputable def gmTorsorπ_laurentToPushforwardApp (L : X.Modules)
     ((gmTorsorπ_commPushforwardModule L).val.obj U).isModule
     { toFun := fun x =>
         ((InducedCategory.Hom.hom
-            (invertibleLaurentToPushforward (gmTorsorπ L) L)).app U).hom x
+            (invertibleLaurentToPushforward L)).app U).hom x
       map_add' := sorry
       map_smul' := sorry }
 
@@ -412,29 +391,7 @@ noncomputable def commRingPushforwardForget₂Iso {Y T : AlgebraicSpace S} (f : 
         sheafCompose (smallEtaleTopology Y) (forget₂ CommRingCat.{u} RingCat.{u}) ≅
       sheafCompose (smallEtaleTopology T) (forget₂ CommRingCat.{u} RingCat.{u}) ⋙
         ringPushforward f :=
-  let u := smallEtaleInclusion T
-  let v := etaleBaseChange f
-  let F := forget₂ CommRingCat.{u} RingCat.{u}
-  let Ju := smallEtaleTopology T
-  let Ku := spacesEtaleTopology T
-  let Jv := smallEtaleTopology Y
-  (Functor.associator
-      (u.sheafPushforwardCocontinuous CommRingCat.{u} Ju Ku)
-      (v.sheafPushforwardContinuous CommRingCat.{u} Jv Ku)
-      (sheafCompose Jv F)) ≪≫
-    Functor.isoWhiskerLeft (u.sheafPushforwardCocontinuous CommRingCat.{u} Ju Ku)
-      (eqToIso (Functor.sheafPushforwardContinuous.compSheafCompose v F Jv Ku)) ≪≫
-    (Functor.associator
-        (u.sheafPushforwardCocontinuous CommRingCat.{u} Ju Ku)
-        (sheafCompose Ku F)
-        (v.sheafPushforwardContinuous RingCat.{u} Jv Ku)).symm ≪≫
-    Functor.isoWhiskerRight
-      (Functor.sheafPushforwardCocontinuous.compSheafComposeIso u F Ju Ku)
-      (v.sheafPushforwardContinuous RingCat.{u} Jv Ku) ≪≫
-    Functor.associator
-      (sheafCompose Ju F)
-      (u.sheafPushforwardCocontinuous RingCat.{u} Ju Ku)
-      (v.sheafPushforwardContinuous RingCat.{u} Jv Ku)
+  commRingPushforwardForgetIso f
 
 /-- Forgetting all the way to types after commutative-ring pushforward recovers
 type-valued direct image. -/
@@ -446,14 +403,7 @@ noncomputable def commRingPushforwardForgetTypeIso {Y T : AlgebraicSpace S}
       sheafCompose (smallEtaleTopology T) (forget₂ CommRingCat.{u} RingCat.{u}) ⋙
         sheafCompose (smallEtaleTopology T) (forget RingCat.{u}) ⋙
           typePushforward f :=
-  Functor.associator _ _ _ ≪≫
-    Functor.isoWhiskerRight (commRingPushforwardForget₂Iso f)
-      (sheafCompose (smallEtaleTopology Y) (forget RingCat.{u})) ≪≫
-    Functor.associator _ _ _ ≪≫
-    Functor.isoWhiskerLeft
-      (sheafCompose (smallEtaleTopology T) (forget₂ CommRingCat.{u} RingCat.{u}))
-      (ringPushforwardForgetIso f) ≪≫
-    (Functor.associator _ _ _).symm
+  commRingPushforwardUnderlyingIso f ≪≫ Functor.associator _ _ _
 
 /-- The type-valued sheaf underlying the restricted unit module of a commutative-ring
 sheaf maps to the ordinary forgetful type sheaf of that ring sheaf. -/
@@ -742,108 +692,8 @@ instance instIsIntegral_inverseImage_gmTorsorπ (L : X.Modules)
     IsIntegral (Z.inverseImage (gmTorsorπ L)).X :=
   sorry
 
-/-- The residue-field representative of `ξ'` pushed forward along `q`. -/
-noncomputable def gmTorsorResiduePointMap (L : X.Modules)
-    [isInvertibleObject L] [IsDecent X] (ξ' : Points (gmTorsor L)) :
-    FieldValuedPoint X :=
-  (FieldValuedPoint.residuePoint ξ').map (gmTorsorπ L)
-
-/-- The residue-field morphism of an elementary neighbourhood is a monomorphism. -/
-theorem instMono_residueHom_elementary {ξ : Points X}
-    (U : EtaleNeighborhood.Elementary X ξ) :
-    Mono (EtaleNeighborhood.residueHom U.obj) :=
-  (EtaleNeighborhood.isElementary_iff U.obj).mp U.property
-
-/-- The residue-field point of `ξ'` and the residue-field point of an elementary
-neighbourhood of `ξ` represent the same point of `X`. -/
-theorem gmTorsorResiduePointMap_mk (L : X.Modules)
-    [isInvertibleObject L] [IsDecent X] (ξ : Points X)
-    (ξ' : Points (gmTorsor L))
-    (hξ' : Points.map (gmTorsorπ L) ξ' = ξ)
-    (U : EtaleNeighborhood.Elementary X ξ) :
-    Points.mk (gmTorsorResiduePointMap L ξ') =
-      Points.mk (EtaleNeighborhood.residuePoint U.obj) :=
-  sorry
-
-/-- Unique factorization of the residue-field point of `ξ'` through an elementary
-neighbourhood of `ξ`. -/
-noncomputable def gmTorsorResidueFactor (L : X.Modules)
-    [isInvertibleObject L] [IsDecent X] (ξ : Points X)
-    (ξ' : Points (gmTorsor L))
-    (hξ' : Points.map (gmTorsorπ L) ξ' = ξ)
-    (U : EtaleNeighborhood.Elementary X ξ) :
-    FieldValuedPoint.Factorization (gmTorsorResiduePointMap L ξ')
-      (EtaleNeighborhood.residuePoint U.obj) :=
-  Classical.choice
-    (FieldValuedPoint.unique_factorization_of_mono
-      (instMono_residueHom_elementary U)
-      (gmTorsorResiduePointMap_mk L ξ ξ' hξ' U)).1
-
-/-- The scheme morphism `Spec(κ(ξ')) ⟶ U` induced by residue-field factorization. -/
-noncomputable def gmTorsorResidueSchemeHom (L : X.Modules)
-    [isInvertibleObject L] [IsDecent X] (ξ : Points X)
-    (ξ' : Points (gmTorsor L))
-    (hξ' : Points.map (gmTorsorπ L) ξ' = ξ)
-    (U : EtaleNeighborhood.Elementary X ξ) :
-    Spec (.of (FieldValuedPoint.residuePoint ξ').K) ⟶ U.obj.scheme :=
-  (gmTorsorResidueFactor L ξ ξ' hξ' U).schemeHom ≫
-    (Scheme.FieldValuedPoint.residuePoint U.obj.point).hom
-
-/-- The residue-field morphism `Spec(κ(ξ')) ⟶ T` is étale. -/
-instance instEtale_residuePoint_gmTorsor (L : X.Modules)
-    [isInvertibleObject L] [IsDecent X] (ξ' : Points (gmTorsor L)) :
-    Etale (FieldValuedPoint.residuePoint (X := gmTorsor L) ξ').hom :=
-  sorry
-
-/-- The small étale site object of `T` given by `Spec(κ(ξ'))`. -/
-noncomputable def gmTorsorResidueSite (L : X.Modules)
-    [isInvertibleObject L] [IsDecent X] (ξ' : Points (gmTorsor L)) :
-    smallEtaleSite (gmTorsor L) :=
-  smallEtaleSite.mk (FieldValuedPoint.residuePoint (X := gmTorsor L) ξ').hom
-
-/-- The underlying scheme of `gmTorsorResidueSite` is nonempty. -/
-theorem gmTorsorResidueSite_nonempty (L : X.Modules)
-    [isInvertibleObject L] [IsDecent X] (ξ' : Points (gmTorsor L)) :
-    Nonempty (gmTorsorResidueSite L ξ').left.left :=
-  sorry
-
-/-- A chosen point of the scheme underlying `gmTorsorResidueSite`. -/
-noncomputable def gmTorsorResidueSchemePoint (L : X.Modules)
-    [isInvertibleObject L] [IsDecent X] (ξ' : Points (gmTorsor L)) :
-    (gmTorsorResidueSite L ξ').left.left :=
-  Classical.choice (gmTorsorResidueSite_nonempty L ξ')
-
-/-- The unique point of `Spec(κ(ξ'))` lies over `ξ'`. -/
-theorem gmTorsorResidueSchemePoint_spec (L : X.Modules)
-    [isInvertibleObject L] [IsDecent X] (ξ' : Points (gmTorsor L)) :
-    Points.mapOfOver (gmTorsorResidueSite L ξ').hom
-        (gmTorsorResidueSchemePoint L ξ') =
-      ξ' :=
-  sorry
-
-/-- The étale neighbourhood of `ξ'` given by `Spec(κ(ξ'))`. -/
-noncomputable def gmTorsorResidueNeighborhood (L : X.Modules)
-    [isInvertibleObject L] [IsDecent X] (ξ' : Points (gmTorsor L)) :
-    EtaleNeighborhood (gmTorsor L) ξ' :=
-  EtaleNeighborhood.of (gmTorsorResidueSite L ξ')
-    (gmTorsorResidueSchemePoint L ξ')
-    (gmTorsorResidueSchemePoint_spec L ξ')
-
-/-- The neighbourhood `gmTorsorResidueNeighborhood` is elementary. -/
-theorem gmTorsorResidueNeighborhood_isElementary (L : X.Modules)
-    [isInvertibleObject L] [IsDecent X] (ξ' : Points (gmTorsor L)) :
-    (gmTorsorResidueNeighborhood L ξ').IsElementary :=
-  sorry
-
-/-- The elementary étale neighbourhood of `(T, ξ')` given by `Spec(κ(ξ'))`. -/
-noncomputable def gmTorsorResidueElementary (L : X.Modules)
-    [isInvertibleObject L] [IsDecent X] (ξ' : Points (gmTorsor L)) :
-    EtaleNeighborhood.Elementary (gmTorsor L) ξ' :=
-  EtaleNeighborhood.Elementary.of (gmTorsorResidueNeighborhood L ξ')
-    (gmTorsorResidueNeighborhood_isElementary L ξ')
-
-/-- Component at an elementary neighbourhood of the cocone inducing
-`henselianMap`. -/
+/-- Component at an actual elementary neighbourhood of the cocone inducing
+`henselianMap`, using pointed neighbourhoods over the torsor projection. -/
 noncomputable def henselianMap_ι_app (L : X.Modules) [isInvertibleObject L]
     [IsDecent X] (ξ : Points X) (ξ' : Points (gmTorsor L))
     (hξ' : Points.map (gmTorsorπ L) ξ' = ξ ∧
@@ -851,24 +701,16 @@ noncomputable def henselianMap_ι_app (L : X.Modules) [isInvertibleObject L]
     (U : EtaleNeighborhood.Elementary X ξ) :
     (EtaleNeighborhood.Elementary.sections X ξ).obj (ULiftHom.objUp (op U)) ⟶
       henselianLocalRingCat (gmTorsor L) ξ' :=
-  (CommRingCat.universeLift.{u, u + 1}).map
-      (Scheme.Γ.map (gmTorsorResidueSchemeHom L ξ ξ' hξ'.1 U).op) ≫
-    colimit.ι (EtaleNeighborhood.Elementary.sections (gmTorsor L) ξ')
-      (ULiftHom.objUp (op (gmTorsorResidueElementary L ξ')))
+  HenselianFunctoriality.component (gmTorsorπ L) ξ' ξ hξ'.1 U
 
-/-- The functoriality map `𝒪_{X,ξ}^h → 𝒪_{T,ξ'}^h` of Decent Spaces Remark
-68.11.11, for `ξ'` the generic point of the fibre over `ξ`. -/
+/-- The functoriality map of Decent Spaces Remark 68.11.11, constructed from
+actual pointed elementary neighbourhoods and their global-section colimit. -/
 noncomputable def henselianMap (L : X.Modules) [isInvertibleObject L]
     [IsDecent X] (ξ : Points X) (ξ' : Points (gmTorsor L))
     (hξ' : Points.map (gmTorsorπ L) ξ' = ξ ∧
       IsGenericPoint ξ' (closure (Points.map (gmTorsorπ L) ⁻¹' {ξ}))) :
     henselianLocalRing X ξ →+* henselianLocalRing (gmTorsor L) ξ' :=
-  (colimit.desc (EtaleNeighborhood.Elementary.sections X ξ)
-      { pt := henselianLocalRingCat (gmTorsor L) ξ'
-        ι :=
-          { app := fun j =>
-              henselianMap_ι_app L ξ ξ' hξ' (ULiftHom.objDown j).unop
-            naturality := fun _ _ _ => sorry } }).hom
+  HenselianFunctoriality.map (gmTorsorπ L) ξ' ξ hξ'.1
 
 /-- The comparison of henselian local rings along the `G_m`-torsor is a local
 homomorphism. -/
@@ -924,5 +766,119 @@ theorem gmTorsorπ_henselianMap_isPurelyTranscendental (L : X.Modules)
       IsGenericPoint ξ' (closure (Points.map (gmTorsorπ L) ⁻¹' {ξ}))) :
     (ResidueField.map (henselianMap L ξ ξ' hξ')).IsPurelyTranscendental :=
   sorry
+
+/-- An actual Laurent algebra map gives an underlying map into the direct image of the unit module. -/
+noncomputable def laurentAlgebraToUnitUnderlying {Y : AlgebraicSpace S}
+    (h : Y ⟶ X) (L : X.Modules) [isInvertibleObject L]
+    (α : (invertibleLaurentAlgebra L).obj ⟶ Under.mk (commRingStructureSheafMap h)) :
+    (Sheaf.InternalModule.ToInternal.underlying (structureSheaf X)).obj (invertibleLaurentModule L) ⟶
+      (Sheaf.InternalModule.ToInternal.underlying (structureSheaf X)).obj
+        ((pushforward h).obj (𝟙_ Y.Modules)) :=
+  restrictionUnitCarrierToForget (invertibleLaurentStructureMap L) ≫
+    ((sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u})) ⋙
+      sheafCompose (smallEtaleTopology X) (forget RingCat.{u})).map α.right ≫
+    (commRingPushforwardForgetTypeIso h).hom.app (commRingStructureSheaf Y) ≫
+    (typePushforward h).map
+      (forgetToStructureUnitCarrier Y ≫
+        (Sheaf.InternalModule.ToInternal.underlying (structureSheaf Y)).map
+          (structureModuleIsoTensorUnit Y).hom) ≫
+    (ModulePushforward.forgetIso (ringedToposHom h)).inv.app (𝟙_ Y.Modules)
+
+/-- The module map carried by an actual Laurent algebra map. -/
+noncomputable def laurentAlgebraToUnitPushforward {Y : AlgebraicSpace S}
+    (h : Y ⟶ X) (L : X.Modules) [isInvertibleObject L]
+    (α : (invertibleLaurentAlgebra L).obj ⟶ Under.mk (commRingStructureSheafMap h)) :
+    invertibleLaurentModule L ⟶ (pushforward h).obj (𝟙_ Y.Modules) :=
+  Sheaf.InternalModule.homOfUnderlying (structureSheaf X)
+    (laurentAlgebraToUnitUnderlying h L α) (fun _ _ _ ↦ sorry) (fun _ _ _ ↦ sorry)
+
+/-- Adjunction sends degree-one evaluation of an algebra map to its frame homomorphism. -/
+noncomputable def laurentAlgebraFrameHom {Y : AlgebraicSpace S}
+    (h : Y ⟶ X) (L : X.Modules) [isInvertibleObject L]
+    (α : (invertibleLaurentAlgebra L).obj ⟶ Under.mk (commRingStructureSheafMap h)) :
+    (pullback h).obj L ⟶ 𝟙_ Y.Modules :=
+  ((pullbackPushforwardAdjunction h).homEquiv L (𝟙_ Y.Modules)).symm
+    (degreeIncludeOne L ≫ laurentAlgebraToUnitPushforward h L α)
+
+/-- Section values of actual algebra maps whose degree-one adjunct is the supplied frame. -/
+def IsFrameClassifyingSection {Y : AlgebraicSpace S} (h : Y ⟶ X)
+    (L : X.Modules) [isInvertibleObject L] (frame : (pullback h).obj L ≅ 𝟙_ Y.Modules)
+    (U : (smallEtaleSite X)ᵒᵖ) (a : (invertibleLaurentSheaf L).obj.obj U)
+    (s : ((commRingPushforward h).obj (commRingStructureSheaf Y)).obj.obj U) : Prop :=
+  ∃ α : (invertibleLaurentAlgebra L).obj ⟶ Under.mk (commRingStructureSheafMap h),
+    laurentAlgebraFrameHom h L α = frame.hom ∧
+      ((InducedCategory.Hom.hom α.right).app U).hom a = s
+
+/-- Evaluate using an actual in-range algebra-map witness, never a witness extracted from admitted surjectivity. -/
+noncomputable def frameClassifyingSection {Y : AlgebraicSpace S} (h : Y ⟶ X)
+    (L : X.Modules) [isInvertibleObject L] (frame : (pullback h).obj L ≅ 𝟙_ Y.Modules)
+    (U : (smallEtaleSite X)ᵒᵖ) (a : (invertibleLaurentSheaf L).obj.obj U) :
+    ((commRingPushforward h).obj (commRingStructureSheaf Y)).obj.obj U := by
+  classical
+  exact if hs : ∃ s, IsFrameClassifyingSection h L frame U a s then Classical.choose hs else 0
+
+/-- Local Laurent evaluation at the actual frame glues uniquely, so its section family is in range. -/
+theorem frameClassifyingSection_inRange {Y : AlgebraicSpace S} (h : Y ⟶ X)
+    (L : X.Modules) [isInvertibleObject L] (frame : (pullback h).obj L ≅ 𝟙_ Y.Modules)
+    (U : (smallEtaleSite X)ᵒᵖ) (a : (invertibleLaurentSheaf L).obj.obj U) :
+    ∃ s, IsFrameClassifyingSection h L frame U a s := sorry
+
+/-- The selected value is supplied by an actual algebra map with the specified degree-one frame. -/
+theorem frameClassifyingSection_spec {Y : AlgebraicSpace S} (h : Y ⟶ X)
+    (L : X.Modules) [isInvertibleObject L] (frame : (pullback h).obj L ≅ 𝟙_ Y.Modules)
+    (U : (smallEtaleSite X)ᵒᵖ) (a : (invertibleLaurentSheaf L).obj.obj U) :
+    IsFrameClassifyingSection h L frame U a (frameClassifyingSection h L frame U a) := by
+  classical
+  unfold frameClassifyingSection
+  split_ifs with hs
+  · exact Classical.choose_spec hs
+  · exact False.elim (hs (frameClassifyingSection_inRange h L frame U a))
+
+/-- The section ring map classified by the supplied frame, evaluating every Laurent degree. -/
+noncomputable def frameClassifyingRingHom {Y : AlgebraicSpace S} (h : Y ⟶ X)
+    (L : X.Modules) [isInvertibleObject L] (frame : (pullback h).obj L ≅ 𝟙_ Y.Modules)
+    (U : (smallEtaleSite X)ᵒᵖ) :
+    (invertibleLaurentSheaf L).obj.obj U →+*
+      ((commRingPushforward h).obj (commRingStructureSheaf Y)).obj.obj U where
+  toFun := frameClassifyingSection h L frame U
+  map_one' := sorry
+  map_mul' := sorry
+  map_zero' := sorry
+  map_add' := sorry
+
+/-- A frame, rather than a base morphism alone, determines its Laurent algebra homomorphism. -/
+noncomputable def invertibleLaurentClassifyingMap {Y : AlgebraicSpace S} (h : Y ⟶ X)
+    (L : X.Modules) [isInvertibleObject L] (frame : (pullback h).obj L ≅ 𝟙_ Y.Modules) :
+    (invertibleLaurentAlgebra L).obj ⟶ Under.mk (commRingStructureSheafMap h) :=
+  Under.homMk
+    ⟨{ app := fun U ↦ @CommRingCat.ofHom ((invertibleLaurentSheaf L).obj.obj U)
+         (((commRingPushforward h).obj (commRingStructureSheaf Y)).obj.obj U)
+         (inferInstanceAs (CommRing ((invertibleLaurentSheaf L).obj.obj U)))
+         (inferInstanceAs (CommRing (((commRingPushforward h).obj (commRingStructureSheaf Y)).obj.obj U)))
+         (frameClassifyingRingHom h L frame U)
+       naturality := sorry }⟩ sorry
+
+/-- The test-scheme classifier consumes the actual pullback trivialization. -/
+noncomputable def invertibleLaurentToRelativeSpectrumTarget {T : Over S}
+    (g : ofOver T ⟶ X) (L : X.Modules) [isInvertibleObject L]
+    (frame : (pullback g).obj L ≅ 𝟙_ (ofOver T).Modules) :
+    (invertibleLaurentAlgebra L).obj ⟶ relativeSpectrumTarget g :=
+  invertibleLaurentClassifyingMap g L frame
+
+/-- Pull an actual frame back along a test morphism, retaining the canonical composition and unit comparisons. -/
+noncomputable def pullbackFrame {Y Z : AlgebraicSpace S} (h : Y ⟶ X) (t : Z ⟶ Y)
+    (L : X.Modules) [isInvertibleObject L] (frame : (pullback h).obj L ≅ 𝟙_ Y.Modules) :
+    (pullback (t ≫ h)).obj L ≅ 𝟙_ Z.Modules :=
+  (pullbackComp t h).symm.app L ≪≫ (pullback t).mapIso frame ≪≫ pullbackMonoidalUnitIso t
+
+/-- The morphism to the torsor classified by an actual trivialization of the pulled-back line. -/
+noncomputable def gmTorsorLift {Y : AlgebraicSpace S} (h : Y ⟶ X)
+    (L : X.Modules) [isInvertibleObject L] (frame : (pullback h).obj L ≅ 𝟙_ Y.Modules) :
+    Y ⟶ gmTorsor L where
+  app T := TypeCat.ofHom fun y ↦
+    let t : ofOver T.unop ⟶ Y := yonedaEquiv.symm y
+    relativeSpectrumPairMk (t ≫ h)
+      (invertibleLaurentToRelativeSpectrumTarget (t ≫ h) L (pullbackFrame h t L frame))
+  naturality := sorry
 
 end AlgebraicGeometry.AlgebraicSpace.Modules

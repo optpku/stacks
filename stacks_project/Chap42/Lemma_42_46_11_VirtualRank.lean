@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.RingTheory.Binomial
@@ -78,10 +84,10 @@ theorem rankClopen_identity_restriction
     {S X : Scheme.{u}} (π : X ⟶ S)
     (E : RingedSpace.ModuleDerived X.toRingedSpace)
     (hPerfect : RingedSpace.ModuleDerived.IsPerfect E) (z : ℤ) :
-    BivariantClass.OpenRestriction.hom (𝟙 (Over.mk π))
+    BivariantClass.ComponentRestriction.hom (𝟙 (Over.mk π))
         (rankClopen E hPerfect z).toOpens (rankClopen E hPerfect z).toOpens
         (rankClopen_le_identity_preimage π E hPerfect z) =
-      𝟙 (BivariantClass.OpenRestriction.over (Over.mk π)
+      𝟙 (BivariantClass.ComponentRestriction.over (Over.mk π)
         (rankClopen E hPerfect z).toOpens) := sorry
 
 /-- Glue an integer-valued function of virtual rank into a degree-zero Chow class. -/
@@ -108,11 +114,11 @@ noncomputable def rankValueClass
         (rankClopen_le_identity_preimage π E hPerfect))
       ((fun z : ℤ ↦ DirectSum.of
           (ChowCohomology.Nonnegative.degree δ
-            (BivariantClass.OpenRestriction.over (Over.mk π)
+            (BivariantClass.ComponentRestriction.over (Over.mk π)
               (rankClopen E hPerfect z).toOpens).hom)
           0
           (ChowCohomology.Nonnegative.intCast δ
-            (BivariantClass.OpenRestriction.over (Over.mk π)
+            (BivariantClass.ComponentRestriction.over (Over.mk π)
               (rankClopen E hPerfect z).toOpens).hom (g z))) :
         ChowCohomology.completedRing δ (Over.mk π)
           (fun z : ℤ ↦ (rankClopen E hPerfect z).toOpens)
@@ -139,7 +145,7 @@ theorem rankValueClass_component
         (rankValueClass δ π E hPerfect g) z =
       (rankClopen_identity_restriction π E hPerfect z).symm ▸
         ChowCohomology.Nonnegative.intCast δ
-          (BivariantClass.OpenRestriction.over (Over.mk π)
+          (BivariantClass.ComponentRestriction.over (Over.mk π)
             (rankClopen E hPerfect z).toOpens).hom (g z) := sorry
 
 /-- The degree-zero Chow class represented by the virtual rank. -/
@@ -169,7 +175,7 @@ theorem rankClass_component
         (rankClass δ π E hPerfect) z =
       (rankClopen_identity_restriction π E hPerfect z).symm ▸
         ChowCohomology.Nonnegative.intCast δ
-          (BivariantClass.OpenRestriction.over (Over.mk π)
+          (BivariantClass.ComponentRestriction.over (Over.mk π)
             (rankClopen E hPerfect z).toOpens).hom z := sorry
 
 /-- The degree-zero Chow class represented by the generalized binomial coefficient of
@@ -201,7 +207,7 @@ theorem rankChoose_component
         (rankChoose δ π E hPerfect n) z =
       (rankClopen_identity_restriction π E hPerfect z).symm ▸
         ChowCohomology.Nonnegative.intCast δ
-          (BivariantClass.OpenRestriction.over (Over.mk π)
+          (BivariantClass.ComponentRestriction.over (Over.mk π)
             (rankClopen E hPerfect z).toOpens).hom (Ring.choose z n) := sorry
 
 /-- Virtual-rank Chow classes are invariant under isomorphism of perfect derived modules. -/
@@ -232,3 +238,4 @@ theorem rankClass_eq_newtonClass_zero
     rankClass δ π E hPerfect = newtonClass δ π classes E hPerfect hDefined 0 := sorry
 
 end AlgebraicGeometry.ChernClass.Derived
+

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Presheaf.Generator
@@ -117,6 +123,7 @@ theorem enoughInjectives : EnoughInjectives (SheafOfModules.{max u v} R) := by
   infer_instance
 
 /-- The proved injective presentations enable Mathlib's resolution construction. -/
+@[instance]
 theorem injectiveResolutions : HasInjectiveResolutions (SheafOfModules.{max u v} R) := by
   -- Local instance justification (proof-local temporary data): supply the proved injective presentations to the resolution construction at this site.
   letI := enoughInjectives J R

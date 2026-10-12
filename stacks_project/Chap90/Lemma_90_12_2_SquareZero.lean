@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Algebra.Prod
@@ -33,10 +39,8 @@ namespace ArtinianLocalAlgCat
 /-- The morphism `k[V] ⟶ k[W]` in `C_Λ` induced by a `k`-linear map `V →ₗ[k] W`. -/
 def squareZeroMap {V W : Type u} [AddCommGroup V] [Module k V] [Module.Finite k V]
     [AddCommGroup W] [Module k W] [Module.Finite k W] (f : V →ₗ[k] W) :
-    squareZero Λ k V ⟶ squareZero Λ k W where
-  hom := (map f).restrictScalars Λ
-  isLocalHom := sorry
-  residue_compat := sorry
+    squareZero Λ k V ⟶ squareZero Λ k W :=
+  Hom.of ((map f).restrictScalars Λ) sorry sorry
 
 /-- `squareZeroMap` of the identity is the identity morphism. -/
 theorem squareZeroMap_id (V : Type u) [AddCommGroup V] [Module k V] [Module.Finite k V] :
@@ -90,14 +94,8 @@ def dualNumberIsoSquareZeroInvHom :
 
 /-- The identity-on-carriers comparison `k[ε] ≅ k[k]` in `C_Λ`. -/
 def dualNumberIsoSquareZero : dualNumber Λ k ≅ squareZero Λ k k where
-  hom :=
-    { hom := dualNumberIsoSquareZeroHom Λ k
-      isLocalHom := sorry
-      residue_compat := sorry }
-  inv :=
-    { hom := dualNumberIsoSquareZeroInvHom Λ k
-      isLocalHom := sorry
-      residue_compat := sorry }
+  hom := Hom.of (dualNumberIsoSquareZeroHom Λ k) sorry sorry
+  inv := Hom.of (dualNumberIsoSquareZeroInvHom Λ k) sorry sorry
   hom_inv_id := sorry
   inv_hom_id := sorry
 
@@ -113,10 +111,8 @@ variable {Λ k}
 
 /-- The canonical inclusion `k ⟶ k[V]` in `C_Λ`. -/
 def residueToSquareZero (V : Type u) [AddCommGroup V] [Module k V] [Module.Finite k V] :
-    residue Λ k ⟶ squareZero Λ k V where
-  hom := (inlAlgHom k k V).restrictScalars Λ
-  isLocalHom := sorry
-  residue_compat := sorry
+    residue Λ k ⟶ squareZero Λ k V :=
+  Hom.of ((inlAlgHom k k V).restrictScalars Λ) sorry sorry
 
 /-- The underlying algebra map of `residueToSquareZero` is the square-zero inclusion. -/
 theorem residueToSquareZero_hom (V : Type u) [AddCommGroup V] [Module k V]
@@ -180,14 +176,8 @@ def squareZeroBinaryIso (V W : Type u)
     [AddCommGroup V] [Module k V] [Module.Finite k V]
     [AddCommGroup W] [Module k W] [Module.Finite k W] :
     squareZero Λ k (V × W) ≅ squareZeroPullback (squareZero Λ k V) W where
-  hom :=
-    { hom := squareZeroBinaryIsoHom V W
-      isLocalHom := sorry
-      residue_compat := sorry }
-  inv :=
-    { hom := squareZeroBinaryIsoInvHom V W
-      isLocalHom := sorry
-      residue_compat := sorry }
+  hom := Hom.of (squareZeroBinaryIsoHom V W) sorry sorry
+  inv := Hom.of (squareZeroBinaryIsoInvHom V W) sorry sorry
   hom_inv_id := sorry
   inv_hom_id := sorry
 
@@ -228,10 +218,8 @@ theorem squareZeroSum_comp_binaryIso (V : Type u)
 /-- Scaling of dual numbers in the `ε`-direction by `r : k`. -/
 def dualNumberSMul (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k]
     [Algebra Λ k] [Module.Finite Λ k] (r : k) :
-    dualNumber Λ k ⟶ dualNumber Λ k where
-  hom := (map (LinearMap.lsmul k k r)).restrictScalars Λ
-  isLocalHom := sorry
-  residue_compat := sorry
+    dualNumber Λ k ⟶ dualNumber Λ k :=
+  Hom.of ((map (LinearMap.lsmul k k r)).restrictScalars Λ) sorry sorry
 
 /-- The underlying algebra map of `dualNumberSMul r` is `TrivSqZeroExt.map` of scaling. -/
 theorem dualNumberSMul_hom (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k]
@@ -254,10 +242,8 @@ def dualNumberSumHom :
   commutes' := sorry
 
 /-- The sum map `k[ε] ×_k k[ε] ⟶ k[ε]` in `C_Λ`. -/
-def dualNumberSum : dualNumberPullback (dualNumber Λ k) ⟶ dualNumber Λ k where
-  hom := dualNumberSumHom
-  isLocalHom := sorry
-  residue_compat := sorry
+def dualNumberSum : dualNumberPullback (dualNumber Λ k) ⟶ dualNumber Λ k :=
+  Hom.of dualNumberSumHom sorry sorry
 
 /-- The underlying algebra map of `dualNumberSum` is `dualNumberSumHom`. -/
 theorem dualNumberSum_hom (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k]

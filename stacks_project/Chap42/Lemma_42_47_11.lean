@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap42.Lemma_42_46_11
@@ -17,6 +23,15 @@ noncomputable section
 universe u
 
 namespace AlgebraicGeometry.LocalizedChern
+
+/-- Use the canonical pointwise group on this homogeneous bivariant carrier. -/
+-- Local instance justification: pin the pointwise carrier, avoiding a global instance diamond.
+local instance bivariantPointwiseGroup
+    {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
+    {Z X : Over S} [LocallyOfFiniteType Z.hom] [LocallyOfFiniteType X.hom]
+    (f : Z ⟶ X) (p : ℤ) : AddCommGroup (BivariantClass δ f p) :=
+  BivariantClass.pointwiseAddCommGroup δ f p
+
 
 open ChernClass.Derived
 open RingedSpace.ModuleDerived
@@ -49,7 +64,7 @@ variable (restrictionZero : IsZero
 variable (restrictionZero' : IsZero
   ((RingedSpace.modulePullbackDerived i₁'.toShHom).obj E'))
 variable (restrictionTensorZero : IsZero
-  ((RingedSpace.modulePullbackDerived iY.toShHom).obj (E ⊗ᴸ E')))
+  ((RingedSpace.modulePullbackDerived iY.toShHom).obj (CategoryTheory.MonoidalCategory.tensorObj E E')))
 variable (classes : ChernClass.Theory δ X.hom)
 variable (j₂ : Over.mk (iW ≫ X.hom) ⟶ Over.mk (i₂ ≫ X.hom))
 variable (j₂' : Over.mk (iW ≫ X.hom) ⟶ Over.mk (i₂' ≫ X.hom))
@@ -99,9 +114,9 @@ theorem localizedChernClass_tensor_one
       BivariantClass.IsLocalizedExtension δ X iY iW (p : ℤ)
         (ChernClass.Derived.totalClass δ (iW ≫ X.hom)
           (classes.reanchor (Over.mk (iW ≫ X.hom)))
-          ((RingedSpace.modulePullbackDerived iW.toShHom).obj (E ⊗ᴸ E'))
-          (RingedSpace.modulePullbackDerived_isPerfect iW.toShHom (E ⊗ᴸ E')
-            (perfect.tensor perfect'))
+          ((RingedSpace.modulePullbackDerived iW.toShHom).obj (CategoryTheory.MonoidalCategory.tensorObj E E'))
+          (RingedSpace.modulePullbackDerived_isPerfect iW.toShHom (CategoryTheory.MonoidalCategory.tensorObj E E')
+            (ChernClass.Derived.isPerfect_kFlatTensor perfect perfect'))
           (IsDefined.pullback iW (defined.tensor defined')) p)
         (tensorChern p)) :
     tensorChern 1 =
@@ -167,9 +182,9 @@ theorem localizedChernClass_tensor_two
       BivariantClass.IsLocalizedExtension δ X iY iW (p : ℤ)
         (ChernClass.Derived.totalClass δ (iW ≫ X.hom)
           (classes.reanchor (Over.mk (iW ≫ X.hom)))
-          ((RingedSpace.modulePullbackDerived iW.toShHom).obj (E ⊗ᴸ E'))
-          (RingedSpace.modulePullbackDerived_isPerfect iW.toShHom (E ⊗ᴸ E')
-            (perfect.tensor perfect'))
+          ((RingedSpace.modulePullbackDerived iW.toShHom).obj (CategoryTheory.MonoidalCategory.tensorObj E E'))
+          (RingedSpace.modulePullbackDerived_isPerfect iW.toShHom (CategoryTheory.MonoidalCategory.tensorObj E E')
+            (ChernClass.Derived.isPerfect_kFlatTensor perfect perfect'))
           (IsDefined.pullback iW (defined.tensor defined')) p)
         (tensorChern p)) :
     tensorChern 2 =
@@ -253,9 +268,9 @@ theorem localizedNewtonClass_tensor
       BivariantClass.IsLocalizedExtension δ X iY iW (p : ℤ)
         (ChernClass.Derived.newtonClass δ (iW ≫ X.hom)
           (classes.reanchor (Over.mk (iW ≫ X.hom)))
-          ((RingedSpace.modulePullbackDerived iW.toShHom).obj (E ⊗ᴸ E'))
-          (RingedSpace.modulePullbackDerived_isPerfect iW.toShHom (E ⊗ᴸ E')
-            (perfect.tensor perfect'))
+          ((RingedSpace.modulePullbackDerived iW.toShHom).obj (CategoryTheory.MonoidalCategory.tensorObj E E'))
+          (RingedSpace.modulePullbackDerived_isPerfect iW.toShHom (CategoryTheory.MonoidalCategory.tensorObj E E')
+            (ChernClass.Derived.isPerfect_kFlatTensor perfect perfect'))
           (IsDefined.pullback iW (defined.tensor defined')) p)
         (tensorNewton p))
     (p : ℕ) :
@@ -272,3 +287,4 @@ theorem localizedNewtonClass_tensor
 end
 
 end AlgebraicGeometry.LocalizedChern
+

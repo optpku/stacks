@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Adjunction.CompositionIso
@@ -108,19 +114,10 @@ instance instIsLeftAdjoint_pullbackSheafFunctor {Y W : AlgebraicSpace S} (f : Y 
     (QcAlgebraUnder.pullbackSheafFunctor f).IsLeftAdjoint :=
   (pullbackSheafFunctorAdjunction f).isLeftAdjoint
 
-/-- Inverse image of commutative-ring sheaves is left adjoint to direct image. -/
-def commRingInverseImageAdjunction {Y W : AlgebraicSpace S} (f : Y ⟶ W) :
-    commRingInverseImage f ⊣ commRingPushforward f :=
-  (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
-      (etaleBaseChange f) CommRingCat.{u}
-      (smallEtaleTopology W) (spacesEtaleTopology Y)).comp
-    ((smallEtaleInclusion Y).sheafAdjunctionCocontinuous CommRingCat.{u}
-      (smallEtaleTopology Y) (spacesEtaleTopology Y))
-
 /-- Direct image of commutative-ring sheaves along `f`, rewritten through spaces-étale
 pullback. -/
 def commRingPushforwardFactor {Y W : AlgebraicSpace S} (f : Y ⟶ W) :
-    commRingPushforward f ≅
+    sheafPushforward CommRingCat.{u} f ≅
       (smallEtaleInclusion Y).sheafPushforwardCocontinuous CommRingCat.{u}
           (smallEtaleTopology Y) (spacesEtaleTopology Y) ⋙
         (spacesEtalePullback f).sheafPushforwardContinuous CommRingCat.{u}
@@ -190,37 +187,8 @@ def spacesEtaleCommRingPushforwardComp {Y W T : AlgebraicSpace S} (f : Y ⟶ W) 
 direct images. -/
 def commRingPushforwardComp {Y W T : AlgebraicSpace S} (f : Y ⟶ W) (g : W ⟶ T) :
     commRingPushforward f ⋙ commRingPushforward g ≅ commRingPushforward (f ≫ g) :=
-  let iY :=
-    (smallEtaleInclusion Y).sheafPushforwardCocontinuous CommRingCat.{u}
-      (smallEtaleTopology Y) (spacesEtaleTopology Y)
-  let pF :=
-    (spacesEtalePullback f).sheafPushforwardContinuous CommRingCat.{u}
-      (spacesEtaleTopology W) (spacesEtaleTopology Y)
-  let iW :=
-    (smallEtaleInclusion W).sheafPushforwardContinuous CommRingCat.{u}
-      (smallEtaleTopology W) (spacesEtaleTopology W)
-  let pG :=
-    (spacesEtalePullback g).sheafPushforwardContinuous CommRingCat.{u}
-      (spacesEtaleTopology T) (spacesEtaleTopology W)
-  let iT :=
-    (smallEtaleInclusion T).sheafPushforwardContinuous CommRingCat.{u}
-      (smallEtaleTopology T) (spacesEtaleTopology T)
-  isoWhiskerRight (commRingPushforwardFactor f) (commRingPushforward g) ≪≫
-    Functor.associator iY (pF ⋙ iW) (commRingPushforward g) ≪≫
-    isoWhiskerLeft iY (Functor.associator pF iW (commRingPushforward g)) ≪≫
-    isoWhiskerLeft (iY ⋙ pF) (isoWhiskerLeft iW (commRingPushforwardFactor g)) ≪≫
-    isoWhiskerLeft (iY ⋙ pF)
-      (Functor.associator iW
-          ((smallEtaleInclusion W).sheafPushforwardCocontinuous CommRingCat.{u}
-            (smallEtaleTopology W) (spacesEtaleTopology W))
-          (pG ⋙ iT) ≪≫
-        isoWhiskerRight (smallEtaleInclusionContinuousCocontinuousIso_commRing W)
-          (pG ⋙ iT) ≪≫
-        Functor.leftUnitor (pG ⋙ iT)) ≪≫
-    isoWhiskerLeft iY
-      (Functor.associator pF pG iT ≪≫
-        isoWhiskerRight (spacesEtaleCommRingPushforwardComp f g) iT) ≪≫
-    (commRingPushforwardFactor (f ≫ g)).symm
+
+  AlgebraicGeometry.AlgebraicSpace.commRingPushforwardComp f g
 
 /-- Inverse image of commutative-ring sheaves reassociates along composition. -/
 def commRingInverseImageComp {Y W T : AlgebraicSpace S} (f : Y ⟶ W) (g : W ⟶ T) :
@@ -285,7 +253,32 @@ def ringDirectImageIsoRingPushforward {Y W : AlgebraicSpace S} (f : Y ⟶ W)
 def commRingPushforwardIsoSheafPushforward {Y W : AlgebraicSpace S} (f : Y ⟶ W)
     (A : Sheaf (smallEtaleTopology Y) CommRingCat.{u}) :
     (sheafPushforward CommRingCat.{u} f).obj A ≅ (commRingPushforward f).obj A :=
-  Iso.refl _
+  let u := smallEtaleInclusion Y
+  let v := etaleBaseChange f
+  let F := forget CommRingCat.{u}
+  let Ju := smallEtaleTopology Y
+  let Ku := spacesEtaleTopology Y
+  let Jv := smallEtaleTopology W
+  let e : sheafPushforward CommRingCat.{u} f ⋙ sheafCompose Jv F ≅
+      sheafCompose Ju F ⋙ typePushforward f :=
+    Functor.associator _ _ _ ≪≫
+      Functor.isoWhiskerLeft (u.sheafPushforwardCocontinuous CommRingCat.{u} Ju Ku)
+        (eqToIso (Functor.sheafPushforwardContinuous.compSheafCompose v F Jv Ku)) ≪≫
+      (Functor.associator _ _ _).symm ≪≫
+      Functor.isoWhiskerRight
+        (Functor.sheafPushforwardCocontinuous.compSheafComposeIso u F Ju Ku)
+        (v.sheafPushforwardContinuous (Type u) Jv Ku) ≪≫
+      Functor.associator _ _ _ ≪≫
+      Functor.isoWhiskerLeft (sheafCompose Ju F)
+        (Functor.isoWhiskerRight
+          (Adjunction.rightAdjointUniq (EtaleTopos.siteEquivalence Y).toAdjunction
+            (u.sheafAdjunctionCocontinuous (Type u) Ju Ku)).symm
+          (v.sheafPushforwardContinuous (Type u) Jv Ku))
+  let c := e.app A ≪≫ ((commRingPushforwardUnderlyingIso f).app A).symm
+  { hom := commRingHomOfUnderlying c.hom sorry sorry sorry sorry
+    inv := commRingHomOfUnderlying c.inv sorry sorry sorry sorry
+    hom_inv_id := sorry
+    inv_hom_id := sorry }
 
 /-- Ring-valued comparison of internal and site-theoretic direct images. -/
 def pullbackSheafPushforwardForgetRingIso {Y W : AlgebraicSpace S} (f : Y ⟶ W)
@@ -297,9 +290,7 @@ def pullbackSheafPushforwardForgetRingIso {Y W : AlgebraicSpace S} (f : Y ⟶ W)
   pullbackSheafPushforward_forgetRingIso f A ≪≫
     ringDirectImageIsoRingPushforward f
       ((sheafCompose (smallEtaleTopology Y) (forget₂ CommRingCat.{u} RingCat.{u})).obj A) ≪≫
-    ((commRingPushforwardForget₂Iso f).app A).symm ≪≫
-    (sheafCompose (smallEtaleTopology W) (forget₂ CommRingCat.{u} RingCat.{u})).mapIso
-      (commRingPushforwardIsoSheafPushforward f A)
+    ((commRingPushforwardForget₂Iso f).app A).symm
 
 /-- Forgotten type sheaf of étale restriction of a commutative-ring sheaf. -/
 def etaleRestrictionForgetTypeIso {Y W : AlgebraicSpace S} (f : Y ⟶ W) [Etale f]
@@ -364,7 +355,7 @@ instance etaleRestriction_comp_smallEtaleInclusion_isCocontinuous
 
 /-- The opposite of the composite of small étale inclusion with spaces étale restriction has
 pointwise right Kan extensions on type-valued presheaves. -/
-instance smallEtaleInclusion_comp_spacesEtaleRestriction_op_hasPointwiseRightKanExtension_type
+instance inclusionRestriction_hasPointwiseRan
     {Y W : AlgebraicSpace S} (f : Y ⟶ W) [Etale f]
     (P : (smallEtaleSite Y)ᵒᵖ ⥤ Type u) :
     (smallEtaleInclusion Y ⋙ spacesEtaleRestriction f).op.HasPointwiseRightKanExtension P :=
@@ -372,7 +363,7 @@ instance smallEtaleInclusion_comp_spacesEtaleRestriction_op_hasPointwiseRightKan
 
 /-- The opposite of the composite of étale restriction with the spaces inclusion has pointwise
 right Kan extensions on type-valued presheaves. -/
-instance etaleRestriction_comp_smallEtaleInclusion_op_hasPointwiseRightKanExtension_type
+instance restrictionInclusion_hasPointwiseRan
     {Y W : AlgebraicSpace S} (f : Y ⟶ W) [Etale f]
     (P : (smallEtaleSite Y)ᵒᵖ ⥤ Type u) :
     (etaleRestriction f ⋙ smallEtaleInclusion W).op.HasPointwiseRightKanExtension P :=
@@ -421,6 +412,12 @@ def typePushforwardIsoEtaleCocontinuous {Y W : AlgebraicSpace S} (f : Y ⟶ W) [
     (etaleRestriction f).sheafPushforwardCocontinuous (Type u)
       (smallEtaleTopology Y) (smallEtaleTopology W)
   Modules.typePushforwardFactor f ≪≫
+    isoWhiskerRight
+      (Adjunction.rightAdjointUniq (EtaleTopos.siteEquivalence Y).toAdjunction
+        ((smallEtaleInclusion Y).sheafAdjunctionCocontinuous (Type u)
+          (smallEtaleTopology Y) (spacesEtaleTopology Y)))
+      ((spacesEtalePullback f).sheafPushforwardContinuous (Type u)
+        (spacesEtaleTopology W) (spacesEtaleTopology Y) ⋙ iWrestrict) ≪≫
     isoWhiskerLeft iY (isoWhiskerRight
       (Functor.ContinuousRightAdjoint.pushforwardContinuousIso
         (spacesEtaleRestriction f) (spacesEtalePullback f) (Type u)
@@ -780,11 +777,10 @@ def coborderGradeToPushforwardApp (V : (smallEtaleSite (Hom.coborder i))ᵒᵖ) 
       ((commRingPushforward
           (pullback.fst (IsImmersion.coborderRange i).ι φ)).obj
         (gradeSheaf (Hom.Conormal.liftToCoborder i φ))).obj.obj V :=
-  limit.lift _ (coborderGradeToPushforwardCone i φ V.unop) ≫
-    ((smallEtaleInclusion (Hom.Conormal.coborderPullback i φ)).op.ranObjObjIsoLimit
-        (gradeSheaf (Hom.Conormal.liftToCoborder i φ)).obj
-        (op ((etaleBaseChange
-            (pullback.fst (IsImmersion.coborderRange i).ι φ)).obj V.unop))).inv
+
+  commRingPushforwardConeLift (pullback.fst (IsImmersion.coborderRange i).ι φ)
+    (gradeSheaf (Hom.Conormal.liftToCoborder i φ)) V.unop
+    (coborderGradeToPushforwardCone i φ V.unop)
 
 /-- Presheaf comparison of coborder associated graded algebras along
 `U \ φ⁻¹(∂Z) ⟶ X \ ∂Z`. -/
@@ -816,26 +812,10 @@ def coborderGradeRestrictSheaf :
         (pullback.fst (IsImmersion.coborderRange i).ι φ)).obj
       (coborderGradeSheaf i) ⟶
       gradeSheaf (Hom.Conormal.liftToCoborder i φ) :=
-  let p := pullback.fst (IsImmersion.coborderRange i).ι φ
-  let G :=
-    (smallEtaleInclusion (Hom.Conormal.coborderPullback i φ)).sheafPushforwardCocontinuous
-      CommRingCat.{u} (smallEtaleTopology (Hom.Conormal.coborderPullback i φ))
-      (spacesEtaleTopology (Hom.Conormal.coborderPullback i φ))
-  let adj :=
-    Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
-      (etaleBaseChange p) CommRingCat.{u} (smallEtaleTopology (Hom.coborder i))
-      (spacesEtaleTopology (Hom.Conormal.coborderPullback i φ))
-  let ψ :=
-    (adj.homEquiv (coborderGradeSheaf i)
-        (G.obj (gradeSheaf (Hom.Conormal.liftToCoborder i φ)))).symm
+
+  ((commRingInverseImageAdjunction
+    (pullback.fst (IsImmersion.coborderRange i).ι φ)).homEquiv _ _).symm
       (coborderGradeToPushforward i φ)
-  ((smallEtaleInclusion (Hom.Conormal.coborderPullback i φ)).sheafPushforwardContinuous
-        CommRingCat.{u} (smallEtaleTopology (Hom.Conormal.coborderPullback i φ))
-        (spacesEtaleTopology (Hom.Conormal.coborderPullback i φ))).map ψ ≫
-    ((smallEtaleInclusion (Hom.Conormal.coborderPullback i φ)).sheafAdjunctionCocontinuous
-        CommRingCat.{u} (smallEtaleTopology (Hom.Conormal.coborderPullback i φ))
-        (spacesEtaleTopology (Hom.Conormal.coborderPullback i φ))).counit.app
-      (gradeSheaf (Hom.Conormal.liftToCoborder i φ))
 
 /-- The pulled coborder associated graded of `i` maps to the associated graded of
 `liftToCoborder` after scalar extension to `𝒪_{U \ φ⁻¹(∂Z)}`. -/
@@ -934,10 +914,10 @@ def coborderιGradeToPushforwardApp
     gradeObj (Hom.Conormal.liftToCoborder i φ) V ⟶
       ((commRingPushforward (Hom.Conormal.coborderToPullback i φ)).obj
         (coborderGradeSheaf (Hom.Conormal.ι i φ))).obj.obj V :=
-  limit.lift _ (coborderιGradeToPushforwardCone i φ V.unop) ≫
-    ((smallEtaleInclusion (Hom.coborder (Hom.Conormal.ι i φ))).op.ranObjObjIsoLimit
-        (coborderGradeSheaf (Hom.Conormal.ι i φ)).obj
-        (op ((etaleBaseChange (Hom.Conormal.coborderToPullback i φ)).obj V.unop))).inv
+
+  commRingPushforwardConeLift (Hom.Conormal.coborderToPullback i φ)
+    (coborderGradeSheaf (Hom.Conormal.ι i φ)) V.unop
+    (coborderιGradeToPushforwardCone i φ V.unop)
 
 /-- Presheaf comparison of associated graded algebras along `coborderToPullback`. -/
 def coborderιGradeToPushforwardPresheaf :
@@ -962,27 +942,9 @@ def coborderιGradeRestrictSheaf :
     (commRingInverseImage (Hom.Conormal.coborderToPullback i φ)).obj
       (gradeSheaf (Hom.Conormal.liftToCoborder i φ)) ⟶
       coborderGradeSheaf (Hom.Conormal.ι i φ) :=
-  let q := Hom.Conormal.coborderToPullback i φ
-  let G :=
-    (smallEtaleInclusion (Hom.coborder (Hom.Conormal.ι i φ))).sheafPushforwardCocontinuous
-      CommRingCat.{u} (smallEtaleTopology (Hom.coborder (Hom.Conormal.ι i φ)))
-      (spacesEtaleTopology (Hom.coborder (Hom.Conormal.ι i φ)))
-  let adj :=
-    Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
-      (etaleBaseChange q) CommRingCat.{u}
-      (smallEtaleTopology (Hom.Conormal.coborderPullback i φ))
-      (spacesEtaleTopology (Hom.coborder (Hom.Conormal.ι i φ)))
-  let ψ :=
-    (adj.homEquiv (gradeSheaf (Hom.Conormal.liftToCoborder i φ))
-        (G.obj (coborderGradeSheaf (Hom.Conormal.ι i φ)))).symm
-      (coborderιGradeToPushforward i φ)
-  ((smallEtaleInclusion (Hom.coborder (Hom.Conormal.ι i φ))).sheafPushforwardContinuous
-        CommRingCat.{u} (smallEtaleTopology (Hom.coborder (Hom.Conormal.ι i φ)))
-        (spacesEtaleTopology (Hom.coborder (Hom.Conormal.ι i φ)))).map ψ ≫
-    ((smallEtaleInclusion (Hom.coborder (Hom.Conormal.ι i φ))).sheafAdjunctionCocontinuous
-        CommRingCat.{u} (smallEtaleTopology (Hom.coborder (Hom.Conormal.ι i φ)))
-        (spacesEtaleTopology (Hom.coborder (Hom.Conormal.ι i φ)))).counit.app
-      (coborderGradeSheaf (Hom.Conormal.ι i φ))
+
+  ((commRingInverseImageAdjunction (Hom.Conormal.coborderToPullback i φ)).homEquiv _ _).symm
+    (coborderιGradeToPushforward i φ)
 
 /-- The pulled associated graded of `liftToCoborder` maps to the coborder associated
 graded of `ι` after scalar extension to `𝒪_{U \ φ⁻¹(∂Z)}` of `ι`. -/
@@ -1360,10 +1322,10 @@ def chartGradeToPushforwardApp {V : Over S} (ψ : ofOver V ⟶ X) [Etale ψ]
     coborderGradeObj (Hom.Conormal.ι i ψ) W ⟶
       ((commRingPushforward (Hom.Conormal.chartCoborderHom i φ ψ f hf)).obj
         (coborderGradeSheaf (Hom.Conormal.ι i φ))).obj.obj W :=
-  limit.lift _ (chartGradeToPushforwardCone i φ ψ f hf W.unop) ≫
-    ((smallEtaleInclusion (Hom.coborder (Hom.Conormal.ι i φ))).op.ranObjObjIsoLimit
-        (coborderGradeSheaf (Hom.Conormal.ι i φ)).obj
-        (op ((etaleBaseChange (Hom.Conormal.chartCoborderHom i φ ψ f hf)).obj W.unop))).inv
+
+  commRingPushforwardConeLift (Hom.Conormal.chartCoborderHom i φ ψ f hf)
+    (coborderGradeSheaf (Hom.Conormal.ι i φ)) W.unop
+    (chartGradeToPushforwardCone i φ ψ f hf W.unop)
 
 /-- Presheaf chart coborder associated-graded comparison. -/
 def chartGradeToPushforwardPresheaf {V : Over S} (ψ : ofOver V ⟶ X) [Etale ψ]
@@ -1391,27 +1353,10 @@ def chartGradeRestrictSheaf {V : Over S} (ψ : ofOver V ⟶ X) [Etale ψ]
     (commRingInverseImage (Hom.Conormal.chartCoborderHom i φ ψ f hf)).obj
       (coborderGradeSheaf (Hom.Conormal.ι i ψ)) ⟶
       coborderGradeSheaf (Hom.Conormal.ι i φ) :=
-  let q := Hom.Conormal.chartCoborderHom i φ ψ f hf
-  let G :=
-    (smallEtaleInclusion (Hom.coborder (Hom.Conormal.ι i φ))).sheafPushforwardCocontinuous
-      CommRingCat.{u} (smallEtaleTopology (Hom.coborder (Hom.Conormal.ι i φ)))
-      (spacesEtaleTopology (Hom.coborder (Hom.Conormal.ι i φ)))
-  let adj :=
-    Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
-      (etaleBaseChange q) CommRingCat.{u}
-      (smallEtaleTopology (Hom.coborder (Hom.Conormal.ι i ψ)))
-      (spacesEtaleTopology (Hom.coborder (Hom.Conormal.ι i φ)))
-  let ψ' :=
-    (adj.homEquiv (coborderGradeSheaf (Hom.Conormal.ι i ψ))
-        (G.obj (coborderGradeSheaf (Hom.Conormal.ι i φ)))).symm
+
+  ((commRingInverseImageAdjunction
+    (Hom.Conormal.chartCoborderHom i φ ψ f hf)).homEquiv _ _).symm
       (chartGradeToPushforward i φ ψ f hf)
-  ((smallEtaleInclusion (Hom.coborder (Hom.Conormal.ι i φ))).sheafPushforwardContinuous
-        CommRingCat.{u} (smallEtaleTopology (Hom.coborder (Hom.Conormal.ι i φ)))
-        (spacesEtaleTopology (Hom.coborder (Hom.Conormal.ι i φ)))).map ψ' ≫
-    ((smallEtaleInclusion (Hom.coborder (Hom.Conormal.ι i φ))).sheafAdjunctionCocontinuous
-        CommRingCat.{u} (smallEtaleTopology (Hom.coborder (Hom.Conormal.ι i φ)))
-        (spacesEtaleTopology (Hom.coborder (Hom.Conormal.ι i φ)))).counit.app
-      (coborderGradeSheaf (Hom.Conormal.ι i φ))
 
 /-- The pulled coborder associated graded of `ι i ψ` maps to that of `ι i φ` after
 scalar extension. -/

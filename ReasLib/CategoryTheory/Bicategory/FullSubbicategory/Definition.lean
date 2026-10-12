@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
@@ -53,17 +59,17 @@ def ι : StrictPseudofunctor P.FullSubbicategory D :=
 /-- The canonical inclusion sends a full-subbicategory object to its ambient object. -/
 @[simp]
 theorem ι_obj (X : P.FullSubbicategory) :
-    (ι P).obj X = X.1 := sorry
+    (ι P).obj X = X.1 := rfl
 
 /-- The canonical inclusion sends a lifted `1`-morphism to its ambient representative. -/
 @[simp]
 theorem ι_map {X Y : P.FullSubbicategory} (f : X ⟶ Y) :
-    (ι P).map f = f.hom := sorry
+    (ι P).map f = f.hom := rfl
 
 /-- The canonical inclusion sends a lifted `2`-morphism to its ambient representative. -/
 @[simp]
 theorem ι_map₂ {X Y : P.FullSubbicategory} {f g : X ⟶ Y} (η : f ⟶ g) :
-    (ι P).map₂ η = η.hom := sorry
+    (ι P).map₂ η = η.hom := rfl
 
 end FullSubbicategory
 

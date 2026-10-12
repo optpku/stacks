@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Cover.Fppf
@@ -34,7 +40,7 @@ composite versus pulling back in stages. -/
 def grpOverPullbackCompIso {S : Scheme.{u}} {B B' B'' : AlgebraicSpace S}
     (f : B' ⟶ B) (g : B'' ⟶ B') (G : GroupAlgebraicSpace B) :
     grpOverPullback G (g ≫ f) ≅ grpOverPullback (grpOverPullback G f) g :=
-  Grp.mkIso (overPullbackCompIso f g G.X) sorry sorry
+  Grp.mkIso ((Over.pullbackComp g f).app G.X) sorry sorry
 
 /-- Transport of a `G`-action along an isomorphism of group algebraic spaces
 over the same base, by restriction of scalars along the inverse. -/
@@ -169,13 +175,13 @@ def restrictAction_compIso {V W X : Over U} (f : X ⟶ W) (g : W ⟶ V)
     restrictAction H (f ≫ g) Y ≅ restrictAction H f (restrictAction H g Y) :=
   { hom :=
       CategoryTheory.Mod.Hom.mk'
-        (eqToHom (congrArg (fun t ↦ (overPullback t).obj Y.X) (ofOverMap_comp f g)) ≫
-          (overPullbackCompIso (ofOverMap g) (ofOverMap f) Y.X).hom)
+        (eqToHom (congrArg (fun t ↦ (Over.pullback t).obj Y.X) (ofOverMap_comp f g)) ≫
+          ((Over.pullbackComp (ofOverMap f) (ofOverMap g)).app Y.X).hom)
         sorry
     inv :=
       CategoryTheory.Mod.Hom.mk'
-        ((overPullbackCompIso (ofOverMap g) (ofOverMap f) Y.X).inv ≫
-          eqToHom (congrArg (fun t ↦ (overPullback t).obj Y.X) (ofOverMap_comp f g).symm))
+        (((Over.pullbackComp (ofOverMap f) (ofOverMap g)).app Y.X).inv ≫
+          eqToHom (congrArg (fun t ↦ (Over.pullback t).obj Y.X) (ofOverMap_comp f g).symm))
         sorry
     hom_inv_id := sorry
     inv_hom_id := sorry }
@@ -184,8 +190,8 @@ def restrictAction_compIso {V W X : Over U} (f : X ⟶ W) (g : W ⟶ V)
 def restrictAction_mapIso {V W : Over U} (f : W ⟶ V)
     {X Y : Action (grpOverPullback H (base V))} (e : X ≅ Y) :
     restrictAction H f X ≅ restrictAction H f Y :=
-  { hom := CategoryTheory.Mod.Hom.mk' ((overPullback (ofOverMap f)).map e.hom.hom) sorry
-    inv := CategoryTheory.Mod.Hom.mk' ((overPullback (ofOverMap f)).map e.inv.hom) sorry
+  { hom := CategoryTheory.Mod.Hom.mk' ((Over.pullback (ofOverMap f)).map e.hom.hom) sorry
+    inv := CategoryTheory.Mod.Hom.mk' ((Over.pullback (ofOverMap f)).map e.inv.hom) sorry
     hom_inv_id := sorry
     inv_hom_id := sorry }
 
@@ -267,13 +273,13 @@ def restrictPullbackIso {V W : Over U} (f : W ⟶ V) (X : Action H) :
     restrictAction H f (pullbackAction (base V) H X) ≅ pullbackAction (base W) H X :=
   { hom :=
       CategoryTheory.Mod.Hom.mk'
-        ((overPullbackCompIso (base V) (ofOverMap f) X.X).inv ≫
-          eqToHom (congrArg (fun t ↦ (overPullback t).obj X.X) (base_comp f)))
+        (((Over.pullbackComp (ofOverMap f) (base V)).app X.X).inv ≫
+          eqToHom (congrArg (fun t ↦ (Over.pullback t).obj X.X) (base_comp f)))
         sorry
     inv :=
       CategoryTheory.Mod.Hom.mk'
-        (eqToHom (congrArg (fun t ↦ (overPullback t).obj X.X) (base_comp f).symm) ≫
-          (overPullbackCompIso (base V) (ofOverMap f) X.X).hom)
+        (eqToHom (congrArg (fun t ↦ (Over.pullback t).obj X.X) (base_comp f).symm) ≫
+          ((Over.pullbackComp (ofOverMap f) (base V)).app X.X).hom)
         sorry
     hom_inv_id := sorry
     inv_hom_id := sorry }

@@ -1,5 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quotient.Basic
 public import Mathlib.CategoryTheory.Sites.Subcanonical
 public import Mathlib.CategoryTheory.Yoneda
 public import ReasLib.CategoryTheory.Fibered.CoGrothendieck.Presheaf
@@ -40,17 +47,7 @@ def prestack {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace
 theorem prestack_p {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B) :
     (prestack G).p = groupoidPresheafProjection G.points := sorry
 
-/-- The selected stackification presentation of `[U/_p R]` on `(Sch/S)_fppf`. -/
-def fppfQuotientStackPresentation {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) :
-    Presentation (Scheme.fppfTopology.over S) (groupoidPresheafProjection G.points) :=
-  presentation (Scheme.fppfTopology.over S) (groupoidPresheafProjection G.points)
 
-/-- The quotient stack `[U/R]` of a groupoid in algebraic spaces over `B`, as the selected
-stackification of `[U/_p R]` on `(Sch/S)_fppf`. -/
-def fppfQuotientStack {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B) :
-    StackOver.Groupoids (Scheme.fppfTopology.over S) :=
-  (fppfQuotientStackPresentation G).target
 
 /-- The selected comparison from `[U/_p R]` to `[U/R]` is a stackification. -/
 theorem fppfQuotientStack_isStackification {S : Scheme.{u}} {B : AlgebraicSpace S}

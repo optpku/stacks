@@ -1,8 +1,16 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Elements
 public import Mathlib.CategoryTheory.FiberedCategory.Fiber
 public import ReasLib.CategoryTheory.Fibered.BasedCategory.Basic
+public import ReasLib.CategoryTheory.Fibered.BasedCategory.ToIsoClass
+public import ReasLib.CategoryTheory.Fibered.FiberIsoClassCopresheaf
 public import stacks_project.Chap90.Definition_90_7_3_ArtinianLocal
 public import stacks_project.Chap90.Remarks_90_5_2_Grothendieck
 public import stacks_project.Chap90.Remarks_90_5_2_IsoClass
@@ -24,47 +32,45 @@ universe u v w
 variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-namespace CategoryTheory.BasedFunctor
+/- Canonical morphism to fibrewise isomorphism classes. -/
+#check (CategoryTheory.BasedFunctor.toIsoClassFunctor :
+  ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+    [Module.Finite Λ k] {F : Type w} [Category.{v} F]
+    (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op],
+    F ⥤ (Functor.fiberIsoClassFunctor p).Elements)
 
-variable {F : Type w} [Category.{v} F]
-variable (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op]
-
-/-- The underlying functor of the canonical morphism from a category cofibered in
-groupoids to the category of elements of its fibrewise isomorphism-class functor. -/
-noncomputable def toIsoClassFunctor :
-    F ⥤ (Functor.fiberIsoClassFunctor p).Elements where
-  obj x := ⟨p.obj x, Quotient.mk'' (Functor.Fiber.mk (rfl : p.obj x = p.obj x))⟩
-  map φ := ⟨p.map φ, sorry⟩
-  map_id := sorry
-  map_comp := sorry
-
-/-- The canonical based morphism from a category cofibered in groupoids to the
-category of elements of its fibrewise isomorphism-class functor. -/
-noncomputable def toIsoClass :
+#check (CategoryTheory.BasedFunctor.toIsoClass :
+  ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+    [Module.Finite Λ k] {F : Type w} [Category.{v} F]
+    (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op],
     BasedCategory.ofFunctor p ⥤ᵇ
-      BasedCategory.ofFunctor (CategoryOfElements.π (Functor.fiberIsoClassFunctor p)) :=
-  ofFunctor (toIsoClassFunctor p) sorry
+      BasedCategory.ofFunctor (CategoryOfElements.π (Functor.fiberIsoClassFunctor p)))
 
-/-- On objects, `toIsoClassFunctor p` sends `x` to the pair consisting of its image
-under `p` and the isomorphism class of `x` in the fibre. -/
-theorem toIsoClassFunctor_obj (x : F) :
-    (toIsoClassFunctor p).obj x =
-      ⟨p.obj x, Quotient.mk'' (Functor.Fiber.mk (rfl : p.obj x = p.obj x))⟩ := sorry
+#check (CategoryTheory.BasedFunctor.toIsoClassFunctor_obj :
+  ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+    [Module.Finite Λ k] {F : Type w} [Category.{v} F]
+    (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op] (x : F),
+    (CategoryTheory.BasedFunctor.toIsoClassFunctor p).obj x =
+      ⟨p.obj x, Quotient.mk'' (Functor.Fiber.mk (rfl : p.obj x = p.obj x))⟩)
 
-/-- On objects, `toIsoClass p` sends `x` to the pair consisting of its image under `p`
-and the isomorphism class of `x` in the fibre. -/
-theorem toIsoClass_obj (x : F) :
-    (toIsoClass p).obj x =
-      ⟨p.obj x, Quotient.mk'' (Functor.Fiber.mk (rfl : p.obj x = p.obj x))⟩ := sorry
+#check (CategoryTheory.BasedFunctor.toIsoClass_obj :
+  ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+    [Module.Finite Λ k] {F : Type w} [Category.{v} F]
+    (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op] (x : F),
+    (CategoryTheory.BasedFunctor.toIsoClass p).obj x =
+      ⟨p.obj x, Quotient.mk'' (Functor.Fiber.mk (rfl : p.obj x = p.obj x))⟩)
 
-/-- The image of a morphism under `toIsoClass p` lies over `p.map φ`. -/
-theorem toIsoClass_map {x y : F} (φ : x ⟶ y) :
-    (CategoryOfElements.π (Functor.fiberIsoClassFunctor p)).map ((toIsoClass p).map φ) =
-      p.map φ := sorry
+#check (CategoryTheory.BasedFunctor.toIsoClass_map :
+  ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+    [Module.Finite Λ k] {F : Type w} [Category.{v} F]
+    (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op]
+    {x y : F} (φ : x ⟶ y),
+    (CategoryOfElements.π (Functor.fiberIsoClassFunctor p)).map
+        ((CategoryTheory.BasedFunctor.toIsoClass p).map φ) = p.map φ)
 
-/-- The canonical morphism `toIsoClass p` lies strictly over `ArtinianLocalAlgCat Λ k`. -/
-theorem toIsoClass_comp_π :
-    (toIsoClass p).toFunctor ⋙ CategoryOfElements.π (Functor.fiberIsoClassFunctor p) = p :=
-  sorry
-
-end CategoryTheory.BasedFunctor
+#check (CategoryTheory.BasedFunctor.toIsoClass_comp_π :
+  ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+    [Module.Finite Λ k] {F : Type w} [Category.{v} F]
+    (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op],
+    (CategoryTheory.BasedFunctor.toIsoClass p).toFunctor ⋙
+      CategoryOfElements.π (Functor.fiberIsoClassFunctor p) = p)

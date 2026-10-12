@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap62.Lemma_62_4_4_Pullback
+public import ReasLib.AlgebraicGeometry.CycleGroup.Specialization.FlatPullback
+import StacksCheckRecall
 
 /-!
 # Lemma 62.4.4
@@ -20,34 +27,32 @@ universe u
 
 namespace AlgebraicGeometry.CycleGroup
 
-/-- Lemma 62.4.4: if `R` is a discrete valuation ring with fraction field `K`
+/- Lemma 62.4.4: if `R` is a discrete valuation ring with fraction field `K`
 and residue field `κ`, `X` is locally of finite type over `R`, and
 `f : X' ⟶ X` is locally of finite type, flat, and of relative dimension `e`,
 then specialization of cycles over `R` commutes with flat pullback:
 `(X'.hom.cycleSpecialization (r + e)).comp (genericFiberFlatPullback f e r)`
 equals `(specialFiberFlatPullback f e r).comp (X.hom.cycleSpecialization r)`
 as maps `Z_r(X_K) → Z_{r+e}(X'_κ)`. -/
-@[stacks 0H4L]
-theorem cycleSpecialization_comp_flatPullback
-    {R : Type u} [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
+@[stacks 0H4L] #check (AlgebraicGeometry.CycleGroup.cycleSpecialization_comp_flatPullback :
+    ∀ {R : Type u} [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
     {X X' : Over (Spec (CommRingCat.of R))}
     [LocallyOfFiniteType X.hom] [LocallyOfFiniteType X'.hom]
-    (f : X' ⟶ X) (e : ℕ) [Flat f.left] [RelativeDimension f.left e] (r : ℕ) :
+    (f : X' ⟶ X) (e : ℕ) [Flat f.left] [RelativeDimension f.left e] (r : ℕ),
     (X'.hom.cycleSpecialization (r + e)).comp (genericFiberFlatPullback f e r) =
-      (specialFiberFlatPullback f e r).comp (X.hom.cycleSpecialization r) :=
-  sorry
+      (specialFiberFlatPullback f e r).comp (X.hom.cycleSpecialization r))
 
-/-- Specialization of an `r`-cycle on the generic fibre, then flat pullback on
+/- Specialization of an `r`-cycle on the generic fibre, then flat pullback on
 the special fibre, agrees with flat pullback on the generic fibre followed by
 specialization. -/
-theorem cycleSpecialization_flatPullback
-    {R : Type u} [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
+#check (AlgebraicGeometry.CycleGroup.cycleSpecialization_flatPullback :
+    ∀ {R : Type u} [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
     {X X' : Over (Spec (CommRingCat.of R))}
     [LocallyOfFiniteType X.hom] [LocallyOfFiniteType X'.hom]
     (f : X' ⟶ X) (e : ℕ) [Flat f.left] [RelativeDimension f.left e] (r : ℕ)
     (α : CycleGroup X.hom.genericFiber
-      (X.hom.fiberDimensionFunction (genericPoint (Spec (CommRingCat.of R)))) r) :
+      (X.hom.fiberDimensionFunction (genericPoint (Spec (CommRingCat.of R)))) r),
     X'.hom.cycleSpecialization (r + e) (genericFiberFlatPullback f e r α) =
-      specialFiberFlatPullback f e r (X.hom.cycleSpecialization r α) := sorry
+      specialFiberFlatPullback f e r (X.hom.cycleSpecialization r α))
 
 end AlgebraicGeometry.CycleGroup

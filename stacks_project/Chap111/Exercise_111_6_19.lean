@@ -1,12 +1,19 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.Topology.Irreducible
+public import ReasLib.Topology.IrreducibleComponents.Containment
 import StacksCheckRecall
 
 @[expose] public section
 
 /- Exercise 111.6.19: any irreducible subset of a topological space `X` is contained in an
-irreducible component of `X`; the canonical owner is
-`exists_mem_irreducibleComponents_subset_of_isIrreducible`. -/
+irreducible component of `X`. -/
 @[stacks 02DA]
-#check @exists_mem_irreducibleComponents_subset_of_isIrreducible
+#check (TopologicalSpace.exists_mem_irreducibleComponents_subset_of_isIrreducible :
+  ∀ {X : Type*} [TopologicalSpace X] (s : Set X), IsIrreducible s →
+    ∃ u ∈ irreducibleComponents X, s ⊆ u)

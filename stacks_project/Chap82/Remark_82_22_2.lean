@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 import StacksCheckRecall
@@ -24,6 +30,6 @@ isomorphic to `𝒪_D`. Then there is a canonical additive map
 `i* : Z_{k+1}(X) ⟶ Z_k(D)` on cycles, determined by `i*[W] = 0` whenever
 `W ⊆ D`. -/
 @[stacks 0ER2] #check (Hom.trivialGysin f δ k L s htriv :
-  f.cycleGroup δ (k + 1) →+ (zeroSchemeι L s ≫ f).cycleGroup δ k)
+  Hom.cycleGroup f δ (k + 1) →+ Hom.cycleGroup (zeroSchemeι L s ≫ f) δ k)
 
 end AlgebraicGeometry.AlgebraicSpace

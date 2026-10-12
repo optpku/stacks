@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Category.Ring.FilteredColimits
@@ -6,6 +12,7 @@ public import Mathlib.CategoryTheory.Sites.Point.Basic
 public import Mathlib.CategoryTheory.Sites.Point.Map
 public import ReasLib.Algebra.Category.CommRing.Sheaf.Internal
 public import ReasLib.Algebra.Category.Ring.Sheaf.LocalHom
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Pullback
 public import stacks_project.Chap66.Definition_66_19_1_GeometricPoint
 public import stacks_project.Chap66.Definition_66_22_2_EtaleLocalRing
 public import stacks_project.Chap66.Lemma_66_18_3
@@ -47,23 +54,39 @@ instance morphismOfTopoi_inverseImage_preservesFiniteProducts {X Y : AlgebraicSp
     (f : X ⟶ Y) : PreservesFiniteProducts (morphismOfTopoi f).inverseImage :=
   inferInstance
 
-/-- Commutative-ring-valued direct image along a morphism of algebraic spaces, obtained by
-extending a small étale sheaf to the spaces étale site and evaluating at `X ×_Y V`. -/
+/-- Direct image retains commutativity of the input multiplication. -/
+theorem commRingPushforward_mul_comm {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (R : Sheaf (smallEtaleTopology X) CommRingCat.{u}) (U : (smallEtaleSite Y)ᵒᵖ)
+    (a b : ((ringPushforward f).obj
+      ((sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u})).obj R)).obj.obj U) :
+    a * b = b * a := sorry
+
+/-- The commutative view keeps all section carriers and operations of the actual ring direct image. -/
+def commRingPushforwardObj {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (R : Sheaf (smallEtaleTopology X) CommRingCat.{u}) :
+    Sheaf (smallEtaleTopology Y) CommRingCat.{u} :=
+  let Q := (ringPushforward f).obj
+    ((sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u})).obj R)
+  ⟨SheafOfModules.TensorScalarExtension.commView Q.obj (commRingPushforward_mul_comm f R), by
+    apply Presheaf.isSheaf_of_isSheaf_comp _ _ (forget₂ CommRingCat.{u} RingCat.{u})
+    exact Q.property⟩
+
+/-- Commutative-ring direct image uses the same small-chart section maps as ring direct image. -/
 def commRingPushforward {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Sheaf (smallEtaleTopology X) CommRingCat.{u} ⥤
-      Sheaf (smallEtaleTopology Y) CommRingCat.{u} :=
-  (smallEtaleInclusion X).sheafPushforwardCocontinuous CommRingCat.{u}
-      (smallEtaleTopology X) (spacesEtaleTopology X) ⋙
-    (etaleBaseChange f).sheafPushforwardContinuous CommRingCat.{u}
-      (smallEtaleTopology Y) (spacesEtaleTopology X)
+      Sheaf (smallEtaleTopology Y) CommRingCat.{u} where
+  obj := commRingPushforwardObj f
+  map {R T} g := ⟨SheafOfModules.TensorScalarExtension.commMap
+    ((ringPushforward f).map
+      ((sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u})).map g)).hom
+    (commRingPushforward_mul_comm f R) (commRingPushforward_mul_comm f T)⟩
+  map_id := sorry
+  map_comp := sorry
 
-/-- `commRingPushforward` is the commutative-ring parallel of `ringPushforward`. -/
-theorem commRingPushforward_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    commRingPushforward f =
-      (smallEtaleInclusion X).sheafPushforwardCocontinuous CommRingCat.{u}
-          (smallEtaleTopology X) (spacesEtaleTopology X) ⋙
-        (etaleBaseChange f).sheafPushforwardContinuous CommRingCat.{u}
-          (smallEtaleTopology Y) (spacesEtaleTopology X) :=
+/-- The direct-image object is the commutative view of the specified ring direct image. -/
+theorem commRingPushforward_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (R : Sheaf (smallEtaleTopology X) CommRingCat.{u}) :
+    (commRingPushforward f).obj R = commRingPushforwardObj f R :=
   rfl
 
 /-- Commutative-ring-valued sheaves on the étale site of algebraic spaces over `X` compose with
@@ -87,29 +110,89 @@ def commRingPushforwardForgetIso {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
         sheafCompose (smallEtaleTopology Y) (forget₂ CommRingCat.{u} RingCat.{u}) ≅
       sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u}) ⋙
         ringPushforward f :=
-  let u := smallEtaleInclusion X
-  let v := etaleBaseChange f
-  let F := forget₂ CommRingCat.{u} RingCat.{u}
-  let Ju := smallEtaleTopology X
-  let Ku := spacesEtaleTopology X
-  let Jv := smallEtaleTopology Y
-  (Functor.associator
-      (u.sheafPushforwardCocontinuous CommRingCat.{u} Ju Ku)
-      (v.sheafPushforwardContinuous CommRingCat.{u} Jv Ku)
-      (sheafCompose Jv F)) ≪≫
-    Functor.isoWhiskerLeft (u.sheafPushforwardCocontinuous CommRingCat.{u} Ju Ku)
-      (eqToIso (Functor.sheafPushforwardContinuous.compSheafCompose v F Jv Ku)) ≪≫
-    (Functor.associator
-        (u.sheafPushforwardCocontinuous CommRingCat.{u} Ju Ku)
-        (sheafCompose Ku F)
-        (v.sheafPushforwardContinuous RingCat.{u} Jv Ku)).symm ≪≫
-    Functor.isoWhiskerRight
-      (Functor.sheafPushforwardCocontinuous.compSheafComposeIso u F Ju Ku)
-      (v.sheafPushforwardContinuous RingCat.{u} Jv Ku) ≪≫
-    Functor.associator
-      (sheafCompose Ju F)
-      (u.sheafPushforwardCocontinuous RingCat.{u} Ju Ku)
-      (v.sheafPushforwardContinuous RingCat.{u} Jv Ku)
+  Iso.refl _
+
+/-- Forget both commutativity and ring operations, retaining the underlying section types. -/
+def commRingUnderlying (X : AlgebraicSpace S) :
+    Sheaf (smallEtaleTopology X) CommRingCat.{u} ⥤ Sheaf (smallEtaleTopology X) (Type u) :=
+  sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u}) ⋙
+    sheafCompose (smallEtaleTopology X) (forget RingCat.{u})
+
+/-- Underlying direct-image types are the specified small-chart direct image. -/
+def commRingPushforwardUnderlyingIso {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+    commRingPushforward f ⋙ commRingUnderlying Y ≅ commRingUnderlying X ⋙ typePushforward f :=
+  (Functor.associator _ _ _).symm ≪≫
+    Functor.isoWhiskerRight (commRingPushforwardForgetIso f)
+      (sheafCompose (smallEtaleTopology Y) (forget RingCat.{u})) ≪≫
+    Functor.associator _ _ _ ≪≫
+    Functor.isoWhiskerLeft
+      (sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u}))
+      (ringPushforwardForgetIso f) ≪≫ (Functor.associator _ _ _).symm
+
+/-- Underlying types of an iterated commutative-ring direct image. -/
+def commRingPushforwardIteratedIso {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z) :
+    (commRingPushforward f ⋙ commRingPushforward g) ⋙ commRingUnderlying Z ≅
+      commRingUnderlying X ⋙ typePushforward f ⋙ typePushforward g :=
+  Functor.associator _ _ _ ≪≫
+    Functor.isoWhiskerLeft (commRingPushforward f) (commRingPushforwardUnderlyingIso g) ≪≫
+    (Functor.associator _ _ _).symm ≪≫
+    Functor.isoWhiskerRight (commRingPushforwardUnderlyingIso f) (typePushforward g) ≪≫
+    Functor.associator _ _ _
+
+/-- Actual type-valued comparison for composition of commutative-ring direct images. -/
+def commRingPushforwardCompUnderlying {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z) :
+    (commRingPushforward f ⋙ commRingPushforward g) ⋙ commRingUnderlying Z ≅
+      commRingPushforward (f ≫ g) ⋙ commRingUnderlying Z :=
+  commRingPushforwardIteratedIso f g ≪≫
+    Functor.isoWhiskerLeft (commRingUnderlying X) (Modules.typePushforwardComp f g) ≪≫
+    (commRingPushforwardUnderlyingIso (f ≫ g)).symm
+
+/-- Equip a specified underlying section map with its commutative-ring homomorphism laws. -/
+def commRingHomOfUnderlying {X : AlgebraicSpace S}
+    {R T : Sheaf (smallEtaleTopology X) CommRingCat.{u}}
+    (α : (commRingUnderlying X).obj R ⟶ (commRingUnderlying X).obj T)
+    (h0 : ∀ U, α.hom.app U (0 : R.obj.obj U) = (0 : T.obj.obj U))
+    (h1 : ∀ U, α.hom.app U (1 : R.obj.obj U) = (1 : T.obj.obj U))
+    (hadd : ∀ U (r s : R.obj.obj U), α.hom.app U (r + s) =
+      ((inferInstance : Add (T.obj.obj U)).add (α.hom.app U r) (α.hom.app U s) : T.obj.obj U))
+    (hmul : ∀ U (r s : R.obj.obj U), α.hom.app U (r * s) =
+      ((inferInstance : Mul (T.obj.obj U)).mul (α.hom.app U r) (α.hom.app U s) : T.obj.obj U)) :
+    R ⟶ T :=
+  ⟨{ app := fun U ↦ CommRingCat.ofHom
+      { toFun := α.hom.app U
+        map_zero' := h0 U
+        map_one' := h1 U
+        map_add' := hadd U
+        map_mul' := hmul U }
+     naturality := sorry }⟩
+
+/-- Both ring-composition arrows have the actual small-chart comparison functions. -/
+def commRingPushforwardComp {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z) :
+    commRingPushforward f ⋙ commRingPushforward g ≅ commRingPushforward (f ≫ g) :=
+  NatIso.ofComponents
+    (fun R ↦
+      { hom := commRingHomOfUnderlying ((commRingPushforwardCompUnderlying f g).hom.app R)
+          sorry sorry sorry sorry
+        inv := commRingHomOfUnderlying ((commRingPushforwardCompUnderlying f g).inv.app R)
+          sorry sorry sorry sorry
+        hom_inv_id := sorry
+        inv_hom_id := sorry })
+    sorry
+
+/-- Evaluate commutative-ring direct image along the specified scheme chart of its fibre product. -/
+def commRingPushforwardEvaluation {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (R : Sheaf (smallEtaleTopology X) CommRingCat.{u}) {V : smallEtaleSite Y} {U : smallEtaleSite X}
+    (a : (smallEtaleInclusion X).obj U ⟶ (etaleBaseChange f).obj V) :
+    ((commRingPushforward f).obj R).obj.obj (op V) ⟶ R.obj.obj (op U) :=
+  @CommRingCat.ofHom (((commRingPushforward f).obj R).obj.obj (op V)) (R.obj.obj (op U))
+    (inferInstanceAs (CommRing (((commRingPushforward f).obj R).obj.obj (op V))))
+    (inferInstanceAs (CommRing (R.obj.obj (op U))))
+    { toFun := fun r ↦ EtaleTopos.extensionEvaluation X ((commRingUnderlying X).obj R) a
+        (((commRingPushforwardUnderlyingIso f).hom.app R).hom.app (op V) r)
+      map_zero' := sorry
+      map_one' := sorry
+      map_add' := sorry
+      map_mul' := sorry }
 
 /-- Forgetting commutativity after `commRingPushforward` recovers `ringPushforward`. -/
 theorem commRingPushforward_forget {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
@@ -117,7 +200,7 @@ theorem commRingPushforward_forget {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
         sheafCompose (smallEtaleTopology Y) (forget₂ CommRingCat.{u} RingCat.{u}) =
       sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u}) ⋙
         ringPushforward f :=
-  sorry
+  rfl
 
 /-- Direct image of commutative-ring sheaves along a morphism of algebraic spaces is a right
 adjoint. -/
@@ -151,9 +234,11 @@ def commStructureSheafMap_app {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (V : (smallEtaleSite Y)ᵒᵖ) :
     (commStructureSheaf Y).obj.obj V ⟶
       ((commRingPushforward f).obj (commStructureSheaf X)).obj.obj V :=
-  limit.lift _ (commStructureSheafMapCone f V.unop) ≫
-    ((smallEtaleInclusion X).op.ranObjObjIsoLimit (commStructureSheaf X).obj
-        (op ((etaleBaseChange f).obj V.unop))).inv
+  @CommRingCat.ofHom ((commStructureSheaf Y).obj.obj V)
+    (((commRingPushforward f).obj (commStructureSheaf X)).obj.obj V)
+    (inferInstanceAs (CommRing ((commStructureSheaf Y).obj.obj V)))
+    (inferInstanceAs (CommRing (((commRingPushforward f).obj (commStructureSheaf X)).obj.obj V)))
+    (structureSheafMap_app f V).hom
 
 /-- The direct-image form of `f^♯` as a morphism of commutative-ring sheaves on `Y_étale`. -/
 def commStructureSheafMap {X Y : AlgebraicSpace S} (f : X ⟶ Y) :

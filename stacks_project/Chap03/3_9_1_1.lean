@@ -1,20 +1,21 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap03.«3_9_1_1_Bound»
+public import ReasLib.SetTheory.Cardinal.Bound
+import StacksCheckRecall
 
 @[expose] public section
-
-noncomputable section
 
 universe u
 
 open scoped Cardinal
-open AlgebraicGeometry.Scheme
 
-namespace AlgebraicGeometry.Scheme
-
-/-- 3.9.1.1: the Stacks bound of a cardinal `κ` is `max (κ ^ ℵ₀) (Order.succ κ)`. -/
-@[stacks 046U]
-theorem bound_eq (κ : Cardinal.{u}) : bound κ = max (κ ^ ℵ₀) (Order.succ κ) := sorry
-
-end AlgebraicGeometry.Scheme
+/- 3.9.1.1: The bound of a cardinal is the maximum of its countable power and its successor. -/
+@[stacks 046U] #check (Cardinal.countableSuccBound_eq :
+  ∀ kappa : Cardinal.{u},
+    Cardinal.countableSuccBound kappa = max (kappa ^ ℵ₀) (Order.succ kappa))

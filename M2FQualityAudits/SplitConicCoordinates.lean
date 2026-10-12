@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 import stacks_project.Chap55.Example_55_10_3_Conic
 
 open AlgebraicGeometry.SplitConic

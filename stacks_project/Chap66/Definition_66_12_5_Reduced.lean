@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap66.Definition_66_12_5_Structure
@@ -26,8 +32,8 @@ variable {S : Scheme.{u}} {X : AlgebraicSpace S}
 
 /-- The reduced induced algebraic space structure on a closed subset of `Points X`. -/
 def reduced (Z : Closeds (Points X)) : ClosedSubspaceStructure Z :=
-  ofSubspace (Classical.choose (ClosedSubspace.exists_reduced Z.carrier Z.isClosed))
-    (Classical.choose_spec (ClosedSubspace.exists_reduced Z.carrier Z.isClosed)).1
+  ofSubspace (ReducedClosed.Immersion.closedSubspace X Z)
+    (ReducedClosed.Immersion.pointsSet_eq X Z)
 
 /-- The reduced induced structure on `Z` is a reduced closed subspace with point-set `Z`. -/
 theorem reduced_spec (Z : Closeds (Points X)) :

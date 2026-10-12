@@ -1,4 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
+
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.TensorScalarExtension
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RingedSite.ConcreteHom
 
 public import Mathlib.CategoryTheory.Limits.FunctorCategory.Basic
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
@@ -35,103 +44,6 @@ namespace AlgebraicGeometry.AlgebraicSpace
 
 variable {S : Scheme.{u}}
 
-/-- Functor-of-points pullbacks exist in the presheaf category on schemes over `S`. -/
-instance : HasPullbacks ((Over S)ᵒᵖ ⥤ Type u) := inferInstance
-
-/-- A morphism of algebraic spaces, viewed as a natural transformation of functors of points. -/
-def homFunctor {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    X.functorOfPoints ⟶ Y.functorOfPoints :=
-  f
-
-/-- The functor of points of the fibre product of `X` with a scheme étale over `Y`. -/
-def etaleBaseChangeFunctorOfPoints {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (V : smallEtaleSite Y) : (Over S)ᵒᵖ ⥤ Type u :=
-  pullback (homFunctor f) (homFunctor V.hom)
-
-/-- The algebraic space `X ×_Y V` obtained by pulling back a scheme étale over `Y`. -/
-def etaleBaseChangeSpace {X Y : AlgebraicSpace S} (f : X ⟶ Y) (V : smallEtaleSite Y) :
-    AlgebraicSpace S :=
-  ofFunctor (etaleBaseChangeFunctorOfPoints f V) sorry sorry sorry
-
-/-- The first projection of the functor-of-points fibre product. -/
-def etaleBaseChangeFst {X Y : AlgebraicSpace S} (f : X ⟶ Y) (V : smallEtaleSite Y) :
-    etaleBaseChangeFunctorOfPoints f V ⟶ X.functorOfPoints :=
-  pullback.fst (homFunctor f) (homFunctor V.hom)
-
-/-- The second projection of the functor-of-points fibre product. -/
-def etaleBaseChangeSndNat {X Y : AlgebraicSpace S} (f : X ⟶ Y) (V : smallEtaleSite Y) :
-    etaleBaseChangeFunctorOfPoints f V ⟶ (ofOver V.left).functorOfPoints :=
-  pullback.snd (homFunctor f) (homFunctor V.hom)
-
-/-- The projection `X ×_Y V ⟶ X`. -/
-def etaleBaseChangeHom {X Y : AlgebraicSpace S} (f : X ⟶ Y) (V : smallEtaleSite Y) :
-    etaleBaseChangeSpace f V ⟶ X :=
-  etaleBaseChangeFst f V
-
-/-- The projection `X ×_Y V ⟶ V`. -/
-def etaleBaseChangeSnd {X Y : AlgebraicSpace S} (f : X ⟶ Y) (V : smallEtaleSite Y) :
-    etaleBaseChangeSpace f V ⟶ ofOver V.left :=
-  etaleBaseChangeSndNat f V
-
-/-- Base change of an étale morphism of a scheme along a morphism of algebraic spaces is étale. -/
-instance etaleBaseChangeHom_isEtale {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (V : smallEtaleSite Y) : Etale (etaleBaseChangeHom f V) :=
-  sorry
-
-/-- `X ×_Y V` as an object of the étale site of algebraic spaces over `X`. -/
-def etaleBaseChangeObj {X Y : AlgebraicSpace S} (f : X ⟶ Y) (V : smallEtaleSite Y) :
-    spacesEtaleSite X :=
-  MorphismProperty.Over.mk ⊤ (etaleBaseChangeHom f V) inferInstance
-
-/-- The functor-of-points map `X ×_Y V' ⟶ X ×_Y V` induced by a morphism `V' ⟶ V`. -/
-def etaleBaseChangeMapNat {X Y : AlgebraicSpace S} (f : X ⟶ Y) {V V' : smallEtaleSite Y}
-    (h : V' ⟶ V) :
-    etaleBaseChangeFunctorOfPoints f V' ⟶ etaleBaseChangeFunctorOfPoints f V :=
-  pullback.map (homFunctor f) (homFunctor V'.hom) (homFunctor f) (homFunctor V.hom)
-    (𝟙 X.functorOfPoints) (homFunctor (ofOverMap h.left)) (𝟙 Y.functorOfPoints) sorry sorry
-
-/-- A morphism of schemes étale over `Y` induces a morphism of fibre products over `X`. -/
-def etaleBaseChangeMap {X Y : AlgebraicSpace S} (f : X ⟶ Y) {V V' : smallEtaleSite Y}
-    (h : V' ⟶ V) : etaleBaseChangeObj f V' ⟶ etaleBaseChangeObj f V :=
-  MorphismProperty.Over.homMk (etaleBaseChangeMapNat f h) sorry
-
-/-- Functoriality of `X ×_Y V` in the scheme étale over `Y`. -/
-def etaleBaseChange {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    smallEtaleSite Y ⥤ spacesEtaleSite X where
-  obj := etaleBaseChangeObj f
-  map h := etaleBaseChangeMap f h
-  map_id := sorry
-  map_comp := sorry
-
-/-- The object map of `etaleBaseChange f` is the fibre product `X ×_Y V`. -/
-theorem etaleBaseChange_obj {X Y : AlgebraicSpace S} (f : X ⟶ Y) (V : smallEtaleSite Y) :
-    (etaleBaseChange f).obj V = etaleBaseChangeObj f V :=
-  rfl
-
-/-- Pullback of étale objects along `f` is continuous for the small étale topology of `Y` and the
-spaces étale topology of `X`. -/
-instance etaleBaseChange_isContinuous {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    (etaleBaseChange f).IsContinuous (smallEtaleTopology Y) (spacesEtaleTopology X) :=
-  sorry
-
-/-- The small étale inclusion is continuous, as required to present the extension of sheaves as
-a morphism of topoi. -/
-instance smallEtaleInclusion_isContinuous (X : AlgebraicSpace S) :
-    (smallEtaleInclusion X).IsContinuous (smallEtaleTopology X) (spacesEtaleTopology X) :=
-  sorry
-
-/-- Ring-valued sheaves on the small étale site of an algebraic space compose with the forgetful
-functor to types. -/
-instance smallEtaleTopology_hasSheafCompose_forget_ringCat (X : AlgebraicSpace S) :
-    (smallEtaleTopology X).HasSheafCompose (forget RingCat.{u}) :=
-  sorry
-
-/-- Ring-valued sheaves on the étale site of algebraic spaces over `X` compose with the forgetful
-functor to types. -/
-instance spacesEtaleTopology_hasSheafCompose_forget_ringCat (X : AlgebraicSpace S) :
-    (spacesEtaleTopology X).HasSheafCompose (forget RingCat.{u}) :=
-  sorry
-
 /-- Type-valued sheaves in universe `u` on the small étale site of `X` extend along
 `smallEtaleInclusion X` by a pointwise right Kan extension. -/
 instance smallEtaleInclusion_op_hasPointwiseRightKanExtension_type (X : AlgebraicSpace S)
@@ -152,68 +64,36 @@ instance forget_ringCat_preservesRightKanExtensions_smallEtaleInclusion (X : Alg
     (forget RingCat.{u}).PreservesRightKanExtensions (smallEtaleInclusion X).op :=
   sorry
 
-/-- Ring-valued direct image of the small étale structure sheaf along `f`, obtained by extending
-to the spaces étale site and evaluating at `X ×_Y V`. -/
-def ringPushforward {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    Sheaf (smallEtaleTopology X) RingCat.{u} ⥤ Sheaf (smallEtaleTopology Y) RingCat.{u} :=
-  (smallEtaleInclusion X).sheafPushforwardCocontinuous RingCat.{u}
-      (smallEtaleTopology X) (spacesEtaleTopology X) ⋙
-    (etaleBaseChange f).sheafPushforwardContinuous RingCat.{u}
-      (smallEtaleTopology Y) (spacesEtaleTopology X)
-
-/-- Type-valued direct image along `f`, obtained by extending a small étale sheaf to the spaces
-étale site and evaluating at `X ×_Y V`. -/
+/-- Type direct image uses restriction to small charts, genuine right Kan extension,
+and evaluation on the geometric fiber product. -/
 def typePushforward {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Sheaf (smallEtaleTopology X) (Type u) ⥤ Sheaf (smallEtaleTopology Y) (Type u) :=
-  (smallEtaleInclusion X).sheafPushforwardCocontinuous (Type u)
-      (smallEtaleTopology X) (spacesEtaleTopology X) ⋙
-    (etaleBaseChange f).sheafPushforwardContinuous (Type u)
-      (smallEtaleTopology Y) (spacesEtaleTopology X)
+  AlgebraicGeometry.AlgebraicSpace.EtaleTopos.directImage f
 
-/-- Direct image of type-valued sheaves along `f` is a right adjoint. -/
+/-- The constructed inverse-image functor and its actual adjunction witness right adjointness. -/
 instance typePushforward_isRightAdjoint {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     (typePushforward f).IsRightAdjoint :=
-  sorry
+  (AlgebraicGeometry.AlgebraicSpace.EtaleTopos.adjunction f).isRightAdjoint
 
-/-- Inverse image of type-valued sheaves along `f` is left exact. -/
+/-- The constructed geometric inverse image is left exact. -/
 instance typePushforward_leftAdjoint_preservesFiniteLimits {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) : PreservesFiniteLimits (typePushforward f).leftAdjoint :=
-  sorry
+    (f : X ⟶ Y) : PreservesFiniteLimits (typePushforward f).leftAdjoint := sorry
 
-/-- The morphism of small étale topoi associated to a morphism of algebraic spaces. -/
+/-- The canonical morphism of topoi stores the genuine inverse image, unit and counit. -/
 def morphismOfTopoi {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    MorphismOfTopoiIn (smallEtaleTopology Y) (smallEtaleTopology X) where
-  inverseImageFunctor := LeftExactFunctor.of (typePushforward f).leftAdjoint
-  pushforward := typePushforward f
-  adjunction := Adjunction.ofIsRightAdjoint (typePushforward f)
+    MorphismOfTopoiIn (smallEtaleTopology Y) (smallEtaleTopology X) :=
+  AlgebraicGeometry.AlgebraicSpace.EtaleRingedTopos.topos f
 
-/-- Forgetting rings commutes with direct image along `f`. -/
+/-- The canonical internal-ring lift of the genuine direct-image functor. -/
+def ringPushforward {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+    Sheaf (smallEtaleTopology X) RingCat.{u} ⥤ Sheaf (smallEtaleTopology Y) RingCat.{u} :=
+  AlgebraicGeometry.AlgebraicSpace.EtaleRingedTopos.ringPushforward f
+
+/-- Forgetting ring structure gives the specified type-valued direct image. -/
 def ringPushforwardForgetIso {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     ringPushforward f ⋙ sheafCompose (smallEtaleTopology Y) (forget RingCat.{u}) ≅
       sheafCompose (smallEtaleTopology X) (forget RingCat.{u}) ⋙ typePushforward f :=
-  let u := smallEtaleInclusion X
-  let v := etaleBaseChange f
-  let F := forget RingCat.{u}
-  let Ju := smallEtaleTopology X
-  let Ku := spacesEtaleTopology X
-  let Jv := smallEtaleTopology Y
-  (Functor.associator
-      (u.sheafPushforwardCocontinuous RingCat.{u} Ju Ku)
-      (v.sheafPushforwardContinuous RingCat.{u} Jv Ku)
-      (sheafCompose Jv F)) ≪≫
-    Functor.isoWhiskerLeft (u.sheafPushforwardCocontinuous RingCat.{u} Ju Ku)
-      (eqToIso (Functor.sheafPushforwardContinuous.compSheafCompose v F Jv Ku)) ≪≫
-    (Functor.associator
-        (u.sheafPushforwardCocontinuous RingCat.{u} Ju Ku)
-        (sheafCompose Ku F)
-        (v.sheafPushforwardContinuous (Type u) Jv Ku)).symm ≪≫
-    Functor.isoWhiskerRight
-      (Functor.sheafPushforwardCocontinuous.compSheafComposeIso u F Ju Ku)
-      (v.sheafPushforwardContinuous (Type u) Jv Ku) ≪≫
-    Functor.associator
-      (sheafCompose Ju F)
-      (u.sheafPushforwardCocontinuous (Type u) Ju Ku)
-      (v.sheafPushforwardContinuous (Type u) Jv Ku)
+  AlgebraicGeometry.AlgebraicSpace.EtaleRingedTopos.forgetIso f
 
 /-- The component of `f^♯` on an étale square is pullback of global sections along the
 underlying scheme morphism. -/
@@ -245,16 +125,12 @@ def structureSheafMapCone {X Y : AlgebraicSpace S} (f : X ⟶ Y) (V : smallEtale
 def structureSheafMap_app {X Y : AlgebraicSpace S} (f : X ⟶ Y) (V : (smallEtaleSite Y)ᵒᵖ) :
     (structureSheaf Y).obj.obj V ⟶
       ((ringPushforward f).obj (structureSheaf X)).obj.obj V :=
-  limit.lift _ (structureSheafMapCone f V.unop) ≫
-    ((smallEtaleInclusion X).op.ranObjObjIsoLimit (structureSheaf X).obj
-        (op ((etaleBaseChange f).obj V.unop))).inv
+  (AlgebraicGeometry.AlgebraicSpace.EtaleRingedTopos.structureMap f).hom.app V
 
 /-- The direct-image form of `f^♯`, as a morphism of ring sheaves on `Y_étale`. -/
 def structureSheafMap {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     structureSheaf Y ⟶ (ringPushforward f).obj (structureSheaf X) :=
-  InducedCategory.homMk
-    { app := fun V => structureSheafMap_app f V
-      naturality := fun _ _ _ => sorry }
+  AlgebraicGeometry.AlgebraicSpace.EtaleRingedTopos.structureMap f
 
 /-- The direct-image structure map is compatible with the canonical internal-ring operations. -/
 theorem structureSheafMap_isRingCompatible {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
@@ -266,14 +142,37 @@ theorem structureSheafMap_isRingCompatible {X Y : AlgebraicSpace S} (f : X ⟶ Y
 /-- The morphism of small étale ringed topoi associated to a morphism of algebraic spaces. -/
 def ringedToposHom {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     RingedSite.ToposHom (ringedSite X) (ringedSite Y) :=
-  @RingedSite.ToposHom.ofDirectImage (ringedSite X) (ringedSite Y) _ _
-    (morphismOfTopoi f) (ringPushforward f) (ringPushforwardForgetIso f)
-    (structureSheafMap f) (structureSheafMap_isRingCompatible f)
+  AlgebraicGeometry.AlgebraicSpace.EtaleRingedTopos.ringedHom f
 
-/-- Restriction of scalars along the inverse-image structure map of `f` is a right adjoint. -/
+/-- Inverse image preserves commutativity of the existing structure-ring multiplication. -/
+theorem inverseStructureRing_mul_comm {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (U : (smallEtaleSite X)ᵒᵖ)
+    (x y : ((ringedToposHom f).toTopos.ringInverseImage.obj (structureSheaf Y)).obj.obj U) :
+    x * y = y * x := sorry
+
+/-- The target structure-ring multiplication is the original multiplication of global sections. -/
+theorem structureRing_mul_comm {X : AlgebraicSpace S} (U : (smallEtaleSite X)ᵒᵖ)
+    (x y : (structureSheaf X).obj.obj U) : x * y = y * x :=
+  @mul_comm Γ(U.unop.left.left, ⊤) _ x y
+
+/-- The scalar adjunction comes from actual sectionwise tensors and local scheme sheafification. -/
+def structureMapScalarAdjunction {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+    -- Local instance justification (defeq pin): the tensor functor must use the explicit chartwise sheafification adjunction also selected in the body.
+    letI : HasWeakSheafify (smallEtaleTopology X) AddCommGrpCat.{u} :=
+      (AlgebraicGeometry.AlgebraicSpace.SmallEtale.Sheafification.adjunction (X := X) AddCommGrpCat.{u}).isRightAdjoint
+    SheafOfModules.TensorScalarExtension.functor (ringedToposHom f).structureMap
+      (inverseStructureRing_mul_comm f) (structureRing_mul_comm (X := X)) ⊣
+        SheafOfModules.restrictScalars (ringedToposHom f).structureMap :=
+  -- Local instance justification (defeq pin): match the chartwise sheafification witness in the result type so its actual tensor unit and counit are retained.
+  letI : HasWeakSheafify (smallEtaleTopology X) AddCommGrpCat.{u} :=
+    (AlgebraicGeometry.AlgebraicSpace.SmallEtale.Sheafification.adjunction (X := X) AddCommGrpCat.{u}).isRightAdjoint
+  SheafOfModules.TensorScalarExtension.adjunction (ringedToposHom f).structureMap
+    (inverseStructureRing_mul_comm f) (structureRing_mul_comm (X := X))
+
+/-- Restriction of scalars is right adjoint to the specified tensor/sheafification functor. -/
 instance restrictScalars_structureMap_isRightAdjoint {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     (SheafOfModules.restrictScalars.{u} (ringedToposHom f).structureMap).IsRightAdjoint :=
-  sorry
+  (structureMapScalarAdjunction f).isRightAdjoint
 
 namespace Modules
 
@@ -287,6 +186,12 @@ associated morphism of ringed topoi. -/
 theorem pullback_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     pullback f = (ringedToposHom f).modulePullback :=
   rfl
+
+/-- Comparison with the abstract ringed-topos pullback. The scalar adjoint is already
+the specified tensor/sheafification adjoint, so this presentation uses identity maps. -/
+def pullbackIsoTopos {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+    pullback f ≅ (ringedToposHom f).modulePullback :=
+  Iso.refl _
 
 /-- Quasi-coherence as an object property is preserved by module pullback. -/
 theorem pullback_quasiCoherentModuleProperty {X Y : AlgebraicSpace S} (f : X ⟶ Y)

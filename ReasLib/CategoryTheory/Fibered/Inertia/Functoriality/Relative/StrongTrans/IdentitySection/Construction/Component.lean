@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Fibered.Inertia.Functoriality.Relative.Pseudofunctor.Construction
@@ -75,13 +81,14 @@ theorem component.naturality (f : S ⟶ T)
       (Pseudofunctor.id (BasedCategory.{vS, max w vS} C))
       (Pseudofunctor.id (BasedCategory.{vS, max w vS} C))).obj S).obj}
     (g : x ⟶ y) :
-    ((Bicategory.PseudoComma.fst
+    let L := ((Bicategory.PseudoComma.fst
       (Pseudofunctor.id (BasedCategory.{vS, max w vS} C))
       (Pseudofunctor.id (BasedCategory.{vS, max w vS} C))).map f ≫
-        RelativeInertia.identitySection T.hom).map g ≫ (component f y).hom =
-      (component f x).hom ≫
-        (RelativeInertia.identitySection S.hom ≫
-          (pseudofunctor C).map f).map g := sorry
+        RelativeInertia.identitySection T.hom).toFunctor
+    let R := (RelativeInertia.identitySection S.hom ≫
+      (pseudofunctor C).map f).toFunctor
+    let e : ∀ z, L.obj z ≅ R.obj z := component f
+    L.map g ≫ (e y).hom = (e x).hom ≫ R.map g := sorry
 
 /-- The inverse pseudo-comma identity-section comparison components are natural in left-endpoint
 morphisms. -/
@@ -91,14 +98,14 @@ theorem component.invNaturality (f : S ⟶ T)
       (Pseudofunctor.id (BasedCategory.{vS, max w vS} C))
       (Pseudofunctor.id (BasedCategory.{vS, max w vS} C))).obj S).obj}
     (g : x ⟶ y) :
-    (component f x).inv ≫
-        ((Bicategory.PseudoComma.fst
-          (Pseudofunctor.id (BasedCategory.{vS, max w vS} C))
-          (Pseudofunctor.id (BasedCategory.{vS, max w vS} C))).map f ≫
-          RelativeInertia.identitySection T.hom).map g =
-      (RelativeInertia.identitySection S.hom ≫
-          (pseudofunctor C).map f).map g ≫
-        (component f y).inv := sorry
+    let L := ((Bicategory.PseudoComma.fst
+      (Pseudofunctor.id (BasedCategory.{vS, max w vS} C))
+      (Pseudofunctor.id (BasedCategory.{vS, max w vS} C))).map f ≫
+        RelativeInertia.identitySection T.hom).toFunctor
+    let R := (RelativeInertia.identitySection S.hom ≫
+      (pseudofunctor C).map f).toFunctor
+    let e : ∀ z, L.obj z ≅ R.obj z := component f
+    (e x).inv ≫ L.map g = R.map g ≫ (e y).inv := sorry
 
 /-- Every identity-section comparison is vertical over the pseudo-comma base. -/
 @[stacks 04Z3 "relative-inertia identity-section component verticality"]

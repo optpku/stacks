@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Sites.Limits
@@ -98,8 +104,9 @@ def commRingPushforwardAssocCounitCone {T T' X : AlgebraicSpace S} (a : T' ⟶ T
     ((commRingPushforward (a ≫ f)).obj (commRingStructureSheaf T')).obj.obj (op W)
   π :=
     { app := fun α ↦
-        ((smallEtaleInclusion T').op.ran.obj (commRingStructureSheaf T').obj).map
-          (op (commRingPushforwardAssocStructuredArrowHom a f W α))
+        ((commRingPushforwardComp a f).inv.app (commRingStructureSheaf T')).hom.app (op W) ≫
+          commRingPushforwardEvaluation f ((commRingPushforward a).obj (commRingStructureSheaf T'))
+            α.hom.unop
       naturality := fun _ _ _ ↦ sorry }
 
 /-- The Kan-counit comparison `(a ≫ f)_* 𝒪_{T'} ⟶ f_* (a_* 𝒪_{T'})`. -/
@@ -108,18 +115,12 @@ def commRingPushforwardAssocCounit {T T' X : AlgebraicSpace S} (a : T' ⟶ T)
     (commRingPushforward (a ≫ f)).obj (commRingStructureSheaf T') ⟶
       (commRingPushforward f).obj
         ((commRingPushforward a).obj (commRingStructureSheaf T')) :=
-  InducedCategory.homMk
-    { app := fun W ↦
-        limit.lift _ (commRingPushforwardAssocCounitCone a f W.unop) ≫
-          ((smallEtaleInclusion T).op.ranObjObjIsoLimit
-              ((commRingPushforward a).obj (commRingStructureSheaf T')).obj
-              (op ((etaleBaseChange f).obj W.unop))).inv
-      naturality := fun _ _ _ ↦ sorry }
+  (commRingPushforwardComp a f).inv.app (commRingStructureSheaf T')
 
 /-- The Kan-counit comparison is an isomorphism of commutative-ring sheaves. -/
 instance commRingPushforwardAssocCounit_isIso {T T' X : AlgebraicSpace S}
     (a : T' ⟶ T) (f : T ⟶ X) : IsIso (commRingPushforwardAssocCounit a f) :=
-  sorry
+  inferInstanceAs (IsIso ((commRingPushforwardComp a f).inv.app (commRingStructureSheaf T')))
 
 /-- Comparison `f_* (a_* 𝒪_{T'}) ⟶ (a ≫ f)_* 𝒪_{T'}` obtained by inverting the
 Kan-counit associator. -/
@@ -127,13 +128,14 @@ def commRingPushforwardAssoc {T T' X : AlgebraicSpace S} (a : T' ⟶ T) (f : T �
     (commRingPushforward f).obj
         ((commRingPushforward a).obj (commRingStructureSheaf T')) ⟶
       (commRingPushforward (a ≫ f)).obj (commRingStructureSheaf T') :=
-  inv (commRingPushforwardAssocCounit a f)
+  (commRingPushforwardComp a f).hom.app (commRingStructureSheaf T')
 
 /-- `commRingPushforwardAssoc` is the inverse of the Kan-counit comparison. -/
 theorem commRingPushforwardAssoc_eq {T T' X : AlgebraicSpace S} (a : T' ⟶ T)
     (f : T ⟶ X) :
-    commRingPushforwardAssoc a f = inv (commRingPushforwardAssocCounit a f) :=
-  rfl
+    commRingPushforwardAssoc a f = inv (commRingPushforwardAssocCounit a f) := by
+  apply IsIso.eq_inv_of_hom_inv_id
+  exact ((commRingPushforwardComp a f).app (commRingStructureSheaf T')).inv_hom_id
 
 /-- The `𝒪_Y`-algebra map `f_* 𝒪_X ⟶ (g ≫ f)_* 𝒪_Z` induced by precomposition
 with `g`. -/

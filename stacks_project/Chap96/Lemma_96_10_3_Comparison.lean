@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Elements
@@ -357,8 +363,7 @@ def compareMorphismIso_leftEval (𝒢 : Sheaf X.etaleTopology (Type u))
 /-- The spaces-étale extension of `π_{F,*} 𝒢` used by `f_small,*`. -/
 abbrev compareSmallExtendedOver (𝒢 : Sheaf X.etaleTopology (Type u)) :
     Sheaf (AlgebraicSpace.spacesEtaleTopology F) (Type u) :=
-  ((AlgebraicSpace.smallEtaleInclusion F).sheafPushforwardCocontinuous (Type u)
-      (AlgebraicSpace.smallEtaleTopology F) (AlgebraicSpace.spacesEtaleTopology F)).obj
+  (AlgebraicSpace.EtaleTopos.extension F).obj
     ((piToposHom F X eX).toTopos.pushforward.obj 𝒢)
 
 /-- Evaluation of `f_small,* π_{F,*} 𝒢` at `V` recovers the small-étale Kan limit. -/
@@ -368,12 +373,10 @@ def compareMorphismIso_rightEval (𝒢 : Sheaf X.etaleTopology (Type u))
       ((RingedSite.ToposHom.comp (piToposHom F X eX)
             (AlgebraicSpace.ringedToposHom (inducedHom eX eY f))).toTopos.pushforward.obj
         𝒢).obj.obj (op V) :=
-  ((AlgebraicSpace.smallEtaleInclusion F).op.ranObjObjIsoLimit
-      ((piToposHom F X eX).toTopos.pushforward.obj 𝒢).obj
-      (op ((AlgebraicSpace.etaleBaseChange (inducedHom eX eY f)).obj V))).symm ≪≫
-    (sheafPushforwardContinuousObjObjIso
-        (AlgebraicSpace.etaleBaseChange (inducedHom eX eY f)) (Type u)
-        (compareSmallExtendedOver eX 𝒢) V).symm
+  ((AlgebraicSpace.EtaleTopos.allChartIsLimit F
+      ((piToposHom F X eX).toTopos.pushforward.obj 𝒢)
+      ((AlgebraicSpace.etaleBaseChange (inducedHom eX eY f)).obj V)).conePointUniqueUpToIso
+    (limit.isLimit (compareSmallDiagOver eX eY f 𝒢 V))).symm
 
 /-- Sectionwise identification of `π_{G,*} f_* 𝒢` with `f_small,* π_{F,*} 𝒢`. -/
 def compareMorphismIso_app (𝒢 : Sheaf X.etaleTopology (Type u))

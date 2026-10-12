@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Topology.KrullDimension
@@ -35,6 +41,12 @@ class Curve (X : Over (Spec (CommRingCat.of k))) : Prop extends Variety X where
 instance instVarietyOfCurve (X : Over (Spec (CommRingCat.of k))) [h : Curve X] :
     Variety X :=
   h.toVariety
+
+/-- A variety of topological Krull dimension one is a curve over its field. -/
+instance instCurveOfFact (V : Over (Spec (CommRingCat.of k))) [Variety V]
+    [Fact (topologicalKrullDim V.left = 1)] : Curve V where
+  toVariety := inferInstance
+  topologicalKrullDim_eq_one := Fact.out
 
 /-- The underlying scheme of a curve has topological Krull dimension `1`. -/
 @[stacks 0A23]

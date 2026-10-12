@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap03.Lemma_3_11_1_Cardinal
@@ -18,25 +24,40 @@ namespace CategoryTheory.Precoverage
 
 variable {C : Type u} [Category.{v} C]
 
-/-- Lemma 3.11.1. Given a site precoverage `J` and a set `Cov0` of `J`-covering families
-whose index cardinals are bounded by a cardinal `μ`, there exists a cardinal `κ` such
-that every family in `Cov0` remains covering for `J.restrictCardinalLE κ` with index
-cardinality at most `κ`, this truncation is a site, and every `J`-covering is
-combinatorially equivalent to a covering of the truncation.
-The source's limit ordinal α is omitted as a rank cut: Lean presieves are already sets.
-The seed bound `μ` records that a ZFC set of families has a supremum of index cardinals. -/
+/-- A rank-aware truncation models the source's `Cov(C)_{κ, α}`: `rank` is the
+set-coded rank of a covering presieve, while `κ` bounds its raw indexed support. -/
+def restrictCardinalRankLE (J : Precoverage C)
+    (rank : ∀ {X : C}, Presieve X → Ordinal.{max u v w})
+    (κ : Cardinal.{max u v w}) (α : Ordinal.{max u v w}) : Precoverage C where
+  coverings X :=
+    {R | R ∈ J X ∧ rank R < α ∧
+      Cardinal.lift.{max u v w} #(R.uncurry) ≤ Cardinal.lift.{max u v} κ}
+
+/-- Membership in the cardinal-and-rank truncation is its ambient covering,
+rank, and raw-support conditions. -/
+theorem mem_restrictCardinalRankLE_iff (J : Precoverage C)
+    (rank : ∀ {X : C}, Presieve X → Ordinal.{max u v w})
+    (κ : Cardinal.{max u v w}) (α : Ordinal.{max u v w})
+    {X : C} {R : Presieve X} :
+    R ∈ J.restrictCardinalRankLE rank κ α X ↔
+      R ∈ J X ∧ rank R < α ∧
+        Cardinal.lift.{max u v w} #(R.uncurry) ≤ Cardinal.lift.{max u v} κ := by
+  rfl
+
+/-- Lemma 3.11.1. A set of covering families in a site is contained in a
+cardinal- and limit-ordinal-bounded subsite, and every ambient covering is
+combinatorially equivalent to one in that subsite. -/
 @[stacks 000X]
 theorem exists_cardinalLE_site (J : Precoverage C) [J.IsSite]
+    (rank : ∀ {X : C}, Presieve X → Ordinal.{max u v w})
     (Cov0 : Set (Σ X : C, SemiRepresentableFamily.Over.{w} X))
-    (hCov0 : ∀ 𝒰 ∈ Cov0, IsCovering J 𝒰.2)
-    (μ : Cardinal.{max u v w})
-    (hμ : ∀ 𝒰 ∈ Cov0, Cardinal.lift.{max u v w} #(𝒰.2.index) ≤ Cardinal.lift.{w} μ) :
-    ∃ κ : Cardinal.{max u v w},
+    (hCov0 : ∀ 𝒰 ∈ Cov0, IsCovering J 𝒰.2) :
+    ∃ κ : Cardinal.{max u v w}, ∃ α : Ordinal.{max u v w}, Order.IsSuccLimit α ∧
       (∀ 𝒰 ∈ Cov0,
-        IsCovering (J.restrictCardinalLE κ) 𝒰.2 ∧
+        IsCovering (J.restrictCardinalRankLE rank κ α) 𝒰.2 ∧
           Cardinal.lift.{max u v w} #(𝒰.2.index) ≤ Cardinal.lift.{w} κ) ∧
-      (J.restrictCardinalLE κ).IsSite ∧
-      J.coversUpToCombinatorialEquivalence (J.restrictCardinalLE κ) :=
+      (J.restrictCardinalRankLE rank κ α).IsSite ∧
+      J.coversUpToCombinatorialEquivalence (J.restrictCardinalRankLE rank κ α) :=
   sorry
 
 /-- A sub-precoverage seed is contained in some infinite-cardinal site truncation of `J`

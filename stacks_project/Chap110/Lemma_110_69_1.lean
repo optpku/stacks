@@ -1,13 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.Algebra.Homology.DifferentialGradedModule.Derived.FromModules
-public import ReasLib.Algebra.Homology.DifferentialGradedModule.Graded.FiniteProjective
-public import ReasLib.CategoryTheory.Preadditive.CompactObject
-
-/-!
-# A compact object not represented by a finite graded-projective DG module
--/
+public import ReasLib.Algebra.Homology.DifferentialGradedModule.Derived.Compact.NonRepresentable
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -19,28 +19,15 @@ open CategoryTheory
 
 namespace DifferentialGradedModule.Derived
 
-/-- Lemma 110.69.1: there exists a cochain DG algebra `(A, d)` and a compact
+/- Lemma 110.69.1: there exists a cochain DG algebra `(A, d)` and a compact
 object `E` of `D(A, d)` that is not isomorphic in `D(A, d)` to the image of any
 finite graded-projective DG `A`-module. -/
-@[stacks 09R5]
-theorem exists_compactObject_not_iso_finiteGradedProjective :
+@[stacks 09R5] #check (DifferentialGradedModule.Derived.exists_compactObject_not_iso_finiteGradedProjective :
     ∃ (R : Type u) (_ : CommRing R) (A : CochainDGAlgebra.{u, v} R)
       (E : Category.{u, v} A),
       IsCompactObject E ∧
         ¬ ∃ (P : DifferentialGradedModule.{u, v} A),
             IsFiniteGradedProjective A P ∧
-              Nonempty ((fromModules A).obj P ≅ E) :=
-  sorry
-
-/-- Compact objects of `D(A, d)` need not be represented by finite
-graded-projective DG `A`-modules. -/
-theorem not_forall_isCompactObject_iso_finiteGradedProjective :
-    ¬ ∀ (R : Type u) [CommRing R] (A : CochainDGAlgebra.{u, v} R)
-        (E : Category.{u, v} A),
-      IsCompactObject E →
-        ∃ (P : DifferentialGradedModule.{u, v} A),
-          IsFiniteGradedProjective A P ∧
-            Nonempty ((fromModules A).obj P ≅ E) :=
-  sorry
+              Nonempty ((fromModules A).obj P ≅ E))
 
 end DifferentialGradedModule.Derived

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap65.Definition_65_13_2_Separation
@@ -38,7 +44,7 @@ noncomputable def cycleFlatPullback {S : Scheme.{u}} {B X Y : AlgebraicSpace S}
     (δ : Points B → ℤ) [IsDimensionFunction δ]
     (f : X ⟶ Y) (r : ℕ) [Flat f] [RelativeDimension f r]
     (hf : f ≫ pY = pX) (k : ℤ) :
-    pY.cycleGroup δ k →+ pX.cycleGroup δ (k + (r : ℤ)) :=
+    cycleGroup pY δ k →+ cycleGroup pX δ (k + (r : ℤ)) :=
   flatPullbackHom pY pX δ f r hf k
 
 /-- Cycle-level flat pullback sends the zero cycle to zero. -/

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.RingTheory.Length
@@ -25,12 +31,12 @@ namespace Ideal
 variable {R : Type u} [CommRing R]
 variable (I : Ideal R) (M : Type v) [AddCommGroup M] [Module R M]
 
-/-- Definition 10.59.1 (Tag 07DU): the length of `M / I^(n+1)M`. -/
+/-- The length of `M / I^(n+1)M`. -/
 @[stacks 07DU "Hilbert-Samuel chi function"]
 noncomputable def hilbertSamuelChi (n : ℕ) : ℕ∞ :=
   Module.length R (M ⧸ (I ^ (n + 1) • ⊤ : Submodule R M))
 
-/-- Definition 10.59.1 (Tag 07DU): the length of the graded quotient `I^n M / I^(n+1)M`. -/
+/-- The length of the graded quotient `I^n M / I^(n+1)M`. -/
 @[stacks 07DU "Hilbert-Samuel phi function"]
 noncomputable def hilbertSamuelPhi (n : ℕ) : ℕ∞ :=
   Module.length R

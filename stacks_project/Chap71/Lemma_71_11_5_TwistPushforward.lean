@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap71.Lemma_71_11_5_TwistDescent
@@ -50,14 +56,13 @@ instance directImageDiagram_hasLimit (U : smallEtaleSite P) :
 def directImageAtGraph (U : smallEtaleSite P) (V : affineEtaleSite Q)
     (j : AffineGraph k U V)
     (x : ((Modules.pushforward k).obj M).val.obj (op U)) : M.val.obj (op V.obj) :=
+  let underlying :=
+    (((ModulePushforward.forgetIso (ringedToposHom k)).hom.app M).hom.app (op U))
+      (ToInternal.sectionEquiv (structureSheaf P)
+        ((Modules.pushforward k).obj M) (op U) x)
   (ToInternal.sectionEquiv (structureSheaf Q) M (op V.obj)).symm
-    ((limit.π (directImageDiagram k M U) (StructuredArrow.mk (Y := op V.obj) (op j)))
-      (((smallEtaleInclusion Q).op.ranObjObjIsoLimit
-          ((ToInternal.underlying (structureSheaf Q)).obj M).obj
-          (op ((etaleBaseChange k).obj U))).hom
-        ((((ModulePushforward.forgetIso (ringedToposHom k)).hom.app M).hom.app (op U))
-          (ToInternal.sectionEquiv (structureSheaf P)
-            ((Modules.pushforward k).obj M) (op U) x))))
+    (EtaleTopos.extensionEvaluation Q
+      ((ToInternal.underlying (structureSheaf Q)).obj M) j underlying)
 
 /-- The actual restriction function from direct-image sections to matching families. -/
 def directImageMatching (U : smallEtaleSite P)

@@ -1,7 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.IrreducibleComponent.Multiplicity
-public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -11,16 +17,15 @@ universe u
 
 namespace AlgebraicGeometry.Scheme
 
-/-- Lemma 107.3.2: if `f : U ⟶ X` is a smooth morphism of locally Noetherian schemes,
+/- Lemma 107.3.2: if `f : U ⟶ X` is a smooth morphism of locally Noetherian schemes,
 `T'` is an irreducible component of `U`, and `T` is the irreducible component of `X`
-equal to the closure of the image of `T'`, then
-`U.irreducibleComponentMultiplicity T'` equals `X.irreducibleComponentMultiplicity T`. -/
-@[stacks 0DR6]
-theorem Hom.irreducibleComponentMultiplicity_eq_of_smooth
-    {U X : Scheme.{u}} [IsLocallyNoetherian U] [IsLocallyNoetherian X]
-    (f : U ⟶ X) [Smooth f] (T' : irreducibleComponents U)
-    (T : irreducibleComponents X)
-    (hT : closure (Set.image f.base (T' : Set U)) = (T : Set X)) :
-    U.irreducibleComponentMultiplicity T' = X.irreducibleComponentMultiplicity T := sorry
+equal to the closure of the image of `T'`, then their multiplicities agree. -/
+@[stacks 0DR6] #check
+  (AlgebraicGeometry.Scheme.Hom.irreducibleComponentMultiplicity_eq_of_smooth :
+    ∀ {U X : Scheme.{u}} [IsLocallyNoetherian U] [IsLocallyNoetherian X]
+      (f : U ⟶ X) [Smooth f] (T' : irreducibleComponents U)
+      (T : irreducibleComponents X),
+      closure (Set.image f.base (T' : Set U)) = (T : Set X) →
+        U.irreducibleComponentMultiplicity T' = X.irreducibleComponentMultiplicity T)
 
 end AlgebraicGeometry.Scheme

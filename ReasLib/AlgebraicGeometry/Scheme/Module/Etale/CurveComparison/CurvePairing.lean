@@ -1,5 +1,11 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.CurveDuality
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.CompactIntrinsicHomComparison
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommIdentityCompactification
 
 @[expose] public section
@@ -8,7 +14,7 @@ open AlgebraicGeometry AlgebraicGeometry.Scheme AlgebraicGeometry.SchemeOverFiel
 noncomputable section
 universe u
 
-namespace SourceFaithful03VN
+namespace AlgebraicGeometry.SchemeOverField.CurveDuality
 variable {k : Type u} [Field k]
 variable (R : Type (u + 1)) [Ring R] [Finite R]
 variable (X : SchemeOverField k) [Curve X] [Smooth X.hom] [GeometricallyConnected X.hom]
@@ -75,7 +81,6 @@ variable [∀ U : (geometricBaseChange X).Etale,
   HasWeakSheafify ((geometricBaseChange X).smallEtaleTopology.over U) (ModuleCat.{u + 1} Rᵐᵒᵖ)]
 variable [HasDerivedCategory (ModuleCat.{u + 1}
   (NoncommCompletedRing.Obj Rᵐᵒᵖᵐᵒᵖ (NoncommResidualSectionsComparison.Q X η)))]
-variable (hne : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
 variable [∀ Y : Scheme.{u}, HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} R))]
 variable [∀ Y : Scheme.{u}, EnoughInjectives (Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} R))]
 variable [∀ U : (geometricBaseChange X).Etale,
@@ -83,16 +88,13 @@ variable [∀ U : (geometricBaseChange X).Etale,
 variable [HasDerivedCategory (DiscreteModuleCat R (NoncommResidualSectionsComparison.Γ X η))]
 variable [HasDerivedCategory (DiscreteModuleCat R (NoncommResidualSectionsComparison.Q X η))]
 
-/-- The actual trace pairing on the published finite sheaf and its intrinsic
-right dual (canonically identified with the finite character/Tate coefficient). -/
-def compactSupportPairing (i : ℤ) := CompactIntrinsicHomComparison.tracePairing R X η P hR M i
-
 /-- Perfection belongs to the explicitly constructed geometric trace pairing,
 with opposite handedness retained throughout the noncommutative coefficient chain. -/
-@[stacks 03VN]
-theorem compactSupportPairing_bijective (i : ℤ) :
-    Function.Bijective (compactSupportPairing R X η P hR M i) :=
-  CompactIntrinsicHomComparison.tracePairing_bijective R X η P hR M i
+theorem compactSupportPairing_bijective
+    (hne : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
+    (i : ℤ) :
+    Function.Bijective (CompactIntrinsicHomComparison.tracePairing R X η P hR M i) :=
+  CompactIntrinsicHomComparison.tracePairing_bijective R X η P hR M hne i
 
 variable [Projective X.hom]
 
@@ -123,9 +125,9 @@ def projectivePairing (i : ℤ) :
     (NoncommIdentityCompactification.object X) hR M i).comp
       (identityHomologyIso R X η M (2 - i)).inv.hom.toAddMonoidHom
 
-/-- Source 03VN's projective corollary for the specified ordinary pairing. -/
-@[stacks 03VN]
-theorem projectivePairing_bijective (i : ℤ) :
-    Function.Bijective (projectivePairing R X η hR M i) := by sorry
+/-- Perfection of the projective pairing obtained from identity compactification. -/
+theorem projectivePairing_bijective
+    (hne : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
+    (i : ℤ) : Function.Bijective (projectivePairing R X η hR M i) := sorry
 
-end SourceFaithful03VN
+end AlgebraicGeometry.SchemeOverField.CurveDuality

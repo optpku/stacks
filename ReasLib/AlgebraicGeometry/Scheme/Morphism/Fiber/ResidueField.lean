@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.AlgebraicGeometry.Fiber
+public import Mathlib.AlgebraicGeometry.Morphisms.FiniteType
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.ResidueField
 
 /-!
@@ -13,7 +20,7 @@ depends on the fibre construction, while the general morphism API remains in
 
 @[expose] public section
 
-open AlgebraicGeometry CategoryTheory
+open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
 
 noncomputable section
 
@@ -28,4 +35,19 @@ noncomputable instance fiberResidueFieldAlgebra
     Algebra (S.residueField s) ((f.fiber s).residueField x) :=
   ResidueField.algebraOfSpec (f.fiberToSpecResidueField s) x
 
+/-- The structure morphism of a scheme-theoretic fibre is locally of finite type
+when the ambient morphism is. -/
+instance instLocallyOfFiniteType_fiberToSpecResidueField
+    {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] (s : S) :
+    LocallyOfFiniteType (f.fiberToSpecResidueField s) :=
+  inferInstanceAs (LocallyOfFiniteType (pullback.snd f (S.fromSpecResidueField s)))
+
 end AlgebraicGeometry.Scheme.Hom
+
+namespace AlgebraicGeometry.Scheme
+
+/-- The spectrum of the residue field of any scheme point is `T₁`. -/
+instance instT1Space_specResidueField {X : Scheme.{u}} (x : X) :
+    T1Space (Spec (X.residueField x)) := sorry
+
+end AlgebraicGeometry.Scheme

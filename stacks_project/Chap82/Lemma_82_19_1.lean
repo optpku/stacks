@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Topology.LocallyFinite
@@ -70,6 +76,21 @@ instance instPullbacksMeromorphicFunctionsDefined_flatComponent
     PullbacksMeromorphicFunctionsDefined ((flatComponent pX η).ι ≫ f) :=
   sorry
 
+/-- The canonical irreducible component of `X` on a generic point is integral. -/
+instance instIsIntegral_flatComponent {S : Scheme.{u}} {B X : AlgebraicSpace S}
+    [IsQuasiSeparated B] (pX : X ⟶ B) [QuasiSeparated pX]
+    (η : genericPoints X) : IsIntegral (flatComponent pX η).X :=
+  isIntegral_flatComponent pX η
+
+/-- Pullback of an invertible module along the restriction of a morphism to an
+irreducible component remains invertible. -/
+instance instIsInvertibleObject_pullback_flatComponent {S : Scheme.{u}}
+    {B X Y : AlgebraicSpace S} [IsQuasiSeparated B]
+    (pX : X ⟶ B) [QuasiSeparated pX]
+    (f : X ⟶ Y) (L : Y.Modules) [isInvertibleObject L] (η : genericPoints X) :
+    isInvertibleObject ((Modules.pullback ((flatComponent pX η).ι ≫ f)).obj L) :=
+  Modules.isInvertibleObject_pullback ((flatComponent pX η).ι ≫ f) L
+
 /-- The pullback `s_i = f|_{X_i}^*(s)` of a meromorphic section of `L` to an
 irreducible component of the source. -/
 noncomputable def meromorphicSectionPullbackToFlatComponent {S : Scheme.{u}}
@@ -109,16 +130,10 @@ noncomputable def flatComponentMeromorphicDivisor {S : Scheme.{u}}
     (s : meromorphicSections Y L) (hs : IsRegularMeromorphicSection Y L s)
     (η : genericPoints X) :
     Function.locallyFinsupp (Points X) ℤ :=
-  let _ := pY
-  let _ := hf
   (@ClosedSubspace.componentMultiplicity S X
       (LocallyOfFiniteType.isLocallyNoetherian pX) (ClosedSubspace.id X) η : ℤ) •
     closedImmersionPushforwardCycle (flatComponent pX η)
-      (@meromorphicSectionDivisorCycle S B (flatComponent pX η).X
-        inferInstance inferInstance ((flatComponent pX η).ι ≫ pX)
-        inferInstance inferInstance δ inferInstance (isIntegral_flatComponent pX η)
-        ((Modules.pullback ((flatComponent pX η).ι ≫ f)).obj L)
-        (Modules.isInvertibleObject_pullback ((flatComponent pX η).ι ≫ f) L)
+      (meromorphicSectionDivisorCycle ((flatComponent pX η).ι ≫ pX) δ
         (meromorphicSectionPullbackToFlatComponent pX f r L s η)
         (isRegularMeromorphicSection_flatComponent pX f r L s hs η))
 
@@ -139,12 +154,7 @@ theorem flatComponentMeromorphicDivisor_eq {S : Scheme.{u}}
           (LocallyOfFiniteType.isLocallyNoetherian pX)
           (ClosedSubspace.id X) η : ℤ) •
         closedImmersionPushforwardCycle (flatComponent pX η)
-          (@meromorphicSectionDivisorCycle S B (flatComponent pX η).X
-            inferInstance inferInstance ((flatComponent pX η).ι ≫ pX)
-            inferInstance inferInstance δ inferInstance
-            (isIntegral_flatComponent pX η)
-            ((Modules.pullback ((flatComponent pX η).ι ≫ f)).obj L)
-            (Modules.isInvertibleObject_pullback ((flatComponent pX η).ι ≫ f) L)
+          (meromorphicSectionDivisorCycle ((flatComponent pX η).ι ≫ pX) δ
             (meromorphicSectionPullbackToFlatComponent pX f r L s η)
             (isRegularMeromorphicSection_flatComponent pX f r L s hs η)) :=
   sorry
@@ -191,9 +201,8 @@ theorem flatPullback_meromorphicSectionDivisor {S : Scheme.{u}}
         (locallyFinite_flatComponentMeromorphicDivisor pY pX δ f r hf L s hs) :=
   sorry
 
-/-- Both sides of the meromorphic-section divisor pullback identity are
-`(n + r - 1)`-cycles on `X`. -/
-theorem flatPullback_meromorphicSectionDivisor_mem {S : Scheme.{u}}
+/-- The flat pullback of `div_L(s)` is an `(n + r - 1)`-cycle on `X`. -/
+theorem flatPullback_meromorphicSectionDivisor_mem_cycleGroup {S : Scheme.{u}}
     {B X Y : AlgebraicSpace S} [UniversallyCatenary B] [IsQuasiSeparated B]
     (pY : Y ⟶ B) [QuasiSeparated pY] [LocallyOfFiniteType pY]
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
@@ -205,12 +214,41 @@ theorem flatPullback_meromorphicSectionDivisor_mem {S : Scheme.{u}}
     (s : meromorphicSections Y L) (hs : IsRegularMeromorphicSection Y L s) :
     flatPullback pY pX δ f r hf (n - 1)
         (meromorphicSectionDivisorCycle pY δ s hs) ∈
-      (cycleGroup pX) δ (n + (r : ℤ) - 1) ∧
+      (cycleGroup pX) δ (n + (r : ℤ) - 1) :=
+  sorry
+
+/-- The multiplicity-weighted sum of component meromorphic divisor cycles is an
+`(n + r - 1)`-cycle on `X`. -/
+theorem flatComponentMeromorphicDivisorSum_mem_cycleGroup {S : Scheme.{u}}
+    {B X Y : AlgebraicSpace S} [UniversallyCatenary B] [IsQuasiSeparated B]
+    (pY : Y ⟶ B) [QuasiSeparated pY] [LocallyOfFiniteType pY]
+    (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
+    (δ : Points B → ℤ) [IsDimensionFunction δ]
+    (f : X ⟶ Y) (r : ℕ) [Flat f] [RelativeDimension f r]
+    (hf : f ≫ pY = pX) [IsIntegral Y] (n : ℤ)
+    (hY : deltaDimension pY δ (univIrreducibleClosed Y) = n)
+    (L : Y.Modules) [isInvertibleObject L]
+    (s : meromorphicSections Y L) (hs : IsRegularMeromorphicSection Y L s) :
     AlgebraicCycle.locallyFiniteSum
         (fun η : genericPoints X ↦
           flatComponentMeromorphicDivisor pY pX δ f r hf L s hs η)
         (locallyFinite_flatComponentMeromorphicDivisor pY pX δ f r hf L s hs) ∈
       (cycleGroup pX) δ (n + (r : ℤ) - 1) :=
+  sorry
+
+/-- An irreducible component of `X` has `δ`-dimension `n + r` when `Y` is
+integral of `δ`-dimension `n` and `f` is flat of relative dimension `r`. -/
+theorem flatComponent_deltaDimension {S : Scheme.{u}}
+    {B X Y : AlgebraicSpace S} [UniversallyCatenary B] [IsQuasiSeparated B]
+    (pY : Y ⟶ B) [QuasiSeparated pY] [LocallyOfFiniteType pY]
+    (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
+    (δ : Points B → ℤ) [IsDimensionFunction δ]
+    (f : X ⟶ Y) (r : ℕ) [Flat f] [RelativeDimension f r]
+    (hf : f ≫ pY = pX) [IsIntegral Y] (n : ℤ)
+    (hY : deltaDimension pY δ (univIrreducibleClosed Y) = n)
+    (η : genericPoints X) :
+    deltaDimension ((flatComponent pX η).ι ≫ pX) δ
+      (univIrreducibleClosed (flatComponent pX η).X) = n + (r : ℤ) :=
   sorry
 
 end Hom

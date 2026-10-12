@@ -1,4 +1,11 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.DirectTensorComparison
 
 public import Mathlib.CategoryTheory.Functor.Derived.LeftDerived
 public import Mathlib.CategoryTheory.Localization.Prod
@@ -35,12 +42,10 @@ variable {S : Scheme.{u}}
 
 /-- Module sheaves on an algebraic space inherit the symmetric monoidal structure of the
 commutative small étale ringed site. -/
+@[instance_reducible]
 noncomputable instance modulesSymmetricCategory (X : AlgebraicSpace S) :
     SymmetricCategory X.Modules :=
-  inferInstanceAs
-    (SymmetricCategory
-      (SheafOfModules.RingedSite.ringedSiteModuleCategory
-        (smallEtaleTopology X) (commStructureSheaf X)))
+  Modules.DirectTensorComparison.symmetric X
 
 /-- Graded objects of `𝒪_X`-modules admit totalized tensor products. -/
 instance modulesHasGradedTensor (X : AlgebraicSpace S)
@@ -98,13 +103,13 @@ noncomputable def modulesPullbackTensorComparison {X Y : AlgebraicSpace S} (f : 
     (M N : Modules Y) :
     (Modules.pullback f).obj (M ⊗ N) ⟶
       (Modules.pullback f).obj M ⊗ (Modules.pullback f).obj N :=
-  modulePullbackTensorComparison f (modulesRingMap f) M N
+  Modules.DirectTensorComparison.pullbackTensor f M N
 
 /-- `modulesPullbackTensorComparison` is the Chap67 adjunct of the pushforward tensorator. -/
 theorem modulesPullbackTensorComparison_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (M N : Modules Y) :
     modulesPullbackTensorComparison f M N =
-      modulePullbackTensorComparison f (modulesRingMap f) M N :=
+      Modules.DirectTensorComparison.pullbackTensor f M N :=
   sorry
 
 /-- The pointwise tensor bicomplex of two unbounded complexes of `𝒪`-modules. -/
@@ -156,11 +161,13 @@ theorem modulesPullback_tensorBicomplex_comm₂ {X Y : AlgebraicSpace S} (f : X 
         modulesPullbackTensorComparison f (K.X i₁) (L.X i₂') :=
   sorry
 
+set_option maxRecDepth 4096 in
 /-- Pointwise `f^*(M ⊗ N) ⟶ f^* M ⊗ f^* N` as a morphism of tensor bicomplexes. -/
 noncomputable def modulesPullback_tensorBicomplexHom {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (K L : CochainComplex (Modules Y) ℤ) :
     modulesPullbackMappedTensorBicomplex f K L ⟶ modulesPullbackTensorBicomplexMap f K L :=
-  HomologicalComplex₂.homMk
+  HomologicalComplex₂.homMk (K := modulesPullbackMappedTensorBicomplex f K L)
+    (L := modulesPullbackTensorBicomplexMap f K L)
     (fun pq ↦ modulesPullbackTensorComparison f (K.X pq.1) (L.X pq.2))
     (modulesPullback_tensorBicomplex_comm₁ f K L)
     (modulesPullback_tensorBicomplex_comm₂ f K L)

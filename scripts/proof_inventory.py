@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Released under Apache 2.0 license as described in the file LICENSE.
+# Authors: ReasBook team
 """List explicit sorry placeholders without invoking Lean or Lake.
 
 This is a source inventory, not a parser, compiler, or proof certificate.

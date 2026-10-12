@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Fibered.Inertia.Projection.Fixed.Equivalence.Construction
@@ -78,32 +84,58 @@ theorem diagonalComparisonEquivalence.unit.app.inv
 
 /-- The forward fibred comparison-unit components are natural in morphisms of the fixed
 relative-inertia category. -/
-@[reassoc]
 theorem diagonalComparisonEquivalence.unit.naturality
     (F : X ⟶ Y)
     {A B : FiberedCategoryOver.total (relativeInertia F)}
     (φ : A ⟶ B) :
-    φ ≫ (FiberedCategoryOver.toNatTrans
-        ((RelativeInertia.diagonalComparisonEquivalence F).unit.hom)).app B =
-      (FiberedCategoryOver.toNatTrans
-          ((RelativeInertia.diagonalComparisonEquivalence F).unit.hom)).app A ≫
-        (FiberedCategoryOver.toFunctor
-          ((RelativeInertia.diagonalComparisonEquivalence F).hom ≫
-            (RelativeInertia.diagonalComparisonEquivalence F).inv)).map φ := sorry
+    let H := FiberedCategoryOver.toFunctor
+      ((RelativeInertia.diagonalComparisonEquivalence F).hom ≫ (RelativeInertia.diagonalComparisonEquivalence F).inv)
+    let η : 𝟭 (FiberedCategoryOver.total (relativeInertia F)) ⟶ H :=
+      FiberedCategoryOver.toNatTrans ((RelativeInertia.diagonalComparisonEquivalence F).unit.hom)
+    φ ≫ η.app B = η.app A ≫ H.map φ := sorry
+
+/-- The forward unit naturality equation after postcomposition, with the original public
+parenthesization retained. -/
+theorem diagonalComparisonEquivalence.unit.naturality_assoc
+    (F : X ⟶ Y) {A B : FiberedCategoryOver.total (relativeInertia F)} (φ : A ⟶ B)
+    {Z : FiberedCategoryOver.total (relativeInertia F)}
+    (h : (FiberedCategoryOver.toFunctor
+      ((RelativeInertia.diagonalComparisonEquivalence F).hom ≫ (RelativeInertia.diagonalComparisonEquivalence F).inv)).obj B ⟶ Z) :
+    let H := FiberedCategoryOver.toFunctor
+      ((RelativeInertia.diagonalComparisonEquivalence F).hom ≫ (RelativeInertia.diagonalComparisonEquivalence F).inv)
+    let η : 𝟭 (FiberedCategoryOver.total (relativeInertia F)) ⟶ H :=
+      FiberedCategoryOver.toNatTrans ((RelativeInertia.diagonalComparisonEquivalence F).unit.hom)
+    φ ≫ (η.app B ≫ h) = (η.app A ≫ H.map φ) ≫ h := by
+  dsimp only
+  rw [← Category.assoc]
+  exact congrArg (fun k => k ≫ h) (diagonalComparisonEquivalence.unit.naturality F φ)
+
 
 /-- The inverse fibred comparison-unit components satisfy the reverse naturality equation. -/
-@[reassoc]
 theorem diagonalComparisonEquivalence.unit.invNaturality
     (F : X ⟶ Y)
     {A B : FiberedCategoryOver.total (relativeInertia F)}
     (φ : A ⟶ B) :
-    (FiberedCategoryOver.toNatTrans
-        ((RelativeInertia.diagonalComparisonEquivalence F).unit.inv)).app A ≫ φ =
-      (FiberedCategoryOver.toFunctor
-          ((RelativeInertia.diagonalComparisonEquivalence F).hom ≫
-            (RelativeInertia.diagonalComparisonEquivalence F).inv)).map φ ≫
-        (FiberedCategoryOver.toNatTrans
-          ((RelativeInertia.diagonalComparisonEquivalence F).unit.inv)).app B := sorry
+    let H := FiberedCategoryOver.toFunctor
+      ((RelativeInertia.diagonalComparisonEquivalence F).hom ≫ (RelativeInertia.diagonalComparisonEquivalence F).inv)
+    let η : H ⟶ 𝟭 (FiberedCategoryOver.total (relativeInertia F)) :=
+      FiberedCategoryOver.toNatTrans ((RelativeInertia.diagonalComparisonEquivalence F).unit.inv)
+    η.app A ≫ φ = H.map φ ≫ η.app B := sorry
+
+/-- The inverse unit naturality equation after postcomposition, with the original public
+parenthesization retained. -/
+theorem diagonalComparisonEquivalence.unit.invNaturality_assoc
+    (F : X ⟶ Y) {A B : FiberedCategoryOver.total (relativeInertia F)} (φ : A ⟶ B)
+    {Z : FiberedCategoryOver.total (relativeInertia F)} (h : B ⟶ Z) :
+    let H := FiberedCategoryOver.toFunctor
+      ((RelativeInertia.diagonalComparisonEquivalence F).hom ≫ (RelativeInertia.diagonalComparisonEquivalence F).inv)
+    let η : H ⟶ 𝟭 (FiberedCategoryOver.total (relativeInertia F)) :=
+      FiberedCategoryOver.toNatTrans ((RelativeInertia.diagonalComparisonEquivalence F).unit.inv)
+    η.app A ≫ (φ ≫ h) = (H.map φ ≫ η.app B) ≫ h := by
+  dsimp only
+  rw [← Category.assoc]
+  exact congrArg (fun k => k ≫ h) (diagonalComparisonEquivalence.unit.invNaturality F φ)
+
 
 /-- Every forward fibred comparison-unit component is vertical over its base object. -/
 theorem diagonalComparisonEquivalence.unit.app.hom.isHomLift

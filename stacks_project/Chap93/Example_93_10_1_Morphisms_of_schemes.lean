@@ -1,6 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap93.Example_93_10_1_Morphisms_of_schemes_Category
+public import ReasLib.AlgebraicGeometry.FormalDeformation.SchemeMorphism
 import StacksCheckRecall
 
 /-!
@@ -20,7 +26,7 @@ universe u
 variable (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-/-- Example 93.10.1 (Morphisms of schemes) (1)
+/- Example 93.10.1 (Morphisms of schemes) (1)
 Let `F` be the category of pairs `(A, X ⟶ Y)` consisting of an object `A` of
 `ArtinianLocalAlgCat Λ k` and a morphism `X ⟶ Y` of schemes over `A` with both
 `X` and `Y` flat over `A`, with morphisms `(f, g, h) : (A', X' ⟶ Y') ⟶ (A, X ⟶ Y)`
@@ -29,16 +35,20 @@ given by `f : A' ⟶ A` in `ArtinianLocalAlgCat Λ k` together with `g : X ⟶ X
 forgetful functor `p = FlatSchemeMorphismCat.forget` sends `(A, X ⟶ Y)` to `A`
 and `(f, g, h)` to `f`. -/
 @[stacks 0E3T]
-abbrev flatSchemeMorphismCategory := FlatSchemeMorphismCat Λ k
+#check (FlatSchemeMorphismCat Λ k : Type (u + 1))
 
-/-- The forgetful functor of `flatSchemeMorphismCategory` sends `(A, X ⟶ Y)` to `A`. -/
-theorem flatSchemeMorphismCategory_forget_obj (P : flatSchemeMorphismCategory Λ k) :
-    (FlatSchemeMorphismCat.forget Λ k).obj P = P.base := sorry
+#check (FlatSchemeMorphismCat.category (Λ := Λ) (k := k) :
+  Category.{u} (FlatSchemeMorphismCat Λ k))
 
-/-- The forgetful functor of `flatSchemeMorphismCategory` sends `(f, g, h)` to `f`. -/
-theorem flatSchemeMorphismCategory_forget_map
-    {src tgt : flatSchemeMorphismCategory Λ k} (f : src ⟶ tgt) :
-    (FlatSchemeMorphismCat.forget Λ k).map f = f.base := sorry
+#check (FlatSchemeMorphismCat.forget Λ k :
+  FlatSchemeMorphismCat Λ k ⥤ ArtinianLocalAlgCat Λ k)
+
+#check (FlatSchemeMorphismCat.forget_obj Λ k :
+  ∀ P : FlatSchemeMorphismCat Λ k, (FlatSchemeMorphismCat.forget Λ k).obj P = P.base)
+
+#check (FlatSchemeMorphismCat.forget_map Λ k :
+  ∀ {src tgt : FlatSchemeMorphismCat Λ k} (map : src ⟶ tgt),
+    (FlatSchemeMorphismCat.forget Λ k).map map = map.base)
 
 /- Example 93.10.1 (Morphisms of schemes) (2)
 The functor `p : F ⥤ C_Λ` sending `(A, X ⟶ Y)` to `A` and `(f, g, h)` to `f` is
@@ -47,23 +57,21 @@ cofibered in groupoids. -/
 #check (FlatSchemeMorphismCat.instIsFiberedInGroupoids_forget Λ k :
   IsFibered.InGroupoids (FlatSchemeMorphismCat.forget Λ k).op)
 
-/-- Example 93.10.1 (Morphisms of schemes) (3)
+/- Example 93.10.1 (Morphisms of schemes) (3)
 Given a morphism of schemes `X ⟶ Y` over `k`, let `x0 = (k, X ⟶ Y)` be the
 corresponding object of `F(k)`. The deformation category is the residue-fibre
 slice `Def_{X ⟶ Y} = F_{x0} =
 Over (Fiber.fiberInclusion.obj (residueObj Λ k X Y f hX hY hf))`. -/
 @[stacks 0E3T]
-abbrev deformation (X Y : Scheme.{u}) (f : X ⟶ Y)
-    (hX : X ⟶ Spec (CommRingCat.of k)) (hY : Y ⟶ Spec (CommRingCat.of k))
-    (hf : f ≫ hY = hX)
-    [AlgebraicGeometry.Flat hX] [AlgebraicGeometry.Flat hY] :=
-  FlatSchemeMorphismCat.deformation Λ k X Y f hX hY hf
+#check (FlatSchemeMorphismCat.deformation Λ k :
+  ∀ (X Y : Scheme.{u}) (schemeMap : X ⟶ Y)
+    (hX : X ⟶ Spec (CommRingCat.of k)) (hY : Y ⟶ Spec (CommRingCat.of k)),
+    schemeMap ≫ hY = hX → Type (u + 1))
 
-/-- `deformation` is the Over-slice of the residue-fibre object `x0 = (k, X ⟶ Y)`. -/
-theorem deformation_spec (X Y : Scheme.{u}) (f : X ⟶ Y)
+#check (FlatSchemeMorphismCat.deformation_spec Λ k :
+  ∀ (X Y : Scheme.{u}) (schemeMap : X ⟶ Y)
     (hX : X ⟶ Spec (CommRingCat.of k)) (hY : Y ⟶ Spec (CommRingCat.of k))
-    (hf : f ≫ hY = hX)
-    [AlgebraicGeometry.Flat hX] [AlgebraicGeometry.Flat hY] :
-    deformation Λ k X Y f hX hY hf =
+    (hf : schemeMap ≫ hY = hX),
+    FlatSchemeMorphismCat.deformation Λ k X Y schemeMap hX hY hf =
       Over (Fiber.fiberInclusion.obj
-        (FlatSchemeMorphismCat.residueObj Λ k X Y f hX hY hf)) := sorry
+        (FlatSchemeMorphismCat.residueObj Λ k X Y schemeMap hX hY hf)))

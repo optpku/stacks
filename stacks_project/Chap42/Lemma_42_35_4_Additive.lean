@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap42.Remark_42_33_5_Bivariant
+public import ReasLib.AlgebraicGeometry.BivariantClass.Zero
 
 @[expose] public section
 
@@ -11,16 +18,6 @@ noncomputable section
 universe u
 
 namespace AlgebraicGeometry.BivariantClass
-
-/-- The bivariant class whose cap maps are pointwise zero. -/
-def zeroClass
-    {S : Scheme.{u}} [UniversallyCatenary S] (delta : S → ℤ) [IsDimensionFunction delta]
-    {X Y : Over S} [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
-    (f : X ⟶ Y) (p : ℤ) : BivariantClass delta f p where
-  cap := fun {_ _} _ _ _ _ _ _ _ _ ↦ 0
-  map_proper := sorry
-  pullback_flat := sorry
-  gysin_cartier := sorry
 
 /-- Pointwise addition of two bivariant classes. -/
 def addClass
@@ -70,7 +67,7 @@ theorem zeroClass_apply
     [LocallyOfFiniteType X'.hom] [LocallyOfFiniteType Y'.hom]
     (f : X ⟶ Y) (p : ℤ) (i : X' ⟶ X) (f' : X' ⟶ Y') (g : Y' ⟶ Y)
     [LocallyOfFiniteType g.left] (square : IsPullback i.left f'.left f.left g.left)
-    (k : ℤ) : (zeroClass delta f p).cap i f' g square k = 0 := sorry
+    (k : ℤ) : (zeroClass delta f p).cap i f' g square k = 0 := rfl
 
 /-- Pointwise addition evaluates as addition of cap maps. -/
 theorem addClass_apply
@@ -178,4 +175,3 @@ theorem cap_sub
     (c - d).cap i f' g square k = c.cap i f' g square k - d.cap i f' g square k := sorry
 
 end AlgebraicGeometry.BivariantClass
-

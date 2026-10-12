@@ -1,8 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.NaiveCotangent.Presentation.Derived
-public import ReasLib.CategoryTheory.DerivedCategory.Ext
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.NaiveCotangent.Presentation.Ext
 
 /-!
 # Ext¹ classes of conormal maps on a ringed site
@@ -35,38 +39,12 @@ variable (φ : A ⟶ B)
 variable (G : SheafOfModules (ringSheaf J (Under.mk φ).right))
 variable [HasDerivedCategory (SheafOfModules (ringSheaf J (Under.mk φ).right))]
 
-/-- Incoming differentials into degree `-1` of a presentation model vanish after composing with
-a map out of the conormal source. -/
-theorem ofGenerators_d_comp_conormalHom
-    (E : Sheaf J (Type w))
-    (α : E ⟶ FreeAlgebra.Presentation.generators (Under.mk φ))
-    (f : (Presentation.ofGenerators E α).X (-1) ⟶ G)
-    (i : ℤ) (hi : (ComplexShape.up ℤ).Rel i (-1)) :
-    (Presentation.ofGenerators E α).d i (-1) ≫ f = 0 := sorry
-
-/-- The derived `Ext⁽1⁾` class of a `B`-linear map from the conormal source of a polynomial
-presentation of `B`. -/
-def conormalHomClass
-    (E : Sheaf J (Type w))
-    (α : E ⟶ FreeAlgebra.Presentation.generators (Under.mk φ))
-    (f : (Presentation.ofGenerators E α).X (-1) ⟶ G) :
-    Ext⁽(1 : ℤ)⁾(DerivedCategory.Q.obj (Presentation.ofGenerators E α),
-      DerivedCategory.Q.obj ((CochainComplex.singleFunctor _ 0).obj G)) :=
-  DerivedCategory.Q.map
-      (HomologicalComplex.mkHomToSingle f (ofGenerators_d_comp_conormalHom φ G E α f)) ≫
-    ((DerivedCategory.singleFunctors _).shiftIso (1 : ℤ) (-1) 0
-      (add_neg_cancel (1 : ℤ))).inv.app G
-
-/-- `conormalHomClass` is `DerivedCategory.Q.map` of `HomologicalComplex.mkHomToSingle`, composed
-with the canonical identification of `G` in degree `-1` with the shift of `G` in degree `0`. -/
-theorem conormalHomClass_def
-    (E : Sheaf J (Type w))
-    (α : E ⟶ FreeAlgebra.Presentation.generators (Under.mk φ))
-    (f : (Presentation.ofGenerators E α).X (-1) ⟶ G) :
-    conormalHomClass φ G E α f =
-      DerivedCategory.Q.map
-          (HomologicalComplex.mkHomToSingle f (ofGenerators_d_comp_conormalHom φ G E α f)) ≫
-        ((DerivedCategory.singleFunctors _).shiftIso (1 : ℤ) (-1) 0
-          (add_neg_cancel (1 : ℤ))).inv.app G := sorry
+/- The conormal class is owned by the derived presentation API. -/
+#check (SheafOfModules.RingedSite.NaiveCotangent.conormalHomClass φ G :
+  (E : Sheaf J (Type w)) →
+  (α : E ⟶ FreeAlgebra.Presentation.generators (Under.mk φ)) →
+  (f : (Presentation.ofGenerators E α).X (-1) ⟶ G) →
+  Ext⁽(1 : ℤ)⁾(DerivedCategory.Q.obj (Presentation.ofGenerators E α),
+    DerivedCategory.Q.obj ((CochainComplex.singleFunctor _ 0).obj G)))
 
 end SheafOfModules.RingedSite.NaiveCotangent

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FinitePresentation.FiniteType
@@ -10,12 +16,12 @@ open scoped AlgebraicGeometry
 
 universe u
 
-/- Lemma 29.21.8 (1): a morphism which is locally of finite presentation is locally of finite type. -/
-@[stacks 01TW] #check
-  (AlgebraicGeometry.instLocallyOfFiniteTypeOfLocallyOfFinitePresentation :
-    ∀ {X Y : Scheme.{u}} (f : X ⟶ Y) [LocallyOfFinitePresentation f], LocallyOfFiniteType f)
-
-/- Lemma 29.21.8 (2): a morphism of finite presentation is of finite type. -/
+/- Lemma 29.21.8: local finite presentation implies local finite type, and finite presentation implies finite type. The global implication is checked first. -/
 @[stacks 01TW] #check
   (AlgebraicGeometry.Scheme.Hom.instFiniteTypeOfFinitePresentation :
     ∀ {X S : Scheme.{u}} (f : X ⟶ S) [Scheme.Hom.FinitePresentation f], Scheme.Hom.FiniteType f)
+
+/- The local implication, supplied by the canonical Mathlib instance. -/
+#check
+  (AlgebraicGeometry.instLocallyOfFiniteTypeOfLocallyOfFinitePresentation :
+    ∀ {X Y : Scheme.{u}} (f : X ⟶ Y) [LocallyOfFinitePresentation f], LocallyOfFiniteType f)

@@ -1,12 +1,15 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.CategoryTheory.Category.Preorder
-public import Mathlib.CategoryTheory.Limits.Types.Colimits
-public import Mathlib.SetTheory.Cardinal.Cofinality.Ordinal
+public import ReasLib.CategoryTheory.Limits.Types.Cofinality
+import StacksCheckRecall
 
 @[expose] public section
-
-noncomputable section
 
 universe u
 
@@ -15,12 +18,11 @@ open scoped Cardinal
 
 namespace CategoryTheory.Limits.Types
 
-/-- Lemma 3.7.1. If `c` is a colimit of a diagram of sets `F` indexed by ordinals less than
-`β`, and `φ : S ⟶ c.pt` is a map of sets, then `φ` lifts through some stage `F.obj α` whenever
-`β` is not a limit of ordinals indexed by `S`, equivalently `#S < β.cof`. -/
-@[stacks 05N2]
-theorem exists_lift_of_lt_cof {β : Ordinal.{u}} {F : β.ToType ⥤ Type u} {c : Cocone F}
-    (hc : IsColimit c) {S : Type u} (φ : S ⟶ c.pt) (hS : #S < β.cof) :
-    ∃ (α : β.ToType) (φα : S ⟶ F.obj α), φα ≫ c.ι.app α = φ := sorry
+/- Lemma 3.7.1. A map into an ordinal-indexed colimit of sets factors through one stage
+when its domain has cardinality less than the ordinal's cofinality. -/
+@[stacks 05N2] #check (CategoryTheory.Limits.Types.exists_lift_of_lt_cof :
+  ∀ {β : Ordinal.{u}} {F : β.ToType ⥤ Type u} {c : Cocone F}
+    (hc : IsColimit c) {S : Type u} (φ : S ⟶ c.pt) (hS : #S < β.cof),
+    ∃ (α : β.ToType) (φα : S ⟶ F.obj α), φα ≫ c.ι.app α = φ)
 
 end CategoryTheory.Limits.Types

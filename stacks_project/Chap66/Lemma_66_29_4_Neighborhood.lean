@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
@@ -38,6 +44,10 @@ universe u
 namespace AlgebraicGeometry.AlgebraicSpace.GeometricPoint.SmallEtaleNeighborhood
 
 variable {S : Scheme.{u}} {X : AlgebraicSpace S} {xbar : GeometricPoint X}
+
+/-- The reconstructed scheme point retains its original algebraically closed field. -/
+instance schemeGeometricPoint_isAlgClosed (N : SmallEtaleNeighborhood xbar) :
+    IsAlgClosed N.schemeGeometricPoint.K := N.schemeGeometricPoint.isAlgClosed
 
 /-- The functor sending a scheme étale over the neighbourhood scheme to the corresponding object
 of the small étale site of `X`. -/

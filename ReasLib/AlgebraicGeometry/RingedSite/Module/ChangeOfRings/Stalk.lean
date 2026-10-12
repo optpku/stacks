@@ -1,7 +1,14 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Stalk.BaseChange
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.ChangeOfRings
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.ChangeOfRings
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -43,7 +50,8 @@ noncomputable abbrev source (p : O ⟶ O') (x : X) :
 /-- First extend scalars along a morphism of ring sheaves and then take the stalk. -/
 noncomputable abbrev target (p : O ⟶ O') (x : X) :
     SheafOfModules (ringSheafOfComm O) ⥤ ModuleCat (O'.presheaf.stalk x) :=
-  extendAlong p ⋙ SheafOfModules.stalkFunctorOfCommRing O' x
+  SheafOfModules.ChangeOfRings.extendScalars (ringSheafMap p) ⋙
+    SheafOfModules.stalkFunctorOfCommRing O' x
 
 /-- The explicit pullback construction underlying same-site extension of scalars. -/
 noncomputable abbrev construction (p : O ⟶ O')
@@ -57,16 +65,18 @@ noncomputable abbrev construction (p : O ⟶ O')
 extension-of-scalars functor. -/
 noncomputable def constructionToExtension (p : O ⟶ O')
     (F : SheafOfModules (ringSheafOfComm O)) :
-    construction p F ⟶ (extendAlong p).obj F :=
+    construction p F ⟶
+      (SheafOfModules.ChangeOfRings.extendScalars (ringSheafMap p)).obj F :=
   (SheafOfModules.pullbackIso (ringedSiteStructureMap p)).inv.app F ≫
-    (pullbackExtendIso p).hom.app F
+    (SheafOfModules.ChangeOfRings.pullbackIso (ringSheafMap p)).hom.app F
 
 /-- The explicit inverse from the chosen extension-of-scalars functor to its pullback
 construction. -/
 noncomputable def constructionToExtensionInv (p : O ⟶ O')
     (F : SheafOfModules (ringSheafOfComm O)) :
-    (extendAlong p).obj F ⟶ construction p F :=
-  (pullbackExtendIso p).inv.app F ≫
+    (SheafOfModules.ChangeOfRings.extendScalars (ringSheafMap p)).obj F ⟶
+      construction p F :=
+  (SheafOfModules.ChangeOfRings.pullbackIso (ringSheafMap p)).inv.app F ≫
     (SheafOfModules.pullbackIso (ringedSiteStructureMap p)).hom.app F
 
 /-- The pullback construction comparison followed by its inverse is the identity. -/
@@ -85,7 +95,8 @@ theorem constructionToExtension_inv_hom_id (p : O ⟶ O')
 extension-of-scalars functor. -/
 noncomputable def constructionToExtensionIso (p : O ⟶ O')
     (F : SheafOfModules (ringSheafOfComm O)) :
-    construction p F ≅ (extendAlong p).obj F where
+    construction p F ≅
+      (SheafOfModules.ChangeOfRings.extendScalars (ringSheafMap p)).obj F where
   hom := constructionToExtension p F
   inv := constructionToExtensionInv p F
   hom_inv_id := constructionToExtension_hom_inv_id p F

@@ -1,4 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
+
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.InvertiblePullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Point.ClosureIntegral
 
 public import Mathlib.Topology.LocallyFinsupp
 public import ReasLib.CategoryTheory.Monoidal.Invertible
@@ -16,7 +25,6 @@ public import stacks_project.Chap76.Lemma_76_32_2
 public import stacks_project.Chap82.Definition_82_3_1_CycleGroup
 public import stacks_project.Chap82.Remark_82_5_1_IrreducibleComponent
 import stacks_project.Chap82.Lemma_82_16_1
-import stacks_project.Chap82.Lemma_82_17_3_Torsor
 
 /-!
 # Import-isolated flat components and cycle pullback
@@ -52,32 +60,21 @@ noncomputable def flatPullback {S : Scheme.{u}} {B X Y : AlgebraicSpace S}
   Hom.flatPullback pY pX δ f r hf k α
 
 /-- The canonical irreducible component of `X` on a generic point. -/
-noncomputable def flatComponent {S : Scheme.{u}} {B X : AlgebraicSpace S}
+@[expose] noncomputable def flatComponent {S : Scheme.{u}} {B X : AlgebraicSpace S}
     [IsQuasiSeparated B] (pX : X ⟶ B) [QuasiSeparated pX]
     (η : genericPoints X) : ClosedSubspace X :=
-  Hom.flatComponent pX η
+  let _ := pX
+  ClosedSubspace.ofι (PointClosure.ι η.1)
 
 /-- The canonical irreducible component on a generic point is integral. -/
 theorem isIntegral_flatComponent {S : Scheme.{u}} {B X : AlgebraicSpace S}
     [IsQuasiSeparated B] (pX : X ⟶ B) [QuasiSeparated pX]
     (η : genericPoints X) : IsIntegral (flatComponent pX η).X :=
-  sorry
+  Hom.isIntegral_flatComponent pX η
 
 /-- The multiplicity of an irreducible component of a closed subspace. -/
 noncomputable def componentMultiplicity {S : Scheme.{u}} {X : AlgebraicSpace S}
     [IsLocallyNoetherian X] (Y : ClosedSubspace X) (η : genericPoints Y.X) : ℕ :=
   ClosedSubspace.componentMultiplicity Y η
-
-namespace Modules
-
-/-- Pullback of modules along a morphism of algebraic spaces preserves
-tensor-invertibility. This is a theorem rather than a global instance, to avoid
-clashing with later global pullback-invertibility instances. -/
-theorem isInvertibleObject_pullback {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (i : X ⟶ Y) (M : Y.Modules) [isInvertibleObject M] :
-    isInvertibleObject ((pullback i).obj M) :=
-  sorry
-
-end Modules
 
 end AlgebraicGeometry.AlgebraicSpace

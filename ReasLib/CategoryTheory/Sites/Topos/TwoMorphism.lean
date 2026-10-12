@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Sites.Topos.Morphism
@@ -25,6 +31,11 @@ namespace CategoryTheory.MorphismOfTopoiIn
 variable {C : Type u₁} [Category.{v₁} C]
 variable {D : Type u₂} [Category.{v₂} D]
 variable {J : GrothendieckTopology C} {K : GrothendieckTopology D}
+
+/-- A two-morphism between morphisms of topoi is a natural transformation between their
+direct-image functors. -/
+abbrev TwoMorphism (f g : MorphismOfTopoiIn.{u₁, u₂, v₁, v₂, w} J K) :=
+  CategoryTheory.NatTrans f.pushforward g.pushforward
 
 /-- The canonical right-adjoint mate of an isomorphism between the inverse images of two
 morphisms of topoi. -/

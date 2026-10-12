@@ -1,9 +1,15 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
 public import stacks_project.Chap66.Lemma_66_10_3_LocalRingDim
 public import stacks_project.Chap67.Definition_67_15_4_SchemeTheoreticSupport
-public import stacks_project.Chap71.Lemma_71_2_3_ModuleSupport
+public import stacks_project.Chap67.Lemma_67_15_1_ModuleSupport
 public import stacks_project.Chap71.Lemma_71_2_3_WeaklyAssociated
 
 /-!

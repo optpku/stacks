@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Topology.LocallyFinsupp
@@ -36,28 +42,28 @@ def fundamentalCycle [IsIntegral X] : Function.locallyFinsupp (Points X) ℤ :=
 /-- The fundamental cycle of an integral good space is a cycle of degree
 `dim_δ(X)`. -/
 theorem mem_cycleGroup_fundamentalCycle [IsIntegral X] :
-    f.fundamentalCycle δ ∈
-      f.cycleGroup δ (f.deltaDimension δ (univIrreducibleClosed X)) :=
+    (Hom.fundamentalCycle (f)) δ ∈
+      (Hom.cycleGroup (f)) δ ((Hom.deltaDimension (f)) δ (univIrreducibleClosed X)) :=
   sorry
 
 /-- The fundamental cycle is the weight-1 singleton at the generic point. -/
 theorem fundamentalCycle_eq [IsIntegral X] :
-    f.fundamentalCycle δ =
+    (Hom.fundamentalCycle (f)) δ =
       @Function.locallyFinsuppWithin.single (Points X) _ ℤ (Classical.decEq _) _
         (genericPoint_of_good f (univIrreducibleClosed X)) (1 : ℤ) :=
   sorry
 
 /-- The fundamental class `[X]` in `CH_n(X)`, where `n = dim_δ(X)`. -/
 def fundamentalClass [IsIntegral X] :
-    f.chowGroup δ (f.deltaDimension δ (univIrreducibleClosed X)) :=
-  f.chowMk δ (f.deltaDimension δ (univIrreducibleClosed X))
-    ⟨f.fundamentalCycle δ, mem_cycleGroup_fundamentalCycle f δ⟩
+    (Hom.chowGroup (f)) δ ((Hom.deltaDimension (f)) δ (univIrreducibleClosed X)) :=
+  (Hom.chowMk (f)) δ ((Hom.deltaDimension (f)) δ (univIrreducibleClosed X))
+    ⟨(Hom.fundamentalCycle (f)) δ, mem_cycleGroup_fundamentalCycle f δ⟩
 
 /-- The fundamental class is the Chow class of the weight-1 generic-point cycle. -/
 theorem fundamentalClass_eq [IsIntegral X] :
-    f.fundamentalClass δ =
-      f.chowMk δ (f.deltaDimension δ (univIrreducibleClosed X))
-        ⟨f.fundamentalCycle δ, mem_cycleGroup_fundamentalCycle f δ⟩ :=
+    (Hom.fundamentalClass (f)) δ =
+      (Hom.chowMk (f)) δ ((Hom.deltaDimension (f)) δ (univIrreducibleClosed X))
+        ⟨(Hom.fundamentalCycle (f)) δ, mem_cycleGroup_fundamentalCycle f δ⟩ :=
   sorry
 
 end AlgebraicGeometry.AlgebraicSpace.Hom

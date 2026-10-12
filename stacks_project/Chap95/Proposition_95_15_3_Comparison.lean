@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Fibered.CartesianBasedFunctor.Precomposition
@@ -52,17 +58,17 @@ theorem pointSection_w (G : GroupAlgebraicSpace B) (X : Action G) {U : Over S}
 /-- The mediating map of `pointSection` lies over `U`. -/
 theorem pointSection_hom_w (G : GroupAlgebraicSpace B) (X : Action G) {U : Over S}
     (x : ofOver U ⟶ X.X.left) :
-    pullbackLift X.X.hom (pointBase G X x) x (𝟙_ (Over (ofOver U))).hom
+    Limits.pullback.lift (C := AlgebraicSpace S) x (𝟙_ (Over (ofOver U))).hom
         (pointSection_w G X x) ≫
-      ((overPullback (pointBase G X x)).obj X.X).hom =
+      ((Over.pullback (pointBase G X x)).obj X.X).hom =
     (𝟙_ (Over (ofOver U))).hom := sorry
 
 /-- The section of `X_U` associated to a scheme-valued point of `X`. -/
 def pointSection (G : GroupAlgebraicSpace B) (X : Action G) {U : Over S}
     (x : ofOver U ⟶ X.X.left) :
-    𝟙_ (Over (ofOver U)) ⟶ (overPullback (pointBase G X x)).obj X.X :=
+    𝟙_ (Over (ofOver U)) ⟶ (Over.pullback (pointBase G X x)).obj X.X :=
   Over.homMk
-    (pullbackLift X.X.hom (pointBase G X x) x (𝟙_ (Over (ofOver U))).hom
+    (Limits.pullback.lift (C := AlgebraicSpace S) x (𝟙_ (Over (ofOver U))).hom
       (pointSection_w G X x))
     (pointSection_hom_w G X x)
 
@@ -73,8 +79,8 @@ def trivialφ (G : GroupAlgebraicSpace B) (X : Action G) {U : Over S}
       (pullbackAction (pointBase G X x) G X).X :=
   (ρ_ ((grpOverPullback G (pointBase G X x)).X)).inv ≫
     ((grpOverPullback G (pointBase G X x)).X ◁ pointSection G X x) ≫
-      (overPullbackμIso (pointBase G X x) G.X X.X).hom ≫
-        (overPullback (pointBase G X x)).map γ[G.X, X.X]
+      Functor.LaxMonoidal.μ (Over.pullback (pointBase G X x)) G.X X.X ≫
+        (Over.pullback (pointBase G X x)).map γ[G.X, X.X]
 
 /-- The left-regular `G_U`-action on itself. -/
 def regularAction (G : GroupAlgebraicSpace B) {U : Over S} (b : ofOver U ⟶ B) :
@@ -119,7 +125,7 @@ theorem sectionOf_w (G : GroupAlgebraicSpace B) {U : Over S} {b : ofOver U ⟶ B
 /-- The mediating map of `sectionOf` lies over `U`. -/
 theorem sectionOf_hom_w (G : GroupAlgebraicSpace B) {U : Over S} {b : ofOver U ⟶ B}
     (g : ofOver U ⟶ G.X.left) (hg : g ≫ G.X.hom = b) :
-    pullbackLift G.X.hom b g (𝟙_ (Over (ofOver U))).hom (sectionOf_w G g hg) ≫
+    Limits.pullback.lift (C := AlgebraicSpace S) g (𝟙_ (Over (ofOver U))).hom (sectionOf_w G g hg) ≫
         (grpOverPullback G b).X.hom =
       (𝟙_ (Over (ofOver U))).hom := sorry
 
@@ -128,7 +134,7 @@ def sectionOf (G : GroupAlgebraicSpace B) {U : Over S} {b : ofOver U ⟶ B}
     (g : ofOver U ⟶ G.X.left) (hg : g ≫ G.X.hom = b) :
     𝟙_ (Over (ofOver U)) ⟶ (grpOverPullback G b).X :=
   Over.homMk
-    (pullbackLift G.X.hom b g (𝟙_ (Over (ofOver U))).hom (sectionOf_w G g hg))
+    (Limits.pullback.lift (C := AlgebraicSpace S) g (𝟙_ (Over (ofOver U))).hom (sectionOf_w G g hg))
     (sectionOf_hom_w G g hg)
 
 /-- Right multiplication by a section of `G_U`. -/
@@ -160,10 +166,10 @@ def rightTranslation (G : GroupAlgebraicSpace B) (X : Action G) {U U' : Over S}
     (hb : pointBase G X x = ofOverMap f ≫ pointBase G X x')
     (hg : g ≫ G.X.hom = pointBase G X x) :
     (trivialObj G X x).P.X ≅
-      (overPullback (ofOverMap f)).obj (trivialObj G X x').P.X :=
+      (Over.pullback (ofOverMap f)).obj (trivialObj G X x').P.X :=
   (rightMulIso G g hg).symm ≪≫
-    eqToIso (congrArg (fun t ↦ (overPullback t).obj G.X) hb) ≪≫
-      overPullbackCompIso (pointBase G X x') (ofOverMap f) G.X
+    eqToIso (congrArg (fun t ↦ (Over.pullback t).obj G.X) hb) ≪≫
+      (Over.pullbackComp (ofOverMap f) (pointBase G X x')).app G.X
 
 /-- The co-Grothendieck total category of `[X/_p G]`. -/
 abbrev actionPrestackTotal (G : GroupAlgebraicSpace B) (X : Action G) :=
@@ -194,7 +200,7 @@ theorem preHom_comm (G : GroupAlgebraicSpace B) (X : Action G)
 def preHomIso (G : GroupAlgebraicSpace B) (X : Action G)
     {ξ ξ' : actionPrestackTotal G X} (p : ξ ⟶ ξ') :
     (trivialObj G X (prestackPoint G X ξ)).P.X ≅
-      (overPullback (ofOverMap p.base)).obj
+      (Over.pullback (ofOverMap p.base)).obj
         (trivialObj G X (prestackPoint G X ξ')).P.X :=
   rightTranslation G X (prestackPoint G X ξ) (prestackPoint G X ξ') p.base
     (preHomGroup G X p) (preHom_comm G X p) (preHomGroup_w G X p)

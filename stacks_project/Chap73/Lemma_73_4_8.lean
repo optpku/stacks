@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 import StacksCheckRecall
@@ -47,14 +53,14 @@ topoi `π_X`. -/
 @[stacks 0DF3] #check
   (siteMorphismOfTopoi_comp_morphismOfTopoi_id.{u, u + 1} X :
     (MorphismOfTopoiIn.comp (siteMorphismOfTopoi.{u, u + 1} X)
-        (morphismOfTopoi.{u, u + 1} (𝟙 X))).inverseImage ≅
+        (Etale.SpacesToBig.morphismOfTopoi.{u, u + 1} (𝟙 X))).inverseImage ≅
       (MorphismOfTopoiIn.id (spacesEtaleTopology X)).inverseImage)
 
 /- Lemma 73.4.8 (4): the inverse image `i_X⁻¹` equals the direct image
 `π_{X,*}`. -/
 @[stacks 0DF3] #check
   (morphismOfTopoi_id_inverseImage_eq_siteMorphismOfTopoi_pushforward.{u, u + 1} X :
-    (morphismOfTopoi.{u, u + 1} (𝟙 X))⁻¹ =
+    (Etale.SpacesToBig.morphismOfTopoi.{u, u + 1} (𝟙 X))⁻¹ =
       (siteMorphismOfTopoi.{u, u + 1} X).pushforward)
 
 /- Lemma 73.4.8 (5): the direct image `π_{X,*}` evaluates a big-étale sheaf

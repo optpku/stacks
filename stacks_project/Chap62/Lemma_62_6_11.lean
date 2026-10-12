@@ -1,12 +1,18 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
-public import Mathlib.Topology.LocallyConstant.Basic
-public import stacks_project.Chap62.Lemma_62_6_11_RelativeCycle
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.RelativeCycle.Smooth
 
 @[expose] public section
 
 open AlgebraicGeometry CategoryTheory
+open AlgebraicGeometry.Scheme.Hom
 
 noncomputable section
 
@@ -14,49 +20,45 @@ universe u
 
 namespace AlgebraicGeometry.RelativeCycle
 
-/-- Lemma 62.6.11: if `S` is locally Noetherian and `f : X ⟶ S` is smooth of
+/- Lemma 62.6.11: if `S` is locally Noetherian and `f : X ⟶ S` is smooth of
 relative dimension `r ≥ 0`, then for every relative `r`-cycle `α` the support of
 `α` is clopen in `X`. A sharper fact used in the proof is that the
 fibre-component coefficient function `x ↦ n_x` is locally constant. -/
-@[stacks 0H5B]
-theorem isClopen_support {X S : Scheme.{u}} (f : X ⟶ S)
-    [IsLocallyNoetherian S] [LocallyOfFiniteType f] {r : ℕ}
-    [SmoothOfRelativeDimension r f] (α : Family f r) (hα : IsRelative α) :
-    IsClopen (support α) := sorry
+@[stacks 0H5B] #check (AlgebraicGeometry.RelativeCycle.isClopen_support :
+  ∀ {X S : Scheme.{u}} (f : X ⟶ S) [IsLocallyNoetherian S] [LocallyOfFiniteType f]
+    {r : ℕ} [SmoothOfRelativeDimension r f] (α : CyclesOnFibers f r),
+    IsRelative α → IsClopen (CyclesOnFibers.support α))
 
-/-- The coefficient of a fibrewise `r`-cycle at those generic points of the fibre
+/- The coefficient of a fibrewise `r`-cycle at those generic points of the fibre
 `X_s` which specialize to `x`, where `s` is the image of `x`. Under smoothness of
 relative dimension `r` this is the coefficient `n_x` of the unique irreducible
 component of `X_s` through `x`. -/
-noncomputable def componentCoeff {X S : Scheme.{u}} (f : X ⟶ S) {r : ℕ}
-    [SmoothOfRelativeDimension r f] (α : Family f r) (x : X) : ℤ :=
-  ∑ᶠ ξ : f.fiber (f x),
-    @ite ℤ (f.asFiber x ∈ closure {ξ}) (Classical.propDecidable _)
-      (CycleGroup.toAlgebraicCycle (f.fiberDimensionFunction (f x)) r (α (f x)) ξ) 0
+#check (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.componentCoeff :
+  ∀ {X S : Scheme.{u}} (f : X ⟶ S) {r : ℤ}, CyclesOnFibers f r → X → ℤ)
 
-/-- The fibre-component coefficient is the finite sum of coefficients of generic
+/- The fibre-component coefficient is the finite sum of coefficients of generic
 points of the fibre specializing to the given point. -/
-theorem componentCoeff_apply {X S : Scheme.{u}} (f : X ⟶ S) {r : ℕ}
-    [SmoothOfRelativeDimension r f] (α : Family f r) (x : X) :
-    componentCoeff f α x =
+open scoped Classical in
+#check (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.componentCoeff_apply :
+  ∀ {X S : Scheme.{u}} (f : X ⟶ S) {r : ℤ} (α : CyclesOnFibers f r) (x : X),
+    CyclesOnFibers.componentCoeff f α x =
       ∑ᶠ ξ : f.fiber (f x),
-        @ite ℤ (f.asFiber x ∈ closure {ξ}) (Classical.propDecidable _)
-          (CycleGroup.toAlgebraicCycle (f.fiberDimensionFunction (f x)) r (α (f x)) ξ) 0 :=
-  sorry
+        if f.asFiber x ∈ closure {ξ} then (α.toAlgebraicCycle (f x)) ξ else 0)
 
-/-- If `α` is a relative `r`-cycle on a smooth morphism of relative dimension `r`
+/- If `α` is a relative `r`-cycle on a smooth morphism of relative dimension `r`
 to a locally Noetherian base, then the fibre-component coefficient function is
 locally constant. -/
-theorem isLocallyConstant_componentCoeff {X S : Scheme.{u}} (f : X ⟶ S)
-    [IsLocallyNoetherian S] [LocallyOfFiniteType f] {r : ℕ}
-    [SmoothOfRelativeDimension r f] (α : Family f r) (hα : IsRelative α) :
-    IsLocallyConstant (componentCoeff f α) := sorry
+#check (AlgebraicGeometry.RelativeCycle.isLocallyConstant_componentCoeff :
+  ∀ {X S : Scheme.{u}} (f : X ⟶ S) [IsLocallyNoetherian S] [LocallyOfFiniteType f]
+    {r : ℕ} [SmoothOfRelativeDimension r f] (α : CyclesOnFibers f r),
+    IsRelative α → IsLocallyConstant (CyclesOnFibers.componentCoeff f α))
 
-/-- Under smoothness of relative dimension `r`, the support of a relative
+/- Under smoothness of relative dimension `r`, the support of a relative
 `r`-cycle is the function support of its fibre-component coefficient. -/
-theorem support_eq_componentCoeff_support {X S : Scheme.{u}} (f : X ⟶ S)
-    [IsLocallyNoetherian S] [LocallyOfFiniteType f] {r : ℕ}
-    [SmoothOfRelativeDimension r f] (α : Family f r) (hα : IsRelative α) :
-    support α = Function.support (componentCoeff f α) := sorry
+#check (AlgebraicGeometry.RelativeCycle.support_eq_componentCoeff_support :
+  ∀ {X S : Scheme.{u}} (f : X ⟶ S) [IsLocallyNoetherian S] [LocallyOfFiniteType f]
+    {r : ℕ} [SmoothOfRelativeDimension r f] (α : CyclesOnFibers f r),
+    IsRelative α →
+      CyclesOnFibers.support α = Function.support (CyclesOnFibers.componentCoeff f α))
 
 end AlgebraicGeometry.RelativeCycle

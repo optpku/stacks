@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType.Immersion
@@ -69,3 +75,13 @@ instance finiteType_pullback_snd
     FiniteType (pullback.snd f g) := sorry
 
 end AlgebraicGeometry.Scheme.Hom
+
+namespace AlgebraicGeometry.LocallyOfFiniteType
+
+/-- Every base change of a locally finite-type scheme morphism is locally of finite type. -/
+theorem pullback_snd
+    {X S S' : Scheme.{u}} {f : X ⟶ S}
+    (hf : LocallyOfFiniteType f) (g : S' ⟶ S) :
+    LocallyOfFiniteType (pullback.snd f g) := sorry
+
+end AlgebraicGeometry.LocallyOfFiniteType

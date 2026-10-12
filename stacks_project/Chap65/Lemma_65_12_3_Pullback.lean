@@ -1,8 +1,16 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
 public import Mathlib.CategoryTheory.MorphismProperty.Limits
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Closed.InverseImage
 public import stacks_project.Chap65.Lemma_65_12_4_Immersion
+public import stacks_project.Chap67.Lemma_67_17_2_InverseImage
 
 /-!
 # Base change of immersions of algebraic spaces
@@ -47,10 +55,11 @@ namespace IsClosedImmersion
 
 /-- Closed immersions of algebraic spaces are stable under pullback along an
 arbitrary morphism, expressed by an `IsPullback` square. -/
-theorem of_isPullback {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
+theorem of_isPullback_snd {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
     {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X}
     (sq : IsPullback f' g' g f) (hg : IsClosedImmersion g) :
-    IsClosedImmersion g' := sorry
+    IsClosedImmersion g' :=
+  @IsClosedImmersion.of_isPullback S B X Y Y' f g g' f' hg sq.flip
 
 /-- The base-change projection `pullback.snd f g` of a closed immersion
 `f : X ⟶ Y` is a closed immersion. -/
@@ -71,10 +80,11 @@ namespace IsOpenImmersion
 
 /-- Open immersions of algebraic spaces are stable under pullback along an
 arbitrary morphism, expressed by an `IsPullback` square. -/
-theorem of_isPullback {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
+theorem of_isPullback_snd {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
     {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X}
     (sq : IsPullback f' g' g f) (hg : IsOpenImmersion g) :
-    IsOpenImmersion g' := sorry
+    IsOpenImmersion g' :=
+  @IsOpenImmersion.of_isPullback S B X Y Y' f g g' f' hg sq.flip
 
 /-- The base-change projection `pullback.snd f g` of an open immersion
 `f : X ⟶ Y` is an open immersion. -/

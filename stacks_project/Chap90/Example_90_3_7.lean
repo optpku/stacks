@@ -1,169 +1,114 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.Algebra.DualNumber
-public import Mathlib.Algebra.Field.Subfield.Basic
-public import Mathlib.Algebra.MvPolynomial.Basic
-public import Mathlib.Algebra.MvPolynomial.Expand
-public import Mathlib.Algebra.MvPolynomial.PDeriv
-public import Mathlib.Data.ZMod.Basic
-public import Mathlib.RingTheory.Derivation.Basic
-public import Mathlib.RingTheory.Finiteness.Defs
-public import Mathlib.RingTheory.LocalRing.Pullback
-public import Mathlib.RingTheory.Localization.FractionRing
-public import Mathlib.RingTheory.PrincipalIdealDomain
-public import Mathlib.RingTheory.SimpleRing.Basic
-public import Mathlib.RingTheory.SimpleRing.Principal
-public import stacks_project.Chap90.Definition_90_10_1_DualNumber
-public import stacks_project.Chap90.Definition_90_19_2_DualNumber
+public import ReasLib.FieldTheory.MvRatFunc.Frobenius
+public import ReasLib.RingTheory.DualNumber.Derivation
+public import ReasLib.AlgebraicGeometry.FormalDeformation.DualNumber.Pullback
+import StacksCheckRecall
 
 /-!
 # An inseparable fibre product that is not an object of `C_Λ`
 
-Over `Λ = F_p(t_1,…,t_n) → k = F_p(x_1,…,x_n)`, `t_i ↦ x_i^p`, the dual-number object
-`k[ε]` lies in `ArtinianLocalAlgCat`. A `Λ`-derivation `D` of `k` yields a morphism
-`f_D` with `a ↦ inl a + inr (D a)`. For `D = ∂/∂x_1` and the inclusion `a ↦ a`, the
-algebra fibre product is `{a ∈ k | ∂/∂x_1(a) = 0}` and does not surject onto `k`.
+For the embedding `Λ = F_p(t₁,…,tₙ) → k = F_p(x₁,…,xₙ)` sending `tᵢ` to `xᵢ ^ p`,
+the first partial derivative defines a section into `k[ε]`. Its algebra pullback
+against the constant section is the kernel of that derivative and does not
+surject onto `k` through the first projection.
 -/
 
-@[expose] public section
+public section
 
-open CategoryTheory IsLocalRing TrivSqZeroExt
+open CategoryTheory TrivSqZeroExt MvRatFunc.Frobenius
 open scoped DualNumber
 
-noncomputable section
+section FunctionField
 
-/-- Addition in the prime field `F_p` is cancellative. -/
-instance instIsCancelAdd_zMod (p : ℕ) [Fact p.Prime] : IsCancelAdd (ZMod p) where
-  add_left_cancel a := add_right_injective a
-  add_right_cancel a := add_left_injective a
+variable (n p : ℕ) [Fact p.Prime]
 
-/-- Multivariate polynomials over `F_p` form an integral domain. -/
-instance instIsDomain_mvPolynomial (n p : ℕ) [Fact p.Prime] :
-    IsDomain (MvPolynomial (Fin n) (ZMod p)) where
-  mul_left_cancel_of_ne_zero := sorry
-  mul_right_cancel_of_ne_zero := sorry
+#check (MvRatFunc.Frobenius.functionField n p : Type)
+#check (MvRatFunc.Frobenius.expandFraction n p : functionField n p →+* functionField n p)
+#check (MvRatFunc.Frobenius.baseSubfield n p : Subfield (functionField n p))
+#check (MvRatFunc.Frobenius.baseField n p : Type)
+#check (MvRatFunc.Frobenius.finite n p : Module.Finite (baseField n p) (functionField n p))
 
-/-- The rational function field `k = F_p(x_1,…,x_n)`. -/
-abbrev functionField (n p : ℕ) [Fact p.Prime] : Type :=
-  FractionRing (MvPolynomial (Fin n) (ZMod p))
+variable (index : Fin n)
 
-/-- The rational function field `F_p(x_1,…,x_n)` is a field. -/
-instance instField_functionField (n p : ℕ) [Fact p.Prime] : Field (functionField n p) :=
-  FractionRing.field _
+#check (MvRatFunc.Frobenius.expandFraction_X n p index :
+  expandFraction n p
+      (algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p)
+        (MvPolynomial.X index)) =
+    algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p)
+      (MvPolynomial.X index) ^ p)
 
-/-- The fraction-field map induced by `t_i ↦ x_i^p`, i.e. `MvPolynomial.expand p`. -/
-def expandFraction (n p : ℕ) [Fact p.Prime] :
-    functionField n p →+* functionField n p :=
-  let j :=
-    (MvPolynomial.expand p :
-        MvPolynomial (Fin n) (ZMod p) →ₐ[ZMod p]
-          MvPolynomial (Fin n) (ZMod p)).toRingHom
-  IsLocalization.map (functionField n p) j
-    (nonZeroDivisors_le_comap_nonZeroDivisors_of_injective j
-      (MvPolynomial.expand_injective (Nat.Prime.pos Fact.out)))
+#check (MvRatFunc.Frobenius.algebraMap_X n p index :
+  algebraMap (baseField n p) (functionField n p)
+      ((expandFraction n p).rangeRestrictField
+        (algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p)
+          (MvPolynomial.X index))) =
+    algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p)
+      (MvPolynomial.X index) ^ p)
 
-/-- `expandFraction` sends the class of `X i` to the class of `X i ^ p`. -/
-theorem expandFraction_X (n p : ℕ) [Fact p.Prime] (i : Fin n) :
-    expandFraction n p
-        (algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p) (MvPolynomial.X i)) =
-      algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p) (MvPolynomial.X i) ^ p :=
-  sorry
+#check (MvRatFunc.Frobenius.pderiv n p index :
+  Derivation (baseField n p) (functionField n p) (functionField n p))
 
-/-- The image of `expandFraction`, realizing `Λ = F_p(t_1,…,t_n)` inside `functionField`. -/
-def lambdaSubfield (n p : ℕ) [Fact p.Prime] : Subfield (functionField n p) :=
-  (expandFraction n p).fieldRange
-
-/-- The base field `Λ = F_p(t_1,…,t_n)` as the carrier of `lambdaSubfield`. -/
-abbrev LambdaField (n p : ℕ) [Fact p.Prime] : Type := lambdaSubfield n p
-
-/-- The structure map `Λ → k` sends the image of `t_i` to `x_i^p`. -/
-theorem algebraMap_lambda_X (n p : ℕ) [Fact p.Prime] (i : Fin n) :
-    algebraMap (LambdaField n p) (functionField n p)
-        ((expandFraction n p).rangeRestrictField
-          (algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p) (MvPolynomial.X i))) =
-      algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p) (MvPolynomial.X i) ^ p :=
-  sorry
-
-/-- The extension `k / Λ` is finite; mathematically the degree is `p^n`. -/
-instance instModuleFinite_functionField (n p : ℕ) [Fact p.Prime] :
-    Module.Finite (LambdaField n p) (functionField n p) := sorry
-
-/-- The partial derivative `∂/∂x_i` on `functionField`, as a derivation over `LambdaField`. -/
-def pderivFunctionField (n p : ℕ) [Fact p.Prime] (i : Fin n) :
-    Derivation (LambdaField n p) (functionField n p) (functionField n p) where
-  toFun z :=
-    let x := (IsFractionRing.div_surjective (MvPolynomial (Fin n) (ZMod p)) z).choose
-    let y :=
-      (IsFractionRing.div_surjective (MvPolynomial (Fin n) (ZMod p)) z).choose_spec.choose
-    (algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p) (MvPolynomial.pderiv i x) *
-        algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p) y -
-      algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p) x *
-        algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p)
-          (MvPolynomial.pderiv i y)) /
-      algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p) y ^ 2
-  map_add' := sorry
-  map_smul' := sorry
-  map_one_eq_zero' := sorry
-  leibniz' := sorry
-
-/-- `pderivFunctionField` extends `MvPolynomial.pderiv` along `algebraMap` into the
-function field. -/
-theorem pderivFunctionField_algebraMap (n p : ℕ) [Fact p.Prime] (i : Fin n)
-    (f : MvPolynomial (Fin n) (ZMod p)) :
-    pderivFunctionField n p i
-        (algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p) f) =
+#check (MvRatFunc.Frobenius.pderiv_algebraMap n p index :
+  ∀ polynomial : MvPolynomial (Fin n) (ZMod p),
+    pderiv n p index
+        (algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p) polynomial) =
       algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p)
-        (MvPolynomial.pderiv i f) := sorry
+        (MvPolynomial.pderiv index polynomial))
 
-/-- `∂/∂x_i` of the generator `x_i` is `1`. -/
-theorem pderivFunctionField_X (n p : ℕ) [Fact p.Prime] (i : Fin n) :
-    pderivFunctionField n p i
-        (algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p)
-          (MvPolynomial.X i)) = 1 := sorry
+#check (MvRatFunc.Frobenius.pderiv_X n p index :
+  pderiv n p index
+      (algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p)
+        (MvPolynomial.X index)) = 1)
 
-/-- `∂/∂x_i` vanishes on the generators `x_j` for `j ≠ i`. -/
-theorem pderivFunctionField_X_of_ne (n p : ℕ) [Fact p.Prime] {i j : Fin n} (h : j ≠ i) :
-    pderivFunctionField n p i
-        (algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p)
-          (MvPolynomial.X j)) = 0 := sorry
+variable (other : Fin n) (h_ne : other ≠ index)
 
-namespace ArtinianLocalAlgCat
+#check (MvRatFunc.Frobenius.pderiv_X_of_ne n p h_ne :
+  pderiv n p index
+      (algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p)
+        (MvPolynomial.X other)) = 0)
+
+end FunctionField
+
+section Derivation
 
 variable {Λ k : Type} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
-  [Module.Finite Λ k]
+  [Module.Finite Λ k] (D : Derivation Λ k k)
 
-/-- The morphism `f_D : k ⟶ k[ε]` of `ArtinianLocalAlgCat` sending `a` to
-`inl a + inr (D a)`. -/
-def homOfDerivation (D : Derivation Λ k k) : residue Λ k ⟶ dualNumber Λ k where
-  hom :=
-    { toFun := fun a ↦ inl a + inr (D a)
-      map_one' := sorry
-      map_mul' := sorry
-      map_zero' := sorry
-      map_add' := sorry
-      commutes' := sorry }
-  isLocalHom := sorry
-  residue_compat := sorry
+#check (ArtinianLocalAlgCat.residue Λ k : ArtinianLocalAlgCat Λ k)
+#check (ArtinianLocalAlgCat.dualNumber Λ k : ArtinianLocalAlgCat Λ k)
+#check (D.toDualNumberAlgHom : k →ₐ[Λ] DualNumber k)
+#check (ArtinianLocalAlgCat.homOfDerivation D :
+  ArtinianLocalAlgCat.residue Λ k ⟶ ArtinianLocalAlgCat.dualNumber Λ k)
+#check (ArtinianLocalAlgCat.residueToDualNumber Λ k :
+  ArtinianLocalAlgCat.residue Λ k ⟶ ArtinianLocalAlgCat.dualNumber Λ k)
 
-/-- `homOfDerivation D` evaluates to the dual number with scalar `a` and infinitesimal `D a`. -/
-theorem homOfDerivation_apply (D : Derivation Λ k k) (a : k) :
-    (homOfDerivation D).hom a = inl a + inr (D a) := sorry
+#check (ArtinianLocalAlgCat.homOfDerivation_hom D :
+  (ArtinianLocalAlgCat.homOfDerivation D).hom = D.toDualNumberAlgHom)
 
-/-- The algebra fibre product of `f_D` and the inclusion `a ↦ a` consists of the pairs
-`(a, a)` with `D a = 0`. -/
-theorem mem_algebraPullback_iff (D : Derivation Λ k k) {a b : k} :
-    (a, b) ∈ AlgHom.pullback (homOfDerivation D).hom (residueToDualNumber Λ k).hom ↔
-      a = b ∧ D a = 0 := sorry
+#check (ArtinianLocalAlgCat.homOfDerivation_apply D :
+  ∀ value : k, (ArtinianLocalAlgCat.homOfDerivation D).hom value =
+    inl value + inr (D value))
 
-/-- Example 90.3.7: the algebra fibre product of `f_{∂/∂x_1}` and the inclusion
-`a ↦ a` into dual numbers does not surject onto the residue field `functionField`,
-so that fibre product is not an object of `ArtinianLocalAlgCat`. -/
-@[stacks 06S4]
-theorem not_surjective_algebraPullback_toResidue (n p : ℕ) [Fact p.Prime] [NeZero n] :
+variable (left right : k)
+
+#check (Derivation.mem_dualNumberPullback_iff D (left := left) (right := right) :
+  (left, right) ∈ AlgHom.pullback D.toDualNumberAlgHom (inlAlgHom Λ k k) ↔
+    left = right ∧ D left = 0)
+
+end Derivation
+
+/- Example 90.3.7: The algebra pullback of the first partial-derivative section and
+the constant inclusion into dual numbers does not surject onto the residue field,
+so its natural residue map does not make it an object of `C_Λ`. -/
+@[stacks 06S4] #check (ArtinianLocalAlgCat.not_surjective_algebraPullback_toResidue :
+  ∀ (n p : ℕ) [Fact p.Prime] [NeZero n],
     ¬ Function.Surjective
-        (AlgHom.pullbackFst
-          (homOfDerivation (pderivFunctionField n p 0)).hom
-          (residueToDualNumber (LambdaField n p) (functionField n p)).hom) := sorry
-
-end ArtinianLocalAlgCat
-
+      (AlgHom.pullbackFst (pderiv n p 0).toDualNumberAlgHom
+        (inlAlgHom (baseField n p) (functionField n p) (functionField n p))))

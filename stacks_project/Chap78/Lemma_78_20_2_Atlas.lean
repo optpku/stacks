@@ -1,5 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quotient.Atlas
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.StackInSets
 public import Mathlib.CategoryTheory.Elements
 public import Mathlib.CategoryTheory.Yoneda
 public import ReasLib.CategoryTheory.Fibered.CartesianBasedFunctor.Composition
@@ -7,7 +15,6 @@ public import ReasLib.CategoryTheory.Fibered.CartesianBasedFunctor.Precompositio
 public import ReasLib.CategoryTheory.Fibered.InGroupoids.Cartesian
 public import ReasLib.CategoryTheory.Fibered.Stack.CategoryOfElements.Forward
 public import ReasLib.CategoryTheory.Fibered.Stack.Stackification
-public import stacks_project.Chap65.Lemma_65_9_1
 public import stacks_project.Chap78.Definition_78_20_1_Quotient
 
 /-!
@@ -31,16 +38,12 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- The stack in sets `𝒮_X` associated to an algebraic space, obtained from its functor of
-points as an fppf sheaf on `Sch/S`. -/
-def stackInSets {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    StackOver.Sets (Scheme.fppfTopology.over S) :=
-  (StackOver.Sets.ofSheaf (Scheme.fppfTopology.over S)).obj X.toSheaf
 
 /-- `stackInSets X` is the category-of-elements stack of the fppf sheaf of points of `X`. -/
 theorem stackInSets_eq {S : Scheme.{u}} (X : AlgebraicSpace S) :
     stackInSets X =
-      (StackOver.Sets.ofSheaf (Scheme.fppfTopology.over S)).obj X.toSheaf :=
+      (StackOver.Sets.ofSheaf (Scheme.fppfTopology.over S)).obj
+        (⟨X.functorOfPoints, X.isSheaf⟩ : Sheaf (Scheme.fppfTopology.over S) (Type u)) :=
   sorry
 
 /-- The projection of `𝒮_X` is the opposite category-of-elements projection of the functor
@@ -54,14 +57,6 @@ instance instIsStackOnSite_stackInSets {S : Scheme.{u}} (X : AlgebraicSpace S) :
     IsStack.OnSite (Scheme.fppfTopology.over S) (stackInSets X).p :=
   IsStack.InSets.toOnSite inferInstance
 
-/-- The cartesian `1`-morphism `𝒮_X ⟶ 𝒮_Y` induced by a morphism of algebraic spaces. -/
-def stackInSets.map {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    CartesianBasedFunctor (stackInSets X).p (stackInSets Y).p :=
-  CartesianBasedFunctor.ofTargetInGroupoids
-    (BasedFunctor.ofFunctor
-      (StackOver.Sets.Hom.toFunctor
-        ((StackOver.Sets.ofSheaf (Scheme.fppfTopology.over S)).map (Sheaf.homEquiv.symm f)))
-      sorry)
 
 /-- The identity morphism of algebraic spaces induces the identity on `𝒮_X`. -/
 theorem stackInSets.map_id {S : Scheme.{u}} (X : AlgebraicSpace S) :
@@ -79,23 +74,6 @@ end AlgebraicGeometry.AlgebraicSpace
 
 namespace AlgebraicGeometry.GroupoidAlgebraicSpace
 
-/-- The total functor `𝒮_U ⟶ [U/_p R]` sending a functor-of-points value of `U` to the
-corresponding object of the co-Grothendieck prestack. Fibre maps are identity arrows of
-the discrete fibration `𝒮_U`. -/
-def atlasToPreQuotientFunctor {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) :
-    (stackInSets G.U.left).total ⥤ (preQuotient G).total where
-  obj x :=
-    { base := x.unop.fst.unop
-      fiber := yonedaEquiv.symm x.unop.snd }
-  map {x y} f :=
-    { base := f.unop.val.unop
-      fiber :=
-        { arrow := yonedaEquiv.symm x.unop.snd ≫ G.e.left
-          source := sorry
-          target := sorry } }
-  map_id := sorry
-  map_comp := sorry
 
 /-- The base of `atlasToPreQuotientFunctor G x` is the scheme underlying the point `x`. -/
 theorem atlasToPreQuotientFunctor_base {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -110,12 +88,6 @@ theorem atlasToPreQuotientFunctor_fiber {S : Scheme.{u}} {B : AlgebraicSpace S}
     ((atlasToPreQuotientFunctor G).obj x).fiber = yonedaEquiv.symm x.unop.snd :=
   sorry
 
-/-- The canonical cartesian `1`-morphism `𝒮_U ⟶ [U/_p R]`. -/
-def atlasToPreQuotient {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) :
-    CartesianBasedFunctor (stackInSets G.U.left).p (preQuotient G).p :=
-  CartesianBasedFunctor.ofTargetInGroupoids
-    (BasedFunctor.ofFunctor (atlasToPreQuotientFunctor G) sorry)
 
 /-- The total functor of `atlasToPreQuotient` is `atlasToPreQuotientFunctor`. -/
 theorem atlasToPreQuotient_toFunctor {S : Scheme.{u}} {B : AlgebraicSpace S}

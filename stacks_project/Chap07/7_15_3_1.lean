@@ -1,30 +1,34 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.CategoryTheory.Sites.Types
+import ReasLib.CategoryTheory.Sites.Types.FullSubsite
 import StacksCheckRecall
 
-@[expose] public section
-
-open CategoryTheory Opposite
+open CategoryTheory CategoryTheory.Limits Opposite
 
 universe u
 
-/- 7.15.3.1: in the singleton case of Remark 7.15.3, the equivalence of topoi
-i : Sh(pt) → Sh(S) is given by i⁻¹ ℱ = ℱ(e) and
-i_* E = (U ↦ Mor_Sets(U, E)), with e a singleton in the site of sets S.
-
-The canonical owner is typeEquiv : Type u ≌ Sheaf typesGrothendieckTopology (Type u)
-on the jointly-surjective type site, identifying e with PUnit. The inverse
-is evaluation at op PUnit, so i⁻¹ ℱ = ℱ(PUnit), and the functor is yoneda',
-so i_* E is the sheaf U ↦ (U ⟶ E). -/
-@[stacks 05UW] #check typeEquiv.{u}
-
-#check (typeEquiv.{u}.inverse :
-    Sheaf typesGrothendieckTopology (Type u) ⥤ Type u)
-
-#check (typeEquiv.{u}.functor :
-    Type u ⥤ Sheaf typesGrothendieckTopology (Type u))
-
-#check yoneda'.{u}
-
-#check yoneda'_comp.{u}
+/- 7.15.3.1: if a full site of sets has a singleton e, then its sheaves are
+   equivalent to sets, with i⁻¹ ℱ = ℱ(e) and i_* E = (U ↦ Mor_Sets(U, E)). -/
+@[stacks 05UW] #check
+  (CategoryTheory.TypesFullSubsite.sheaves_pt_sets_equivalence :
+    ∀ (C : Type (u + 1)) [Category.{u, u + 1} C]
+      (inclusion : C ⥤ Type u) [Functor.Full inclusion] [Functor.Faithful inclusion]
+      (e : C) [Unique (inclusion.obj e)] [HasPullbacks C]
+      (J : GrothendieckTopology C),
+      (∀ (U : C) (R : Presieve U),
+        Sieve.generate R ∈ J U ↔
+          ∀ x : inclusion.obj U, ∃ (V : C) (f : V ⟶ U), R f ∧
+            ∃ y : inclusion.obj V, inclusion.map f y = x) →
+        ∃ i : Type u ≌ Sheaf J (Type u),
+          i.inverse =
+              sheafToPresheaf J (Type u) ⋙
+                (evaluation Cᵒᵖ (Type u)).obj (Opposite.op e) ∧
+            i.functor ⋙ sheafToPresheaf J (Type u) =
+              yoneda ⋙
+                (Functor.whiskeringLeft Cᵒᵖ (Type u)ᵒᵖ (Type u)).obj inclusion.op)

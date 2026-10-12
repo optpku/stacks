@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Fibered.FullSubcategory.Fiber
@@ -101,9 +107,8 @@ theorem isFibered
 
 /-! ## The stack criterion -/
 
-/-- Lemma 8.4.3 (tag `04TU`): a full subcategory of a stack remains a stack when its defining
-property is stable under fiberwise cartesian pullback and its fiberwise iso-closure is local for
-the covering topology. -/
+/-- A full subcategory of a stack remains a stack when its defining property is stable under
+fiberwise cartesian pullback and its fiberwise iso-closure is local for the covering topology. -/
 @[stacks 04TU]
 theorem isStackOnSite
     (J : GrothendieckTopology C) (p : X ⥤ C) (P : ObjectProperty X)

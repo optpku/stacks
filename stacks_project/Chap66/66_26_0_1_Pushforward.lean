@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.ModuleAdjunction
@@ -38,7 +44,7 @@ theorem pushforward_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
 /-- Module pullback along a morphism of algebraic spaces is left adjoint to module pushforward. -/
 def pullbackPushforwardAdjunction {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     pullback f ⊣ pushforward f :=
-  (ringedToposHom f).moduleAdjunction
+  ((ringedToposHom f).moduleAdjunction).ofNatIsoLeft (pullbackIsoTopos f).symm
 
 end Modules
 

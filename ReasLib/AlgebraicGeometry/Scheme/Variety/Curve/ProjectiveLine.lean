@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
@@ -6,6 +12,7 @@ public import Mathlib.AlgebraicGeometry.Geometrically.Irreducible
 public import Mathlib.AlgebraicGeometry.Morphisms.Proper
 public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
 public import Mathlib.Data.List.TFAE
+public import Mathlib.FieldTheory.IsAlgClosed.Basic
 public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Line
 public import ReasLib.AlgebraicGeometry.Scheme.Gorenstein
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections
@@ -60,5 +67,14 @@ theorem projectiveLine_tfae
         constantGlobalFunctions ∧ genusZero ∧ hasDegreeOneInvertibleModule,
         firstCohomologyVanishes ∧ hasDegreeOneInvertibleModule,
         firstCohomologyVanishes ∧ hasNormalClosedPointsOfCoprimeDegrees ] := sorry
+
+/-- A smooth proper genus-zero curve over an algebraically closed field is
+isomorphic to the projective line. -/
+theorem iso_projectiveLine_of_genus_zero
+    {k : Type u} [Field k] [IsAlgClosed k] (X : SchemeOverField k)
+    [Curve X] [IsProper X.hom] [Smooth X.hom]
+    (h_genus : Scheme.Hom.cohomologyFinrank X.hom
+      (SheafOfModules.unit X.left.ringCatSheaf : X.left.Modules) 1 = 0) :
+    Nonempty (X ≅ Over.mk (ProjectiveLine.toSpec k)) := sorry
 
 end AlgebraicGeometry.SchemeOverField

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Fibered.Cleavage.ReindexIso.Composition
@@ -113,8 +119,7 @@ theorem Reindex.idIsoApp.conjugation.toIdentity
         (Reindex.idIsoApp χ U y).inv =
       φ := sorry
 
-/-- Definition 4.33.6 (2), Lemma 4.33.7 (2) (Stacks 02XN/02XO): the canonical unit comparison
-`α_U : 𝟭 (Fiber p U) ≅ (𝟙 U)⁎[χ]`. -/
+/-- The canonical unit comparison `α_U : 𝟭 (Fiber p U) ≅ (𝟙 U)⁎[χ]`. -/
 @[stacks 02XN, stacks 02XO "(2)"]
 noncomputable def Reindex.idIso
     (U : C) :

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 import Mathlib.Tactic.CrossRefAttribute
@@ -45,6 +51,10 @@ variable {C : Type u₁} {S : Type u₂} [Category.{v₁} C] [Category.{v₂} S]
 
 /-- The identity functor is canonically fibred in groupoids. -/
 instance id : Functor.IsFibered.InGroupoids (Functor.id C) := sorry
+
+/-- The opposite of an identity functor is canonically fibred in groupoids. -/
+instance idOp : Functor.IsFibered.InGroupoids (Functor.id C).op :=
+  inferInstanceAs (Functor.IsFibered.InGroupoids (Functor.id (Cᵒᵖ)))
 
 /-- A functor is fibred in groupoids exactly when it is fibered and every total-category
 morphism is strongly Cartesian over its image. This recognizes the canonical projection-level

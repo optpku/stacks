@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap60.Definition_60_26_2
@@ -319,22 +325,14 @@ theorem crystallineFrobeniusPullback_eq :
 def coefficientFrobenius
     (F_E : crystallineFrobeniusPullback I γS hc x₀ s hp σ h_ideal h_over h_sigma hPD F ⟶
         derivedOfCrystal I γS hc x₀ p s hp F) :=
-  crystallineFrobeniusMap
-    ((sigmaTwistMorphism I γS hc x₀ s hp σ h_ideal h_over h_sigma hPD).modulePullbackDerived ⋙
-      (relativeFrobeniusRingedMorphism I γS hc x₀ s hp).modulePullbackDerived)
-    (baseDerivedGlobalSections I γS hc x₀ p s hp)
-    (derivedOfCrystal I γS hc x₀ p s hp F) F_E
+  (baseDerivedGlobalSections I γS hc x₀ p s hp).map F_E
 
 /-- `coefficientFrobenius` is `rGamma.map F_ℰ`. -/
 theorem coefficientFrobenius_eq
     (F_E : crystallineFrobeniusPullback I γS hc x₀ s hp σ h_ideal h_over h_sigma hPD F ⟶
         derivedOfCrystal I γS hc x₀ p s hp F) :
     coefficientFrobenius I γS hc x₀ s hp σ h_ideal h_over h_sigma hPD F F_E =
-      crystallineFrobeniusMap
-        ((sigmaTwistMorphism I γS hc x₀ s hp σ h_ideal h_over h_sigma hPD).modulePullbackDerived ⋙
-          (relativeFrobeniusRingedMorphism I γS hc x₀ s hp).modulePullbackDerived)
-        (baseDerivedGlobalSections I γS hc x₀ p s hp)
-        (derivedOfCrystal I γS hc x₀ p s hp F) F_E :=
+      (baseDerivedGlobalSections I γS hc x₀ p s hp).map F_E :=
   sorry
 
 /-- The coefficient Frobenius is nondegenerate when some power of `p` factors

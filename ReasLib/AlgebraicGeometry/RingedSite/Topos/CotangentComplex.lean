@@ -1,7 +1,14 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.CotangentComplex
 public import ReasLib.Algebra.Category.CommRing.Sheaf.Internal
+public import ReasLib.CategoryTheory.Sites.Topos.InternalCommRing
 public import ReasLib.CategoryTheory.Sites.Topos.Morphism
 
 /-!
@@ -29,16 +36,6 @@ variable {JC : GrothendieckTopology C} {JD : GrothendieckTopology D}
 variable [JC.HasSheafCompose (forget₂ CommRingCat RingCat.{u})]
 variable [JD.HasSheafCompose (forget₂ CommRingCat RingCat.{u})]
 variable [JD.HasSheafCompose (forget RingCat.{u})]
-
-/-- Inverse image of commutative ring sheaves along a geometric morphism of topoi. -/
-def commRingInverseImage (f : MorphismOfTopoiIn.{u, u, u, u, u} JD JC) :
-    Sheaf JD CommRingCat.{u} ⥤ Sheaf JC CommRingCat.{u} :=
-  InternalCommRing.toInternal ⋙
-    (@Functor.mapCommRingOfFiniteProducts
-      (Sheaf JD (Type u)) _ _ (sheafBraidedCategory JD)
-      (Sheaf JC (Type u)) _ _ (sheafBraidedCategory JC)
-      f.inverseImage inferInstance) ⋙
-    InternalCommRing.fromInternal
 
 variable [JC.HasSheafCompose (CategoryTheory.forget CommRingCat.{u})]
 variable [HasWeakSheafify JC CommRingCat.{u}]

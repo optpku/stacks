@@ -1,7 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import ReasLib.CategoryTheory.Fibered.InGroupoids.Basic
-public import stacks_project.Chap90.Lemma_90_10_4_Along
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Schlessinger.Along
 
 /-!
 # Schlessinger's (S2) along finite square-zero extensions
@@ -23,13 +29,14 @@ variable {F : Type v} [Category.{w} F]
 
 namespace CategoryTheory.Functor
 
-/-- Lemma 90.10.4: if a category cofibered in groupoids over `ArtinianLocalAlgCat Λ k`
+/- Lemma 90.10.4: if a category cofibered in groupoids over `ArtinianLocalAlgCat Λ k`
 satisfies (S2), then both clauses of (S2) also hold when `dualNumber Λ k` is replaced
 by `squareZero Λ k V` for any finite `k`-module `V`. -/
 @[stacks 06HZ]
-instance hasSchlessingerS2Along (p : F ⥤ ArtinianLocalAlgCat Λ k)
+#check (CategoryTheory.Functor.hasSchlessingerS2Along :
+  ∀ (p : F ⥤ ArtinianLocalAlgCat Λ k)
     [IsFibered.InGroupoids p.op] [HasSchlessingerS2 p]
-    (V : Type u) [AddCommGroup V] [Module k V] [Module.Finite k V] :
-    HasSchlessingerS2Along p V := sorry
+    (V : Type u) [AddCommGroup V] [Module k V] [Module.Finite k V],
+    HasSchlessingerS2Along p V)
 
 end CategoryTheory.Functor

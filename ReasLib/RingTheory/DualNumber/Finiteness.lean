@@ -1,10 +1,15 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.RingTheory.DualNumber
 public import Mathlib.RingTheory.FinitePresentation
 public import Mathlib.RingTheory.Finiteness.Prod
 import Mathlib.Algebra.Polynomial.Div
-public import Mathlib.Tactic.CrossRefAttribute
 
 @[expose] public section
 
@@ -26,8 +31,7 @@ section Semiring
 
 variable [CommSemiring R]
 
-/-- Remark 10.88.13 (05CS) (1): the dual numbers are finite as a module over the base ring. -/
-@[stacks 05CS "(1)"]
+/-- The dual numbers are finite as a module over the base ring. -/
 instance finite : Module.Finite R R[ε] := by
   classical
   rw [Module.finite_def]
@@ -45,8 +49,6 @@ instance finite : Module.Finite R R[ε] := by
       Submodule.smul_mem (Submodule.span R (s : Set R[ε])) x.fst h_one
   · rw [DualNumber.inr_eq_smul_eps]
     exact Submodule.smul_mem (Submodule.span R (s : Set R[ε])) x.snd h_eps
-
-#synth Module.Finite R R[ε]
 
 end Semiring
 
@@ -74,9 +76,7 @@ private theorem aeval_eps_eq_coeff_zero_add_coeff_one_eps (p : Polynomial R) :
         ext <;>
           simp [Polynomial.aeval_monomial, TrivSqZeroExt.algebraMap_eq_inl, pow_succ, hcoeff]
 
-/-- Remark 10.88.13 (05CS) (2): the dual numbers are finitely presented as an algebra over the
-base ring. -/
-@[stacks 05CS "(2)"]
+/-- The dual numbers are finitely presented as an algebra over the base ring. -/
 instance finitePresentation : Algebra.FinitePresentation R R[ε] := by
   let f : Polynomial R →ₐ[R] R[ε] := Polynomial.aeval (ε : R[ε])
   have hf : Function.Surjective f := by
@@ -107,8 +107,6 @@ instance finitePresentation : Algebra.FinitePresentation R R[ε] := by
   apply Algebra.FinitePresentation.of_surjective hf
   rw [hker]
   exact Submodule.fg_span_singleton (Polynomial.X ^ 2)
-
-#synth Algebra.FinitePresentation R R[ε]
 
 end Ring
 

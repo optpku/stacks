@@ -1,8 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap64.Lemma_64_18_3_Category
-public import stacks_project.Chap64.Lemma_64_18_3_Kernel
-public import stacks_project.Chap64.Lemma_64_18_3_Instances
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.EllAdicSheaf.Abelian
 import Mathlib.Tactic.CrossRefAttribute
 import StacksCheckRecall
 
@@ -20,4 +24,5 @@ variable [∀ (Y : Scheme.{u}) (V : Y.Etale),
     HasWeakSheafify (Y.smallEtaleTopology.over V) AddCommGrpCat.{u}]
 
 /- Lemma 64.18.3: the category of ℤ_[ℓ]-sheaves on a Noetherian scheme X is abelian. -/
-@[stacks 03UO] #check (ZEllSheaf.instAbelian : Abelian (ZEllSheaf X ℓ))
+@[stacks 03UO] #check
+  (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.instAbelian : Abelian (ZEllSheaf X ℓ))

@@ -1,5 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.DirectTensorComparison
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Monoidal.Ringed
 public import ReasLib.CategoryTheory.DerivedCategory.Monoidal.Tensor
 public import stacks_project.Chap66.Lemma_66_29_7_CommSheaf
@@ -27,14 +34,14 @@ namespace AlgebraicGeometry.AlgebraicSpace.Modules
 variable {S : Scheme.{u}} (X : AlgebraicSpace S)
 
 /-- Module sheaves on an algebraic space inherit the canonical tensor product of the commutative
-small étale ringed site. -/
+small étale ringed site through the specified restriction-of-scalars equivalence. -/
+@[instance_reducible]
 noncomputable instance modulesMonoidalCategory : MonoidalCategory X.Modules :=
-  inferInstanceAs
-    (MonoidalCategory (ringedSiteModuleCategory (smallEtaleTopology X) (commStructureSheaf X)))
+  Modules.instMonoidalCategory X
 
 /-- The tensor product of `𝒪_X`-modules is additive in each variable. -/
 instance modulesMonoidalPreadditive : MonoidalPreadditive X.Modules :=
-  sorry
+  DirectTensorComparison.preadditive X
 
 /-- Totalized tensor products of unbounded complexes of `𝒪_X`-modules exist. -/
 instance modulesHasMapBifunctor (K L : CochainComplex X.Modules ℤ) :

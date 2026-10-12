@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.AlgebraicGeometry.Modules.Sheaf
@@ -221,16 +227,17 @@ def toSchemePushforwardUnderlyingAppOver (T : Over Y) (N : (ofOver T).Modules)
   let g := overHomToBase T
   let VA := openSmallEtale (Over.mk (𝟙 Y)) (unop U)
   let VB := openSmallEtale T (T.hom ⁻¹ᵁ unop U)
-  let iB := smallEtaleInclusion (ofOver T)
   let Nty :=
     (Sheaf.InternalModule.ToInternal.underlying (structureSheaf (ofOver T))).obj N
-  let Nspaces :=
-    (iB.sheafPushforwardCocontinuous (Type u)
-      (smallEtaleTopology (ofOver T)) (spacesEtaleTopology (ofOver T))).obj Nty
+  let a : (smallEtaleInclusion (ofOver T)).obj VB ⟶ (etaleBaseChange g).obj VA :=
+    openPullbackHom T (unop U)
+  let evaluation :
+      ((EtaleTopos.extension (ofOver T)).obj Nty).obj.obj
+          (op ((etaleBaseChange g).obj VA)) ⟶ Nty.obj.obj (op VB) :=
+    EtaleTopos.extensionEvaluation (ofOver T) Nty a
   ((RingedSite.ToposHom.ModulePushforward.forgetIso (ringedToposHom g)).hom.app N).hom.app
       (op VA) ≫
-    Nspaces.obj.map (openPullbackHom T (unop U)).op ≫
-    ((iB.op.ranAdjunction (Type u)).counit.app Nty.obj).app (op VB)
+    evaluation
 
 /-- Type-valued sheaf morphism of the `toScheme` direct-image comparison along `T.hom`. -/
 def toSchemePushforwardUnderlyingOver (T : Over Y) (N : (ofOver T).Modules) :

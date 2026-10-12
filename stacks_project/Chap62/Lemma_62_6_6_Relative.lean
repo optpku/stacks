@@ -1,7 +1,14 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.AlgebraicGeometry.Noetherian
 public import Mathlib.RingTheory.DiscreteValuationRing.Basic
+public import ReasLib.AlgebraicGeometry.RelativeCycle
 public import stacks_project.Chap62.Lemma_62_4_1_Specialization
 public import stacks_project.Chap62.Lemma_62_6_6_Family
 
@@ -30,38 +37,29 @@ noncomputable abbrev specialize
       f.fiberCycleGroup (IsLocalRing.closedPoint R) r :=
   Scheme.Hom.cycleSpecialization f r
 
-/-- Coefficients of specialization are the weighted associated cycles of scheme-theoretic images
-of generic-fibre components, restricted to the closed fibre. -/
-theorem specialize_apply
-    {R : Type u} [CommRing R] [IsDomain R] [IsDiscreteValuationRing R] {X : Scheme.{u}}
+#check (AlgebraicGeometry.Scheme.Hom.cycleSpecialization_apply :
+  ∀ {R : Type u} [CommRing R] [IsDomain R] [IsDiscreteValuationRing R] {X : Scheme.{u}}
     (f : X ⟶ Spec (CommRingCat.of R)) [LocallyOfFiniteType f] (r : ℕ)
     (α : f.fiberCycleGroup (genericPoint (Spec (CommRingCat.of R))) r)
-    (x : f.fiber (IsLocalRing.closedPoint R)) :
+    (x : f.fiber (IsLocalRing.closedPoint R)),
     CycleGroup.toAlgebraicCycle (f.fiberDimensionFunction (IsLocalRing.closedPoint R)) r
         (specialize f r α) x =
-      Scheme.Hom.cycleSpecializationCoeff f r α x := sorry
+      Scheme.Hom.cycleSpecializationCoeff f r α x)
 
-/-- A family of fibrewise `r`-cycles is a relative `r`-cycle when it is compatible with
-specialization after every base change to the spectrum of a discrete valuation ring. -/
-def IsRelative {X S : Scheme.{u}} {f : X ⟶ S} [IsLocallyNoetherian S]
-    [LocallyOfFiniteType f] {r : ℕ} (α : Family f r) : Prop :=
-  ∀ (R : Type u) [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
-    (g : Spec (CommRingCat.of R) ⟶ S),
-    specialize (pullback.snd f g) r
-        (FamilyOfCyclesOnFibres.baseChange f g r α
-          (genericPoint (Spec (CommRingCat.of R)))) =
-      FamilyOfCyclesOnFibres.baseChange f g r α (IsLocalRing.closedPoint R)
+#check (AlgebraicGeometry.RelativeCycle.IsRelative :
+  ∀ {X S : Scheme.{u}} {f : X ⟶ S} [IsLocallyNoetherian S]
+    [LocallyOfFiniteType f] {r : ℕ}, f.FiberCycleFamily r → Prop)
 
-/-- Relative `r`-cycles are exactly the fibrewise families compatible with DVR specialization. -/
-theorem isRelative_iff {X S : Scheme.{u}} {f : X ⟶ S} [IsLocallyNoetherian S]
-    [LocallyOfFiniteType f] {r : ℕ} (α : Family f r) :
+#check (AlgebraicGeometry.RelativeCycle.isRelative_iff :
+  ∀ {X S : Scheme.{u}} {f : X ⟶ S} [IsLocallyNoetherian S]
+    [LocallyOfFiniteType f] {r : ℕ} (α : f.FiberCycleFamily r),
     IsRelative α ↔
       ∀ (R : Type u) [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
         (g : Spec (CommRingCat.of R) ⟶ S),
-        specialize (pullback.snd f g) r
+        Scheme.Hom.cycleSpecialization (pullback.snd f g) r
             (FamilyOfCyclesOnFibres.baseChange f g r α
               (genericPoint (Spec (CommRingCat.of R)))) =
           FamilyOfCyclesOnFibres.baseChange f g r α
-            (IsLocalRing.closedPoint R) := sorry
+            (IsLocalRing.closedPoint R))
 
 end AlgebraicGeometry.RelativeCycle

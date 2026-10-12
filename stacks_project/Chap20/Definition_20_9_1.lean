@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.Topology.Presheaf.Cech.Basic
@@ -14,21 +20,20 @@ universe u uι
 `U = iSup 𝒰` when needed), and an abelian presheaf `F`, the Čech complex
 Čech•(𝒰, F) is `cechComplex 𝒰 F`. -/
 @[stacks 01EF]
-#check (cechComplex :
+#check (TopCat.Presheaf.cechComplex :
   {X : TopCat.{u}} → {ι : Type uι} → (ι → Opens X) →
     X.Presheaf AddCommGrpCat.{max u uι} → CochainComplex AddCommGrpCat.{max u uι} ℕ)
 
 /- Definition 20.9.1 (2): the Čech cohomology groups Čech Hⁱ(𝒰, F) are the homology
 groups `Hⁱ(Čech•(𝒰, F))` of that complex, i.e. `cechCohomology 𝒰 F i`. -/
 @[stacks 01EF]
-#check (cechCohomology :
+#check (TopCat.Presheaf.cechCohomology :
   {X : TopCat.{u}} → {ι : Type uι} → (ι → Opens X) →
     X.Presheaf AddCommGrpCat.{max u uι} → ℕ → AddCommGrpCat.{max u uι})
 
 /- Identification `Hⁱ(Čech•(𝒰, F)) = Čech Hⁱ(𝒰, F)`. -/
 @[stacks 01EF]
-#check (cechComplex_homology :
+#check (TopCat.Presheaf.cechComplex_homology :
   ∀ {X : TopCat.{u}} {ι : Type uι} (U : ι → Opens X)
     (F : X.Presheaf AddCommGrpCat.{max u uι}) (i : ℕ),
     (cechComplex U F).homology i = cechCohomology U F i)
-

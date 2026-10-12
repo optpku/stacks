@@ -1,7 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Comma.Over.Basic
-public import Mathlib.CategoryTheory.Limits.FormalCoproducts.Basic
+public import ReasLib.CategoryTheory.Limits.FormalCoproduct.Equivalence
 public import Mathlib.CategoryTheory.Sites.Precoverage
 
 /-!
@@ -48,18 +54,5 @@ theorem isCovering_iff {X : C} (P : Precoverage C)
       Presieve.ofArrows (fun i ↦ (𝒰.obj i).left) (fun i ↦ (𝒰.obj i).hom) ∈ P X := sorry
 
 end Over
-
-/-- Two formal coproducts are tautologically equivalent when they map to one another with
-componentwise isomorphisms in both directions. -/
-def TautologicallyEquivalent (𝒰 𝒱 : FormalCoproduct.{w} C) : Prop :=
-  ∃ f : 𝒰 ⟶ 𝒱, ∃ g : 𝒱 ⟶ 𝒰,
-    (∀ i : 𝒰.I, IsIso (f.φ i)) ∧ ∀ j : 𝒱.I, IsIso (g.φ j)
-
-/-- Tautological equivalence is characterized by componentwise-isomorphic maps in both
-directions. -/
-theorem tautologicallyEquivalent_iff {𝒰 𝒱 : FormalCoproduct.{w} C} :
-    TautologicallyEquivalent 𝒰 𝒱 ↔
-      ∃ f : 𝒰 ⟶ 𝒱, ∃ g : 𝒱 ⟶ 𝒰,
-        (∀ i : 𝒰.I, IsIso (f.φ i)) ∧ ∀ j : 𝒱.I, IsIso (g.φ j) := sorry
 
 end CategoryTheory.Limits.FormalCoproduct

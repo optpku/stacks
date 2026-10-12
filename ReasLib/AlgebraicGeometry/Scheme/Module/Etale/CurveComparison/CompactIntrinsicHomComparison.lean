@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommGeometricFiniteModel
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.IntrinsicDualInjectiveResolution
@@ -49,8 +55,7 @@ variable (hR : IsUnit (Nat.card R : k))
 variable (M : (finiteTypeDiscreteModule R
   (Aut (standardFiniteEtaleFiber (arithmeticPoint X η)))).FullSubcategory)
 
-/-- The explicit Hom resolution on the OPEN curve, using roots injectives
-restricted from this same compactification. -/
+/-- The explicit Hom resolution on the open curve obtained from the chosen compactification. -/
 abbrev openHom := IntrinsicDualInjectiveResolution.complex R X (arithmeticPoint X η) P M
 
 /-- Direct image of the Hom resolution, representing Rj_* of the dual. -/
@@ -67,23 +72,23 @@ def resolutionMap : NoncommGeometricFiniteModel.compactDualComplex R X η M P �
         (IntrinsicDualInjectiveResolution.comparison R X (arithmeticPoint X η) P M hR).hom
         ComplexShape.embeddingUpNat)
 
-/-- Connected arithmetic global arrow from the actual finite-term Galois model
-into the Hom-based Rj_* model. The remaining compact-support evaluation must
-use the open-immersion Hom/extension adjunction, not declare this already a pairing. -/
+/-- The connected arithmetic global arrow from the finite-term Galois model
+into the Hom-based direct-image model. -/
 def map := NoncommGeometricFiniteModel.compactArithmeticSheafMap R X η hR M P ≫
   resolutionMap R X η P hR M
 
 variable [∀ {Y Z : Scheme.{u}} (j : Y ⟶ Z) [IsOpenImmersion j]
   (F : Y.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} R), (etaleRestriction j).op.HasLeftKanExtension F]
 
+/-- The finite locally projective resolution after extension by zero to the compactification. -/
 abbrev compactSourceResolution := FiniteAssociatedResolution.compactComplex R (arithmeticPoint X η) M (Compactification.Of.ι P)
+/-- The injective resolution of the roots-of-unity coefficient sheaf on the compactification. -/
 abbrev compactRootsResolution := OpenExtensionInjectiveResolution.compactResolution
   (ActualRootsModule.Coeff.{u} (Nat.card R)) (Compactification.Of.ι P)
     (ActualRootsModule.liftedSheaf X.left (Nat.card R))
 
-/-- The previously missing DATA bridge is now supplied by the actual open-Hom
-unit/counit comparison. This is the connected global map into the compactification
-Hom complex, with the SAME source and roots resolutions. -/
+/-- The connected global map into the compactification Hom complex using the
+specified source and roots resolutions. -/
 def evaluationInput :
     (GeometricProjectiveChain.pulledChain R X η hR M P).extend CompactRepresentation.curveDegreeEmbedding ⟶
     NoncommLocalHomComplex.integerComplex (NoncommFiniteCoefficient.scalarHom R)
@@ -101,6 +106,7 @@ variable [∀ Y : Scheme.{u}, Y.smallEtaleTopology.HasSheafCompose
 variable [∀ Y : Scheme.{u}, Y.smallEtaleTopology.HasSheafCompose
   (ModuleCat.restrictScalars (RingEquiv.opOp R).toRingHom)]
 
+/-- The local-Hom transpose of the compact-support evaluation map. -/
 def transpose := LocalHomCurveTranspose.map (NoncommFiniteCoefficient.scalarHom R)
   (NoncommFiniteCoefficient.scalarHom_commute R) P.obj.right.left (compactSourceResolution R X η P M)
   (GeometricProjectiveChain.pulledChain R X η hR M P) (compactRootsResolution R X P).cocomplex
@@ -119,14 +125,11 @@ def derivedEvaluation :=
     (evaluationInput R X η P hR M)
     (FiniteAssociatedResolution.compactAugmentation R (arithmeticPoint X η) M (Compactification.Of.ι P))
 
-/-- Named true Prop debt: finite coefficient-projective field terms pull back
-to flat sheaves, so Hom into the actual A-injectives is injective after the
-canonical double-opposite equivalence. The optional tensor-adjunction proof
-bridge remains explicitly uncompleted. -/
+/-- Injectivity of the local-Hom transpose target in each degree. -/
 theorem transposeTarget_injective (i : ℤ) : Injective
     ((LocalHomCurveTranspose.target (NoncommFiniteCoefficient.scalarHom R)
       (NoncommFiniteCoefficient.scalarHom_commute R) P.obj.right.left
-      (GeometricProjectiveChain.pulledChain R X η hR M P) (compactRootsResolution R X P).cocomplex).X i) := by sorry
+      (GeometricProjectiveChain.pulledChain R X η hR M P) (compactRootsResolution R X P).cocomplex).X i) := sorry
 
 variable [EnoughInjectives (Sheaf P.obj.right.left.smallEtaleTopology (ModuleCat.{u + 1} R))]
 variable [∀ {Y Z : Scheme.{u}} (f : Y ⟶ Z) (F : Z.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} R),
@@ -159,6 +162,7 @@ def geometricEvaluation :
     ((etaleExtensionByZero (Compactification.Of.ι P) (ModuleCat.{u + 1} R)).obj
       ((associatedSheafFunctor R (arithmeticPoint X η)).obj M)) (derivedEvaluation R X η P hR M)
 
+/-- The coefficient cardinality is nonzero. -/
 instance card_neZero : NeZero (Nat.card R) := ⟨Nat.ne_of_gt (NoncommFiniteCoefficient.card_pos R)⟩
 
 variable [∀ Y : Scheme.{u}, HasWeakSheafify Y.smallEtaleTopology (ModuleCat.{u + 1} Rᵐᵒᵖᵐᵒᵖ)]
@@ -181,23 +185,30 @@ variable [HasDerivedCategory (DiscreteModuleCat (ActualRootsModule.Coeff.{u} (Na
 variable [HasDerivedCategory (ModuleCat.{u + 1}
   (NoncommCompletedRing.Obj Rᵐᵒᵖᵐᵒᵖ Gal(AlgebraicClosure k/k)))]
 
+/-- The right scalar map used by the local-Hom complex. -/
 abbrev rightScalar := NoncommLocalHom.opScalarHom (NoncommFiniteCoefficient.scalarHom R)
   (NoncommFiniteCoefficient.scalarHom_commute R)
+/-- The centrality witness for the right scalar map. -/
 abbrev rightCentral := NoncommLocalHom.opScalarHom_central (NoncommFiniteCoefficient.scalarHom R)
   (NoncommFiniteCoefficient.scalarHom_commute R)
 
+/-- The shifted local-Hom complex before scalar normalization. -/
 abbrev rawHom := NoncommLocalHomComplex.shiftedComplex (rightScalar R) (rightCentral R) P.obj.right.left
   (GeometricProjectiveChain.pulledChain R X η hR M P) (compactRootsResolution R X P).cocomplex
 
+/-- The double-opposite scalar normalization functor. -/
 def normalize := (NoncommCompletedTransport.doubleOppositeModules R (G := Gal(AlgebraicClosure k/k)) :
   ModuleCat.{u + 1} (NoncommCompletedRing.Obj Rᵐᵒᵖᵐᵒᵖ Gal(AlgebraicClosure k/k)) ⥤
     ModuleCat.{u + 1} (NoncommCompletedRing.Obj R Gal(AlgebraicClosure k/k)))
 
+/-- Double-opposite scalar normalization preserves addition of morphisms. -/
 instance normalize_additive : (normalize (k := k) R).Additive :=
   inferInstanceAs ((NoncommCompletedTransport.doubleOppositeModules R (G := Gal(AlgebraicClosure k/k))).Additive)
+/-- Double-opposite scalar normalization preserves finite limits. -/
 instance normalize_preservesFiniteLimits : PreservesFiniteLimits (normalize (k := k) R) := by
   unfold normalize NoncommCompletedTransport.doubleOppositeModules
   infer_instance
+/-- Double-opposite scalar normalization preserves finite colimits. -/
 instance normalize_preservesFiniteColimits : PreservesFiniteColimits (normalize (k := k) R) := by
   unfold normalize NoncommCompletedTransport.doubleOppositeModules
   infer_instance
@@ -209,6 +220,7 @@ def traceCharacterModel := ((normalize (k := k) R).mapHomologicalComplex (Comple
     (FieldHomNormalizedTrace.characterModel (Nat.card R) (rightScalar R) (rightCentral R)
       (GeometricProjectiveChain.chain R X η hR M)))
 
+/-- The completed field-Hom trace source after double-opposite scalar normalization. -/
 def traceSource := ((normalize (k := k) R).mapHomologicalComplex (ComplexShape.up ℤ)).obj
   (NoncommCompletedCochainTransport.cochain Rᵐᵒᵖᵐᵒᵖ Gal(AlgebraicClosure k/k)
     (FieldHomNormalizedTrace.source (Nat.card R) (rightScalar R) (rightCentral R) X P
@@ -221,10 +233,7 @@ def normalizedTrace : DerivedCategory.Q.obj (traceSource R X η P hR M) ⟶
     (FieldHomNormalizedTrace.completedTrace (Nat.card R) (rightScalar R) (rightCentral R) X P hR
       (GeometricProjectiveChain.chain R X η hR M) (GeometricProjectiveChain.term_finite R X η hR M))
 
-/-- Connected enhanced geometric evaluation AND normalized trace. Every arrow
-is over the original R[[Gal]]: actual derived sections, scalar/stalk comparison,
-the specified equivariant trace representative, and the actual trace augmentation.
-No underlying D(Ab) map or arbitrary desired comparison is substituted. -/
+/-- The geometric evaluation followed by the normalized character trace. -/
 def geometricEvaluationTrace :
     DerivedCategory.Q.obj (NoncommGeometricSource.arithmeticCochain R P.obj.right
       ((etaleExtensionByZero (Compactification.Of.ι P) (ModuleCat.{u + 1} R)).obj
@@ -266,11 +275,11 @@ def comparison :
     DerivedCategory.Q.map (traceCharacterIso R X η hR M).hom ≫
     (GeometricCharacterEndpoint.derivedTargetIso R X η hR M hne).hom
 
-/-- Curve Poincare duality for THIS enhanced evaluation and normalized trace.
+/-- Curve Poincare duality for the enhanced evaluation and normalized trace.
 After forgetting coefficients it is the geometric evaluation with Picard-degree
 trace, so it is a quasi-isomorphism. Faithful exact forgetting reflects this
 property; no arbitrary enhancement or new comparison is assumed. -/
-theorem geometricEvaluationTrace_isIso : IsIso (geometricEvaluationTrace R X η P hR M) := by sorry
+theorem geometricEvaluationTrace_isIso : IsIso (geometricEvaluationTrace R X η P hR M) := sorry
 
 /-- Invertibility of the actual full composite, not existence of a desired iso. -/
 theorem comparison_isIso : IsIso (comparison R X η P hR M hne) := by
@@ -283,12 +292,13 @@ theorem comparison_isIso : IsIso (comparison R X η P hR M hne) := by
 def comparisonIso := @asIso _ _ _ _ (comparison R X η P hR M hne)
   (comparison_isIso R X η P hR M hne)
 
+/-- The completed geometric cochain complex of the associated sheaf extended by zero. -/
 abbrev geometricSource := NoncommGeometricSource.arithmeticCochain R P.obj.right
   ((etaleExtensionByZero (Compactification.Of.ι P) (ModuleCat.{u + 1} R)).obj
     ((associatedSheafFunctor R (arithmeticPoint X η)).obj M))
 
-/-- Actual geometric trace into the signed dual cochain model, before the
-group-theoretic tensor comparison. This supplies the 03VN pairing. -/
+/-- The geometric trace into the signed dual cochain model before the
+group-theoretic tensor comparison. -/
 def signedGeometricTrace : DerivedCategory.Q.obj (geometricSource R X η P M) ⟶
     DerivedCategory.Q.obj (GeometricCharacterEndpoint.target R X η hR M) :=
   geometricEvaluationTrace R X η P hR M ≫
@@ -302,8 +312,7 @@ def signedHomologyMap (i : ℤ) : (geometricSource R X η P M).homology i ⟶
     (DerivedCategory.homologyFunctor _ i).map (signedGeometricTrace R X η P hR M) ≫
     (DerivedCategory.homologyFunctorFactors _ i).hom.app (GeometricCharacterEndpoint.target R X η hR M)
 
-/-- The source-faithful 03VN character-valued pairing: actual geometric
-evaluation/trace followed by evaluation on ordinary intrinsic-dual classes. -/
+/-- The character-valued pairing obtained from geometric evaluation and trace. -/
 def tracePairing (i : ℤ) : (geometricSource R X η P M).homology (2 - i) →+
     CharacterModule (((NoncommGeometricFiniteModel.ordinary R X η M).homology i).obj.V) :=
   (GeometricCharacterPairing.characterMap R X η hR M i).comp
@@ -311,7 +320,9 @@ def tracePairing (i : ℤ) : (geometricSource R X η P M).homology (2 - i) →+
 
 /-- Perfection of the displayed pairing follows from curve trace duality and
 exact finite-character cohomology, with no arbitrary pairing input. -/
-theorem tracePairing_bijective (i : ℤ) : Function.Bijective (tracePairing R X η P hR M i) := by sorry
+theorem tracePairing_bijective
+    (hne : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
+    (i : ℤ) : Function.Bijective (tracePairing R X η P hR M i) := sorry
 
 variable [∀ Y : Scheme.{u}, HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} R))]
 variable [∀ Y : Scheme.{u}, EnoughInjectives (Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} R))]
@@ -325,6 +336,6 @@ this equation does not define transport by conjugating the desired result. -/
 theorem refinement_compatibility :
     DerivedCategory.Q.map (NoncommCompactificationTransport.completedMap R X P P' f hcart
       ((associatedSheafFunctor R (arithmeticPoint X η)).obj M)) ≫
-        comparison R X η P' hR M hne = comparison R X η P hR M hne := by sorry
+        comparison R X η P' hR M hne = comparison R X η P hR M hne := sorry
 
 end CompactIntrinsicHomComparison

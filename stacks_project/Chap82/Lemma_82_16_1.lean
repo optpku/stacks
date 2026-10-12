@@ -1,4 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
+
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Point.ClosureIntegral
 
 public import Mathlib.Topology.LocallyFinite
 public import Mathlib.Topology.LocallyFinsupp
@@ -41,14 +49,16 @@ subspace of `X` via `ClosedSubspace.id`. -/
 noncomputable def flatComponent {S : Scheme.{u}} {B X : AlgebraicSpace S}
     [IsQuasiSeparated B] (pX : X ⟶ B) [QuasiSeparated pX]
     (η : genericPoints X) : ClosedSubspace X :=
-  @ClosedSubspace.irreducibleComponent S X (ClosedSubspace.id X)
-    (@instIsDecent_of_isQuasiSeparated S X (IsQuasiSeparated.of_quasiSeparated pX)) η
+  let _ := pX
+  ClosedSubspace.ofι (PointClosure.ι η.1)
 
 /-- The canonical irreducible component on a generic point is integral. -/
 theorem isIntegral_flatComponent {S : Scheme.{u}} {B X : AlgebraicSpace S}
     [IsQuasiSeparated B] (pX : X ⟶ B) [QuasiSeparated pX]
-    (η : genericPoints X) : IsIntegral (flatComponent pX η).X :=
-  sorry
+    (η : genericPoints X) : IsIntegral (flatComponent pX η).X := by
+  -- Local instance justification (proof-local temporary data): The supplied good structure map pX gives quasi-separatedness of X, so its actual generic point closure is integral.
+  letI := IsQuasiSeparated.of_quasiSeparated pX
+  exact PointClosure.integral η.1
 
 /-- The restriction of a flat morphism of good spaces to an irreducible
 component of the source is dominant. -/

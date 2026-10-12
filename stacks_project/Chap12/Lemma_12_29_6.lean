@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Adjunction.PartialAdjoint
@@ -28,6 +34,6 @@ variable (hdefined : P ≤ u.leftAdjointObjIsDefined)
 /- Lemma 12.29.6: a functor between abelian categories has a left adjoint when
 an epimorphically covering object property corepresents Hom(P, u(-)). -/
 @[stacks 0793]
-#check (Functor.isRightAdjoint_of_hasEpiCover u P hdefined : u.IsRightAdjoint)
+#check (CategoryTheory.Functor.isRightAdjoint_of_hasEpiCover u P hdefined : u.IsRightAdjoint)
 
 end CategoryTheory

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
@@ -101,10 +107,9 @@ consisting of its atlas image in `[U/_p R]` and the automorphism given by
 `stabilizerToArrows`. -/
 def stabilizerToPreInertiaObj
     (x : (stackInSets (inertiaPresentation G).U.left).total) :
-    RelativeInertia (preQuotient G).p where
-  obj := stabilizerPreInertiaObj G x
-  aut := stabilizerPreInertiaAut G x
-  mapAut_eq_one := sorry
+    RelativeInertia (preQuotient G).p :=
+  RelativeInertia.mk (Inertia.mk (stabilizerPreInertiaObj G x) (stabilizerPreInertiaAut G x))
+    sorry
 
 /-- The morphism of `I_{[U/_p R]}` induced by a morphism of `𝒮_G`. -/
 def stabilizerToPreInertiaMap
@@ -253,4 +258,3 @@ theorem inertiaCone_snd : (inertiaCone G).snd = inertiaConeSnd G := sorry
 theorem inertiaCone_iso : (inertiaCone G).iso = inertiaConeIso G := sorry
 
 end AlgebraicGeometry.GroupoidAlgebraicSpace
-

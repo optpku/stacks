@@ -1,4 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
+
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.CommRingAdjunction
 
 public import stacks_project.Chap76.Definition_76_6_5_Conormal
 public import stacks_project.Chap76.«76_6_1_1_Piece»
@@ -379,18 +387,20 @@ noncomputable def mapClosedGradeApp {Z X Z' X' : AlgebraicSpace S}
     (V : (smallEtaleSite X')ᵒᵖ) :
     closedGradeObj i' V ⟶
       ((commRingPushforward g).obj (closedGradeSheaf i)).obj.obj V :=
-  limit.lift _ (mapClosedGradeCone sq V.unop) ≫
-    ((smallEtaleInclusion X).op.ranObjObjIsoLimit (closedGradeSheaf i).obj
-        (op ((etaleBaseChange g).obj V.unop))).inv
+  @CommRingCat.ofHom (closedGradeObj i' V)
+    (((commRingPushforward g).obj (closedGradeSheaf i)).obj.obj V)
+    (inferInstanceAs (CommRing (closedGradeObj i' V)))
+    (inferInstanceAs (CommRing (((commRingPushforward g).obj (closedGradeSheaf i)).obj.obj V)))
+    { toFun := fun x ↦
+        ((commRingPushforwardUnderlyingIso g).inv.app (closedGradeSheaf i)).hom.app V
+          (EtaleTopos.allChartLift X ((commRingUnderlying X).obj (closedGradeSheaf i))
+            ((etaleBaseChange g).obj V.unop)
+            ((forget CommRingCat.{u}).mapCone (mapClosedGradeCone sq V.unop)) x)
+      map_zero' := sorry
+      map_one' := sorry
+      map_add' := sorry
+      map_mul' := sorry }
 
-/-- Inverse image of commutative-ring sheaves is left adjoint to direct image. -/
-noncomputable def commRingInverseImageAdjunction {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    commRingInverseImage f ⊣ commRingPushforward f :=
-  (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
-      (etaleBaseChange f) CommRingCat.{u}
-      (smallEtaleTopology Y) (spacesEtaleTopology X)).comp
-    ((smallEtaleInclusion X).sheafAdjunctionCocontinuous CommRingCat.{u}
-      (smallEtaleTopology X) (spacesEtaleTopology X))
 
 /-- The presheaf morphism whose sheafification is the pushforward-side associated-graded
 comparison. -/
@@ -425,10 +435,10 @@ noncomputable def closedTotalInr {Z X : AlgebraicSpace S}
   pushout.inr (inverseImageStructureSheafHom i)
     ((commRingInverseImage i).map (closedGradeStructureMap i))
 
-/-- Direct image of commutative-ring sheaves along `f`, rewritten through spaces-étale
-pullback. -/
+/-- The generic big-site direct image of commutative-ring sheaves, rewritten through
+spaces-étale pullback. The small-chart direct image uses `commRingPushforwardComp`. -/
 noncomputable def commRingPushforwardFactor {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    commRingPushforward f ≅
+    sheafPushforward CommRingCat.{u} f ≅
       (smallEtaleInclusion X).sheafPushforwardCocontinuous CommRingCat.{u}
           (smallEtaleTopology X) (spacesEtaleTopology X) ⋙
         (spacesEtalePullback f).sheafPushforwardContinuous CommRingCat.{u}
@@ -501,37 +511,7 @@ direct images. -/
 noncomputable def commRingPushforwardCompIso {X Y Z : AlgebraicSpace S}
     (f : X ⟶ Y) (g : Y ⟶ Z) :
     commRingPushforward f ⋙ commRingPushforward g ≅ commRingPushforward (f ≫ g) :=
-  let iX :=
-    (smallEtaleInclusion X).sheafPushforwardCocontinuous CommRingCat.{u}
-      (smallEtaleTopology X) (spacesEtaleTopology X)
-  let pF :=
-    (spacesEtalePullback f).sheafPushforwardContinuous CommRingCat.{u}
-      (spacesEtaleTopology Y) (spacesEtaleTopology X)
-  let iY :=
-    (smallEtaleInclusion Y).sheafPushforwardContinuous CommRingCat.{u}
-      (smallEtaleTopology Y) (spacesEtaleTopology Y)
-  let pG :=
-    (spacesEtalePullback g).sheafPushforwardContinuous CommRingCat.{u}
-      (spacesEtaleTopology Z) (spacesEtaleTopology Y)
-  let iZ :=
-    (smallEtaleInclusion Z).sheafPushforwardContinuous CommRingCat.{u}
-      (smallEtaleTopology Z) (spacesEtaleTopology Z)
-  isoWhiskerRight (commRingPushforwardFactor f) (commRingPushforward g) ≪≫
-    Functor.associator iX (pF ⋙ iY) (commRingPushforward g) ≪≫
-    isoWhiskerLeft iX (Functor.associator pF iY (commRingPushforward g)) ≪≫
-    isoWhiskerLeft (iX ⋙ pF) (isoWhiskerLeft iY (commRingPushforwardFactor g)) ≪≫
-    isoWhiskerLeft (iX ⋙ pF)
-      (Functor.associator iY
-          ((smallEtaleInclusion Y).sheafPushforwardCocontinuous CommRingCat.{u}
-            (smallEtaleTopology Y) (spacesEtaleTopology Y))
-          (pG ⋙ iZ) ≪≫
-        isoWhiskerRight (smallEtaleInclusionContinuousCocontinuousIso_commRing Y)
-          (pG ⋙ iZ) ≪≫
-        Functor.leftUnitor (pG ⋙ iZ)) ≪≫
-    isoWhiskerLeft iX
-      (Functor.associator pF pG iZ ≪≫
-        isoWhiskerRight (spacesEtaleCommRingPushforwardComp f g) iZ) ≪≫
-    (commRingPushforwardFactor (f ≫ g)).symm
+  commRingPushforwardComp f g
 
 /-- The component of `commRingPushforwardCompIso` at a sheaf is the indicated 1-cell of
 the composite of direct images. -/

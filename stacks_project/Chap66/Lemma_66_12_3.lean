@@ -1,5 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.Support
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.Reduced.Construction
 public import Mathlib.Topology.Defs.Basic
 public import stacks_project.Chap65.Definition_65_12_1_Subspace
 public import stacks_project.Chap66.Definition_66_4_1_Points
@@ -24,27 +32,6 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.ClosedSubspace
 
-/-- The underlying set of points of a closed subspace, as the image of `|Z| → |X|`. -/
-def pointsSet {S : Scheme.{u}} {X : AlgebraicSpace S} (Z : ClosedSubspace X) :
-    Set (Points X) :=
-  Set.range (Points.map Z.ι)
-
-/-- `pointsSet Z` is the range of `Points.map Z.ι`. -/
-theorem pointsSet_eq {S : Scheme.{u}} {X : AlgebraicSpace S} (Z : ClosedSubspace X) :
-    Z.pointsSet = Set.range (Points.map Z.ι) :=
-  sorry
-
-/-- A point of `|X|` lies in `pointsSet Z` if and only if it is the image of a point of `|Z|`. -/
-theorem mem_pointsSet {S : Scheme.{u}} {X : AlgebraicSpace S} (Z : ClosedSubspace X)
-    {x : Points X} :
-    x ∈ Z.pointsSet ↔ ∃ y : Points Z.X, Points.map Z.ι y = x :=
-  sorry
-
-/-- The image `|Z| ⊆ |X|` is closed in the canonical topology on `|X|`. -/
-theorem isClosed_pointsSet {S : Scheme.{u}} {X : AlgebraicSpace S} (Z : ClosedSubspace X) :
-    IsClosed (Z.pointsSet : Set (Points X)) :=
-  sorry
-
 /-- Lemma 66.12.3: let `S` be a scheme, let `X` be an algebraic space over `S`, and let
 `T ⊂ |X|` be a closed subset. There exists a unique closed subspace `Z ⊂ X` with
 `Z.pointsSet = T` (i.e. `|Z| = T`) and with `Z` reduced, in the sense that
@@ -58,7 +45,7 @@ theorem exists_reduced {S : Scheme.{u}} {X : AlgebraicSpace S}
           ∀ Z' : ClosedSubspace X, Z'.pointsSet = T →
             hasEtaleLocal (AlgebraicGeometry.IsReduced : ObjectProperty Scheme.{u}) Z'.X →
               ∃! f : Z'.X ⟶ Z.X, f ≫ Z.ι = Z'.ι :=
-  sorry
+  ReducedClosed.Construction.exists_reduced X ⟨T, hT⟩
 
 /-- Any two reduced closed subspaces of `X` with the same underlying point-set admit a unique
 morphism over `X`. -/

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.LocallyRingedSpace.MeromorphicFunction
@@ -99,6 +105,8 @@ theorem meromorphicDenominatorStalk_eq_nonZeroDivisors
     (hweak : X.weakAss ⊆ genericPoints X) (x : X) :
     meromorphicDenominatorStalk X x = nonZeroDivisors (X.presheaf.stalk x) := by
   classical
+  -- Local instance justification (proof-local temporary data): the affine structure sheaf
+  -- module is transported to the unit module for the quasi-coherence argument.
   letI : (SheafOfModules.unit X.ringCatSheaf : X.Modules).IsQuasicoherent :=
     (SheafOfModules.isQuasicoherent X.ringCatSheaf).prop_of_iso
       (Limits.coproductUniqueIso
@@ -152,8 +160,12 @@ theorem meromorphicDenominatorStalk_eq_nonZeroDivisors
       exact X.presheaf.germ_res_apply (homOfLE hUW) x hxU t
     rw [← hsGerm] at hz ⊢
     let p := (hU.primeIdealOf ⟨x, hxU⟩).asIdeal
+    -- Local instance justification (proof-local temporary data): this is the selected
+    -- affine-open stalk algebra used to compare sections with the stalk at `x`.
     letI : Algebra Γ(X, U) (X.presheaf.stalk x) :=
       TopCat.Presheaf.algebra_section_stalk X.presheaf ⟨x, hxU⟩
+    -- Local instance justification (defeq pin): this is the localization structure at
+    -- the prime ideal selected from the affine-open point `x`.
     letI : IsLocalization.AtPrime (X.presheaf.stalk x) p :=
       hU.isLocalization_stalk ⟨x, hxU⟩
     have hbad (q : minimalPrimes Γ(X, U)) (hsq : s ∈ q.1) : ¬ q.1 ≤ p := by
@@ -175,6 +187,8 @@ theorem meromorphicDenominatorStalk_eq_nonZeroDivisors
         simpa using hqmap'
       exact (notMem_nonZeroDivisors_of_mem_mem_minimalPrimes
         (Ideal.mem_map_of_mem (algebraMap Γ(X, U) (X.presheaf.stalk x)) hsq) hqmap) hz
+    -- Local instance justification (proof-local temporary data): the finite indexing type
+    -- of minimal primes is needed for the product used to choose a denominator.
     letI : Fintype (minimalPrimes Γ(X, U)) :=
       (Scheme.affineOpen_sections_finite_minimalPrimes ⟨U, hU⟩).fintype
     choose a haQ haP using fun q : {q : minimalPrimes Γ(X, U) // s ∈ q.1} ↦
@@ -208,6 +222,8 @@ theorem meromorphicDenominatorStalk_eq_nonZeroDivisors
       obtain ⟨q, hqweak, hsq⟩ := hsUnion
       have hqmin : q ∈ minimalPrimes Γ(X, V) :=
         weaklyAssociatedPrimes_subset_minimalPrimes V hV hqweak
+      -- Local instance justification (defeq pin): the basic-open localization identifies
+      -- sections on `V` with the localization of sections on the affine open `U`.
       letI : IsLocalization.Away f Γ(X, V) := hU.isLocalization_basicOpen f
       let qU : Ideal Γ(X, U) := Ideal.under Γ(X, U) q
       have hqUmin : qU ∈ minimalPrimes Γ(X, U) := by
@@ -225,6 +241,8 @@ theorem meromorphicDenominatorStalk_eq_nonZeroDivisors
         exact fun h ↦ Set.disjoint_left.mp hd (Submonoid.mem_powers f) h
       let qbad : {q : minimalPrimes Γ(X, U) // s ∈ q.1} := ⟨⟨qU, hqUmin⟩, hsU⟩
       apply hfU
+      -- Local instance justification (proof-local temporary data): the prime ideal `qU`
+      -- obtained in the contradiction argument is used for the prime-product criterion.
       letI : qU.IsPrime := hqUmin.isPrime
       change (∏ q : {q : minimalPrimes Γ(X, U) // s ∈ q.1}, a q) ∈ qU
       rw [Ideal.IsPrime.prod_mem_iff]
@@ -239,8 +257,12 @@ theorem meromorphicDenominatorStalk_eq_nonZeroDivisors
     · refine (LocallyRingedSpace.mem_meromorphicFunctionDenominators_iff
         (X := X.toLocallyRingedSpace) sV).2 ?_
       intro y
+      -- Local instance justification (proof-local temporary data): this is the selected
+      -- affine-open stalk algebra for the point `y`.
       letI : Algebra Γ(X, V) (X.presheaf.stalk y.1) :=
         TopCat.Presheaf.algebra_section_stalk X.presheaf y
+      -- Local instance justification (defeq pin): this is the stalk localization at the
+      -- prime ideal selected by the affine open `V` and point `y`.
       letI : IsLocalization.AtPrime (X.presheaf.stalk y.1)
           (hV.primeIdealOf y).asIdeal := hV.isLocalization_stalk y
       change algebraMap Γ(X, V) (X.presheaf.stalk y.1) sV ∈
@@ -279,6 +301,8 @@ theorem meromorphicStalk_isLocalization
     (CategoryTheory.toSheafify
       (Opens.grothendieckTopology X.toLocallyRingedSpace.toTopCat)
       T.localizationPresheaf)
+  -- Local instance justification (defeq pin): the stalk-to-sheafification map is an
+  -- isomorphism used to transport the localization structure to the meromorphic stalk.
   letI : IsIso unit := by
     dsimp only [unit]
     exact TopCat.Presheaf.stalkFunctor_map_unit_toSheafify_isIso
@@ -307,6 +331,8 @@ theorem meromorphicStalk_isLocalization
         rw [← ConcreteCategory.comp_apply, ← Functor.map_comp]
         exact congrArg
           (fun f ↦ ((TopCat.Presheaf.stalkFunctor CommRingCat x).map f).hom r) hnat }
+  -- Local instance justification (defeq pin): the stalk of the section-localization
+  -- presheaf carries its canonical localization structure for the final transport.
   letI : IsLocalization
       (TopCat.Presheaf.SectionLocalization.stalkSubmonoid
         (TopCat.Presheaf.SectionLocalization.ofTopCat T) x)

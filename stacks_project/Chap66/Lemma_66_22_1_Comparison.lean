@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.AlgebraicGeometry.Pullbacks
@@ -47,8 +53,7 @@ theorem scheme_def (N : SmallEtaleNeighborhood xbar) :
 /-- The geometric point of the neighbourhood scheme induced by the chosen lift of `xbar`. -/
 def schemeGeometricPoint (N : SmallEtaleNeighborhood xbar) :
     Scheme.GeometricPoint N.scheme where
-  K := xbar.K
-  hom := N.overHom.left
+  toFieldValuedPoint := Scheme.FieldValuedPoint.of xbar.K N.overHom.left
   isAlgClosed := xbar.isAlgClosed
 
 /-- The scheme morphism of `schemeGeometricPoint N` is the underlying morphism of the chosen

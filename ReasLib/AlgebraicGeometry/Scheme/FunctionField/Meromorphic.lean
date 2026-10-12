@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.LocallyRingedSpace.MeromorphicFunction
@@ -361,8 +367,8 @@ private noncomputable def meromorphicSectionStalkExtensionIso
   (TopCat.Sheaf.ChangeOfRings.Stalk.comparisonIso
       X.toLocallyRingedSpace.toMeromorphicFunctionSheafHom x ℱ) ≪≫
     (SheafOfModules.stalkFunctorOfCommRing X.meromorphicFunctionSheaf x).mapIso
-      ((SheafOfModules.RingedSite.pullbackExtendIso
-        X.toLocallyRingedSpace.toMeromorphicFunctionSheafHom).symm.app ℱ)
+      ((SheafOfModules.ChangeOfRings.pullbackIso.{u, u, u, u} (SheafOfModules.RingedSite.ringSheafMap.{u, u, u}
+        X.toLocallyRingedSpace.toMeromorphicFunctionSheafHom)).symm.app ℱ)
 
 namespace AlgebraicGeometry.Scheme
 
@@ -542,7 +548,7 @@ private theorem meromorphicSectionStalkUnit_apply (ℱ : X.Modules) (x : X)
     TopCat.Sheaf.ChangeOfRings.Stalk.comparisonIso,
     TopCat.Sheaf.ChangeOfRings.Stalk.comparisonApp,
     TopCat.Sheaf.ChangeOfRings.Stalk.constructionToExtension,
-    SheafOfModules.RingedSite.pullbackExtendIso,
+    SheafOfModules.ChangeOfRings.pullbackIso,
     TopCat.Sheaf.moduleBaseChangeStalkComparison]
   change (((TopCat.Presheaf.stalkBaseChangeComparison
       X.toLocallyRingedSpace.toMeromorphicFunctionSheafHom.hom ℱ.val x ≫

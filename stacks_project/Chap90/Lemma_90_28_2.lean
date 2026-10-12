@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap90.Lemma_90_28_2_FormalHomotopy
+public import ReasLib.AlgebraicGeometry.FormalDeformation.FormalHomotopy
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -11,14 +18,10 @@ universe u
 variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-namespace CompleteLocalAlgCat
-
-/-- Lemma 90.28.2: in the category CompleteLocalAlgCat Λ k, if f₁, f₂ : R ⟶ S are
+/- Lemma 90.28.2: in the category CompleteLocalAlgCat Λ k, if f₁, f₂ : R ⟶ S are
 formally homotopic and g : S ⟶ S' is a morphism, then f₁ ≫ g and f₂ ≫ g are
 formally homotopic. -/
-@[stacks 0DQC]
-theorem FormallyHomotopic.compRight {R S S' : CompleteLocalAlgCat Λ k}
-    {f₁ f₂ : R ⟶ S} (h : FormallyHomotopic f₁ f₂) (g : S ⟶ S') :
-    FormallyHomotopic (f₁ ≫ g) (f₂ ≫ g) := sorry
-
-end CompleteLocalAlgCat
+@[stacks 0DQC] #check (CompleteLocalAlgCat.FormallyHomotopic.compRight :
+  ∀ {R S S' : CompleteLocalAlgCat Λ k} {f₁ f₂ : R ⟶ S},
+    CompleteLocalAlgCat.FormallyHomotopic f₁ f₂ → (g : S ⟶ S') →
+      CompleteLocalAlgCat.FormallyHomotopic (f₁ ≫ g) (f₂ ≫ g))

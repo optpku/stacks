@@ -1,19 +1,15 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.CategoryTheory.Elements
-public import ReasLib.CategoryTheory.Fibered.FiberIsoClassPresheaf.Basic
-public import stacks_project.Chap90.Definition_90_16_8_Predeformation
-public import stacks_project.Chap90.Remark_90_6_3_PredeformationFunctor
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation.Functor
+import StacksCheckRecall
 
-/-!
-# Predeformation functors and associated cofibered sets
-
-A functor `F : ArtinianLocalAlgCat Λ k ⥤ Type v` is a predeformation functor iff
-the associated cofibered set `CategoryOfElements.π F` is a predeformation category.
-If `p` is a predeformation category, then
-`opOp (ArtinianLocalAlgCat Λ k) ⋙ fiberIsoClassPresheaf p.op` is a predeformation
-functor.
--/
+/-! # Predeformation functors and associated cofibered sets -/
 
 @[expose] public section
 
@@ -26,29 +22,23 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
 
 namespace CategoryTheory.Functor
 
-/-- A predeformation category is cofibered in groupoids over `ArtinianLocalAlgCat Λ k`. -/
-instance isFiberedInGroupoids_op
-    {F : Type v} [Category.{w} F] (p : F ⥤ ArtinianLocalAlgCat Λ k)
-    [IsPredeformationCategory p] :
-    IsFibered.InGroupoids p.op := sorry
-
-/-- Remark 90.6.3 (1): a functor `F : ArtinianLocalAlgCat Λ k ⥤ Type v` is a
+/- Remark 90.6.3 (1): a functor `F : ArtinianLocalAlgCat Λ k ⥤ Type v` is a
 predeformation functor iff the associated cofibered set `CategoryOfElements.π F`
 is a predeformation category. -/
 @[stacks 06GT]
-theorem isPredeformationFunctor_iff_isPredeformationCategory
-    (F : ArtinianLocalAlgCat Λ k ⥤ Type v) :
-    IsPredeformationFunctor F ↔ IsPredeformationCategory (CategoryOfElements.π F) :=
-  sorry
+#check (CategoryTheory.Functor.isPredeformationFunctor_iff_isPredeformationCategory :
+  (F : ArtinianLocalAlgCat Λ k ⥤ Type v) →
+    CategoryTheory.Functor.IsPredeformationFunctor F ↔
+      CategoryTheory.Functor.IsPredeformationCategory (CategoryOfElements.π F))
 
-/-- Remark 90.6.3 (2): if `p` is a predeformation category, then the functor of
+/- Remark 90.6.3 (2): if `p` is a predeformation category, then the functor of
 isomorphism classes `opOp (ArtinianLocalAlgCat Λ k) ⋙ fiberIsoClassPresheaf p.op`
 is a predeformation functor. -/
-@[stacks 06GT, instance]
-instance fiberIsoClassPresheaf_isPredeformationFunctor
-    {F : Type v} [Category.{w} F] (p : F ⥤ ArtinianLocalAlgCat Λ k)
-    [IsPredeformationCategory p] :
-    IsPredeformationFunctor
-      (opOp (ArtinianLocalAlgCat Λ k) ⋙ fiberIsoClassPresheaf p.op) := sorry
+@[stacks 06GT]
+#check (CategoryTheory.Functor.fiberIsoClassPresheaf_isPredeformationFunctor :
+  {F : Type v} → [Category.{w} F] →
+    (p : F ⥤ ArtinianLocalAlgCat Λ k) → [IsPredeformationCategory p] →
+      CategoryTheory.Functor.IsPredeformationFunctor
+        (opOp (ArtinianLocalAlgCat Λ k) ⋙ fiberIsoClassPresheaf p.op))
 
 end CategoryTheory.Functor

@@ -1,9 +1,17 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.DirectSum.Basic
 public import Mathlib.AlgebraicGeometry.Limits
+public import Mathlib.LinearAlgebra.TensorProduct.Basic
 public import Mathlib.RingTheory.DedekindDomain.Basic
 public import ReasLib.AlgebraicGeometry.ChowGroup.Pushforward
+public import ReasLib.AlgebraicGeometry.ChowGroup.Relative
 public import ReasLib.AlgebraicGeometry.CycleGroup.Point
 public import ReasLib.AlgebraicGeometry.Scheme.IdealSheafData.AssociatedCycle
 public import ReasLib.AlgebraicGeometry.Scheme.LocalRingProperty.Basic
@@ -451,9 +459,71 @@ theorem pairing_chowClass
         (CycleGroup.Dedekind.ExteriorProduct.cyclePairing
           δ h_delta X Y n m alpha beta) := sorry
 
+/-- The Dedekind Chow exterior pairing is balanced over `ℤ`. -/
+theorem pairing_zsmul
+    {S : Scheme.{u}} [UniversallyCatenary S]
+    [S.HasRingPropertyLocally (fun A : CommRingCat.{u} ↦ IsDedekindDomain A)]
+    (δ : S → ℤ) [IsDimensionFunction δ]
+    (h_delta : ∀ s : S,
+      δ s = @ite ℤ (IsClosed ({s} : Set S)) (Classical.propDecidable _) 0 1)
+    (X Y : Over S) [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+    (n m r : ℤ) (alpha : RelativeChow δ X n) (beta : RelativeChow δ Y m) :
+    pairing δ h_delta X Y n m (r • alpha) beta =
+      pairing δ h_delta X Y n m alpha (r • beta) := sorry
+
 end ChowGroup.Dedekind.ExteriorProduct
 
 namespace ChowGroup.Dedekind
+
+/-- The canonical degreewise exterior-product map on Chow groups over a locally Dedekind base. -/
+noncomputable def exteriorProduct
+    {S : Scheme.{u}} [UniversallyCatenary S]
+    [S.HasRingPropertyLocally (fun A : CommRingCat.{u} ↦ IsDedekindDomain A)]
+    (δ : S → ℤ) [IsDimensionFunction δ]
+    (h_delta : ∀ s : S,
+      δ s = @ite ℤ (IsClosed ({s} : Set S)) (Classical.propDecidable _) 0 1)
+    (X Y : Over S) [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+    (n m : ℤ) :
+    TensorProduct ℤ (RelativeChow δ X n) (RelativeChow δ Y m) →ₗ[ℤ]
+      RelativeChow δ (X ⨯ Y) (n + m - 1) :=
+  (TensorProduct.liftAddHom
+      (ExteriorProduct.pairing δ h_delta X Y n m)
+      (ExteriorProduct.pairing_zsmul δ h_delta X Y n m)).toIntLinearMap
+
+/-- The Dedekind Chow exterior product evaluates on a pure tensor by the descended pairing. -/
+theorem exteriorProduct_tmul
+    {S : Scheme.{u}} [UniversallyCatenary S]
+    [S.HasRingPropertyLocally (fun A : CommRingCat.{u} ↦ IsDedekindDomain A)]
+    (δ : S → ℤ) [IsDimensionFunction δ]
+    (h_delta : ∀ s : S,
+      δ s = @ite ℤ (IsClosed ({s} : Set S)) (Classical.propDecidable _) 0 1)
+    (X Y : Over S) [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+    (n m : ℤ) (alpha : RelativeChow δ X n) (beta : RelativeChow δ Y m) :
+    exteriorProduct δ h_delta X Y n m (alpha ⊗ₜ[ℤ] beta) =
+      ExteriorProduct.pairing δ h_delta X Y n m alpha beta := sorry
+
+/-- On Chow classes of cycles, the Dedekind exterior product is represented by the
+concrete cycle-level product. -/
+theorem exteriorProduct_tmul_chowClass
+    {S : Scheme.{u}} [UniversallyCatenary S]
+    [S.HasRingPropertyLocally (fun A : CommRingCat.{u} ↦ IsDedekindDomain A)]
+    (δ : S → ℤ) [IsDimensionFunction δ]
+    (h_delta : ∀ s : S,
+      δ s = @ite ℤ (IsClosed ({s} : Set S)) (Classical.propDecidable _) 0 1)
+    (X Y : Over S) [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+    (n m : ℤ)
+    (alpha : CycleGroup X.left (X.hom.relativeDimensionFunction δ) n)
+    (beta : CycleGroup Y.left (Y.hom.relativeDimensionFunction δ) m) :
+    exteriorProduct δ h_delta X Y n m
+        ((@chowClass X.left (LocallyOfFiniteType.isLocallyNoetherian X.hom)
+          (X.hom.relativeDimensionFunction δ) inferInstance n alpha) ⊗ₜ[ℤ]
+        (@chowClass Y.left (LocallyOfFiniteType.isLocallyNoetherian Y.hom)
+          (Y.hom.relativeDimensionFunction δ) inferInstance m beta)) =
+      @chowClass (X ⨯ Y).left
+        (LocallyOfFiniteType.isLocallyNoetherian (X ⨯ Y).hom)
+        ((X ⨯ Y).hom.relativeDimensionFunction δ) inferInstance (n + m - 1)
+        (CycleGroup.Dedekind.ExteriorProduct.cyclePairing
+          δ h_delta X Y n m alpha beta) := sorry
 
 /-- Total relative Chow homology, graded by relative dimension over a dimensioned base. -/
 abbrev Total {S : Scheme.{u}} [UniversallyCatenary S]

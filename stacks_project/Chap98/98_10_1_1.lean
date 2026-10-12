@@ -1,27 +1,29 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Data.Finite.Defs
 public import Mathlib.RingTheory.Noetherian.Defs
-public import stacks_project.Chap98.«98_10_1_1_Completion»
+public import ReasLib.RingTheory.Completion.PolynomialLocalization
+import StacksCheckRecall
 
 @[expose] public section
 
-open IsLocalRing MvPolynomial
+open IsLocalRing
 
 universe u
 
-namespace MvPolynomial
-
-/-- 98.10.1.1: after arranging a finite-variable polynomial lift `ψ` so that
-`MvPolynomial σ Λ → R ⧸ maximalIdeal R ^ 2` is surjective, the induced map
-`PrimeSpectrum.CompletedLocalRing ⟨m', inferInstance⟩ ⟶ R` is a surjection of
-Noetherian complete local rings. -/
-@[stacks 07XC]
-theorem toCompleteLocal_surjective {Λ σ R : Type u} [CommRing Λ] [IsNoetherianRing Λ]
-    [Finite σ] [CommRing R] [IsNoetherianRing R] [IsCompleteLocalRing R]
-    (m' : Ideal (MvPolynomial σ Λ)) [m'.IsPrime] (ψ : MvPolynomial σ Λ →+* R)
+/- 98.10.1.1: if a finite-variable polynomial map is surjective modulo the square
+of the maximal ideal, its induced map from the completed localization is surjective. -/
+@[stacks 07XC] #check (MvPolynomial.toCompleteLocal_surjective :
+  ∀ {Λ σ R : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Finite σ]
+    [CommRing R] [IsNoetherianRing R] [IsCompleteLocalRing R]
+    (m' : Ideal (MvPolynomial σ Λ)) [m'.IsPrime]
+    (ψ : MvPolynomial σ Λ →+* R)
     (h_comap : m' = (maximalIdeal R).comap ψ)
-    (h_sq : Function.Surjective ((Ideal.Quotient.mk (maximalIdeal R ^ 2)).comp ψ)) :
-    Function.Surjective (toCompleteLocal m' ψ h_comap) := sorry
-
-end MvPolynomial
+    (h_sq : Function.Surjective ((Ideal.Quotient.mk (maximalIdeal R ^ 2)).comp ψ)),
+    Function.Surjective (MvPolynomial.toCompleteLocal m' ψ h_comap))

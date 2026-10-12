@@ -1,15 +1,22 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Sites.Sieves
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
-# Generated sieves
+# Generated sieves and pullbacks
 
 This module records the order-theoretic universal property of the canonical
 `Sieve.ofArrows` construction.  It is independent of any chosen site or
 coverage, so it is available to every category-theoretic development using
-families of arrows.
+families of arrows. It also bundles the canonical pullback of sieves as an
+order homomorphism and records its defining membership rule.
 -/
 
 @[expose] public section
@@ -19,6 +26,11 @@ universe u v w
 namespace CategoryTheory.Sieve
 
 variable {C : Type u} [Category.{v} C] {U : C}
+
+/-- Membership in a sieve is preserved by precomposition. -/
+theorem precomp_mem (sieve : Sieve U) {T T' : C} (arrow : T ⟶ U)
+    (h_arrow : sieve arrow) (g : T' ⟶ T) : sieve (g ≫ arrow) :=
+  sieve.downward_closed h_arrow g
 
 /-- A generated sieve is below `S` exactly when every arrow in its generating
 family belongs to `S`. -/
@@ -31,5 +43,17 @@ every arrow in that family. -/
 @[stacks 00YZ]
 theorem ofArrows_isLeast {I : Type w} (Y : I → C) (f : ∀ i, Y i ⟶ U) :
     IsLeast {S : Sieve U | ∀ i, S (f i)} (ofArrows Y f) := sorry
+
+/-- Pullback along a morphism is an order homomorphism between the lattices of
+sieves on its codomain and domain. -/
+def pullbackOrderHom {V : C} (morphism : V ⟶ U) : Sieve U →o Sieve V where
+  toFun := Sieve.pullback morphism
+  monotone' := Sieve.pullback_monotone morphism
+
+/-- An arrow belongs to the pullback sieve exactly when its composite with
+the given morphism belongs to the original sieve. -/
+theorem pullbackOrderHom_apply {V T : C} (morphism : V ⟶ U) (sieve : Sieve U)
+    (arrow : T ⟶ V) :
+    pullbackOrderHom morphism sieve arrow ↔ sieve (arrow ≫ morphism) := sorry
 
 end CategoryTheory.Sieve

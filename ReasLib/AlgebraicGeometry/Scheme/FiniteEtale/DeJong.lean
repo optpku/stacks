@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Group.Subgroup.Ker
@@ -78,6 +84,46 @@ theorem hasFiniteGeometricMonodromy_of_nat_le_two
     [Curve X] [Smooth X.hom] [Projective X.hom] [GeometricallyIrreducible X.hom]
     [ConnectedSpace (geometricBaseChange X)] {n : ℕ} (hn : n ≤ 2) {ℓ : ℕ} [Fact ℓ.Prime]
     (xbar : GeometricPoint (geometricBaseChange X)) (ρ : GLPowerSeriesRep X n ℓ xbar) :
+    HasFiniteGeometricMonodromy ρ := sorry
+
+/-- de Jong's conjecture at a fixed prime `ℓ`, geometric base point `xbar`, and rank `n`
+asserts finite geometric monodromy for every continuous rank-`n` power-series representation. -/
+def deJongConjectureAt {k : Type u} [Field k] [Finite k] (X : SchemeOverField k)
+    [Curve X] [Smooth X.hom] [Projective X.hom] [GeometricallyIrreducible X.hom]
+    [ConnectedSpace (geometricBaseChange X)]
+    (xbar : GeometricPoint (geometricBaseChange X)) (ℓ n : ℕ) [Fact ℓ.Prime] : Prop :=
+  ∀ ρ : GLPowerSeriesRep X n ℓ xbar, HasFiniteGeometricMonodromy ρ
+
+/-- The fixed-prime de Jong conjecture is finite geometric monodromy for every continuous power-series representation. -/
+theorem deJongConjectureAt_iff {k : Type u} [Field k] [Finite k] (X : SchemeOverField k)
+    [Curve X] [Smooth X.hom] [Projective X.hom] [GeometricallyIrreducible X.hom]
+    [ConnectedSpace (geometricBaseChange X)]
+    (xbar : GeometricPoint (geometricBaseChange X)) (ℓ n : ℕ) [Fact ℓ.Prime] :
+    deJongConjectureAt X xbar ℓ n ↔
+      ∀ ρ : etaleFundamentalGroup X.left (arithmeticPoint X xbar) →ₜ*
+          GL (Fin n) (PowerSeries (ZMod ℓ)),
+        HasFiniteGeometricMonodromy ρ := sorry
+
+/-- De Jong's conjecture holds in rank `n` for a geometrically irreducible smooth
+projective curve over a finite field when the coefficient prime `ℓ` differs from the
+field characteristic and `2 * n < ℓ`. -/
+theorem deJongConjectureAt_of_prime_gt_two_mul
+    {k : Type u} [Field k] [Finite k] (X : SchemeOverField k)
+    [Curve X] [Smooth X.hom] [Projective X.hom] [GeometricallyIrreducible X.hom]
+    [ConnectedSpace (geometricBaseChange X)]
+    (xbar : GeometricPoint (geometricBaseChange X)) {n ℓ : ℕ} [Fact ℓ.Prime]
+    (hℓk : (ℓ : k) ≠ 0) (hℓ : 2 * n < ℓ) :
+    deJongConjectureAt X xbar ℓ n := sorry
+
+/-- A continuous rank-`n` power-series representation on a geometrically irreducible
+smooth projective curve over a finite field has finite geometric monodromy when the
+coefficient prime `ℓ` differs from the field characteristic and `2 * n < ℓ`. -/
+theorem hasFiniteGeometricMonodromy_of_prime_gt_two_mul
+    {k : Type u} [Field k] [Finite k] (X : SchemeOverField k)
+    [Curve X] [Smooth X.hom] [Projective X.hom] [GeometricallyIrreducible X.hom]
+    [ConnectedSpace (geometricBaseChange X)]
+    (xbar : GeometricPoint (geometricBaseChange X)) {n ℓ : ℕ} [Fact ℓ.Prime]
+    (hℓk : (ℓ : k) ≠ 0) (hℓ : 2 * n < ℓ) (ρ : GLPowerSeriesRep X n ℓ xbar) :
     HasFiniteGeometricMonodromy ρ := sorry
 
 end AlgebraicGeometry.SchemeOverField

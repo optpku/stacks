@@ -1,8 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap59.Definition_59_71_1
-public import ReasLib.CategoryTheory.Ind.EssentiallyConstant
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiSeparated
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Constructible.EssentiallyConstant
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -16,56 +21,80 @@ namespace CategoryTheory.Sheaf
 
 variable {X : Scheme.{u}} [CompactSpace X] [QuasiSeparatedSpace X]
 
-/-- Lemma 59.71.8 (1): on a quasi-compact quasi-separated scheme, a filtered colimit of
+/- Lemma 59.71.8 (1): on a quasi-compact quasi-separated scheme, a filtered colimit of
 constructible étale sheaves of sets that is itself constructible has essentially constant
 ind-object, with value the colimit sheaf. -/
-@[stacks 095P]
-theorem IsConstructibleEtaleSet.indObject_isEssentiallyConstant
-    {I : Type (u + 1)} [SmallCategory I] [IsFiltered I]
-    (restrict : ∀ {Y : Scheme.{u}} (_ : Y ⟶ X),
-      Sheaf X.smallEtaleTopology (Type (u + 1)) →
-        Sheaf Y.smallEtaleTopology (Type (u + 1)))
-    (finiteLocallyConstant : ∀ {Y : Scheme.{u}},
-      Sheaf Y.smallEtaleTopology (Type (u + 1)) → Prop)
-    (F : I ⥤ Sheaf X.smallEtaleTopology (Type (u + 1))) [HasColimit F]
-    (h_obj : ∀ i, IsConstructibleEtaleSet restrict finiteLocallyConstant (F.obj i))
-    (h_colim : IsConstructibleEtaleSet restrict finiteLocallyConstant (colimit F)) :
-    IsFiltered.IsEssentiallyConstant F ∧
-      Nonempty (Ind.yoneda.obj (colimit F) ≅ (Ind.lim I).obj F) := sorry
+@[stacks 095P] #check
+  (CategoryTheory.Sheaf.IsConstructibleEtaleSet.indObject_isEssentiallyConstant :
+    ∀ {I : Type (u + 1)} [SmallCategory I] [IsFiltered I]
+      (F : I ⥤ Sheaf X.smallEtaleTopology (Type (u + 1))) [HasColimit F],
+      (∀ i,
+        IsConstructibleEtaleSet
+          (fun {Y} f ↦
+            ((Scheme.smallEtalePullback f).sheafPullback (Type (u + 1))
+              X.smallEtaleTopology Y.smallEtaleTopology).obj)
+          (fun {Y} (G : Sheaf Y.smallEtaleTopology (Type (u + 1))) ↦
+            IsFiniteLocallyConstant G) (F.obj i)) →
+      IsConstructibleEtaleSet
+        (fun {Y} f ↦
+          ((Scheme.smallEtalePullback f).sheafPullback (Type (u + 1))
+            X.smallEtaleTopology Y.smallEtaleTopology).obj)
+        (fun {Y} (G : Sheaf Y.smallEtaleTopology (Type (u + 1))) ↦
+          IsFiniteLocallyConstant G) (colimit F) →
+      IsFiltered.IsEssentiallyConstant F ∧
+        Nonempty (Ind.yoneda.obj (colimit F) ≅ (Ind.lim I).obj F))
 
-/-- Lemma 59.71.8 (2): on a quasi-compact quasi-separated scheme, a filtered colimit of
+/- Lemma 59.71.8 (2): on a quasi-compact quasi-separated scheme, a filtered colimit of
 constructible étale abelian sheaves that is itself constructible has essentially constant
 ind-object, with value the colimit sheaf. -/
-@[stacks 095P]
-theorem IsConstructibleEtaleAddCommGrp.indObject_isEssentiallyConstant
-    {I : Type (u + 1)} [SmallCategory I] [IsFiltered I]
-    (restrict : ∀ {Y : Scheme.{u}} (_ : Y ⟶ X),
-      Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1} →
-        Sheaf Y.smallEtaleTopology AddCommGrpCat.{u + 1})
-    (finiteLocallyConstant : ∀ {Y : Scheme.{u}},
-      Sheaf Y.smallEtaleTopology AddCommGrpCat.{u + 1} → Prop)
-    (F : I ⥤ Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1}) [HasColimit F]
-    (h_obj : ∀ i, IsConstructibleEtaleAddCommGrp restrict finiteLocallyConstant (F.obj i))
-    (h_colim : IsConstructibleEtaleAddCommGrp restrict finiteLocallyConstant (colimit F)) :
-    IsFiltered.IsEssentiallyConstant F ∧
-      Nonempty (Ind.yoneda.obj (colimit F) ≅ (Ind.lim I).obj F) := sorry
+@[stacks 095P] #check
+  (CategoryTheory.Sheaf.IsConstructibleEtaleAddCommGrp.indObject_isEssentiallyConstant :
+    ∀ {I : Type (u + 1)} [SmallCategory I] [IsFiltered I]
+      (F : I ⥤ Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1}) [HasColimit F],
+      (∀ i,
+        IsConstructibleEtaleAddCommGrp
+          (fun {Y} f ↦
+            ((Scheme.smallEtalePullback f).sheafPullback (AddCommGrpCat.{u + 1})
+              X.smallEtaleTopology Y.smallEtaleTopology).obj)
+          (fun {Y} (G : Sheaf Y.smallEtaleTopology AddCommGrpCat.{u + 1}) ↦
+            IsFiniteLocallyConstantAddCommGrp G) (F.obj i)) →
+      IsConstructibleEtaleAddCommGrp
+        (fun {Y} f ↦
+          ((Scheme.smallEtalePullback f).sheafPullback (AddCommGrpCat.{u + 1})
+            X.smallEtaleTopology Y.smallEtaleTopology).obj)
+        (fun {Y} (G : Sheaf Y.smallEtaleTopology AddCommGrpCat.{u + 1}) ↦
+          IsFiniteLocallyConstantAddCommGrp G) (colimit F) →
+      IsFiltered.IsEssentiallyConstant F ∧
+        Nonempty (Ind.yoneda.obj (colimit F) ≅ (Ind.lim I).obj F))
 
-/-- Lemma 59.71.8 (3): on a quasi-compact quasi-separated scheme, for a Noetherian ring `Λ`,
+/- Lemma 59.71.8 (3): on a quasi-compact quasi-separated scheme, for a Noetherian ring `Λ`,
 a filtered colimit of constructible étale sheaves of `Λ`-modules that is itself constructible
 has essentially constant ind-object, with value the colimit sheaf. -/
-@[stacks 095P]
-theorem IsConstructibleEtaleModule.indObject_isEssentiallyConstant
-    {Λ : Type w} [Ring Λ] [IsNoetherianRing Λ]
-    {I : Type (max (u + 1) w)} [SmallCategory I] [IsFiltered I]
-    (restrict : ∀ {Y : Scheme.{u}} (_ : Y ⟶ X),
-      Sheaf X.smallEtaleTopology (ModuleCat.{w} Λ) →
-        Sheaf Y.smallEtaleTopology (ModuleCat.{w} Λ))
-    (finiteTypeLocallyConstant : ∀ {Y : Scheme.{u}},
-      Sheaf Y.smallEtaleTopology (ModuleCat.{w} Λ) → Prop)
-    (F : I ⥤ Sheaf X.smallEtaleTopology (ModuleCat.{w} Λ)) [HasColimit F]
-    (h_obj : ∀ i, IsConstructibleEtaleModule restrict finiteTypeLocallyConstant (F.obj i))
-    (h_colim : IsConstructibleEtaleModule restrict finiteTypeLocallyConstant (colimit F)) :
-    IsFiltered.IsEssentiallyConstant F ∧
-      Nonempty (Ind.yoneda.obj (colimit F) ≅ (Ind.lim I).obj F) := sorry
+@[stacks 095P] #check
+  (CategoryTheory.Sheaf.IsConstructibleEtaleModule.indObject_isEssentiallyConstant :
+    ∀ {Λ : Type w} [Ring Λ] [IsNoetherianRing Λ]
+      [∀ Y : Scheme.{u}, HasWeakSheafify Y.smallEtaleTopology (ModuleCat.{w} Λ)]
+      [∀ (Y : Scheme.{u}) (U : Y.Etale),
+        HasWeakSheafify (Y.smallEtaleTopology.over U) (ModuleCat.{w} Λ)]
+      [∀ (Y Z : Scheme.{u}) (f : Y ⟶ Z)
+        (P : Z.Etaleᵒᵖ ⥤ ModuleCat.{w} Λ),
+        (Scheme.smallEtalePullback f).op.HasLeftKanExtension P]
+      {I : Type (max (u + 1) w)} [SmallCategory I] [IsFiltered I]
+      (F : I ⥤ Sheaf X.smallEtaleTopology (ModuleCat.{w} Λ)) [HasColimit F],
+      (∀ i,
+        IsConstructibleEtaleModule
+          (fun {Y} f ↦
+            ((Scheme.smallEtalePullback f).sheafPullback (ModuleCat.{w} Λ)
+              X.smallEtaleTopology Y.smallEtaleTopology).obj)
+          (fun {Y} (G : Sheaf Y.smallEtaleTopology (ModuleCat.{w} Λ)) ↦
+            IsFiniteTypeLocallyConstantModule G) (F.obj i)) →
+      IsConstructibleEtaleModule
+        (fun {Y} f ↦
+          ((Scheme.smallEtalePullback f).sheafPullback (ModuleCat.{w} Λ)
+            X.smallEtaleTopology Y.smallEtaleTopology).obj)
+        (fun {Y} (G : Sheaf Y.smallEtaleTopology (ModuleCat.{w} Λ)) ↦
+          IsFiniteTypeLocallyConstantModule G) (colimit F) →
+      IsFiltered.IsEssentiallyConstant F ∧
+        Nonempty (Ind.yoneda.obj (colimit F) ≅ (Ind.lim I).obj F))
 
 end CategoryTheory.Sheaf

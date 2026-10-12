@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Monoidal.Functor
@@ -29,21 +35,23 @@ namespace AlgebraicGeometry.AlgebraicSpace.DerivedQCoh
 
 variable {S : Scheme.{u}}
 
-/-- Derived internal Hom equipped with a given proof that its cohomology is quasi-coherent. -/
+/-- A selected derived `RHom` object equipped with a proof that its cohomology is quasi-coherent. -/
 noncomputable def internalHomObj {X : AlgebraicSpace S}
     [MonoidalCategory (ModuleDerived X)]
-    (H : MonoidalClosed (ModuleDerived X)) (E : ModuleDerived X) (K : DerivedQCoh X)
-    (h : derivedQuasiCoherentModuleProperty X ((ihomOf H E).obj K.obj)) :
+    (RHom : ModuleDerived X ⥤ ModuleDerived X)
+    (K : DerivedQCoh X)
+    (h : derivedQuasiCoherentModuleProperty X (RHom.obj K.obj)) :
     DerivedQCoh X where
-  obj := (ihomOf H E).obj K.obj
+  obj := RHom.obj K.obj
   property := h
 
-/-- The underlying derived module of `internalHomObj` is the selected derived internal Hom. -/
+/-- The underlying derived module of `internalHomObj` is the selected derived `RHom`. -/
 theorem internalHomObj_obj {X : AlgebraicSpace S}
     [MonoidalCategory (ModuleDerived X)]
-    (H : MonoidalClosed (ModuleDerived X)) (E : ModuleDerived X) (K : DerivedQCoh X)
-    (h : derivedQuasiCoherentModuleProperty X ((ihomOf H E).obj K.obj)) :
-    (internalHomObj H E K h).obj = (ihomOf H E).obj K.obj :=
+    (RHom : ModuleDerived X ⥤ ModuleDerived X)
+    (K : DerivedQCoh X)
+    (h : derivedQuasiCoherentModuleProperty X (RHom.obj K.obj)) :
+    (internalHomObj RHom K h).obj = RHom.obj K.obj :=
   sorry
 
 /-- Derived pullback preserves perfect objects of `D(𝒪_X)`. -/
@@ -99,9 +107,10 @@ noncomputable def internalHomBaseChangeMap (g' : X' ⟶ X)
     (h_source : derivedQuasiCoherentModuleProperty X ((ihomOf H_X E).obj K.obj))
     (h_target : derivedQuasiCoherentModuleProperty X'
       ((ihomOf H_X' ((ModuleDerived.pullback g').obj E)).obj K'.obj)) :
-    (ModuleDerived.pullback g').obj ((inclusion X).obj (internalHomObj H_X E K h_source)) ⟶
+    (ModuleDerived.pullback g').obj
+      ((inclusion X).obj (internalHomObj (ihomOf H_X E) K h_source)) ⟶
       (inclusion X').obj
-        (internalHomObj H_X' ((ModuleDerived.pullback g').obj E) K' h_target) :=
+        (internalHomObj (ihomOf H_X' ((ModuleDerived.pullback g').obj E)) K' h_target) :=
   Functor.PullbackInternalHom.comparisonOf H_X H_X' (ModuleDerived.pullback g')
       (fun A B ↦ (Functor.Monoidal.μIso (ModuleDerived.pullback g') A B).symm)
       E K.obj ≫

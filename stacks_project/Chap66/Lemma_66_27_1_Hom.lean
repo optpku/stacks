@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Adjunction.Limits
@@ -104,7 +110,7 @@ def spacesStructureSheafMapSmall (f : X ⟶ Y) :
         (((spacesEtalePullback f).sheafPushforwardContinuous RingCat.{u}
             (spacesEtaleTopology Y) (spacesEtaleTopology X)).obj
           (spacesStructureSheaf X)) :=
-  structureSheafMap f ≫
+  EtaleRingedTopos.ringExtensionStructureMap f ≫
     (Functor.sheafPushforwardContinuousComp'
         (smallEtaleInclusion_comp_spacesEtalePullback f) RingCat.{u}
         (smallEtaleTopology Y) (spacesEtaleTopology Y) (spacesEtaleTopology X)).inv.app
@@ -120,17 +126,13 @@ def spacesStructureSheafMap (f : X ⟶ Y) :
         (spacesStructureSheaf X) :=
   InducedCategory.homMk
     (Functor.IsCoverDense.sheafHom
-      ((((smallEtaleInclusion Y).sheafAdjunctionCocontinuous RingCat.{u}
-            (smallEtaleTopology Y) (spacesEtaleTopology Y)).counit.app
-          (structureSheaf Y)).hom ≫
+      (((EtaleRingedTopos.ringExtensionRestrictionIso Y).hom.app (structureSheaf Y)).hom ≫
         (spacesStructureSheafMapSmall f).hom))
 
 /-- Restriction of `spacesStructureSheafMap` along `smallEtaleInclusion Y` recovers
 `spacesStructureSheafMapSmall`. -/
 theorem spacesStructureSheafMapSmall_spec (f : X ⟶ Y) :
-    ((smallEtaleInclusion Y).sheafAdjunctionCocontinuous RingCat.{u}
-          (smallEtaleTopology Y) (spacesEtaleTopology Y)).counit.app
-        (structureSheaf Y) ≫
+    (EtaleRingedTopos.ringExtensionRestrictionIso Y).hom.app (structureSheaf Y) ≫
       spacesStructureSheafMapSmall f =
     ((smallEtaleInclusion Y).sheafPushforwardContinuous RingCat.{u}
           (smallEtaleTopology Y) (spacesEtaleTopology Y)).map

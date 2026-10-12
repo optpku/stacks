@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Monoidal.Basic
@@ -23,9 +29,8 @@ section
 variable {R : Type u} [Ring R]
 variable {I : Type v} [Preorder I]
 
-/-- Definition 10.88.1: a directed system of `R`-modules is Mittag-Leffler if each stage is
-finitely presented and for every `R`-module `N`, the inverse system `i ↦ Hom_R(M_i, N)` is
-Mittag-Leffler. -/
+/-- A directed system of `R`-modules is Mittag-Leffler if each stage is finitely presented
+and its Hom inverse system is Mittag-Leffler for every `R`-module. -/
 @[stacks 059A]
 def IsMittagLefflerDirectedSystem [Nonempty I] [IsDirectedOrder I]
     (M : I ⥤ ModuleCat.{w} R) : Prop :=
@@ -79,17 +84,16 @@ structure Presentation (R : Type u) (M : Type v) [Ring R] [AddCommGroup M]
   /-- The presentation diagram is a Mittag-Leffler directed system. -/
   isMittagLeffler : IsMittagLefflerDirectedSystem toColimitPresentation.diag
 
-attribute [instance] Presentation.indexPreorder Presentation.indexNonempty
-  Presentation.indexDirected
-
 /-- The diagram underlying a Mittag-Leffler presentation. -/
 abbrev Presentation.diag (P : Presentation.{u, v, w} R M) :=
-  P.toColimitPresentation.diag
+  @ColimitPresentation.diag _ _ P.index
+    (@Preorder.smallCategory P.index P.indexPreorder) _ P.toColimitPresentation
 
 /-- The structure maps from the stages of a Mittag-Leffler presentation to the presented
 module. -/
 abbrev Presentation.ι (P : Presentation.{u, v, w} R M) :=
-  P.toColimitPresentation.ι
+  @ColimitPresentation.ι _ _ P.index
+    (@Preorder.smallCategory P.index P.indexPreorder) _ P.toColimitPresentation
 
 /-- Build a Mittag-Leffler presentation from a concrete directed colimit presentation and the
 Mittag-Leffler property of its diagram. -/
@@ -114,8 +118,8 @@ noncomputable def Presentation.ofIso
 
 end MittagLeffler
 
-/-- Definition 10.88.7: an `R`-module `M` is Mittag-Leffler when it is the colimit of a directed
-system satisfying `IsMittagLefflerDirectedSystem`. -/
+/-- An `R`-module is Mittag-Leffler if it is the colimit of a directed system satisfying
+`IsMittagLefflerDirectedSystem`. -/
 @[stacks 059F]
 class MittagLeffler (R : Type u) (M : Type v) [Ring R] [AddCommGroup M]
     [Module R M] : Prop where

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.RingTheory.MvPowerSeries.Rename
@@ -19,12 +25,12 @@ universe u v
 
 namespace MvPowerSeries
 
-variable {R : Type u} [CommRing R] [IsNoetherianRing R]
+variable {R : Type u} [CommRing R]
 
 /-- A multivariate power series ring in finitely many variables over a Noetherian ring is
 Noetherian. -/
 @[stacks 0306]
-instance instIsNoetherianRing {σ : Type v} [Finite σ] :
+instance instIsNoetherianRing {σ : Type v} [Finite σ] [IsNoetherianRing R] :
     IsNoetherianRing (MvPowerSeries σ R) := sorry
 
 end MvPowerSeries

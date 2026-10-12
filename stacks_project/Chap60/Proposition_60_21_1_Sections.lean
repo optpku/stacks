@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Category.Grp.Abelian
@@ -30,6 +36,8 @@ variable (hJ : ∀ n, J n = RingHom.ker (tensorPowerAlgHom π n).toRingHom)
 variable (hIJ : ∀ n, Ideal.map (algebraMap A (tensorPowerCarrier A ι n)) I ≤ J n)
 variable (E : (n : ℕ) →
     DividedPowerEnvelope I γ (algebraMap A (tensorPowerCarrier A ι n)) (J n) (hIJ n))
+variable (hE : ∀ n, DividedPowerEnvelope.IsUniversal γ
+    (algebraMap A (tensorPowerCarrier A ι n)) (hIJ n) (E n))
 variable (N : ℕ → ℕ)
 variable (hN : ∀ n, Ideal.span {(p : (E n).D)} ^ N n ≤ (E n).D.ideal)
 variable (γhat : (n : ℕ) → DividedPowers (RingHom.ker
@@ -41,13 +49,13 @@ variable [HasLimits AddCommGrpCat.{w}]
 /-- The completed envelope `D(n)` as an object of `Cris^∧(C/A)`. -/
 noncomputable def affineCrisDn (n : ℕ) :
     CompletedCrisObject p A I γ C (algebraMap A C) hIC hpnil :=
-  crystallineDnCrisObject p I γ π hπ n hIC hpnil (J n) (hJ n) (hIJ n) (E n)
+  crystallineDnCrisObject p I γ π hπ n hIC hpnil (J n) (hJ n) (hIJ n) (E n) (hE n)
     (N n) (hN n) (γhat n) (hγhat n)
 
 /-- The completed envelope `D(n)` is the named `(n+1)`-fold coproduct envelope object. -/
 theorem affineCrisDn_eq (n : ℕ) :
-    affineCrisDn γ hIC hpnil π hπ J hJ hIJ E N hN γhat hγhat n =
-      crystallineDnCrisObject p I γ π hπ n hIC hpnil (J n) (hJ n) (hIJ n) (E n)
+    affineCrisDn γ hIC hpnil π hπ J hJ hIJ E hE N hN γhat hγhat n =
+      crystallineDnCrisObject p I γ π hπ n hIC hpnil (J n) (hJ n) (hIJ n) (E n) (hE n)
         (N n) (hN n) (γhat n) (hγhat n) :=
   sorry
 
@@ -74,17 +82,17 @@ noncomputable def affineCrisSections
       AddCommGrpCat.{w})
     (n : ℕ) : AddCommGrpCat.{w} :=
   affineCrisSectionsObj γ hIC hpnil F
-    (affineCrisDn γ hIC hpnil π hπ J hJ hIJ E N hN γhat hγhat n)
+    (affineCrisDn γ hIC hpnil π hπ J hJ hIJ E hE N hN γhat hγhat n)
 
 /-- `M(n)` is the inverse limit of the abelian stage system of `F` on `D(n)`. -/
 theorem affineCrisSections_eq
     (F : Sheaf (⊥ : GrothendieckTopology (crisOppSite γ (algebraMap A C) hIC hpnil))
       AddCommGrpCat.{w})
     (n : ℕ) :
-    affineCrisSections γ hIC hpnil π hπ J hJ hIJ E N hN γhat hγhat F n =
+    affineCrisSections γ hIC hpnil π hπ J hJ hIJ E hE N hN γhat hγhat F n =
       limit
         (stageAbelianSystem γ (algebraMap A C) hIC hpnil F
-          (affineCrisDn γ hIC hpnil π hπ J hJ hIJ E N hN γhat hγhat n)) :=
+          (affineCrisDn γ hIC hpnil π hπ J hJ hIJ E hE N hN γhat hγhat n)) :=
   sorry
 
 /-- Identification of a `p`-adic stage ring with the corresponding quotient of `B`. -/
@@ -223,7 +231,7 @@ noncomputable def affineCrisSectionsComplex
     CochainComplex AddCommGrpCat.{w} ℕ :=
   (AlgebraicTopology.alternatingCofaceMapComplex AddCommGrpCat.{w}).obj
     ((selfProduct
-        (Opposite.op (affineCrisDn γ hIC hpnil π hπ J hJ hIJ E N hN γhat hγhat 0))).rightOp ⋙
+        (Opposite.op (affineCrisDn γ hIC hpnil π hπ J hJ hIJ E hE N hN γhat hγhat 0))).rightOp ⋙
       (sheafToPresheaf
           (⊥ : GrothendieckTopology
             (CompletedCrisObject p A I γ C (algebraMap A C) hIC hpnil)ᵒᵖ)
@@ -236,8 +244,8 @@ theorem affineCrisSectionsComplex_obj
     (F : Sheaf (⊥ : GrothendieckTopology (crisOppSite γ (algebraMap A C) hIC hpnil))
       AddCommGrpCat.{w})
     (n : ℕ) :
-    IsIsomorphic ((affineCrisSectionsComplex γ hIC hpnil π hπ J hJ hIJ E N hN γhat hγhat F).X n)
-      (affineCrisSections γ hIC hpnil π hπ J hJ hIJ E N hN γhat hγhat F n) :=
+    IsIsomorphic ((affineCrisSectionsComplex γ hIC hpnil π hπ J hJ hIJ E hE N hN γhat hγhat F).X n)
+      (affineCrisSections γ hIC hpnil π hπ J hJ hIJ E hE N hN γhat hγhat F n) :=
   sorry
 
 /-- Homology of the inverse-limit cochain complex `M(*)`. -/
@@ -245,13 +253,13 @@ noncomputable def affineCrisSectionsComplex_homology
     (F : Sheaf (⊥ : GrothendieckTopology (crisOppSite γ (algebraMap A C) hIC hpnil))
       AddCommGrpCat.{w})
     (n : ℕ) : AddCommGrpCat.{w} :=
-  (affineCrisSectionsComplex γ hIC hpnil π hπ J hJ hIJ E N hN γhat hγhat F).homology n
+  (affineCrisSectionsComplex γ hIC hpnil π hπ J hJ hIJ E hE N hN γhat hγhat F).homology n
 
 /-- Unfolding of the homology of `M(*)`. -/
 theorem affineCrisSectionsComplex_homology_eq
     (F : Sheaf (⊥ : GrothendieckTopology (crisOppSite γ (algebraMap A C) hIC hpnil))
       AddCommGrpCat.{w})
     (n : ℕ) :
-    affineCrisSectionsComplex_homology γ hIC hpnil π hπ J hJ hIJ E N hN γhat hγhat F n =
-      (affineCrisSectionsComplex γ hIC hpnil π hπ J hJ hIJ E N hN γhat hγhat F).homology n :=
+    affineCrisSectionsComplex_homology γ hIC hpnil π hπ J hJ hIJ E hE N hN γhat hγhat F n =
+      (affineCrisSectionsComplex γ hIC hpnil π hπ J hJ hIJ E hE N hN γhat hγhat F).homology n :=
   sorry

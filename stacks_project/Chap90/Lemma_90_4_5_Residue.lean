@@ -1,7 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.Algebra.Algebra.Tower
-public import stacks_project.Chap90.Definition_90_7_3_CompleteLocal
+public import ReasLib.AlgebraicGeometry.FormalDeformation.CompleteLocal.Residue
 
 /-!
 # Residue algebra structure on the identified residue field
@@ -19,24 +24,18 @@ universe u
 variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-namespace CompleteLocalAlgCat
+#check (CompleteLocalAlgCat.instAlgebraCarrier :
+  ∀ R : CompleteLocalAlgCat Λ k, Algebra Λ R.carrier)
 
-noncomputable section
+#check (CompleteLocalAlgCat.instIsLocalRingCarrier :
+  ∀ R : CompleteLocalAlgCat Λ k, IsLocalRing R.carrier)
 
-/-- Residue-field identification of a complete local algebra as an `R`-algebra structure on `k`. -/
-instance algebra_residue (R : CompleteLocalAlgCat Λ k) : Algebra R.carrier k :=
-  (R.residueFieldIso.toAlgHom.toRingHom.comp (residue R.carrier)).toAlgebra
+#check (CompleteLocalAlgCat.algebra_residue :
+  ∀ R : CompleteLocalAlgCat Λ k, Algebra R.carrier k)
 
-/-- The algebra map of `algebra_residue` is the residue identification after the residue-field
-quotient map. -/
-theorem algebra_residue_algebraMap (R : CompleteLocalAlgCat Λ k) :
-    algebraMap R.carrier k = R.residueFieldIso.toAlgHom.toRingHom.comp (residue R.carrier) :=
-  sorry
+#check (CompleteLocalAlgCat.algebra_residue_algebraMap :
+  ∀ R : CompleteLocalAlgCat Λ k,
+    algebraMap R.carrier k = R.residueFieldIso.toAlgHom.toRingHom.comp (residue R.carrier))
 
-/-- The tower `Λ → R → k` for the residue identification of a complete local algebra. -/
-instance isScalarTower_residue (R : CompleteLocalAlgCat Λ k) :
-    IsScalarTower Λ R.carrier k := sorry
-
-end
-
-end CompleteLocalAlgCat
+#check (CompleteLocalAlgCat.isScalarTower_residue :
+  ∀ R : CompleteLocalAlgCat Λ k, IsScalarTower Λ R.carrier k)

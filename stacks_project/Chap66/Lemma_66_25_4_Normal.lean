@@ -1,58 +1,44 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.Normal
-public import stacks_project.Chap66.Lemma_66_7_1
-public import stacks_project.Chap66.Remark_66_7_3_EtaleLocal
-
-/-!
-# Normal algebraic spaces
-
-An algebraic space is normal when it admits a representable étale locally-surjective atlas
-from a normal scheme, in the sense of the étale-local type-property of schemes.
--/
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Normal
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- An algebraic space is normal if it admits a representable étale locally-surjective atlas
-whose source is a normal scheme. -/
-@[mk_iff]
-class IsNormal {S : Scheme.{u}} (X : AlgebraicSpace S) : Prop where
-  /-- There is a representable étale locally-surjective atlas from a normal scheme. -/
-  exists_normal_etaleCover :
-    existsSurjectiveEtale (Scheme.isNormal : ObjectProperty Scheme.{u}) X
-
-namespace IsNormal
-
-/-- A normal algebraic space admits a representable étale locally-surjective atlas from a
-normal scheme. -/
-theorem spec {S : Scheme.{u}} (X : AlgebraicSpace S) [IsNormal X] :
-    existsSurjectiveEtale (Scheme.isNormal : ObjectProperty Scheme.{u}) X :=
-  sorry
-
-/-- A representable étale locally-surjective atlas from a normal scheme witnesses that the
-algebraic space is normal. -/
-theorem of {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (h : existsSurjectiveEtale (Scheme.isNormal : ObjectProperty Scheme.{u}) X) :
-    IsNormal X :=
-  sorry
-
-/-- A normal scheme over `S`, viewed as an algebraic space, is normal. -/
-theorem ofOver {S : Scheme.{u}} {T : Over S} (h : Scheme.isNormal T.left) :
-    IsNormal (ofOver T) :=
-  sorry
-
-end IsNormal
-
-/-- An algebraic space is normal if and only if every étale morphism from a scheme to it has
-normal source. -/
-theorem isNormal_iff_forallEtale {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    IsNormal X ↔ forallEtale (Scheme.isNormal : ObjectProperty Scheme.{u}) X :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+/-! Compatibility checks for the normal algebraic-space API. -/
+#check (AlgebraicGeometry.AlgebraicSpace.IsNormal :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}},
+    AlgebraicGeometry.AlgebraicSpace S → Prop)
+#check (AlgebraicGeometry.AlgebraicSpace.IsNormal.spec :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}}
+    (X : AlgebraicGeometry.AlgebraicSpace S)
+    [AlgebraicGeometry.AlgebraicSpace.IsNormal X],
+    AlgebraicGeometry.AlgebraicSpace.existsSurjectiveEtale
+      (AlgebraicGeometry.Scheme.isNormal :
+        CategoryTheory.ObjectProperty AlgebraicGeometry.Scheme.{u}) X)
+#check (AlgebraicGeometry.AlgebraicSpace.IsNormal.of :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}}
+    {X : AlgebraicGeometry.AlgebraicSpace S},
+    AlgebraicGeometry.AlgebraicSpace.existsSurjectiveEtale
+      (AlgebraicGeometry.Scheme.isNormal :
+        CategoryTheory.ObjectProperty AlgebraicGeometry.Scheme.{u}) X →
+      AlgebraicGeometry.AlgebraicSpace.IsNormal X)
+#check (AlgebraicGeometry.AlgebraicSpace.IsNormal.ofOver :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {T : CategoryTheory.Over S},
+    AlgebraicGeometry.Scheme.isNormal T.left →
+      AlgebraicGeometry.AlgebraicSpace.IsNormal
+        (AlgebraicGeometry.AlgebraicSpace.ofOver T))
+#check (AlgebraicGeometry.AlgebraicSpace.isNormal_iff_forallEtale :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}}
+    (X : AlgebraicGeometry.AlgebraicSpace S),
+    AlgebraicGeometry.AlgebraicSpace.IsNormal X ↔
+      AlgebraicGeometry.AlgebraicSpace.forallEtale
+        (AlgebraicGeometry.Scheme.isNormal :
+          CategoryTheory.ObjectProperty AlgebraicGeometry.Scheme.{u}) X)

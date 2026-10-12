@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 import StacksCheckRecall
@@ -23,8 +29,8 @@ variable {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z)
 satisfy `g_big ∘ f_big = (g ∘ f)_big`. -/
 @[stacks 0DF7] #check
   (morphismOfTopoi_comp f g :
-    MorphismOfTopoiIn.comp (morphismOfTopoi g) (morphismOfTopoi f) =
-      morphismOfTopoi (f ≫ g))
+    MorphismOfTopoiIn.comp (Etale.Big.morphismOfTopoi g) (Etale.Big.morphismOfTopoi f) =
+      Etale.Big.morphismOfTopoi (f ≫ g))
 
 /- Lemma 73.4.12 (2): for composable morphisms of algebraic spaces `f : X ⟶ Y` and
 `g : Y ⟶ Z` over a scheme `S`, the associated morphisms of small étale topoi

@@ -1,9 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.CategoryTheory.Abelian.GrothendieckAxioms.Basic
-public import Mathlib.CategoryTheory.Abelian.GrothendieckCategory.Basic
-public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.Algebra.Homology.DerivedCategory.Completeness.Category
+public import ReasLib.Algebra.Homology.DerivedCategory.Completeness.CategoryCounterexample
 import StacksCheckRecall
 
 /-!
@@ -16,63 +19,63 @@ open CategoryTheory CategoryTheory.Limits
 
 universe u
 
-namespace ModuleCat.DerivedComplete
-
-section
-
-variable {A : Type u} [CommRing A]
-
 /- Lemma 110.11.1 (1): the category of derived complete modules is abelian. -/
 @[stacks 0ARD]
-#check fun (I : Ideal A) ↦ (abelian I : Abelian (category I))
+#check (ModuleCat.DerivedComplete.abelian :
+  ∀ {A : Type u} [CommRing A] (I : Ideal A), Abelian (ModuleCat.DerivedComplete.category I))
 
 /- Lemma 110.11.1 (2): the inclusion of derived complete modules into `ModuleCat A` is exact. -/
 @[stacks 0ARD]
-#check fun (I : Ideal A) ↦
-  (inclusion_exact I : exactFunctor (category I) (ModuleCat A) (inclusion I))
+#check (ModuleCat.DerivedComplete.inclusion_exact :
+  ∀ {A : Type u} [CommRing A] (I : Ideal A),
+    exactFunctor (ModuleCat.DerivedComplete.category I) (ModuleCat A)
+      (ModuleCat.DerivedComplete.inclusion I))
 
 /- Lemma 110.11.1 (3): the category of derived complete modules has arbitrary limits. -/
 @[stacks 0ARD]
-#check fun (I : Ideal A) ↦ (hasLimits I : HasLimits (category I))
+#check (ModuleCat.DerivedComplete.hasLimits :
+  ∀ {A : Type u} [CommRing A] (I : Ideal A), HasLimits (ModuleCat.DerivedComplete.category I))
 
 /- Lemma 110.11.1 (4): the inclusion of derived complete modules commutes with arbitrary limits. -/
 @[stacks 0ARD]
-#check fun (I : Ideal A) ↦
-  (inclusion_preservesLimits I : PreservesLimitsOfSize (inclusion I))
+#check (ModuleCat.DerivedComplete.inclusion_preservesLimits :
+  ∀ {A : Type u} [CommRing A] (I : Ideal A),
+    PreservesLimitsOfSize (ModuleCat.DerivedComplete.inclusion I))
 
 /- Lemma 110.11.1 (5): if `I` is finitely generated, the category of derived complete modules has
 arbitrary direct sums and colimits. -/
 @[stacks 0ARD]
-#check fun (I : Ideal A) (hI : I.FG) ↦ (hasColimits I hI : HasColimits (category I))
+#check (ModuleCat.DerivedComplete.hasColimits :
+  ∀ {A : Type u} [CommRing A] (I : Ideal A),
+    I.FG → HasColimits (ModuleCat.DerivedComplete.category I))
 
-end
-
-/-- Lemma 110.11.1 (6): if `I` is finitely generated, the inclusion of derived complete modules
-does not commute with colimits in general. -/
+/- Lemma 110.11.1 (6): the finitely generated ideal `(p)` in `ℤ_[p]` gives a derived-complete
+module inclusion that does not preserve all colimits. -/
 @[stacks 0ARD]
-theorem exists_fg_inclusion_not_preservesColimits :
-    ∃ (A : Type u) (_ : CommRing A) (I : Ideal A),
-      I.FG ∧ ¬ PreservesColimits (inclusion I) := sorry
+#check (ModuleCat.DerivedComplete.padic_inclusion_not_preservesColimits :
+  ∀ (p : ℕ) [Fact p.Prime], (principalIdeal (p : ℤ_[p])).FG ∧
+    ¬ PreservesColimits (ModuleCat.DerivedComplete.inclusion (principalIdeal (p : ℤ_[p]))))
 
-/-- The inclusion of derived complete modules does not preserve countable coproducts in general,
-even when `I` is finitely generated. -/
-theorem exists_fg_inclusion_not_preservesCoproducts :
-    ∃ (A : Type u) (_ : CommRing A) (I : Ideal A),
-      I.FG ∧ ¬ PreservesColimitsOfShape (Discrete ℕ) (inclusion I) := sorry
-
-/-- Lemma 110.11.1 (7): filtered colimits are not exact in the category of derived complete
-modules in general. -/
+/- Lemma 110.11.1 (7): the inclusion does not preserve countable direct sums for `(p)` in `ℤ_[p]`. -/
 @[stacks 0ARD]
-theorem exists_fg_not_hasExactColimitsOfShape_nat :
-    ∃ (A : Type u) (_ : CommRing A) (I : Ideal A),
-      I.FG ∧ ∀ [HasColimitsOfShape ℕ (category I)],
-        ¬ Nonempty (HasExactColimitsOfShape ℕ (category I)) := sorry
+#check (ModuleCat.DerivedComplete.padic_inclusion_not_preservesCoproducts :
+  ∀ (p : ℕ) [Fact p.Prime], (principalIdeal (p : ℤ_[p])).FG ∧
+    ¬ PreservesColimitsOfShape (Discrete ℕ)
+      (ModuleCat.DerivedComplete.inclusion (principalIdeal (p : ℤ_[p]))))
 
-/-- Lemma 110.11.1 (8): the category of derived complete modules is not a Grothendieck abelian
-category in general. -/
+/- Lemma 110.11.1 (8): sequential filtered colimits in the derived-complete category for `(p)`
+in `ℤ_[p]` are not exact. -/
 @[stacks 0ARD]
-theorem exists_fg_not_isGrothendieckAbelian :
-    ∃ (A : Type u) (_ : CommRing A) (I : Ideal A),
-      I.FG ∧ ¬ IsGrothendieckAbelian (category I) := sorry
+#check (ModuleCat.DerivedComplete.padic_not_hasExactColimitsOfShape_nat :
+  ∀ (p : ℕ) [Fact p.Prime], (principalIdeal (p : ℤ_[p])).FG ∧
+    ∀ [HasColimitsOfShape ℕ
+      (ModuleCat.DerivedComplete.category (principalIdeal (p : ℤ_[p])))],
+      ¬ Nonempty (HasExactColimitsOfShape ℕ
+        (ModuleCat.DerivedComplete.category (principalIdeal (p : ℤ_[p])))))
 
-end ModuleCat.DerivedComplete
+/- Lemma 110.11.1 (9): this derived-complete category is not Grothendieck abelian. -/
+@[stacks 0ARD]
+#check (ModuleCat.DerivedComplete.padic_not_isGrothendieckAbelian :
+  ∀ (p : ℕ) [Fact p.Prime], (principalIdeal (p : ℤ_[p])).FG ∧
+    ¬ IsGrothendieckAbelian
+      (ModuleCat.DerivedComplete.category (principalIdeal (p : ℤ_[p]))))

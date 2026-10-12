@@ -1,5 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.BivariantClass.GysinAtInfinity.BaseChange
 public import stacks_project.Chap42.Lemma_42_48_1
 public import stacks_project.Chap42.Remark_42_33_5_Bivariant
 public import stacks_project.Chap42.Lemma_42_48_2_BaseChange
@@ -14,10 +22,11 @@ universe u
 
 namespace AlgebraicGeometry.BivariantClass
 
-/-- Lemma 42.48.2: the Gysin-at-infinity class obtained from a locally finite-type base
+/- Lemma 42.48.2: the Gysin-at-infinity class obtained from a locally finite-type base
 change of a compactification is the bivariant restriction of the original class. -/
 @[stacks 0GUH]
-theorem gysinAtInfinity_baseChange
+#check (AlgebraicGeometry.BivariantClass.gysinAtInfinity_baseChange :
+  ∀
     {S W W' : Scheme.{u}} [UniversallyCatenary S]
     (δ : S → ℤ) [IsDimensionFunction δ]
     (X X' : Over S) [LocallyOfFiniteType X.hom] [LocallyOfFiniteType X'.hom]
@@ -34,9 +43,9 @@ theorem gysinAtInfinity_baseChange
     (hj : j ≫ GysinAtInfinity.infinityInclusion X b =
       GysinAtInfinity.infinityInclusion X' b' ≫ h)
     (infinitySquare : IsPullback j.left (GysinAtInfinity.infinityToX X' b').left
-      (GysinAtInfinity.infinityToX X b).left g.left) :
+      (GysinAtInfinity.infinityToX X b).left g.left),
     gysinAtInfinity δ X' b' =
       restrict δ j (GysinAtInfinity.infinityToX X' b') g infinitySquare 0
-        (gysinAtInfinity δ X b) := sorry
+        (gysinAtInfinity δ X b))
 
 end AlgebraicGeometry.BivariantClass

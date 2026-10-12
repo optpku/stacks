@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Limits.FunctorCategory.Basic
@@ -67,5 +73,14 @@ theorem isStableUnderBaseChange {S : Scheme.{u}} :
 attribute [instance] isStableUnderBaseChange
 
 end representableByAlgebraicSpaces
+
+/-- Every morphism between algebraic spaces over a scheme is representable by algebraic spaces. -/
+theorem representableByAlgebraicSpaces.of_hom {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) : representableByAlgebraicSpaces f := sorry
+
+/-- The pullback of a morphism between algebraic spaces along a scheme-valued point is an algebraic space. -/
+instance instIsAlgebraicSpace_pullback_hom {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) {U : Over S} (ξ : yoneda.obj U ⟶ Y.functorOfPoints) :
+    IsAlgebraicSpace (pullback ξ f) := sorry
 
 end AlgebraicGeometry.AlgebraicSpace

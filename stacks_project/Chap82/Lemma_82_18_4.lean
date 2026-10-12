@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap65.Lemma_65_12_2
@@ -25,17 +31,6 @@ noncomputable section
 universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
-
-namespace Modules
-
-/-- Pullback of modules along a morphism of algebraic spaces preserves
-tensor-invertibility. -/
-theorem isInvertibleObject_pullback {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (i : X ⟶ Y) (M : Y.Modules) [isInvertibleObject M] :
-    isInvertibleObject ((pullback i).obj M) :=
-  sorry
-
-end Modules
 
 namespace ClosedSubspace
 

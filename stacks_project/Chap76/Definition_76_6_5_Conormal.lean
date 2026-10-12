@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.Basic
@@ -43,11 +49,14 @@ variable {S : Scheme.{u}}
 noncomputable abbrev commRingInverseImage {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Sheaf (smallEtaleTopology Y) CommRingCat.{u} ⥤
       Sheaf (smallEtaleTopology X) CommRingCat.{u} :=
-  sheafInverseImage CommRingCat.{u} f
+  CategoryTheory.Sheaf.InternalCommRing.toInternal.{u + 1, u, u} ⋙ internalCommRingInverseImage f ⋙
+    CategoryTheory.Sheaf.InternalCommRing.fromInternal.{u + 1, u, u}
 
-/-- Inverse image of commutative-ring sheaves is `sheafInverseImage` of `CommRingCat`. -/
+/-- Commutative-ring inverse image retains the canonical internal-ring construction. -/
 theorem commRingInverseImage_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    commRingInverseImage f = sheafInverseImage CommRingCat.{u} f :=
+    commRingInverseImage f =
+      CategoryTheory.Sheaf.InternalCommRing.toInternal.{u + 1, u, u} ⋙ internalCommRingInverseImage f ⋙
+        CategoryTheory.Sheaf.InternalCommRing.fromInternal.{u + 1, u, u} :=
   rfl
 
 /-- The inverse-image structure map `j^{-1} 𝒪_Y ⟶ 𝒪_X` adjunct to
@@ -55,39 +64,12 @@ theorem commRingInverseImage_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
 noncomputable def inverseImageStructureSheafHom {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     (commRingInverseImage f).obj (commRingStructureSheaf Y) ⟶
       commRingStructureSheaf X :=
-  let G :=
-    (smallEtaleInclusion X).sheafPushforwardCocontinuous CommRingCat.{u}
-      (smallEtaleTopology X) (spacesEtaleTopology X)
-  let adj :=
-    Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
-      (etaleBaseChange f) CommRingCat.{u}
-      (smallEtaleTopology Y) (spacesEtaleTopology X)
-  let φ :=
-    (adj.homEquiv (commRingStructureSheaf Y) (G.obj (commRingStructureSheaf X))).symm
-      (commRingStructureSheafMap f)
-  ((smallEtaleInclusion X).sheafPushforwardContinuous CommRingCat.{u}
-        (smallEtaleTopology X) (spacesEtaleTopology X)).map φ ≫
-    ((smallEtaleInclusion X).sheafAdjunctionCocontinuous CommRingCat.{u}
-        (smallEtaleTopology X) (spacesEtaleTopology X)).counit.app
-      (commRingStructureSheaf X)
+  commInverseImageStructureSheafMap f
 
-/-- The inverse-image structure map is the adjunct of `commRingStructureSheafMap f`
-followed by the small-versus-spaces counit. -/
+/-- The structure map is the actual geometric adjunction transpose on internal commutative rings. -/
 theorem inverseImageStructureSheafHom_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     inverseImageStructureSheafHom f =
-      ((smallEtaleInclusion X).sheafPushforwardContinuous CommRingCat.{u}
-            (smallEtaleTopology X) (spacesEtaleTopology X)).map
-          (((Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
-                  (etaleBaseChange f) CommRingCat.{u}
-                  (smallEtaleTopology Y) (spacesEtaleTopology X)).homEquiv
-                (commRingStructureSheaf Y)
-                (((smallEtaleInclusion X).sheafPushforwardCocontinuous CommRingCat.{u}
-                    (smallEtaleTopology X) (spacesEtaleTopology X)).obj
-                  (commRingStructureSheaf X))).symm
-            (commRingStructureSheafMap f)) ≫
-        ((smallEtaleInclusion X).sheafAdjunctionCocontinuous CommRingCat.{u}
-            (smallEtaleTopology X) (spacesEtaleTopology X)).counit.app
-          (commRingStructureSheaf X) :=
+      commInverseImageStructureSheafMap f :=
   rfl
 
 namespace ConormalAlgebra

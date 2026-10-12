@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.RingTheory.PiTensorProduct
@@ -53,6 +59,21 @@ theorem liftSlots_slot {R : Type u} [CommRing R] [Algebra A R]
 noncomputable def diagonal {R : Type u} [CommRing R] [Algebra A R]
     (π : MvPolynomial ι A →ₐ[A] R) (n : ℕ) : carrier A ι n →ₐ[A] R :=
   liftSlots A ι n (fun _ ↦ π)
+
+/-- The diagonal presentation evaluates each polynomial slot by the original presentation. -/
+theorem diagonal_slot {R : Type u} [CommRing R] [Algebra A R]
+    (π : MvPolynomial ι A →ₐ[A] R) (n : ℕ) (j : Fin (n + 1))
+    (polynomial : MvPolynomial ι A) :
+    diagonal A ι π n (slot A ι n j polynomial) = π polynomial :=
+  liftSlots_slot A ι n (fun _ ↦ π) j polynomial
+
+/-- A surjective polynomial presentation induces a surjective diagonal tensor presentation. -/
+theorem diagonal_surjective {R : Type u} [CommRing R] [Algebra A R]
+    (π : MvPolynomial ι A →ₐ[A] R) (hπ : Function.Surjective π) (n : ℕ) :
+    Function.Surjective (diagonal A ι π n) := by
+  intro value
+  obtain ⟨polynomial, hpolynomial⟩ := hπ value
+  exact ⟨slot A ι n 0 polynomial, (diagonal_slot A ι π n 0 polynomial).trans hpolynomial⟩
 
 /-- The zeroth polynomial coordinate minus its copy in a positive slot. -/
 noncomputable def difference {n : ℕ} (i : ι) (j : Fin n) : carrier A ι n :=

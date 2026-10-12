@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Monoidal.Cartesian.Grp
@@ -38,14 +44,13 @@ abbrev inertiaApex {S : Scheme.{u}} {X Y : GroupoidsOver S}
 object `((x, α), (x', α'), β)` to `(x, α ∘ β⁻¹ ∘ α' ∘ β)`. -/
 def compositionObj {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    (P : (inertiaApex f).total) : CategoryTheory.RelativeInertia (toFunctor f) where
-  obj := (BasedCategory.PseudoPullback.fstObj P).obj
-  aut :=
-    let α := (BasedCategory.PseudoPullback.fstObj P).aut
-    let α' := (BasedCategory.PseudoPullback.sndObj P).aut
-    let β := BasedCategory.PseudoPullback.comparisonIsoApp P
-    ((β.trans α').trans β.symm).trans α
-  mapAut_eq_one := sorry
+    (P : (inertiaApex f).total) : CategoryTheory.RelativeInertia (toFunctor f) :=
+  let α := (BasedCategory.PseudoPullback.fstObj P).aut
+  let α' := (BasedCategory.PseudoPullback.sndObj P).aut
+  let β := BasedCategory.PseudoPullback.comparisonIsoApp P
+  CategoryTheory.RelativeInertia.mk
+    (CategoryTheory.Inertia.mk (BasedCategory.PseudoPullback.fstObj P).obj
+      (((β.trans α').trans β.symm).trans α)) sorry
 
 /-- The total morphism of relative-inertia multiplication. -/
 def compositionMap {S : Scheme.{u}} {X Y : GroupoidsOver S}
@@ -136,10 +141,8 @@ theorem composition_comp_forget {S : Scheme.{u}} {X Y : GroupoidsOver S}
 def invObj {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
     (ξ : CategoryTheory.RelativeInertia (toFunctor f)) :
-    CategoryTheory.RelativeInertia (toFunctor f) where
-  obj := ξ.obj
-  aut := ξ.aut⁻¹
-  mapAut_eq_one := sorry
+    CategoryTheory.RelativeInertia (toFunctor f) :=
+  CategoryTheory.RelativeInertia.mk (CategoryTheory.Inertia.mk ξ.obj ξ.aut⁻¹) sorry
 
 /-- The total morphism of relative-inertia inversion. -/
 def invMap {S : Scheme.{u}} {X Y : GroupoidsOver S}

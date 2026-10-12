@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Homology.ShortComplex.Ab
@@ -28,14 +34,14 @@ variable (f : X ⟶ B) (δ : Points B → ℤ) (U : OpenSubspace X) (k : ℤ)
 
 /-- Coefficientwise restriction of a cycle along an open immersion has locally
 finite support. -/
-theorem openPullback_locallyFiniteSupport (α : f.cycleGroup δ k) :
+theorem openPullback_locallyFiniteSupport (α : (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f) δ k) :
     LocallyFiniteSupport fun u : Points U.X ↦
       (α : Function.locallyFinsupp (Points X) ℤ) (Points.map U.ι u) :=
   sorry
 
 /-- The underlying locally finite cycle obtained by restricting coefficients
 along `U.ι`. -/
-def openPullbackCycle (α : f.cycleGroup δ k) :
+def openPullbackCycle (α : (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f) δ k) :
     Function.locallyFinsupp (Points U.X) ℤ where
   toFun := fun u ↦ (α : Function.locallyFinsupp (Points X) ℤ) (Points.map U.ι u)
   supportWithinDomain' := Set.subset_univ _
@@ -43,12 +49,12 @@ def openPullbackCycle (α : f.cycleGroup δ k) :
     openPullback_locallyFiniteSupport f δ U k α u
 
 /-- Coefficientwise restriction along `U.ι` preserves the relative degree `k`. -/
-theorem openPullback_mem (α : f.cycleGroup δ k) :
-    openPullbackCycle f δ U k α ∈ (U.ι ≫ f).cycleGroup δ k :=
+theorem openPullback_mem (α : (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f) δ k) :
+    openPullbackCycle f δ U k α ∈ (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup (U.ι ≫ f)) δ k :=
   sorry
 
 /-- The value of open restriction on a cycle of fixed relative degree. -/
-def openPullbackValue (α : f.cycleGroup δ k) : (U.ι ≫ f).cycleGroup δ k :=
+def openPullbackValue (α : (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f) δ k) : (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup (U.ι ≫ f)) δ k :=
   ⟨openPullbackCycle f δ U k α, openPullback_mem f δ U k α⟩
 
 /-- Open restriction sends the zero cycle to zero. -/
@@ -56,19 +62,19 @@ theorem openPullbackValue_zero : openPullbackValue f δ U k 0 = 0 :=
   sorry
 
 /-- Open restriction preserves addition of cycles. -/
-theorem openPullbackValue_add (α β : f.cycleGroup δ k) :
+theorem openPullbackValue_add (α β : (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f) δ k) :
     openPullbackValue f δ U k (α + β) =
       openPullbackValue f δ U k α + openPullbackValue f δ U k β :=
   sorry
 
 /-- Restriction of `k`-cycles along the open immersion `U.ι`. -/
-def openPullback : f.cycleGroup δ k →+ (U.ι ≫ f).cycleGroup δ k where
+def openPullback : (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f) δ k →+ (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup (U.ι ≫ f)) δ k where
   toFun := openPullbackValue f δ U k
   map_zero' := openPullbackValue_zero f δ U k
   map_add' := openPullbackValue_add f δ U k
 
 /-- Open restriction evaluates by reading coefficients along `Points.map U.ι`. -/
-theorem openPullback_apply (α : f.cycleGroup δ k) (u : Points U.X) :
+theorem openPullback_apply (α : (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f) δ k) (u : Points U.X) :
     (openPullback f δ U k α : Function.locallyFinsupp (Points U.X) ℤ) u =
       (α : Function.locallyFinsupp (Points X) ℤ) (Points.map U.ι u) :=
   sorry
@@ -83,7 +89,7 @@ instance openPullback_epi : Epi (AddCommGrpCat.ofHom (openPullback f δ U k)) :=
 
 /-- Weight-1 closed-immersion pushforward of a cycle has locally finite support. -/
 theorem closedPushforward_locallyFiniteSupport
-    (α : (U.reducedComplement.ι ≫ f).cycleGroup δ k) :
+    (α : (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup (U.reducedComplement.ι ≫ f)) δ k) :
     LocallyFiniteSupport fun x : Points X ↦
       ∑ᶠ y ∈ Points.map U.reducedComplement.ι ⁻¹' {x},
         (α : Function.locallyFinsupp (Points U.reducedComplement.X) ℤ) y :=
@@ -91,7 +97,7 @@ theorem closedPushforward_locallyFiniteSupport
 
 /-- The underlying locally finite cycle obtained by weight-1 pushforward along
 `U.reducedComplement.ι`. -/
-def closedPushforwardCycle (α : (U.reducedComplement.ι ≫ f).cycleGroup δ k) :
+def closedPushforwardCycle (α : (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup (U.reducedComplement.ι ≫ f)) δ k) :
     Function.locallyFinsupp (Points X) ℤ where
   toFun := fun x ↦
     ∑ᶠ y ∈ Points.map U.reducedComplement.ι ⁻¹' {x},
@@ -102,14 +108,14 @@ def closedPushforwardCycle (α : (U.reducedComplement.ι ≫ f).cycleGroup δ k)
 
 /-- Weight-1 pushforward along `U.reducedComplement.ι` preserves the relative
 degree `k`. -/
-theorem closedPushforward_mem (α : (U.reducedComplement.ι ≫ f).cycleGroup δ k) :
-    closedPushforwardCycle f δ U k α ∈ f.cycleGroup δ k :=
+theorem closedPushforward_mem (α : (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup (U.reducedComplement.ι ≫ f)) δ k) :
+    closedPushforwardCycle f δ U k α ∈ (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f) δ k :=
   sorry
 
 /-- The value of reduced-complement pushforward on a cycle of fixed relative
 degree. -/
-def closedPushforwardValue (α : (U.reducedComplement.ι ≫ f).cycleGroup δ k) :
-    f.cycleGroup δ k :=
+def closedPushforwardValue (α : (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup (U.reducedComplement.ι ≫ f)) δ k) :
+    (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f) δ k :=
   ⟨closedPushforwardCycle f δ U k α, closedPushforward_mem f δ U k α⟩
 
 /-- Reduced-complement pushforward sends the zero cycle to zero. -/
@@ -118,21 +124,21 @@ theorem closedPushforwardValue_zero : closedPushforwardValue f δ U k 0 = 0 :=
 
 /-- Reduced-complement pushforward preserves addition of cycles. -/
 theorem closedPushforwardValue_add
-    (α β : (U.reducedComplement.ι ≫ f).cycleGroup δ k) :
+    (α β : (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup (U.reducedComplement.ι ≫ f)) δ k) :
     closedPushforwardValue f δ U k (α + β) =
       closedPushforwardValue f δ U k α + closedPushforwardValue f δ U k β :=
   sorry
 
 /-- Pushforward of `k`-cycles along the reduced-complement closed immersion. -/
 def closedPushforward :
-    (U.reducedComplement.ι ≫ f).cycleGroup δ k →+ f.cycleGroup δ k where
+    (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup (U.reducedComplement.ι ≫ f)) δ k →+ (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f) δ k where
   toFun := closedPushforwardValue f δ U k
   map_zero' := closedPushforwardValue_zero f δ U k
   map_add' := closedPushforwardValue_add f δ U k
 
 /-- Reduced-complement pushforward evaluates by a weight-1 finsum on the fiber of
 `Points.map U.reducedComplement.ι`. -/
-theorem closedPushforward_apply (α : (U.reducedComplement.ι ≫ f).cycleGroup δ k)
+theorem closedPushforward_apply (α : (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup (U.reducedComplement.ι ≫ f)) δ k)
     (x : Points X) :
     (closedPushforward f δ U k α : Function.locallyFinsupp (Points X) ℤ) x =
       ∑ᶠ y ∈ Points.map U.reducedComplement.ι ⁻¹' {x},

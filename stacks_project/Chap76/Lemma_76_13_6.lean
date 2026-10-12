@@ -1,6 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap76.Lemma_76_13_6_Etale
+public import ReasLib.AlgebraicGeometry.Scheme.Over.FormallyLifting.EtaleSurjective
 import StacksCheckRecall
 
 /-!
@@ -24,7 +30,7 @@ universe u
 transformation of functors on `(Sch/S)_fppf` and `b : G ⟶ H` is formally
 smooth, then `a ≫ b` (source `b ∘ a`) is formally smooth. -/
 @[stacks 04CY]
-#check (FormallySmooth.precomp :
+#check (AlgebraicGeometry.Scheme.Over.FormallySmooth.precomp :
     ∀ {S : Scheme.{u}} {F G H : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G) (b : G ⟶ H),
       (MorphismProperty.over (@Etale ⊓ @Surjective)).presheaf a →
         FormallySmooth b → FormallySmooth (a ≫ b))
@@ -33,7 +39,7 @@ smooth, then `a ≫ b` (source `b ∘ a`) is formally smooth. -/
 transformation of functors on `(Sch/S)_fppf` and `b : G ⟶ H` is formally
 étale, then `a ≫ b` (source `b ∘ a`) is formally étale. -/
 @[stacks 04CY]
-#check (FormallyEtale.precomp :
+#check (AlgebraicGeometry.Scheme.Over.FormallyEtale.precomp :
     ∀ {S : Scheme.{u}} {F G H : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G) (b : G ⟶ H),
       (MorphismProperty.over (@Etale ⊓ @Surjective)).presheaf a →
         FormallyEtale b → FormallyEtale (a ≫ b))
@@ -42,7 +48,7 @@ transformation of functors on `(Sch/S)_fppf` and `b : G ⟶ H` is formally
 transformation of functors on `(Sch/S)_fppf` and `b : G ⟶ H` is formally
 unramified, then `a ≫ b` (source `b ∘ a`) is formally unramified. -/
 @[stacks 04CY]
-#check (FormallyUnramified.precomp :
+#check (AlgebraicGeometry.Scheme.Over.FormallyUnramified.precomp :
     ∀ {S : Scheme.{u}} {F G H : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G) (b : G ⟶ H),
       (MorphismProperty.over (@Etale ⊓ @Surjective)).presheaf a →
         FormallyUnramified b → FormallyUnramified (a ≫ b))
@@ -51,7 +57,7 @@ unramified, then `a ≫ b` (source `b ∘ a`) is formally unramified. -/
 an affine first-order thickening lifts étale-locally on `T'` through an affine
 étale morphism `U' ⟶ T'` covering the image of any given point of `T`. -/
 @[stacks 04CY]
-#check (FormallySmooth.exists_etaleAffineLocalLift :
+#check (AlgebraicGeometry.Scheme.Over.FormallySmooth.exists_etaleAffineLocalLift :
     ∀ {S : Scheme.{u}} {F G H : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G) (b : G ⟶ H),
       (MorphismProperty.over (@Etale ⊓ @Surjective)).presheaf a →
         ∀ [FormallySmooth (a ≫ b)] {T T' : Over S} [IsAffine T.left]
@@ -64,7 +70,7 @@ an affine first-order thickening lifts étale-locally on `T'` through an affine
 /- Lemma 76.13.6 (5): If `a ≫ b` is formally unramified and `a` is representable,
 surjective, and étale, then `b` is formally unramified. -/
 @[stacks 04CY]
-#check (FormallyUnramified.of_precomp :
+#check (AlgebraicGeometry.Scheme.Over.FormallyUnramified.of_precomp :
     ∀ {S : Scheme.{u}} {F G H : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G) (b : G ⟶ H),
       (MorphismProperty.over (@Etale ⊓ @Surjective)).presheaf a →
         FormallyUnramified (a ≫ b) → FormallyUnramified b)
@@ -72,7 +78,7 @@ surjective, and étale, then `b` is formally unramified. -/
 /- Lemma 76.13.6 (6): If `a ≫ b` is formally étale and `a` is representable,
 surjective, and étale, then `b` is formally étale. -/
 @[stacks 04CY]
-#check (FormallyEtale.of_precomp :
+#check (AlgebraicGeometry.Scheme.Over.FormallyEtale.of_precomp :
     ∀ {S : Scheme.{u}} {F G H : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G) (b : G ⟶ H),
       (MorphismProperty.over (@Etale ⊓ @Surjective)).presheaf a →
         FormallyEtale (a ≫ b) → FormallyEtale b)

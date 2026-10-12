@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Subfunctor.Image
@@ -23,5 +29,10 @@ epimorphic first map. -/
 theorem existsUnique_epiFactorization {F G : Presheaf C} (φ : F ⟶ G) :
     ∃! H : Subfunctor G,
       ∃ α : F ⟶ H.toFunctor, Epi α ∧ α ≫ H.ι = φ := sorry
+
+/-- A subpresheaf admits an epimorphic factorization of a morphism through its inclusion
+if and only if it is the range subfunctor of that morphism. -/
+theorem epiFactorization_iff_range {F G : Presheaf C} (φ : F ⟶ G) (H : Subfunctor G) :
+    (∃ α : F ⟶ H.toFunctor, Epi α ∧ α ≫ H.ι = φ) ↔ H = range φ := sorry
 
 end CategoryTheory.Subfunctor

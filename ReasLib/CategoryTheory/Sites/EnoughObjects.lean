@@ -1,6 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import ReasLib.CategoryTheory.Sites.Family.Covering
+public import ReasLib.CategoryTheory.Limits.FormalCoproduct.Basic
 public import Mathlib.CategoryTheory.ObjectProperty.Basic
 public import Mathlib.CategoryTheory.Sites.Coverage
 public import Mathlib.CategoryTheory.Sites.Grothendieck
@@ -35,8 +41,9 @@ namespace HasEnoughObjectsWithProperty
 covering family all of whose members satisfy `P`. -/
 theorem iff_existsCoveringFamily (P : ObjectProperty C) :
     J.HasEnoughObjectsWithProperty P ↔
-      ∀ U : C, ∃ U' : SemiRepresentableFamily.Over.{max u v} U,
-        U'.toSieve ∈ J U ∧ ∀ i : U'.index, P (U'.obj i).left := sorry
+      ∀ U : C, ∃ families : Limits.FormalCoproduct.{max u v} (CategoryTheory.Over U),
+        Sieve.ofArrows (fun i => (families.obj i).left) (fun i => (families.obj i).hom) ∈ J U ∧
+          ∀ i : families.index, P (families.obj i).left := sorry
 
 end HasEnoughObjectsWithProperty
 
@@ -46,7 +53,7 @@ namespace CategoryTheory.Coverage
 
 variable {C : Type u} [Category.{v} C] (K : Coverage C)
 
-/-- Situation 18.30.5 (0937) (1): a chosen-cover site has enough objects with property `P`
+/-- A chosen-cover site has enough objects with property `P`
 when every object has a selected covering family whose sources satisfy `P`. -/
 @[stacks 0937 "(1)"]
 def HasEnoughObjectsWithProperty (P : ObjectProperty C) : Prop :=
@@ -59,8 +66,9 @@ namespace HasEnoughObjectsWithProperty
 for a chosen coverage. -/
 theorem iff_existsCoveringFamily (P : ObjectProperty C) :
     K.HasEnoughObjectsWithProperty P ↔
-      ∀ U : C, ∃ 𝒰 : SemiRepresentableFamily.Over.{max u v} U,
-        𝒰.toPresieve ∈ K U ∧ ∀ i : 𝒰.index, P (𝒰.obj i).left := sorry
+      ∀ U : C, ∃ families : Limits.FormalCoproduct.{max u v} (CategoryTheory.Over U),
+        Presieve.ofArrows (fun i => (families.obj i).left) (fun i => (families.obj i).hom) ∈ K U ∧
+          ∀ i : families.index, P (families.obj i).left := sorry
 
 /-- A chosen-cover family is covering for the generated Grothendieck topology, so enough
 objects for a coverage give enough objects for its associated topology. -/

@@ -1,5 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quotient.Atlas
 public import ReasLib.CategoryTheory.Fibered.CoGrothendieck.Presheaf
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Hom
 public import ReasLib.CategoryTheory.Fibered.Stack.InGroupoidsOver.Stackification
@@ -26,11 +33,6 @@ universe u
 
 namespace AlgebraicGeometry.GroupoidAlgebraicSpace
 
-/-- The prestack `[U/_p R]` associated to a groupoid in algebraic spaces, as the co-Grothendieck
-projection of the groupoid-valued functor of points. -/
-def preQuotient {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B) :
-    FiberedCategoryOver.Groupoids (Over S) :=
-  FiberedCategoryOver.Groupoids.ofFunctor (groupoidPresheafProjection G.points)
 
 /-- The projection of `[U/_p R]` is the co-Grothendieck projection of `G.points`. -/
 theorem preQuotient_p {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B) :

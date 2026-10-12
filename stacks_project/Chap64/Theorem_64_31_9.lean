@@ -1,7 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap64.Theorem_64_31_10_DeJong
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.FiniteEtale.DeJong
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -13,28 +19,29 @@ universe u
 
 namespace AlgebraicGeometry.SchemeOverField
 
-/-- Theorem 64.31.9. Let `k` be a finite field and let `X` be a geometrically irreducible
-smooth projective curve over `k`. If `2 * n < ℓ`, then de Jong's conjecture holds at the
-prime `ℓ` and rank `n`: every continuous `ρ : etaleFundamentalGroup X.left
-(arithmeticPoint X xbar) →ₜ* GL (Fin n) (PowerSeries (ZMod ℓ))` has finite geometric
-monodromy. The source records this as Gaitsgory's theorem modulo some unproven things. -/
-@[stacks 03W0]
-theorem deJongConjectureAt_of_prime_gt_two_mul
-    {k : Type u} [Field k] [Finite k] (X : SchemeOverField k)
+/- Theorem 64.31.9. Let `k` be a finite field and let `X` be a geometrically irreducible
+smooth projective curve over `k`. If the prime `ℓ` differs from the characteristic of `k`
+and `2 * n < ℓ`, every continuous rank-`n` power-series representation has finite geometric
+monodromy. Gaitsgory's Theorem 3.5 and Lemma 3.4 combine with de Jong's Theorem 2.17 to
+cover all representations. The source's qualification "modulo some unproven things"
+refers to the sheaf/trace formalism and geometric Satake in Gaitsgory §§1.4 and 1.6;
+these remain proof dependencies. -/
+@[stacks 03W0] #check (AlgebraicGeometry.SchemeOverField.deJongConjectureAt_of_prime_gt_two_mul :
+  ∀ {k : Type u} [Field k] [Finite k] (X : SchemeOverField k)
     [Curve X] [Smooth X.hom] [Projective X.hom] [GeometricallyIrreducible X.hom]
     [ConnectedSpace (geometricBaseChange X)]
     (xbar : GeometricPoint (geometricBaseChange X)) {n ℓ : ℕ} [Fact ℓ.Prime]
-    (hℓ : 2 * n < ℓ) :
-    deJongConjectureAt X xbar ℓ n := sorry
+    (hℓk : (ℓ : k) ≠ 0) (hℓ : 2 * n < ℓ),
+    deJongConjectureAt X xbar ℓ n)
 
-/-- Apply-form of the `2 * n < ℓ` case: a continuous `GL (Fin n)` power series representation
-has finite geometric monodromy. -/
-theorem hasFiniteGeometricMonodromy_of_prime_gt_two_mul
-    {k : Type u} [Field k] [Finite k] (X : SchemeOverField k)
+/- Apply-form of the `2 * n < ℓ` case, with `ℓ` different from the characteristic of `k`:
+a continuous `GL (Fin n)` power-series representation has finite geometric monodromy. -/
+#check (AlgebraicGeometry.SchemeOverField.hasFiniteGeometricMonodromy_of_prime_gt_two_mul :
+  ∀ {k : Type u} [Field k] [Finite k] (X : SchemeOverField k)
     [Curve X] [Smooth X.hom] [Projective X.hom] [GeometricallyIrreducible X.hom]
     [ConnectedSpace (geometricBaseChange X)]
     (xbar : GeometricPoint (geometricBaseChange X)) {n ℓ : ℕ} [Fact ℓ.Prime]
-    (hℓ : 2 * n < ℓ) (ρ : GLPowerSeriesRep X n ℓ xbar) :
-    HasFiniteGeometricMonodromy ρ := sorry
+    (hℓk : (ℓ : k) ≠ 0) (hℓ : 2 * n < ℓ) (ρ : GLPowerSeriesRep X n ℓ xbar),
+    HasFiniteGeometricMonodromy ρ)
 
 end AlgebraicGeometry.SchemeOverField

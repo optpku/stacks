@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PushforwardContinuous
@@ -248,15 +254,29 @@ def restrictGraphArrow (f : X ⟶ Y) [Etale f] (U : smallEtaleSite X) :
       (smallEtaleInclusion X).op :=
   StructuredArrow.mk (op (restrictGraphOver f U))
 
+/-- Restrict the cone of actual étale-square section maps to the explicit small chart family. -/
+def restrictAdjunctionSmallCone (f : X ⟶ Y) [Etale f] (𝒢 : Y.Modules)
+    (V : smallEtaleSite Y) :
+    Cone (StructuredArrow.proj (op ((etaleBaseChange f).obj V))
+      (SpacesEtale.AtlasCharts.inclusion X).op ⋙
+      ((EtaleTopos.smallEquivalence X).functor.obj
+        ((ToInternal.underlying (structureSheaf X)).obj (restrict 𝒢 f))).obj) where
+  pt := ((ToInternal.underlying (structureSheaf Y)).obj 𝒢).obj.obj (op V)
+  π :=
+    { app := fun a ↦ restrictAdjunctionUnitConeπ f 𝒢 V
+        (StructuredArrow.mk (Y := op ((SmallEtale.AtlasCharts.inclusion X).obj a.right.unop)) a.hom)
+      naturality := sorry }
+
 /-- The Type-level unit component `𝒢(V) ⟶ f_*(𝒢|_{X_étale})(V)`. -/
 def restrictAdjunctionUnitAppType (f : X ⟶ Y) [Etale f] (𝒢 : Y.Modules)
     (V : (smallEtaleSite Y)ᵒᵖ) :
     ((ToInternal.underlying (structureSheaf Y)).obj 𝒢).obj.obj V ⟶
       ((ToInternal.underlying (structureSheaf Y)).obj
           ((pushforward f).obj ((restrictFunctor f).obj 𝒢))).obj.obj V :=
-  (limit.lift _ (restrictAdjunctionUnitCone f 𝒢 V.unop) ≫
-      ((smallEtaleInclusion X).op.ranObjObjIsoLimit
-        ((ToInternal.underlying (structureSheaf X)).obj (restrict 𝒢 f)).obj
+  (limit.lift _ (restrictAdjunctionSmallCone f 𝒢 V.unop) ≫
+      ((SpacesEtale.AtlasCharts.inclusion X).op.ranObjObjIsoLimit
+        ((EtaleTopos.smallEquivalence X).functor.obj
+          ((ToInternal.underlying (structureSheaf X)).obj (restrict 𝒢 f))).obj
         (op ((etaleBaseChange f).obj V.unop))).inv) ≫
     ((ModulePushforward.forgetIso (ringedToposHom f)).inv.app
       ((restrictFunctor f).obj 𝒢)).hom.app V
@@ -289,11 +309,8 @@ def restrictAdjunctionCounitAppType (f : X ⟶ Y) [Etale f] (M : X.Modules)
       ((ToInternal.underlying (structureSheaf X)).obj M).obj.obj (op U) :=
   ((ModulePushforward.forgetIso (ringedToposHom f)).hom.app M).hom.app
       (op ((restrictPostcompose f).obj U)) ≫
-    ((smallEtaleInclusion X).op.ranObjObjIsoLimit
-      ((ToInternal.underlying (structureSheaf X)).obj M).obj
-      (op ((etaleBaseChange f).obj ((restrictPostcompose f).obj U)))).hom ≫
-    limit.π (restrictAdjunctionRanDiagram f M ((restrictPostcompose f).obj U))
-      (restrictGraphArrow f U)
+    EtaleTopos.extensionEvaluation X ((ToInternal.underlying (structureSheaf X)).obj M)
+      (restrictGraphOver f U)
 
 /-- The underlying type-valued sheaf map of the restriction–pushforward counit. -/
 def restrictAdjunctionCounitUnderlying (f : X ⟶ Y) [Etale f] (M : X.Modules) :
@@ -432,5 +449,3 @@ theorem restrictFunctorIsoInverseImage_spec (f : X ⟶ Y) [Etale f] (𝒢 : Y.Mo
   sorry
 
 end AlgebraicGeometry.AlgebraicSpace.Modules
-
-

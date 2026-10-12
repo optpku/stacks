@@ -1,7 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap92.Lemma_92_18_3_InverseImage
-import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.RingedSite.Topos.CotangentInverseImage
 
 /-!
 # Inverse image of the cotangent complex along a morphism of topoi
@@ -36,25 +42,23 @@ variable [JC.WEqualsLocallyBijective AddCommGrpCat.{u}]
 variable [JD.WEqualsLocallyBijective AddCommGrpCat.{u}]
 variable [HasColimitsOfShape (Discrete WalkingPair) CommRingCat.{u}]
 
-/-- Lemma 92.18.3. Let `f : Sh(D) ⟶ Sh(C)` be a morphism of topoi. Let `A ⟶ B` be a
-homomorphism of sheaves of rings on `C`. Then `f⁻¹ L(B/A) = L(f⁻¹B / f⁻¹A)`, as a
+/- Lemma 92.18.3. Let `f : Sh(D) ⟶ Sh(C)` be a morphism of topoi. Let `A ⟶ B` be a
+homomorphism of sheaves of rings on `C`. Then `f⁻¹ L(B/A) = L(f⁻¹B / f⁻¹A)` as a
 canonical isomorphism of complexes of sheaves of modules over `f⁻¹B`. -/
-@[stacks 08SV]
-abbrev inverseImageIso {A B : Sheaf JC CommRingCat.{u}}
-    (f : CategoryTheory.MorphismOfTopoiIn.{u, u, u, u, u} JC JD)
-    (φ : A ⟶ B) :
-    InverseImage.source f φ ≅ InverseImage.target f φ :=
-  InverseImage.iso f φ
+@[stacks 08SV] #check (SheafOfModules.RingedSite.CotangentComplex.InverseImage.iso :
+  ∀ (f : CategoryTheory.MorphismOfTopoiIn.{u, u, u, u, u} JC JD)
+    {A B : Sheaf JC CommRingCat.{u}} (φ : A ⟶ B),
+    SheafOfModules.RingedSite.CotangentComplex.InverseImage.source f φ ≅
+      SheafOfModules.RingedSite.CotangentComplex.InverseImage.target f φ)
 
-/-- In cohomological degree `-n`, the inverse-image identification is the comparison of
-simplicial tensor terms. -/
-theorem inverseImageIso_hom_f {A B : Sheaf JC CommRingCat.{u}}
-    (f : CategoryTheory.MorphismOfTopoiIn.{u, u, u, u, u} JC JD)
-    (φ : A ⟶ B) (n : ℕ) :
-    (inverseImageIso f φ).hom.f (-n) =
-      (InverseImage.sourceXIso f φ n).hom ≫
-        (InverseImage.termIso f φ n).hom ≫ (InverseImage.targetXIso f φ n).inv :=
-  sorry
+/- The degree `-n` component of the inverse-image comparison is the standard-resolution map. -/
+#check (SheafOfModules.RingedSite.CotangentComplex.InverseImage.iso_hom_f :
+  ∀ (f : CategoryTheory.MorphismOfTopoiIn.{u, u, u, u, u} JC JD)
+    {A B : Sheaf JC CommRingCat.{u}} (φ : A ⟶ B) (n : ℕ),
+    (SheafOfModules.RingedSite.CotangentComplex.InverseImage.iso f φ).hom.f (-n) =
+      (SheafOfModules.RingedSite.CotangentComplex.InverseImage.sourceXIso f φ n).hom ≫
+        (SheafOfModules.RingedSite.CotangentComplex.InverseImage.termIso f φ n).hom ≫
+          (SheafOfModules.RingedSite.CotangentComplex.InverseImage.targetXIso f φ n).inv)
 
 end
 end

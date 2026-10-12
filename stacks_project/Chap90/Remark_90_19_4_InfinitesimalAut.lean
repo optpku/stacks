@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Thin
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation
 public import stacks_project.Chap90.Definition_90_19_5_AutFunctor
 public import stacks_project.Chap90.Remark_90_12_5_Slice
 public import stacks_project.Chap90.Remark_90_19_3
@@ -31,11 +38,6 @@ namespace CategoryTheory.Functor
 
 open Chosen
 
-/-- Predeformation categories are cofibered in groupoids. -/
-instance instIsFiberedInGroupoids_op [IsPredeformationCategory p] :
-    IsFibered.InGroupoids p.op :=
-  IsPredeformationCategory.isCofiberedInGroupoids
-
 /-- The residue fibre of a predeformation category is a thin quiver. -/
 instance instIsThin_residueFiber [IsPredeformationCategory p] :
     Quiver.IsThin (p.Fiber (residue Λ k)) :=
@@ -64,7 +66,12 @@ noncomputable instance instUniqueAut_residueFiber [IsPredeformationCategory p]
 fixed residue-fibre object. -/
 noncomputable instance instUniqueHom_toResidueFiberObj [IsPredeformationCategory p]
     (x0 : p.Fiber (residue Λ k)) (y : F) :
-    Unique (y ⟶ fiberInclusion.obj x0) := sorry
+    Unique (y ⟶ fiberInclusion.obj x0) where
+  default :=
+    Chosen.pushforwardHom p (toResidue (p.obj y)) (Fiber.ofObj p y) ≫
+      fiberInclusion.map
+        (default : Chosen.pushforwardObj p (toResidue (p.obj y)) (Fiber.ofObj p y) ⟶ x0)
+  uniq := sorry
 
 /-- Morphisms in `F` to a fixed residue-fibre object of a predeformation category are
 equal. -/

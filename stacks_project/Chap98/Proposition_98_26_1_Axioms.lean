@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.LinearAlgebra.FiniteDimensional.Defs
+public import ReasLib.AlgebraicGeometry.FormalDeformation.CompleteLocal.Residue
 public import stacks_project.Chap03.Lemma_3_9_4_Size
 public import stacks_project.Chap90.Definition_90_7_3_CompleteLocal
 public import stacks_project.Chap98.Lemma_98_27_6_Solution

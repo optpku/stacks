@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Fibered.Cleavage.Basic.Intrinsic
@@ -39,8 +45,6 @@ structure FiberLift {U V : C} (p : S ⥤ C) (f : V ⟶ U) (x : Fiber p U) where
   /-- The specialized arrow is strongly cartesian over the displayed base arrow. -/
   isStronglyCartesian : p.IsStronglyCartesian f hom
 
-attribute [instance] FiberLift.isStronglyCartesian
-
 /-- The cleavage lift specialized to an object of the standard fiber.
 
 The endpoint equality carried by `x` is eliminated here, so the resulting lift lies over `f`
@@ -52,7 +56,7 @@ def reindexLift (chi : p.Cleavage) {U V : C} (f : V ⟶ U) (x : Fiber p U) :
   | _, ⟨_, rfl⟩ =>
       { source := (chi.lift f).source
         hom := (chi.lift f).hom
-        sourceObj := IsHomLift.domain_eq p f (chi.lift f).hom
+        sourceObj := (chi.lift f).sourceObj
         isStronglyCartesian := (chi.lift f).isStronglyCartesian }
 
 /-- The source of the chosen lift, bundled as an object of the standard fiber over the domain
@@ -79,7 +83,7 @@ def cartesianHom (chi : p.Cleavage) {U V : C} (f : V ⟶ U)
   (chi.reindexLift f x).hom
 
 /-- The standard-fiber cartesian arrow retains the chosen lift's universal property. -/
-instance cartesianHom.isStronglyCartesian (chi : p.Cleavage) {U V : C}
+theorem cartesianHom.isStronglyCartesian (chi : p.Cleavage) {U V : C}
     (f : V ⟶ U) (x : Fiber p U) :
     p.IsStronglyCartesian f (chi.cartesianHom f x) := sorry
 

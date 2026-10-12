@@ -1,22 +1,47 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.RingTheory.LocalProperties.FinitePresentation
-public import Mathlib.RingTheory.Flat.Localization
+public import ReasLib.Algebra.Module.Finite.BasicOpen
+public import ReasLib.Algebra.Module.Flat.BasicOpen
+public import ReasLib.Algebra.Module.FinitePresentation.BasicOpen
 import StacksCheckRecall
 
 @[expose] public section
 
+universe u v w
+
+open PrimeSpectrum
+open scoped PrimeSpectrum
+
 /- Remark 111.23.2 (1): finite generation of an A-module is Zariski-local on a
 principal-open cover Spec(A) = ⋃ D(f_i), equivalently Ideal.span = ⊤. -/
 @[stacks 02DX]
-#check @Module.Finite.of_localizationSpan
+#check (Module.Finite.of_basicOpen_cover :
+  ∀ {A : Type u} [CommRing A] {M : Type v} [AddCommGroup M] [Module A M]
+    {ι : Type w} (f : ι → A), (⨆ i, D(f i)) = ⊤ →
+    (∀ i, Module.Finite (Localization.Away (f i)) (LocalizedModule.Away (f i) M)) →
+    Module.Finite A M)
 
 /- Remark 111.23.2 (2): flatness of an A-module is Zariski-local on a
 principal-open cover Spec(A) = ⋃ D(f_i), equivalently Ideal.span = ⊤. -/
 @[stacks 02DX]
-#check @Module.flat_of_localized_span
+#check (Module.Flat.of_basicOpen_cover :
+  ∀ {A : Type u} [CommRing A] {M : Type v} [AddCommGroup M] [Module A M]
+    {ι : Type w} (f : ι → A), (⨆ i, D(f i)) = ⊤ →
+    (∀ i, Module.Flat (Localization.Away (f i)) (LocalizedModule.Away (f i) M)) →
+    Module.Flat A M)
 
 /- Remark 111.23.2 (3): finite presentation of an A-module is Zariski-local on a
 principal-open cover Spec(A) = ⋃ D(f_i), equivalently Ideal.span = ⊤. -/
 @[stacks 02DX]
-#check @Module.FinitePresentation.of_localizationSpan
+#check (Module.FinitePresentation.of_basicOpen_cover :
+  ∀ {A : Type u} [CommRing A] {M : Type v} [AddCommGroup M] [Module A M]
+    {ι : Type w} (f : ι → A), (⨆ i, D(f i)) = ⊤ →
+    (∀ i, Module.FinitePresentation (Localization.Away (f i))
+      (LocalizedModule.Away (f i) M)) →
+    Module.FinitePresentation A M)

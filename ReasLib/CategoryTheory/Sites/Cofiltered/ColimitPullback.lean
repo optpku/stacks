@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Sites.Sheafification
@@ -44,7 +50,7 @@ abbrev overPullback
     Sheaf (S.stageTopology i) (Type u) ⥤ Sheaf (S.stageTopology A.unop.left) (Type u) :=
   stagePullback S A.unop.hom
 
-/-- The section type at an over-object of the filtered diagram in Lemma 7.18.3. -/
+/-- The section type obtained by evaluating a stage pullback at the image of an object. -/
 abbrev sectionValue
     (S : CofilteredSiteDiagram.{u, u, u})
     {i : S.I} (F : Sheaf (S.stageTopology i) (Type u)) (X : S.stage i)
@@ -97,7 +103,7 @@ theorem sectionMap_comp
     {A B C : (Over i)ᵒᵖ} (f : A ⟶ B) (g : B ⟶ C) :
     sectionMap S F X (f ≫ g) = sectionMap S F X f ≫ sectionMap S F X g := sorry
 
-/-- The filtered diagram of stage-pullback sections in equation `(7.18.3.1)`. -/
+/-- The filtered diagram of sections obtained from pullbacks along the over-category of an index object. -/
 noncomputable abbrev sectionDiagram
     (S : CofilteredSiteDiagram.{u, u, u}) {i : S.I}
     (F : Sheaf (S.stageTopology i) (Type u)) (X : S.stage i) :
@@ -167,16 +173,14 @@ noncomputable def comparison
         (op ((S.stageCoconeFunctor i).obj X))) :=
   colimit.desc _ (comparisonCocone S F X)
 
-/-- Lemma 7.18.3 (0A35) (1): every cocone functor from a stage site to the colimit site is a
-morphism of sites. -/
+/-- Each cocone functor from a stage site to the colimit site is a morphism of sites. -/
 @[stacks 0A35 "(1)"]
-instance stageCocone_isMorphismOfSites
+theorem stageCocone_isMorphismOfSites
     (S : CofilteredSiteDiagram.{u, u, u}) (i : S.I) :
     IsMorphismOfSites (S.stageTopology i) S.colimitTopology
       (S.stageCoconeFunctor i) := sorry
 
-/-- Lemma 7.18.3 (0A35) (2): the canonical filtered-colimit comparison on stage-pullback
-sections is invertible. -/
+/-- The canonical filtered-colimit comparison on stage-pullback sections is invertible. -/
 @[stacks 0A35 "(2)"]
 theorem comparison_isIso
     (S : CofilteredSiteDiagram.{u, u, u})

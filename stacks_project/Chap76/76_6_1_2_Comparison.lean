@@ -1,8 +1,15 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap67.Lemma_67_13_5_Adjunction
 public import stacks_project.Chap76.Definition_76_6_5_Conormal
 public import stacks_project.Chap76.Definition_76_6_5_Symmetric
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.CommRingAdjunction
 public import ReasLib.CategoryTheory.Sites.Topos.Cocontinuous.SheafCompose
 public import Mathlib.CategoryTheory.Sites.LocallySurjective
 
@@ -39,51 +46,22 @@ instance spacesEtaleTopology_hasSheafCompose_forget₂_commRing (X : AlgebraicSp
 /-- Forgetting commutativity commutes with small étale direct image of commutative-ring
 sheaves. -/
 def commRingPushforwardForget₂Iso {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    sheafPushforward CommRingCat.{u} f ⋙
+    commRingPushforward f ⋙
         sheafCompose (smallEtaleTopology Y) (forget₂ CommRingCat.{u} RingCat.{u}) ≅
       sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u}) ⋙
         ringPushforward f :=
-  let u := smallEtaleInclusion X
-  let v := etaleBaseChange f
-  let F := forget₂ CommRingCat.{u} RingCat.{u}
-  let Ju := smallEtaleTopology X
-  let Ku := spacesEtaleTopology X
-  let Jv := smallEtaleTopology Y
-  (Functor.associator
-      (u.sheafPushforwardCocontinuous CommRingCat.{u} Ju Ku)
-      (v.sheafPushforwardContinuous CommRingCat.{u} Jv Ku)
-      (sheafCompose Jv F)) ≪≫
-    Functor.isoWhiskerLeft (u.sheafPushforwardCocontinuous CommRingCat.{u} Ju Ku)
-      (eqToIso (Functor.sheafPushforwardContinuous.compSheafCompose v F Jv Ku)) ≪≫
-    (Functor.associator
-        (u.sheafPushforwardCocontinuous CommRingCat.{u} Ju Ku)
-        (sheafCompose Ku F)
-        (v.sheafPushforwardContinuous RingCat.{u} Jv Ku)).symm ≪≫
-    Functor.isoWhiskerRight
-      (Functor.sheafPushforwardCocontinuous.compSheafComposeIso u F Ju Ku)
-      (v.sheafPushforwardContinuous RingCat.{u} Jv Ku) ≪≫
-    Functor.associator
-      (sheafCompose Ju F)
-      (u.sheafPushforwardCocontinuous RingCat.{u} Ju Ku)
-      (v.sheafPushforwardContinuous RingCat.{u} Jv Ku)
+  commRingPushforwardForgetIso f
 
 /-- Forgetting all the way to types after commutative-ring pushforward recovers type-valued
 direct image of the underlying type sheaf. -/
 def commRingPushforwardForgetTypeIso {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    sheafPushforward CommRingCat.{u} f ⋙
+    commRingPushforward f ⋙
         sheafCompose (smallEtaleTopology Y) (forget₂ CommRingCat.{u} RingCat.{u}) ⋙
           sheafCompose (smallEtaleTopology Y) (forget RingCat.{u}) ≅
       sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u}) ⋙
         sheafCompose (smallEtaleTopology X) (forget RingCat.{u}) ⋙
           typePushforward f :=
-  Functor.associator _ _ _ ≪≫
-    Functor.isoWhiskerRight (commRingPushforwardForget₂Iso f)
-      (sheafCompose (smallEtaleTopology Y) (forget RingCat.{u})) ≪≫
-    Functor.associator _ _ _ ≪≫
-    Functor.isoWhiskerLeft
-      (sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u}))
-      (ringPushforwardForgetIso f) ≪≫
-    (Functor.associator _ _ _).symm
+  commRingPushforwardUnderlyingIso f ≪≫ Functor.associator _ _ _
 
 namespace ConormalAlgebra
 
@@ -106,13 +84,13 @@ theorem totalUnderlyingModule_eq :
 the total conormal algebra sheaf. -/
 def totalInrAdjunct :
     coborderGradeSheaf i ⟶
-      (sheafPushforward CommRingCat.{u} (IsImmersion.liftCoborder i)).obj (totalSheaf i) :=
-  (sheafAdjunction CommRingCat.{u} (IsImmersion.liftCoborder i)).homEquiv _ _ (totalInr i)
+      (commRingPushforward (IsImmersion.liftCoborder i)).obj (totalSheaf i) :=
+  (commRingInverseImageAdjunction (IsImmersion.liftCoborder i)).homEquiv _ _ (totalInr i)
 
 /-- `totalInrAdjunct` is the inverse-image/direct-image adjunct of `totalInr`. -/
 theorem totalInrAdjunct_eq :
     totalInrAdjunct i =
-      (sheafAdjunction CommRingCat.{u} (IsImmersion.liftCoborder i)).homEquiv _ _
+      (commRingInverseImageAdjunction (IsImmersion.liftCoborder i)).homEquiv _ _
         (totalInr i) :=
   rfl
 
@@ -120,7 +98,7 @@ theorem totalInrAdjunct_eq :
 conormal algebra. -/
 def coborderToPushforwardTotal :
     commRingStructureSheaf (Hom.coborder i) ⟶
-      (sheafPushforward CommRingCat.{u} (IsImmersion.liftCoborder i)).obj (totalSheaf i) :=
+      (commRingPushforward (IsImmersion.liftCoborder i)).obj (totalSheaf i) :=
   coborderStructureMap i ≫ totalInrAdjunct i
 
 /-- `coborderToPushforwardTotal` is the coborder associated-graded structure map followed by
@@ -134,7 +112,7 @@ restriction of scalars along `coborderToPushforwardTotal`. -/
 abbrev totalPushforwardUnitModule :=
   (restrictionAlong (coborderToPushforwardTotal i)).obj
     (unitModule (smallEtaleTopology (Hom.coborder i))
-      ((sheafPushforward CommRingCat.{u} (IsImmersion.liftCoborder i)).obj (totalSheaf i)))
+      ((commRingPushforward (IsImmersion.liftCoborder i)).obj (totalSheaf i)))
 
 /-- `totalPushforwardUnitModule i` is restriction of scalars of the unit module of the
 pushed total conormal algebra. -/
@@ -142,7 +120,7 @@ theorem totalPushforwardUnitModule_eq :
     totalPushforwardUnitModule i =
       (restrictionAlong (coborderToPushforwardTotal i)).obj
         (unitModule (smallEtaleTopology (Hom.coborder i))
-          ((sheafPushforward CommRingCat.{u} (IsImmersion.liftCoborder i)).obj
+          ((commRingPushforward (IsImmersion.liftCoborder i)).obj
             (totalSheaf i))) :=
   rfl
 

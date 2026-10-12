@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.RingTheory.Length
@@ -24,7 +30,7 @@ universe u v
 
 namespace RingHom
 
-/-- Definition 10.141.1: a ring map `φ : B' →+* B` is a small extension when `B'` is a local
+/-- A ring map `φ : B' →+* B` is a small extension when `B'` is a local
 Artinian ring, `B` is nontrivial, `φ` is surjective, and `RingHom.ker φ` has length `1` as a
 `B'`-module. -/
 @[stacks 02HS]

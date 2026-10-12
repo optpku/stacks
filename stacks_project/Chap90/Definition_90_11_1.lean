@@ -1,6 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap90.Definition_90_11_1_ModuleLinear
+public import ReasLib.CategoryTheory.Linear.Functor
 import StacksCheckRecall
 
 @[expose] public section
@@ -17,10 +23,8 @@ variable (L : ModuleCat.{v} R ⥤ ModuleCat.{v} R)
 `L : ModuleCat R ⥤ ModuleCat R`, is R-linear if for every pair of objects `M, N`
 the induced map `L.map : (M ⟶ N) → (L.obj M ⟶ L.obj N)` is an R-module homomorphism.
 This is owned by `Functor.ModuleLinear`; the Hom-module map is `Functor.mapLinearMap`. -/
-@[stacks 06I3] #check @CategoryTheory.Functor.ModuleLinear
+@[stacks 06I3] #check (CategoryTheory.Functor.ModuleLinear R Lfg : Prop)
 
 #check @CategoryTheory.Functor.mapLinearMap
 
-#check Functor.ModuleLinear R Lfg
-
-#check Functor.ModuleLinear R L
+#check (CategoryTheory.Functor.ModuleLinear R L : Prop)

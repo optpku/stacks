@@ -1,6 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap62.Definition_62_8_1_Effective
+public import ReasLib.AlgebraicGeometry.RelativeCycle.Effective
 import StacksCheckRecall
 
 open AlgebraicGeometry CategoryTheory
@@ -19,8 +25,7 @@ We say a relative `r`-cycle `α` on `X / S` is effective if `α_s` is an effecti
 cycle (Chow Homology, Definition 42.8.4) for all `s ∈ S`. The monoid of all
 effective relative `r`-cycles on `X / S` is denoted `z^{eff}(X/S, r)`. -/
 @[stacks 0H5R] #check
-  (RelativeCycle.effective f r : AddSubmonoid (RelativeCycle.Family f r))
-
-#check RelativeCycle.mem_effective
+  (AlgebraicGeometry.RelativeCycle.effective f r :
+    AddSubmonoid (f.FiberCycleFamily r))
 
 end

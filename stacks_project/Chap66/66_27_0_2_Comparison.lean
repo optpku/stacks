@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Comma.StructuredArrow.Basic
@@ -200,10 +206,15 @@ def spacesEtaleLocalizationIsoHomStructureSheaf_app (f : X ⟶ Y) [Etale f]
       ((spacesEtaleLocalizationInverse f).sheafPushforwardContinuous RingCat.{u}
         ((spacesEtaleTopology Y).over (spacesEtaleSite.mk f))
         (spacesEtaleTopology X)).obj (spacesStructureSheaf X) |>.obj.obj W :=
-  ((smallEtaleInclusion Y).op.ranObjObjIsoLimit (structureSheaf Y).obj (op W.unop.left)).hom ≫
-    spacesEtaleLocalizationIsoHomLimitMap f W.unop ≫
-    ((smallEtaleInclusion X).op.ranObjObjIsoLimit (structureSheaf X).obj
-        (op (spacesEtaleLocalizationInverseObj f W.unop))).inv
+  EtaleRingedTopos.ringExtensionLift X (structureSheaf X)
+    (spacesEtaleLocalizationInverseObj f W.unop)
+    { pt := (spacesStructureSheaf Y).obj.obj (op W.unop.left)
+      π :=
+        { app := fun a ↦
+            EtaleRingedTopos.ringExtensionEvaluation Y (structureSheaf Y)
+              (spacesEtaleLocalizationDiagramObj f W.unop a).hom.unop ≫
+            (Modules.restrictStructureMapInv f).hom.app a.right
+          naturality := sorry } }
 
 /-- Postcomposition of a slice arrow over `spacesEtaleRestriction f V` with `V.hom` remains
 étale over `X`. -/
@@ -370,10 +381,18 @@ def spacesEtaleLocalizationIsoInvStructureSheaf_app (f : X ⟶ Y) [Etale f]
         (spacesEtaleTopology X)
         ((spacesEtaleTopology Y).over (spacesEtaleSite.mk f))).obj
         ((spacesStructureSheaf Y).over (spacesEtaleSite.mk f)) |>.obj.obj V :=
-  ((smallEtaleInclusion X).op.ranObjObjIsoLimit (structureSheaf X).obj V).hom ≫
-    spacesEtaleLocalizationIsoInvLimitMap f V.unop ≫
-    ((smallEtaleInclusion Y).op.ranObjObjIsoLimit (structureSheaf Y).obj
-        (op ((spacesEtaleRestriction f).obj V.unop))).inv
+  EtaleRingedTopos.ringExtensionLift Y (structureSheaf Y)
+    ((spacesEtaleRestriction f).obj V.unop)
+    { pt := (spacesStructureSheaf X).obj.obj V
+      π :=
+        { app := fun a ↦
+            EtaleRingedTopos.ringExtensionEvaluation X (structureSheaf X)
+              (spacesEtaleLocalizationDiagramObjInv f V.unop a).hom.unop ≫
+            (Modules.restrictStructureMap f).hom.app
+              (op (@smallEtaleSite.mk S X a.right.unop.left (a.hom.unop.left ≫ V.unop.hom)
+                (etale_comp_localization_slice f V.unop a))) ≫
+            (structureSheaf Y).obj.map (spacesEtaleLocalizationIsoInvChartIso f V.unop a).inv.op
+          naturality := sorry } }
 
 /-- Forward structure-sheaf comparison from the restricted structure sheaf of `Y` to the
 pushforward of `𝒪` along `spacesEtaleLocalizationInverse`. -/

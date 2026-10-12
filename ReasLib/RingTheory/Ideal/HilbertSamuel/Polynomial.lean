@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.RingTheory.Ideal.AssociatedGraded.Hilbert
@@ -63,16 +69,14 @@ section OfDefinition
 variable {R : Type u} [CommRing R] [IsLocalRing R] [IsNoetherianRing R]
 variable {M : Type v} [AddCommGroup M] [Module R M] [Module.Finite R M]
 
-/-- Proposition 10.59.5 (1): the integer-tail `φ`-function for an ideal of definition is a
-numerical polynomial. -/
+/-- The integer-tail `φ`-function for an ideal of definition is a numerical polynomial. -/
 @[stacks 00K8 "ideal-of-definition phi numerical polynomial"]
 theorem phi_isNumericalPolynomial_of_isIdealOfDefinition
     (I : Ideal R) (hI : I.IsIdealOfDefinition) :
     IsNumericalPolynomial
       (fun n : ℤ ↦ ((Ideal.hilbertSamuelPhi I M n.toNat).toNat : ℚ)) := sorry
 
-/-- Proposition 10.59.5 (2): the integer-tail `χ`-function for an ideal of definition is a
-numerical polynomial. -/
+/-- The integer-tail `χ`-function for an ideal of definition is a numerical polynomial. -/
 @[stacks 00K8 "ideal-of-definition chi numerical polynomial"]
 theorem chi_isNumericalPolynomial_of_isIdealOfDefinition
     (I : Ideal R) (hI : I.IsIdealOfDefinition) :

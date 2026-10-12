@@ -1,7 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.CategoryTheory.Sites.Sheaf
-public import stacks_project.Chap66.Definition_66_18_1_Site
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Topos
 import StacksCheckRecall
 
 @[expose] public section
@@ -14,5 +19,6 @@ variable {S : Scheme.{u}} (X : AlgebraicSpace S)
 
 /- Definition 66.18.7: let `S` be a scheme and let `X` be an algebraic space over `S`.
 The étale topos of `X`, or more precisely the small étale topos of `X`, is the category
-`Sheaf (smallEtaleTopology X) (Type w)` of sheaves of sets on the small étale site of `X`. -/
-@[stacks 04JT] #check Sheaf X.smallEtaleTopology (Type w)
+`Sheaf (SmallEtale.topology X) (Type w)` of sheaves of sets on the small étale site of `X`. -/
+@[stacks 04JT] #check (AlgebraicGeometry.AlgebraicSpace.SmallEtale.topos.{u, w} X :
+  Type (max (u + 1) (w + 1)))

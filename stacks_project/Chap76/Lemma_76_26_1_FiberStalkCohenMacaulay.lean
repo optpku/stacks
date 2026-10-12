@@ -1,13 +1,17 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.Germ.Morphism.EtaleLocal
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Fiber.Stalk
-public import ReasLib.RingTheory.CohenMacaulay.Ring
+public import ReasLib.AlgebraicGeometry.Scheme.Germ.Morphism.CohenMacaulay
 
 /-!
 # Cohen--Macaulay fibre stalks of morphisms of scheme germs
 
-This file defines the property of a morphism of scheme germs that the local ring
+This file checks the property of a morphism of scheme germs that the local ring
 of the fibre at the distinguished source point is Noetherian and Cohen--Macaulay.
 -/
 
@@ -15,52 +19,25 @@ of the fibre at the distinguished source point is Noetherian and Cohen--Macaulay
 
 open CategoryTheory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.Scheme.Germ
-namespace MorphismProperty
+namespace AlgebraicGeometry.Scheme.Germ.MorphismProperty
 
-/-- A morphism of scheme germs has a Cohen--Macaulay fibre stalk if this holds for
-one representative at its distinguished source point. -/
-def fiberStalkCohenMacaulay : CategoryTheory.MorphismProperty Germ.{u} :=
-  fun {X Y} f ↦
-    ∃ r : Hom.Representative X Y,
-      Hom.mk r = f ∧
-        CohenMacaulayRing
-          (Scheme.Hom.fiberStalkAt r.hom (X.pointIn r.neighborhood r.mem_neighborhood))
-
-/-- A germ morphism has a Cohen--Macaulay fibre stalk exactly when some representative
-has a Cohen--Macaulay fibre stalk at the distinguished source point. -/
-theorem fiberStalkCohenMacaulay_iff {X Y : Germ.{u}} (f : X ⟶ Y) :
-    fiberStalkCohenMacaulay f ↔
-      ∃ r : Hom.Representative X Y,
-        Hom.mk r = f ∧
-          CohenMacaulayRing
-            (Scheme.Hom.fiberStalkAt r.hom
-              (X.pointIn r.neighborhood r.mem_neighborhood)) := sorry
-
-/-- A represented germ morphism has a Cohen--Macaulay fibre stalk exactly when its
-given representative has a Cohen--Macaulay fibre stalk. -/
-theorem fiberStalkCohenMacaulay_mk_iff {X Y : Germ.{u}}
-    (r : Hom.Representative X Y) :
-    fiberStalkCohenMacaulay (Hom.mk r) ↔
+#check (fiberStalkCohenMacaulay : CategoryTheory.MorphismProperty Germ.{u})
+#check (fiberStalkCohenMacaulay_iff : ∀ {X Y : Germ.{u}} (f : X ⟶ Y),
+  fiberStalkCohenMacaulay f ↔
+    ∃ r : Hom.Representative X Y, Hom.mk r = f ∧
       CohenMacaulayRing
-        (Scheme.Hom.fiberStalkAt r.hom
-          (X.pointIn r.neighborhood r.mem_neighborhood)) := sorry
+        (Scheme.Hom.fiberStalkAt r.hom (X.pointIn r.neighborhood r.mem_neighborhood)))
+#check (fiberStalkCohenMacaulay_mk_iff : ∀ {X Y : Germ.{u}} (r : Hom.Representative X Y),
+  fiberStalkCohenMacaulay (Hom.mk r) ↔
+    CohenMacaulayRing
+      (Scheme.Hom.fiberStalkAt r.hom (X.pointIn r.neighborhood r.mem_neighborhood)))
+#check (fiberStalkCohenMacaulay_mk_spec : ∀ {X Y : Germ.{u}} (r : Hom.Representative X Y),
+  fiberStalkCohenMacaulay (Hom.mk r) ↔
+    IsNoetherianRing
+      (Scheme.Hom.fiberStalkAt r.hom (X.pointIn r.neighborhood r.mem_neighborhood)) ∧
+    CohenMacaulayRing
+      (Scheme.Hom.fiberStalkAt r.hom (X.pointIn r.neighborhood r.mem_neighborhood)))
 
-/-- A represented germ morphism has a Cohen--Macaulay fibre stalk exactly when that
-fibre stalk is Noetherian and Cohen--Macaulay. -/
-theorem fiberStalkCohenMacaulay_mk_spec {X Y : Germ.{u}}
-    (r : Hom.Representative X Y) :
-    fiberStalkCohenMacaulay (Hom.mk r) ↔
-      IsNoetherianRing
-          (Scheme.Hom.fiberStalkAt r.hom
-            (X.pointIn r.neighborhood r.mem_neighborhood)) ∧
-        CohenMacaulayRing
-          (Scheme.Hom.fiberStalkAt r.hom
-            (X.pointIn r.neighborhood r.mem_neighborhood)) := sorry
-
-end MorphismProperty
-end AlgebraicGeometry.Scheme.Germ
+end AlgebraicGeometry.Scheme.Germ.MorphismProperty

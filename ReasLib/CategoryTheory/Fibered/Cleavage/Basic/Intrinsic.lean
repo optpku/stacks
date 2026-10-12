@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 -- Import decisions:
@@ -43,8 +49,6 @@ structure StronglyCartesianLift (p : S ⥤ C) {x : S} {V : C} (f : V ⟶ p.obj x
   /-- The chosen arrow is strongly cartesian over `f`. -/
   isStronglyCartesian : p.IsStronglyCartesian f hom
 
-attribute [instance] StronglyCartesianLift.isStronglyCartesian
-
 namespace StronglyCartesianLift
 
 variable {p : S ⥤ C} {x : S} {V : C} {f : V ⟶ p.obj x}
@@ -54,6 +58,15 @@ variable {p : S ⥤ C} {x : S} {V : C} {f : V ⟶ p.obj x}
 theorem sourceObj (l : StronglyCartesianLift p f) : p.obj l.source = V := sorry
 /- Proof strategy: use the `IsHomLift` instance inherited from `l.isStronglyCartesian` and apply
 `IsHomLift.domain_eq p f l.hom`. -/
+
+set_option backward.privateInPublic true in
+set_option backward.privateInPublic.warn false in
+/-- The chosen pullback object and arrow of a fibred projection form a strongly cartesian lift. -/
+noncomputable def ofIsFibered (p : S ⥤ C) [p.IsFibered]
+    {x : S} {V : C} (f : V ⟶ p.obj x) : StronglyCartesianLift p f where
+  source := IsPreFibered.pullbackObj rfl f
+  hom := IsPreFibered.pullbackMap rfl f
+  isStronglyCartesian := IsPreFibered.PullbackMap.stronglyCartesian p f
 
 end StronglyCartesianLift
 
@@ -83,8 +96,6 @@ theorem isFibered (χ : p.Cleavage) : p.IsFibered := sorry
 /- Proof strategy: apply `IsFibered.of_exists_isStronglyCartesian`; for each requested lift, use
 `χ.lift f` and project its `source`, `hom`, and `isStronglyCartesian` fields. -/
 
-set_option backward.privateInPublic true in
-set_option backward.privateInPublic.warn false in
 /-- Choose a cleavage directly from mathlib's chosen cartesian lifts on a fibred category.
 
 This is the sole noncanonical choice boundary in the cleavage API. Its return type is the complete,
@@ -92,11 +103,8 @@ representation-independent specification: consumers should use `Cleavage.lift`,
 `StronglyCartesianLift.source`, `StronglyCartesianLift.hom`, and
 `StronglyCartesianLift.isStronglyCartesian`, rather than unfold the choice. No equality with a
 different cleavage is asserted. -/
-noncomputable def ofIsFibered (p : S ⥤ C) [p.IsFibered] : p.Cleavage where
-  lift f :=
-    { source := IsPreFibered.pullbackObj rfl f
-      hom := IsPreFibered.pullbackMap rfl f
-      isStronglyCartesian := IsPreFibered.PullbackMap.stronglyCartesian p f }
+noncomputable def ofIsFibered (p : S ⥤ C) [p.IsFibered] : Cleavage p where
+  lift f := StronglyCartesianLift.ofIsFibered p f
 
 /-- A projection admits a cleavage exactly when it is a fibred category. This proposition-level
 bridge records both directions without presenting the noncanonical choice `ofIsFibered` as

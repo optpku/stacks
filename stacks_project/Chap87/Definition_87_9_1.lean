@@ -1,7 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap87.Definition_87_9_1_SetTheoretic
-public import stacks_project.Chap87.Definition_87_9_1_Affine
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.ChosenFppf.Affine
 import StacksCheckRecall
 
 @[expose] public section
@@ -15,14 +20,24 @@ space when it is isomorphic, as an fppf sheaf, to a directed colimit of affine
 objects along thickening transitions, and it satisfies the set-theoretic condition
 that there exist objects `U`, `R` of the same fixed site with fppf-sheaf
 surjections `U ⟶ X` and `R ⟶ U ×_X U`. -/
-@[stacks 0AI7] #check IsAffineFormalAlgebraicSpace
+@[stacks 0AI7] #check
+  (AlgebraicGeometry.IsAffineFormalAlgebraicSpace :
+    ∀ {𝒮 : AlgebraicGeometry.ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+      [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+      [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+      (X : Sheaf (𝒮.bigTopology S) (Type (max u v))), Prop)
 
 /- Definition 87.9.1 (2): a morphism of affine formal algebraic spaces over `S` is a
 map of sheaves. -/
-@[stacks 0AI7] #check
-  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
-    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
-    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
-    (X Y : Sheaf (𝒮.bigTopology S) (Type (max u v)))
-    [IsAffineFormalAlgebraicSpace X] [IsAffineFormalAlgebraicSpace Y],
-    X ⟶ Y
+section
+
+variable {𝒮 : AlgebraicGeometry.ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+variable [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+variable [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+variable (X Y : Sheaf (𝒮.bigTopology S) (Type (max u v)))
+variable [AlgebraicGeometry.IsAffineFormalAlgebraicSpace X]
+variable [AlgebraicGeometry.IsAffineFormalAlgebraicSpace Y]
+
+#check (X ⟶ Y)
+
+end

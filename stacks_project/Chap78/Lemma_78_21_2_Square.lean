@@ -1,5 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quotient.Atlas
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.StackInSets
 public import ReasLib.CategoryTheory.Category.ULift
 public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.Cone
 public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.PseudoCone.Bilimit
@@ -33,51 +41,20 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- The bundled two-universe lift of the total category of `𝒮_X`, matching the Hom-universe of
-`[U/R]`. -/
-def stackInSetsULiftTotal {S : Scheme.{u}} (X : AlgebraicSpace S) : Cat.{u + 1, u + 1} :=
-  Cat.twoULift.{u + 1, u, u + 1, u + 1} (stackInSets X).total
 
 /-- `stackInSetsULiftTotal` is the canonical two-universe lift of the total category of `𝒮_X`. -/
 theorem stackInSetsULiftTotal_eq {S : Scheme.{u}} (X : AlgebraicSpace S) :
     stackInSetsULiftTotal X =
       Cat.twoULift.{u + 1, u, u + 1, u + 1} (stackInSets X).total := sorry
 
-/-- The two-universe lift of the projection of `𝒮_X`, landing in the Hom-universe of `[U/R]`. -/
-def stackInSetsULiftProjection {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    stackInSetsULiftTotal X ⥤ Over S :=
-  Cat.TwoULift.down.{u + 1, u, u + 1, u + 1} (stackInSets X).total ⋙ (stackInSets X).p
 
-/-- The lifted projection of `𝒮_X` is a stack in groupoids on `(Sch/S)_fppf`. -/
-instance instIsStackInGroupoids_stackInSetsULiftProjection {S : Scheme.{u}}
-    (X : AlgebraicSpace S) :
-    IsStack.InGroupoids (Scheme.fppfTopology.over S)
-      (stackInSetsULiftProjection X) := sorry
 
-/-- Universe-aligned presentation of `𝒮_X` in the bicategory containing `[U/R]`. -/
-def stackInSetsULift {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    StackOver.Groupoids.{u + 1, u, u + 1, u + 1} (Scheme.fppfTopology.over S) :=
-  StackOver.Groupoids.ofProjectionWith (Scheme.fppfTopology.over S)
-    (stackInSetsULiftProjection X)
-    (instIsStackInGroupoids_stackInSetsULiftProjection X)
 
 /-- The projection of the universe-aligned `𝒮_X` is the two-universe lift of `𝒮_X`. -/
 theorem stackInSetsULift_p {S : Scheme.{u}} (X : AlgebraicSpace S) :
     (stackInSetsULift X).p = stackInSetsULiftProjection X := sorry
 
-/-- The cartesian comparison `𝒮_X ⟶ 𝒮_X` lifting object and morphism universes. -/
-def stackInSetsULift.up {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    CartesianBasedFunctor (stackInSets X).p (stackInSetsULift X).p :=
-  CartesianBasedFunctor.ofTargetInGroupoids
-    (BasedFunctor.ofFunctor
-      (Cat.TwoULift.up.{u + 1, u, u + 1, u + 1} (stackInSets X).total) sorry)
 
-/-- The cartesian comparison forgetting the two-universe lift of `𝒮_X`. -/
-def stackInSetsULift.down {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    CartesianBasedFunctor (stackInSetsULift X).p (stackInSets X).p :=
-  CartesianBasedFunctor.ofTargetInGroupoids
-    (BasedFunctor.ofFunctor
-      (Cat.TwoULift.down.{u + 1, u, u + 1, u + 1} (stackInSets X).total) sorry)
 
 /-- Postcomposing the morphism-universe lift of `𝒮_X` with its inverse recovers the identity. -/
 theorem stackInSetsULift.up_comp_down {S : Scheme.{u}} (X : AlgebraicSpace S) :
@@ -94,20 +71,12 @@ end AlgebraicGeometry.AlgebraicSpace
 
 namespace AlgebraicGeometry.GroupoidAlgebraicSpace
 
-/-- The canonical cartesian `1`-morphism `𝒮_U ⟶ [U/R]` into the selected fppf quotient stack. -/
-def fppfAtlas {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B) :
-    CartesianBasedFunctor (stackInSets G.U.left).p (fppfQuotientStack G).p :=
-  (atlasToPreQuotient G).comp (fppfQuotientStackPresentation G).comparison
 
 /-- `fppfAtlas` is the object-inclusion into `[U/_p R]` followed by fppf stackification. -/
 theorem fppfAtlas_eq {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B) :
     fppfAtlas G =
       (atlasToPreQuotient G).comp (fppfQuotientStackPresentation G).comparison := sorry
 
-/-- The atlas `𝒮_U ⟶ [U/R]` after aligning `𝒮_U` to the Hom-universe of `[U/R]`. -/
-def fppfAtlasULift {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B) :
-    CartesianBasedFunctor (stackInSetsULift G.U.left).p (fppfQuotientStack G).p :=
-  (stackInSetsULift.down G.U.left).comp (fppfAtlas G)
 
 /-- `fppfAtlasULift` is the morphism-universe inverse of `𝒮_U` followed by `fppfAtlas`. -/
 theorem fppfAtlasULift_eq {S : Scheme.{u}} {B : AlgebraicSpace S}

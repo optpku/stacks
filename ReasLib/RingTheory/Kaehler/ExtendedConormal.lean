@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.RingTheory.Extension.ExtendScalars
@@ -173,5 +179,20 @@ theorem kerCotangentToTensor_naturality (Λ : Type u) (B : Type v) (A : Type w) 
     tensorMapBaseChange Λ B A k ∘ₗ kerCotangentToTensor_extend Λ B k hB =
       kerCotangentToTensor_extend Λ A k hA ∘ₗ
         Algebra.H1Cotangent.kerCotangentMap B A k hB hA := sorry
+
+namespace ExtendedConormal
+
+/-- For a surjective algebra map in a compatible tower, the base-change map
+from the tensor product of Kähler differentials to the differentials of the
+target algebra is surjective. -/
+theorem mapBaseChange_surjective
+    (Λ : Type u) [CommRing Λ] (A : Type v) (k : Type w)
+    [CommRing A] [CommRing k]
+    [Algebra Λ A] [Algebra A k] [Algebra Λ k] [IsScalarTower Λ A k]
+    (h : Function.Surjective (algebraMap A k)) :
+    Function.Surjective (mapBaseChange Λ A k) :=
+  KaehlerDifferential.mapBaseChange_surjective Λ A k h
+
+end ExtendedConormal
 
 end KaehlerDifferential

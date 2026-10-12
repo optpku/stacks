@@ -1,7 +1,19 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap42.Remark_42_6_4_Milnor_K_theory_Boundary
 import StacksCheckRecall
+import Mathlib.FieldTheory.RatFunc.AsPolynomial
+import Mathlib.RingTheory.AdjoinRoot
+import Mathlib.FieldTheory.Minpoly.Field
+import Mathlib.FieldTheory.IntermediateField.Adjoin.Basic
+import Mathlib.LinearAlgebra.Basis.VectorSpace
+import Mathlib.RingTheory.DedekindDomain.Dvr
 
 @[expose] public section
 
@@ -51,32 +63,269 @@ theorem milnorKDVRBoundary_one_symbol
         (Additive.ofMul
           (TameSymbol.value A F (IsDiscreteValuationRing.ringKrullDim_eq_one A) x y)) := sorry
 
+/- The public normalization norms expose branch maps, while rational-function lifts
+and intermediate generating fields remain private implementation details. -/
+section NormConstruction
+
+set_option backward.privateInPublic true
+
+namespace MilnorK
+
+private abbrev NormPrime (k : Type u) [Field k] :=
+  {p : Polynomial k // p.Monic ∧ Irreducible p}
+
+private instance primeFact (k : Type u) [Field k] (p : NormPrime k) : Fact (Irreducible p.1) :=
+  ⟨p.2.2⟩
+
+private noncomputable abbrev primeIdeal (k : Type u) [Field k] (p : NormPrime k) : Ideal (Polynomial k) :=
+  Ideal.span {p.1}
+
+private instance primeIdealPrime (k : Type u) [Field k] (p : NormPrime k) :
+    (primeIdeal k p).IsPrime :=
+  inferInstanceAs (Ideal.span {p.1}).IsPrime
+
+private instance primeDVR (k : Type u) [Field k] (p : NormPrime k) :
+    IsDiscreteValuationRing (Localization.AtPrime (primeIdeal k p)) :=
+  IsLocalization.AtPrime.isDiscreteValuationRing_of_dedekind_domain
+    (Polynomial k)
+    (fun (h : primeIdeal k p = ⊥) ↦ p.2.2.ne_zero (Ideal.span_singleton_eq_bot.mp h))
+    (Localization.AtPrime (primeIdeal k p))
+
+private noncomputable def primeEvaluation (k : Type u) [Field k] (p : NormPrime k) :
+    Localization.AtPrime (primeIdeal k p) →+* AdjoinRoot p.1 where
+  toFun a :=
+    let fraction := IsLocalization.sec (primeIdeal k p).primeCompl a
+    AdjoinRoot.mk p.1 fraction.1 / AdjoinRoot.mk p.1 fraction.2.1
+  map_zero' := sorry
+  map_one' := sorry
+  map_add' := sorry
+  map_mul' := sorry
+
+private instance primeEvaluationLocal (k : Type u) [Field k] (p : NormPrime k) :
+    IsLocalHom (primeEvaluation k p) := sorry
+
+private noncomputable def primeFractionMap (k : Type u) [Field k] (p : NormPrime k) :
+    RatFunc k →+* FractionRing (Localization.AtPrime (primeIdeal k p)) :=
+  -- Local instance justification (defeq pin): the fraction-ring comparison fixes this localization algebra in its result type.
+  letI : Algebra (Localization.AtPrime (primeIdeal k p)) (RatFunc k) :=
+    IsLocalization.localizationAlgebraOfSubmonoidLe
+      (Localization.AtPrime (primeIdeal k p)) (RatFunc k)
+      (primeIdeal k p).primeCompl (nonZeroDivisors (Polynomial k))
+      (primeIdeal k p).primeCompl_le_nonZeroDivisors
+  (Localization.AtPrime.fractionRingAlgEquiv (primeIdeal k p) :
+    FractionRing (Localization.AtPrime (primeIdeal k p)) ≃ₐ[
+      Localization.AtPrime (primeIdeal k p)] RatFunc k).symm.toRingHom
+
+private noncomputable def primeResidue (k : Type u) [Field k] (p : NormPrime k) (i : ℕ) :
+    Group (i + 1) (RatFunc k) →+ Group i (AdjoinRoot p.1) :=
+  (mapGroup (IsLocalRing.ResidueField.lift (primeEvaluation k p)) i).comp
+    ((dvrBoundary (Localization.AtPrime (primeIdeal k p))
+      (FractionRing (Localization.AtPrime (primeIdeal k p))) i).comp
+        (mapGroup (primeFractionMap k p) (i + 1)))
+
+
+private noncomputable def zeroPrime (k : Type u) [Field k] : NormPrime k :=
+  ⟨Polynomial.X, Polynomial.monic_X, Polynomial.irreducible_X⟩
+
+private noncomputable def zeroEvaluation (k : Type u) [Field k] :
+    Localization.AtPrime (primeIdeal k (zeroPrime k)) →+* k where
+  toFun a :=
+    let fraction := IsLocalization.sec (primeIdeal k (zeroPrime k)).primeCompl a
+    fraction.1.eval 0 / fraction.2.1.eval 0
+  map_zero' := sorry
+  map_one' := sorry
+  map_add' := sorry
+  map_mul' := sorry
+
+private instance zeroEvaluationLocal (k : Type u) [Field k] :
+    IsLocalHom (zeroEvaluation k) := sorry
+
+private noncomputable def invertVariable (k : Type u) [Field k] : RatFunc k →+* RatFunc k where
+  toFun a :=
+    a.num.eval₂ (RatFunc.C : k →+* RatFunc k) (RatFunc.X⁻¹) /
+      a.denom.eval₂ (RatFunc.C : k →+* RatFunc k) (RatFunc.X⁻¹)
+  map_zero' := sorry
+  map_one' := sorry
+  map_add' := sorry
+  map_mul' := sorry
+
+private noncomputable def infinityResidue (k : Type u) [Field k] (i : ℕ) :
+    Group (i + 1) (RatFunc k) →+ Group i k :=
+  ((mapGroup (IsLocalRing.ResidueField.lift (zeroEvaluation k)) i).comp
+    ((dvrBoundary (Localization.AtPrime (primeIdeal k (zeroPrime k)))
+      (FractionRing (Localization.AtPrime (primeIdeal k (zeroPrime k)))) i).comp
+        (mapGroup (primeFractionMap k (zeroPrime k)) (i + 1)))).comp
+      (mapGroup (invertVariable k) (i + 1))
+
+private noncomputable def finiteResidues (k : Type u) [Field k] (i : ℕ)
+    (a : Group (i + 1) (RatFunc k)) :
+    (p : NormPrime k) → Group i (AdjoinRoot p.1) :=
+  fun p ↦ primeResidue k p i a
+
+/-- Bass–Tate: lift the class with zero residues at every other finite place and take
+the negative residue at infinity. The lift is a preimage of an explicit residue map,
+not a witness extracted from a reciprocity or coniveau-existence assertion. -/
+private noncomputable def simplePolynomialNorm (k : Type u) [Field k]
+    (p : NormPrime k) (i : ℕ) : Group i (AdjoinRoot p.1) →+ Group i k where
+  toFun a := -infinityResidue k i
+    (Function.invFun (finiteResidues k i) (@Pi.single _ _ _ (Classical.decEq _) p a))
+  map_zero' := sorry
+  map_add' := sorry
+
+/-- Exactness of the rational-function residue sequence makes the norm independent
+of the selected lift. -/
+private theorem simplePolynomialNorm_spec (k : Type u) [Field k]
+    (p : NormPrime k) (i : ℕ) (a : Group i (AdjoinRoot p.1))
+    (lift : Group (i + 1) (RatFunc k))
+    (hres : finiteResidues k i lift = @Pi.single _ _ _ (Classical.decEq _) p a) :
+    simplePolynomialNorm k p i a = -infinityResidue k i lift := sorry
+
+private noncomputable def simpleNormAt (k L : Type u) [Field k] [Field L]
+    (p : NormPrime k) (scalarMap : k →+* L) (generator : L)
+    (hroot : p.1.eval₂ scalarMap generator = 0) (i : ℕ) (a : Group i L) : Group i k :=
+  simplePolynomialNorm k p i
+    (Function.invFun (mapGroup (AdjoinRoot.lift scalarMap generator hroot) i) a)
+
+private noncomputable def simpleNormValue (k L : Type u) [Field k] [Field L]
+    (scalarMap : k →+* L) (generator : L) (i : ℕ) (a : Group i L) : Group i k :=
+  -- Local instance justification (noncanonical choice): this is the specified edge of the generating tower, not an alternative ambient algebra.
+  letI : Algebra k L := scalarMap.toAlgebra
+  @dite _ ((minpoly k generator).Monic ∧ Irreducible (minpoly k generator))
+    (Classical.propDecidable _) (fun hp ↦
+      simpleNormAt k L ⟨minpoly k generator, hp⟩ scalarMap generator
+        (minpoly.aeval k generator) i a) (fun _ ↦ 0)
+
+private noncomputable def normStage (k L : Type u) [Field k] [Field L] [Algebra k L]
+    [Module.Finite k L] (m : ℕ) : IntermediateField k L :=
+  IntermediateField.adjoin k
+    {a | ∃ r : Fin (Module.finrank k L), r.1 < m ∧ a = Module.finBasis k L r}
+
+private theorem normStage_le (k L : Type u) [Field k] [Field L] [Algebra k L]
+    [Module.Finite k L] (m : ℕ) : normStage k L m ≤ normStage k L (m + 1) := sorry
+
+private noncomputable def normStep (k L : Type u) [Field k] [Field L] [Algebra k L]
+    [Module.Finite k L] (i m : ℕ) :
+    Group i (normStage k L (m + 1)) →+ Group i (normStage k L m) where
+  toFun a := @dite _ (m < Module.finrank k L) (Classical.propDecidable _) (fun hm ↦
+    simpleNormValue (normStage k L m) (normStage k L (m + 1))
+      (IntermediateField.inclusion (normStage_le k L m)).toRingHom
+      ⟨Module.finBasis k L ⟨m, hm⟩, sorry⟩ i a)
+    (fun _ ↦ Function.invFun
+      (mapGroup (IntermediateField.inclusion (normStage_le k L m)).toRingHom i) a)
+  map_zero' := sorry
+  map_add' := sorry
+
+private noncomputable def normStages (k L : Type u) [Field k] [Field L] [Algebra k L]
+    [Module.Finite k L] (i : ℕ) :
+    (m : ℕ) → Group i (normStage k L m) →+ Group i (normStage k L 0)
+  | 0 => AddMonoidHom.id _
+  | m + 1 => (normStages k L i m).comp (normStep k L i m)
+
+/-- Compose the simple-extension norms along the tower generated by a finite basis.
+The inverse functions only identify the bottom and top stages with the given fields. -/
+private noncomputable def finiteNorm (k L : Type u) [Field k] [Field L] [Algebra k L]
+    [Module.Finite k L] (i : ℕ) : Group i L →+ Group i k where
+  toFun a := Function.invFun (mapGroup (algebraMap k (normStage k L 0)) i)
+    (normStages k L i (Module.finrank k L)
+      (Function.invFun (mapGroup (normStage k L (Module.finrank k L)).subtype i) a))
+  map_zero' := sorry
+  map_add' := sorry
+
+
+private instance residueBranchTower (A F : Type u) [CommRing A] [IsLocalRing A]
+    [Field F] [Algebra A F] (b : NormalizationBranch A F) :
+    IsScalarTower A (IsLocalRing.maximalIdeal A).ResidueField b.ResidueField := sorry
+
+private instance finiteBranch (A F : Type u) [CommRing A] [IsLocalRing A]
+    [Field F] [Algebra A F] [Module.Finite A (integralClosure A F)]
+    (b : NormalizationBranch A F) :
+    Module.Finite (IsLocalRing.maximalIdeal A).ResidueField b.ResidueField :=
+  -- Local instance justification (proof-local temporary data): restrict the finite-module proof for this particular branch to the closed residue field.
+  letI : Module.Finite A b.ResidueField :=
+    Module.Finite.trans (integralClosure A F) b.ResidueField
+  Module.Finite.of_restrictScalars_finite A (IsLocalRing.maximalIdeal A).ResidueField
+    b.ResidueField
+
+/-- The Milnor norm on each finite normalization-residue extension, obtained by the
+Bass–Tate construction and composition along a finite generating tower. Its maps do not
+depend on a dimension function or on a choice of coniveau degrees. -/
+noncomputable def normalizationResidueMilnorNorm
+    (A F : Type u) [CommRing A] [IsDomain A] [IsLocalRing A]
+    [IsExcellentRing.{u, u} A] [Field F] [Algebra A F] [IsFractionRing A F]
+    (b : NormalizationBranch A F) : NormalizationResidueTransfer A F b where
+  map i := (mapGroup
+    (IsLocalRing.ResidueField.maximalIdealAlgEquiv A).symm.toRingHom i).comp
+      (finiteNorm (IsLocalRing.maximalIdeal A).ResidueField b.ResidueField i)
+  degreeZero_apply := sorry
+  degreeOne_apply := sorry
+  projection_formula_symbols := sorry
+
+
+/-- The normalization-residue Milnor norm has the branch degree as its degree-zero map. -/
+theorem normalizationResidueMilnorNorm_zero
+    (A F : Type u) [CommRing A] [IsDomain A] [IsLocalRing A]
+    [IsExcellentRing.{u, u} A] [Field F] [Algebra A F] [IsFractionRing A F]
+    (b : NormalizationBranch A F) (z : ℤ) :
+    (normalizationResidueMilnorNorm A F b).map 0 (degreeZeroMap b.ResidueField z) =
+      degreeZeroMap (IsLocalRing.ResidueField A)
+        ((normalizationResidueDegree A F b : ℤ) * z) := sorry
+
+/-- The degree-one member is the ordinary norm of the finite branch residue extension. -/
+theorem normalizationResidueMilnorNorm_one
+    (A F : Type u) [CommRing A] [IsDomain A] [IsLocalRing A]
+    [IsExcellentRing.{u, u} A] [Field F] [Algebra A F] [IsFractionRing A F]
+    (b : NormalizationBranch A F) (a : Additive b.ResidueFieldˣ) :
+    (normalizationResidueMilnorNorm A F b).map 1 (degreeOneMap b.ResidueField a) =
+      degreeOneMap (IsLocalRing.ResidueField A) (normalizationResidueNormOne A F b a) := sorry
+
+namespace Coniveau
+
+/-- The fixed branchwise Milnor norm family for immediate specializations, independent
+of the dimension function and the two coniveau degrees. -/
+noncomputable def canonicalSpecializationTransfers
+    (X : Scheme.{u}) [IsNoetherian X] [StalkwiseExcellent X] :
+    SpecializationTransfers X :=
+  fun hxy b ↦ normalizationResidueMilnorNorm
+    (SpecializationLocalRing hxy.specializes) (X.residueField _) b
+
+/-- Each member of the fixed specialization family is the normalization-residue Milnor norm. -/
+theorem canonicalSpecializationTransfers_apply
+    (X : Scheme.{u}) [IsNoetherian X] [StalkwiseExcellent X] {x y : X}
+    (hxy : IsImmediateSpecialization x y)
+    (b : NormalizationBranch (SpecializationLocalRing hxy.specializes) (X.residueField x)) :
+    canonicalSpecializationTransfers X hxy b =
+      normalizationResidueMilnorNorm (SpecializationLocalRing hxy.specializes)
+        (X.residueField x) b := sorry
+
+end Coniveau
+end MilnorK
+
+end NormConstruction
+
 /-- Remark 42.6.4 (Milnor K-theory) (6): for an excellent one-dimensional Noetherian local
 domain `A` with fraction field `F`, the normalization-and-norm boundary is the finite sum of
-branchwise DVR boundaries composed with the supplied residue-field transfers. -/
+branchwise DVR boundaries composed with the canonical Milnor residue-field norms. -/
 @[stacks 0EAY]
 noncomputable def milnorKExcellentLocalBoundary
     (A F : Type u) [CommRing A] [IsDomain A] [IsLocalRing A]
     [IsExcellentRing.{u, u} A]
     [Field F] [Algebra A F] [IsFractionRing A F]
     (hdim : ringKrullDim A = 1)
-    (N : (b : MilnorK.NormalizationBranch A F) → MilnorK.NormalizationResidueTransfer A F b)
     (i : ℕ) :
     MilnorK.Group (i + 1) F →+
       MilnorK.Group i (IsLocalRing.ResidueField A) :=
-  MilnorK.excellentLocalBoundary A F hdim N i
+  MilnorK.excellentLocalBoundary A F hdim (MilnorK.normalizationResidueMilnorNorm A F) i
 
 /-- The excellent-local boundary is the branch sum of the DVR boundaries followed by the
-graded normalization-residue transfers. -/
+canonical normalization-residue Milnor norms. -/
 theorem milnorKExcellentLocalBoundary_apply
     (A F : Type u) [CommRing A] [IsDomain A] [IsLocalRing A]
     [IsExcellentRing.{u, u} A]
     [Field F] [Algebra A F] [IsFractionRing A F]
     (hdim : ringKrullDim A = 1)
-    (N : (b : MilnorK.NormalizationBranch A F) → MilnorK.NormalizationResidueTransfer A F b)
     (i : ℕ) (a : MilnorK.Group (i + 1) F) :
-    milnorKExcellentLocalBoundary A F hdim N i a =
-      ∑ᶠ b, (N b).map i (MilnorK.normalizationBranchBoundary A F hdim b i a) := sorry
+    milnorKExcellentLocalBoundary A F hdim i a =
+      ∑ᶠ b, (MilnorK.normalizationResidueMilnorNorm A F b).map i (MilnorK.normalizationBranchBoundary A F hdim b i a) := sorry
 
 /-- In degree one, the excellent local boundary agrees with the concrete tame symbol. -/
 theorem milnorKExcellentLocalBoundary_one
@@ -84,9 +333,8 @@ theorem milnorKExcellentLocalBoundary_one
     [IsExcellentRing.{u, u} A]
     [Field F] [Algebra A F] [IsFractionRing A F]
     (hdim : ringKrullDim A = 1)
-    (N : (b : MilnorK.NormalizationBranch A F) → MilnorK.NormalizationResidueTransfer A F b)
     (z : MilnorK.DegreeTwoPresentation F) :
-    milnorKExcellentLocalBoundary A F hdim N 1 (MilnorK.degreeTwoMap F z) =
+    milnorKExcellentLocalBoundary A F hdim 1 (MilnorK.degreeTwoMap F z) =
       MilnorK.degreeOneMap (IsLocalRing.ResidueField A)
         (MilnorK.boundaryOne A F hdim z) := sorry
 
@@ -99,9 +347,9 @@ excellent local residues on immediate specializations. -/
 noncomputable def milnorKExcellentFirst
     (X : Scheme.{u}) [IsNoetherian X] (δ : X → ℤ) [IsDimensionFunction δ]
     [MilnorK.Coniveau.StalkwiseExcellent X]
-    (transfers : MilnorK.Coniveau.SpecializationTransfers X) (i : ℕ) (j : ℤ) :
+    (i : ℕ) (j : ℤ) :
     MilnorK.Coniveau.Term X δ (i + 1) (j + 1) →+ MilnorK.Coniveau.Term X δ i j :=
-  MilnorK.Coniveau.excellentFirst δ transfers i j
+  MilnorK.Coniveau.excellentFirst δ (MilnorK.Coniveau.canonicalSpecializationTransfers X) i j
 
 /-- Remark 42.6.4 (Milnor K-theory) (7): the second displayed coniveau arrow, assembled from
 excellent local residues on immediate specializations. -/
@@ -109,21 +357,20 @@ excellent local residues on immediate specializations. -/
 noncomputable def milnorKExcellentSecond
     (X : Scheme.{u}) [IsNoetherian X] (δ : X → ℤ) [IsDimensionFunction δ]
     [MilnorK.Coniveau.StalkwiseExcellent X]
-    (transfers : MilnorK.Coniveau.SpecializationTransfers X)
     (i : ℕ) (hi : 1 ≤ i) (j : ℤ) :
     MilnorK.Coniveau.Term X δ i j →+ MilnorK.Coniveau.Term X δ (i - 1) (j - 1) :=
-  MilnorK.Coniveau.excellentSecond δ transfers i hi j
+  MilnorK.Coniveau.excellentSecond δ (MilnorK.Coniveau.canonicalSpecializationTransfers X) i hi j
 
 /-- On an immediate specialization, the first excellent arrow uses the excellent local residue. -/
 theorem milnorKExcellentFirst_of_isImmediate
     (X : Scheme.{u}) [IsNoetherian X] (δ : X → ℤ) [IsDimensionFunction δ]
     [MilnorK.Coniveau.StalkwiseExcellent X]
-    (transfers : MilnorK.Coniveau.SpecializationTransfers X) (i : ℕ) (j : ℤ)
+    (i : ℕ) (j : ℤ)
     (x : {x : X // δ x = j + 1}) (y : {y : X // δ y = j})
     (hxy : IsImmediateSpecialization x.1 y.1)
     (a : MilnorK.Group (i + 1) (X.residueField x.1)) :
-    milnorKExcellentFirst X δ transfers i j (MilnorK.Coniveau.termOf x a) y =
-      MilnorK.Coniveau.excellentResidue hxy (transfers hxy) i a := sorry
+    milnorKExcellentFirst X δ i j (MilnorK.Coniveau.termOf x a) y =
+      MilnorK.Coniveau.excellentResidue hxy (MilnorK.Coniveau.canonicalSpecializationTransfers X hxy) i a := sorry
 
 /-- Remark 42.6.4 (Milnor K-theory) (8): for an excellent Noetherian scheme, Kato--Milnor
 reciprocity makes the composition of the two consecutive tame-symbol arrows zero. -/
@@ -131,10 +378,9 @@ reciprocity makes the composition of the two consecutive tame-symbol arrows zero
 theorem milnorKConiveau_comp_eq_zero_of_excellent
     (X : Scheme.{u}) [IsNoetherian X] (δ : X → ℤ) [IsDimensionFunction δ]
     [MilnorK.Coniveau.StalkwiseExcellent X]
-    (transfers : MilnorK.Coniveau.SpecializationTransfers X)
     (i : ℕ) (hi : 1 ≤ i) (j : ℤ) :
-    (milnorKExcellentSecond X δ transfers i hi j).comp
-      (milnorKExcellentFirst X δ transfers i j) = 0 := sorry
+    (milnorKExcellentSecond X δ i hi j).comp
+      (milnorKExcellentFirst X δ i j) = 0 := sorry
 
 /-- The first degree-one coniveau arrow, assembled from `TameSymbol.value` on immediate
 specializations. -/

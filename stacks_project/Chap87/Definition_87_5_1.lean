@@ -1,12 +1,24 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap87.Definition_87_5_1_Taut
+public import ReasLib.Topology.Algebra.Ring.Taut
 import StacksCheckRecall
 
 @[expose] public section
+
+universe u v
+
+variable {A : Type u} {B : Type v}
+variable [CommRing A] [TopologicalSpace A] [IsTopologicalRing A] [IsLinearTopology A A]
+variable [CommRing B] [TopologicalSpace B] [IsTopologicalRing B] [IsLinearTopology B B]
 
 /- Definition 87.5.1: a continuous homomorphism `φ : A →+* B` of linearly
 topologized rings is taut if for every open ideal `I` of `A` the closure of
 `Ideal.map φ I` is open in `B` and these closures form a fundamental system of
 open ideals of `B`. -/
-@[stacks 0AMX] #check @RingHom.IsTaut
+@[stacks 0AMX] #check (RingHom.IsTaut : (A →+* B) → Prop)

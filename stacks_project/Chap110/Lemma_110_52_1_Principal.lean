@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Fibered.Stack.InGroupoidsOver.Basic
@@ -64,15 +70,15 @@ theorem ofTorsor_spec (U : Over S) (b : ofOver U ⟶ B)
 def groupCompare {ξ ξ' : Obj G} (f : ξ.U ⟶ ξ'.U)
     (h : ξ.b = ofOverMap f ≫ ξ'.b) :
     (grpOverPullback G ξ.b).X ⟶
-      ((overPullback (ofOverMap f)).mapGrp.obj (grpOverPullback G ξ'.b)).X :=
-  eqToHom (congrArg (fun t ↦ (overPullback t).obj G.X) h) ≫
-    (overPullbackCompIso ξ'.b (ofOverMap f) G.X).hom
+      ((Over.pullback (ofOverMap f)).mapGrp.obj (grpOverPullback G ξ'.b)).X :=
+  eqToHom (congrArg (fun t ↦ (Over.pullback t).obj G.X) h) ≫
+    ((Over.pullbackComp (ofOverMap f) ξ'.b).app G.X).hom
 
 /-- An isomorphism of underlying objects over `U` is `G_U`-equivariant when it
 intertwines the action morphisms after identifying the pulled-back group. -/
 def IsEquivariant {ξ ξ' : Obj G} (f : ξ.U ⟶ ξ'.U)
     (h : ξ.b = ofOverMap f ≫ ξ'.b)
-    (g : ξ.X.X ≅ (overPullback (ofOverMap f)).obj ξ'.X.X) : Prop :=
+    (g : ξ.X.X ≅ (Over.pullback (ofOverMap f)).obj ξ'.X.X) : Prop :=
   ξ.X.mod.smul ≫ g.hom =
     (groupCompare f h ⊗ₘ g.hom) ≫
       (pullbackAction (ofOverMap f) (grpOverPullback G ξ'.b) ξ'.X).mod.smul
@@ -85,14 +91,14 @@ structure Hom {G : GroupAlgebraicSpace B} (ξ ξ' : Obj G) where
   /-- The morphism `f` lies over `B`. -/
   comm : ξ.b = ofOverMap f ≫ ξ'.b
   /-- The isomorphism of underlying objects after pullback along `f`. -/
-  g : ξ.X.X ≅ (overPullback (ofOverMap f)).obj ξ'.X.X
+  g : ξ.X.X ≅ (Over.pullback (ofOverMap f)).obj ξ'.X.X
   /-- The isomorphism `g` is `G_U`-equivariant. -/
   equivariant : IsEquivariant f comm g
 
 /-- Assemble a morphism of `G`-Principal from a scheme map and an equivariant
 isomorphism of principal homogeneous spaces. -/
 def ofIso {ξ ξ' : Obj G} (f : ξ.U ⟶ ξ'.U) (h : ξ.b = ofOverMap f ≫ ξ'.b)
-    (g : ξ.X.X ≅ (overPullback (ofOverMap f)).obj ξ'.X.X)
+    (g : ξ.X.X ≅ (Over.pullback (ofOverMap f)).obj ξ'.X.X)
     (hg : IsEquivariant f h g) : Hom ξ ξ' where
   f := f
   comm := h
@@ -103,7 +109,7 @@ def ofIso {ξ ξ' : Obj G} (f : ξ.U ⟶ ξ'.U) (h : ξ.b = ofOverMap f ≫ ξ'.
 isomorphism, and equivariance witness. -/
 theorem ofIso_spec {ξ ξ' : Obj G} (f : ξ.U ⟶ ξ'.U)
     (h : ξ.b = ofOverMap f ≫ ξ'.b)
-    (g : ξ.X.X ≅ (overPullback (ofOverMap f)).obj ξ'.X.X)
+    (g : ξ.X.X ≅ (Over.pullback (ofOverMap f)).obj ξ'.X.X)
     (hg : IsEquivariant f h g) :
     (ofIso f h g hg).f = f ∧ (ofIso f h g hg).comm = h ∧
       (ofIso f h g hg).g = g ∧ (ofIso f h g hg).equivariant = hg := sorry
@@ -113,9 +119,9 @@ theorem id_comm (ξ : Obj G) : ξ.b = ofOverMap (𝟙 ξ.U) ≫ ξ.b := sorry
 
 /-- The identity comparison of slice objects along `id`. -/
 def idIso (ξ : Obj G) :
-    ξ.X.X ≅ (overPullback (ofOverMap (𝟙 ξ.U))).obj ξ.X.X :=
-  pullbackAlongIdIso ξ.X.X ≪≫
-    eqToIso (congrArg (fun t ↦ (overPullback t).obj ξ.X.X) (ofOverMap_id ξ.U).symm)
+    ξ.X.X ≅ (Over.pullback (ofOverMap (𝟙 ξ.U))).obj ξ.X.X :=
+  (Over.pullbackId.app ξ.X.X).symm ≪≫
+    eqToIso (congrArg (fun t ↦ (Over.pullback t).obj ξ.X.X) (ofOverMap_id ξ.U).symm)
 
 /-- The identity comparison of principal homogeneous spaces is equivariant. -/
 theorem id_equivariant (ξ : Obj G) :
@@ -130,10 +136,10 @@ def idHom (ξ : Obj G) : Hom ξ ξ where
 
 /-- The composite isomorphism of underlying objects along a composite of scheme maps. -/
 def compIso {ξ ξ' ξ'' : Obj G} (α : Hom ξ ξ') (β : Hom ξ' ξ'') :
-    ξ.X.X ≅ (overPullback (ofOverMap (α.f ≫ β.f))).obj ξ''.X.X :=
-  α.g ≪≫ (overPullback (ofOverMap α.f)).mapIso β.g ≪≫
-    (overPullbackCompIso (ofOverMap β.f) (ofOverMap α.f) ξ''.X.X).symm ≪≫
-      eqToIso (congrArg (fun t ↦ (overPullback t).obj ξ''.X.X) (ofOverMap_comp α.f β.f).symm)
+    ξ.X.X ≅ (Over.pullback (ofOverMap (α.f ≫ β.f))).obj ξ''.X.X :=
+  α.g ≪≫ (Over.pullback (ofOverMap α.f)).mapIso β.g ≪≫
+    ((Over.pullbackComp (ofOverMap α.f) (ofOverMap β.f)).app ξ''.X.X).symm ≪≫
+      eqToIso (congrArg (fun t ↦ (Over.pullback t).obj ξ''.X.X) (ofOverMap_comp α.f β.f).symm)
 
 /-- Compatibility of a composite morphism with the maps to `B`. -/
 theorem comp_comm {ξ ξ' ξ'' : Obj G} (α : Hom ξ ξ') (β : Hom ξ' ξ'') :

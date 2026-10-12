@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Topology.Sets.Closeds
@@ -74,7 +80,7 @@ theorem range_ι {S : Scheme.{u}} {X : AlgebraicSpace S} (x : Points X) :
 /-- The canonical reduced point-closure algebraic space is reduced. -/
 instance instIsReduced_space {S : Scheme.{u}} {X : AlgebraicSpace S}
     (x : Points X) : IsReduced (space x) :=
-  sorry
+  ReducedClosed.Space.space_reduced X (closedSubset x)
 
 /-- The canonical morphism from a reduced point closure is a closed immersion. -/
 instance instIsClosedImmersion_ι {S : Scheme.{u}} {X : AlgebraicSpace S}

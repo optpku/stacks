@@ -1,9 +1,15 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Discrete.Basic
 public import Mathlib.Combinatorics.Quiver.Basic
-public import stacks_project.Chap90.Lemma_90_10_5_Associated
-public import stacks_project.Chap90.Lemma_90_10_5_Schlessinger
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Schlessinger.Associated
+import StacksCheckRecall
 
 /-!
 # Transfer of Schlessinger's conditions to the associated functor
@@ -25,25 +31,23 @@ variable {F : Type v} [Category.{w} F]
 
 namespace CategoryTheory.Functor
 
-/-- Lemma 90.10.5 (1): if a category cofibered in groupoids over `ArtinianLocalAlgCat Λ k`
+/- Lemma 90.10.5 (1): if a category cofibered in groupoids over `ArtinianLocalAlgCat Λ k`
 satisfies (S1), then so does the associated functor of isomorphism classes. -/
-@[stacks 06I0]
-theorem hasSchlessingerS1_isoClass (p : F ⥤ ArtinianLocalAlgCat Λ k)
-    [IsFibered.InGroupoids p.op] [HasSchlessingerS1 p] :
-    HasSchlessingerS1 (CategoryOfElements.π (isoClassFunctor p)) := sorry
+@[stacks 06I0] #check (CategoryTheory.Functor.hasSchlessingerS1_isoClass :
+  ∀ (p : F ⥤ ArtinianLocalAlgCat Λ k) [IsFibered.InGroupoids p.op] [HasSchlessingerS1 p],
+    HasSchlessingerS1 (CategoryOfElements.π (isoClassFunctor p)))
 
-/-- Lemma 90.10.5 (2): if a category cofibered in groupoids over `ArtinianLocalAlgCat Λ k`
+/- Lemma 90.10.5 (2): if a category cofibered in groupoids over `ArtinianLocalAlgCat Λ k`
 satisfies (S2), then so does the associated functor of isomorphism classes, provided `p` is a
 predeformation category, the fibre over `k` is a set or a setoid, or Aut pushforward along every
 lift of `k[ε] ⟶ k` is surjective. -/
-@[stacks 06I0]
-theorem hasSchlessingerS2_isoClass (p : F ⥤ ArtinianLocalAlgCat Λ k)
-    [IsFibered.InGroupoids p.op] [HasSchlessingerS2 p]
-    (h : IsPredeformationCategory p ∨
+@[stacks 06I0] #check (CategoryTheory.Functor.hasSchlessingerS2_isoClass :
+  ∀ (p : F ⥤ ArtinianLocalAlgCat Λ k) [IsFibered.InGroupoids p.op] [HasSchlessingerS2 p],
+    (IsPredeformationCategory p ∨
       IsDiscrete (p.Fiber (residue Λ k)) ∨
       Quiver.IsThin (p.Fiber (residue Λ k)) ∨
       ∀ {xε x0 : F} (φ : xε ⟶ x0) [p.IsHomLift (dualNumberToResidue Λ k) φ],
-        Function.Surjective (autPushforward p φ)) :
-    HasSchlessingerS2 (CategoryOfElements.π (isoClassFunctor p)) := sorry
+        Function.Surjective (autPushforward p φ)) →
+    HasSchlessingerS2 (CategoryOfElements.π (isoClassFunctor p)))
 
 end CategoryTheory.Functor

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap71.Lemma_71_11_2_RestrictionMonoidal
@@ -70,15 +76,14 @@ def pushforwardSection (t : T ⟶ Z) (M : (ofOver T).Modules) (V : Z.left.Opens)
   (sectionEquiv T M (t.left ⁻¹ᵁ V)).symm
     ((ToInternal.sectionEquiv (structureSheaf (ofOver T)) M
       (op (siteObject T (t.left ⁻¹ᵁ V)))).symm
-        ((limit.π (pushforwardRanDiagram t M V) (preimageGraphArrow t V))
-          (((smallEtaleInclusion (ofOver T)).op.ranObjObjIsoLimit
-              ((ToInternal.underlying (structureSheaf (ofOver T))).obj M).obj
-              (op ((etaleBaseChange (ofOverMap t)).obj (siteObject Z V)))).hom
-            ((((ModulePushforward.forgetIso (ringedToposHom (ofOverMap t))).hom.app M).hom.app
-              (op (siteObject Z V)))
-              (ToInternal.sectionEquiv (structureSheaf (ofOver Z))
-                ((Modules.pushforward (ofOverMap t)).obj M) (op (siteObject Z V))
-                (sectionEquiv Z _ V x))))))
+        (EtaleTopos.extensionEvaluation (ofOver T)
+          ((ToInternal.underlying (structureSheaf (ofOver T))).obj M)
+          (preimageGraphOver t V)
+          ((((ModulePushforward.forgetIso (ringedToposHom (ofOverMap t))).hom.app M).hom.app
+            (op (siteObject Z V)))
+            (ToInternal.sectionEquiv (structureSheaf (ofOver Z))
+              ((Modules.pushforward (ofOverMap t)).obj M) (op (siteObject Z V))
+              (sectionEquiv Z _ V x)))))
 
 /-- The scheme direct image evaluates at the same inverse image open. -/
 def schemePushforwardSectionEquiv (t : T ⟶ Z) (M : T.left.Modules)

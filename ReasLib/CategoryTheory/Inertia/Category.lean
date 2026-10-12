@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Endomorphism
@@ -28,11 +34,16 @@ a heavier dependent functor; the explicit owner is the useful formal interface. 
 
 /-- The inertia category of `C` has objects `(X, α)` with `α : Aut X`. -/
 @[stacks 034I "abstract inertia category"]
-structure Inertia (C : Type uC) [Category.{vC} C] where
-  /-- The underlying object. -/
-  obj : C
-  /-- The chosen automorphism. -/
-  aut : Aut obj
+def Inertia (C : Type uC) [Category.{vC} C] := Σ X : C, Aut X
+
+/-- Construct an inertia object from its object and automorphism. -/
+def Inertia.mk (obj : C) (aut : Aut obj) : Inertia C := ⟨obj, aut⟩
+
+/-- The underlying object of an inertia object. -/
+abbrev Inertia.obj (X : Inertia C) : C := X.1
+
+/-- The chosen automorphism of an inertia object. -/
+abbrev Inertia.aut (X : Inertia C) : Aut X.obj := X.2
 
 attribute [stacks 034I "inertia underlying object field"] Inertia.obj
 attribute [stacks 034I "inertia automorphism field"] Inertia.aut
@@ -43,11 +54,24 @@ variable {D : Type uS'} [Category.{vS'} D]
 
 /-- A morphism in `Inertia C` is an arrow intertwining the chosen automorphisms. -/
 @[stacks 034I "abstract inertia morphism"]
-structure Hom (X Y : Inertia C) where
-  /-- The underlying arrow. -/
-  hom : X.obj ⟶ Y.obj
-  /-- The intertwining equation. -/
-  naturality : X.aut.hom ≫ hom = hom ≫ Y.aut.hom
+def Hom (X Y : Inertia C) :=
+  { f : X.obj ⟶ Y.obj // X.aut.hom ≫ f = f ≫ Y.aut.hom }
+
+/-- Construct an intertwiner from an arrow and its equation. -/
+def Hom.mk {X Y : Inertia C} (hom : X.obj ⟶ Y.obj)
+    (naturality : X.aut.hom ≫ hom = hom ≫ Y.aut.hom) : Hom X Y :=
+  ⟨hom, naturality⟩
+
+/-- The underlying arrow of an intertwiner. -/
+abbrev Hom.hom {X Y : Inertia C} (f : Hom X Y) : X.obj ⟶ Y.obj := f.1
+
+/-- The defining intertwining equation. -/
+theorem Hom.naturality {X Y : Inertia C} (f : Hom X Y) :
+    X.aut.hom ≫ f.hom = f.hom ≫ Y.aut.hom := f.2
+
+/-- Intertwiners are determined by their underlying arrows. -/
+theorem Hom.ext {X Y : Inertia C} {f g : Hom X Y} (h : f.hom = g.hom) : f = g :=
+  Subtype.ext h
 
 attribute [stacks 034I "inertia underlying arrow field"] Inertia.Hom.hom
 attribute [stacks 034I "inertia intertwining field"] Inertia.Hom.naturality
@@ -72,14 +96,12 @@ private theorem compHom_naturality {X Y Z : Inertia C} (f : Hom X Y) (g : Hom Y 
     X.aut.hom ≫ (f.hom ≫ g.hom) = (f.hom ≫ g.hom) ≫ Z.aut.hom := sorry
 
 /-- The identity inertia morphism. -/
-private def idHom (X : Inertia C) : Hom X X where
-  hom := 𝟙 X.obj
-  naturality := idHom_naturality X
+private def idHom (X : Inertia C) : Hom X X :=
+  Hom.mk (𝟙 X.obj) (idHom_naturality X)
 
 /-- Composition of inertia morphisms. -/
-private def compHom {X Y Z : Inertia C} (f : Hom X Y) (g : Hom Y Z) : Hom X Z where
-  hom := f.hom ≫ g.hom
-  naturality := compHom_naturality f g
+private def compHom {X Y Z : Inertia C} (f : Hom X Y) (g : Hom Y Z) : Hom X Z :=
+  Hom.mk (f.hom ≫ g.hom) (compHom_naturality f g)
 
 /-- Left identity for inertia morphisms.
 
@@ -102,11 +124,18 @@ private theorem compHom_assoc {W X Y Z : Inertia C}
 
 end Implementation
 
+/-- The identity intertwiner has the underlying identity arrow. -/
+def Hom.id (X : Inertia C) : Hom X X := Implementation.idHom X
+
+/-- Composition of intertwiners has the underlying composite arrow. -/
+def Hom.comp {X Y Z : Inertia C} (f : Hom X Y) (g : Hom Y Z) : Hom X Z :=
+  Implementation.compHom f g
+
 /-- Objects with automorphisms and their intertwiners form the inertia category. -/
 instance category : Category (Inertia C) where
   Hom := Hom
-  id := Implementation.idHom
-  comp := Implementation.compHom
+  id := Hom.id
+  comp := Hom.comp
   id_comp := Implementation.idHom_comp
   comp_id := Implementation.compHom_id
   assoc := Implementation.compHom_assoc
@@ -118,9 +147,8 @@ end
 /-- Build an inertia morphism from an underlying arrow and its intertwining equation. -/
 @[stacks 034I "construct an abstract inertia morphism"]
 def homMk {X Y : Inertia C} (f : X.obj ⟶ Y.obj)
-    (naturality : X.aut.hom ≫ f = f ≫ Y.aut.hom) : X ⟶ Y where
-  hom := f
-  naturality := naturality
+    (naturality : X.aut.hom ≫ f = f ≫ Y.aut.hom) : X ⟶ Y :=
+  Hom.mk f naturality
 
 /-- The underlying arrow of an inertia morphism. -/
 @[stacks 034I "inertia underlying-arrow projection"]
@@ -235,9 +263,7 @@ set_option backward.privateInPublic.warn false
 namespace Implementation
 
 /-- The identity automorphism at an object of `C`. -/
-private def identitySectionObj (X : C) : Inertia C where
-  obj := X
-  aut := 1
+private def identitySectionObj (X : C) : Inertia C := Inertia.mk X 1
 
 /-- Every arrow intertwines the identity automorphisms at its endpoints.
 
@@ -304,9 +330,8 @@ set_option backward.privateInPublic.warn false
 namespace Implementation
 
 /-- A functor maps an inertia object by applying its object and isomorphism maps. -/
-private def mapObj (G : C ⥤ D) (X : Inertia C) : Inertia D where
-  obj := G.obj X.obj
-  aut := G.mapIso X.aut
+private def mapObj (G : C ⥤ D) (X : Inertia C) : Inertia D :=
+  Inertia.mk (G.obj X.obj) (G.mapIso X.aut)
 
 /-- A functor maps an intertwiner to an intertwiner.
 

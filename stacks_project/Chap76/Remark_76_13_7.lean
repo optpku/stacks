@@ -1,6 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap76.Lemma_76_13_6_Etale
+public import ReasLib.AlgebraicGeometry.Scheme.Over.FormallyLifting.EtaleSurjective
 import StacksCheckRecall
 
 /-!
@@ -25,7 +31,7 @@ representable, surjective, and étale transformation of functors on
 `b ∘ a`) is formally smooth. This is the true direction of the tempting
 equivalence `FormallySmooth b ↔ FormallySmooth (a ≫ b)`. -/
 @[stacks 04CZ]
-#check (FormallySmooth.precomp :
+#check (AlgebraicGeometry.Scheme.Over.FormallySmooth.precomp :
     ∀ {S : Scheme.{u}} {F G H : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G) (b : G ⟶ H),
       (MorphismProperty.over (@Etale ⊓ @Surjective)).presheaf a →
         FormallySmooth b → FormallySmooth (a ≫ b))
@@ -37,7 +43,7 @@ that formal smoothness of `a ≫ b` (source `b ∘ a`) yields étale affine loca
 lifts against an affine first-order thickening, not global formal smoothness
 of `b`. -/
 @[stacks 04CZ]
-#check (FormallySmooth.exists_etaleAffineLocalLift :
+#check (AlgebraicGeometry.Scheme.Over.FormallySmooth.exists_etaleAffineLocalLift :
     ∀ {S : Scheme.{u}} {F G H : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G) (b : G ⟶ H),
       (MorphismProperty.over (@Etale ⊓ @Surjective)).presheaf a →
         ∀ [FormallySmooth (a ≫ b)] {T T' : Over S} [IsAffine T.left]

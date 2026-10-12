@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Group.ULift
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Pullback
 public import Mathlib.CategoryTheory.Adjunction.CompositionIso
 public import Mathlib.CategoryTheory.Sites.Continuous
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Graded.Algebra
@@ -71,182 +78,6 @@ def etaleBaseChangeComp {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z) :
     isoWhiskerLeft (smallEtaleInclusion Z) (spacesEtalePullbackComp f g) ≪≫
     isoWhiskerRight (smallEtaleInclusion_comp_spacesEtalePullback g) (spacesEtalePullback f)
 
-/-- Type-valued direct image along `f`, rewritten through spaces-étale pullback. -/
-def typePushforwardFactor {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    typePushforward f ≅
-      (smallEtaleInclusion X).sheafPushforwardCocontinuous (Type u)
-          (smallEtaleTopology X) (spacesEtaleTopology X) ⋙
-        (spacesEtalePullback f).sheafPushforwardContinuous (Type u)
-          (spacesEtaleTopology Y) (spacesEtaleTopology X) ⋙
-        (smallEtaleInclusion Y).sheafPushforwardContinuous (Type u)
-          (smallEtaleTopology Y) (spacesEtaleTopology Y) :=
-  isoWhiskerLeft
-    ((smallEtaleInclusion X).sheafPushforwardCocontinuous (Type u)
-      (smallEtaleTopology X) (spacesEtaleTopology X))
-    ((sheafPushforwardContinuousIso (smallEtaleInclusion_comp_spacesEtalePullback f)
-        (Type u) (smallEtaleTopology Y) (spacesEtaleTopology X)).symm ≪≫
-      sheafPushforwardContinuousComp (smallEtaleInclusion Y) (spacesEtalePullback f)
-        (Type u) (smallEtaleTopology Y) (spacesEtaleTopology Y) (spacesEtaleTopology X))
-
-/-- The small étale inclusion is cover-dense in the spaces étale topology. -/
-instance smallEtaleInclusion_isCoverDense (Y : AlgebraicSpace S) :
-    (smallEtaleInclusion Y).IsCoverDense (spacesEtaleTopology Y) :=
-  sorry
-
-/-- Spaces-étale pullback along a composite is continuous because each factor is. -/
-instance spacesEtalePullback_comp_isContinuous {X Y Z : AlgebraicSpace S}
-    (f : X ⟶ Y) (g : Y ⟶ Z) :
-    (spacesEtalePullback g ⋙ spacesEtalePullback f).IsContinuous
-      (spacesEtaleTopology Z) (spacesEtaleTopology X) :=
-  Functor.isContinuous_comp (spacesEtalePullback g) (spacesEtalePullback f)
-    (spacesEtaleTopology Z) (spacesEtaleTopology Y) (spacesEtaleTopology X)
-
-/-- Restricting a spaces étale sheaf to the small étale site and extending it back
-is isomorphic to the identity. Both 1-cells are the cover-dense extensions of the
-canonical adjunction unit and counit on the small site. -/
-def smallEtaleInclusionContinuousCocontinuousIso (Y : AlgebraicSpace S) :
-    (smallEtaleInclusion Y).sheafPushforwardContinuous (Type u)
-        (smallEtaleTopology Y) (spacesEtaleTopology Y) ⋙
-      (smallEtaleInclusion Y).sheafPushforwardCocontinuous (Type u)
-        (smallEtaleTopology Y) (spacesEtaleTopology Y) ≅
-    𝟭 (Sheaf (spacesEtaleTopology Y) (Type u)) :=
-  let restrict :=
-    (smallEtaleInclusion Y).sheafPushforwardContinuous (Type u)
-      (smallEtaleTopology Y) (spacesEtaleTopology Y)
-  let extend :=
-    (smallEtaleInclusion Y).sheafPushforwardCocontinuous (Type u)
-      (smallEtaleTopology Y) (spacesEtaleTopology Y)
-  let adj :=
-    (smallEtaleInclusion Y).sheafAdjunctionCocontinuous (Type u)
-      (smallEtaleTopology Y) (spacesEtaleTopology Y)
-  NatIso.ofComponents
-    (fun F ↦
-      let eSmall : restrict.obj ((restrict ⋙ extend).obj F) ≅ restrict.obj F :=
-        { hom := adj.counit.app (restrict.obj F)
-          inv := restrict.map (adj.unit.app F)
-          hom_inv_id := sorry
-          inv_hom_id := sorry }
-      let i :
-          (smallEtaleInclusion Y).op ⋙ ((restrict ⋙ extend).obj F).obj ≅
-            (smallEtaleInclusion Y).op ⋙ F.obj :=
-        { hom := eSmall.hom.hom
-          inv := eSmall.inv.hom
-          hom_inv_id := sorry
-          inv_hom_id := sorry }
-      Functor.IsCoverDense.Types.sheafIso i)
-    sorry
-
-/-- Type-valued continuous pushforward along spaces-étale pullback respects composition. -/
-def spacesEtaleTypePushforwardComp {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    (spacesEtalePullback f).sheafPushforwardContinuous (Type u)
-        (spacesEtaleTopology Y) (spacesEtaleTopology X) ⋙
-      (spacesEtalePullback g).sheafPushforwardContinuous (Type u)
-        (spacesEtaleTopology Z) (spacesEtaleTopology Y) ≅
-      (spacesEtalePullback (f ≫ g)).sheafPushforwardContinuous (Type u)
-        (spacesEtaleTopology Z) (spacesEtaleTopology X) :=
-  (spacesEtalePullback g).sheafPushforwardContinuousComp (spacesEtalePullback f) (Type u)
-      (spacesEtaleTopology Z) (spacesEtaleTopology Y) (spacesEtaleTopology X) ≪≫
-    sheafPushforwardContinuousIso (spacesEtalePullbackComp f g).symm (Type u)
-      (spacesEtaleTopology Z) (spacesEtaleTopology X)
-
-/-- Type-valued direct image along a composite is the composite of the
-type-valued direct images. -/
-def typePushforwardComp {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    typePushforward f ⋙ typePushforward g ≅ typePushforward (f ≫ g) :=
-  let iX :=
-    (smallEtaleInclusion X).sheafPushforwardCocontinuous (Type u)
-      (smallEtaleTopology X) (spacesEtaleTopology X)
-  let pF :=
-    (spacesEtalePullback f).sheafPushforwardContinuous (Type u)
-      (spacesEtaleTopology Y) (spacesEtaleTopology X)
-  let iY :=
-    (smallEtaleInclusion Y).sheafPushforwardContinuous (Type u)
-      (smallEtaleTopology Y) (spacesEtaleTopology Y)
-  let pG :=
-    (spacesEtalePullback g).sheafPushforwardContinuous (Type u)
-      (spacesEtaleTopology Z) (spacesEtaleTopology Y)
-  let iZ :=
-    (smallEtaleInclusion Z).sheafPushforwardContinuous (Type u)
-      (smallEtaleTopology Z) (spacesEtaleTopology Z)
-  isoWhiskerRight (typePushforwardFactor f) (typePushforward g) ≪≫
-    Functor.associator iX (pF ⋙ iY) (typePushforward g) ≪≫
-    isoWhiskerLeft iX (Functor.associator pF iY (typePushforward g)) ≪≫
-    isoWhiskerLeft (iX ⋙ pF) (isoWhiskerLeft iY (typePushforwardFactor g)) ≪≫
-    isoWhiskerLeft (iX ⋙ pF)
-      (Functor.associator iY
-          ((smallEtaleInclusion Y).sheafPushforwardCocontinuous (Type u)
-            (smallEtaleTopology Y) (spacesEtaleTopology Y))
-          (pG ⋙ iZ) ≪≫
-        isoWhiskerRight (smallEtaleInclusionContinuousCocontinuousIso Y) (pG ⋙ iZ) ≪≫
-        Functor.leftUnitor (pG ⋙ iZ)) ≪≫
-    isoWhiskerLeft iX
-      (Functor.associator pF pG iZ ≪≫
-        isoWhiskerRight (spacesEtaleTypePushforwardComp f g) iZ) ≪≫
-    (typePushforwardFactor (f ≫ g)).symm
-
-/-- The underlying type-valued sheaf of an iterated module pushforward. -/
-def pushforwardCompForgetIso {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    (pushforward f ⋙ pushforward g) ⋙
-        Sheaf.InternalModule.ToInternal.underlying (structureSheaf Z) ≅
-      Sheaf.InternalModule.ToInternal.underlying (structureSheaf X) ⋙
-        typePushforward f ⋙ typePushforward g :=
-  Functor.associator _ _ _ ≪≫
-    Functor.isoWhiskerLeft (pushforward f)
-      (RingedSite.ToposHom.ModulePushforward.forgetIso (ringedToposHom g)) ≪≫
-    (Functor.associator _ _ _).symm ≪≫
-    Functor.isoWhiskerRight
-      (RingedSite.ToposHom.ModulePushforward.forgetIso (ringedToposHom f))
-      (typePushforward g) ≪≫
-    Functor.associator _ _ _
-
-/-- The underlying type-valued comparison of iterated module pushforward with
-pushforward along the composite. -/
-def pushforwardCompHomUnderlying {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z)
-    (M : X.Modules) :
-    (Sheaf.InternalModule.ToInternal.underlying (structureSheaf Z)).obj
-      ((pushforward f ⋙ pushforward g).obj M) ⟶
-      (Sheaf.InternalModule.ToInternal.underlying (structureSheaf Z)).obj
-        ((pushforward (f ≫ g)).obj M) :=
-  (pushforwardCompForgetIso f g).hom.app M ≫
-    (typePushforwardComp f g).hom.app
-      ((Sheaf.InternalModule.ToInternal.underlying (structureSheaf X)).obj M) ≫
-    (RingedSite.ToposHom.ModulePushforward.forgetIso (ringedToposHom (f ≫ g))).inv.app M
-
-/-- The reverse underlying type-valued comparison of composite pushforward. -/
-def pushforwardCompInvUnderlying {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z)
-    (M : X.Modules) :
-    (Sheaf.InternalModule.ToInternal.underlying (structureSheaf Z)).obj
-      ((pushforward (f ≫ g)).obj M) ⟶
-      (Sheaf.InternalModule.ToInternal.underlying (structureSheaf Z)).obj
-        ((pushforward f ⋙ pushforward g).obj M) :=
-  (RingedSite.ToposHom.ModulePushforward.forgetIso (ringedToposHom (f ≫ g))).hom.app M ≫
-    (typePushforwardComp f g).inv.app
-      ((Sheaf.InternalModule.ToInternal.underlying (structureSheaf X)).obj M) ≫
-    (pushforwardCompForgetIso f g).inv.app M
-
-/-- The composition of module pushforwards along `f` then `g` identifies with
-pushforward along `f ≫ g`. -/
-def pushforwardComp {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    pushforward f ⋙ pushforward g ≅ pushforward (f ≫ g) :=
-  NatIso.ofComponents
-    (fun M ↦
-      { hom :=
-          Sheaf.InternalModule.homOfUnderlying (structureSheaf Z)
-            (pushforwardCompHomUnderlying f g M) sorry sorry
-        inv :=
-          Sheaf.InternalModule.homOfUnderlying (structureSheaf Z)
-            (pushforwardCompInvUnderlying f g M) sorry sorry
-        hom_inv_id := sorry
-        inv_hom_id := sorry })
-    sorry
-
-/-- Successive module pullbacks identify with pullback along the composite morphism. -/
-def pullbackCompIso {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    pullback g ⋙ pullback f ≅ pullback (f ≫ g) :=
-  Adjunction.leftAdjointCompIso
-    (pullbackPushforwardAdjunction g) (pullbackPushforwardAdjunction f)
-    (pullbackPushforwardAdjunction (f ≫ g)) (pushforwardComp f g)
-
 /-- `pullbackCompIso` is the left-adjoint mate of `pushforwardComp`. -/
 theorem pullbackCompIso_eq {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z) :
     pullbackCompIso f g =
@@ -265,11 +96,11 @@ variable {S : Scheme.{u}} {X : AlgebraicSpace S}
 étale site of an algebraic space. -/
 abbrev degreeModule (𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X))
     (n : ℕ) : RingedSite.ModuleCat.{u + 1} (commRingedSiteLift X) :=
-  𝒜 (Int.ofNat n)
+  𝒜.obj (Int.ofNat n)
 
 /-- `degreeModule 𝒜 n` is the degree-`n` summand of `𝒜`. -/
 theorem degreeModule_eq (𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X))
-    (n : ℕ) : degreeModule 𝒜 n = 𝒜 (Int.ofNat n) :=
+    (n : ℕ) : degreeModule 𝒜 n = 𝒜.obj (Int.ofNat n) :=
   rfl
 
 /-- Sections of `liftModule F` are universe-lifted commutative sections. -/
@@ -422,7 +253,7 @@ structure DegreePieces {S : Scheme.{u}} {X : AlgebraicSpace S}
     liftModuleTensorHom (obj i) (obj j) ≫ Modules.liftModuleMap (mul i j) =
       ((iso i).hom ⊗ₘ (iso j).hom) ≫
         GradedAlgebraSheaf.mulHom 𝒜 (Int.ofNat i) (Int.ofNat j) ≫
-          eqToHom (congrArg 𝒜 (Int.natCast_add i j).symm) ≫
+          eqToHom (congrArg 𝒜.obj (Int.natCast_add i j).symm) ≫
             (iso (i + j)).inv
 
 namespace DegreePieces
@@ -438,7 +269,7 @@ def of {S : Scheme.{u}} {X : AlgebraicSpace S}
       liftModuleTensorHom (obj i) (obj j) ≫ Modules.liftModuleMap (mul i j) =
         ((iso i).hom ⊗ₘ (iso j).hom) ≫
           GradedAlgebraSheaf.mulHom 𝒜 (Int.ofNat i) (Int.ofNat j) ≫
-            eqToHom (congrArg 𝒜 (Int.natCast_add i j).symm) ≫
+            eqToHom (congrArg 𝒜.obj (Int.natCast_add i j).symm) ≫
               (iso (i + j)).inv) :
     DegreePieces 𝒜 where
   obj := obj
@@ -860,7 +691,7 @@ theorem degreeMul_spec {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheaf
     liftModuleTensorHom (deg.obj i) (deg.obj j) ≫ Modules.liftModuleMap (deg.mul i j) =
       ((deg.iso i).hom ⊗ₘ (deg.iso j).hom) ≫
         GradedAlgebraSheaf.mulHom 𝒜 (Int.ofNat i) (Int.ofNat j) ≫
-          eqToHom (congrArg 𝒜 (Int.natCast_add i j).symm) ≫
+          eqToHom (congrArg 𝒜.obj (Int.natCast_add i j).symm) ≫
             (deg.iso (i + j)).inv :=
   sorry
 

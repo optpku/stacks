@@ -1,12 +1,19 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap90.«90_15_0_1_TangentSpace»
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.FormalDeformation.FormalObject.Differential
 
 /-!
-# Bijective differential of a formal object
+# Bijective differential condition for a formal object
 
-The named equation of Stacks Tag 06IM: the differential of the morphism associated to a
-formal object of a predeformation category is bijective on tangent spaces.
+Stacks Tag 06IM names the condition that the differential associated to a formal object of a
+predeformation category is bijective on tangent spaces.
 -/
 
 @[expose] public section
@@ -20,16 +27,7 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
 variable {F : Type v} [Category.{v} F]
 variable {p : F ⥤ ArtinianLocalAlgCat Λ k}
 
-namespace FormalObject
-
-/-- 90.15.0.1: the differential `differential ξ : Derivation Λ ξ.base.carrier k → tangentSpace p`
-of the morphism associated to a formal object `ξ` of a predeformation category `p` is bijective. -/
-@[stacks 06IM]
-def BijectiveDifferential (ξ : FormalObject p) [Functor.IsPredeformationCategory p] : Prop :=
-  Function.Bijective (differential ξ)
-
-/-- The named equation is bijectivity of `differential ξ`. -/
-theorem bijectiveDifferential_iff (ξ : FormalObject p) [Functor.IsPredeformationCategory p] :
-    BijectiveDifferential ξ ↔ Function.Bijective (differential ξ) := sorry
-
-end FormalObject
+/- 90.15.0.1: a formal object satisfies the condition that its differential maps derivations
+of its complete local base bijectively to the tangent space of the predeformation category. -/
+@[stacks 06IM] #check (FormalObject.BijectiveDifferential :
+  (ξ : FormalObject p) → [Functor.IsPredeformationCategory p] → Prop)

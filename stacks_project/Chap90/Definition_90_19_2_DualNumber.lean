@@ -1,7 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.Algebra.Algebra.Tower
-public import stacks_project.Chap90.Definition_90_10_1_DualNumber
+public import ReasLib.AlgebraicGeometry.FormalDeformation.DualNumber.Section
 
 /-!
 # The dual-number extension morphism in `ArtinianLocalAlgCat`
@@ -21,29 +26,19 @@ variable (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
 
 namespace ArtinianLocalAlgCat
 
-/-- The canonical inclusion `residue Λ k ⟶ dualNumber Λ k` in `ArtinianLocalAlgCat`,
-given on underlying algebras by `a ↦ a`. -/
-def residueToDualNumber : residue Λ k ⟶ dualNumber Λ k where
-  hom := (inlAlgHom k k k).restrictScalars Λ
-  isLocalHom := sorry
-  residue_compat := sorry
+#check (ArtinianLocalAlgCat.residueToDualNumber Λ k : residue Λ k ⟶ dualNumber Λ k)
 
-/-- The underlying algebra map of `residueToDualNumber` is the dual-number inclusion. -/
-theorem residueToDualNumber_hom :
-    (residueToDualNumber Λ k).hom = (inlAlgHom k k k).restrictScalars Λ := sorry
+#check (ArtinianLocalAlgCat.residueToDualNumber_hom Λ k :
+  (residueToDualNumber Λ k).hom = (inlAlgHom k k k).restrictScalars Λ)
 
-/-- The inclusion `k ⟶ k[ε]` followed by the coefficient projection is the identity on `k`. -/
-theorem residueToDualNumber_comp_dualNumberToResidue :
-    residueToDualNumber Λ k ≫ dualNumberToResidue Λ k = 𝟙 (residue Λ k) := sorry
+#check (ArtinianLocalAlgCat.residueToDualNumber_comp_dualNumberToResidue Λ k :
+  residueToDualNumber Λ k ≫ dualNumberToResidue Λ k = 𝟙 (residue Λ k))
 
-/-- The morphism `residueToDualNumber` is a local homomorphism. -/
-theorem residueToDualNumber_isLocalHom :
-    IsLocalHom (residueToDualNumber Λ k).hom := sorry
+#check (ArtinianLocalAlgCat.residueToDualNumber_isLocalHom Λ k :
+  IsLocalHom (residueToDualNumber Λ k).hom)
 
-/-- The morphism `residueToDualNumber` is compatible with residue identifications. -/
-theorem residueToDualNumber_residue_compat :
-    (dualNumber Λ k).residueFieldIso.toAlgHom.comp
-        (ResidueField.mapAlgHom (residueToDualNumber Λ k).hom) =
-      (residue Λ k).residueFieldIso.toAlgHom := sorry
+#check (ArtinianLocalAlgCat.residueToDualNumber_residue_compat Λ k :
+  residueCompat (residueToDualNumber Λ k).hom (residueToDualNumber Λ k).isLocalHom =
+    residueIsoHom (residue Λ k))
 
 end ArtinianLocalAlgCat

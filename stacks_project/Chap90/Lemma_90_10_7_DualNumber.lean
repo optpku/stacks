@@ -1,17 +1,16 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap90.Definition_90_10_1_DualNumber
-
-/-!
-# Canonical residue morphisms in `ArtinianLocalAlgCat`
-
-Every object of `C_Λ` has a canonical morphism to the residue field `k`, obtained from
-the residue map and the chosen residue-field identification.
--/
+public import ReasLib.AlgebraicGeometry.FormalDeformation.ArtinianLocal.Residue
 
 @[expose] public section
 
-open CategoryTheory IsLocalRing
+open CategoryTheory
 
 universe u
 
@@ -20,22 +19,18 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
 
 namespace ArtinianLocalAlgCat
 
-/-- The canonical morphism `A ⟶ residue Λ k` in `ArtinianLocalAlgCat`, given by the residue
-map composed with the residue-field identification of `A`. -/
-noncomputable def toResidue (A : ArtinianLocalAlgCat Λ k) : A ⟶ residue Λ k where
-  hom := A.residueFieldIso.toAlgHom.comp (Ideal.Quotient.mkₐ Λ (maximalIdeal A.carrier))
-  isLocalHom := sorry
-  residue_compat := sorry
+/-! Lemma 90.10.7: residue morphism compatibility checks. -/
+#check (toResidue : ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k]
+  [Algebra Λ k] [Module.Finite Λ k] (A : ArtinianLocalAlgCat Λ k),
+  A ⟶ residue Λ k)
 
-/-- The underlying algebra map of `toResidue` is the residue identification of `A`. -/
-theorem toResidue_hom (A : ArtinianLocalAlgCat Λ k) :
-    (toResidue A).hom =
-      A.residueFieldIso.toAlgHom.comp (Ideal.Quotient.mkₐ Λ (maximalIdeal A.carrier)) := sorry
+#check (toResidue_hom : ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k]
+  [Algebra Λ k] [Module.Finite Λ k] (A : ArtinianLocalAlgCat Λ k),
+  (toResidue A).hom = toResidueHom A)
 
-/-- `toResidue A` is a local `Λ`-algebra map compatible with residue identifications. -/
-theorem toResidue_spec (A : ArtinianLocalAlgCat Λ k) :
-    IsLocalHom (toResidue A).hom ∧
-      (residue Λ k).residueFieldIso.toAlgHom.comp (ResidueField.mapAlgHom (toResidue A).hom) =
-        A.residueFieldIso.toAlgHom := sorry
+#check (toResidue_spec : ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k]
+  [Algebra Λ k] [Module.Finite Λ k] (A : ArtinianLocalAlgCat Λ k),
+  IsLocalHom (toResidue A).hom ∧
+    residueCompat (toResidue A).hom (toResidue A).isLocalHom = residueIsoHom A)
 
 end ArtinianLocalAlgCat

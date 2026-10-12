@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.AssociatedModule.Equivalence
@@ -201,7 +207,6 @@ end GeometricSections
 /-- The sheaf condition of the geometric sections rule is transported through
 the explicit natural comparison, including its restriction maps. -/
 theorem etalePullbackSections_isSheaf (τ : StandardTopology) (S : Scheme.{u})
-    (hτ : τ ≠ .zariski)
     (F : RingedSite.ModuleCat.{u} (Small.ringedSite S)) [F.IsQuasicoherent] :
     Presheaf.IsSheaf (τ.overTopology S) (GeometricSections.presheaf S F) :=
   (Presheaf.isSheaf_of_iso_iff (GeometricSections.sectionsIso τ S F)).mp

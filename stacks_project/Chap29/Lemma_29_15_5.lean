@@ -1,7 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType.Immersion
-public import Mathlib.AlgebraicGeometry.Morphisms.Immersion
 import StacksCheckRecall
 
 open AlgebraicGeometry CategoryTheory
@@ -15,5 +20,5 @@ universe u
 
 /- Lemma 29.15.5 (2): an immersion is locally of finite type. -/
 @[stacks 01T5] #check
-  (@AlgebraicGeometry.IsImmersion.instLocallyOfFiniteType :
+  (@AlgebraicGeometry.LocallyOfFiniteType.of_isImmersion :
     ∀ {X Y : Scheme.{u}} (f : X ⟶ Y) [IsImmersion f], LocallyOfFiniteType f)

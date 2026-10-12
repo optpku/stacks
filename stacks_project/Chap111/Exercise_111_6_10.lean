@@ -1,6 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.RingTheory.Spectrum.Prime.Topology
+public import ReasLib.RingTheory.Spectrum.Prime.UniqueMinimalPrime
 import StacksCheckRecall
 
 @[expose] public section
@@ -8,13 +14,13 @@ import StacksCheckRecall
 universe u
 
 /- Exercise 111.6.10 (1): `Spec(A)` is irreducible if and only if `Nil(A)` is a prime
-ideal. Mathlib owns this as `PrimeSpectrum.irreducibleSpace_iff_isPrime_nilradical`. -/
-@[stacks 02D4]
-#check @PrimeSpectrum.irreducibleSpace_iff_isPrime_nilradical
+ideal. -/
+@[stacks 02D4] #check (PrimeSpectrum.UniqueMinimalPrime.irreducibleSpace_iff_isPrime_nilradical :
+  ∀ {R : Type u} [CommSemiring R],
+    IrreducibleSpace (PrimeSpectrum R) ↔ (nilradical R).IsPrime)
 
-/-- Exercise 111.6.10 (2): if `nilradical R` is prime, then it is the unique
+/- Exercise 111.6.10 (2): if `nilradical R` is prime, then it is the unique
 minimal prime of `R`. -/
-@[stacks 02D4]
-theorem minimalPrimes_eq_singleton_nilradical_of_isPrime {R : Type u} [CommSemiring R]
-    (h : (nilradical R).IsPrime) : minimalPrimes R = {nilradical R} := sorry
-
+@[stacks 02D4] #check (PrimeSpectrum.UniqueMinimalPrime.minimalPrimes_eq_singleton_nilradical_of_isPrime :
+  ∀ {R : Type u} [CommSemiring R],
+    (nilradical R).IsPrime → minimalPrimes R = {nilradical R})

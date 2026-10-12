@@ -1,7 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap93.Example_93_11_1_Algebraic_spaces_Category
-public import stacks_project.Chap93.Example_93_11_1_Algebraic_spaces_Deformation
+public import ReasLib.AlgebraicGeometry.FormalDeformation.AlgebraicSpace.Category
+public import ReasLib.AlgebraicGeometry.FormalDeformation.AlgebraicSpace.Deformation
 import StacksCheckRecall
 
 /-!
@@ -28,17 +34,19 @@ morphism (f, g) : (B, Y) ⟶ (A, X) consists of a morphism f : B ⟶ A in
 ArtinianLocalAlgCat Λ k together with a morphism g : X ⟶ Y of algebraic spaces
 over Λ such that the square X ⟶ Y over Spec(A) ⟶ Spec(B) is cartesian. -/
 @[stacks 0E3Z]
-#check FlatAlgebraicSpaceCat
+#check (FlatAlgebraicSpaceCat Λ k : Type (u + 1))
 
 /- Example 93.11.1 (Algebraic spaces) (2)
 The functor p = FlatAlgebraicSpaceCat.forget sends (A, X) to A and (f, g) to f,
 and is cofibered in groupoids. -/
 @[stacks 0E3Z]
-#check (instIsFiberedInGroupoids_forget Λ k :
-  IsFibered.InGroupoids (forget Λ k).op)
+#check (FlatAlgebraicSpaceCat.instIsFiberedInGroupoids_forget Λ k :
+  IsFibered.InGroupoids (FlatAlgebraicSpaceCat.forget Λ k).op)
+
+variable (X : AlgebraicGeometry.AlgebraicSpace (AlgebraicGeometry.Spec (CommRingCat.of k)))
 
 /- Example 93.11.1 (Algebraic spaces) (3)
 Given an algebraic space X over k, let x0 = (k, X) be ofResidue X in the fibre
 F(k). The deformation category is Def_X = deformation X = F_{x0}. -/
 @[stacks 0E3Z]
-#check deformation
+#check (FlatAlgebraicSpaceCat.deformation Λ k X : Type (u + 1))

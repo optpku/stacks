@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FinitePresentation
@@ -26,12 +32,6 @@ theorem FinitePresentation.finiteType
 
 /-- A finite-presentation scheme morphism is canonically a finite-type morphism. -/
 instance instFiniteTypeOfFinitePresentation
-    {X S : Scheme.{u}} (f : X ⟶ S) [FinitePresentation f] :
-    FiniteType f := sorry
-
-/-- a finite-presentation scheme morphism is of finite type. -/
-@[stacks 01TV]
-theorem finiteType_of_finitePresentation
     {X S : Scheme.{u}} (f : X ⟶ S) [FinitePresentation f] :
     FiniteType f := sorry
 

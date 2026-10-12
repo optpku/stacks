@@ -1,6 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap90.Remark_90_17_4_Lifts
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Lifts
 import StacksCheckRecall
 
 /-!
@@ -37,18 +43,35 @@ variable (x : p.Fiber A) (a1 : ObjectLift p f1 x)
 of `x` along the two legs with isomorphism classes of lifts of `x` along
 `π1 ≫ f1`. This is `liftsPullbackProdEquiv`. -/
 @[stacks 06JH]
-#check Functor.liftsPullbackProdEquiv hP hsurj x
+#check (CategoryTheory.Functor.liftsPullbackProdEquiv :
+  IsPullback π1 π2 f1 f2 →
+    (Function.Surjective f1.hom ∨ Function.Surjective f2.hom) →
+      (x : p.Fiber A) →
+        lifts p f1 x × lifts p f2 x ≃ lifts p (π1 ≫ f1) x)
 
 /- Remark 90.17.4 (2): for a fixed lift `a1` of `x` along `A1 ⟶ A`, the same fibre
 square induces a bijection `Lift(a1.domain, A1 ×_A A2) ≃ Lift(x, A2)` of
 isomorphism classes of lifts of `a1.domain` along `π1` with isomorphism classes
 of lifts of `x` along `A2 ⟶ A`. This is `liftsPullbackSliceEquiv`. -/
 @[stacks 06JH]
-#check Functor.liftsPullbackSliceEquiv hP hsurj a1
+#check (CategoryTheory.Functor.liftsPullbackSliceEquiv :
+  IsPullback π1 π2 f1 f2 →
+    (Function.Surjective f1.hom ∨ Function.Surjective f2.hom) →
+      {x : p.Fiber A} →
+        (a1 : ObjectLift p f1 x) →
+          lifts p π1 a1.domain ≃ lifts p f2 x)
 
 /- Remark 90.17.4 (3): a composite of fibre squares with both `A1' ⟶ A1` and
 `A1 ⟶ A` surjective, together with a lift `a1` of `x` along `A1 ⟶ A`, induces a
 bijection `Lift(a1.domain, A1' ×_A A2) ≃ Lift(a1.domain, A1') × Lift(x, A2)`.
 This is `liftsPullbackCompEquiv`. -/
 @[stacks 06JH]
-#check Functor.liftsPullbackCompEquiv hP hQ hf1 hf1' a1
+#check (CategoryTheory.Functor.liftsPullbackCompEquiv :
+  IsPullback π1 π2 f1 f2 →
+    IsPullback σ1 σ2 f1' π1 →
+      Function.Surjective f1.hom →
+        Function.Surjective f1'.hom →
+          {x : p.Fiber A} →
+            (a1 : ObjectLift p f1 x) →
+              lifts p (σ1 ≫ f1') a1.domain ≃
+                lifts p f1' a1.domain × lifts p f2 x)

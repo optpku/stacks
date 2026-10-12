@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.ZeroObjects
@@ -47,7 +53,7 @@ theorem stalkModuleCat_higherDirectImage_isZero_of_discreteFiber
     [HasInjectiveResolutions X.Modules]
     (h_discrete : DiscreteTopology (Points (fiber f ybar)))
     (p : ℕ) (hp : 0 < p) :
-    IsZero (stalkModuleCat ybar (higherDirectImage f F p)) :=
+    IsZero (stalkModuleCat ybar (Modules.higherDirectImage f F p)) :=
   sorry
 
 end AlgebraicGeometry.AlgebraicSpace.FormalFunctions

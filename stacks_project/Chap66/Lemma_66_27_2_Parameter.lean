@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Limits.Presheaf
+public import Mathlib.CategoryTheory.ShrinkYoneda
 public import Mathlib.CategoryTheory.Sites.Canonical
 public import Mathlib.CategoryTheory.Sites.CoverLifting
 public import Mathlib.CategoryTheory.Sites.Pullback
@@ -76,26 +83,64 @@ instance etaleBaseChange_op_hasLeftKanExtension {X Y : AlgebraicSpace S} (f : X 
     (etaleBaseChange f).op.HasLeftKanExtension P :=
   sorry
 
-/-- Explicit inverse image of `f_small` as restriction after pullback along `etaleBaseChange`. -/
+/-- Inverse image uses the explicit small-chart Kan construction and sheafification. -/
 def etaleRelocalizeExplicitInverseImage {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Sheaf (smallEtaleTopology Y) (Type u) ⥤ Sheaf (smallEtaleTopology X) (Type u) :=
-  Functor.sheafPullbackConstruction.sheafPullback (etaleBaseChange f) (Type u)
-      (smallEtaleTopology Y) (spacesEtaleTopology X) ⋙
-    etaleInclusionRestriction X
+  EtaleTopos.inverseImage f
 
 /-- The explicit inverse image is left adjoint to `typePushforward`. -/
 def etaleRelocalizeExplicitInverseImage_adjunction {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     etaleRelocalizeExplicitInverseImage f ⊣ typePushforward f :=
-  (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous (etaleBaseChange f) (Type u)
-      (smallEtaleTopology Y) (spacesEtaleTopology X)).comp
-    ((smallEtaleInclusion X).sheafAdjunctionCocontinuous (Type u)
-      (smallEtaleTopology X) (spacesEtaleTopology X))
+  EtaleTopos.adjunction f
 
 /-- Comparison of the explicit inverse image with the chosen left adjoint of `typePushforward`. -/
 def etaleRelocalizeInverseImageIso {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     etaleRelocalizeExplicitInverseImage f ≅ (morphismOfTopoi f).inverseImage :=
   Adjunction.leftAdjointUniq
     (etaleRelocalizeExplicitInverseImage_adjunction f) (morphismOfTopoi f).adjunction
+
+/-- A spaces-étale object represents its actual small Hom sets, without changing morphisms. -/
+def spacesEtaleRepresentable {X : AlgebraicSpace S} (W : spacesEtaleSite X) :
+    Sheaf (spacesEtaleTopology X) (Type u) :=
+  ⟨shrinkYoneda.{u}.obj W, by sorry⟩
+
+/-- Yoneda evaluation for the concrete small-Hom representable sheaf. -/
+def spacesEtaleRepresentableHomEquiv {X : AlgebraicSpace S} (W : spacesEtaleSite X)
+    (N : Sheaf (spacesEtaleTopology X) (Type u)) :
+    (spacesEtaleRepresentable W ⟶ N) ≃ N.obj.obj (op W) :=
+  (fullyFaithfulSheafToPresheaf _ _).homEquiv.trans shrinkYonedaEquiv
+
+/-- The restricted geometric fibre product represents inverse image of a scheme representable. -/
+def etaleRepresentablePullback {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (V : smallEtaleSite Y) : Sheaf (smallEtaleTopology X) (Type u) :=
+  (EtaleTopos.restriction X).obj (spacesEtaleRepresentable ((etaleBaseChange f).obj V))
+
+/-- The actual dense-site adjunction and Yoneda evaluation identify the represented Hom functor. -/
+def etaleRepresentablePullbackHomEquiv {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (V : smallEtaleSite Y) (N : Sheaf (smallEtaleTopology X) (Type u)) :
+    (etaleRepresentablePullback f V ⟶ N) ≃ ((typePushforward f).obj N).obj.obj (op V) :=
+  ((EtaleTopos.siteEquivalence X).toAdjunction.homEquiv _ _).trans
+    (spacesEtaleRepresentableHomEquiv ((etaleBaseChange f).obj V) ((EtaleTopos.extension X).obj N))
+
+/-- Adjunction and Yoneda evaluation give the same Hom functor for the specified inverse image. -/
+def etaleInverseRepresentableHomEquiv {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (V : smallEtaleSite Y) (N : Sheaf (smallEtaleTopology X) (Type u)) :
+    ((etaleRelocalizeExplicitInverseImage f).obj (etaleRepresentable V) ⟶ N) ≃
+      ((typePushforward f).obj N).obj.obj (op V) :=
+  ((etaleRelocalizeExplicitInverseImage_adjunction f).homEquiv _ _).trans
+    (smallEtaleTopology Y).yonedaEquiv
+
+/-- Both comparison maps are universal-property transposes of identity maps. -/
+def etaleRepresentablePullbackIso {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (V : smallEtaleSite Y) :
+    (etaleRelocalizeExplicitInverseImage f).obj (etaleRepresentable V) ≅
+      etaleRepresentablePullback f V where
+  hom := (etaleInverseRepresentableHomEquiv f V _).symm
+    (etaleRepresentablePullbackHomEquiv f V _ (𝟙 _))
+  inv := (etaleRepresentablePullbackHomEquiv f V _).symm
+    (etaleInverseRepresentableHomEquiv f V _ (𝟙 _))
+  hom_inv_id := sorry
+  inv_hom_id := sorry
 
 variable {U V : Over S} {X Y : AlgebraicSpace S}
 variable (p : ofOver U ⟶ X) (g : ofOver U ⟶ ofOver V) (f : X ⟶ Y) (q : ofOver V ⟶ Y)
@@ -110,37 +155,23 @@ def etaleRelocalizeParameterArrow (hcomm : p ≫ f = g ≫ q) :
       (spacesEtalePullback f).map (smallEtaleInclusion_mkIso q).inv ≫
         (smallEtaleInclusion_comp_spacesEtalePullback f).hom.app (smallEtaleSite.mk q)
 
-/-- The Yoneda image of the spaces-étale arrow corresponding to `g`, as a map of Type-`u`
-presheaves obtained from the unit of left Kan extension along `etaleBaseChange`. -/
+/-- The Yoneda section of the actual fibre-product arrow, represented in the original universe. -/
 def etaleRelocalizeParameterLanSection (hcomm : p ≫ f = g ≫ q) :
-    ((etaleBaseChange f).op.lan.obj (yoneda.obj (smallEtaleSite.mk q))).obj
+    (spacesEtaleRepresentable ((etaleBaseChange f).obj (smallEtaleSite.mk q))).obj.obj
       (op ((smallEtaleInclusion X).obj (smallEtaleSite.mk p))) :=
-  ((etaleBaseChange f).op.lan.obj (yoneda.obj (smallEtaleSite.mk q))).map
-      (etaleRelocalizeParameterArrow p g f q hcomm).op
-    (((etaleBaseChange f).op.lanUnit.app (yoneda.obj (smallEtaleSite.mk q))).app
-      (op (smallEtaleSite.mk q)) (𝟙 _))
+  shrinkYonedaObjObjEquiv.symm (etaleRelocalizeParameterArrow p g f q hcomm)
 
-/-- The Lan section of `c`, sheafified as a section of the constructed pullback of `h_V`. -/
+/-- The geometric section on the restricted representable fibre product. -/
 def etaleRelocalizeParameterPullbackSection (hcomm : p ≫ f = g ≫ q) :
-    ((Functor.sheafPullbackConstruction.sheafPullback (etaleBaseChange f) (Type u)
-          (smallEtaleTopology Y) (spacesEtaleTopology X)).obj
-        (etaleRepresentable (smallEtaleSite.mk q))).obj.obj
-      (op ((smallEtaleInclusion X).obj (smallEtaleSite.mk p))) :=
-  ((sheafificationAdjunction (spacesEtaleTopology X) (Type u)).unit.app
-      ((etaleBaseChange f).op.lan.obj (yoneda.obj (smallEtaleSite.mk q)))).app
-    (op ((smallEtaleInclusion X).obj (smallEtaleSite.mk p)))
-    (etaleRelocalizeParameterLanSection p g f q hcomm)
+    (etaleRepresentablePullback f (smallEtaleSite.mk q)).obj.obj (op (smallEtaleSite.mk p)) :=
+  etaleRelocalizeParameterLanSection p g f q hcomm
 
 /-- The section of `f_small⁻¹ h_V` over `U` corresponding to `g`. -/
 def etaleRelocalizeParameterSection (hcomm : p ≫ f = g ≫ q) :
     ((etaleRelocalizeExplicitInverseImage f).obj
         (etaleRepresentable (smallEtaleSite.mk q))).obj.obj
       (op (smallEtaleSite.mk p)) :=
-  (Functor.sheafPushforwardContinuousObjObjIso (smallEtaleInclusion X) (Type u)
-      ((Functor.sheafPullbackConstruction.sheafPullback (etaleBaseChange f) (Type u)
-          (smallEtaleTopology Y) (spacesEtaleTopology X)).obj
-        (etaleRepresentable (smallEtaleSite.mk q)))
-      (smallEtaleSite.mk p)).inv
+  ((etaleRepresentablePullbackIso f (smallEtaleSite.mk q)).inv.hom.app (op (smallEtaleSite.mk p)))
     (etaleRelocalizeParameterPullbackSection p g f q hcomm)
 
 /-- The map `s : h_U ⟶ f_small⁻¹ h_V` corresponding to `g`. -/

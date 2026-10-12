@@ -1,15 +1,28 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-import Mathlib.Algebra.Homology.DerivedCategory.HomologySequence
+public import Mathlib.Algebra.Homology.DerivedCategory.HomologySequence
 import StacksCheckRecall
 
 @[expose] public section
+open CategoryTheory CategoryTheory.Pretriangulated
+noncomputable section
 
-/- 13.11.1.1 (`05RS`): for a distinguished triangle, the five-term cohomology segment
-`H i X ⟶ H i Y ⟶ H i Z ⟶ H (i + 1) X ⟶ H (i + 1) Y` is the final truncation of
-the canonical exact homology sequence.  The reusable owners are the general homological-functor
-theorem and exactness under `ComposableArrows.δlast`; no derived-category specialization is
-needed. -/
-@[stacks 05RS] #check @DerivedCategory.homologyFunctor
-@[stacks 05RS] #check @CategoryTheory.Functor.homologySequenceComposableArrows₅_exact
-@[stacks 05RS] #check @CategoryTheory.ComposableArrows.Exact.δlast
+universe w v u
+variable {C : Type u} [Category.{v} C] [Abelian C] [HasDerivedCategory.{w} C]
+variable (T : Triangle (DerivedCategory C))
+variable (hT : T ∈ distTriang _) (i : ℤ)
+
+/- 13.11.1.1: every distinguished triangle in D(C) gives an exact cohomology sequence.
+The third arrow is the canonical shifted image of the triangle's connecting morphism;
+the six-term windows for all i supply every adjacent exactness position. -/
+@[stacks 05ST] #check
+  (CategoryTheory.Functor.homologySequenceComposableArrows₅_exact
+      (DerivedCategory.homologyFunctor C 0) T hT i (i + 1) rfl :
+    (CategoryTheory.Functor.homologySequenceComposableArrows₅
+      (DerivedCategory.homologyFunctor C 0) T i (i + 1) rfl).Exact)

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Sites.SheafifiedRepresentable.Cover
@@ -57,6 +63,11 @@ theorem isSplitEpi_coverMap {U : C} [J.IsWeaklyContractible U] (S : J.Cover U) :
 /-- Splittings of all canonical sheafified cover maps imply weak contractibility. -/
 theorem of_isSplitEpi_coverMap {U : C}
     (hU : forall S : J.Cover U, IsSplitEpi (J.sheafifiedRepresentableCoverMap S)) :
+    J.IsWeaklyContractible U := sorry
+
+/-- An object whose canonical sheafified cover maps are all split epic is weakly contractible. -/
+instance instOfSplitCoverMaps {U : C}
+    [∀ cover : J.Cover U, IsSplitEpi (J.sheafifiedRepresentableCoverMap cover)] :
     J.IsWeaklyContractible U := sorry
 
 end IsWeaklyContractible

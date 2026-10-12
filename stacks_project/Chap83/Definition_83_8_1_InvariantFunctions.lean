@@ -1,8 +1,15 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Category.Ring.Limits
 public import Mathlib.CategoryTheory.Limits.Shapes.Equalizers
 public import Mathlib.CategoryTheory.Sites.Limits
+public import stacks_project.Chap66.Lemma_66_28_1_Hom
 public import stacks_project.Chap66.Lemma_66_27_1_Hom
 public import stacks_project.Chap78.Definition_78_4_1_PreRelation
 
@@ -77,8 +84,11 @@ def ringPushforwardPrecompCounitCone {T T' X : AlgebraicSpace S}
   pt := ((ringPushforward (a ≫ f)).obj (structureSheaf T')).obj.obj (op W)
   π :=
     { app := fun α ↦
-        ((smallEtaleInclusion T').op.ran.obj (structureSheaf T').obj).map
-          (op (ringPushforwardPrecompStructuredArrowHom a f W α))
+        (forget₂ CommRingCat RingCat).map
+          (((commRingPushforwardComp a f).inv.app (commStructureSheaf T')).hom.app (op W)) ≫
+        (forget₂ CommRingCat RingCat).map
+          (commRingPushforwardEvaluation f ((commRingPushforward a).obj (commStructureSheaf T'))
+            α.hom.unop)
       naturality := fun _ _ _ ↦ sorry }
 
 /-- The apex of `ringPushforwardPrecompCounitCone` is `(a ≫ f)_* 𝒪_{T'}` at `W`. -/
@@ -93,29 +103,24 @@ def ringPushforwardPrecompCounit_app {T T' X : AlgebraicSpace S}
     (a : T' ⟶ T) (f : T ⟶ X) (W : (smallEtaleSite X)ᵒᵖ) :
     ((ringPushforward (a ≫ f)).obj (structureSheaf T')).obj.obj W ⟶
       ((ringPushforward f).obj ((ringPushforward a).obj (structureSheaf T'))).obj.obj W :=
-  limit.lift _ (ringPushforwardPrecompCounitCone a f W.unop) ≫
-    ((smallEtaleInclusion T).op.ranObjObjIsoLimit
-        ((ringPushforward a).obj (structureSheaf T')).obj
-        (op ((etaleBaseChange f).obj W.unop))).inv
+  (forget₂ CommRingCat RingCat).map
+    (((commRingPushforwardComp a f).inv.app (commStructureSheaf T')).hom.app W)
 
 /-- `ringPushforwardPrecompCounit_app a f W` is the limit-lift of the Kan-counit cone. -/
 theorem ringPushforwardPrecompCounit_app_eq {T T' X : AlgebraicSpace S}
     (a : T' ⟶ T) (f : T ⟶ X) (W : (smallEtaleSite X)ᵒᵖ) :
     ringPushforwardPrecompCounit_app a f W =
-      limit.lift _ (ringPushforwardPrecompCounitCone a f W.unop) ≫
-        ((smallEtaleInclusion T).op.ranObjObjIsoLimit
-            ((ringPushforward a).obj (structureSheaf T')).obj
-            (op ((etaleBaseChange f).obj W.unop))).inv :=
-  sorry
+      (forget₂ CommRingCat RingCat).map
+        (((commRingPushforwardComp a f).inv.app (commStructureSheaf T')).hom.app W) :=
+  rfl
 
 /-- The Kan-counit comparison `(a ≫ f)_* 𝒪_{T'} ⟶ f_* (a_* 𝒪_{T'})`, obtained from pullback
 associativity and the pointwise limit formula for the right Kan extension. -/
 def ringPushforwardPrecompCounit {T T' X : AlgebraicSpace S} (a : T' ⟶ T) (f : T ⟶ X) :
     (ringPushforward (a ≫ f)).obj (structureSheaf T') ⟶
       (ringPushforward f).obj ((ringPushforward a).obj (structureSheaf T')) :=
-  InducedCategory.homMk
-    { app := fun W ↦ ringPushforwardPrecompCounit_app a f W
-      naturality := fun _ _ _ ↦ sorry }
+  (sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u})).map
+    ((commRingPushforwardComp a f).inv.app (commStructureSheaf T'))
 
 /-- The component at `W` of `ringPushforwardPrecompCounit` is
 `ringPushforwardPrecompCounit_app`. -/
@@ -129,20 +134,26 @@ theorem ringPushforwardPrecompCounit_hom_app {T T' X : AlgebraicSpace S}
 instance ringPushforwardPrecompCounit_isIso {T T' X : AlgebraicSpace S}
     (a : T' ⟶ T) (f : T ⟶ X) :
     IsIso (ringPushforwardPrecompCounit a f) :=
-  sorry
+  inferInstanceAs (IsIso
+    ((sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u})).map
+      ((commRingPushforwardComp a f).inv.app (commStructureSheaf T'))))
 
 /-- Comparison `f_* (a_* 𝒪_{T'}) ⟶ (a ≫ f)_* 𝒪_{T'}` obtained by inverting the Kan-counit
 associator. -/
 def ringPushforwardPrecomp {T T' X : AlgebraicSpace S} (a : T' ⟶ T) (f : T ⟶ X) :
     (ringPushforward f).obj ((ringPushforward a).obj (structureSheaf T')) ⟶
       (ringPushforward (a ≫ f)).obj (structureSheaf T') :=
-  inv (ringPushforwardPrecompCounit a f)
+  (sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u})).map
+    ((commRingPushforwardComp a f).hom.app (commStructureSheaf T'))
 
 /-- `ringPushforwardPrecomp` is the inverse of the Kan-counit comparison. -/
 theorem ringPushforwardPrecomp_eq {T T' X : AlgebraicSpace S}
     (a : T' ⟶ T) (f : T ⟶ X) :
     ringPushforwardPrecomp a f = inv (ringPushforwardPrecompCounit a f) :=
-  sorry
+  by
+    apply IsIso.eq_inv_of_hom_inv_id
+    exact ((sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u})).mapIso
+      ((commRingPushforwardComp a f).app (commStructureSheaf T'))).inv_hom_id
 
 namespace PreRelation
 

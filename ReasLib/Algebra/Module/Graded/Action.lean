@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.GradedMulAction
@@ -25,7 +31,7 @@ variable {M : Type uM} [AddCommMonoid M] [Module R M]
 variable {Q : Type uQ} [AddCommMonoid Q] [Module R Q]
 variable [SMul A M] [SMul A Q]
 
-/-- Stacks `052N`: homogeneous scalar multiplication descends along a scalar-compatible linear
+/-- Homogeneous scalar multiplication descends along a scalar-compatible linear
 map, component by component. -/
 @[stacks 052N "mapped graded scalar action membership"]
 theorem map_grading_smul_mem
@@ -36,7 +42,7 @@ theorem map_grading_smul_mem
     (ha : a ∈ 𝒜 i) (hx : x ∈ (ℳ j).map q) :
     a • x ∈ (ℳ (i +ᵥ j)).map q := sorry
 
-/-- Stacks `052N`: the image family of a scalar-compatible linear map inherits the graded scalar
+/-- The image family of a scalar-compatible linear map inherits the graded scalar
 action. -/
 @[reducible, stacks 052N "mapped graded scalar action"]
 def mapGradedSMul
@@ -46,7 +52,7 @@ def mapGradedSMul
     SetLike.GradedSMul 𝒜 (fun i ↦ (ℳ i).map q) where
   smul_mem := fun i j a x ha hx ↦ map_grading_smul_mem 𝒜 ℳ q hq ha hx
 
-/-- Stacks `052N`: homogeneous scalar multiplication is preserved by the preimage of a
+/-- Homogeneous scalar multiplication is preserved by the preimage of a
 scalar-compatible linear map. -/
 @[stacks 052N "comapped graded scalar action membership"]
 theorem comap_grading_smul_mem
@@ -57,7 +63,7 @@ theorem comap_grading_smul_mem
     (ha : a ∈ 𝒜 i) (hx : x ∈ (𝒩 j).comap f) :
     a • x ∈ (𝒩 (i +ᵥ j)).comap f := sorry
 
-/-- Stacks `052N`: the preimage family of a scalar-compatible linear map inherits the graded
+/-- The preimage family of a scalar-compatible linear map inherits the graded
 scalar action. -/
 @[reducible, stacks 052N "comapped graded scalar action"]
 def comapGradedSMul

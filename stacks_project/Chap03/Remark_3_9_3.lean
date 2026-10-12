@@ -1,30 +1,34 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap03.Lemma_3_9_2_ObjectProperty
-public import ReasLib.AlgebraicGeometry.Scheme.Reduction
+public import ReasLib.AlgebraicGeometry.Scheme.Reflection
+import StacksCheckRecall
 
 @[expose] public section
-
-noncomputable section
 
 universe u
 
 open AlgebraicGeometry CategoryTheory
-open scoped Cardinal AlgebraicGeometry
 
-namespace AlgebraicGeometry.Scheme
+/- Remark 3.9.3 (000O). Unary reflection of the formula expressing that an
+object is a scheme is insufficient. Applying reflection jointly to the formula
+expressing that `Y` is the reduction of `X` and its existential projection in
+`X` yields the closure of `Sch_α` under reductions. -/
 
-/-- Remark 3.9.3. Naive reflection of the unary formula φ_scheme(X) expressing
-“X is a scheme” is useless: even if φ_scheme(X) ↔ the relativization of
-φ_scheme to V_α holds for all X in V_α, this does not close Sch_α under any
-scheme-theoretic operation.
-
-Combining the pair φ_red(X, Y) expressing “Y is Scheme.reduction X” with
-φ₂(X) := ∃ Y, φ_red(X, Y) does yield a useful closure. If `P` is an
-`IsSmallBoundClosed` object property of schemes (the Lean stand-in for Sch_α)
-and `P X`, then `P.isoClosure (reduction X)`. -/
-@[stacks 000O]
-theorem isoClosure_reduction {P : ObjectProperty Scheme.{u}} (hP : IsSmallBoundClosed P)
-    {X : Scheme.{u}} (hX : P X) : P.isoClosure (reduction X) := sorry
-
-end AlgebraicGeometry.Scheme
+@[stacks 000O] #check (AlgebraicGeometry.Scheme.reduction_mem_of_joint_reflection :
+    ∀ {P : ObjectProperty Scheme.{u}}
+    (red red_bounded : Scheme.{u} → Scheme.{u} → Prop)
+    (hasRed hasRed_bounded : Scheme.{u} → Prop)
+    (red_spec : ∀ X Y, red X Y ↔ Y = Scheme.reduction X)
+    (hasRed_spec : ∀ X, hasRed X ↔ ∃ Y, red X Y)
+    (red_reflection : ∀ {X Y}, P X →
+      (red_bounded X Y ↔ red X Y ∧ P Y))
+    (hasRed_reflection : ∀ {X}, P X →
+      (hasRed_bounded X ↔ hasRed X))
+    (hasRed_bounded_spec : ∀ X, hasRed_bounded X ↔ ∃ Y, red_bounded X Y)
+    {X : Scheme.{u}} (hX : P X), P (Scheme.reduction X))

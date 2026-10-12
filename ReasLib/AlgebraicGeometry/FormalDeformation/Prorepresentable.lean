@@ -1,0 +1,76 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
+module
+
+public import Mathlib.CategoryTheory.Elements
+public import Mathlib.CategoryTheory.Yoneda
+public import ReasLib.AlgebraicGeometry.FormalDeformation.ArtinianLocal.Inclusion
+public import ReasLib.AlgebraicGeometry.FormalDeformation.CompleteLocal.Residue
+public import ReasLib.AlgebraicGeometry.FormalDeformation.DeformationCategory
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation.Functor
+
+@[expose] public section
+
+open CategoryTheory Opposite
+
+universe u
+
+variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+  [Module.Finite Λ k]
+
+namespace CompleteLocalAlgCat
+
+/-- Restriction of the covariant coyoneda functor represented by a complete local algebra. -/
+noncomputable def restrictedCoyoneda (R : CompleteLocalAlgCat Λ k) :
+    ArtinianLocalAlgCat Λ k ⥤ Type u :=
+  ArtinianLocalAlgCat.inclusion ⋙ coyoneda.obj (op R)
+
+/-- The restricted coyoneda functor evaluates at an Artinian object as a morphism from `R`. -/
+theorem restrictedCoyoneda_obj (R : CompleteLocalAlgCat Λ k) (A : ArtinianLocalAlgCat Λ k) :
+    (restrictedCoyoneda R).obj A = (R ⟶ ArtinianLocalAlgCat.inclusion.obj A) := sorry
+
+/-- The restricted coyoneda functor maps by postcomposition with the included morphism. -/
+theorem restrictedCoyoneda_map (R : CompleteLocalAlgCat Λ k)
+    {A B : ArtinianLocalAlgCat Λ k} (f : A ⟶ B) :
+    (restrictedCoyoneda R).map f =
+      (coyoneda.obj (op R)).map (ArtinianLocalAlgCat.inclusion.map f) := sorry
+
+end CompleteLocalAlgCat
+
+namespace CategoryTheory.Functor
+
+/-- A functor on Artinian local algebras is prorepresentable when represented by a complete local algebra. -/
+class IsProrepresentable (F : ArtinianLocalAlgCat Λ k ⥤ Type u) : Prop where
+  has_prorepresentation :
+    ∃ R : CompleteLocalAlgCat Λ k, Nonempty (CompleteLocalAlgCat.restrictedCoyoneda R ≅ F)
+
+/-- Each restricted coyoneda functor is prorepresentable by its representing complete local algebra. -/
+instance instIsProrepresentableRestrictedCoyoneda (R : CompleteLocalAlgCat Λ k) :
+    IsProrepresentable (CompleteLocalAlgCat.restrictedCoyoneda R) := sorry
+
+/-- Prorepresentability is equivalent to the existence of a representing complete local algebra. -/
+theorem isProrepresentable_iff (F : ArtinianLocalAlgCat Λ k ⥤ Type u) :
+    IsProrepresentable F ↔
+      ∃ R : CompleteLocalAlgCat Λ k, Nonempty (CompleteLocalAlgCat.restrictedCoyoneda R ≅ F) :=
+  sorry
+
+/-- Prorepresentability is preserved by isomorphisms of functors. -/
+theorem isProrepresentable_of_iso
+    {F G : ArtinianLocalAlgCat Λ k ⥤ Type u} (e : F ≅ G)
+    [IsProrepresentable F] : IsProrepresentable G := sorry
+
+/-- A prorepresentable functor has a singleton value at the residue field. -/
+instance instIsPredeformationFunctor_of_isProrepresentable
+    {F : ArtinianLocalAlgCat Λ k ⥤ Type u} [IsProrepresentable F] :
+    IsPredeformationFunctor F := sorry
+
+/-- The category-of-elements projection of a prorepresentable functor is a deformation category. -/
+instance instIsDeformationCategory_π
+    {F : ArtinianLocalAlgCat Λ k ⥤ Type u} [IsProrepresentable F] :
+    IsDeformationCategory (CategoryOfElements.π F) := sorry
+
+end CategoryTheory.Functor

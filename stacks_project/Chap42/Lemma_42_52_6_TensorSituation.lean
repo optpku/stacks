@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Perfect.Tensor
@@ -43,6 +49,7 @@ theorem tensorOnIntersection
     (F₁ F₂ : RingedSpace.ModuleDerived X.left.toRingedSpace)
     (situation₁ : Situation S δ X i₁ F₁ 0 .vanishing)
     (situation₂ : Situation S δ X i₂ F₂ 0 .vanishing) :
-    Situation S δ X iW (F₁ ⊗ᴸ F₂) 0 .vanishing := sorry
+    Situation S δ X iW (CategoryTheory.MonoidalCategory.tensorObj F₁ F₂) 0 .vanishing := sorry
 
 end AlgebraicGeometry.LocalizedChern.Situation
+

@@ -1,8 +1,14 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap111.Exercise_111_27_10_Kernel
-public import stacks_project.Chap111.Exercise_111_27_10_StrictTransform
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.RingTheory.ReesAlgebra.Grading.Quotient
+public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Rees.Quotient
+import StacksCheckRecall
 
 /-!
 # Blowing up: Part III
@@ -16,52 +22,35 @@ strict transform with `ProjectiveSpectrum.zeroLocus` of
 loci after blowing up `p + q`.
 -/
 
-@[expose] public section
-
-noncomputable section
-
 universe u
 
-namespace ReesAlgebra.Grading
+open AlgebraicGeometry
 
-variable {A : Type u} [CommRing A]
+/- Exercise 111.27.10 (1): the Rees quotient map is surjective. -/
+@[stacks 02EF] #check (ReesAlgebra.Grading.quotientMap_surjective :
+  ∀ {A : Type u} [CommRing A] (I p : Ideal A),
+    Function.Surjective (ReesAlgebra.Grading.quotientMap I p))
 
-/-- Exercise 111.27.10 (1): the canonical Rees map
-`reesAlgebra I →+* reesAlgebra (I.map (Ideal.Quotient.mk p))` is surjective. -/
-@[stacks 02EF]
-theorem quotientMap_surjective (I p : Ideal A) :
-    Function.Surjective (quotientMap I p) := sorry
+/- Exercise 111.27.10 (2): the quotient projective spectrum maps bijectively onto
+the strict transform of the prime vanishing locus. -/
+@[stacks 02EF] #check (ReesAlgebra.quotientComap_bijOn_strictTransform :
+  ∀ {A : Type u} [CommRing A] (I p : Ideal A) [p.IsPrime],
+    Set.BijOn (ReesAlgebra.quotientComap I p) Set.univ
+      (ReesAlgebra.strictTransform I (PrimeSpectrum.zeroLocus (p : Set A))))
 
-end ReesAlgebra.Grading
+/- Exercise 111.27.10 (3): the homogeneous kernel has degree-`d` piece
+`I ^ d ∩ p` and its zero locus is the strict transform. -/
+@[stacks 02EF] #check (ReesAlgebra.strictTransform_eq_zeroLocus :
+  ∀ {A : Type u} [CommRing A] (I p : Ideal A) [p.IsPrime],
+    ReesAlgebra.strictTransform I (PrimeSpectrum.zeroLocus (p : Set A)) =
+      ProjectiveSpectrum.zeroLocus (ReesAlgebra.Grading.grade I)
+        (ReesAlgebra.Grading.strictTransformIdeal I p))
 
-namespace ReesAlgebra
-
-variable {A : Type u} [CommRing A]
-
-/-- Exercise 111.27.10 (2): the map on projective spectra induced by the Rees
-quotient map is bijective onto the strict transform of
-`PrimeSpectrum.zeroLocus p`. -/
-@[stacks 02EF]
-theorem quotientComap_bijOn_strictTransform (I p : Ideal A) [p.IsPrime] (hI : ¬ I ≤ p) :
-    Set.BijOn (quotientComap I p) Set.univ
-      (strictTransform I (PrimeSpectrum.zeroLocus (p : Set A))) := sorry
-
-/-- Exercise 111.27.10 (3): the strict transform of `PrimeSpectrum.zeroLocus p`
-equals `ProjectiveSpectrum.zeroLocus` of the homogeneous ideal `P` with
-`P_d = I ^ d ∩ p`. -/
-@[stacks 02EF]
-theorem strictTransform_eq_zeroLocus (I p : Ideal A) [p.IsPrime] (hI : ¬ I ≤ p) :
-    strictTransform I (PrimeSpectrum.zeroLocus (p : Set A)) =
-      ProjectiveSpectrum.zeroLocus (Grading.grade I) (Grading.strictTransformIdeal I p) :=
-  sorry
-
-/-- Exercise 111.27.10 (4): if `p` and `q` are incomparable primes, blowing up
-`I = p + q` separates the strict transforms of `PrimeSpectrum.zeroLocus p` and
-`PrimeSpectrum.zeroLocus q`. -/
-@[stacks 02EF]
-theorem disjoint_strictTransform (p q : Ideal A) [p.IsPrime] [q.IsPrime]
-    (hpq : ¬ p ≤ q) (hqp : ¬ q ≤ p) :
-    Disjoint (strictTransform (p + q) (PrimeSpectrum.zeroLocus (p : Set A)))
-      (strictTransform (p + q) (PrimeSpectrum.zeroLocus (q : Set A))) := sorry
-
-end ReesAlgebra
+/- Exercise 111.27.10 (4): blowing up the sum of incomparable prime ideals
+separates their strict transforms. -/
+@[stacks 02EF] #check (ReesAlgebra.disjoint_strictTransform :
+  ∀ {A : Type u} [CommRing A] (p q : Ideal A) [p.IsPrime] [q.IsPrime],
+    (¬ PrimeSpectrum.zeroLocus (p : Set A) ⊆ PrimeSpectrum.zeroLocus (q : Set A)) →
+    (¬ PrimeSpectrum.zeroLocus (q : Set A) ⊆ PrimeSpectrum.zeroLocus (p : Set A)) →
+    Disjoint (ReesAlgebra.strictTransform (p + q) (PrimeSpectrum.zeroLocus (p : Set A)))
+      (ReesAlgebra.strictTransform (p + q) (PrimeSpectrum.zeroLocus (q : Set A))))

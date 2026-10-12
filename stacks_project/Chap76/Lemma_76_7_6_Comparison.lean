@@ -1,4 +1,11 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
+public import stacks_project.Chap66.«66_26_0_1_Pushforward»
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.ModuleAdjunction
 public import stacks_project.Chap76.Lemma_76_7_6_Differentials
@@ -133,7 +140,7 @@ def comparison
     {X X' Y Y' : AlgebraicSpace S} (f : X' ⟶ X) (g : Y' ⟶ Y) (h : X ⟶ Y) (h' : X' ⟶ Y')
     (sq : f ≫ h = h' ≫ g) :
     (Modules.pullback f).obj (relativeDifferentials h) ⟶ relativeDifferentials h' :=
-  ((ringedToposHom f).moduleAdjunction.homEquiv _ _).symm
+  ((Modules.pullbackPushforwardAdjunction f).homEquiv _ _).symm
     (comparisonAdjoint f g h h' sq)
 
 /-- A morphism is the differential comparison when its adjoint carries each universal
@@ -144,7 +151,7 @@ def IsComparison
     (tau : (Modules.pullback f).obj (relativeDifferentials h) ⟶ relativeDifferentials h') :
     Prop :=
   ∀ {U : (smallEtaleSite X)ᵒᵖ} (t : (commStructureSheaf X).obj.obj U),
-    ((ringedToposHom f).moduleAdjunction.homEquiv _ _ tau).val.app U
+    ((Modules.pullbackPushforwardAdjunction f).homEquiv _ _ tau).val.app U
         ((universalDerivation h).d t) =
       comparisonSection f h' t
 
@@ -161,7 +168,7 @@ theorem comparison_d
     {X X' Y Y' : AlgebraicSpace S} (f : X' ⟶ X) (g : Y' ⟶ Y) (h : X ⟶ Y) (h' : X' ⟶ Y')
     (sq : f ≫ h = h' ≫ g) {U : (smallEtaleSite X)ᵒᵖ}
     (t : (commStructureSheaf X).obj.obj U) :
-    ((ringedToposHom f).moduleAdjunction.homEquiv _ _
+    ((Modules.pullbackPushforwardAdjunction f).homEquiv _ _
         (comparison f g h h' sq)).val.app U
         ((universalDerivation h).d t) =
       comparisonSection f h' t :=

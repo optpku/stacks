@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap66.Definition_66_29_1_RingedSite
@@ -22,21 +28,15 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- The structure sheaf `𝒪_X` on the étale site of algebraic spaces over `X`, obtained by
-cocontinuous direct image of the small étale structure sheaf along `smallEtaleInclusion`. -/
+/-- The structure sheaf on the spaces-étale site, extended from the actual small chart family. -/
 def spacesStructureSheaf {S : Scheme.{u}} (X : AlgebraicSpace S) :
     Sheaf (spacesEtaleTopology X) RingCat.{u} :=
-  ((smallEtaleInclusion X).sheafPushforwardCocontinuous RingCat.{u}
-      (smallEtaleTopology X) (spacesEtaleTopology X)).obj
-    (structureSheaf X)
+  (EtaleRingedTopos.ringExtension X).obj (structureSheaf X)
 
-/-- `spacesStructureSheaf X` is cocontinuous pushforward of `structureSheaf X` along
-`smallEtaleInclusion X`. -/
+/-- The structure ring is the specified small-chart extension of the original structure sheaf. -/
 theorem spacesStructureSheaf_eq {S : Scheme.{u}} (X : AlgebraicSpace S) :
     spacesStructureSheaf X =
-      ((smallEtaleInclusion X).sheafPushforwardCocontinuous RingCat.{u}
-          (smallEtaleTopology X) (spacesEtaleTopology X)).obj
-        (structureSheaf X) :=
+      (EtaleRingedTopos.ringExtension X).obj (structureSheaf X) :=
   rfl
 
 /-- The étale site of algebraic spaces over `X`, equipped with its structure sheaf. -/

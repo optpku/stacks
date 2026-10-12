@@ -1,6 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap62.«62_6_8_1_CycleClass»
+public import ReasLib.AlgebraicGeometry.RelativeCycle.Hilbert
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry
@@ -14,6 +20,7 @@ Each such `Z` determines a relative `r`-cycle `[Z/X/S]_r`, and linear extension
 yields a group homomorphism from the free abelian group on `Hilb(X/S, r)` to
 `z(X/S, r)`, sending `∑ n_i [Z_i]` to `∑ n_i [Z_i/X/S]_r`. -/
 @[stacks 0H58]
-#check fun {X S : Scheme.{u}} (f : X ⟶ S) [IsLocallyNoetherian S] [LocallyOfFiniteType f] (r : ℕ) ↦
-  (RelativeCycle.cycleClassHomToGroup f r :
-    FreeAbelianGroup (RelativeCycle.Hilb f r) →+ RelativeCycle.group f r)
+#check (AlgebraicGeometry.RelativeCycle.cycleClassHomToGroup :
+  ∀ {X S : Scheme.{u}} (f : X ⟶ S) [IsLocallyNoetherian S] [f.FiniteType] (r : ℕ),
+    FreeAbelianGroup (AlgebraicGeometry.RelativeCycle.Hilb f r) →+
+      AlgebraicGeometry.RelativeCycle.group f r)

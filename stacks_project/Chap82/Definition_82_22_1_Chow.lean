@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap82.Definition_82_15_1_Chow
@@ -39,7 +45,7 @@ theorem closedImmersionPushforward_mem_boundaries (W : ClosedSubspace X) (k : �
 closed subspace. -/
 noncomputable def chowPushforward (W : ClosedSubspace X) (k : ℤ)
     [QuasiSeparated (W.ι ≫ f)] [LocallyOfFiniteType (W.ι ≫ f)] :
-    (W.ι ≫ f).chowGroup δ k →+ f.chowGroup δ k :=
+    Hom.chowGroup (W.ι ≫ f) δ k →+ Hom.chowGroup f δ k :=
   QuotientAddGroup.map
     (RationalEquivalence.boundaries (W.ι ≫ f) δ k)
     (RationalEquivalence.boundaries f δ k)
@@ -49,9 +55,9 @@ noncomputable def chowPushforward (W : ClosedSubspace X) (k : ℤ)
 /-- Chow-class pushforward is induced by cycle pushforward on representatives. -/
 theorem chowPushforward_chowMk (W : ClosedSubspace X) (k : ℤ)
     [QuasiSeparated (W.ι ≫ f)] [LocallyOfFiniteType (W.ι ≫ f)]
-    (α : (W.ι ≫ f).cycleGroup δ k) :
-    chowPushforward f δ W k ((W.ι ≫ f).chowMk δ k α) =
-      f.chowMk δ k (closedImmersionPushforward f δ W k α) :=
+    (α : Hom.cycleGroup (W.ι ≫ f) δ k) :
+    chowPushforward f δ W k (Hom.chowMk (W.ι ≫ f) δ k α) =
+      Hom.chowMk f δ k (closedImmersionPushforward f δ W k α) :=
   sorry
 
 end Hom

@@ -1,10 +1,17 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.RingTheory.Flatness.MittagLeffler
-public import ReasLib.RingTheory.Flatness.MittagLeffler.Properties
 import StacksCheckRecall
 
 @[expose] public section
+
+universe u v
 
 /-!
 # Mittag-Leffler modules
@@ -21,11 +28,5 @@ witnessed by a concrete `Module.MittagLeffler.Presentation`.
 
 /- Definition 10.88.7: an `R`-module is Mittag-Leffler when the equivalent
 conditions of Proposition 10.88.6 hold. -/
-@[stacks 059F]
-#check @Module.MittagLeffler
-@[stacks 059F]
-#check @Module.MittagLeffler.Presentation
-@[stacks 059F]
-#check @Module.MittagLeffler.Presentation.toMittagLeffler
-@[stacks 059F]
-#check @Module.MittagLeffler.ofFinitePresentation
+@[stacks 059F] #check (@Module.MittagLeffler :
+  (R : Type u) → (M : Type v) → [Ring R] → [AddCommGroup M] → [Module R M] → Prop)

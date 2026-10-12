@@ -1,77 +1,38 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.CategoryTheory.Sites.CoverLifting
-public import Mathlib.CategoryTheory.Sites.PrecoverageToGrothendieck
-public import ReasLib.CategoryTheory.Sites.Family.Covering
-public import stacks_project.Chap07.Definition_7_6_2_Site
+public import ReasLib.CategoryTheory.Sites.Precoverage.Cocontinuous
+public import ReasLib.CategoryTheory.Sites.PrecoverageSite
 
 /-!
 # Cocontinuity for selected precoverages
 
-A functor of precoverages is cocontinuous when every selected covering of an
-image object is refined by the image of some selected covering of the source
-object. The image family need not itself be covering in the target.
+A site precoverage supplies the covering-basis hypothesis needed to pass from
+selected-cover cocontinuity to cocontinuity for the generated topology.
 -/
 
 @[expose] public section
 
-universe u₁ u₂ u₃ v₁ v₂ v₃ w
+universe u₁ u₂ v₁ v₂
 
 namespace CategoryTheory.Functor.Precoverage
-
-open SemiRepresentableFamily.Over
 
 variable {C : Type u₁} [Category.{v₁} C]
 variable {D : Type u₂} [Category.{v₂} D]
 
-/-- A functor of precoverages is cocontinuous when every selected covering of
-`u.obj U` is refined by the image of some selected covering of `U`. -/
-class IsCocontinuous (u : C ⥤ D) (P : _root_.CategoryTheory.Precoverage C)
-    (Q : _root_.CategoryTheory.Precoverage D) : Prop where
-  /-- A covering of `u.obj U` is refined by the image of a covering of `U`. -/
-  exists_refinement :
-    ∀ ⦃U : C⦄ {R : Presieve (u.obj U)},
-      R ∈ Q (u.obj U) → ∃ S : Presieve U, S ∈ P U ∧ (S.map u).FactorsThru R
-
-namespace IsCocontinuous
-
-variable {P : _root_.CategoryTheory.Precoverage C}
-variable {Q : _root_.CategoryTheory.Precoverage D} {u : C ⥤ D}
-
-/-- Selected-cover form: every covering family of `u.obj U` admits a covering
-family of `U` whose image family refines it. -/
-theorem exists_cover [IsCocontinuous u P Q] {U : C}
-    (𝒱 : SemiRepresentableFamily.Over.{w} (u.obj U)) (h𝒱 : IsCovering Q 𝒱) :
-    ∃ 𝒰 : SemiRepresentableFamily.Over.{max u₁ v₁} U,
-      IsCovering P 𝒰 ∧ (𝒰.toPresieve.map u).FactorsThru 𝒱.toPresieve :=
-  sorry
-
-/-- The identity functor is cocontinuous for every precoverage. -/
-instance id (J : _root_.CategoryTheory.Precoverage C) :
-    IsCocontinuous (𝟭 C) J J :=
-  sorry
-
-/-- The composition of cocontinuous functors of precoverages is cocontinuous. -/
-theorem comp {E : Type u₃} [Category.{v₃} E] {v : D ⥤ E}
-    {R : _root_.CategoryTheory.Precoverage E}
-    [IsCocontinuous u P Q] [IsCocontinuous v Q R] :
-    IsCocontinuous (u ⋙ v) P R :=
-  sorry
-
-/-- Selected-cover cocontinuity induces cocontinuity of the generated
-Grothendieck topologies when both precoverages are sites. -/
-instance toCocontinuous [P.IsSite] [Q.IsSite] [IsCocontinuous u P Q] :
+/-- A selected-cover cocontinuous functor between sites is cocontinuous for
+the generated Grothendieck topologies. -/
+instance IsCocontinuous.toCocontinuousOfIsSite
+    {P : _root_.CategoryTheory.Precoverage C}
+    {Q : _root_.CategoryTheory.Precoverage D} {u : C ⥤ D}
+    [P.IsSite] [Q.IsSite] [IsCocontinuous u P Q] :
     u.IsCocontinuous P.toGrothendieck Q.toGrothendieck :=
-  sorry
-
-/-- Cocontinuity for the generated topologies of sites implies selected-cover
-cocontinuity. This is deliberately not an instance, so it cannot loop with
-`toCocontinuous`. -/
-theorem ofGrothendieck [P.IsSite] [Q.IsSite]
-    [u.IsCocontinuous P.toGrothendieck Q.toGrothendieck] :
-    IsCocontinuous u P Q :=
-  sorry
-
-end IsCocontinuous
+  IsCocontinuous.toCocontinuousOfCoverBasis
+    (fun hS => Precoverage.HasFactoringPullbacks.exists_generate_le (J := Q) hS)
 
 end CategoryTheory.Functor.Precoverage

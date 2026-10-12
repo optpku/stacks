@@ -1,47 +1,29 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.CategoryTheory.Preadditive.FunctorCategory
-public import stacks_project.Chap64.Definition_64_18_1_ZEllSheaf
-
-/-!
-# Category and preadditive structure of ℤ_[ℓ]-sheaves
-
-Morphisms of `ℤ_[ℓ]`-sheaves are morphisms of the underlying inverse systems, and Hom-groups
-are those of sequential inverse systems of étale abelian sheaves.
--/
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.EllAdicSheaf
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.Limits CategoryTheory.Preadditive Opposite
-open AlgebraicGeometry AlgebraicGeometry.Scheme
-
-noncomputable section
+open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.Scheme.Etale
-namespace ZEllSheaf
+namespace AlgebraicGeometry.Scheme.Etale.ZEllSheaf
 
 variable {X : Scheme.{u}} {ℓ : ℕ} [Fact (Nat.Prime ℓ)] [IsNoetherian X]
 variable [HasSheafify X.smallEtaleTopology AddCommGrpCat.{u}]
 variable [∀ (Y : Scheme.{u}) (V : Y.Etale),
-    HasWeakSheafify (Y.smallEtaleTopology.over V) AddCommGrpCat.{u}]
+  HasWeakSheafify (Y.smallEtaleTopology.over V) AddCommGrpCat.{u}]
 
-/-- Morphisms of `ℤ_[ℓ]`-sheaves are morphisms of the underlying inverse systems. -/
-instance instCategory : Category (ZEllSheaf X ℓ) where
-  Hom := Hom
-  id := Hom.id
-  comp := Hom.comp
-  id_comp := sorry
-  comp_id := sorry
-  assoc := sorry
+/- The canonical full-subcategory category and preadditive structure remain
+available through typeclass inference. -/
+#check (inferInstance : Category (ZEllSheaf X ℓ))
+#check (inferInstance : Preadditive (ZEllSheaf X ℓ))
 
-/-- Hom-groups of `ℤ_[ℓ]`-sheaves are the Hom-groups of inverse systems of étale
-abelian sheaves. -/
-instance instPreadditive : Preadditive (ZEllSheaf X ℓ) where
-  homGroup F G := inferInstanceAs (AddCommGroup (F.system ⟶ G.system))
-  add_comp := sorry
-  comp_add := sorry
-
-end ZEllSheaf
-end AlgebraicGeometry.Scheme.Etale
+end AlgebraicGeometry.Scheme.Etale.ZEllSheaf

@@ -1,4 +1,14 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
+
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.AdditiveAdjunction
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.AdditiveForget
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.AdditiveThickening
 
 public import Mathlib.Algebra.Category.ModuleCat.Differentials.Presheaf
 public import Mathlib.CategoryTheory.CommSq
@@ -88,42 +98,32 @@ instance smallEtaleInclusion_op_hasPointwiseRightKanExtension_addCommGrpCat_u
 abbrev addInverseImage {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Sheaf (smallEtaleTopology Y) AddCommGrpCat.{u} ⥤
       Sheaf (smallEtaleTopology X) AddCommGrpCat.{u} :=
-  sheafInverseImage AddCommGrpCat.{u} f
+  EtaleAdditive.inverseImage f
 
 /-- `addInverseImage f` is `sheafInverseImage` of abelian groups. -/
 theorem addInverseImage_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    addInverseImage f = sheafInverseImage AddCommGrpCat.{u} f :=
+    addInverseImage f = EtaleAdditive.inverseImage f :=
   rfl
 
 /-- Direct image of abelian sheaves along a morphism of algebraic spaces. -/
 abbrev addPushforward {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Sheaf (smallEtaleTopology X) AddCommGrpCat.{u} ⥤
       Sheaf (smallEtaleTopology Y) AddCommGrpCat.{u} :=
-  sheafPushforward AddCommGrpCat.{u} f
+  EtaleAdditive.directImage f
 
 /-- `addPushforward f` is `sheafPushforward` of abelian groups. -/
 theorem addPushforward_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    addPushforward f = sheafPushforward AddCommGrpCat.{u} f :=
+    addPushforward f = EtaleAdditive.directImage f :=
   rfl
 
 /-- Geometric inverse image of abelian sheaves is left adjoint to direct image. -/
 def addInverseImageAdjunction {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     addInverseImage f ⊣ addPushforward f :=
-  (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
-      (etaleBaseChange f) AddCommGrpCat.{u}
-      (smallEtaleTopology Y) (spacesEtaleTopology X)).comp
-    ((smallEtaleInclusion X).sheafAdjunctionCocontinuous AddCommGrpCat.{u}
-      (smallEtaleTopology X) (spacesEtaleTopology X))
+  EtaleAdditive.adjunction f
 
-/-- Unfolding of `addInverseImageAdjunction`. -/
+/-- The additive adjunction has the actual small-chart Kan and sheafification unit and counit. -/
 theorem addInverseImageAdjunction_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    addInverseImageAdjunction f =
-      (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
-          (etaleBaseChange f) AddCommGrpCat.{u}
-          (smallEtaleTopology Y) (spacesEtaleTopology X)).comp
-        ((smallEtaleInclusion X).sheafAdjunctionCocontinuous AddCommGrpCat.{u}
-          (smallEtaleTopology X) (spacesEtaleTopology X)) :=
-  rfl
+    addInverseImageAdjunction f = EtaleAdditive.adjunction f := rfl
 
 /-- The inverse-image form of `(a')^♯ - (b')^♯` on `X_spaces,étale`. -/
 def structureMapDifference {X X' Y Y' : AlgebraicSpace S}
@@ -423,30 +423,7 @@ theorem sheafPushforwardContinuousCompSheafComposeIso_sheafToPresheaf
 def addPushforwardForgetTypeIso {X Y : AlgebraicSpace S} (a : X ⟶ Y) :
     addPushforward a ⋙ forgetSpacesAddType Y ≅
       forgetSpacesAddType X ⋙ typePushforward a :=
-  let uIncl := smallEtaleInclusion X
-  let v := etaleBaseChange a
-  let F := forget AddCommGrpCat.{u}
-  let Ju := smallEtaleTopology X
-  let Ku := spacesEtaleTopology X
-  let Jv := smallEtaleTopology Y
-  (Functor.associator
-      (uIncl.sheafPushforwardCocontinuous AddCommGrpCat.{u} Ju Ku)
-      (v.sheafPushforwardContinuous AddCommGrpCat.{u} Jv Ku)
-      (sheafCompose Jv F)) ≪≫
-    Functor.isoWhiskerLeft
-      (uIncl.sheafPushforwardCocontinuous AddCommGrpCat.{u} Ju Ku)
-      (sheafPushforwardContinuousCompSheafComposeIso v F Jv Ku) ≪≫
-    (Functor.associator
-        (uIncl.sheafPushforwardCocontinuous AddCommGrpCat.{u} Ju Ku)
-        (sheafCompose Ku F)
-        (v.sheafPushforwardContinuous (Type u) Jv Ku)).symm ≪≫
-    Functor.isoWhiskerRight
-      (Functor.sheafPushforwardCocontinuous.compSheafComposeIso uIncl F Ju Ku)
-      (v.sheafPushforwardContinuous (Type u) Jv Ku) ≪≫
-    Functor.associator
-      (sheafCompose Ju F)
-      (uIncl.sheafPushforwardCocontinuous (Type u) Ju Ku)
-      (v.sheafPushforwardContinuous (Type u) Jv Ku)
+  EtaleAdditive.directImageForgetIso a
 
 /-- The forward comparison of `addPushforwardForgetTypeIso` is inverted by the reverse
 comparison. -/
@@ -752,7 +729,8 @@ theorem restrictForgetRingIso_eq (X : AlgebraicSpace S)
 /-- The dense small étale inclusion induces an equivalence on type-valued sheaves. -/
 theorem smallEtaleTypeRestriction_isEquivalence (X : AlgebraicSpace S) :
     ((smallEtaleInclusion X).sheafPushforwardContinuous (Type u)
-      (smallEtaleTopology X) (spacesEtaleTopology X)).IsEquivalence := sorry
+      (smallEtaleTopology X) (spacesEtaleTopology X)).IsEquivalence :=
+  (EtaleTopos.siteEquivalence X).isEquivalence_functor
 
 /-- Type-valued restriction from spaces to the dense small étale subsite. -/
 abbrev restrictSpacesType (X : AlgebraicSpace S) :
@@ -767,8 +745,7 @@ instance restrictSpacesType_isEquivalence (X : AlgebraicSpace S) :
 /-- The dense-subsite equivalence with its specified right Kan extension. -/
 def smallSpacesEquivalence (X : AlgebraicSpace S) :
     Sheaf (spacesEtaleTopology X) (Type u) ≌ Sheaf (smallEtaleTopology X) (Type u) :=
-  ((smallEtaleInclusion X).sheafAdjunctionCocontinuous (Type u)
-    (smallEtaleTopology X) (spacesEtaleTopology X)).toEquivalence
+  EtaleTopos.siteEquivalence X
 
 /-- Direct-image comparison induced by the actual base-change square of site functors. -/
 def smallSpacesPushforwardIso {X Y : AlgebraicSpace S} (a : X ⟶ Y) :
@@ -803,10 +780,46 @@ def inverseImageForgetAddHom {X Y : AlgebraicSpace S} (a : X ⟶ Y)
     ((forgetSpacesAddType Y).map ((addInverseImageAdjunction a).unit.app F) ≫
       (addPushforwardForgetTypeIso a).hom.app ((addInverseImage a).obj F))
 
-/-- The canonical additive forgetful inverse-image mate is invertible. -/
+/-- The forgetful inverse-image comparison has both actual adjunction-comparison maps. -/
+def inverseImageForgetAddIso {X Y : AlgebraicSpace S} (a : X ⟶ Y)
+    (F : Sheaf (smallEtaleTopology Y) AddCommGrpCat.{u}) :
+    (morphismOfTopoi a).inverseImage.obj ((forgetSpacesAddType Y).obj F) ≅
+      (forgetSpacesAddType X).obj ((addInverseImage a).obj F) :=
+  (EtaleAdditive.ForgetComparison.underlyingIso a).app F
+
+/-- The constructed comparison retains the original unit-mate map. -/
+theorem inverseImageForgetAddIso_hom {X Y : AlgebraicSpace S} (a : X ⟶ Y)
+    (F : Sheaf (smallEtaleTopology Y) AddCommGrpCat.{u}) :
+    (inverseImageForgetAddIso a F).hom = inverseImageForgetAddHom a F :=
+  EtaleAdditive.ForgetComparison.underlyingIso_hom_mate a F
+
+/-- The canonical additive forgetful mate is invertible by its constructed inverse. -/
 instance inverseImageForgetAddHom_isIso {X Y : AlgebraicSpace S} (a : X ⟶ Y)
     (F : Sheaf (smallEtaleTopology Y) AddCommGrpCat.{u}) :
-    IsIso (inverseImageForgetAddHom a F) := sorry
+    IsIso (inverseImageForgetAddHom a F) := by
+  rw [← inverseImageForgetAddIso_hom a F]
+  exact (inverseImageForgetAddIso a F).isIso_hom
+
+/-- The inverse is the underlying reverse adjunction-comparison map. -/
+def inverseImageForgetAddInv {X Y : AlgebraicSpace S} (a : X ⟶ Y)
+    (F : Sheaf (smallEtaleTopology Y) AddCommGrpCat.{u}) :
+    (forgetSpacesAddType X).obj ((addInverseImage a).obj F) ⟶
+      (morphismOfTopoi a).inverseImage.obj ((forgetSpacesAddType Y).obj F) :=
+  (inverseImageForgetAddIso a F).inv
+
+/-- The original forward mate followed by its constructed inverse is the identity. -/
+theorem inverseImageForgetAdd_hom_inv_id {X Y : AlgebraicSpace S} (a : X ⟶ Y)
+    (F : Sheaf (smallEtaleTopology Y) AddCommGrpCat.{u}) :
+    inverseImageForgetAddHom a F ≫ inverseImageForgetAddInv a F = 𝟙 _ := by
+  rw [← inverseImageForgetAddIso_hom a F]
+  exact (inverseImageForgetAddIso a F).hom_inv_id
+
+/-- The constructed inverse followed by the original forward mate is the identity. -/
+theorem inverseImageForgetAdd_inv_hom_id {X Y : AlgebraicSpace S} (a : X ⟶ Y)
+    (F : Sheaf (smallEtaleTopology Y) AddCommGrpCat.{u}) :
+    inverseImageForgetAddInv a F ≫ inverseImageForgetAddHom a F = 𝟙 _ := by
+  rw [← inverseImageForgetAddIso_hom a F]
+  exact (inverseImageForgetAddIso a F).inv_hom_id
 
 /-- The underlying comparison for the inverse image of the structure sheaf,
 composed from ring forgetting, dense-subsite Kan extension, and adjunction mates. -/
@@ -821,9 +834,7 @@ def restrictInverseImageTypeHom {X Y : AlgebraicSpace S} (a : X ⟶ Y) :
       ((spacesRingedToposHom a).toTopos.ringInverseImageForgetIso.hom.app
         (spacesStructureSheaf Y)) ≫
     (restrictSpacesType X).map ((spacesRingedToposHom a).toTopos.inverseImage.map
-      ((Functor.sheafPushforwardCocontinuous.compSheafComposeIso
-        (smallEtaleInclusion Y) (forget RingCat.{u})
-        (smallEtaleTopology Y) (spacesEtaleTopology Y)).hom.app (structureSheaf Y))) ≫
+      ((EtaleAdditive.ringExtensionForgetIso Y).hom.app (structureSheaf Y))) ≫
     (smallSpacesInverseIso a).hom.app
       ((sheafCompose (smallEtaleTopology Y) (forget RingCat.{u})).obj (structureSheaf Y)) ≫
     inverseImageForgetAddHom a
@@ -852,14 +863,15 @@ def restrictInverseImageIso {X Y : AlgebraicSpace S} (a : X ⟶ Y) :
 instance thickeningCounit_isIso {X X' : AlgebraicSpace S}
     (i : X ⟶ X') [IsFirstOrderThickening i]
     (F : Sheaf (smallEtaleTopology X) AddCommGrpCat.{u}) :
-    IsIso ((addInverseImageAdjunction i).counit.app F) := sorry
+    IsIso ((addInverseImageAdjunction i).counit.app F) :=
+  (EtaleAdditive.Thickening.counitIso i F).isIso_hom
 
 /-- The comparison `F ⟶ i^{-1} i_* F` on a first-order thickening. -/
 def toInverseImagePushforward {X X' : AlgebraicSpace S} (i : X ⟶ X')
     [IsFirstOrderThickening i]
     (F : Sheaf (smallEtaleTopology X) AddCommGrpCat.{u}) :
     F ⟶ (addInverseImage i).obj ((addPushforward i).obj F) :=
-  @inv _ _ _ _ ((addInverseImageAdjunction i).counit.app F) (thickeningCounit_isIso i F)
+  (EtaleAdditive.Thickening.counitIso i F).inv
 
 /-- Unfolding of `toInverseImagePushforward`. -/
 theorem toInverseImagePushforward_eq {X X' : AlgebraicSpace S} (i : X ⟶ X')
@@ -867,7 +879,23 @@ theorem toInverseImagePushforward_eq {X X' : AlgebraicSpace S} (i : X ⟶ X')
     (F : Sheaf (smallEtaleTopology X) AddCommGrpCat.{u}) :
     toInverseImagePushforward i F =
       @inv _ _ _ _ ((addInverseImageAdjunction i).counit.app F) (thickeningCounit_isIso i F) :=
-  rfl
+  by
+    -- Local instance justification (defeq pin): expose the already constructed counit isomorphism at the geometric adjunction's exact spelling.
+    letI : IsIso ((EtaleAdditive.adjunction i).counit.app F) :=
+      (EtaleAdditive.Thickening.counitIso i F).isIso_hom
+    exact (IsIso.inv_eq_of_hom_inv_id (EtaleAdditive.Thickening.counit_comp_inverse i F)).symm
+
+/-- The original counit followed by the comparison is the identity. -/
+theorem counit_toInverseImagePushforward {X X' : AlgebraicSpace S} (i : X ⟶ X')
+    [IsFirstOrderThickening i] (F : Sheaf (smallEtaleTopology X) AddCommGrpCat.{u}) :
+    (addInverseImageAdjunction i).counit.app F ≫ toInverseImagePushforward i F = 𝟙 _ :=
+  EtaleAdditive.Thickening.counit_comp_inverse i F
+
+/-- The comparison followed by the original counit is the identity. -/
+theorem toInverseImagePushforward_counit {X X' : AlgebraicSpace S} (i : X ⟶ X')
+    [IsFirstOrderThickening i] (F : Sheaf (smallEtaleTopology X) AddCommGrpCat.{u}) :
+    toInverseImagePushforward i F ≫ (addInverseImageAdjunction i).counit.app F = 𝟙 F :=
+  EtaleAdditive.Thickening.inverse_comp_counit i F
 
 /-- The inclusion `C_{X/X'} ⟶ i^{-1} 𝒪_{X'}` of a first-order thickening, obtained
 as the geometric inverse image of `I/I² ⟶ 𝒪` after the forgetful comparison

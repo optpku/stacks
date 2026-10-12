@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Sections
@@ -97,9 +103,10 @@ noncomputable def directImageSectionCone {S : Scheme.{u}} {X Y : AlgebraicSpace 
     (f : X ⟶ Y) (F : Sheaf (smallEtaleTopology X) (Type u)) (s : F.obj.sections)
     (V : smallEtaleSite Y) :
     Cone (StructuredArrow.proj (op ((etaleBaseChange f).obj V))
-      (smallEtaleInclusion X).op ⋙ F.obj) where
+      (SpacesEtale.AtlasCharts.inclusion X).op ⋙ ((EtaleTopos.smallEquivalence X).functor.obj F).obj) where
   pt := PUnit
-  π := { app := fun a ↦ TypeCat.ofHom (fun _ ↦ s.1 a.right)
+  π := { app := fun a ↦ TypeCat.ofHom
+           (fun _ ↦ s.1 (op ((SmallEtale.AtlasCharts.inclusion X).obj a.right.unop)))
          naturality := sorry }
 
 /-- Direct image of a compatible section, formed by the explicit limit lift
@@ -108,9 +115,10 @@ noncomputable def typeDirectImageSection {S : Scheme.{u}} {X Y : AlgebraicSpace 
     (f : X ⟶ Y) (F : Sheaf (smallEtaleTopology X) (Type u)) (s : F.obj.sections) :
     ((typePushforward f).obj F).obj.sections :=
   ⟨fun V ↦
-    ((smallEtaleInclusion X).op.ranObjObjIsoLimit F.obj
+      (((SpacesEtale.AtlasCharts.inclusion X).op.ranObjObjIsoLimit
+        ((EtaleTopos.smallEquivalence X).functor.obj F).obj
       (op ((etaleBaseChange f).obj V.unop))).inv
-        ((limit.lift _ (directImageSectionCone f F s V.unop)) PUnit.unit), sorry⟩
+        ((limit.lift _ (directImageSectionCone f F s V.unop)) PUnit.unit)), sorry⟩
 
 /-- The direct image of a module section uses the specified type-valued
 direct image and the actual forgetful comparison for module direct image. -/

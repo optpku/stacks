@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.AlgebraicGeometry.Scheme
@@ -21,4 +27,5 @@ variable (hf : relativelyRepresentable f) (hg : relativelyRepresentable g)
 groupoids over `Over S`. If `f : X ⟶ Y` and `g : Y ⟶ Z` are representable
 1-morphisms, then the composite `f ≫ g : X ⟶ Z` is a representable 1-morphism. -/
 @[stacks 02ZS]
-#check (relativelyRepresentable.comp_mem hf hg : relativelyRepresentable (f ≫ g))
+#check (CategoryTheory.FiberedCategoryOver.Groupoids.relativelyRepresentable.comp_mem hf hg :
+  relativelyRepresentable (f ≫ g))

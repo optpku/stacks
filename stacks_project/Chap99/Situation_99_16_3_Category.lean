@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Homology.HomologicalComplex
@@ -176,15 +182,28 @@ theorem Obj.spec {f : X ⟶ B} [Proper f] [Flat f] [FinitePresentation f]
           x.complex x.complex t :=
   sorry
 
+/-- Isomorphisms of fibre complexes over a specified morphism of test schemes. -/
+def FiberIso {f : X ⟶ B} [Proper f] [Flat f] [FinitePresentation f]
+    (x y : Obj f) (base : x.σ ⟶ y.σ) : Type (u + 1) :=
+  @CategoryTheory.Iso (ModuleDerived (Limits.pullback f x.σ.hom)) inferInstance
+    ((ModuleDerived.pullback (fiberMap f base)).obj y.complex) x.complex
+
+section
+
+-- Local declaration justification (localized automation): keep the elaborated fibre-isomorphism type abstract only while constructing the dependent record, avoiding repeated reduction of geometric Kan extensions in generated projections.
+attribute [local irreducible] FiberIso
+
 /-- A morphism `(T, g, E) ⟶ (T', g', E')` is a morphism of schemes over `B`
 together with an isomorphism `L(h')^* y.complex ≅ x.complex` along the base
 change of that morphism. -/
 structure Hom {f : X ⟶ B} [Proper f] [Flat f] [FinitePresentation f]
-    (x y : Obj f) where
+    (x y : Obj f) : Type (u + 1) where
   /-- The underlying morphism of schemes over `B`. -/
   base : x.σ ⟶ y.σ
   /-- The isomorphism `L(h')^* y.complex ≅ x.complex` in `D(𝒪_{X_T})`. -/
-  iso : (ModuleDerived.pullback (fiberMap f base)).obj y.complex ≅ x.complex
+  iso : FiberIso x y base
+
+end
 
 /-- Build a morphism of `Obj f` from a morphism of schemes over `B` and a
 derived-category isomorphism along the induced fibre map. -/

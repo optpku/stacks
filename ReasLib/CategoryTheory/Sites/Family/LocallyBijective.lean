@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Sites.EnoughObjects
@@ -28,9 +34,9 @@ variable {F G : Cᵒᵖ ⥤ Type (max u v)} (η : F ⟶ G)
 
 /-- `η` is componentwise bijective on a covering family over every object of `C`. -/
 def HasCoverByBijective : Prop :=
-  ∀ U : C, ∃ 𝒰 : SemiRepresentableFamily.Over.{max u v} U,
-    𝒰.toSieve ∈ J U ∧
-      ∀ i, Function.Bijective (η.app (op (𝒰.obj i).left))
+  ∀ U : C, ∃ families : Limits.FormalCoproduct.{max u v} (CategoryTheory.Over U),
+    Sieve.ofArrows (fun i => (families.obj i).left) (fun i => (families.obj i).hom) ∈ J U ∧
+      ∀ i : families.index, Function.Bijective (η.app (op (families.obj i).left))
 
 namespace HasCoverByBijective
 

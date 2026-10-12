@@ -1,9 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.Algebra.Algebra.Tower
-public import Mathlib.Logic.Unique
-public import stacks_project.Chap90.Definition_90_16_8_Predeformation
-public import stacks_project.Chap90.Definition_90_6_1_Prorepresentable
+public import ReasLib.AlgebraicGeometry.FormalDeformation.CompleteLocal.Residue
 
 /-!
 # Canonical residue morphism in `CompleteLocalAlgCat`
@@ -24,32 +27,19 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
 
 namespace CompleteLocalAlgCat
 
-/-- The canonical morphism `R ⟶ inclusion.obj (residue Λ k)` induced by the residue
-identification of `R`. -/
-noncomputable def residueHom (R : CompleteLocalAlgCat Λ k) :
-    R ⟶ ArtinianLocalAlgCat.inclusion.obj (ArtinianLocalAlgCat.residue Λ k) where
-  hom := R.residueFieldIso.toAlgHom.comp
-    (IsScalarTower.toAlgHom Λ R.carrier (ResidueField R.carrier))
-  isLocalHom := sorry
-  residue_compat := sorry
+#check (CompleteLocalAlgCat.residueHom : ∀ R : CompleteLocalAlgCat Λ k,
+  R ⟶ ArtinianLocalAlgCat.inclusion.obj (ArtinianLocalAlgCat.residue Λ k))
 
-/-- The underlying algebra map of `residueHom` is the residue identification after
-the quotient map to the residue field. -/
-theorem residueHom_hom (R : CompleteLocalAlgCat Λ k) :
-    (residueHom R).hom =
+#check (CompleteLocalAlgCat.residueHom_hom : ∀ R : CompleteLocalAlgCat Λ k,
+  (residueHom R).hom =
       R.residueFieldIso.toAlgHom.comp
-        (IsScalarTower.toAlgHom Λ R.carrier (ResidueField R.carrier)) := sorry
+        (IsScalarTower.toAlgHom Λ R.carrier (ResidueField R.carrier)))
 
-/-- Any morphism from `R` to the residue field equals `residueHom R`. -/
-theorem eq_residueHom (R : CompleteLocalAlgCat Λ k)
-    (f : R ⟶ ArtinianLocalAlgCat.inclusion.obj (ArtinianLocalAlgCat.residue Λ k)) :
-    f = residueHom R := sorry
+#check (CompleteLocalAlgCat.eq_residueHom : ∀ (R : CompleteLocalAlgCat Λ k)
+  (f : R ⟶ ArtinianLocalAlgCat.inclusion.obj (ArtinianLocalAlgCat.residue Λ k)),
+  f = residueHom R)
 
-/-- There is a unique morphism `R ⟶ inclusion.obj (residue Λ k)`. -/
-noncomputable instance instUnique_hom_residue (R : CompleteLocalAlgCat Λ k) :
-    Unique (R ⟶ ArtinianLocalAlgCat.inclusion.obj (ArtinianLocalAlgCat.residue Λ k)) where
-  default := residueHom R
-  uniq := sorry
+#check (CompleteLocalAlgCat.instUnique_hom_residue : ∀ R : CompleteLocalAlgCat Λ k,
+  Unique (R ⟶ ArtinianLocalAlgCat.inclusion.obj (ArtinianLocalAlgCat.residue Λ k)))
 
 end CompleteLocalAlgCat
-

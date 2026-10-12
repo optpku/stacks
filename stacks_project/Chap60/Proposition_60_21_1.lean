@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Homology.Embedding.Basic
@@ -62,6 +68,8 @@ variable (hJ : ∀ n, J n = RingHom.ker (tensorPowerAlgHom π n).toRingHom)
 variable (hIJ : ∀ n, Ideal.map (algebraMap A (tensorPowerCarrier A ι n)) IA ≤ J n)
 variable (E : (n : ℕ) →
     DividedPowerEnvelope IA γA (algebraMap A (tensorPowerCarrier A ι n)) (J n) (hIJ n))
+variable (hE : ∀ n, DividedPowerEnvelope.IsUniversal γA
+    (algebraMap A (tensorPowerCarrier A ι n)) (hIJ n) (E n))
 variable (N : ℕ → ℕ)
 variable (hN : ∀ n, Ideal.span {(p : (E n).D)} ^ N n ≤ (E n).D.ideal)
 variable (γhat : (n : ℕ) → DividedPowers (RingHom.ker
@@ -73,14 +81,14 @@ variable [HasBinaryProducts
   (CompletedCrisObject p A IA γA C (algebraMap A C) hIC hpnil)ᵒᵖ]
 variable (eX : Spec (.of C) ⟶ X)
 
-omit S I γS h_compatible s X x₀ h_p π hπ J hJ hIJ E N hN γhat hγhat ι in
+omit S I γS h_compatible s X x₀ h_p π hπ J hJ hIJ E hE N hN γhat hγhat ι in
 /-- The source object over `X` associated to an affine divided-power thickening of `C`. -/
 noncomputable def affineCrisOppOver
     {X : Scheme.{u}} (eX : Spec (.of C) ⟶ X)
     (T : DividedPowerThickening.Cris γA (algebraMap A C) hIC hpnil) : Over X :=
   Over.mk (Spec.map (CommRingCat.ofHom T.obj.quotient) ≫ eX)
 
-omit π hπ J hJ hIJ E N hN γhat hγhat ι in
+omit π hπ J hJ hIJ E hE N hN γhat hγhat ι in
 /-- Underlying divided-power ring of a `Cris` thickening object. -/
 def crisThickeningRing
     (T : DividedPowerThickening.Cris γA (algebraMap A C) hIC hpnil) :
@@ -122,7 +130,7 @@ theorem dividedPowerThickeningHomMap_apply
     dividedPowerThickeningHomMap γA hIC hpnil φ = φ.hom.map :=
   sorry
 
-omit π hπ J hJ hIJ E N hN γhat hγhat ι in
+omit π hπ J hJ hIJ E hE N hN γhat hγhat ι in
 /-- Inclusion of affine `Cris(C/A)ᵒᵖ` into the small crystalline site of `(X/S)`. -/
 noncomputable def affineCrisOppInclusion
     [IsAffine X] [IsAffine S]
@@ -144,7 +152,7 @@ noncomputable def affineCrisOppInclusion
     map_id := sorry
     map_comp := sorry }
 
-omit π hπ J hJ hIJ E N hN γhat hγhat ι in
+omit π hπ J hJ hIJ E hE N hN γhat hγhat ι in
 /-- The affine inclusion sends a thickening to the identity crystalline object on its
 closed fibre over `X`. -/
 theorem affineCrisOppInclusion_obj
@@ -156,7 +164,7 @@ theorem affineCrisOppInclusion_obj
         property := sorry } :=
   sorry
 
-omit π hπ J hJ hIJ E N hN γhat hγhat ι in
+omit π hπ J hJ hIJ E hE N hN γhat hγhat ι in
 /-- Restriction of an abelian sheaf on `Cris(X/S)` to the affine chaotic site `Cris(C/A)ᵒᵖ`. -/
 noncomputable def restrictToAffineCrisOpp
     [IsAffine X] [IsAffine S]
@@ -168,7 +176,7 @@ noncomputable def restrictToAffineCrisOpp
   obj := (affineCrisOppInclusion S I γS h_compatible s X x₀ h_p γA hIC hpnil eX).op ⋙ F.obj
   property := Presheaf.isSheaf_bot _
 
-omit π hπ J hJ hIJ E N hN γhat hγhat ι in
+omit π hπ J hJ hIJ E hE N hN γhat hγhat ι in
 /-- Restriction to the affine chaotic site is precomposition with the opposite inclusion. -/
 theorem restrictToAffineCrisOpp_obj
     [IsAffine X] [IsAffine S]
@@ -263,7 +271,7 @@ theorem affineCrisSectionsComplex_computes_derivedGlobalSections
             F)))
       ((DerivedCategory.Q).obj
         ((ComplexShape.embeddingUpNat.extendFunctor AddCommGrpCat.{u}).obj
-          (affineCrisSectionsComplex γA hIC hpnil π hπ J hJ hIJ E N hN γhat hγhat
+          (affineCrisSectionsComplex γA hIC hpnil π hπ J hJ hIJ E hE N hN γhat hγhat
             (restrictToAffineCrisOpp (Spec (.of A)) I γS h_compatible s
               (Spec (.of C)) x₀ h_p γA hIC hpnil (𝟙 _)
               (toAbelianSheaf p (Spec (.of A)) I γS h_compatible s
@@ -316,7 +324,7 @@ theorem affineCrisSectionsComplex_computes_cohomology
           (smallCrystallineTopology p (Spec (.of A)) I γS h_compatible s
             (Spec (.of C)) x₀ h_p) n).obj
         (toAbelianSheaf p (Spec (.of A)) I γS h_compatible s (Spec (.of C)) x₀ h_p F))
-      ((affineCrisSectionsComplex γA hIC hpnil π hπ J hJ hIJ E N hN γhat hγhat
+      ((affineCrisSectionsComplex γA hIC hpnil π hπ J hJ hIJ E hE N hN γhat hγhat
           (restrictToAffineCrisOpp (Spec (.of A)) I γS h_compatible s
             (Spec (.of C)) x₀ h_p γA hIC hpnil (𝟙 _)
             (toAbelianSheaf p (Spec (.of A)) I γS h_compatible s

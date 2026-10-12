@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap90.«90_17_5_2_LiftsEquiv»
@@ -30,5 +36,6 @@ satisfying (RS), a surjection `f : A' ⟶ A` induces a bijection
 `Lift(x, A') × Lift(x, A') ⟶ Lift(x, A' ×_A A')` of isomorphism classes of
 lifts of `x` along `f` with isomorphism classes of lifts of `x` along
 `selfPullbackToBase f`. This is `liftsSelfPullbackEquiv`. -/
-@[stacks 06TB]
-#check Functor.liftsSelfPullbackEquiv f hf x
+@[stacks 06TB] #check (CategoryTheory.Functor.liftsSelfPullbackEquiv f hf x :
+  Functor.lifts p f x × Functor.lifts p f x ≃
+    Functor.lifts p (ArtinianLocalAlgCat.selfPullbackToBase f) x)

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap82.Lemma_82_15_2_Localization
@@ -33,11 +39,11 @@ theorem exists_closedPushforward {S : Scheme.{u}} {B X : AlgebraicSpace S}
     [UniversallyCatenary B] [IsQuasiSeparated B]
     (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
     (δ : Points B → ℤ) [IsDimensionFunction δ]
-    (U : OpenSubspace X) (k : ℤ) (α β : f.cycleGroup δ k)
+    (U : OpenSubspace X) (k : ℤ) (α β : (Hom.cycleGroup (f)) δ k)
     (h : RationalEquivalence.RationallyEquivalent (U.ι ≫ f) δ k
       (Localization.openPullback f δ U k α)
       (Localization.openPullback f δ U k β)) :
-    ∃ γ : (U.reducedComplement.ι ≫ f).cycleGroup δ k,
+    ∃ γ : (Hom.cycleGroup (U.reducedComplement.ι ≫ f)) δ k,
       RationalEquivalence.RationallyEquivalent f δ k α
         (β + Localization.closedPushforward f δ U k γ) :=
   sorry

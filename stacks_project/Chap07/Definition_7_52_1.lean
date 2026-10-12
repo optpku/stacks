@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Sites.Point.Skyscraper
@@ -15,31 +21,46 @@ universe u v w
 
 variable {C : Type u} [Category.{v} C] (J : GrothendieckTopology C)
 
-/- Definition 7.52.1: let C be a category and J a Grothendieck topology on C.
-A point p of the topology is given by a functor u : C ⥤ Type (Sets) such that
-(1) for every covering sieve S on U the map S_p ⟶ (h_U)_p is surjective, and
-(2) the stalk functor Sh(C) ⥤ Type, F ↦ F_p, is exact.
-The canonical owner is GrothendieckTopology.Point: the functor u is Point.fiber,
-covering-sieve surjectivity is Point.jointly_surjective (via (h_U)_p ≅ u(U)),
-and F ↦ F_p is Point.sheafFiber. -/
+/-- The stalk construction only needs an initial-smallness witness; cofilteredness
+is not part of the source definition. -/
+noncomputable def topologyStalk (J : GrothendieckTopology C)
+    (u : C ⥤ Type w) (h : InitiallySmall.{w} u.Elements) :
+    Sheaf J (Type w) ⥤ Type w :=
+  -- Local instance justification (proof-local temporary data): the explicit
+  -- size witness supplies the standard colimit API for the stalk construction.
+  letI := h
+  letI : HasColimitsOfShape u.Elementsᵒᵖ (Type w) :=
+    hasColimitsOfShape_of_finallySmall _ _
+  sheafToPresheaf J (Type w) ⋙
+    (Functor.whiskeringLeft _ _ _).obj (CategoryOfElements.π u).op ⋙ colim
+
+/-- Definition 7.52.1: Let `C` be a category and `J` a Grothendieck topology on
+`C`. A point of the topology is given by a functor `u : C ⥤ Type w` such that
+covering sieves are stalk-surjective and the stalk functor on sheaves is exact.
+-/
 @[stacks 00ZT]
-#check GrothendieckTopology.Point.{w} J
+structure CategoryTheory.GrothendieckTopology.PointOfTopology
+    (J : GrothendieckTopology C) where
+  fiber : C ⥤ Type w
+  initiallySmall : InitiallySmall.{w} fiber.Elements
+  jointly_surjective {X : C} (R : Sieve X) (h : R ∈ J X) (x : fiber.obj X) :
+    ∃ (Y : C) (f : Y ⟶ X) (_ : R f) (y : fiber.obj Y), fiber.map f y = x
+  stalk_exact : exactFunctor (Sheaf J (Type w)) (Type w)
+    (topologyStalk J fiber initiallySmall)
 
-variable (p : GrothendieckTopology.Point.{w} J)
+namespace CategoryTheory.GrothendieckTopology.PointOfTopology
 
-#check (p.fiber : C ⥤ Type w)
-#check (p.sheafFiber : Sheaf J (Type w) ⥤ Type w)
+noncomputable def sheafFiber
+    (J : GrothendieckTopology C)
+    (p : PointOfTopology J) :
+    Sheaf J (Type w) ⥤ Type w :=
+  topologyStalk J p.fiber p.initiallySmall
 
-/- Covering-sieve stalk surjectivity: for every covering sieve S on U, the map
-S_p ⟶ (h_U)_p is surjective. -/
-@[stacks 00ZT "(1)"]
-#check @GrothendieckTopology.Point.jointly_surjective
+/-- The stalk functor of a source-faithful point is the colimit stalk
+construction associated to its fiber functor. -/
+theorem sheafFiber_eq
+    (J : GrothendieckTopology C)
+    (p : PointOfTopology J) :
+    p.sheafFiber = topologyStalk J p.fiber p.initiallySmall := sorry
 
-section
-variable [LocallySmall.{w} C]
-
-/- Exactness of the stalk functor Sh(C) ⥤ Type, F ↦ F_p. -/
-@[stacks 00ZT "(2)"]
-#check (ExactFunctor.of p.sheafFiber : Sheaf J (Type w) ⥤ₑ Type w)
-
-end
+end CategoryTheory.GrothendieckTopology.PointOfTopology

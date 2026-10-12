@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap82.Definition_82_15_1_Chow
@@ -74,7 +80,7 @@ theorem openPullback_mem_boundaries :
 /-- Pushforward of degree-`k` Chow classes along the reduced-complement closed
 immersion. -/
 noncomputable def closedPushforward :
-    (U.reducedComplement.ι ≫ f).chowGroup δ k →+ f.chowGroup δ k :=
+    (AlgebraicGeometry.AlgebraicSpace.Hom.chowGroup (U.reducedComplement.ι ≫ f)) δ k →+ (AlgebraicGeometry.AlgebraicSpace.Hom.chowGroup f) δ k :=
   QuotientAddGroup.map
     (RationalEquivalence.boundaries (U.reducedComplement.ι ≫ f) δ k)
     (RationalEquivalence.boundaries f δ k)
@@ -83,7 +89,7 @@ noncomputable def closedPushforward :
 
 /-- Restriction of degree-`k` Chow classes along the open immersion `U.ι`. -/
 noncomputable def openPullback :
-    f.chowGroup δ k →+ (U.ι ≫ f).chowGroup δ k :=
+    (AlgebraicGeometry.AlgebraicSpace.Hom.chowGroup f) δ k →+ (AlgebraicGeometry.AlgebraicSpace.Hom.chowGroup (U.ι ≫ f)) δ k :=
   QuotientAddGroup.map
     (RationalEquivalence.boundaries f δ k)
     (RationalEquivalence.boundaries (U.ι ≫ f) δ k)
@@ -93,15 +99,15 @@ noncomputable def openPullback :
 /-- Closed-complement pushforward on a Chow class is induced by cycle
 pushforward. -/
 theorem closedPushforward_chowMk
-    (γ : (U.reducedComplement.ι ≫ f).cycleGroup δ k) :
-    closedPushforward f δ U k ((U.reducedComplement.ι ≫ f).chowMk δ k γ) =
-      f.chowMk δ k (Localization.closedPushforward f δ U k γ) :=
+    (γ : (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup (U.reducedComplement.ι ≫ f)) δ k) :
+    closedPushforward f δ U k ((AlgebraicGeometry.AlgebraicSpace.Hom.chowMk (U.reducedComplement.ι ≫ f)) δ k γ) =
+      (AlgebraicGeometry.AlgebraicSpace.Hom.chowMk f) δ k (Localization.closedPushforward f δ U k γ) :=
   sorry
 
 /-- Open restriction on a Chow class is induced by cycle restriction. -/
-theorem openPullback_chowMk (α : f.cycleGroup δ k) :
-    openPullback f δ U k (f.chowMk δ k α) =
-      (U.ι ≫ f).chowMk δ k (Localization.openPullback f δ U k α) :=
+theorem openPullback_chowMk (α : (AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f) δ k) :
+    openPullback f δ U k ((AlgebraicGeometry.AlgebraicSpace.Hom.chowMk f) δ k α) =
+      (AlgebraicGeometry.AlgebraicSpace.Hom.chowMk (U.ι ≫ f)) δ k (Localization.openPullback f δ U k α) :=
   sorry
 
 /-- Closed-complement pushforward followed by open restriction is zero on Chow

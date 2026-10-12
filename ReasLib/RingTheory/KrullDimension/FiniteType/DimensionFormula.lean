@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.RingTheory.Ideal.Height
@@ -26,10 +32,9 @@ universe u v
 variable {R : Type u} {S : Type v} [CommRing R] [CommRing S] [IsDomain R] [IsDomain S]
   [Algebra R S]
 
-/-- Lemma 10.113.1 (1), tag `02IJ`, in prime-spectrum form: for an injective finite-type map
-of domains, the height of `q` plus the transcendence degree of `κ(q)` over the residue field of
-its contraction is bounded by the height of the contraction plus the generic transcendence
-degree. -/
+/-- For an injective finite-type map of domains, the height of `q` plus the transcendence degree
+of `κ(q)` over the residue field of its contraction is bounded by the height of the contraction
+plus the generic transcendence degree. -/
 @[stacks 02IJ "(1), prime-spectrum form"]
 theorem height_add_residueFieldTrdeg_le_of_finiteType
     [IsNoetherianRing R] [Algebra.FiniteType R S]
@@ -43,8 +48,7 @@ theorem height_add_residueFieldTrdeg_le_of_finiteType
 contracted residue extension with `Ideal.ResidueField.trdeg`, and rewrite the
 generic term through `FractionRing.trdegNatOf`. -/
 
-/-- Lemma 10.113.1 (2), tag `02IJ`, in prime-spectrum form: universal catenarity upgrades the
-finite-type domain dimension inequality to an equality. -/
+/-- For a universally catenary base, the finite-type domain dimension inequality is an equality. -/
 @[stacks 02IJ "(2), prime-spectrum form"]
 theorem height_add_residueFieldTrdeg_eq_of_universallyCatenary
     [Algebra.FiniteType R S] [UniversallyCatenaryRing.{u, v} R]
@@ -67,11 +71,9 @@ variable {R : Type u} {S : Type v} [CommRing R] [CommRing S] [IsDomain R] [IsDom
   [Algebra R S] [Algebra (FractionRing R) (FractionRing S)]
   [IsScalarTower R (FractionRing R) (FractionRing S)]
 
-/-- Lemma 10.113.1 (1), tag `02IJ`, in the explicitly named-prime, raw fraction-field form.
-
-The canonical API is the `PrimeSpectrum` formulation above.  This companion is for consumers
-whose source-facing conclusion already uses a selected fraction-field algebra and an explicitly
-named lying-over pair. -/
+/-- For an injective finite-type map of Noetherian domains and prime ideals `p` and `q` with `q`
+lying over `p`, the height and residue-field transcendence-degree sum for `q` is bounded by the
+corresponding sum for `p` and the fraction fields. -/
 @[stacks 02IJ "(1), raw fraction-field form"]
 theorem finiteType_le
     [IsNoetherianRing R] [Algebra.FiniteType R S]

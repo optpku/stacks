@@ -1,9 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.FiniteType
-public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Definition
-public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Quasicoherent
-public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Site
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.FiniteType.Small
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,32 +23,23 @@ variable (X : RingedSpace.{u})
 classes. -/
 @[stacks 04U5]
 #check
-  (ObjectProperty.EssentiallySmall.exists_set_representatives
-    (SheafOfModules.IsFiniteType : ObjectProperty X.Modules) :
+  (CategoryTheory.ObjectProperty.EssentiallySmall.exists_set_representatives
+    (SheafOfModules.IsFiniteType (R := X.ringCatSheaf) : ObjectProperty X.Modules) :
     ∃ S : Set X.Modules,
       (∀ M ∈ S, M.IsFiniteType) ∧
       ∀ M : X.Modules, M.IsFiniteType →
         ∃! N : X.Modules, N ∈ S ∧ Nonempty (N ≅ M))
 
-/- The reusable root owner is the essential smallness of the finite-type object property. -/
-#synth ObjectProperty.EssentiallySmall
-  (SheafOfModules.IsFiniteType : ObjectProperty X.Modules)
-
-#check @SheafOfModules.IsFiniteType.essentiallySmall
-
-/- The representative-set conclusion is available for every essentially small,
-isomorphism-closed object property. -/
-#check @ObjectProperty.EssentiallySmall.exists_set_representatives
-
-#check @ObjectProperty.EssentiallySmall.of_le
-
-/-- Lemma 95.5.2 (2): the category of finite-type quasi-coherent `𝒪_X`-modules has a set of
+/- Lemma 95.5.2 (2): the category of finite-type quasi-coherent `𝒪_X`-modules has a set of
 isomorphism classes. -/
 @[stacks 04U5]
-theorem finiteType_quasicoherent_exists_set_representatives :
+#check
+  (CategoryTheory.ObjectProperty.EssentiallySmall.exists_set_representatives
+    ((SheafOfModules.IsFiniteType (R := X.ringCatSheaf) : ObjectProperty X.Modules) ⊓
+      X.quasiCoherentModuleProperty) :
     ∃ S : Set X.Modules,
       (∀ M ∈ S, M.IsFiniteType ∧ M.IsQuasicoherent) ∧
-      ∀ M : X.Modules, M.IsFiniteType → M.IsQuasicoherent →
-        ∃! N : X.Modules, N ∈ S ∧ Nonempty (N ≅ M) := sorry
+      ∀ M : X.Modules, M.IsFiniteType ∧ M.IsQuasicoherent →
+        ∃! N : X.Modules, N ∈ S ∧ Nonempty (N ≅ M))
 
 end AlgebraicGeometry.RingedSpace

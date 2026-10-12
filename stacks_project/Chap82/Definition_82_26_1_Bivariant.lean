@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Basic
@@ -66,7 +72,7 @@ abbrev CapFamily (p : ℤ) :=
     [QuasiSeparated (g ≫ pY)] [LocallyOfFiniteType (g ≫ pY)]
     [QuasiSeparated (i ≫ f ≫ pY)] [LocallyOfFiniteType (i ≫ f ≫ pY)]
     (square : IsPullback i f' f g) (k : ℤ),
-    (g ≫ pY).chowGroup δ k →+ (i ≫ f ≫ pY).chowGroup δ (k - p)
+    (Hom.chowGroup (g ≫ pY)) δ k →+ (Hom.chowGroup (i ≫ f ≫ pY)) δ (k - p)
 
 /-- Unfolding of `CapFamily` as cartesian-square-indexed additive maps on
 Chow groups. -/
@@ -76,7 +82,7 @@ theorem CapFamily_def (p : ℤ) :
         [QuasiSeparated (g ≫ pY)] [LocallyOfFiniteType (g ≫ pY)]
         [QuasiSeparated (i ≫ f ≫ pY)] [LocallyOfFiniteType (i ≫ f ≫ pY)]
         (square : IsPullback i f' f g) (k : ℤ),
-        (g ≫ pY).chowGroup δ k →+ (i ≫ f ≫ pY).chowGroup δ (k - p) :=
+        (Hom.chowGroup (g ≫ pY)) δ k →+ (Hom.chowGroup (i ≫ f ≫ pY)) δ (k - p) :=
   sorry
 
 /-- Compatibility of cap maps with proper pushforward along a cartesian inner
@@ -93,7 +99,7 @@ def CompatibleWithProperPushforward {p : ℤ} (cap : CapFamily δ pY f p) : Prop
     [QuasiSeparated (j ≫ i ≫ f ≫ pY)] [LocallyOfFiniteType (j ≫ i ≫ f ≫ pY)]
     [QuasiSeparated ((j ≫ i) ≫ f ≫ pY)] [LocallyOfFiniteType ((j ≫ i) ≫ f ≫ pY)]
     (inner : IsPullback j f'' f' h) [Proper h] [Proper j]
-    (k : ℤ) (α : (h ≫ g ≫ pY).chowGroup δ k),
+    (k : ℤ) (α : (Hom.chowGroup (h ≫ g ≫ pY)) δ k),
     cap i f' g outer k (Hom.properPushforward δ (h ≫ g ≫ pY) (g ≫ pY) h rfl k α) =
       Hom.properPushforward δ (j ≫ i ≫ f ≫ pY) (i ≫ f ≫ pY) j rfl (k - p)
         (cap (j ≫ i) f'' (h ≫ g) (inner.paste_horiz outer) k α)
@@ -113,7 +119,7 @@ def CompatibleWithFlatPullback {p : ℤ} (cap : CapFamily δ pY f p) : Prop :=
     [QuasiSeparated ((j ≫ i) ≫ f ≫ pY)] [LocallyOfFiniteType ((j ≫ i) ≫ f ≫ pY)]
     (inner : IsPullback j f'' f' h) (r : ℕ) [Flat h] [RelativeDimension h r]
     [Flat j] [RelativeDimension j r]
-    (k : ℤ) (α : (g ≫ pY).chowGroup δ k),
+    (k : ℤ) (α : (Hom.chowGroup (g ≫ pY)) δ k),
     ChowCohomology.castChowGroup δ ((j ≫ i) ≫ f ≫ pY)
         (ChowCohomology.flatPullback_degree_eq k p r)
         (cap (j ≫ i) f'' (h ≫ g) (inner.paste_horiz outer) (k + (r : ℤ))
@@ -152,7 +158,7 @@ def CompatibleWithCartierGysin {p : ℤ} (cap : CapFamily δ pY f p) : Prop :=
     [LocallyOfFiniteType
       ((zeroSchemeι ((Modules.pullback f').obj L) (Modules.sectionsPullback f' L s) ≫
           i) ≫ f ≫ pY)]
-    (k : ℤ) (α : (g ≫ pY).chowGroup δ (k + 1)),
+    (k : ℤ) (α : (Hom.chowGroup (g ≫ pY)) δ (k + 1)),
     cap (zeroSchemeι ((Modules.pullback f').obj L) (Modules.sectionsPullback f' L s) ≫ i)
         f'' (zeroSchemeι L s ≫ g) (inner.paste_horiz outer) k
       (Hom.chowGysin δ (g ≫ pY) L s k α) =
@@ -240,7 +246,7 @@ def cap_pullback {p : ℤ} (c : BivariantClass δ pY f p) {Y' : AlgebraicSpace S
     (g : Y' ⟶ Y) [QuasiSeparated (g ≫ pY)] [LocallyOfFiniteType (g ≫ pY)]
     [QuasiSeparated (pullback.fst f g ≫ f ≫ pY)]
     [LocallyOfFiniteType (pullback.fst f g ≫ f ≫ pY)] (k : ℤ) :
-    (g ≫ pY).chowGroup δ k →+ (pullback.fst f g ≫ f ≫ pY).chowGroup δ (k - p) :=
+    (Hom.chowGroup (g ≫ pY)) δ k →+ (Hom.chowGroup (pullback.fst f g ≫ f ≫ pY)) δ (k - p) :=
   c.cap (pullback.fst f g) (pullback.snd f g) g (IsPullback.of_hasPullback f g) k
 
 /-- `cap_pullback` is the cap map of `c` on the chosen pullback square. -/
@@ -260,7 +266,7 @@ def zeroCapFamily (p : ℤ) : CapFamily δ pY f p :=
       [QuasiSeparated (g ≫ pY)] [LocallyOfFiniteType (g ≫ pY)]
       [QuasiSeparated (i ≫ f ≫ pY)] [LocallyOfFiniteType (i ≫ f ≫ pY)]
       (square : IsPullback i f' f g) (k : ℤ) ↦
-    (0 : (g ≫ pY).chowGroup δ k →+ (i ≫ f ≫ pY).chowGroup δ (k - p))
+    (0 : (Hom.chowGroup (g ≫ pY)) δ k →+ (Hom.chowGroup (i ≫ f ≫ pY)) δ (k - p))
 
 /-- Evaluation of the zero cap family is the zero additive map. -/
 theorem zeroCapFamily_apply (p : ℤ) {X' Y' : AlgebraicSpace S}
@@ -307,14 +313,14 @@ def chowGroupCongr {X : AlgebraicSpace S} {p p' : X ⟶ B}
     [QuasiSeparated p] [LocallyOfFiniteType p]
     [QuasiSeparated p'] [LocallyOfFiniteType p']
     (hp : p = p') {k : ℤ} :
-    p.chowGroup δ k →+ p'.chowGroup δ k :=
+    (Hom.chowGroup (p)) δ k →+ (Hom.chowGroup (p')) δ k :=
   hp ▸ AddMonoidHom.id _
 
 /-- Reindexing along a reflexive equality of structure morphisms is the
 identity map. -/
 theorem chowGroupCongr_rfl {X : AlgebraicSpace S} (p : X ⟶ B)
     [QuasiSeparated p] [LocallyOfFiniteType p] {k : ℤ} :
-    chowGroupCongr δ (rfl : p = p) = AddMonoidHom.id (p.chowGroup δ k) :=
+    chowGroupCongr δ (rfl : p = p) = AddMonoidHom.id ((Hom.chowGroup (p)) δ k) :=
   sorry
 
 /-- Identity-test cap family of a bivariant class of `𝟙 Y`, evaluated on

@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap03.Lemma_3_9_5_Size
+public import ReasLib.AlgebraicGeometry.Scheme.Size
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -9,19 +16,13 @@ open scoped Cardinal AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.Scheme
+/- Lemma 3.9.5: the size of a scheme is bounded by the index cardinal and the sizes
+of its open covering subschemes, with the authorized countable-cardinal floor for
+arbitrary, including empty, index types. -/
+@[stacks 000Q] #check (AlgebraicGeometry.Scheme.size_le_isOpenCover :
+  ∀ {X : Scheme.{u}} {ι : Type u} (U : ι → X.Opens), IsOpenCover U →
+    X.size ≤ max ℵ₀ (max (#ι) (⨆ i, (U i).toScheme.size)))
 
-/-- Lemma 3.9.5: if `U` is a nonempty-indexed open covering of a scheme `X`, then the size of `X`
-is at most the maximum of the cardinality of the index type and the supremum of the sizes of the
-open subschemes `(U i).toScheme`. -/
-@[stacks 000Q]
-theorem size_le_isOpenCover {X : Scheme.{u}} {ι : Type u} (U : ι → X.Opens)
-    (hU : IsOpenCover U) (hι : Nonempty ι) :
-    X.size ≤ max (#ι) (⨆ i, (U i).toScheme.size) := sorry
-
-/-- The size of a scheme is at most the maximum of the index cardinal of a nonempty-indexed open
-cover and the supremum of the sizes of the covering schemes. -/
-theorem size_le_openCover {X : Scheme.{u}} (𝒰 : X.OpenCover.{u}) (hI : Nonempty 𝒰.I₀) :
-    X.size ≤ max (#𝒰.I₀) (⨆ i, (𝒰.X i).size) := sorry
-
-end AlgebraicGeometry.Scheme
+#check (AlgebraicGeometry.Scheme.size_le_openCover :
+  ∀ {X : Scheme.{u}} (𝒰 : X.OpenCover.{u}), Nonempty 𝒰.I₀ →
+    X.size ≤ max (#𝒰.I₀) (⨆ i, (𝒰.X i).size))

@@ -1,7 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap63.Lemma_63_7_3_ExtensionByZero
-public import stacks_project.Chap63.Lemma_63_7_3_MayerVietoris
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.MayerVietoris
+import StacksCheckRecall
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -23,7 +29,9 @@ universe u v
 
 namespace AlgebraicGeometry.Scheme.Etale
 
-variable {X : Scheme.{u}} (U V : X.Opens) (Λ : Type v) [CommRing Λ]
+
+variable {X : Scheme.{u}} (U V : X.Opens)
+variable (Λ : Type v) [CommRing Λ]
 variable [HasWeakSheafify X.smallEtaleTopology (ModuleCat.{v} Λ)]
 variable [∀ W : X.Etale,
   HasWeakSheafify (X.smallEtaleTopology.over W) (ModuleCat.{v} Λ)]
@@ -134,35 +142,18 @@ variable [PreservesFiniteColimits
   (etaleExtensionByZero (X.homOfLE (inf_le_right : U ⊓ V ≤ V)) (ModuleCat.{v} Λ) ⋙
     etaleExtensionByZero (V.ι) (ModuleCat.{v} Λ))]
 
-/-- Lemma 63.7.3: if a scheme `X` is covered by opens `U` and `V`, then for every
-object `K` of `D(X_étale, Λ)` there is a distinguished triangle
-`j_{U ∩ V!}(K|_{U ∩ V}) ⟶ j_{U!}(K|_U) ⊞ j_{V!}(K|_V) ⟶ K ⟶
-j_{U ∩ V!}(K|_{U ∩ V})⟦1⟧` in `D(X_étale, Λ)`. Here `j_{W!}((-) |_W)` is
-`etaleDerivedExtensionByZeroRestrict (W.ι)`, restriction is
-`etaleDerivedRestriction`, and `⊕` is the biproduct `⊞`. The first two maps are
-`mayerVietorisLowerShriekToBiprod` and `mayerVietorisLowerShriekFromBiprod`. -/
-@[stacks 0GKK]
-theorem etaleDerived_mayerVietoris_lowerShriek_triangle (hUV : U ⊔ V = ⊤) :
-    ∃ δ : 𝟭 (EtaleDerived X Λ) ⟶
+/- Lemma 63.7.3 -/
+@[stacks 0GKK] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerived_mayerVietoris_lowerShriek_triangle U V Λ :
+    U ⊔ V = ⊤ →
+      ∃ δ : 𝟭 (DerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ))) ⟶
         etaleDerivedExtensionByZeroRestrict ((U ⊓ V).ι) Λ ⋙
-          shiftFunctor (EtaleDerived X Λ) (1 : ℤ),
-      ∀ K : EtaleDerived X Λ,
+          shiftFunctor (DerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ))) (1 : ℤ),
+      ∀ K : DerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ)),
         Triangle.mk
             ((mayerVietorisLowerShriekToBiprod U V Λ).app K)
             ((mayerVietorisLowerShriekFromBiprod U V Λ).app K)
-            (δ.app K) ∈ distTriang (EtaleDerived X Λ) :=
-  sorry
-
-/-- Objectwise companion to `etaleDerived_mayerVietoris_lowerShriek_triangle`. -/
-theorem etaleDerivedMayerVietorisLowerShriekTriangle
-    (hUV : U ⊔ V = ⊤) (K : EtaleDerived X Λ) :
-    ∃ δ : K ⟶
-        ((etaleDerivedExtensionByZeroRestrict ((U ⊓ V).ι) Λ).obj K)⟦(1 : ℤ)⟧,
-      Triangle.mk
-          ((mayerVietorisLowerShriekToBiprod U V Λ).app K)
-          ((mayerVietorisLowerShriekFromBiprod U V Λ).app K)
-          δ ∈ distTriang (EtaleDerived X Λ) :=
-  sorry
+            (δ.app K) ∈ distTriang (DerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ))))
 
 end AlgebraicGeometry.Scheme.Etale
 

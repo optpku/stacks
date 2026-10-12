@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Module.LocalizedModule.Exact
@@ -88,33 +94,32 @@ variable {M : Type v}
 variable [AddCommGroup M] [Module R M]
 variable (p : Ideal R) [p.IsPrime]
 
--- Local declaration justification (source-local notation): these aliases keep the
--- AtPrime localization objects visible in the three related comparisons; they
--- introduce no instances or additional public data.
-local notation "Rₚ" => Localization.AtPrime p
-local notation "Mₚ" => LocalizedModule.AtPrime p M
-local notation "mₚ" => IsLocalRing.maximalIdeal Rₚ
-
 /-- A prime is weakly associated to a module exactly when the maximal ideal of
 the prime localization is weakly associated to the localized module. -/
 @[stacks 0566 "localization criterion for weak association"]
 theorem iff_maximalIdeal :
     Ideal.IsWeaklyAssociatedToModule R M p ↔
-      Ideal.IsWeaklyAssociatedToModule Rₚ Mₚ mₚ := sorry
+      Ideal.IsWeaklyAssociatedToModule (Localization.AtPrime p)
+        (LocalizedModule.AtPrime p M)
+        (IsLocalRing.maximalIdeal (Localization.AtPrime p)) := sorry
 
 /-- A prime is weakly associated to a module exactly when the maximal ideal of
 the prime localization is an associated prime of the localized module. -/
 @[stacks 0566 "localized associated-prime criterion"]
 theorem iff_associatedPrime :
     Ideal.IsWeaklyAssociatedToModule R M p ↔
-      IsAssociatedPrime mₚ Mₚ := sorry
+      IsAssociatedPrime (IsLocalRing.maximalIdeal (Localization.AtPrime p))
+        (LocalizedModule.AtPrime p M) := sorry
 
 /-- In a prime localization, weak association of the maximal ideal to the
 localized module is equivalent to its being an associated prime. -/
 @[stacks 0566 "AtPrime source specialization"]
 theorem maximalIdeal_iff_associatedPrime_atPrime :
-    Ideal.IsWeaklyAssociatedToModule Rₚ Mₚ mₚ ↔
-      IsAssociatedPrime mₚ Mₚ := sorry
+    Ideal.IsWeaklyAssociatedToModule (Localization.AtPrime p)
+        (LocalizedModule.AtPrime p M)
+        (IsLocalRing.maximalIdeal (Localization.AtPrime p)) ↔
+      IsAssociatedPrime (IsLocalRing.maximalIdeal (Localization.AtPrime p))
+        (LocalizedModule.AtPrime p M) := sorry
 
 end Ideal.IsWeaklyAssociatedToModule.Localization
 

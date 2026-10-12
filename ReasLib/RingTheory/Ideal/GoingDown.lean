@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.RingTheory.Ideal.GoingDown
@@ -16,6 +22,10 @@ universe u v
 namespace Algebra.HasGoingDown
 
 variable {R : Type u} {S : Type v} [CommRing R] [CommRing S] [Algebra R S]
+
+/-- A flat algebra over a commutative ring satisfies going down for prime ideals. -/
+theorem of_flatModule [Module.Flat R S] : Algebra.HasGoingDown R S :=
+  Algebra.HasGoingDown.of_flat
 
 /-- If the canonical map `Spec S → Spec R` is open, then the `R`-algebra `S`
 satisfies going down. -/

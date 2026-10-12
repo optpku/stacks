@@ -2,10 +2,24 @@
 
 ## Project code
 
-This publication adopts the **Apache License 2.0** for project code at the
-maintainer's instruction. See [LICENSE](LICENSE). Existing copyright notices and
+Project code is released under the **Apache License 2.0**, following the
+license used by [mathlib](https://github.com/leanprover-community/mathlib4/blob/master/LICENSE). See [LICENSE](LICENSE). Existing copyright notices and
 third-party terms are preserved; this license does not override rights or
 licenses in third-party material.
+
+## Formalization credits
+
+All published Lean source files carry separate header credits:
+
+- Statement formalization authors: **ReasBook team**
+- Proof formalization authors: **ReasBook team**
+
+These are temporary team credits, not a claim that every proof is complete or
+that existing contributors are replaced. They will be replaced or supplemented
+with names according to actual contributions. Publication scripts also carry
+team author credits. All original author notices and third-party terms remain
+in place. Contributors should identify their statement, proof, and library work
+in their Pull Requests so that the relevant file credits can be maintained.
 
 ## Mathematical source
 

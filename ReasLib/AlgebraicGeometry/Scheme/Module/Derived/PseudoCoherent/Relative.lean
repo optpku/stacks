@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.FlatMorphism
@@ -13,9 +19,6 @@ piece into a finite-dimensional affine space over the corresponding affine base.
 -/
 
 @[expose] public section
-
--- Local instance justification (proof-local temporary data): the affine open-cover maps in mPseudoCoherentOver are flat scheme morphisms; exactPullback consumes the named ringed-space flatness bridge for those same maps without assuming flatness of the original morphism.
-attribute [local instance] Scheme.Hom.isFlat_of_flat
 
 open CategoryTheory
 open scoped AlgebraicGeometry

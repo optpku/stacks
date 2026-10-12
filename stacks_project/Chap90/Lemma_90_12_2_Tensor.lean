@@ -1,8 +1,15 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.LinearAlgebra.BilinearMap
 public import Mathlib.LinearAlgebra.TensorProduct.Basic
 public import Mathlib.LinearAlgebra.TensorProduct.Map
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation
 public import stacks_project.Chap90.Definition_90_19_2_DualNumber
 public import stacks_project.Chap90.Lemma_90_10_4_Along
 public import stacks_project.Chap90.Lemma_90_11_6_Tensor
@@ -53,11 +60,6 @@ theorem fgEval_map (F : ArtinianLocalAlgCat Λ k ⥤ Type v) {V W : FGModuleCat.
 
 variable {F : Type v} [Category.{w} F]
 variable (p : F ⥤ ArtinianLocalAlgCat Λ k)
-
-/-- A predeformation category is cofibered in groupoids. -/
-instance instIsFiberedInGroupoids_op [IsPredeformationCategory p] :
-    IsFibered.InGroupoids p.op :=
-  IsPredeformationCategory.isCofiberedInGroupoids
 
 /-- The fibre over `k` of a predeformation category has a unique isomorphism class. -/
 instance instUnique_fiberIsoClass_residue [IsPredeformationCategory p] :

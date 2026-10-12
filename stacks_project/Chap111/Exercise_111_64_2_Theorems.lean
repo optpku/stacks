@@ -1,7 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.RingTheory.HopkinsLevitzki
-public import Mathlib.RingTheory.Ideal.GoingDown
+public import ReasLib.RingTheory.KrullDimension.Artinian
+public import ReasLib.RingTheory.Ideal.GoingDown
 public import ReasLib.RingTheory.Ideal.HilbertSamuel.Polynomial
 public import ReasLib.RingTheory.KrullDimension.FiniteType.DimensionFormula
 public import ReasLib.RingTheory.Completion.FaithfullyFlat
@@ -17,13 +23,13 @@ open IsLocalRing
 /- Exercise 111.64.2 (Theorems) (1): a commutative ring is Artinian iff it is Noetherian of
 Krull dimension at most 0. -/
 @[stacks 0GRU] #check
-  (isArtinianRing_iff_isNoetherianRing_krullDimLE_zero :
+  (Ring.KrullDimension.isArtinianRing_iff_isNoetherianRing_krullDimLE_zero :
     ∀ {R : Type u} [CommRing R],
       IsArtinianRing R ↔ IsNoetherianRing R ∧ Ring.KrullDimLE 0 R)
 
 /- Exercise 111.64.2 (Theorems) (2): a flat algebra satisfies going down for prime ideals. -/
 @[stacks 0GRU] #check
-  (Algebra.HasGoingDown.of_flat :
+  (Algebra.HasGoingDown.of_flatModule :
     ∀ {R : Type u} {S : Type v} [CommRing R] [CommRing S] [Algebra R S]
       [Module.Flat R S], Algebra.HasGoingDown R S)
 

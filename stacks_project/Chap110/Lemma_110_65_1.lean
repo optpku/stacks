@@ -1,10 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.Basic
-public import Mathlib.AlgebraicGeometry.Sites.Fpqc
-public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.Basic
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.QuasiProjective
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.NonLocality
 
 /-!
 # Being projective is not local on the base
@@ -18,39 +21,30 @@ open CategoryTheory
 
 namespace AlgebraicGeometry
 
-/-- Lemma 110.65.1 (1): the morphism property of being projective is not Zariski local on the
-base. -/
-@[stacks 08J1]
-theorem Projective.not_isZariskiLocalAtTarget :
-    ¬ IsZariskiLocalAtTarget (@Projective : MorphismProperty Scheme.{u}) := sorry
+/- Lemma 110.65.1 (1): projectivity is not Zariski local on the base. -/
+@[stacks 08J1] #check (AlgebraicGeometry.Projective.not_isZariskiLocalAtTarget :
+    ¬ IsZariskiLocalAtTarget (@Projective : MorphismProperty Scheme.{u}))
 
-/-- Lemma 110.65.1 (2): the morphism property of being quasi-projective is not Zariski local on
-the base. -/
-@[stacks 08J1]
-theorem QuasiProjective.not_isZariskiLocalAtTarget :
-    ¬ IsZariskiLocalAtTarget (@QuasiProjective : MorphismProperty Scheme.{u}) := sorry
+/- Lemma 110.65.1 (2): quasi-projectivity is not Zariski local on the base. -/
+@[stacks 08J1] #check (AlgebraicGeometry.QuasiProjective.not_isZariskiLocalAtTarget :
+    ¬ IsZariskiLocalAtTarget (@QuasiProjective : MorphismProperty Scheme.{u}))
 
-/-- Lemma 110.65.1 (3): the morphism property of being projective is not fpqc local on the
-base. -/
-@[stacks 08J1]
-theorem Projective.not_isLocalAtTargetFpqc :
+/- Lemma 110.65.1 (3): projectivity is not fpqc local on the base. -/
+@[stacks 08J1] #check (AlgebraicGeometry.Projective.not_isLocalAtTargetFpqc :
     ¬ MorphismProperty.IsLocalAtTarget (@Projective : MorphismProperty Scheme.{u})
-        Scheme.fpqcPrecoverage := sorry
+        Scheme.fpqcPrecoverage)
 
-/-- Lemma 110.65.1 (4): the morphism property of being quasi-projective is not fpqc local on the
-base. -/
-@[stacks 08J1]
-theorem QuasiProjective.not_isLocalAtTargetFpqc :
+/- Lemma 110.65.1 (4): quasi-projectivity is not fpqc local on the base. -/
+@[stacks 08J1] #check (AlgebraicGeometry.QuasiProjective.not_isLocalAtTargetFpqc :
     ¬ MorphismProperty.IsLocalAtTarget (@QuasiProjective : MorphismProperty Scheme.{u})
-        Scheme.fpqcPrecoverage := sorry
+        Scheme.fpqcPrecoverage)
 
-/-- There exists a scheme morphism which is locally projective on the base but not projective. -/
-theorem Projective.exists_locallyProjective_not_projective :
-    ∃ (X Y : Scheme.{u}) (f : X ⟶ Y), LocallyProjective f ∧ ¬ Projective f := sorry
+/- A scheme morphism may be locally projective but not projective. -/
+#check (AlgebraicGeometry.Projective.exists_locallyProjective_not_projective :
+    ∃ (X Y : Scheme.{u}) (f : X ⟶ Y), LocallyProjective f ∧ ¬ Projective f)
 
-/-- There exists a scheme morphism which is locally quasi-projective on the base but not
-quasi-projective. -/
-theorem QuasiProjective.exists_locallyQuasiProjective_not_quasiProjective :
-    ∃ (X Y : Scheme.{u}) (f : X ⟶ Y), LocallyQuasiProjective f ∧ ¬ QuasiProjective f := sorry
+/- A scheme morphism may be locally quasi-projective but not quasi-projective. -/
+#check (AlgebraicGeometry.QuasiProjective.exists_locallyQuasiProjective_not_quasiProjective :
+    ∃ (X Y : Scheme.{u}) (f : X ⟶ Y), LocallyQuasiProjective f ∧ ¬ QuasiProjective f)
 
 end AlgebraicGeometry

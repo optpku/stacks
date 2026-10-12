@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap65.Lemma_65_7_3_Pullback
@@ -29,15 +35,10 @@ variable {S : Scheme.{u}} {X : AlgebraicSpace S}
 induced by a morphism `g : Y ⟶ X`. -/
 noncomputable def gmTorsorMap {Y : AlgebraicSpace S} (g : Y ⟶ X)
     (L : X.Modules) [isInvertibleObject L] :
-    gmTorsor ((pullback g).obj L) ⟶ gmTorsor L where
-  app T :=
-    TypeCat.ofHom fun
-      p : relativeSpectrumPair (invertibleLaurentAlgebra ((pullback g).obj L))
-          T.unop =>
-      relativeSpectrumPairMk (yonedaEquiv.symm p.1 ≫ g)
-        (invertibleLaurentToRelativeSpectrumTarget
-          (yonedaEquiv.symm p.1 ≫ g) L)
-  naturality := fun _ _ _ => sorry
+    gmTorsor ((pullback g).obj L) ⟶ gmTorsor L :=
+  gmTorsorLift (gmTorsorπ ((pullback g).obj L) ≫ g) L
+    ((pullbackComp (gmTorsorπ ((pullback g).obj L)) g).symm.app L ≪≫
+      gmTorsorTriv ((pullback g).obj L))
 
 /-- The structure morphisms identify `gmTorsorMap` with base change of `q`. -/
 theorem gmTorsorMap_comp_π {Y : AlgebraicSpace S} (g : Y ⟶ X)
@@ -56,15 +57,13 @@ noncomputable def gmTorsorPullbackIso_hom {Y : AlgebraicSpace S} (g : Y ⟶ X)
 /-- The reverse comparison of the base-change square for `q`. -/
 noncomputable def gmTorsorPullbackIso_inv {Y : AlgebraicSpace S} (g : Y ⟶ X)
     (L : X.Modules) [isInvertibleObject L] :
-    Limits.pullback g (gmTorsorπ L) ⟶ gmTorsor ((pullback g).obj L) where
-  app T :=
-    TypeCat.ofHom fun z =>
-      relativeSpectrumPairMk
-        (yonedaEquiv.symm ((Limits.pullback.fst g (gmTorsorπ L)).app T z))
-        (invertibleLaurentToRelativeSpectrumTarget
-          (yonedaEquiv.symm ((Limits.pullback.fst g (gmTorsorπ L)).app T z))
-          ((pullback g).obj L))
-  naturality := fun _ _ _ => sorry
+    Limits.pullback g (gmTorsorπ L) ⟶ gmTorsor ((pullback g).obj L) :=
+  gmTorsorLift (Limits.pullback.fst g (gmTorsorπ L)) ((pullback g).obj L)
+    ((pullbackComp (Limits.pullback.fst g (gmTorsorπ L)) g).app L ≪≫
+      eqToIso (congrArg (fun f ↦ (pullback f).obj L) (Limits.pullback.condition (f := g) (g := gmTorsorπ L))) ≪≫
+      (pullbackComp (Limits.pullback.snd g (gmTorsorπ L)) (gmTorsorπ L)).symm.app L ≪≫
+      (pullback (Limits.pullback.snd g (gmTorsorπ L))).mapIso (gmTorsorTriv L) ≪≫
+      pullbackMonoidalUnitIso (Limits.pullback.snd g (gmTorsorπ L)))
 
 /-- Formation of `q : T ⟶ X` commutes with base change along `g : Y ⟶ X`. -/
 noncomputable def gmTorsorPullbackIso {Y : AlgebraicSpace S} (g : Y ⟶ X)

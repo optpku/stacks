@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.FiberedCategory.BasedCategory
@@ -42,6 +48,13 @@ structure BasedCategory.StrictIso (X : BasedCategory.{vX, uX} C) (Y : BasedCateg
 namespace BasedCategory.StrictIso
 
 variable {X : BasedCategory.{vX, uX} C} {Y : BasedCategory.{vY, uY} C}
+
+/-- An isomorphism of total categories whose forward functor commutes strictly with the
+projections determines a strict isomorphism over the common base. -/
+def ofIsoCat (e : IsoCat X.obj Y.obj) (h : e.functor ⋙ Y.p = X.p) :
+    BasedCategory.StrictIso X Y where
+  toIsoCat := e
+  functor_w := h
 
 /-- The inverse functor automatically commutes strictly with the projections. This is derived
 from `functor_w` and the strict counit equation rather than stored as duplicate structure data. -/

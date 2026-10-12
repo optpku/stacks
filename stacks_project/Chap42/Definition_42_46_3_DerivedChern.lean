@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap42.Lemma_42_46_2
+public import ReasLib.AlgebraicGeometry.LocalizedChern.DerivedEnvelopeCaps
 
 @[expose] public section
 
@@ -102,13 +109,13 @@ def IsNewtonClass {S X : Scheme.{u}} [UniversallyCatenary S]
         Complex.newtonClass δ (f ≫ π) (classes.reanchor (Over.mk (f ≫ π)))
           K hAbove hBelow hFree p
 
-/-- The total Chern-class family selected by its envelope-descent specification. -/
+/-- The total Chern-class family constructed by cap descent along the fixed family of all envelope models. -/
 noncomputable def totalClass {S X : Scheme.{u}} [UniversallyCatenary S]
     (δ : S → ℤ) [IsDimensionFunction δ] (π : X ⟶ S) [LocallyOfFiniteType π]
     (classes : Theory δ π) (E : RingedSpace.ModuleDerived X.toRingedSpace)
     (hPerfect : RingedSpace.ModuleDerived.IsPerfect E) (hDefined : IsDefined E) :
     (p : ℕ) → ChowCohomology.Nonnegative.degree δ π p :=
-  Classical.epsilon (IsTotalClass δ π classes E)
+  fun p => LocalizedChern.EnvelopeCaps.derivedClass δ (X := Over.mk π) classes E hPerfect hDefined true p
 
 /-- The selected total Chern-class family satisfies its envelope-descent specification. -/
 theorem totalClass_spec {S X : Scheme.{u}} [UniversallyCatenary S]
@@ -151,13 +158,13 @@ theorem character_unique {S X : Scheme.{u}} [UniversallyCatenary S]
     (hchE : IsCharacter δ π classes E chE) :
     chE = character δ π classes E hPerfect hDefined := sorry
 
-/-- The Newton-class family selected by its envelope-descent specification. -/
+/-- The Newton-class family constructed by cap descent along the fixed family of all envelope models. -/
 noncomputable def newtonClass {S X : Scheme.{u}} [UniversallyCatenary S]
     (δ : S → ℤ) [IsDimensionFunction δ] (π : X ⟶ S) [LocallyOfFiniteType π]
     (classes : Theory δ π) (E : RingedSpace.ModuleDerived X.toRingedSpace)
     (hPerfect : RingedSpace.ModuleDerived.IsPerfect E) (hDefined : IsDefined E) :
     (p : ℕ) → ChowCohomology.Nonnegative.degree δ π p :=
-  Classical.epsilon (IsNewtonClass δ π classes E)
+  fun p => LocalizedChern.EnvelopeCaps.derivedClass δ (X := Over.mk π) classes E hPerfect hDefined false p
 
 /-- The selected Newton-class family satisfies its envelope-descent specification. -/
 theorem newtonClass_spec {S X : Scheme.{u}} [UniversallyCatenary S]

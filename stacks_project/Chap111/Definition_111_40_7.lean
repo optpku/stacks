@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Picard
@@ -18,7 +24,7 @@ variable (X : LocallyRingedSpace.{u})
 /- Definition 111.40.7 (1): the Picard group of a locally ringed space is the group of
 isomorphism classes of invertible `𝒪_X`-modules under tensor product. -/
 @[stacks 02AM]
-#check (X.toRingedSpace.PicardGroup : Type _)
+#check (AlgebraicGeometry.RingedSpace.PicardGroup X.toRingedSpace : Type (u + 1))
 
 #check (inferInstance : AddCommGroup X.toRingedSpace.PicardGroup)
 #check (Pic(X.toRingedSpace) : Type _)
@@ -31,7 +37,7 @@ variable (R : Type u) [CommRing R]
 
 /- Definition 111.40.7 (2): for a ring `R`, `Pic(R)` is defined to be `Pic(Spec(R))`. -/
 @[stacks 02AM]
-#check ((Spec(R)).toRingedSpace.PicardGroup : Type _)
+#check (AlgebraicGeometry.Scheme.PicardGroup (Spec(R)) : Type (u + 1))
 
 #check (Scheme.PicardGroup (Spec(R)) : Type _)
 #check (inferInstance : AddCommGroup (Spec(R)).toRingedSpace.PicardGroup)

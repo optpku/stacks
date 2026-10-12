@@ -1,5 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
+public import ReasLib.AlgebraicGeometry.RelativeCycle
 public import stacks_project.Chap62.Lemma_62_6_6_Relative
 
 /-!
@@ -19,37 +26,38 @@ universe u
 
 namespace AlgebraicGeometry.RelativeCycle
 
-variable {X S : Scheme.{u}} (f : X ⟶ S) [IsLocallyNoetherian S] [LocallyOfFiniteType f]
-variable (r : ℕ)
+#check (AlgebraicGeometry.RelativeCycle.isRelative_zero :
+  ∀ {X S : Scheme.{u}} (f : X ⟶ S) [IsLocallyNoetherian S]
+    [LocallyOfFiniteType f] (r : ℕ), IsRelative (0 : f.FiberCycleFamily r))
 
-/-- The zero family of fibrewise `r`-cycles is a relative `r`-cycle. -/
-theorem isRelative_zero : IsRelative (0 : Family f r) := sorry
+#check (AlgebraicGeometry.RelativeCycle.isRelative_add :
+  ∀ {X S : Scheme.{u}} (f : X ⟶ S) [IsLocallyNoetherian S]
+    [LocallyOfFiniteType f] (r : ℕ) {α β : f.FiberCycleFamily r},
+    IsRelative α → IsRelative β → IsRelative (α + β))
 
-/-- The sum of relative `r`-cycles is a relative `r`-cycle. -/
-theorem isRelative_add {α β : Family f r} (hα : IsRelative α) (hβ : IsRelative β) :
-    IsRelative (α + β) := sorry
+#check (AlgebraicGeometry.RelativeCycle.isRelative_neg :
+  ∀ {X S : Scheme.{u}} (f : X ⟶ S) [IsLocallyNoetherian S]
+    [LocallyOfFiniteType f] (r : ℕ) {α : f.FiberCycleFamily r},
+    IsRelative α → IsRelative (-α))
 
-/-- The negative of a relative `r`-cycle is a relative `r`-cycle. -/
-theorem isRelative_neg {α : Family f r} (hα : IsRelative α) : IsRelative (-α) := sorry
+#check (AlgebraicGeometry.RelativeCycle.group :
+  ∀ {X S : Scheme.{u}} (f : X ⟶ S) [IsLocallyNoetherian S]
+    [LocallyOfFiniteType f] (r : ℕ), AddSubgroup (f.FiberCycleFamily r))
 
-/-- The abelian group `z(X/S, r)` of relative `r`-cycles on `X / S`. -/
-def group : AddSubgroup (Family f r) where
-  carrier := {α | IsRelative α}
-  zero_mem' := isRelative_zero f r
-  add_mem' := isRelative_add f r
-  neg_mem' := isRelative_neg f r
+#check (AlgebraicGeometry.RelativeCycle.mem_group_iff :
+  ∀ {X S : Scheme.{u}} (f : X ⟶ S) [IsLocallyNoetherian S]
+    [LocallyOfFiniteType f] (r : ℕ) (α : f.FiberCycleFamily r),
+    α ∈ group f r ↔ IsRelative α)
 
-/-- Membership in `z(X/S, r)` is the relative-cycle condition `IsRelative`. -/
-theorem mem_group_iff (α : Family f r) : α ∈ group f r ↔ IsRelative α := sorry
-
-/-- A family lies in `z(X/S, r)` if and only if specialization after every DVR base
-change sends the generic-fibre value of `g^*α` to the closed-fibre value. -/
-theorem mem_group_iff_specialization (α : Family f r) :
+#check (AlgebraicGeometry.RelativeCycle.mem_group_iff_specialization :
+  ∀ {X S : Scheme.{u}} (f : X ⟶ S) [IsLocallyNoetherian S]
+    [LocallyOfFiniteType f] (r : ℕ) (α : f.FiberCycleFamily r),
     α ∈ group f r ↔
       ∀ (R : Type u) [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
         (g : Spec (CommRingCat.of R) ⟶ S),
-        specialize (pullback.snd f g) r
-            (baseChange f g r α (genericPoint (Spec (CommRingCat.of R)))) =
-          baseChange f g r α (IsLocalRing.closedPoint R) := sorry
+        Scheme.Hom.cycleSpecialization (pullback.snd f g) r
+            (FamilyOfCyclesOnFibres.baseChange f g r α
+              (genericPoint (Spec (CommRingCat.of R)))) =
+          FamilyOfCyclesOnFibres.baseChange f g r α (IsLocalRing.closedPoint R))
 
 end AlgebraicGeometry.RelativeCycle

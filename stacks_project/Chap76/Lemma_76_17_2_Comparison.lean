@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 public import stacks_project.Chap76.Definition_76_6_5_Conormal
 public import stacks_project.Chap76.Definition_76_7_2_Differentials
@@ -21,14 +27,77 @@ universe u
 namespace AlgebraicGeometry.AlgebraicSpace.Hom.Deformation
 variable {S : Scheme.{u}}
 
-/-- The composite site adjunction for inverse/direct image of commutative-ring sheaves. -/
+/-- The underlying Hom equivalence composes geometric transposition with the
+actual direct-image isomorphism on the target. -/
+def siteCommRingUnderlyingHomEquiv {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (A : Sheaf (smallEtaleTopology Y) CommRingCat.{u})
+    (B : Sheaf (smallEtaleTopology X) CommRingCat.{u}) :
+    ((morphismOfTopoi f).inverseImage.obj ((commRingUnderlying Y).obj A) ⟶
+      (commRingUnderlying X).obj B) ≃
+    ((commRingUnderlying Y).obj A ⟶
+      (commRingUnderlying Y).obj ((commRingPushforward f).obj B)) :=
+  ((morphismOfTopoi f).adjunction.homEquiv _ _).trans
+    ((commRingPushforwardUnderlyingIso f).app B).symm.homToEquiv
+
+/-- Forward transposition retains the geometric adjunction map on all sections. -/
+def siteCommRingMate {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {A : Sheaf (smallEtaleTopology Y) CommRingCat.{u}}
+    {B : Sheaf (smallEtaleTopology X) CommRingCat.{u}}
+    (h : (commRingInverseImage f).obj A ⟶ B) : A ⟶ (commRingPushforward f).obj B :=
+  commRingHomOfUnderlying
+    (siteCommRingUnderlyingHomEquiv f A B ((commRingUnderlying X).map h))
+    sorry sorry sorry sorry
+
+/-- Reverse transposition retains the inverse geometric Hom map on all sections. -/
+def siteCommRingUnmate {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {A : Sheaf (smallEtaleTopology Y) CommRingCat.{u}}
+    {B : Sheaf (smallEtaleTopology X) CommRingCat.{u}}
+    (g : A ⟶ (commRingPushforward f).obj B) : (commRingInverseImage f).obj A ⟶ B :=
+  commRingHomOfUnderlying
+    ((siteCommRingUnderlyingHomEquiv f A B).symm ((commRingUnderlying Y).map g))
+    sorry sorry sorry sorry
+
+/-- Forgetting the forward ring map gives exactly the type-valued transpose. -/
+theorem siteCommRingMate_underlying {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {A : Sheaf (smallEtaleTopology Y) CommRingCat.{u}}
+    {B : Sheaf (smallEtaleTopology X) CommRingCat.{u}}
+    (h : (commRingInverseImage f).obj A ⟶ B) :
+    (commRingUnderlying Y).map (siteCommRingMate f h) =
+      (morphismOfTopoi f).adjunction.homEquiv _ _ ((commRingUnderlying X).map h) ≫
+        (commRingPushforwardUnderlyingIso f).inv.app B := rfl
+
+/-- Forgetting the reverse ring map gives exactly the inverse type-valued transpose. -/
+theorem siteCommRingUnmate_underlying {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {A : Sheaf (smallEtaleTopology Y) CommRingCat.{u}}
+    {B : Sheaf (smallEtaleTopology X) CommRingCat.{u}}
+    (g : A ⟶ (commRingPushforward f).obj B) :
+    (commRingUnderlying X).map (siteCommRingUnmate f g) =
+      ((morphismOfTopoi f).adjunction.homEquiv _ _).symm
+        ((commRingUnderlying Y).map g ≫ (commRingPushforwardUnderlyingIso f).hom.app B) := rfl
+
+/-- The two geometric transposes are mutually inverse on commutative-ring morphisms. -/
+def siteCommRingHomEquiv {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (A : Sheaf (smallEtaleTopology Y) CommRingCat.{u})
+    (B : Sheaf (smallEtaleTopology X) CommRingCat.{u}) :
+    ((commRingInverseImage f).obj A ⟶ B) ≃ (A ⟶ (commRingPushforward f).obj B) where
+  toFun := siteCommRingMate f
+  invFun := siteCommRingUnmate f
+  left_inv h := by
+    apply (sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u}) ⋙
+      sheafCompose (smallEtaleTopology X) (forget RingCat.{u})).map_injective
+    exact (siteCommRingUnderlyingHomEquiv f A B).symm_apply_apply ((commRingUnderlying X).map h)
+  right_inv g := by
+    apply (sheafCompose (smallEtaleTopology Y) (forget₂ CommRingCat.{u} RingCat.{u}) ⋙
+      sheafCompose (smallEtaleTopology Y) (forget RingCat.{u})).map_injective
+    exact (siteCommRingUnderlyingHomEquiv f A B).apply_symm_apply ((commRingUnderlying Y).map g)
+
+/-- The geometric commutative-ring adjunction has the displayed transpose maps. -/
 def siteCommRingAdjunction {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     commRingInverseImage f ⊣ commRingPushforward f :=
-  (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
-    (etaleBaseChange f) CommRingCat.{u}
-    (smallEtaleTopology Y) (spacesEtaleTopology X)).comp
-      ((smallEtaleInclusion X).sheafAdjunctionCocontinuous CommRingCat.{u}
-        (smallEtaleTopology X) (spacesEtaleTopology X))
+  Adjunction.mkOfHomEquiv
+    { homEquiv := siteCommRingHomEquiv f
+      homEquiv_naturality_left_symm := sorry
+      homEquiv_naturality_right := sorry }
 
 /-- Forget a direct-image commutative-ring map using the specified pushforward comparisons. -/
 def underlyingCommRingPushforwardMap {X Y : AlgebraicSpace S} (f : X ⟶ Y)

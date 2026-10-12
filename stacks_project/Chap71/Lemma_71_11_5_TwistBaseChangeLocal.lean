@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap71.Lemma_71_11_5_TwistAlgebra
@@ -80,6 +86,9 @@ def gradedMap :
 /-- This map is affine scalar extension, so its projective domain is full. -/
 theorem gradedMap_domain :
     projMapDomain (gradedMap (F := F) (F' := F') g hAlg hF hF' U V j) = ⊤ := sorry
+
+-- Local declaration justification (localized automation): use the already typed graded morphism in projective localization and fraction maps without repeatedly reducing its geometric section-pullback implementation.
+attribute [local irreducible] gradedMap
 
 -- The two-base graded-map expression exceeds Lean's default elaboration depth512
 -- (private checks1791166643675375291/1791166881619298578). The same explicit

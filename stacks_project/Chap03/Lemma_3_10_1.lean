@@ -1,33 +1,26 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap03.Lemma_3_10_1_Size
-public import stacks_project.Chap03.Lemma_3_10_1_ObjectProperty
+import StacksCheckRecall
+public import ReasLib.CategoryTheory.Action.SmallBoundClosed
 
 @[expose] public section
 
-noncomputable section
-
 universe u
 
-open CategoryTheory CategoryTheory.Limits
-open scoped Cardinal
+open CategoryTheory
 
-namespace Action
-
-/-- Lemma 3.10.1. For a group `G` and a family `S0` of `G`-sets, there exists a small
-object property `P` of `Action (Type u) G` containing every `S0 i` and the left-regular
-`G`-set `leftRegular G`, such that whenever `P S` and `T.size ≤ bound S.size` the `G`-set
-`T` is isomorphic to a member of `P`, and such that every countable diagram in
-`P.FullSubcategory` has a limit and a colimit, agreeing with those in `Action (Type u) G`
-via the canonical comparisons `limit.post` and `colimit.post`.
-
-The Stacks Project packages this as a limit ordinal `α` with `G-Sets_α` the full subcategory
-of `G`-sets lying in `V_α`; Lean records the same closure and comparison properties on a
-small `ObjectProperty` of `Action (Type u) G`. -/
-@[stacks 000U]
-theorem exists_isSmallBoundClosed {G : Type u} [Group G] {ι : Type u}
-    (S0 : ι → Action (Type u) G) :
+/- Lemma 3.10.1. A family `S0` of `G`-sets is contained in a small object property `P`
+containing the left-regular action, closed up to isomorphism under the bound
+`T.size ≤ Action.bound S.size`, and admitting countable limits and colimits that agree
+with the ambient action category through the canonical comparison isomorphisms.
+The limit-ordinal subcategory `G-Sets_α` is represented by this small object property. -/
+@[stacks 000U] #check (Action.exists_isSmallBoundClosed :
+  ∀ {G : Type u} [Group G] {ι : Type u} (S0 : ι → Action (Type u) G),
     ∃ P : ObjectProperty (Action (Type u) G),
-      IsSmallBoundClosed P ∧ ObjectProperty.ofObj S0 ≤ P := sorry
-
-end Action
+      Action.IsSmallBoundClosed P ∧ ObjectProperty.ofObj S0 ≤ P)

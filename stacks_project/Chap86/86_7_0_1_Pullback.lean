@@ -1,4 +1,11 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.DirectTensorComparison
 
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf
 public import Mathlib.CategoryTheory.Triangulated.Subcategory
@@ -44,12 +51,10 @@ variable {S : Scheme.{u}}
 
 /-- Module sheaves on an algebraic space inherit the canonical tensor product of the commutative
 small étale ringed site. -/
+@[instance_reducible]
 noncomputable instance modulesMonoidalCategory (X : AlgebraicSpace S) :
     MonoidalCategory (Modules X) :=
-  inferInstanceAs
-    (MonoidalCategory
-      (SheafOfModules.RingedSite.ringedSiteModuleCategory
-        (smallEtaleTopology X) (commStructureSheaf X)))
+  Modules.instMonoidalCategory X
 
 /-- The tensor product of `𝒪_X`-modules is additive in each variable. -/
 instance modulesMonoidalPreadditive (X : AlgebraicSpace S) :
@@ -69,12 +74,10 @@ instance hasDerivedTensorRight (X : AlgebraicSpace S) :
 
 /-- Module sheaves on an algebraic space inherit the symmetric monoidal structure of the
 commutative small étale ringed site. -/
+@[instance_reducible]
 noncomputable instance modulesSymmetricCategory (X : AlgebraicSpace S) :
     SymmetricCategory (Modules X) :=
-  inferInstanceAs
-    (SymmetricCategory
-      (SheafOfModules.RingedSite.ringedSiteModuleCategory
-        (smallEtaleTopology X) (commStructureSheaf X)))
+  Modules.DirectTensorComparison.symmetric X
 
 /-- Graded objects of `𝒪_X`-modules admit totalized tensor products. -/
 instance modulesHasGradedTensor (X : AlgebraicSpace S)
@@ -369,13 +372,13 @@ noncomputable def modulesPushforward_μ {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (P Q : Modules X) :
     (Modules.pushforward f).obj P ⊗ (Modules.pushforward f).obj Q ⟶
       (Modules.pushforward f).obj (P ⊗ Q) :=
-  modulePushforward_tensorComparison f (modulesRingMap f) P Q
+  Modules.DirectTensorComparison.pushforwardTensor f P Q
 
 /-- `modulesPushforward_μ` is the Chap67 bilinear comparison. -/
 theorem modulesPushforward_μ_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (P Q : Modules X) :
     modulesPushforward_μ f P Q =
-      modulePushforward_tensorComparison f (modulesRingMap f) P Q :=
+      Modules.DirectTensorComparison.pushforwardTensor f P Q :=
   sorry
 
 /-- The oplax tensor comparison `f^*(M ⊗ N) ⟶ f^* M ⊗ f^* N` of module pullback. -/
@@ -383,13 +386,13 @@ noncomputable def modulesPullbackTensorComparison {X Y : AlgebraicSpace S} (f : 
     (M N : Modules Y) :
     (Modules.pullback f).obj (M ⊗ N) ⟶
       (Modules.pullback f).obj M ⊗ (Modules.pullback f).obj N :=
-  modulePullbackTensorComparison f (modulesRingMap f) M N
+  Modules.DirectTensorComparison.pullbackTensor f M N
 
 /-- `modulesPullbackTensorComparison` is the Chap67 adjunct of the pushforward tensorator. -/
 theorem modulesPullbackTensorComparison_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (M N : Modules Y) :
     modulesPullbackTensorComparison f M N =
-      modulePullbackTensorComparison f (modulesRingMap f) M N :=
+      Modules.DirectTensorComparison.pullbackTensor f M N :=
   sorry
 
 /-- The module-level pullback tensor comparison is an isomorphism. -/
@@ -441,6 +444,7 @@ theorem modulesPullback_tensorBicomplex_comm₂ {X Y : AlgebraicSpace S} (f : X 
         modulesPullbackTensorComparison f (K.X i₁) (L.X i₂') :=
   sorry
 
+set_option maxRecDepth 4096 in
 /-- Pointwise `f^*(M ⊗ N) ⟶ f^* M ⊗ f^* N` as a morphism of tensor bicomplexes. -/
 noncomputable def modulesPullback_tensorBicomplexHom {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (K L : CochainComplex (Modules Y) ℤ) :

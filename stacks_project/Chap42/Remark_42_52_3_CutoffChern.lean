@@ -1,8 +1,14 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Finite
 public import stacks_project.Chap42.Remark_42_34_7_Cutoff
-public import stacks_project.Chap42.Lemma_42_50_2_DefinedChern
+public import stacks_project.Chap42.Definition_42_50_3_LocalizedClasses
 
 @[expose] public section
 
@@ -14,12 +20,6 @@ universe u
 
 namespace AlgebraicGeometry.LocalizedChern
 
-/-- The closed immersion `i` remains a closed immersion as a morphism of `S`-schemes. -/
-instance instIsClosedImmersion_overHomMk
-    {S : Scheme.{u}} {X : Over S} {Z : Scheme.{u}}
-    (i : Z ⟶ X.left) [IsClosedImmersion i] :
-    IsClosedImmersion (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X).left :=
-  ‹IsClosedImmersion i›
 
 
 namespace Situation
@@ -32,49 +32,12 @@ theorem rankBound_of_le
     {i : Z ⟶ X.left} [IsClosedImmersion i]
     {E : RingedSpace.ModuleDerived X.left.toRingedSpace} {p : ℕ}
     (situation : Situation S δ X i E p .rankBound) (n : ℕ) (h : p ≤ n) :
-    Situation S δ X i E n .rankBound := sorry
+    Situation S δ X i E n .rankBound := by
+  refine ⟨situation.perfect, ?_, situation.finiteness⟩
+  obtain ⟨hiso, hfree, hrank⟩ := situation.offCenter
+  exact ⟨hiso, hfree, fun x ↦ lt_of_lt_of_le (hrank x) h⟩
 
 end Situation
-
-/-- The selected localized Chern class of `E` along `Z ⟶ X` in degree `n`, specified by
-proper pushforward to the ambient Chern class `c_n(E)`. -/
-noncomputable def localizedChernClass
-    {S : Scheme.{u}} [UniversallyCatenary S] {δ : S → ℤ} [IsDimensionFunction δ]
-    {X : Over S} [LocallyOfFiniteType X.hom] {Z : Scheme.{u}}
-    (i : Z ⟶ X.left) [IsClosedImmersion i]
-    (classes : ChernClass.Theory δ X.hom)
-    (E : RingedSpace.ModuleDerived X.left.toRingedSpace)
-    (perfect : RingedSpace.ModuleDerived.IsPerfect E) (n : ℕ)
-    (rankBound : Scheme.ModuleDerived.IsVectorBundleOfRankLTInDegree
-      (restrictAway i E) 0 n) (finiteness : TechnicalCondition X E) :
-    BivariantClass δ (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X) (n : ℤ) :=
-  let f : Over.mk (i ≫ X.hom) ⟶ X := Over.homMk i
-  let sit : Situation S δ X i E n RestrictionBehavior.rankBound :=
-    { perfect := perfect, offCenter := rankBound, finiteness := finiteness }
-  @Classical.epsilon (BivariantClass δ f (n : ℤ))
-    ⟨BivariantClass.pointwiseZero δ f (n : ℤ)⟩
-    (fun c : BivariantClass δ f (n : ℤ) ↦
-      (BivariantClass.pushforwardToTarget δ f (n : ℤ) c :
-          ChowCohomology.degree δ X.hom n) =
-        ChernClass.Derived.totalClass δ X.hom classes E perfect sit.isDefined n)
-
-/-- Proper pushforward of `localizedChernClass` recovers the ambient Chern class. -/
-theorem localizedChernClass_spec
-    {S : Scheme.{u}} [UniversallyCatenary S] {δ : S → ℤ} [IsDimensionFunction δ]
-    {X : Over S} [LocallyOfFiniteType X.hom] {Z : Scheme.{u}}
-    (i : Z ⟶ X.left) [IsClosedImmersion i]
-    (classes : ChernClass.Theory δ X.hom)
-    (E : RingedSpace.ModuleDerived X.left.toRingedSpace)
-    (perfect : RingedSpace.ModuleDerived.IsPerfect E) (n : ℕ)
-    (rankBound : Scheme.ModuleDerived.IsVectorBundleOfRankLTInDegree
-      (restrictAway i E) 0 n) (finiteness : TechnicalCondition X E) :
-    (BivariantClass.pushforwardToTarget δ
-        (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X) (n : ℤ)
-        (localizedChernClass i classes E perfect n rankBound finiteness) :
-      ChowCohomology.degree δ X.hom n) =
-      ChernClass.Derived.totalClass δ X.hom classes E perfect
-        ({ perfect := perfect, offCenter := rankBound, finiteness := finiteness } :
-          Situation S δ X i E n RestrictionBehavior.rankBound).isDefined n := sorry
 
 /-- The mixed Chern series of `E` along a closed immersion: ambient Chern classes
 `c_n(E)` in degrees `n < p`, and localized Chern classes `c_n(Z ⟶ X, E)` in degrees
@@ -95,7 +58,7 @@ noncomputable def mixedChernClass
   else
     BivariantClass.Cutoff.ofRelative δ f
       (not_lt.mpr (Nat.cast_le.mpr (le_of_not_gt h)))
-      (localizedChernClass i classes E situation.perfect n
+      (chernClass i classes E situation.perfect n
         (Situation.rankBound_of_le situation n (le_of_not_gt h)).offCenter
         situation.finiteness)
 
@@ -111,7 +74,8 @@ theorem mixedChernClass_of_lt
       BivariantClass.Cutoff.ofAmbient δ
         (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X) (Nat.cast_lt.mpr h)
         (ChernClass.Derived.totalClass δ X.hom classes E situation.perfect
-          situation.isDefined n) := sorry
+          situation.isDefined n) := by
+  simp only [mixedChernClass, dif_pos h]
 
 /-- From the cutoff onward, the mixed series is the localized Chern class of `E`
 along `Z ⟶ X`. -/
@@ -126,9 +90,10 @@ theorem mixedChernClass_of_ge
       BivariantClass.Cutoff.ofRelative δ
         (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X)
         (not_lt.mpr (Nat.cast_le.mpr h))
-        (localizedChernClass i classes E situation.perfect n
+        (chernClass i classes E situation.perfect n
           (Situation.rankBound_of_le situation n h).offCenter
-          situation.finiteness) := sorry
+          situation.finiteness) := by
+  simp only [mixedChernClass, dif_neg (not_lt.mpr h)]
 
 /-- The degree-zero term of the mixed series is the identity class of `X`, whenever the
 cutoff is strictly positive. -/
@@ -163,8 +128,8 @@ theorem mixedChernClass_spec
         BivariantClass.Cutoff.ofRelative δ
           (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X)
           (not_lt.mpr (Nat.cast_le.mpr (le_of_not_gt h)))
-          (localizedChernClass i classes E situation.perfect n
+          (chernClass i classes E situation.perfect n
             (Situation.rankBound_of_le situation n (le_of_not_gt h)).offCenter
-            situation.finiteness) := sorry
+            situation.finiteness) := rfl
 
 end AlgebraicGeometry.LocalizedChern

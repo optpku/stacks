@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Coherent
@@ -45,7 +51,7 @@ theorem stalkModuleCat_isZero_of_proper_of_fiberDimension_eq
     (ybar : GeometricPoint Y) (d : ℕ)
     (hdim : dimension (fiber f ybar) = (d : WithBot ℕ∞))
     (F : X.Modules) [F.IsCoherent] {p : ℕ} (hp : d < p) :
-    IsZero (stalkModuleCat ybar (higherDirectImage f F p)) :=
+    IsZero (stalkModuleCat ybar (Modules.higherDirectImage f F p)) :=
   sorry
 
 /-- If `f` is proper, `Y` is locally Noetherian, and `dim(X_ȳ) < p`, then the geometric
@@ -55,7 +61,7 @@ theorem stalkModuleCat_isZero_of_lt_fiberDimension
     [Abelian X.Modules] [Abelian Y.Modules] [HasInjectiveResolutions X.Modules]
     (ybar : GeometricPoint Y) (F : X.Modules) [F.IsCoherent]
     {p : ℕ} (hp : dimension (fiber f ybar) < p) :
-    IsZero (stalkModuleCat ybar (higherDirectImage f F p)) :=
+    IsZero (stalkModuleCat ybar (Modules.higherDirectImage f F p)) :=
   sorry
 
 end FormalFunctions

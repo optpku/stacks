@@ -1,5 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Meromorphic.Pullback
 public import Mathlib.Algebra.Module.LocalizedModule.Basic
 public import Mathlib.CategoryTheory.Sites.Sheafification
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Internal
@@ -157,12 +164,7 @@ def pullbackModuleSection {X Y : AlgebraicSpace S} {f : X ⟶ Y} (sq : EtaleSqua
         ((Modules.pullbackPushforwardAdjunction f).unit.app F) ≫
       (RingedSite.ToposHom.ModulePushforward.forgetIso (ringedToposHom f)).hom.app F').hom.app
       (op sq.right) ≫
-    ((smallEtaleInclusion X).op.ranObjObjIsoLimit ℱ.obj
-      (op ((etaleBaseChange f).obj sq.right))).hom ≫
-    limit.π
-      (StructuredArrow.proj (op ((etaleBaseChange f).obj sq.right))
-          (smallEtaleInclusion X).op ⋙ ℱ.obj)
-      sq.toStructuredArrow
+    EtaleTopos.extensionEvaluation X ℱ (EtaleTopos.squareArrow f sq)
 
 /-- Applying `pullbackModuleSection` is evaluation of the adjunction unit followed by the
 Ran/limit component of `f_*`. -/
@@ -175,13 +177,8 @@ theorem pullbackModuleSection_eq {X Y : AlgebraicSpace S} {f : X ⟶ Y} (sq : Et
             ((Modules.pullbackPushforwardAdjunction f).unit.app F) ≫
           (RingedSite.ToposHom.ModulePushforward.forgetIso
             (ringedToposHom f)).hom.app F').hom.app (op sq.right) ≫
-        ((smallEtaleInclusion X).op.ranObjObjIsoLimit ℱ.obj
-          (op ((etaleBaseChange f).obj sq.right))).hom ≫
-        limit.π
-          (StructuredArrow.proj (op ((etaleBaseChange f).obj sq.right))
-              (smallEtaleInclusion X).op ⋙ ℱ.obj)
-          sq.toStructuredArrow :=
-  sorry
+        EtaleTopos.extensionEvaluation X ℱ (EtaleTopos.squareArrow f sq) :=
+  rfl
 
 /-- Pullback of universe-lifted module sections along an étale square. -/
 def pullbackLiftedModuleSection {X Y : AlgebraicSpace S} {f : X ⟶ Y} (sq : EtaleSquare f)
@@ -348,10 +345,7 @@ def pullbackMeromorphicSectionMap {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     [PullbacksMeromorphicFunctionsDefined f] (F : Y.Modules) :
     meromorphicSections Y F →
       meromorphicSections X ((Modules.pullback f).obj F) :=
-  fun s ↦
-    (morphismOfTopoiSucc f).pushforwardSectionsEquiv
-        (meromorphicSectionTypeSheaf X ((Modules.pullback f).obj F))
-      ((Functor.sectionsFunctor _).map (pullbackMeromorphicSectionTypeSheafHom F).hom s)
+  MeromorphicConstruction.Pullback.pullback f F
 
 /-- `pullbackMeromorphicSectionMap` is the global-sections map of
 `pullbackMeromorphicSectionTypeSheafHom` transported along `Γ(f_* G) ≅ Γ(G)`. -/

@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.RingTheory.Ideal.Quotient.Basic
+public import Mathlib.RingTheory.Spectrum.Prime.Topology
 public import ReasLib.RingTheory.Spectrum.Prime.Irreducible
 public import Mathlib.Tactic.CrossRefAttribute
 
@@ -37,5 +44,21 @@ minimal prime. -/
 theorem iff_minimalPrimes_eq_singleton_nilradical :
     (∃! p : Ideal R, p ∈ minimalPrimes R) ↔
       minimalPrimes R = {nilradical R} := sorry
+
+end PrimeSpectrum.UniqueMinimalPrime
+
+namespace PrimeSpectrum.UniqueMinimalPrime
+
+variable {R : Type u} [CommSemiring R]
+
+/-- The prime spectrum of a commutative semiring is irreducible exactly when its nilradical
+is prime. -/
+theorem irreducibleSpace_iff_isPrime_nilradical :
+    IrreducibleSpace (PrimeSpectrum R) ↔ (nilradical R).IsPrime :=
+  PrimeSpectrum.irreducibleSpace_iff_isPrime_nilradical
+
+/-- A prime nilradical is the only minimal prime of a commutative semiring. -/
+theorem minimalPrimes_eq_singleton_nilradical_of_isPrime
+    (h : (nilradical R).IsPrime) : minimalPrimes R = {nilradical R} := sorry
 
 end PrimeSpectrum.UniqueMinimalPrime

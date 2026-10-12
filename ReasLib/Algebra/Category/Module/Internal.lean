@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.Algebra.Category.Ring.Internal
@@ -64,33 +70,51 @@ attribute [instance] id comp
 end IsModuleHom
 
 /-- The bundled category of left module objects over an internal ring `R`. -/
-structure ModuleObjCat (R : RingObjCat C) where
-  /-- The carrier in the ambient category. -/
-  X : C
-  /-- The internal left-module structure on the carrier. -/
-  [moduleObj : ModuleObj R X]
+abbrev ModuleObjCat (R : RingObjCat C) := Σ X : C, ModuleObj R X
 
 namespace ModuleObjCat
 
-attribute [instance] moduleObj
+/-- Construct a bundled internal module from its carrier and module structure. -/
+def mk {R : RingObjCat C} (X : C) (moduleObj : ModuleObj R X) : ModuleObjCat R :=
+  ⟨X, moduleObj⟩
+
+/-- The carrier of a bundled internal module. -/
+abbrev X {R : RingObjCat C} (M : ModuleObjCat R) : C := M.1
+
+/-- The internal module structure carried by a bundled internal module. -/
+abbrev moduleObj {R : RingObjCat C} (M : ModuleObjCat R) : ModuleObj R M.X := M.2
 
 /-- A bundled morphism of internal left modules. -/
-structure Hom {R : RingObjCat C} (M N : ModuleObjCat R) where
-  /-- The underlying morphism in the ambient category. -/
-  hom : M.X ⟶ N.X
-  /-- The underlying morphism preserves addition and the scalar action. -/
-  [isModuleHom : IsModuleHom R hom]
+abbrev Hom {R : RingObjCat C} (M N : ModuleObjCat R) :=
+  {f : M.X ⟶ N.X //
+    @IsModuleHom C _ _ _ R M.X N.X M.moduleObj N.moduleObj f}
 
-attribute [instance] Hom.isModuleHom
+namespace Hom
+
+/-- Construct a bundled internal-module morphism from its map and preservation proof. -/
+def mk {R : RingObjCat C} {M N : ModuleObjCat R} (hom : M.X ⟶ N.X)
+    (isModuleHom : @IsModuleHom C _ _ _ R M.X N.X M.moduleObj N.moduleObj hom) : Hom M N :=
+  ⟨hom, isModuleHom⟩
+
+/-- The underlying morphism of a bundled internal-module morphism. -/
+abbrev hom {R : RingObjCat C} {M N : ModuleObjCat R} (f : Hom M N) : M.X ⟶ N.X := f.1
+
+/-- The proof that a bundled internal-module morphism preserves module structure. -/
+abbrev isModuleHom {R : RingObjCat C} {M N : ModuleObjCat R} (f : Hom M N) :
+    @IsModuleHom C _ _ _ R M.X N.X M.moduleObj N.moduleObj f.1 := f.2
+
+end Hom
 
 /-- The identity morphism of a bundled internal module. -/
-def id {R : RingObjCat C} (M : ModuleObjCat R) : Hom M M where
-  hom := 𝟙 M.X
+def id {R : RingObjCat C} (M : ModuleObjCat R) : Hom M M :=
+  Hom.mk (𝟙 M.X) (@IsModuleHom.id C _ _ _ R M.X M.moduleObj)
 
 /-- Composition of bundled internal-module morphisms. -/
 def comp {R : RingObjCat C} {M N P : ModuleObjCat R}
-    (f : Hom M N) (g : Hom N P) : Hom M P where
-  hom := f.hom ≫ g.hom
+    (f : Hom M N) (g : Hom N P) : Hom M P :=
+  Hom.mk (f.1 ≫ g.1)
+    (@IsModuleHom.comp C _ _ _ R M.X N.X P.X M.moduleObj N.moduleObj P.moduleObj
+      f.1 g.1 f.2 g.2)
 
 /-- Left identity law for bundled internal-module morphisms. -/
 theorem id_comp {R : RingObjCat C} {M N : ModuleObjCat R} (f : Hom M N) :
@@ -117,23 +141,23 @@ instance category (R : RingObjCat C) : Category (ModuleObjCat R) where
 /-- Bundled internal-module morphisms are determined by their underlying morphisms. -/
 @[ext]
 theorem hom_ext {R : RingObjCat C} {M N : ModuleObjCat R} {f g : M ⟶ N}
-    (h : f.hom = g.hom) : f = g := sorry
+    (h : f.1 = g.1) : f = g := sorry
 
 /-- The underlying morphism of an identity internal-module morphism. -/
 @[simp]
 theorem id_hom {R : RingObjCat C} (M : ModuleObjCat R) :
-    (𝟙 M : M ⟶ M).hom = 𝟙 M.X := sorry
+    (𝟙 M : M ⟶ M).1 = 𝟙 M.X := sorry
 
 /-- The underlying morphism of a composite internal-module morphism. -/
 @[simp]
 theorem comp_hom {R : RingObjCat C} {M N P : ModuleObjCat R}
     (f : M ⟶ N) (g : N ⟶ P) :
-    (f ≫ g).hom = f.hom ≫ g.hom := sorry
+    (f ≫ g).1 = f.1 ≫ g.1 := sorry
 
 /-- The forgetful functor from internal `R`-modules to the ambient category. -/
 def forget (R : RingObjCat C) : ModuleObjCat R ⥤ C where
   obj M := M.X
-  map f := f.hom
+  map f := f.1
   map_id := id_hom
   map_comp := comp_hom
 
@@ -148,7 +172,7 @@ variable {R : RingObjCat C}
 /-- The additive-group structure on the image of an internal module. -/
 noncomputable abbrev mapModuleAddGrpObj (M : ModuleObjCat R) :
     AddGrpObj (F.obj M.X) :=
-  (F.mapAddGrp.obj ⟨M.X⟩).addGrp
+  (F.mapAddGrp.obj { X := M.X, addGrp := M.moduleObj.toAddGrpObj }).addGrp
 
 /-- Addition on the image of an internal module. -/
 noncomputable abbrev mapModuleAdd (M : ModuleObjCat R) :
@@ -206,20 +230,18 @@ noncomputable def mapModuleObj (M : ModuleObjCat R) :
 
 /-- The bundled internal module obtained by applying a braided monoidal functor. -/
 noncomputable def mapModuleObject (M : ModuleObjCat R) :
-    ModuleObjCat (mapRingObject F R) where
-  X := F.obj M.X
-  moduleObj := mapModuleObj F M
+    ModuleObjCat (mapRingObject F R) :=
+  ModuleObjCat.mk (F.obj M.X) (mapModuleObj F M)
 
 /-- Mapping an internal-module morphism preserves addition and the scalar action. -/
 theorem mapModule_isModuleHom {M N : ModuleObjCat R} (f : M ⟶ N) :
     @IsModuleHom D _ _ _ (mapRingObject F R) (F.obj M.X) (F.obj N.X)
-      (mapModuleObj F M) (mapModuleObj F N) (F.map f.hom) := sorry
+      (mapModuleObj F M) (mapModuleObj F N) (F.map f.1) := sorry
 
 /-- The internal-module morphism obtained by applying a braided monoidal functor. -/
 noncomputable def mapModuleMap {M N : ModuleObjCat R} (f : M ⟶ N) :
-    mapModuleObject F M ⟶ mapModuleObject F N where
-  hom := F.map f.hom
-  isModuleHom := mapModule_isModuleHom F f
+    mapModuleObject F M ⟶ mapModuleObject F N :=
+  ⟨F.map f.1, mapModule_isModuleHom F f⟩
 
 /-- Mapping internal modules preserves identity morphisms. -/
 theorem mapModule_map_id (M : ModuleObjCat R) :

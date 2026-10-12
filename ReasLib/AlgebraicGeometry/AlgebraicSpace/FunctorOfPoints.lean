@@ -1,4 +1,15 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
+
+public import Mathlib.AlgebraicGeometry.Limits
+public import Mathlib.CategoryTheory.Limits.Constructions.Over.Basic
+public import Mathlib.CategoryTheory.Limits.Yoneda
+public import Mathlib.CategoryTheory.Sites.SubcanonicalOver
 
 public import Mathlib.AlgebraicGeometry.Sites.Etale
 public import Mathlib.AlgebraicGeometry.Sites.Fpqc
@@ -129,19 +140,33 @@ theorem ofFunctor_spec {S : Scheme.{u}} (F : (Over S)ᵒᵖ ⥤ Type u)
 
 /-- The representable functor `yoneda.obj T` is an fppf sheaf on schemes over `S`. -/
 theorem ofOver_isSheaf {S : Scheme.{u}} (T : Over S) :
-    Presheaf.IsSheaf (Scheme.fppfTopology.over S) (yoneda.obj T) := sorry
+    Presheaf.IsSheaf (Scheme.fppfTopology.over S) (yoneda.obj T) :=
+  (isSheaf_iff_isSheaf_of_type _ _).mpr
+    (GrothendieckTopology.Subcanonical.isSheaf_of_isRepresentable (yoneda.obj T))
 
 /-- The diagonal of the representable functor `yoneda.obj T` is representable by schemes over `S`. -/
 theorem ofOver_representableDiagonal {S : Scheme.{u}} (T : Over S) :
-    yoneda.relativelyRepresentable (Limits.diag (yoneda.obj T)) := sorry
+    yoneda.relativelyRepresentable (Limits.diag (yoneda.obj T)) := by
+  apply Functor.relativelyRepresentable.diag_of_map_from_obj
+  intro U f
+  rw [← yoneda.map_preimage f]
+  exact Functor.relativelyRepresentable.map _ _
 
 /-- The identity transformation of `yoneda.obj T` is representable and étale. -/
 theorem ofOver_id_presheaf_etale {S : Scheme.{u}} (T : Over S) :
-    (MorphismProperty.over (@Etale)).presheaf (𝟙 (yoneda.obj T)) := sorry
+    (MorphismProperty.over (@Etale)).presheaf (𝟙 (yoneda.obj T)) := by
+  refine ⟨Functor.relativelyRepresentable.of_isIso yoneda _, ?_⟩
+  intro a b g fst snd h
+  have : IsIso (yoneda.map snd) := h.isIso_snd_of_isIso
+  have : IsIso snd := isIso_of_reflects_iso snd yoneda
+  have : IsIso snd.left := inferInstanceAs (IsIso ((Over.forget S).map snd))
+  change Etale snd.left
+  infer_instance
 
 /-- The identity transformation of `yoneda.obj T` is étale-locally surjective. -/
 theorem ofOver_id_locallySurjective {S : Scheme.{u}} (T : Over S) :
-    Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) (𝟙 (yoneda.obj T)) := sorry
+    Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) (𝟙 (yoneda.obj T)) :=
+  inferInstance
 
 /-- Construct the algebraic space over `S` represented by a scheme `T` over `S`. -/
 def ofOver {S : Scheme.{u}} (T : Over S) : AlgebraicSpace S :=

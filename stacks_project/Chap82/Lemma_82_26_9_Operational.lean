@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap82.Definition_82_26_2_ChowCohomology
@@ -52,9 +58,9 @@ theorem eq_zero_iff_vanishes {p : ℤ} (c : degree δ f p) :
 def cap_fundamental {Y : AlgebraicSpace S} {p : ℤ} (c : degree δ f p)
     (g : Y ⟶ X) [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)]
     [LocallyOfFiniteType g] [IsIntegral Y] :
-    (g ≫ f).chowGroup δ ((g ≫ f).deltaDimension δ (univIrreducibleClosed Y) - p) :=
-  c.cap g ((g ≫ f).deltaDimension δ (univIrreducibleClosed Y))
-    ((g ≫ f).fundamentalClass δ)
+    (Hom.chowGroup (g ≫ f)) δ ((Hom.deltaDimension (g ≫ f)) δ (univIrreducibleClosed Y) - p) :=
+  c.cap g ((Hom.deltaDimension (g ≫ f)) δ (univIrreducibleClosed Y))
+    ((Hom.fundamentalClass (g ≫ f)) δ)
 
 /-- `cap_fundamental` is the cap map on the fundamental class of `Y`. -/
 theorem cap_fundamental_eq {Y : AlgebraicSpace S} {p : ℤ}
@@ -62,8 +68,8 @@ theorem cap_fundamental_eq {Y : AlgebraicSpace S} {p : ℤ}
     [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)]
     [LocallyOfFiniteType g] [IsIntegral Y] :
     cap_fundamental c g =
-      c.cap g ((g ≫ f).deltaDimension δ (univIrreducibleClosed Y))
-        ((g ≫ f).fundamentalClass δ) :=
+      c.cap g ((Hom.deltaDimension (g ≫ f)) δ (univIrreducibleClosed Y))
+        ((Hom.fundamentalClass (g ≫ f)) δ) :=
   sorry
 
 end AlgebraicGeometry.AlgebraicSpace.ChowCohomology

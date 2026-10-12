@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicTopology.SimplicialObject.Truncated.KanExtension.Pointwise
@@ -84,7 +90,7 @@ theorem ofIso {X Y : SimplicialObject C} {n : ℕ}
 theorem ofIso.explicit {X Y : SimplicialObject C} {n : ℕ}
     (hX : X.IsCoskeletal n) (e : X ≅ Y) : Y.IsCoskeletal n := sorry
 
-/-- Lemma 14.19.10 (4) (018B): an `n`-coskeletal simplicial object is `m`-coskeletal for every
+/-- An `n`-coskeletal simplicial object is `m`-coskeletal for every
 `n ≤ m`. -/
 @[stacks 018B "coskeletality is monotone"]
 theorem ofLE {X : SimplicialObject C} {n m : ℕ}
@@ -159,7 +165,7 @@ variable [SimplicialObject.Truncated.HasPointwiseCoskeletons C n]
 
 namespace cosk
 
-/-- Lemma 14.19.10 (3) (018B): the canonical `n`-coskeleton is `n`-coskeletal. -/
+/-- The canonical `n`-coskeleton is `n`-coskeletal. -/
 @[stacks 018B "a coskeleton is coskeletal"]
 instance isCoskeletal (U : SimplicialObject.Truncated C n) :
     ((Truncated.cosk n).obj U).IsCoskeletal n := sorry

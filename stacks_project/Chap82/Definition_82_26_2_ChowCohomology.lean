@@ -1,5 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.ZeroSchemeFactor
+public import stacks_project.Chap82.Definition_82_18_1_ChernCap
 public import Mathlib.Algebra.DirectSum.Ring
 public import Mathlib.Topology.LocallyFinsupp
 public import ReasLib.AlgebraicGeometry.AlgebraicCycle.LocallyFiniteSum
@@ -185,9 +193,9 @@ theorem properPushforward_mem_cycleGroup {X Y : AlgebraicSpace S}
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
     (pY : Y ⟶ B) [QuasiSeparated pY] [LocallyOfFiniteType pY]
     (h : X ⟶ Y) [Proper h] (hf : h ≫ pY = pX) (k : ℤ)
-    (α : pX.cycleGroup δ k) :
+    (α : Hom.cycleGroup pX δ k) :
     properPushforwardCycle pX pY h (α : Function.locallyFinsupp (Points X) ℤ) ∈
-      pY.cycleGroup δ k :=
+      Hom.cycleGroup pY δ k :=
   sorry
 
 /-- Proper pushforward as an additive map on cycle groups of a fixed relative
@@ -196,7 +204,7 @@ def properPushforwardHom {X Y : AlgebraicSpace S}
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
     (pY : Y ⟶ B) [QuasiSeparated pY] [LocallyOfFiniteType pY]
     (h : X ⟶ Y) [Proper h] (hf : h ≫ pY = pX) (k : ℤ) :
-    pX.cycleGroup δ k →+ pY.cycleGroup δ k where
+    Hom.cycleGroup pX δ k →+ Hom.cycleGroup pY δ k where
   toFun α :=
     ⟨properPushforwardCycle pX pY h (α : Function.locallyFinsupp (Points X) ℤ),
       properPushforward_mem_cycleGroup δ pX pY h hf k α⟩
@@ -219,7 +227,7 @@ noncomputable def properPushforward {X Y : AlgebraicSpace S}
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
     (pY : Y ⟶ B) [QuasiSeparated pY] [LocallyOfFiniteType pY]
     (h : X ⟶ Y) [Proper h] (hf : h ≫ pY = pX) (k : ℤ) :
-    pX.chowGroup δ k →+ pY.chowGroup δ k :=
+    Hom.chowGroup pX δ k →+ Hom.chowGroup pY δ k :=
   QuotientAddGroup.map
     (RationalEquivalence.boundaries pX δ k)
     (RationalEquivalence.boundaries pY δ k)
@@ -231,9 +239,9 @@ theorem properPushforward_chowMk {X Y : AlgebraicSpace S}
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
     (pY : Y ⟶ B) [QuasiSeparated pY] [LocallyOfFiniteType pY]
     (h : X ⟶ Y) [Proper h] (hf : h ≫ pY = pX) (k : ℤ)
-    (α : pX.cycleGroup δ k) :
-    properPushforward δ pX pY h hf k (pX.chowMk δ k α) =
-      pY.chowMk δ k (properPushforwardHom δ pX pY h hf k α) :=
+    (α : Hom.cycleGroup pX δ k) :
+    properPushforward δ pX pY h hf k (Hom.chowMk pX δ k α) =
+      Hom.chowMk pY δ k (properPushforwardHom δ pX pY h hf k α) :=
   sorry
 
 /-- Coefficients of a flat pullback are locally finite on `|X|`. -/
@@ -248,7 +256,7 @@ theorem flatPullback_locallyFiniteSupport {X Y : AlgebraicSpace S}
           (@ClosedSubspace.associatedCycle S X
             (LocallyOfFiniteType.isLocallyNoetherian pX)
             ((ClosedSubspace.pointClosure y).inverseImage h)
-            (pX.relativeDimensionFunction δ) (k + (r : ℤ)) x) :=
+            (Hom.relativeDimensionFunction pX δ) (k + (r : ℤ)) x) :=
   sorry
 
 /-- Flat pullback of a cycle along a morphism of relative dimension `r`. -/
@@ -264,7 +272,7 @@ def flatPullback {X Y : AlgebraicSpace S}
         (@ClosedSubspace.associatedCycle S X
           (LocallyOfFiniteType.isLocallyNoetherian pX)
           ((ClosedSubspace.pointClosure y).inverseImage h)
-          (pX.relativeDimensionFunction δ) (k + (r : ℤ)) x)
+          (Hom.relativeDimensionFunction pX δ) (k + (r : ℤ)) x)
   supportWithinDomain' := Set.subset_univ _
   supportLocallyFiniteWithinDomain' x _ :=
     flatPullback_locallyFiniteSupport δ pY pX h r hf k α x
@@ -283,7 +291,7 @@ theorem flatPullback_apply {X Y : AlgebraicSpace S}
           (@ClosedSubspace.associatedCycle S X
             (LocallyOfFiniteType.isLocallyNoetherian pX)
             ((ClosedSubspace.pointClosure y).inverseImage h)
-            (pX.relativeDimensionFunction δ) (k + (r : ℤ)) x) :=
+            (Hom.relativeDimensionFunction pX δ) (k + (r : ℤ)) x) :=
   sorry
 
 /-- Flat pullback sends `k`-cycles on `Y` to `(k + r)`-cycles on `X`. -/
@@ -292,8 +300,8 @@ theorem flatPullback_mem_cycleGroup {X Y : AlgebraicSpace S}
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
     (h : X ⟶ Y) (r : ℕ) [Flat h] [RelativeDimension h r]
     (hf : h ≫ pY = pX) (k : ℤ) {α : Function.locallyFinsupp (Points Y) ℤ}
-    (hα : α ∈ pY.cycleGroup δ k) :
-    flatPullback δ pY pX h r hf k α ∈ pX.cycleGroup δ (k + (r : ℤ)) :=
+    (hα : α ∈ Hom.cycleGroup pY δ k) :
+    flatPullback δ pY pX h r hf k α ∈ Hom.cycleGroup pX δ (k + (r : ℤ)) :=
   sorry
 
 /-- Flat pullback as an additive map `Z_k(Y) → Z_{k + r}(X)`. -/
@@ -302,7 +310,7 @@ def flatPullbackHom {X Y : AlgebraicSpace S}
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
     (h : X ⟶ Y) (r : ℕ) [Flat h] [RelativeDimension h r]
     (hf : h ≫ pY = pX) (k : ℤ) :
-    pY.cycleGroup δ k →+ pX.cycleGroup δ (k + (r : ℤ)) where
+    Hom.cycleGroup pY δ k →+ Hom.cycleGroup pX δ (k + (r : ℤ)) where
   toFun α :=
     ⟨flatPullback δ pY pX h r hf k α,
       flatPullback_mem_cycleGroup δ pY pX h r hf k α.property⟩
@@ -327,7 +335,7 @@ noncomputable def chowFlatPullback {X Y : AlgebraicSpace S}
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
     (h : X ⟶ Y) (r : ℕ) [Flat h] [RelativeDimension h r]
     (hf : h ≫ pY = pX) (k : ℤ) :
-    pY.chowGroup δ k →+ pX.chowGroup δ (k + (r : ℤ)) :=
+    Hom.chowGroup pY δ k →+ Hom.chowGroup pX δ (k + (r : ℤ)) :=
   QuotientAddGroup.map
     (RationalEquivalence.boundaries pY δ k)
     (RationalEquivalence.boundaries pX δ (k + (r : ℤ)))
@@ -339,9 +347,9 @@ theorem chowFlatPullback_chowMk {X Y : AlgebraicSpace S}
     (pY : Y ⟶ B) [QuasiSeparated pY] [LocallyOfFiniteType pY]
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
     (h : X ⟶ Y) (r : ℕ) [Flat h] [RelativeDimension h r]
-    (hf : h ≫ pY = pX) (k : ℤ) (α : pY.cycleGroup δ k) :
-    chowFlatPullback δ pY pX h r hf k (pY.chowMk δ k α) =
-      pX.chowMk δ (k + (r : ℤ)) (flatPullbackHom δ pY pX h r hf k α) :=
+    (hf : h ≫ pY = pX) (k : ℤ) (α : Hom.cycleGroup pY δ k) :
+    chowFlatPullback δ pY pX h r hf k (Hom.chowMk pY δ k α) =
+      Hom.chowMk pX δ (k + (r : ℤ)) (flatPullbackHom δ pY pX h r hf k α) :=
   sorry
 
 /-- The zero scheme of a section remains quasi-separated over the fixed good
@@ -359,61 +367,183 @@ instance instLocallyOfFiniteType_zeroScheme_comp {X : AlgebraicSpace S}
     LocallyOfFiniteType (zeroSchemeι L s ≫ pX) :=
   sorry
 
-/-- The Gysin generator cycle of a point of relative dimension `k + 1` is the
-associated `k`-cycle of `Z(s) ∩ closure({x})` on `Z(s)`. -/
-noncomputable def gysinGeneratorCycle {X : AlgebraicSpace S}
+namespace GysinConstruction
+
+variable {X : AlgebraicSpace S}
+    (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
+    (L : X.Modules) [isInvertibleObject L] (s : L.sections)
+
+-- Local instance justification (proof-local temporary data): The generator formula uses the reduced point closure over the fixed good base; install its two proved finiteness properties only in this construction.
+attribute [local instance] closure_quasiSeparated closure_locallyOfFiniteType
+
+/-- The source's contained branch uses scheme-theoretic vanishing on the
+reduced integral point closure, not an assumed map into the zero scheme. -/
+abbrev Contained (x : Points X) : Prop :=
+  AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.ZeroSchemeFactor.VanishesOn L s (PointClosure.ι x)
+
+/-- The reduced point closure is contained in Z(s) exactly when the restricted
+section vanishes. Reducedness rules out a merely nilpotent nonzero restriction. -/
+theorem contained_iff_support (x : Points X) :
+    Contained L s x ↔
+      (ClosedSubspace.pointClosure x).pointsSet ⊆ (zeroScheme L s).pointsSet := by
+  sorry
+
+/-- The actual closed inclusion W → Z(s), defined on each test point. -/
+def intoZero (x : Points X) (h : Contained L s x) :
+    PointClosure.space x ⟶ (zeroScheme L s).X :=
+  AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.ZeroSchemeFactor.lift L s (PointClosure.ι x) h
+
+@[simp] theorem intoZero_ι (x : Points X) (h : Contained L s x) :
+    intoZero L s x h ≫ zeroSchemeι L s = PointClosure.ι x :=
+  AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.ZeroSchemeFactor.lift_ι L s (PointClosure.ι x) h
+
+instance intoZero_isClosedImmersion (x : Points X) (h : Contained L s x) :
+    IsClosedImmersion (intoZero L s x h) :=
+  AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.ZeroSchemeFactor.lift_isClosedImmersion L s (PointClosure.ι x) h
+
+theorem intoZero_over (x : Points X) (h : Contained L s x) :
+    intoZero L s x h ≫ (zeroSchemeι L s ≫ pX) = PointClosure.ι x ≫ pX := by
+  rw [← Category.assoc, intoZero_ι]
+
+/-- The relative degree of the same generic point is unchanged by the closed
+inclusion. This is a law of the specified point-closure inclusion. -/
+theorem generic_degree (k : ℤ) (x : Points X)
+    (hx : Hom.relativeDimensionFunction pX δ x = k + 1) :
+    Hom.relativeDimensionFunction (PointClosure.ι x ≫ pX) δ (PointClosure.generic x) = k + 1 := by
+  sorry
+
+/-- The genuine fundamental cycle of W: coefficient one at its generic point. -/
+def fundamental (k : ℤ) (x : Points X)
+    (hx : Hom.relativeDimensionFunction pX δ x = k + 1) :
+    Hom.cycleGroup (PointClosure.ι x ≫ pX) δ (k + 1) := by
+  classical
+  exact ⟨Function.locallyFinsuppWithin.single (PointClosure.generic x) 1, by
+    intro y hy
+    by_cases h : y = PointClosure.generic x
+    · simpa only [h] using generic_degree δ pX k x hx
+    · simp [Function.locallyFinsuppWithin.single_apply, h] at hy⟩
+
+/-- A representative for c1(L|W) cap [W], using the canonical public Chern owner.
+The underlying line is the actual pullback of L; no Chern-family parameter is added. -/
+def containedChernCycle (k : ℤ) (x : Points X)
+    (hx : Hom.relativeDimensionFunction pX δ x = k + 1) :
+    Hom.cycleGroup (PointClosure.ι x ≫ pX) δ k := by
+  -- Local instance justification (proof-local temporary data): The contained branch applies c1 to the actual restriction of L to the reduced point closure, with invertibility supplied by its pullback theorem.
+  letI := Modules.isInvertibleObject_pullback (PointClosure.ι x) L
+  exact ⟨firstChernCycle (PointClosure.ι x ≫ pX) δ
+      ((Modules.pullback (PointClosure.ι x)).obj L) k
+      (fundamental δ pX k x hx : Function.locallyFinsupp (Points (PointClosure.space x)) ℤ),
+    firstChernCycle_mem (PointClosure.ι x ≫ pX) δ
+      ((Modules.pullback (PointClosure.ι x)).obj L) k (fundamental δ pX k x hx)⟩
+
+/-- Actual residue-weighted pushforward along W → Z(s) of the restricted Chern cycle. -/
+def containedValue (k : ℤ) (x : Points X)
+    (hx : Hom.relativeDimensionFunction pX δ x = k + 1) (h : Contained L s x) :
+    Hom.cycleGroup (zeroSchemeι L s ≫ pX) δ k :=
+  properPushforwardHom δ (PointClosure.ι x ≫ pX) (zeroSchemeι L s ≫ pX)
+    (intoZero L s x h) (intoZero_over pX L s x h) k (containedChernCycle δ pX L k x hx)
+
+/-- Its Chow class is precisely the source's i'_* (c1(L|W) cap [W]). -/
+theorem containedValue_chowMk (k : ℤ) (x : Points X)
+    (hx : Hom.relativeDimensionFunction pX δ x = k + 1) (h : Contained L s x) :
+    Hom.chowMk (zeroSchemeι L s ≫ pX) δ k (containedValue δ pX L s k x hx h) =
+      @properPushforward S B _ _ δ _ (PointClosure.space x) (zeroScheme L s).X
+        (PointClosure.ι x ≫ pX) _ _ (zeroSchemeι L s ≫ pX) _ _
+        (intoZero L s x h) _ (intoZero_over pX L s x h) k
+        (@firstChernClassCap S B (PointClosure.space x) _ _ (PointClosure.ι x ≫ pX) _ _
+          δ _ ((Modules.pullback (PointClosure.ι x)).obj L)
+          (Modules.isInvertibleObject_pullback (PointClosure.ι x) L) k (fundamental δ pX k x hx)) := by
+  rfl
+
+end GysinConstruction
+
+/-- The two source branches of refined Gysin: restricted first Chern pushed
+from W when W is contained in Z(s), and the intersection cycle otherwise. -/
+noncomputable def RefinedGysin.gysinGeneratorCycle {X : AlgebraicSpace S}
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX] (k : ℤ)
     (L : X.Modules) [isInvertibleObject L] (s : L.sections) (x : Points X)
-    (hx : pX.relativeDimensionFunction δ x = k + 1) :
-    Function.locallyFinsupp (Points (zeroScheme L s).X) ℤ :=
-  let _ := hx
-  @ClosedSubspace.associatedCycle S (zeroScheme L s).X
-    (LocallyOfFiniteType.isLocallyNoetherian (zeroSchemeι L s ≫ pX))
-    ((ClosedSubspace.pointClosure x).inverseImage (zeroSchemeι L s))
-    ((zeroSchemeι L s ≫ pX).relativeDimensionFunction δ) k
+    (hx : Hom.relativeDimensionFunction pX δ x = k + 1) :
+    Function.locallyFinsupp (Points (zeroScheme L s).X) ℤ := by
+  classical
+  exact if h : GysinConstruction.Contained L s x then
+    (GysinConstruction.containedValue δ pX L s k x hx h).val
+  else
+    @ClosedSubspace.associatedCycle S (zeroScheme L s).X
+      (LocallyOfFiniteType.isLocallyNoetherian (zeroSchemeι L s ≫ pX))
+      ((ClosedSubspace.pointClosure x).inverseImage (zeroSchemeι L s))
+      (Hom.relativeDimensionFunction (zeroSchemeι L s ≫ pX) δ) k
+
+/-- The contained branch stated with the original source condition W ⊆ Z(s).
+No chosen factor map or extra trivialization is a parameter. -/
+theorem gysinGeneratorCycle_of_support_subset {X : AlgebraicSpace S}
+    (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX] (k : ℤ)
+    (L : X.Modules) [isInvertibleObject L] (s : L.sections) (x : Points X)
+    (hx : Hom.relativeDimensionFunction pX δ x = k + 1)
+    (hW : (ClosedSubspace.pointClosure x).pointsSet ⊆ (zeroScheme L s).pointsSet) :
+    RefinedGysin.gysinGeneratorCycle δ pX k L s x hx =
+      (GysinConstruction.containedValue δ pX L s k x hx
+        ((GysinConstruction.contained_iff_support L s x).mpr hW)).val := by
+  classical
+  simp only [RefinedGysin.gysinGeneratorCycle, dif_pos ((GysinConstruction.contained_iff_support L s x).mpr hW)]
+
+/-- The other source branch keeps the associated intersection cycle verbatim. -/
+theorem gysinGeneratorCycle_of_not_support_subset {X : AlgebraicSpace S}
+    (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX] (k : ℤ)
+    (L : X.Modules) [isInvertibleObject L] (s : L.sections) (x : Points X)
+    (hx : Hom.relativeDimensionFunction pX δ x = k + 1)
+    (hW : ¬(ClosedSubspace.pointClosure x).pointsSet ⊆ (zeroScheme L s).pointsSet) :
+    RefinedGysin.gysinGeneratorCycle δ pX k L s x hx =
+      @ClosedSubspace.associatedCycle S (zeroScheme L s).X
+        (LocallyOfFiniteType.isLocallyNoetherian (zeroSchemeι L s ≫ pX))
+        ((ClosedSubspace.pointClosure x).inverseImage (zeroSchemeι L s))
+        (Hom.relativeDimensionFunction (zeroSchemeι L s ≫ pX) δ) k := by
+  classical
+  have h : ¬GysinConstruction.Contained L s x :=
+    fun hc ↦ hW ((GysinConstruction.contained_iff_support L s x).mp hc)
+  simp only [RefinedGysin.gysinGeneratorCycle, dif_neg h]
 
 /-- The coefficient-weighted Gysin generator cycles of a locally finite cycle
 form a locally finite family on `Z(s)`. -/
-theorem gysinGeneratorTermsLocallyFinite {X : AlgebraicSpace S}
+theorem RefinedGysin.gysinGeneratorTermsLocallyFinite {X : AlgebraicSpace S}
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX] (k : ℤ)
     (L : X.Modules) [isInvertibleObject L] (s : L.sections)
     (α : Function.locallyFinsupp (Points X) ℤ) :
     LocallyFinite fun x : Points X ↦
-      (if hx : pX.relativeDimensionFunction δ x = k + 1 then
-        α x • gysinGeneratorCycle δ pX k L s x hx
+      (if hx : Hom.relativeDimensionFunction pX δ x = k + 1 then
+        α x • RefinedGysin.gysinGeneratorCycle δ pX k L s x hx
       else 0).support :=
   sorry
 
 /-- The explicit locally finite Gysin cycle on `Z(s)`. -/
-noncomputable def gysinCycle {X : AlgebraicSpace S}
+noncomputable def RefinedGysin.gysinCycle {X : AlgebraicSpace S}
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX] (k : ℤ)
     (L : X.Modules) [isInvertibleObject L] (s : L.sections)
     (α : Function.locallyFinsupp (Points X) ℤ) :
     Function.locallyFinsupp (Points (zeroScheme L s).X) ℤ :=
   AlgebraicCycle.locallyFiniteSum
     (fun x : Points X ↦
-      if hx : pX.relativeDimensionFunction δ x = k + 1 then
-        α x • gysinGeneratorCycle δ pX k L s x hx
+      if hx : Hom.relativeDimensionFunction pX δ x = k + 1 then
+        α x • RefinedGysin.gysinGeneratorCycle δ pX k L s x hx
       else 0)
-    (gysinGeneratorTermsLocallyFinite δ pX k L s α)
+    (RefinedGysin.gysinGeneratorTermsLocallyFinite δ pX k L s α)
 
 /-- The Gysin cycle of a `(k + 1)`-cycle is a `k`-cycle on `Z(s)`. -/
-theorem gysinCycle_mem {X : AlgebraicSpace S}
+theorem RefinedGysin.gysinCycle_mem {X : AlgebraicSpace S}
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX] (k : ℤ)
     (L : X.Modules) [isInvertibleObject L] (s : L.sections)
-    (α : pX.cycleGroup δ (k + 1)) :
-    gysinCycle δ pX k L s (α : Function.locallyFinsupp (Points X) ℤ) ∈
-      (zeroSchemeι L s ≫ pX).cycleGroup δ k :=
+    (α : Hom.cycleGroup pX δ (k + 1)) :
+    RefinedGysin.gysinCycle δ pX k L s (α : Function.locallyFinsupp (Points X) ℤ) ∈
+      Hom.cycleGroup (zeroSchemeι L s ≫ pX) δ k :=
   sorry
 
 /-- Cycle-level Gysin homomorphism `Z_{k + 1}(X) →+ Z_k(Z(s))`. -/
 noncomputable def gysinCycleHom {X : AlgebraicSpace S}
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX] (k : ℤ)
     (L : X.Modules) [isInvertibleObject L] (s : L.sections) :
-    pX.cycleGroup δ (k + 1) →+ (zeroSchemeι L s ≫ pX).cycleGroup δ k where
+    Hom.cycleGroup pX δ (k + 1) →+ Hom.cycleGroup (zeroSchemeι L s ≫ pX) δ k where
   toFun α :=
-    ⟨gysinCycle δ pX k L s (α : Function.locallyFinsupp (Points X) ℤ),
-      gysinCycle_mem δ pX k L s α⟩
+    ⟨RefinedGysin.gysinCycle δ pX k L s (α : Function.locallyFinsupp (Points X) ℤ),
+      RefinedGysin.gysinCycle_mem δ pX k L s α⟩
   map_zero' := sorry
   map_add' := sorry
 
@@ -431,7 +561,7 @@ invertible module. -/
 noncomputable def chowGysin {X : AlgebraicSpace S}
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
     (L : X.Modules) [isInvertibleObject L] (s : L.sections) (k : ℤ) :
-    pX.chowGroup δ (k + 1) →+ (zeroSchemeι L s ≫ pX).chowGroup δ k :=
+    Hom.chowGroup pX δ (k + 1) →+ Hom.chowGroup (zeroSchemeι L s ≫ pX) δ k :=
   QuotientAddGroup.map
     (RationalEquivalence.boundaries pX δ (k + 1))
     (RationalEquivalence.boundaries (zeroSchemeι L s ≫ pX) δ k)
@@ -442,9 +572,9 @@ noncomputable def chowGysin {X : AlgebraicSpace S}
 theorem chowGysin_chowMk {X : AlgebraicSpace S}
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
     (L : X.Modules) [isInvertibleObject L] (s : L.sections) (k : ℤ)
-    (α : pX.cycleGroup δ (k + 1)) :
-    chowGysin δ pX L s k (pX.chowMk δ (k + 1) α) =
-      (zeroSchemeι L s ≫ pX).chowMk δ k (gysinCycleHom δ pX k L s α) :=
+    (α : Hom.cycleGroup pX δ (k + 1)) :
+    chowGysin δ pX L s k (Hom.chowMk pX δ (k + 1) α) =
+      Hom.chowMk (zeroSchemeι L s ≫ pX) δ k (gysinCycleHom δ pX k L s α) :=
   sorry
 
 end Hom
@@ -461,12 +591,12 @@ variable (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
 abbrev CapFamily (p : ℤ) :=
   ∀ {Y : AlgebraicSpace S} (g : Y ⟶ X)
     [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ),
-    (g ≫ f).chowGroup δ k →+ (g ≫ f).chowGroup δ (k - p)
+    Hom.chowGroup (g ≫ f) δ k →+ Hom.chowGroup (g ≫ f) δ (k - p)
 
 /-- Reindex a Chow group along an equality of degrees. -/
 def castChowGroup {Y : AlgebraicSpace S} (h : Y ⟶ B)
     [QuasiSeparated h] [LocallyOfFiniteType h] {i j : ℤ} (hij : i = j) :
-    h.chowGroup δ i →+ h.chowGroup δ j :=
+    Hom.chowGroup h δ i →+ Hom.chowGroup h δ j :=
   hij ▸ AddMonoidHom.id _
 
 /-- Reindexing along a reflexive degree equality is the identity map. -/
@@ -495,7 +625,7 @@ def CompatibleWithProperPushforward {p : ℤ} (cap : CapFamily δ f p) : Prop :=
     [QuasiSeparated (h ≫ g ≫ f)] [LocallyOfFiniteType (h ≫ g ≫ f)]
     [QuasiSeparated ((h ≫ g) ≫ f)] [LocallyOfFiniteType ((h ≫ g) ≫ f)]
     [Proper h]
-    (k : ℤ) (α : (h ≫ g ≫ f).chowGroup δ k),
+    (k : ℤ) (α : Hom.chowGroup (h ≫ g ≫ f) δ k),
     cap g k (Hom.properPushforward δ (h ≫ g ≫ f) (g ≫ f) h rfl k α) =
       Hom.properPushforward δ (h ≫ g ≫ f) (g ≫ f) h rfl (k - p)
         (cap (h ≫ g) k α)
@@ -508,7 +638,7 @@ def CompatibleWithFlatPullback {p : ℤ} (cap : CapFamily δ f p) : Prop :=
     [QuasiSeparated (h ≫ g ≫ f)] [LocallyOfFiniteType (h ≫ g ≫ f)]
     [QuasiSeparated ((h ≫ g) ≫ f)] [LocallyOfFiniteType ((h ≫ g) ≫ f)]
     (r : ℕ) [Flat h] [RelativeDimension h r]
-    (k : ℤ) (α : (g ≫ f).chowGroup δ k),
+    (k : ℤ) (α : Hom.chowGroup (g ≫ f) δ k),
     castChowGroup δ (h ≫ g ≫ f) (flatPullback_degree_eq k p r)
         (cap (h ≫ g) (k + (r : ℤ))
           (Hom.chowFlatPullback δ (g ≫ f) (h ≫ g ≫ f) h r rfl k α)) =
@@ -523,7 +653,7 @@ def CompatibleWithCartierGysin {p : ℤ} (cap : CapFamily δ f p) : Prop :=
     (L : Y.Modules) [isInvertibleObject L] (s : L.sections)
     [QuasiSeparated ((zeroSchemeι L s ≫ g) ≫ f)]
     [LocallyOfFiniteType ((zeroSchemeι L s ≫ g) ≫ f)]
-    (k : ℤ) (α : (g ≫ f).chowGroup δ (k + 1)),
+    (k : ℤ) (α : Hom.chowGroup (g ≫ f) δ (k + 1)),
     cap (zeroSchemeι L s ≫ g) k (Hom.chowGysin δ (g ≫ f) L s k α) =
       Hom.chowGysin δ (g ≫ f) L s (k - p)
         (castChowGroup δ (g ≫ f) (gysin_degree_eq k p) (cap g (k + 1) α))
@@ -583,7 +713,7 @@ theorem cap_ext {p : ℤ} {c d : degree δ f p}
 def zeroCapFamily (p : ℤ) : CapFamily δ f p :=
   fun {Y} (g : Y ⟶ X)
       [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ) ↦
-    (0 : (g ≫ f).chowGroup δ k →+ (g ≫ f).chowGroup δ (k - p))
+    (0 : Hom.chowGroup (g ≫ f) δ k →+ Hom.chowGroup (g ≫ f) δ (k - p))
 
 /-- The zero cap family satisfies proper-pushforward compatibility. -/
 theorem zeroCapFamily_map_proper (p : ℤ) :

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.AlgebraicGeometry.Fiber
@@ -74,6 +80,23 @@ theorem mem_support_asFiber {X S : Scheme.{u}} {f : X ⟶ S} {r : ℤ}
     (α : CyclesOnFibers f r) (x : X) :
     x ∈ support α ↔
       f.asFiber x ∈ AlgebraicCycle.geometricSupport (α.toAlgebraicCycle (f x)) := sorry
+
+open scoped Classical in
+/-- The component coefficient at a point is the finite sum of fibre-cycle
+coefficients at points whose closures contain that point in its fibre. -/
+noncomputable def componentCoeff {X S : Scheme.{u}} (f : X ⟶ S) {r : ℤ}
+    (α : CyclesOnFibers f r) (x : X) : ℤ :=
+  ∑ᶠ ξ : f.fiber (f x),
+    if f.asFiber x ∈ closure {ξ} then (α.toAlgebraicCycle (f x)) ξ else 0
+
+open scoped Classical in
+/-- The component coefficient is the finite sum of coefficients at fibre points
+specializing to the given point. -/
+theorem componentCoeff_apply {X S : Scheme.{u}} (f : X ⟶ S) {r : ℤ}
+    (α : CyclesOnFibers f r) (x : X) :
+    componentCoeff f α x =
+      ∑ᶠ ξ : f.fiber (f x),
+        if f.asFiber x ∈ closure {ξ} then (α.toAlgebraicCycle (f x)) ξ else 0 := sorry
 
 end CyclesOnFibers
 

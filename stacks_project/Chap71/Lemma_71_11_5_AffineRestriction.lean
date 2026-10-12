@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap71.Lemma_71_11_5_AffineTwists
@@ -70,6 +76,10 @@ map has full projective domain, even for nonflat changes of the affine base. -/
 theorem localGradedMap_domain (f : U ⟶ V) :
     projMapDomain (localGradedMap F hF f) = ⊤ := sorry
 
+-- Local declaration justification (localized automation): the projective and fraction constructors use the already typed graded morphism; expanding its sectionwise Kan-extension implementation repeats geometric reduction without changing either constructor.
+attribute [local irreducible] localGradedMap
+
+set_option maxRecDepth 4096 in
 /-- The actual projective map from the actual section-ring pullback. -/
 def localProjMap (f : U ⟶ V) :
     Scheme.RelativeProjAffineSectionRing.scheme (localAlgebra F hF U) ⟶
@@ -81,12 +91,14 @@ def localProjMap (f : U ⟶ V) :
 theorem sectionMap_naturality (f : U ⟶ V) :
     sectionMap F hF U ≫ localProjMap F hF f = f.hom.left.left ≫ sectionMap F hF V := sorry
 
+set_option maxRecDepth 4096 in
 /-- The specific fraction-induced Serre comparison for this actual affine
 pullback is invertible. This does not extend to arbitrary graded ring maps. -/
 theorem localSerreMap_isIso (f : U ⟶ V) (n : ℤ) :
     IsIso (Proj.AssociatedModule.GradedMap.hom.{u, u, u}
       (localGradedMap F hF f) (localGradedMap_domain F hF f) n) := sorry
 
+set_option maxRecDepth 4096 in
 /-- Restrict the local twist along f by actual composite-pullback comparisons
 and the actual fraction map, using only the true classifying-map square. -/
 def localRestriction (f : U ⟶ V) (n : ℤ) :

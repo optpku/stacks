@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PushforwardContinuous
@@ -546,7 +552,9 @@ instance restrictDirectImageComparison_smallDiag_hasLimit {Ucfg Vcfg : Groupoids
     (H : SheafOfModules.{u} (etaleRingedSite Ucfg).structureSheaf)
     (W : AlgebraicSpace.smallEtaleSite V) :
     HasLimit (restrictDirectImageComparison_smallDiag a eU eV H W) :=
-  sorry
+  AlgebraicSpace.EtaleTopos.allChartHasLimit U
+    ((ToInternal.underlying (AlgebraicSpace.structureSheaf U)).obj ((restrictModules eU).obj H))
+    ((AlgebraicSpace.etaleBaseChange (moduleComparisonSpaceMorphism a eU eV)).obj W)
 
 /-- Type-valued limits exist after restriction along the index functor. -/
 instance restrictDirectImageComparison_indexBigDiag_hasLimit {Ucfg Vcfg : GroupoidsOver S}
@@ -591,11 +599,13 @@ def restrictDirectImageComparison_rightEval {Ucfg Vcfg : GroupoidsOver S}
       ((ToInternal.underlying (etaleRingedSite Ucfg).structureSheaf).obj H).obj
       (op ((smallEtaleFunctor V Vcfg eV).obj W))).hom ≫
     restrictDirectImageComparison_limitHom a eU eV H W ≫
-      ((AlgebraicSpace.smallEtaleInclusion U).op.ranObjObjIsoLimit
-          ((ToInternal.underlying (AlgebraicSpace.structureSheaf U)).obj
-            ((restrictModules eU).obj H)).obj
-          (op ((AlgebraicSpace.etaleBaseChange
-              (moduleComparisonSpaceMorphism a eU eV)).obj W))).inv
+      (limit.isoLimitCone
+        ⟨AlgebraicSpace.EtaleTopos.allChartCone U
+          ((ToInternal.underlying (AlgebraicSpace.structureSheaf U)).obj ((restrictModules eU).obj H))
+          ((AlgebraicSpace.etaleBaseChange (moduleComparisonSpaceMorphism a eU eV)).obj W),
+         AlgebraicSpace.EtaleTopos.allChartIsLimit U
+          ((ToInternal.underlying (AlgebraicSpace.structureSheaf U)).obj ((restrictModules eU).obj H))
+          ((AlgebraicSpace.etaleBaseChange (moduleComparisonSpaceMorphism a eU eV)).obj W)⟩).hom
 
 /-- Sectionwise underlying comparison `(a_* H)|_{V_étale}(W) ⟶ a_small,* (H|_{U_étale})(W)`. -/
 def restrictDirectImageComparisonUnderlying_app {Ucfg Vcfg : GroupoidsOver S}
@@ -657,9 +667,8 @@ def restrictPullbackComparison {Ucfg Vcfg : GroupoidsOver S} (a : Ucfg ⟶ Vcfg)
     (AlgebraicSpace.Modules.pullback (moduleComparisonSpaceMorphism a eU eV)).obj
         ((restrictModules eV).obj G) ⟶
       (restrictModules eU).obj ((etaleModuleInverseImage a).obj G) :=
-  ((RingedSite.ToposHom.moduleAdjunction
-        (AlgebraicSpace.ringedToposHom
-          (moduleComparisonSpaceMorphism a eU eV))).homEquiv
+  ((AlgebraicSpace.Modules.pullbackPushforwardAdjunction
+        (moduleComparisonSpaceMorphism a eU eV)).homEquiv
       ((restrictModules eV).obj G)
       ((restrictModules eU).obj ((etaleModuleInverseImage a).obj G))).symm
     ((restrictModules eV).map
@@ -686,8 +695,8 @@ def moduleComparisonSpaceUnit {Ucfg Vcfg : GroupoidsOver S} (a : Ucfg ⟶ Vcfg)
     N ⟶
       ((AlgebraicSpace.ringedToposHom (moduleComparisonSpaceMorphism a eU eV)).modulePushforward).obj
         ((AlgebraicSpace.Modules.pullback (moduleComparisonSpaceMorphism a eU eV)).obj N) :=
-  (RingedSite.ToposHom.moduleAdjunction
-      (AlgebraicSpace.ringedToposHom (moduleComparisonSpaceMorphism a eU eV))).unit.app N
+  (AlgebraicSpace.Modules.pullbackPushforwardAdjunction
+        (moduleComparisonSpaceMorphism a eU eV)).unit.app N
 
 /-- The push-form comparison
 `g^* F |_{V_étale} ⟶ a_small,* (f^* F |_{U_étale})` of `𝒪_{V_étale}`-modules:
@@ -717,8 +726,8 @@ def moduleComparisonSpace {X Ucfg Vcfg : GroupoidsOver S}
     (AlgebraicSpace.Modules.pullback (moduleComparisonSpaceMorphism a eU eV)).obj
         ((restrictModules eV).obj ((etaleModuleInverseImage g).obj F)) ⟶
       (restrictModules eU).obj ((etaleModuleInverseImage f).obj F) :=
-  ((RingedSite.ToposHom.moduleAdjunction
-        (AlgebraicSpace.ringedToposHom (moduleComparisonSpaceMorphism a eU eV))).homEquiv
+  ((AlgebraicSpace.Modules.pullbackPushforwardAdjunction
+        (moduleComparisonSpaceMorphism a eU eV)).homEquiv
       ((restrictModules eV).obj ((etaleModuleInverseImage g).obj F))
       ((restrictModules eU).obj ((etaleModuleInverseImage f).obj F))).symm
     (moduleComparisonSpacePushforward a f g φ eU eV F)
@@ -729,8 +738,8 @@ theorem moduleComparisonSpace_adjunct {X Ucfg Vcfg : GroupoidsOver S}
     (a : Ucfg ⟶ Vcfg) (f : Ucfg ⟶ X) (g : Vcfg ⟶ X) (φ : a ≫ g ≅ f)
     {U V : AlgebraicSpace S} (eU : U.toGroupoids ≌ Ucfg) (eV : V.toGroupoids ≌ Vcfg)
     (F : SheafOfModules.{u} (etaleRingedSite X).structureSheaf) :
-    (RingedSite.ToposHom.moduleAdjunction
-          (AlgebraicSpace.ringedToposHom (moduleComparisonSpaceMorphism a eU eV))).homEquiv
+    (AlgebraicSpace.Modules.pullbackPushforwardAdjunction
+        (moduleComparisonSpaceMorphism a eU eV)).homEquiv
         ((restrictModules eV).obj ((etaleModuleInverseImage g).obj F))
         ((restrictModules eU).obj ((etaleModuleInverseImage f).obj F))
         (moduleComparisonSpace a f g φ eU eV F) =
@@ -760,8 +769,8 @@ theorem moduleComparisonSpace_app {X Ucfg Vcfg : GroupoidsOver S}
     {U V : AlgebraicSpace S} (eU : U.toGroupoids ≌ Ucfg) (eV : V.toGroupoids ≌ Vcfg)
     (F : SheafOfModules.{u} (etaleRingedSite X).structureSheaf) :
     moduleComparisonSpace a f g φ eU eV F =
-      ((RingedSite.ToposHom.moduleAdjunction
-            (AlgebraicSpace.ringedToposHom (moduleComparisonSpaceMorphism a eU eV))).homEquiv
+      ((AlgebraicSpace.Modules.pullbackPushforwardAdjunction
+        (moduleComparisonSpaceMorphism a eU eV)).homEquiv
           ((restrictModules eV).obj ((etaleModuleInverseImage g).obj F))
           ((restrictModules eU).obj ((etaleModuleInverseImage f).obj F))).symm
         (moduleComparisonSpacePushforward a f g φ eU eV F) :=

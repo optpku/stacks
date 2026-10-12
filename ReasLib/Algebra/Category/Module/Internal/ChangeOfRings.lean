@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.Algebra.Category.Module.Internal
@@ -50,14 +56,14 @@ theorem add_smul (φ : R ⟶ S) (M : ModuleObjCat S) :
     σ[R.X] ▷ M.X ≫ smul φ M =
       lift (fst R.X R.X ▷ M.X ≫ smul φ M)
           (snd R.X R.X ▷ M.X ≫ smul φ M) ≫
-        σ[M.X] := sorry
+        @AddMonObj.add C _ _ _ M.moduleObj.toAddGrpObj.toAddMonObj := sorry
 
 /-- The restricted action distributes over addition in the module. -/
 theorem smul_add (φ : R ⟶ S) (M : ModuleObjCat S) :
-    R.X ◁ σ[M.X] ≫ smul φ M =
+    R.X ◁ @AddMonObj.add C _ _ _ M.moduleObj.toAddGrpObj.toAddMonObj ≫ smul φ M =
       lift ((R.X ◁ fst M.X M.X) ≫ smul φ M)
           ((R.X ◁ snd M.X M.X) ≫ smul φ M) ≫
-        σ[M.X] := sorry
+        @AddMonObj.add C _ _ _ M.moduleObj.toAddGrpObj.toAddMonObj := sorry
 
 /-- The internal `R`-module structure obtained by restricting an internal `S`-module along
 `φ : R ⟶ S`. -/
@@ -73,19 +79,17 @@ noncomputable def moduleObj (φ : R ⟶ S) (M : ModuleObjCat S) : ModuleObj R M.
   smul_add := smul_add φ M
 
 /-- The bundled internal `R`-module obtained by restricting scalars along `φ : R ⟶ S`. -/
-noncomputable def obj (φ : R ⟶ S) (M : ModuleObjCat S) : ModuleObjCat R where
-  X := M.X
-  moduleObj := moduleObj φ M
+noncomputable def obj (φ : R ⟶ S) (M : ModuleObjCat S) : ModuleObjCat R :=
+  ModuleObjCat.mk M.X (moduleObj φ M)
 
 /-- Restricting scalars preserves an internal module morphism. -/
 theorem isModuleHom (φ : R ⟶ S) {M N : ModuleObjCat S} (f : M ⟶ N) :
-    @IsModuleHom C _ _ _ R M.X N.X (moduleObj φ M) (moduleObj φ N) f.hom := sorry
+    @IsModuleHom C _ _ _ R M.X N.X (moduleObj φ M) (moduleObj φ N) f.1 := sorry
 
 /-- The morphism between restricted internal modules induced by an `S`-module morphism. -/
 noncomputable def map (φ : R ⟶ S) {M N : ModuleObjCat S} (f : M ⟶ N) :
-    obj φ M ⟶ obj φ N where
-  hom := f.hom
-  isModuleHom := isModuleHom φ f
+    obj φ M ⟶ obj φ N :=
+  ⟨f.1, isModuleHom φ f⟩
 
 /-- Restriction of scalars preserves identity morphisms. -/
 theorem map_id (φ : R ⟶ S) (M : ModuleObjCat S) :
@@ -122,7 +126,7 @@ theorem restrictScalars_obj_smul (φ : R ⟶ S) (M : ModuleObjCat S) :
 /-- The underlying morphism is unchanged by restriction of scalars. -/
 @[simp]
 theorem restrictScalars_map_hom (φ : R ⟶ S) {M N : ModuleObjCat S} (f : M ⟶ N) :
-    ((restrictScalars φ).map f).hom = f.hom := sorry
+    ((restrictScalars φ).map f).1 = f.1 := sorry
 
 /-- Forgetting after restriction of scalars agrees with the original forgetful functor on
 carriers and morphisms. -/
@@ -157,14 +161,12 @@ theorem invIsModuleHom (h : φ = ψ) (M : ModuleObjCat S) :
     @IsModuleHom C _ _ _ R M.X M.X (moduleObj ψ M) (moduleObj φ M) (𝟙 M.X) := sorry
 
 /-- The forward identity morphism comparing restriction along equal ring morphisms. -/
-noncomputable def hom (h : φ = ψ) (M : ModuleObjCat S) : obj φ M ⟶ obj ψ M where
-  hom := 𝟙 M.X
-  isModuleHom := homIsModuleHom h M
+noncomputable def hom (h : φ = ψ) (M : ModuleObjCat S) : obj φ M ⟶ obj ψ M :=
+  ModuleObjCat.Hom.mk (𝟙 M.X) (homIsModuleHom h M)
 
 /-- The inverse identity morphism comparing restriction along equal ring morphisms. -/
-noncomputable def inv (h : φ = ψ) (M : ModuleObjCat S) : obj ψ M ⟶ obj φ M where
-  hom := 𝟙 M.X
-  isModuleHom := invIsModuleHom h M
+noncomputable def inv (h : φ = ψ) (M : ModuleObjCat S) : obj ψ M ⟶ obj φ M :=
+  ModuleObjCat.Hom.mk (𝟙 M.X) (invIsModuleHom h M)
 
 /-- The forward and inverse comparison maps compose to the identity. -/
 theorem hom_inv_id (h : φ = ψ) (M : ModuleObjCat S) :
@@ -184,12 +186,12 @@ noncomputable def app (h : φ = ψ) (M : ModuleObjCat S) : obj φ M ≅ obj ψ M
 /-- The underlying forward map of the equality comparison is the identity. -/
 @[simp]
 theorem app_hom_hom (h : φ = ψ) (M : ModuleObjCat S) :
-    (app h M).hom.hom = 𝟙 M.X := sorry
+    (app h M).hom.1 = 𝟙 M.X := sorry
 
 /-- The underlying inverse map of the equality comparison is the identity. -/
 @[simp]
 theorem app_inv_hom (h : φ = ψ) (M : ModuleObjCat S) :
-    (app h M).inv.hom = 𝟙 M.X := sorry
+    (app h M).inv.1 = 𝟙 M.X := sorry
 
 /-- The forward equality-comparison components are natural. -/
 theorem hom_naturality (h : φ = ψ) {M N : ModuleObjCat S} (f : M ⟶ N) :
@@ -249,14 +251,12 @@ theorem invIsModuleHom (R : RingObjCat C) (M : ModuleObjCat R) :
     @IsModuleHom C _ _ _ R M.X M.X M.moduleObj (moduleObj (𝟙 R) M) (𝟙 M.X) := sorry
 
 /-- The forward identity comparison morphism for restriction of scalars. -/
-noncomputable def hom (R : RingObjCat C) (M : ModuleObjCat R) : obj (𝟙 R) M ⟶ M where
-  hom := 𝟙 M.X
-  isModuleHom := homIsModuleHom R M
+noncomputable def hom (R : RingObjCat C) (M : ModuleObjCat R) : obj (𝟙 R) M ⟶ M :=
+  ModuleObjCat.Hom.mk (𝟙 M.X) (homIsModuleHom R M)
 
 /-- The inverse identity comparison morphism for restriction of scalars. -/
-noncomputable def inv (R : RingObjCat C) (M : ModuleObjCat R) : M ⟶ obj (𝟙 R) M where
-  hom := 𝟙 M.X
-  isModuleHom := invIsModuleHom R M
+noncomputable def inv (R : RingObjCat C) (M : ModuleObjCat R) : M ⟶ obj (𝟙 R) M :=
+  ModuleObjCat.Hom.mk (𝟙 M.X) (invIsModuleHom R M)
 
 /-- The two identity comparison morphisms compose to the identity on the restricted module. -/
 theorem hom_inv_id (R : RingObjCat C) (M : ModuleObjCat R) :
@@ -277,12 +277,12 @@ noncomputable def app (R : RingObjCat C) (M : ModuleObjCat R) : obj (𝟙 R) M �
 /-- The underlying forward identity-comparison map is the identity. -/
 @[simp]
 theorem app_hom_hom (R : RingObjCat C) (M : ModuleObjCat R) :
-    (app R M).hom.hom = 𝟙 M.X := sorry
+    (app R M).hom.1 = 𝟙 M.X := sorry
 
 /-- The underlying inverse identity-comparison map is the identity. -/
 @[simp]
 theorem app_inv_hom (R : RingObjCat C) (M : ModuleObjCat R) :
-    (app R M).inv.hom = 𝟙 M.X := sorry
+    (app R M).inv.1 = 𝟙 M.X := sorry
 
 /-- The forward identity-comparison components are natural. -/
 theorem hom_naturality (R : RingObjCat C) {M N : ModuleObjCat R} (f : M ⟶ N) :
@@ -347,15 +347,13 @@ theorem invIsModuleHom (M : ModuleObjCat T) :
 
 /-- The forward comparison morphism from restriction along a composite to successive
 restriction. -/
-noncomputable def hom (M : ModuleObjCat T) : obj (φ ≫ ψ) M ⟶ obj φ (obj ψ M) where
-  hom := 𝟙 M.X
-  isModuleHom := homIsModuleHom φ ψ M
+noncomputable def hom (M : ModuleObjCat T) : obj (φ ≫ ψ) M ⟶ obj φ (obj ψ M) :=
+  ModuleObjCat.Hom.mk (𝟙 M.X) (homIsModuleHom φ ψ M)
 
 /-- The inverse comparison morphism from successive restriction to restriction along a
 composite. -/
-noncomputable def inv (M : ModuleObjCat T) : obj φ (obj ψ M) ⟶ obj (φ ≫ ψ) M where
-  hom := 𝟙 M.X
-  isModuleHom := invIsModuleHom φ ψ M
+noncomputable def inv (M : ModuleObjCat T) : obj φ (obj ψ M) ⟶ obj (φ ≫ ψ) M :=
+  ModuleObjCat.Hom.mk (𝟙 M.X) (invIsModuleHom φ ψ M)
 
 /-- The composition comparison maps compose to the identity on restriction along the
 composite. -/
@@ -376,11 +374,11 @@ noncomputable def app (M : ModuleObjCat T) : obj (φ ≫ ψ) M ≅ obj φ (obj �
 
 /-- The underlying forward composition-comparison map is the identity. -/
 @[simp]
-theorem app_hom_hom (M : ModuleObjCat T) : (app φ ψ M).hom.hom = 𝟙 M.X := sorry
+theorem app_hom_hom (M : ModuleObjCat T) : (app φ ψ M).hom.1 = 𝟙 M.X := sorry
 
 /-- The underlying inverse composition-comparison map is the identity. -/
 @[simp]
-theorem app_inv_hom (M : ModuleObjCat T) : (app φ ψ M).inv.hom = 𝟙 M.X := sorry
+theorem app_inv_hom (M : ModuleObjCat T) : (app φ ψ M).inv.1 = 𝟙 M.X := sorry
 
 /-- The forward composition-comparison components are natural. -/
 theorem hom_naturality {M N : ModuleObjCat T} (f : M ⟶ N) :

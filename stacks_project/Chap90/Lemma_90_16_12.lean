@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap90.Definition_90_16_8_RimSchlessinger
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.FormalDeformation.RimSchlessinger.PseudoPullback
 public import stacks_project.Chap90.Remarks_90_5_2_Groupoids
 
 /-!
@@ -22,14 +29,24 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
 
 namespace CategoryTheory.Functor
 
-/-- Lemma 90.16.12: if `f : H ⟶ F` and `g : G ⟶ F` are morphisms of categories
-cofibered in groupoids over `ArtinianLocalAlgCat Λ k` and `F`, `G`, `H` all satisfy
-(RS), then the 2-fibre product `TwoFibreProduct.apex f g` satisfies (RS). -/
-@[stacks 06L4]
-instance instHasRimSchlessinger_twoFibreProduct
+/-- The Rim-Schlessinger condition on the based pseudo-pullback supplies the same
+condition on the two-fibre-product apex in the cofibered-category vocabulary. -/
+instance instHasRimSchlessingerTwoFibreProduct
     {F G H : CofiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u} (ArtinianLocalAlgCat Λ k)}
     (f : H ⟶ F) (g : G ⟶ F)
     [HasRimSchlessinger F.p] [HasRimSchlessinger G.p] [HasRimSchlessinger H.p] :
-    HasRimSchlessinger (p (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)) := sorry
+    HasRimSchlessinger (p (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)) :=
+  CategoryTheory.Functor.instHasRimSchlessingerPseudoPullback f.hom g.hom
+
+variable
+  {F G H : CofiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u} (ArtinianLocalAlgCat Λ k)}
+  (f : H ⟶ F) (g : G ⟶ F)
+  [HasRimSchlessinger F.p] [HasRimSchlessinger G.p] [HasRimSchlessinger H.p]
+
+/- Lemma 90.16.12: the two-fibre product of three categories cofibered in groupoids
+over `ArtinianLocalAlgCat Λ k` satisfying (RS) again satisfies (RS). -/
+@[stacks 06L4] #check
+  (CategoryTheory.Functor.instHasRimSchlessingerPseudoPullback f.hom g.hom :
+    HasRimSchlessinger (p (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)))
 
 end CategoryTheory.Functor

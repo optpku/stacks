@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
@@ -123,10 +129,10 @@ def higherDirectImagePushforward [IsLocallyNoetherian Y] (p n : ℕ)
     [Abelian (thickening ybar (n + 1)).Modules]
     [HasInjectiveResolutions (space f ybar n).Modules]
     [HasInjectiveResolutions (space f ybar (n + 1)).Modules] :
-    higherDirectImage (toSpec f ybar (n + 1))
+    Modules.higherDirectImage (toSpec f ybar (n + 1))
         ((pushforward (spaceStep f ybar n)).obj (sheaf f F ybar n)) p ⟶
       (pushforward (thickeningStep ybar n)).obj
-        (higherDirectImage (toSpec f ybar n) (sheaf f F ybar n) p) :=
+        (Modules.higherDirectImage (toSpec f ybar n) (sheaf f F ybar n) p) :=
   (Functor.RightDerived.precompObjIso (pushforward (spaceStep f ybar n))
       (pushforward (toSpec f ybar (n + 1))) p (sheaf f F ybar n)).inv ≫
     (NatIso.rightDerived
@@ -169,11 +175,11 @@ def cohomologyOverPushforward [IsLocallyNoetherian Y] (p n : ℕ)
         (quotientToSpec ybar (n + 1) ≫ specHom ybar)
         (quotientToSpec ybar n ≫ specHom ybar)
         (quotientFactor_specHom ybar n)
-        (higherDirectImage (toSpec f ybar n) (sheaf f F ybar n) p)) ≫
+        (Modules.higherDirectImage (toSpec f ybar n) (sheaf f F ybar n) p)) ≫
     (ModuleSpecΓ.pushforwardIso
         (CommRingCat.ofHom (quotientFactor ybar n))).hom.app
       ((toScheme (Over.mk (quotientToSpec ybar n ≫ specHom ybar))).obj
-        (higherDirectImage (toSpec f ybar n) (sheaf f F ybar n) p))
+        (Modules.higherDirectImage (toSpec f ybar n) (sheaf f F ybar n) p))
 
 /-- The `O_{Y,ȳ}/m^{n+1}`-linear restriction
 `H^p(X_{n+1}, F_{n+1}) ⟶ restrictScalars (H^p(X_n, F_n))`. -/
@@ -376,10 +382,10 @@ def higherDirectImageInfPushforward [IsLocallyNoetherian Y] (p n : ℕ)
     [Abelian (specSpace ybar).Modules]
     [HasInjectiveResolutions (space f ybar n).Modules]
     [HasInjectiveResolutions (spaceInf f ybar).Modules] :
-    higherDirectImage (toSpecInf f ybar)
+    Modules.higherDirectImage (toSpecInf f ybar)
         ((pushforward (toInf f ybar n)).obj (sheaf f F ybar n)) p ⟶
       (pushforward (toSpecSpace ybar n)).obj
-        (higherDirectImage (toSpec f ybar n) (sheaf f F ybar n) p) :=
+        (Modules.higherDirectImage (toSpec f ybar n) (sheaf f F ybar n) p) :=
   (Functor.RightDerived.precompObjIso (pushforward (toInf f ybar n))
       (pushforward (toSpecInf f ybar)) p (sheaf f F ybar n)).inv ≫
     (NatIso.rightDerived
@@ -418,13 +424,13 @@ def cohomologyOverInfPushforward [IsLocallyNoetherian Y] (p n : ℕ)
         (higherDirectImageInfPushforward f F ybar p n) ≫
       toScheme_pushforwardHom (specHom ybar)
         (quotientToSpec ybar n ≫ specHom ybar) rfl
-        (higherDirectImage (toSpec f ybar n) (sheaf f F ybar n) p)) ≫
+        (Modules.higherDirectImage (toSpec f ybar n) (sheaf f F ybar n) p)) ≫
     (ModuleSpecΓ.pushforwardIso
         (CommRingCat.ofHom
           (Ideal.Quotient.mk
             (IsLocalRing.maximalIdeal (etaleLocalRing Y ybar) ^ n)))).hom.app
       ((toScheme (Over.mk (quotientToSpec ybar n ≫ specHom ybar))).obj
-        (higherDirectImage (toSpec f ybar n) (sheaf f F ybar n) p))
+        (Modules.higherDirectImage (toSpec f ybar n) (sheaf f F ybar n) p))
 
 /-- The `O_{Y,ȳ}`-linear restriction `H^p(X_∞, F_∞) ⟶ restrictScalars (H^p(X_n, F_n))`. -/
 def infToCohomology [IsLocallyNoetherian Y] (p n : ℕ)
@@ -457,15 +463,15 @@ carrier. -/
 instance module_stalk [Abelian X.Modules] [Abelian Y.Modules]
     [HasInjectiveResolutions X.Modules] (p : ℕ) :
     Module (etaleLocalRing Y ybar)
-      (stalkModuleCat ybar (higherDirectImage f F p)) :=
-  ModuleCat.isModule (stalkModuleCat ybar (higherDirectImage f F p))
+      (stalkModuleCat ybar (Modules.higherDirectImage f F p)) :=
+  ModuleCat.isModule (stalkModuleCat ybar (Modules.higherDirectImage f F p))
 
 /-- The geometric stalk of `R^p f_* F` is an abelian group via its `ModuleCat`
 carrier. -/
 instance addCommGroup_stalk [Abelian X.Modules] [Abelian Y.Modules]
     [HasInjectiveResolutions X.Modules] (p : ℕ) :
-    AddCommGroup (stalkModuleCat ybar (higherDirectImage f F p)) :=
-  ModuleCat.isAddCommGroup (stalkModuleCat ybar (higherDirectImage f F p))
+    AddCommGroup (stalkModuleCat ybar (Modules.higherDirectImage f F p)) :=
+  ModuleCat.isAddCommGroup (stalkModuleCat ybar (Modules.higherDirectImage f F p))
 
 /-- Global sections of `c_* M` on `Y`, after applying `toScheme` on `Spec(O_{Y,ȳ})`. -/
 def pushforwardGamma (ybar : GeometricPoint Y) (M : (specSpace ybar).Modules)
@@ -600,7 +606,7 @@ def pullbackGammaToInf [IsLocallyNoetherian Y] (p : ℕ)
     [Abelian (specSpace ybar).Modules]
     [HasInjectiveResolutions X.Modules]
     [HasInjectiveResolutions (spaceInf f ybar).Modules] :
-    pullbackGamma ybar (higherDirectImage f F p) ⟶ infCohomology f F ybar p :=
+    pullbackGamma ybar (Modules.higherDirectImage f F p) ⟶ infCohomology f F ybar p :=
   (moduleSpecΓFunctor (R := CommRingCat.of (etaleLocalRing Y ybar))).map
     ((toScheme (Over.mk (specHom ybar))).map
       (higherDirectImageBaseChangeHom (isPullbackInf f ybar) F p))
@@ -615,12 +621,12 @@ def toCohomology [IsLocallyNoetherian Y] (p n : ℕ)
     [HasInjectiveResolutions X.Modules]
     [HasInjectiveResolutions (space f ybar n).Modules]
     [HasInjectiveResolutions (spaceInf f ybar).Modules] :
-    stalkModuleCat ybar (higherDirectImage f F p) ⟶
+    stalkModuleCat ybar (Modules.higherDirectImage f F p) ⟶
       (ModuleCat.restrictScalars
           (Ideal.Quotient.mk
             (IsLocalRing.maximalIdeal (etaleLocalRing Y ybar) ^ n))).obj
         (cohomology f F ybar p n) :=
-  stalkToPullbackGamma ybar (higherDirectImage f F p) ≫
+  stalkToPullbackGamma ybar (Modules.higherDirectImage f F p) ≫
     pullbackGammaToInf f F ybar p ≫ infToCohomology f F ybar p n
 
 /-- The ideal power `m^n` annihilates the image of the geometric stalk in
@@ -636,7 +642,7 @@ theorem pow_smul_le_ker_toCohomology [IsLocallyNoetherian Y] (p n : ℕ)
     [HasInjectiveResolutions (spaceInf f ybar).Modules] :
     IsLocalRing.maximalIdeal (etaleLocalRing Y ybar) ^ n •
         (⊤ : Submodule (etaleLocalRing Y ybar)
-          (stalkModuleCat ybar (higherDirectImage f F p))) ≤
+          (stalkModuleCat ybar (Modules.higherDirectImage f F p))) ≤
       LinearMap.ker (toCohomology f F ybar p n).hom :=
   sorry
 
@@ -652,10 +658,10 @@ def toCohomologyModPow [IsLocallyNoetherian Y] (p n : ℕ)
     [HasInjectiveResolutions (space f ybar n).Modules]
     [HasInjectiveResolutions (spaceInf f ybar).Modules] :
     ModuleCat.of (etaleLocalRing Y ybar)
-      (stalkModuleCat ybar (higherDirectImage f F p) ⧸
+      (stalkModuleCat ybar (Modules.higherDirectImage f F p) ⧸
         IsLocalRing.maximalIdeal (etaleLocalRing Y ybar) ^ n •
           (⊤ : Submodule (etaleLocalRing Y ybar)
-            (stalkModuleCat ybar (higherDirectImage f F p)))) ⟶
+            (stalkModuleCat ybar (Modules.higherDirectImage f F p)))) ⟶
       (ModuleCat.restrictScalars
           (Ideal.Quotient.mk
             (IsLocalRing.maximalIdeal (etaleLocalRing Y ybar) ^ n))).obj
@@ -663,7 +669,7 @@ def toCohomologyModPow [IsLocallyNoetherian Y] (p n : ℕ)
   ConcreteCategory.ofHom
     ((IsLocalRing.maximalIdeal (etaleLocalRing Y ybar) ^ n •
         (⊤ : Submodule (etaleLocalRing Y ybar)
-          (stalkModuleCat ybar (higherDirectImage f F p)))).liftQ
+          (stalkModuleCat ybar (Modules.higherDirectImage f F p)))).liftQ
       (toCohomology f F ybar p n).hom
       (pow_smul_le_ker_toCohomology f F ybar p n))
 
@@ -678,12 +684,12 @@ def toCompletedCohomologyFun [IsLocallyNoetherian Y] (p n : ℕ)
     [HasInjectiveResolutions (space f ybar n).Modules]
     [HasInjectiveResolutions (spaceInf f ybar).Modules] :
     AdicCompletion (IsLocalRing.maximalIdeal (etaleLocalRing Y ybar))
-        (stalkModuleCat ybar (higherDirectImage f F p)) →
+        (stalkModuleCat ybar (Modules.higherDirectImage f F p)) →
       completedCohomology f F ybar p n :=
   fun x ↦
     (toCohomologyModPow f F ybar p n).hom
       (AdicCompletion.eval (IsLocalRing.maximalIdeal (etaleLocalRing Y ybar))
-        (stalkModuleCat ybar (higherDirectImage f F p)) n x)
+        (stalkModuleCat ybar (Modules.higherDirectImage f F p)) n x)
 
 /-- The underlying function of the completed-stalk comparison is linear over
 `O_{Y,ȳ}^∧`. -/
@@ -717,7 +723,7 @@ def toCompletedCohomology [IsLocallyNoetherian Y] (p n : ℕ)
         (AdicCompletion (IsLocalRing.maximalIdeal (etaleLocalRing Y ybar))
           (etaleLocalRing Y ybar))
         (AdicCompletion (IsLocalRing.maximalIdeal (etaleLocalRing Y ybar))
-          (stalkModuleCat ybar (higherDirectImage f F p))) ⟶
+          (stalkModuleCat ybar (Modules.higherDirectImage f F p))) ⟶
       completedCohomology f F ybar p n :=
   ConcreteCategory.ofHom
     (IsLinearMap.mk' (toCompletedCohomologyFun f F ybar p n)
@@ -738,7 +744,7 @@ def limitComparison [IsLocallyNoetherian Y]
         (AdicCompletion (IsLocalRing.maximalIdeal (etaleLocalRing Y ybar))
           (etaleLocalRing Y ybar))
         (AdicCompletion (IsLocalRing.maximalIdeal (etaleLocalRing Y ybar))
-          (stalkModuleCat ybar (higherDirectImage f F p))) ⟶
+          (stalkModuleCat ybar (Modules.higherDirectImage f F p))) ⟶
       limit (system f F ybar p) :=
   limit.lift (system f F ybar p)
     { pt :=
@@ -746,7 +752,7 @@ def limitComparison [IsLocallyNoetherian Y]
           (AdicCompletion (IsLocalRing.maximalIdeal (etaleLocalRing Y ybar))
             (etaleLocalRing Y ybar))
           (AdicCompletion (IsLocalRing.maximalIdeal (etaleLocalRing Y ybar))
-            (stalkModuleCat ybar (higherDirectImage f F p)))
+            (stalkModuleCat ybar (Modules.higherDirectImage f F p)))
       π :=
         { app := fun n ↦ toCompletedCohomology f F ybar p n.unop
           naturality := fun _ _ _ ↦ sorry } }

@@ -1,7 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap91.Lemma_91_13_2_ConormalClass
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.NaiveCotangent.Presentation.Ext
+import StacksCheckRecall
 
 /-!
 # Representing Ext¹ of the naive cotangent complex by a conormal map
@@ -33,19 +39,18 @@ variable (φ : A ⟶ B)
 variable (G : SheafOfModules (ringSheaf J (Under.mk φ).right))
 variable [HasDerivedCategory (SheafOfModules (ringSheaf J (Under.mk φ).right))]
 
-/-- Lemma 91.13.2: on a site `C`, any class
+/- Lemma 91.13.2: on a site `C`, any class
 `ξ` in `Ext⁽1⁾(DerivedCategory.Q.obj (obj A (Under.mk φ)), DerivedCategory.Q.obj ((singleFunctor 0).obj G))`
 is represented, after a locally surjective polynomial presentation
 `α : E ⟶ FreeAlgebra.Presentation.generators (Under.mk φ)`, by an actual `B`-linear map
 `(Presentation.ofGenerators E α).X (-1) ⟶ G`. -/
-@[stacks 08UJ]
-theorem exists_conormalHomClass
-    (ξ : Ext⁽(1 : ℤ)⁾(DerivedCategory.Q.obj (obj A (Under.mk φ)),
-      DerivedCategory.Q.obj ((CochainComplex.singleFunctor _ 0).obj G))) :
+@[stacks 08UJ] #check (SheafOfModules.RingedSite.NaiveCotangent.exists_conormalHomClass φ G :
+  (ξ : Ext⁽(1 : ℤ)⁾(DerivedCategory.Q.obj (obj A (Under.mk φ)),
+    DerivedCategory.Q.obj ((CochainComplex.singleFunctor _ 0).obj G))) →
     ∃ (E : Sheaf J (Type w))
       (α : E ⟶ FreeAlgebra.Presentation.generators (Under.mk φ)),
       IsLocallySurjective (FreeAlgebra.evaluation (Under.mk φ) E α).right ∧
         ∃ (f : (Presentation.ofGenerators E α).X (-1) ⟶ G),
-          Presentation.derivedComparison E α ≫ ξ = conormalHomClass φ G E α f := sorry
+          Presentation.derivedComparison E α ≫ ξ = conormalHomClass φ G E α f)
 
 end SheafOfModules.RingedSite.NaiveCotangent

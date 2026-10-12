@@ -1,7 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.Algebra.Category.FGModuleCat.Basic
-public import Mathlib.CategoryTheory.Linear.LinearFunctor
+public import ReasLib.CategoryTheory.Linear.Functor
 
 /-!
 # Module-linear functors
@@ -17,41 +22,37 @@ universe u v w v₁ v₂
 
 open CategoryTheory
 
-variable (R : Type u) [Semiring R]
+variable (R : Type u) [CommRing R]
 variable {C : Type v} {D : Type w}
 variable [Category.{v₁} C] [Category.{v₂} D]
 variable [Preadditive C] [Preadditive D]
 variable [CategoryTheory.Linear R C] [CategoryTheory.Linear R D]
 
-namespace CategoryTheory.Functor
+/-
+The promoted module-linearity interface remains available through the
+source-facing chapter module.
+-/
+#check (CategoryTheory.Functor.ModuleLinear R (𝟭 C) : Prop)
 
-/-- A functor between `R`-linear categories is module-linear over `R` when it is
-both additive and `R`-linear, equivalently when each induced map
-`F.map : (X ⟶ Y) → (F.obj X ⟶ F.obj Y)` is an `R`-module homomorphism. -/
-class ModuleLinear (F : C ⥤ D) : Prop extends F.Additive, F.Linear R
+/-
+The promoted additive-and-linear constructor remains available through the
+source-facing chapter module.
+-/
+#check (CategoryTheory.Functor.ModuleLinear.ofAdditiveLinear (R := R)
+  (F := 𝟭 C) : CategoryTheory.Functor.ModuleLinear R (𝟭 C))
 
-/-- The identity functor of an `R`-linear category is module-linear over `R`. -/
-instance instModuleLinearId : ModuleLinear R (𝟭 C) := sorry
+/-
+The promoted characterization of module-linearity remains available through
+the source-facing chapter module.
+-/
+#check (CategoryTheory.Functor.moduleLinear_iff R (𝟭 C) :
+  CategoryTheory.Functor.ModuleLinear R (𝟭 C) ↔
+    (𝟭 C).Additive ∧ (𝟭 C).Linear R)
 
-/-- An additive `R`-linear functor is module-linear over `R`. This is a lemma
-rather than an instance, so it cannot loop with the projections from
-`ModuleLinear`. -/
-theorem ModuleLinear.ofAdditiveLinear (F : C ⥤ D) [F.Additive] [F.Linear R] :
-    ModuleLinear R F := sorry
-
-/-- Module-linearity is the conjunction of additivity and `R`-linearity. -/
-theorem moduleLinear_iff (F : C ⥤ D) :
-    ModuleLinear R F ↔ F.Additive ∧ F.Linear R := sorry
-
-section
-
-variable {R : Type u} [CommRing R]
-
-/-- The forgetful functor from finitely generated `R`-modules to all `R`-modules
-is module-linear over `R`. -/
-instance instModuleLinearForget₂FGModuleCat :
-    ModuleLinear R (forget₂ (FGModuleCat.{u} R) (ModuleCat.{u} R)) := sorry
-
-end
-
-end CategoryTheory.Functor
+/-
+The promoted finitely generated-module specialization remains available
+through the source-facing chapter module.
+-/
+#check (CategoryTheory.Functor.instModuleLinearForget₂FGModuleCat (R := R) :
+  CategoryTheory.Functor.ModuleLinear R
+    (forget₂ (FGModuleCat.{u} R) (ModuleCat.{u} R)))

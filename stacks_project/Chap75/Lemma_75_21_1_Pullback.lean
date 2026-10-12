@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.AlgebraicGeometry.Restrict
@@ -274,12 +280,7 @@ def ofOverTypePushforwardComparison {U V : Over S} (h : V ⟶ U)
         (smallEtaleTopology (ofOver U)) (smallEtaleTopology (ofOver V))).obj G :=
   InducedCategory.homMk
     { app := fun W ↦
-        (((smallEtaleInclusion (ofOver V)).sheafPushforwardCocontinuous (Type u)
-          (smallEtaleTopology (ofOver V)) (spacesEtaleTopology (ofOver V))).obj G).obj.map
-            (smallPullbackSpaceIso h W.unop).hom.op ≫
-        (((smallEtaleInclusion (ofOver V)).sheafAdjunctionCocontinuous (Type u)
-          (smallEtaleTopology (ofOver V)) (spacesEtaleTopology (ofOver V))).counit.app G).hom.app
-            (Opposite.op (ofOverSmallEtalePullbackObj h W.unop))
+        EtaleTopos.extensionEvaluation (ofOver V) G (smallPullbackSpaceIso h W.unop).hom
       naturality := sorry }
 
 /-- Direct-image comparison of algebraic-space pushforward with `ofOverRingedHom` pushforward,

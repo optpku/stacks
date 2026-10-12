@@ -1,6 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap03.Lemma_3_9_4_Size
+public import ReasLib.AlgebraicGeometry.Scheme.Size
 import StacksCheckRecall
 
 @[expose] public section
@@ -12,14 +18,10 @@ universe u
 open AlgebraicGeometry
 open scoped Cardinal AlgebraicGeometry
 
-namespace AlgebraicGeometry.Scheme
+/- Lemma 3.9.4: the size of an affine scheme is the maximum of the countable
+cardinal and the cardinality of its global section ring. -/
+@[stacks 000P] #check (AlgebraicGeometry.Scheme.size_of_isAffine :
+  ∀ (S : Scheme.{u}) [IsAffine S], S.size = #(Γ(S, ⊤)) ⊔ ℵ₀)
 
-/-- Lemma 3.9.4: the Stacks size of an affine scheme `S` equals `#(Γ(S, ⊤)) ⊔ ℵ₀`. -/
-@[stacks 000P]
-theorem size_of_isAffine (S : Scheme.{u}) [IsAffine S] :
-    S.size = #(Γ(S, ⊤)) ⊔ ℵ₀ := sorry
-
-/-- The Stacks size of `Spec R` equals `#R ⊔ ℵ₀`. -/
-theorem size_Spec (R : CommRingCat.{u}) : (Spec R).size = #R ⊔ ℵ₀ := sorry
-
-end AlgebraicGeometry.Scheme
+#check (AlgebraicGeometry.Scheme.size_Spec :
+  ∀ (R : CommRingCat.{u}), (Spec R).size = #R ⊔ ℵ₀)

@@ -1,13 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap65.Definition_65_12_1_Subspace
-public import stacks_project.Chap66.Definition_66_3_1_Separation
-public import stacks_project.Chap66.Definition_66_5_1_QuasiCompact
-public import stacks_project.Chap66.Definition_66_9_2_Dimension
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap66.Lemma_66_13_1_IsScheme
-public import stacks_project.Chap67.Definition_67_20_2_Affine
-public import stacks_project.Chap67.Definition_67_40_1_FiniteType
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ZeroDimensional
 
 /-!
 # Dimension zero algebraic spaces
@@ -19,109 +19,81 @@ quasi-compact open subspace is affine.
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry
+open CategoryTheory AlgebraicGeometry Limits
 
 universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 72.9.1 (1): Let `S` be a scheme. Let `X` be an algebraic space over `S`.
-If `X` is quasi-separated and `dimension X = 0`, then `X` is a separated scheme
-and every quasi-compact open of `X` is affine. -/
-@[stacks 06LZ]
-theorem isAffine_of_isQuasiCompact_openSubspace_of_isAbsolutelyQuasiSeparated_of_dimension_eq_zero
-    {S : Scheme.{u}} {X : AlgebraicSpace S} [IsAbsolutelyQuasiSeparated X]
-    (hdim : dimension X = (0 : WithBot ℕ∞)) (U : OpenSubspace X)
-    [IsQuasiCompact U.X] : IsAffine U.X :=
-  sorry
+/- Lemma 72.9.1 (1): An absolutely quasi-separated algebraic space of étale Krull
+dimension zero is a separated scheme, and every quasi-compact open is affine. -/
+@[stacks 06LZ] #check
+  (AlgebraicGeometry.AlgebraicSpace.ZeroDimensional.isAffine_of_isOpenImmersion :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsAbsolutelyQuasiSeparated X],
+      etaleKrullDim X = (0 : WithBot ℕ∞) →
+      ∀ {U : AlgebraicSpace S} (j : U ⟶ X) [IsOpenImmersion j] [IsQuasiCompact U],
+        IsAffine U)
 
-/-- An absolutely quasi-separated algebraic space of dimension zero is a scheme. -/
-@[stacks 06LZ]
-theorem isScheme_of_isAbsolutelyQuasiSeparated_of_dimension_eq_zero
-    {S : Scheme.{u}} {X : AlgebraicSpace S} [IsAbsolutelyQuasiSeparated X]
-    (hdim : dimension X = (0 : WithBot ℕ∞)) : IsScheme X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ZeroDimensional.isRepresentable :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsAbsolutelyQuasiSeparated X],
+    etaleKrullDim X = (0 : WithBot ℕ∞) → X.functorOfPoints.IsRepresentable)
 
-/-- An absolutely quasi-separated algebraic space of dimension zero is absolutely
-separated. -/
-@[stacks 06LZ]
-theorem isAbsolutelySeparated_of_isAbsolutelyQuasiSeparated_of_dimension_eq_zero
-    {S : Scheme.{u}} {X : AlgebraicSpace S} [IsAbsolutelyQuasiSeparated X]
-    (hdim : dimension X = (0 : WithBot ℕ∞)) : IsAbsolutelySeparated X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ZeroDimensional.isSeparated :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsAbsolutelyQuasiSeparated X],
+    etaleKrullDim X = (0 : WithBot ℕ∞) → IsSeparated (extendBaseTerminal X))
 
-/-- A quasi-compact absolutely quasi-separated algebraic space of dimension zero
-is affine. -/
-theorem isAffine_of_isQuasiCompact_of_isAbsolutelyQuasiSeparated_of_dimension_eq_zero
-    {S : Scheme.{u}} {X : AlgebraicSpace S} [IsAbsolutelyQuasiSeparated X]
-    [IsQuasiCompact X] (hdim : dimension X = (0 : WithBot ℕ∞)) : IsAffine X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ZeroDimensional.isAffine :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsAbsolutelyQuasiSeparated X]
+    [IsQuasiCompact X], etaleKrullDim X = (0 : WithBot ℕ∞) → IsAffine X)
 
-/-- Lemma 72.9.1 (2): Let `S` be a scheme. Let `X` be an algebraic space over `S`.
-If `X` is locally of finite type over a field `k` and `dimension X = 0`, then
-`X` is a separated scheme and every quasi-compact open of `X` is affine. -/
-@[stacks 06LZ]
-theorem isAffine_of_isQuasiCompact_openSubspace_of_locallyOfFiniteType_field_of_dimension_eq_zero
-    {S : Scheme.{u}} {X : AlgebraicSpace S} {k : Type u} [Field k]
-    {σ : Spec (.of k) ⟶ S} (f : X ⟶ ofOver (Over.mk σ)) [LocallyOfFiniteType f]
-    (hdim : dimension X = (0 : WithBot ℕ∞)) (U : OpenSubspace X)
-    [IsQuasiCompact U.X] : IsAffine U.X :=
-  sorry
+/- Lemma 72.9.1 (2): An algebraic space of étale Krull dimension zero that is
+locally of finite type over a field is a separated scheme, and every
+quasi-compact open is affine. -/
+@[stacks 06LZ] #check
+  (AlgebraicGeometry.AlgebraicSpace.ZeroDimensional.isAffine_of_isOpenImmersion_of_locallyOfFiniteType :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {k : Type u} [Field k]
+      (f : extendBaseTerminal X ⟶ ofOver (Over.mk (terminal.from (Spec (.of k)))))
+      [LocallyOfFiniteType f], etaleKrullDim X = (0 : WithBot ℕ∞) →
+      ∀ {U : AlgebraicSpace S} (j : U ⟶ X) [IsOpenImmersion j] [IsQuasiCompact U],
+        IsAffine U)
 
-/-- An algebraic space locally of finite type over a field and of dimension zero
-is a scheme. -/
-@[stacks 06LZ]
-theorem isScheme_of_locallyOfFiniteType_field_of_dimension_eq_zero
-    {S : Scheme.{u}} {X : AlgebraicSpace S} {k : Type u} [Field k]
-    {σ : Spec (.of k) ⟶ S} (f : X ⟶ ofOver (Over.mk σ)) [LocallyOfFiniteType f]
-    (hdim : dimension X = (0 : WithBot ℕ∞)) : IsScheme X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ZeroDimensional.isRepresentable_of_locallyOfFiniteType :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {k : Type u} [Field k]
+    (f : extendBaseTerminal X ⟶ ofOver (Over.mk (terminal.from (Spec (.of k)))))
+    [LocallyOfFiniteType f], etaleKrullDim X = (0 : WithBot ℕ∞) →
+      X.functorOfPoints.IsRepresentable)
 
-/-- An algebraic space locally of finite type over a field and of dimension zero
-is absolutely separated. -/
-@[stacks 06LZ]
-theorem isAbsolutelySeparated_of_locallyOfFiniteType_field_of_dimension_eq_zero
-    {S : Scheme.{u}} {X : AlgebraicSpace S} {k : Type u} [Field k]
-    {σ : Spec (.of k) ⟶ S} (f : X ⟶ ofOver (Over.mk σ)) [LocallyOfFiniteType f]
-    (hdim : dimension X = (0 : WithBot ℕ∞)) : IsAbsolutelySeparated X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ZeroDimensional.isSeparated_of_locallyOfFiniteType :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {k : Type u} [Field k]
+    (f : extendBaseTerminal X ⟶ ofOver (Over.mk (terminal.from (Spec (.of k)))))
+    [LocallyOfFiniteType f], etaleKrullDim X = (0 : WithBot ℕ∞) →
+      IsSeparated (extendBaseTerminal X))
 
-/-- A quasi-compact algebraic space locally of finite type over a field and of
-dimension zero is affine. -/
-theorem isAffine_of_isQuasiCompact_of_locallyOfFiniteType_field_of_dimension_eq_zero
-    {S : Scheme.{u}} {X : AlgebraicSpace S} {k : Type u} [Field k]
-    {σ : Spec (.of k) ⟶ S} (f : X ⟶ ofOver (Over.mk σ)) [LocallyOfFiniteType f]
-    [IsQuasiCompact X] (hdim : dimension X = (0 : WithBot ℕ∞)) : IsAffine X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ZeroDimensional.isAffine_of_locallyOfFiniteType :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {k : Type u} [Field k]
+    (f : extendBaseTerminal X ⟶ ofOver (Over.mk (terminal.from (Spec (.of k)))))
+    [LocallyOfFiniteType f] [IsQuasiCompact X],
+    etaleKrullDim X = (0 : WithBot ℕ∞) → IsAffine X)
 
-/-- Lemma 72.9.1 (3): Let `S` be a scheme. Let `X` be an algebraic space over `S`.
-If `X` is Noetherian and `dimension X = 0`, then `X` is a separated scheme and
-every quasi-compact open of `X` is affine. -/
-@[stacks 06LZ]
-theorem isAffine_of_isQuasiCompact_openSubspace_of_isNoetherian_of_dimension_eq_zero
-    {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNoetherian X]
-    (hdim : dimension X = (0 : WithBot ℕ∞)) (U : OpenSubspace X)
-    [IsQuasiCompact U.X] : IsAffine U.X :=
-  sorry
+/- Lemma 72.9.1 (3): A Noetherian algebraic space of étale Krull dimension zero
+is a separated scheme, and every quasi-compact open is affine. -/
+@[stacks 06LZ] #check
+  (AlgebraicGeometry.AlgebraicSpace.ZeroDimensional.isAffine_of_isOpenImmersion_of_isNoetherian :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNoetherian (extendBaseTerminal X)],
+      etaleKrullDim X = (0 : WithBot ℕ∞) →
+      ∀ {U : AlgebraicSpace S} (j : U ⟶ X) [IsOpenImmersion j] [IsQuasiCompact U],
+        IsAffine U)
 
-/-- A Noetherian algebraic space of dimension zero is a scheme. -/
-@[stacks 06LZ]
-theorem isScheme_of_isNoetherian_of_dimension_eq_zero
-    {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNoetherian X]
-    (hdim : dimension X = (0 : WithBot ℕ∞)) : IsScheme X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ZeroDimensional.isRepresentable_of_isNoetherian :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNoetherian (extendBaseTerminal X)],
+    etaleKrullDim X = (0 : WithBot ℕ∞) → X.functorOfPoints.IsRepresentable)
 
-/-- A Noetherian algebraic space of dimension zero is absolutely separated. -/
-@[stacks 06LZ]
-theorem isAbsolutelySeparated_of_isNoetherian_of_dimension_eq_zero
-    {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNoetherian X]
-    (hdim : dimension X = (0 : WithBot ℕ∞)) : IsAbsolutelySeparated X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ZeroDimensional.isSeparated_of_isNoetherian :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNoetherian (extendBaseTerminal X)],
+    etaleKrullDim X = (0 : WithBot ℕ∞) → IsSeparated (extendBaseTerminal X))
 
-/-- A Noetherian algebraic space of dimension zero is affine. -/
-theorem isAffine_of_isNoetherian_of_dimension_eq_zero
-    {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNoetherian X]
-    (hdim : dimension X = (0 : WithBot ℕ∞)) : IsAffine X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ZeroDimensional.isAffine_of_isNoetherian :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNoetherian (extendBaseTerminal X)],
+    etaleKrullDim X = (0 : WithBot ℕ∞) → IsAffine X)
 
 end AlgebraicGeometry.AlgebraicSpace

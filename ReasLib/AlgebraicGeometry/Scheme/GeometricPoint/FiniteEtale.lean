@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.GeometricPoint.Map
@@ -41,7 +47,7 @@ theorem finiteFiberBaseChangeIso_hom_apply [ConnectedSpace X] [ConnectedSpace Y]
       a.left ≫ CategoryTheory.Limits.pullback.fst V.hom f := sorry
 
 /-- The finite étale action functor associated with a geometric fiber. -/
-noncomputable def fiberAction {X : Scheme.{u}} [ConnectedSpace X]
+noncomputable abbrev fiberAction {X : Scheme.{u}} [ConnectedSpace X]
     (xbar : GeometricPoint X) :
     Scheme.FiniteEtale X ⥤ ContAction FintypeCat (Aut (finiteFiber xbar)) :=
   functorToContAction (finiteFiber xbar)

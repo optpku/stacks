@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Bicategory.LocallyGroupoid
@@ -185,7 +191,8 @@ postcomposition with it induces an equivalence of the two dotted-arrow categorie
 instance postcomposeFunctor.isEquivalence
     (S : Bicategory.PseudoPullbackCone y p) (φ : p ≫ g ≅ q ≫ f)
     [Bicategory.IsLocallyGroupoid B]
-    [(⟨X', q, p, φ.symm⟩ : Bicategory.PseudoPullbackCone f g).IsBilimit] :
+    [Bicategory.PseudoPullbackCone.IsBilimit
+      (⟨X', q, p, φ.symm⟩ : Bicategory.PseudoPullbackCone f g)] :
     (postcomposeFunctor S φ).IsEquivalence := sorry
 /- Proof strategy: apply `Bicategory.isBiterminal_iff_existsUnique_hom₂` to the pith of the right square. For an
 outer dotted arrow, its right triangle defines a square over `f, g`; the unique morphism to the

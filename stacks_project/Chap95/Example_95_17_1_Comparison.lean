@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Fibered.BasedCategory.Basic
@@ -100,10 +106,9 @@ def mulAut {Y : AlgebraicSpace S} (σ : G →* Aut Y) (ξ : Obj σ) (g : G) : Au
 
 /-- The object map of the fold from `∐_g [[X^g/G]]` into the inertia of `[[X/G]]`. -/
 def toInertiaObj (ρ : G →* Aut X) (ξ : CoprodObj ρ) :
-    RelativeInertia (forget (ofOverAut.comp ρ)) where
-  obj := includeObj ρ ξ.idx ξ.obj
-  aut := mulAut (ofOverAut.comp ρ) (includeObj ρ ξ.idx ξ.obj) ξ.idx
-  mapAut_eq_one := sorry
+    RelativeInertia (forget (ofOverAut.comp ρ)) :=
+  RelativeInertia.mk (Inertia.mk (includeObj ρ ξ.idx ξ.obj)
+    (mulAut (ofOverAut.comp ρ) (includeObj ρ ξ.idx ξ.obj) ξ.idx)) sorry
 
 /-- The image object of `toInertiaObj` has the same test scheme as the source summand. -/
 theorem toInertia_idx (ρ : G →* Aut X) (ξ : CoprodObj ρ) :

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.BinaryProducts
@@ -25,13 +31,14 @@ namespace AlgebraicGeometry.AlgebraicSpace.AffineDescendsAlong
 
 /-- Lemma 74.10.4: Let `S` be a scheme and `P` a property of morphisms of
 algebraic spaces over `S`. If morphisms in `P` are stable under binary
-coproducts, a morphism has `P` if and only if every base change along a
-morphism from an affine scheme over `S` has `P`, and `P` descends along
-surjective flat morphisms of affine schemes over `S`, then `P` is fpqc local
-on the target. -/
+coproducts and the nullary coproduct, a morphism has `P` if and only if
+every base change along a morphism from an affine scheme over `S` has `P`,
+and `P` descends along surjective flat morphisms of affine schemes over `S`,
+then `P` is fpqc local on the target. -/
 @[stacks 041J]
 instance isLocalAtTargetFpqc {S : Scheme.{u}} {P : MorphismProperty (AlgebraicSpace S)}
     [P.IsStableUnderCoproductsOfShape WalkingPair] [AffineLocalAtTarget P]
+    [P.IsStableUnderCoproductsOfShape Empty]
     [AffineDescendsAlong P (@Flat S : MorphismProperty (AlgebraicSpace S))] :
     P.IsLocalAtTarget (fpqcPrecoverage S) :=
   sorry

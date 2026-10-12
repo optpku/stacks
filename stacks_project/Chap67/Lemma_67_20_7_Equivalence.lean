@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap66.Lemma_66_27_1_Hom
@@ -38,9 +44,7 @@ def structureSheafPushforwardMap_app {S : Scheme.{u}} {Y X : AlgebraicSpace S}
     (f : Y ⟶ X) (V : (smallEtaleSite X)ᵒᵖ) :
     (commRingStructureSheaf X).obj.obj V ⟶
       ((commRingPushforward f).obj (commRingStructureSheaf Y)).obj.obj V :=
-  limit.lift _ (structureSheafPushforwardMapCone f V.unop) ≫
-    ((smallEtaleInclusion Y).op.ranObjObjIsoLimit (commRingStructureSheaf Y).obj
-        (op ((etaleBaseChange f).obj V.unop))).inv
+  commStructureSheafMap_app f V
 
 /-- The direct-image form of `f^♯`, as a morphism of commutative-ring sheaves on
 the small étale site of `X`. -/
@@ -149,8 +153,9 @@ def commRingPushforwardPrecompCounitCone {S : Scheme.{u}}
     ((commRingPushforward (a ≫ f)).obj (commRingStructureSheaf T')).obj.obj (op W)
   π :=
     { app := fun α ↦
-        ((smallEtaleInclusion T').op.ran.obj (commRingStructureSheaf T').obj).map
-          (op (commRingPushforwardPrecompStructuredArrowHom a f W α))
+        ((commRingPushforwardComp a f).inv.app (commRingStructureSheaf T')).hom.app (op W) ≫
+          commRingPushforwardEvaluation f ((commRingPushforward a).obj (commRingStructureSheaf T'))
+            α.hom.unop
       naturality := fun _ _ _ ↦ sorry }
 
 /-- The apex of `commRingPushforwardPrecompCounitCone` is `(a ≫ f)_* 𝒪_{T'}` at `W`. -/
@@ -167,30 +172,21 @@ def commRingPushforwardPrecompCounit {S : Scheme.{u}}
     (commRingPushforward (a ≫ f)).obj (commRingStructureSheaf T') ⟶
       (commRingPushforward f).obj
         ((commRingPushforward a).obj (commRingStructureSheaf T')) :=
-  InducedCategory.homMk
-    { app := fun W ↦
-        limit.lift _ (commRingPushforwardPrecompCounitCone a f W.unop) ≫
-          ((smallEtaleInclusion T).op.ranObjObjIsoLimit
-              ((commRingPushforward a).obj (commRingStructureSheaf T')).obj
-              (op ((etaleBaseChange f).obj W.unop))).inv
-      naturality := fun _ _ _ ↦ sorry }
+  (commRingPushforwardComp a f).inv.app (commRingStructureSheaf T')
 
 /-- The component at `W` of `commRingPushforwardPrecompCounit` is the limit-lift
 of the Kan-counit cone. -/
 theorem commRingPushforwardPrecompCounit_app {S : Scheme.{u}}
     {T T' X : AlgebraicSpace S} (a : T' ⟶ T) (f : T ⟶ X) (W : (smallEtaleSite X)ᵒᵖ) :
     (InducedCategory.Hom.hom (commRingPushforwardPrecompCounit a f)).app W =
-      limit.lift _ (commRingPushforwardPrecompCounitCone a f W.unop) ≫
-        ((smallEtaleInclusion T).op.ranObjObjIsoLimit
-            ((commRingPushforward a).obj (commRingStructureSheaf T')).obj
-            (op ((etaleBaseChange f).obj W.unop))).inv :=
-  sorry
+      ((commRingPushforwardComp a f).inv.app (commRingStructureSheaf T')).hom.app W :=
+  rfl
 
 /-- The Kan-counit comparison is an isomorphism of commutative-ring sheaves. -/
 instance commRingPushforwardPrecompCounit_isIso {S : Scheme.{u}}
     {T T' X : AlgebraicSpace S} (a : T' ⟶ T) (f : T ⟶ X) :
     IsIso (commRingPushforwardPrecompCounit a f) :=
-  sorry
+  inferInstanceAs (IsIso ((commRingPushforwardComp a f).inv.app (commRingStructureSheaf T')))
 
 /-- Comparison `f_* (a_* 𝒪_{T'}) ⟶ (a ≫ f)_* 𝒪_{T'}` obtained by inverting the
 Kan-counit associator. -/
@@ -199,13 +195,15 @@ def commRingPushforwardPrecomp {S : Scheme.{u}} {T T' X : AlgebraicSpace S}
     (commRingPushforward f).obj
         ((commRingPushforward a).obj (commRingStructureSheaf T')) ⟶
       (commRingPushforward (a ≫ f)).obj (commRingStructureSheaf T') :=
-  inv (commRingPushforwardPrecompCounit a f)
+  (commRingPushforwardComp a f).hom.app (commRingStructureSheaf T')
 
 /-- `commRingPushforwardPrecomp` is the inverse of the Kan-counit comparison. -/
 theorem commRingPushforwardPrecomp_eq {S : Scheme.{u}} {T T' X : AlgebraicSpace S}
     (a : T' ⟶ T) (f : T ⟶ X) :
     commRingPushforwardPrecomp a f = inv (commRingPushforwardPrecompCounit a f) :=
-  sorry
+  by
+    apply IsIso.eq_inv_of_hom_inv_id
+    exact ((commRingPushforwardComp a f).app (commRingStructureSheaf T')).inv_hom_id
 
 /-- The map between target algebras induced by precomposition of a test morphism. -/
 def qcAlgebraPairTargetMap {S : Scheme.{u}} {X T T' : AlgebraicSpace S}

@@ -1,8 +1,16 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.AlgebraicGeometry.AffineSpace
+public import Mathlib.AlgebraicGeometry.Restrict
 public import ReasLib.AlgebraicGeometry.GroupScheme
 public import ReasLib.AlgebraicGeometry.GroupScheme.Properties
+public import ReasLib.AlgebraicGeometry.GroupScheme.RelativeIdentityComponent
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType
 
 @[expose] public section
@@ -21,5 +29,13 @@ theorem exists_flat_finiteType_not_isSeparated_over_affineLine
     ∃ G : GroupScheme (𝔸(ULift.{u} (Fin 1); Spec (CommRingCat.of k))),
       AlgebraicGeometry.Flat G.X.hom ∧ Scheme.Hom.FiniteType G.X.hom ∧
         ¬ AlgebraicGeometry.IsSeparated G.X.hom := sorry
+
+/-- There is a group scheme over a scheme whose relative identity component is
+flat over the base while the whole group scheme is not flat over the base. -/
+theorem exists_identityComponent_flat_not_flat :
+    ∃ (S : Scheme.{u}) (G : GroupScheme S) (hopen : IsOpen (identityComponentLocus G)),
+      AlgebraicGeometry.Flat
+          (Scheme.Opens.ι ⟨identityComponentLocus G, hopen⟩ ≫ G.X.hom) ∧
+        ¬ AlgebraicGeometry.Flat G.X.hom := sorry
 
 end AlgebraicGeometry.GroupScheme

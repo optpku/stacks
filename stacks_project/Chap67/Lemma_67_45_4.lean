@@ -1,7 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap67.Definition_67_45_2_Integral
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Finite.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of integral and finite morphisms of algebraic spaces
@@ -18,28 +24,34 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.45.4 (1): The composition of integral morphisms of algebraic spaces is
-integral. -/
-@[stacks 03ZR]
-instance isIntegralHom_isStableUnderComposition {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderComposition
-      (@IsIntegralHom S : MorphismProperty (AlgebraicSpace S)) := sorry
+/- Lemma 67.45.4 (1) -/
+@[stacks 03ZR] #check
+  (AlgebraicGeometry.AlgebraicSpace.isIntegralHom_isStableUnderComposition :
+    ∀ {S : Scheme.{u}},
+      MorphismProperty.IsStableUnderComposition
+        (@AlgebraicGeometry.AlgebraicSpace.IsIntegralHom S :
+          MorphismProperty (AlgebraicGeometry.AlgebraicSpace S)))
 
-/-- The composition of integral morphisms of algebraic spaces is integral. -/
-instance isIntegralHom_comp {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [IsIntegralHom f] [IsIntegralHom g] :
-    IsIntegralHom (f ≫ g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.isIntegralHom_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicGeometry.AlgebraicSpace S}
+    (f : X ⟶ Y) (g : Y ⟶ Z)
+    [AlgebraicGeometry.AlgebraicSpace.IsIntegralHom f]
+    [AlgebraicGeometry.AlgebraicSpace.IsIntegralHom g],
+    AlgebraicGeometry.AlgebraicSpace.IsIntegralHom (f ≫ g))
 
-/-- Lemma 67.45.4 (2): The composition of finite morphisms of algebraic spaces is
-finite. -/
-@[stacks 03ZR]
-instance isFinite_isStableUnderComposition {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderComposition
-      (@IsFinite S : MorphismProperty (AlgebraicSpace S)) := sorry
+/- Lemma 67.45.4 (2) -/
+@[stacks 03ZR] #check
+  (AlgebraicGeometry.AlgebraicSpace.isFinite_isStableUnderComposition :
+    ∀ {S : Scheme.{u}},
+      MorphismProperty.IsStableUnderComposition
+        (@AlgebraicGeometry.AlgebraicSpace.IsFinite S :
+          MorphismProperty (AlgebraicGeometry.AlgebraicSpace S)))
 
-/-- The composition of finite morphisms of algebraic spaces is finite. -/
-instance isFinite_comp {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [IsFinite f] [IsFinite g] :
-    IsFinite (f ≫ g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.isFinite_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicGeometry.AlgebraicSpace S}
+    (f : X ⟶ Y) (g : Y ⟶ Z)
+    [AlgebraicGeometry.AlgebraicSpace.IsFinite f]
+    [AlgebraicGeometry.AlgebraicSpace.IsFinite g],
+    AlgebraicGeometry.AlgebraicSpace.IsFinite (f ≫ g))
 
 end AlgebraicGeometry.AlgebraicSpace

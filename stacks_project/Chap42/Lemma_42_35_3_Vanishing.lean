@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap42.Remark_42_33_5_Bivariant
+public import ReasLib.AlgebraicGeometry.BivariantClass.Zero
 public import stacks_project.Chap42.«42_37_1_1_FundamentalCycle»
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Modification
 
@@ -74,17 +81,6 @@ theorem zeroCap_gysinCartier
     (f : X ⟶ Y) (p : ℤ) :
     CompatibleWithCartierGysin delta (zeroCap delta f p) := sorry
 
-/-- The bivariant class whose cap action is pointwise zero. -/
-def zeroClass
-    {S : Scheme.{u}} [UniversallyCatenary S] (delta : S → ℤ)
-    [IsDimensionFunction delta] {X Y : Over S}
-    [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
-    (f : X ⟶ Y) (p : ℤ) : BivariantClass delta f p where
-  cap := (zeroCap delta f p : CapFamily delta f p)
-  map_proper := zeroCap_mapProper delta f p
-  pullback_flat := zeroCap_pullbackFlat delta f p
-  gysin_cartier := zeroCap_gysinCartier delta f p
-
 /-- The cap action of the zero bivariant class is the zero cap family. -/
 theorem zeroClass_cap
     {S : Scheme.{u}} [UniversallyCatenary S] (delta : S → ℤ)
@@ -92,7 +88,7 @@ theorem zeroClass_cap
     [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
     (f : X ⟶ Y) (p : ℤ) :
     ((zeroClass delta f p).cap : CapFamily delta f p) =
-      (zeroCap delta f p : CapFamily delta f p) := sorry
+      (zeroCap delta f p : CapFamily delta f p) := rfl
 
 /-- Bivariant classes have the canonical pointwise-zero value. -/
 instance instZeroBivariantClass

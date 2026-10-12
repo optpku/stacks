@@ -1,7 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap95.Example_95_17_2_Picard
-public import stacks_project.Chap95.Example_95_17_2_Product
+public import ReasLib.AlgebraicGeometry.Scheme.PicardStack.InertiaProduct
+import StacksCheckRecall
 
 /-!
 # Example 95.17.2
@@ -22,14 +28,14 @@ namespace AlgebraicGeometry
 
 open StackOver.Groupoids.Hom
 
-/-- Example 95.17.2: if `f : X ⟶ S` is a morphism of schemes such that for every
+/- Example 95.17.2: if `f : X ⟶ S` is a morphism of schemes such that for every
 `T ⟶ S` the base change `f_T` has `O_T ⟶ f_{T,*} O_{X_T}` an isomorphism, then
 the inertia stack of `picardStack f` is equivalent to `𝔾ₘ[S] ×_S picardStack f`
 as a stack in groupoids over `(Sch/S)_fppf`. -/
-@[stacks 0375]
-theorem inertia_mulGroupProduct {X S : Scheme.{u}} (f : X ⟶ S)
-    [Scheme.Hom.IsIsoBaseChangeStructurePushforward f] :
-    IsEquivalence (Picard.inertiaMulGroupHom f) :=
-  sorry
+@[stacks 0375] #check
+  (@AlgebraicGeometry.inertia_mulGroupProduct :
+    ∀ {X S : Scheme.{u}} (f : X ⟶ S)
+      (_ : Scheme.Hom.IsIsoBaseChangeStructurePushforward f),
+      IsEquivalence (Picard.inertiaMulGroupHom f))
 
 end AlgebraicGeometry

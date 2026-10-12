@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Torsor.Defs
@@ -325,8 +331,7 @@ def structureDerivation (L : FlatLift t f) :
       (idAlgebraMap L ≫ closedStructureSheaf_structureMap L.i)) ≫
     (Hom.Deformation.restrictForgetRingIso X (spacesStructureSheaf X)).hom ≫
     (sheafCompose (smallEtaleTopology X) (forget₂ RingCat AddCommGrpCat.{u})).map
-      (((smallEtaleInclusion X).sheafAdjunctionCocontinuous RingCat.{u}
-        (smallEtaleTopology X) (spacesEtaleTopology X)).counit.app (structureSheaf X)) ≫
+      ((EtaleRingedTopos.ringExtensionRestrictionIso X).hom.app (structureSheaf X)) ≫
     Hom.Deformation.derivationAdditiveMap f (omegaSheaf f) (Hom.GeometricNL.universalDerivation f)
 
 /-- Postcomposition with `structureDerivation L` is injective on `Hom(Ω[f], f^* 𝒞)`. -/

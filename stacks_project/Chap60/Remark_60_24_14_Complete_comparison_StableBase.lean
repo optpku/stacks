@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap60.Remark_60_5_4
@@ -29,14 +35,12 @@ theorem quotientPrimeNilpotent : IsNilpotent (p : A ⧸ I) := by
 Both ring maps are fixed: identity on A, and the quotient A → A/I. -/
 noncomputable def completedBase :
     CompletedCrisObject p A I γ (A ⧸ I) (Ideal.Quotient.mk I)
-      (quotientIdeal (I := I)) (quotientPrimeNilpotent hp) where
-  B := DividedPowerRing.of A I γ
-  base := DPMorphism.id γ
-  toC := Ideal.Quotient.mk I
-  surjective := Ideal.Quotient.mk_surjective
-  kernel_eq := Ideal.mk_ker
-  commutative := RingHom.comp_id _
-  complete := inferInstance
+      (quotientIdeal (I := I)) (quotientPrimeNilpotent hp) :=
+  CompletedCrisObject.of γ (Ideal.Quotient.mk I)
+    (quotientIdeal (I := I)) (quotientPrimeNilpotent hp)
+    (DividedPowerRing.of A I γ) (DPMorphism.id γ) (Ideal.Quotient.mk I)
+    Ideal.Quotient.mk_surjective Ideal.mk_ker (RingHom.comp_id _)
+    (inferInstance : IsAdicComplete (Ideal.span {(p : A)}) A)
 
 /-- A cofinal offset for which all powers of p lie in I and are PD-stable. -/
 noncomputable def offset : ℕ :=

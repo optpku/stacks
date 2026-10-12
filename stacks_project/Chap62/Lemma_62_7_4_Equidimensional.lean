@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.ClosedSubscheme.Reduced
@@ -55,7 +61,7 @@ theorem equidimensional_iff_closure_at {X S : Scheme.{u}} {f : X ⟶ S} {r : ℕ
 
 /-- The support of a restriction to compatible opens `U ⊆ X` and `V ⊆ S` is the
 preimage of `support α ∩ U` along `U.ι`. -/
-theorem support_restrict {X S : Scheme.{u}} {f : X ⟶ S} {r : ℕ}
+theorem support_restrict {X S : Scheme.{u}} {f : X ⟶ S} [LocallyOfFiniteType f] {r : ℕ}
     (α : Family f r) (U : X.Opens) (V : S.Opens) (hUV : U ≤ f ⁻¹ᵁ V) :
     U.ι '' support (restrict α U V hUV) = support α ∩ U := sorry
 

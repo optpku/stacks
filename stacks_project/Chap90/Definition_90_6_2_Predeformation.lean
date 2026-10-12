@@ -1,9 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.CategoryTheory.FiberedCategory.Fiber
-public import Mathlib.CategoryTheory.PUnit
-public import ReasLib.CategoryTheory.Fibered.InGroupoids.Basic
-public import stacks_project.Chap90.Definition_90_7_3_ArtinianLocal
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation
 
 /-!
 # Predeformation categories over `ArtinianLocalAlgCat`
@@ -15,56 +18,43 @@ has a unique morphism between any two objects.
 
 @[expose] public section
 
-open CategoryTheory IsLocalRing
+open CategoryTheory
 
 universe u v w
 
 variable (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-namespace ArtinianLocalAlgCat
-
-/-- The residue field `k`, viewed as an object of `ArtinianLocalAlgCat Λ k`. -/
-def residue : ArtinianLocalAlgCat Λ k :=
-  of k ((Ideal.quotientEquivAlgOfEq Λ maximalIdeal_eq_bot).trans (AlgEquiv.quotientBot Λ k))
-
-/-- The bundled residue object has carrier `k`. -/
-theorem residue_carrier : (residue Λ k).carrier = k := sorry
-
-end ArtinianLocalAlgCat
+#check (ArtinianLocalAlgCat.residue Λ k : ArtinianLocalAlgCat Λ k)
+#check (ArtinianLocalAlgCat.residue_carrier Λ k :
+  (ArtinianLocalAlgCat.residue Λ k).carrier = k)
 
 variable {Λ k}
 variable {F : Type v} [Category.{w} F]
 
 namespace CategoryTheory.Functor
 
-/-- A predeformation category over `ArtinianLocalAlgCat Λ k` is a category cofibered in
-groupoids whose fibre over `ArtinianLocalAlgCat.residue Λ k` is nonempty and has a unique
-morphism between any two objects. -/
-class IsPredeformationCategory (p : F ⥤ ArtinianLocalAlgCat Λ k) : Prop where
-  [isCofiberedInGroupoids : IsFibered.InGroupoids p.op]
-  nonempty_residueFiber : Nonempty (p.Fiber (ArtinianLocalAlgCat.residue Λ k))
-  unique_residueHom (x y : p.Fiber (ArtinianLocalAlgCat.residue Λ k)) :
-    Nonempty (x ⟶ y) ∧ Subsingleton (x ⟶ y)
-
-/-- The identity functor on `ArtinianLocalAlgCat Λ k` is a predeformation category. -/
-instance instIsPredeformationCategoryId :
-    IsPredeformationCategory (𝟭 (ArtinianLocalAlgCat Λ k)) := sorry
-
-/-- A functor is a predeformation category iff it is cofibered in groupoids and its fibre
-over `k` is nonempty with a unique morphism between any two objects. -/
-theorem isPredeformationCategory_spec (p : F ⥤ ArtinianLocalAlgCat Λ k) :
+#check (IsPredeformationCategory :
+  (F ⥤ ArtinianLocalAlgCat Λ k) → Prop)
+#check (instIsPredeformationCategoryId (Λ := Λ) (k := k) :
+  IsPredeformationCategory (𝟭 (ArtinianLocalAlgCat Λ k)))
+#check (isPredeformationCategory_spec :
+  ∀ (p : F ⥤ ArtinianLocalAlgCat Λ k),
     IsPredeformationCategory p ↔
       IsFibered.InGroupoids p.op ∧
         Nonempty (p.Fiber (ArtinianLocalAlgCat.residue Λ k)) ∧
           ∀ x y : p.Fiber (ArtinianLocalAlgCat.residue Λ k),
-            Nonempty (x ⟶ y) ∧ Subsingleton (x ⟶ y) := sorry
-
-/-- A functor is a predeformation category iff it is cofibered in groupoids and its fibre
-over `k` is equivalent to `Discrete PUnit`. -/
-theorem isPredeformationCategory_iff_equiv_punit (p : F ⥤ ArtinianLocalAlgCat Λ k) :
+            Nonempty (x ⟶ y) ∧ Subsingleton (x ⟶ y))
+#check (isPredeformationCategory_iff_equiv_punit :
+  ∀ (p : F ⥤ ArtinianLocalAlgCat Λ k),
     IsPredeformationCategory p ↔
       IsFibered.InGroupoids p.op ∧
-        Nonempty (p.Fiber (ArtinianLocalAlgCat.residue Λ k) ≌ Discrete PUnit) := sorry
+        Nonempty (p.Fiber (ArtinianLocalAlgCat.residue Λ k) ≌ Discrete PUnit))
+
+variable {G : Type v} [Category.{w} G]
+variable (p : F ⥤ ArtinianLocalAlgCat Λ k) (q : G ⥤ ArtinianLocalAlgCat Λ k)
+variable [IsPredeformationCategory p] [IsPredeformationCategory q]
+
+#check (CategoryTheory.Functor.PredeformationMorphism p q : Type (max v w))
 
 end CategoryTheory.Functor

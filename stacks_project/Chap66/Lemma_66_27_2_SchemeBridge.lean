@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap66.Lemma_66_27_2_Comparison
@@ -38,19 +44,19 @@ variable {S : Scheme.{u}}
 /-- Small charts form a dense subsite also for Type-u sheaves. -/
 instance restriction_isEquivalence (X : AlgebraicSpace S) :
     ((smallEtaleInclusion X).sheafPushforwardContinuous (Type u)
-      (smallEtaleTopology X) (spacesEtaleTopology X)).IsEquivalence := sorry
+      (smallEtaleTopology X) (spacesEtaleTopology X)).IsEquivalence :=
+  (EtaleTopos.siteEquivalence X).isEquivalence_functor
 
 /-- The comparison uses exactly the existing restriction/right-Kan-extension adjunction. -/
 def inclusionEquivalence (X : AlgebraicSpace S) :
     Sheaf (spacesEtaleTopology X) (Type u) ≌ Sheaf (smallEtaleTopology X) (Type u) :=
-  ((smallEtaleInclusion X).sheafAdjunctionCocontinuous (Type u)
-    (smallEtaleTopology X) (spacesEtaleTopology X)).toEquivalence
+  EtaleTopos.siteEquivalence X
 
 variable {X : AlgebraicSpace S} {U : Over S} (p : ofOver U ⟶ X) [Etale p]
 
 /-- The image of a scheme slice object, rebased to the ordinary spaces-site object. -/
-def sliceInclusion : Over (smallEtaleSite.mk p) ⥤ Over (spacesEtaleSite.mk p) :=
-  smallEtaleOverPost X (smallEtaleSite.mk p) ⋙ Over.map (smallEtaleInclusion_mkIso p).hom
+def sliceInclusion : Over (smallEtaleSite.mk p (hφ := inferInstance)) ⥤ Over (spacesEtaleSite.mk p) :=
+  smallEtaleOverPost X (smallEtaleSite.mk p (hφ := inferInstance)) ⋙ Over.map (smallEtaleInclusion_mkIso p).hom
 
 /-- Postcomposition to the slice commutes with passage from schemes to spaces.
 Each component is identity on the represented scheme. -/
@@ -76,12 +82,12 @@ instance overIsoRestriction_isEquivalence {Z : AlgebraicSpace S}
 
 /-- The composite slice inclusion is continuous. -/
 instance sliceInclusion_isContinuous :
-    (sliceInclusion p).IsContinuous ((smallEtaleTopology X).over (smallEtaleSite.mk p))
+    (sliceInclusion p).IsContinuous ((smallEtaleTopology X).over (smallEtaleSite.mk p (hφ := inferInstance)))
       ((spacesEtaleTopology X).over (spacesEtaleSite.mk p)) :=
-  Functor.isContinuous_comp (smallEtaleOverPost X (smallEtaleSite.mk p))
+  Functor.isContinuous_comp (smallEtaleOverPost X (smallEtaleSite.mk p (hφ := inferInstance)))
     (Over.map (smallEtaleInclusion_mkIso p).hom)
-    ((smallEtaleTopology X).over (smallEtaleSite.mk p))
-    ((spacesEtaleTopology X).over ((smallEtaleInclusion X).obj (smallEtaleSite.mk p)))
+    ((smallEtaleTopology X).over (smallEtaleSite.mk p (hφ := inferInstance)))
+    ((spacesEtaleTopology X).over ((smallEtaleInclusion X).obj (smallEtaleSite.mk p (hφ := inferInstance))))
     ((spacesEtaleTopology X).over (spacesEtaleSite.mk p))
 
 /-- Continuity of the upper path of the localization square. -/
@@ -89,19 +95,19 @@ instance localizationSquare_left_isContinuous :
     (etaleLocalizationFunctor p ⋙ sliceInclusion p).IsContinuous
       (smallEtaleTopology (ofOver U)) ((spacesEtaleTopology X).over (spacesEtaleSite.mk p)) :=
   Functor.isContinuous_comp (etaleLocalizationFunctor p) (sliceInclusion p)
-    (smallEtaleTopology (ofOver U)) ((smallEtaleTopology X).over (smallEtaleSite.mk p))
+    (smallEtaleTopology (ofOver U)) ((smallEtaleTopology X).over (smallEtaleSite.mk p (hφ := inferInstance)))
     ((spacesEtaleTopology X).over (spacesEtaleSite.mk p))
 
 /-- The source slice equivalence with inverse exactly the extension used in the old comparison. -/
 def sliceEquivalence :
     Sheaf ((spacesEtaleTopology X).over (spacesEtaleSite.mk p)) (Type u) ≌
-      Sheaf ((smallEtaleTopology X).over (smallEtaleSite.mk p)) (Type u) :=
+      Sheaf ((smallEtaleTopology X).over (smallEtaleSite.mk p (hφ := inferInstance))) (Type u) :=
   (((Over.map (smallEtaleInclusion_mkIso p).hom).sheafAdjunctionCocontinuous (Type u)
-      ((spacesEtaleTopology X).over ((smallEtaleInclusion X).obj (smallEtaleSite.mk p)))
+      ((spacesEtaleTopology X).over ((smallEtaleInclusion X).obj (smallEtaleSite.mk p (hφ := inferInstance))))
       ((spacesEtaleTopology X).over (spacesEtaleSite.mk p))).comp
-    ((smallEtaleOverPost X (smallEtaleSite.mk p)).sheafAdjunctionCocontinuous (Type u)
-      ((smallEtaleTopology X).over (smallEtaleSite.mk p))
-      ((spacesEtaleTopology X).over ((smallEtaleInclusion X).obj (smallEtaleSite.mk p))))).toEquivalence
+    ((smallEtaleOverPost X (smallEtaleSite.mk p (hφ := inferInstance))).sheafAdjunctionCocontinuous (Type u)
+      ((smallEtaleTopology X).over (smallEtaleSite.mk p (hφ := inferInstance)))
+      ((spacesEtaleTopology X).over ((smallEtaleInclusion X).obj (smallEtaleSite.mk p (hφ := inferInstance)))))).toEquivalence
 
 /-- The restriction square induced by the identity-on-space localization square. -/
 def restrictionSquare :
@@ -110,12 +116,12 @@ def restrictionSquare :
       (inclusionEquivalence (ofOver U)).functor ≅
     (sliceEquivalence p).functor ⋙
       (etaleLocalizationFunctor p).sheafPushforwardContinuous (Type u)
-        (smallEtaleTopology (ofOver U)) ((smallEtaleTopology X).over (smallEtaleSite.mk p)) :=
+        (smallEtaleTopology (ofOver U)) ((smallEtaleTopology X).over (smallEtaleSite.mk p (hφ := inferInstance))) :=
   (Functor.sheafPushforwardContinuousComp'
     (localizationSquare p).symm (Type u) (smallEtaleTopology (ofOver U))
       (spacesEtaleTopology (ofOver U)) ((spacesEtaleTopology X).over (spacesEtaleSite.mk p))) ≪≫
     (Functor.sheafPushforwardContinuousComp _ _ (Type u)
-      (smallEtaleTopology (ofOver U)) ((smallEtaleTopology X).over (smallEtaleSite.mk p))
+      (smallEtaleTopology (ofOver U)) ((smallEtaleTopology X).over (smallEtaleSite.mk p (hφ := inferInstance)))
       ((spacesEtaleTopology X).over (spacesEtaleSite.mk p))).symm
 
 /-- Source localization commutes with small-to-spaces extension by the canonical mate. -/
@@ -162,9 +168,9 @@ def overIsoPushforward {Z : AlgebraicSpace S} {A B : spacesEtaleSite Z} (e : A �
 /-- Continuity of the spaces path in the inverse localization square. -/
 instance inverseSquare_right_isContinuous :
     (sliceInclusion p ⋙ spacesEtaleLocalizationInverse p).IsContinuous
-      ((smallEtaleTopology X).over (smallEtaleSite.mk p)) (spacesEtaleTopology (ofOver U)) :=
+      ((smallEtaleTopology X).over (smallEtaleSite.mk p (hφ := inferInstance))) (spacesEtaleTopology (ofOver U)) :=
   Functor.isContinuous_comp (sliceInclusion p) (spacesEtaleLocalizationInverse p)
-    ((smallEtaleTopology X).over (smallEtaleSite.mk p))
+    ((smallEtaleTopology X).over (smallEtaleSite.mk p (hφ := inferInstance)))
     ((spacesEtaleTopology X).over (spacesEtaleSite.mk p)) (spacesEtaleTopology (ofOver U))
 
 /-- Target localization commutes with spaces-to-small restriction and the mk-object rebase. -/
@@ -173,16 +179,16 @@ def targetIso :
         (etaleLocalizationIso_hom_toToposHom p).toTopos.pushforward ≅
       (spacesEtaleLocalizationIso_hom_toToposHom p).toTopos.pushforward ⋙
         (etaleRelocalizeMkRelocalization_target p).toTopos.pushforward ⋙
-          (smallEtaleLocalizationComparisonInv X (smallEtaleSite.mk p)).toTopos.pushforward :=
+          (smallEtaleLocalizationComparisonInv X (smallEtaleSite.mk p (hφ := inferInstance))).toTopos.pushforward :=
   Functor.sheafPushforwardContinuousComp' (localizationInverseSquare p) (Type u)
-      ((smallEtaleTopology X).over (smallEtaleSite.mk p)) (smallEtaleTopology (ofOver U))
+      ((smallEtaleTopology X).over (smallEtaleSite.mk p (hφ := inferInstance))) (smallEtaleTopology (ofOver U))
       (spacesEtaleTopology (ofOver U)) ≪≫
     (Functor.sheafPushforwardContinuousComp (sliceInclusion p) (spacesEtaleLocalizationInverse p)
-      (Type u) ((smallEtaleTopology X).over (smallEtaleSite.mk p))
+      (Type u) ((smallEtaleTopology X).over (smallEtaleSite.mk p (hφ := inferInstance)))
       ((spacesEtaleTopology X).over (spacesEtaleSite.mk p)) (spacesEtaleTopology (ofOver U))).symm ≪≫
     Functor.isoWhiskerLeft (spacesEtaleLocalizationIso_hom_toToposHom p).toTopos.pushforward
       (Functor.isoWhiskerRight (overIsoPushforward (smallEtaleInclusion_mkIso p))
-        (smallEtaleLocalizationComparisonInv X (smallEtaleSite.mk p)).toTopos.pushforward)
+        (smallEtaleLocalizationComparisonInv X (smallEtaleSite.mk p (hφ := inferInstance))).toTopos.pushforward)
 
 /-- The direct-image comparison for an arbitrary morphism, before localization.
 It is induced by the actual base-change square of site functors. -/
@@ -219,7 +225,7 @@ def conjugateSchemeIso (hcomm : p ≫ f = g ≫ q) :
 is the naturality of the structure-sheaf restriction and extension maps. -/
 def conjugateSchemeTwoIso (hcomm : p ≫ f = g ≫ q) :
     @RingedSite.ToposHom.TwoIso
-      ((ringedSite X).localization (smallEtaleSite.mk p))
+      ((ringedSite X).localization (smallEtaleSite.mk p (hφ := inferInstance)))
       ((ringedSite Y).localization (smallEtaleSite.mk q)) _ _
       (etaleRelocalizeConjugateScheme p g q)
       (etaleRelocalizeConjugate p g f q hcomm) where

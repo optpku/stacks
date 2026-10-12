@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.DualNumber
@@ -77,8 +83,10 @@ def idAddEps (ψ : Module.End k V) :
 theorem idAddEps_def (ψ : Module.End k V) :
     idAddEps Λ k ψ = LinearMap.id + epsCarrier Λ k • extendEnd Λ k V ψ := sorry
 
-/-- The automorphism of the trivial dual-number object induced by `id + ε ψ`. -/
-def idAddEpsIso (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V) (ψ : Module.End k V) :
+/-- The automorphism of the trivial dual-number object induced by `id + ε ψ` for
+an invariant endomorphism `ψ`. -/
+def idAddEpsIso (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V)
+    (ψ : (endRepresentation Γ Λ k ρ0).invariants) :
     trivialDeformationObj Γ Λ k ρ0 ≅ trivialDeformationObj Γ Λ k ρ0 where
   hom := Hom.of (𝟙 (trivialDeformationObj Γ Λ k ρ0).base) (fun m ↦ idAddEps Λ k ψ m)
     sorry sorry sorry sorry
@@ -88,7 +96,8 @@ def idAddEpsIso (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V) (ψ : Module.En
   inv_hom_id := sorry
 
 /-- The underlying forward map of `idAddEpsIso` is `idAddEps`. -/
-theorem idAddEpsIso_hom (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V) (ψ : Module.End k V) :
+theorem idAddEpsIso_hom (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V)
+    (ψ : (endRepresentation Γ Λ k ρ0).invariants) :
     (idAddEpsIso Γ Λ k ρ0 ψ).hom.toFun = fun m ↦ idAddEps Λ k ψ m := sorry
 
 /-- The map `H^0(Γ, End_k(V)) → Inf_{x0}(F)` sending `ψ` to the infinitesimal automorphism
@@ -97,7 +106,7 @@ def infAutOfInvariants (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V)
     (ψ : (endRepresentation Γ Λ k ρ0).invariants) :
     Functor.infinitesimalAutomorphismsAt (forget Γ Λ k) (residueObj Γ Λ k ρ0)
       (trivialDeformation Γ Λ k ρ0) (trivialPushforward Γ Λ k ρ0) :=
-  ⟨Fiber.isoMk (idAddEpsIso Γ Λ k ρ0 ψ.val) sorry, sorry⟩
+  ⟨Fiber.isoMk (idAddEpsIso Γ Λ k ρ0 ψ) sorry, sorry⟩
 
 /-- Elements of the image of `infAutOfInvariants` are represented by `id + ε ψ`. -/
 theorem infAutOfInvariants_spec (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V)
@@ -240,12 +249,32 @@ theorem ofExtension_iso_iff (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V)
       (Rep.of (residueRepresentation Γ Λ k ρ0))) :
     ofExtension Γ Λ k ρ0 S = ofExtension Γ Λ k ρ0 T ↔ Nonempty (S ≅ T) := sorry
 
-/-- Lemma 93.5.3 (2)
-In Example 93.5.1, `T Def_{V, ρ0}` identifies with `Ext^1_{k[Γ]}(V, V)` via the comparison
-that lets `ε` act through an extension `0 → V → E → V → 0`. -/
-@[stacks 0DVT]
+/-- Every tangent class is represented by an extension of `V` by `V`. -/
 theorem ofExtension_surjective (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V) :
     Function.Surjective (ofExtension Γ Λ k ρ0) := sorry
+
+/-- The comparison from endpoint-preserving isomorphism classes of self-extensions to
+dual-number deformation classes. -/
+def ofExtensionClasses (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V) :
+    isomorphismClasses.obj (Cat.of
+      (Extension (Rep.of (residueRepresentation Γ Λ k ρ0))
+        (Rep.of (residueRepresentation Γ Λ k ρ0)))) → tangentSpace Γ Λ k ρ0 :=
+  _root_.Quotient.lift (ofExtension Γ Λ k ρ0)
+    (fun S T h ↦ (ofExtension_iso_iff Γ Λ k ρ0 S T).mpr h)
+
+/-- On the class of a self-extension, `ofExtensionClasses` is the original comparison. -/
+theorem ofExtensionClasses_mk (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V)
+    (S : Extension (Rep.of (residueRepresentation Γ Λ k ρ0))
+      (Rep.of (residueRepresentation Γ Λ k ρ0))) :
+    ofExtensionClasses Γ Λ k ρ0 (Quotient.mk'' S) = ofExtension Γ Λ k ρ0 S := sorry
+
+/-- Lemma 93.5.3 (2)
+In Example 93.5.1, `T Def_{V, ρ0}` identifies with the endpoint-preserving isomorphism
+classes of extensions `Ext^1_{k[Γ]}(V, V)` via the comparison that lets `ε` act through
+an extension `0 → V → E → V → 0`. -/
+@[stacks 0DVT]
+theorem ofExtensionClasses_bijective (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V) :
+    Function.Bijective (ofExtensionClasses Γ Λ k ρ0) := sorry
 
 /-- Lemma 93.5.3 (3)
 `Ext^1_{k[Γ]}(V, V)` identifies with `H^1(Γ, End_k(V))`. -/

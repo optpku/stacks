@@ -1,7 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.AlgebraicGeometry.AffineScheme
-public import Mathlib.SetTheory.Cardinal.Basic
+public import ReasLib.AlgebraicGeometry.Scheme.Size
 
 @[expose] public section
 
@@ -12,20 +17,13 @@ universe u
 open AlgebraicGeometry
 open scoped Cardinal AlgebraicGeometry
 
-namespace AlgebraicGeometry.Scheme
+#check (AlgebraicGeometry.Scheme.size : Scheme.{u} → Cardinal.{u})
 
-/-- The Stacks size of a scheme, `ℵ₀ ⊔ #X.affineOpens ⊔ ⨆ U : X.affineOpens, #(Γ(X, U))`. -/
-noncomputable def size (X : Scheme.{u}) : Cardinal.{u} :=
-  ℵ₀ ⊔ #X.affineOpens ⊔ ⨆ U : X.affineOpens, #(Γ(X, U))
+#check (AlgebraicGeometry.Scheme.aleph0_le_size :
+  ∀ (X : Scheme.{u}), ℵ₀ ≤ X.size)
 
-/-- Countable infinite cardinals are bounded by the Stacks size of any scheme. -/
-lemma aleph0_le_size (X : Scheme.{u}) : ℵ₀ ≤ X.size := sorry
+#check (AlgebraicGeometry.Scheme.cardinalMk_affineOpens_le_size :
+  ∀ (X : Scheme.{u}), #X.affineOpens ≤ X.size)
 
-/-- The set of affine opens is bounded in cardinality by the Stacks size. -/
-lemma cardinalMk_affineOpens_le_size (X : Scheme.{u}) : #X.affineOpens ≤ X.size := sorry
-
-/-- Sections over an affine open are bounded in cardinality by the Stacks size. -/
-lemma cardinalMk_sections_le_size (X : Scheme.{u}) (U : X.affineOpens) :
-    #(Γ(X, U)) ≤ X.size := sorry
-
-end AlgebraicGeometry.Scheme
+#check (AlgebraicGeometry.Scheme.cardinalMk_sections_le_size :
+  ∀ (X : Scheme.{u}) (U : X.affineOpens), #(Γ(X, U)) ≤ X.size)

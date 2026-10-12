@@ -1,28 +1,22 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap76.Lemma_76_26_1_FiberStalkCohenMacaulay
+import StacksCheckRecall
 
 /-!
 # Étale locality of Cohen--Macaulay fibre stalks of scheme germs
 -/
 
-@[expose] public section
-
-open CategoryTheory
-
-noncomputable section
-
-universe u
-
-namespace AlgebraicGeometry.Scheme.Germ
-namespace MorphismProperty
-
-/-- Lemma 76.26.1: The property of morphisms of germs of schemes that the local
+/- Lemma 76.26.1: The property of morphisms of germs of schemes that the local
 ring of the fibre is Noetherian and Cohen--Macaulay is étale local on the
 source-and-target. -/
-@[stacks 0E0U]
-theorem fiberStalkCohenMacaulay_isEtaleLocal :
-    IsEtaleLocal fiberStalkCohenMacaulay := sorry
-
-end MorphismProperty
-end AlgebraicGeometry.Scheme.Germ
+@[stacks 0E0U] #check
+  (AlgebraicGeometry.Scheme.Germ.MorphismProperty.fiberStalkCohenMacaulay_isEtaleLocal :
+    AlgebraicGeometry.Scheme.Germ.MorphismProperty.IsEtaleLocal
+      AlgebraicGeometry.Scheme.Germ.MorphismProperty.fiberStalkCohenMacaulay)

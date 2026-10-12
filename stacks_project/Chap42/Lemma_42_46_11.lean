@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 import StacksCheckRecall
@@ -20,6 +26,19 @@ namespace AlgebraicGeometry.ChernClass.Derived
 
 open RingedSpace.ModuleDerived
 
+/-- Perfect complexes remain perfect under the already specified K-flat tensor.
+Locally finite-free representatives tensor to finite-free representatives; this
+law concerns the existing tensor object and selects no resolution or object. -/
+theorem isPerfect_kFlatTensor {X : Scheme.{u}}
+    [KFlat.HomotopyTensorDescends X.toRingedSpace]
+    [KFlat.TensorDescends X.toRingedSpace]
+    [KFlat.IsLocalization X.toRingedSpace]
+    {E F : RingedSpace.ModuleDerived X.toRingedSpace}
+    (hE : RingedSpace.ModuleDerived.IsPerfect E)
+    (hF : RingedSpace.ModuleDerived.IsPerfect F) :
+    RingedSpace.ModuleDerived.IsPerfect
+      (CategoryTheory.MonoidalCategory.tensorObj E F) := sorry
+
 namespace IsDefined
 
 /-- Definedness of derived Chern classes is preserved by derived tensor products. -/
@@ -29,7 +48,7 @@ theorem tensor {X : Scheme.{u}}
     [KFlat.IsLocalization X.toRingedSpace]
     {E F : RingedSpace.ModuleDerived X.toRingedSpace}
     (hEDefined : IsDefined E) (hFDefined : IsDefined F) :
-    IsDefined (E ⊗ᴸ F) := sorry
+    IsDefined (CategoryTheory.MonoidalCategory.tensorObj E F) := sorry
 
 end IsDefined
 
@@ -48,7 +67,7 @@ theorem totalClass_tensor_one
     (hFPerfect : RingedSpace.ModuleDerived.IsPerfect F)
     (hEDefined : IsDefined E) (hFDefined : IsDefined F) :
     ChernClass.homogeneous δ π 1
-        (totalClass δ π classes (E ⊗ᴸ F) (hEPerfect.tensor hFPerfect)
+        (totalClass δ π classes (CategoryTheory.MonoidalCategory.tensorObj E F) (isPerfect_kFlatTensor hEPerfect hFPerfect)
           (hEDefined.tensor hFDefined) 1) =
       ChernClass.homogeneous δ π 0 (rankClass δ π E hEPerfect) *
           ChernClass.homogeneous δ π 1
@@ -72,7 +91,7 @@ theorem totalClass_tensor_two
     (hFPerfect : RingedSpace.ModuleDerived.IsPerfect F)
     (hEDefined : IsDefined E) (hFDefined : IsDefined F) :
     ChernClass.homogeneous δ π 2
-        (totalClass δ π classes (E ⊗ᴸ F) (hEPerfect.tensor hFPerfect)
+        (totalClass δ π classes (CategoryTheory.MonoidalCategory.tensorObj E F) (isPerfect_kFlatTensor hEPerfect hFPerfect)
           (hEDefined.tensor hFDefined) 2) =
       ChernClass.homogeneous δ π 0 (rankClass δ π E hEPerfect) *
           ChernClass.homogeneous δ π 2
@@ -108,7 +127,7 @@ theorem character_tensor
     (hFPerfect : RingedSpace.ModuleDerived.IsPerfect F)
     (hEDefined : IsDefined E) (hFDefined : IsDefined F) (p : ℕ) :
     ChowCohomology.Nonnegative.rationalHomogeneous δ π p
-        (character δ π classes (E ⊗ᴸ F) (hEPerfect.tensor hFPerfect)
+        (character δ π classes (CategoryTheory.MonoidalCategory.tensorObj E F) (isPerfect_kFlatTensor hEPerfect hFPerfect)
           (hEDefined.tensor hFDefined) p) =
       ∑ j ∈ Finset.range (p + 1),
         ChowCohomology.Nonnegative.rationalHomogeneous δ π j
@@ -131,7 +150,7 @@ theorem newtonClass_tensor
     (hFPerfect : RingedSpace.ModuleDerived.IsPerfect F)
     (hEDefined : IsDefined E) (hFDefined : IsDefined F) (p : ℕ) :
     ChernClass.homogeneous δ π p
-        (newtonClass δ π classes (E ⊗ᴸ F) (hEPerfect.tensor hFPerfect)
+        (newtonClass δ π classes (CategoryTheory.MonoidalCategory.tensorObj E F) (isPerfect_kFlatTensor hEPerfect hFPerfect)
           (hEDefined.tensor hFDefined) p) =
       ∑ j ∈ Finset.range (p + 1),
         p.choose j •
@@ -141,3 +160,4 @@ theorem newtonClass_tensor
               (newtonClass δ π classes F hFPerfect hFDefined (p - j))) := sorry
 
 end AlgebraicGeometry.ChernClass.Derived
+

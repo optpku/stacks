@@ -1,7 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.CategoryTheory.FiberedCategory.BasedCategory
-public import stacks_project.Chap90.Definition_90_6_2_Predeformation
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation
 import StacksCheckRecall
 
 /-!
@@ -22,17 +28,19 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
   [Module.Finite Λ k]
 variable {F : Type v} [Category.{w} F]
 
+variable (p : F ⥤ ArtinianLocalAlgCat Λ k)
+
 /- Definition 90.6.2 (1): a predeformation category is a category cofibered in groupoids
 over `ArtinianLocalAlgCat Λ k` whose fibre over `k` is equivalent to a category with a
 single object and a single morphism. -/
 @[stacks 06GS]
-#check Functor.IsPredeformationCategory
+#check (CategoryTheory.Functor.IsPredeformationCategory p : Prop)
 
 variable {G : Type v} [Category.{w} G]
-variable (p : F ⥤ ArtinianLocalAlgCat Λ k) (q : G ⥤ ArtinianLocalAlgCat Λ k)
+variable (q : G ⥤ ArtinianLocalAlgCat Λ k)
 variable [Functor.IsPredeformationCategory p] [Functor.IsPredeformationCategory q]
 
 /- Definition 90.6.2 (2): a morphism of predeformation categories is a morphism of
 categories cofibered in groupoids over `ArtinianLocalAlgCat Λ k`. -/
 @[stacks 06GS]
-#check (BasedCategory.ofFunctor p ⥤ᵇ BasedCategory.ofFunctor q)
+#check (CategoryTheory.Functor.PredeformationMorphism p q : Type (max v w))

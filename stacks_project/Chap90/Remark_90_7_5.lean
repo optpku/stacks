@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap90.Remark_90_7_5_AlongOver
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.FormalDeformation.CompletionAlong
 
 /-!
 # Completion along a family of filtrations inducing the maximal-adic topology
@@ -21,35 +28,28 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
   [Module.Finite Λ k]
 variable {F : Type v} [Category.{v} F]
 
-/-- Remark 90.7.5 (1): given `p : F ⥤ ArtinianLocalAlgCat Λ k` cofibered in
-groupoids and a family `I` assigning to each `R` in `CompleteLocalAlgCat Λ k`
-an ideal filtration inducing the `m_R`-adic topology, mimicking
-`Functor.completion` yields a functor
-`Functor.completionAlong I p : FormalObject.AlongOver p I ⥤ CompleteLocalAlgCat Λ k`
-making `hat F_I` into a category cofibered in groupoids over `hat C_Λ`. -/
-@[stacks 06H7]
-instance Functor.completionAlong_op_isFiberedInGroupoids
-    (I : ∀ R : CompleteLocalAlgCat Λ k, AdicIdealFiltration R)
-    (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op] :
-    Functor.IsFibered.InGroupoids (Functor.completionAlong I p).op := sorry
+/- Remark 90.7.5 (1): the total filtration category projects cofiberedly to
+the completed base category. -/
+@[stacks 06H7] #check (CategoryTheory.Functor.completionAlong_op_isFiberedInGroupoids :
+  ∀ (I : ∀ R : CompleteLocalAlgCat Λ k, AdicIdealFiltration R)
+    (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op],
+    Functor.IsFibered.InGroupoids (CategoryTheory.Functor.completionAlong I p).op)
 
-/-- Remark 90.7.5 (2): the fibre `hat F_I(R)` is isomorphic to the fibre category
-`hat F_{I R}(R)` of inverse systems along `I R`, via the equivalence
-`FormalObject.AlongOver.ofAlong p I R`. -/
-@[stacks 06H7]
-instance FormalObject.AlongOver.ofAlong_isEquivalence
-    (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op]
+/- Remark 90.7.5 (2): each fibre is strictly isomorphic to the corresponding
+filtration-indexed fibre. -/
+@[stacks 06H7] #check (FormalObject.AlongOver.ofAlong_isIso :
+  ∀ (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op]
     (I : ∀ R : CompleteLocalAlgCat Λ k, AdicIdealFiltration R)
-    (R : CompleteLocalAlgCat Λ k) :
-    (FormalObject.AlongOver.ofAlong p I R).IsEquivalence := sorry
+    (R : CompleteLocalAlgCat Λ k),
+    -- Local instance justification (defeq pin): the checked IsIso proposition must use the explicit Along.category stored in ofAlong, not an independently inferred category.
+    letI := FormalObject.Along.category (p := p) (R := R) (I := I R)
+    (FormalObject.AlongOver.ofAlong p I R).IsIso)
 
-/-- Remark 90.7.5 (3): the cofibered categories `hat F_I` and `hat F` are
-equivalent over `hat C_Λ` by using over each `R` the equivalence of
-Lemma 90.7.4, packaged as `FormalObject.AlongOver.toCompletionBased`. -/
-@[stacks 06H7]
-instance FormalObject.AlongOver.toCompletion_isEquivalence
-    (I : ∀ R : CompleteLocalAlgCat Λ k, AdicIdealFiltration R)
-    (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op] :
-    BasedFunctor.IsEquivalence (FormalObject.AlongOver.toCompletionBased I p) := sorry
+/- Remark 90.7.5 (3): the total filtration category is equivalent to ordinary
+completion over the completed base. -/
+@[stacks 06H7] #check (FormalObject.AlongOver.toCompletion_isEquivalence :
+  ∀ (I : ∀ R : CompleteLocalAlgCat Λ k, AdicIdealFiltration R)
+    (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op],
+    BasedFunctor.IsEquivalence (FormalObject.AlongOver.toCompletionBased I p))
 
 end

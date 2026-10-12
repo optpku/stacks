@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
@@ -5,6 +11,7 @@ public import Mathlib.Algebra.Category.Ring.FilteredColimits
 public import Mathlib.CategoryTheory.Sites.Point.Skyscraper
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.ModuleAdjunction
 public import ReasLib.CategoryTheory.Sites.Topos.Sections
+public import stacks_project.Chap66.«66_26_0_1_Pushforward»
 public import stacks_project.Chap66.Lemma_66_29_2_Pullback
 public import stacks_project.Chap66.Lemma_66_29_4_Stalk
 
@@ -105,8 +112,10 @@ the skyscraper at `x̄` evaluated at `X ×_Y V`. -/
 def skyscraperPushforwardCone {X Y : AlgebraicSpace S} (f : X ⟶ Y) (xbar : GeometricPoint X)
     (E : Type u) (V : (smallEtaleSite Y)ᵒᵖ) :
     Cone
-      (StructuredArrow.proj (op ((etaleBaseChange f).obj V.unop)) (smallEtaleInclusion X).op ⋙
-        ((toSmallEtalePoint xbar).skyscraperSheaf E).obj) where
+      (StructuredArrow.proj (op ((etaleBaseChange f).obj V.unop))
+        (SpacesEtale.AtlasCharts.inclusion X).op ⋙
+        ((EtaleTopos.smallEquivalence X).functor.obj
+          ((toSmallEtalePoint xbar).skyscraperSheaf E)).obj) where
   pt := ((toSmallEtalePoint (xbar.map f)).skyscraperSheaf E).obj.obj V
   π :=
     { app := fun a ↦
@@ -121,8 +130,9 @@ def skyscraperPushforwardHom_app {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     ((toSmallEtalePoint (xbar.map f)).skyscraperSheaf E).obj.obj V ⟶
       ((typePushforward f).obj ((toSmallEtalePoint xbar).skyscraperSheaf E)).obj.obj V :=
   limit.lift _ (skyscraperPushforwardCone f xbar E V) ≫
-    ((smallEtaleInclusion X).op.ranObjObjIsoLimit
-        ((toSmallEtalePoint xbar).skyscraperSheaf E).obj
+    ((SpacesEtale.AtlasCharts.inclusion X).op.ranObjObjIsoLimit
+        ((EtaleTopos.smallEquivalence X).functor.obj
+          ((toSmallEtalePoint xbar).skyscraperSheaf E)).obj
         (op ((etaleBaseChange f).obj V.unop))).inv
 
 /-- Canonical comparison `sky_ȳ E ⟶ f_* sky_x̄ E` of type-valued skyscraper sheaves. -/
@@ -298,7 +308,9 @@ def pullbackStalkAddHom (f : X ⟶ Y) (G : Y.Modules) (xbar : GeometricPoint X) 
               (((morphismOfTopoi f).adjunction.homEquiv
                   ((typeSheaf Y).obj G)
                   ((typeSheaf X).obj ((pullback f).obj G))).symm
-                ((typeSheaf Y).map ((ringedToposHom f).moduleAdjunction.unit.app G)))
+                ((typeSheaf Y).map ((Modules.pullbackPushforwardAdjunction f).unit.app G) ≫
+                  (RingedSite.ToposHom.ModulePushforward.forgetIso (ringedToposHom f)).hom.app
+                    ((pullback f).obj G)))
             (@invFun _ _ ⟨inverseImageTypeSheafStalkZero f G xbar⟩
               ((typeInverseImageStalkHom f xbar).app ((typeSheaf Y).obj G))
               ((stalkModuleCat_typeIso (xbar.map f) G).hom m)))

@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import ReasLib.CategoryTheory.Fibered.Cleavage.Basic.Reindex.Functor
@@ -33,10 +39,16 @@ and `f`, using the canonical strongly-cartesian domain comparison over `Iso.refl
 noncomputable abbrev Reindex.compAmbientIso
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : Fiber p U) :
     ((g ≫ f)⁎[χ] x).1 ≅ (g⁎[χ] (f⁎[χ] x)).1 :=
-  IsStronglyCartesian.domainIsoOfBaseIso (g := Iso.refl W) p
+  IsStronglyCartesian.DomainIso.ofBaseIso (g := Iso.refl W) p
     (Category.id_comp (g ≫ f)).symm
     (χ.cartesianHom g (f⁎[χ] x) ≫ χ.cartesianHom f x)
     (χ.cartesianHom (g ≫ f) x)
+    (@IsStronglyCartesian.comp C S _ _ p W V U
+      (g⁎[χ] (f⁎[χ] x)).1 (f⁎[χ] x).1 x.1 g f
+      (χ.cartesianHom g (f⁎[χ] x)) (χ.cartesianHom f x)
+      (χ.reindexLift g (f⁎[χ] x)).isStronglyCartesian
+      (χ.reindexLift f x).isStronglyCartesian)
+    (χ.reindexLift (g ≫ f) x).isStronglyCartesian
 
 /-- The forward ambient composition comparison lies over `𝟙 W`. -/
 theorem Reindex.compAmbientIso.hom.isHomLift
@@ -103,8 +115,7 @@ theorem Reindex.compIsoApp.inv.naturality
       (Reindex.compIsoApp χ f g x).inv ≫
         ((g ≫ f)⁎[χ]).map φ := sorry
 
-/-- Definition 4.33.6 (2), Lemma 4.33.7 (1) (Stacks 02XN/02XO): for composable `f : V ⟶ U`
-and `g : W ⟶ V`, a cleavage provides the canonical comparison
+/-- For composable `f : V ⟶ U` and `g : W ⟶ V`, a cleavage provides the canonical comparison
 `(g ≫ f)⁎[χ] ≅ f⁎[χ] ⋙ g⁎[χ]`. -/
 @[stacks 02XN, stacks 02XO "(1)"]
 noncomputable def Reindex.compIso

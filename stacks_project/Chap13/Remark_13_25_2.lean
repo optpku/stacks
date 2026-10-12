@@ -1,6 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 import ReasLib.Algebra.Homology.HomotopyCategory.Injective.Localization
+import Mathlib.Algebra.Homology.DerivedCategory.Plus
 import StacksCheckRecall
 
 @[expose] public section
@@ -10,20 +17,40 @@ open CategoryTheory
 /-!
 # Remark 13.25.2
 
-The textbook factorization is an exact functor into the bounded-below
-homotopy category, not a strict equality obtained by simplifying the identity
-functor on the target.  Its owner is the localization-lift API for functorial
-injective resolutions.
+For the specified resolution functor and its lift j′ from Lemma 13.25.1,
+applying an additive functor gives an exact functor D⁺(A) ⥤ K⁺(B).
+Composing with K⁺(B) ⥤ D⁺(B) computes the right derived functor.
+The lift is supplied as data; no resolution or shift comparison is selected
+from a Prop-valued existence assertion.
 -/
 
-/- Remark 13.25.2 (Stacks 05TN): if a functorial bounded-below injective
-resolution is lifted through a triangulated localization of `K⁺(𝒜)`, then
-applying an additive `F : 𝒜 ⥤ ℬ` gives an exact factorization
-`D⁺(𝒜) ⥤ K⁺(ℬ)`. -/
-@[stacks 05TN] #check
-  @HomotopyCategory.Plus.InjectiveResolutionFunctor.lift_comp_mapHomotopyCategoryPlus_exact
+universe wA wB vA vB uA uB
+variable {A : Type uA} {B : Type uB} [Category.{vA} A] [Category.{vB} B]
+variable [Abelian A] [Abelian B] [EnoughInjectives A]
+variable [HasDerivedCategory.{wA} A] [HasDerivedCategory.{wB} B]
+variable (J : HomotopyCategory.Plus.InjectiveResolutionFunctor A)
+variable (j' : DerivedCategory.Plus A ⥤ HomotopyCategory.Plus.Injective A)
+variable (hj' : Localization.Lifting DerivedCategory.Plus.Qh
+  (HomotopyCategory.Plus.quasiIso A) J.toFunctor j')
+variable (F : A ⥤ B) [F.Additive]
 
-#check @HomotopyCategory.Plus.InjectiveResolutionFunctor.lift_exact
-#check @Functor.hasTriangulatedStructure_of_precomp_iso
+/- The actual homotopy-valued factorization, with both endpoints explicit. -/
+#check (j' ⋙ HomotopyCategory.Plus.Injective.ι A ⋙ F.mapHomotopyCategoryPlus :
+  DerivedCategory.Plus A ⥤ HomotopyCategory.Plus B)
 
-end
+/- Remark 13.25.2 (0158): exactness of this same specified composite. -/
+@[stacks 0158 "exact homotopy-valued lift of the right derived functor"] #check
+  (J.lift_comp_mapHomotopyCategoryPlus_exact DerivedCategory.Plus.Qh j' hj' F :
+    Functor.HasTriangulatedStructure
+      (j' ⋙ HomotopyCategory.Plus.Injective.ι A ⋙ F.mapHomotopyCategoryPlus))
+
+/- Its composition with the canonical target localization computes RF, with the
+comparison coming from the supplied resolution and lifting isomorphism. -/
+#check
+  (J.lift_comp_isRightDerivedFunctor DerivedCategory.Plus.Qh j' hj'
+      (F.mapHomotopyCategoryPlus ⋙ DerivedCategory.Plus.Qh) :
+    (j' ⋙ HomotopyCategory.Plus.Injective.ι A ⋙
+      (F.mapHomotopyCategoryPlus ⋙ DerivedCategory.Plus.Qh)).IsRightDerivedFunctor
+        (J.liftComparison DerivedCategory.Plus.Qh j' hj'
+          (F.mapHomotopyCategoryPlus ⋙ DerivedCategory.Plus.Qh))
+        (HomotopyCategory.Plus.quasiIso A))

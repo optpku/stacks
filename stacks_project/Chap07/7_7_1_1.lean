@@ -1,12 +1,17 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import Mathlib.CategoryTheory.Sites.EqualizerSheafCondition
+public import ReasLib.CategoryTheory.Sites.EqualizerSheafCondition
 import StacksCheckRecall
 
 @[expose] public section
 
 open CategoryTheory CategoryTheory.Limits Opposite
-open Equalizer.Presieve.Arrows
 
 universe t w v u
 
@@ -14,15 +19,19 @@ variable {C : Type u} [Category.{v} C] (P : Cᵒᵖ ⥤ Type w)
 variable {B : C} {I : Type t} [Small.{w} I] (X : I → C) (π : (i : I) → X i ⟶ B)
 variable [(Presieve.ofArrows X π).HasPairwisePullbacks]
 
-/- 7.7.1.1: the sheaf-condition diagram
-   P.obj (op B) ⟶ FirstObj P X ⇉ SecondObj P X π,
-   i.e. F(U) ⟶ ∏ᶜ fun i ↦ P.obj (op (X i)) ⇉
-   ∏ᶜ fun ij : I × I ↦ P.obj (op (pullback (π ij.1) (π ij.2))),
-   with parallel maps firstMap = pr₀* and secondMap = pr₁*. -/
-@[stacks 00VN] #check (forkMap P X π : P.obj (op B) ⟶ FirstObj P X)
+/- 7.7.1.1: the canonical restriction diagram, whose limiting property is the sheaf condition. -/
+@[stacks 00VN] #check
+  (CategoryTheory.Equalizer.Presieve.Arrows.fork P X π :
+    Fork (CategoryTheory.Equalizer.Presieve.Arrows.firstMap P X π)
+      (CategoryTheory.Equalizer.Presieve.Arrows.secondMap P X π))
 
-#check (firstMap P X π : FirstObj P X ⟶ SecondObj P X π)
-#check (secondMap P X π : FirstObj P X ⟶ SecondObj P X π)
-#check (FirstObj P X : Type w)
-#check (SecondObj P X π : Type w)
-#check Fork.ofι (forkMap P X π) (w P X π)
+#check (CategoryTheory.Equalizer.Presieve.Arrows.forkMap P X π :
+  P.obj (op B) ⟶ CategoryTheory.Equalizer.Presieve.Arrows.FirstObj P X)
+#check (CategoryTheory.Equalizer.Presieve.Arrows.firstMap P X π :
+  CategoryTheory.Equalizer.Presieve.Arrows.FirstObj P X ⟶
+    CategoryTheory.Equalizer.Presieve.Arrows.SecondObj P X π)
+#check (CategoryTheory.Equalizer.Presieve.Arrows.secondMap P X π :
+  CategoryTheory.Equalizer.Presieve.Arrows.FirstObj P X ⟶
+    CategoryTheory.Equalizer.Presieve.Arrows.SecondObj P X π)
+#check (CategoryTheory.Equalizer.Presieve.Arrows.FirstObj P X : Type w)
+#check (CategoryTheory.Equalizer.Presieve.Arrows.SecondObj P X π : Type w)

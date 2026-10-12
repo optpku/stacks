@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Topology.LocallyFinite
@@ -53,7 +59,7 @@ namespace TopologicalSpace
 
 open Opens
 
-/-- Definition 20.24.2 (Tag 02FS): an indexed open cover is locally finite exactly when every
+/-- An indexed open cover is locally finite exactly when every
 point has an open neighborhood meeting only finitely many cover members. -/
 @[stacks 02FS]
 theorem locallyFiniteCover_iff (U : ι → Opens X) :

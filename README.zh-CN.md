@@ -41,6 +41,45 @@
 环境准备可参考 [Lean 安装指南](https://leanprover-community.github.io/get_started.html)
 和[贡献者环境说明](CONTRIBUTING.md#contributor-setup-and-validation)。
 
+## 项目状态
+
+本项目已将 Stacks Project 的数学内容整理为按章节组织的 Lean 形式化源码和
+可复用的数学库 `ReasLib`，包括第 1–26 章及后续章节的内容。
+目前正在持续补全证明、完善共享数学接口，并审查形式化结果与原文的对应关系。
+
+| 项目 | 数量 |
+| --- | --- |
+| 章节源码中的不同 Stacks tag | 17,350 |
+| Lean 源码文件 | 41,072 |
+| 数学声明（含定义、结构、实例和定理等） | 219,381 |
+| 共享库 `ReasLib` 中的数学声明 | 144,213 |
+| 证明条目 | 122,179 |
+| 无显式占位符的证明条目 | 9,351 |
+| 含显式占位符的待补证明条目 | 112,828 |
+
+证明条目按 `theorem`、`lemma` 和 `example` 统计；无显式 `sorry` 或 `admit`
+不等于证明及其依赖已完成验证。
+
+### 章节覆盖
+
+| 章节 | Lean 文件 | 不同 Stacks tag |
+| --- | --- | --- |
+| 1–26 | 6,178 | 5,824 |
+| 27–34 | 1,800 | 1,761 |
+| 35–111 | 14,441 | 9,766 |
+
+分章数量统计的是章节目录中的源码，不包含共享库。不同章节可能引用同一个 tag。
+完整的[逐章统计表](docs/chapter-statistics.tsv)和[统计说明](docs/formalization-statistics.json)
+可供查阅。
+
+## 形式化作者
+
+- **Statement 形式化：** ReasBook team
+- **证明形式化：** ReasBook team
+
+作者信息记录在代码文件头中，并随贡献持续完善。来源与许可说明见
+[ATTRIBUTION.md](ATTRIBUTION.md)。
+
 ## 参与贡献
 
 **欢迎所有人通过 GitHub Pull Request 提交 Lean 证明。**

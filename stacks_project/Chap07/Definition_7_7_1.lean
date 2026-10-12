@@ -1,28 +1,31 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap07.Definition_7_7_1_Sheaf
+public import ReasLib.CategoryTheory.Sites.Precoverage.Sheaf
+import StacksCheckRecall
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.Limits Equalizer.Presieve
+universe u v
 
-/-- Definition 7.7.1: a Type-valued presheaf `P` on a site `J` is a sheaf if for
-every covering family `{Uᵢ ⟶ U}_{i ∈ I}` in `J` the restriction map
-`P.obj (op B) ⟶ Arrows.FirstObj P X` is the equalizer of `Arrows.firstMap`
-(`pr₀*`) and `Arrows.secondMap` (`pr₁*`) into `Arrows.SecondObj P X π`. -/
+open CategoryTheory
+
+variable {C : Type u} [Category.{v} C]
+variable (J : Precoverage C) [J.HasPullbacks]
+variable (P : Cᵒᵖ ⥤ Type (max u v))
+
+/- Definition 7.7.1: A Type-valued presheaf is a sheaf when the canonical
+restriction fork of every covering family is an equalizer. On a site, the
+covering-pullback capability used by this predicate follows from the site
+axioms; the condition itself needs no other site axioms. -/
 @[stacks 00VM]
-abbrev IsSheafOfTypes.{u, v} {C : Type u} [Category.{v} C]
-    (J : Precoverage C) [J.IsSite] (P : Cᵒᵖ ⥤ Type (max u v)) : Prop :=
-  Precoverage.IsSheafOfTypes.{u, v} J P
+#check (CategoryTheory.Precoverage.IsSheafOfTypes J P : Prop)
 
-/-- The sheaf-of-types predicate is the equalizer condition on every chosen
-covering family. -/
-theorem isSheafOfTypes_iff.{u, v} {C : Type u} [Category.{v} C]
-    (J : Precoverage C) [J.IsSite] (P : Cᵒᵖ ⥤ Type (max u v)) :
-    IsSheafOfTypes J P ↔
-      ∀ {B : C} {I : Type (max u v)}
-        (X : I → C) (π : (i : I) → X i ⟶ B)
-        [(Presieve.ofArrows X π).HasPairwisePullbacks],
-        Presieve.ofArrows X π ∈ J B →
-          Nonempty (IsLimit (Fork.ofι (Arrows.forkMap P X π) (Arrows.w P X π))) :=
-  sorry
+#check (CategoryTheory.Precoverage.isSheafOfTypes_iff_isSheafFor J P :
+  CategoryTheory.Precoverage.IsSheafOfTypes J P ↔
+    ∀ {B : C} (R : Presieve B), R ∈ J B → R.IsSheafFor P)

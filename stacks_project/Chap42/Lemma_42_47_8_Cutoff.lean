@@ -1,7 +1,14 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap42.Remark_42_34_7_Cutoff
 public import ReasLib.AlgebraicGeometry.ChowCohomology.Completion
+public import ReasLib.AlgebraicGeometry.BivariantClass.Cutoff.SumProduct
 
 @[expose] public section
 
@@ -84,6 +91,19 @@ theorem mixedMul_apply
         (Finset.antidiagonal n).attach
         (fun ij ↦ mulTerm δ f p q n hn ij.1.1 ij.1.2
           (Finset.mem_antidiagonal.mp ij.2) (c ij.1.1) (d ij.1.2)) := sorry
+
+/-- In the original high-degree range, the existing mixed convolution is exactly
+the relative coefficient of the corrected sum-cutoff product. Both sides use
+the same three cap pairings; the ambient-ambient branch is arithmetically empty. -/
+theorem mixedMul_eq_familyMul
+    {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
+    {Z X : Over S} [LocallyOfFiniteType Z.hom] [LocallyOfFiniteType X.hom]
+    (f : Z ⟶ X) [IsClosedImmersion f.left]
+    (p q n : ℕ) (hn : p + q ≤ n)
+    (c : Family δ f p) (d : Family δ f q) :
+    mixedMul δ f p q n hn c d =
+      toRelative δ f (not_lt.mpr (Nat.cast_le.mpr hn))
+        (familyMul δ f p q c d n) := sorry
 
 end AlgebraicGeometry.BivariantClass.Cutoff
 

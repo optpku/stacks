@@ -1,4 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
+
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.AdditiveAdjunction
 
 public import Mathlib.Algebra.Category.Grp.Abelian
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Abelian
@@ -65,10 +73,7 @@ instance spacesEtaleTopology_hasSheafCompose_forget_addCommGrpCat (A : Algebraic
 instance smallAbelianPushforward.instAdditive {A B : AlgebraicSpace S} (h : A ⟶ B)
     [∀ P : (AlgebraicSpace.smallEtaleSite A)ᵒᵖ ⥤ AddCommGrpCat.{u},
       (AlgebraicSpace.smallEtaleInclusion A).op.HasPointwiseRightKanExtension P] :
-    ((AlgebraicSpace.smallEtaleInclusion A).sheafPushforwardCocontinuous AddCommGrpCat.{u}
-        (AlgebraicSpace.smallEtaleTopology A) (AlgebraicSpace.spacesEtaleTopology A) ⋙
-      (AlgebraicSpace.etaleBaseChange h).sheafPushforwardContinuous AddCommGrpCat.{u}
-        (AlgebraicSpace.smallEtaleTopology B) (AlgebraicSpace.spacesEtaleTopology A)).Additive :=
+    (AlgebraicSpace.EtaleAdditive.directImage h).Additive :=
   sorry
 
 /-- Restriction of abelian étale sheaves along a representing algebraic space preserves
@@ -85,18 +90,21 @@ instance restrictAbelian.instPreservesFiniteColimits
     PreservesFiniteColimits (restrictAbelian e) :=
   sorry
 
-/-- Lift a morphism of underlying types to a morphism of abelian groups. -/
+/-- Lift a specified additive map of underlying types to abelian groups. -/
 def addCommGrpCatHomOfForget {A B : AddCommGrpCat.{u}}
-    (φ : (forget AddCommGrpCat.{u}).obj A ⟶ (forget AddCommGrpCat.{u}).obj B) :
+    (φ : (forget AddCommGrpCat.{u}).obj A ⟶ (forget AddCommGrpCat.{u}).obj B)
+    (hφ : ∀ a b : A, φ (a + b) = φ a + φ b) :
     A ⟶ B :=
-  AddCommGrpCat.ofHom (AddMonoidHom.mk' φ sorry)
+  AddCommGrpCat.ofHom (AddMonoidHom.mk' φ hφ)
 
 /-- Lift an isomorphism of underlying types to an isomorphism of abelian groups. -/
 def addCommGrpCatIsoOfForget {A B : AddCommGrpCat.{u}}
-    (e : (forget AddCommGrpCat.{u}).obj A ≅ (forget AddCommGrpCat.{u}).obj B) :
+    (e : (forget AddCommGrpCat.{u}).obj A ≅ (forget AddCommGrpCat.{u}).obj B)
+    (hHom : ∀ a b : A, e.hom (a + b) = e.hom a + e.hom b)
+    (hInv : ∀ a b : B, e.inv (a + b) = e.inv a + e.inv b) :
     A ≅ B where
-  hom := addCommGrpCatHomOfForget e.hom
-  inv := addCommGrpCatHomOfForget e.inv
+  hom := addCommGrpCatHomOfForget e.hom hHom
+  inv := addCommGrpCatHomOfForget e.inv hInv
   hom_inv_id := sorry
   inv_hom_id := sorry
 
@@ -106,21 +114,14 @@ abbrev smallAbelianPushforward {A B : AlgebraicSpace S} (h : A ⟶ B)
       (AlgebraicSpace.smallEtaleInclusion A).op.HasPointwiseRightKanExtension P] :
     Sheaf (AlgebraicSpace.smallEtaleTopology A) AddCommGrpCat.{u} ⥤
       Sheaf (AlgebraicSpace.smallEtaleTopology B) AddCommGrpCat.{u} :=
-  (AlgebraicSpace.smallEtaleInclusion A).sheafPushforwardCocontinuous AddCommGrpCat.{u}
-      (AlgebraicSpace.smallEtaleTopology A) (AlgebraicSpace.spacesEtaleTopology A) ⋙
-    (AlgebraicSpace.etaleBaseChange h).sheafPushforwardContinuous AddCommGrpCat.{u}
-      (AlgebraicSpace.smallEtaleTopology B) (AlgebraicSpace.spacesEtaleTopology A)
+  AlgebraicSpace.EtaleAdditive.directImage h
 
 /-- `smallAbelianPushforward` is the abelian-group analogue of `AlgebraicSpace.typePushforward`. -/
 theorem smallAbelianPushforward_eq {A B : AlgebraicSpace S} (h : A ⟶ B)
     [∀ P : (AlgebraicSpace.smallEtaleSite A)ᵒᵖ ⥤ AddCommGrpCat.{u},
       (AlgebraicSpace.smallEtaleInclusion A).op.HasPointwiseRightKanExtension P] :
-    smallAbelianPushforward h =
-      (AlgebraicSpace.smallEtaleInclusion A).sheafPushforwardCocontinuous AddCommGrpCat.{u}
-          (AlgebraicSpace.smallEtaleTopology A) (AlgebraicSpace.spacesEtaleTopology A) ⋙
-        (AlgebraicSpace.etaleBaseChange h).sheafPushforwardContinuous AddCommGrpCat.{u}
-          (AlgebraicSpace.smallEtaleTopology B) (AlgebraicSpace.spacesEtaleTopology A) :=
-  sorry
+    smallAbelianPushforward h = AlgebraicSpace.EtaleAdditive.directImage h :=
+  rfl
 
 /-- Direct image of abelian étale sheaves along a 1-morphism of categories fibred in
 groupoids. -/
@@ -257,30 +258,7 @@ def smallAbelianPushforwardForgetIso {A B : AlgebraicSpace S} (h : A ⟶ B)
         sheafCompose (AlgebraicSpace.smallEtaleTopology B) (forget AddCommGrpCat.{u}) ≅
       sheafCompose (AlgebraicSpace.smallEtaleTopology A) (forget AddCommGrpCat.{u}) ⋙
         AlgebraicSpace.typePushforward h :=
-  let u := AlgebraicSpace.smallEtaleInclusion A
-  let v := AlgebraicSpace.etaleBaseChange h
-  let Fgt := forget AddCommGrpCat.{u}
-  let Ju := AlgebraicSpace.smallEtaleTopology A
-  let Ku := AlgebraicSpace.spacesEtaleTopology A
-  let Jv := AlgebraicSpace.smallEtaleTopology B
-  (Functor.associator
-      (u.sheafPushforwardCocontinuous AddCommGrpCat.{u} Ju Ku)
-      (v.sheafPushforwardContinuous AddCommGrpCat.{u} Jv Ku)
-      (sheafCompose Jv Fgt)) ≪≫
-    Functor.isoWhiskerLeft (u.sheafPushforwardCocontinuous AddCommGrpCat.{u} Ju Ku)
-      (Functor.fullyFaithfulCancelRight (sheafToPresheaf Jv (Type u))
-        (NatIso.ofComponents (fun _ ↦ Iso.refl _) sorry)) ≪≫
-    (Functor.associator
-        (u.sheafPushforwardCocontinuous AddCommGrpCat.{u} Ju Ku)
-        (sheafCompose Ku Fgt)
-        (v.sheafPushforwardContinuous (Type u) Jv Ku)).symm ≪≫
-    Functor.isoWhiskerRight
-      (Functor.sheafPushforwardCocontinuous.compSheafComposeIso u Fgt Ju Ku)
-      (v.sheafPushforwardContinuous (Type u) Jv Ku) ≪≫
-    Functor.associator
-      (sheafCompose Ju Fgt)
-      (u.sheafPushforwardCocontinuous (Type u) Ju Ku)
-      (v.sheafPushforwardContinuous (Type u) Jv Ku)
+  AlgebraicSpace.EtaleAdditive.directImageForgetIso h
 
 /-- Forgetting abelian groups after the left-hand composite recovers type-valued
 `π_{G,*} f_*`. -/
@@ -349,7 +327,7 @@ def compareAbelian_objPresheaf (ℱ : Sheaf X.etaleTopology AddCommGrpCat.{u}) :
     (fun V ↦
       addCommGrpCatIsoOfForget
         (((sheafToPresheaf (AlgebraicSpace.smallEtaleTopology G) (Type u)).mapIso
-            (compareAbelian_forget eX eY f α ℱ)).app V))
+            (compareAbelian_forget eX eY f α ℱ)).app V) sorry sorry)
     sorry
 
 /-- The sheaf identification obtained by lifting `compareAbelian_forget` through the

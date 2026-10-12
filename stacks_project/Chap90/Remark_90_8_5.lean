@@ -1,7 +1,13 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap90.Definition_90_8_1_Smooth
-public import stacks_project.Chap90.Remark_90_8_5_IsoClass
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Smooth.IsoClass
 
 /-!
 # Smoothness of the morphism to fibrewise isomorphism classes
@@ -20,14 +26,12 @@ universe u v w
 variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-namespace CategoryTheory.BasedFunctor
-
-/-- Remark 90.8.5: if `F` is a category cofibered in groupoids over
+/- Remark 90.8.5: if `F` is a category cofibered in groupoids over
 `ArtinianLocalAlgCat Λ k`, then the canonical morphism `toIsoClass p` from `F` to
 the category of fibrewise isomorphism classes is smooth. -/
-@[stacks 06HK]
-instance instIsSmoothToIsoClass {F : Type w} [Category.{v} F]
-    (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op] :
-    IsSmooth (toIsoClass p) := sorry
-
-end CategoryTheory.BasedFunctor
+@[stacks 06HK] #check (CategoryTheory.BasedFunctor.instIsSmoothToIsoClass :
+  ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+    [Module.Finite Λ k] {F : Type w} [Category.{v} F]
+    (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op],
+    CategoryTheory.BasedFunctor.IsSmooth
+      (CategoryTheory.BasedFunctor.toIsoClass p))

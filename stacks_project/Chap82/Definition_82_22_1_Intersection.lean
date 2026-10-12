@@ -1,6 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-import stacks_project.Chap82.Lemma_82_10_4_Pullback
+public import stacks_project.Chap82.Definition_82_26_2_ChowCohomology
 public import stacks_project.Chap67.Definition_67_4_2_Separation
 public import stacks_project.Chap67.Definition_67_40_1_FiniteType
 public import stacks_project.Chap68.Definition_68_25_4_UniversallyCatenary
@@ -15,7 +21,7 @@ The multiplicity-weighted associated cycle of `Z(s) ∩ closure({x})` on the
 zero scheme, as a locally finite function on `|Z(s)|`.
 -/
 
-public section
+@[expose] public section
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open CategoryTheory.MonoidalCategory
@@ -45,13 +51,13 @@ noncomputable def gysinIntersectionCycle (x : Points X) :
   @ClosedSubspace.associatedCycle S (zeroScheme L s).X
     (LocallyOfFiniteType.isLocallyNoetherian (zeroSchemeι L s ≫ f))
     ((ClosedSubspace.pointClosure x).inverseImage (zeroSchemeι L s))
-    ((zeroSchemeι L s ≫ f).relativeDimensionFunction δ) k
+    (Hom.relativeDimensionFunction (zeroSchemeι L s ≫ f) δ) k
 
 /-- The intersection cycle of `Z(s) ∩ closure({x})` is a degree-`k` cycle on
 `Z(s)`. -/
 theorem gysinIntersectionCycle_mem (x : Points X) :
     gysinIntersectionCycle f δ k L s x ∈
-      (zeroSchemeι L s ≫ f).cycleGroup δ k :=
+      Hom.cycleGroup (zeroSchemeι L s ≫ f) δ k :=
   sorry
 
 end Hom

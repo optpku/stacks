@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.AlgebraicGeometry.Restrict
@@ -150,9 +156,9 @@ def commRingPushforwardPrecompCounitCone {X Y : AlgebraicSpace S} {T : Over S}
     ((commRingPushforward (t ≫ f)).obj (commRingStructureSheaf (ofOver T))).obj.obj (op W)
   π :=
     { app := fun a ↦
-        ((smallEtaleInclusion (ofOver T)).op.ran.obj
-            (commRingStructureSheaf (ofOver T)).obj).map
-          (op (etaleBaseChangeStructuredArrowHom t f W a))
+        ((commRingPushforwardComp t f).inv.app (commRingStructureSheaf (ofOver T))).hom.app (op W) ≫
+          commRingPushforwardEvaluation f
+            ((commRingPushforward t).obj (commRingStructureSheaf (ofOver T))) a.hom.unop
       naturality := fun _ _ _ ↦ sorry }
 
 /-- The component at `W` of the Kan-counit comparison `(t ≫ f)_* 𝒪_T ⟶ f_* (t_* 𝒪_T)`. -/
@@ -161,19 +167,13 @@ def commRingPushforwardPrecompCounit_app {X Y : AlgebraicSpace S} {T : Over S}
     ((commRingPushforward (t ≫ f)).obj (commRingStructureSheaf (ofOver T))).obj.obj W ⟶
       ((commRingPushforward f).obj
           ((commRingPushforward t).obj (commRingStructureSheaf (ofOver T)))).obj.obj W :=
-  limit.lift _ (commRingPushforwardPrecompCounitCone t f W.unop) ≫
-    ((smallEtaleInclusion X).op.ranObjObjIsoLimit
-        ((commRingPushforward t).obj (commRingStructureSheaf (ofOver T))).obj
-        (op ((etaleBaseChange f).obj W.unop))).inv
+  ((commRingPushforwardComp t f).inv.app (commRingStructureSheaf (ofOver T))).hom.app W
 
 /-- `commRingPushforwardPrecompCounit_app t f W` is the limit-lift of the Kan-counit cone. -/
 theorem commRingPushforwardPrecompCounit_app_eq {X Y : AlgebraicSpace S} {T : Over S}
     (t : ofOver T ⟶ X) (f : X ⟶ Y) (W : (smallEtaleSite Y)ᵒᵖ) :
     commRingPushforwardPrecompCounit_app t f W =
-      limit.lift _ (commRingPushforwardPrecompCounitCone t f W.unop) ≫
-        ((smallEtaleInclusion X).op.ranObjObjIsoLimit
-            ((commRingPushforward t).obj (commRingStructureSheaf (ofOver T))).obj
-            (op ((etaleBaseChange f).obj W.unop))).inv :=
+      ((commRingPushforwardComp t f).inv.app (commRingStructureSheaf (ofOver T))).hom.app W :=
   rfl
 
 /-- The Kan-counit comparison `(t ≫ f)_* 𝒪_T ⟶ f_* (t_* 𝒪_T)`, obtained from pullback
@@ -183,15 +183,13 @@ def commRingPushforwardPrecompCounit {X Y : AlgebraicSpace S} {T : Over S}
     (commRingPushforward (t ≫ f)).obj (commRingStructureSheaf (ofOver T)) ⟶
       (commRingPushforward f).obj
         ((commRingPushforward t).obj (commRingStructureSheaf (ofOver T))) :=
-  InducedCategory.homMk
-    { app := fun W ↦ commRingPushforwardPrecompCounit_app t f W
-      naturality := fun _ _ _ ↦ sorry }
+  (commRingPushforwardComp t f).inv.app (commRingStructureSheaf (ofOver T))
 
 /-- The Kan-counit comparison is an isomorphism of commutative-ring sheaves. -/
 instance commRingPushforwardPrecompCounit_isIso {X Y : AlgebraicSpace S} {T : Over S}
     (t : ofOver T ⟶ X) (f : X ⟶ Y) :
     IsIso (commRingPushforwardPrecompCounit t f) :=
-  sorry
+  inferInstanceAs (IsIso ((commRingPushforwardComp t f).inv.app (commRingStructureSheaf (ofOver T))))
 
 /-- Comparison `f_* (t_* 𝒪_T) ⟶ (t ≫ f)_* 𝒪_T` obtained by inverting the Kan-counit
 associator. -/
@@ -200,13 +198,14 @@ def commRingPushforwardPrecomp {X Y : AlgebraicSpace S} {T : Over S}
     (commRingPushforward f).obj
         ((commRingPushforward t).obj (commRingStructureSheaf (ofOver T))) ⟶
       (commRingPushforward (t ≫ f)).obj (commRingStructureSheaf (ofOver T)) :=
-  inv (commRingPushforwardPrecompCounit t f)
+  (commRingPushforwardComp t f).hom.app (commRingStructureSheaf (ofOver T))
 
 /-- `commRingPushforwardPrecomp t f` is the inverse of the Kan-counit comparison. -/
 theorem commRingPushforwardPrecomp_eq {X Y : AlgebraicSpace S} {T : Over S}
     (t : ofOver T ⟶ X) (f : X ⟶ Y) :
-    commRingPushforwardPrecomp t f = inv (commRingPushforwardPrecompCounit t f) :=
-  rfl
+    commRingPushforwardPrecomp t f = inv (commRingPushforwardPrecompCounit t f) := by
+  apply IsIso.eq_inv_of_hom_inv_id
+  exact ((commRingPushforwardComp t f).app (commRingStructureSheaf (ofOver T))).inv_hom_id
 
 /-- Restriction of `g_* 𝒪_T` along a morphism of test objects `T' ⟶ T`. -/
 def relativeSpectrumTargetMap {X : AlgebraicSpace S} {T T' : Over S}
@@ -545,17 +544,25 @@ abbrev relativeSpectrumPair {X : AlgebraicSpace S} (A : X.QcAlgebraUnder) (T : O
   Σ toX : X.functorOfPoints.obj (op T),
     relativeSpectrumAlgebraMap A (yonedaEquiv.symm toX)
 
+/-- The actual atlas algebra map, with the proved Yoneda transport made explicit. -/
+def relativeSpectrumPairAlgebraMap {X : AlgebraicSpace S} {A : X.QcAlgebraUnder} {T : Over S}
+    (toX : ofOver T ⟶ X) (algebraMap : A.obj ⟶ relativeSpectrumTarget toX) :
+    relativeSpectrumAlgebraMap A
+      (yonedaEquiv.symm (yonedaEquiv (toX : yoneda.obj T ⟶ X.functorOfPoints))) :=
+  relativeSpectrumAlgebraMap.ofHom (X := X) (A := A) (T := T)
+      (g := yonedaEquiv.symm (yonedaEquiv (toX : yoneda.obj T ⟶ X.functorOfPoints)))
+      (algebraMap ≫
+        eqToHom
+          (congrArg relativeSpectrumTarget
+            (Equiv.symm_apply_apply yonedaEquiv toX).symm))
+
 /-- Build a relative-spectrum point from a morphism to `X` and an `𝒪_X`-algebra map into the
 pushforward of `𝒪_T`. -/
 def relativeSpectrumPairMk {X : AlgebraicSpace S} {A : X.QcAlgebraUnder} {T : Over S}
     (toX : ofOver T ⟶ X) (algebraMap : A.obj ⟶ relativeSpectrumTarget toX) :
     relativeSpectrumPair A T :=
   ⟨yonedaEquiv (toX : yoneda.obj T ⟶ X.functorOfPoints),
-    relativeSpectrumAlgebraMap.ofHom
-      (algebraMap ≫
-        eqToHom
-          (congrArg relativeSpectrumTarget
-            (Equiv.symm_apply_apply yonedaEquiv toX).symm))⟩
+    relativeSpectrumPairAlgebraMap toX algebraMap⟩
 
 /-- The structure morphism of `relativeSpectrumPairMk g α` is the `T`-point of `X` associated
 to `g`. -/
@@ -569,11 +576,7 @@ theorem relativeSpectrumPairMk_fst {X : AlgebraicSpace S} {A : X.QcAlgebraUnder}
 theorem relativeSpectrumPairMk_snd {X : AlgebraicSpace S} {A : X.QcAlgebraUnder} {T : Over S}
     (toX : ofOver T ⟶ X) (algebraMap : A.obj ⟶ relativeSpectrumTarget toX) :
     (relativeSpectrumPairMk toX algebraMap).2 =
-      relativeSpectrumAlgebraMap.ofHom
-        (algebraMap ≫
-          eqToHom
-            (congrArg relativeSpectrumTarget
-              (Equiv.symm_apply_apply yonedaEquiv toX).symm)) :=
+      relativeSpectrumPairAlgebraMap toX algebraMap :=
   rfl
 
 /-- Pull a relative-spectrum point back along a morphism of schemes over `S`. -/

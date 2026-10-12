@@ -1,6 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap90.Definition_90_16_8_RimSchlessinger
+public import ReasLib.AlgebraicGeometry.FormalDeformation.RimSchlessinger
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,4 +27,4 @@ in `F` lying over a cospan `A₁ ⟶ A ← A₂` in `ArtinianLocalAlgCat Λ k` w
 over the ring-level fibre product `A₁ ×_A A₂`. This is owned by
 `Functor.HasRimSchlessinger`. -/
 @[stacks 06J2]
-#check (Functor.HasRimSchlessinger p : Prop)
+#check (CategoryTheory.Functor.HasRimSchlessinger p : Prop)

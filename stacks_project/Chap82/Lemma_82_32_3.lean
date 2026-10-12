@@ -1,0 +1,57 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
+module
+
+public import stacks_project.Chap72.Definition_72_18_3_Number
+public import stacks_project.Chap82.Lemma_82_32_3_ChernIntersection
+
+/-!
+# Numerical intersections and iterated first-Chern caps
+-/
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
+open CategoryTheory.MonoidalCategory
+open AlgebraicGeometry.AlgebraicSpace.Hom
+open scoped AlgebraicGeometry
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace
+namespace Modules.Intersection
+
+-- Local instance justification (defeq pin): `HasInjectiveResolutions` and `higherDirectImage` pin the Abelian-induced `Preadditive`/`HasZeroMorphisms` instances for defeq of `higherDirectImage`.
+attribute [local instance 2000] Abelian.toPreadditive Preadditive.preadditiveHasZeroMorphisms
+
+/-- Lemma 82.32.3: Let `k` be a field. Let `X` be a proper algebraic space over
+`k`. Let `Z ⊂ X` be a closed subspace of dimension `d`. Let
+`L 0, …, L (d - 1)` be invertible `𝒪_X`-modules. Then the intersection number
+`(L 0 ⋯ L (d - 1) · Z)` of Definition 72.18.3 equals the Chow degree of
+`c1(L 0) ∩ ⋯ ∩ c1(L (d - 1)) ∩ [Z]_d`. -/
+@[stacks 0ESI]
+theorem number_eq_chowDegree_iteratedFirstChernClassCap
+    {k : Type u} [Field k]
+    {X Z : AlgebraicSpace (Spec (CommRingCat.of k))}
+    (i : Z ⟶ X) [IsClosedImmersion i] [Proper (toBase X)]
+    [IsLocallyNoetherian X] [IsLocallyNoetherian Z]
+    {d : ℕ} (hZdim : dimension Z = d)
+    [Abelian X.Modules] [Abelian Z.Modules]
+    [Abelian (ofOver (Over.mk (𝟙 (Spec (CommRingCat.of k))))).Modules]
+    [HasInjectiveResolutions X.Modules] [HasInjectiveResolutions Z.Modules]
+    (L : Fin d → X.Modules) [∀ j : Fin d, isInvertibleObject (L j)] :
+    number i hZdim L =
+      (chowDegree
+        (iteratedFirstChernClassCap (toBase X) (fun _ ↦ (0 : ℤ)) d L
+          (closedSubspaceClass (toBase X) (fun _ ↦ (0 : ℤ))
+            (ClosedSubspace.ofι i) d)) : ℚ) :=
+  sorry
+
+end Modules.Intersection
+end AlgebraicGeometry.AlgebraicSpace

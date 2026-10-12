@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
@@ -53,6 +59,11 @@ instance instIsFiberedInGroupoids_deformationForget_op
 abbrev trivialModule (V : Type u) [AddCommGroup V] [Module k V] : Type u :=
   (ModuleCat.extendScalars (ArtinianLocalAlgCat.residueToDualNumber Λ k).hom.toRingHom).obj
     (ModuleCat.of k V)
+
+/-- A `k`-module is canonically a module over the residue object. -/
+instance instModuleResidueCarrier {V : Type u} [AddCommGroup V] [Module k V] :
+    Module (ArtinianLocalAlgCat.residue Λ k).carrier V :=
+  inferInstanceAs (Module k V)
 
 /-- Unfolding of `trivialModule`. -/
 theorem trivialModule_eq (V : Type u) [AddCommGroup V] [Module k V] :

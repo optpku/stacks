@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import stacks_project.Chap82.Definition_82_15_1_Chow
@@ -45,7 +51,7 @@ noncomputable def chowFlatPullback {S : Scheme.{u}} {B X Y : AlgebraicSpace S}
     (δ : Points B → ℤ) [IsDimensionFunction δ]
     (f : X ⟶ Y) (r : ℕ) [Flat f] [RelativeDimension f r]
     (hf : f ≫ pY = pX) (k : ℤ) :
-    pY.chowGroup δ k →+ pX.chowGroup δ (k + (r : ℤ)) :=
+    chowGroup pY δ k →+ chowGroup pX δ (k + (r : ℤ)) :=
   QuotientAddGroup.map
     (RationalEquivalence.boundaries pY δ k)
     (RationalEquivalence.boundaries pX δ (k + (r : ℤ)))
@@ -60,9 +66,9 @@ theorem chowFlatPullback_chowMk {S : Scheme.{u}} {B X Y : AlgebraicSpace S}
     (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
     (δ : Points B → ℤ) [IsDimensionFunction δ]
     (f : X ⟶ Y) (r : ℕ) [Flat f] [RelativeDimension f r]
-    (hf : f ≫ pY = pX) (k : ℤ) (α : pY.cycleGroup δ k) :
-    chowFlatPullback pY pX δ f r hf k (pY.chowMk δ k α) =
-      pX.chowMk δ (k + (r : ℤ)) (cycleFlatPullback pY pX δ f r hf k α) :=
+    (hf : f ≫ pY = pX) (k : ℤ) (α : cycleGroup pY δ k) :
+    chowFlatPullback pY pX δ f r hf k (chowMk pY δ k α) =
+      chowMk pX δ (k + (r : ℤ)) (cycleFlatPullback pY pX δ f r hf k α) :=
   sorry
 
 end Hom

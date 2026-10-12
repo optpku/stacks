@@ -1,7 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
-public import stacks_project.Chap76.Lemma_76_55_2_EtaleLocal
-public import stacks_project.Chap76.Lemma_76_55_2_BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.AtWorstNodal.BaseChange
 import StacksCheckRecall
 
 @[expose] public section
@@ -14,7 +19,7 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Limits
 /- Lemma 76.55.2: The property of being at-worst-nodal of relative dimension 1
 is preserved under base change. -/
 @[stacks 0DSF] #check
-  (AlgebraicSpace.AtWorstNodal.instIsStableUnderBaseChange :
+  (AlgebraicGeometry.AlgebraicSpace.AtWorstNodal.instIsStableUnderBaseChange :
     ∀ {S : Scheme.{u}},
       (etaleLocal (@AlgebraicGeometry.AtWorstNodal : MorphismProperty Scheme.{u}) :
         MorphismProperty (AlgebraicSpace S)).IsStableUnderBaseChange)

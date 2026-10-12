@@ -1,5 +1,12 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Pullback
 public import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
 public import Mathlib.CategoryTheory.MorphismProperty.OverAdjunction
 public import ReasLib.CategoryTheory.Sites.MorphismOfSites
@@ -54,11 +61,6 @@ theorem spacesEtaleSite.homToSelf_left {X : AlgebraicSpace S} (V : spacesEtaleSi
 def isTerminal_self (X : AlgebraicSpace S) : IsTerminal (spacesEtaleSite.self X) :=
   IsTerminal.ofUniqueHom (fun V ↦ spacesEtaleSite.homToSelf V) sorry
 
-/-- Base change along `f` on the étale sites of algebraic spaces, sending `V` to `X ×_Y V`. -/
-noncomputable abbrev spacesEtalePullback {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    spacesEtaleSite Y ⥤ spacesEtaleSite X :=
-  MorphismProperty.Over.pullback (@Etale S) ⊤ f
-
 /-- `spacesEtalePullback f` is `MorphismProperty.Over.pullback` along `f`. -/
 theorem spacesEtalePullback_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     spacesEtalePullback f = MorphismProperty.Over.pullback (@Etale S) ⊤ f :=
@@ -79,11 +81,6 @@ theorem spacesEtalePullback_obj_hom {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     ((spacesEtalePullback f).obj V).hom = pullback.snd V.hom f :=
   rfl
 
-/-- Base change along `f` is continuous for the étale topologies of algebraic spaces. -/
-instance spacesEtalePullback_isContinuous {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    (spacesEtalePullback f).IsContinuous (spacesEtaleTopology Y) (spacesEtaleTopology X) :=
-  sorry
-
 /-- Base change along `f` preserves the terminal object of the étale site of algebraic spaces. -/
 instance spacesEtalePullback_preservesTerminal {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     PreservesLimit (Functor.empty.{0} (spacesEtaleSite Y)) (spacesEtalePullback f) :=
@@ -99,12 +96,6 @@ instance spacesEtalePullback_isMorphismOfSites {X Y : AlgebraicSpace S} (f : X �
     IsMorphismOfSites (spacesEtaleTopology Y) (spacesEtaleTopology X)
       (spacesEtalePullback f) :=
   sorry
-
-/-- Base change along a composite is the composite of the base-change functors, up to the
-canonical isomorphism of chosen fibre products. -/
-noncomputable def spacesEtalePullbackComp {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    spacesEtalePullback (f ≫ g) ≅ spacesEtalePullback g ⋙ spacesEtalePullback f :=
-  MorphismProperty.Over.pullbackComp f g
 
 /-- `spacesEtalePullbackComp f g` is `MorphismProperty.Over.pullbackComp`. -/
 theorem spacesEtalePullbackComp_eq {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z) :

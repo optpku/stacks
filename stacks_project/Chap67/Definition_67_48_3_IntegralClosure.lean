@@ -1,3 +1,9 @@
+/-
+Released under Apache 2.0 license as described in the file LICENSE.
+Statement formalization authors: ReasBook team
+Proof formalization authors: ReasBook team
+-/
+
 module
 
 public import Mathlib.Algebra.Category.Ring.Colimits
@@ -52,9 +58,7 @@ def commRingStructureSheafMap_app {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (V : (smallEtaleSite Y)ᵒᵖ) :
     (commRingStructureSheaf Y).obj.obj V ⟶
       ((commRingPushforward f).obj (commRingStructureSheaf X)).obj.obj V :=
-  limit.lift _ (commRingStructureSheafMapCone f V.unop) ≫
-    ((smallEtaleInclusion X).op.ranObjObjIsoLimit (commRingStructureSheaf X).obj
-        (op ((etaleBaseChange f).obj V.unop))).inv
+  commStructureSheafMap_app f V
 
 /-- The direct-image form of `f^♯`, as a morphism of commutative-ring sheaves on `Y_étale`. -/
 def commRingStructureSheafMap {X Y : AlgebraicSpace S} (f : X ⟶ Y) :

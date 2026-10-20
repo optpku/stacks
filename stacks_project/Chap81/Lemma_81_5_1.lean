@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap74.Definition_74_22_11_Effectivity
-public import stacks_project.Chap67.Definition_67_40_1_Proper
-public import stacks_project.Chap67.Definition_67_5_2_Surjective
-public import stacks_project.Chap66.Lemma_66_16_4_Etale
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.DescentData.Etale.Proper
 
 /-!
 # Lemma 81.5.1
@@ -27,26 +19,23 @@ universe u v
 
 namespace AlgebraicGeometry.AlgebraicSpace.DescentData
 
-/-- Lemma 81.5.1: Let `S` be a scheme. Let `f : X ⟶ Y` be a proper surjective
+/- Lemma 81.5.1: Let `S` be a scheme. Let `f : X ⟶ Y` be a proper surjective
 morphism of algebraic spaces over `S`. Any descent datum `(U / X, φ)` relative
 to `f` with `U` étale over `X` is effective. More precisely, there exists an
 étale morphism `V ⟶ Y` of algebraic spaces whose corresponding canonical
 descent datum is isomorphic to `(U / X, φ)`. -/
-@[stacks 0GG0]
-theorem existsEtale_of_proper_surjective {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+@[stacks 0GG0] #check (AlgebraicGeometry.AlgebraicSpace.DescentData.existsEtale_of_proper_surjective :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) [Surjective f] [Proper f]
     (D : DescentData (fun _ : PUnit.{v + 1} ↦ X) (fun _ ↦ f))
-    [Etale (D.obj ⟨⟩).hom] :
+    [Etale (D.obj ⟨⟩).hom],
     ∃ (V : Over Y) (_ : Etale V.hom),
-      Nonempty (ofObj (fun _ : PUnit.{v + 1} ↦ X) (fun _ ↦ f) V ≅ D) :=
-  sorry
+      Nonempty (ofObj (fun _ : PUnit.{v + 1} ↦ X) (fun _ ↦ f) V ≅ D))
 
-/-- A descent datum relative to a proper surjective morphism of algebraic spaces
-is effective as soon as its unique component is étale. -/
-theorem isEffective_of_etale_of_proper_surjective {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.DescentData.isEffective_of_etale_of_proper_surjective :
+  ∀ {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Surjective f] [Proper f]
     (D : DescentData (fun _ : PUnit.{v + 1} ↦ X) (fun _ ↦ f))
-    [Etale (D.obj ⟨⟩).hom] : D.IsEffective :=
-  sorry
+    [Etale (D.obj ⟨⟩).hom], D.IsEffective)
 
 end AlgebraicGeometry.AlgebraicSpace.DescentData

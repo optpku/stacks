@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap42.Lemma_42_54_7_VirtualNormal
-public import stacks_project.Chap42.Lemma_42_54_2_BivariantClass
-public import ReasLib.AlgebraicGeometry.BivariantClass.ZeroScheme
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.BivariantClass.VirtualNormalBundle.ZeroScheme
 
 @[expose] public section
 
@@ -18,29 +11,20 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry
-namespace Scheme
-namespace Hom
-namespace VirtualNormalBundle
-
-/-- Lemma 42.54.7: for a scheme locally of finite type over a situation `(S, δ)`, the
+/- Lemma 42.54.7: for a scheme locally of finite type over a situation `(S, δ)`, the
 degree-one Gysin bivariant class of a zero-scheme triple `(ℒ, s, i : D ⟶ X)` equals the
 degree-one virtual-normal class `c(D ⟶ X, 𝒩)` formed from `𝒩 = i*ℒ`. -/
-@[stacks 0FBN]
-theorem gysin_eq_ofZeroScheme
-    {S X : Scheme.{u}} [UniversallyCatenary S]
-    (δ : S → ℤ) [IsDimensionFunction δ]
-    (p : X ⟶ S) [LocallyOfFiniteType p]
-    (ℒ : X.Modules) [Scheme.Modules.Invertible ℒ] (s : ℒ.sections)
-    [LocallyOfFiniteType (zeroSchemeι ℒ s ≫ p)]
-    (D : ClosedSpecialization δ (zeroSchemeι ℒ s ≫ p) p
-      (zeroSchemeι ℒ s) rfl (ofZeroScheme ℒ s)) :
-    @BivariantClass.gysin S _ δ _ (Over.mk p) _ ℒ
-        ‹Scheme.Modules.Invertible ℒ› s =
-      globalClassOfRank δ (zeroSchemeι ℒ s ≫ p) p (zeroSchemeι ℒ s) rfl
-        (ofZeroScheme ℒ s) D 1 := sorry
+@[stacks 0FBN] #check
+  (AlgebraicGeometry.Scheme.Hom.VirtualNormalBundle.gysin_eq_ofZeroScheme :
+    ∀ {S : Scheme.{u}} [UniversallyCatenary S]
+      (δ : S → ℤ) [IsDimensionFunction δ]
+      (X : Over S) [LocallyOfFiniteType X.hom]
+      (ℒ : X.left.Modules) [Scheme.Modules.Invertible ℒ] (s : ℒ.sections)
+      (D : Scheme.Hom.VirtualNormalBundle.ClosedDeformation
+        (Scheme.zeroSchemeι ℒ s ≫ X.hom) X.hom (Scheme.zeroSchemeι ℒ s) rfl
+        (Scheme.Hom.VirtualNormalBundle.ofZeroScheme ℒ s)),
+      BivariantClass.gysin δ X ℒ s =
+        Scheme.Hom.VirtualNormalBundle.globalClassOfRank δ
+          (Scheme.zeroSchemeι ℒ s ≫ X.hom) X.hom (Scheme.zeroSchemeι ℒ s) rfl
+          (Scheme.Hom.VirtualNormalBundle.ofZeroScheme ℒ s) D 1)
 
-end VirtualNormalBundle
-end Hom
-end Scheme
-end AlgebraicGeometry

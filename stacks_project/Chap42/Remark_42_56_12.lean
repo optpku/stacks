@@ -1,15 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-import stacks_project.Chap42.Remark_42_56_12_Comparison
-import stacks_project.Chap42.Remark_42_56_12_ChernClass
-import stacks_project.Chap42.Remark_42_56_12_ChernCharacter
+import ReasLib.AlgebraicGeometry.Scheme.K0.Support.Universal
+import ReasLib.AlgebraicGeometry.Scheme.K0.DerivedChernClass
+import ReasLib.AlgebraicGeometry.Scheme.K0.DerivedChernCharacter
 
 @[expose] public section
 

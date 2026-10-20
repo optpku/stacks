@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Germ.Category
@@ -39,6 +33,13 @@ distinguished source point. -/
 theorem etale_mk_iff {X Y : Germ} (r : Hom.Representative X Y) :
     Etale (Hom.mk r) ↔
       r.hom.EtaleAt (X.pointIn r.neighborhood r.mem_neighborhood) := sorry
+
+/-- Stacks 04QS: a germ morphism is étale exactly when it has a representative that is an étale
+morphism of schemes on its whole neighborhood. This holds because étaleness at a point is an
+open condition. -/
+theorem etale_iff_exists_etale_representative {X Y : Germ} (f : X ⟶ Y) :
+    Etale f ↔ ∃ r : Hom.Representative X Y, Hom.mk r = f ∧ AlgebraicGeometry.Etale r.hom :=
+  sorry
 
 /-- The identity morphism of a scheme germ is étale. -/
 instance instEtaleId (X : Germ) : Etale (𝟙 X) := sorry

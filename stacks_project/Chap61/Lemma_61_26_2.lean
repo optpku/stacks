@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.IsomorphismClasses
-public import stacks_project.Chap59.Definition_59_70_1_ExtensionByZero
-public import stacks_project.Chap61.Definition_61_26_1_ExtensionByZero
-public import stacks_project.Chap61.Lemma_61_26_2_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.ProEtaleExtensionByZero
+import StacksCheckRecall
 
 /-!
 # Lemma 61.26.2
@@ -45,37 +36,17 @@ variable [HasWeakSheafify (ProEt.topology U) AddCommGrpCat.{w}]
 variable [∀ F : X.Etaleᵒᵖ ⥤ AddCommGrpCat.{w},
   (etaleToProEt X).op.HasLeftKanExtension F]
 
-/-- Lemma 61.26.2: for an étale morphism `j : U ⟶ X` and an abelian sheaf `G`
-on the small étale site of `U`, the sheaves `ε⁻¹ (j_! G)` and `j_! (ε⁻¹ G)`
-on the small pro-étale site of `X` are isomorphic, where `ε⁻¹` is sheaf
-pullback along `etaleToProEt` and the two extension-by-zero functors are the
-étale and pro-étale `abelianExtensionByZero`. -/
-@[stacks 09AF]
-theorem abelianExtensionByZero_etaleProetale
-    (G : Sheaf U.smallEtaleTopology AddCommGrpCat.{w}) :
-    IsIsomorphic
-      ((etaleToProEtPullback X AddCommGrpCat.{w}).obj
-        ((abelianExtensionByZero j).obj G))
-      ((ProEt.abelianExtensionByZero j).obj
-        ((etaleToProEtPullback U AddCommGrpCat.{w}).obj G)) :=
-  sorry
+variable (G : Sheaf U.smallEtaleTopology AddCommGrpCat.{w})
 
-/-- Étale abelian extension by zero commutes with inverse image along
-`etaleToProEt` as functors on abelian sheaves. -/
-theorem abelianExtensionByZero_etaleProetale_functor :
-    IsIsomorphic
-      (abelianExtensionByZero j ⋙ etaleToProEtPullback X AddCommGrpCat.{w})
-      (etaleToProEtPullback U AddCommGrpCat.{w} ⋙
-        ProEt.abelianExtensionByZero j) :=
-  sorry
+/- Lemma 61.26.2: for an étale morphism `j : U ⟶ X`, inverse image along the
+étale-to-pro-étale comparison commutes with abelian extension by zero. -/
+@[stacks 09AF] #check (AlgebraicGeometry.Scheme.abelianExtensionByZero_etaleProetale j G :
+  IsIsomorphic
+    ((etaleToProEtPullback X AddCommGrpCat.{w}).obj
+      ((abelianExtensionByZero j).obj G))
+    ((ProEt.abelianExtensionByZero j).obj
+      ((etaleToProEtPullback U AddCommGrpCat.{w}).obj G)))
 
 end
-
-/-- Restriction along an étale morphism commutes with the étale-to-pro-étale
-comparison of small sites. -/
-theorem etaleRestriction_comp_etaleToProEt :
-    etaleRestriction j ⋙ etaleToProEt X =
-      etaleToProEt U ⋙ ProEt.restriction j :=
-  sorry
 
 end AlgebraicGeometry.Scheme

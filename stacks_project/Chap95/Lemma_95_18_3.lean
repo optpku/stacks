@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap95.«95_18_2_1_Forgetful»
+public import ReasLib.AlgebraicGeometry.FiniteHilbertStack.Faithful
+import StacksCheckRecall
 
 /-!
 # Lemma 95.18.3
@@ -27,17 +22,21 @@ universe u
 
 namespace AlgebraicGeometry.FiniteHilbertStack
 
-variable {S : Scheme.{u}}
-variable {𝒳 𝒴 : StackOver.Groupoids.{u + 1, u, u + 1, u} (Scheme.fppfTopology.over S)}
-
-/-- Lemma 95.18.3: the forgetful 1-morphism `ℋ_d(𝒳/𝒴) ⟶ ℋ_d(𝒳)` of stacks in
+/- Lemma 95.18.3: the forgetful 1-morphism `ℋ_d(𝒳/𝒴) ⟶ ℋ_d(𝒳)` of stacks in
 groupoids over `(Sch/S)_fppf` is faithful. -/
-@[stacks 05XV]
-instance forgetToAbsolute.faithful (F : 𝒳 ⟶ 𝒴) (d : ℕ) [NeZero d] :
-    (toBasedFunctor (forgetToAbsolute F d)).Faithful := sorry
+@[stacks 05XV] #check (AlgebraicGeometry.FiniteHilbertStack.forgetToAbsolute.faithful :
+  ∀ {S : Scheme.{u}}
+    {𝒳 𝒴 : StackOver.Groupoids.{u + 1, u, u + 1, u} (Scheme.fppfTopology.over S)}
+    (F : 𝒳 ⟶ 𝒴) (d : ℕ) [NeZero d],
+    (StackOver.Groupoids.Hom.toBasedFunctor
+      (AlgebraicGeometry.FiniteHilbertStack.forgetToAbsolute F d)).Faithful)
 
-/-- The forgetful 1-morphism `ℋ_d(𝒳/𝒴) ⟶ ℋ_d(𝒳)` is faithful on fibre categories. -/
-theorem forgetToAbsolute.fiberwiseFaithful (F : 𝒳 ⟶ 𝒴) (d : ℕ) [NeZero d] (U : Over S) :
-    (fiberFunctor (forgetToAbsolute F d) U).Faithful := sorry
+/- The forgetful 1-morphism `ℋ_d(𝒳/𝒴) ⟶ ℋ_d(𝒳)` is faithful on fibre categories. -/
+#check (AlgebraicGeometry.FiniteHilbertStack.forgetToAbsolute.fiberwiseFaithful :
+  ∀ {S : Scheme.{u}}
+    {𝒳 𝒴 : StackOver.Groupoids.{u + 1, u, u + 1, u} (Scheme.fppfTopology.over S)}
+    (F : 𝒳 ⟶ 𝒴) (d : ℕ) [NeZero d] (U : Over S),
+    (StackOver.Groupoids.Hom.fiberFunctor
+      (AlgebraicGeometry.FiniteHilbertStack.forgetToAbsolute F d) U).Faithful)
 
 end AlgebraicGeometry.FiniteHilbertStack

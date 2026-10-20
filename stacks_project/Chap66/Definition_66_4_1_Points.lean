@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points
@@ -20,5 +14,7 @@ This module preserves the original chapter import surface.
 
 @[expose] public section
 
--- Preserve the field-projection registration of the original chapter module.
-attribute [instance] AlgebraicGeometry.AlgebraicSpace.FieldValuedPoint.field
+universe u
+
+#check (AlgebraicGeometry.AlgebraicSpace.Points :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}}, AlgebraicGeometry.AlgebraicSpace S → Type (u + 1))

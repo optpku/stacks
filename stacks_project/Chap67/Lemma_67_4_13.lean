@@ -1,10 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
+
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Separation.Representable
 
 public import Mathlib.AlgebraicGeometry.Morphisms.QuasiSeparated
 public import Mathlib.AlgebraicGeometry.Morphisms.Separated
@@ -31,90 +28,47 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.4.13 (1): let `S` be a scheme and let `f : X ⟶ Y` be a representable
+/- Lemma 67.4.13 (1): let `S` be a scheme and let `f : X ⟶ Y` be a representable
 morphism of algebraic spaces over `S`. Then `f` is locally separated. -/
-@[stacks 03KY]
-theorem locallySeparated_of_relativelyRepresentable
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
-    (hf : yoneda.relativelyRepresentable f) : LocallySeparated f :=
-  sorry
+@[stacks 03KY] #check (AlgebraicGeometry.AlgebraicSpace.locallySeparated_of_relativelyRepresentable :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
+    (hf : yoneda.relativelyRepresentable f),
+    LocallySeparated f)
 
-/-- Lemma 67.4.13 (2): let `S` be a scheme and let `f : X ⟶ Y` be a representable
+/- Lemma 67.4.13 (2): let `S` be a scheme and let `f : X ⟶ Y` be a representable
 morphism of algebraic spaces over `S`. Then `f` is separated in the sense of
 Definition 67.4.2 if and only if `f` is separated in the sense of Section 67.3. -/
-@[stacks 03KY]
-theorem separated_presheaf_iff_separated
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
-    (hf : yoneda.relativelyRepresentable f) :
+@[stacks 03KY] #check (AlgebraicGeometry.AlgebraicSpace.separated_presheaf_iff_separated :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
+    (hf : yoneda.relativelyRepresentable f),
     (over (@AlgebraicGeometry.IsSeparated : MorphismProperty Scheme.{u})).presheaf f ↔
-      Separated f :=
-  sorry
+      Separated f)
 
-/-- A representable morphism that is separated in the sense of Section 67.3 is
-separated as a morphism of algebraic spaces. -/
-theorem separated_of_presheaf
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
-    (hf : yoneda.relativelyRepresentable f)
-    (h : (over (@AlgebraicGeometry.IsSeparated :
-      MorphismProperty Scheme.{u})).presheaf f) :
-    Separated f :=
-  sorry
-
-/-- A representable morphism that is separated as a morphism of algebraic spaces
-is separated in the sense of Section 67.3. -/
-theorem separated_presheaf_of_separated
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
-    (hf : yoneda.relativelyRepresentable f) (h : Separated f) :
-    (over (@AlgebraicGeometry.IsSeparated : MorphismProperty Scheme.{u})).presheaf f :=
-  sorry
-
-/-- Lemma 67.4.13 (3): let `S` be a scheme and let `f : X ⟶ Y` be a representable
+/- Lemma 67.4.13 (3): let `S` be a scheme and let `f : X ⟶ Y` be a representable
 morphism of algebraic spaces over `S`. Then `f` is quasi-separated in the sense of
 Definition 67.4.2 if and only if `f` is quasi-separated in the sense of
 Section 67.3. -/
-@[stacks 03KY]
-theorem quasiSeparated_presheaf_iff_quasiSeparated
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
-    (hf : yoneda.relativelyRepresentable f) :
+@[stacks 03KY] #check (AlgebraicGeometry.AlgebraicSpace.quasiSeparated_presheaf_iff_quasiSeparated :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
+    (hf : yoneda.relativelyRepresentable f),
     (over (@AlgebraicGeometry.QuasiSeparated : MorphismProperty Scheme.{u})).presheaf f ↔
-      QuasiSeparated f :=
-  sorry
+      QuasiSeparated f)
 
-/-- A representable morphism that is quasi-separated in the sense of Section 67.3
-is quasi-separated as a morphism of algebraic spaces. -/
-theorem quasiSeparated_of_presheaf
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
-    (hf : yoneda.relativelyRepresentable f)
-    (h : (over (@AlgebraicGeometry.QuasiSeparated :
-      MorphismProperty Scheme.{u})).presheaf f) :
-    QuasiSeparated f :=
-  sorry
-
-/-- A representable morphism that is quasi-separated as a morphism of algebraic
-spaces is quasi-separated in the sense of Section 67.3. -/
-theorem quasiSeparated_presheaf_of_quasiSeparated
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
-    (hf : yoneda.relativelyRepresentable f) (h : QuasiSeparated f) :
-    (over (@AlgebraicGeometry.QuasiSeparated : MorphismProperty Scheme.{u})).presheaf f :=
-  sorry
-
-/-- Lemma 67.4.13 (4): let `S` be a scheme and let `h : U ⟶ V` be a morphism of
+/- Lemma 67.4.13 (4): let `S` be a scheme and let `h : U ⟶ V` be a morphism of
 schemes over `S`. Then the induced morphism of algebraic spaces is separated in
 the sense of Definition 67.4.2 if and only if `h.left` is separated as a
 morphism of schemes. -/
-@[stacks 03KY]
-theorem separated_ofOverMap_iff {S : Scheme.{u}} {U V : Over S} (h : U ⟶ V) :
-    Separated (ofOverMap h) ↔ AlgebraicGeometry.IsSeparated h.left :=
-  sorry
+@[stacks 03KY] #check (AlgebraicGeometry.AlgebraicSpace.separated_ofOverMap_iff :
+  ∀ {S : Scheme.{u}} {U V : Over S} (h : U ⟶ V),
+    Separated (ofOverMap h) ↔ AlgebraicGeometry.IsSeparated h.left)
 
-/-- Lemma 67.4.13 (5): let `S` be a scheme and let `h : U ⟶ V` be a morphism of
+/- Lemma 67.4.13 (5): let `S` be a scheme and let `h : U ⟶ V` be a morphism of
 schemes over `S`. Then the induced morphism of algebraic spaces is
 quasi-separated in the sense of Definition 67.4.2 if and only if `h.left` is
 quasi-separated as a morphism of schemes. -/
-@[stacks 03KY]
-theorem quasiSeparated_ofOverMap_iff {S : Scheme.{u}} {U V : Over S}
-    (h : U ⟶ V) :
-    QuasiSeparated (ofOverMap h) ↔ AlgebraicGeometry.QuasiSeparated h.left :=
-  sorry
+@[stacks 03KY] #check (AlgebraicGeometry.AlgebraicSpace.quasiSeparated_ofOverMap_iff :
+  ∀ {S : Scheme.{u}} {U V : Over S}
+    (h : U ⟶ V),
+    QuasiSeparated (ofOverMap h) ↔ AlgebraicGeometry.QuasiSeparated h.left)
 
 end AlgebraicGeometry.AlgebraicSpace

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.Flatness.MittagLeffler
@@ -25,13 +19,25 @@ The reusable owner is `Module.IsMittagLefflerDirectedSystem` on a directed
 @stack 059A
 -/
 
+open CategoryTheory
+
+universe u v w
+
+variable {R : Type u} [Ring R]
+variable {I : Type v} [Preorder I] [Nonempty I] [IsDirectedOrder I]
+
 /- Definition 10.88.1: a directed system of `R`-modules is Mittag-Leffler when every
 stage is finitely presented and every Hom inverse system is Mittag-Leffler. -/
 @[stacks 059A]
-#check @Module.IsMittagLefflerDirectedSystem
-@[stacks 059A]
-#check @Module.IsMittagLefflerDirectedSystem.finitePresentation
-@[stacks 059A]
-#check @Module.IsMittagLefflerDirectedSystem.homMittagLeffler
-@[stacks 059A]
-#check @CategoryTheory.Functor.homInverseSystem
+#check (Module.IsMittagLefflerDirectedSystem : (I ⥤ ModuleCat.{w} R) → Prop)
+
+#check (Module.IsMittagLefflerDirectedSystem.finitePresentation :
+  ∀ {diagram : I ⥤ ModuleCat.{w} R}, Module.IsMittagLefflerDirectedSystem diagram →
+    ∀ index : I, Module.FinitePresentation R (diagram.obj index))
+
+#check (Module.IsMittagLefflerDirectedSystem.homMittagLeffler :
+  ∀ {diagram : I ⥤ ModuleCat.{w} R}, Module.IsMittagLefflerDirectedSystem diagram →
+    diagram.HomMittagLeffler)
+
+#check (CategoryTheory.Functor.homInverseSystem :
+  (I ⥤ ModuleCat.{w} R) → ModuleCat.{w} R → (Iᵒᵖ ⥤ Type w))

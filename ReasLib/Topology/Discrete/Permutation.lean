@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
@@ -57,10 +51,12 @@ theorem continuous_inv : Continuous fun σ : Equiv.Perm E ↦ σ⁻¹ := sorry
 @[stacks 0BMC "continuity of multiplication on a discrete permutation group"]
 theorem continuous_mul : Continuous fun p : Equiv.Perm E × Equiv.Perm E ↦ p.1 * p.2 := sorry
 
+end Discrete
+
 /-- The pointwise permutation group of a discrete space is a topological group. -/
 @[stacks 0BMC "topological group of permutations of a discrete space"]
-instance isTopologicalGroup : IsTopologicalGroup (Equiv.Perm E) := sorry
+instance isTopologicalGroup {E : Type u} [TopologicalSpace E] [DiscreteTopology E] :
+    IsTopologicalGroup (Equiv.Perm E) := sorry
 
-end Discrete
 
 end Equiv.Perm

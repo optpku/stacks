@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap103.Lemma_103_17_4_Coherent
-public import stacks_project.Chap96.Lemma_96_11_2_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Module.Pullback.Coherent
+import StacksCheckRecall
 
 /-!
 # Pullback of coherent modules on locally Noetherian algebraic stacks
@@ -39,13 +33,11 @@ variable [∀ y : Y.total, HasWeakSheafify
 variable [∀ y : Y.total,
     ((inheritedFppfTopology Y).over y).WEqualsLocallyBijective AddCommGrpCat.{u}]
 
-/-- Lemma 103.17.4: let `f : X ⟶ Y` be a morphism of locally Noetherian algebraic
+/- Lemma 103.17.4: let `f : X ⟶ Y` be a morphism of locally Noetherian algebraic
 stacks. Then `f^*` sends coherent modules on `Y` to coherent modules on `X`. -/
-@[stacks 0GR8]
-instance pullback_isCoherent (f : X ⟶ Y)
-    (G : SheafOfModules.{u} (structureSheaf Y))
-    [AlgebraicStack.IsCoherent G] :
-    AlgebraicStack.IsCoherent ((modulePullback f).obj G) :=
-  sorry
+@[stacks 0GR8] #check (AlgebraicGeometry.AlgebraicStack.pullback_isCoherent :
+  ∀ (f : X ⟶ Y) (G : SheafOfModules.{u} (structureSheaf Y))
+    [AlgebraicStack.IsCoherent G],
+    AlgebraicStack.IsCoherent ((modulePullback f).obj G))
 
 end AlgebraicGeometry.AlgebraicStack

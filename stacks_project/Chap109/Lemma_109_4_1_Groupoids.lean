@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Fibered.Groupoids.Hom
 public import stacks_project.Chap99.Lemma_99_14_8_Groupoids
-public import stacks_project.Chap109.Lemma_109_4_1_PolarizedCurves
+public import ReasLib.AlgebraicGeometry.PolarizedCurves.Groupoids
 
 /-!
 # PolarizedCurves as a category fibred in groupoids over Spec ℤ
@@ -30,40 +23,22 @@ universe u
 
 namespace AlgebraicGeometry.PolarizedCurves
 
-/-- The forgetful functor of PolarizedCurves, viewed in `Sch / Spec ℤ`, is
-fibred in groupoids. -/
-instance instIsFiberedInGroupoids_toOverSpecZ :
-    Functor.IsFibered.InGroupoids (p ⋙ Polarized.toOverSpecZ) :=
-  sorry
+#check (AlgebraicGeometry.PolarizedCurves.instIsFiberedInGroupoids_toOverSpecZ.{u} :
+  Functor.IsFibered.InGroupoids (p ⋙ Polarized.schemeToOverSpecZ))
 
-/-- PolarizedCurves, bundled as a category fibred in groupoids over
-`Sch / Spec ℤ`. -/
-def toGroupoidsOverSpecZ : GroupoidsOver specZ :=
-  Groupoids.ofFunctor.{u + 1, u, u + 1, u} (p ⋙ Polarized.toOverSpecZ)
+#check (AlgebraicGeometry.PolarizedCurves.toGroupoidsOverSpecZ.{u} : GroupoidsOver specZ)
 
-/-- The projection of `toGroupoidsOverSpecZ` is `p ⋙ Polarized.toOverSpecZ`. -/
-theorem toGroupoidsOverSpecZ_p :
-    toGroupoidsOverSpecZ.p = p ⋙ Polarized.toOverSpecZ :=
-  sorry
+#check (AlgebraicGeometry.PolarizedCurves.toGroupoidsOverSpecZ_p.{u} :
+  toGroupoidsOverSpecZ.p = p ⋙ Polarized.schemeToOverSpecZ)
 
-/-- The 1-morphism PolarizedCurves ⟶ Polarized, packaged as a morphism of
-categories fibred in groupoids over `Spec ℤ`. The underlying functor is the
-full-subcategory inclusion. -/
-def inclusionHom : toGroupoidsOverSpecZ ⟶ Polarized.toGroupoidsOverSpecZ :=
-  Groupoids.ofBasedFunctor
-    { toFunctor := inclusion
-      w := sorry }
+#check (AlgebraicGeometry.PolarizedCurves.inclusionHom.{u} :
+  toGroupoidsOverSpecZ ⟶ Polarized.toGroupoidsOverSpecZ)
 
-/-- The underlying functor of `inclusionHom` is the full-subcategory
-inclusion. -/
-theorem inclusionHom_toFunctor :
-    Groupoids.toFunctor inclusionHom = inclusion :=
-  sorry
+#check (AlgebraicGeometry.PolarizedCurves.inclusionHom_toFunctor.{u} :
+  Groupoids.toFunctor inclusionHom = inclusion)
 
-/-- `inclusionHom` lies strictly over `Sch / Spec ℤ`. -/
-theorem inclusionHom_comm :
-    Groupoids.toFunctor inclusionHom ⋙ Polarized.toGroupoidsOverSpecZ.p =
-      toGroupoidsOverSpecZ.p :=
-  sorry
+#check (AlgebraicGeometry.PolarizedCurves.inclusionHom_comm.{u} :
+  Groupoids.toFunctor inclusionHom ⋙ Polarized.toGroupoidsOverSpecZ.p =
+    toGroupoidsOverSpecZ.p)
 
 end AlgebraicGeometry.PolarizedCurves

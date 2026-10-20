@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Basic
@@ -57,7 +51,12 @@ theorem modulePushforwardToDerived.hasRightDerived
     [UnivLE.{max uX vX, w}] [UnivLE.{max uY vY, w}]
     [IsGrothendieckAbelian (RingedSite.ModuleCat.{w} X)] :
     Functor.HasRightDerivedFunctor (modulePushforwardToDerived f)
-      (RingedSite.Hom.ModuleQis.{w} X) := sorry
+      (RingedSite.Hom.ModuleQis.{w} X) :=
+  @Functor.RightDerived.KInjective.hasDerived
+    (RingedSite.ModuleCat.{w} X) inferInstance inferInstance
+    (RingedSite.ModuleCat.{w} Y) inferInstance inferInstance
+    (RingedSite.Hom.moduleCat_hasDerivedCategory.{w} Y)
+    f.modulePushforward (modulePushforward_additive f) inferInstance
 
 /-- The canonical unbounded total right-derived direct image on modules along an arbitrary
 morphism of site-presented ringed topoi. -/

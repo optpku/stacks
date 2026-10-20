@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Order.DirectedInverseSystem
@@ -35,12 +29,6 @@ instance nonempty (i0 : I) : Nonempty (Set.Ici i0) :=
 @[instance, stacks 00QV "direct-limit tail"]
 theorem isDirectedOrder [IsDirectedOrder I] (i0 : I) :
     IsDirectedOrder (Set.Ici i0) := sorry
-
-/-- A tail of a directed preorder is directed, without requiring an ambient
-inhabitant beyond its specified anchor. -/
-@[instance, stacks 00QV "direct-limit tail"]
-theorem isDirected [IsDirected I (· ≤ ·)] (i0 : I) :
-    IsDirected (Set.Ici i0) (· ≤ ·) := sorry
 
 end Set.Ici
 

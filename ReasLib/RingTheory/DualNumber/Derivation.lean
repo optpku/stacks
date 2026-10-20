@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.DualNumber
@@ -67,3 +61,19 @@ instance toDualNumberAlgHom_isLocalHom (D : Derivation Λ k k) :
     IsLocalHom D.toDualNumberAlgHom := sorry
 
 end Derivation
+
+namespace DualNumber
+
+variable {Λ : Type u} {R : Type v} [CommRing Λ] [CommRing R] [Algebra Λ R]
+
+/-- The dual-number endomorphism associated to a derivation sends `a + vε` to
+`a + (v + D a)ε`. -/
+def autOfDerivation (D : Derivation Λ R R) : DualNumber R →ₐ[Λ] DualNumber R :=
+  lift ⟨(D.toDualNumberAlgHom, ε), eps_mul_eps, fun _ ↦ commute_eps_left _⟩
+
+/-- The derivation-induced dual-number endomorphism adds the derivation of the scalar
+coefficient to the infinitesimal coefficient. -/
+theorem autOfDerivation_apply (D : Derivation Λ R R) (value : DualNumber R) :
+    autOfDerivation D value = inl value.fst + inr (value.snd + D value.fst) := sorry
+
+end DualNumber

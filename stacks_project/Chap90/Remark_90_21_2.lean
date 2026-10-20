@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Remark_90_21_2_Comparison
+public import ReasLib.CategoryTheory.Groupoid.InFunctors.Comparison
 import StacksCheckRecall
 
 /-!
@@ -28,8 +22,13 @@ universe u v w
 
 /- Remark 90.21.2 (1): a groupoid in functors on `C` amounts to the data of a
 functor `C ⥤ Grpd`, where `Grpd` is regarded as a 1-category. -/
-@[stacks 06K4] #check GroupoidInFunctors.toFunctor
+@[stacks 06K4] #check (CategoryTheory.GroupoidInFunctors.toFunctorOfFunctorIso :
+  {C : Type u} → [CategoryTheory.Category.{v} C] → (F : C ⥤ Grpd.{w, w}) →
+    (CategoryTheory.GroupoidInFunctors.ofFunctor F).toFunctor ≅ F)
 
 /- Remark 90.21.2 (2): a morphism of groupoids in functors on `C` amounts to a
 morphism of the corresponding functors `C ⥤ Grpd`. -/
-@[stacks 06K4] #check GroupoidInFunctors.Hom.equivToNatTrans
+@[stacks 06K4] #check (CategoryTheory.GroupoidInFunctors.Hom.equivToNatTrans :
+  {C : Type u} → [CategoryTheory.Category.{v} C] →
+    (G H : CategoryTheory.GroupoidInFunctors.{u, v, w} C) →
+      CategoryTheory.GroupoidInFunctors.Hom G H ≃ (G.toFunctor ⟶ H.toFunctor))

@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap85.Lemma_85_4_2_Fiberwise
 public import stacks_project.Chap85.Lemma_85_4_2_MorphismDiagram
+import StacksCheckRecall
 
 /-!
 # Lemma 85.4.2
@@ -46,58 +41,45 @@ variable [h_aug : IsAugmentation C J K u0]
 include h_morphism
 include h_aug
 
-/-- Lemma 85.4.2 (1): in Situation 85.3.3 case A, an augmentation `a0` towards a site `D`
-induces a morphism of topoi `a_n : Sh(C.obj n) ⟶ Sh(D)` for every `n`. -/
-@[stacks 0D70]
-abbrev stageTopos (n : SimplexCategory) :
-    MorphismOfTopoiIn K.toGrothendieck (J n).toGrothendieck :=
-  IsAugmentation.stageTopos C J K u0 n
+/- Lemma 85.4.2: case A, stageTopos. -/
+@[stacks 0D70] #check (CategoryTheory.SimplicialSites.IsAugmentation.stageTopos C J K u0 :
+    ∀ (n : SimplexCategory),
+    MorphismOfTopoiIn K.toGrothendieck (J n).toGrothendieck)
 
-/-- Inverse image of the case A stage morphism `a_n` is sheaf pullback along `u_n`. -/
-theorem stageTopos_inverseImage (n : SimplexCategory) :
-    (stageTopos C J K u0 n)⁻¹ =
+#check (CategoryTheory.SimplicialSites.IsAugmentation.stageTopos_inverseImage C J K u0 :
+    ∀ (n : SimplexCategory),
+    (IsAugmentation.stageTopos C J K u0 n)⁻¹ =
       (IsAugmentation.stageFunctor C u0 n).sheafPullback (Type w)
-        K.toGrothendieck (J n).toGrothendieck :=
-  sorry
+        K.toGrothendieck (J n).toGrothendieck)
 
-/-- Lemma 85.4.2 (2): in Situation 85.3.3 case A, the augmentation induces a morphism of
-topoi `a : Sh(C_total) ⟶ Sh(D)`. -/
-@[stacks 0D70]
-abbrev totalTopos : MorphismOfTopoiIn K.toGrothendieck (topology C J) :=
-  IsAugmentation.totalTopos C J K u0
+/- Lemma 85.4.2: case A, totalTopos. -/
+@[stacks 0D70] #check (CategoryTheory.SimplicialSites.IsAugmentation.totalTopos C J K u0 :
+    MorphismOfTopoiIn K.toGrothendieck (topology C J))
 
-/-- Inverse image of the case A total morphism is assembled from the functors `a_n⁻¹`. -/
-theorem totalTopos_inverseImage :
-    (totalTopos C J K u0)⁻¹ = IsAugmentation.inverseImage C J K u0 :=
-  sorry
+#check (CategoryTheory.SimplicialSites.IsAugmentation.totalTopos_inverseImage C J K u0 :
+    (IsAugmentation.totalTopos C J K u0)⁻¹ = IsAugmentation.inverseImage C J K u0)
 
-/-- Lemma 85.4.2 (3): in Situation 85.3.3 case A, `a_m ∘ f_φ = a_n` for every
-simplex operator `φ : m ⟶ n`. -/
-@[stacks 0D70]
-abbrev stageTopos_comp {m n : SimplexCategory} (φ : m ⟶ n) :
-    (stageTopos C J K u0 m)⁻¹ ⋙ (IsAugmentation.faceTopos C J φ)⁻¹ ≅
-      (stageTopos C J K u0 n)⁻¹ :=
-  IsAugmentation.stageTopos_comp C J K u0 φ
+/- Lemma 85.4.2: case A, stageTopos_comp. -/
+@[stacks 0D70] #check (CategoryTheory.SimplicialSites.IsAugmentation.stageTopos_comp C J K u0 :
+    ∀ {m n : SimplexCategory} (φ : m ⟶ n),
+    (IsAugmentation.stageTopos C J K u0 m)⁻¹ ⋙ (IsAugmentation.faceTopos C J φ)⁻¹ ≅
+      (IsAugmentation.stageTopos C J K u0 n)⁻¹)
 
-/-- Lemma 85.4.2 (5): in Situation 85.3.3 case A, `a_* F` is the equalizer of the two
-maps `a_{0,*} F_0 ⇉ a_{1,*} F_1`. -/
-@[stacks 0D70]
-abbrev pushforwardFork_isLimit (F : Sheaf (topology C J) (Type w)) :
-    IsLimit (IsAugmentation.pushforwardFork C J K u0 F) :=
-  IsAugmentation.pushforwardFork_isLimit C J K u0 F
+/- Lemma 85.4.2: case A, pushforwardFork_isLimit. -/
+@[stacks 0D70] #check (CategoryTheory.SimplicialSites.IsAugmentation.pushforwardFork_isLimit C J K u0 :
+    ∀ (F : Sheaf (topology C J) (Type w)),
+    IsLimit (IsAugmentation.pushforwardFork C J K u0 F))
 
 variable [∀ n, (ofStage C n).IsCocontinuous (J n).toGrothendieck (topology C J)]
 variable [∀ n, HasSheafify (J n).toGrothendieck (Type w)]
 variable [∀ n, ∀ P : (C.obj n)ᵒᵖ ⥤ Type w,
     (ofStage C n).op.HasPointwiseRightKanExtension P]
 
-/-- Lemma 85.4.2 (4): in Situation 85.3.3 case A, `a ∘ g_n = a_n` for the degree-`n`
-inclusion morphism of topoi `g_n` of Lemma 85.3.5. -/
-@[stacks 0D70]
-abbrev totalTopos_comp_ofStage (n : SimplexCategory) :
-    (totalTopos C J K u0)⁻¹ ⋙ (ofStageMorphism C J n)⁻¹ ≅
-      (stageTopos C J K u0 n)⁻¹ :=
-  IsAugmentation.totalTopos_comp_ofStage C J K u0 n
+/- Lemma 85.4.2: case A, totalTopos_comp_ofStage. -/
+@[stacks 0D70] #check (CategoryTheory.SimplicialSites.IsAugmentation.totalTopos_comp_ofStage C J K u0 :
+    ∀ (n : SimplexCategory),
+    (IsAugmentation.totalTopos C J K u0)⁻¹ ⋙ (ofStageMorphism C J n)⁻¹ ≅
+      (IsAugmentation.stageTopos C J K u0 n)⁻¹)
 
 end CategoryTheory.SimplicialSites
 
@@ -122,56 +104,43 @@ variable [h_augB : IsAugmentation F J K u0]
 include h_fiberwise
 include h_augB
 
-/-- Lemma 85.4.2 (6): in Situation 85.3.3 case B, an augmentation `a0` towards a site `D`
-induces a morphism of topoi `a_n : Sh(C_n) ⟶ Sh(D)` for every `n`. -/
-@[stacks 0D70]
-abbrev stageTopos (n : SimplexCategory) :
-    MorphismOfTopoiIn K.toGrothendieck (J (op n)).toGrothendieck :=
-  IsAugmentation.stageTopos F J K u0 n
+/- Lemma 85.4.2: case B, stageTopos. -/
+@[stacks 0D70] #check (CategoryTheory.Grothendieck.IsAugmentation.stageTopos F J K u0 :
+    ∀ (n : SimplexCategory),
+    MorphismOfTopoiIn K.toGrothendieck (J (op n)).toGrothendieck)
 
-/-- Inverse image of the case B stage morphism `a_n` is cocontinuous sheaf pullback along `u_n`. -/
-theorem stageTopos_inverseImage (n : SimplexCategory) :
-    (stageTopos F J K u0 n)⁻¹ =
+#check (CategoryTheory.Grothendieck.IsAugmentation.stageTopos_inverseImage F J K u0 :
+    ∀ (n : SimplexCategory),
+    (IsAugmentation.stageTopos F J K u0 n)⁻¹ =
       (IsAugmentation.stageFunctor F u0 n).sheafPullbackCocontinuous (Type w)
-        (J (op n)).toGrothendieck K.toGrothendieck :=
-  sorry
+        (J (op n)).toGrothendieck K.toGrothendieck)
 
-/-- Lemma 85.4.2 (7): in Situation 85.3.3 case B, the augmentation induces a morphism of
-topoi `a : Sh(C_total) ⟶ Sh(D)`. -/
-@[stacks 0D70]
-abbrev totalTopos : MorphismOfTopoiIn K.toGrothendieck (topology F J) :=
-  IsAugmentation.totalTopos F J K u0
+/- Lemma 85.4.2: case B, totalTopos. -/
+@[stacks 0D70] #check (CategoryTheory.Grothendieck.IsAugmentation.totalTopos F J K u0 :
+    MorphismOfTopoiIn K.toGrothendieck (topology F J))
 
-/-- Inverse image of the case B total morphism is assembled from the functors `a_n⁻¹`. -/
-theorem totalTopos_inverseImage :
-    (totalTopos F J K u0)⁻¹ = IsAugmentation.inverseImage F J K u0 :=
-  sorry
+#check (CategoryTheory.Grothendieck.IsAugmentation.totalTopos_inverseImage F J K u0 :
+    (IsAugmentation.totalTopos F J K u0)⁻¹ = IsAugmentation.inverseImage F J K u0)
 
-/-- Lemma 85.4.2 (8): in Situation 85.3.3 case B, `a_m ∘ f_φ = a_n` for every
-simplex operator `φ : m ⟶ n`. -/
-@[stacks 0D70]
-abbrev stageTopos_comp {m n : SimplexCategory} (φ : m ⟶ n) :
-    (stageTopos F J K u0 m)⁻¹ ⋙ (IsAugmentation.faceTopos F J φ)⁻¹ ≅
-      (stageTopos F J K u0 n)⁻¹ :=
-  IsAugmentation.stageTopos_comp F J K u0 φ
+/- Lemma 85.4.2: case B, stageTopos_comp. -/
+@[stacks 0D70] #check (CategoryTheory.Grothendieck.IsAugmentation.stageTopos_comp F J K u0 :
+    ∀ {m n : SimplexCategory} (φ : m ⟶ n),
+    (IsAugmentation.stageTopos F J K u0 m)⁻¹ ⋙ (IsAugmentation.faceTopos F J φ)⁻¹ ≅
+      (IsAugmentation.stageTopos F J K u0 n)⁻¹)
 
-/-- Lemma 85.4.2 (10): in Situation 85.3.3 case B, `a_* F` is the equalizer of the two
-maps `a_{0,*} F_0 ⇉ a_{1,*} F_1`. -/
-@[stacks 0D70]
-abbrev pushforwardFork_isLimit (G : Sheaf (topology F J) (Type w)) :
-    IsLimit (IsAugmentation.pushforwardFork F J K u0 G) :=
-  IsAugmentation.pushforwardFork_isLimit F J K u0 G
+/- Lemma 85.4.2: case B, pushforwardFork_isLimit. -/
+@[stacks 0D70] #check (CategoryTheory.Grothendieck.IsAugmentation.pushforwardFork_isLimit F J K u0 :
+    ∀ (G : Sheaf (topology F J) (Type w)),
+    IsLimit (IsAugmentation.pushforwardFork F J K u0 G))
 
 variable [∀ n, (ι F (op n)).IsCocontinuous (J (op n)).toGrothendieck (topology F J)]
 variable [∀ n, ∀ P : (F.obj (op n))ᵒᵖ ⥤ Type w,
     (ι F (op n)).op.HasPointwiseRightKanExtension P]
 
-/-- Lemma 85.4.2 (9): in Situation 85.3.3 case B, `a ∘ g_n = a_n` for the degree-`n`
-fiber morphism of topoi `g_n` of Lemma 85.3.5. -/
-@[stacks 0D70]
-abbrev totalTopos_comp_fiberMorphism (n : SimplexCategory) :
-    (totalTopos F J K u0)⁻¹ ⋙ (fiberMorphism F J n)⁻¹ ≅
-      (stageTopos F J K u0 n)⁻¹ :=
-  IsAugmentation.totalTopos_comp_fiberMorphism F J K u0 n
+/- Lemma 85.4.2: case B, totalTopos_comp_fiberMorphism. -/
+@[stacks 0D70] #check (CategoryTheory.Grothendieck.IsAugmentation.totalTopos_comp_fiberMorphism F J K u0 :
+    ∀ (n : SimplexCategory),
+    (IsAugmentation.totalTopos F J K u0)⁻¹ ⋙ (fiberMorphism F J n)⁻¹ ≅
+      (IsAugmentation.stageTopos F J K u0 n)⁻¹)
 
 end CategoryTheory.Grothendieck

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_36_5_Equivalence
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Simplicial.ProperDerivedEquivalence
+import StacksCheckRecall
 
 /-!
 # Lemma 85.36.5
@@ -23,51 +17,19 @@ augmentation.
 
 universe u
 
-open CategoryTheory CategoryTheory.Limits Opposite AlgebraicGeometry
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.Simplicial
-open Functor
 open scoped Simplicial
 
-noncomputable section
+/- Lemma 85.36.5. Proper hypercovering descent identifies bounded-below derived
+étale sheaves with objects having cartesian cohomology, by `a⁻¹` with quasi-inverse `Ra_*`. -/
+@[stacks 0DHN] #check
+  (AlgebraicGeometry.AlgebraicSpace.Simplicial.properPlusCartesianEquivalence :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+      {U : SimplicialObject (AlgebraicSpace S)}
+      (a : U ⟶ (Functor.const SimplexCategoryᵒᵖ).obj X) (ha : IsProperHypercovering a),
+      DerivedCategory.Plus (Sheaf (spacesEtaleTopology X) AddCommGrpCat.{u + 1}) ≌
+        DerivedCategory.Plus.CohomologyIn (EtaleCartesian.IsCartesianAbelian U))
 
-namespace AlgebraicGeometry.AlgebraicSpace.Simplicial
-
-variable {S : Scheme.{u}} {X : AlgebraicSpace S}
-variable {U : SimplicialObject (AlgebraicSpace S)}
-variable (a : U ⟶ (const SimplexCategoryᵒᵖ).obj X)
-
-/-- Lemma 85.36.5. Let `S` be a scheme, `X` an algebraic space over `S`, `U` a
-simplicial algebraic space over `S`, and `a : U ⟶ X` a proper hypercovering of
-`X`. Let `𝒜 ⊂ Ab(U_étale)` denote the weak Serre subcategory of cartesian
-abelian sheaves. Then `a⁻¹` defines an equivalence
-`D⁺(X_étale) ≌ D_𝒜⁺(U_étale)` with quasi-inverse `Ra_*`. Here
-`a : Sh(U_étale) ⟶ Sh(X_étale)` is the Section 85.32 spaces-étale
-augmentation, `a⁻¹` is `plusInverseImage a`, `Ra_*` is `plusDirectImage a`, and
-`D_𝒜⁺(U_étale)` is `DerivedCategory.Plus.CohomologyIn` of
-`cartesianProperty U AddCommGrpCat.{u + 1}`. -/
-@[stacks 0DHN]
-def properPlusCartesianEquivalence (ha : IsProperHypercovering a) :
-    DerivedCategory.Plus (Sheaf (spacesEtaleTopology X) AddCommGrpCat.{u + 1}) ≌
-      DerivedCategory.Plus.CohomologyIn
-        (cartesianProperty U AddCommGrpCat.{u + 1}) :=
-  CategoryTheory.Equivalence.mk (properPlusCartesianFunctor a)
-    (properPlusCartesianInverse a) (properPlusCartesianUnitIso a ha)
-    (properPlusCartesianCounitIso a ha)
-
-/-- The forward functor of `properPlusCartesianEquivalence` is `a⁻¹` corestricted
-to `D⁺` objects with cartesian cohomology. -/
-theorem properPlusCartesianEquivalence_functor (ha : IsProperHypercovering a) :
-    (properPlusCartesianEquivalence a ha).functor =
-      properPlusCartesianFunctor a :=
-  sorry
-
-/-- The inverse functor of `properPlusCartesianEquivalence` is `Ra_*` on `D⁺`
-objects with cartesian cohomology. -/
-theorem properPlusCartesianEquivalence_inverse (ha : IsProperHypercovering a) :
-    (properPlusCartesianEquivalence a ha).inverse =
-      properPlusCartesianInverse a :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Simplicial
-
-end
+#check AlgebraicGeometry.AlgebraicSpace.Simplicial.properPlusCartesianEquivalence_functor
+#check AlgebraicGeometry.AlgebraicSpace.Simplicial.properPlusCartesianEquivalence_inverse

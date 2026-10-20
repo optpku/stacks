@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicCycle.Intersection
@@ -315,8 +309,9 @@ theorem exists_projectedDifference_eq_of_isRationallyTrivial
       beta = projectedDifference X n alpha a b ha hb hproperA hproperB :=
   sorry
 
-/-- Proper intersection of a subvariety with a projective-line fiber implies proper
-intersection of their associated cycles in the prescribed dimensions. -/
+/-- Proper intersection of an `r`-dimensional subvariety `V` with the fiber at `a` of an
+`(s + 1)`-dimensional subvariety `W` dominating `ℙ¹` implies proper intersection of the
+`r`-cycle `[V]` with the `s`-cycle `[W_a]_s`. -/
 theorem fiberAssociatedCycles_intersectProperly
     (X : SchemeOverField k) [Variety X] [Scheme.Regular X.left]
     (r s : ℕ) (V : X.left.IdealSheafData)
@@ -339,12 +334,14 @@ theorem fiberAssociatedCycles_intersectProperly
         (r : ℤ) (V.associatedCycle
           (X.hom.relativeDimensionFunction (fun _ ↦ 0)) (r : ℤ)))
       (CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction (fun _ ↦ 0))
-        (r : ℤ) ((image X W a).associatedCycle
-          (X.hom.relativeDimensionFunction (fun _ ↦ 0)) (r : ℤ))) := sorry
+        (s : ℤ) ((image X W a).associatedCycle
+          (X.hom.relativeDimensionFunction (fun _ ↦ 0)) (s : ℤ))) := sorry
 
 /-- If an integral `(s + 1)`-dimensional subvariety `W` of `X × ℙ¹` dominates `ℙ¹`,
-then the intersections of an `r`-dimensional subvariety `V` with the degree-`r` cycles
-of two fibers of `W` are rationally equivalent whenever both intersections are proper. -/
+then the intersections of an `r`-dimensional subvariety `V` with the `s`-cycles
+`[W_a]_s` and `[W_b]_s` of two fibers of `W` are rationally equivalent in degree
+`r + s - dim X` whenever both intersections are proper. The printed subscript `[W_a]_r`
+in Stacks 0B60 is a typo: its proof invokes Stacks 0B07, which yields `[W_a]_s`. -/
 theorem subvarietyIntersections_rationallyEquivalent
     (X : SchemeOverField k) [Variety X] [Scheme.Regular X.left]
     (r s : ℕ) (V : X.left.IdealSheafData)
@@ -366,16 +363,16 @@ theorem subvarietyIntersections_rationallyEquivalent
     (hproperB : Closeds.IntersectProperly V.support (image X W b).support) :
     RationalEquivalence.RationallyEquivalent
       (X.hom.relativeDimensionFunction (fun _ ↦ 0))
-      ((r : ℤ) + (r : ℤ) - (X.dimension : ℤ))
-      (CycleGroup.intersection X (r : ℤ) (r : ℤ)
+      ((r : ℤ) + (s : ℤ) - (X.dimension : ℤ))
+      (CycleGroup.intersection X (r : ℤ) (s : ℤ)
         (V.associatedCycle (X.hom.relativeDimensionFunction (fun _ ↦ 0)) (r : ℤ))
         ((image X W a).associatedCycle
-          (X.hom.relativeDimensionFunction (fun _ ↦ 0)) (r : ℤ))
+          (X.hom.relativeDimensionFunction (fun _ ↦ 0)) (s : ℤ))
         (fiberAssociatedCycles_intersectProperly X r s V hVdim W hWdim a ha hproperA))
-      (CycleGroup.intersection X (r : ℤ) (r : ℤ)
+      (CycleGroup.intersection X (r : ℤ) (s : ℤ)
         (V.associatedCycle (X.hom.relativeDimensionFunction (fun _ ↦ 0)) (r : ℤ))
         ((image X W b).associatedCycle
-          (X.hom.relativeDimensionFunction (fun _ ↦ 0)) (r : ℤ))
+          (X.hom.relativeDimensionFunction (fun _ ↦ 0)) (s : ℤ))
         (fiberAssociatedCycles_intersectProperly X r s V hVdim W hWdim b hb hproperB)) := sorry
 
 /-- The product of a closed immersion with the identity on the projective line is

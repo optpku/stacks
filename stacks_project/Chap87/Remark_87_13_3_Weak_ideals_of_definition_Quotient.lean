@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.Sheafification
 public import Mathlib.RingTheory.Ideal.Quotient.Operations
+public import ReasLib.AlgebraicGeometry.FormalScheme.McQuillan
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Thickening
 public import stacks_project.Chap87.Remark_87_13_3_Weak_ideals_of_definition_Ideal
 public import stacks_project.Chap87.Remark_87_13_3_Weak_ideals_of_definition_Points
@@ -38,9 +33,32 @@ def IdealSheafData.quotientPresheaf {X : FormalScheme.{u}} (I : IdealSheafData X
   obj U := CommRingCat.of ((X.presheaf.obj U : Type u) ⧸ I.idealOn (unop U))
   map {U V} f :=
     CommRingCat.ofHom
-      (Ideal.quotientMap (I.idealOn (unop V)) (X.presheaf.map f).val sorry)
-  map_id := sorry
-  map_comp := sorry
+      (Ideal.quotientMap (I.idealOn (unop V)) (X.presheaf.map f).val (by
+        intro s hs
+        change (X.presheaf.map f).val s ∈ I.idealOn (unop V)
+        simp only [IdealSheafData.idealOn, Submodule.mem_iInf, Ideal.mem_comap] at hs ⊢
+        intro W hW
+        have hcomp : f ≫ (homOfLE hW).op =
+            (homOfLE (hW.trans (leOfHom f.unop))).op := Subsingleton.elim _ _
+        change (X.presheaf.map f ≫ X.presheaf.map (homOfLE hW).op).val s ∈ I.ideal W
+        rw [← X.presheaf.map_comp, hcomp]
+        exact hs W (hW.trans (leOfHom f.unop))))
+  map_id U := by
+    apply CommRingCat.hom_ext
+    apply RingHom.ext
+    intro s
+    obtain ⟨s, rfl⟩ := Ideal.Quotient.mk_surjective s
+    simp only [CommRingCat.hom_ofHom, CommRingCat.hom_id, RingHom.id_apply,
+      Ideal.quotientMap_mk, X.presheaf.map_id]
+    rfl
+  map_comp f g := by
+    apply CommRingCat.hom_ext
+    apply RingHom.ext
+    intro s
+    obtain ⟨s, rfl⟩ := Ideal.Quotient.mk_surjective s
+    simp only [CommRingCat.hom_comp, CommRingCat.hom_ofHom, RingHom.comp_apply,
+      Ideal.quotientMap_mk, X.presheaf.map_comp]
+    rfl
 
 /-- On objects, `quotientPresheaf` is the sectionwise quotient by `idealOn`. -/
 theorem IdealSheafData.quotientPresheaf_obj {X : FormalScheme.{u}}
@@ -88,7 +106,7 @@ theorem IdealSheafData.quotientScheme_presheaf {X : FormalScheme.{u}}
 
 /-- On a formal affine open, the sheafification unit of the sectionwise
 quotient is an isomorphism. -/
-instance IdealSheafData.instIsIso_toSheafify_app {X : FormalScheme.{u}}
+theorem IdealSheafData.instIsIso_toSheafify_app {X : FormalScheme.{u}}
     (I : IdealSheafData X) [IsWeakIdealOfDefinition I] (U : X.affineOpens) :
     IsIso ((toSheafify (Opens.grothendieckTopology X.carrier)
         I.quotientPresheaf).app (op U.1)) :=
@@ -109,26 +127,27 @@ def IdealSheafData.quotientιC {X : FormalScheme.{u}} (I : IdealSheafData X)
 `ofScheme (quotientScheme I)` to `X`, identity on underlying spaces. -/
 def IdealSheafData.quotientι {X : FormalScheme.{u}} (I : IdealSheafData X)
     [IsWeakIdealOfDefinition I] :
-    ofScheme.obj I.quotientScheme ⟶ X where
-  toLTRSHom :=
-    { toSheafedHom :=
-        SheafedSpace.fullyFaithfulForgetToPresheafedSpace.preimage
+    ofScheme.obj I.quotientScheme ⟶ X :=
+  CategoryTheory.ObjectProperty.homMk
+    (AlgebraicGeometry.LocallyTopologicallyRingedSpaceCat.Hom.ofSheafedHom
+      (SheafedSpace.fullyFaithfulForgetToPresheafedSpace.preimage
           { base := 𝟙 X.carrier
-            c := I.quotientιC }
-      isLocalHom := fun _ ↦ sorry }
+            c := I.quotientιC })
+      (fun _ ↦ sorry))
 
 /-- The underlying continuous map of `quotientι I` is the identity of the
 underlying space of `X`. -/
 theorem IdealSheafData.quotientι_base {X : FormalScheme.{u}} (I : IdealSheafData X)
     [IsWeakIdealOfDefinition I] :
-    I.quotientι.toLTRSHom.toSheafedHom.hom.base = 𝟙 X.carrier :=
+    (AlgebraicGeometry.McQuillan.FormalScheme.Hom.toLTRSHom I.quotientι).toSheafedHom.hom.base =
+      𝟙 X.carrier :=
   sorry
 
 /-- Components of `quotientι` are the quotient projections followed by the
 sheafification unit. -/
 theorem IdealSheafData.quotientι_app {X : FormalScheme.{u}} (I : IdealSheafData X)
     [IsWeakIdealOfDefinition I] (U : (Opens X.carrier)ᵒᵖ) :
-    (I.quotientι.toLTRSHom.toSheafedHom.hom.c.app U).val =
+    ((AlgebraicGeometry.McQuillan.FormalScheme.Hom.toLTRSHom I.quotientι).toSheafedHom.hom.c.app U).val =
       (CommRingCat.ofHom (Ideal.Quotient.mk (I.idealOn (unop U))) ≫
         (toSheafify (Opens.grothendieckTopology X.carrier) I.quotientPresheaf).app U).hom :=
   sorry
@@ -136,7 +155,8 @@ theorem IdealSheafData.quotientι_app {X : FormalScheme.{u}} (I : IdealSheafData
 /-- The kernel ideal sheaf of a morphism of McQuillan formal schemes, recorded
 on formal affine opens of the target. -/
 def IdealSheafData.ker {Y X : FormalScheme.{u}} (f : Y ⟶ X) : IdealSheafData X where
-  ideal U := RingHom.ker (f.toLTRSHom.toSheafedHom.hom.c.app (op U.1)).val
+  ideal U := RingHom.ker
+    ((AlgebraicGeometry.McQuillan.FormalScheme.Hom.toLTRSHom f).toSheafedHom.hom.c.app (op U.1)).val
   map_ideal := sorry
 
 /-- On a formal affine open, `ker f` is the kernel of the component ring
@@ -144,7 +164,8 @@ homomorphism of `f`. -/
 theorem IdealSheafData.ker_spec {Y X : FormalScheme.{u}} (f : Y ⟶ X)
     (U : X.affineOpens) :
     (IdealSheafData.ker f).ideal U =
-      RingHom.ker (f.toLTRSHom.toSheafedHom.hom.c.app (op U.1)).val :=
+      RingHom.ker
+        ((AlgebraicGeometry.McQuillan.FormalScheme.Hom.toLTRSHom f).toSheafedHom.hom.c.app (op U.1)).val :=
   sorry
 
 /-- The kernel of `quotientι I` recovers `I`. -/

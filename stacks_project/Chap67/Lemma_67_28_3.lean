@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap67.Lemma_67_28_3_Pullback
+import StacksCheckRecall
 
 /-!
 # Base change of finite-presentation morphisms of algebraic spaces
@@ -25,24 +20,15 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.28.3 (1): The base change of a finite presentation morphism of
-algebraic spaces is of finite presentation. -/
-@[stacks 03XR]
-instance finitePresentation_isStableUnderBaseChange {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderBaseChange
-      (@FinitePresentation S : MorphismProperty (AlgebraicSpace S)) := sorry
+/- Lemma 67.28.3: A base change of a morphism of finite presentation is of
+finite presentation. The same holds for locally of finite presentation. -/
+@[stacks 03XR] #check
+  (AlgebraicGeometry.AlgebraicSpace.finitePresentation_isStableUnderBaseChange :
+    ∀ {S : Scheme.{u}}, MorphismProperty.IsStableUnderBaseChange
+      (@FinitePresentation S : MorphismProperty (AlgebraicSpace S)))
 
-/-- Lemma 67.28.3 (2): The base change of a locally of finite presentation
-morphism of algebraic spaces is locally of finite presentation. -/
-@[stacks 03XR]
-instance locallyOfFinitePresentation_isStableUnderBaseChange {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderBaseChange
-      (@LocallyOfFinitePresentation S : MorphismProperty (AlgebraicSpace S)) :=
-    sorry
-
-#check FinitePresentation.of_isPullback
-#check FinitePresentation.pullback_snd
-#check LocallyOfFinitePresentation.of_isPullback
-#check LocallyOfFinitePresentation.pullback_snd
+#check (AlgebraicGeometry.AlgebraicSpace.locallyOfFinitePresentation_isStableUnderBaseChange :
+  ∀ {S : Scheme.{u}}, MorphismProperty.IsStableUnderBaseChange
+    (@LocallyOfFinitePresentation S : MorphismProperty (AlgebraicSpace S)))
 
 end AlgebraicGeometry.AlgebraicSpace

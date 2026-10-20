@@ -1,20 +1,14 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
 public import stacks_project.Chap67.Lemma_67_24_2_FieldPoints
 public import stacks_project.Chap67.Lemma_67_28_8_FinitePresentation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FinitePresentation.Over
 
 /-!
-# Algebraic spaces of finite presentation over a scheme
+# Compatibility checks for algebraic spaces of finite presentation
 
-The full subcategory `FP_T` of algebraic spaces over a scheme `T` whose
-structure morphism to `T` is of finite presentation.
+The canonical full-subcategory API is owned by the shared finite-presentation module.
 -/
 
 @[expose] public section
@@ -25,47 +19,29 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- The object property of being of finite presentation over the base scheme. -/
-abbrev finitePresentationOverProperty (T : Scheme.{u}) :
-    ObjectProperty (AlgebraicSpace T) :=
-  fun X ↦ FinitePresentation (toBase X)
+#check (AlgebraicGeometry.AlgebraicSpace.finitePresentationOverProperty :
+  (T : Scheme.{u}) → ObjectProperty (AlgebraicSpace T))
 
-/-- The full subcategory of algebraic spaces of finite presentation over a scheme
-`T`. This is the source category `FP_T`. -/
-abbrev FinitePresentationOver (T : Scheme.{u}) :=
-  (finitePresentationOverProperty T).FullSubcategory
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePresentationOver :
+  Scheme.{u} → Type (u + 1))
 
-namespace FinitePresentationOver
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePresentationOver.inclusion :
+  (T : Scheme.{u}) → FinitePresentationOver T ⥤ AlgebraicSpace T)
 
-/-- The inclusion of algebraic spaces of finite presentation over `T` into all
-algebraic spaces over `T`. -/
-abbrev inclusion (T : Scheme.{u}) :
-    FinitePresentationOver T ⥤ AlgebraicSpace T :=
-  (finitePresentationOverProperty T).ι
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePresentationOver.of :
+  ∀ {T : Scheme.{u}} (X : AlgebraicSpace T),
+    FinitePresentation (toBase X) → FinitePresentationOver T)
 
-/-- Package an algebraic space of finite presentation over `T` as an object of
-`FinitePresentationOver T`. -/
-def of {T : Scheme.{u}} (X : AlgebraicSpace T) (h : FinitePresentation (toBase X)) :
-    FinitePresentationOver T :=
-  ⟨X, h⟩
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePresentationOver.of_obj :
+  ∀ {T : Scheme.{u}} (X : AlgebraicSpace T) (h : FinitePresentation (toBase X)),
+    (FinitePresentationOver.of X h).obj = X)
 
-/-- The underlying algebraic space of `FinitePresentationOver.of X h` is `X`. -/
-@[simp]
-theorem of_obj {T : Scheme.{u}} (X : AlgebraicSpace T)
-    (h : FinitePresentation (toBase X)) :
-    (of X h).obj = X :=
-  rfl
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePresentationOver.condition :
+  ∀ {T : Scheme.{u}} (X : FinitePresentationOver T),
+    FinitePresentation (toBase X.obj))
 
-/-- An object of `FinitePresentationOver T` is of finite presentation over `T`. -/
-instance condition {T : Scheme.{u}} (X : FinitePresentationOver T) :
-    FinitePresentation (toBase X.obj) :=
-  X.property
-
-/-- Membership in `FinitePresentationOver T` is finite presentation of `toBase`. -/
-theorem mem_iff {T : Scheme.{u}} (X : AlgebraicSpace T) :
-    FinitePresentation (toBase X) ↔ ∃ Y : FinitePresentationOver T, Y.obj = X :=
-  sorry
-
-end FinitePresentationOver
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePresentationOver.mem_iff :
+  ∀ {T : Scheme.{u}} (X : AlgebraicSpace T),
+    FinitePresentation (toBase X) ↔ ∃ Y : FinitePresentationOver T, Y.obj = X)
 
 end AlgebraicGeometry.AlgebraicSpace

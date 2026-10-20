@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap77.Lemma_77_7_9_Sheaf
-public import stacks_project.Chap77.Lemma_77_7_9_Limit
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FlatOver.Flattening.Sheaf
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FlatOver.Flattening.Limit
 import StacksCheckRecall
 
 @[expose] public section
@@ -25,7 +19,7 @@ variable [ℱ.IsQuasicoherent]
 /- Lemma 77.7.9 (1): In Situation 77.7.8, the functor `F_flat` satisfies the
 sheaf property for the fpqc topology. -/
 @[stacks 0CWZ] #check
-  (Modules.Flattening.functor_isSheaf_fpqc f ℱ :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.functor_isSheaf_fpqc f ℱ :
     Presheaf.IsSheaf (SchemeOver.fpqcTopology Y)
       (Modules.Flattening.functor f ℱ))
 
@@ -38,7 +32,7 @@ variable [QuasiCompact f] [LocallyOfFinitePresentation f] [ℱ.IsFinitePresentat
 /- Lemma 77.7.9 (2): if `f` is quasi-compact and locally of finite presentation
 and `ℱ` is of finite presentation, the flattening functor is limit preserving. -/
 @[stacks 0CWZ] #check
-  (Modules.Flattening.functor_preservesDirectedAffineLimits f ℱ :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.functor_preservesDirectedAffineLimits f ℱ :
     SchemeOver.PreservesDirectedAffineLimits Y
       (Modules.Flattening.functor f ℱ))
 

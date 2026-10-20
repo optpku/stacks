@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.CoherentFormalModule.Affine
@@ -18,8 +12,7 @@ universe u
 ideal sheaf associated to `I`, then `Coh(X, 𝓘)` is equivalent to the category of finite modules
 over the `I`-adic completion of `A`. -/
 @[stacks 087W] #check
-  (CategoryTheory.SequentialInverseSystem.AffineCoherentFormalModules.nonemptyEquivalence :
+  (CategoryTheory.SequentialInverseSystem.AffineCoherentFormalModules.affineCoherentFormalModulesEquiv :
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A] (I : Ideal A),
-      Nonempty
-        (CategoryTheory.SequentialInverseSystem.AffineCoherentFormalModules A I ≌
-          FGModuleCat (AdicCompletion I A)))
+      CategoryTheory.SequentialInverseSystem.AffineCoherentFormalModules A I ≌
+        FGModuleCat (AdicCompletion I A))

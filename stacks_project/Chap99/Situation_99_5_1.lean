@@ -1,45 +1,19 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap99.Situation_99_5_1_Fiber
-public import stacks_project.Chap99.Situation_99_5_1_Category
-
-/-!
-# The stack of coherent sheaves on a relative algebraic space
-
-Situation 99.5.1 introduces the category of finitely presented quasi-coherent
-modules with proper support on the fibres of a finite-presentation morphism
-of algebraic spaces.
--/
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CohStack.Category
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.CohStack (Obj)
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
-
-/-- Situation 99.5.1: for a finite-presentation morphism `f : X ⟶ B` of algebraic
-spaces over a scheme `S`, `CohStack f` is the category of triples `(T, g, F)`
-where `T` is a scheme over `S`, `g : T ⟶ B` is a morphism over `S`, and setting
-`X_T = T ×_B X`, the sheaf `F` is a quasi-coherent `𝒪_{X_T}`-module of finite
-presentation, flat over `T`, with support proper over `T`. A morphism
-`(T, g, F) ⟶ (T', g', F')` is a pair `(h, φ)` where `h : T ⟶ T'` is a morphism
-of schemes over `B` and `φ : (h')^* F' ≅ F` is an isomorphism of `𝒪_{X_T}`-modules,
-where `h' : X_T ⟶ X_{T'}` is the base change of `h`. -/
-@[stacks 08KB]
-abbrev CohStack (f : X ⟶ B) [FinitePresentation f] :=
-  _root_.AlgebraicGeometry.AlgebraicSpace.CohStack.Obj f
-
-end AlgebraicGeometry.AlgebraicSpace
+/- Situation 99.5.1: for a finite-presentation morphism `f : X ⟶ B`, the category
+of triples `(T, g, F)` has `T` a scheme over `S`, `g : T ⟶ B` over `S`, and `F`
+a finitely presented quasi-coherent module on `X_T`, flat over `T` with support
+proper over `T`. Morphisms are maps of schemes over `B` together with
+isomorphisms from the pulled-back target module to the source module. -/
+@[stacks 08KB] #check (AlgebraicGeometry.AlgebraicSpace.CohStack.category :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B),
+    [FinitePresentation f] → CategoryTheory.Cat.{u + 1, u + 1})

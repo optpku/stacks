@@ -1,49 +1,37 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap87.Remark_87_28_2_RestrictedPowerSeries
+import StacksCheckRecall
+public import ReasLib.RingTheory.AdicCompletion.Polynomial
+
+/-!
+Canonical stage algebra maps and unique compatible lifts identify the polynomial completion
+with the inverse limit defining restricted power series. The limit topology is always
+complete; no unconditional completeness of the extended-ideal adic topology is asserted.
+-/
 
 @[expose] public section
 
-universe u v
+universe u
 
-open IAdicRestrictedPowerSeries
+variable {A : Type u} [CommRing A] (r : ℕ) (I : Ideal A) [IsAdicComplete I A]
 
-namespace IAdicRestrictedPowerSeries
+/- Remark 87.28.2 (1): over an `I`-adically complete ring, canonical stage algebra maps
+and unique compatible lifts identify the polynomial completion with restricted power series. -/
+@[stacks 0AL0] #check (IAdicRestrictedPowerSeries.compatibleStages_liftUnique (Fin r) I :
+  ∀ family : (n : ℕ) → MvPolynomial (Fin r) (A ⧸ I ^ n),
+    IAdicRestrictedPowerSeries.CompatibleStages (Fin r) I family →
+      ∃! series : IAdicRestrictedPowerSeries (Fin r) I,
+        ∀ n, IAdicRestrictedPowerSeries.stageHom (Fin r) I n series = family n)
 
-variable {A : Type u} [CommRing A] (σ : Type v) (I : Ideal A)
+/- Remark 87.28.2 (2): the discrete-stage limit topology is always complete, whereas
+the extended-ideal adic topology on the polynomial completion need not be. -/
+@[stacks 0AL0] #check (AdicCompletion.completeSpace_limitUniformSpace
+  (I.map (algebraMap A (MvPolynomial (Fin r) A))) :
+  @CompleteSpace (IAdicRestrictedPowerSeries (Fin r) I)
+    (AdicCompletion.limitUniformSpace (I.map (algebraMap A (MvPolynomial (Fin r) A)))))
 
-/-- Remark 87.28.2 (1): if `A` is `I`-adically complete, then the `I`-adic completion
-`A[σ]^∧` of `A[σ]` is the restricted power series ring `A{σ}` as a ring. -/
-@[stacks 0AL0]
-theorem compatibleStages_liftUnique [IsAdicComplete I A]
-    (f : (n : ℕ) → MvPolynomial σ (A ⧸ I ^ n)) (hf : CompatibleStages σ I f) :
-    ∃! F : IAdicRestrictedPowerSeries σ I, ∀ n, stageHom σ I n F = f n :=
-  sorry
-
-/-- Remark 87.28.2 (2): the limit topology on `A{σ}` is always complete, whereas the
-`I`-adic topology on `A[σ]^∧` need not be. -/
-@[stacks 0AL0]
-theorem completeSpace_limitUniformSpace [IsAdicComplete I A] :
-    @CompleteSpace (IAdicRestrictedPowerSeries σ I) (limitUniformSpace σ I) :=
-  sorry
-
-/-- Remark 87.28.2 (3): if `I` is finitely generated, then `A{σ}` and `A[σ]^∧` agree as
-topological rings, by Algebra, Lemma 10.96.3. -/
-@[stacks 0AL0]
-theorem limitTopology_eq_adic [IsAdicComplete I A] (hI : I.FG) :
-    limitTopology σ I = (extendedIdeal σ I).adicTopology :=
-  sorry
-
-/-- If `I` is finitely generated, the `I`-adic completion of `A[σ]` is itself adically complete. -/
-theorem isAdicComplete_of_fg (hI : I.FG) :
-    IsAdicComplete (I.map (algebraMap A (MvPolynomial σ A))) (IAdicRestrictedPowerSeries σ I) :=
-  sorry
-
-end IAdicRestrictedPowerSeries
+/- Remark 87.28.2 (3): if `I` is finitely generated, restricted power series and the
+polynomial completion agree as topological rings, by Algebra, Lemma 10.96.3. -/
+@[stacks 0AL0] #check (IAdicRestrictedPowerSeries.limitTopology_eq_adic (Fin r) I :
+  I.FG → IAdicRestrictedPowerSeries.limitTopology (Fin r) I =
+    (IAdicRestrictedPowerSeries.extendedIdeal (Fin r) I).adicTopology)

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.TensorPower
@@ -30,9 +24,6 @@ re-exported by the broad algebra-sheaf entry point.
   tensor power
 - `RingedSpace.TensorPower.monoidalComparison.inv ℱ n`: its structural recursive inverse
 - `RingedSpace.TensorPower.monoidalComparison.iso ℱ n`: the two maps bundled as an isomorphism
-
-The former `tensorPowerSheaf*` names remain as deprecated compatibility abbreviations and theorem
-bridges; new library code should use `RingedSpace.TensorPower` directly.
 -/
 
 @[expose] public section
@@ -174,44 +165,4 @@ noncomputable abbrev monoidalComparisonNatIso (n : ℕ) :
   SheafOfModules.RingedSite.TensorPower.monoidalComparisonNatIso X.sheaf n
 
 end AlgebraicGeometry.RingedSpace.TensorPower
-
-namespace AlgebraicGeometry.RingedSpace
-
-variable {X : RingedSpace.{u}}
-
-/-- Compatibility name for `TensorPower.functor`. -/
-@[deprecated TensorPower.functor (since := "2026-08-04")]
-noncomputable abbrev tensorPowerSheafFunctor (X : RingedSpace.{u}) (n : ℕ) :
-    X.Modules ⥤ X.Modules :=
-  TensorPower.functor X n
-
-/-- Compatibility name for `TensorPower.sheaf`. -/
-@[deprecated TensorPower.sheaf (since := "2026-08-04")]
-noncomputable abbrev tensorPowerSheaf (ℱ : X.Modules) (n : ℕ) : X.Modules :=
-  TensorPower.sheaf ℱ n
-
-/-- Compatibility name for `TensorPower.map`. -/
-@[deprecated TensorPower.map (since := "2026-08-04")]
-noncomputable abbrev tensorPowerSheafMap {ℱ 𝒢 : X.Modules}
-    (f : ℱ ⟶ 𝒢) (n : ℕ) : tensorPowerSheaf ℱ n ⟶ tensorPowerSheaf 𝒢 n :=
-  TensorPower.map f n
-
-/-- Compatibility theorem for `TensorPower.zero`. -/
-@[deprecated TensorPower.zero (since := "2026-08-04")]
-theorem tensorPowerSheaf_zero (ℱ : X.Modules) :
-    tensorPowerSheaf ℱ 0 =
-      (SheafOfModules.unit X.ringCatSheaf : X.Modules) := sorry
-
-/-- Compatibility theorem for `TensorPower.succ`. -/
-@[deprecated TensorPower.succ (since := "2026-08-04")]
-theorem tensorPowerSheaf_succ (ℱ : X.Modules) (n : ℕ) :
-    tensorPowerSheaf ℱ (n + 1) = tensorObj ℱ (tensorPowerSheaf ℱ n) := sorry
-
-/-- Compatibility name for `TensorPower.oneIso`. -/
-@[deprecated TensorPower.oneIso (since := "2026-08-04")]
-noncomputable abbrev tensorPowerSheaf_oneIso (ℱ : X.Modules) :
-    tensorPowerSheaf ℱ 1 ≅ ℱ :=
-  TensorPower.oneIso ℱ
-
-end AlgebraicGeometry.RingedSpace
 

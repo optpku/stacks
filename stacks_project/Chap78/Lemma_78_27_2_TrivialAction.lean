@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap78.Definition_78_8_1_Action
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Action.Trivial
 
 /-!
 # Trivial actions of group algebraic spaces
@@ -23,17 +17,12 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.GroupAlgebraicSpace
+#check (AlgebraicGeometry.GroupAlgebraicSpace.trivialAction :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {B : AlgebraicGeometry.AlgebraicSpace S}
+    (G : AlgebraicGeometry.GroupAlgebraicSpace B),
+    AlgebraicGeometry.GroupAlgebraicSpace.Action G)
 
-/-- The trivial action of a group algebraic space `G` on the terminal object of
-`Over B`. -/
-def trivialAction {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B) :
-    Action G :=
-  Mod.trivialAction G.toMon (𝟙_ (Over B))
-
-/-- The underlying object of `trivialAction G` is the terminal algebraic space over
-`B`. -/
-theorem trivialAction_X {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupAlgebraicSpace B) : (trivialAction G).X = 𝟙_ (Over B) := sorry
-
-end AlgebraicGeometry.GroupAlgebraicSpace
+#check (AlgebraicGeometry.GroupAlgebraicSpace.trivialAction_X :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {B : AlgebraicGeometry.AlgebraicSpace S}
+    (G : AlgebraicGeometry.GroupAlgebraicSpace B),
+    (AlgebraicGeometry.GroupAlgebraicSpace.trivialAction G).X = 𝟙_ (Over B))

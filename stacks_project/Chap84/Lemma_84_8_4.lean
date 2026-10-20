@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap84.Lemma_84_8_4_Big
-public import stacks_project.Chap84.Lemma_84_8_4_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Ph.Comparison
 
 /-!
 # Lemma 84.8.4
@@ -31,24 +24,24 @@ universe u
 /- Lemma 84.8.4 (1): for a morphism `f : X ⟶ Y` of algebraic spaces over a
 scheme `S`, the identity comparison `epsilon` from `(Spaces/X)_ph` to
 `(Spaces/X)_étale` (and likewise on `Y`) yields a commutative square of topoi
-with `Ph.Big.morphismOfTopoi` (`f_big,ph`) and `Etale.Big.morphismOfTopoi`
+with `Over.Site.morphismOfTopoi (phTopology S)` (`f_big,ph`) and `Etale.Big.morphismOfTopoi`
 (`f_big,étale`). -/
-@[stacks 0DGW] #check (PhComparison.bigPhEtaleCommSq :
+@[stacks 0DGW] #check (AlgebraicGeometry.AlgebraicSpace.PhComparison.bigPhEtaleCommSq :
   ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
     Nonempty (CatCommSq
-      (Ph.Big.morphismOfTopoi f).pushforward
+      (Over.Site.morphismOfTopoi.{u + 1, u + 1, u + 1} (phTopology S) f).pushforward
       (PhComparison.epsilon X).pushforward
       (PhComparison.epsilon Y).pushforward
       (Etale.Big.morphismOfTopoi f).pushforward))
 
 /- Lemma 84.8.4 (2): with `toSmallEtale X` playing the role of `a_X = π_X ∘ ε_X`
 (and likewise `toSmallEtale Y` for `a_Y = π_Y ∘ ε_Y`), the square of
-`Ph.Big.morphismOfTopoi` (`f_big,ph`) with `smallEtaleMorphismOfTopoi`
+`Over.Site.morphismOfTopoi (phTopology S)` (`f_big,ph`) with `smallEtaleMorphismOfTopoi`
 (`f_small`) commutes. -/
-@[stacks 0DGW] #check (PhComparison.phSmallEtaleCommSq :
+@[stacks 0DGW] #check (AlgebraicGeometry.AlgebraicSpace.PhComparison.phSmallEtaleCommSq :
   ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
     Nonempty (CatCommSq
-      (Ph.Big.morphismOfTopoi f).pushforward
+      (Over.Site.morphismOfTopoi.{u + 1, u + 1, u + 1} (phTopology S) f).pushforward
       (PhComparison.toSmallEtale X).pushforward
       (PhComparison.toSmallEtale Y).pushforward
       (smallEtaleMorphismOfTopoi f).pushforward))

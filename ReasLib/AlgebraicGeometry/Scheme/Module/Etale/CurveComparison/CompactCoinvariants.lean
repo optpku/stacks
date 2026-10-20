@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.CompactAbelian
@@ -63,13 +57,13 @@ instance : (coinvariantsFunctor Λ G).Additive := by
 
 /-- Invariant-vector inclusion for the actual ambient invariants owner. -/
 def invariantInclusion (M : DiscreteModuleCat Λ G) :
-    ((AmbientDiscreteCohomology.invariants Λ G).obj M) →ₗ[Λ] M.obj.V :=
+    ((CategoryTheory.Action.ModuleCat.DiscreteModuleCat.fixedPointsFunctor Λ G).obj M) →ₗ[Λ] M.obj.V :=
   Submodule.subtype _
 
 /-- Restrict an actual character to invariant vectors. -/
 def restriction (M : DiscreteModuleCat Λ G) :
     (dual Λ G M).obj.V.toModule →ₗ[Λ]
-      (CompactModule.ofCharacter Λ ((AmbientDiscreteCohomology.invariants Λ G).obj M)).toModule :=
+      (CompactModule.ofCharacter Λ ((CategoryTheory.Action.ModuleCat.DiscreteModuleCat.fixedPointsFunctor Λ G).obj M)).toModule :=
   CharacterModule.dual (invariantInclusion Λ G M)
 
 /-- Restriction annihilates the closed relation submodule by continuity. -/
@@ -80,7 +74,7 @@ theorem relations_le_restriction_kernel (M : DiscreteModuleCat Λ G) :
 restriction to invariants. -/
 def coinvariantsToDualInvariants (M : DiscreteModuleCat Λ G) :
     coinvariants Λ G (dual Λ G M) ⟶
-      CompactModule.ofCharacter Λ ((AmbientDiscreteCohomology.invariants Λ G).obj M) :=
+      CompactModule.ofCharacter Λ ((CategoryTheory.Action.ModuleCat.DiscreteModuleCat.fixedPointsFunctor Λ G).obj M) :=
   { toLinearMap := (relations Λ G (dual Λ G M)).liftQ
       (restriction Λ G M) (relations_le_restriction_kernel Λ G M)
     cont := by sorry }
@@ -99,7 +93,7 @@ theorem coinvariantsToDualInvariants_inverse_continuous (M : DiscreteModuleCat �
 
 def coinvariantsDualInvariantsIso (M : DiscreteModuleCat Λ G) :
     coinvariants Λ G (dual Λ G M) ≅
-      CompactModule.ofCharacter Λ ((AmbientDiscreteCohomology.invariants Λ G).obj M) where
+      CompactModule.ofCharacter Λ ((CategoryTheory.Action.ModuleCat.DiscreteModuleCat.fixedPointsFunctor Λ G).obj M) where
   hom := coinvariantsToDualInvariants Λ G M
   inv :=
     { toLinearMap := (coinvariantsToDualInvariantsEquiv Λ G M).symm.toLinearMap
@@ -111,7 +105,7 @@ def coinvariantsDualInvariantsIso (M : DiscreteModuleCat Λ G) :
 invariant vector, independent of any inverse choice. -/
 theorem coinvariantsToDualInvariants_apply (M : DiscreteModuleCat Λ G)
     (χ : (dual Λ G M).obj.V.toModule)
-    (m : (AmbientDiscreteCohomology.invariants Λ G).obj M) :
+    (m : (CategoryTheory.Action.ModuleCat.DiscreteModuleCat.fixedPointsFunctor Λ G).obj M) :
     (show CharacterModule _ from
       CompactModule.linear Λ (coinvariantsToDualInvariants Λ G M)
         ((relations Λ G (dual Λ G M)).mkQ χ)) m =

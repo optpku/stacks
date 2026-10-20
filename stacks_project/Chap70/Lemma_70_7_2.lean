@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap70.Lemma_70_7_2_FinitePresentation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Limit.FinitePresentation
 import StacksCheckRecall
 
 @[expose] public section
@@ -25,7 +19,7 @@ finitely presented module at some stage. -/
       {S : Scheme.{u}} (D : OrderDual I ⥤ AlgebraicSpace S)
       (c : Cone D) (hc : IsLimit c)
       [∀ j, IsQuasiCompact (D.obj j)]
-      [∀ j, IsQuasiSeparated (D.obj j)]
+      [∀ j, IsAbsolutelyQuasiSeparated (D.obj j)]
       [∀ {j j' : I} (hjj' : j ≤ j'), Affine (D.map (homOfLE hjj'))]
       (ℱ : c.pt.Modules) [ℱ.IsFinitePresentation],
       ∃ (i : I) (ℱi : (D.obj i).Modules),
@@ -40,7 +34,7 @@ presented modules over one stage descends to a morphism over some later stage. -
       {S : Scheme.{u}} (D : OrderDual I ⥤ AlgebraicSpace S)
       (c : Cone D) (hc : IsLimit c)
       [∀ j, IsQuasiCompact (D.obj j)]
-      [∀ j, IsQuasiSeparated (D.obj j)]
+      [∀ j, IsAbsolutelyQuasiSeparated (D.obj j)]
       [∀ {j j' : I} (hjj' : j ≤ j'), Affine (D.map (homOfLE hjj'))]
       (i : I) (ℱi 𝒢i : (D.obj i).Modules)
       [ℱi.IsFinitePresentation] [𝒢i.IsFinitePresentation]
@@ -50,9 +44,9 @@ presented modules over one stage descends to a morphism over some later stage. -
         (hcomp : c.π.app i' ≫ D.map (homOfLE hii') = c.π.app i)
         (φi' : (Modules.pullback (D.map (homOfLE hii'))).obj ℱi ⟶
           (Modules.pullback (D.map (homOfLE hii'))).obj 𝒢i),
-        (Modules.pullbackComp (c.π.app i') (D.map (homOfLE hii'))).inv.app ℱi ≫
+        (Modules.pullbackCompIso (c.π.app i') (D.map (homOfLE hii'))).inv.app ℱi ≫
             (Modules.pullback (c.π.app i')).map φi' ≫
-          (Modules.pullbackComp (c.π.app i') (D.map (homOfLE hii'))).hom.app 𝒢i =
+          (Modules.pullbackCompIso (c.π.app i') (D.map (homOfLE hii'))).hom.app 𝒢i =
           (Modules.pullbackCongr hcomp).hom.app ℱi ≫ φ ≫
             (Modules.pullbackCongr hcomp).inv.app 𝒢i)
 
@@ -65,7 +59,7 @@ stage. -/
       {S : Scheme.{u}} (D : OrderDual I ⥤ AlgebraicSpace S)
       (c : Cone D) (hc : IsLimit c)
       [∀ j, IsQuasiCompact (D.obj j)]
-      [∀ j, IsQuasiSeparated (D.obj j)]
+      [∀ j, IsAbsolutelyQuasiSeparated (D.obj j)]
       [∀ {j j' : I} (hjj' : j ≤ j'), Affine (D.map (homOfLE hjj'))]
       (i : I) (ℱi 𝒢i : (D.obj i).Modules)
       [ℱi.IsFinitePresentation] [𝒢i.IsFinitePresentation]

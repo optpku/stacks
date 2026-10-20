@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.«76_15_0_1_Universal»
-public import stacks_project.Chap76.Lemma_76_16_4_FormallyEtale
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Thickening.UniversalFirstOrder.FormallyEtale
+import StacksCheckRecall
 
 /-!
 # Universal first-order thickenings over formally étale morphisms
@@ -23,17 +17,14 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder
-
-/-- Lemma 76.15.2: Let `S` be a scheme. Let `Z ⟶ Y ⟶ X` be morphisms of
+/- Lemma 76.15.2: Let `S` be a scheme. Let `Z ⟶ Y ⟶ X` be morphisms of
 algebraic spaces over `S`. If `i : Z ⟶ Z'` is a universal first-order
 thickening of `Z` over `Y` via `g : Z' ⟶ Y` and `f : Y ⟶ X` is formally
 étale, then `i` is a universal first-order thickening of `Z` over `X`
 via `g ≫ f`. -/
-@[stacks 0604]
-instance of_formallyEtale {S : Scheme.{u}} {X Y Z Z' : AlgebraicSpace S}
-    (i : Z ⟶ Z') (g : Z' ⟶ Y) (f : Y ⟶ X) [IsUniversalFirstOrder i g]
-    [FormallyEtale f] : IsUniversalFirstOrder i (g ≫ f) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder
+@[stacks 0604] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder.of_formallyEtale :
+    ∀ {S : Scheme.{u}} {X Y Z Z' : AlgebraicSpace S}
+      (i : Z ⟶ Z') (g : Z' ⟶ Y) (f : Y ⟶ X),
+      [AlgebraicSpace.IsUniversalFirstOrder i g] → [AlgebraicSpace.FormallyEtale f] →
+        AlgebraicSpace.IsUniversalFirstOrder i (g ≫ f))

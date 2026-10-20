@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap78.Lemma_78_17_1_Restriction
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Restriction
 import StacksCheckRecall
 
 open CategoryTheory

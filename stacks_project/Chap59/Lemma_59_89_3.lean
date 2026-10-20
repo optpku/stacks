@@ -1,55 +1,31 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap59.Lemma_59_91_12_BaseChange
-public import stacks_project.Chap59.Theorem_59_89_2_Smooth_base_change
-public import ReasLib.CategoryTheory.DerivedCategory.CohomologyIn.Bounded
-public import ReasLib.CategoryTheory.InverseSystem.Preorder
-public import Mathlib.AlgebraicGeometry.Morphisms.Affine
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.BaseChange.DerivedSmooth
+import StacksCheckRecall
 
 @[expose] public section
 
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
-open AlgebraicGeometry.Scheme AlgebraicGeometry.Scheme.Hom
-open AlgebraicGeometry.Scheme.Etale
-open CategoryTheory.Sheaf
+open AlgebraicGeometry.Scheme AlgebraicGeometry.Scheme.Etale
 
 noncomputable section
 
-universe w u
+universe u
 
-namespace AlgebraicGeometry.Scheme.Hom
-
-variable [∀ Z : Scheme.{u}, HasSheafify Z.smallEtaleTopology AddCommGrpCat.{u}]
-variable [∀ Z : Scheme.{u},
-    HasInjectiveResolutions (Sheaf Z.smallEtaleTopology AddCommGrpCat.{u})]
-variable [∀ {A B : Scheme.{u}} (h : A ⟶ B),
-    ((smallEtalePullback h).sheafPushforwardContinuous AddCommGrpCat.{u}
-      B.smallEtaleTopology A.smallEtaleTopology).IsRightAdjoint]
-variable [∀ Z : Scheme.{u},
-    HasDerivedCategory.{w} (Sheaf Z.smallEtaleTopology AddCommGrpCat.{u})]
-
-/-- Lemma 59.89.3: if `S' = lim S_i` is a directed inverse limit of schemes
-smooth over `S` with affine transition morphisms, and `f : X ⟶ S` is
-quasi-compact and quasi-separated, then for a cartesian fibre square with
-projections `f' : X' ⟶ S'` and `g' : X' ⟶ X`, the canonical derived
-base-change map `g⁻¹ Rf_* E ⟶ R(f')_* (g')⁻¹ E` is an isomorphism for every
-`E ∈ D⁺(X_étale)` whose cohomology sheaves have geometric stalks that are
-torsion of orders invertible on `S`. -/
-@[stacks 0F09]
-theorem derivedBaseChange_isIso_of_smoothInverseLimit
-    {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
+/- Lemma 59.89.3: Derived étale base change along a directed inverse limit of
+smooth schemes with affine transition morphisms holds for quasi-compact,
+quasi-separated morphisms and bounded-below coefficients whose cohomology
+stalks are torsion of orders invertible on the base. -/
+@[stacks 0F09] #check
+  (AlgebraicGeometry.Scheme.Hom.derivedBaseChange_isIso_of_smoothInverseLimit :
+    ∀
+    {I : Type u} [Preorder I] [h_nonempty : Nonempty I]
+    [h_directed : IsDirected I (· ≤ ·)]
     {S : Scheme.{u}} (DS : OrderDual I ⥤ Scheme.{u})
-    [∀ {i j : I} (hij : i ≤ j),
+    [h_affine : ∀ {i j : I} (hij : i ≤ j),
       IsAffineHom (OrderDualInverseSystem.transitionMap DS hij)]
     (gi : ∀ i : I, DS.obj (OrderDual.toDual i) ⟶ S)
-    [∀ i : I, Smooth (gi i)]
+    [h_smooth : ∀ i : I, Smooth (gi i)]
     (hgi : ∀ {i j : I} (hij : i ≤ j),
       OrderDualInverseSystem.transitionMap DS hij ≫ gi i = gi j)
     (cS : Cone DS) (hcS : IsLimit cS) (g : cS.pt ⟶ S)
@@ -57,66 +33,34 @@ theorem derivedBaseChange_isIso_of_smoothInverseLimit
     {X : Scheme.{u}} (f : X ⟶ S) [QuasiCompact f] [QuasiSeparated f]
     {X' : Scheme.{u}} (f' : X' ⟶ cS.pt) (g' : X' ⟶ X)
     (h_cart : IsPullback g' f' f g)
-    [(abelianPushforwardAlong f).toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
-    [(abelianPushforwardAlong f').toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso (Sheaf X'.smallEtaleTopology AddCommGrpCat.{u}))]
-    [(etalePullbackExact g).obj.toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso (Sheaf S.smallEtaleTopology AddCommGrpCat.{u}))]
-    [(etalePullbackExact g').obj.toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
-    [(abelianPushforwardAlong f ⋙ (etalePullbackExact g).obj).toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
-    [((etalePullbackExact g').obj ⋙ abelianPushforwardAlong f').toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
-    (h_src : IsIso (derivedSourceComparison f g))
-    (E : DerivedCategory.Plus (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))
+    (E : DerivedCategory.Plus (Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1}))
     (hE : DerivedCategory.Plus.cohomologyIn
-      (IsTorsionWithOrdersInvertibleOn S :
-        ObjectProperty (Sheaf X.smallEtaleTopology AddCommGrpCat.{u})) E) :
-    IsIso (derivedBaseChangeHom f g f' g' h_cart h_src E) := sorry
+      (IsTorsionWithOrdersInvertibleOn.{u, u + 1} S :
+        ObjectProperty (Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1})) E),
+    IsIso (BaseChange.derivedMapOfCommSq f g f' g' h_cart.toCommSq
+      (DerivedCategory.Plus.ι.obj E)))
 
-/-- Specialization of `derivedBaseChange_isIso_of_smoothInverseLimit` to the
-chosen fibre product `S' ×_S X`, with projections `f' = pullback.fst g f`
-and `g' = pullback.snd g f`. -/
-theorem derivedBaseChange_isIso_of_smoothInverseLimit_pullback
-    {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
+#check
+  (AlgebraicGeometry.Scheme.Hom.derivedBaseChange_isIso_of_smoothInverseLimit_pullback :
+    ∀
+    {I : Type u} [Preorder I] [h_nonempty : Nonempty I]
+    [h_directed : IsDirected I (· ≤ ·)]
     {S : Scheme.{u}} (DS : OrderDual I ⥤ Scheme.{u})
-    [∀ {i j : I} (hij : i ≤ j),
+    [h_affine : ∀ {i j : I} (hij : i ≤ j),
       IsAffineHom (OrderDualInverseSystem.transitionMap DS hij)]
     (gi : ∀ i : I, DS.obj (OrderDual.toDual i) ⟶ S)
-    [∀ i : I, Smooth (gi i)]
+    [h_smooth : ∀ i : I, Smooth (gi i)]
     (hgi : ∀ {i j : I} (hij : i ≤ j),
       OrderDualInverseSystem.transitionMap DS hij ≫ gi i = gi j)
     (cS : Cone DS) (hcS : IsLimit cS) (g : cS.pt ⟶ S)
     (hg : ∀ i : I, cS.π.app (OrderDual.toDual i) ≫ gi i = g)
     {X : Scheme.{u}} (f : X ⟶ S) [QuasiCompact f] [QuasiSeparated f]
     [HasPullback g f]
-    [(abelianPushforwardAlong f).toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
-    [(abelianPushforwardAlong (pullback.fst g f)).toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso
-        (Sheaf (pullback g f).smallEtaleTopology AddCommGrpCat.{u}))]
-    [(etalePullbackExact g).obj.toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso (Sheaf S.smallEtaleTopology AddCommGrpCat.{u}))]
-    [(etalePullbackExact (pullback.snd g f)).obj.toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
-    [(abelianPushforwardAlong f ⋙ (etalePullbackExact g).obj).toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
-    [((etalePullbackExact (pullback.snd g f)).obj ⋙
-        abelianPushforwardAlong (pullback.fst g f)).toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
-    (h_src : IsIso (derivedSourceComparison f g))
-    (E : DerivedCategory.Plus (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))
+    (E : DerivedCategory.Plus (Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1}))
     (hE : DerivedCategory.Plus.cohomologyIn
-      (IsTorsionWithOrdersInvertibleOn S :
-        ObjectProperty (Sheaf X.smallEtaleTopology AddCommGrpCat.{u})) E) :
-    IsIso
-      (derivedBaseChangeHom f g (pullback.fst g f) (pullback.snd g f)
-        (IsPullback.of_hasPullback g f).flip h_src E) := sorry
-
-end AlgebraicGeometry.Scheme.Hom
-
-end
+      (IsTorsionWithOrdersInvertibleOn.{u, u + 1} S :
+        ObjectProperty (Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1})) E),
+    IsIso (BaseChange.derivedMapOfCommSq f g (pullback.fst g f) (pullback.snd g f)
+      (IsPullback.of_hasPullback g f).flip.toCommSq (DerivedCategory.Plus.ι.obj E)))
 
 end

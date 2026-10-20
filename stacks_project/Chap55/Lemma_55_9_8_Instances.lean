@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap42.Lemma_42_54_9_NormalCone
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Conormal.NormalCone.Nested
 public import stacks_project.Chap55.Lemma_55_9_8_Divisor
 public import ReasLib.AlgebraicGeometry.Scheme.SpecialFiber.Picard
 

@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap72.Definition_72_18_3_Number
-public import stacks_project.Chap72.Definition_72_18_3_Twist
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Intersection.Number
 import StacksCheckRecall
 
 @[expose] public section
@@ -34,7 +27,7 @@ The equal-factor case is written `(L^d · Z)`. -/
   (AlgebraicGeometry.AlgebraicSpace.Modules.Intersection.number :
     ∀ {k : Type u} [Field k]
       {X Z : AlgebraicSpace (Spec (CommRingCat.of k))}
-      (i : Z ⟶ X) [IsClosedImmersion i] [Proper (toBase X)]
+      (i : Z ⟶ X) [IsClosedImmersion i] [Proper (SchemeRealization.toBase X)]
       [IsLocallyNoetherian X] [IsLocallyNoetherian Z]
       {d : ℕ} (hZdim : dimension Z = d)
       [Abelian X.Modules] [Abelian Z.Modules]
@@ -47,7 +40,7 @@ The equal-factor case is written `(L^d · Z)`. -/
   (AlgebraicGeometry.AlgebraicSpace.Modules.Intersection.number_eq_coeff :
     ∀ {k : Type u} [Field k]
       {X Z : AlgebraicSpace (Spec (CommRingCat.of k))}
-      (i : Z ⟶ X) [IsClosedImmersion i] [Proper (toBase X)]
+      (i : Z ⟶ X) [IsClosedImmersion i] [Proper (SchemeRealization.toBase X)]
       [IsLocallyNoetherian X] [IsLocallyNoetherian Z]
       {d : ℕ} (hZdim : dimension Z = d)
       [Abelian X.Modules] [Abelian Z.Modules]
@@ -59,13 +52,30 @@ The equal-factor case is written `(L^d · Z)`. -/
         MvPolynomial.eval (fun j : Fin d ↦ (n j : ℚ)) P =
           (AlgebraicGeometry.AlgebraicSpace.Modules.Intersection.eulerCharacteristic i L n : ℚ)),
       AlgebraicGeometry.AlgebraicSpace.Modules.Intersection.number i hZdim L =
-        P.coeff (AlgebraicGeometry.AlgebraicSpace.Modules.Intersection.multilinearExponent d))
+        P.coeff (Finsupp.equivFunOnFinite.symm (fun _ : Fin d ↦ 1)))
+
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Intersection.existsUniqueNumericalPolynomial :
+    ∀ {k : Type u} [Field k]
+      {X Z : AlgebraicSpace (Spec (CommRingCat.of k))}
+      (i : Z ⟶ X) [IsClosedImmersion i] [Proper (SchemeRealization.toBase X)]
+      [IsLocallyNoetherian X] [IsLocallyNoetherian Z] {d : ℕ}
+      (hZdim : dimension Z = d)
+      [Abelian X.Modules] [Abelian Z.Modules]
+      [Abelian (ofOver (Over.mk (𝟙 (Spec (CommRingCat.of k))))).Modules]
+      [HasInjectiveResolutions X.Modules] [HasInjectiveResolutions Z.Modules]
+      (L : Fin d → X.Modules) [∀ j : Fin d, isInvertibleObject (L j)],
+      ∃! P : MvPolynomial (Fin d) ℚ,
+        MvPolynomial.totalDegree P ≤ d ∧
+          ∀ n : Fin d → ℤ,
+            MvPolynomial.eval (fun j : Fin d ↦ (n j : ℚ)) P =
+              (AlgebraicGeometry.AlgebraicSpace.Modules.Intersection.eulerCharacteristic i L n : ℚ))
 
 #check
   (AlgebraicGeometry.AlgebraicSpace.Modules.Intersection.eulerCharacteristic_pushforwardStructureTwist_eq :
     ∀ {k : Type u} [Field k]
       {X Z : AlgebraicSpace (Spec (CommRingCat.of k))}
-      (i : Z ⟶ X) [IsClosedImmersion i] [Proper (toBase X)]
+      (i : Z ⟶ X) [IsClosedImmersion i] [Proper (SchemeRealization.toBase X)]
       [IsLocallyNoetherian X] [IsLocallyNoetherian Z] {d : ℕ}
       [Abelian X.Modules] [Abelian Z.Modules]
       [Abelian (ofOver (Over.mk (𝟙 (Spec (CommRingCat.of k))))).Modules]
@@ -73,7 +83,7 @@ The equal-factor case is written `(L^d · Z)`. -/
       (L : Fin d → X.Modules) [∀ j : Fin d, isInvertibleObject (L j)]
       (n : Fin d → ℤ),
       AlgebraicGeometry.AlgebraicSpace.eulerCharacteristic
-          (𝟙 (Spec (CommRingCat.of k))) (toBase X)
+          (𝟙 (Spec (CommRingCat.of k))) (SchemeRealization.toBase X)
           (AlgebraicGeometry.AlgebraicSpace.Modules.Intersection.pushforwardStructureTwist i L n) =
         AlgebraicGeometry.AlgebraicSpace.Modules.Intersection.eulerCharacteristic i L n)
 
@@ -81,7 +91,7 @@ The equal-factor case is written `(L^d · Z)`. -/
   (AlgebraicGeometry.AlgebraicSpace.Modules.Intersection.selfNumber :
     ∀ {k : Type u} [Field k]
       {X Z : AlgebraicSpace (Spec (CommRingCat.of k))}
-      (i : Z ⟶ X) [IsClosedImmersion i] [Proper (toBase X)]
+      (i : Z ⟶ X) [IsClosedImmersion i] [Proper (SchemeRealization.toBase X)]
       [IsLocallyNoetherian X] [IsLocallyNoetherian Z]
       {d : ℕ} (hZdim : dimension Z = d)
       [Abelian X.Modules] [Abelian Z.Modules]
@@ -94,7 +104,7 @@ The equal-factor case is written `(L^d · Z)`. -/
   (AlgebraicGeometry.AlgebraicSpace.Modules.Intersection.selfNumber_def :
     ∀ {k : Type u} [Field k]
       {X Z : AlgebraicSpace (Spec (CommRingCat.of k))}
-      (i : Z ⟶ X) [IsClosedImmersion i] [Proper (toBase X)]
+      (i : Z ⟶ X) [IsClosedImmersion i] [Proper (SchemeRealization.toBase X)]
       [IsLocallyNoetherian X] [IsLocallyNoetherian Z]
       {d : ℕ} (hZdim : dimension Z = d)
       [Abelian X.Modules] [Abelian Z.Modules]

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap59.Lemma_59_99_5_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.SmallToBig.Proper
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -33,16 +27,21 @@ section Sets
 variable [HasSheafify T.smallEtaleTopology (Type (u + 1))]
 variable [HasSheafify S.smallEtaleTopology (Type (u + 1))]
 
-/-- Lemma 59.99.5 (1): for a proper morphism `f : T ⟶ S` of schemes, the functors
+/- Lemma 59.99.5 (1): for a proper morphism `f : T ⟶ S` of schemes, the functors
 `π_S⁻¹ ∘ f_small,*` and `f_big,* ∘ π_T⁻¹` from sheaves of sets on `T_étale` to sheaves
 of sets on `(Sch/S)_étale` are canonically isomorphic via `smallBigPushforwardHom`. -/
 @[stacks 0DDJ]
-theorem proper_smallBigPushforward_isIso [IsProper f] :
-    IsIso (smallBigPushforwardHom f) := sorry
+#check (AlgebraicGeometry.Scheme.Etale.SmallToBig.proper_smallBigPushforward_isIso f :
+    ∀ [IsProper f],
+    IsIso (smallBigPushforwardHom f))
 
 end Sets
 
 section Plus
+
+variable [EnoughInjectives (Sheaf T.smallEtaleTopology AddCommGrpCat.{u})]
+variable [EnoughInjectives
+    (Sheaf (T.overGrothendieckTopology @Etale) AddCommGrpCat.{u})]
 
 variable [HasSheafify S.smallEtaleTopology AddCommGrpCat.{u}]
 variable [HasSheafify T.smallEtaleTopology AddCommGrpCat.{u}]
@@ -74,26 +73,28 @@ variable [(bigAbelianPushforward f).toBoundedBelowDerived.HasRightDerivedFunctor
     (HomotopyCategory.Plus.quasiIso
       (Sheaf (T.overGrothendieckTopology @Etale) AddCommGrpCat.{u}))]
 
-/-- Lemma 59.99.5 (2): for a proper morphism `f : T ⟶ S` and `K` in `D⁺(T_étale)` whose
+/- Lemma 59.99.5 (2): for a proper morphism `f : T ⟶ S` and `K` in `D⁺(T_étale)` whose
 cohomology sheaves are locally torsion, the canonical mate
 `π_S⁻¹ Rf_small,* K ⟶ Rf_big,* π_T⁻¹ K` is an isomorphism. -/
 @[stacks 0DDJ]
-theorem proper_smallBigDerivedPushforward_plus_isIso [IsProper f]
+#check (AlgebraicGeometry.Scheme.Etale.SmallToBig.proper_smallBigDerivedPushforward_plus_isIso f :
+    ∀ [IsProper f]
     (K : DerivedCategory.Plus (Sheaf T.smallEtaleTopology AddCommGrpCat.{u}))
     (hK : DerivedCategory.Plus.cohomologyIn
       (IsLocallyTorsion :
-        ObjectProperty (Sheaf T.smallEtaleTopology AddCommGrpCat.{u})) K) :
-    IsIso ((plusSmallBigPushforwardHom f).app K) := sorry
+        ObjectProperty (Sheaf T.smallEtaleTopology AddCommGrpCat.{u})) K),
+    IsIso ((plusSmallBigPushforwardHom f).app K))
 
 end Plus
 
 section ZMod
 
-/-- Lemma 59.99.5 (3): for a proper morphism `f : T ⟶ S`, `n ≥ 1`, and `K` in
+/- Lemma 59.99.5 (3): for a proper morphism `f : T ⟶ S`, `n ≥ 1`, and `K` in
 `D(T_étale, ZMod n)`, the canonical mate `π_S⁻¹ Rf_small,* K ⟶ Rf_big,* π_T⁻¹ K`
 is an isomorphism. -/
 @[stacks 0DDJ]
-theorem proper_smallBigDerivedPushforward_zmod_isIso [IsProper f] (n : ℕ) [NeZero n]
+#check (AlgebraicGeometry.Scheme.Etale.SmallToBig.proper_smallBigDerivedPushforward_zmod_isIso f :
+    ∀ [IsProper f] (n : ℕ) [NeZero n]
     [HasSheafify (S.overGrothendieckTopology @Etale) (ModuleCat.{u} (ZMod n))]
     [HasSheafify (T.overGrothendieckTopology @Etale) (ModuleCat.{u} (ZMod n))]
     [HasDerivedCategory (Sheaf S.smallEtaleTopology (ModuleCat.{u} (ZMod n)))]
@@ -120,8 +121,8 @@ theorem proper_smallBigDerivedPushforward_zmod_isIso [IsProper f] (n : ℕ) [NeZ
     [(zmodPiInverseImage S n).Additive]
     [(zmodPiInverseImage T n).Additive]
     [(zmodBigInverseImage f n).Additive]
-    (K : DerivedCategory (Sheaf T.smallEtaleTopology (ModuleCat.{u} (ZMod n)))) :
-    IsIso ((zmodSmallBigPushforwardHom f n).app K) := sorry
+    (K : DerivedCategory (Sheaf T.smallEtaleTopology (ModuleCat.{u} (ZMod n)))),
+    IsIso ((zmodSmallBigPushforwardHom f n).app K))
 
 end ZMod
 
@@ -155,12 +156,13 @@ variable [IsGrothendieckAbelian (Sheaf T.smallEtaleTopology AddCommGrpCat.{u})]
 variable [IsGrothendieckAbelian
     (Sheaf (T.overGrothendieckTopology @Etale) AddCommGrpCat.{u})]
 
-/-- Lemma 59.99.5 (4): if `f : T ⟶ S` is finite, then for every `K` in `D(T_étale)` the
+/- Lemma 59.99.5 (4): if `f : T ⟶ S` is finite, then for every `K` in `D(T_étale)` the
 canonical mate `π_S⁻¹ Rf_small,* K ⟶ Rf_big,* π_T⁻¹ K` is an isomorphism. -/
 @[stacks 0DDJ]
-theorem finite_smallBigDerivedPushforward_isIso [IsFinite f]
-    (K : DerivedCategory (Sheaf T.smallEtaleTopology AddCommGrpCat.{u})) :
-    IsIso ((unboundedSmallBigPushforwardHom f).app K) := sorry
+#check (AlgebraicGeometry.Scheme.Etale.SmallToBig.finite_smallBigDerivedPushforward_isIso f :
+    ∀ [IsFinite f]
+    (K : DerivedCategory (Sheaf T.smallEtaleTopology AddCommGrpCat.{u})),
+    IsIso ((unboundedSmallBigPushforwardHom f).app K))
 
 end Unbounded
 

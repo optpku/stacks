@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap59.Lemma_59_65_1_Equivalence
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.FiniteLocallyConstant.Equivalence
 public import Mathlib.Algebra.Module.CharacterModule
 
 @[expose] public section
@@ -129,12 +123,12 @@ variable (R : Type (u + 1)) [Ring R] [Finite R]
 variable [HasWeakSheafify X.smallEtaleTopology (ModuleCat.{u + 1} Rᵐᵒᵖ)]
 variable [∀ U : X.Etale, HasWeakSheafify (X.smallEtaleTopology.over U) (ModuleCat.{u + 1} Rᵐᵒᵖ)]
 variable (x : GeometricPoint X)
-variable (N : (finiteTypeDiscreteModule R (Aut (standardFiniteEtaleFiber x))).FullSubcategory)
+variable (N : (finiteTypeDiscreteModule R (Aut (GeometricPoint.finiteFiber x))).FullSubcategory)
 
 /-- Published inverse applied functorially to the actual opposite-coefficient
 character representation, including all coefficient morphisms. -/
 def functor :=
-  ActualOppositeCharacter.finiteFunctor R (Aut (standardFiniteEtaleFiber x)) ⋙
+  ActualOppositeCharacter.finiteFunctor R (Aut (GeometricPoint.finiteFiber x)) ⋙
     (finiteTypeLocallyConstantModule_equivalence_finitePi1LambdaModules Rᵐᵒᵖ x).inverse
 
 /-- The actual right-coefficient character sheaf via the PUBLISHED Chap59
@@ -142,14 +136,14 @@ germ/transported-module inverse. This is the character coefficient before
 the separate cyclotomic Tate twist, not a claimed duality isomorphism. -/
 def associated :=
   (finiteTypeLocallyConstantModule_equivalence_finitePi1LambdaModules Rᵐᵒᵖ x).inverse.obj
-    (ActualOppositeCharacter.finiteRepresentation R (Aut (standardFiniteEtaleFiber x)) N)
+    (ActualOppositeCharacter.finiteRepresentation R (Aut (GeometricPoint.finiteFiber x)) N)
 
 /-- Its stalk identification is the published counit, with its actual
 linear equivariant germ maps, not a chosen isomorphism. -/
 def stalkIso :
     (finiteTypeLocallyConstantModule_equivalence_finitePi1LambdaModules Rᵐᵒᵖ x).functor.obj
       (associated R x N) ≅
-    ActualOppositeCharacter.finiteRepresentation R (Aut (standardFiniteEtaleFiber x)) N :=
+    ActualOppositeCharacter.finiteRepresentation R (Aut (GeometricPoint.finiteFiber x)) N :=
   (finiteTypeLocallyConstantModule_equivalence_finitePi1LambdaModules Rᵐᵒᵖ x).counitIso.app _
 
 end ActualOppositeCharacterSheaf

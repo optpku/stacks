@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.BivariantClass.Restriction
+public import ReasLib.AlgebraicGeometry.ChowGroup.Relative.Reindex
 public import Mathlib.Algebra.DirectSum.Ring
 
 @[expose] public section
@@ -260,15 +255,6 @@ instance instAddCommGroupDegree (n : ℤ) : AddCommGroup (degree delta p n) wher
   zsmul_neg' := zsmul_neg_degree delta p
   sub_eq_add_neg := sub_eq_add_neg_degree delta p
 
-/-- Reindex a relative Chow group along an equality of grading indices. -/
-def castDegree {Y : Over S} [LocallyOfFiniteType Y.hom] {i j : ℤ} (h : i = j) :
-    RelativeChow delta Y i →+ RelativeChow delta Y j :=
-  h ▸ AddMonoidHom.id (RelativeChow delta Y i)
-
-/-- Casting a relative Chow class along a reflexive degree equality changes no data. -/
-theorem castDegree_rfl {Y : Over S} [LocallyOfFiniteType Y.hom] (i : ℤ) :
-    castDegree delta (Y := Y) (rfl : i = i) = AddMonoidHom.id _ := sorry
-
 /-- The degree calculation for composing classes of degrees `i` and `j`. -/
 theorem compositionDegree (k i j : ℤ) :
     (k - j) - i = k - (i + j) := sorry
@@ -278,7 +264,7 @@ def mulCap {i j : ℤ} (a : degree delta p i)
     (b : degree delta p j) :
     BivariantClass.CapFamily delta (𝟙 (Over.mk p)) (i + j) :=
   fun {_ Y'} _ _ l f' g _ square k ↦
-    (castDegree delta (Y := _) (compositionDegree k i j)).comp
+    (RelativeChow.castDegree delta (X := _) (compositionDegree k i j)).comp
       ((a.cap l f' g square (k - j)).comp
         (b.cap g (𝟙 Y') g IsPullback.of_id_snd k))
 
@@ -342,7 +328,7 @@ def identityCap : BivariantClass.CapFamily delta (𝟙 (Over.mk p)) 0 :=
     -- An inverse isomorphism of schemes is proper, as required by proper pushforward on Chow groups.
     -- Local instance justification (proof-local temporary data): this inverse of `f'` is used only in this cap value.
     letI : IsProper (inverseOver f').left := MorphismProperty.of_isIso @IsProper _
-    castDegree delta (Y := X') (Int.sub_zero k).symm |>.comp
+    RelativeChow.castDegree delta (X := X') (Int.sub_zero k).symm |>.comp
       (ChowGroup.map delta Y' X' (inverseOver f') k)
 
 /-- The identity cap family satisfies proper-pushforward compatibility. -/

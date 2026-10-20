@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap107.Lemma_107_6_2_SmoothChart
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Dimension.SmoothChart
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -17,7 +12,7 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 107.6.2: Let `X` be a locally Noetherian algebraic stack. Let
+/- Lemma 107.6.2: Let `X` be a locally Noetherian algebraic stack. Let
 `x : Points X` be a finite type point. Let `d : ℤ`. The following are
 equivalent: there exists a scheme `U`, a smooth morphism
 `U ⟶ X`, and a finite type point `u` of `U` mapping to `x` such that
@@ -28,19 +23,17 @@ Here `localRingDimDiff` is
 `IsSelfFibreProduct` with projections `s`, `t` and diagonal `e`, and
 `Points.mapSlice` sends `u` to `x`. -/
 @[stacks 0DS9]
-theorem exists_localRingDimDiff_eq_iff {S : Scheme.{u}} {X : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.exists_localRingDimDiff_eq_iff :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S}
     [AlgebraicStack X] [IsLocallyNoetherian X] {x : Points X}
-    (hx : IsFiniteTypePoint x) (d : ℤ) :
+    (hx : IsFiniteTypePoint x) (d : ℤ),
     (∃ c : SmoothSchemeChart x, c.localRingDimDiff = d) ↔
-      ∀ c : SmoothSchemeChart x, c.localRingDimDiff = d :=
-  sorry
+      ∀ c : SmoothSchemeChart x, c.localRingDimDiff = d)
 
-/-- Unbundled form of `exists_localRingDimDiff_eq_iff`, quantifying over a
-scheme `U`, a smooth morphism to `X`, a representing self 2-fibre product,
-and a finite type point mapping to `x`. -/
-theorem exists_localRingDimDiff_eq_unbundled_iff {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicStack.exists_localRingDimDiff_eq_unbundled_iff :
+  ∀ {S : Scheme.{u}}
     {X : GroupoidsOver S} [AlgebraicStack X] [IsLocallyNoetherian X]
-    {x : Points X} (hx : IsFiniteTypePoint x) (d : ℤ) :
+    {x : Points X} (hx : IsFiniteTypePoint x) (d : ℤ),
     (∃ (U : Over S) (hom : GroupoidsOver.slice U ⟶ X) (R : AlgebraicSpace S)
         (s t : R ⟶ AlgebraicSpace.ofOver U) (e : AlgebraicSpace.ofOver U ⟶ R)
         (u : U.left),
@@ -52,7 +45,6 @@ theorem exists_localRingDimDiff_eq_unbundled_iff {S : Scheme.{u}}
         (u : U.left),
         Groupoids.Hom.Smooth hom → IsSelfFibreProduct hom s t e →
           AlgebraicGeometry.IsFiniteTypePoint u → Points.mapSlice hom u = x →
-            localRingDimDiff e u = d :=
-  sorry
+            localRingDimDiff e u = d)
 
 end AlgebraicGeometry.AlgebraicStack

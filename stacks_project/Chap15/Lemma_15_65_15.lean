@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension.PseudoCoherent.FaithfullyFlat
@@ -29,7 +23,8 @@ extension of scalars. -/
 #check fun {R : Type u} {S : Type v} [CommRing R] [CommRing S]
     (f : R →+* S) (hf : f.FaithfullyFlat)
     {K : DerivedCategory (ModuleCat.{w, u} R)} {m : ℤ}
-    (hK : ((ModuleCat.derivedExtensionOfScalars.{u, v, w} f).obj K).IsMPseudoCoherent m) ↦
+    (hK : ((ModuleCat.derivedExtensionOfScalars.{u, v, w} f
+        (hasLeftDerived := ModuleCat.DerivedExtension.Flat.hasLeftDerivedFunctor f hf.flat)).obj K).IsMPseudoCoherent m) ↦
   (CategoryTheory.DerivedCategory.IsMPseudoCoherent.of_faithfullyFlat f hf hK :
     K.IsMPseudoCoherent m)
 
@@ -39,7 +34,8 @@ of scalars. -/
 #check fun {R : Type u} {S : Type v} [CommRing R] [CommRing S]
     (f : R →+* S) (hf : f.FaithfullyFlat)
     {K : DerivedCategory (ModuleCat.{w, u} R)}
-    (hK : ((ModuleCat.derivedExtensionOfScalars.{u, v, w} f).obj K).IsPseudoCoherent) ↦
+    (hK : ((ModuleCat.derivedExtensionOfScalars.{u, v, w} f
+        (hasLeftDerived := ModuleCat.DerivedExtension.Flat.hasLeftDerivedFunctor f hf.flat)).obj K).IsPseudoCoherent) ↦
   (CategoryTheory.DerivedCategory.IsPseudoCoherent.of_faithfullyFlat f hf hK :
     K.IsPseudoCoherent)
 

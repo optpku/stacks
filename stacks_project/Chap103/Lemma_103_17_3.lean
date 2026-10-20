@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap103.Lemma_103_17_3_Coherent
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Module.Coherent.FiniteLocallyFree
 public import stacks_project.Chap103.Lemma_103_17_3_Instances
 import StacksCheckRecall
 
@@ -25,39 +19,36 @@ variable (F : SheafOfModules.{u} (structureSheaf X))
 /- Lemma 103.17.3 (1): on a locally Noetherian algebraic stack `X`, the structure
 module `𝒪_X` is coherent. -/
 @[stacks 0GR7]
-#check (structureSheaf_isCoherent X :
+#check (AlgebraicGeometry.AlgebraicStack.structureSheaf_isCoherent X :
   AlgebraicStack.IsCoherent (SheafOfModules.unit (structureSheaf X)))
 
 /- The structure module of a locally Noetherian algebraic stack is canonically
 coherent. -/
-@[stacks 0GR7]
-#check (instIsCoherentUnit X :
+#check (AlgebraicGeometry.AlgebraicStack.instIsCoherentUnit X :
   AlgebraicStack.IsCoherent (SheafOfModules.unit (structureSheaf X)))
 
+variable (L : SheafOfModules.{u} (structureSheaf X))
+  [SheafOfModules.IsFiniteLocallyFreeOfRank 1 L] in
 /- Lemma 103.17.3 (2): on a locally Noetherian algebraic stack, any invertible
 `𝒪_X`-module is coherent. -/
+@[stacks 0GR7]
+#check (AlgebraicGeometry.AlgebraicStack.isCoherent_of_isInvertible L : AlgebraicStack.IsCoherent L)
+
 variable (L : SheafOfModules.{u} (structureSheaf X))
   [SheafOfModules.IsFiniteLocallyFreeOfRank 1 L] in
-@[stacks 0GR7]
-#check (isCoherent_of_isInvertible L : AlgebraicStack.IsCoherent L)
-
 /- Invertible modules on a locally Noetherian algebraic stack are canonically
 coherent. -/
-variable (L : SheafOfModules.{u} (structureSheaf X))
-  [SheafOfModules.IsFiniteLocallyFreeOfRank 1 L] in
-@[stacks 0GR7]
-#check (instIsCoherentOfIsInvertible L : AlgebraicStack.IsCoherent L)
+#check (AlgebraicGeometry.AlgebraicStack.instIsCoherentOfIsInvertible L : AlgebraicStack.IsCoherent L)
 
+variable [SheafOfModules.IsFiniteLocallyFree F] in
 /- Lemma 103.17.3 (3): more generally, any finite locally free `𝒪_X`-module on a
 locally Noetherian algebraic stack is coherent. -/
-variable [SheafOfModules.IsFiniteLocallyFree F] in
 @[stacks 0GR7]
-#check (isCoherent_of_isFiniteLocallyFree F : AlgebraicStack.IsCoherent F)
+#check (AlgebraicGeometry.AlgebraicStack.isCoherent_of_isFiniteLocallyFree F : AlgebraicStack.IsCoherent F)
 
+variable [SheafOfModules.IsFiniteLocallyFree F] in
 /- Finite locally free modules on a locally Noetherian algebraic stack are
 canonically coherent. -/
-variable [SheafOfModules.IsFiniteLocallyFree F] in
-@[stacks 0GR7]
-#check (instIsCoherentOfIsFiniteLocallyFree F : AlgebraicStack.IsCoherent F)
+#check (AlgebraicGeometry.AlgebraicStack.instIsCoherentOfIsFiniteLocallyFree F : AlgebraicStack.IsCoherent F)
 
 end AlgebraicGeometry.AlgebraicStack

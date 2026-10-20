@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_24_1_QuasiFinite
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.QuasiFinite.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of quasi-finite morphisms of algebraic stacks
@@ -22,16 +17,12 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.QuasiFinite
-
-/-- Lemma 101.24.2: A composition of quasi-finite morphisms is quasi-finite.
+/- Lemma 101.24.2: A composition of quasi-finite morphisms is quasi-finite.
 
 Stacks writes the composition as `g ∘ f`; the Lean composite is `f ≫ g`. -/
-@[stacks 0G2N]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+@[stacks 0G2N] #check (AlgebraicGeometry.AlgebraicStack.QuasiFinite.comp :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [QuasiFinite f] [QuasiFinite g] :
-    QuasiFinite (f ≫ g) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.QuasiFinite
+    (f : X ⟶ Y) (g : Y ⟶ Z)
+    [AlgebraicStack.QuasiFinite f] [AlgebraicStack.QuasiFinite g],
+    AlgebraicStack.QuasiFinite (f ≫ g))

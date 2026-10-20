@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.Etale.GaloisFiber
+public import ReasLib.AlgebraicGeometry.Scheme.Etale.GaloisEquivalence
 
 @[expose] public section
 
@@ -37,3 +31,5 @@ universe u
   ∀ (K Ksep : Type u) [Field K] [Field Ksep] [Algebra K Ksep]
     [IsSepClosure K Ksep],
     (AlgebraicGeometry.Scheme.Etale.galoisFiber K Ksep).IsEquivalence)
+
+#check AlgebraicGeometry.Scheme.Etale.galoisEquivalence_functor

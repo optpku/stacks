@@ -1,14 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.Noetherian.Defs
-public import ReasLib.RingTheory.Topology.Adic.Complete
-public import stacks_project.Chap87.Remark_87_28_1_Universal_property_restricted_power_series_RestrictedPowerSeries
+public import ReasLib.RingTheory.RestrictedPowerSeries.Adic
 
 /-!
 # Adic and Noetherian instances for restricted power series
@@ -21,20 +13,12 @@ remain Noetherian and adic, so primes of `A{x₁, …, xₙ}` may carry `IsRigCl
 
 universe u
 
-namespace RestrictedPowerSeries
+#check (RestrictedPowerSeries.instIsAdicRing :
+  ∀ (n : ℕ) {A : Type u} [CommRing A] [TopologicalSpace A]
+    [TopologicalRing.IsAdicRing A] [IsNoetherianRing A],
+    TopologicalRing.IsAdicRing (RestrictedPowerSeries (Fin n) A))
 
-/-- Restricted power series in finitely many variables over a Noetherian adic
-ring remain an adic topological ring. -/
-instance instIsAdicRing (n : ℕ) {A : Type u} [CommRing A] [TopologicalSpace A]
-    [TopologicalRing.IsAdicRing A] [IsNoetherianRing A] :
-    TopologicalRing.IsAdicRing (RestrictedPowerSeries (Fin n) A) :=
-  sorry
-
-/-- Restricted power series in finitely many variables over a Noetherian adic
-ring remain Noetherian. -/
-instance instIsNoetherianRing (n : ℕ) {A : Type u} [CommRing A] [TopologicalSpace A]
-    [TopologicalRing.IsAdicRing A] [IsNoetherianRing A] :
-    IsNoetherianRing (RestrictedPowerSeries (Fin n) A) :=
-  sorry
-
-end RestrictedPowerSeries
+#check (RestrictedPowerSeries.instIsNoetherianRing :
+  ∀ (n : ℕ) {A : Type u} [CommRing A] [TopologicalSpace A]
+    [TopologicalRing.IsAdicRing A] [IsNoetherianRing A],
+    IsNoetherianRing (RestrictedPowerSeries (Fin n) A))

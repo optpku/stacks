@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.«101_39_1_1_ValuativeSquare»
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.ValuativeSquare
 public import ReasLib.CategoryTheory.Bicategory.DottedArrow.Construction
 import StacksCheckRecall
 
@@ -29,10 +23,10 @@ vertical `j` and 2-cell `γ : j ≫ y ≅ x ≫ f`, a dotted arrow is a triple
 `arrow`, `left`, `right` and triangle `comm` (Lean uses `≫`, `◁`/`▷`,
 `whiskerLeftIso`, `whiskerRightIso`, and `≪≫`). -/
 @[stacks 0CLA]
-#check (DottedArrow sq.toCone)
+#check (CategoryTheory.DottedArrow sq.toCone : CategoryTheory.Cat)
 
 /- Definition 101.39.1 (2): a morphism of dotted arrows `(a, α, β) ⟶ (a', α', β')`
 is a 2-arrow `θ : a ⟶ a'` such that `α = α' ∘ (θ ⋆ id_j)` and
 `β' = (id_f ⋆ θ) ∘ β`. This is `DottedArrow.Hom A A'`. -/
 @[stacks 0CLA]
-#check (DottedArrow.Hom A A')
+#check (CategoryTheory.DottedArrow.Hom A A' : Type (u + 1))

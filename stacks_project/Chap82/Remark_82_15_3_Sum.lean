@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Topology.LocallyFinite
@@ -55,7 +49,7 @@ theorem cycleGeometricSupport_subset_closed_iff {S : Scheme.{u}}
   sorry
 
 variable {S : Scheme.{u}} {B X : AlgebraicSpace S}
-variable (f : X ⟶ B) (δ : Points B → ℤ) (k : ℤ)
+variable (f : X ⟶ B) [LocallyOfFiniteType f] (δ : Points B → ℤ) (k : ℤ)
 
 /-- The pointwise sum of a locally finite family of `k`-cycles is again a
 `k`-cycle. -/

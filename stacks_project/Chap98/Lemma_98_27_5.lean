@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap98.Lemma_98_27_5_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Contraction.Comparison
+import StacksCheckRecall
 
 /-!
 # Functorial bijections from Artin contraction solutions
@@ -23,40 +17,33 @@ open CategoryTheory AlgebraicGeometry Opposite
 open CategoryTheory.ObjectProperty
 open AlgebraicGeometry.Scheme.Over
 open AlgebraicGeometry.AlgebraicSpace
+open AlgebraicGeometry.AlgebraicSpace.SchemeRealization
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
 
-namespace ContractionSituation
-
-variable {S : Scheme.{u}} [AlgebraicGeometry.IsLocallyNoetherian S]
-
-namespace SolutionFor
-
-variable {σ : ContractionSituation S} {X : AlgebraicSpace S}
-  [LocallyOfFiniteType (toBase X)]
-
-/-- Lemma 98.27.5: In Situation 98.27.1, if there exists a solution
+/- Lemma 98.27.5: In Situation 98.27.1, if there exists a solution
 `(f : X' ⟶ X, T, a)`, then there is a functorial bijection
 `σ.functor V = Mor_S(V, X)` on locally Noetherian schemes `V` over `S`.
 The comparison `homOnLocallyNoetherian X ⟶ σ.functor` sends `x : V ⟶ X` to
 the triple with `Z` the inverse image of `T`, `u'` the restriction of `x` to
 `V \ Z` after identifying `U'` with `X \ T`, and `hatx = a ∘ x_/Z`. -/
-@[stacks 0GHB, instance]
-instance instIsIso_ofHomNatTrans (sol : SolutionFor σ X) :
-    IsIso sol.ofHomNatTrans :=
-  sorry
+@[stacks 0GHB]
+#check (AlgebraicGeometry.AlgebraicSpace.ContractionSituation.SolutionFor.isIso_ofHomNatTrans :
+  ∀ {S : Scheme.{u}} [AlgebraicGeometry.IsLocallyNoetherian S]
+    {σ : ContractionSituation S} {X : AlgebraicSpace S}
+    (sol : ContractionSituation.SolutionFor σ X),
+    IsIso sol.ofHomNatTrans)
 
-/-- The comparison `Mor_S(V, X) → F(V)` is bijective on each locally Noetherian
-scheme `V` over `S`. -/
-theorem tripleOfHom_bijective (sol : SolutionFor σ X)
-    (V : (locallyNoetherian S).FullSubcategory) :
-    Function.Bijective (fun x : ofOver V.obj ⟶ X ↦ sol.tripleOfHom x) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ContractionSituation.SolutionFor.tripleOfHom_bijective :
+  ∀ {S : Scheme.{u}} [AlgebraicGeometry.IsLocallyNoetherian S]
+    {σ : ContractionSituation S} {X : AlgebraicSpace S}
+    (sol : ContractionSituation.SolutionFor σ X)
+    (V : (locallyNoetherian S).FullSubcategory),
+    Function.Bijective (fun x : ofOver V.obj ⟶ X ↦ sol.tripleOfHom x))
 
-end SolutionFor
-
-end ContractionSituation
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.ContractionSituation.SolutionFor.ofHomNatTrans :
+  ∀ {S : Scheme.{u}} [AlgebraicGeometry.IsLocallyNoetherian S]
+    {σ : ContractionSituation S} {X : AlgebraicSpace S}
+    (sol : ContractionSituation.SolutionFor σ X),
+    homOnLocallyNoetherian X ⟶ σ.functor)

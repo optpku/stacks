@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.CommRingCat.PolynomialResolution.Construction
@@ -27,7 +21,8 @@ variable (A : CommRingCat.{u}) (B : Under A) (n : ℕ)
 is the augmentation ε : P_• ⟶ B with terms P_0 = A[B], P_1 = A[A[B]], … and maps as
 constructed in Simplicial, Example 14.34.7. -/
 @[stacks 08PM]
-#check ((evaluation A).obj B : SimplicialObject.Augmented (Under A))
+#check ((CategoryTheory.CommRingCat.Under.PolynomialResolution.evaluation A).obj B :
+  SimplicialObject.Augmented (Under A))
 
 #check (evaluation.obj_eq A B n)
 #check (evaluation A)

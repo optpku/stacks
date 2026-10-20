@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.AffineSpace
+public import Mathlib.AlgebraicGeometry.Morphisms.QuasiSeparated
 public import Mathlib.AlgebraicGeometry.Restrict
 public import ReasLib.AlgebraicGeometry.GroupScheme
 public import ReasLib.AlgebraicGeometry.GroupScheme.Properties
@@ -37,5 +32,13 @@ theorem exists_identityComponent_flat_not_flat :
       AlgebraicGeometry.Flat
           (Scheme.Opens.ι ⟨identityComponentLocus G, hopen⟩ ≫ G.X.hom) ∧
         ¬ AlgebraicGeometry.Flat G.X.hom := sorry
+
+/-- For every field, there is a flat group scheme of finite type over countably
+infinite-dimensional affine space whose structure morphism is not quasi-separated. -/
+theorem exists_flat_finiteType_not_quasiSeparated_over_infiniteAffineSpace
+    {k : Type u} [Field k] :
+    ∃ G : GroupScheme (𝔸(ULift.{u} ℕ; Spec (CommRingCat.of k))),
+      AlgebraicGeometry.Flat G.X.hom ∧ Scheme.Hom.FiniteType G.X.hom ∧
+        ¬ AlgebraicGeometry.QuasiSeparated G.X.hom := sorry
 
 end AlgebraicGeometry.GroupScheme

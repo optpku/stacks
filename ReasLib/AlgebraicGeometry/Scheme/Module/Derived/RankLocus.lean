@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Annihilator
@@ -63,6 +57,7 @@ instance rankLocusι_isImmersion
 /-- Pullback to a derived rank locus preserves the lower cohomological bound coming from
 the lower endpoint of a Tor-amplitude interval. -/
 theorem rankLocusPullback_isGE
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (E : RingedSpace.ModuleDerived X.toRingedSpace) (a b : ℤ) (r : ℕ)
     (hTor : RingedSpace.HasTorAmplitudeIn E a b) :
     ((RingedSpace.modulePullbackDerived (rankLocusι E a r).toShHom).obj E).IsGE a := sorry
@@ -113,6 +108,7 @@ theorem rankLocusComparison_def
 /-- For a perfect derived module with bounded Tor-amplitude, its degreewise rank-locus
 morphism is an immersion. -/
 theorem rankLocus_isImmersion {X : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (E : RingedSpace.ModuleDerived X.toRingedSpace) (a b : ℤ) (r : ℕ)
     (hE : RingedSpace.ModuleDerived.IsPerfect E)
     (hTor : RingedSpace.HasTorAmplitudeIn E a b) :
@@ -121,6 +117,7 @@ theorem rankLocus_isImmersion {X : Scheme.{u}}
 /-- On the degree-`a` rank-`r` locus, degree-`a` cohomology after derived pullback is
 finite locally free of rank `r`. -/
 theorem rankLocus_cohomology_rank {X : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (E : RingedSpace.ModuleDerived X.toRingedSpace) (a b : ℤ) (r : ℕ)
     (hE : RingedSpace.ModuleDerived.IsPerfect E)
     (hTor : RingedSpace.HasTorAmplitudeIn E a b) :
@@ -131,6 +128,7 @@ theorem rankLocus_cohomology_rank {X : Scheme.{u}}
 /-- A morphism factors through the degree-`a` rank-`r` locus exactly when degree-`a`
 cohomology is finite locally free of rank `r` after every further base change. -/
 theorem rankLocus_factor_iff {X Y : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (E : RingedSpace.ModuleDerived X.toRingedSpace) (a b : ℤ) (r : ℕ)
     (hE : RingedSpace.ModuleDerived.IsPerfect E)
     (hTor : RingedSpace.HasTorAmplitudeIn E a b) (f : Y ⟶ X) :
@@ -143,6 +141,7 @@ theorem rankLocus_factor_iff {X Y : Scheme.{u}}
 /-- The degreewise rank-locus morphism of a perfect complex with bounded Tor-amplitude is
 of finite presentation. -/
 theorem rankLocus_finitePresentation {X : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (E : RingedSpace.ModuleDerived X.toRingedSpace) (a b : ℤ) (r : ℕ)
     (hE : RingedSpace.ModuleDerived.IsPerfect E)
     (hTor : RingedSpace.HasTorAmplitudeIn E a b) :
@@ -151,6 +150,7 @@ theorem rankLocus_finitePresentation {X : Scheme.{u}}
 /-- Pulling back lower cohomology from the rank locus agrees with lower cohomology after
 derived pullback along the composite morphism. -/
 theorem rankLocus_comparison_isIso {X Y : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (E : RingedSpace.ModuleDerived X.toRingedSpace) (a b : ℤ) (r : ℕ)
     (hE : RingedSpace.ModuleDerived.IsPerfect E)
     (hTor : RingedSpace.HasTorAmplitudeIn E a b) (g : Y ⟶ rankLocus E a r) :
@@ -164,6 +164,7 @@ theorem rankLocus_comparison_isIso {X Y : Scheme.{u}}
 /-- If all degree-`a` fiber Betti numbers are at most `r`, the degree-`a` rank-`r` locus is
 closed in the ambient scheme. -/
 theorem rankLocus_isClosedImmersion {X : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (E : RingedSpace.ModuleDerived X.toRingedSpace) (a b : ℤ) (r : ℕ)
     (hE : RingedSpace.ModuleDerived.IsPerfect E)
     (hTor : RingedSpace.HasTorAmplitudeIn E a b)
@@ -173,6 +174,7 @@ theorem rankLocus_isClosedImmersion {X : Scheme.{u}}
 /-- Under a global degree-`a` fiber Betti bound, factorization through the rank locus is
 equivalent to degree-`a` cohomology after pullback being finite locally free of rank `r`. -/
 theorem rankLocus_factor_iff_rank {X Y : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (E : RingedSpace.ModuleDerived X.toRingedSpace) (a b : ℤ) (r : ℕ)
     (hE : RingedSpace.ModuleDerived.IsPerfect E)
     (hTor : RingedSpace.HasTorAmplitudeIn E a b)
@@ -185,6 +187,7 @@ theorem rankLocus_factor_iff_rank {X Y : Scheme.{u}}
 /-- Under a global degree-`a` fiber Betti bound by one, factorization through the rank-one
 locus is equivalent to monicity of the scalar-action morphism on pulled-back cohomology. -/
 theorem rankOneLocus_factor_iff_action_mono {X Y : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (E : RingedSpace.ModuleDerived X.toRingedSpace) (a b : ℤ)
     (hE : RingedSpace.ModuleDerived.IsPerfect E)
     (hTor : RingedSpace.HasTorAmplitudeIn E a b)

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Lemma_90_29_3_Tensor
+public import ReasLib.AlgebraicGeometry.FormalDeformation.ArtinianLocal.ResidueChange.Tangent
 import StacksCheckRecall
 
 /-!
@@ -35,17 +29,8 @@ variable (Λ k l : Type u) [CommRing Λ] [IsNoetherianRing Λ]
 variable {F : Type v} [Category.{w} F] (p : F ⥤ ArtinianLocalAlgCat Λ k)
 variable [IsPredeformationCategory p] [HasSchlessingerH2 (fiberIsoClassFunctor p)]
 
-namespace ArtinianLocalAlgCat.residueChangeOver
-
-/-- Lemma 90.29.3: With notation and assumptions as in Situation 90.29.1. Assume
-`p` is a predeformation category and `fiberIsoClassFunctor p` satisfies (S2).
-Then there is a canonical `l`-vector space isomorphism
-`(fiberIsoClassFunctor p).obj (dualNumber Λ k) ⊗[k] l ⟶
-(fiberIsoClassFunctor (residueChangeOver Λ k l p)).obj (dualNumber Λ l)` of
-tangent spaces, given by `tangentSpaceTensor Λ k l p`. -/
+/- Lemma 90.29.3: The canonical tangent comparison after finite residue-field
+change is an isomorphism of `l`-vector spaces. -/
 @[stacks 07WB]
-theorem bijective_tangentSpaceTensor :
-    Function.Bijective (tangentSpaceTensor Λ k l p) :=
-  sorry
-
-end ArtinianLocalAlgCat.residueChangeOver
+#check (ArtinianLocalAlgCat.residueChangeOver.bijective_tangentSpaceTensor Λ k l p :
+  Function.Bijective (ArtinianLocalAlgCat.residueChangeOver.tangentSpaceTensor Λ k l p))

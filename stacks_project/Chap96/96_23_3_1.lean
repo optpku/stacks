@@ -1,75 +1,35 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Sites.Cech.SpectralSequence.Presheaf
-public import ReasLib.CategoryTheory.Sites.Cohomology.Terminal
-public import stacks_project.Chap96.Definition_96_4_1_AssociatedTopology
-public import Mathlib.CategoryTheory.Yoneda
+public import ReasLib.CategoryTheory.Sites.Cech.SpectralSequence.Terminal
 import StacksCheckRecall
 
 @[expose] public section
 
-open AlgebraicGeometry CategoryTheory
-open CategoryTheory.Presheaf.Cech
+open CategoryTheory
 
-universe z w u
+universe z w v u
 
-/- 96.23.3.1: on the associated τ-site of a category fibred in groupoids 𝒳,
-if h_x ⟶ * is a locally surjective map of sheaves of sets, the sheafified
-Čech levels h_{x,p} = sheafifiedLevel of the unique map
-uliftYoneda.obj x ⟶ Presheaf.terminal are the sheafifications of the
-(p+1)-fold products of the representable presheaf h_x, and every abelian
-sheaf F admits a first-quadrant spectral sequence
-E₁^{p,q} = H^q(h_{x,p}, F) ⇒ H^{p+q}(𝒳_τ, F). This is
-exists_spectralSequence at K' = h_x and K = Presheaf.terminal; the abutment
-H^{p+q}(*, F) is identified with global cohomology via isomorphicGlobal.
-Local surjectivity of h_x ⟶ * is the load-bearing hypothesis (a smooth
-surjective atlas supplies it geometrically, as in 06XH). -/
-@[stacks 07AL]
-#check
-  fun {S : Scheme.{u}} (X : GroupoidsOver S) (τ : StandardTopology) (x : X.total)
-      [HasSheafify (X.associatedTopology τ) (Type (max w u))]
-      [HasSheafify (X.associatedTopology τ) AddCommGrpCat.{max w u}]
-      [HasExt.{z} (Sheaf (X.associatedTopology τ) AddCommGrpCat.{max w u})]
-      [Presheaf.IsLocallySurjective (X.associatedTopology τ)
-        ((Presheaf.terminalIsTerminal.{max w u} X.total).from
-          (uliftYoneda.{max w u}.obj x))]
-      (F : Sheaf (X.associatedTopology τ) AddCommGrpCat.{max w u}) ↦
-    exists_spectralSequence
-      ((Presheaf.terminalIsTerminal.{max w u} X.total).from
-        (uliftYoneda.{max w u}.obj x)) F
-
-/- The sheafified degree-p Čech level, i.e. the source object h_{x,p}. -/
-#check @sheafifiedLevel
-
-/- First-page target E₁^{p,q} = H^q(h_{x,p}, F), functorial in F. -/
-#check @pageOneFunctor
-
-/- Abutment target H^n(*, F), cohomology over the terminal presheaf. -/
-#check @abutmentFunctor
-
-/- Page-one identification (E.page 1).X (p, q) ≅ H^q(h_{x,p}, F). -/
-#check @SpectralSequenceSystem.pageOneIso
-
-/- Convergence of the spectral sequence to the terminal-presheaf abutment. -/
-#check @SpectralSequenceSystem.converges_app
-
-/- Identification of the terminal-presheaf abutment with global cohomology
-H^n(𝒳_τ, F). -/
-#check @Sheaf.TerminalCohomology.isomorphicGlobal
-
-/- Čech nerve of an object over the terminal object, the product simplicial
-object whose sheafification is h_{x,p}. -/
-#check @cechNerveTerminalFrom
-
-/- Identification of Arrow.mk (terminal.from X).cechNerve with
-cechNerveTerminalFrom. -/
-#check @CechNerveTerminalFrom.iso
-
-/- The wide-cospan limit in each degree is the finite product ∏ h_x. -/
-#check @CechNerveTerminalFrom.wideCospan.limitIsoPi
+/- 96.23.3.1: specialize to C = X.total, J = X.associatedTopology τ, and the
+source atlas object x. For τ étale or fppf, the source establishes local
+surjectivity of h_x ⟶ * using a smooth surjective atlas. The sheaf h_{x,p}
+is the (p+1)-fold product of the sheafified representable h_x. For every
+abelian sheaf F, the first-quadrant spectral sequence has
+E₁^{p,q} = H^q(h_{x,p}, F) and converges to H^{p+q}(𝒳_τ, F). -/
+@[stacks 07AL] #check
+  (CategoryTheory.Presheaf.Cech.exists_spectralSequence_yoneda :
+    ∀ {C : Type u} [Category.{v} C] (J : GrothendieckTopology C)
+      [HasSheafify J (Type (max w v))]
+      [HasSheafify J AddCommGrpCat.{max w v}]
+      [HasExt.{z} (Sheaf J AddCommGrpCat.{max w v})]
+      (x : C)
+      [Presheaf.IsLocallySurjective J
+        ((Presheaf.terminalIsTerminal.{max w v} C).from (uliftYoneda.{w}.obj x))]
+      (F : Sheaf J AddCommGrpCat.{max w v}),
+      ∃ (E : CohomologicalSpectralSequenceNat AddCommGrpCat.{z} 1)
+        (pageOneIso : ∀ p q : ℕ,
+          (E.page 1 le_rfl).X (p, q) ≅
+            (Sheaf.cohomologyOverSheafFunctor
+              (Limits.piObj (fun _ : Fin (p + 1) ↦
+                (presheafToSheaf J (Type (max w v))).obj (uliftYoneda.{w}.obj x))) q).obj F),
+        CohomologicalSpectralSequenceNat.ConvergesTo E
+          (fun n ↦ (Sheaf.functorH.{z, max w v, v, u} J n).obj F))

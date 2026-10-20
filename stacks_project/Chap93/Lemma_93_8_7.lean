@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap93.Lemma_93_8_7_Localization
+public import ReasLib.AlgebraicGeometry.FormalDeformation.FlatAlgebra.Localization
 import StacksCheckRecall
 
 /-!
@@ -17,9 +11,17 @@ import StacksCheckRecall
 
 open CategoryTheory
 
+universe u
+
+variable (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+  [Module.Finite Λ k]
+variable (P : Type u) [CommRing P] [Algebra k P]
+
 /- Lemma 93.8.7: in Example 93.8.1, a `k`-algebra `P` and a multiplicative subset
 `S ⊆ P` induce a natural functor
 `deformationCategory Λ k P ⥤ deformationCategory Λ k (Localization S)`
-of deformation categories. -/
-@[stacks 0DYS]
-#check FlatAlgebraCat.localizationFunctor
+of deformation categories, preserving their Artinian local bases. -/
+@[stacks 0DYS] #check (FlatAlgebraCat.localizationFunctor :
+  ∀ (S : Submonoid P),
+    FlatAlgebraCat.deformationCategory Λ k P ⥤
+      FlatAlgebraCat.deformationCategory Λ k (Localization S))

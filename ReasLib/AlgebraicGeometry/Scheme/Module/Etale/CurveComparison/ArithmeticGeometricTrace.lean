@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.ArithmeticDualSheafComparison
@@ -38,7 +32,7 @@ variable [HasSheafify (geometricBaseChange X).smallEtaleTopology AddCommGrpCat.{
 variable (hΛ : IsUnit (Nat.card Λ : k))
 
 variable (N : (finiteTypeDiscreteModule Λ
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))).FullSubcategory)
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))).FullSubcategory)
 variable (C : SchemeOverField (AlgebraicClosure k)) [Curve C] [Smooth C.hom] [Projective C.hom]
 variable (j : geometricBaseChange X ⟶ C.left) [hopen : IsOpenImmersion j]
 variable [(geometricBaseChange X).smallEtaleTopology.HasSheafCompose

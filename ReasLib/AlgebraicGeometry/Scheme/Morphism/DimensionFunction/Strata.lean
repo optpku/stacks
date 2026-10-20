@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.GenericPoints.FiniteComponents
@@ -127,5 +121,75 @@ theorem existsGenericDimensionStrata_of_cohenMacaulay {X S : Scheme.{u}} (f : X 
         (∀ n, IsClopen (U n : Set X)) ∧
         ∀ n ξ, ξ ∈ (U n).genericPointsInAmbient →
           f.relativeDimensionFunction δ ξ = n := sorry
+
+/-- An integer is a generic-dimension index at a point when every irreducible component
+through that point has that generic relative dimension. -/
+def IsGenericDimensionIndex {X S : Scheme.{u}} (f : X ⟶ S)
+    [UniversallyCatenary S] [LocallyOfFiniteType f]
+    (δ : S → ℤ) [IsDimensionFunction δ] (x : X) (n : ℤ) : Prop :=
+  ∀ ξ : genericPoints X, x ∈ (genericPoints.component ξ : Set X) →
+    f.relativeDimensionFunction δ ξ.1 = n
+
+/-- A generic-dimension index specifies the relative dimension of every generic point of
+an irreducible component through the given point. -/
+theorem isGenericDimensionIndex_iff {X S : Scheme.{u}} (f : X ⟶ S)
+    [UniversallyCatenary S] [LocallyOfFiniteType f]
+    (δ : S → ℤ) [IsDimensionFunction δ] (x : X) (n : ℤ) :
+    IsGenericDimensionIndex f δ x n ↔
+      ∀ ξ : genericPoints X, x ∈ (genericPoints.component ξ : Set X) →
+        f.relativeDimensionFunction δ ξ.1 = n := Iff.rfl
+
+/-- A generic-dimension index of a point, when it exists, is unique. -/
+theorem isGenericDimensionIndex_unique {X S : Scheme.{u}} (f : X ⟶ S)
+    [UniversallyCatenary S] [LocallyOfFiniteType f]
+    (δ : S → ℤ) [IsDimensionFunction δ] (x : X) {n m : ℤ}
+    (hn : IsGenericDimensionIndex f δ x n)
+    (hm : IsGenericDimensionIndex f δ x m) : n = m := sorry
+
+/-- The open generic-dimension index locus is the interior of the points with that index. -/
+def genericDimensionIndexLocus {X S : Scheme.{u}} (f : X ⟶ S)
+    [UniversallyCatenary S] [LocallyOfFiniteType f]
+    (δ : S → ℤ) [IsDimensionFunction δ] (n : ℤ) : X.Opens :=
+  ⟨interior {x | IsGenericDimensionIndex f δ x n}, isOpen_interior⟩
+
+/-- If a generic-dimension index exists at every point, the index loci are disjoint clopen
+strata covering the scheme, with the specified generic dimensions and index membership. -/
+theorem genericDimensionIndexLoci_spec {X S : Scheme.{u}} (f : X ⟶ S)
+    [UniversallyCatenary S] [LocallyOfFiniteType f]
+    (δ : S → ℤ) [IsDimensionFunction δ]
+    (h : ∀ x : X, ∃ n, IsGenericDimensionIndex f δ x n) :
+    iSup (genericDimensionIndexLocus f δ) = ⊤ ∧
+      Pairwise (fun m n ↦ Disjoint
+        (genericDimensionIndexLocus f δ m : Set X)
+        (genericDimensionIndexLocus f δ n : Set X)) ∧
+      (∀ n, IsClopen (genericDimensionIndexLocus f δ n : Set X)) ∧
+      (∀ n ξ, ξ ∈ (genericDimensionIndexLocus f δ n).genericPointsInAmbient →
+        f.relativeDimensionFunction δ ξ = n) ∧
+      ∀ (x : X) (n : ℤ), x ∈ genericDimensionIndexLocus f δ n ↔
+        IsGenericDimensionIndex f δ x n := sorry
+
+namespace GenericDimensionStratification
+
+/-- The canonical generic-dimension stratification uses the interiors of the index loci. -/
+def ofPointwise {X S : Scheme.{u}} (f : X ⟶ S)
+    [UniversallyCatenary S] [LocallyOfFiniteType f]
+    (δ : S → ℤ) [IsDimensionFunction δ]
+    (h : ∀ x : X, ∃ n, IsGenericDimensionIndex f δ x n) :
+    f.GenericDimensionStratification δ :=
+  ofStrata f δ (genericDimensionIndexLocus f δ)
+    (genericDimensionIndexLoci_spec f δ h).1
+    (genericDimensionIndexLoci_spec f δ h).2.1
+    (genericDimensionIndexLoci_spec f δ h).2.2.1
+    (genericDimensionIndexLoci_spec f δ h).2.2.2.1
+
+/-- Membership in the canonical generic-dimension stratum is the index condition. -/
+theorem mem_ofPointwise {X S : Scheme.{u}} (f : X ⟶ S)
+    [UniversallyCatenary S] [LocallyOfFiniteType f]
+    (δ : S → ℤ) [IsDimensionFunction δ]
+    (h : ∀ x : X, ∃ n, IsGenericDimensionIndex f δ x n) (x : X) (n : ℤ) :
+    x ∈ (ofPointwise f δ h).stratum n ↔ IsGenericDimensionIndex f δ x n :=
+  (genericDimensionIndexLoci_spec f δ h).2.2.2.2 x n
+
+end GenericDimensionStratification
 
 end AlgebraicGeometry.Scheme.Hom

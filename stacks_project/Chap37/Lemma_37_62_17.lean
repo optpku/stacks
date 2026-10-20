@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -24,7 +18,8 @@ Tor-amplitude in `[-1, 0]`, and having that complex perfect with the same Tor-am
 equivalent. -/
 @[stacks 0FK3] #check
   (AlgebraicGeometry.Scheme.Hom.NaiveCotangent.flatFinitePresentation_tfae :
-    ∀ {X Y : Scheme.{u}} (f : X ⟶ Y) [Flat f] [Scheme.Hom.FinitePresentation f],
+    ∀ {X Y : Scheme.{u}} (f : X ⟶ Y)
+      [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] [Flat f] [Scheme.Hom.FinitePresentation f],
       List.TFAE [LocallyOfType RingHom.IsLocalCompleteIntersection f,
         Syntomic f,
         RingedSpace.HasTorAmplitudeIn

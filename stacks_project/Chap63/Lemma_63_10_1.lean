@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.DerivedCategory.TStructure
-public import Mathlib.CategoryTheory.Limits.Preserves.Basic
-public import Mathlib.CategoryTheory.Limits.Shapes.Products
-public import Mathlib.GroupTheory.Torsion
-public import stacks_project.Chap63.Definition_63_12_1_LowerShriek
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.CompactSupport.Coproduct
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -67,55 +57,47 @@ variable [HasRightDerivedFunctor
 
 section CoproductComparison
 
-variable {I : Type u} (K : I → EtaleDerived X.left Λ)
-variable [HasCoproductsOfShape I (EtaleDerived X.left Λ)]
-variable [HasCoproductsOfShape I (EtaleDerived Y Λ)]
+variable {I : Type u} (K : I → DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)))
+variable [HasCoproductsOfShape I (DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)))]
+variable [HasCoproductsOfShape I (DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ)))]
 
-/-- The canonical comparison `∐ Rf_! (K i) ⟶ Rf_! (∐ K)` induced by the
-coproduct inclusions, where `Rf_!` is `etaleDerivedLowerShriek X P`. -/
-noncomputable def etaleDerivedLowerShriekCoproductComparison :
-    (∐ fun i ↦ (etaleDerivedLowerShriek X P).obj (K i)) ⟶
-      (etaleDerivedLowerShriek X P).obj (∐ K) :=
-  Sigma.desc fun i ↦ (etaleDerivedLowerShriek X P).map (Sigma.ι K i)
+#check (CategoryTheory.Limits.sigmaComparison (etaleDerivedLowerShriek X P) K :
+  (∐ fun i ↦ (etaleDerivedLowerShriek X P).obj (K i)) ⟶
+    (etaleDerivedLowerShriek X P).obj (∐ K))
 
-/-- The comparison morphism recovers `Rf_!` of the `i`-th coproduct inclusion. -/
-theorem etaleDerivedLowerShriekCoproductComparison_comp_ι (i : I) :
+#check (CategoryTheory.Limits.ι_comp_sigmaComparison
+  (etaleDerivedLowerShriek X P) K :
+  ∀ i : I,
     Sigma.ι (fun j ↦ (etaleDerivedLowerShriek X P).obj (K j)) i ≫
-        etaleDerivedLowerShriekCoproductComparison X P K =
-      (etaleDerivedLowerShriek X P).map (Sigma.ι K i) := sorry
+        CategoryTheory.Limits.sigmaComparison (etaleDerivedLowerShriek X P) K =
+      (etaleDerivedLowerShriek X P).map (Sigma.ι K i))
 
-/-- Lemma 63.10.1 (1): if `f = X.hom` is a finite type separated morphism of
-quasi-compact quasi-separated schemes and `K i` is a family in
-`D⁺_tors(X_étale, Λ)`, uniformly bounded below, then `Rf_!` commutes with
-direct sums. If `H^n(K i) = 0` for all `n < a` (equivalently
-`DerivedCategory.IsGE (K i) a`) and each `K i` has torsion cohomology sheaves
-(`etaleDerivedIsTorsion`), then the comparison
-`∐ Rf_! (K i) ⟶ Rf_! (∐ K)` is an isomorphism in `D(Y_étale, Λ)`. -/
-@[stacks 0G29]
-theorem etaleDerivedLowerShriek_preservesCoproduct
-    [CompactSpace X.left] [QuasiSeparatedSpace X.left]
-    [HasSheafCompose X.left.smallEtaleTopology
-      (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
-    (a : ℤ) (hK : ∀ i, DerivedCategory.IsGE (K i) a)
-    (h_tors : ∀ i, etaleDerivedIsTorsion (K i)) :
-    IsIso (etaleDerivedLowerShriekCoproductComparison X P K) := sorry
+variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]
+variable [HasSheafCompose X.left.smallEtaleTopology
+  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
+
+/- Lemma 63.10.1 (1): derived lower shriek commutes with direct sums of
+uniformly bounded-below families with torsion cohomology sheaves. -/
+@[stacks 0G29] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriek_preservesCoproduct X P K :
+    ∀ (a : ℤ), (∀ i, DerivedCategory.IsGE (K i) a) →
+      (∀ i, etaleDerivedIsTorsion (K i)) →
+      IsIso (CategoryTheory.Limits.sigmaComparison (etaleDerivedLowerShriek X P) K))
 
 end CoproductComparison
 
-/-- Lemma 63.10.1 (2): if `Λ` is a torsion ring (`AddMonoid.IsTorsion Λ`) and
-`f = X.hom` is a finite type separated morphism of quasi-compact
-quasi-separated schemes, then
-`Rf_! = etaleDerivedLowerShriek X P : EtaleDerived X.left Λ ⥤ EtaleDerived Y Λ`
-commutes with direct sums. -/
-@[stacks 0G29]
-theorem etaleDerivedLowerShriek_preservesCoproducts
-    [CompactSpace X.left] [QuasiSeparatedSpace X.left]
-    (hΛ : AddMonoid.IsTorsion Λ) (I : Type u)
-    [HasCoproductsOfShape I (EtaleDerived X.left Λ)]
-    [HasCoproductsOfShape I (EtaleDerived Y Λ)] :
-    PreservesColimitsOfShape (Discrete I)
-      (etaleDerivedLowerShriek X P :
-        EtaleDerived X.left Λ ⥤ EtaleDerived Y Λ) := sorry
+variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]
+
+/- Lemma 63.10.1 (2): derived lower shriek preserves arbitrary direct sums
+when the coefficient ring is additively torsion. -/
+@[stacks 0G29] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriek_preservesCoproducts X P :
+    ∀ (hΛ : AddMonoid.IsTorsion Λ) (I : Type u),
+      [HasCoproductsOfShape I (DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)))] →
+      [HasCoproductsOfShape I (DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ)))] →
+      PreservesColimitsOfShape (Discrete I)
+        (etaleDerivedLowerShriek X P :
+          DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)) ⥤ DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))))
 
 end AlgebraicGeometry.Scheme.Etale
 

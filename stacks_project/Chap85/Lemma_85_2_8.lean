@@ -1,33 +1,38 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap85.Lemma_85_2_8_Morphism
+public import ReasLib.Topology.Sheaves.Simplicial.Augmentation
 import StacksCheckRecall
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.SimplicialObject
+open CategoryTheory CategoryTheory.SimplicialObject CategoryTheory.Limits
+open TopologicalSpace Opposite
+open scoped Simplicial CategoryTheory.MorphismOfTopoiIn
 
 universe u
 
 variable {Y : SimplicialObject TopCat.{u}} {X : TopCat.{u}} (a : Y ⟶ constSpace X)
 
-/- Canonical morphism of topoi `a : Sh(Y_Zar) ⟶ Sh(X)` induced by an augmentation. -/
-#check @augmentationMorphism
+/- Lemma 85.2.8: an augmentation induces a canonical morphism of sheaf topoi. -/
+@[stacks 09W4] #check (CategoryTheory.SimplicialObject.augmentationMorphism a :
+  MorphismOfTopoiIn (Opens.grothendieckTopology X) (zariskiTopology Y))
 
-/- Lemma 85.2.8 (1): `a⁻¹ F` restricts on `Y_n` to `a_n⁻¹ F`. -/
-@[stacks 09W4] #check @inverseImage_component
+/- Lemma 85.2.8 (1): inverse image restricts to degreewise topological inverse image. -/
+@[stacks 09W4] #check (CategoryTheory.SimplicialObject.inverseImage_component a :
+  ∀ (n : ℕ) (F : Sheaf (Opens.grothendieckTopology X) (Type u)),
+    (sheafComponent Y n (Type u)).obj ((augmentationMorphism a)⁻¹.obj F) ≅
+      (componentTopos a n)⁻¹.obj F)
 
-/- Lemma 85.2.8 (2): `a_m ∘ Y(φ) = a_n` for all `φ : ⦋m⦌ ⟶ ⦋n⦌`. -/
-@[stacks 09W4] #check @component_naturality
+/- Lemma 85.2.8 (2): augmentation maps commute with the simplicial structure maps. -/
+@[stacks 09W4] #check (CategoryTheory.SimplicialObject.component_naturality a :
+  ∀ {m n : ℕ} (φ : ⦋m⦌ ⟶ ⦋n⦌),
+    Y.map φ.op ≫ componentSpaceMap a m = componentSpaceMap a n)
 
-/- Lemma 85.2.8 (3): `a ∘ g_n = a_n` as morphisms of topoi. -/
-@[stacks 09W4] #check @comp_component
+/- Lemma 85.2.8 (3): the composite with a component morphism is the component map. -/
+@[stacks 09W4] #check (CategoryTheory.SimplicialObject.comp_component a :
+  ∀ (n : ℕ), (augmentationMorphism a)⁻¹ ⋙ (componentMorphism Y n)⁻¹ ≅
+    (componentTopos a n)⁻¹)
 
-/- Lemma 85.2.8 (4): `a_* G` is the equalizer of `a_{0,*} G_0 ⇉ a_{1,*} G_1`. -/
-@[stacks 09W4] #check @pushforwardFork_isLimit
+/- Lemma 85.2.8 (4): direct image is the equalizer of the two coface-induced maps. -/
+@[stacks 09W4] #check (CategoryTheory.SimplicialObject.Augmentation.pushforwardFork_isLimit a :
+  ∀ (G : Sheaf (zariskiTopology Y) (Type u)), IsLimit (Augmentation.pushforwardFork a G))

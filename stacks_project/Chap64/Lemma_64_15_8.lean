@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap64.Definition_64_15_2_Trace
-public import stacks_project.Chap64.Lemma_64_15_4_Module
-public import stacks_project.Chap64.Lemma_64_15_6_MkAddEquiv
-public import stacks_project.Chap64.Lemma_64_15_6_TmulEnd
-public import stacks_project.Chap64.Lemma_64_15_9_Extension
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.LinearAlgebra.Trace.GroupAlgebra.CentralizerTensorProduct
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -38,36 +28,31 @@ variable [IsScalarTower Λ (Λ[G]) M] [IsScalarTower Λ (Λ[Γ]) M]
 variable [Module.Finite Λ M] [Module.Projective Λ M]
 variable [IsRestrictionAlongInl Λ S M]
 
-/-- Lemma 64.15.8. Let `P` be an `A[Γ]`-module, finite projective as an
+/- Lemma 64.15.8. Let `P` be an `A[Γ]`-module, finite projective as an
 `A[G]`-module, and let `M` be a `Λ[Γ]`-module, finite projective as a
 `Λ`-module. Then the `Z_γ`-trace of the diagonal `γ`-action on `P ⊗[A] M`
 equals the product `Tr_A^{Z_γ}(γ, P) · Tr_Λ(γ, M)` in `Λ♮`, where the
 product is the `A`-module action on `Λ♮` after the identification
 `A♮ ≃+ A`. -/
-@[stacks 03UC]
-theorem traceG_tmulEnd_smulEndZ (γ : Γ)
-    [IsScalarTower A (A[S.centralizer γ]) P]
-    [IsScalarTower Λ (Λ[S.centralizer γ]) M] :
+@[stacks 03UC] #check (LinearMap.FiniteProjective.traceG_tmulEnd_smulEndZ S :
+    ∀ (γ : Γ),
     traceG (Diagonal.tmulEnd A Λ (S.centralizer γ) P M
         (smulEndZ S γ : Module.End (A[S.centralizer γ]) P)
         (smulEndZ S γ : Module.End (Λ[S.centralizer γ]) M)) =
       CommutatorQuotient.mkAddEquiv.symm
           (traceG (smulEndZ S γ : Module.End (A[S.centralizer γ]) P)) •
-        (traceNatural (smulEnd γ : Module.End Λ M) : Λ♮) :=
-  sorry
+        (traceNatural (smulEnd γ : Module.End Λ M) : Λ♮))
 
-/-- If `Tr_A^{Z_γ}(γ, P)` is the class of `a` in `A♮`, then the mixed-ring
+/- If `Tr_A^{Z_γ}(γ, P)` is the class of `a` in `A♮`, then the mixed-ring
 identity specializes to `Tr_Λ^{Z_γ}(γ, P ⊗[A] M) = a • Tr_Λ(γ, M)`. -/
-theorem traceG_tmulEnd_smulEndZ_mk (γ : Γ)
-    [IsScalarTower A (A[S.centralizer γ]) P]
-    [IsScalarTower Λ (Λ[S.centralizer γ]) M]
+#check (LinearMap.FiniteProjective.traceG_tmulEnd_smulEndZ_mk S :
+    ∀ (γ : Γ)
     (a : A)
     (ha : CommutatorQuotient.mk a =
-      traceG (smulEndZ S γ : Module.End (A[S.centralizer γ]) P)) :
+      traceG (smulEndZ S γ : Module.End (A[S.centralizer γ]) P)),
     traceG (Diagonal.tmulEnd A Λ (S.centralizer γ) P M
         (smulEndZ S γ : Module.End (A[S.centralizer γ]) P)
         (smulEndZ S γ : Module.End (Λ[S.centralizer γ]) M)) =
-      a • traceNatural (smulEnd γ : Module.End Λ M) :=
-  sorry
+      a • traceNatural (smulEnd γ : Module.End Λ M))
 
 end LinearMap.FiniteProjective

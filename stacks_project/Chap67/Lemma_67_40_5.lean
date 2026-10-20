@@ -1,13 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap65.Lemma_65_12_4_Immersion
 public import stacks_project.Chap67.Definition_67_40_1_Proper
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Proper.ClosedImmersion
+import StacksCheckRecall
 
 /-!
 # Closed immersions of algebraic spaces are proper
@@ -22,17 +18,9 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-namespace Proper
-
-/-- Lemma 67.40.5: A closed immersion of algebraic spaces is a proper morphism
+/- Lemma 67.40.5: A closed immersion of algebraic spaces is a proper morphism
 of algebraic spaces. -/
-@[stacks 04XZ]
-instance of_isClosedImmersion {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [IsClosedImmersion f] : Proper f :=
-  sorry
-
-end Proper
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 04XZ] #check (AlgebraicGeometry.AlgebraicSpace.Proper.of_isClosedImmersion :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [AlgebraicGeometry.AlgebraicSpace.IsClosedImmersion f],
+    AlgebraicGeometry.AlgebraicSpace.Proper f)

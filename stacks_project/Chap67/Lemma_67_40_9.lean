@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Shapes.Diagonal
-public import Mathlib.Data.List.TFAE
-public import stacks_project.Chap65.Lemma_65_7_3_Pullback
-public import stacks_project.Chap67.Definition_67_40_1_Proper
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Proper.Diagonal
+import StacksCheckRecall
 
 /-!
 # Separatedness via the relative diagonal
@@ -24,45 +16,11 @@ open CategoryTheory AlgebraicGeometry Limits
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+open AlgebraicGeometry.AlgebraicSpace
 
-namespace Separated
-
-variable {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-
-/-- Lemma 67.40.9: for a morphism `f : X ⟶ Y` of algebraic spaces over a scheme
-`S`, the following are equivalent: `Separated f`,
-`UniversallyClosed (pullback.diagonal f)`, and `Proper (pullback.diagonal f)`. -/
-@[stacks 04Y0]
-theorem tfae (f : X ⟶ Y) :
+/- Lemma 67.40.9: separatedness is equivalent to universal closedness and
+properness of the relative diagonal. -/
+@[stacks 04Y0] #check (AlgebraicGeometry.AlgebraicSpace.Separated.tfae_diagonal :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
     List.TFAE [Separated f, UniversallyClosed (pullback.diagonal f),
-      Proper (pullback.diagonal f)] :=
-  sorry
-
-/-- A morphism of algebraic spaces is separated if and only if its relative
-diagonal is universally closed. -/
-theorem iff_universallyClosed_diagonal (f : X ⟶ Y) :
-    Separated f ↔ UniversallyClosed (pullback.diagonal f) :=
-  sorry
-
-/-- A morphism of algebraic spaces is separated if and only if its relative
-diagonal is proper. -/
-theorem iff_proper_diagonal (f : X ⟶ Y) :
-    Separated f ↔ Proper (pullback.diagonal f) :=
-  sorry
-
-/-- The relative diagonal of a separated morphism of algebraic spaces is
-universally closed. -/
-instance universallyClosed_diagonal {f : X ⟶ Y} [Separated f] :
-    UniversallyClosed (pullback.diagonal f) :=
-  sorry
-
-/-- The relative diagonal of a separated morphism of algebraic spaces is
-proper. -/
-instance proper_diagonal {f : X ⟶ Y} [Separated f] :
-    Proper (pullback.diagonal f) :=
-  sorry
-
-end Separated
-
-end AlgebraicGeometry.AlgebraicSpace
+      Proper (pullback.diagonal f)])

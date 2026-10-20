@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.Basic
-public import stacks_project.Chap98.«98_13_2_1_Smooth»
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.SmoothOnPredeformations.BaseChange
+import StacksCheckRecall
 
 /-!
 # Base change of smoothness on predeformations
@@ -27,16 +20,15 @@ universe u
 
 namespace AlgebraicGeometry.Groupoids.Hom
 
-/-- Lemma 98.13.5: if `S` is locally Noetherian and `f : X ⟶ Y`, `g : Z ⟶ Y`
+/- Lemma 98.13.5: if `S` is locally Noetherian and `f : X ⟶ Y`, `g : Z ⟶ Y`
 are 1-morphisms of categories fibred in groupoids over `(Sch/S)_fppf`, and `f`
 is smooth on predeformations, then so is the projection
 `TwoFibreProduct.snd f g`. -/
-@[stacks 07XV]
-instance IsSmoothOnPredeformations.twoFibreProduct_snd
-    {S : Scheme.{u}} [IsLocallyNoetherian S]
-    {X Y Z : GroupoidsOver S} (f : X ⟶ Y) (g : Z ⟶ Y)
-    [IsSmoothOnPredeformations f] :
-    IsSmoothOnPredeformations (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g) :=
-  sorry
+@[stacks 07XV] #check
+  (AlgebraicGeometry.Groupoids.Hom.IsSmoothOnPredeformations.twoFibreProduct_snd :
+    ∀ {S : Scheme.{u}} [IsLocallyNoetherian S]
+      {X Y Z : GroupoidsOver S} (f : X ⟶ Y) (g : Z ⟶ Y)
+      [IsSmoothOnPredeformations f],
+      IsSmoothOnPredeformations (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g))
 
 end AlgebraicGeometry.Groupoids.Hom

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_17_4_Sheaf
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Deformation.Sheaf
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
@@ -29,6 +23,6 @@ The rule sending `U'` in `(X')_spaces,étale` to the set of morphisms
 `a' : U' ⟶ Y'` over `B` that restrict to `a` on `U = X ×_{X'} U'` and induce
 the restriction of `A` defines a sheaf of sets on `(X')_spaces,étale`. -/
 @[stacks 061A] #check
-  (sectionsPresheaf_isSheaf sX' sY' iX iY a A :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.Deformation.sectionsPresheaf_isSheaf sX' sY' iX iY a A :
     Presheaf.IsSheaf (spacesEtaleTopology X')
       (sectionsPresheaf sX' sY' iX iY a A))

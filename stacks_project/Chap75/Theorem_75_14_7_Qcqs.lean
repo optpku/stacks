@@ -1,14 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_3_1_Separation
-public import stacks_project.Chap66.Definition_66_5_1_QuasiCompact
-public import stacks_project.Chap75.Definition_75_14_2_Approximation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.ApproximationByPerfectComplexes.Qcqs
 
 /-!
 # Approximation by perfect complexes on qcqs algebraic spaces
@@ -19,20 +11,12 @@ perfect complexes.
 
 @[expose] public section
 
-open AlgebraicGeometry
+open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-namespace HasApproximationByPerfectComplexes
-
-/-- Every quasi-compact, quasi-separated algebraic space admits approximation by
-perfect complexes. -/
-theorem of_qcqs {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X] :
-    HasApproximationByPerfectComplexes X := sorry
-
-end HasApproximationByPerfectComplexes
-
-end AlgebraicGeometry.AlgebraicSpace
+#check
+  (AlgebraicGeometry.AlgebraicSpace.HasApproximationByPerfectComplexes.of_qcqs :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+      [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X],
+      HasApproximationByPerfectComplexes X)

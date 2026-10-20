@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Monoidal
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Localization
 public import ReasLib.CategoryTheory.DerivedCategory.Monoidal.Tensor.Bifunctor
+public import ReasLib.CategoryTheory.Functor.Derived.ComputesAt.Subset.Left
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -76,6 +71,44 @@ abbrev localization :
         ModuleDerived.{w} (RingedSite.ofCommRingSheaf J O)) :=
   CategoryTheory.DerivedCategory.DerivedTensor.Bifunctor.localization
     (C := ModuleCat.{w} (RingedSite.ofCommRingSheaf J O))
+
+private theorem kFlatPairs_reach
+    (X : ModuleHomotopy.{w} (RingedSite.ofCommRingSheaf J O) ×
+      ModuleHomotopy.{w} (RingedSite.ofCommRingSheaf J O)) :
+    ∃ Y, ∃ s : Y ⟶ X, Y.1.IsKFlat ∧ Y.2.IsKFlat ∧ qis O s := by
+  obtain ⟨r⟩ := (SheafOfModules.RingedSite.KFlat.hasResolutions (O := O)) X.1
+  obtain ⟨s⟩ := (SheafOfModules.RingedSite.KFlat.hasResolutions (O := O)) X.2
+  exact ⟨(r.X₁.obj, s.X₁.obj), (r.w, s.w), r.X₁.property, s.X₁.property,
+    r.hw, s.hw⟩
+
+private theorem kFlatPairs_invert
+    {X Y : ModuleHomotopy.{w} (RingedSite.ofCommRingSheaf J O) ×
+      ModuleHomotopy.{w} (RingedSite.ofCommRingSheaf J O)}
+    (f : X ⟶ Y) (hX : X.1.IsKFlat ∧ X.2.IsKFlat)
+    (hY : Y.1.IsKFlat ∧ Y.2.IsKFlat) (hf : qis O f) :
+    IsIso ((sourceFunctor O).map f) := by
+  have hmon := HomotopyCategory.KFlat.quasiIsoIsMonoidal
+    (C := ModuleCat.{w} (RingedSite.ofCommRingSheaf J O))
+  have ht := @MorphismProperty.tensorHom_mem _ _
+    (HomotopyCategory.KFlat.quasiIso
+      (C := ModuleCat.{w} (RingedSite.ofCommRingSheaf J O))) _ hmon
+    ⟨X.1, hX.1⟩ ⟨Y.1, hY.1⟩ (ObjectProperty.homMk f.1)
+    ⟨X.2, hX.2⟩ ⟨Y.2, hY.2⟩ (ObjectProperty.homMk f.2) hf.1 hf.2
+  have hi := Localization.inverts
+    (DerivedCategory.Qh : ModuleHomotopy.{w} (RingedSite.ofCommRingSheaf J O) ⥤ _)
+    (HomotopyCategory.quasiIso _ (up ℤ)) _ ht
+  exact (NatIso.isIso_map_iff
+    (DerivedCategory.DerivedTensor.Bifunctor.sourceFunctorIso
+      (C := ModuleCat.{w} (RingedSite.ofCommRingSheaf J O))) f).mp hi
+
+/-- K-flat resolutions in both variables give the canonical total derived tensor bifunctor. -/
+instance hasBifunctor : Has O := by
+  apply Functor.LeftDerived.EverywhereDefined.hasFunctor_of_subset
+    (sourceFunctor O) (qis O) (fun X ↦ X.1.IsKFlat ∧ X.2.IsKFlat)
+  · intro X
+    obtain ⟨Y, s, h₁, h₂, hs⟩ := kFlatPairs_reach O X
+    exact ⟨Y, s, ⟨h₁, h₂⟩, hs⟩
+  · exact kFlatPairs_invert O
 
 /-- The two-variable total left-derived tensor functor for module sheaves. -/
 @[stacks 0FPH "ringed-site derived tensor bifunctor"]

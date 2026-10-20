@@ -1,27 +1,16 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
-public import Mathlib.CategoryTheory.Category.ULift
-public import Mathlib.CategoryTheory.Comma.Over.Basic
-public import ReasLib.CategoryTheory.Fibered.Groupoids.Hom
+public import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CohStack.Hom.Presentation
 
 /-!
-# Smooth morphisms of groupoid fibrations over schemes
-
-A 1-morphism of categories fibred in groupoids over `Over S` is smooth when it admits a
-presentation by scheme slices whose comparison morphism of schemes is smooth.
+# Smooth morphisms of lifted groupoid fibrations
 -/
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry
-open FiberedCategoryOver
+open AlgebraicGeometry.GroupScheme
 open scoped Bicategory
 
 noncomputable section
@@ -30,72 +19,74 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.CohStack.Hom
 
-/-- The universe-lifted slice projection of a scheme over `S`. -/
-def schemeSliceProjection {S : Scheme.{u}} (U : Over S) :
-    ULiftHom.{u + 1} (Over U) ⥤ Over S :=
-  (ULiftHom.down : ULiftHom.{u + 1} (Over U) ⥤ Over U) ⋙ Over.forget U
-
-/-- The universe-lifted slice projection is fibred in groupoids. -/
-instance instIsFiberedInGroupoids_schemeSlice {S : Scheme.{u}} (U : Over S) :
-    Functor.IsFibered.InGroupoids (schemeSliceProjection U) :=
-  sorry
-
-/-- The canonical scheme slice of an object of `Over S`, as a category fibred in groupoids. -/
-def schemeSlice {S : Scheme.{u}} (U : Over S) :
-    FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S) :=
-  Groupoids.ofFunctor.{u + 1, u, u + 1, u + 1} (schemeSliceProjection U)
-
-/-- The projection of `schemeSlice U` is `schemeSliceProjection U`. -/
-theorem schemeSlice_p {S : Scheme.{u}} (U : Over S) :
-    (schemeSlice U).p = schemeSliceProjection U :=
-  Groupoids.ofFunctor.p (schemeSliceProjection U)
-
-/-- The total functor of scheme slices induced by a morphism in `Over S`. -/
-def schemeSliceFunctor {S : Scheme.{u}} {U V : Over S} (h : U ⟶ V) :
-    ULiftHom.{u + 1} (Over U) ⥤ ULiftHom.{u + 1} (Over V) :=
-  (ULiftHom.down : ULiftHom.{u + 1} (Over U) ⥤ Over U) ⋙ Over.map h ⋙ ULiftHom.up
-
-/-- A 1-morphism `f : X ⟶ Y` of categories fibred in groupoids over `Over S` is smooth if it
-admits scheme slices `U`, `V` and structure maps `a`, `b`, `h` with `AlgebraicGeometry.Smooth`
-on `h.left`. -/
+/-- A 1-morphism `f : X ⟶ Y` of categories fibred in groupoids over `Over S`, in
+the Hom-universe of `CohStack.toGroupoids`, is smooth if some commutative square
+with algebraic-space vertices, smooth vertical arrows, and surjective source
+atlas has smooth top arrow. -/
+@[stacks 075U]
 class Smooth {S : Scheme.{u}}
     {X Y : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)}
     (f : X ⟶ Y) : Prop where
-  /-- There are scheme slices and structure maps presenting `f` with a smooth comparison. -/
-  exists_smooth_scheme_presentation :
-    ∃ (U V : Over S) (a : schemeSlice U ⟶ X) (b : schemeSlice V ⟶ Y) (h : U ⟶ V),
-      AlgebraicGeometry.Smooth h.left ∧
-        Groupoids.toFunctor a ⋙ Groupoids.toFunctor f =
-          schemeSliceFunctor h ⋙ Groupoids.toFunctor b
+  /-- There is a smooth presentation of `f` by algebraic spaces whose source
+  atlas is surjective and whose top arrow is smooth. -/
+  exists_surjective_smooth_presentation :
+    ∃ (U V : AlgebraicSpace S) (a : Classifying.toGroupoids U ⟶ X)
+      (b : Classifying.toGroupoids V ⟶ Y) (h : U ⟶ V),
+      IsSmoothSurjectivePresentation f a b h ∧ AlgebraicSpace.Smooth h
 
-/-- A 1-morphism is smooth if and only if it admits a scheme-slice presentation whose comparison
-morphism of schemes is smooth. -/
+/-- A 1-morphism is smooth if and only if it admits a smooth algebraic-space
+presentation with surjective source atlas and smooth top arrow. -/
 theorem smooth_iff {S : Scheme.{u}}
     {X Y : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)}
     (f : X ⟶ Y) :
     Smooth f ↔
-      ∃ (U V : Over S) (a : schemeSlice U ⟶ X) (b : schemeSlice V ⟶ Y) (h : U ⟶ V),
-        AlgebraicGeometry.Smooth h.left ∧
-          Groupoids.toFunctor a ⋙ Groupoids.toFunctor f =
-            schemeSliceFunctor h ⋙ Groupoids.toFunctor b :=
+      ∃ (U V : AlgebraicSpace S) (a : Classifying.toGroupoids U ⟶ X)
+        (b : Classifying.toGroupoids V ⟶ Y) (h : U ⟶ V),
+        IsSmoothSurjectivePresentation f a b h ∧ AlgebraicSpace.Smooth h :=
   sorry
 
 namespace Smooth
 
-/-- The identity 1-morphism of a category fibred in groupoids is smooth. -/
-instance id {S : Scheme.{u}}
-    {X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)} :
+/-- The identity of a groupoid fibration admitting a smooth surjective algebraic-space
+atlas is smooth. -/
+theorem id {S : Scheme.{u}}
+    {X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)}
+    (U : AlgebraicSpace S) (a : Classifying.toGroupoids U ⟶ X)
+    (ha : Classifying.Smooth a) (hasurj : Classifying.Surjective a) :
     Smooth (𝟙 X) :=
   sorry
 
-/-- A smooth 1-morphism admits a scheme-slice presentation with smooth comparison morphism. -/
+/-- A smooth morphism of algebraic spaces induces a smooth 1-morphism of
+categories fibred in groupoids. -/
+instance of_toGroupoids {S : Scheme.{u}} {U V : AlgebraicSpace S} (h : U ⟶ V)
+    [AlgebraicSpace.Smooth h] :
+    Smooth (Classifying.toGroupoids.map h) :=
+  sorry
+
+/-- On morphisms of algebraic spaces, smoothness of the associated groupoid
+fibration morphism is the usual smoothness property. -/
+theorem toGroupoids_iff {S : Scheme.{u}} {U V : AlgebraicSpace S} (h : U ⟶ V) :
+    Smooth (Classifying.toGroupoids.map h) ↔ AlgebraicSpace.Smooth h :=
+  sorry
+
+/-- For a representable morphism whose target admits a smooth surjective atlas,
+the presentation criterion agrees with smoothness of every representing base change. -/
+theorem iff_classifying {S : Scheme.{u}}
+    {X Y : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)}
+    (f : X ⟶ Y) (hf : Classifying.relativelyRepresentableByAlgebraicSpaces f)
+    (V : AlgebraicSpace S) (b : Classifying.toGroupoids V ⟶ Y)
+    (hb : Classifying.Smooth b) (hbsurj : Classifying.Surjective b) :
+    Smooth f ↔ Classifying.Smooth f :=
+  sorry
+
+/-- A smooth 1-morphism admits a smooth algebraic-space presentation with
+surjective source atlas and smooth top arrow. -/
 theorem spec {S : Scheme.{u}}
     {X Y : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)}
     (f : X ⟶ Y) [Smooth f] :
-    ∃ (U V : Over S) (a : schemeSlice U ⟶ X) (b : schemeSlice V ⟶ Y) (h : U ⟶ V),
-      AlgebraicGeometry.Smooth h.left ∧
-        Groupoids.toFunctor a ⋙ Groupoids.toFunctor f =
-          schemeSliceFunctor h ⋙ Groupoids.toFunctor b :=
+    ∃ (U V : AlgebraicSpace S) (a : Classifying.toGroupoids U ⟶ X)
+      (b : Classifying.toGroupoids V ⟶ Y) (h : U ⟶ V),
+      IsSmoothSurjectivePresentation f a b h ∧ AlgebraicSpace.Smooth h :=
   sorry
 
 end Smooth

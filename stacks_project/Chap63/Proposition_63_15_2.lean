@@ -1,19 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Module.Torsion.Basic
-public import Mathlib.AlgebraicGeometry.Morphisms.Proper
-public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
-public import Mathlib.RingTheory.Noetherian.Basic
-public import ReasLib.CategoryTheory.Sites.LocallyConstant.Finite
-public import stacks_project.Chap59.Lemma_59_75_6_Stalk
-public import stacks_project.Chap63.Definition_63_12_1_LowerShriek
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.SmoothProper
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -49,7 +37,7 @@ variable [HasRightDerivedFunctor
   (HomologicalComplex.quasiIso
     (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
 
-/-- Proposition 63.15.2: if `f : X ⟶ S` is a smooth proper morphism of schemes,
+/- Proposition 63.15.2: if `f : X ⟶ S` is a smooth proper morphism of schemes,
 `Λ` is a Noetherian ring, and `F` is a finite-type locally constant sheaf of
 `Λ`-modules on the small étale site of `X` such that for every geometric point
 `xbar` of `X` the stalk `étaleModuleStalk xbar F` is annihilated by an integer
@@ -57,22 +45,21 @@ variable [HasRightDerivedFunctor
 the homology sheaf of `etaleDerivedPushforward f` applied to `F` placed in
 degree `0` is a finite-type locally constant sheaf of `Λ`-modules on the small
 étale site of `S`. -/
-@[stacks 0GLI]
-theorem etaleDerivedPushforward_homology_isFiniteTypeLocallyConstantModule
-    (F : Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ))
+@[stacks 0GLI] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedPushforward_homology_isFiniteTypeLocallyConstantModule f :
+    ∀ (F : Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ))
     [Sheaf.IsFiniteTypeLocallyConstantModule F]
     (h_stalk : ∀ xbar : GeometricPoint X,
       ∃ n : ℕ, 0 < n ∧
         Module.IsTorsionBy Λ (étaleModuleStalk xbar F) (n : Λ) ∧
         (n : xbar.K) ≠ 0)
-    (i : ℤ) :
+    (i : ℤ),
     Sheaf.IsFiniteTypeLocallyConstantModule
       ((DerivedCategory.homologyFunctor
           (Sheaf S.smallEtaleTopology (ModuleCat.{u} Λ)) i).obj
         ((etaleDerivedPushforward f).obj
           ((DerivedCategory.singleFunctor
-              (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ)) (0 : ℤ)).obj F))) :=
-  sorry
+              (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ)) (0 : ℤ)).obj F))))
 
 end AlgebraicGeometry.Scheme.Etale
 

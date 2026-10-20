@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Bicategory.DottedArrow.Postcompose
-public import stacks_project.Chap101.«101_39_1_1_ValuativeSquare»
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.ValuativeSquare
 import StacksCheckRecall
 
 @[expose] public section
@@ -23,7 +17,8 @@ variable {S : Scheme.{u}} {X' Y' X Y : GroupoidsOver S}
 variable [AlgebraicStack X'] [AlgebraicStack Y'] [AlgebraicStack X] [AlgebraicStack Y]
 variable {p : X' ⟶ Y'} {q : X' ⟶ X} {g : Y' ⟶ Y} {f : X ⟶ Y}
 variable (φ : p ≫ g ≅ q ≫ f)
-variable [(⟨X', q, p, φ.symm⟩ : Bicategory.PseudoPullbackCone f g).IsBilimit]
+variable [Bicategory.PseudoPullbackCone.IsBilimit
+  (⟨X', q, p, φ.symm⟩ : Bicategory.PseudoPullbackCone f g)]
 variable (sq : ValuativeCommSq p)
 
 /- Lemma 101.39.4: in a 2-commutative diagram of algebraic stacks
@@ -36,7 +31,7 @@ The left dotted-arrow category is `DottedArrow sq.toCone`, with `γ' = sq.iso`.
 The outer dotted-arrow category is `DottedArrow (sq.toCone.postcompose φ)`,
 with `x = sq.i₁ ≫ q`, `y = sq.i₂ ≫ g`, and `γ = pasteSquareIso sq.iso φ`. -/
 @[stacks 0CLE]
-#check (DottedArrow.postcomposeFunctor.isEquivalence sq.toCone φ :
-  (DottedArrow.postcomposeFunctor sq.toCone φ).IsEquivalence)
+#check (CategoryTheory.DottedArrow.postcomposeFunctor.isEquivalence sq.toCone φ :
+  (CategoryTheory.DottedArrow.postcomposeFunctor sq.toCone φ).IsEquivalence)
 
 end AlgebraicGeometry.AlgebraicStack

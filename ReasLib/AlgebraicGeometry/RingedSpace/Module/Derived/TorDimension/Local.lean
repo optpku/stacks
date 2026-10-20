@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.TorDimension
@@ -36,9 +30,14 @@ variable {X : RingedSpace.{u}}
 /-- A derived `𝒪_X`-module has finite Tor dimension on `U` when its canonical restriction
 to the open subspace `U` has finite Tor dimension. -/
 abbrev HasFiniteTorDimensionOnOpen
-    (E : ModuleDerived X) (U : Opens X.carrier) : Prop :=
+    (E : ModuleDerived X) (U : Opens X.carrier)
+    [DerivedCategory.DerivedTensor.Right.Has
+      (C := Modules (X.restrict U.isOpenEmbedding))] : Prop :=
   HasFiniteTorDimension (X := X.restrict U.isOpenEmbedding)
     ((moduleRestrictionToOpenDerived X U).obj E)
+
+variable [∀ U : Opens X.carrier, DerivedCategory.DerivedTensor.Right.Has
+  (C := Modules (X.restrict U.isOpenEmbedding))]
 
 /-- Definition 20.48.1 (3), object-property owner: derived modules whose restrictions have finite
 Tor dimension on the members of an open cover. -/

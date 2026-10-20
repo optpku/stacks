@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap70.Lemma_70_11_4_Approximation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Limit.ClosedImmersionApproximation
 import StacksCheckRecall
 
 @[expose] public section
@@ -26,4 +20,8 @@ of finite presentation. -/
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
       [AlgebraicSpace.IsClosedImmersion f]
       [IsQuasiCompact Y] [IsAbsolutelyQuasiSeparated Y],
-      Nonempty (ClosedImmersionApproximation f))
+      ∃ (I : Type u) (preorderI : Preorder I) (nonemptyI : Nonempty I)
+        (directedI : IsDirected I (· ≤ ·)) (D : OrderDual I ⥤ AlgebraicSpace S)
+        (π : (Functor.const (OrderDual I)).obj X ⟶ D)
+        (σ : D ⟶ (Functor.const (OrderDual I)).obj Y),
+        IsClosedImmersionApproximation f D π σ)

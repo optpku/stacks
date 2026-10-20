@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Abelian.GrothendieckCategory.Basic
@@ -39,16 +33,26 @@ variable {𝒪 : Sheaf J CommRingCat.{w}}
 
 namespace DifferentialGradedModule
 
-/-- Lemma 24.22.6 (0FS9): differential graded modules over `𝒜` have a separator. -/
+/-- Natural families of coefficient-sized module maps form small Hom types when the
+site object type is small in the coefficient universe. -/
+instance instLocallySmall [Small.{w} C] (𝒜 : DGA(𝒪)) :
+    LocallySmall.{w} (Mod(𝒜, d)) := sorry
+
+/-- Lemma 24.22.6 (0FS9): differential graded modules over `𝒜` on a site small in the coefficient
+universe have a separator. -/
 @[stacks 0FS9 "separator"]
-theorem hasSeparator (𝒜 : DGA(𝒪)) :
+theorem hasSeparator [Small.{w} C] [LocallySmall.{w} C] (𝒜 : DGA(𝒪)) :
     HasSeparator (Mod(𝒜, d)) := sorry
 
 /-- Lemma 24.22.6 (0FS9): differential graded modules over `𝒜` form a Grothendieck abelian
-category. -/
+category at the coefficient universe on a site small in that universe. -/
 @[stacks 0FS9 "Grothendieck abelian category"]
-instance instIsGrothendieckAbelian (𝒜 : DGA(𝒪)) :
-    IsGrothendieckAbelian.{max u v w} (Mod(𝒜, d)) := sorry
+instance instIsGrothendieckAbelian [Small.{w} C] [LocallySmall.{w} C]
+    (𝒜 : DGA(𝒪)) : IsGrothendieckAbelian.{w} (Mod(𝒜, d)) where
+  locallySmall := instLocallySmall 𝒜
+  hasFilteredColimitsOfSize := inferInstance
+  ab5OfSize := instAB5 𝒜
+  hasSeparator := hasSeparator 𝒜
 
 end DifferentialGradedModule
 

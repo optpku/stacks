@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap48.Remark_48_32_5_Flattening
@@ -41,7 +35,7 @@ pro-isomorphism class; functoriality in `K` is deferred to the next lemma.
     Function.Bijective
       ((CategoryTheory.Pro.SequentialHom.diagonalProHomComparison M r).app N))
 
-#check (CategoryTheory.Pro.SequentialHom.diagonalPro_unique :
+#check (CategoryTheory.Pro.SequentialHom.isoDiagonalPro :
   ∀ {C : Type u} [Category.{v} C]
     {M : ℕ → ℕᵒᵖ ⥤ C}
     (r : ∀ k, Pro.SequentialHom (M (k + 1)) (M k))
@@ -49,4 +43,4 @@ pro-isomorphism class; functoriality in `K` is deferred to the next lemma.
     (comparison : ((Pro.inclusion C).obj P).unop ⟶
       CategoryTheory.Pro.SequentialHom.iteratedHomColimit M r)
     (_ : ∀ N, Function.Bijective (comparison.app N)),
-    Nonempty (P ≅ CategoryTheory.Pro.SequentialHom.diagonalPro M r))
+    P ≅ CategoryTheory.Pro.SequentialHom.diagonalPro M r)

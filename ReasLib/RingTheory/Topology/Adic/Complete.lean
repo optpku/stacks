@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.AdicCompletion.Topology
@@ -12,8 +6,6 @@ import Mathlib.Tactic.CrossRefAttribute
 
 /-!
 # Complete admissible and adic topological rings
-
-@stack 07E8
 -/
 
 @[expose] public section
@@ -76,6 +68,14 @@ instance instCompleteSpaceOfIsAdicRing [IsAdicRing R] :
 /-- An adic ring is admissible after forgetting the chosen complete adic ideal. -/
 @[stacks 07E8 "an adic ring is admissible"]
 instance instIsAdmissibleRing [IsAdicRing R] : IsAdmissibleRing R := sorry
+
+/-- An ideal of definition in an adic ring is complete for the induced adic topology. -/
+theorem Ideal.IsIdealOfDefinition.isAdicComplete [IsAdicRing R] {I : Ideal R}
+    (hI : Ideal.IsIdealOfDefinition I) : IsAdicComplete I R := by
+  exact (@IsAdic.isAdicComplete_iff R _
+    (IsTopologicalAddGroup.rightUniformSpace R)
+    isUniformAddGroup_of_addCommGroup I hI.isAdic).mpr
+      ⟨instCompleteSpaceOfIsAdicRing, instT2SpaceOfIsAdicRing⟩
 
 end
 

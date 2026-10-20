@@ -1,27 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_18_8_Pullback
-public import stacks_project.Chap76.Lemma_76_9_2_Thickening
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Thickening
 
-@[expose] public section
-
-open AlgebraicGeometry CategoryTheory
+open AlgebraicGeometry CategoryTheory AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- For a thickening `i : X ⟶ X'` of algebraic spaces, base change along `i`
-induces an equivalence from the spaces-étale site of `X'` to the spaces-étale
-site of `X`. -/
-instance spacesEtalePullback_isEquivalence_of_isThickening
-    {S : Scheme.{u}} {X X' : AlgebraicSpace S} (i : X ⟶ X') [IsThickening i] :
-    (spacesEtalePullback i).IsEquivalence := sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+#check
+  (AlgebraicGeometry.AlgebraicSpace.spacesEtalePullback_isEquivalence_of_isThickening :
+    ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (i : X ⟶ X') [IsThickening i],
+      (spacesEtalePullback i).IsEquivalence)

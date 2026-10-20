@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap71.Lemma_71_19_3_AdmissibleBlowup
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Blowup.Extension
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,7 +15,7 @@ space. Let `U, V ⊂ X` be quasi-compact open subspaces. Let `b : V' ⟶ V` be a
 `(U ∩ V)`-admissible blowup. Then there exists a `U`-admissible blowup `X' ⟶ X` whose
 restriction to `V` is `V'`. -/
 @[stacks 086D] #check
-  (exists_isAdmissibleBlowup_restrict_iso_of_isAdmissibleBlowup_inter :
+  (AlgebraicGeometry.AlgebraicSpace.exists_isAdmissibleBlowup_restrict_iso_of_isAdmissibleBlowup_inter :
     ∀ {S : Scheme.{u}} {X V' : AlgebraicSpace S} [IsQuasiCompact X]
       [IsAbsolutelyQuasiSeparated X] (U V : OpenSubspace X)
       [QuasiCompact U.ι] [QuasiCompact V.ι] (b : V' ⟶ V.X),

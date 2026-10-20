@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.IdealSheafData.OpenComplement
@@ -329,7 +323,7 @@ noncomputable def baseChangeGysin
     [LocallyOfFiniteType g.left]
     (square : IsPullback i.left f'.left (infinityToX X b).left g.left) (k : ℤ) :
     RelativeChow δ (baseChange X b g) (k + 1) →+ RelativeChow δ X' k :=
-  (ChowCohomology.castDegree δ (gysinDegree k)).comp
+  (RelativeChow.castDegree δ (gysinDegree k)).comp
     (gysinCap δ (compactification X b) (infinityLineBundle X b) (infinitySection X b)
       i (baseChangeLift X b i f' g square) (pullback.fst (toX X b) g)
       (baseChangeInfinitySquare X b i f' g square) (k + 1))
@@ -382,7 +376,7 @@ noncomputable def cap
     (b : W ⟶ ProjectiveLineFamily.space X) [IsProper b] [IsIso (b ∣_ affinePart X)] :
     CapFamily δ (infinityToX X b) 0 :=
   fun {_ Y'} _ _ i f' g _ square k ↦
-    (ChowCohomology.castDegree δ (Int.sub_zero k).symm).comp
+    (RelativeChow.castDegree δ (Int.sub_zero k).symm).comp
       ((descent δ X b i f' g square k).comp
         (@ChowGroup.flatPullback S _ δ _ (baseChangeAffine X b g) Y' _ _
           (baseChangeAffineProjection X b g) 1 _
@@ -398,7 +392,7 @@ theorem cap_apply
     [LocallyOfFiniteType g.left]
     (square : IsPullback i.left f'.left (infinityToX X b).left g.left) (k : ℤ) :
     cap δ X b i f' g square k =
-      (ChowCohomology.castDegree δ (Int.sub_zero k).symm).comp
+      (RelativeChow.castDegree δ (Int.sub_zero k).symm).comp
         ((descent δ X b i f' g square k).comp
           (@ChowGroup.flatPullback S _ δ _ (baseChangeAffine X b g) Y' _ _
             (baseChangeAffineProjection X b g) 1 _
@@ -492,7 +486,7 @@ noncomputable def infinityPushforwardCap
       hW' hW' h_pullback i h_i i (𝟙 W') IsPullback.of_id_snd
       (pullback.fst (infinityInclusion X b) i) h_fst
       (pullback.snd (infinityInclusion X b) i) baseChangeSquare k).comp
-        ((Cospan.castDegree δ (Int.sub_zero k)).comp
+        ((RelativeChow.castDegree δ (Int.sub_zero k)).comp
           (@(gysinAtInfinity δ X b).cap
             (pullback (infinityInclusion X b) i) X' h_pullback hX'
             (pullback.fst (infinityInclusion X b) i)
@@ -522,7 +516,7 @@ theorem infinityPushforwardCap_apply
         i i (𝟙 W') IsPullback.of_id_snd
         (pullback.fst (infinityInclusion X b) i)
         (pullback.snd (infinityInclusion X b) i) baseChangeSquare k
-        (Cospan.castDegree δ (Int.sub_zero k)
+        (RelativeChow.castDegree δ (Int.sub_zero k)
           ((gysinAtInfinity δ X b).cap
             (pullback.fst (infinityInclusion X b) i)
             (pullback.snd (infinityInclusion X b) i ≫ f') g
@@ -561,7 +555,7 @@ noncomputable def zeroPushforwardCap
       hW' hW' h_pullback i h_i i (𝟙 W') IsPullback.of_id_snd
       (pullback.fst (zeroSectionLift X b) i) h_fst
       (pullback.snd (zeroSectionLift X b) i) baseChangeSquare k).comp
-        ((Cospan.castDegree δ (Int.sub_zero k)).comp
+        ((RelativeChow.castDegree δ (Int.sub_zero k)).comp
           (@(zeroIdentity δ X b).cap
             (pullback (zeroSectionLift X b) i) X' h_pullback hX'
             (pullback.fst (zeroSectionLift X b) i)
@@ -591,7 +585,7 @@ theorem zeroPushforwardCap_apply
         i i (𝟙 W') IsPullback.of_id_snd
         (pullback.fst (zeroSectionLift X b) i)
         (pullback.snd (zeroSectionLift X b) i) baseChangeSquare k
-        (Cospan.castDegree δ (Int.sub_zero k)
+        (RelativeChow.castDegree δ (Int.sub_zero k)
           ((zeroIdentity δ X b).cap
             (pullback.fst (zeroSectionLift X b) i)
             (pullback.snd (zeroSectionLift X b) i ≫ f') g

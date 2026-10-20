@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import ReasLib.CategoryTheory.DerivedCategory.InjectiveResolution
@@ -27,7 +21,7 @@ injective-homotopy embedding and its equivalence criterion.
 
 /- Proposition 13.23.1 (Stacks 013V): bounded-below complexes of injectives
 compute the bounded-below derived category. -/
-@[stacks 013V] #check @HomotopyCategory.Plus.InjectiveResolutionFunctor.toDerived.isEquivalence
+@[stacks 013V] #check @HomotopyCategory.Plus.Injective.toDerived.isEquivalence
 
 #check @HomotopyCategory.Plus.Injective.toDerived
 #check @HomotopyCategory.Plus.Injective.toDerived.map_bijective

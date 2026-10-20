@@ -1,12 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Comparison
 public import stacks_project.Chap66.Lemma_66_18_6_Site
+import StacksCheckRecall
 
 /-!
 # Comparison of the affine étale site with the small étale site
@@ -24,22 +20,20 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+variable {S : Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S)
 
-/-- Lemma 66.18.6 (1): the functor `affineEtaleSite X ⥤ smallEtaleSite X` sending an affine
+/- Lemma 66.18.6 (1): the functor `affineEtaleSite X ⥤ smallEtaleSite X` sending an affine
 scheme étale over `X` to the same object is special cocontinuous. -/
-@[stacks 04JS]
-instance affineEtaleInclusion_isSpecialCocontinuous {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    (affineEtaleInclusion X).IsSpecialCocontinuous (affineEtaleTopology X)
-      (smallEtaleTopology X) :=
-  sorry
+@[stacks 04JS] #check
+  (AlgebraicGeometry.AlgebraicSpace.affineEtaleInclusion_isSpecialCocontinuous X :
+    (AlgebraicGeometry.AlgebraicSpace.affineEtaleInclusion X).IsSpecialCocontinuous
+      (AlgebraicGeometry.AlgebraicSpace.affineEtaleTopology X)
+      (AlgebraicGeometry.AlgebraicSpace.smallEtaleTopology X))
 
-/-- Lemma 66.18.6 (2): the cocontinuous direct image along `affineEtaleInclusion X` is an
+/- Lemma 66.18.6 (2): the cocontinuous direct image along `affineEtaleInclusion X` is an
 equivalence `Sheaf (affineEtaleTopology X) ⥤ Sheaf (smallEtaleTopology X)` on sheaves of sets. -/
-@[stacks 04JS]
-instance affineEtaleInclusion_directImage_isEquivalence {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    ((affineEtaleInclusion X).sheafPushforwardCocontinuous (Type (u + 1))
-      (affineEtaleTopology X) (smallEtaleTopology X)).IsEquivalence :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 04JS] #check
+  (AlgebraicGeometry.AlgebraicSpace.affineEtaleInclusion_directImage_isEquivalence X :
+    ((AlgebraicGeometry.AlgebraicSpace.affineEtaleInclusion X).sheafPushforwardCocontinuous
+      (Type (u + 1)) (AlgebraicGeometry.AlgebraicSpace.affineEtaleTopology X)
+      (AlgebraicGeometry.AlgebraicSpace.smallEtaleTopology X)).IsEquivalence)

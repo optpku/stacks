@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import Mathlib.CategoryTheory.Action.Limits
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommCompletedRing
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.ModuleRestrictionIso
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.FiniteFreeModuleResolution

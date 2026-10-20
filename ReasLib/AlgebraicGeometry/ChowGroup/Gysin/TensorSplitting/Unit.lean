@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowGroup.Gysin.TensorSplitting.FirstProjection
@@ -62,7 +56,8 @@ theorem pullbackZero₁Over_isDimensionFunction
       ((Scheme.Modules.pullback f).obj L)
       (Scheme.Modules.pullbackTensorSection f (Scheme.Modules.unitTensorSection L s))) :
     IsDimensionFunction
-      ((pullbackZero₁Over X f L s C).hom.relativeDimensionFunction delta) := sorry
+      (@Scheme.Hom.relativeDimensionFunction _ _ (pullbackZero₁Over X f L s C).hom
+        (pullbackZero₁Over_locallyOfFiniteType X f L s C) delta) := sorry
 
 /-- Degree-normalized first-projection pullback transported from the splitting's
 base zero scheme to the zero scheme of the original section. -/
@@ -87,7 +82,8 @@ theorem unitProjectionPullback_def
     unitProjectionPullback delta X L s C e h_e k =
       (@ChowGroup.reindex (zero₁Over X C).left
         (zero₁Over_isLocallyNoetherian X C)
-        ((zero₁Over X C).hom.relativeDimensionFunction delta)
+        (@Scheme.Hom.relativeDimensionFunction _ _ (zero₁Over X C).hom
+          (zero₁Over_locallyOfFiniteType X C) delta)
         (zero₁Over_isDimensionFunction delta X C)
         ((k - 1) + 1) k (sub_add_cancel k 1)).toAddMonoidHom.comp
       (@ChowGroup.flatPullback S inferInstance delta inferInstance
@@ -159,7 +155,8 @@ theorem pullbackUnitProjectionPullback_def
     pullbackUnitProjectionPullback delta X L s f C e h_e k =
       (@ChowGroup.reindex C.zero₁
         (pullbackZero₁Over_isLocallyNoetherian X L s f C)
-        ((pullbackZero₁Over X f L s C).hom.relativeDimensionFunction delta)
+        (@Scheme.Hom.relativeDimensionFunction _ _ (pullbackZero₁Over X f L s C).hom
+        (pullbackZero₁Over_locallyOfFiniteType X f L s C) delta)
         (pullbackZero₁Over_isDimensionFunction delta X L s f C)
         ((k - 1) + 1) k (sub_add_cancel k 1)).toAddMonoidHom.comp
       (@ChowGroup.flatPullback S inferInstance delta inferInstance

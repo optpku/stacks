@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap75.Lemma_75_21_2
@@ -39,14 +33,14 @@ noncomputable def pullbackComplexComparison (g' : X' ⟶ X)
     (ModuleDerived.pullback g').obj (DerivedCategory.Q.obj G) ⟶
       DerivedCategory.Q.obj
         (((Modules.pullback g').mapHomologicalComplex (up ℤ)).obj G) :=
-  (Functor.LeftDerived.Homotopy.cochainCounit (Modules.pullback g')).app G
+  (ModuleDerived.pullbackCochainCounit g').app G
 
 /-- `pullbackComplexComparison` is the cochain-level total left-derived counit of module
 pullback at `G`. -/
 theorem pullbackComplexComparison_eq (g' : X' ⟶ X)
     (G : CochainComplex (Modules X) ℤ) :
     pullbackComplexComparison g' G =
-      (Functor.LeftDerived.Homotopy.cochainCounit (Modules.pullback g')).app G :=
+      (ModuleDerived.pullbackCochainCounit g').app G :=
   sorry
 
 /-- The canonical base-change morphism

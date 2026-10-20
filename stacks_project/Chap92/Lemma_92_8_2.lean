@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap92.Lemma_92_8_1
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.RingTheory.CotangentComplex.Localization
+import StacksCheckRecall
 
 /-!
 # Vanishing of the cotangent complex along a derived diagonal
@@ -18,28 +12,20 @@ vanishes in `D(B)`.
 
 @[expose] public section
 
-open Algebra.CotangentComplex
-open CategoryTheory
-open CategoryTheory.Limits
-open RingedSite.Cotangent.Functoriality
-
 universe u
 
-namespace Algebra.CotangentComplex
-
-/-- Lemma 92.8.2. Let `A → B` be a ring map such that `B = B ⊗[A]^L B`.
+/- Lemma 92.8.2. Let `A → B` be a ring map such that `B = B ⊗[A]^L B`.
 Then `L_{B/A} = 0` in `D(B)`, as vanishing of `derived A B`. -/
-@[stacks 08R0]
-theorem isZero_derived_of_derivedTensor (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
-    (h : InducesDerivedTensorQuasiIso (idCodomainCommSq A B B)) :
-    IsZero (derived A B) :=
-  sorry
+@[stacks 08R0] #check (Algebra.CotangentComplex.isZero_derived_of_derivedTensor :
+  ∀ (A B : Type u) [CommRing A] [CommRing B] [Algebra A B],
+    RingedSite.Cotangent.Functoriality.InducesDerivedTensorQuasiIso
+      (Algebra.CotangentComplex.idCodomainCommSq A B B) →
+    CategoryTheory.Limits.IsZero (Algebra.CotangentComplex.derived A B))
 
-/-- Under the derived-tensor identity `B = B ⊗[A]^L B`, every homology module of
+/- Under the derived-tensor identity `B = B ⊗[A]^L B`, every homology module of
 `Algebra.cotangentComplex A B` vanishes. -/
-theorem isZero_homology_of_derivedTensor (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
-    (h : InducesDerivedTensorQuasiIso (idCodomainCommSq A B B)) {n : ℤ} :
-    IsZero ((Algebra.cotangentComplex A B).homology n) :=
-  sorry
-
-end Algebra.CotangentComplex
+#check (Algebra.CotangentComplex.isZero_homology_of_derivedTensor :
+  ∀ (A B : Type u) [CommRing A] [CommRing B] [Algebra A B],
+    RingedSite.Cotangent.Functoriality.InducesDerivedTensorQuasiIso
+      (Algebra.CotangentComplex.idCodomainCommSq A B B) →
+    ∀ {n : ℤ}, CategoryTheory.Limits.IsZero ((Algebra.cotangentComplex A B).homology n))

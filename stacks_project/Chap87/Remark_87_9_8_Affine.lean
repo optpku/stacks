@@ -1,83 +1,56 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap87.«87_2_0_2_FormalScheme»
+public import ReasLib.AlgebraicGeometry.FormalScheme.Affine
+public import ReasLib.AlgebraicGeometry.FormalScheme.Scheme
+import StacksCheckRecall
 
 /-!
 # Affine EGA formal schemes
 
-An EGA formal scheme is affine when it is isomorphic, as a locally
-topologically ringed space, to `Spf` of an admissible topological ring.
+An EGA formal scheme is affine when its underlying locally topologically ringed space
+is isomorphic to an admissible formal spectrum.
 -/
 
 @[expose] public section
 
-noncomputable section
-
 universe u
 
-open CategoryTheory AlgebraicGeometry
+open CategoryTheory Opposite TopologicalSpace Topology AlgebraicGeometry
+open scoped Cardinal
 
 namespace AlgebraicGeometry.FormalScheme
 
-/-- The EGA affine formal scheme associated to the formal spectrum of an
-admissible topological ring. -/
-def ofSpf (A : TopCommRingCat.{u}) (hA : TopologicalRing.IsAdmissibleRing A) :
-    FormalScheme.{u} where
-  toLocallyTopologicallyRingedSpace := spf A hA
-  local_affine := sorry
+/- Remark 87.9.8. Affine EGA formal schemes. -/
+@[stacks 0AIE] #check (AlgebraicGeometry.FormalScheme.ofSpf :
+    (A : TopCommRingCat.{u}) →
+      TopologicalRing.IsAdmissibleRing A → FormalScheme.{u})
 
-/-- The underlying locally topologically ringed space of `ofSpf A hA` is
-`spf A hA`. -/
-theorem ofSpf_toLocallyTopologicallyRingedSpace (A : TopCommRingCat.{u})
-    (hA : TopologicalRing.IsAdmissibleRing A) :
-    (ofSpf A hA).toLocallyTopologicallyRingedSpace = spf A hA :=
-  sorry
+#check (AlgebraicGeometry.FormalScheme.ofSpf_toLocallyTopologicallyRingedSpace :
+    ∀ (A : TopCommRingCat.{u})
+      (hA : TopologicalRing.IsAdmissibleRing A),
+      (ofSpf A hA).toLocallyTopologicallyRingedSpace = spf A hA)
 
-/-- An EGA formal scheme is affine when it is isomorphic in LTRS to `Spf` of an
-admissible topological ring. -/
-class IsAffine (X : FormalScheme.{u}) : Prop where
-  /-- There is an admissible topological ring whose formal spectrum is
-  isomorphic to `X` in LTRS. -/
-  exists_iso_spf :
-    ∃ (A : TopCommRingCat.{u}) (hA : TopologicalRing.IsAdmissibleRing A),
-      Nonempty (X.toLocallyTopologicallyRingedSpace ≅ spf A hA)
+#check (AlgebraicGeometry.FormalScheme.IsAffine :
+    FormalScheme.{u} → Prop)
 
-namespace IsAffine
+#check (AlgebraicGeometry.FormalScheme.IsAffine.of :
+    ∀ {X : FormalScheme.{u}} {A : TopCommRingCat.{u}}
+      (hA : TopologicalRing.IsAdmissibleRing A),
+      Nonempty (X.toLocallyTopologicallyRingedSpace ≅ spf A hA) → IsAffine X)
 
-/-- Exhibit an affine EGA formal scheme by an LTRS isomorphism to `spf A`. -/
-theorem of {X : FormalScheme.{u}} {A : TopCommRingCat.{u}}
-    (hA : TopologicalRing.IsAdmissibleRing A)
-    (h : Nonempty (X.toLocallyTopologicallyRingedSpace ≅ spf A hA)) :
-    IsAffine X :=
-  sorry
-
-/-- An affine EGA formal scheme is isomorphic in LTRS to `Spf` of an admissible
-topological ring. -/
-theorem spec (X : FormalScheme.{u}) [IsAffine X] :
-    ∃ (A : TopCommRingCat.{u}) (hA : TopologicalRing.IsAdmissibleRing A),
-      Nonempty (X.toLocallyTopologicallyRingedSpace ≅ spf A hA) :=
-  sorry
-
-/-- A formal scheme is affine iff it is isomorphic in LTRS to `Spf` of an
-admissible topological ring. -/
-theorem iff (X : FormalScheme.{u}) :
-    IsAffine X ↔
+#check (AlgebraicGeometry.FormalScheme.IsAffine.spec :
+    ∀ (X : FormalScheme.{u}) [IsAffine X],
       ∃ (A : TopCommRingCat.{u}) (hA : TopologicalRing.IsAdmissibleRing A),
-        Nonempty (X.toLocallyTopologicallyRingedSpace ≅ spf A hA) :=
-  sorry
+        Nonempty (X.toLocallyTopologicallyRingedSpace ≅ spf A hA))
 
-end IsAffine
+#check (AlgebraicGeometry.FormalScheme.IsAffine.iff :
+    ∀ (X : FormalScheme.{u}),
+      IsAffine X ↔
+        ∃ (A : TopCommRingCat.{u}) (hA : TopologicalRing.IsAdmissibleRing A),
+          Nonempty (X.toLocallyTopologicallyRingedSpace ≅ spf A hA))
 
-/-- `ofSpf A hA` is an affine EGA formal scheme. -/
-instance instIsAffine_ofSpf (A : TopCommRingCat.{u})
-    (hA : TopologicalRing.IsAdmissibleRing A) :
-    IsAffine (ofSpf A hA) :=
-  sorry
+#check (AlgebraicGeometry.FormalScheme.instIsAffine_ofSpf :
+    ∀ (A : TopCommRingCat.{u})
+      (hA : TopologicalRing.IsAdmissibleRing A), IsAffine (ofSpf A hA))
 
 end AlgebraicGeometry.FormalScheme

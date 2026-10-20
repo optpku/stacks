@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quotient.Atlas
@@ -13,9 +7,11 @@ public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.PseudoCone
 /-!
 # The concrete source-target square of the quotient atlas
 
-The constructions retain their original public names and concrete data.
-Existing proposition-valued laws remain explicit proof obligations.
+The source and target maps of a groupoid in algebraic spaces give the
+canonical two-cartesian square over its fppf quotient stack.
 -/
+
+set_option backward.privateInPublic true
 
 @[expose] public section
 
@@ -39,12 +35,20 @@ def stackInSetsULiftEquiv {S : Scheme.{u}} {B : AlgebraicSpace S}
       Cat.twoULift.{u + 1, u, u + 1, u + 1} (stackInSets G.U.left).total :=
   Cat.TwoULift.equiv.{u + 1, u, u + 1, u + 1} (stackInSets G.U.left).total
 
+private theorem sourceTargetPreInvHom_endpoints {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) (x : (stackInSets G.R.left).total) :
+    (spacePointArrow G x ≫ G.i.left) ≫ G.s.left = ((preAtlasTarget G).toFunctor.obj x).fiber ∧
+      (spacePointArrow G x ≫ G.i.left) ≫ G.t.left =
+        (G.points.map (op (𝟙 ((preAtlasTarget G).toFunctor.obj x).base))).obj
+          ((preAtlasSource G).toFunctor.obj x).fiber := sorry
+
 /-- The fibre morphism of `[U/_p R]` associated to the groupoid inverse of an `𝒮_R`-point. -/
 def sourceTargetPreInvHom {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) (x : (stackInSets G.R.left).total) :
     (preAtlasTarget G).toFunctor.obj x ⟶ (preAtlasSource G).toFunctor.obj x where
   base := 𝟙 ((preAtlasTarget G).toFunctor.obj x).base
-  fiber := SpacePointHom.ofArrow (spacePointArrow G x ≫ G.i.left) sorry sorry
+  fiber := SpacePointHom.ofArrow (spacePointArrow G x ≫ G.i.left)
+    (sourceTargetPreInvHom_endpoints G x).1 (sourceTargetPreInvHom_endpoints G x).2
 
 /-- The cartesian source functor `𝒮_R ⟶ 𝒮_U` before lifting to stacks in groupoids. -/
 def sourceMapCartesian {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -119,23 +123,69 @@ def sourceTargetIsoInvApp {S : Scheme.{u}} {B : AlgebraicSpace S}
     (fppfAtlas G).toFunctor.map
       ((stackInSetsULiftEquiv G).unitIso.hom.app (sourceTargetDownSource G x))
 
-/-- The cartesian `2`-isomorphism `π ∘ s ≅ π ∘ t` after aligning Hom-universes. -/
+private theorem sourceTargetIsoCartesian_laws {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) :
+    (∀ (x y : (stackInSetsULift G.R.left).total) (f : x ⟶ y),
+      ((sourceMapCartesian G).comp (fppfAtlasULift G)).toFunctor.map f ≫ sourceTargetIsoHomApp G y =
+        sourceTargetIsoHomApp G x ≫ ((targetMapCartesian G).comp (fppfAtlasULift G)).toFunctor.map f) ∧
+    (∀ x : (stackInSetsULift G.R.left).total,
+      (fppfQuotientStack G).p.IsHomLift (𝟙 ((stackInSetsULift G.R.left).p.obj x))
+        (sourceTargetIsoHomApp G x)) ∧
+    (∀ (x y : (stackInSetsULift G.R.left).total) (f : x ⟶ y),
+      ((targetMapCartesian G).comp (fppfAtlasULift G)).toFunctor.map f ≫ sourceTargetIsoInvApp G y =
+        sourceTargetIsoInvApp G x ≫ ((sourceMapCartesian G).comp (fppfAtlasULift G)).toFunctor.map f) ∧
+    (∀ x : (stackInSetsULift G.R.left).total,
+      (fppfQuotientStack G).p.IsHomLift (𝟙 ((stackInSetsULift G.R.left).p.obj x))
+        (sourceTargetIsoInvApp G x)) := sorry
+
+set_option maxHeartbeats 1000000 in
+private def sourceTargetIsoCartesianHom {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) :
+    (sourceMapCartesian G).comp (fppfAtlasULift G) ⟶
+      (targetMapCartesian G).comp (fppfAtlasULift G) :=
+  let η : NatTrans ((sourceMapCartesian G).comp (fppfAtlasULift G)).toFunctor
+      ((targetMapCartesian G).comp (fppfAtlasULift G)).toFunctor :=
+    { app := fun x ↦ sourceTargetIsoHomApp G x
+      naturality := fun {x y} f ↦ (sourceTargetIsoCartesian_laws G).1 x y f }
+  let ηb : BasedNatTrans ((sourceMapCartesian G).comp (fppfAtlasULift G)).toBasedFunctor
+      ((targetMapCartesian G).comp (fppfAtlasULift G)).toBasedFunctor :=
+    ⟨η, (sourceTargetIsoCartesian_laws G).2.1⟩
+  CartesianBasedFunctor.homMk
+    (F := (sourceMapCartesian G).comp (fppfAtlasULift G))
+    (G := (targetMapCartesian G).comp (fppfAtlasULift G)) ηb
+
+set_option maxHeartbeats 1000000 in
+private def sourceTargetIsoCartesianInv {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) :
+    (targetMapCartesian G).comp (fppfAtlasULift G) ⟶
+      (sourceMapCartesian G).comp (fppfAtlasULift G) :=
+  let η : NatTrans ((targetMapCartesian G).comp (fppfAtlasULift G)).toFunctor
+      ((sourceMapCartesian G).comp (fppfAtlasULift G)).toFunctor :=
+    { app := fun x ↦ sourceTargetIsoInvApp G x
+      naturality := fun {x y} f ↦ (sourceTargetIsoCartesian_laws G).2.2.1 x y f }
+  let ηb : BasedNatTrans ((targetMapCartesian G).comp (fppfAtlasULift G)).toBasedFunctor
+      ((sourceMapCartesian G).comp (fppfAtlasULift G)).toBasedFunctor :=
+    ⟨η, (sourceTargetIsoCartesian_laws G).2.2.2⟩
+  CartesianBasedFunctor.homMk
+    (F := (targetMapCartesian G).comp (fppfAtlasULift G))
+    (G := (sourceMapCartesian G).comp (fppfAtlasULift G)) ηb
+
+private theorem sourceTargetIsoCartesian_inverse_laws {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) :
+    (sourceTargetIsoCartesianHom G ≫ sourceTargetIsoCartesianInv G =
+      𝟙 ((sourceMapCartesian G).comp (fppfAtlasULift G))) ∧
+    (sourceTargetIsoCartesianInv G ≫ sourceTargetIsoCartesianHom G =
+      𝟙 ((targetMapCartesian G).comp (fppfAtlasULift G))) := sorry
+
+/-- The canonical Cartesian isomorphism between the source and target atlas composites. -/
 def sourceTargetIsoCartesian {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) :
     (sourceMapCartesian G).comp (fppfAtlasULift G) ≅
       (targetMapCartesian G).comp (fppfAtlasULift G) where
-  hom :=
-    CartesianBasedFunctor.homMk
-      { app := fun x ↦ sourceTargetIsoHomApp G x
-        naturality := sorry
-        isHomLift' := sorry }
-  inv :=
-    CartesianBasedFunctor.homMk
-      { app := fun x ↦ sourceTargetIsoInvApp G x
-        naturality := sorry
-        isHomLift' := sorry }
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+  hom := sourceTargetIsoCartesianHom G
+  inv := sourceTargetIsoCartesianInv G
+  hom_inv_id := (sourceTargetIsoCartesian_inverse_laws G).1
+  inv_hom_id := (sourceTargetIsoCartesian_inverse_laws G).2
 
 /-- The invertible `2`-cell `α : π ∘ s ≅ π ∘ t` of stacks in groupoids. -/
 def sourceTargetIso {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -154,13 +204,49 @@ def sourceTargetCone {S : Scheme.{u}} {B : AlgebraicSpace S}
   snd := targetMap G
   iso := sourceTargetIso G
 
-/-- Lemma 78.22.2: Assume `B → S`, `(U, R, s, t, c)`, and `π : 𝒮_U ⟶ [U/R]` are as in
-Lemma 78.20.2. The 2-commutative square of Lemma 78.20.3 with apex `𝒮_R`, legs `s` and `t`,
-and comparison `α : π ∘ s ⟶ π ∘ t` is a 2-fibre product of stacks in groupoids on
-`(Sch/S)_fppf`. -/
-@[instance]
-instance sourceTargetCone_isBilimit {S : Scheme.{u}} {B : AlgebraicSpace S}
+/-- The canonical source-target square of a groupoid in algebraic spaces is a
+two-fibre product over its fppf quotient stack. -/
+theorem sourceTargetCone_isBilimit {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) :
     (sourceTargetCone G).IsBilimit := sorry
+
+/-- `atlasULiftHom` is the morphism-universe inverse of `𝒮_U` followed by `fppfAtlas`. -/
+theorem atlasULiftHom_eq {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) :
+    StackOver.Groupoids.Hom.toCartesianBasedFunctor (atlasULiftHom G) =
+      (stackInSetsULift.down G.U.left).comp (fppfAtlas G) := sorry
+
+/-- The underlying arrow of `sourceTargetPreInvHom` is the groupoid inverse of the scheme-valued
+`R`-point. -/
+theorem sourceTargetPreInvHom_arrow {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) (x : (stackInSets G.R.left).total) :
+    (sourceTargetPreInvHom G x).fiber.arrow = spacePointArrow G x ≫ G.i.left := sorry
+
+/-- A component of `sourceTargetIso.hom` is the stacked image of `sourceTargetPreHom`, transported
+along the two-universe unit of `𝒮_U`. -/
+theorem sourceTargetIso_hom_eq {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) (x : (stackInSetsULift G.R.left).total) :
+    (CartesianBasedFunctor.toBasedNatTrans (sourceTargetIsoCartesian G).hom).toNatTrans.app x =
+      sourceTargetIsoHomApp G x := sorry
+
+/-- The apex of `sourceTargetCone G` is `𝒮_R`. -/
+theorem sourceTargetCone_pt {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) :
+    (sourceTargetCone G).pt = stackInSetsULift G.R.left := sorry
+
+/-- The first projection of `sourceTargetCone G` is `s`. -/
+theorem sourceTargetCone_fst {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) :
+    (sourceTargetCone G).fst = sourceMap G := sorry
+
+/-- The second projection of `sourceTargetCone G` is `t`. -/
+theorem sourceTargetCone_snd {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) :
+    (sourceTargetCone G).snd = targetMap G := sorry
+
+/-- The `2`-cell of `sourceTargetCone G` is `sourceTargetIso G`. -/
+theorem sourceTargetCone_iso {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) :
+    (sourceTargetCone G).iso = sourceTargetIso G := sorry
 
 end AlgebraicGeometry.GroupoidAlgebraicSpace

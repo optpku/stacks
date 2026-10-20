@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.Localization.Integer
-public import stacks_project.Chap72.Definition_72_18_3_Number
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Intersection.Number
+import StacksCheckRecall
 
 /-!
 # Lemma 72.18.4
@@ -30,19 +24,20 @@ namespace Intersection
 -- Local instance justification (defeq pin): `HasInjectiveResolutions` and `higherDirectImage` pin the Abelian-induced `Preadditive`/`HasZeroMorphisms` instances for defeq of `higherDirectImage`.
 attribute [local instance 2000] Abelian.toPreadditive Preadditive.preadditiveHasZeroMorphisms
 
-/-- Lemma 72.18.4: in the situation of Definition 72.18.3, the intersection number
+/- Lemma 72.18.4: in the situation of Definition 72.18.3, the intersection number
 `(L 0 ⋯ L (d - 1) · Z)` is an integer. -/
-@[stacks 0EDG]
-theorem number_isInteger {k : Type u} [Field k]
+@[stacks 0EDG] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Intersection.number_isInteger :
+    ∀ {k : Type u} [Field k]
     {X Z : AlgebraicSpace (Spec (CommRingCat.of k))} (i : Z ⟶ X)
-    [IsClosedImmersion i] [Proper (toBase X)]
+    [IsClosedImmersion i] [Proper (SchemeRealization.toBase X)]
     [IsLocallyNoetherian X] [IsLocallyNoetherian Z] {d : ℕ}
     (hZdim : dimension Z = d)
     [Abelian X.Modules] [Abelian Z.Modules]
     [Abelian (ofOver (Over.mk (𝟙 (Spec (CommRingCat.of k))))).Modules]
     [HasInjectiveResolutions X.Modules] [HasInjectiveResolutions Z.Modules]
-    (L : Fin d → X.Modules) [∀ j : Fin d, isInvertibleObject (L j)] :
-    IsLocalization.IsInteger ℤ (number i hZdim L) := sorry
+    (L : Fin d → X.Modules) [∀ j : Fin d, isInvertibleObject (L j)],
+    IsLocalization.IsInteger ℤ (number i hZdim L))
 
 end Intersection
 end AlgebraicGeometry.AlgebraicSpace.Modules

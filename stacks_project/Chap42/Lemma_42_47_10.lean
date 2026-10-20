@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap42.Lemma_42_47_1_LocalizedClass
-public import stacks_project.Chap42.Lemma_42_46_10
-public import stacks_project.Chap42.Remark_42_35_5_Composition
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.LocalizedChern.ClosedCover.TensorInvertible
 
 @[expose] public section
 
@@ -23,12 +16,12 @@ namespace AlgebraicGeometry.LocalizedChern
 
 open RingedSpace ModuleDerived
 
-/-- Lemma 42.47.10: for a perfect derived module of constant virtual rank zero, tensoring
-by the pullback of an invertible module twists every positive localized Chern class by the
-generalized binomial formula. -/
-@[stacks 0FAN]
-theorem localizedChernClass_tensor_invertible
-    {S : Scheme.{u}} [UniversallyCatenary S] {delta : S → ℤ} [IsDimensionFunction delta]
+/- Lemma 42.47.10: the positive localized Chern classes of an invertible twist satisfy the
+ generalized binomial formula. The localization specifications express their agreement and
+ vanishing cap laws on the closed cover. The endpoint j = i is omitted because its coefficient
+ is binom(0,i) = 0 for positive i, as expressed by Ring.choose_zero_pos. -/
+@[stacks 0FAN] #check (AlgebraicGeometry.LocalizedChern.localizedChernClass_tensor_invertible :
+  ∀ {S : Scheme.{u}} [UniversallyCatenary S] {delta : S → ℤ} [IsDimensionFunction delta]
     {X : Over S} [LocallyOfFiniteType X.hom]
     {X₁ X₂ : Scheme.{u}} (i₁ : X₁ ⟶ X.left) (i₂ : X₂ ⟶ X.left)
     [IsClosedImmersion i₁] [IsClosedImmersion i₂]
@@ -60,22 +53,24 @@ theorem localizedChernClass_tensor_invertible
         (localizedClass
           (E₂ ⊗ᴸ (DerivedCategory.singleFunctor X₂.toRingedSpace.Modules (0 : ℤ)).obj
             ((Scheme.Modules.pullback i₂).obj L)) q))
-    (i : ℕ) (positive : 0 < i) :
-    DirectSum.of
-        (fun q : ℕ ↦ BivariantClass delta
-          (Over.homMk i₂ : Over.mk (i₂ ≫ X.hom) ⟶ X) (q : ℤ)) i
+    (i : ℕ) (positive : 0 < i),
+    BivariantClass.Nonnegative.single delta
+        (Over.homMk i₂ : Over.mk (i₂ ≫ X.hom) ⟶ X) i
         (localizedClass
           (E₂ ⊗ᴸ (DerivedCategory.singleFunctor X₂.toRingedSpace.Modules (0 : ℤ)).obj
             ((Scheme.Modules.pullback i₂).obj L)) i) =
-      ∑ j ∈ Finset.range i, (Ring.choose (-(i : ℤ) + (j : ℤ)) j : ℤ) •
-        BivariantClass.Nonnegative.castHom delta
+      BivariantClass.Nonnegative.sum delta
+        (Over.homMk i₂ : Over.mk (i₂ ≫ X.hom) ⟶ X) (Finset.range i) (fun j ↦
+        BivariantClass.Nonnegative.zsmul delta
+          (Over.homMk i₂ : Over.mk (i₂ ≫ X.hom) ⟶ X)
+          (Ring.choose (-(i : ℤ) + (j : ℤ)) j : ℤ)
+          (BivariantClass.Nonnegative.castHom delta
           (Category.comp_id (Over.homMk i₂ : Over.mk (i₂ ≫ X.hom) ⟶ X))
           (BivariantClass.Nonnegative.comp delta
             (Over.homMk i₂ : Over.mk (i₂ ≫ X.hom) ⟶ X) (𝟙 X)
-            (DirectSum.of
-              (fun q : ℕ ↦ BivariantClass delta
-                (Over.homMk i₂ : Over.mk (i₂ ≫ X.hom) ⟶ X) (q : ℤ)) (i - j)
+            (BivariantClass.Nonnegative.single delta
+              (Over.homMk i₂ : Over.mk (i₂ ≫ X.hom) ⟶ X) (i - j)
               (localizedClass E₂ (i - j)))
-            (ChernClass.homogeneous delta X.hom 1 (classes.component L 1) ^ j)) := sorry
+            (ChernClass.homogeneous delta X.hom 1 (classes.component L 1) ^ j)))))
 
 end AlgebraicGeometry.LocalizedChern

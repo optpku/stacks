@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Preadditive.Injective.Preserves
-public import stacks_project.Chap85.Lemma_85_2_5
+public import ReasLib.Topology.Category.TopCat.DiagramOpens.Injective
+import StacksCheckRecall
 
 /-!
 # Lemma 85.2.6
@@ -27,22 +21,17 @@ universe u
 
 namespace CategoryTheory.SimplicialObject
 
-/-- Lemma 85.2.6: if `I` is an injective abelian sheaf on `X_Zar`, then its
-restriction `I_n` is an injective abelian sheaf on `X_n`. -/
-@[stacks 09W1, instance]
-instance sheafComponent_preservesInjectiveObjects
-    (X : SimplicialObject TopCat.{u}) (n : ℕ) :
-    (sheafComponent X n AddCommGrpCat.{u}).PreservesInjectiveObjects :=
-  sorry
+/- Lemma 85.2.6: restriction of injective abelian sheaves to any component of a
+simplicial space preserves injectivity. -/
+@[stacks 09W1] #check
+  (CategoryTheory.SimplicialObject.sheafComponent_preservesInjectiveObjects :
+    ∀ (X : SimplicialObject TopCat.{u}) (n : ℕ),
+      (sheafComponent X n AddCommGrpCat.{u}).PreservesInjectiveObjects)
 
-/-- Restriction of an injective abelian sheaf on `X_Zar` along the degree-`n`
-component inclusion is injective on `X_n`. -/
-theorem injective_sheafComponent
-    (X : SimplicialObject TopCat.{u}) (n : ℕ)
-    (I : Sheaf (zariskiTopology X) AddCommGrpCat.{u})
-    [Injective I] :
-    Injective ((sheafComponent X n AddCommGrpCat.{u}).obj I) :=
-  sorry
+variable (X : SimplicialObject TopCat.{u}) (n : ℕ)
+  (I : Sheaf (zariskiTopology X) AddCommGrpCat.{u}) [Injective I]
+
+#check (CategoryTheory.Functor.injective_obj (sheafComponent X n AddCommGrpCat.{u}) I :
+  Injective ((sheafComponent X n AddCommGrpCat.{u}).obj I))
 
 end CategoryTheory.SimplicialObject
-

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Comma.StructuredArrow.Basic
+public import ReasLib.CategoryTheory.Comma.StructuredArrow
+public import ReasLib.CategoryTheory.Functor.StructuredArrow.Hom
 public import StacksCheckRecall.CommandCrossRef
 import StacksCheckRecall
 
@@ -23,18 +18,24 @@ variable (u : C ⥤ D) (V : D)
 category I^u_V has objects (U, φ) with U : C and φ : V ⟶ u.obj U, and
 morphisms f : U ⟶ U' in C satisfying φ ≫ u.map f = φ'. This is the
 category StructuredArrow V u. -/
-@[stacks 053L] #check (StructuredArrow V u)
+@[stacks 053L] #check
+  (CategoryTheory.StructuredArrow.objEquiv V u :
+    StructuredArrow V u ≃ (Σ U : C, V ⟶ u.obj U))
 
 #check (inferInstance : Category (StructuredArrow V u))
-#check (StructuredArrow.mk : ∀ {U : C}, (V ⟶ u.obj U) → StructuredArrow V u)
+#check (CategoryTheory.StructuredArrow.mk :
+    ∀ {U : C}, (V ⟶ u.obj U) → StructuredArrow V u)
 
 variable (X Y : StructuredArrow V u) (f : X ⟶ Y)
 
+#check (CategoryTheory.StructuredArrow.homEquiv X Y :
+    (X ⟶ Y) ≃ {g : X.right ⟶ Y.right // X.hom ≫ u.map g = Y.hom})
 #check (X.right : C)
 #check (X.hom : V ⟶ u.obj X.right)
-#check fun {X Y : StructuredArrow V u} (g : X.right ⟶ Y.right)
-    (w : X.hom ≫ u.map g = Y.hom) ↦ (StructuredArrow.homMk g w : X ⟶ Y)
+variable (rightMap : X.right ⟶ Y.right) (triangle : X.hom ≫ u.map rightMap = Y.hom)
+
+#check (CategoryTheory.StructuredArrow.homMk rightMap triangle : X ⟶ Y)
 #check (f.right : X.right ⟶ Y.right)
-#check (StructuredArrow.w f : X.hom ≫ u.map f.right = Y.hom)
-#check (StructuredArrow.hom_eq_iff :
+#check (CategoryTheory.StructuredArrow.w f : X.hom ≫ u.map f.right = Y.hom)
+#check (CategoryTheory.StructuredArrow.hom_eq_iff :
     ∀ (f g : X ⟶ Y), f = g ↔ f.right = g.right)

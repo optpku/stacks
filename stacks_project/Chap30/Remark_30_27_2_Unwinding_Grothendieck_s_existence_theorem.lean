@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-import stacks_project.Chap30.Proposition_30_25_4
-import stacks_project.Chap30.Theorem_30_27_1_Grothendieck_s_existence_theorem
+import ReasLib.AlgebraicGeometry.Scheme.CoherentFormalModule.Completion.ProperSupport
+import ReasLib.AlgebraicGeometry.Scheme.CoherentFormalModule.Completion.Proper
+import StacksCheckRecall
 
 open AlgebraicGeometry CategoryTheory
 open AlgebraicGeometry.Scheme
@@ -17,28 +12,27 @@ noncomputable section
 
 universe u
 
-/-- Remark 30.27.2 (Unwinding Grothendieck's existence theorem) (1): if `A` is Noetherian and
-`I`-adically complete and `f : X ⟶ Spec(A)` is separated of finite type, then completion is an
-equivalence from coherent `𝒪_X`-modules with support proper over `A` to coherent formal `I 𝒪_X`-modules
-with first-stage support proper over `Spec(A)`. -/
-@[stacks 088F, instance]
-instance coherentProperSupportCompletionFunctor_isEquivalence
-    {A : Type u} [CommRing A] [IsNoetherianRing A] {X : Scheme.{u}} [IsNoetherian X]
-    (I : Ideal A) [IsAdicComplete I A] (f : X ⟶ Spec (CommRingCat.of A))
-    [IsSeparated f] [Scheme.Hom.FiniteType f] :
-    (coherentProperSupportCompletionFunctor :
-      CoherentProperSupportOver f ⥤
-        CoherentFormalProperSupportOver f ((idealSheafDataOfIdealOnSpec I).comap f)).IsEquivalence :=
-  sorry
+/- Remark 30.27.2 (Unwinding Grothendieck's existence theorem): coherent formal modules encode
+the pushed-forward coherent modules on the infinitesimal thickenings through annihilation by powers
+of `I` and successor quotient compatibility, with the first stage carrying the support condition.
+The special proper case omits that support restriction. -/
+@[stacks 088F] #check
+  (@AlgebraicGeometry.Scheme.Modules.instIsEquivalence_coherentProperSupportCompletionFunctor :
+    ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
+      {X : Scheme.{u}} [IsNoetherian X]
+      (I : Ideal A) [IsAdicComplete I A]
+      (f : X ⟶ Spec (CommRingCat.of A)) [IsSeparated f] [Scheme.Hom.FiniteType f],
+      (AlgebraicGeometry.Scheme.Modules.coherentProperSupportCompletionFunctor :
+        AlgebraicGeometry.Scheme.Modules.CoherentProperSupportOver f ⥤
+          AlgebraicGeometry.Scheme.Modules.CoherentFormalProperSupportOver f
+            ((AlgebraicGeometry.Scheme.idealSheafDataOfIdealOnSpec I).comap f)).IsEquivalence)
 
-/-- Remark 30.27.2 (Unwinding Grothendieck's existence theorem) (2): if `X` is proper over `A`, the
-unrestricted coherent-completion functor `Coh(𝒪_X) ⥤ Coh(X, I 𝒪_X)` is an equivalence, so the
-support conditions may be omitted. -/
-@[stacks 088F, instance]
-instance coherentCompletionFunctor_isEquivalence_of_isProper
-    {A : Type u} [CommRing A] [IsNoetherianRing A] {X : Scheme.{u}} [IsNoetherian X]
-    (I : Ideal A) [IsAdicComplete I A] (f : X ⟶ Spec (CommRingCat.of A))
-    [IsProper f] :
-    (CoherentCompletion.functor ((idealSheafDataOfIdealOnSpec I).comap f)).IsEquivalence :=
-  sorry
+#check
+  (@AlgebraicGeometry.Scheme.CoherentCompletion.functor_isEquivalence_of_isProper :
+    ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
+      {X : Scheme.{u}} [IsNoetherian X]
+      (I : Ideal A) [IsAdicComplete I A]
+      (f : X ⟶ Spec (CommRingCat.of A)) [IsProper f],
+      (AlgebraicGeometry.Scheme.CoherentCompletion.functor
+        ((AlgebraicGeometry.Scheme.idealSheafDataOfIdealOnSpec I).comap f)).IsEquivalence)
 

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap68.Lemma_68_17_4_Relative
+import StacksCheckRecall
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.RelativeConditions
 
 /-!
 # Source object properties imply relative morphism properties
@@ -21,40 +16,15 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+/- Lemma 68.17.3: a morphism from a decent algebraic space is decent. -/
+@[stacks 0ABX] #check (AlgebraicGeometry.AlgebraicSpace.Decent.of_isDecent :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [AlgebraicSpace.IsDecent X],
+    AlgebraicSpace.Decent f)
 
-namespace Decent
+#check (AlgebraicGeometry.AlgebraicSpace.Reasonable.of_isReasonable :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [AlgebraicSpace.IsReasonable X],
+    AlgebraicSpace.Reasonable f)
 
-/-- Lemma 68.17.3 (1): if `X` is a decent algebraic space over a scheme `S`,
-then any morphism `f : X ⟶ Y` of algebraic spaces over `S` is decent. -/
-@[stacks 0ABX, instance 900]
-instance of_isDecent {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [IsDecent X] : Decent f :=
-  sorry
-
-end Decent
-
-namespace Reasonable
-
-/-- Lemma 68.17.3 (2): if `X` is a reasonable algebraic space over a scheme
-`S`, then any morphism `f : X ⟶ Y` of algebraic spaces over `S` is
-reasonable. -/
-@[stacks 0ABX, instance 900]
-instance of_isReasonable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [IsReasonable X] : Reasonable f :=
-  sorry
-
-end Reasonable
-
-namespace PropertyBeta
-
-/-- Lemma 68.17.3 (3): if `X` has property (β) of Lemma 68.5.1, then any
-morphism `f : X ⟶ Y` of algebraic spaces over a scheme `S` has property (β). -/
-@[stacks 0ABX, instance 900]
-instance of_hasPropertyBeta {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [HasPropertyBeta X] : PropertyBeta f :=
-  sorry
-
-end PropertyBeta
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.PropertyBeta.of_hasPropertyBeta :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [AlgebraicSpace.HasPropertyBeta X],
+    AlgebraicSpace.PropertyBeta f)

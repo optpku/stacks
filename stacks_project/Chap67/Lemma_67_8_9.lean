@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_8_9_Cancellation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.QuasiCompact.Cancellation
 import StacksCheckRecall
 
 @[expose] public section
@@ -18,7 +12,7 @@ universe u
 /- Lemma 67.8.9: if `f ≫ g` is quasi-compact and `g` is quasi-separated, then
 `f` is quasi-compact. -/
 @[stacks 03KS] #check
-  (QuasiCompact.of_comp :
+  (AlgebraicGeometry.AlgebraicSpace.QuasiCompact.of_comp :
     ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z)
       [QuasiCompact (f ≫ g)] [QuasiSeparated g],
       QuasiCompact f)

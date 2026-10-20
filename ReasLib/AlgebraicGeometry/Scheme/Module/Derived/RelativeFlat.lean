@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Bounded.Local
@@ -176,7 +170,11 @@ theorem pushforward_mem_derivedQuasiCoherent :
 
 /-- The derived pushforward of a locally bounded coefficient-linear complex with relatively
 flat quasicoherent terms locally has finite Tor dimension. -/
-theorem pushforward_locallyHasFiniteTorDimension :
+theorem pushforward_locallyHasFiniteTorDimension
+    [∀ U : TopologicalSpace.Opens (S.toRingedSpace).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules ((S.toRingedSpace).restrict U.isOpenEmbedding))]
+    :
     LocallyHasFiniteTorDimension
       ((RingedSpace.moduleDerivedPushforward
         (ModuleCech.relativeSpaceMap a.toShHom)).obj (DerivedCategory.Q.obj K)) := sorry

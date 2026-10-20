@@ -1,54 +1,25 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Functor.Equivalence.QuasiInverse.Basic
-public import stacks_project.Chap81.Lemma_81_10_10_SupportedOn
-public import stacks_project.Chap81.Lemma_81_10_10_Functors
-
-/-!
-# Lemma 81.10.10
-
-In Situation 81.10.6, derived pushforward along `f` induces an equivalence
-between `D_{QCoh, |f⁻¹Z|}(𝒪_Y)` and `D_{QCoh, |Z|}(𝒪_X)` whose quasi-inverse
-is derived pullback.
--/
-
-@[expose] public section
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.FormalGlueing
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-namespace DerivedQCoh.SupportedOn
+/- Lemma 81.10.10. In Situation 81.10.6, derived pushforward induces an equivalence
+between the quasi-coherent derived categories supported on the inverse image of
+the closed subspace and on the closed subspace, with derived pullback as quasi-inverse. -/
+@[stacks 0AFJ] #check
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.SupportedOn.pushforward_isEquivalence :
+    ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : Y ⟶ X) (i : Z ⟶ X)
+      [QuasiCompact f] [QuasiSeparated f] [IsClosedImmersion i] [FinitePresentation i]
+      [IsFormalGlueing f i],
+      (DerivedQCoh.SupportedOn.pushforward f i).IsEquivalence)
 
-/-- Lemma 81.10.10 (1): In Situation 81.10.6 the functor `Rf_*` induces an
-equivalence between `SupportedOn Y (pointsImage (inverseImageι f i))` and
-`SupportedOn X (pointsImage i)`. -/
-@[stacks 0AFJ, instance]
-instance pushforward_isEquivalence {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : Y ⟶ X) (i : Z ⟶ X)
+#check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.SupportedOn.pullback_isQuasiInverse :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : Y ⟶ X) (i : Z ⟶ X)
     [QuasiCompact f] [QuasiSeparated f] [IsClosedImmersion i] [FinitePresentation i]
-    [IsFormalGlueing f i] :
-    (pushforward f i).IsEquivalence :=
-  sorry
-
-/-- Lemma 81.10.10 (2): In Situation 81.10.6 the quasi-inverse of this restricted
-`Rf_*` equivalence is given by `Lf^*`. -/
-@[stacks 0AFJ]
-theorem pullback_isQuasiInverse {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : Y ⟶ X) (i : Z ⟶ X)
-    [QuasiCompact f] [QuasiSeparated f] [IsClosedImmersion i] [FinitePresentation i]
-    [IsFormalGlueing f i] :
-    (pushforward f i).IsQuasiInverse (pullback f i) :=
-  sorry
-
-end DerivedQCoh.SupportedOn
-end AlgebraicGeometry.AlgebraicSpace
+    [IsFormalGlueing f i],
+    (DerivedQCoh.SupportedOn.pushforward f i).IsQuasiInverse
+      (DerivedQCoh.SupportedOn.pullback f i))

@@ -1,15 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Data.List.TFAE
 public import Mathlib.LinearAlgebra.FiniteDimensional.Defs
-public import stacks_project.Chap72.Definition_72_8_3_Alteration
-public import stacks_project.Chap72.Lemma_72_5_1
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Alteration
+import StacksCheckRecall
 
 /-!
 # Alterations and generically finite morphisms
@@ -27,13 +21,14 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 72.8.4: Let `S` be a scheme. Let `f : X ⟶ Y` be a proper dominant
+/- Lemma 72.8.4: Let `S` be a scheme. Let `f : X ⟶ Y` be a proper dominant
 morphism of integral algebraic spaces over `S`. Then `f` is an alteration if
 and only if any of the equivalent conditions (1)–(6) of Lemma 72.5.1 hold. -/
 @[stacks 0ADB]
-theorem isAlteration_tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.isAlteration_tfae :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     [IsIntegral X] [IsIntegral Y] (f : X ⟶ Y) [Proper f] [Dominant f]
-    {x : Points X} (hx : x ∈ genericPoints X) :
+    {x : Points X} (hx : x ∈ genericPoints X),
     List.TFAE
       [ IsAlteration f
       , residueFieldTrdegAt f x = 0
@@ -45,27 +40,26 @@ theorem isAlteration_tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S}
       , Points.map f ⁻¹' {Points.map f x} = {x}
       , ∃ V : OpenSubspace Y,
           V.pointsSet.Nonempty ∧ IsAffine V.X ∧
-            IsFinite (pullback.snd f V.ι) ] :=
-  sorry
+            IsFinite (pullback.snd f V.ι) ])
 
-/-- A proper dominant morphism of integral algebraic spaces is an alteration
+/- A proper dominant morphism of integral algebraic spaces is an alteration
 if and only if the residue-field transcendence degree at a generic point is
 `0`. -/
-theorem isAlteration_iff_residueFieldTrdegAt {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.isAlteration_iff_residueFieldTrdegAt :
+    ∀ {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} [IsIntegral X] [IsIntegral Y] (f : X ⟶ Y)
-    [Proper f] [Dominant f] {x : Points X} (hx : x ∈ genericPoints X) :
-    IsAlteration f ↔ residueFieldTrdegAt f x = 0 :=
-  sorry
+    [Proper f] [Dominant f] {x : Points X} (hx : x ∈ genericPoints X),
+    IsAlteration f ↔ residueFieldTrdegAt f x = 0)
 
-/-- A proper dominant morphism of integral algebraic spaces is an alteration
+/- A proper dominant morphism of integral algebraic spaces is an alteration
 if and only if it is finite over some nonempty affine open of the target. -/
-theorem isAlteration_iff_exists_isAffine_isFinite {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.isAlteration_iff_exists_isAffine_isFinite :
+    ∀ {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} [IsIntegral X] [IsIntegral Y] (f : X ⟶ Y)
-    [Proper f] [Dominant f] :
+    [Proper f] [Dominant f],
     IsAlteration f ↔
       ∃ V : OpenSubspace Y,
         V.pointsSet.Nonempty ∧ IsAffine V.X ∧
-          IsFinite (pullback.snd f V.ι) :=
-  sorry
+          IsFinite (pullback.snd f V.ι))
 
 end AlgebraicGeometry.AlgebraicSpace

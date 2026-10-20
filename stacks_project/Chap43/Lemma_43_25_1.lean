@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowGroup.ProjectiveLineFiber
@@ -20,8 +14,9 @@ universe u
 
 /- Lemma 43.25.1: if an integral `(s + 1)`-dimensional subvariety `W` of
 `X × ℙ¹` dominates `ℙ¹`, then the intersections of an `r`-dimensional
-subvariety `V` with the degree-`r` cycles of two fibers of `W` are rationally
-equivalent whenever both intersections are proper. -/
+subvariety `V` with the `s`-cycles `[W_a]_s`, `[W_b]_s` of two fibers of `W` are
+rationally equivalent in degree `r + s - dim X` whenever both intersections are
+proper (the printed `[W_a]_r` in the source is a typo; the proof uses 0B07). -/
 @[stacks 0B60] #check
   (AlgebraicGeometry.ProjectiveLineFiber.subvarietyIntersections_rationallyEquivalent :
     ∀ {k : Type u} [Field k] [IsAlgClosed k]
@@ -56,16 +51,16 @@ equivalent whenever both intersections are proper. -/
         (AlgebraicGeometry.ProjectiveLineFiber.image X W b).support),
       AlgebraicGeometry.RationalEquivalence.RationallyEquivalent
         (X.hom.relativeDimensionFunction (fun _ ↦ 0))
-        ((r : ℤ) + (r : ℤ) - (X.dimension : ℤ))
-        (AlgebraicGeometry.CycleGroup.intersection X (r : ℤ) (r : ℤ)
+        ((r : ℤ) + (s : ℤ) - (X.dimension : ℤ))
+        (AlgebraicGeometry.CycleGroup.intersection X (r : ℤ) (s : ℤ)
           (V.associatedCycle (X.hom.relativeDimensionFunction (fun _ ↦ 0)) (r : ℤ))
           ((AlgebraicGeometry.ProjectiveLineFiber.image X W a).associatedCycle
-            (X.hom.relativeDimensionFunction (fun _ ↦ 0)) (r : ℤ))
+            (X.hom.relativeDimensionFunction (fun _ ↦ 0)) (s : ℤ))
           (AlgebraicGeometry.ProjectiveLineFiber.fiberAssociatedCycles_intersectProperly
             X r s V hVdim W hWdim a ha hproperA))
-        (AlgebraicGeometry.CycleGroup.intersection X (r : ℤ) (r : ℤ)
+        (AlgebraicGeometry.CycleGroup.intersection X (r : ℤ) (s : ℤ)
           (V.associatedCycle (X.hom.relativeDimensionFunction (fun _ ↦ 0)) (r : ℤ))
           ((AlgebraicGeometry.ProjectiveLineFiber.image X W b).associatedCycle
-            (X.hom.relativeDimensionFunction (fun _ ↦ 0)) (r : ℤ))
+            (X.hom.relativeDimensionFunction (fun _ ↦ 0)) (s : ℤ))
           (AlgebraicGeometry.ProjectiveLineFiber.fiberAssociatedCycles_intersectProperly
             X r s V hVdim W hWdim b hb hproperB)))

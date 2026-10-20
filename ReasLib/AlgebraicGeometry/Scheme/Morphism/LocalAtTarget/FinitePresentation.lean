@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FinitePresentation
@@ -21,7 +15,7 @@ namespace AlgebraicGeometry.Scheme.Hom.FinitePresentation
 
 /-- Finite presentation of scheme morphisms is local on the target for the fpqc
 precoverage. -/
-theorem isLocalAtTargetFpqc :
+instance isLocalAtTargetFpqc :
     MorphismProperty.IsLocalAtTarget
       (@AlgebraicGeometry.Scheme.Hom.FinitePresentation :
         MorphismProperty AlgebraicGeometry.Scheme.{u})

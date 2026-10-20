@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap61.Lemma_61_27_2_Comparison
-public import ReasLib.CategoryTheory.ObjectProperty.WeakSerre
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.ProEtale.Constructible.Closure
+import StacksCheckRecall
 
 /-!
 # Lemma 61.27.3
@@ -36,13 +29,13 @@ variable [∀ {Y : Scheme.{u}} (f : Y ⟶ X) (P : X.ProEtᵒᵖ ⥤ ModuleCat.{w
     (ProEt.baseChange f).op.HasLeftKanExtension P]
 variable [Abelian (Sheaf (ProEt.topology X) (ModuleCat.{w} Λ))]
 
-/-- Lemma 61.27.3: for a scheme `X` and a Noetherian ring `Λ`, the category of
+/- Lemma 61.27.3: for a scheme `X` and a Noetherian ring `Λ`, the category of
 constructible sheaves of `Λ`-modules on `X.ProEt` is a weak Serre subcategory of
 `Sheaf (ProEt.topology X) (ModuleCat Λ)`. -/
-@[stacks 09B5]
-instance constructibleProEtaleModule_isWeakSerreClass :
-    IsWeakSerreClass (constructibleProEtaleModule X Λ) :=
-  sorry
+@[stacks 09B5] #check
+  (AlgebraicGeometry.Scheme.constructibleProEtaleModule_isWeakSerreClass X Λ :
+    CategoryTheory.ObjectProperty.IsWeakSerreClass
+      (AlgebraicGeometry.Scheme.constructibleProEtaleModule X Λ))
 
 end AlgebraicGeometry.Scheme
 

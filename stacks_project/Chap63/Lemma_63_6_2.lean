@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Adjunction.Unique
-public import stacks_project.Chap63.Definition_63_4_4_LowerShriek
-public import stacks_project.Chap63.Lemma_63_4_3
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.UpperShriek.Etale
+import StacksCheckRecall
 
 /-!
 # Étale inverse image as the right adjoint of finite-support lower shriek
@@ -30,54 +23,16 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Etale
 
-variable {U X : Scheme.{u}} (j : U ⟶ X) [Etale j] [LocallyQuasiFinite j]
+variable {U X : Scheme.{u}} (j : U ⟶ X) [Etale j]
 variable [∀ F : U.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
   (etaleRestriction j).op.HasLeftKanExtension F]
 variable [HasSheafify X.smallEtaleTopology AddCommGrpCat.{u}]
 
-/-- Lemma 63.6.2: Let `j : U ⟶ X` be an étale morphism. Then the right adjoint
-of finite-support `lowerShriek j` agrees with étale restriction
-`etaleRestrictionSheaf j AddCommGrpCat`, so `j^!` coincides with `j⁻¹`. -/
-@[stacks 0F5A]
-def lowerShriekRestrictionAdjunction :
-    lowerShriek j ⊣ etaleRestrictionSheaf j AddCommGrpCat.{u} :=
-  (abelianExtensionByZero_adjunction j).ofNatIsoLeft
-    (extensionByZeroIsoLowerShriek j)
-
-/-- Any right adjoint of `lowerShriek j` is canonically isomorphic to étale
-restriction. -/
-def lowerShriek_rightAdjointIsoRestriction
-    {G : Sheaf X.smallEtaleTopology AddCommGrpCat.{u} ⥤
-      Sheaf U.smallEtaleTopology AddCommGrpCat.{u}}
-    (adj : lowerShriek j ⊣ G) :
-    G ≅ etaleRestrictionSheaf j AddCommGrpCat.{u} :=
-  adj.rightAdjointUniq (lowerShriekRestrictionAdjunction j)
-
-/-- The uniqueness isomorphism identifying a right adjoint of `lowerShriek j`
-with étale restriction, evaluated at an abelian étale sheaf. -/
-def lowerShriek_rightAdjointIsoRestriction_app
-    {G : Sheaf X.smallEtaleTopology AddCommGrpCat.{u} ⥤
-      Sheaf U.smallEtaleTopology AddCommGrpCat.{u}}
-    (adj : lowerShriek j ⊣ G)
-    (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) :
-    G.obj F ≅ (etaleRestrictionSheaf j AddCommGrpCat.{u}).obj F :=
-  (lowerShriek_rightAdjointIsoRestriction j adj).app F
-
-/-- Hom-sets of the adjunction `lowerShriek j ⊣ etaleRestrictionSheaf j AddCommGrpCat`. -/
-def lowerShriekRestrictionAdjunction_homEquiv
-    (F : Sheaf U.smallEtaleTopology AddCommGrpCat.{u})
-    (G : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) :
-    ((lowerShriek j).obj F ⟶ G) ≃
-      (F ⟶ (etaleRestrictionSheaf j AddCommGrpCat.{u}).obj G) :=
-  (lowerShriekRestrictionAdjunction j).homEquiv F G
-
-/-- The adjunction is the transport of étale extension-by-zero along the
-identification of Lemma 63.4.3. -/
-theorem lowerShriekRestrictionAdjunction_eq :
-    lowerShriekRestrictionAdjunction j =
-      (abelianExtensionByZero_adjunction j).ofNatIsoLeft
-        (extensionByZeroIsoLowerShriek j) :=
-  sorry
+/- Lemma 63.6.2: For an étale morphism `j : U ⟶ X`, non-derived upper shriek
+is canonically naturally isomorphic to inverse image on abelian étale sheaves. -/
+@[stacks 0F5A] #check
+  (AlgebraicGeometry.Scheme.Etale.upperShriekIsoRestriction j :
+    upperShriek j ≅ etaleRestrictionSheaf j AddCommGrpCat.{u})
 
 end AlgebraicGeometry.Scheme.Etale
 

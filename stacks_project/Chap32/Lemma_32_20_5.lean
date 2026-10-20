@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FinitePresentation.Over.StalkGluing.FiniteFamily
@@ -20,12 +14,11 @@ complement is quasi-compact, finite-presentation schemes over the scheme are equ
 compatible finite-presentation schemes over the complement and the local schemes, compared over
 their punctured stalk opens. -/
 @[stacks 0E8Q] #check
-  (AlgebraicGeometry.finitePresentationOver_equivalence_stalkFamilyGluing :
+  (AlgebraicGeometry.finitePresentationStalkFamilyGluingFunctor_isEquivalence :
     ∀ {ι : Type u} [Finite ι] [Nonempty ι]
       (S : Scheme.{u}) (s : ι → S)
       (hs_closed : ∀ i, s i ∈ closedPoints S)
       (hs_pairwise : Function.Injective s)
       (U : S.Opens) (hU : (U : Set S) = (Set.range s)ᶜ)
       [QuasiCompact U.ι],
-      Nonempty
-        (FinitePresentationOver S ≌ finitePresentationStalkFamilyGluingCategory S U s))
+      (finitePresentationStalkFamilyGluingFunctor S U s).IsEquivalence)

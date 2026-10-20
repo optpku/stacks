@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Fibered.Groupoids.Diagonal.Construction
-public import ReasLib.CategoryTheory.Fibered.Stack.InGroupoids
-public import stacks_project.Chap94.Definition_94_12_1_MorphismProperty
-public import stacks_project.Chap96.Lemma_96_19_10_LocallyOfFinitePresentation
-public import stacks_project.Chap100.Lemma_100_11_1_Flat
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Diagonal.FlatAtlas
+import StacksCheckRecall
 
 /-!
 # Diagonals of stacks with an fppf algebraic-space atlas
@@ -31,22 +22,18 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry
-
-/-- Lemma 97.4.3: Let `S` be a scheme. Let `u : U ⟶ X` be a 1-morphism of
+/- Lemma 97.4.3: Let `S` be a scheme. Let `u : U ⟶ X` be a 1-morphism of
 stacks in groupoids over `(Sch/S)_fppf`. If `U` is representable by an
 algebraic space, and `u` is representable by algebraic spaces, surjective,
 flat, and locally of finite presentation, then `Δ : X ⟶ X × X` is
 representable by algebraic spaces. -/
-@[stacks 05XW]
-theorem relativelyRepresentableByAlgebraicSpaces.diagonal_of_fppfAtlas
-    {S : Scheme.{u}} {X : GroupoidsOver S} {U : AlgebraicSpace S}
+@[stacks 05XW] #check
+  (AlgebraicGeometry.relativelyRepresentableByAlgebraicSpaces.diagonal_of_fppfAtlas :
+    ∀ {S : Scheme.{u}} {U X : GroupoidsOver S}
+    [IsStack.InGroupoids (Scheme.fppfTopology.over S) U.p]
     [IsStack.InGroupoids (Scheme.fppfTopology.over S) X.p]
-    (u : U.toGroupoids ⟶ X)
+    (u : U ⟶ X) (hU : IsRepresentableByAlgebraicSpace U)
     [Groupoids.Hom.Surjective u] [Groupoids.Hom.Flat u]
-    [Groupoids.Hom.LocallyOfFinitePresentation u] :
+    [Groupoids.Hom.LocallyOfFinitePresentation u],
     relativelyRepresentableByAlgebraicSpaces
-      (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} X) :=
-  sorry
-
-end AlgebraicGeometry
+      (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} X))

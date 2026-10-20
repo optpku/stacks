@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Complex.StrictlyPerfect.Local
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Complex.StrictlyPerfect.Local
-public import ReasLib.AlgebraicGeometry.RingedSpace.Module.OpensRingedSite
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.OpensRingedSite.Basic
 import Mathlib.Tactic.CrossRefAttribute
 
 @[expose] public section

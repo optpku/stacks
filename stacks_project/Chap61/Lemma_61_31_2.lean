@@ -1,122 +1,59 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap61.Lemma_61_31_2_Inclusion
-public import ReasLib.CategoryTheory.Sites.Topos.Retraction
-public import ReasLib.CategoryTheory.Sites.Derived.SectionsComparison
-public import ReasLib.CategoryTheory.Sites.FullyFaithful
-import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Proetale.ChosenPresentation.ChangeOfUniverse
 
 /-!
 # Lemma 61.31.2
 
-The inclusion of nested chosen small pro-étale sites of a scheme satisfies the
-hypotheses of Sites, Lemma 7.21.8. The induced morphisms of topoi compose to
-the identity, the continuous direct image agrees with the cocontinuous inverse
-image, and abelian cohomology is unchanged by the resulting restriction,
-pushforward, and pullback.
+Nested chosen small pro-étale sites induce a retraction of topoi and preserve
+abelian sheaf cohomology under restriction, pushforward, and pullback.
 -/
 
-@[expose] public section
-
-open CategoryTheory
-open CategoryTheory.Limits
-open CategoryTheory.Functor
-open AlgebraicGeometry
+open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
+open AlgebraicGeometry.ChosenBigProetaleSite
 open scoped MorphismOfTopoiIn
 
 noncomputable section
 
 universe u v w
 
-namespace AlgebraicGeometry.ChosenBigProetaleSite
-
-variable {X Y : ChosenBigProetaleSite.{u, v}}
-variable (S : X.carrier) (ι : X.carrier ⥤ Y.carrier)
-variable (e : ι ⋙ Y.toScheme ≅ X.toScheme)
-variable [ι.Full] [ι.Faithful]
-variable [ι.IsContinuous X.toGrothendieck Y.toGrothendieck]
-
-/-- Lemma 61.31.2 (1): the composite inverse image of the continuous and
-cocontinuous morphisms of topoi attached to a nested small pro-étale inclusion
-is naturally isomorphic to the identity. -/
-@[stacks 098Y]
-def smallNestedInclusion_comp_inverseImageIso
+/- Lemma 61.31.2 -/
+@[stacks 098Y] #check (AlgebraicGeometry.ChosenBigProetaleSite.smallNestedInclusion_comp_inverseImageIso :
+  ∀ {X Y : ChosenBigProetaleSite.{u, v}} (S : X.carrier)
+    (ι : X.carrier ⥤ Y.carrier) (e : ι ⋙ Y.toScheme ≅ X.toScheme),
+  ∀
     [HasSheafify (smallTopology X S) (Type w)]
     [HasWeakSheafify (smallTopology Y (ι.obj S)) (Type w)]
-    [∀ P : (smallSite X S)ᵒᵖ ⥤ Type w,
+    [∀ P : (smallSite X S)ᵒᵖ ⥤ (Type w),
       (smallNestedInclusion S ι e).op.HasLeftKanExtension P]
-    [∀ P : (smallSite X S)ᵒᵖ ⥤ Type w,
+    [∀ P : (smallSite X S)ᵒᵖ ⥤ (Type w),
       (smallNestedInclusion S ι e).op.HasPointwiseLeftKanExtension P]
-    [∀ P : (smallSite X S)ᵒᵖ ⥤ Type w,
-      (smallNestedInclusion S ι e).op.HasPointwiseRightKanExtension P] :
-    (MorphismOfTopoiIn.comp
-        ((smallNestedInclusion S ι e).morphismOfTopoiInOfContinuous
-          (smallTopology X S) (smallTopology Y (ι.obj S)))
-        ((smallNestedInclusion S ι e).morphismOfTopoiInOfCocontinuous
-          (smallTopology X S) (smallTopology Y (ι.obj S)))).inverseImage ≅
-      (MorphismOfTopoiIn.id (smallTopology X S)).inverseImage :=
-  Retraction.compInverseImageIso (smallTopology X S)
-    (smallTopology Y (ι.obj S)) (smallNestedInclusion S ι e)
+    [∀ P : (smallSite X S)ᵒᵖ ⥤ (Type w),
+      (smallNestedInclusion S ι e).op.HasPointwiseRightKanExtension P]
+  ,
+    (MorphismOfTopoiIn.comp (smallNestedInclusion_continuousMorphism.{u, v, w} S ι e)
+      (smallNestedInclusion_cocontinuousMorphism.{u, v, w} S ι e)).inverseImage ≅
+      (MorphismOfTopoiIn.id (smallTopology X S)).inverseImage)
 
-/-- The nested small-inclusion retraction isomorphism is the Sites 7.21.8
-inverse-image comparison. -/
-theorem smallNestedInclusion_comp_inverseImageIso_hom
+#check (AlgebraicGeometry.ChosenBigProetaleSite.smallNestedInclusion_pushforward_iso_inverseImage :
+  ∀ {X Y : ChosenBigProetaleSite.{u, v}} (S : X.carrier)
+    (ι : X.carrier ⥤ Y.carrier) (e : ι ⋙ Y.toScheme ≅ X.toScheme),
+  ∀
     [HasSheafify (smallTopology X S) (Type w)]
     [HasWeakSheafify (smallTopology Y (ι.obj S)) (Type w)]
-    [∀ P : (smallSite X S)ᵒᵖ ⥤ Type w,
+    [∀ P : (smallSite X S)ᵒᵖ ⥤ (Type w),
       (smallNestedInclusion S ι e).op.HasLeftKanExtension P]
-    [∀ P : (smallSite X S)ᵒᵖ ⥤ Type w,
-      (smallNestedInclusion S ι e).op.HasPointwiseLeftKanExtension P]
-    [∀ P : (smallSite X S)ᵒᵖ ⥤ Type w,
-      (smallNestedInclusion S ι e).op.HasPointwiseRightKanExtension P] :
-    (smallNestedInclusion_comp_inverseImageIso S ι e).hom =
-      (Retraction.compInverseImageIso (smallTopology X S)
-        (smallTopology Y (ι.obj S)) (smallNestedInclusion S ι e)).hom := sorry
+    [∀ P : (smallSite X S)ᵒᵖ ⥤ (Type w),
+      (smallNestedInclusion S ι e).op.HasPointwiseRightKanExtension P]
+  ,
+    (smallNestedInclusion_cocontinuousMorphism.{u, v, w} S ι e)⁻¹ ≅
+      (smallNestedInclusion_continuousMorphism.{u, v, w} S ι e)_*)
 
-/-- Lemma 61.31.2 (2): the cocontinuous inverse image of a nested small
-pro-étale inclusion is naturally isomorphic to the continuous direct image. -/
-@[stacks 098Y]
-def smallNestedInclusion_pushforward_iso_inverseImage
-    [HasSheafify (smallTopology X S) (Type w)]
-    [HasWeakSheafify (smallTopology Y (ι.obj S)) (Type w)]
-    [∀ P : (smallSite X S)ᵒᵖ ⥤ Type w,
-      (smallNestedInclusion S ι e).op.HasLeftKanExtension P]
-    [∀ P : (smallSite X S)ᵒᵖ ⥤ Type w,
-      (smallNestedInclusion S ι e).op.HasPointwiseRightKanExtension P] :
-    (((smallNestedInclusion S ι e).morphismOfTopoiInOfCocontinuous
-        (smallTopology X S) (smallTopology Y (ι.obj S)))⁻¹) ≅
-      (((smallNestedInclusion S ι e).morphismOfTopoiInOfContinuous
-        (smallTopology X S) (smallTopology Y (ι.obj S)))_*) :=
-  @asIso _ _ _ _
-    (CocontinuousPullback.comparison.{w} (smallNestedInclusion S ι e)
-      (smallTopology X S) (smallTopology Y (ι.obj S)))
-    (CocontinuousPullback.comparison.isIso.{w} (smallNestedInclusion S ι e)
-      (smallTopology X S) (smallTopology Y (ι.obj S)))
-
-/-- The nested small-inclusion comparison `g⁻¹ ≅ f_*` is the canonical
-cocontinuous-to-continuous comparison. -/
-theorem smallNestedInclusion_pushforward_iso_inverseImage_hom
-    [HasSheafify (smallTopology X S) (Type w)]
-    [HasWeakSheafify (smallTopology Y (ι.obj S)) (Type w)]
-    [∀ P : (smallSite X S)ᵒᵖ ⥤ Type w,
-      (smallNestedInclusion S ι e).op.HasLeftKanExtension P]
-    [∀ P : (smallSite X S)ᵒᵖ ⥤ Type w,
-      (smallNestedInclusion S ι e).op.HasPointwiseRightKanExtension P] :
-    (smallNestedInclusion_pushforward_iso_inverseImage S ι e).hom =
-      CocontinuousPullback.comparison.{w} (smallNestedInclusion S ι e)
-        (smallTopology X S) (smallTopology Y (ι.obj S)) := sorry
-
-/-- Lemma 61.31.2 (3): for an abelian sheaf on the larger small pro-étale site,
-degree-`p` cohomology agrees with cohomology of its restriction to the smaller
-site. -/
-@[stacks 098Y]
-def smallNestedInclusion_cohomology_restrict
+#check (AlgebraicGeometry.ChosenBigProetaleSite.smallNestedInclusion_cohomology_restrict :
+  ∀ {X Y : ChosenBigProetaleSite.{u, v}} (S : X.carrier)
+    (ι : X.carrier ⥤ Y.carrier) (e : ι ⋙ Y.toScheme ≅ X.toScheme),
+  ∀
     [HasSheafify (smallTopology X S) AddCommGrpCat.{w}]
     [HasSheafify (smallTopology Y (ι.obj S)) AddCommGrpCat.{w}]
     [HasGlobalSectionsFunctor (smallTopology X S) AddCommGrpCat.{w}]
@@ -125,19 +62,18 @@ def smallNestedInclusion_cohomology_restrict
     [IsGrothendieckAbelian (Sheaf (smallTopology Y (ι.obj S)) AddCommGrpCat.{w})]
     [HasInjectiveResolutions (Sheaf (smallTopology X S) AddCommGrpCat.{w})]
     [HasInjectiveResolutions (Sheaf (smallTopology Y (ι.obj S)) AddCommGrpCat.{w})]
-    (p : ℕ) (F' : Sheaf (smallTopology Y (ι.obj S)) AddCommGrpCat.{w}) :
-    (((smallNestedInclusion S ι e).sheafPushforwardContinuous AddCommGrpCat.{w}
-          (smallTopology X S) (smallTopology Y (ι.obj S)) ⋙
-        Sheaf.Γ (smallTopology X S) AddCommGrpCat.{w}).rightDerived p).obj F' ≅
-      ((Sheaf.Γ (smallTopology Y (ι.obj S)) AddCommGrpCat.{w}).rightDerived p).obj F' :=
-  (SiteAbelianSectionsDerived.derivedGlobalSectionsIso
-      (smallNestedInclusion S ι e) p (smallTerminalObject X S)
-      (smallTerminalObjectIsTerminal X S)
-      (smallNestedInclusion_obj_smallTerminalObject S ι e)).app F'
+    [∀ P : (smallSite X S)ᵒᵖ ⥤ AddCommGrpCat.{w},
+      (smallNestedInclusion S ι e).op.HasLeftKanExtension P]
+    (p : ℕ) (F' : Sheaf (smallTopology Y (ι.obj S)) AddCommGrpCat.{w})
+  ,
+    ((Sheaf.Γ (smallTopology X S) AddCommGrpCat.{w}).rightDerived p).obj
+        ((smallNestedInclusion_abelianRestriction.{u, v, w} S ι e).obj F') ≅ ((Sheaf.Γ (smallTopology Y
+        (ι.obj S)) AddCommGrpCat.{w}).rightDerived p).obj F')
 
-/-- The nested small-inclusion restriction comparison is the Sites 21.7.2
-derived global-sections isomorphism at `F'`. -/
-theorem smallNestedInclusion_cohomology_restrict_eq
+#check (AlgebraicGeometry.ChosenBigProetaleSite.smallNestedInclusion_cohomology_pushforward :
+  ∀ {X Y : ChosenBigProetaleSite.{u, v}} (S : X.carrier)
+    (ι : X.carrier ⥤ Y.carrier) (e : ι ⋙ Y.toScheme ≅ X.toScheme),
+  ∀
     [HasSheafify (smallTopology X S) AddCommGrpCat.{w}]
     [HasSheafify (smallTopology Y (ι.obj S)) AddCommGrpCat.{w}]
     [HasGlobalSectionsFunctor (smallTopology X S) AddCommGrpCat.{w}]
@@ -146,53 +82,20 @@ theorem smallNestedInclusion_cohomology_restrict_eq
     [IsGrothendieckAbelian (Sheaf (smallTopology Y (ι.obj S)) AddCommGrpCat.{w})]
     [HasInjectiveResolutions (Sheaf (smallTopology X S) AddCommGrpCat.{w})]
     [HasInjectiveResolutions (Sheaf (smallTopology Y (ι.obj S)) AddCommGrpCat.{w})]
-    (p : ℕ) (F' : Sheaf (smallTopology Y (ι.obj S)) AddCommGrpCat.{w}) :
-    smallNestedInclusion_cohomology_restrict S ι e p F' =
-      (SiteAbelianSectionsDerived.derivedGlobalSectionsIso
-          (smallNestedInclusion S ι e) p (smallTerminalObject X S)
-          (smallTerminalObjectIsTerminal X S)
-          (smallNestedInclusion_obj_smallTerminalObject S ι e)).app F' := sorry
-
-/-- Lemma 61.31.2 (4): for an abelian sheaf on the smaller small pro-étale site,
-degree-`p` cohomology agrees with cohomology of its cocontinuous pushforward to
-the larger site. -/
-@[stacks 098Y]
-def smallNestedInclusion_cohomology_pushforward
-    [HasSheafify (smallTopology X S) AddCommGrpCat.{w}]
-    [HasSheafify (smallTopology Y (ι.obj S)) AddCommGrpCat.{w}]
-    [HasGlobalSectionsFunctor (smallTopology X S) AddCommGrpCat.{w}]
-    [HasGlobalSectionsFunctor (smallTopology Y (ι.obj S)) AddCommGrpCat.{w}]
-    [IsGrothendieckAbelian (Sheaf (smallTopology X S) AddCommGrpCat.{w})]
-    [IsGrothendieckAbelian (Sheaf (smallTopology Y (ι.obj S)) AddCommGrpCat.{w})]
-    [HasInjectiveResolutions (Sheaf (smallTopology X S) AddCommGrpCat.{w})]
-    [HasInjectiveResolutions (Sheaf (smallTopology Y (ι.obj S)) AddCommGrpCat.{w})]
-    [((smallNestedInclusion S ι e).sheafPushforwardContinuous AddCommGrpCat.{w}
-        (smallTopology X S) (smallTopology Y (ι.obj S))).PreservesInjectiveObjects]
+    [∀ P : (smallSite X S)ᵒᵖ ⥤ AddCommGrpCat.{w},
+      (smallNestedInclusion S ι e).op.HasLeftKanExtension P]
     [∀ P : (smallSite X S)ᵒᵖ ⥤ AddCommGrpCat.{w},
       (smallNestedInclusion S ι e).op.HasPointwiseRightKanExtension P]
-    (p : ℕ) (F : Sheaf (smallTopology X S) AddCommGrpCat.{w}) :
-    ((Sheaf.Γ (smallTopology X S) AddCommGrpCat.{w}).rightDerived p).obj F ≅
-      ((Sheaf.Γ (smallTopology Y (ι.obj S)) AddCommGrpCat.{w}).rightDerived p).obj
-        (((smallNestedInclusion S ι e).sheafPushforwardCocontinuous AddCommGrpCat.{w}
-            (smallTopology X S) (smallTopology Y (ι.obj S))).obj F) :=
-  ((Sheaf.Γ (smallTopology X S) AddCommGrpCat.{w}).rightDerived p).mapIso
-      (asIso
-        (((smallNestedInclusion S ι e).sheafAdjunctionCocontinuous AddCommGrpCat.{w}
-            (smallTopology X S) (smallTopology Y (ι.obj S))).counit.app F)).symm ≪≫
-    (RightDerived.precompObjIso
-        ((smallNestedInclusion S ι e).sheafPushforwardContinuous AddCommGrpCat.{w}
-          (smallTopology X S) (smallTopology Y (ι.obj S)))
-        (Sheaf.Γ (smallTopology X S) AddCommGrpCat.{w}) p
-        (((smallNestedInclusion S ι e).sheafPushforwardCocontinuous AddCommGrpCat.{w}
-            (smallTopology X S) (smallTopology Y (ι.obj S))).obj F)).symm ≪≫
-    smallNestedInclusion_cohomology_restrict S ι e p
-      (((smallNestedInclusion S ι e).sheafPushforwardCocontinuous AddCommGrpCat.{w}
-          (smallTopology X S) (smallTopology Y (ι.obj S))).obj F)
+    (p : ℕ) (F : Sheaf (smallTopology X S) AddCommGrpCat.{w})
+  ,
+    ((Sheaf.Γ (smallTopology X S) AddCommGrpCat.{w}).rightDerived p).obj F ≅ ((Sheaf.Γ (smallTopology Y
+        (ι.obj S)) AddCommGrpCat.{w}).rightDerived p).obj ((smallNestedInclusion_abelianPushforward.{u, v,
+        w} S ι e).obj F))
 
-/-- The nested small-inclusion pushforward comparison is the fully faithful
-counit identification, transported through derived global sections and composed
-with the Sites 21.7.2 restriction isomorphism at the cocontinuous direct image. -/
-theorem smallNestedInclusion_cohomology_pushforward_hom
+#check (AlgebraicGeometry.ChosenBigProetaleSite.smallNestedInclusion_cohomology_pullback :
+  ∀ {X Y : ChosenBigProetaleSite.{u, v}} (S : X.carrier)
+    (ι : X.carrier ⥤ Y.carrier) (e : ι ⋙ Y.toScheme ≅ X.toScheme),
+  ∀
     [HasSheafify (smallTopology X S) AddCommGrpCat.{w}]
     [HasSheafify (smallTopology Y (ι.obj S)) AddCommGrpCat.{w}]
     [HasGlobalSectionsFunctor (smallTopology X S) AddCommGrpCat.{w}]
@@ -201,105 +104,51 @@ theorem smallNestedInclusion_cohomology_pushforward_hom
     [IsGrothendieckAbelian (Sheaf (smallTopology Y (ι.obj S)) AddCommGrpCat.{w})]
     [HasInjectiveResolutions (Sheaf (smallTopology X S) AddCommGrpCat.{w})]
     [HasInjectiveResolutions (Sheaf (smallTopology Y (ι.obj S)) AddCommGrpCat.{w})]
-    [((smallNestedInclusion S ι e).sheafPushforwardContinuous AddCommGrpCat.{w}
-        (smallTopology X S) (smallTopology Y (ι.obj S))).PreservesInjectiveObjects]
-    [∀ P : (smallSite X S)ᵒᵖ ⥤ AddCommGrpCat.{w},
-      (smallNestedInclusion S ι e).op.HasPointwiseRightKanExtension P]
-    (p : ℕ) (F : Sheaf (smallTopology X S) AddCommGrpCat.{w}) :
-    (smallNestedInclusion_cohomology_pushforward S ι e p F).hom =
-      (((Sheaf.Γ (smallTopology X S) AddCommGrpCat.{w}).rightDerived p).mapIso
-          (asIso
-            (((smallNestedInclusion S ι e).sheafAdjunctionCocontinuous AddCommGrpCat.{w}
-                (smallTopology X S) (smallTopology Y (ι.obj S))).counit.app F)).symm ≪≫
-        (RightDerived.precompObjIso
-            ((smallNestedInclusion S ι e).sheafPushforwardContinuous AddCommGrpCat.{w}
-              (smallTopology X S) (smallTopology Y (ι.obj S)))
-            (Sheaf.Γ (smallTopology X S) AddCommGrpCat.{w}) p
-            (((smallNestedInclusion S ι e).sheafPushforwardCocontinuous AddCommGrpCat.{w}
-                (smallTopology X S) (smallTopology Y (ι.obj S))).obj F)).symm ≪≫
-        smallNestedInclusion_cohomology_restrict S ι e p
-          (((smallNestedInclusion S ι e).sheafPushforwardCocontinuous AddCommGrpCat.{w}
-              (smallTopology X S) (smallTopology Y (ι.obj S))).obj F)).hom := sorry
-
-/-- Lemma 61.31.2 (5): for an abelian sheaf on the smaller small pro-étale site,
-degree-`p` cohomology agrees with cohomology of its continuous pullback to the
-larger site. -/
-@[stacks 098Y]
-def smallNestedInclusion_cohomology_pullback
-    [HasSheafify (smallTopology X S) AddCommGrpCat.{w}]
-    [HasSheafify (smallTopology Y (ι.obj S)) AddCommGrpCat.{w}]
-    [HasGlobalSectionsFunctor (smallTopology X S) AddCommGrpCat.{w}]
-    [HasGlobalSectionsFunctor (smallTopology Y (ι.obj S)) AddCommGrpCat.{w}]
-    [IsGrothendieckAbelian (Sheaf (smallTopology X S) AddCommGrpCat.{w})]
-    [IsGrothendieckAbelian (Sheaf (smallTopology Y (ι.obj S)) AddCommGrpCat.{w})]
-    [HasInjectiveResolutions (Sheaf (smallTopology X S) AddCommGrpCat.{w})]
-    [HasInjectiveResolutions (Sheaf (smallTopology Y (ι.obj S)) AddCommGrpCat.{w})]
-    [((smallNestedInclusion S ι e).sheafPushforwardContinuous AddCommGrpCat.{w}
-        (smallTopology X S) (smallTopology Y (ι.obj S))).PreservesInjectiveObjects]
     [∀ P : (smallSite X S)ᵒᵖ ⥤ AddCommGrpCat.{w},
       (smallNestedInclusion S ι e).op.HasLeftKanExtension P]
     [∀ P : (smallSite X S)ᵒᵖ ⥤ AddCommGrpCat.{w},
       (smallNestedInclusion S ι e).op.HasPointwiseLeftKanExtension P]
     [∀ P : (smallSite X S)ᵒᵖ ⥤ AddCommGrpCat.{w},
       (smallNestedInclusion S ι e).op.HasPointwiseRightKanExtension P]
-    (p : ℕ) (F : Sheaf (smallTopology X S) AddCommGrpCat.{w}) :
-    ((Sheaf.Γ (smallTopology X S) AddCommGrpCat.{w}).rightDerived p).obj F ≅
-      ((Sheaf.Γ (smallTopology Y (ι.obj S)) AddCommGrpCat.{w}).rightDerived p).obj
-        (((smallNestedInclusion S ι e).sheafPullback AddCommGrpCat.{w}
-            (smallTopology X S) (smallTopology Y (ι.obj S))).obj F) :=
-  ((Sheaf.Γ (smallTopology X S) AddCommGrpCat.{w}).rightDerived p).mapIso
-      (@asIso _ _ _ _
-        (((smallNestedInclusion S ι e).sheafAdjunctionContinuous AddCommGrpCat.{w}
-            (smallTopology X S) (smallTopology Y (ι.obj S))).unit.app F)
-        (sheafAdjunctionContinuous_unit_app_isIso_of_fullyFaithful
-          (smallTopology X S) (smallTopology Y (ι.obj S))
-          (smallNestedInclusion S ι e) F)) ≪≫
-    (RightDerived.precompObjIso
-        ((smallNestedInclusion S ι e).sheafPushforwardContinuous AddCommGrpCat.{w}
-          (smallTopology X S) (smallTopology Y (ι.obj S)))
-        (Sheaf.Γ (smallTopology X S) AddCommGrpCat.{w}) p
-        (((smallNestedInclusion S ι e).sheafPullback AddCommGrpCat.{w}
-            (smallTopology X S) (smallTopology Y (ι.obj S))).obj F)).symm ≪≫
-    smallNestedInclusion_cohomology_restrict S ι e p
-      (((smallNestedInclusion S ι e).sheafPullback AddCommGrpCat.{w}
-          (smallTopology X S) (smallTopology Y (ι.obj S))).obj F)
+    (p : ℕ) (F : Sheaf (smallTopology X S) AddCommGrpCat.{w})
+  ,
+    ((Sheaf.Γ (smallTopology X S) AddCommGrpCat.{w}).rightDerived p).obj F ≅ ((Sheaf.Γ (smallTopology Y
+        (ι.obj S)) AddCommGrpCat.{w}).rightDerived p).obj ((smallNestedInclusion_abelianPullback.{u, v, w} S
+        ι e).obj F))
 
-/-- The nested small-inclusion pullback comparison is the fully faithful unit
-identification, transported through derived global sections and composed with
-the Sites 21.7.2 restriction isomorphism at the continuous inverse image. -/
-theorem smallNestedInclusion_cohomology_pullback_hom
-    [HasSheafify (smallTopology X S) AddCommGrpCat.{w}]
-    [HasSheafify (smallTopology Y (ι.obj S)) AddCommGrpCat.{w}]
-    [HasGlobalSectionsFunctor (smallTopology X S) AddCommGrpCat.{w}]
-    [HasGlobalSectionsFunctor (smallTopology Y (ι.obj S)) AddCommGrpCat.{w}]
-    [IsGrothendieckAbelian (Sheaf (smallTopology X S) AddCommGrpCat.{w})]
-    [IsGrothendieckAbelian (Sheaf (smallTopology Y (ι.obj S)) AddCommGrpCat.{w})]
-    [HasInjectiveResolutions (Sheaf (smallTopology X S) AddCommGrpCat.{w})]
-    [HasInjectiveResolutions (Sheaf (smallTopology Y (ι.obj S)) AddCommGrpCat.{w})]
-    [((smallNestedInclusion S ι e).sheafPushforwardContinuous AddCommGrpCat.{w}
-        (smallTopology X S) (smallTopology Y (ι.obj S))).PreservesInjectiveObjects]
-    [∀ P : (smallSite X S)ᵒᵖ ⥤ AddCommGrpCat.{w},
-      (smallNestedInclusion S ι e).op.HasLeftKanExtension P]
-    [∀ P : (smallSite X S)ᵒᵖ ⥤ AddCommGrpCat.{w},
-      (smallNestedInclusion S ι e).op.HasPointwiseLeftKanExtension P]
-    [∀ P : (smallSite X S)ᵒᵖ ⥤ AddCommGrpCat.{w},
-      (smallNestedInclusion S ι e).op.HasPointwiseRightKanExtension P]
-    (p : ℕ) (F : Sheaf (smallTopology X S) AddCommGrpCat.{w}) :
-    (smallNestedInclusion_cohomology_pullback S ι e p F).hom =
-      (((Sheaf.Γ (smallTopology X S) AddCommGrpCat.{w}).rightDerived p).mapIso
-          (@asIso _ _ _ _
-            (((smallNestedInclusion S ι e).sheafAdjunctionContinuous AddCommGrpCat.{w}
-                (smallTopology X S) (smallTopology Y (ι.obj S))).unit.app F)
-            (sheafAdjunctionContinuous_unit_app_isIso_of_fullyFaithful
-              (smallTopology X S) (smallTopology Y (ι.obj S))
-              (smallNestedInclusion S ι e) F)) ≪≫
-        (RightDerived.precompObjIso
-            ((smallNestedInclusion S ι e).sheafPushforwardContinuous AddCommGrpCat.{w}
-              (smallTopology X S) (smallTopology Y (ι.obj S)))
-            (Sheaf.Γ (smallTopology X S) AddCommGrpCat.{w}) p
-            (((smallNestedInclusion S ι e).sheafPullback AddCommGrpCat.{w}
-                (smallTopology X S) (smallTopology Y (ι.obj S))).obj F)).symm ≪≫
-        smallNestedInclusion_cohomology_restrict S ι e p
-          (((smallNestedInclusion S ι e).sheafPullback AddCommGrpCat.{w}
-              (smallTopology X S) (smallTopology Y (ι.obj S))).obj F)).hom := sorry
-end AlgebraicGeometry.ChosenBigProetaleSite
+#check (AlgebraicGeometry.ChosenBigProetaleSite.smallNestedInclusion_full :
+  ∀ {X Y : ChosenBigProetaleSite.{u, v}} (S : X.carrier)
+    (ι : X.carrier ⥤ Y.carrier) (e : ι ⋙ Y.toScheme ≅ X.toScheme),
+    (smallNestedInclusion S ι e).Full)
+
+#check (AlgebraicGeometry.ChosenBigProetaleSite.smallNestedInclusion_faithful :
+  ∀ {X Y : ChosenBigProetaleSite.{u, v}} (S : X.carrier)
+    (ι : X.carrier ⥤ Y.carrier) (e : ι ⋙ Y.toScheme ≅ X.toScheme),
+    (smallNestedInclusion S ι e).Faithful)
+
+#check (AlgebraicGeometry.ChosenBigProetaleSite.smallNestedInclusion_isContinuous :
+  ∀ {X Y : ChosenBigProetaleSite.{u, v}} (S : X.carrier)
+    (ι : X.carrier ⥤ Y.carrier) (e : ι ⋙ Y.toScheme ≅ X.toScheme),
+    (smallNestedInclusion S ι e).IsContinuous (smallTopology X S) (smallTopology Y (ι.obj S)))
+
+#check (AlgebraicGeometry.ChosenBigProetaleSite.smallNestedInclusion_isCocontinuous :
+  ∀ {X Y : ChosenBigProetaleSite.{u, v}} (S : X.carrier)
+    (ι : X.carrier ⥤ Y.carrier) (e : ι ⋙ Y.toScheme ≅ X.toScheme),
+    (smallNestedInclusion S ι e).IsCocontinuous (smallTopology X S) (smallTopology Y (ι.obj S)))
+
+#check (AlgebraicGeometry.ChosenBigProetaleSite.smallNestedInclusion_preservesPullbacks :
+  ∀ {X Y : ChosenBigProetaleSite.{u, v}} (S : X.carrier)
+    (ι : X.carrier ⥤ Y.carrier) (e : ι ⋙ Y.toScheme ≅ X.toScheme),
+    PreservesLimitsOfShape WalkingCospan (smallNestedInclusion S ι e))
+
+#check (AlgebraicGeometry.ChosenBigProetaleSite.smallNestedInclusion_obj_smallTerminalObject :
+  ∀ {X Y : ChosenBigProetaleSite.{u, v}} (S : X.carrier)
+    (ι : X.carrier ⥤ Y.carrier) (e : ι ⋙ Y.toScheme ≅ X.toScheme),
+    IsTerminal ((smallNestedInclusion S ι e).obj (smallTerminalObject X S)))
+
+#check (AlgebraicGeometry.ChosenBigProetaleSite.smallSiteHasPullbacks :
+  ∀ (X : ChosenBigProetaleSite.{u, v}) (S : X.carrier), HasPullbacks (smallSite X S))
+
+#check (AlgebraicGeometry.ChosenBigProetaleSite.smallTerminalObjectIsTerminal :
+  ∀ (X : ChosenBigProetaleSite.{u, v}) (S : X.carrier),
+    IsTerminal (smallTerminalObject X S))

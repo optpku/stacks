@@ -1,21 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Abelian
-public import Mathlib.Algebra.Homology.ShortComplex.ShortExact
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Coherent
-public import stacks_project.Chap65.Lemma_65_12_4_Immersion
-public import stacks_project.Chap66.«66_26_0_1_Pushforward»
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap67.Definition_67_14_4_IdealSubobject
-public import stacks_project.Chap67.Definition_67_47_7_Irreducible
-public import stacks_project.Chap67.Lemma_67_48_6_Reduced
-public import stacks_project.Chap69.Definition_69_12_1_Instances
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Coherent.Devissage
+import StacksCheckRecall
 
 /-!
 # Lemma 69.14.4
@@ -38,18 +24,16 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules
-
-/-- Lemma 69.14.4: let `S` be a scheme, let `X` be a Noetherian algebraic space over
+/- Lemma 69.14.4: let `S` be a scheme, let `X` be a Noetherian algebraic space over
 `S`, and let `P` be a property of coherent `𝒪_X`-modules. Assume `P` holds for the
 zero sheaf. Assume that for any short exact sequence `0 ⟶ F₁ ⟶ F ⟶ F₂ ⟶ 0` of
 coherent sheaves, if `F₁` and `F₂` have property `P` then so does `F`. Assume that
 for every reduced closed subspace `i : Z ⟶ X` with `|Z|` irreducible and every
 quasi-coherent sheaf of ideals `I ⊂ 𝒪_Z`, property `P` holds for
 `(pushforward i).obj I.toModule`. Then `P` holds for every coherent sheaf on `X`. -/
-@[stacks 07US]
-theorem coherent_property_of_shortExact_and_pushforward_ideal
-    {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNoetherian X]
+@[stacks 07US] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.coherent_property_of_shortExact_and_pushforward_ideal :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNoetherian X]
     (P : X.Modules → Prop)
     (h_zero : P (0 : X.Modules))
     (h_shortExact :
@@ -61,8 +45,5 @@ theorem coherent_property_of_shortExact_and_pushforward_ideal
         IsClosedImmersion i → IsReduced Z → IsIrreducible Z →
           ∀ (I : IdealSubobject Z), IsQuasiCoherent I →
             P ((pushforward i).obj I.toModule))
-    (F : X.Modules) [F.IsCoherent] :
-    P F :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Modules
+    (F : X.Modules) [F.IsCoherent],
+    P F)

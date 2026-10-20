@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Exact
@@ -136,37 +130,3 @@ theorem app (F : A ⥤ₑ B) (G : B ⥤ₑ C) (K : DerivedCategory A) :
 end compFunctorIso
 
 end CategoryTheory.ExactFunctor.MapDerivedCategory
-
-namespace CategoryTheory.Functor.MapDerivedCategory
-
-variable {A : Type u₁} [Category.{v₁} A] [Abelian A] [HasDerivedCategory.{w₁} A]
-variable {B : Type u₂} [Category.{v₂} B] [Abelian B] [HasDerivedCategory.{w₂} B]
-variable {C : Type u₃} [Category.{v₃} C] [Abelian C] [HasDerivedCategory.{w₃} C]
-
-/-- Compatibility name for the composition comparison of bundled exact
-functors.  New code should use
-`ExactFunctor.MapDerivedCategory.compFunctorIso`. -/
-@[deprecated ExactFunctor.MapDerivedCategory.compFunctorIso (since := "2026-08-03")]
-noncomputable abbrev compFunctorIso (F : A ⥤ₑ B) (G : B ⥤ₑ C) :
-    (F.comp G).mapDerivedCategory ≅
-      F.mapDerivedCategory ⋙ G.mapDerivedCategory :=
-  ExactFunctor.MapDerivedCategory.compFunctorIso F G
-
-/-- Compatibility name for the objectwise composition comparison of
-bundled exact functors.  New code should use
-`ExactFunctor.MapDerivedCategory.compObjIso`. -/
-@[deprecated ExactFunctor.MapDerivedCategory.compObjIso (since := "2026-08-03")]
-noncomputable abbrev compObjIso (F : A ⥤ₑ B) (G : B ⥤ₑ C)
-    (K : DerivedCategory A) :
-    (F.comp G).mapDerivedCategory.obj K ≅
-      G.mapDerivedCategory.obj (F.mapDerivedCategory.obj K) :=
-  ExactFunctor.MapDerivedCategory.compObjIso F G K
-
-/-- Compatibility alias for computation of the forward composition
-comparison.  New code should use
-`ExactFunctor.MapDerivedCategory.compFunctorIso_hom_app_Q`. -/
-@[deprecated (since := "2026-08-03")]
-alias compFunctorIso_hom_app_Q :=
-  ExactFunctor.MapDerivedCategory.compFunctorIso_hom_app_Q
-
-end CategoryTheory.Functor.MapDerivedCategory

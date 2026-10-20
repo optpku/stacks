@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap71.Definition_71_7_1_AssociatedSheaf
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.UniverseLift.Morphism
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Divisor.EffectiveCartier.AssociatedSheaf
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,28 +16,28 @@ universe u
 /- Definition 71.7.1 (1): the invertible sheaf 𝒪_X(D) associated to an effective Cartier
 divisor D ⊂ X is Hom_{𝒪_X}(I_D, 𝒪_X) = I_D^{⊗ -1}. -/
 @[stacks 0841] #check
-  (Hom.associatedSheaf :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.associatedSheaf :
     {S : Scheme.{u}} → {D X : AlgebraicSpace S} →
       (i : D ⟶ X) → [IsEffectiveCartierDivisor i] → X.Modules)
 
 /- Definition 71.7.1 (2): the canonical section 1_D of 𝒪_X(D) corresponds to the inclusion
 I_D ⟶ 𝒪_X. -/
 @[stacks 0841] #check
-  (Hom.canonicalSection :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.canonicalSection :
     {S : Scheme.{u}} → {D X : AlgebraicSpace S} →
       (i : D ⟶ X) → [IsEffectiveCartierDivisor i] →
-      (Hom.associatedSheaf i).sections)
+      (AlgebraicGeometry.AlgebraicSpace.Hom.associatedSheaf i).sections)
 
 /- Definition 71.7.1 (3): the negative sheaf 𝒪_X(-D) is 𝒪_X(D)^{⊗ -1} = I_D. -/
 @[stacks 0841] #check
-  (Hom.negSheaf :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.negSheaf :
     {S : Scheme.{u}} → {D X : AlgebraicSpace S} →
       (i : D ⟶ X) → [IsEffectiveCartierDivisor i] → X.Modules)
 
 /- Definition 71.7.1 (4): for effective Cartier divisors D and D', the difference sheaf
 𝒪_X(D - D') is 𝒪_X(D) ⊗ 𝒪_X(-D'). -/
 @[stacks 0841] #check
-  (Hom.differenceSheaf :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.differenceSheaf :
     {S : Scheme.{u}} → {D D' X : AlgebraicSpace S} →
       (i : D ⟶ X) → (i' : D' ⟶ X) →
       [IsEffectiveCartierDivisor i] → [IsEffectiveCartierDivisor i'] → X.Modules)

@@ -1,40 +1,25 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap52.Proposition_52_12_3
-public import stacks_project.Chap52.Proposition_52_13_1_Comparison
+public import ReasLib.AlgebraicGeometry.Scheme.AffineAlgebraization.DepthComparison
+import StacksCheckRecall
 
 @[expose] public section
 
 open CategoryTheory
+open AlgebraicGeometry
 open AlgebraicGeometry.Scheme AlgebraicGeometry.Scheme.Modules
+open AlgebraicGeometry.AffineAlgebraizationSetup
 
 noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AffineAlgebraizationSetup
-
-variable {A : Type u} [CommRing A] [IsNoetherianRing A]
-
-/-- Proposition 52.13.1 (1): for nested ideals `I ⊆ 𝔞` in a Noetherian ring `A`,
-a coherent module `F` on `U = Spec(A) ∖ V(𝔞)`, and `s : ℕ`, assume `A` is
-`I`-adically complete and has a dualizing complex. If every `x ∈ U ∖ V(I)` satisfies
-the stated depth alternative and either `F|_{U ∖ V(I)}` satisfies `(S_{s + 1})` or
-`V(𝔞)` has dimension-function spread at most two, then
-`H^i(U, F) ⟶ lim_n H^i(U, F / I ^ (n + 1)F)` is an isomorphism for every `i < s`. -/
-@[stacks 0EG4]
-theorem cohomologyComparison_isIso_of_depth
-    [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (S : AffineAlgebraizationSetup A)
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (h_dualizing :
-      ∃ K : DerivedCategory (ModuleCat.{u} A), K.IsDualizingComplex H)
+/- Proposition 52.13.1 -/
+@[stacks 0EG4] #check
+  (AlgebraicGeometry.AffineAlgebraizationSetup.cohomologyComparison_isIso_of_depth :
+    ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
+      (S : AffineAlgebraizationSetup A)
+    (h_dualizing : DerivedCategory.HasCanonicalDualizingComplex A)
     [IsAdicComplete S.I A]
     (F : RingedSpace.Coh (S.U.toScheme).toRingedSpace) (s : ℕ)
     (h_depth : ∀ x : S.U,
@@ -54,29 +39,18 @@ theorem cohomologyComparison_isIso_of_depth
                     (ringKrullDim
                       ((PointClosure.scheme (S.U.ι x)).presheaf.stalk z)))
     (h_alternative :
-      @satisfiesSerreConditionS
-          (idealOnOpen S).openComplement.toScheme inferInstance
-          ((coherentRestrictFunctor
-            (idealOnOpen S).openComplement.ι).obj F).obj
-          ((coherentRestrictFunctor
-            (idealOnOpen S).openComplement.ι).obj F).property (s + 1) ∨
-        ∃ δ : S.X → ℤ, IsDimensionFunction δ ∧
-          ∃ δmax δmin : ℤ,
-            IsGreatest (δ '' S.U.compl) δmax ∧
-              IsLeast (δ '' S.U.compl) δmin ∧ δmax - δmin ≤ 2) :
-    ∀ i : ℕ, i < s → IsIso (cohomologyComparison S F.obj i) := sorry
+      coherentSatisfiesSerreConditionS
+        ((coherentRestrictFunctor
+          (idealOnOpen S).openComplement.ι).obj F) (s + 1) ∨
+        ringKrullDim (A ⧸ S.a) ≤ 2),
+    ∀ i : ℕ, i < s → IsIso (Scheme.Hom.IdealPowerCohomology.Quotient.toLimit S.I S.U.ι F.obj i))
 
-/-- Proposition 52.13.1 (2): under the same completeness, dualizing-complex, depth,
-and `(S_{s + 1})` or dimension-function hypotheses, the canonical map
-`colim_{V ⊇ U ∩ V(I)} H^s(V, F) ⟶ lim_n H^s(U, F / I ^ (n + 1)F)` is an
-isomorphism after forgetting the `A`-module structure on the target. -/
-@[stacks 0EG4]
-theorem neighborhoodCohomologyComparison_isIso_of_depth
-    [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (S : AffineAlgebraizationSetup A)
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (h_dualizing :
-      ∃ K : DerivedCategory (ModuleCat.{u} A), K.IsDualizingComplex H)
+/- Proposition 52.13.1 -/
+@[stacks 0EG4] #check
+  (AlgebraicGeometry.AffineAlgebraizationSetup.neighborhoodCohomologyComparison_isIso_of_depth :
+    ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
+      (S : AffineAlgebraizationSetup A)
+    (h_dualizing : DerivedCategory.HasCanonicalDualizingComplex A)
     [IsAdicComplete S.I A]
     (F : RingedSpace.Coh (S.U.toScheme).toRingedSpace) (s : ℕ)
     (h_depth : ∀ x : S.U,
@@ -96,16 +70,8 @@ theorem neighborhoodCohomologyComparison_isIso_of_depth
                     (ringKrullDim
                       ((PointClosure.scheme (S.U.ι x)).presheaf.stalk z)))
     (h_alternative :
-      @satisfiesSerreConditionS
-          (idealOnOpen S).openComplement.toScheme inferInstance
-          ((coherentRestrictFunctor
-            (idealOnOpen S).openComplement.ι).obj F).obj
-          ((coherentRestrictFunctor
-            (idealOnOpen S).openComplement.ι).obj F).property (s + 1) ∨
-        ∃ δ : S.X → ℤ, IsDimensionFunction δ ∧
-          ∃ δmax δmin : ℤ,
-            IsGreatest (δ '' S.U.compl) δmax ∧
-              IsLeast (δ '' S.U.compl) δmin ∧ δmax - δmin ≤ 2) :
-    IsIso (neighborhoodCohomologyComparison S F.obj s) := sorry
-
-end AlgebraicGeometry.AffineAlgebraizationSetup
+      coherentSatisfiesSerreConditionS
+        ((coherentRestrictFunctor
+          (idealOnOpen S).openComplement.ι).obj F) (s + 1) ∨
+        ringKrullDim (A ⧸ S.a) ≤ 2),
+    IsIso (neighborhoodCohomologyComparison S F.obj s))

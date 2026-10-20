@@ -1,56 +1,106 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap98.Lemma_98_21_2_Functor
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.InfinitesimalDeformation
 import StacksCheckRecall
 
 /-!
 # Infinitesimal and tangent functors of a deformation object
 
-Under condition (RS*), a category fibred in groupoids over `(Sch/S)_fppf` has
-A-linear functors Inf_x and T_x on Mod_A, comparing infinitesimal automorphisms
-and isomorphism classes of lifts along first-order thickenings.
+Under the strong Rim-Schlessinger condition, infinitesimal automorphisms and
+lift classes define linear functors, with comparison isomorphisms and tangent actions.
 -/
 
 @[expose] public section
 
+open CategoryTheory AlgebraicGeometry Functor
 open AlgebraicGeometry.GroupoidsOver
 
-/- Lemma 98.21.2 (1). Let S be a scheme, let X be a category fibred in groupoids
-over (Sch/S)_fppf satisfying (RS*), let A be an S-algebra and let x be an object
-of X over Spec(A). There is an A-linear functor Inf_x : Mod_A ⥤ Mod_A such that
-for a square-zero thickening A' ⟶ A with kernel I and a lift x' of x there is an
-isomorphism Inf_x(I) ≅ Inf(x'/x). Lean records Inf_x as infFunctor, with comparison
-iso infIso. -/
-@[stacks 07Y9] #check infFunctor
+universe u
 
-/- Lemma 98.21.2 (2). In the same setting there is an A-linear functor
-T_x : Mod_A ⥤ Mod_A such that for M in Mod_A there is a bijection
-T_x(M) → Lift(x, A[M]), and for a square-zero thickening A' ⟶ A with kernel I
-there is an action T_x(I) × Lift(x, A') ⟶ Lift(x, A') which is simply transitive
-when Lift(x, A') is nonempty. Lean records T_x as tangentFunctor, with underlying
-bijection tangentForget and action tangentAction. -/
-@[stacks 07Y9] #check tangentFunctor
+/- Lemma 98.21.2 (1). Infinitesimal automorphisms of trivial deformations form an
+A-linear functor. For every square-zero S-algebra thickening with kernel I
+and every lift x', its value at I is isomorphic to the relative infinitesimal
+automorphisms of x'. -/
+@[stacks 07Y9] #check (AlgebraicGeometry.GroupoidsOver.infFunctor :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [HasStrongRimSchlessinger X]
+    {A : CommRingCat.{u}} {σA : Spec A ⟶ S}
+    (x : X.p.Fiber (Over.mk σA)), ModuleCat.{u} A ⥤ ModuleCat.{u} A)
 
-/- The comparison isomorphism Inf_x(I) ≅ Inf(x'/x) of A-modules. -/
-#check infIso
+#check (AlgebraicGeometry.GroupoidsOver.infFunctor.instModuleLinear :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [HasStrongRimSchlessinger X]
+    {A : CommRingCat.{u}} {σA : Spec A ⟶ S}
+    (x : X.p.Fiber (Over.mk σA)), ModuleLinear (A : Type u) (infFunctor x))
 
-/- The forgetful identification of the underlying type of T_x(M) with Lift(x, A[M]). -/
-#check tangentForget
+#check (AlgebraicGeometry.GroupoidsOver.infIso :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [HasStrongRimSchlessinger X]
+    {A : CommRingCat.{u}} {σA : Spec A ⟶ S}
+    {A' : CommRingCat.{u}} {σA' : Spec A' ⟶ S}
+    {fA : A' ⟶ A} {hfA : Spec.map fA ≫ σA' = σA}
+    [RingHom.IsSquareZeroExtension fA.hom]
+    (x : X.p.Fiber (Over.mk σA)) (x' : liftCat x fA hfA),
+    (infFunctor x).obj (kernelObj fA) ≅ ModuleCat.of A (infinitesimalAut x'))
 
-/- The action of T_x(I) on Lift(x, A'). -/
-#check tangentAction
+/- Lemma 98.21.2 (2). Isomorphism classes of lifts to trivial square-zero
+extensions form an A-linear tangent functor. Its value at the kernel of any
+square-zero S-algebra thickening acts on lift classes, simply transitively
+when that set is nonempty. The quotient of lifts lies in Type (u + 1). -/
+@[stacks 07Y9] #check (AlgebraicGeometry.GroupoidsOver.tangentFunctor :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [HasStrongRimSchlessinger X]
+    {A : CommRingCat.{u}} {σA : Spec A ⟶ S}
+    (x : X.p.Fiber (Over.mk σA)), ModuleCat.{u} A ⥤ ModuleCat.{u + 1} A)
 
-/- Inf_x is A-linear. -/
-#check infFunctor.instModuleLinear
+#check (AlgebraicGeometry.GroupoidsOver.tangentFunctor.instModuleLinear :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [HasStrongRimSchlessinger X]
+    {A : CommRingCat.{u}} {σA : Spec A ⟶ S}
+    (x : X.p.Fiber (Over.mk σA)), ModuleLinear (A : Type u) (tangentFunctor x))
 
-/- T_x is A-linear. -/
-#check tangentFunctor.instModuleLinear
+#check (AlgebraicGeometry.GroupoidsOver.tangentForget :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [HasStrongRimSchlessinger X]
+    {A : CommRingCat.{u}} {σA : Spec A ⟶ S}
+    (x : X.p.Fiber (Over.mk σA)) (M : ModuleCat.{u} A),
+    ((tangentFunctor x).obj M : Type (u + 1)) ≃
+      lifts x (trivSqZeroHom A M) (trivSqZeroHom_comp σA M))
 
-/- The action of T_x(I) is simply transitive on a nonempty set of lifts. -/
-#check tangentAction_simplyTransitive
+#check (AlgebraicGeometry.GroupoidsOver.tangentForget_bijective :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [HasStrongRimSchlessinger X]
+    {A : CommRingCat.{u}} {σA : Spec A ⟶ S}
+    (x : X.p.Fiber (Over.mk σA)) (M : ModuleCat.{u} A),
+    Function.Bijective (tangentForget x M))
+
+#check (AlgebraicGeometry.GroupoidsOver.tangentAction :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [HasStrongRimSchlessinger X]
+    {A : CommRingCat.{u}} {σA : Spec A ⟶ S}
+    {A' : CommRingCat.{u}} {σA' : Spec A' ⟶ S}
+    {fA : A' ⟶ A} {hfA : Spec.map fA ≫ σA' = σA}
+    [RingHom.IsSquareZeroExtension fA.hom]
+    (x : X.p.Fiber (Over.mk σA)),
+    (tangentFunctor x).obj (kernelObj fA) → lifts x fA hfA → lifts x fA hfA)
+
+#check (AlgebraicGeometry.GroupoidsOver.tangentAction_zero :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [HasStrongRimSchlessinger X]
+    {A : CommRingCat.{u}} {σA : Spec A ⟶ S}
+    {A' : CommRingCat.{u}} {σA' : Spec A' ⟶ S}
+    {fA : A' ⟶ A} {hfA : Spec.map fA ≫ σA' = σA}
+    [RingHom.IsSquareZeroExtension fA.hom]
+    (x : X.p.Fiber (Over.mk σA)) (ξ : lifts x fA hfA),
+    tangentAction x (0 : (tangentFunctor x).obj (kernelObj fA)) ξ = ξ)
+
+#check (AlgebraicGeometry.GroupoidsOver.tangentAction_add :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [HasStrongRimSchlessinger X]
+    {A : CommRingCat.{u}} {σA : Spec A ⟶ S}
+    {A' : CommRingCat.{u}} {σA' : Spec A' ⟶ S}
+    {fA : A' ⟶ A} {hfA : Spec.map fA ≫ σA' = σA}
+    [RingHom.IsSquareZeroExtension fA.hom]
+    (x : X.p.Fiber (Over.mk σA))
+    (s t : (tangentFunctor x).obj (kernelObj fA)) (ξ : lifts x fA hfA),
+    tangentAction x (s + t) ξ = tangentAction x s (tangentAction x t ξ))
+
+#check (AlgebraicGeometry.GroupoidsOver.tangentAction_simplyTransitive :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [HasStrongRimSchlessinger X]
+    {A : CommRingCat.{u}} {σA : Spec A ⟶ S}
+    {A' : CommRingCat.{u}} {σA' : Spec A' ⟶ S}
+    {fA : A' ⟶ A} {hfA : Spec.map fA ≫ σA' = σA}
+    [RingHom.IsSquareZeroExtension fA.hom]
+    (x : X.p.Fiber (Over.mk σA)) [Nonempty (lifts x fA hfA)]
+    (ξ η : lifts x fA hfA),
+    ∃! t : (tangentFunctor x).obj (kernelObj fA), tangentAction x t ξ = η)

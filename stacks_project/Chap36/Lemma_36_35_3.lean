@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Perfect.Relative.Affine
@@ -15,6 +9,8 @@ open scoped AlgebraicGeometry
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.DerivedQCoh
 
 /- Lemma 36.35.3 (1): a quasi-coherent derived object is perfect over a flat,
@@ -23,6 +19,10 @@ of affine opens are perfect over the target section ring. -/
 @[stacks 0DI2] #check
   (AlgebraicGeometry.Scheme.ModuleDerived.isPerfectRelativeTo_iff_affineSectionsPerfect :
     ∀ {X S : Scheme.{u}} (f : X ⟶ S) [Flat f] [LocallyOfFinitePresentation f]
+      [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+        CategoryTheory.DerivedCategory.DerivedTensor.Right.Has
+          (C := RingedSpace.Modules
+            ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
       (E : DerivedQCoh X),
       AlgebraicGeometry.Scheme.ModuleDerived.IsPerfectRelativeTo f E.obj ↔
         ∀ (V : S.affineOpens) (U : X.affineOpens)
@@ -37,6 +37,10 @@ on the members of affine covers of the inverse images of one affine cover of the
 @[stacks 0DI2] #check
   (AlgebraicGeometry.Scheme.ModuleDerived.isPerfectRelativeTo_iff_affineCoverSectionsPerfect :
     ∀ {X S : Scheme.{u}} (f : X ⟶ S) [Flat f] [LocallyOfFinitePresentation f]
+      [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+        CategoryTheory.DerivedCategory.DerivedTensor.Right.Has
+          (C := RingedSpace.Modules
+            ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
       (E : DerivedQCoh X),
       AlgebraicGeometry.Scheme.ModuleDerived.IsPerfectRelativeTo f E.obj ↔
         ∃ 𝒱 : S.AffineOpenCover, ∀ j : 𝒱.I₀,

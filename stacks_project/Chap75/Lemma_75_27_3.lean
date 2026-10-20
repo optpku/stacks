@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap75.Lemma_75_27_3_FlatPullbackSections
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Perfect.FlatPullbackSections
 
 @[expose] public section
 
@@ -30,8 +24,10 @@ perfect objects such that `K ↦ RΓ(U, Lf^* K)` is functorially its sequential
   (AlgebraicGeometry.AlgebraicSpace.FlatPullbackSections.exists_perfect_rHom :
     ∀ {A : Type u} [CommRing A]
       {X U : AlgebraicSpace (Spec (CommRingCat.of A))} (f : U ⟶ X)
-      [FinitePresentation (toBase X)] [FinitePresentation (toBase U)] [Flat f]
-      [MonoidalCategory (ModuleDerived X)] (H : MonoidalClosed (ModuleDerived X)),
+      [FinitePresentation (SchemeRealization.toBase X)] [FinitePresentation (SchemeRealization.toBase U)] [Flat f]
+      [MonoidalCategory (ModuleDerived X)] [BraidedCategory (ModuleDerived X)]
+      (H : MonoidalClosed (ModuleDerived X))
+      (T : CategoryTheory.DerivedCategory.DerivedTensor.Right.Monoidal.Model (C := Modules X)),
       ∃ L : ℕᵒᵖ ⥤ ModuleDerived X,
         (∀ n : ℕ, ModuleDerived.IsPerfect (L.obj (Opposite.op n))) ∧
           Functorial.IsOf (rHomDiagram H L) (pullbackFunctor f))
@@ -44,7 +40,7 @@ colimit of `K ↦ RΓ(X, Eₙ ⊗ᴸ K)` in `D(A)`. -/
   (AlgebraicGeometry.AlgebraicSpace.FlatPullbackSections.exists_perfect_tensor :
     ∀ {A : Type u} [CommRing A]
       {X U : AlgebraicSpace (Spec (CommRingCat.of A))} (f : U ⟶ X)
-      [FinitePresentation (toBase X)] [FinitePresentation (toBase U)] [Flat f],
+      [FinitePresentation (SchemeRealization.toBase X)] [FinitePresentation (SchemeRealization.toBase U)] [Flat f],
       ∃ E : ℕ ⥤ ModuleDerived X,
         (∀ n : ℕ, ModuleDerived.IsPerfect (E.obj n)) ∧
           Functorial.IsOf (tensorDiagram E) (pullbackFunctor f))

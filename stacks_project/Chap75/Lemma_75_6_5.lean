@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_6_5_ProjectionFormula
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.ProjectionFormula.Affine
 import StacksCheckRecall
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
@@ -22,5 +16,5 @@ and `E` in `D_QCoh(𝒪_Y)`, the object `Rf_* Lf^* E` is isomorphic to
   (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.affinePushforwardPullback_isomorphic :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Affine f]
       (E : DerivedQCoh Y),
-      IsIsomorphic ((pushforward f).obj ((pullback f).obj E))
+      IsIsomorphic ((pushforwardCohomologyIn f).obj ((pullback f).obj E))
         (tensorObj E (pushforwardStructureSheaf f)))

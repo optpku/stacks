@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap61.Lemma_61_27_4_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Constructible.DerivedComparison
+import StacksCheckRecall
 
 /-!
 # Lemma 61.27.4
@@ -29,19 +23,13 @@ universe u
 
 namespace AlgebraicGeometry.Scheme
 
-variable (X : Scheme.{u}) (Λ : Type (u + 1)) [CommRing Λ] [IsNoetherianRing Λ]
+variable (X : Scheme.{u}) (Λ : Type (u + 1)) [Ring Λ] [IsNoetherianRing Λ]
 variable [∀ F : X.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
     (etaleToProEt X).op.HasLeftKanExtension F]
 variable [HasSheafify X.smallEtaleTopology (ModuleCat.{u + 1} Λ)]
 variable [HasSheafify (ProEt.topology X) (ModuleCat.{u + 1} Λ)]
 variable [HasDerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{u + 1} Λ))]
 variable [HasDerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} Λ))]
-variable [PreservesFiniteLimits (etaleToProEtPullback X (ModuleCat.{u + 1} Λ))]
-variable [PreservesFiniteColimits (etaleToProEtPullback X (ModuleCat.{u + 1} Λ))]
-variable [∀ U : X.Etale,
-    HasWeakSheafify (X.smallEtaleTopology.over U) (ModuleCat.{u + 1} Λ)]
-variable [∀ U : X.ProEt,
-    HasWeakSheafify ((ProEt.topology X).over U) (ModuleCat.{u + 1} Λ)]
 variable [∀ Y : Scheme.{u}, HasWeakSheafify Y.smallEtaleTopology (ModuleCat.{u + 1} Λ)]
 variable [∀ (Y : Scheme.{u}) (U : Y.Etale),
     HasWeakSheafify (Y.smallEtaleTopology.over U) (ModuleCat.{u + 1} Λ)]
@@ -53,16 +41,15 @@ variable [∀ (Y : Scheme.{u}) (U : Y.ProEt),
 variable [∀ {Y : Scheme.{u}} (f : Y ⟶ X) (P : X.ProEtᵒᵖ ⥤ ModuleCat.{u + 1} Λ),
     (ProEt.baseChange f).op.HasLeftKanExtension P]
 
-/-- Lemma 61.27.4: for a scheme `X` and a Noetherian ring `Λ`, writing
+/- Lemma 61.27.4: for a scheme `X` and a Noetherian ring `Λ`, writing
 `D_c⁺(X.Etale, Λ)` and `D_c⁺(X.ProEt, Λ)` for
 `Plus.CohomologyIn (constructibleEtaleModule X Λ)` and
 `Plus.CohomologyIn (constructibleProEtaleModule X Λ)`, derived inverse
 image `ε⁻¹ = etaleToProEt_modulePlusPullback_constructibleModule` is an
 equivalence `D_c⁺(X.Etale, Λ) ≌ D_c⁺(X.ProEt, Λ)`. -/
-@[stacks 09AL]
-instance etaleToProEt_modulePlusPullback_constructibleModule_isEquivalence :
-    (etaleToProEt_modulePlusPullback_constructibleModule X Λ).IsEquivalence :=
-  sorry
+@[stacks 09AL] #check
+  (AlgebraicGeometry.Scheme.etaleToProEt_modulePlusPullback_constructibleModule_isEquivalence X Λ :
+    (AlgebraicGeometry.Scheme.etaleToProEt_modulePlusPullback_constructibleModule X Λ).IsEquivalence)
 
 end AlgebraicGeometry.Scheme
 

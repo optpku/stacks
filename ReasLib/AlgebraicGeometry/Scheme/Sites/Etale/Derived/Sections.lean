@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived
@@ -28,22 +22,56 @@ namespace AlgebraicGeometry.Scheme.Etale.Derived
 
 variable {X S : Scheme.{u}}
 
+/-- Abelian-group presheaves on the small étale site have canonical left-exact sheafification. -/
+private abbrev sectionsSheafification (T : Scheme.{u}) :
+    HasSheafify T.smallEtaleTopology AddCommGrpCat.{u + 1} :=
+  (@instHasSheafifyOfPreservesLimitsForgetOfHasFiniteLimitsOfSmallOppositeCover
+          T.Etale inferInstance T.smallEtaleTopology AddCommGrpCat.{u + 1} inferInstance
+          (fun P U cover ↦ inferInstance) (fun U ↦ inferInstance)
+          _ _ inferInstance inferInstance
+          (fun U ↦ @PreservesFilteredColimitsOfSize.preserves_filtered_colimits _ _ _ _
+            (CategoryTheory.forget AddCommGrpCat.{u + 1})
+            AddCommGrpCat.FilteredColimits.forget_preservesFilteredColimits
+            (T.smallEtaleTopology.Cover U)ᵒᵖ inferInstance
+            (@isFiltered_op_of_isCofiltered (T.smallEtaleTopology.Cover U) inferInstance
+              (isCofiltered_of_semilatticeInf_nonempty (T.smallEtaleTopology.Cover U)))) inferInstance
+          (fun {U} cover ↦ inferInstance) inferInstance inferInstance (fun U ↦ inferInstance))
+
+/-- Abelian étale sheaves form an abelian category via left-exact sheafification. -/
+private abbrev sectionsAbelian (T : Scheme.{u}) :
+    CategoryTheory.Abelian (Sheaf T.smallEtaleTopology AddCommGrpCat.{u + 1}) :=
+  @sheafIsAbelian _ _ _ _ inferInstance _ (sectionsSheafification T)
+
+/-- Global étale sections with the canonical sheafification evidence fixed. -/
+private abbrev globalSectionsFunctor (T : Scheme.{u}) :=
+  @siteAbelianSectionsFunctor.{u + 1, u, u + 1} T.Etale inferInstance
+    T.smallEtaleTopology (globalEtale T) (sectionsSheafification T)
+
+/-- Derived global étale sections with the canonical sheafification evidence fixed. -/
+private abbrev globalSectionsDerived (T : Scheme.{u}) :=
+  @siteAbelianSectionsDerived.{u + 1, u, u + 1} T.Etale inferInstance
+    T.smallEtaleTopology (globalEtale T) (sectionsSheafification T) inferInstance
+
+
 /-- Global sections of a direct image identify with global sections on its domain. -/
 private def directImageSectionsUnderivedIso (f : X ⟶ S) :
     Abelian.directImage f ⋙
-        siteAbelianSectionsFunctor.{u + 1, u, u + 1} S.smallEtaleTopology (globalEtale S) ≅
-      siteAbelianSectionsFunctor.{u + 1, u, u + 1} X.smallEtaleTopology (globalEtale X) :=
-  SiteAbelianSectionsDerived.sectionsIso (smallEtalePullback f) (globalEtale S) ≪≫
+        globalSectionsFunctor S ≅
+      globalSectionsFunctor X :=
+  @SiteAbelianSectionsDerived.sectionsIso _ _ _ _ _ _ (smallEtalePullback f)
+      inferInstance (sectionsSheafification S) (sectionsSheafification X) (globalEtale S) ≪≫
     (sheafSections X.smallEtaleTopology AddCommGrpCat.{u + 1}).mapIso
       (globalEtalePullbackIso f).symm.op
 
 /-- The cochain sections functor identifies with direct image followed by cochain sections. -/
-private def directImageSectionsCochainIso (f : X ⟶ S) :
+private def directImageSectionsCochainIso (f : X ⟶ S)
+    [HasSheafify X.smallEtaleTopology AddCommGrpCat.{u + 1}]
+    [HasSheafify S.smallEtaleTopology AddCommGrpCat.{u + 1}] :
     Functor.RightDerived.Cochain.toDerived
-        (siteAbelianSectionsFunctor.{u + 1, u, u + 1} X.smallEtaleTopology (globalEtale X)) ≅
+        (globalSectionsFunctor X) ≅
       (Abelian.directImage f).mapHomologicalComplex (ComplexShape.up ℤ) ⋙
         Functor.RightDerived.Cochain.toDerived
-          (siteAbelianSectionsFunctor.{u + 1, u, u + 1} S.smallEtaleTopology (globalEtale S)) :=
+          (globalSectionsFunctor S) :=
   Functor.isoWhiskerRight
       (NatIso.mapHomologicalComplex (directImageSectionsUnderivedIso f).symm
         (ComplexShape.up ℤ)) DerivedCategory.Q ≪≫
@@ -54,21 +82,29 @@ private def directImageSectionsCochainIso (f : X ⟶ S) :
 
 /-- The canonical comparison from derived global sections on the domain to derived global
 sections of the derived direct image. -/
-def directImageSectionsComparison (f : X ⟶ S) :
-    siteAbelianSectionsDerived.{u + 1, u, u + 1} X.smallEtaleTopology (globalEtale X) ⟶
+private def directImageSectionsComparisonConstruction (f : X ⟶ S)
+    [HasSheafify X.smallEtaleTopology AddCommGrpCat.{u + 1}]
+    [HasSheafify S.smallEtaleTopology AddCommGrpCat.{u + 1}] :
+    globalSectionsDerived X ⟶
       directImage f ⋙
-        siteAbelianSectionsDerived.{u + 1, u, u + 1} S.smallEtaleTopology (globalEtale S) :=
-  (siteAbelianSectionsDerived.{u + 1, u, u + 1}
-    X.smallEtaleTopology (globalEtale X)).rightDerivedDesc
+        globalSectionsDerived S :=
+  (globalSectionsDerived X).rightDerivedDesc
     (Functor.RightDerived.Cochain.unit
-      (siteAbelianSectionsFunctor.{u + 1, u, u + 1} X.smallEtaleTopology (globalEtale X)))
+      (globalSectionsFunctor X))
     (HomologicalComplex.quasiIso
       (Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1}) (ComplexShape.up ℤ)) _
     ((directImageSectionsCochainIso f).hom ≫
       Functor.RightDerived.Composition.iteratedUnit
         (Functor.RightDerived.KInjective.unit (Abelian.directImage f))
         (Functor.RightDerived.Cochain.unit
-          (siteAbelianSectionsFunctor.{u + 1, u, u + 1} S.smallEtaleTopology (globalEtale S))))
+          (globalSectionsFunctor S)))
+
+/-- The canonical comparison from derived global sections on the domain to derived global
+sections of the derived direct image. -/
+def directImageSectionsComparison (f : X ⟶ S) :
+    globalSectionsDerived X ⟶ directImage f ⋙ globalSectionsDerived S :=
+  @directImageSectionsComparisonConstruction X S f
+    (sectionsSheafification X) (sectionsSheafification S)
 
 /-- Derived global sections commute with the derived direct image. -/
 instance directImageSectionsComparison_isIso (f : X ⟶ S) :
@@ -77,18 +113,18 @@ instance directImageSectionsComparison_isIso (f : X ⟶ S) :
 /-- Derived global sections of the derived direct image identify with sections on the domain. -/
 def directImageSectionsIso (f : X ⟶ S) :
     directImage f ⋙
-        siteAbelianSectionsDerived.{u + 1, u, u + 1} S.smallEtaleTopology (globalEtale S) ≅
-      siteAbelianSectionsDerived.{u + 1, u, u + 1} X.smallEtaleTopology (globalEtale X) :=
+        globalSectionsDerived S ≅
+      globalSectionsDerived X :=
   (asIso (directImageSectionsComparison f)).symm
 
 /-- Restriction of derived global sections along a scheme morphism. -/
 def sectionsPullback (f : X ⟶ S) :
-    siteAbelianSectionsDerived.{u + 1, u, u + 1} S.smallEtaleTopology (globalEtale S) ⟶
+    globalSectionsDerived S ⟶
       inverseImage f ⋙
-        siteAbelianSectionsDerived.{u + 1, u, u + 1} X.smallEtaleTopology (globalEtale X) :=
+        globalSectionsDerived X :=
   (Functor.leftUnitor _).inv ≫
     whiskerRight (adjunction f).unit
-      (siteAbelianSectionsDerived.{u + 1, u, u + 1} S.smallEtaleTopology (globalEtale S)) ≫
+      (globalSectionsDerived S) ≫
     (Functor.associator _ _ _).hom ≫
     whiskerLeft (inverseImage f) (directImageSectionsIso f).hom
 
@@ -99,8 +135,7 @@ private def identityGeometricPoint (s : GeometricPoint S) :
 
 /-- Sections on the spectrum of a geometric field map to the identity-point stalk by germs. -/
 private def identityPointGerm (s : GeometricPoint S) :
-    siteAbelianSectionsFunctor.{u + 1, u, u + 1} (Spec (.of s.K)).smallEtaleTopology
-        (globalEtale (Spec (.of s.K))) ⟶
+    globalSectionsFunctor (Spec (.of s.K)) ⟶
       (etaleStalkExact (identityGeometricPoint s)).obj :=
   (sheafSectionsNatIsoEvaluation
     (J := (Spec (.of s.K)).smallEtaleTopology) (A := AddCommGrpCat.{u + 1})
@@ -110,15 +145,14 @@ private def identityPointGerm (s : GeometricPoint S) :
         (globalEtale (Spec (.of s.K))) (Over.homMk (𝟙 _) (Category.comp_id _)))
 
 /-- The right-derived germ map from global sections on a geometric spectrum to its stalk. -/
-private def identityPointDerivedGerm (s : GeometricPoint S) :
-    siteAbelianSectionsDerived.{u + 1, u, u + 1} (Spec (.of s.K)).smallEtaleTopology
-        (globalEtale (Spec (.of s.K))) ⟶
-      (etaleStalkExact (identityGeometricPoint s)).mapDerivedCategory :=
-  (siteAbelianSectionsDerived.{u + 1, u, u + 1} (Spec (.of s.K)).smallEtaleTopology
-    (globalEtale (Spec (.of s.K)))).rightDerivedDesc
+private def identityPointDerivedGerm (s : GeometricPoint S)
+    [HasSheafify (Spec (.of s.K)).smallEtaleTopology AddCommGrpCat.{u + 1}] :
+    globalSectionsDerived (Spec (.of s.K)) ⟶
+      (@ExactFunctor.mapDerivedCategory _ _ (sectionsAbelian (Spec (.of s.K))) _ _ _ _ _
+        (etaleStalkExact (identityGeometricPoint s))) :=
+  (globalSectionsDerived (Spec (.of s.K))).rightDerivedDesc
       (Functor.RightDerived.Cochain.unit
-        (siteAbelianSectionsFunctor.{u + 1, u, u + 1} (Spec (.of s.K)).smallEtaleTopology
-          (globalEtale (Spec (.of s.K)))))
+        (globalSectionsFunctor (Spec (.of s.K))))
       (HomologicalComplex.quasiIso
         (Sheaf (Spec (.of s.K)).smallEtaleTopology AddCommGrpCat.{u + 1})
         (ComplexShape.up ℤ)) _
@@ -137,6 +171,8 @@ private def geometricPointStalkComparison (s : GeometricPoint S) :
   let fiberTransport := Functor.whiskerLeft (Etale.forget S) (coyoneda.map overIso.inv.op)
   ObjectProperty.homMk
     ((geometric.toSmallEtalePoint.sheafFiberComapIsoOfMorphismOfSites
+      (J := S.smallEtaleTopology)
+      (h_adj := (Abelian.adjunction s.hom).isRightAdjoint)
       (h_small := smallEtalePullback_fiber_initiallySmall s.hom s.K geometric.hom)
       (smallEtalePullback s.hom) AddCommGrpCat.{u + 1}).inv ≫
       GrothendieckTopology.Point.Hom.sheafFiber
@@ -147,13 +183,14 @@ private def geometricPointStalkComparison (s : GeometricPoint S) :
 derived geometric stalk. -/
 def geometricPointSectionsToStalk (s : GeometricPoint S) :
     inverseImage s.hom ⋙
-        siteAbelianSectionsDerived.{u + 1, u, u + 1} (Spec (.of s.K)).smallEtaleTopology
-          (globalEtale (Spec (.of s.K))) ⟶
-      (etaleStalkExact s).mapDerivedCategory :=
-  whiskerLeft (inverseImage s.hom) (identityPointDerivedGerm s) ≫
-    (ExactFunctor.MapDerivedCategory.compFunctorIso (Abelian.inverseImageExact s.hom)
-      (etaleStalkExact (identityGeometricPoint s))).inv ≫
-    ExactFunctor.MapDerivedCategory.map (geometricPointStalkComparison s)
+        globalSectionsDerived (Spec (.of s.K)) ⟶
+      (@ExactFunctor.mapDerivedCategory _ _ (sectionsAbelian S) _ _ _ _ _ (etaleStalkExact s)) :=
+  whiskerLeft (inverseImage s.hom) (@identityPointDerivedGerm S s (sectionsSheafification (Spec (.of s.K)))) ≫
+    (@ExactFunctor.MapDerivedCategory.compFunctorIso _ _ (sectionsAbelian S) _
+      _ _ (sectionsAbelian (Spec (.of s.K))) _ _ _ _ _
+      (Abelian.inverseImageExact s.hom) (etaleStalkExact (identityGeometricPoint s))).inv ≫
+    @ExactFunctor.MapDerivedCategory.map _ _ (sectionsAbelian S) _ _ _ _ _ _ _
+      (geometricPointStalkComparison s)
 
 /-- Sections after pullback to a geometric point identify with the geometric stalk. -/
 theorem geometricPointSectionsToStalk_isIso (s : GeometricPoint S) :
@@ -161,10 +198,9 @@ theorem geometricPointSectionsToStalk_isIso (s : GeometricPoint S) :
 
 /-- The geometric stalk identifies with derived sections after geometric-point pullback. -/
 def geometricPointSectionsIso (s : GeometricPoint S) :
-    (etaleStalkExact s).mapDerivedCategory ≅
+    (@ExactFunctor.mapDerivedCategory _ _ (sectionsAbelian S) _ _ _ _ _ (etaleStalkExact s)) ≅
       inverseImage s.hom ⋙
-        siteAbelianSectionsDerived.{u + 1, u, u + 1} (Spec (.of s.K)).smallEtaleTopology
-          (globalEtale (Spec (.of s.K))) :=
+        globalSectionsDerived (Spec (.of s.K)) :=
   (@asIso _ _ _ _ (geometricPointSectionsToStalk s) (geometricPointSectionsToStalk_isIso s)).symm
 
 end AlgebraicGeometry.Scheme.Etale.Derived

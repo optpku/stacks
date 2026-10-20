@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.Dualizing
@@ -33,8 +27,10 @@ variable (f : maximalIdeal A)
 /-- A dualizing complex and either the Serre/minimal-component condition or the
 depth-dimension condition make principal-quotient finite étale restriction full. -/
 theorem finiteEtaleBaseChange_full_of_henselian_dualizing
-    [H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A))]
-    [Fact (∃ K : DerivedCategory (ModuleCat.{u} A), K.IsDualizingComplex H)]
+    (C : DerivedCategory.CanonicalClosedPresentation (A := A))
+    [Fact
+      (∃ K : DerivedCategory (ModuleCat.{u} A),
+        K.IsCanonicalDualizingComplex C)]
     [HenselianRing A (principalIdeal f)]
     [Fact
       ((SerreConditionS (Localization.Away (f : A)) 2 ∧
@@ -55,8 +51,10 @@ theorem finiteEtaleBaseChange_full_of_henselian_dualizing
 /-- A dualizing complex and either the Serre/minimal-component condition or the
 depth-dimension condition make principal-quotient finite étale restriction faithful. -/
 theorem finiteEtaleBaseChange_faithful_of_henselian_dualizing
-    [H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A))]
-    [Fact (∃ K : DerivedCategory (ModuleCat.{u} A), K.IsDualizingComplex H)]
+    (C : DerivedCategory.CanonicalClosedPresentation (A := A))
+    [Fact
+      (∃ K : DerivedCategory (ModuleCat.{u} A),
+        K.IsCanonicalDualizingComplex C)]
     [HenselianRing A (principalIdeal f)]
     [Fact
       ((SerreConditionS (Localization.Away (f : A)) 2 ∧
@@ -79,8 +77,10 @@ pair, a finite étale cover of the punctured spectrum that extends over the
 principal quotient extends over the whole spectrum, provided either the
 Serre/minimal-component condition or the depth-dimension condition holds. -/
 theorem finiteEtale_extends_of_henselian_dualizing
-    [H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A))]
-    [Fact (∃ K : DerivedCategory (ModuleCat.{u} A), K.IsDualizingComplex H)]
+    (C : DerivedCategory.CanonicalClosedPresentation (A := A))
+    [Fact
+      (∃ K : DerivedCategory (ModuleCat.{u} A),
+        K.IsCanonicalDualizingComplex C)]
     [HenselianRing A (principalIdeal f)]
     [Fact
       ((SerreConditionS (Localization.Away (f : A)) 2 ∧

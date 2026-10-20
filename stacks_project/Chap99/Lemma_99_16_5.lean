@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap99.Lemma_99_16_5_Isom
@@ -24,6 +18,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.AlgebraicSpace.Complexes
 
 variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
@@ -34,7 +30,15 @@ this is the 94.10.11(1) condition that for every scheme `T` over `S` and
 objects `x, y` of the fibre `𝒳_T`, the presheaf `Isom_𝒳(x, y)` is an algebraic
 space over `T`. -/
 @[stacks 0DLG]
-theorem isom_isAlgebraicSpace (f : X ⟶ B) [Proper f] [Flat f] [FinitePresentation f]
+theorem isom_isAlgebraicSpace (f : X ⟶ B)
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f]
     [Functor.IsFibered (p f)] : isAlgebraicSpace f := sorry
 
 end AlgebraicGeometry.AlgebraicSpace.Complexes

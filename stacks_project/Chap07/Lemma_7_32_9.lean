@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import StacksCheckRecall.CommandCrossRef
@@ -30,8 +24,8 @@ open CategoryTheory
 #check @Adjunction.counitSection_comp
 #check @Adjunction.counit_leftInverse
 #check @Adjunction.counit_isSplitEpi
-#check @Adjunction.reflectsMonomorphisms_R_of_preservesTerminal
-#check @Adjunction.reflectsEpimorphisms_R_of_preservesTerminal
+#check @Adjunction.reflectsMonomorphisms_of_preservesTerminal
+#check @Adjunction.reflectsEpimorphisms_of_preservesTerminal
 #check @MorphismOfTopoiIn.typeCounitSection
 @[stacks 05UX] #check @MorphismOfTopoiIn.typeCounitSection_leftInverse
 #check @MorphismOfTopoiIn.typeCounit_isSplitEpi

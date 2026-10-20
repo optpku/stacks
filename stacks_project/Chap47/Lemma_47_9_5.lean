@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.LocalCohomology.TensorProduct
@@ -27,9 +21,8 @@ to tensoring the first factor with the local cohomology of the second. -/
       ∀ (RΓ : DerivedCategory (ModuleCat A) ⥤ IdealPowerTorsion I),
         (IdealPowerTorsion.inclusion I ⊣ RΓ) →
           ∀ K L : DerivedCategory (ModuleCat A),
-            Nonempty
-              ((RΓ.obj (DerivedTensor.Right.obj K L)).obj ≅
-                DerivedTensor.Right.obj K (RΓ.obj L).obj))
+            (RΓ.obj (DerivedTensor.Right.obj K L)).obj ≅
+              DerivedTensor.Right.obj K (RΓ.obj L).obj)
 
 /- Lemma 47.9.5 (2): local cohomology of a derived tensor product is isomorphic
 to tensoring the local cohomology of the first factor with the second. -/
@@ -39,9 +32,8 @@ to tensoring the local cohomology of the first factor with the second. -/
       ∀ (RΓ : DerivedCategory (ModuleCat A) ⥤ IdealPowerTorsion I),
         (IdealPowerTorsion.inclusion I ⊣ RΓ) →
           ∀ K L : DerivedCategory (ModuleCat A),
-            Nonempty
-              ((RΓ.obj (DerivedTensor.Right.obj K L)).obj ≅
-                DerivedTensor.Right.obj (RΓ.obj K).obj L))
+            (RΓ.obj (DerivedTensor.Right.obj K L)).obj ≅
+              DerivedTensor.Right.obj (RΓ.obj K).obj L)
 
 /- Lemma 47.9.5 (3): applying local cohomology to both factors before taking
 their derived tensor product does not change the local cohomology of the product. -/
@@ -51,9 +43,14 @@ their derived tensor product does not change the local cohomology of the product
       ∀ (RΓ : DerivedCategory (ModuleCat A) ⥤ IdealPowerTorsion I),
         (IdealPowerTorsion.inclusion I ⊣ RΓ) →
           ∀ K L : DerivedCategory (ModuleCat A),
-            Nonempty
-              ((RΓ.obj (DerivedTensor.Right.obj K L)).obj ≅
-                DerivedTensor.Right.obj (RΓ.obj K).obj (RΓ.obj L).obj))
+            (RΓ.obj (DerivedTensor.Right.obj K L)).obj ≅
+              DerivedTensor.Right.obj (RΓ.obj K).obj (RΓ.obj L).obj)
+
+/- The isomorphisms above are inverse to the canonical comparisons obtained by tensoring the
+counit of the adjunction and lifting through it. -/
+#check @CategoryTheory.DerivedCategory.LocalCohomology.tensorComparisonRight
+#check @CategoryTheory.DerivedCategory.LocalCohomology.tensorComparisonLeft
+#check @CategoryTheory.DerivedCategory.LocalCohomology.tensorComparisonBoth
 
 /- Lemma 47.9.5 (4): if either factor has `I`-power-torsion cohomology, then
 their derived tensor product also has `I`-power-torsion cohomology. -/

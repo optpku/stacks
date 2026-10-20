@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.HomotopyCategory.Injective.Localization
@@ -63,13 +57,6 @@ been fixed, the canonical functor `K⁺ᵢ(𝒜) ⥤ D⁺(𝒜)` is an equivalen
 theorem isEquivalence_of_resolution
     (J : HomotopyCategory.Plus.InjectiveResolutionFunctor 𝒜) :
     Functor.IsEquivalence (HomotopyCategory.Plus.Injective.toDerived 𝒜) := sorry
-
-/-- If `𝒜` has enough injectives, bounded-below injective
-complexes compute its bounded-below derived category. -/
-@[stacks 013V]
-abbrev isEquivalence [EnoughInjectives 𝒜] :
-    Functor.IsEquivalence (HomotopyCategory.Plus.Injective.toDerived 𝒜) :=
-  HomotopyCategory.Plus.Injective.toDerived.isEquivalence
 
 end toDerived
 

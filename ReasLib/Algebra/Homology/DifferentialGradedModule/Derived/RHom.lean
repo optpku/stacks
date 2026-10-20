@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.Linear
@@ -61,7 +55,7 @@ noncomputable abbrev localization (A : CochainDGAlgebra.{u, v} R) :=
 /-- The existence condition for simultaneous derived Hom of right DG `A`-modules. -/
 @[stacks 0CS6 "existence condition for derived Hom of DG modules"]
 abbrev Has (A : CochainDGAlgebra.{u, v} R) : Prop :=
-  (source A).HasRightDerivedFunctor (qis A)
+  (source A).HasPointwiseRightDerivedFunctor (qis A)
 
 /-- A K-injective covariant entry computes simultaneous derived Hom, independently of the
 contravariant entry. -/
@@ -94,7 +88,7 @@ theorem ofResolutions (A : CochainDGAlgebra.{u, v} R)
 /-- Enriched Hom of right DG modules admits its simultaneous total right-derived functor. -/
 @[stacks 0CS6 "existence of derived Hom for DG modules"]
 instance hasRightDerivedFunctor (A : CochainDGAlgebra.{u, v} R) :
-    (source A).HasRightDerivedFunctor (qis A) := sorry
+    Has A := sorry
 
 /-- The `D(R)`-valued derived Hom bifunctor of right DG modules over `A`. -/
 @[stacks 0CS6 "derived Hom bifunctor for DG modules"]

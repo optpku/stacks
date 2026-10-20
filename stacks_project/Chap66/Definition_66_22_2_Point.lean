@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Sites.Point.Basic
-public import stacks_project.Chap66.Definition_66_18_1_Site
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.GeometricPoint.SmallEtalePoint
 public import stacks_project.Chap66.Definition_66_19_1_GeometricPoint
 
 /-!
@@ -30,72 +23,10 @@ namespace AlgebraicGeometry.AlgebraicSpace.GeometricPoint
 
 variable {S : Scheme.{u}} {X : AlgebraicSpace S}
 
-/-- A lift of a geometric point `xbar` of `X` through a scheme `U` étale over `X` is a
-morphism of schemes over `S` from `Spec(xbar.K)` to `U` making the triangle over `X`
-commute. -/
-structure OverLift (xbar : GeometricPoint X) (U : smallEtaleSite X) where
-  /-- The morphism of schemes over `S` lifting `xbar` through `U`. -/
-  hom : Over.mk xbar.structureHom ⟶ U.left
-  /-- The lift is compatible with the morphisms into `X`. -/
-  fac : ofOverMap hom ≫ U.hom = xbar.hom
-
-namespace OverLift
-
-/-- Construct a lift of a geometric point through an étale scheme over `X`. -/
-def of {xbar : GeometricPoint X} {U : smallEtaleSite X}
-    (hom : Over.mk xbar.structureHom ⟶ U.left)
-    (fac : ofOverMap hom ≫ U.hom = xbar.hom) : OverLift xbar U where
-  hom := hom
-  fac := fac
-
-/-- The underlying morphism of `OverLift.of` is the supplied morphism over `S`. -/
-theorem of_hom {xbar : GeometricPoint X} {U : smallEtaleSite X}
-    (hom : Over.mk xbar.structureHom ⟶ U.left)
-    (fac : ofOverMap hom ≫ U.hom = xbar.hom) :
-    (of hom fac).hom = hom :=
-  sorry
-
-/-- A lift of `xbar` through `U` is a morphism of schemes over `S` whose image under
-`ofOverMap` commutes with the structure morphisms into `X`. -/
-theorem spec {xbar : GeometricPoint X} {U : smallEtaleSite X} (l : OverLift xbar U) :
-    ofOverMap l.hom ≫ U.hom = xbar.hom :=
-  sorry
-
-/-- Postcompose a lift of a geometric point along a morphism in the small étale site. -/
-def map {xbar : GeometricPoint X} {U V : smallEtaleSite X} (g : U ⟶ V)
-    (l : OverLift xbar U) : OverLift xbar V :=
-  of (l.hom ≫ g.left) sorry
-
-/-- Postcomposition of lifts is composition of the underlying morphisms over `S`. -/
-theorem map_hom {xbar : GeometricPoint X} {U V : smallEtaleSite X} (g : U ⟶ V)
-    (l : OverLift xbar U) :
-    (map g l).hom = l.hom ≫ g.left :=
-  sorry
-
-end OverLift
-
-/-- The fiber functor of the small étale site of `X` at a geometric point, sending an étale
-scheme over `X` to the type of lifts of that geometric point through the scheme. -/
-noncomputable def toSmallEtalePoint_fiber (xbar : GeometricPoint X) :
-    smallEtaleSite X ⥤ Type u where
-  obj U := OverLift xbar U
-  map {U V} (g : U ⟶ V) := TypeCat.ofHom fun (l : OverLift xbar U) ↦ OverLift.map g l
-  map_id := sorry
-  map_comp := sorry
-
-/-- A geometric point of an algebraic space determines a point of the small étale site,
-whose fiber consists of scheme-over-`S` lifts of the geometric point. -/
-noncomputable def toSmallEtalePoint (xbar : GeometricPoint X) :
-    (smallEtaleTopology X).Point.{u} where
-  fiber := toSmallEtalePoint_fiber xbar
-  isCofiltered := sorry
-  initiallySmall := sorry
-  jointly_surjective := sorry
-
 /-- The fiber of `toSmallEtalePoint xbar` at an étale scheme `U` over `X` is the type of
 scheme-over-`S` lifts of `xbar` through `U`. -/
 theorem toSmallEtalePoint_fiber_obj (xbar : GeometricPoint X) (U : smallEtaleSite X) :
     (toSmallEtalePoint xbar).fiber.obj U = OverLift xbar U :=
-  sorry
+  rfl
 
 end AlgebraicGeometry.AlgebraicSpace.GeometricPoint

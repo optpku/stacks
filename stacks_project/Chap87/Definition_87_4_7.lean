@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Algebra.TensorProduct.Completion
+public import ReasLib.Topology.Algebra.TensorProduct.CompletedRing.ModuleComparison
 public import ReasLib.Topology.Algebra.TensorProduct.LinearTopology
 import StacksCheckRecall
 
@@ -80,5 +75,14 @@ lim (M ⊗[R] N) ⧸ (U ⊗ N + M ⊗ V) = lim (M ⧸ U) ⊗[R] (N ⧸ V). -/
 
 #check (TensorProduct.Completed.instContinuousSMul (R := R) (M := M) (N := N) :
   ContinuousSMul R (TensorProduct.Completed R M N))
+
+/- Remark after Definition 87.4.7: for linearly topologized `R`-algebras `A` and `B` the
+construction gives the completed tensor product `A ⊗̂_R B`; the ring-level carrier (limit over
+open ideals) is identified with the module-level one. -/
+#check (Algebra.TensorProduct.Completed.equivModuleCompleted :
+  ∀ (R A B : Type u) [CommRing R] [CommRing A] [CommRing B] [Algebra R A] [Algebra R B]
+    [TopologicalSpace A] [TopologicalSpace B] [IsTopologicalRing A] [IsTopologicalRing B]
+    [IsLinearTopology A A] [IsLinearTopology B B],
+    Algebra.TensorProduct.Completed R A B ≃ₗ[R] TensorProduct.Completed R A B)
 
 end TensorProduct

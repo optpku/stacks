@@ -1,22 +1,36 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap52.Lemma_52_6_8
-public import Mathlib.CategoryTheory.Subobject.Limits
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Completion.Localization
+import StacksCheckRecall
 
 public section
 
-open CategoryTheory
-open CategoryTheory.Limits
+open CategoryTheory CategoryTheory.Limits
 open SheafOfModules.RingedSite
 open RingedSite.Hom RingedSite.Hom.ModuleDerived
 
 universe u
+
+/- Remark 52.6.14 (Localization and derived completion): restriction to a slice preserves
+derived completion maps for a finite-type ideal sheaf. -/
+@[stacks 0A0F] #check
+  (RingedSite.Hom.ModuleDerived.derivedCompletion_restrict :
+    ∀ {C : Type u} [SmallCategory C] {J : GrothendieckTopology C}
+      [J.HasSheafCompose (forget₂ CommRingCat.{u} RingCat.{u})]
+      [J.HasSheafCompose (forget₂ RingCat.{u} AddCommGrpCat.{u})]
+      [HasWeakSheafify J AddCommGrpCat.{u}]
+      [J.WEqualsLocallyBijective AddCommGrpCat.{u}]
+      [HasWeakSheafify J CommRingCat.{u}]
+      [J.WEqualsLocallyBijective CommRingCat.{u}]
+      {O : Sheaf J CommRingCat.{u}}
+      (I : Subobject (unitModule J O))
+      [(I : ringedSiteModuleCategory J O).IsFiniteType]
+      (U : C) {K Khat : RingedSiteDerived J O} (η : K ⟶ Khat),
+      IsDerivedCompletion.{u, u, u, u} I η →
+        IsDerivedCompletion.{u, u, u, u}
+          (imageSubobject (I.arrow.over U) : Subobject (unitModule (J.over U) (O.over U)))
+          ((localizedRestrictionDerived.{u} (RingedSite.ofCommRingSheaf J O) U).map η))
 
 variable {C : Type u} [SmallCategory C] {J : GrothendieckTopology C}
 variable [J.HasSheafCompose (forget₂ CommRingCat.{u} RingCat.{u})]
@@ -27,38 +41,28 @@ variable [HasWeakSheafify J CommRingCat.{u}]
 variable [J.WEqualsLocallyBijective CommRingCat.{u}]
 variable {O : Sheaf J CommRingCat.{u}}
 
-/-- Remark 52.6.14 (Localization and derived completion) (1): restriction of a derived completion map to a slice is a derived completion map for the restricted ideal. -/
-@[stacks 0A0F]
-theorem derivedCompletion_restrict
-    (I : Subobject (unitModule J O))
-    [(I : ringedSiteModuleCategory J O).IsFiniteType]
-    (U : C) {K Khat : RingedSiteDerived J O} (η : K ⟶ Khat)
-    (hη : IsDerivedCompletion.{u, u, u, u} I η) :
-    IsDerivedCompletion.{u, u, u, u} (imageSubobject (I.arrow.over U) : Subobject (unitModule (J.over U) (O.over U)))
-      ((localizedRestrictionDerived.{u} (RingedSite.ofCommRingSheaf J O) U).map η) := sorry
+variable (I : Subobject (unitModule J O))
+variable [(I : ringedSiteModuleCategory J O).IsFiniteType]
+variable (U : C) {K Khat : RingedSiteDerived J O} (η : K ⟶ Khat)
+variable (hη : IsDerivedCompletion.{u, u, u, u} I η)
+variable {L : RingedSiteDerived (J.over U) (O.over U)}
+variable (ηU : (localizedRestrictionDerived.{u} (RingedSite.ofCommRingSheaf J O) U).obj K ⟶ L)
+variable (hηU : IsDerivedCompletion.{u, u, u, u}
+  (imageSubobject (I.arrow.over U) : Subobject (unitModule (J.over U) (O.over U))) ηU)
 
-/-- Remark 52.6.14 (Localization and derived completion) (2): the canonical comparison isomorphism from a local completion target to the restricted global completion target. -/
-@[stacks 0A0F]
-noncomputable def derivedCompletionRestrictionIso
-    (I : Subobject (unitModule J O))
-    [(I : ringedSiteModuleCategory J O).IsFiniteType]
-    (U : C) {K Khat : RingedSiteDerived J O} (η : K ⟶ Khat)
-    (hη : IsDerivedCompletion.{u, u, u, u} I η)
-    {L : RingedSiteDerived (J.over U) (O.over U)}
-    (ηU : (localizedRestrictionDerived.{u} (RingedSite.ofCommRingSheaf J O) U).obj K ⟶ L)
-    (hηU : IsDerivedCompletion.{u, u, u, u} (imageSubobject (I.arrow.over U) : Subobject (unitModule (J.over U) (O.over U))) ηU) :
-    L ≅ (localizedRestrictionDerived.{u} (RingedSite.ofCommRingSheaf J O) U).obj Khat :=
-  asIso (IsDerivedCompletion.comparison (imageSubobject (I.arrow.over U) : Subobject (unitModule (J.over U) (O.over U))) hηU
-    (derivedCompletion_restrict I U η hη))
+-- The canonical comparison goes from the local completion to the restricted global completion.
+#check
+  (IsDerivedCompletion.comparisonIso
+    (imageSubobject (I.arrow.over U) : Subobject (unitModule (J.over U) (O.over U)))
+    hηU (derivedCompletion_restrict I U η hη) :
+    L ≅ (localizedRestrictionDerived.{u} (RingedSite.ofCommRingSheaf J O) U).obj Khat)
 
-/-- The comparison isomorphism factors restriction of the global completion map through the local completion map. -/
-theorem derivedCompletionRestrictionIso_hom
-    (I : Subobject (unitModule J O))
-    [(I : ringedSiteModuleCategory J O).IsFiniteType]
-    (U : C) {K Khat : RingedSiteDerived J O} (η : K ⟶ Khat)
-    (hη : IsDerivedCompletion.{u, u, u, u} I η)
-    {L : RingedSiteDerived (J.over U) (O.over U)}
-    (ηU : (localizedRestrictionDerived.{u} (RingedSite.ofCommRingSheaf J O) U).obj K ⟶ L)
-    (hηU : IsDerivedCompletion.{u, u, u, u} (imageSubobject (I.arrow.over U) : Subobject (unitModule (J.over U) (O.over U))) ηU) :
-    ηU ≫ (derivedCompletionRestrictionIso I U η hη ηU hηU).hom =
-      (localizedRestrictionDerived.{u} (RingedSite.ofCommRingSheaf J O) U).map η := sorry
+-- The canonical comparison factors the restricted global completion map.
+#check
+  (IsDerivedCompletion.comparison_fac
+    (imageSubobject (I.arrow.over U) : Subobject (unitModule (J.over U) (O.over U)))
+    hηU (derivedCompletion_restrict I U η hη) :
+    ηU ≫ (IsDerivedCompletion.comparisonIso
+      (imageSubobject (I.arrow.over U) : Subobject (unitModule (J.over U) (O.over U)))
+      hηU (derivedCompletion_restrict I U η hη)).hom =
+        (localizedRestrictionDerived.{u} (RingedSite.ofCommRingSheaf J O) U).map η)

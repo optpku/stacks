@@ -1,17 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.InverseSystem.Sequential.FGModuleCat
 public import Mathlib.RingTheory.AdicCompletion.Algebra
+public import Mathlib.RingTheory.AdicCompletion.Functoriality
+public import Mathlib.Algebra.Category.ModuleCat.Limits
 
 @[expose] public section
 
-open CategoryTheory Opposite
+open CategoryTheory CategoryTheory.Limits Opposite
 
 universe u
 
@@ -61,10 +57,56 @@ namespace AffineCoherentFormalModules
 
 variable [IsNoetherianRing A]
 
-/-- The category of affine coherent formal module systems along `I` is equivalent to the category
-of finite modules over the `I`-adic completion of `A`. -/
-theorem nonemptyEquivalence (I : Ideal A) :
-    Nonempty (AffineCoherentFormalModules A I ≌ FGModuleCat (AdicCompletion I A)) := sorry
+/-- The inverse limit of the finite-module stages of an affine coherent formal module system. -/
+noncomputable abbrev limitModule (F : AffineCoherentFormalModules A I) : ModuleCat A :=
+  limit (F.obj ⋙ forget₂ (FGModuleCat A) (ModuleCat A))
+
+/-- The finite completed module attached to an affine coherent formal module system. -/
+noncomputable def completedModule (I : Ideal A)
+    (F : AffineCoherentFormalModules A I) : FGModuleCat (AdicCompletion I A) :=
+  ⟨ModuleCat.of (AdicCompletion I A) (AdicCompletion I (limitModule F)), by sorry⟩
+
+/-- The map on completed inverse limits induced by a morphism of affine formal modules. -/
+noncomputable def completedModuleMap (I : Ideal A)
+    {F G : AffineCoherentFormalModules A I} (f : F ⟶ G) :
+    completedModule I F ⟶ completedModule I G :=
+  ObjectProperty.homMk <|
+    ModuleCat.ofHom
+      (AdicCompletion.map I
+        (ModuleCat.homEquiv
+          (limMap (Functor.whiskerRight f.hom
+            (forget₂ (FGModuleCat A) (ModuleCat A))))))
+
+/-- The canonical functor sending an affine formal module system to its completed inverse limit. -/
+noncomputable def completionFunctor (I : Ideal A) :
+    AffineCoherentFormalModules A I ⥤ FGModuleCat (AdicCompletion I A) where
+  obj F := completedModule I F
+  map f := completedModuleMap I f
+  map_id := by sorry
+  map_comp := by sorry
+
+@[simp]
+theorem completionFunctor_obj (I : Ideal A)
+    (F : AffineCoherentFormalModules A I) :
+    (completionFunctor I).obj F = completedModule I F :=
+  rfl
+
+@[simp]
+theorem completionFunctor_map (I : Ideal A)
+    {F G : AffineCoherentFormalModules A I} (f : F ⟶ G) :
+    (completionFunctor I).map f = completedModuleMap I f :=
+  rfl
+
+/-- The completion functor is an equivalence. -/
+instance completionFunctor_isEquivalence (I : Ideal A) :
+    (completionFunctor I).IsEquivalence := by
+  sorry
+
+/-- The category of affine coherent formal module systems along `I` is equivalent to finite modules
+over the `I`-adic completion of `A`. -/
+noncomputable def affineCoherentFormalModulesEquiv (I : Ideal A) :
+    AffineCoherentFormalModules A I ≌ FGModuleCat (AdicCompletion I A) :=
+  (completionFunctor I).asEquivalence
 
 end AffineCoherentFormalModules
 

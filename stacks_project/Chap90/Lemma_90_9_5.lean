@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Lemma_90_4_5_Residue
-public import stacks_project.Chap90.Lemma_90_9_3
-public import stacks_project.Chap90.«90_3_10_3_Comparison»
+public import ReasLib.AlgebraicGeometry.FormalDeformation.CompleteLocal.Smooth.Cotangent
+import StacksCheckRecall
 
 /-!
 # Existence of a smooth object of `Ĉ_Λ` with canonical cotangent identifications
@@ -28,40 +21,30 @@ universe u
 variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-namespace CompleteLocalAlgCat
-
-/-- The canonical residue map of an object of `Ĉ_Λ` is surjective. -/
-theorem algebraMap_surjective (R : CompleteLocalAlgCat Λ k) :
-    Function.Surjective (algebraMap R.carrier k) :=
-  sorry
-
-/-- The kernel of the residue map of an object of `Ĉ_Λ` is the maximal ideal. -/
-theorem ker_algebraMap_eq_maximalIdeal (R : CompleteLocalAlgCat Λ k) :
-    RingHom.ker (algebraMap R.carrier k) = maximalIdeal R.carrier :=
-  sorry
-
-/-- Lemma 90.9.5: there exists `R` in `Ob(Ĉ_Λ)` such that the equivalent
+/- Lemma 90.9.5: there exists `R` in `Ob(Ĉ_Λ)` such that the equivalent
 conditions of Lemma 90.9.3 hold, represented here by `m_R`-adic formal
 smoothness of `algebraMap Λ R.carrier`, and moreover the canonical
 Jacobi–Zariski maps identify `H1Cotangent Λ k` with `m_R / m_R²` and
 `k ⊗[R] Ω[R⁄Λ]` with `Ω[k⁄Λ]`. -/
-@[stacks 06SM]
-theorem exists_formallySmooth_h1Cotangent_mapBaseChange :
+@[stacks 06SM] #check (CompleteLocalAlgCat.exists_formallySmooth_h1Cotangent_mapBaseChange :
     ∃ R : CompleteLocalAlgCat Λ k,
-      (algebraMap Λ R.carrier).formally_smooth_for_adic (maximalIdeal R.carrier) ∧
-        Function.Bijective (toKerCotangent Λ R.carrier k (algebraMap_surjective R)) ∧
-        Function.Bijective (mapBaseChange Λ R.carrier k) :=
-  sorry
+      (algebraMap Λ R.carrier).formally_smooth_for_adic (IsLocalRing.maximalIdeal R.carrier) ∧
+        Function.Bijective
+          (toKerCotangent Λ R.carrier k (CompleteLocalAlgCat.algebraMap_surjective R)) ∧
+        Function.Bijective (mapBaseChange Λ R.carrier k))
 
-/-- Existence of `R` in `CompleteLocalAlgCat Λ k` such that
-`underline R |_{C_Λ}` is smooth and the canonical Jacobi–Zariski maps
-identify `H1Cotangent Λ k` with `m_R / m_R²` and `k ⊗[R] Ω[R⁄Λ]` with
-`Ω[k⁄Λ]`. -/
-theorem exists_isSmooth_h1Cotangent_mapBaseChange :
+#check (CompleteLocalAlgCat.exists_isSmooth_h1Cotangent_mapBaseChange :
     ∃ R : CompleteLocalAlgCat Λ k,
-      Functor.IsSmooth (CategoryOfElements.π (restrictedCoyoneda R)) ∧
-        Function.Bijective (toKerCotangent Λ R.carrier k (algebraMap_surjective R)) ∧
-        Function.Bijective (mapBaseChange Λ R.carrier k) :=
-  sorry
+      Functor.IsSmooth (CategoryOfElements.π (CompleteLocalAlgCat.restrictedCoyoneda R)) ∧
+        Function.Bijective
+          (toKerCotangent Λ R.carrier k (CompleteLocalAlgCat.algebraMap_surjective R)) ∧
+        Function.Bijective (mapBaseChange Λ R.carrier k))
 
-end CompleteLocalAlgCat
+#check (CompleteLocalAlgCat.algebraMap_surjective :
+  ∀ R : CompleteLocalAlgCat Λ k, Function.Surjective (algebraMap R.carrier k))
+
+variable (R : CompleteLocalAlgCat Λ k)
+
+#check (IsLocalRing.ker_eq_maximalIdeal (algebraMap R.carrier k)
+  (CompleteLocalAlgCat.algebraMap_surjective R) :
+  RingHom.ker (algebraMap R.carrier k) = IsLocalRing.maximalIdeal R.carrier)

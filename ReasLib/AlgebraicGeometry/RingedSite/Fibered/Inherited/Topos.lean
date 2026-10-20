@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Fibered.Inherited
@@ -32,34 +26,34 @@ universe u v
 
 namespace CategoryTheory.Functor
 
-variable {X : RingedSite.{u, v}} {S : Type u} [Category.{v} S]
+variable {X : RingedSite.{u, v, max u v}} {S : Type u} [Category.{v} S]
 
 /-- The site-presented ringed topos on the topology inherited along a fibred projection `p`.
 Its structure sheaf is definitionally the ring-valued inverse image of `X.structureSheaf`. -/
 @[stacks 08P8 "inherited ringed topos"]
-noncomputable abbrev inheritedRingedTopos (p : S ⥤ X) [p.IsFibered] :
-    RingedSite.{u, v} :=
+noncomputable abbrev inheritedRingedTopos (p : S ⥤ X.carrier) [p.IsFibered] :
+    RingedSite.{u, v, max u v} :=
   RingedSite.ofRingSheaf (p.inheritedTopology X.siteTopology)
     (((inheritedTopology.morphismOfTopoi p X.siteTopology).ringInverseImage).obj
       X.structureSheaf)
 
 /-- The topology underlying `p.inheritedRingedTopos` is the topology inherited along `p`. -/
 @[simp, stacks 08P8 "inherited ringed-topos topology"]
-theorem inheritedRingedTopos_siteTopology (p : S ⥤ X) [p.IsFibered] :
+theorem inheritedRingedTopos_siteTopology (p : S ⥤ X.carrier) [p.IsFibered] :
     p.inheritedRingedTopos.siteTopology = p.inheritedTopology X.siteTopology := sorry
 
 /-- The structure sheaf of `p.inheritedRingedTopos` is the ring-valued inverse image of the
 structure sheaf on `X`. -/
 @[simp, stacks 08P8 "inherited ringed-topos structure sheaf"]
-theorem inheritedRingedTopos_structureSheaf (p : S ⥤ X) [p.IsFibered] :
+theorem inheritedRingedTopos_structureSheaf (p : S ⥤ X.carrier) [p.IsFibered] :
     p.inheritedRingedTopos.structureSheaf =
       ((inheritedTopology.morphismOfTopoi p X.siteTopology).ringInverseImage).obj
         X.structureSheaf := sorry
 
-/-- Situation 21.38.1 (08P8): the canonical morphism from the ringed topos inherited along a
+/-- The canonical morphism from the ringed topos inherited along a
 fibred projection to its base ringed topos. -/
 @[stacks 08P8 "inherited projection morphism of ringed topoi"]
-noncomputable def inheritedProjectionToposHom (p : S ⥤ X) [p.IsFibered] :
+noncomputable def inheritedProjectionToposHom (p : S ⥤ X.carrier) [p.IsFibered] :
     RingedSite.ToposHom p.inheritedRingedTopos X where
   toTopos := inheritedTopology.morphismOfTopoi p X.siteTopology
   structureMap :=
@@ -69,14 +63,14 @@ noncomputable def inheritedProjectionToposHom (p : S ⥤ X) [p.IsFibered] :
 /-- The underlying topos morphism of `p.inheritedProjectionToposHom` is the canonical morphism
 induced by the fibred projection. -/
 @[simp, stacks 08P8 "underlying inherited projection morphism"]
-theorem inheritedProjectionToposHom_toTopos (p : S ⥤ X) [p.IsFibered] :
+theorem inheritedProjectionToposHom_toTopos (p : S ⥤ X.carrier) [p.IsFibered] :
     p.inheritedProjectionToposHom.toTopos =
       inheritedTopology.morphismOfTopoi p X.siteTopology := sorry
 
 /-- The structure map of `p.inheritedProjectionToposHom` is the identity of the inherited
 ring-valued inverse image. -/
 @[simp, stacks 08P8 "inherited projection structure map"]
-theorem inheritedProjectionToposHom_structureMap (p : S ⥤ X) [p.IsFibered] :
+theorem inheritedProjectionToposHom_structureMap (p : S ⥤ X.carrier) [p.IsFibered] :
     p.inheritedProjectionToposHom.structureMap =
       𝟙 (((inheritedTopology.morphismOfTopoi p X.siteTopology).ringInverseImage).obj
         X.structureSheaf) := sorry
@@ -88,9 +82,9 @@ end CategoryTheory.Functor
 
 namespace CategoryTheory.CartesianBasedFunctor
 
-variable {X : RingedSite.{u, v}} {S₁ S₂ : Type u}
+variable {X : RingedSite.{u, v, max u v}} {S₁ S₂ : Type u}
 variable [Category.{v} S₁] [Category.{v} S₂]
-variable {p₁ : S₁ ⥤ X} {p₂ : S₂ ⥤ X}
+variable {p₁ : S₁ ⥤ X.carrier} {p₂ : S₂ ⥤ X.carrier}
 variable (F : CartesianBasedFunctor p₁ p₂)
 variable [p₁.IsFibered] [p₂.IsFibered]
 
@@ -151,7 +145,7 @@ noncomputable def structureSheafIso :
 
 end inheritedToposHom
 
-/-- Situation 21.38.3 (08PA): a cartesian functor between fibred categories over a ringed site
+/-- A cartesian functor between fibred categories over a ringed site
 induces a morphism between their inherited ringed topoi. -/
 @[stacks 08PA "inherited morphism of ringed topoi"]
 noncomputable def inheritedToposHom :

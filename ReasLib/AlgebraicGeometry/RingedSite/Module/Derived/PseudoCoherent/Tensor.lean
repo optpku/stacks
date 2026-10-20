@@ -1,21 +1,15 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.PseudoCoherent
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Localization
-public import ReasLib.CategoryTheory.DerivedCategory.Monoidal.Tensor
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Tensor
 
 /-!
 # Pseudo-coherent derived tensor products on ringed sites
 
-This module records the tensor-stability API at the level of the abstract fixed-right derived
-tensor construction.  Concrete models only need to provide a `DerivedTensor.Right.Has` instance;
-K-flat resolutions and other construction-specific hypotheses do not leak into consumers.
+Pseudo-coherence is stable under the derived tensor product over the commutative structure
+sheaf. The ordinary tensor is fixed by the ring-sheaf presentation; only the existence of its
+fixed-right derived functors is an explicit input.
 -/
 
 @[expose] public section
@@ -23,7 +17,9 @@ K-flat resolutions and other construction-specific hypotheses do not leak into c
 open CategoryTheory
 -- Local instance justification (defeq pin): the generic ringed-site ModuleCat derived owner is
 -- required by the derived-category APIs in this presentation.
-attribute [local instance] RingedSite.Hom.moduleCat_hasDerivedCategory
+attribute [local instance] HasDerivedCategory.standard
+  RingedSite.Hom.moduleCat_hasDerivedCategory
+  SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
 open CategoryTheory.Limits
 open CategoryTheory.MonoidalCategory
 open ComplexShape
@@ -41,33 +37,37 @@ namespace RingedSite.Hom.ModuleDerived
 
 section
 
-variable {X : RingedSite.{u, v, w}}
-variable [UnivLE.{max u v, w}]
-variable [∀ U : X, HasWeakSheafify (X.localization U).siteTopology AddCommGrpCat.{w}]
-variable [∀ U : X,
-  (X.localization U).siteTopology.WEqualsLocallyBijective AddCommGrpCat.{w}]
-variable [MonoidalCategory (ModuleCat.{w} X)] [MonoidalPreadditive (ModuleCat.{w} X)]
-variable [∀ (K L : CochainComplex (ModuleCat.{w} X) ℤ),
-  HomologicalComplex.HasMapBifunctor K L (curriedTensor (ModuleCat.{w} X)) (up ℤ)]
-variable [CategoryTheory.DerivedCategory.DerivedTensor.Right.Has (C := ModuleCat.{w} X)]
+variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
+variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable {O : Sheaf J CommRingCat.{w}} [UnivLE.{max u v, w}]
+variable [HasWeakSheafify J AddCommGrpCat.{w}]
+variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [∀ U : RingedSite.ofCommRingSheaf J O,
+  HasWeakSheafify ((RingedSite.ofCommRingSheaf J O).localization U).siteTopology
+    AddCommGrpCat.{w}]
+variable [∀ U : RingedSite.ofCommRingSheaf J O,
+  ((RingedSite.ofCommRingSheaf J O).localization U).siteTopology.WEqualsLocallyBijective
+    AddCommGrpCat.{w}]
+variable [DerivedCategory.DerivedTensor.Right.Has
+  (C := SheafOfModules.RingedSite.ringedSiteModuleCategory.{u, v, w, w} J O)]
 
 /-- Lemma 21.45.5 (1): if `K` is `n`-pseudo-coherent and lies in `D^{≤ a}`, while `L` is
 `m`-pseudo-coherent and lies in `D^{≤ b}`, then `K ⊗ᴸ L` is
 `max (m + a) (n + b)`-pseudo-coherent. -/
 @[stacks 09J9 "(1)"]
 theorem IsMPseudoCoherent.tensor
-    {K L : ModuleDerived.{w} X} {n m a b : ℤ}
+    {K L : ModuleDerived.{w} (RingedSite.ofCommRingSheaf J O)} {n m a b : ℤ}
     (hK : K.IsMPseudoCoherent n) (hKLE : K.IsLE a)
     (hL : L.IsMPseudoCoherent m) (hLLE : L.IsLE b) :
-    IsMPseudoCoherent (X := X) (K ⊗ᴸ L) (max (m + a) (n + b)) := sorry
+    IsMPseudoCoherent (X := RingedSite.ofCommRingSheaf J O) (K ⊗ᴸ L) (max (m + a) (n + b)) := sorry
 
-/-- Lemma 21.45.5 (2): the fixed-right derived tensor product of two pseudo-coherent objects is
+/-- Lemma 21.45.5 (2): the derived tensor product of two pseudo-coherent objects over `O` is
 pseudo-coherent. -/
 @[stacks 09J9 "(2)"]
 theorem IsPseudoCoherent.tensor
-    {K L : ModuleDerived.{w} X}
+    {K L : ModuleDerived.{w} (RingedSite.ofCommRingSheaf J O)}
     (hK : K.IsPseudoCoherent) (hL : L.IsPseudoCoherent) :
-    IsPseudoCoherent (X := X) (K ⊗ᴸ L) := sorry
+    IsPseudoCoherent (X := RingedSite.ofCommRingSheaf J O) (K ⊗ᴸ L) := sorry
 
 end
 

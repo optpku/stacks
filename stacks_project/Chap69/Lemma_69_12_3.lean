@@ -1,15 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Coherent.Closure
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap67.Definition_67_14_4_IdealSubobject
-public import stacks_project.Chap69.Definition_69_12_1_Instances
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Noetherian
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Coherent.Category
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,30 +15,31 @@ namespace AlgebraicGeometry.AlgebraicSpace.Modules
 
 variable {S : Scheme.{u}} (X : AlgebraicSpace S) [IsLocallyNoetherian X]
 
-/- Lemma 69.12.3 (1): the kernel of a morphism between coherent modules on a locally
-Noetherian algebraic space is coherent. -/
+/- Lemma 69.12.3: coherent modules on a locally Noetherian algebraic space over a scheme
+form an abelian category. The kernel and cokernel of every morphism between coherent modules
+are coherent, and any extension of coherent modules is coherent. These closure properties
+are packaged by the weak Serre class of coherent modules. -/
 @[stacks 07UC]
+#check (SheafOfModules.isCoherent.isWeakSerreClass :
+  CategoryTheory.ObjectProperty.IsWeakSerreClass (SheafOfModules.isCoherent (structureSheaf X)))
+
+/- The kernel of a morphism between coherent modules is coherent. -/
 #check (SheafOfModules.IsCoherent.kernel :
   ∀ {F G : X.Modules} (f : F ⟶ G) [F.IsCoherent] [G.IsCoherent],
     (kernel f).IsCoherent)
 
-/- Lemma 69.12.3 (2): the cokernel of a morphism between coherent modules on a locally
-Noetherian algebraic space is coherent. -/
-@[stacks 07UC]
+/- The cokernel of a morphism between coherent modules is coherent. -/
 #check (SheafOfModules.IsCoherent.cokernel :
   ∀ {F G : X.Modules} (f : F ⟶ G) [F.IsCoherent] [G.IsCoherent],
     (cokernel f).IsCoherent)
 
-/- Lemma 69.12.3 (3): in a short exact sequence of modules on a locally Noetherian algebraic
-space, coherence of the outer terms implies coherence of the middle term. -/
-@[stacks 07UC]
+/- In a short exact sequence of modules, coherence of the outer terms implies coherence of
+the middle term. -/
 #check (SheafOfModules.IsCoherent.middle_of_shortExact :
   ∀ {sc : ShortComplex X.Modules}, sc.ShortExact →
     ∀ [sc.X₁.IsCoherent] [sc.X₃.IsCoherent], sc.X₂.IsCoherent)
 
-/- Lemma 69.12.3 (4): coherent modules on a locally Noetherian algebraic space form an abelian
-category. -/
-@[stacks 07UC]
+/- Coherent modules form an abelian category. -/
 #check
   (CategoryTheory.ObjectProperty.instAbelianFullSubcategoryOfContainsZeroOfIsClosedUnderKernelsOfIsClosedUnderCokernelsOfIsClosedUnderFiniteProducts
     (P := SheafOfModules.isCoherent (structureSheaf X)) :

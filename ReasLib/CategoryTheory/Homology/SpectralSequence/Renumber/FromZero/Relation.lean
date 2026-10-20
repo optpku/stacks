@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Homology.SpectralSequence.Renumber.FromZero
@@ -51,26 +45,43 @@ theorem isFromZero_iff (E : CohomologicalSpectralSequence C 0)
 theorem isFromZero_fromZero (E : CohomologicalSpectralSequence C 0) :
     IsFromZero E (fromZero E) := sorry
 
-namespace IsFromZero
+/-- A specified isomorphism with the canonical renumbering from page zero witnesses the
+renumbering relation. -/
+theorem IsFromZero.of_iso {E : CohomologicalSpectralSequence C 0}
+    {E' : E₂CohomologicalSpectralSequence C} (e : E' ≅ fromZero E) :
+    IsFromZero E E' := sorry
 
-/-- A renumbering from page zero identifies every new page with the restricted preceding page. -/
-@[stacks 0G1Y "page comparison for renumbering from page zero", stacks 0G20]
-theorem pageIso {E : CohomologicalSpectralSequence C 0}
-    {E' : E₂CohomologicalSpectralSequence C} (h : IsFromZero E E')
-    (r : ℤ) (hr : 2 ≤ r) :
-    Nonempty
-      (E'.page r hr ≅
-        page (SpectralSequence.Page.One.ofZero E) r hr) := sorry
+namespace FromZero
 
-/-- Entrywise form of the standard renumbering formula from a zero-based sequence. -/
+/-- Entrywise form of the standard renumbering formula from a zero-based sequence, stated in
+terms of the original `E₀`-indexed pages and obtained from a specified isomorphism
+`E' ≅ fromZero E`.  The page comparison is `Renumber.pageIso e`. -/
 @[stacks 0G1Y "entry comparison for renumbering from page zero", stacks 0G20]
-theorem entryIso {E : CohomologicalSpectralSequence C 0}
-    {E' : E₂CohomologicalSpectralSequence C} (h : IsFromZero E E')
+noncomputable def entryIso {E : CohomologicalSpectralSequence C 0}
+    {E' : E₂CohomologicalSpectralSequence C} (e : E' ≅ fromZero E)
     (r : ℤ) (hr : 2 ≤ r) (i j : ℤ) :
-    Nonempty
-      ((E'.page r hr).X (i, j) ≅
-        (E.page (r - 1) (zero_le_one.trans (one_le_priorPage r hr))).X
-          (-j, i + 2 * j)) := sorry
+    (E'.page r hr).X (i, j) ≅
+      (E.page (r - 1) (zero_le_one.trans (one_le_priorPage r hr))).X (-j, i + 2 * j) :=
+  Renumber.entryIso e r hr i j
+
+/-- The zero-based entry comparison is the `(i,j)` component of the page comparison. -/
+@[simp]
+theorem entryIso_hom {E : CohomologicalSpectralSequence C 0}
+    {E' : E₂CohomologicalSpectralSequence C} (e : E' ≅ fromZero E)
+    (r : ℤ) (hr : 2 ≤ r) (i j : ℤ) :
+    (entryIso e r hr i j).hom = (Renumber.pageIso e r hr).hom.f (i, j) := sorry
+
+/-- The inverse zero-based entry comparison is the `(i,j)` component of the inverse page
+comparison. -/
+@[simp]
+theorem entryIso_inv {E : CohomologicalSpectralSequence C 0}
+    {E' : E₂CohomologicalSpectralSequence C} (e : E' ≅ fromZero E)
+    (r : ℤ) (hr : 2 ≤ r) (i j : ℤ) :
+    (entryIso e r hr i j).inv = (Renumber.pageIso e r hr).inv.f (i, j) := sorry
+
+end FromZero
+
+namespace IsFromZero
 
 /-- Standard renumbering from page zero preserves boundedness. -/
 @[stacks 0G1Y "boundedness under renumbering from page zero", stacks 0G20]

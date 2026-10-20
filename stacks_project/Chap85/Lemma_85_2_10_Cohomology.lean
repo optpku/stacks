@@ -1,19 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Sites.SheafCohomology.Basic
-public import stacks_project.Chap85.Lemma_85_2_5
+public import ReasLib.Topology.Category.TopCat.DiagramOpens.Cohomology
 
 /-!
 # Component and Zariski cohomology of a simplicial space
 
-Functorial cohomology of an abelian sheaf on the Zariski site of a simplicial
-topological space, and of its degree-`p` components.
+Typed checks of cohomology on the diagram-open site and on its components.
 -/
 
 @[expose] public section
@@ -29,69 +21,55 @@ namespace CategoryTheory.SimplicialObject
 
 variable (X : SimplicialObject TopCat.{u})
 
-/-- The functor sending an abelian sheaf `F` on `X_Zar` to the cohomology
-`H^q(X_p, F_p)` of its degree-`p` component. -/
-def componentCohomologyFunctor (p q : ℕ)
+#check (CategoryTheory.SimplicialObject.componentCohomologyFunctor X :
+    ∀ (p q : ℕ)
     [HasSheafify (Opens.grothendieckTopology (X.obj (op ⦋p⦌))) AddCommGrpCat.{u}]
-    [HasExt.{v} (Sheaf (Opens.grothendieckTopology (X.obj (op ⦋p⦌))) AddCommGrpCat.{u})] :
-    Sheaf (zariskiTopology X) AddCommGrpCat.{u} ⥤ AddCommGrpCat.{v} :=
-  sheafComponent X p AddCommGrpCat.{u} ⋙
-    Sheaf.functorH (Opens.grothendieckTopology (X.obj (op ⦋p⦌))) q
+    [HasExt.{v} (Sheaf (Opens.grothendieckTopology (X.obj (op ⦋p⦌))) AddCommGrpCat.{u})],
+    Sheaf (zariskiTopology X) AddCommGrpCat.{u} ⥤ AddCommGrpCat.{v})
 
-/-- The cohomology group `H^q(X_p, F_p)` of the degree-`p` component of an abelian
-sheaf on `X_Zar`. -/
-abbrev componentCohomology (F : Sheaf (zariskiTopology X) AddCommGrpCat.{u})
+#check (CategoryTheory.SimplicialObject.componentCohomology X :
+    ∀ (F : Sheaf (zariskiTopology X) AddCommGrpCat.{u})
     (p q : ℕ)
     [HasSheafify (Opens.grothendieckTopology (X.obj (op ⦋p⦌))) AddCommGrpCat.{u}]
-    [HasExt.{v} (Sheaf (Opens.grothendieckTopology (X.obj (op ⦋p⦌))) AddCommGrpCat.{u})] :
-    AddCommGrpCat.{v} :=
-  (componentCohomologyFunctor X p q).obj F
+    [HasExt.{v} (Sheaf (Opens.grothendieckTopology (X.obj (op ⦋p⦌))) AddCommGrpCat.{u})],
+    AddCommGrpCat.{v})
 
-/-- The functor sending an abelian sheaf `F` on `X_Zar` to the cohomology
-`H^n(X_Zar, F)`. -/
-def zariskiCohomologyFunctor (n : ℕ)
+#check (CategoryTheory.SimplicialObject.zariskiCohomologyFunctor X :
+    ∀ (n : ℕ)
     [HasSheafify (zariskiTopology X) AddCommGrpCat.{u}]
-    [HasExt.{v} (Sheaf (zariskiTopology X) AddCommGrpCat.{u})] :
-    Sheaf (zariskiTopology X) AddCommGrpCat.{u} ⥤ AddCommGrpCat.{v} :=
-  Sheaf.functorH (zariskiTopology X) n
+    [HasExt.{v} (Sheaf (zariskiTopology X) AddCommGrpCat.{u})],
+    Sheaf (zariskiTopology X) AddCommGrpCat.{u} ⥤ AddCommGrpCat.{v})
 
-/-- The cohomology group `H^n(X_Zar, F)` of an abelian sheaf on the Zariski site of
-a simplicial topological space. -/
-abbrev zariskiCohomology (F : Sheaf (zariskiTopology X) AddCommGrpCat.{u})
+#check (CategoryTheory.SimplicialObject.zariskiCohomology X :
+    ∀ (F : Sheaf (zariskiTopology X) AddCommGrpCat.{u})
     [HasSheafify (zariskiTopology X) AddCommGrpCat.{u}]
     [HasExt.{v} (Sheaf (zariskiTopology X) AddCommGrpCat.{u})]
-    (n : ℕ) : AddCommGrpCat.{v} :=
-  (zariskiCohomologyFunctor X n).obj F
+    (n : ℕ), AddCommGrpCat.{v})
 
-/-- Evaluating the component cohomology functor is cohomology of the degree-`p`
-component sheaf. -/
-theorem componentCohomologyFunctor_obj (F : Sheaf (zariskiTopology X) AddCommGrpCat.{u})
+#check (CategoryTheory.SimplicialObject.componentCohomologyFunctor_obj X :
+    ∀ (F : Sheaf (zariskiTopology X) AddCommGrpCat.{u})
     (p q : ℕ)
     [HasSheafify (Opens.grothendieckTopology (X.obj (op ⦋p⦌))) AddCommGrpCat.{u}]
-    [HasExt.{v} (Sheaf (Opens.grothendieckTopology (X.obj (op ⦋p⦌))) AddCommGrpCat.{u})] :
+    [HasExt.{v} (Sheaf (Opens.grothendieckTopology (X.obj (op ⦋p⦌))) AddCommGrpCat.{u})],
     (componentCohomologyFunctor X p q).obj F =
       (Sheaf.functorH (Opens.grothendieckTopology (X.obj (op ⦋p⦌))) q).obj
-        ((sheafComponent X p AddCommGrpCat.{u}).obj F) :=
-  sorry
+        ((sheafComponent X p AddCommGrpCat.{u}).obj F))
 
-/-- Evaluating the Zariski cohomology functor is `Sheaf.functorH` on `X_Zar`. -/
-theorem zariskiCohomologyFunctor_obj (F : Sheaf (zariskiTopology X) AddCommGrpCat.{u})
+#check (CategoryTheory.SimplicialObject.zariskiCohomologyFunctor_obj X :
+    ∀ (F : Sheaf (zariskiTopology X) AddCommGrpCat.{u})
     (n : ℕ)
     [HasSheafify (zariskiTopology X) AddCommGrpCat.{u}]
-    [HasExt.{v} (Sheaf (zariskiTopology X) AddCommGrpCat.{u})] :
+    [HasExt.{v} (Sheaf (zariskiTopology X) AddCommGrpCat.{u})],
     (zariskiCohomologyFunctor X n).obj F =
-      (Sheaf.functorH (zariskiTopology X) n).obj F :=
-  sorry
+      (Sheaf.functorH (zariskiTopology X) n).obj F)
 
-/-- The component cohomology functor acts on morphisms by the cohomology of the
-degree-`p` component map. -/
-theorem componentCohomologyFunctor_map
+#check (CategoryTheory.SimplicialObject.componentCohomologyFunctor_map X :
+    ∀
     {F G : Sheaf (zariskiTopology X) AddCommGrpCat.{u}} (α : F ⟶ G) (p q : ℕ)
     [HasSheafify (Opens.grothendieckTopology (X.obj (op ⦋p⦌))) AddCommGrpCat.{u}]
-    [HasExt.{v} (Sheaf (Opens.grothendieckTopology (X.obj (op ⦋p⦌))) AddCommGrpCat.{u})] :
+    [HasExt.{v} (Sheaf (Opens.grothendieckTopology (X.obj (op ⦋p⦌))) AddCommGrpCat.{u})],
     (componentCohomologyFunctor X p q).map α =
       (Sheaf.functorH (Opens.grothendieckTopology (X.obj (op ⦋p⦌))) q).map
-        ((sheafComponent X p AddCommGrpCat.{u}).map α) :=
-  sorry
+        ((sheafComponent X p AddCommGrpCat.{u}).map α))
 
 end CategoryTheory.SimplicialObject

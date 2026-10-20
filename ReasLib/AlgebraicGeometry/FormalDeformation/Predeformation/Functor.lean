@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Elements
@@ -59,6 +53,12 @@ predeformation category. -/
 theorem isPredeformationFunctor_iff_isPredeformationCategory
     (F : ArtinianLocalAlgCat Λ k ⥤ Type v) :
     IsPredeformationFunctor F ↔ IsPredeformationCategory (CategoryOfElements.π F) := sorry
+
+/-- The category of elements of a predeformation functor is a predeformation category. -/
+instance instIsPredeformationCategory_ofTypeValued
+    {G : ArtinianLocalAlgCat Λ k ⥤ Type v} [IsPredeformationFunctor G] :
+    IsPredeformationCategory (CategoryOfElements.π G) :=
+  (isPredeformationFunctor_iff_isPredeformationCategory G).mp inferInstance
 
 /-- The fiberwise isomorphism-class presheaf of a predeformation category is a predeformation
 functor. -/

@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.ResidueField
 public import Mathlib.RingTheory.AlgebraicIndependent.Basic
+public import Mathlib.SetTheory.Cardinal.ENat
 
 /-!
 # Residue fields of scheme morphisms
@@ -32,7 +27,14 @@ noncomputable instance residueFieldAlgebra {X S : Scheme.{u}} (f : X ⟶ S) (x :
     Algebra (S.residueField (f x)) (X.residueField x) :=
   (f.residueFieldMap x).hom.toAlgebra
 
-/-- The transcendence degree of `κ(x)` over `κ(f(x))`, regarded as a natural number. -/
+/-- The transcendence degree of the residue field extension, including infinite degree. -/
+noncomputable abbrev residueFieldTranscendenceDegreeAt {X S : Scheme.{u}}
+    (f : X ⟶ S) (x : X) : ℕ∞ :=
+  Cardinal.toENat (Algebra.trdeg (S.residueField (f x)) (X.residueField x))
+
+/-- The natural-number projection of the residue-field transcendence degree.
+This projection sends infinite degree to zero; finite-degree geometric interfaces
+must establish finiteness before using it. -/
 noncomputable abbrev residueFieldTrdegAt {X S : Scheme.{u}} (f : X ⟶ S) (x : X) : ℕ :=
   Cardinal.toNat (Algebra.trdeg (S.residueField (f x)) (X.residueField x))
 

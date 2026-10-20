@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
-public import Mathlib.CategoryTheory.MorphismProperty.Local
-public import stacks_project.Chap73.Lemma_73_7_3_Precoverage
-public import stacks_project.Chap100.Lemma_100_3_2_MorphismProperty
-public import stacks_project.Chap94.Lemma_94_6_5_Product
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Representable.Property.Product
+import StacksCheckRecall
 
 /-!
 # Products of representable morphisms having a morphism property
@@ -27,13 +18,9 @@ open FiberedCategoryOver.Groupoids
 open Groupoids.Hom
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.Groupoids.Hom
-
-/-- Lemma 94.10.8: let `S` be a scheme in `Sch_fppf`. Let `Xᵢ`, `Yᵢ` be
+/- Lemma 94.10.8: let `S` be a scheme in `Sch_fppf`. Let `Xᵢ`, `Yᵢ` be
 categories fibred in groupoids over `(Sch/S)_fppf` for `i = 1, 2`. Let `P` be a
 property of morphisms of algebraic spaces as in Definition 94.10.1 that is
 stable under composition. Let `fᵢ : Xᵢ ⟶ Yᵢ` be 1-morphisms representable by
@@ -41,15 +28,13 @@ algebraic spaces. If `f₁` and `f₂` have `P`, then so does
 `prodMap f₁ f₂ : prod X₁ X₂ ⟶ prod Y₁ Y₂` (Stacks `f₁ × f₂`).
 Representability of the product is Lemma 94.9.10, not this conclusion. -/
 @[stacks 045E]
-theorem has.prod_map {S : Scheme.{u}} {X₁ X₂ Y₁ Y₂ : GroupoidsOver S}
-    (P : MorphismProperty (AlgebraicSpace S))
-    [P.IsStableUnderBaseChange]
-    [P.IsLocalAtTarget (AlgebraicSpace.fppfPrecoverage S)]
-    [P.IsStableUnderComposition]
-    (f₁ : X₁ ⟶ Y₁) (f₂ : X₂ ⟶ Y₂)
-    (hf₁ : relativelyRepresentableByAlgebraicSpaces f₁)
-    (hf₂ : relativelyRepresentableByAlgebraicSpaces f₂)
-    (hf₁P : has P f₁) (hf₂P : has P f₂) : has P (prodMap f₁ f₂) :=
-  sorry
-
-end AlgebraicGeometry.Groupoids.Hom
+#check (AlgebraicGeometry.Groupoids.Hom.has.prod_map :
+    ∀ {S : Scheme.{u}} {X₁ X₂ Y₁ Y₂ : GroupoidsOver S}
+      (P : MorphismProperty (AlgebraicSpace S))
+      [P.IsStableUnderBaseChange]
+      [P.IsLocalAtTarget (AlgebraicSpace.fppfPrecoverage S)]
+      [P.IsStableUnderComposition]
+      (f₁ : X₁ ⟶ Y₁) (f₂ : X₂ ⟶ Y₂),
+      relativelyRepresentableByAlgebraicSpaces f₁ →
+      relativelyRepresentableByAlgebraicSpaces f₂ →
+      has P f₁ → has P f₂ → has P (prodMap f₁ f₂))

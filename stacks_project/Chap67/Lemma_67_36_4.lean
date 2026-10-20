@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Data.List.TFAE
-public import stacks_project.Chap67.Lemma_67_36_4_Syntomic
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Syntomic
+import StacksCheckRecall
 
 /-!
 # Characterizations of syntomicity for morphisms of algebraic spaces
@@ -21,19 +16,11 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.36.4: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
-algebraic spaces over `S`. The following are equivalent: `f` is syntomic; `f`
-is syntomic at every point of `X`; every base change of `f` along a morphism
-from a scheme is syntomic; every base change of `f` along a morphism from an
-affine scheme is syntomic; there is a surjective étale morphism from a scheme
-to `Y` along which the base change of `f` is syntomic; there is a surjective
-étale morphism `φ` from a scheme to `X` with `φ ≫ f` syntomic; every étale
-scheme square over `f` has syntomic top arrow; some étale scheme square over
-`f` with surjective vertical source arrow has syntomic top arrow; and there
-are Zariski coverings of `Y` and of the inverse images in `X` on which the
-pieces of `f` are syntomic. -/
-@[stacks 03ZA]
-theorem syntomic_tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+/- Lemma 67.36.4: Syntomicity of a morphism of algebraic spaces is equivalent
+to the following nine pointwise, base-change, étale-local, and Zariski-local
+conditions. -/
+@[stacks 03ZA] #check (AlgebraicGeometry.AlgebraicSpace.syntomic_tfae :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
     List.TFAE
       [ Syntomic f
       , ∀ x : Points X, SyntomicAt f x
@@ -43,7 +30,6 @@ theorem syntomic_tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
       , Syntomic.existsSurjectiveEtaleSource f
       , Syntomic.forallEtaleSquare f
       , Syntomic.existsEtaleSquare f
-      , Syntomic.existsZariskiCover f ] :=
-  sorry
+      , Syntomic.existsZariskiCover f ])
 
 end AlgebraicGeometry.AlgebraicSpace

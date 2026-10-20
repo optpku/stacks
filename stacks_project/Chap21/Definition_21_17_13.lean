@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Tensor
@@ -31,6 +25,10 @@ universe u v w
 #check @SheafOfModules.RingedSite.moduleCategoryHasDerivedTensor
 
 namespace RingedSite.Hom.ModuleDerived
+
+attribute [local instance] RingedSite.Hom.moduleCat_hasDerivedCategory
+  RingedSite.Hom.RingPresentation.moduleHasDerivedCategory
+  SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
 
 variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
 variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]

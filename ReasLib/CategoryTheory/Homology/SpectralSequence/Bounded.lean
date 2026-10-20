@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Data.Int.ConditionallyCompleteOrder
@@ -224,9 +218,10 @@ theorem zero_le_of_one_le {r : ℤ} (hr : 1 ≤ r) : 0 ≤ r := sorry
 /-- A bounded cohomological spectral sequence starting at page zero stabilizes at every fixed
 bidegree: beyond any prescribed lower bound, some page object is isomorphic to `E∞`. -/
 theorem IsBounded.exists_page_iso_infinity
+    [LocallySmall.{v} C] [WellPowered.{v} C]
+    [HasWidePullbacks.{v} C] [HasCoproducts.{v} C]
     (E : CohomologicalSpectralSequence C 0) (hbounded : IsBounded E)
     (pq : ℤ × ℤ)
-    [CompleteLattice (Subobject ((Page.One.ofZero E).pageObject pq 1))]
     (lower : ℤ) :
     ∃ (N : ℤ) (hN : 1 ≤ N), lower ≤ N ∧
       Nonempty

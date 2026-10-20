@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.Topos.InternalModule
+public import ReasLib.CategoryTheory.Sites.Topos.Morphism
 public import Mathlib.CategoryTheory.Limits.Types.Products
 public import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Terminal
 
@@ -35,15 +30,6 @@ namespace CategoryTheory.MorphismOfTopoiIn
 variable {C₀ : Type u₀} [Category.{v₀} C₀] {J₀ : GrothendieckTopology C₀}
 variable {C₁ : Type u₁} [Category.{v₁} C₁] {J₁ : GrothendieckTopology C₁}
 variable (f : MorphismOfTopoiIn.{u₀, u₁, v₀, v₁, w} J₀ J₁)
-
-/-- Inverse image carries the singleton sheaf to a terminal sheaf; the
-comparison is the unique isomorphism between these two terminal objects. -/
-noncomputable def inverseImageTerminalIso :
-    f.inverseImage.obj (Sheaf.terminal J₀ Types.isTerminalPUnit) ≅
-      Sheaf.terminal J₁ Types.isTerminalPUnit :=
-  ((Sheaf.isTerminalTerminal J₀ Types.isTerminalPUnit).isTerminalObj
-      f.inverseImage _).uniqueUpToIso
-    (Sheaf.isTerminalTerminal J₁ Types.isTerminalPUnit)
 
 /-- The canonical direct-image global-section equivalence. Its maps are
 adjoint transposes transported through the terminal-object comparison. -/

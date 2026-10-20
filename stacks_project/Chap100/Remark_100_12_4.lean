@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType
-public import stacks_project.Chap100.Definition_100_6_1_QuasiCompact
-public import stacks_project.Chap100.Definition_100_12_3_Dimension
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Dimension.Range
+import StacksCheckRecall
 
 /-!
 # Dimension of a locally Noetherian algebraic stack: value range
@@ -27,32 +20,27 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Remark 100.12.4 (1): if `X` is a nonempty algebraic stack of finite type over a
-field, then `dimension X` is an integer. -/
-@[stacks 0AFQ]
-theorem dimension_mem_int {k : Type u} [Field k]
+/- Remark 100.12.4: a nonempty algebraic stack of finite type over a field has
+integer dimension. Every locally Noetherian algebraic stack has dimension in
+the extended integers, and its dimension is minus infinity exactly when its
+space of points is empty. -/
+@[stacks 0AFQ] #check (AlgebraicGeometry.AlgebraicStack.dimension_mem_int :
+  ∀ {k : Type u} [Field k]
     (X : GroupoidsOver (Spec (.of k))) [AlgebraicStack X]
-    [IsLocallyNoetherian X] [IsQuasiCompact X] [Nonempty (Points X)]
-    {U : Over (Spec (.of k))} {p : GroupoidsOver.slice U ⟶ X}
-    [Groupoids.Hom.Smooth p] [Groupoids.Hom.Surjective p]
-    [AlgebraicGeometry.LocallyOfFiniteType U.hom] :
-    ∃ n : ℤ, dimension X = n :=
-  sorry
+    [IsLocallyNoetherian X] [IsQuasiCompact X] [Nonempty (Points X)],
+    (∃ (U : Over (Spec (.of k))) (p : GroupoidsOver.slice U ⟶ X),
+      Groupoids.Hom.Smooth p ∧ Groupoids.Hom.Surjective p ∧
+        AlgebraicGeometry.LocallyOfFiniteType U.hom) →
+    ∃ n : ℤ, dimension X = n)
 
-/-- Remark 100.12.4 (2): if `X` is a locally Noetherian algebraic stack, then
-`dimension X` lies in `ℤ ∪ {±∞}`. -/
-@[stacks 0AFQ]
-theorem dimension_trichotomy {S : Scheme.{u}} (X : GroupoidsOver S)
-    [AlgebraicStack X] [IsLocallyNoetherian X] :
-    dimension X = ⊥ ∨ (∃ n : ℤ, dimension X = n) ∨ dimension X = ⊤ :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.dimension_trichotomy :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S)
+    [AlgebraicStack X] [IsLocallyNoetherian X],
+    dimension X = ⊥ ∨ (∃ n : ℤ, dimension X = n) ∨ dimension X = ⊤)
 
-/-- Remark 100.12.4 (3): if `X` is a locally Noetherian algebraic stack, then
-`dimension X = ⊥` if and only if `X` is empty. -/
-@[stacks 0AFQ]
-theorem dimension_eq_bot_iff {S : Scheme.{u}} (X : GroupoidsOver S)
-    [AlgebraicStack X] [IsLocallyNoetherian X] :
-    dimension X = ⊥ ↔ IsEmpty (Points X) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.dimension_eq_bot_iff :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S)
+    [AlgebraicStack X] [IsLocallyNoetherian X],
+    dimension X = ⊥ ↔ IsEmpty (Points X))
 
 end AlgebraicGeometry.AlgebraicStack

@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.PreRelation.Hom
 public import ReasLib.AlgebraicGeometry.Scheme.PreRelation.QuotientSheaf
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Sheafification.Lift
 
 /-!
 # Functoriality of quotient sheaves of scheme pre-relations
@@ -57,3 +52,30 @@ theorem quotientMap_naturality {S : Scheme.{u}} {U U' : Over S}
       J.uliftYoneda.{u + 1}.map f.obj ≫ Q.quotientMap J := sorry
 
 end AlgebraicGeometry.Scheme.PreRelation.Hom
+
+namespace AlgebraicGeometry.Scheme.PreRelation.Hom
+
+/-- A morphism of pre-relations induces a map between their small étale quotient sheaves. -/
+def smallEtaleQuotientSheafMap {S : Scheme.{u}} {U U' : Over S}
+    {P : PreRelation U} {Q : PreRelation U'} (f : Hom P Q) :
+    P.smallEtaleQuotientSheaf.obj ⟶ Q.smallEtaleQuotientSheaf.obj :=
+  EtaleSheafification.lift Q.smallEtaleQuotientSheaf
+    (f.quotientPresheafMap ≫ Q.toSmallEtaleQuotientSheaf)
+
+/-- The small étale quotient projections commute with the induced map of quotient sheaves. -/
+theorem smallEtaleQuotientSheafMk_naturality {S : Scheme.{u}} {U U' : Over S}
+    {P : PreRelation U} {Q : PreRelation U'} (f : Hom P Q) :
+    P.smallEtaleQuotientSheafMk ≫ f.smallEtaleQuotientSheafMap =
+      yoneda.map f.obj ≫ Q.smallEtaleQuotientSheafMk := sorry
+
+end AlgebraicGeometry.Scheme.PreRelation.Hom
+
+namespace AlgebraicGeometry.Scheme.PreRelation
+
+/-- The canonical projection to a small étale quotient sheaf is étale-locally surjective. -/
+instance instIsLocallySurjective_smallEtaleQuotientSheafMk
+    {S : Scheme.{u}} {U : Over S} (P : PreRelation U) :
+    Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S)
+      P.smallEtaleQuotientSheafMk := sorry
+
+end AlgebraicGeometry.Scheme.PreRelation

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.CochainComplex.Bounded
@@ -27,7 +21,6 @@ Tor predicate; a separate exactness formulation is retained for proof constructi
 -- Local instance justification (defeq pin): the imported ModuleDerived and localized ModuleCat aliases use the standard homotopy localization; this fallback is definitionally the same quotient as the named moduleCat_hasDerivedCategory and does not choose another derived model.
 attribute [local instance] HasDerivedCategory.standard
   SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
-  SheafOfModules.RingedSite.moduleCategoryHasDerivedTensor
 
 open CategoryTheory
 open CategoryTheory.Limits
@@ -60,6 +53,9 @@ theorem ofExactAtTensorSingle
           (a - 1)) :
     IsFlat O (E.opcycles a) := sorry
 
+variable [DerivedCategory.DerivedTensor.Right.Has
+  (C := ringedSiteModuleCategory.{u, v, w, w} J O)]
+
 /-- A bounded-above termwise-flat representative of an object with lower Tor-amplitude bound
 `a` has flat opcycles in degree `a`. -/
 @[stacks 08G0 "lower-bound opcycles form"]
@@ -69,7 +65,7 @@ theorem ofTorAmplitudeGE
     (hbounded : CochainComplex.minus (ringedSiteModuleCategory J O) E)
     (hFlat : HomologicalComplex.IsTermwiseFlat E)
     (hTor : ModuleDerived.HasTorAmplitudeGE
-      (X := _root_.RingedSite.ofCommRingSheaf J O) (DerivedCategory.Q.obj E) a) :
+      (O := O) (DerivedCategory.Q.obj E) a) :
     IsFlat O (E.opcycles a) := sorry
 
 /-- A bounded-above termwise-flat representative of an object with Tor-amplitude in `[a, b]`
@@ -81,7 +77,7 @@ theorem ofTorAmplitudeIn
     (hbounded : CochainComplex.minus (ringedSiteModuleCategory J O) E)
     (hFlat : HomologicalComplex.IsTermwiseFlat E)
     (hTor : ModuleDerived.HasTorAmplitudeIn
-      (X := _root_.RingedSite.ofCommRingSheaf J O) (DerivedCategory.Q.obj E) a b) :
+      (O := O) (DerivedCategory.Q.obj E) a b) :
     IsFlat O (cokernel (E.dFrom (a - 1))) := sorry
 
 end FlatCokernel

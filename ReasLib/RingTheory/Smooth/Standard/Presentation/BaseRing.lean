@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.Smooth.Standard.Element.Fin
@@ -49,16 +43,20 @@ namespace Algebra.IsStrictlyStandard.Presentation
 variable {R : Type u} {A : Type v} [CommRing R] [CommRing A] [Algebra R A]
 variable {π : R}
 
-/-- Lemma 16.7.1.1 (tag 07CS): strict standardness of the image of a base element has a finite
-presentation witness whose tail condition is written with the literal base-ring lift. -/
+/-- A strictly standard base element admits a finite presentation in which its image is a
+linear combination of the initial-row Jacobian minors and its products with the remaining
+relations lie in the initial relation ideal plus the square of the kernel. -/
 @[stacks 07CS]
 theorem exists_baseRing_tail
     (hπ : IsStrictlyStandard R (algebraMap R A π)) :
     ∃ (n m : ℕ) (P : Algebra.Presentation R A (Fin n) (Fin m))
-        (c : ℕ) (hcₘ : c ≤ m),
-      ∀ j : Fin (m - c),
-        algebraMap R P.Ring π *
-            P.relation (Fin.natAdd_castLEEmb (Nat.sub_le m c) j) ∈
-          P.leadingRelationIdeal hcₘ + P.ker ^ 2 := sorry
+        (c : ℕ) (hcₘ : c ≤ m) (aI : Set.powersetCard (Fin n) c → A),
+      algebraMap R A π = ∑ I : Set.powersetCard (Fin n) c,
+          aI I * algebraMap P.Ring A
+            (P.jacobianColumnMinor (Fin.castLEEmb hcₘ) I) ∧
+        ∀ j : Fin (m - c),
+          algebraMap R P.Ring π *
+              P.relation (Fin.natAdd_castLEEmb (Nat.sub_le m c) j) ∈
+            P.leadingRelationIdeal hcₘ + P.ker ^ 2 := sorry
 
 end Algebra.IsStrictlyStandard.Presentation

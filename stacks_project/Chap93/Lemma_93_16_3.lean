@@ -1,30 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.Separated
-public import Mathlib.Tactic.CrossRefAttribute
-public import Mathlib.Topology.JacobsonSpace
-public import Mathlib.Topology.KrullDimension
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Smooth.Basic
-public import stacks_project.Chap90.Definition_90_8_1_Smooth
-public import stacks_project.Chap93.Lemma_93_16_3_Stalk
-public import stacks_project.Chap93.Lemma_93_16_3_Comparison
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Stalk.Smooth
+import StacksCheckRecall
 
 /-!
 # Isolated singularities of scheme deformation categories
-
-If `X` is a separated finite-type scheme over `k` of dimension at most one,
-smooth over `k` except at named closed points `p i`, then the maps
-`Def_X ⟶ ∏ Def_{O_{X, p i}} ⟶ ∏ Def_{O_{X, p i}^h} ⟶ ∏ Def_{O_{X, p i}^∧}`
-exist as morphisms of deformation categories over `C_Λ`. The first arrow is
-smooth, and the second and third arrows are smooth and induce isomorphisms on
-tangent spaces.
 -/
 
 @[expose] public section
@@ -43,86 +23,52 @@ variable (X : Scheme.{u})
 variable [AlgebraicGeometry.Flat hX]
 variable {ι : Type u} [Finite ι]
 
-/-- A scheme of finite type over the residue field of `C_Λ` is locally Noetherian. -/
-theorem isLocallyNoetherian_of_finiteType [Scheme.Hom.FiniteType hX] :
-    IsLocallyNoetherian X :=
-  sorry
-
-/-- Lemma 93.16.3 (1)
-In Example 93.9.1 let `X` be a scheme over `k`. Assume `X` is separated, of
-finite type over `k`, and `topologicalKrullDim X ≤ 1`, and that
-`X ⟶ Spec(k)` is smooth except at the closed points `p i`. Then the map of
-deformation categories `Def_X ⟶ ∏ Def_{O_{X, p i}}` is smooth. -/
-@[stacks 0DZP]
-theorem isSmooth_stalkPiBasedFunctor [Scheme.Hom.FiniteType hX] [IsSeparated hX]
+/- Lemma 93.16.3
+For a separated finite-type scheme over a field of dimension at most one,
+smooth away from the distinct closed points in a finite family, the canonical
+stalk comparison is smooth. The following product henselization and completion
+comparisons are smooth and induce isomorphisms on tangent spaces. -/
+@[stacks 0DZP] #check (FlatSchemeCat.isSmooth_stalkPiBasedFunctor Λ k X hX :
+  ∀ [Scheme.Hom.FiniteType hX] [IsSeparated hX]
     (p : ι → X) (hp_closed : ∀ i, p i ∈ closedPoints X) (hp_inj : Function.Injective p)
     (hdim : topologicalKrullDim X ≤ 1)
-    (hsmooth : {x : X | ¬ Scheme.Hom.SmoothAt hX x} ⊆ Set.range p) :
-    BasedFunctor.IsSmooth (stalkPiBasedFunctor Λ k X hX p) :=
-  sorry
+    (hsmooth : {x : X | ¬ Scheme.Hom.SmoothAt hX x} ⊆ Set.range p),
+    BasedFunctor.IsSmooth (stalkPiBasedFunctor Λ k X hX p))
 
 variable [henselianPairInclusion.IsRightAdjoint]
 
-/-- Lemma 93.16.3 (2)
-In Example 93.9.1 let `X` be a scheme over `k`. Assume `X` is separated, of
-finite type over `k`, and `topologicalKrullDim X ≤ 1`, and that
-`X ⟶ Spec(k)` is smooth except at the closed points `p i`. Then the map of
-deformation categories `∏ Def_{O_{X, p i}} ⟶ ∏ Def_{O_{X, p i}^h}` is
-smooth. -/
-@[stacks 0DZP]
-theorem isSmooth_henselizationPiBasedFunctor [Scheme.Hom.FiniteType hX]
+#check (FlatSchemeCat.isSmooth_henselizationPiBasedFunctor Λ k X hX :
+  ∀ [Scheme.Hom.FiniteType hX]
     [IsSeparated hX] [IsLocallyNoetherian X] (p : ι → X)
-    (hp_closed : ∀ i, p i ∈ closedPoints X) (hp_inj : Function.Injective p)
+    (hp_closed : ∀ i, p i ∈ closedPoints X)
     (hdim : topologicalKrullDim X ≤ 1)
-    (hsmooth : {x : X | ¬ Scheme.Hom.SmoothAt hX x} ⊆ Set.range p) :
-    BasedFunctor.IsSmooth (henselizationPiBasedFunctor Λ k X hX p) :=
-  sorry
+    (hsmooth : {x : X | ¬ Scheme.Hom.SmoothAt hX x} ⊆ Set.range p),
+    BasedFunctor.IsSmooth (henselizationPiBasedFunctor Λ k X hX p))
 
-/-- Lemma 93.16.3 (3)
-In Example 93.9.1 let `X` be a scheme over `k`. Assume `X` is separated, of
-finite type over `k`, and `topologicalKrullDim X ≤ 1`, and that
-`X ⟶ Spec(k)` is smooth except at the closed points `p i`. Then the map
-`∏ Def_{O_{X, p i}} ⟶ ∏ Def_{O_{X, p i}^h}` induces an isomorphism on
-tangent spaces. -/
-@[stacks 0DZP]
-theorem bijective_differential_henselizationPiBasedFunctor [Scheme.Hom.FiniteType hX]
+#check (FlatSchemeCat.bijective_differential_henselizationPiBasedFunctor Λ k X hX :
+  ∀ [Scheme.Hom.FiniteType hX]
     [IsSeparated hX] [IsLocallyNoetherian X] (p : ι → X)
-    (hp_closed : ∀ i, p i ∈ closedPoints X) (hp_inj : Function.Injective p)
+    (hp_closed : ∀ i, p i ∈ closedPoints X)
     (hdim : topologicalKrullDim X ≤ 1)
-    (hsmooth : {x : X | ¬ Scheme.Hom.SmoothAt hX x} ⊆ Set.range p) :
+    (hsmooth : {x : X | ¬ Scheme.Hom.SmoothAt hX x} ⊆ Set.range p),
     Function.Bijective
-      (BasedFunctor.differential (henselizationPiBasedFunctor Λ k X hX p)) :=
-  sorry
+      (BasedFunctor.differential (henselizationPiBasedFunctor Λ k X hX p)))
 
-/-- Lemma 93.16.3 (4)
-In Example 93.9.1 let `X` be a scheme over `k`. Assume `X` is separated, of
-finite type over `k`, and `topologicalKrullDim X ≤ 1`, and that
-`X ⟶ Spec(k)` is smooth except at the closed points `p i`. Then the map of
-deformation categories `∏ Def_{O_{X, p i}^h} ⟶ ∏ Def_{O_{X, p i}^∧}` is
-smooth. -/
-@[stacks 0DZP]
-theorem isSmooth_completionPiBasedFunctor [Scheme.Hom.FiniteType hX]
+#check (FlatSchemeCat.isSmooth_completionPiBasedFunctor Λ k X hX :
+  ∀ [Scheme.Hom.FiniteType hX]
     [IsSeparated hX] [IsLocallyNoetherian X] (p : ι → X)
-    (hp_closed : ∀ i, p i ∈ closedPoints X) (hp_inj : Function.Injective p)
+    (hp_closed : ∀ i, p i ∈ closedPoints X)
     (hdim : topologicalKrullDim X ≤ 1)
-    (hsmooth : {x : X | ¬ Scheme.Hom.SmoothAt hX x} ⊆ Set.range p) :
-    BasedFunctor.IsSmooth (completionPiBasedFunctor Λ k X hX p) :=
-  sorry
+    (hsmooth : {x : X | ¬ Scheme.Hom.SmoothAt hX x} ⊆ Set.range p),
+    BasedFunctor.IsSmooth (completionPiBasedFunctor Λ k X hX p))
 
-/-- Lemma 93.16.3 (5)
-In Example 93.9.1 let `X` be a scheme over `k`. Assume `X` is separated, of
-finite type over `k`, and `topologicalKrullDim X ≤ 1`, and that
-`X ⟶ Spec(k)` is smooth except at the closed points `p i`. Then the map
-`∏ Def_{O_{X, p i}^h} ⟶ ∏ Def_{O_{X, p i}^∧}` induces an isomorphism on
-tangent spaces. -/
-@[stacks 0DZP]
-theorem bijective_differential_completionPiBasedFunctor [Scheme.Hom.FiniteType hX]
+#check (FlatSchemeCat.bijective_differential_completionPiBasedFunctor Λ k X hX :
+  ∀ [Scheme.Hom.FiniteType hX]
     [IsSeparated hX] [IsLocallyNoetherian X] (p : ι → X)
-    (hp_closed : ∀ i, p i ∈ closedPoints X) (hp_inj : Function.Injective p)
+    (hp_closed : ∀ i, p i ∈ closedPoints X)
     (hdim : topologicalKrullDim X ≤ 1)
-    (hsmooth : {x : X | ¬ Scheme.Hom.SmoothAt hX x} ⊆ Set.range p) :
+    (hsmooth : {x : X | ¬ Scheme.Hom.SmoothAt hX x} ⊆ Set.range p),
     Function.Bijective
-      (BasedFunctor.differential (completionPiBasedFunctor Λ k X hX p)) :=
-  sorry
+      (BasedFunctor.differential (completionPiBasedFunctor Λ k X hX p)))
 
 end FlatSchemeCat

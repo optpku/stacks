@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap98.«98_13_2_1_Smooth»
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.SmoothOnPredeformations
+import StacksCheckRecall
 
 /-!
 # Equation-smooth 1-morphisms of groupoid fibrations
@@ -26,12 +20,13 @@ universe u
 
 namespace AlgebraicGeometry.Groupoids.Hom
 
-/-- 98.13.2.1: for all fields `k` of finite type over `S` and all `x0` in the
+/- 98.13.2.1: for all fields `k` of finite type over `S` and all `x0` in the
 fibre of `X` over `Spec(k)`, the map of predeformation categories
 `ℱ_{X, k, x0} ⟶ ℱ_{Y, k, f(x0)}` is smooth. -/
-@[stacks 07XS]
-theorem isSmoothOnPredeformations_iff {S : Scheme.{u}} [IsLocallyNoetherian S]
-    {X Y : GroupoidsOver S} (f : X ⟶ Y) :
+@[stacks 07XS] #check
+  (AlgebraicGeometry.Groupoids.Hom.isSmoothOnPredeformations_iff :
+    ∀ {S : Scheme.{u}} [IsLocallyNoetherian S]
+    {X Y : GroupoidsOver S} (f : X ⟶ Y),
     IsSmoothOnPredeformations f ↔
       ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
         [Module.Finite Λ k]
@@ -39,7 +34,6 @@ theorem isSmoothOnPredeformations_iff {S : Scheme.{u}} [IsLocallyNoetherian S]
         (kToS : Spec (CommRingCat.of k) ⟶ S) [LocallyOfFiniteType kToS]
         (h_factor : Spec.map (CommRingCat.ofHom (algebraMap Λ k)) ≫ openImmersion = kToS)
         (x0 : X.p.Fiber (Over.mk kToS)),
-        IsSmoothAt f openImmersion kToS h_factor x0 :=
-  sorry
+        IsSmoothAt f openImmersion kToS h_factor x0)
 
 end AlgebraicGeometry.Groupoids.Hom

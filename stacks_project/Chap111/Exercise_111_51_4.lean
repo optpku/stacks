@@ -1,66 +1,71 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap111.Exercise_111_51_4_Curve
-import Mathlib.Tactic.CrossRefAttribute
-
-/-!
-# Exercise 111.51.4
-
-The scheme-theoretic closure of `y³(x⁴ + 1) = x⁴ - 1` in `ℙ¹_ℂ ×_{Spec ℂ} ℙ¹_ℂ`
-is a nonsingular projective curve of genus 6, contained in the first and last
-product charts, and the first-factor projection is a degree-3 cover ramified
-with index 3 exactly over the eighth roots of unity in the finite chart.
--/
+public import ReasLib.AlgebraicGeometry.Curve.CubicQuartic
+import StacksCheckRecall
 
 @[expose] public section
-
-noncomputable section
 
 open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
 open scoped AlgebraicGeometry
 
-namespace AlgebraicGeometry.ProjectiveLineProduct
+noncomputable section
 
-/-- Exercise 111.51.4 (1): the curve is contained in the union of the first and last
-product charts. -/
-@[stacks 02FJ]
-theorem subset_firstOpen_sup_lastOpen : ι ⁻¹ᵁ (firstOpen ⊔ lastOpen) = ⊤ := sorry
+/- Exercise 111.51.4 -/
+@[stacks 02FJ] #check
+  (AlgebraicGeometry.CubicQuartic.subset_firstOpen_sup_lastOpen :
+    AlgebraicGeometry.CubicQuartic.ι ⁻¹ᵁ
+      (AlgebraicGeometry.CubicQuartic.firstOpen ⊔ AlgebraicGeometry.CubicQuartic.lastOpen) = ⊤)
 
-/-- Exercise 111.51.4 (2): the scheme-theoretic closure is a curve over `ℂ`. -/
-@[stacks 02FJ, instance]
-instance instCurve : Curve schemeOver := sorry
+#check
+  (AlgebraicGeometry.CubicQuartic.instCurve :
+    Curve AlgebraicGeometry.CubicQuartic.schemeOver)
 
-/-- Exercise 111.51.4 (3): the curve is nonsingular over `ℂ`. -/
-@[stacks 02FJ, instance]
-instance instSmooth : Smooth schemeOver.hom := sorry
+#check
+  (AlgebraicGeometry.CubicQuartic.instSmooth :
+    Smooth AlgebraicGeometry.CubicQuartic.schemeOver.hom)
 
-/-- Exercise 111.51.4 (4): the curve is projective over `ℂ`. -/
-@[stacks 02FJ, instance]
-instance instProjective : Projective schemeOver.hom := sorry
+#check
+  (AlgebraicGeometry.CubicQuartic.instProjective :
+    Projective AlgebraicGeometry.CubicQuartic.schemeOver.hom)
 
-/-- Exercise 111.51.4 (5): the first-factor projection has degree 3. -/
-@[stacks 02FJ]
-theorem xProjection_degree_eq_three : xProjection.inducedFunctionFieldDegree = 3 := sorry
+#check
+  (AlgebraicGeometry.CubicQuartic.xProjection_degree_eq_three :
+    AlgebraicGeometry.CubicQuartic.xProjection.inducedFunctionFieldDegree = 3)
 
-/-- Exercise 111.51.4 (6): the first-factor projection is ramified of index 3 exactly
-over the eighth roots of unity in the finite chart, and is unramified of index 1
-at every other closed point. -/
-@[stacks 02FJ]
-theorem ramificationIndexAt_xProjection (x : closedPoints scheme) {n : ℕ} :
-    xProjection.ramificationIndexAt x.1 = n ↔
-      n = 3 ∧ (∃ a : ℂ, a ^ 8 = 1 ∧
-          xProjection.base x.1 = (xChartPoint a).base (IsLocalRing.closedPoint ℂ)) ∨
-      n = 1 ∧ (∀ a : ℂ, a ^ 8 = 1 →
-          xProjection.base x.1 ≠ (xChartPoint a).base (IsLocalRing.closedPoint ℂ)) := sorry
+#check
+  (AlgebraicGeometry.CubicQuartic.ramificationIndexAt_xProjection :
+    ∀ (x : closedPoints AlgebraicGeometry.CubicQuartic.scheme) {n : ℕ},
+      AlgebraicGeometry.CubicQuartic.xProjection.ramificationIndexAt x.1 = n ↔
+        n = 3 ∧ (∃ a : ℂ, a ^ 8 = 1 ∧
+            AlgebraicGeometry.CubicQuartic.xProjection.base x.1 =
+              (AlgebraicGeometry.CubicQuartic.xChartPoint a).base
+                (IsLocalRing.closedPoint ℂ)) ∨
+        n = 1 ∧ (∀ a : ℂ, a ^ 8 = 1 →
+            AlgebraicGeometry.CubicQuartic.xProjection.base x.1 ≠
+              (AlgebraicGeometry.CubicQuartic.xChartPoint a).base
+                (IsLocalRing.closedPoint ℂ)))
 
-/-- Exercise 111.51.4 (7): the genus of the curve is 6. -/
-@[stacks 02FJ]
-theorem genus_eq_six : Curve.genus schemeOver = 6 := sorry
+#check
+  (AlgebraicGeometry.CubicQuartic.genus_eq_six :
+    Curve.genus AlgebraicGeometry.CubicQuartic.schemeOver = 6)
 
-end AlgebraicGeometry.ProjectiveLineProduct
+#check
+  (AlgebraicGeometry.CubicQuartic.xProjection_comp_toImage :
+    AlgebraicGeometry.CubicQuartic.generatingMap.toImage ≫
+        AlgebraicGeometry.CubicQuartic.xProjection =
+      AlgebraicGeometry.CubicQuartic.affineClosedToPlane ≫
+        AlgebraicGeometry.CubicQuartic.planeToChartX 0)
+
+#check
+  (AlgebraicGeometry.CubicQuartic.ramificationIndexAt_first :
+    ∀ (a : ℂ) (ha : a ^ 4 = 1),
+      AlgebraicGeometry.CubicQuartic.xProjection.ramificationIndexAt
+          ((AlgebraicGeometry.CubicQuartic.firstRamificationPoint a ha).base
+            (IsLocalRing.closedPoint ℂ)) = 3)
+
+#check
+  (AlgebraicGeometry.CubicQuartic.ramificationIndexAt_last :
+    ∀ (a : ℂ) (ha : a ^ 4 = -1),
+      AlgebraicGeometry.CubicQuartic.xProjection.ramificationIndexAt
+          ((AlgebraicGeometry.CubicQuartic.lastRamificationPoint a ha).base
+            (IsLocalRing.closedPoint ℂ)) = 3)

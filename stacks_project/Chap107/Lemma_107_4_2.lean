@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap107.Lemma_107_4_2_ComponentsMap
+import StacksCheckRecall
 
 /-!
 # Formal branches surject onto irreducible components through a point
@@ -25,18 +20,17 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack.FormalBranches
 
-/-- Lemma 107.4.2: In the situation of Definition 107.4.1 there is a canonical
+/- Lemma 107.4.2: In the situation of Definition 107.4.1 there is a canonical
 surjection from the set of formal branches of `X` through `x0` to the set of
 irreducible components of `|X|` containing `x0` in `|X|`. -/
 @[stacks 0DRB]
-theorem toComponent_surjective {S : Scheme.{u}} [IsLocallyNoetherian S]
+#check (AlgebraicGeometry.AlgebraicStack.FormalBranches.range_toComponent :
+  ∀ {S : Scheme.{u}} [IsLocallyNoetherian S]
     {X : GroupoidsOver S} [AlgebraicStack X] [IsLocallyOfFiniteType X]
     (x0 : FieldValuedPoint X)
     [AlgebraicGeometry.LocallyOfFiniteType x0.structureHom]
-    {τ : TopologicalSpace (Points X)} (hτ : IsPointsTopology X τ)
-    (T : @irreducibleComponents (Points X) τ)
-    (hT : Points.mk x0 ∈ (T : Set (Points X))) :
-    ∃ b : FormalBranches x0, toComponent x0 hτ b = T :=
-  sorry
+    {τ : TopologicalSpace (Points X)} (hτ : IsPointsTopology X τ),
+    Set.range (toComponent x0 hτ) =
+      @irreducibleComponentsAt (Points X) τ (Points.mk x0))
 
 end AlgebraicGeometry.AlgebraicStack.FormalBranches

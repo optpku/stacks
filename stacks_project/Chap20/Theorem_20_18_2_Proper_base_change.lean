@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Sheaf.Derived.BaseChange.Proper
@@ -13,7 +7,7 @@ import StacksCheckRecall
 
 /- [stacks 09V6] Theorem 20.18.2 (Proper base change): for a cartesian square of topological
 spaces with proper vertical map, every bounded-below abelian-sheaf base-change component is an
-isomorphism. -/
+isomorphism. The source's properness requires both `IsProperMap` and `IsSeparatedMap`. -/
 
 namespace TopCat.Sheaf.BoundedBaseChange
 

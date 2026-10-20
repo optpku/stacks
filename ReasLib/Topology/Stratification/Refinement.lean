@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
@@ -26,29 +20,22 @@ variable {X : Type u} [TopologicalSpace X]
 
 namespace LocallyClosedPartition
 
-/-- A finite good refinement of a set-theoretic partition. -/
+/-- `Q` is a finite good refinement of the locally closed partition `P`: it has finitely many
+parts, refines `P`, and satisfies the frontier condition. -/
 @[stacks 09Y5 "finite good locally closed refinement"]
-structure IsFiniteGoodRefinement (Q : LocallyClosedPartition X)
-    (P : Setoid.Partitions X) : Prop where
+structure IsFiniteGoodRefinement (Q P : LocallyClosedPartition X) : Prop where
   /-- The refining partition has finitely many parts. -/
   finite : Q.toSet.Finite
   /-- The refining partition refines the given partition. -/
-  refines : Q.toPartitions ≤ P
+  refines : Q.Refines P
   /-- The refining partition satisfies the frontier condition. -/
   isGood : Q.IsGood
 
-/-- Construct a finite good refinement from its three defining conditions. -/
-def IsFiniteGoodRefinement.ofConditions (Q : LocallyClosedPartition X)
-    (P : Setoid.Partitions X) (hfinite : Q.toSet.Finite)
-    (hrefines : Q.toPartitions ≤ P) (hgood : Q.IsGood) :
-    Q.IsFiniteGoodRefinement P :=
-  ⟨hfinite, hrefines, hgood⟩
-
 /-- The three defining conditions of a finite good refinement. -/
-theorem isFiniteGoodRefinement_iff
-    (Q : LocallyClosedPartition X) (P : Setoid.Partitions X) :
-    Q.IsFiniteGoodRefinement P ↔
-      Q.toSet.Finite ∧ Q.toPartitions ≤ P ∧ Q.IsGood := sorry
+theorem isFiniteGoodRefinement_iff (Q P : LocallyClosedPartition X) :
+    Q.IsFiniteGoodRefinement P ↔ Q.toSet.Finite ∧ Q.Refines P ∧ Q.IsGood :=
+  ⟨fun h ↦ ⟨h.finite, h.refines, h.isGood⟩, fun ⟨hfinite, hrefines, hgood⟩ ↦
+    ⟨hfinite, hrefines, hgood⟩⟩
 
 /-- A finite locally closed partition admits a refinement by a finite indexed stratification. -/
 @[stacks 09Y3 "finite stratification refining a locally closed partition"]
@@ -72,8 +59,13 @@ theorem exists_constructible_subordinate_to_cover
 
 end FiniteStratification
 
-/-- A finite partition of a Noetherian space admits a finite good locally closed refinement. -/
+namespace LocallyClosedPartition
+
+/-- A finite partition of a Noetherian space into locally closed parts admits a finite good
+locally closed refinement. -/
 @[stacks 09Y5 "finite good refinement in a Noetherian space"]
-theorem Setoid.Partitions.exists_finite_good_refinement [NoetherianSpace X]
-    (P : Setoid.Partitions X) (hPfinite : P.toSet.Finite) :
+theorem exists_finite_good_refinement [NoetherianSpace X]
+    (P : LocallyClosedPartition X) (hPfinite : P.toSet.Finite) :
     ∃ Q : LocallyClosedPartition X, Q.IsFiniteGoodRefinement P := sorry
+
+end LocallyClosedPartition

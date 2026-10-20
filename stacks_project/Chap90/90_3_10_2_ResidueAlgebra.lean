@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap90.Definition_90_7_3_ArtinianLocal
+public import ReasLib.AlgebraicGeometry.FormalDeformation.ArtinianLocal.Instances
 
 /-!
 # Residue algebra of an object of `C_Λ`

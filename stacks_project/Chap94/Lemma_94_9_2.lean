@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap94.Definition_94_12_1_Representable
-public import stacks_project.Chap94.Lemma_94_9_2_FiberPair
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Representable.Criteria
+import StacksCheckRecall
 
 /-!
 # A fiberwise criterion for morphisms representable by algebraic spaces
@@ -29,7 +23,7 @@ universe u
 
 namespace AlgebraicGeometry
 
-/-- Lemma 94.9.2: let `S` be a scheme contained in `Sch_fppf`. Let
+/- Lemma 94.9.2: let `S` be a scheme contained in `Sch_fppf`. Let
 `f : X ⟶ Y` be a 1-morphism of categories fibred in groupoids over
 `(Sch/S)_fppf`. Then `f` is representable by algebraic spaces if and only if
 for each scheme `U / S` the fibre functor `fiberFunctor f U : X_U ⥤ Y_U` is
@@ -40,35 +34,26 @@ classes of pairs `(x, φ)` with `φ : h^* y ⟶ f(x)` on `Sch/U`, given by
 pullbacks for `Y`; that is the selected cleavage used by
 `YonedaSlice.representative` in `Hom.fiberPairClasses`. -/
 @[stacks 02ZY]
-theorem relativelyRepresentableByAlgebraicSpaces.iff_fiberwise
-    {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) :
+#check (AlgebraicGeometry.relativelyRepresentableByAlgebraicSpaces.iff_fiberwise :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y),
     relativelyRepresentableByAlgebraicSpaces f ↔
       (∀ U : Over S, (fiberFunctor f U).Faithful) ∧
-        Hom.fiberPairClasses.isAlgebraicSpace f :=
-  sorry
+        Hom.fiberPairClasses.isAlgebraicSpace f)
 
-/-- A 1-morphism representable by algebraic spaces is faithful on every fibre. -/
-theorem relativelyRepresentableByAlgebraicSpaces.fiberwiseFaithful
-    {S : Scheme.{u}} {X Y : GroupoidsOver S} {f : X ⟶ Y}
-    (hf : relativelyRepresentableByAlgebraicSpaces f) (U : Over S) :
-    (fiberFunctor f U).Faithful :=
-  sorry
+#check (AlgebraicGeometry.relativelyRepresentableByAlgebraicSpaces.fiberwiseFaithful :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} {f : X ⟶ Y}
+    (hf : relativelyRepresentableByAlgebraicSpaces f) (U : Over S),
+    (fiberFunctor f U).Faithful)
 
-/-- A 1-morphism representable by algebraic spaces has algebraic-space
-fiber-pair presheaves. -/
-theorem relativelyRepresentableByAlgebraicSpaces.fiberPairs
-    {S : Scheme.{u}} {X Y : GroupoidsOver S} {f : X ⟶ Y}
-    (hf : relativelyRepresentableByAlgebraicSpaces f) :
-    Hom.fiberPairClasses.isAlgebraicSpace f :=
-  sorry
+#check (AlgebraicGeometry.relativelyRepresentableByAlgebraicSpaces.fiberPairs :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} {f : X ⟶ Y}
+    (hf : relativelyRepresentableByAlgebraicSpaces f),
+    Hom.fiberPairClasses.isAlgebraicSpace f)
 
-/-- Fiberwise faithfulness and algebraic-space fiber-pair presheaves imply
-relative representability by algebraic spaces. -/
-theorem relativelyRepresentableByAlgebraicSpaces.of_fiberwiseFaithful
-    {S : Scheme.{u}} {X Y : GroupoidsOver S} {f : X ⟶ Y}
+#check (AlgebraicGeometry.relativelyRepresentableByAlgebraicSpaces.of_fiberwiseFaithful :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} {f : X ⟶ Y}
     (hFaithful : ∀ U : Over S, (fiberFunctor f U).Faithful)
-    (hPairs : Hom.fiberPairClasses.isAlgebraicSpace f) :
-    relativelyRepresentableByAlgebraicSpaces f :=
-  sorry
+    (hPairs : Hom.fiberPairClasses.isAlgebraicSpace f),
+    relativelyRepresentableByAlgebraicSpaces f)
 
 end AlgebraicGeometry

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_18_14_Descent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.AtlasDescent
 import StacksCheckRecall
 
 /-!
@@ -18,7 +12,7 @@ on a presenting atlas equipped with a cocycle isomorphism along the kernel pair.
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory.Limits
 
 universe u
 
@@ -26,7 +20,7 @@ universe u
 G = φ^{-1} F along a presenting atlas carries a canonical isomorphism
 α : t^{-1} G ≅ s^{-1} G. -/
 @[stacks 05YY] #check
-  (presentationInverseImageIso :
+  (AlgebraicGeometry.AlgebraicSpace.presentationInverseImageIso :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : Over S} (φ : ofOver U ⟶ X),
       ∀ F : Sheaf (smallEtaleTopology X) (Type (u + 1)),
         (smallEtaleMorphismOfTopoi (relationT φ)).inverseImage.obj
@@ -35,10 +29,43 @@ G = φ^{-1} F along a presenting atlas carries a canonical isomorphism
             (presentationInverseImage φ F))
 
 
+/- Lemma 66.18.14 (cocycle): the canonical kernel-pair isomorphism satisfies
+the cocycle identity on the composable-arrow pullback. -/
+@[stacks 05YY] #check
+  (AlgebraicGeometry.AlgebraicSpace.presentationInverseImageIso_cocycle :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : Over S}
+      (φ : ofOver U ⟶ X),
+      ∀ F : Sheaf (smallEtaleTopology X) (Type (u + 1)),
+        AlgebraicGeometry.AlgebraicSpace.presentationInverseImageIso_comp φ
+            (AlgebraicGeometry.AlgebraicSpace.relationC φ) F =
+          eqToIso
+              (congrArg (fun h ↦
+                (smallEtaleMorphismOfTopoi h).inverseImage.obj
+                  (AlgebraicGeometry.AlgebraicSpace.presentationInverseImage φ F))
+                (AlgebraicGeometry.AlgebraicSpace.relationC_comp_relationT φ)) ≪≫
+            AlgebraicGeometry.AlgebraicSpace.presentationInverseImageIso_comp φ
+              (AlgebraicGeometry.AlgebraicSpace.relationPr0 φ) F ≪≫
+            eqToIso
+              (congrArg (fun h ↦
+                (smallEtaleMorphismOfTopoi h).inverseImage.obj
+                  (AlgebraicGeometry.AlgebraicSpace.presentationInverseImage φ F))
+                (pullback.condition :
+                  AlgebraicGeometry.AlgebraicSpace.relationPr0 φ ≫
+                      AlgebraicGeometry.AlgebraicSpace.relationS φ =
+                    AlgebraicGeometry.AlgebraicSpace.relationPr1 φ ≫
+                      AlgebraicGeometry.AlgebraicSpace.relationT φ)) ≪≫
+            AlgebraicGeometry.AlgebraicSpace.presentationInverseImageIso_comp φ
+              (AlgebraicGeometry.AlgebraicSpace.relationPr1 φ) F ≪≫
+            eqToIso
+              (congrArg (fun h ↦
+                (smallEtaleMorphismOfTopoi h).inverseImage.obj
+                  (AlgebraicGeometry.AlgebraicSpace.presentationInverseImage φ F))
+                (AlgebraicGeometry.AlgebraicSpace.relationC_comp_relationS φ).symm))
+
 /- Lemma 66.18.14 (2): the functor F ↦ (G, α) is an equivalence between sheaves
 on X_étale and pairs (G, α) as above. -/
 @[stacks 05YY] #check
-  (sheafToPresentationDescent_isEquivalence :
+  (AlgebraicGeometry.AlgebraicSpace.sheafToPresentationDescent_isEquivalence :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : Over S} (φ : ofOver U ⟶ X)
       [Etale φ],
       Function.Surjective (Points.map φ) →

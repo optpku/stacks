@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.LocallyRingedSpace.Module.Derived.TorDimension.Descent
@@ -21,6 +15,10 @@ detects Tor-amplitude in a fixed interval. -/
 #check
   (AlgebraicGeometry.LocallyRingedSpace.Hom.hasTorAmplitudeIn_iff_pullback_of_surjective_of_flat :
     ∀ {X Y : AlgebraicGeometry.LocallyRingedSpace.{u}} (f : X ⟶ Y)
+      [DerivedCategory.DerivedTensor.Right.Has
+        (C := AlgebraicGeometry.RingedSpace.Modules X.toRingedSpace)]
+      [DerivedCategory.DerivedTensor.Right.Has
+        (C := AlgebraicGeometry.RingedSpace.Modules Y.toRingedSpace)]
       [RingedSpace.Hom.IsFlat f.toShHom],
       Function.Surjective f.base →
         ∀ (E : AlgebraicGeometry.RingedSpace.ModuleDerived Y.toRingedSpace) (a b : ℤ),

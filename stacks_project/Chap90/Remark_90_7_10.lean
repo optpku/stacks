@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap90.Remark_90_7_10_Adjunction
@@ -15,14 +9,47 @@ import StacksCheckRecall
 
 open CategoryTheory
 
-/- Remark 90.7.10 (1): CofSet(C) is the 1-category of cofibered sets over C, identified
-with the functor category C ⥤ Type via ofTypeValuedFunctor. -/
-@[stacks 06HB] #check Functor.ofTypeValuedFunctor
+universe u v w
 
-/- Remark 90.7.10 (2): completion and restriction restrict to 1-functors
-CofSet(C_Λ) ⇄ CofSet(Ĉ_Λ) and are adjoints via
-typesRestrictInclusion ⊣ typesCompletionFunctor. -/
-@[stacks 06HB] #check Functor.typesCompletionAdjunction
+variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+  [Module.Finite Λ k]
 
-/- Remark 90.7.10 (3): the counit hat F |_{C_Λ} ⟶ F is an isomorphism. -/
-@[stacks 06HB] #check Functor.typesCompletionCounitIso
+/- Remark 90.7.10: completion and restriction on cofibered sets are adjoint in the
+usual categorical sense. We use the covariant set-valued functor presentation of
+cofibered sets, as in the source's identification with the image of the discrete
+realization functor. Restriction is left adjoint to completion. -/
+@[stacks 06HB] #check (CategoryTheory.Functor.typesCompletionAdjunction :
+  (Functor.typesRestrictInclusion :
+    (CompleteLocalAlgCat Λ k ⥤ Type w) ⥤ (ArtinianLocalAlgCat Λ k ⥤ Type w)) ⊣
+  (Functor.typesCompletionFunctor :
+    (ArtinianLocalAlgCat Λ k ⥤ Type w) ⥤ (CompleteLocalAlgCat Λ k ⥤ Type w)))
+
+/- The functorial hom-set bijection has restriction in its source and completion
+in its target. -/
+#check (CategoryTheory.Functor.typesCompletionHomEquiv :
+  ∀ (G : CompleteLocalAlgCat Λ k ⥤ Type w) (F : ArtinianLocalAlgCat Λ k ⥤ Type w),
+    (Functor.typesRestrictInclusion.obj G ⟶ F) ≃
+      (G ⟶ Functor.typesCompletionFunctor.obj F))
+
+/- The canonical map from restriction of completion to the original functor is
+an isomorphism. -/
+#check (CategoryTheory.Functor.typesCompletionCounitIso :
+  Functor.typesCompletionFunctor ⋙ Functor.typesRestrictInclusion ≅
+    𝟭 (ArtinianLocalAlgCat Λ k ⥤ Type w))
+
+section CofiberedSets
+
+variable {C : Type u} [Category.{v} C]
+
+/- CofSet(C) is presented by covariant set-valued functors. Their discrete
+realization in cofibered groupoids is fully faithful, and the source identifies
+the functor category with its image. -/
+#check (CategoryTheory.Functor.ofTypeValuedFunctor :
+  (C ⥤ Type w) ⥤ CofiberedCategoryOver.Groupoids.{u, v, max u w, v} C)
+
+#check (CategoryTheory.Functor.ofTypeValuedMap.bijective :
+  ∀ {F G : C ⥤ Type w}, Function.Bijective
+    (Functor.ofTypeValuedMap : (F ⟶ G) →
+      (Functor.ofTypeValued F ⟶ Functor.ofTypeValued G)))
+
+end CofiberedSets

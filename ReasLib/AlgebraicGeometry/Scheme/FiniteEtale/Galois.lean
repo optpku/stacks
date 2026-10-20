@@ -1,15 +1,15 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.FiniteEtale.Fiber
+public import ReasLib.AlgebraicGeometry.Scheme.FiniteEtale.FiberLimits
+public import ReasLib.AlgebraicGeometry.Scheme.FiniteEtale.FiberColimits
+public import ReasLib.AlgebraicGeometry.Scheme.FiniteEtale.FiberReflectsIso
+public import ReasLib.AlgebraicGeometry.Scheme.FiniteEtale.MonoComplement
 public import ReasLib.CategoryTheory.Galois.SetValued
 public import Mathlib.Algebra.Group.Shrink
 public import Mathlib.Data.Fintype.Shrink
+public import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
+public import Mathlib.CategoryTheory.Limits.MorphismProperty
+public import Mathlib.CategoryTheory.Limits.Constructions.EpiMono
 
 @[expose] public section
 
@@ -21,25 +21,31 @@ namespace AlgebraicGeometry.Scheme.FiniteEtale
 
 /-- The finite étale category over a connected scheme is a pre-Galois category. -/
 instance preGaloisCategory {X : Scheme.{u}} [ConnectedSpace X] :
-    PreGaloisCategory (FiniteEtale X) := sorry
+    PreGaloisCategory (FiniteEtale X) where
+  hasTerminal :=
+    (MorphismProperty.Over.mkIdTerminal finiteEtaleMorphism X).hasTerminal
+  hasPullbacks := by
+    letI : MorphismProperty.HasOfPostcompProperty
+        finiteEtaleMorphism finiteEtaleMorphism :=
+      { of_postcomp := by
+          intro Y Z W f g hg hfg
+          letI : IsFinite g := hg.1
+          letI : IsFinite (f ≫ g) := hfg.1
+          exact ⟨IsFinite.of_comp f g,
+            MorphismProperty.of_postcomp (W := @Etale) f g hg.2 hfg.2⟩ }
+    exact MorphismProperty.Over.hasPullbacks finiteEtaleMorphism X
+  hasFiniteCoproducts := AlgebraicGeometry.Scheme.FiniteEtale.hasFiniteCoproducts
+  hasQuotientsByFiniteGroups := fun group _ _ ↦
+    { has_colimit := fun F ↦ HasColimit.mk (finiteGroupQuotientCocone F) }
+  monoInducesIsoOnDirectSummand :=
+    AlgebraicGeometry.Scheme.FiniteEtale.monoInducesIsoOnDirectSummand
 
 variable {X : Scheme.{u}} [ConnectedSpace X] {K : Type u} [Field K] [IsAlgClosed K]
 
-/-- Geometric fibers over a connected scheme preserve finite limits. -/
-instance finiteFiber_preservesFiniteLimits (point : Spec (.of K) ⟶ X) :
-    PreservesFiniteLimits (finiteFiber point) := sorry
-
-/-- Geometric fibers over a connected scheme preserve finite colimits. -/
-instance finiteFiber_preservesFiniteColimits (point : Spec (.of K) ⟶ X) :
-    PreservesFiniteColimits (finiteFiber point) := sorry
-
-/-- Geometric fibers over a connected scheme preserve epimorphisms. -/
+/-- Geometric fibers preserve epimorphisms through their actual pushout desc maps. -/
 instance finiteFiber_preservesEpimorphisms (point : Spec (.of K) ⟶ X) :
-    Functor.PreservesEpimorphisms (finiteFiber point) := sorry
-
-/-- Geometric fibers over a connected scheme reflect isomorphisms. -/
-instance finiteFiber_reflectsIsomorphisms (point : Spec (.of K) ⟶ X) :
-    (finiteFiber point).ReflectsIsomorphisms := sorry
+    Functor.PreservesEpimorphisms (finiteFiber point) := by
+  infer_instance
 
 /-- The finite geometric-fiber functor over a connected scheme is a fiber functor. -/
 noncomputable instance finiteFiber_isFiberFunctor (point : Spec (.of K) ⟶ X) :
@@ -60,7 +66,16 @@ noncomputable instance finiteFiber_isFiberFunctor (point : Spec (.of K) ⟶ X) :
 
 /-- The finite étale category over a connected scheme is a Galois category. -/
 instance galoisCategory {X : Scheme.{u}} [ConnectedSpace X] :
-    GaloisCategory (FiniteEtale X) := sorry
+    GaloisCategory (FiniteEtale X) where
+  toPreGaloisCategory := inferInstance
+  hasFiberFunctor := by
+    classical
+    let x : X := Classical.choice inferInstance
+    let Ω := AlgebraicClosure (X.residueField x)
+    let point : Spec (.of Ω) ⟶ X :=
+      Spec.map (CommRingCat.ofHom (algebraMap (X.residueField x) Ω)) ≫
+        X.fromSpecResidueField x
+    exact ⟨finiteFiber point, ⟨inferInstance⟩⟩
 
 /-- The specified set-valued geometric-fiber functor over a connected scheme is Galois. -/
 theorem fiber_isGalois (point : Spec (.of K) ⟶ X) :

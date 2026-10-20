@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Quasicoherent.RelativeDualizing
@@ -17,12 +11,18 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 /- Lemma 48.12.7 (1): the relative dualizing complex of a proper flat morphism of finite
 presentation over a quasi-compact quasi-separated scheme is perfect relative to the base. -/
 @[stacks 0E4L] #check
   (AlgebraicGeometry.Scheme.DerivedQCoh.relativeDualizingComplex_isPerfectRelativeTo :
     ∀ {X Y : Scheme.{u}} [CompactSpace Y] [QuasiSeparatedSpace Y]
       (f : X ⟶ Y) [IsProper f] [Flat f] [Scheme.Hom.FinitePresentation f]
+      [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+        CategoryTheory.DerivedCategory.DerivedTensor.Right.Has
+          (C := RingedSpace.Modules
+            ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
       (a : Scheme.DerivedQCoh Y ⥤ Scheme.DerivedQCoh X)
       (aAdjunction : Scheme.DerivedQCoh.pushforwardCohomologyIn f ⊣ a),
       Scheme.ModuleDerived.IsPerfectRelativeTo f

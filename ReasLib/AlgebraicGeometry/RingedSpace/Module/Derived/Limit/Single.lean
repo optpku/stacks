@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Limit.BasisComparison
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Cohomology.Presheaf
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Sections.Limit
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.OpensRingedSite.Basic
 public import ReasLib.CategoryTheory.DerivedCategory.Limit.Compatibility
 public import ReasLib.Topology.Opens.Basis
 import Mathlib.Tactic.CrossRefAttribute
@@ -38,14 +33,14 @@ variable {X : RingedSpace.{u}}
 @[stacks 0BKS "basiswise acyclicity for a sequential system of modules"]
 abbrev BasiswiseAcyclic (F : SequentialInverseSystem X.Modules)
     (𝓑 : Set (Opens X.carrier)) : Prop :=
-  RingedSite.Hom.ModuleDerived.Limit.basiswiseAcyclic X.opensRingedSite 𝓑 F
+  RingedSite.Hom.ModuleDerived.Limit.basiswiseAcyclic (RingedSpace.opensRingedSite X) 𝓑 F
 
 /-- The first derived inverse limit of the stagewise section groups vanishes on each basis
 open. -/
 @[stacks 0BKS "basiswise first-derived-limit vanishing for module sections"]
 abbrev BasiswiseR1Vanishing (F : SequentialInverseSystem X.Modules)
     (𝓑 : Set (Opens X.carrier)) : Prop :=
-  RingedSite.Hom.ModuleDerived.Limit.basiswiseR1Vanishing X.opensRingedSite 𝓑 F
+  RingedSite.Hom.ModuleDerived.Limit.basiswiseR1Vanishing (RingedSpace.opensRingedSite X) 𝓑 F
 
 /-- The expanded open-hypercohomology form of `BasiswiseAcyclic`. -/
 @[stacks 0BKS "expanded basiswise acyclicity for module towers"]

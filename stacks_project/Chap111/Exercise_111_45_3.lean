@@ -1,39 +1,23 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap111.Exercise_111_45_3_Line
-import Mathlib.Tactic.CrossRefAttribute
-
-@[expose] public section
-
-open AlgebraicGeometry CategoryTheory
-
-noncomputable section
+public import ReasLib.AlgebraicGeometry.ProjectiveSpace.StandardLine
+import StacksCheckRecall
 
 universe u
 
-namespace AlgebraicGeometry.ProjectiveSpace.StandardLine
+/- Exercise 111.45.3: In projective space of dimension at least one over a field,
+the restriction of the degree -102 twisting sheaf to the standard coordinate line,
+pushed forward to the ambient space, is coherent and has Hilbert polynomial t - 101. -/
+@[stacks 0DCG] #check
+  (AlgebraicGeometry.ProjectiveSpace.StandardLine.hilbertPolynomial_twistPushforward_neg102 :
+    ∀ (k : Type u) [Field k] (n : ℕ) (hn : 1 ≤ n),
+      AlgebraicGeometry.ProjectiveSpace.hilbertPolynomial k n
+        (AlgebraicGeometry.ProjectiveSpace.StandardLine.twistPushforward k n hn (-102)) =
+          fun t ↦ t - 101)
 
-/-- Exercise 111.45.3: In Situation 111.45.1 assume `1 ≤ n`. The pushforward
-`twistPushforward k n hn (-102)` of the restriction of `twistingSheaf k n (-102)`
-along the standard coordinate line in `ProjectiveSpace.scheme k n` is a coherent
-sheaf whose Hilbert polynomial is `fun t ↦ t - 101`. -/
-@[stacks 0DCG]
-theorem hilbertPolynomial_twistPushforward_neg102
-    (k : Type u) [Field k] (n : ℕ) (hn : 1 ≤ n) :
-    hilbertPolynomial k n (twistPushforward k n hn (-102)) =
-      fun t ↦ t - 101 := sorry
-
-/-- The exhibited coherent sheaf has Hilbert polynomial
-`Polynomial.X - Polynomial.C (101 : ℚ)`. -/
-theorem isHilbertPolynomial_twistPushforward_neg102
-    (k : Type u) [Field k] (n : ℕ) (hn : 1 ≤ n) :
-    IsHilbertPolynomial k n (twistPushforward k n hn (-102))
-      (Polynomial.X - Polynomial.C (101 : ℚ)) := sorry
-
-end AlgebraicGeometry.ProjectiveSpace.StandardLine
+#check
+  (AlgebraicGeometry.ProjectiveSpace.StandardLine.isHilbertPolynomial_twistPushforward_neg102 :
+    ∀ (k : Type u) [Field k] (n : ℕ) (hn : 1 ≤ n),
+      AlgebraicGeometry.ProjectiveSpace.IsHilbertPolynomial k n
+        (AlgebraicGeometry.ProjectiveSpace.StandardLine.twistPushforward k n hn (-102))
+        (Polynomial.X - Polynomial.C (101 : ℚ)))

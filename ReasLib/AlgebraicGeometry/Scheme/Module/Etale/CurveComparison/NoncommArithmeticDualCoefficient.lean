@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommArithmeticTate
@@ -25,17 +19,17 @@ variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]
 variable (η : GeometricPoint (geometricBaseChange X))
 variable (hR : IsUnit (Nat.card R : k))
 variable (M : (finiteTypeDiscreteModule R
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X η)))).FullSubcategory)
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η)))).FullSubcategory)
 
 /-- The inverse twist retains the actual finite-type coefficient module. -/
 def finiteTwist : (finiteTypeDiscreteModule R
-    (Aut (standardFiniteEtaleFiber (arithmeticPoint X η)))).FullSubcategory :=
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η)))).FullSubcategory :=
   ⟨NoncommArithmeticTate.inverseTwist R X η hR M.obj, M.property⟩
 
 /-- The actual RIGHT R coefficient of the dual sheaf. Dualizing M(-1)
 produces the positive cyclotomic action required by the source. -/
 def representation := ActualOppositeCharacter.finiteRepresentation R
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X η))) (finiteTwist R X η hR M)
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η))) (finiteTwist R X η hR M)
 
 variable [HasWeakSheafify X.left.smallEtaleTopology (ModuleCat.{u + 1} Rᵐᵒᵖ)]
 variable [∀ U : X.left.Etale,

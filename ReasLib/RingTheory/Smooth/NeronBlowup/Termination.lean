@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Module.Length
 public import ReasLib.RingTheory.DiscreteValuationRing.Extension.Residue
+public import ReasLib.FieldTheory.Separable.Generated
 public import ReasLib.RingTheory.Smooth.NeronBlowup.Iterate
 public import ReasLib.RingTheory.Smooth.NeronBlowup.SmoothnessCriterion
 
@@ -114,7 +109,7 @@ theorem defect_eq_zero_iff_smoothAtClosedCenter
 example one coming from a polynomial presentation. -/
 @[stacks 0BJ6 "centered smooth presentation existence"]
 theorem nonempty (S : Algebra.DVR.Factorization R L) :
-    Nonempty S.CenteredSmoothPresentation := sorry
+    Nonempty S.CenteredSmoothPresentation.{u, v, w, u} := sorry
 
 end CenteredSmoothPresentation
 
@@ -125,12 +120,13 @@ variable [IsExtensionOfDiscreteValuationRings.WeaklyUnramified R L]
 presentation with strictly smaller torsion defect. -/
 @[stacks 0BJ6]
 theorem NeronBlowup.exists_defect_lt
-    (S : Algebra.DVR.Factorization R L) (P : S.CenteredSmoothPresentation)
+    (S : Algebra.DVR.Factorization R L)
+    (P : S.CenteredSmoothPresentation.{u, v, w, x})
     (π : R) (hπ : Irreducible π)
-    [Algebra.IsSeparable (ResidueField R) (ResidueField L)]
+    [Algebra.IsSeparableOver (ResidueField R) (ResidueField L)]
     (hgeneric : Algebra.SmoothAtPrime R S.mid S.genericPoint)
     (hnot : ¬ Algebra.SmoothAtPrime R S.mid S.closedPoint) :
-    ∃ P' : (S.neronBlowupStage π hπ).CenteredSmoothPresentation,
+    ∃ P' : (S.neronBlowupStage π hπ).CenteredSmoothPresentation.{u, v, w, x},
       P'.defect < P.defect := sorry
 
 /-- Lemma 16.4.5 (tag 0BJ6): after finitely many deterministic affine Neron blowups, a
@@ -138,7 +134,7 @@ factorization that is smooth at its generic center becomes smooth at its closed 
 @[stacks 0BJ6]
 theorem NeronBlowup.exists_smooth_iterate
     (S : Algebra.DVR.Factorization R L) (π : R) (hπ : Irreducible π)
-    [Algebra.IsSeparable (ResidueField R) (ResidueField L)]
+    [Algebra.IsSeparableOver (ResidueField R) (ResidueField L)]
     (hgeneric : Algebra.SmoothAtPrime R S.mid S.genericPoint) :
     ∃ n : ℕ,
       Algebra.SmoothAtPrime R (S.iteratedNeronBlowup π hπ n).mid

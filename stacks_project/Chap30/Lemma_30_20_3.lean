@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap30.Lemma_30_20_3_Comparison
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.IdealPower.AffineComparison
 import StacksCheckRecall
 
 open AlgebraicGeometry
@@ -23,7 +17,12 @@ with `e = max(0, c-n)` whenever `n+m ≥ c`, kernels of the maps to `H^p(F)` and
 to `H^p(I^(n-c) F)` agree for `n ≥ c`, there are maps `I^n H^p(F) ⟶ H^p(I^(n-c) F)`
 whose two stable-range composites for `n ≥ 2c` are the canonical transitions,
 and the inverse systems `(H^p(I^n F))` and `(I^n H^p(F))` are pro-isomorphic. -/
-@[stacks 02OA] #check Hom.IdealPowerCohomology.existsComparison
+@[stacks 02OA] #check (AlgebraicGeometry.Scheme.Hom.IdealPowerCohomology.existsComparison :
+  ∀ {A : Type u} [CommRing A] {X : Scheme.{u}}
+    [HasExt (Sheaf (Opens.grothendieckTopology X.carrier) AddCommGrpCat.{u})]
+    [IsNoetherianRing A] (I : Ideal A) (f : X ⟶ Spec (CommRingCat.of A)) [IsProper f]
+    (F : X.Modules) [F.IsCoherent] (p : ℕ),
+    ∃ c : ℕ, Nonempty (Hom.IdealPowerCohomology.Comparison I f F p c))
 
 #check @Hom.IdealPowerCohomology.mulMap
 #check @Hom.IdealPowerCohomology.Comparison.image_le

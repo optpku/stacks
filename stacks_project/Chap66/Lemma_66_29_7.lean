@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_29_7_CommSheaf
-public import stacks_project.Chap66.Lemma_66_29_7_Quasicoherent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Quasicoherent.Limits
 import StacksCheckRecall
 
 @[expose] public section
@@ -27,7 +20,7 @@ namespace AlgebraicGeometry.AlgebraicSpace
 quasi-coherent. -/
 @[stacks 03M1]
 #check
-  (Modules.isQuasicoherent_coproduct :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isQuasicoherent_coproduct :
     ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) {ι : Type v}
       (F : ι → X.Modules) [HasCoproduct F] [∀ i, (F i).IsQuasicoherent],
       (∐ F).IsQuasicoherent)
@@ -36,7 +29,7 @@ quasi-coherent. -/
 colimits of every universe-compatible shape. -/
 @[stacks 03M1]
 #check
-  (QCoh.closedUnderColimitsOfShape :
+  (AlgebraicGeometry.AlgebraicSpace.QCoh.closedUnderColimitsOfShape :
     ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) (J : Type v) [Category.{w} J],
       (quasiCoherentModuleProperty X).IsClosedUnderColimitsOfShape J)
 
@@ -44,14 +37,13 @@ colimits of every universe-compatible shape. -/
 an algebraic space are quasi-coherent. -/
 @[stacks 03M1]
 #check
-  (Modules.isQuasicoherent_kernel :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isQuasicoherent_kernel :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {F G : X.Modules}
       [F.IsQuasicoherent] [G.IsQuasicoherent] (f : F ⟶ G),
       (kernel f).IsQuasicoherent)
 
-@[stacks 03M1]
 #check
-  (Modules.isQuasicoherent_cokernel :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isQuasicoherent_cokernel :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {F G : X.Modules}
       [F.IsQuasicoherent] [G.IsQuasicoherent] (f : F ⟶ G),
       (cokernel f).IsQuasicoherent)
@@ -60,7 +52,7 @@ an algebraic space are quasi-coherent. -/
 of the three terms are quasi-coherent then so is the third. -/
 @[stacks 03M1]
 #check
-  (QCoh.isWeakSerreClass :
+  (AlgebraicGeometry.AlgebraicSpace.QCoh.isWeakSerreClass :
     ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
       (quasiCoherentModuleProperty X).IsWeakSerreClass)
 
@@ -68,9 +60,10 @@ of the three terms are quasi-coherent then so is the third. -/
 space is quasi-coherent. -/
 @[stacks 03M1]
 #check
-  (Modules.isQuasicoherent_tensor :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isQuasicoherent_tensor :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
-      (F G : RingedSite.ModuleCat.{u} (commRingedSite X))
+      (F G : SheafOfModules.RingedSite.ringedSiteModuleCategory.{u + 1, u, u, u}
+        (smallEtaleTopology X) (commStructureSheaf X))
       [F.IsQuasicoherent] [G.IsQuasicoherent],
       (SheafOfModules.RingedSite.moduleTensor F G).IsQuasicoherent)
 
@@ -78,9 +71,10 @@ space is quasi-coherent. -/
 module on an algebraic space is quasi-coherent. -/
 @[stacks 03M1]
 #check
-  (Modules.isQuasicoherent_internalHom :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isQuasicoherent_internalHom :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
-      (F G : RingedSite.ModuleCat.{u + 1} (commRingedSiteLift X))
+      (F G : SheafOfModules.RingedSite.ringedSiteModuleCategory.{u + 1, u, u + 1, u + 1}
+        (smallEtaleTopology X) (commStructureSheafLift X))
       [F.IsFinitePresentation] [G.IsQuasicoherent],
       ((ihom F).obj G).IsQuasicoherent)
 

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Adjunction.CompositionIso
@@ -34,7 +28,6 @@ variable [PreservesFilteredColimits (CategoryTheory.forget A)]
 variable [(CategoryTheory.forget A).ReflectsIsomorphisms]
 
 /-- Pullback functors along equal continuous maps are canonically isomorphic. -/
-@[stacks 03D6 "congruence of inverse images"]
 def pullbackCongr {X Y : TopCat.{w}} {f g : X ⟶ Y} (h : f = g) :
     pullback A f ≅ pullback A g :=
   eqToIso (congrArg (pullback A) h)

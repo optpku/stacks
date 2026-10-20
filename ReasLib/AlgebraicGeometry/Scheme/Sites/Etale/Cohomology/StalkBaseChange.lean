@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.Sections
@@ -26,23 +20,47 @@ namespace AlgebraicGeometry.Scheme.Etale.Cohomology
 
 variable {X S : Scheme.{u}}
 
+/-- Abelian-group presheaves on the small étale site have canonical left-exact sheafification. -/
+private abbrev sectionsSheafification (T : Scheme.{u}) :
+    HasSheafify T.smallEtaleTopology AddCommGrpCat.{u + 1} :=
+  (@instHasSheafifyOfPreservesLimitsForgetOfHasFiniteLimitsOfSmallOppositeCover
+          T.Etale inferInstance T.smallEtaleTopology AddCommGrpCat.{u + 1} inferInstance
+          (fun P U cover ↦ inferInstance) (fun U ↦ inferInstance)
+          _ _ inferInstance inferInstance
+          (fun U ↦ @PreservesFilteredColimitsOfSize.preserves_filtered_colimits _ _ _ _
+            (CategoryTheory.forget AddCommGrpCat.{u + 1})
+            AddCommGrpCat.FilteredColimits.forget_preservesFilteredColimits
+            (T.smallEtaleTopology.Cover U)ᵒᵖ inferInstance
+            (@isFiltered_op_of_isCofiltered (T.smallEtaleTopology.Cover U) inferInstance
+              (isCofiltered_of_semilatticeInf_nonempty (T.smallEtaleTopology.Cover U)))) inferInstance
+          (fun {U} cover ↦ inferInstance) inferInstance inferInstance (fun U ↦ inferInstance))
+
+/-- Abelian étale sheaves form an abelian category via left-exact sheafification. -/
+private abbrev sectionsAbelian (T : Scheme.{u}) :
+    CategoryTheory.Abelian (Sheaf T.smallEtaleTopology AddCommGrpCat.{u + 1}) :=
+  @sheafIsAbelian _ _ _ _ inferInstance _ (sectionsSheafification T)
+
+/-- Derived global étale sections with canonical sheafification. -/
+private abbrev globalSectionsDerived (T : Scheme.{u}) :=
+  @siteAbelianSectionsDerived.{u + 1, u, u + 1} T.Etale inferInstance
+    T.smallEtaleTopology (globalEtale T) (sectionsSheafification T) inferInstance
+
 /-- Restriction to the closed geometric point gives a germ from strict-henselian derived
 sections to the original geometric stalk. -/
 def strictHenselianSectionsToStalk (s : GeometricPoint S) :
     Derived.inverseImage (StrictHenselization.toScheme S s) ⋙
-        siteAbelianSectionsDerived.{u + 1, u, u + 1} (strictHenselizationAt S s).smallEtaleTopology
-          (globalEtale (strictHenselizationAt S s)) ⟶
-      (etaleStalkExact s).mapDerivedCategory :=
+        globalSectionsDerived (strictHenselizationAt S s) ⟶
+      (@ExactFunctor.mapDerivedCategory _ _ (sectionsAbelian S) _ _ _ _ _
+      (etaleStalkExact s)) :=
   whiskerLeft (Derived.inverseImage (StrictHenselization.toScheme S s))
       (Derived.sectionsPullback (StrictHenselization.closedPoint s)) ≫
     (Functor.associator _ _ _).inv ≫
     whiskerRight
       ((Derived.inverseImageCompIso (StrictHenselization.closedPoint s)
           (StrictHenselization.toScheme S s)).inv ≫
-        (eqToIso (congrArg Derived.inverseImage
+        (eqToIso (congrArg (fun morphism : Spec (.of s.K) ⟶ S => Derived.inverseImage morphism)
           (StrictHenselization.closedPoint_over s))).hom)
-      (siteAbelianSectionsDerived.{u + 1, u, u + 1} (Spec (.of s.K)).smallEtaleTopology
-        (globalEtale (Spec (.of s.K)))) ≫
+      (globalSectionsDerived (Spec (.of s.K))) ≫
     Derived.geometricPointSectionsToStalk s
 
 /-- Derived sections on the pointed strict henselization identify with the geometric stalk. -/
@@ -51,10 +69,10 @@ theorem strictHenselianSectionsToStalk_isIso (s : GeometricPoint S) :
 
 /-- The geometric stalk identifies with derived sections on the pointed strict henselization. -/
 def strictHenselianSectionsIso (s : GeometricPoint S) :
-    (etaleStalkExact s).mapDerivedCategory ≅
+    (@ExactFunctor.mapDerivedCategory _ _ (sectionsAbelian S) _ _ _ _ _
+      (etaleStalkExact s)) ≅
       Derived.inverseImage (StrictHenselization.toScheme S s) ⋙
-        siteAbelianSectionsDerived.{u + 1, u, u + 1} (strictHenselizationAt S s).smallEtaleTopology
-          (globalEtale (strictHenselizationAt S s)) :=
+        globalSectionsDerived (strictHenselizationAt S s) :=
   (@asIso _ _ _ _ (strictHenselianSectionsToStalk s)
     (strictHenselianSectionsToStalk_isIso s)).symm
 
@@ -65,7 +83,7 @@ private def inverseImageSquare {X' S' : Scheme.{u}}
     Derived.inverseImage g ⋙ Derived.inverseImage f' ≅
       Derived.inverseImage f ⋙ Derived.inverseImage p :=
   (Derived.inverseImageCompIso f' g).symm ≪≫
-    eqToIso (congrArg Derived.inverseImage commutes.symm) ≪≫
+    eqToIso (congrArg (fun morphism : X' ⟶ S => Derived.inverseImage morphism) commutes.symm) ≪≫
     Derived.inverseImageCompIso p f
 
 /-- The closed point induces the canonical map from the geometric fiber to the
@@ -80,19 +98,18 @@ private def geometricFiberToStrictHenselization (f : X ⟶ S) (s : GeometricPoin
 /-- The canonical map from the stalk of a derived direct image to derived sections of its
 inverse image on the strict-henselian base change. -/
 def etaleStalkToStrictHenselizationCohomology (f : X ⟶ S) (s : GeometricPoint S)
-    (K : DerivedCategory (Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1})) :
-    (etaleStalkExact s).mapDerivedCategory.obj ((Derived.directImage f).obj K) ⟶
-      (siteAbelianSectionsDerived.{u + 1, u, u + 1}
-        (pullback f (StrictHenselization.toScheme S s)).smallEtaleTopology
-        (globalEtale (pullback f (StrictHenselization.toScheme S s)))).obj
+    (K : @DerivedCategory (Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1})
+      inferInstance (sectionsAbelian X) inferInstance) :
+    (@ExactFunctor.mapDerivedCategory _ _ (sectionsAbelian S) _ _ _ _ _
+      (etaleStalkExact s)).obj ((Derived.directImage f).obj K) ⟶
+      (globalSectionsDerived (pullback f (StrictHenselization.toScheme S s))).obj
           ((Derived.inverseImage
             (pullback.fst f (StrictHenselization.toScheme S s))).obj K) :=
   let structural := StrictHenselization.toScheme S s
   let projection := pullback.fst f structural
   let baseChange := pullback.snd f structural
   (strictHenselianSectionsIso s).hom.app ((Derived.directImage f).obj K) ≫
-    (siteAbelianSectionsDerived.{u + 1, u, u + 1} (strictHenselizationAt S s).smallEtaleTopology
-      (globalEtale (strictHenselizationAt S s))).map
+    (globalSectionsDerived (strictHenselizationAt S s)).map
       (DerivedBaseChange.app (Derived.adjunction f) (Derived.adjunction baseChange)
         (inverseImageSquare f projection baseChange structural (pullback.condition ..)) K) ≫
     (Derived.directImageSectionsIso baseChange).hom.app
@@ -101,14 +118,12 @@ def etaleStalkToStrictHenselizationCohomology (f : X ⟶ S) (s : GeometricPoint 
 /-- The canonical map from strict-henselian base-change cohomology to geometric-fiber
 cohomology, with inverse images transported to the geometric-fiber projection. -/
 def strictHenselizationToGeometricFiberCohomology (f : X ⟶ S) (s : GeometricPoint S)
-    (K : DerivedCategory (Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1})) :
-    (siteAbelianSectionsDerived.{u + 1, u, u + 1}
-      (pullback f (StrictHenselization.toScheme S s)).smallEtaleTopology
-      (globalEtale (pullback f (StrictHenselization.toScheme S s)))).obj
+    (K : @DerivedCategory (Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1})
+      inferInstance (sectionsAbelian X) inferInstance) :
+    (globalSectionsDerived (pullback f (StrictHenselization.toScheme S s))).obj
         ((Derived.inverseImage
           (pullback.fst f (StrictHenselization.toScheme S s))).obj K) ⟶
-      (siteAbelianSectionsDerived.{u + 1, u, u + 1} (pullback f s.hom).smallEtaleTopology
-        (globalEtale (pullback f s.hom))).obj
+      (globalSectionsDerived (pullback f s.hom)).obj
           ((Derived.inverseImage (pullback.fst f s.hom)).obj K) :=
   let structural := StrictHenselization.toScheme S s
   let projection := pullback.fst f structural
@@ -128,29 +143,27 @@ def strictHenselizationToGeometricFiberCohomology (f : X ⟶ S) (s : GeometricPo
       ((Derived.inverseImage projection).obj K) ≫
     (Derived.sectionsPullback closedPoint).app
       ((Derived.directImage baseChange).obj ((Derived.inverseImage projection).obj K)) ≫
-    (siteAbelianSectionsDerived.{u + 1, u, u + 1} (Spec (.of s.K)).smallEtaleTopology
-      (globalEtale (Spec (.of s.K)))).map
+    (globalSectionsDerived (Spec (.of s.K))).map
       (DerivedBaseChange.app (Derived.adjunction baseChange) (Derived.adjunction fiberMorphism)
         (inverseImageSquare baseChange comparison fiberMorphism closedPoint secondCommutes)
         ((Derived.inverseImage projection).obj K)) ≫
     (Derived.directImageSectionsIso fiberMorphism).hom.app
       ((Derived.inverseImage comparison).obj ((Derived.inverseImage projection).obj K)) ≫
-    (siteAbelianSectionsDerived.{u + 1, u, u + 1} (pullback f s.hom).smallEtaleTopology
-      (globalEtale (pullback f s.hom))).map projectionTransport
+    (globalSectionsDerived (pullback f s.hom)).map projectionTransport
 
 /-- The usual geometric-fiber base-change map, formed directly from the square over the
 geometric point, without an intermediate strict henselization. -/
 def etaleStalkToGeometricFiberBaseChange (f : X ⟶ S) (s : GeometricPoint S)
-    (K : DerivedCategory (Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1})) :
-    (etaleStalkExact s).mapDerivedCategory.obj ((Derived.directImage f).obj K) ⟶
-      (siteAbelianSectionsDerived.{u + 1, u, u + 1} (pullback f s.hom).smallEtaleTopology
-        (globalEtale (pullback f s.hom))).obj
+    (K : @DerivedCategory (Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1})
+      inferInstance (sectionsAbelian X) inferInstance) :
+    (@ExactFunctor.mapDerivedCategory _ _ (sectionsAbelian S) _ _ _ _ _
+      (etaleStalkExact s)).obj ((Derived.directImage f).obj K) ⟶
+      (globalSectionsDerived (pullback f s.hom)).obj
           ((Derived.inverseImage (pullback.fst f s.hom)).obj K) :=
   let projection := pullback.fst f s.hom
   let fiberMorphism := pullback.snd f s.hom
   (Derived.geometricPointSectionsIso s).hom.app ((Derived.directImage f).obj K) ≫
-    (siteAbelianSectionsDerived.{u + 1, u, u + 1} (Spec (.of s.K)).smallEtaleTopology
-      (globalEtale (Spec (.of s.K)))).map
+    (globalSectionsDerived (Spec (.of s.K))).map
       (DerivedBaseChange.app (Derived.adjunction f) (Derived.adjunction fiberMorphism)
         (inverseImageSquare f projection fiberMorphism s.hom (pullback.condition ..)) K) ≫
     (Derived.directImageSectionsIso fiberMorphism).hom.app
@@ -159,7 +172,8 @@ def etaleStalkToGeometricFiberBaseChange (f : X ⟶ S) (s : GeometricPoint S)
 /-- The stalk-to-strict-henselian cohomology map followed by the geometric-fiber comparison
 equals the usual geometric-fiber base-change map. -/
 theorem etaleStalkBaseChange_factorization (f : X ⟶ S) (s : GeometricPoint S)
-    (K : DerivedCategory (Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1})) :
+    (K : @DerivedCategory (Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1})
+      inferInstance (sectionsAbelian X) inferInstance) :
     etaleStalkToStrictHenselizationCohomology f s K ≫
         strictHenselizationToGeometricFiberCohomology f s K =
       etaleStalkToGeometricFiberBaseChange f s K := sorry

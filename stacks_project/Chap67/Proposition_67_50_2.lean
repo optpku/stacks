@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_13_1_IsScheme
-public import stacks_project.Chap67.Definition_67_4_2_Separation
-public import stacks_project.Chap67.Definition_67_40_1_FiniteType
-public import stacks_project.Chap67.Lemma_67_27_7_LocallyQuasiFinite
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IsScheme.LocallyQuasiFinite
+import StacksCheckRecall
 
 /-!
 # Representability of separated locally quasi-finite algebraic spaces
@@ -26,13 +18,12 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.IsScheme
 
-/-- Proposition 67.50.2: Let `S` be a scheme. Let `f : X ⟶ T` be a morphism of
+/- Proposition 67.50.2: Let `S` be a scheme. Let `f : X ⟶ T` be a morphism of
 algebraic spaces over `S`. If `T` is representable, `f` is locally quasi-finite,
 and `f` is separated, then `X` is representable. -/
-@[stacks 03XX]
-theorem of_locallyQuasiFinite_separated {S : Scheme.{u}} {X T : AlgebraicSpace S}
-    (f : X ⟶ T) [IsScheme T] [LocallyOfFiniteType f] [LocallyQuasiFinite f]
-    [Separated f] : IsScheme X :=
-  sorry
+@[stacks 03XX] #check (AlgebraicGeometry.AlgebraicSpace.IsScheme.of_locallyQuasiFinite_separated :
+    ∀ {S : Scheme.{u}} {X T : AlgebraicSpace S} (f : X ⟶ T),
+      [IsScheme T] → [LocallyOfFiniteType f] → [LocallyQuasiFinite f] →
+      [Separated f] → IsScheme X)
 
 end AlgebraicGeometry.AlgebraicSpace.IsScheme

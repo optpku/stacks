@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -21,6 +15,6 @@ open SheafOfModules.RingedSite
 #check @AlgebraicGeometry.RingedSpace.CochainComplex.IsTermwiseFlat.isKFlat_of_boundedAbove_of_flat
 
 #check @AlgebraicGeometry.RingedSpace.CochainComplex.IsTermwiseFlat.isKFlat_of_boundedAbove
-#check @SheafOfModules.RingedSite.CochainComplex.IsTermwiseFlat.isKFlat_of_boundedAbove
+#check @HomologicalComplex.IsTermwiseFlat.isKFlat_of_boundedAbove
 
 end

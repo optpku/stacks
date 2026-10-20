@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.DeRham.InverseImage
@@ -14,7 +8,8 @@ public import ReasLib.Topology.Sheaves.Algebraic.DeRham
 
 This file is the source-facing specialization of the arbitrary-site comparison.  Its morphism is
 the same explicit map built from the inverse-image unit, module sheafification, and module
-pullback adjunctions.
+pullback adjunctions.  The inverse-side API of the generic owner requires representable
+flatness, which `Opens.map f` has by a mathlib instance.
 -/
 
 @[expose] public section

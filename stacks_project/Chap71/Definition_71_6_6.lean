@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap71.Definition_71_6_6_Sum
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Divisor.EffectiveCartier.Sum
 import StacksCheckRecall
 
 @[expose] public section
@@ -23,12 +17,28 @@ Cartier divisors `D₁`, `D₂` on `X`, the sum `D = D₁ + D₂` is the closed 
 of `X` corresponding to the quasi-coherent sheaf of ideals
 `IdealSubobject.mul D₁.idealSheaf D₂.idealSheaf ⊂ 𝒪_X`.
 -/
-@[stacks 083U] #check effectiveCartierDivisorSum
+@[stacks 083U] #check
+  (AlgebraicGeometry.AlgebraicSpace.effectiveCartierDivisorSum :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (D₁ D₂ : ClosedSubspace X)
+      [IsEffectiveCartierDivisor D₁.ι] [IsEffectiveCartierDivisor D₂.ι],
+      ClosedSubspace X)
 
-#check effectiveCartierDivisorSum_spec
+#check
+  (AlgebraicGeometry.AlgebraicSpace.effectiveCartierDivisorSum_spec :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (D₁ D₂ : ClosedSubspace X)
+      [IsEffectiveCartierDivisor D₁.ι] [IsEffectiveCartierDivisor D₂.ι],
+      effectiveCartierDivisorSum D₁ D₂ =
+        ClosedSubspace.ofQuasiCoherentIdeal
+          (IdealSubobject.mul D₁.idealSheaf D₂.idealSheaf))
 
-#check IdealSubobject.mul
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IdealSubobject.mul :
+    {S : Scheme.{u}} → {X : AlgebraicSpace S} →
+      IdealSubobject X → IdealSubobject X → IdealSubobject X)
 
-#check effectiveCartierDivisorSum_eq
-
-#check effectiveCartierDivisorSum_idealSheaf
+#check
+  (AlgebraicGeometry.AlgebraicSpace.effectiveCartierDivisorSum_idealSheaf :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (D₁ D₂ : ClosedSubspace X)
+      [IsEffectiveCartierDivisor D₁.ι] [IsEffectiveCartierDivisor D₂.ι],
+      (effectiveCartierDivisorSum D₁ D₂).idealSheaf =
+        IdealSubobject.mul D₁.idealSheaf D₂.idealSheaf)

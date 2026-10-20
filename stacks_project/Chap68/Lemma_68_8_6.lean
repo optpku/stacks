@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap68.Lemma_68_8_6_Filtration
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Stratification.QuasiCompact
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry

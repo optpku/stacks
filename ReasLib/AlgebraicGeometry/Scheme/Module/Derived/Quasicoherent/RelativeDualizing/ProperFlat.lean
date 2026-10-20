@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Quasicoherent.RelativeDualizing.Diagonal
@@ -22,6 +16,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.RelativeDualizingComplex
 
 section
@@ -29,6 +25,10 @@ section
 variable {X S : Scheme.{u}} (f : X ⟶ S)
 variable [CompactSpace S] [QuasiSeparatedSpace S]
 variable [IsProper f] [Flat f] [Scheme.Hom.FinitePresentation f]
+variable [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+  DerivedCategory.DerivedTensor.Right.Has
+    (C := RingedSpace.Modules
+      ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
 variable [HomotopyTensorDescends X.toRingedSpace]
 variable [TensorDescends X.toRingedSpace]
 variable [IsLocalization X.toRingedSpace]

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.Equalizers
@@ -40,6 +34,10 @@ universe ι u v w
 
 namespace RingedSite.Localization.AtSimplicialSR
 
+-- Homotopy pullback and the derived adjunction use the existing additive law
+-- for the specified ringed-topos module pullback.
+attribute [local instance] RingedSite.ToposHom.modulePullback_additive
+
 open SemiRepresentableFamily
   (overSiteDiagram overSiteTotalTopology totalForget)
 
@@ -59,6 +57,16 @@ variable [(SheafOfModules.restrictScalars.{w}
     (toAmbient K.simplicial).structureMap).IsRightAdjoint]
 variable [ToposHom.HasModulePullbackDerived (toAmbient K.simplicial)]
 variable [ToposHom.HasModulePushforwardDerived (toAmbient K.simplicial)]
+
+-- Reuse the caller's supplied derived pullback witness after activating the
+-- canonical additive law for the same module pullback functor.
+local instance toAmbient_modulePullback_hasLeftDerived :
+    Functor.HasLeftDerivedFunctor
+    ((toAmbient K.simplicial).modulePullback.mapHomotopyCategory (up ℤ) ⋙
+      Hom.moduleLocalization (site K.simplicial)) (Hom.ModuleQis X) :=
+  by
+    change ToposHom.HasModulePullbackDerived (toAmbient K.simplicial)
+    infer_instance
 
 /-- Module direct image along the ringed augmentation of a hypercovering is additive. -/
 noncomputable instance toAmbient_modulePushforward_additive :

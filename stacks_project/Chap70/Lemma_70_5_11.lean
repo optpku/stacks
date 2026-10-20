@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap70.Lemma_70_5_11_Scheme
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Limit.Scheme
 import StacksCheckRecall
 
 @[expose] public section
@@ -19,7 +13,7 @@ universe u
 a scheme, then some stage `X_i` is a scheme; in fact, after passing to a
 sufficiently late stage `i₀`, every later stage is a scheme. -/
 @[stacks 07SR] #check
-  (AlgebraicGeometry.AlgebraicSpace.Limit.exists_eventually_isScheme_of_isLimit :
+  (AlgebraicGeometry.AlgebraicSpace.Limit.exists_isScheme_of_isLimit :
     ∀ {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
       {S : Scheme.{u}} (D : OrderDual I ⥤ AlgebraicSpace S)
       (c : Cone D) (hc : IsLimit c)
@@ -27,4 +21,4 @@ sufficiently late stage `i₀`, every later stage is a scheme. -/
       [∀ j, IsAbsolutelyQuasiSeparated (D.obj j)]
       [∀ {j j' : I} (hjj' : j ≤ j'), Affine (D.map (homOfLE hjj'))]
       [AlgebraicSpace.IsScheme c.pt],
-      ∃ i₀ : I, ∀ ⦃i : I⦄, i₀ ≤ i → AlgebraicSpace.IsScheme (D.obj i))
+      ∃ i : I, AlgebraicSpace.IsScheme (D.obj i))

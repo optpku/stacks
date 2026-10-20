@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap82.Definition_82_2_5_DeltaDimension
-public import stacks_project.Chap82.Lemma_82_4_4_GenericPoint
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Dimension.DeltaDimension
 
 /-!
 # Points of maximal δ-dimension
@@ -25,17 +19,17 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.Hom
 
-/-- Lemma 82.4.5: In Situation 82.2.1, let `X / B` be good. Let `T ⊂ |X|` be a
+/- Lemma 82.4.5: In Situation 82.2.1, let `X / B` be good. Let `T ⊂ |X|` be a
 closed subset and `t ∈ T`. If `dim_δ(T) ≤ k` and `δ_{X/B}(t) = k`, then `t` is a
 generic point of an irreducible component of `T`. -/
 @[stacks 0EE6]
-theorem ofIrreducibleComponent_of_closedSetDeltaDimension_le
-    {S : Scheme.{u}} {B X : AlgebraicSpace S} [UniversallyCatenary B]
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.ofIrreducibleComponent_of_closedSetDeltaDimension_le :
+  ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S} [UniversallyCatenary B]
     [IsQuasiSeparated B] (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
     (δ : Points B → ℤ) [IsDimensionFunction δ] (T : Closeds (Points X))
     (t : Points X) (ht : t ∈ T) (k : ℤ)
-    (hdim : f.closedSetDeltaDimension δ T ≤ (k : EInt))
-    (htk : f.relativeDimensionFunction δ t = k) :
-    IsGenericPoint.ofIrreducibleComponent t T.carrier := sorry
+    (hdim : (closedSetDeltaDimension f) δ T ≤ (k : EInt))
+    (htk : (relativeDimensionFunction f) δ t = k),
+    IsGenericPoint.ofIrreducibleComponent t T.carrier)
 
 end AlgebraicGeometry.AlgebraicSpace.Hom

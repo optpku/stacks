@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_28_1_Gerbe
-public import stacks_project.Chap101.Definition_101_15_2_UniversalHomeomorphism
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Gerbe.UniversalHomeomorphism
+import StacksCheckRecall
 
 /-!
 # Gerbes are universal homeomorphisms
@@ -25,23 +19,20 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-namespace UniversalHomeomorphism
-
-/-- Lemma 101.28.13: Let `f : X ⟶ Y` be a morphism of algebraic stacks.
+/- Lemma 101.28.13: Let `f : X ⟶ Y` be a morphism of algebraic stacks.
 If `X` is a gerbe over `Y`, then `f` is a universal homeomorphism. -/
-@[stacks 06R9]
-instance of_gerbe {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Gerbe f] :
-    UniversalHomeomorphism f :=
-  sorry
+@[stacks 06R9] #check
+  (AlgebraicGeometry.AlgebraicStack.UniversalHomeomorphism.of_gerbe :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Gerbe f],
+      UniversalHomeomorphism f)
 
-end UniversalHomeomorphism
-
-/-- A gerbe morphism of algebraic stacks induces a homeomorphism on underlying
+/- A gerbe morphism of algebraic stacks induces a homeomorphism on underlying
 point spaces. -/
-theorem pointsIsHomeomorph_of_gerbe {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Gerbe f] :
-    pointsIsHomeomorph f :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicStack.pointsIsHomeomorph_of_gerbe :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Gerbe f],
+      pointsIsHomeomorph f)
 
 end AlgebraicGeometry.AlgebraicStack

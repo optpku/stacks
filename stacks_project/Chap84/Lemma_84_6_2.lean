@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap84.Lemma_84_6_2_Adjunction
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FppfEtale.Adjunction
+import StacksCheckRecall
 
 /-!
 # Lemma 84.6.2
@@ -21,32 +15,21 @@ isomorphisms, where `a_X = π_X ∘ ε_X` is the morphism of topoi
 @[expose] public section
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open CategoryTheory CategoryTheory.Limits
-open CategoryTheory.GrothendieckTopology
-
-noncomputable section
+open AlgebraicGeometry.AlgebraicSpace.FppfEtale
+open CategoryTheory CategoryTheory.GrothendieckTopology
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.FppfEtale
+/- Lemma 84.6.2: both canonical comparison maps are isomorphisms for bounded-below
+complexes of abelian small-étale sheaves. -/
+@[stacks 0DGG] #check (AlgebraicGeometry.AlgebraicSpace.FppfEtale.piInverseDerivedUnit_isIso :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (K : DerivedCategory.Plus (Sheaf (smallEtaleTopology X) AddCommGrpCat.{u + 1})),
+    IsIso (piInverseDerivedUnit X K))
 
-/-- Lemma 84.6.2 (1): for `K` in `D⁺(X_étale)`, the canonical map
-`π_X⁻¹ K ⟶ Rε_{X,*}(a_X⁻¹ K)` is an isomorphism. -/
-@[stacks 0DGG]
-theorem piInverseDerivedUnit_isIso {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (K : DerivedCategory.Plus (Sheaf (smallEtaleTopology X) AddCommGrpCat.{u + 1})) :
-    IsIso (piInverseDerivedUnit X K) := sorry
-
-/-- Lemma 84.6.2 (2): for `K` in `D⁺(X_étale)`, the derived adjunction unit
-`K ⟶ Ra_{X,*}(a_X⁻¹ K)` is an isomorphism, where
-`a_X : Sh((Spaces/X)_fppf) ⟶ Sh(X_étale)` is the composite `π_X ∘ ε_X`. -/
-@[stacks 0DGG]
-theorem plusAAdjunction_unit_isIso {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (K : DerivedCategory.Plus (Sheaf (smallEtaleTopology X) AddCommGrpCat.{u + 1})) :
-    IsIso ((plusAAdjunction X).unit.app K) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace.FppfEtale
-
-end
+#check (AlgebraicGeometry.AlgebraicSpace.FppfEtale.plusAAdjunction_unit_isIso :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (K : DerivedCategory.Plus (Sheaf (smallEtaleTopology X) AddCommGrpCat.{u + 1})),
+    IsIso ((plusAAdjunction X).unit.app K))
 
 end

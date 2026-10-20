@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Underlying
@@ -55,6 +49,7 @@ source after forgetting module structure. -/
 theorem pushforward_isomorphic
     (f : RingedSite.ToposHom X Y)
     [UnivLE.{max uX vX, w}] [UnivLE.{max uY vY, w}]
+    [f.HasModulePushforwardDerived]
     [HasSheafify X.siteTopology AddCommGrpCat.{w}]
     [HasSheafify Y.siteTopology AddCommGrpCat.{w}]
     [X.siteTopology.WEqualsLocallyBijective AddCommGrpCat.{w}]

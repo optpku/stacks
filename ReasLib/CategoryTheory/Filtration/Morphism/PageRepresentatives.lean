@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Abelian.Basic
@@ -386,13 +380,13 @@ end Page
 
 section CycleLimitRepresentatives
 
-variable [CompleteLattice (Subobject X.obj)]
+variable [LocallySmall.{v} C] [WellPowered.{v} C] [HasWidePullbacks.{v} C]
 
 /-- The eventual cycle representative, characterized as the infimum of all finite cycle
 representatives. -/
 @[stacks 012I "canonical eventual cycle representative"]
 noncomputable def eventualCycleRepresentative (f : X ⟶ Y) (p : ℤ) : Subobject X.obj :=
-  ⨅ r : ℕ, f.cycleRepresentative r p
+  Subobject.sInf.{v} (Set.range fun r : ℕ ↦ f.cycleRepresentative r p)
 
 namespace Representative
 
@@ -411,13 +405,13 @@ end CycleLimitRepresentatives
 
 section BoundaryLimitRepresentatives
 
-variable [CompleteLattice (Subobject Y.obj)]
+variable [LocallySmall.{v} C] [WellPowered.{v} C] [HasCoproducts.{v} C]
 
 /-- The eventual boundary representative, characterized as the supremum of all finite boundary
 representatives. -/
 @[stacks 012I "canonical eventual boundary representative"]
 noncomputable def eventualBoundaryRepresentative (f : X ⟶ Y) (p : ℤ) : Subobject Y.obj :=
-  ⨆ r : ℕ, f.boundaryRepresentative r p
+  Subobject.sSup.{v} (Set.range fun r : ℕ ↦ f.boundaryRepresentative r p)
 
 namespace Representative
 

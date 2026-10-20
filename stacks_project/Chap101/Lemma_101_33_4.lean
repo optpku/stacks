@@ -1,18 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.Cone
-public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.PseudoCone.Bilimit
-public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.Basic
-public import stacks_project.Chap103.«103_15_1_1_Smooth»
-public import stacks_project.Chap101.Lemma_101_25_5_Flat
-public import stacks_project.Chap101.Lemma_101_25_5_Surjective
-public import stacks_project.Chap106.Lemma_106_10_1_LocallyOfFinitePresentation
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Smooth.Descent
+import StacksCheckRecall
 
 /-!
 # Descent of smoothness for morphisms of algebraic stacks
@@ -30,46 +19,29 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.Smooth
+open AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 101.33.4: Let `f : X ⟶ Y` be a morphism of algebraic stacks. Let
-`g : Z ⟶ Y` be a surjective, flat, locally of finite presentation morphism of
-algebraic stacks. If the base change `TwoFibreProduct.snd f g` is smooth, then
-`f` is smooth.
-
-Stacks writes the base change as `Z ×_Y X ⟶ Z`; the Lean projection is
-`TwoFibreProduct.snd f g`. -/
-@[stacks 0DN7]
-theorem of_twoFibreProduct_snd {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+/- Lemma 101.33.4: Smoothness descends along a surjective, flat, locally
+finitely presented morphism of algebraic stacks. The projection
+`TwoFibreProduct.snd f g` is the base change of `f` to `Z`. -/
+@[stacks 0DN7] #check (AlgebraicGeometry.AlgebraicStack.Smooth.of_twoFibreProduct_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
     (f : X ⟶ Y) (g : Z ⟶ Y)
     [Surjective g] [Flat g] [LocallyOfFinitePresentation g]
-    [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)]
-    [Smooth (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g)] :
-    Smooth f :=
-  sorry
+    [Smooth (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g)], Smooth f)
 
-/-- Smoothness of a morphism of algebraic stacks follows from smoothness of the
-second projection of a bilimit `PseudoPullbackCone` against a surjective, flat,
-locally of finite presentation morphism of algebraic stacks. -/
-theorem of_isBilimit_snd {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.Smooth.of_isBilimit_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
     {f : X ⟶ Y} {g : Z ⟶ Y}
     [Surjective g] [Flat g] [LocallyOfFinitePresentation g]
     (c : PseudoPullbackCone f g) [AlgebraicStack c.pt] (hc : c.IsBilimit)
-    [Smooth c.snd] :
-    Smooth f :=
-  sorry
+    [Smooth c.snd], Smooth f)
 
-/-- After base change along a surjective, flat, locally of finite presentation
-morphism of algebraic stacks, the original morphism is smooth if and only if
-`TwoFibreProduct.snd f g` is smooth. -/
-theorem twoFibreProduct_snd_iff {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.Smooth.twoFibreProduct_snd_iff :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
     (f : X ⟶ Y) (g : Z ⟶ Y)
-    [Surjective g] [Flat g] [LocallyOfFinitePresentation g]
-    [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)] :
-    Smooth (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g) ↔ Smooth f :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.Smooth
+    [Surjective g] [Flat g] [LocallyOfFinitePresentation g],
+    Smooth (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g) ↔ Smooth f)

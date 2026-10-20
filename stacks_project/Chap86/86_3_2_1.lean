@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap86.«86_3_2_1_Pushforward»
-public import stacks_project.Chap86.«86_3_2_1_Trace»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.Pushforward.SheafyTrace
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.QuasiCompact.Permanence
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Separation.Absolute.Permanence
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,10 +16,12 @@ open CategoryTheory.Functor.LaxMonoidal
 universe u
 
 variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-variable [QuasiCompact f] [QuasiSeparated f]
+variable [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
+variable [IsQuasiCompact Y] [IsAbsolutelyQuasiSeparated Y]
 variable [MonoidalCategory (ModuleDerived X)] [MonoidalCategory (ModuleDerived Y)]
 variable [MonoidalClosed (ModuleDerived X)] [MonoidalClosed (ModuleDerived Y)]
-variable [Functor.LaxMonoidal (moduleDerivedPushforward f)]
+variable [ModuleDerived.HasDerivedAdjunction f]
+variable [Functor.Monoidal (ModuleDerived.pullback f)]
 variable (a : DerivedQCoh Y ⥤ DerivedQCoh X) (adj : pushforwardCohomologyIn f ⊣ a)
 variable (L : DerivedQCoh X) (K : DerivedQCoh Y)
 
@@ -36,6 +33,6 @@ spaces over a scheme `S`, with `a` a right adjoint of
 comparison of `Rf_*` followed by `RHom(Rf_* L, ε_K)` for the adjunction
 counit `ε : Rf_* a ⇒ 𝟙`. -/
 @[stacks 0E57] #check
-  (sheafyTrace f a adj L K :
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.sheafyTraceMap f a adj L K :
     (moduleDerivedPushforward f).obj ((ihom L.obj).obj (a.obj K).obj) ⟶
       (ihom ((moduleDerivedPushforward f).obj L.obj)).obj K.obj)

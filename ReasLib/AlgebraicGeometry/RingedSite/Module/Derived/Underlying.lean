@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.InverseImage
@@ -61,7 +55,7 @@ noncomputable abbrev underlyingAbelianPresheafDerived
     [PreservesFiniteColimits
       (sheafToPresheaf X.siteTopology AddCommGrpCat.{z})] :
     ModuleDerived.{z} X ⥤
-      DerivedCategory (AddCommGrpCat.Presheaf.{uC, vC, z} X) :=
+      DerivedCategory (AddCommGrpCat.Presheaf.{uC, vC, z} X.carrier) :=
   (underlyingAbelianPresheafExactFunctor.{z} X).mapDerivedCategory
 
 end RingedSite.Hom
@@ -118,6 +112,12 @@ noncomputable def underlyingIso :
 end moduleInverseImage.derived
 
 namespace moduleLowerShriek.derived
+
+variable [Functor.HasLeftDerivedFunctor
+  (moduleLowerShriek.toDerived (J := J) (K := K) f R)
+  (RingedSite.Hom.ModuleQis.{z}
+    (moduleInverseImage.source (J := J) (K := K) f R))]
+variable [HasPair (J := J) (K := K) f R]
 
 /-- The derived mate of the inverse-image/underlying square.  This is the canonical comparison
 from abelian lower shriek followed by forgetting to module lower shriek followed by forgetting. -/

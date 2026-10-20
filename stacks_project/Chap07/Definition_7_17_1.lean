@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.QuasiCompact
@@ -23,7 +17,11 @@ given a covering 𝒰 = {Uᵢ ⟶ U}_{i ∈ I} in C there exists another coverin
 target given by id : U ⟶ U, α : J → I, and Vⱼ ⟶ U_{α(j)} (see Definition
 7.8.1) such that the image of α is a finite subset of I. This is owned by
 Precoverage.QuasiCompactObject. -/
-@[stacks 090H] #check (K.QuasiCompactObject U)
+@[stacks 090H] #check (CategoryTheory.Precoverage.QuasiCompactObject K U : Prop)
 
-#check @Coverage.QuasiCompactObject
-#check @Coverage.QuasiCompactObject.finiteImageRefinement
+#check (CategoryTheory.Precoverage.quasiCompactObject_iff_finite_image_refinement K U :
+  K.QuasiCompactObject U ↔
+    ∀ (𝒰 : SemiRepresentableFamily.Over.{max u v} U), 𝒰.toPresieve ∈ K U →
+      ∃ (𝒱 : SemiRepresentableFamily.Over.{max u v} U), 𝒱.toPresieve ∈ K U ∧
+        ∃ (φ : SemiRepresentableFamily.Over.Hom 𝒱 𝒰),
+          Set.Finite (Set.range φ.α))

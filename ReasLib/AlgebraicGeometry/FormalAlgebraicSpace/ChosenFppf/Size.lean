@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.Equalizers
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Fppf.ChosenPresentation
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.ChosenPresentation.Size
 public import ReasLib.CategoryTheory.Sites.SheafifiedRepresentable
 
 /-!
@@ -77,10 +72,11 @@ theorem spec {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
         Sheaf.IsLocallySurjective π ∧ Sheaf.IsLocallySurjective σ := sorry
 
 /-- The fixed-site presentation condition is equivalent to a coequalizer of two
-maps between sheafified representables. -/
+maps between sheafified representables on a size-closed chosen big site. -/
 theorem iff_isCoequalizer {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (h𝒮 : ChosenBigSite.IsSizeClosed 𝒮)
     (X : Sheaf (𝒮.bigTopology S) (Type (max u v))) :
     IsCoequalizerOfRepresentables X ↔
       ∃ (U R : 𝒮.bigSite S)

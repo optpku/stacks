@@ -1,34 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.ShortComplex.Abelian
-public import stacks_project.Chap63.Lemma_63_8_1_Comparison
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.ProperLowerShriek
 import StacksCheckRecall
-
-/-!
-# Derived comparison of lower shriek and proper pushforward
-
-Lemma 63.8.1: for a commutative square of schemes with proper vertical maps
-and separated locally quasi-finite horizontal maps, there is a canonical
-functorial map `g_! Rf'_* K ⟶ Rf_* (g'_! K)` in `D(Y_étale, Λ)`, which is an
-isomorphism if `K` is bounded below with torsion cohomology sheaves, or if
-`Λ` is a torsion ring.
--/
 
 @[expose] public section
 
-open CategoryTheory
-open CategoryTheory.Limits
-open CategoryTheory.Functor
-open CategoryTheory.Functor.RightDerived
-open AlgebraicGeometry
-open AlgebraicGeometry.Scheme
-open AlgebraicGeometry.Scheme.Etale
+open CategoryTheory CategoryTheory.Limits CategoryTheory.Functor CategoryTheory.Sheaf
+open CategoryTheory.Functor.RightDerived AlgebraicGeometry AlgebraicGeometry.Scheme Opposite
 
 noncomputable section
 
@@ -42,7 +20,8 @@ variable (h_sq : CommSq g' f' f g)
 variable [IsProper f] [IsProper f']
 variable [IsSeparated g] [LocallyQuasiFinite g] [LocallyOfFiniteType g]
 variable [IsSeparated g'] [LocallyQuasiFinite g'] [LocallyOfFiniteType g']
-variable (Λ : Type u) [CommRing Λ]
+
+variable (Λ : Type u) [Ring Λ]
 variable [X.smallEtaleTopology.HasSheafCompose
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
 variable [X'.smallEtaleTopology.HasSheafCompose
@@ -75,79 +54,49 @@ variable [∀ U : Y.Etale,
   HasWeakSheafify (Y.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
 variable [∀ U : Y'.Etale,
   HasWeakSheafify (Y'.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
+
 variable [HasDerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [HasDerivedCategory (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [HasDerivedCategory (Sheaf Y'.smallEtaleTopology (ModuleCat.{u} Λ))]
 
-/- Lemma 63.8.1 (1): Consider a commutative diagram of schemes
-`X' ⟶ X`, `Y' ⟶ Y` with `f` and `f'` proper and `g` and `g'` separated and
-locally quasi-finite. Let `Λ` be a ring. Functorially in
-`K ∈ D(X'_étale, Λ)` there is a canonical map
-`g_! Rf'_* K ⟶ Rf_* (g'_! K)` in `D(Y_étale, Λ)`. -/
-@[stacks 0F7B]
-#check etaleDerivedLowerShriekPushforward
+variable [(etaleModulePushforward f Λ).Additive]
+variable [(etaleModulePushforward f' Λ).Additive]
+variable [(etaleModulePushforward f' Λ ⋙ lowerShriekModule g Λ).Additive]
+variable [(lowerShriekModule g' Λ ⋙ etaleModulePushforward f Λ).Additive]
+variable [HasRightDerivedFunctor
+  (RightDerived.Cochain.toDerived (etaleModulePushforward f Λ))
+  (HomologicalComplex.quasiIso
+    (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
+variable [HasRightDerivedFunctor
+  (RightDerived.Cochain.toDerived (etaleModulePushforward f' Λ))
+  (HomologicalComplex.quasiIso
+    (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
+variable [HasRightDerivedFunctor
+  (RightDerived.Cochain.toDerived
+    (etaleModulePushforward f' Λ ⋙ lowerShriekModule g Λ))
+  (HomologicalComplex.quasiIso
+    (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
+variable [HasRightDerivedFunctor
+  (RightDerived.Cochain.toDerived
+    (lowerShriekModule g' Λ ⋙ etaleModulePushforward f Λ))
+  (HomologicalComplex.quasiIso
+    (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
 
-/-- Lemma 63.8.1 (2): the comparison `g_! Rf'_* K ⟶ Rf_* (g'_! K)` is an
-isomorphism if `K` is bounded below and has torsion cohomology sheaves. -/
-@[stacks 0F7B]
-theorem etaleDerivedLowerShriekPushforward_isIso_of_isGE_isTorsion
-    [(etaleModulePushforward f Λ).Additive]
-    [(etaleModulePushforward f' Λ).Additive]
-    [(etaleModulePushforward f' Λ ⋙ lowerShriekModule g Λ).Additive]
-    [(lowerShriekModule g' Λ ⋙ etaleModulePushforward f Λ).Additive]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived (etaleModulePushforward f Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived (etaleModulePushforward f' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (etaleModulePushforward f' Λ ⋙ lowerShriekModule g Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (lowerShriekModule g' Λ ⋙ etaleModulePushforward f Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    (K : EtaleDerived X' Λ) (h_tors : etaleDerivedIsTorsion K) (n : ℤ)
-    [DerivedCategory.IsGE K n] :
-    IsIso ((etaleDerivedLowerShriekPushforward f f' g g' h_sq Λ).app K) :=
-  sorry
+/- Lemma 63.8.1: the canonical comparison for a commutative square with proper
+vertical maps and separated locally quasi-finite horizontal maps. -/
+@[stacks 0F7B] #check (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriekPushforward f f' g g' h_sq Λ :
+  etaleDerivedPushforward f' ⋙ lowerShriekModuleDerived g Λ ⟶
+    lowerShriekModuleDerived g' Λ ⋙ etaleDerivedPushforward f)
 
-/-- Lemma 63.8.1 (3): the comparison `g_! Rf'_* K ⟶ Rf_* (g'_! K)` is an
-isomorphism if `Λ` is a torsion ring. -/
-@[stacks 0F7B]
-theorem etaleDerivedLowerShriekPushforward_isIso_of_isTorsion
-    [(etaleModulePushforward f Λ).Additive]
-    [(etaleModulePushforward f' Λ).Additive]
-    [(etaleModulePushforward f' Λ ⋙ lowerShriekModule g Λ).Additive]
-    [(lowerShriekModule g' Λ ⋙ etaleModulePushforward f Λ).Additive]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived (etaleModulePushforward f Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived (etaleModulePushforward f' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (etaleModulePushforward f' Λ ⋙ lowerShriekModule g Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (lowerShriekModule g' Λ ⋙ etaleModulePushforward f Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    (hΛ : AddMonoid.IsTorsion Λ) (K : EtaleDerived X' Λ) :
-    IsIso ((etaleDerivedLowerShriekPushforward f f' g g' h_sq Λ).app K) :=
-  sorry
+#check (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriekPushforward_isIso_of_isGE_isTorsion f f' g g' h_sq Λ :
+  ∀ (K : DerivedCategory (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ))), etaleDerivedIsTorsion K →
+    ∀ (n : ℤ), [DerivedCategory.IsGE K n] →
+      IsIso ((etaleDerivedLowerShriekPushforward f f' g g' h_sq Λ).app K))
+
+#check (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriekPushforward_isIso_of_isTorsion f f' g g' h_sq Λ :
+  AddMonoid.IsTorsion Λ → ∀ (K : DerivedCategory (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ))),
+    IsIso ((etaleDerivedLowerShriekPushforward f f' g g' h_sq Λ).app K))
 
 end AlgebraicGeometry.Scheme.Etale
 

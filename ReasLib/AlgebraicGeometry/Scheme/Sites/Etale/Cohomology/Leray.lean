@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.SpectralSequence.Grothendieck
@@ -23,6 +17,8 @@ noncomputable section
 universe u
 
 namespace AlgebraicGeometry.Scheme.Etale
+
+section Leray
 
 variable {X Y : Scheme.{u}} (f : X ⟶ Y)
 variable (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u})
@@ -93,5 +89,31 @@ theorem etaleLeray_pageTwo_isIsomorphic (p q : ℕ) :
 /-- The abutment of étale Leray is étale cohomology of the original sheaf. -/
 theorem etaleLeray_abutment_isIsomorphic (n : ℕ) :
     IsIsomorphic (etaleLeray_abutment f F n) (etaleCohomology X F n) := sorry
+
+end Leray
+
+section CohomologyMap
+
+variable {S : Scheme.{u}}
+variable [HasSheafify S.smallEtaleTopology AddCommGrpCat.{u}]
+variable [Abelian (Sheaf S.smallEtaleTopology AddCommGrpCat.{u})]
+variable [HasInjectiveResolutions (Sheaf S.smallEtaleTopology AddCommGrpCat.{u})]
+variable [HasTerminal S.Etale]
+variable [(siteAbelianSectionsFunctor S.smallEtaleTopology (terminal S.Etale)).Additive]
+
+/-- Induced map on étale cohomology of abelian sheaves along a morphism of sheaves. -/
+def etaleCohomology_map {F G : Sheaf S.smallEtaleTopology AddCommGrpCat.{u}}
+    (φ : F ⟶ G) (n : ℕ) :
+    etaleCohomology S F n ⟶ etaleCohomology S G n :=
+  ((siteAbelianSectionsFunctor S.smallEtaleTopology (terminal S.Etale)).rightDerived n).map φ
+
+/-- Evaluating `etaleCohomology_map` recovers the right-derived sections functor on morphisms. -/
+theorem etaleCohomology_map_eq {F G : Sheaf S.smallEtaleTopology AddCommGrpCat.{u}}
+    (φ : F ⟶ G) (n : ℕ) :
+    etaleCohomology_map φ n =
+      ((siteAbelianSectionsFunctor S.smallEtaleTopology (terminal S.Etale)).rightDerived n).map φ :=
+  rfl
+
+end CohomologyMap
 
 end AlgebraicGeometry.Scheme.Etale

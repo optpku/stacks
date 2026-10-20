@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap75.Lemma_75_20_4_BaseChange
@@ -26,8 +20,6 @@ base-change map `Lg^* Rf_* E ⟶ Rf'_* L(g')^* E` is an isomorphism for every
     ∀ {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
       (g' : X' ⟶ X) (f' : X' ⟶ Y') (f : X ⟶ Y) (g : Y' ⟶ Y)
       [QuasiCompact f] [QuasiSeparated f]
-      [IsIso (modulePullbackDerived.compComparison f' g)]
-      [IsIso (modulePullbackDerived.compComparison g' f)]
       (sq : IsPullback g' f' f g),
       TorIndependentOver (Over.mk f) (Over.mk g) →
         ∀ (E : DerivedQCoh X),

@@ -1,80 +1,57 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap97.«97_6_0_1_Lifting»
-public import stacks_project.Chap98.Lemma_98_9_3_FormalObject
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.FormalObject.Lifting
+import StacksCheckRecall
 
 /-!
 # Lifting formal objects along morphisms formally smooth on objects
-
-If a 1-morphism of categories fibred in groupoids over `(Sch/S)_fppf` is
-formally smooth on objects, a formal object of the target with a first-stage
-fibre lift to the source extends to a formal object of the source with the
-same complete local `S`-algebra.
 -/
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry IsLocalRing FiberedCategoryOver.Groupoids
-open AlgebraicGeometry.Groupoids.Hom
+open CategoryTheory AlgebraicGeometry IsLocalRing
 open scoped Bicategory
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.GroupoidsOver.FormalObject
-
-variable {S : Scheme.{u}} [IsLocallyNoetherian S]
-variable {X Y : GroupoidsOver S}
-
-/-- Lemma 98.9.3: if `S` is locally Noetherian, `F : X ⟶ Y` is a 1-morphism of
-categories fibred in groupoids over `(Sch/S)_fppf` that is formally smooth on
-objects, `η` is a formal object of `Y`, and `ξ₁` is an object of `X` with
-`F(ξ₁) ≅ η₁`, then there exists a formal object `ξ` of `X` with the same
-complete local `S`-algebra as `η` such that `F(ξ) ≅ η`. -/
+/- Lemma 98.9.3: a morphism of categories fibred in groupoids over a locally
+Noetherian scheme that is formally smooth on objects lifts a formal object
+from a specified residue-field lift, over the same Noetherian complete local
+ring and structure morphism. The natural isomorphism is vertical at every
+truncation. Lean stage zero is source stage one, the residue-field stage. -/
 @[stacks 07X5]
-theorem exists_lift (F : X ⟶ Y) [FormallySmoothOnObjects F] (η : FormalObject Y)
-    (ξ1 : X.total) (hξ1 : X.p.obj ξ1 = η.base.stageOver 0)
-    (e : (toFunctor F).obj ξ1 ≅ η.objects 0)
-    (he : Y.p.IsHomLift (𝟙 (η.base.stageOver 0)) e.hom) :
-    ∃ ξ : FormalObject X, ξ.base = η.base ∧
-      ∃ α : ∀ n, (toFunctor F).obj (ξ.objects n) ≅ η.objects n,
-        (∀ n, Y.p.IsHomLift (𝟙 (η.base.stageOver n)) (α n).hom) ∧
-          ∀ n, (toFunctor F).map (ξ.step n) ≫ (α (n + 1)).hom =
-            (α n).hom ≫ η.step n :=
-  sorry
+#check (AlgebraicGeometry.GroupoidsOver.FormalObject.exists_lift :
+  ∀ {S : Scheme.{u}} [IsLocallyNoetherian S] {X Y : GroupoidsOver S}
+    {R : Type u} [CommRing R] [IsNoetherianRing R] [IsCompleteLocalRing R]
+    (toS : Spec (CommRingCat.of R) ⟶ S)
+    (hres : LocallyOfFiniteType
+      (Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk (maximalIdeal R))) ≫ toS))
+    (F : X ⟶ Y) [AlgebraicGeometry.Groupoids.Hom.FormallySmoothOnObjects F]
+    (η : ℕ ⥤ Y.total) (hη : η ⋙ Y.p = AdicPresentation.diagram toS (maximalIdeal R))
+    (ξ1 : X.total) (hξ1 : X.p.obj ξ1 = (AdicPresentation.diagram toS (maximalIdeal R)).obj 0)
+    (e : (FiberedCategoryOver.Groupoids.toFunctor F).obj ξ1 ≅ η.obj 0)
+    (he : Y.p.IsHomLift (𝟙 ((AdicPresentation.diagram toS (maximalIdeal R)).obj 0)) e.hom),
+    ∃ ξ : ℕ ⥤ X.total, ξ ⋙ X.p = AdicPresentation.diagram toS (maximalIdeal R) ∧
+      ∃ α : ξ ⋙ FiberedCategoryOver.Groupoids.toFunctor F ≅ η,
+        ∀ n, Y.p.IsHomLift (𝟙 ((AdicPresentation.diagram toS (maximalIdeal R)).obj n))
+          (α.hom.app n))
 
-/-- Unpacked same-base fibre-iso data is equivalent to `IsMappedIso F ξ η`. -/
-theorem exists_lift_iff (F : X ⟶ Y) (η : FormalObject Y) :
-    (∃ ξ : FormalObject X, ξ.base = η.base ∧
-        ∃ α : ∀ n, (toFunctor F).obj (ξ.objects n) ≅ η.objects n,
-          (∀ n, Y.p.IsHomLift (𝟙 (η.base.stageOver n)) (α n).hom) ∧
-            ∀ n, (toFunctor F).map (ξ.step n) ≫ (α (n + 1)).hom =
-              (α n).hom ≫ η.step n) ↔
-      ∃ ξ : FormalObject X, IsMappedIso F ξ η :=
-  sorry
-
-/-- A lift may be chosen so that the first stage is fibre-isomorphic to the given
-object `ξ₁` over `Spec(R ⧸ m)`, compatibly with `F(ξ₁) ≅ η₁`. -/
-theorem exists_lift_stageOne (F : X ⟶ Y) [FormallySmoothOnObjects F]
-    (η : FormalObject Y) (ξ1 : X.total)
-    (hξ1 : X.p.obj ξ1 = η.base.stageOver 0)
-    (e : (toFunctor F).obj ξ1 ≅ η.objects 0)
-    (he : Y.p.IsHomLift (𝟙 (η.base.stageOver 0)) e.hom) :
-    ∃ (ξ : FormalObject X) (e0 : ξ.objects 0 ≅ ξ1),
-      ξ.base = η.base ∧ X.p.IsHomLift (𝟙 (η.base.stageOver 0)) e0.hom ∧
-        ∃ α : ∀ n, (toFunctor F).obj (ξ.objects n) ≅ η.objects n,
-          (∀ n, Y.p.IsHomLift (𝟙 (η.base.stageOver n)) (α n).hom) ∧
-            (∀ n, (toFunctor F).map (ξ.step n) ≫ (α (n + 1)).hom =
-                (α n).hom ≫ η.step n) ∧
-              (α 0).hom = (toFunctor F).map e0.hom ≫ e.hom :=
-  sorry
-
-end AlgebraicGeometry.GroupoidsOver.FormalObject
+-- The lift can preserve the specified first-stage object and image isomorphism.
+#check (AlgebraicGeometry.GroupoidsOver.FormalObject.exists_lift_stageOne :
+  ∀ {S : Scheme.{u}} [IsLocallyNoetherian S] {X Y : GroupoidsOver S}
+    {R : Type u} [CommRing R] [IsNoetherianRing R] [IsCompleteLocalRing R]
+    (toS : Spec (CommRingCat.of R) ⟶ S)
+    (hres : LocallyOfFiniteType
+      (Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk (maximalIdeal R))) ≫ toS))
+    (F : X ⟶ Y) [AlgebraicGeometry.Groupoids.Hom.FormallySmoothOnObjects F]
+    (η : ℕ ⥤ Y.total) (hη : η ⋙ Y.p = AdicPresentation.diagram toS (maximalIdeal R))
+    (ξ1 : X.total) (hξ1 : X.p.obj ξ1 = (AdicPresentation.diagram toS (maximalIdeal R)).obj 0)
+    (e : (FiberedCategoryOver.Groupoids.toFunctor F).obj ξ1 ≅ η.obj 0)
+    (he : Y.p.IsHomLift (𝟙 ((AdicPresentation.diagram toS (maximalIdeal R)).obj 0)) e.hom),
+    ∃ ξ : ℕ ⥤ X.total, ξ ⋙ X.p = AdicPresentation.diagram toS (maximalIdeal R) ∧
+      ∃ (e0 : ξ.obj 0 ≅ ξ1)
+        (α : ξ ⋙ FiberedCategoryOver.Groupoids.toFunctor F ≅ η),
+        X.p.IsHomLift (𝟙 ((AdicPresentation.diagram toS (maximalIdeal R)).obj 0)) e0.hom ∧
+          (∀ n, Y.p.IsHomLift (𝟙 ((AdicPresentation.diagram toS (maximalIdeal R)).obj n))
+            (α.hom.app n)) ∧
+          α.hom.app 0 = (FiberedCategoryOver.Groupoids.toFunctor F).map e0.hom ≫ e.hom)

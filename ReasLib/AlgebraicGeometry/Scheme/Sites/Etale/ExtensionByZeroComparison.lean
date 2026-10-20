@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.ExtensionByZero
@@ -34,7 +28,8 @@ noncomputable abbrev diagonalPullback (V : U.Etale) : U.Etale :=
 
 /-- The two legs defining the diagonal section satisfy the pullback relation. -/
 theorem diagonalSection_condition (V : U.Etale) :
-    𝟙 V.left ≫ ((etaleRestriction j).obj V).hom = V.hom ≫ j := sorry
+    𝟙 V.left ≫ ((etaleRestriction j).obj V).hom = V.hom ≫ j := by
+  exact Category.id_comp _
 
 /-- The scheme map underlying the diagonal section into `V ×_X U`. -/
 noncomputable def diagonalSectionHom (V : U.Etale) :
@@ -43,7 +38,8 @@ noncomputable def diagonalSectionHom (V : U.Etale) :
 
 /-- The diagonal section is a morphism over `U`. -/
 theorem diagonalSectionHom_over (V : U.Etale) :
-    diagonalSectionHom j V ≫ (diagonalPullback j V).hom = V.hom := sorry
+    diagonalSectionHom j V ≫ (diagonalPullback j V).hom = V.hom := by
+  exact pullback.lift_snd _ _ _
 
 /-- The diagonal section, bundled in the small étale site of `U`. -/
 noncomputable def diagonalSection (V : U.Etale) :
@@ -53,15 +49,22 @@ noncomputable def diagonalSection (V : U.Etale) :
 
 /-- The diagonal section is an open immersion because the pullback projection is étale. -/
 instance diagonalSectionHom_isOpenImmersion (V : U.Etale) :
-    IsOpenImmersion (diagonalSectionHom j V) := sorry
+    IsOpenImmersion (diagonalSectionHom j V) := by
+  exact MorphismProperty.of_isPullback (P := @IsOpenImmersion)
+    (pullback_lift_diagonal_isPullback V.hom j)
+    (FormallyUnramified.isOpenImmersion_diagonal j)
 
 /-- The diagonal section is a closed immersion because `j` is separated. -/
 instance diagonalSectionHom_isClosedImmersion (V : U.Etale) :
-    IsClosedImmersion (diagonalSectionHom j V) := sorry
+    IsClosedImmersion (diagonalSectionHom j V) := by
+  exact MorphismProperty.of_isPullback (P := @IsClosedImmersion)
+    (pullback_lift_diagonal_isPullback V.hom j)
+    (IsSeparated.isClosedImmersion_diagonal (f := j))
 
 /-- The open range of the diagonal section is also closed. -/
 theorem diagonalRange_isClosed (V : U.Etale) :
-    IsClosed ((diagonalSectionHom j V).opensRange : Set (diagonalPullback j V).left) := sorry
+    IsClosed ((diagonalSectionHom j V).opensRange : Set (diagonalPullback j V).left) := by
+  exact (diagonalSectionHom j V).isClosedEmbedding.isClosed_range
 
 /-- The open complement of the clopen diagonal section. -/
 noncomputable def diagonalComplement (V : U.Etale) :
@@ -71,11 +74,13 @@ noncomputable def diagonalComplement (V : U.Etale) :
 
 /-- The diagonal-range inclusion followed by the pullback structure map is étale. -/
 instance diagonalRange_hom_etale (V : U.Etale) :
-    Etale ((diagonalSectionHom j V).opensRange.ι ≫ (diagonalPullback j V).hom) := sorry
+    Etale ((diagonalSectionHom j V).opensRange.ι ≫ (diagonalPullback j V).hom) := by
+  infer_instance
 
 /-- The complementary-open inclusion followed by the pullback structure map is étale. -/
 instance diagonalComplement_hom_etale (V : U.Etale) :
-    Etale ((diagonalComplement j V).ι ≫ (diagonalPullback j V).hom) := sorry
+    Etale ((diagonalComplement j V).ι ≫ (diagonalPullback j V).hom) := by
+  infer_instance
 
 /-- The diagonal range as an object of the small étale site of `U`. -/
 noncomputable def diagonalRangeObject (V : U.Etale) : U.Etale :=
@@ -94,12 +99,14 @@ noncomputable def diagonalComplementObject (V : U.Etale) : U.Etale :=
 /-- The diagonal-range inclusion respects the structure maps to `U`. -/
 theorem diagonalRangeInclusion_over (V : U.Etale) :
     (diagonalSectionHom j V).opensRange.ι ≫ (diagonalPullback j V).hom =
-      (diagonalRangeObject j V).hom := sorry
+      (diagonalRangeObject j V).hom := by
+  rfl
 
 /-- The complementary-open inclusion respects the structure maps to `U`. -/
 theorem diagonalComplementInclusion_over (V : U.Etale) :
     (diagonalComplement j V).ι ≫ (diagonalPullback j V).hom =
-      (diagonalComplementObject j V).hom := sorry
+      (diagonalComplementObject j V).hom := by
+  rfl
 
 /-- The inclusion of the diagonal range in the pullback object. -/
 noncomputable def diagonalRangeInclusion (V : U.Etale) :
@@ -116,7 +123,10 @@ noncomputable def diagonalComplementInclusion (V : U.Etale) :
 /-- The canonical range isomorphism respects the structure maps to `U`. -/
 theorem diagonalRangeIso_over (V : U.Etale) :
     (diagonalSectionHom j V).isoOpensRange.hom ≫ (diagonalRangeObject j V).hom =
-      V.hom := sorry
+      V.hom := by
+  change (diagonalSectionHom j V).isoOpensRange.hom ≫
+    ((diagonalSectionHom j V).opensRange.ι ≫ (diagonalPullback j V).hom) = V.hom
+  rw [← Category.assoc, Scheme.Hom.isoOpensRange_hom_ι, diagonalSectionHom_over]
 
 /-- The source of the diagonal section is canonically its open range, over `U`. -/
 noncomputable def diagonalRangeIso (V : U.Etale) :
@@ -141,7 +151,12 @@ noncomputable def diagonalCoverMap (V : U.Etale) :
 topology. -/
 theorem diagonalCover_mem (V : U.Etale) :
     Sieve.ofArrows (diagonalCoverObject j V) (diagonalCoverMap j V) ∈
-      U.smallEtaleTopology (diagonalPullback j V) := sorry
+      U.smallEtaleTopology (diagonalPullback j V) := by
+  rw [ofArrows_mem_smallEtaleTopology_iff, Set.eq_univ_iff_forall]
+  intro point
+  by_cases membership : point ∈ (diagonalSectionHom j V).opensRange
+  · exact Set.mem_iUnion.mpr ⟨false, ⟨⟨point, membership⟩, rfl⟩⟩
+  · exact Set.mem_iUnion.mpr ⟨true, ⟨⟨point, membership⟩, rfl⟩⟩
 
 /-- On the diagonal member use the original section; on the complement use zero. -/
 noncomputable def diagonalExtensionLocalMap
@@ -158,7 +173,38 @@ theorem diagonalExtensionLocalMap_compatible
       (b : W ⟶ diagonalCoverObject j V k),
       a ≫ diagonalCoverMap j V i = b ≫ diagonalCoverMap j V k →
         diagonalExtensionLocalMap j A F V i ≫ F.obj.map a.op =
-          diagonalExtensionLocalMap j A F V k ≫ F.obj.map b.op := sorry
+          diagonalExtensionLocalMap j A F V k ≫ F.obj.map b.op := by
+  intro W
+  have emptyOverlap (rangeMap : W ⟶ diagonalRangeObject j V)
+      (complementMap : W ⟶ diagonalComplementObject j V)
+      (agreement : rangeMap ≫ diagonalRangeInclusion j V =
+        complementMap ≫ diagonalComplementInclusion j V) :
+      ⊥ ∈ U.smallEtaleTopology W := by
+    have underlying : rangeMap.left ≫ (diagonalSectionHom j V).opensRange.ι =
+        complementMap.left ≫ (diagonalComplement j V).ι :=
+      congrArg (fun arrow => arrow.left) agreement
+    have noPoint (point : W.left) : False := by
+      have pointEquality : (rangeMap.left point).val = (complementMap.left point).val :=
+        congrArg (fun arrow => arrow point) underlying
+      exact (complementMap.left point).property
+        (pointEquality ▸ (rangeMap.left point).property)
+    have emptyCover : Sieve.ofArrows (fun index : Empty => nomatch index)
+        (fun index : Empty => nomatch index) ∈ U.smallEtaleTopology W := by
+      rw [ofArrows_mem_smallEtaleTopology_iff, Set.eq_univ_iff_forall]
+      intro point
+      exact (noPoint point).elim
+    simpa [Sieve.ofArrows, Presieve.ofArrows_of_isEmpty] using emptyCover
+  intro first second rangeMap complementMap agreement
+  cases first <;> cases second
+  · have mapsEqual : rangeMap = complementMap := by
+      apply MorphismProperty.Over.Hom.ext
+      apply (cancel_mono (diagonalSectionHom j V).opensRange.ι).mp
+      exact congrArg (fun arrow => arrow.left) agreement
+    rw [mapsEqual]
+  · exact (F.isTerminalOfBotCover W (emptyOverlap rangeMap complementMap agreement)).hom_ext _ _
+  · exact (F.isTerminalOfBotCover W
+      (emptyOverlap complementMap rangeMap agreement.symm)).hom_ext _ _
+  · simp [diagonalExtensionLocalMap]
 
 /-- Extend a section on the diagonal range by zero on its open complement, using the
 canonical amalgamation supplied by the sheaf condition. -/

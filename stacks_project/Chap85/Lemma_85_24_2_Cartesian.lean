@@ -1,14 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Abelian
 public import Mathlib.Algebra.Homology.DerivedCategory.ExactFunctor
 public import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.ChangeOfRings.Iso
+public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Cocontinuous.StructureIso
+public import ReasLib.AlgebraicGeometry.RingedSite.Localization.Simplicial.Module
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Basic
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module.Pullback.Complex
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Exact
@@ -28,6 +25,7 @@ derived functor of `g_n^*`.
 @[expose] public section
 
 open CategoryTheory CategoryTheory.Limits Opposite
+open Sheaf.InternalModule (underlyingApp)
 open Functor Grothendieck
 open RingedSite RingedSite.Hom
 open scoped SemiRepresentableFamily Simplicial
@@ -71,123 +69,76 @@ variable [∀ {m n : SimplexCategory} (φ : m ⟶ n),
     (SheafOfModules.restrictScalars.{w} (stageMap K φ).structureMap).IsRightAdjoint]
 
 /-- Chosen derived-category structure on modules over `X`. -/
-instance ambient_hasDerivedCategory : HasDerivedCategory (ModuleCat.{w} X) :=
+abbrev ambient_hasDerivedCategory : HasDerivedCategory (ModuleCat.{w} X) :=
   moduleCat_hasDerivedCategory X
 
 /-- Chosen derived-category structure on modules over `((C / K)_total, O)`. -/
-instance site_hasDerivedCategory : HasDerivedCategory (ModuleCat.{w} (site K)) :=
+abbrev site_hasDerivedCategory : HasDerivedCategory (ModuleCat.{w} (site K)) :=
   moduleCat_hasDerivedCategory (site K)
 
 /-- Chosen derived-category structure on modules over a degree-`n` localization `(C / K_n, O_n)`. -/
-instance stage_hasDerivedCategory (n : SimplexCategory) :
+abbrev stage_hasDerivedCategory (n : SimplexCategory) :
     HasDerivedCategory (ModuleCat.{w} (AtSR.site (K.obj (op n)))) :=
   moduleCat_hasDerivedCategory (AtSR.site (K.obj (op n)))
 
 /-- Module pullback along `g_n` is additive. -/
-instance stageIncl_modulePullback_additive (n : SimplexCategory) :
+theorem stageIncl_modulePullback_additive (n : SimplexCategory) :
     ((stageIncl K n).modulePullback).Additive :=
   sorry
 
 /-- Module pullback along `g_n` preserves finite limits, by flatness of `g_n`. -/
-instance stageIncl_modulePullback_preservesFiniteLimits (n : SimplexCategory) :
+theorem stageIncl_modulePullback_preservesFiniteLimits (n : SimplexCategory) :
     PreservesFiniteLimits (stageIncl K n).modulePullback :=
-  (ToposHom.IsFlat.pullback_exact (stageIncl K n)).1
+  (stageIncl_modulePullback_exact K n).1
 
 /-- Module pullback along `g_n` preserves finite colimits, by flatness of `g_n`. -/
-instance stageIncl_modulePullback_preservesFiniteColimits (n : SimplexCategory) :
+theorem stageIncl_modulePullback_preservesFiniteColimits (n : SimplexCategory) :
     PreservesFiniteColimits (stageIncl K n).modulePullback :=
-  (ToposHom.IsFlat.pullback_exact (stageIncl K n)).2
+  (stageIncl_modulePullback_exact K n).2
 
 /-- Module pullback along `f_φ` is additive. -/
-instance stageMap_modulePullback_additive {m n : SimplexCategory} (φ : m ⟶ n) :
+theorem stageMap_modulePullback_additive {m n : SimplexCategory} (φ : m ⟶ n) :
     ((stageMap K φ).modulePullback).Additive :=
   sorry
 
 /-- Module pullback along `f_φ` preserves finite limits, by flatness of `f_φ`. -/
-instance stageMap_modulePullback_preservesFiniteLimits {m n : SimplexCategory} (φ : m ⟶ n) :
+theorem stageMap_modulePullback_preservesFiniteLimits {m n : SimplexCategory} (φ : m ⟶ n) :
     PreservesFiniteLimits (stageMap K φ).modulePullback :=
-  (ToposHom.IsFlat.pullback_exact (stageMap K φ)).1
+  (stageMap_modulePullback_exact K φ).1
 
 /-- Module pullback along `f_φ` preserves finite colimits, by flatness of `f_φ`. -/
-instance stageMap_modulePullback_preservesFiniteColimits {m n : SimplexCategory} (φ : m ⟶ n) :
+theorem stageMap_modulePullback_preservesFiniteColimits {m n : SimplexCategory} (φ : m ⟶ n) :
     PreservesFiniteColimits (stageMap K φ).modulePullback :=
-  (ToposHom.IsFlat.pullback_exact (stageMap K φ)).2
+  (stageMap_modulePullback_exact K φ).2
 
 /-- Module pullback along the augmentation `a` is additive. -/
-instance toAmbient_modulePullback_additive : ((toAmbient K).modulePullback).Additive :=
+theorem toAmbient_modulePullback_additive : ((toAmbient K).modulePullback).Additive :=
   sorry
 
 /-- Module pullback along `a` preserves finite limits, by flatness of `a`. -/
-instance toAmbient_modulePullback_preservesFiniteLimits :
+theorem toAmbient_modulePullback_preservesFiniteLimits :
     PreservesFiniteLimits (toAmbient K).modulePullback :=
-  (ToposHom.IsFlat.pullback_exact (toAmbient K)).1
+  (toAmbient_modulePullback_exact K).1
 
 /-- Module pullback along `a` preserves finite colimits, by flatness of `a`. -/
-instance toAmbient_modulePullback_preservesFiniteColimits :
+theorem toAmbient_modulePullback_preservesFiniteColimits :
     PreservesFiniteColimits (toAmbient K).modulePullback :=
-  (ToposHom.IsFlat.pullback_exact (toAmbient K)).2
+  (toAmbient_modulePullback_exact K).2
 
 /-- The bundled exact functor `g_n^*` of `O`-modules. -/
 abbrev stageInclExact (n : SimplexCategory) :
     ModuleCat.{w} (site K) ⥤ₑ ModuleCat.{w} (AtSR.site (K.obj (op n))) :=
-  ToposHom.IsFlat.exactPullback (stageIncl K n)
+  ⟨(stageIncl K n).modulePullback, stageIncl_modulePullback_exact K n⟩
 
 /-- The bundled exact functor `f_φ^*` of `O`-modules. -/
 abbrev stageMapExact {m n : SimplexCategory} (φ : m ⟶ n) :
     ModuleCat.{w} (AtSR.site (K.obj (op m))) ⥤ₑ ModuleCat.{w} (AtSR.site (K.obj (op n))) :=
-  ToposHom.IsFlat.exactPullback (stageMap K φ)
+  ⟨(stageMap K φ).modulePullback, stageMap_modulePullback_exact K φ⟩
 
 /-- The bundled exact functor `a^*` of `O_C`-modules. -/
 abbrev toAmbientExact :
     ModuleCat.{w} X ⥤ₑ ModuleCat.{w} (site K) :=
-  ToposHom.IsFlat.exactPullback (toAmbient K)
-
-/-- Reconstruct a module morphism from an underlying type-valued sheaf map. -/
-def moduleHomOfUnderlying.{uY, vY} {C : Type uY} [Category.{vY} C] {J : GrothendieckTopology C}
-    [J.HasSheafCompose (CategoryTheory.forget RingCat.{w})] {R : Sheaf J RingCat.{w}}
-    {M N : SheafOfModules.{w} R}
-    (α : (Sheaf.InternalModule.ToInternal.underlying R).obj M ⟶
-      (Sheaf.InternalModule.ToInternal.underlying R).obj N) :
-    M ⟶ N :=
-  Sheaf.InternalModule.homOfUnderlying R α sorry sorry
-
-/-- Reconstruct a module morphism on a ringed site from an underlying type-valued sheaf map. -/
-def moduleHomOfUnderlyingOn.{uY, vY} {Y : RingedSite.{uY, vY, w}}
-    [Y.siteTopology.HasSheafCompose (CategoryTheory.forget RingCat.{w})]
-    {M N : SheafOfModules.{w} Y.structureSheaf}
-    (α : (Sheaf.InternalModule.ToInternal.underlying Y.structureSheaf).obj M ⟶
-      (Sheaf.InternalModule.ToInternal.underlying Y.structureSheaf).obj N) :
-    M ⟶ N :=
-  moduleHomOfUnderlying α
-
-/-- Lift an underlying-sheaf isomorphism of module functors to a module-functor isomorphism. -/
-def moduleNatIsoOfUnderlying.{uY, vY, uZ, vZ} {C : Type uY} [Category.{vY} C] {J : GrothendieckTopology C}
-    {D : Type uZ} [Category.{vZ} D] {K : GrothendieckTopology D}
-    [J.HasSheafCompose (CategoryTheory.forget RingCat.{w})]
-    [K.HasSheafCompose (CategoryTheory.forget RingCat.{w})]
-    {R : Sheaf J RingCat.{w}} {S : Sheaf K RingCat.{w}}
-    {F G : SheafOfModules.{w} R ⥤ SheafOfModules.{w} S}
-    (e : F ⋙ Sheaf.InternalModule.ToInternal.underlying S ≅
-      G ⋙ Sheaf.InternalModule.ToInternal.underlying S) :
-    F ≅ G :=
-  NatIso.ofComponents
-    (fun M ↦
-      { hom := moduleHomOfUnderlying (e.hom.app M)
-        inv := moduleHomOfUnderlying (e.inv.app M)
-        hom_inv_id := sorry
-        inv_hom_id := sorry })
-    sorry
-
-/-- Lift an underlying-sheaf isomorphism of module functors on ringed sites. -/
-def moduleNatIsoOfUnderlyingOn.{uY, vY, uZ, vZ} {Y : RingedSite.{uY, vY, w}}
-    {Z : RingedSite.{uZ, vZ, w}}
-    [Y.siteTopology.HasSheafCompose (CategoryTheory.forget RingCat.{w})]
-    [Z.siteTopology.HasSheafCompose (CategoryTheory.forget RingCat.{w})]
-    {F G : SheafOfModules.{w} Y.structureSheaf ⥤ SheafOfModules.{w} Z.structureSheaf}
-    (e : F ⋙ Sheaf.InternalModule.ToInternal.underlying Z.structureSheaf ≅
-      G ⋙ Sheaf.InternalModule.ToInternal.underlying Z.structureSheaf) :
-    F ≅ G :=
-  moduleNatIsoOfUnderlying (R := Y.structureSheaf) (S := Z.structureSheaf) e
+  ⟨(toAmbient K).modulePullback, toAmbient_modulePullback_exact K⟩
 
 /-- Cocontinuous inverse image along `a` is isomorphic to continuous restriction. -/
 def toAmbient_cocontinuousContinuousIso :
@@ -211,7 +162,7 @@ def toAmbient_cocontinuousContinuousIso :
     sorry
 
 /-- The localization functor of `K_n` is continuous. -/
-instance stageForget_isContinuous (n : SimplexCategory) :
+theorem stageForget_isContinuous (n : SimplexCategory) :
     (SemiRepresentableFamily.forget (K.obj (op n))).IsContinuous
       (overTopology X.siteTopology (K.obj (op n))) X.siteTopology :=
   SemiRepresentableFamily.forget_isContinuous X.siteTopology (K.obj (op n))
@@ -238,11 +189,43 @@ def toAmbient_modulePullback_scalarUnit (M : SheafOfModules.{w} X.structureSheaf
       (toAmbient K).structureMap).unit.app
     (((toAmbient K).toTopos.moduleInverseImage X.structureSheaf).obj M)
 
+/-- The specified inverse-image structure ring with its actual reverse map. -/
+def toAmbient_structureMapIso :
+    (toAmbient K).toTopos.ringInverseImage.obj X.structureSheaf ≅ (site K).structureSheaf :=
+  @Cocontinuous.structureMapIso (site K) X (totalForget K)
+    (totalForget_isCocontinuous_site K) inferInstance inferInstance
+    inferInstance inferInstance (Iso.refl _)
+
+/-- This structure-ring isomorphism retains the original structure map. -/
+@[simp]
+theorem toAmbient_structureMapIso_hom :
+    (toAmbient_structureMapIso K).hom = (toAmbient K).structureMap := rfl
+
+/-- The original scalar-extension unit with its actual inverse, obtained by
+reverse restriction along the displayed structure-ring isomorphism. -/
+def toAmbient_modulePullback_scalarUnitIso
+    (M : SheafOfModules.{w} X.structureSheaf) :
+    ((toAmbient K).toTopos.moduleInverseImage X.structureSheaf).obj M ≅
+      (SheafOfModules.restrictScalars (toAmbient K).structureMap).obj
+        ((toAmbient K).modulePullback.obj M) :=
+  @SheafOfModules.ChangeOfRings.extendRestrictUnitIso _ _ _ _ _
+    (toAmbient_structureMapIso K)
+    (inferInstance : (SheafOfModules.restrictScalars.{w}
+      (toAmbient K).structureMap).IsRightAdjoint)
+    (((toAmbient K).toTopos.moduleInverseImage X.structureSheaf).obj M)
+
+/-- The displayed unit isomorphism has the original unit as its forward map. -/
+@[simp]
+theorem toAmbient_modulePullback_scalarUnitIso_hom
+    (M : SheafOfModules.{w} X.structureSheaf) :
+    (toAmbient_modulePullback_scalarUnitIso K M).hom =
+      toAmbient_modulePullback_scalarUnit K M := rfl
+
 /-- The scalar-extension unit of `a` is an isomorphism. -/
-instance toAmbient_modulePullback_scalarUnit_isIso
+theorem toAmbient_modulePullback_scalarUnit_isIso
     (M : SheafOfModules.{w} X.structureSheaf) :
     IsIso (toAmbient_modulePullback_scalarUnit K M) :=
-  sorry
+  (toAmbient_modulePullback_scalarUnitIso K M).isIso_hom
 
 /-- Underlying type-valued sheaves identify `a^*` with continuous inverse image along
 `totalForget`. -/
@@ -253,10 +236,9 @@ def toAmbient_modulePullback_underlyingIso (M : SheafOfModules.{w} X.structureSh
           (overSiteTotalTopology X.siteTopology K) X.siteTopology).obj
         ((Sheaf.InternalModule.ToInternal.underlying X.structureSheaf).obj M) :=
   toAmbient_modulePullback_restrictScalars_underlyingIso K M ≪≫
-    (asIso
-      ((Sheaf.InternalModule.ToInternal.underlying
-          ((toAmbient K).toTopos.ringInverseImage.obj X.structureSheaf)).map
-        (toAmbient_modulePullback_scalarUnit K M))).symm ≪≫
+    ((Sheaf.InternalModule.ToInternal.underlying
+        ((toAmbient K).toTopos.ringInverseImage.obj X.structureSheaf)).mapIso
+      (toAmbient_modulePullback_scalarUnitIso K M)).symm ≪≫
     ((toAmbient K).toTopos.moduleInverseImageForgetIso X.structureSheaf).app M ≪≫
       (toAmbient_cocontinuousContinuousIso K).app
         ((Sheaf.InternalModule.ToInternal.underlying X.structureSheaf).obj M)
@@ -264,23 +246,58 @@ def toAmbient_modulePullback_underlyingIso (M : SheafOfModules.{w} X.structureSh
 /-- Underlying type-valued sheaves of geometric inverse image along `totalForget`. -/
 def toAmbient_moduleInverseImage_underlyingIso (M : SheafOfModules.{w} X.structureSheaf) :
     (Sheaf.InternalModule.ToInternal.underlying (site K).structureSheaf).obj
-        ((Cocontinuous.moduleInverseImage (totalForget K) X.structureSheaf).obj M) ≅
+        ((Cocontinuous.moduleInverseImage
+        (J := overSiteTotalTopology X.siteTopology K) (totalForget K) X.structureSheaf).obj M) ≅
       ((totalForget K).sheafPushforwardContinuous (Type w)
           (overSiteTotalTopology X.siteTopology K) X.siteTopology).obj
         ((Sheaf.InternalModule.ToInternal.underlying X.structureSheaf).obj M) :=
   (fullyFaithfulSheafToPresheaf (site K).siteTopology (Type w)).preimageIso
     (NatIso.ofComponents (fun _ ↦ Iso.refl _) sorry)
 
+/-- The specified underlying-sheaf comparison between the two canonical module pullbacks. -/
+def toAmbient_modulePullback_underlyingNatIso :
+    (toAmbient K).modulePullback ⋙
+        Sheaf.InternalModule.ToInternal.underlying (site K).structureSheaf ≅
+      Cocontinuous.moduleInverseImage
+        (J := overSiteTotalTopology X.siteTopology K) (totalForget K) X.structureSheaf ⋙
+        Sheaf.InternalModule.ToInternal.underlying (site K).structureSheaf :=
+  NatIso.ofComponents
+    (fun M ↦
+      toAmbient_modulePullback_underlyingIso K M ≪≫
+        (toAmbient_moduleInverseImage_underlyingIso K M).symm)
+    sorry
+
+/-- The specified canonical comparison preserves addition in its target module structure. -/
+theorem toAmbient_modulePullback_underlyingNatIso_add (M : SheafOfModules.{w} X.structureSheaf)
+    (U : (Grothendieck (overSiteDiagram K))ᵒᵖ)
+    (x y : ((toAmbient K).modulePullback.obj M).val.obj U) :
+    underlyingApp (site K).structureSheaf
+      ((toAmbient_modulePullback_underlyingNatIso K).hom.app M) U (x + y) =
+      underlyingApp (site K).structureSheaf
+        ((toAmbient_modulePullback_underlyingNatIso K).hom.app M) U x +
+        underlyingApp (site K).structureSheaf
+          ((toAmbient_modulePullback_underlyingNatIso K).hom.app M) U y :=
+  sorry
+
+/-- The specified canonical comparison preserves the target ring's scalar action. -/
+theorem toAmbient_modulePullback_underlyingNatIso_smul (M : SheafOfModules.{w} X.structureSheaf)
+    (U : (Grothendieck (overSiteDiagram K))ᵒᵖ) (r : (site K).structureSheaf.obj.obj U)
+    (x : ((toAmbient K).modulePullback.obj M).val.obj U) :
+    underlyingApp (site K).structureSheaf
+      ((toAmbient_modulePullback_underlyingNatIso K).hom.app M) U (r • x) =
+      r • underlyingApp (site K).structureSheaf
+        ((toAmbient_modulePullback_underlyingNatIso K).hom.app M) U x :=
+  sorry
+
 /-- Module pullback along `a` identifies with geometric inverse image along `totalForget`. -/
 def toAmbient_modulePullbackIso :
     (toAmbient K).modulePullback ≅
-      Cocontinuous.moduleInverseImage (totalForget K) X.structureSheaf :=
-  moduleNatIsoOfUnderlying
-    (NatIso.ofComponents
-      (fun M ↦
-        toAmbient_modulePullback_underlyingIso K M ≪≫
-          (toAmbient_moduleInverseImage_underlyingIso K M).symm)
-      sorry)
+      Cocontinuous.moduleInverseImage
+        (J := overSiteTotalTopology X.siteTopology K) (totalForget K) X.structureSheaf :=
+  Sheaf.InternalModule.functorIsoOfUnderlying (site K).structureSheaf
+    (toAmbient_modulePullback_underlyingNatIso K)
+    (toAmbient_modulePullback_underlyingNatIso_add K)
+    (toAmbient_modulePullback_underlyingNatIso_smul K)
 
 /-- The forward map of `toAmbient_modulePullbackIso` is the underlying comparison lift. -/
 theorem toAmbient_modulePullbackIso_hom (M : SheafOfModules.{w} X.structureSheaf) :
@@ -313,11 +330,45 @@ def stageIncl_modulePullback_scalarUnit (n : SimplexCategory)
       (stageIncl K n).structureMap).unit.app
     (((stageIncl K n).toTopos.moduleInverseImage (ringSheaf K)).obj M)
 
+/-- The specified inverse-image structure ring with its actual reverse map. -/
+def stageIncl_structureMapIso (n : SimplexCategory) :
+    (stageIncl K n).toTopos.ringInverseImage.obj (ringSheaf K) ≅ (AtSR.site (K.obj (op n))).structureSheaf :=
+  @Cocontinuous.structureMapIso (AtSR.site (K.obj (op n))) (site K)
+    (Grothendieck.ι (overSiteDiagram K) (op n)) (stageIncl_isCocontinuous K n)
+    inferInstance inferInstance inferInstance inferInstance
+    ((sheafToPresheaf (overTopology X.siteTopology (K.obj (op n))) RingCat.{w}).mapIso
+      (stageRingIso K n).symm)
+
+/-- This structure-ring isomorphism retains the original structure map. -/
+@[simp]
+theorem stageIncl_structureMapIso_hom (n : SimplexCategory) :
+    (stageIncl_structureMapIso K n).hom = (stageIncl K n).structureMap := rfl
+
+/-- The original scalar-extension unit with its actual inverse, obtained by
+reverse restriction along the displayed structure-ring isomorphism. -/
+def stageIncl_modulePullback_scalarUnitIso (n : SimplexCategory)
+    (M : SheafOfModules.{w} (ringSheaf K)) :
+    ((stageIncl K n).toTopos.moduleInverseImage (ringSheaf K)).obj M ≅
+      (SheafOfModules.restrictScalars (stageIncl K n).structureMap).obj
+        ((stageIncl K n).modulePullback.obj M) :=
+  @SheafOfModules.ChangeOfRings.extendRestrictUnitIso _ _ _ _ _
+    (stageIncl_structureMapIso K n)
+    (inferInstance : (SheafOfModules.restrictScalars.{w}
+      (stageIncl K n).structureMap).IsRightAdjoint)
+    (((stageIncl K n).toTopos.moduleInverseImage (ringSheaf K)).obj M)
+
+/-- The displayed unit isomorphism has the original unit as its forward map. -/
+@[simp]
+theorem stageIncl_modulePullback_scalarUnitIso_hom (n : SimplexCategory)
+    (M : SheafOfModules.{w} (ringSheaf K)) :
+    (stageIncl_modulePullback_scalarUnitIso K n M).hom =
+      stageIncl_modulePullback_scalarUnit K n M := rfl
+
 /-- The scalar-extension unit of `g_n` is an isomorphism. -/
-instance stageIncl_modulePullback_scalarUnit_isIso (n : SimplexCategory)
+theorem stageIncl_modulePullback_scalarUnit_isIso (n : SimplexCategory)
     (M : SheafOfModules.{w} (ringSheaf K)) :
     IsIso (stageIncl_modulePullback_scalarUnit K n M) :=
-  sorry
+  (stageIncl_modulePullback_scalarUnitIso K n M).isIso_hom
 
 /-- Underlying type-valued sheaves identify `g_n^*` with continuous restriction along `ι`. -/
 def stageIncl_modulePullback_underlyingIso (n : SimplexCategory)
@@ -327,10 +378,9 @@ def stageIncl_modulePullback_underlyingIso (n : SimplexCategory)
       (typeComponent K n).obj
         ((Sheaf.InternalModule.ToInternal.underlying (ringSheaf K)).obj M) :=
   stageIncl_modulePullback_restrictScalars_underlyingIso K n M ≪≫
-    (asIso
-      ((Sheaf.InternalModule.ToInternal.underlying
-          ((stageIncl K n).toTopos.ringInverseImage.obj (ringSheaf K))).map
-        (stageIncl_modulePullback_scalarUnit K n M))).symm ≪≫
+    ((Sheaf.InternalModule.ToInternal.underlying
+        ((stageIncl K n).toTopos.ringInverseImage.obj (ringSheaf K))).mapIso
+      (stageIncl_modulePullback_scalarUnitIso K n M)).symm ≪≫
     moduleInverseImage_underlyingIso K M n
 
 /-- Sequential pushforward along `j_total` then `ι` is pushforward along `ι ⋙ j_total`. -/
@@ -377,21 +427,57 @@ def stageForget_moduleInverseImage_underlyingIso (n : SimplexCategory)
   (fullyFaithfulSheafToPresheaf (overTopology X.siteTopology (K.obj (op n))) (Type w)).preimageIso
     (NatIso.ofComponents (fun _ ↦ Iso.refl _) sorry)
 
+/-- The specified underlying-sheaf comparison between the two canonical module pullbacks. -/
+def toAmbient_comp_stageIncl_underlyingNatIso (n : SimplexCategory) :
+    ((toAmbient K).modulePullback ⋙ (stageIncl K n).modulePullback) ⋙
+        Sheaf.InternalModule.ToInternal.underlying (AtSR.ringSheaf (K.obj (op n))) ≅
+      (Cocontinuous.moduleInverseImage
+        (SemiRepresentableFamily.forget (K.obj (op n))) X.structureSheaf) ⋙
+          Sheaf.InternalModule.ToInternal.underlying (AtSR.ringSheaf (K.obj (op n))) :=
+  NatIso.ofComponents
+    (fun M ↦
+      stageIncl_modulePullback_underlyingIso K n ((toAmbient K).modulePullback.obj M) ≪≫
+        (typeComponent K n).mapIso (toAmbient_modulePullback_underlyingIso K M) ≪≫
+          (fiberComp_sheafPushforwardIso K n).app
+            ((Sheaf.InternalModule.ToInternal.underlying X.structureSheaf).obj M) ≪≫
+            (stageForget_moduleInverseImage_underlyingIso K n M).symm)
+    sorry
+
+/-- The specified canonical comparison preserves addition in its target module structure. -/
+theorem toAmbient_comp_stageIncl_underlyingNatIso_add (n : SimplexCategory)
+    (M : SheafOfModules.{w} X.structureSheaf)
+    (U : (OverSite (K.obj (op n)))ᵒᵖ)
+    (x y : ((stageIncl K n).modulePullback.obj ((toAmbient K).modulePullback.obj M)).val.obj U) :
+    underlyingApp (AtSR.ringSheaf (K.obj (op n)))
+      ((toAmbient_comp_stageIncl_underlyingNatIso K n).hom.app M) U (x + y) =
+      underlyingApp (AtSR.ringSheaf (K.obj (op n)))
+        ((toAmbient_comp_stageIncl_underlyingNatIso K n).hom.app M) U x +
+        underlyingApp (AtSR.ringSheaf (K.obj (op n)))
+          ((toAmbient_comp_stageIncl_underlyingNatIso K n).hom.app M) U y :=
+  sorry
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The specified canonical comparison preserves the target ring's scalar action. -/
+theorem toAmbient_comp_stageIncl_underlyingNatIso_smul (n : SimplexCategory)
+    (M : SheafOfModules.{w} X.structureSheaf)
+    (U : (OverSite (K.obj (op n)))ᵒᵖ) (r : (AtSR.site (K.obj (op n))).structureSheaf.obj.obj U)
+    (x : ((stageIncl K n).modulePullback.obj ((toAmbient K).modulePullback.obj M)).val.obj U) :
+    underlyingApp (AtSR.ringSheaf (K.obj (op n)))
+      ((toAmbient_comp_stageIncl_underlyingNatIso K n).hom.app M) U (r • x) =
+      r • underlyingApp (AtSR.ringSheaf (K.obj (op n)))
+        ((toAmbient_comp_stageIncl_underlyingNatIso K n).hom.app M) U x :=
+  sorry
+
 /-- Sequential pullback along `a` then `g_n` identifies with inverse image along
 the degree-`n` localization functor `C / K_n ⥤ C`. -/
 def toAmbient_comp_stageInclIso (n : SimplexCategory) :
     (toAmbient K).modulePullback ⋙ (stageIncl K n).modulePullback ≅
       Cocontinuous.moduleInverseImage
         (SemiRepresentableFamily.forget (K.obj (op n))) X.structureSheaf :=
-  moduleNatIsoOfUnderlying
-    (NatIso.ofComponents
-      (fun M ↦
-        stageIncl_modulePullback_underlyingIso K n ((toAmbient K).modulePullback.obj M) ≪≫
-          (typeComponent K n).mapIso (toAmbient_modulePullback_underlyingIso K M) ≪≫
-            (fiberComp_sheafPushforwardIso K n).app
-              ((Sheaf.InternalModule.ToInternal.underlying X.structureSheaf).obj M) ≪≫
-              (stageForget_moduleInverseImage_underlyingIso K n M).symm)
-      sorry)
+  Sheaf.InternalModule.functorIsoOfUnderlying (AtSR.ringSheaf (K.obj (op n)))
+    (toAmbient_comp_stageIncl_underlyingNatIso K n)
+    (toAmbient_comp_stageIncl_underlyingNatIso_add K n)
+    (toAmbient_comp_stageIncl_underlyingNatIso_smul K n)
 
 /-- `toAmbient_comp_stageInclIso` is the underlying-sheaf lift of `fiber_comp_totalForget`. -/
 theorem toAmbient_comp_stageInclIso_hom (n : SimplexCategory)
@@ -428,11 +514,45 @@ def stageMap_modulePullback_scalarUnit {m n : SimplexCategory} (φ : m ⟶ n)
       (stageMap K φ).structureMap).unit.app
     (((stageMap K φ).toTopos.moduleInverseImage (AtSR.ringSheaf (K.obj (op m)))).obj M)
 
+/-- The specified inverse-image structure ring with its actual reverse map. -/
+def stageMap_structureMapIso {m n : SimplexCategory} (φ : m ⟶ n) :
+    (stageMap K φ).toTopos.ringInverseImage.obj (AtSR.ringSheaf (K.obj (op m))) ≅ (AtSR.site (K.obj (op n))).structureSheaf :=
+  @Cocontinuous.structureMapIso (AtSR.site (K.obj (op n))) (AtSR.site (K.obj (op m)))
+    (overMap (K.map φ.op)) (AtSR.overMap_isCocontinuous_site (K.map φ.op))
+    inferInstance inferInstance inferInstance inferInstance
+    ((sheafToPresheaf (overTopology X.siteTopology (K.obj (op n))) RingCat.{w}).mapIso
+      (AtSR.mapRingSheafIso (K.map φ.op)).symm)
+
+/-- This structure-ring isomorphism retains the original structure map. -/
+@[simp]
+theorem stageMap_structureMapIso_hom {m n : SimplexCategory} (φ : m ⟶ n) :
+    (stageMap_structureMapIso K φ).hom = (stageMap K φ).structureMap := rfl
+
+/-- The original scalar-extension unit with its actual inverse, obtained by
+reverse restriction along the displayed structure-ring isomorphism. -/
+def stageMap_modulePullback_scalarUnitIso {m n : SimplexCategory} (φ : m ⟶ n)
+    (M : SheafOfModules.{w} (AtSR.ringSheaf (K.obj (op m)))) :
+    ((stageMap K φ).toTopos.moduleInverseImage (AtSR.ringSheaf (K.obj (op m)))).obj M ≅
+      (SheafOfModules.restrictScalars (stageMap K φ).structureMap).obj
+        ((stageMap K φ).modulePullback.obj M) :=
+  @SheafOfModules.ChangeOfRings.extendRestrictUnitIso _ _ _ _ _
+    (stageMap_structureMapIso K φ)
+    (inferInstance : (SheafOfModules.restrictScalars.{w}
+      (stageMap K φ).structureMap).IsRightAdjoint)
+    (((stageMap K φ).toTopos.moduleInverseImage (AtSR.ringSheaf (K.obj (op m)))).obj M)
+
+/-- The displayed unit isomorphism has the original unit as its forward map. -/
+@[simp]
+theorem stageMap_modulePullback_scalarUnitIso_hom {m n : SimplexCategory} (φ : m ⟶ n)
+    (M : SheafOfModules.{w} (AtSR.ringSheaf (K.obj (op m)))) :
+    (stageMap_modulePullback_scalarUnitIso K φ M).hom =
+      stageMap_modulePullback_scalarUnit K φ M := rfl
+
 /-- The scalar-extension unit of `f_φ` is an isomorphism. -/
-instance stageMap_modulePullback_scalarUnit_isIso {m n : SimplexCategory} (φ : m ⟶ n)
+theorem stageMap_modulePullback_scalarUnit_isIso {m n : SimplexCategory} (φ : m ⟶ n)
     (M : SheafOfModules.{w} (AtSR.ringSheaf (K.obj (op m)))) :
     IsIso (stageMap_modulePullback_scalarUnit K φ M) :=
-  sorry
+  (stageMap_modulePullback_scalarUnitIso K φ M).isIso_hom
 
 /-- Underlying type-valued sheaves identify `f_φ^*` with continuous restriction along `overMap`. -/
 def stageMap_modulePullback_underlyingIso {m n : SimplexCategory} (φ : m ⟶ n)
@@ -444,10 +564,9 @@ def stageMap_modulePullback_underlyingIso {m n : SimplexCategory} (φ : m ⟶ n)
           (overTopology X.siteTopology (K.obj (op m)))).obj
         ((Sheaf.InternalModule.ToInternal.underlying (AtSR.ringSheaf (K.obj (op m)))).obj M) :=
   stageMap_modulePullback_restrictScalars_underlyingIso K φ M ≪≫
-    (asIso
-      ((Sheaf.InternalModule.ToInternal.underlying
-          ((stageMap K φ).toTopos.ringInverseImage.obj (AtSR.ringSheaf (K.obj (op m))))).map
-        (stageMap_modulePullback_scalarUnit K φ M))).symm ≪≫
+    ((Sheaf.InternalModule.ToInternal.underlying
+        ((stageMap K φ).toTopos.ringInverseImage.obj (AtSR.ringSheaf (K.obj (op m))))).mapIso
+      (stageMap_modulePullback_scalarUnitIso K φ M)).symm ≪≫
     ((stageMap K φ).toTopos.moduleInverseImageForgetIso
         (AtSR.ringSheaf (K.obj (op m)))).app M ≪≫
       (stageMap_cocontinuousContinuousIso K φ).app
@@ -465,15 +584,51 @@ def mapModulePullback_underlyingIso {m n : SimplexCategory} (φ : m ⟶ n)
   (fullyFaithfulSheafToPresheaf (overTopology X.siteTopology (K.obj (op n))) (Type w)).preimageIso
     (NatIso.ofComponents (fun _ ↦ Iso.refl _) sorry)
 
+/-- The specified underlying-sheaf comparison between the two canonical module pullbacks. -/
+def stageMap_mapModulePullback_underlyingNatIso {m n : SimplexCategory} (φ : m ⟶ n) :
+    (stageMap K φ).modulePullback ⋙
+        Sheaf.InternalModule.ToInternal.underlying (AtSR.ringSheaf (K.obj (op n))) ≅
+      AtSR.mapModulePullback (K.map φ.op) ⋙
+        Sheaf.InternalModule.ToInternal.underlying (AtSR.ringSheaf (K.obj (op n))) :=
+  NatIso.ofComponents
+    (fun M ↦
+      stageMap_modulePullback_underlyingIso K φ M ≪≫
+        (mapModulePullback_underlyingIso K φ M).symm)
+    sorry
+
+/-- The specified canonical comparison preserves addition in its target module structure. -/
+theorem stageMap_mapModulePullback_underlyingNatIso_add {m n : SimplexCategory} (φ : m ⟶ n)
+    (M : SheafOfModules.{w} (AtSR.ringSheaf (K.obj (op m))))
+    (U : (OverSite (K.obj (op n)))ᵒᵖ)
+    (x y : ((stageMap K φ).modulePullback.obj M).val.obj U) :
+    underlyingApp (AtSR.ringSheaf (K.obj (op n)))
+      ((stageMap_mapModulePullback_underlyingNatIso K φ).hom.app M) U (x + y) =
+      underlyingApp (AtSR.ringSheaf (K.obj (op n)))
+        ((stageMap_mapModulePullback_underlyingNatIso K φ).hom.app M) U x +
+        underlyingApp (AtSR.ringSheaf (K.obj (op n)))
+          ((stageMap_mapModulePullback_underlyingNatIso K φ).hom.app M) U y :=
+  sorry
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The specified canonical comparison preserves the target ring's scalar action. -/
+theorem stageMap_mapModulePullback_underlyingNatIso_smul {m n : SimplexCategory} (φ : m ⟶ n)
+    (M : SheafOfModules.{w} (AtSR.ringSheaf (K.obj (op m))))
+    (U : (OverSite (K.obj (op n)))ᵒᵖ) (r : (AtSR.site (K.obj (op n))).structureSheaf.obj.obj U)
+    (x : ((stageMap K φ).modulePullback.obj M).val.obj U) :
+    underlyingApp (AtSR.ringSheaf (K.obj (op n)))
+      ((stageMap_mapModulePullback_underlyingNatIso K φ).hom.app M) U (r • x) =
+      r • underlyingApp (AtSR.ringSheaf (K.obj (op n)))
+        ((stageMap_mapModulePullback_underlyingNatIso K φ).hom.app M) U x :=
+  sorry
+
 /-- Module pullback along `f_φ` identifies with the explicit SR-morphism inverse image. -/
 def stageMap_mapModulePullbackIso {m n : SimplexCategory} (φ : m ⟶ n) :
-    (stageMap K φ).modulePullback ≅ AtSR.mapModulePullback (K.map φ.op) :=
-  moduleNatIsoOfUnderlying
-    (NatIso.ofComponents
-      (fun M ↦
-        stageMap_modulePullback_underlyingIso K φ M ≪≫
-          (mapModulePullback_underlyingIso K φ M).symm)
-      sorry)
+    (stageMap K φ).modulePullback ≅
+      AtSR.mapModulePullback (K.map φ.op) :=
+  Sheaf.InternalModule.functorIsoOfUnderlying (AtSR.ringSheaf (K.obj (op n)))
+    (stageMap_mapModulePullback_underlyingNatIso K φ)
+    (stageMap_mapModulePullback_underlyingNatIso_add K φ)
+    (stageMap_mapModulePullback_underlyingNatIso_smul K φ)
 
 /-- The forward map of `stageMap_mapModulePullbackIso` is the underlying comparison lift. -/
 theorem stageMap_mapModulePullbackIso_hom {m n : SimplexCategory} (φ : m ⟶ n)
@@ -489,21 +644,25 @@ namespace ModuleDerived
 /-- Restriction of an object of `D(O)` to the degree-`n` site, i.e. `E_n = Lg_n^* E`. -/
 abbrev moduleDerivedComponent (n : SimplexCategory) :
     Hom.ModuleDerived.{w} (site K) ⥤ Hom.ModuleDerived.{w} (AtSR.site (K.obj (op n))) :=
-  (stageInclExact K n).mapDerivedCategory
+  (@ExactFunctor.mapDerivedCategory _ _ _ (site_hasDerivedCategory K)
+      _ _ _ (stage_hasDerivedCategory K n) (stageInclExact K n))
 
 /-- `moduleDerivedComponent n` is the exact derived functor of module pullback along `g_n`. -/
 theorem moduleDerivedComponent_eq (n : SimplexCategory) :
-    moduleDerivedComponent K n = (stageInclExact K n).mapDerivedCategory :=
+    moduleDerivedComponent K n = (@ExactFunctor.mapDerivedCategory _ _ _ (site_hasDerivedCategory K)
+      _ _ _ (stage_hasDerivedCategory K n) (stageInclExact K n)) :=
   rfl
 
 /-- Derived inverse image `La^*` along the ringed augmentation `a`. -/
 abbrev toAmbientDerived :
     Hom.ModuleDerived.{w} X ⥤ Hom.ModuleDerived.{w} (site K) :=
-  (toAmbientExact K).mapDerivedCategory
+  (@ExactFunctor.mapDerivedCategory _ _ _ (ambient_hasDerivedCategory (X := X))
+      _ _ _ (site_hasDerivedCategory K) (toAmbientExact K))
 
 /-- `toAmbientDerived` is the exact derived functor of module pullback along `a`. -/
 theorem toAmbientDerived_eq :
-    toAmbientDerived K = (toAmbientExact K).mapDerivedCategory :=
+    toAmbientDerived K = (@ExactFunctor.mapDerivedCategory _ _ _ (ambient_hasDerivedCategory (X := X))
+      _ _ _ (site_hasDerivedCategory K) (toAmbientExact K)) :=
   rfl
 
 /-- The underived simplex-operator comparison as a natural transformation
@@ -528,20 +687,31 @@ def moduleTransitionExact {m n : SimplexCategory} (φ : m ⟶ n) :
 /-- The derived comparison `L(f_φ)^* E_m ⟶ E_n` of objects of `D(O)`. -/
 def moduleDerivedTransition {m n : SimplexCategory} (φ : m ⟶ n)
     (E : Hom.ModuleDerived.{w} (site K)) :
-    (stageMapExact K φ).mapDerivedCategory.obj ((moduleDerivedComponent K m).obj E) ⟶
+    (@ExactFunctor.mapDerivedCategory _ _ _ (stage_hasDerivedCategory K m)
+      _ _ _ (stage_hasDerivedCategory K n) (stageMapExact K φ)).obj ((moduleDerivedComponent K m).obj E) ⟶
       (moduleDerivedComponent K n).obj E :=
-  (ExactFunctor.MapDerivedCategory.compFunctorIso
+  (@ExactFunctor.MapDerivedCategory.compFunctorIso
+      _ _ _ (site_hasDerivedCategory K)
+      _ _ _ (stage_hasDerivedCategory K m)
+      _ _ _ (stage_hasDerivedCategory K n)
       (stageInclExact K m) (stageMapExact K φ)).inv.app E ≫
-    (ExactFunctor.MapDerivedCategory.map (moduleTransitionExact K φ)).app E
+    (@ExactFunctor.MapDerivedCategory.map
+      _ _ _ (site_hasDerivedCategory K)
+      _ _ _ (stage_hasDerivedCategory K n) _ _ (moduleTransitionExact K φ)).app E
 
 /-- `moduleDerivedTransition` is the derived functor of `moduleTransitionNatTrans` after the
 exact-functor composition comparison. -/
 theorem moduleDerivedTransition_eq {m n : SimplexCategory} (φ : m ⟶ n)
     (E : Hom.ModuleDerived.{w} (site K)) :
     moduleDerivedTransition K φ E =
-      (ExactFunctor.MapDerivedCategory.compFunctorIso
+      (@ExactFunctor.MapDerivedCategory.compFunctorIso
+      _ _ _ (site_hasDerivedCategory K)
+      _ _ _ (stage_hasDerivedCategory K m)
+      _ _ _ (stage_hasDerivedCategory K n)
           (stageInclExact K m) (stageMapExact K φ)).inv.app E ≫
-        (ExactFunctor.MapDerivedCategory.map (moduleTransitionExact K φ)).app E :=
+        (@ExactFunctor.MapDerivedCategory.map
+      _ _ _ (site_hasDerivedCategory K)
+      _ _ _ (stage_hasDerivedCategory K n) _ _ (moduleTransitionExact K φ)).app E :=
   sorry
 
 /-- An object of `D(O)` on `((C / K)_total, O)` is cartesian when the simplex-operator
@@ -559,13 +729,13 @@ theorem isCartesian_iff (E : Hom.ModuleDerived.{w} (site K)) :
   sorry
 
 /-- An object of `D(O)` whose every simplex-operator comparison is an isomorphism is cartesian. -/
-instance instIsCartesian_of_isIso (E : Hom.ModuleDerived.{w} (site K))
+theorem instIsCartesian_of_isIso (E : Hom.ModuleDerived.{w} (site K))
     [h : ∀ {m n : SimplexCategory} (φ : m ⟶ n), IsIso (moduleDerivedTransition K φ E)] :
-    IsCartesian K E where
-  isIso_transition := h
+    IsCartesian K E :=
+  ⟨h⟩
 
 /-- Every simplex-operator derived comparison of a cartesian object of `D(O)` is an isomorphism. -/
-instance instIsIso_moduleDerivedTransition (E : Hom.ModuleDerived.{w} (site K))
+theorem instIsIso_moduleDerivedTransition (E : Hom.ModuleDerived.{w} (site K))
     [IsCartesian K E] {m n : SimplexCategory} (φ : m ⟶ n) :
     IsIso (moduleDerivedTransition K φ E) :=
   IsCartesian.isIso_transition φ
@@ -573,9 +743,11 @@ instance instIsIso_moduleDerivedTransition (E : Hom.ModuleDerived.{w} (site K))
 /-- The isomorphism `L(f_φ)^* E_m ≅ E_n` attached to a cartesian object of `D(O)`. -/
 def transitionIso (E : Hom.ModuleDerived.{w} (site K)) [IsCartesian K E]
     {m n : SimplexCategory} (φ : m ⟶ n) :
-    (stageMapExact K φ).mapDerivedCategory.obj ((moduleDerivedComponent K m).obj E) ≅
+    (@ExactFunctor.mapDerivedCategory _ _ _ (stage_hasDerivedCategory K m)
+      _ _ _ (stage_hasDerivedCategory K n) (stageMapExact K φ)).obj ((moduleDerivedComponent K m).obj E) ≅
       (moduleDerivedComponent K n).obj E :=
-  asIso (moduleDerivedTransition K φ E)
+  @asIso _ _ _ _ (moduleDerivedTransition K φ E)
+    (instIsIso_moduleDerivedTransition K E φ)
 
 /-- The forward map of `transitionIso` is `moduleDerivedTransition`. -/
 theorem transitionIso_hom (E : Hom.ModuleDerived.{w} (site K)) [IsCartesian K E]
@@ -584,7 +756,7 @@ theorem transitionIso_hom (E : Hom.ModuleDerived.{w} (site K)) [IsCartesian K E]
   sorry
 
 /-- Inverse image `La^* E` of an object of `D(O_C)` is a cartesian object of `D(O)`. -/
-instance toAmbientDerived_isCartesian (E : Hom.ModuleDerived.{w} X) :
+theorem toAmbientDerived_isCartesian (E : Hom.ModuleDerived.{w} X) :
     IsCartesian K ((toAmbientDerived K).obj E) :=
   sorry
 

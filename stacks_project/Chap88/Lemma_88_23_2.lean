@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap87.Lemma_87_14_4_Completion
-public import stacks_project.Chap88.Definition_88_20_1_Etale
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CompletionAlong.Etale
+import StacksCheckRecall
 
 /-!
 # Étale morphisms of completions
@@ -27,13 +21,13 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 88.23.2: If `f : X' ⟶ X` is étale, then the induced morphism
+/- Lemma 88.23.2: If `f : X' ⟶ X` is étale, then the induced morphism
 `completionAlong.map f T` of completions along a closed subset `T` of
 `Points X` is étale. -/
-@[stacks 0GI0, instance]
-instance etale_completionAlongMap {S : Scheme.{u}} {X X' : AlgebraicSpace S}
-    (f : X' ⟶ X) [AlgebraicSpace.Etale f] (T : Closeds (Points X)) :
-    FormalAlgebraicSpace.Etale (completionAlong.map f T) :=
-  sorry
+@[stacks 0GI0] #check
+  (AlgebraicGeometry.AlgebraicSpace.etale_completionAlongMap :
+    ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (f : X' ⟶ X)
+      [AlgebraicSpace.Etale f] (T : Closeds (Points X)),
+      FormalAlgebraicSpace.Etale (completionAlong.map f T))
 
 end AlgebraicGeometry.AlgebraicSpace

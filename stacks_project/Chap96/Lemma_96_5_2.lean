@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap94.Definition_94_12_1_Representable
-public import stacks_project.Chap96.Lemma_96_5_2_TargetHom
+public import ReasLib.CategoryTheory.Fibered.RelativelyRepresentable.TargetYoneda
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Basic
 import StacksCheckRecall
 
 @[expose] public section
@@ -23,5 +17,5 @@ variable {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
 over `(Sch/S)_fppf`. The following are equivalent: `f` is representable, and for
 every object `y` of `Y` the functor `Xᵒᵖ ⥤ Type`, `x ↦ (toFunctor f).obj x ⟶ y`,
 is representable. -/
-@[stacks 06W7] #check (relativelyRepresentable.iff_targetYoneda f :
+@[stacks 06W7] #check (CategoryTheory.FiberedCategoryOver.Groupoids.relativelyRepresentable.iff_targetYoneda f :
     relativelyRepresentable f ↔ targetYoneda.representable f)

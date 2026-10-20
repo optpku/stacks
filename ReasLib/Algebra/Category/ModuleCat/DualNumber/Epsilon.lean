@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
@@ -14,8 +8,6 @@ import Mathlib.Tactic.CrossRefAttribute
 
 /-!
 # The epsilon endomorphism of a dual-number module
-
-@stack 05CS
 
 This file owns restriction to the base ring and multiplication by `ε` on an arbitrary
 dual-number module. The latter is exposed as a natural square-zero endomorphism, independently of
@@ -57,7 +49,8 @@ theorem epsEnd_naturality {M N : ModuleCat.{v} R[ε]} (f : M ⟶ N) :
   ext x
   exact (f.hom.map_smul (ε : R[ε]) x).symm
 
-/-- Functor-map form of `epsEnd_naturality`, used to build the natural transformation. -/
+/-- Multiplication by `ε` commutes with the identity functor's action on morphisms of
+dual-number modules. -/
 theorem epsNatTrans_naturality {M N : ModuleCat.{v} R[ε]} (f : M ⟶ N) :
     (Functor.id (ModuleCat.{v} R[ε])).map f ≫ epsEnd N =
       epsEnd M ≫ (Functor.id (ModuleCat.{v} R[ε])).map f :=

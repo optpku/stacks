@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Exact.Basic
@@ -24,6 +18,8 @@ noncomputable section
 
 universe u v w
 
+open scoped Topology
+
 namespace IsLinearTopology
 
 section induced
@@ -32,12 +28,14 @@ variable {R : Type u} {M : Type v}
 variable [Ring R] [AddCommGroup M] [Module R M] [TopologicalSpace M] [IsLinearTopology R M]
 
 /-- The induced topology on a submodule of a linearly topologized module is linear. -/
-instance instIsLinearTopology_subtype (N : Submodule R M) : IsLinearTopology R N := sorry
+instance instIsLinearTopology_subtype (N : Submodule R M) : IsLinearTopology R N where
+  hasBasis_submodule' := sorry
 
 /-- The quotient topology on a module by a submodule is linearly topologized when the
    quotient map is open. -/
 instance instIsLinearTopology_quotient (N : Submodule R M) [ContinuousAdd M] :
-    IsLinearTopology R (M ⧸ N) := sorry
+    IsLinearTopology R (M ⧸ N) where
+  hasBasis_submodule' := sorry
 
 end induced
 
@@ -121,7 +119,8 @@ instance instContinuousSMul [TopologicalSpace R] [IsTopologicalAddGroup M]
     [ContinuousSMul R M] : ContinuousSMul R (Completion R M) := sorry
 
 /-- The induced topology on the completion is linearly topologized. -/
-instance instIsLinearTopology : IsLinearTopology R (Completion R M) := sorry
+instance instIsLinearTopology : IsLinearTopology R (Completion R M) where
+  hasBasis_submodule' := sorry
 
 /-- The completion is separated in the `T₀` sense. -/
 instance instT0Space : T0Space (Completion R M) := sorry
@@ -224,5 +223,36 @@ theorem range_map_subtype_eq_topologicalClosure
     (N : Submodule R M) :
     LinearMap.range (Completion.map_subtype N) =
       (N.map (Completion.of : M →ₗ[R] Completion R M)).topologicalClosure := sorry
+
+/-- A closed quotient of a complete linearly topologized module with a countable
+neighborhood basis at zero is complete: its canonical map to its completion is bijective. -/
+theorem bijective_completion_of_quotient {R : Type u} {M : Type v}
+    [Ring R] [TopologicalSpace R] [IsTopologicalRing R]
+    [AddCommGroup M] [Module R M] [TopologicalSpace M]
+    [IsTopologicalAddGroup M] [ContinuousSMul R M] [IsLinearTopology R M]
+    (N : Submodule R M) [IsClosed (N : Set M)]
+    (hcomplete : Function.Bijective (Completion.of : M → Completion R M))
+    [(nhds (0 : M)).IsCountablyGenerated] :
+    Function.Bijective (Completion.of : M ⧸ N → Completion R (M ⧸ N)) := sorry
+
+/-- Completion preserves the short exact sequence of a submodule and its quotient
+when the ambient module has a countable neighborhood basis at zero. -/
+theorem shortExact_completion_subtype_mkQ {R : Type u} {M : Type v}
+    [Ring R] [TopologicalSpace R] [IsTopologicalRing R]
+    [AddCommGroup M] [Module R M] [TopologicalSpace M]
+    [IsTopologicalAddGroup M] [ContinuousSMul R M] [IsLinearTopology R M]
+    (N : Submodule R M) [(nhds (0 : M)).IsCountablyGenerated] :
+    Function.Injective (Completion.map_subtype N) ∧
+      Function.Exact (Completion.map_subtype N) (Completion.map_mkQ N) ∧
+      Function.Surjective (Completion.map_mkQ N) := sorry
+
+/-- The completed quotient map is open when the ambient module has a countable
+neighborhood basis at zero. -/
+theorem isOpenMap_map_mkQ {R : Type u} {M : Type v}
+    [Ring R] [TopologicalSpace R] [IsTopologicalRing R]
+    [AddCommGroup M] [Module R M] [TopologicalSpace M]
+    [IsTopologicalAddGroup M] [ContinuousSMul R M] [IsLinearTopology R M]
+    (N : Submodule R M) [(nhds (0 : M)).IsCountablyGenerated] :
+    IsOpenMap (Completion.map_mkQ N) := sorry
 
 end IsLinearTopology

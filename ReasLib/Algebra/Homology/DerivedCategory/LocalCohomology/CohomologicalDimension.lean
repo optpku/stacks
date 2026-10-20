@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Data.Int.ConditionallyCompleteOrder
@@ -118,7 +112,7 @@ theorem dimension_le_of_zeroLocus_eq {A : Type u} [CommRing A]
 local-cohomological dimension of `I` is at most `c`. -/
 theorem dimension_le_of_complement_hasCard {A : Type u} [CommRing A]
     (I : Ideal A) (hI : I.FG) {c : ℕ}
-    (hcover : AffineOpenCover.HasCard (idealComplementOpens I).toScheme c) :
+    (hcover : AffineOpenCover.HasCard (AlgebraicGeometry.Scheme.idealComplementOpens I).toScheme c) :
     dimension I hI ≤ (c : ℤ) := sorry
 
 end Ideal.LocalCohomology

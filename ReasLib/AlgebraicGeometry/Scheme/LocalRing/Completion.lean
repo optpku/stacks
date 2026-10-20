@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.ResidueField
@@ -28,6 +22,29 @@ universe u
 namespace AlgebraicGeometry.Scheme
 
 noncomputable section
+
+/-- The completed local ring of `X` at `x` is the adic completion of the stalk
+`X.presheaf.stalk x` at its maximal ideal. -/
+noncomputable abbrev completedLocalRing (X : Scheme.{u}) (x : X) : Type u :=
+  AdicCompletion (IsLocalRing.maximalIdeal (X.presheaf.stalk x)) (X.presheaf.stalk x)
+
+/-- The canonical ring map from the stalk of `X` at `x` to the completed local
+ring at `x`. -/
+noncomputable def completedLocalMap (X : Scheme.{u}) (x : X) :
+    X.presheaf.stalk x →+* completedLocalRing X x :=
+  algebraMap (X.presheaf.stalk x) (completedLocalRing X x)
+
+/-- The completed local ring is the maximal-adic completion of the stalk. -/
+theorem completedLocalRing_def (X : Scheme.{u}) (x : X) :
+    completedLocalRing X x =
+      AdicCompletion (IsLocalRing.maximalIdeal (X.presheaf.stalk x))
+        (X.presheaf.stalk x) := rfl
+
+/-- The completed local map is the canonical algebra map into the completed
+local ring. -/
+theorem completedLocalMap_eq_algebraMap (X : Scheme.{u}) (x : X) :
+    completedLocalMap X x =
+      algebraMap (X.presheaf.stalk x) (completedLocalRing X x) := rfl
 
 /-- Quotienting a local ring by its maximal ideal recovers its residue field. -/
 noncomputable abbrev quotientMaximalIdealResidueFieldRingEquiv

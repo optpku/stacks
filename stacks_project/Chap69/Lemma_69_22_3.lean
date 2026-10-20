@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap69.Lemma_69_22_3_Application
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Cohomology.IdealPower.Generation
 import StacksCheckRecall
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
@@ -37,7 +31,3 @@ I^(m-c) H^p(X, I^n F) for all n ≥ 0, m ≥ c. -/
       ∃ c : ℕ,
         AlgebraicGeometry.AlgebraicSpace.Modules.IdealPowerCohomology.IsGenerationBound
           I f F p c)
-
-#check @AlgebraicGeometry.AlgebraicSpace.Modules.IdealPowerCohomology.mulMap
-#check @AlgebraicGeometry.AlgebraicSpace.Modules.IdealPowerCohomology.IsGenerationBound.mul_surjective
-#check @AlgebraicGeometry.AlgebraicSpace.Modules.IdealPowerCohomology.IsGenerationBound.image_le

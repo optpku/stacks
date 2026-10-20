@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.FinitePresentation.StalkGluing
@@ -22,11 +16,8 @@ complement `U = S \ {s}` is quasi-compact over `S`. Then finitely presented modu
 equivalent to compatible finitely presented modules on `U` and on `Spec(𝒪_{S,s})`, identified
 over the punctured local scheme. -/
 @[stacks 0F21] #check
-  (AlgebraicGeometry.finitePresentationModules_equivalence_stalkGluing :
+  (AlgebraicGeometry.finitePresentationModuleStalkGluingFunctor_isEquivalence :
     ∀ (S : Scheme.{u}) (U : S.Opens) [QuasiCompact U.ι]
       (s : S) (_ : s ∈ closedPoints S)
       (_ : (U : Set S) = ({s} : Set S)ᶜ),
-      Nonempty
-        (FinitePresentationModules S ≌
-          finitePresentationModuleGluingCategory U (stalkOpenIntersection S U s)
-            ((S.fromSpecStalk s) ∣_ U)))
+      (finitePresentationModuleStalkGluingFunctor S U s).IsEquivalence)

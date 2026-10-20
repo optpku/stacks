@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -29,7 +23,7 @@ namespace CyclesOnFibers
 
 variable {S X Y : Scheme.{u}} [UniversallyCatenary S]
     (p : Y ⟶ S) (f : X ⟶ Y)
-    [LocallyOfFiniteType p] [LocallyOfFiniteType (f ≫ p)]
+    [LocallyOfFiniteType p] [LocallyOfFiniteType f]
     (δ : S → ℤ) [IsDimensionFunction δ] (r : ℕ) (e : ℤ)
 
 /- Lemma 62.11.1 (1): the action is additive in the family of fibre cycles. -/

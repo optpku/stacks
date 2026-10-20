@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Field.Basic
-public import stacks_project.Chap66.Lemma_66_25_4_Regular
-public import stacks_project.Chap67.Lemma_67_24_2_FieldPoints
-public import stacks_project.Chap67.Lemma_67_37_4_Smooth
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Smooth.Regularity
+import StacksCheckRecall
 
 /-!
 # Lemma 72.16.1
@@ -23,14 +15,12 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 72.16.1: let `k` be a field, and let `X` be an algebraic space smooth over `k`.
+/- Lemma 72.16.1: let `k` be a field, and let `X` be an algebraic space smooth over `k`.
 Then `X` is a regular algebraic space. -/
-@[stacks 06M1]
-instance isRegular_of_smooth_over_field {k : Type u} [Field k]
-    {X : AlgebraicSpace (Spec (CommRingCat.of k))} [Smooth (toBase X)] :
-    IsRegular X :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 06M1] #check
+  (AlgebraicGeometry.AlgebraicSpace.isRegular_of_smooth_over_field :
+    ∀ {k : Type u} [Field k]
+      {X : AlgebraicGeometry.AlgebraicSpace (AlgebraicGeometry.Spec (CommRingCat.of k))}
+      [AlgebraicGeometry.AlgebraicSpace.Smooth
+        (AlgebraicGeometry.AlgebraicSpace.SchemeRealization.toBase X)],
+      AlgebraicGeometry.AlgebraicSpace.IsRegular X)

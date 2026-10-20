@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
@@ -12,12 +6,13 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Closed.InverseImage
 public import stacks_project.Chap65.Lemma_65_12_4_Immersion
 public import stacks_project.Chap67.Lemma_67_17_2_InverseImage
 
-/-!
-# Base change of immersions of algebraic spaces
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Immersion.BaseChange
 
-Immersions, closed immersions, and open immersions of algebraic spaces are
-stable under arbitrary base change. This module records the morphism-level
-pullback companions for the existing classes from Lemma 65.12.4.
+/-!
+# Pullback companions for immersions of algebraic spaces
+
+Typed compatibility checks for the shared base-change API and the canonical
+closed- and open-immersion pullback-square lemmas.
 -/
 
 @[expose] public section
@@ -29,76 +24,46 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-namespace IsImmersion
+#check (AlgebraicGeometry.AlgebraicSpace.IsImmersion.of_isPullback :
+  ∀ {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
+    {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X},
+    IsPullback f' g' g f → IsImmersion g → IsImmersion g')
 
-/-- Immersions of algebraic spaces are stable under pullback along an
-arbitrary morphism, expressed by an `IsPullback` square. -/
-theorem of_isPullback {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
-    {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X}
-    (sq : IsPullback f' g' g f) (hg : IsImmersion g) : IsImmersion g' := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.IsImmersion.pullback_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} {f : X ⟶ Y},
+    IsImmersion f → ∀ (g : Z ⟶ Y) [HasPullback f g],
+      IsImmersion (pullback.snd f g))
 
-/-- The base-change projection `pullback.snd f g` of an immersion
-`f : X ⟶ Y` is an immersion. -/
-theorem pullback_snd {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} {f : X ⟶ Y}
-    (hf : IsImmersion f) (g : Z ⟶ Y) [HasPullback f g] :
-    IsImmersion (pullback.snd f g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.isImmersion_pullback_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Z ⟶ Y)
+    [IsImmersion f] [HasPullback f g], IsImmersion (pullback.snd f g))
 
-end IsImmersion
+#check (AlgebraicGeometry.AlgebraicSpace.IsClosedImmersion.of_isPullback :
+  ∀ {S : Scheme.{u}} {X Y U P : AlgebraicSpace S}
+    {f : Y ⟶ X} {ι : U ⟶ X} {pY : P ⟶ Y} {pU : P ⟶ U} [IsClosedImmersion ι],
+    IsPullback pY pU f ι → IsClosedImmersion pY)
 
-/-- Typeclass form of base-change stability for an immersion along a
-morphism for which the pullback exists. -/
-instance isImmersion_pullback_snd {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : X ⟶ Y) (g : Z ⟶ Y) [IsImmersion f] [HasPullback f g] :
-    IsImmersion (pullback.snd f g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.IsClosedImmersion.pullback_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} {f : X ⟶ Y},
+    IsClosedImmersion f → ∀ (g : Z ⟶ Y) [HasPullback f g],
+      IsClosedImmersion (pullback.snd f g))
 
-namespace IsClosedImmersion
+#check (AlgebraicGeometry.AlgebraicSpace.isClosedImmersion_pullback_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Z ⟶ Y)
+    [IsClosedImmersion f] [HasPullback f g], IsClosedImmersion (pullback.snd f g))
 
-/-- Closed immersions of algebraic spaces are stable under pullback along an
-arbitrary morphism, expressed by an `IsPullback` square. -/
-theorem of_isPullback_snd {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
-    {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X}
-    (sq : IsPullback f' g' g f) (hg : IsClosedImmersion g) :
-    IsClosedImmersion g' :=
-  @IsClosedImmersion.of_isPullback S B X Y Y' f g g' f' hg sq.flip
+#check (AlgebraicGeometry.AlgebraicSpace.IsOpenImmersion.of_isPullback :
+  ∀ {S : Scheme.{u}} {X Y U P : AlgebraicSpace S}
+    {f : Y ⟶ X} {ι : U ⟶ X} {pY : P ⟶ Y} {pU : P ⟶ U} [IsOpenImmersion ι],
+    IsPullback pY pU f ι → IsOpenImmersion pY)
 
-/-- The base-change projection `pullback.snd f g` of a closed immersion
-`f : X ⟶ Y` is a closed immersion. -/
-theorem pullback_snd {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} {f : X ⟶ Y}
-    (hf : IsClosedImmersion f) (g : Z ⟶ Y) [HasPullback f g] :
-    IsClosedImmersion (pullback.snd f g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.IsOpenImmersion.pullback_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} {f : X ⟶ Y},
+    IsOpenImmersion f → ∀ (g : Z ⟶ Y) [HasPullback f g],
+      IsOpenImmersion (pullback.snd f g))
 
-end IsClosedImmersion
-
-/-- Typeclass form of base-change stability for a closed immersion along a
-morphism for which the pullback exists. -/
-instance isClosedImmersion_pullback_snd {S : Scheme.{u}}
-    {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Z ⟶ Y)
-    [IsClosedImmersion f] [HasPullback f g] :
-    IsClosedImmersion (pullback.snd f g) := sorry
-
-namespace IsOpenImmersion
-
-/-- Open immersions of algebraic spaces are stable under pullback along an
-arbitrary morphism, expressed by an `IsPullback` square. -/
-theorem of_isPullback_snd {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
-    {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X}
-    (sq : IsPullback f' g' g f) (hg : IsOpenImmersion g) :
-    IsOpenImmersion g' :=
-  @IsOpenImmersion.of_isPullback S B X Y Y' f g g' f' hg sq.flip
-
-/-- The base-change projection `pullback.snd f g` of an open immersion
-`f : X ⟶ Y` is an open immersion. -/
-theorem pullback_snd {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} {f : X ⟶ Y}
-    (hf : IsOpenImmersion f) (g : Z ⟶ Y) [HasPullback f g] :
-    IsOpenImmersion (pullback.snd f g) := sorry
-
-end IsOpenImmersion
-
-/-- Typeclass form of base-change stability for an open immersion along a
-morphism for which the pullback exists. -/
-instance isOpenImmersion_pullback_snd {S : Scheme.{u}}
-    {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Z ⟶ Y)
-    [IsOpenImmersion f] [HasPullback f g] :
-    IsOpenImmersion (pullback.snd f g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.isOpenImmersion_pullback_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Z ⟶ Y)
+    [IsOpenImmersion f] [HasPullback f g], IsOpenImmersion (pullback.snd f g))
 
 end AlgebraicGeometry.AlgebraicSpace

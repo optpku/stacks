@@ -1,23 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Basic
-public import Mathlib.AlgebraicGeometry.AffineScheme
-public import Mathlib.AlgebraicGeometry.Morphisms.Affine
-public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
-public import Mathlib.AlgebraicGeometry.Noetherian
-public import Mathlib.CategoryTheory.Sites.ConstantSheaf
-public import Mathlib.GroupTheory.Torsion
-public import Mathlib.RingTheory.Finiteness.Basic
-public import Mathlib.Topology.KrullDimension
-public import stacks_project.Chap59.Definition_59_71_1
-public import stacks_project.Chap63.Definition_63_12_1_LowerShriek
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.CompactSupport.Constructible
+import StacksCheckRecall
 
 /-!
 # Constructible cohomology of compact-support pushforward of a constant sheaf
@@ -87,14 +71,12 @@ variable [∀ (Z : Scheme.{u}) (V : Z.Etale),
 variable [∀ (Z : Scheme.{u}) (g : Z ⟶ S) (G : S.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ),
   (smallEtalePullback g).op.HasLeftKanExtension G]
 
-/-- Lemma 63.14.2: if `S` is a Noetherian affine scheme of finite dimension,
-`f = X.hom : X.left ⟶ S` is separated, affine, and smooth of relative
-dimension `1`, `Λ` is a Noetherian torsion ring, and `M` is a finite
-`Λ`-module, then `Rf_!` of the constant étale sheaf of `M` has constructible
-cohomology sheaves. -/
-@[stacks 0GKX]
-theorem etaleDerivedLowerShriek_constantModule_cohomology_isConstructible
-    (hΛ : AddMonoid.IsTorsion Λ) (hdim : topologicalKrullDim S < ⊤) :
+/- Lemma 63.14.2: if `S` is a Noetherian affine scheme of finite dimension,
+`X.hom` is separated, affine, and smooth of relative dimension `1`, and `M`
+is a finite module over a Noetherian torsion ring, then the compact-support
+pushforward of the constant étale sheaf of `M` has constructible cohomology. -/
+@[stacks 0GKX] #check (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriek_constantModule_cohomology_isConstructible X (M := M) P :
+  AddMonoid.IsTorsion Λ → topologicalKrullDim S < ⊤ →
     DerivedCategory.cohomologyIn
       (Sheaf.IsConstructibleEtaleModule
         (fun {Z} g ↦
@@ -105,13 +87,11 @@ theorem etaleDerivedLowerShriek_constantModule_cohomology_isConstructible
         ((DerivedCategory.singleFunctor
             (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)) (0 : ℤ)).obj
           ((constantSheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)).obj
-            (.of Λ M)))) :=
-  sorry
+            (.of Λ M)))))
 
-/-- Each homology sheaf of `Rf_!` of the constant étale sheaf of `M` is a
-constructible étale sheaf of `Λ`-modules on `S`. -/
-theorem etaleDerivedLowerShriek_constantModule_homology_isConstructibleEtaleModule
-    (hΛ : AddMonoid.IsTorsion Λ) (hdim : topologicalKrullDim S < ⊤) (n : ℤ) :
+/- Every integer-degree homology sheaf is constructible. -/
+#check (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriek.constantModule_homology_isConstructible X (M := M) P :
+  AddMonoid.IsTorsion Λ → topologicalKrullDim S < ⊤ → ∀ n : ℤ,
     Sheaf.IsConstructibleEtaleModule
       (fun {Z} g ↦
         ((smallEtalePullback g).sheafPullback (ModuleCat.{u} Λ)
@@ -123,8 +103,7 @@ theorem etaleDerivedLowerShriek_constantModule_homology_isConstructibleEtaleModu
           ((DerivedCategory.singleFunctor
               (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)) (0 : ℤ)).obj
             ((constantSheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)).obj
-              (.of Λ M))))) :=
-  sorry
+              (.of Λ M))))))
 
 end AlgebraicGeometry.Scheme.Etale
 

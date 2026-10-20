@@ -1,0 +1,58 @@
+module
+
+public import Mathlib.Data.List.TFAE
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Noetherian
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.RegularImmersion.Implications
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.RegularImmersion.Noetherian
+
+/-!
+# Regular immersions into locally Noetherian algebraic spaces
+
+For an immersion of algebraic spaces into a locally Noetherian target,
+Koszul-regular, `H₁`-regular, and quasi-regular immersions are equivalent.
+-/
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace
+
+/-- A quasi-regular immersion of algebraic spaces into a locally Noetherian
+target is Koszul-regular. -/
+@[instance]
+theorem IsQuasiRegularImmersion.isKoszulRegular_of_isLocallyNoetherian
+    {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X)
+    [IsLocallyNoetherian X] [IsQuasiRegularImmersion i] :
+    IsKoszulRegularImmersion i :=
+  sorry
+
+/-- For an immersion of algebraic spaces into a locally Noetherian target,
+Koszul-regularity, `H₁`-regularity, and quasi-regularity are equivalent. -/
+theorem immersionRegularity_tfae {S : Scheme.{u}} {Z X : AlgebraicSpace S}
+    (i : Z ⟶ X) [IsImmersion i] [IsLocallyNoetherian X] :
+    List.TFAE
+      [ IsKoszulRegularImmersion i
+      , IsH1RegularImmersion i
+      , IsQuasiRegularImmersion i ] :=
+  sorry
+
+/-- For an immersion of algebraic spaces into a locally Noetherian target,
+Koszul-regularity is equivalent to `H₁`-regularity. -/
+theorem isKoszulRegularImmersion_iff_isH1RegularImmersion
+    {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X)
+    [IsImmersion i] [IsLocallyNoetherian X] :
+    IsKoszulRegularImmersion i ↔ IsH1RegularImmersion i :=
+  sorry
+
+/-- For an immersion of algebraic spaces into a locally Noetherian target,
+`H₁`-regularity is equivalent to quasi-regularity. -/
+theorem isH1RegularImmersion_iff_isQuasiRegularImmersion
+    {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X)
+    [IsImmersion i] [IsLocallyNoetherian X] :
+    IsH1RegularImmersion i ↔ IsQuasiRegularImmersion i :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicSpace

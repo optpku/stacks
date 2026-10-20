@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap69.Lemma_69_5_3_Hom
-public import stacks_project.Chap69.Lemma_69_5_3_TestSet
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FinitePresentation.FilteredColimit
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.QuasiCompact
 import StacksCheckRecall
 
 /-!
@@ -29,17 +23,17 @@ algebraic space over `S`. Let `G` be a finitely presented `𝒪_X`-module. Then
 `Hom_X(G, -)` commutes with filtered colimits of arbitrary `𝒪_X`-modules. -/
 @[stacks 07U7]
 #check
-  (Modules.homComparison_isIso :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.homComparison_isIso :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
       [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
       {Λ : Type (u + 1)} [SmallCategory Λ] [IsFiltered Λ]
       (G : X.Modules) [G.IsFinitePresentation] (F : Λ ⥤ X.Modules)
       [HasColimit F] [HasColimit (F ⋙ coyoneda.obj (op G))],
-      IsIso (Modules.homComparison G F))
+      IsIso (colimit.post F (coyoneda.obj (op G))))
 
 @[stacks 07U7]
 #check
-  (Modules.isFinitelyPresentable :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isFinitelyPresentable :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
       [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
       (G : X.Modules) [G.IsFinitePresentation],
@@ -49,7 +43,7 @@ algebraic space over `S`. Let `G` be a finitely presented `𝒪_X`-module. Then
 `QCoh(𝒪_X)`. -/
 @[stacks 07U7]
 #check
-  (QCoh.isFinitelyPresentable :
+  (AlgebraicGeometry.AlgebraicSpace.QCoh.isFinitelyPresentable :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
       [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
       (G : QCoh X) [G.obj.IsFinitePresentation],

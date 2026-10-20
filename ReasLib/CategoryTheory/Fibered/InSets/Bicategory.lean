@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 -- Import decisions:
@@ -54,9 +48,13 @@ object properties on `BasedCategory C`. This is the object-level map underlying 
 strict pseudofunctor below. -/
 theorem isFiberedInSets.le_isFiberedInGroupoids :
     (isFiberedInSets C : ObjectProperty (BasedCategory.{vS, w} C)) ≤
-      (isFiberedInGroupoids C : ObjectProperty (BasedCategory.{vS, w} C)) := sorry
-/- Proof strategy: for each based category selected by `BasedCategory.isFiberedInSets`, apply
-`Functor.IsDiscreteFibration.toInGroupoids` to its projection. -/
+      (isFiberedInGroupoids C : ObjectProperty (BasedCategory.{vS, w} C)) := by
+  intro X h
+  exact Functor.IsDiscreteFibration.toInGroupoids h
+/- The implication delegates to the canonical discrete-fibration owner. Its supplied
+`homLiftNonempty` and `homLiftSubsingleton` fields provide the actual lift and uniqueness data;
+`toInGroupoids` packages those into the groupoid-fibred projection without introducing a new
+existence witness or changing the caller's projection. -/
 
 /-
 There is deliberately no `ObjectProperty.IsClosedUnderEquivalences` instance here. Already over

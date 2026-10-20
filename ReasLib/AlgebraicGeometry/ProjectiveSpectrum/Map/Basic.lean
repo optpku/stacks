@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Gluing
@@ -58,7 +52,9 @@ abbrev projMapDomain (psi : calA →+*ᵍ calB) : (Proj calB).Opens :=
 /-- A positive homogeneous basic open is contained in the domain of the induced `Proj` map. -/
 theorem basicOpen_le_projMapDomain
     (psi : calA →+*ᵍ calB) {f : A} {d : Nat} (hd : 0 < d) (hf : f ∈ calA d) :
-    Proj.basicOpen calB (psi f) <= projMapDomain psi := sorry
+    Proj.basicOpen calB (psi f) <= projMapDomain psi := by
+  exact le_iSup (fun g : PositiveHomogeneous calA ↦ Proj.basicOpen calB (psi g.val))
+    ⟨f, d, hd, hf⟩
 
 namespace PositiveHomogeneous
 
@@ -88,13 +84,61 @@ noncomputable abbrev projMapBasicOpenMap
     Spec.map (CommRingCat.ofHom (Away.map psi f.1)) ≫
       Proj.awayι calA f.1 (PositiveHomogeneous.mem_degree f) (PositiveHomogeneous.degree_pos f)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The affine-local maps defining a graded `Proj` map agree on pairwise overlaps. -/
 theorem projMapBasicOpenMap_compatible
     (psi : calA →+*ᵍ calB) (f g : PositiveHomogeneous calA) :
     pullback.fst ((projMapOpenCover psi).f f) ((projMapOpenCover psi).f g) ≫
         projMapBasicOpenMap psi f =
       pullback.snd ((projMapOpenCover psi).f f) ((projMapOpenCover psi).f g) ≫
-        projMapBasicOpenMap psi g := sorry
+        projMapBasicOpenMap psi g := by
+  let jf := (Proj calB).homOfLE (basicOpen_le_projMapDomain psi f.degree_pos f.mem_degree)
+  let jg := (Proj calB).homOfLE (basicOpen_le_projMapDomain psi g.degree_pos g.mem_degree)
+  let ep := (isPullback_opens_inf_le
+    (basicOpen_le_projMapDomain psi f.degree_pos f.mem_degree)
+    (basicOpen_le_projMapDomain psi g.degree_pos g.mem_degree)).isoPullback
+  let e := ep.symm ≪≫ (Proj calB).isoOfEq
+    (show Proj.basicOpen calB (psi f.val) ⊓ Proj.basicOpen calB (psi g.val) =
+      Proj.basicOpen calB (psi (f.val * g.val)) by rw [map_mul, Proj.basicOpen_mul]) ≪≫
+    Proj.basicOpenIsoSpec calB (psi (f.val * g.val))
+      (psi.2 (SetLike.mul_mem_graded f.mem_degree g.mem_degree))
+      (f.degree_pos.trans_le (Nat.le_add_right _ _))
+  have hfst : e.inv ≫ pullback.fst jf jg ≫
+      (Proj.basicOpenIsoSpec calB (psi f.val) (psi.2 f.mem_degree) f.degree_pos).hom =
+      Spec.map (CommRingCat.ofHom
+        (awayMap calB (psi.2 g.mem_degree) (map_mul psi f.val g.val))) := by
+    rw [← cancel_mono (Proj.awayι calB (psi f.val) (psi.2 f.mem_degree) f.degree_pos)]
+    rw [Category.assoc, Category.assoc, Proj.SpecMap_awayMap_awayι]
+    simp [e, ep, jf, jg, Proj.awayι, Category.assoc]
+  have hsnd : e.inv ≫ pullback.snd jf jg ≫
+      (Proj.basicOpenIsoSpec calB (psi g.val) (psi.2 g.mem_degree) g.degree_pos).hom =
+      Spec.map (CommRingCat.ofHom
+        (awayMap calB (psi.2 f.mem_degree)
+          ((map_mul psi f.val g.val).trans (mul_comm _ _)))) := by
+    rw [← cancel_mono (Proj.awayι calB (psi g.val) (psi.2 g.mem_degree) g.degree_pos)]
+    rw [Category.assoc, Category.assoc, Proj.SpecMap_awayMap_awayι]
+    simp [e, ep, jf, jg, Proj.awayι, Category.assoc]
+    rfl
+  have hnat (a b : PositiveHomogeneous calA) (x : A) (hx : x = a.val * b.val) :
+      (awayMap calB (psi.2 b.mem_degree) ((congrArg psi hx).trans (map_mul psi _ _))).comp
+          (Away.map psi a.val) =
+        (Away.map psi x).comp (awayMap calA b.mem_degree hx) := by
+    apply RingHom.ext
+    intro z
+    obtain ⟨m, p, hp, rfl⟩ := Away.mk_surjective calA a.mem_degree z
+    apply val_injective
+    simp [Away.map_mk, awayMap_mk, map_mul, map_pow]
+  apply (cancel_epi e.inv).mp
+  change e.inv ≫ pullback.fst jf jg ≫ projMapBasicOpenMap psi f =
+    e.inv ≫ pullback.snd jf jg ≫ projMapBasicOpenMap psi g
+  simp only [projMapBasicOpenMap]
+  rw [reassoc_of% hfst, reassoc_of% hsnd, ← Spec.map_comp_assoc, ← Spec.map_comp_assoc]
+  rw [← CommRingCat.ofHom_comp, ← CommRingCat.ofHom_comp,
+    hnat f g (f.val * g.val) rfl, hnat g f (f.val * g.val) (mul_comm _ _)]
+  simp only [CommRingCat.ofHom_comp, Spec.map_comp, Category.assoc,
+    Proj.SpecMap_awayMap_awayι]
+  rfl
+
 
 /-- The morphism from the natural open domain of a graded map to the source projective spectrum. -/
 noncomputable def projMapMap

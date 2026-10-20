@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap59.Lemma_59_91_6_BaseChange
-public import Mathlib.AlgebraicGeometry.Morphisms.Proper
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.BaseChange.Proper
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -29,26 +22,12 @@ variable [∀ {A B : Scheme.{u}} (h : A ⟶ B),
     ((smallEtalePullback h).sheafPushforwardContinuous AddCommGrpCat.{u}
       B.smallEtaleTopology A.smallEtaleTopology).IsRightAdjoint]
 
-/-- Theorem 59.91.11 (Proper Base Change): if `f : X ⟶ Y` is a proper morphism of
-schemes, then cohomology commutes with base change for `f`. Equivalently, for every
-cartesian square with legs `g : Y' ⟶ Y`, `f' : X' ⟶ Y'`, `g' : X' ⟶ X` and every
-locally torsion abelian étale sheaf `F` on `X`, the canonical base-change map
-`g⁻¹ Rf_* F ⟶ Rf'_* (g')⁻¹ F` is an isomorphism. -/
-@[stacks 095T]
-theorem cohomologyCommutesWithBaseChange_of_isProper
-    {X Y : Scheme.{u}} (f : X ⟶ Y) [IsProper f] :
-    CohomologyCommutesWithBaseChange f := sorry
-
-/-- Unpacking of `cohomologyCommutesWithBaseChange_of_isProper`: on a cartesian
-square, the named degree-`q` comparison `higherDirectImage_baseChangeHom` is an
-isomorphism for every locally torsion abelian étale sheaf. -/
-theorem higherDirectImage_baseChangeHom_isIso_of_isProper
-    {X Y : Scheme.{u}} (f : X ⟶ Y) [IsProper f]
-    {X' Y' : Scheme.{u}} {g : Y' ⟶ Y} {f' : X' ⟶ Y'} {g' : X' ⟶ X}
-    (h_cart : IsPullback g' f' f g)
-    {F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}} (hF : IsLocallyTorsion F)
-    (q : ℕ) :
-    IsIso (higherDirectImage_baseChangeHom f g f' g' h_cart F q) := sorry
+/- Theorem 59.91.11 (Proper Base Change): cohomology commutes with arbitrary
+base change for a proper morphism and every torsion abelian étale sheaf. -/
+@[stacks 095T] #check
+  (AlgebraicGeometry.Scheme.Hom.cohomologyCommutesWithBaseChange_of_isProper :
+    ∀ {X Y : Scheme.{u}} (f : X ⟶ Y) [IsProper f],
+      CohomologyCommutesWithBaseChange f)
 
 end AlgebraicGeometry.Scheme.Hom
 

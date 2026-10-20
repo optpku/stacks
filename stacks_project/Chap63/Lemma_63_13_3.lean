@@ -1,24 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Basic
-public import Mathlib.Algebra.Module.Torsion.Basic
-public import Mathlib.AlgebraicGeometry.Geometrically.Connected
-public import Mathlib.AlgebraicGeometry.Morphisms.Proper
-public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
-public import Mathlib.CategoryTheory.Abelian.RightDerived
-public import Mathlib.CategoryTheory.Sites.ConstantSheaf
-public import Mathlib.RingTheory.Finiteness.Basic
-public import Mathlib.RingTheory.Noetherian.Basic
-public import ReasLib.CategoryTheory.Sites.LocallyConstant.Finite
-public import stacks_project.Chap59.Definition_59_71_1
-public import stacks_project.Chap63.Definition_63_12_1_LowerShriek
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Cohomology.ProperSmoothCurve
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -30,19 +13,21 @@ noncomputable section
 
 universe u
 
+section
+
 -- Local instance justification (defeq pin): `HasInjectiveResolutions` and `Functor.rightDerived` pin the Abelian-induced `Preadditive`/`HasZeroMorphisms` instances for defeq of `(etaleModulePushforward f Λ).rightDerived`.
 attribute [local instance 2000] Abelian.toPreadditive Preadditive.preadditiveHasZeroMorphisms
 
-namespace AlgebraicGeometry.Scheme.Etale
+open AlgebraicGeometry.Scheme.Etale
 
-/-- Lemma 63.13.3: if `f : X ⟶ S` is a proper smooth morphism of schemes with
+/- Lemma 63.13.3: if `f : X ⟶ S` is a proper smooth morphism of schemes with
 geometrically connected fibres of dimension `1`, `Λ` is a Noetherian ring, and
 `M` is a finite `Λ`-module annihilated by an integer `n > 0`, then each higher
 direct image of the constant sheaf of `M` is a constructible sheaf of `Λ`-modules
 on the small étale site of `S`. -/
 @[stacks 0GKW]
-theorem higherDirectImage_constantModule_isConstructible
-    {X S : Scheme.{u}} (f : X ⟶ S) [IsProper f]
+#check (AlgebraicGeometry.Scheme.Etale.higherDirectImage_constantModule_isConstructible :
+    ∀ {X S : Scheme.{u}} (f : X ⟶ S) [IsProper f]
     [SmoothOfRelativeDimension 1 f] [GeometricallyConnected f]
     {Λ : Type u} [CommRing Λ] [IsNoetherianRing Λ]
     {M : Type u} [AddCommGroup M] [Module Λ M] [Module.Finite Λ M]
@@ -55,14 +40,13 @@ theorem higherDirectImage_constantModule_isConstructible
     [EnoughInjectives (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ))]
     [(etaleModulePushforward f Λ).Additive]
     [∀ (Y : Scheme.{u}) (g : Y ⟶ S) (G : S.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ),
-      (smallEtalePullback g).op.HasLeftKanExtension G] :
+      (smallEtalePullback g).op.HasLeftKanExtension G],
     IsConstructibleEtaleModule
       (fun {Y} g ↦
         ((smallEtalePullback g).sheafPullback (ModuleCat.{u} Λ)
           S.smallEtaleTopology Y.smallEtaleTopology).obj)
       (fun {Y} G ↦ IsFiniteTypeLocallyConstantModule G)
       (((etaleModulePushforward f Λ).rightDerived q).obj
-        ((constantSheaf X.smallEtaleTopology (ModuleCat.{u} Λ)).obj (.of Λ M))) :=
-  sorry
+        ((constantSheaf X.smallEtaleTopology (ModuleCat.{u} Λ)).obj (.of Λ M))))
 
-end AlgebraicGeometry.Scheme.Etale
+end

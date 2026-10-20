@@ -1,24 +1,15 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Abelian.RightDerived
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.GlobalSections.Cohomology
-public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
-public import stacks_project.Chap96.Lemma_96_6_2_RingedTopos
-public import stacks_project.Chap103.Lemma_103_9_2
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.ParasiticCohomology
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.Module
+public import stacks_project.Chap103.Lemma_103_5_1_SmallSections
+import StacksCheckRecall
 
 /-!
 # Vanishing and pushforward of parasitic modules on algebraic stacks
 
-For `τ` étale or fppf, a parasitic object of `Mod(X_τ, 𝒪_X)` has vanishing
-`τ`-cohomology, and its higher direct images along any morphism of algebraic
-stacks remain parasitic.
+Parasitic modules have vanishing cohomology and parasitic higher direct images
+in the étale and fppf topologies.
 -/
 
 @[expose] public section
@@ -34,75 +25,93 @@ namespace AlgebraicGeometry.GroupoidsOver
 
 variable {S : Scheme.{u}}
 
-/-- Module direct image along `associatedRingedToposHom f τ` is additive. -/
-instance associatedRingedToposHom_modulePushforward_additive
-    {X Y : GroupoidsOver S} (f : X ⟶ Y) (τ : StandardTopology) :
-    ((associatedRingedToposHom f τ).modulePushforward).Additive :=
-  RingedSite.ToposHom.modulePushforward_additive (associatedRingedToposHom f τ)
-
-/-- The degree-`i` higher direct image `R^i f_* F` of an associated `τ`-module,
-computed in the `τ`-topology. -/
-abbrev associatedModules.higherDirectImage {X Y : GroupoidsOver S}
-    (f : X ⟶ Y) (τ : StandardTopology) (F : associatedModules X τ) (i : ℕ)
-    [HasInjectiveResolutions (associatedModules X τ)] :
-    associatedModules Y τ :=
-  ((associatedRingedToposHom f τ).modulePushforward.rightDerived i).obj F
-
-/-- `associatedModules.higherDirectImage f τ F i` is the object map of the
-degree-`i` right derived functor of module direct image along
-`associatedRingedToposHom f τ`. -/
-theorem associatedModules.higherDirectImage_eq {X Y : GroupoidsOver S}
-    (f : X ⟶ Y) (τ : StandardTopology) (F : associatedModules X τ) (i : ℕ)
-    [HasInjectiveResolutions (associatedModules X τ)] :
-    associatedModules.higherDirectImage f τ F i =
-      ((associatedRingedToposHom f τ).modulePushforward.rightDerived i).obj F :=
-  sorry
-
-/-- Lemma 103.9.3 (1): if `τ` is étale or fppf, `X` is an algebraic stack, and
-`F` is a parasitic object of `Mod(X_τ, 𝒪_X)`, then
-`H^i_τ(X, F)` vanishes for every `i`. -/
-@[stacks 0775]
-theorem isZero_cohomology_of_isParasitic {X : GroupoidsOver S} [AlgebraicStack X]
-    {τ : StandardTopology} (hτ : τ = .etale ∨ τ = .fppf)
-    (F : associatedModules X τ) [IsParasitic (associatedModulePresheaf F)]
-    (i : ℕ) [HasExt (associatedModules X τ)] :
-    IsZero (RingedSite.Hom.moduleGlobalCohomology (associatedRingedSite X τ) F i) :=
-  sorry
-
-/-- Lemma 103.9.3 (2): if `τ` is étale or fppf, `f : X ⟶ Y` is a morphism of
-algebraic stacks, and `F` is a parasitic object of `Mod(X_τ, 𝒪_X)`, then
-`R^i f_* F`, computed in the `τ`-topology, is a parasitic object of
-`Mod(Y_τ, 𝒪_Y)`. -/
-@[stacks 0775]
-theorem associatedModules.isParasitic_higherDirectImage
+/-- Algebraic-stack atlases give small sections in the étale and fppf topologies,
+using the same underlying presheaf after restriction to the étale topology. -/
+theorem hasSmallAssociatedTypeSections_of_etale_or_fppf
     {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
-    {τ : StandardTopology} (hτ : τ = .etale ∨ τ = .fppf) (f : X ⟶ Y)
-    (F : associatedModules X τ) [IsParasitic (associatedModulePresheaf F)] (i : ℕ)
-    [HasInjectiveResolutions (associatedModules X τ)] :
-    IsParasitic
-      (associatedModulePresheaf (associatedModules.higherDirectImage f τ F i)) :=
-  sorry
+    (f : X ⟶ Y) {τ : StandardTopology} (hτ : τ = .etale ∨ τ = .fppf) :
+    HasSmallAssociatedTypeSections f τ := by
+  rcases hτ with rfl | rfl
+  · exact ⟨fun F Z ↦ AlgebraicStack.EtaleSmallSections.sectionsSmall f F Z.unop⟩
+  · exact ⟨fun F Z ↦ AlgebraicStack.EtaleSmallSections.sectionsSmall f
+      ⟨F.obj, Presheaf.IsSheaf.of_le (etaleTopology_le_fppfTopology X) F.property⟩ Z.unop⟩
+
+section Cohomology
+
+variable {X : GroupoidsOver S} [AlgebraicStack X]
+variable {τ : StandardTopology} (hτ : τ = .etale ∨ τ = .fppf)
+variable [Abelian (RingedSite.ModuleCat.{u} (associatedRingedSite X τ))]
+variable (F : RingedSite.ModuleCat.{u} (associatedRingedSite X τ))
+variable [IsParasitic ((PresheafOfModules.restrictScalars
+  (associatedStructurePresheafIso X τ).hom).obj F.val)]
+variable (i : ℕ) [HasExt (RingedSite.ModuleCat.{u} (associatedRingedSite X τ))]
+
+/- Lemma 103.9.3 (1): a parasitic module on an algebraic stack has vanishing
+cohomology in every degree for the étale or fppf topology. -/
+@[stacks 0775] #check
+  (AlgebraicGeometry.GroupoidsOver.isZero_cohomology_of_isParasitic hτ F i :
+    IsZero (RingedSite.Hom.moduleGlobalCohomology (X := associatedRingedSite X τ) F i))
+
+end Cohomology
+
+section HigherDirectImage
+
+variable {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+variable {τ : StandardTopology} (hτ : τ = .etale ∨ τ = .fppf) (f : X ⟶ Y)
+variable [Abelian (RingedSite.ModuleCat.{u} (associatedRingedSite X τ))]
+variable [Abelian (RingedSite.ModuleCat.{u} (associatedRingedSite Y τ))]
+variable (F : RingedSite.ModuleCat.{u} (associatedRingedSite X τ))
+variable [IsParasitic ((PresheafOfModules.restrictScalars
+  (associatedStructurePresheafIso X τ).hom).obj F.val)]
+variable (i : ℕ)
+variable [HasInjectiveResolutions (RingedSite.ModuleCat.{u} (associatedRingedSite X τ))]
+
+/- Lemma 103.9.3 (2): every higher direct image of a parasitic module along a
+morphism of algebraic stacks is parasitic in the étale or fppf topology. -/
+@[stacks 0775] #check
+  (AlgebraicGeometry.GroupoidsOver.associatedModules.isParasitic_higherDirectImage
+    (hsize := hasSmallAssociatedTypeSections_of_etale_or_fppf f hτ) hτ f F i :
+    IsParasitic ((PresheafOfModules.restrictScalars
+      (associatedStructurePresheafIso Y τ).hom).obj
+        (associatedModules.higherDirectImage f τ
+          (hsize := hasSmallAssociatedTypeSections_of_etale_or_fppf f hτ) F i).val))
+
+end HigherDirectImage
 
 /-- Parasitic higher direct images remain parasitic in the étale topology. -/
 instance associatedModules.instParasitic_higherDirectImage_etale
     {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
-    (f : X ⟶ Y) (F : associatedModules X .etale)
-    [IsParasitic (associatedModulePresheaf F)] (i : ℕ)
-    [HasInjectiveResolutions (associatedModules X .etale)] :
-    IsParasitic
-      (associatedModulePresheaf
-        (associatedModules.higherDirectImage f .etale F i)) :=
-  associatedModules.isParasitic_higherDirectImage (Or.inl rfl) f F i
+    (f : X ⟶ Y) (F : RingedSite.ModuleCat.{u} (associatedRingedSite X .etale))
+    [IsParasitic ((PresheafOfModules.restrictScalars
+      (associatedStructurePresheafIso X .etale).hom).obj F.val)] (i : ℕ)
+    [HasInjectiveResolutions (RingedSite.ModuleCat.{u} (associatedRingedSite X .etale))] :
+    IsParasitic ((PresheafOfModules.restrictScalars
+      (associatedStructurePresheafIso Y .etale).hom).obj
+        (associatedModules.higherDirectImage f .etale
+          (hsize := hasSmallAssociatedTypeSections_of_etale_or_fppf f (Or.inl rfl))
+          (aX := etaleModulesAbelian X) (aY := etaleModulesAbelian Y) F i).val) :=
+  associatedModules.isParasitic_higherDirectImage
+    (hsize := hasSmallAssociatedTypeSections_of_etale_or_fppf f (Or.inl rfl))
+          (aX := etaleModulesAbelian X) (aY := etaleModulesAbelian Y)
+    (Or.inl rfl) f F i
 
 /-- Parasitic higher direct images remain parasitic in the fppf topology. -/
 instance associatedModules.instParasitic_higherDirectImage_fppf
     {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
-    (f : X ⟶ Y) (F : associatedModules X .fppf)
-    [IsParasitic (associatedModulePresheaf F)] (i : ℕ)
-    [HasInjectiveResolutions (associatedModules X .fppf)] :
-    IsParasitic
-      (associatedModulePresheaf
-        (associatedModules.higherDirectImage f .fppf F i)) :=
-  associatedModules.isParasitic_higherDirectImage (Or.inr rfl) f F i
+    (f : X ⟶ Y) (F : RingedSite.ModuleCat.{u} (associatedRingedSite X .fppf))
+    [IsParasitic ((PresheafOfModules.restrictScalars
+      (associatedStructurePresheafIso X .fppf).hom).obj F.val)] (i : ℕ)
+    [HasInjectiveResolutions (RingedSite.ModuleCat.{u} (associatedRingedSite X .fppf))] :
+    IsParasitic ((PresheafOfModules.restrictScalars
+      (associatedStructurePresheafIso Y .fppf).hom).obj
+        (associatedModules.higherDirectImage f .fppf
+          (hsize := hasSmallAssociatedTypeSections_of_etale_or_fppf f (Or.inr rfl))
+          (aX := AlgebraicStack.fppfModules_abelian X)
+          (aY := AlgebraicStack.fppfModules_abelian Y) F i).val) :=
+  associatedModules.isParasitic_higherDirectImage
+    (hsize := hasSmallAssociatedTypeSections_of_etale_or_fppf f (Or.inr rfl))
+          (aX := AlgebraicStack.fppfModules_abelian X)
+          (aY := AlgebraicStack.fppfModules_abelian Y)
+    (Or.inr rfl) f F i
 
 end AlgebraicGeometry.GroupoidsOver

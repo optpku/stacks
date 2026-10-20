@@ -1,15 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Coherent
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap66.Definition_66_29_1_QCoh
-public import stacks_project.Chap69.Definition_69_12_1_Instances
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Noetherian
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Quasicoherent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Coherent.Category
 import StacksCheckRecall
 
 @[expose] public section
@@ -25,4 +19,5 @@ variable {S : Scheme.{u}} (X : AlgebraicSpace S) [IsLocallyNoetherian X]
 over `S`. A quasi-coherent module `F` on `X` is called coherent if `F` is a coherent
 `𝒪_X`-module on the small étale site of `X` in the sense of `SheafOfModules.IsCoherent`. -/
 @[stacks 07UA]
-#check (F.IsCoherent : Prop)
+#check (SheafOfModules.IsCoherent
+  (R := AlgebraicGeometry.AlgebraicSpace.structureSheaf X) F : Prop)

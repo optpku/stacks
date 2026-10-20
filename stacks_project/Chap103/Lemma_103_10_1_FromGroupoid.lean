@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Yoneda
@@ -245,16 +239,16 @@ def spacePushforward_ringedPushforwardHom (A : G.QCoh)
     {x y : G.preQuotient.total} (φ : x ⟶ y) :
     (Scheme.Modules.toRingedSpace y.base.left).obj (schemeObj_spacePushforward G A φ) ⟶
       schemeObj_ringedPushforward G A φ :=
-  (restrictPushforwardUnderivedHom φ.base).app
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.SchemeRestriction.pushforwardSquareHom φ.base).app
     ((AlgebraicSpace.QCoh.inclusion (ofOver x.base)).obj
       ((AlgebraicSpace.QCoh.pullback (ofOverMap φ.base)).obj (pulledObj G A y)))
 
 /-- `spacePushforward_ringedPushforwardHom` is the underived comparison of
-`restrictPushforwardUnderivedHom`. -/
+`AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.SchemeRestriction.pushforwardSquareHom`. -/
 theorem spacePushforward_ringedPushforwardHom_eq (A : G.QCoh)
     {x y : G.preQuotient.total} (φ : x ⟶ y) :
     spacePushforward_ringedPushforwardHom G A φ =
-      (restrictPushforwardUnderivedHom φ.base).app
+      (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.SchemeRestriction.pushforwardSquareHom φ.base).app
         ((AlgebraicSpace.QCoh.inclusion (ofOver x.base)).obj
           ((AlgebraicSpace.QCoh.pullback (ofOverMap φ.base)).obj (pulledObj G A y))) :=
   rfl
@@ -263,8 +257,11 @@ theorem spacePushforward_ringedPushforwardHom_eq (A : G.QCoh)
 isomorphism. -/
 instance spacePushforward_ringedPushforwardHom_isIso (A : G.QCoh)
     {x y : G.preQuotient.total} (φ : x ⟶ y) :
-    IsIso (spacePushforward_ringedPushforwardHom G A φ) :=
-  sorry
+    IsIso (spacePushforward_ringedPushforwardHom G A φ) := by
+  change IsIso ((AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.SchemeRestriction.pushforwardSquareIso φ.base).hom.app
+    ((AlgebraicSpace.QCoh.inclusion (ofOver x.base)).obj
+      ((AlgebraicSpace.QCoh.pullback (ofOverMap φ.base)).obj (pulledObj G A y))))
+  infer_instance
 
 /-- Comparison of algebraic-space pushforward, restricted to the scheme of `T'`,
 with ringed-space pushforward of `schemeObj_spacePullback`. -/

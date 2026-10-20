@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.Etale
-public import Mathlib.Data.List.TFAE
-public import stacks_project.Chap67.Definition_67_5_2_Surjective
-public import stacks_project.Chap72.Definition_72_11_1_GeometricallyReduced
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Geometrically.Reduced.Etale
+import StacksCheckRecall
 
 /-!
 # Geometric reducedness of algebraic spaces via étale scheme charts
@@ -27,16 +19,14 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 72.11.3: let `k` be a field and let `X` be an algebraic space over `k`.
+/- Lemma 72.11.3: let `k` be a field and let `X` be an algebraic space over `k`.
 The following are equivalent: `X` is geometrically reduced; there exists a
 surjective étale morphism `U ⟶ X` with `U` a scheme such that `U` is
 geometrically reduced; and every étale morphism `U ⟶ X` with `U` a scheme has
 `U` geometrically reduced. -/
-@[stacks 0DMS]
-theorem geometricallyReduced_etale_tfae {k : Type u} [Field k]
-    (X : AlgebraicSpace (Spec (of k))) :
+@[stacks 0DMS] #check
+  (AlgebraicGeometry.AlgebraicSpace.geometricallyReduced_etale_tfae :
+    ∀ {k : Type u} [Field k] (X : AlgebraicSpace (Spec (of k))),
     List.TFAE
       [GeometricallyReduced X,
         ∃ (U : Over (Spec (of k))) (a : ofOver U ⟶ X),
@@ -44,27 +34,24 @@ theorem geometricallyReduced_etale_tfae {k : Type u} [Field k]
             AlgebraicSpace.Surjective a ∧ SchemeOverField.geometricallyReduced U,
         ∀ (U : Over (Spec (of k))) (a : ofOver U ⟶ X),
           (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf a →
-            SchemeOverField.geometricallyReduced U] :=
-  sorry
+            SchemeOverField.geometricallyReduced U])
 
-/-- `X` is geometrically reduced if and only if some surjective étale morphism
+/- `X` is geometrically reduced if and only if some surjective étale morphism
 from a scheme is geometrically reduced on the source. -/
-theorem geometricallyReduced_iff_exists_surjective_etale {k : Type u} [Field k]
-    (X : AlgebraicSpace (Spec (of k))) :
+#check
+  (AlgebraicGeometry.AlgebraicSpace.geometricallyReduced_iff_exists_surjective_etale :
+    ∀ {k : Type u} [Field k] (X : AlgebraicSpace (Spec (of k))),
     GeometricallyReduced X ↔
       ∃ (U : Over (Spec (of k))) (a : ofOver U ⟶ X),
         (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf a ∧
-          AlgebraicSpace.Surjective a ∧ SchemeOverField.geometricallyReduced U :=
-  sorry
+          AlgebraicSpace.Surjective a ∧ SchemeOverField.geometricallyReduced U)
 
-/-- `X` is geometrically reduced if and only if every étale morphism from a
+/- `X` is geometrically reduced if and only if every étale morphism from a
 scheme is geometrically reduced on the source. -/
-theorem geometricallyReduced_iff_forall_etale {k : Type u} [Field k]
-    (X : AlgebraicSpace (Spec (of k))) :
+#check
+  (AlgebraicGeometry.AlgebraicSpace.geometricallyReduced_iff_forall_etale :
+    ∀ {k : Type u} [Field k] (X : AlgebraicSpace (Spec (of k))),
     GeometricallyReduced X ↔
       ∀ (U : Over (Spec (of k))) (a : ofOver U ⟶ X),
         (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf a →
-          SchemeOverField.geometricallyReduced U :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+          SchemeOverField.geometricallyReduced U)

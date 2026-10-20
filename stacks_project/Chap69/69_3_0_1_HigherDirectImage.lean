@@ -1,64 +1,37 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Abelian.RightDerived
-public import stacks_project.Chap66.«66_26_0_1_Pushforward»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.HigherDirectImage
 
-/-!
-# Higher direct images of modules on algebraic spaces
-
-The degree-`i` higher direct image of a sheaf of modules along a morphism of algebraic spaces
-is the ordinary right derived functor of module pushforward on the small étale ringed sites.
--/
-
-@[expose] public section
+/-! # Compatibility checks for higher direct images of modules -/
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-
-noncomputable section
+open AlgebraicGeometry.AlgebraicSpace.Modules
 
 universe u
 
 -- Local instance justification (defeq pin): `HasInjectiveResolutions` and `Functor.rightDerived` pin the Abelian-induced `Preadditive`/`HasZeroMorphisms` instances for defeq of `higherDirectImageFunctor`.
 attribute [local instance 2000] Abelian.toPreadditive Preadditive.preadditiveHasZeroMorphisms
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.pushforward_additive :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Abelian X.Modules] [Abelian Y.Modules],
+    (pushforward f).Additive)
 
-variable {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.higherDirectImageFunctor :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Abelian X.Modules] [Abelian Y.Modules]
+    [HasInjectiveResolutions X.Modules] (i : ℕ),
+    X.Modules ⥤ Y.Modules)
 
-/-- Module pushforward along a morphism of algebraic spaces is additive. -/
-instance pushforward_additive (f : X ⟶ Y) [Abelian X.Modules] [Abelian Y.Modules] :
-    (pushforward f).Additive :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.higherDirectImage :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [Abelian X.Modules] [Abelian Y.Modules]
+    [HasInjectiveResolutions X.Modules] (F : X.Modules) (i : ℕ), Y.Modules)
 
-/-- The degree-`i` higher direct image functor of sheaves of modules along a morphism of
-algebraic spaces. -/
-def higherDirectImageFunctor (f : X ⟶ Y) [Abelian X.Modules] [Abelian Y.Modules]
-    [HasInjectiveResolutions X.Modules] (i : ℕ) :
-    X.Modules ⥤ Y.Modules :=
-  (pushforward f).rightDerived i
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.higherDirectImageMap :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Abelian X.Modules] [Abelian Y.Modules]
+    [HasInjectiveResolutions X.Modules] {F G : X.Modules} (φ : F ⟶ G) (i : ℕ),
+    higherDirectImage f F i ⟶ higherDirectImage f G i)
 
-/-- The degree-`i` higher direct image of a sheaf of modules along a morphism of algebraic
-spaces. -/
-def higherDirectImage (f : X ⟶ Y) [Abelian X.Modules] [Abelian Y.Modules]
-    [HasInjectiveResolutions X.Modules] (F : X.Modules) (i : ℕ) : Y.Modules :=
-  (higherDirectImageFunctor f i).obj F
-
-/-- The map on higher direct images of modules induced by a morphism of sheaves of modules. -/
-def higherDirectImageMap (f : X ⟶ Y) [Abelian X.Modules] [Abelian Y.Modules]
-    [HasInjectiveResolutions X.Modules] {F G : X.Modules} (φ : F ⟶ G) (i : ℕ) :
-    higherDirectImage f F i ⟶ higherDirectImage f G i :=
-  (higherDirectImageFunctor f i).map φ
-
-/-- Higher direct image of modules is the object map of `rightDerived` of module pushforward. -/
-theorem higherDirectImage_eq (f : X ⟶ Y) [Abelian X.Modules] [Abelian Y.Modules]
-    [HasInjectiveResolutions X.Modules] (F : X.Modules) (i : ℕ) :
-    higherDirectImage f F i = ((pushforward f).rightDerived i).obj F :=
-  rfl
-
-end AlgebraicGeometry.AlgebraicSpace.Modules
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.higherDirectImage_eq :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Abelian X.Modules] [Abelian Y.Modules]
+    [HasInjectiveResolutions X.Modules] (F : X.Modules) (i : ℕ),
+    higherDirectImage f F i = ((pushforward f).rightDerived i).obj F)

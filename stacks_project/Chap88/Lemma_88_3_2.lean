@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap88.Lemma_88_3_2_Comparison
-public import stacks_project.Chap88.Lemma_88_3_2_Presentation
+import StacksCheckRecall
+public import ReasLib.RingTheory.AdicCompletion.NaiveCotangent.Completion
 
 /-!
 # Lemma 88.3.2
@@ -35,36 +29,18 @@ variable {ι : Type u} [Fintype ι]
 variable (I : Ideal A)
 variable (α : MvPolynomial ι A →ₐ[A] B) (hα : Function.Surjective α)
 
-/-- Lemma 88.3.2 (1): Let `A` be a Noetherian ring and let `I ⊂ A` be an ideal.
-Let `A → B` be a finite type ring map. Choose a presentation
-`α : A[x_ι] → B`. Then `NL_{B^∧/A}^∧ = NL(α) ⊗_B B^∧` as complexes. The source
-`lim` is the termwise completion-as-tensor identification of the finite complex
-`NL(α)`, not the inverse system of Lemma 88.3.3. -/
-@[stacks 0GAF]
-noncomputable abbrev naiveCotangent_iso_tensor :
-    naiveCotangent I (completionPresentation I α hα) ≅
-      tensorModel (polynomialExtension α hα) :=
-  tensorIso I α hα
+/- Lemma 88.3.2 (1): The completed naive cotangent complex is the tensor base
+change of the complex of the chosen finite polynomial presentation. -/
+@[stacks 0GAF] #check (Algebra.NaiveCotangent.Adic.tensorIso I α hα :
+  naiveCotangent I (completionPresentation I α hα) ≅
+    Algebra.Extension.NaiveCotangent.BaseChange.tensorModel (polynomialExtension α hα))
 
-/-- Unfolding of the complex-level identification of Lemma 88.3.2 (1). -/
-theorem naiveCotangent_iso_tensor_eq :
-    naiveCotangent_iso_tensor I α hα = tensorIso I α hα :=
-  sorry
-
-/-- Lemma 88.3.2 (2): Let `A` be a Noetherian ring and let `I ⊂ A` be an ideal.
-Let `A → B` be a finite type ring map. Choose a presentation
-`α : A[x_ι] → B`. Then `NL_{B^∧/A}^∧ = NL_{B/A} ⊗^L_B B^∧` in `D(B^∧)`. -/
-@[stacks 0GAF]
-noncomputable abbrev naiveCotangentObject_iso_derivedTensor :
-    naiveCotangentObject I (completionPresentation I α hα) ≅
-      (ModuleCat.derivedExtensionOfScalars
-          (algebraMap B (algebraCompletion I B))).obj
-        (Algebra.naiveCotangentObject A B) :=
-  derivedTensorIso I α hα
-
-/-- Unfolding of the derived identification of Lemma 88.3.2 (2). -/
-theorem naiveCotangentObject_iso_derivedTensor_eq :
-    naiveCotangentObject_iso_derivedTensor I α hα = derivedTensorIso I α hα :=
-  sorry
+/- Lemma 88.3.2 (2): The completed naive cotangent object is the derived base
+change of the ordinary naive cotangent object. -/
+@[stacks 0GAF] #check (Algebra.NaiveCotangent.Adic.derivedTensorIso I α hα :
+  naiveCotangentObject I (completionPresentation I α hα) ≅
+    (ModuleCat.derivedExtensionOfScalars
+        (algebraMap B (algebraCompletion I B))).obj
+      (Algebra.naiveCotangentObject A B))
 
 end Algebra.NaiveCotangent.Adic

@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_47_7_Irreducible
-public import stacks_project.Chap67.Definition_67_47_7_Birational
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Birational
 import StacksCheckRecall
 
 @[expose] public section
@@ -24,4 +17,5 @@ with `|X|` and `|Y|` irreducible. We say `X` and `Y` are birational if they are 
 in the category of irreducible algebraic spaces over `S` and dominant rational maps. -/
 @[stacks 0EMT] #check (AlgebraicGeometry.AlgebraicSpace.Birational X Y : Prop)
 
-#check AlgebraicGeometry.AlgebraicSpace.PartialIso
+#check (AlgebraicGeometry.AlgebraicSpace.PartialIso :
+  {S : Scheme.{u}} → AlgebraicSpace S → AlgebraicSpace S → Type (u + 1))

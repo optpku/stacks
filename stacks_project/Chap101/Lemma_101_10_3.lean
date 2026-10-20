@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_10_1_Integral
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Morphism.Finite.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of integral and finite morphisms of algebraic stacks
@@ -25,30 +20,20 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-namespace IsIntegralHom
-
-/-- Lemma 101.10.3 (1): compositions of integral morphisms of algebraic stacks
+/- Lemma 101.10.3 (1): compositions of integral morphisms of algebraic stacks
 are integral. -/
-@[stacks 0CHW]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+@[stacks 0CHW] #check (AlgebraicGeometry.AlgebraicStack.IsIntegralHom.comp :
+    ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [IsIntegralHom f] [IsIntegralHom g] :
-    IsIntegralHom (f ≫ g) :=
-  sorry
+    (f : X ⟶ Y) (g : Y ⟶ Z) [IsIntegralHom f] [IsIntegralHom g],
+    IsIntegralHom (f ≫ g))
 
-end IsIntegralHom
-
-namespace IsFinite
-
-/-- Lemma 101.10.3 (2): compositions of finite morphisms of algebraic stacks
+/- Lemma 101.10.3 (2): compositions of finite morphisms of algebraic stacks
 are finite. -/
-@[stacks 0CHW]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+@[stacks 0CHW] #check (AlgebraicGeometry.AlgebraicStack.IsFinite.comp :
+    ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [IsFinite f] [IsFinite g] :
-    IsFinite (f ≫ g) :=
-  sorry
-
-end IsFinite
+    (f : X ⟶ Y) (g : Y ⟶ Z) [IsFinite f] [IsFinite g],
+    IsFinite (f ≫ g))
 
 end AlgebraicGeometry.AlgebraicStack

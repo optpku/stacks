@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Coherent.Closure
@@ -135,6 +129,18 @@ noncomputable def K0.affineEquiv (R : CommRingCat.{u})
     K0 (Spec R) ≃+ ModuleCat.K0.projective R :=
   (K0.affineDerivedEquiv R).trans h.equiv
 
+namespace K0
+
+/-- For an affine scheme `Spec R`, scheme K₀ and projective-module K₀ are additively
+equivalent.  The proposition records the source-level existence claim; callers that
+need computational maps use `affineEquiv` with an explicit `K0Comparison`. -/
+theorem exists_affineEquiv (R : CommRingCat.{u}) :
+    Nonempty (K0 (Spec R) ≃+ ModuleCat.K0.projective R) :=
+  Nonempty.map (fun h : CategoryTheory.K0Comparison R ↦ K0.affineEquiv R h)
+    (CategoryTheory.exists_K0Comparison (R := R))
+
+end K0
+
 /-- The affine projective K₀ comparison sends a perfect-sheaf generator through the supplied
 perfect-derived comparison map. -/
 theorem K0.affineEquiv_apply_of (R : CommRingCat.{u})
@@ -142,15 +148,6 @@ theorem K0.affineEquiv_apply_of (R : CommRingCat.{u})
     (K : RingedSpace.ModuleDerived.Perfect (X := (Spec R).toRingedSpace)) :
     K0.affineEquiv R h (TriangulatedK0.of K) =
       h.map (TriangulatedK0.of ((K0.affinePerfectEquivalence R).inverse.obj K)) := sorry
-
-namespace K0
-
-/-- For an affine scheme `Spec R`, scheme K₀ and projective-module K₀ are additively
-equivalent. -/
-theorem exists_affineEquiv (R : CommRingCat.{u}) :
-    Nonempty (K0 (Spec R) ≃+ ModuleCat.K0.projective R) := sorry
-
-end K0
 
 /-- Coherent modules on `Spec R` are quasi-coherent. -/
 theorem K0'.coherent_le_quasicoherent (R : CommRingCat.{u}) [IsNoetherianRing R] :

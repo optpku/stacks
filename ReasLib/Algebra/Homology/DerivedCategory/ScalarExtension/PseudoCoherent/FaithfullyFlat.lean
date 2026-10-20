@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.RingHom.FaithfullyFlat
@@ -38,7 +32,8 @@ homomorphism. -/
 @[stacks 068R "faithfully flat descent of m-pseudo-coherence"]
 theorem of_faithfullyFlat (f : R →+* S) (hf : f.FaithfullyFlat)
     {K : DerivedCategory (ModuleCat.{v, uR} R)} {m : ℤ}
-    (hK : ((ModuleCat.derivedExtensionOfScalars.{uR, uS, v} f).obj K).IsMPseudoCoherent m) :
+    (hK : ((ModuleCat.derivedExtensionOfScalars.{uR, uS, v} f
+        (hasLeftDerived := ModuleCat.DerivedExtension.Flat.hasLeftDerivedFunctor f hf.flat)).obj K).IsMPseudoCoherent m) :
     K.IsMPseudoCoherent m := sorry
 -- Proof strategy: descend homology vanishing and finite presentation along `hf`, then induct on
 -- the top nonzero homology degree using a finite free approximation and its distinguished cone.
@@ -47,7 +42,8 @@ theorem of_faithfullyFlat (f : R →+* S) (hf : f.FaithfullyFlat)
 @[stacks 068R "m-pseudo-coherence under faithfully flat extension"]
 theorem extension_iff_of_faithfullyFlat (f : R →+* S) (hf : f.FaithfullyFlat)
     (K : DerivedCategory (ModuleCat.{v, uR} R)) (m : ℤ) :
-    ((ModuleCat.derivedExtensionOfScalars.{uR, uS, v} f).obj K).IsMPseudoCoherent m ↔
+    ((ModuleCat.derivedExtensionOfScalars.{uR, uS, v} f
+        (hasLeftDerived := ModuleCat.DerivedExtension.Flat.hasLeftDerivedFunctor f hf.flat)).obj K).IsMPseudoCoherent m ↔
       K.IsMPseudoCoherent m := sorry
 -- Proof strategy: combine `of_faithfullyFlat` with `IsMPseudoCoherent.extension`.
 
@@ -62,7 +58,8 @@ homomorphism. -/
 @[stacks 068R "faithfully flat descent of pseudo-coherence"]
 theorem of_faithfullyFlat (f : R →+* S) (hf : f.FaithfullyFlat)
     {K : DerivedCategory (ModuleCat.{v, uR} R)}
-    (hK : ((ModuleCat.derivedExtensionOfScalars.{uR, uS, v} f).obj K).IsPseudoCoherent) :
+    (hK : ((ModuleCat.derivedExtensionOfScalars.{uR, uS, v} f
+        (hasLeftDerived := ModuleCat.DerivedExtension.Flat.hasLeftDerivedFunctor f hf.flat)).obj K).IsPseudoCoherent) :
     K.IsPseudoCoherent := sorry
 -- Proof strategy: apply the faithfully flat `m`-pseudo-coherent descent theorem in every degree
 -- and use the all-degree characterization of pseudo-coherence.
@@ -71,7 +68,8 @@ theorem of_faithfullyFlat (f : R →+* S) (hf : f.FaithfullyFlat)
 @[stacks 068R "pseudo-coherence under faithfully flat extension"]
 theorem extension_iff_of_faithfullyFlat (f : R →+* S) (hf : f.FaithfullyFlat)
     (K : DerivedCategory (ModuleCat.{v, uR} R)) :
-    ((ModuleCat.derivedExtensionOfScalars.{uR, uS, v} f).obj K).IsPseudoCoherent ↔
+    ((ModuleCat.derivedExtensionOfScalars.{uR, uS, v} f
+        (hasLeftDerived := ModuleCat.DerivedExtension.Flat.hasLeftDerivedFunctor f hf.flat)).obj K).IsPseudoCoherent ↔
       K.IsPseudoCoherent := sorry
 -- Proof strategy: combine `of_faithfullyFlat` with `IsPseudoCoherent.extension`.
 

@@ -1,41 +1,90 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Remark_90_7_12_Comparison
-public import stacks_project.Chap90.Remark_90_7_12_Underline
+public import ReasLib.AlgebraicGeometry.FormalDeformation.RestrictedHom.Comparison
 import StacksCheckRecall
 
 @[expose] public section
 
-open CategoryTheory FormalObject
+open CategoryTheory FormalObject CompleteLocalAlgCat
 open scoped BasedFunctor
 
-/- Remark 90.7.12 (1): for `R` in `Ĉ_Λ` and `F` cofibered in groupoids over `C_Λ`,
-evaluation of a based morphism `φ : underline R |_{C_Λ} ⟶ F` on the identity
-truncations `R ⟶ R ⧸ m_R^{n+1}` yields an equivalence
-`Mor_{C_Λ}(underline R |_{C_Λ}, F) ⥤ hat F(R)`. -/
-@[stacks 06HC] #check FormalObject.fromRestrictedHom
+universe u v
 
-/- Remark 90.7.12 (2): the equivalence is the composite of `Φ` from Remark 90.7.9,
-specialized to `underline R`, with cofibered 2-Yoneda evaluation at `𝟙 R`. -/
-@[stacks 06HC] #check FormalObject.fromRestrictedHom_comp_phi
+variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+  [Module.Finite Λ k]
+variable {F : Type v} [Category.{v} F]
 
-/- Remark 90.7.12 (3): given a choice of pushforwards for `F`, a formal object `ξ`
-over `R` determines an explicit quasi-inverse `underline ξ` sending `α : R ⟶ A` to
-`α_{m,*} ξ_m`, where `m = nilpotencyIndex A`. -/
-@[stacks 06HC] #check FormalObject.toRestrictedHom
+/- Remark 90.7.12 (1): evaluation on identity truncations is an equivalence from
+morphisms of the restricted representable to the completion fibre. Truncation `n`
+uses the power `n + 1`, shifting the source's positive-exponent convention. -/
+@[stacks 06HC] #check (FormalObject.fromRestrictedHom_isEquivalence :
+  ∀ (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op]
+    (R : CompleteLocalAlgCat Λ k), (FormalObject.fromRestrictedHom p R).IsEquivalence)
 
-/- Remark 90.7.12 (4): given a choice of pushforwards for `hat F`, cofibered 2-Yoneda
-supplies the quasi-inverse `ι` sending `ξ` to the based morphism `f ↦ f_* ξ`. -/
-@[stacks 06HC] #check FormalObject.iota
+variable (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op]
+  (R : CompleteLocalAlgCat Λ k)
 
-/- Remark 90.7.12 (5): `Ψ(ι ξ) ≅ underline ξ` as based morphisms over `C_Λ`. -/
-@[stacks 06HC] #check FormalObject.homEquivInverse_iota_iso
+#check (FormalObject.fromRestrictedHom p R :
+  RestrictedHom p R ⥤ Functor.Fiber (Functor.completion p) R)
 
-/- Remark 90.7.12 (6): `ι ξ` is isomorphic to the completion of `underline ξ`. -/
-@[stacks 06HC] #check FormalObject.iota_iso_completion
+#check (FormalObject.fromRestrictedHom_family p R :
+  ∀ (φ : RestrictedHom p R) (n : ℕ),
+    let ξ := Functor.Fiber.fiberInclusion.obj ((fromRestrictedHom p R).obj φ)
+    p.obj (ξ.system.family n) = R.truncation n ∧
+      ξ.system.family n = φ.obj (restrictedIdentity R n))
+
+#check (FormalObject.fromRestrictedHom_step p R :
+  ∀ (φ : RestrictedHom p R) (n : ℕ),
+    let ξ := Functor.Fiber.fiberInclusion.obj ((fromRestrictedHom p R).obj φ)
+    ξ.system.stepMap n = φ.map (restrictedIdentityMap R n) ∧
+      p.IsHomLift (R.truncationMap n) (ξ.system.stepMap n))
+
+#check (FormalObject.fromRestrictedHomMap p R :
+  ∀ {φ ψ : RestrictedHom p R} (transformation : φ ⟶ ψ),
+    fromRestrictedHomObject p R φ ⟶ fromRestrictedHomObject p R ψ)
+
+/- Remark 90.7.12 (2): the forward functor is completion followed by cofibered
+2-Yoneda evaluation at the identity. -/
+@[stacks 06HC] #check (FormalObject.fromRestrictedHom_comp_phi (p := p) R :
+  fromRestrictedHom p R ≅ phiRestricted R ⋙ evaluationAtId R)
+
+/- Remark 90.7.12 (3): the explicit inverse pushes the nilpotency stage forward
+along the unique quotient factor of each Artinian test map. -/
+@[stacks 06HC] #check (FormalObject.toRestrictedHom (p := p) R :
+  Functor.Fiber (Functor.completion p) R ⥤ RestrictedHom p R)
+
+#check (FormalObject.toRestrictedHom_obj (p := p) R :
+  ∀ (ξ : Functor.Fiber (Functor.completion p) R) (x : (restrictedCoyoneda R).Elements),
+    ((toRestrictedHom R).obj ξ).obj x = toRestrictedHomObj ξ x ∧
+      p.obj (((toRestrictedHom R).obj ξ).obj x) = x.1)
+
+#check (FormalObject.fromRestrictedHom_toRestrictedHom (p := p) R :
+  ∀ ξ : Functor.Fiber (Functor.completion p) R,
+    (fromRestrictedHom p R).obj ((toRestrictedHom R).obj ξ) ≅ ξ)
+
+/- Remark 90.7.12 (4): the cofibered Yoneda section sends a formal object to its
+chosen pushforwards along all complete-local test maps. -/
+@[stacks 06HC] #check (FormalObject.iota (p := p) R :
+  Functor.Fiber (Functor.completion p) R ⥤
+    (BasedCategory.ofFunctor (CategoryOfElements.π (coyoneda.obj (Opposite.op R))) ⥤ᵇ
+      BasedCategory.ofFunctor (Functor.completion p)))
+
+#check (FormalObject.iota_obj_app (p := p) (R := R) :
+  ∀ {S : CompleteLocalAlgCat Λ k} (ξ : Functor.Fiber (Functor.completion p) R) (f : R ⟶ S),
+    ((iota R).obj ξ).obj ⟨S, f⟩ = (iotaPush ξ f).target)
+
+#check (FormalObject.iota_id (p := p) (R := R) :
+  ∀ ξ : Functor.Fiber (Functor.completion p) R,
+    ((iota R).obj ξ).obj ⟨R, 𝟙 R⟩ ≅ ξ.1)
+
+/- Remark 90.7.12 (5): restriction of the Yoneda section followed by evaluation
+is isomorphic to the explicit nilpotency-pushforward inverse. -/
+@[stacks 06HC] #check (FormalObject.homEquivInverse_iota_iso (p := p) (R := R) :
+  ∀ ξ : Functor.Fiber (Functor.completion p) R,
+    (psiRestricted R).obj ((iota R).obj ξ) ≅ (toRestrictedHom R).obj ξ)
+
+/- Remark 90.7.12 (6): the Yoneda section is isomorphic to completion of the
+explicit inverse. -/
+@[stacks 06HC] #check (FormalObject.iota_iso_completion (p := p) (R := R) :
+  ∀ ξ : Functor.Fiber (Functor.completion p) R,
+    (iota R).obj ξ ≅ (phiRestricted R).obj ((toRestrictedHom R).obj ξ))

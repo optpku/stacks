@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRingsExact
@@ -25,7 +19,7 @@ open CategoryTheory
 
 noncomputable section
 
-universe u
+universe u v
 
 namespace CategoryTheory.ModuleCat
 
@@ -36,23 +30,23 @@ namespace DerivedRestriction
 /-- Restriction of scalars, bundled with its canonical exactness. -/
 @[stacks 03B8 "exact restriction of scalars for modules"]
 noncomputable abbrev exact (σ : R →+* S) :
-    ModuleCat.{u, u} S ⥤ₑ ModuleCat.{u, u} R :=
-  ExactFunctor.of (ModuleCat.restrictScalars.{u} σ)
+    ModuleCat.{max u v, u} S ⥤ₑ ModuleCat.{max u v, u} R :=
+  ExactFunctor.of (ModuleCat.restrictScalars.{max u v} σ)
 
 end DerivedRestriction
 
 /-- The derived restriction-of-scalars functor along an explicit commutative-ring homomorphism. -/
 @[stacks 0BYX "derived restriction of scalars for modules"]
 noncomputable abbrev derivedRestrictionOfScalars (σ : R →+* S) :
-    DerivedCategory (ModuleCat.{u, u} S) ⥤ DerivedCategory (ModuleCat.{u, u} R) :=
-  (ModuleCat.restrictScalars.{u} σ).mapDerivedCategory
+    DerivedCategory (ModuleCat.{max u v, u} S) ⥤ DerivedCategory (ModuleCat.{max u v, u} R) :=
+  (ModuleCat.restrictScalars.{max u v} σ).mapDerivedCategory
 
 namespace DerivedRestriction
 
 /-- A scalar killed by `σ` acts by zero after derived restriction of scalars along `σ`. -/
 @[stacks 091W "scalar annihilation after derived restriction"]
 theorem smul_id_obj_eq_zero {A B : Type u} [CommRing A] [CommRing B]
-    (σ : A →+* B) (K : DerivedCategory (ModuleCat.{u, u} B))
+    (σ : A →+* B) (K : DerivedCategory (ModuleCat.{max u v, u} B))
     {r : A} (hr : σ r = 0) :
     r • 𝟙 ((derivedRestrictionOfScalars σ).obj K) = 0 := sorry
 

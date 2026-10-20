@@ -1,15 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap107.Definition_107_4_1_VersalRing
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.FormalObject.Versal
 import StacksCheckRecall
 
 @[expose] public section
+
+universe u
 
 /- Definition 98.12.1
 Let S be a locally Noetherian scheme. Let p : 𝒳 ⟶ (Sch/S)_fppf be a category
@@ -18,6 +14,9 @@ k = ResidueField ξ.base.carrier and x0 = ξ.stageOne. We say ξ is versal if ξ
 as a formal object of F_{𝒳, k, x0} (Remark 98.9.2) is versal in the sense of
 Formal Deformation Theory, Definition 90.8.9. This is owned by
 AlgebraicGeometry.GroupoidsOver.FormalObject.IsVersal. -/
-@[stacks 0CXJ] #check AlgebraicGeometry.GroupoidsOver.FormalObject.IsVersal
+@[stacks 0CXJ] #check (AlgebraicGeometry.GroupoidsOver.FormalObject.IsVersal :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} [AlgebraicGeometry.IsLocallyNoetherian S]
+    {X : AlgebraicGeometry.GroupoidsOver S},
+    AlgebraicGeometry.GroupoidsOver.FormalObject X → Prop)
 
 #check AlgebraicGeometry.GroupoidsOver.FormalObject.IsVersal.spec

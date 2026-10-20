@@ -1,28 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Basic
-public import Mathlib.AlgebraicGeometry.Morphisms.Etale
-public import Mathlib.AlgebraicGeometry.Morphisms.Proper
-public import Mathlib.AlgebraicGeometry.Morphisms.Separated
-public import Mathlib.CategoryTheory.Sites.SheafCohomology.Basic
-public import Mathlib.Data.Nat.Prime.Defs
-public import Mathlib.FieldTheory.IsAlgClosed.Basic
-public import Mathlib.RingTheory.Finiteness.Basic
-public import Mathlib.RingTheory.Noetherian.Basic
-public import Mathlib.Topology.Connected.Basic
-public import Mathlib.Topology.KrullDimension
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Cohomology
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType
-public import ReasLib.AlgebraicGeometry.Scheme.OverField
-public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Basic
-public import ReasLib.CategoryTheory.Sites.LocallyConstant.Finite
-public import stacks_project.Chap59.Definition_59_70_1_ExtensionByZero
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Cohomology.Curve.LocallyConstantModule
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -34,14 +13,9 @@ universe u v
 
 namespace AlgebraicGeometry.Scheme.Etale
 
-/-- Lemma 59.84.6 (1): for a Noetherian ring `Λ`, an algebraically closed field `k`, a
-separated finite-type `k`-scheme `X` of dimension at most one, an open immersion
-`j : U ⟶ X.left` with `U` connected, a prime `ℓ`, an integer `n > 0`, and a finite-type
-locally constant sheaf `G` of `Λ`-modules on `U.smallEtaleTopology` annihilated by
-`ℓ ^ n`, the étale cohomology of `j_! G` is a finite `Λ`-module whenever `ℓ` is a unit
-in `k`. -/
-@[stacks 0GJH]
-theorem etaleCohomology_extensionByZero_finiteTypeLocallyConstant_finite_of_primeToChar
+/- Lemma 59.84.6 (1): finiteness of étale cohomology with locally constant coefficients. -/
+@[stacks 0GJH] #check (AlgebraicGeometry.Scheme.Etale.CurveCohomology.LocallyConstantModule.finite_extensionByZero_of_primeToChar :
+    ∀
     {Λ : Type u} [CommRing Λ] [IsNoetherianRing Λ]
     {k : Type v} [Field k] [IsAlgClosed k]
     (X : SchemeOverField k) [Scheme.Hom.FiniteType X.hom] [IsSeparated X.hom]
@@ -60,19 +34,14 @@ theorem etaleCohomology_extensionByZero_finiteTypeLocallyConstant_finite_of_prim
       (forget₂ (ModuleCat.{max u (v + 1)} Λ) AddCommGrpCat)]
     (G : Sheaf U.smallEtaleTopology (ModuleCat.{max u (v + 1)} Λ))
     [Sheaf.IsLocallyConstantWith (fun M : ModuleCat.{max u (v + 1)} Λ ↦ Module.Finite Λ M) G]
-    (h_ann : (ℓ ^ n : ℕ) • 𝟙 G = 0) (hℓk : IsUnit (ℓ : k)) (q : ℕ) :
+    (h_ann : (ℓ ^ n : ℕ) • 𝟙 G = 0) (hℓk : IsUnit (ℓ : k)) (q : ℕ),
     Module.Finite Λ
       ((siteModuleCohomologyModuleFunctor q).obj
-        ((etaleExtensionByZero j (ModuleCat.{max u (v + 1)} Λ)).obj G)) := sorry
+        ((etaleExtensionByZero j (ModuleCat.{max u (v + 1)} Λ)).obj G)))
 
-/-- Lemma 59.84.6 (2): for a Noetherian ring `Λ`, an algebraically closed field `k`, a
-separated finite-type `k`-scheme `X` of dimension at most one, an open immersion
-`j : U ⟶ X.left` with `U` connected, a prime `ℓ`, an integer `n > 0`, and a finite-type
-locally constant sheaf `G` of `Λ`-modules on `U.smallEtaleTopology` annihilated by
-`ℓ ^ n`, the étale cohomology of `j_! G` is a finite `Λ`-module whenever `X` is proper
-over `k`. -/
-@[stacks 0GJH]
-theorem etaleCohomology_extensionByZero_finiteTypeLocallyConstant_finite_of_isProper
+/- Lemma 59.84.6 (2): finiteness of étale cohomology with locally constant coefficients. -/
+@[stacks 0GJH] #check (AlgebraicGeometry.Scheme.Etale.CurveCohomology.LocallyConstantModule.finite_extensionByZero_of_isProper :
+    ∀
     {Λ : Type u} [CommRing Λ] [IsNoetherianRing Λ]
     {k : Type v} [Field k] [IsAlgClosed k]
     (X : SchemeOverField k) [Scheme.Hom.FiniteType X.hom] [IsSeparated X.hom]
@@ -92,9 +61,9 @@ theorem etaleCohomology_extensionByZero_finiteTypeLocallyConstant_finite_of_isPr
       (forget₂ (ModuleCat.{max u (v + 1)} Λ) AddCommGrpCat)]
     (G : Sheaf U.smallEtaleTopology (ModuleCat.{max u (v + 1)} Λ))
     [Sheaf.IsLocallyConstantWith (fun M : ModuleCat.{max u (v + 1)} Λ ↦ Module.Finite Λ M) G]
-    (h_ann : (ℓ ^ n : ℕ) • 𝟙 G = 0) (q : ℕ) :
+    (h_ann : (ℓ ^ n : ℕ) • 𝟙 G = 0) (q : ℕ),
     Module.Finite Λ
       ((siteModuleCohomologyModuleFunctor q).obj
-        ((etaleExtensionByZero j (ModuleCat.{max u (v + 1)} Λ)).obj G)) := sorry
+        ((etaleExtensionByZero j (ModuleCat.{max u (v + 1)} Λ)).obj G)))
 
 end AlgebraicGeometry.Scheme.Etale

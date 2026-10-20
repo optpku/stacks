@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap64.Definition_64_19_1_LFunction
+public import ReasLib.AlgebraicGeometry.Scheme.OverField.LFunction
 public import stacks_project.Chap64.«64_16_1_1_CompactSupport»
 
 /-!
@@ -101,7 +95,7 @@ variable [∀ {A B C : Scheme.{u}} (p : B ⟶ A) (q : C ⟶ B),
       (Sheaf.smallEtaleInverseImage p (ModuleCat.{u} Λ) ⋙
         Sheaf.smallEtaleInverseImage q (ModuleCat.{u} Λ))]
 variable [∀ {Y : Scheme.{u}},
-    MonoidalCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))]
+    (Y.smallEtaleTopology.W (A := ModuleCat.{u} Λ)).IsMonoidal]
 
 /-- An étale sheaf of `Λ`-modules, placed in degree `0` of `D(X_etale, Λ)`. -/
 abbrev etaleSheafAsDerived {X : SchemeOverField k}

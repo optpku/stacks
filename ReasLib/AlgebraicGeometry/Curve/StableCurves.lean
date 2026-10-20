@@ -1,20 +1,17 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.ObjectProperty.Basic
-public import ReasLib.AlgebraicGeometry.Curve.Family
-public import ReasLib.AlgebraicGeometry.Curve.StableOfGenus
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Family
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RingedSite.Hom
+public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve.Stable
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.FiniteLocallyFree.Rank
 
 /-!
-# Stable curve families as object properties
+# Stable families of algebraic-space curves
 
-This file records the object properties of scheme families of curves whose
-residue-field fibres are stable curves, and of those families of a given genus.
+Stability is the stable-curve property of every field-valued fibre, expressed
+using its representing scheme and the induced structure map to the field.
+The genus-`g` locus additionally requires `R¹ f_* 𝒪` to be finite locally free of rank `g`.
 -/
 
 @[expose] public section
@@ -26,28 +23,35 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Spaces.Curves
+namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- The object property of families of curves whose residue-field fibres are
-stable curves. -/
-def stableCurves (S : Scheme.{u}) : ObjectProperty (Obj S) :=
-  fun P => ∀ s : P.base.left, isStableCurve (Over.mk (P.hom.fiberToSpecResidueField s))
+/-- The scheme over the field represented by a scheme presentation of a field-valued fibre. -/
+def ofFibreScheme {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
+    (p : FieldValuedPoint Y) (T : Over S) (e : pullback f p.hom ≅ ofOver T) :
+    SchemeOverField p.K :=
+  Over.mk
+    (yonedaEquiv
+      (e.inv ≫ pullback.snd f p.hom : yoneda.obj T ⟶ yoneda.obj p.overObj)).left
 
-/-- Membership in `stableCurves` is that every residue-field fibre is a stable
-curve. -/
-theorem stableCurves_iff {S : Scheme.{u}} (P : Obj S) :
-    stableCurves S P ↔
-      ∀ s : P.base.left, isStableCurve (Over.mk (P.hom.fiberToSpecResidueField s)) :=
+namespace Spaces.Curves
+
+/-- The object property of curve families whose field-valued fibres are stable curves. -/
+def stable (S : Scheme.{u}) : ObjectProperty (Obj S) :=
+  fun P ↦ ∀ p : FieldValuedPoint (ofOver (base P)),
+    ∃ (T : Over S) (e : pullback (hom P) p.hom ≅ ofOver T),
+      isStableCurve (ofFibreScheme p T e)
+
+/-- A stable curve family of genus `g` has `R¹ f_* 𝒪` finite locally free of rank `g`. -/
+def stableOfGenus (g : ℕ) (S : Scheme.{u}) : ObjectProperty (Obj S) :=
+  fun P ↦ stable S P ∧
+    SheafOfModules.IsFiniteLocallyFreeOfRank g (higherDirectImageOne (hom P))
+
+/-- Membership in the genus-`g` stable locus is stability together with the rank condition. -/
+theorem stableOfGenus_iff (g : ℕ) {S : Scheme.{u}} (P : Obj S) :
+    stableOfGenus g S P ↔ stable S P ∧
+      SheafOfModules.IsFiniteLocallyFreeOfRank g (higherDirectImageOne (hom P)) :=
   Iff.rfl
 
-/-- The object property of families of curves that are stable of genus `g`. -/
-def stableCurvesOfGenus (g : ℕ) (S : Scheme.{u}) : ObjectProperty (Obj S) :=
-  fun P => IsStableFamilyOfGenus g P.hom
+end Spaces.Curves
 
-/-- Membership in `stableCurvesOfGenus g` is that the structure morphism is a
-stable family of genus `g`. -/
-theorem stableCurvesOfGenus_iff (g : ℕ) {S : Scheme.{u}} (P : Obj S) :
-    stableCurvesOfGenus g S P ↔ IsStableFamilyOfGenus g P.hom :=
-  Iff.rfl
-
-end AlgebraicGeometry.AlgebraicSpace.Spaces.Curves
+end AlgebraicGeometry.AlgebraicSpace

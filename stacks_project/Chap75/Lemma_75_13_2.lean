@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_13_2_PseudoCoherent
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Module.Derived.PseudoCoherent
 import StacksCheckRecall
 
 @[expose] public section

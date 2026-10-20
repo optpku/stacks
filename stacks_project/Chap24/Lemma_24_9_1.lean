@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Graded.Adjunction
@@ -25,4 +19,3 @@ by the module pullback-pushforward adjunction. -/
 #check @RingedSite.Hom.Graded.adjunction
 
 #check @RingedSite.Hom.Graded.homEquiv
-#check @RingedSite.Hom.gradedPushforwardPullbackHomEquiv

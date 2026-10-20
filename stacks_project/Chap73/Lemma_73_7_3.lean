@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap73.Lemma_73_7_3_Precoverage
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Cover.Fppf
 import StacksCheckRecall
 
 @[expose] public section
@@ -18,13 +12,13 @@ universe u v w
 
 /- Lemma 73.7.3 (1): an isomorphism gives a singleton fppf covering. -/
 @[stacks 03Y9] #check
-  (fppfCovering_singleton_of_isIso :
+  (AlgebraicGeometry.AlgebraicSpace.fppfCovering_singleton_of_isIso :
     ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (f : X' ⟶ X) [IsIso f],
       Presieve.singleton f ∈ (fppfPrecoverage S).coverings X)
 
 /- Lemma 73.7.3 (2): indexed composition preserves fppf coverings. -/
 @[stacks 03Y9] #check
-  (fppfCovering_comp :
+  (AlgebraicGeometry.AlgebraicSpace.fppfCovering_comp :
     ∀ {S : Scheme.{u}} {ι : Type v} {X : AlgebraicSpace S}
       {Xᵢ : ι → AlgebraicSpace S} (f : (i : ι) → Xᵢ i ⟶ X),
       Presieve.ofArrows Xᵢ f ∈ (fppfPrecoverage S).coverings X →
@@ -38,7 +32,7 @@ universe u v w
 
 /- Lemma 73.7.3 (3): pullback preserves fppf coverings. -/
 @[stacks 03Y9] #check
-  (fppfCovering_pullback :
+  (AlgebraicGeometry.AlgebraicSpace.fppfCovering_pullback :
     ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} {ι : Type v}
       {Xᵢ : ι → AlgebraicSpace S} (f : (i : ι) → Xᵢ i ⟶ X),
       Presieve.ofArrows Xᵢ f ∈ (fppfPrecoverage S).coverings X →

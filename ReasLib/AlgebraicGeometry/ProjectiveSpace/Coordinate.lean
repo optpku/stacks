@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.AffineSpace
@@ -130,13 +124,16 @@ noncomputable def dehomogenizeAt (n : ℕ) (i : Fin (n + 1))
 @[simp, stacks 01JE "projective chart dehomogenization coordinate"]
 theorem dehomogenizeAt_coordinate_self (n : ℕ) (i : Fin (n + 1))
     {ι : Type v} (e : Fin n ≃ ι) :
-    dehomogenizeAt (R := R) n i e (coordinate (R := R) n i) = 1 := sorry
+    dehomogenizeAt (R := R) n i e (coordinate (R := R) n i) = 1 := by
+  simp [dehomogenizeAt, coordinate]
 
 /-- The distinguished coordinate becomes a unit under dehomogenization. -/
 @[stacks 01JE "projective chart dehomogenization unit"]
 theorem dehomogenizeAt_coordinate_isUnit (n : ℕ) (i : Fin (n + 1))
     {ι : Type v} (e : Fin n ≃ ι) :
-    IsUnit (dehomogenizeAt (R := R) n i e (coordinate (R := R) n i)) := sorry
+    IsUnit (dehomogenizeAt (R := R) n i e (coordinate (R := R) n i)) := by
+  rw [dehomogenizeAt_coordinate_self]
+  exact isUnit_one
 
 /-- The chart coordinate `T_{i.succAbove (e.symm j)} / T_i` in the degree-zero homogeneous
 localization. -/
@@ -161,7 +158,8 @@ coordinate ratio. -/
 theorem affineChartHom_X (n : ℕ) (i : Fin (n + 1))
     {ι : Type v} (e : Fin n ≃ ι) (j : ι) :
     affineChartHom (R := R) n i e (MvPolynomial.X j) =
-      coordinateRatio (R := R) n i e j := sorry
+      coordinateRatio (R := R) n i e j := by
+  simp [affineChartHom]
 
 namespace CoordinateChart
 
@@ -181,14 +179,112 @@ noncomputable def dehomogenization (n : ℕ) (i : Fin (n + 1))
 theorem dehomogenization_comp_affineChartHom (n : ℕ) (i : Fin (n + 1))
     {ι : Type v} (e : Fin n ≃ ι) :
     (dehomogenization (R := R) n i e).comp (affineChartHom (R := R) n i e) =
-      RingHom.id (MvPolynomial ι R) := sorry
+      RingHom.id (MvPolynomial ι R) := by
+  have hl (a : MvPolynomial (Fin (n + 1)) R) (m : ℕ) :
+      Localization.awayLift (dehomogenizeAt (R := R) n i e) (coordinate n i)
+          (dehomogenizeAt_coordinate_isUnit n i e)
+          (Localization.mk a ⟨coordinate n i ^ m, m, rfl⟩) =
+        dehomogenizeAt n i e a := by
+    simpa using Localization.awayLift_mk (dehomogenizeAt (R := R) n i e)
+      (coordinate n i) a 1 (by simp) m
+  have hl0 (a : MvPolynomial (Fin (n + 1)) R) :
+      Localization.awayLift (dehomogenizeAt (R := R) n i e) (coordinate n i)
+        (dehomogenizeAt_coordinate_isUnit n i e) (Localization.mk a ⟨1, 0, by simp⟩) =
+          dehomogenizeAt n i e a := by
+    simpa only [pow_zero] using hl a 0
+  have hl1 (a : MvPolynomial (Fin (n + 1)) R) :
+      Localization.awayLift (dehomogenizeAt (R := R) n i e) (coordinate n i)
+        (dehomogenizeAt_coordinate_isUnit n i e)
+        (Localization.mk a ⟨coordinate n i, 1, by simp⟩) =
+          dehomogenizeAt n i e a := by
+    simpa only [pow_one] using hl a 1
+  apply MvPolynomial.ringHom_ext
+  · intro r
+    suffices h : Localization.awayLift (dehomogenizeAt (R := R) n i e) (coordinate n i)
+        (dehomogenizeAt_coordinate_isUnit n i e)
+        (Localization.mk (MvPolynomial.C r) ⟨1, 0, by simp⟩) = MvPolynomial.C r by
+      simpa [affineChartHom, coefficientToCoordinateAway, dehomogenization,
+        coordinateAwayToLocalization, HomogeneousLocalization.fromZeroRingHom,
+        HomogeneousLocalization.algebraMap_apply, HomogeneousLocalization.val_mk] using h
+    rw [hl0]
+    simp [dehomogenizeAt]
+  · intro j
+    suffices h : Localization.awayLift (dehomogenizeAt (R := R) n i e) (coordinate n i)
+        (dehomogenizeAt_coordinate_isUnit n i e)
+        (Localization.mk (MvPolynomial.X (i.succAbove (e.symm j)))
+          ⟨coordinate n i, 1, by simp⟩) = MvPolynomial.X j by
+      simpa [affineChartHom, coordinateRatio, dehomogenization,
+        coordinateAwayToLocalization, HomogeneousLocalization.Away.isLocalizationElem,
+        HomogeneousLocalization.algebraMap_apply, HomogeneousLocalization.Away.val_mk] using h
+    rw [hl1]
+    simp only [dehomogenizeAt, MvPolynomial.eval₂Hom_X', dif_neg (Fin.succAbove_ne _ _)]
+    have he : (⟨i.succAbove (e.symm j), Fin.succAbove_ne _ _⟩ : {a // a ≠ i}) =
+        finSuccAboveEquiv i (e.symm j) := rfl
+    rw [he, Equiv.symm_apply_apply, Equiv.apply_symm_apply]
 
 /-- Substitution of affine chart coordinates after dehomogenization is the identity. -/
 @[stacks 01JE "projective chart rehomogenization inverse"]
 theorem affineChartHom_comp_dehomogenization (n : ℕ) (i : Fin (n + 1))
     {ι : Type v} (e : Fin n ≃ ι) :
     (affineChartHom (R := R) n i e).comp (dehomogenization (R := R) n i e) =
-      RingHom.id (coordinateAway (R := R) n i) := sorry
+      RingHom.id (coordinateAway (R := R) n i) := by
+  classical
+  let l := algebraMap (MvPolynomial (Fin (n + 1)) R) (coordinateLocalizationAway (R := R) n i)
+  let u : coordinateLocalizationAway (R := R) n i := Localization.mk 1 ⟨coordinate n i, 1, by simp⟩
+  let H := ((coordinateAwayToLocalization (R := R) n i).comp
+    (affineChartHom (R := R) n i e)).comp (dehomogenizeAt (R := R) n i e)
+  have hC (r : R) : H (MvPolynomial.C r) = l (MvPolynomial.C r) := by
+    simp [H, dehomogenizeAt, affineChartHom, coefficientToCoordinateAway,
+      coordinateAwayToLocalization, HomogeneousLocalization.fromZeroRingHom,
+      HomogeneousLocalization.algebraMap_apply, HomogeneousLocalization.val_mk, l,
+      ← Localization.mk_one_eq_algebraMap]
+    rfl
+  have hX (j : Fin (n + 1)) : H (MvPolynomial.X j) = l (MvPolynomial.X j) * u := by
+    by_cases hj : j = i
+    · subst j
+      simp [H, dehomogenizeAt, l, u, coordinate, ← Localization.mk_one_eq_algebraMap,
+        Localization.mk_mul]
+    · have he : i.succAbove ((finSuccAboveEquiv i).symm ⟨j, hj⟩) = j := by
+        exact congrArg Subtype.val ((finSuccAboveEquiv i).apply_symm_apply ⟨j, hj⟩)
+      simp [H, dehomogenizeAt, hj, affineChartHom, coordinateRatio, he,
+        coordinateAwayToLocalization, HomogeneousLocalization.Away.isLocalizationElem,
+        HomogeneousLocalization.algebraMap_apply, HomogeneousLocalization.Away.val_mk,
+        l, u, ← Localization.mk_one_eq_algebraMap, Localization.mk_mul]
+  have hp (m : ℕ) (p : MvPolynomial (Fin (n + 1)) R) (hm : p.IsHomogeneous m) :
+      H p = l p * u ^ m := by
+    conv_lhs => rw [← p.support_sum_monomial_coeff]
+    rw [map_sum]
+    conv_rhs => rw [← p.support_sum_monomial_coeff, map_sum, Finset.sum_mul]
+    apply Finset.sum_congr rfl
+    intro s hs
+    have hd : s.degree = m := by
+      rw [Finsupp.degree_eq_weight_one]
+      exact hm (MvPolynomial.mem_support_iff.mp hs)
+    simp only [MvPolynomial.monomial_eq, map_mul, hC, map_finsuppProd, map_pow, hX,
+      mul_pow, Finsupp.prod_mul, ← mul_assoc]
+    congr 1
+    change (∏ j ∈ s.support, u ^ s j) = u ^ m
+    rw [Finset.prod_pow_eq_pow_sum, ← Finsupp.degree_apply, hd]
+  apply RingHom.ext
+  intro z
+  obtain ⟨m, p, hm, rfl⟩ := HomogeneousLocalization.Away.mk_surjective (grading R n)
+    (MvPolynomial.isHomogeneous_X R i) z
+  apply HomogeneousLocalization.val_injective (Submonoid.powers (coordinate (R := R) n i))
+  change ((coordinateAwayToLocalization (R := R) n i).comp (affineChartHom n i e))
+    (Localization.awayLift (dehomogenizeAt (R := R) n i e) (coordinate n i)
+    (dehomogenizeAt_coordinate_isUnit n i e)
+    (Localization.mk p ⟨coordinate n i ^ m, m, rfl⟩)) = _
+  rw [show Localization.awayLift (dehomogenizeAt (R := R) n i e) (coordinate n i)
+      (dehomogenizeAt_coordinate_isUnit n i e)
+      (Localization.mk p ⟨coordinate n i ^ m, m, rfl⟩) = dehomogenizeAt n i e p by
+    simpa using Localization.awayLift_mk (dehomogenizeAt (R := R) n i e)
+      (coordinate n i) p 1 (by simp) m]
+  change H p = _
+  rw [hp m p (by simpa using hm)]
+  simp [l, u, ← Localization.mk_one_eq_algebraMap, Localization.mk_pow, Localization.mk_mul,
+    HomogeneousLocalization.Away.val_mk, coordinate]
+  rfl
+
 
 /-- The explicit ring equivalence from the degree-zero coordinate localization to affine
 polynomial coordinates. -/
@@ -205,13 +301,15 @@ noncomputable def ringEquiv (n : ℕ) (i : Fin (n + 1))
 @[simp, stacks 01JE "projective chart ring equivalence forward"]
 theorem ringEquiv_toRingHom (n : ℕ) (i : Fin (n + 1))
     {ι : Type v} (e : Fin n ≃ ι) :
-    (ringEquiv (R := R) n i e).toRingHom = dehomogenization (R := R) n i e := sorry
+    (ringEquiv (R := R) n i e).toRingHom = dehomogenization (R := R) n i e := by
+  rfl
 
 /-- The inverse homomorphism of the chart-ring equivalence substitutes coordinate ratios. -/
 @[simp, stacks 01JE "projective chart ring equivalence inverse"]
 theorem ringEquiv_symm_toRingHom (n : ℕ) (i : Fin (n + 1))
     {ι : Type v} (e : Fin n ≃ ι) :
-    (ringEquiv (R := R) n i e).symm.toRingHom = affineChartHom (R := R) n i e := sorry
+    (ringEquiv (R := R) n i e).symm.toRingHom = affineChartHom (R := R) n i e := by
+  rfl
 
 /-- The inverse homomorphism of the explicit chart-ring equivalence, viewed in `CommRingCat`. -/
 @[stacks 01JE "projective coordinate chart ring comparison"]
@@ -226,7 +324,8 @@ ratios. -/
 @[simp, stacks 01JE "projective coordinate chart ring comparison hom"]
 theorem ringComparison_hom (n : ℕ) (i : Fin (n + 1))
     {ι : Type u} (e : Fin n ≃ ι) :
-    (ringComparison (R := R) n i e).hom = affineChartHom (R := R) n i e := sorry
+    (ringComparison (R := R) n i e).hom = affineChartHom (R := R) n i e := by
+  rfl
 
 /-- The concrete identification of the `i`-th projective chart with affine space after choosing
 names for the remaining coordinates. -/

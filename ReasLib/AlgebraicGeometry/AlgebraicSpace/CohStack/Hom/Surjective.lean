@@ -1,27 +1,15 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Field.Basic
-public import Mathlib.AlgebraicGeometry.Scheme
-public import Mathlib.CategoryTheory.Comma.Over.Basic
-public import ReasLib.CategoryTheory.Fibered.Groupoids.Hom
+public import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CohStack.FieldValuedPoint
 
 /-!
-# Surjective morphisms of groupoid fibrations over schemes
-
-A 1-morphism of categories fibred in groupoids over `Over S` is surjective when every
-field-valued object of the target lifts along the underlying total functor up to isomorphism.
+# Surjective morphisms of lifted groupoid fibrations
 -/
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry
-open FiberedCategoryOver
 open scoped Bicategory
 
 noncomputable section
@@ -30,30 +18,35 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.CohStack.Hom
 
-/-- A 1-morphism `f : X ⟶ Y` of categories fibred in groupoids over `Over S` is surjective if
-every object of `Y` lying over the spectrum of a field lifts along `Groupoids.toFunctor f` up to
-isomorphism in `Y.total`. -/
+/-- A 1-morphism `f : X ⟶ Y` of categories fibred in groupoids over `Over S`, in the
+Hom-universe of `CohStack.toGroupoids`, is surjective if every field-valued point of `Y` is
+equivalent to the image under `f` of some field-valued point of `X`, so that `|f|` is
+surjective. Equivalence allows passing to a common field extension. -/
+@[stacks 04ZS, mk_iff]
 class Surjective {S : Scheme.{u}}
     {X Y : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)}
     (f : X ⟶ Y) : Prop where
-  /-- Every field-valued object of the target lifts along `f` up to isomorphism. -/
-  exists_field_valued_lift :
-    ∀ {k : Type u} [Field k] (y : Y.total),
-      (Y.p.obj y).left = Spec (CommRingCat.of k) →
-        ∃ x : X.total, Nonempty (y ≅ (Groupoids.toFunctor f).obj x)
-
-/-- A 1-morphism is surjective if and only if every field-valued object of the target lifts along
-its total functor up to isomorphism. -/
-theorem surjective_iff {S : Scheme.{u}}
-    {X Y : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)}
-    (f : X ⟶ Y) :
-    Surjective f ↔
-      ∀ {k : Type u} [Field k] (y : Y.total),
-        (Y.p.obj y).left = Spec (CommRingCat.of k) →
-          ∃ x : X.total, Nonempty (y ≅ (Groupoids.toFunctor f).obj x) :=
-  sorry
+  /-- Every field-valued point of the target is equivalent to the image of a field-valued
+  point of the source. -/
+  exists_equivalent_map :
+    ∀ q : FieldValuedPoint Y, ∃ p : FieldValuedPoint X, (p.map f).Equivalent q
 
 namespace Surjective
+
+/-- On morphisms of algebraic spaces, surjectivity of the associated groupoid
+fibration morphism is surjectivity on the points of the algebraic spaces. -/
+theorem toGroupoids_iff {S : Scheme.{u}} {U V : AlgebraicSpace S} (h : U ⟶ V) :
+    Surjective (AlgebraicGeometry.GroupScheme.Classifying.toGroupoids.map h) ↔
+      AlgebraicSpace.Surjective h :=
+  sorry
+
+/-- Every target field-valued point of a surjective morphism is equivalent to
+the image of a source field-valued point. -/
+theorem spec {S : Scheme.{u}}
+    {X Y : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)}
+    (f : X ⟶ Y) [Surjective f] (q : FieldValuedPoint Y) :
+    ∃ p : FieldValuedPoint X, (p.map f).Equivalent q :=
+  Surjective.exists_equivalent_map q
 
 /-- The identity 1-morphism of a category fibred in groupoids is surjective. -/
 instance id {S : Scheme.{u}}
@@ -61,13 +54,11 @@ instance id {S : Scheme.{u}}
     Surjective (𝟙 X) :=
   sorry
 
-/-- A surjective 1-morphism lifts every field-valued object of the target up to isomorphism. -/
-theorem spec {S : Scheme.{u}}
-    {X Y : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)}
-    (f : X ⟶ Y) [Surjective f] :
-    ∀ {k : Type u} [Field k] (y : Y.total),
-      (Y.p.obj y).left = Spec (CommRingCat.of k) →
-        ∃ x : X.total, Nonempty (y ≅ (Groupoids.toFunctor f).obj x) :=
+/-- A composition of surjective 1-morphisms is surjective. -/
+instance comp {S : Scheme.{u}}
+    {X Y Z : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)}
+    (f : X ⟶ Y) (g : Y ⟶ Z) [Surjective f] [Surjective g] :
+    Surjective (f ≫ g) :=
   sorry
 
 end Surjective

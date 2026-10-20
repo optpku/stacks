@@ -1,15 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.Finite
-public import Mathlib.AlgebraicGeometry.Sites.Etale
-public import ReasLib.CategoryTheory.Sites.LocallyConstant.Finite
-public import ReasLib.CategoryTheory.Sites.SheafifiedRepresentable
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.FiniteLocallyConstant.YonedaComparison
 
 @[expose] public section
 
@@ -28,6 +19,14 @@ theorem finiteLocallyConstant_iff_exists_finiteEtale
     (F : Sheaf X.smallEtaleTopology (Type (u + 1))) :
     Sheaf.IsFiniteLocallyConstant F ↔
       ∃ (U : X.Etale), IsFinite U.hom ∧
-        Nonempty (F ≅ X.smallEtaleTopology.sheafifiedRepresentable U) := sorry
+        Nonempty (F ≅ X.smallEtaleTopology.sheafifiedRepresentable U) := by
+  constructor
+  · intro hF
+    letI := hF
+    exact ⟨FiniteLocallyConstant.representationEtale F,
+      FiniteLocallyConstant.representationMap_isFinite F,
+      ⟨FiniteLocallyConstant.representationIso F⟩⟩
+  · intro hF
+    sorry
 
 end AlgebraicGeometry.Scheme

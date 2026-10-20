@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.HomologicalComplex.SpectralSequence
@@ -40,6 +34,12 @@ sequence with the stated all-page representatives and initial-page comparison. -
 
 /- The association records that the zeroth page is the associated graded differential object. -/
 #check HomologicalComplex.Filtered.Association.pageZeroIso
+
+/- The zeroth-page comparison agrees with the explicit page-zero quotient presentation. -/
+#check HomologicalComplex.Filtered.Association.pageZeroIso_hom_comp_pageIso
+
+/- The successive page isomorphisms agree with the explicit representative construction. -/
+#check HomologicalComplex.Filtered.Association.successorCycleToHomology_comp_iso
 
 /- The first-page identification with `H(gr^p K)` is derived from the zeroth-page comparison. -/
 #check HomologicalComplex.Filtered.Association.PageOne.iso

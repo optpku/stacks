@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.Over
@@ -14,7 +8,8 @@ public import ReasLib.Topology.Sheaves.Abelian.Sheafification
 
 The opens site of a topological space and its first two slice levels have the standard
 `AddCommGrpCat` sheafification and local-bijectivity instances.  These are topology facts, so
-they do not depend on a chosen ring sheaf.
+they do not depend on a chosen ring sheaf. The coefficient universe contains the space
+universe, as in the canonical sheafification on the unsliced opens site.
 -/
 
 @[expose] public section
@@ -28,29 +23,31 @@ universe u w
 
 namespace TopCat
 
-/-- Abelian-group-valued weak sheafification is available on every slice of an opens site. -/
+/-- Abelian-group-valued weak sheafification is available on every slice of an opens site,
+with coefficients in a universe containing the space. -/
 instance addCommGrpHasWeakSheafifyOver (X : TopCat.{u}) :
     ∀ U : Opens X,
-      HasWeakSheafify ((Opens.grothendieckTopology X).over U) AddCommGrpCat.{w} := sorry
+      HasWeakSheafify ((Opens.grothendieckTopology X).over U) AddCommGrpCat.{max u w} := sorry
 
 /-- Local bijectivity for abelian-group-valued presheaves is detected on every slice of an
-opens site. -/
+opens site in a coefficient universe containing the space. -/
 instance addCommGrpWEqualsLocallyBijectiveOver (X : TopCat.{u}) :
     ∀ U : Opens X,
-      ((Opens.grothendieckTopology X).over U).WEqualsLocallyBijective AddCommGrpCat.{w} := sorry
+      ((Opens.grothendieckTopology X).over U).WEqualsLocallyBijective AddCommGrpCat.{max u w} := sorry
 
-/-- Abelian-group-valued weak sheafification is available on every twice-sliced opens site. -/
+/-- Abelian-group-valued weak sheafification is available on every twice-sliced opens site,
+with coefficients in a universe containing the space. -/
 instance addCommGrpHasWeakSheafifyOverOver (X : TopCat.{u}) :
     ∀ (U : Opens X) (V : Over U),
       HasWeakSheafify (((Opens.grothendieckTopology X).over U).over V)
-        AddCommGrpCat.{w} := sorry
+        AddCommGrpCat.{max u w} := sorry
 
 /-- Local bijectivity for abelian-group-valued presheaves is detected on every twice-sliced
-opens site. -/
+opens site in a coefficient universe containing the space. -/
 instance addCommGrpWEqualsLocallyBijectiveOverOver (X : TopCat.{u}) :
     ∀ (U : Opens X) (V : Over U),
       (((Opens.grothendieckTopology X).over U).over V).WEqualsLocallyBijective
-        AddCommGrpCat.{w} := sorry
+        AddCommGrpCat.{max u w} := sorry
 
 end TopCat
 

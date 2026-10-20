@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap106.Definition_106_3_1_Hom
-public import stacks_project.Chap106.Definition_106_3_1_Thickening
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Thickening.Hom
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Thickening
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,13 +15,13 @@ universe u
 /- Definition 106.3.1 (1): an algebraic stack `X'` is a thickening of an
 algebraic stack `X` if `X` is a closed substack of `X'` and the associated
 topological spaces are equal. -/
-@[stacks 0BPP] #check (IsThickening :
+@[stacks 0BPP] #check (AlgebraicGeometry.AlgebraicStack.IsThickening :
   {S : Scheme.{u}} → {X X' : GroupoidsOver S} →
     [AlgebraicStack X] → [AlgebraicStack X'] → (X ⟶ X') → Prop)
 
 /- Definition 106.3.1 (2): a morphism of thickenings is a pair `(f, f')` with
 `f' : X' ⟶ Y'` whose restriction to `X` factors through `Y`. -/
-@[stacks 0BPP] #check (IsThickening.Hom.mk :
+@[stacks 0BPP] #check (AlgebraicGeometry.AlgebraicStack.IsThickening.Hom.mk :
   {S : Scheme.{u}} → {X X' Y Y' : GroupoidsOver S} →
     [AlgebraicStack X] → [AlgebraicStack X'] →
       [AlgebraicStack Y] → [AlgebraicStack Y'] →
@@ -39,7 +33,7 @@ topological spaces are equal. -/
 /- Definition 106.3.1 (3): thickenings over an algebraic stack `Z` and morphisms
 of thickenings over `Z` equip the ambients with structure morphisms to `Z` so
 that `f'` fits in a 2-commutative diagram. -/
-@[stacks 0BPP] #check (IsThickening.HomOver.mk :
+@[stacks 0BPP] #check (AlgebraicGeometry.AlgebraicStack.IsThickening.HomOver.mk :
   {S : Scheme.{u}} → {X X' Y Y' Z : GroupoidsOver S} →
     [AlgebraicStack X] → [AlgebraicStack X'] →
       [AlgebraicStack Y] → [AlgebraicStack Y'] → [AlgebraicStack Z] →

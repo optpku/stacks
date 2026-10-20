@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Fibered.RelativelyRepresentable.BaseChange
-public import stacks_project.Chap101.Definition_101_4_1_Separation
-public import stacks_project.Chap101.Definition_101_50_1_Decent
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Decent.Representable
+import StacksCheckRecall
 
 /-!
 # Decent algebraic stacks along representable morphisms
@@ -27,25 +20,25 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 101.48.3 (1): Let `f : X ⟶ Y` be a morphism of algebraic stacks.
+/- Lemma 101.48.3 (1): Let `f : X ⟶ Y` be a morphism of algebraic stacks.
 If `Y` is decent and `f` is representable by schemes, then `X` is decent.
 Stacks-project representability by schemes is
 `FiberedCategoryOver.Groupoids.relativelyRepresentable`. -/
 @[stacks 0GW3]
-theorem IsDecent.of_relativelyRepresentable {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicStack.IsDecent.of_relativelyRepresentable :
+    ∀ {S : Scheme.{u}}
     {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
     (f : X ⟶ Y) (hf : FiberedCategoryOver.Groupoids.relativelyRepresentable f)
-    [IsDecent Y] : IsDecent X :=
-  sorry
+    [IsDecent Y], IsDecent X)
 
-/-- Lemma 101.48.3 (2): Let `f : X ⟶ Y` be a morphism of algebraic stacks.
+/- Lemma 101.48.3 (2): Let `f : X ⟶ Y` be a morphism of algebraic stacks.
 If `Y` is decent and `f` is representable by algebraic spaces and
 quasi-separated, then `X` is decent. -/
 @[stacks 0GW3]
-theorem IsDecent.of_relativelyRepresentableByAlgebraicSpaces {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicStack.IsDecent.of_relativelyRepresentableByAlgebraicSpaces :
+    ∀ {S : Scheme.{u}}
     {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
     (f : X ⟶ Y) (hf : relativelyRepresentableByAlgebraicSpaces f)
-    [IsDecent Y] [QuasiSeparated f] : IsDecent X :=
-  sorry
+    [IsDecent Y] [QuasiSeparated f], IsDecent X)
 
 end AlgebraicGeometry.AlgebraicStack

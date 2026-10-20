@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -141,7 +135,7 @@ sheaf, with ordinary pullback coefficients, is the transpose along the actual ba
       (CategoryTheory.ModuleCat.derivedRestrictionOfScalars σ).map
         ((CategoryTheory.ModuleCat.derivedRestrictionOfScalars β).map
           ((RingedSite.Hom.moduleDerivedGlobalSections.{u + 1} Xsite).map ordinaryPullback))) :
-    (CategoryTheory.ModuleCat.derivedExtensionOfScalars
+    (CategoryTheory.ModuleCat.derivedExtensionOfScalars.{u + 1, u + 1, u + 1}
       (CrystallineCoefficients.baseRingMap g.base)).obj
       ((CategoryTheory.ModuleCat.derivedRestrictionOfScalars
         (CrystallineCoefficients.baseToGlobalSections I' γ' hc' x'₀ p s' hpX')).obj

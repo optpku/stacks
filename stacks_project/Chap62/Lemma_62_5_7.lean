@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap62.Lemma_62_5_1_Operations
-public import stacks_project.Chap62.Remark_62_5_6_Support
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.CyclesOnFibers.SupportOperations
+import StacksCheckRecall
 
 /-!
 # Compatibility of support of families of fibre cycles
@@ -28,75 +22,71 @@ namespace AlgebraicGeometry.Scheme.Hom
 
 namespace CyclesOnFibers
 
-/-- Lemma 62.5.7 (1): taking the support of a family of fibre cycles is compatible
+/- Lemma 62.5.7 (1): taking the support of a family of fibre cycles is compatible
 with base change along a cartesian square: `support (g*α) = g' ⁻¹' support α`. -/
-@[stacks 0H4V]
-theorem support_baseChange {S X S' X' : Scheme.{u}} {f : X ⟶ S} {g : S' ⟶ S}
-    {g' : X' ⟶ X} {f' : X' ⟶ S'} [LocallyOfFiniteType f]
-    (hpb : IsPullback g' f' f g) {r : ℤ} (α : CyclesOnFibers f r) :
-    support (FiberCycleFamily.baseChange hpb α) = g' ⁻¹' support α :=
-  sorry
+@[stacks 0H4V] #check
+  (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.support_baseChange :
+    ∀ {S X S' X' : Scheme.{u}} {f : X ⟶ S} {g : S' ⟶ S}
+      {g' : X' ⟶ X} {f' : X' ⟶ S'} [LocallyOfFiniteType f]
+      (hpb : IsPullback g' f' f g) {r : ℤ} (α : CyclesOnFibers f r),
+      -- Local instance justification (proof-local temporary data): Local finite type of f' follows from hpb and is needed only to type support of the base-changed family.
+      letI : LocallyOfFiniteType f' :=
+        MorphismProperty.of_isPullback (P := @LocallyOfFiniteType) hpb inferInstance
+      support (FiberCycleFamily.baseChange hpb α) = g' ⁻¹' support α)
 
-/-- Membership in the support of a base-changed family of fibre cycles is
-membership of the image point in the original support. -/
-theorem mem_support_baseChange {S X S' X' : Scheme.{u}} {f : X ⟶ S}
+#check (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.mem_support_baseChange :
+  ∀ {S X S' X' : Scheme.{u}} {f : X ⟶ S}
     {g : S' ⟶ S} {g' : X' ⟶ X} {f' : X' ⟶ S'} [LocallyOfFiniteType f]
-    (hpb : IsPullback g' f' f g) {r : ℤ} (α : CyclesOnFibers f r) (x' : X') :
-    x' ∈ support (FiberCycleFamily.baseChange hpb α) ↔ g' x' ∈ support α :=
-  sorry
+    (hpb : IsPullback g' f' f g) {r : ℤ} (α : CyclesOnFibers f r) (x' : X'),
+    -- Local instance justification (proof-local temporary data): Local finite type of f' follows from hpb and is needed only to type support of the base-changed family.
+    letI : LocallyOfFiniteType f' :=
+      MorphismProperty.of_isPullback (P := @LocallyOfFiniteType) hpb inferInstance
+    x' ∈ support (FiberCycleFamily.baseChange hpb α) ↔ g' x' ∈ support α)
 
-/-- Support of a family of fibre cycles after base change along the chosen
-pullback square of `f` and `g` is the preimage along `pullback.fst f g`. -/
-theorem support_baseChange_pullback {S X S' : Scheme.{u}} {f : X ⟶ S}
-    [LocallyOfFiniteType f] (g : S' ⟶ S) {r : ℤ} (α : CyclesOnFibers f r) :
+#check (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.support_baseChange_pullback :
+  ∀ {S X S' : Scheme.{u}} {f : X ⟶ S}
+    [LocallyOfFiniteType f] (g : S' ⟶ S) {r : ℤ} (α : CyclesOnFibers f r),
     support (FiberCycleFamily.baseChange (IsPullback.of_hasPullback f g) α) =
-      pullback.fst f g ⁻¹' support α :=
-  sorry
+      pullback.fst f g ⁻¹' support α)
 
-/-- Lemma 62.5.7 (2): taking the support of a family of fibre cycles is compatible
+/- Lemma 62.5.7 (2): taking the support of a family of fibre cycles is compatible
 with restriction to compatible opens `U ⊆ X` and `V ⊆ S`:
 `support (α|_U) = U.ι ⁻¹' support α`. -/
-@[stacks 0H4V]
-theorem support_restrict {X S : Scheme.{u}} {f : X ⟶ S} [LocallyOfFiniteType f]
-    (U : X.Opens) (V : S.Opens) (hU : U ≤ f ⁻¹ᵁ V) {r : ℤ}
-    (α : CyclesOnFibers f r) :
-    support (FiberCycleFamily.restrict U V hU α) = U.ι ⁻¹' support α :=
-  sorry
+@[stacks 0H4V] #check
+  (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.support_restrict :
+    ∀ {X S : Scheme.{u}} {f : X ⟶ S} [LocallyOfFiniteType f]
+      (U : X.Opens) (V : S.Opens) (hU : U ≤ f ⁻¹ᵁ V) {r : ℤ}
+      (α : CyclesOnFibers f r),
+      support (FiberCycleFamily.restrict U V hU α) = U.ι ⁻¹' support α)
 
-/-- Membership in the support of a restricted family of fibre cycles is
-membership of the image point in the original support. -/
-theorem mem_support_restrict {X S : Scheme.{u}} {f : X ⟶ S}
+#check (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.mem_support_restrict :
+  ∀ {X S : Scheme.{u}} {f : X ⟶ S}
     [LocallyOfFiniteType f] (U : X.Opens) (V : S.Opens) (hU : U ≤ f ⁻¹ᵁ V)
-    {r : ℤ} (α : CyclesOnFibers f r) (u : U.toScheme) :
-    u ∈ support (FiberCycleFamily.restrict U V hU α) ↔ U.ι u ∈ support α :=
-  sorry
+    {r : ℤ} (α : CyclesOnFibers f r) (u : U.toScheme),
+    u ∈ support (FiberCycleFamily.restrict U V hU α) ↔ U.ι u ∈ support α)
 
-/-- The image of the support of a restricted family of fibre cycles is the
-intersection of the original support with `U`. -/
-theorem image_support_restrict {X S : Scheme.{u}} {f : X ⟶ S}
+#check (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.image_support_restrict :
+  ∀ {X S : Scheme.{u}} {f : X ⟶ S}
     [LocallyOfFiniteType f] (U : X.Opens) (V : S.Opens) (hU : U ≤ f ⁻¹ᵁ V)
-    {r : ℤ} (α : CyclesOnFibers f r) :
-    U.ι '' support (FiberCycleFamily.restrict U V hU α) = support α ∩ U :=
-  sorry
+    {r : ℤ} (α : CyclesOnFibers f r),
+    U.ι '' support (FiberCycleFamily.restrict U V hU α) = support α ∩ U)
 
-/-- Lemma 62.5.7 (3): taking the support of a family of fibre cycles is compatible
+/- Lemma 62.5.7 (3): taking the support of a family of fibre cycles is compatible
 with flat pullback of relative dimension `e`: `support (h*α) = h ⁻¹' support α`. -/
-@[stacks 0H4V]
-theorem support_flatPullback {X' X S : Scheme.{u}} {f : X ⟶ S} {f' : X' ⟶ S}
-    [LocallyOfFiniteType f] [LocallyOfFiniteType f'] (h : X' ⟶ X)
-    (hf : h ≫ f = f') (e : ℕ) [Flat h] [RelativeDimension h e] {r : ℤ}
-    (α : CyclesOnFibers f r) :
-    support (FiberCycleFamily.flatPullback h hf e α) = h ⁻¹' support α :=
-  sorry
+@[stacks 0H4V] #check
+  (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.support_flatPullback :
+    ∀ {X' X S : Scheme.{u}} {f : X ⟶ S} {f' : X' ⟶ S}
+      [LocallyOfFiniteType f] [LocallyOfFiniteType f'] (h : X' ⟶ X)
+      (hf : h ≫ f = f') (e : ℕ) [Flat h] [RelativeDimension h e] {r : ℤ}
+      (α : CyclesOnFibers f r),
+      support (FiberCycleFamily.flatPullback h hf e α) = h ⁻¹' support α)
 
-/-- Membership in the support of a flat pullback of a family of fibre cycles is
-membership of the image point in the original support. -/
-theorem mem_support_flatPullback {X' X S : Scheme.{u}} {f : X ⟶ S}
+#check (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.mem_support_flatPullback :
+  ∀ {X' X S : Scheme.{u}} {f : X ⟶ S}
     {f' : X' ⟶ S} [LocallyOfFiniteType f] [LocallyOfFiniteType f']
     (h : X' ⟶ X) (hf : h ≫ f = f') (e : ℕ) [Flat h] [RelativeDimension h e]
-    {r : ℤ} (α : CyclesOnFibers f r) (x' : X') :
-    x' ∈ support (FiberCycleFamily.flatPullback h hf e α) ↔ h x' ∈ support α :=
-  sorry
+    {r : ℤ} (α : CyclesOnFibers f r) (x' : X'),
+    x' ∈ support (FiberCycleFamily.flatPullback h hf e α) ↔ h x' ∈ support α)
 
 end CyclesOnFibers
 

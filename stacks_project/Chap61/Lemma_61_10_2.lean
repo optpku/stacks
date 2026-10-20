@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap61.Lemma_61_10_2_Comparison
+public import ReasLib.AlgebraicGeometry.Scheme.Cover.V.ProH
 import StacksCheckRecall
 
 @[expose] public section
@@ -23,17 +17,17 @@ universe u
 limit of affine schemes over Y whose stage morphisms are singleton ph
 coverings, if and only if the same holds with singleton h coverings. -/
 @[stacks 0EVP] #check
-  (isStandardVCover_singleton_tfae :
+  (AlgebraicGeometry.AffineFamilyOver.isStandardVCover_singleton_tfae :
     ∀ {X Y : Scheme.{u}} [IsAffine X] [IsAffine Y] (f : X ⟶ Y),
       List.TFAE [IsStandardVCover (singleton f inferInstance),
         IsDirectedPhCover f, IsDirectedHCover f])
 
 #check
-  (isStandardVCover_iff_isDirectedPhCover :
+  (AlgebraicGeometry.AffineFamilyOver.isStandardVCover_iff_isDirectedPhCover :
     ∀ {X Y : Scheme.{u}} [IsAffine X] [IsAffine Y] (f : X ⟶ Y),
       IsStandardVCover (singleton f inferInstance) ↔ IsDirectedPhCover f)
 
 #check
-  (isStandardVCover_iff_isDirectedHCover :
+  (AlgebraicGeometry.AffineFamilyOver.isStandardVCover_iff_isDirectedHCover :
     ∀ {X Y : Scheme.{u}} [IsAffine X] [IsAffine Y] (f : X ⟶ Y),
       IsStandardVCover (singleton f inferInstance) ↔ IsDirectedHCover f)

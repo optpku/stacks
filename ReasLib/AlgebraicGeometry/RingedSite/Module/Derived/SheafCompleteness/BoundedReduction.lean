@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.SheafCompleteness
@@ -19,6 +13,10 @@ dimension of the reduction gives boundedness.
 -/
 
 @[expose] public section
+
+attribute [local instance] RingedSite.Hom.moduleCat_hasDerivedCategory
+  RingedSite.Hom.RingPresentation.moduleHasDerivedCategory
+  SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
 
 open CategoryTheory CategoryTheory.MonoidalCategory
 open SheafOfModules.RingedSite SheafOfModules.RingedSite.IdealSheaf
@@ -108,13 +106,14 @@ theorem isBoundedAbove_iff_tensorQuotient_isBoundedAbove
 finite Tor dimension, on a site with enough weakly contractible objects. -/
 theorem isBounded_of_tensorQuotient_hasFiniteTorDimension
     (hEnough : J.HasEnoughObjectsWithProperty J.IsWeaklyContractible)
+    [DerivedCategory.DerivedTensor.Right.Has
+      (C := ringedSiteModuleCategory.{u, u, u, u} J
+        (PowerQuotient.sheaf (constantIdealSheaf J I) 1))]
     (K : RingedSiteDerived.{u, u, u, u} J (constantRingSheaf J Λ))
     (hK : IsDerivedCompleteWithRespectTo.{u, u, u, u} K
       (constantIdealSheaf J I))
-    (hTor : @HasFiniteTorDimension.{u, u, u}
-      (PowerQuotient.ringedSite (constantIdealSheaf J I) 1) _ _ _
-      (hasMapBifunctor_constantIdealPowerQuotient J I)
-      (derivedTensor_constantIdealPowerQuotient J I).right
+    (hTor : HasFiniteTorDimension
+      (O := PowerQuotient.sheaf (constantIdealSheaf J I) 1)
       ((PowerQuotient.pullbackDerived (constantIdealSheaf J I) 1).obj K)) :
     @DerivedCategory.IsBoundedAbove
       (ringedSiteModuleCategory J (constantRingSheaf J Λ)) _ _

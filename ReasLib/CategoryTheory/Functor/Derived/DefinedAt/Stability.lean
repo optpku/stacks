@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import Mathlib.CategoryTheory.Localization.CalculusOfFractions
 public import ReasLib.CategoryTheory.Functor.Derived.DefinedAt.Basic
 
 /-!
@@ -13,8 +8,23 @@ public import ReasLib.CategoryTheory.Functor.Derived.DefinedAt.Basic
 
 Source-definedness is inherited from terminal or initial localization denominators, transported
 along localized morphisms and isomorphisms, and automatic for functors that invert the localized
-class. These statements concern only the essentially constant diagram, not a selected
-presentation.
+class when the class admits the relevant calculus of fractions. These statements concern only the
+essentially constant diagram, not a selected presentation.
+
+The terminal/initial, isomorphism and `iff_of_mem` statements hold for an arbitrary class `S`:
+they only reindex the comma category along `CostructuredArrow.mapIso` or
+`StructuredArrow.mapIso`. The `of_isInvertedBy` statements need a calculus of fractions, as in
+the source Situation 05S8 (a saturated multiplicative system). Without it they fail: let `D` have
+objects `W, Y, X` and only the non-identity maps `s : W ⟶ Y` and `g : W ⟶ X`, let
+`S = {identities, s}` and `F = S.Q`. The comma category over `S.Q.obj X` is the span
+`(Y, (S.Q.map s)⁻¹ ≫ S.Q.map g) ← (W, S.Q.map g) → (X, 𝟙)`, and in the localization
+`S.Q.obj X` has no morphism to `S.Q.obj W` or `S.Q.obj Y`. The stages `(X, 𝟙)` and `(Y, _)`
+have no common successor, so neither satisfies the factorization clause for the other; at stage
+`(W, _)` the clause for `(X, 𝟙)` would make `S.Q.obj X` a retract of `S.Q.obj W`. With a left
+calculus of fractions the diagram is essentially constant with stage `(X, 𝟙)`, cocone point
+`F.obj X` and legs given by the functor induced by `F` on the localization: every
+`f : S.Q.obj Z ⟶ S.Q.obj X` is a left fraction `Z ⟶ X' ⟵ X`, and `(X', _)` is the required common
+successor.
 -/
 
 @[expose] public section
@@ -70,17 +80,17 @@ theorem LeftDerived.DefinedAt.of_iso
     [LeftDerived.DefinedAt F S X] (e : X ≅ Y) :
     LeftDerived.DefinedAt F S Y := sorry
 
-/-- A functor which inverts `S` has an essentially constant right-derived indexing diagram at
-every object. -/
+/-- If `S` has a left calculus of fractions, a functor which inverts `S` has an essentially
+constant right-derived indexing diagram at every object. -/
 theorem RightDerived.DefinedAt.of_isInvertedBy
-    (F : D ⥤ D') (S : MorphismProperty D) (X : D)
+    (F : D ⥤ D') (S : MorphismProperty D) [S.HasLeftCalculusOfFractions] (X : D)
     (hF : S.IsInvertedBy F) :
     RightDerived.DefinedAt F S X := sorry
 
-/-- A functor which inverts `S` has an essentially constant left-derived indexing diagram at
-every object. -/
+/-- If `S` has a right calculus of fractions, a functor which inverts `S` has an essentially
+constant left-derived indexing diagram at every object. -/
 theorem LeftDerived.DefinedAt.of_isInvertedBy
-    (F : D ⥤ D') (S : MorphismProperty D) (X : D)
+    (F : D ⥤ D') (S : MorphismProperty D) [S.HasRightCalculusOfFractions] (X : D)
     (hF : S.IsInvertedBy F) :
     LeftDerived.DefinedAt F S X := sorry
 

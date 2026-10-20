@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap92.Remark_92_18_5_Sections
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.CotangentComplex.Sections
 import StacksCheckRecall
-import Mathlib.Tactic.CrossRefAttribute
 
 /-!
 # Canonical maps from objectwise cotangent complexes
@@ -25,8 +18,7 @@ open CategoryTheory.Limits
 open HomologicalComplex
 open Opposite
 open SheafOfModules.RingedSite.CotangentComplex
-open SheafOfModules.RingedSite.CotangentComplex.Homology
-open scoped SheafOfModules.RingedSite.CotangentComplex
+open SheafOfModules.RingedSite
 
 noncomputable section
 
@@ -40,26 +32,25 @@ variable [HasWeakSheafify J AddCommGrpCat.{u}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{u}]
 variable [HasColimitsOfShape (Discrete WalkingPair) CommRingCat.{u}]
 
-/- Remark 92.18.5 (1). For any object `U` of the site there is a canonical map
-`L(B(U)/A(U)) ⟶ L(φ)(U)` of complexes of `B(U)`-modules. -/
+/- Remark 92.18.5. The canonical maps from section-ring cotangent complexes commute
+with restriction, and the sheaf cotangent complex is their degreewise sheafification. -/
 @[stacks 08SX]
-#check @sectionsComplexMap
+#check (SheafOfModules.RingedSite.CotangentComplex.Sections.comparison_isIso :
+  ∀ {A B : Sheaf J CommRingCat.{u}} (φ : A ⟶ B),
+    IsIso (SheafOfModules.RingedSite.CotangentComplex.Sections.comparison φ))
 
-/-- Remark 92.18.5 (2). The canonical maps `L(B(U)/A(U)) ⟶ L(φ)(U)` are compatible
-with restriction along morphisms of the site. -/
-@[stacks 08SX]
-theorem sectionsComplexMap_naturality {A B : Sheaf J CommRingCat.{u}} (φ : A ⟶ B)
-    {X Y : Cᵒᵖ} (f : X ⟶ Y) :
-    sectionsComplexMap φ X ≫ Sections.evalRestrict φ f =
-      complexMap φ f ≫
+#check (SheafOfModules.RingedSite.CotangentComplex.Homology.sectionsComplexMap :
+  ∀ {A B : Sheaf J CommRingCat.{u}} (φ : A ⟶ B) (X : Cᵒᵖ),
+    RingHom.cotangentComplex (φ.hom.app X).hom ⟶
+      ((SheafOfModules.evaluation.{u} (ringSheaf J B) X).mapHomologicalComplex
+          (ComplexShape.up ℤ)).obj
+        (SheafOfModules.RingedSite.CotangentComplex.obj A (Under.mk φ)))
+
+#check (SheafOfModules.RingedSite.CotangentComplex.Sections.sectionsComplexMap_naturality :
+  ∀ {A B : Sheaf J CommRingCat.{u}} (φ : A ⟶ B) {X Y : Cᵒᵖ} (f : X ⟶ Y),
+    SheafOfModules.RingedSite.CotangentComplex.Homology.sectionsComplexMap φ X ≫
+        SheafOfModules.RingedSite.CotangentComplex.Sections.evalRestrict φ f =
+      SheafOfModules.RingedSite.CotangentComplex.Homology.complexMap φ f ≫
         ((ModuleCat.restrictScalars (B.obj.map f).hom).mapHomologicalComplex
             (ComplexShape.up ℤ)).map
-          (sectionsComplexMap φ Y) :=
-  sorry
-
-/-- Remark 92.18.5 (3). The complex `L(φ)` is the sheafification of the rule
-`U ↦ L(B(U)/A(U))`. -/
-@[stacks 08SX]
-instance sheafifyIso {A B : Sheaf J CommRingCat.{u}} (φ : A ⟶ B) :
-    IsIso (Sections.comparison φ) :=
-  sorry
+          (SheafOfModules.RingedSite.CotangentComplex.Homology.sectionsComplexMap φ Y))

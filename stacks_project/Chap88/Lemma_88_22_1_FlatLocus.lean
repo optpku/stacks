@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.AffineScheme
@@ -144,10 +138,10 @@ def chartIdeal {S : Scheme.{u}} (U : (Over S)ᵒᵖ ⥤ Type u)
           (Classical.choose_spec
             (Classical.choose_spec ‹IsNoetherianAffine U›.exists_adicNoetherian)))))
 
-/-- The selected ideal induces the actual topology and is complete. -/
-theorem chartIdeal_properties {S : Scheme.{u}}
+/-- The selected ideal of the canonical affine presentation is an ideal of definition. -/
+theorem chartIdeal_isIdealOfDefinition {S : Scheme.{u}}
     (U : (Over S)ᵒᵖ ⥤ Type u) [IsNoetherianAffine U] :
-    IsAdic (chartIdeal U) ∧ IsAdicComplete (chartIdeal U) (chartRing U) :=
+    TopologicalRing.Ideal.IsIdealOfDefinition (chartIdeal U) :=
   Classical.choose
     (Classical.choose_spec
       (Classical.choose_spec
@@ -156,11 +150,12 @@ theorem chartIdeal_properties {S : Scheme.{u}}
             (Classical.choose_spec
               (Classical.choose_spec ‹IsNoetherianAffine U›.exists_adicNoetherian))))))
 
-/-- `chartIdeal U` is an ideal of definition. -/
-theorem chartIdeal_isIdealOfDefinition {S : Scheme.{u}}
+/-- The selected ideal induces the actual topology and is complete. -/
+theorem chartIdeal_properties {S : Scheme.{u}}
     (U : (Over S)ᵒᵖ ⥤ Type u) [IsNoetherianAffine U] :
-    TopologicalRing.Ideal.IsIdealOfDefinition (chartIdeal U) :=
-  TopologicalRing.Ideal.isIdealOfDefinition_of_isAdic (chartIdeal_properties U).1
+    IsAdic (chartIdeal U) ∧ IsAdicComplete (chartIdeal U) (chartRing U) :=
+  ⟨(chartIdeal_isIdealOfDefinition U).isAdic,
+    (chartIdeal_isIdealOfDefinition U).isAdicComplete⟩
 
 /-- The selected ideal of definition is complete by the corrected presentation contract. -/
 instance instIsAdicComplete_chartIdeal {S : Scheme.{u}}
@@ -183,14 +178,16 @@ def chartStructureHom {S : Scheme.{u}} (U : (Over S)ᵒᵖ ⥤ Type u)
 /-- The `ℕ`-indexed thickening diagram of an adic Noetherian presentation. -/
 def presentationDiagram {S : Scheme.{u}} (U : (Over S)ᵒᵖ ⥤ Type u)
     [IsNoetherianAffine U] : ℕ ⥤ Over S :=
-  AdicPresentation.diagram (chartStructureHom U) (chartIdeal U)
+  AffineFormalAlgebraicSpace.powerThickenings (chartStructureHom U) (chartIdeal U)
 
-/-- The chosen thickening diagram presents `U` as a directed affine thickening
-colimit. -/
+/-- The chosen canonical quotient-power diagram presents `U`. -/
 instance instIsDirectedAffineThickeningColimit_presentationDiagram {S : Scheme.{u}}
     (U : (Over S)ᵒᵖ ⥤ Type u) [IsNoetherianAffine U] :
     IsDirectedAffineThickeningColimit (presentationDiagram U) U :=
-  Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (‹IsNoetherianAffine U›.exists_adicNoetherian))))))))
+  Classical.choose_spec (Classical.choose_spec (Classical.choose_spec
+    (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec
+      (Classical.choose_spec (Classical.choose_spec
+        (‹IsNoetherianAffine U›.exists_adicNoetherian))))))))
 
 /-- Each presentation stage is an affine scheme. -/
 instance instIsAffine_presentationDiagram_obj {S : Scheme.{u}}

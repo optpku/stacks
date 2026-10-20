@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.KernelCokernel
@@ -40,11 +34,19 @@ noncomputable abbrev cokernelDescHom (f : X ⟶ Y) (g : Y ⟶ Z) (hfg : f ≫ g 
     (cokernel f).obj ⟶ Z.obj :=
   Limits.cokernel.desc f.hom g.hom (hom_comp_eq_zero f g hfg)
 
-/-- Descent through the ambient cokernel preserves the quotient filtration. -/
-theorem cokernelDesc_preserves (f : X ⟶ Y) (g : Y ⟶ Z) (hfg : f ≫ g = 0)
+/-- Two morphisms out of a filtered cokernel agree when they agree after the projection. -/
+theorem cokernel_hom_ext (f : X ⟶ Y) {g h : cokernel f ⟶ Z}
+    (w : toCokernel f ≫ g = toCokernel f ≫ h) : g = h := sorry
+
+/-- Descent through the ambient cokernel preserves the quotient filtration when commutative
+squares induce morphisms on images. -/
+theorem cokernelDesc_preserves [HasImageMaps C]
+    (f : X ⟶ Y) (g : Y ⟶ Z) (hfg : f ≫ g = 0)
     (p : ℤ) :
     (Z.filtration p).Factors
       (((cokernel f).filtration p).arrow ≫ cokernelDescHom f g hfg) := sorry
+
+variable [HasImageMaps C]
 
 /-- The canonical filtered descent of a morphism annihilating `f`. -/
 noncomputable def cokernelDesc (f : X ⟶ Y) (g : Y ⟶ Z) (hfg : f ≫ g = 0) :
@@ -74,20 +76,22 @@ theorem cokernelDesc_unique (f : X ⟶ Y) (g : Y ⟶ Z) (hfg : f ≫ g = 0)
     (k : cokernel f ⟶ Z) (hk : toCokernel f ≫ k = g) :
     k = cokernelDesc f g hfg := sorry
 
-/-- Two morphisms out of a filtered cokernel agree when they agree after the projection. -/
-theorem cokernel_hom_ext (f : X ⟶ Y) {g h : cokernel f ⟶ Z}
-    (w : toCokernel f ≫ g = toCokernel f ≫ h) : g = h := sorry
-
 /-- The filtered cokernel projection exhibits the quotient-filtered cokernel as a categorical
 cokernel. -/
 noncomputable def toCokernelIsColimit (f : X ⟶ Y) :
-    IsColimit (CokernelCofork.ofπ (toCokernel f) (comp_toCokernel f)) := sorry
+    IsColimit (CokernelCofork.ofπ (toCokernel f) (comp_toCokernel f)) :=
+  Cofork.IsColimit.mk _
+    (fun cofork => cokernelDesc f (Cofork.π cofork) (CokernelCofork.condition cofork))
+    (fun cofork => toCokernel_cokernelDesc f (Cofork.π cofork)
+      (CokernelCofork.condition cofork))
+    (fun cofork morphism condition => cokernelDesc_unique f (Cofork.π cofork)
+      (CokernelCofork.condition cofork) morphism condition)
 
 /-- The chosen universal cokernel descent computes to `cokernelDesc`. -/
 @[simp]
 theorem toCokernelIsColimit_desc (f : X ⟶ Y) (g : Y ⟶ Z) (hfg : f ≫ g = 0) :
     (toCokernelIsColimit f).desc (CokernelCofork.ofπ g hfg) =
-      cokernelDesc f g hfg := sorry
+      cokernelDesc f g hfg := rfl
 
 /-- The filtered cokernel projection is epic. -/
 instance toCokernel_epi (f : X ⟶ Y) : Epi (toCokernel f) := sorry
@@ -100,7 +104,8 @@ variable [HasZeroMorphisms C] [HasKernels C]
 
 /-- A morphism annihilating `f` factors through the ambient kernel subobject. -/
 theorem kernelLift_factors (f : X ⟶ Y) (g : Z ⟶ X) (hgf : g ≫ f = 0) :
-    (kernelSubobject f.hom).Factors g.hom := sorry
+    (kernelSubobject f.hom).Factors g.hom :=
+  kernelSubobject_factors f.hom g.hom (hom_comp_eq_zero g f hgf)
 
 section
 
@@ -151,12 +156,17 @@ theorem kernel_hom_ext (f : X ⟶ Y) {g h : Z ⟶ kernel f}
 
 /-- The filtered kernel inclusion exhibits the induced filtered kernel as a categorical kernel. -/
 noncomputable def kernelιIsLimit (f : X ⟶ Y) :
-    IsLimit (KernelFork.ofι (kernelι f) (kernelι_comp f)) := sorry
+    IsLimit (KernelFork.ofι (kernelι f) (kernelι_comp f)) :=
+  Fork.IsLimit.mk _
+    (fun fork => kernelLift f (Fork.ι fork) (KernelFork.condition fork))
+    (fun fork => kernelLift_kernelι f (Fork.ι fork) (KernelFork.condition fork))
+    (fun fork morphism condition => kernelLift_unique f (Fork.ι fork)
+      (KernelFork.condition fork) morphism condition)
 
 /-- The chosen universal kernel lift computes to `kernelLift`. -/
 @[simp]
 theorem kernelιIsLimit_lift (f : X ⟶ Y) (g : Z ⟶ X) (hgf : g ≫ f = 0) :
-    (kernelιIsLimit f).lift (KernelFork.ofι g hgf) = kernelLift f g hgf := sorry
+    (kernelιIsLimit f).lift (KernelFork.ofι g hgf) = kernelLift f g hgf := rfl
 
 /-- The filtered kernel inclusion is monic. -/
 instance kernelι_mono (f : X ⟶ Y) : Mono (kernelι f) := sorry

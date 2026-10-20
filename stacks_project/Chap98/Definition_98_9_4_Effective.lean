@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.EssentialImage
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.FormalObject.Effective
 public import stacks_project.Chap98.«98_9_3_1»
 
 /-!
@@ -25,34 +19,23 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.GroupoidsOver.FormalObject
+#check (AlgebraicGeometry.GroupoidsOver.FormalObject.IsEffective :
+  ∀ {S : Scheme.{u}} [IsLocallyNoetherian S] {X : GroupoidsOver S},
+    GroupoidsOver.FormalObject X → Prop)
 
-variable {S : Scheme.{u}} [IsLocallyNoetherian S] {X : GroupoidsOver S}
+#check (AlgebraicGeometry.GroupoidsOver.FormalObject.instIsEffective_obj :
+  ∀ {S : Scheme.{u}} [IsLocallyNoetherian S] {X : GroupoidsOver S}
+    (x : GroupoidsOver.CompleteLocalObject X),
+    GroupoidsOver.FormalObject.IsEffective ((GroupoidsOver.approximation X).obj x))
 
-/-- A formal object is effective if it lies in the essential image of the
-approximation functor from objects over complete local finite-type-residue
-spectra. -/
-class IsEffective (ξ : FormalObject X) : Prop where
-  /-- The formal object is isomorphic to the approximation of some complete
-  local object. -/
-  mem_essImage : (GroupoidsOver.approximation X).essImage ξ
+#check (AlgebraicGeometry.GroupoidsOver.FormalObject.isEffective_iff :
+  ∀ {S : Scheme.{u}} [IsLocallyNoetherian S] {X : GroupoidsOver S}
+    {ξ : GroupoidsOver.FormalObject X},
+    GroupoidsOver.FormalObject.IsEffective ξ ↔ (GroupoidsOver.approximation X).essImage ξ)
 
-/-- The approximation of an object over a complete local spectrum is effective. -/
-instance instIsEffective_obj (x : CompleteLocalObject X) :
-    IsEffective ((GroupoidsOver.approximation X).obj x) where
-  mem_essImage := Functor.obj_mem_essImage (GroupoidsOver.approximation X) x
-
-/-- Effectiveness is membership in the essential image of approximation. -/
-theorem isEffective_iff {ξ : FormalObject X} :
-    IsEffective ξ ↔ (GroupoidsOver.approximation X).essImage ξ :=
-  sorry
-
-/-- A formal object is effective if and only if it is isomorphic to the
-approximation of some complete local object. -/
-theorem isEffective_iff_exists {ξ : FormalObject X} :
-    IsEffective ξ ↔
-      ∃ x : CompleteLocalObject X,
-        Nonempty ((GroupoidsOver.approximation X).obj x ≅ ξ) :=
-  sorry
-
-end AlgebraicGeometry.GroupoidsOver.FormalObject
+#check (AlgebraicGeometry.GroupoidsOver.FormalObject.isEffective_iff_exists :
+  ∀ {S : Scheme.{u}} [IsLocallyNoetherian S] {X : GroupoidsOver S}
+    {ξ : GroupoidsOver.FormalObject X},
+    GroupoidsOver.FormalObject.IsEffective ξ ↔
+      ∃ x : GroupoidsOver.CompleteLocalObject X,
+        Nonempty ((GroupoidsOver.approximation X).obj x ≅ ξ))

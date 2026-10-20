@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Widesubcategory
@@ -21,22 +15,6 @@ public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve
 open CategoryTheory
 
 universe u
-
-namespace AlgebraicGeometry.FinitelyGeneratedFieldExtension
-
-/-- The object property of having transcendence degree one over the base field. -/
-def trdegOneProperty (k : Type u) [Field k] : ObjectProperty (Cat k) :=
-  fun K ↦ Algebra.trdeg k K.obj = 1
-
-/-- Finitely generated field extensions of `k` of transcendence degree one. -/
-abbrev TranscendenceDegreeOne (k : Type u) [Field k] :=
-  (trdegOneProperty k).FullSubcategory
-
-/-- An object of `TranscendenceDegreeOne k` has transcendence degree one over `k`. -/
-theorem TranscendenceDegreeOne.trdeg_eq_one {k : Type u} [Field k]
-    (K : TranscendenceDegreeOne k) : Algebra.trdeg k K.obj.obj = 1 := sorry
-
-end AlgebraicGeometry.FinitelyGeneratedFieldExtension
 
 namespace AlgebraicGeometry.CurveCategory
 
@@ -203,34 +181,115 @@ abbrev NormalProper (k : Type u) [Field k] :=
 theorem NormalProper.obj_spec {k : Type u} [Field k] (X : NormalProper k) :
     Curve X.obj.obj ∧ X.obj.obj.left.isNormal ∧ IsProper X.obj.obj.hom := sorry
 
-/-- One-variable function fields over `k` are equivalent to curves with dominant rational maps. -/
-theorem oneVariableFunctionFieldsEquivCurveRationalMaps (k : Type u) [Field k] :
-    Nonempty
-      ((FinitelyGeneratedFieldExtension.TranscendenceDegreeOne k)ᵒᵖ ≌
-        DominantRationalMap k) := sorry
+/-- The function field of a curve has transcendence degree one over its base field. -/
+theorem functionField_trdeg_eq_one_of_curve {k : Type u} [Field k]
+    (X : SchemeOverField k) (hX : Curve X) :
+    Algebra.trdeg k (SchemeOverField.functionFieldCommAlg X) = 1 := sorry
 
-/-- One-variable function fields over `k` are equivalent to normal projective curves. -/
-theorem oneVariableFunctionFieldsEquivNormalProjectiveCurves (k : Type u) [Field k] :
-    Nonempty
-      ((FinitelyGeneratedFieldExtension.TranscendenceDegreeOne k)ᵒᵖ ≌
-        NormalProjective k) := sorry
+/-- A curve's function field as an object of the transcendence-degree-one category. -/
+noncomputable def curveFunctionFieldObject {k : Type u} [Field k]
+    (X : SchemeOverField k) (hX : Curve X) :
+    FinitelyGeneratedFieldExtension.TranscendenceDegreeOne.{u, u} k := by
+  -- Local instance justification (proof-local temporary data): the function-field
+  -- construction reads the curve instance only while assembling this object.
+  letI : Curve X := hX
+  exact ⟨
+    ⟨SchemeOverField.functionFieldCommAlg X,
+      ⟨SchemeOverField.functionFieldCommAlg_isField X,
+        SchemeOverField.functionField_essFiniteType X⟩⟩,
+    functionField_trdeg_eq_one_of_curve X hX⟩
 
-/-- One-variable function fields over `k` are equivalent to nonsingular projective curves. -/
-theorem oneVariableFunctionFieldsEquivNonsingularProjectiveCurves (k : Type u) [Field k] :
-    Nonempty
-      ((FinitelyGeneratedFieldExtension.TranscendenceDegreeOne k)ᵒᵖ ≌
-        NonsingularProjective k) := sorry
+/-- Pullback on function fields induced by a nonconstant morphism of curves. -/
+noncomputable def curveFunctionFieldMap {k : Type u} [Field k]
+    (P : ObjectProperty (SchemeOverField k))
+    (h_curve : ∀ X, P X → Curve X) [h_mul : (nonconstantHom P).IsMultiplicative]
+    {X Y : WideSubcategory (nonconstantHom P)} (f : X ⟶ Y) :
+    @SchemeOverField.functionFieldCommAlg k _ Y.obj.obj
+        (h_curve Y.obj.obj Y.obj.property).toVariety ⟶
+      @SchemeOverField.functionFieldCommAlg k _ X.obj.obj
+        (h_curve X.obj.obj X.obj.property).toVariety := by
+  -- Local instance justification (proof-local temporary data): the pullback map's
+  -- source and target function fields require the curve proofs only in this definition.
+  letI : Curve X.obj.obj := h_curve X.obj.obj X.obj.property
+  -- Local instance justification (proof-local temporary data): the pullback map's
+  -- source and target function fields require the curve proofs only in this definition.
+  letI : Curve Y.obj.obj := h_curve Y.obj.obj Y.obj.property
+  -- Local instance justification (proof-local temporary data): dominance is derived
+  -- from the given nonconstant morphism for the duration of the stalk-map construction.
+  letI : IsDominant f.hom.hom.left :=
+    Scheme.Hom.IsNonconstant.isDominant_of_curves f.property
+  -- Local instance justification (proof-local temporary data): these canonical algebra
+  -- structures are needed only to package the explicit pullback as a `CommAlgCat` map.
+  letI := SchemeOverField.functionFieldAlgebra X.obj.obj
+  -- Local instance justification (proof-local temporary data): these canonical algebra
+  -- structures are needed only to package the explicit pullback as a `CommAlgCat` map.
+  letI := SchemeOverField.functionFieldAlgebra Y.obj.obj
+  exact CommAlgCat.ofHom {
+    toRingHom := f.hom.hom.left.functionFieldMap
+      (Scheme.Hom.map_genericPoint_eq_of_isDominant f.hom.hom.left)
+    commutes' := by sorry
+  }
 
-/-- One-variable function fields over `k` are equivalent to regular projective curves. -/
-theorem oneVariableFunctionFieldsEquivRegularProjectiveCurves (k : Type u) [Field k] :
-    Nonempty
-      ((FinitelyGeneratedFieldExtension.TranscendenceDegreeOne k)ᵒᵖ ≌
-        RegularProjective k) := sorry
+/-- The contravariant function-field functor for any curve category selected by `P`. -/
+noncomputable def curveFunctionFieldFunctor {k : Type u} [Field k]
+    (P : ObjectProperty (SchemeOverField k))
+    (h_curve : ∀ X, P X → Curve X) [h_mul : (nonconstantHom P).IsMultiplicative] :
+    WideSubcategory (nonconstantHom P) ⥤
+      (FinitelyGeneratedFieldExtension.TranscendenceDegreeOne.{u, u} k)ᵒᵖ where
+  obj X := Opposite.op (curveFunctionFieldObject X.obj.obj (h_curve X.obj.obj X.obj.property))
+  map f :=
+    (ObjectProperty.homMk
+      (X := curveFunctionFieldObject _ _) (Y := curveFunctionFieldObject _ _)
+      (ObjectProperty.homMk (curveFunctionFieldMap P h_curve f))).op
+  map_id := by intros; sorry
+  map_comp := by intros; sorry
 
-/-- One-variable function fields over `k` are equivalent to normal proper curves. -/
-theorem oneVariableFunctionFieldsEquivNormalProperCurves (k : Type u) [Field k] :
-    Nonempty
-      ((FinitelyGeneratedFieldExtension.TranscendenceDegreeOne k)ᵒᵖ ≌
-        NormalProper k) := sorry
+/-- The function-field functor on curves with dominant rational maps. -/
+noncomputable def dominantRationalMapFunctionFieldFunctor {k : Type u} [Field k] :
+    DominantRationalMap k ⥤
+      (FinitelyGeneratedFieldExtension.TranscendenceDegreeOne.{u, u} k)ᵒᵖ where
+  obj X := Opposite.op (curveFunctionFieldObject X.obj.obj X.isCurve)
+  map f :=
+    (ObjectProperty.homMk
+      (X := curveFunctionFieldObject _ _) (Y := curveFunctionFieldObject _ _)
+      (ObjectProperty.homMk
+        (VarietyDominantRationalMapCat.functionFieldMap f.hom))).op
+  map_id := by intros; sorry
+  map_comp := by intros; sorry
+
+/-- The function-field functor gives a contravariant equivalence between curves over `k`
+with dominant rational maps and finitely generated field extensions of `k` of
+transcendence degree one. -/
+@[instance]
+theorem dominantRationalMapFunctionFieldFunctor_isEquivalence {k : Type u} [Field k] :
+    (dominantRationalMapFunctionFieldFunctor (k := k)).IsEquivalence := sorry
+
+/-- The function-field functor gives a contravariant equivalence between normal projective
+curves over `k` with nonconstant morphisms and finitely generated field extensions of `k`
+of transcendence degree one. -/
+@[instance]
+theorem normalProjectiveFunctionFieldFunctor_isEquivalence {k : Type u} [Field k] :
+    (curveFunctionFieldFunctor (normalProjectiveProperty k) (fun X hX ↦ hX.1)).IsEquivalence := sorry
+
+/-- The function-field functor gives a contravariant equivalence between nonsingular
+projective curves over `k` with nonconstant morphisms and finitely generated field
+extensions of `k` of transcendence degree one. -/
+@[instance]
+theorem nonsingularProjectiveFunctionFieldFunctor_isEquivalence {k : Type u} [Field k] :
+    (curveFunctionFieldFunctor (nonsingularProjectiveProperty k) (fun X hX ↦ hX.1)).IsEquivalence := sorry
+
+/-- The function-field functor gives a contravariant equivalence between regular projective
+curves over `k` with nonconstant morphisms and finitely generated field extensions of `k`
+of transcendence degree one. -/
+@[instance]
+theorem regularProjectiveFunctionFieldFunctor_isEquivalence {k : Type u} [Field k] :
+    (curveFunctionFieldFunctor (regularProjectiveProperty k) (fun X hX ↦ hX.1)).IsEquivalence := sorry
+
+/-- The function-field functor gives a contravariant equivalence between normal proper
+curves over `k` with nonconstant morphisms and finitely generated field extensions of `k`
+of transcendence degree one. -/
+@[instance]
+theorem normalProperFunctionFieldFunctor_isEquivalence {k : Type u} [Field k] :
+    (curveFunctionFieldFunctor (normalProperProperty k) (fun X hX ↦ hX.1)).IsEquivalence := sorry
 
 end AlgebraicGeometry.CurveCategory

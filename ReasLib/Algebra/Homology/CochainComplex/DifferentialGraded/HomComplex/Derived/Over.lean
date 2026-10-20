@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
@@ -73,7 +67,7 @@ noncomputable abbrev localization [HasDerivedCategory.{w} C] :
 /-- The existence condition for the total right-derived enriched Hom bifunctor. -/
 @[stacks 0CS6 "existence of total derived enriched Hom"]
 abbrev Has : Prop :=
-  (source (R := R) (C := C)).HasRightDerivedFunctor (qis (R := R) (C := C))
+  (source (R := R) (C := C)).HasPointwiseRightDerivedFunctor (qis (R := R) (C := C))
 
 /-- A K-injective covariant entry computes simultaneous `R`-linear derived Hom independently of
 the contravariant entry. -/

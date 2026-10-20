@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Etale
+public import Mathlib.CategoryTheory.MorphismProperty.Composition
 public import Mathlib.CategoryTheory.MorphismProperty.Limits
 public import Mathlib.CategoryTheory.MorphismProperty.Representable
 public import Mathlib.Topology.Homeomorph.Defs
@@ -126,11 +121,33 @@ theorem pullback_snd {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} {f : X ⟶ Y}
 
 end UniversalHomeomorphism
 
+/-- Universal homeomorphisms of algebraic spaces are stable under arbitrary base change. -/
+instance universalHomeomorphism_isStableUnderBaseChange {S : Scheme.{u}} :
+    MorphismProperty.IsStableUnderBaseChange
+      (@UniversalHomeomorphism S : MorphismProperty (AlgebraicSpace S)) where
+  of_isPullback := by
+    intros
+    apply UniversalHomeomorphism.of_isPullback <;> assumption
+
 /-- Typeclass form of base-change stability for a universal homeomorphism along a
 morphism for which the pullback exists. -/
 instance universalHomeomorphism_pullback_snd {S : Scheme.{u}}
     {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Z ⟶ Y)
     [UniversalHomeomorphism f] [HasPullback f g] :
     UniversalHomeomorphism (pullback.snd f g) := sorry
+
+/-- Universal homeomorphisms of algebraic spaces are stable under composition. -/
+instance universalHomeomorphism_isStableUnderComposition {S : Scheme.{u}} :
+    MorphismProperty.IsStableUnderComposition
+      (@UniversalHomeomorphism S : MorphismProperty (AlgebraicSpace S)) := sorry
+
+/-- The composition of universal homeomorphisms of algebraic spaces is a
+universal homeomorphism. -/
+instance universalHomeomorphism_comp {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+    (f : X ⟶ Y) (g : Y ⟶ Z) [UniversalHomeomorphism f] [UniversalHomeomorphism g] :
+    UniversalHomeomorphism (f ≫ g) :=
+  MorphismProperty.comp_mem
+    (@UniversalHomeomorphism S : MorphismProperty (AlgebraicSpace S))
+    f g inferInstance inferInstance
 
 end AlgebraicGeometry.AlgebraicSpace

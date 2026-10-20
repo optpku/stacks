@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.Embedding.Extend
@@ -196,11 +190,12 @@ end ToTotal
 
 namespace ToProductTotal
 
-/-- Exactness of a coaugmented coresolution and of all shifted rowwise cokernel complexes makes
-the canonical map into its product total a quasi-isomorphism. -/
+/-- In an abelian category with exact countable products, exactness of a coaugmented coresolution
+and of all shifted rowwise cokernel complexes makes the canonical map into its product total a
+quasi-isomorphism. -/
 @[stacks 09J0 "exact coaugmented rows and exact cokernel rows compute a product total"]
 theorem quasiIso_of_exact_opcycles
-    [HasCountableProducts C]
+    [HasCountableProducts C] [CountableAB4Star C]
     {M : CochainComplex C ℤ} (A : CochainComplex (CochainComplex C ℤ) ℕ)
     (coaugmentation : M ⟶ A.X 0) (h_coaugmentation : coaugmentation ≫ A.d 0 1 = 0)
     [Mono coaugmentation]

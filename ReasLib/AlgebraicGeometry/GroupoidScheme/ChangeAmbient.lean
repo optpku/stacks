@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Pullbacks
@@ -88,13 +82,16 @@ def changeAmbientIdentity {S T : Scheme.{u}} (H : GroupoidScheme T)
 
 /-- Retained inverse arrows respect the new ambient structure map. -/
 theorem changeAmbientInverse_condition {S T : Scheme.{u}}
-    (H : GroupoidScheme T) (q : H.U.left ⟶ S) :
-    H.i.left ≫ (changeAmbientR H q).hom = (changeAmbientR H q).hom := sorry
+    (H : GroupoidScheme T) (q : H.U.left ⟶ S) (h : H.t.left ≫ q = H.s.left ≫ q) :
+    H.i.left ≫ (changeAmbientR H q).hom = (changeAmbientR H q).hom := by
+  simp only [Over.mk_hom]
+  rw [← Category.assoc, ← Over.comp_left, H.inverse_source, h]
 
 /-- The retained inverse map over a new ambient base. -/
 def changeAmbientInverse {S T : Scheme.{u}} (H : GroupoidScheme T)
-    (q : H.U.left ⟶ S) : changeAmbientR H q ⟶ changeAmbientR H q :=
-  Over.homMk H.i.left (changeAmbientInverse_condition H q)
+    (q : H.U.left ⟶ S) (h : H.t.left ≫ q = H.s.left ≫ q) :
+    changeAmbientR H q ⟶ changeAmbientR H q :=
+  Over.homMk H.i.left (changeAmbientInverse_condition H q h)
 
 /-- Retained composition has the source of its second arrow. -/
 theorem changeAmbient_compSource {S T : Scheme.{u}} (H : GroupoidScheme T)
@@ -123,12 +120,12 @@ theorem changeAmbient_identityTarget {S T : Scheme.{u}} (H : GroupoidScheme T)
 /-- Retained inversion exchanges source and target. -/
 theorem changeAmbient_inverseSource {S T : Scheme.{u}} (H : GroupoidScheme T)
     (q : H.U.left ⟶ S) (h : H.t.left ≫ q = H.s.left ≫ q) :
-    changeAmbientInverse H q ≫ changeAmbientSource H q = changeAmbientTarget H q h := sorry
+    changeAmbientInverse H q h ≫ changeAmbientSource H q = changeAmbientTarget H q h := sorry
 
 /-- Retained inversion exchanges target and source. -/
 theorem changeAmbient_inverseTarget {S T : Scheme.{u}} (H : GroupoidScheme T)
     (q : H.U.left ⟶ S) (h : H.t.left ≫ q = H.s.left ≫ q) :
-    changeAmbientInverse H q ≫ changeAmbientTarget H q h = changeAmbientSource H q := sorry
+    changeAmbientInverse H q h ≫ changeAmbientTarget H q h = changeAmbientSource H q := sorry
 
 /-- Retained composition is associative on points over the new ambient base. -/
 theorem changeAmbient_associativity {S T : Scheme.{u}} (H : GroupoidScheme T)
@@ -170,8 +167,8 @@ theorem changeAmbient_inverseComp {S T : Scheme.{u}} (H : GroupoidScheme T)
     (q : H.U.left ⟶ S) (h : H.t.left ≫ q = H.s.left ≫ q) :
     ∀ {X : Over S} (a : X ⟶ changeAmbientR H q)
       (ha : a ≫ changeAmbientSource H q =
-        (a ≫ changeAmbientInverse H q) ≫ changeAmbientTarget H q h),
-      pullback.lift a (a ≫ changeAmbientInverse H q) ha ≫
+        (a ≫ changeAmbientInverse H q h) ≫ changeAmbientTarget H q h),
+      pullback.lift a (a ≫ changeAmbientInverse H q h) ha ≫
           changeAmbientComposition H q h =
         (a ≫ changeAmbientTarget H q h) ≫ changeAmbientIdentity H q := sorry
 
@@ -179,9 +176,9 @@ theorem changeAmbient_inverseComp {S T : Scheme.{u}} (H : GroupoidScheme T)
 theorem changeAmbient_compInverse {S T : Scheme.{u}} (H : GroupoidScheme T)
     (q : H.U.left ⟶ S) (h : H.t.left ≫ q = H.s.left ≫ q) :
     ∀ {X : Over S} (a : X ⟶ changeAmbientR H q)
-      (ha : (a ≫ changeAmbientInverse H q) ≫ changeAmbientSource H q =
+      (ha : (a ≫ changeAmbientInverse H q h) ≫ changeAmbientSource H q =
         a ≫ changeAmbientTarget H q h),
-      pullback.lift (a ≫ changeAmbientInverse H q) a ha ≫
+      pullback.lift (a ≫ changeAmbientInverse H q h) a ha ≫
           changeAmbientComposition H q h =
         (a ≫ changeAmbientSource H q) ≫ changeAmbientIdentity H q := sorry
 
@@ -195,7 +192,7 @@ def changeAmbient {S T : Scheme.{u}} (H : GroupoidScheme T)
   t := changeAmbientTarget H q h
   c := changeAmbientComposition H q h
   e := changeAmbientIdentity H q
-  i := changeAmbientInverse H q
+  i := changeAmbientInverse H q h
   comp_source := changeAmbient_compSource H q h
   comp_target := changeAmbient_compTarget H q h
   identity_source := changeAmbient_identitySource H q

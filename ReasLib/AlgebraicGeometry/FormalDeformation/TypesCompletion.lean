@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Elements
@@ -54,10 +48,34 @@ theorem truncationHom_le {S T : CompleteLocalAlgCat Λ k} (f : S ⟶ T) (n : ℕ
     maximalIdeal S ^ (n + 1) ≤
       (maximalIdeal T ^ (n + 1)).comap f.hom := sorry
 
+/-- The quotient algebra map induced by a complete local morphism is local. -/
+theorem truncationHom_isLocalHom {S T : CompleteLocalAlgCat Λ k} (f : S ⟶ T) (n : ℕ) :
+    IsLocalHom ((by
+        change @AlgHom Λ (CompleteLocalAlgCat.truncationCarrier S n)
+          (CompleteLocalAlgCat.truncationCarrier T n) _ _ _
+          (truncationAlgebra S n) (truncationAlgebra T n)
+        exact @Ideal.quotientMapₐ Λ S.carrier T.carrier _ _ S.algebra _ T.algebra
+          (maximalIdeal S ^ (n + 1)) (maximalIdeal T ^ (n + 1)) inferInstance inferInstance
+          f.hom (truncationHom_le f n)) :
+      ArtinianLocalAlgCat.algebraHom (S.truncation n) (T.truncation n)) := sorry
+
+/-- The induced quotient algebra map preserves the residue identification. -/
+theorem truncationHom_residue_compat {S T : CompleteLocalAlgCat Λ k} (f : S ⟶ T) (n : ℕ) :
+    ArtinianLocalAlgCat.residueCompat (A := S.truncation n) (B := T.truncation n)
+      (by
+        change @AlgHom Λ (CompleteLocalAlgCat.truncationCarrier S n)
+          (CompleteLocalAlgCat.truncationCarrier T n) _ _ _
+          (truncationAlgebra S n) (truncationAlgebra T n)
+        exact @Ideal.quotientMapₐ Λ S.carrier T.carrier _ _ S.algebra _ T.algebra
+          (maximalIdeal S ^ (n + 1)) (maximalIdeal T ^ (n + 1)) inferInstance inferInstance
+          f.hom (truncationHom_le f n))
+      (truncationHom_isLocalHom (S := S) (T := T) f n) =
+        ArtinianLocalAlgCat.residueIsoHom (S.truncation n) := sorry
+
 /-- The morphism of truncations induced by a morphism of complete local algebras. -/
 noncomputable def truncationHom {S T : CompleteLocalAlgCat Λ k} (f : S ⟶ T) (n : ℕ) :
     S.truncation n ⟶ T.truncation n :=
-  ArtinianLocalAlgCat.Hom.of
+  ArtinianLocalAlgCat.Hom.of (A := S.truncation n) (B := T.truncation n)
     (by
       change @AlgHom Λ (CompleteLocalAlgCat.truncationCarrier S n)
         (CompleteLocalAlgCat.truncationCarrier T n) _ _ _
@@ -65,8 +83,8 @@ noncomputable def truncationHom {S T : CompleteLocalAlgCat Λ k} (f : S ⟶ T) (
       exact @Ideal.quotientMapₐ Λ S.carrier T.carrier _ _ S.algebra _ T.algebra
         (maximalIdeal S ^ (n + 1)) (maximalIdeal T ^ (n + 1)) inferInstance inferInstance
         f.hom (truncationHom_le f n))
-    sorry
-    sorry
+    (truncationHom_isLocalHom (S := S) (T := T) f n)
+    (by with_unfolding_all exact truncationHom_residue_compat (S := S) (T := T) f n)
 
 /-- The induced truncation map is the quotient of the underlying algebra map. -/
 theorem truncationHom_spec {S T : CompleteLocalAlgCat Λ k} (f : S ⟶ T) (n : ℕ) :
@@ -96,14 +114,27 @@ end CompleteLocalAlgCat
 
 namespace CategoryTheory.Functor
 
+/-- The map of inverse limits induced by the identity complete local morphism is the identity. -/
+theorem typesCompletion_map_id (F : ArtinianLocalAlgCat Λ k ⥤ Type w)
+    (S : CompleteLocalAlgCat Λ k) :
+    limMap (whiskerRight (CompleteLocalAlgCat.truncationSystemMap (𝟙 S)) F) =
+      𝟙 (limit (S.truncationSystem ⋙ F)) := sorry
+
+/-- Maps of inverse limits induced by complete local morphisms preserve composition. -/
+theorem typesCompletion_map_comp (F : ArtinianLocalAlgCat Λ k ⥤ Type w)
+    {S T U : CompleteLocalAlgCat Λ k} (f : S ⟶ T) (g : T ⟶ U) :
+    limMap (whiskerRight (CompleteLocalAlgCat.truncationSystemMap (f ≫ g)) F) =
+      limMap (whiskerRight (CompleteLocalAlgCat.truncationSystemMap f) F) ≫
+        limMap (whiskerRight (CompleteLocalAlgCat.truncationSystemMap g) F) := sorry
+
 /-- The set-valued completion of `F : ArtinianLocalAlgCat Λ k ⥤ Type w`, sending a
 complete local algebra `S` to the inverse limit of `F` on the truncations of `S`. -/
 noncomputable def typesCompletion (F : ArtinianLocalAlgCat Λ k ⥤ Type w) :
     CompleteLocalAlgCat Λ k ⥤ Type w where
   obj S := limit (S.truncationSystem ⋙ F)
   map f := limMap (whiskerRight (CompleteLocalAlgCat.truncationSystemMap f) F)
-  map_id := sorry
-  map_comp := sorry
+  map_id := typesCompletion_map_id F
+  map_comp := typesCompletion_map_comp F
 
 /-- The value of the set-valued completion at `S` is the inverse limit of `F` on the
 truncation tower of `S`. -/
@@ -135,6 +166,12 @@ theorem typesCompletionStage_over_obj (F : ArtinianLocalAlgCat Λ k ⥤ Type w)
     (S : CompleteLocalAlgCat Λ k) (x : (typesCompletion F).obj S) (n : ℕ) :
     (CategoryOfElements.π F).obj (typesCompletionStage F S x n) = S.truncation n := sorry
 
+/-- Successive limit projections are compatible with the truncation transition. -/
+theorem typesCompletionSystem_step_compat (F : ArtinianLocalAlgCat Λ k ⥤ Type w)
+    (S : CompleteLocalAlgCat Λ k) (x : (typesCompletion F).obj S) (n : ℕ) :
+    F.map (S.truncationMap n) (typesCompletionStage F S x (n + 1)).snd =
+      (typesCompletionStage F S x n).snd := sorry
+
 /-- The inverse system of elements of `F` over the truncations of `S` determined by
 a point of the set-valued completion. -/
 noncomputable def typesCompletionSystem (F : ArtinianLocalAlgCat Λ k ⥤ Type w)
@@ -142,7 +179,8 @@ noncomputable def typesCompletionSystem (F : ArtinianLocalAlgCat Λ k ⥤ Type w
     SequentialInverseSystem F.Elements :=
   Functor.ofOpSequence (fun n ↦
     CategoryOfElements.homMk (typesCompletionStage F S x (n + 1))
-      (typesCompletionStage F S x n) (S.truncationMap n) sorry)
+      (typesCompletionStage F S x n) (S.truncationMap n)
+      (typesCompletionSystem_step_compat F S x n))
 
 /-- Stage `n` of the extracted inverse system is the element of `F` at the `n`th
 truncation given by the corresponding limit projection. -/
@@ -180,6 +218,14 @@ noncomputable def typesCompletionOfSystemStage (F : ArtinianLocalAlgCat Λ k ⥤
           (S.truncationMap n) (ξ.stepMap n) (over_step n)))
       (ξ.family (n + 1)).snd)
 
+/-- The transported stages of a tower over truncation projections form a compatible family. -/
+theorem typesCompletionOfSystem_compatible (F : ArtinianLocalAlgCat Λ k ⥤ Type w)
+    (S : CompleteLocalAlgCat Λ k) (ξ : SequentialInverseSystem F.Elements)
+    (over_step : ∀ n, (CategoryOfElements.π F).IsHomLift (S.truncationMap n) (ξ.stepMap n)) :
+    ∀ (j j' : ℕᵒᵖ) (f : j ⟶ j'),
+      (S.truncationSystem ⋙ F).map f (typesCompletionOfSystemStage F S ξ over_step j.unop) =
+        typesCompletionOfSystemStage F S ξ over_step j'.unop := sorry
+
 /-- Reconstruct a completion value from an inverse system of elements of `F` whose
 successor transitions lie over the truncation projections of `S`. -/
 noncomputable def typesCompletionOfSystem (F : ArtinianLocalAlgCat Λ k ⥤ Type w)
@@ -187,7 +233,8 @@ noncomputable def typesCompletionOfSystem (F : ArtinianLocalAlgCat Λ k ⥤ Type
     (over_step : ∀ n, (CategoryOfElements.π F).IsHomLift (S.truncationMap n) (ξ.stepMap n)) :
     (typesCompletion F).obj S :=
   Types.Limit.mk (S.truncationSystem ⋙ F)
-    (fun j ↦ typesCompletionOfSystemStage F S ξ over_step j.unop) sorry
+    (fun j ↦ typesCompletionOfSystemStage F S ξ over_step j.unop)
+    (typesCompletionOfSystem_compatible F S ξ over_step)
 
 /-- The reconstructed completion point projects to the transported stage element. -/
 theorem typesCompletionOfSystem_apply (F : ArtinianLocalAlgCat Λ k ⥤ Type w)

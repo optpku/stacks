@@ -1,15 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
 public import Mathlib.CategoryTheory.Types.Basic
 public import Mathlib.CategoryTheory.Yoneda
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Sheaf
 
 /-!
 # Restriction of scalars for algebraic spaces
@@ -126,12 +121,18 @@ theorem ext {S : Scheme.{u}} {X Z B : AlgebraicSpace S} {f : X ⟶ Z} {g : Z ⟶
     {T : Over S} {p q : Pair f g T} (h_base : p.base = q.base)
     (h_lift : h_base ▸ p.lift = q.lift) : p = q := sorry
 
+/-- Precomposition of a lift preserves its triangle over `Z`. -/
+theorem precomp_overZ {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
+    {f : X ⟶ Z} {g : Z ⟶ B} {T T' : Over S} (φ : T' ⟶ T) (p : Pair f g T) :
+    (fiberMap g φ p.base ≫ p.lift) ≫ f =
+      fiberSnd g ((yoneda.map φ : ofOver T' ⟶ ofOver T) ≫ p.base) := sorry
+
 /-- Base change of a pair `(a, b)` along `φ : T' ⟶ T`, sending `a` to
 `yoneda.map φ ≫ a` and `b` to the composite `(φ × id_Z) ≫ b`. -/
 def precomp {S : Scheme.{u}} {X Z B : AlgebraicSpace S} {f : X ⟶ Z} {g : Z ⟶ B}
     {T T' : Over S} (φ : T' ⟶ T) (p : Pair f g T) : Pair f g T' :=
   let base : ofOver T' ⟶ ofOver T := CategoryTheory.yoneda.map φ
-  Pair.of (base ≫ p.base) (fiberMap g φ p.base ≫ p.lift) sorry
+  Pair.of (base ≫ p.base) (fiberMap g φ p.base ≫ p.lift) (precomp_overZ φ p)
 
 /-- The base morphism of `precomp φ p` is `yoneda.map φ ≫ p.base`. -/
 theorem precomp_base {S : Scheme.{u}} {X Z B : AlgebraicSpace S} {f : X ⟶ Z}
@@ -203,13 +204,21 @@ end AlgebraicGeometry.AlgebraicSpace
 
 namespace AlgebraicGeometry.AlgebraicSpace.RestrictionOfScalars
 
+/-- Projection to the base point commutes with restriction to test schemes. -/
+theorem toFunctorOfPoints_naturality {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
+    (f : X ⟶ Z) (g : Z ⟶ B) {T T' : (Over S)ᵒᵖ} (φ : T ⟶ T') :
+    (restrictionOfScalars f g).map φ ≫
+        TypeCat.ofHom (fun (p : Pair f g T'.unop) ↦ ULift.up (yonedaEquiv p.base)) =
+      TypeCat.ofHom (fun (p : Pair f g T.unop) ↦ ULift.up (yonedaEquiv p.base)) ≫
+        (B.functorOfPoints ⋙ uliftFunctor.{u + 1, u}).map φ := sorry
+
 /-- The projection `Res_{Z/B}(X) ⟶ B` sending a pair `(a, b)` to the `B`-point
 `a`. -/
 def toFunctorOfPoints {S : Scheme.{u}} {X Z B : AlgebraicSpace S} (f : X ⟶ Z)
     (g : Z ⟶ B) :
     restrictionOfScalars f g ⟶ B.functorOfPoints ⋙ uliftFunctor.{u + 1, u} where
   app T := TypeCat.ofHom fun p ↦ ULift.up (yonedaEquiv p.base)
-  naturality := sorry
+  naturality := fun _ _ φ ↦ toFunctorOfPoints_naturality f g φ
 
 /-- The component of `toFunctorOfPoints` at `T` sends a pair to the universe-lift
 of the Yoneda equivalent of its base morphism. -/
@@ -217,5 +226,63 @@ theorem toFunctorOfPoints_app {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
     (f : X ⟶ Z) (g : Z ⟶ B) (T : (Over S)ᵒᵖ)
     (p : Pair f g T.unop) :
     (toFunctorOfPoints f g).app T p = ULift.up (yonedaEquiv p.base) := sorry
+
+/-- The explicit fibre product is canonically isomorphic to the categorical pullback. -/
+def fiberPullbackIso {S : Scheme.{u}} {Z B : AlgebraicSpace S} (g : Z ⟶ B)
+    {T : Over S} (a : ofOver T ⟶ B) : fiber g a ≅ pullback a g :=
+  (ReasLibPullback.isPullback a g).isoPullback
+
+/-- The canonical comparison preserves the projection to the test scheme. -/
+theorem fiberPullbackIso_hom_fst {S : Scheme.{u}} {Z B : AlgebraicSpace S}
+    (g : Z ⟶ B) {T : Over S} (a : ofOver T ⟶ B) :
+    (fiberPullbackIso g a).hom ≫ pullback.fst a g = fiberFst g a :=
+  (ReasLibPullback.isPullback a g).isoPullback_hom_fst
+
+/-- The canonical comparison preserves the projection to `Z`. -/
+theorem fiberPullbackIso_hom_snd {S : Scheme.{u}} {Z B : AlgebraicSpace S}
+    (g : Z ⟶ B) {T : Over S} (a : ofOver T ⟶ B) :
+    (fiberPullbackIso g a).hom ≫ pullback.snd a g = fiberSnd g a :=
+  (ReasLibPullback.isPullback a g).isoPullback_hom_snd
+
+/-- The inverse comparison preserves the projection to the test scheme. -/
+theorem fiberPullbackIso_inv_fst {S : Scheme.{u}} {Z B : AlgebraicSpace S}
+    (g : Z ⟶ B) {T : Over S} (a : ofOver T ⟶ B) :
+    (fiberPullbackIso g a).inv ≫ fiberFst g a = pullback.fst a g :=
+  (ReasLibPullback.isPullback a g).isoPullback_inv_fst
+
+/-- The inverse comparison preserves the projection to `Z`. -/
+theorem fiberPullbackIso_inv_snd {S : Scheme.{u}} {Z B : AlgebraicSpace S}
+    (g : Z ⟶ B) {T : Over S} (a : ofOver T ⟶ B) :
+    (fiberPullbackIso g a).inv ≫ fiberSnd g a = pullback.snd a g :=
+  (ReasLibPullback.isPullback a g).isoPullback_inv_snd
+
+/-- Restriction of scalars satisfies fppf descent. -/
+theorem isSheaf {S : Scheme.{u}} {X Z B : AlgebraicSpace S} (f : X ⟶ Z) (g : Z ⟶ B) :
+    Presheaf.IsSheaf (Scheme.fppfTopology.over S) (restrictionOfScalars f g) := sorry
+
+/-- The fppf sheaf of lifts to `X` over the base changes of `Z`. -/
+def sheaf {S : Scheme.{u}} {X Z B : AlgebraicSpace S} (f : X ⟶ Z) (g : Z ⟶ B) :
+    Sheaf (Scheme.fppfTopology.over S) (Type (u + 1)) :=
+  ⟨restrictionOfScalars f g, isSheaf f g⟩
+
+/-- Sections of restriction of scalars are pairs over the test scheme. -/
+theorem sheaf_obj {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
+    (f : X ⟶ Z) (g : Z ⟶ B) (T : Over S) :
+    (sheaf f g).obj.obj (op T) = Pair f g T := rfl
+
+/-- The structure morphism of restriction of scalars records its base point. -/
+def toBase {S : Scheme.{u}} {X Z B : AlgebraicSpace S} (f : X ⟶ Z) (g : Z ⟶ B) :
+    sheaf f g ⟶ toSheaf.obj B :=
+  ObjectProperty.homMk (toFunctorOfPoints f g)
+
+/-- The structure morphism has the same components as the presheaf projection. -/
+theorem toBase_app {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
+    (f : X ⟶ Z) (g : Z ⟶ B) (T : (Over S)ᵒᵖ) :
+    (toBase f g).hom.app T = (toFunctorOfPoints f g).app T := rfl
+
+/-- The structure morphism sends a pair to the Yoneda point of its base morphism. -/
+theorem toBase_spec {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
+    (f : X ⟶ Z) (g : Z ⟶ B) {T : Over S} (p : Pair f g T) :
+    (toBase f g).hom.app (op T) p = ULift.up (yonedaEquiv p.base) := rfl
 
 end AlgebraicGeometry.AlgebraicSpace.RestrictionOfScalars

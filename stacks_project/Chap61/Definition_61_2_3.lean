@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.WLocal
@@ -27,7 +21,7 @@ spectral and sends closed points to closed points. -/
   [TopologicalSpace X] [TopologicalSpace Y] [WLocalSpace X] [WLocalSpace Y],
   (X → Y) → Prop)
 
-#check (IsWLocalMap.spec : ∀ {X : Type u} {Y : Type v}
+#check (isWLocalMap_iff : ∀ {X : Type u} {Y : Type v}
   [TopologicalSpace X] [TopologicalSpace Y] [WLocalSpace X] [WLocalSpace Y]
   (f : X → Y), IsWLocalMap f ↔
   IsSpectralMap f ∧ Set.MapsTo f (closedPoints X) (closedPoints Y))

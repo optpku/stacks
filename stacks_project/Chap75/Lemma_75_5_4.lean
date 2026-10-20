@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_5_4_Cohomology
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Limit.Cohomology
 import StacksCheckRecall
 
 @[expose] public section

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.LinearAlgebra.Matrix.Notation
@@ -63,6 +57,7 @@ theorem residueSectionIntegers_apply (place : closedPoints X.left)
       algebraMap (X.left.presheaf.stalk place.1) (completionIntegers X place)
         (residueSection X place residue) := sorry
 
+omit [Fintype k] in
 /-- The diagonal matrices with entries `(π⁻¹, 1)` and `(π, 1)` are mutual inverses. -/
 theorem heckeDiag_inverse (place : closedPoints X.left) (parameter : (completion X place)ˣ) :
     Matrix.diagonal (fun index : Fin 2 ↦ if index = 0 then parameter.inv else 1) *
@@ -70,6 +65,7 @@ theorem heckeDiag_inverse (place : closedPoints X.left) (parameter : (completion
       Matrix.diagonal (fun index : Fin 2 ↦ if index = 0 then parameter.val else 1) *
         Matrix.diagonal (fun index : Fin 2 ↦ if index = 0 then parameter.inv else 1) = 1 := sorry
 
+omit [Fintype k] in
 /-- The diagonal local Hecke representative with entries `(π⁻¹, 1)`. -/
 def heckeDiag (place : closedPoints X.left) (parameter : (completion X place)ˣ) :
     GL (Fin 2) (completion X place) where
@@ -78,6 +74,7 @@ def heckeDiag (place : closedPoints X.left) (parameter : (completion X place)ˣ)
   val_inv := (heckeDiag_inverse X place parameter).1
   inv_val := (heckeDiag_inverse X place parameter).2
 
+omit [Fintype k] in
 /-- The lower-triangular matrices with rows `(1, 0), (-π⁻¹r, π⁻¹)` and
 `(1, 0), (r, π)` are mutual inverses. -/
 theorem heckeUnip_inverse (place : closedPoints X.left) (parameter : (completion X place)ˣ)
@@ -87,6 +84,7 @@ theorem heckeUnip_inverse (place : closedPoints X.left) (parameter : (completion
       !![1, 0; representative, parameter.val] *
         !![1, 0; -parameter.inv * representative, parameter.inv] = 1 := sorry
 
+omit [Fintype k] in
 /-- The lower-triangular local Hecke representative with rows `(1, 0), (-π⁻¹r, π⁻¹)`. -/
 def heckeUnip (place : closedPoints X.left) (parameter : (completion X place)ˣ)
     (representative : completion X place) : GL (Fin 2) (completion X place) where

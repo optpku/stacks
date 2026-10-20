@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_36_4_Etale
-public import stacks_project.Chap101.Lemma_101_36_4_Unramified
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Etale.Unramified
+import StacksCheckRecall
 
 /-!
 # Étale morphisms of algebraic stacks are unramified
@@ -22,12 +16,9 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 101.36.4: An étale morphism of algebraic stacks is unramified. -/
-@[stacks 0CIW]
-instance unramified_of_etale {S : Scheme.{u}}
-    {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
-    (f : X ⟶ Y) [Etale f] :
-    Unramified f :=
-  sorry
+/- Lemma 101.36.4: An étale morphism of algebraic stacks is unramified. -/
+@[stacks 0CIW] #check (AlgebraicGeometry.AlgebraicStack.unramified_of_etale :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+    (f : X ⟶ Y) [Etale f], Unramified f)
 
 end AlgebraicGeometry.AlgebraicStack

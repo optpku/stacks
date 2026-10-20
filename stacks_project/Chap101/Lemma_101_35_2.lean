@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_36_4_Etale
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Etale.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of étale morphisms of algebraic stacks
@@ -25,15 +20,16 @@ namespace AlgebraicGeometry.AlgebraicStack
 
 namespace Etale
 
-/-- Lemma 101.35.2: The composition of étale morphisms is étale.
+/- Lemma 101.35.2: The composition of étale morphisms is étale.
 
 Stacks writes the composition as `g ∘ f`; the Lean composite is `f ≫ g`. -/
-@[stacks 0CIM]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+@[stacks 0CIM] #check (AlgebraicGeometry.AlgebraicStack.Etale.comp :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [Etale f] [Etale g] :
-    Etale (f ≫ g) :=
-  sorry
+    (f : X ⟶ Y) (g : Y ⟶ Z)
+    [AlgebraicGeometry.AlgebraicStack.Etale f]
+    [AlgebraicGeometry.AlgebraicStack.Etale g],
+    AlgebraicGeometry.AlgebraicStack.Etale (f ≫ g))
 
 end Etale
 

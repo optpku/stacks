@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.FieldTheory.Separable
-public import Mathlib.LinearAlgebra.FiniteDimensional.Defs
-public import stacks_project.Chap67.Definition_67_41_1_ValuativeCriterion
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.FiniteSeparable
+import StacksCheckRecall
 
 /-!
 # Finite separable extensions suffice for the existence part of the valuative criterion
@@ -25,36 +18,12 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-namespace ValuativeCriterion.Existence
+open AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.41.3: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
-algebraic spaces over `S`. Then `f` satisfies the existence part of the
-valuative criterion as in Definition 67.41.1 if and only if `f` satisfies the
-existence part of the valuative criterion as in Definition 67.41.1 modified by
-requiring the extension `K'/K` to be finite separable. -/
-@[stacks 03KH]
-theorem iff_exists_finiteSeparable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    Existence f ↔ ∀ sq : ValuativeCommSq f,
-      ∃ e : sq.Extension, FiniteDimensional sq.K e.K' ∧ Algebra.IsSeparable sq.K e.K' :=
-  sorry
-
-/-- If every valuative square admits a dominating extension with finite
-separable fraction-field extension, then `f` satisfies the existence part of
-the valuative criterion. -/
-theorem of_exists_finiteSeparable {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
-    (h : ∀ sq : ValuativeCommSq f,
-      ∃ e : sq.Extension, FiniteDimensional sq.K e.K' ∧ Algebra.IsSeparable sq.K e.K') :
-    Existence f :=
-  sorry
-
-/-- If `f` satisfies the existence part of the valuative criterion, then every
-valuative square admits a dominating extension whose fraction-field extension
-is finite separable. -/
-theorem exists_finiteSeparable {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
-    [Existence f] (sq : ValuativeCommSq f) :
-    ∃ e : sq.Extension, FiniteDimensional sq.K e.K' ∧ Algebra.IsSeparable sq.K e.K' :=
-  sorry
-
-end ValuativeCriterion.Existence
-end AlgebraicGeometry.AlgebraicSpace
+/- Lemma 67.41.3: The existence part of the valuative criterion is equivalent
+to requiring finite separable fraction-field extensions. -/
+@[stacks 03KH] #check
+  (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.Existence.iff_exists_finiteSeparable :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+      ValuativeCriterion.Existence f ↔ ∀ sq : ValuativeCommSq f,
+        ∃ e : sq.Extension, FiniteDimensional sq.K e.K' ∧ Algebra.IsSeparable sq.K e.K')

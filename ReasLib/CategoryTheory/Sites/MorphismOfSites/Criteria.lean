@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Constructions.LimitsOfProductsAndEqualizers
@@ -60,7 +54,7 @@ end RepresentablyFlat
 
 namespace IsMorphismOfSites
 
-/-- Proposition 7.14.7 (00X6): a continuous functor preserving a terminal object and pullbacks
+/-- A continuous functor preserving a terminal object and pullbacks
 defines a morphism of sites. -/
 @[stacks 00X6]
 theorem of_preservesTerminal_and_pullbacks

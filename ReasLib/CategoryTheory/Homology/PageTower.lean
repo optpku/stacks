@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Abelian.Subobject
@@ -1292,7 +1286,9 @@ end PageQuotient
 
 section Infinity
 
-variable (P : HomologyPageTower C) [CompleteLattice (Subobject (P.page 1))]
+variable [LocallySmall.{v} C] [WellPowered.{v} C]
+  [HasWidePullbacks.{v} C] [HasCoproducts.{v} C]
+variable (P : HomologyPageTower C)
 
 /-- The eventual cycle subobject `Z_infinity = inf_r Z_r`. -/
 @[stacks 011O, stacks 0AMI "eventual cycle subobject"]
@@ -1450,22 +1446,22 @@ theorem infinityPage_isIsomorphic (L : LimitStages P) :
 
 section Canonical
 
+variable [LocallySmall.{v} C] [WellPowered.{v} C]
+  [HasWidePullbacks.{v} C] [HasCoproducts.{v} C]
+
 /-- The canonical eventual boundary is the least upper bound of finite boundary stages. -/
 @[stacks 011O, stacks 0AMI "canonical tower boundary least upper bound"]
-theorem boundaryInfinity_isLUB (P : HomologyPageTower C)
-    [CompleteLattice (Subobject (P.page 1))] :
+theorem boundaryInfinity_isLUB (P : HomologyPageTower C) :
     IsLUB (Set.range P.boundary) P.boundaryInfinity := sorry
 
 /-- The canonical eventual cycle is the greatest lower bound of finite cycle stages. -/
 @[stacks 011O, stacks 0AMI "canonical tower cycle greatest lower bound"]
-theorem cycleInfinity_isGLB (P : HomologyPageTower C)
-    [CompleteLattice (Subobject (P.page 1))] :
+theorem cycleInfinity_isGLB (P : HomologyPageTower C) :
     IsGLB (Set.range P.cycle) P.cycleInfinity := sorry
 
-/-- Complete subobject lattices provide the canonical package of tower limit stages. -/
+/-- The canonical complete subobject lattice provides the tower limit stages. -/
 @[stacks 011O, stacks 0AMI "canonical homology-page-tower limit stages"]
-noncomputable def canonical (P : HomologyPageTower C)
-    [CompleteLattice (Subobject (P.page 1))] : LimitStages P where
+noncomputable def canonical (P : HomologyPageTower C) : LimitStages P where
   toData :=
     { boundary := P.boundaryInfinity
       cycle := P.cycleInfinity }
@@ -1475,15 +1471,13 @@ noncomputable def canonical (P : HomologyPageTower C)
 /-- The boundary component of canonical tower limit stages is the existing supremum-defined
 eventual boundary. -/
 @[simp, stacks 011O, stacks 0AMI "canonical tower limit boundary"]
-theorem canonical_boundary (P : HomologyPageTower C)
-    [CompleteLattice (Subobject (P.page 1))] :
+theorem canonical_boundary (P : HomologyPageTower C) :
     (canonical P).boundary = P.boundaryInfinity := sorry
 
 /-- The cycle component of canonical tower limit stages is the existing infimum-defined
 eventual cycle. -/
 @[simp, stacks 011O, stacks 0AMI "canonical tower limit cycle"]
-theorem canonical_cycle (P : HomologyPageTower C)
-    [CompleteLattice (Subobject (P.page 1))] :
+theorem canonical_cycle (P : HomologyPageTower C) :
     (canonical P).cycle = P.cycleInfinity := sorry
 
 end Canonical

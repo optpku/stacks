@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import Mathlib.Tactic.CrossRefAttribute
@@ -26,7 +20,7 @@ namespace CategoryTheory.Functor
 variable {A : Type uA} {B : Type uB} {C : Type uC}
 variable [Category.{vA} A] [Category.{vB} B] [Category.{vC} C]
 
-/-- Lemma 4.33.12 (Stacks 09WV): the composite of two fibered functors is fibered. -/
+/-- The composite of two fibered functors is fibered. -/
 @[stacks 09WV]
 theorem IsFibered.compFunctor
     (F : A ⥤ B) (G : B ⥤ C) [F.IsFibered] [G.IsFibered] :

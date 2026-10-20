@@ -1,48 +1,32 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap62.Lemma_62_13_2_Comp
-import Mathlib.Tactic.CrossRefAttribute
-
-/-!
-# Associativity of the fibre-cycle action with composition of families
-
-This file records that the action of families of cycles on fibres is
-associative with the composition of such families.
--/
-
-@[expose] public section
+import StacksCheckRecall
+import ReasLib.AlgebraicGeometry.Scheme.Morphism.CyclesOnFibers.Composition.Cap
 
 open AlgebraicGeometry CategoryTheory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.Scheme.Hom
-namespace CyclesOnFibers
+namespace AlgebraicGeometry.Scheme.Hom.CyclesOnFibers
 
-/-- Lemma 62.13.7: Let `(S, δ)` be as in Situation 42.7.1. Let `X ⟶ Y ⟶ Z` be
-morphisms of schemes locally of finite type over `S`. Let `α` be a family of
-`r`-cycles on fibres of `X / Y`, `β` a family of `s`-cycles on fibres of
-`Y / Z`, and `γ ∈ Z_e(Z)`. Then `cap p (f ≫ g) δ (comp g f α β) γ` equals
-`cap (g ≫ p) f δ α (cap p g δ β γ)` in `Z_{r+s+e}(X)`. -/
-@[stacks 0H6P]
-theorem cap_comp {S X Y Z : Scheme.{u}} [UniversallyCatenary S]
-    (p : Z ⟶ S) (g : Y ⟶ Z) (f : X ⟶ Y)
-    [LocallyOfFiniteType p] [LocallyOfFiniteType g] [LocallyOfFiniteType f]
-    (δ : S → ℤ) [IsDimensionFunction δ] {r s e : ℤ}
-    (α : CyclesOnFibers f r) (β : CyclesOnFibers g s)
-    (γ : CycleGroup Z (p.relativeDimensionFunction δ) e) :
-    CycleGroup.toAlgebraicCycle (((f ≫ g) ≫ p).relativeDimensionFunction δ)
-        (r + s + e) (cap p (f ≫ g) δ (comp g f α β) γ) =
-      CycleGroup.toAlgebraicCycle ((f ≫ g ≫ p).relativeDimensionFunction δ)
-        (r + (s + e)) (cap (g ≫ p) f δ α (cap p g δ β γ)) := sorry
+/- Lemma 62.13.7. Let `(S, δ)` be as in Situation 42.7.1, and let
+`X ⟶ Y ⟶ Z` be morphisms of schemes locally of finite type over `S`.
+Composition of families of `r`- and `s`-cycles on fibres, followed by the cap
+action of an `e`-cycle on `Z`, equals the successive cap actions in degree
+`r + s + e` on `X`, for nonnegative `r`, `s`, and `e`.
+-/
+@[stacks 0H6P] #check
+  (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.cap_comp :
+    ∀ {S X Y Z : Scheme.{u}} [UniversallyCatenary S]
+      (p : Z ⟶ S) (g : Y ⟶ Z) (f : X ⟶ Y)
+      [LocallyOfFiniteType p] [LocallyOfFiniteType g] [LocallyOfFiniteType f]
+      (δ : S → ℤ) [IsDimensionFunction δ] {r s e : ℕ}
+      (α : CyclesOnFibers f (r : ℤ)) (β : CyclesOnFibers g (s : ℤ))
+      (γ : CycleGroup Z (p.relativeDimensionFunction δ) (e : ℤ)),
+      CycleGroup.toAlgebraicCycle (((f ≫ g) ≫ p).relativeDimensionFunction δ)
+          ((r : ℤ) + (s : ℤ) + (e : ℤ)) (cap p (f ≫ g) δ (comp α β) γ) =
+        CycleGroup.toAlgebraicCycle ((f ≫ g ≫ p).relativeDimensionFunction δ)
+          ((r : ℤ) + ((s : ℤ) + (e : ℤ)))
+          (cap (g ≫ p) f δ α (cap p g δ β γ)))
 
-end CyclesOnFibers
-end AlgebraicGeometry.Scheme.Hom
+end AlgebraicGeometry.Scheme.Hom.CyclesOnFibers

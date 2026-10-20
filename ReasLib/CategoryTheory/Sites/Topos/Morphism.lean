@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
@@ -42,6 +36,32 @@ scoped notation:100 f "_*" => LeftExactAdjunction.pushforward f
 /-- The inverse image of a morphism of topoi preserves finite limits. -/
 theorem inverseImage_preservesFiniteLimits (f : MorphismOfTopoiIn J K) :
     PreservesFiniteLimits f.inverseImage := sorry
+
+section Terminal
+
+variable {JC : GrothendieckTopology C} {JD : GrothendieckTopology D}
+
+/-- Inverse image along a morphism of topoi preserves the chosen terminal
+type-valued sheaf. -/
+noncomputable def inverseImageTerminalIso
+    (f : MorphismOfTopoiIn JD JC) :
+    f.inverseImage.obj
+        (Sheaf.terminal JD Types.isTerminalPUnit : Sheaf JD (Type w)) ≅
+      (Sheaf.terminal JC Types.isTerminalPUnit : Sheaf JC (Type w)) :=
+  LeftExactAdjunction.inverseImageTerminalIso f
+    (Sheaf.isTerminalTerminal JD Types.isTerminalPUnit)
+    (Sheaf.isTerminalTerminal JC Types.isTerminalPUnit)
+
+/-- The terminal comparison's forward map is the unique map to the terminal sheaf. -/
+@[simp]
+theorem inverseImageTerminalIso_hom (f : MorphismOfTopoiIn JD JC) :
+    f.inverseImageTerminalIso.hom =
+      (Sheaf.isTerminalTerminal JC Types.isTerminalPUnit).from
+        (f.inverseImage.obj
+          (Sheaf.terminal JD Types.isTerminalPUnit : Sheaf JD (Type w))) := by
+  rfl
+
+end Terminal
 
 /-- The identity morphism of the topos Sh(C, J). -/
 def id (J : GrothendieckTopology C) : MorphismOfTopoiIn J J :=

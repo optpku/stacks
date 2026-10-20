@@ -1,17 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap106.Lemma_106_3_2_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Thickening.Representable
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry
 open AlgebraicGeometry.AlgebraicStack
-open AlgebraicGeometry.AlgebraicStack.IsThickening
 open scoped Bicategory
 
 universe u
@@ -20,10 +13,20 @@ universe u
 thickening of algebraic stacks (abuse of language) if and only if it is
 representable by algebraic spaces and a thickening in the sense of Properties
 of Stacks, Section 100.3. -/
-@[stacks 0CJ7] #check iff_has
+@[stacks 0CJ7] #check (AlgebraicGeometry.AlgebraicStack.IsThickening.iff_has :
+  ∀ {S : Scheme.{u}} {X X' : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack X'] (i : X ⟶ X'),
+    IsThickening i ↔ relativelyRepresentableByAlgebraicSpaces i ∧
+      Groupoids.Hom.has (@AlgebraicSpace.IsThickening S) i)
 
 /- Lemma 106.3.2 (2): in this case `i` is a closed immersion. -/
-@[stacks 0CJ7] #check IsThickening.toClosedImmersion
+@[stacks 0CJ7] #check (AlgebraicGeometry.AlgebraicStack.IsThickening.toClosedImmersion :
+  ∀ {S : Scheme.{u}} {X X' : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack X'] {i : X ⟶ X'} [IsThickening i],
+    Groupoids.Hom.ClosedImmersion i)
 
 /- Lemma 106.3.2 (3): in this case `i` is a universal homeomorphism. -/
-@[stacks 0CJ7] #check instUniversalHomeomorphism
+@[stacks 0CJ7] #check (AlgebraicGeometry.AlgebraicStack.IsThickening.instUniversalHomeomorphism :
+  ∀ {S : Scheme.{u}} {X X' : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack X'] (i : X ⟶ X') [IsThickening i],
+    UniversalHomeomorphism i)

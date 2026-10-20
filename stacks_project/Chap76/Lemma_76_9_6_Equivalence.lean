@@ -1,28 +1,14 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_18_8_Representable
-public import stacks_project.Chap76.Lemma_76_9_2_Thickening
-
-@[expose] public section
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Thickening
 
 open AlgebraicGeometry CategoryTheory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- For a thickening `i : X ⟶ X'` of algebraic spaces, base change along `i`
-induces an equivalence from the small étale site of `X'` to the small étale
-site of `X`. -/
-instance smallEtalePullback.isEquivalence_of_isThickening
-    {S : Scheme.{u}} {X X' : AlgebraicSpace S} (i : X ⟶ X') [IsThickening i]
-    (hf : yoneda.relativelyRepresentable i) :
-    (smallEtalePullback i hf).IsEquivalence := sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+#check
+  (@AlgebraicGeometry.AlgebraicSpace.smallEtalePullback.isEquivalence_of_isThickening :
+    ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (i : X ⟶ X')
+      [AlgebraicGeometry.AlgebraicSpace.IsThickening i]
+      (hf : yoneda.relativelyRepresentable i),
+      (AlgebraicGeometry.AlgebraicSpace.smallEtalePullback i hf).IsEquivalence)

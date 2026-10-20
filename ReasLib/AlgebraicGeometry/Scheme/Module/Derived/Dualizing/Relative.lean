@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion
@@ -24,6 +18,8 @@ open scoped CategoryTheory.MonObj
 noncomputable section
 
 universe u
+
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
 
 namespace AlgebraicGeometry.Scheme.RelativeDualizingComplex
 
@@ -82,6 +78,10 @@ the diagonal and a closed factorization `δ : X ⟶ W.toScheme`, consists of an 
 complex and the map whose induced internal-Hom morphism is invertible. -/
 structure RelativeDualizingComplex {X S : Scheme.{u}} (f : X ⟶ S)
     [Flat f] [LocallyOfFinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     (W : (pullback f f).Opens) (δ : X ⟶ W.toScheme) [IsClosedImmersion δ]
     (hδ : δ ≫ W.ι = pullback.diagonal f)
     [MonoidalCategory (RingedSpace.ModuleDerived X.toRingedSpace)]
@@ -105,6 +105,10 @@ namespace RelativeDualizingComplex
 properties. -/
 def of {X S : Scheme.{u}} (f : X ⟶ S)
     [Flat f] [LocallyOfFinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     (W : (pullback f f).Opens) (δ : X ⟶ W.toScheme) [IsClosedImmersion δ]
     (hδ : δ ≫ W.ι = pullback.diagonal f)
     [MonoidalCategory (RingedSpace.ModuleDerived X.toRingedSpace)]
@@ -127,6 +131,10 @@ def of {X S : Scheme.{u}} (f : X ⟶ S)
 dualizing complex. -/
 theorem spec {X S : Scheme.{u}} {f : X ⟶ S}
     [Flat f] [LocallyOfFinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     {W : (pullback f f).Opens} {δ : X ⟶ W.toScheme} [IsClosedImmersion δ]
     {hδ : δ ≫ W.ι = pullback.diagonal f}
     [MonoidalCategory (RingedSpace.ModuleDerived X.toRingedSpace)]
@@ -140,6 +148,10 @@ theorem spec {X S : Scheme.{u}} {f : X ⟶ S}
 /-- A flat, locally finitely presented morphism of schemes admits a relative dualizing
 complex on an open neighborhood of its diagonal. -/
 theorem existsRelativeDualizingComplex {X S : Scheme.{u}} (f : X ⟶ S) [Flat f] [LocallyOfFinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     [monoidalX : MonoidalCategory (RingedSpace.ModuleDerived X.toRingedSpace)] :
     ∃ (W : (pullback f f).Opens) (δ : X ⟶ W.toScheme)
       (h_closed : IsClosedImmersion δ)
@@ -152,7 +164,7 @@ theorem existsRelativeDualizingComplex {X S : Scheme.{u}} (f : X ⟶ S) [Flat f]
         (RingedSpace.moduleDerivedPushforward δ.toShHom))
       (H : @MonoidalClosed (RingedSpace.ModuleDerived W.toScheme.toRingedSpace)
         inferInstance monoidalW),
-      Nonempty (@Scheme.RelativeDualizingComplex X S f inferInstance inferInstance W δ
+      Nonempty (@Scheme.RelativeDualizingComplex X S f inferInstance inferInstance inferInstance W δ
         h_closed hδ monoidalX monoidalW laxPushforward H) := sorry
 
 end RelativeDualizingComplex

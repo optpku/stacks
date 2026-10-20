@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.WeilCohomology.ChernCharacter
@@ -35,7 +29,7 @@ value on a line bundle `L` is `exp(c₁ᴴ(L))`. -/
       (Hdiag : ∀ X, ℕ → Submodule ℤ (H.obj (Opposite.op X)))
       [∀ X, GradedAlgebra (Hdiag X)]
       [∀ X, Algebra ℚ (H.obj (Opposite.op X))]
-      (S : AlgebraicGeometry.ChernClass.Theory
+      (S : AlgebraicGeometry.ChernClass.CohomologyTheory
         (geometry.scheme ⋙ Over.forget (Spec (CommRingCat.of k))) H Hdiag),
       ∃ ch : AlgebraicGeometry.ChernClass.ChernCharacter
           (geometry.scheme ⋙ Over.forget (Spec (CommRingCat.of k))) H Hdiag

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Triangulated.TStructure.TruncLEGT
@@ -23,7 +17,7 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.SmallEtale.DerivedQCoh
+namespace AlgebraicGeometry.AlgebraicSpace.DerivedQCoh
 
 /-- For a perfect derived module on a quasi-compact absolutely quasi-separated algebraic space,
 eventual vanishing of morphisms out of negative shifts into a derived quasicoherent object is
@@ -45,4 +39,14 @@ theorem extSubsingletonEventually_iff_truncGE {S : Scheme.{u}} {X : AlgebraicSpa
       ∀ᶠ i : ℤ in Filter.atTop,
         Subsingleton (Ext⁽i⁾(P, (t.truncGE a).obj E.obj)) := sorry
 
-end AlgebraicGeometry.AlgebraicSpace.SmallEtale.DerivedQCoh
+/-- For a perfect derived module on a quasi-compact absolutely quasi-separated algebraic space,
+vanishing of Ext into a derived quasicoherent object in sufficiently negative degrees is equivalent
+to the same vanishing after any upper truncation of the target. -/
+theorem extSubsingletonEventually_iff_truncLE {S : Scheme.{u}} {X : AlgebraicSpace S}
+    [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X] {P : ModuleDerived X}
+    (hP : ModuleDerived.IsPerfect P) (E : DerivedQCoh X) (a : ℤ) :
+    (∃ n₀ : ℤ, ∀ i : ℤ, i ≤ n₀ → Subsingleton (Ext⁽i⁾(P, E.obj))) ↔
+      ∃ n₀ : ℤ, ∀ i : ℤ, i ≤ n₀ →
+        Subsingleton (Ext⁽i⁾(P, (t.truncLE a).obj E.obj)) := sorry
+
+end AlgebraicGeometry.AlgebraicSpace.DerivedQCoh

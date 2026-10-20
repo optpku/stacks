@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -18,6 +12,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.DerivedQCoh
 
 /- Lemma 37.69.6: for a separated, finitely presented, flat morphism
@@ -27,7 +23,12 @@ perfect `E`, then `K` is perfect relative to `Spec A`. -/
   (AlgebraicGeometry.Scheme.DerivedQCoh.isPerfectOver_of_globalSectionsTensor :
     {A : Type u} → [CommRing A] → {X : Scheme.{u}} →
       (f : X ⟶ Spec (CommRingCat.of A)) → [IsSeparated f] →
-      [Scheme.Hom.FinitePresentation f] → [Flat f] → (K : DerivedQCoh X) →
+      [Scheme.Hom.FinitePresentation f] → [Flat f] →
+      [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+        DerivedCategory.DerivedTensor.Right.Has
+          (C := RingedSpace.Modules
+            ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))] →
+      [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] → (K : DerivedQCoh X) →
       (∀ E : RingedSpace.ModuleDerived X.toRingedSpace,
         RingedSpace.ModuleDerived.IsPerfect E →
           DerivedCategory.IsPerfect

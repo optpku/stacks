@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.HomotopyCategory.KInjective
@@ -35,6 +29,12 @@ open scoped CategoryTheory.DerivedCategory.DerivedTensor ZeroObject
 noncomputable section
 
 universe u
+
+-- Local instance justification (defeq pin): use the exact transported tensor and its dependent additivity and totalization structures so the derived tensor-power construction agrees definitionally with the shared derived tensor instance.
+attribute [local instance]
+  AlgebraicGeometry.AlgebraicSpace.Modules.modulesMonoidalCategory
+  AlgebraicGeometry.AlgebraicSpace.Modules.modulesMonoidalPreadditive
+  AlgebraicGeometry.AlgebraicSpace.Modules.modulesHasMapBifunctor
 
 namespace AlgebraicGeometry.AlgebraicSpace.Modules
 

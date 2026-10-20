@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Limits
@@ -47,14 +41,49 @@ theorem space_isSheaf {S : Scheme.{u}} (B : AlgebraicSpace S) (n : ℕ) [NeZero 
 linear space. -/
 theorem space_representableDiagonal {S : Scheme.{u}} (B : AlgebraicSpace S) (n : ℕ) [NeZero n] :
     yoneda.relativelyRepresentable
-      (Limits.diag (B.functorOfPoints ⨯ (ofScheme S n).functorOfPoints)) := sorry
+      (Limits.diag (B.functorOfPoints ⨯ (ofScheme S n).functorOfPoints)) := by
+  apply Functor.relativelyRepresentable.diag_of_map_from_obj
+  intro U x
+  let F := B.functorOfPoints
+  let G := (ofScheme S n).functorOfPoints
+  let H := ⊤_ ((Over S)ᵒᵖ ⥤ Type u)
+  let terminalDiagonalIso : H ≅ H ⨯ H :=
+    { hom := Limits.diag H
+      inv := prod.fst
+      hom_inv_id := prod.lift_fst (𝟙 H) (𝟙 H)
+      inv_hom_id := by
+        apply prod.hom_ext
+        · exact terminalIsTerminal.hom_ext _ _
+        · exact terminalIsTerminal.hom_ext _ _ }
+  let e := prodIsoPullback F G
+  have hx := Functor.relativelyRepresentable.PullbackDiagonal.sectionRepresentable
+    (terminal.from F) (terminal.from G) B.representableDiagonal
+    (ofOver_representableDiagonal
+      (AlgebraicGeometry.GeneralLinear.baseChange
+        (specULiftZIsTerminal.from S) (ULift.{u} (Fin n))).X)
+    (@Functor.relativelyRepresentable.of_isIso _ _ _ _ yoneda _ _
+      terminalDiagonalIso.hom terminalDiagonalIso.isIso_hom) (x ≫ e.hom)
+  have hx' := (yoneda.relativelyRepresentable).comp_mem _ _ hx
+    (Functor.relativelyRepresentable.of_isIso yoneda e.inv)
+  simpa only [F, G, Category.assoc, e.hom_inv_id, Category.comp_id] using hx'
 
 /-- The étale atlas condition for the functor-of-points product defining the general linear space. -/
 theorem space_hasAtlas {S : Scheme.{u}} (B : AlgebraicSpace S) (n : ℕ) [NeZero n] :
     ∃ (U : Over S) (p : yoneda.obj U ⟶
         B.functorOfPoints ⨯ (ofScheme S n).functorOfPoints),
       (MorphismProperty.over (@Etale)).presheaf p ∧
-      Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p := sorry
+      Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p := by
+  let U := B.atlas.choose
+  let atlasMap := B.atlas.choose_spec.choose
+  let V := (AlgebraicGeometry.GeneralLinear.baseChange
+    (specULiftZIsTerminal.from S) (ULift.{u} (Fin n))).X
+  let p : yoneda.obj (U ⨯ V) ⟶
+      B.functorOfPoints ⨯ yoneda.obj V :=
+    prodComparison yoneda U V ≫ prod.map atlasMap (𝟙 (yoneda.obj V))
+  refine ⟨U ⨯ V, p, ?_, ?_⟩
+  · exact ⟨Functor.relativelyRepresentable.of_diag (space_representableDiagonal B n) p,
+      by sorry⟩
+  · sorry
 
 /-- The general linear group algebraic space `GLₙ,B = B ×_S GLₙ,S` over `S`. -/
 def space {S : Scheme.{u}} (B : AlgebraicSpace S) (n : ℕ) [NeZero n] : AlgebraicSpace S :=

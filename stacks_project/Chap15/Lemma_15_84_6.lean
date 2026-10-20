@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.InternalHom.BaseChange.Tensor.Relative
@@ -36,6 +30,7 @@ namespace CategoryTheory.DerivedCategory.InternalHom
 
 variable {R A : Type u} [CommRing R] [CommRing A] [Algebra R A]
 variable [Module.Flat R A]
+variable [hasRHom : RHom.Has.{u, u} (A := A)]
 variable {K L : DerivedCategory (ModuleCat A)}
 
 /- Lemma 15.84.6, choices (1)--(2) and conclusion (a): a pseudo-coherent source and a target of
@@ -70,6 +65,8 @@ canonical `RHom` over `A'`. -/
 @[stacks 0E1U "conclusion (b), base change"]
 #check fun {R A R' : Type u} [CommRing R] [CommRing A] [CommRing R']
     [Algebra R A] [Algebra R R'] [Module.Flat R A]
+    [hasSourceRHom : DerivedCategory.InternalHom.RHom.Has.{u, u} (A := A)]
+    [hasTargetRHom : DerivedCategory.InternalHom.RHom.Has.{u, u} (A := A ⊗[R] R')]
     {K L : DerivedCategory (ModuleCat A)}
     (M : DerivedCategory.InternalHom.RHom.FiniteTorModel R K L) =>
   (M.baseChange (R' := R') :
@@ -92,6 +89,7 @@ The source-faithful specialization is owned by the reusable `InternalHom.Model.R
 @[stacks 0E1U "finite-presentation refinement"]
 #check fun {R A : Type u} [CommRing R] [CommRing A] [Algebra R A]
     [Module.Flat R A] [Algebra.FinitePresentation R A]
+    [hasRHom : DerivedCategory.InternalHom.RHom.Has.{u, u} (A := A)]
     {K L : DerivedCategory (ModuleCat A)}
     (hK : K.IsPseudoCoherent) (hL : L.IsPerfectOver R) =>
   (DerivedCategory.InternalHom.RHom.PerfectModel.nonempty hK hL :

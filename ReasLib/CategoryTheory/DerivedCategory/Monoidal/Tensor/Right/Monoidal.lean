@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.DerivedCategory.Monoidal.Tensor.Right.Model
@@ -78,27 +72,12 @@ noncomputable abbrev functorIsoTensorRight (M : Model (C := C))
     DerivedTensor.Right.functor E ≅ MonoidalCategory.tensorRight E :=
   DerivedTensor.Right.modelIso E (fixedRight M E)
 
-/-- Stacks 064M: reverse comparison from an ambient model family to canonical fixed-right
-derived tensoring. -/
-@[stacks 064M "ambient model family reverse comparison"]
-noncomputable abbrev tensorRightIsoFunctor (M : Model (C := C))
-    (E : DerivedCategory C) [DerivedTensor.Right.Has (C := C)] :
-    MonoidalCategory.tensorRight E ≅ DerivedTensor.Right.functor E :=
-  (functorIsoTensorRight M E).symm
-
 /-- Stacks 064M: objectwise comparison supplied by an ambient model family. -/
 @[stacks 064M "ambient model family object comparison"]
 noncomputable abbrev objIsoTensor (M : Model (C := C))
     (K E : DerivedCategory C) [DerivedTensor.Right.Has (C := C)] :
     DerivedTensor.Right.obj K E ≅ K ⊗ E :=
   (functorIsoTensorRight M E).app K
-
-/-- Stacks 064M: reverse objectwise comparison supplied by an ambient model family. -/
-@[stacks 064M "ambient model family reverse object comparison"]
-noncomputable abbrev tensorIsoObj (M : Model (C := C))
-    (K E : DerivedCategory C) [DerivedTensor.Right.Has (C := C)] :
-    K ⊗ E ≅ DerivedTensor.Right.obj K E :=
-  (objIsoTensor M K E).symm
 
 /-- The forward map of the objectwise model comparison is the corresponding component of the
 functor comparison. -/
@@ -145,14 +124,6 @@ noncomputable def functorIsoUnit (M : Model (C := C)) (E : DerivedCategory C)
     ((curriedTensor (DerivedCategory C)).flip.mapIso s) ≪≫
     rightUnitorNatIso (DerivedCategory C)
 
-/-- Stacks 064M: objectwise form of the fixed-right derived tensor unit comparison. -/
-@[stacks 064M "fixed-right derived tensor unit object comparison"]
-noncomputable abbrev objIsoUnit (M : Model (C := C)) (E : DerivedCategory C)
-    (s : E ≅ 𝟙_ (DerivedCategory C)) (K : DerivedCategory C)
-    [DerivedTensor.Right.Has (C := C)] :
-    DerivedTensor.Right.obj K E ≅ K :=
-  (functorIsoUnit M E s).app K
-
 section Braided
 
 variable [BraidedCategory (DerivedCategory C)]
@@ -164,14 +135,7 @@ noncomputable abbrev tensorLeftIsoFunctor (M : Model (C := C))
     (E : DerivedCategory C) [DerivedTensor.Right.Has (C := C)] :
   MonoidalCategory.tensorLeft E ≅ DerivedTensor.Right.functor E :=
   BraidedCategory.tensorLeftIsoTensorRight E ≪≫
-    tensorRightIsoFunctor M E
-
-/-- Stacks 064M: the objectwise form of the ambient left-tensor comparison. -/
-@[stacks 064M "ambient left tensor object comparison"]
-noncomputable abbrev tensorLeftIsoObj (M : Model (C := C))
-    (K E : DerivedCategory C) [DerivedTensor.Right.Has (C := C)] :
-    E ⊗ K ≅ DerivedTensor.Right.obj K E :=
-  (tensorLeftIsoFunctor M E).app K
+    (functorIsoTensorRight M E).symm
 
 end Braided
 
@@ -207,42 +171,6 @@ noncomputable abbrev functorIsoTensorRightOf (E : DerivedCategory C)
     DerivedTensor.Right.functor E ≅ MonoidalCategory.tensorRight E :=
   DerivedTensor.Right.modelIso E (modelOf E ε h)
 
-/-- Stacks 064M: compare an explicitly presented ambient tensor model with canonical
-fixed-right derived tensoring. -/
-@[stacks 064M "ambient tensor model comparison with fixed-right derivation"]
-noncomputable abbrev tensorRightIsoFunctorOf (E : DerivedCategory C)
-    (ε : DerivedTensor.Right.localization (C := C) ⋙ MonoidalCategory.tensorRight E ⟶
-      DerivedTensor.Right.sourceFunctor E)
-    (h : (MonoidalCategory.tensorRight E).IsLeftDerivedFunctor ε
-      (DerivedTensor.Right.qis (C := C)))
-    [DerivedTensor.Right.Has (C := C)] :
-    MonoidalCategory.tensorRight E ≅ DerivedTensor.Right.functor E :=
-  (functorIsoTensorRightOf E ε h).symm
-
-/-- Stacks 064M: objectwise comparison from canonical fixed-right derived tensoring to an
-explicitly presented ambient tensor model. -/
-@[stacks 064M "fixed-right object comparison with an ambient tensor model"]
-noncomputable abbrev objIsoTensorOf (K E : DerivedCategory C)
-    (ε : DerivedTensor.Right.localization (C := C) ⋙ MonoidalCategory.tensorRight E ⟶
-      DerivedTensor.Right.sourceFunctor E)
-    (h : (MonoidalCategory.tensorRight E).IsLeftDerivedFunctor ε
-      (DerivedTensor.Right.qis (C := C)))
-    [DerivedTensor.Right.Has (C := C)] :
-    DerivedTensor.Right.obj K E ≅ K ⊗ E :=
-  (functorIsoTensorRightOf E ε h).app K
-
-/-- Stacks 064M: objectwise comparison from an explicitly presented ambient tensor model to
-canonical fixed-right derived tensoring. -/
-@[stacks 064M "ambient tensor model object comparison with fixed-right derivation"]
-noncomputable abbrev tensorIsoObjOf (K E : DerivedCategory C)
-    (ε : DerivedTensor.Right.localization (C := C) ⋙ MonoidalCategory.tensorRight E ⟶
-      DerivedTensor.Right.sourceFunctor E)
-    (h : (MonoidalCategory.tensorRight E).IsLeftDerivedFunctor ε
-      (DerivedTensor.Right.qis (C := C)))
-    [DerivedTensor.Right.Has (C := C)] :
-    K ⊗ E ≅ DerivedTensor.Right.obj K E :=
-  (objIsoTensorOf K E ε h).symm
-
 /-- Stacks 064M: the explicit ambient-model comparison intertwines its counit with the
 canonical fixed-right counit. -/
 @[reassoc (attr := simp), stacks 064M "ambient tensor model counit compatibility"]
@@ -266,7 +194,8 @@ theorem objIsoTensorOf_counit (E : DerivedCategory C)
     (h : (MonoidalCategory.tensorRight E).IsLeftDerivedFunctor ε
       (DerivedTensor.Right.qis (C := C)))
     [DerivedTensor.Right.Has (C := C)] (K : HomotopyCategory C (up ℤ)) :
-    (objIsoTensorOf ((DerivedTensor.Right.localization (C := C)).obj K) E ε h).hom ≫
+    (functorIsoTensorRightOf E ε h).hom.app
+        ((DerivedTensor.Right.localization (C := C)).obj K) ≫
         ε.app K = (DerivedTensor.Right.counit E).app K :=
   DerivedTensor.Right.modelIsoApp_counit E (modelOf E ε h) K
 
@@ -326,14 +255,6 @@ noncomputable abbrev functorIsoTensorRight (E : DerivedCategory C)
     DerivedTensor.Right.functor E ≅ MonoidalCategory.tensorRight E :=
   functorIsoTensorRightOf E (sourceIso E).hom (sourceIso_isLeftDerived E)
 
-/-- Stacks 064M: ambient right tensoring agrees with the canonical fixed-right derived tensor
-functor. -/
-@[stacks 064M "ambient tensor is fixed-right derived tensor"]
-noncomputable abbrev tensorRightIsoFunctor (E : DerivedCategory C)
-    [DerivedTensor.Right.Has (C := C)] :
-    MonoidalCategory.tensorRight E ≅ DerivedTensor.Right.functor E :=
-  (functorIsoTensorRight E).symm
-
 /-- Stacks 064M: objectwise comparison from canonical fixed-right derived tensoring to ambient
 right tensoring. -/
 @[stacks 064M "fixed-right derived tensor object is ambient tensor"]
@@ -341,14 +262,6 @@ noncomputable abbrev objIsoTensor (K E : DerivedCategory C)
     [DerivedTensor.Right.Has (C := C)] :
     DerivedTensor.Right.obj K E ≅ K ⊗ E :=
   (functorIsoTensorRight E).app K
-
-/-- Stacks 064M: objectwise comparison from the ambient tensor product to canonical fixed-right
-derived tensoring. -/
-@[stacks 064M "ambient tensor object is fixed-right derived tensor"]
-noncomputable abbrev tensorIsoObj (K E : DerivedCategory C)
-    [DerivedTensor.Right.Has (C := C)] :
-    K ⊗ E ≅ DerivedTensor.Right.obj K E :=
-  (objIsoTensor K E).symm
 
 /-- Stacks 064M: the functor comparison intertwines the ambient-model and canonical
 fixed-right counits. -/

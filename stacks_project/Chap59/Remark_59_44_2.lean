@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -27,7 +21,12 @@ universe u
 
 #check (AlgebraicGeometry.Scheme.Etale.SmallToBig.openImmersionEtalePullbackIso :
   ∀ {X Y : Scheme.{u}} (f : X ⟶ Y) [IsOpenImmersion f] (U : X.Etale),
-    Nonempty ((Scheme.smallEtalePullback f).obj (openImmersionEtaleView f U) ≅ U))
+    (Scheme.smallEtalePullback f).obj (openImmersionEtaleView f U) ≅ U)
+
+#check (AlgebraicGeometry.Scheme.Etale.SmallToBig.openImmersionEtalePullbackIso_hom_left :
+  ∀ {X Y : Scheme.{u}} (f : X ⟶ Y) [IsOpenImmersion f] (U : X.Etale),
+    (openImmersionEtalePullbackIso f U).hom.left =
+      pullback.fst ((U.hom : U.left ⟶ X) ≫ f) f)
 
 /- Remark 59.44.2 (2): Property (C) does not force the small direct image
 of an open immersion to be an exact functor. -/

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap91.Lemma_91_10_4_Obstruction
-public import stacks_project.Chap91.Lemma_91_11_2_Canonical
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.FirstOrderThickening.FlatExistence
+import StacksCheckRecall
 
 /-!
 # Existence of a flat lift across a strict morphism of first-order thickenings
@@ -49,21 +42,21 @@ variable [HasExt.{w} (ringedSiteModuleCategory.{u, v, max u v, max u v} J O)]
 variable (f : OB ⟶ O) [(restrictScalars (ringSheafMap f)).IsRightAdjoint]
 variable (f' : OB' ⟶ O') (hcomm : f' ≫ π = τ ≫ f)
 variable (F : ringedSiteModuleCategory.{u, v, max u v, max u v} J O)
-variable [IsFlat OB ((restrictionAlong f).obj F)]
 
-/-- Lemma 91.11.8: Let `(f, f')` be a morphism of first-order thickenings as in
+/- Lemma 91.11.8: Let `(f, f')` be a morphism of first-order thickenings as in
 Situation 91.9.1. Let `F` be an `O`-module. Assume `(f, f')` is a strict morphism of
 thickenings and `F` is flat over `O_B`. There exists an `O'`-module `F'` flat over
 `O_{B'}` with `i^* F' ≅ F` if and only if the canonical map `f^* J ⊗_O F ⟶ I ⊗_O F`
 is an isomorphism and the class `o(F, I ⊗_O F, 1)` in `Ext^2_O(F, I ⊗_O F)` of
 Lemma 91.10.4 is zero. -/
-@[stacks 08MV]
-theorem exists_flatOver_iff (hstrict : IsStrict f f' hcomm) :
-    (∃ F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O',
+@[stacks 08MV] #check
+  (SheafOfModules.RingedSite.FirstOrderThickening.exists_flatOver_iff f f' hcomm F :
+    ∀ [hflat : IsFlat OB ((restrictionAlong f).obj F)], IsStrict f f' hcomm →
+    ((∃ F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O',
         IsFlat OB' ((restrictionAlong f').obj F') ∧
           Nonempty ((extendScalars (ringSheafMap π)).obj F' ≅ F)) ↔
       IsIso (moduleTensorMap (kernelPullbackMap f f' hcomm) (𝟙 F)) ∧
-        ModuleExtension.obstruction π F (moduleTensor (ideal π) F)
-          (𝟙 (moduleTensor (ideal π) F)) = 0 := sorry
+        ModuleExtension.existenceObstruction π F (moduleTensor (ideal π) F)
+          (𝟙 (moduleTensor (ideal π) F)) = 0))
 
 end SheafOfModules.RingedSite.FirstOrderThickening

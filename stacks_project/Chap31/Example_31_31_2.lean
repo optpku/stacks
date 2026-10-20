@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.IdealClosure.WeightedExample
@@ -45,8 +39,8 @@ universe u v
       AlgebraicGeometry.projClosedSubschemeIdeal 𝒜 I = I ↔
         I.toIdeal = AlgebraicGeometry.projSaturation 𝒜 I)
 
-/- The general formula uses the period of an explicit family of positive homogeneous
-generators. -/
+/- The general formula applies the eventual degree-multiple condition separately to every
+homogeneous component, using the period of explicit positive homogeneous generators. -/
 #check (AlgebraicGeometry.projClosedSubschemeIdeal_eq_degreeMultipleClosure :
   ∀ {A : Type v} [CommRing A] (𝒜 : ℕ → Submodule ℤ A) [GradedAlgebra 𝒜]
     [IsNoetherianRing A] (G : GradedAlgebra.PositiveGenerators 𝒜)
@@ -54,6 +48,16 @@ generators. -/
         (AlgebraicGeometry.projClosedSubschemeIdeal 𝒜 I : Set A) =
           AlgebraicGeometry.projDegreeMultipleClosureSet 𝒜 I.toIdeal
             G.period)
+
+/- On a homogeneous element, the componentwise closure recovers the source formula
+for the degree-`n*d` part of its principal ideal. -/
+#check (AlgebraicGeometry.mem_projDegreeMultipleClosureSet_iff_of_mem :
+  ∀ {R : Type u} {A : Type v} [CommRing R] [CommRing A] [Algebra R A]
+    (𝒜 : ℕ → Submodule R A) [GradedAlgebra 𝒜] (I : Ideal A) (d i : ℕ)
+    {x : A}, x ∈ 𝒜 i →
+      (x ∈ AlgebraicGeometry.projDegreeMultipleClosureSet 𝒜 I d ↔
+        ∀ᶠ n : ℕ in Filter.atTop, ∀ a : A,
+          a ∈ 𝒜 (n * d) → a ∈ Ideal.span ({x} : Set A) → a ∈ I))
 
 /- A closed subscheme of a quasi-compact relative projective spectrum has the canonical
 quotient presentation determined by its restricted ambient twists. -/

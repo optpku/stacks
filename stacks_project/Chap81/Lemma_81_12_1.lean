@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.AffineScheme
-public import stacks_project.Chap65.Definition_65_6_3_Hom
-public import stacks_project.Chap65.Lemma_65_6_2_OfOver
-public import stacks_project.Chap73.Definition_73_4_1_Precoverage
-public import stacks_project.Chap81.Lemma_81_12_1_Glueable
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.BeauvilleLaszlo.Glueable
 
 /-!
 # Lemma 81.12.1
@@ -28,19 +19,17 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 81.12.1: for a Beauville-Laszlo glueing pair `(algebraMap R R', f)` and an
+/- Lemma 81.12.1: for a Beauville-Laszlo glueing pair `(algebraMap R R', f)` and an
 algebraic space `Y` over `X = Spec (CommRingCat.of R)`, existence of an étale covering
 `Y_i ⟶ Y` by affine `ofOver (U i)` with glueable `Γ((U i).left, ⊤)` is equivalent to
 `glueableGlobalSections R' f T` for every étale `φ : ofOver T ⟶ Y` with `T.left`
 affine. -/
-@[stacks 0F9P]
-theorem exists_affineEtale_glueableGlobalSections_iff
-    {R R' : Type u} [CommRing R] [CommRing R'] [Algebra R R'] (f : R)
-    [IsBeauvilleLaszloGlueingPairAlong (algebraMap R R') f]
-    (Y : AlgebraicSpace (Spec (CommRingCat.of R))) :
-    (∃ (I : Type u) (_ : Small.{u} I)
+@[stacks 0F9P] #check
+  (AlgebraicGeometry.AlgebraicSpace.exists_affineEtale_glueableGlobalSections_iff :
+    {R R' : Type u} → [CommRing R] → [CommRing R'] → [Algebra R R'] → (f : R) →
+    [IsBeauvilleLaszloGlueingPairAlong (algebraMap R R') f] →
+    (Y : AlgebraicSpace (Spec (CommRingCat.of R))) →
+    (∃ (I : Type u) (hsmall : Small.{u} I)
         (U : I → Over (Spec (CommRingCat.of R)))
         (φ : ∀ i, ofOver (U i) ⟶ Y),
       (∀ i, AlgebraicGeometry.IsAffine (U i).left) ∧
@@ -48,7 +37,4 @@ theorem exists_affineEtale_glueableGlobalSections_iff
         ∀ i, Scheme.Hom.glueableGlobalSections R' f (U i)) ↔
       ∀ {T : Over (Spec (CommRingCat.of R))} [AlgebraicGeometry.IsAffine T.left]
         (φ : ofOver T ⟶ Y) [Etale φ],
-        Scheme.Hom.glueableGlobalSections R' f T :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+        Scheme.Hom.glueableGlobalSections R' f T)

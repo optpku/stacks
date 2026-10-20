@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_28_9_Cancellation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.LocallyOfFinitePresentation.Cancellation
 import StacksCheckRecall
 
 @[expose] public section
@@ -19,7 +13,7 @@ universe u
 locally of finite type over `Z`, then `f : X ⟶ Y` is locally of finite
 presentation. -/
 @[stacks 05WT] #check
-  (LocallyOfFinitePresentation.of_comp :
+  (AlgebraicGeometry.AlgebraicSpace.LocallyOfFinitePresentation.of_comp :
     ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z)
       [LocallyOfFinitePresentation (f ≫ g)] [LocallyOfFiniteType g],
       LocallyOfFinitePresentation f)

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Grothendieck
@@ -31,7 +25,7 @@ universe u v w
 namespace CategoryTheory.Grothendieck
 
 variable (F : SimplicialObject Cat.{v, u}) (J : ∀ n, Precoverage (F.obj n))
-variable [h_fiberwise : IsFiberwiseSite F J]
+variable [h_fiberwise : HasSheafTransitions F J]
 include h_fiberwise
 variable [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
 variable [HasWeakSheafify (topology F J) (Type w)]
@@ -39,18 +33,12 @@ variable [HasWeakSheafify (topology F J) (Type w)]
 /-- Fiber inclusion `ι F (op n)` is continuous for the fiberwise total topology. -/
 instance ι_isContinuous (n : SimplexCategory) :
     (ι F (op n)).IsContinuous (J (op n)).toGrothendieck (topology F J) :=
-  sorry
+  h_fiberwise.component_continuous n
 
 /-- Fiber inclusion `ι F (op n)` is cocontinuous for the fiberwise total topology. -/
 instance ι_isCocontinuous (n : SimplexCategory) :
     (ι F (op n)).IsCocontinuous (J (op n)).toGrothendieck (topology F J) :=
-  sorry
-
-/-- The composite `u_φ ⋙ ι (op m)` is continuous for the fiberwise total topology. -/
-instance ι_comp_isContinuous {m n : SimplexCategory} (φ : m ⟶ n) :
-    ((F.map φ.op).toFunctor ⋙ ι F (op m)).IsContinuous
-      (J (op n)).toGrothendieck (topology F J) :=
-  sorry
+  h_fiberwise.component_cocontinuous n
 
 /-- Restriction of a sheaf on the Grothendieck total site to the degree-`n` fiber. -/
 def component (A : Type (w + 1)) [Category.{w} A] (n : SimplexCategory) :
@@ -82,22 +70,21 @@ theorem inverseImage_eq {m n : SimplexCategory} (φ : m ⟶ n)
         (J (op n)).toGrothendieck (J (op m)).toGrothendieck :=
   sorry
 
-/-- Direct-image form of the fiberwise comparison: restriction along `ιNatTrans` yields
-`(u_φ ⋙ ι_m)_* G ⟶ (ι_n)_* G`. -/
+/-- Restriction along the total-category arrows `ιNatTrans` gives a map of
+presheaves from the precomposition of the stage-`m` sheaf to the stage-`n` sheaf.
+Its source need not be a sheaf; inverse-image comparison requires sheafification. -/
 def transitionDirect {m n : SimplexCategory} (φ : m ⟶ n)
     (G : Sheaf (topology F J) (Type w)) :
-    (((F.map φ.op).toFunctor ⋙ ι F (op m)).sheafPushforwardContinuous (Type w)
-        (J (op n)).toGrothendieck (topology F J)).obj G ⟶
-      (component F J (Type w) n).obj G :=
-  (sheafPushforwardContinuousNatTrans (ιNatTrans φ.op) (Type w)
-      (J (op n)).toGrothendieck (topology F J)).app G
+    (F.map φ.op).toFunctor.op ⋙ ((component F J (Type w) m).obj G).obj ⟶
+      ((component F J (Type w) n).obj G).obj :=
+  whiskerRight (NatTrans.op (ιNatTrans φ.op)) G.obj
 
-/-- `transitionDirect` is the `ιNatTrans` comparison of continuous pushforwards. -/
+/-- The presheaf transition is whiskering of the opposite total-category
+comparison with the underlying presheaf. -/
 theorem transitionDirect_eq {m n : SimplexCategory} (φ : m ⟶ n)
     (G : Sheaf (topology F J) (Type w)) :
     transitionDirect F J φ G =
-      (sheafPushforwardContinuousNatTrans (ιNatTrans φ.op) (Type w)
-          (J (op n)).toGrothendieck (topology F J)).app G :=
-  sorry
+      whiskerRight (NatTrans.op (ιNatTrans φ.op)) G.obj :=
+  rfl
 
 end CategoryTheory.Grothendieck

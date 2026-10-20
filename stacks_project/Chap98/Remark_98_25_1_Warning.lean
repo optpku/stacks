@@ -1,49 +1,41 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
-public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.CategoryTheory.Sites.MorphismOfSites
-public import stacks_project.Chap98.Lemma_98_25_2_Noetherian
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Noetherian
+import StacksCheckRecall
 
 /-!
 # The Noetherian site does not have fibre products
 
-The site `(Noetherian/S)_τ` does not have fibre products, so the continuous
-inclusion into `(Sch/S)_τ` does not define a morphism of sites.
+The site `(Noetherian/S)_τ` does not have fibre products over a nonempty
+locally Noetherian base. Its continuous inclusion into `(Sch/S)_τ` need not
+define a morphism of sites in general: the fppf example over `Spec (ZMod p)`
+for a prime `p` shows that the associated sheaf pullback is not left exact.
 -/
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
-open CategoryTheory.ObjectProperty
-open AlgebraicGeometry.Scheme.Over
-open AlgebraicGeometry.StandardTopology
+open AlgebraicGeometry CategoryTheory CategoryTheory.ObjectProperty CategoryTheory.Limits
 
 universe u
 
-namespace AlgebraicGeometry
-
-/-- Remark 98.25.1 (Warning) (1): the site `(Noetherian/S)_τ` does not have
+/- Remark 98.25.1 (Warning) (1): the site `(Noetherian/S)_τ` does not have
 fibre products. -/
-@[stacks 0GE2]
-theorem not_hasPullbacks_locallyNoetherian
-    (S : Scheme.{u}) [IsLocallyNoetherian S] [Nonempty S] :
-    ¬ HasPullbacks (locallyNoetherian S).FullSubcategory := sorry
+@[stacks 0GE2] #check
+  (AlgebraicGeometry.not_hasPullbacks_locallyNoetherian :
+    ∀ (S : Scheme.{u}) [IsLocallyNoetherian S] [Nonempty S],
+      ¬ HasPullbacks (AlgebraicGeometry.Scheme.Over.locallyNoetherian S).FullSubcategory)
 
-/-- Remark 98.25.1 (Warning) (2): the continuous inclusion
-`(Noetherian/S)_τ ⥤ (Sch/S)_τ` does not define a morphism of sites.
-Examples, Section 110.60 treats the case `τ = fppf`. -/
-@[stacks 0GE2]
-theorem not_isMorphismOfSites_locallyNoetherianInclusion
-    (S : Scheme.{u}) [IsLocallyNoetherian S] [Nonempty S]
-    (τ : StandardTopology) :
-    ¬ IsMorphismOfSites (locallyNoetherianTopology τ S) (τ.overTopology S)
-        (locallyNoetherian S).ι := sorry
-
-end AlgebraicGeometry
+/- Remark 98.25.1 (Warning) (2): the continuous inclusion
+`(Noetherian/S)_τ ⥤ (Sch/S)_τ` need not define a morphism of sites in general.
+The prime-field fppf example in Examples, Section 110.60 witnesses failure
+of left exactness of the associated sheaf pullback. -/
+@[stacks 0GE2] #check
+  (AlgebraicGeometry.not_preservesFiniteLimits_locallyNoetherianInclusion_fppf :
+    ∀ (p : ℕ) [Fact p.Prime],
+      let base := Spec (CommRingCat.of (ZMod p))
+      let noetherian : ObjectProperty (Over base) :=
+        fun object => IsLocallyNoetherian object.left
+      let topology := Scheme.fppfTopology.over base
+      ¬ PreservesFiniteLimits
+        (noetherian.ι.sheafPullback (Type 1)
+          (noetherian.ι.restrictedTopology topology) topology))

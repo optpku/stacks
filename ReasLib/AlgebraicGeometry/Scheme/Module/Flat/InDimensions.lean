@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Flat
@@ -35,13 +29,13 @@ variable {X S : Scheme.{u}}
 /-- A scheme module is flat over the base in dimensions at least `n` when every point where
 flatness fails has residue-field transcendence degree less than `n` over its image. -/
 def flatOverInDimensionsGE (ℱ : X.Modules) (f : X ⟶ S) (n : ℕ) : Prop :=
-  ∀ x : X, ¬ flatOverAt ℱ f x → f.residueFieldTrdegAt x < n
+  ∀ x : X, ¬ flatOverAt ℱ f x → f.residueFieldTranscendenceDegreeAt x < (n : ℕ∞)
 
 /-- The pointwise residue-field characterization of flatness over the base in dimensions at
 least `n`. -/
 theorem flatOverInDimensionsGE_iff (ℱ : X.Modules) (f : X ⟶ S) (n : ℕ) :
     flatOverInDimensionsGE ℱ f n ↔
-      ∀ x : X, ¬ flatOverAt ℱ f x → f.residueFieldTrdegAt x < n := sorry
+      ∀ x : X, ¬ flatOverAt ℱ f x → f.residueFieldTranscendenceDegreeAt x < (n : ℕ∞) := sorry
 
 /-- Flatness over the base in dimensions at least `n` is equivalent to every fibrewise
 nonflat locus having topological Krull dimension less than `n`. -/

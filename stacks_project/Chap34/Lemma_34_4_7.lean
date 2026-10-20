@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -20,13 +14,13 @@ site is refined by a covering family in that chosen site. -/
       (𝒰 : AlgebraicGeometry.Scheme.Cover.{u}
         AlgebraicGeometry.Scheme.etalePrecoverage (X.toScheme.obj T)),
       ∃ 𝒱 : CategoryTheory.Limits.FormalCoproduct.{u} (CategoryTheory.Over T),
-        CategoryTheory.Limits.FormalCoproduct.Over.IsCovering
+        CategoryTheory.Limits.FormalCoproduct.IsCovering
             (@CategoryTheory.Pretopology.toPrecoverage X.carrier
               (CategoryTheory.Cat.str X.carrier) X.hasPullbacks X.pretopology) 𝒱 ∧
           Nonempty
             (((CategoryTheory.Limits.FormalCoproduct.map
               (CategoryTheory.Over.post (X := T) X.toScheme)).obj 𝒱) ⟶
-              CategoryTheory.Limits.FormalCoproduct.Over.ofArrows 𝒰.X 𝒰.f))
+              CategoryTheory.Limits.FormalCoproduct.ofArrows 𝒰.X 𝒰.f))
 
 /- Lemma 34.4.7 (2): a standard étale covering is tautologically equivalent
 to a covering family in the chosen big étale site. -/
@@ -37,11 +31,11 @@ to a covering family in the chosen big étale site. -/
       [AlgebraicGeometry.IsAffine (X.toScheme.obj T)]
       (𝒰 : AlgebraicGeometry.StandardEtaleCover (X.toScheme.obj T)),
       ∃ 𝒱 : CategoryTheory.Limits.FormalCoproduct.{u} (CategoryTheory.Over T),
-        CategoryTheory.Limits.FormalCoproduct.Over.IsCovering
+        CategoryTheory.Limits.FormalCoproduct.IsCovering
             (@CategoryTheory.Pretopology.toPrecoverage X.carrier
               (CategoryTheory.Cat.str X.carrier) X.hasPullbacks X.pretopology) 𝒱 ∧
           CategoryTheory.Limits.FormalCoproduct.TautologicallyEquivalent
-            (CategoryTheory.Limits.FormalCoproduct.Over.ofArrows
+            (CategoryTheory.Limits.FormalCoproduct.ofArrows
               (fun j : ULift.{u} (Fin 𝒰.n) ↦ 𝒰.U j.down)
               (fun j : ULift.{u} (Fin 𝒰.n) ↦ 𝒰.map j.down))
             ((CategoryTheory.Limits.FormalCoproduct.map
@@ -55,10 +49,10 @@ a covering family in the chosen big étale site. -/
         AlgebraicGeometry.Scheme.etalePrecoverage) (T : X.carrier)
       (𝒰 : (X.toScheme.obj T).OpenCover.{u}),
       ∃ 𝒱 : CategoryTheory.Limits.FormalCoproduct.{u} (CategoryTheory.Over T),
-        CategoryTheory.Limits.FormalCoproduct.Over.IsCovering
+        CategoryTheory.Limits.FormalCoproduct.IsCovering
             (@CategoryTheory.Pretopology.toPrecoverage X.carrier
               (CategoryTheory.Cat.str X.carrier) X.hasPullbacks X.pretopology) 𝒱 ∧
           CategoryTheory.Limits.FormalCoproduct.TautologicallyEquivalent
-            (CategoryTheory.Limits.FormalCoproduct.Over.ofArrows 𝒰.X 𝒰.f)
+            (CategoryTheory.Limits.FormalCoproduct.ofArrows 𝒰.X 𝒰.f)
             ((CategoryTheory.Limits.FormalCoproduct.map
               (CategoryTheory.Over.post (X := T) X.toScheme)).obj 𝒱))

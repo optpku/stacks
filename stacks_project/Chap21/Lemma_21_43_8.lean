@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.DerivedCategory.ModulesOnCategory.QuasiCoherent.SmallSources
@@ -25,5 +19,11 @@ the bridge to the abstract Brown-representability criterion. -/
 #check @CategoryTheory.ModulesOnCategory.Chaotic.BoundedObjectsDetectNonzero
 #check @CategoryTheory.ModulesOnCategory.Chaotic.BoundedObjectsFactorCountableCoproducts
 #check @CategoryTheory.ModulesOnCategory.Chaotic.boundedObjects_isSet
+
+/- The cardinal and small Brown set are specified data, independent of the deferred
+proofs of their detecting and factorization properties. -/
+#check @CategoryTheory.ModulesOnCategory.Chaotic.sizeBound
+#check @CategoryTheory.ModulesOnCategory.Chaotic.smallBrownSet
+#check @CategoryTheory.ModulesOnCategory.Chaotic.smallBrownSet_small
 #check @CategoryTheory.ModulesOnCategory.Chaotic.exists_brownSet
 #check @CategoryTheory.ModulesOnCategory.Chaotic.exists_smallBrownSet

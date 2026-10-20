@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap73.Definition_73_7_6_Site
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FppfPrecoverage.ChosenSite
 public import Mathlib.CategoryTheory.Sites.Over
 import StacksCheckRecall
 
@@ -23,15 +17,17 @@ Definition 73.7.6, recorded by a chosen site `𝒮`. Let `X` be an algebraic spa
 over `S`, i.e. an object of that site. Then the big fppf site `(Spaces / X)_fppf`
 is the Sites 7.25 localization of `(Spaces / S)_fppf` at `X`, namely
 `𝒮.toGrothendieck.over X`. -/
-@[stacks 0DBW] #check (𝒮.toGrothendieck.over X : GrothendieckTopology (Over X))
+@[stacks 0DBW] #check (AlgebraicGeometry.AlgebraicSpace.ChosenBigFppfSite.over :
+  ∀ {S : Scheme.{u}}, AlgebraicGeometry.AlgebraicSpace.ChosenBigFppfSite S →
+    (X : AlgebraicSpace S) → GrothendieckTopology (Over X))
 
 #check GrothendieckTopology.over
 
 #check GrothendieckTopology.mem_over_iff
 
-#check ChosenBigSite.toGrothendieck
+#check AlgebraicGeometry.AlgebraicSpace.ChosenBigFppfSite.toGrothendieck
 
-#check ChosenBigSite.toGrothendieck_eq
+#check AlgebraicGeometry.AlgebraicSpace.ChosenBigFppfSite.toGrothendieck_eq
 
 #check ((fppfPrecoverage S).toGrothendieck.over X : GrothendieckTopology (Over X))
 

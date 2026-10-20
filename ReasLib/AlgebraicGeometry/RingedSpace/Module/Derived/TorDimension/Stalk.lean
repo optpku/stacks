@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.Tensor
@@ -14,6 +8,8 @@ public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Stalk.Exact
 import Mathlib.Tactic.CrossRefAttribute
 
 @[expose] public section
+
+-- Stalk Tor operations use the actual caller derivability data.
 
 /-!
 # Stalkwise Tor-amplitude
@@ -60,6 +56,10 @@ noncomputable abbrev functor (x : X) :
 noncomputable abbrev obj (E : RingedSpace.ModuleDerived X) (x : X) :
     DerivedCategory (ModuleCat (X.presheaf.stalk x)) :=
   (functor x).obj E
+
+variable [DerivedCategory.DerivedTensor.Right.Has (C := Modules X)]
+variable [∀ x : X, DerivedCategory.DerivedTensor.Right.Has
+  (C := ModuleCat (X.presheaf.stalk x))]
 
 /-- Tor-amplitude on a ringed space is detected on all derived stalks. -/
 @[stacks 09U9]

@@ -1,47 +1,155 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap85.Remark_85_16_5_Ringed_variant_Ringed
-public import stacks_project.Chap85.Remark_85_16_5_Ringed_variant_Shriek
+public import ReasLib.AlgebraicGeometry.RingedSite.Localization.Simplicial
+public import ReasLib.AlgebraicGeometry.RingedSite.Localization.Simplicial.Module
 import StacksCheckRecall
 
-/- Remark 85.16.5 (Ringed variant) (1): a ringed site `((C / K)_total, O)` for a
-simplicial object `K` of `SR(C)`, with `O = a⁻¹ O_C`. -/
-@[stacks 0D9W] #check @RingedSite.Localization.AtSimplicialSR.site
+open CategoryTheory CategoryTheory.Limits Opposite
+open scoped SemiRepresentableFamily Simplicial
 
-/- Remark 85.16.5 (Ringed variant) (2): the morphism of ringed topoi
-`a : (Sh((C / K)_total), O) ⟶ (Sh(C), O_C)`. -/
-@[stacks 0D9W] #check @RingedSite.Localization.AtSimplicialSR.toAmbient
+noncomputable section
 
-/- Remark 85.16.5 (Ringed variant) (3): the morphisms of ringed topoi
-`a_n : (Sh(C / K_n), O_n) ⟶ (Sh(C), O_C)`. -/
-@[stacks 0D9W] #check @RingedSite.Localization.AtSimplicialSR.stageToAmbient
+universe ι u v w z
 
-/- Remark 85.16.5 (Ringed variant) (4): a functor `a_! : Mod(O) ⥤ Mod(O_C)` left
-adjoint to `a^*`, existing by Modules on Sites, Lemma 18.41.1 because
-`O = a⁻¹ O_C` (in general not exact). -/
-@[stacks 0D9W] #check @RingedSite.Localization.AtSimplicialSR.moduleLowerShriek_adjunction
+open SemiRepresentableFamily
+  (OverSite overTopology overSiteDiagram overSiteTotalTopology totalForget overMap)
+open RingedSite.Localization
 
-/- Remark 85.16.5 (Ringed variant) (5): exact functors
-`a_{n!} : Mod(O_n) ⥤ Mod(O_C)` left adjoint to `a_n^*`. -/
-@[stacks 0D9W] #check @RingedSite.Localization.AtSR.moduleLowerShriek_exact
+variable {X : RingedSite.{u, v, w}}
+variable (K : SimplicialObject (FormalCoproduct.{ι} X.carrier))
 
-/- Remark 85.16.5 (Ringed variant) (6): the morphisms `a` and `a_n` are flat. -/
-@[stacks 0D9W] #check @RingedSite.Localization.AtSimplicialSR.toAmbient_isFlat
-@[stacks 0D9W] #check @RingedSite.Localization.AtSimplicialSR.stageToAmbient_isFlat
+/- Remark 85.16.5 (Ringed variant) (1): the total ringed site with structure sheaf
+`O = a⁻¹ O_C`. -/
+@[stacks 0D9W] #check (RingedSite.Localization.AtSimplicialSR.site K :
+  RingedSite.{max ι u v, max ι u v, w})
 
-/- Remark 85.16.5 (Ringed variant) (7): `f_φ` is flat and there is an exact functor
-`f_{φ!} : Mod(O_n) ⥤ Mod(O_m)` left adjoint to `f_φ^*`. -/
-@[stacks 0D9W] #check @RingedSite.Localization.AtSimplicialSR.stageMap_isFlat
-@[stacks 0D9W] #check @RingedSite.Localization.AtSR.map_moduleLowerShriek_exact
+#check (RingedSite.Localization.AtSimplicialSR.structureSheaf_spec K :
+  (AtSimplicialSR.site K).structureSheaf =
+    RingedSite.Cocontinuous.inverseImageRingSheaf
+      (J := overSiteTotalTopology X.siteTopology K) (totalForget K) X.structureSheaf)
 
-/- Remark 85.16.5 (Ringed variant) (8): `g_n` is flat and `g_{n!} : Mod(O_n) ⥤ Mod(O)`
-left adjoint to `g_n^*` is exact. -/
-@[stacks 0D9W] #check @RingedSite.Localization.AtSimplicialSR.stageIncl_isFlat
-@[stacks 0D9W] #check @RingedSite.Localization.AtSimplicialSR.stageInclModuleLowerShriek_adjunction
-@[stacks 0D9W] #check @RingedSite.Localization.AtSimplicialSR.stageIncl_moduleLowerShriek_exact
+section RingedMorphisms
+
+variable [UnivLE.{max ι u v, w}]
+variable [HasSheafify (overSiteTotalTopology X.siteTopology K) (Type w)]
+variable [∀ P : (Grothendieck (overSiteDiagram K))ᵒᵖ ⥤ Type w,
+  (totalForget K).op.HasPointwiseRightKanExtension P]
+variable [(overSiteTotalTopology X.siteTopology K).HasSheafCompose
+  (CategoryTheory.forget RingCat.{w})]
+variable [X.siteTopology.HasSheafCompose (CategoryTheory.forget RingCat.{w})]
+variable [∀ n, HasSheafify (overTopology X.siteTopology (K.obj (op n))) (Type w)]
+variable [∀ n, (overTopology X.siteTopology (K.obj (op n))).HasSheafCompose
+  (CategoryTheory.forget RingCat.{w})]
+variable [∀ n (P : (OverSite (K.obj (op n)))ᵒᵖ ⥤ Type w),
+  (SemiRepresentableFamily.forget (K.obj (op n))).op.HasPointwiseRightKanExtension P]
+variable [∀ n (P : (OverSite (K.obj (op n)))ᵒᵖ ⥤ Type w),
+  (Grothendieck.ι (overSiteDiagram K) (op n)).op.HasPointwiseRightKanExtension P]
+variable [∀ {m n : SimplexCategory} (φ : m ⟶ n) (P : (OverSite (K.obj (op n)))ᵒᵖ ⥤ Type w),
+  (overMap (K.map φ.op)).op.HasPointwiseRightKanExtension P]
+variable (n : SimplexCategory) {m : SimplexCategory} (φ : m ⟶ n)
+
+/- Remark 85.16.5 (Ringed variant) (2): the total augmentation to the ambient
+ringed topos. -/
+@[stacks 0D9W] #check (RingedSite.Localization.AtSimplicialSR.toAmbient K :
+  RingedSite.ToposHom (AtSimplicialSR.site K) X)
+
+/- Remark 85.16.5 (Ringed variant) (3): the degree augmentations to the ambient
+ringed topos. -/
+@[stacks 0D9W] #check (RingedSite.Localization.AtSimplicialSR.stageToAmbient K n :
+  RingedSite.ToposHom (AtSR.site (K.obj (op n))) X)
+
+/- Remark 85.16.5 (Ringed variant) (6): the total and degree augmentations are flat. -/
+@[stacks 0D9W] #check (RingedSite.Localization.AtSimplicialSR.toAmbient_isFlat K :
+  RingedSite.ToposHom.IsFlat (AtSimplicialSR.toAmbient K))
+
+#check (RingedSite.Localization.AtSimplicialSR.stageToAmbient_isFlat K n :
+  RingedSite.ToposHom.IsFlat (AtSimplicialSR.stageToAmbient K n))
+
+/- Remark 85.16.5 (Ringed variant) (7): the morphism induced by a simplex operator
+is flat. Its exact module adjunction is checked below. -/
+@[stacks 0D9W] #check (RingedSite.Localization.AtSimplicialSR.stageMap_isFlat K φ :
+  RingedSite.ToposHom.IsFlat (AtSimplicialSR.stageMap K φ))
+
+/- Remark 85.16.5 (Ringed variant) (8): the fiber inclusion is flat. Its exact
+module adjunction is checked below. -/
+@[stacks 0D9W] #check (RingedSite.Localization.AtSimplicialSR.stageIncl_isFlat K n :
+  RingedSite.ToposHom.IsFlat (AtSimplicialSR.stageIncl K n))
+
+end RingedMorphisms
+
+/- Remark 85.16.5 (Ringed variant) (4): total module lower shriek is left adjoint
+to inverse image. It is not asserted exact. -/
+@[stacks 0D9W] #check (RingedSite.Cocontinuous.moduleLowerShriek.adjunction
+  (totalForget K) X.structureSheaf :
+  (RingedSite.Cocontinuous.moduleLowerShriek (totalForget K) X.structureSheaf :
+    SheafOfModules.{z} (AtSimplicialSR.ringSheaf K) ⥤ SheafOfModules.{z} X.structureSheaf) ⊣
+    RingedSite.Cocontinuous.moduleInverseImage (totalForget K) X.structureSheaf)
+
+section DegreeModules
+
+variable [UnivLE.{max ι v, z}]
+variable [HasWeakSheafify X.siteTopology AddCommGrpCat.{z}]
+variable [X.siteTopology.WEqualsLocallyBijective AddCommGrpCat.{z}]
+variable (n : SimplexCategory)
+
+/- Remark 85.16.5 (Ringed variant) (5): the degree lower-shriek functor is exact
+and left adjoint to degree inverse image. -/
+@[stacks 0D9W] #check (RingedSite.Localization.AtSR.moduleLowerShriek_exact
+  (K.obj (op n)) :
+  exactFunctor (SheafOfModules.{z} (AtSR.ringSheaf (K.obj (op n))))
+    (SheafOfModules.{z} X.structureSheaf) (AtSR.moduleLowerShriek (K.obj (op n))))
+
+#check (RingedSite.Localization.AtSR.moduleLowerShriekAdjunction (K.obj (op n)) :
+  (AtSR.moduleLowerShriek (K.obj (op n)) :
+    SheafOfModules.{z} (AtSR.ringSheaf (K.obj (op n))) ⥤ SheafOfModules.{z} X.structureSheaf) ⊣
+    RingedSite.Cocontinuous.moduleInverseImage
+      (SemiRepresentableFamily.forget (K.obj (op n))) X.structureSheaf)
+
+end DegreeModules
+
+section OperatorModules
+
+variable [UnivLE.{max ι v, z}]
+variable {m n : SimplexCategory} (φ : m ⟶ n)
+variable [HasWeakSheafify (overTopology X.siteTopology (K.obj (op m))) AddCommGrpCat.{z}]
+variable [(overTopology X.siteTopology (K.obj (op m))).WEqualsLocallyBijective
+  AddCommGrpCat.{z}]
+
+#check (RingedSite.Localization.AtSR.map_moduleLowerShriek_exact (K.map φ.op) :
+  exactFunctor (SheafOfModules.{z} (AtSR.ringSheaf (K.obj (op n))))
+    (SheafOfModules.{z} (AtSR.ringSheaf (K.obj (op m))))
+    (AtSR.mapModuleLowerShriek (K.map φ.op)))
+
+#check (RingedSite.Localization.AtSR.mapModuleLowerShriek_adjunction (K.map φ.op) :
+  (AtSR.mapModuleLowerShriek (K.map φ.op) :
+    SheafOfModules.{z} (AtSR.ringSheaf (K.obj (op n))) ⥤
+      SheafOfModules.{z} (AtSR.ringSheaf (K.obj (op m)))) ⊣
+    AtSR.mapModulePullback (K.map φ.op))
+
+end OperatorModules
+
+section FiberModules
+
+variable (n : SimplexCategory)
+
+#check (RingedSite.Localization.AtSimplicialSR.stageInclModuleLowerShriek_adjunction K n :
+  (AtSimplicialSR.stageInclModuleLowerShriek K n :
+    SheafOfModules.{z} (AtSR.ringSheaf (K.obj (op n))) ⥤
+      SheafOfModules.{z} (AtSimplicialSR.ringSheaf K)) ⊣
+    AtSimplicialSR.stageInclModuleInverseImage K n)
+
+variable [UnivLE.{max ι u v, w}] [UnivLE.{max ι v, z}]
+variable [HasWeakSheafify (overSiteTotalTopology X.siteTopology K) AddCommGrpCat.{z}]
+variable [(overSiteTotalTopology X.siteTopology K).WEqualsLocallyBijective AddCommGrpCat.{z}]
+variable [∀ m, HasSheafify (overTopology X.siteTopology (K.obj (op m))) (Type w)]
+variable [∀ m, (overTopology X.siteTopology (K.obj (op m))).HasSheafCompose
+  (CategoryTheory.forget RingCat.{w})]
+variable [∀ {m : SimplexCategory} (φ : n ⟶ m) (P : (OverSite (K.obj (op m)))ᵒᵖ ⥤ Type w),
+  (overMap (K.map φ.op)).op.HasPointwiseRightKanExtension P]
+
+#check (RingedSite.Localization.AtSimplicialSR.stageIncl_moduleLowerShriek_exact K n :
+  exactFunctor (SheafOfModules.{z} (AtSR.ringSheaf (K.obj (op n))))
+    (SheafOfModules.{z} (AtSimplicialSR.ringSheaf K))
+    (AtSimplicialSR.stageInclModuleLowerShriek K n))
+
+end FiberModules

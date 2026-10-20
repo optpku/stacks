@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.ZeroMorphisms
@@ -26,7 +20,7 @@ namespace CategoryTheory
 
 variable (𝒜 : Type u) [Category.{v} 𝒜] [HasZeroMorphisms 𝒜]
 
-/-- Definition 12.24.1 [012L]: a filtered complex is a cochain complex in `Fil(𝒜)`. -/
+/-- A filtered complex is a cochain complex in the category of filtered objects. -/
 @[stacks 012L]
 abbrev FilteredComplex := CochainComplex (FilteredObject 𝒜) ℤ
 

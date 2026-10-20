@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.«90_10_1_1_Comparison»
+public import ReasLib.CategoryTheory.Cofibered.PushforwardComparison
 public import stacks_project.Chap90.Definition_90_7_3_ArtinianLocal
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
 public import ReasLib.CategoryTheory.Fibered.InGroupoids.Basic
@@ -41,6 +35,7 @@ variable (h : IsPullback π1 π2 f1 f2)
 functor `fiberComparison p χ h.w : p.Fiber P ⥤ (pushforwardFiberFunctor p χ f1) ⊡
 (pushforwardFiberFunctor p χ f2)` into the 2-fibre product of fibre categories. -/
 @[stacks 06SP]
-#check (fiberComparison p χ h.w :
+#check (CategoryTheory.Functor.fiberComparison p χ h.w :
   p.Fiber P ⥤
-    (pushforwardFiberFunctor p χ f1) ⊡ (pushforwardFiberFunctor p χ f2))
+    (CategoryTheory.Functor.pushforwardFiberFunctor p χ f1) ⊡
+      (CategoryTheory.Functor.pushforwardFiberFunctor p χ f2))

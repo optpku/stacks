@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Topology.Connected.Basic
-public import stacks_project.Chap61.Definition_61_28_1
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.ProEtale.AdicSheaf
+import StacksCheckRecall
 
 /-!
 # Lemma 61.28.4
@@ -37,12 +30,11 @@ variable [∀ {Y : Scheme.{u}} (U : Y.ProEt),
   HasWeakSheafify ((topology Y).over U) (ModuleCat.{w} Λ)]
 
 variable (I : Ideal Λ) (F : Sheaf (topology X) (ModuleCat.{w} Λ))
+variable [ConnectedSpace X] [IsLisse I F]
 
-/-- Lemma 61.28.4: if `X` is a connected scheme, `Λ` is Noetherian, and `I ⊆ Λ` is an
+/- Lemma 61.28.4: if `X` is a connected scheme, `Λ` is Noetherian, and `I ⊆ Λ` is an
 ideal, then every lisse constructible `Λ`-sheaf on `X_proétale` is adic lisse. -/
-@[stacks 09BW]
-instance instIsAdicLisse_of_isLisse [ConnectedSpace X] [IsLisse I F] :
-    IsAdicLisse I F :=
-  sorry
+@[stacks 09BW] #check (AlgebraicGeometry.Scheme.ProEt.instIsAdicLisse_of_isLisse I F :
+  IsAdicLisse I F)
 
 end AlgebraicGeometry.Scheme.ProEt

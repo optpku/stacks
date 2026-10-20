@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.TorDimension.Tensor
@@ -14,7 +8,7 @@ import StacksCheckRecall
 /- Lemma 20.48.7: Tor-amplitude intervals add under the canonical derived tensor product. -/
 
 open AlgebraicGeometry CategoryTheory
-open scoped RingedTensor
+open scoped CategoryTheory.DerivedCategory.DerivedTensor
 
 universe u
 

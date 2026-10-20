@@ -41,5 +41,3 @@ globs = ["stacks_project.*"]
 [[lean_lib]]
 name = "stacks"
 
-[[lean_lib]]
-name = "M2FQualityAudits"

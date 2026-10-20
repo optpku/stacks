@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.KrullDimension.Regular
@@ -43,13 +37,6 @@ theorem depth_le_supportDim {R : Type u} [CommRing R] [IsLocalRing R]
     .some (moduleDepth R M) ≤ supportDim R M := sorry
 
 end Module
-
-/-- Deprecated compatibility spelling for `Module.depth_le_supportDim`. -/
-@[deprecated Module.depth_le_supportDim (since := "2026-08-04")]
-theorem depth_le_supportDim {R : Type u} [CommRing R] [IsLocalRing R]
-    [IsNoetherianRing R] {M : Type v} [AddCommGroup M] [Module R M]
-    [Module.Finite R M] [Nontrivial M] :
-    .some (moduleDepth R M) ≤ Module.supportDim R M := sorry
 
 namespace Ideal
 

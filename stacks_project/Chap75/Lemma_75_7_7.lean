@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_7_7_ModuleSupport
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.SchemeTheoreticSupport.Proper
 import StacksCheckRecall
 
 @[expose] public section
@@ -26,7 +20,7 @@ equivalent. -/
       (f : X ⟶ Y) [AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType f]
       (F : X.Modules) [F.IsFiniteType] [F.IsQuasicoherent],
       List.TFAE [
-        AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
+        AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
           (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport F),
         AlgebraicGeometry.AlgebraicSpace.Proper
           ((AlgebraicGeometry.AlgebraicSpace.Modules.schemeTheoreticSupport F).ι ≫ f),

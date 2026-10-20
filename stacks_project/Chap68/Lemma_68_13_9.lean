@@ -1,19 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap67.Lemma_67_48_6_Reduced
-public import stacks_project.Chap68.Lemma_68_13_12_ResidualSpace
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ResidualSpace
+import StacksCheckRecall
 
 /-!
 # Factorization through residual spaces of locally Noetherian algebraic spaces
 
-A morphism from a reduced algebraic space whose image on points is a singleton
+A morphism from a reduced algebraic space whose image on points is contained in
 `{x}` factors through a residual space at `x` when the target is locally
 Noetherian.
 -/
@@ -28,36 +21,32 @@ namespace AlgebraicGeometry.AlgebraicSpace
 
 namespace IsResidualSpace
 
-/-- Lemma 68.13.9: Let `S` be a scheme. Let `f : Y ⟶ X` be a morphism of
+/- Lemma 68.13.9: Let `S` be a scheme. Let `f : Y ⟶ X` be a morphism of
 algebraic spaces over `S`. Let `x ∈ |X|` be a point. Assume `|f|(|Y|)` is
 contained in `{x} ⊂ |X|`, `Y` is reduced, and `X` is locally Noetherian.
 Then `f` factors through the residual space `Z_x` of `X` at `x`. -/
-@[stacks 0H1S]
-theorem exists_lift_of_isLocallyNoetherian {S : Scheme.{u}}
+@[stacks 0H1S] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsResidualSpace.exists_lift_of_isLocallyNoetherian :
+    ∀ {S : Scheme.{u}}
     {X Y Z : AlgebraicSpace S} [IsReduced Y] [IsLocallyNoetherian X]
     {x : Points X} (ι : Z ⟶ X) [IsResidualSpace ι x] (f : Y ⟶ X)
-    (h_image : Set.range (Points.map f) ⊆ {x}) :
-    ∃ g : Y ⟶ Z, g ≫ ι = f :=
-  sorry
+    (h_image : Set.range (Points.map f) ⊆ {x}),
+    ∃ g : Y ⟶ Z, g ≫ ι = f)
 
-/-- A residual-space factorization of a morphism from a reduced algebraic space
-into a locally Noetherian algebraic space, supported at a single point, is
-unique, because a residual-space morphism is a monomorphism. -/
-theorem existsUnique_lift_of_isLocallyNoetherian {S : Scheme.{u}}
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsResidualSpace.existsUnique_lift_of_isLocallyNoetherian :
+    ∀ {S : Scheme.{u}}
     {X Y Z : AlgebraicSpace S} [IsReduced Y] [IsLocallyNoetherian X]
     {x : Points X} (ι : Z ⟶ X) [IsResidualSpace ι x] (f : Y ⟶ X)
-    (h_image : Set.range (Points.map f) ⊆ {x}) :
-    ∃! g : Y ⟶ Z, g ≫ ι = f :=
-  sorry
+    (h_image : Set.range (Points.map f) ⊆ {x}),
+    ∃! g : Y ⟶ Z, g ≫ ι = f)
 
-/-- A morphism from a reduced algebraic space into a locally Noetherian algebraic
-space factors through a residual space at `x` if and only if its image on points
-is contained in `{x}`. -/
-theorem exists_lift_iff_of_isLocallyNoetherian {S : Scheme.{u}}
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsResidualSpace.exists_lift_iff_of_isLocallyNoetherian :
+    ∀ {S : Scheme.{u}}
     {X Y Z : AlgebraicSpace S} [IsReduced Y] [IsLocallyNoetherian X]
-    {x : Points X} (ι : Z ⟶ X) [IsResidualSpace ι x] (f : Y ⟶ X) :
-    (∃ g : Y ⟶ Z, g ≫ ι = f) ↔ Set.range (Points.map f) ⊆ {x} :=
-  sorry
+    {x : Points X} (ι : Z ⟶ X) [IsResidualSpace ι x] (f : Y ⟶ X),
+    (∃ g : Y ⟶ Z, g ≫ ι = f) ↔ Set.range (Points.map f) ⊆ {x})
 
 end IsResidualSpace
 

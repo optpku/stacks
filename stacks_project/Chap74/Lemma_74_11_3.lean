@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap74.Lemma_74_11_3_Instances
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.UniversallyClosed.Fpqc
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +14,7 @@ variable (S : Scheme.{u})
 /- Lemma 74.11.3: the property `P(f)` given by “`f` is universally closed” is
 fpqc local on the base. -/
 @[stacks 041O] #check
-  (AlgebraicSpace.UniversallyClosed.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.AlgebraicSpace.UniversallyClosed.isLocalAtTargetFpqc :
     MorphismProperty.IsLocalAtTarget
       (@AlgebraicSpace.UniversallyClosed S : MorphismProperty (AlgebraicSpace S))
       (fpqcPrecoverage S))

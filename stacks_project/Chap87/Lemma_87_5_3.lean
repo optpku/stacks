@@ -1,36 +1,15 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap87.Definition_87_5_1_Taut
-public import stacks_project.Chap87.Lemma_87_5_3_Completion
-
-/-!
-# Lemma 87.5.3
-
-The canonical map from a linearly topologized ring to its inverse-limit completion is taut.
--/
+public import ReasLib.Topology.Algebra.Ring.Taut.Completion
+import StacksCheckRecall
 
 @[expose] public section
 
 universe u
 
-open IsLinearTopology
-
-namespace RingHom
-
-variable {A : Type u}
-variable [CommRing A] [TopologicalSpace A] [IsTopologicalRing A] [IsLinearTopology A A]
-
-/-- Lemma 87.5.3: Let `A` be a linearly topologized ring. The map `A → Completion A A`
-from `A` to its completion is taut. -/
-@[stacks 0GX2]
-theorem IsTaut.completion : (Completion.coeRingHom : A →+* Completion A A).IsTaut :=
-  sorry
-
-end RingHom
+/- Lemma 87.5.3: The canonical map from a linearly topologized ring to its
+inverse-limit completion is taut. -/
+@[stacks 0GX2] #check (RingHom.IsTaut.completion :
+  ∀ {A : Type u} [CommRing A] [TopologicalSpace A] [IsTopologicalRing A]
+    [IsLinearTopology A A],
+    (IsLinearTopology.Completion.coeRingHom : A →+* IsLinearTopology.Completion A A).IsTaut)

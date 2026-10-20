@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.PseudoCoherent
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.EtaleLocal
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.PseudoCoherent
 public import stacks_project.Chap65.Lemma_65_12_4_Immersion
@@ -28,126 +23,10 @@ open CategoryTheory AlgebraicGeometry MorphismProperty
 
 universe u
 
-namespace AlgebraicGeometry.PseudoCoherent
+#check (AlgebraicGeometry.AlgebraicSpace.PseudoCoherent :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Y : AlgebraicGeometry.AlgebraicSpace S},
+    (X ⟶ Y) → Prop)
 
-/-- Pseudo-coherence of scheme morphisms is étale local on the source and target. -/
-instance isEtaleLocalAtSourceAndTarget :
-    AlgebraicGeometry.IsEtaleLocalAtSourceAndTarget
-      (@AlgebraicGeometry.PseudoCoherent :
-        MorphismProperty AlgebraicGeometry.Scheme.{u}) :=
-  sorry
-
-end AlgebraicGeometry.PseudoCoherent
-
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- A morphism `f : X ⟶ Y` of algebraic spaces over `S` is pseudo-coherent if
-every commutative square with étale vertical arrows from schemes has
-pseudo-coherent top arrow. -/
-class PseudoCoherent {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    Prop where
-  /-- Every étale scheme square over `f` has pseudo-coherent top arrow. -/
-  of_etale {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
-      (b : yoneda.obj V ⟶ Y.functorOfPoints) (h : U ⟶ V)
-      (ha : (over (@AlgebraicGeometry.Etale)).presheaf a)
-      (hb : (over (@AlgebraicGeometry.Etale)).presheaf b)
-      (w : a ≫ f = yoneda.map h ≫ b) :
-    AlgebraicGeometry.PseudoCoherent h.left
-
-/-- A morphism of algebraic spaces is pseudo-coherent if and only if every
-commutative square with étale vertical arrows from schemes has pseudo-coherent
-top arrow. -/
-theorem pseudoCoherent_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) :
-    PseudoCoherent f ↔
-      ∀ {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
-        (b : yoneda.obj V ⟶ Y.functorOfPoints) (h : U ⟶ V),
-        (over (@AlgebraicGeometry.Etale)).presheaf a →
-          (over (@AlgebraicGeometry.Etale)).presheaf b →
-            a ≫ f = yoneda.map h ≫ b →
-              AlgebraicGeometry.PseudoCoherent h.left :=
-  sorry
-
-namespace PseudoCoherent
-
-/-- An étale scheme square over a pseudo-coherent morphism of algebraic spaces
-has pseudo-coherent top arrow. -/
-theorem spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [PseudoCoherent f] {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
-    (b : yoneda.obj V ⟶ Y.functorOfPoints) (h : U ⟶ V)
-    (ha : (over (@AlgebraicGeometry.Etale)).presheaf a)
-    (hb : (over (@AlgebraicGeometry.Etale)).presheaf b)
-    (w : a ≫ f = yoneda.map h ≫ b) : AlgebraicGeometry.PseudoCoherent h.left :=
-  sorry
-
-/-- The identity morphism of an algebraic space is pseudo-coherent. -/
-instance id {S : Scheme.{u}} {X : AlgebraicSpace S} : PseudoCoherent (𝟙 X) :=
-  sorry
-
-/-- A representable morphism of algebraic spaces with the relative
-pseudo-coherent property is pseudo-coherent. -/
-theorem of_presheaf {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
-    (hf : (over
-        (@AlgebraicGeometry.PseudoCoherent :
-          MorphismProperty Scheme.{u})).presheaf f) :
-    PseudoCoherent f :=
-  sorry
-
-end PseudoCoherent
-
-/-- A morphism of algebraic spaces is pseudo-coherent if and only if it has the
-étale-local lift of scheme-level pseudo-coherence. -/
-theorem pseudoCoherent_iff_etaleLocal {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) :
-    PseudoCoherent f ↔
-      etaleLocal
-        (@AlgebraicGeometry.PseudoCoherent : MorphismProperty Scheme.{u}) f :=
-  sorry
-
-/-- A morphism `f : X ⟶ Y` of algebraic spaces is pseudo-coherent at a point `x`
-of `X` if it is pseudo-coherent after restriction to some open subspace
-neighbourhood of `x`. -/
-def PseudoCoherentAt {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (x : Points X) : Prop :=
-  ∃ (X' : AlgebraicSpace S) (i : X' ⟶ X),
-    IsOpenImmersion i ∧ x ∈ Set.range (Points.map i) ∧ PseudoCoherent (i ≫ f)
-
-/-- Pseudo-coherence at a point is the existence of an open subspace
-neighbourhood on which the morphism is pseudo-coherent. -/
-theorem pseudoCoherentAt_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) (x : Points X) :
-    PseudoCoherentAt f x ↔
-      ∃ (X' : AlgebraicSpace S) (i : X' ⟶ X),
-        IsOpenImmersion i ∧ x ∈ Set.range (Points.map i) ∧
-          PseudoCoherent (i ≫ f) :=
-  sorry
-
-namespace PseudoCoherentAt
-
-/-- An open immersion `i : X' ⟶ X` whose composite `i ≫ f` is pseudo-coherent
-witnesses that `f` is pseudo-coherent at every point of the image of `|X'|`. -/
-theorem of {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
-    {x : Points X} {X' : AlgebraicSpace S} {i : X' ⟶ X}
-    [IsOpenImmersion i] (hx : x ∈ Set.range (Points.map i))
-    [PseudoCoherent (i ≫ f)] : PseudoCoherentAt f x :=
-  sorry
-
-end PseudoCoherentAt
-
-/-- A pseudo-coherent morphism of algebraic spaces is pseudo-coherent at every
-point of its source. -/
-theorem pseudoCoherentAt_of_pseudoCoherent {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [PseudoCoherent f] (x : Points X) :
-    PseudoCoherentAt f x :=
-  sorry
-
-/-- Pseudo-coherence at a point is equivalent to the neighbourhood étale-local
-lift of scheme-level pseudo-coherence at that point. -/
-theorem pseudoCoherentAt_iff_etaleLocalNear {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) (x : Points X) :
-    PseudoCoherentAt f x ↔
-      etaleLocalNear
-        (@AlgebraicGeometry.PseudoCoherent : MorphismProperty Scheme.{u}) f x :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.PseudoCoherentAt :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Y : AlgebraicGeometry.AlgebraicSpace S}
+    (f : X ⟶ Y), AlgebraicGeometry.AlgebraicSpace.Points X → Prop)

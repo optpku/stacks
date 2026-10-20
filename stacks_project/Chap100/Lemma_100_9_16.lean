@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_4_2_Points
-public import stacks_project.Chap100.Lemma_100_9_10_Substack
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Representable.OpenCover
+import StacksCheckRecall
 
 /-!
 # Zariski-locality of representability by algebraic spaces
@@ -21,23 +15,19 @@ an algebraic space is itself representable by an algebraic space.
 open CategoryTheory AlgebraicGeometry
 open scoped Bicategory
 
-noncomputable section
-
 universe u v
 
-namespace AlgebraicGeometry.AlgebraicStack
+open AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 100.9.16: Let `X` be an algebraic stack. Let `U i`, `i : I`, be a
-set of open substacks of `X`. Assume the images of
-`Points.map (U i).ι : |(U i).Y| → |X|` cover `|X|`, and each `(U i).Y` is
-representable by an algebraic space. Then `X` is representable by an
-algebraic space. -/
-@[stacks 05WE]
-theorem isRepresentableByAlgebraicSpace_of_iUnion_openSubstack
-    {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] {I : Type v}
-    (U : I → OpenSubstack X)
-    (h_cover : ∀ x : Points X, ∃ i, x ∈ Set.range (Points.map (U i).ι))
-    (h_space : ∀ i, IsRepresentableByAlgebraicSpace (U i).Y) :
-    IsRepresentableByAlgebraicSpace X := sorry
-
-end AlgebraicGeometry.AlgebraicStack
+/- Lemma 100.9.16: An algebraic stack covered by a set-indexed family of
+open substacks, each representable by an algebraic space, is representable
+by an algebraic space. -/
+@[stacks 05WE] #check
+  (AlgebraicGeometry.AlgebraicStack.isRepresentableByAlgebraicSpace_of_iUnion_openSubstack :
+    ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] {I : Type v}
+      (Y : I → GroupoidsOver S) [∀ i, AlgebraicStack (Y i)]
+      (ι : ∀ i, Y i ⟶ X)
+      (h_open : ∀ i, Groupoids.Hom.OpenImmersion (ι i))
+      (h_cover : ∀ x : Points X, ∃ i, x ∈ Set.range (Points.map (ι i)))
+      (h_space : ∀ i, IsRepresentableByAlgebraicSpace (Y i)),
+      IsRepresentableByAlgebraicSpace X)

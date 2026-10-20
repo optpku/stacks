@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import Mathlib.Tactic.CrossRefAttribute
@@ -157,7 +151,19 @@ strongly cartesian lift over the same arrow. -/
 theorem Map.stronglyCartesianOfLift
     (F : CartesianBasedFunctor p₁ p₂) {a b : S₁} {U V : C}
     (f : V ⟶ U) (φ : a ⟶ b) (hφ : p₁.IsStronglyCartesian f φ) :
-    p₂.IsStronglyCartesian f (F.toFunctor.map φ) := sorry
+    p₂.IsStronglyCartesian f (F.toFunctor.map φ) := by
+  let transport {a' b' : S₂} (ψ : a' ⟶ b')
+      (strong : p₂.IsStronglyCartesian (p₂.map ψ) ψ)
+      {R S : C} (k : R ⟶ S) (lift : p₂.IsHomLift k ψ) :
+      p₂.IsStronglyCartesian k ψ := by
+    cases lift
+    exact strong
+  have sourceLift : p₁.IsHomLift f φ := hφ.toIsHomLift
+  cases sourceLift
+  have targetLift : p₂.IsHomLift (p₁.map φ) (F.toFunctor.map φ) :=
+    @BasedFunctor.preserves_isHomLift C _ (BasedCategory.ofFunctor p₁)
+      (BasedCategory.ofFunctor p₂) F.toBasedFunctor _ _ _ _ (p₁.map φ) φ (.map _)
+  exact transport (F.toFunctor.map φ) (F.preservesStronglyCartesian φ hφ) _ targetLift
 /- Proof strategy: normalize `f` to `p₁.map φ`, apply
 `F.preservesStronglyCartesian`, and transport the target statement back along the based-functor
 compatibility equation. -/

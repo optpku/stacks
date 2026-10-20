@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_5_5_BaseChange
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
-public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.Bilimit
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.RelativeInertia.BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Basic
 import StacksCheckRecall
 
 /-!
@@ -33,22 +26,15 @@ namespace AlgebraicGeometry.AlgebraicStack.RelativeInertia
 variable {S : Scheme.{u}} {X Y Y' : GroupoidsOver S}
 variable (π : X ⟶ Y) (f : Y' ⟶ Y)
 
-/- Lemma 101.5.5 (1): the right square `TwoFibreProduct.apex π f ⟶ Y'` over
-`X ⟶ Y` is the defining 2-fibre product of `X' = TwoFibreProduct.apex π f`,
-with `π' = TwoFibreProduct.snd π f`. -/
-@[stacks 06PQ]
-#check (TwoFibreProduct.cone.isBilimit.{u + 1, u, u + 1, u} π f :
-  (TwoFibreProduct.cone.{u + 1, u, u + 1, u} π f).IsBilimit)
+variable [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Y']
 
-/-- Lemma 101.5.5 (2): the left square
-`relativeInertia (TwoFibreProduct.snd π f) ⟶ TwoFibreProduct.apex π f` over
-`relativeInertia π ⟶ X` is a 2-fibre product. The left vertical is Categories
-Equation 04Z4, i.e. `RelativeInertia.map` along
-`(TwoFibreProduct.comparisonIso π f).symm`. -/
-@[stacks 06PQ, instance]
-instance relativeInertia_baseChange_isBilimit
-    [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Y'] :
-    (baseChangeCone π f).IsBilimit :=
-  sorry
+/- Lemma 101.5.5: the relative-inertia base-change square and the defining
+square of the canonical two-fibre product are both fibre product squares. -/
+@[stacks 06PQ] #check
+  (AlgebraicGeometry.GroupoidsOver.RelativeInertia.baseChangeCone.isBilimit π f :
+    (AlgebraicGeometry.GroupoidsOver.RelativeInertia.baseChangeCone π f).IsBilimit)
+
+#check (CategoryTheory.TwoFibreProduct.cone.isBilimit.{u + 1, u, u + 1, u} π f :
+  (CategoryTheory.TwoFibreProduct.cone.{u + 1, u, u + 1, u} π f).IsBilimit)
 
 end AlgebraicGeometry.AlgebraicStack.RelativeInertia

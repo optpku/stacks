@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap62.Definition_62_7_1_Equidimensional
+public import ReasLib.AlgebraicGeometry.RelativeCycle.Equidimensional
 import StacksCheckRecall
 
 open AlgebraicGeometry CategoryTheory
@@ -27,8 +21,11 @@ contained in a closed subscheme `W ⊆ X` with
 relative `r`-cycles on `X / S` is `RelativeCycle.equidimensional f r`, denoted
 `z_equi(X/S, r)`. -/
 @[stacks 0H5I] #check
-  (RelativeCycle.equidimensional f r : AddSubgroup (RelativeCycle.Family f r))
+  (AlgebraicGeometry.RelativeCycle.equidimensional f r : AddSubgroup (f.FiberCycleFamily r))
 
-#check RelativeCycle.mem_equidimensional
+#check (AlgebraicGeometry.RelativeCycle.mem_equidimensional f r :
+  ∀ α : f.FiberCycleFamily r,
+    α ∈ RelativeCycle.equidimensional f r ↔
+      RelativeCycle.IsRelative α ∧ Scheme.Hom.CyclesOnFibers.Equidimensional α)
 
 end

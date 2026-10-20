@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.ChangeOfRings.Additive
@@ -179,6 +173,9 @@ noncomputable def colimitExtendScalarsIso (φ : B →+* B')
 @[stacks 08Q8]
 theorem lowerShriek_isomorphic
     (φ : B →+* B')
+    [hasModuleLeftDerived : Functor.HasLeftDerivedFunctor
+      (ModuleCat.extendScalarsToDerived.{wB, wB', max wB' z} φ)
+      (HomotopyCategory.quasiIso (ModuleCat.{max wB' z, wB} B) (up ℤ))]
     [HasColimitsOfShape Cᵒᵖ (ModuleCat.{max wB' z, wB} B)]
     [HasColimitsOfShape Cᵒᵖ (ModuleCat.{max wB' z, wB'} B')]
     [HasDerivedCategory.{q} (Cᵒᵖ ⥤ ModuleCat.{max wB' z, wB} B)]
@@ -210,6 +207,9 @@ the model-facing entry point; the preceding theorem is the canonical choice spec
 @[stacks 08Q8 "underived colimit change of rings for an explicit model"]
 theorem lowerShriek_isomorphic_of_model
     (φ : B →+* B')
+    [hasModuleLeftDerived : Functor.HasLeftDerivedFunctor
+      (ModuleCat.extendScalarsToDerived.{wB, wB', max wB' z} φ)
+      (HomotopyCategory.quasiIso (ModuleCat.{max wB' z, wB} B) (up ℤ))]
     [HasColimitsOfShape Cᵒᵖ (ModuleCat.{max wB' z, wB} B)]
     [HasColimitsOfShape Cᵒᵖ (ModuleCat.{max wB' z, wB'} B')]
     [HasDerivedCategory.{q} (Cᵒᵖ ⥤ ModuleCat.{max wB' z, wB} B)]

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Pushforward.Composition
@@ -16,6 +10,9 @@ public import ReasLib.CategoryTheory.Fibered.InheritedTopology.Morphism
 public import ReasLib.CategoryTheory.Fibered.BasedCategory.Pseudofunctor
 public import ReasLib.CategoryTheory.Fibered.Groupoids.UnderlyingFunctorIso
 public import stacks_project.Chap96.«96_10_3_1_Comparison»
+public import stacks_project.Chap96.«96_10_3_3_Comparison»
+public import stacks_project.Chap96.Lemma_96_10_3_Comparison
+public import ReasLib.CategoryTheory.Functor.KanExtension.SmallSections
 
 /-!
 # Pullback compatibility of quasi-coherent restriction
@@ -42,8 +39,8 @@ variable {S : Scheme.{u}}
 
 /-- The morphism of algebraic spaces recovered from a 1-morphism of categories
 fibred in groupoids along representing equivalences. This is `inducedHom` of
-Lemma 96.10.3, obtained from `toGroupoids.recover` without importing the
-ringed-topos square of 96.10.3 (which cannot be imported with `QCoh.pullback`). -/
+Lemma 96.10.3, obtained from `toGroupoids.recover` along the supplied
+presentations. -/
 abbrev recoveredHom {F G : AlgebraicSpace S} {X Y : GroupoidsOver S}
     (eX : F.toGroupoids ≌ X) (eY : G.toGroupoids ≌ Y) (f : X ⟶ Y) : F ⟶ G :=
   AlgebraicSpace.toGroupoids.recover eX.symm eY.symm f
@@ -54,231 +51,10 @@ theorem recoveredHom_eq {F G : AlgebraicSpace S} {X Y : GroupoidsOver S}
     recoveredHom eX eY f = AlgebraicSpace.toGroupoids.recover eX.symm eY.symm f :=
   rfl
 
-/-- The cartesian total functor agrees with `toFunctor`. -/
-theorem cartesian_toFunctor_eq {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    (toCartesianBasedFunctor h).toFunctor = toFunctor h :=
-  congrArg (fun F => F.toFunctor) (toCartesianBasedFunctor.toBasedFunctor h)
-
-/-- Associated étale topologies admit type-valued sheafification in universe `u`. -/
-instance etaleTopology_hasSheafify_type (X : GroupoidsOver S) :
-    HasSheafify X.etaleTopology (Type u) :=
-  sorry
-
-/-- Associated étale topologies admit weak type-valued sheafification in universe `u`. -/
-instance etaleTopology_hasWeakSheafify_type (X : GroupoidsOver S) :
-    HasWeakSheafify X.etaleTopology (Type u) :=
-  sorry
-
-/-- Pointwise right Kan extensions exist for type-valued presheaves along a cartesian
-total functor. -/
-instance toCartesian_op_hasPointwiseRightKanExtension_type {X Y : GroupoidsOver S}
-    (h : X ⟶ Y) (P : X.totalᵒᵖ ⥤ Type u) :
-    (toCartesianBasedFunctor h).toFunctor.op.HasPointwiseRightKanExtension P :=
-  sorry
-
-/-- The total functor of a 1-morphism is a morphism of associated étale sites. -/
-instance toFunctor_isMorphismOfSites_etale {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    IsMorphismOfSites X.etaleTopology Y.etaleTopology (toFunctor h) :=
-  sorry
-
-/-- The total functor of a 1-morphism is continuous for associated étale topologies. -/
-instance toFunctor_isContinuous_etale {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    (toFunctor h).IsContinuous X.etaleTopology Y.etaleTopology :=
-  (toFunctor_isMorphismOfSites_etale h).toIsContinuous
-
-/-- Restriction of scalars along the inverse-image structure map of
-`toGroupoidsEtaleRingedToposHom` is a right adjoint. -/
-instance toGroupoidsEtaleRingedToposHom_restrictScalars_isRightAdjoint
-    {F G : AlgebraicSpace S} (h : F ⟶ G) :
-    (SheafOfModules.restrictScalars.{u}
-      (AlgebraicSpace.toGroupoidsEtaleRingedToposHom h).structureMap).IsRightAdjoint :=
-  sorry
-
-/-- Realization projection `toFunctor h ⋙ Y.p ⋙ forget ⟶ X.p ⋙ forget` from the
-commuting triangle of a 1-morphism of categories fibred in groupoids. -/
-def toFunctor_realization_projection {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    toFunctor h ⋙ Y.p ⋙ Over.forget S ⟶ X.p ⋙ Over.forget S :=
-  eqToHom
-    (congrArg (fun F => F ⋙ Over.forget S)
-      ((congrArg (fun F => F ⋙ Y.p) (cartesian_toFunctor_eq h).symm).trans
-        (toCartesianBasedFunctor h).toBasedFunctor.w))
-
-/-- Structure-sheaf map of the étale ringed-site morphism attached to a
-1-morphism, as the global-sections pullback conjugated by
-`structureSheafPresentationIso`. -/
-def etaleSiteHom_structureSheafMap {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    (etaleRingedSite X).structureSheaf ⟶
-      ((toFunctor h).sheafPushforwardContinuous RingCat.{u}
-        X.etaleTopology Y.etaleTopology).obj (etaleRingedSite Y).structureSheaf :=
-  (structureSheafPresentationIso X).hom ≫
-    Scheme.Site.structureSheafMap
-      X.etaleTopology Y.etaleTopology
-      (X.p ⋙ Over.forget S) (Y.p ⋙ Over.forget S)
-      (toFunctor h) (toFunctor_realization_projection h)
-      (etaleRingedSite_structurePresheaf_isSheaf X)
-      (etaleRingedSite_structurePresheaf_isSheaf Y) ≫
-      ((toFunctor h).sheafPushforwardContinuous RingCat.{u}
-          X.etaleTopology Y.etaleTopology).map
-        (structureSheafPresentationIso Y).inv
-
-/-- The morphism of étale ringed sites induced by a 1-morphism of categories
-fibred in groupoids, with underlying functor `toFunctor h`. -/
-def etaleSiteHom {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    RingedSite.Hom (etaleRingedSite Y) (etaleRingedSite X) where
-  base := toFunctor h
-  isMorphismOfSites := toFunctor_isMorphismOfSites_etale h
-  structureSheafMap := etaleSiteHom_structureSheafMap h
-
-/-- Inverse image `h^*` of étale `𝒪`-modules along a 1-morphism. -/
-def etaleModuleInverseImage {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    SheafOfModules.{u} (etaleRingedSite Y).structureSheaf ⥤
-      SheafOfModules.{u} (etaleRingedSite X).structureSheaf :=
-  (etaleSiteHom h).modulePushforward.{u}
-
-/-- Continuity of the base of `etaleSiteHom` on the étale ringed sites. -/
-instance etaleSiteHom_base_isContinuous {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    (etaleSiteHom h).base.IsContinuous
-      (etaleRingedSite X).siteTopology (etaleRingedSite Y).siteTopology :=
-  (etaleSiteHom h).isMorphismOfSites.toIsContinuous
-
-/-- Continuity of a composite of `etaleSiteHom` bases. -/
-instance etaleSiteHom_baseComp_isContinuous {X Y Z : GroupoidsOver S}
-    (h : X ⟶ Y) (k : Y ⟶ Z) :
-    ((etaleSiteHom h).base ⋙ (etaleSiteHom k).base).IsContinuous
-      (etaleRingedSite X).siteTopology (etaleRingedSite Z).siteTopology :=
-  Functor.isContinuous_comp (etaleSiteHom h).base (etaleSiteHom k).base
-    (etaleRingedSite X).siteTopology (etaleRingedSite Y).siteTopology
-    (etaleRingedSite Z).siteTopology
-
-/-- A composite of total functors is continuous for associated étale topologies. -/
-instance toFunctor_comp_isContinuous_etale {X Y Z : GroupoidsOver S}
-    (h : X ⟶ Y) (k : Y ⟶ Z) :
-    (toFunctor h ⋙ toFunctor k).IsContinuous X.etaleTopology Z.etaleTopology :=
-  Functor.isContinuous_comp (toFunctor h) (toFunctor k)
-    X.etaleTopology Y.etaleTopology Z.etaleTopology
-
-/-- The composite structure-sheaf map along `toFunctor h ⋙ toFunctor k`. -/
-def etaleSiteHom_structureSheafMap_compData {X Y Z : GroupoidsOver S}
-    (h : X ⟶ Y) (k : Y ⟶ Z) :
-    (etaleRingedSite X).structureSheaf ⟶
-      ((toFunctor h ⋙ toFunctor k).sheafPushforwardContinuous RingCat.{u}
-        X.etaleTopology Z.etaleTopology).obj (etaleRingedSite Z).structureSheaf :=
-  (etaleSiteHom h).structureSheafMap ≫
-    ((toFunctor h).sheafPushforwardContinuous RingCat.{u}
-        X.etaleTopology Y.etaleTopology).map (etaleSiteHom k).structureSheafMap
-
-/-- Module inverse image along a composite, before transporting the total functor. -/
-def etaleModuleInverseImage_comp₀ {X Y Z : GroupoidsOver S} (h : X ⟶ Y) (k : Y ⟶ Z) :
-    etaleModuleInverseImage k ⋙ etaleModuleInverseImage h ≅
-      SheafOfModules.pushforward (etaleSiteHom_structureSheafMap_compData h k) :=
-  SheafOfModules.pushforwardComp (etaleSiteHom h).structureSheafMap
-    (etaleSiteHom k).structureSheafMap
-
-/-- Transport of composite inverse image along the real total-functor composition
-isomorphism. -/
-def etaleModuleInverseImage_comp₁ {X Y Z : GroupoidsOver S} (h : X ⟶ Y) (k : Y ⟶ Z) :
-    SheafOfModules.pushforward (etaleSiteHom_structureSheafMap_compData h k) ≅
-      SheafOfModules.pushforward
-        (etaleSiteHom_structureSheafMap_compData h k ≫
-          (sheafPushforwardContinuousNatTrans
-              (ObjectProperty.FullSubbicategory.toFunctor.compIso h k).hom
-              RingCat.{u} X.etaleTopology Z.etaleTopology).app
-            (etaleRingedSite Z).structureSheaf) :=
-  SheafOfModules.pushforwardNatIso (etaleSiteHom_structureSheafMap_compData h k)
-    (ObjectProperty.FullSubbicategory.toFunctor.compIso h k)
-
-/-- The transported composite structure-sheaf map agrees with the structure-sheaf
-map of the composite 1-morphism. -/
-theorem etaleSiteHom_structureSheafMap_comp {X Y Z : GroupoidsOver S}
-    (h : X ⟶ Y) (k : Y ⟶ Z) :
-    etaleSiteHom_structureSheafMap_compData h k ≫
-        (sheafPushforwardContinuousNatTrans
-            (ObjectProperty.FullSubbicategory.toFunctor.compIso h k).hom
-            RingCat.{u} X.etaleTopology Z.etaleTopology).app
-          (etaleRingedSite Z).structureSheaf =
-      (etaleSiteHom (h ≫ k)).structureSheafMap :=
-  sorry
-
-/-- Align the transported composite inverse image with inverse image along the
-composite 1-morphism. -/
-def etaleModuleInverseImage_comp₂ {X Y Z : GroupoidsOver S} (h : X ⟶ Y) (k : Y ⟶ Z) :
-    SheafOfModules.pushforward
-        (etaleSiteHom_structureSheafMap_compData h k ≫
-          (sheafPushforwardContinuousNatTrans
-              (ObjectProperty.FullSubbicategory.toFunctor.compIso h k).hom
-              RingCat.{u} X.etaleTopology Z.etaleTopology).app
-            (etaleRingedSite Z).structureSheaf) ≅
-      etaleModuleInverseImage (h ≫ k) :=
-  SheafOfModules.pushforwardCongr (etaleSiteHom_structureSheafMap_comp h k)
-
-/-- Inverse image of étale modules along a composite 1-morphism is the composite
-of the inverse images. -/
-def etaleModuleInverseImage_comp {X Y Z : GroupoidsOver S} (h : X ⟶ Y) (k : Y ⟶ Z) :
-    etaleModuleInverseImage k ⋙ etaleModuleInverseImage h ≅
-      etaleModuleInverseImage (h ≫ k) :=
-  etaleModuleInverseImage_comp₀ h k ≪≫
-    etaleModuleInverseImage_comp₁ h k ≪≫ etaleModuleInverseImage_comp₂ h k
-
-/-- The structure-sheaf map of `h₂` transported along `toFunctorIso e` agrees with
-the structure-sheaf map of `h₁`. -/
-theorem etaleSiteHom_structureSheafMap_iso {X Y : GroupoidsOver S} {h₁ h₂ : X ⟶ Y}
-    (e : h₁ ≅ h₂) :
-    (etaleSiteHom h₂).structureSheafMap ≫
-        (sheafPushforwardContinuousNatTrans (toFunctorIso e).hom RingCat.{u}
-            X.etaleTopology Y.etaleTopology).app
-          (etaleRingedSite Y).structureSheaf =
-      (etaleSiteHom h₁).structureSheafMap :=
-  sorry
-
-/-- Transport of inverse image along the real total-functor isomorphism. -/
-def etaleModuleInverseImage_iso₀ {X Y : GroupoidsOver S} {h₁ h₂ : X ⟶ Y} (e : h₁ ≅ h₂) :
-    etaleModuleInverseImage h₂ ≅
-      SheafOfModules.pushforward
-        ((etaleSiteHom h₂).structureSheafMap ≫
-          (sheafPushforwardContinuousNatTrans (toFunctorIso e).hom RingCat.{u}
-              X.etaleTopology Y.etaleTopology).app
-            (etaleRingedSite Y).structureSheaf) :=
-  SheafOfModules.pushforwardNatIso (etaleSiteHom h₂).structureSheafMap (toFunctorIso e)
-
-/-- Align the transported inverse image with inverse image along `h₁`. -/
-def etaleModuleInverseImage_iso₁ {X Y : GroupoidsOver S} {h₁ h₂ : X ⟶ Y} (e : h₁ ≅ h₂) :
-    SheafOfModules.pushforward
-        ((etaleSiteHom h₂).structureSheafMap ≫
-          (sheafPushforwardContinuousNatTrans (toFunctorIso e).hom RingCat.{u}
-              X.etaleTopology Y.etaleTopology).app
-            (etaleRingedSite Y).structureSheaf) ≅
-      etaleModuleInverseImage h₁ :=
-  SheafOfModules.pushforwardCongr (etaleSiteHom_structureSheafMap_iso e)
-
-/-- A 2-isomorphism of 1-morphisms induces an isomorphism of étale module
-inverse images. -/
-def etaleModuleInverseImage_iso {X Y : GroupoidsOver S} {h₁ h₂ : X ⟶ Y} (e : h₁ ≅ h₂) :
-    etaleModuleInverseImage h₁ ≅ etaleModuleInverseImage h₂ :=
-  (etaleModuleInverseImage_iso₀ e ≪≫ etaleModuleInverseImage_iso₁ e).symm
-
 variable {X Y : GroupoidsOver S} {F G : AlgebraicSpace S}
 variable (eX : F.toGroupoids ≌ X) (eY : G.toGroupoids ≌ Y) (f : X ⟶ Y)
 variable (α : (f ≫ eY.symm.hom) ≅
     (eX.symm.hom ≫ AlgebraicSpace.toGroupoids.map (recoveredHom eX eY f)))
-
-/-- Transport of the presentation `2`-iso `α` to
-`eX.hom ≫ f ≅ map(recoveredHom) ≫ eY.hom` by units, counits, and associators. -/
-def presentedTwoCell :
-    eX.hom ≫ f ≅
-      AlgebraicSpace.toGroupoids.map (recoveredHom eX eY f) ≫ eY.hom :=
-  (ρ_ (eX.hom ≫ f)).symm ≪≫
-    Bicategory.whiskerLeftIso (eX.hom ≫ f) eY.counit.symm ≪≫
-    (α_ (eX.hom ≫ f) eY.inv eY.hom).symm ≪≫
-    Bicategory.whiskerRightIso (α_ eX.hom f eY.inv) eY.hom ≪≫
-    Bicategory.whiskerRightIso (Bicategory.whiskerLeftIso eX.hom α) eY.hom ≪≫
-    Bicategory.whiskerRightIso
-      (α_ eX.hom eX.inv
-          (AlgebraicSpace.toGroupoids.map (recoveredHom eX eY f))).symm eY.hom ≪≫
-    (α_ (eX.hom ≫ eX.inv)
-        (AlgebraicSpace.toGroupoids.map (recoveredHom eX eY f)) eY.hom) ≪≫
-    Bicategory.whiskerRightIso eX.unit.symm
-      (AlgebraicSpace.toGroupoids.map (recoveredHom eX eY f) ≫ eY.hom) ≪≫
-    λ_ (AlgebraicSpace.toGroupoids.map (recoveredHom eX eY f) ≫ eY.hom)
 
 /-- Identification of `AlgebraicSpace.QCoh.pullback` with small-étale module
 pullback on underlying module sheaves. -/
@@ -324,110 +100,91 @@ def restrict_pullback_presentedPullback (𝒢 : QCoh Y) :
       (AlgebraicSpace.toGroupoids.map (recoveredHom eX eY f))).obj
     (restrict_pullback_toPresented eX eY f α 𝒢)
 
-/-- Underlying type-valued comparison from geometric inverse image of the
-presented module to continuous pushforward along `toFunctor (toGroupoids.map h)`. -/
-def restrict_pullback_fromPullbackUnderlying (𝒢 : QCoh Y) :
-    (ToInternal.underlying
-          ((AlgebraicSpace.toGroupoidsEtaleRingedToposHom
-              (recoveredHom eX eY f)).toTopos.ringInverseImage.obj
-            (etaleRingedSite G.toGroupoids).structureSheaf)).obj
-        (((AlgebraicSpace.toGroupoidsEtaleRingedToposHom
-            (recoveredHom eX eY f)).toTopos.moduleInverseImage
-            (etaleRingedSite G.toGroupoids).structureSheaf).obj
-          (restrict_pullback_toPresented eX eY f α 𝒢)) ⟶
-      (ToInternal.underlying
-          ((AlgebraicSpace.toGroupoidsEtaleRingedToposHom
-              (recoveredHom eX eY f)).toTopos.ringInverseImage.obj
-            (etaleRingedSite G.toGroupoids).structureSheaf)).obj
-        ((SheafOfModules.restrictScalars
-            (AlgebraicSpace.toGroupoidsEtaleRingedToposHom
-              (recoveredHom eX eY f)).structureMap).obj
-          (restrict_pullback_presentedPullback eX eY f α 𝒢)) :=
-  ((AlgebraicSpace.toGroupoidsEtaleRingedToposHom
-        (recoveredHom eX eY f)).toTopos.moduleInverseImageForgetIso
-        (etaleRingedSite G.toGroupoids).structureSheaf).hom.app
-      (restrict_pullback_toPresented eX eY f α 𝒢) ≫
-    (CartesianBasedFunctor.morphismOfTopoiIn.inverseImageComparison
-        (toCartesianBasedFunctor
-          (AlgebraicSpace.toGroupoids.map (recoveredHom eX eY f)))
-        (StandardTopology.etale.overTopology S)).app
-      ((ToInternal.underlying (etaleRingedSite G.toGroupoids).structureSheaf).obj
-        (restrict_pullback_toPresented eX eY f α 𝒢)) ≫
-      (sheafPushforwardContinuousIso
-          (eqToIso
-            (cartesian_toFunctor_eq
-              (AlgebraicSpace.toGroupoids.map (recoveredHom eX eY f))))
-          (Type u) F.toGroupoids.etaleTopology G.toGroupoids.etaleTopology).hom.app
-        ((ToInternal.underlying (etaleRingedSite G.toGroupoids).structureSheaf).obj
-          (restrict_pullback_toPresented eX eY f α 𝒢))
+/-- For identity presentations, recovering the canonical represented morphism
+returns the same morphism of algebraic spaces. -/
+theorem restrict_pullback_presentedSpaceMorphism_eq :
+    moduleComparisonSpaceMorphism
+        (AlgebraicSpace.toGroupoids.map (recoveredHom eX eY f))
+        (Bicategory.Equivalence.id F.toGroupoids)
+        (Bicategory.Equivalence.id G.toGroupoids) = recoveredHom eX eY f :=
+  sorry
 
-/-- Geometric inverse image of the presented module over `h⁻¹ 𝒪`, compared with
-restriction of scalars of the site-level inverse image. -/
-def restrict_pullback_fromPullback (𝒢 : QCoh Y) :
-    ((AlgebraicSpace.toGroupoidsEtaleRingedToposHom
-        (recoveredHom eX eY f)).toTopos.moduleInverseImage
-        (etaleRingedSite G.toGroupoids).structureSheaf).obj
-      (restrict_pullback_toPresented eX eY f α 𝒢) ⟶
-      (SheafOfModules.restrictScalars
-          (AlgebraicSpace.toGroupoidsEtaleRingedToposHom
-            (recoveredHom eX eY f)).structureMap).obj
-        (restrict_pullback_presentedPullback eX eY f α 𝒢) :=
-  homOfUnderlying
-    ((AlgebraicSpace.toGroupoidsEtaleRingedToposHom
-        (recoveredHom eX eY f)).toTopos.ringInverseImage.obj
-      (etaleRingedSite G.toGroupoids).structureSheaf)
-    (restrict_pullback_fromPullbackUnderlying eX eY f α 𝒢) sorry sorry
-
-/-- Topos-level module pullback compared with site-level inverse image along
-`toGroupoids.map (recoveredHom)`. -/
-def restrict_pullback_pullbackToInverseImage (𝒢 : QCoh Y) :
-    (AlgebraicSpace.toGroupoidsEtaleRingedToposHom
-        (recoveredHom eX eY f)).modulePullback.obj
-      (restrict_pullback_toPresented eX eY f α 𝒢) ⟶
-      restrict_pullback_presentedPullback eX eY f α 𝒢 :=
-  (RingedSite.ToposHom.ModulePullback.scalarHomEquiv
-      (AlgebraicSpace.toGroupoidsEtaleRingedToposHom (recoveredHom eX eY f))
-      (((AlgebraicSpace.toGroupoidsEtaleRingedToposHom
-          (recoveredHom eX eY f)).toTopos.moduleInverseImage
-          (etaleRingedSite G.toGroupoids).structureSheaf).obj
-        (restrict_pullback_toPresented eX eY f α 𝒢))
-      (restrict_pullback_presentedPullback eX eY f α 𝒢)).symm
-    (restrict_pullback_fromPullback eX eY f α 𝒢)
-
-/-- Mate of `compareBigSmall_modules` along `pullbackPushforwardAdjunction`, after
-transporting the topos unit along `restrict_pullback_pullbackToInverseImage`. -/
+/-- Identity-presentation pullback comparison, using the actual canonical
+site-module unit and restriction comparison. -/
 def restrict_pullback_presentedHom (𝒢 : QCoh Y) :
     (AlgebraicSpace.Modules.pullback (recoveredHom eX eY f)).obj
         ((AlgebraicSpace.restrictEtaleModules G).obj
           (restrict_pullback_toPresented eX eY f α 𝒢)) ⟶
       (AlgebraicSpace.restrictEtaleModules F).obj
         (restrict_pullback_presentedPullback eX eY f α 𝒢) :=
-  ((AlgebraicSpace.Modules.pullbackPushforwardAdjunction
-        (recoveredHom eX eY f)).homEquiv _ _).symm
-    ((AlgebraicSpace.restrictEtaleModules G).map
-        ((AlgebraicSpace.toGroupoidsEtaleRingedToposHom
-            (recoveredHom eX eY f)).moduleAdjunction.unit.app
-          (restrict_pullback_toPresented eX eY f α 𝒢) ≫
-          (AlgebraicSpace.etaleModulePushforward (recoveredHom eX eY f)).map
-            (restrict_pullback_pullbackToInverseImage eX eY f α 𝒢)) ≫
-      (AlgebraicSpace.compareBigSmall_modules (recoveredHom eX eY f)
-          (restrict_pullback_presentedPullback eX eY f α 𝒢)).hom)
+  eqToHom
+      (congrArg
+        (fun h => (AlgebraicSpace.Modules.pullback h).obj
+          ((AlgebraicSpace.restrictEtaleModules G).obj
+            (restrict_pullback_toPresented eX eY f α 𝒢)))
+        (restrict_pullback_presentedSpaceMorphism_eq eX eY f).symm) ≫
+    restrictPullbackComparison
+      (AlgebraicSpace.toGroupoids.map (recoveredHom eX eY f))
+      (Bicategory.Equivalence.id F.toGroupoids)
+      (Bicategory.Equivalence.id G.toGroupoids)
+      (restrict_pullback_toPresented eX eY f α 𝒢)
 
-/-- The identity-presentation pullback comparison is an isomorphism. -/
-instance restrict_pullback_presentedHom_isIso (𝒢 : QCoh Y) :
-    IsIso (restrict_pullback_presentedHom eX eY f α 𝒢) :=
+/-- On quasi-coherent inputs, the actual comparison is bijective on each
+small-étale chart. This is a law of the specified forward map. -/
+theorem restrict_pullback_presentedHom_app_bijective (𝒢 : QCoh Y)
+    (W : (AlgebraicSpace.smallEtaleSite F)ᵒᵖ) :
+    Function.Bijective ((restrict_pullback_presentedHom eX eY f α 𝒢).val.app W).hom :=
   sorry
 
-/-- Inverse of `restrict_pullback_presentedHom`. -/
+/-- The reverse section function tests the actual fibre of the forward
+comparison, choosing from that fibre when it is nonempty and otherwise using zero. -/
+def restrict_pullback_presentedInvSection (𝒢 : QCoh Y)
+    (W : (AlgebraicSpace.smallEtaleSite F)ᵒᵖ) :
+    ((AlgebraicSpace.restrictEtaleModules F).obj
+        (restrict_pullback_presentedPullback eX eY f α 𝒢)).val.obj W →
+      ((AlgebraicSpace.Modules.pullback (recoveredHom eX eY f)).obj
+        ((AlgebraicSpace.restrictEtaleModules G).obj
+          (restrict_pullback_toPresented eX eY f α 𝒢))).val.obj W :=
+  fun y =>
+    @dite _
+      (∃ x, ((restrict_pullback_presentedHom eX eY f α 𝒢).val.app W).hom x = y)
+      (Classical.propDecidable _)
+      (fun h => h.choose) (fun _ => 0)
+
+/-- Reverse section map obtained from the actual fibres of the forward map,
+with zero as the default. No asserted isomorphism supplies the inverse data. -/
+def restrict_pullback_presentedInvUnderlying (𝒢 : QCoh Y) :
+    (ToInternal.underlying (AlgebraicSpace.structureSheaf F)).obj
+        ((AlgebraicSpace.restrictEtaleModules F).obj
+          (restrict_pullback_presentedPullback eX eY f α 𝒢)) ⟶
+      (ToInternal.underlying (AlgebraicSpace.structureSheaf F)).obj
+        ((AlgebraicSpace.Modules.pullback (recoveredHom eX eY f)).obj
+          ((AlgebraicSpace.restrictEtaleModules G).obj
+            (restrict_pullback_toPresented eX eY f α 𝒢))) where
+  hom :=
+    { app := fun W => TypeCat.ofHom (restrict_pullback_presentedInvSection eX eY f α 𝒢 W)
+      naturality := sorry }
+
+/-- Inverse of `restrict_pullback_presentedHom`, with its chartwise section
+functions specified independently of the inverse laws. -/
 def restrict_pullback_presentedInv (𝒢 : QCoh Y) :
     (AlgebraicSpace.restrictEtaleModules F).obj
         (restrict_pullback_presentedPullback eX eY f α 𝒢) ⟶
       (AlgebraicSpace.Modules.pullback (recoveredHom eX eY f)).obj
         ((AlgebraicSpace.restrictEtaleModules G).obj
           (restrict_pullback_toPresented eX eY f α 𝒢)) :=
-  (@CategoryTheory.asIso _ _ _ _
-      (restrict_pullback_presentedHom eX eY f α 𝒢)
-      (restrict_pullback_presentedHom_isIso eX eY f α 𝒢)).inv
+  homOfUnderlying (AlgebraicSpace.structureSheaf F)
+    (restrict_pullback_presentedInvUnderlying eX eY f α 𝒢) sorry sorry
+
+/-- The identity-presentation pullback comparison has the specified actual
+chartwise inverse; only its two inverse laws are deferred. -/
+instance restrict_pullback_presentedHom_isIso (𝒢 : QCoh Y) :
+    IsIso (restrict_pullback_presentedHom eX eY f α 𝒢) :=
+  Iso.isIso_hom
+    { hom := restrict_pullback_presentedHom eX eY f α 𝒢
+      inv := restrict_pullback_presentedInv eX eY f α 𝒢
+      hom_inv_id := sorry
+      inv_hom_id := sorry }
 
 /-- Comparison of `π_{G,*}` with identity-presentation restriction, as the
 composite module-pushforward isomorphism along `etaleSiteHom eY.hom` and `π_G`. -/
@@ -466,27 +223,36 @@ theorem restrict_pullback_piComp_base :
       (pi G Y eY).base :=
   rfl
 
-/-- Comparison of `π_{G,*}` with identity-presentation restriction. Restriction of
-scalars along the two structure-sheaf maps of `π_G` and of `etaleSiteHom eY.hom ≫ π_G`
-does not change the underlying abelian presheaf, so the comparison is the identity
-on that presheaf. -/
+/-- The presentation site morphism followed by the identity-presentation
+restriction is the specified restriction site morphism. -/
+theorem restrict_pullback_presentation_pi {Z : GroupoidsOver S} {H : AlgebraicSpace S}
+    (e : H.toGroupoids ≌ Z) :
+    (etaleSiteHom e.hom).comp
+        (pi H H.toGroupoids (Bicategory.Equivalence.id H.toGroupoids)) = pi H Z e :=
+  sorry
+
+/-- Comparison of `π_{G,*}` with identity-presentation restriction, using the
+actual pushforward-composition isomorphism and the presentation site equality. -/
 def restrict_pullback_idPresented (𝒢 : QCoh Y) :
     ((QCoh.restrict eY).obj 𝒢).obj ⟶
       (AlgebraicSpace.restrictEtaleModules G).obj
         (restrict_pullback_toPresented eX eY f α 𝒢) :=
-  { val :=
-      PresheafOfModules.homMk
-        (𝟙 ((QCoh.restrict eY).obj 𝒢).obj.val.presheaf) sorry }
+  eqToHom
+      (congrArg
+        (fun H => H.modulePushforward.obj ((toEtaleRingedModules Y).obj 𝒢.obj))
+        (restrict_pullback_presentation_pi eY).symm) ≫
+    restrict_pullback_presentedToRestrict eX eY f α 𝒢
 
 /-- Reverse comparison of identity-presentation restriction with `π_{G,*}`. -/
 def restrict_pullback_idPresentedInv (𝒢 : QCoh Y) :
     (AlgebraicSpace.restrictEtaleModules G).obj
         (restrict_pullback_toPresented eX eY f α 𝒢) ⟶
       ((QCoh.restrict eY).obj 𝒢).obj :=
-  { val :=
-      PresheafOfModules.homMk
-        (𝟙 ((AlgebraicSpace.restrictEtaleModules G).obj
-              (restrict_pullback_toPresented eX eY f α 𝒢)).val.presheaf) sorry }
+  restrict_pullback_restrictToPresented eX eY f α 𝒢 ≫
+    eqToHom
+      (congrArg
+        (fun H => H.modulePushforward.obj ((toEtaleRingedModules Y).obj 𝒢.obj))
+        (restrict_pullback_presentation_pi eY))
 
 /-- Identification of `QCoh.pullback f` with `modulePullback f` on underlying modules. -/
 def restrict_pullback_toModulePullback (𝒢 : QCoh Y) :
@@ -529,12 +295,15 @@ def restrict_pullback_idLeftPresented (𝒢 : QCoh Y) :
       (AlgebraicSpace.restrictEtaleModules F).obj
         ((etaleModuleInverseImage eX.hom).obj
           ((etaleModuleInverseImage f).obj ((toEtaleRingedModules Y).obj 𝒢.obj))) :=
-  { val :=
-      PresheafOfModules.homMk
-        (𝟙 ((restrictModules eX).obj
-              ((etaleModuleInverseImage f).obj
-                ((toEtaleRingedModules Y).obj 𝒢.obj))).val.presheaf)
-        sorry }
+  eqToHom
+      (congrArg
+        (fun H => H.modulePushforward.obj
+          ((etaleModuleInverseImage f).obj ((toEtaleRingedModules Y).obj 𝒢.obj)))
+        (restrict_pullback_presentation_pi eX).symm) ≫
+    (RingedSite.Hom.modulePushforwardCompIso
+      (etaleSiteHom eX.hom)
+      (pi F F.toGroupoids (Bicategory.Equivalence.id F.toGroupoids))).inv.app
+      ((etaleModuleInverseImage f).obj ((toEtaleRingedModules Y).obj 𝒢.obj))
 
 /-- Reverse of `restrict_pullback_idLeftPresented`. -/
 def restrict_pullback_idLeftPresentedInv (𝒢 : QCoh Y) :
@@ -543,13 +312,15 @@ def restrict_pullback_idLeftPresentedInv (𝒢 : QCoh Y) :
           ((etaleModuleInverseImage f).obj ((toEtaleRingedModules Y).obj 𝒢.obj))) ⟶
       (restrictModules eX).obj
         ((etaleModuleInverseImage f).obj ((toEtaleRingedModules Y).obj 𝒢.obj)) :=
-  { val :=
-      PresheafOfModules.homMk
-        (𝟙 ((AlgebraicSpace.restrictEtaleModules F).obj
-              ((etaleModuleInverseImage eX.hom).obj
-                ((etaleModuleInverseImage f).obj
-                  ((toEtaleRingedModules Y).obj 𝒢.obj)))).val.presheaf)
-        sorry }
+  (RingedSite.Hom.modulePushforwardCompIso
+      (etaleSiteHom eX.hom)
+      (pi F F.toGroupoids (Bicategory.Equivalence.id F.toGroupoids))).hom.app
+      ((etaleModuleInverseImage f).obj ((toEtaleRingedModules Y).obj 𝒢.obj)) ≫
+    eqToHom
+      (congrArg
+        (fun H => H.modulePushforward.obj
+          ((etaleModuleInverseImage f).obj ((toEtaleRingedModules Y).obj 𝒢.obj)))
+        (restrict_pullback_presentation_pi eX))
 
 /-- Comparison of `QCoh.restrict eX` of the CFG pullback with identity-presentation
 restriction on `F`. -/
@@ -597,7 +368,7 @@ def restrict_pullback_idLeftInv (𝒢 : QCoh Y) :
 
 /-- Module-level comparison of the two pullback-restriction composites. The
 forward map is identity-on-Γ transport of CFG pullback, followed by the
-identity-presentation mate of `compareBigSmall_modules`. -/
+identity-presentation canonical site-module comparison. -/
 def restrict_pullback_modulesIso (𝒢 : QCoh Y) :
     ((QCoh.restrict eX).obj ((QCoh.pullback f).obj 𝒢)).obj ≅
       ((AlgebraicSpace.QCoh.pullback (recoveredHom eX eY f)).obj

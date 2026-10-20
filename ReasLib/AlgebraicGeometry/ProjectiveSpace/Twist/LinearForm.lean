@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Twist.Coordinate
@@ -21,6 +15,14 @@ noncomputable section
 universe u
 
 namespace AlgebraicGeometry.ProjectiveSpace
+
+/- The scheme carrier is opaque enough that the finite-biproduct API needs its
+   concrete finite-biproduct instance pinned before elaborating the public target types. -/
+local instance instHasBiproduct (k : Type u) [Field k] :
+    HasBiproduct (fun _ : Fin (2 + 1) ↦ twistingSheaf k 2 1) := by
+  letI : HasFiniteBiproducts (scheme k 2).Modules :=
+    AlgebraicGeometry.Scheme.moduleHasFiniteBiproducts (scheme k 2)
+  infer_instance
 
 /-- The global section of `twistingSheaf k 2 1` associated to a homogeneous linear form. -/
 noncomputable def sectionOfLinearForm {k : Type u} [Field k]

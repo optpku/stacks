@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.ConstantSheaf
@@ -141,15 +135,6 @@ noncomputable def constantSheafOverObjIso
     (fullyFaithfulSheafToPresheaf (J.over U) D).preimageIso
       (isoSheafify (J.over U) (((constantSheaf J D).obj E).over U).property)
   exact e₂ ≪≫ e₁.symm
-
-/-- The restriction of a constant sheaf to a slice site has a constant-sheaf model. -/
-theorem constant_sheaf_over_nonempty_iso
-    {FD : D → D → Type*} {CD : D → Type*}
-    [∀ X Y, FunLike (FD X Y) (CD X) (CD Y)] [ConcreteCategory D FD]
-    [J.WEqualsLocallyBijective D]
-    [∀ U : C, (J.over U).WEqualsLocallyBijective D]
-    (U : C) (E : D) :
-    Nonempty (((constantSheaf J D).obj E).over U ≅ (constantSheaf (J.over U) D).obj E) := sorry
 
 /-- Restriction of a constant sheaf to a slice site is constant. -/
 theorem constant_sheaf_over_isConstant

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.ExactSequence
@@ -152,25 +146,25 @@ theorem comp_app {F G H : HomologicalDeltaFunctor A B} (τ : F ⟶ G) (σ : G �
     (n : ℕ) :
     (τ ≫ σ).app n = τ.app n ≫ σ.app n := sorry
 
-/-- A homological delta functor is universal when degree-zero maps extend uniquely. -/
+/-- A homological delta functor is universal when degree-zero maps into it extend uniquely. -/
 @[stacks 010S "universal homological delta functor"]
 class IsUniversal (F : HomologicalDeltaFunctor A B) : Prop where
-  /-- The universal degree-zero extension property. -/
-  existsUnique_hom (G : HomologicalDeltaFunctor A B) (t : (F 0).obj ⟶ (G 0).obj) :
-    ∃! τ : F ⟶ G, τ.app 0 = t
+  /-- Every degree-zero map into this functor extends uniquely to all degrees. -/
+  existsUnique_hom (G : HomologicalDeltaFunctor A B) (t : (G 0).obj ⟶ (F 0).obj) :
+    ∃! τ : G ⟶ F, τ.app 0 = t
 
 namespace IsUniversal
 
-/-- A morphism out of a universal homological delta functor is determined in degree zero. -/
+/-- A morphism into a universal homological delta functor is determined in degree zero. -/
 theorem hom_ext
-    {F G : HomologicalDeltaFunctor A B} [IsUniversal F]
+    {F G : HomologicalDeltaFunctor A B} [IsUniversal G]
     {τ σ : F ⟶ G} (h : τ.app 0 = σ.app 0) :
     τ = σ := sorry
 
-/-- An isomorphism out of a universal homological delta functor is determined by its
+/-- An isomorphism into a universal homological delta functor is determined by its
 degree-zero component. -/
 theorem iso_ext
-    {F G : HomologicalDeltaFunctor A B} [IsUniversal F]
+    {F G : HomologicalDeltaFunctor A B} [IsUniversal G]
     {e e' : F ≅ G} (h : e.hom.app 0 = e'.hom.app 0) :
     e = e' := sorry
 

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Pro.Presentation
@@ -30,11 +24,6 @@ noncomputable def representedHom (F : A ⥤ Pro B) : Aᵒᵖ × B ⥤ Type vB :=
 pro-object on `L`. -/
 theorem representedHom_obj (F : A ⥤ Pro B) (K : A) (L : B) :
     (representedHom F).obj (op K, L) = (F.obj K ⟶ Pro.yoneda.obj L) := sorry
-
-/-- Two `Pro B`-valued functors are naturally isomorphic when their represented Hom
-bifunctors are naturally isomorphic. -/
-theorem functor_isomorphic_of_representedHom (F G : A ⥤ Pro B)
-    (e : representedHom F ≅ representedHom G) : Nonempty (F ≅ G) := sorry
 
 /-- The Yoneda realization of a pro-object, evaluated on a constant pro-object. -/
 noncomputable def homYonedaEquiv (X : Pro B) (L : B) :
@@ -121,13 +110,28 @@ theorem representedHomNatTransEquiv_symm_apply (F G : A ⥤ Pro B)
       (representedHomNatTransEquiv F G η) = η := sorry
 
 /-- An isomorphism of represented Hom bifunctors determines an isomorphism of the
-underlying pro-valued functors. -/
+underlying pro-valued functors: two `Pro B`-valued functors are naturally isomorphic when
+their represented Hom bifunctors are. -/
 noncomputable def representedHomIsoOf (F G : A ⥤ Pro B)
     (e : representedHom G ≅ representedHom F) : F ≅ G where
   hom := (representedHomNatTransEquiv F G).symm e.hom
   inv := (representedHomNatTransEquiv G F).symm e.inv
   hom_inv_id := sorry
   inv_hom_id := sorry
+
+/-- The forward transformation of `representedHomIsoOf` is the transformation corresponding
+to `e.hom` under `representedHomNatTransEquiv`. -/
+@[simp]
+theorem representedHomIsoOf_hom (F G : A ⥤ Pro B)
+    (e : representedHom G ≅ representedHom F) :
+    (representedHomIsoOf F G e).hom = (representedHomNatTransEquiv F G).symm e.hom := rfl
+
+/-- The inverse transformation of `representedHomIsoOf` is the transformation corresponding
+to `e.inv` under `representedHomNatTransEquiv`. -/
+@[simp]
+theorem representedHomIsoOf_inv (F G : A ⥤ Pro B)
+    (e : representedHom G ≅ representedHom F) :
+    (representedHomIsoOf F G e).inv = (representedHomNatTransEquiv G F).symm e.inv := rfl
 
 /-- Applying represented Hom to an isomorphism reverses its direction. -/
 noncomputable def representedHomIsoMap (F G : A ⥤ Pro B) (e : F ≅ G) :

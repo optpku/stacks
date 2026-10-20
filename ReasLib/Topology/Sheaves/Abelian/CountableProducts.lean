@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Topology.UniformSpace.Real
@@ -41,7 +35,3 @@ theorem realLineOpposite_not_countableAB4 :
     ¬ CountableAB4 ((TopCat.Sheaf AddCommGrpCat.{u} (TopCat.of ℝ))ᵒᵖ) := sorry
 
 end TopCat.Sheaf
-
-#synth HasSheafify (Opens.grothendieckTopology (TopCat.of ℝ)) AddCommGrpCat.{u}
-#synth Abelian (TopCat.Sheaf AddCommGrpCat.{u} (TopCat.of ℝ))
-#synth Abelian (TopCat.Sheaf AddCommGrpCat.{u} (TopCat.of ℝ))ᵒᵖ

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap101.Definition_101_38_1_SchemeTheoreticImage
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.SchemeTheoreticImage.Existence
 
 /-!
 # Existence of scheme-theoretic images of morphisms of algebraic stacks
@@ -40,30 +35,27 @@ inclusion recovers `f`. -/
 theorem mk {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y} {Z : ClosedSubstack Y}
     (toZ : X ⟶ Z.Y) (hfac : toZ ≫ Z.ι = f) : factorsThrough f Z :=
-  sorry
+  ⟨toZ, hfac⟩
 
 /-- A factorization through a closed substack supplies a 1-morphism into the
 substack whose composite with the inclusion is `f`. -/
 theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y} {Z : ClosedSubstack Y}
     (h : factorsThrough f Z) : ∃ toZ : X ⟶ Z.Y, toZ ≫ Z.ι = f :=
-  sorry
+  h
 
 /-- Factoring through a closed substack is the existence of a 1-morphism into
 the substack whose composite with the inclusion is `f`. -/
 theorem iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) (Z : ClosedSubstack Y) :
     factorsThrough f Z ↔ ∃ toZ : X ⟶ Z.Y, toZ ≫ Z.ι = f :=
-  sorry
+  Iff.rfl
 
 end factorsThrough
 
-/-- The scheme-theoretic image of a morphism of algebraic stacks exists if some
-closed substack of the target is a scheme-theoretic image factorization. -/
-def HasSchemeTheoreticImage {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) : Prop :=
-  ∃ (Z : ClosedSubstack Y) (toImage : X ⟶ Z.Y),
-    IsSchemeTheoreticImage f toImage Z.ι
+#check (AlgebraicGeometry.AlgebraicStack.HasSchemeTheoreticImage :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y], (X ⟶ Y) → Prop)
 
 /-- Existence of a scheme-theoretic image is the existence of a closed-substack
 factorization that is a scheme-theoretic image. -/
@@ -72,6 +64,16 @@ theorem hasSchemeTheoreticImage_iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
     HasSchemeTheoreticImage f ↔
       ∃ (Z : ClosedSubstack Y) (toImage : X ⟶ Z.Y),
         IsSchemeTheoreticImage f toImage Z.ι :=
-  sorry
+  by
+    constructor
+    · rintro ⟨Z, toImage, ι, h⟩
+      exact ⟨{ Y := Z.toGroupoids
+               ι := ι
+               isAlgebraicStack := inferInstance
+               isClosedImmersion := h.isClosedImmersion
+               isStrictlyFull := { full := h.full, faithful := h.faithful } },
+        toImage, h⟩
+    · rintro ⟨Z, toImage, h⟩
+      exact ⟨AlgebraicStacks.of Z.Y, toImage, Z.ι, h⟩
 
 end AlgebraicGeometry.AlgebraicStack

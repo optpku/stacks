@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap62.Proposition_62_12_3_Bivariant
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.RelativeCycle.Bivariant
 
 /-!
 # Bivariant class of a relative cycle
@@ -26,16 +21,10 @@ universe u
 
 namespace AlgebraicGeometry.RelativeCycle
 
-/-- Proposition 62.12.3: Let `(S, δ)` be as in the fibre-cycle action setup, and
-let `f : X ⟶ Y` be a morphism of schemes locally of finite type over `S`. Let
-`α` be a relative `r`-cycle on `X / Y`. For every cartesian square of a morphism
-`g : Y' ⟶ Y` locally of finite type and every `k : ℤ`, the bivariant class
-`bivariantClass δ f r α hα : BivariantClass δ f (-↑r)` acts on the Chow class
-of a cycle `β` of `Y'` by the Chow class of `g^*α ∩ β`, after the canonical
-degree transport `k - (-↑r) = k + r`. Here `g^*α` is
-`FiberCycleFamily.baseChange` and the fibre-cycle action is `capOver`. -/
-@[stacks 0H6F]
-theorem bivariantClass_apply
+/- Proposition 62.12.3: A relative cycle defines a bivariant class whose
+cap action is the base-changed fibre-cycle action on cycle representatives. -/
+@[stacks 0H6F] #check (AlgebraicGeometry.RelativeCycle.bivariantClass_apply :
+  ∀
     {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
     {X Y : Over S} [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
     (f : X ⟶ Y) [IsLocallyNoetherian Y.left]
@@ -43,7 +32,7 @@ theorem bivariantClass_apply
     {X' Y' : Over S} [LocallyOfFiniteType X'.hom] [LocallyOfFiniteType Y'.hom]
     (i : X' ⟶ X) (f' : X' ⟶ Y') (g : Y' ⟶ Y) [LocallyOfFiniteType g.left]
     (square : IsPullback i.left f'.left f.left g.left) (k : ℤ)
-    (β : CycleGroup Y'.left (Y'.hom.relativeDimensionFunction δ) k) :
+    (β : CycleGroup Y'.left (Y'.hom.relativeDimensionFunction δ) k),
     (bivariantClass δ f r α hα).cap i f' g square k
         (@chowClass Y'.left (LocallyOfFiniteType.isLocallyNoetherian Y'.hom)
           (Y'.hom.relativeDimensionFunction δ) inferInstance k β) =
@@ -57,7 +46,6 @@ theorem bivariantClass_apply
           (CycleGroup.reindex (X'.hom.relativeDimensionFunction δ)
             (add_comm (r : ℤ) k)
             (CyclesOnFibers.capOver δ f'
-              (FiberCycleFamily.baseChange square α) k β))) :=
-  sorry
+              (FiberCycleFamily.baseChange square α) k β))))
 
 end AlgebraicGeometry.RelativeCycle

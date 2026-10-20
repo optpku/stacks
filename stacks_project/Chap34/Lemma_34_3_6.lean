@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.ChosenPresentation.Covering
@@ -21,10 +15,10 @@ Zariski site is tautologically equivalent to the image of a covering family in t
     ∀ (X : AlgebraicGeometry.ChosenBigZariskiSite.{u, v}) {T : X.carrier},
       (𝒰 : (X.toScheme.obj T).OpenCover.{u}) →
         ∃ 𝒱 : CategoryTheory.Limits.FormalCoproduct.{u} (CategoryTheory.Over T),
-          CategoryTheory.Limits.FormalCoproduct.Over.IsCovering
+          CategoryTheory.Limits.FormalCoproduct.IsCovering
               (@CategoryTheory.Pretopology.toPrecoverage X.carrier
                 (CategoryTheory.Cat.str X.carrier) X.hasPullbacks X.pretopology) 𝒱 ∧
             CategoryTheory.Limits.FormalCoproduct.TautologicallyEquivalent
               ((CategoryTheory.Limits.FormalCoproduct.map
                 (CategoryTheory.Over.post (X := T) X.toScheme)).obj 𝒱)
-              (CategoryTheory.Limits.FormalCoproduct.Over.ofArrows 𝒰.X 𝒰.f))
+              (CategoryTheory.Limits.FormalCoproduct.ofArrows 𝒰.X 𝒰.f))

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Abelian.Extension.BaerSum
@@ -14,9 +8,7 @@ public import Mathlib.Algebra.Homology.DerivedCategory.Ext.ExtClass
 /-!
 # The Ext-One Class of a Fixed-Endpoint Extension
 
-@stack 010L
-
-This module connects the source-facing quotient `ExtensionClass A B` with the canonical
+This module connects the endpoint-fixed quotient `ExtensionClass A B` with the canonical
 degree-one derived-category object `Ext B A 1`.  Pullback and pushout are expressed as the
 standard contravariant and covariant endpoint actions on `Ext`.
 -/
@@ -52,17 +44,20 @@ theorem extClass_eq_zero_of_section (S : Extension A B) (s : B ⟶ S.E)
     (hs : s ≫ S.g = 𝟙 B) : S.extClass = 0 := sorry
 
 /-- The `Ext¹` class of a pullback extension is precomposition in the first variable. -/
-@[simp] theorem pullback_extClass (u : B' ⟶ B) (S : Extension A B) :
+@[simp]
+theorem pullback_extClass (u : B' ⟶ B) (S : Extension A B) :
     (pullback u S).shortExact.extClass =
       (Ext.mk₀ u).precomp A (zero_add 1) S.shortExact.extClass := sorry
 
 /-- The `Ext¹` class of a pushout extension is postcomposition in the second variable. -/
-@[simp] theorem pushout_extClass (a : A ⟶ A') (S : Extension A B) :
+@[simp]
+theorem pushout_extClass (a : A ⟶ A') (S : Extension A B) :
     (pushout a S).shortExact.extClass =
       (Ext.mk₀ a).postcomp B (add_zero 1) S.shortExact.extClass := sorry
 
 /-- The `Ext¹` class of a Baer sum is the sum of the two extension classes. -/
-@[simp] theorem baerSum_extClass (S T : Extension A B) :
+@[simp]
+theorem baerSum_extClass (S T : Extension A B) :
     (baerSum S T).shortExact.extClass = S.shortExact.extClass + T.shortExact.extClass := sorry
 
 end Extension
@@ -78,29 +73,36 @@ noncomputable def toExt : ExtensionClass A B → Ext B A 1 :=
     Extension.extClass_eq_of_isIsomorphic h
 
 /-- The canonical `Ext¹` bridge computes on an extension representative. -/
-@[simp] theorem toExt_mk (S : Extension A B) :
+@[simp]
+theorem toExt_mk (S : Extension A B) :
     toExt (⟦S⟧ : ExtensionClass A B) = S.extClass := sorry
 
 /-- Pullback of extension classes is precomposition in the first variable of `Ext¹`. -/
-@[simp] theorem toExt_pullback (u : B' ⟶ B) (xi : ExtensionClass A B) :
+@[simp]
+theorem toExt_pullback (u : B' ⟶ B) (xi : ExtensionClass A B) :
     toExt (pullback u xi) = (Ext.mk₀ u).precomp A (zero_add 1) (toExt xi) := sorry
 
 /-- Pushout of extension classes is postcomposition in the second variable of `Ext¹`. -/
-@[simp] theorem toExt_pushout (a : A ⟶ A') (xi : ExtensionClass A B) :
+@[simp]
+theorem toExt_pushout (a : A ⟶ A') (xi : ExtensionClass A B) :
     toExt (pushout a xi) = (Ext.mk₀ a).postcomp B (add_zero 1) (toExt xi) := sorry
 
 /-- The split extension class maps to zero in `Ext¹`. -/
-@[simp] theorem toExt_zero : toExt (0 : ExtensionClass A B) = 0 := sorry
+@[simp]
+theorem toExt_zero : toExt (0 : ExtensionClass A B) = 0 := sorry
 
 /-- The canonical `Ext¹` bridge preserves negation. -/
-@[simp] theorem toExt_neg (xi : ExtensionClass A B) : toExt (-xi) = -toExt xi := sorry
+@[simp]
+theorem toExt_neg (xi : ExtensionClass A B) : toExt (-xi) = -toExt xi := sorry
 
 /-- The canonical `Ext¹` bridge takes Baer sums to addition. -/
-@[simp] theorem toExt_baerSum (xi eta : ExtensionClass A B) :
+@[simp]
+theorem toExt_baerSum (xi eta : ExtensionClass A B) :
     toExt (baerSum xi eta) = toExt xi + toExt eta := sorry
 
 /-- The canonical `Ext¹` bridge preserves the chosen addition on extension classes. -/
-@[simp] theorem toExt_add (xi eta : ExtensionClass A B) :
+@[simp]
+theorem toExt_add (xi eta : ExtensionClass A B) :
     toExt (xi + eta) = toExt xi + toExt eta := sorry
 
 end ExtensionClass

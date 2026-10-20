@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-import stacks_project.Chap61.Lemma_61_25_4_Equivalence
+import ReasLib.AlgebraicGeometry.Scheme.Sites.Proetale.TopologicalInvariance
 import StacksCheckRecall
 
 open AlgebraicGeometry AlgebraicGeometry.Scheme CategoryTheory
@@ -31,9 +25,7 @@ Morphisms Lemma 29.45.5 / 04DF), then the small pro-étale inverse image
 sheaf categories, quasi-inverse to the direct image. -/
 @[stacks 09AB] #check
   (AlgebraicGeometry.Scheme.ProEt.inverseImage_isEquivalence_of_universalHomeomorphism :
-    ∀ {Z X : Scheme.{u}} (i : Z ⟶ X) [UniversalHomeomorphism i]
-      [HasSheafify (ProEt.topology X) (Type (u + 1))]
-      [HasSheafify (ProEt.topology Z) (Type (u + 1))],
+    ∀ {Z X : Scheme.{u}} (i : Z ⟶ X) [UniversalHomeomorphism i],
       ((smallProetalePullback i).sheafPullback (Type (u + 1))
         (ProEt.topology X) (ProEt.topology Z)).IsEquivalence)
 
@@ -41,9 +33,7 @@ sheaf categories, quasi-inverse to the direct image. -/
 direct image on the small pro-étale topos of `X`. -/
 #check
   (AlgebraicGeometry.Scheme.ProEt.sheafAdjunction_unit_isIso_of_universalHomeomorphism :
-    ∀ {Z X : Scheme.{u}} (i : Z ⟶ X) [UniversalHomeomorphism i]
-      [HasSheafify (ProEt.topology X) (Type (u + 1))]
-      [HasSheafify (ProEt.topology Z) (Type (u + 1))],
+    ∀ {Z X : Scheme.{u}} (i : Z ⟶ X) [UniversalHomeomorphism i],
       IsIso ((smallProetalePullback i).sheafAdjunctionContinuous (Type (u + 1))
         (ProEt.topology X) (ProEt.topology Z)).unit)
 
@@ -51,8 +41,6 @@ direct image on the small pro-étale topos of `X`. -/
 with the identity on the small pro-étale topos of `Z`. -/
 #check
   (AlgebraicGeometry.Scheme.ProEt.sheafAdjunction_counit_isIso_of_universalHomeomorphism :
-    ∀ {Z X : Scheme.{u}} (i : Z ⟶ X) [UniversalHomeomorphism i]
-      [HasSheafify (ProEt.topology X) (Type (u + 1))]
-      [HasSheafify (ProEt.topology Z) (Type (u + 1))],
+    ∀ {Z X : Scheme.{u}} (i : Z ⟶ X) [UniversalHomeomorphism i],
       IsIso ((smallProetalePullback i).sheafAdjunctionContinuous (Type (u + 1))
         (ProEt.topology X) (ProEt.topology Z)).counit)

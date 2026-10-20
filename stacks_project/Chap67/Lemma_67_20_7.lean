@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap67.Lemma_67_20_7_AffineOver
-public import stacks_project.Chap67.Lemma_67_20_7_Equivalence
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RelativeSpectrum.Equivalence
 
 @[expose] public section
 
@@ -33,3 +26,4 @@ change of algebraic spaces over the same scheme. -/
       ∃ eX : (AlgebraicGeometry.AlgebraicSpace.AffineMorphismOver X)ᵒᵖ ≌
           AlgebraicGeometry.AlgebraicSpace.QcAlgebraUnder X,
         AlgebraicGeometry.AlgebraicSpace.AffineMorphismOver.IsBaseChangeCompatible X eX)
+

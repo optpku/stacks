@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowCohomology.ChernClass
@@ -60,7 +54,7 @@ theorem component_cap_comm
     (E : X.Modules) (r : ℕ) [Scheme.Modules.IsFiniteLocallyFreeOfRank r E]
     (F : X.Modules) (s : ℕ) [Scheme.Modules.IsFiniteLocallyFreeOfRank s F]
     (i j : ℕ) (k : ℤ) (α : RelativeChow δ (Over.mk p) k) :
-    castDegree δ (Y := Over.mk p) (capCommDegree k i j)
+    RelativeChow.castDegree δ (X := Over.mk p) (capCommDegree k i j)
         (chowCap δ p E r i (k - (j : ℤ)) (chowCap δ p F s j k α)) =
       chowCap δ p F s j (k - (i : ℤ)) (chowCap δ p E r i k α) := sorry
 

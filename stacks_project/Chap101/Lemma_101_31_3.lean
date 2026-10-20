@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Example_100_11_9_ResidualGerbe
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.ResidualGerbe.Noetherian
+import StacksCheckRecall
 
 /-!
 # Existence of residual gerbes of locally Noetherian algebraic stacks
@@ -24,15 +19,11 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.IsResidualGerbe
-
-/-- Lemma 101.31.3: Let `X` be a locally Noetherian algebraic stack. Then the
+/- Lemma 101.31.3: Let `X` be a locally Noetherian algebraic stack. Then the
 residual gerbe of `X` at `x` exists for every `x ∈ |X|`. -/
-@[stacks 0H22]
-theorem exists_at {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
-    [IsLocallyNoetherian X] (x : Points X) :
+@[stacks 0H22] #check
+  (AlgebraicGeometry.AlgebraicStack.IsResidualGerbe.exists_at :
+    ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
+      [AlgebraicStack.IsLocallyNoetherian X] (x : AlgebraicStack.Points X),
     ∃ (Z : GroupoidsOver S) (_ : AlgebraicStack Z) (ι : Z ⟶ X),
-      IsResidualGerbe ι x :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.IsResidualGerbe
+      AlgebraicStack.IsResidualGerbe ι x)

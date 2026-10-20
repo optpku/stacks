@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.ExteriorPower
-public import Mathlib.CategoryTheory.IsomorphismClasses
-public import stacks_project.Chap92.Lemma_92_12_1
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.CategoryTheory.Sites.CategoryHomology.SymmetricPower
+import StacksCheckRecall
 
 /-!
 # Diagonal homology of symmetric powers
@@ -31,7 +23,7 @@ namespace CategoryTheory.CategoryHomology
 
 variable {C : Type u} [Category.{v} C]
 
-/-- Remark 92.12.2: in the situation of Lemma 92.12.1, if `C` has a pointlike
+/- Remark 92.12.2: in the situation of Lemma 92.12.1, if `C` has a pointlike
 cosimplicial object and `F` is a flat `underline{B}`-module with
 `H_0(C, F) = 0`, then `H_k(C, Sym^k(F))` is isomorphic to
 `∧^k_B(H_1(C, F))`. Equivalently,
@@ -42,30 +34,33 @@ cosimplicial object and `F` is a flat `underline{B}`-module with
 `S_k`-action is the usual tensor permutation action multiplied by
 `Equiv.Perm.sign`; the sign conventions of the total complex of a
 multicomplex are omitted. -/
-@[stacks 08SG]
-theorem symmetricPower_isIsomorphic_exteriorPower
+@[stacks 08SG] #check
+  (CategoryTheory.CategoryHomology.symmetricPower_isIsomorphic_exteriorPower :
+    ∀ {C : Type u} [Category.{v} C]
     {B : Type w} [CommRing B]
     [HasColimitsOfShape Cᵒᵖ (ModuleCat.{w} B)]
     [HasProjectiveResolutions (Cᵒᵖ ⥤ ModuleCat.{w} B)]
     (Ubullet : CosimplicialObject C)
     (hUbullet : CosimplicialObject.Pointlike.HasHomSpaces Ubullet)
     (F : Cᵒᵖ ⥤ ModuleCat.{w} B) (h_flat : ∀ X : Cᵒᵖ, Module.Flat B (F.obj X))
-    (h0 : IsZero (moduleHomology F 0)) (k : ℕ) :
+    (h0 : IsZero (moduleHomology F 0)) (k : ℕ),
     IsIsomorphic (moduleHomology (F ⋙ ModuleCat.symmetricPower.functor B k) k)
-      ((moduleHomology F 1).exteriorPower k) := sorry
+      ((moduleHomology F 1).exteriorPower k))
 
-/-- If a pointlike cosimplicial object exists, the same identification holds
+/- If a pointlike cosimplicial object exists, the same identification holds
 between diagonal homology of symmetric powers and the exterior power of first
 homology. -/
-theorem symmetricPower_isIsomorphic_exteriorPower_of_exists_pointlike
+#check
+  (CategoryTheory.CategoryHomology.symmetricPower_isIsomorphic_exteriorPower_of_exists_pointlike :
+    ∀ {C : Type u} [Category.{v} C]
     {B : Type w} [CommRing B]
     [HasColimitsOfShape Cᵒᵖ (ModuleCat.{w} B)]
     [HasProjectiveResolutions (Cᵒᵖ ⥤ ModuleCat.{w} B)]
     (hUbullet : ∃ Ubullet : CosimplicialObject C,
       CosimplicialObject.Pointlike.HasHomSpaces Ubullet)
     (F : Cᵒᵖ ⥤ ModuleCat.{w} B) (h_flat : ∀ X : Cᵒᵖ, Module.Flat B (F.obj X))
-    (h0 : IsZero (moduleHomology F 0)) (k : ℕ) :
+    (h0 : IsZero (moduleHomology F 0)) (k : ℕ),
     IsIsomorphic (moduleHomology (F ⋙ ModuleCat.symmetricPower.functor B k) k)
-      ((moduleHomology F 1).exteriorPower k) := sorry
+      ((moduleHomology F 1).exteriorPower k))
 
 end CategoryTheory.CategoryHomology

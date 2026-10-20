@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicTopology.SimplicialObject.Truncated.KanExtension.Pointwise
@@ -216,33 +210,6 @@ theorem homEquiv_canonical {V : SimplicialObject C} {X : C}
     ZeroCoskeleton.homEquiv X V
         (f ≫ (functorIso (C := C)).inv.app X) =
       ((canonical.adj (C := C)).homEquiv V X).symm f := sorry
-
-end Functorial
-
-end selfProduct
-
-namespace selfProduct
-
-section Functorial
-
-variable [∀ X : C, HasPositivePowers X]
-variable [SimplicialObject.Truncated.HasCoskeletons C 0]
-
-/-- Compatibility name for `functorIso.hom_app_counit`; new code should use the namespaced owner. -/
-@[deprecated functorIso.hom_app_counit (since := "2026-08-06")]
-theorem functorIso_hom_app_counit (X : C) :
-    (SimplicialObject.evalZero (C := C)).map
-          ((functorIso (C := C)).hom.app X) ≫
-        (canonical.adj (C := C)).counit.app X =
-      (selfProduct.adj (C := C)).counit.app X := sorry
-
-/-- Compatibility name for `functorIso.inv_app_counit`; new code should use the namespaced owner. -/
-@[deprecated functorIso.inv_app_counit (since := "2026-08-06")]
-theorem functorIso_inv_app_counit (X : C) :
-    (SimplicialObject.evalZero (C := C)).map
-          ((functorIso (C := C)).inv.app X) ≫
-        (selfProduct.adj (C := C)).counit.app X =
-      (canonical.adj (C := C)).counit.app X := sorry
 
 end Functorial
 

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Quasicoherent.RelativeDualizing.BaseChangeUnique
@@ -20,6 +14,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.RelativeDualizingComplex
 
 /- Remark 48.28.8 -/
@@ -28,6 +24,10 @@ namespace AlgebraicGeometry.Scheme.RelativeDualizingComplex
     ∀ {X' X S' S : Scheme.{u}} (g' : X' ⟶ X) (f' : X' ⟶ S')
     (f : X ⟶ S) (g : S' ⟶ S) (sq : IsPullback g' f' f g)
     [IsProper f] [Flat f] [Scheme.Hom.FinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     [CompactSpace S'] [QuasiSeparatedSpace S']
     (W : (pullback f f).Opens) (δ : X ⟶ W.toScheme) [IsClosedImmersion δ]
     (hδ : δ ≫ W.ι = pullback.diagonal f)

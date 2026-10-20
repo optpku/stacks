@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DifferentialGradedModule.Abelian
@@ -40,9 +34,18 @@ transitions are split epimorphisms. -/
 theorem milnorDifferenceMap_isAdmissibleEpi (F : Filtration A I) :
     DifferentialGradedModule.IsAdmissibleEpi F.milnorShortComplex.g := sorry
 
+/-- The Milnor product sequence of a property I filtration is short exact.  This is the generic
+`SequentialInverseFiltration.Milnor.shortExact_of_map_isSplitEpi` applied to the faithful additive
+functor forgetting only the differential: it preserves products, and condition (2) of property (I)
+says that it sends every successor transition `I/F_{n+1}I ⟶ I/F_nI` to a split epimorphism. -/
+theorem milnorShortComplex_shortExact (F : Filtration A I) :
+    F.milnorShortComplex.ShortExact :=
+  SequentialInverseFiltration.Milnor.shortExact_of_map_isSplitEpi F.underlying
+    (DifferentialGradedModule.forgetToGraded A) F.admissible
+
 /-- Lemma 22.21.1 (09KR): the Milnor product sequence associated to a property I filtration is
-admissibly short exact.  Its ordinary short exactness is the generic sequential-inverse-filtration
-theorem, while admissibility is supplied by the split-epic forgetful Milnor bridge. -/
+admissibly short exact.  Its ordinary short exactness is `milnorShortComplex_shortExact`, while
+admissibility of the difference map is `milnorDifferenceMap_isAdmissibleEpi`. -/
 @[stacks 09KR]
 theorem milnorIsAdmissibleShortExact (F : Filtration A I) :
     DifferentialGradedModule.IsAdmissibleShortExact F.milnorShortComplex := sorry

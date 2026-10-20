@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.FiniteType
-public import Mathlib.CategoryTheory.MorphismProperty.Representable
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap87.Definition_87_9_1_Affine
-public import stacks_project.Chap87.Lemma_87_10_3_Types
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.ChosenFppf.TypeAscent
 
 /-!
 # Lemma 87.19.10
@@ -31,69 +22,52 @@ universe u v
 
 namespace AlgebraicGeometry
 
-/-- Lemma 87.19.10 (1): Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
-affine formal algebraic spaces which is representable by algebraic spaces. If
-`Y` is countably indexed, then `X` is countably indexed. -/
-@[stacks 0AKQ]
-theorem IsCountablyIndexedAffine.of_representableByAlgebraicSpaces
-    {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+/- Lemma 87.19.10 (1): Countable indexing ascends along representable morphisms.
+This theorem also supplies countability in the second source clause. -/
+@[stacks 0AKQ] #check (AlgebraicGeometry.IsCountablyIndexedAffine.of_representableByAlgebraicSpaces :
+    ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
     {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
     [IsAffineFormalAlgebraicSpace X] [IsCountablyIndexedAffine Y]
-    {f : X ⟶ Y} (hf : representableByAlgebraicSpaces f) :
-    IsCountablyIndexedAffine X :=
-  sorry
+    {f : X ⟶ Y} (hf : representableByAlgebraicSpaces f),
+    IsCountablyIndexedAffine X)
 
-/-- Lemma 87.19.10 (2): Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
-affine formal algebraic spaces which is representable by algebraic spaces. If
-`Y` is countably indexed and classical, then `X` is countably indexed and
-classical. -/
-@[stacks 0AKQ]
-theorem IsClassicalAffine.of_representableByAlgebraicSpaces
-    {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+/- Lemma 87.19.10 (2): Classicality ascends from a countably indexed classical
+target. Together with the first check, this gives countably indexed classical source. -/
+@[stacks 0AKQ] #check (AlgebraicGeometry.IsClassicalAffine.of_representableByAlgebraicSpaces :
+    ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
     {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
     [IsAffineFormalAlgebraicSpace X] [IsCountablyIndexedAffine Y]
-    [IsClassicalAffine Y] {f : X ⟶ Y} (hf : representableByAlgebraicSpaces f) :
-    IsClassicalAffine X :=
-  sorry
+    [IsClassicalAffine Y] {f : X ⟶ Y} (hf : representableByAlgebraicSpaces f),
+    IsClassicalAffine X)
 
-/-- Lemma 87.19.10 (3): Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
-affine formal algebraic spaces which is representable by algebraic spaces. If
-`Y` is weakly adic, then `X` is weakly adic. -/
-@[stacks 0AKQ]
-theorem IsWeaklyAdicAffine.of_representableByAlgebraicSpaces
-    {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+/- Lemma 87.19.10 (3): Weak adicity ascends along representable morphisms. -/
+@[stacks 0AKQ] #check (AlgebraicGeometry.IsWeaklyAdicAffine.of_representableByAlgebraicSpaces :
+    ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
     {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
     [IsAffineFormalAlgebraicSpace X] [IsWeaklyAdicAffine Y]
-    {f : X ⟶ Y} (hf : representableByAlgebraicSpaces f) :
-    IsWeaklyAdicAffine X :=
-  sorry
+    {f : X ⟶ Y} (hf : representableByAlgebraicSpaces f),
+    IsWeaklyAdicAffine X)
 
-/-- Lemma 87.19.10 (4): Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
-affine formal algebraic spaces which is representable by algebraic spaces. If
-`Y` is adic*, then `X` is adic*. -/
-@[stacks 0AKQ]
-theorem IsAdicStar.of_representableByAlgebraicSpaces
-    {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+/- Lemma 87.19.10 (4): Adic* ascends along representable morphisms. -/
+@[stacks 0AKQ] #check (AlgebraicGeometry.IsAdicStar.of_representableByAlgebraicSpaces :
+    ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
     {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
     [IsAffineFormalAlgebraicSpace X] [IsAdicStar Y]
-    {f : X ⟶ Y} (hf : representableByAlgebraicSpaces f) :
-    IsAdicStar X :=
-  sorry
+    {f : X ⟶ Y} (hf : representableByAlgebraicSpaces f),
+    IsAdicStar X)
 
-/-- Lemma 87.19.10 (5): Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
-affine formal algebraic spaces which is representable by algebraic spaces. If
-`Y` is Noetherian and `f` is locally of finite type, then `X` is Noetherian. -/
-@[stacks 0AKQ]
-theorem IsNoetherianAffine.of_representableByAlgebraicSpaces
-    {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+/- Lemma 87.19.10 (5): Noetherianity ascends along representable morphisms
+that are locally of finite type. -/
+@[stacks 0AKQ] #check (AlgebraicGeometry.IsNoetherianAffine.of_representableByAlgebraicSpaces :
+    ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
     {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
@@ -101,8 +75,7 @@ theorem IsNoetherianAffine.of_representableByAlgebraicSpaces
     {f : X ⟶ Y} (hf : representableByAlgebraicSpaces f)
     (hft : (MorphismProperty.inverseImage (@LocallyOfFiniteType)
         (𝒮.bigToScheme S)).relative
-      (𝒮.bigTopology S).sheafifiedRepresentableFunctor f) :
-    IsNoetherianAffine X :=
-  sorry
+      (𝒮.bigTopology S).sheafifiedRepresentableFunctor f),
+    IsNoetherianAffine X)
 
 end AlgebraicGeometry

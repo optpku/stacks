@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.InternalHom.Model.RHom.Unit.Closed
@@ -235,7 +229,7 @@ theorem singleIhomTargetIso_eq_ihomUnitIsoOf
     M.singleIhomTargetIso T s = MonoidalClosed.ihomUnitIsoOf M.closed s := by
   let U := RHom.Unit.single (A := A)
   let baseAdj := (RightInternalHom.ofBraidedClosedOf M.closed).adj₂.adj U
-  let t := T.tensorRightIsoFunctor U
+  let t := (T.functorIsoTensorRight U).symm
   let e₀ := ((curriedTensor (DerivedCategory (ModuleCat.{u} A))).flip.mapIso s) ≪≫
     rightUnitorNatIso (DerivedCategory (ModuleCat.{u} A))
   let e := RHom.Unit.tensorUnitComparisonOf T s
@@ -266,7 +260,7 @@ theorem singleIhomTargetIso_eq_ihomUnitIsoOf
     ext K
     simp [U, t, e, e₀, RHom.Unit.tensorUnitComparisonOf,
       DerivedTensor.Right.Monoidal.Model.functorIsoUnit,
-      DerivedTensor.Right.Monoidal.Model.tensorRightIsoFunctor, Iso.trans_hom]
+      Iso.trans_hom]
   rw [hte]
   exact MonoidalClosed.rightAdjointUniq_ofBraidedClosedOf_unit M.closed s
 

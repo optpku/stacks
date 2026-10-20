@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.Tensor.CohomologyProduct
@@ -99,7 +93,7 @@ noncomputable def singleDerivedTensorIsoOf
     (M N : ModuleCat R) :
     (Functor.obj single₀ M ⊗[R]^L Functor.obj single₀ N) ≅
       Functor.obj single₀ (of R ((↑M) ⊗[R] ↑N)) :=
-  (T.tensorIsoObj (Functor.obj single₀ M) (Functor.obj single₀ N)).symm ≪≫
+  T.objIsoTensor (Functor.obj single₀ M) (Functor.obj single₀ N) ≪≫
     (((DerivedCategory.singleFunctorIsoCompQ (ModuleCat R) (0 : ℤ)).app M) ⊗ᵢ
       ((DerivedCategory.singleFunctorIsoCompQ (ModuleCat R) (0 : ℤ)).app N)) ≪≫
     (Functor.Monoidal.μIso (DerivedCategory.Q : Cpx ⥤ DMod)
@@ -117,7 +111,7 @@ noncomputable def singleTensorIsoOf
     (M N : ModuleCat R) :
     (Functor.obj single₀ M ⊗ Functor.obj single₀ N) ≅
       Functor.obj single₀ (of R ((↑M) ⊗[R] ↑N)) :=
-  T.tensorIsoObj (Functor.obj single₀ M) (Functor.obj single₀ N) ≪≫
+  (T.objIsoTensor (Functor.obj single₀ M) (Functor.obj single₀ N)).symm ≪≫
     singleDerivedTensorIsoOf T M N
 
 /-- Reindex the target of the cohomology product from degree `-n + -m` to degree `-(n + m)`. -/
@@ -168,8 +162,8 @@ noncomputable def derivedMultiplicationOf
     Functor.map single₀
       (ofHom ((Algebra.TensorProduct.productMap
         (AlgHom.id R A) (AlgHom.id R A)).toLinearMap))
-  (T.tensorIsoObj torObj torObj).inv ≫
-    ((T.tensorIsoObj B0 A0).inv ⊗ₘ (T.tensorIsoObj B0 A0).inv) ≫
+  (T.objIsoTensor torObj torObj).hom ≫
+    ((T.objIsoTensor B0 A0).hom ⊗ₘ (T.objIsoTensor B0 A0).hom) ≫
     (α_ B0 A0 (B0 ⊗ A0)).hom ≫
     (𝟙 B0 ⊗ₘ (α_ A0 B0 A0).inv) ≫
     (𝟙 B0 ⊗ₘ ((β_ A0 B0).hom ⊗ₘ 𝟙 A0)) ≫
@@ -178,7 +172,7 @@ noncomputable def derivedMultiplicationOf
     ((singleTensorIsoOf T (of R B) (of R B)).hom ⊗ₘ
       (singleTensorIsoOf T (of R A) (of R A)).hom) ≫
     (μB ⊗ₘ μA) ≫
-    (T.tensorIsoObj B0 A0).hom
+    (T.objIsoTensor B0 A0).inv
 
 /-- The Tor product constructed from an explicit ambient monoidal derived-tensor model. -/
 @[stacks 068K "Tor product from an explicit derived-tensor model"]

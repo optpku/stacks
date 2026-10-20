@@ -1,46 +1,31 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
-public import Mathlib.CategoryTheory.Whiskering
-public import Mathlib.CategoryTheory.Yoneda
-public import stacks_project.Chap87.«87_2_0_2_FormalScheme»
+public import ReasLib.AlgebraicGeometry.FormalScheme.FunctorOfPoints
 
 /-!
 # Functor of points of a formal scheme
 
-The functor of points of a formal scheme, restricted to a full subcategory of
-schemes, is the Yoneda embedding whiskered along the comparison functor
-`Scheme.toFormalScheme`.
+The functor of points is Yoneda restricted along the scheme comparison.
 -/
 
 @[expose] public section
 
 universe u
 
-open CategoryTheory AlgebraicGeometry
+open CategoryTheory Opposite TopologicalSpace Topology AlgebraicGeometry
+open scoped Cardinal
 
 namespace AlgebraicGeometry.FormalScheme
 
-/-- The functor of points of formal schemes, restricted to the full subcategory
-selected by an object property `P` of schemes: `h_X(S)` is the type of morphisms
-of formal schemes from the comparison image of `S` to `X`. -/
-def functorOfPoints (P : ObjectProperty Scheme.{u}) :
-    FormalScheme.{u} ⥤ (P.FullSubcategory)ᵒᵖ ⥤ Type u :=
-  yoneda ⋙ (Functor.whiskeringLeft (P.FullSubcategory)ᵒᵖ (FormalScheme.{u})ᵒᵖ (Type u)).obj
-    (P.ι ⋙ Scheme.toFormalScheme).op
+/- Lemma 87.2.1. The restricted functor of points. -/
+#check (AlgebraicGeometry.FormalScheme.functorOfPoints :
+    (P : ObjectProperty Scheme.{u}) →
+      FormalScheme.{u} ⥤ (P.FullSubcategory)ᵒᵖ ⥤ Type u)
 
-/-- On objects, the restricted functor of points is the Hom-type
-`toFormalScheme.obj (P.ι.obj S.unop) ⟶ X`. -/
-theorem functorOfPoints_obj (P : ObjectProperty Scheme.{u}) (X : FormalScheme.{u})
-    (S : (P.FullSubcategory)ᵒᵖ) :
-    ((functorOfPoints P).obj X).obj S =
-      (Scheme.toFormalScheme.obj (P.ι.obj S.unop) ⟶ X) :=
-  sorry
+#check (AlgebraicGeometry.FormalScheme.functorOfPoints_obj :
+    ∀ (P : ObjectProperty Scheme.{u}) (X : FormalScheme.{u})
+      (S : (P.FullSubcategory)ᵒᵖ),
+      ((functorOfPoints P).obj X).obj S =
+        (Scheme.toFormalScheme.obj (P.ι.obj S.unop) ⟶ X))
 
 end AlgebraicGeometry.FormalScheme

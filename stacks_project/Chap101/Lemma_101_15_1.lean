@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_53_4_UniversalHomeomorphism
-public import stacks_project.Chap100.Lemma_100_3_2_MorphismProperty
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.UniversalHomeomorphism
 public import stacks_project.Chap101.Lemma_101_15_1_Homeomorph
+import StacksCheckRecall
 
 /-!
 # Representable universal homeomorphisms of algebraic stacks
@@ -28,37 +22,28 @@ universe u
 
 namespace AlgebraicGeometry.Groupoids.Hom
 
-/-- For every morphism of algebraic stacks `Z ⟶ Y`, the 2-fibre-product
-projection `Z ×_Y X ⟶ Z` induces a homeomorphism of underlying point spaces. -/
-def isHomeomorphAfterBaseChange {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) : Prop :=
-  ∀ {Z : GroupoidsOver S} [AlgebraicStack Z] (g : Z ⟶ Y)
-    [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)],
-    AlgebraicStack.pointsIsHomeomorph (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g)
+#check (AlgebraicGeometry.Groupoids.Hom.isHomeomorphAfterBaseChange :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y],
+    (X ⟶ Y) → Prop)
 
-/-- Being a homeomorphism after every algebraic-stack base change means each chosen
-2-fibre-product projection `Z ×_Y X ⟶ Z` induces a homeomorphism of underlying
-point spaces. -/
-theorem isHomeomorphAfterBaseChange_iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) :
+#check (AlgebraicGeometry.Groupoids.Hom.isHomeomorphAfterBaseChange_iff :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
     isHomeomorphAfterBaseChange f ↔
-      ∀ {Z : GroupoidsOver S} [AlgebraicStack Z] (g : Z ⟶ Y)
-        [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)],
+      ∀ {Z : GroupoidsOver S} [AlgebraicStack Z] (g : Z ⟶ Y),
         AlgebraicStack.pointsIsHomeomorph
-          (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g) :=
-  sorry
+          (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g))
 
-/-- Lemma 101.15.1: Let `f : X ⟶ Y` be a morphism of algebraic stacks which is
+/- Lemma 101.15.1: Let `f : X ⟶ Y` be a morphism of algebraic stacks which is
 representable by algebraic spaces. Then `f` is a universal homeomorphism as in
 Properties of Stacks, Section 100.3 if and only if for every morphism of
 algebraic stacks `Z ⟶ Y` the map of topological spaces `|Z ×_Y X| ⟶ |Z|` is a
 homeomorphism. Here `|Z ×_Y X| ⟶ |Z|` is `Points.map` of `TwoFibreProduct.snd`. -/
-@[stacks 0CI6]
-theorem has_universalHomeomorphism_iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
+@[stacks 0CI6] #check (AlgebraicGeometry.Groupoids.Hom.has_universalHomeomorphism_iff :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
-    (hf : relativelyRepresentableByAlgebraicSpaces f) :
+    (hf : relativelyRepresentableByAlgebraicSpaces f),
     has (@AlgebraicSpace.UniversalHomeomorphism S) f ↔
-      isHomeomorphAfterBaseChange f :=
-  sorry
+      isHomeomorphAfterBaseChange f)
 
 end AlgebraicGeometry.Groupoids.Hom

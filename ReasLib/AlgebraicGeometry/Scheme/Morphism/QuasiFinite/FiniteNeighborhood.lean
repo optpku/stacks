@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.ZariskisMainTheorem
@@ -28,6 +22,7 @@ an open neighborhood of that point. -/
 theorem exists_isFinite_morphismRestrict_of_finite_preimage_singleton
     {X S : Scheme.{u}} (f : X ⟶ S) [IsProper f] (s : S)
     (hs : Set.Finite (f ⁻¹' ({s} : Set S))) :
-    ∃ V : S.Opens, s ∈ V ∧ IsFinite (f ∣_ V) := sorry
+    ∃ V : S.Opens, s ∈ V ∧ IsFinite (f ∣_ V) :=
+  AlgebraicGeometry.exists_isFinite_morphismRestrict_of_finite_preimage_singleton f s hs
 
 end AlgebraicGeometry.Scheme.Hom

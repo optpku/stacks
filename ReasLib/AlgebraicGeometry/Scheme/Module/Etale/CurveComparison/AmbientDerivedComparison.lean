@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.CurveRealizationAcyclicity
@@ -24,7 +18,7 @@ variable [HasWeakSheafify Y.smallEtaleTopology (ModuleCat.{u + 1} Λ)]
 variable [∀ U : Y.Etale, HasWeakSheafify (Y.smallEtaleTopology.over U) (ModuleCat.{u + 1} Λ)]
 variable [EnoughInjectives (Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} Λ))]
 variable [HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} Λ))]
-variable [HasDerivedCategory (DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber ybar)))]
+variable [HasDerivedCategory (DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ybar)))]
 variable [HasDerivedCategory (ModuleCat.{u + 1} Λ)]
 
 /-- Module-valued sections are additive through evaluation of the additive sheaf functor. -/
@@ -37,7 +31,7 @@ instance sections_preservesFiniteLimits : PreservesFiniteLimits (sections (X := 
 with underived normalization supplied by the actual section-germ isomorphism. -/
 def derivedComparison :
     Functor.RightDerived.Bounded.functor
-        (AmbientDiscreteCohomology.invariants Λ (Aut (standardFiniteEtaleFiber ybar))) ⟶
+        (CategoryTheory.Action.ModuleCat.DiscreteModuleCat.fixedPointsFunctor Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ybar))) ⟶
       Functor.RightDerived.Bounded.functor (functor (Λ := Λ) (xbar := ybar)) ⋙
         Functor.RightDerived.Bounded.functor (sections (X := Y) Λ) :=
   Functor.RightDerived.Composition.BoundedBelow.comparisonOfIso
@@ -57,7 +51,7 @@ variable [∀ U : (geometricBaseChange X).Etale,
     HasWeakSheafify ((geometricBaseChange X).smallEtaleTopology.over U) (ModuleCat.{u + 1} Λ)]
 variable [EnoughInjectives (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
 variable [HasDerivedCategory (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
-variable [HasDerivedCategory (DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber ηbar)))]
+variable [HasDerivedCategory (DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)))]
 variable [HasDerivedCategory (ModuleCat.{u + 1} Λ)]
 
 include hcurve hsmooth hconnected
@@ -78,7 +72,7 @@ def derivedComparisonIso
 /-- The geometric derived-cohomology model uses exact realization followed by
 actual derived global sections of its degree-zero coefficient object. -/
 def geometricDerivedCohomology
-    (M : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber ηbar))) (n : ℕ) :=
+    (M : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar))) (n : ℕ) :=
   (DerivedCategory.Plus.homologyFunctor (ModuleCat.{u + 1} Λ) (n : ℤ)).obj
     ((Functor.RightDerived.Bounded.functor (sections (X := geometricBaseChange X) Λ)).obj
       ((Functor.RightDerived.Bounded.functor (functor (Λ := Λ) (xbar := ηbar))).obj
@@ -86,7 +80,7 @@ def geometricDerivedCohomology
 
 /-- Actual geometric derived cohomology on coefficient morphisms. -/
 def geometricDerivedCohomologyFunctor (n : ℕ) :
-    DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber ηbar)) ⥤ ModuleCat.{u + 1} Λ :=
+    DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)) ⥤ ModuleCat.{u + 1} Λ :=
   ActualResolutionComparison.singleModelFunctor ⋙
     Functor.RightDerived.Bounded.functor (functor (Λ := Λ) (xbar := ηbar)) ⋙
       Functor.RightDerived.Bounded.functor (sections (X := geometricBaseChange X) Λ) ⋙
@@ -97,11 +91,11 @@ map with homology of the canonical geometric derived comparison. -/
 def higherComparisonIso
     (h_ne_P1 : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
     (hΛ : IsUnit (Nat.card Λ : k))
-    (M : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber ηbar))) (n : ℕ) :
-    (AmbientDiscreteCohomology.cohomology Λ (Aut (standardFiniteEtaleFiber ηbar)) n).obj M ≅
+    (M : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar))) (n : ℕ) :
+    (CategoryTheory.Action.ModuleCat.DiscreteModuleCat.derivedCohomologyFunctor Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)) n).obj M ≅
       geometricDerivedCohomology Λ X ηbar M n :=
   ActualResolutionComparison.ordinaryToBoundedIso
-      (AmbientDiscreteCohomology.invariants Λ (Aut (standardFiniteEtaleFiber ηbar)))
+      (CategoryTheory.Action.ModuleCat.DiscreteModuleCat.fixedPointsFunctor Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)))
       (injectiveResolution M) n ≪≫
     (DerivedCategory.Plus.homologyFunctor (ModuleCat.{u + 1} Λ) (n : ℤ)).mapIso
       ((derivedComparisonIso Λ X ηbar h_ne_P1 hΛ).app (ActualResolutionComparison.singleModel M))
@@ -110,8 +104,8 @@ def higherComparisonIso
 theorem higherComparisonIso_naturality
     (h_ne_P1 : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
     (hΛ : IsUnit (Nat.card Λ : k))
-    {M N : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber ηbar))} (a : M ⟶ N) (n : ℕ) :
-    (AmbientDiscreteCohomology.cohomology Λ (Aut (standardFiniteEtaleFiber ηbar)) n).map a ≫
+    {M N : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar))} (a : M ⟶ N) (n : ℕ) :
+    (CategoryTheory.Action.ModuleCat.DiscreteModuleCat.derivedCohomologyFunctor Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)) n).map a ≫
         (higherComparisonIso Λ X ηbar h_ne_P1 hΛ N n).hom =
       (higherComparisonIso Λ X ηbar h_ne_P1 hΛ M n).hom ≫
         (geometricDerivedCohomologyFunctor Λ X ηbar n).map a := sorry
@@ -121,7 +115,7 @@ discrete geometric representations; finite coefficients are included only afterw
 def higherComparisonNatIso
     (h_ne_P1 : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
     (hΛ : IsUnit (Nat.card Λ : k)) (n : ℕ) :
-    AmbientDiscreteCohomology.cohomology Λ (Aut (standardFiniteEtaleFiber ηbar)) n ≅
+    CategoryTheory.Action.ModuleCat.DiscreteModuleCat.derivedCohomologyFunctor Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)) n ≅
       geometricDerivedCohomologyFunctor Λ X ηbar n :=
   NatIso.ofComponents (fun M ↦ higherComparisonIso Λ X ηbar h_ne_P1 hΛ M n)
     (fun a ↦ higherComparisonIso_naturality Λ X ηbar h_ne_P1 hΛ a n)

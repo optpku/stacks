@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.DerivedCategory.CohomologyIn.Comparison
-public import stacks_project.Chap75.Definition_75_5_1_DerivedQCoh
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Comparison
 
 /-!
 # Comparison for derived quasi-coherent modules on algebraic spaces
@@ -16,46 +9,11 @@ The weak-Serre inclusion `QCoh X ⥤ Modules X` induces the canonical unbounded
 comparison `DerivedCategory (QCoh X) ⥤ DerivedQCoh X`.
 -/
 
-@[expose] public section
-
-open CategoryTheory
-
-noncomputable section
+open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.QCoh
+variable {S : Scheme.{u}} (X : AlgebraicSpace S)
 
-/-- The standard derived-category structure on quasi-coherent modules on an algebraic
-space. -/
-instance hasDerivedCategory {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    HasDerivedCategory (QCoh X) :=
-  HasDerivedCategory.standard (QCoh X)
-
-end AlgebraicGeometry.AlgebraicSpace.QCoh
-
-namespace AlgebraicGeometry.AlgebraicSpace.DerivedQCoh
-
-/-- The canonical comparison from the derived category of quasi-coherent modules to
-derived modules with quasi-coherent cohomology. -/
-noncomputable abbrev comparison {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    DerivedCategory (QCoh X) ⥤ DerivedQCoh X :=
-  DerivedCategory.CohomologyIn.Comparison.functor (quasiCoherentModuleProperty X)
-
-namespace comparison
-
-/-- Forgetting the comparison recovers the derived functor of the quasi-coherent
-inclusion. -/
-noncomputable def compInclusionIso {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    comparison X ⋙ inclusion X ≅ (QCoh.inclusion X).mapDerivedCategory :=
-  DerivedCategory.CohomologyIn.Comparison.compιIso (quasiCoherentModuleProperty X)
-
-/-- The underlying object of the comparison is the ordinary derived image under the
-quasi-coherent inclusion. -/
-theorem obj_obj {S : Scheme.{u}} {X : AlgebraicSpace S} (E : DerivedCategory (QCoh X)) :
-    ((comparison X).obj E).obj = (QCoh.inclusion X).mapDerivedCategory.obj E := sorry
-
-end comparison
-
-end AlgebraicGeometry.AlgebraicSpace.DerivedQCoh
-
+#check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.comparison X :
+  DerivedCategory (QCoh X) ⥤ DerivedQCoh X)

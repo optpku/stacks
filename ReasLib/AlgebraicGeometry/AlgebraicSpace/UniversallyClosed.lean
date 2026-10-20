@@ -1,15 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.MorphismProperty.Limits
 public import Mathlib.Topology.Defs.Basic
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Topology
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.UniversalHomeomorphism
 
 /-!
@@ -17,8 +12,8 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.UniversalHomeomorphism
 
 A morphism of algebraic spaces is closed when it induces a closed map on
 underlying point spaces, and universally closed when every base change is closed.
-The canonical topology on `Points` is characterized rather than constructed, so
-competing topologies remain explicit parameters.
+Closedness uses the canonical topology on `Points`; equivalent presentations of
+that topology remain explicit parameters in the characterization theorems.
 -/
 
 @[expose]
@@ -51,9 +46,7 @@ theorem isClosedMapOnPoints_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S}
 
 /-- The morphism property of inducing a closed map on canonical point spaces. -/
 def pointsIsClosedMap {S : Scheme.{u}} : MorphismProperty (AlgebraicSpace S) :=
-  fun {X Y} f ↦
-    ∀ (τX : TopologicalSpace (Points X)) (τY : TopologicalSpace (Points Y)),
-      IsPointsTopology X τX → IsPointsTopology Y τY → isClosedMapOnPoints τX τY f
+  fun {X Y} f ↦ IsClosedMap (Points.map f)
 
 /-- A morphism induces a closed map on points if it does so for every pair of
 canonical topologies on the source and target. -/
@@ -69,8 +62,7 @@ theorem pointsIsClosedMap_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S}
 point spaces is a closed map. -/
 @[mk_iff]
 class Closed {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) : Prop where
-  /-- The map on points induced by `f` is closed for every pair of canonical
-  topologies. -/
+  /-- The map on points induced by `f` is closed in the canonical topologies. -/
   isClosedMap : pointsIsClosedMap f
 
 namespace Closed
@@ -150,6 +142,31 @@ theorem universallyClosed_iff_isClosed_of_isPullback {S : Scheme.{u}}
     UniversallyClosed f ↔
       ∀ {Z P : AlgebraicSpace S} {g : Z ⟶ Y} {pZ : P ⟶ Z} {pX : P ⟶ X},
         IsPullback pZ pX g f → Closed pZ :=
+  sorry
+
+/-- Universal closedness is stable under arbitrary base change. -/
+instance universallyClosed_isStableUnderBaseChange {S : Scheme.{u}} :
+    MorphismProperty.IsStableUnderBaseChange
+      (@UniversallyClosed S : MorphismProperty (AlgebraicSpace S)) :=
+  sorry
+
+namespace UniversallyClosed
+
+/-- Universal closedness passes across a pullback square. -/
+theorem of_isPullback {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
+    {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X}
+    (sq : IsPullback f' g' g f) (hg : UniversallyClosed g) :
+    UniversallyClosed g' :=
+  sorry
+
+end UniversallyClosed
+
+/-- The second projection from a pullback of a universally closed morphism is
+universally closed. -/
+instance universallyClosed_pullback_snd {S : Scheme.{u}}
+    {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Z ⟶ Y)
+    [UniversallyClosed f] [HasPullback f g] :
+    UniversallyClosed (pullback.snd f g) :=
   sorry
 
 end AlgebraicGeometry.AlgebraicSpace

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-import stacks_project.Chap70.Situation_70_6_1_MorphismBaseChange
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Limit.MorphismBaseChange
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Separation.Absolute.Relative
 import StacksCheckRecall
 
 open CategoryTheory Limits AlgebraicGeometry AlgebraicSpace
@@ -22,9 +17,9 @@ variable (i0 i : I) (hi0i : i0 ≤ i)
 variable [∀ {j j' : I} (hjj' : j ≤ j'), Affine (D.map (homOfLE hjj'))]
 variable (X0 Y0 : AlgebraicSpace S) (x0 : X0 ⟶ D.obj i0) (y0 : Y0 ⟶ D.obj i0)
 variable (f0 : X0 ⟶ Y0) (hf0 : f0 ≫ y0 = x0)
-variable [IsQuasiCompact (D.obj i0)] [IsQuasiSeparated (D.obj i0)]
-variable [IsQuasiCompact X0] [IsQuasiSeparated X0]
-variable [IsQuasiCompact Y0] [IsQuasiSeparated Y0]
+variable [IsQuasiCompact (D.obj i0)] [IsAbsolutelyQuasiSeparated (D.obj i0)]
+variable [IsQuasiCompact X0] [IsAbsolutelyQuasiSeparated X0]
+variable [IsQuasiCompact Y0] [IsAbsolutelyQuasiSeparated Y0]
 
 /- Situation 70.6.1: let `S` be a scheme. Let `B = lim_i B_i` be the limit of a directed inverse
 system of algebraic spaces over `S` with affine transition morphisms (Lemma 70.4.1). Fix a

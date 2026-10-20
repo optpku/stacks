@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.Dualizing.Relative
@@ -17,6 +11,8 @@ noncomputable section
 
 universe u
 
+open scoped TensorProduct
+
 namespace CategoryTheory.DerivedCategory.IsRelativeDualizingComplex
 
 /-- Any two relative dualizing complexes for a flat finitely presented commutative algebra
@@ -24,6 +20,7 @@ are isomorphic in its derived category of modules. -/
 theorem isomorphic
     {R A : Type u} [CommRing R] [CommRing A] [Algebra R A]
     [Module.Flat R A] [Algebra.FinitePresentation R A]
+    [InternalHom.RHom.Has (A := A ⊗[R] A)]
     {K L : DerivedCategory (ModuleCat A)}
     (hK : IsRelativeDualizingComplex R K) (hL : IsRelativeDualizingComplex R L) :
     IsIsomorphic K L := sorry

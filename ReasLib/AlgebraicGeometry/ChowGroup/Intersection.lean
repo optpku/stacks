@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowGroup.Moving
@@ -17,9 +11,9 @@ universe u
 
 namespace AlgebraicGeometry.CycleGroup
 
-/-- On a regular projective variety, a proper intersection with a rationally trivial
-cycle is rationally trivial. -/
-theorem intersection_rationallyEquivalent_zero {k : Type u} [Field k]
+/-- On a regular projective variety over an algebraically closed field, a proper intersection
+with a rationally trivial cycle is rationally trivial. -/
+theorem intersection_rationallyEquivalent_zero {k : Type u} [Field k] [IsAlgClosed k]
     (X : SchemeOverField k) [ProjectiveVariety X] [Scheme.Regular X.left]
     (r s : ℤ)
     (α : CycleGroup X.left (X.hom.relativeDimensionFunction (fun _ ↦ 0)) r)

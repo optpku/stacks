@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FinitePresentation.Operations
@@ -20,11 +14,9 @@ universe u
 /- Lemma 29.21.4 (1): the base change of a morphism which is locally of finite presentation is
 locally of finite presentation. -/
 @[stacks 01TS] #check
-  (AlgebraicGeometry.locallyOfFinitePresentation_isStableUnderBaseChange :
-    MorphismProperty.IsStableUnderBaseChange
-      (@LocallyOfFinitePresentation : MorphismProperty Scheme.{u}))
-
-#check CategoryTheory.MorphismProperty.pullback_snd
+  (AlgebraicGeometry.Scheme.Hom.locallyOfFinitePresentation_pullback_snd :
+    ∀ {X S S' : Scheme.{u}} (f : X ⟶ S) (g : S' ⟶ S),
+      LocallyOfFinitePresentation f → LocallyOfFinitePresentation (pullback.snd f g))
 
 /- Lemma 29.21.4 (2): the base change of a morphism of finite presentation is of finite
 presentation. -/

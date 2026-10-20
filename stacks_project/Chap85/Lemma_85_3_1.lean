@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap85.Lemma_85_3_1_Total
+public import ReasLib.CategoryTheory.Sites.Simplicial.Total
 import StacksCheckRecall
 
 @[expose] public section
@@ -24,11 +18,17 @@ as above we construct a site `C_total` as follows. An object of `C_total` is an 
 map `φ : m ⟶ n` with `U` an object of `C.obj n`, `V` an object of `C.obj m` and a
 morphism `f : U ⟶ u_φ(V)` of `C.obj n`, and a covering `{(id, f_i) : U_i ⟶ U}` in
 `C_total` is given by an `n` and a covering `{f_i : U_i ⟶ U}` of `C.obj n`. -/
-@[stacks 09WC] #check SimplicialSites.totalSite C
-@[stacks 09WC] #check SimplicialSites.homEquiv
-@[stacks 09WC] #check SimplicialSites.precoverage C J
-@[stacks 09WC] #check SimplicialSites.precoverage.hasIsos C J
-@[stacks 09WC] #check SimplicialSites.precoverage.hasPullbacks C J
-@[stacks 09WC] #check SimplicialSites.precoverage.isStableUnderBind C J
-@[stacks 09WC] #check SimplicialSites.precoverage.hasFactoringPullbacks C J
-@[stacks 09WC] #check SimplicialSites.exists_ofStage_isPullback C J
+@[stacks 09WC] #check
+  (CategoryTheory.SimplicialSites.precoverage.isSite C J :
+    (CategoryTheory.SimplicialSites.precoverage C J).IsSite)
+
+#check (SimplicialSites.ofObj C :
+  ∀ n : SimplexCategory, C.obj n → SimplicialSites.totalSite C)
+#check (SimplicialSites.homMk (C := C) :
+  ∀ {U V : SimplicialSites.totalSite C}
+    (φ : SimplicialSites.degree V ⟶ SimplicialSites.degree U),
+    (SimplicialSites.obj U ⟶ (C.map φ).toFunctor.obj (SimplicialSites.obj V)) → (U ⟶ V))
+#check (SimplicialSites.precoverage C J :
+  Precoverage (SimplicialSites.totalSite C))
+#check (SimplicialSites.topology C J :
+  GrothendieckTopology (SimplicialSites.totalSite C))

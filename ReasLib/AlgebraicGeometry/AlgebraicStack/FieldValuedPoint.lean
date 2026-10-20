@@ -1,0 +1,250 @@
+module
+
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Basic
+public import ReasLib.CategoryTheory.Fibered.Representable.Slice.Map
+
+/-!
+# Field-valued points of an algebraic stack
+
+A field-valued point of a category fibred in groupoids `X` over a scheme `S` is a
+morphism `Spec(K) ⟶ X` from the spectrum of a field. Two such morphisms are related
+when they fit in a 2-commutative square after restriction along a common field
+extension.
+-/
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry
+open FiberedCategoryOver.Groupoids (overMap)
+open scoped Bicategory
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicStack
+
+set_option backward.privateInPublic true in
+/-- Concrete field and morphism data for a point of a groupoid fibration over a scheme. -/
+private structure FieldValuedPointObj {S : Scheme.{u}} (X : GroupoidsOver S) where
+  /-- The source field. -/
+  K : Type u
+  /-- The field structure on the source. -/
+  [field : Field K]
+  /-- The structure morphism of `Spec(K)` over `S`. -/
+  structureHom : Spec (.of K) ⟶ S
+  /-- The morphism `Spec(K) ⟶ X` of groupoid fibrations over `S`. -/
+  hom : GroupoidsOver.slice (Over.mk structureHom) ⟶ X
+
+set_option backward.privateInPublic true in
+/-- Construct field and morphism data from a field, a structure morphism to the base scheme,
+and a morphism from its canonical slice into the groupoid fibration. -/
+private def FieldValuedPointObj.of {S : Scheme.{u}} {X : GroupoidsOver S}
+    (K : Type u) [Field K] (structureHom : Spec (.of K) ⟶ S)
+    (hom : GroupoidsOver.slice (Over.mk structureHom) ⟶ X) : FieldValuedPointObj X where
+  K := K
+  structureHom := structureHom
+  hom := hom
+
+set_option backward.privateInPublic true in
+/-- A field-valued point of `X` over `S` is a morphism from a field spectrum to `X`
+as a 1-morphism of groupoid fibrations over `S`. -/
+abbrev FieldValuedPoint {S : Scheme.{u}} (X : GroupoidsOver S) :=
+  FieldValuedPointObj X
+
+namespace FieldValuedPoint
+
+variable {S : Scheme.{u}} {X : GroupoidsOver S}
+
+set_option backward.privateInPublic true in
+/-- The source field of a field-valued point. -/
+abbrev K (p : FieldValuedPoint X) : Type u := FieldValuedPointObj.K p
+
+set_option backward.privateInPublic true in
+/-- The field structure stored in a field-valued point. -/
+abbrev field (p : FieldValuedPoint X) : Field p.K := FieldValuedPointObj.field p
+
+attribute [instance] field
+
+set_option backward.privateInPublic true in
+/-- The structure morphism from the source-field spectrum to the base scheme. -/
+abbrev structureHom (p : FieldValuedPoint X) : Spec (.of p.K) ⟶ S :=
+  FieldValuedPointObj.structureHom p
+
+set_option backward.privateInPublic true in
+/-- The morphism from the canonical source slice into the groupoid fibration. -/
+abbrev hom (p : FieldValuedPoint X) :
+    GroupoidsOver.slice (Over.mk p.structureHom) ⟶ X :=
+  FieldValuedPointObj.hom p
+
+set_option backward.privateInPublic true in
+/-- Construct a field-valued point from a field, a structure morphism to `S`, and a morphism into
+`X`. -/
+def of (K : Type u) [Field K] (structureHom : Spec (.of K) ⟶ S)
+    (hom : GroupoidsOver.slice (Over.mk structureHom) ⟶ X) : FieldValuedPoint X :=
+  FieldValuedPointObj.of K structureHom hom
+
+/-- The structure morphism of `FieldValuedPoint.of` is the given morphism to `S`. -/
+@[simp]
+theorem of_structureHom (K : Type u) [Field K] (structureHom : Spec (.of K) ⟶ S)
+    (hom : GroupoidsOver.slice (Over.mk structureHom) ⟶ X) :
+    (of K structureHom hom).structureHom = structureHom := sorry
+
+/-- The morphism into `X` of `FieldValuedPoint.of` is the given morphism. -/
+@[simp]
+theorem of_hom (K : Type u) [Field K] (structureHom : Spec (.of K) ⟶ S)
+    (hom : GroupoidsOver.slice (Over.mk structureHom) ⟶ X) :
+    (of K structureHom hom).hom = hom := sorry
+
+/-- The scheme over `S` given by the structure morphism of a field-valued point. -/
+abbrev overObj (p : FieldValuedPoint X) : Over S :=
+  Over.mk p.structureHom
+
+/-- The structure morphism of `overObj p` is `p.structureHom`. -/
+@[simp]
+theorem overObj_hom (p : FieldValuedPoint X) : p.overObj.hom = p.structureHom := sorry
+
+/-- Postcompose a field-valued point with a 1-morphism of groupoid fibrations over `S`. -/
+def map {Y : GroupoidsOver S} (p : FieldValuedPoint X) (f : X ⟶ Y) : FieldValuedPoint Y :=
+  of p.K p.structureHom (p.hom ≫ f)
+
+/-- Postcomposition leaves the structure morphism unchanged. -/
+@[simp]
+theorem map_structureHom {Y : GroupoidsOver S} (p : FieldValuedPoint X) (f : X ⟶ Y) :
+    (p.map f).structureHom = p.structureHom := sorry
+
+/-- The morphism of a postcomposed field-valued point is the evident composite. -/
+@[simp]
+theorem map_hom {Y : GroupoidsOver S} (p : FieldValuedPoint X) (f : X ⟶ Y) :
+    (p.map f).hom = p.hom ≫ f := sorry
+
+/-- A factorization from `p` to `q` is a morphism of source field spectra over `S` making the
+triangle over `S` commute and filling the triangle over `X` by a 2-isomorphism. Existence of
+such a factorization says that `p` dominates `q`. -/
+structure Factorization (p q : FieldValuedPoint X) where
+  /-- The morphism of source field spectra. -/
+  schemeHom : Spec (.of p.K) ⟶ Spec (.of q.K)
+  /-- The triangle over `S` commutes. -/
+  fac_structure : schemeHom ≫ q.structureHom = p.structureHom
+  /-- The triangle over `X` 2-commutes. -/
+  fac_iso :
+    overMap (Over.homMk schemeHom fac_structure) ≫ q.hom ≅ p.hom
+
+namespace Factorization
+
+/-- Construct a factorization from a morphism of field spectra, a commuting triangle over `S`,
+and a 2-isomorphism over `X`. -/
+def of {p q : FieldValuedPoint X} (schemeHom : Spec (.of p.K) ⟶ Spec (.of q.K))
+    (fac_structure : schemeHom ≫ q.structureHom = p.structureHom)
+    (fac_iso : overMap (Over.homMk schemeHom fac_structure) ≫ q.hom ≅ p.hom) :
+    Factorization p q where
+  schemeHom := schemeHom
+  fac_structure := fac_structure
+  fac_iso := fac_iso
+
+/-- The identity factorization of a field-valued point. -/
+def refl (p : FieldValuedPoint X) : Factorization p p where
+  schemeHom := 𝟙 _
+  fac_structure := Category.id_comp _
+  fac_iso :=
+    eqToIso (congrArg (fun f => f ≫ p.hom) (overMap.id p.overObj)) ≪≫ (λ_ p.hom)
+
+/-- A factorization is a morphism of field spectra making the `S`-triangle commute and filling
+the `X`-triangle by a 2-isomorphism. -/
+theorem spec {p q : FieldValuedPoint X} (φ : Factorization p q) :
+    φ.schemeHom ≫ q.structureHom = p.structureHom ∧
+      Nonempty (overMap (Over.homMk φ.schemeHom φ.fac_structure) ≫ q.hom ≅ p.hom) :=
+  sorry
+
+end Factorization
+
+/-- A common extension of `p` and `q` is a field-valued point dominating both of them. -/
+structure CommonExtension (p q : FieldValuedPoint X) where
+  /-- The common field-valued extension. -/
+  point : FieldValuedPoint X
+  /-- Its factorization through `p`. -/
+  left : Factorization point p
+  /-- Its factorization through `q`. -/
+  right : Factorization point q
+
+namespace CommonExtension
+
+/-- Build a common extension from a field-valued point and factorizations through `p` and `q`. -/
+def of {p q : FieldValuedPoint X} (point : FieldValuedPoint X) (left : Factorization point p)
+    (right : Factorization point q) : CommonExtension p q where
+  point := point
+  left := left
+  right := right
+
+/-- The tautological common extension of a field-valued point with itself. -/
+def refl (p : FieldValuedPoint X) : CommonExtension p p where
+  point := p
+  left := Factorization.refl p
+  right := Factorization.refl p
+
+/-- Reverse the two legs of a common extension. -/
+def symm {p q : FieldValuedPoint X} (e : CommonExtension p q) : CommonExtension q p where
+  point := e.point
+  left := e.right
+  right := e.left
+
+end CommonExtension
+
+/-- Field-valued points are equivalent when they admit a common field-valued extension over `X`. -/
+def Equivalent (p q : FieldValuedPoint X) : Prop :=
+  Nonempty (CommonExtension p q)
+
+/-- Equivalence of field-valued points is reflexive. -/
+theorem Equivalent.refl (p : FieldValuedPoint X) : Equivalent p p :=
+  ⟨CommonExtension.refl p⟩
+
+/-- Equivalence of field-valued points is symmetric. -/
+theorem Equivalent.symm {p q : FieldValuedPoint X} : Equivalent p q → Equivalent q p := sorry
+
+/-- Equivalence of field-valued points is transitive. -/
+theorem Equivalent.trans {p q r : FieldValuedPoint X} :
+    Equivalent p q → Equivalent q r → Equivalent p r := sorry
+
+/-- Equivalence is preserved by postcomposition with a 1-morphism of groupoid fibrations over `S`. -/
+theorem Equivalent.map {Y : GroupoidsOver S} {p q : FieldValuedPoint X} (h : Equivalent p q)
+    (f : X ⟶ Y) : Equivalent (p.map f) (q.map f) := sorry
+
+/-- Equivalence of field-valued points is the existence of a field `Ω` and a 2-commutative
+square of morphisms of spectra over `S`. -/
+theorem equivalent_iff (p q : FieldValuedPoint X) :
+    Equivalent p q ↔
+      ∃ (r : FieldValuedPoint X)
+        (a : Spec (.of r.K) ⟶ Spec (.of p.K)) (b : Spec (.of r.K) ⟶ Spec (.of q.K))
+        (ha : a ≫ p.structureHom = r.structureHom)
+        (hb : b ≫ q.structureHom = r.structureHom),
+        Nonempty
+          (overMap (Over.homMk a ha : r.overObj ⟶ p.overObj) ≫ p.hom ≅
+            overMap (Over.homMk b hb : r.overObj ⟶ q.overObj) ≫ q.hom) :=
+  sorry
+
+end FieldValuedPoint
+
+/-- The common-field-extension relation on field-valued points of an algebraic stack
+is an equivalence relation. -/
+@[stacks 04XF]
+theorem FieldValuedPoint.equivalent_isEquivalence {S : Scheme.{u}}
+    (X : GroupoidsOver S) [AlgebraicStack X] :
+    _root_.Equivalence
+      (FieldValuedPoint.Equivalent : FieldValuedPoint X → FieldValuedPoint X → Prop) :=
+  sorry
+
+
+/-- The setoid of field-valued points of an algebraic stack, with relation the common-extension
+equivalence. -/
+def equivalentSetoid {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X] :
+    Setoid (FieldValuedPoint X) where
+  r := FieldValuedPoint.Equivalent
+  iseqv := FieldValuedPoint.equivalent_isEquivalence X
+
+/-- The setoid relation is the common-extension equivalence of field-valued points. -/
+@[simp]
+theorem equivalentSetoid_rel_iff {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    (p q : FieldValuedPoint X) :
+    equivalentSetoid X p q ↔ FieldValuedPoint.Equivalent p q := sorry
+
+end AlgebraicGeometry.AlgebraicStack

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Torsor.Defs
@@ -184,7 +178,7 @@ abbrev forgetSpacesRing (X : AlgebraicSpace S) :
 abbrev restrictSpacesAdd (X : AlgebraicSpace S) :
     Sheaf (spacesEtaleTopology X) AddCommGrpCat.{u} ⥤
       Sheaf (smallEtaleTopology X) AddCommGrpCat.{u} :=
-  (smallEtaleInclusion X).sheafPushforwardContinuous AddCommGrpCat.{u}
+  (smallEtaleToSpaces X).sheafPushforwardContinuous AddCommGrpCat.{u}
     (smallEtaleTopology X) (spacesEtaleTopology X)
 
 /-- The Kähler object `Ω[f]` as the cokernel of the naive cotangent differential. -/

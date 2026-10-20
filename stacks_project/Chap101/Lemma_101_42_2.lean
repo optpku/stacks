@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_4_1_Separation
-public import stacks_project.Chap101.Definition_101_13_2_Closed
-public import stacks_project.Chap101.Lemma_101_39_12_Existence
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.ValuativeCriterion.UniversallyClosed
+import StacksCheckRecall
 
 /-!
 # Valuative criterion for universal closedness
@@ -24,14 +17,11 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.ValuativeCriterion
-
-/-- Lemma 101.42.2: A quasi-separated universally closed morphism of algebraic
+/- Lemma 101.42.2: A quasi-separated universally closed morphism of algebraic
 stacks satisfies the existence part of the valuative criterion. -/
-@[stacks 0CLX]
-instance Existence.of_universallyClosed {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    [QuasiSeparated f] [UniversallyClosed f] : Existence f :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.ValuativeCriterion
+@[stacks 0CLX] #check
+  (AlgebraicGeometry.AlgebraicStack.ValuativeCriterion.Existence.of_universallyClosed :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+      (f : X ⟶ Y), [AlgebraicGeometry.AlgebraicStack.QuasiSeparated f] →
+      [AlgebraicGeometry.AlgebraicStack.UniversallyClosed f] →
+      AlgebraicGeometry.AlgebraicStack.ValuativeCriterion.Existence f)

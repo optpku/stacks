@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Pretriangulated.HomotopyLimit.Definition
@@ -29,7 +23,7 @@ namespace CategoryTheory.HomotopyLimit
 variable {D : Type u} [Category.{v} D] [Limits.HasZeroObject D] [Preadditive D]
   [HasShift D ℤ] [∀ n : ℤ, (shiftFunctor D n).Additive] [Pretriangulated D]
 
-/-- Stacks 08TC: an explicit product cone and distinguished Milnor triangle presenting `X` as
+/-- An explicit product cone and distinguished Milnor triangle presenting `X` as
 a homotopy limit of the sequential inverse system `K`. -/
 @[stacks 08TC]
 structure Presentation (K : SequentialInverseSystem D) (X : D) where

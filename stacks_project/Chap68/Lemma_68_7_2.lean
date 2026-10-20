@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap66.Lemma_66_5_5_PointsTopology
-public import stacks_project.Chap66.Lemma_66_16_4_Etale
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale.Specialization
 
 /-!
 # No specializations in étale fibres over a locally Noetherian algebraic space
@@ -26,15 +19,15 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 68.7.2: Let `S` be a scheme. Let `X` be an algebraic space over `S`. Let
-`φ : ofOver U ⟶ X` be an étale morphism from a scheme to `X`. Assume `u, u' : U.left`
-map to the same point `x` of `Points X`, and `u' ⤳ u`. If `X` is locally Noetherian,
-then `u = u'`. -/
-@[stacks 0H1Q]
-theorem eq_of_specializes_of_mapOfOver_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [IsLocallyNoetherian X] {U : Over S} (φ : ofOver U ⟶ X) [Etale φ]
-    {u u' : U.left} {x : Points X} (hu : Points.mapOfOver φ u = x)
-    (hu' : Points.mapOfOver φ u' = x) (hspec : Specializes u' u) : u = u' :=
-  sorry
+/- Lemma 68.7.2: Let `S` be a scheme, `X` a locally Noetherian algebraic space over `S`,
+and `φ : ofOver U ⟶ X` an étale morphism from a scheme. If `u` and `u'` map to the
+same point of `X` and `u'` specializes to `u`, then `u = u'`. -/
+@[stacks 0H1Q] #check
+  (AlgebraicGeometry.AlgebraicSpace.eq_of_specializes_of_mapOfOver_eq :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsLocallyNoetherian X]
+      {U : Over S} (φ : ofOver U ⟶ X) [Etale φ]
+      {u u' : U.left} {x : Points X},
+      Points.mapOfOver φ u = x → Points.mapOfOver φ u' = x →
+      Specializes u' u → u = u')
 
 end AlgebraicGeometry.AlgebraicSpace

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap82.Definition_82_6_1_AssociatedCycle
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Length.Point
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.AssociatedCycle
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
@@ -26,8 +21,9 @@ variable (δ : Points B → ℤ) [IsDimensionFunction δ]
 `|Z|` is an irreducible component of `moduleSupport F` is the length of `F` at
 the generic point of `Z`. -/
 @[stacks 0EEB]
-#check (@componentMultiplicity S X
-  (LocallyOfFiniteType.isLocallyNoetherian f) :
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.componentMultiplicity :
+  {S : Scheme.{u}} → {X : AlgebraicSpace S} →
+    [IsLocallyNoetherian X] → [IsDecent X] →
     (F : X.Modules) → [F.IsCoherent] → (x : Points X) →
       IsGenericPoint.ofIrreducibleComponent x (moduleSupport F) → ℕ)
 
@@ -35,9 +31,16 @@ the generic point of `Z`. -/
 is the multiplicity-weighted sum of the `δ`-dimension-`k` irreducible components
 of `moduleSupport F`. -/
 @[stacks 0EEB]
-#check (Hom.moduleCycle f δ :
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.moduleCycle f δ :
   (F : X.Modules) → [F.IsCoherent] → (k : ℤ) →
-    f.moduleSupportDeltaDimension δ F ≤ (k : EInt) →
+    AlgebraicGeometry.AlgebraicSpace.Hom.moduleSupportDeltaDimension f δ F ≤ (k : EInt) →
       Function.locallyFinsupp (Points X) ℤ)
+
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.moduleCycle_mem f δ :
+  (F : X.Modules) → [F.IsCoherent] → (k : ℤ) →
+    (hF : AlgebraicGeometry.AlgebraicSpace.Hom.moduleSupportDeltaDimension f δ F ≤
+      (k : EInt)) →
+      AlgebraicGeometry.AlgebraicSpace.Hom.moduleCycle f δ F k hF ∈
+        AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f δ k)
 
 end

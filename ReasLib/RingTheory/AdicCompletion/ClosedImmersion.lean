@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.FiniteType
@@ -129,7 +123,10 @@ theorem closedImmersionBaseChange_of (a : Ideal A) (Ibar : Ideal (A ⧸ a))
           (b ⊗ₜ Ideal.Quotient.mk a r)) =
       Ideal.Quotient.mk (a.map (algebraMap A B)) (r • b) := sorry
 
-/-- The source-hypothesis form of closed-immersion completed base change. -/
+/-- For an `I`-adically complete algebra `B` with finite-type special fiber over
+a Noetherian ring `A`, completion of `B ⊗[A] (A ⧸ a)` along an ideal `Ibar`
+cofinal with the image of `I` is canonically equivalent to `B ⧸ aB` as an
+`A ⧸ a`-algebra. -/
 def closedImmersionBaseChangeOfCofinal (I a : Ideal A)
     [IsNoetherianRing A] [IsAdicComplete I B]
     [Algebra.FiniteType (A ⧸ I) (B ⧸ I.map (algebraMap A B))]

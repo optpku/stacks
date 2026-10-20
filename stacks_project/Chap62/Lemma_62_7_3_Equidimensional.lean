@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.IdealSheaf.Subscheme
+public import ReasLib.AlgebraicGeometry.RelativeCycle.Equidimensional
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.RelativeDimension
 public import stacks_project.Chap62.Remark_62_5_6_Support
 
@@ -28,20 +23,13 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Hom.CyclesOnFibers
 
-/-- A family of `r`-cycles on fibres is equidimensional when its support is
-contained in a closed subscheme of relative dimension at most `r`. -/
-def Equidimensional {X S : Scheme.{u}} {f : X ⟶ S} {r : ℕ}
-    (α : CyclesOnFibers f r) : Prop :=
-  ∃ W : X.IdealSheafData,
-    support α ⊆ W.support ∧ RelativeDimensionLE (W.subschemeι ≫ f) r
+#check (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.Equidimensional :
+  ∀ {X S : Scheme.{u}} {f : X ⟶ S} [LocallyOfFiniteType f] {r : ℕ}, CyclesOnFibers f r → Prop)
 
-/-- Equidimensionality means there is a closed subscheme containing the support
-and of relative dimension at most `r`. -/
-theorem equidimensional_iff {X S : Scheme.{u}} {f : X ⟶ S} {r : ℕ}
-    (α : CyclesOnFibers f r) :
+#check (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.equidimensional_iff :
+  ∀ {X S : Scheme.{u}} {f : X ⟶ S} [LocallyOfFiniteType f] {r : ℕ} (α : CyclesOnFibers f r),
     Equidimensional α ↔
       ∃ W : X.IdealSheafData,
-        support α ⊆ W.support ∧ RelativeDimensionLE (W.subschemeι ≫ f) r :=
-  sorry
+        support α ⊆ W.support ∧ RelativeDimensionLE (W.subschemeι ≫ f) r)
 
 end AlgebraicGeometry.Scheme.Hom.CyclesOnFibers

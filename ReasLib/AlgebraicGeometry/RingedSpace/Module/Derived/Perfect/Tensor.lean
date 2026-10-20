@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Perfect.Tensor
@@ -39,5 +33,14 @@ theorem IsPerfect.tensor {K L : ModuleDerived X}
     [DerivedCategory.DerivedTensor.Right.Has (C := Modules X)]
     (hK : IsPerfect K) (hL : IsPerfect L) :
     IsPerfect (K ⊗ᴸ L) := sorry
+
+/-- The K-flat tensor product of two perfect derived modules on a ringed space is perfect. -/
+theorem IsPerfect.kFlatTensor
+    [KFlat.HomotopyTensorDescends X]
+    [KFlat.TensorDescends X]
+    [KFlat.IsLocalization X]
+    {E F : ModuleDerived X}
+    (hE : IsPerfect E) (hF : IsPerfect F) :
+    IsPerfect (CategoryTheory.MonoidalCategory.tensorObj E F) := sorry
 
 end AlgebraicGeometry.RingedSpace.ModuleDerived

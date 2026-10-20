@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.Cleavage.Basic.Intrinsic
@@ -85,7 +79,8 @@ def cartesianHom (chi : p.Cleavage) {U V : C} (f : V ⟶ U)
 /-- The standard-fiber cartesian arrow retains the chosen lift's universal property. -/
 theorem cartesianHom.isStronglyCartesian (chi : p.Cleavage) {U V : C}
     (f : V ⟶ U) (x : Fiber p U) :
-    p.IsStronglyCartesian f (chi.cartesianHom f x) := sorry
+    p.IsStronglyCartesian f (chi.cartesianHom f x) :=
+  (chi.reindexLift f x).isStronglyCartesian
 
 /-- The standard-fiber cartesian arrow is a lift of its displayed base arrow. -/
 theorem cartesianHom.isHomLift (chi : p.Cleavage) {U V : C} (f : V ⟶ U)

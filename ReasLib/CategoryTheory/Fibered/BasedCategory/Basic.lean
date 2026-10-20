@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.FiberedCategory.BasedCategory
@@ -121,6 +115,11 @@ base-commutativity fields are proof-valued. -/
 theorem ext {F G : X ⥤ᵇ Y} (h : F.toFunctor = G.toFunctor) : F = G := sorry
 /- Proof strategy: destruct `F` and `G`; the underlying-functor equality identifies their data
 fields, and proof irrelevance identifies the strict base-commutativity fields. -/
+
+/-- Composing a based functor with the projection of its target gives the projection of its
+source. -/
+theorem comp_toBase (φ : X ⥤ᵇ Y) :
+    φ ⋙ BasedCategory.toBase Y = BasedCategory.toBase X := sorry
 
 /-- Bundle a functor between the total categories together with a strict commutativity equation
 over `C`. This is the unbundled-input constructor complementary to `BasedCategory.ofFunctor`. -/

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap59.Lemma_59_94_1_Cospecialization
-public import stacks_project.Chap59.Definition_59_93_1_LocalAcyclicity
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.VanishingCycles.Cospecialization
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -21,35 +14,37 @@ universe u
 
 noncomputable section
 
-namespace AlgebraicGeometry.Scheme
+namespace AlgebraicGeometry.Scheme.EtaleVanishingCycles
 
 variable {X S : Scheme.{u}} (f : X ⟶ S) (sbar : GeometricPoint S)
 variable (Rsh : Type u) [CommRing Rsh]
 variable [Algebra (S.presheaf.stalk sbar.image) Rsh]
 variable [IsStrictHenselizationOf (S.presheaf.stalk sbar.image) Rsh]
-variable (tbar : GeometricPoint (strictHenselizationScheme S sbar Rsh))
-variable (iS : Spec (.of sbar.K) ⟶ strictHenselizationScheme S sbar Rsh)
-variable (hiS : iS ≫ strictHenselizationMap S sbar Rsh = sbar.hom)
-variable
-    [((smallEtalePullback (cospecializationH f sbar Rsh tbar)).sheafPushforwardContinuous
-        AddCommGrpCat.{u + 1} (henselizedFiber f sbar Rsh).smallEtaleTopology
-        (pullback (pullback.snd f (strictHenselizationMap S sbar Rsh))
-          tbar.hom).smallEtaleTopology).IsRightAdjoint]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (directImage (cospecializationH f sbar Rsh tbar)))
-      (HomologicalComplex.quasiIso
-        (Coefficients
-          (pullback (pullback.snd f (strictHenselizationMap S sbar Rsh)) tbar.hom))
-        (ComplexShape.up ℤ))]
 
-/-- Lemma 59.94.1: in the §59.94 setup, if `K` is bounded below and `f` is locally
-acyclic relative to `K`, then `i⁻¹ β_{K,sbar,tbar}` is an isomorphism in
-`D((X_sbar)_etale)`. -/
-@[stacks 0GJU]
-theorem isIso_inverseImage_etaleCohomologyBeta (K : Complexes X)
-    (hK : t.plus K) [LocallyAcyclicRelative f K] :
-    IsIso ((derivedInverseImage (cospecializationI f sbar Rsh iS hiS)).map
-      (etaleCohomologyBeta f sbar Rsh tbar K)) := sorry
+/-- The geometric closed-fibre comparison into the henselized fibre. -/
+abbrev cospecializationI
+    (iS : Spec (.of sbar.K) ⟶ strictHenselizationScheme S sbar Rsh)
+    (hiS : iS ≫ strictHenselizationMap S sbar Rsh = sbar.hom) :
+    pullback f sbar.hom ⟶ henselizedFiber f sbar Rsh :=
+  geometricFiberToHenselized f sbar Rsh iS hiS
 
-end AlgebraicGeometry.Scheme
+/-- Étale direct image on abelian sheaves. -/
+abbrev directImage {Y Z : Scheme.{u}} (g : Y ⟶ Z) :
+    Coefficients Y ⥤ Coefficients Z :=
+  Etale.Abelian.directImage g
+
+end AlgebraicGeometry.Scheme.EtaleVanishingCycles
+
+/- Lemma 59.94.1: for bounded-below coefficients relative to which `f` is locally
+acyclic, the inverse image of the concrete cospecialization comparison is an isomorphism. -/
+@[stacks 0GJU] #check (AlgebraicGeometry.Scheme.isIso_inverseImage_etaleCohomologyBeta :
+  ∀ {X S : Scheme.{u}} (f : X ⟶ S) (sbar : GeometricPoint S)
+    (Rsh : Type u) [CommRing Rsh]
+    [Algebra (S.presheaf.stalk sbar.image) Rsh]
+    [IsStrictHenselizationOf (S.presheaf.stalk sbar.image) Rsh]
+    (tbar : GeometricPoint (strictHenselizationScheme S sbar Rsh))
+    (iS : Spec (.of sbar.K) ⟶ strictHenselizationScheme S sbar Rsh)
+    (hiS : iS ≫ strictHenselizationMap S sbar Rsh = sbar.hom)
+    (K : Complexes X) (hK : t.plus K) [LocallyAcyclicRelative f K],
+    IsIso ((derivedInverseImage (geometricFiberToHenselized f sbar Rsh iS hiS)).map
+      (etaleCohomologyBeta f sbar Rsh tbar K)))

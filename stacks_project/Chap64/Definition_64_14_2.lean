@@ -1,13 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap64.«64_14_3_1_Trace»
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.CompactSupportTrace
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.Basic
+public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve
+import StacksCheckRecall
 
 /-!
 # Local Lefschetz number
@@ -31,50 +27,93 @@ namespace AlgebraicGeometry.SchemeOverField
 
 variable {k : Type u} [Field k] [Fintype k]
 variable {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
-variable {Λ : Type u} [CommRing Λ]
-variable [HasColimitsOfSize.{u, u} (ModuleCat.{u} Λ)]
+variable {Λ : Type u} [Ring Λ] [Finite Λ]
+variable [∀ {Y : Scheme.{u}}, HasWeakSheafify Y.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [∀ {Y : Scheme.{u}}, HasSheafify Y.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [∀ {Y : Scheme.{u}} (U : Y.Etale),
     HasWeakSheafify (Y.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
-variable [∀ {Y : Scheme.{u}}, Abelian (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [∀ {Y : Scheme.{u}},
     HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))]
+variable [∀ {Y Z : Scheme.{u}} (f : Y ⟶ Z) (P : Z.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ),
+    (smallEtalePullback f).op.HasLeftKanExtension P]
+variable [∀ {Y : Scheme.{u}},
+    ((sheafSections Y.smallEtaleTopology (ModuleCat.{u} Λ)).obj
+      (Opposite.op (Etale.globalEtale Y))).Additive]
+variable [∀ {Y : Scheme.{u}},
+    HasRightDerivedFunctor
+      (RightDerived.Cochain.toDerived
+        ((sheafSections Y.smallEtaleTopology (ModuleCat.{u} Λ)).obj
+          (Opposite.op (Etale.globalEtale Y))))
+      (HomologicalComplex.quasiIso
+        (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
+variable [∀ Z : Scheme.{u},
+    HasInjectiveResolutions (Sheaf Z.smallEtaleTopology AddCommGrpCat.{u})]
+variable [∀ {Y Z : Scheme.{u}} (f : Y ⟶ Z),
+    ((smallEtalePullback f).sheafPullback (ModuleCat.{u} Λ)
+      Z.smallEtaleTopology Y.smallEtaleTopology).Additive]
+variable [∀ {Y Z : Scheme.{u}} (f : Y ⟶ Z),
+    PreservesFiniteLimits
+      ((smallEtalePullback f).sheafPullback (ModuleCat.{u} Λ)
+        Z.smallEtaleTopology Y.smallEtaleTopology)]
+variable [∀ {Y Z : Scheme.{u}} (f : Y ⟶ Z),
+    PreservesFiniteColimits
+      ((smallEtalePullback f).sheafPullback (ModuleCat.{u} Λ)
+        Z.smallEtaleTopology Y.smallEtaleTopology)]
+variable [∀ {A B C : Scheme.{u}} (f : B ⟶ A) (g : C ⟶ B),
+    (((smallEtalePullback f).sheafPullback (ModuleCat.{u} Λ)
+        A.smallEtaleTopology B.smallEtaleTopology) ⋙
+      ((smallEtalePullback g).sheafPullback (ModuleCat.{u} Λ)
+        B.smallEtaleTopology C.smallEtaleTopology)).Additive]
+variable [∀ {A B C : Scheme.{u}} (f : B ⟶ A) (g : C ⟶ B),
+    PreservesFiniteLimits
+      (((smallEtalePullback f).sheafPullback (ModuleCat.{u} Λ)
+          A.smallEtaleTopology B.smallEtaleTopology) ⋙
+        ((smallEtalePullback g).sheafPullback (ModuleCat.{u} Λ)
+          B.smallEtaleTopology C.smallEtaleTopology))]
+variable [∀ {A B C : Scheme.{u}} (f : B ⟶ A) (g : C ⟶ B),
+    PreservesFiniteColimits
+      (((smallEtalePullback f).sheafPullback (ModuleCat.{u} Λ)
+          A.smallEtaleTopology B.smallEtaleTopology) ⋙
+        ((smallEtalePullback g).sheafPullback (ModuleCat.{u} Λ)
+          B.smallEtaleTopology C.smallEtaleTopology))]
+variable (X : SchemeOverField k) [Curve X] [Projective X.hom]
 
-/-- Definition 64.14.2. With `Λ`, `X`, `k`, `K` as in Definition 64.14.1.
+/- Definition 64.14.2. Let `Λ` be a finite ring, `X` a projective curve over a
+finite field `k`, and `K` an object of `D_ctf(X, Λ)`, as in Definition 64.14.1.
 Since `K` lies in `D_ctf(X, Λ)`, for any geometric point `x̄` of `X` the
 complex `K_x̄` is perfect in `D_perf(Λ)`. The Frobenius `π_X` acts on
 `K_x̄`. The local Lefschetz number of `K` is the sum
 `∑_{x ∈ X(k)} Tr(π_x | K_x̄)`, again an element of `Λ♮`.
-Here `X(k)` is the type `𝟙_ ⟶ X`, `K_x̄` is `geometricDerivedStalk K x`,
-`π_x` is `geometricFrobeniusDerivedStalk K x`, stalkwise perfectness is
-`DerivedCategory.IsPerfect` (as supplied by `isPerfect_geometricDerivedStalk`
-when `K` is constructible of finite Tor-dimension), and the displayed sum is
-`traceGeometricFrobeniusStalks`. -/
-@[stacks 03TY]
-noncomputable def localLefschetzNumber (X : SchemeOverField k)
-    (K : EtaleDerived X.left Λ)
-    (hK : ∀ x : (𝟙_ (SchemeOverField k) ⟶ X),
-      DerivedCategory.IsPerfect (geometricDerivedStalk K x)) : Λ♮ :=
-  traceGeometricFrobeniusStalks X K hK
+Here `X(k)` is the type `𝟙_ ⟶ X`. The canonical derived geometric stalks and
+their geometric Frobenius endomorphisms use inverse arithmetic Frobenius.
+The canonical definition extends to any complex with perfect geometric stalks;
+this perfectness condition is not an identification with `D_ctf`. The last
+check supplies the perfectness required for the source's constructible
+Tor-finite complexes. Since a projective curve over a finite field has finitely
+many rational points, the canonical `finsum` is the ordinary finite sum. -/
+@[stacks 03TY] #check
+  (AlgebraicGeometry.SchemeOverField.CompactSupportTrace.traceGeometricFrobeniusStalks
+    (X := X) (Λ := Λ) :
+    ∀ (K : DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)))
+      (hK : ∀ x : (𝟙_ (SchemeOverField k) ⟶ X),
+        DerivedCategory.IsPerfect (CompactSupportTrace.geometricDerivedStalk (Λ := Λ) K x)), Λ♮)
 
-/-- The local Lefschetz number equals the operational stalk-trace sum
-`traceGeometricFrobeniusStalks`. -/
-theorem localLefschetzNumber_eq (X : SchemeOverField k)
-    (K : EtaleDerived X.left Λ)
-    (hK : ∀ x : (𝟙_ (SchemeOverField k) ⟶ X),
-      DerivedCategory.IsPerfect (geometricDerivedStalk K x)) :
-    localLefschetzNumber X K hK = traceGeometricFrobeniusStalks X K hK :=
-  sorry
+#check
+  (AlgebraicGeometry.SchemeOverField.CompactSupportTrace.traceGeometricFrobeniusStalks_spec
+    (X := X) (Λ := Λ) :
+    ∀ (K : DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)))
+      (hK : ∀ x : (𝟙_ (SchemeOverField k) ⟶ X),
+        DerivedCategory.IsPerfect (CompactSupportTrace.geometricDerivedStalk (Λ := Λ) K x)),
+      CompactSupportTrace.traceGeometricFrobeniusStalks (Λ := Λ) K hK =
+        ∑ᶠ x : (𝟙_ (SchemeOverField k) ⟶ X),
+          (hK x).traceNatural (CompactSupportTrace.geometricFrobeniusDerivedStalk (Λ := Λ) K x))
 
-/-- The local Lefschetz number is the finitely supported sum of traces of
-geometric Frobenius on derived geometric stalks, valued in `Λ♮`. -/
-theorem localLefschetzNumber_spec (X : SchemeOverField k)
-    (K : EtaleDerived X.left Λ)
-    (hK : ∀ x : (𝟙_ (SchemeOverField k) ⟶ X),
-      DerivedCategory.IsPerfect (geometricDerivedStalk K x)) :
-    localLefschetzNumber X K hK =
-      ∑ᶠ x : (𝟙_ (SchemeOverField k) ⟶ X),
-        (hK x).traceNatural (geometricFrobeniusDerivedStalk K x) :=
-  sorry
+#check
+  (AlgebraicGeometry.SchemeOverField.CompactSupportTrace.isPerfect_geometricDerivedStalk_of_finiteRing
+    (X := X) (Λ := Λ) :
+    ∀ (K : Scheme.Etale.Derived.FiniteRing.ConstructibleTorFinite
+        (X := X.left) (Λ := Λ))
+      (x : 𝟙_ (SchemeOverField k) ⟶ X),
+      DerivedCategory.IsPerfect (CompactSupportTrace.geometricDerivedStalk (Λ := Λ) K.obj x))
 
 end AlgebraicGeometry.SchemeOverField

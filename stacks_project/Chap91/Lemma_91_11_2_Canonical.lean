@@ -1,19 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap91.Lemma_91_11_1_IdealMul
-public import stacks_project.Chap91.Situation_91_12_2_Diagram
-public import stacks_project.Chap91.«91_10_0_1_Extension»
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.FirstOrderThickening.CanonicalMap
 
 /-!
 # Canonical comparison maps for a strict first-order thickening square
 
-On a same-site morphism of first-order thickenings, the source display
+The canonical constructions and their computation rules are publicly re-exported here.
+
+For a commutative square of first-order thickenings of ring sheaves, the comparison
 `f^* J ⊗_O F ⟶ I ⊗_O F ⟶ I F'` is the tensor of `kernelPullbackMap` followed by
 `infMap` of the mixed-scalar extension `ofPullback π F'`.
 -/
@@ -41,81 +35,59 @@ variable {O' O : Sheaf J CommRingCat.{max u v}} (π : O' ⟶ O)
 variable [hπ : IsFirstOrderThickening π]
 variable [(restrictScalars (ringSheafMap π)).IsRightAdjoint]
 
-/-- Along a first-order thickening, the extension-restriction unit is invertible on
-`idealMulO' π F'`. -/
-instance instIsIso_extendRestrictUnit_idealMulO'
-    {F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O'} :
-    IsIso (extendRestrictUnit π (idealMulO' π F')) := sorry
+#check (SheafOfModules.RingedSite.FirstOrderThickening.instIsIso_extendRestrictUnit_idealMulO' π :
+  ∀ {F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O'},
+    IsIso (extendRestrictUnit π (idealMulO' π F')))
 
-/-- The mixed-scalar extension `0 ⟶ I F' ⟶ F' ⟶ i^* F' ⟶ 0` associated to an `O'`-module
-`F'` on the first-order thickening `π`. -/
-def ofPullback (F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O') :
-    Extension π where
-  kernel := idealMul π F'
-  middle := F'
-  quot := (extendScalars (ringSheafMap π)).obj F'
-  ι := (asIso (extendRestrictUnit π (idealMulO' π F'))).inv ≫
-    kernel.ι (extendRestrictUnit π F')
-  p := extendRestrictUnit π F'
-  zero := sorry
-  shortExact := sorry
+#check (SheafOfModules.RingedSite.FirstOrderThickening.ofPullback π :
+  (F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O') → Extension π)
 
-/-- The kernel of `ofPullback π F'` is the `O`-module `I F'`. -/
-theorem ofPullback_kernel
-    (F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O') :
-    (ofPullback π F').kernel = idealMul π F' := sorry
+#check (SheafOfModules.RingedSite.FirstOrderThickening.ofPullback_kernel π :
+  ∀ F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O',
+    (ofPullback π F').kernel = idealMul π F')
 
-/-- The middle term of `ofPullback π F'` is `F'`. -/
-theorem ofPullback_middle
-    (F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O') :
-    (ofPullback π F').middle = F' := sorry
+#check (SheafOfModules.RingedSite.FirstOrderThickening.ofPullback_middle π :
+  ∀ F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O',
+    (ofPullback π F').middle = F')
 
-/-- The quotient of `ofPullback π F'` is `i^* F'`. -/
-theorem ofPullback_quot
-    (F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O') :
-    (ofPullback π F').quot = (extendScalars (ringSheafMap π)).obj F' := sorry
+#check (SheafOfModules.RingedSite.FirstOrderThickening.ofPullback_quot π :
+  ∀ F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O',
+    (ofPullback π F').quot = (extendScalars (ringSheafMap π)).obj F')
 
-/-- The comparison `I ⊗_O F ⟶ I F'` obtained as `infMap` of `ofPullback π F'`. -/
-def idealMulInfMap (F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O') :
+#check (SheafOfModules.RingedSite.FirstOrderThickening.idealMulInfMap π :
+  ∀ F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O',
     moduleTensor (ideal π) ((extendScalars (ringSheafMap π)).obj F') ⟶
-      idealMul π F' :=
-  infMap hπ.isSquareZero (ofPullback π F')
+      idealMul π F')
 
-/-- `idealMulInfMap` is `infMap` of `ofPullback π F'`. -/
-theorem idealMulInfMap_eq
-    (F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O') :
-    idealMulInfMap π F' = infMap hπ.isSquareZero (ofPullback π F') := sorry
+#check (SheafOfModules.RingedSite.FirstOrderThickening.idealMulInfMap_eq π :
+  ∀ F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O',
+    idealMulInfMap π F' = infMap hπ.isSquareZero (ofPullback π F'))
 
 variable {OB' OB : Sheaf J CommRingCat.{max u v}} {τ : OB' ⟶ OB}
 variable [IsFirstOrderThickening τ]
 variable (f : OB ⟶ O) [(restrictScalars (ringSheafMap f)).IsRightAdjoint]
 variable (f' : OB' ⟶ O') (hcomm : f' ≫ π = τ ≫ f)
 
-/-- The comparison `f^* J ⊗_O F ⟶ I ⊗_O F` induced by `kernelPullbackMap`. -/
-def sourceIdealTensorMap
-    (F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O') :
+#check (SheafOfModules.RingedSite.FirstOrderThickening.sourceIdealTensorMap π f f' hcomm :
+  ∀ F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O',
     moduleTensor ((extendScalars (ringSheafMap f)).obj (ideal τ))
         ((extendScalars (ringSheafMap π)).obj F') ⟶
-      moduleTensor (ideal π) ((extendScalars (ringSheafMap π)).obj F') :=
-  moduleTensorMap (kernelPullbackMap f f' hcomm) (𝟙 _)
+      moduleTensor (ideal π) ((extendScalars (ringSheafMap π)).obj F'))
 
-/-- `sourceIdealTensorMap` is the tensor morphism of `kernelPullbackMap` with `𝟙 F`. -/
-theorem sourceIdealTensorMap_eq
-    (F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O') :
+#check (SheafOfModules.RingedSite.FirstOrderThickening.sourceIdealTensorMap_eq π f f' hcomm :
+  ∀ F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O',
     sourceIdealTensorMap π f f' hcomm F' =
-      moduleTensorMap (kernelPullbackMap f f' hcomm) (𝟙 _) := sorry
+      moduleTensorMap (kernelPullbackMap f f' hcomm) (𝟙 _))
 
-/-- The canonical comparison `f^* J ⊗_O F ⟶ I F'` of Lemma 91.11.2. -/
-def canonicalMap (F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O') :
+#check (SheafOfModules.RingedSite.FirstOrderThickening.canonicalMap π f f' hcomm :
+  ∀ F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O',
     moduleTensor ((extendScalars (ringSheafMap f)).obj (ideal τ))
         ((extendScalars (ringSheafMap π)).obj F') ⟶
-      idealMul π F' :=
-  sourceIdealTensorMap π f f' hcomm F' ≫ idealMulInfMap π F'
+      idealMul π F')
 
-/-- `canonicalMap` is the composite `sourceIdealTensorMap ≫ idealMulInfMap`. -/
-theorem canonicalMap_eq
-    (F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O') :
+#check (SheafOfModules.RingedSite.FirstOrderThickening.canonicalMap_eq π f f' hcomm :
+  ∀ F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O',
     canonicalMap π f f' hcomm F' =
-      sourceIdealTensorMap π f f' hcomm F' ≫ idealMulInfMap π F' := sorry
+      sourceIdealTensorMap π f f' hcomm F' ≫ idealMulInfMap π F')
 
 end SheafOfModules.RingedSite.FirstOrderThickening

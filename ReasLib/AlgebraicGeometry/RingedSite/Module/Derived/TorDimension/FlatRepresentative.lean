@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.TorDimension
@@ -16,7 +10,6 @@ import Mathlib.Tactic.CrossRefAttribute
 -- Local instance justification (defeq pin): the imported ModuleDerived and localized ModuleCat aliases use the standard homotopy localization; this fallback is definitionally the same quotient as the named moduleCat_hasDerivedCategory and does not choose another derived model.
 attribute [local instance] HasDerivedCategory.standard
   SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
-  SheafOfModules.RingedSite.moduleCategoryHasDerivedTensor
 
 /-!
 # Flat representatives and Tor-amplitude
@@ -70,6 +63,8 @@ variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
 variable {O : Sheaf J CommRingCat.{w}} [UnivLE.{max u v, w}]
 variable [HasWeakSheafify J AddCommGrpCat.{w}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [DerivedCategory.DerivedTensor.Right.Has
+  (C := SheafOfModules.RingedSite.ringedSiteModuleCategory.{u, v, w, w} J O)]
 
 /-- Lemma 21.46.3: Tor-amplitude in `[a, b]` is equivalent to admitting a termwise-flat
 representative supported in `[a, b]`. -/

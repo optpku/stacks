@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Cohomology
@@ -13,9 +7,9 @@ import Mathlib.Tactic.CrossRefAttribute
 /-!
 # Basiswise acyclic cohomology sheaves on a ringed space
 
-The core predicates retain the natural module structure on open cohomology.  Separate
-`SheafAcyclicIn` and `SheafAcyclic` views record the textbook formulation through `Sheaf.H'`;
-only the comparison API between the two views needs an explicit `HasExt` instance.
+Basiswise acyclicity is expressed both by open cohomology with its natural module structure
+and by ordinary cohomology of the underlying additive sheaves. The additive-sheaf formulation
+uses an explicit `HasExt` instance.
 -/
 
 @[expose] public section
@@ -41,8 +35,8 @@ def AcyclicIn (K : ModuleDerived X) (𝓑 : Set (Opens X.carrier)) (q : ℤ) : P
 def Acyclic (K : ModuleDerived X) (𝓑 : Set (Opens X.carrier)) : Prop :=
   ∀ q : ℤ, AcyclicIn K 𝓑 q
 
-/-- The source-facing formulation of degree-`q` basiswise acyclicity through the ordinary
-cohomology of the underlying additive cohomology sheaf. -/
+/-- The degree-`q` underlying additive cohomology sheaf has vanishing positive cohomology
+on every member of the basis. -/
 @[stacks 0BKT "basiswise acyclicity of one underlying cohomology sheaf"]
 def SheafAcyclicIn (K : ModuleDerived X) (𝓑 : Set (Opens X.carrier)) (q : ℤ)
     [HasExt (Sheaf (Opens.grothendieckTopology X.carrier) AddCommGrpCat.{u})] : Prop :=
@@ -82,7 +76,7 @@ theorem acyclic_iff_sheafAcyclic (K : ModuleDerived X) (𝓑 : Set (Opens X.carr
     [HasExt (Sheaf (Opens.grothendieckTopology X.carrier) AddCommGrpCat.{u})] :
     Acyclic K 𝓑 ↔ SheafAcyclic K 𝓑 := sorry
 
-/-- Stacks 0BKT: on a member of a basis where the degree-`q` cohomology module of `K` is
+/-- On a member of a basis where the degree-`q` cohomology module of `K` is
 acyclic, hypercohomology is its degree-zero open cohomology. -/
 @[stacks 0BKT "hypercohomology from basiswise acyclicity in one degree"]
 theorem zeroDegreeIso (K : ModuleDerived X) {𝓑 : Set (Opens X.carrier)}
@@ -92,8 +86,8 @@ theorem zeroDegreeIso (K : ModuleDerived X) {𝓑 : Set (Opens X.carrier)}
       ((forget₂ (ModuleCat (sectionsRingOnOpen X U)) AddCommGrpCat.{u}).obj
         (openCohomology K U 0 q)) := sorry
 
-/-- Source-facing fixed-degree companion of `zeroDegreeIso`, expressed as ordinary degree-zero
-cohomology of the underlying additive cohomology sheaf. -/
+/-- If the degree-`q` additive cohomology sheaf is acyclic on a basis, degree-`q`
+hypercohomology on a basis member is its degree-zero sheaf cohomology. -/
 @[stacks 0BKT "hypercohomology from one acyclic underlying cohomology sheaf"]
 theorem zeroDegreeIsoOfSheaf (K : ModuleDerived X) {𝓑 : Set (Opens X.carrier)}
     (h𝓑 : Opens.IsBasis 𝓑) (q : ℤ)
@@ -101,8 +95,8 @@ theorem zeroDegreeIsoOfSheaf (K : ModuleDerived X) {𝓑 : Set (Opens X.carrier)
     (hK : SheafAcyclicIn K 𝓑 q) {U : Opens X.carrier} (hU : U ∈ 𝓑) :
     IsIsomorphic (moduleOpenHypercohomology X U K q) ((sheaf X K q).H' 0 U) := sorry
 
-/-- Source-facing all-degrees companion of `zeroDegreeIso`, matching the textbook hypothesis
-that every cohomology sheaf of `K` is acyclic on `𝓑`. -/
+/-- If every additive cohomology sheaf is acyclic on a basis, hypercohomology in every degree
+on a basis member is the degree-zero cohomology of the corresponding sheaf. -/
 @[stacks 0BKT "hypercohomology from acyclic underlying cohomology sheaves"]
 theorem zeroDegreeIsoOfSheaves (K : ModuleDerived X) {𝓑 : Set (Opens X.carrier)}
     (h𝓑 : Opens.IsBasis 𝓑)

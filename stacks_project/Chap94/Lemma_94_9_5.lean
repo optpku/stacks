@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap80.Definition_80_3_1_RelativelyRepresentable
-public import stacks_project.Chap94.Definition_94_12_1_Representable
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Representable.Presheaf
+import StacksCheckRecall
 
 /-!
 # Maps of presheaves representable by algebraic spaces
@@ -27,16 +21,16 @@ universe u
 
 namespace AlgebraicGeometry
 
-/-- Lemma 94.9.5: let `S` be an object of `Sch_fppf`. Let `a : F ⟶ G` be a map of
+/- Lemma 94.9.5: let `S` be an object of `Sch_fppf`. Let `a : F ⟶ G` be a map of
 presheaves of sets on `(Sch/S)_fppf`. Denote `a' : 𝒮_F ⟶ 𝒮_G` the associated
 map of categories fibred in sets. Then `a` is representable by algebraic spaces
 in the sense of Bootstrap Definition 80.3.1 if and only if `a'` is representable
 by algebraic spaces. -/
-@[stacks 0458]
-theorem relativelyRepresentableByAlgebraicSpaces.iff_ofPresheaf
-    {S : Scheme.{u}} {F G : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G) :
+@[stacks 0458] #check
+  (AlgebraicGeometry.relativelyRepresentableByAlgebraicSpaces.iff_ofPresheaf :
+    ∀ {S : Scheme.{u}} {F G : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G),
     AlgebraicSpace.representableByAlgebraicSpaces a ↔
       relativelyRepresentableByAlgebraicSpaces
-        ((Sets.toGroupoids (Over S)).map ((Sets.ofPresheaf (Over S)).map a)) := sorry
+        ((Sets.toGroupoids (Over S)).map ((Sets.ofPresheaf (Over S)).map a)))
 
 end AlgebraicGeometry

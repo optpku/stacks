@@ -1,52 +1,36 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap59.Lemma_59_101_3_DerivedGamma
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Module.AffineFppfDerived
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.Limits CategoryTheory.Functor
+open CategoryTheory
 open AlgebraicGeometry AlgebraicGeometry.Scheme
-open ComplexShape
 
 noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.Scheme.AssociatedModule
+/- Lemma 59.101.3 (1): every term of the tensor presheaf complex on the affine fppf site
+is a sheaf. -/
+@[stacks 0H0U] #check (AlgebraicGeometry.Scheme.AffineFppf.tensorPresheafComplex_isSheaf :
+  ∀ (A : CommRingCat.{u}) (M : CochainComplex (ModuleCat.{u} A) ℤ) (degree : ℤ),
+    Presheaf.IsSheaf (bigAffineFppfTopology (Spec A))
+      ((AlgebraicGeometry.Scheme.AffineFppf.tensorPresheafComplex A M).X degree))
 
-variable (A : CommRingCat.{u})
-variable [HasSheafify (bigAffineFppfTopology (Spec A)) AddCommGrpCat.{u}]
-variable [HasWeakSheafify (bigAffineFppfTopology (Spec A)) AddCommGrpCat.{u}]
-variable [HasGlobalSectionsFunctor (bigAffineFppfTopology (Spec A)) AddCommGrpCat.{u}]
-variable [(presheafToSheaf (bigAffineFppfTopology (Spec A)) AddCommGrpCat.{u}).PreservesZeroMorphisms]
-variable [Abelian (fppfAffineAbelianSheaf A)]
-variable [(Sheaf.Γ (bigAffineFppfTopology (Spec A)) AddCommGrpCat.{u}).Additive]
-variable [CategoryWithHomology (Sheaf (bigAffineFppfTopology (Spec A)) AddCommGrpCat.{u})]
-variable [HasDerivedCategory (Sheaf (bigAffineFppfTopology (Spec A)) AddCommGrpCat.{u})]
-variable [HasDerivedCategory AddCommGrpCat.{u}]
-
-/- Lemma 59.101.3 (1): the complex of presheaves of `𝒪`-modules on `(Aff / Spec A)_fppf
-given by `Spec B / Spec A ↦ M^n ⊗[A] B`. -/
-@[stacks 0H0U]
-#check fppfAffineTensorExtensionComplex
-
-/-- Optional cochain-level packaging of the comparison before derivation. -/
-theorem tensorExtensionComplex_fppfAffine_toGamma_quasiIso
-    (M : HomologicalComplex (ModuleCat.{u} A) (up ℤ)) :
-    QuasiIso (tensorExtensionComplex_fppfAffine_toGamma A M) := sorry
-
-/-- Lemma 59.101.3 (2): the canonical map
-`M ⟶ RΓ((Aff / Spec A)_fppf, F)` is a quasi-isomorphism. -/
-@[stacks 0H0U]
-theorem tensorExtensionComplex_fppfAffine_derivedGamma_quasiIso
-    (M : HomologicalComplex (ModuleCat.{u} A) (up ℤ)) :
-    IsIso (tensorExtensionComplex_fppfAffine_toDerivedGamma A M) := sorry
-
-end AlgebraicGeometry.Scheme.AssociatedModule
+/- Lemma 59.101.3 (2): the canonical map from an arbitrary module complex to its derived
+affine-fppf global sections is a quasi-isomorphism. -/
+@[stacks 0H0U] #check (AlgebraicGeometry.Scheme.AffineFppf.isIso_toDerivedGamma :
+  ∀ (A : CommRingCat.{u})
+    [HasSheafify (bigAffineFppfTopology (Spec A)) AddCommGrpCat.{u}]
+    [HasDerivedCategory (AlgebraicGeometry.Scheme.AffineFppf.AbelianSheaf A)]
+    [HasDerivedCategory AddCommGrpCat.{u}] (M : CochainComplex (ModuleCat.{u} A) ℤ)
+    (RF : DerivedCategory (AlgebraicGeometry.Scheme.AffineFppf.AbelianSheaf A) ⥤
+      DerivedCategory AddCommGrpCat.{u})
+    (α : CategoryTheory.Functor.RightDerived.Cochain.toDerived
+      (AlgebraicGeometry.Scheme.AffineFppf.globalSections A) ⟶ DerivedCategory.Q ⋙ RF)
+    [RF.IsRightDerivedFunctor α
+      (HomologicalComplex.quasiIso (AlgebraicGeometry.Scheme.AffineFppf.AbelianSheaf A)
+        (ComplexShape.up ℤ))],
+    IsIso (AlgebraicGeometry.Scheme.AffineFppf.toDerivedGamma A M RF α))

@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Finite
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.BaseChange.Set
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.BaseChange.Injective
 
 @[expose] public section
 
@@ -26,3 +21,16 @@ theorem setMap_isIso {X Y X' Y' : Scheme.{u}}
     IsIso (setMap g f' g' f h_cart.flip F) := sorry
 
 end AlgebraicGeometry.Scheme.Etale.BaseChange
+
+namespace AlgebraicGeometry.Scheme.Hom
+
+/-- Torsion abelian étale cohomology commutes with arbitrary base change
+in every degree for a finite morphism of schemes. -/
+theorem cohomologyCommutesWithBaseChange_of_isFinite
+    {X Y : Scheme.{u}} (f : X ⟶ Y) [IsFinite f]
+    [∀ Z : Scheme.{u}, HasSheafify Z.smallEtaleTopology AddCommGrpCat.{u}]
+    [∀ Z : Scheme.{u},
+      HasInjectiveResolutions (Sheaf Z.smallEtaleTopology AddCommGrpCat.{u})] :
+    CohomologyCommutesWithBaseChange f := sorry
+
+end AlgebraicGeometry.Scheme.Hom

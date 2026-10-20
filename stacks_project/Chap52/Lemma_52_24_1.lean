@@ -1,20 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap52.Lemma_52_15_7
-public import stacks_project.Chap52.Lemma_52_16_11
-public import stacks_project.Chap52.Lemma_52_20_6
-public import Mathlib.RingTheory.Ideal.MinimalPrime.Basic
+public import ReasLib.AlgebraicGeometry.Scheme.AffineAlgebraization.NeighborhoodCompletion
 import StacksCheckRecall
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.Limits Opposite
+open CategoryTheory
 open AlgebraicGeometry
 open AlgebraicGeometry.Scheme
 
@@ -24,18 +15,15 @@ universe u
 
 namespace AlgebraicGeometry.AffineAlgebraizationSetup
 
-/-- Lemma 52.24.1: for a complete Noetherian local ring with a dualizing complex
-and principal ideal `S.I = (f)`, either of the stated Serre/minimal-prime or
-primewise depth-dimension conditions makes completion an equivalence on finite
-locally free coherent objects over neighborhoods of the closed fiber. -/
-@[stacks 0EKY]
-theorem completionEquivalenceOnFiniteLocallyFree_of_serreOrDepth
+/- Lemma 52.24.1: completion is an equivalence on finite locally free coherent
+objects over neighborhoods of the closed fiber under either the Serre/minimal-prime
+or primewise depth-dimension hypotheses. -/
+@[stacks 0EKY] #check
+  (AlgebraicGeometry.AffineAlgebraizationSetup.completionEquivalenceOnFiniteLocallyFree_of_serreOrDepth :
+    ∀
     {A : Type u} [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
-    [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
     (S : AffineAlgebraizationSetup A)
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (h_dualizing :
-      ∃ K : DerivedCategory (ModuleCat.{u} A), K.IsDualizingComplex H)
+    (h_dualizing : DerivedCategory.HasCanonicalDualizingComplex A)
     [IsAdicComplete S.I A]
     (f : A)
     (h_I : S.I = Ideal.span ({f} : Set A))
@@ -56,7 +44,7 @@ theorem completionEquivalenceOnFiniteLocallyFree_of_serreOrDepth
                 (moduleDepth (Localization.AtPrime p.asIdeal)
                   (LocalizedModule.AtPrime p.asIdeal A)) : WithTop ℤ) : EInt) +
                 WithBot.map (WithTop.map Int.ofNat)
-                  (ringKrullDim (A ⧸ p.asIdeal)))) :
+                  (ringKrullDim (A ⧸ p.asIdeal)))),
     let IU := idealOnOpen S
     CoherentCompletion.NeighborhoodCompletionFullyFaithful IU ∧
       ∀ F : CoherentFormalModules S.U.toScheme IU,
@@ -64,6 +52,6 @@ theorem completionEquivalenceOnFiniteLocallyFree_of_serreOrDepth
           ∃ V : (CoherentCompletion.compactSupport IU).openNhds,
             (CoherentCompletion.onFiniteLocallyFree
               (IU.comap (Scheme.Opens.ι V.val))).essImage
-                ((coherentFormalModulesRestrictionFunctor IU V.val).obj F) := sorry
+                ((coherentFormalModulesRestrictionFunctor IU V.val).obj F))
 
 end AlgebraicGeometry.AffineAlgebraizationSetup

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Basic
@@ -77,5 +71,59 @@ theorem ReductionData.mapFromReduced_spec {S : Scheme.{u}}
         h ≫ R.ι = g → h = ReductionData.mapFromReduced R hU g := by
   have h := Classical.choose_spec (R.liftUnique hU g)
   exact ⟨h.1, fun h' hh' ↦ h.2 h' hh'⟩
+
+/-- The morphism between reductions induced by a morphism of formal algebraic spaces. -/
+def ReductionData.map {S : Scheme.{u}}
+    {X Y : (Over S)ᵒᵖ ⥤ Type u}
+    [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
+    (RX : ReductionData X) (RY : ReductionData Y) (f : X ⟶ Y) :
+    RX.space ⟶ RY.space :=
+  RY.mapFromReduced RX.isReduced (RX.ι ≫ f)
+
+/-- The induced morphism of reductions commutes with the reduction inclusions. -/
+theorem ReductionData.map_spec {S : Scheme.{u}}
+    {X Y : (Over S)ᵒᵖ ⥤ Type u}
+    [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
+    (RX : ReductionData X) (RY : ReductionData Y) (f : X ⟶ Y) :
+    NatTrans.vcomp (RX.map RY f) RY.ι = RX.ι ≫ f :=
+  (RY.mapFromReduced_spec RX.isReduced (RX.ι ≫ f)).1
+
+/-- A morphism of reductions commuting with their inclusions is the induced morphism. -/
+theorem ReductionData.map_unique {S : Scheme.{u}}
+    {X Y : (Over S)ᵒᵖ ⥤ Type u}
+    [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
+    (RX : ReductionData X) (RY : ReductionData Y) (f : X ⟶ Y)
+    {g : RX.space ⟶ RY.space} (hg : NatTrans.vcomp g RY.ι = RX.ι ≫ f) :
+    g = RX.map RY f :=
+  (RY.mapFromReduced_spec RX.isReduced (RX.ι ≫ f)).2 g hg
+
+/-- The induced morphism on a reduction preserves the identity morphism. -/
+theorem ReductionData.map_id {S : Scheme.{u}}
+    {X : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace X]
+    (RX : ReductionData X) :
+    RX.map RX (𝟙 X) = 𝟙 RX.space :=
+  sorry
+
+/-- The induced morphisms on reductions preserve composition. -/
+theorem ReductionData.map_comp {S : Scheme.{u}}
+    {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
+    [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
+    [IsFormalAlgebraicSpace Z]
+    (RX : ReductionData X) (RY : ReductionData Y) (RZ : ReductionData Z)
+    (f : X ⟶ Y) (g : Y ⟶ Z) :
+    RX.map RZ (f ≫ g) = RX.map RY f ≫ RY.map RZ g := by
+  symm
+  apply map_unique RX RZ (f ≫ g)
+  change NatTrans.vcomp (NatTrans.vcomp (RX.map RY f) (RY.map RZ g)) RZ.ι = _
+  calc
+    _ = NatTrans.vcomp (RX.map RY f) (NatTrans.vcomp (RY.map RZ g) RZ.ι) :=
+      Category.assoc (obj := (Over S)ᵒᵖ ⥤ Type u) _ _ _
+    _ = NatTrans.vcomp (RX.map RY f) (RY.ι ≫ g) := by rw [map_spec]
+    _ = NatTrans.vcomp (NatTrans.vcomp (RX.map RY f) RY.ι) g :=
+      (Category.assoc (obj := (Over S)ᵒᵖ ⥤ Type u) _ _ _).symm
+    _ = (RX.ι ≫ f) ≫ g := by
+      rw [map_spec]
+      rfl
+    _ = RX.ι ≫ (f ≫ g) := Category.assoc _ _ _
 
 end AlgebraicGeometry.FormalAlgebraicSpace

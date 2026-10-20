@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap98.Definition_98_11_1_LimitPreserving
-public import stacks_project.Chap99.Lemma_99_14_8_Groupoids
+public import ReasLib.AlgebraicGeometry.Polarized.LimitPreserving
+import StacksCheckRecall
 
 /-!
 # Lemma 99.14.8
@@ -18,19 +12,11 @@ Artin's Axioms, Definition 98.11.1.
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.Polarized
-
-/-- Lemma 99.14.8: the stack in groupoids Polarized is limit preserving
+/- Lemma 99.14.8: the stack in groupoids Polarized is limit preserving
 (Artin's Axioms, Definition 98.11.1). -/
-@[stacks 0D43, instance]
-instance instLimitPreserving :
-    AlgebraicGeometry.Groupoids.LimitPreserving toGroupoidsOverSpecZ :=
-  sorry
-
-end AlgebraicGeometry.Polarized
+@[stacks 0D43]
+#check (AlgebraicGeometry.Polarized.instLimitPreserving.{u} :
+  AlgebraicGeometry.Groupoids.LimitPreserving
+    AlgebraicGeometry.Polarized.toGroupoidsOverSpecZ.{u})

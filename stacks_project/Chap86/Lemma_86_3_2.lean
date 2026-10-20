@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap86.Lemma_86_3_2_BoundedBelow
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.Pushforward.RightAdjoint.BoundedBelow
 import StacksCheckRecall
 
 @[expose] public section
@@ -27,6 +21,18 @@ and the conclusion gives vanishing for `a.obj K` in degrees `i ≤ c - N`. -/
       (f : X ⟶ Y) →
       (a : AlgebraicGeometry.AlgebraicSpace.DerivedQCoh Y ⥤
         AlgebraicGeometry.AlgebraicSpace.DerivedQCoh X) →
-      (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.pushforward f ⊣ a) →
+      (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.pushforwardCohomologyIn f ⊣ a) →
       ∃ N : ℤ, ∀ (K : AlgebraicGeometry.AlgebraicSpace.DerivedQCoh Y) (c : ℤ),
         K.obj.IsGE (c + 1) → (a.obj K).obj.IsGE (c - N + 1))
+
+#check
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.rightAdjoint_mapsBoundedBelow :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S},
+      [IsQuasiCompact X] → [IsAbsolutelyQuasiSeparated X] →
+      [IsQuasiCompact Y] → [IsAbsolutelyQuasiSeparated Y] →
+      (f : X ⟶ Y) →
+      (a : AlgebraicGeometry.AlgebraicSpace.DerivedQCoh Y ⥤
+        AlgebraicGeometry.AlgebraicSpace.DerivedQCoh X) →
+      (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.pushforwardCohomologyIn f ⊣ a) →
+      ∀ K : AlgebraicGeometry.AlgebraicSpace.DerivedQCoh Y,
+        K.obj.IsBoundedBelow → (a.obj K).obj.IsBoundedBelow)

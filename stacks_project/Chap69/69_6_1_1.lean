@@ -1,18 +1,23 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap69.«69_6_1_1_Koszul»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Koszul.Augmentation
 import StacksCheckRecall
+
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
+
+universe u
 
 /- 69.6.1.1: if `f : U ⟶ X` is a surjective étale morphism of algebraic spaces, the
 truncated Koszul complex `K^•(f)` of the trace `Tr_f : f_! ℤ̲ ⟶ ℤ̲`
-has terms `K^i(f) = ⋀^{i+1}(f_! ℤ̲)`, and the displayed arrow is the
-quasi-isomorphism `traceKoszulToConstant f : koszulComplex f ⟶ ℤ̲[0]` in
-`Ab(X_étale)`. -/
-@[stacks 0723] #check AlgebraicGeometry.AlgebraicSpace.traceKoszulToConstant
-@[stacks 0723] #check AlgebraicGeometry.AlgebraicSpace.instQuasiIsoTraceKoszulToConstant
+has terms `K^i(f) = ⋀^{i+1}(f_! ℤ̲)`, and its canonical augmentation to
+`ℤ̲[0]` is a quasi-isomorphism in `Ab(X_étale)`. -/
+@[stacks 0723] #check (AlgebraicGeometry.AlgebraicSpace.instQuasiIsoTraceKoszulToConstant :
+  ∀ {S : Scheme.{u}} {U X : AlgebraicSpace S} (f : U ⟶ X) [Etale f] [Surjective f],
+    QuasiIso (AlgebraicGeometry.AlgebraicSpace.traceKoszulToConstant f))
+
+#check (AlgebraicGeometry.AlgebraicSpace.traceKoszulToConstant :
+  ∀ {S : Scheme.{u}} {U X : AlgebraicSpace S} (f : U ⟶ X) [Etale f] [Surjective f],
+    koszulComplex f ⟶
+      (ChainComplex.single₀
+        (Sheaf (smallEtaleTopology X) AddCommGrpCat.{u + 1})).obj
+        (CategoryTheory.constantIntegerSheaf.{u + 1, u, u + 1} (smallEtaleTopology X)))

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap99.«99_3_1_1»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.HomFunctor
 
 @[expose] public section
 
@@ -25,4 +19,13 @@ and write `F_T = baseChangeModule f σ.hom F`,
 the projection `baseChangeProj : X_T ⟶ X`. The Hom functor
 `Hom(F, G) : (SchemeOver B)ᵒᵖ ⥤ Sets` sends `T` to
 `Hom_{𝒪_{X_T}}(F_T, G_T)`. -/
-@[stacks 08JT] #check AlgebraicGeometry.AlgebraicSpace.Modules.homFunctor
+@[stacks 08JT] #check (AlgebraicGeometry.AlgebraicSpace.Modules.homFunctor :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B) (F G : X.Modules)
+    [F.IsQuasicoherent] [G.IsQuasicoherent], (SchemeOver B)ᵒᵖ ⥤ Type (u + 1))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.homFunctor_obj :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B) (F G : X.Modules)
+    [F.IsQuasicoherent] [G.IsQuasicoherent] (σ : SchemeOver B),
+    (AlgebraicGeometry.AlgebraicSpace.Modules.homFunctor f F G).obj (op σ) =
+      (AlgebraicGeometry.AlgebraicSpace.Modules.baseChangeModule f σ.hom F ⟶
+        AlgebraicGeometry.AlgebraicSpace.Modules.baseChangeModule f σ.hom G))

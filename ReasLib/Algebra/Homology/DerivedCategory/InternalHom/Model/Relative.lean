@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.CochainComplex.HomComplex.Relative
@@ -30,7 +24,8 @@ of the statement.  This source-facing producer currently follows the standard sa
 `DerivedCategory (ModuleCat A)` presentation used by its lower representative producers; the
 short `InternalHom.RHom` facade has the same boundary.  The generic enriched owner and
 `InternalHom.RHom.At` remain carrier-polymorphic; a higher-universe relative producer should be
-added only together with corresponding lower model owners.
+added only together with corresponding lower model owners. The model structures and their
+producers retain the same canonical `RHom` availability used by the stored comparison.
 
 @stack 0E1U
 -/
@@ -49,6 +44,7 @@ namespace CategoryTheory.DerivedCategory
 variable {R A : Type u} [CommRing R] [CommRing A] [Algebra R A]
 variable [Module.Flat R A]
 variable {K L : DerivedCategory (ModuleCat A)}
+variable [hasRHom : InternalHom.RHom.Has.{u, u} (A := A)]
 
 namespace InternalHom.RHom
 
@@ -57,7 +53,7 @@ source and a bounded relatively flat target.  All representative and comparison 
 fields, so downstream arguments do not depend on the nesting order of an existential package. -/
 @[stacks 0E1U "relative finite-Tor RHom model"]
 structure FiniteTorModel (R : Type u) [CommRing R]
-    {A : Type u} [CommRing A] [Algebra R A]
+    {A : Type u} [CommRing A] [Algebra R A] [hasRHom : Has.{u, u} (A := A)]
     (K L : DerivedCategory (ModuleCat A)) where
   /-- The bounded-above finite-free source representative. -/
   source : CochainComplex (ModuleCat A) ℤ
@@ -87,7 +83,7 @@ structure FiniteTorModel (R : Type u) [CommRing R]
 target and of the resulting strict Hom complex. -/
 @[stacks 0E1U "relative perfect RHom model"]
 structure PerfectModel (R : Type u) [CommRing R]
-    {A : Type u} [CommRing A] [Algebra R A]
+    {A : Type u} [CommRing A] [Algebra R A] [hasRHom : Has.{u, u} (A := A)]
     (K L : DerivedCategory (ModuleCat A)) extends FiniteTorModel R K L where
   /-- Every target term is finitely presented over `A`. -/
   targetFinitePresentation : target.IsTermwiseFinitePresentation

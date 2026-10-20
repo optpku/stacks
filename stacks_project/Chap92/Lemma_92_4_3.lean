@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap92.Lemma_92_4_2
-public import stacks_project.Chap92.Lemma_92_4_3_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.RingTheory.CotangentComplex.PolynomialSite
+import StacksCheckRecall
 
 /-!
 # Computing the cotangent complex by derived lower shriek
@@ -42,7 +35,7 @@ variable [Functor.HasLeftDerivedFunctor
   (HomotopyCategory.quasiIso ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)
     (ComplexShape.up ℤ))]
 
-/-- Lemma 92.4.3. Let `A → B` be a ring map, and let `π` and `i` be as in 92.4.0.1.
+/- Lemma 92.4.3. Let `A → B` be a ring map, and let `π` and `i` be as in 92.4.0.1.
 There is a canonical isomorphism
 `DerivedCategory.Q.obj (Algebra.cotangentComplex A B) ≅
 (Lπ![PolynomialSite A B, ModuleCat B]).obj (singleFunctor.obj (omegaSheaf A B))`
@@ -52,12 +45,11 @@ object: `omegaSheaf` is already the `underline{B}`-module sheaf
 `i^* Ω_{O/A} = Ω_{O/A} ⊗_O underline{B}`, and `Li^* = i^*` because `Ω_{P/A}` is
 free (hence flat) for each polynomial arrow `P ⟶ B`. -/
 @[stacks 08PU]
-theorem lowerShriek_omega :
+#check (Algebra.CotangentComplex.lowerShriek_omega A B :
     IsIsomorphic
       (DerivedCategory.Q.obj (Algebra.cotangentComplex A B))
       ((Lπ![(PolynomialSite A B), (ModuleCat.{u} B)]).obj
         ((DerivedCategory.singleFunctor ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)
-            (0 : ℤ)).obj (omegaSheaf A B))) :=
-  sorry
+            (0 : ℤ)).obj (omegaSheaf A B))))
 
 end Algebra.CotangentComplex

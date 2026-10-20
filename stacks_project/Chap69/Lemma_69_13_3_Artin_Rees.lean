@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Coherent
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap69.Definition_69_12_1_Instances
-public import stacks_project.Chap69.Lemma_69_13_2_IdealPower
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.IdealPower.ArtinRees
+import StacksCheckRecall
 
 /-!
 # Lemma 69.13.3 (Artin-Rees)
@@ -29,21 +21,16 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules
-
-/-- Lemma 69.13.3 (Artin-Rees): let `S` be a scheme, let `X` be a Noetherian algebraic
+/- Lemma 69.13.3 (Artin-Rees): let `S` be a scheme, let `X` be a Noetherian algebraic
 space over `S`, let `F` be a coherent sheaf on `X`, let `G ⊂ F` be a quasi-coherent
 subsheaf, and let `I ⊂ 𝒪_X` be a quasi-coherent sheaf of ideals. Then there exists
 `c ≥ 0` such that for all `n ≥ c` one has
 `I^(n-c)(I^c F ∩ G) = I^n F ∩ G` as subobjects of `F`. -/
-@[stacks 07UL]
-theorem exists_artinReesConstant
-    {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNoetherian X]
-    (F : X.Modules) [F.IsCoherent] (G : Subobject F)
-    [((G : X.Modules)).IsQuasicoherent] (I : IdealSubobject X) [IsQuasiCoherent I] :
-    ∃ c : ℕ, ∀ n ≥ c,
-      idealPowerSmulSubobject I ((idealPowerProductSubobject I F c) ⊓ G) (n - c) =
-        idealPowerProductSubobject I F n ⊓ G :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Modules
+@[stacks 07UL] #check (
+  AlgebraicGeometry.AlgebraicSpace.Modules.exists_artinReesConstant :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNoetherian X]
+      (F : X.Modules) [F.IsCoherent] (G : Subobject F)
+      [((G : X.Modules)).IsQuasicoherent] (I : IdealSubobject X) [IsQuasiCoherent I],
+      ∃ c : ℕ, ∀ n ≥ c,
+        idealPowerSmulSubobject I ((idealPowerProductSubobject I F c) ⊓ G) (n - c) =
+          idealPowerProductSubobject I F n ⊓ G)

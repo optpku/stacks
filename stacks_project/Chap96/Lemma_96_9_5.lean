@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap96.Lemma_96_9_5_EnoughPoints
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.EnoughPoints
 import StacksCheckRecall
 
 @[expose] public section
@@ -19,6 +13,6 @@ universe u
 For `τ ∈ {Zariski, étale, smooth, syntomic, fppf}`, the associated site `𝒳_τ`
 has enough points. -/
 @[stacks 06W4]
-#check (GroupoidsOver.hasEnoughPoints :
+#check (AlgebraicGeometry.GroupoidsOver.hasEnoughPoints :
     ∀ {S : Scheme.{u}} (X : GroupoidsOver S) (τ : StandardTopology),
       GrothendieckTopology.HasEnoughPoints.{u + 1} (X.associatedTopology τ))

@@ -1,22 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Data.Finite.Defs
-public import Mathlib.Data.List.TFAE
-public import stacks_project.Chap65.Definition_65_12_1_Subspace
-public import stacks_project.Chap66.Lemma_66_4_8_Opens
-public import stacks_project.Chap66.Lemma_66_10_3_LocalRingDim
-public import stacks_project.Chap66.Definition_66_3_1_Separation
-public import stacks_project.Chap67.Definition_67_4_2_Separation
-public import stacks_project.Chap67.Definition_67_40_1_FiniteType
-public import stacks_project.Chap67.Definition_67_45_2_Integral
-public import stacks_project.Chap68.Lemma_68_18_6_Fibre
-public import stacks_project.Chap68.Lemma_68_18_10_Fibre
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.GenericallyFinite
+import StacksCheckRecall
 
 /-!
 # Generically finite morphisms of algebraic spaces, reprise
@@ -27,15 +12,11 @@ codimension-zero point is equivalent to finiteness of a field-valued fibre
 and to the existence of open subspaces on which the restriction is finite.
 -/
 
-@[expose] public section
-
-open CategoryTheory AlgebraicGeometry
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 68.21.2: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
+/- Lemma 68.21.2: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
 algebraic spaces over `S`. Assume that `f` is quasi-separated and locally of
 finite type and `Y` quasi-separated. Let `y ∈ |Y|` be a point of
 codimension `0` on `Y`. The following are equivalent: the set `f⁻¹({y})` is
@@ -51,54 +32,42 @@ playing the role of `Spec(k) ⟶ Y`, `|X_k|` is `Points (fieldFiber f p)`,
 and `X'.pointsSet`, and the restriction `X' ⟶ Y'` is a morphism
 `g : X'.X ⟶ Y'.X` satisfying `g ≫ Y'.ι = X'.ι ≫ f`. -/
 @[stacks 0AD0]
-theorem tfae_finite_fiberOver_fieldFiber_exists_isFinite_restrict {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.tfae_finite_fiberOver_fieldFiber_exists_isFinite_restrict :
+    ∀ {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) [QuasiSeparated f] [LocallyOfFiniteType f]
     [IsAbsolutelyQuasiSeparated Y] (p : FieldValuedPoint Y)
-    (hy : localRingDimAt (Points.mk p) = 0) :
+    (hy : localRingDimAt (Points.mk p) = 0),
     List.TFAE
       [ (fiberOver f (Points.mk p)).Finite
       , Finite (Points (fieldFiber f p))
       , ∃ (X' : OpenSubspace X) (Y' : OpenSubspace Y) (g : X'.X ⟶ Y'.X),
           g ≫ Y'.ι = X'.ι ≫ f ∧ Points.mk p ∈ Y'.pointsSet ∧
-            fiberOver f (Points.mk p) ⊆ X'.pointsSet ∧ IsFinite g ] :=
-  sorry
+            fiberOver f (Points.mk p) ⊆ X'.pointsSet ∧ IsFinite g ])
 
-/-- Finiteness of the set-theoretic fibre over a codimension-zero point is
-equivalent to finiteness of the points of a field-valued fibre representing
-that point. -/
-theorem finite_fiberOver_iff_finite_fieldFiber {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.finite_fiberOver_iff_finite_fieldFiber :
+    ∀ {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) [QuasiSeparated f] [LocallyOfFiniteType f]
     [IsAbsolutelyQuasiSeparated Y] (p : FieldValuedPoint Y)
-    (hy : localRingDimAt (Points.mk p) = 0) :
-    (fiberOver f (Points.mk p)).Finite ↔ Finite (Points (fieldFiber f p)) :=
-  sorry
+    (hy : localRingDimAt (Points.mk p) = 0),
+    (fiberOver f (Points.mk p)).Finite ↔ Finite (Points (fieldFiber f p)))
 
-/-- Finiteness of the points of a field-valued fibre over a codimension-zero
-point is equivalent to the existence of open subspaces of the source and
-target, containing the fibre and the point, on which `f` restricts to a finite
-morphism. -/
-theorem finite_fieldFiber_iff_exists_isFinite_restrict {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.finite_fieldFiber_iff_exists_isFinite_restrict :
+    ∀ {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) [QuasiSeparated f] [LocallyOfFiniteType f]
     [IsAbsolutelyQuasiSeparated Y] (p : FieldValuedPoint Y)
-    (hy : localRingDimAt (Points.mk p) = 0) :
+    (hy : localRingDimAt (Points.mk p) = 0),
     Finite (Points (fieldFiber f p)) ↔
       ∃ (X' : OpenSubspace X) (Y' : OpenSubspace Y) (g : X'.X ⟶ Y'.X),
         g ≫ Y'.ι = X'.ι ≫ f ∧ Points.mk p ∈ Y'.pointsSet ∧
-          fiberOver f (Points.mk p) ⊆ X'.pointsSet ∧ IsFinite g :=
-  sorry
+          fiberOver f (Points.mk p) ⊆ X'.pointsSet ∧ IsFinite g)
 
-/-- Finiteness of the set-theoretic fibre over a codimension-zero point is
-equivalent to the existence of open subspaces of the source and target,
-containing the fibre and the point, on which `f` restricts to a finite
-morphism. -/
-theorem finite_fiberOver_iff_exists_isFinite_restrict {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.finite_fiberOver_iff_exists_isFinite_restrict :
+    ∀ {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) [QuasiSeparated f] [LocallyOfFiniteType f]
     [IsAbsolutelyQuasiSeparated Y] (p : FieldValuedPoint Y)
-    (hy : localRingDimAt (Points.mk p) = 0) :
+    (hy : localRingDimAt (Points.mk p) = 0),
     (fiberOver f (Points.mk p)).Finite ↔
       ∃ (X' : OpenSubspace X) (Y' : OpenSubspace Y) (g : X'.X ⟶ Y'.X),
         g ≫ Y'.ι = X'.ι ≫ f ∧ Points.mk p ∈ Y'.pointsSet ∧
-          fiberOver f (Points.mk p) ⊆ X'.pointsSet ∧ IsFinite g :=
-  sorry
+          fiberOver f (Points.mk p) ⊆ X'.pointsSet ∧ IsFinite g)
 
-end AlgebraicGeometry.AlgebraicSpace

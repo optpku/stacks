@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Algebra.Defs
@@ -109,10 +103,22 @@ instance instTopologicalSpace : TopologicalSpace (weakIdealCompletion A A') :=
 /-- Canonical map from `A'` into the inverse-limit completion. -/
 def of : A' →+* weakIdealCompletion A A' where
   toFun x := ⟨fun _ => Ideal.Quotient.mk _ x, fun _ => rfl⟩
-  map_one' := sorry
-  map_mul' := sorry
-  map_zero' := sorry
-  map_add' := sorry
+  map_one' := by
+    apply Subtype.ext
+    funext I
+    exact map_one (Ideal.Quotient.mk (I.1.map (algebraMap A A')))
+  map_mul' x y := by
+    apply Subtype.ext
+    funext I
+    exact map_mul (Ideal.Quotient.mk (I.1.map (algebraMap A A'))) x y
+  map_zero' := by
+    apply Subtype.ext
+    funext I
+    exact map_zero (Ideal.Quotient.mk (I.1.map (algebraMap A A')))
+  map_add' x y := by
+    apply Subtype.ext
+    funext I
+    exact map_add (Ideal.Quotient.mk (I.1.map (algebraMap A A'))) x y
 
 /-- Projection from the completion onto the stage quotient `A' ⧸ I A'`. -/
 def eval {I : Ideal A} (hI : Ideal.IsWeakIdealOfDefinition I) :

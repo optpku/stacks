@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.Point.Skyscraper
@@ -20,10 +14,7 @@ variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
 
 /- Definition 7.32.6: let p be a point of the site C given by the functor u.
 For a set E we define p_* E = u^s E, the sheaf described in Lemma 7.32.5.
-We sometimes call this a skyscraper sheaf.
-
-The canonical owner is `Point.skyscraperSheafFunctor` specialized to sets
-`Type w`, with value `Φ.skyscraperSheaf E`. -/
-@[stacks 00Y9] #check (Φ.skyscraperSheafFunctor : Type w ⥤ Sheaf J (Type w))
-
-#check (Φ.skyscraperSheaf E : Sheaf J (Type w))
+We sometimes call this a skyscraper sheaf. Here the value category is
+`A := Type w`, inferred from the set `E`. -/
+@[stacks 00Y9] #check
+  (CategoryTheory.GrothendieckTopology.Point.skyscraperSheaf Φ E : Sheaf J (Type w))

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
@@ -42,7 +36,7 @@ namespace RingedSite.ModuleDerived.LocallyGiven
 variable {X : RingedSite.{u, v, w}}
 variable {h_univLE_carrier : UnivLE.{max u v, w}}
 variable {B : Type uB} [Category.{vB} B]
-variable (D : @LocallyGiven.{u, v, w, w, uB, vB} X B inferInstance h_univLE_carrier)
+variable (D : @LocallyGiven.{u, v, w, w, uB, vB} h_univLE_carrier X B inferInstance)
 variable (L : SimplicialObject (FormalCoproduct.{ι} B))
 variable [h_univLE_index : UnivLE.{max ι u v, w}]
 variable [HasSheafify (overSiteTotalTopology X.siteTopology (simplicialK h_univLE_carrier D L)) (Type w)]

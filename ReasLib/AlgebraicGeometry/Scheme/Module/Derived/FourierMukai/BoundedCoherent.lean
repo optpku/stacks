@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.CochainComplex.Bounded
@@ -36,6 +30,9 @@ relative Tor dimension induces a Fourier--Mukai functor preserving bounded coher
 @[stacks 0FYU "finite relative Tor dimension preservation"]
 theorem mapsBoundedCoherent_of_finiteTorDimension
     {S X Y : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
+    [DerivedCategory.DerivedTensor.Right.Has
+      (C := RingedSpace.Modules
+        (RingedSpace.Hom.inverseImageBase (Limits.pullback.fst f g).toShHom))]
     [IsNoetherian S] [Scheme.Hom.FiniteType f] [Scheme.Hom.FiniteType g]
     (K : RingedSpace.ModuleDerived (Limits.pullback f g).toRingedSpace)
     (hK_coherent : DerivedCategory.cohomologyIn

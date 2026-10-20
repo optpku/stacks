@@ -1,37 +1,23 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap03.Lemma_3_9_2_ObjectProperty
+public import ReasLib.AlgebraicGeometry.Scheme.VonNeumann
+import StacksCheckRecall
 
 @[expose] public section
 
-noncomputable section
-
 universe u
 
-open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
-open scoped Cardinal AlgebraicGeometry
+open AlgebraicGeometry CategoryTheory
+open scoped ZFSet
 
-namespace AlgebraicGeometry.Scheme
-
-/-- Lemma 3.9.2. For any family `S0` of schemes there exists a small object property `P` of
-schemes containing every `S0 i`, such that whenever `P S` and `T.size ≤ bound S.size` the
-scheme `T` is isomorphic to a member of `P`, and such that a countable diagram in
-`P.FullSubcategory` has a (co)limit if and only if the composite with `P.ι` has a (co)limit
-in `Scheme`, in which case the canonical comparison `limit.post` (resp. `colimit.post`) is an
-isomorphism.
-
-The Stacks Project packages this as a limit ordinal `α` with `Sch_α` the full subcategory of
-schemes lying in `V_α`; Lean records the same closure and comparison properties on a small
-`ObjectProperty` of `Scheme`. -/
-@[stacks 000J]
-theorem exists_isSmallBoundClosed {ι : Type u} (S0 : ι → Scheme.{u}) :
-    ∃ P : ObjectProperty Scheme.{u},
-      IsSmallBoundClosed P ∧ ObjectProperty.ofObj S0 ≤ P := sorry
-
-end AlgebraicGeometry.Scheme
+/- Lemma 3.9.2. Every set of set-presented schemes is contained in a limit level `V_α`
+whose full scheme subcategory represents all schemes within the prescribed size bound
+and detects countable limits and colimits with isomorphic canonical comparison maps. -/
+@[stacks 000J] #check (AlgebraicGeometry.Scheme.exists_isSmallBoundClosed :
+  ∀ {ι : Type u} (S0 : ι → AlgebraicGeometry.Scheme.SetPresentation.{u}),
+    ∃ α : Ordinal.{u}, Order.IsSuccLimit α ∧
+      AlgebraicGeometry.Scheme.IsSmallBoundClosed
+        (AlgebraicGeometry.Scheme.vonNeumannStage α) ∧
+      (∀ i, (S0 i).code ∈ V_ α) ∧
+      ObjectProperty.ofObj (fun i ↦ (S0 i).toScheme) ≤
+        AlgebraicGeometry.Scheme.vonNeumannStage α)

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-import stacks_project.Chap76.Lemma_76_9_6_Equivalence
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Thickening
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
@@ -17,7 +11,7 @@ universe u
 scheme `S`, the functor `V' ↦ X ×_{X'} V'` defines an equivalence of categories
 `X'_étale ⥤ X_étale`. -/
 @[stacks 05ZS] #check
-  (smallEtalePullback.isEquivalence_of_isThickening :
+  (@AlgebraicGeometry.AlgebraicSpace.smallEtalePullback.isEquivalence_of_isThickening :
     ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (i : X ⟶ X') [IsThickening i]
       (hf : yoneda.relativelyRepresentable i),
       (smallEtalePullback i hf).IsEquivalence)

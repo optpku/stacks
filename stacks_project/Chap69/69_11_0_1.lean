@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Abelian.RightDerived
-public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CartesianSquare
 public import stacks_project.Chap66.«66_26_0_1_Pushforward»
 import StacksCheckRecall
 
@@ -29,7 +23,7 @@ quasi-coherent `𝒪_X`-module `ℱ`, and a morphism `g : Y' ⟶ Y`, the fibre p
 `X' = Y' ×_Y X` with projections `g' : X' ⟶ X` and `f' : X' ⟶ Y'` is cartesian,
 and the diagram records `ℱ' = (g')^* ℱ` together with the derived pushforwards
 `Rf'_* ℱ'` and `Rf_* ℱ`. -/
-@[stacks 073J] #check (IsPullback g' f' f g : Prop)
+@[stacks 073J] #check (AlgebraicGeometry.AlgebraicSpace.IsCartesianSquare f' g' g f : Prop)
 
 #check (Modules.pullback :
   ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}, (X ⟶ Y) → Y.Modules ⥤ X.Modules)

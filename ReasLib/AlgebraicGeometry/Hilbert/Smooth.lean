@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Hilbert.AddPoint
@@ -22,6 +16,7 @@ the degree-`d` representing scheme is smooth over `S` of relative dimension `d`.
 @[instance]
 theorem representingScheme_smoothOfRelativeDimension {S : Scheme.{u}} (X : Over S)
     [SmoothOfRelativeDimension 1 X.hom]
+    [IsSeparated X.hom]
     [∀ n : ℕ, (functor X n).IsRepresentable] (d : ℕ) :
     SmoothOfRelativeDimension d (functor X d).reprX.hom := sorry
 

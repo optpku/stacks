@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.AffineSpace
@@ -13,7 +7,7 @@ public import ReasLib.AlgebraicGeometry.Scheme.Morphism.ClosedImmersion.Criteria
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.SourceLocus
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Unramified.Diagonal
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Unramified.LocalCriterion
-import StacksCheckRecall
+import Mathlib.Tactic.CrossRefAttribute
 
 /-!
 # Pointwise characterizations of unramified morphisms

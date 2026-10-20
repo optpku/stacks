@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.Canonical
@@ -37,9 +31,8 @@ end Sieve
 
 namespace GrothendieckTopology
 
-/-- Definition 7.12.2 (00WQ): a topology is subcanonical exactly when every covering sieve is
-universally effective epimorphic, i.e. every base change of the covering sieve is effective
-epimorphic. -/
+/-- A Grothendieck topology is subcanonical exactly when every covering sieve is universally
+effective epimorphic, meaning that every pullback of the sieve is effective epimorphic. -/
 @[stacks 00WQ]
 theorem subcanonical_iff_forall_cover_isUniversallyEffectiveEpimorphic
     (J : GrothendieckTopology C) :

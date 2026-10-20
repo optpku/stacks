@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.DerivedCategory.TStructure
-public import Mathlib.GroupTheory.Torsion
-public import ReasLib.CategoryTheory.DerivedCategory.Bounded
-public import ReasLib.CategoryTheory.Triangulated.TStructure.Functor.Bounds
-public import stacks_project.Chap63.«63_11_4_1_UpperShriek»
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.UpperShriek.Bounds
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -67,39 +57,28 @@ variable [HasRightDerivedFunctor
     (ComplexShape.up ℤ))]
 variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]
 variable [((etaleDerivedLowerShriek X P :
-    EtaleDerived X.left Λ ⥤ EtaleDerived Y Λ)).IsLeftAdjoint]
+    DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)) ⥤
+      DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ)))).IsLeftAdjoint]
 
-namespace etaleDerivedUpperShriek
+/- Lemma 63.11.4: Let $f : X \to Y$ be a finite type separated morphism of quasi-compact and quasi-separated schemes. Let $\Lambda$ be a torsion ring. The functor $Rf^!$ sends $D^+(Y_{\acute{e}tale}, \Lambda)$ into $D^+(X_{\acute{e}tale}, \Lambda)$. More precisely, there exists an integer $N \geq 0$ such that if $K \in D(Y_{\acute{e}tale}, \Lambda)$ has $H^i(K) = 0$ for $i < a$ then $H^i(Rf^!K) = 0$ for $i < a - N$. -/
+@[stacks 0GLA] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedUpperShriek.exists_mapsGE X Λ P :
+    AddMonoid.IsTorsion Λ → ∃ N : ℕ, Functor.TStructure.MapsGE
+      (etaleDerivedUpperShriek X Λ P) t t (-(N : ℤ)))
 
-/-- Lemma 63.11.4: for a finite type separated morphism `X.hom : X.left ⟶ Y` of
-quasi-compact quasi-separated schemes and a torsion ring `Λ`, the functor
-`Rf^! = etaleDerivedUpperShriek X Λ P` sends `D⁺(Y_étale, Λ)` into
-`D⁺(X_étale, Λ)`. More precisely, there exists `N : ℕ` such that
-`Functor.TStructure.MapsGE (etaleDerivedUpperShriek X Λ P) t t (-(N : ℤ))`:
-`IsGE K a` implies `IsGE ((etaleDerivedUpperShriek X Λ P).obj K) (a - N)`. -/
-@[stacks 0GLA]
-theorem exists_mapsGE (hΛ : AddMonoid.IsTorsion Λ) :
-    ∃ N : ℕ, Functor.TStructure.MapsGE (etaleDerivedUpperShriek X Λ P) t t
-      (-(N : ℤ)) :=
-  sorry
+#check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedUpperShriek.exists_isGE X Λ P :
+    AddMonoid.IsTorsion Λ →
+      ∃ N : ℕ, ∀ (K : DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ)))
+        (a : ℤ), IsGE K a →
+          IsGE ((etaleDerivedUpperShriek X Λ P).obj K) (a - N))
 
-/-- Objectwise form of the lower t-structure bound for `etaleDerivedUpperShriek`:
-there exists `N : ℕ` such that `IsGE K a` implies
-`IsGE ((etaleDerivedUpperShriek X Λ P).obj K) (a - N)`. -/
-theorem exists_isGE (hΛ : AddMonoid.IsTorsion Λ) :
-    ∃ N : ℕ, ∀ (K : EtaleDerived Y Λ) (a : ℤ),
-      IsGE K a →
-        IsGE ((etaleDerivedUpperShriek X Λ P).obj K) (a - N) :=
-  sorry
-
-/-- The functor `etaleDerivedUpperShriek X Λ P` sends bounded-below objects of
-`EtaleDerived Y Λ` to bounded-below objects of `EtaleDerived X.left Λ`. -/
-theorem isBoundedBelow (hΛ : AddMonoid.IsTorsion Λ) (K : EtaleDerived Y Λ) :
-    DerivedCategory.IsBoundedBelow K →
-      DerivedCategory.IsBoundedBelow ((etaleDerivedUpperShriek X Λ P).obj K) :=
-  sorry
-
-end etaleDerivedUpperShriek
+#check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedUpperShriek.isBoundedBelow X Λ P :
+    AddMonoid.IsTorsion Λ →
+      ∀ (K : DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))),
+        DerivedCategory.IsBoundedBelow K →
+          DerivedCategory.IsBoundedBelow ((etaleDerivedUpperShriek X Λ P).obj K))
 
 end AlgebraicGeometry.Scheme.Etale
 

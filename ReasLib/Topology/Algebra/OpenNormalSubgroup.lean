@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
@@ -14,7 +8,9 @@ public import Mathlib.Topology.Algebra.OpenSubgroup
 
 Reusable order-theoretic structure on open normal subgroups of a topological group.
 Mathlib already supplies finite intersections; this file records the canonical whole-group
-element, which makes the indexing type nonempty without a local choice or instance pin.
+element, which makes the indexing type nonempty without a local choice or instance pin, and
+the pullback `OpenNormalSubgroup.comap` along continuous homomorphisms (mathlib only provides
+`OpenSubgroup.comap`).
 -/
 
 @[expose] public section
@@ -97,3 +93,43 @@ end OpenNormalAddSubgroup
 attribute [to_additive existing] OpenNormalSubgroup.top OpenNormalSubgroup.instOrderTop
   OpenNormalSubgroup.instInhabited OpenNormalSubgroup.mem_top OpenNormalSubgroup.coe_top
   OpenNormalSubgroup.toSubgroup_top
+
+namespace OpenNormalSubgroup
+
+universe v w
+
+variable {G : Type v} {H : Type w} [Group G] [TopologicalSpace G] [Group H] [TopologicalSpace H]
+
+/-- The preimage of an open normal subgroup along a continuous group homomorphism. -/
+@[to_additive /-- The preimage of an open normal additive subgroup along a continuous additive
+group homomorphism. -/]
+def comap (f : G →* H) (hf : Continuous f) (N : OpenNormalSubgroup H) :
+    OpenNormalSubgroup G where
+  toOpenSubgroup := N.toOpenSubgroup.comap f hf
+  isNormal' := N.isNormal'.comap f
+
+/-- The underlying set of a pulled-back open normal subgroup is the preimage. -/
+@[to_additive (attr := simp, norm_cast)]
+theorem coe_comap (f : G →* H) (hf : Continuous f) (N : OpenNormalSubgroup H) :
+    (N.comap f hf : Set G) = f ⁻¹' N :=
+  rfl
+
+/-- The underlying subgroup of a pulled-back open normal subgroup is the subgroup comap. -/
+@[to_additive (attr := simp)]
+theorem toSubgroup_comap (f : G →* H) (hf : Continuous f) (N : OpenNormalSubgroup H) :
+    (N.comap f hf).toSubgroup = N.toSubgroup.comap f :=
+  rfl
+
+/-- Membership in a pulled-back open normal subgroup. -/
+@[to_additive (attr := simp)]
+theorem mem_comap {f : G →* H} {hf : Continuous f} {N : OpenNormalSubgroup H} {x : G} :
+    x ∈ N.comap f hf ↔ f x ∈ N :=
+  Iff.rfl
+
+/-- Pullback of open normal subgroups is monotone. -/
+@[to_additive]
+theorem comap_mono {N N' : OpenNormalSubgroup H} (f : G →* H) (hf : Continuous f)
+    (h : N ≤ N') : N.comap f hf ≤ N'.comap f hf :=
+  fun _ hx ↦ h hx
+
+end OpenNormalSubgroup

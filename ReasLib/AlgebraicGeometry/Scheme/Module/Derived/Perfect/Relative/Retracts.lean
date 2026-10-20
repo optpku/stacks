@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Perfect.Relative
@@ -25,6 +19,8 @@ open CategoryTheory
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.ModuleDerived
 
 variable {X S : Scheme.{u}}
@@ -32,7 +28,11 @@ variable {X S : Scheme.{u}}
 /-- The objects perfect relative to a flat, locally finitely presented scheme morphism are
 stable under retracts. -/
 instance perfectRelativeTo_isStableUnderRetracts (f : X ⟶ S)
-    [Flat f] [LocallyOfFinitePresentation f] :
+    [Flat f] [LocallyOfFinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))] :
     ObjectProperty.IsStableUnderRetracts (perfectRelativeTo f) := sorry
 
 end AlgebraicGeometry.Scheme.ModuleDerived

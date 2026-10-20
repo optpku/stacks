@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Sheaf.Cohomology.Cech.ColimitComparison
@@ -32,4 +26,5 @@ surface and introduces no chapter-local carrier or diagram. -/
 #check @TopCat.Sheaf.Cohomology.Cech.RefinementComparison
 #check @TopCat.Sheaf.Cohomology.Cech.comparison
 #check @TopCat.Sheaf.Cohomology.Cech.Comparison
+#check @TopCat.Sheaf.Cohomology.Cech.Comparison.isIso_app
 #check @TopCat.Sheaf.Cohomology.Cech.Comparison.iso

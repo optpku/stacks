@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Homology.HomologicalDeltaFunctor
@@ -56,7 +50,8 @@ namespace HomologicalDeltaFunctor
 variable {A : Type uA} [Category.{vA} A] [Abelian A]
 variable {B : Type uB} [Category.{vB} B] [Abelian B]
 
-/-- A homological delta functor is universal when every positive degree is coeffaceable. -/
+/-- Degree-zero maps into a homological delta functor extend uniquely when every positive
+degree is coeffaceable. -/
 @[stacks 010T "universal homological delta functor from coeffaceability"]
 theorem isUniversal_of_coeffaceable (F : HomologicalDeltaFunctor A B)
     (hF : ∀ n : ℕ, n > 0 → (F n).obj.IsCoeffaceable) :

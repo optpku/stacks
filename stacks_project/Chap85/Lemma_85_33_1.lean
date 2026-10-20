@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap85.Lemma_85_33_1_Comparison
-public import stacks_project.Chap85.Lemma_85_33_1_Etale
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Simplicial.FppfComparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Simplicial.PhComparison
 import StacksCheckRecall
 
 /-!
@@ -24,11 +18,19 @@ Section 85.21 slice-augmentation; the right vertical arrow is the Section 85.32
 
 @[expose] public section
 
+universe u
+
+open CategoryTheory AlgebraicGeometry
 open AlgebraicGeometry.AlgebraicSpace.Simplicial
+open scoped MorphismOfTopoiIn
 
 /- Lemma 85.33.1
 Let S be a scheme. Let X be an algebraic space over S. Let U be a simplicial
 algebraic space over S. Let a : U ⟶ X be an augmentation. The morphisms of
 topoi h, a_fppf, a and h₋₁ form a commutative square of inverse images
 (a)⁻¹ ⋙ h⁻¹ ≅ (h₋₁)⁻¹ ⋙ (a_fppf)⁻¹. -/
-@[stacks 0DH5] #check AlgebraicGeometry.AlgebraicSpace.Simplicial.fppfEtaleCommSq
+@[stacks 0DH5] #check (AlgebraicGeometry.AlgebraicSpace.Simplicial.fppfEtaleCommSq :
+  ∀ {S : Scheme.{u}} (U : SimplicialObject (AlgebraicSpace S)) {X : AlgebraicSpace S}
+    (a : U ⟶ (Functor.const SimplexCategoryᵒᵖ).obj X),
+    (spacesEtaleAugmentation U a)⁻¹ ⋙ (fppfEtaleComparison U)⁻¹ ≅
+      (spacesFppfComparison X)⁻¹ ⋙ (fppfAugmentation U a)⁻¹)

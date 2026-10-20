@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.DerivedCategory.Functor.Colimit.Evaluation
-public import stacks_project.Chap92.Lemma_92_4_1_Evaluation
-public import stacks_project.Chap92.Lemma_92_4_1_PolynomialOver
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.CategoryTheory.DerivedCategory.Functor.Colimit.PolynomialEvaluation
+import StacksCheckRecall
 
 /-!
 # Derived lower shriek on a polynomial simplicial resolution
@@ -46,27 +38,14 @@ variable [Functor.HasLeftDerivedFunctor
   (HomotopyCategory.quasiIso ((PolynomialSite A B)ᵒᵖ ⥤ AddCommGrpCat.{u})
     (ComplexShape.up ℤ))]
 
-/-- Lemma 92.4.1 (1). If `P` is a simplicial `A`-algebra with augmentation `ε` to `B`, each
-term of `P` is a polynomial `A`-algebra, and the underlying simplicial-set map of `ε` is a
-trivial Kan fibration, then `Lπ!(F)` is isomorphic to the cosimplicial evaluation of `F` on
-`(P, ε)` in `D(Ab)`, functorially in `F` in `Ab(C)` for `C = PolynomialSite A B`. -/
-@[stacks 08PS]
-theorem lowerShriek_eval_abelian (hε : I.rlp (underlyingSSetMap ε)) :
+/- Lemma 92.4.1 (1). Derived lower shriek is computed by evaluation on
+the polynomial simplicial augmentation, functorially in presheaves of abelian groups. -/
+@[stacks 08PS] #check (Algebra.PolynomialSite.lowerShriek_eval_abelian ε hP :
+  I.rlp (underlyingSSetMap ε) →
     IsIsomorphic
       ((DerivedCategory.singleFunctor ((PolynomialSite A B)ᵒᵖ ⥤ AddCommGrpCat.{u}) (0 : ℤ)) ⋙
         Lπ![(PolynomialSite A B), AddCommGrpCat.{u}])
-      (CosimplicialObject.Evaluation.toDerived AddCommGrpCat.{u} (asCosimplicial ε hP)) :=
-  sorry
-
-/-- Objectwise form of the abelian identification `Lπ!(F) ≅ F(P, ε)` in `D(Ab)`. -/
-theorem lowerShriek_eval_abelian_obj (hε : I.rlp (underlyingSSetMap ε))
-    (F : (PolynomialSite A B)ᵒᵖ ⥤ AddCommGrpCat.{u}) :
-    IsIsomorphic
-      (((DerivedCategory.singleFunctor ((PolynomialSite A B)ᵒᵖ ⥤ AddCommGrpCat.{u}) (0 : ℤ)) ⋙
-          Lπ![(PolynomialSite A B), AddCommGrpCat.{u}]).obj F)
-      ((CosimplicialObject.Evaluation.toDerived AddCommGrpCat.{u}
-          (asCosimplicial ε hP)).obj F) :=
-  sorry
+      (CosimplicialObject.Evaluation.toDerived AddCommGrpCat.{u} (asCosimplicial ε hP)))
 
 end AbelianGroups
 
@@ -80,26 +59,14 @@ variable [Functor.HasLeftDerivedFunctor
   (HomotopyCategory.quasiIso ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)
     (ComplexShape.up ℤ))]
 
-/-- Lemma 92.4.1 (2). Under the same hypotheses as (1), `Lπ!(F)` is isomorphic to the
-cosimplicial evaluation of `F` on `(P, ε)` in `D(B)`, functorially in `F` in
-`Mod(underline B)`, identified here with `(PolynomialSite A B)ᵒᵖ ⥤ ModuleCat B`. -/
-@[stacks 08PS]
-theorem lowerShriek_eval_module (hε : I.rlp (underlyingSSetMap ε)) :
+/- Lemma 92.4.1 (2). Derived lower shriek is computed by evaluation on
+the polynomial simplicial augmentation, functorially in presheaves of B-modules. -/
+@[stacks 08PS] #check (Algebra.PolynomialSite.lowerShriek_eval_module ε hP :
+  I.rlp (underlyingSSetMap ε) →
     IsIsomorphic
       ((DerivedCategory.singleFunctor ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B) (0 : ℤ)) ⋙
         Lπ![(PolynomialSite A B), (ModuleCat.{u} B)])
-      (CosimplicialObject.Evaluation.toDerived (ModuleCat.{u} B) (asCosimplicial ε hP)) :=
-  sorry
-
-/-- Objectwise form of the module identification `Lπ!(F) ≅ F(P, ε)` in `D(B)`. -/
-theorem lowerShriek_eval_module_obj (hε : I.rlp (underlyingSSetMap ε))
-    (F : (PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B) :
-    IsIsomorphic
-      (((DerivedCategory.singleFunctor ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B) (0 : ℤ)) ⋙
-          Lπ![(PolynomialSite A B), (ModuleCat.{u} B)]).obj F)
-      ((CosimplicialObject.Evaluation.toDerived (ModuleCat.{u} B)
-          (asCosimplicial ε hP)).obj F) :=
-  sorry
+      (CosimplicialObject.Evaluation.toDerived (ModuleCat.{u} B) (asCosimplicial ε hP)))
 
 end Modules
 

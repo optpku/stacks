@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap65.Definition_65_12_1_Subspace
-public import stacks_project.Chap66.Lemma_66_13_1_IsScheme
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.MinimalNonscheme
 
 /-!
 # Minimal nonscheme algebraic spaces
@@ -24,28 +17,19 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- An algebraic space is a minimal nonscheme if it is not a scheme, while every
-closed subspace whose inclusion is not an isomorphism is a scheme. -/
-def IsMinimalNonscheme {S : Scheme.{u}} (X : AlgebraicSpace S) : Prop :=
-  ¬ IsScheme X ∧ ∀ Z : ClosedSubspace X, ¬ IsIso Z.ι → IsScheme Z.X
+#check (AlgebraicGeometry.AlgebraicSpace.IsMinimalNonscheme :
+  ∀ {S : Scheme.{u}}, AlgebraicSpace S → Prop)
 
-/-- `IsMinimalNonscheme X` means that `X` is not a scheme, while every closed
-subspace of `X` whose inclusion is not an isomorphism is a scheme. -/
-theorem isMinimalNonscheme_iff {S : Scheme.{u}} (X : AlgebraicSpace S) :
+#check (AlgebraicGeometry.AlgebraicSpace.isMinimalNonscheme_iff :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
     IsMinimalNonscheme X ↔
-      ¬ IsScheme X ∧ ∀ Z : ClosedSubspace X, ¬ IsIso Z.ι → IsScheme Z.X :=
-  sorry
+      ¬ IsScheme X ∧ ∀ Z : ClosedSubspace X, ¬ IsIso Z.ι → IsScheme Z.X)
 
-/-- A minimal nonscheme algebraic space is not a scheme. -/
-theorem not_isScheme_of_isMinimalNonscheme {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (hX : IsMinimalNonscheme X) : ¬ IsScheme X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.not_isScheme_of_isMinimalNonscheme :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}, IsMinimalNonscheme X → ¬ IsScheme X)
 
-/-- Every closed subspace of a minimal nonscheme whose inclusion is not an
-isomorphism is a scheme. -/
-theorem isScheme_of_isMinimalNonscheme_of_not_isIso {S : Scheme.{u}}
-    {X : AlgebraicSpace S} (hX : IsMinimalNonscheme X) (Z : ClosedSubspace X)
-    (hZ : ¬ IsIso Z.ι) : IsScheme Z.X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.isScheme_of_isMinimalNonscheme_of_not_isIso :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}, IsMinimalNonscheme X →
+    ∀ Z : ClosedSubspace X, ¬ IsIso Z.ι → IsScheme Z.X)
 
 end AlgebraicGeometry.AlgebraicSpace

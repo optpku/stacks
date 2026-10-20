@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Etale
@@ -41,9 +35,11 @@ namespace AlgebraicGeometry.AlgebraicSpace
 
 /-- The source-and-target étale-local lift of a scheme-morphism property `P`:
 every commutative square with étale vertical arrows from schemes has top arrow
-satisfying `P`. -/
-def etaleLocal {S : Scheme.{u}} (P : MorphismProperty Scheme.{u})
-    [IsEtaleLocalAtSourceAndTarget P] : MorphismProperty (AlgebraicSpace S) :=
+satisfying `P`. When `P` is étale local on source-and-target, this is equivalent
+to the existence of such a square with surjective left vertical arrow and top
+arrow satisfying `P`. -/
+def etaleLocal {S : Scheme.{u}} (P : MorphismProperty Scheme.{u}) :
+    MorphismProperty (AlgebraicSpace S) :=
   fun {X Y} f =>
     ∀ {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
       (b : yoneda.obj V ⟶ Y.functorOfPoints) (h : U ⟶ V),
@@ -55,23 +51,25 @@ def etaleLocal {S : Scheme.{u}} (P : MorphismProperty Scheme.{u})
 of `P` if and only if every commutative square with étale vertical arrows from
 schemes has top arrow satisfying `P`. -/
 theorem etaleLocal_iff {S : Scheme.{u}} {P : MorphismProperty Scheme.{u}}
-    [IsEtaleLocalAtSourceAndTarget P] {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     etaleLocal P f ↔
       ∀ {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
         (b : yoneda.obj V ⟶ Y.functorOfPoints) (h : U ⟶ V),
         (over (@AlgebraicGeometry.Etale)).presheaf a →
           (over (@AlgebraicGeometry.Etale)).presheaf b →
-            a ≫ f = yoneda.map h ≫ b → P h.left := sorry
+            a ≫ f = yoneda.map h ≫ b → P h.left :=
+  Iff.rfl
 
 /-- The top arrow of an étale scheme square over a morphism having the
 source-and-target étale-local lift of `P` satisfies `P`. -/
 theorem etaleLocal_spec {S : Scheme.{u}} {P : MorphismProperty Scheme.{u}}
-    [IsEtaleLocalAtSourceAndTarget P] {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (hf : etaleLocal P f) {U V : Over S}
     (a : yoneda.obj U ⟶ X.functorOfPoints) (b : yoneda.obj V ⟶ Y.functorOfPoints)
     (h : U ⟶ V) (ha : (over (@AlgebraicGeometry.Etale)).presheaf a)
     (hb : (over (@AlgebraicGeometry.Etale)).presheaf b)
-    (w : a ≫ f = yoneda.map h ≫ b) : P h.left := sorry
+    (w : a ≫ f = yoneda.map h ≫ b) : P h.left :=
+  hf a b h ha hb w
 
 /-- The composite of two morphisms with the source-and-target étale-local lift
 of a composition-stable scheme-morphism property `P` has that lift. -/

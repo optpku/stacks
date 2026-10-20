@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap109.Lemma_109_23_3_Contraction
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.EtaleContraction
 import StacksCheckRecall
 
 @[expose] public section
@@ -38,6 +32,15 @@ universe u
                     ofOver (Over.mk (q₀ ≫ S.fromSpecResidueField s))),
                   iX.hom ≫ pullback.snd f (residueHom s) =
                       pullback.snd (pullback.snd f (etaleHom U)) (pointHom U) ≫
+                        ofOverHomMk
+                          (Spec.map (U.toEtale.hom.residueFieldMap U.point) ≫
+                            Spec.map (S.residueFieldCongr U.map_point).inv)
+                          (residueFieldMap_over U) ∧
+                    iX.hom ≫ pullback.fst f (residueHom s) =
+                      pullback.fst (pullback.snd f (etaleHom U)) (pointHom U) ≫
+                        pullback.fst f (etaleHom U) ∧
+                    iY.hom ≫ ofOverHomMk q₀ rfl =
+                      pullback.snd g (pointHom U) ≫
                         ofOverHomMk
                           (Spec.map (U.toEtale.hom.residueFieldMap U.point) ≫
                             Spec.map (S.residueFieldCongr U.map_point).inv)

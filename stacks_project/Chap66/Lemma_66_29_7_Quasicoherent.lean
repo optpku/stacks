@@ -1,25 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.ObjectProperty.ColimitsOfShape
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.InternalHom
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Tensor.Properties
-public import ReasLib.CategoryTheory.ObjectProperty.WeakSerre
-public import stacks_project.Chap66.Definition_66_29_1_QCoh
-public import stacks_project.Chap66.Lemma_66_29_7_CommSheaf
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Quasicoherent.Limits
 
-/-!
-# Closure properties of quasi-coherent modules on algebraic spaces
+/-! # Closure properties of quasi-coherent algebraic-space modules
 
-Quasi-coherent `𝒪_X`-modules on an algebraic space are closed under coproducts, colimits,
-kernels, cokernels, and short-exact two-out-of-three implications, and the tensor product of
-quasi-coherent modules remains quasi-coherent. Internal Hom from a finitely presented
-quasi-coherent module into a quasi-coherent module is quasi-coherent.
+The public owner preserves all actual categorical and tensor/internal-Hom statements.
+The original source lemma facade retains its independent tag coverage.
 -/
 
 @[expose] public section
@@ -29,87 +15,49 @@ open CategoryTheory CategoryTheory.Limits CategoryTheory.MonoidalCategory
 open AlgebraicGeometry
 open scoped SheafOfModules.RingedSite
 
-noncomputable section
-
 universe u v w
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- The category of `𝒪_X`-modules on the small étale site of an algebraic space is abelian. -/
-instance modulesAbelian {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    Abelian X.Modules where
-  toPreadditive := inferInstance
-  toIsNormalMonoCategory := sorry
-  toIsNormalEpiCategory := sorry
-  has_finite_products := sorry
-  has_kernels := sorry
-  has_cokernels := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.modulesAbelian :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S), Abelian (Modules X))
 
-namespace QCoh
+#check
+  (AlgebraicGeometry.AlgebraicSpace.QCoh.closedUnderColimitsOfShape :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) (J : Type v) [Category.{w} J],
+      (quasiCoherentModuleProperty X).IsClosedUnderColimitsOfShape J)
 
-/-- Quasi-coherent modules on an algebraic space are closed under colimits of every
-universe-compatible shape. -/
-instance closedUnderColimitsOfShape {S : Scheme.{u}} (X : AlgebraicSpace S)
-    (J : Type v) [Category.{w} J] :
-    (quasiCoherentModuleProperty X).IsClosedUnderColimitsOfShape J :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.QCoh.isWeakSerreClass :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
+      (quasiCoherentModuleProperty X).IsWeakSerreClass)
 
-/-- Quasi-coherent modules on an algebraic space form a weak Serre class, so they are closed
-under kernels, cokernels, and short-exact two-out-of-three implications. -/
-instance isWeakSerreClass {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    (quasiCoherentModuleProperty X).IsWeakSerreClass :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isQuasicoherent_kernel :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {F G : X.Modules}
+      [F.IsQuasicoherent] [G.IsQuasicoherent] (f : F ⟶ G),
+      (kernel f).IsQuasicoherent)
 
-end QCoh
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isQuasicoherent_cokernel :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {F G : X.Modules}
+      [F.IsQuasicoherent] [G.IsQuasicoherent] (f : F ⟶ G),
+      (cokernel f).IsQuasicoherent)
 
-namespace Modules
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isQuasicoherent_tensor :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+      (F G : SheafOfModules.RingedSite.ringedSiteModuleCategory.{u + 1, u, u, u}
+        (smallEtaleTopology X) (commStructureSheaf X))
+      [F.IsQuasicoherent] [G.IsQuasicoherent],
+      (SheafOfModules.RingedSite.moduleTensor F G).IsQuasicoherent)
 
-variable {S : Scheme.{u}} (X : AlgebraicSpace S)
-
-/-- A coproduct of quasi-coherent modules on an algebraic space is quasi-coherent. -/
-instance isQuasicoherent_coproduct {ι : Type v} (F : ι → X.Modules)
-    [HasCoproduct F] [∀ i, (F i).IsQuasicoherent] :
-    (∐ F).IsQuasicoherent :=
-  sorry
-
-/-- A colimit of a diagram of quasi-coherent modules on an algebraic space is quasi-coherent. -/
-theorem isQuasicoherent_colimit {J : Type v} [Category.{w} J]
-    (F : J ⥤ X.Modules) [HasColimit F]
-    (hF : ∀ j, (F.obj j).IsQuasicoherent) :
-    (colimit F).IsQuasicoherent :=
-  sorry
-
-variable {X}
-
-/-- The kernel of a morphism of quasi-coherent modules on an algebraic space is quasi-coherent. -/
-instance isQuasicoherent_kernel {F G : X.Modules}
-    [F.IsQuasicoherent] [G.IsQuasicoherent] (f : F ⟶ G) :
-    (kernel f).IsQuasicoherent :=
-  sorry
-
-/-- The cokernel of a morphism of quasi-coherent modules on an algebraic space is
-quasi-coherent. -/
-instance isQuasicoherent_cokernel {F G : X.Modules}
-    [F.IsQuasicoherent] [G.IsQuasicoherent] (f : F ⟶ G) :
-    (cokernel f).IsQuasicoherent :=
-  sorry
-
-/-- The tensor product of quasi-coherent modules on the small étale site of an algebraic space
-is quasi-coherent. -/
-instance isQuasicoherent_tensor
-    (F G : RingedSite.ModuleCat.{u} (commRingedSite X))
-    [F.IsQuasicoherent] [G.IsQuasicoherent] :
-    (SheafOfModules.RingedSite.moduleTensor F G).IsQuasicoherent :=
-  sorry
-
-/-- Internal Hom from a finitely presented module to a quasi-coherent module on the small étale
-site of an algebraic space is quasi-coherent. -/
-instance isQuasicoherent_internalHom
-    (F G : RingedSite.ModuleCat.{u + 1} (commRingedSiteLift X))
-    [F.IsFinitePresentation] [G.IsQuasicoherent] :
-    ((ihom F).obj G).IsQuasicoherent :=
-  sorry
-
-end Modules
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isQuasicoherent_internalHom :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+      (F G : SheafOfModules.RingedSite.ringedSiteModuleCategory.{u + 1, u, u + 1, u + 1}
+        (smallEtaleTopology X) (commStructureSheafLift X))
+      [F.IsFinitePresentation] [G.IsQuasicoherent],
+      ((ihom F).obj G).IsQuasicoherent)
 
 end AlgebraicGeometry.AlgebraicSpace

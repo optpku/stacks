@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.NaiveCotangent.TorAmplitude
@@ -21,6 +15,7 @@ schemes, being a local complete intersection, having `NL[f.toShHom]` of Tor-ampl
 @[stacks 0FK2]
 #check (AlgebraicGeometry.Scheme.Hom.NaiveCotangent.perfect_tfae :
   ∀ {X Y : AlgebraicGeometry.Scheme.{u}} (f : X ⟶ Y)
+      [DerivedCategory.DerivedTensor.Right.Has (C := AlgebraicGeometry.RingedSpace.Modules X.toRingedSpace)]
     [AlgebraicGeometry.IsLocallyNoetherian X] [AlgebraicGeometry.IsLocallyNoetherian Y]
     [AlgebraicGeometry.LocallyOfType RingHom.IsPerfectRingMap f],
     List.TFAE [AlgebraicGeometry.LocallyOfType RingHom.IsLocalCompleteIntersection f,

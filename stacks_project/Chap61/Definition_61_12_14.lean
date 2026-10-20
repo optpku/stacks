@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap61.Lemma_61_12_12_SmallToBig
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Proetale.ChosenPresentation.SmallToBig
 
 @[expose] public section
 
@@ -25,7 +19,7 @@ variable (X : ChosenBigProetaleSite.{u, v}) (S : X.carrier)
 `ℱ` on the chosen big pro-étale site, `ℱ|_{S_proétale}` denotes the value of
 this functor on `ℱ`. -/
 @[stacks 098R] #check
-  (SmallToBig.inverseImage (𝟙 S) :
+  (AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.inverseImage (𝟙 S) :
     Sheaf (bigTopology X S) (Type (max u v)) ⥤
       Sheaf (smallTopology X S) (Type (max u v)))
 

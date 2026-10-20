@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Pullback.Triangulated
@@ -15,15 +9,33 @@ open CategoryTheory
 open AlgebraicGeometry
 open scoped RingedSpace.Hom RingedSpaceDerivedPullback
 
+universe u
+
 namespace AlgebraicGeometry.RingedSpace
 
 /- Lemma 20.27.1
 The construction above is independent of choices and defines an exact functor of
-triangulated categories `L(f)^* : DerivedCategory (Modules Y) ⥤ DerivedCategory (Modules X)`. -/
+triangulated categories `L(f)^* : DerivedCategory (Modules Y) ⥤ DerivedCategory (Modules X)`.
+Choice independence is through the canonical left-derived universal property and
+computation on K-flat models, up to canonical isomorphism. -/
 @[stacks 06YJ]
-#check @modulePullbackDerived.isTriangulated
+#check (AlgebraicGeometry.RingedSpace.modulePullbackDerived.isTriangulated :
+  ∀ {X Y : AlgebraicGeometry.RingedSpace.{u}} (f : X ⟶ Y),
+    (AlgebraicGeometry.RingedSpace.modulePullbackDerived f).IsTriangulatedWith
+      (AlgebraicGeometry.RingedSpace.modulePullbackDerived.commShift f))
 
-#check @modulePullbackDerived
-#check @modulePullbackDerived.commShift
+variable {X Y : AlgebraicGeometry.RingedSpace.{u}} (f : X ⟶ Y)
+
+#check (AlgebraicGeometry.RingedSpace.modulePullbackDerived f :
+  DerivedCategory (Modules Y) ⥤ DerivedCategory (Modules X))
+
+#check (AlgebraicGeometry.RingedSpace.modulePullbackDerived.commShift f :
+  (AlgebraicGeometry.RingedSpace.modulePullbackDerived f).CommShift ℤ)
+
+#check (AlgebraicGeometry.RingedSpace.modulePullbackDerived.isLeftDerivedFunctor f :
+  (AlgebraicGeometry.RingedSpace.modulePullbackDerived f).IsLeftDerivedFunctor
+    ((AlgebraicGeometry.RingedSpace.modulePullbackToDerived f).totalLeftDerivedCounit
+      DerivedCategory.Qh (AlgebraicGeometry.RingedSpace.ModuleQis Y))
+    (AlgebraicGeometry.RingedSpace.ModuleQis Y))
 
 end AlgebraicGeometry.RingedSpace

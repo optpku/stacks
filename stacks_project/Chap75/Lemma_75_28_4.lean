@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_28_4_FiniteLocallyFree
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ResolutionProperty.FiniteLocallyFree
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,5 +16,7 @@ over a scheme transfers the resolution property from its source to its target. -
     ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Y : AlgebraicGeometry.AlgebraicSpace S}
       (f : X ⟶ Y) [AlgebraicGeometry.AlgebraicSpace.Surjective f]
       [AlgebraicGeometry.AlgebraicSpace.FiniteLocallyFree f],
-      AlgebraicGeometry.AlgebraicSpace.HasResolutionProperty X →
-        AlgebraicGeometry.AlgebraicSpace.HasResolutionProperty Y)
+      SheafOfModules.HasResolutionProperty
+        (AlgebraicGeometry.AlgebraicSpace.structureSheaf X) →
+        SheafOfModules.HasResolutionProperty
+          (AlgebraicGeometry.AlgebraicSpace.structureSheaf Y))

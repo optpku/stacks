@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Perfect.Determinant
@@ -21,6 +15,9 @@ universe u
 namespace AlgebraicGeometry.Scheme.PerfectDerived.TorNegOneZero
 
 variable {X Y : Scheme.{u}}
+
+variable [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
+variable [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
 
 /-- Derived pullback preserves Tor-amplitude in `[-1, 0]` for perfect derived objects. -/
 theorem pullbackMapsTo (f : X ⟶ Y) :
@@ -48,7 +45,9 @@ namespace Determinant
 
 /-- The functor from perfect objects of Tor-amplitude in `[-1, 0]` to their underlying
 determinant-line modules. -/
-def lineFunctor {Z : Scheme.{u}} (D : Determinant Z) :
+def lineFunctor {Z : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z.toRingedSpace)]
+    (D : Determinant Z) :
     CategoryTheory.Core (TorNegOneZero Z) ⥤ Z.Modules :=
   D.det ⋙ Scheme.Modules.Invertible.inclusion Z
 
@@ -78,7 +77,10 @@ structure Pullback (f : X ⟶ Y) where
 namespace Pullback
 
 /-- Build compatibility data for determinant constructions under a fixed scheme morphism. -/
-def of {X Y : Scheme.{u}} (f : X ⟶ Y) (source : Determinant Y) (target : Determinant X)
+def of {X Y : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
+    (f : X ⟶ Y) (source : Determinant Y) (target : Determinant X)
     (lineNatIso : lineFunctor source ⋙ Scheme.Modules.pullback f ≅
       (pullback f).core ⋙ lineFunctor target)
     (rankZero : ∀ L : TorNegOneZero Y, source.isRankZero L →
@@ -97,13 +99,19 @@ def of {X Y : Scheme.{u}} (f : X ⟶ Y) (source : Determinant Y) (target : Deter
     canonicalElement := canonicalElement }
 
 /-- The component at `K` of the natural determinant-line comparison for pullback. -/
-def lineIso {X Y : Scheme.{u}} {f : X ⟶ Y} (P : Pullback f) (K : TorNegOneZero Y) :
+def lineIso {X Y : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
+    {f : X ⟶ Y} (P : Pullback f) (K : TorNegOneZero Y) :
     (Scheme.Modules.pullback f).obj (P.source.line K) ≅
       P.target.line ((pullback f).obj K) :=
   P.lineNatIso.app ⟨K⟩
 
 /-- Every scheme morphism admits determinant constructions compatible with derived pullback. -/
-theorem nonempty {X Y : Scheme.{u}} (f : X ⟶ Y) : Nonempty (Pullback f) := sorry
+theorem nonempty {X Y : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
+    (f : X ⟶ Y) : Nonempty (Pullback f) := sorry
 
 end Pullback
 end Determinant

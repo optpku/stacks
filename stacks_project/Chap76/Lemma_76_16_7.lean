@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_38_8_Unramified
-public import stacks_project.Chap67.Lemma_67_30_5_Flat
-public import stacks_project.Chap76.Lemma_76_16_4_FormallyEtale
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FormallyEtale.Unramified
+import StacksCheckRecall
 
 /-!
 # Unramified flat morphisms of algebraic spaces are formally étale
@@ -20,12 +13,10 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 76.16.7: An unramified flat morphism is formally étale. -/
-@[stacks 0615]
-instance Unramified.toFormallyEtale {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [Unramified f] [Flat f] : FormallyEtale f :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+/- Lemma 76.16.7: An unramified flat morphism is formally étale. -/
+@[stacks 0615] #check
+  (AlgebraicGeometry.AlgebraicSpace.Unramified.toFormallyEtale :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Y : AlgebraicGeometry.AlgebraicSpace S}
+      (f : X ⟶ Y) [AlgebraicGeometry.AlgebraicSpace.Unramified f]
+      [AlgebraicGeometry.AlgebraicSpace.Flat f],
+      AlgebraicGeometry.AlgebraicSpace.FormallyEtale f)

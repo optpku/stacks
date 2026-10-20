@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.HomotopyCategory.HomComplexCohomology
@@ -199,8 +193,8 @@ theorem differentialGradedCategory_comp
     (g : Cochain B C j) (f : Cochain A B i) :
     (differentialGradedCategory 𝒝 R).comp g f = Cochain.comp f g rfl := sorry
 
-/-- Example 22.26.6 (Differential graded category of complexes): the cochain complexes in a
-preadditive category form the canonical differential graded category over `ℤ`, with the Hom
+/-- The cochain complexes in a preadditive category form the canonical differential graded
+category over `ℤ`, with the Hom
 complex as its graded Hom object. -/
 @[stacks 09L9, reducible]
 instance complexesDifferentialGradedCategory :
@@ -213,13 +207,5 @@ homogeneous cochains. -/
 theorem complexesDifferentialGradedCategory_hom
     (A B : CochainComplex 𝒝 ℤ) (n : ℤ) :
     (A ⟶[n] B) = Cochain A B n := sorry
-
-section
-
-variable (C : Type u) [Category.{v} C] [Preadditive C]
-
-#synth DifferentialGradedCategory ℤ (CochainComplex C ℤ)
-
-end
 
 end CategoryTheory.CochainComplex

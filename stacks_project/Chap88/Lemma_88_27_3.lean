@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Equivalence
-public import stacks_project.Chap67.Definition_67_20_2_Affine
-public import stacks_project.Chap88.Lemma_88_27_2
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CompletionAlong.Equivalence
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Affine
+import StacksCheckRecall
 
 /-!
 # Completion is an equivalence for affine locally Noetherian algebraic spaces
@@ -17,43 +11,21 @@ In the standing locally Noetherian setup of `completionFunctor` (88.27.0.1),
 if `X` is affine then completing along `T` is an equivalence of categories.
 -/
 
-@[expose] public section
-
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace TopologicalSpace
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+section
 
-namespace completionAlong
+variable {S : Scheme.{u}} (X : AlgebraicSpace S)
+  [IsLocallyNoetherian X] [IsAffine X] (T : Closeds (Points X))
 
-/-- If `X` is affine, the completion functor `functor X T` is essentially
-surjective on locally Noetherian rig-étale morphisms over `X_/T`. -/
-instance instEssSurj_functor {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsLocallyNoetherian X] [IsAffine X] (T : Closeds (Points X)) :
-    (functor X T).EssSurj :=
-  sorry
+/- Lemma 88.27.3: for an affine locally Noetherian algebraic space `X`,
+completion along `T` is an equivalence from locally finite-type morphisms
+isomorphic over the complement of `T` to locally Noetherian rig-étale formal
+algebraic spaces over the completion. This uses the stronger existing theorem
+which does not require affineness. -/
+@[stacks 0ARA] #check (AlgebraicGeometry.AlgebraicSpace.completionFunctor.instIsEquivalence X T :
+  (AlgebraicGeometry.AlgebraicSpace.completionFunctor X T).IsEquivalence)
 
-/-- If `X` is affine, every object of `Target X T` lies in the essential image
-of `functor X T`: a locally Noetherian rig-étale morphism `g : W ⟶ X_/T` is
-isomorphic over `X_/T` to `f_/T` for some locally finite-type `f` that is an
-isomorphism over the open complement of `T`. -/
-theorem functor_essImage {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsLocallyNoetherian X] [IsAffine X] (T : Closeds (Points X))
-    (W : Target X T) :
-    (functor X T).essImage W :=
-  sorry
-
-/-- Lemma 88.27.3: in the situation of `completionFunctor` (88.27.0.1), if `X`
-is affine then the functor `functor X T` is an equivalence of categories. -/
-@[stacks 0ARA]
-instance instIsEquivalence_functor {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsLocallyNoetherian X] [IsAffine X] (T : Closeds (Points X)) :
-    (functor X T).IsEquivalence :=
-  sorry
-
-end completionAlong
-
-end AlgebraicGeometry.AlgebraicSpace
+end

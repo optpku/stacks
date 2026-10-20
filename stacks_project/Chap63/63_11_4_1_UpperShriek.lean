@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.UpperShriek
 public import Mathlib.CategoryTheory.Adjunction.Basic
 public import stacks_project.Chap63.Definition_63_12_1_LowerShriek
 
@@ -13,9 +8,8 @@ public import stacks_project.Chap63.Definition_63_12_1_LowerShriek
 # Derived upper shriek for étale torsion coefficients
 
 The functor `Rf^!` is the chosen right adjoint of the compactification
-presentation `Rf_! = etaleDerivedLowerShriek`. Existence of the adjoint is
-an ambient Brown-representability hypothesis; this file does not instantiate
-it.
+presentation `Rf_! = etaleDerivedLowerShriek`. The chosen adjoint requires
+formal availability of the lower-shriek adjunction.
 -/
 
 @[expose] public section
@@ -72,28 +66,18 @@ variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]
 variable [((etaleDerivedLowerShriek X P :
     EtaleDerived X.left Λ ⥤ EtaleDerived Y Λ)).IsLeftAdjoint]
 
-/-- The derived upper shriek `Rf^!`, the chosen right adjoint of
-`etaleDerivedLowerShriek`. -/
-def etaleDerivedUpperShriek : EtaleDerived Y Λ ⥤ EtaleDerived X.left Λ :=
-  (etaleDerivedLowerShriek X P).rightAdjoint
+#check (AlgebraicGeometry.Scheme.Etale.etaleDerivedUpperShriek X Λ P : EtaleDerived Y Λ ⥤ EtaleDerived X.left Λ)
 
-/-- Derived upper shriek is the chosen right adjoint of `Rf_!`. -/
-theorem etaleDerivedUpperShriek_def :
-    etaleDerivedUpperShriek X Λ P = (etaleDerivedLowerShriek X P).rightAdjoint :=
-  sorry
+#check (AlgebraicGeometry.Scheme.Etale.etaleDerivedUpperShriek_def X Λ P :
+    etaleDerivedUpperShriek X Λ P = (etaleDerivedLowerShriek X P).rightAdjoint)
 
-/-- The adjunction `Rf_! ⊣ Rf^!` on unbounded derived categories of étale
-`Λ`-modules. -/
-def etaleDerivedLowerShriekAdjunction :
-    etaleDerivedLowerShriek X P ⊣ etaleDerivedUpperShriek X Λ P :=
-  Adjunction.ofIsLeftAdjoint (etaleDerivedLowerShriek X P)
+#check (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriekAdjunction X Λ P :
+    etaleDerivedLowerShriek X P ⊣ etaleDerivedUpperShriek X Λ P)
 
-/-- The hom-equivalence of the derived compact-support adjunction. -/
-def etaleDerivedLowerShriekAdjunction_homEquiv
-    (L : EtaleDerived X.left Λ) (K : EtaleDerived Y Λ) :
+#check (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriekAdjunction_homEquiv X Λ P :
+  ∀ (L : EtaleDerived X.left Λ) (K : EtaleDerived Y Λ),
     ((etaleDerivedLowerShriek X P).obj L ⟶ K) ≃
-      (L ⟶ (etaleDerivedUpperShriek X Λ P).obj K) :=
-  (etaleDerivedLowerShriekAdjunction X Λ P).homEquiv L K
+      (L ⟶ (etaleDerivedUpperShriek X Λ P).obj K))
 
 end AlgebraicGeometry.Scheme.Etale
 

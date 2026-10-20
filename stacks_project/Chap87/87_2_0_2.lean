@@ -1,19 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap87.«87_2_0_2_FormalScheme»
-public import stacks_project.Chap87.«87_2_0_2_LocallyTopologicallyRingedSpace»
-public import stacks_project.Chap87.«87_2_0_2_PseudoDiscrete»
+public import ReasLib.AlgebraicGeometry.FormalScheme.Scheme
 
-open AlgebraicGeometry
+universe u
 
-/- 87.2.0.2: the comparison functor Schemes ⟶ Formal Schemes sending a scheme `(X, 𝒪_X)` to
-the same underlying space equipped with the pseudo-discrete sheaf of topological rings `𝒪'_X`
-whose underlying sheaf of rings is `𝒪_X`. -/
-@[stacks 0AI0] #check Scheme.toFormalScheme
+open CategoryTheory
+
+/- 87.2.0.2: the comparison functor sends a scheme to the same underlying space and
+structure-sheaf rings, with the pseudo-discrete topology on sections. -/
+@[stacks 0AI0] #check (AlgebraicGeometry.Scheme.toFormalScheme.{u} :
+  AlgebraicGeometry.Scheme.{u} ⥤ AlgebraicGeometry.FormalScheme.{u})

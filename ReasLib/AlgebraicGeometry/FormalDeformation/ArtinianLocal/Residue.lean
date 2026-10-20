@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.FormalDeformation.ArtinianLocal.Instances
@@ -59,5 +53,31 @@ theorem toResidue_spec (A : ArtinianLocalAlgCat Λ k) :
     IsLocalHom (toResidue A).hom ∧
       residueCompat (toResidue A).hom (toResidue A).isLocalHom = residueIsoHom A := by
   exact ⟨toResidueHom_isLocalHom A, Hom.residue_compat (toResidue A)⟩
+
+/-- The algebra structure on the identified residue field induced by the canonical residue map. -/
+@[reducible] noncomputable def residueAlgebra (A : ArtinianLocalAlgCat Λ k) :
+    Algebra A.carrier k :=
+  (toResidueHom A).toRingHom.toAlgebra
+
+/-- The identified residue field carries its canonical algebra structure over the local algebra. -/
+noncomputable instance instAlgebraResidue (A : ArtinianLocalAlgCat Λ k) :
+    Algebra A.carrier k :=
+  residueAlgebra A
+
+/-- The algebra map to the identified residue field is the canonical residue homomorphism. -/
+theorem residueAlgebra_algebraMap (A : ArtinianLocalAlgCat Λ k) :
+    algebraMap A.carrier k = (toResidueHom A).toRingHom := rfl
+
+/-- The canonical residue algebra structure is compatible with the base algebra structure. -/
+instance instIsScalarTowerResidue (A : ArtinianLocalAlgCat Λ k) :
+    IsScalarTower Λ A.carrier k := sorry
+
+/-- The canonical map from a local algebra to its identified residue field is surjective. -/
+theorem toResidueHom_surjective (A : ArtinianLocalAlgCat Λ k) :
+    Function.Surjective (toResidueHom A) := sorry
+
+/-- The kernel of the canonical residue homomorphism is the maximal ideal. -/
+theorem ker_toResidueHom (A : ArtinianLocalAlgCat Λ k) :
+    RingHom.ker (toResidueHom A).toRingHom = IsLocalRing.maximalIdeal A.carrier := sorry
 
 end ArtinianLocalAlgCat

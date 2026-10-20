@@ -1,21 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Abelian
-public import Mathlib.Algebra.Homology.DerivedCategory.ExactFunctor
-public import Mathlib.AlgebraicGeometry.Morphisms.Proper
-public import Mathlib.CategoryTheory.Limits.Preserves.Basic
-public import Mathlib.CategoryTheory.Sites.Abelian
-public import Mathlib.GroupTheory.Torsion
-public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Pullback
-public import ReasLib.CategoryTheory.DerivedCategory.Functor.TotalRightDerived.Cochain
-public import ReasLib.CategoryTheory.DerivedCategory.Monoidal.Tensor
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.ProjectionFormula
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -33,35 +19,31 @@ noncomputable section
 
 universe u v
 
-namespace AlgebraicGeometry.Scheme.Etale
-
-variable {X Y : Scheme.{u}} {Λ : Type v} [CommRing Λ]
-variable [HasSheafify X.smallEtaleTopology (ModuleCat.{v} Λ)]
-variable [HasSheafify Y.smallEtaleTopology (ModuleCat.{v} Λ)]
-variable [HasDerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ))]
-variable [HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{v} Λ))]
-variable [MonoidalCategory (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ))]
-variable [MonoidalPreadditive (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ))]
-variable [MonoidalCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{v} Λ))]
-variable [MonoidalPreadditive (Sheaf Y.smallEtaleTopology (ModuleCat.{v} Λ))]
-variable [∀ (K L : CochainComplex (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ)) ℤ),
-    HomologicalComplex.HasMapBifunctor K L
-      (curriedTensor (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ))) (ComplexShape.up ℤ)]
-variable [∀ (K L : CochainComplex (Sheaf Y.smallEtaleTopology (ModuleCat.{v} Λ)) ℤ),
-    HomologicalComplex.HasMapBifunctor K L
-      (curriedTensor (Sheaf Y.smallEtaleTopology (ModuleCat.{v} Λ))) (ComplexShape.up ℤ)]
-variable [hXTensor :
-    @DerivedTensor.Right.Has (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ)) _ _ _ _ _ _]
-variable [hYTensor :
-    @DerivedTensor.Right.Has (Sheaf Y.smallEtaleTopology (ModuleCat.{v} Λ)) _ _ _ _ _ _]
-
-/-- Lemma 59.96.6: if `f : X ⟶ Y` is a proper morphism of schemes and `Λ` is a
-torsion ring, then for `E` in `D(X_étale, Λ)` and `K` in `D(Y_étale, Λ)`,
-`Rf_* E ⊗ᴸ K` is isomorphic in `D(Y_étale, Λ)` to `Rf_*(E ⊗ᴸ f⁻¹ K)`.
-The source identification is this isomorphism; the unnamed canonical arrow
-is the Section 21.50 left projection-formula mate. -/
-@[stacks 0F0G]
-theorem etalePushforwardDerived_tensor_inverseImage_of_isProper
+/- Lemma 59.96.6: For a proper morphism of schemes and a torsion coefficient ring,
+the unbounded derived étale projection formula holds. -/
+@[stacks 0F0G] #check
+  (AlgebraicGeometry.Scheme.Etale.etalePushforwardDerived_tensor_inverseImage_of_isProper :
+    ∀ {X Y : Scheme.{u}} {Λ : Type v} [CommRing Λ]
+      [HasSheafify X.smallEtaleTopology (ModuleCat.{v} Λ)]
+      [HasSheafify Y.smallEtaleTopology (ModuleCat.{v} Λ)]
+      [HasDerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ))]
+      [HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{v} Λ))]
+      [((X.smallEtaleTopology.W :
+          MorphismProperty (X.Etaleᵒᵖ ⥤ ModuleCat.{v} Λ))).IsMonoidal]
+      [MonoidalPreadditive (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ))]
+      [((Y.smallEtaleTopology.W :
+          MorphismProperty (Y.Etaleᵒᵖ ⥤ ModuleCat.{v} Λ))).IsMonoidal]
+      [MonoidalPreadditive (Sheaf Y.smallEtaleTopology (ModuleCat.{v} Λ))]
+      [∀ (K L : CochainComplex (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ)) ℤ),
+          HomologicalComplex.HasMapBifunctor K L
+            (curriedTensor (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ))) (ComplexShape.up ℤ)]
+      [∀ (K L : CochainComplex (Sheaf Y.smallEtaleTopology (ModuleCat.{v} Λ)) ℤ),
+          HomologicalComplex.HasMapBifunctor K L
+            (curriedTensor (Sheaf Y.smallEtaleTopology (ModuleCat.{v} Λ))) (ComplexShape.up ℤ)]
+      [hXTensor :
+          DerivedTensor.Right.Has (C := Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ))]
+      [hYTensor :
+          DerivedTensor.Right.Has (C := Sheaf Y.smallEtaleTopology (ModuleCat.{v} Λ))]
     (f : X ⟶ Y) [IsProper f]
     [((smallEtalePullback f).sheafPushforwardContinuous
         (ModuleCat.{v} Λ) Y.smallEtaleTopology X.smallEtaleTopology).Additive]
@@ -83,7 +65,7 @@ theorem etalePushforwardDerived_tensor_inverseImage_of_isProper
         (ModuleCat.{v} Λ) Y.smallEtaleTopology X.smallEtaleTopology)]
     (hΛ : AddMonoid.IsTorsion Λ)
     (E : DerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ)))
-    (K : DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{v} Λ))) :
+    (K : DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{v} Λ))),
     Nonempty
       ((RightDerived.Cochain.functor
             ((smallEtalePullback f).sheafPushforwardContinuous
@@ -94,8 +76,6 @@ theorem etalePushforwardDerived_tensor_inverseImage_of_isProper
           (E ⊗ᴸ
             (((smallEtalePullback f).sheafPullback
                 (ModuleCat.{v} Λ) Y.smallEtaleTopology X.smallEtaleTopology).mapDerivedCategory.obj
-              K))) := sorry
-
-end AlgebraicGeometry.Scheme.Etale
+              K))))
 
 end

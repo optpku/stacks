@@ -1,16 +1,41 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap55.Definition_55_14_8_GoodReduction
+public import ReasLib.AlgebraicGeometry.Scheme.Model.GoodReduction
+public import ReasLib.AlgebraicGeometry.Scheme.Model.Regular.Smooth
 
-/- Definition 55.14.8: Let `R` be a discrete valuation ring with fraction field `K`,
-and let `C` be a smooth projective curve over `K` such that
-`Function.Bijective (Scheme.Hom.globalSectionsMap C.hom)`. The curve `C` has good
-reduction when the equivalent conditions of Lemma 55.14.7 hold. -/
-@[stacks 0CDJ] #check AlgebraicGeometry.Scheme.Hom.hasGoodReduction
+@[expose] public section
+
+open AlgebraicGeometry
+open scoped AlgebraicGeometry
+
+universe u
+
+namespace AlgebraicGeometry.Scheme.Hom
+
+/- Definition 55.14.8. A smooth projective curve over the fraction field of a discrete
+valuation ring, whose global functions are precisely the constants, has good reduction
+when the equivalent smooth-model conditions hold. -/
+@[stacks 0CDJ]
+#check (AlgebraicGeometry.Scheme.Hom.hasGoodReduction :
+    ∀ (R K : Type u) [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
+    [Field K] [Algebra R K] [IsFractionRing R K]
+    (C : SchemeOverField K) [Curve C] [Smooth C.hom] [Projective C.hom], Prop)
+
+#check (AlgebraicGeometry.Scheme.Hom.exists_smoothModel_iff_exists_smoothMinimalModel :
+    ∀ (R K : Type u) [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
+    [Field K] [Algebra R K] [IsFractionRing R K]
+    (C : SchemeOverField K) [Curve C] [Smooth C.hom] [Projective C.hom]
+    (h_globalSections : Function.Bijective (Scheme.Hom.globalSectionsMap C.hom)),
+    (∃ M : RegularModel R K C, Smooth M.base) ↔
+      ∃ M : RegularModel R K C, IsMinimalModel M.base ∧ Smooth M.base)
+
+#check (AlgebraicGeometry.Scheme.Hom.exists_smoothMinimalModel_iff_forall_minimalModel_smooth :
+    ∀ (R K : Type u) [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
+    [Field K] [Algebra R K] [IsFractionRing R K]
+    (C : SchemeOverField K) [Curve C] [Smooth C.hom] [Projective C.hom]
+    (h_globalSections : Function.Bijective (Scheme.Hom.globalSectionsMap C.hom)),
+    (∃ M : RegularModel R K C, IsMinimalModel M.base ∧ Smooth M.base) ↔
+      ∀ M : RegularModel R K C, IsMinimalModel M.base → Smooth M.base)
+
+end AlgebraicGeometry.Scheme.Hom

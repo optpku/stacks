@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap76.Lemma_76_5_3_Map
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.Functorial
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Limits
@@ -27,7 +22,10 @@ induces a canonical morphism of `𝒪_Z`-modules
 `(Modules.pullback f).obj (Hom.conormalSheaf i') ⟶ Hom.conormalSheaf i`. -/
 @[stacks 04CP]
 #check
-  (Hom.Conormal.map sq :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.map sq :
     (Modules.pullback f).obj (Hom.conormalSheaf i') ⟶ Hom.conormalSheaf i)
 
-#check (Hom.Conormal.map_spec sq)
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.map_spec sq :
+    AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.IsMap sq
+      (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.map sq))

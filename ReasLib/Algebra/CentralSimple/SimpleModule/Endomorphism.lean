@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.CentralSimple.SimpleModule.Uniqueness
@@ -98,14 +92,15 @@ private theorem scalarToMatrixModuleEnd_right_inv (hn : 1 ≤ n)
       simp [hbasis, Pi.single_apply]
 
 private noncomputable def scalarToMatrixModuleEndEquiv (hn : 1 ≤ n) :
-    Kᵐᵒᵖ ≃+* Module.End (Matrix (Fin n) (Fin n) K) (Fin n → K) :=
-  RingEquiv.ofBijective scalarToMatrixModuleEnd <| by
-    constructor
-    · intro x y h
-      apply MulOpposite.unop_injective
-      rw [← scalarToMatrixModuleEnd_left_inv hn x, ← scalarToMatrixModuleEnd_left_inv hn y, h]
-    · intro f
-      exact ⟨MulOpposite.op (matrixModuleEndScalar hn f), scalarToMatrixModuleEnd_right_inv hn f⟩
+    Kᵐᵒᵖ ≃+* Module.End (Matrix (Fin n) (Fin n) K) (Fin n → K) where
+  toFun := scalarToMatrixModuleEnd
+  invFun f := MulOpposite.op (matrixModuleEndScalar hn f)
+  left_inv x := by
+    apply MulOpposite.unop_injective
+    exact scalarToMatrixModuleEnd_left_inv hn x
+  right_inv := scalarToMatrixModuleEnd_right_inv hn
+  map_mul' := scalarToMatrixModuleEnd.map_mul
+  map_add' := scalarToMatrixModuleEnd.map_add
 
 section
 
@@ -137,31 +132,30 @@ private noncomputable def scalarToMatrixModuleEndAlgHom :
 
 private noncomputable def scalarToMatrixModuleEndAlgEquiv (hn : 1 ≤ n) :
     Kᵐᵒᵖ ≃ₐ[k] Module.End (Matrix (Fin n) (Fin n) K) (Fin n → K) :=
-  AlgEquiv.ofBijective scalarToMatrixModuleEndAlgHom <| by
-    constructor
-    · intro x y h
-      let φ : Kᵐᵒᵖ →+* Module.End (Matrix (Fin n) (Fin n) K) (Fin n → K) :=
-        scalarToMatrixModuleEnd
-      have h' : φ x = φ y := by
-        sorry -- TODO: fix simpa
-
-      have hs : matrixModuleEndScalar hn (φ x) = matrixModuleEndScalar hn (φ y) :=
-        congrArg (matrixModuleEndScalar hn) h'
-      apply MulOpposite.unop_injective
-      rw [← scalarToMatrixModuleEnd_left_inv hn x, ← scalarToMatrixModuleEnd_left_inv hn y]
-      sorry -- TODO: fix simpa [φ]
-    · intro f
-      refine ⟨MulOpposite.op (matrixModuleEndScalar hn f), ?_⟩
-      sorry -- TODO: fix simpa
-
-
-
+  AlgEquiv.ofRingEquiv (f := scalarToMatrixModuleEndEquiv hn)
+    (fun c ↦ scalarToMatrixModuleEndAlgHom.commutes c)
 /-- For the standard simple module over `Matrix (Fin n) (Fin n) K`, the
 endomorphism ring is `k`-algebra isomorphic to `Kᵐᵒᵖ`. -/
 @[stacks 074E, no_expose]
 noncomputable def matrix_endomorphism_alg_equiv_op (hn : 1 ≤ n) :
     Module.End (Matrix (Fin n) (Fin n) K) (Fin n → K) ≃ₐ[k] Kᵐᵒᵖ :=
   (scalarToMatrixModuleEndAlgEquiv hn).symm
+
+/-- Read the right-multiplication scalar from the first standard basis vector. -/
+@[simp]
+theorem matrix_endomorphism_alg_equiv_op_apply (hn : 1 ≤ n)
+    (f : Module.End (Matrix (Fin n) (Fin n) K) (Fin n → K)) :
+    matrix_endomorphism_alg_equiv_op (k := k) hn f =
+      MulOpposite.op (f (Pi.single ⟨0, hn⟩ (1 : K)) ⟨0, hn⟩) := by
+  rfl
+
+/-- A scalar in the opposite ring acts on every vector coordinate on the right. -/
+@[simp]
+theorem matrix_endomorphism_alg_equiv_op_symm_apply (hn : 1 ≤ n)
+    (x : Kᵐᵒᵖ) (v : Fin n → K) :
+    (matrix_endomorphism_alg_equiv_op (k := k) hn).symm x v =
+      fun i ↦ v i * MulOpposite.unop x :=
+  scalarToMatrixModuleEnd_apply x v
 
 end
 
@@ -253,7 +247,7 @@ noncomputable def centerModuleEndEquiv
       apply Subtype.ext
       obtain ⟨m, hm⟩ := exists_ne (0 : M)
       exact smul_left_injective R hm <| by
-        sorry -- TODO: fix simpa congrArg
+        exact congrArg (fun z : Subring.center (Module.End R M) ↦ z.1 m) hxy
     · intro f
       have hf : (f : Module.End R M) ∈ Set.center (Module.End R M) := by
         rw [Semigroup.mem_center_iff]

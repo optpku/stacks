@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.PseudoCoherent
-public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension
+public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension.Flat.Availability
 import Mathlib.Tactic.CrossRefAttribute
 
 @[expose] public section
@@ -20,7 +14,9 @@ import Mathlib.Tactic.CrossRefAttribute
 
 This file states scalar-extension results using an explicit ring homomorphism.  The API is owned
 by the pseudo-coherence predicates, so it is independent of `Algebra` instances and tensor
-notation chosen by a downstream application.
+notation chosen by a downstream application. The existing derived-availability witness is
+explicit at its first use; in a module universe containing the base ring, the canonical
+cell-model producer supplies it.
 -/
 
 open CategoryTheory
@@ -37,7 +33,9 @@ variable {R : Type uR} {S : Type uS} [CommRing R] [CommRing S]
 `m`-pseudo-coherence. -/
 @[stacks 0650 "derived extension preserves m-pseudo-coherence"]
 theorem extension {K : DerivedCategory (ModuleCat.{v, uR} R)} {m : ℤ}
-    (hK : K.IsMPseudoCoherent m) (σ : R →+* S) :
+    (hK : K.IsMPseudoCoherent m) (σ : R →+* S)
+    [hasLeftDerived : (ModuleCat.extendScalarsToDerived.{uR, uS, v} σ).HasLeftDerivedFunctor
+      (HomotopyCategory.quasiIso (ModuleCat.{v, uR} R) (ComplexShape.up ℤ))] :
     ((ModuleCat.derivedExtensionOfScalars.{uR, uS, v} σ).obj K).IsMPseudoCoherent m := sorry
 -- Proof strategy: extend a bounded-above finite-free approximation of `K` termwise along `σ`,
 -- identify the resulting complex with derived extension, and transport the required homology
@@ -52,7 +50,9 @@ variable {R : Type uR} {S : Type uS} [CommRing R] [CommRing S]
 /-- Lemma 15.65.12 (2) (0650): derived extension of scalars preserves pseudo-coherence. -/
 @[stacks 0650 "derived extension preserves pseudo-coherence"]
 theorem extension {K : DerivedCategory (ModuleCat.{v, uR} R)}
-    (hK : K.IsPseudoCoherent) (σ : R →+* S) :
+    (hK : K.IsPseudoCoherent) (σ : R →+* S)
+    [hasLeftDerived : (ModuleCat.extendScalarsToDerived.{uR, uS, v} σ).HasLeftDerivedFunctor
+      (HomotopyCategory.quasiIso (ModuleCat.{v, uR} R) (ComplexShape.up ℤ))] :
     ((ModuleCat.derivedExtensionOfScalars.{uR, uS, v} σ).obj K).IsPseudoCoherent := sorry
 -- Proof strategy: apply the `m`-pseudo-coherent extension theorem in every degree and use the
 -- canonical all-degree characterization of pseudo-coherence.
@@ -60,7 +60,10 @@ theorem extension {K : DerivedCategory (ModuleCat.{v, uR} R)}
 /-- Lemma 15.76.4 (0H76): pseudo-coherence is reflected by derived extension along a surjection
 with nilpotent kernel. -/
 @[stacks 0H76 "pseudo-coherence across a nilpotent thickening"]
-theorem extension_iff (σ : R →+* S) (hσ : Function.Surjective σ)
+theorem extension_iff (σ : R →+* S)
+    [hasLeftDerived : (ModuleCat.extendScalarsToDerived.{uR, uS, v} σ).HasLeftDerivedFunctor
+      (HomotopyCategory.quasiIso (ModuleCat.{v, uR} R) (ComplexShape.up ℤ))]
+    (hσ : Function.Surjective σ)
     (hker : IsNilpotent (RingHom.ker σ))
     (K : DerivedCategory (ModuleCat.{v, uR} R)) :
     ((ModuleCat.derivedExtensionOfScalars.{uR, uS, v} σ).obj K).IsPseudoCoherent ↔

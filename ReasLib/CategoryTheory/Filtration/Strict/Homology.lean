@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.ShortComplex.Abelian
@@ -113,14 +107,20 @@ theorem boundaryTo_comp_projection
     (hg : Strict g) (p : ℤ) :
     Cycles.boundaryTo f g hfg hg p ≫ projection f g hfg p = 0 := sorry
 
-/-- For strict differentials, graded boundaries, graded cycles, and the graded subquotient form
-a short exact sequence. -/
-theorem shortExact
+/-- The canonical projection from graded cycles to `gr^p (ker g / im f)` is an epimorphism:
+it is the graded piece of the strict quotient map `ker g ⟶ ker g / im f`. -/
+instance epi_projection
+    (f : A ⟶ B) (g : B ⟶ D) (hfg : f ≫ g = 0) (p : ℤ) :
+    Epi (projection f g hfg p) := sorry
+
+/-- For strict differentials, the row `gr^p A ⟶ gr^p (ker g) ⟶ gr^p (ker g / im f)` is exact.
+The boundary map need not be a monomorphism (e.g. `f = 0`), so this row is not short exact. -/
+theorem exact
     (f : A ⟶ B) (g : B ⟶ D) (hfg : f ≫ g = 0)
     (hf : Strict f) (hg : Strict g) (p : ℤ) :
     (ShortComplex.mk (Cycles.boundaryTo f g hfg hg p)
       (projection f g hfg p)
-      (boundaryTo_comp_projection f g hfg hg p)).ShortExact := sorry
+      (boundaryTo_comp_projection f g hfg hg p)).Exact := sorry
 
 /-- The canonical projection from graded cycles to `gr^p (ker g / im f)` is the cokernel of
 the graded boundary-to-cycles map. -/
@@ -130,7 +130,7 @@ noncomputable def projectionIsCokernel
     IsColimit
       (CokernelCofork.ofπ (projection f g hfg p)
         (boundaryTo_comp_projection f g hfg hg p)) :=
-  (shortExact f g hfg hf hg p).gIsCokernel
+  (exact f g hfg hf hg p).gIsCokernel
 
 /-- The graded subquotient `gr^p (ker g / im f)` as concrete left homology data for the graded
 short complex. -/

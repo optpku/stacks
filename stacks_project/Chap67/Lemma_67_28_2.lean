@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_28_8_FinitePresentation
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FinitePresentation.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of finite presentation morphisms of algebraic spaces
@@ -25,32 +19,26 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.28.2 (1): The composition of finite presentation morphisms of
+/- Lemma 67.28.2 (1): The composition of finite presentation morphisms of
 algebraic spaces is of finite presentation. -/
-@[stacks 03XQ]
-instance finitePresentation_isStableUnderComposition {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderComposition
-      (@FinitePresentation S : MorphismProperty (AlgebraicSpace S)) := sorry
+@[stacks 03XQ] #check
+  (AlgebraicGeometry.AlgebraicSpace.finitePresentation_isStableUnderComposition :
+    ∀ {S : Scheme.{u}}, MorphismProperty.IsStableUnderComposition
+      (@FinitePresentation S : MorphismProperty (AlgebraicSpace S)))
 
-/-- The composition of finite presentation morphisms of algebraic spaces is of
-finite presentation. -/
-instance finitePresentation_comp {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [FinitePresentation f] [FinitePresentation g] :
-    FinitePresentation (f ≫ g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.finitePresentation_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z),
+    [FinitePresentation f] → [FinitePresentation g] → FinitePresentation (f ≫ g))
 
-/-- Lemma 67.28.2 (2): The composition of locally of finite presentation
+/- Lemma 67.28.2 (2): The composition of locally of finite presentation
 morphisms of algebraic spaces is locally of finite presentation. -/
-@[stacks 03XQ]
-instance locallyOfFinitePresentation_isStableUnderComposition {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderComposition
-      (@LocallyOfFinitePresentation S : MorphismProperty (AlgebraicSpace S)) :=
-    sorry
+@[stacks 03XQ] #check (AlgebraicGeometry.AlgebraicSpace.locallyOfFinitePresentation_isStableUnderComposition :
+  ∀ {S : Scheme.{u}}, MorphismProperty.IsStableUnderComposition
+    (@LocallyOfFinitePresentation S : MorphismProperty (AlgebraicSpace S)))
 
-/-- The composition of locally of finite presentation morphisms of algebraic
-spaces is locally of finite presentation. -/
-instance locallyOfFinitePresentation_comp {S : Scheme.{u}}
-    {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z)
-    [LocallyOfFinitePresentation f] [LocallyOfFinitePresentation g] :
-    LocallyOfFinitePresentation (f ≫ g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.locallyOfFinitePresentation_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z),
+    [LocallyOfFinitePresentation f] → [LocallyOfFinitePresentation g] →
+      LocallyOfFinitePresentation (f ≫ g))
 
 end AlgebraicGeometry.AlgebraicSpace

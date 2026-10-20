@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap65.Lemma_65_12_3_Pullback
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Immersion.BaseChange
 
 /-!
 # Base change of immersions of algebraic spaces
@@ -25,32 +20,22 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 65.12.3 (1): the base change of an immersion of algebraic spaces is an
-immersion. -/
-@[stacks 02YW]
-instance isImmersion_isStableUnderBaseChange {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderBaseChange
-      (@IsImmersion S : MorphismProperty (AlgebraicSpace S)) := sorry
+/- Lemma 65.12.3 (1): a base change of an immersion of algebraic spaces
+is again an immersion. -/
+@[stacks 02YW] #check (AlgebraicGeometry.AlgebraicSpace.isImmersion_isStableUnderBaseChange :
+  ∀ {S : Scheme.{u}}, MorphismProperty.IsStableUnderBaseChange
+    (@IsImmersion S : MorphismProperty (AlgebraicSpace S)))
 
-/-- Lemma 65.12.3 (2): the base change of a closed immersion of algebraic spaces
-is a closed immersion. -/
-@[stacks 02YW]
-instance isClosedImmersion_isStableUnderBaseChange {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderBaseChange
-      (@IsClosedImmersion S : MorphismProperty (AlgebraicSpace S)) := sorry
+/- Lemma 65.12.3 (2): a base change of a closed immersion of algebraic spaces
+is again a closed immersion. -/
+@[stacks 02YW] #check (AlgebraicGeometry.AlgebraicSpace.isClosedImmersion_isStableUnderBaseChange :
+  ∀ {S : Scheme.{u}}, MorphismProperty.IsStableUnderBaseChange
+    (@IsClosedImmersion S : MorphismProperty (AlgebraicSpace S)))
 
-/-- Lemma 65.12.3 (3): the base change of an open immersion of algebraic spaces
-is an open immersion. -/
-@[stacks 02YW]
-instance isOpenImmersion_isStableUnderBaseChange {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderBaseChange
-      (@IsOpenImmersion S : MorphismProperty (AlgebraicSpace S)) := sorry
-
-#check IsImmersion.of_isPullback
-#check IsImmersion.pullback_snd
-#check IsClosedImmersion.of_isPullback
-#check IsClosedImmersion.pullback_snd
-#check IsOpenImmersion.of_isPullback
-#check IsOpenImmersion.pullback_snd
+/- Lemma 65.12.3 (3): a base change of an open immersion of algebraic spaces
+is again an open immersion. -/
+@[stacks 02YW] #check (AlgebraicGeometry.AlgebraicSpace.isOpenImmersion_isStableUnderBaseChange :
+  ∀ {S : Scheme.{u}}, MorphismProperty.IsStableUnderBaseChange
+    (@IsOpenImmersion S : MorphismProperty (AlgebraicSpace S)))
 
 end AlgebraicGeometry.AlgebraicSpace

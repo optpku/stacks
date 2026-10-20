@@ -1,12 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Correspondence.Transpose.Graph
+public import ReasLib.AlgebraicGeometry.ChowCohomology.FirstChern
+public import ReasLib.AlgebraicGeometry.ChowGroup.Degree
+public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Twist.Invertible
 public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Variety
 public import Mathlib.Algebra.Ring.MinimalAxioms
 
@@ -111,14 +108,57 @@ noncomputable def integralPoincareDualityMap (k : Type u) [Field k] :=
       (fun c ↦ c.cap (𝟙 (Product k)) (𝟙 (Product k)) (𝟙 (Product k))
         IsPullback.of_id_fst 2 (productFundamentalClass k)) sorry) sorry
 
-/-- A chosen additive inverse to integral Poincare duality. -/
+/-- The hyperplane line bundle pulled back along a map to the projective line. -/
+noncomputable def rulingLineBundle (k : Type u) [Field k]
+    (p : Product k ⟶ ProjectiveSpace.schemeOver k 1) : (Product k).left.Modules :=
+  (Scheme.Modules.pullback p.left).obj (ProjectiveSpace.twistingSheaf k 1 1)
+
+/-- A pulled-back hyperplane line bundle is invertible. -/
+instance rulingLineBundle_isInvertible (k : Type u) [Field k]
+    (p : Product k ⟶ ProjectiveSpace.schemeOver k 1) :
+    Scheme.Modules.Invertible (rulingLineBundle k p) :=
+  Scheme.Modules.Invertible.pullback p.left
+    (ProjectiveSpace.twistingSheaf.instInvertible k 1 1)
+
+/-- The hyperplane class pulled back from a projective-line factor. -/
+noncomputable def rulingClass (k : Type u) [Field k]
+    (p : Product k ⟶ ProjectiveSpace.schemeOver k 1) :
+    BivariantClass (fun _ ↦ 0) (𝟙 (Product k)) 1 :=
+  ChowCohomology.firstChernClass (fun _ ↦ 0) (Product k).hom
+    (rulingLineBundle k p)
+
+/-- Intersecting a one-cycle with a pulled-back hyperplane and taking its degree. -/
+noncomputable def rulingDegree (k : Type u) [Field k]
+    (p : Product k ⟶ ProjectiveSpace.schemeOver k 1) :
+    RelativeChow (fun _ ↦ 0) (Product k) 1 →+ ℤ :=
+  (ChowGroup.degree.{u, u} (Product k)).comp
+    (ChowGroup.firstChernClassCap (fun _ ↦ 0) (Product k)
+      (rulingLineBundle k p) 1)
+
+/-- The inverse to integral Poincare duality, obtained by recovering the two ruling
+coefficients and forming the corresponding first-Chern classes. -/
 noncomputable def integralPoincareDualityInverse (k : Type u) [Field k] :=
   let targetAddZero : AddZero (BivariantClass (fun _ ↦ 0) (𝟙 (Product k)) 1) :=
     { zero := BivariantClass.pointwiseZero (fun _ ↦ 0) (𝟙 (Product k)) 1
       add := BivariantClass.pointwiseAdd (fun _ ↦ 0) (𝟙 (Product k)) 1 }
   @AddMonoidHom.mk _ _ inferInstance targetAddZero
     (@ZeroHom.mk _ _ inferInstance targetAddZero.toZero
-      (Function.invFun (integralPoincareDualityMap k)) sorry) sorry
+      (fun c ↦ BivariantClass.pointwiseAdd (fun _ ↦ 0) (𝟙 (Product k)) 1
+        (BivariantClass.pointwiseZsmul (fun _ ↦ 0) (𝟙 (Product k)) 1
+          (rulingClass k Limits.prod.fst) (rulingDegree k Limits.prod.snd c))
+        (BivariantClass.pointwiseZsmul (fun _ ↦ 0) (𝟙 (Product k)) 1
+          (rulingClass k Limits.prod.snd) (rulingDegree k Limits.prod.fst c))) sorry) sorry
+
+/-- The inverse Poincare class is the sum of the two hyperplane classes with their
+intersection-degree coefficients. -/
+theorem integralPoincareDualityInverse_apply (k : Type u) [Field k]
+    (c : RelativeChow (fun _ ↦ 0) (Product k) 1) :
+    integralPoincareDualityInverse k c =
+      BivariantClass.pointwiseAdd (fun _ ↦ 0) (𝟙 (Product k)) 1
+        (BivariantClass.pointwiseZsmul (fun _ ↦ 0) (𝟙 (Product k)) 1
+          (rulingClass k Limits.prod.fst) (rulingDegree k Limits.prod.snd c))
+        (BivariantClass.pointwiseZsmul (fun _ ↦ 0) (𝟙 (Product k)) 1
+          (rulingClass k Limits.prod.snd) (rulingDegree k Limits.prod.fst c)) := rfl
 
 /-- Integral Poincare duality followed by its inverse recovers the operational class. -/
 theorem integralPoincareDualityInverse_left (k : Type u) [Field k]

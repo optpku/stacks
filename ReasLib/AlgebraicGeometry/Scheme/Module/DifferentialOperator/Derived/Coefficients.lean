@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Pullbacks
 public import ReasLib.AlgebraicGeometry.RingedSpace.DeRham.Map
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.Complex.Monoidal
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Complex.Monoidal
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Basic
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Pullback.Complex
 public import ReasLib.AlgebraicGeometry.Scheme.Module.DifferentialOperator.FiniteOrder

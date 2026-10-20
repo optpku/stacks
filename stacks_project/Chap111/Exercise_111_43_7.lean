@@ -1,15 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap111.Exercise_111_54_4_AffineTriangle
+public import ReasLib.AlgebraicGeometry.AffineTriangle.Picard
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Cohomology
-public import Mathlib.CategoryTheory.Sites.SheafCohomology.Basic
-import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
 
 /-!
 # Exercise 111.43.7
@@ -26,38 +19,32 @@ universe u
 
 noncomputable section
 
-namespace AlgebraicGeometry.AffineTriangle
+/- Exercise 111.43.7 (1): the rational affine triangle is an affine scheme with
+nontrivial Picard group. -/
+@[stacks 0DAQ] #check
+  (AlgebraicGeometry.AffineTriangle.rational_isAffine_nontrivial_picardGroup :
+    IsAffine (AlgebraicGeometry.AffineTriangle.scheme ℚ) ∧
+      Nontrivial (AlgebraicGeometry.AffineTriangle.scheme ℚ).PicardGroup)
 
-/-- Exercise 111.43.7 (1): the affine scheme `scheme k`, namely
-`Spec` of `k[x, y] ⧸ (x * y * (x + y + 1))`, has nontrivial Picard group
-whenever `kˣ` is nontrivial. -/
-@[stacks 0DAQ, instance]
-instance nontrivial_picardGroup (k : Type u) [Field k] [Nontrivial kˣ] :
-    Nontrivial (scheme k).PicardGroup := sorry
+/- Exercise 111.43.7 (2): degree-one cohomology on abelian sheaves is not the zero
+functor for any scheme with nontrivial Picard group. -/
+@[stacks 0DAQ] #check
+  (AlgebraicGeometry.Scheme.functorH_one_not_isZero : ∀ {X : Scheme.{u}}
+    [HasSheafify (Opens.grothendieckTopology X.toRingedSpace) AddCommGrpCat.{u}]
+    [HasExt.{u} (Sheaf (Opens.grothendieckTopology X.toRingedSpace) AddCommGrpCat.{u})]
+    [Nontrivial X.PicardGroup],
+    ¬ IsZero (Sheaf.functorH (Opens.grothendieckTopology X.toRingedSpace) 1))
 
-end AlgebraicGeometry.AffineTriangle
+#check
+  (AlgebraicGeometry.AffineTriangle.nontrivial_picardGroup :
+    ∀ (k : Type u) [Field k] [Nontrivial kˣ],
+      Nontrivial (AlgebraicGeometry.AffineTriangle.scheme k).PicardGroup)
 
-namespace AlgebraicGeometry.Scheme
-
-variable {X : Scheme.{u}}
-variable [HasSheafify (Opens.grothendieckTopology X.toRingedSpace) AddCommGrpCat.{u}]
-variable [HasExt.{u} (Sheaf (Opens.grothendieckTopology X.toRingedSpace) AddCommGrpCat.{u})]
-
-/-- Exercise 111.43.7 (2): for a scheme `X` with nontrivial Picard group, the
-Zariski abelian-sheaf functor `Sheaf.functorH` in degree 1 is not the zero
-functor. In particular this holds for any affine scheme with nontrivial Picard
-group, such as `AffineTriangle.scheme k` when `kˣ` is nontrivial. -/
-@[stacks 0DAQ]
-theorem functorH_one_not_isZero [Nontrivial X.PicardGroup] :
-    ¬ IsZero (Sheaf.functorH (Opens.grothendieckTopology X.toRingedSpace) 1) :=
-  sorry
-
-/-- Evaluating `Sheaf.functorH` in degree 1 at `Sheaf.unitsAddSheaf` of the
-structure sheaf of `X` yields a nonzero object of `AddCommGrpCat`. -/
-theorem unitsAddSheaf_functorH_one_not_isZero [Nontrivial X.PicardGroup] :
+#check
+  (AlgebraicGeometry.Scheme.unitsAddSheaf_functorH_one_not_isZero : ∀ {X : Scheme.{u}}
+    [HasSheafify (Opens.grothendieckTopology X.toRingedSpace) AddCommGrpCat.{u}]
+    [HasExt.{u} (Sheaf (Opens.grothendieckTopology X.toRingedSpace) AddCommGrpCat.{u})]
+    [Nontrivial X.PicardGroup],
     ¬ IsZero
         ((Sheaf.functorH (Opens.grothendieckTopology X.toRingedSpace) 1).obj
-          (Sheaf.unitsAddSheaf X.toRingedSpace.sheaf)) :=
-  sorry
-
-end AlgebraicGeometry.Scheme
+          (Sheaf.unitsAddSheaf X.toRingedSpace.sheaf)))

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-import stacks_project.Chap76.«76_9_1_1_Equivalence»
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Thickening
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
@@ -17,6 +11,6 @@ universe u
 spaces-étale sites are identified via `spacesEtalePullback`, i.e.
 `X_spaces,étale = X'_spaces,étale`. -/
 @[stacks 05ZL] #check
-  (spacesEtalePullback_isEquivalence_of_isThickening :
+  (AlgebraicGeometry.AlgebraicSpace.spacesEtalePullback_isEquivalence_of_isThickening :
     ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (i : X ⟶ X') [IsThickening i],
       (spacesEtalePullback i).IsEquivalence)

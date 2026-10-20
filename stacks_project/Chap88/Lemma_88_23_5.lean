@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap87.Lemma_87_14_5_Reduction
-public import stacks_project.Chap87.Definition_87_17_4_QuasiCompact
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CompletionAlong.QuasiCompact
+import StacksCheckRecall
 
 /-!
 # Quasi-compact morphisms of completions
@@ -27,14 +21,15 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 88.23.5: If `f : X' ⟶ X` is quasi-compact, then the induced morphism
+/- Lemma 88.23.5: If `f : X' ⟶ X` is quasi-compact, then the induced morphism
 `completionAlong.map f T` of completions along a closed subset `T` of
 `Points X` is quasi-compact. -/
-@[stacks 0GDE, instance]
-instance quasiCompact_completionAlongMap {S : Scheme.{u}}
-    {X X' : AlgebraicSpace S} (f : X' ⟶ X) [AlgebraicSpace.QuasiCompact f]
-    (T : Closeds (Points X)) :
-    FormalAlgebraicSpace.QuasiCompact (completionAlong.map f T) :=
-  sorry
+@[stacks 0GDE] #check
+  (AlgebraicGeometry.AlgebraicSpace.quasiCompact_completionAlongMap :
+    ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (f : X' ⟶ X)
+      [AlgebraicSpace.QuasiCompact f] (T : Closeds (Points X)),
+      FormalAlgebraicSpace.ReductionData.QuasiCompact
+        (completionAlong.reductionData X' (T.preimage (Points.continuous_map f)))
+        (completionAlong.reductionData X T) (completionAlong.map f T))
 
 end AlgebraicGeometry.AlgebraicSpace

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Data.List.TFAE
@@ -125,9 +119,9 @@ theorem relativeCIAt {f : R →+* S} {q : PrimeSpectrum S}
 
 end SyntomicAtPrime.LocalCriterion
 
-/-- Lemma 10.136.15, tag `00SY`: the source theorem's three pointwise
-formulations are equivalent.  Prefer the named `iff` theorems and directional
-lemmas above for downstream proofs. -/
+/-- At a target prime, syntomicity, the existence of a relative global complete
+intersection neighbourhood, and the local finite-presentation, flatness, and
+complete-intersection-fiber criterion are equivalent. -/
 @[stacks 00SY "syntomicity at a prime"]
 theorem SyntomicAtPrime.tfae (f : R →+* S) (q : PrimeSpectrum S) :
     List.TFAE

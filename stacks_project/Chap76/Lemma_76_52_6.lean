@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_52_6_BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Perfect.Relative.BaseChange
 import StacksCheckRecall
 
 @[expose] public section
@@ -23,11 +17,10 @@ preserves `Y`-perfectness: if `K` in `D(𝒪_X)` is `Y`-perfect, then
 projection. -/
 @[stacks 0DKT] #check
   (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.IsPerfectRelativeTo.baseChange :
-    ∀ {S : Scheme.{u}} {X Y Y' : AlgebraicSpace S} (f : X ⟶ Y)
-      [Flat f] [LocallyOfFinitePresentation f] (g : Y' ⟶ Y)
+    ∀ {S : Scheme.{u}} {X Y Y' : AlgebraicSpace S}
+      (f : X ⟶ Y) [Flat f] [LocallyOfFinitePresentation f] (g : Y' ⟶ Y)
       (K : ModuleDerived X),
       AlgebraicGeometry.AlgebraicSpace.ModuleDerived.IsPerfectRelativeTo f K →
         AlgebraicGeometry.AlgebraicSpace.ModuleDerived.IsPerfectRelativeTo
           (pullback.snd f g)
-          ((AlgebraicGeometry.AlgebraicSpace.ModuleDerived.pullback
-            (pullback.fst f g)).obj K))
+          ((AlgebraicGeometry.AlgebraicSpace.ModuleDerived.pullback (pullback.fst f g)).obj K))

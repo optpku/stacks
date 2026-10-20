@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.Family.EffectiveEpi
@@ -47,12 +41,14 @@ theorem isUniversalEffectiveEpiFamily_iff (K : Over.{w} U) :
 
 /-- A universally effective epimorphic family is effective epimorphic over its original
 target. -/
+@[instance]
 theorem IsUniversalEffectiveEpiFamily.toIsEffectiveEpiFamily
     (K : Over.{w} U) [IsUniversalEffectiveEpiFamily K] :
     IsEffectiveEpiFamily K := sorry
 
 /-- Every componentwise base change of a universally effective epimorphic family is again
 universally effective epimorphic. -/
+@[instance]
 theorem IsUniversalEffectiveEpiFamily.baseChange
     (K : Over.{w} U) [IsUniversalEffectiveEpiFamily K]
     {V : C} (f : V ⟶ U) [∀ i : K.index, HasPullback (K.obj i).hom f] :

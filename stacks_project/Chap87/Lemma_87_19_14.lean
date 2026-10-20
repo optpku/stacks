@@ -1,16 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Data.List.TFAE
-public import Mathlib.RingTheory.Ideal.Over
-public import Mathlib.RingTheory.RingHom.FaithfullyFlat
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap87.Lemma_87_19_13_Functor
+public import ReasLib.AlgebraicGeometry.FormalSpectrum.EtaleCompletion.Surjective
+public import ReasLib.RingTheory.Topology.WeaklyAdmissible.FaithfullyFlat
+import StacksCheckRecall
 
 /-!
 # Surjectivity of étale Spf maps versus faithful flatness
@@ -37,14 +29,15 @@ variable {S : Scheme.{u}} {B : Type u} [CommRing B] [TopologicalSpace B]
   [HasWeakSheafify (Scheme.fppfTopology.over S) (Type u)]
   (A : Type u) [CommRing A] [Algebra B A] [Algebra.Etale B A]
 
-/-- Lemma 87.19.14: With notation and assumptions as in Lemma 87.19.13, let
+/- Lemma 87.19.14: With notation and assumptions as in Lemma 87.19.13, let
 `f : X ⟶ Y` correspond to `B → (A)^∧`, where `Y = Spf(B)` and
 `X = Spf((A)^∧)` for an étale `B`-algebra `A`. The following are equivalent:
 `f` is surjective, `B → A` is faithfully flat, for every weak ideal of
 definition `J ⊂ B` the map `B ⧸ J → A ⧸ J A` is faithfully flat, and for some
 such `J` the map `B ⧸ J → A ⧸ J A` is faithfully flat. -/
-@[stacks 0AN9]
-theorem spfMap_weakIdealCompletion_surjective_tfae :
+@[stacks 0AN9] #check
+  (AlgebraicGeometry.AffineFormalAlgebraicSpace.spfMap_weakIdealCompletion_surjective_tfae
+    hB A :
     let f := (sheafToPresheaf (Scheme.fppfTopology.over S) (Type u)).map
       (spfMap_weakIdealCompletion hB A)
     List.TFAE
@@ -57,12 +50,13 @@ theorem spfMap_weakIdealCompletion_surjective_tfae :
         ∀ (J : Ideal B), Ideal.IsWeakIdealOfDefinition J →
           (algebraMap (B ⧸ J) (A ⧸ J.map (algebraMap B A))).FaithfullyFlat,
         ∃ (J : Ideal B), Ideal.IsWeakIdealOfDefinition J ∧
-          (algebraMap (B ⧸ J) (A ⧸ J.map (algebraMap B A))).FaithfullyFlat] :=
-  sorry
+          (algebraMap (B ⧸ J) (A ⧸ J.map (algebraMap B A))).FaithfullyFlat])
 
-/-- `Spf((A)^∧) ⟶ Spf(B)` is surjective on scheme Yoneda pullbacks if and only if
+/- `Spf((A)^∧) ⟶ Spf(B)` is surjective on scheme Yoneda pullbacks if and only if
 `algebraMap B A` is faithfully flat. -/
-theorem spfMap_weakIdealCompletion_surjective_iff_faithfullyFlat :
+#check
+  (AlgebraicGeometry.AffineFormalAlgebraicSpace.spfMap_weakIdealCompletion_surjective_iff_faithfullyFlat
+    hB A :
     let f := (sheafToPresheaf (Scheme.fppfTopology.over S) (Type u)).map
       (spfMap_weakIdealCompletion hB A)
     (AlgebraicSpace.representableByAlgebraicSpaces f ∧
@@ -70,25 +64,22 @@ theorem spfMap_weakIdealCompletion_surjective_iff_faithfullyFlat :
         (ξ : yoneda.obj U ⟶
           (sheafToPresheaf (Scheme.fppfTopology.over S) (Type u)).obj (spf B hB)),
         AlgebraicSpace.Surjective (ha.pullbackHom ξ)) ↔
-      (algebraMap B A).FaithfullyFlat :=
-  sorry
+      (algebraMap B A).FaithfullyFlat)
 
-/-- `algebraMap B A` is faithfully flat if and only if
+/- `algebraMap B A` is faithfully flat if and only if
 `algebraMap (B ⧸ J) (A ⧸ J A)` is faithfully flat for every weak ideal of
 definition `J ⊂ B`. -/
-theorem algebraMap_faithfullyFlat_iff_forall_weakIdeal_quotient :
+#check (TopologicalRing.algebraMap_faithfullyFlat_iff_forall_weakIdeal_quotient B A :
     (algebraMap B A).FaithfullyFlat ↔
       ∀ (J : Ideal B), Ideal.IsWeakIdealOfDefinition J →
-        (algebraMap (B ⧸ J) (A ⧸ J.map (algebraMap B A))).FaithfullyFlat :=
-  sorry
+        (algebraMap (B ⧸ J) (A ⧸ J.map (algebraMap B A))).FaithfullyFlat)
 
-/-- `algebraMap B A` is faithfully flat if and only if
+/- `algebraMap B A` is faithfully flat if and only if
 `algebraMap (B ⧸ J) (A ⧸ J A)` is faithfully flat for some weak ideal of
 definition `J ⊂ B`. -/
-theorem algebraMap_faithfullyFlat_iff_exists_weakIdeal_quotient :
+#check (TopologicalRing.algebraMap_faithfullyFlat_iff_exists_weakIdeal_quotient B A :
     (algebraMap B A).FaithfullyFlat ↔
       ∃ (J : Ideal B), Ideal.IsWeakIdealOfDefinition J ∧
-        (algebraMap (B ⧸ J) (A ⧸ J.map (algebraMap B A))).FaithfullyFlat :=
-  sorry
+        (algebraMap (B ⧸ J) (A ⧸ J.map (algebraMap B A))).FaithfullyFlat)
 
 end AlgebraicGeometry.AffineFormalAlgebraicSpace

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -18,8 +12,6 @@ universe u
 /- Theorem 33.4.1: for a field `k`, varieties over `k` with dominant rational maps are
 equivalent to the opposite category of finitely generated field extensions of `k`. -/
 @[stacks 0BXN] #check
-  (AlgebraicGeometry.VarietyDominantRationalMapCat.nonemptyEquivFinitelyGeneratedFieldExtensions :
+  (AlgebraicGeometry.VarietyDominantRationalMapCat.functionFieldFunctor_isEquivalence :
     ∀ {k : Type u} [Field k],
-      Nonempty
-        (AlgebraicGeometry.VarietyDominantRationalMapCat k ≌
-          (AlgebraicGeometry.FinitelyGeneratedFieldExtension.Cat k)ᵒᵖ))
+      (AlgebraicGeometry.VarietyDominantRationalMapCat.functionFieldFunctor (k := k)).IsEquivalence)

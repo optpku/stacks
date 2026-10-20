@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Modules.Sheaf
@@ -67,17 +61,5 @@ noncomputable def instMonoidalClosed (X : Scheme.{u}) :
 /-- The internal Hom of two scheme modules, specialized from the canonical closed structure. -/
 noncomputable abbrev internalHom (ℱ 𝒢 : X.Modules) : X.Modules :=
   (ihom ℱ).obj 𝒢
-
-/- This spelling remains temporarily for source files that have not yet dropped their redundant
-per-object parameter.  It is transparent and owns no data; new APIs should rely on the canonical
-`instMonoidalClosed` above. -/
-/-- Compatibility spelling for the canonical closed structure in the underlying ringed-space
-presentation of a scheme module. -/
-@[deprecated "Use `Closed F` with the canonical scheme-module monoidal structure." (since := "2026-08-06")]
-abbrev RingedSpaceClosed (F : X.Modules) :=
-  @Closed (RingedSpace.Modules X.toRingedSpace)
-    SheafOfModules.instCategory
-    (SheafOfModules.RingedSite.moduleMonoidalCategory
-      (J := Opens.grothendieckTopology X.toRingedSpace) X.toRingedSpace.sheaf) F
 
 end AlgebraicGeometry.Scheme.Modules

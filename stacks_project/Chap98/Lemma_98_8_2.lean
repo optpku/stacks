@@ -1,47 +1,16 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap98.Lemma_98_8_2_LinearMap
-import Mathlib.Tactic.CrossRefAttribute
-
-/-!
-# Fibre products of tangent spaces
-
-The six-term sequence of infinitesimal automorphism groups and tangent spaces of
-the predeformation categories associated to a 2-fibre product of Rim-Schlessinger
-categories fibred in groupoids is exact.
--/
-
-@[expose] public section
-
-noncomputable section
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation.ExactSequence
 
 open CategoryTheory AlgebraicGeometry
+open AlgebraicGeometry.GroupoidsOver
 open AlgebraicGeometry.GroupoidsOver.Predeformation
-open FiberedCategoryOver.Groupoids
 open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.GroupoidsOver.Predeformation
-
-variable {S : Scheme.{u}} [IsLocallyNoetherian S]
-variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
-  [Module.Finite Λ k]
-variable (openImmersion : Spec (CommRingCat.of Λ) ⟶ S) [IsOpenImmersion openImmersion]
-variable (kToS : Spec (CommRingCat.of k) ⟶ S) [LocallyOfFiniteType kToS]
-variable (h_factor : Spec.map (CommRingCat.ofHom (algebraMap Λ k)) ≫ openImmersion = kToS)
-variable {X Y Z : GroupoidsOver S}
-variable (p : X ⟶ Y) (q : Z ⟶ Y)
-variable [HasRimSchlessinger X] [HasRimSchlessinger Y] [HasRimSchlessinger Z]
-variable (w0 : (fibreProduct p q).p.Fiber (Over.mk kToS))
-
-/-- Lemma 98.8.2: Let `S` be a locally Noetherian scheme. Let `p : X ⟶ Y` and
+/- Lemma 98.8.2: Let `S` be a locally Noetherian scheme. Let `p : X ⟶ Y` and
 `q : Z ⟶ Y` be 1-morphisms of categories fibred in groupoids over `(Sch/S)_fppf`.
 Assume `X`, `Y`, `Z` satisfy (RS). Let `k` be a field of finite type over `S` and let
 `w0` be an object of `W = X ×_Y Z` over `k`. Denote `x0`, `y0`, `z0` the objects of
@@ -51,8 +20,17 @@ Tℱ_{W, k, w0} ⟶ Tℱ_{X, k, x0} × Tℱ_{Z, k, z0} ⟶ Tℱ_{Y, k, y0}`
 of `k`-vector spaces. Source `⊕` is the module product `×`. The maps are
 `infProdLinearMap`, `infDiffLinearMap`, `connectingLinearMap`,
 `tangentProdLinearMap`, and `tangentDiffLinearMap`. -/
-@[stacks 07X2]
-theorem infTangentSequence_exact :
+@[stacks 07X2] #check (AlgebraicGeometry.GroupoidsOver.Predeformation.infTangentSequence_exact :
+  ∀ {S : Scheme.{u}} [IsLocallyNoetherian S]
+    {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+    [Module.Finite Λ k]
+    {X Y Z : GroupoidsOver S}
+    (openImmersion : Spec (CommRingCat.of Λ) ⟶ S) [IsOpenImmersion openImmersion]
+    (kToS : Spec (CommRingCat.of k) ⟶ S) [LocallyOfFiniteType kToS]
+    (h_factor : Spec.map (CommRingCat.ofHom (algebraMap Λ k)) ≫ openImmersion = kToS)
+    (p : X ⟶ Y) (q : Z ⟶ Y)
+    [HasRimSchlessinger X] [HasRimSchlessinger Y] [HasRimSchlessinger Z]
+    (w0 : (FiberedCategoryOver.Groupoids.p (TwoFibreProduct.apex.{u + 1, u, u + 1, u} p q)).Fiber (Over.mk kToS)),
     Function.Injective (infProdLinearMap openImmersion kToS h_factor p q w0) ∧
       Function.Exact (infProdLinearMap openImmersion kToS h_factor p q w0)
         (infDiffLinearMap openImmersion kToS h_factor p q w0) ∧
@@ -61,7 +39,4 @@ theorem infTangentSequence_exact :
       Function.Exact (connectingLinearMap openImmersion kToS h_factor p q w0)
         (tangentProdLinearMap openImmersion kToS h_factor p q w0) ∧
       Function.Exact (tangentProdLinearMap openImmersion kToS h_factor p q w0)
-        (tangentDiffLinearMap openImmersion kToS h_factor p q w0) :=
-  sorry
-
-end AlgebraicGeometry.GroupoidsOver.Predeformation
+        (tangentDiffLinearMap openImmersion kToS h_factor p q w0))

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.NaiveCotangent.Determinant
@@ -35,6 +29,8 @@ instance derivedComparisonIsIso
 /-- The canonical naive-cotangent isomorphism induced by an open pullback square. -/
 noncomputable def cotangentIso
     {X' X Y' Y : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y'.toRingedSpace)]
     (b : Y' ⟶ Y) (f' : Y' ⟶ X') (f : Y ⟶ X) (a : X' ⟶ X)
     (sq : CommSq b f' f a) [IsOpenImmersion (pullback.lift b f' sq.w)]
     [Syntomic f] [Syntomic f'] :
@@ -51,6 +47,8 @@ noncomputable def cotangentIso
 /-- The forward map of `cotangentIso` is the canonical derived naive-cotangent comparison. -/
 theorem cotangentIso_hom
     {X' X Y' Y : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y'.toRingedSpace)]
     (b : Y' ⟶ Y) (f' : Y' ⟶ X') (f : Y ⟶ X) (a : X' ⟶ X)
     (sq : CommSq b f' f a) [IsOpenImmersion (pullback.lift b f' sq.w)]
     [Syntomic f] [Syntomic f'] :
@@ -60,6 +58,8 @@ theorem cotangentIso_hom
 /-- The determinant-line comparison associated to an open pullback square. -/
 noncomputable def baseChangeIso
     {X' X Y' Y : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y'.toRingedSpace)]
     (b : Y' ⟶ Y) (f' : Y' ⟶ X') (f : Y ⟶ X) (a : X' ⟶ X)
     (sq : CommSq b f' f a) [IsOpenImmersion (pullback.lift b f' sq.w)]
     [Syntomic f] [Syntomic f']
@@ -73,6 +73,8 @@ noncomputable def baseChangeIso
 cotangent comparison. -/
 theorem baseChangeIso_hom
     {X' X Y' Y : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y'.toRingedSpace)]
     (b : Y' ⟶ Y) (f' : Y' ⟶ X') (f : Y ⟶ X) (a : X' ⟶ X)
     (sq : CommSq b f' f a) [IsOpenImmersion (pullback.lift b f' sq.w)]
     [Syntomic f] [Syntomic f']
@@ -86,6 +88,8 @@ theorem baseChangeIso_hom
 to the determinant section of the base-changed morphism. -/
 theorem baseChangeIso_delta
     {X' X Y' Y : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y'.toRingedSpace)]
     (b : Y' ⟶ Y) (f' : Y' ⟶ X') (f : Y ⟶ X) (a : X' ⟶ X)
     (sq : CommSq b f' f a) [IsOpenImmersion (pullback.lift b f' sq.w)]
     [LocallyQuasiFinite f] [Syntomic f]

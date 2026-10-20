@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_40_1_Proper
-public import stacks_project.Chap71.Definition_71_17_1_Blowup
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Blowup.Proper
+import StacksCheckRecall
 
 /-!
 # Lemma 71.17.11
@@ -24,13 +18,11 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.Blowup
 
-/-- Lemma 71.17.11: let `S` be a scheme, let `X` be an algebraic space over `S`,
+/- Lemma 71.17.11: let `S` be a scheme, let `X` be an algebraic space over `S`,
 and let `I ⊂ 𝒪_X` be a quasi-coherent sheaf of ideals. If `I` is of finite type,
 then the blowing-up morphism `π.hom : π.space ⟶ X` of `X` in `I` is proper. -/
-@[stacks 085Z]
-instance proper_of_isFiniteType {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {I : IdealSubobject X} [IsQuasiCoherent I] [I.toModule.IsFiniteType]
-    (π : Blowup X I) : Proper π.hom :=
-  sorry
+@[stacks 085Z] #check (AlgebraicGeometry.AlgebraicSpace.Blowup.proper_of_isFiniteType :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {I : IdealSubobject X}
+    [IsQuasiCoherent I] [I.toModule.IsFiniteType] (π : Blowup X I), Proper π.hom)
 
 end AlgebraicGeometry.AlgebraicSpace.Blowup

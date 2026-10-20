@@ -1,15 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.CategoryTheory.Fibered.CategoryOver.Cleavage
 public import ReasLib.CategoryTheory.Fibered.CategoryOver.HomPresheaf.Local
 public import ReasLib.CategoryTheory.Sites.Descent.HomPresheaf.Extension
+public import ReasLib.CategoryTheory.Fibered.CartesianBasedFunctor.LocalEquivalence
 
 /-!
 # Hom-presheaf extensions for morphisms of fibered categories
@@ -18,6 +13,11 @@ This file is the fibered-category interface to the generic extension API for
 strong transformations.  It keeps the hypotheses at the Hom-presheaf and
 prestack levels, without imposing stackification or essential-surjectivity
 conditions which are irrelevant to extending morphisms between image objects.
+
+The Homwise local-equivalence predicate is the fixed-universe view of the
+canonical owner `CartesianBasedFunctor.Homwise.IsLocalEquivalence`; the
+generic strong-transformation extension is reached through the bridge
+`Homwise.IsLocalEquivalence.toStrongTrans`.
 -/
 
 @[expose] public section
@@ -35,16 +35,26 @@ variable {X Y Z : FiberedCategoryOver.{u, v, uS, vS} C}
 variable {J : GrothendieckTopology C}
 
 /-- A morphism of fibered categories is locally equivalent on Hom-presheaves when every
-canonical Hom-presheaf map belongs to the localizing class of the corresponding slice site. -/
+canonical Hom-presheaf map is locally injective and locally surjective.
+This is the fixed-universe view of the heterogeneous cartesian-functor owner. -/
 abbrev Homwise.IsLocalEquivalence
     (J : GrothendieckTopology C) (F : X ⟶ Y) : Prop :=
-  Pseudofunctor.StrongTrans.Homwise.IsLocalEquivalence
-    (FiberedCategoryOver.strongTrans F) J
+  CartesianBasedFunctor.Homwise.IsLocalEquivalence J
+    (FiberedCategoryOver.toCartesianBasedFunctor F)
 
-/-- The fibered-category Homwise local-equivalence condition is pointwise membership of the
-canonical Hom-presheaf maps in the slice localizing classes. -/
+/-- A Homwise local equivalence of fibered categories is a Homwise local equivalence of the
+associated strong transformation of fiber pseudofunctors.  This bridges the cartesian-functor
+owner to the generic strong-transformation extension API. -/
+theorem Homwise.IsLocalEquivalence.toStrongTrans
+    {F : X ⟶ Y} (hF : Homwise.IsLocalEquivalence J F) :
+    Pseudofunctor.StrongTrans.Homwise.IsLocalEquivalence
+      (FiberedCategoryOver.strongTrans F) J := sorry
+
+/-- When slice localizing classes coincide with locally bijective maps at the value universe,
+Homwise local equivalence is equivalent to membership of every Hom map in those classes. -/
 theorem Homwise.isLocalEquivalence_iff
-    (J : GrothendieckTopology C) (F : X ⟶ Y) :
+    (J : GrothendieckTopology C) (F : X ⟶ Y)
+    [∀ U : C, (J.over U).WEqualsLocallyBijective (Type vS)] :
     Homwise.IsLocalEquivalence J F ↔
       ∀ {U : C} (x y : X.p.Fiber U),
         (J.over U).W (presheafHomMap F x y) := sorry
@@ -114,7 +124,7 @@ noncomputable def Homwise.IsLocalEquivalence.extension
       (Functor.fiberPseudofunctor Z.p).presheafHom
           ((FiberedCategoryOver.fiberFunctor G U).obj x)
           ((FiberedCategoryOver.fiberFunctor G U).obj y) :=
-  Pseudofunctor.StrongTrans.Homwise.IsLocalEquivalence.extension hF
+  Pseudofunctor.StrongTrans.Homwise.IsLocalEquivalence.extension hF.toStrongTrans
     (FiberedCategoryOver.strongTrans G) x y
 
 /-- Precomposition with the Hom-presheaf map of `F` recovers the Hom-presheaf map of `G`. -/
@@ -169,7 +179,7 @@ noncomputable def Homwise.IsLocalEquivalence.Extension.map
       (FiberedCategoryOver.fiberFunctor F U).obj y) :
     (FiberedCategoryOver.fiberFunctor G U).obj x ⟶
       (FiberedCategoryOver.fiberFunctor G U).obj y :=
-  Pseudofunctor.StrongTrans.Homwise.IsLocalEquivalence.Extension.map hF
+  Pseudofunctor.StrongTrans.Homwise.IsLocalEquivalence.Extension.map hF.toStrongTrans
     (FiberedCategoryOver.strongTrans G) f
 
 /-- Evaluating the Hom extension after applying fiber reindexing to a morphism agrees with
@@ -317,7 +327,7 @@ noncomputable def Homwise.IsLocalEquivalence.Extension.functor
     InducedCategory (Y.p.Fiber U)
         (FiberedCategoryOver.fiberFunctor F U).obj ⥤
       Z.p.Fiber U :=
-  Pseudofunctor.StrongTrans.Homwise.IsLocalEquivalence.Extension.functor hF
+  Pseudofunctor.StrongTrans.Homwise.IsLocalEquivalence.Extension.functor hF.toStrongTrans
     (FiberedCategoryOver.strongTrans G) U
 
 /-- The extension functor maps an induced morphism by identity-slice evaluation of the

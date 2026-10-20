@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.SmallSheafification
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.TensorExtension
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.SheafTensorExtension
 
 /-! # Explicit scalar extension in the original algebraic-space module universe
 

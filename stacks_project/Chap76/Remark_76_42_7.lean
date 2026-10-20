@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Remark_76_42_7_CoherentFormal
-public import stacks_project.Chap76.Remark_76_42_7_Annihilation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CoherentFormalModule.MapAnnihilation
 import StacksCheckRecall
 
 open CategoryTheory Opposite AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
@@ -62,7 +55,7 @@ and cokernel are annihilated by a power of K. -/
               (⊤ : Submodule ((commStructureSheaf X).obj.obj (op U.obj))
                 (N U).obj)) ≃ₗ[(commStructureSheaf X).obj.obj (op U.obj)]
           (((G.obj).obj (op (n : ℕ))).obj.val.obj (op U.obj)))
-      (_ :
+      (presentation :
         CoherentFormalMap.IsEtaleAffineStagePresentation I alpha M N completedMap
           sourceEquiv targetEquiv),
       List.TFAE [

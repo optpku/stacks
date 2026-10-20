@@ -1,32 +1,26 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Scheme
-public import Mathlib.CategoryTheory.CommSq
-public import stacks_project.Chap65.Lemma_65_6_2_OfOver
-public import stacks_project.Chap66.Definition_66_4_1_Points
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.AffineComparison
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicSpace
 
 universe u
 
-variable {S : Scheme.{u}} {Xi Ui : AlgebraicSpace S} {Ai Bi : CommRingCat.{u}}
-variable (σA : Spec Ai ⟶ S) (σB : Spec Bi ⟶ S) (φ : Ai ⟶ Bi)
-variable (hσ : Spec.map φ ≫ σA = σB) (cover : Ui ⟶ Xi)
-variable (toSpecA : Xi ⟶ ofOver (Over.mk σA))
-variable (toSpecB : Ui ⟶ ofOver (Over.mk σB))
-
-/- 70.5.10.1: in `AlgebraicSpace S`, the displayed diagram is the commutative square with
-vertices `U_i`, `X_i`, `Spec(B_i)`, `Spec(A_i)`. The top map is the étale cover `U_i ⟶ X_i`,
-the left vertical is `U_i ⟶ Spec(B_i)`, the right vertical is `X_i ⟶ Spec(A_i)`, and the
-bottom map is `Spec` of `A_i ⟶ B_i`, realized as `ofOverHomMk (Spec.map φ) hσ`. Here `A_i`
-is `O_{X_i}(X_i)` and `U_i ⟶ Spec(B_i)` is induced by the chosen sections in the surrounding
-07SQ proof; cartesianness is a later deduction, not this displayed equation. -/
+/- 70.5.10.1: specialize to `X = X_i`, the affine scheme `U = U_i`, and
+`A = O_{X_i}(X_i)`, with its canonical morphism `p : X_i ⟶ Spec(A_i)`.
+The descended polynomials `g` define `B_i`, and the chosen sections `h` satisfying
+these relations define `U_i ⟶ Spec(B_i)` by quotient evaluation. This is the
+displayed commutative diagram; cartesianness is a later deduction. -/
 @[stacks 084U]
-#check CommSq cover toSpecB toSpecA (ofOverHomMk (Spec.map φ) hσ)
+#check (AlgebraicGeometry.AlgebraicSpace.AffineComparison.quotientEvaluation_commSq :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : Over S} {A : CommRingCat.{u}}
+    (σA : Spec A ⟶ S) (p : X ⟶ ofOver (Over.mk σA)) (f : ofOver U ⟶ X)
+    {n : ℕ} (g : Fin n → MvPolynomial (Fin n) A)
+    (h : Fin n → Scheme.Γ.obj (Opposite.op U.left))
+    (hrel : ∀ k, MvPolynomial.eval₂ (AffineComparison.coefficientMap σA p f).hom h (g k) = 0),
+    CommSq f (AlgebraicGeometry.AlgebraicSpace.ofOverMap
+      (AffineComparison.quotientSpecOverMap σA p f g h hrel)) p
+      (AlgebraicGeometry.AlgebraicSpace.ofOverHomMk
+        (Spec.map (AffineComparison.quotientMap g)) rfl))
+

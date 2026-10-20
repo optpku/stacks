@@ -1,0 +1,28 @@
+module
+
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.SmallToBig.Ph
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.H.Comparison
+
+@[expose] public section
+
+open CategoryTheory
+open scoped MorphismOfTopoiIn
+
+universe u
+
+namespace AlgebraicGeometry.Scheme.Etale.SmallToBig
+
+/-- Small-to-big inverse image of an étale sheaf satisfies h descent. -/
+theorem inverseImage_isSheaf_h (S : Scheme.{u})
+    (F : Sheaf S.smallEtaleTopology (Type (u + 1))) :
+    Presheaf.IsSheaf (H.Big.site S)
+      (((siteMorphismOfTopoi S)⁻¹).obj F).1 := sorry
+
+/-- The h comparison adjunction unit is invertible at the small-to-big
+inverse image of an étale sheaf. -/
+instance toHInverseImageUnit_isIso (S : Scheme.{u})
+    (F : Sheaf S.smallEtaleTopology (Type (u + 1))) :
+    IsIso ((HComparison.epsilon S).adjunction.unit.app
+      (((siteMorphismOfTopoi S)⁻¹).obj F)) := sorry
+
+end AlgebraicGeometry.Scheme.Etale.SmallToBig

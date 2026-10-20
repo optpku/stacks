@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Definition_76_6_5_Conormal
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.Algebra
 
 /-!
 # Canonical commutative-ring adjunction for conormal comparisons
@@ -104,7 +98,7 @@ noncomputable def commRingInverseImageAdjunction {X Y : AlgebraicSpace S} (f : X
 def commRingPushforwardConeLift {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (R : Sheaf (smallEtaleTopology X) CommRingCat.{u}) (V : smallEtaleSite Y)
     (c : Cone (StructuredArrow.proj (op ((etaleBaseChange f).obj V))
-      (smallEtaleInclusion X).op ⋙ R.obj)) :
+      (smallEtaleToSpaces X).op ⋙ R.obj)) :
     c.pt ⟶ ((commRingPushforward f).obj R).obj.obj (op V) :=
   @CommRingCat.ofHom c.pt (((commRingPushforward f).obj R).obj.obj (op V))
     (inferInstanceAs (CommRing c.pt))
@@ -116,5 +110,14 @@ def commRingPushforwardConeLift {X Y : AlgebraicSpace S} (f : X ⟶ Y)
       map_one' := sorry
       map_add' := sorry
       map_mul' := sorry }
+
+/-- Inverse image of commutative-ring sheaves along a composite is the composite of the
+inverse images. -/
+noncomputable def commRingInverseImageCompIso {X Y Z : AlgebraicSpace S}
+    (f : X ⟶ Y) (g : Y ⟶ Z) :
+    commRingInverseImage g ⋙ commRingInverseImage f ≅ commRingInverseImage (f ≫ g) :=
+  Adjunction.leftAdjointCompIso
+    (commRingInverseImageAdjunction g) (commRingInverseImageAdjunction f)
+    (commRingInverseImageAdjunction (f ≫ g)) (AlgebraicSpace.commRingPushforwardComp f g)
 
 end AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra

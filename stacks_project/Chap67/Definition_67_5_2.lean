@@ -1,17 +1,22 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_5_2_Surjective
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Surjective
 import StacksCheckRecall
 
 @[expose] public section
 
+open CategoryTheory
+
+universe u
+
 /- Definition 67.5.2: a morphism `f : X ⟶ Y` of algebraic spaces over a scheme `S` is
-surjective if the map of associated topological spaces `Points.map f : |X| ⟶ |Y|` is
-surjective. -/
-@[stacks 03ME] #check AlgebraicGeometry.AlgebraicSpace.Surjective
+surjective if the function on associated points `Points.map f : |X| → |Y|` of the
+associated topological spaces is surjective. -/
+@[stacks 03ME] #check (AlgebraicGeometry.AlgebraicSpace.Surjective :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Y : AlgebraicGeometry.AlgebraicSpace S},
+    (X ⟶ Y) → Prop)
+
+#check (AlgebraicGeometry.AlgebraicSpace.surjective_iff :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Y : AlgebraicGeometry.AlgebraicSpace S}
+    (f : X ⟶ Y), AlgebraicGeometry.AlgebraicSpace.Surjective f ↔
+      Function.Surjective (AlgebraicGeometry.AlgebraicSpace.Points.map f))

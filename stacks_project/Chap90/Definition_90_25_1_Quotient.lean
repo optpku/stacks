@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap90.Definition_90_25_1_Groupoid
-public import stacks_project.Chap90.Remarks_90_5_2_Grothendieck
+public import ReasLib.CategoryTheory.Groupoid.Quotient
 
 /-!
 # The quotient category cofibered in groupoids
@@ -30,29 +24,23 @@ variable {C : Type u} [Category.{v} C]
 
 namespace CategoryTheory.GroupoidInFunctors
 
-/-- The Grothendieck projection of the fibre-groupoid functor of `G`. -/
-abbrev quotientFunctor (G : GroupoidInFunctors.{u, v, w} C) :
-    Grothendieck (G.toFunctor ⋙ Grpd.forgetToCat) ⥤ C :=
-  Functor.groupoidCopresheafProjection G.toFunctor
+#check (CategoryTheory.GroupoidInFunctors.quotientFunctor :
+  (G : GroupoidInFunctors.{u, v, w} C) →
+    Grothendieck (G.toFunctor ⋙ Grpd.forgetToCat) ⥤ C)
 
-/-- The Grothendieck projection of a groupoid in functors is cofibered in groupoids. -/
-instance quotientFunctor_op_inGroupoids (G : GroupoidInFunctors.{u, v, w} C) :
-    Functor.IsFibered.InGroupoids (quotientFunctor G).op :=
-  Functor.groupoidCopresheafProjection.op_inGroupoids G.toFunctor
+#check (CategoryTheory.GroupoidInFunctors.quotientFunctor_op_inGroupoids :
+  (G : GroupoidInFunctors.{u, v, w} C) →
+    Functor.IsFibered.InGroupoids (quotientFunctor G).op)
 
-/-- The quotient category cofibered in groupoids `[U/R]` associated to a groupoid in
-functors. -/
-def quotient (G : GroupoidInFunctors.{u, v, w} C) :
-    CofiberedCategoryOver.Groupoids C :=
-  Functor.ofGroupoidValued G.toFunctor
+#check (CategoryTheory.GroupoidInFunctors.quotient :
+  GroupoidInFunctors.{u, v, w} C → CofiberedCategoryOver.Groupoids C)
 
-/-- The projection of `[U/R]` is the Grothendieck forgetful functor of `G.toFunctor`. -/
-theorem quotient_p (G : GroupoidInFunctors.{u, v, w} C) :
-    (quotient G).p = quotientFunctor G := sorry
+#check (CategoryTheory.GroupoidInFunctors.quotient_p :
+  (G : GroupoidInFunctors.{u, v, w} C) →
+    (quotient G).p = quotientFunctor G)
 
-/-- The total category of `[U/R]` is the Grothendieck construction of `G.toFunctor`. -/
-theorem quotient_total (G : GroupoidInFunctors.{u, v, w} C) :
-    (quotient G).total = Grothendieck (G.toFunctor ⋙ Grpd.forgetToCat) := sorry
+#check (CategoryTheory.GroupoidInFunctors.quotient_total :
+  (G : GroupoidInFunctors.{u, v, w} C) →
+    (quotient G).total = Grothendieck (G.toFunctor ⋙ Grpd.forgetToCat))
 
 end CategoryTheory.GroupoidInFunctors
-

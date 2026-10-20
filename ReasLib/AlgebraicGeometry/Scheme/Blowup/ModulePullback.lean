@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Blowup.Basic
@@ -32,21 +26,25 @@ namespace AlgebraicGeometry.IsBlowup
 /-- For a perfect module sheaf of Tor dimension at most one, derived pullback along a blowup
 agrees with ordinary pullback through the canonical comparison morphism. -/
 theorem singlePullbackComparison_isIso {X X' : Scheme.{u}} (I : X.IdealSheafData)
-    (b : X' ⟶ X) [IsBlowup b I] (F : X.Modules) (hPerfect : SheafOfModules.IsPerfect F)
+    (b : X' ⟶ X) [IsBlowup b I] [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
+    (F : X.Modules) (hPerfect : SheafOfModules.IsPerfect F)
     (hTor : RingedSpace.ModuleHasTorDimensionLE F 1) :
     IsIso (RingedSpace.ModuleDerived.Cohomology.singlePullbackComparison b.toShHom F 0) := sorry
 
 /-- Ordinary pullback along a blowup preserves perfect module sheaves of Tor dimension at
 most one. -/
 theorem pullback_isPerfect {X X' : Scheme.{u}} (I : X.IdealSheafData) (b : X' ⟶ X)
-    [IsBlowup b I] (F : X.Modules) (hPerfect : SheafOfModules.IsPerfect F)
+    [IsBlowup b I] [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
+    (F : X.Modules) (hPerfect : SheafOfModules.IsPerfect F)
     (hTor : RingedSpace.ModuleHasTorDimensionLE F 1) :
     SheafOfModules.IsPerfect ((Scheme.Modules.pullback b).obj F) := sorry
 
 /-- Ordinary pullback along a blowup preserves Tor dimension at most one for perfect module
 sheaves with that Tor-dimension bound. -/
 theorem pullback_hasTorDimensionLE_one {X X' : Scheme.{u}} (I : X.IdealSheafData)
-    (b : X' ⟶ X) [IsBlowup b I] (F : X.Modules) (hPerfect : SheafOfModules.IsPerfect F)
+    (b : X' ⟶ X) [IsBlowup b I] [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X'.toRingedSpace)]
+    (F : X.Modules) (hPerfect : SheafOfModules.IsPerfect F)
     (hTor : RingedSpace.ModuleHasTorDimensionLE F 1) :
     RingedSpace.ModuleHasTorDimensionLE ((Scheme.Modules.pullback b).obj F) 1 := sorry
 

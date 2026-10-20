@@ -1,52 +1,37 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Quasicoherent
-public import stacks_project.Chap66.Definition_66_29_1_RingedSite
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Quasicoherent
+import StacksCheckRecall
 
-/-!
-# Quasi-coherent modules on an algebraic space
+/-! # Quasi-coherent modules on an algebraic space
 
-A quasi-coherent `𝒪_X`-module is a quasi-coherent module sheaf on the small étale ringed
-site of `X`. The category of such sheaves is the full subcategory `QCoh 𝒪_X`.
+@stack 03G9
+
+The actual object property and its full subcategory are owned by the public library.
 -/
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.ObjectProperty AlgebraicGeometry
-
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+/- Definition 66.29.1 (1): a quasi-coherent 𝒪_X-module on an algebraic space X over a scheme S
+is a quasi-coherent module on the ringed site (X_étale, 𝒪_X) in the sense of
+SheafOfModules.IsQuasicoherent. -/
+@[stacks 03G9 "(1) quasi-coherent module"]
+#check (AlgebraicGeometry.AlgebraicSpace.quasiCoherentModuleProperty :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S),
+    CategoryTheory.ObjectProperty (AlgebraicGeometry.AlgebraicSpace.Modules X))
 
-/-- The object property of quasi-coherent module sheaves on the small étale ringed site of an
-algebraic space. -/
-abbrev quasiCoherentModuleProperty {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    ObjectProperty (Modules X) :=
-  SheafOfModules.isQuasicoherent (structureSheaf X)
+/- Definition 66.29.1 (2): the category of quasi-coherent sheaves on X is denoted QCoh(𝒪_X). -/
+@[stacks 03G9 "(2) category of quasi-coherent modules"]
+#check (AlgebraicGeometry.AlgebraicSpace.QCoh :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}}, AlgebraicGeometry.AlgebraicSpace S → Type (u + 1))
 
-/-- Quasi-coherence on `X` is mathlib's site-level quasi-coherence predicate for `𝒪_X`. -/
-theorem quasiCoherentModuleProperty_eq {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    quasiCoherentModuleProperty X = SheafOfModules.isQuasicoherent (structureSheaf X) :=
-  rfl
-
-/-- The category of quasi-coherent `𝒪_X`-modules on an algebraic space. -/
-abbrev QCoh {S : Scheme.{u}} (X : AlgebraicSpace S) :=
-  (quasiCoherentModuleProperty X).FullSubcategory
-
-namespace QCoh
-
-/-- The inclusion of quasi-coherent modules into all module sheaves on `X`. -/
-abbrev inclusion {S : Scheme.{u}} (X : AlgebraicSpace S) : QCoh X ⥤ Modules X :=
-  (quasiCoherentModuleProperty X).ι
-
-end QCoh
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.quasiCoherentModuleProperty_eq :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S),
+    AlgebraicGeometry.AlgebraicSpace.quasiCoherentModuleProperty X =
+      SheafOfModules.isQuasicoherent (AlgebraicGeometry.AlgebraicSpace.structureSheaf X))
+#check (AlgebraicGeometry.AlgebraicSpace.QCoh.inclusion :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S),
+    CategoryTheory.Functor (AlgebraicGeometry.AlgebraicSpace.QCoh X)
+      (AlgebraicGeometry.AlgebraicSpace.Modules X))

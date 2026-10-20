@@ -1,104 +1,98 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap85.Lemma_85_21_5_Augmentation
-public import stacks_project.Chap85.Lemma_85_21_5_Comparison
-public import stacks_project.Chap85.Lemma_85_21_5_Diagram
+public import ReasLib.CategoryTheory.Sites.Simplicial.SliceAugmentation
+import StacksCheckRecall
 
 /-!
 # Lemma 85.21.5
 
-A simplicial object of a site with fibre products yields a simplicial object of
-sites `C / U_n`, whose total site reproduces `(C / U)_total`, and an augmentation
-`a : U ⟶ X` induces the same morphism of topoi as `V / U_n ↦ V / X`.
+The slice sites of a simplicial object with fibre products form a simplicial
+site. Its total site has the pullback-hom presentation and identity-degree
+coverings, and an augmentation induces the canonical total morphism of topoi.
 -/
 
 @[expose] public section
 
-universe u v w
+universe u v
 
-open CategoryTheory CategoryTheory.Limits Opposite Functor
-open scoped Simplicial
+open CategoryTheory CategoryTheory.Limits Opposite
 open CategoryTheory.SimplicialObject
+open scoped Simplicial
 
-variable {C : Type u} [Category.{v} C]
-variable [HasPullbacks C]
+variable {C : Type u} [Category.{v} C] [HasPullbacks C]
 variable (J : GrothendieckTopology C) (U : SimplicialObject C)
+variable {n m : SimplexCategoryᵒᵖ} (φ : n ⟶ m)
 
-/-- Lemma 85.21.5 (1): `C / U` has the structure of a simplicial object in the category
-whose objects are sites and whose morphisms are morphisms of sites. For each structure
-map `φ`, `Over.pullback (U.map φ)` is continuous for the slice precoverages
-(`sliceStructurePullback_isContinuous`); these continuous functors are the structure
-maps, with composition the isomorphism `sliceStructurePullback_compIso` rather than a
-strict `Cat` functor. `Over.map (U.map φ)` induces the same morphism of topoi by Sites
-Lemma 7.27.3. -/
-@[stacks 09WL]
-noncomputable abbrev sliceStructureMap_sameTopos {n m : SimplexCategoryᵒᵖ} (φ : n ⟶ m)
-    [∀ P : (Over (U.obj n))ᵒᵖ ⥤ Type w,
-      (Over.map (U.map φ)).op.HasPointwiseRightKanExtension P] :
-    J.overMapPushforward (Type w) (U.map φ) ≅
-      (Over.map (U.map φ)).sheafPushforwardCocontinuous (Type w)
-        (J.over (U.obj n)) (J.over (U.obj m)) :=
-  J.overMapPushforwardIsoCocontinuous (Type w) (U.map φ)
+/- Lemma 85.21.5 (1): the slice sites form a simplicial site. The localization
+morphisms are presented continuously by their pullback right adjoints. -/
+@[stacks 09WL] #check
+  (CategoryTheory.SimplicialObject.sliceStructurePullback_isContinuous J U φ :
+    Functor.Precoverage.IsContinuous (Over.pullback (U.map φ))
+      (slicePrecoverage J U m) (slicePrecoverage J U n))
 
-/-- `sliceStructureMap_sameTopos` is the Sites Lemma 7.27.3 comparison on `U.map φ`. -/
-theorem sliceStructureMap_sameTopos_eq {n m : SimplexCategoryᵒᵖ} (φ : n ⟶ m)
-    [∀ P : (Over (U.obj n))ᵒᵖ ⥤ Type w,
-      (Over.map (U.map φ)).op.HasPointwiseRightKanExtension P] :
-    sliceStructureMap_sameTopos J U φ =
-      J.overMapPushforwardIsoCocontinuous (Type w) (U.map φ) :=
-  sorry
+#check (CategoryTheory.Functor.ContinuousRightAdjoint.right_isMorphismOfSites
+    (Over.map (U.map φ)) (Over.pullback (U.map φ)) (Over.mapPullbackAdj (U.map φ)) :
+  IsMorphismOfSites (J.over (U.obj m)) (J.over (U.obj n)) (Over.pullback (U.map φ)))
 
-/-- Lemma 85.21.5 (2): the construction of Lemma 85.3.1 applied to the slice diagram of
-(1) reproduces the site `(C / U)_total`: morphisms `V / U_n ⟶ W / U_m` are equivalent,
-via `sliceTotalHom_pullbackEquiv`, to a simplex operator `φ` together with a morphism
-`V ⟶ W ×_{U_m} U_n` over `U_n`, and covering families are the identity-degree stage
-covers from `J.over U_n`. -/
-@[stacks 09WL]
-theorem sliceTotal_reproduces {X Y : sliceTotalSite U}
-    {I : Type (max u v)} (V : I → Over (U.obj X.base)) (p : ∀ i, V i ⟶ X.fiber) :
+#check (CategoryTheory.GrothendieckTopology.overMapPushforwardIsoCocontinuous
+    J (Type (max u v)) (U.map φ) :
+  J.overMapPushforward (Type (max u v)) (U.map φ) ≅
+    (Over.map (U.map φ)).sheafPushforwardCocontinuous (Type (max u v))
+      (J.over (U.obj n)) (J.over (U.obj m)))
+
+#check (CategoryTheory.SimplicialObject.sliceStructurePullback_compIso U :
+  ∀ {i j k : SimplexCategoryᵒᵖ} (α : i ⟶ j) (β : j ⟶ k),
+    Over.pullback (U.map (α ≫ β)) ≅
+      Over.pullback (U.map β) ⋙ Over.pullback (U.map α))
+
+variable {T S : sliceTotalSite U} {I : Type (max u v)}
+variable (V : I → Over (U.obj T.base)) (p : ∀ i, V i ⟶ T.fiber)
+
+/- Lemma 85.21.5 (2): the total-site construction reproduces the slice total
+site through the adjunction description of arrows and the same stage covers. -/
+@[stacks 09WL] #check
+  (CategoryTheory.SimplicialObject.sliceTotal_reproduces J U V p :
     Function.Bijective
         (sliceTotalHom_pullbackEquiv U :
-          (X ⟶ Y) →
-            Σ φ : Y.base.unop ⟶ X.base.unop,
-              X.fiber ⟶ (Over.pullback (U.map φ.op)).obj Y.fiber) ∧
-      (Grothendieck.ofFiber (sliceDiagram U) X V p ∈ sliceTotalPrecoverage J U X ↔
-        Presieve.ofArrows V p ∈ slicePrecoverage J U X.base X.fiber) :=
-  sorry
+          (T ⟶ S) → Σ α : S.base.unop ⟶ T.base.unop,
+            T.fiber ⟶ (Over.pullback (U.map α.op)).obj S.fiber) ∧
+      (Grothendieck.ofFiber (sliceDiagram U) T V p ∈ sliceTotalPrecoverage J U T ↔
+        Presieve.ofArrows V p ∈ slicePrecoverage J U T.base T.fiber))
+
+#check (CategoryTheory.SimplicialObject.sliceTotalHom_pullbackEquiv_comp U :
+  ∀ {T S R : sliceTotalSite U} (f : T ⟶ S) (g : S ⟶ R),
+    (Over.mapPullbackAdj (U.map (f.base ≫ g.base))).homEquiv T.fiber R.fiber (f ≫ g).fiber =
+      (sliceTotalHom_pullbackEquiv U f).2 ≫
+        (Over.pullback (U.map f.base)).map (sliceTotalHom_pullbackEquiv U g).2 ≫
+        (sliceStructurePullback_compIso U f.base g.base).inv.app R.fiber)
 
 variable {X : C} (a : U ⟶ (Functor.const SimplexCategoryᵒᵖ).obj X)
-variable [HasSheafify (sliceTotalTopology J U) (Type w)]
-variable [∀ P : (sliceTotalSite U)ᵒᵖ ⥤ Type w, (sliceForget U a).op.HasPointwiseRightKanExtension P]
-variable [∀ P : (sliceTotalSite U)ᵒᵖ ⥤ Type w,
-    (sliceForget_ofAugmentation U a).op.HasPointwiseRightKanExtension P]
-variable [HasWeakSheafify (sliceTotalTopology J U) (Type w)]
 
-/-- Lemma 85.21.5 (3): if `a : U ⟶ X` is an augmentation, then `a0 : C / U_0 ⟶ C / X`
-is an augmentation as in Remark 85.4.1 (A): `Over.pullback (a.app (op ⦋0⦌))` is
-continuous (`slicePullback_precoverage_isContinuous`), and for `φ, ψ : ⦋0⦌ ⟶ n` the
-composites `u_φ ∘ u0` agree by the canonical pullback isomorphism. The total morphism
-of topoi presented by `sliceForget` is isomorphic to the morphism induced by that
-part (A) augmentation. -/
-@[stacks 09WL]
-noncomputable def sliceAugmentation_spec {n : SimplexCategory} (φ ψ : ⦋0⦌ ⟶ n) :
-    (Over.pullback (a.app (op ⦋0⦌)) ⋙ Over.pullback (U.map φ.op) ≅
-      Over.pullback (a.app (op ⦋0⦌)) ⋙ Over.pullback (U.map ψ.op)) ×
-    ((sliceAugmentationTopos J U a).pushforward ≅
-      (sliceAugmentationTopos_ofAugmentation J U a).pushforward) :=
-  (slicePullback_compIso U a φ ψ, sliceAugmentation_pushforwardIso J U a)
+#check (CategoryTheory.SimplicialObject.sliceDiagram_isAugmentation J U a :
+  Grothendieck.IsAugmentation (sliceDiagram U) (slicePrecoverage J U)
+    (J.over X).toPrecoverage (Over.map (a.app (op ⦋0⦌))))
 
-/-- The first factor of `sliceAugmentation_spec` is `slicePullback_compIso`. -/
-theorem sliceAugmentation_spec_compIso {n : SimplexCategory} (φ ψ : ⦋0⦌ ⟶ n) :
-    (sliceAugmentation_spec J U a φ ψ).1 = slicePullback_compIso U a φ ψ :=
-  sorry
+#check (CategoryTheory.GrothendieckTopology.overPullback_isContinuous J (a.app (op ⦋0⦌)) :
+  (Over.pullback (a.app (op ⦋0⦌))).IsContinuous
+    (J.over X) (J.over (U.obj (op ⦋0⦌))))
 
-/-- The second factor of `sliceAugmentation_spec` is the direct-image comparison of
-`sliceAugmentationTopos` with the part (A) total morphism. -/
-theorem sliceAugmentation_spec_pushforward {n : SimplexCategory} (φ ψ : ⦋0⦌ ⟶ n) :
-    (sliceAugmentation_spec J U a φ ψ).2 = sliceAugmentation_pushforwardIso J U a :=
-  sorry
+#check (CategoryTheory.SimplicialObject.slicePullback_compIso U a :
+  ∀ {n : SimplexCategory} (α β : ⦋0⦌ ⟶ n),
+    Over.pullback (a.app (op ⦋0⦌)) ⋙ Over.pullback (U.map α.op) ≅
+      Over.pullback (a.app (op ⦋0⦌)) ⋙ Over.pullback (U.map β.op))
+
+/- Lemma 85.21.5 (3): the degree-zero localization is an augmentation and the
+morphism of topoi induced by the generic total augmentation agrees with the
+one presented by sending V/U_n to V/X. -/
+@[stacks 09WL] #check
+  (CategoryTheory.SimplicialObject.sliceAugmentation_pushforwardIso J U a :
+    ((sliceAugmentationTopos J U a).pushforward :
+      Sheaf (sliceTotalTopology J U) (Type (max u v)) ⥤
+        Sheaf (J.over X) (Type (max u v))) ≅
+      (sliceAugmentationTopos_ofAugmentation J U a).pushforward)
+
+#check (CategoryTheory.SimplicialObject.sliceAugmentation_inverseImageIso J U a :
+  ((sliceAugmentationTopos J U a).inverseImage :
+    Sheaf (J.over X) (Type (max u v)) ⥤
+      Sheaf (sliceTotalTopology J U) (Type (max u v))) ≅
+    (sliceAugmentationTopos_ofAugmentation J U a).inverseImage)

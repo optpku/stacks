@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.ShortComplex.ShortExact
@@ -142,14 +136,6 @@ noncomputable def kernelTransition [HasKernels C]
 theorem kernelInclusion_comp_transition_zero [HasKernels C]
     (f : R) (M : C) (n : ℕ+) :
     kernelInclusion f M n ≫ kernelTransition f M n = 0 := sorry
-
-/-- The kernel inclusions are compatible with consecutive predecessor transitions. -/
-@[reassoc, stacks 0H3A "principal-power kernel inclusion transition"]
-theorem kernelInclusion_succ_comp_transition [HasKernels C]
-    (f : R) (M : C) (n : ℕ+) :
-    kernelInclusion f M ⟨(n : ℕ) + 1, Nat.succ_pos _⟩ ≫
-        kernelTransition f M ⟨(n : ℕ) + 1, Nat.succ_pos _⟩ =
-      kernelInclusion f M n := sorry
 
 /-- The source-style kernel row `K 0 ⟶ K n ⟶ K (n-1)`. -/
 @[stacks 0H3A "categorical principal-power kernel row"]

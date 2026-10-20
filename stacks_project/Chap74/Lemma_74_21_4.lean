@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap74.Lemma_74_21_4_Instances
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSmoothLocal.Locality
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +14,7 @@ is étale local on the source, smooth local on the target, and stable under
 postcomposition with open immersions, then `P` is étale-smooth local on the
 source-and-target. -/
 @[stacks 0CG2] #check
-  (IsEtaleSmoothLocalAtSourceAndTarget.of_isLocalAtSource_isLocalAtTarget :
+  (AlgebraicGeometry.AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget.of_isLocalAtSource_isLocalAtTarget :
     ∀ {S : Scheme.{u}} (P : MorphismProperty (AlgebraicSpace S))
       [P.IsLocalAtSource etalePrecoverage]
       [P.IsLocalAtTarget (smoothPrecoverage S)]

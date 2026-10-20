@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Adjunction.Unique
@@ -105,11 +99,6 @@ instance toFunctor_comp_etale_isContinuous {Y Z W : GroupoidsOver S}
   Functor.isContinuous_comp (toFunctor h) (toFunctor k)
     Y.etaleTopology Z.etaleTopology W.etaleTopology
 
-/-- The cartesian total functor agrees with `toFunctor`. -/
-theorem cartesian_toFunctor_eq {Y Z : GroupoidsOver S} (h : Y ⟶ Z) :
-    (toCartesianBasedFunctor h).toFunctor = toFunctor h :=
-  congrArg (fun F => F.toFunctor) (toCartesianBasedFunctor.toBasedFunctor h)
-
 /-- The canonical comparison from cocontinuous inverse image to continuous
 sheaf pushforward along the underlying total functor. -/
 abbrev etaleInverseImageComparison {Y Z : GroupoidsOver S} (h : Y ⟶ Z)
@@ -121,6 +110,18 @@ abbrev etaleInverseImageComparison {Y Z : GroupoidsOver S} (h : Y ⟶ Z)
       (toCartesianBasedFunctor h).toFunctor.sheafPushforwardContinuous (Type (u + 1))
         Y.etaleTopology Z.etaleTopology :=
   CartesianBasedFunctor.morphismOfTopoiIn.inverseImageComparison
+    (toCartesianBasedFunctor h) (StandardTopology.etale.overTopology S)
+
+/-- The étale inverse-image comparison with its explicit reverse sheaf map. -/
+abbrev etaleInverseImageComparisonIso {Y Z : GroupoidsOver S} (h : Y ⟶ Z)
+    [HasSheafify Y.etaleTopology (Type (u + 1))]
+    [HasWeakSheafify Z.etaleTopology (Type (u + 1))]
+    [∀ P : Y.totalᵒᵖ ⥤ Type (u + 1),
+      (toCartesianBasedFunctor h).toFunctor.op.HasPointwiseRightKanExtension P] :
+    etaleInverseImage h ≅
+      (toCartesianBasedFunctor h).toFunctor.sheafPushforwardContinuous (Type (u + 1))
+        Y.etaleTopology Z.etaleTopology :=
+  CartesianBasedFunctor.morphismOfTopoiIn.inverseImageComparisonIso
     (toCartesianBasedFunctor h) (StandardTopology.etale.overTopology S)
 
 /-- Continuous sheaf pushforward along the cartesian total functor compared with
@@ -143,12 +144,12 @@ def etaleInverseImageIso {Y Z : GroupoidsOver S} {h k : Y ⟶ Z} (t : h ≅ k)
     [∀ P : Y.totalᵒᵖ ⥤ Type (u + 1),
       (toCartesianBasedFunctor k).toFunctor.op.HasPointwiseRightKanExtension P] :
     etaleInverseImage h ≅ etaleInverseImage k :=
-  asIso (etaleInverseImageComparison h) ≪≫
+  etaleInverseImageComparisonIso h ≪≫
     etaleContinuousPushforwardIso h ≪≫
       sheafPushforwardContinuousIso (toFunctorIso t) (Type (u + 1))
         Y.etaleTopology Z.etaleTopology ≪≫
         (etaleContinuousPushforwardIso k).symm ≪≫
-          (asIso (etaleInverseImageComparison k)).symm
+          (etaleInverseImageComparisonIso k).symm
 
 /-- Inverse image of a composite 1-morphism compares with the composite of
 inverse images. -/
@@ -164,7 +165,7 @@ def etaleInverseImage_compIso {Y Z W : GroupoidsOver S} (h : Y ⟶ Z) (k : Z ⟶
     [∀ P : Y.totalᵒᵖ ⥤ Type (u + 1),
       (toCartesianBasedFunctor (h ≫ k)).toFunctor.op.HasPointwiseRightKanExtension P] :
     etaleInverseImage (h ≫ k) ≅ etaleInverseImage k ⋙ etaleInverseImage h :=
-  asIso (etaleInverseImageComparison (h ≫ k)) ≪≫
+  etaleInverseImageComparisonIso (h ≫ k) ≪≫
     etaleContinuousPushforwardIso (h ≫ k) ≪≫
       sheafPushforwardContinuousIso
           (ObjectProperty.FullSubbicategory.toFunctor.compIso h k).symm (Type (u + 1))
@@ -174,12 +175,12 @@ def etaleInverseImage_compIso {Y Z W : GroupoidsOver S} (h : Y ⟶ Z) (k : Z ⟶
           isoWhiskerRight (etaleContinuousPushforwardIso k).symm
               ((toFunctor h).sheafPushforwardContinuous (Type (u + 1))
                 Y.etaleTopology Z.etaleTopology) ≪≫
-            isoWhiskerRight (asIso (etaleInverseImageComparison k)).symm
+            isoWhiskerRight (etaleInverseImageComparisonIso k).symm
                 ((toFunctor h).sheafPushforwardContinuous (Type (u + 1))
                   Y.etaleTopology Z.etaleTopology) ≪≫
               isoWhiskerLeft (etaleInverseImage k) (etaleContinuousPushforwardIso h).symm ≪≫
                 isoWhiskerLeft (etaleInverseImage k)
-                  (asIso (etaleInverseImageComparison h)).symm
+                  (etaleInverseImageComparisonIso h).symm
 
 variable {X : GroupoidsOver S}
 variable {U V : AlgebraicSpace S} (a : U ⟶ V)
@@ -203,6 +204,23 @@ def etaleInverseImage_twoCell :
     etaleInverseImage g ⋙ etaleInverseImage (toGroupoids.map a) ≅ etaleInverseImage f :=
   (etaleInverseImage_compIso (toGroupoids.map a) g).symm ≪≫ etaleInverseImageIso φ
 
+/-- The chosen right extension and the explicit pointwise extension represent
+the same direct image, by their actual universal maps in both directions. -/
+def algebraicSpaceDirectImageIso (H : Sheaf U.toGroupoids.etaleTopology (Type (u + 1))) :
+    (etaleDirectImage (toGroupoids.map a)).obj H ≅ (etalePushforward a).obj H :=
+  letI : (toCartesianBasedFunctor (toGroupoids.map a)).toFunctor.op.HasPointwiseRightKanExtension H.obj :=
+    fun _ ↦ inferInstance
+  ObjectProperty.isoMk _
+    (@rightKanExtensionUnique _ _ _ _ _ _
+      ((toCartesianBasedFunctor (toGroupoids.map a)).toFunctor.op.ran.obj H.obj)
+      (toCartesianBasedFunctor (toGroupoids.map a)).toFunctor.op H.obj
+      ((toCartesianBasedFunctor (toGroupoids.map a)).toFunctor.op.ranCounit.app H.obj)
+      { nonempty_isUniversal := ⟨CategoryTheory.Limits.terminalIsTerminal⟩ }
+      (pointwiseRightKanExtension (toCartesianBasedFunctor (toGroupoids.map a)).toFunctor.op H.obj)
+      (pointwiseRightKanExtensionCounit (toCartesianBasedFunctor (toGroupoids.map a)).toFunctor.op H.obj)
+      { nonempty_isUniversal :=
+          ⟨pointwiseRightKanExtensionIsUniversal (toCartesianBasedFunctor (toGroupoids.map a)).toFunctor.op H.obj⟩ })
+
 /-- The restricted unit `g⁻¹ F|_{V_étale} ⟶ a_small,* (f⁻¹ F|_{U_étale})` whose
 adjunct is the comparison morphism `c_φ`. -/
 def comparisonPushforward (F : Sheaf X.etaleTopology (Type (u + 1))) :
@@ -214,6 +232,7 @@ def comparisonPushforward (F : Sheaf X.etaleTopology (Type (u + 1))) :
           ((etaleInverseImage g).obj F) ≫
         (etaleDirectImage (toGroupoids.map a)).map
           ((etaleInverseImage_twoCell a f g φ).hom.app F)) ≫
+    (restrictEtale V).map (algebraicSpaceDirectImageIso a ((etaleInverseImage f).obj F)).hom ≫
     (AlgebraicSpace.compareBigSmall a ((etaleInverseImage f).obj F)).hom
 
 /-- Inverse-image comparison `c_φ` of small étale sheaves associated to a

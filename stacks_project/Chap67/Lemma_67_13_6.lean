@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap65.Lemma_65_12_4_Immersion
-public import stacks_project.Chap66.Definition_66_19_6_Stalk
-public import stacks_project.Chap66.Lemma_66_18_12_Pushforward
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Stalk.ClosedImmersion
+import StacksCheckRecall
 
 /-!
 # Lemma 67.13.6
@@ -28,16 +21,16 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.13.6: for a closed immersion `i : Z ⟶ X` of algebraic spaces over a
+/- Lemma 67.13.6: for a closed immersion `i : Z ⟶ X` of algebraic spaces over a
 scheme `S`, a geometric point `zbar` of `Z`, and a sheaf `F` of sets on the
 small étale site of `Z`, the stalk of `i_small,* F` at `zbar.map i` is
-identified with the stalk of `F` at `zbar`. -/
-@[stacks 0DK1]
-theorem stalk_pushforward_closedImmersion
-    {S : Scheme.{u}} {X Z : AlgebraicSpace S} (i : Z ⟶ X) [IsClosedImmersion i]
-    (F : Sheaf (smallEtaleTopology Z) (Type (u + 1))) (zbar : GeometricPoint Z) :
-    Nonempty
-      (GeometricPoint.stalk (zbar.map i) ((sheafPushforward (Type (u + 1)) i).obj F).1 ≃
-        GeometricPoint.stalk zbar F.1) := sorry
+identified with the stalk of `F` at `zbar` by the canonical comparison.
+These are the correctly typed stalk locations in the source proof: the direct image
+is a sheaf on `X`, while `F` is a sheaf on `Z`. -/
+@[stacks 0DK1] #check
+  (AlgebraicGeometry.AlgebraicSpace.stalk_pushforward_closedImmersion :
+    ∀ {S : Scheme.{u}} {X Z : AlgebraicSpace S} (i : Z ⟶ X) [IsClosedImmersion i]
+      (F : Sheaf (smallEtaleTopology Z) (Type (u + 1))) (zbar : GeometricPoint Z),
+      Function.Bijective (GeometricPoint.stalkPushforwardClosedImmersion i F zbar))
 
 end AlgebraicGeometry.AlgebraicSpace

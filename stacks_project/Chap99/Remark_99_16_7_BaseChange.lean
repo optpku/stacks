@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.Pasting
@@ -30,9 +24,13 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.AlgebraicSpace.Complexes
 
 variable {S : Scheme.{u}} {X B B' : AlgebraicSpace S}
+
+
 
 /-- Viewing a scheme `T` over `B'` as a scheme over `B` via `T ⟶ B' ⟶ B` composes
 the structure morphism with `g`. -/
@@ -109,22 +107,58 @@ def fiberIso_natural_inv (f : X ⟶ B) (g : B' ⟶ B) {σ τ : SchemeOver B'} (h
           (Category.id_comp _)))).symm
 
 /-- The complex on `X_T` obtained by transporting a complex on `X'_T` along `fiberIso`. -/
-def baseChangeComplex (f : X ⟶ B) (g : B' ⟶ B) [Proper f] [Flat f] [FinitePresentation f]
-    (x : Obj (pullback.snd f g)) :
+def baseChangeComplex (f : X ⟶ B)
+
+     (g : B' ⟶ B)
+    [baseChartDerived : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [baseChartTensor : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f]
+    (x : @Obj S (pullback f g) B' (pullback.snd f g) baseChartDerived baseChartTensor _ _ _) :
     ModuleDerived (pullback f ((CostructuredArrow.map g).obj x.σ).hom) :=
   (ModuleDerived.pullback (fiberIso f g x.σ).inv).obj x.complex
 
 /-- Relative perfectness is preserved by transport along `fiberIso`. -/
-theorem isPerfectRelative_baseChangeComplex (f : X ⟶ B) (g : B' ⟶ B)
-    [Proper f] [Flat f] [FinitePresentation f] (x : Obj (pullback.snd f g)) :
+theorem isPerfectRelative_baseChangeComplex (f : X ⟶ B)
+
+     (g : B' ⟶ B)
+    [baseChartDerived : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [baseChartTensor : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f] (x : @Obj S (pullback f g) B' (pullback.snd f g) baseChartDerived baseChartTensor _ _ _)
+    [∀ sq : EtaleSquare (pullback.snd f ((CostructuredArrow.map g).obj x.σ).hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ sq : EtaleSquare (pullback.snd f ((CostructuredArrow.map g).obj x.σ).hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding))] :
     ModuleDerived.IsPerfectRelativeTo
       (pullback.snd f ((CostructuredArrow.map g).obj x.σ).hom)
       (baseChangeComplex f g x) :=
   sorry
 
 /-- Fibrewise negative self-Ext vanishing is preserved by transport along `fiberIso`. -/
-theorem fiberNegativeSelfExtVanish_baseChangeComplex (f : X ⟶ B) (g : B' ⟶ B)
-    [Proper f] [Flat f] [FinitePresentation f] (x : Obj (pullback.snd f g)) :
+theorem fiberNegativeSelfExtVanish_baseChangeComplex (f : X ⟶ B)
+
+     (g : B' ⟶ B)
+    [baseChartDerived : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [baseChartTensor : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f] (x : @Obj S (pullback f g) B' (pullback.snd f g) baseChartDerived baseChartTensor _ _ _) :
     ∀ t : FieldValuedPoint (ofOver ((CostructuredArrow.map g).obj x.σ).left),
       ModuleDerived.fiberNegativeExtVanish
         (pullback.snd f ((CostructuredArrow.map g).obj x.σ).hom)
@@ -132,16 +166,41 @@ theorem fiberNegativeSelfExtVanish_baseChangeComplex (f : X ⟶ B) (g : B' ⟶ B
   sorry
 
 /-- The object of `Obj f` obtained by viewing `(T, g', E)` over `B'` as a triple over `B`. -/
-def baseChangeObj (f : X ⟶ B) (g : B' ⟶ B) [Proper f] [Flat f] [FinitePresentation f]
-    (x : Obj (pullback.snd f g)) : Obj f :=
-  of ((CostructuredArrow.map g).obj x.σ) (baseChangeComplex f g x)
+def baseChangeObj (f : X ⟶ B)
+    [chartDerived : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [chartTensor : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)] (g : B' ⟶ B)
+    [baseChartDerived : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [baseChartTensor : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f]
+    (x : @Obj S (pullback f g) B' (pullback.snd f g) baseChartDerived baseChartTensor _ _ _) : @Obj S X B f chartDerived chartTensor _ _ _ :=
+  @of S X B f chartDerived chartTensor _ _ _
+    ((CostructuredArrow.map g).obj x.σ) (baseChangeComplex f g x)
     (isPerfectRelative_baseChangeComplex f g x)
     (fiberNegativeSelfExtVanish_baseChangeComplex f g x)
 
 /-- Reassociation of derived pullback along `fiberMap` and `fiberIso.inv`. -/
-def baseChangeMapIso_reassoc (f : X ⟶ B) (g : B' ⟶ B)
+def baseChangeMapIso_reassoc (f : X ⟶ B)
+
+     (g : B' ⟶ B)
+    [baseChartDerived : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [baseChartTensor : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
     [Proper f] [Flat f] [FinitePresentation f]
-    {x y : Obj (pullback.snd f g)} (α : x ⟶ y) :
+    {x y : @Obj S (pullback f g) B' (pullback.snd f g) baseChartDerived baseChartTensor _ _ _} (α : x ⟶ y) :
     (ModuleDerived.pullback (fiberMap f ((CostructuredArrow.map g).map α.base))).obj
         (baseChangeComplex f g y) ≅
       (ModuleDerived.pullback
@@ -151,9 +210,18 @@ def baseChangeMapIso_reassoc (f : X ⟶ B) (g : B' ⟶ B)
       (fiberIso f g y.σ).inv).app y.complex
 
 /-- Transport of the pulled-back complex along the pasting naturality equality. -/
-def baseChangeMapIso_path (f : X ⟶ B) (g : B' ⟶ B)
+def baseChangeMapIso_path (f : X ⟶ B)
+
+     (g : B' ⟶ B)
+    [baseChartDerived : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [baseChartTensor : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
     [Proper f] [Flat f] [FinitePresentation f]
-    {x y : Obj (pullback.snd f g)} (α : x ⟶ y) :
+    {x y : @Obj S (pullback f g) B' (pullback.snd f g) baseChartDerived baseChartTensor _ _ _} (α : x ⟶ y) :
     (ModuleDerived.pullback
         (fiberMap f ((CostructuredArrow.map g).map α.base) ≫ (fiberIso f g y.σ).inv)).obj
       y.complex ≅
@@ -162,9 +230,18 @@ def baseChangeMapIso_path (f : X ⟶ B) (g : B' ⟶ B)
   (ModuleDerived.pullbackCongr (fiberIso_natural_inv f g α.base)).app y.complex
 
 /-- Reassociation of derived pullback along `fiberIso.inv` and the fibre map of `α`. -/
-def baseChangeMapIso_reassoc' (f : X ⟶ B) (g : B' ⟶ B)
+def baseChangeMapIso_reassoc' (f : X ⟶ B)
+
+     (g : B' ⟶ B)
+    [baseChartDerived : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [baseChartTensor : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
     [Proper f] [Flat f] [FinitePresentation f]
-    {x y : Obj (pullback.snd f g)} (α : x ⟶ y) :
+    {x y : @Obj S (pullback f g) B' (pullback.snd f g) baseChartDerived baseChartTensor _ _ _} (α : x ⟶ y) :
     (ModuleDerived.pullback
         ((fiberIso f g x.σ).inv ≫ fiberMap (pullback.snd f g) α.base)).obj y.complex ≅
       (ModuleDerived.pullback (fiberIso f g x.σ).inv).obj
@@ -174,8 +251,18 @@ def baseChangeMapIso_reassoc' (f : X ⟶ B) (g : B' ⟶ B)
 
 /-- The derived isomorphism of `baseChange` on a morphism, transporting `α.iso` along
 `fiberIso`. -/
-def baseChangeMapIso (f : X ⟶ B) (g : B' ⟶ B) [Proper f] [Flat f] [FinitePresentation f]
-    {x y : Obj (pullback.snd f g)} (α : x ⟶ y) :
+def baseChangeMapIso (f : X ⟶ B)
+
+     (g : B' ⟶ B)
+    [baseChartDerived : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [baseChartTensor : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f]
+    {x y : @Obj S (pullback f g) B' (pullback.snd f g) baseChartDerived baseChartTensor _ _ _} (α : x ⟶ y) :
     (ModuleDerived.pullback (fiberMap f ((CostructuredArrow.map g).map α.base))).obj
         (baseChangeComplex f g y) ≅
       baseChangeComplex f g x :=
@@ -186,23 +273,68 @@ def baseChangeMapIso (f : X ⟶ B) (g : B' ⟶ B) [Proper f] [Flat f] [FinitePre
 
 /-- The functor `Complexes_{X'/B'} ⥤ Complexes_{X/B}` induced by `g : B' ⟶ B`, with
 `X' = X ×_B B'` and `f' = pullback.snd f g`. -/
-def baseChange (f : X ⟶ B) (g : B' ⟶ B) [Proper f] [Flat f] [FinitePresentation f] :
-    Obj (pullback.snd f g) ⥤ Obj f where
+def baseChange (f : X ⟶ B)
+    [chartDerived : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [chartTensor : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)] (g : B' ⟶ B)
+    [baseChartDerived : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [baseChartTensor : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f] :
+    (@Obj S (pullback f g) B' (pullback.snd f g) baseChartDerived baseChartTensor _ _ _) ⥤ (@Obj S X B f chartDerived chartTensor _ _ _) where
   obj x := baseChangeObj f g x
-  map α := homMk ((CostructuredArrow.map g).map α.base) (baseChangeMapIso f g α)
+  map {x y} α := @homMk S X B f chartDerived chartTensor _ _ _
+    (baseChangeObj f g x) (baseChangeObj f g y)
+    ((CostructuredArrow.map g).map α.base) (baseChangeMapIso f g α)
   map_id := sorry
   map_comp := sorry
 
 /-- On objects, `baseChange` sends the test scheme over `B'` to its image under
 `CostructuredArrow.map g`. -/
-theorem baseChange_obj_σ (f : X ⟶ B) (g : B' ⟶ B)
-    [Proper f] [Flat f] [FinitePresentation f] (x : Obj (pullback.snd f g)) :
+theorem baseChange_obj_σ (f : X ⟶ B)
+    [chartDerived : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [chartTensor : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)] (g : B' ⟶ B)
+    [baseChartDerived : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [baseChartTensor : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f] (x : @Obj S (pullback f g) B' (pullback.snd f g) baseChartDerived baseChartTensor _ _ _) :
     ((baseChange f g).obj x).σ = (CostructuredArrow.map g).obj x.σ :=
   sorry
 
 /-- On objects, `baseChange` transports the complex along `fiberIso.inv`. -/
-theorem baseChange_obj_complex (f : X ⟶ B) (g : B' ⟶ B)
-    [Proper f] [Flat f] [FinitePresentation f] (x : Obj (pullback.snd f g)) :
+theorem baseChange_obj_complex (f : X ⟶ B)
+    [chartDerived : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [chartTensor : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)] (g : B' ⟶ B)
+    [baseChartDerived : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [baseChartTensor : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (pullback.snd (pullback.snd f g) σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f] (x : @Obj S (pullback f g) B' (pullback.snd f g) baseChartDerived baseChartTensor _ _ _) :
     ((baseChange f g).obj x).complex = baseChangeComplex f g x :=
   sorry
 

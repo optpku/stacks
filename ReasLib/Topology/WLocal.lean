@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Topology.Inseparable
@@ -53,11 +47,6 @@ class IsWLocalMap {X : Type u} {Y : Type v} [TopologicalSpace X] [TopologicalSpa
 
 namespace WLocalSpace
 
-/-- The closed-points set of a w-local space is closed, and every point specializes
-to a unique closed point. -/
-theorem spec {X : Type u} [TopologicalSpace X] [WLocalSpace X] :
-    IsClosed (closedPoints X) ∧ ∀ x : X, ∃! y ∈ closedPoints X, x ⤳ y := sorry
-
 /-- A spectral space is w-local if and only if its closed points form a closed set
 and every point specializes to a unique closed point. -/
 theorem iff_of_spectral {X : Type u} [TopologicalSpace X] [SpectralSpace X] :
@@ -72,24 +61,6 @@ namespace IsWLocalMap
 instance id {X : Type u} [TopologicalSpace X] [WLocalSpace X] : IsWLocalMap (id : X → X) where
   isSpectralMap := isSpectralMap_id
   mapsTo_closedPoints := mapsTo_id _
-
-/-- A w-local map is spectral. -/
-theorem toIsSpectralMap {X : Type u} {Y : Type v}
-    [TopologicalSpace X] [TopologicalSpace Y] [WLocalSpace X] [WLocalSpace Y]
-    (f : X → Y) [IsWLocalMap f] : IsSpectralMap f := sorry
-
-/-- A map of w-local spaces is w-local if and only if it is spectral and sends
-closed points to closed points. -/
-theorem spec {X : Type u} {Y : Type v} [TopologicalSpace X] [TopologicalSpace Y]
-    [WLocalSpace X] [WLocalSpace Y] (f : X → Y) :
-    IsWLocalMap f ↔ IsSpectralMap f ∧ MapsTo f (closedPoints X) (closedPoints Y) := sorry
-
-/-- A w-local map sends the closed points of its source into the closed points of
-its target. -/
-theorem image_closedPoints_subset {X : Type u} {Y : Type v}
-    [TopologicalSpace X] [TopologicalSpace Y] [WLocalSpace X] [WLocalSpace Y]
-    (f : X → Y) [IsWLocalMap f] :
-    f '' closedPoints X ⊆ closedPoints Y := sorry
 
 /-- The composite of w-local maps is w-local. -/
 theorem comp {X : Type u} {Y : Type v} {Z : Type w}

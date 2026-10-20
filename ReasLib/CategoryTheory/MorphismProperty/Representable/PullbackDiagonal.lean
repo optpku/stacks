@@ -1,18 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import Mathlib.AlgebraicGeometry.Limits
 public import Mathlib.CategoryTheory.Limits.Constructions.Over.Basic
 public import Mathlib.CategoryTheory.Limits.Yoneda
 public import Mathlib.CategoryTheory.MorphismProperty.Representable
 
-/-! Actual represented pullbacks for the diagonal of a presheaf fiber product.
-The representing scheme and its universal lift are specified. Only equations
-and universal-property laws of those specified maps remain proof obligations. -/
+/-! Represented pullbacks for the diagonal of a presheaf fiber product are obtained
+by taking fiber products of the represented pairwise pullbacks. -/
 
 @[expose] public section
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
@@ -48,12 +41,26 @@ theorem sectionRepresentable {A : Over S} (x : yoneda.obj A ⟶ Limits.pullback 
   let a : WF ⟶ WH := rH.lift (g := yH) (rF.fst yF) (rF.snd yF) (by
     simpa only [xH, yH, Category.assoc] using congrArg (fun k ↦ k ≫ f) (rF.w yF))
   let b : WG ⟶ WH := rH.lift (g := yH) (rG.fst yG) (rG.snd yG) (by
-    dsimp [xH, yH, xF, yF, xG, yG] at *
-    sorry)
+    have hx : xF ≫ f = xG ≫ g := by
+      simp only [xF, xG, Category.assoc, Limits.pullback.condition]
+    have hy : yF ≫ f = yG ≫ g := by
+      simp only [yF, yG, Category.assoc, Limits.pullback.condition]
+    dsimp only [xH, yH]
+    rw [hx, hy, ← Category.assoc, rG.w yG, Category.assoc])
   let W := Limits.pullback a b
   let fst : yoneda.obj W ⟶ yoneda.obj A :=
     yoneda.map (Limits.pullback.fst a b) ≫ rF.fst yF
   let snd : W ⟶ B := Limits.pullback.fst a b ≫ rF.snd yF
+  have hfst : yoneda.map (Limits.pullback.fst a b) ≫ rF.fst yF =
+      yoneda.map (Limits.pullback.snd a b) ≫ rG.fst yG := by
+    have h := congrArg (fun k ↦ yoneda.map k ≫ rH.fst yH)
+      (Limits.pullback.condition (f := a) (g := b))
+    simpa [Functor.map_comp, a, b, Category.assoc] using h
+  have hsnd : Limits.pullback.fst a b ≫ rF.snd yF =
+      Limits.pullback.snd a b ≫ rG.snd yG := by
+    have h := congrArg (fun k ↦ k ≫ rH.snd yH)
+      (Limits.pullback.condition (f := a) (g := b))
+    simpa [a, b, Category.assoc] using h
   refine ⟨W, snd, fst, ?_⟩
   let lift : ∀ c : PullbackCone x y, c.pt ⟶ yoneda.obj W := fun c ↦
     (yoneda.map_isPullback (IsPullback.of_hasPullback a b)).lift
@@ -65,10 +72,35 @@ theorem sectionRepresentable {A : Over S} (x : yoneda.obj A ⟶ Limits.pullback 
         dsimp [xG, yG]
         simpa only [Category.assoc] using
           congrArg (fun k ↦ k ≫ Limits.pullback.snd f g) c.condition))
-      (by sorry)
+      (by
+        apply (rH.isPullback yH).hom_ext
+        · simp [a, b, Category.assoc]
+        · simp only [a, b, Category.assoc]
+          rw [← yoneda.map_comp, ← yoneda.map_comp]
+          simp)
   exact IsPullback.of_isLimit (PullbackCone.IsLimit.mk
-    (fst := fst) (snd := yoneda.map snd) (by sorry) lift
-    (by sorry) (by sorry) (by sorry))
+    (fst := fst) (snd := yoneda.map snd) (by
+      apply Limits.pullback.hom_ext
+      · simpa [fst, snd, Functor.map_comp, Category.assoc, xF, yF] using
+          congrArg (fun k ↦ yoneda.map (Limits.pullback.fst a b) ≫ k) (rF.w yF)
+      · change fst ≫ xG = yoneda.map snd ≫ yG
+        calc
+          fst ≫ xG = (yoneda.map (Limits.pullback.snd a b) ≫ rG.fst yG) ≫ xG :=
+            congrArg (fun k ↦ k ≫ xG) hfst
+          _ = yoneda.map (Limits.pullback.snd a b ≫ rG.snd yG) ≫ yG := by
+            rw [Category.assoc, rG.w yG, ← Category.assoc, ← Functor.map_comp]
+          _ = yoneda.map snd ≫ yG := by rw [← hsnd]) lift
+    (by intro c; simp [lift, fst])
+    (by intro c; simp [lift, snd, Functor.map_comp])
+    (by
+      intro c m hm₁ hm₂
+      apply (yoneda.map_isPullback (IsPullback.of_hasPullback a b)).hom_ext
+      · apply (rF.isPullback yF).hom_ext
+        · simpa [lift, fst, Category.assoc] using hm₁
+        · simpa [lift, snd, Functor.map_comp, Category.assoc] using hm₂
+      · apply (rG.isPullback yG).hom_ext
+        · simpa [lift, fst, Category.assoc, hfst] using hm₁
+        · simpa [lift, snd, Functor.map_comp, Category.assoc, hsnd] using hm₂))
 
 /-- The fiber product has a represented diagonal with actual representing objects and maps. -/
 theorem diagonal : yoneda.relativelyRepresentable (Limits.diag (Limits.pullback f g)) :=

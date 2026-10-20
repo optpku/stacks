@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.FinitePresentation
@@ -29,6 +23,7 @@ to its base change to `A ⊗[R] A` is isomorphic to that diagonal copy. -/
 structure IsRelativeDualizingComplex
     (R : Type u) [CommRing R] {A : Type u} [CommRing A] [Algebra R A]
     [Module.Flat R A] [Algebra.FinitePresentation R A]
+    [InternalHom.RHom.Has (A := A ⊗[R] A)]
     (K : DerivedCategory (ModuleCat A)) : Prop where
   /-- The complex is perfect relative to `R`. -/
   isPerfectOver : IsPerfectOver R K
@@ -50,6 +45,7 @@ derived-Hom identification. -/
 def ofConditions
     {R : Type u} [CommRing R] {A : Type u} [CommRing A] [Algebra R A]
     [Module.Flat R A] [Algebra.FinitePresentation R A]
+    [InternalHom.RHom.Has (A := A ⊗[R] A)]
     {K : DerivedCategory (ModuleCat A)}
     (h_perfect : IsPerfectOver R K)
     (h_diagonal :
@@ -68,6 +64,7 @@ end IsRelativeDualizingComplex
 theorem isRelativeDualizingComplex_iff
     (R : Type u) [CommRing R] {A : Type u} [CommRing A] [Algebra R A]
     [Module.Flat R A] [Algebra.FinitePresentation R A]
+    [InternalHom.RHom.Has (A := A ⊗[R] A)]
     (K : DerivedCategory (ModuleCat A)) :
     IsRelativeDualizingComplex R K ↔
       IsPerfectOver R K ∧

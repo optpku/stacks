@@ -1,32 +1,18 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap42.Definition_42_46_3_DerivedChern
+public import ReasLib.AlgebraicGeometry.ChowCohomology.ChernClass.Derived.Pullback
 
-@[expose] public section
-
-open CategoryTheory
+open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
 
 noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry
-namespace ChernClass
-namespace Derived
-namespace IsDefined
+namespace AlgebraicGeometry.ChernClass.Derived.IsDefined
 
-/-- Definedness of derived Chern classes is preserved by derived pullback. -/
-theorem pullback {X Y : Scheme.{u}} (f : X ⟶ Y)
-    {E : RingedSpace.ModuleDerived Y.toRingedSpace} (defined : IsDefined E) :
-    IsDefined ((RingedSpace.modulePullbackDerived f.toShHom).obj E) := sorry
+#check (AlgebraicGeometry.ChernClass.Derived.IsDefined.pullback :
+  ∀ {X Y : Scheme.{u}} (f : X ⟶ Y)
+    {E : RingedSpace.ModuleDerived Y.toRingedSpace} (defined : IsDefined E),
+    IsDefined ((RingedSpace.modulePullbackDerived f.toShHom).obj E))
 
-end IsDefined
-end Derived
-end ChernClass
-end AlgebraicGeometry
+end AlgebraicGeometry.ChernClass.Derived.IsDefined

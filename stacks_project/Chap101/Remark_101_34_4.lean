@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.MorphismProperty.Limits
-public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.Cone
-public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.PseudoCone.Bilimit
-public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.Basic
-public import stacks_project.Chap101.Definition_101_34_2_EtaleSmoothLocal
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.EtaleSmoothLocal.BaseChange
+import StacksCheckRecall
 
 /-!
 # Base change of étale-smooth-local-on-source-and-target morphisms of algebraic stacks
@@ -33,55 +24,51 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-namespace hasEtaleSmoothLocalAtSourceAndTarget
-
-/-- Remark 101.34.4: if a morphism property `P` of algebraic spaces is
+/- Remark 101.34.4: if a morphism property `P` of algebraic spaces is
 étale-smooth local on the source-and-target and stable under base change,
 then the lift of `P` to DM morphisms of algebraic stacks from
 Definition 101.34.2 is also stable under arbitrary base change. In particular,
 if `f : X ⟶ Y` is a DM morphism with `hasEtaleSmoothLocalAtSourceAndTarget P`,
 then so is the projection `TwoFibreProduct.snd f g` (Stacks writes
 `Y' ×_Y X ⟶ Y'`). The base change is DM by Lemma 101.4.4. -/
-@[stacks 0CII]
-theorem twoFibreProduct_snd {S : Scheme.{u}}
+@[stacks 0CII] #check
+  (AlgebraicGeometry.AlgebraicStack.hasEtaleSmoothLocalAtSourceAndTarget.twoFibreProduct_snd :
+    ∀ {S : Scheme.{u}}
     {P : MorphismProperty (AlgebraicSpace S)}
     [AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget P]
     [P.IsStableUnderBaseChange] {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Z ⟶ Y) [DM f]
-    (hf : hasEtaleSmoothLocalAtSourceAndTarget P f)
-    [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)] :
+    (f : X ⟶ Y) (g : Z ⟶ Y) [DM f],
+    hasEtaleSmoothLocalAtSourceAndTarget P f →
     hasEtaleSmoothLocalAtSourceAndTarget P
-      (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g) :=
-  sorry
+      (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g))
 
-/-- Morphisms of algebraic stacks satisfying
+/- Morphisms of algebraic stacks satisfying
 `hasEtaleSmoothLocalAtSourceAndTarget P` remain so along the second projection of
 any bilimit `PseudoPullbackCone`. -/
-theorem of_isBilimit {S : Scheme.{u}} {P : MorphismProperty (AlgebraicSpace S)}
+#check
+  (AlgebraicGeometry.AlgebraicStack.hasEtaleSmoothLocalAtSourceAndTarget.of_isBilimit :
+    ∀ {S : Scheme.{u}} {P : MorphismProperty (AlgebraicSpace S)}
     [AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget P]
     [P.IsStableUnderBaseChange] {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    {f : X ⟶ Y} {g : Z ⟶ Y} [DM f]
-    (hf : hasEtaleSmoothLocalAtSourceAndTarget P f)
-    (c : PseudoPullbackCone f g) [AlgebraicStack c.pt] (hc : c.IsBilimit) :
-    hasEtaleSmoothLocalAtSourceAndTarget P c.snd :=
-  sorry
+    {f : X ⟶ Y} {g : Z ⟶ Y} [DM f],
+    hasEtaleSmoothLocalAtSourceAndTarget P f →
+    ∀ (c : PseudoPullbackCone f g) [AlgebraicStack c.pt], c.IsBilimit →
+    hasEtaleSmoothLocalAtSourceAndTarget P c.snd)
 
-/-- The first projection of a chosen 2-fibre product satisfies
+/- The first projection of a chosen 2-fibre product satisfies
 `hasEtaleSmoothLocalAtSourceAndTarget P` whenever the second leg does. -/
-theorem twoFibreProduct_fst {S : Scheme.{u}}
+#check
+  (AlgebraicGeometry.AlgebraicStack.hasEtaleSmoothLocalAtSourceAndTarget.twoFibreProduct_fst :
+    ∀ {S : Scheme.{u}}
     {P : MorphismProperty (AlgebraicSpace S)}
     [AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget P]
     [P.IsStableUnderBaseChange] {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Z ⟶ Y) [DM g]
-    (hg : hasEtaleSmoothLocalAtSourceAndTarget P g)
-    [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)] :
+    (f : X ⟶ Y) (g : Z ⟶ Y) [DM g],
+    hasEtaleSmoothLocalAtSourceAndTarget P g →
     hasEtaleSmoothLocalAtSourceAndTarget P
-      (TwoFibreProduct.fst.{u + 1, u, u + 1, u} f g) :=
-  sorry
-
-end hasEtaleSmoothLocalAtSourceAndTarget
+      (TwoFibreProduct.fst.{u + 1, u, u + 1, u} f g))
 
 end AlgebraicGeometry.AlgebraicStack

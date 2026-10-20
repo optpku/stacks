@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Proper
@@ -140,7 +134,7 @@ variable [(forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u}).PreservesLeftKanExten
 
 /-- Forgetting coefficients identifies `g⁻¹ (f_! F)` with
 `g⁻¹ ((etaleLowerShriek f) (forget F))` along `lowerShriekModule_forget`
-and `lowerShriekIsoEtaleLowerShriek`. -/
+and `lowerShriekIso_separated`. -/
 def lowerShriekModuleBaseChange_forgetLeft
     (F : Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ)) :
     (sheafCompose Y'.smallEtaleTopology
@@ -152,7 +146,7 @@ def lowerShriekModuleBaseChange_forgetLeft
       ((lowerShriekModule f Λ).obj F) ≪≫
     (etaleAbelianSheafPullback g).mapIso
       ((lowerShriekModule_forgetFunctorIso f Λ).app F ≪≫
-        (lowerShriekIsoEtaleLowerShriek f).app (etaleModuleForget Λ F))
+        (lowerShriekIso_separated f).app (etaleModuleForget Λ F))
 
 /-- Forgetting coefficients identifies `f'_! ((g')⁻¹ F)` with
 `(etaleLowerShriek f') ((g')⁻¹ (forget F))`. -/
@@ -165,7 +159,7 @@ def lowerShriekModuleBaseChange_forgetRight
         ((etaleAbelianSheafPullback g').obj (etaleModuleForget Λ F)) :=
   (lowerShriekModule_forgetFunctorIso f' Λ).app
       ((etaleModuleSheafPullback g' Λ).obj F) ≪≫
-    (lowerShriekIsoEtaleLowerShriek f').app
+    (lowerShriekIso_separated f').app
       (etaleModuleForget Λ ((etaleModuleSheafPullback g' Λ).obj F)) ≪≫
     (etaleLowerShriek f').mapIso
       ((etaleModuleSheafPullback_compSheafComposeIso g' Λ).app F)
@@ -175,14 +169,17 @@ def lowerShriekModuleBaseChange_forgetRight
 along `forget₂`. -/
 def lowerShriekModuleBaseChange :
     lowerShriekModule f Λ ⋙ etaleModuleSheafPullback g Λ ⟶
-      etaleModuleSheafPullback g' Λ ⋙ lowerShriekModule f' Λ where
-  app F :=
-    liftModuleSheafHom
-      ((lowerShriekModuleBaseChange_forgetLeft f g Λ F).hom ≫
-        etaleLowerShriekBaseChange_app f g f' g' h_cart
-          (etaleModuleForget Λ F) ≫
-        (lowerShriekModuleBaseChange_forgetRight f' g' Λ F).inv)
-  naturality := sorry
+      etaleModuleSheafPullback g' Λ ⋙ lowerShriekModule f' Λ := by
+  refine {
+    app F :=
+      liftModuleSheafHom
+        ((lowerShriekModuleBaseChange_forgetLeft f g Λ F).hom ≫
+          etaleLowerShriekBaseChange_app f g f' g' h_cart
+            (etaleModuleForget Λ F) ≫
+          (lowerShriekModuleBaseChange_forgetRight f' g' Λ F).inv) ?_
+    naturality := ?_ }
+  all_goals sorry
+
 
 /-- The comparison at a sheaf of `Λ`-modules. -/
 def lowerShriekModuleBaseChange_app

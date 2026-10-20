@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_41_1_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.ValuativeCriterion.Diagonal
 import StacksCheckRecall
 
 @[expose]
@@ -27,20 +21,28 @@ variable (sq : ValuativeCommSq (Hom.diagonal.{u + 1, u, u + 1} f))
 valuative square of f with bottom f ∘ a₁, together with dotted arrows
 (a₁, α₁, id) and (a₂, α₂, φ). -/
 @[stacks 0E8L]
-#check (ValuativeCommSq.ofDiagonal sq : ValuativeCommSq f)
+#check (AlgebraicGeometry.AlgebraicStack.ValuativeCommSq.ofDiagonal sq : ValuativeCommSq f)
 
+/- Lemma 101.41.1 (1): the first distinguished dotted arrow has components (a₁, α₁, id). -/
 @[stacks 0E8L]
-#check (ValuativeCommSq.fstDottedArrow sq :
-  DottedArrow (ValuativeCommSq.ofDiagonal sq).toCone)
+#check (AlgebraicGeometry.AlgebraicStack.ValuativeCommSq.fstDottedArrow sq :
+  DottedArrow (AlgebraicGeometry.AlgebraicStack.ValuativeCommSq.ofDiagonal sq).toCone)
 
+/- Lemma 101.41.1 (1): the second distinguished dotted arrow has components (a₂, α₂, φ). -/
 @[stacks 0E8L]
-#check (ValuativeCommSq.sndDottedArrow sq :
-  DottedArrow (ValuativeCommSq.ofDiagonal sq).toCone)
+#check (AlgebraicGeometry.AlgebraicStack.ValuativeCommSq.sndDottedArrow sq :
+  DottedArrow (AlgebraicGeometry.AlgebraicStack.ValuativeCommSq.ofDiagonal sq).toCone)
+
+/- Lemma 101.41.1 (2): the original dotted-arrow category is thin. -/
+@[stacks 0E8L]
+#check (AlgebraicGeometry.AlgebraicStack.ValuativeCommSq.dottedArrow_isThin sq :
+  Quiver.IsThin (DottedArrow sq.toCone))
 
 /- Lemma 101.41.1 (2): the dotted-arrow category of the original square is a
 setoid whose isomorphism classes of objects are the morphisms
 (a₁, α₁, id) ⟶ (a₂, α₂, φ) in the associated dotted-arrow category. -/
 @[stacks 0E8L]
-#check (ValuativeCommSq.isoClassEquiv sq :
+#check (AlgebraicGeometry.AlgebraicStack.ValuativeCommSq.isoClassEquiv sq :
   isomorphismClasses.obj (Cat.of (DottedArrow sq.toCone)) ≃
-    (ValuativeCommSq.fstDottedArrow sq ⟶ ValuativeCommSq.sndDottedArrow sq))
+    (AlgebraicGeometry.AlgebraicStack.ValuativeCommSq.fstDottedArrow sq ⟶
+      AlgebraicGeometry.AlgebraicStack.ValuativeCommSq.sndDottedArrow sq))

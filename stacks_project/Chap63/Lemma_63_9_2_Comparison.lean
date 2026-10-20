@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.TStructure
@@ -168,23 +162,26 @@ with finite-support lower shriek. -/
 def extensionByZeroIsoLowerShriekModule_app
     (F : Sheaf U.smallEtaleTopology (ModuleCat.{u} Λ)) :
     (etaleExtensionByZero j (ModuleCat.{u} Λ)).obj F ≅
-      (lowerShriekModule j Λ).obj F where
-  hom :=
-    liftModuleSheafHom
-      ((extensionByZero_compSheafCompose j Λ F).hom ≫
-        ((extensionByZeroIsoLowerShriek j).app
-            ((sheafCompose U.smallEtaleTopology
-                (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})).obj F)).hom ≫
-        ((lowerShriekModule_forgetFunctorIso j Λ).app F).inv)
-  inv :=
-    liftModuleSheafHom
-      (((lowerShriekModule_forgetFunctorIso j Λ).app F).hom ≫
-        ((extensionByZeroIsoLowerShriek j).symm.app
-            ((sheafCompose U.smallEtaleTopology
-                (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})).obj F)).hom ≫
-        (extensionByZero_compSheafCompose j Λ F).inv)
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+      (lowerShriekModule j Λ).obj F := by
+  refine {
+    hom :=
+      liftModuleSheafHom
+        ((extensionByZero_compSheafCompose j Λ F).hom ≫
+          ((extensionByZeroIsoLowerShriek j).app
+              ((sheafCompose U.smallEtaleTopology
+                  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})).obj F)).hom ≫
+          ((lowerShriekModule_forgetFunctorIso j Λ).app F).inv) ?_
+    inv :=
+      liftModuleSheafHom
+        (((lowerShriekModule_forgetFunctorIso j Λ).app F).hom ≫
+          ((extensionByZeroIsoLowerShriek j).symm.app
+              ((sheafCompose U.smallEtaleTopology
+                  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})).obj F)).hom ≫
+          (extensionByZero_compSheafCompose j Λ F).inv) ?_
+    hom_inv_id := ?_
+    inv_hom_id := ?_ }
+  all_goals sorry
+
 
 /-- Sheaf-level identification of étale extension by zero with finite-support
 lower shriek on étale sheaves of `Λ`-modules. -/

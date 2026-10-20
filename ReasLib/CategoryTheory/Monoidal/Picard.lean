@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Group.Equiv.TypeTags
@@ -108,10 +102,6 @@ noncomputable def reprMkIso (X : C) [isInvertibleObject X] :
     PicardGroup.repr (PicardGroup.mk X) ≅ X :=
   fromSkeletonToSkeletonIso X
 
-/-- The chosen representative of the class of an invertible object is isomorphic to that object. -/
-theorem repr_mk_iso (X : C) [isInvertibleObject X] :
-    Nonempty (PicardGroup.repr (PicardGroup.mk X) ≅ X) := sorry
-
 /-- Taking the class of a chosen representative recovers the original Picard class. -/
 theorem mk_repr (x : PicardGroup C) :
     PicardGroup.mk (PicardGroup.repr x) = x := sorry
@@ -148,11 +138,6 @@ noncomputable def reprZeroIso :
     PicardGroup.repr (0 : PicardGroup C) ≅ 𝟙_ C :=
   fromSkeletonToSkeletonIso (𝟙_ C)
 
-/-- The chosen representative of zero is isomorphic to the monoidal unit, as an existence
-statement. -/
-theorem repr_zero_iso :
-    Nonempty (PicardGroup.repr (0 : PicardGroup C) ≅ 𝟙_ C) := sorry
-
 /-- The monoidal comparison identifying the chosen representative of a sum with the tensor
 product of the chosen representatives. -/
 @[stacks 040C "representative of a sum"]
@@ -160,11 +145,6 @@ noncomputable def reprAddIso (x y : PicardGroup C) :
     PicardGroup.repr (x + y) ≅ PicardGroup.repr x ⊗ PicardGroup.repr y :=
   (Functor.Monoidal.μIso (skeletonEquivalence C).functor (Additive.toMul x).val
     (Additive.toMul y).val).symm
-
-/-- The chosen representative of a sum is isomorphic to the tensor product of the chosen
-representatives, as an existence statement. -/
-theorem repr_add_iso (x y : PicardGroup C) :
-    Nonempty (PicardGroup.repr (x + y) ≅ PicardGroup.repr x ⊗ PicardGroup.repr y) := sorry
 
 /-- The chosen representative of a negative is isomorphic to the chosen tensor inverse. -/
 @[stacks 040C "representative of a negative"]
@@ -177,11 +157,6 @@ noncomputable def reprNegIso (x : PicardGroup C) :
         eqToIso (congrArg PicardGroup.repr (add_neg_cancel x)) ≪≫ reprZeroIso)
       ((reprAddIso (-x) x).symm ≪≫
         eqToIso (congrArg PicardGroup.repr (neg_add_cancel x)) ≪≫ reprZeroIso)
-
-/-- The representative comparison for negation, viewed as an existence statement. -/
-theorem repr_neg_iso (x : PicardGroup C) :
-    Nonempty (PicardGroup.repr (-x) ≅
-      isInvertibleObject.inverse (PicardGroup.repr x)) := sorry
 
 section Functoriality
 
@@ -230,11 +205,6 @@ with the image of its representative. -/
 noncomputable def reprMapIso (F : C ⥤ D) [F.Monoidal] (x : PicardGroup C) :
     PicardGroup.repr (map F x) ≅ F.obj (PicardGroup.repr x) :=
   fromSkeletonToSkeletonIso (F.obj (PicardGroup.repr x))
-
-/-- The representative of the image of a Picard class is isomorphic to the image of its
-representative, as an existence statement. -/
-theorem repr_map_iso (F : C ⥤ D) [F.Monoidal] (x : PicardGroup C) :
-    Nonempty (PicardGroup.repr (map F x) ≅ F.obj (PicardGroup.repr x)) := sorry
 
 /-- The identity monoidal functor induces the identity on the Picard group. -/
 @[simp]

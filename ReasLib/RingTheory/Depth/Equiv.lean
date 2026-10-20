@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.Depth
@@ -49,14 +43,3 @@ theorem moduleDepth_eq (e : M ≃ₗ[R] N) :
 end Local
 
 end LinearEquiv
-
-section Local
-
-variable [IsLocalRing R]
-
-/-- Deprecated compatibility spelling for `LinearEquiv.moduleDepth_eq`. -/
-@[deprecated LinearEquiv.moduleDepth_eq (since := "2026-08-04")]
-theorem moduleDepth_eq_of_equiv (e : M ≃ₗ[R] N) :
-    moduleDepth R M = moduleDepth R N := sorry
-
-end Local

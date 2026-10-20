@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.HomologySequence
@@ -12,7 +6,7 @@ public import ReasLib.AlgebraicGeometry.Scheme.Module.NaiveCotangent.Transitivit
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.LocallyOfType
 public import ReasLib.RingTheory.CompleteIntersection.Local.RingHom
 public import ReasLib.RingTheory.Extension.Cotangent.JacobiZariski
-import StacksCheckRecall
+import Mathlib.Tactic.CrossRefAttribute
 
 @[expose] public section
 

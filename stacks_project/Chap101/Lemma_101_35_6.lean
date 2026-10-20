@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_35_6_Cancellation
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Etale.Cancellation
 import StacksCheckRecall
 
 @[expose] public section
@@ -19,9 +13,9 @@ universe u
 /- Lemma 101.35.6: let `X`, `Y` be algebraic stacks étale over an algebraic stack
 `Z`. Any morphism `X ⟶ Y` over `Z` is étale. -/
 @[stacks 0CIR] #check
-  (Etale.of_comp :
+  (AlgebraicGeometry.AlgebraicStack.Etale.of_two_commute :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-      (f : X ⟶ Y) (g : Y ⟶ Z)
-      [Etale (f ≫ g)] [Etale g],
+      (f : X ⟶ Y) (p : X ⟶ Z) (q : Y ⟶ Z) (α : p ≅ f ≫ q)
+      [Etale p] [Etale q],
       Etale f)

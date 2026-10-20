@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Equivalence
@@ -20,7 +14,7 @@ sheaves on the associated simplicial Zariski site.
 
 @[expose] public section
 
-open CategoryTheory Opposite TopologicalSpace
+open CategoryTheory Opposite TopologicalSpace TopCat
 open TopCat.Sheaf.InverseLimit
 open TopCat.Presheaf.Pushforward renaming id → pushforwardId
 open scoped Simplicial
@@ -35,19 +29,19 @@ variable (X : SimplicialObject TopCat.{u}) (C : Type (u + 1)) [Category.{u} C]
 
 /-- The assembled presheaf on `X_Zar` associated to a sheaf system. -/
 def ofSheafSystemPresheaf (S : SheafSystem (C := C) X) : (zariskiSite X)ᵒᵖ ⥤ C where
-  obj W := (S.stageSheaf (op W.unop.simplex)).presheaf.obj (op W.unop.opens)
+  obj W := (S.stageSheaf W.unop.base).presheaf.obj (op W.unop.opens)
   map {W Z} η :=
-    TopCat.Presheaf.PushforwardHomFamily.ofHomApp (S.stageMap η.unop.simplex.op).hom
-      Z.unop.opens W.unop.opens η.unop.opens_le
+    TopCat.Presheaf.PushforwardHomFamily.ofHomApp (S.stageMap η.unop.base).hom
+      Z.unop.opens W.unop.opens η.unop.mapsTo
   map_id := sorry
   map_comp := sorry
 
-/-- The component of a system morphism on sections over an object of `ZariskiSite X`. -/
+/-- The component of a system morphism on sections over an object of `zariskiSite X`. -/
 def _root_.TopCat.Sheaf.InverseLimit.SheafSystem.Hom.appOpens
-    {S T : SheafSystem (C := C) X} (α : SheafSystem.Hom S T) (U : ZariskiSite X) :
-    (S.stageSheaf (op U.simplex)).presheaf.obj (op U.opens) ⟶
-      (T.stageSheaf (op U.simplex)).presheaf.obj (op U.opens) :=
-  (α.app (op U.simplex)).hom.app (op U.opens)
+    {S T : SheafSystem (C := C) X} (α : SheafSystem.Hom S T) (U : zariskiSite X) :
+    (S.stageSheaf U.base).presheaf.obj (op U.opens) ⟶
+      (T.stageSheaf U.base).presheaf.obj (op U.opens) :=
+  (α.app U.base).hom.app (op U.opens)
 
 /-- Assemble a sheaf on `X_Zar` from a sheaf system. -/
 def ofSheafSystem : SheafSystem.asCategory (C := C) (F := X) ⥤ Sheaf (zariskiTopology X) C where
@@ -58,11 +52,11 @@ def ofSheafSystem : SheafSystem.asCategory (C := C) (F := X) ⥤ Sheaf (zariskiT
   map_id := sorry
   map_comp := sorry
 
-/-- Sections of `ofSheafSystem.obj S` over `U` are the sections of `S.stageSheaf (op U.simplex)`
+/-- Sections of `ofSheafSystem.obj S` over `U` are the sections of `S.stageSheaf U.base`
 over `U.opens`. -/
-theorem ofSheafSystem_obj_app (S : SheafSystem (C := C) X) (U : ZariskiSite X) :
+theorem ofSheafSystem_obj_app (S : SheafSystem (C := C) X) (U : zariskiSite X) :
     ((ofSheafSystem (C := C) X).obj S).obj.obj (op U) =
-      (S.stageSheaf (op U.simplex)).presheaf.obj (op U.opens) := sorry
+      (S.stageSheaf U.base).presheaf.obj (op U.opens) := sorry
 
 /-- Section component of `toSheafSystemMap` over an open of the target stage. -/
 def toSheafSystemMapApp (F : Sheaf (zariskiTopology X) C) {n m : SimplexCategoryᵒᵖ}

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import stacks_project.Chap103.Lemma_103_8_3_LiftedRestriction
 public import ReasLib.CategoryTheory.Abelian.Injective.RightDerived.ExactSquare
@@ -94,7 +88,7 @@ def bigEvaluation (M : EtaleModulesLift X) (V : Y.total) (a : X.total)
 abbrev smallPushforwardDiagram (M : EtaleModulesLift X)
     (b : (AlgebraicSpace.ofOver (Y.p.obj y)).smallEtaleSite) :=
   StructuredArrow.proj (op ((AlgebraicSpace.etaleBaseChange fU).obj b))
-    (AlgebraicSpace.smallEtaleInclusion U).op ⋙
+    (AlgebraicSpace.smallEtaleToSpaces U).op ⋙
     ((CategoryTheory.Sheaf.InternalModule.ToInternal.underlying
       (AlgebraicSpace.commRingedSiteLift U).structureSheaf).obj
       ((coefficient f y U eU).obj M)).obj
@@ -104,7 +98,7 @@ def underivedValueFamily (M : EtaleModulesLift X)
     (b : (AlgebraicSpace.ofOver (Y.p.obj y)).smallEtaleSite)
     (s : ((moduleAtObjectLift y).obj ((moduleDirectImageLift f).obj M)).val.obj (op b))
     (q : StructuredArrow (op ((AlgebraicSpace.etaleBaseChange fU).obj b))
-      (AlgebraicSpace.smallEtaleInclusion U).op) :=
+      (AlgebraicSpace.smallEtaleToSpaces U).op) :=
   bigEvaluation f M
     ((toFunctor (moduleSliceHom y)).obj ((smallEtaleFunctor _ _ (eV y)).obj b))
     ((toFunctor (snd f y)).obj ((smallEtaleFunctor U _ eU).obj q.right.unop))
@@ -130,7 +124,7 @@ def underivedValue (M : EtaleModulesLift X)
   let Q := (CategoryTheory.Sheaf.InternalModule.ToInternal.underlying
     (AlgebraicSpace.commRingedSiteLift U).structureSheaf).obj N
   let v := op ((AlgebraicSpace.etaleBaseChange fU).obj b)
-  let i := AlgebraicSpace.smallEtaleInclusion U
+  let i := AlgebraicSpace.smallEtaleToSpaces U
   let z := Types.Limit.mk (smallPushforwardDiagram f y U fU eU M b)
     (underivedValueFamily f y U fU eU h_fst M b s)
     (underivedValue_isSection f y U fU eU h_fst M b s)

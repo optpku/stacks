@@ -1,21 +1,15 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap91.Lemma_91_11_2_Canonical
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.FirstOrderThickening.Flat
+import StacksCheckRecall
 
 /-!
 # Flatness across a strict morphism of first-order thickenings of ringed topoi
 
-After identifying underlying topoi, a strict morphism of first-order thickenings as in
-Situation 91.9.1 / Definition 91.9.2 is a commutative square of ring sheaves with
-epimorphic `kernelPullbackMap`. For an `O'`-module `F'` with `F = i^* F'` flat over
-`O_B`, flatness of `F'` over `O_{B'}` is equivalent to invertibility of `canonicalMap`.
+The inverse-image base ring sheaves `OB` and `OB'` and the source ring sheaves
+`O` and `O'` form a commutative square on the source site. For a strict square
+and a module whose reduction is flat over `OB`, flatness over `OB'` is equivalent
+to invertibility of the canonical comparison. In that case both factors are invertible.
 -/
 
 @[expose] public section
@@ -44,26 +38,22 @@ variable [(restrictScalars (ringSheafMap π)).IsRightAdjoint]
 variable (f : OB ⟶ O) [(restrictScalars (ringSheafMap f)).IsRightAdjoint]
 variable (f' : OB' ⟶ O') (hcomm : f' ≫ π = τ ≫ f)
 variable (F' : ringedSiteModuleCategory.{u, v, max u v, max u v} J O')
-variable [IsFlat OB ((restrictionAlong f).obj
+variable [hflat : IsFlat OB ((restrictionAlong f).obj
     ((extendScalars (ringSheafMap π)).obj F'))]
 
-/-- Lemma 91.11.2 (1): Let `(f, f')` be a morphism of first-order thickenings of
-ringed topoi as in Situation 91.9.1. Let `F'` be an `O'`-module and set
-`F = i^* F'`. Assume that `F` is flat over `O_B` and that `(f, f')` is a
-strict morphism of thickenings (Definition 91.9.2). Then `F'` is flat over
-`O_{B'}` if and only if the canonical map `f^* J ⊗_O F ⟶ I F'` is an
-isomorphism. -/
-@[stacks 08MQ]
-theorem isFlat_iff_canonicalMap_isIso (hstrict : IsStrict f f' hcomm) :
-    IsFlat OB' ((restrictionAlong f').obj F') ↔
-      IsIso (canonicalMap π f f' hcomm F') := sorry
+/- Lemma 91.11.2. For a strict morphism of first-order thickenings of ringed topoi,
+a module with flat reduction is flat over the thickened base exactly when the
+canonical comparison is an isomorphism. The base ring sheaves below are pulled
+back to the source site. -/
+@[stacks 08MQ] #check (SheafOfModules.RingedSite.FirstOrderThickening.isFlat_iff_canonicalMap_isIso f f' hcomm F' :
+  IsStrict f f' hcomm →
+    (IsFlat OB' ((restrictionAlong f').obj F') ↔
+      IsIso (canonicalMap π f f' hcomm F')))
 
-/-- Lemma 91.11.2 (2): Moreover, in this case the maps
-`f^* J ⊗_O F ⟶ I ⊗_O F ⟶ I F'` are isomorphisms. -/
-@[stacks 08MQ]
-theorem canonicalMaps_isIso (hstrict : IsStrict f f' hcomm)
-    (h : IsIso (canonicalMap π f f' hcomm F')) :
+/- Moreover, both factors of the canonical comparison are isomorphisms in this case. -/
+#check (SheafOfModules.RingedSite.FirstOrderThickening.canonicalMaps_isIso f f' hcomm F' :
+  IsStrict f f' hcomm → IsIso (canonicalMap π f f' hcomm F') →
     IsIso (sourceIdealTensorMap π f f' hcomm F') ∧
-      IsIso (idealMulInfMap π F') := sorry
+      IsIso (idealMulInfMap π F'))
 
 end SheafOfModules.RingedSite.FirstOrderThickening

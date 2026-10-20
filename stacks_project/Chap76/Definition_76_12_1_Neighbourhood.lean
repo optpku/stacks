@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Subobject.Limits
@@ -17,19 +11,19 @@ public import stacks_project.Chap67.Remark_67_12_4_Coborder
 public import stacks_project.Chap76.Definition_76_6_5_Conormal
 public import stacks_project.Chap76.Definition_76_9_1_FiniteOrder
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.InfinitesimalNeighbourhood
+
 /-!
 # Infinitesimal neighbourhoods of immersions of algebraic spaces
 
-The `n`th infinitesimal neighbourhood of an immersion `i : Z ⟶ X` is the closed
-subspace of the coborder open cut out by the `(n + 1)`st power of the coborder
-kernel ideal. The canonical maps `Z ⟶ Z_n ⟶ X` realize this as an `n`th-order
-thickening of `Z` over `X`.
+The ideal-power construction and its canonical maps are provided by the shared
+mathematical owner. The inclusion abbreviation preserves the existing spelling
+for nested closed subspaces.
 -/
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.Limits CategoryTheory.MonoidalCategory
-open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Opposite
+open CategoryTheory AlgebraicGeometry Opposite
 open SheafOfModules.RingedSite
 
 noncomputable section
@@ -40,158 +34,74 @@ namespace AlgebraicGeometry.AlgebraicSpace
 
 variable {S : Scheme.{u}}
 
-/-- Vanishing of a larger quasi-coherent ideal sheaf implies vanishing of any
-smaller ideal sheaf. -/
-theorem vanishes_of_le {X Y : AlgebraicSpace S} {I J : IdealSubobject X}
-    (h : I ≤ J) {f : Y ⟶ X} (hf : vanishes f J) : vanishes f I :=
-  sorry
+#check (vanishes_of_le : ∀ {X Y : AlgebraicSpace S} {I J : IdealSubobject X},
+  I ≤ J → ∀ {f : Y ⟶ X}, vanishes f J → vanishes f I)
 
 /-- The closed-subspace inclusion induced by an inclusion of quasi-coherent
-ideal sheaves. -/
-def subschemeInclusion {X : AlgebraicSpace S} {I J : IdealSubobject X}
+ideal sheaves, using the canonical inclusion. -/
+abbrev subschemeInclusion {X : AlgebraicSpace S} {I J : IdealSubobject X}
     [IsQuasiCoherent I] [IsQuasiCoherent J] (h : I ≤ J) :
-    subscheme J ⟶ subscheme I where
-  app T := TypeCat.ofHom fun (p : (subschemeFunctor J).obj T) ↦
-    ⟨p.val, vanishes_of_le h p.property⟩
-  naturality := sorry
+    subscheme J ⟶ subscheme I :=
+  inclusion h
 
-/-- Nested closed subspaces include into the subspace cut out by the smaller
-ideal. -/
-theorem subschemeInclusion_subschemeι {X : AlgebraicSpace S}
-    {I J : IdealSubobject X} [IsQuasiCoherent I] [IsQuasiCoherent J]
-    (h : I ≤ J) : subschemeInclusion h ≫ subschemeι I = subschemeι J :=
-  sorry
+#check (inclusion_subschemeι : ∀ {X : AlgebraicSpace S} {I J : IdealSubobject X}
+  [IsQuasiCoherent I] [IsQuasiCoherent J] (h : I ≤ J),
+    inclusion h ≫ subschemeι I = subschemeι J)
 
 namespace Hom.InfinitesimalNeighbourhood
 
 variable {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i]
 
-/-- The multiplication map of the `(n + 1)`st tensor power of the coborder
-kernel ideal into the structure module of the coborder. -/
-def powMul (n : ℕ) :
-    Modules.ofComm
-      (tensorObj
-        (TensorPower.sheaf (commStructureSheaf (coborder i))
-          (Modules.toCommSubobject (idealSheafSubobject (IsImmersion.liftCoborder i)))
-          (n + 1))
-        (Modules.toComm (SheafOfModules.unit (structureSheaf (coborder i))))) ⟶
-      SheafOfModules.unit (structureSheaf (coborder i)) :=
-  Modules.ofCommMap
-      (IdealSheaf.powerAction
-        (Modules.toCommSubobject (idealSheafSubobject (IsImmersion.liftCoborder i)))
-        (Modules.toComm (SheafOfModules.unit (structureSheaf (coborder i))))
-        (n + 1)) ≫
-    { val := 𝟙 _ }
+#check (ideal i : ∀ (n : ℕ),
+    IdealSubobject (IsImmersion.coborderRange i).X)
 
-/-- `powMul i n` is the recast coborder-kernel power action into `𝒪` of the
-coborder. -/
-theorem powMul_eq (n : ℕ) :
-    powMul i n =
-      Modules.ofCommMap
-          (IdealSheaf.powerAction
-            (Modules.toCommSubobject (idealSheafSubobject (IsImmersion.liftCoborder i)))
-            (Modules.toComm (SheafOfModules.unit (structureSheaf (coborder i))))
-            (n + 1)) ≫
-        { val := 𝟙 _ } :=
-  sorry
+#check (ideal_eq_pow i : ∀ (n : ℕ),
+    ideal i n = (idealSheafSubobject (IsImmersion.liftCoborder i)).pow (n + 1))
 
-/-- The quasi-coherent ideal sheaf on the coborder open defining the `n`th
-infinitesimal neighbourhood. -/
-def ideal (n : ℕ) : IdealSubobject (coborder i) :=
-  kernelSubobject (cokernel.π (powMul i n))
+#check (ideal_le_idealSheafSubobject i : ∀ (n : ℕ),
+    ideal i n ≤ idealSheafSubobject (IsImmersion.liftCoborder i))
 
-/-- The defining ideal of the `n`th infinitesimal neighbourhood is the image of
-the coborder-kernel power multiplication map. -/
-theorem ideal_eq_kernelSubobject (n : ℕ) :
-    ideal i n = kernelSubobject (cokernel.π (powMul i n)) :=
-  sorry
-
-/-- The defining ideal of the `n`th infinitesimal neighbourhood is contained in
-the coborder kernel ideal. -/
-theorem ideal_le_idealSheafSubobject (n : ℕ) :
-    ideal i n ≤ idealSheafSubobject (IsImmersion.liftCoborder i) :=
-  sorry
-
-/-- The defining ideal of the `n`th infinitesimal neighbourhood is
-quasi-coherent. -/
-instance instIsQuasiCoherent_ideal (n : ℕ) : IsQuasiCoherent (ideal i n) :=
-  sorry
-
-/-- Ordinary section powers of the coborder kernel lie in the sheaf-image
-sections of the neighbourhood ideal. -/
-theorem sections_pow_le (n : ℕ) (U : (smallEtaleSite (coborder i))ᵒᵖ) :
+#check (sections_pow_le i : ∀ (n : ℕ) (U : (smallEtaleSite (IsImmersion.coborderRange i).X)ᵒᵖ),
     IdealSheaf.sections
           (Modules.toCommSubobject (idealSheafSubobject (IsImmersion.liftCoborder i)))
           U ^ (n + 1) ≤
-      IdealSheaf.sections (Modules.toCommSubobject (ideal i n)) U :=
-  sorry
+      IdealSheaf.sections (Modules.toCommSubobject (ideal i n)) U)
 
-/-- On affine étale objects, the defining ideal of the `n`th infinitesimal
-neighbourhood is the `(n + 1)`st power of the coborder kernel ideal. -/
-theorem ideal_apply (n : ℕ) (U : (smallEtaleSite (coborder i))ᵒᵖ)
-    [AlgebraicGeometry.IsAffine ((smallEtaleToScheme (coborder i)).obj U.unop)] :
+#check (ideal_apply i : ∀ (n : ℕ) (U : (smallEtaleSite (IsImmersion.coborderRange i).X)ᵒᵖ)
+    [AlgebraicGeometry.IsAffine ((smallEtaleToScheme (IsImmersion.coborderRange i).X).obj U.unop)],
     IdealSheaf.sections (Modules.toCommSubobject (ideal i n)) U =
       IdealSheaf.sections
           (Modules.toCommSubobject (idealSheafSubobject (IsImmersion.liftCoborder i)))
-          U ^ (n + 1) :=
-  sorry
+          U ^ (n + 1))
 
-/-- The `n`th infinitesimal neighbourhood of the source of an immersion, as a
-closed subspace of the coborder open. -/
-def space (n : ℕ) : AlgebraicSpace S :=
-  subscheme (ideal i n)
+#check (space i : ∀ (n : ℕ),
+    AlgebraicSpace S)
 
-/-- The infinitesimal-neighbourhood space is the closed subspace cut out by the
-corresponding power of the coborder kernel ideal. -/
-theorem space_eq_subscheme (n : ℕ) :
-    space i n = subscheme (ideal i n) :=
-  sorry
+#check (space_eq_subscheme i : ∀ (n : ℕ),
+    space i n = subscheme (ideal i n))
 
-/-- The canonical morphism from an infinitesimal neighbourhood to the ambient
-algebraic space. -/
-def toAmbient (n : ℕ) : space i n ⟶ X :=
-  subschemeι (ideal i n) ≫ (IsImmersion.coborderRange i).ι
+#check (toAmbient i : ∀ (n : ℕ),
+    space i n ⟶ X)
 
-/-- The canonical morphism from the source of an immersion to its `n`th
-infinitesimal neighbourhood. -/
-def fromSource (n : ℕ) : Z ⟶ space i n :=
-  toIdealImage (IsImmersion.liftCoborder i) ≫
-    subschemeInclusion (ideal_le_idealSheafSubobject i n)
+#check (fromSource i : ∀ (n : ℕ),
+    Z ⟶ space i n)
 
-/-- The source morphism followed by the closed-subspace inclusion recovers the
-coborder closed factor of the immersion. -/
-theorem fromSource_subschemeι (n : ℕ) :
-    fromSource i n ≫ subschemeι (ideal i n) = IsImmersion.liftCoborder i :=
-  sorry
+#check (fromSource_subschemeι i : ∀ (n : ℕ),
+    fromSource i n ≫ subschemeι (ideal i n) = IsImmersion.liftCoborder i)
 
-/-- The infinitesimal-neighbourhood factorization recovers the original
-immersion. -/
-theorem fromSource_toAmbient (n : ℕ) :
-    fromSource i n ≫ toAmbient i n = i :=
-  sorry
+#check (fromSource_toAmbient i : ∀ (n : ℕ),
+    fromSource i n ≫ toAmbient i n = i)
 
-/-- The canonical map from the source to its infinitesimal neighbourhood is a
-closed immersion. -/
-instance fromSource_isClosedImmersion (n : ℕ) :
-    IsClosedImmersion (fromSource i n) :=
-  sorry
+#check (fromSource_isClosedImmersion i : ∀ (n : ℕ),
+    IsClosedImmersion (fromSource i n))
 
-/-- The canonical map from an infinitesimal neighbourhood to the ambient space
-is an immersion. -/
-instance toAmbient_isImmersion (n : ℕ) : IsImmersion (toAmbient i n) :=
-  sorry
+#check (toAmbient_isImmersion i : ∀ (n : ℕ),
+    IsImmersion (toAmbient i n))
 
-/-- The canonical map from an immersion to its `n`th infinitesimal neighbourhood
-is an `n`th-order thickening. -/
-instance fromSource_isNthOrderThickening (n : ℕ) :
-    IsNthOrderThickening n (fromSource i n) :=
-  sorry
+#check (fromSource_isNthOrderThickening i : ∀ (n : ℕ),
+    IsNthOrderThickening n (fromSource i n))
 
-/-- The canonical map from an immersion to its first-order infinitesimal
-neighbourhood is a first-order thickening. -/
-instance fromSource_isFirstOrderThickening :
-    IsFirstOrderThickening (fromSource i 1) :=
-  sorry
+#check (fromSource_isFirstOrderThickening i : IsFirstOrderThickening (fromSource i 1))
 
 end Hom.InfinitesimalNeighbourhood
 

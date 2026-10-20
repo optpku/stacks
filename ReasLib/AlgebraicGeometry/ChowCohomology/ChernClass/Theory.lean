@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowCohomology.Completion
@@ -55,14 +49,19 @@ theorem restrictComponent_apply {Y Z : Over S} [LocallyOfFiniteType Y.hom]
 
 /-- A base-wide Chern-class operation, anchored at `p`, characterized by pullback
 naturality, the canonical first-Chern cap operation, Whitney sums, and an injective
-splitting principle. The tensor-twist identity is deliberately not one of the fields. -/
+splitting principle. The anchor is retained because the component operation has
+codomain `ChowCohomology.Nonnegative.degree δ p i`, so dependent consumers can use
+the theory directly at a chosen `S`-scheme. The tensor-twist identity is deliberately
+not one of the fields. -/
 structure Theory {X : Scheme.{u}} (p : X ⟶ S) [LocallyOfFiniteType p] where
   /-- The degree-`i` Chern class of a module on an `S`-scheme. -/
   baseComponent (Y : Over S) [LocallyOfFiniteType Y.hom]
     (E : Y.left.Modules) (i : ℕ) : BivariantClass δ (𝟙 Y) (i : ℤ)
-  /-- Chern classes commute with pullback between `S`-schemes. -/
+  /-- Chern classes of finite locally free modules commute with pullback between
+  `S`-schemes. -/
   component_pullback {Y Z : Over S} [LocallyOfFiniteType Y.hom]
-      [LocallyOfFiniteType Z.hom] (g : Y ⟶ Z) (E : Z.left.Modules) (i : ℕ) :
+      [LocallyOfFiniteType Z.hom] (g : Y ⟶ Z) (E : Z.left.Modules)
+      (hE : E.IsFiniteLocallyFree) (i : ℕ) :
     restrictComponent δ g i (baseComponent Z E i) =
       baseComponent Y ((Scheme.Modules.pullback g.left).obj E) i
   /-- On line bundles, the degree-one component is the canonical first-Chern cap
@@ -107,17 +106,23 @@ structure Theory {X : Scheme.{u}} (p : X ⟶ S) [LocallyOfFiniteType p] where
     baseComponent Y (L ⊗ M) 1 =
       BivariantClass.pointwiseAdd δ (𝟙 Y) 1
         (baseComponent Y L 1) (baseComponent Y M 1)
-  /-- Every constant-rank finite locally free module splits into line bundles after a
-  pullback which is injective on every homogeneous operational Chow group. -/
+  /-- Splitting principle: after a pullback which is injective on every homogeneous
+  operational Chow group, a constant-rank finite locally free module has a filtration
+  whose successive quotients are invertible. -/
   splitting_principle (Y : Over S) [LocallyOfFiniteType Y.hom]
       (E : Y.left.Modules) (r : ℕ) [E.IsFiniteLocallyFreeOfRank r] :
     ∃ (Z : Over S) (hZ : LocallyOfFiniteType Z.hom) (g : Z ⟶ Y)
-        (lines : Fin r → Z.left.Modules),
+        (lines : Fin r → Z.left.Modules)
+        (filtration : Fin (r + 1) → Subobject ((Scheme.Modules.pullback g.left).obj E))
+        (hstep : ∀ a : Fin r, filtration a.castSucc ≤ filtration a.succ),
       (∀ a, Scheme.Modules.Invertible (lines a)) ∧
-        Nonempty ((Scheme.Modules.pullback g.left).obj E ≅ ∐ lines) ∧
-          ∀ i : ℕ, Function.Injective
-            (@restrictComponent S δ inferInstance inferInstance Z Y
-              hZ inferInstance g i)
+        filtration 0 = ⊥ ∧ filtration (Fin.last r) = ⊤ ∧
+          (∀ a : Fin r, Nonempty
+            (cokernel (Subobject.ofLE (filtration a.castSucc) (filtration a.succ)
+              (hstep a)) ≅ lines a)) ∧
+            ∀ i : ℕ, Function.Injective
+              (@restrictComponent S δ inferInstance inferInstance Z Y
+                hZ inferInstance g i)
 
 namespace Theory
 
@@ -143,7 +148,8 @@ def ofComponents
     (baseComponent : ∀ (Y : Over S) [LocallyOfFiniteType Y.hom],
       Y.left.Modules → (i : ℕ) → BivariantClass δ (𝟙 Y) (i : ℤ))
     (component_pullback : ∀ {Y Z : Over S} [LocallyOfFiniteType Y.hom]
-      [LocallyOfFiniteType Z.hom] (g : Y ⟶ Z) (E : Z.left.Modules) (i : ℕ),
+      [LocallyOfFiniteType Z.hom] (g : Y ⟶ Z) (E : Z.left.Modules),
+      E.IsFiniteLocallyFree → ∀ i : ℕ,
       restrictComponent δ g i (baseComponent Z E i) =
         baseComponent Y ((Scheme.Modules.pullback g.left).obj E) i)
     (component_one_cap : ∀ (Y : Over S) [LocallyOfFiniteType Y.hom]
@@ -181,12 +187,17 @@ def ofComponents
     (splitting_principle : ∀ (Y : Over S) [LocallyOfFiniteType Y.hom]
       (E : Y.left.Modules) (r : ℕ) [E.IsFiniteLocallyFreeOfRank r],
       ∃ (Z : Over S) (hZ : LocallyOfFiniteType Z.hom) (g : Z ⟶ Y)
-          (lines : Fin r → Z.left.Modules),
+          (lines : Fin r → Z.left.Modules)
+          (filtration : Fin (r + 1) → Subobject ((Scheme.Modules.pullback g.left).obj E))
+          (hstep : ∀ a : Fin r, filtration a.castSucc ≤ filtration a.succ),
         (∀ a, Scheme.Modules.Invertible (lines a)) ∧
-          Nonempty ((Scheme.Modules.pullback g.left).obj E ≅ ∐ lines) ∧
-            ∀ i : ℕ, Function.Injective
-              (@restrictComponent S δ inferInstance inferInstance Z Y
-                hZ inferInstance g i)) :
+          filtration 0 = ⊥ ∧ filtration (Fin.last r) = ⊤ ∧
+            (∀ a : Fin r, Nonempty
+              (cokernel (Subobject.ofLE (filtration a.castSucc) (filtration a.succ)
+                (hstep a)) ≅ lines a)) ∧
+              ∀ i : ℕ, Function.Injective
+                (@restrictComponent S δ inferInstance inferInstance Z Y
+                  hZ inferInstance g i)) :
     Theory δ p where
   baseComponent := baseComponent
   component_pullback := component_pullback

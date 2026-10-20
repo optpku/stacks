@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
@@ -40,7 +34,7 @@ variable {X : RingedSite.{u, v, w}}
 variable [h_eqX : HasEqualizers X.carrier] [h_pbX : HasPullbacks X.carrier]
 variable {B : Type uB} [Category.{vB} B]
 variable {h_univLE : UnivLE.{max u v, w}}
-variable (D : @LocallyGiven.{u, v, w, w, uB, vB} X B inferInstance h_univLE)
+variable (D : @LocallyGiven.{u, v, w, w, uB, vB} h_univLE X B inferInstance)
 variable {C' : Type u'} [Category.{v'} C']
 variable [h_eqC : HasEqualizers C'] [h_pbC : HasPullbacks C']
 variable (J' : GrothendieckTopology C') (u' : C' ⥤ X)

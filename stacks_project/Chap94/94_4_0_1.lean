@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Scheme
@@ -30,7 +24,7 @@ variable (hG : InducesHom G eP.hom eQ.hom f)
 representable by schemes `U`, `V` over `S`, then `1`-morphisms `P ⟶ Q` modulo
 `2`-isomorphism are identified with morphisms `U ⟶ V` in `Over S`. -/
 @[stacks 04SR]
-#check (Presentation.homEquiv eP eQ :
+#check (CategoryTheory.FiberedCategoryOver.Groupoids.Presentation.homEquiv eP eQ :
   (Bicategory.HomotopyCategory.mk P ⟶ Bicategory.HomotopyCategory.mk Q) ≃ (U ⟶ V))
 
 /- Any `1`-morphism `P ⟶ Q` determines a morphism `U ⟶ V` of schemes over `S`. -/

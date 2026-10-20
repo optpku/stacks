@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Morphism.PageRepresentatives
@@ -52,7 +46,7 @@ subobject lattices. The page index is nonnegative; p remains an arbitrary intege
       (kernelSubobject (K.d PUnit.unit PUnit.unit).hom ⊓ (K.X PUnit.unit).filtration.stage p) ⊔
         (K.X PUnit.unit).filtration.stage (p + 1) ≤ Z)
 
-variable [CompleteLattice (Subobject (K.X PUnit.unit).obj)]
+variable [LocallySmall.{v} C] [WellPowered.{v} C] [HasWidePullbacks.{v} C]
 
 /- 12.23.5.1: intrinsic cycles, with the filtration-negligible summand, lie in
 every finite-page cycle stage of the given filtered differential object. -/

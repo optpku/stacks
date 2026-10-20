@@ -1,18 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.MorphismProperty.Local
-public import Mathlib.CategoryTheory.Types.Basic
-public import ReasLib.CategoryTheory.Fibered.FiberIsoClassPresheaf.GroupoidTarget
-public import ReasLib.CategoryTheory.Fibered.InSetoids.Basic
-public import stacks_project.Chap73.Lemma_73_7_3_Precoverage
-public import stacks_project.Chap80.Definition_80_4_1_Relative
-public import stacks_project.Chap100.Lemma_100_3_2_MorphismProperty
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Representable.Property.FiberIsoClasses
+import StacksCheckRecall
 
 /-!
 # Properties of setoid-fibration morphisms versus iso-class maps
@@ -34,7 +23,7 @@ universe u
 
 namespace AlgebraicGeometry.Groupoids.Hom
 
-/-- Lemma 94.10.4: let `S` be an object of `Sch_fppf`. Let `P` be as in
+/- Lemma 94.10.4: let `S` be an object of `Sch_fppf`. Let `P` be as in
 Definition 94.10.1. Let `f : X ⟶ Y` be a 1-morphism of categories fibred in
 setoids over `(Sch/S)_fppf`. Let `F` and `G` be `Type u` presentations of the
 presheaves of fiberwise isomorphism classes `Functor.fiberIsoClassPresheaf X.p`
@@ -44,8 +33,9 @@ let `a : F ⟶ G` be the corresponding map of presheaves, so that
 by `uliftFunctor`. If `a` is representable by algebraic spaces, then `a` has
 property `P` in the Bootstrap 80.4.1 sense if and only if `f` has property `P`
 in the Definition 94.10.1 sense. -/
-@[stacks 04TC]
-theorem has.iff_fiberIsoClassMap {S : Scheme.{u}} {X Y : GroupoidsOver S}
+@[stacks 04TC] #check
+  (AlgebraicGeometry.Groupoids.Hom.has.iff_fiberIsoClassMap :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [Functor.IsFibered.InSetoids X.p] [Functor.IsFibered.InSetoids Y.p]
     (P : MorphismProperty (AlgebraicSpace S))
     [P.IsStableUnderBaseChange]
@@ -55,8 +45,7 @@ theorem has.iff_fiberIsoClassMap {S : Scheme.{u}} {X Y : GroupoidsOver S}
     (iY : Functor.fiberIsoClassPresheaf Y.p ≅ G ⋙ uliftFunctor.{u + 1, u})
     (h_map : BasedFunctor.fiberIsoClassMap (toBasedFunctor f) =
       iX.hom ≫ Functor.whiskerRight a uliftFunctor.{u + 1, u} ≫ iY.inv)
-    (ha : AlgebraicSpace.representableByAlgebraicSpaces a) :
-    ha.has P ↔ has P f :=
-  sorry
+    (ha : AlgebraicSpace.representableByAlgebraicSpaces a),
+    ha.has P ↔ AlgebraicGeometry.Groupoids.Hom.has P f)
 
 end AlgebraicGeometry.Groupoids.Hom

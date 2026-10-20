@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.TorDimension.Stalk
@@ -30,6 +24,7 @@ universe u
 namespace AlgebraicGeometry.RingedSpace.ModuleDerived.TorAmplitude
 
 variable {X : RingedSpace.{u}} {a b : ℤ}
+variable [DerivedCategory.DerivedTensor.Right.Has (C := Modules X)]
 
 /-- Lemma 20.48.6 (1): the third vertex inherits the common Tor-amplitude interval. -/
 @[stacks 08CJ "(1)"]

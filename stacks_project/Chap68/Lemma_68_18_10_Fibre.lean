@@ -1,67 +1,41 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_4_1_Points
-public import stacks_project.Chap68.Lemma_68_18_6_Fibre
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Fiber
 
 /-!
 # Set-theoretic fibres of morphisms of algebraic spaces
 
-The fibre of a morphism `f : X ⟶ Y` of algebraic spaces over a point `y` of
-`Y` is the preimage of `{y}` under the induced map on points.
+The set-theoretic fibre and its membership, computation, representative-transport,
+and canonical field-fibre map laws are provided by the mathematical owner.
 -/
 
-@[expose] public section
-
-open CategoryTheory AlgebraicGeometry
-
-noncomputable section
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.fiberOver :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S},
+      (X ⟶ Y) → Points Y → Set (Points X))
 
-variable {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.mem_fiberOver_iff :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) {y : Points Y} {x : Points X},
+    x ∈ fiberOver f y ↔ Points.map f x = y)
 
-/-- The set-theoretic fibre of a morphism of algebraic spaces over a point of the
-target, as a subset of `Points X` with the induced topology. -/
-def fiberOver (f : X ⟶ Y) (y : Points Y) : Set (Points X) :=
-  Points.map f ⁻¹' {y}
+#check (AlgebraicGeometry.AlgebraicSpace.fiberOver_eq :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (y : Points Y),
+    fiberOver f y = Points.map f ⁻¹' {y})
 
-/-- Membership in the set-theoretic fibre is the equation on points. -/
-theorem mem_fiberOver_iff (f : X ⟶ Y) {y : Points Y} {x : Points X} :
-    x ∈ fiberOver f y ↔ Points.map f x = y :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.fiberOver_eq_of_mk :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (p : FieldValuedPoint Y) {y : Points Y}
+    (hy : Points.mk p = y),
+    fiberOver f y = fiberOver f (Points.mk p))
 
-/-- The set-theoretic fibre is the singleton preimage of the given point. -/
-theorem fiberOver_eq (f : X ⟶ Y) (y : Points Y) :
-    fiberOver f y = Points.map f ⁻¹' {y} :=
-  sorry
-
-/-- Replacing the point by the class of a field-valued representative does not
-change the set-theoretic fibre. -/
-theorem fiberOver_eq_of_mk (f : X ⟶ Y) (p : FieldValuedPoint Y) {y : Points Y}
-    (hy : Points.mk p = y) :
-    fiberOver f y = fiberOver f (Points.mk p) :=
-  sorry
-
-/-- The canonical map on points from the field-valued fibre lands in the
-set-theoretic fibre over the class of `p`. -/
-theorem mapsTo_fieldFiberι_fiberOver (f : X ⟶ Y) (p : FieldValuedPoint Y) :
+#check (AlgebraicGeometry.AlgebraicSpace.mapsTo_fieldFiberι_fiberOver :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (p : FieldValuedPoint Y),
     Set.MapsTo (Points.map (fieldFiberι f p)) Set.univ
-      (fiberOver f (Points.mk p)) :=
-  sorry
+      (fiberOver f (Points.mk p)))
 
-/-- The canonical map on points from the field-valued fibre is surjective onto
-the set-theoretic fibre over the class of `p`. -/
-theorem surjOn_pointsMap_fieldFiberι (f : X ⟶ Y) (p : FieldValuedPoint Y) :
+#check (AlgebraicGeometry.AlgebraicSpace.surjOn_pointsMap_fieldFiberι :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (p : FieldValuedPoint Y),
     Set.SurjOn (Points.map (fieldFiberι f p)) Set.univ
-      (fiberOver f (Points.mk p)) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+      (fiberOver f (Points.mk p)))

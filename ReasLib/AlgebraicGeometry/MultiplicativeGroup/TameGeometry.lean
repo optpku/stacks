@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.MultiplicativeGroup.TameDegree
@@ -13,6 +7,7 @@ public import Mathlib.Topology.Algebra.Group.ClosedSubgroup
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.Scheme
 open CategoryTheory.PreGaloisCategory
 noncomputable section
+open ProfiniteGrp (hatZ hatZNatCast)
 universe u
 
 namespace MultiplicativeGroupTame
@@ -35,7 +30,7 @@ def geometricKernel (η : GeometricPoint (space (ZMod p))) :
     ClosedSubgroup (fundamentalGroup (ZMod p) η) where
   toSubgroup := (degreeToIntegers p η).hom.toMonoidHom.ker
   isClosed' := IsClosed.preimage (degreeToIntegers p η).hom.continuous
-    (isClosed_singleton : IsClosed ({1} : Set integers))
+    (isClosed_singleton : IsClosed ({1} : Set hatZ.{1}))
 
 theorem geometricKernel_mem (η : GeometricPoint (space (ZMod p)))
     (g : fundamentalGroup (ZMod p) η) :
@@ -49,7 +44,7 @@ theorem exists_frobenius_labels (η : GeometricPoint (space (ZMod p))) :
         labels d x ∈ frobeniusClass (ZMod p) η x.val ∧
         ∀ t : fiber (ZMod p) (pointOver (ZMod p) x.val) ≅ fiber (ZMod p) η,
           labels d x = ConjClasses.mk (frobeniusAlong (ZMod p) η x.val t) ∧
-            degreeToIntegers p η (frobeniusAlong (ZMod p) η x.val t) = integerNat d.val := by
+            degreeToIntegers p η (frobeniusAlong (ZMod p) η x.val t) = hatZNatCast d.val := by
   sorry
 
 end MultiplicativeGroupTame

@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import Mathlib.Order.Filter.CountablyGenerated
 public import Mathlib.RingTheory.Ideal.Maps
 public import Mathlib.Topology.Algebra.LinearTopology
 public import Mathlib.Topology.Algebra.Ring.Ideal
@@ -67,6 +62,19 @@ theorem exists_closure_map_le {φ : A →+* B} (hφ : φ.IsTaut) {J : Ideal B}
 then the second homomorphism is taut. -/
 theorem of_comp {φ : A →+* B} {ψ : B →+* C} (hφ_cont : Continuous φ)
     (hψ_cont : Continuous ψ) (h : (ψ.comp φ).IsTaut) : ψ.IsTaut := sorry
+
+/-- The composite of two continuous taut homomorphisms of linearly topologized rings
+is taut. -/
+theorem comp {φ : A →+* B} {ψ : B →+* C} (hφ_cont : Continuous φ)
+    (hψ_cont : Continuous ψ) (hφ : φ.IsTaut) (hψ : ψ.IsTaut) :
+    (ψ.comp φ).IsTaut := sorry
+
+/-- A continuous taut homomorphism of linearly topologized rings transfers a
+countable fundamental system of open ideals from the source to the target. -/
+theorem isCountablyGenerated_nhds {φ : A →+* B} (hcont : Continuous φ) (htaut : φ.IsTaut)
+    [(nhds (0 : A)).IsCountablyGenerated] :
+    (nhds (0 : B)).IsCountablyGenerated :=
+  sorry
 
 end IsTaut
 

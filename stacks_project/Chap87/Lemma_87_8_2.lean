@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap87.Definition_87_4_8_WeaklyAdmissible
-public import stacks_project.Chap87.Definition_87_5_1_Taut
-public import stacks_project.Chap87.Lemma_87_8_3_OpenQuotient
+public import ReasLib.RingTheory.Topology.WeaklyAdmissible.Descent
+import StacksCheckRecall
 
 /-!
 # Lemma 87.8.2
@@ -24,30 +16,25 @@ universe u v
 
 open RingHom
 
-namespace TopologicalRing.IsWeaklyPreadmissibleRing
-
-/-- Lemma 87.8.2: In the situation above, if `B` is weakly pre-admissible, then `A`
+/- Lemma 87.8.2: In the situation above, if `B` is weakly pre-admissible, then `A`
 is weakly pre-admissible. The situation is a continuous taut homomorphism
 `φ : A →+* B` of linearly topologized rings such that `φ.FaithfullyFlatOpenQuotients`:
 for every open ideal `I` of `A`, writing `J` for the closure of `Ideal.map φ I`,
 the induced map `A ⧸ I →+* B ⧸ J` is faithfully flat. -/
-@[stacks 0GXM]
-theorem of_isTaut {A : Type u} {B : Type v}
+@[stacks 0GXM] #check (TopologicalRing.IsWeaklyPreadmissibleRing.of_isTaut :
+  ∀ {A : Type u} {B : Type v}
     [CommRing A] [TopologicalSpace A] [IsTopologicalRing A] [IsLinearTopology A A]
-    [CommRing B] [TopologicalSpace B] [IsWeaklyPreadmissibleRing B] {φ : A →+* B}
-    (hcont : Continuous φ) (htaut : φ.IsTaut) (hff : φ.FaithfullyFlatOpenQuotients) :
-    IsWeaklyPreadmissibleRing A :=
-  sorry
+    [CommRing B] [TopologicalSpace B] [TopologicalRing.IsWeaklyPreadmissibleRing B]
+    {φ : A →+* B},
+    Continuous φ → φ.IsTaut → φ.FaithfullyFlatOpenQuotients →
+      TopologicalRing.IsWeaklyPreadmissibleRing A)
 
-/-- If `J` is a weak ideal of definition of `B` and `I` is an open ideal of `A` with
-`Ideal.map φ I ≤ J`, then `I` is a weak ideal of definition of `A`. -/
-theorem isWeakIdealOfDefinition_of {A : Type u} {B : Type v}
+#check (TopologicalRing.IsWeaklyPreadmissibleRing.isWeakIdealOfDefinition_of :
+  ∀ {A : Type u} {B : Type v}
     [CommRing A] [TopologicalSpace A] [IsTopologicalRing A] [IsLinearTopology A A]
-    [CommRing B] [TopologicalSpace B] [IsWeaklyPreadmissibleRing B] {φ : A →+* B}
-    (hcont : Continuous φ) (htaut : φ.IsTaut) (hff : φ.FaithfullyFlatOpenQuotients)
-    {J : Ideal B} (hJ : TopologicalRing.Ideal.IsWeakIdealOfDefinition J) {I : Ideal A}
-    (hI : IsOpen (I : Set A)) (hmap : Ideal.map φ I ≤ J) :
-    TopologicalRing.Ideal.IsWeakIdealOfDefinition I :=
-  sorry
-
-end TopologicalRing.IsWeaklyPreadmissibleRing
+    [CommRing B] [TopologicalSpace B] [TopologicalRing.IsWeaklyPreadmissibleRing B]
+    {φ : A →+* B},
+    Continuous φ → φ.IsTaut → φ.FaithfullyFlatOpenQuotients →
+    ∀ {J : Ideal B}, TopologicalRing.Ideal.IsWeakIdealOfDefinition J →
+    ∀ {I : Ideal A}, IsOpen (I : Set A) → Ideal.map φ I ≤ J →
+      TopologicalRing.Ideal.IsWeakIdealOfDefinition I)

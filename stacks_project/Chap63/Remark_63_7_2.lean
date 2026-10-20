@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap63.Lemma_63_7_1_Adjunction
-public import stacks_project.Chap63.Definition_63_12_1_LowerShriek
-public import stacks_project.Chap63.Lemma_63_4_5
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.LocallyQuasiFinite.Torsion
+import StacksCheckRecall
 
 /-!
 # Torsion cohomology sheaves under derived compact-support direct image
@@ -36,15 +29,9 @@ variable {X Y : Scheme.{u}} (f : X ⟶ Y) [LocallyQuasiFinite f]
   [LocallyOfFiniteType f]
 variable [HasSheafify Y.smallEtaleTopology AddCommGrpCat.{u}]
 
-/-- Compact-support direct image along a locally quasi-finite morphism sends
-locally torsion abelian étale sheaves to locally torsion abelian étale
-sheaves. This follows from the stalk formula `lowerShriekStalkIso`: stalks of
-`f_! F` are coproducts of stalks of `F`. -/
-theorem lowerShriek_isLocallyTorsion
-    (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u})
-    (hF : IsLocallyTorsion F) :
-    IsLocallyTorsion ((lowerShriek f).obj F) :=
-  sorry
+#check (AlgebraicGeometry.Scheme.Etale.lowerShriek_isLocallyTorsion f :
+  ∀ (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}),
+    IsLocallyTorsion F → IsLocallyTorsion ((lowerShriek f).obj F))
 
 end Sheaf
 
@@ -52,7 +39,7 @@ section Derived
 
 variable {X Y : Scheme.{u}} (f : X ⟶ Y) [LocallyQuasiFinite f]
   [LocallyOfFiniteType f]
-variable (Λ : Type u) [CommRing Λ]
+variable (Λ : Type u) [Ring Λ]
 variable [X.smallEtaleTopology.HasSheafCompose
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
 variable [Y.smallEtaleTopology.HasSheafCompose
@@ -66,17 +53,17 @@ variable [∀ U : Y.Etale,
 variable [HasDerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))]
 
-/-- Remark 63.7.2: Let `f : X ⟶ Y` be a locally quasi-finite morphism of
+/- Remark 63.7.2: Let `f : X ⟶ Y` be a locally quasi-finite morphism of
 schemes. Let `Λ` be a ring. The functor
 `f_! = lowerShriekModuleDerived : D(X_étale, Λ) ⥤ D(Y_étale, Λ)` of
 Lemma 63.7.1 sends complexes with torsion cohomology sheaves to complexes
 with torsion cohomology sheaves. This is immediate from the description of
 the stalks of `f_!`, see Lemma 63.4.5. -/
-@[stacks 0GJX]
-theorem lowerShriekModuleDerived_etaleDerivedIsTorsion
-    (K : EtaleDerived X Λ) (hK : etaleDerivedIsTorsion K) :
-    etaleDerivedIsTorsion ((lowerShriekModuleDerived f Λ).obj K) :=
-  sorry
+@[stacks 0GJX] #check
+  (AlgebraicGeometry.Scheme.Etale.lowerShriekModuleDerived_etaleDerivedIsTorsion f Λ :
+    ∀ (K : DerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ))),
+      etaleDerivedIsTorsion K →
+        etaleDerivedIsTorsion ((lowerShriekModuleDerived f Λ).obj K))
 
 end Derived
 

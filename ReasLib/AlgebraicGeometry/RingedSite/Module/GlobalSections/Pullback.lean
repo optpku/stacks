@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import Mathlib.CategoryTheory.Limits.Final
 public import ReasLib.Algebra.Category.Ring.KanExtension
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.GlobalSections.Basic
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.HomOfSite
@@ -17,8 +12,8 @@ import Mathlib.Tactic.CrossRefAttribute
 
 This file constructs the canonical ring homomorphism
 `GlobalSectionsRing Y ⟶ GlobalSectionsRing X` associated to a morphism `X ⟶ Y` of ringed
-sites.  Its underlying function is obtained from the structure-sheaf map and the canonical
-comparison `f_* ⋙ Γ ≅ Γ` on underlying type-valued sheaves.
+sites. Its underlying function is the structure-sheaf map on limits followed by native
+initial reindexing along the opposite of the given representably flat base functor.
 -/
 
 @[expose] public section
@@ -48,13 +43,10 @@ noncomputable def globalSectionsUnderlyingIso (X : RingedSite.{uX, vX, w}) :
 /-- The underlying function of pullback on global-sections rings. -/
 noncomputable def globalSectionsMapToFun (f : X.Hom Y) :
     globalSectionsRing Y → globalSectionsRing X :=
-  (globalSectionsUnderlyingIso Y).hom ≫
-    (Sheaf.Γ Y.siteTopology (Type w)).map f.underlyingDirectImageMap ≫
-    ((@Functor.morphismOfTopoiInOfContinuous _ _ _ _ f.base
-      Y.siteTopology X.siteTopology inferInstance inferInstance inferInstance
-      (RingedSite.Hom.baseSheafPullbackPreservesFiniteLimits f)).pushforwardCompΓIso.hom.app
-      (underlyingStructureSheaf X)) ≫
-    (globalSectionsUnderlyingIso X).inv
+  letI : RepresentablyFlat f.base := f.isMorphismOfSites.toRepresentablyFlat
+  letI : f.base.Final := CategoryTheory.final_of_representablyFlat f.base
+  (Limits.lim.map f.structureSheafMap.hom ≫
+    (Functor.Initial.limitIso f.base.op X.structureSheaf.obj).hom).hom
 
 /-- Pullback on global sections preserves zero. -/
 theorem globalSectionsMapToFun_zero (f : X.Hom Y) :

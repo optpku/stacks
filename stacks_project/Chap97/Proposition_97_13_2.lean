@@ -1,49 +1,19 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
-public import stacks_project.Chap97.Proposition_97_13_2_Group
-public import stacks_project.Chap97.Proposition_97_13_2_Action
-public import stacks_project.Chap97.Proposition_97_13_2_Comparison
-
-/-!
-# Proposition 97.13.2
-
-The finite Hilbert stack `H_d` of a point is equivalent to the quotient stack
-`[X/G]` of the unit-fixing `GL_d`-action on the universal free-algebra scheme,
-and in particular `H_d` is an algebraic stack.
--/
-
-@[expose] public section
+public import ReasLib.AlgebraicGeometry.FiniteHilbertStack.PointQuotient
+import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry
-open AlgebraicGeometry.FiniteHilbertStack
-open AlgebraicGeometry.GLFixOne
-open scoped Bicategory
 
-noncomputable section
+/- Proposition 97.13.2: the finite Hilbert stack of a point is equivalent to the
+quotient by unit-fixing changes of basis, and is an algebraic stack. -/
+@[stacks 05YQ] #check (AlgebraicGeometry.FiniteHilbertStack.comparison_isEquivalence :
+  ∀ (d : ℕ) [NeZero d],
+    (FiberedCategoryOver.Groupoids.toBasedFunctor
+      (AlgebraicGeometry.FiniteHilbertStack.comparison d)).IsEquivalence)
 
-universe u
-
-namespace AlgebraicGeometry.FiniteHilbertStack
-
-/-- Proposition 97.13.2 (1): the Spec comparison `[X/G] ⟶ H_d` is an equivalence of
-stacks in groupoids over `(Sch/Spec(Z))_fppf`. -/
-@[stacks 05YQ, instance]
-instance comparison_isEquivalence (d : ℕ) [NeZero d] :
-    (FiberedCategoryOver.Groupoids.toBasedFunctor (comparison d)).IsEquivalence :=
-  sorry
-
-/-- Proposition 97.13.2 (2): the finite Hilbert stack `H_d` of a point is an algebraic
-stack over `Spec(Z)`. -/
-@[stacks 05YQ, instance]
-instance instAlgebraicStack (d : ℕ) [NeZero d] :
-    AlgebraicStack (ofScheme specZ d).toGroupoids :=
-  sorry
-
-end AlgebraicGeometry.FiniteHilbertStack
+#check (AlgebraicGeometry.FiniteHilbertStack.instAlgebraicStack :
+  ∀ (d : ℕ) [NeZero d],
+    AlgebraicStack
+      (AlgebraicGeometry.FiniteHilbertStack.ofScheme
+        AlgebraicGeometry.GLFixOne.specZ d).toGroupoids)

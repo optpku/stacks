@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.DerivedCategory.ModulesOnCategory.QuasiCoherent.SmallSources
@@ -37,9 +31,8 @@ variable [((⊥ : GrothendieckTopology C)).HasSheafCompose
 /-- The ambient unbounded derived category of module sheaves on the chaotic ringed site. -/
 @[stacks 0GZ0 "ambient derived category"]
 abbrev AmbientDerived :=
-  DerivedCategory
-    (ringedSiteModuleCategory.{u, v, max (max u v) w, max (max u v) w}
-      (⊥ : GrothendieckTopology C) 𝒪)
+  RingedSiteDerived.{u, v, max (max u v) w, max (max u v) w}
+    (⊥ : GrothendieckTopology C) 𝒪
 
 /-- The canonical fully faithful inclusion of quasi-coherent objects into the ambient derived
 category. -/

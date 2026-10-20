@@ -1,28 +1,39 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap98.Remark_98_9_2_Predeformation
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.FormalObject.Predeformation
 import StacksCheckRecall
 
 /-!
-# Formal objects of a category fibred in groupoids as formal objects of `ℱ_{X, k, x₀}`
+# Formal objects in the residue-point predeformation category
 
-Stacks tag 0CXH: a scheme-level formal object of `X` over a locally Noetherian
-scheme supplies a Chap90 formal object of the predeformation category
-`ℱ_{X, R/m, ξ₁}`.
+A formal object over a locally Noetherian scheme determines a formal object of
+its residue-point predeformation category with the same base and stages.
 -/
 
 @[expose] public section
 
-open AlgebraicGeometry.GroupoidsOver
+open CategoryTheory AlgebraicGeometry IsLocalRing
 
-/- Remark 98.9.2: if `S` is locally Noetherian, `p : X ⟶ (Sch/S)_fppf` is a
-category fibred in groupoids, and `ξ` is a formal object of `X`, then with
-`k = ResidueField ξ.base.carrier` and `x0 = ξ.stageOne` the same data is a
-formal object of the predeformation category `F_{X, k, x0}` from Section 98.3. -/
-@[stacks 0CXH] #check FormalObject.toPredeformation
+universe u
+
+/- Remark 98.9.2: a formal object of a category fibred in groupoids over `S`
+defines a formal object of the predeformation category at its residue object.
+Stage `n` below is the source stage `ξ_{n+1}`, and stage zero is `x₀ = ξ₁`. -/
+@[stacks 0CXH] #check
+  (AlgebraicGeometry.GroupoidsOver.Predeformation.formalObjectOfAdicSystem :
+    ∀ {S : Scheme.{u}} [IsLocallyNoetherian S] {X : GroupoidsOver S}
+      {R : Type u} [CommRing R] [IsNoetherianRing R] [IsCompleteLocalRing R]
+      (toS : Spec (CommRingCat.of R) ⟶ S)
+      (objects : ℕ → X.total) (step : ∀ n, objects n ⟶ objects (n + 1))
+      (over_obj : ∀ n, X.p.obj (objects n) =
+        AdicPresentation.stage toS (maximalIdeal R) n)
+      (over_step : ∀ n, X.p.IsHomLift
+        ((AdicPresentation.diagram toS (maximalIdeal R)).map (homOfLE (Nat.le_succ n)))
+        (step n))
+      {Λ : Type u} [CommRing Λ] [IsNoetherianRing Λ]
+      [Algebra Λ R] [Module.Finite Λ (ResidueField R)]
+      (openImmersion : Spec (CommRingCat.of Λ) ⟶ S) [IsOpenImmersion openImmersion]
+      (h_toS : Spec.map (CommRingCat.ofHom (algebraMap Λ R)) ≫ openImmersion = toS)
+      [LocallyOfFiniteType (GroupoidsOver.Predeformation.adicResidueToS toS)],
+      _root_.FormalObject
+        (GroupoidsOver.Predeformation.adicProjection toS objects over_obj openImmersion h_toS))

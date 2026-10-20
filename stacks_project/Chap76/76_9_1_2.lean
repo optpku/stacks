@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-import stacks_project.Chap76.«76_9_1_2_Equivalence»
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Thickening.RingedTopos
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.Thickening
@@ -20,6 +14,6 @@ spaces-étale sites are identified by 76.9.1.1, so `𝒪_{X'}` may be viewed on
 `(Sh(X'_spaces,étale), 𝒪_{X'}) ≅ (Sh(X_spaces,étale), 𝒪_{X'})` via
 `closedRingedToposHom`. -/
 @[stacks 05ZM] #check
-  (closedRingedToposHom_isEquivalence_of_isThickening :
+  (AlgebraicGeometry.AlgebraicSpace.Thickening.closedRingedToposHom_isEquivalence_of_isThickening :
     ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (i : X ⟶ X') [IsThickening i],
-      (closedRingedToposHom i).IsEquivalence)
+      (AlgebraicGeometry.AlgebraicSpace.Thickening.closedRingedToposHom i).IsEquivalence)

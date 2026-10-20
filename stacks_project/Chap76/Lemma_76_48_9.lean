@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_48_9_LocalAtTarget
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.LocalAtTarget.LocalCompleteIntersection
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +14,7 @@ variable (S : Scheme.{u})
 /- Lemma 76.48.9: the property `P(f)` given by “`f` is a local complete
 intersection morphism” is fpqc local on the base. -/
 @[stacks 0CHM] #check
-  (IsLocalCompleteIntersection.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.AlgebraicSpace.IsLocalCompleteIntersection.isLocalAtTargetFpqc :
     MorphismProperty.IsLocalAtTarget
       (@IsLocalCompleteIntersection S : MorphismProperty (AlgebraicSpace S))
       (fpqcPrecoverage S))

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.HomologicalComplex.Flat
@@ -15,7 +9,9 @@ import Mathlib.Tactic.CrossRefAttribute
 
 The canonical owner of termwise flatness is the monoidal-category predicate
 `HomologicalComplex.IsTermwiseFlat`.  This file supplies the ringed-space view in terms of
-stalkwise-flat module sheaves, without introducing a second class.
+stalkwise-flat module sheaves, without introducing a second class or a ringed-space alias of
+the predicate.  Use `(isTermwiseFlat_iff K).mpr` to build termwise flatness from stalkwise
+flat terms.
 -/
 
 @[expose] public section
@@ -36,11 +32,5 @@ flatness of every term. -/
 theorem isTermwiseFlat_iff (K : CochainComplex (Modules X) ℤ) :
     HomologicalComplex.IsTermwiseFlat K ↔
       ∀ n : ℤ, SheafOfModules.IsFlat (K.X n) := sorry
-
-/-- Stalkwise flatness of every term constructs the canonical termwise-flat predicate. -/
-theorem isTermwiseFlat_of_forall_isFlat
-    (K : CochainComplex (Modules X) ℤ)
-    (hK : ∀ n : ℤ, SheafOfModules.IsFlat (K.X n)) :
-    HomologicalComplex.IsTermwiseFlat K := sorry
 
 end AlgebraicGeometry.RingedSpace.CochainComplex

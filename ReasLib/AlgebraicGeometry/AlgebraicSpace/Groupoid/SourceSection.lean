@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid
@@ -70,3 +64,46 @@ theorem comp_eq {B : AlgebraicSpace S}
       G.compose (δ2 ≫ G.t ≫ δ1) δ2 (composable G δ1 δ2 hδ1) := sorry
 
 end AlgebraicGeometry.GroupoidAlgebraicSpace.SourceSection
+
+namespace AlgebraicGeometry.GroupoidAlgebraicSpace
+
+variable {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)] {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
+
+/-- A source section of a groupoid in algebraic spaces: a morphism `δ : U ⟶ R`
+satisfying `δ ≫ s = 𝟙 U`. -/
+structure Section where
+  /-- The underlying morphism `U ⟶ R`. -/
+  arrow : G.U ⟶ G.R
+  /-- The source of the section is the identity on objects. -/
+  source : arrow ≫ G.s = 𝟙 G.U
+
+/-- Build a source section from a morphism `U ⟶ R` with source the identity. -/
+def Section.of (arrow : G.U ⟶ G.R) (source : arrow ≫ G.s = 𝟙 G.U) :
+    Section G :=
+  ⟨arrow, source⟩
+
+/-- The underlying arrow of `Section.of` is the supplied morphism. -/
+theorem Section.of_arrow (arrow : G.U ⟶ G.R) (source : arrow ≫ G.s = 𝟙 G.U) :
+    (Section.of G arrow source).arrow = arrow := rfl
+
+/-- Source sections with the same underlying arrow are equal. -/
+theorem Section.ext {δ₁ δ₂ : Section G} (h : δ₁.arrow = δ₂.arrow) : δ₁ = δ₂ := sorry
+
+/-- The identity section is the identity-arrow map `e`. -/
+def Section.id : Section G :=
+  Section.of G G.e G.identity_source
+
+/-- The underlying arrow of the identity section is `e`. -/
+theorem Section.id_arrow : (Section.id G).arrow = G.e := rfl
+
+/-- Composition of source sections: `δ₁ ∘ δ₂ = c(δ₁ ∘ t ∘ δ₂, δ₂)`. -/
+def Section.comp (δ₁ δ₂ : Section G) : Section G :=
+  Section.of G (SourceSection.comp G δ₁.arrow δ₂.arrow δ₁.source δ₂.source)
+    (SourceSection.comp_source G δ₁.arrow δ₂.arrow δ₁.source δ₂.source)
+
+/-- The underlying arrow of a composite is the composition of the underlying source sections. -/
+theorem Section.comp_arrow (δ₁ δ₂ : Section G) :
+    (Section.comp G δ₁ δ₂).arrow =
+      SourceSection.comp G δ₁.arrow δ₂.arrow δ₁.source δ₂.source := rfl
+
+end AlgebraicGeometry.GroupoidAlgebraicSpace

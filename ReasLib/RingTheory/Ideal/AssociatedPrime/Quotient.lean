@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.Spectrum.Prime.Defs
@@ -36,13 +30,6 @@ theorem image_comap_eq :
       associatedPrimesOfModule R M := sorry
 
 end associatedPrimesOfModule.Quotient
-
-/-- Exact associated primes of a quotient-ring module, contracted to the base ring, are exactly
-its exact associated primes after restriction of scalars. -/
-@[deprecated associatedPrimesOfModule.Quotient.image_comap_eq (since := "2026-08-07")]
-theorem associatedPrimesOfModule_quotient_image_comap_eq :
-    Ideal.comap (Ideal.Quotient.mk I) '' associatedPrimesOfModule (R ⧸ I) M =
-      associatedPrimesOfModule R M := sorry
 
 end
 

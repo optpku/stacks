@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback
@@ -43,7 +37,7 @@ instance. Calling `Functor.asEquivalence` remains available to a consumer that r
 chosen inverse, but that choice-based package is not a second canonical data owner.
 
 The project imports are public because their square, comparison, bilimit, and symmetric-model
-APIs occur in exported declarations. `StacksCheckRecall` is plain because it is used only to
+APIs occur in exported declarations. `Mathlib.Tactic.CrossRefAttribute` is plain because it is used only to
 elaborate the source tag; no tactic, diagnostic, or proof-only dependency is re-exported.
 -/
 

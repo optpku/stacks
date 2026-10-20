@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.GroupTheory.Perm.Fin
@@ -15,10 +9,11 @@ import Mathlib.Tactic.CrossRefAttribute
 
 namespace Equiv.Perm
 
-/-- Definition 20.23.1 (01FH): delete the source index `j` from a permutation of `Fin (n + 1)`.
+/-- Delete the source index `j` from a permutation of `Fin (n + 1)`.
 
 The result acts on the complementary `Fin n` after the deleted source and target positions have
-both been moved to the distinguished zero position. -/
+both been moved to the distinguished zero position. This auxiliary permutation is used for
+compatibility of the alternating Čech differential in Stacks 01FH. -/
 @[stacks 01FH "permutation after deleting one index"]
 abbrev deleteAt {n : ℕ} (τ : Equiv.Perm (Fin (n + 1))) (j : Fin (n + 1)) :
     Equiv.Perm (Fin n) :=

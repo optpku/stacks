@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_7_8_Transitivity
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Differentials.Transitivity
 import StacksCheckRecall
 
 /-!
@@ -37,17 +31,17 @@ variable (f : X ⟶ Y) (g : Y ⟶ B)
 scheme `S`, the canonical sequence
 `(Modules.pullback f).obj (relativeDifferentials g) ⟶ relativeDifferentials (f ≫ g) ⟶
 relativeDifferentials f ⟶ 0` is exact. -/
-@[stacks 05Z8] #check (exact_and_epi f g :
+@[stacks 05Z8] #check (AlgebraicGeometry.AlgebraicSpace.Hom.Differentials.Transitivity.exact_and_epi f g :
   (complex f g).Exact ∧ Epi (projection f g))
 
 /- The reusable owner supplies the canonical short complex as concrete data. -/
-@[stacks 05Z8] #check (complex f g : ShortComplex X.Modules)
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.Differentials.Transitivity.complex f g : ShortComplex X.Modules)
 
 /- The left map is the comparison of the identity square on `B`. -/
-@[stacks 05Z8] #check (baseChange f g :
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.Differentials.Transitivity.baseChange f g :
   (Modules.pullback f).obj (relativeDifferentials g) ⟶ relativeDifferentials (f ≫ g))
 
 /- The right map is identity-pullback transport of the comparison of the identity square
 on `X`. -/
-@[stacks 05Z8] #check (projection f g :
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.Differentials.Transitivity.projection f g :
   relativeDifferentials (f ≫ g) ⟶ relativeDifferentials f)

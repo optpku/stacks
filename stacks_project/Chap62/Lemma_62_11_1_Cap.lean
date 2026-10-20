@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.CyclesOnFibers.Cap
@@ -27,7 +21,7 @@ namespace AlgebraicGeometry.Scheme.Hom.CyclesOnFibers
 
 variable {S X Y : Scheme.{u}} [UniversallyCatenary S]
     (p : Y ⟶ S) (f : X ⟶ Y)
-    [LocallyOfFiniteType p] [LocallyOfFiniteType (f ≫ p)]
+    [LocallyOfFiniteType p] [LocallyOfFiniteType f]
     (δ : S → ℤ) [IsDimensionFunction δ] (r e : ℤ)
 
 /- The fibre-cycle action sends degrees `r` and `e` to degree `r + e`. -/

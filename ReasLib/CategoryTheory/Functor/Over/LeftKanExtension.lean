@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Limits.FiniteConnected.Preserves
@@ -49,7 +43,7 @@ abbrev projIso
 
 end Index
 
-/-- Remark 7.25.10 (0494): the left Kan extension along `(Over.forget U).op` is objectwise the
+/-- The left Kan extension along `(Over.forget U).op` is objectwise the
 coproduct of the values of `G` over maps `V ⟶ U`. -/
 @[stacks 0494]
 noncomputable def objIsoSigma
@@ -138,7 +132,7 @@ theorem objIsoSigma.hom_map
               Over.mk ((objIsoSigma U G V).hom x).1).op
           ((objIsoSigma U G V).hom x).2⟩ := sorry
 
-/-- Remark 7.25.10 (0494): left Kan extension along `(Over.forget U).op` preserves limits of
+/-- Left Kan extension along `(Over.forget U).op` preserves limits of
 finite connected diagrams of type-valued presheaves. -/
 @[stacks 0494, instance]
 theorem preservesFiniteConnectedLimits (U : C) :
@@ -146,14 +140,14 @@ theorem preservesFiniteConnectedLimits (U : C) :
       ((Over.forget U).op.lan :
         ((Over U)ᵒᵖ ⥤ Type (max u v)) ⥤ (Cᵒᵖ ⥤ Type (max u v))) := sorry
 
-/-- Remark 7.25.10 (0494): the presheaf-level localization lower shriek preserves pullbacks. -/
+/-- The presheaf-level localization lower shriek preserves pullbacks. -/
 @[stacks 0494]
 theorem preservesPullbacks (U : C) :
     PreservesLimitsOfShape WalkingCospan
       ((Over.forget U).op.lan :
         ((Over U)ᵒᵖ ⥤ Type (max u v)) ⥤ (Cᵒᵖ ⥤ Type (max u v))) := sorry
 
-/-- Remark 7.25.10 (0494): the presheaf-level localization lower shriek preserves equalizers. -/
+/-- The presheaf-level localization lower shriek preserves equalizers. -/
 @[stacks 0494]
 theorem preservesEqualizers (U : C) :
     PreservesLimitsOfShape WalkingParallelPair

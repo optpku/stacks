@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_4_2_Pullback
-public import stacks_project.Chap75.Lemma_75_4_2_SmallEtale
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Quasicoherent.EtaleComparison
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.InternalHom.EtaleComparison
 import StacksCheckRecall
 
 open AlgebraicGeometry CategoryTheory

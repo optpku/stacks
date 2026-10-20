@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.ExactFunctor
-public import ReasLib.CategoryTheory.Adjunction.Derived.Unbounded
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Pushforward.Adjunction
 public import stacks_project.Chap66.«66_26_1_1_Restrict»
 public import stacks_project.Chap75.Lemma_75_3_1_Pushforward
 public import stacks_project.Chap75.Lemma_75_3_1_Restrict
@@ -29,41 +23,6 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules
-
-variable {S : Scheme.{u}} {V X : AlgebraicSpace S}
-
-/-- The unbounded derived adjunction `f^* ⊣ Rf_*` associated to an étale morphism of
-algebraic spaces. -/
-def restrictPushforwardDerivedAdjunction (f : V ⟶ X) [Etale f] :
-    restrictFunctorDerived f ⊣ pushforwardDerived f :=
-  Adjunction.Derived.KInjective.adjunction
-    (ExactFunctor.of (restrictFunctor f)) (pushforward f) (restrictAdjunction f)
-
-/-- The derived étale restriction–pushforward adjunction is the K-injective derived
-adjunction of `restrictAdjunction`. -/
-theorem restrictPushforwardDerivedAdjunction_eq (f : V ⟶ X) [Etale f] :
-    restrictPushforwardDerivedAdjunction f =
-      Adjunction.Derived.KInjective.adjunction
-        (ExactFunctor.of (restrictFunctor f)) (pushforward f) (restrictAdjunction f) :=
-  sorry
-
-/-- The unit of `restrictPushforwardDerivedAdjunction` at `E` is the adjunct of the
-identity on `E|_V`, i.e. the canonical map `E ⟶ Rf_*(E|_V)`. -/
-theorem restrictPushforwardDerivedAdjunction_unit_app (f : V ⟶ X) [Etale f]
-    (E : ModuleDerived X) :
-    (restrictPushforwardDerivedAdjunction f).unit.app E =
-      (restrictPushforwardDerivedAdjunction f).homEquiv
-        E ((restrictFunctorDerived f).obj E) (𝟙 _) :=
-  sorry
-
-/-- The counit of `restrictPushforwardDerivedAdjunction` at `F` is the coadjunct of the
-identity on `Rf_* F`, i.e. the canonical map `(Rf_* F)|_V ⟶ F`. -/
-theorem restrictPushforwardDerivedAdjunction_counit_app (f : V ⟶ X) [Etale f]
-    (F : ModuleDerived V) :
-    (restrictPushforwardDerivedAdjunction f).counit.app F =
-      ((restrictPushforwardDerivedAdjunction f).homEquiv
-        ((pushforwardDerived f).obj F) F).symm (𝟙 _) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Modules
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.restrictPushforwardDerivedAdjunction :
+  ∀ {S : Scheme.{u}} {V X : AlgebraicSpace S} (f : V ⟶ X) [Etale f],
+    restrictFunctorDerived f ⊣ moduleDerivedPushforward f)

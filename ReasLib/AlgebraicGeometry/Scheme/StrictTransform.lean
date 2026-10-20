@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.FunctorCategory.Shapes.Kernels
 public import Mathlib.AlgebraicGeometry.IdealSheaf.Functorial
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Pullback.LocalGeneration
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.PullbackContinuous.LocalGeneration
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Subobject
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Definition
 public import ReasLib.AlgebraicGeometry.Scheme.Divisor.EffectiveCartier

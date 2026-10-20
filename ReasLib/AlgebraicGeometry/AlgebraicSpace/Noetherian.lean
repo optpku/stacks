@@ -1,23 +1,17 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Noetherian
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Separation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Separation.Absolute.Relative
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.QuasiCompact
 
 /-!
 # Noetherian algebraic spaces
 
 An algebraic space is locally Noetherian when it admits a representable étale locally-surjective
-atlas from a locally Noetherian scheme. It is Noetherian when it is quasi-compact, quasi-separated,
-and locally Noetherian.
+atlas from a locally Noetherian scheme. It is Noetherian when it is quasi-compact, absolutely
+quasi-separated, and locally Noetherian, independently of the chosen base scheme.
 -/
 
 @[expose] public section
@@ -78,22 +72,23 @@ theorem isLocallyNoetherian_iff_exists_hom {S : Scheme.{u}} (X : AlgebraicSpace 
           Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) f ∧
             AlgebraicGeometry.IsLocallyNoetherian U.left := sorry
 
-/-- An algebraic space is Noetherian if it is quasi-compact, quasi-separated, and locally
-Noetherian. -/
+/-- An algebraic space is Noetherian if it is quasi-compact, absolutely quasi-separated, and
+locally Noetherian. -/
 @[mk_iff]
 class IsNoetherian {S : Scheme.{u}} (X : AlgebraicSpace S) : Prop extends
-    IsQuasiCompact X, IsQuasiSeparated X, IsLocallyNoetherian X
+    IsQuasiCompact X, IsAbsolutelyQuasiSeparated X, IsLocallyNoetherian X
 
 namespace IsNoetherian
 
-/-- A Noetherian algebraic space is quasi-compact, quasi-separated, and locally Noetherian. -/
+/-- A Noetherian algebraic space is quasi-compact, absolutely quasi-separated, and locally
+Noetherian. -/
 theorem spec {S : Scheme.{u}} (X : AlgebraicSpace S) [IsNoetherian X] :
-    IsQuasiCompact X ∧ IsQuasiSeparated X ∧ IsLocallyNoetherian X := sorry
+    IsQuasiCompact X ∧ IsAbsolutelyQuasiSeparated X ∧ IsLocallyNoetherian X := sorry
 
-/-- Quasi-compactness, quasi-separatedness, and local Noetherianity together witness that an
-algebraic space is Noetherian. -/
+/-- Quasi-compactness, absolute quasi-separatedness, and local Noetherianity together witness
+that an algebraic space is Noetherian. -/
 theorem of {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [IsQuasiCompact X] [IsQuasiSeparated X] [IsLocallyNoetherian X] :
+    [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X] [IsLocallyNoetherian X] :
     IsNoetherian X := sorry
 
 end IsNoetherian
@@ -102,7 +97,7 @@ end IsNoetherian
 instance instIsNoetherian_ofOver {S : Scheme.{u}} (T : Over S)
     [AlgebraicGeometry.IsNoetherian T.left] : IsNoetherian (ofOver T) where
   toIsQuasiCompact := instIsQuasiCompact_ofOver T
-  toIsQuasiSeparated := sorry
+  toIsAbsolutelyQuasiSeparated := sorry
   toIsLocallyNoetherian := instIsLocallyNoetherian_ofOver T
 
 end AlgebraicGeometry.AlgebraicSpace

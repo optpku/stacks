@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Definition_90_9_1_Smooth
-public import stacks_project.Chap90.Lemma_90_23_4
+public import ReasLib.AlgebraicGeometry.FormalDeformation.SmoothGroupoid.Quotient
 import StacksCheckRecall
 
 /-!
@@ -30,19 +23,20 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
 
 namespace CategoryTheory.GroupoidInFunctors
 
-/-- Remark 90.23.2 (1): if `(U, R, s, t, c)` is a smooth groupoid in functors on
+/- Remark 90.23.2 (1): if `(U, R, s, t, c)` is a smooth groupoid in functors on
 `ArtinianLocalAlgCat Λ k`, then the quotient `[U/R]` need not be a smooth
 category cofibered in groupoids in the sense of Definition 90.9.1. -/
 @[stacks 06KJ]
-theorem not_forall_isSmooth_quotient :
-    ¬ ∀ (G : GroupoidInFunctors.{u + 1, u, v} (ArtinianLocalAlgCat Λ k)),
-      IsSmooth G.s G.t → Functor.IsSmooth G.quotient.p :=
-  sorry
+#check (CategoryTheory.GroupoidInFunctors.not_forall_isSmooth_quotient :
+    ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+      [Module.Finite Λ k],
+      ¬ ∀ (G : GroupoidInFunctors.{u + 1, u, max u v} (ArtinianLocalAlgCat Λ k)),
+        IsSmooth G.s G.t → Functor.IsSmooth G.quotient.p)
 
 /- Remark 90.23.2 (2): smoothness of `(U, R, s, t, c)` is equivalent to smoothness
 of the quotient morphism `U ⟶ [U/R]`. -/
 @[stacks 06KJ]
-#check (isSmooth_iff_quotientMorphism :
+#check (CategoryTheory.GroupoidInFunctors.isSmooth_iff_quotientMorphism :
     ∀ G : GroupoidInFunctors.{u + 1, u, v} (ArtinianLocalAlgCat Λ k),
       IsSmooth G.s G.t ↔ BasedFunctor.IsSmooth (quotientMorphism G))
 

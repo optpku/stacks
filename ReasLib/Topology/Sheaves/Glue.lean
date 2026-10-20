@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Topology.Sheaves.SheafCondition.UniqueGluing
@@ -62,9 +56,13 @@ noncomputable def glueOfCompatibleFamily (F : TopCat.Sheaf C X) {ι : Type*}
     (s : ∀ i, ToType (F.obj.obj (Opposite.op (U i))))
     (hs : TopCat.Presheaf.IsCompatible F.obj U s) :
     ToType (F.obj.obj (Opposite.op V)) :=
-  Classical.choose <|
-    ExistsUnique.exists <|
-      F.existsUnique_gluing' U V iUV hcover s hs
+  let P := F.obj ⋙ CategoryTheory.forget C
+  let hP : TopCat.Presheaf.IsSheaf P :=
+    (TopCat.Presheaf.isSheaf_iff_isSheaf_comp' (CategoryTheory.forget C) F.obj).mp F.property
+  let t := (hP.isSheafPairwiseIntersections U).some
+  let compatibleSection := TopCat.Presheaf.IsCompatible.sectionPairwise (F := P) hs
+  let glued := t.lift (Types.coneOfSection compatibleSection.property) PUnit.unit
+  F.obj.map (eqToHom (le_antisymm hcover (iSup_le fun i ↦ (iUV i).le))).op glued
 
 /-- Restricting a chosen gluing to a member of the cover recovers its prescribed local section. -/
 @[stacks 0A3F "restriction of a chosen compatible gluing"]

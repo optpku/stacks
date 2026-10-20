@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.CartesianBasedFunctor.Reindex
@@ -132,8 +126,8 @@ theorem isIso_of_fiberwiseFullyFaithful
     {U : C} (x y : p₁.Fiber U) :
     IsIso (map F χ₁ χ₂ x y) := sorry
 
-/-- Lemma 8.4.7 (tag 04WQ), explicit-cleavage form: a cartesian based functor is fully faithful
-exactly when all common-universe Hom-presheaf maps are isomorphisms. -/
+/-- A cartesian based functor is fully faithful exactly when all common-universe
+Hom-presheaf maps formed using explicit source and target cleavages are isomorphisms. -/
 @[stacks 04WQ "heterogeneous full faithfulness via explicit Hom-presheaf maps"]
 theorem fullyFaithful_iff_isIso
     (F : CartesianBasedFunctor p₁ p₂) (χ₁ : p₁.Cleavage) (χ₂ : p₂.Cleavage) :
@@ -147,14 +141,6 @@ theorem isIso_of_isEquivalence
     (F : CartesianBasedFunctor p₁ p₂) (χ₁ : p₁.Cleavage) (χ₂ : p₂.Cleavage)
     (hF : F.toBasedFunctor.IsEquivalence)
     {U : C} (x y : p₁.Fiber U) :
-    IsIso (map F χ₁ χ₂ x y) := sorry
-
-/-- Hom-presheaf maps of an equivalence over the base are automatically available to
-typeclass search in the explicit-cleavage presentation. -/
-@[stacks 02ZA "instance for explicit Hom-presheaf equivalences"]
-instance isIso
-    (F : CartesianBasedFunctor p₁ p₂) (χ₁ : p₁.Cleavage) (χ₂ : p₂.Cleavage)
-    [F.toBasedFunctor.IsEquivalence] {U : C} (x y : p₁.Fiber U) :
     IsIso (map F χ₁ χ₂ x y) := sorry
 
 end map
@@ -211,8 +197,8 @@ theorem isIso_of_fiberwiseFullyFaithful
     {U : C} (x y : p₁.Fiber U) :
     IsIso (map F x y) := sorry
 
-/-- Lemma 8.4.7 (tag 04WQ), chosen-cleavage form: a cartesian based functor is fully faithful
-exactly when all canonical common-universe Hom-presheaf maps are isomorphisms. -/
+/-- A cartesian based functor is fully faithful exactly when all canonical common-universe
+Hom-presheaf maps formed using the selected cleavages are isomorphisms. -/
 @[stacks 04WQ "heterogeneous full faithfulness via canonical Hom-presheaf maps"]
 theorem fullyFaithful_iff_isIso (F : CartesianBasedFunctor p₁ p₂) :
     Nonempty F.toFunctor.FullyFaithful ↔

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap92.Definition_92_22_1_Morphism
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.NaiveCotangent
-public import Mathlib.Algebra.Homology.Embedding.CochainComplex
+public import ReasLib.AlgebraicGeometry.RingedSite.Topos.CotangentComplex.NaiveComparison
 
 /-!
 # Naive cotangent complexes of morphisms of ringed topoi
@@ -43,36 +36,14 @@ variable [JC.WEqualsLocallyBijective AddCommGrpCat.{u}]
 variable [HasColimitsOfShape (Discrete WalkingPair) CommRingCat.{u}]
 variable {OC : Sheaf JC CommRingCat.{u}} {OD : Sheaf JD CommRingCat.{u}}
 
-/-- The naive cotangent complex of a morphism of ringed topoi is
-`NL(O / f⁻¹ O_B)`. -/
-noncomputable abbrev naiveCotangent
-    (f : ToposHom (RingedSite.ofCommRingSheaf JC OC)
-      (RingedSite.ofCommRingSheaf JD OD)) :
-    CochainComplex (SheafOfModules (ringSheaf JC OC)) ℤ :=
-  NaiveCotangent.obj (inverseImageStructureSheaf f) (Under.mk (structureSheafMap f))
+variable (f : ToposHom (RingedSite.ofCommRingSheaf JC OC)
+  (RingedSite.ofCommRingSheaf JD OD))
 
-/-- Reusable notation for the naive cotangent complex of a morphism of ringed topoi. -/
-scoped[RingedSite.ToposHom] notation:max "NL[" f "]" =>
-  RingedSite.ToposHom.naiveCotangent f
+#check (RingedSite.ToposHom.naiveCotangent f :
+  CochainComplex (SheafOfModules (ringSheaf JC OC)) ℤ)
 
-open scoped RingedSite.ToposHom
-
-/-- Unfolding the naive cotangent complex of a morphism of ringed topoi recovers the
-sheaf-level owner applied to `f♯ : f⁻¹ O_B ⟶ O`. -/
-theorem naiveCotangent_eq
-    (f : ToposHom (RingedSite.ofCommRingSheaf JC OC)
-      (RingedSite.ofCommRingSheaf JD OD)) :
-    naiveCotangent f =
-      NaiveCotangent.obj (inverseImageStructureSheaf f)
-        (Under.mk (structureSheafMap f)) :=
-  sorry
-
-/-- The naive cotangent complex of a morphism of ringed topoi is concentrated in
-degrees `≥ -1`. -/
-instance naiveCotangent_isGE_negOne
-    (f : ToposHom (RingedSite.ofCommRingSheaf JC OC)
-      (RingedSite.ofCommRingSheaf JD OD)) :
-    (NL[f]).IsGE (-1) :=
-  sorry
+#check (SheafOfModules.RingedSite.CotangentComplex.naiveObj_isGE_negOne
+    (f.toTopos.commRingInverseImage.obj OD) (Under.mk (commRingStructureMap f)) :
+  (RingedSite.ToposHom.naiveCotangent f).IsGE (-1))
 
 end RingedSite.ToposHom

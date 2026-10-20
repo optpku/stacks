@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap98.«98_8_0_2_DualNumber»
-public import stacks_project.Chap98.«98_8_0_2_InfinitesimalAut»
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation.InfinitesimalAutomorphisms
+import StacksCheckRecall
 
 /-!
 # Infinitesimal automorphisms of a predeformation category associated to a residue object
@@ -40,12 +33,11 @@ variable (φ : Fiber.fiberInclusion.obj x0' ⟶ Fiber.fiberInclusion.obj x0)
 variable [X.p.IsHomLift (specDualNumberToResidue openImmersion k kToS h_factor) φ]
 variable [X.p.IsStronglyCartesian (specDualNumberToResidue openImmersion k kToS h_factor) φ]
 
-/-- 98.8.0.2: the group `Inf(ℱ_{𝒳, k, x₀})` of infinitesimal automorphisms is the kernel of
+/- 98.8.0.2: the group `Inf(ℱ_{𝒳, k, x₀})` of infinitesimal automorphisms is the kernel of
 `Aut_{Spec(k[ε])}(x₀') → Aut_{Spec(k)}(x₀)`, where `x₀'` is a pullback of `x₀` to `Spec(k[ε])`. -/
 @[stacks 07X0]
-theorem infinitesimalAutomorphisms_eq_ker :
+#check (AlgebraicGeometry.GroupoidsOver.Predeformation.infinitesimalAutomorphisms_eq_ker openImmersion kToS h_factor X x0 x0' φ :
     infinitesimalAutomorphisms openImmersion kToS h_factor X x0 x0' φ =
-      (restrictAut openImmersion kToS h_factor X x0 x0' φ).ker :=
-  sorry
+      (restrictAut openImmersion kToS h_factor X x0 x0' φ).ker)
 
 end AlgebraicGeometry.GroupoidsOver.Predeformation

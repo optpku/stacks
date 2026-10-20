@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap73.Definition_73_8_6_Site
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.PhPrecoverage.Over
 import StacksCheckRecall
 
 @[expose] public section
@@ -17,9 +11,14 @@ universe u
 Definition 73.8.5. Let `X` be an algebraic space over `S`, i.e. an object of
 `(Spaces / S)_ph`. Then the big ph site `(Spaces / X)_ph` of `X` is the
 localization of the site `(Spaces / S)_ph` at `X` introduced in Sites,
-Section 7.25, recorded by `overPhTopology X`. -/
-@[stacks 0DFL] #check AlgebraicGeometry.AlgebraicSpace.overPhTopology
+Section 7.25. The Grothendieck-topology realization of this localization in
+the inherited fixed-universe site presentation is `overPhTopology X`. -/
+@[stacks 0DFL] #check (AlgebraicGeometry.AlgebraicSpace.overPhTopology :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S),
+    CategoryTheory.GrothendieckTopology (CategoryTheory.Over X))
 
-#check CategoryTheory.GrothendieckTopology.over
-
-#check AlgebraicGeometry.AlgebraicSpace.ChosenBigPhSite
+#check (AlgebraicGeometry.AlgebraicSpace.ChosenBigPhSite.over_eq :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}}
+    (J : AlgebraicGeometry.AlgebraicSpace.ChosenBigPhSite S)
+    (X : AlgebraicGeometry.AlgebraicSpace S),
+    J.toGrothendieck.over X = AlgebraicGeometry.AlgebraicSpace.overPhTopology X)

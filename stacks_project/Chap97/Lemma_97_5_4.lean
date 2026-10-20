@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap97.«97_5_0_1_OnObjects»
-public import stacks_project.Chap100.Definition_100_9_1_Immersion
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.LimitPreservingOnObjects.OpenImmersion
+import StacksCheckRecall
 
 /-!
 # Open immersions are limit preserving on objects
@@ -30,13 +24,14 @@ namespace AlgebraicGeometry.Groupoids.Hom
 
 namespace LimitPreservingOnObjects
 
-/-- Lemma 97.5.4: Let `p : X ⟶ Y` be a 1-morphism of categories fibred in
+/- Lemma 97.5.4: Let `p : X ⟶ Y` be a 1-morphism of categories fibred in
 groupoids over `(Sch/S)_fppf`. Assume `p` is representable by algebraic spaces
 and an open immersion. Then `p` is limit preserving on objects. -/
-@[stacks 06CY]
-instance of_openImmersion {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    (p : X ⟶ Y) [OpenImmersion p] : LimitPreservingOnObjects p :=
-  sorry
+@[stacks 06CY] #check
+  (AlgebraicGeometry.Groupoids.Hom.LimitPreservingOnObjects.of_openImmersion :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} (p : X ⟶ Y)
+      [AlgebraicGeometry.Groupoids.Hom.OpenImmersion p],
+      AlgebraicGeometry.Groupoids.Hom.LimitPreservingOnObjects p)
 
 end LimitPreservingOnObjects
 

@@ -1,16 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion
-public import Mathlib.AlgebraicGeometry.Morphisms.FinitePresentation
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiCompact
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiSeparated
-public import Mathlib.CategoryTheory.MorphismProperty.Representable
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.SchemeOver.MorphismProperty
 public import stacks_project.Chap99.«99_8_1_1_Functor»
 
 /-!
@@ -34,45 +24,29 @@ namespace AlgebraicGeometry.AlgebraicSpace.Quot
 
 variable {S : Scheme.{u}} {B : AlgebraicSpace S}
 
-/-- A morphism of `Type (u + 1)` functors on schemes over `B` is a closed
-immersion when it is relatively representable with respect to `uliftYoneda` and
-every represented pullback is a closed immersion of schemes. -/
-def IsClosedImmersionOnSchemesOver {F G : (SchemesOver B)ᵒᵖ ⥤ Type (u + 1)}
+/-- A closed immersion of presheaves on schemes over `B`, using the shared
+scheme-representable morphism predicate. -/
+abbrev IsClosedImmersionOnSchemesOver {F G : (SchemesOver B)ᵒᵖ ⥤ Type (u + 1)}
     (φ : F ⟶ G) : Prop :=
-  let P : MorphismProperty (SchemesOver B) :=
-    fun _ _ h ↦ AlgebraicGeometry.IsClosedImmersion h.left.left
-  P.relative uliftYoneda.{u + 1} φ
+  SchemeOver.IsClosedImmersion φ
 
-/-- Closed immersions of Quot-sized functors are relatively representable
-`uliftYoneda` morphisms whose represented scheme maps are closed immersions. -/
-theorem isClosedImmersionOnSchemesOver_iff {F G : (SchemesOver B)ᵒᵖ ⥤ Type (u + 1)}
-    (φ : F ⟶ G) :
+/-- A finitely presented morphism of presheaves on schemes over `B`, using the
+shared scheme-representable morphism predicate. -/
+abbrev IsFinitePresentationOnSchemesOver {F G : (SchemesOver B)ᵒᵖ ⥤ Type (u + 1)}
+    (φ : F ⟶ G) : Prop :=
+  SchemeOver.IsFinitePresentation φ
+
+#check (AlgebraicGeometry.AlgebraicSpace.SchemeOver.isClosedImmersion_iff :
+  ∀ {F G : (SchemesOver B)ᵒᵖ ⥤ Type (u + 1)} (φ : F ⟶ G),
     IsClosedImmersionOnSchemesOver φ ↔
       uliftYoneda.{u + 1}.relativelyRepresentable φ ∧
         ∀ ⦃σ τ : SchemesOver B⦄ (ξ : uliftYoneda.{u + 1}.obj σ ⟶ G)
           (fst : uliftYoneda.{u + 1}.obj τ ⟶ F) (snd : τ ⟶ σ),
           IsPullback fst (uliftYoneda.{u + 1}.map snd) φ ξ →
-            AlgebraicGeometry.IsClosedImmersion snd.left.left :=
-  sorry
+            AlgebraicGeometry.IsClosedImmersion snd.left.left)
 
-/-- A morphism of `Type (u + 1)` functors on schemes over `B` is of finite
-presentation when it is relatively representable with respect to `uliftYoneda`
-and every represented pullback is locally of finite presentation, quasi-compact,
-and quasi-separated as a morphism of schemes. -/
-def IsFinitePresentationOnSchemesOver {F G : (SchemesOver B)ᵒᵖ ⥤ Type (u + 1)}
-    (φ : F ⟶ G) : Prop :=
-  let P : MorphismProperty (SchemesOver B) :=
-    fun _ _ h ↦
-      AlgebraicGeometry.LocallyOfFinitePresentation h.left.left ∧
-        AlgebraicGeometry.QuasiCompact h.left.left ∧
-        AlgebraicGeometry.QuasiSeparated h.left.left
-  P.relative uliftYoneda.{u + 1} φ
-
-/-- Finite presentation of Quot-sized functors is relative representability for
-`uliftYoneda` together with local finite presentation, quasi-compactness, and
-quasi-separatedness of every represented scheme map. -/
-theorem isFinitePresentationOnSchemesOver_iff
-    {F G : (SchemesOver B)ᵒᵖ ⥤ Type (u + 1)} (φ : F ⟶ G) :
+#check (AlgebraicGeometry.AlgebraicSpace.SchemeOver.isFinitePresentation_iff :
+  ∀ {F G : (SchemesOver B)ᵒᵖ ⥤ Type (u + 1)} (φ : F ⟶ G),
     IsFinitePresentationOnSchemesOver φ ↔
       uliftYoneda.{u + 1}.relativelyRepresentable φ ∧
         ∀ ⦃σ τ : SchemesOver B⦄ (ξ : uliftYoneda.{u + 1}.obj σ ⟶ G)
@@ -80,7 +54,6 @@ theorem isFinitePresentationOnSchemesOver_iff
           IsPullback fst (uliftYoneda.{u + 1}.map snd) φ ξ →
             AlgebraicGeometry.LocallyOfFinitePresentation snd.left.left ∧
               AlgebraicGeometry.QuasiCompact snd.left.left ∧
-              AlgebraicGeometry.QuasiSeparated snd.left.left :=
-  sorry
+              AlgebraicGeometry.QuasiSeparated snd.left.left)
 
 end AlgebraicGeometry.AlgebraicSpace.Quot

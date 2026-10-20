@@ -1,20 +1,16 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.MorphismProperty.Representable.PullbackDiagonal
 
 public import Mathlib.AlgebraicGeometry.Limits
+public import Mathlib.CategoryTheory.Comma.Over.Basic
 public import Mathlib.AlgebraicGeometry.Pullbacks
 public import Mathlib.CategoryTheory.Limits.Constructions.Over.Basic
 public import Mathlib.CategoryTheory.Limits.FunctorCategory.Basic
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
 public import Mathlib.CategoryTheory.Limits.Types.Limits
 public import Mathlib.CategoryTheory.Limits.Yoneda
+public import Mathlib.CategoryTheory.Sites.Limits
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
 
 /-!
@@ -44,7 +40,10 @@ instance instHasPullbacksFunctorOfPoints {S : Scheme.{u}} :
 theorem pullbackOver_isSheaf {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u}
     {F G : AlgebraicSpace S} (f : F.functorOfPoints ⟶ H) (g : G.functorOfPoints ⟶ H)
     (hH : Presheaf.IsSheaf (Scheme.fppfTopology.over S) H) :
-    Presheaf.IsSheaf (Scheme.fppfTopology.over S) (Limits.pullback f g) := sorry
+    Presheaf.IsSheaf (Scheme.fppfTopology.over S) (Limits.pullback f g) := by
+  apply ObjectProperty.prop_limit (Presheaf.IsSheaf (Scheme.fppfTopology.over S)) (cospan f g)
+  rintro (_ | ⟨_ | _⟩)
+  all_goals first | exact F.isSheaf | exact G.isSheaf | exact hH
 
 /-- The presheaf fibre product of algebraic spaces over a presheaf with representable diagonal
 has representable diagonal. -/
@@ -53,6 +52,96 @@ theorem pullbackOver_representableDiagonal {S : Scheme.{u}} {H : (Over S)ᵒᵖ 
     (hΔ : yoneda.relativelyRepresentable (Limits.diag H)) :
     yoneda.relativelyRepresentable (Limits.diag (Limits.pullback f g)) :=
   CategoryTheory.Functor.relativelyRepresentable.PullbackDiagonal.diagonal f g F.representableDiagonal G.representableDiagonal hΔ
+
+private theorem locallySurjective_baseChange {S : Scheme.{u}}
+    (J : GrothendieckTopology (Over S))
+    {P F G H : (Over S)ᵒᵖ ⥤ Type u} {α : P ⟶ F} {β : P ⟶ G}
+    {f : F ⟶ H} {g : G ⟶ H} (sq : IsPullback α β f g)
+    (hf : Presheaf.IsLocallySurjective J f) : Presheaf.IsLocallySurjective J β := by
+  constructor
+  intro A s
+  refine J.superset_covering ?_ (hf.imageSieve_mem (g.app _ s))
+  intro B i hi
+  obtain ⟨t, ht⟩ := hi
+  obtain ⟨z, _, hz⟩ := Types.exists_of_isPullback
+    (sq.map ((evaluation _ _).obj (Opposite.op B))) t (G.map i.op s)
+    (by change f.app _ t = g.app _ (G.map i.op s)
+        rw [ht, g.naturality_apply])
+  exact ⟨z, hz⟩
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem atlasPullback_properties {S : Scheme.{u}}
+    {F G H : (Over S)ᵒᵖ ⥤ Type u} (f : F ⟶ H) (g : G ⟶ H)
+    {U V W : Over S} (a : yoneda.obj U ⟶ F) (b : yoneda.obj V ⟶ G)
+    (α : yoneda.obj W ⟶ yoneda.obj U) (β : yoneda.obj W ⟶ yoneda.obj V)
+    (sq : IsPullback α β (a ≫ f) (b ≫ g))
+    (ha : (MorphismProperty.over (@Etale)).presheaf a)
+    (hsa : Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) a)
+    (hb : (MorphismProperty.over (@Etale)).presheaf b)
+    (hsb : Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) b) :
+    let p := pullback.lift (α ≫ a) (β ≫ b)
+      (by simpa only [Category.assoc] using sq.w)
+    (MorphismProperty.over (@Etale)).presheaf p ∧
+      Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p := by
+  let K := Limits.pullback (a ≫ f) g
+  let q : K ⟶ Limits.pullback f g :=
+    pullback.lift (pullback.fst (a ≫ f) g ≫ a) (pullback.snd (a ≫ f) g)
+      (by simpa only [Category.assoc] using pullback.condition (f := a ≫ f) (g := g))
+  let j : yoneda.obj W ⟶ K := pullback.lift α (β ≫ b)
+    (by simpa only [Category.assoc] using sq.w)
+  have qfst : q ≫ pullback.fst f g = pullback.fst (a ≫ f) g ≫ a :=
+    pullback.lift_fst _ _ _
+  have qsnd : q ≫ pullback.snd f g = pullback.snd (a ≫ f) g :=
+    pullback.lift_snd _ _ _
+  have jfst : j ≫ pullback.fst (a ≫ f) g = α := pullback.lift_fst _ _ _
+  have jsnd : j ≫ pullback.snd (a ≫ f) g = β ≫ b := pullback.lift_snd _ _ _
+  have sqj : IsPullback β j b (pullback.snd (a ≫ f) g) := by
+    apply IsPullback.of_bot (v₂₁ := pullback.fst (a ≫ f) g)
+      (v₂₂ := g)
+    · simpa only [j, pullback.lift_fst] using sq.flip
+    · exact jsnd.symm
+    · exact (IsPullback.of_hasPullback (a ≫ f) g).flip
+  have sqq : IsPullback (pullback.fst (a ≫ f) g) q a (pullback.fst f g) := by
+    refine IsPullback.of_isLimit (PullbackCone.IsLimit.mk
+      qfst.symm
+      (fun c ↦ pullback.lift c.fst (c.snd ≫ pullback.snd f g) (by
+        rw [← Category.assoc, c.condition, Category.assoc, pullback.condition,
+          Category.assoc]))
+      (fun c ↦ pullback.lift_fst _ _ _)
+      (fun c ↦ by apply pullback.hom_ext <;>
+        simp only [Category.assoc, qfst, qsnd, pullback.lift_fst_assoc,
+          pullback.lift_snd, c.condition]) ?_)
+    intro c m hm₁ hm₂
+    apply pullback.hom_ext
+    · simpa only [pullback.lift_fst] using hm₁
+    · have h := congrArg (fun k ↦ k ≫ pullback.snd f g) hm₂
+      simpa only [Category.assoc, qsnd, pullback.lift_snd] using h
+  have hj : (MorphismProperty.over (@Etale)).presheaf j :=
+    (MorphismProperty.relative_isStableUnderBaseChange
+      (MorphismProperty.over (@Etale))).of_isPullback sqj hb
+  have hq : (MorphismProperty.over (@Etale)).presheaf q :=
+    (MorphismProperty.relative_isStableUnderBaseChange
+      (MorphismProperty.over (@Etale))).of_isPullback sqq ha
+  have hs_j := locallySurjective_baseChange (Scheme.etaleTopology.over S) sqj hsb
+  have hs_q := locallySurjective_baseChange (Scheme.etaleTopology.over S) sqq hsa
+  have hp : j ≫ q = pullback.lift (α ≫ a) (β ≫ b)
+      (by simpa only [Category.assoc] using sq.w) := by
+    apply pullback.hom_ext
+    · rw [Category.assoc, qfst, ← Category.assoc, jfst, pullback.lift_fst]
+    · rw [Category.assoc, qsnd, jsnd, pullback.lift_snd]
+  rw [← hp]
+  refine ⟨?_, Presheaf.isLocallySurjective_comp (Scheme.etaleTopology.over S) j q⟩
+  apply MorphismProperty.relative.of_exists
+    (P := MorphismProperty.inverseImage (@Etale) (Over.forget S))
+  intro A t
+  refine ⟨hj.rep.pullback (hq.rep.fst t), hj.rep.fst (hq.rep.fst t),
+    hj.rep.snd (hq.rep.fst t) ≫ hq.rep.snd t, ?_, ?_⟩
+  · simpa only [yoneda.map_comp] using
+      (hj.rep.isPullback (hq.rep.fst t)).paste_vert (hq.rep.isPullback t)
+  · have h₁ : Etale (hj.rep.snd (hq.rep.fst t)).left := hj.property_snd _
+    have h₂ : Etale (hq.rep.snd t).left := hq.property_snd _
+    change Etale ((hj.rep.snd (hq.rep.fst t)).left ≫ (hq.rep.snd t).left)
+    infer_instance
 
 /-- The presheaf fibre product of algebraic spaces over a presheaf with representable diagonal
 admits a representable étale locally-surjective atlas. -/
@@ -69,7 +158,10 @@ theorem pullbackOver_hasAtlas {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u}
   let p : yoneda.obj W ⟶ Limits.pullback f g :=
     Limits.pullback.lift (r.fst (b ≫ g) ≫ a) (yoneda.map (r.snd (b ≫ g)) ≫ b)
       (((Category.assoc _ _ _).trans (r.w (b ≫ g))).trans (Category.assoc _ _ _).symm)
-  exact ⟨W, p, by sorry, by sorry⟩
+  exact ⟨W, p, atlasPullback_properties f g a b (r.fst (b ≫ g))
+    (yoneda.map (r.snd (b ≫ g))) (r.isPullback (b ≫ g))
+    F.atlas.choose_spec.choose_spec.1 F.atlas.choose_spec.choose_spec.2
+    G.atlas.choose_spec.choose_spec.1 G.atlas.choose_spec.choose_spec.2⟩
 
 /-- The algebraic space `F ×_H G` obtained as the sheaf fibre product of algebraic spaces `F`
 and `G` over an fppf sheaf `H` with representable diagonal. -/
@@ -99,7 +191,9 @@ theorem pullbackOver_spec {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u} {F G 
       yoneda.relativelyRepresentable (Limits.diag X.functorOfPoints) ∧
         ∃ (U : Over S) (p : yoneda.obj U ⟶ X.functorOfPoints),
           MorphismProperty.presheaf (MorphismProperty.over (@Etale)) p ∧
-            Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p := sorry
+            Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p :=
+  ⟨(pullbackOver f g hH hΔ).isSheaf, (pullbackOver f g hH hΔ).representableDiagonal,
+    (pullbackOver f g hH hΔ).atlas⟩
 
 /-- The first projection of functors of points for `pullbackOver f g hH hΔ`. -/
 def pullbackOverFstNat {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u} {F G : AlgebraicSpace S}
@@ -132,26 +226,26 @@ def pullbackOverSnd {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u} {F G : Alge
 /-- `pullbackOverFstNat f g` is the first projection of the functor-category pullback. -/
 theorem pullbackOverFstNat_eq {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u}
     {F G : AlgebraicSpace S} (f : F.functorOfPoints ⟶ H) (g : G.functorOfPoints ⟶ H) :
-    pullbackOverFstNat f g = Limits.pullback.fst f g := sorry
+    pullbackOverFstNat f g = Limits.pullback.fst f g := rfl
 
 /-- `pullbackOverSndNat f g` is the second projection of the functor-category pullback. -/
 theorem pullbackOverSndNat_eq {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u}
     {F G : AlgebraicSpace S} (f : F.functorOfPoints ⟶ H) (g : G.functorOfPoints ⟶ H) :
-    pullbackOverSndNat f g = Limits.pullback.snd f g := sorry
+    pullbackOverSndNat f g = Limits.pullback.snd f g := rfl
 
 /-- `pullbackOverFst f g hH hΔ` is the first functor-of-points projection. -/
 theorem pullbackOverFst_eq {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u}
     {F G : AlgebraicSpace S} (f : F.functorOfPoints ⟶ H) (g : G.functorOfPoints ⟶ H)
     (hH : Presheaf.IsSheaf (Scheme.fppfTopology.over S) H)
     (hΔ : yoneda.relativelyRepresentable (Limits.diag H)) :
-    pullbackOverFst f g hH hΔ = pullbackOverFstNat f g := sorry
+    pullbackOverFst f g hH hΔ = pullbackOverFstNat f g := rfl
 
 /-- `pullbackOverSnd f g hH hΔ` is the second functor-of-points projection. -/
 theorem pullbackOverSnd_eq {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u}
     {F G : AlgebraicSpace S} (f : F.functorOfPoints ⟶ H) (g : G.functorOfPoints ⟶ H)
     (hH : Presheaf.IsSheaf (Scheme.fppfTopology.over S) H)
     (hΔ : yoneda.relativelyRepresentable (Limits.diag H)) :
-    pullbackOverSnd f g hH hΔ = pullbackOverSndNat f g := sorry
+    pullbackOverSnd f g hH hΔ = pullbackOverSndNat f g := rfl
 
 /-- The functor-of-points projections exhibit `F ×_H G` as the fibre product of `f` and `g`.
 -/
@@ -159,7 +253,8 @@ theorem pullbackOver_isPullback {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u}
     {F G : AlgebraicSpace S} (f : F.functorOfPoints ⟶ H) (g : G.functorOfPoints ⟶ H)
     (hH : Presheaf.IsSheaf (Scheme.fppfTopology.over S) H)
     (hΔ : yoneda.relativelyRepresentable (Limits.diag H)) :
-    IsPullback (pullbackOverFstNat f g) (pullbackOverSndNat f g) f g := sorry
+    IsPullback (pullbackOverFstNat f g) (pullbackOverSndNat f g) f g :=
+  IsPullback.of_hasPullback f g
 
 /-- The scheme `U ×_H V` obtained from Yoneda sections `a : yoneda.obj U ⟶ F.functorOfPoints`
 and `b : yoneda.obj V ⟶ G.functorOfPoints` by pulling back along the maps to `H`. -/
@@ -177,7 +272,7 @@ theorem pullbackOverAtlas_eq {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u} {F
     (hΔ : yoneda.relativelyRepresentable (Limits.diag H)) {U V : Over S}
     (a : yoneda.obj U ⟶ F.functorOfPoints) (b : yoneda.obj V ⟶ G.functorOfPoints) :
     pullbackOverAtlas f g hΔ a b =
-      (Functor.relativelyRepresentable.of_diag hΔ (a ≫ f)).pullback (b ≫ g) := sorry
+      (Functor.relativelyRepresentable.of_diag hΔ (a ≫ f)).pullback (b ≫ g) := rfl
 
 /-- The projection `U ×_H V ⟶ U` of the representing pullback of the Yoneda sections to `H`. -/
 def pullbackOverAtlasFst {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u} {F G : AlgebraicSpace S}
@@ -216,7 +311,8 @@ theorem pullbackOverAtlas_isPullback {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Ty
     (hΔ : yoneda.relativelyRepresentable (Limits.diag H)) {U V : Over S}
     (a : yoneda.obj U ⟶ F.functorOfPoints) (b : yoneda.obj V ⟶ G.functorOfPoints) :
     IsPullback (pullbackOverAtlasFst f g hΔ a b)
-      (yoneda.map (pullbackOverAtlasSnd f g hΔ a b)) (a ≫ f) (b ≫ g) := sorry
+      (yoneda.map (pullbackOverAtlasSnd f g hΔ a b)) (a ≫ f) (b ≫ g) :=
+  (Functor.relativelyRepresentable.of_diag hΔ (a ≫ f)).isPullback (b ≫ g)
 
 /-- If `a` and `b` are étale and étale-locally surjective, then the induced atlas map is too. -/
 theorem pullbackOverAtlasHom_spec {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u}
@@ -230,7 +326,10 @@ theorem pullbackOverAtlasHom_spec {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type 
     MorphismProperty.presheaf (MorphismProperty.over (@Etale))
         (pullbackOverAtlasHom f g hΔ a b) ∧
       Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S)
-        (pullbackOverAtlasHom f g hΔ a b) := sorry
+        (pullbackOverAtlasHom f g hΔ a b) :=
+  atlasPullback_properties f g a b (pullbackOverAtlasFst f g hΔ a b)
+    (yoneda.map (pullbackOverAtlasSnd f g hΔ a b))
+    (pullbackOverAtlas_isPullback f g hΔ a b) ha_etale ha_surj hb_etale hb_surj
 
 /-- The mediating morphism into the algebraic-space pullback induced by a commutative cone. -/
 def pullbackLift {S : Scheme.{u}} {W F G H : AlgebraicSpace S} (f : F ⟶ H) (g : G ⟶ H)
@@ -244,12 +343,20 @@ def pullbackLift {S : Scheme.{u}} {W F G H : AlgebraicSpace S} (f : F ⟶ H) (g 
 /-- The mediating morphism recovers the first map of the cone. -/
 theorem pullbackLift_fst {S : Scheme.{u}} {W F G H : AlgebraicSpace S} (f : F ⟶ H) (g : G ⟶ H)
     (h : W ⟶ F) (k : W ⟶ G) (w : h ≫ f = k ≫ g) :
-    pullbackLift f g h k w ≫ pullbackOverFst f g H.isSheaf H.representableDiagonal = h := sorry
+    pullbackLift f g h k w ≫ pullbackOverFst f g H.isSheaf H.representableDiagonal = h :=
+  Limits.pullback.lift_fst (C := (Over S)ᵒᵖ ⥤ Type u)
+    (f := (f : F.functorOfPoints ⟶ H.functorOfPoints))
+    (g := (g : G.functorOfPoints ⟶ H.functorOfPoints))
+    (h : W.functorOfPoints ⟶ F.functorOfPoints) k w
 
 /-- The mediating morphism recovers the second map of the cone. -/
 theorem pullbackLift_snd {S : Scheme.{u}} {W F G H : AlgebraicSpace S} (f : F ⟶ H) (g : G ⟶ H)
     (h : W ⟶ F) (k : W ⟶ G) (w : h ≫ f = k ≫ g) :
-    pullbackLift f g h k w ≫ pullbackOverSnd f g H.isSheaf H.representableDiagonal = k := sorry
+    pullbackLift f g h k w ≫ pullbackOverSnd f g H.isSheaf H.representableDiagonal = k :=
+  Limits.pullback.lift_snd (C := (Over S)ᵒᵖ ⥤ Type u)
+    (f := (f : F.functorOfPoints ⟶ H.functorOfPoints))
+    (g := (g : G.functorOfPoints ⟶ H.functorOfPoints))
+    (h : W.functorOfPoints ⟶ F.functorOfPoints) k w
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The projections of the algebraic-space pullback satisfy its universal property. -/
@@ -286,3 +393,165 @@ instance instHasPullbacks {S : Scheme.{u}} : HasPullbacks (AlgebraicSpace S) :=
   hasPullbacks_of_hasLimit_cospan (AlgebraicSpace S)
 
 end AlgebraicGeometry.AlgebraicSpace.ReasLibPullback
+
+namespace AlgebraicGeometry.AlgebraicSpace
+
+/-- The comparison morphism `X ×_Z Z' ⟶ Y ×_Z Z'` induced by `f : X ⟶ Y`. -/
+noncomputable def overBaseChange {S : Scheme.{u}} {X Y Z Z' : AlgebraicSpace S}
+    (f : X ⟶ Y) (h : Y ⟶ Z) (g : Z' ⟶ Z) :
+    pullback (f ≫ h) g ⟶ pullback h g :=
+  pullback.lift (pullback.fst (f ≫ h) g ≫ f) (pullback.snd (f ≫ h) g)
+    (by simpa only [Category.assoc] using
+      (pullback.condition (f := f ≫ h) (g := g)))
+
+/-- The first projection of the base-change comparison is the original first projection
+followed by `f`. -/
+theorem overBaseChange_fst {S : Scheme.{u}} {X Y Z Z' : AlgebraicSpace S}
+    (f : X ⟶ Y) (h : Y ⟶ Z) (g : Z' ⟶ Z) :
+    overBaseChange f h g ≫ pullback.fst h g = pullback.fst (f ≫ h) g ≫ f := by
+  unfold overBaseChange
+  exact pullback.lift_fst _ _ _
+
+/-- The second projection of the base-change comparison is the original second projection.
+-/
+theorem overBaseChange_snd {S : Scheme.{u}} {X Y Z Z' : AlgebraicSpace S}
+    (f : X ⟶ Y) (h : Y ⟶ Z) (g : Z' ⟶ Z) :
+    overBaseChange f h g ≫ pullback.snd h g = pullback.snd (f ≫ h) g := by
+  unfold overBaseChange
+  exact pullback.lift_snd _ _ _
+
+/-- The functor of points of the fibre product of `X` with a scheme over `Y`. -/
+def pullbackAlongSchemeFunctorOfPoints {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) {V : Over S} (b : ofOver V ⟶ Y) : (Over S)ᵒᵖ ⥤ Type u :=
+  let fP : X.functorOfPoints ⟶ Y.functorOfPoints := f
+  let bP : (ofOver V).functorOfPoints ⟶ Y.functorOfPoints := b
+  pullback fP bP
+
+/-- The first projection of the functor-of-points fibre product. -/
+def pullbackAlongSchemeFstNat {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) {V : Over S} (b : ofOver V ⟶ Y) :
+    pullbackAlongSchemeFunctorOfPoints f b ⟶ X.functorOfPoints :=
+  let fP : X.functorOfPoints ⟶ Y.functorOfPoints := f
+  let bP : (ofOver V).functorOfPoints ⟶ Y.functorOfPoints := b
+  pullback.fst fP bP
+
+/-- The second projection of the functor-of-points fibre product. -/
+def pullbackAlongSchemeSndNat {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) {V : Over S} (b : ofOver V ⟶ Y) :
+    pullbackAlongSchemeFunctorOfPoints f b ⟶ (ofOver V).functorOfPoints :=
+  let fP : X.functorOfPoints ⟶ Y.functorOfPoints := f
+  let bP : (ofOver V).functorOfPoints ⟶ Y.functorOfPoints := b
+  pullback.snd fP bP
+
+/-- The fibre product `V ×_Y X` of an algebraic space morphism `f : X ⟶ Y` with
+a morphism from a scheme `V` over `S`. -/
+def pullbackAlongScheme {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {V : Over S} (b : ofOver V ⟶ Y) : AlgebraicSpace S :=
+  ReasLibPullback.pullbackOver f b Y.isSheaf Y.representableDiagonal
+
+namespace pullbackAlongScheme
+
+/-- The projection `V ×_Y X ⟶ X`. -/
+def fst {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) {V : Over S}
+    (b : ofOver V ⟶ Y) : pullbackAlongScheme f b ⟶ X :=
+  pullbackAlongSchemeFstNat f b
+
+/-- The projection `V ×_Y X ⟶ V`. -/
+def snd {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) {V : Over S}
+    (b : ofOver V ⟶ Y) : pullbackAlongScheme f b ⟶ ofOver V :=
+  pullbackAlongSchemeSndNat f b
+
+/-- The functor of points of `pullbackAlongScheme f b` is the presheaf pullback. -/
+theorem functorOfPoints_eq {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {V : Over S} (b : ofOver V ⟶ Y) :
+    (pullbackAlongScheme f b).functorOfPoints =
+      pullbackAlongSchemeFunctorOfPoints f b :=
+  rfl
+
+/-- The two projections of `pullbackAlongScheme f b` commute with `f` and `b`. -/
+theorem fst_comp {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {V : Over S} (b : ofOver V ⟶ Y) : fst f b ≫ f = snd f b ≫ b := by
+  dsimp only [fst, snd, pullbackAlongSchemeFstNat, pullbackAlongSchemeSndNat]
+  exact Limits.pullback.condition (C := (Over S)ᵒᵖ ⥤ Type u)
+    (f := (f : X.functorOfPoints ⟶ Y.functorOfPoints))
+    (g := (b : (ofOver V).functorOfPoints ⟶ Y.functorOfPoints))
+
+/-- `V ×_Y X` is a fibre product of `f` and a morphism from a scheme over `Y`. -/
+theorem isPullback {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {V : Over S} (b : ofOver V ⟶ Y) :
+    IsPullback (fst f b) (snd f b) f b :=
+  ReasLibPullback.isPullback f b
+
+end pullbackAlongScheme
+
+/-- The fibre product `X ×_W V` of an object `g : X ⟶ W` of `Over W` along
+`f : V ⟶ W`. -/
+def overPullbackObj {S : Scheme.{u}} {V W : AlgebraicSpace S} (f : V ⟶ W)
+    (g : Over W) : AlgebraicSpace S :=
+  ReasLibPullback.pullbackOver g.hom f W.isSheaf W.representableDiagonal
+
+/-- The first projection `X ×_W V ⟶ X`. -/
+def overPullbackFst {S : Scheme.{u}} {V W : AlgebraicSpace S} (f : V ⟶ W)
+    (g : Over W) : overPullbackObj f g ⟶ g.left :=
+  ReasLibPullback.pullbackOverFst g.hom f W.isSheaf W.representableDiagonal
+
+/-- The second projection `X ×_W V ⟶ V`, the structure morphism of the
+base-changed object over `V`. -/
+def overPullbackSnd {S : Scheme.{u}} {V W : AlgebraicSpace S} (f : V ⟶ W)
+    (g : Over W) : overPullbackObj f g ⟶ V :=
+  ReasLibPullback.pullbackOverSnd g.hom f W.isSheaf W.representableDiagonal
+
+/-- The pair `(overPullbackFst f g ≫ u.left, overPullbackSnd f g)` is a cone
+over `h.hom` and `f`. -/
+theorem overPullback_fst_comp {S : Scheme.{u}} {V W : AlgebraicSpace S}
+    (f : V ⟶ W) {g h : Over W} (u : g ⟶ h) :
+    (overPullbackFst f g ≫ u.left) ≫ h.hom = overPullbackSnd f g ≫ f :=
+  sorry
+
+/-- The morphism `X ×_W V ⟶ X' ×_W V` induced by a morphism of objects of
+`Over W`. -/
+def overPullbackMap {S : Scheme.{u}} {V W : AlgebraicSpace S} (f : V ⟶ W)
+    {g h : Over W} (u : g ⟶ h) :
+    overPullbackObj f g ⟶ overPullbackObj f h :=
+  ReasLibPullback.pullbackLift h.hom f (overPullbackFst f g ≫ u.left) (overPullbackSnd f g)
+    (overPullback_fst_comp f u)
+
+/-- The induced map of fibre products commutes with the projections to `V`. -/
+theorem overPullbackMap_snd {S : Scheme.{u}} {V W : AlgebraicSpace S}
+    (f : V ⟶ W) {g h : Over W} (u : g ⟶ h) :
+    overPullbackMap f u ≫ overPullbackSnd f h = overPullbackSnd f g :=
+  sorry
+
+/-- The map of fibre products induced by an identity is the identity. -/
+theorem overPullbackMap_id {S : Scheme.{u}} {V W : AlgebraicSpace S}
+    (f : V ⟶ W) (g : Over W) :
+    overPullbackMap f (𝟙 g) = 𝟙 (overPullbackObj f g) :=
+  sorry
+
+/-- The map of fibre products induced by a composite is the composite of the induced maps. -/
+theorem overPullbackMap_comp {S : Scheme.{u}} {V W : AlgebraicSpace S}
+    (f : V ⟶ W) {g h k : Over W} (a : g ⟶ h) (b : h ⟶ k) :
+    overPullbackMap f (a ≫ b) = overPullbackMap f a ≫ overPullbackMap f b :=
+  sorry
+
+/-- Slice base change along `f : V ⟶ W`, sending `g : X ⟶ W` to
+`X ×_W V ⟶ V`. -/
+def overPullback {S : Scheme.{u}} {V W : AlgebraicSpace S} (f : V ⟶ W) :
+    Over W ⥤ Over V where
+  obj g := Over.mk (overPullbackSnd f g)
+  map u := Over.homMk (overPullbackMap f u) (overPullbackMap_snd f u)
+  map_id g := by
+    apply Over.OverMorphism.ext
+    exact overPullbackMap_id f g
+  map_comp a b := by
+    apply Over.OverMorphism.ext
+    exact overPullbackMap_comp f a b
+
+/-- The structure morphism of `overPullback f` is the second projection of the
+fibre product. -/
+theorem overPullback_obj_hom {S : Scheme.{u}} {V W : AlgebraicSpace S}
+    (f : V ⟶ W) (g : Over W) :
+    ((overPullback f).obj g).hom = overPullbackSnd f g :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicSpace

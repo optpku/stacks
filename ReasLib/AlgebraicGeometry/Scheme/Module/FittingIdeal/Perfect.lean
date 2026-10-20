@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.FittingIdeal.Flattening
@@ -33,18 +27,27 @@ namespace AlgebraicGeometry.Scheme.Modules
 scheme-theoretically dense open `U` has, after a `U`-admissible blowup, a finite locally free
 quotient of rank `r` whose canonical kernel is perfect, has Tor dimension at most one, and
 vanishes over the inverse image of `U`. -/
-theorem exists_shortExact_afterAdmissibleBlowup {X : Scheme.{u}} (F : X.Modules)
+theorem exists_shortExact_afterAdmissibleBlowup {X : Scheme.{u}}
+    [sourceTensor : DerivedCategory.DerivedTensor.Right.Has
+      (C := RingedSpace.Modules X.toRingedSpace)]
+    (F : X.Modules)
     (U : X.Opens) (r : ℕ) (hPerfect : SheafOfModules.IsPerfect F)
     (hTor : RingedSpace.ModuleHasTorDimensionLE F 1)
     (hDense : schemeTheoreticallyDense U)
-    (hRank : SheafOfModules.IsFiniteLocallyFreeOfRank r (F.over U)) :
-    ∃ (X' : Scheme.{u}) (b : X' ⟶ X) (Q : X'.Modules)
-      (q : (Scheme.Modules.pullback b).obj F ⟶ Q),
-      IsAdmissibleBlowup U b ∧
-        (ShortComplex.kernelSequence q).ShortExact ∧
-        SheafOfModules.IsFiniteLocallyFreeOfRank r Q ∧
-        SheafOfModules.IsPerfect (kernel q) ∧
-        RingedSpace.ModuleHasTorDimensionLE (kernel q) 1 ∧
-        IsZero ((kernel q).over (b ⁻¹ᵁ U)) := sorry
+    (hRank : SheafOfModules.IsFiniteLocallyFreeOfRank r (F.over U))
+    (tensorOnFittingBlowups : ∀ {X' : Scheme.{u}} (b : X' ⟶ X),
+      IsBlowup b (Scheme.fittingIdealSheaf F r) →
+        DerivedCategory.DerivedTensor.Right.Has
+          (C := RingedSpace.Modules X'.toRingedSpace)) :
+    ∃ (X' : Scheme.{u}) (b : X' ⟶ X)
+      (hb : IsBlowup b (Scheme.fittingIdealSheaf F r)),
+      letI := tensorOnFittingBlowups b hb
+      ∃ (Q : X'.Modules) (q : (Scheme.Modules.pullback b).obj F ⟶ Q),
+        IsAdmissibleBlowup U b ∧
+          (ShortComplex.kernelSequence q).ShortExact ∧
+          SheafOfModules.IsFiniteLocallyFreeOfRank r Q ∧
+          SheafOfModules.IsPerfect (kernel q) ∧
+          RingedSpace.ModuleHasTorDimensionLE (kernel q) 1 ∧
+          IsZero ((kernel q).over (b ⁻¹ᵁ U)) := sorry
 
 end AlgebraicGeometry.Scheme.Modules

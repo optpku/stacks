@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.Henselian.Criteria
@@ -39,7 +33,7 @@ theorem existsFinitePartDecomposition
     [CommRing S] [Algebra R S] [Algebra.Unramified R S] :
     ∃ D : Algebra.FinitePartDecomposition R S,
       ∃ E : HenselianLocalRing.FiniteProduct R D.finitePart,
-        (∀ i, Function.Surjective (algebraMap R (E.factor i))) ∧
+        (∀ i, Function.Surjective (algebraMap R (E.factorObj i))) ∧
           ∀ q : PrimeSpectrum D.remainder,
             Ideal.comap (algebraMap R D.remainder) q.asIdeal ≠ maximalIdeal R := sorry
 

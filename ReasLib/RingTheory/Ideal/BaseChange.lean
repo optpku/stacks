@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Module.FinitePresentation
 public import Mathlib.RingTheory.RingHom.Flat
+public import Mathlib.RingTheory.Flat.Basic
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -44,6 +39,26 @@ theorem baseChangeMul_mem (x : S ⊗[R] I) :
 @[stacks 01BX "ideal base-change map"]
 noncomputable def baseChangeMap : S ⊗[R] I →ₗ[S] I.map (algebraMap R S) :=
   (baseChangeMul I S).codRestrict (I.map (algebraMap R S)) (baseChangeMul_mem I S)
+
+/-- The tensor unit identifies the scalar-extended ideal with its usual image ideal. -/
+theorem map_baseChange_rid :
+    ((I : Submodule R R).baseChange S).map
+        (TensorProduct.AlgebraTensorModule.rid R S S).toLinearMap =
+      (I.map (algebraMap R S) : Submodule S S) := sorry
+
+/-- Flat scalar extension identifies an ideal tensor product with the extended ideal.
+Both directions use the canonical tensor range and the tensor unit equivalence. -/
+noncomputable def baseChangeEquiv [Module.Flat R S] :
+    S ⊗[R] I ≃ₗ[S] I.map (algebraMap R S) :=
+  (Submodule.toBaseChange.toLinearEquiv S (I : Submodule R R)).trans
+    (((TensorProduct.AlgebraTensorModule.rid R S S).submoduleMap
+      ((I : Submodule R R).baseChange S)).trans
+        (LinearEquiv.ofEq _ _ (map_baseChange_rid I S)))
+
+/-- The flat ideal equivalence has the specified base-change multiplication map. -/
+@[simp]
+theorem baseChangeEquiv_toLinearMap [Module.Flat R S] :
+    (baseChangeEquiv I S).toLinearMap = baseChangeMap I S := sorry
 
 /-- The ideal base-change map sends a pure tensor to scalar multiplication of the mapped ideal
 element. -/

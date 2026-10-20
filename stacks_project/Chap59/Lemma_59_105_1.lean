@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.IdealSheafData.FiniteType
-public import ReasLib.CategoryTheory.DerivedCategory.CohomologyIn.Bounded
-public import ReasLib.CategoryTheory.Sites.AbelianSheaf.Torsion
-public import stacks_project.Chap59.Lemma_59_105_1_Triangle
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Blowup.Etale.Triangle
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -42,21 +33,21 @@ variable [∀ {A B C : Scheme.{u}} (f : A ⟶ B) (g : B ⟶ C),
     (abelianPushforwardAlong f ⋙ abelianPushforwardAlong g).toBoundedBelowDerived.HasRightDerivedFunctor
       (HomotopyCategory.Plus.quasiIso (Sheaf A.smallEtaleTopology AddCommGrpCat.{u}))]
 
-/-- Lemma 59.105.1: for a scheme `X` and a closed subscheme cut out by a quasi-coherent
+/- Lemma 59.105.1: for a scheme `X` and a closed subscheme cut out by a quasi-coherent
 ideal of finite type, the corresponding blow-up square yields, for every
 `K ∈ D⁺(X_étale)` with torsion cohomology sheaves, a distinguished triangle
 `K ⟶ Ri_*(K|_Z) ⊕ Rb_*(K|_{X'}) ⟶ Rc_*(K|_E) ⟶ K⟦1⟧` in `D(X_étale)`, where
 `c = i ∘ π = b ∘ j`. -/
-@[stacks 0EW5]
-theorem distinguishedTriangle {I : X.IdealSheafData} {b : X' ⟶ X} [IsBlowup b I]
+@[stacks 0EW5] #check (AlgebraicGeometry.IsBlowup.Etale.distinguishedTriangle :
+  ∀ {I : X.IdealSheafData} {b : X' ⟶ X} [IsBlowup b I]
     (hI : I.IsFiniteType)
     (K : DerivedCategory.Plus (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))
     (hK : DerivedCategory.Plus.cohomologyIn
       (IsLocallyTorsion :
-        ObjectProperty (Sheaf X.smallEtaleTopology AddCommGrpCat.{u})) K) :
+        ObjectProperty (Sheaf X.smallEtaleTopology AddCommGrpCat.{u})) K),
     ∃ δ : (square I b K).shortComplex'.X₃ ⟶ (square I b K).shortComplex'.X₁⟦(1 : ℤ)⟧,
       Triangle.mk (square I b K).shortComplex'.f (square I b K).shortComplex'.g δ ∈
-        distTriang (DerivedCategory (Sheaf X.smallEtaleTopology AddCommGrpCat.{u})) := sorry
+        distTriang (DerivedCategory (Sheaf X.smallEtaleTopology AddCommGrpCat.{u})))
 
 end AlgebraicGeometry.IsBlowup.Etale
 

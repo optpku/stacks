@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap72.Definition_72_6_2_Weil
-public import stacks_project.Chap72.Lemma_72_6_6
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Divisor.Principal
 
 /-!
 # Principal Weil divisors on algebraic spaces
@@ -20,32 +13,19 @@ divisors.
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry
-
-noncomputable section
+open AlgebraicGeometry.AlgebraicSpace
 
 universe u
-
-namespace AlgebraicGeometry.AlgebraicSpace
 
 variable {S : Scheme.{u}} (X : AlgebraicSpace S)
 variable [IsLocallyNoetherian X] [IsIntegral X]
 
-/-- The principal Weil divisor associated to a unit of the ring of rational
-functions. -/
-def principalWeilDivisor (f : (RationalFunction X)ˣ) : WeilDivisor X :=
-  WeilDivisor.ofCoeff X (fun Z ↦ Z.ord f)
-    (locallyFinite_primeDivisors_ord_ne_zero X f)
+#check (AlgebraicGeometry.AlgebraicSpace.principalWeilDivisor X :
+  (RationalFunction X)ˣ → WeilDivisor X)
 
-/-- The coefficient of a principal Weil divisor at a prime divisor is the
-corresponding order of vanishing. -/
-theorem principalWeilDivisor_coeff (f : (RationalFunction X)ˣ)
-    (Z : PrimeDivisor X) :
-    (principalWeilDivisor X f).coeff Z = Z.ord f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.principalWeilDivisor_coeff X :
+  ∀ (f : (RationalFunction X)ˣ) (Z : PrimeDivisor X),
+    (principalWeilDivisor X f).coeff Z = Z.ord f)
 
-/-- The principal Weil divisor of the unit `1` is zero. -/
-theorem principalWeilDivisor_one : principalWeilDivisor X 1 = 0 :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
-
+#check (AlgebraicGeometry.AlgebraicSpace.principalWeilDivisor_one X :
+  principalWeilDivisor X 1 = 0)

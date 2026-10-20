@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Noetherian
-public import stacks_project.Chap101.Lemma_101_17_5_LocallyOfFiniteType
-public import stacks_project.Chap107.Situation_107_2_1_Instances
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.LocallyOfFiniteType
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Base
 import StacksCheckRecall
 
 open AlgebraicGeometry CategoryTheory
@@ -23,15 +17,16 @@ variable {S : Scheme.{u}} [IsLocallyNoetherian S] (X : GroupoidsOver S)
 variable [AlgebraicStack X]
 variable [AlgebraicStack.LocallyOfFiniteType (baseProjection.{u + 1, u, u + 1} X)]
 
-/- Situation 107.2.1 (1): `S` is a locally Noetherian scheme. -/
-@[stacks 0DQU] #check (inferInstance : IsLocallyNoetherian S)
-
-/- Situation 107.2.1 (2): `X` is an algebraic stack over `S`. -/
-@[stacks 0DQU] #check (X : GroupoidsOver S)
-@[stacks 0DQU] #check (inferInstance : AlgebraicStack X)
-
-/- Situation 107.2.1 (3): `X` is locally of finite type over `S`. -/
+/- Situation 107.2.1: `X` is an algebraic stack locally of finite type over
+a locally Noetherian scheme `S`. -/
 @[stacks 0DQU] #check
-  (inferInstance : AlgebraicStack.LocallyOfFiniteType (baseProjection.{u + 1, u, u + 1} X))
+  (AlgebraicGeometry.AlgebraicStack.LocallyOfFiniteType :
+    ∀ {T : Scheme.{u}} {Y Z : GroupoidsOver T} [AlgebraicStack Y] [AlgebraicStack Z],
+      (Y ⟶ Z) → Prop)
+
+#check (IsLocallyNoetherian S : Prop)
+#check (AlgebraicStack X : Prop)
+#check (AlgebraicGeometry.AlgebraicStack.LocallyOfFiniteType
+  (baseProjection.{u + 1, u, u + 1} X) : Prop)
 
 end

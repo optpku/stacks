@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap96.Lemma_96_10_1_Comparison
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.SmallEtaleComparison
 
 /-!
 # Lemma 96.10.1
@@ -30,21 +24,18 @@ universe u
 variable {S : Scheme.{u}}
 variable (F : AlgebraicSpace S) (X : GroupoidsOver S) (e : F.toGroupoids ≌ X)
 
-/-- Lemma 96.10.1 (1): there is a continuous and cocontinuous functor
-`u : F_étale ⥤ X_étale` induced by a representing equivalence
-`e : F.toGroupoids ≌ X`. -/
-@[stacks 073M]
-theorem AlgebraicGeometry.GroupoidsOver.smallEtaleFunctor_isContinuous_isCocontinuous :
+/- Lemma 96.10.1: a representing equivalence induces a continuous and
+cocontinuous functor from the small étale site to the associated étale site. -/
+@[stacks 073M] #check
+  (AlgebraicGeometry.GroupoidsOver.smallEtaleFunctor_isContinuous_isCocontinuous F X e :
     (smallEtaleFunctor F X e).IsContinuous
       (AlgebraicSpace.smallEtaleTopology F) X.etaleTopology ∧
     (smallEtaleFunctor F X e).IsCocontinuous
-      (AlgebraicSpace.smallEtaleTopology F) X.etaleTopology :=
-  sorry
+      (AlgebraicSpace.smallEtaleTopology F) X.etaleTopology)
 
 /- Lemma 96.10.1 (2): `u` induces a morphism of ringed sites
 `π_F : (X_étale, O_X) ⟶ (F_étale, O_F)`. -/
-@[stacks 073M]
-#check (pi F X e :
+@[stacks 073M] #check (AlgebraicGeometry.GroupoidsOver.pi F X e :
     RingedSite.Hom (etaleRingedSite X) (AlgebraicSpace.ringedSite F))
 
 variable [HasSheafify (AlgebraicSpace.smallEtaleTopology F) (Type u)]
@@ -58,22 +49,24 @@ variable [(forget RingCat.{u}).PreservesRightKanExtensions (smallEtaleFunctor F 
 
 /- Lemma 96.10.1 (3): `u` induces a morphism of ringed topoi
 `i_F : (Sh(F_étale), O_F) ⟶ (Sh(X_étale), O_X)`. -/
-@[stacks 073M]
-#check (inclusion F X e :
+@[stacks 073M] #check (AlgebraicGeometry.GroupoidsOver.inclusion F X e :
     RingedSite.ToposHom (AlgebraicSpace.ringedSite F) (etaleRingedSite X))
 
 variable [HasWeakSheafify X.etaleTopology (Type u)]
 variable [∀ P : (AlgebraicSpace.smallEtaleSite F)ᵒᵖ ⥤ Type u,
     (smallEtaleFunctor F X e).op.HasLeftKanExtension P]
 
-/- Lemma 96.10.1 (4): the composite `π_F ∘ i_F` is the identity on `Sh(F_étale)`. -/
-@[stacks 073M]
-#check (pi_comp_inclusion F X e :
-    RingedSite.ToposHom.comp (inclusion F X e) (piToposHom F X e) =
-      RingedSite.ToposHom.id (AlgebraicSpace.ringedSite F))
+/- Lemma 96.10.1 (4): the composite `π_F ∘ i_F` admits an invertible comparison
+with the identity, compatible with the structure sheaf. -/
+@[stacks 073M] #check (AlgebraicGeometry.GroupoidsOver.pi_comp_inclusion F X e :
+    ∃ α : (RingedSite.ToposHom.comp (inclusion F X e) (piToposHom F X e)).toTopos.inverseImage ≅
+        (RingedSite.ToposHom.id (AlgebraicSpace.ringedSite F)).toTopos.inverseImage,
+      (RingedSite.ToposHom.comp (inclusion F X e) (piToposHom F X e)).structureMap =
+        (MorphismOfTopoiIn.ringInverseImageNatIso α).hom.app
+            (AlgebraicSpace.ringedSite F).structureSheaf ≫
+          (RingedSite.ToposHom.id (AlgebraicSpace.ringedSite F)).structureMap)
 
 /- Lemma 96.10.1 (5): `π_{F,*} = i_F⁻¹`. -/
-@[stacks 073M]
-#check (pi_pushforward_eq_inclusion_inverseImage F X e :
+@[stacks 073M] #check (AlgebraicGeometry.GroupoidsOver.pi_pushforward_eq_inclusion_inverseImage F X e :
     (piToposHom F X e).toTopos.pushforward =
       (inclusion F X e).toTopos.inverseImage)

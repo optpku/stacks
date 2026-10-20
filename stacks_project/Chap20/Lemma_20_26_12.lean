@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Complex.KFlat.Resolution
@@ -15,7 +9,7 @@ open AlgebraicGeometry
 open CategoryTheory HomologicalComplex
 open SheafOfModules
 open SheafOfModules.RingedSite
-open SheafOfModules.RingedSite.CochainComplex
+open AlgebraicGeometry.RingedSpace.CochainComplex
 
 noncomputable section
 

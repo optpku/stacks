@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.Ideal.PrimeAvoidance
@@ -35,7 +29,8 @@ open scoped Pointwise
 
 /- Lemma 33.42.5: any class modulo an ideal not contained in any of a finite family of prime
 ideals has a representative outside every prime in the family. -/
-@[stacks 09NK] #check
+@[stacks 09NK]
+#check
   (Ideal.Quotient.exists_mk_eq_and_not_mem_fin_primes :
     ∀ {A : Type u} [CommRing A] (I : Ideal A) {r : ℕ} (primes : Fin r → Ideal A)
       (hprimes : ∀ i, (primes i).IsPrime) (hI : ∀ i, ¬ I ≤ primes i) (fbar : A ⧸ I),

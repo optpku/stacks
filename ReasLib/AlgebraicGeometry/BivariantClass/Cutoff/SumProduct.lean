@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.BivariantClass.Cutoff.Completion
@@ -13,10 +7,11 @@ import Lean.Elab.Tactic.Omega
 /-!
 # Products with addition of cutoff parameters
 
-This is the explicit local correction of Stacks Remark 42.34.7. Low output
-degrees use the genuine proper pushforward of each relative input. High output
-degrees use the three original mixed pairings; both inputs cannot be ambient
-there. The output cutoff is `p + q`, not `max p q`. The fixed-cutoff-one
+Low output degrees multiply ambient images, using proper pushforward of each
+relative input. High output degrees use the three mixed bivariant pairings;
+both inputs cannot be ambient there. The output cutoff is `p + q`.
+The integer-indexed completed carrier retains all cutoff degrees and its product
+is given by finite nonnegative convolution and zero-extension. The fixed-cutoff-one
 convolution remains a separate construction in `Cutoff.Completion`.
 -/
 
@@ -192,7 +187,7 @@ theorem ambient_eq_zero_of_negative (n : ℤ) (hn : n < 0)
 theorem eq_zero_of_negative (p : ℕ) (n : ℤ) (hn : n < 0) (c : Cutoff δ f p n) :
     c = 0 := sorry
 
-/-- The full integer-indexed completed cutoff carrier from the original source. -/
+/-- The completed cutoff carrier is the dependent product of all integer-indexed degrees. -/
 abbrev Completed (p : ℕ) : Type (u + 1) := ∀ n : ℤ, Cutoff δ f p n
 
 /-- The full carrier retains every original integer degree and its cutoff branch. -/

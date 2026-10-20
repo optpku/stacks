@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap42.Definition_42_50_3_LocalizedClasses
+public import ReasLib.AlgebraicGeometry.LocalizedChern.Classes
 
 @[expose] public section
 
@@ -31,8 +25,8 @@ namespace AlgebraicGeometry.LocalizedChern
       (perfect : RingedSpace.ModuleDerived.IsPerfect E)
       (vanishing : IsZero (restrictAway i E)) (finiteness : TechnicalCondition X E)
       (p : ℕ),
-      BivariantClass.pushforwardToTarget δ
-          (Over.homMk i rfl : Over.mk (i ≫ X.hom) ⟶ X) (p : ℤ)
+      BivariantClass.properPushforwardToTarget δ
+          (Over.homMk i rfl : Over.mk (i ≫ X.hom) ⟶ Over.mk X.hom) (p : ℤ)
           (newtonClass i classes E perfect vanishing finiteness p) =
         ChernClass.Derived.newtonClass δ X.hom classes E perfect
           ((Situation.vanishing perfect vanishing finiteness :
@@ -50,8 +44,8 @@ namespace AlgebraicGeometry.LocalizedChern
       (perfect : RingedSpace.ModuleDerived.IsPerfect E) (p : ℕ)
       (rankBound : Scheme.ModuleDerived.IsVectorBundleOfRankLTInDegree
         (restrictAway i E) 0 p) (finiteness : TechnicalCondition X E),
-      BivariantClass.pushforwardToTarget δ
-          (Over.homMk i rfl : Over.mk (i ≫ X.hom) ⟶ X) (p : ℤ)
+      BivariantClass.properPushforwardToTarget δ
+          (Over.homMk i rfl : Over.mk (i ≫ X.hom) ⟶ Over.mk X.hom) (p : ℤ)
           (chernClass i classes E perfect p rankBound finiteness) =
         ChernClass.Derived.totalClass δ X.hom classes E perfect
           ((Situation.rankBound perfect rankBound finiteness :

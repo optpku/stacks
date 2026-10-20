@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Topology.Sheaves.PUnit
@@ -115,23 +109,6 @@ public theorem RingedSpace.pointInclusion_stalkMap_comp_stalkIso_hom (x : X) :
 canonical stalk identification `PointRingedSpace.stalkIso x`. -/
 public theorem RingedSpace.pointInclusion_stalkMap_eq_stalkIso_inv (x : X) :
     ((pointInclusion x).hom.stalkMap PUnit.unit) = (PointRingedSpace.stalkIso x).inv := sorry
-
-/-- The structure sheaf of `pointRingedSpace x`, viewed as a `RingCat`-valued sheaf. -/
-public noncomputable abbrev pointRingCatSheaf (x : X) :=
-  RingedSpace.ringCatSheaf (pointRingedSpace x)
-
-/-- On the top open of the one-point space, `pointRingCatSheaf x` has value
-`RingCat.of (X.presheaf.stalk x)`. -/
-theorem pointRingedSpace_ringCatSheaf_obj_top (x : X) :
-    (RingedSpace.ringCatSheaf (pointRingedSpace x)).obj.obj (op ⊤) =
-      RingCat.of (X.presheaf.stalk x) := sorry
-
-/-- The value of the point-space structure sheaf on its top open is canonically isomorphic to
-the stalk ring of `X` at `x`. -/
-public noncomputable def PointRingedSpace.ringTopIso (x : X) :
-    (pointRingCatSheaf x).obj.obj (op (⊤ : Opens (TopCat.of PUnit))) ≅
-      RingCat.of (X.presheaf.stalk x) :=
-  eqToIso (pointRingedSpace_ringCatSheaf_obj_top x)
 
 end
 

@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap67.Definition_67_8_2_QuasiCompact
 public import stacks_project.Chap87.Definition_87_25_1_Surjective
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.QuasiCompact
 
 /-!
 # Quasi-compact morphisms of formal algebraic spaces
@@ -40,14 +35,19 @@ namespace QuasiCompact
 
 /-- The identity morphism of a formal algebraic space is quasi-compact. -/
 instance id {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u}
-    [IsFormalAlgebraicSpace X] [Reduction X] : QuasiCompact (𝟙 X) :=
-  sorry
+    [IsFormalAlgebraicSpace X] [Reduction X] : QuasiCompact (𝟙 X) := by
+  refine ⟨?_⟩
+  rw [mapReduction_id]
+  exact AlgebraicSpace.QuasiCompact.id
 
 /-- An isomorphism of formal algebraic spaces is quasi-compact. -/
 instance of_isIso {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
-    [Reduction X] [Reduction Y] (f : X ⟶ Y) [IsIso f] : QuasiCompact f :=
-  sorry
+    [Reduction X] [Reduction Y] (f : X ⟶ Y) [IsIso f] : QuasiCompact f := by
+  refine ⟨@AlgebraicSpace.QuasiCompact.of_isIso _ _ _ (mapReduction f) ?_⟩
+  refine ⟨⟨mapReduction (inv f), ?_, ?_⟩⟩
+  · rw [← mapReduction_comp, IsIso.hom_inv_id, mapReduction_id]
+  · rw [← mapReduction_comp, IsIso.inv_hom_id, mapReduction_id]
 
 /-- A quasi-compact morphism of formal algebraic spaces induces a quasi-compact
 morphism of algebraic-space reductions. -/
@@ -55,7 +55,7 @@ theorem spec {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
     [Reduction X] [Reduction Y] (f : X ⟶ Y) [QuasiCompact f] :
     AlgebraicSpace.QuasiCompact (mapReduction f) :=
-  sorry
+  QuasiCompact.map_quasiCompact (f := f)
 
 /-- A morphism of formal algebraic spaces is quasi-compact as soon as the induced
 map of algebraic-space reductions is quasi-compact. -/
@@ -63,7 +63,7 @@ theorem of {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
     [Reduction X] [Reduction Y] {f : X ⟶ Y}
     (hf : AlgebraicSpace.QuasiCompact (mapReduction f)) : QuasiCompact f :=
-  sorry
+  ⟨hf⟩
 
 /-- A morphism of formal algebraic spaces is quasi-compact if and only if the
 induced map of algebraic-space reductions is a quasi-compact morphism of
@@ -72,7 +72,7 @@ theorem iff {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
     [Reduction X] [Reduction Y] (f : X ⟶ Y) :
     QuasiCompact f ↔ AlgebraicSpace.QuasiCompact (mapReduction f) :=
-  sorry
+  ⟨fun h ↦ h.map_quasiCompact, fun h ↦ ⟨h⟩⟩
 
 end QuasiCompact
 

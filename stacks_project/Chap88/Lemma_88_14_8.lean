@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.AdicCompletion.LocalizationAway.Ideal
@@ -41,53 +35,49 @@ localized-completion, quotient, and quotient-tensor identifications below. -/
     (p.map (algebraMap A (completedPrincipalLocalization I f))).IsPrime)
 
 #check (completedPrincipalLocalization.map_ofTensor_linearEquiv :
-  ∀ (I : Ideal A), IsAdic I → ∀ (p : Ideal A) [p.IsPrime] (f : A),
-    IsUnit (Ideal.Quotient.mk p f) →
+  ∀ (I p : Ideal A) (f : A),
     p ⊗[A] completedPrincipalLocalization I f ≃ₗ[A]
       (p.map (algebraMap A (completedPrincipalLocalization I f))).restrictScalars A)
 
 #check (completedPrincipalLocalization.map_ofTensor_linearEquiv_apply :
-  ∀ (I : Ideal A) (hI : IsAdic I) (p : Ideal A) [p.IsPrime]
-    (f : A) (hf : IsUnit (Ideal.Quotient.mk p f))
+  ∀ (I p : Ideal A) (f : A)
     (x : A) (hx : x ∈ p) (b : completedPrincipalLocalization I f),
-    (map_ofTensor_linearEquiv I hI p f hf (⟨x, hx⟩ ⊗ₜ b)).1 = x • b)
+    (map_ofTensor_linearEquiv I p f (⟨x, hx⟩ ⊗ₜ b)).1 = x • b)
 
 #check (completedPrincipalLocalization.localizedCompletion_linearEquiv :
-  ∀ (I : Ideal A), IsAdic I → ∀ (p : Ideal A) [p.IsPrime] (f : A),
-    IsUnit (Ideal.Quotient.mk p f) →
+  ∀ (I p : Ideal A) (f : A),
     AdicCompletion (I.map (algebraMap A (Localization.Away f)))
         (LocalizedModule.Away f p) ≃ₗ[completedPrincipalLocalization I f]
       p.map (algebraMap A (completedPrincipalLocalization I f)))
 
 #check (completedPrincipalLocalization.localizedCompletion_linearEquiv_apply :
-  ∀ (I : Ideal A) (hI : IsAdic I) (p : Ideal A) [p.IsPrime]
-    (f : A) (hf : IsUnit (Ideal.Quotient.mk p f))
+  ∀ (I p : Ideal A) (f : A)
     (x : AdicCompletion (I.map (algebraMap A (Localization.Away f)))
       (LocalizedModule.Away f p)),
-    (localizedCompletion_linearEquiv I hI p f hf x).1 =
+    (localizedCompletion_linearEquiv I p f x).1 =
       AdicCompletion.map (I.map (algebraMap A (Localization.Away f)))
         (LocalizedModule.map (Submonoid.powers f) p.subtype) x)
 
 #check (completedPrincipalLocalization.quotient_algEquiv :
-  ∀ (I : Ideal A), IsAdic I → ∀ (p : Ideal A) [p.IsPrime] (f : A),
+  ∀ (I : Ideal A), IsAdic I → ∀ (p : Ideal A) (f : A),
     IsUnit (Ideal.Quotient.mk p f) →
     (A ⧸ p) ≃ₐ[A] completedPrincipalLocalization I f ⧸
       p.map (algebraMap A (completedPrincipalLocalization I f)))
 
 #check (completedPrincipalLocalization.quotient_algEquiv_apply :
-  ∀ (I : Ideal A) (hI : IsAdic I) (p : Ideal A) [p.IsPrime]
+  ∀ (I : Ideal A) (hI : IsAdic I) (p : Ideal A)
     (f : A) (hf : IsUnit (Ideal.Quotient.mk p f)) (a : A),
     quotient_algEquiv I hI p f hf (Ideal.Quotient.mk p a) =
       Ideal.Quotient.mk (p.map (algebraMap A (completedPrincipalLocalization I f)))
         (algebraMap A (completedPrincipalLocalization I f) a))
 
 #check (completedPrincipalLocalization.quotient_tensor_algEquiv :
-  ∀ (I : Ideal A), IsAdic I → ∀ (p : Ideal A) [p.IsPrime] (f : A),
+  ∀ (I : Ideal A), IsAdic I → ∀ (p : Ideal A) (f : A),
     IsUnit (Ideal.Quotient.mk p f) →
     (A ⧸ p) ≃ₐ[A] (A ⧸ p) ⊗[A] completedPrincipalLocalization I f)
 
 #check (completedPrincipalLocalization.quotient_tensor_algEquiv_apply :
-  ∀ (I : Ideal A) (hI : IsAdic I) (p : Ideal A) [p.IsPrime]
+  ∀ (I : Ideal A) (hI : IsAdic I) (p : Ideal A)
     (f : A) (hf : IsUnit (Ideal.Quotient.mk p f)) (x : A ⧸ p),
     quotient_tensor_algEquiv I hI p f hf x = x ⊗ₜ (1 : completedPrincipalLocalization I f))
 

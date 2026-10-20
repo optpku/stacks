@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.Stack.Basic
@@ -57,8 +51,8 @@ theorem IsStack.InGroupoids.iff_stackOnSite_and_fibersGroupoid
     IsStack.InGroupoids J p ↔
       IsStack.OnSite J p ∧ ∀ U : C, IsGroupoid (p.Fiber U) := sorry
 
-/-- A stack in groupoids is equivalently a fibered-in-groupoids projection whose stack condition
-holds on the site. This is the fibered-category formulation of the third clause of tag `02ZJ`. -/
+/-- A projection is a stack in groupoids exactly when it is fibred in groupoids and is a stack
+on the site. -/
 @[stacks 02ZJ]
 theorem IsStack.InGroupoids.iff_fibered_and_stackOnSite
     (J : GrothendieckTopology C) (p : S ⥤ C) :
@@ -68,7 +62,7 @@ theorem IsStack.InGroupoids.iff_fibered_and_stackOnSite
 /-- A fibered-in-groupoids functor that is already a stack over `(C, J)` is a stack in
 groupoids. -/
 @[stacks 02ZI "canonical stack-in-groupoids instance"]
-instance (J : GrothendieckTopology C) (p : S ⥤ C)
+instance IsStack.InGroupoids.ofOnSite (J : GrothendieckTopology C) (p : S ⥤ C)
     [Functor.IsFibered.InGroupoids p] [IsStack.OnSite J p] :
     IsStack.InGroupoids J p := sorry
 

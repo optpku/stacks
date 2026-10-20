@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Example_100_11_9_ResidualGerbe
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.ResidualGerbe
+import StacksCheckRecall
 
 /-!
 # Residual gerbes of schemes and algebraic spaces
@@ -25,25 +20,19 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack
+/- Example 100.11.9 (1): The canonical residue-field inclusion of a scheme
+point is its residual gerbe. -/
+@[stacks 0H21] #check
+  (AlgebraicGeometry.AlgebraicStack.isResidualGerbe_residueFieldι :
+    ∀ {S : Scheme.{u}} {U : Over S} (u : U.left),
+      AlgebraicGeometry.AlgebraicStack.IsResidualGerbe
+        (AlgebraicGeometry.AlgebraicStack.residueFieldι u)
+        (AlgebraicGeometry.AlgebraicStack.residueFieldPoint u))
 
-/-- Example 100.11.9 (1): Let `X` be a scheme and let `x ∈ X` be a point. Then
-the monomorphism `x ⟶ X` is the residual gerbe of `X` at `x`, identifying `x`
-with the scheme `Spec (X.residueField x)`. -/
-@[stacks 0H21]
-instance isResidualGerbe_residueFieldι {S : Scheme.{u}} {U : Over S}
-    (u : U.left) : IsResidualGerbe (residueFieldι u) (residueFieldPoint u) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack
-
-namespace AlgebraicGeometry.AlgebraicSpace.IsResidualSpace
-
-/-- Example 100.11.9 (2): If `X` is an algebraic space and `x ∈ |X|`, then the
-residual gerbe at `x` (which is called the residual space) always exists. -/
-@[stacks 0H21]
-theorem exists_residualSpace {S : Scheme.{u}} (X : AlgebraicSpace S)
-    (x : Points X) : ∃ (Z : AlgebraicSpace S) (ι : Z ⟶ X), IsResidualSpace ι x :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.IsResidualSpace
+/- Example 100.11.9 (2): Every point of an algebraic space has a residual space. -/
+@[stacks 0H21] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsResidualSpace.exists_at :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+      (x : AlgebraicGeometry.AlgebraicSpace.Points X),
+      ∃ (Z : AlgebraicSpace S) (ι : Z ⟶ X),
+        AlgebraicGeometry.AlgebraicSpace.IsResidualSpace ι x)

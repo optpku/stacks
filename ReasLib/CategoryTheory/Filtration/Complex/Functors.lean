@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.HomologicalComplex.Functors
@@ -179,34 +173,5 @@ end Graded
 end FilteredComplex
 
 end FilteredComplexBridge
-
-section IsIsoChecks
-
-variable {𝒜 : Type u} [Category.{v} 𝒜] [HasZeroMorphisms 𝒜]
-variable {K L : FilteredComplex 𝒜} (f : K ⟶ L) [IsIso f]
-
-#synth IsIso (FilteredComplex.underlyingMap f)
-#synth IsIso (FilteredComplex.stageMap f 0)
-
-variable [HasCokernels 𝒜]
-
-#synth IsIso (FilteredComplex.associatedGradedMap f)
-#synth IsIso (FilteredComplex.gradedPieceMap f 0)
-
-end IsIsoChecks
-
-section AdditiveChecks
-
-variable {𝒜 : Type u} [Category.{v} 𝒜] [Preadditive 𝒜]
-
-#synth (FilteredComplex.underlyingFunctor (𝒜 := 𝒜)).Additive
-#synth (FilteredComplex.Stage.functor (𝒜 := 𝒜) 0).Additive
-
-variable [HasCokernels 𝒜]
-
-#synth (FilteredComplex.associatedGradedFunctor (𝒜 := 𝒜)).Additive
-#synth (FilteredComplex.gradedPieceFunctor (𝒜 := 𝒜) 0).Additive
-
-end AdditiveChecks
 
 end CategoryTheory

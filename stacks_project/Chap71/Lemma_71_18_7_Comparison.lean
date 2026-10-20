@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap71.Definition_71_18_1_StrictTransform
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.StrictTransform.Comparison
 
 /-!
 # Comparison morphisms for strict transforms of algebraic spaces
@@ -27,44 +22,34 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- The canonical projection from a strict-transform algebraic space to the original
-algebraic space. -/
-def strictTransformFst {S : Scheme.{u}} {B B' X : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.strictTransformFst :
+    ∀ {S : Scheme.{u}} {B B' X : AlgebraicSpace S}
     (b : B' ⟶ B) (E : ClosedSubspace B') (f : X ⟶ B)
-    [QuasiCompact (strictTransformOpenComplement b E f).ι] :
-    (strictTransform b E f).X ⟶ X :=
-  (strictTransform b E f).ι ≫ pullback.fst f b
+    [QuasiCompact (strictTransformOpenComplement b E f).ι],
+    (strictTransform b E f).X ⟶ X)
 
-/-- The canonical projection from a strict-transform algebraic space to the
-transformed base. -/
-def strictTransformSnd {S : Scheme.{u}} {B B' X : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.strictTransformSnd :
+    ∀ {S : Scheme.{u}} {B B' X : AlgebraicSpace S}
     (b : B' ⟶ B) (E : ClosedSubspace B') (f : X ⟶ B)
-    [QuasiCompact (strictTransformOpenComplement b E f).ι] :
-    (strictTransform b E f).X ⟶ B' :=
-  (strictTransform b E f).ι ≫ pullback.snd f b
+    [QuasiCompact (strictTransformOpenComplement b E f).ι],
+    (strictTransform b E f).X ⟶ B')
 
-/-- The first projection is the closed immersion of the strict transform followed by
-the first pullback projection. -/
-theorem strictTransformFst_eq {S : Scheme.{u}} {B B' X : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.strictTransformFst_eq :
+    ∀ {S : Scheme.{u}} {B B' X : AlgebraicSpace S}
     (b : B' ⟶ B) (E : ClosedSubspace B') (f : X ⟶ B)
-    [QuasiCompact (strictTransformOpenComplement b E f).ι] :
-    strictTransformFst b E f = (strictTransform b E f).ι ≫ pullback.fst f b :=
-  sorry
+    [QuasiCompact (strictTransformOpenComplement b E f).ι],
+    strictTransformFst b E f = (strictTransform b E f).ι ≫ pullback.fst f b)
 
-/-- The second projection is the closed immersion of the strict transform followed by
-the second pullback projection. -/
-theorem strictTransformSnd_eq {S : Scheme.{u}} {B B' X : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.strictTransformSnd_eq :
+    ∀ {S : Scheme.{u}} {B B' X : AlgebraicSpace S}
     (b : B' ⟶ B) (E : ClosedSubspace B') (f : X ⟶ B)
-    [QuasiCompact (strictTransformOpenComplement b E f).ι] :
-    strictTransformSnd b E f = (strictTransform b E f).ι ≫ pullback.snd f b :=
-  sorry
+    [QuasiCompact (strictTransformOpenComplement b E f).ι],
+    strictTransformSnd b E f = (strictTransform b E f).ι ≫ pullback.snd f b)
 
-/-- The two canonical projections from a strict-transform algebraic space form a
-commutative square. -/
-theorem strictTransform_condition {S : Scheme.{u}} {B B' X : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.strictTransform_condition :
+    ∀ {S : Scheme.{u}} {B B' X : AlgebraicSpace S}
     (b : B' ⟶ B) (E : ClosedSubspace B') (f : X ⟶ B)
-    [QuasiCompact (strictTransformOpenComplement b E f).ι] :
-    strictTransformFst b E f ≫ f = strictTransformSnd b E f ≫ b :=
-  sorry
+    [QuasiCompact (strictTransformOpenComplement b E f).ι],
+    strictTransformFst b E f ≫ f = strictTransformSnd b E f ≫ b)
 
 end AlgebraicGeometry.AlgebraicSpace

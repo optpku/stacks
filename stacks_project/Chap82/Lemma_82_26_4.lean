@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -21,7 +15,7 @@ invertible `𝒪_X`-module. Then the rule sending a good test map `g : Y ⟶ X`
 to `c₁(g^* L) ∩ - : CH_k(Y) → CH_{k-1}(Y)` is a degree-1 identity bivariant
 class. -/
 @[stacks 0ERM] #check
-  (OperationalFirstChern.degree :
+  (AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.OperationalFirstChern.degree :
     ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
       [UniversallyCatenary B] [IsQuasiSeparated B]
       (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
@@ -30,7 +24,7 @@ class. -/
       ChowCohomology.degree δ f 1)
 
 #check
-  (OperationalFirstChern.degree_cap :
+  (AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.OperationalFirstChern.degree_cap :
     ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
       [UniversallyCatenary B] [IsQuasiSeparated B]
       (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.ObjectProperty.InheritedFromHom
-public import stacks_project.Chap68.Lemma_68_17_4_Relative
-public import stacks_project.Chap67.Definition_67_5_2_Surjective
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.DescentConditions
+import StacksCheckRecall
 
 /-!
 # Descent of property (β), decent, and reasonable algebraic spaces
@@ -26,49 +19,49 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 68.17.8 (1): If `f : X ⟶ Y` is a quasi-compact étale surjective morphism of
+/- Lemma 68.17.8 (1): If `f : X ⟶ Y` is a quasi-compact étale surjective morphism of
 algebraic spaces and `X` has property (β), then `Y` has property (β). -/
-@[stacks 03L2]
-instance hasPropertyBeta_inheritedFromSource {S : Scheme.{u}} :
+@[stacks 03L2] #check (AlgebraicGeometry.AlgebraicSpace.hasPropertyBeta_inheritedFromSource :
+  ∀ {S : Scheme.{u}},
     InheritedFromSource (@HasPropertyBeta S : ObjectProperty (AlgebraicSpace S))
       ((@QuasiCompact S : MorphismProperty (AlgebraicSpace S)) ⊓
         (@Etale S : MorphismProperty (AlgebraicSpace S)) ⊓
-        (@Surjective S : MorphismProperty (AlgebraicSpace S))) := sorry
+        (@Surjective S : MorphismProperty (AlgebraicSpace S))))
 
-/-- Lemma 68.17.8 (2): If `f : X ⟶ Y` is a quasi-compact étale surjective morphism of
+/- Lemma 68.17.8 (2): If `f : X ⟶ Y` is a quasi-compact étale surjective morphism of
 algebraic spaces and `X` is decent, then `Y` is decent. -/
-@[stacks 03L2]
-instance isDecent_inheritedFromSource {S : Scheme.{u}} :
+@[stacks 03L2] #check (AlgebraicGeometry.AlgebraicSpace.isDecent_inheritedFromSource :
+  ∀ {S : Scheme.{u}},
     InheritedFromSource (@IsDecent S : ObjectProperty (AlgebraicSpace S))
       ((@QuasiCompact S : MorphismProperty (AlgebraicSpace S)) ⊓
         (@Etale S : MorphismProperty (AlgebraicSpace S)) ⊓
-        (@Surjective S : MorphismProperty (AlgebraicSpace S))) := sorry
+        (@Surjective S : MorphismProperty (AlgebraicSpace S))))
 
-/-- Lemma 68.17.8 (3): If `f : X ⟶ Y` is a quasi-compact étale surjective morphism of
+/- Lemma 68.17.8 (3): If `f : X ⟶ Y` is a quasi-compact étale surjective morphism of
 algebraic spaces and `X` is reasonable, then `Y` is reasonable. -/
-@[stacks 03L2]
-instance isReasonable_inheritedFromSource {S : Scheme.{u}} :
+@[stacks 03L2] #check (AlgebraicGeometry.AlgebraicSpace.isReasonable_inheritedFromSource :
+  ∀ {S : Scheme.{u}},
     InheritedFromSource (@IsReasonable S : ObjectProperty (AlgebraicSpace S))
       ((@QuasiCompact S : MorphismProperty (AlgebraicSpace S)) ⊓
         (@Etale S : MorphismProperty (AlgebraicSpace S)) ⊓
-        (@Surjective S : MorphismProperty (AlgebraicSpace S))) := sorry
+        (@Surjective S : MorphismProperty (AlgebraicSpace S))))
 
-/-- If `f : X ⟶ Y` is quasi-compact, étale, and surjective, and `X` has property
+/- If `f : X ⟶ Y` is quasi-compact, étale, and surjective, and `X` has property
 (β), then `Y` has property (β). -/
-theorem HasPropertyBeta.of_quasiCompact_etale_surjective {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [QuasiCompact f] [Etale f] [Surjective f]
-    [HasPropertyBeta X] : HasPropertyBeta Y := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.HasPropertyBeta.of_quasiCompact_etale_surjective :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    [QuasiCompact f] → [Etale f] → [Surjective f] → [HasPropertyBeta X] → HasPropertyBeta Y)
 
-/-- If `f : X ⟶ Y` is quasi-compact, étale, and surjective, and `X` is decent, then
+/- If `f : X ⟶ Y` is quasi-compact, étale, and surjective, and `X` is decent, then
 `Y` is decent. -/
-theorem IsDecent.of_quasiCompact_etale_surjective {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [QuasiCompact f] [Etale f] [Surjective f]
-    [IsDecent X] : IsDecent Y := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.IsDecent.of_quasiCompact_etale_surjective :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    [QuasiCompact f] → [Etale f] → [Surjective f] → [IsDecent X] → IsDecent Y)
 
-/-- If `f : X ⟶ Y` is quasi-compact, étale, and surjective, and `X` is reasonable,
+/- If `f : X ⟶ Y` is quasi-compact, étale, and surjective, and `X` is reasonable,
 then `Y` is reasonable. -/
-theorem IsReasonable.of_quasiCompact_etale_surjective {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [QuasiCompact f] [Etale f] [Surjective f]
-    [IsReasonable X] : IsReasonable Y := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.IsReasonable.of_quasiCompact_etale_surjective :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    [QuasiCompact f] → [Etale f] → [Surjective f] → [IsReasonable X] → IsReasonable Y)
 
 end AlgebraicGeometry.AlgebraicSpace

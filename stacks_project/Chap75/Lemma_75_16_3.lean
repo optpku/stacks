@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_16_3_Compact
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.Support.Perfect.Compact
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,6 +15,6 @@ universe u
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
       [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
       (T : Closeds (Points X)),
-      QuasiCompact (OpenSubspace.ofOpensι T.compl) →
+      IsCompact (T.compl : Set (Points X)) →
         ∀ (E : AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.SupportedOn X (T : Set (Points X))),
           IsCompactObject E ↔ ModuleDerived.IsPerfect E.obj)

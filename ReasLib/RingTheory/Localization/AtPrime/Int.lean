@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.Ideal.Int
 public import Mathlib.RingTheory.Localization.AtPrime.Basic
+public import Mathlib.RingTheory.RegularLocalRing.Defs
 
 @[expose] public section
 
@@ -25,5 +20,10 @@ namespace Int
 @[stacks 07KD "p-local integers"]
 abbrev LocalizationAtPrime (p : ℕ) [Fact p.Prime] :=
   Localization.AtPrime (Ideal.span ({(p : ℤ)} : Set ℤ))
+
+/-- The localization of the integers at a prime number is a regular local ring. -/
+instance localizationAtPrime_isRegularLocalRing (p : ℕ) [Fact p.Prime] :
+    IsRegularLocalRing (LocalizationAtPrime p) :=
+  IsRegularRing.isRegularLocalRing_localization (Ideal.span ({(p : ℤ)} : Set ℤ))
 
 end Int

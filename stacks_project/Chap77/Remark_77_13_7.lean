@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap67.Lemma_67_28_5
@@ -43,9 +37,16 @@ theorem exists_pseudoCoherentOver_withProperSupport_of_thickenings
     (A : SequentialInverseSystem CommRingCat.{u}) (A_lim : LimitCone A)
     (h_surjective : A.Surjective) (h_kernel : A.KernelLocallyNilpotent)
     (X : AlgebraicSpace (Spec A_lim.cone.pt))
+
     [Separated (toBase X)] [FinitePresentation (toBase X)]
     (Xn : ℕ → AlgebraicSpace (Spec A_lim.cone.pt))
     (p : ∀ n, Xn n ⟶ X) (q : ∀ n, Xn n ⟶ Modules.stageSpec A_lim n)
+    [∀ sq : EtaleSquare (toBase X),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ n : ℕ, ∀ sq : EtaleSquare (q n),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
     (h_pullback : ∀ n,
       IsPullback (q n) (p n) (Modules.stageSpecToBase A_lim n) (toBase X))
     [∀ n, IsClosedImmersion (p n)] [∀ n, LocallyOfFiniteType (q n)]

@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap65.Definition_65_6_3_Hom
 public import stacks_project.Chap65.Lemma_65_6_2_OfOver
-public import stacks_project.Chap87.Lemma_87_33_1_Comparison
+public import ReasLib.AlgebraicGeometry.FormalSpectrum.AlgebraicSpaceComparison
 
 /-!
 # Comparison from Spec to Spf for algebraic-space targets
@@ -27,30 +21,24 @@ universe u
 
 namespace AlgebraicGeometry.AffineFormalAlgebraicSpace
 
-/-- The natural map `Mor_S(Spec(R), X) → Mor_S(Spf(R), X)` induced by
-precomposition with `spfToSpec`, for an algebraic space `X` over `S`. -/
-def specHomToSpfHom_algebraicSpace {R : Type u} [CommRing R] [TopologicalSpace R]
+#check (AlgebraicGeometry.AffineFormalAlgebraicSpace.specHomToSpfHom_algebraicSpace :
+  ∀ {R : Type u} [CommRing R] [TopologicalSpace R]
     [TopologicalRing.IsWeaklyAdmissibleRing R] {S : Scheme.{u}}
     (structureHom : Spec (.of R) ⟶ S) (X : AlgebraicSpace S)
-    [HasWeakSheafify (Scheme.fppfTopology.over S) (Type u)] :
+    [HasWeakSheafify (Scheme.fppfTopology.over S) (Type u)],
     (AlgebraicSpace.ofOver (Over.mk structureHom) ⟶ X) →
       (spf R structureHom ⟶
         (presheafToSheaf (Scheme.fppfTopology.over S) (Type u)).obj
-          X.functorOfPoints) :=
-  fun f ↦
-    spfToSpec structureHom ≫
-      (presheafToSheaf (Scheme.fppfTopology.over S) (Type u)).map f
+          X.functorOfPoints))
 
-/-- `specHomToSpfHom_algebraicSpace` is precomposition with `spfToSpec` after
-sheafifying the algebraic-space morphism. -/
-theorem specHomToSpfHom_algebraicSpace_apply {R : Type u} [CommRing R]
+#check (AlgebraicGeometry.AffineFormalAlgebraicSpace.specHomToSpfHom_algebraicSpace_apply :
+  ∀ {R : Type u} [CommRing R]
     [TopologicalSpace R] [TopologicalRing.IsWeaklyAdmissibleRing R]
     {S : Scheme.{u}} (structureHom : Spec (.of R) ⟶ S) (X : AlgebraicSpace S)
     [HasWeakSheafify (Scheme.fppfTopology.over S) (Type u)]
-    (f : AlgebraicSpace.ofOver (Over.mk structureHom) ⟶ X) :
+    (f : AlgebraicSpace.ofOver (Over.mk structureHom) ⟶ X),
     specHomToSpfHom_algebraicSpace structureHom X f =
       spfToSpec structureHom ≫
-        (presheafToSheaf (Scheme.fppfTopology.over S) (Type u)).map f :=
-  sorry
+        (presheafToSheaf (Scheme.fppfTopology.over S) (Type u)).map f)
 
 end AlgebraicGeometry.AffineFormalAlgebraicSpace

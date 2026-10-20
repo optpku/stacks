@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.DirectSum.Module
@@ -21,6 +15,35 @@ namespace WeilCohomology
 
 open AlgebraicGeometry CategoryTheory TopologicalSpace
 open scoped TensorProduct
+
+namespace SchemeClassicalTheory
+
+/-- The submodule of a bigraded module at a fixed Tate twist, in all cohomological degrees. -/
+def twistSlice {F M : Type*} [Field F] [AddCommGroup M] [Module F M]
+    (G : ℤ × ℤ → Submodule F M) (r : ℤ) : Submodule F M :=
+  ⨆ i : ℤ, G (i, r)
+
+/-- A tensor-product linear map restricted to a fixed Tate twist in each factor. -/
+def twistSliceTensorMap {F M₁ M₂ M₃ : Type*} [Field F]
+    [AddCommGroup M₁] [Module F M₁] [AddCommGroup M₂] [Module F M₂]
+    [AddCommGroup M₃] [Module F M₃]
+    (G₁ : ℤ × ℤ → Submodule F M₁) (G₂ : ℤ × ℤ → Submodule F M₂)
+    (m : M₁ ⊗[F] M₂ →ₗ[F] M₃) (r s : ℤ) :
+    twistSlice G₁ r ⊗[F] twistSlice G₂ s →ₗ[F] M₃ :=
+  m.comp (TensorProduct.map (twistSlice G₁ r).subtype (twistSlice G₂ s).subtype)
+
+/-- The restricted tensor map sends a pure tensor to the original map of its inclusions. -/
+theorem twistSliceTensorMap_tmul {F M₁ M₂ M₃ : Type*} [Field F]
+    [AddCommGroup M₁] [Module F M₁] [AddCommGroup M₂] [Module F M₂]
+    [AddCommGroup M₃] [Module F M₃]
+    (G₁ : ℤ × ℤ → Submodule F M₁) (G₂ : ℤ × ℤ → Submodule F M₂)
+    (m : M₁ ⊗[F] M₂ →ₗ[F] M₃) (r s : ℤ)
+    (a : twistSlice G₁ r) (b : twistSlice G₂ s) :
+    twistSliceTensorMap G₁ G₂ m r s (a ⊗ₜ[F] b) =
+      m ((a : M₁) ⊗ₜ[F] (b : M₂)) := by
+  simp [twistSliceTensorMap]
+
+end SchemeClassicalTheory
 
 /-- A classical Weil cohomology theory on a scheme-valued presentation over an arbitrary field. -/
 structure SchemeClassicalTheory
@@ -168,13 +191,20 @@ structure SchemeClassicalTheory
   /-- The Kunneth map adds both grading indices. -/
   kunnethMap_mem : ∀ X Y (p q : ℤ × ℤ) (a : Hgrade X p) (b : Hgrade Y q),
     kunnethMap X Y (a ⊗ₜ[F] b) ∈ Hgrade (product X Y) (p + q)
-  /-- The Kunneth map is bijective. -/
-  kunnethMap_bijective : ∀ X Y, Function.Bijective (kunnethMap X Y)
-  /-- Integration of an exterior product is the product of the integrations. -/
+  /-- For fixed twists, exterior product is injective with image the sum-twist slice. -/
+  kunnethMap_fixedTwists : ∀ X Y (r s : ℤ),
+    Function.Injective (SchemeClassicalTheory.twistSliceTensorMap
+      (Hgrade X) (Hgrade Y) (kunnethMap X Y) r s) ∧
+    LinearMap.range (SchemeClassicalTheory.twistSliceTensorMap
+      (Hgrade X) (Hgrade Y) (kunnethMap X Y) r s) =
+      SchemeClassicalTheory.twistSlice (Hgrade (product X Y)) (r + s)
+  /-- Integration of an exterior product of top-bidegree classes is multiplicative. -/
   integral_kunnethMap_tmul : ∀ {X Y d e} (hX : IsNonemptyEquidimensional X d)
-      (hY : IsNonemptyEquidimensional Y e) (a : H X) (b : H Y),
+      (hY : IsNonemptyEquidimensional Y e)
+      (a : Hgrade X (2 * (d : ℤ), (d : ℤ)))
+      (b : Hgrade Y (2 * (e : ℤ), (e : ℤ))),
     integral (product_isNonemptyEquidimensional hX hY)
-        (kunnethMap X Y (a ⊗ₜ[F] b)) = integral hX a * integral hY b
+        (kunnethMap X Y ((a : H X) ⊗ₜ[F] (b : H Y))) = integral hX a * integral hY b
   /-- Chow pushforward has the codimension shift prescribed by dimensions. -/
   cyclePushforward_mem : ∀ {X Y d e} (hX : IsNonemptyEquidimensional X d)
       (hY : IsNonemptyEquidimensional Y e) (f : X ⟶ Y) (i : ℤ)
@@ -261,7 +291,8 @@ theorem poincareDuality_spec
     (∀ {X d} (hX : T.IsNonemptyEquidimensional X d) (i j : ℤ),
       Function.Bijective (T.poincarePairing hX i j)) := sorry
 
-/-- The Kunneth formula describes pure tensors, grading, bijectivity, and integration. -/
+/-- The Kunneth formula describes pure tensors, grading, fixed-twist isomorphisms,
+and integration of top-bidegree exterior products. -/
 theorem kunnethFormula_spec
     (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
       H CH Hgrade CHgrade cyclePullback cyclePushforward) :
@@ -270,11 +301,18 @@ theorem kunnethFormula_spec
         T.pullback (fst X Y) a * T.pullback (snd X Y) b) ∧
     (∀ X Y (p q : ℤ × ℤ) (a : Hgrade X p) (b : Hgrade Y q),
       T.kunnethMap X Y (a ⊗ₜ[F] b) ∈ Hgrade (product X Y) (p + q)) ∧
-    (∀ X Y, Function.Bijective (T.kunnethMap X Y)) ∧
+    (∀ X Y (r s : ℤ),
+      Function.Injective (twistSliceTensorMap (Hgrade X) (Hgrade Y)
+        (T.kunnethMap X Y) r s) ∧
+      LinearMap.range (twistSliceTensorMap (Hgrade X) (Hgrade Y)
+        (T.kunnethMap X Y) r s) = twistSlice (Hgrade (product X Y)) (r + s)) ∧
     (∀ {X Y d e} (hX : T.IsNonemptyEquidimensional X d)
-      (hY : T.IsNonemptyEquidimensional Y e) (a : H X) (b : H Y),
+      (hY : T.IsNonemptyEquidimensional Y e)
+      (a : Hgrade X (2 * (d : ℤ), (d : ℤ)))
+      (b : Hgrade Y (2 * (e : ℤ), (e : ℤ))),
       T.integral (T.product_isNonemptyEquidimensional hX hY)
-          (T.kunnethMap X Y (a ⊗ₜ[F] b)) = T.integral hX a * T.integral hY b) := sorry
+          (T.kunnethMap X Y ((a : H X) ⊗ₜ[F] (b : H Y))) =
+        T.integral hX a * T.integral hY b) := sorry
 
 /-- Cycle-class compatibility comprises pullback, pushforward, products, and point normalization. -/
 theorem cycleClassCompatibility_spec

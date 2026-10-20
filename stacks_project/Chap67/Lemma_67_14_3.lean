@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_14_3_Shriek
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Quasicoherent.ClosedImmersion
 import StacksCheckRecall
 
 /-!
@@ -21,20 +15,13 @@ of algebraic spaces.
 @[expose] public section
 
 open CategoryTheory
-open AlgebraicGeometry
-open AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.QCoh
 
 universe u
-
-variable {S : Scheme.{u}} {X Z : AlgebraicSpace S} (i : Z ⟶ X)
-  [AlgebraicSpace.IsClosedImmersion i]
 
 /- Lemma 67.14.3: for a closed immersion of algebraic spaces, pushforward on
 quasi-coherent modules admits an exceptional inverse image as a right adjoint. -/
 @[stacks 04CL] #check
-  (pushforwardShriekAdjunction i : pushforward i ⊣ shriek i)
-
-#check (shriek i : QCoh X ⥤ QCoh Z)
-
-#check pushforward_isLeftAdjoint
+  (AlgebraicGeometry.AlgebraicSpace.QCoh.pushforward_isLeftAdjoint :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Z : AlgebraicGeometry.AlgebraicSpace S}
+      (i : Z ⟶ X) [AlgebraicGeometry.AlgebraicSpace.IsClosedImmersion i],
+      (AlgebraicGeometry.AlgebraicSpace.QCoh.pushforward i).IsLeftAdjoint)

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.PseudoCoherent.Relative.Perfect.Tensor
@@ -26,12 +20,18 @@ open scoped CategoryTheory.DerivedCategory.DerivedTensor
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.ModuleDerived.IsPerfect
 
 /-- An absolutely perfect derived module on the source of a flat, locally finitely presented
 morphism of schemes is perfect relative to that morphism. -/
 theorem isPerfectRelativeTo {X S : Scheme.{u}} (f : X ⟶ S)
     [Flat f] [LocallyOfFinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     {K : RingedSpace.ModuleDerived X.toRingedSpace}
     (hK : RingedSpace.ModuleDerived.IsPerfect K) :
     Scheme.ModuleDerived.IsPerfectRelativeTo f K := sorry
@@ -40,7 +40,12 @@ theorem isPerfectRelativeTo {X S : Scheme.{u}} (f : X ⟶ S)
 module preserves perfectness relative to a flat, locally finitely presented morphism. -/
 theorem tensor_isPerfectRelativeTo {X S : Scheme.{u}} (f : X ⟶ S)
     [Flat f] [LocallyOfFinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     {K M : RingedSpace.ModuleDerived X.toRingedSpace}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (hK : RingedSpace.ModuleDerived.IsPerfect K)
     (hM : Scheme.ModuleDerived.IsPerfectRelativeTo f M) :
     Scheme.ModuleDerived.IsPerfectRelativeTo f (K ⊗ᴸ M) := sorry

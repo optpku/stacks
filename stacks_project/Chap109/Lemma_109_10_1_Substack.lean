@@ -1,18 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.Proper
-public import Mathlib.CategoryTheory.ObjectProperty.ClosedUnderIsomorphisms
-public import Mathlib.Topology.KrullDimension
-public import ReasLib.AlgebraicGeometry.Scheme.OverField
-public import stacks_project.Chap76.Lemma_76_29_3_ReducedFiberLocus
-public import stacks_project.Chap99.Situation_99_15_1_Category
-public import stacks_project.Chap109.Lemma_109_9_1_Substack
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.GeometricallyReduced
 
 /-!
 # The object property of geometrically reduced families of curves
@@ -36,24 +24,16 @@ namespace AlgebraicGeometry.AlgebraicSpace
 namespace Spaces
 namespace Curves
 
-/-- The object property of families of curves with geometrically reduced fibres,
-corresponding to the open substack 𝒞urves^{geomred}. -/
-def geometricallyReduced (S : Scheme.{u}) : ObjectProperty (Obj S) :=
-  fun P ↦ ∀ y : Points (ofOver (base P)), y ∈ geometricallyReducedFiberLocus (hom P)
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.geometricallyReduced :
+    ∀ (S : Scheme.{u}), ObjectProperty (Obj S))
 
-/-- Membership in `geometricallyReduced` means every fibre of the structure
-morphism is geometrically reduced. -/
-theorem geometricallyReduced_iff {S : Scheme.{u}} (P : Obj S) :
-    geometricallyReduced S P ↔
-      ∀ y : Points (ofOver (base P)), y ∈ geometricallyReducedFiberLocus (hom P) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.geometricallyReduced_iff :
+    ∀ {S : Scheme.{u}} (P : Obj S),
+      geometricallyReduced S P ↔
+        ∀ y : Points (ofOver (base P)), y ∈ geometricallyReducedFiberLocus (hom P))
 
-/-- The geometrically reduced property of families of curves is closed under
-isomorphisms. -/
-instance instIsClosedUnderIsomorphisms_geometricallyReduced (S : Scheme.{u}) :
-    (geometricallyReduced S).IsClosedUnderIsomorphisms :=
-  sorry
-
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instIsClosedUnderIsomorphisms_geometricallyReduced :
+    ∀ (S : Scheme.{u}), (geometricallyReduced S).IsClosedUnderIsomorphisms)
 
 end Curves
 end Spaces

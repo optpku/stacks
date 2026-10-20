@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_4_1_Points
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap66.Lemma_66_25_4_Regular
-public import stacks_project.Chap67.Lemma_67_48_6_Reduced
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Regular.Singleton
+import StacksCheckRecall
 
 /-!
 # Reduced locally Noetherian singleton algebraic spaces are regular
@@ -20,21 +12,16 @@ singleton is regular.
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-namespace IsRegular
-
-/-- Lemma 68.13.8: A reduced, locally Noetherian algebraic space `Z` whose space of
+/- Lemma 68.13.8: A reduced, locally Noetherian algebraic space `Z` whose space of
 points is a singleton is regular. -/
 @[stacks 06R1]
-instance of_singleton_points {S : Scheme.{u}} (Z : AlgebraicSpace S)
-    [IsReduced Z] [IsLocallyNoetherian Z] [Nonempty (Points Z)] [Subsingleton (Points Z)] :
-    IsRegular Z := sorry
-
-end IsRegular
-
-end AlgebraicGeometry.AlgebraicSpace
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsRegular.of_singleton_points :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}} (Z : AlgebraicGeometry.AlgebraicSpace S)
+      [AlgebraicGeometry.AlgebraicSpace.IsReduced Z]
+      [AlgebraicGeometry.AlgebraicSpace.IsLocallyNoetherian Z]
+      [Nonempty (AlgebraicGeometry.AlgebraicSpace.Points Z)]
+      [Subsingleton (AlgebraicGeometry.AlgebraicSpace.Points Z)],
+      AlgebraicGeometry.AlgebraicSpace.IsRegular Z)

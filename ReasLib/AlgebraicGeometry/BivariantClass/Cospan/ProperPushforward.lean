@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.BivariantClass.Cospan
+public import ReasLib.AlgebraicGeometry.ChowGroup.Relative.Reindex
 
 @[expose] public section
 
@@ -79,19 +74,6 @@ instance properBaseChangeMapIsProper
     (squareY : IsPullback iY.left qY.left f.left g.left) :
     IsProper (properBaseChangeMap f g iX qX squareX iY qY squareY).left := sorry
 
-/-- Reindex a relative Chow group along an equality of grading indices. -/
-def castDegree
-    {S : Scheme.{u}} [UniversallyCatenary S] (delta : S → ℤ) [IsDimensionFunction delta]
-    {T : Over S} [LocallyOfFiniteType T.hom] {m n : ℤ} (h : m = n) :
-    RelativeChow delta T m →+ RelativeChow delta T n :=
-  h ▸ AddMonoidHom.id (RelativeChow delta T m)
-
-/-- Reindexing by a degree equality sends each Chow class to its transported value. -/
-theorem castDegree_apply
-    {S : Scheme.{u}} [UniversallyCatenary S] (delta : S → ℤ) [IsDimensionFunction delta]
-    {T : Over S} [LocallyOfFiniteType T.hom] {m n : ℤ} (h : m = n)
-    (alpha : RelativeChow delta T m) : castDegree delta h alpha = h ▸ alpha := sorry
-
 /-- The cap family given by proper pushforward along the displayed base change of a
 proper morphism. -/
 def properPushforwardCap
@@ -99,7 +81,7 @@ def properPushforwardCap
     {X₁ X₂ : Over S} [LocallyOfFiniteType X₁.hom] [LocallyOfFiniteType X₂.hom]
     (f : X₂ ⟶ X₁) [IsProper f.left] : CapFamily delta (𝟙 X₁) f 0 :=
   fun {_ X' Y'} _ _ _ g _ iX qX squareX iY _ qY squareY k ↦
-    (castDegree delta (Int.sub_zero k).symm).comp
+    (RelativeChow.castDegree delta (Int.sub_zero k).symm).comp
       (ChowGroup.map delta Y' X'
         (properBaseChangeMap f g iX qX squareX iY qY squareY) k)
 
@@ -117,7 +99,7 @@ theorem properPushforwardCap_apply
     (iY : Y' ⟶ X₂) [LocallyOfFiniteType iY.left] (qY : Y' ⟶ Z')
     (squareY : IsPullback iY.left qY.left f.left g.left) (k : ℤ) :
     properPushforwardCap delta f g iX qX squareX iY qY squareY k =
-      (castDegree delta (Int.sub_zero k).symm).comp
+      (RelativeChow.castDegree delta (Int.sub_zero k).symm).comp
         (ChowGroup.map delta Y' X'
           (properBaseChangeMap f g iX qX squareX iY qY squareY) k) := sorry
 
@@ -168,7 +150,7 @@ theorem properPushforward_cap
     (iY : Y' ⟶ X₂) [LocallyOfFiniteType iY.left] (qY : Y' ⟶ Z')
     (squareY : IsPullback iY.left qY.left f.left g.left) (k : ℤ) :
     (properPushforward delta f).cap g iX qX squareX iY qY squareY k =
-      (castDegree delta (Int.sub_zero k).symm).comp
+      (RelativeChow.castDegree delta (Int.sub_zero k).symm).comp
         (ChowGroup.map delta Y' X'
           (properBaseChangeMap f g iX qX squareX iY qY squareY) k) := sorry
 

@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap96.Definition_96_26_1_Affine
-public import stacks_project.Chap96.Definition_96_26_1_QC
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Derived.QuasiCoherent
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,12 +15,16 @@ groupoids. Let `𝒪` be the sheaf of rings on `𝒳_affine`. We define the
 triangulated category of quasi-coherent objects in the derived category by
 the formula `QC(𝒳) = QC(𝒳_affine, 𝒪)`, where the right-hand side is
 Cohomology on Sites, Definition 21.43.1. -/
-@[stacks 0H0H] #check (fun {S : Scheme.{u}} (X : GroupoidsOver S) ↦ QC X)
+@[stacks 0H0H] #check (AlgebraicGeometry.GroupoidsOver.QC :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.GroupoidsOver S),
+    Type (u + 2))
 
 /- The restricted structure sheaf `𝒪` on the chaotic affine site `𝒳_affine`. -/
-#check (fun {S : Scheme.{u}} (X : GroupoidsOver S) ↦ affineStructureSheaf X)
+#check (AlgebraicGeometry.GroupoidsOver.affineStructureSheaf :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S),
+    Sheaf (⊥ : GrothendieckTopology (affineSite X)) CommRingCat.{u + 1})
 
 /- The comparison-map category `QC(𝒳_affine, 𝒪)` of Definition 21.43.1. -/
-#check
-  (fun {S : Scheme.{u}} (X : GroupoidsOver S) ↦
-    Chaotic.QC.{u + 1, u, u} (affineStructureSheaf X))
+#check (AlgebraicGeometry.GroupoidsOver.QC_eq :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S),
+    QC X = Chaotic.QC.{u + 1, u, u} (affineStructureSheaf X))

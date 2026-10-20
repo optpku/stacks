@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_4_1_Separation
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Separation
+import StacksCheckRecall
 
 /-!
 # Trivial implications among separation axioms
@@ -22,44 +17,27 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack
-
-namespace QuasiSeparated
-
-/-- Lemma 101.4.3 (1): A separated morphism of algebraic stacks is
+/- Lemma 101.4.3 (1): A separated morphism of algebraic stacks is
 quasi-separated. -/
-@[stacks 050E]
-instance of_separated {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Separated f] :
-    QuasiSeparated f :=
-  sorry
+@[stacks 050E] #check
+  (AlgebraicGeometry.AlgebraicStack.QuasiSeparated.of_separated :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+      [AlgebraicGeometry.AlgebraicStack.Separated f],
+      AlgebraicGeometry.AlgebraicStack.QuasiSeparated f)
 
-end QuasiSeparated
+/- Lemma 101.4.3 (2): A DM morphism of algebraic stacks is quasi-DM. -/
+@[stacks 050E] #check
+  (AlgebraicGeometry.AlgebraicStack.QuasiDM.of_DM :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+      [AlgebraicGeometry.AlgebraicStack.DM f],
+      AlgebraicGeometry.AlgebraicStack.QuasiDM f)
 
-namespace QuasiDM
-
-/-- Lemma 101.4.3 (2): A DM morphism of algebraic stacks is quasi-DM. -/
-@[stacks 050E]
-instance of_DM {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [DM f] :
-    QuasiDM f :=
-  sorry
-
-end QuasiDM
-
-namespace DM
-
-/-- Lemma 101.4.3 (3): A morphism of algebraic stacks representable by
+/- Lemma 101.4.3 (3): A morphism of algebraic stacks representable by
 algebraic spaces is DM. -/
-@[stacks 050E]
-instance of_relativelyRepresentableByAlgebraicSpaces
-    {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
-    (hf : relativelyRepresentableByAlgebraicSpaces f) :
-    let _ := hf
-    DM f :=
-  sorry
-
-end DM
-
-end AlgebraicGeometry.AlgebraicStack
+@[stacks 050E] #check
+  (AlgebraicGeometry.AlgebraicStack.DM.of_relativelyRepresentableByAlgebraicSpaces :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y},
+      relativelyRepresentableByAlgebraicSpaces f → AlgebraicGeometry.AlgebraicStack.DM f)

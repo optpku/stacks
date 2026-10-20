@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.SimplicialLowerShriek
+public import ReasLib.CategoryTheory.Localization.FormalIso
 public import ReasLib.AlgebraicTopology.SimplicialObject.Augmentation
 public import ReasLib.AlgebraicTopology.SimplicialObject.Augmented.AlternatingFace
 import Mathlib.Tactic.CrossRefAttribute
@@ -15,8 +10,7 @@ import Mathlib.Tactic.CrossRefAttribute
 # Augmented simplicial ring sheaves
 
 An augmentation of a simplicial ring sheaf to a constant ring sheaf produces a module-valued
-derived lower-shriek.  This file owns the construction and its forgetful comparison, independently
-of the Chapter 21 presentation.
+derived lower shriek with a comparison to the derived lower shriek of additive sheaves.
 -/
 
 @[expose] public section
@@ -24,6 +18,9 @@ of the Chapter 21 presentation.
 open CategoryTheory
 
 noncomputable section
+
+-- The exposed comparisons use private formal reverse-component implementations.
+set_option backward.privateInPublic true
 
 universe u v w
 
@@ -59,7 +56,15 @@ def constantProjectionIso (𝒪 : Sheaf J CommRingCat.{w}) :
 
 /-- The module-valued derived lower shriek in the constant-coefficient case. -/
 @[stacks 09D3 "constant-coefficient module lower shriek"]
-noncomputable abbrev constantLowerShriek (𝒪 : Sheaf J CommRingCat.{w}) :
+noncomputable abbrev constantLowerShriek (𝒪 : Sheaf J CommRingCat.{w})
+    [Functor.HasLeftDerivedFunctor
+      (RingedSite.Cocontinuous.moduleLowerShriek.toDerived
+        (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+        (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪))
+      (RingedSite.Hom.ModuleQis.{w}
+        (RingedSite.Cocontinuous.moduleInverseImage.source
+          (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+          (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)))] :
     RingedSite.Hom.ModuleDerived.{w}
         (RingedSite.ofCommRingSheaf (SimplicialSite.topology J)
           (SimplicialSite.ringSheaf (constantStructureSheaf 𝒪))) ⥤
@@ -81,50 +86,157 @@ set_option maxHeartbeats 2000000 in
 constant-coefficient module lower shriek followed by forgetting. -/
 @[stacks 09D3 "constant lower-shriek underlying comparison"]
 noncomputable abbrev constantLowerShriek.underlyingComparison
-    (𝒪 : Sheaf J CommRingCat.{w}) :
+    (𝒪 : Sheaf J CommRingCat.{w})
+    [Functor.HasLeftDerivedFunctor
+      (RingedSite.Cocontinuous.moduleLowerShriek.toDerived
+        (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+        (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪))
+      (RingedSite.Hom.ModuleQis.{w}
+        (RingedSite.Cocontinuous.moduleInverseImage.source
+          (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+          (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)))]
+    [RingedSite.Cocontinuous.moduleLowerShriek.derived.HasPair
+      (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+      (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)] :
     lowerShriek (constantStructureSheaf 𝒪) ⟶
       constantLowerShriek 𝒪 ⋙ constantForget 𝒪 :=
   RingedSite.Cocontinuous.moduleLowerShriek.derived.underlyingComparison
     (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
     (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)
 
-/-- The constant comparison is invertible and is registered for automatic objectwise transport. -/
-@[stacks 09D3 "constant lower-shriek underlying comparison isomorphism", instance]
-theorem constantLowerShriek.underlyingComparison_isIso
-    (𝒪 : Sheaf J CommRingCat.{w}) :
-    IsIso (constantLowerShriek.underlyingComparison 𝒪) := sorry
+section ConstantComparison
 
-/-- The canonical constant-coefficient comparison as a natural isomorphism. -/
+variable (𝒪 : Sheaf J CommRingCat.{w})
+    [Functor.HasLeftDerivedFunctor
+      (RingedSite.Cocontinuous.moduleLowerShriek.toDerived
+        (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+        (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪))
+      (RingedSite.Hom.ModuleQis.{w}
+        (RingedSite.Cocontinuous.moduleInverseImage.source
+          (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+          (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)))]
+    [RingedSite.Cocontinuous.moduleLowerShriek.derived.HasPair
+      (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+      (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)]
+
+namespace constantLowerShriek
+
+/-- Every component of the constant-coefficient comparison has a quasi-isomorphic homotopy representative. -/
+theorem underlyingComparison_quasiIso
+    (K : RingedSite.Hom.ModuleDerived.{w}
+      (RingedSite.ofCommRingSheaf (SimplicialSite.topology J)
+        (SimplicialSite.ringSheaf (constantStructureSheaf 𝒪)))) :
+    HomotopyCategory.quasiIso (Sheaf J AddCommGrpCat.{w}) (ComplexShape.up ℤ)
+      (Localization.arrowRepresentative DerivedCategory.Qh
+        ((underlyingComparison 𝒪).app K)).hom :=
+  sorry
+
+/-- The reverse component is the formal inverse of the comparison's specified homotopy representative. -/
+private def underlyingComparisonInvApp
+    (K : RingedSite.Hom.ModuleDerived.{w}
+      (RingedSite.ofCommRingSheaf (SimplicialSite.topology J)
+        (SimplicialSite.ringSheaf (constantStructureSheaf 𝒪)))) :
+    (constantLowerShriek 𝒪 ⋙ constantForget 𝒪).obj K ⟶
+      (lowerShriek (constantStructureSheaf 𝒪)).obj K :=
+  (Localization.formalIsoOfArrowRepresentative
+    (HomotopyCategory.quasiIso (Sheaf J AddCommGrpCat.{w}) (ComplexShape.up ℤ))
+    DerivedCategory.Qh ((underlyingComparison 𝒪).app K)
+    (underlyingComparison_quasiIso 𝒪 K)).inv
+
+/-- The formal reverse components are natural and are two-sided inverses to the comparison. -/
+theorem underlyingComparison_inverse_laws :
+    (∀ {K K'} (f : K ⟶ K'),
+      (constantLowerShriek 𝒪 ⋙ constantForget 𝒪).map f ≫
+          underlyingComparisonInvApp 𝒪 K' =
+        underlyingComparisonInvApp 𝒪 K ≫
+          (lowerShriek (constantStructureSheaf 𝒪)).map f) ∧
+    (∀ K, (underlyingComparison 𝒪).app K ≫
+      underlyingComparisonInvApp 𝒪 K = 𝟙 _) ∧
+    (∀ K, underlyingComparisonInvApp 𝒪 K ≫
+      (underlyingComparison 𝒪).app K = 𝟙 _) :=
+  sorry
+
+/-- The reverse constant-coefficient comparison has the specified formal inverse components. -/
+def underlyingComparisonInv :
+    constantLowerShriek 𝒪 ⋙ constantForget 𝒪 ⟶
+      lowerShriek (constantStructureSheaf 𝒪) where
+  app := underlyingComparisonInvApp 𝒪
+  naturality := fun {K K'} f =>
+    (underlyingComparison_inverse_laws 𝒪).1 (K := K) (K' := K') f
+
+/-- The canonical constant-coefficient comparison and its formal reverse form a natural isomorphism. -/
 @[stacks 09D3 "constant lower-shriek underlying natural isomorphism"]
-noncomputable abbrev constantLowerShriek.underlyingComparisonIso
-    (𝒪 : Sheaf J CommRingCat.{w}) :
+def underlyingComparisonIso :
     lowerShriek (constantStructureSheaf 𝒪) ≅
-      constantLowerShriek 𝒪 ⋙ constantForget 𝒪 :=
-  asIso (constantLowerShriek.underlyingComparison 𝒪)
+      constantLowerShriek 𝒪 ⋙ constantForget 𝒪 where
+  hom := underlyingComparison 𝒪
+  inv := underlyingComparisonInv 𝒪
+  hom_inv_id := by
+    ext K
+    simpa only [NatTrans.comp_app, NatTrans.id_app, underlyingComparisonInv] using
+      (underlyingComparison_inverse_laws 𝒪).2.1 K
+  inv_hom_id := by
+    ext K
+    simpa only [NatTrans.comp_app, NatTrans.id_app, underlyingComparisonInv] using
+      (underlyingComparison_inverse_laws 𝒪).2.2 K
 
-/-- Remark 21.41.3: in the constant case, forgetting module structure recovers the projection
-lower shriek. -/
+/-- The constant-coefficient comparison is invertible with its specified formal reverse. -/
+@[stacks 09D3 "constant lower-shriek underlying comparison isomorphism"]
+theorem underlyingComparison_isIso :
+    IsIso (underlyingComparison 𝒪) :=
+  (underlyingComparisonIso 𝒪).isIso_hom
+
+end constantLowerShriek
+
+end ConstantComparison
+
+/-- In the constant case, forgetting module structure recovers the projection lower shriek. -/
 @[stacks 09D3 "constant lower-shriek forgetful comparison"]
 theorem constantLowerShriek.forget_isomorphic
-    (𝒪 : Sheaf J CommRingCat.{w}) :
+    (𝒪 : Sheaf J CommRingCat.{w})
+    [Functor.HasLeftDerivedFunctor
+      (RingedSite.Cocontinuous.moduleLowerShriek.toDerived
+        (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+        (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪))
+      (RingedSite.Hom.ModuleQis.{w}
+        (RingedSite.Cocontinuous.moduleInverseImage.source
+          (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+          (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)))] :
     IsIsomorphic (lowerShriek (constantStructureSheaf 𝒪))
       (constantLowerShriek 𝒪 ⋙ constantForget 𝒪) := sorry
 
 /-- The constant-coefficient module lower shriek inherits the canonical integer-shift comparison
 from the site-generic derived lower shriek. -/
-@[stacks 09D3 "constant lower shriek shift"]
-noncomputable instance constantLowerShriek.commShift
-    (𝒪 : Sheaf J CommRingCat.{w}) :
+@[stacks 09D3 "constant lower shriek shift", implicit_reducible]
+noncomputable def constantLowerShriek.commShift
+    (𝒪 : Sheaf J CommRingCat.{w})
+    [Functor.HasPointwiseLeftDerivedFunctor
+      (RingedSite.Cocontinuous.moduleLowerShriek.toDerived
+        (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+        (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪))
+      (RingedSite.Hom.ModuleQis.{w}
+        (RingedSite.Cocontinuous.moduleInverseImage.source
+          (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+          (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)))] :
     (constantLowerShriek 𝒪).CommShift ℤ :=
   RingedSite.Cocontinuous.moduleLowerShriek.derived.commShift
     (f := SimplicialSite.projection)
     (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)
 
 /-- The constant-coefficient module lower shriek is exact for its canonical shift comparison. -/
-@[stacks 09D3 "constant lower shriek is triangulated", instance]
+@[stacks 09D3 "constant lower shriek is triangulated"]
 theorem constantLowerShriek.isTriangulated
-    (𝒪 : Sheaf J CommRingCat.{w}) :
-    (constantLowerShriek 𝒪).IsTriangulated := sorry
+    (𝒪 : Sheaf J CommRingCat.{w})
+    [Functor.HasPointwiseLeftDerivedFunctor
+      (RingedSite.Cocontinuous.moduleLowerShriek.toDerived
+        (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+        (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪))
+      (RingedSite.Hom.ModuleQis.{w}
+        (RingedSite.Cocontinuous.moduleInverseImage.source
+          (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+          (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)))] :
+    @Functor.IsTriangulated _ _ _ _ _ _ (constantLowerShriek 𝒪)
+      (constantLowerShriek.commShift 𝒪) _ _ _ _ _ _ _ _ := sorry
 
 omit [UnivLE.{max u v, w}] in
 /-- Forgetting rings and multiplication gives the additive sheaf used by the augmentation
@@ -162,7 +274,15 @@ abbrev augmentationComplexMap
 noncomputable abbrev augmentationLowerShriek
     {A : SimplicialObject (Sheaf J CommRingCat.{w})}
     {𝒪 : Sheaf J CommRingCat.{w}}
-    (ε : A ⟶ constantStructureSheaf 𝒪) :
+    (ε : A ⟶ constantStructureSheaf 𝒪)
+    [Functor.HasLeftDerivedFunctor
+      (RingedSite.Cocontinuous.moduleLowerShriek.toDerived
+        (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+        (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪))
+      (RingedSite.Hom.ModuleQis.{w}
+        (RingedSite.Cocontinuous.moduleInverseImage.source
+          (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+          (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)))] :
     RingedSite.Hom.ModuleDerived.{w}
         (RingedSite.ofCommRingSheaf (SimplicialSite.topology J)
           (SimplicialSite.ringSheaf A)) ⥤
@@ -171,7 +291,7 @@ noncomputable abbrev augmentationLowerShriek
   tensor ε ⋙ constantLowerShriek 𝒪
 
 /-- A quasi-isomorphic augmentation makes the source unit comparison invertible. -/
-@[stacks 09D3 "augmentation unit comparison", instance]
+@[stacks 09D3 "augmentation unit comparison"]
 theorem unitComparison.isIso
     {A : SimplicialObject (Sheaf J CommRingCat.{w})}
     {𝒪 : Sheaf J CommRingCat.{w}}
@@ -180,13 +300,20 @@ theorem unitComparison.isIso
     IsIso (unitComparison ε) := sorry
 
 /-- The forgetful functor comparison for an augmentation whose unit comparison is already known
-to be invertible.  This is the reusable form; the quasi-isomorphism hypothesis below is the
-source-facing way to obtain its premise. -/
+to be invertible. -/
 @[stacks 09D3 "augmentation lower-shriek comparison from unit isomorphism"]
 theorem augmentationLowerShriek.forget_isomorphic_of_unit
     {A : SimplicialObject (Sheaf J CommRingCat.{w})}
     {𝒪 : Sheaf J CommRingCat.{w}}
     (ε : A ⟶ constantStructureSheaf 𝒪)
+    [Functor.HasLeftDerivedFunctor
+      (RingedSite.Cocontinuous.moduleLowerShriek.toDerived
+        (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+        (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪))
+      (RingedSite.Hom.ModuleQis.{w}
+        (RingedSite.Cocontinuous.moduleInverseImage.source
+          (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+          (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)))]
     [IsIso (unitComparison ε)] :
     IsIsomorphic (lowerShriek A) (augmentationLowerShriek ε ⋙ constantForget 𝒪) := sorry
 
@@ -196,6 +323,14 @@ theorem augmentationLowerShriek.forget_obj_isomorphic_of_unit
     {A : SimplicialObject (Sheaf J CommRingCat.{w})}
     {𝒪 : Sheaf J CommRingCat.{w}}
     (ε : A ⟶ constantStructureSheaf 𝒪)
+    [Functor.HasLeftDerivedFunctor
+      (RingedSite.Cocontinuous.moduleLowerShriek.toDerived
+        (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+        (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪))
+      (RingedSite.Hom.ModuleQis.{w}
+        (RingedSite.Cocontinuous.moduleInverseImage.source
+          (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+          (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)))]
     [IsIso (unitComparison ε)]
     (K : RingedSite.Hom.ModuleDerived.{w}
       (RingedSite.ofCommRingSheaf (SimplicialSite.topology J)
@@ -210,6 +345,14 @@ theorem augmentationLowerShriek.forget_isomorphic
     {A : SimplicialObject (Sheaf J CommRingCat.{w})}
     {𝒪 : Sheaf J CommRingCat.{w}}
     (ε : A ⟶ constantStructureSheaf 𝒪)
+    [Functor.HasLeftDerivedFunctor
+      (RingedSite.Cocontinuous.moduleLowerShriek.toDerived
+        (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+        (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪))
+      (RingedSite.Hom.ModuleQis.{w}
+        (RingedSite.Cocontinuous.moduleInverseImage.source
+          (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+          (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)))]
     [QuasiIso (augmentationComplexMap ε)] :
     IsIsomorphic (lowerShriek A) (augmentationLowerShriek ε ⋙ constantForget 𝒪) := sorry
 
@@ -219,6 +362,14 @@ theorem augmentationLowerShriek.forget_obj_isomorphic
     {A : SimplicialObject (Sheaf J CommRingCat.{w})}
     {𝒪 : Sheaf J CommRingCat.{w}}
     (ε : A ⟶ constantStructureSheaf 𝒪)
+    [Functor.HasLeftDerivedFunctor
+      (RingedSite.Cocontinuous.moduleLowerShriek.toDerived
+        (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+        (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪))
+      (RingedSite.Hom.ModuleQis.{w}
+        (RingedSite.Cocontinuous.moduleInverseImage.source
+          (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+          (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)))]
     [QuasiIso (augmentationComplexMap ε)]
     (K : RingedSite.Hom.ModuleDerived.{w}
       (RingedSite.ofCommRingSheaf (SimplicialSite.topology J)
@@ -228,20 +379,38 @@ theorem augmentationLowerShriek.forget_obj_isomorphic
 
 /-- The augmentation lower shriek inherits the canonical shift comparison from derived change of
 rings and constant-coefficient lower shriek. -/
-@[stacks 09D3 "augmentation lower shriek shift"]
-noncomputable instance augmentationLowerShriek.commShift
+@[stacks 09D3 "augmentation lower shriek shift", implicit_reducible]
+noncomputable def augmentationLowerShriek.commShift
     {A : SimplicialObject (Sheaf J CommRingCat.{w})}
     {𝒪 : Sheaf J CommRingCat.{w}}
-    (ε : A ⟶ constantStructureSheaf 𝒪) :
+    (ε : A ⟶ constantStructureSheaf 𝒪)
+    [Functor.HasPointwiseLeftDerivedFunctor
+      (RingedSite.Cocontinuous.moduleLowerShriek.toDerived
+        (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+        (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪))
+      (RingedSite.Hom.ModuleQis.{w}
+        (RingedSite.Cocontinuous.moduleInverseImage.source
+          (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+          (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)))] :
     (augmentationLowerShriek ε).CommShift ℤ :=
-  Functor.CommShift.comp (tensor ε) (constantLowerShriek 𝒪)
+  @Functor.CommShift.comp _ _ _ _ _ _ (tensor ε) (constantLowerShriek 𝒪)
+    ℤ _ _ _ _ (tensor.commShift ε) (constantLowerShriek.commShift 𝒪)
 
 /-- The augmentation lower shriek is exact for its canonical shift comparison. -/
-@[stacks 09D3 "augmentation lower shriek is triangulated", instance]
+@[stacks 09D3 "augmentation lower shriek is triangulated"]
 theorem augmentationLowerShriek.isTriangulated
     {A : SimplicialObject (Sheaf J CommRingCat.{w})}
     {𝒪 : Sheaf J CommRingCat.{w}}
-    (ε : A ⟶ constantStructureSheaf 𝒪) :
-    (augmentationLowerShriek ε).IsTriangulated := sorry
+    (ε : A ⟶ constantStructureSheaf 𝒪)
+    [Functor.HasPointwiseLeftDerivedFunctor
+      (RingedSite.Cocontinuous.moduleLowerShriek.toDerived
+        (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+        (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪))
+      (RingedSite.Hom.ModuleQis.{w}
+        (RingedSite.Cocontinuous.moduleInverseImage.source
+          (J := SimplicialSite.topology J) (K := J) SimplicialSite.projection
+          (_root_.SheafOfModules.RingedSite.ringSheaf J 𝒪)))] :
+    @Functor.IsTriangulated _ _ _ _ _ _ (augmentationLowerShriek ε)
+      (augmentationLowerShriek.commShift ε) _ _ _ _ _ _ _ _ := sorry
 
 end CategoryTheory.SimplicialSite.Derived

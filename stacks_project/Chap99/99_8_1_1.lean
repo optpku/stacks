@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap99.«99_8_1_1_Functor»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Quot.ProperSupport
 
 @[expose] public section
 
@@ -24,4 +18,6 @@ presentation of algebraic spaces over a scheme `S`. It sends a scheme `T` over
 `Q` quasi-coherent of finite presentation, flat over `T`, and with support
 proper over `T`. It is the subfunctor of `Q^{fp}_{F/X/B}` cut out by proper
 support. -/
-@[stacks 09TS] #check AlgebraicGeometry.AlgebraicSpace.Quot.quot
+@[stacks 09TS] #check (AlgebraicGeometry.AlgebraicSpace.Quot.quot :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B) [FinitePresentation f]
+    (F : X.Modules) [F.IsQuasicoherent], (SchemeOver B)ᵒᵖ ⥤ Type (u + 1))

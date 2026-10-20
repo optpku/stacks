@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap66.Definition_66_4_1_Points
@@ -11,7 +5,10 @@ import StacksCheckRecall
 
 @[expose] public section
 
+universe u
+
 /- Definition 66.4.1: a point of an algebraic space `X` over a scheme `S` is an
 equivalence class of morphisms from spectra of fields into `X`. The set of points
 of `X` is denoted `|X|`. -/
-@[stacks 03BU] #check AlgebraicGeometry.AlgebraicSpace.Points
+@[stacks 03BU] #check (AlgebraicGeometry.AlgebraicSpace.Points :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}}, AlgebraicGeometry.AlgebraicSpace S → Type (u + 1))

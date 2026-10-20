@@ -1,142 +1,71 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap88.Definition_88_20_1_Comparison
+public import ReasLib.RingTheory.Topology.Adic.Annihilation
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.AffineKernel
 
 /-!
-# Affine morphisms induced by surjections with kernel killed by a power of an ideal of definition
+# Affine kernel and ideal annihilation APIs
 
-A morphism of affine formal algebraic spaces corresponds to a surjective
-homomorphism `φ : A →+* B` of adic Noetherian rings whose kernel is killed by
-a power of an ideal of definition of `A`. The correspondence is contravariant:
-`φ` induces a map from the thickening of `B` to the thickening of `A`.
+The exported ideal and affine kernel criteria are provided by their mathematical owners.
 -/
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry
-
-noncomputable section
+open AlgebraicGeometry.AffineFormalAlgebraicSpace TopologicalRing.Ideal
 
 universe u
 
-namespace TopologicalRing.Ideal
+#check (TopologicalRing.Ideal.IsKilledByPowIdealOfDefinition :
+  ∀ {A : Type u} [CommRing A] [TopologicalSpace A]
+    (J : Ideal A),
+    Prop)
 
-/-- An ideal `J` is killed by a power of an ideal of definition if there exist
-an ideal of definition `I` and a positive integer `n` with `I * J ^ n = ⊥`. -/
-def IsKilledByPowIdealOfDefinition {A : Type u} [CommRing A] [TopologicalSpace A]
-    (J : Ideal A) : Prop :=
-  ∃ I : Ideal A, IsIdealOfDefinition I ∧ ∃ n : ℕ, 0 < n ∧ I * J ^ n = ⊥
-
-/-- An ideal is killed by a power of an ideal of definition if and only if there
-exist an ideal of definition `I` and a positive integer `n` with
-`I * J ^ n = ⊥`. -/
-theorem isKilledByPowIdealOfDefinition_iff {A : Type u} [CommRing A]
-    [TopologicalSpace A] (J : Ideal A) :
+#check (TopologicalRing.Ideal.isKilledByPowIdealOfDefinition_iff :
+  ∀ {A : Type u} [CommRing A]
+    [TopologicalSpace A] (J : Ideal A),
     IsKilledByPowIdealOfDefinition J ↔
-      ∃ I : Ideal A, IsIdealOfDefinition I ∧ ∃ n : ℕ, 0 < n ∧ I * J ^ n = ⊥ :=
-  sorry
+      ∃ I : Ideal A, IsIdealOfDefinition I ∧ ∃ n : ℕ, 0 < n ∧ I * J ^ n = ⊥)
 
-namespace IsKilledByPowIdealOfDefinition
+#check (TopologicalRing.Ideal.IsKilledByPowIdealOfDefinition.of_mul_pow :
+  ∀ {A : Type u} [CommRing A] [TopologicalSpace A] {J I : Ideal A}
+    (hI : IsIdealOfDefinition I) (n : ℕ) (hn : 0 < n) (h : I * J ^ n = ⊥),
+    IsKilledByPowIdealOfDefinition J)
 
-/-- If `I` is an ideal of definition and `I * J ^ n = ⊥` for some positive
-integer `n`, then `J` is killed by a power of an ideal of definition. -/
-theorem of_mul_pow {A : Type u} [CommRing A] [TopologicalSpace A] {J I : Ideal A}
-    (hI : IsIdealOfDefinition I) (n : ℕ) (hn : 0 < n) (h : I * J ^ n = ⊥) :
-    IsKilledByPowIdealOfDefinition J :=
-  sorry
+#check (TopologicalRing.Ideal.IsKilledByPowIdealOfDefinition.of_mul :
+  ∀ {A : Type u} [CommRing A] [TopologicalSpace A] {J I : Ideal A}
+    (hI : IsIdealOfDefinition I) (h : I * J = ⊥),
+    IsKilledByPowIdealOfDefinition J)
 
-/-- If `I` is an ideal of definition and `I * J = ⊥`, then `J` is killed by a
-power of an ideal of definition. -/
-theorem of_mul {A : Type u} [CommRing A] [TopologicalSpace A] {J I : Ideal A}
-    (hI : IsIdealOfDefinition I) (h : I * J = ⊥) :
-    IsKilledByPowIdealOfDefinition J :=
-  sorry
+#check (TopologicalRing.Ideal.IsKilledByPowIdealOfDefinition.spec :
+  ∀ {A : Type u} [CommRing A] [TopologicalSpace A] {J : Ideal A}
+    (h : IsKilledByPowIdealOfDefinition J),
+    ∃ I : Ideal A, IsIdealOfDefinition I ∧ ∃ n : ℕ, 0 < n ∧ I * J ^ n = ⊥)
 
-/-- If `J` is killed by a power of an ideal of definition, there exist an ideal
-of definition `I` and a positive integer `n` with `I * J ^ n = ⊥`. -/
-theorem spec {A : Type u} [CommRing A] [TopologicalSpace A] {J : Ideal A}
-    (h : IsKilledByPowIdealOfDefinition J) :
-    ∃ I : Ideal A, IsIdealOfDefinition I ∧ ∃ n : ℕ, 0 < n ∧ I * J ^ n = ⊥ :=
-  sorry
+#check (AlgebraicGeometry.AffineFormalAlgebraicSpace.KernelKilledByPowIdealOfDefinition :
+  ∀ {S : Scheme.{u}} {U V : (Over S)ᵒᵖ ⥤ Type u}, (U ⟶ V) → Prop)
 
-end IsKilledByPowIdealOfDefinition
-
-end TopologicalRing.Ideal
-
-namespace AlgebraicGeometry.AffineFormalAlgebraicSpace
-
-/-- A morphism of affine formal algebraic spaces corresponds to a surjection in
-the category of adic Noetherian rings whose kernel is killed by a power of an
-ideal of definition, when it is induced by a surjective homomorphism
-`φ : A →+* B` with `IsKilledByPowIdealOfDefinition (RingHom.ker φ)`.
-
-Here `φ : A →+* B` induces `g : U ⟶ V` with `U` presented by `B` and `V`
-presented by `A`. Thus the Stacks map `B → A` is this `φ`, the Stacks kernel
-`J` is `RingHom.ker φ ⊆ A`, and the Stacks ideal of definition `I ⊂ B` is an
-ideal of definition of `A`. -/
-class KernelKilledByPowIdealOfDefinition {S : Scheme.{u}}
-    {U V : (Over S)ᵒᵖ ⥤ Type u}
+#check (AlgebraicGeometry.AffineFormalAlgebraicSpace.KernelKilledByPowIdealOfDefinition.id :
+  ∀ {S : Scheme.{u}} {U : (Over S)ᵒᵖ ⥤ Type u}
     [FormalAlgebraicSpace.IsFormalAlgebraicSpace U]
     [FormalAlgebraicSpace.IsAffine U]
-    [FormalAlgebraicSpace.IsFormalAlgebraicSpace V]
-    [FormalAlgebraicSpace.IsAffine V]
-    (g : U ⟶ V) : Prop where
-  /-- There is a surjective homomorphism of adic Noetherian rings inducing `g`
-  whose kernel is killed by a power of an ideal of definition. -/
-  exists_hom :
-    ∃ (A B : Type u) (_ : CommRing A) (_ : CommRing B)
-      (_ : TopologicalSpace A) (_ : TopologicalSpace B)
-      (_ : TopologicalRing.IsAdicRing A) (_ : TopologicalRing.IsAdicRing B)
-      (_ : IsNoetherianRing A) (_ : IsNoetherianRing B)
-      (φ : A →+* B),
-        Function.Surjective φ ∧
-          TopologicalRing.Ideal.IsKilledByPowIdealOfDefinition (RingHom.ker φ) ∧
-            IsInducedBy g φ
+    [FormalAlgebraicSpace.IsNoetherianAffine U],
+    KernelKilledByPowIdealOfDefinition (𝟙 U))
 
-namespace KernelKilledByPowIdealOfDefinition
-
-/-- The identity of a Noetherian affine formal algebraic space corresponds to a
-surjection of adic Noetherian rings whose kernel is killed by a power of an
-ideal of definition. -/
-instance id {S : Scheme.{u}} {U : (Over S)ᵒᵖ ⥤ Type u}
-    [FormalAlgebraicSpace.IsFormalAlgebraicSpace U]
-    [FormalAlgebraicSpace.IsAffine U]
-    [FormalAlgebraicSpace.IsNoetherianAffine U] :
-    KernelKilledByPowIdealOfDefinition (𝟙 U) :=
-  sorry
-
-/-- A morphism induced by a surjective homomorphism of adic Noetherian rings
-whose kernel is killed by a power of an ideal of definition has
-`KernelKilledByPowIdealOfDefinition`. -/
-theorem ofHom {S : Scheme.{u}} {U V : (Over S)ᵒᵖ ⥤ Type u}
-    [FormalAlgebraicSpace.IsFormalAlgebraicSpace U]
-    [FormalAlgebraicSpace.IsAffine U]
-    [FormalAlgebraicSpace.IsFormalAlgebraicSpace V]
-    [FormalAlgebraicSpace.IsAffine V]
+#check (AlgebraicGeometry.AffineFormalAlgebraicSpace.KernelKilledByPowIdealOfDefinition.ofHom :
+  ∀ {S : Scheme.{u}} {U V : (Over S)ᵒᵖ ⥤ Type u}
     (g : U ⟶ V) {A B : Type u} [CommRing A] [CommRing B]
     [TopologicalSpace A] [TopologicalSpace B]
     [TopologicalRing.IsAdicRing A] [TopologicalRing.IsAdicRing B]
     [IsNoetherianRing A] [IsNoetherianRing B] (φ : A →+* B)
     (hφ : Function.Surjective φ)
     (hker : TopologicalRing.Ideal.IsKilledByPowIdealOfDefinition (RingHom.ker φ))
-    (hg : IsInducedBy g φ) : KernelKilledByPowIdealOfDefinition g :=
-  sorry
+    (hg : IsInducedBy g φ),
+    KernelKilledByPowIdealOfDefinition g)
 
-/-- A morphism with `KernelKilledByPowIdealOfDefinition` is induced by a
-surjective homomorphism of adic Noetherian rings whose kernel is killed by a
-power of an ideal of definition. -/
-theorem spec {S : Scheme.{u}} {U V : (Over S)ᵒᵖ ⥤ Type u}
-    [FormalAlgebraicSpace.IsFormalAlgebraicSpace U]
-    [FormalAlgebraicSpace.IsAffine U]
-    [FormalAlgebraicSpace.IsFormalAlgebraicSpace V]
-    [FormalAlgebraicSpace.IsAffine V]
-    (g : U ⟶ V) [KernelKilledByPowIdealOfDefinition g] :
+#check (AlgebraicGeometry.AffineFormalAlgebraicSpace.KernelKilledByPowIdealOfDefinition.spec :
+  ∀ {S : Scheme.{u}} {U V : (Over S)ᵒᵖ ⥤ Type u}
+    (g : U ⟶ V) [KernelKilledByPowIdealOfDefinition g],
     ∃ (A B : Type u) (_ : CommRing A) (_ : CommRing B)
       (_ : TopologicalSpace A) (_ : TopologicalSpace B)
       (_ : TopologicalRing.IsAdicRing A) (_ : TopologicalRing.IsAdicRing B)
@@ -144,18 +73,11 @@ theorem spec {S : Scheme.{u}} {U V : (Over S)ᵒᵖ ⥤ Type u}
       (φ : A →+* B),
         Function.Surjective φ ∧
           TopologicalRing.Ideal.IsKilledByPowIdealOfDefinition (RingHom.ker φ) ∧
-            IsInducedBy g φ :=
-  sorry
+            IsInducedBy g φ)
 
-/-- `KernelKilledByPowIdealOfDefinition g` if and only if `g` is induced by a
-surjective homomorphism of adic Noetherian rings whose kernel is killed by a
-power of an ideal of definition. -/
-theorem iff {S : Scheme.{u}} {U V : (Over S)ᵒᵖ ⥤ Type u}
-    [FormalAlgebraicSpace.IsFormalAlgebraicSpace U]
-    [FormalAlgebraicSpace.IsAffine U]
-    [FormalAlgebraicSpace.IsFormalAlgebraicSpace V]
-    [FormalAlgebraicSpace.IsAffine V]
-    (g : U ⟶ V) :
+#check (AlgebraicGeometry.AffineFormalAlgebraicSpace.KernelKilledByPowIdealOfDefinition.iff :
+  ∀ {S : Scheme.{u}} {U V : (Over S)ᵒᵖ ⥤ Type u}
+    (g : U ⟶ V),
     KernelKilledByPowIdealOfDefinition g ↔
       ∃ (A B : Type u) (_ : CommRing A) (_ : CommRing B)
         (_ : TopologicalSpace A) (_ : TopologicalSpace B)
@@ -164,9 +86,4 @@ theorem iff {S : Scheme.{u}} {U V : (Over S)ᵒᵖ ⥤ Type u}
         (φ : A →+* B),
           Function.Surjective φ ∧
             TopologicalRing.Ideal.IsKilledByPowIdealOfDefinition (RingHom.ker φ) ∧
-              IsInducedBy g φ :=
-  sorry
-
-end KernelKilledByPowIdealOfDefinition
-
-end AlgebraicGeometry.AffineFormalAlgebraicSpace
+              IsInducedBy g φ)

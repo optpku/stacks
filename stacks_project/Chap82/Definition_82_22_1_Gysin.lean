@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.GysinSourceBridge
+public import stacks_project.Chap82.Definition_82_26_2_ChowCohomology
 public import Mathlib.Topology.LocallyFinite
 public import Mathlib.Topology.LocallyFinsupp
 public import ReasLib.AlgebraicGeometry.AlgebraicCycle.LocallyFiniteSum
@@ -75,10 +69,27 @@ noncomputable def pointCycle (x : Points X) :
 `(k + 1)`-cycle. -/
 theorem pointCycle_mem (x : Points X)
     (hx : Hom.relativeDimensionFunction f δ x = k + 1) :
-    pointCycle x ∈ Hom.cycleGroup f δ (k + 1) :=
-  (AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.GysinSourceBridge.inputGenerator δ f k x hx).property
+    pointCycle x ∈ Hom.cycleGroup f δ (k + 1) := by
+  classical
+  intro y hy
+  by_cases h : y = x
+  · simpa only [h] using hx
+  · simp [pointCycle, Function.locallyFinsuppWithin.single_apply, h] at hy
 
 variable (L : X.Modules) [isInvertibleObject L] (s : L.sections)
+
+/-- Closedness of `Z(s)` makes containment of the reduced closure `W` of `x`
+equivalent to membership of `x` itself. No new geometric premise is introduced. -/
+theorem GysinConstruction.contained_iff_mem (x : Points X) :
+    GysinConstruction.Contained L s x ↔ x ∈ (zeroScheme L s).pointsSet := by
+  rw [GysinConstruction.contained_iff_support]
+  change Set.range (Points.map (PointClosure.ι x)) ⊆ (zeroScheme L s).pointsSet ↔ _
+  rw [PointClosure.range_ι, PointClosure.coe_closedSubset]
+  constructor
+  · intro h
+    exact h (subset_closure (Set.mem_singleton x))
+  · intro h
+    exact closure_minimal (Set.singleton_subset_iff.mpr h) (zeroScheme L s).isClosed_pointsSet
 
 /-- A point of `Z(s)` has an induced closed immersion from its reduced closure
 in `X` into `Z(s)`, factoring the canonical immersion into `X`. -/
@@ -86,7 +97,7 @@ theorem exists_gysinContainedImmersion (x : Points X)
     (hx : x ∈ (zeroScheme L s).pointsSet) :
     ∃ i' : PointClosure.space x ⟶ (zeroScheme L s).X,
       i' ≫ zeroSchemeι L s = PointClosure.ι x ∧ IsClosedImmersion i' := by
-  let h := (AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.GysinSourceBridge.contained_iff_mem L s x).mpr hx
+  let h := (GysinConstruction.contained_iff_mem L s x).mpr hx
   exact ⟨GysinConstruction.intoZero L s x h,
     GysinConstruction.intoZero_ι L s x h, GysinConstruction.intoZero_isClosedImmersion L s x h⟩
 
@@ -96,7 +107,7 @@ noncomputable def gysinContainedImmersion (x : Points X)
     (hx : x ∈ (zeroScheme L s).pointsSet) :
     PointClosure.space x ⟶ (zeroScheme L s).X :=
   GysinConstruction.intoZero L s x
-    ((AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.GysinSourceBridge.contained_iff_mem L s x).mpr hx)
+    ((GysinConstruction.contained_iff_mem L s x).mpr hx)
 
 /-- The induced immersion into `Z(s)` factors the reduced point-closure
 immersion. -/
@@ -111,7 +122,7 @@ instance instIsClosedImmersion_gysinContainedImmersion (x : Points X)
     (hx : x ∈ (zeroScheme L s).pointsSet) :
     IsClosedImmersion (gysinContainedImmersion L s x hx) :=
   GysinConstruction.intoZero_isClosedImmersion L s x
-    ((AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.GysinSourceBridge.contained_iff_mem L s x).mpr hx)
+    ((GysinConstruction.contained_iff_mem L s x).mpr hx)
 
 /-- Legacy name delegates to the constructed generic section on the actual closure. -/
 noncomputable def gysinContainedSection (x : Points X) :
@@ -190,7 +201,7 @@ theorem gysinGeneratorCycle_of_not_mem (x : Points X)
     gysinGeneratorCycle f δ k L s x hx = gysinIntersectionCycle f δ k L s x := by
   classical
   have h : ¬GysinConstruction.Contained L s x :=
-    fun hc ↦ hmem ((AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.GysinSourceBridge.contained_iff_mem L s x).mp hc)
+    fun hc ↦ hmem ((GysinConstruction.contained_iff_mem L s x).mp hc)
   simp only [gysinGeneratorCycle, RefinedGysin.gysinGeneratorCycle, dif_neg h]
   rfl
 
@@ -202,10 +213,10 @@ theorem gysinGeneratorCycle_of_mem (x : Points X)
     (hmem : x ∈ (zeroScheme L s).pointsSet) :
     gysinGeneratorCycle f δ k L s x hx =
       (GysinConstruction.containedValue δ f L s k x hx
-        ((AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.GysinSourceBridge.contained_iff_mem L s x).mpr hmem)).val := by
+        ((GysinConstruction.contained_iff_mem L s x).mpr hmem)).val := by
   classical
   simp only [gysinGeneratorCycle, RefinedGysin.gysinGeneratorCycle,
-    dif_pos ((AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.GysinSourceBridge.contained_iff_mem L s x).mpr hmem)]
+    dif_pos ((GysinConstruction.contained_iff_mem L s x).mpr hmem)]
 
 /-- The coefficient-weighted Gysin generator cycles of a degree-`k + 1` cycle
 form a locally finite family on `Z(s)`. -/
@@ -237,6 +248,74 @@ theorem gysinCycle_mem (α : Hom.cycleGroup f δ (k + 1)) :
     gysinCycle f δ k L s (α : Function.locallyFinsupp (Points X) ℤ) ∈
       Hom.cycleGroup (zeroSchemeι L s ≫ f) δ k :=
   RefinedGysin.gysinCycle_mem δ f k L s α
+
+/-- Rule (2) on a single generator: the locally finite extension of the
+generator cycles sends `[W]` to the generator cycle of `W`, in both branches. -/
+theorem gysinCycle_pointCycle (x : Points X)
+    (hx : Hom.relativeDimensionFunction f δ x = k + 1) :
+    gysinCycle f δ k L s (pointCycle x) = gysinGeneratorCycle f δ k L s x hx := by
+  classical
+  ext z
+  change (∑ᶠ y : Points X,
+    (if hy : Hom.relativeDimensionFunction f δ y = k + 1 then
+      pointCycle x y • RefinedGysin.gysinGeneratorCycle δ f k L s y hy
+    else 0) z) = _
+  rw [finsum_eq_single _ x]
+  · simp [pointCycle, hx, Function.locallyFinsuppWithin.single_apply]
+  · intro y hy
+    by_cases hdegree : Hom.relativeDimensionFunction f δ y = k + 1
+    · simp [hdegree, pointCycle, Function.locallyFinsuppWithin.single_apply, hy]
+    · simp [hdegree]
+
+/-- Rule (1)(b) at the Chow level: if `W ⊆ Z(s)`, the quotient Gysin map sends
+`[W]` to the class of the concrete contained-branch cycle. -/
+theorem chowGysin_pointCycle_of_support_subset (x : Points X)
+    (hx : Hom.relativeDimensionFunction f δ x = k + 1)
+    (hW : (ClosedSubspace.pointClosure x).pointsSet ⊆ (zeroScheme L s).pointsSet) :
+    chowGysin δ f L s k (Hom.chowMk f δ (k + 1) ⟨pointCycle x, pointCycle_mem f δ k x hx⟩) =
+      Hom.chowMk (zeroSchemeι L s ≫ f) δ k
+        (GysinConstruction.containedValue δ f L s k x hx
+          ((GysinConstruction.contained_iff_support L s x).mpr hW)) := by
+  change Hom.chowMk (zeroSchemeι L s ≫ f) δ k
+    (gysinCycleHom δ f k L s ⟨pointCycle x, pointCycle_mem f δ k x hx⟩) = _
+  congr 1
+  apply Subtype.ext
+  change gysinCycle f δ k L s (pointCycle x) = _
+  rw [gysinCycle_pointCycle f δ k L s x hx]
+  exact gysinGeneratorCycle_of_support_subset δ f k L s x hx hW
+
+/-- Rule (1)(b) in the source's form: for `W ⊆ Z(s)`, `i^*[W]` is
+`i'_*(c_1(L|_W) ∩ [W])`, with `i' : W → Z(s)` the induced closed immersion. -/
+theorem chowGysin_pointCycle_eq_pushforward_firstChernClassCap (x : Points X)
+    (hx : Hom.relativeDimensionFunction f δ x = k + 1)
+    (hW : (ClosedSubspace.pointClosure x).pointsSet ⊆ (zeroScheme L s).pointsSet) :
+    chowGysin δ f L s k (Hom.chowMk f δ (k + 1) ⟨pointCycle x, pointCycle_mem f δ k x hx⟩) =
+      @properPushforward S B _ _ δ _ (PointClosure.space x) (zeroScheme L s).X
+        (PointClosure.ι x ≫ f) _ _ (zeroSchemeι L s ≫ f) _ _
+        (GysinConstruction.intoZero L s x
+          ((GysinConstruction.contained_iff_support L s x).mpr hW)) _
+        (GysinConstruction.intoZero_over f L s x
+          ((GysinConstruction.contained_iff_support L s x).mpr hW)) k
+        (@firstChernClassCap S B (PointClosure.space x) _ _ (PointClosure.ι x ≫ f) _ _
+          δ _ ((Modules.pullback (PointClosure.ι x)).obj L)
+          (Modules.isInvertibleObject_pullback (PointClosure.ι x) L) k
+          (GysinConstruction.fundamental δ f k x hx)) := by
+  rw [chowGysin_pointCycle_of_support_subset f δ k L s x hx hW]
+  exact GysinConstruction.containedValue_chowMk δ f L s k x hx _
+
+/-- For the zero section every generator lies in the contained branch, so the
+quotient Gysin map uses the restricted first Chern class there. This does not
+claim that `c_1` of a nontrivial invertible module vanishes. -/
+theorem chowGysin_zeroSection_pointCycle (x : Points X)
+    (hx : Hom.relativeDimensionFunction f δ x = k + 1) :
+    chowGysin δ f L (IntersectionTheory.ZeroSchemeFactor.zeroSection L) k
+        (Hom.chowMk f δ (k + 1) ⟨pointCycle x, pointCycle_mem f δ k x hx⟩) =
+      Hom.chowMk (zeroSchemeι L (IntersectionTheory.ZeroSchemeFactor.zeroSection L) ≫ f) δ k
+        (GysinConstruction.containedValue δ f L (IntersectionTheory.ZeroSchemeFactor.zeroSection L) k x hx
+          (IntersectionTheory.ZeroSchemeFactor.vanishesOn_zero L (PointClosure.ι x))) :=
+  chowGysin_pointCycle_of_support_subset f δ k L (IntersectionTheory.ZeroSchemeFactor.zeroSection L) x hx
+    ((GysinConstruction.contained_iff_support L (IntersectionTheory.ZeroSchemeFactor.zeroSection L) x).mp
+      (IntersectionTheory.ZeroSchemeFactor.vanishesOn_zero L (PointClosure.ι x)))
 
 /-- The Chow class of the Gysin cycle of the zero cycle vanishes. -/
 theorem gysin_zero :
@@ -289,9 +368,8 @@ theorem gysin_point_of_not_mem (x : Points X)
     (gysinCycleHom δ f k L s _) = _
   congr 1
   apply Subtype.ext
-  change RefinedGysin.gysinCycle δ f k L s
-    (AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.GysinSourceBridge.inputGenerator δ f k x hx).val = _
-  rw [AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.GysinSourceBridge.gysinCycle_single]
+  change gysinCycle f δ k L s (pointCycle x) = _
+  rw [gysinCycle_pointCycle f δ k L s x hx]
   exact gysinGeneratorCycle_of_not_mem f δ k L s x hx hmem
 
 /-- On a generator contained in `Z(s)`, the Gysin homomorphism is, for every

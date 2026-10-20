@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Pullback
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.RestrictToScheme
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.RestrictToScheme.BaseChange
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.ModuleAdjunction
 
 /-! Explicit restriction/pullback comparison using the actual direct-image unit. -/
@@ -25,67 +19,6 @@ namespace AlgebraicGeometry.AlgebraicSpace.Modules.RestrictToScheme
 
 variable {S : Scheme.{u}}
 
-/-- The chart on which canonical restriction evaluates a Zariski open. -/
-def openObject (Z : Over S) (V : Z.left.Opens) : smallEtaleSite (ofOver Z) :=
-  (SmallEtale.toPresentation (ofOver Z)).obj
-    ((SmallEtale.openChart (tautologicalChart Z)).obj V)
-
-/-- Restriction evaluates on the specified open chart without changing section values. -/
-def sectionEquiv (Z : Over S) (M : (ofOver Z).Modules) (V : Z.left.Opens) :
-    ((restrictToScheme Z).obj M).val.obj (op V) ≃ M.val.obj (op (openObject Z V)) :=
-  Equiv.refl _
-
-/-- The scheme map from an inverse-image open to the original open. -/
-def preimageOverMap {T Z : Over S} (t : T ⟶ Z) (V : Z.left.Opens) :
-    (openObject T (t.left ⁻¹ᵁ V)).left ⟶ (openObject Z V).left :=
-  Over.homMk (t.left.resLE V (t.left ⁻¹ᵁ V) le_rfl) sorry
-
-/-- The actual map from the inverse-image open to the functor-of-points fiber product. -/
-def preimageToBaseChange {T Z : Over S} (t : T ⟶ Z) (V : Z.left.Opens) :
-    ofOver (openObject T (t.left ⁻¹ᵁ V)).left ⟶
-      etaleBaseChangeSpace (ofOverMap t) (openObject Z V) :=
-  Limits.pullback.lift
-    (homFunctor (openObject T (t.left ⁻¹ᵁ V)).hom)
-    (homFunctor (ofOverMap (preimageOverMap t V))) sorry
-
-/-- The inverse-image open determines the component at which the right Kan extension
-is evaluated. -/
-def preimageArrow {T Z : Over S} (t : T ⟶ Z) (V : Z.left.Opens) :
-    StructuredArrow (op ((etaleBaseChange (ofOverMap t)).obj (openObject Z V)))
-      (smallEtaleInclusion (ofOver T)).op :=
-  StructuredArrow.mk
-    (MorphismProperty.Over.homMk (preimageToBaseChange t V) sorry).op
-
-/-- Evaluate a direct-image section using the map from the inverse-image open.
-This is a right-Kan-extension counit, not transport across an asserted type equality. -/
-def pushforwardSection {T Z : Over S} (t : T ⟶ Z)
-    (F : Sheaf (smallEtaleTopology (ofOver T)) (Type u)) (V : Z.left.Opens) :
-    ((typePushforward (ofOverMap t)).obj F).obj.obj (op (openObject Z V)) ⟶
-      F.obj.obj (op (openObject T (t.left ⁻¹ᵁ V))) :=
-  ((AlgebraicGeometry.AlgebraicSpace.EtaleTopos.extension (ofOver T)).obj F).obj.map
-      (preimageArrow t V).hom ≫
-    ((AlgebraicGeometry.AlgebraicSpace.EtaleTopos.extensionRestrictionIso (ofOver T)).hom.app F).hom.app
-      (op (openObject T (t.left ⁻¹ᵁ V)))
-
-/-- Underlying direct-image comparison on each Zariski open. -/
-def pushforwardUnderlying {T Z : Over S} (t : T ⟶ Z) (N : (ofOver T).Modules) :
-    (ToInternal.underlying Z.left.ringCatSheaf).obj
-        ((restrictToScheme Z).obj ((pushforward (ofOverMap t)).obj N)) ⟶
-      (ToInternal.underlying Z.left.ringCatSheaf).obj
-        ((Scheme.Modules.pushforward t.left).obj ((restrictToScheme T).obj N)) where
-  hom :=
-    { app := fun V ↦
-        ((RingedSite.ToposHom.ModulePushforward.forgetIso
-            (ringedToposHom (ofOverMap t))).hom.app N).hom.app (op (openObject Z V.unop)) ≫
-          pushforwardSection t ((ToInternal.underlying (structureSheaf (ofOver T))).obj N) V.unop
-      naturality := sorry }
-
-/-- Direct image followed by restriction maps to scheme direct image of restriction. -/
-def pushforwardComparison {T Z : Over S} (t : T ⟶ Z) (N : (ofOver T).Modules) :
-    (restrictToScheme Z).obj ((pushforward (ofOverMap t)).obj N) ⟶
-      (Scheme.Modules.pushforward t.left).obj ((restrictToScheme T).obj N) :=
-  homOfUnderlying Z.left.ringCatSheaf (pushforwardUnderlying t N) sorry sorry
-
 /-- The canonical comparison from scheme pullback to restriction of algebraic-space
 pullback, obtained by applying the scheme adjunction to the actual pullback unit. -/
 def pullbackComparison {T Z : Over S} (t : T ⟶ Z) (M : (ofOver Z).Modules) :
@@ -93,7 +26,7 @@ def pullbackComparison {T Z : Over S} (t : T ⟶ Z) (M : (ofOver Z).Modules) :
       (restrictToScheme T).obj ((pullback (ofOverMap t)).obj M) :=
   ((Scheme.Modules.pullbackPushforwardAdjunction t.left).homEquiv _ _).symm
     ((restrictToScheme Z).map ((pullbackPushforwardAdjunction (ofOverMap t)).unit.app M) ≫
-      pushforwardComparison t ((pullback (ofOverMap t)).obj M))
+      pushforwardComparisonApp t ((pullback (ofOverMap t)).obj M))
 
 /-- Select a preimage of a specified function, using the specified default when no
 preimage exists. The choice evidence comes from the branch condition itself. -/

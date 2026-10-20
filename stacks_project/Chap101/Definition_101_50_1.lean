@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_50_1_Decent
-public import stacks_project.Chap101.Definition_101_50_1_Integral
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Integral
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,7 +14,7 @@ universe u
 
 /- Definition 101.50.1: an algebraic stack `X` is integral if it is reduced,
 decent, `I_X ⟶ X` is quasi-compact, and `|X|` is irreducible. -/
-@[stacks 0GWB] #check (isIntegral_iff :
+@[stacks 0GWB] #check (AlgebraicGeometry.AlgebraicStack.isIntegral_iff :
   ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
     IsIntegral X ↔
       IsReduced X ∧ IsDecent X ∧ IsIrreducible X ∧

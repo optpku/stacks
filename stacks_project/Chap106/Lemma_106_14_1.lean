@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap101.Lemma_101_17_5_LocallyOfFiniteType
-public import stacks_project.Chap106.Theorem_106_13_9_Keel_Mori
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.KeelMori.FiniteType
+import StacksCheckRecall
 
 /-!
 # Locally of finite type for Keel–Mori moduli spaces
@@ -30,22 +23,22 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 106.14.1. Let `p : X ⟶ Y.toGroupoids` be a morphism from an algebraic
+/- Lemma 106.14.1. Let `p : X ⟶ Y.toGroupoids` be a morphism from an algebraic
 stack to an algebraic space. Assume the inertia morphism `forget X : I_X ⟶ X`
 is finite, the algebraic space `Y` is locally Noetherian, and `p` is locally of
 finite type. Let `f : X ⟶ M.toGroupoids` be a uniform categorical moduli space
 as constructed in Theorem 106.13.9, and let `q : M ⟶ Y` be the induced
 morphism with 2-cell `α : f ≫ AlgebraicSpace.toGroupoids.map q ≅ p`. Then `q`
 is locally of finite type. -/
-@[stacks 0DUX]
-theorem locallyOfFiniteType_of_isUniformCategoricalModuliSpace
+@[stacks 0DUX] #check
+  (AlgebraicGeometry.AlgebraicStack.locallyOfFiniteType_of_isUniformCategoricalModuliSpace :
+    ∀
     {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
     {Y M : AlgebraicSpace S} [IsFinite (forget.{u + 1, u, u, u + 1} X)]
     [AlgebraicSpace.IsLocallyNoetherian Y] (p : X ⟶ Y.toGroupoids)
     [AlgebraicStack.LocallyOfFiniteType p] (f : X ⟶ M.toGroupoids)
     [IsUniformCategoricalModuliSpace f] (q : M ⟶ Y)
-    (α : f ≫ AlgebraicSpace.toGroupoids.map q ≅ p) :
-    AlgebraicSpace.LocallyOfFiniteType q :=
-  sorry
+    (α : f ≫ AlgebraicSpace.toGroupoids.map q ≅ p),
+    AlgebraicSpace.LocallyOfFiniteType q)
 
 end AlgebraicGeometry.AlgebraicStack

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Amitsur.CosimplicialModule
@@ -168,10 +162,48 @@ noncomputable def toModule : ModuleCat.DescentData (Algebra.ofId R A).toRingHom 
   map_id := sorry
   map_comp := sorry
 
+/-- Scalar extension of a last-vertex term along a simplex map is the term at the image
+vertex. -/
+noncomputable def reindexLastIso
+    (D : ModuleCat.DescentData (Algebra.ofId R A).toRingHom)
+    {Δ Γ : SimplexCategory} (β : Δ ⟶ Γ) :
+    (ModuleCat.extendScalars
+      ((Algebra.Amitsur.cosimplicialCommRing R A).map β).hom).obj
+        (termAt D Δ (Fin.last Δ.len)) ≅
+      termAt D Γ (β.toOrderHom (Fin.last Δ.len)) :=
+  (ModuleCat.extendScalarsComp
+      (Algebra.Amitsur.vertex R A Δ (Fin.last Δ.len))
+      ((Algebra.Amitsur.cosimplicialCommRing R A).map β).hom).symm.app (component D) ≪≫
+    eqToIso (congrArg (fun g : A →+* _ ↦ (ModuleCat.extendScalars g).obj (component D))
+      (Algebra.Amitsur.vertex_map β (Fin.last Δ.len)).symm)
+
+/-- The base-change comparison for a descent datum has inverse given by the reversed
+descent transition followed by inverse scalar-extension composition. -/
+noncomputable def baseChangeIso
+    (D : ModuleCat.DescentData (Algebra.ofId R A).toRingHom)
+    {Δ Γ : SimplexCategory} (β : Δ ⟶ Γ) :
+    (ModuleCat.extendScalars
+      ((Algebra.Amitsur.cosimplicialCommRing R A).map β).hom).obj
+        (termAt D Δ (Fin.last Δ.len)) ≅ termAt D Γ (Fin.last Γ.len) where
+  hom := CosimplicialAlgebra.Module.baseChangeMap (cosimplicial D) β
+  inv := (transitionToLast D Γ (β.toOrderHom (Fin.last Δ.len))).inv ≫
+    (reindexLastIso D β).inv
+  hom_inv_id := sorry
+  inv_hom_id := sorry
+
+/-- The forward comparison is the adjoint transpose of the cosimplicial structure map. -/
+theorem baseChangeIso_hom
+    (D : ModuleCat.DescentData (Algebra.ofId R A).toRingHom)
+    {Δ Γ : SimplexCategory} (β : Δ ⟶ Γ) :
+    (baseChangeIso D β).hom =
+      CosimplicialAlgebra.Module.baseChangeMap (cosimplicial D) β := rfl
+
 /-- Every Amitsur cosimplicial module obtained from canonical descent data is cartesian. -/
 theorem toModule_isCartesian
     (D : ModuleCat.DescentData (Algebra.ofId R A).toRingHom) :
-    CosimplicialAlgebra.Module.IsCartesian ((toModule).obj D) := sorry
+    CosimplicialAlgebra.Module.IsCartesian ((toModule).obj D) := by
+  intro Δ Γ β
+  exact (baseChangeIso D β.unop.unop).isIso_hom
 
 /-- The functor from canonical module descent data to cartesian modules over the Amitsur
 cosimplicial algebra. -/
@@ -181,33 +213,230 @@ noncomputable def toCartesian : ModuleCat.DescentData (Algebra.ofId R A).toRingH
     (fun M : CosimplicialAlgebra.Module (Algebra.Amitsur.cosimplicialAlgebra R A) ↦
       CosimplicialAlgebra.Module.IsCartesian M) toModule toModule_isCartesian
 
-/-- The canonical functor from module descent data to cartesian Amitsur modules is an
-equivalence. -/
-instance toCartesian_isEquivalence :
-    (toCartesian : ModuleCat.DescentData (Algebra.ofId R A).toRingHom ⥤
-      CosimplicialAlgebra.CartesianModule
-        (Algebra.Amitsur.cosimplicialAlgebra R A)).IsEquivalence := sorry
+/-- A ring map out of an Amitsur degree, determined by compatible values on the vertices. -/
+noncomputable def vertexDesc (Δ : SimplexCategory) {B : Type u} [CommRing B] (r : R →+* B)
+    (a : Fin (Δ.len + 1) → (A →+* B)) (ha : ∀ j, (a j).comp (algebraMap R A) = r) :
+    (Algebra.Amitsur.cosimplicialCommRing R A).obj Δ →+* B :=
+  -- Local instance justification (noncanonical choice): the supplied map `r` determines the
+  -- target algebra for the wide-pushout universal property.
+  letI : Algebra R B := r.toAlgebra
+  (Limits.WidePushout.desc
+    (arrows := fun _ : Fin (Δ.len + 1) ↦ CommAlgCat.ofHom (Algebra.ofId R A))
+    (CommAlgCat.ofHom (Algebra.ofId R B))
+    (fun j ↦ CommAlgCat.ofHom
+      { toRingHom := a j
+        commutes' := fun x ↦ congrArg (fun g : R →+* B ↦ g x) (ha j) })
+    (fun _ ↦ CommAlgCat.hom_ext (Subsingleton.elim _ _))).hom.toRingHom
+
+/-- `vertexDesc` takes the prescribed value on every vertex. -/
+theorem vertexDesc_comp_vertex (Δ : SimplexCategory) {B : Type u} [CommRing B] (r : R →+* B)
+    (a : Fin (Δ.len + 1) → (A →+* B)) (ha : ∀ j, (a j).comp (algebraMap R A) = r)
+    (j : Fin (Δ.len + 1)) :
+    (vertexDesc Δ r a ha).comp (Algebra.Amitsur.vertex R A Δ j) = a j := sorry
+
+/-- The inverse `A₀ → A` of the unique vertex of the degree-zero Amitsur ring. -/
+noncomputable def degreeZeroToBase :
+    (Algebra.Amitsur.cosimplicialCommRing R A).obj (SimplexCategory.mk 0) →+* A :=
+  vertexDesc (SimplexCategory.mk 0) (algebraMap R A) (fun _ ↦ RingHom.id A)
+    (fun _ ↦ RingHom.id_comp _)
+
+/-- `degreeZeroToBase` is left inverse to the unique degree-zero vertex. -/
+theorem degreeZeroToBase_comp_vertex :
+    (degreeZeroToBase (R := R) (A := A)).comp
+        (Algebra.Amitsur.vertex R A (SimplexCategory.mk 0) (Fin.last 0)) =
+      RingHom.id A := sorry
+
+/-- The ring map of the coface `[0] → [n]` selecting the vertex `j`. -/
+noncomputable abbrev coface (Δ : SimplexCategory) (j : Fin (Δ.len + 1)) :
+    (Algebra.Amitsur.cosimplicialCommRing R A).obj (SimplexCategory.mk 0) →+*
+      (Algebra.Amitsur.cosimplicialCommRing R A).obj Δ :=
+  ((Algebra.Amitsur.cosimplicialCommRing R A).map
+    (SimplexCategory.const (SimplexCategory.mk 0) Δ j)).hom
+
+/-- After `degreeZeroToBase`, a vertex of degree `Δ` is the corresponding coface map. -/
+theorem vertex_comp_degreeZeroToBase (Δ : SimplexCategory) (j : Fin (Δ.len + 1)) :
+    (Algebra.Amitsur.vertex R A Δ j).comp degreeZeroToBase = coface Δ j := sorry
+
+/-- A map out of the degree-one Amitsur ring restricts along a coface to the corresponding
+vertex value, transported through `degreeZeroToBase`. -/
+theorem comp_degreeZeroToBase_eq {B : Type u} [CommRing B]
+    (c : (Algebra.Amitsur.cosimplicialCommRing R A).obj (SimplexCategory.mk 1) →+* B)
+    (a : A →+* B) (j : Fin 2)
+    (hc : c.comp (Algebra.Amitsur.vertex R A (SimplexCategory.mk 1) j) = a) :
+    a.comp degreeZeroToBase = c.comp (coface (SimplexCategory.mk 1) j) := sorry
+
+/-- A ring map from `A` that lies over the descent family `R → A` is an `R`-algebra map for
+the structure induced by the base map. -/
+theorem overBase {Y : CommRingCat.{u}ᵒᵖ} {q : Y ⟶ Opposite.op (CommRingCat.of R)}
+    (g : Y ⟶ Opposite.op (CommRingCat.of A))
+    (hg : g ≫ ModuleCat.descentFamily (Algebra.ofId R A).toRingHom PUnit.unit = q) :
+    g.unop.hom.comp (algebraMap R A) = q.unop.hom := sorry
+
+/-- The degree-zero term of a cartesian Amitsur module. -/
+abbrev degreeZero
+    (M : CosimplicialAlgebra.CartesianModule (Algebra.Amitsur.cosimplicialAlgebra R A)) :
+    ModuleCat.{u} ((Algebra.Amitsur.cosimplicialCommRing R A).obj (SimplexCategory.mk 0)) :=
+  CosimplicialAlgebra.Module.eval M.obj (SimplexCategory.mk 0)
+
+/-- The `A`-module underlying the descent datum of a cartesian Amitsur module: its degree-zero
+term transported along `A₀ ≅ A`. -/
+noncomputable abbrev descentComponent
+    (M : CosimplicialAlgebra.CartesianModule (Algebra.Amitsur.cosimplicialAlgebra R A)) :
+    ModuleCat.{u} A :=
+  (ModuleCat.extendScalars degreeZeroToBase).obj (degreeZero M)
+
+/-- The ring map out of the degree-one Amitsur ring with vertex values `a₁` and `a₂`. -/
+noncomputable abbrev pairDesc {B : Type u} [CommRing B] (r : R →+* B) (a₁ a₂ : A →+* B)
+    (h₁ : a₁.comp (algebraMap R A) = r) (h₂ : a₂.comp (algebraMap R A) = r) :
+    (Algebra.Amitsur.cosimplicialCommRing R A).obj (SimplexCategory.mk 1) →+* B :=
+  vertexDesc (SimplexCategory.mk 1) r ![a₁, a₂]
+    (Fin.cases (motive := fun j ↦ (![a₁, a₂] j).comp (algebraMap R A) = r) h₁
+      (fun k ↦ by obtain rfl : k = 0 := Subsingleton.elim _ _; exact h₂))
+
+/-- The descent transition of a cartesian Amitsur module over two maps `a₁ a₂ : A → B`
+agreeing on `R`: identify both scalar extensions with the scalar extension of the degree-one
+term along the pair map `A₁ → B`, using the cartesian comparisons of the two cofaces. -/
+noncomputable def descentHom
+    (M : CosimplicialAlgebra.CartesianModule (Algebra.Amitsur.cosimplicialAlgebra R A))
+    {B : Type u} [CommRing B] (r : R →+* B) (a₁ a₂ : A →+* B)
+    (h₁ : a₁.comp (algebraMap R A) = r) (h₂ : a₂.comp (algebraMap R A) = r) :
+    (ModuleCat.extendScalars a₁).obj (descentComponent M) ⟶
+      (ModuleCat.extendScalars a₂).obj (descentComponent M) :=
+  let c := pairDesc r a₁ a₂ h₁ h₂
+  let M₀ := degreeZero M
+  (ModuleCat.extendScalarsComp degreeZeroToBase a₁).inv.app M₀ ≫
+    eqToHom (congrArg (fun g ↦ (ModuleCat.extendScalars g).obj M₀)
+      (comp_degreeZeroToBase_eq c a₁ 0 (vertexDesc_comp_vertex _ _ _ _ 0))) ≫
+    (ModuleCat.extendScalarsComp (coface (SimplexCategory.mk 1) 0) c).hom.app M₀ ≫
+    (ModuleCat.extendScalars c).map
+      (CosimplicialAlgebra.Module.baseChangeMap M.obj
+        (SimplexCategory.const (SimplexCategory.mk 0) (SimplexCategory.mk 1) 0)) ≫
+    (ModuleCat.extendScalars c).map
+      (CosimplicialAlgebra.CartesianModule.baseChangeIso M
+        (SimplexCategory.const (SimplexCategory.mk 0) (SimplexCategory.mk 1) 1)).inv ≫
+    (ModuleCat.extendScalarsComp (coface (SimplexCategory.mk 1) 1) c).inv.app M₀ ≫
+    eqToHom (congrArg (fun g ↦ (ModuleCat.extendScalars g).obj M₀)
+      (comp_degreeZeroToBase_eq c a₂ 1 (vertexDesc_comp_vertex _ _ _ _ 1)).symm) ≫
+    (ModuleCat.extendScalarsComp degreeZeroToBase a₂).hom.app M₀
+
+/-- The canonical descent datum of a cartesian Amitsur module. -/
+noncomputable def ofCartesianObj
+    (M : CosimplicialAlgebra.CartesianModule (Algebra.Amitsur.cosimplicialAlgebra R A)) :
+    ModuleCat.DescentData (Algebra.ofId R A).toRingHom where
+  obj _ := descentComponent (R := R) (A := A) M
+  hom _ q _ _ f₁ f₂ hf₁ hf₂ :=
+    descentHom M q.unop.hom (f₁.unop.hom : A →+* _) (f₂.unop.hom : A →+* _)
+      (overBase f₁ hf₁) (overBase f₂ hf₂)
+  pullHom_hom := sorry
+  hom_self := sorry
+  hom_comp := sorry
+
+/-- The unique component of `ofCartesianObj` is the transported degree-zero term. -/
+theorem ofCartesianObj_obj
+    (M : CosimplicialAlgebra.CartesianModule (Algebra.Amitsur.cosimplicialAlgebra R A)) :
+    (ofCartesianObj M).obj PUnit.unit = descentComponent M := rfl
+
+/-- A morphism of cartesian Amitsur modules induces a morphism of descent data through its
+degree-zero component. -/
+noncomputable def ofCartesianMap
+    {M M' : CosimplicialAlgebra.CartesianModule
+      (Algebra.Amitsur.cosimplicialAlgebra R A)} (φ : M ⟶ M') :
+    ofCartesianObj M ⟶ ofCartesianObj M' where
+  hom _ := (ModuleCat.extendScalars degreeZeroToBase).map
+    (PresheafOfModules.Hom.app φ.hom (op (op (SimplexCategory.mk 0))))
+  comm := sorry
 
 /-- The inverse functor recovering canonical module descent data from a cartesian Amitsur
 module. -/
 noncomputable def ofCartesian :
     CosimplicialAlgebra.CartesianModule (Algebra.Amitsur.cosimplicialAlgebra R A) ⥤
-      ModuleCat.DescentData (Algebra.ofId R A).toRingHom :=
-  (toCartesian (R := R) (A := A)).inv
+      ModuleCat.DescentData (Algebra.ofId R A).toRingHom where
+  obj := ofCartesianObj
+  map := ofCartesianMap
+  map_id := sorry
+  map_comp := sorry
+
+/-- The unique module of the inverse functor is the scalar extension of the degree-zero
+term along the inverse degree-zero vertex. -/
+theorem ofCartesian_obj_obj
+    (M : CosimplicialAlgebra.CartesianModule (Algebra.Amitsur.cosimplicialAlgebra R A)) :
+    (ofCartesian.obj M).obj PUnit.unit =
+      (ModuleCat.extendScalars degreeZeroToBase).obj (degreeZero M) := rfl
+
+/-- The inverse functor acts on morphisms by scalar extension of their degree-zero
+components. -/
+theorem ofCartesian_map_hom
+    {M M' : CosimplicialAlgebra.CartesianModule (Algebra.Amitsur.cosimplicialAlgebra R A)}
+    (φ : M ⟶ M') :
+    (ofCartesian.map φ).hom PUnit.unit =
+      (ModuleCat.extendScalars degreeZeroToBase).map
+        (PresheafOfModules.Hom.app φ.hom (op (op (SimplexCategory.mk 0)))) := rfl
+
+/-- The unit component: a descent datum is recovered from the degree-zero term of its
+cartesian Amitsur module, using `A₀ ≅ A`. -/
+noncomputable def unitIsoApp (D : ModuleCat.DescentData (Algebra.ofId R A).toRingHom) :
+    D ≅ ofCartesian.obj (toCartesian.obj D) :=
+  Pseudofunctor.DescentData.isoMk
+    (fun _ ↦ ((ModuleCat.extendScalarsId A).app (component D)).symm ≪≫
+      eqToIso (congrArg (fun g ↦ (ModuleCat.extendScalars g).obj (component D))
+        (degreeZeroToBase_comp_vertex (R := R) (A := A)).symm) ≪≫
+      (ModuleCat.extendScalarsComp
+        (Algebra.Amitsur.vertex R A (SimplexCategory.mk 0) (Fin.last 0))
+        degreeZeroToBase).app (component D))
+    sorry
+
+/-- The counit component in degree `Δ`: the last-vertex extension of the transported
+degree-zero term is identified with `M_Δ` by the cartesian comparison along the coface
+`[0] → Δ`. -/
+noncomputable def counitComponent
+    (M : CosimplicialAlgebra.CartesianModule (Algebra.Amitsur.cosimplicialAlgebra R A))
+    (Δ : SimplexCategory) :
+    termAt (ofCartesianObj M) Δ (Fin.last Δ.len) ≅
+      CosimplicialAlgebra.Module.eval M.obj Δ :=
+  (ModuleCat.extendScalarsComp degreeZeroToBase
+      (Algebra.Amitsur.vertex R A Δ (Fin.last Δ.len))).symm.app (degreeZero M) ≪≫
+    eqToIso (congrArg
+      (fun g : (Algebra.Amitsur.cosimplicialCommRing R A).obj (SimplexCategory.mk 0) →+*
+          (Algebra.Amitsur.cosimplicialCommRing R A).obj Δ ↦
+        (ModuleCat.extendScalars g).obj (degreeZero M))
+      (vertex_comp_degreeZeroToBase Δ (Fin.last Δ.len))) ≪≫
+    CosimplicialAlgebra.CartesianModule.baseChangeIso M
+      (SimplexCategory.const (SimplexCategory.mk 0) Δ (Fin.last Δ.len))
+
+/-- The counit: the cartesian module of `ofCartesian M` is identified with `M` degreewise by
+`counitComponent`. -/
+noncomputable def counitIsoApp
+    (M : CosimplicialAlgebra.CartesianModule (Algebra.Amitsur.cosimplicialAlgebra R A)) :
+    toCartesian.obj (ofCartesian.obj M) ≅ M :=
+  ObjectProperty.isoMk _ <| PresheafOfModules.isoMk
+    (fun X ↦ counitComponent M (unop (unop X)))
+    sorry
 
 /-- Canonical module descent data are equivalent to cartesian modules over the Amitsur
 cosimplicial algebra. -/
 noncomputable def equivalence :
     ModuleCat.DescentData (Algebra.ofId R A).toRingHom ≌
-      CosimplicialAlgebra.CartesianModule (Algebra.Amitsur.cosimplicialAlgebra R A) :=
-  (toCartesian (R := R) (A := A)).asEquivalence
+      CosimplicialAlgebra.CartesianModule (Algebra.Amitsur.cosimplicialAlgebra R A) where
+  functor := toCartesian
+  inverse := ofCartesian
+  unitIso := NatIso.ofComponents unitIsoApp sorry
+  counitIso := NatIso.ofComponents counitIsoApp sorry
+  functor_unitIso_comp := sorry
+
+/-- The canonical functor from module descent data to cartesian Amitsur modules is an
+equivalence. -/
+instance toCartesian_isEquivalence :
+    (toCartesian : ModuleCat.DescentData (Algebra.ofId R A).toRingHom ⥤
+      CosimplicialAlgebra.CartesianModule
+        (Algebra.Amitsur.cosimplicialAlgebra R A)).IsEquivalence :=
+  (equivalence (R := R) (A := A)).isEquivalence_functor
 
 /-- The forward functor of `equivalence` is `toCartesian`. -/
 theorem equivalence_functor :
-    (equivalence (R := R) (A := A)).functor = toCartesian := sorry
+    (equivalence (R := R) (A := A)).functor = toCartesian := rfl
 
 /-- The inverse functor of `equivalence` is `ofCartesian`. -/
 theorem equivalence_inverse :
-    (equivalence (R := R) (A := A)).inverse = ofCartesian := sorry
+    (equivalence (R := R) (A := A)).inverse = ofCartesian := rfl
 
 end Algebra.Amitsur.Descent

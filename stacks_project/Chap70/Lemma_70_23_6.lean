@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap70.Lemma_70_23_6_Flat
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Limit.FiniteTypeApproximation.Flat
 import StacksCheckRecall
 
 @[expose] public section
@@ -27,18 +21,12 @@ limit square are cartesian base change from a fixed stage. -/
       {i₀ : I}
       {Xsys Ysys : Over (OrderDual.toDual i₀) ⥤ AlgebraicSpace S}
       (xCone : Cone Xsys) (yCone : Cone Ysys)
-      (xToBase : Xsys ⟶ tailBaseDiagram D i₀)
-      (yToBase : Ysys ⟶ tailBaseDiagram D i₀)
       (xToS : xCone.pt ⟶ c.pt) (yToS : yCone.pt ⟶ c.pt)
-      (xCone_toBase : ∀ j : Over (OrderDual.toDual i₀),
-        xCone.π.app j ≫ xToBase.app j = xToS ≫ c.π.app j.left)
-      (yCone_toBase : ∀ j : Over (OrderDual.toDual i₀),
-        yCone.π.app j ≫ yToBase.app j = yToS ≫ c.π.app j.left)
       [QuasiSeparated xToS] [FiniteType xToS]
       [QuasiSeparated yToS] [FiniteType yToS]
       (Xapprox : FiniteTypeApproximationLimitSystem D c i₀ Xsys xCone xToS)
       (Yapprox : FiniteTypeApproximationLimitSystem D c i₀ Ysys yCone yToS)
-      (φ : InverseSystemMorphismOverBase D i₀ Xsys Ysys xToBase yToBase)
+      (φ : InverseSystemMorphismOverBase D i₀ Xsys Ysys Xapprox.toBase Yapprox.toBase)
       (f : xCone.pt ⟶ yCone.pt) (hf_overS : f ≫ yToS = xToS)
       (hf_limit : φ.IsLimitMorphism xCone yCone f)
       (hflat : AlgebraicSpace.Flat f)

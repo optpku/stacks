@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension
+public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.LeftDerived.Composition
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.TotalLeftDerived.Composition
 
 @[expose] public section
@@ -60,6 +55,44 @@ noncomputable abbrev counit (σ : R →+* A) (τ : A →+* B) :
     (ModuleCat.extendScalars.{u, u, max u v} τ)
     (ModuleCat.extendScalars.{u, u, max u v} σ)
 
+/-- Extension of scalars preserves the K-projective source cell model. The cell augmentation
+of that extended model is a homotopy equivalence, which the next additive extension preserves. -/
+theorem model_augmentation_quasiIso (σ : R →+* A) (τ : A →+* B)
+    (K : CochainComplex (ModuleCat.{max u v, u} R) ℤ) :
+    QuasiIso ((ModuleCat.extendScalars.{u, u, max u v} τ).mapHomologicalComplex (up ℤ) |>.map
+      (ModuleCat.CellReplacement.augmentation
+        ((ModuleCat.extendScalars.{u, u, max u v} σ).mapHomologicalComplex (up ℤ) |>.obj
+          (ModuleCat.CellReplacement.replacement K)))) := sorry
+
+/-- The reverse scalar-extension comparison, supplied by the specified cell-model maps. -/
+def comparisonInv (σ : R →+* A) (τ : A →+* B) :
+    ModuleCat.derivedExtensionOfScalars.{u, u, max u v} (τ.comp σ) ⟶
+      ModuleCat.derivedExtensionOfScalars.{u, u, max u v} σ ⋙
+        ModuleCat.derivedExtensionOfScalars.{u, u, max u v} τ :=
+  (Functor.ModuleCatCellModel.compositionTotalLeftDerivedIso
+    (ModuleCat.extendScalars.{u, u, max u v} σ)
+    (ModuleCat.extendScalars.{u, u, max u v} τ)
+    (ModuleCat.extendScalars.{u, u, max u v} (τ.comp σ))
+    (ModuleCat.extendScalarsComp.{u, v} σ τ)
+    (model_augmentation_quasiIso.{u, v} σ τ)).inv
+
+/-- The specified reverse comparison is a right inverse to the original canonical comparison. -/
+theorem comparison_comp_inv (σ : R →+* A) (τ : A →+* B) :
+    Functor.LeftDerived.Homotopy.Composition.comparison
+      (ModuleCat.extendScalars.{u, u, max u v} τ)
+      (ModuleCat.extendScalars.{u, u, max u v} σ)
+      (ModuleCat.extendScalars.{u, u, max u v} (τ.comp σ))
+      (ModuleCat.extendScalarsComp.{u, v} σ τ) ≫ comparisonInv.{u, v} σ τ = 𝟙 _ := sorry
+
+/-- The specified reverse comparison is a left inverse to the original canonical comparison. -/
+theorem inv_comp_comparison (σ : R →+* A) (τ : A →+* B) :
+    comparisonInv.{u, v} σ τ ≫
+      Functor.LeftDerived.Homotopy.Composition.comparison
+        (ModuleCat.extendScalars.{u, u, max u v} τ)
+        (ModuleCat.extendScalars.{u, u, max u v} σ)
+        (ModuleCat.extendScalars.{u, u, max u v} (τ.comp σ))
+        (ModuleCat.extendScalarsComp.{u, v} σ τ) = 𝟙 _ := sorry
+
 /-- The canonical comparison from iterated derived extension to extension along the composite is
 invertible.  This is the reusable instance needed to form the composition isomorphism without
 reconstructing left-derived-functor witnesses at each use site. -/
@@ -69,7 +102,9 @@ instance comparison_isIso (σ : R →+* A) (τ : A →+* B) :
       (ModuleCat.extendScalars.{u, u, max u v} τ)
       (ModuleCat.extendScalars.{u, u, max u v} σ)
       (ModuleCat.extendScalars.{u, u, max u v} (τ.comp σ))
-      (ModuleCat.extendScalarsComp.{u, v} σ τ)) := sorry
+      (ModuleCat.extendScalarsComp.{u, v} σ τ)) :=
+  ⟨⟨comparisonInv.{u, v} σ τ, comparison_comp_inv.{u, v} σ τ,
+    inv_comp_comparison.{u, v} σ τ⟩⟩
 
 /-- The canonical comparison from iterated derived extension to extension along the composite
 ring homomorphism. -/

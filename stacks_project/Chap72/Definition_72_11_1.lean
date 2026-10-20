@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap72.Definition_72_11_1_GeometricallyReduced
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Geometrically.Reduced
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.FieldExtension
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,11 +15,13 @@ universe u
 reduced at a point `x` of `|X|` if the étale local ring `𝒪_{X, x̄}` is geometrically
 reduced over `k`. -/
 @[stacks 0DMQ] #check
-  (GeometricallyReducedAt :
+  (AlgebraicGeometry.AlgebraicSpace.GeometricallyReducedAt :
     {k : Type u} → [Field k] → (X : AlgebraicSpace (Spec (of k))) → Points X → Prop)
 
 /- Definition 72.11.1 (2): an algebraic space `X` over a field `k` is geometrically
 reduced over `k` if `X` is geometrically reduced at every point of `|X|`. -/
 @[stacks 0DMQ] #check
-  (GeometricallyReduced :
-    {k : Type u} → [Field k] → AlgebraicSpace (Spec (of k)) → Prop)
+  (AlgebraicGeometry.AlgebraicSpace.GeometricallyReduced.iff_forall_geometricallyReducedAt :
+    {k : Type u} → [Field k] → (X : AlgebraicSpace (Spec (of k))) →
+      (AlgebraicGeometry.AlgebraicSpace.GeometricallyReduced X ↔
+        ∀ x : Points X, AlgebraicGeometry.AlgebraicSpace.GeometricallyReducedAt X x))

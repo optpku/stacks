@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.Perfect.Determinant
@@ -50,7 +44,8 @@ theorem toDerivedQCoh_obj (X : Scheme.{u})
       ((toDerivedQCoh X).obj K)) = K.obj := sorry
 
 /-- Perfect derived `ᵊa_X`-modules with Tor-amplitude contained in `[-1, 0]`. -/
-abbrev TorNegOneZero (X : Scheme.{u}) : Type (u + 1) :=
+abbrev TorNegOneZero (X : Scheme.{u})
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] : Type (u + 1) :=
   ObjectProperty.FullSubcategory
     (fun K : RingedSpace.ModuleDerived.Perfect (X := X.toRingedSpace) ↦
       RingedSpace.HasTorAmplitudeIn K.obj (-1) 0)
@@ -58,28 +53,33 @@ abbrev TorNegOneZero (X : Scheme.{u}) : Type (u + 1) :=
 namespace TorNegOneZero
 
 /-- The inclusion of perfect derived objects with Tor-amplitude in `[-1, 0]`. -/
-def ι (X : Scheme.{u}) :
+def ι (X : Scheme.{u})
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] :
     TorNegOneZero X ⥤ RingedSpace.ModuleDerived.Perfect (X := X.toRingedSpace) :=
   ObjectProperty.ι _
 
 /-- An object of `TorNegOneZero X` is perfect. -/
-theorem isPerfect (X : Scheme.{u}) (K : TorNegOneZero X) :
+theorem isPerfect (X : Scheme.{u})
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] (K : TorNegOneZero X) :
     RingedSpace.ModuleDerived.IsPerfect K.obj.obj := sorry
 
 /-- An object of `TorNegOneZero X` has Tor-amplitude contained in `[-1, 0]`. -/
-theorem hasTorAmplitudeIn (X : Scheme.{u}) (K : TorNegOneZero X) :
+theorem hasTorAmplitudeIn (X : Scheme.{u})
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] (K : TorNegOneZero X) :
     RingedSpace.HasTorAmplitudeIn K.obj.obj (-1) 0 := sorry
 
 /-- Derived sections of a perfect object over an affine open, before recording perfectness and
 Tor-amplitude of the result. -/
-def affineDerivedSections (X : Scheme.{u}) (U : X.affineOpens) :
+def affineDerivedSections (X : Scheme.{u})
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] (U : X.affineOpens) :
     TorNegOneZero X ⥤ DerivedCategory (ModuleCat Γ(X, U.1)) :=
   ι X ⋙ toDerivedQCoh X ⋙ DerivedQCoh.pullback U.1.ι ⋙
     DerivedQCoh.pullback U.2.isoSpec.inv ⋙ DerivedQCoh.affineGlobalSections Γ(X, U.1)
 
 /-- Affine derived sections are given by restriction to the open, transport to its spectrum,
 and derived global sections. -/
-theorem affineDerivedSections_obj (X : Scheme.{u}) (U : X.affineOpens)
+theorem affineDerivedSections_obj (X : Scheme.{u})
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] (U : X.affineOpens)
     (K : TorNegOneZero X) :
     (affineDerivedSections X U).obj K =
       (DerivedQCoh.affineGlobalSections Γ(X, U.1)).obj
@@ -87,12 +87,14 @@ theorem affineDerivedSections_obj (X : Scheme.{u}) (U : X.affineOpens)
           ((DerivedQCoh.pullback U.1.ι).obj ((toDerivedQCoh X).obj K.obj))) := sorry
 
 /-- Affine derived sections of a perfect object are perfect. -/
-theorem affineDerivedSections_isPerfect (X : Scheme.{u}) (U : X.affineOpens)
+theorem affineDerivedSections_isPerfect (X : Scheme.{u})
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] (U : X.affineOpens)
     (K : TorNegOneZero X) :
     DerivedCategory.IsPerfect ((affineDerivedSections X U).obj K) := sorry
 
 /-- Affine derived sections, lifted to perfect derived modules. -/
-def affinePerfectSections (X : Scheme.{u}) (U : X.affineOpens) :
+def affinePerfectSections (X : Scheme.{u})
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] (U : X.affineOpens) :
     TorNegOneZero X ⥤ CategoryTheory.PerfectDerived Γ(X, U.1) :=
   ObjectProperty.lift
     (DerivedCategory.IsPerfect :
@@ -100,19 +102,22 @@ def affinePerfectSections (X : Scheme.{u}) (U : X.affineOpens) :
     (affineDerivedSections X U) (affineDerivedSections_isPerfect X U)
 
 /-- Forgetting affine perfectness recovers affine derived sections. -/
-theorem affinePerfectSections_obj (X : Scheme.{u}) (U : X.affineOpens)
+theorem affinePerfectSections_obj (X : Scheme.{u})
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] (U : X.affineOpens)
     (K : TorNegOneZero X) :
     ((affinePerfectSections X U).obj K).obj = (affineDerivedSections X U).obj K := sorry
 
 /-- Affine derived sections preserve Tor-amplitude in `[-1, 0]`. -/
 theorem affinePerfectSections_hasTorAmplitudeIn (X : Scheme.{u})
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (U : X.affineOpens) (K : TorNegOneZero X) :
     DerivedCategory.HasTorAmplitudeIn (R := Γ(X, U.1))
       ((affinePerfectSections X U).obj K).obj (-1) 0 := sorry
 
 /-- The affine-sections functor from scheme-perfect objects of Tor-amplitude `[-1, 0]` to the
 corresponding ring-theoretic determinant domain. -/
-def affineSections (X : Scheme.{u}) (U : X.affineOpens) :
+def affineSections (X : Scheme.{u})
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] (U : X.affineOpens) :
     TorNegOneZero X ⥤ CategoryTheory.PerfectDerived.TorNegOneZero Γ(X, U.1) :=
   ObjectProperty.lift ((fun K : CategoryTheory.PerfectDerived Γ(X, U.1) ↦
       DerivedCategory.HasTorAmplitudeIn (R := Γ(X, U.1)) K.obj (-1) 0) :
@@ -120,12 +125,14 @@ def affineSections (X : Scheme.{u}) (U : X.affineOpens) :
     (affinePerfectSections X U) (affinePerfectSections_hasTorAmplitudeIn X U)
 
 /-- Forgetting the two affine full-subcategory conditions recovers affine derived sections. -/
-theorem affineSections_obj (X : Scheme.{u}) (U : X.affineOpens)
+theorem affineSections_obj (X : Scheme.{u})
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] (U : X.affineOpens)
     (K : TorNegOneZero X) :
     ((affineSections X U).obj K).obj.obj = (affineDerivedSections X U).obj K := sorry
 
 /-- The functor of affine sections of the global determinant line. -/
 def lineSectionsFunctor (X : Scheme.{u})
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (F : CategoryTheory.Core (TorNegOneZero X) ⥤ Scheme.Modules.Invertible.Core X)
     (U : X.affineOpens) :
     CategoryTheory.Core (TorNegOneZero X) ⥤ ModuleCat Γ(X, U.1) :=
@@ -133,6 +140,7 @@ def lineSectionsFunctor (X : Scheme.{u})
 
 /-- The affine-sections line functor evaluates the underlying global determinant line. -/
 theorem lineSectionsFunctor_obj (X : Scheme.{u})
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (F : CategoryTheory.Core (TorNegOneZero X) ⥤ Scheme.Modules.Invertible.Core X)
     (U : X.affineOpens) (K : CategoryTheory.Core (TorNegOneZero X)) :
     (lineSectionsFunctor X F U).obj K =
@@ -153,7 +161,8 @@ theorem affineLineFunctor_obj (X : Scheme.{u}) (U : X.affineOpens)
 
 /-- A coherent determinant construction for perfect derived modules on a scheme with
 Tor-amplitude in `[-1, 0]`. -/
-structure Determinant (X : Scheme.{u}) where
+structure Determinant (X : Scheme.{u})
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] where
   /-- The determinant functor from the core of perfect objects to invertible modules. -/
   det : CategoryTheory.Core (TorNegOneZero X) ⥤ Scheme.Modules.Invertible.Core X
   /-- The isomorphism-invariant rank-zero predicate. -/
@@ -199,16 +208,19 @@ structure Determinant (X : Scheme.{u}) where
 
 namespace Determinant
 
+variable {X : Scheme.{u}}
+variable [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
+
 /-- The invertible module underlying the determinant of a perfect derived object. -/
-def line {X : Scheme.{u}} (D : Determinant X) (K : TorNegOneZero X) : X.Modules :=
+def line (D : Determinant X) (K : TorNegOneZero X) : X.Modules :=
   (D.det.obj ⟨K⟩).of.obj
 
 /-- The determinant line is the module underlying the value of the determinant functor. -/
-theorem line_def {X : Scheme.{u}} (D : Determinant X) (K : TorNegOneZero X) :
+theorem line_def (D : Determinant X) (K : TorNegOneZero X) :
     D.line K = (D.det.obj ⟨K⟩).of.obj := sorry
 
 /-- Rank zero is detected by every affine restriction and its chosen ring-level determinant. -/
-theorem rankZero_iff_affine {X : Scheme.{u}} (D : Determinant X)
+theorem rankZero_iff_affine (D : Determinant X)
     (K : TorNegOneZero X) :
     D.isRankZero K ↔
       ∀ U : X.affineOpens,
@@ -216,7 +228,7 @@ theorem rankZero_iff_affine {X : Scheme.{u}} (D : Determinant X)
 
 /-- On an affine open, the determinant comparison sends the restricted canonical section to
 the ring-level canonical element. -/
-theorem canonicalElement_affine {X : Scheme.{u}} (D : Determinant X)
+theorem canonicalElement_affine (D : Determinant X)
     (K : TorNegOneZero X) (hK : D.isRankZero K) (U : X.affineOpens) :
     ((D.affineComparison U).hom.app ⟨K⟩).hom
         (((D.line K).presheaf.map (homOfLE le_top).op).hom
@@ -228,7 +240,8 @@ end Determinant
 
 /-- Every scheme admits a coherent determinant construction on perfect derived modules of
 Tor-amplitude in `[-1, 0]`, compatible with affine restriction. -/
-theorem nonemptyDeterminant (X : Scheme.{u}) : Nonempty (Determinant X) := sorry
+theorem nonemptyDeterminant (X : Scheme.{u})
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] : Nonempty (Determinant X) := sorry
 
 end TorNegOneZero
 

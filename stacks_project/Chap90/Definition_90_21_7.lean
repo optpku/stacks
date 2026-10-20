@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Definition_90_21_7_Restrict
+public import ReasLib.CategoryTheory.Groupoid.InFunctors.Restriction
 import StacksCheckRecall
 
 /-!
@@ -20,6 +14,8 @@ groupoid in functors obtained by precomposition and left whiskering.
 
 open CategoryTheory
 
+universe u u' v v' w
+
 /- Definition 90.21.7: the restriction of a groupoid in functors `(U, R, s, t, c)` on `C`
 to a subcategory `C'` is `GroupoidInFunctors.restrict G ι`, where `ι : C' ⥤ C` is the
 inclusion (for example `ObjectProperty.ι` or `wideSubcategoryInclusion W ⋙ P.ι`).
@@ -27,4 +23,9 @@ Object and arrow functors restrict by `ι ⋙ -`, the maps `s` and `t` restrict 
 `whiskerLeft ι`, and `c` is the whiskered composition transported along
 `PreservesPullback.iso.inv`. -/
 @[stacks 06K9]
-#check GroupoidInFunctors.restrict
+#check (CategoryTheory.GroupoidInFunctors.restrict.{u, u', v, v', w} :
+  {C : Type u} → [CategoryTheory.Category.{v} C] →
+  {C' : Type u'} → [CategoryTheory.Category.{v'} C'] →
+  [CategoryTheory.Limits.HasPullbacks (C' ⥤ Type w)] →
+  CategoryTheory.GroupoidInFunctors.{u, v, w} C → (C' ⥤ C) →
+  CategoryTheory.GroupoidInFunctors.{u', v', w} C')

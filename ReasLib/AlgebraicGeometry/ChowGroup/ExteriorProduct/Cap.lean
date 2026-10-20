@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.BivariantClass.OverField.Commutation
@@ -31,7 +25,7 @@ theorem exteriorProduct_cap
     (α : RelativeChow (fun _ ↦ 0) X n)
     (c' : BivariantClass (fun _ ↦ 0) g q)
     (β : RelativeChow (fun _ ↦ 0) Z m) :
-    BivariantClass.castRelativeDegree (fun _ ↦ 0) (Int.add_sub_assoc n m q).symm
+    RelativeChow.castDegree (fun _ ↦ 0) (Int.add_sub_assoc n m q).symm
         (exteriorProductPairing X Y n (m - q) α
           (c'.cap (𝟙 Y) g (𝟙 Z) IsPullback.of_id_fst m β)) =
       c'.cap (Limits.prod.snd : X ⨯ Y ⟶ Y)

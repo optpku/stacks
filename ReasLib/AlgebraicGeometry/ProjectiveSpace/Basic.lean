@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.ProjectiveSpectrum.Basic
@@ -67,7 +61,11 @@ degree-zero constant-coefficient map. -/
 theorem degreeZero_leftInverse
     (R : Type u) [CommRing R] (n : ℕ) :
     Function.LeftInverse (degreeZeroC R n)
-      (fun p : grading R n 0 ↦ MvPolynomial.constantCoeff p.1) := sorry
+      (fun p : grading R n 0 ↦ MvPolynomial.constantCoeff p.1) := by
+  intro p
+  apply Subtype.ext
+  exact (MvPolynomial.totalDegree_eq_zero_iff_eq_C.mp
+    ((MvPolynomial.totalDegree_zero_iff_isHomogeneous _).mpr p.2)).symm
 
 /-- The degree-zero constant embedding is right inverse to the degree-zero
 constant-coefficient map. -/
@@ -75,21 +73,25 @@ constant-coefficient map. -/
 theorem degreeZero_rightInverse
     (R : Type u) [CommRing R] (n : ℕ) :
     Function.RightInverse (degreeZeroC R n)
-      (fun p : grading R n 0 ↦ MvPolynomial.constantCoeff p.1) := sorry
+      (fun p : grading R n 0 ↦ MvPolynomial.constantCoeff p.1) := by
+  intro r
+  simp [degreeZeroC]
 
 /-- Constant coefficient preserves multiplication on the degree-zero graded piece. -/
 @[stacks 01JE "degree-zero constant coefficient multiplication"]
 theorem degreeZero_map_mul
     (R : Type u) [CommRing R] (n : ℕ) (p q : grading R n 0) :
     MvPolynomial.constantCoeff (p * q).1 =
-      MvPolynomial.constantCoeff p.1 * MvPolynomial.constantCoeff q.1 := sorry
+      MvPolynomial.constantCoeff p.1 * MvPolynomial.constantCoeff q.1 := by
+  exact map_mul MvPolynomial.constantCoeff p.1 q.1
 
 /-- Constant coefficient preserves addition on the degree-zero graded piece. -/
 @[stacks 01JE "degree-zero constant coefficient addition"]
 theorem degreeZero_map_add
     (R : Type u) [CommRing R] (n : ℕ) (p q : grading R n 0) :
     MvPolynomial.constantCoeff (p + q).1 =
-      MvPolynomial.constantCoeff p.1 + MvPolynomial.constantCoeff q.1 := sorry
+      MvPolynomial.constantCoeff p.1 + MvPolynomial.constantCoeff q.1 := by
+  exact map_add MvPolynomial.constantCoeff p.1 q.1
 
 /-- The degree-zero piece of the standard grading on `R[T_0, ..., T_n]` is canonically `R`,
 via constant polynomials. -/
@@ -132,7 +134,7 @@ namespace globalSectionsComparison
 /-- Pullback along the structure morphism identifies the base ring with global sections of
 standard projective space. -/
 @[stacks 01JE "global sections of projective space"]
-theorem isIso (R : Type u) [CommRing R] (n : ℕ) :
+instance isIso (R : Type u) [CommRing R] (n : ℕ) :
     IsIso (globalSectionsComparison R n) := sorry
 
 end globalSectionsComparison
@@ -156,20 +158,5 @@ abbrev toAffineOpen_of_isAffineOpen (U : S.Opens) (hU : IsAffineOpen U) (n : ℕ
 end
 
 end ProjectiveSpace
-
-/-- Deprecated root name for the standard projective-space grading. -/
-@[deprecated ProjectiveSpace.grading (since := "2026-08-05")]
-abbrev projectiveSpaceGrading (R : Type u) [CommRing R] (n : ℕ) :=
-  ProjectiveSpace.grading R n
-
-/-- Deprecated root name for standard projective space. -/
-@[deprecated ProjectiveSpace.scheme (since := "2026-08-05")]
-abbrev projectiveSpace (R : Type u) [CommRing R] (n : ℕ) :=
-  ProjectiveSpace.scheme R n
-
-/-- Deprecated root name for the structure morphism of standard projective space. -/
-@[deprecated ProjectiveSpace.toSpec (since := "2026-08-05")]
-abbrev projectiveSpaceToSpec (R : Type u) [CommRing R] (n : ℕ) :=
-  ProjectiveSpace.toSpec R n
 
 end AlgebraicGeometry

@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Topology.JacobsonSpace
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.ResidueField.Extension
-public import stacks_project.Chap66.Lemma_66_4_6_Topology
-public import stacks_project.Chap68.Lemma_68_12_8_Decent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedPoints
+import StacksCheckRecall
 
 /-!
 # Algebraic residue-field extensions yield closed points of decent spaces
@@ -27,16 +19,15 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 68.14.4: Let `S` be a scheme and `X` a decent algebraic space over `S`.
+/- Lemma 68.14.4: Let `S` be a scheme and `X` a decent algebraic space over `S`.
 Given a commutative diagram `Spec(k) ⟶ X` over `S`, if the image `s` of
 `Spec(k) ⟶ S` is a closed point and `κ(s) ⊂ k` is algebraic, then the image
 `x` of `Spec(k) ⟶ X` is a closed point of `|X|`. -/
-@[stacks 07U5]
-theorem mem_closedPoints_of_isAlgebraic_residueField {S : Scheme.{u}}
-    {X : AlgebraicSpace S} [IsDecent X] (p : FieldValuedPoint X)
-    (hs : closedPointImage p.structureHom ∈ closedPoints S)
-    (halg : Algebra.IsAlgebraic (S.residueField (closedPointImage p.structureHom)) p.K) :
-    Points.mk p ∈ closedPoints (Points X) :=
-  sorry
+@[stacks 07U5] #check
+  (AlgebraicGeometry.AlgebraicSpace.mem_closedPoints_of_isAlgebraic_residueField :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X] (p : FieldValuedPoint X),
+      closedPointImage p.structureHom ∈ closedPoints S →
+      Algebra.IsAlgebraic (S.residueField (closedPointImage p.structureHom)) p.K →
+      Points.mk p ∈ closedPoints (Points X))
 
 end AlgebraicGeometry.AlgebraicSpace

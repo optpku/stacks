@@ -1,21 +1,14 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_16_1_Diagram
-public import stacks_project.Chap85.Lemma_85_16_1_Localization
+import StacksCheckRecall
+public import ReasLib.CategoryTheory.Sites.Family.Simplicial.Augmentation
 
 /-!
 # Lemma 85.16.1
 
-The localization `j_0 : C / K_0 ⥤ C` is a case-B augmentation of the simplicial
-site `n ↦ C / K_n`. The morphisms of topoi `a_n` and `a` of Lemma 85.4.2 are
-isomorphic to the morphisms presented by `j_n` and `j_total`.
+Degree-zero localization defines a case-B augmentation. Its stage and total
+morphisms of topoi identify with localization through their direct images and
+the inverse-image mates under the displayed adjunctions.
 -/
 
 @[expose] public section
@@ -23,59 +16,77 @@ isomorphic to the morphisms presented by `j_n` and `j_total`.
 universe w v u
 
 open CategoryTheory CategoryTheory.Limits Opposite
-open scoped SemiRepresentableFamily Simplicial
+open scoped Simplicial
 
 noncomputable section
 
 namespace CategoryTheory.SemiRepresentableFamily
 
 variable {C : Type u} [Category.{v} C]
-variable (K : SimplicialObject (FormalCoproduct.{w} C))
 
-/-- Lemma 85.16.1 (1): Let `C` be a site and `K` a simplicial object of `SR(C)`.
-The localization functor `j_0 = forget (K.obj (op ⦋0⦌))` equalizes every pair of
-operators `φ, ψ : ⦋0⦌ ⟶ n` after composing with `overMap`, and therefore presents
-a case-B augmentation `a_0 : Sh(C / K_0) ⟶ Sh(C)` as in Remark 85.4.1. -/
-@[stacks 0D8B]
-theorem forget_comp_overMap_eq {n : SimplexCategory} (φ ψ : ⦋0⦌ ⟶ n) :
+/- Lemma 85.16.1 (1): degree-zero localization is an augmentation of the
+simplicial localization site for the selected covers of the original site. -/
+@[stacks 0D8B] #check (CategoryTheory.SemiRepresentableFamily.forget_isAugmentation :
+  ∀ (K : SimplicialObject (FormalCoproduct.{w} C)) (P : Precoverage C) [P.IsSite],
+    Grothendieck.IsAugmentation (overSiteDiagram K) (overSiteSelectedPrecoverage P K) P
+      (forget (K.obj (op ⦋0⦌))))
+
+/- The augmentation compatibility holds for every pair of zero-simplex operators. -/
+#check (CategoryTheory.SemiRepresentableFamily.forget_comp_overMap_eq :
+  ∀ (K : SimplicialObject (FormalCoproduct.{w} C)) {n : SimplexCategory} (φ ψ : ⦋0⦌ ⟶ n),
     overMap (K.map φ.op) ⋙ forget (K.obj (op ⦋0⦌)) =
-      overMap (K.map ψ.op) ⋙ forget (K.obj (op ⦋0⦌)) :=
-  sorry
+      overMap (K.map ψ.op) ⋙ forget (K.obj (op ⦋0⦌)))
 
-variable (J : GrothendieckTopology C)
-variable [HasSheafify J (Type (max w u v))]
-variable [HasWeakSheafify J (Type (max w u v))]
-variable [HasSheafify (overSiteTotalTopology J K) (Type (max w u v))]
-variable [∀ n : SimplexCategoryᵒᵖ, HasSheafify (overTopology J (K.obj n)) (Type (max w u v))]
-variable [∀ P : (Grothendieck (overSiteDiagram K))ᵒᵖ ⥤ Type (max w u v),
-  (totalForget K).op.HasPointwiseRightKanExtension P]
-variable [∀ P : (Grothendieck (overSiteDiagram K))ᵒᵖ ⥤ Type (max w u v),
-  (augmentationTotalForget K).op.HasPointwiseRightKanExtension P]
-variable [∀ (n : SimplexCategory) (P : (OverSite (K.obj (op n)))ᵒᵖ ⥤ Type (max w u v)),
-  (stageForget K n).op.HasPointwiseRightKanExtension P]
-variable [∀ (n : SimplexCategoryᵒᵖ) (P : (OverSite (K.obj n))ᵒᵖ ⥤ Type (max w u v)),
-  (forget (K.obj n)).op.HasPointwiseRightKanExtension P]
+/- The stage presenting functor is the generic case-B stage composite. -/
+#check (CategoryTheory.SemiRepresentableFamily.stageForget_eq_stageFunctor :
+  ∀ (K : SimplicialObject (FormalCoproduct.{w} C)) (n : SimplexCategory),
+    stageForget K n = Grothendieck.IsAugmentation.stageFunctor (overSiteDiagram K)
+      (forget (K.obj (op ⦋0⦌))) n)
 
-/-- Lemma 85.16.1 (2): The morphism of topoi `a_n : Sh(C / K_n) ⟶ Sh(C)` of
-Lemma 85.4.2, presented by the common composite `u_n = j_0 ∘ u_φ`, is isomorphic
-to the morphism of topoi associated to the continuous and cocontinuous localization
-`j_n = forget (K.obj (op n))`. -/
-@[stacks 0D8B]
-def stageTopos_iso_localizationMorphism (n : SimplexCategory) :
+/- Lemma 85.16.1 (2): the stage augmentation and localization morphisms
+have canonically isomorphic direct images. -/
+@[stacks 0D8B] #check (CategoryTheory.SemiRepresentableFamily.stageTopos_iso_localizationMorphism :
+  ∀ (J : GrothendieckTopology C) (K : SimplicialObject (FormalCoproduct.{w} C))
+    [∀ n : SimplexCategoryᵒᵖ, HasSheafify (overTopology J (K.obj n)) (Type (max w u v))]
+    [∀ (n : SimplexCategory) (P : (OverSite (K.obj (op n)))ᵒᵖ ⥤ Type (max w u v)),
+      (stageForget K n).op.HasPointwiseRightKanExtension P]
+    [∀ (n : SimplexCategoryᵒᵖ) (P : (OverSite (K.obj n))ᵒᵖ ⥤ Type (max w u v)),
+      (forget (K.obj n)).op.HasPointwiseRightKanExtension P]
+    (n : SimplexCategory),
     (stageTopos J K n).pushforward ≅
-      (localizationMorphism J (K.obj (op n))).pushforward :=
-  Functor.sheafPushforwardCocontinuousIso
-    (overTopology J (K.obj (op n))) J (stageForget K n) (stageForget_iso_forget K n)
+      (localizationMorphism J (K.obj (op n))).pushforward)
 
-/-- Lemma 85.16.1 (3): The morphism of topoi `a : Sh((C / K)_total) ⟶ Sh(C)` of
-Lemma 85.4.2, presented by the functor sending a degree-`n` object `U` to `u_n(U)`,
-is isomorphic to the morphism of topoi associated to the continuous and cocontinuous
-localization `j_total = totalForget K`. -/
-@[stacks 0D8B]
-def totalTopos_iso_totalLocalization :
-    (totalTopos J K).pushforward ≅ (totalLocalization J K).pushforward :=
-  Functor.sheafPushforwardCocontinuousIso
-    (overSiteTotalTopology J K) J (augmentationTotalForget K)
-    (augmentationTotalForget_iso_totalForget K)
+/- The inverse-image comparison is the mate under the geometric adjunctions. -/
+#check (CategoryTheory.SemiRepresentableFamily.stageTopos_inverseImage_iso_localizationMorphism :
+  ∀ (J : GrothendieckTopology C) (K : SimplicialObject (FormalCoproduct.{w} C))
+    [∀ n : SimplexCategoryᵒᵖ, HasSheafify (overTopology J (K.obj n)) (Type (max w u v))]
+    [∀ (n : SimplexCategory) (P : (OverSite (K.obj (op n)))ᵒᵖ ⥤ Type (max w u v)),
+      (stageForget K n).op.HasPointwiseRightKanExtension P]
+    [∀ (n : SimplexCategoryᵒᵖ) (P : (OverSite (K.obj n))ᵒᵖ ⥤ Type (max w u v)),
+      (forget (K.obj n)).op.HasPointwiseRightKanExtension P]
+    (n : SimplexCategory),
+    (stageTopos J K n).inverseImage ≅
+      (localizationMorphism J (K.obj (op n))).inverseImage)
+
+/- Lemma 85.16.1 (3): the total augmentation and total localization morphisms
+have canonically isomorphic direct images. -/
+@[stacks 0D8B] #check (CategoryTheory.SemiRepresentableFamily.totalTopos_iso_totalLocalization :
+  ∀ (J : GrothendieckTopology C) (K : SimplicialObject (FormalCoproduct.{w} C))
+    [HasSheafify (overSiteTotalTopology J K) (Type (max w u v))]
+    [∀ P : (Grothendieck (overSiteDiagram K))ᵒᵖ ⥤ Type (max w u v),
+      (totalForget K).op.HasPointwiseRightKanExtension P]
+    [∀ P : (Grothendieck (overSiteDiagram K))ᵒᵖ ⥤ Type (max w u v),
+      (augmentationTotalForget K).op.HasPointwiseRightKanExtension P],
+    (totalTopos J K).pushforward ≅ (totalLocalization J K).pushforward)
+
+/- The total inverse-image comparison is the mate under the geometric adjunctions. -/
+#check (CategoryTheory.SemiRepresentableFamily.totalTopos_inverseImage_iso_totalLocalization :
+  ∀ (J : GrothendieckTopology C) (K : SimplicialObject (FormalCoproduct.{w} C))
+    [HasSheafify (overSiteTotalTopology J K) (Type (max w u v))]
+    [∀ P : (Grothendieck (overSiteDiagram K))ᵒᵖ ⥤ Type (max w u v),
+      (totalForget K).op.HasPointwiseRightKanExtension P]
+    [∀ P : (Grothendieck (overSiteDiagram K))ᵒᵖ ⥤ Type (max w u v),
+      (augmentationTotalForget K).op.HasPointwiseRightKanExtension P],
+    (totalTopos J K).inverseImage ≅ (totalLocalization J K).inverseImage)
 
 end CategoryTheory.SemiRepresentableFamily

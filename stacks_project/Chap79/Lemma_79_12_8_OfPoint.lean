@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap79.Lemma_79_12_7_Hom
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FinitePart.Point
 
 /-!
 # Induced morphism from a finite-part pair
@@ -25,33 +19,26 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.FinitePart
 
-variable {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.SubspacePoint.hom :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {U : Over S},
+    SubspacePoint f U → (yoneda.obj U ⟶ functor f))
 
-/-- The morphism `U ⟶ (X/Y)_fin` induced by a finite-part pair `(a, Z)` over a
-scheme `U`. -/
-def Point.hom {f : X ⟶ Y} {U : Over S} (p : Point f U) :
-    yoneda.obj U ⟶ functor f :=
-  yonedaEquiv.symm ((functor_obj_equiv f U).symm (PointQuot.mk p))
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.SubspacePoint.hom_eq :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {U : Over S}
+    (p : SubspacePoint f U),
+    yonedaEquiv (SubspacePoint.hom p) = (functor_obj_equiv f U).symm (PointQuot.mk p))
 
-/-- Evaluating `Point.hom p` recovers the subspace class of the pair. -/
-theorem Point.hom_eq {f : X ⟶ Y} {U : Over S} (p : Point f U) :
-    yonedaEquiv (Point.hom p) = (functor_obj_equiv f U).symm (PointQuot.mk p) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.SubspacePoint.hom_comp :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {U : Over S}
+    (p : SubspacePoint f U), p.hom ≫ FinitePart.hom f = p.a)
 
-/-- The induced morphism `U ⟶ (X/Y)_fin` lies over `a : U ⟶ Y`. -/
-theorem Point.hom_comp {f : X ⟶ Y} {U : Over S} (p : Point f U) :
-    p.hom ≫ FinitePart.hom f = p.a :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.SubspacePoint.hom_rel :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {U : Over S}
+    {p q : SubspacePoint f U}, SubspacePoint.Rel f U p q → SubspacePoint.hom p = SubspacePoint.hom q)
 
-/-- Subspace-equivalent pairs induce the same morphism `U ⟶ (X/Y)_fin`. -/
-theorem Point.hom_rel {f : X ⟶ Y} {U : Over S} {p q : Point f U}
-    (h : Point.Rel f U p q) : Point.hom p = Point.hom q :=
-  sorry
-
-/-- The induced morphism `U ⟶ (X/Y)_fin` is representable by schemes. -/
-theorem relativelyRepresentable_hom {f : X ⟶ Y} {U : Over S} (p : Point f U) :
-    yoneda.relativelyRepresentable (Point.hom p) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.relativelyRepresentable_hom :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {U : Over S}
+    (p : SubspacePoint f U), yoneda.relativelyRepresentable (SubspacePoint.hom p))
 
 end AlgebraicGeometry.AlgebraicSpace.FinitePart
 

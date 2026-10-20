@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_37_1_FiniteType
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.FiniteType.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of finite type morphisms of algebraic stacks
@@ -23,32 +18,18 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack
-
-namespace FiniteType
-
-/-- Lemma 101.17.2 (1): The composition of a pair of finite type morphisms of
-algebraic stacks is of finite type. -/
-@[stacks 06FT]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+/- Lemma 101.17.2: The composition of finite type morphisms of algebraic stacks
+is of finite type. The same holds for locally of finite type. -/
+@[stacks 06FT] #check (AlgebraicGeometry.AlgebraicStack.FiniteType.comp :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [FiniteType f] [FiniteType g] :
-    FiniteType (f ≫ g) :=
-  sorry
+    (f : X ⟶ Y) (g : Y ⟶ Z)
+    [AlgebraicStack.FiniteType f] [AlgebraicStack.FiniteType g],
+    AlgebraicStack.FiniteType (f ≫ g))
 
-end FiniteType
-
-namespace LocallyOfFiniteType
-
-/-- Lemma 101.17.2 (2): The composition of a pair of locally of finite type
-morphisms of algebraic stacks is locally of finite type. -/
-@[stacks 06FT]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.LocallyOfFiniteType.comp :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [LocallyOfFiniteType f] [LocallyOfFiniteType g] :
-    LocallyOfFiniteType (f ≫ g) :=
-  sorry
-
-end LocallyOfFiniteType
-
-end AlgebraicGeometry.AlgebraicStack
+    (f : X ⟶ Y) (g : Y ⟶ Z)
+    [AlgebraicStack.LocallyOfFiniteType f] [AlgebraicStack.LocallyOfFiniteType g],
+    AlgebraicStack.LocallyOfFiniteType (f ≫ g))

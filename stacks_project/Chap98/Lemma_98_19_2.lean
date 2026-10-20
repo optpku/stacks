@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Fibered.Groupoids.Diagonal.Construction
-public import stacks_project.Chap94.Definition_94_12_1_Representable
-public import stacks_project.Chap98.Definition_98_11_1_LimitPreserving
-public import stacks_project.Chap98.Definition_98_13_1_Versal
-public import stacks_project.Chap98.Definition_98_18_1
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.VersalAt.Specialization
+import StacksCheckRecall
 
 /-!
 # Generalization of versality along specializations of finite type points
@@ -31,14 +21,14 @@ universe u
 
 namespace AlgebraicGeometry.GroupoidsOver
 
-/-- Lemma 98.19.2: let `S` be a locally Noetherian scheme and let `X` be a
+/- Lemma 98.19.2: let `S` be a locally Noetherian scheme and let `X` be a
 category fibred in groupoids over `(Sch/S)_fppf`. Assume the diagonal
 `Δ : X ⟶ X × X` is representable by algebraic spaces, `X` has (RS*), and
 `X` is limit preserving. Let `x` be an object of `X` over a scheme `U` of
 finite type over `S`, and let `u ⤳ u0` be a specialization of finite type
 points of `U` such that `x` is versal at `u0`. Then `x` is versal at `u`. -/
-@[stacks 0G2K]
-theorem isVersalAt_of_specializes {S : Scheme.{u}} [IsLocallyNoetherian S]
+@[stacks 0G2K] #check (AlgebraicGeometry.GroupoidsOver.isVersalAt_of_specializes :
+  ∀ {S : Scheme.{u}} [IsLocallyNoetherian S]
     {X : GroupoidsOver S} [HasStrongRimSchlessinger X]
     [Groupoids.LimitPreserving X]
     (h_diag : relativelyRepresentableByAlgebraicSpaces
@@ -46,8 +36,7 @@ theorem isVersalAt_of_specializes {S : Scheme.{u}} [IsLocallyNoetherian S]
     {U : Scheme.{u}} (hU : U ⟶ S) [Scheme.Hom.FiniteType hU]
     (x : X.total) (hx : X.p.obj x = Over.mk hU) {u u0 : U}
     [IsFiniteTypePoint u] [IsFiniteTypePoint u0]
-    (h_specializes : Specializes u u0) (h_versal : IsVersalAt hU x hx u0) :
-    IsVersalAt hU x hx u :=
-  sorry
+    (h_specializes : Specializes u u0) (h_versal : IsVersalAt hU x hx u0),
+    IsVersalAt hU x hx u)
 
 end AlgebraicGeometry.GroupoidsOver

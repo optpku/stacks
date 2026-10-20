@@ -1,104 +1,78 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Subfunctor.Basic
-public import stacks_project.Chap67.Lemma_67_31_3_FlatOver
-public import stacks_project.Chap77.«77_7_1_1_BaseChange»
-public import stacks_project.Chap77.«77_7_1_1_IsomorphismFunctor»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FlatOver.Flattening
 
 /-!
-# The flattening functor of a quasi-coherent module on an algebraic space
+# The flattening functor on schemes over an algebraic space
 
-This module defines the subterminal functor on schemes over an algebraic space `Y` that
-records the base changes on which a quasi-coherent module becomes flat over the test scheme.
+Typed checks of the flattening construction and its flatness specifications.
 -/
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.Limits Opposite AlgebraicGeometry
-
-noncomputable section
+open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory Opposite
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules.Flattening
-
 variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-variable (ℱ : X.Modules) [ℱ.IsQuasicoherent]
+variable (ℱ : X.Modules) [ℱ.IsQuasicoherent] (T : SchemeOver Y)
 
-/-- The pullback `ℱ_T` of `ℱ` to `X ×_Y T`. -/
-abbrev baseChange (T : SchemeOver Y) : (baseChangeSpace f T.hom).Modules :=
-  baseChangeModule f T.hom ℱ
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.baseChange f ℱ T :
+    (Modules.baseChangeSpace f T.hom).Modules)
 
-/-- `baseChange f ℱ T` is module pullback of `ℱ` along `X ×_Y T ⟶ X`. -/
-theorem baseChange_eq (T : SchemeOver Y) :
-    baseChange f ℱ T = baseChangeModule f T.hom ℱ :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.baseChange_eq f ℱ T :
+    Modules.Flattening.baseChange f ℱ T = Modules.baseChangeModule f T.hom ℱ)
 
-/-- The condition that the pullback of `ℱ` to `X ×_Y T` is flat over `T`. -/
-def isFlat (T : SchemeOver Y) : Prop :=
-  flatOver (baseChange f ℱ T) (Limits.pullback.snd f T.hom)
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.isFlat f ℱ T : Prop)
 
-/-- Relative flatness after base change is `flatOver` along the second projection. -/
-theorem isFlat_iff (T : SchemeOver Y) :
-    isFlat f ℱ T ↔
-      flatOver (baseChangeModule f T.hom ℱ) (Limits.pullback.snd f T.hom) :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.isFlat_iff f ℱ T :
+    Modules.Flattening.isFlat f ℱ T ↔
+      Modules.flatOver (Modules.baseChangeModule f T.hom ℱ) (Limits.pullback.snd f T.hom))
 
-/-- Flatness after base change is preserved by restriction along a morphism of schemes over `Y`. -/
-theorem isFlat_of_hom {T U : SchemeOver Y} (g : T ⟶ U) (h : isFlat f ℱ U) :
-    isFlat f ℱ T :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.isFlat_of_hom f ℱ :
+    ∀ {T U : SchemeOver Y}, (T ⟶ U) →
+      Modules.Flattening.isFlat f ℱ U → Modules.Flattening.isFlat f ℱ T)
 
-/-- The subfunctor of the terminal `PUnit` presheaf cut out by flatness after base change. -/
-def subfunctor :
-    CategoryTheory.Subfunctor ((Functor.const (SchemeOver Y)ᵒᵖ).obj (PUnit : Type u)) where
-  obj T := { _x | isFlat f ℱ T.unop }
-  map g _ h := isFlat_of_hom f ℱ g.unop h
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.subfunctor f ℱ :
+    CategoryTheory.Subfunctor ((Functor.const (SchemeOver Y)ᵒᵖ).obj (PUnit : Type u)))
 
-/-- Membership of the terminal section is exactly flatness after base change. -/
-theorem mem_subfunctor (T : SchemeOver Y) :
-    PUnit.unit ∈ (subfunctor f ℱ).obj (op T) ↔ isFlat f ℱ T :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.mem_subfunctor f ℱ T :
+    PUnit.unit ∈ (Modules.Flattening.subfunctor f ℱ).obj (op T) ↔
+      Modules.Flattening.isFlat f ℱ T)
 
-/-- The contravariant subterminal functor recording where `ℱ` becomes flat over a scheme over `Y`. -/
-def functor : (SchemeOver Y)ᵒᵖ ⥤ Type u :=
-  (subfunctor f ℱ).toFunctor
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.functor f ℱ :
+    (SchemeOver Y)ᵒᵖ ⥤ Type u)
 
-/-- Every object value of the flattening functor has at most one element. -/
-instance functorObjSubsingleton (T : SchemeOver Y) :
-    Subsingleton ((functor f ℱ).obj (op T)) :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.functorObjSubsingleton f ℱ T :
+    Subsingleton ((Modules.Flattening.functor f ℱ).obj (op T)))
 
-/-- An object value of the flattening functor is inhabited exactly when the base-changed
-module is flat over the test scheme. -/
-theorem functor_obj_nonempty_iff (T : SchemeOver Y) :
-    Nonempty ((functor f ℱ).obj (op T)) ↔ isFlat f ℱ T :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.functor_obj_nonempty_iff f ℱ T :
+    Nonempty ((Modules.Flattening.functor f ℱ).obj (op T)) ↔
+      Modules.Flattening.isFlat f ℱ T)
 
-/-- An object value of the flattening functor is empty exactly when the base-changed module
-is not flat over the test scheme. -/
-theorem functor_obj_isEmpty_iff (T : SchemeOver Y) :
-    IsEmpty ((functor f ℱ).obj (op T)) ↔ ¬ isFlat f ℱ T :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.functor_obj_isEmpty_iff f ℱ T :
+    IsEmpty ((Modules.Flattening.functor f ℱ).obj (op T)) ↔
+      ¬ Modules.Flattening.isFlat f ℱ T)
 
-/-- A morphism `a : ofOver T ⟶ Y` is a section of `functor` iff the pullback of `ℱ` along `a`
-is flat over `T`. -/
-theorem functor_obj_nonempty_iff_mk {T : Over S} (a : ofOver T ⟶ Y) :
-    Nonempty ((functor f ℱ).obj (op (SchemeOver.mk a))) ↔
-      flatOver (baseChangeModule f a ℱ) (Limits.pullback.snd f a) :=
-  sorry
+variable {T' : Over S} (a : ofOver T' ⟶ Y)
 
-/-- A morphism `a : ofOver T ⟶ Y` is not a section of `functor` iff the pullback of `ℱ`
-along `a` is not flat over `T`. -/
-theorem functor_obj_isEmpty_iff_mk {T : Over S} (a : ofOver T ⟶ Y) :
-    IsEmpty ((functor f ℱ).obj (op (SchemeOver.mk a))) ↔
-      ¬ flatOver (baseChangeModule f a ℱ) (Limits.pullback.snd f a) :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.functor_obj_nonempty_iff_mk f ℱ a :
+    Nonempty ((Modules.Flattening.functor f ℱ).obj (op (SchemeOver.mk a))) ↔
+      Modules.flatOver (Modules.baseChangeModule f a ℱ) (Limits.pullback.snd f a))
 
-end AlgebraicGeometry.AlgebraicSpace.Modules.Flattening
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.functor_obj_isEmpty_iff_mk f ℱ a :
+    IsEmpty ((Modules.Flattening.functor f ℱ).obj (op (SchemeOver.mk a))) ↔
+      ¬ Modules.flatOver (Modules.baseChangeModule f a ℱ) (Limits.pullback.snd f a))

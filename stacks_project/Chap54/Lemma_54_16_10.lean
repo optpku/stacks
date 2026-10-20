@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.Separated
-public import Mathlib.Topology.KrullDimension
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType.Noetherian
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.QuasiProjective
-public import ReasLib.AlgebraicGeometry.Scheme.Regular
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.QuasiProjective.DimensionTwo
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -21,12 +12,11 @@ universe u
 
 namespace AlgebraicGeometry.QuasiProjective
 
-/-- Lemma 54.16.10: for a Noetherian scheme `S`, a separated finite-type morphism
+/- Lemma 54.16.10: for a Noetherian scheme `S`, a separated finite-type morphism
 `f : X ⟶ S` with regular source of topological Krull dimension `2` is quasi-projective. -/
-@[stacks 0C5N]
-theorem instOfRegularDimensionTwo
-    {X S : Scheme.{u}} [IsNoetherian S] (f : X ⟶ S) [IsSeparated f]
-    [Scheme.Hom.FiniteType f] [Scheme.Regular X]
-    (h_dim : topologicalKrullDim X = 2) : QuasiProjective f := sorry
+@[stacks 0C5N] #check (AlgebraicGeometry.QuasiProjective.instOfRegularDimensionTwo :
+    ∀ {X S : Scheme.{u}} [IsNoetherian S] (f : X ⟶ S) [IsSeparated f]
+      [Scheme.Hom.FiniteType f] [Scheme.Regular X],
+      topologicalKrullDim X = 2 → QuasiProjective f)
 
 end AlgebraicGeometry.QuasiProjective

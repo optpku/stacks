@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_4_1_Separation
-public import stacks_project.Chap101.Lemma_101_39_8_Uniqueness
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Separation.ValuativeCriterion
+import StacksCheckRecall
 
 /-!
 # Quasi-separated morphisms with uniqueness are separated
@@ -25,13 +19,13 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack.Separated
 
-/-- Lemma 101.41.2: If `f : X ⟶ Y` is a quasi-separated morphism of algebraic
+/- Lemma 101.41.2: If `f : X ⟶ Y` is a quasi-separated morphism of algebraic
 stacks and `f` satisfies the uniqueness part of the valuative criterion, then
 `f` is separated. -/
-@[stacks 0CLT]
-theorem of_valuativeCriterion {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    [QuasiSeparated f] [ValuativeCriterion.Uniqueness f] : Separated f :=
-  sorry
+@[stacks 0CLT] #check
+  (AlgebraicGeometry.AlgebraicStack.Separated.of_valuativeCriterion :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+      [QuasiSeparated f] [ValuativeCriterion.Uniqueness f], Separated f)
 
 end AlgebraicGeometry.AlgebraicStack.Separated

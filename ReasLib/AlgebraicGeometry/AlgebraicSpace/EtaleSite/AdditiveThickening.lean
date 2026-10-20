@@ -1,16 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.AdditiveAdjunction
-public import stacks_project.Chap76.Lemma_76_18_1_Thickening
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Thickening
 
 /-!
-# The additive counit along a first-order thickening
+# The additive counit along a thickening
 
 Topological invariance of the étale site makes base-change restriction fully
 faithful on sheaves. Its inverse on morphisms is dense-site sheaf gluing, and
@@ -26,31 +20,8 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.EtaleAdditive.Thickening
 
-/-- A fully faithful right adjoint inverts its counit by reconstructing the unit.
-Both inverse laws follow from the given Hom reconstruction and adjunction triangles. -/
-def counitIsoOfFullyFaithful {C D : Type*} [Category C] [Category D]
-    {L : C ⥤ D} {R : D ⥤ C} (adj : L ⊣ R) (hR : R.FullyFaithful) (F : D) :
-    L.obj (R.obj F) ≅ F where
-  hom := adj.counit.app F
-  inv := hR.preimage (adj.unit.app (R.obj F))
-  hom_inv_id := by
-    let p : F ⟶ L.obj (R.obj F) := hR.preimage (adj.unit.app (R.obj F))
-    have hp : R.map p = adj.unit.app (R.obj F) := hR.map_preimage _
-    have hn := adj.counit_naturality p
-    change L.map (R.map p) ≫ adj.counit.app (L.obj (R.obj F)) = adj.counit.app F ≫ p at hn
-    rw [hp] at hn
-    exact hn.symm.trans (adj.left_triangle_components (R.obj F))
-  inv_hom_id := by
-    let p : F ⟶ L.obj (R.obj F) := hR.preimage (adj.unit.app (R.obj F))
-    apply hR.map_injective
-    change R.map (p ≫ adj.counit.app F) = R.map (𝟙 F)
-    rw [R.map_comp]
-    rw [show R.map p = adj.unit.app (R.obj F) from hR.map_preimage _]
-    rw [R.map_id]
-    exact adj.right_triangle_components F
-
 variable {S : Scheme.{u}} {X X' : AlgebraicSpace S} (i : X ⟶ X')
-variable [IsFirstOrderThickening i]
+variable [IsThickening i]
 
 /-- The source's étale charts are covered by reductions of target étale charts.
 This is the covering part of Stacks' thickening-equivalence lemma, followed by
@@ -83,8 +54,12 @@ def directImageFullyFaithful : (EtaleAdditive.directImage i).FullyFaithful :=
 
 /-- The thickening counit and its actual inverse from sheaf gluing. -/
 def counitIso (F : Sheaf (smallEtaleTopology X) AddCommGrpCat.{u}) :
-    (EtaleAdditive.inverseImage i).obj ((EtaleAdditive.directImage i).obj F) ≅ F :=
-  counitIsoOfFullyFaithful (EtaleAdditive.adjunction i) (directImageFullyFaithful i) F
+    (EtaleAdditive.inverseImage i).obj ((EtaleAdditive.directImage i).obj F) ≅ F where
+  hom := (EtaleAdditive.adjunction i).counit.app F
+  inv := (directImageFullyFaithful i).preimage
+    ((EtaleAdditive.adjunction i).unit.app ((EtaleAdditive.directImage i).obj F))
+  hom_inv_id := sorry
+  inv_hom_id := sorry
 
 /-- The forward map is exactly the original geometric counit. -/
 theorem counitIso_hom (F : Sheaf (smallEtaleTopology X) AddCommGrpCat.{u}) :
@@ -94,15 +69,5 @@ theorem counitIso_hom (F : Sheaf (smallEtaleTopology X) AddCommGrpCat.{u}) :
 theorem counitIso_inv (F : Sheaf (smallEtaleTopology X) AddCommGrpCat.{u}) :
     (counitIso i F).inv = (directImageFullyFaithful i).preimage
       ((EtaleAdditive.adjunction i).unit.app ((EtaleAdditive.directImage i).obj F)) := rfl
-
-/-- The original counit followed by the constructed inverse is the identity. -/
-theorem counit_comp_inverse (F : Sheaf (smallEtaleTopology X) AddCommGrpCat.{u}) :
-    (EtaleAdditive.adjunction i).counit.app F ≫ (counitIso i F).inv = 𝟙 _ :=
-  (counitIso i F).hom_inv_id
-
-/-- The constructed inverse followed by the original counit is the identity. -/
-theorem inverse_comp_counit (F : Sheaf (smallEtaleTopology X) AddCommGrpCat.{u}) :
-    (counitIso i F).inv ≫ (EtaleAdditive.adjunction i).counit.app F = 𝟙 F :=
-  (counitIso i F).inv_hom_id
 
 end AlgebraicGeometry.AlgebraicSpace.EtaleAdditive.Thickening

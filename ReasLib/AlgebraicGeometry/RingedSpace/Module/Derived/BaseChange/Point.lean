@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Flat.Point
@@ -25,6 +19,9 @@ map invertible are specific to this result.
 open AlgebraicGeometry CategoryTheory
 open CategoryTheory.Limits
 open scoped RingedSpace.Hom
+
+-- The point inclusion is flat, and its pullback projection has the existing flatness witness.
+attribute [local instance] RingedSpace.Hom.IsFlat.pullbackFst
 
 noncomputable section
 

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_3_3_Diagonal
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Diagonal.FiniteType
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,7 +15,7 @@ universe u
 the relative 2-diagonal `Hom.diagonal f : X ⟶ X ×_Y X` is representable by
 algebraic spaces. -/
 @[stacks 04XS] #check
-  (relativelyRepresentableByAlgebraicSpaces_diagonal :
+  (AlgebraicGeometry.Groupoids.Hom.relativelyRepresentableByAlgebraicSpaces_diagonal :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
       relativelyRepresentableByAlgebraicSpaces
@@ -31,7 +25,7 @@ algebraic spaces. -/
 the relative 2-diagonal `Hom.diagonal f : X ⟶ X ×_Y X` is locally of finite
 type. -/
 @[stacks 04XS] #check
-  (LocallyOfFiniteType.diagonal :
+  (AlgebraicGeometry.Groupoids.Hom.LocallyOfFiniteType.diagonal :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
       LocallyOfFiniteType (Hom.diagonal.{u + 1, u, u + 1} f))

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.Nakayama
@@ -50,7 +44,7 @@ theorem surjective_of_quotientMapByIdeal_surjective_of_isNilpotent
 /-- If a map into a finite module is surjective modulo an ideal, then it becomes surjective after
 localizing away from some element congruent to `1` modulo that ideal. -/
 @[stacks 00DV "Nakayama localized surjectivity"]
-theorem exists_sub_one_mem_and_localizedAwayMap_surjective_of_quotientMap_surjective
+theorem exists_localizedAway_surjective
     (f : N →ₗ[R] M) (I : Ideal R) [Module.Finite R M]
     (hquot : Function.Surjective (f.quotientMapByIdeal I)) :
     ∃ r : R,
@@ -116,8 +110,8 @@ theorem exists_sub_one_mem_and_smul_top_le_of_quotient_span_eq_top
       r - 1 ∈ I ∧ r • (⊤ : Submodule R M) ≤ Submodule.span R s ∧
         (Submodule.span R s).localized (Submonoid.powers r) = ⊤ := sorry
 
-/-- The localized-top conclusion is a projection-shaped owner for consumers that do not need the
-clearing-scalar witness. -/
+/-- If a family generates a finite module modulo an ideal, then its span becomes the whole module
+after localizing away from some element congruent to `1` modulo that ideal. -/
 @[stacks 00DV "Nakayama localized quotient-span generation projection"]
 theorem exists_sub_one_mem_and_localized_eq_top_of_quotient_span_eq_top
     {I : Ideal R} [Module.Finite R M] (s : Set M)

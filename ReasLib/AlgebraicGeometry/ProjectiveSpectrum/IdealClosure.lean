@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Module.Graded.Shift.NatInt
@@ -171,11 +165,22 @@ theorem mem_projSaturation_iff (I : HomogeneousIdeal 𝒜) (x : A) :
 def projDegreeOneSaturationSet (I : Ideal A) : Set A :=
   {x | ∃ n : ℕ, ∀ a : A, a ∈ 𝒜 n → a * x ∈ I}
 
-/-- The eventual degree-multiple closure set
-`{x | (A * x)_(n*d) ⊆ I for all sufficiently large n}`. -/
+/-- The degree-multiple closure, tested on each homogeneous component of an element.
+For the degree-`i` component `xᵢ`, every product `b * xᵢ` of degree `n * d` must lie in
+`I` for all sufficiently large `n`. On a homogeneous element this is the source condition
+`(A * x)_(n*d) ⊆ I`; applying it componentwise also includes nonhomogeneous elements in
+the graded closure. -/
 def projDegreeMultipleClosureSet (I : Ideal A) (d : ℕ) : Set A :=
-  {x | ∀ᶠ n : ℕ in Filter.atTop, ∀ a : A,
-    a ∈ 𝒜 (n * d) → a ∈ Ideal.span ({x} : Set A) → a ∈ I}
+  {x | ∀ i : ℕ, ∀ᶠ n : ℕ in Filter.atTop, ∀ j : ℕ, j + i = n * d →
+    ∀ b : A, b ∈ 𝒜 j → b * GradedRing.proj 𝒜 i x ∈ I}
+
+/-- On a homogeneous element, degree-multiple closure is exactly eventual containment of
+the degree-`n * d` part of its principal ideal. -/
+theorem mem_projDegreeMultipleClosureSet_iff_of_mem (I : Ideal A) (d i : ℕ)
+    {x : A} (hx : x ∈ 𝒜 i) :
+    x ∈ projDegreeMultipleClosureSet 𝒜 I d ↔
+      ∀ᶠ n : ℕ in Filter.atTop, ∀ a : A,
+        a ∈ 𝒜 (n * d) → a ∈ Ideal.span ({x} : Set A) → a ∈ I := sorry
 
 /-- For an algebra generated in degree one, irrelevant-ideal saturation is the same as
 degree-component saturation. -/

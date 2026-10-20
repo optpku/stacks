@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap65.Definition_65_12_1_Subspace
 public import stacks_project.Chap78.Lemma_78_17_1_Restriction
 public import stacks_project.Chap94.Definition_94_16_4_Smooth
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Restriction.LocallyClosed
 
 /-!
 # Restriction of a groupoid in algebraic spaces to a subspace
@@ -31,43 +26,37 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.OpenSubspace
 
-/-- The locally closed subspace underlying an open subspace. -/
-def toLocallyClosed {S : Scheme.{u}} {F : AlgebraicSpace S} (W : OpenSubspace F) :
-    LocallyClosedSubspace F where
-  X := W.X
-  ι := W.ι
-  isImmersion := sorry
+/- The locally closed subspace underlying an open subspace. -/
+#check (AlgebraicGeometry.AlgebraicSpace.OpenSubspace.toLocallyClosed : ∀ {S : Scheme.{u}} {F : AlgebraicSpace S} (W : OpenSubspace F) ,
+    LocallyClosedSubspace F)
 
-/-- The inclusion of `toLocallyClosed W` is the open inclusion of `W`. -/
-theorem toLocallyClosed_ι {S : Scheme.{u}} {F : AlgebraicSpace S}
-    (W : OpenSubspace F) : W.toLocallyClosed.ι = W.ι :=
-  sorry
+/- The inclusion of `toLocallyClosed W` is the open inclusion of `W`. -/
+#check (AlgebraicGeometry.AlgebraicSpace.OpenSubspace.toLocallyClosed_ι : ∀ {S : Scheme.{u}} {F : AlgebraicSpace S}
+    (W : OpenSubspace F) ,
+    W.toLocallyClosed.ι = W.ι)
 
-/-- The underlying algebraic space of `toLocallyClosed W` is that of `W`. -/
-theorem toLocallyClosed_X {S : Scheme.{u}} {F : AlgebraicSpace S}
-    (W : OpenSubspace F) : W.toLocallyClosed.X = W.X :=
-  sorry
+/- The underlying algebraic space of `toLocallyClosed W` is that of `W`. -/
+#check (AlgebraicGeometry.AlgebraicSpace.OpenSubspace.toLocallyClosed_X : ∀ {S : Scheme.{u}} {F : AlgebraicSpace S}
+    (W : OpenSubspace F) ,
+    W.toLocallyClosed.X = W.X)
 
 end AlgebraicGeometry.AlgebraicSpace.OpenSubspace
 
 namespace AlgebraicGeometry.AlgebraicSpace.ClosedSubspace
 
-/-- The locally closed subspace underlying a closed subspace. -/
-def toLocallyClosed {S : Scheme.{u}} {F : AlgebraicSpace S} (C : ClosedSubspace F) :
-    LocallyClosedSubspace F where
-  X := C.X
-  ι := C.ι
-  isImmersion := sorry
+/- The locally closed subspace underlying a closed subspace. -/
+#check (AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.toLocallyClosed : ∀ {S : Scheme.{u}} {F : AlgebraicSpace S} (C : ClosedSubspace F) ,
+    LocallyClosedSubspace F)
 
-/-- The inclusion of `toLocallyClosed C` is the closed inclusion of `C`. -/
-theorem toLocallyClosed_ι {S : Scheme.{u}} {F : AlgebraicSpace S}
-    (C : ClosedSubspace F) : C.toLocallyClosed.ι = C.ι :=
-  sorry
+/- The inclusion of `toLocallyClosed C` is the closed inclusion of `C`. -/
+#check (AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.toLocallyClosed_ι : ∀ {S : Scheme.{u}} {F : AlgebraicSpace S}
+    (C : ClosedSubspace F) ,
+    C.toLocallyClosed.ι = C.ι)
 
-/-- The underlying algebraic space of `toLocallyClosed C` is that of `C`. -/
-theorem toLocallyClosed_X {S : Scheme.{u}} {F : AlgebraicSpace S}
-    (C : ClosedSubspace F) : C.toLocallyClosed.X = C.X :=
-  sorry
+/- The underlying algebraic space of `toLocallyClosed C` is that of `C`. -/
+#check (AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.toLocallyClosed_X : ∀ {S : Scheme.{u}} {F : AlgebraicSpace S}
+    (C : ClosedSubspace F) ,
+    C.toLocallyClosed.X = C.X)
 
 end AlgebraicGeometry.AlgebraicSpace.ClosedSubspace
 
@@ -75,10 +64,9 @@ namespace AlgebraicGeometry.GroupoidAlgebraicSpace
 
 /-- An open subspace `W ⊂ U` is invariant under a groupoid when the restriction of `t` to
 the inverse image of `W` along `s` factors through `W.ι`. -/
-def IsOpenInvariant {S : Scheme.{u}} {B : AlgebraicSpace S}
+abbrev IsOpenInvariant {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) (W : OpenSubspace G.U.left) : Prop :=
-  ∃ h : Limits.pullback W.ι G.s.left ⟶ W.X,
-    h ≫ W.ι = Limits.pullback.snd W.ι G.s.left ≫ G.t.left
+  CategoryTheory.Morphism.IsForwardInvariant G.s.left G.t.left W.ι
 
 /-- Open invariance unfolds to a factoring of the restricted target map through `W`. -/
 theorem isOpenInvariant_iff {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -86,14 +74,13 @@ theorem isOpenInvariant_iff {S : Scheme.{u}} {B : AlgebraicSpace S}
     G.IsOpenInvariant W ↔
       ∃ h : Limits.pullback W.ι G.s.left ⟶ W.X,
         h ≫ W.ι = Limits.pullback.snd W.ι G.s.left ≫ G.t.left :=
-  sorry
+  Iff.rfl
 
 /-- A locally closed subspace `Z ⊂ U` is invariant under a groupoid when the inverse images
 of `Z` along `t` and `s` agree as objects over the arrow space. -/
-def IsLocallyClosedInvariant {S : Scheme.{u}} {B : AlgebraicSpace S}
+abbrev IsLocallyClosedInvariant {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) : Prop :=
-  ∃ e : Limits.pullback Z.ι G.t.left ≅ Limits.pullback Z.ι G.s.left,
-    e.hom ≫ Limits.pullback.snd Z.ι G.s.left = Limits.pullback.snd Z.ι G.t.left
+  CategoryTheory.Morphism.IsPullbackInvariant G.s.left G.t.left Z.ι
 
 /-- Locally closed invariance unfolds to a commuting isomorphism of inverse images. -/
 theorem isLocallyClosedInvariant_iff {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -101,184 +88,162 @@ theorem isLocallyClosedInvariant_iff {S : Scheme.{u}} {B : AlgebraicSpace S}
     G.IsLocallyClosedInvariant Z ↔
       ∃ e : Limits.pullback Z.ι G.t.left ≅ Limits.pullback Z.ι G.s.left,
         e.hom ≫ Limits.pullback.snd Z.ι G.s.left = Limits.pullback.snd Z.ι G.t.left :=
-  sorry
+  Iff.rfl
 
-/-- For an open subspace, open invariance is equivalent to locally closed invariance of the
+/- For an open subspace, open invariance is equivalent to locally closed invariance of the
 underlying locally closed subspace. -/
-theorem isOpenInvariant_iff_isLocallyClosedInvariant {S : Scheme.{u}}
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.isOpenInvariant_iff_isLocallyClosedInvariant : ∀ {S : Scheme.{u}}
     {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
-    (W : OpenSubspace G.U.left) :
-    G.IsOpenInvariant W ↔ G.IsLocallyClosedInvariant W.toLocallyClosed :=
-  sorry
+    (W : OpenSubspace G.U.left) ,
+    G.IsOpenInvariant W ↔ G.IsLocallyClosedInvariant W.toLocallyClosed)
 
-
-/-- The locally closed subspace `Z ⊂ U` viewed as an object of `Over B` with structure map
+/- The locally closed subspace `Z ⊂ U` viewed as an object of `Over B` with structure map
 `Z.ι ≫ G.U.hom`. -/
-def overObj {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
-    (Z : LocallyClosedSubspace G.U.left) : Over B :=
-  Over.mk (Z.ι ≫ G.U.hom)
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.overObj : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
+    (Z : LocallyClosedSubspace G.U.left) ,
+    Over B)
 
-/-- The structure morphism of `overObj G Z` is `Z.ι ≫ G.U.hom`. -/
-theorem overObj_hom {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) :
-    (overObj G Z).hom = Z.ι ≫ G.U.hom :=
-  sorry
+/- The structure morphism of `overObj G Z` is `Z.ι ≫ G.U.hom`. -/
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.overObj_hom : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) ,
+    (overObj G Z).hom = Z.ι ≫ G.U.hom)
 
-/-- The underlying algebraic space of `overObj G Z` is `Z.X`. -/
-theorem overObj_left {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) :
-    (overObj G Z).left = Z.X :=
-  sorry
+/- The underlying algebraic space of `overObj G Z` is `Z.X`. -/
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.overObj_left : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) ,
+    (overObj G Z).left = Z.X)
 
-/-- The inclusion `Z ⊂ U` as a morphism of objects over `B`. -/
-def overι {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
-    (Z : LocallyClosedSubspace G.U.left) : overObj G Z ⟶ G.U :=
-  Over.homMk Z.ι rfl
+/- The inclusion `Z ⊂ U` as a morphism of objects over `B`. -/
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.overι : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
+    (Z : LocallyClosedSubspace G.U.left) ,
+    overObj G Z ⟶ G.U)
 
-/-- The underlying morphism of algebraic spaces of `overι G Z` is `Z.ι`. -/
-theorem overι_left {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) :
-    (overι G Z).left = Z.ι :=
-  sorry
+/- The underlying morphism of algebraic spaces of `overι G Z` is `Z.ι`. -/
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.overι_left : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) ,
+    (overι G Z).left = Z.ι)
 
-/-- Restriction of a groupoid in algebraic spaces to a locally closed subspace of its object
+/- Restriction of a groupoid in algebraic spaces to a locally closed subspace of its object
 space. -/
-def restrict {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
-    (Z : LocallyClosedSubspace G.U.left) : GroupoidAlgebraicSpace B :=
-  G.pullback (overι G Z)
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.restrict : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
+    (Z : LocallyClosedSubspace G.U.left) ,
+    GroupoidAlgebraicSpace B)
 
-/-- The restricted groupoid is the pullback of `G` along `overι G Z`. -/
-theorem restrict_eq {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) :
-    restrict G Z = G.pullback (overι G Z) :=
-  sorry
+/- The restricted groupoid is the pullback of `G` along `overι G Z`. -/
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.restrict_eq : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) ,
+    restrict G Z = G.pullback (overι G Z))
 
-/-- The object space of the restriction is `overObj G Z`. -/
-theorem restrict_U {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) :
-    (restrict G Z).U = overObj G Z :=
-  sorry
+/- The object space of the restriction is `overObj G Z`. -/
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.restrict_U : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) ,
+    (restrict G Z).U = overObj G Z)
 
-/-- The arrow space of the restriction is the pullback of the underlying pre-relation along
+/- The arrow space of the restriction is the pullback of the underlying pre-relation along
 `overι G Z`. -/
-theorem restrict_R {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) :
-    (restrict G Z).R = (G.toPreRelation.pullback (overι G Z)).left :=
-  sorry
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.restrict_R : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) ,
+    (restrict G Z).R = (G.toPreRelation.pullback (overι G Z)).left)
 
-/-- The canonical morphism of groupoids from the restriction to the original groupoid. -/
-def restrictHom {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
-    (Z : LocallyClosedSubspace G.U.left) : Hom (restrict G Z) G :=
-  pullbackHom G (overι G Z)
+/- The canonical morphism of groupoids from the restriction to the original groupoid. -/
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.restrictHom : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
+    (Z : LocallyClosedSubspace G.U.left) ,
+    Hom (restrict G Z) G)
 
-/-- The object component of `restrictHom G Z` is `overι G Z`. -/
-theorem restrictHom_obj {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) :
-    (restrictHom G Z).obj = overι G Z :=
-  sorry
+/- The object component of `restrictHom G Z` is `overι G Z`. -/
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.restrictHom_obj : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) ,
+    (restrictHom G Z).obj = overι G Z)
 
-/-- The arrow component of `restrictHom G Z` is the canonical pullback projection. -/
-theorem restrictHom_arrow {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) :
-    (restrictHom G Z).arrow = pullbackArrow G (overι G Z) :=
-  sorry
+/- The arrow component of `restrictHom G Z` is the canonical pullback projection. -/
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.restrictHom_arrow : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) ,
+    (restrictHom G Z).arrow = pullbackArrow G (overι G Z))
 
-/-- Restriction of a smooth groupoid to an `R`-invariant locally closed subspace remains
+/- Restriction of a smooth groupoid to an `R`-invariant locally closed subspace remains
 smooth. Invariance is required: without it the restricted source need not be smooth. -/
-theorem smooth_restrict {S : Scheme.{u}} {B : AlgebraicSpace S}
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.smooth_restrict : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) [Smooth G] (Z : LocallyClosedSubspace G.U.left)
-    (hZ : G.IsLocallyClosedInvariant Z) :
-    Smooth (restrict G Z) :=
-  sorry
+    (hZ : G.IsLocallyClosedInvariant Z) ,
+    Smooth (restrict G Z))
 
-/-- Restriction of a smooth groupoid to an `R`-invariant open subspace remains smooth. -/
-theorem smooth_restrict_open {S : Scheme.{u}} {B : AlgebraicSpace S}
+/- Restriction of a smooth groupoid to an `R`-invariant open subspace remains smooth. -/
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.smooth_restrict_open : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) [Smooth G] (W : OpenSubspace G.U.left)
-    (hW : G.IsOpenInvariant W) :
-    Smooth (restrict G W.toLocallyClosed) :=
-  sorry
+    (hW : G.IsOpenInvariant W) ,
+    Smooth (restrict G W.toLocallyClosed))
 
-/-- The source square of `restrictHom G Z` is cartesian if and only if `Z` is locally closed
+/- The source square of `restrictHom G Z` is cartesian if and only if `Z` is locally closed
 invariant. -/
-theorem isPullback_restrictHom_source_iff {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) :
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.isPullback_restrictHom_source_iff : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left) ,
     IsPullback (restrictHom G Z).arrow (restrict G Z).s G.s (restrictHom G Z).obj ↔
-      G.IsLocallyClosedInvariant Z :=
-  sorry
+      G.IsLocallyClosedInvariant Z)
 
-/-- If `Z` is locally closed invariant, the source square of `restrictHom G Z` is cartesian. -/
-theorem isPullback_restrictHom_source {S : Scheme.{u}} {B : AlgebraicSpace S}
+/- If `Z` is locally closed invariant, the source square of `restrictHom G Z` is cartesian. -/
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.isPullback_restrictHom_source : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left)
-    (hZ : G.IsLocallyClosedInvariant Z) :
-    IsPullback (restrictHom G Z).arrow (restrict G Z).s G.s (restrictHom G Z).obj :=
-  sorry
+    (hZ : G.IsLocallyClosedInvariant Z) ,
+    IsPullback (restrictHom G Z).arrow (restrict G Z).s G.s (restrictHom G Z).obj)
 
-/-- If `Z` is locally closed invariant, the underlying algebraic-space source square of
+/- If `Z` is locally closed invariant, the underlying algebraic-space source square of
 `restrictHom G Z` is cartesian. -/
-theorem isPullback_restrictHom_source_left {S : Scheme.{u}} {B : AlgebraicSpace S}
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.isPullback_restrictHom_source_left : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left)
-    (hZ : G.IsLocallyClosedInvariant Z) :
-    IsPullback (restrict G Z).s.left (restrictHom G Z).arrow.left Z.ι G.s.left :=
-  sorry
+    (hZ : G.IsLocallyClosedInvariant Z) ,
+    IsPullback (restrict G Z).s.left (restrictHom G Z).arrow.left Z.ι G.s.left)
 
-/-- If `Z` is locally closed invariant, the underlying algebraic-space target square of
+/- If `Z` is locally closed invariant, the underlying algebraic-space target square of
 `restrictHom G Z` is cartesian. -/
-theorem isPullback_restrictHom_target_left {S : Scheme.{u}} {B : AlgebraicSpace S}
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.isPullback_restrictHom_target_left : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left)
-    (hZ : G.IsLocallyClosedInvariant Z) :
-    IsPullback (restrict G Z).t.left (restrictHom G Z).arrow.left Z.ι G.t.left :=
-  sorry
+    (hZ : G.IsLocallyClosedInvariant Z) ,
+    IsPullback (restrict G Z).t.left (restrictHom G Z).arrow.left Z.ι G.t.left)
 
-/-- If `Z` is locally closed invariant, the restricted arrow space identifies with the inverse
+/- If `Z` is locally closed invariant, the restricted arrow space identifies with the inverse
 image of `Z` along the source map. -/
-def restrict_arrowIso_sourceInverseImage {S : Scheme.{u}} {B : AlgebraicSpace S}
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.restrict_arrowIso_sourceInverseImage : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left)
-    (hZ : G.IsLocallyClosedInvariant Z) :
-    (restrict G Z).R.left ≅ Limits.pullback Z.ι G.s.left :=
-  (isPullback_restrictHom_source_left G Z hZ).isoPullback
+    (hZ : G.IsLocallyClosedInvariant Z) ,
+    (restrict G Z).R.left ≅ Limits.pullback Z.ι G.s.left)
 
-/-- The comparison isomorphism to `s⁻¹(Z)` commutes with the maps to `G.R`. -/
-theorem restrict_arrowIso_sourceInverseImage_hom_comp_snd {S : Scheme.{u}}
+/- The comparison isomorphism to `s⁻¹(Z)` commutes with the maps to `G.R`. -/
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.restrict_arrowIso_sourceInverseImage_hom_comp_snd : ∀ {S : Scheme.{u}}
     {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
-    (Z : LocallyClosedSubspace G.U.left) (hZ : G.IsLocallyClosedInvariant Z) :
+    (Z : LocallyClosedSubspace G.U.left) (hZ : G.IsLocallyClosedInvariant Z) ,
     (restrict_arrowIso_sourceInverseImage G Z hZ).hom ≫
       Limits.pullback.snd Z.ι G.s.left =
-    (restrictHom G Z).arrow.left :=
-  sorry
+    (restrictHom G Z).arrow.left)
 
-/-- The comparison isomorphism to `s⁻¹(Z)` recovers the restricted source map. -/
-theorem restrict_arrowIso_sourceInverseImage_hom_comp_fst {S : Scheme.{u}}
+/- The comparison isomorphism to `s⁻¹(Z)` recovers the restricted source map. -/
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.restrict_arrowIso_sourceInverseImage_hom_comp_fst : ∀ {S : Scheme.{u}}
     {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
-    (Z : LocallyClosedSubspace G.U.left) (hZ : G.IsLocallyClosedInvariant Z) :
+    (Z : LocallyClosedSubspace G.U.left) (hZ : G.IsLocallyClosedInvariant Z) ,
     (restrict_arrowIso_sourceInverseImage G Z hZ).hom ≫
       Limits.pullback.fst Z.ι G.s.left =
-    (restrict G Z).s.left :=
-  sorry
+    (restrict G Z).s.left)
 
-/-- If `Z` is locally closed invariant, the restricted arrow space identifies with the inverse
+/- If `Z` is locally closed invariant, the restricted arrow space identifies with the inverse
 image of `Z` along the target map. -/
-def restrict_arrowIso_targetInverseImage {S : Scheme.{u}} {B : AlgebraicSpace S}
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.restrict_arrowIso_targetInverseImage : ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) (Z : LocallyClosedSubspace G.U.left)
-    (hZ : G.IsLocallyClosedInvariant Z) :
-    (restrict G Z).R.left ≅ Limits.pullback Z.ι G.t.left :=
-  (isPullback_restrictHom_target_left G Z hZ).isoPullback
+    (hZ : G.IsLocallyClosedInvariant Z) ,
+    (restrict G Z).R.left ≅ Limits.pullback Z.ι G.t.left)
 
-/-- The comparison isomorphism to `t⁻¹(Z)` commutes with the maps to `G.R`. -/
-theorem restrict_arrowIso_targetInverseImage_hom_comp_snd {S : Scheme.{u}}
+/- The comparison isomorphism to `t⁻¹(Z)` commutes with the maps to `G.R`. -/
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.restrict_arrowIso_targetInverseImage_hom_comp_snd : ∀ {S : Scheme.{u}}
     {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
-    (Z : LocallyClosedSubspace G.U.left) (hZ : G.IsLocallyClosedInvariant Z) :
+    (Z : LocallyClosedSubspace G.U.left) (hZ : G.IsLocallyClosedInvariant Z) ,
     (restrict_arrowIso_targetInverseImage G Z hZ).hom ≫
       Limits.pullback.snd Z.ι G.t.left =
-    (restrictHom G Z).arrow.left :=
-  sorry
+    (restrictHom G Z).arrow.left)
 
-/-- The comparison isomorphism to `t⁻¹(Z)` recovers the restricted target map. -/
-theorem restrict_arrowIso_targetInverseImage_hom_comp_fst {S : Scheme.{u}}
+/- The comparison isomorphism to `t⁻¹(Z)` recovers the restricted target map. -/
+#check (AlgebraicGeometry.GroupoidAlgebraicSpace.restrict_arrowIso_targetInverseImage_hom_comp_fst : ∀ {S : Scheme.{u}}
     {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
-    (Z : LocallyClosedSubspace G.U.left) (hZ : G.IsLocallyClosedInvariant Z) :
+    (Z : LocallyClosedSubspace G.U.left) (hZ : G.IsLocallyClosedInvariant Z) ,
     (restrict_arrowIso_targetInverseImage G Z hZ).hom ≫
       Limits.pullback.fst Z.ι G.t.left =
-    (restrict G Z).t.left :=
-  sorry
+    (restrict G Z).t.left)
 
 end AlgebraicGeometry.GroupoidAlgebraicSpace

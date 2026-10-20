@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.TStructure
@@ -112,10 +106,10 @@ noncomputable def selfTruncGEComparison :
   truncGEComparison (S := S) (S' := S')
     ((Algebra.naiveCotangent R S).extend embeddingDownNat)
 
-/-- Lemma 15.86.1 (1) (0FUY): after lower truncation at degree `-1`, the canonical
+/-- After lower truncation at degree `-1`, the canonical
 derived-to-underived base-change comparison for `NL{S⁄R}` is an isomorphism. -/
 @[stacks 0FUY "(1), self-presentation truncation comparison"]
-theorem selfTruncGEComparison_isIso :
+instance selfTruncGEComparison_isIso :
     IsIso (selfTruncGEComparison (R := R) (S := S) (S' := S')) := sorry
 /- Proof strategy: identify `selfTruncGEComparison` with truncation of
 `ModuleCat.derivedExtensionComplexCounit`.  The cone of the counit has no cohomology in degrees
@@ -159,10 +153,10 @@ noncomputable def presentationTruncGEComparison (P : Presentation R S ι κ) :
   truncGEComparison (S := S) (S' := S')
     ((Extension.NaiveCotangent.complex P.toExtension).extend embeddingDownNat)
 
-/-- Lemma 15.86.1 (2) (0FUY): after lower truncation at degree `-1`, the canonical
+/-- After lower truncation at degree `-1`, the canonical
 derived-to-underived base-change comparison for any chosen presentation is an isomorphism. -/
 @[stacks 0FUY "(2), presentation truncation comparison"]
-theorem presentationTruncGEComparison_isIso (P : Presentation R S ι κ) :
+instance presentationTruncGEComparison_isIso (P : Presentation R S ι κ) :
     IsIso (presentationTruncGEComparison (S' := S') P) := sorry
 /- Proof strategy: repeat the counit-cone argument for the chosen presentation.  Use the explicit
 two-term presentation model to show that the cone is below degree `-1`, then invoke the

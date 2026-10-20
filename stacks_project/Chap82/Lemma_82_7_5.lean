@@ -1,21 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Topology.LocallyFinite
-public import Mathlib.Topology.Sets.Closeds
-public import ReasLib.Topology.Specialization.Dimension
-public import stacks_project.Chap65.Definition_65_13_2_Separation
-public import stacks_project.Chap66.Lemma_66_4_6_Topology
-public import stacks_project.Chap67.Definition_67_4_2_Separation
-public import stacks_project.Chap67.Definition_67_8_2_QuasiCompact
-public import stacks_project.Chap67.Definition_67_40_1_FiniteType
-public import stacks_project.Chap68.Definition_68_25_4_UniversallyCatenary
-public import stacks_project.Chap76.Lemma_76_32_2_DimensionFunction
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.QuasiCompact.LocallyFinite
+import StacksCheckRecall
 
 /-!
 # Closures of images of locally finite closed families
@@ -31,21 +17,20 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Topologic
 
 universe u v
 
-namespace AlgebraicGeometry.AlgebraicSpace.Hom
+/- Lemma 82.7.5: In Situation 82.2.1, `S` is a scheme and `B` is a quasi-separated,
+locally Noetherian, universally catenary algebraic space over `S`, equipped with a
+dimension function `δ : Points B → ℤ`. Let `X, Y / B` be good: their structure morphisms
+`pX : X ⟶ B` and `pY : Y ⟶ B` are quasi-separated and locally of finite type. Let
+`f : X ⟶ Y` be a morphism over `B`, so `f ≫ pY = pX`. If `f` is quasi-compact and
+`T` is a locally finite family of closed subsets of `Points X`, the closures of their
+images form a locally finite family of closed subsets of `Points Y`.
 
-/-- Lemma 82.7.5: In Situation 82.2.1 let `X, Y / B` be good. Let `f : X ⟶ Y` be a
-morphism over `B`. Assume `f` is quasi-compact, and `{T i}` is a locally finite
-collection of closed subsets of `Points X`. Then `{closure (Points.map f '' T i)}`
-is a locally finite collection of closed subsets of `Points Y`. -/
-@[stacks 0ENZ]
-theorem locallyFinite_closure_image {S : Scheme.{u}} {B X Y : AlgebraicSpace S}
-    [UniversallyCatenary B] [IsQuasiSeparated B]
-    (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
-    (pY : Y ⟶ B) [QuasiSeparated pY] [LocallyOfFiniteType pY]
-    (δ : Points B → ℤ) [IsDimensionFunction δ] (f : X ⟶ Y) (hf : f ≫ pY = pX)
-    [QuasiCompact f] {I : Type v} (T : I → Closeds (Points X))
-    (hT : LocallyFinite (fun i ↦ (T i : Set (Points X)))) :
-    LocallyFinite (fun i ↦ closure (Points.map f '' (T i : Set (Points X)))) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Hom
+The checked theorem holds for any quasi-compact morphism of algebraic spaces over a
+scheme, so it implies this specialization without the additional base and goodness
+assumptions. Each resulting subset is closed because it is a closure. -/
+@[stacks 0ENZ] #check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.locallyFinite_closure_image :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [QuasiCompact f]
+      {I : Type v} (T : I → Closeds (Points X)),
+      LocallyFinite (fun i ↦ (T i : Set (Points X))) →
+        LocallyFinite (fun i ↦ closure (Points.map f '' (T i : Set (Points X)))))

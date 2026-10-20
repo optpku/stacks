@@ -1,19 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_9_1_Immersion
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Immersion
+import StacksCheckRecall
 
 /-!
 # Base change of immersions of algebraic stacks
 
-Closed immersions and open immersions of algebraic stacks are stable under
-arbitrary 2-fibre-product base change.
+Immersions, closed immersions, and open immersions of algebraic stacks are
+stable under arbitrary two-fibre-product base change.
 -/
 
 @[expose] public section
@@ -21,38 +15,30 @@ arbitrary 2-fibre-product base change.
 open CategoryTheory AlgebraicGeometry
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
 namespace AlgebraicGeometry.Groupoids.Hom
 
-namespace ClosedImmersion
-
-/-- Lemma 100.9.2 (1): if `f : X ⟶ Y` is a morphism of algebraic stacks and
-`i : Z ⟶ Y` is a closed immersion, then the 2-fibre-product projection
-`TwoFibreProduct.snd i f : Z ×_Y X ⟶ X` is a closed immersion. -/
-@[stacks 0501]
-instance twoFibreProduct_snd {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+/- Lemma 100.9.2. Base change of an immersion of algebraic stacks is an
+immersion; the same holds for closed and open immersions. -/
+@[stacks 0501] #check (AlgebraicGeometry.Groupoids.Hom.Immersion.twoFibreProduct_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (i : Z ⟶ Y) [ClosedImmersion i] :
-    ClosedImmersion (TwoFibreProduct.snd.{u + 1, u, u + 1, u} i f) :=
-  sorry
+    (f : X ⟶ Y) (i : Z ⟶ Y) [Immersion i],
+    Immersion (TwoFibreProduct.snd.{u + 1, u, u + 1, u} i f))
 
-end ClosedImmersion
-
-namespace OpenImmersion
-
-/-- Lemma 100.9.2 (2): if `f : X ⟶ Y` is a morphism of algebraic stacks and
-`i : Z ⟶ Y` is an open immersion, then the 2-fibre-product projection
-`TwoFibreProduct.snd i f : Z ×_Y X ⟶ X` is an open immersion. -/
-@[stacks 0501]
-instance twoFibreProduct_snd {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+/- Lemma 100.9.2, closed immersion case. -/
+@[stacks 0501] #check (AlgebraicGeometry.Groupoids.Hom.ClosedImmersion.twoFibreProduct_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (i : Z ⟶ Y) [OpenImmersion i] :
-    OpenImmersion (TwoFibreProduct.snd.{u + 1, u, u + 1, u} i f) :=
-  sorry
+    (f : X ⟶ Y) (i : Z ⟶ Y) [ClosedImmersion i],
+    ClosedImmersion (TwoFibreProduct.snd.{u + 1, u, u + 1, u} i f))
 
-end OpenImmersion
+/- Lemma 100.9.2, open immersion case. -/
+@[stacks 0501] #check (AlgebraicGeometry.Groupoids.Hom.OpenImmersion.twoFibreProduct_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
+    (f : X ⟶ Y) (i : Z ⟶ Y) [OpenImmersion i],
+    OpenImmersion (TwoFibreProduct.snd.{u + 1, u, u + 1, u} i f))
 
 end AlgebraicGeometry.Groupoids.Hom

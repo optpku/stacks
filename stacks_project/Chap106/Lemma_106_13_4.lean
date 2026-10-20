@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Affine
-public import stacks_project.Chap101.Definition_101_4_1_Separation
-public import stacks_project.Chap101.Definition_101_7_2_QuasiCompact
-public import stacks_project.Chap101.Definition_101_15_2_UniversalHomeomorphism
-public import stacks_project.Chap106.Definition_106_12_1_Moduli
-public import stacks_project.Chap106.Definition_106_13_1_WellNighAffine
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.WellNighAffine.Moduli
+import StacksCheckRecall
 
 /-!
 # Uniform categorical moduli spaces of well-nigh affine stacks
@@ -30,50 +20,36 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.IsWellNighAffine
+open AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 106.13.4 (1). Let the algebraic stack `X` be well-nigh affine. There
+/- Lemma 106.13.4. Let the algebraic stack `X` be well-nigh affine. There
 exists a uniform categorical moduli space `f : X ⟶ M.toGroupoids` in the
-category of affine schemes. -/
-@[stacks 0DUP]
-theorem exists_isUniformCategoricalModuliSpaceIn_isAffine
-    {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
-    [IsWellNighAffine X] :
+category of affine schemes. The morphism is separated, quasi-compact, and a
+universal homeomorphism. -/
+@[stacks 0DUP] #check
+  (AlgebraicGeometry.AlgebraicStack.IsWellNighAffine.exists_isUniformCategoricalModuliSpaceIn_isAffine :
+    ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
+      [IsWellNighAffine X],
     ∃ (M : AlgebraicSpace S) (f : X ⟶ M.toGroupoids),
-      IsUniformCategoricalModuliSpaceIn (@AlgebraicSpace.IsAffine S) f :=
-  sorry
+      IsUniformCategoricalModuliSpaceIn AlgebraicSpace.IsAffine f)
 
-/-- Lemma 106.13.4 (2). Let the algebraic stack `X` be well-nigh affine. A
-uniform categorical moduli space `f : X ⟶ M.toGroupoids` in the category of
-affine schemes is separated. -/
-@[stacks 0DUP, instance]
-instance instSeparated {S : Scheme.{u}} {X : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.IsWellNighAffine.instSeparated :
+    ∀ {S : Scheme.{u}} {X : GroupoidsOver S}
     [AlgebraicStack X] [IsWellNighAffine X] {M : AlgebraicSpace S}
     (f : X ⟶ M.toGroupoids)
-    [IsUniformCategoricalModuliSpaceIn (@AlgebraicSpace.IsAffine S) f] :
-    Separated f :=
-  sorry
+    [IsUniformCategoricalModuliSpaceIn AlgebraicSpace.IsAffine f],
+    Separated f)
 
-/-- Lemma 106.13.4 (3). Let the algebraic stack `X` be well-nigh affine. A
-uniform categorical moduli space `f : X ⟶ M.toGroupoids` in the category of
-affine schemes is quasi-compact. -/
-@[stacks 0DUP, instance]
-instance instQuasiCompact {S : Scheme.{u}} {X : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.IsWellNighAffine.instQuasiCompact :
+    ∀ {S : Scheme.{u}} {X : GroupoidsOver S}
     [AlgebraicStack X] [IsWellNighAffine X] {M : AlgebraicSpace S}
     (f : X ⟶ M.toGroupoids)
-    [IsUniformCategoricalModuliSpaceIn (@AlgebraicSpace.IsAffine S) f] :
-    QuasiCompact f :=
-  sorry
+    [IsUniformCategoricalModuliSpaceIn AlgebraicSpace.IsAffine f],
+    QuasiCompact f)
 
-/-- Lemma 106.13.4 (4). Let the algebraic stack `X` be well-nigh affine. A
-uniform categorical moduli space `f : X ⟶ M.toGroupoids` in the category of
-affine schemes is a universal homeomorphism. -/
-@[stacks 0DUP, instance]
-instance instUniversalHomeomorphism {S : Scheme.{u}} {X : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.IsWellNighAffine.instUniversalHomeomorphism :
+    ∀ {S : Scheme.{u}} {X : GroupoidsOver S}
     [AlgebraicStack X] [IsWellNighAffine X] {M : AlgebraicSpace S}
     (f : X ⟶ M.toGroupoids)
-    [IsUniformCategoricalModuliSpaceIn (@AlgebraicSpace.IsAffine S) f] :
-    UniversalHomeomorphism f :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.IsWellNighAffine
+    [IsUniformCategoricalModuliSpaceIn AlgebraicSpace.IsAffine f],
+    UniversalHomeomorphism f)

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.LocallyOfFinitePresentation
@@ -28,7 +22,7 @@ open CategoryTheory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.SmallEtale.LocallyOfFinitePresentation
+namespace AlgebraicGeometry.AlgebraicSpace.LocallyOfFinitePresentation
 
 variable {S : Scheme.{u}} {X Y V : AlgebraicSpace S}
 
@@ -39,8 +33,8 @@ theorem of_restrict_of_flat (f : X ⟶ Y) [LocallyOfFiniteType f] [Flat f]
     (ι : V ⟶ Y) (h_open : Representable.IsOpenImmersion ι)
     (h_quasiCompact : Representable.QuasiCompact ι)
     (h_dense : Open.IsSchemeTheoreticallyDense ι)
-    (h_restrict : LocallyOfFinitePresentation (Open.inverseImageTo f ι h_open)) :
+    [LocallyOfFinitePresentation (Open.inverseImageTo f ι h_open)] :
     LocallyOfFinitePresentation f :=
   sorry
 
-end AlgebraicGeometry.AlgebraicSpace.SmallEtale.LocallyOfFinitePresentation
+end AlgebraicGeometry.AlgebraicSpace.LocallyOfFinitePresentation

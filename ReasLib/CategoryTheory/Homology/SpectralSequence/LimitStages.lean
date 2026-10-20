@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Homology.SpectralSequence.PageFiltration
@@ -171,34 +165,35 @@ theorem infinityPage_isIsomorphic (L : LimitStages E) (pq : κ) :
 
 end LimitStages
 
-/-- Complete subobject lattices give the coordinatewise canonical spectral-sequence limit
-stages. -/
+section Canonical
+
+variable [LocallySmall.{v} C] [WellPowered.{v} C]
+  [HasWidePullbacks.{v} C] [HasCoproducts.{v} C]
+
+/-- The canonical complete subobject lattice gives coordinatewise spectral-sequence limit stages. -/
 @[stacks 012Q "canonical limit stages"]
-noncomputable def canonicalLimitStages (E : SpectralSequence C c 1)
-    [∀ pq : κ, CompleteLattice (Subobject (E.pageObject pq 1))] : LimitStages E :=
-  fun pq ↦ @HomologyPageTower.LimitStages.canonical _ _ _ (E.homologyPageTower pq)
-    (HomologyTower.pageOneCompleteLattice E pq)
+noncomputable def canonicalLimitStages (E : SpectralSequence C c 1) : LimitStages E :=
+  fun pq ↦ HomologyPageTower.LimitStages.canonical (E.homologyPageTower pq)
 
 /-- The boundary component of canonical spectral-sequence limit stages is the existing
 supremum-defined eventual boundary. -/
 @[simp, stacks 012Q "canonical spectral-sequence limit boundary"]
-theorem canonicalLimitStages_boundary (E : SpectralSequence C c 1) (pq : κ)
-    [∀ pq : κ, CompleteLattice (Subobject (E.pageObject pq 1))] :
+theorem canonicalLimitStages_boundary (E : SpectralSequence C c 1) (pq : κ) :
     (canonicalLimitStages E).boundary pq = E.boundaryInfinity pq := sorry
 
 /-- The cycle component of canonical spectral-sequence limit stages is the existing
 infimum-defined eventual cycle. -/
 @[simp, stacks 012Q "canonical spectral-sequence limit cycle"]
-theorem canonicalLimitStages_cycle (E : SpectralSequence C c 1) (pq : κ)
-    [∀ pq : κ, CompleteLattice (Subobject (E.pageObject pq 1))] :
+theorem canonicalLimitStages_cycle (E : SpectralSequence C c 1) (pq : κ) :
     (canonicalLimitStages E).cycle pq = E.cycleInfinity pq := sorry
 
 /-- The infinity-page entry from canonical spectral-sequence limit stages is the existing
 canonical infinity-page entry. -/
 @[simp, stacks 012Q "canonical spectral-sequence infinity page"]
-theorem canonicalLimitStages_infinityPage (E : SpectralSequence C c 1) (pq : κ)
-    [∀ pq : κ, CompleteLattice (Subobject (E.pageObject pq 1))] :
+theorem canonicalLimitStages_infinityPage (E : SpectralSequence C c 1) (pq : κ) :
     (canonicalLimitStages E).infinityPage pq = E.infinityPage pq := sorry
+
+end Canonical
 
 end SpectralSequence
 end CategoryTheory

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.SequentialInverse
@@ -85,9 +79,41 @@ section
 
 variable [Abelian C] [HasCountableProducts C]
 
-/-- The product short complex of a sequential inverse filtration is short exact. -/
-theorem shortExact {I : C} {admissibleEpi : MorphismProperty C}
+/-- The product comparison of a sequential inverse filtration is a monomorphism: the presented
+object is the limit of its quotient tower. -/
+instance mono_comparison {I : C} {admissibleEpi : MorphismProperty C}
     {pieceProperty : C → Prop} (F : SequentialInverseFiltration I admissibleEpi pieceProperty) :
+    Mono (comparison F) := sorry
+
+/-- The product short complex of a sequential inverse filtration is exact in the middle: the
+presented object, being the limit of the tower, is the kernel of the Milnor difference map.  This
+left-exact part holds for every tower; surjectivity of the difference map (vanishing of `lim¹`)
+does not, see `shortExact_of_map_isSplitEpi`. -/
+theorem exact {I : C} {admissibleEpi : MorphismProperty C}
+    {pieceProperty : C → Prop} (F : SequentialInverseFiltration I admissibleEpi pieceProperty) :
+    (shortComplex F).Exact := sorry
+
+/-- The product short complex of a sequential inverse filtration is short exact as soon as some
+faithful additive functor preserving the product of the quotient stages sends every successor
+transition to a split epimorphism.  The Milnor difference map is then epic, since its image is
+split epic by `SequentialInverseSystem.map_milnorDifferenceMap_isSplitEpi`.
+
+Some splitting hypothesis is necessary: epic transitions alone (hence the Mittag-Leffler
+condition) do not make the difference map epic in a general abelian category with countable
+products, even one with exact products (Neeman's counterexample, cited in Stacks, Homology,
+Definition `definition-Mittag-Leffler`). -/
+theorem shortExact_of_map_isSplitEpi {D : Type*} [Category D] [Preadditive D]
+    {I : C} {admissibleEpi : MorphismProperty C} {pieceProperty : C → Prop}
+    (F : SequentialInverseFiltration I admissibleEpi pieceProperty) (G : C ⥤ D)
+    [G.Additive] [G.Faithful] [PreservesLimit (Discrete.functor F.tower.family) G]
+    (hsplit : ∀ n : ℕ, IsSplitEpi (G.map (F.tower.stepMap n))) :
+    (shortComplex F).ShortExact := sorry
+
+/-- The product short complex of a sequential inverse filtration whose successor transitions are
+split epimorphisms is short exact. -/
+theorem shortExact {I : C} {admissibleEpi : MorphismProperty C}
+    {pieceProperty : C → Prop} (F : SequentialInverseFiltration I admissibleEpi pieceProperty)
+    (hsplit : ∀ n : ℕ, IsSplitEpi (F.tower.stepMap n)) :
     (shortComplex F).ShortExact := sorry
 
 end

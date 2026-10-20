@@ -1,23 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap59.Lemma_59_103_6
-public import stacks_project.Chap59.Lemma_59_39_1
-public import ReasLib.CategoryTheory.Sites.Derived.Sections
-public import Mathlib.CategoryTheory.Sites.ConstantSheaf
-public import Mathlib.GroupTheory.Torsion
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.H.CohomologyComparison
+import StacksCheckRecall
 
 @[expose] public section
 
 open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
 open AlgebraicGeometry.Scheme
-open AlgebraicGeometry.Scheme.HComparison
 open CategoryTheory.GrothendieckTopology
 open CategoryTheory.Sheaf
 open scoped GrothendieckTopologyDerivedSections
@@ -26,56 +15,55 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.Scheme.HComparison
+/- Lemma 59.103.7
+   For a scheme X, étale and h cohomology agree for locally torsion coefficients. -/
+@[stacks 0EWH] #check
+  (AlgebraicGeometry.Scheme.HComparison.cohomology_aInverseImage :
+    ∀ {X : Scheme.{u}}
+      (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1}),
+      F.IsLocallyTorsion → (q : ℕ) →
+      IsIsomorphic
+        (((siteAbelianSectionsFunctor X.smallEtaleTopology
+            (AlgebraicGeometry.Scheme.Etale.globalEtale X)).rightDerived q).obj F)
+        (((siteAbelianSectionsFunctor (hPrecoverage.toGrothendieck.over X)
+            (Over.mk (𝟙 X))).rightDerived q).obj
+          ((AlgebraicGeometry.Scheme.HComparison.aInverseImage X).obj F)))
 
-/-- The constant abelian sheaf on the small étale site of a torsion abelian group is
-locally torsion. -/
-theorem constantSheaf_isLocallyTorsion {X : Scheme.{u}}
-    (A : AddCommGrpCat.{u + 1}) (hA : AddMonoid.IsTorsion A) :
-    ((constantSheaf X.smallEtaleTopology AddCommGrpCat.{u + 1}).obj A).IsLocallyTorsion :=
-  sorry
+#check
+  (AlgebraicGeometry.Scheme.HComparison.plusCohomology_aInverseImage :
+    ∀ {X : Scheme.{u}}
+      (K : DerivedCategory.Plus (Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1})),
+      DerivedCategory.Plus.cohomologyIn (Sheaf.torsion X.smallEtaleTopology) K → (q : ℤ) →
+      IsIsomorphic
+        ((DerivedCategory.homologyFunctor AddCommGrpCat.{u + 1} q).obj
+          ((RΓ[X.smallEtaleTopology](AlgebraicGeometry.Scheme.Etale.globalEtale X)).obj
+            (DerivedCategory.Plus.ι.obj K)))
+        ((DerivedCategory.homologyFunctor AddCommGrpCat.{u + 1} q).obj
+          ((RΓ[hPrecoverage.toGrothendieck.over X](Over.mk (𝟙 X))).obj
+            (DerivedCategory.Plus.ι.obj
+              ((AlgebraicGeometry.Scheme.HComparison.plusAInverseImage X).obj K)))))
 
-/-- Lemma 59.103.7 (1): for a scheme `X` and a torsion abelian sheaf `F` on `X_étale`,
-étale cohomology `H^q(X_étale, F)` agrees with h-cohomology `H^q_h(X, a_X⁻¹ F)`. -/
-@[stacks 0EWH]
-theorem cohomology_aInverseImage {X : Scheme.{u}}
-    (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1})
-    (hF : F.IsLocallyTorsion) (q : ℕ) :
-    IsIsomorphic
-      (((siteAbelianSectionsFunctor X.smallEtaleTopology (globalEtale X)).rightDerived q).obj F)
-      (((siteAbelianSectionsFunctor (hPrecoverage.toGrothendieck.over X)
-          (Over.mk (𝟙 X))).rightDerived q).obj ((aInverseImage X).obj F)) := sorry
-
-/-- Lemma 59.103.7 (2): for a scheme `X` and `K ∈ D⁺(X_étale)` with torsion cohomology
-sheaves, étale hypercohomology `H^q(X_étale, K)` agrees with h-hypercohomology
-`H^q_h(X, a_X⁻¹ K)`. -/
-@[stacks 0EWH]
-theorem plusCohomology_aInverseImage {X : Scheme.{u}}
-    (K : DerivedCategory.Plus (Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1}))
-    (hK : DerivedCategory.Plus.cohomologyIn (Sheaf.torsion X.smallEtaleTopology) K)
-    (q : ℤ) :
-    IsIsomorphic
-      ((DerivedCategory.homologyFunctor AddCommGrpCat.{u + 1} q).obj
-        ((RΓ[X.smallEtaleTopology](globalEtale X)).obj (DerivedCategory.Plus.ι.obj K)))
-      ((DerivedCategory.homologyFunctor AddCommGrpCat.{u + 1} q).obj
-        ((RΓ[hPrecoverage.toGrothendieck.over X](Over.mk (𝟙 X))).obj
-          (DerivedCategory.Plus.ι.obj ((plusAInverseImage X).obj K)))) := sorry
-
-/-- Lemma 59.103.7 (3): for a scheme `X` and a torsion abelian group `A`, étale
-cohomology of the constant sheaf with value `A` agrees with h-cohomology of
-the constant sheaf with value `A`. -/
-@[stacks 0EWH]
-theorem cohomology_constant {X : Scheme.{u}}
-    (A : AddCommGrpCat.{u + 1}) (hA : AddMonoid.IsTorsion A) (q : ℕ) :
-    IsIsomorphic
-      (((siteAbelianSectionsFunctor X.smallEtaleTopology (globalEtale X)).rightDerived q).obj
-        ((constantSheaf X.smallEtaleTopology AddCommGrpCat.{u + 1}).obj A))
-      (((siteAbelianSectionsFunctor (hPrecoverage.toGrothendieck.over X)
-          (Over.mk (𝟙 X))).rightDerived q).obj
-        ((constantSheaf (hPrecoverage.toGrothendieck.over X) AddCommGrpCat.{u + 1}).obj A)) :=
-    sorry
-
-end AlgebraicGeometry.Scheme.HComparison
+#check
+  (AlgebraicGeometry.Scheme.HComparison.cohomology_constant :
+    ∀ {X : Scheme.{u}} (A : AddCommGrpCat.{u + 1})
+      (hA : AddMonoid.IsTorsion A) (q : ℕ),
+      -- Local instance justification (search instability): pin the canonical small-étale sheafification proof because global weak-sheafification search times out while elaborating derived sections.
+      letI : HasWeakSheafify X.smallEtaleTopology AddCommGrpCat.{u + 1} :=
+        @HasSheafify.isRightAdjoint _ _ X.smallEtaleTopology AddCommGrpCat.{u + 1} _
+          (PhComparison.smallEtale_hasSheafify_addCommGrp X)
+      -- Local instance justification (search instability): pin the canonical h-slice sheafification proof because global weak-sheafification search times out while elaborating derived sections.
+      letI : HasWeakSheafify (hPrecoverage.toGrothendieck.over X)
+          AddCommGrpCat.{u + 1} :=
+        @HasSheafify.isRightAdjoint _ _ (hPrecoverage.toGrothendieck.over X)
+          AddCommGrpCat.{u + 1} _ (HComparison.hOver_hasSheafify_addCommGrp X)
+      IsIsomorphic
+        (((siteAbelianSectionsFunctor X.smallEtaleTopology
+            (AlgebraicGeometry.Scheme.Etale.globalEtale X)).rightDerived q).obj
+          ((constantSheaf X.smallEtaleTopology AddCommGrpCat.{u + 1}).obj A))
+        (((siteAbelianSectionsFunctor (hPrecoverage.toGrothendieck.over X)
+            (Over.mk (𝟙 X))).rightDerived q).obj
+          ((constantSheaf (hPrecoverage.toGrothendieck.over X)
+            AddCommGrpCat.{u + 1}).obj A)))
 
 end
 

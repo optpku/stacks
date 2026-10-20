@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap106.Example_106_3_6_Reduction
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Reduction.Thickening
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,23 +14,25 @@ universe u
 /- Example 106.3.6 (1): if `X'` is an algebraic stack, then `X'` is a thickening
 of its reduction, recovered as `IsThickening (reductionι X')`. -/
 @[stacks 0BPT] #check
-  (instIsThickening_reductionι : ∀ {S : Scheme.{u}} (X : GroupoidsOver S)
+  (AlgebraicGeometry.AlgebraicStack.instIsThickening_reductionι :
+    ∀ {S : Scheme.{u}} (X : GroupoidsOver S)
     [AlgebraicStack X], IsThickening (reductionι X))
 
 /- Example 106.3.6 (2): if `i : X ⟶ X'` is a thickening of algebraic stacks,
 then the reduced induced closed substacks agree after viewing the reduction of
 `X` inside `X'` via `reductionι X ≫ i`. -/
 @[stacks 0BPT] #check
-  (IsThickening.reduction_image_eq : ∀ {S : Scheme.{u}} {X X' : GroupoidsOver S}
+  (AlgebraicGeometry.AlgebraicStack.IsThickening.reduction_image_eq :
+    ∀ {S : Scheme.{u}} {X X' : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack X'] (i : X ⟶ X') [IsThickening i],
-    (ClosedSubstack.image (reductionι X ≫ i)).objectProperty =
-      (ClosedSubstack.image (reductionι X')).objectProperty)
+    (FiberedCategoryOver.Groupoids.toFunctor (reductionι X ≫ i)).essImage =
+      (FiberedCategoryOver.Groupoids.toFunctor (reductionι X')).essImage)
 
 /- Example 106.3.6 (3): equivalently, a thickening `i : X ⟶ X'` presents the
 reduction of `X'` if and only if `X` is reduced. -/
 @[stacks 0BPT] #check
-  (IsThickening.eq_reduction_iff_isReduced :
+  (AlgebraicGeometry.AlgebraicStack.IsThickening.eq_reduction_iff_isReduced :
     ∀ {S : Scheme.{u}} {X X' : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack X'] (i : X ⟶ X') [IsThickening i],
-      (ClosedSubstack.image i).objectProperty =
-        (ClosedSubstack.image (reductionι X')).objectProperty ↔ IsReduced X)
+      (FiberedCategoryOver.Groupoids.toFunctor i).essImage =
+        (FiberedCategoryOver.Groupoids.toFunctor (reductionι X')).essImage ↔ IsReduced X)

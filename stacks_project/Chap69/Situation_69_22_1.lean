@@ -1,17 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Spec
 public import Mathlib.RingTheory.Noetherian.Defs
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Coherent
-public import stacks_project.Chap65.Lemma_65_6_2_OfOver
-public import stacks_project.Chap67.Definition_67_40_1_Proper
-public import stacks_project.Chap69.Definition_69_12_1_Instances
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Proper
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Coherent.Category
 import StacksCheckRecall
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory
@@ -25,17 +19,24 @@ variable (X : AlgebraicSpace (Spec (CommRingCat.of A)))
 variable (f : X ⟶ ofOver (Over.mk (𝟙 (Spec (CommRingCat.of A))))) [Proper f]
 variable (F : X.Modules) [F.IsCoherent]
 
-/- Situation 69.22.1 (1): `A` is a Noetherian ring. -/
-@[stacks 08AV] #check (inferInstance : IsNoetherianRing A)
+/- Situation 69.22.1: `A` is a Noetherian ring, `I` is an ideal of `A`,
+`f : X ⟶ Spec(A)` is a proper morphism of algebraic spaces, and `F` is a coherent
+sheaf on `X`. -/
+@[stacks 08AV] #check (AlgebraicGeometry.AlgebraicSpace.Proper :
+  (X ⟶ AlgebraicGeometry.AlgebraicSpace.ofOver
+    (Over.mk (𝟙 (Spec (CommRingCat.of A))))) → Prop)
 
-/- Situation 69.22.1 (2): `I ⊂ A` is an ideal. -/
-@[stacks 08AV] #check (I : Ideal A)
+/- Assumption (1): `A` is a Noetherian ring. -/
+#check (inferInstance : IsNoetherianRing A)
 
-/- Situation 69.22.1 (3): `f : X ⟶ Spec(A)` is a proper morphism of algebraic spaces. -/
-@[stacks 08AV] #check (f : X ⟶ ofOver (Over.mk (𝟙 (Spec (CommRingCat.of A)))))
-@[stacks 08AV] #check (inferInstance : Proper f)
+/- Assumption (2): `I ⊂ A` is an ideal. -/
+#check (I : Ideal A)
 
-/- Situation 69.22.1 (4): `F` is a coherent sheaf on `X`. -/
-@[stacks 08AV] #check (inferInstance : F.IsCoherent)
+/- Assumption (3): `f : X ⟶ Spec(A)` is a proper morphism of algebraic spaces. -/
+#check (f : X ⟶ ofOver (Over.mk (𝟙 (Spec (CommRingCat.of A)))))
+#check (inferInstance : Proper f)
+
+/- Assumption (4): `F` is a coherent sheaf on `X`. -/
+#check (inferInstance : F.IsCoherent)
 
 end

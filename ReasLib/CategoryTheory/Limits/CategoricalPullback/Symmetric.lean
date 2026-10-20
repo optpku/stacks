@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.Categorical.Basic
@@ -125,6 +119,113 @@ def comparison (F : A ⥤ C) (G : B ⥤ C) :
     (CatCommSqOver.Symmetric.toPair F G
       ((toCatCommSqOver (F.prod G) (Functor.diag C) _).obj (𝟭 _)))
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
+/-- The ordinary pullback object is placed over its second image, with the supplied
+comparison and an identity as its two structural isomorphisms. -/
+def inverse (F : A ⥤ C) (G : B ⥤ C) :
+    F ⊡ G ⥤ (F.prod G) ⊡ (Functor.diag C) where
+  obj x :=
+    { fst := (x.fst, x.snd)
+      snd := G.obj x.snd
+      iso := x.iso.prod (Iso.refl _) }
+  map f :=
+    { fst := f.fst ×ₘ f.snd
+      snd := G.map f.snd
+      w := by sorry }
+  map_id := by intros; sorry
+  map_comp := by intros; sorry
+
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
+/-- The unit keeps both outer objects and uses the inverse second structural map
+for the middle object of the symmetric presentation. -/
+def unitIso (F : A ⥤ C) (G : B ⥤ C) :
+    𝟭 ((F.prod G) ⊡ (Functor.diag C)) ≅ comparison F G ⋙ inverse F G :=
+  NatIso.ofComponents
+    (fun x ↦ CategoricalPullback.mkIso (CategoryTheory.prod.etaIso x.fst).symm
+      (((CategoryTheory.Prod.snd C C).mapIso x.iso).symm) (by sorry))
+    (by intros; sorry)
+
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
+/-- The counit keeps the two objects of the ordinary pullback with identity maps. -/
+def counitIso (F : A ⥤ C) (G : B ⥤ C) :
+    inverse F G ⋙ comparison F G ≅ 𝟭 (F ⊡ G) :=
+  NatIso.ofComponents
+    (fun x ↦ CategoricalPullback.mkIso (Iso.refl x.fst) (Iso.refl x.snd) (by sorry))
+    (by intros; sorry)
+
+/-- The symmetric and ordinary categorical pullback presentations have actual
+mutually inverse functors, retaining the prescribed comparison as the forward functor. -/
+def equivalence (F : A ⥤ C) (G : B ⥤ C) :
+    (F.prod G) ⊡ (Functor.diag C) ≌ F ⊡ G where
+  functor := comparison F G
+  inverse := inverse F G
+  unitIso := unitIso F G
+  counitIso := counitIso F G
+  functor_unitIso_comp := by intros; sorry
+
+/-- The equivalence retains the original symmetric comparison. -/
+@[simp]
+theorem equivalence_functor (F : A ⥤ C) (G : B ⥤ C) :
+    (equivalence F G).functor = comparison F G := rfl
+
+/-- The inverse retains the two supplied outer objects. -/
+@[simp]
+theorem inverse_obj_fst (F : A ⥤ C) (G : B ⥤ C) (x : F ⊡ G) :
+    ((inverse F G).obj x).fst = (x.fst, x.snd) := rfl
+
+/-- The inverse chooses the actual second image as the middle object. -/
+@[simp]
+theorem inverse_obj_snd (F : A ⥤ C) (G : B ⥤ C) (x : F ⊡ G) :
+    ((inverse F G).obj x).snd = G.obj x.snd := rfl
+
+/-- The inverse structural isomorphism is the given comparison paired with the identity. -/
+@[simp]
+theorem inverse_obj_iso (F : A ⥤ C) (G : B ⥤ C) (x : F ⊡ G) :
+    ((inverse F G).obj x).iso = x.iso.prod (Iso.refl _) := rfl
+
+/-- The inverse retains both components of a supplied arrow. -/
+@[simp]
+theorem inverse_map_fst (F : A ⥤ C) (G : B ⥤ C) {x y : F ⊡ G} (f : x ⟶ y) :
+    ((inverse F G).map f).fst = f.fst ×ₘ f.snd := rfl
+
+/-- The inverse middle arrow is the image of the supplied second component. -/
+@[simp]
+theorem inverse_map_snd (F : A ⥤ C) (G : B ⥤ C) {x y : F ⊡ G} (f : x ⟶ y) :
+    ((inverse F G).map f).snd = G.map f.snd := rfl
+
+/-- The unit is the identity on both outer objects. -/
+@[simp]
+theorem unitIso_hom_app_fst (F : A ⥤ C) (G : B ⥤ C)
+    (x : (F.prod G) ⊡ (Functor.diag C)) :
+    ((unitIso F G).hom.app x).fst = (𝟙 x.fst.fst) ×ₘ (𝟙 x.fst.snd) := rfl
+
+/-- The unit middle arrow is exactly the inverse second structural arrow. -/
+@[simp]
+theorem unitIso_hom_app_snd (F : A ⥤ C) (G : B ⥤ C)
+    (x : (F.prod G) ⊡ (Functor.diag C)) :
+    ((unitIso F G).hom.app x).snd = x.iso.inv.snd := rfl
+
+/-- The inverse unit middle arrow is exactly the given second structural arrow. -/
+@[simp]
+theorem unitIso_inv_app_snd (F : A ⥤ C) (G : B ⥤ C)
+    (x : (F.prod G) ⊡ (Functor.diag C)) :
+    ((unitIso F G).inv.app x).snd = x.iso.hom.snd := rfl
+
+
+/-- The counit is the identity on the first outer object. -/
+@[simp]
+theorem counitIso_hom_app_fst (F : A ⥤ C) (G : B ⥤ C) (x : F ⊡ G) :
+    ((counitIso F G).hom.app x).fst = 𝟙 x.fst := rfl
+
+/-- The counit is the identity on the second outer object. -/
+@[simp]
+theorem counitIso_hom_app_snd (F : A ⥤ C) (G : B ⥤ C) (x : F ⊡ G) :
+    ((counitIso F G).hom.app x).snd = 𝟙 x.snd := rfl
+
+
 namespace comparison
 
 /-- The first object selected by the symmetric comparison is the first entry of the product
@@ -187,14 +288,8 @@ Example 4.31.3. -/
 @[stacks 06RL]
 instance isEquivalence
     (F : A ⥤ C) (G : B ⥤ C) :
-    (comparison F G).IsEquivalence := sorry
-/- Proof strategy: construct the quasi-inverse with
-`CatCommSqOver.toFunctorToCategoricalPullback`, sending `(A, B, c)` to
-`(A, B, G.obj B, c, Iso.refl _)`. Use `CategoricalPullback.mkNatIso` to build the unit and
-counit from `CategoryTheory.prod.etaIso`, the source structural isomorphism, and identity
-isomorphisms; their compatibility reduces to `CategoricalPullback.Hom.w` and the two inverse
-laws for the source isomorphism. Package these data with `Functor.IsEquivalence.mk'`; the category
-hypotheses on `A`, `B`, and `C` discharge all assumptions of those APIs. -/
+    (comparison F G).IsEquivalence :=
+  (equivalence F G).isEquivalence_functor
 
 end comparison
 

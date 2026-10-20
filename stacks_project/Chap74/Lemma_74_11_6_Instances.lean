@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Surjective.Fpqc
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
 public import Mathlib.CategoryTheory.MorphismProperty.Local
 public import stacks_project.Chap67.Definition_67_5_2_Surjective
@@ -26,21 +21,20 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.Surjective
 
-/-- Surjectivity of morphisms of algebraic spaces is local on the target for the
-fpqc precoverage. -/
-instance isLocalAtTargetFpqc {S : Scheme.{u}} :
-    MorphismProperty.IsLocalAtTarget
-      (@Surjective S : MorphismProperty (AlgebraicSpace S))
-      (fpqcPrecoverage S) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Surjective.isLocalAtTargetFpqc :
+  ∀ {S : Scheme.{u}}, MorphismProperty.IsLocalAtTarget
+    (@Surjective S : MorphismProperty (AlgebraicSpace S))
+    (fpqcPrecoverage S))
 
-/-- A morphism of algebraic spaces is surjective if and only if every base change
-along a member of an fpqc covering of the target is surjective. -/
-theorem iff_forall_pullbackSnd_fpqc {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) {R : Presieve Y} (hR : R ∈ (fpqcPrecoverage S).coverings Y) :
-    Surjective f ↔
-      ∀ {U : AlgebraicSpace S} (g : U ⟶ Y) [HasPullback f g],
-        R g → Surjective (pullback.snd f g) :=
-  sorry
+variable {S : Scheme.{u}}
+
+#check (MorphismProperty.IsLocalAtTarget.iff_of_forall_pullbackSnd
+    (P := (@Surjective S : MorphismProperty (AlgebraicSpace S)))
+    (K := fpqcPrecoverage S) :
+  ∀ {X Y : AlgebraicSpace S} {R : Presieve Y},
+    R ∈ (fpqcPrecoverage S).coverings Y → ∀ {f : X ⟶ Y},
+      Surjective f ↔
+        ∀ {U : AlgebraicSpace S} (g : U ⟶ Y) [HasPullback f g],
+          R g → Surjective (pullback.snd f g))
 
 end AlgebraicGeometry.AlgebraicSpace.Surjective

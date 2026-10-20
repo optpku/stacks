@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Ring.ULift
@@ -154,7 +148,7 @@ abbrev starFunctor (α : A ⟶ B) : polynomialSite α ⥤ pointSite :=
 
 /-- The category-to-point functor of the constant ringed site `(Sh(C_{B/A}), underline{R})`. -/
 def toPointBase (α : A ⟶ B) (R : CommRingCat.{u}) :
-    constRingedSite α R ⥤ point R :=
+    (constRingedSite α R).carrier ⥤ (point R).carrier :=
   starFunctor α
 
 /-- Every functor of chaotic sites is cocontinuous; in particular the category-to-point

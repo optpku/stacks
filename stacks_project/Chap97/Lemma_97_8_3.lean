@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap97.Definition_97_8_1_Algebraic
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Algebraic
+import StacksCheckRecall
 
 /-!
 # Algebraic morphisms out of algebraic stacks
@@ -28,18 +23,16 @@ universe u
 
 namespace AlgebraicGeometry.Groupoids.Hom
 
-/-- Lemma 97.8.3: Let `S` be a scheme. Let `F : X ⟶ Y` be a 1-morphism of
+/- Lemma 97.8.3: Let `S` be a scheme. Let `F : X ⟶ Y` be a 1-morphism of
 stacks in groupoids over `(Sch/S)_fppf`. If `X` is an algebraic stack and
 `Δ : Y ⟶ Y × Y` is representable by algebraic spaces, then `F` is algebraic. -/
-@[stacks 06CG]
-theorem Algebraic.of_algebraicStack
-    {S : Scheme.{u}} {X Y : GroupoidsOver S}
+@[stacks 06CG] #check (AlgebraicGeometry.Groupoids.Hom.Algebraic.of_algebraicStack :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X]
     [IsStack.InGroupoids (Scheme.fppfTopology.over S) Y.p]
     (F : X ⟶ Y)
     (hY : relativelyRepresentableByAlgebraicSpaces
-      (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} Y)) :
-    Algebraic F :=
-  sorry
+      (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} Y)),
+    Algebraic F)
 
 end AlgebraicGeometry.Groupoids.Hom

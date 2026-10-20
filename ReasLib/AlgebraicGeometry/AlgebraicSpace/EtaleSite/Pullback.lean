@@ -1,15 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.MorphismProperty.OverAdjunction
 public import Mathlib.CategoryTheory.Sites.CoverLifting
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.Basic
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.PresentationInclusion
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale.BaseChange
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
 
 /-!
@@ -35,11 +29,6 @@ variable {S : Scheme.{u}}
 /-- Fibre products of algebraic spaces over a scheme exist. -/
 instance instHasPullbacks_algebraicSpace : HasPullbacks (AlgebraicSpace S) :=
   ReasLibPullback.instHasPullbacks
-
-/-- Étale morphisms of algebraic spaces are stable under base change. -/
-instance instIsStableUnderBaseChange_etale :
-    IsStableUnderBaseChange (@Etale S : MorphismProperty (AlgebraicSpace S)) :=
-  sorry
 
 /-- Base change along `f` on the étale sites of algebraic spaces, sending `V` to `X ×_Y V`. -/
 noncomputable abbrev spacesEtalePullback {X Y : AlgebraicSpace S} (f : X ⟶ Y) :

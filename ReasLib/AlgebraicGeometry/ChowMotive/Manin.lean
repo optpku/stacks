@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowMotive.Duality
@@ -17,18 +11,17 @@ open scoped CategoryTheory.MonoidalCategory
 
 noncomputable section
 
-universe u x
+universe u
 
 namespace ChowMotive
 
 /-- A morphism of rational Chow motives is an isomorphism if, after tensoring with
 the motive of every smooth projective scheme, it induces an isomorphism on every
-degreewise Chow realization. -/
+degreewise group of the concrete rational Chow realization. -/
 theorem isIso_of_chowTensor {k : Type u} [Field k]
-    (chow : ℤ → Correspondence.GradedCategory k ⥤ ModuleCat.{x} ℚ)
     {M N : ChowMotive k (fun _ ↦ Correspondence.GradedCategory k)} (c : M ⟶ N)
     (h_chow : ∀ (X : SchemeOverField k) [Smooth X.hom] [Projective X.hom] (i : ℤ),
-      IsIso ((chowFunctor (k := k) chow i).map (c ⊗ₘ 𝟙 (h X)))) :
+      IsIso ((chowFunctor (k := k) i).map (c ⊗ₘ 𝟙 (ChowMotive.h X)))) :
     IsIso c := sorry
 
 end ChowMotive

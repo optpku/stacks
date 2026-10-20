@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Perfect.Determinant.Functor
@@ -23,7 +17,10 @@ namespace ActualDeterminantPullback
 
 open ActualAffineRestriction ActualGlobalDeterminant
 
-variable {X Y : Scheme.{u}} (b : Y ⟶ X) (K : Perfect X)
+variable {X Y : Scheme.{u}}
+variable [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
+variable [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
+variable (b : Y ⟶ X) (K : Perfect X)
 
 abbrev pulledObject : Perfect Y := (Scheme.PerfectDerived.TorNegOneZero.pullback b).obj K
 

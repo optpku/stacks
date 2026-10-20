@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.Smooth.Adic.RatFuncPowerSeries
@@ -21,13 +15,18 @@ series ring.
 
 @[expose] public section
 
+universe u
+
 /- Example 15.40.2 (1): the hypersurface localization is local. -/
 @[stacks 07EM "Example 15.40.2 (1): local hypersurface"]
 #check @PurelyInseparableSmoothLocal.isLocalRing
 
-/- Example 15.40.2 (2): the hypersurface localization is smooth over the ground field. -/
-@[stacks 07EM "Example 15.40.2 (2): smooth hypersurface localization"]
-#check @PurelyInseparableSmoothLocal.smooth
+/- Example 15.40.2 (2): the hypersurface localization is formally smooth over the ground field. -/
+@[stacks 07EM "Example 15.40.2 (2): formally smooth hypersurface localization"]
+#check (PurelyInseparableSmoothLocal.formallySmooth :
+  ∀ {p : ℕ} [Fact p.Prime] (k : Type u) [Field k] [CharP k p] (a : k)
+    (ha : a ∉ Set.range (fun b : k ↦ b ^ p)),
+    Algebra.FormallySmooth k (PurelyInseparableSmoothLocal.Ring (p := p) k a))
 
 /- Example 15.40.2 (3): the hypersurface localization is geometrically regular. -/
 @[stacks 07EM "Example 15.40.2 (3): geometrically regular local hypersurface"]

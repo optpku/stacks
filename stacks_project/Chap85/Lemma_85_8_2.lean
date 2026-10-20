@@ -1,16 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.ShortComplex.HomologicalComplex
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_3_5
-public import stacks_project.Chap85.Lemma_85_8_2_Complex
-public import stacks_project.Chap85.Lemma_85_8_2_Fiberwise
+public import ReasLib.CategoryTheory.Sites.Simplicial.SectionsComplex
+public import ReasLib.CategoryTheory.Sites.Grothendieck.SectionsComplex
+import StacksCheckRecall
 
 /-!
 # Lemma 85.8.2
@@ -48,25 +40,17 @@ variable [∀ n, ∀ P : (C.obj n)ᵒᵖ ⥤ AddCommGrpCat.{w},
     (ofStage C n).op.HasLeftKanExtension P]
 variable [∀ n, ((J n).toGrothendieck).HasSheafCompose (forget AddCommGrpCat.{w})]
 
-/-- Lemma 85.8.2 (1): in Situation 85.3.3 case A, let `F` be an abelian sheaf on
-`C_total`. The canonical complex
-`0 → Γ(C_total, F) → Γ(C_0, F_0) → Γ(C_1, F_1) → ⋯` is exact in degrees
-`-1` and `0`. -/
-@[stacks 0D77]
-theorem globalSectionsExtended_exactAt_negOne_zero
-    (F : Sheaf (topology C J) AddCommGrpCat.{w})
-    (n : ℤ) (hn : n = (-1 : ℤ) ∨ n = (0 : ℤ)) :
-    (globalSectionsExtended C J F).ExactAt n :=
-  sorry
+/- Lemma 85.8.2. The canonical augmented section complex is exact in degrees `-1`
+and `0` for every abelian sheaf, and in all degrees for injective coefficients,
+in both presentations of a simplicial site. -/
+@[stacks 0D77] #check (CategoryTheory.SimplicialSites.globalSectionsExtended_exactAt_negOne_zero C J :
+  ∀ (F : Sheaf (topology C J) AddCommGrpCat.{w})
+    (n : ℤ) (hn : n = (-1 : ℤ) ∨ n = (0 : ℤ)),
+    (globalSectionsExtended C J F).ExactAt n)
 
-/-- Lemma 85.8.2 (2): in Situation 85.3.3 case A, if `F` is injective then the
-canonical complex `0 → Γ(C_total, F) → Γ(C_0, F_0) → Γ(C_1, F_1) → ⋯` is exact
-in every degree. -/
-@[stacks 0D77]
-theorem globalSectionsExtended_acyclic_of_injective
-    (F : Sheaf (topology C J) AddCommGrpCat.{w}) [Injective F] :
-    (globalSectionsExtended C J F).Acyclic :=
-  sorry
+#check (CategoryTheory.SimplicialSites.globalSectionsExtended_acyclic_of_injective C J :
+  ∀ (F : Sheaf (topology C J) AddCommGrpCat.{w}) [Injective F],
+    (globalSectionsExtended C J F).Acyclic)
 
 end CategoryTheory.SimplicialSites
 
@@ -92,24 +76,13 @@ variable [∀ n, ∀ P : (F.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{w},
 variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (F.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{w}),
     ((F.map φ.op).toFunctor).op.HasPointwiseRightKanExtension P]
 
-/-- Lemma 85.8.2 (3): in Situation 85.3.3 case B, let `G` be an abelian sheaf on
-`C_total`. The canonical complex
-`0 → Γ(C_total, G) → Γ(C_0, G_0) → Γ(C_1, G_1) → ⋯` is exact in degrees
-`-1` and `0`. -/
-@[stacks 0D77]
-theorem fiberSectionsExtended_exactAt_negOne_zero
-    (G : Sheaf (topology F J) AddCommGrpCat.{w})
-    (n : ℤ) (hn : n = (-1 : ℤ) ∨ n = (0 : ℤ)) :
-    (fiberSectionsExtended F J G).ExactAt n :=
-  sorry
+#check (CategoryTheory.Grothendieck.fiberSectionsExtended_exactAt_negOne_zero F J :
+  ∀ (G : Sheaf (topology F J) AddCommGrpCat.{w})
+    (n : ℤ) (hn : n = (-1 : ℤ) ∨ n = (0 : ℤ)),
+    (fiberSectionsExtended F J G).ExactAt n)
 
-/-- Lemma 85.8.2 (4): in Situation 85.3.3 case B, if `G` is injective then the
-canonical complex `0 → Γ(C_total, G) → Γ(C_0, G_0) → Γ(C_1, G_1) → ⋯` is exact
-in every degree. -/
-@[stacks 0D77]
-theorem fiberSectionsExtended_acyclic_of_injective
-    (G : Sheaf (topology F J) AddCommGrpCat.{w}) [Injective G] :
-    (fiberSectionsExtended F J G).Acyclic :=
-  sorry
+#check (CategoryTheory.Grothendieck.fiberSectionsExtended_acyclic_of_injective F J :
+  ∀ (G : Sheaf (topology F J) AddCommGrpCat.{w}) [Injective G],
+    (fiberSectionsExtended F J G).Acyclic)
 
 end CategoryTheory.Grothendieck

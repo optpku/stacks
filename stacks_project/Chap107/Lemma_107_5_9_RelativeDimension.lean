@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.RelativeDimension
 public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.Cone
 public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.PseudoCone.Bilimit
 public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.Basic
@@ -32,62 +27,34 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- The relative dimension of a locally of finite type morphism `f : T ⟶ X` of
-locally Noetherian algebraic stacks at a point `t` of `|T|`, as the supremum of
-`dimensionAt` along field-valued 2-fibre lifts of `t`. -/
-noncomputable def relativeDimensionAt {S : Scheme.{u}} {T X : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.relativeDimensionAt :
+    ∀ {S : Scheme.{u}} {T X : GroupoidsOver S}
     [AlgebraicStack T] [AlgebraicStack X]
     [IsLocallyNoetherian T] [IsLocallyNoetherian X]
-    (f : T ⟶ X) [LocallyOfFiniteType f] (t : Points T) : EInt :=
-  ⨆ (p : FieldValuedPoint X) (_hp : Points.mk p = Points.map f t)
-      (c : PseudoPullbackCone f p.hom) (hStack : AlgebraicStack c.pt)
-      (hLN : @IsLocallyNoetherian S c.pt hStack) (_hc : c.IsBilimit)
-      (tFiber : @Points S c.pt hStack)
-      (_ht : @Points.map S c.pt hStack T inferInstance c.fst tFiber = t),
-    @dimensionAt S c.pt hStack hLN tFiber
+    (f : T ⟶ X) [LocallyOfFiniteType f] (t : Points T),
+    EInt)
 
-/-- The relative dimension of `f` at `t` equals the dimension at any lift of `t`
-to a field-valued bilimit 2-fibre of `f`. -/
-theorem relativeDimensionAt_eq {S : Scheme.{u}} {T X : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.relativeDimensionAt_eq :
+    ∀ {S : Scheme.{u}} {T X : GroupoidsOver S}
     [AlgebraicStack T] [AlgebraicStack X]
     [IsLocallyNoetherian T] [IsLocallyNoetherian X]
     (f : T ⟶ X) [LocallyOfFiniteType f] (t : Points T)
     (p : FieldValuedPoint X) (hp : Points.mk p = Points.map f t)
     (c : PseudoPullbackCone f p.hom) [AlgebraicStack c.pt]
     [IsLocallyNoetherian c.pt] (hc : c.IsBilimit) (tFiber : Points c.pt)
-    (ht : Points.map c.fst tFiber = t) :
-    relativeDimensionAt f t = dimensionAt tFiber :=
-  sorry
+    (ht : Points.map c.fst tFiber = t),
+    relativeDimensionAt f t = dimensionAt tFiber)
 
-/-- The relative dimension of `f` at `t` is the dimension at some lift of `t` to
-a field-valued 2-fibre `T ×_X Spec k` representing the image of `t`. -/
-theorem relativeDimensionAt_spec {S : Scheme.{u}} {T X : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.relativeDimensionAt_spec :
+    ∀ {S : Scheme.{u}} {T X : GroupoidsOver S}
     [AlgebraicStack T] [AlgebraicStack X]
     [IsLocallyNoetherian T] [IsLocallyNoetherian X]
-    (f : T ⟶ X) [LocallyOfFiniteType f] (t : Points T) :
+    (f : T ⟶ X) [LocallyOfFiniteType f] (t : Points T),
     ∃ (p : FieldValuedPoint X) (c : PseudoPullbackCone f p.hom)
       (hStack : AlgebraicStack c.pt) (hLN : @IsLocallyNoetherian S c.pt hStack)
       (hc : c.IsBilimit) (tFiber : @Points S c.pt hStack),
       Points.mk p = Points.map f t ∧
         @Points.map S c.pt hStack T inferInstance c.fst tFiber = t ∧
-        relativeDimensionAt f t = @dimensionAt S c.pt hStack hLN tFiber :=
-  sorry
-
-/-- Relative dimension is invariant along the projections of a chosen 2-fibre
-product of locally Noetherian algebraic stacks, once the apex is algebraic and
-locally Noetherian and the second projection is locally of finite type. -/
-theorem relativeDimensionAt_eq_of_twoFibreProduct {S : Scheme.{u}}
-    {T X X' : GroupoidsOver S}
-    [AlgebraicStack T] [AlgebraicStack X] [AlgebraicStack X']
-    [IsLocallyNoetherian T] [IsLocallyNoetherian X] [IsLocallyNoetherian X']
-    (f : T ⟶ X) [LocallyOfFiniteType f] (g : X' ⟶ X)
-    [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)]
-    [IsLocallyNoetherian (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)]
-    [LocallyOfFiniteType (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g)]
-    (t' : Points (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)) :
-    relativeDimensionAt (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g) t' =
-      relativeDimensionAt f
-        (Points.map (TwoFibreProduct.fst.{u + 1, u, u + 1, u} f g) t') :=
-  sorry
+        relativeDimensionAt f t = @dimensionAt S c.pt hStack hLN tFiber)
 
 end AlgebraicGeometry.AlgebraicStack

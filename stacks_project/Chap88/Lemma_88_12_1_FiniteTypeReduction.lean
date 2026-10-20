@@ -1,15 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.FiniteType
-public import Mathlib.RingTheory.Ideal.Quotient.Operations
-public import stacks_project.Chap87.Definition_87_4_8_WeaklyAdmissible
-public import stacks_project.Chap87.Lemma_87_4_10_TopologicalNilradical
+public import ReasLib.RingTheory.Topology.FiniteType.Reduction
 
 /-!
 # Finite type on reductions of weakly admissible rings
@@ -24,37 +15,18 @@ universe u
 
 open TopologicalRing
 
-namespace RingHom
-
 variable {A B : Type u} [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A]
   [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B]
 
-/-- The homomorphism `φ : A →+* B` of weakly admissible rings is of finite type
-on reduction when the induced map
-`A ⧸ topologicalNilradical A →+* B ⧸ topologicalNilradical B` is of finite
-type. -/
-def IsFiniteTypeOnReduction (φ : A →+* B) : Prop :=
-  ∃ h : topologicalNilradical A ≤ (topologicalNilradical B).comap φ,
-    (Ideal.quotientMap (topologicalNilradical B) φ h).FiniteType
+#check (RingHom.IsFiniteTypeOnReduction : (A →+* B) → Prop)
 
-/-- For a continuous homomorphism of weakly admissible rings, finite type on
-reduction is equivalent to finite type of the induced map on topological
-nilradical quotients. -/
-theorem isFiniteTypeOnReduction_iff (φ : A →+* B) (hφ : Continuous φ) :
+#check (RingHom.isFiniteTypeOnReduction_iff :
+  ∀ (φ : A →+* B) (hφ : Continuous φ),
     φ.IsFiniteTypeOnReduction ↔
       (Ideal.quotientMap (topologicalNilradical B) φ
-        (topologicalNilradical.map_le φ hφ)).FiniteType :=
-  sorry
+        (topologicalNilradical.map_le φ hφ)).FiniteType)
 
-namespace IsFiniteTypeOnReduction
-
-/-- Finite type on reduction yields finite type of the induced nilradical
-quotient map for any nilradical mapping inequality. -/
-theorem finiteType {φ : A →+* B} (h : φ.IsFiniteTypeOnReduction)
-    (h_le : topologicalNilradical A ≤ (topologicalNilradical B).comap φ) :
-    (Ideal.quotientMap (topologicalNilradical B) φ h_le).FiniteType :=
-  sorry
-
-end IsFiniteTypeOnReduction
-
-end RingHom
+#check (RingHom.IsFiniteTypeOnReduction.finiteType :
+  ∀ {φ : A →+* B}, φ.IsFiniteTypeOnReduction →
+    ∀ (h_le : topologicalNilradical A ≤ (topologicalNilradical B).comap φ),
+      (Ideal.quotientMap (topologicalNilradical B) φ h_le).FiniteType)

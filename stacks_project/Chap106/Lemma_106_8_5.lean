@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_19_2_FormallySmooth
-public import stacks_project.Chap100.Lemma_100_3_2_MorphismProperty
-public import stacks_project.Chap106.Definition_106_8_1_FormallySmooth
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.FormallySmooth.Representable
+import StacksCheckRecall
 
 /-!
 # Formally smooth morphisms representable by algebraic spaces
@@ -29,46 +22,36 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 106.8.5. Let `f : X ⟶ Y` be a morphism of algebraic stacks which is
-representable by algebraic spaces. Then `f` is formally smooth if and only if
-for every scheme `T` and morphism `T ⟶ Y` the morphism `X ×_Y T ⟶ T` is
+/- Lemma 106.8.5. A morphism of algebraic stacks representable by algebraic
+spaces is formally smooth if and only if every scheme-slice base change is
 formally smooth as a morphism of algebraic spaces. -/
-@[stacks 0H1K]
-theorem FormallySmooth.iff_has {S : Scheme.{u}} {X Y : GroupoidsOver S}
+@[stacks 0H1K] #check (AlgebraicGeometry.AlgebraicStack.FormallySmooth.iff_has :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
-    (hf : relativelyRepresentableByAlgebraicSpaces f) :
-    FormallySmooth f ↔ Groupoids.Hom.has (@AlgebraicSpace.FormallySmooth S) f :=
-  sorry
+    (hf : relativelyRepresentableByAlgebraicSpaces f),
+    FormallySmooth f ↔ Groupoids.Hom.has (@AlgebraicSpace.FormallySmooth S) f)
 
-/-- Formal smoothness of a representable morphism of algebraic stacks is
-equivalent to every scheme-slice representing morphism of algebraic spaces
-being formally smooth. -/
-theorem FormallySmooth.iff_represents {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.FormallySmooth.iff_represents :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
-    (hf : relativelyRepresentableByAlgebraicSpaces f) :
+    (hf : relativelyRepresentableByAlgebraicSpaces f),
     FormallySmooth f ↔
       ∀ ⦃U : Over S⦄ (y : GroupoidsOver.slice U ⟶ Y) (Fy : AlgebraicSpace S)
         (fy : Fy ⟶ AlgebraicSpace.ofOver U),
-        RepresentsBaseChange f y Fy fy → AlgebraicSpace.FormallySmooth fy :=
-  sorry
+        RepresentsBaseChange f y Fy fy → AlgebraicSpace.FormallySmooth fy)
 
-/-- A scheme-slice representing morphism of a formally smooth morphism of
-algebraic stacks is formally smooth as a morphism of algebraic spaces. -/
-theorem FormallySmooth.spec_represents {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.FormallySmooth.spec_represents :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y} [FormallySmooth f]
     {U : Over S} (y : GroupoidsOver.slice U ⟶ Y) {Fy : AlgebraicSpace S}
-    {fy : Fy ⟶ AlgebraicSpace.ofOver U} (h : RepresentsBaseChange f y Fy fy) :
-    AlgebraicSpace.FormallySmooth fy :=
-  sorry
+    {fy : Fy ⟶ AlgebraicSpace.ofOver U} (h : RepresentsBaseChange f y Fy fy),
+    AlgebraicSpace.FormallySmooth fy)
 
-/-- A morphism of algebraic stacks representable by algebraic spaces is formally
-smooth if every scheme-slice representing morphism of algebraic spaces is
-formally smooth. -/
-theorem FormallySmooth.of_has {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.FormallySmooth.of_has :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
     (hf : relativelyRepresentableByAlgebraicSpaces f)
-    (h : Groupoids.Hom.has (@AlgebraicSpace.FormallySmooth S) f) :
-    FormallySmooth f :=
-  sorry
+    (h : Groupoids.Hom.has (@AlgebraicSpace.FormallySmooth S) f),
+    FormallySmooth f)
 
 end AlgebraicGeometry.AlgebraicStack

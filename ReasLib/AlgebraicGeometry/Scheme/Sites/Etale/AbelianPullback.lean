@@ -1,12 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Sites.AffineEtale
+public import Mathlib.CategoryTheory.Adjunction.Unique
+public import Mathlib.CategoryTheory.MorphismProperty.OverAdjunction
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.ExtensionByZero
 public import Mathlib.CategoryTheory.Sites.Pullback
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Pullback
 
@@ -94,5 +91,92 @@ def abelianAdjunctionDirectImage (f : T ⟶ S) :
       (smallEtalePullback f).sheafPushforwardContinuous AddCommGrpCat.{u}
         S.smallEtaleTopology T.smallEtaleTopology :=
   (abelianAdjunction f).ofNatIsoRight (abelianDirectImageIso f)
+
+/-- Restriction of an abelian sheaf along a morphism of schemes on small étale sites. -/
+noncomputable def etaleAbelianRestriction {X Z : Scheme.{u}} (i : Z ⟶ X)
+    [((smallEtalePullback i).sheafPushforwardContinuous AddCommGrpCat.{u}
+        X.smallEtaleTopology Z.smallEtaleTopology).IsRightAdjoint] :
+    Sheaf X.smallEtaleTopology AddCommGrpCat.{u} ⥤
+      Sheaf Z.smallEtaleTopology AddCommGrpCat.{u} :=
+  (smallEtalePullback i).sheafPullback AddCommGrpCat.{u}
+    X.smallEtaleTopology Z.smallEtaleTopology
+
+/-- Evaluating restriction recovers sheaf pullback along `smallEtalePullback`. -/
+theorem etaleAbelianRestriction_eq {X Z : Scheme.{u}} (i : Z ⟶ X)
+    [((smallEtalePullback i).sheafPushforwardContinuous AddCommGrpCat.{u}
+        X.smallEtaleTopology Z.smallEtaleTopology).IsRightAdjoint] :
+    etaleAbelianRestriction i =
+      (smallEtalePullback i).sheafPullback AddCommGrpCat.{u}
+        X.smallEtaleTopology Z.smallEtaleTopology :=
+  rfl
+
+end AlgebraicGeometry.Scheme.Etale
+
+namespace AlgebraicGeometry.Scheme.Hom
+
+/-- Continuous sheaf pushforward along a small-étale pullback is a right adjoint. -/
+public instance instIsRightAdjoint_smallEtaleSheafPushforwardContinuous
+    {Z Z' : Scheme.{u}} {p : Z' ⟶ Z} :
+    ((smallEtalePullback p).sheafPushforwardContinuous AddCommGrpCat.{u}
+        Z.smallEtaleTopology Z'.smallEtaleTopology).IsRightAdjoint :=
+  (Etale.abelianAdjunctionDirectImage p).isRightAdjoint
+
+/-- Sheaf pullback of abelian sheaves along a small-étale base change. -/
+noncomputable abbrev etaleAbelianSheafPullback {Z Z' : Scheme.{u}} (p : Z' ⟶ Z) :
+    Sheaf Z.smallEtaleTopology AddCommGrpCat.{u} ⥤
+      Sheaf Z'.smallEtaleTopology AddCommGrpCat.{u} :=
+  (smallEtalePullback p).sheafPullback AddCommGrpCat.{u}
+    Z.smallEtaleTopology Z'.smallEtaleTopology
+
+end AlgebraicGeometry.Scheme.Hom
+
+namespace AlgebraicGeometry.Scheme.Etale
+
+open AlgebraicGeometry.Scheme AlgebraicGeometry.Scheme.Hom
+
+/-- Site-level adjunction `etaleRestriction ⊣ smallEtalePullback` along an
+open immersion. -/
+def etaleOpenImmersionSiteAdj {U X : Scheme.{u}} (j : U ⟶ X)
+    [IsOpenImmersion j] :
+    etaleRestriction j ⊣ smallEtalePullback j :=
+  MorphismProperty.Over.mapPullbackAdj (@Etale) ⊤ j inferInstance trivial
+
+/-- The open-immersion site adjunction is `Over.mapPullbackAdj` for étale
+morphisms. -/
+theorem etaleOpenImmersionSiteAdj_eq {U X : Scheme.{u}} (j : U ⟶ X)
+    [IsOpenImmersion j] :
+    etaleOpenImmersionSiteAdj j =
+      MorphismProperty.Over.mapPullbackAdj (@Etale) ⊤ j inferInstance trivial :=
+  sorry
+
+/-- Restriction of abelian étale sheaves along an open immersion agrees with
+small-étale inverse image. -/
+def etaleRestrictionSheafIsoPullback {U X : Scheme.{u}} (j : U ⟶ X)
+    [IsOpenImmersion j] :
+    etaleRestrictionSheaf j AddCommGrpCat.{u} ≅ etaleAbelianSheafPullback j :=
+  ((Adjunction.sheafPushforwardContinuous (etaleOpenImmersionSiteAdj j)
+        U.smallEtaleTopology X.smallEtaleTopology :
+      etaleRestrictionSheaf j AddCommGrpCat.{u} ⊣
+        (smallEtalePullback j).sheafPushforwardContinuous AddCommGrpCat.{u}
+          X.smallEtaleTopology U.smallEtaleTopology).leftAdjointUniq
+    ((smallEtalePullback j).sheafAdjunctionContinuous AddCommGrpCat.{u}
+      X.smallEtaleTopology U.smallEtaleTopology))
+
+/-- The open-immersion restriction/pullback comparison at an abelian étale
+sheaf. -/
+def etaleRestrictionSheafIsoPullback_app {U X : Scheme.{u}} (j : U ⟶ X)
+    [IsOpenImmersion j] (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) :
+    (etaleRestrictionSheaf j AddCommGrpCat.{u}).obj F ≅
+      (etaleAbelianSheafPullback j).obj F :=
+  (etaleRestrictionSheafIsoPullback j).app F
+
+/-- The objectwise comparison is the component of
+`etaleRestrictionSheafIsoPullback`. -/
+theorem etaleRestrictionSheafIsoPullback_app_eq {U X : Scheme.{u}}
+    (j : U ⟶ X) [IsOpenImmersion j]
+    (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) :
+    etaleRestrictionSheafIsoPullback_app j F =
+      (etaleRestrictionSheafIsoPullback j).app F :=
+  sorry
 
 end AlgebraicGeometry.Scheme.Etale

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.LocallyRingedSpace.Module.CohenMacaulay
@@ -37,12 +31,14 @@ namespace CohenMacaulay
 
 /-- The stalk of a Cohen-Macaulay coherent scheme module is Cohen-Macaulay. -/
 theorem stalk
-    {ℱ : X.Modules} [ℱ.IsCoherent] [CohenMacaulay ℱ] (x : X) :
+    {ℱ : X.Modules} [ℱ.IsCoherent] [CohenMacaulay ℱ] (x : X)
+    [Nontrivial (RingedSpace.stalkModuleCat ℱ x)] :
     Module.CohenMacaulay (X.presheaf.stalk x) (RingedSpace.stalkModuleCat ℱ x) := sorry
 
 /-- A Cohen-Macaulay coherent scheme module supplies the Cohen-Macaulay instance at each stalk. -/
 instance instStalkCohenMacaulay
-    {ℱ : X.Modules} [ℱ.IsCoherent] [CohenMacaulay ℱ] (x : X) :
+    {ℱ : X.Modules} [ℱ.IsCoherent] [CohenMacaulay ℱ] (x : X)
+    [Nontrivial (RingedSpace.stalkModuleCat ℱ x)] :
     Module.CohenMacaulay (X.presheaf.stalk x) (RingedSpace.stalkModuleCat ℱ x) :=
   stalk x
 

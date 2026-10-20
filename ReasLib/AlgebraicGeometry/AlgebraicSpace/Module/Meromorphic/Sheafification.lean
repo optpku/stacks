@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.SheafificationCoefficients
-public import stacks_project.Chap71.Definition_71_10_3_MeromorphicSection
-import Lean
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Meromorphic.Sections
 
 /-! # Bind proved sheafification certificates to the actual meromorphic owner
 

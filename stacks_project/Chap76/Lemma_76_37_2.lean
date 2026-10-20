@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.LocallyOfFinitePresentation.DenseOpen
@@ -33,10 +27,10 @@ scheme-theoretically dense, and the restriction to the inverse image of `V`
 is locally of finite presentation. Then `f` is locally of finite
 presentation. -/
 @[stacks 0877] #check
-  (AlgebraicGeometry.AlgebraicSpace.SmallEtale.LocallyOfFinitePresentation.of_restrict_of_flat :
+  (AlgebraicGeometry.AlgebraicSpace.LocallyOfFinitePresentation.of_restrict_of_flat :
     ∀ {S : Scheme.{u}} {X Y V : AlgebraicSpace S} (f : X ⟶ Y),
       LocallyOfFiniteType f → Flat f → ∀ (ι : V ⟶ Y),
         (h_open : Representable.IsOpenImmersion ι) →
         Representable.QuasiCompact ι → Open.IsSchemeTheoreticallyDense ι →
-        SmallEtale.LocallyOfFinitePresentation (Open.inverseImageTo f ι h_open) →
-        SmallEtale.LocallyOfFinitePresentation f)
+        LocallyOfFinitePresentation (Open.inverseImageTo f ι h_open) →
+        LocallyOfFinitePresentation f)

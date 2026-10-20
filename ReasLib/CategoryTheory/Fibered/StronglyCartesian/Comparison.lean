@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.FiberedCategory.Cartesian
@@ -34,7 +28,8 @@ This is the ordinary-argument boundary for mathlib's typeclass-driven
 which should not be installed in the surrounding instance environment. -/
 theorem isStronglyCartesian_of_isIso
     (hφ : p.IsHomLift f φ) [IsIso φ] :
-    p.IsStronglyCartesian f φ := sorry
+    p.IsStronglyCartesian f φ :=
+  @Functor.IsStronglyCartesian.of_isIso C S _ _ p R T a b f φ hφ inferInstance
 
 end Functor.IsHomLift
 

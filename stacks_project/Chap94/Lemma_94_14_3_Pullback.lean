@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.Cone
-public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.PseudoCone.Bilimit
-public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.Bilimit
-public import stacks_project.Chap94.Definition_94_12_3_AlgebraicStacks
-public import stacks_project.Chap94.Lemma_94_14_2_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.TwoFibreProduct.Bicategory
+import StacksCheckRecall
 
 /-!
 # 2-fibre products of algebraic stacks
@@ -27,99 +18,58 @@ open CategoryTheory AlgebraicGeometry
 open Bicategory
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry
-
-namespace AlgebraicStack
-
-/-- The 2-fibre product of algebraic stacks over `S`, as categories fibred in
-groupoids over `(Sch/S)_fppf`, is again an algebraic stack. -/
-instance instTwoFibreProduct {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+/- Lemma 94.14.3: the canonical 2-fibre product of algebraic stacks is algebraic. -/
+@[stacks 04T2]
+#check (AlgebraicGeometry.AlgebraicStack.instTwoFibreProduct :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    {f : X ⟶ Z} {g : Y ⟶ Z} :
-    AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g) :=
-  sorry
+    {f : X ⟶ Z} {g : Y ⟶ Z},
+    AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g))
 
-end AlgebraicStack
+#check (AlgebraicGeometry.AlgebraicStacks.twoFibreProduct :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicStacks S} (f : X ⟶ Z) (g : Y ⟶ Z),
+    AlgebraicStacks S)
 
-namespace AlgebraicStacks
+#check (AlgebraicGeometry.AlgebraicStacks.twoFibreProduct.toGroupoids :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicStacks S} (f : X ⟶ Z) (g : Y ⟶ Z),
+    AlgebraicStacks.toGroupoids (AlgebraicStacks.twoFibreProduct f g) =
+      TwoFibreProduct.apex.{u + 1, u, u + 1, u} f.hom g.hom)
 
-/-- The 2-fibre product of algebraic stacks over `S` in the 2-category
-`AlgebraicStacks S`. -/
-def twoFibreProduct {S : Scheme.{u}} {X Y Z : AlgebraicStacks S}
-    (f : X ⟶ Z) (g : Y ⟶ Z) : AlgebraicStacks S :=
-  of (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f.hom g.hom)
+#check (AlgebraicGeometry.AlgebraicStacks.twoFibreProduct.fst :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicStacks S} (f : X ⟶ Z) (g : Y ⟶ Z),
+    AlgebraicStacks.twoFibreProduct f g ⟶ X)
 
-namespace twoFibreProduct
+#check (AlgebraicGeometry.AlgebraicStacks.twoFibreProduct.fst_hom :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicStacks S} (f : X ⟶ Z) (g : Y ⟶ Z),
+    (AlgebraicStacks.twoFibreProduct.fst f g).hom =
+      TwoFibreProduct.fst.{u + 1, u, u + 1, u} f.hom g.hom)
 
-/-- Packaging the 2-fibre product in `AlgebraicStacks` forgets to the 2-fibre
-product of the underlying groupoid fibrations. -/
-theorem toGroupoids {S : Scheme.{u}} {X Y Z : AlgebraicStacks S}
-    (f : X ⟶ Z) (g : Y ⟶ Z) :
-    AlgebraicStacks.toGroupoids (twoFibreProduct f g) =
-      TwoFibreProduct.apex.{u + 1, u, u + 1, u} f.hom g.hom :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStacks.twoFibreProduct.snd :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicStacks S} (f : X ⟶ Z) (g : Y ⟶ Z),
+    AlgebraicStacks.twoFibreProduct f g ⟶ Y)
 
-/-- The first projection of a 2-fibre product of algebraic stacks. -/
-def fst {S : Scheme.{u}} {X Y Z : AlgebraicStacks S} (f : X ⟶ Z) (g : Y ⟶ Z) :
-    twoFibreProduct f g ⟶ X :=
-  Bicategory.InducedBicategory.mkHom
-    (TwoFibreProduct.fst.{u + 1, u, u + 1, u} f.hom g.hom)
+#check (AlgebraicGeometry.AlgebraicStacks.twoFibreProduct.snd_hom :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicStacks S} (f : X ⟶ Z) (g : Y ⟶ Z),
+    (AlgebraicStacks.twoFibreProduct.snd f g).hom =
+      TwoFibreProduct.snd.{u + 1, u, u + 1, u} f.hom g.hom)
 
-/-- The ambient 1-morphism of `fst` is the first projection of the 2-fibre product. -/
-theorem fst_hom {S : Scheme.{u}} {X Y Z : AlgebraicStacks S}
-    (f : X ⟶ Z) (g : Y ⟶ Z) :
-    (fst f g).hom = TwoFibreProduct.fst.{u + 1, u, u + 1, u} f.hom g.hom :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStacks.twoFibreProduct.comparisonIso :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicStacks S} (f : X ⟶ Z) (g : Y ⟶ Z),
+    AlgebraicStacks.twoFibreProduct.fst f g ≫ f ≅
+      AlgebraicStacks.twoFibreProduct.snd f g ≫ g)
 
-/-- The second projection of a 2-fibre product of algebraic stacks. -/
-def snd {S : Scheme.{u}} {X Y Z : AlgebraicStacks S} (f : X ⟶ Z) (g : Y ⟶ Z) :
-    twoFibreProduct f g ⟶ Y :=
-  Bicategory.InducedBicategory.mkHom
-    (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f.hom g.hom)
+#check (AlgebraicGeometry.AlgebraicStacks.twoFibreProduct.comparisonIso.hom :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicStacks S} (f : X ⟶ Z) (g : Y ⟶ Z),
+    (AlgebraicStacks.twoFibreProduct.comparisonIso f g).hom.hom =
+      (TwoFibreProduct.comparisonIso.{u + 1, u, u + 1, u} f.hom g.hom).hom)
 
-/-- The ambient 1-morphism of `snd` is the second projection of the 2-fibre product. -/
-theorem snd_hom {S : Scheme.{u}} {X Y Z : AlgebraicStacks S}
-    (f : X ⟶ Z) (g : Y ⟶ Z) :
-    (snd f g).hom = TwoFibreProduct.snd.{u + 1, u, u + 1, u} f.hom g.hom :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStacks.twoFibreProduct.cone :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicStacks S} (f : X ⟶ Z) (g : Y ⟶ Z),
+    PseudoPullbackCone f g)
 
-/-- The canonical 2-isomorphism witnessing 2-commutativity of the 2-fibre-product
-square in `AlgebraicStacks S`. -/
-def comparisonIso {S : Scheme.{u}} {X Y Z : AlgebraicStacks S}
-    (f : X ⟶ Z) (g : Y ⟶ Z) :
-    fst f g ≫ f ≅ snd f g ≫ g :=
-  Bicategory.InducedBicategory.isoMk
-    (TwoFibreProduct.comparisonIso.{u + 1, u, u + 1, u} f.hom g.hom)
+#check (AlgebraicGeometry.AlgebraicStacks.twoFibreProduct.cone.isBilimit :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicStacks S} (f : X ⟶ Z) (g : Y ⟶ Z),
+    (AlgebraicStacks.twoFibreProduct.cone f g).IsBilimit)
 
-/-- The ambient forward 2-morphism of `comparisonIso` is the comparison cell of
-the 2-fibre product of groupoid fibrations. -/
-theorem comparisonIso.hom {S : Scheme.{u}} {X Y Z : AlgebraicStacks S}
-    (f : X ⟶ Z) (g : Y ⟶ Z) :
-    (comparisonIso f g).hom.hom =
-      (TwoFibreProduct.comparisonIso.{u + 1, u, u + 1, u} f.hom g.hom).hom :=
-  sorry
-
-/-- The canonical 2-fibre-product cone of `f` and `g` in `AlgebraicStacks S`. -/
-def cone {S : Scheme.{u}} {X Y Z : AlgebraicStacks S} (f : X ⟶ Z) (g : Y ⟶ Z) :
-    PseudoPullbackCone f g where
-  pt := twoFibreProduct f g
-  fst := fst f g
-  snd := snd f g
-  iso := comparisonIso f g
-
-/-- The 2-fibre product of algebraic stacks is a 2-fibre product in the
-2-category `AlgebraicStacks S`. -/
-instance cone.isBilimit {S : Scheme.{u}} {X Y Z : AlgebraicStacks S}
-    (f : X ⟶ Z) (g : Y ⟶ Z) :
-    (cone f g).IsBilimit :=
-  sorry
-
-end twoFibreProduct
-
-end AlgebraicStacks
-
-end AlgebraicGeometry

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_17_1_Tensor
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.EndomorphismTensor
 import StacksCheckRecall
 
 @[expose] public section
@@ -33,6 +27,6 @@ Lemma 22.35.3 has image contained in `D_QCoh(𝒪_X)`. -/
         SheafOfModules.isQuasicoherent (commRingedSiteLift X).structureSheaf
           (K.homology n))
       (M : DifferentialGradedModule.Derived.Category.{0, u + 1} (endDGA.{u + 1, u} K)),
-      DerivedCategory.cohomologyIn
+      RingedSite.Hom.moduleCohomologyIn.{u + 1} (commRingedSiteLift X)
         (SheafOfModules.isQuasicoherent (commRingedSiteLift X).structureSheaf)
         ((SheafOfModules.RingedSite.TensorWithObject.Derived.tensorFunctor K).obj M))

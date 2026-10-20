@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
@@ -21,6 +15,9 @@ is an arbitrary henselian local algebra over the base; comparisons between two
 chosen henselizations are a specialization.  The API intentionally states
 existence and uniqueness without selecting a witness: a `Classical.choose`
 definition would make non-Prop comparison data depend on deferred proof debt.
+Given explicit local lifts in both directions, `algEquivOfLocal` assembles
+them into the comparison equivalence.  `IsHenselizationOf` is propositional and
+carries no lift data, so a zero-input comparison remains `nonemptyAlgEquiv`.
 
 @stack 04GS
 -/
@@ -85,6 +82,36 @@ isomorphic as algebras over that ring.  The result is proposition-valued, so
 it does not choose an equivalence as public data. -/
 @[stacks 04GS "equivalence of chosen henselizations"]
 theorem nonemptyAlgEquiv : Nonempty (Rh ≃ₐ[R] Sh) := sorry
+
+/-- Tag 04GS: explicit local lifts in both directions between two chosen
+henselizations are mutually inverse, by uniqueness of local lifts into a
+henselization.  The forward and inverse maps are the given lifts. -/
+@[stacks 04GS "equivalence of henselizations from explicit local lifts"]
+def algEquivOfLocal
+    (f : AlgHom.Local (R := R) (A := Rh) (B := Sh))
+    (g : AlgHom.Local (R := R) (A := Sh) (B := Rh)) : Rh ≃ₐ[R] Sh :=
+  AlgEquiv.ofAlgHom f.hom g.hom
+    (congrArg AlgHom.Local.hom
+      (local_eq (R := R) (Rh := Sh) (T := Sh) (f.comp g)
+        ⟨AlgHom.id R Sh, by change IsLocalHom (RingHom.id Sh); infer_instance⟩))
+    (congrArg AlgHom.Local.hom
+      (local_eq (R := R) (Rh := Rh) (T := Rh) (g.comp f)
+        ⟨AlgHom.id R Rh, by change IsLocalHom (RingHom.id Rh); infer_instance⟩))
+
+/-- The comparison built from explicit local lifts acts by the forward lift. -/
+@[simp]
+theorem algEquivOfLocal_apply
+    (f : AlgHom.Local (R := R) (A := Rh) (B := Sh))
+    (g : AlgHom.Local (R := R) (A := Sh) (B := Rh)) (x : Rh) :
+    algEquivOfLocal f g x = f.hom x := rfl
+
+/-- The inverse of the comparison built from explicit local lifts is the
+backward lift. -/
+@[simp]
+theorem algEquivOfLocal_symm_apply
+    (f : AlgHom.Local (R := R) (A := Rh) (B := Sh))
+    (g : AlgHom.Local (R := R) (A := Sh) (B := Rh)) (y : Sh) :
+    (algEquivOfLocal f g).symm y = g.hom y := rfl
 
 omit hCommR hLocalR hCommRh hRRh hRh hCommSh hRSh hSh
 

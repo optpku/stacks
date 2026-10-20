@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_40_1_Proper
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Proper.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of proper morphisms of algebraic spaces
@@ -23,16 +17,15 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.40.4: A composition of proper morphisms of algebraic spaces is
+/- Lemma 67.40.4: A composition of proper morphisms of algebraic spaces is
 proper. -/
-@[stacks 04XY]
-instance proper_isStableUnderComposition {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderComposition
-      (@Proper S : MorphismProperty (AlgebraicSpace S)) := sorry
+@[stacks 04XY] #check
+  (AlgebraicGeometry.AlgebraicSpace.proper_isStableUnderComposition :
+    ∀ {S : Scheme.{u}}, MorphismProperty.IsStableUnderComposition
+      (@Proper S : MorphismProperty (AlgebraicSpace S)))
 
-/-- The composition of proper morphisms of algebraic spaces is proper. -/
-instance proper_comp {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [Proper f] [Proper g] :
-    Proper (f ≫ g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.proper_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+    (f : X ⟶ Y) (g : Y ⟶ Z) [Proper f] [Proper g], Proper (f ≫ g))
 
 end AlgebraicGeometry.AlgebraicSpace

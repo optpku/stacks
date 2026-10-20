@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.Proper
-public import ReasLib.AlgebraicGeometry.RingedSpace.Module.HigherDirectImage
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Coherent
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology
+public import ReasLib.AlgebraicGeometry.Scheme.HigherDirectImage.CoherentVanishing
+import StacksCheckRecall
 
 /-!
 # Vanishing of higher direct images on finite fibres
@@ -29,16 +21,16 @@ universe u
 
 namespace AlgebraicGeometry.Scheme
 
-/-- Lemma 30.20.8: let `f : X ⟶ Y` be a morphism of schemes and let `y` be a
+/- Lemma 30.20.8: let `f : X ⟶ Y` be a morphism of schemes and let `y` be a
 point of `Y`. Assume `Y` is locally Noetherian, `f` is proper, and the fibre
 `f ⁻¹' {y}` is finite. Then for any coherent `𝒪_X`-module `F` and every
 `p > 0`, the stalk of `R^p f_* F` at `y` vanishes. -/
-@[stacks 02OE]
-theorem higherDirectImageModule_stalk_isZero_of_proper_finite_fiber
-    {X Y : Scheme.{u}} [IsLocallyNoetherian Y] (f : X ⟶ Y) [IsProper f]
-    (y : Y) (hy : Set.Finite (f ⁻¹' ({y} : Set Y)))
-    (F : X.Modules) [F.IsCoherent] (p : ℕ) (hp : 0 < p) :
-    IsZero (RingedSpace.stalkModuleCat
-      (RingedSpace.Hom.higherDirectImageModule f.toShHom F p) y) := sorry
+@[stacks 02OE] #check
+  (AlgebraicGeometry.Scheme.higherDirectImageModule_stalk_isZero_of_proper_finite_fiber :
+    ∀ {X Y : Scheme.{u}} [IsLocallyNoetherian Y] (f : X ⟶ Y) [IsProper f]
+      (y : Y) (hy : Set.Finite (f ⁻¹' ({y} : Set Y)))
+      (F : X.Modules) [F.IsCoherent] (p : ℕ) (hp : 0 < p),
+      IsZero (RingedSpace.stalkModuleCat
+        (RingedSpace.Hom.higherDirectImageModule f.toShHom F p) y))
 
 end AlgebraicGeometry.Scheme

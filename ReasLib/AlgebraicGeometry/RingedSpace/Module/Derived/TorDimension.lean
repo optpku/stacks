@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Tensor
@@ -11,6 +5,10 @@ public import ReasLib.CategoryTheory.DerivedCategory.Monoidal.TorAmplitude
 import Mathlib.Tactic.CrossRefAttribute
 
 @[expose] public section
+
+-- The coefficient category uses the actual structure-sheaf tensor. Its coproduct
+-- totalizations are supplied by the native module-sheaf colimits.
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
 
 /-!
 # Tor-amplitude on ringed spaces
@@ -32,12 +30,11 @@ universe u
 namespace AlgebraicGeometry.RingedSpace
 
 variable {X : RingedSpace.{u}}
+variable [DerivedCategory.DerivedTensor.Right.Has (C := Modules X)]
 
 /-- The object property of having lower Tor-amplitude at least `a` on a ringed space. -/
 abbrev torAmplitudeGE (a : ℤ) : ObjectProperty (ModuleDerived X) :=
-  @DerivedCategory.DerivedTensor.torAmplitudeGE (Modules X) _ _ _ _ _
-    (SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor X.sheaf)
-    (SheafOfModules.RingedSite.moduleCategoryHasDerivedTensor X.sheaf).right a
+  DerivedCategory.DerivedTensor.torAmplitudeGE (C := Modules X) a
 
 /-- A derived `𝒪_X`-module has lower Tor-amplitude at least `a`. -/
 abbrev HasTorAmplitudeGE (E : ModuleDerived X) (a : ℤ) : Prop :=
@@ -45,9 +42,7 @@ abbrev HasTorAmplitudeGE (E : ModuleDerived X) (a : ℤ) : Prop :=
 
 /-- The object property of having upper Tor-amplitude at most `b` on a ringed space. -/
 abbrev torAmplitudeLE (b : ℤ) : ObjectProperty (ModuleDerived X) :=
-  @DerivedCategory.DerivedTensor.torAmplitudeLE (Modules X) _ _ _ _ _
-    (SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor X.sheaf)
-    (SheafOfModules.RingedSite.moduleCategoryHasDerivedTensor X.sheaf).right b
+  DerivedCategory.DerivedTensor.torAmplitudeLE (C := Modules X) b
 
 /-- A derived `𝒪_X`-module has upper Tor-amplitude at most `b`. -/
 abbrev HasTorAmplitudeLE (E : ModuleDerived X) (b : ℤ) : Prop :=
@@ -56,9 +51,7 @@ abbrev HasTorAmplitudeLE (E : ModuleDerived X) (b : ℤ) : Prop :=
 /-- The object property of derived `𝒪_X`-modules with Tor-amplitude in `[a, b]`. -/
 @[stacks 08CG "(1) object property"]
 abbrev torAmplitudeIn (a b : ℤ) : ObjectProperty (ModuleDerived X) :=
-  @DerivedCategory.DerivedTensor.torAmplitudeIn (Modules X) _ _ _ _ _
-    (SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor X.sheaf)
-    (SheafOfModules.RingedSite.moduleCategoryHasDerivedTensor X.sheaf).right a b
+  DerivedCategory.DerivedTensor.torAmplitudeIn (C := Modules X) a b
 
 /-- A derived `𝒪_X`-module has Tor-amplitude in `[a, b]` when its canonical derived tensor
 product with every degree-zero module sheaf has homology only in that interval. -/
@@ -76,17 +69,13 @@ theorem hasTorAmplitudeIn_iff_homology (E : ModuleDerived X) (a b : ℤ) :
     HasTorAmplitudeIn E a b ↔
       ∀ (F : Modules X) (i : ℤ), i ∉ Set.Icc a b →
         IsZero ((DerivedCategory.homologyFunctor (Modules X) i).obj
-          (@DerivedCategory.DerivedTensor.Right.obj (Modules X) _ _ _ _ _
-            (SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor X.sheaf)
-            E ((DerivedCategory.singleFunctor (Modules X) 0).obj F)
-            (SheafOfModules.RingedSite.moduleCategoryHasDerivedTensor X.sheaf).right)) := sorry
+          (DerivedCategory.DerivedTensor.Right.obj E
+            ((DerivedCategory.singleFunctor (Modules X) 0).obj F))) := sorry
 
 /-- The object property of derived `𝒪_X`-modules of finite Tor dimension. -/
 @[stacks 08CG "(2) object property"]
 abbrev finiteTorDimension : ObjectProperty (ModuleDerived X) :=
-  @DerivedCategory.DerivedTensor.finiteTorDimension (Modules X) _ _ _ _ _
-    (SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor X.sheaf)
-    (SheafOfModules.RingedSite.moduleCategoryHasDerivedTensor X.sheaf).right
+  DerivedCategory.DerivedTensor.finiteTorDimension (C := Modules X)
 
 /-- A derived `𝒪_X`-module has finite Tor dimension when it has Tor-amplitude in some finite
 interval. -/
@@ -116,9 +105,7 @@ theorem HasTorAmplitudeIn.hasTorAmplitudeLE
 /-- The object property of `𝒪_X`-modules with Tor dimension at most `d`. -/
 @[stacks 08CG "(4), object property"]
 abbrev moduleTorDimensionLE (d : ℕ) : ObjectProperty (Modules X) :=
-  @DerivedCategory.DerivedTensor.torDimensionLE (Modules X) _ _ _ _ _
-    (SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor X.sheaf)
-    (SheafOfModules.RingedSite.moduleCategoryHasDerivedTensor X.sheaf).right d
+  DerivedCategory.DerivedTensor.torDimensionLE (C := Modules X) d
 
 /-- An `𝒪_X`-module has Tor dimension at most `d` when its degree-zero derived object has
 Tor-amplitude in `[-d, 0]`. -/

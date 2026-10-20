@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.CategoryTheory.Sites.Cohomology.Objectwise
-public import stacks_project.Chap85.Lemma_85_3_5
+import StacksCheckRecall
+public import ReasLib.CategoryTheory.Sites.Simplicial.Cohomology
+public import ReasLib.CategoryTheory.Sites.Grothendieck.Cohomology
 
 /-!
 # Lemma 85.8.6
@@ -28,52 +22,43 @@ universe u v w
 
 namespace CategoryTheory.SimplicialSites
 
-variable (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
-variable [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
-variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
-    ((C.map φ).toFunctor).op.HasLeftKanExtension P]
-variable [IsMorphismDiagram C J]
-
-/-- Lemma 85.8.6 (1): in Situation 85.3.3 case A, for `U` in `C_n` and `F` in
-`Ab(C_total)`, the objectwise cohomology `H^p((ofStage C n).obj U, F)` on
-`C_total` is isomorphic to `H^p(U, g_n⁻¹ F)` on `C_n`. -/
-@[stacks 0DBZ]
-theorem cohomologyOverObject_ofStage_iso
+/- Lemma 85.8.6: cohomology over a stage object agrees with cohomology after
+restriction to the stage in case A of Situation 85.3.3. -/
+@[stacks 0DBZ] #check (CategoryTheory.SimplicialSites.cohomologyOverObject_ofStage_iso :
+    ∀ (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
+    [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
+    [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
+      ((C.map φ).toFunctor).op.HasLeftKanExtension P]
+    [IsMorphismDiagram C J]
     [HasSheafify (topology C J) AddCommGrpCat.{max w v}]
     [HasExt.{w} (Sheaf (topology C J) AddCommGrpCat.{max w v})]
     (n : SimplexCategory)
     [HasSheafify ((J n).toGrothendieck) AddCommGrpCat.{max w v}]
     [HasExt.{w} (Sheaf ((J n).toGrothendieck) AddCommGrpCat.{max w v})]
-    (U : C.obj n) (F : Sheaf (topology C J) AddCommGrpCat.{max w v}) (p : ℕ) :
+    (U : C.obj n) (F : Sheaf (topology C J) AddCommGrpCat.{max w v}) (p : ℕ),
     IsIsomorphic
       (Sheaf.cohomologyOverObject F ((ofStage C n).obj U) p)
       (Sheaf.cohomologyOverObject
-        ((stageRestrict C J AddCommGrpCat.{max w v} n).obj F) U p) :=
-  sorry
+        ((stageRestrict C J AddCommGrpCat.{max w v} n).obj F) U p))
 
 end CategoryTheory.SimplicialSites
 
 namespace CategoryTheory.Grothendieck
 
-variable (F : SimplicialObject Cat.{v, u}) (J : ∀ n, Precoverage (F.obj n))
-variable [IsFiberwiseSite F J]
-
-/-- Lemma 85.8.6 (2): in Situation 85.3.3 case B, for `U` in `C_n` and `G` in
-`Ab(C_total)`, the objectwise cohomology `H^p((ι F (op n)).obj U, G)` on
-`C_total` is isomorphic to `H^p(U, g_n⁻¹ G)` on `C_n`. -/
-@[stacks 0DBZ]
-theorem cohomologyOverObject_fiber_iso
+/- The same comparison in case B of Situation 85.3.3. -/
+#check (CategoryTheory.Grothendieck.cohomologyOverObject_fiber_iso :
+    ∀ (F : SimplicialObject Cat.{v, u}) (J : ∀ n, Precoverage (F.obj n))
+    [IsFiberwiseSite F J]
     [HasSheafify (topology F J) AddCommGrpCat.{max w v}]
     [HasExt.{w} (Sheaf (topology F J) AddCommGrpCat.{max w v})]
     (n : SimplexCategory)
     [HasSheafify ((J (op n)).toGrothendieck) AddCommGrpCat.{max w v}]
     [HasExt.{w} (Sheaf ((J (op n)).toGrothendieck) AddCommGrpCat.{max w v})]
     (U : F.obj (op n)) (G : Sheaf (topology F J) AddCommGrpCat.{max w v})
-    (p : ℕ) :
+    (p : ℕ),
     IsIsomorphic
       (Sheaf.cohomologyOverObject G ((ι F (op n)).obj U) p)
       (Sheaf.cohomologyOverObject
-        ((fiberRestrict F J AddCommGrpCat.{max w v} n).obj G) U p) :=
-  sorry
+        ((fiberRestrict F J AddCommGrpCat.{max w v} n).obj G) U p))
 
 end CategoryTheory.Grothendieck

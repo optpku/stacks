@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.ClosedSubscheme.Reduced
@@ -48,6 +42,10 @@ noncomputable def scheme {X : Scheme.{u}} (x : X) : Scheme.{u} :=
 /-- The canonical closed immersion from the reduced point closure into the ambient scheme. -/
 noncomputable def ι {X : Scheme.{u}} (x : X) : scheme x ⟶ X :=
   (reducedStructure x).ι
+
+/-- The canonical inclusion of the reduced closure of a point is a closed immersion. -/
+instance iota_isClosedImmersion {X : Scheme.{u}} (x : X) : IsClosedImmersion (ι x) :=
+  inferInstanceAs (IsClosedImmersion (reducedStructure x).ideal.subschemeι)
 
 /-- The range of the canonical immersion is the singleton closure. -/
 theorem range_ι {X : Scheme.{u}} (x : X) :

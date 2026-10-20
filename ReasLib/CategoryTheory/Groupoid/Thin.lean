@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 -- Import decisions:
@@ -42,7 +36,7 @@ hide these two standard typeclass assumptions and reduce reuse, so the canonical
 used directly.
 -/
 
-/-- Definition 4.39.1 (Stacks 02XZ): for a groupoid, thinness is equivalent to every object
+/-- For a groupoid, thinness is equivalent to every object
 having a subsingleton automorphism type. -/
 @[stacks 02XZ "groupoids with only identity automorphisms"]
 theorem isThin_iff_subsingleton_aut [IsGroupoid C] :

@@ -1,15 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Group.Conj
 public import Mathlib.Algebra.Group.ULift
+public import Mathlib.Algebra.Field.ULift
 public import Mathlib.FieldTheory.IsAlgClosed.Basic
-public import Mathlib.Topology.Algebra.Category.ProfiniteGrp.Completion
+public import Mathlib.FieldTheory.AlgebraicClosure
+public import Mathlib.FieldTheory.IntermediateField.Adjoin.Basic
+public import Mathlib.FieldTheory.Finite.Extension
+public import ReasLib.Topology.Algebra.Category.ProfiniteGrp.DegreeExtension
 public import Mathlib.Topology.Algebra.Group.ClosedSubgroup
 public import ReasLib.AlgebraicGeometry.Scheme.OverField
 public import stacks_project.Chap58.Lemma_58_14_3_Induced
@@ -20,12 +18,12 @@ public import stacks_project.Chap58.Theorem_58_6_2_InducedHom
 public import stacks_project.Chap64.«64_2_0_1_GeometricFrobenius»
 
 /-!
-# Profinite degree extensions of `hatZ`
+# Finite-field degree extensions of `hatZ`
 
-This leaf owns the profinite integers `hatZ`, short exact sequences
-`1 → G → Γ → hatZ → 1`, conjugacy-class degree, and the étale fundamental-group
-example, with degree map `arithmeticToGalois` followed by the geometric
-Frobenius-normalized isomorphism `π₁(Spec k) ⟶ hatZ`.
+The arithmetic geometric example of a profinite degree extension uses
+`arithmeticToGalois` followed by a geometric-Frobenius-normalized map
+`π₁(Spec k) ⟶ hatZ`. Its finite quotient coordinates are evaluated on finite-field covers,
+and its field and fiber inverses are recovered from actual affine coordinates.
 -/
 
 @[expose] public section
@@ -37,85 +35,7 @@ open scoped Topology
 
 universe u
 
-namespace ProfiniteGrp
-
-/-- The profinite completion of the infinite cyclic group. -/
-noncomputable abbrev hatZ : ProfiniteGrp.{u} :=
-  ProfiniteCompletion.completion (GrpCat.of (Multiplicative (ULift.{u} ℤ)))
-
-/-- The canonical image of `n : ℕ` in `hatZ`. -/
-noncomputable def hatZNatCast (n : ℕ) : hatZ.{u} :=
-  ProfiniteCompletion.etaFn (GrpCat.of (Multiplicative (ULift.{u} ℤ)))
-    (Multiplicative.ofAdd (ULift.up (n : ℤ)))
-
-/-- The canonical generator `1` in `hatZ`. -/
-noncomputable def hatZOne : hatZ.{u} :=
-  hatZNatCast 1
-
-/-- A profinite extension `1 → G → Γ →deg hatZ → 1`, with `G` recovered as `ker(deg)`. -/
-structure DegreeExtension where
-  /-- The middle profinite group of the extension. -/
-  middle : ProfiniteGrp.{u}
-  /-- The degree homomorphism `Γ ⟶ hatZ`. -/
-  deg : middle ⟶ hatZ.{u}
-  /-- The degree homomorphism is surjective. -/
-  deg_surjective : Function.Surjective deg
-
-namespace DegreeExtension
-
-variable (S : DegreeExtension.{u})
-
-/-- The kernel of `deg` as a closed subgroup of `Γ`. -/
-noncomputable def kerClosed : ClosedSubgroup S.middle where
-  toSubgroup := MonoidHom.ker S.deg.hom.toMonoidHom
-  isClosed' := IsClosed.preimage S.deg.hom.continuous
-      (isClosed_singleton : IsClosed ({1} : Set hatZ.{u}))
-
-/-- The kernel `G = ker(deg)`, as a topological group. -/
-abbrev G : Type u := S.kerClosed.toSubgroup
-
-/-- The inclusion homomorphism `G →* Γ`. -/
-noncomputable def inlHom : S.G →* S.middle :=
-  S.kerClosed.subtype
-
-/-- The inclusion `G →ₜ* Γ` of the kernel of `deg`. -/
-noncomputable def inl : S.G →ₜ* S.middle :=
-  ⟨S.kerClosed.subtype, sorry⟩
-
-/-- The degree of a conjugacy class, well-defined because `hatZ` is abelian. -/
-noncomputable def degClass (c : ConjClasses S.middle) : hatZ.{u} :=
-  S.deg (Quotient.out c)
-
-/-- A chosen degree-one lift of `1` in `hatZ`. -/
-noncomputable def degreeOneLift : S.middle :=
-  Classical.choose (S.deg_surjective hatZOne)
-
-/-- The chosen degree-one lift maps to `1` in `hatZ`. -/
-theorem deg_degreeOneLift : S.deg S.degreeOneLift = hatZOne.{u} :=
-  sorry
-
-/-- Any two degree-one lifts differ by an element of `G = ker(deg)`. -/
-theorem degreeOneLift_spec (γ : S.middle) :
-    S.deg γ = hatZOne.{u} ↔ ∃ g : S.G, γ = S.inl g * S.degreeOneLift :=
-  sorry
-
-/-- The conjugacy class of a chosen degree-one lift, recording `F = 1` in `Γ/G = hatZ`. -/
-noncomputable def frobenius : ConjClasses S.middle :=
-  ConjClasses.mk S.degreeOneLift
-
-/-- Conjugation by `γ` on the kernel of `deg`. -/
-noncomputable def conjHom (γ : S.middle) : S.G →ₜ* S.G :=
-  ⟨{ toFun := fun g => ⟨γ * g.val * γ⁻¹, sorry⟩
-     map_one' := sorry
-     map_mul' := sorry },
-    sorry⟩
-
-/-- Package a surjective degree map as a degree extension. -/
-noncomputable def ofSurjectiveDeg (middle : ProfiniteGrp.{u}) (deg : middle ⟶ hatZ.{u})
-    (h : Function.Surjective deg) : DegreeExtension.{u} where
-  middle := middle
-  deg := deg
-  deg_surjective := h
+namespace ProfiniteGrp.DegreeExtension
 
 /-- The canonical algebraic-closure geometric point of `Spec k`. -/
 noncomputable abbrev specGaloisGeometricPoint (k : Type u) [Field k] :
@@ -179,14 +99,90 @@ theorem specFieldFiberToPointFiber_bijective {k : Type u} [Field k]
     Function.Bijective (specFieldFiberToPointFiber s Y) :=
   sorry
 
-/-- Equivalence of finite étale fibers at the canonical algebraic-closure point and at
-a general geometric point of `Spec k`. -/
+/-- The specified embedding of an algebraic closure has algebraic values. -/
+theorem specGeometricPointLift_mem_algebraicClosure {k : Type u} [Field k]
+    (s : GeometricPoint (Spec (CommRingCat.of k))) (x : AlgebraicClosure k) :
+    specGeometricPointLift s x ∈ algebraicClosure k s.K := sorry
+
+/-- The specified closure embedding, restricted to the relative algebraic closure. -/
+noncomputable def specGeometricPointAlgebraicInclusion {k : Type u} [Field k]
+    (s : GeometricPoint (Spec (CommRingCat.of k))) :
+    AlgebraicClosure k →ₐ[k] algebraicClosure k s.K :=
+  (specGeometricPointLift s).codRestrict (algebraicClosure k s.K).toSubalgebra
+    (specGeometricPointLift_mem_algebraicClosure s)
+
+/-- The specified embedding identifies the two algebraic closures by the algebraic
+Schroeder--Bernstein theorem. -/
+noncomputable def specGeometricPointAlgebraicEquiv {k : Type u} [Field k]
+    (s : GeometricPoint (Spec (CommRingCat.of k))) :
+    AlgebraicClosure k ≃ₐ[k] algebraicClosure k s.K :=
+  AlgEquiv.ofBijective (specGeometricPointAlgebraicInclusion s)
+    (Algebra.IsAlgebraic.algHom_bijective₂ (specGeometricPointAlgebraicInclusion s)
+      (IsAlgClosed.lift : algebraicClosure k s.K →ₐ[k] AlgebraicClosure k)).1
+
+/-- A geometric fiber point evaluates the global functions of the finite étale cover. -/
+noncomputable def specFieldPointEvaluation {k : Type u} [Field k]
+    (s : GeometricPoint (Spec (CommRingCat.of k)))
+    (Y : FiniteEtale (Spec (CommRingCat.of k))) (y : finiteEtaleFiberObj s Y) :
+    Γ(Y.left, ⊤) →+* s.K :=
+  (y.left.appTop ≫ (Scheme.ΓSpecIso (CommRingCat.of s.K)).hom).hom
+
+/-- Values of finite étale coordinates are algebraic over the base field. -/
+theorem specFieldPointEvaluation_mem_algebraicClosure {k : Type u} [Field k]
+    (s : GeometricPoint (Spec (CommRingCat.of k)))
+    (Y : FiniteEtale (Spec (CommRingCat.of k))) (y : finiteEtaleFiberObj s Y)
+    (r : Γ(Y.left, ⊤)) :
+    specFieldPointEvaluation s Y y r ∈ algebraicClosure k s.K := sorry
+
+/-- Descended coordinates in the canonical algebraic closure. -/
+noncomputable def specFieldDescendedEvaluation {k : Type u} [Field k]
+    (s : GeometricPoint (Spec (CommRingCat.of k)))
+    (Y : FiniteEtale (Spec (CommRingCat.of k))) (y : finiteEtaleFiberObj s Y) :
+    Γ(Y.left, ⊤) →+* AlgebraicClosure k :=
+  (specGeometricPointAlgebraicEquiv s).symm.toRingHom.comp
+    ((specFieldPointEvaluation s Y y).codRestrict
+      (algebraicClosure k s.K).toSubalgebra.toSubsemiring
+      (specFieldPointEvaluation_mem_algebraicClosure s Y y))
+
+/-- A geometric fiber point descends through its actual finite affine coordinate ring. -/
+noncomputable def specPointFiberToFieldFiber {k : Type u} [Field k]
+    (s : GeometricPoint (Spec (CommRingCat.of k)))
+    (Y : FiniteEtale (Spec (CommRingCat.of k))) (y : finiteEtaleFiberObj s Y) :
+    finiteEtaleFiberObj (specGaloisGeometricPoint k) Y := by
+  let hfinite : AlgebraicGeometry.IsFinite Y.hom := Y.prop.1
+  let haffine : IsAffineHom Y.hom := hfinite.toIsAffineHom
+  let hbase : IsAffine ((Functor.fromPUnit (Spec (CommRingCat.of k))).obj Y.right) := by
+    change IsAffine (Spec (CommRingCat.of k))
+    infer_instance
+  letI : IsAffine Y.left := @isAffine_of_isAffineHom _ _ Y.hom haffine hbase
+  exact Over.homMk
+    (Spec.map (CommRingCat.ofHom (specFieldDescendedEvaluation s Y y)) ≫ Y.left.isoSpec.inv)
+    (w := sorry)
+
+/-- The geometric-fiber comparison uses the specified embedding and coordinate descent. -/
 noncomputable def specFieldFiberEquiv {k : Type u} [Field k]
     (s : GeometricPoint (Spec (CommRingCat.of k)))
     (Y : FiniteEtale (Spec (CommRingCat.of k))) :
     finiteEtaleFiberObj (specGaloisGeometricPoint k) Y ≃ finiteEtaleFiberObj s Y :=
-  Equiv.ofBijective (specFieldFiberToPointFiber s Y)
-    (specFieldFiberToPointFiber_bijective s Y)
+  { toFun := specFieldFiberToPointFiber s Y
+    invFun := specPointFiberToFieldFiber s Y
+    left_inv := sorry
+    right_inv := sorry }
+
+/-- The fiber comparison acts by the specified algebraic-closure embedding. -/
+@[simp]
+theorem specFieldFiberEquiv_apply {k : Type u} [Field k]
+    (s : GeometricPoint (Spec (CommRingCat.of k)))
+    (Y : FiniteEtale (Spec (CommRingCat.of k)))
+    (y : finiteEtaleFiberObj (specGaloisGeometricPoint k) Y) :
+    specFieldFiberEquiv s Y y = specFieldFiberToPointFiber s Y y := rfl
+
+/-- The inverse fiber comparison acts by descent of affine coordinates. -/
+@[simp]
+theorem specFieldFiberEquiv_symm_apply {k : Type u} [Field k]
+    (s : GeometricPoint (Spec (CommRingCat.of k)))
+    (Y : FiniteEtale (Spec (CommRingCat.of k))) (y : finiteEtaleFiberObj s Y) :
+    (specFieldFiberEquiv s Y).symm y = specPointFiberToFieldFiber s Y y := rfl
 
 /-- Isomorphism of standard fiber functors at two geometric points of `Spec k`. -/
 noncomputable def specGeometricPointFiberIso {k : Type u} [Field k]
@@ -201,12 +197,78 @@ noncomputable def specGeometricPointFiberIso {k : Type u} [Field k]
         inv_hom_id := sorry })
     fun _ ↦ sorry
 
+/-- The spectrum map of a finite field extension is finite. -/
+theorem specFieldExtension_finite {k L : Type u} [Field k] [Field L] [Algebra k L]
+    [FiniteDimensional k L] :
+    AlgebraicGeometry.IsFinite
+      (Spec.map (CommRingCat.ofHom (algebraMap k L))) := sorry
+
+/-- The spectrum map of a finite separable field extension is étale. -/
+theorem specFieldExtension_etale {k L : Type u} [Field k] [Field L] [Algebra k L]
+    [FiniteDimensional k L] [Algebra.IsSeparable k L] :
+    Etale (Spec.map (CommRingCat.ofHom (algebraMap k L))) := sorry
+
+/-- The finite étale cover attached to the specified finite separable field. -/
+noncomputable def specFieldExtensionCover (k L : Type u) [Field k] [Field L]
+    [Algebra k L] [FiniteDimensional k L] [Algebra.IsSeparable k L] :
+    FiniteEtale (Spec (CommRingCat.of k)) :=
+  { toComma := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap k L)))
+    prop := ⟨specFieldExtension_finite, specFieldExtension_etale⟩ }
+
+/-- The geometric point of a field cover is its specified embedding. -/
+noncomputable def specFieldExtensionPoint {k L : Type u} [Field k] [Field L]
+    [Algebra k L] [FiniteDimensional k L] [Algebra.IsSeparable k L]
+    (e : L →ₐ[k] AlgebraicClosure k) :
+    finiteEtaleFiberObj (specGaloisGeometricPoint k) (specFieldExtensionCover k L) :=
+  Over.homMk (Spec.map (CommRingCat.ofHom e.toRingHom)) (w := sorry)
+
+/-- Evaluate a fiber automorphism on a specified finite separable field embedding. -/
+noncomputable def specFieldExtensionActedEvaluation {k L : Type u} [Field k] [Field L]
+    [Algebra k L] [FiniteDimensional k L] [Algebra.IsSeparable k L]
+    (σ : Aut (specGaloisGeometricPoint k).finiteFiber)
+    (e : L →ₐ[k] AlgebraicClosure k) : L →+* AlgebraicClosure k :=
+  (Spec.homEquiv
+    (σ.hom.app (specFieldExtensionCover k L) (specFieldExtensionPoint e)).left).hom
+
+/-- A fiber automorphism acts on an algebraic element through the finite field it generates. -/
+noncomputable def specFiberAutApply {k : Type u} [Field k] [Fintype k]
+    (σ : Aut (specGaloisGeometricPoint k).finiteFiber) (x : AlgebraicClosure k) :
+    AlgebraicClosure k := by
+  letI : FiniteDimensional k (IntermediateField.adjoin k {x}) :=
+    IntermediateField.adjoin.finiteDimensional
+      (Algebra.IsAlgebraic.isAlgebraic (R := k) x).isIntegral
+  exact specFieldExtensionActedEvaluation σ (IntermediateField.adjoin k {x}).val
+    ⟨x, IntermediateField.mem_adjoin_simple_self k x⟩
+
+/-- The algebraic-closure automorphism reconstructed by its finite-field coordinates. -/
+noncomputable def specFiberAutToGalois {k : Type u} [Field k] [Fintype k]
+    (σ : Aut (specGaloisGeometricPoint k).finiteFiber) : Gal(AlgebraicClosure k/k) where
+  toFun := specFiberAutApply σ
+  invFun := specFiberAutApply σ⁻¹
+  left_inv := sorry
+  right_inv := sorry
+  map_mul' := sorry
+  map_add' := sorry
+  commutes' := sorry
+
+/-- Reconstruction acts on each algebraic element by its finite-field coordinate. -/
+@[simp]
+theorem specFiberAutToGalois_apply {k : Type u} [Field k] [Fintype k]
+    (σ : Aut (specGaloisGeometricPoint k).finiteFiber) (x : AlgebraicClosure k) :
+    specFiberAutToGalois σ x = specFiberAutApply σ x := rfl
+
+/-- The inverse reconstructed field automorphism uses the inverse fiber automorphism. -/
+@[simp]
+theorem specFiberAutToGalois_symm_apply {k : Type u} [Field k] [Fintype k]
+    (σ : Aut (specGaloisGeometricPoint k).finiteFiber) (x : AlgebraicClosure k) :
+    (specFiberAutToGalois σ).symm x = specFiberAutApply σ⁻¹ x := rfl
+
 /-- The image of arithmetic Frobenius in `π₁(Spec k)` at the canonical algebraic-closure
 geometric point. -/
 noncomputable def arithmeticFrobeniusπ {k : Type u} [Field k] [Fintype k]
     {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k] :
     etaleFundamentalGroup (Spec (CommRingCat.of k)) (specGaloisGeometricPoint k) :=
-  galoisAlgClosureToFundamentalGroup k (AlgebraicClosure k) arithmeticFrobeniusEquiv
+  galoisAlgClosureToFundamentalGroup k (AlgebraicClosure k) (FiniteField.arithmeticFrobenius k)
 
 /-- Arithmetic Frobenius transported to a general geometric point of `Spec k`. -/
 noncomputable def arithmeticFrobeniusπAt {k : Type u} [Field k] [Fintype k]
@@ -216,16 +278,16 @@ noncomputable def arithmeticFrobeniusπAt {k : Type u} [Field k] [Fintype k]
     etaleFundamentalGroup (Spec (CommRingCat.of k)) s :=
   inducedAutHom_of_fiberIso (specGeometricPointFiberIso s) (arithmeticFrobeniusπ (k := k))
 
-/-- `arithmeticFrobeniusπ` is the image of `arithmeticFrobeniusEquiv`. -/
+/-- `arithmeticFrobeniusπ` is the image of `FiniteField.arithmeticFrobenius k`. -/
 theorem arithmeticFrobeniusπ_spec {k : Type u} [Field k] [Fintype k]
     {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k] :
     arithmeticFrobeniusπ (k := k) =
-      galoisAlgClosureToFundamentalGroup k (AlgebraicClosure k) arithmeticFrobeniusEquiv :=
+      galoisAlgClosureToFundamentalGroup k (AlgebraicClosure k) (FiniteField.arithmeticFrobenius k) :=
   sorry
 
 /-- Geometric Frobenius in `π₁(Spec k)` at the canonical algebraic-closure geometric
 point: the inverse of arithmetic Frobenius, equivalently the image of
-`arithmeticFrobeniusEquiv⁻¹`. -/
+`(FiniteField.arithmeticFrobenius k)⁻¹`. -/
 noncomputable def geometricFrobeniusπ {k : Type u} [Field k] [Fintype k]
     {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k] :
     etaleFundamentalGroup (Spec (CommRingCat.of k)) (specGaloisGeometricPoint k) :=
@@ -239,12 +301,12 @@ noncomputable def geometricFrobeniusπAt {k : Type u} [Field k] [Fintype k]
     etaleFundamentalGroup (Spec (CommRingCat.of k)) s :=
   inducedAutHom_of_fiberIso (specGeometricPointFiberIso s) (geometricFrobeniusπ (k := k))
 
-/-- `geometricFrobeniusπ` is the image of `arithmeticFrobeniusEquiv⁻¹`. -/
+/-- `geometricFrobeniusπ` is the image of `(FiniteField.arithmeticFrobenius k)⁻¹`. -/
 theorem geometricFrobeniusπ_spec {k : Type u} [Field k] [Fintype k]
     {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k] :
     geometricFrobeniusπ (k := k) =
       galoisAlgClosureToFundamentalGroup k (AlgebraicClosure k)
-        (arithmeticFrobeniusEquiv (k := k))⁻¹ :=
+        (FiniteField.arithmeticFrobenius k)⁻¹ :=
   sorry
 
 /-- `geometricFrobeniusπ` is the inverse of `arithmeticFrobeniusπ`. -/
@@ -252,6 +314,70 @@ theorem geometricFrobeniusπ_eq_inv {k : Type u} [Field k] [Fintype k]
     {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k] :
     geometricFrobeniusπ (k := k) = (arithmeticFrobeniusπ (k := k))⁻¹ :=
   sorry
+
+/-- A finite quotient coordinate of the degree map. -/
+abbrev SpecDegreeQuotient (H : FiniteIndexNormalSubgroup integerGroup.{u + 1}) :=
+  integerGroup.{u + 1} ⧸ H.toSubgroup
+
+/-- The testing field has the degree of the actual finite quotient. -/
+noncomputable abbrev specDegreeField (k : Type u) [Field k] [Fintype k]
+    (p : ℕ) [Fact p.Prime] [CharP k p]
+    (H : FiniteIndexNormalSubgroup integerGroup.{u + 1}) : Type u :=
+  ULift.{u} (FiniteField.Extension k p H.toSubgroup.index)
+
+/-- The finite-field spectrum used to read one residue of the degree map. -/
+noncomputable def specDegreeCover (k : Type u) [Field k] [Fintype k]
+    (p : ℕ) [Fact p.Prime] [CharP k p]
+    (H : FiniteIndexNormalSubgroup integerGroup.{u + 1}) :
+    FiniteEtale (Spec (CommRingCat.of k)) := by
+  letI : NeZero H.toSubgroup.index := ⟨H.toSubgroup.index_ne_zero_of_finite⟩
+  exact specFieldExtensionCover k (specDegreeField k p H)
+
+/-- A canonical library field embedding supplies the test point. -/
+noncomputable def specDegreePoint (k : Type u) [Field k] [Fintype k]
+    (p : ℕ) [Fact p.Prime] [CharP k p]
+    (H : FiniteIndexNormalSubgroup integerGroup.{u + 1}) :
+    finiteEtaleFiberObj (specGaloisGeometricPoint k) (specDegreeCover k p H) := by
+  letI : NeZero H.toSubgroup.index := ⟨H.toSubgroup.index_ne_zero_of_finite⟩
+  exact specFieldExtensionPoint (IsAlgClosed.lift : specDegreeField k p H →ₐ[k] AlgebraicClosure k)
+
+/-- Read the geometric Frobenius exponent by evaluating the finite orbit of a test point. -/
+noncomputable def specDegreeCoordinate {k : Type u} [Field k] [Fintype k]
+    {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
+    (H : FiniteIndexNormalSubgroup integerGroup.{u + 1})
+    (σ : etaleFundamentalGroup (Spec (CommRingCat.of k)) (specGaloisGeometricPoint k)) :
+    SpecDegreeQuotient H := by
+  classical
+  exact ∏ j : Fin H.toSubgroup.index,
+    if σ.hom.app (specDegreeCover k p H) (specDegreePoint k p H) =
+        (geometricFrobeniusπ (k := k) ^ j.val).hom.app
+          (specDegreeCover k p H) (specDegreePoint k p H)
+    then QuotientGroup.mk (Multiplicative.ofAdd (ULift.up (j.val : ℤ)))
+    else 1
+
+/-- Naturality of fiber automorphisms makes the finite quotient coordinates compatible. -/
+theorem specDegreeCoordinate_naturality {k : Type u} [Field k] [Fintype k]
+    {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
+    {H L : FiniteIndexNormalSubgroup integerGroup.{u + 1}} (f : H ⟶ L)
+    (σ : etaleFundamentalGroup (Spec (CommRingCat.of k)) (specGaloisGeometricPoint k)) :
+    (ProfiniteCompletion.diagram integerGroup).map f (specDegreeCoordinate H σ) =
+      specDegreeCoordinate L σ := sorry
+
+/-- The degree is the actual compatible tuple of finite-field evaluations. -/
+noncomputable def specDegreeTuple {k : Type u} [Field k] [Fintype k]
+    {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
+    (σ : etaleFundamentalGroup (Spec (CommRingCat.of k)) (specGaloisGeometricPoint k)) :
+    hatZ.{u + 1} :=
+  ⟨fun H ↦ specDegreeCoordinate H σ, fun _ _ f ↦ specDegreeCoordinate_naturality f σ⟩
+
+/-- The residue of the degree tuple is its specified finite-field computation. -/
+@[simp]
+theorem specDegreeTuple_apply {k : Type u} [Field k] [Fintype k]
+    {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
+    (σ : etaleFundamentalGroup (Spec (CommRingCat.of k)) (specGaloisGeometricPoint k))
+    (H : FiniteIndexNormalSubgroup integerGroup.{u + 1}) :
+    (specDegreeTuple σ).val H = specDegreeCoordinate H σ := rfl
+
 
 /-- Existence and uniqueness of the continuous surjection `π₁(Spec k) ⟶ hatZ` sending
 geometric Frobenius to `1`. -/
@@ -270,7 +396,20 @@ noncomputable def specToHatZ {k : Type u} [Field k] [Fintype k]
     [ConnectedSpace (Spec (CommRingCat.of k))] :
     etaleFundamentalGroup (Spec (CommRingCat.of k)) (specGaloisGeometricPoint k) ⟶
       hatZ.{u + 1} :=
-  Classical.choose (ExistsUnique.exists (existsUnique_specToHatZ (k := k)))
+  ProfiniteGrp.ofHom
+    { toFun := specDegreeTuple
+      map_one' := sorry
+      map_mul' := sorry
+      continuous_toFun := sorry }
+
+/-- Each finite quotient coordinate of the degree map is its finite-orbit evaluation. -/
+@[simp]
+theorem specToHatZ_apply {k : Type u} [Field k] [Fintype k]
+    {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
+    [ConnectedSpace (Spec (CommRingCat.of k))]
+    (σ : etaleFundamentalGroup (Spec (CommRingCat.of k)) (specGaloisGeometricPoint k))
+    (H : FiniteIndexNormalSubgroup integerGroup.{u + 1}) :
+    (specToHatZ (k := k) σ).val H = specDegreeCoordinate H σ := rfl
 
 /-- The degree map at a general geometric point, obtained by transporting `specToHatZ`
 along the fiber identification. -/
@@ -316,22 +455,35 @@ theorem specToHatZ_unique {k : Type u} [Field k] [Fintype k]
     f = specToHatZ (k := k) :=
   sorry
 
+/-- Geometric connectedness makes the arithmetic projection, and hence the normalized
+finite-field degree map, surjective. -/
+theorem geometricDegree_surjective {k : Type u} [Field k] [Fintype k]
+    {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
+    (X : SchemeOverField k) [ConnectedSpace X.left]
+    [ConnectedSpace (geometricBaseChange X)]
+    [ConnectedSpace (Spec (CommRingCat.of k))]
+    (etaBar : GeometricPoint X.left) :
+    Function.Surjective
+      (arithmeticToGalois X etaBar ≫ specToHatZAt (galoisPoint X etaBar)) := sorry
+
 /-- The étale fundamental group of a geometrically connected scheme over a finite
 field, as a degree extension of `hatZ`. The degree map is `arithmeticToGalois`
 followed by the unique geometric-Frobenius-normalized map `specToHatZAt`. -/
 noncomputable def ofEtaleFundamentalGroup {k : Type u} [Field k] [Fintype k]
     {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
     (X : SchemeOverField k) [ConnectedSpace X.left]
+    [ConnectedSpace (geometricBaseChange X)]
     [ConnectedSpace (Spec (CommRingCat.of k))]
     (etaBar : GeometricPoint X.left) : DegreeExtension.{u + 1} where
   middle := etaleFundamentalGroup X.left etaBar
   deg := arithmeticToGalois X etaBar ≫ specToHatZAt (galoisPoint X etaBar)
-  deg_surjective := sorry
+  deg_surjective := geometricDegree_surjective X etaBar
 
 /-- Unfolding of `ofEtaleFundamentalGroup` on the middle group. -/
 theorem ofEtaleFundamentalGroup_middle {k : Type u} [Field k] [Fintype k]
     {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
     (X : SchemeOverField k) [ConnectedSpace X.left]
+    [ConnectedSpace (geometricBaseChange X)]
     [ConnectedSpace (Spec (CommRingCat.of k))]
     (etaBar : GeometricPoint X.left) :
     (ofEtaleFundamentalGroup X etaBar).middle = etaleFundamentalGroup X.left etaBar :=
@@ -342,6 +494,7 @@ theorem ofEtaleFundamentalGroup_middle {k : Type u} [Field k] [Fintype k]
 theorem ofEtaleFundamentalGroup_deg {k : Type u} [Field k] [Fintype k]
     {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
     (X : SchemeOverField k) [ConnectedSpace X.left]
+    [ConnectedSpace (geometricBaseChange X)]
     [ConnectedSpace (Spec (CommRingCat.of k))]
     (etaBar : GeometricPoint X.left) :
     (ofEtaleFundamentalGroup X etaBar).deg =
@@ -355,13 +508,26 @@ noncomputable def galoisEquivEtaleFundamentalGroup {k : Type u} [Field k] [Finty
     [ConnectedSpace (Spec (CommRingCat.of k))] :
     Gal(AlgebraicClosure k/k) ≃*
       etaleFundamentalGroup (Spec (CommRingCat.of k)) (specGaloisGeometricPoint k) :=
-  MulEquiv.ofBijective (galoisAlgClosureToFundamentalGroup k (AlgebraicClosure k)) sorry
+  { toFun := galoisAlgClosureToFundamentalGroup k (AlgebraicClosure k)
+    invFun := specFiberAutToGalois
+    left_inv := sorry
+    right_inv := sorry
+    map_mul' := (galoisAlgClosureToFundamentalGroup k (AlgebraicClosure k)).map_mul }
+
+/-- The reverse Galois comparison is evaluation on finite generated subfields. -/
+@[simp]
+theorem galoisEquivEtaleFundamentalGroup_symm_apply {k : Type u} [Field k] [Fintype k]
+    {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
+    [ConnectedSpace (Spec (CommRingCat.of k))]
+    (σ : etaleFundamentalGroup (Spec (CommRingCat.of k)) (specGaloisGeometricPoint k)) :
+    (galoisEquivEtaleFundamentalGroup (k := k)).symm σ = specFiberAutToGalois σ := rfl
 
 /-- The homomorphism `G = ker(deg) → Gal(k̄/k)` obtained from the arithmetic-to-Galois
 sequence of `ofEtaleFundamentalGroup`. -/
 noncomputable def galoisFromKer {k : Type u} [Field k] [Fintype k]
     {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
     (X : SchemeOverField k) [ConnectedSpace X.left]
+    [ConnectedSpace (geometricBaseChange X)]
     [ConnectedSpace (Spec (CommRingCat.of k))]
     (etaBar : GeometricPoint X.left) :
     (ofEtaleFundamentalGroup X etaBar).G →* Gal(AlgebraicClosure k/k) :=
@@ -375,6 +541,7 @@ noncomputable def galoisFromKer {k : Type u} [Field k] [Fintype k]
 theorem galoisFromKer_spec {k : Type u} [Field k] [Fintype k]
     {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
     (X : SchemeOverField k) [ConnectedSpace X.left]
+    [ConnectedSpace (geometricBaseChange X)]
     [ConnectedSpace (Spec (CommRingCat.of k))]
     (etaBar : GeometricPoint X.left) :
     galoisFromKer X etaBar =
@@ -385,6 +552,4 @@ theorem galoisFromKer_spec {k : Type u} [Field k] [Fintype k]
             (ofEtaleFundamentalGroup X etaBar).inlHom)) :=
   sorry
 
-end DegreeExtension
-
-end ProfiniteGrp
+end ProfiniteGrp.DegreeExtension

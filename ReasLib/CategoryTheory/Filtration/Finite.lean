@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Category
@@ -70,19 +64,16 @@ abbrev inclusion (C : Type u) [Category.{v} C] [HasZeroObject C] :
 
 namespace Forget
 
-/-- The forgetful functor from finite filtered objects to the ambient category.
-
-This is the neutral owner of the construction. Complexes, homotopy categories, and derived
-categories should all build on this functor rather than define a second restriction by hand.
--/
+/-- The restriction of the filtered-object forgetful functor to the full subcategory of
+finite filtered objects, obtained by composing with the inclusion. -/
 
 @[stacks 05RZ "finite filtered forgetful functor"]
 abbrev functor (C : Type u) [Category.{v} C] [HasZeroObject C] :
     category C ⥤ C :=
   inclusion C ⋙ FilteredObject.forget
 
-/-! The object and morphism formulas are kept beside the owner so downstream files can use them
-without importing a complex-level module. -/
+/-! The restricted forgetful functor sends each finite filtered object to its underlying ambient
+object and each filtration-preserving morphism to its underlying ambient morphism. -/
 
 /-- The finite filtered forgetful functor returns the underlying ambient object. -/
 @[stacks 05RZ "finite filtered forgetful functor", simp]

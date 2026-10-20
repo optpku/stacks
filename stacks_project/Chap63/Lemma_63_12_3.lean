@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap63.Lemma_63_12_3_Comparison
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.CompactSupport.DerivedComparison
+import StacksCheckRecall
 
 /-!
 # Agreement of underived and derived compactly supported H^0
@@ -38,52 +33,52 @@ variable [IsSeparated X.hom] [Scheme.Hom.FiniteType X.hom]
 variable (P : Compactification.Of (Spec (CommRingCat.of k)) X)
 variable [IsOpenImmersion (Compactification.Of.ι P)]
 variable [IsProper P.obj.right.hom]
-variable [HasSheafify X.left.smallEtaleTopology (ModuleCat.{u} ULiftInt)]
+variable [HasSheafify X.left.smallEtaleTopology (ModuleCat.{u} (ULift.{u} ℤ))]
 variable [∀ U : X.left.Etale,
-  HasWeakSheafify (X.left.smallEtaleTopology.over U) (ModuleCat.{u} ULiftInt)]
-variable [HasDerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} ULiftInt))]
-variable [HasSheafify P.obj.right.left.smallEtaleTopology (ModuleCat.{u} ULiftInt)]
+  HasWeakSheafify (X.left.smallEtaleTopology.over U) (ModuleCat.{u} (ULift.{u} ℤ))]
+variable [HasDerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} (ULift.{u} ℤ)))]
+variable [HasSheafify P.obj.right.left.smallEtaleTopology (ModuleCat.{u} (ULift.{u} ℤ))]
 variable [∀ U : P.obj.right.left.Etale,
-  HasWeakSheafify (P.obj.right.left.smallEtaleTopology.over U) (ModuleCat.{u} ULiftInt)]
+  HasWeakSheafify (P.obj.right.left.smallEtaleTopology.over U) (ModuleCat.{u} (ULift.{u} ℤ))]
 variable [HasDerivedCategory
-  (Sheaf P.obj.right.left.smallEtaleTopology (ModuleCat.{u} ULiftInt))]
+  (Sheaf P.obj.right.left.smallEtaleTopology (ModuleCat.{u} (ULift.{u} ℤ)))]
 variable [HasSheafify (Spec (CommRingCat.of k)).smallEtaleTopology
-  (ModuleCat.{u} ULiftInt)]
+  (ModuleCat.{u} (ULift.{u} ℤ))]
 variable [∀ U : (Spec (CommRingCat.of k)).Etale,
   HasWeakSheafify ((Spec (CommRingCat.of k)).smallEtaleTopology.over U)
-    (ModuleCat.{u} ULiftInt)]
+    (ModuleCat.{u} (ULift.{u} ℤ))]
 variable [HasDerivedCategory
-  (Sheaf (Spec (CommRingCat.of k)).smallEtaleTopology (ModuleCat.{u} ULiftInt))]
-variable [∀ F : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u} ULiftInt,
+  (Sheaf (Spec (CommRingCat.of k)).smallEtaleTopology (ModuleCat.{u} (ULift.{u} ℤ)))]
+variable [∀ F : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u} (ULift.{u} ℤ),
   (etaleRestriction (Compactification.Of.ι P)).op.HasLeftKanExtension F]
 variable [(etaleExtensionByZero (Compactification.Of.ι P)
-    (ModuleCat.{u} ULiftInt)).Additive]
+    (ModuleCat.{u} (ULift.{u} ℤ))).Additive]
 variable [PreservesFiniteLimits
-  (etaleExtensionByZero (Compactification.Of.ι P) (ModuleCat.{u} ULiftInt))]
+  (etaleExtensionByZero (Compactification.Of.ι P) (ModuleCat.{u} (ULift.{u} ℤ)))]
 variable [PreservesFiniteColimits
-  (etaleExtensionByZero (Compactification.Of.ι P) (ModuleCat.{u} ULiftInt))]
+  (etaleExtensionByZero (Compactification.Of.ι P) (ModuleCat.{u} (ULift.{u} ℤ)))]
 variable [((smallEtalePullback P.obj.right.hom).sheafPushforwardContinuous
-    (ModuleCat.{u} ULiftInt) (Spec (CommRingCat.of k)).smallEtaleTopology
+    (ModuleCat.{u} (ULift.{u} ℤ)) (Spec (CommRingCat.of k)).smallEtaleTopology
     P.obj.right.left.smallEtaleTopology).Additive]
 variable [HasRightDerivedFunctor
   (RightDerived.Cochain.toDerived
     ((smallEtalePullback P.obj.right.hom).sheafPushforwardContinuous
-      (ModuleCat.{u} ULiftInt) (Spec (CommRingCat.of k)).smallEtaleTopology
+      (ModuleCat.{u} (ULift.{u} ℤ)) (Spec (CommRingCat.of k)).smallEtaleTopology
       P.obj.right.left.smallEtaleTopology))
   (HomologicalComplex.quasiIso
-    (Sheaf P.obj.right.left.smallEtaleTopology (ModuleCat.{u} ULiftInt))
+    (Sheaf P.obj.right.left.smallEtaleTopology (ModuleCat.{u} (ULift.{u} ℤ)))
     (ComplexShape.up ℤ))]
-variable [HasDerivedCategory (ModuleCat.{u} ULiftInt)]
+variable [HasDerivedCategory (ModuleCat.{u} (ULift.{u} ℤ))]
 variable [((sheafSections (Spec (CommRingCat.of k)).smallEtaleTopology
-    (ModuleCat.{u} ULiftInt)).obj
+    (ModuleCat.{u} (ULift.{u} ℤ))).obj
     (op (globalEtale (Spec (CommRingCat.of k))))).Additive]
 variable [HasRightDerivedFunctor
   (RightDerived.Cochain.toDerived
     ((sheafSections (Spec (CommRingCat.of k)).smallEtaleTopology
-        (ModuleCat.{u} ULiftInt)).obj
+        (ModuleCat.{u} (ULift.{u} ℤ))).obj
       (op (globalEtale (Spec (CommRingCat.of k))))))
   (HomologicalComplex.quasiIso
-    (Sheaf (Spec (CommRingCat.of k)).smallEtaleTopology (ModuleCat.{u} ULiftInt))
+    (Sheaf (Spec (CommRingCat.of k)).smallEtaleTopology (ModuleCat.{u} (ULift.{u} ℤ)))
     (ComplexShape.up ℤ))]
 variable [CompactSpace (Spec (CommRingCat.of k))]
 variable [QuasiSeparatedSpace (Spec (CommRingCat.of k))]
@@ -96,62 +91,25 @@ variable [∀ G : P.obj.right.left.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
 variable [((smallEtalePullback (Compactification.Of.ι P)).sheafPushforwardContinuous
     AddCommGrpCat.{u} P.obj.right.left.smallEtaleTopology
     X.left.smallEtaleTopology).IsRightAdjoint]
-variable [X.left.smallEtaleTopology.HasSheafCompose addCommGrpToULiftIntModule]
-variable [P.obj.right.left.smallEtaleTopology.HasSheafCompose addCommGrpToULiftIntModule]
+variable [X.left.smallEtaleTopology.HasSheafCompose AddCommGrpCat.toULiftIntModule]
+variable [P.obj.right.left.smallEtaleTopology.HasSheafCompose AddCommGrpCat.toULiftIntModule]
 variable [X.left.smallEtaleTopology.HasSheafCompose
-  (forget₂ (ModuleCat.{u} ULiftInt) AddCommGrpCat.{u})]
+  (forget₂ (ModuleCat.{u} (ULift.{u} ℤ)) AddCommGrpCat.{u})]
 variable [P.obj.right.left.smallEtaleTopology.HasSheafCompose
-  (forget₂ (ModuleCat.{u} ULiftInt) AddCommGrpCat.{u})]
+  (forget₂ (ModuleCat.{u} (ULift.{u} ℤ)) AddCommGrpCat.{u})]
 
-/-- Lemma 63.12.3: Let `X` be a separated scheme of finite type over a field
-`k`. If `F` is a torsion abelian sheaf, then the abelian group `H^0_c(X, F)`
-defined in Definition 63.3.7 agrees with the abelian group `H^0_c(X, F)`
-defined in Definition 63.12.1. -/
-@[stacks 0GK1]
-def globalSectionsCompactSupportDerivedEquiv
-    (F : Sheaf X.left.smallEtaleTopology AddCommGrpCat.{u})
-    (hF : IsLocallyTorsion F) :
-    globalSectionsCompactSupportSubgroup X F ≃+
-      etaleDerivedCohomologyCompactSupport P 0
-        ((DerivedCategory.singleFunctor
-            (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} ULiftInt)) (0 : ℤ)).obj
-          (etaleAbelianToIntModuleSheaf F)) :=
-  AddEquiv.ofBijective (globalSectionsCompactSupportDerivedHom P F hF)
-    (globalSectionsCompactSupportDerivedHom_bijective P F hF)
-
-/-- The underlying map of `globalSectionsCompactSupportDerivedEquiv` is
-`globalSectionsCompactSupportDerivedHom`. -/
-theorem globalSectionsCompactSupportDerivedEquiv_apply
-    (F : Sheaf X.left.smallEtaleTopology AddCommGrpCat.{u})
-    (hF : IsLocallyTorsion F)
-    (σ : globalSectionsCompactSupportSubgroup X F) :
-    globalSectionsCompactSupportDerivedEquiv P F hF σ =
-      globalSectionsCompactSupportDerivedHom P F hF σ :=
-  sorry
-
-/-- The identification of underived and derived `H^0_c` is the compactification
-comparison of Lemma 63.3.10, followed by coefficient conversion of `j_! F`
-and the derived identification of `Γ(X̄, j_! F)` with derived `H^0_c`. -/
-theorem globalSectionsCompactSupportDerivedEquiv_comp
-    (F : Sheaf X.left.smallEtaleTopology AddCommGrpCat.{u})
-    (hF : IsLocallyTorsion F) :
-    (globalSectionsCompactSupportDerivedEquiv P F hF).toAddMonoidHom =
-      (etaleDerivedCohomologyCompactSupportZeroAddHom P
-            (etaleAbelianToIntModuleSheaf F)).comp
-        ((etaleExtensionByZeroAbelianToModuleSections P F).comp
-          (globalSectionsCompactSupportCompactifyGlobalEquiv P.obj.hom F).toAddMonoidHom) :=
-  sorry
-
-/-- A torsion abelian sheaf remains torsion after conversion to a sheaf of
-`ℤ`-modules and placement in degree zero in the derived category. -/
-theorem etaleAbelianToIntModuleSheaf_single_isTorsion
-    (F : Sheaf X.left.smallEtaleTopology AddCommGrpCat.{u})
-    (hF : IsLocallyTorsion F) :
-    etaleDerivedIsTorsion
-      ((DerivedCategory.singleFunctor
-          (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} ULiftInt)) (0 : ℤ)).obj
-        (etaleAbelianToIntModuleSheaf F)) :=
-  sorry
+/- Lemma 63.12.3: For a separated scheme of finite type over a field and a torsion
+abelian étale sheaf, the two definitions of compactly supported degree-zero
+cohomology agree through global sections of extension by zero. -/
+@[stacks 0GK1] #check
+  (AlgebraicGeometry.Scheme.Etale.globalSectionsCompactSupportDerivedEquiv P :
+    ∀ (F : Sheaf X.left.smallEtaleTopology AddCommGrpCat.{u}),
+      IsLocallyTorsion F →
+        globalSectionsCompactSupportSubgroup X F ≃+
+          etaleDerivedCohomologyCompactSupport P 0
+            ((DerivedCategory.singleFunctor
+                (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} (ULift.{u} ℤ)))
+                (0 : ℤ)).obj (etaleAbelianToIntModuleSheaf F)))
 
 end AlgebraicGeometry.Scheme.Etale
 

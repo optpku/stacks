@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.LinearAlgebra.FiniteDimensional.Defs
@@ -31,6 +25,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.AlgebraicSpace.Complexes
 
 /-- Lemma 99.16.10 (1): in Situation 99.16.3, if `S` is locally Noetherian and
@@ -42,7 +38,15 @@ is finite-dimensional over `k`. -/
 @[stacks 0DLL]
 theorem finiteDimensional_tangentSpace
     {S : Scheme.{u}} [IsLocallyNoetherian S] {X B : AlgebraicSpace S}
-    (f : X ⟶ B) [Proper f] [Flat f] [FinitePresentation f]
+    (f : X ⟶ B)
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f]
     [LocallyOfFinitePresentation (toBase B)] {Λ k : Type u}
     [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k] [Module.Finite Λ k]
     (openImmersion : Spec (CommRingCat.of Λ) ⟶ S) [AlgebraicGeometry.IsOpenImmersion openImmersion]
@@ -61,7 +65,15 @@ over `S` and an object `x0` of `Complexes f` over `k`, corresponding to a triple
 @[stacks 0DLL]
 theorem finiteDimensional_infinitesimalAutomorphisms
     {S : Scheme.{u}} [IsLocallyNoetherian S] {X B : AlgebraicSpace S}
-    (f : X ⟶ B) [Proper f] [Flat f] [FinitePresentation f]
+    (f : X ⟶ B)
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f]
     [LocallyOfFinitePresentation (toBase B)] {Λ k : Type u}
     [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k] [Module.Finite Λ k]
     (openImmersion : Spec (CommRingCat.of Λ) ⟶ S) [AlgebraicGeometry.IsOpenImmersion openImmersion]

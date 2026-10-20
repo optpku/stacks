@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quotient.AtlasSquare
@@ -16,7 +10,7 @@ universe u v w vB
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.GroupoidAlgebraicSpace
 
-/- 79.1.0.1: the quotient-atlas square of a groupoid in algebraic spaces is
+/- 04P6::statement_repair::1: the quotient-atlas square of a groupoid in algebraic spaces is
 2-cartesian over the quotient stack `[U/R]`.
 
 ```text

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.RingHom.LiftingSquare
@@ -85,7 +79,7 @@ theorem formallySmooth_iff_hasSquareZeroLifts
     [CommRing R] [CommRing S] [IsLocalRing R] [IsLocalRing S]
     (f : R →+* S) [IsLocalHom f] :
     f.formally_smooth_for_adic (IsLocalRing.maximalIdeal S) ↔
-      HasSquareZeroLifts.{u, v, 0, 0} f := sorry
+      HasSquareZeroLifts.{u, v, max u v, max u v} f := sorry
 
 /-- Lemma 15.38.1, equivalence (1)-(3), tag `0DYG`: for a local homomorphism with Noetherian
 target, maximal-ideal-adic formal smoothness can be tested only against small extensions with
@@ -96,6 +90,6 @@ theorem formallySmooth_iff_hasSmallExtensionLifts
     [CommRing R] [CommRing S] [IsLocalRing R] [IsLocalRing S]
     (f : R →+* S) [IsLocalHom f] [IsNoetherianRing S] :
     f.formally_smooth_for_adic (IsLocalRing.maximalIdeal S) ↔
-      HasSmallExtensionLifts.{u, v, 0, 0} f := sorry
+      HasSmallExtensionLifts.{u, v, max u v, max u v} f := sorry
 
 end RingHom.MaximalIdealAdic

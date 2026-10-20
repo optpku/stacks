@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Comma.Over.Basic
@@ -81,7 +75,8 @@ private noncomputable def obj
   PseudoPullback.mk G F f.left
     { fst := Fiber.mk rfl
       snd := A.right
-      iso := asIso A.hom }
+      iso := @asIso _ _ _ _ A.hom
+        (Functor.IsFibered.InGroupoids.hom_isIso (p := pY) f.left A.hom) }
 
 /-- The comparison square used by the explicit two-fibre-product morphism attached to a
 structured-arrow morphism.
@@ -256,7 +251,8 @@ This is the stable inverse-map API: consumers needing the inverse comparison can
         ((Fiber.fiberInclusion :
           ((PseudoPullback.fst G F).toFunctor).Fiber f ⥤
             (PseudoPullback G F).obj).obj ((comparison G F f).obj A)) =
-      (Fiber.fiberInclusion : pY.Fiber f.left ⥤ Y).mapIso (asIso A.hom) := sorry
+      (Fiber.fiberInclusion : pY.Fiber f.left ⥤ Y).mapIso (@asIso _ _ _ _ A.hom
+        (Functor.IsFibered.InGroupoids.hom_isIso (p := pY) f.left A.hom)) := sorry
 
 /-- The first component of an evaluated structured-arrow morphism is the identity of `f`.
 
@@ -307,7 +303,8 @@ theorem exists_hom_right_iff_map_eq [Functor.IsFibered.InGroupoids pY]
     (ψ : A.right ⟶ B.right) :
     (∃ α : A ⟶ B, α.right = ψ) ↔
       (F.fiberFunctor f.left).map ψ =
-        (asIso A.hom).inv ≫ B.hom := sorry
+        (@asIso _ _ _ _ A.hom
+          (Functor.IsFibered.InGroupoids.hom_isIso (p := pY) f.left A.hom)).inv ≫ B.hom := sorry
 
 end FstFiber
 end BasedCategory.PseudoPullback

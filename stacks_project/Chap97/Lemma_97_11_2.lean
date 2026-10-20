@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap97.Lemma_97_11_2_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RestrictionOfScalars.BaseChange
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,8 +15,10 @@ universe u
 scheme `S`, with `Z' = B' ×_B Z` and `X' = B' ×_B X`, the fppf sheaves on `Sch/S`
 satisfy `Res_{Z'/B'}(X') ≅ B' ×_B Res_{Z/B}(X)`. -/
 @[stacks 05YC]
-#check (RestrictionOfScalars.pullbackIso :
+#check (AlgebraicGeometry.AlgebraicSpace.RestrictionOfScalars.pullbackIso :
     ∀ {S : Scheme.{u}} {X Z B B' : AlgebraicSpace S} (f : X ⟶ Z) (g : Z ⟶ B)
       (h : B' ⟶ B),
-      restrictionOfScalarsSheaf (mapX f g h) (pullback.fst h g) ≅
-        pullback (uliftSheafMap h) (toUliftSheaf f g))
+      AlgebraicGeometry.AlgebraicSpace.RestrictionOfScalars.sheaf
+        (AlgebraicGeometry.AlgebraicSpace.RestrictionOfScalars.mapX f g h) (pullback.fst h g) ≅
+        pullback (AlgebraicGeometry.AlgebraicSpace.toSheaf.map h)
+          (AlgebraicGeometry.AlgebraicSpace.RestrictionOfScalars.toBase f g))

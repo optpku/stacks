@@ -1,127 +1,89 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.MorphismOfSites
 public import stacks_project.Chap73.Lemma_73_7_8_Big
 public import stacks_project.Chap84.Lemma_84_8_4_Comparison
 
-/-!
-# Fppf and étale comparisons of algebraic-space topoi
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Fppf.Comparison
 
-This leaf names the identity-on-objects comparison `ε` from `(Spaces/X)_fppf`
-to `(Spaces/X)_étale` and the composite `a = π ∘ ε` with the imported
-small-to-big étale relocalization `π`.
--/
+/-! # Compatibility checks for fppf and étale comparison morphisms -/
 
 @[expose] public section
 
-open CategoryTheory
-open CategoryTheory.Limits
-open AlgebraicGeometry
+open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
+open AlgebraicGeometry.AlgebraicSpace
+open AlgebraicGeometry.AlgebraicSpace.Fppf
+open AlgebraicGeometry.AlgebraicSpace.Etale.SmallToBig
 open scoped MorphismOfTopoiIn
 
 noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.overFppfTopology :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
+    GrothendieckTopology (Over X))
 
-/-- The localized big fppf topology on `Over X`, i.e. `(Spaces/X)_fppf`. -/
-abbrev overFppfTopology {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    GrothendieckTopology (Over X) :=
-  (fppfTopology S).over X
+#check (AlgebraicGeometry.AlgebraicSpace.overFppfTopology_def :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
+    overFppfTopology X = (fppfTopology S).over X)
 
-/-- `overFppfTopology X` is the localization of `fppfTopology S` at `X`. -/
-theorem overFppfTopology_def {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    overFppfTopology X = (fppfTopology S).over X := sorry
-
-namespace Fppf
-
-variable {S : Scheme.{u}}
-
-/-- The identity functor of `Over X` is a morphism of sites from
-`(Spaces/X)_fppf` to `(Spaces/X)_étale`. -/
-instance epsilon_isMorphismOfSites (X : AlgebraicSpace S) :
+#check (AlgebraicGeometry.AlgebraicSpace.Fppf.epsilon_isMorphismOfSites :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
     IsMorphismOfSites
       (AlgebraicGeometry.AlgebraicSpace.overEtaleTopology X)
-      (overFppfTopology X) (𝟭 (Over X)) :=
-  sorry
+      (overFppfTopology X) (𝟭 (Over X)))
 
-/-- Identity pullback from the big fppf site of `X` to the big étale site
-preserves finite limits. -/
-instance epsilon_sheafPullback_preservesFiniteLimits (X : AlgebraicSpace S) :
+#check (AlgebraicGeometry.AlgebraicSpace.Fppf.epsilon_sheafPullback_preservesFiniteLimits :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
     PreservesFiniteLimits
       ((𝟭 (Over X)).sheafPullback (Type (u + 1))
         (AlgebraicGeometry.AlgebraicSpace.overEtaleTopology X)
-        (overFppfTopology X)) :=
-  sorry
+        (overFppfTopology X)))
 
-/-- The opposite identity functor admits left Kan extensions of type-valued
-presheaves. -/
-instance epsilon_op_hasLeftKanExtension (X : AlgebraicSpace S)
-    (P : (Over X)ᵒᵖ ⥤ Type (u + 1)) :
-    (𝟭 (Over X)).op.HasLeftKanExtension P :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Fppf.epsilon_op_hasLeftKanExtension :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+    (P : (Over X)ᵒᵖ ⥤ Type (u + 1)),
+    (𝟭 (Over X)).op.HasLeftKanExtension P)
 
-/-- The morphism of topoi `ε_X : Sh((Spaces/X)_fppf) ⟶ Sh((Spaces/X)_étale)`
-induced by the identity functor of `Over X`. -/
-def epsilon (X : AlgebraicSpace S) :
+#check (AlgebraicGeometry.AlgebraicSpace.Fppf.epsilon :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
     MorphismOfTopoiIn
       (AlgebraicGeometry.AlgebraicSpace.overEtaleTopology X)
-      (overFppfTopology X) :=
-  (IsMorphismOfSites.toMorphismOfTopoiIn (𝟭 (Over X)) :
-    LeftExactAdjunction
-      (Sheaf (overFppfTopology X) (Type (u + 1)))
-      (Sheaf (AlgebraicGeometry.AlgebraicSpace.overEtaleTopology X)
-        (Type (u + 1))))
+      (overFppfTopology X))
 
-/-- Direct image along `epsilon X` is continuous sheaf pushforward of the
-identity functor. -/
-theorem epsilon_pushforward (X : AlgebraicSpace S) :
+#check (AlgebraicGeometry.AlgebraicSpace.Fppf.epsilon_pushforward :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
     (epsilon X).pushforward =
       (𝟭 (Over X)).sheafPushforwardContinuous (Type (u + 1))
         (AlgebraicGeometry.AlgebraicSpace.overEtaleTopology X)
-        (overFppfTopology X) :=
-  sorry
+        (overFppfTopology X))
 
-/-- Inverse image along `epsilon X` is sheaf pullback of the identity functor. -/
-theorem epsilon_inverseImage (X : AlgebraicSpace S) :
+#check (AlgebraicGeometry.AlgebraicSpace.Fppf.epsilon_inverseImage :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
     (epsilon X)⁻¹ =
       (𝟭 (Over X)).sheafPullback (Type (u + 1))
         (AlgebraicGeometry.AlgebraicSpace.overEtaleTopology X)
-        (overFppfTopology X) :=
-  sorry
+        (overFppfTopology X))
 
-end Fppf
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.SmallToBig.fppfComparison :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
+    MorphismOfTopoiIn.{u + 1, u + 1, u, u + 1, u + 1}
+      (smallEtaleTopology X) (overFppfTopology X))
 
-namespace Etale.SmallToBig
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.SmallToBig.fppfComparison_eq_comp :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
+    fppfComparison X =
+      MorphismOfTopoiIn.comp (siteMorphismOfTopoi X) (Fppf.epsilon X))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.SmallToBig.fppfComparison_pushforward :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
+    (fppfComparison X).pushforward =
+      (Fppf.epsilon X).pushforward ⋙ (siteMorphismOfTopoi X).pushforward)
+
+namespace AlgebraicGeometry.AlgebraicSpace.Etale.SmallToBig
 
 variable {S : Scheme.{u}}
-
-/-- The morphism of topoi `a_X = π_X ∘ ε_X` from the big fppf topos of `X` to
-the small étale topos of `X`. -/
-def fppfComparison (X : AlgebraicSpace S) :
-    MorphismOfTopoiIn.{u + 1, u + 1, u, u + 1, u + 1}
-      (smallEtaleTopology X) (overFppfTopology X) :=
-  MorphismOfTopoiIn.comp (siteMorphismOfTopoi X) (Fppf.epsilon X)
-
-/-- `fppfComparison X` is the composite `π_X ∘ ε_X`. -/
-theorem fppfComparison_eq_comp (X : AlgebraicSpace S) :
-    fppfComparison X =
-      MorphismOfTopoiIn.comp (siteMorphismOfTopoi X) (Fppf.epsilon X) :=
-  sorry
-
-/-- Direct image along `fppfComparison X` is the composite of the direct images
-of `ε_X` and `π_X`. -/
-theorem fppfComparison_pushforward (X : AlgebraicSpace S) :
-    (fppfComparison X).pushforward =
-      (Fppf.epsilon X).pushforward ⋙ (siteMorphismOfTopoi X).pushforward :=
-  sorry
 
 variable {X Y : AlgebraicSpace S}
 
@@ -131,14 +93,7 @@ abbrev smallMorphism (f : X ⟶ Y) :
     MorphismOfTopoiIn (smallEtaleTopology Y) (smallEtaleTopology X) :=
   smallEtaleMorphismOfTopoi f
 
-/-- `smallMorphism f` is the Type `(u + 1)` small étale morphism of topoi. -/
-theorem smallMorphism_eq (f : X ⟶ Y) :
-    smallMorphism f = smallEtaleMorphismOfTopoi f :=
-  sorry
-
-end Etale.SmallToBig
-
-end AlgebraicGeometry.AlgebraicSpace
+end AlgebraicGeometry.AlgebraicSpace.Etale.SmallToBig
 
 end
 

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap42.Definition_42_50_3_LocalizedClasses
-public import stacks_project.Chap42.Lemma_42_49_5
+public import ReasLib.AlgebraicGeometry.LocalizedChern.Commutation
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -19,66 +13,38 @@ universe u
 
 namespace AlgebraicGeometry.LocalizedChern
 
-/-- Lemma 42.52.2 (1): the localized Newton class commutes with every homogeneous
+/- Lemma 42.52.2 (1): the localized Newton class commutes with every homogeneous
 bivariant class on a locally finite-type morphism into `X`. -/
-@[stacks 0FBB]
-theorem newtonClass_commute
-    {S : Scheme.{u}} [UniversallyCatenary S] {δ : S → ℤ} [IsDimensionFunction δ]
+@[stacks 0FBB] #check (AlgebraicGeometry.LocalizedChern.newtonClass_commute :
+    ∀ {S : Scheme.{u}} [UniversallyCatenary S] {δ : S → ℤ} [IsDimensionFunction δ]
     {X : Over S} [LocallyOfFiniteType X.hom] {Z : Scheme.{u}}
     (i : Z ⟶ X.left) [IsClosedImmersion i]
     (classes : ChernClass.Theory δ X.hom)
     (E : RingedSpace.ModuleDerived X.left.toRingedSpace) (p : ℕ)
     (situation : Situation S δ X i E p .vanishing)
-    (construction : ClassConstruction δ i classes E p .vanishing situation)
-    [LocallyOfFiniteType (infinityCenter i construction.b).hom]
-    (localizedAtInfinity_commutes :
-      ∀ {Y : Over S} [LocallyOfFiniteType Y.hom]
-        (f : Y ⟶ BivariantClass.GysinAtInfinity.infinityFiber X construction.b)
-        [LocallyOfFiniteType f.left]
-        (q : ℤ) (c : BivariantClass δ f q),
-        BivariantClass.Commute δ f
-          (pullback.fst (BivariantClass.GysinAtInfinity.infinityToX X construction.b)
-            (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X) :
-              infinityCenter i construction.b ⟶
-                BivariantClass.GysinAtInfinity.infinityFiber X construction.b)
-          c construction.localizedAtInfinity)
     {Y : Over S} [LocallyOfFiniteType Y.hom]
     (f : Y ⟶ X) [LocallyOfFiniteType f.left]
-    (q : ℤ) (c : BivariantClass δ f q) :
+    (q : ℤ) (c : BivariantClass δ f q),
     BivariantClass.Commute δ f
       (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X) c
       (newtonClass i classes E situation.perfect situation.offCenter
-        situation.finiteness p) := sorry
+        situation.finiteness p))
 
-/-- Lemma 42.52.2 (2): the localized Chern class commutes with every homogeneous
+/- Lemma 42.52.2 (2): the localized Chern class commutes with every homogeneous
 bivariant class on a locally finite-type morphism into `X`. -/
-@[stacks 0FBB]
-theorem chernClass_commute
-    {S : Scheme.{u}} [UniversallyCatenary S] {δ : S → ℤ} [IsDimensionFunction δ]
+@[stacks 0FBB] #check (AlgebraicGeometry.LocalizedChern.chernClass_commute :
+    ∀ {S : Scheme.{u}} [UniversallyCatenary S] {δ : S → ℤ} [IsDimensionFunction δ]
     {X : Over S} [LocallyOfFiniteType X.hom] {Z : Scheme.{u}}
     (i : Z ⟶ X.left) [IsClosedImmersion i]
     (classes : ChernClass.Theory δ X.hom)
     (E : RingedSpace.ModuleDerived X.left.toRingedSpace) (p : ℕ)
     (situation : Situation S δ X i E p .rankBound)
-    (construction : ClassConstruction δ i classes E p .rankBound situation)
-    [LocallyOfFiniteType (infinityCenter i construction.b).hom]
-    (localizedAtInfinity_commutes :
-      ∀ {Y : Over S} [LocallyOfFiniteType Y.hom]
-        (f : Y ⟶ BivariantClass.GysinAtInfinity.infinityFiber X construction.b)
-        [LocallyOfFiniteType f.left]
-        (q : ℤ) (c : BivariantClass δ f q),
-        BivariantClass.Commute δ f
-          (pullback.fst (BivariantClass.GysinAtInfinity.infinityToX X construction.b)
-            (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X) :
-              infinityCenter i construction.b ⟶
-                BivariantClass.GysinAtInfinity.infinityFiber X construction.b)
-          c construction.localizedAtInfinity)
     {Y : Over S} [LocallyOfFiniteType Y.hom]
     (f : Y ⟶ X) [LocallyOfFiniteType f.left]
-    (q : ℤ) (c : BivariantClass δ f q) :
+    (q : ℤ) (c : BivariantClass δ f q),
     BivariantClass.Commute δ f
       (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X) c
       (chernClass i classes E situation.perfect p situation.offCenter
-        situation.finiteness) := sorry
+        situation.finiteness))
 
 end AlgebraicGeometry.LocalizedChern

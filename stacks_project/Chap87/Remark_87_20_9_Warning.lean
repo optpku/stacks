@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap87.Lemma_87_14_6
-public import stacks_project.Chap87.Remark_87_20_9_Warning_Comparison
-public import stacks_project.Chap87.Remark_87_20_9_Warning_Polynomial
+public import ReasLib.RingTheory.HahnSeries.RationalExponentPolynomial
+public import ReasLib.AlgebraicGeometry.FormalSpectrum.AffineCompletion
 import StacksCheckRecall
 
 /-!
@@ -27,56 +19,60 @@ the completed series ring. Original uploaded source is retained unchanged.
 
 @[expose] public section
 
-noncomputable section
-
 universe u
 
-open AdicCompletion RationalExponentPolynomial
+open CategoryTheory
 
-/- Remark 87.20.9 (Warning) (1): if `X = Spec(A)` and `T = V(I)` for a finitely
-generated ideal `I ⊆ A`, then `X_/T = Spf` of the `I`-adic completion, as the
-identification that `toCompletionAlong` is bijective on quasi-compact schemes
-over `S`. -/
+/- Remark 87.20.9 (Warning) (1): completion of Spec(A) along V(I), for a finitely
+generated ideal I, is canonically the formal spectrum of the I-adic completion. -/
 @[stacks 0CKX] #check
-  AlgebraicGeometry.AffineFormalAlgebraicSpace.bijective_toCompletionAlong_app
+  (AlgebraicGeometry.AffineFormalAlgebraicSpace.isIso_completionSpfToCompletionAlong_of_fg :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}} {A : Type u} [CommRing A]
+      (structureHom : AlgebraicGeometry.Spec (.of A) ⟶ S)
+      (I : Ideal A), I.FG →
+      [CategoryTheory.HasWeakSheafify (AlgebraicGeometry.Scheme.fppfTopology.over S) (Type u)] →
+      CategoryTheory.IsIso
+        (AlgebraicGeometry.AffineFormalAlgebraicSpace.completionSpfToCompletionAlong
+          structureHom I))
 
-/-- Remark 87.20.9 (Warning) (2): the canonical map from the `I`-adic completion
-to the radical-adic completion need not be bijective. -/
-@[stacks 0CKX]
-theorem not_bijective_mapOfRadical (κ : Type u) [Field κ] :
-    ¬ Function.Bijective (mapOfRadical (Ideal.span {t κ})) :=
-  sorry
+/- Remark 87.20.9 (Warning) (2): the canonical radical-completion comparison
+need not be bijective. -/
+@[stacks 0CKX] #check (RationalExponentPolynomial.not_bijective_mapOfRadical :
+  ∀ (κ : Type u) [Field κ], ¬ Function.Bijective
+    (AdicCompletion.comparisonRingHomOfPowLe
+      (Ideal.span {RationalExponentPolynomial.t κ})
+      (Ideal.span {RationalExponentPolynomial.t κ}).radical 1
+      (by simpa only [pow_one] using
+        (Ideal.span {RationalExponentPolynomial.t κ}).le_radical)))
 
-/-- Remark 87.20.9 (Warning) (3): for `A = ⋃ n, κ[t^{1/n}]`, the radical of
-`(t)` is the augmentation ideal. -/
-@[stacks 0CKX]
-theorem radical_span_t_eq_augmentationIdeal (κ : Type u) [Field κ] :
-    (Ideal.span {t κ}).radical = augmentationIdeal κ :=
-  sorry
+/- Remark 87.20.9 (Warning) (3): the radical of (t) is the maximal
+augmentation ideal of the finite polynomial union. -/
+@[stacks 0CKX] #check (RationalExponentPolynomial.radical_span_t_eq_augmentationIdeal :
+  ∀ (κ : Type u) [Field κ],
+    (Ideal.span {RationalExponentPolynomial.t κ}).radical =
+      RationalExponentPolynomial.augmentationIdeal κ)
 
-/-- Remark 87.20.9 (Warning) (4): the augmentation ideal of `A` satisfies `J ^ 2 = J`. -/
-@[stacks 0CKX]
-theorem augmentationIdeal_sq_eq (κ : Type u) [Field κ] :
-    augmentationIdeal κ ^ 2 =
-      augmentationIdeal κ :=
-  sorry
+/- Remark 87.20.9 (Warning) (4): the augmentation ideal satisfies J² = J. -/
+@[stacks 0CKX] #check (RationalExponentPolynomial.augmentationIdeal_sq_eq :
+  ∀ (κ : Type u) [Field κ],
+    RationalExponentPolynomial.augmentationIdeal κ ^ 2 =
+      RationalExponentPolynomial.augmentationIdeal κ)
 
-/-- Remark 87.20.9 (Warning) (5): the `J`-adic completion of `A` is `κ`. -/
-@[stacks 0CKX]
-theorem bijective_constantCoeffResidue (κ : Type u) [Field κ] :
-    Function.Bijective (constantCoeffResidue κ) :=
-  sorry
+/- Remark 87.20.9 (Warning) (5): the canonical residue map identifies the
+J-adic completion with the coefficient field. -/
+@[stacks 0CKX] #check (RationalExponentPolynomial.bijective_constantCoeffResidue :
+  ∀ (κ : Type u) [Field κ],
+    Function.Bijective (RationalExponentPolynomial.constantCoeffResidue κ))
 
-/-- Remark 87.20.9 (Warning) (6): the `I`-adic completion of `A` is the
-valuation ring of Example 87.13.2. -/
-@[stacks 0CKX]
-theorem toAdicSeries_bijective (κ : Type u) [Field κ] :
-    Function.Bijective (toAdicSeries κ) :=
-  sorry
+/- Remark 87.20.9 (Warning) (6): the t-adic completion is the rational-exponent
+series valuation ring of Example 87.13.2. -/
+@[stacks 0CKX] #check (RationalExponentPolynomial.toAdicSeries_bijective :
+  ∀ (κ : Type u) [Field κ],
+    Function.Bijective (RationalExponentPolynomial.toAdicSeries κ))
 
-/-- Remark 87.20.9 (Warning) (7): `A` injects into its `I`-adic completion. -/
-@[stacks 0CKX]
-theorem of_span_t_injective (κ : Type u) [Field κ] :
-    Function.Injective
-      (AdicCompletion.of (Ideal.span {t κ}) (RationalExponentPolynomial κ)) :=
-  sorry
+/- Remark 87.20.9 (Warning) (7): the finite polynomial union injects into its
+t-adic completion. -/
+@[stacks 0CKX] #check (RationalExponentPolynomial.of_span_t_injective :
+  ∀ (κ : Type u) [Field κ], Function.Injective
+    (AdicCompletion.of (Ideal.span {RationalExponentPolynomial.t κ})
+      (RationalExponentPolynomial κ)))

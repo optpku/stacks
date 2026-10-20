@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Pullbacks
@@ -227,7 +221,7 @@ theorem invariantSpectrum_kernelPair :
       (P.toPreRelation.kernelPairLift
         (invariantSpectrumQuotient P tSharp eU eR h_source h_target)
         (invariantSpectrumQuotient_equalizes P tSharp eU eR h_source h_target)) :=
-  sorry
+  GroupoidScheme.invariantKernelPairComparison_isIso P tSharp eU eR h_source h_target
 
 /-- The underlying scheme of the invariant spectrum is the spectrum of the ring of
 invariant functions. -/
@@ -265,20 +259,7 @@ def relationLift (ι : GroupoidScheme.Hom P G) {Y : Over S} (f₁ f₂ : Y ⟶ P
       f₂ ≫ invariantSpectrumQuotient P tSharp eU eR h_source h_target) :
     Y ⟶ G.R :=
   pullback.lift f₁ f₂ hf ≫
-    inv
-      (I := GroupoidScheme.invariantKernelPairComparison_isIso P tSharp eU eR h_source
-        h_target)
-      (P.toPreRelation.kernelPairLift
-        (GroupoidScheme.invariantSpectrumQuotientMap P tSharp eU
-          (GroupoidScheme.invariantSpectrumMap_effectiveEpi P tSharp eU eR h_source
-            h_target)
-          (GroupoidScheme.invariantSpectrumMap_respectsBase P tSharp eU eR h_source
-            h_target))
-        (GroupoidScheme.invariantSpectrumQuotientMap_equalizes P tSharp eU
-          (GroupoidScheme.invariantSpectrumMap_effectiveEpi P tSharp eU eR h_source
-            h_target)
-          (GroupoidScheme.invariantSpectrumMap_respectsBase P tSharp eU eR h_source
-            h_target))) ≫
+    (GroupoidScheme.invariantKernelPairIso P tSharp eU eR h_source h_target).inv ≫
     ι.arrow
 
 /-- A `T`-valued point of the object scheme of `G`, as an object of `[U /ₚ R]`. -/

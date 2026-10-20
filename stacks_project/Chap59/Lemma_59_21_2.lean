@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.ChosenPresentation.Independence
@@ -22,8 +16,6 @@ presentations, then the resulting small étale topoi are equivalent. -/
     (X : ChosenBigEtaleSite.{u, v}) (Y : ChosenBigEtaleSite.{u, w})
     (SX : X.carrier) (SY : Y.carrier)
     (hX : X.toScheme.obj SX = S) (hY : Y.toScheme.obj SY = S),
-    Nonempty
-      (Sheaf (smallTopology X SX) (Type (max u (max v w))) ≌
-        Sheaf (smallTopology Y SY) (Type (max u (max v w)))))
+    (smallToposComparison S X Y SX SY hX hY).IsEquivalence)
 
 end AlgebraicGeometry.ChosenBigEtaleSite

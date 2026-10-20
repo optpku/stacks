@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap71.Definition_71_10_9_Regular
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Meromorphic.Regular
 import StacksCheckRecall
 
 @[expose] public section
@@ -23,6 +17,6 @@ Let `S` be a scheme. Let `X` be an algebraic space over `S`. Let `ℒ` be an inv
 `𝒦_X ⟶ 𝒦_X(ℒ)` is injective. The checked predicate is the canonical generalization to an
 arbitrary module sheaf. -/
 @[stacks 0ENB] #check
-  (IsRegularMeromorphicSection :
+  (AlgebraicGeometry.AlgebraicSpace.IsRegularMeromorphicSection :
     {S : Scheme.{u}} → (X : AlgebraicSpace S) →
       (F : X.Modules) → meromorphicSections X F → Prop)

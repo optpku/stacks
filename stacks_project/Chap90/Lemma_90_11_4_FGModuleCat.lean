@@ -1,14 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.FGModuleCat.Basic
-public import Mathlib.CategoryTheory.Limits.Shapes.FiniteProducts
-public import Mathlib.CategoryTheory.Limits.Shapes.ZeroObjects
+public import ReasLib.Algebra.Category.FGModuleCat.FiniteProducts
 
 /-!
 # Finite products and the zero object in `FGModuleCat`
@@ -28,14 +20,13 @@ namespace FGModuleCat
 
 variable (R : Type u) [Ring R]
 
-/-- Finite products exist in `FGModuleCat R` for an arbitrary ring `R`. -/
-instance instHasFiniteProducts : HasFiniteProducts (FGModuleCat.{v} R) := sorry
+/- Finite products exist in `FGModuleCat R` for an arbitrary ring `R`. -/
+#check (FGModuleCat.instHasFiniteProducts R : HasFiniteProducts (FGModuleCat.{v} R))
 
-/-- The zero object of `FGModuleCat R` is the zero module. -/
-instance instHasZeroObject : HasZeroObject (FGModuleCat.{v} R) where
-  zero := ⟨of R PUnit, sorry⟩
+/- The zero object of `FGModuleCat R` is the zero module. -/
+#check (FGModuleCat.instHasZeroObject R : HasZeroObject (FGModuleCat.{v} R))
 
-/-- The finitely generated zero module is a zero object of `FGModuleCat R`. -/
-theorem isZero_ofPUnit : IsZero (of R (PUnit : Type v)) := sorry
+/- The finitely generated zero module is a zero object of `FGModuleCat R`. -/
+#check (FGModuleCat.isZero_ofPUnit R : IsZero (of R (PUnit : Type v)))
 
 end FGModuleCat

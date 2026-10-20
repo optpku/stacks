@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
-public import stacks_project.Chap95.«95_18_2_1_Stack»
-public import stacks_project.Chap96.Lemma_96_19_10_LocallyOfFinitePresentation
-public import stacks_project.Chap100.Lemma_100_11_1_Flat
+public import ReasLib.AlgebraicGeometry.FiniteHilbertStack.Algebraic
+import StacksCheckRecall
 
 /-!
 # Lemma 97.14.2
@@ -33,7 +25,7 @@ universe u
 
 namespace AlgebraicGeometry.FiniteHilbertStack
 
-/-- Lemma 97.14.2: if `S` is a scheme and `F : 𝒳 ⟶ 𝒴` is a 1-morphism of
+/- Lemma 97.14.2: if `S` is a scheme and `F : 𝒳 ⟶ 𝒴` is a 1-morphism of
 stacks in groupoids over `(Sch/S)_fppf` such that `𝒳` is representable by an
 algebraic space, and `F` is representable by algebraic spaces, surjective,
 flat, and locally of finite presentation, then the finite Hilbert stack
@@ -41,14 +33,14 @@ flat, and locally of finite presentation, then the finite Hilbert stack
 `LocallyOfFinitePresentation` each include relative representability by
 algebraic spaces. -/
 @[stacks 06CI]
-theorem algebraicStack_ofRelativeSpace {S : Scheme.{u}}
-    {𝒳 𝒴 : StackOver.Groupoids.{u + 1, u, u + 1, u} (Scheme.fppfTopology.over S)}
-    (F : 𝒳 ⟶ 𝒴) (hX : IsRepresentableByAlgebraicSpace (asGroupoidsOver 𝒳))
+#check (AlgebraicGeometry.FiniteHilbertStack.algebraicStack_ofRelativeSpace :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [IsStack.InGroupoids (Scheme.fppfTopology.over S) X.p]
+    [IsStack.InGroupoids (Scheme.fppfTopology.over S) Y.p]
+    (F : X ⟶ Y) (hX : IsRepresentableByAlgebraicSpace X)
     (d : ℕ) [NeZero d]
-    [Groupoids.Hom.Surjective (asGroupoidsOverMor F)]
-    [Groupoids.Hom.Flat (asGroupoidsOverMor F)]
-    [Groupoids.Hom.LocallyOfFinitePresentation (asGroupoidsOverMor F)] :
-    AlgebraicStack (stack (asGroupoidsOverMor F) d).toGroupoids :=
-  sorry
+    [Groupoids.Hom.Surjective F] [Groupoids.Hom.Flat F]
+    [Groupoids.Hom.LocallyOfFinitePresentation F],
+    AlgebraicStack (stack F d).toGroupoids)
 
 end AlgebraicGeometry.FiniteHilbertStack

@@ -1,19 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap69.Lemma_69_12_8_ClosedImmersion
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Coherent.ClosedImmersion
 import StacksCheckRecall
 
 @[expose] public section
 
 open AlgebraicGeometry CategoryTheory
 open AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.Modules.ClosedImmersion
 
 universe u
 
@@ -27,4 +20,5 @@ sheaf of ideals cutting out `Z`, namely `Hom.idealSheaf i`. The functor `i_*`
 induces an equivalence from the category of coherent `𝒪_Z`-modules to the
 category of coherent `𝒪_X`-modules annihilated by `I`. -/
 @[stacks 08AM] #check
-  (coherentPushforward_isEquivalence i : (coherentPushforward i).IsEquivalence)
+  (AlgebraicGeometry.AlgebraicSpace.Modules.ClosedImmersion.coherentPushforward_isEquivalence i :
+    (AlgebraicGeometry.AlgebraicSpace.Modules.ClosedImmersion.coherentPushforward i).IsEquivalence)

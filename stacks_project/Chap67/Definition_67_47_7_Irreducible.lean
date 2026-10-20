@@ -1,59 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Topology.Irreducible
-public import stacks_project.Chap67.Lemma_67_53_4_UniversalHomeomorphism
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Irreducible
 
-/-!
-# Irreducible algebraic spaces
-
-An algebraic space is irreducible when every canonical topology on its points
-is an irreducible topological space.
--/
-
-@[expose] public section
-
-open CategoryTheory AlgebraicGeometry
+/-! Compatibility facade for the canonical algebraic-space property. -/
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- An algebraic space is irreducible when every canonical topology on `|X|` is an
-irreducible space. -/
-@[mk_iff]
-class IsIrreducible {S : Scheme.{u}} (X : AlgebraicSpace S) : Prop where
-  /-- Every canonical topology on `|X|` is an irreducible space. -/
-  irreducibleSpace :
-    ∀ (τ : TopologicalSpace (Points X)),
-      IsPointsTopology X τ → @IrreducibleSpace (Points X) τ
-
-namespace IsIrreducible
-
-/-- An irreducible algebraic space has irreducible underlying point space in every
-canonical topology. -/
-theorem spec {S : Scheme.{u}} (X : AlgebraicSpace S) [IsIrreducible X]
-    {τ : TopologicalSpace (Points X)} (hτ : IsPointsTopology X τ) :
-    @IrreducibleSpace (Points X) τ :=
-  sorry
-
-/-- Irreducibility of every canonical topology on `|X|` witnesses `IsIrreducible`. -/
-theorem of {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (h : ∀ (τ : TopologicalSpace (Points X)),
-      IsPointsTopology X τ → @IrreducibleSpace (Points X) τ) :
-    IsIrreducible X :=
-  sorry
-
-end IsIrreducible
-
-/-- An irreducible scheme over `S`, viewed as an algebraic space, is irreducible. -/
-instance instIsIrreducible_ofOver {S : Scheme.{u}} (U : Over S)
-    [IrreducibleSpace U.left] : IsIrreducible (ofOver U) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.IsIrreducible :
+  {S : AlgebraicGeometry.Scheme.{u}} → AlgebraicGeometry.AlgebraicSpace S → Prop)

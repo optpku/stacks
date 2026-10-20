@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.HomologicalComplex.KFlat.Acyclic
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.Complex.Flat
+public import ReasLib.Algebra.Homology.HomologicalComplex.Flat
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.Flat
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!

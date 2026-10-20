@@ -1,20 +1,14 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_13_4_Tower
+import StacksCheckRecall
+public import ReasLib.CategoryTheory.Sites.Simplicial.IntegerPostnikov
+public import ReasLib.CategoryTheory.Sites.Grothendieck.IntegerPostnikov
 
 /-!
 # Lemma 85.13.4
 
-In Situation 85.3.3, tensoring the Lemma 85.8.1 integer resolution with an
-object `K` of `D(C_total)` produces a sequential Postnikov system for
-`⋯ → X_2 → X_1 → X_0`, and `K` is the sequential homotopy colimit of `Y_n⟦n⟧`.
+Integer-resolution tensor Postnikov towers and their homotopy colimits in both
+presentations of a simplicial site.
 -/
 
 @[expose] public section
@@ -47,36 +41,25 @@ variable [∀ n, ∀ P : (C.obj n)ᵒᵖ ⥤ AddCommGrpCat.{w},
 variable [∀ n, ((J n).toGrothendieck).HasSheafCompose (forget AddCommGrpCat.{w})]
 variable [HasSheafify (topology C J) AddCommGrpCat.{w}]
 variable [HasDerivedCategory (Sheaf (topology C J) AddCommGrpCat.{w})]
-variable [MonoidalCategory (Sheaf (topology C J) AddCommGrpCat.{w})]
-variable [MonoidalPreadditive (Sheaf (topology C J) AddCommGrpCat.{w})]
 variable [∀ (K L : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ),
     HomologicalComplex.HasMapBifunctor K L
       (curriedTensor (Sheaf (topology C J) AddCommGrpCat.{w})) (ComplexShape.up ℤ)]
-variable [@DerivedTensor.Right.Has (Sheaf (topology C J) AddCommGrpCat.{w}) _ _ _ _ _ _]
+variable [DerivedTensor.Right.Has (C := (Sheaf (topology C J) AddCommGrpCat.{w}))]
 variable (K : DerivedCategory (Sheaf (topology C J) AddCommGrpCat.{w}))
 
-/-- Lemma 85.13.4 (1): in Situation 85.3.3 case A, the objects
-`X_n = (g_{n!} ℤ) ⊗ᴸ K` and `Y_n = (g_{n!} ℤ → ⋯ → g_{0!} ℤ)⟦-n⟧ ⊗ᴸ K`, with the
-canonical maps `Y_n ⟶ X_n` and `Y_n ⟶ Y_{n+1}⟦1⟧` of Lemma 85.8.1, form a
-Postnikov system for `⋯ → X_2 → X_1 → X_0`. -/
-@[stacks 0D9I]
-abbrev abelianPostnikovTower :
-    PostnikovSystem.Tower (DerivedCategory (Sheaf (topology C J) AddCommGrpCat.{w})) :=
-  IntegerPostnikov.tower C J K
+/- Lemma 85.13.4 (Postnikov system): the integer-resolution tensor stages and
+canonical maps form a Postnikov tower. -/
+@[stacks 0D9I] #check (CategoryTheory.SimplicialSites.IntegerPostnikov.tower C J K :
+  PostnikovSystem.Tower (DerivedCategory (Sheaf (topology C J) AddCommGrpCat.{w})))
 
-/-- Term objects of `abelianPostnikovTower` are the source objects `X_n`. -/
-theorem abelianPostnikovTower_X (n : ℕ) :
-    (abelianPostnikovTower C J K).X n = IntegerPostnikov.X C J K n :=
-  sorry
+#check (CategoryTheory.SimplicialSites.IntegerPostnikov.tower_X C J K :
+  ∀ n : ℕ, (CategoryTheory.SimplicialSites.IntegerPostnikov.tower C J K).X n =
+    CategoryTheory.SimplicialSites.IntegerPostnikov.X C J K n)
 
-/-- Lemma 85.13.4 (2): in Situation 85.3.3 case A, `K` is the sequential homotopy
-colimit of the objects `Y_n⟦n⟧` in `D(C_total)`, once the constant integer sheaf
-is a derived left tensor unit for `K`. -/
-@[stacks 0D9I]
-theorem abelianPostnikov_isHocolim
-    (h_unit : IntegerPostnikov.integerUnitTensor C J K ≅ K) :
-    HomotopyColimit.IsOf (IntegerPostnikov.shiftedAux C J K) K :=
-  sorry
+/- Lemma 85.13.4 (homotopy colimit): the canonical sequence of shifted stages
+has homotopy colimit K. -/
+@[stacks 0D9I] #check (CategoryTheory.SimplicialSites.abelianPostnikov_isHocolim C J K :
+  HomotopyColimit.IsOf (CategoryTheory.SimplicialSites.IntegerPostnikov.shiftedAux C J K) K)
 
 end CategoryTheory.SimplicialSites
 
@@ -101,35 +84,24 @@ variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (F.obj (op n))ᵒᵖ �
     ((F.map φ.op).toFunctor).op.HasPointwiseRightKanExtension P]
 variable [HasSheafify (topology F J) AddCommGrpCat.{w}]
 variable [HasDerivedCategory (Sheaf (topology F J) AddCommGrpCat.{w})]
-variable [MonoidalCategory (Sheaf (topology F J) AddCommGrpCat.{w})]
-variable [MonoidalPreadditive (Sheaf (topology F J) AddCommGrpCat.{w})]
 variable [∀ (K L : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ),
     HomologicalComplex.HasMapBifunctor K L
       (curriedTensor (Sheaf (topology F J) AddCommGrpCat.{w})) (ComplexShape.up ℤ)]
-variable [@DerivedTensor.Right.Has (Sheaf (topology F J) AddCommGrpCat.{w}) _ _ _ _ _ _]
+variable [DerivedTensor.Right.Has (C := (Sheaf (topology F J) AddCommGrpCat.{w}))]
 variable (K : DerivedCategory (Sheaf (topology F J) AddCommGrpCat.{w}))
 
-/-- Lemma 85.13.4 (3): in Situation 85.3.3 case B, the objects
-`X_n = (g_{n!} ℤ) ⊗ᴸ K` and `Y_n = (g_{n!} ℤ → ⋯ → g_{0!} ℤ)⟦-n⟧ ⊗ᴸ K`, with the
-canonical maps `Y_n ⟶ X_n` and `Y_n ⟶ Y_{n+1}⟦1⟧` of Lemma 85.8.1, form a
-Postnikov system for `⋯ → X_2 → X_1 → X_0`. -/
-@[stacks 0D9I]
-abbrev fiberAbelianPostnikovTower :
-    PostnikovSystem.Tower (DerivedCategory (Sheaf (topology F J) AddCommGrpCat.{w})) :=
-  IntegerPostnikov.tower F J K
+/- Lemma 85.13.4 (Postnikov system): the integer-resolution tensor stages and
+canonical maps form a Postnikov tower. -/
+@[stacks 0D9I] #check (CategoryTheory.Grothendieck.IntegerPostnikov.tower F J K :
+  PostnikovSystem.Tower (DerivedCategory (Sheaf (topology F J) AddCommGrpCat.{w})))
 
-/-- Term objects of `fiberAbelianPostnikovTower` are the source objects `X_n`. -/
-theorem fiberAbelianPostnikovTower_X (n : ℕ) :
-    (fiberAbelianPostnikovTower F J K).X n = IntegerPostnikov.X F J K n :=
-  sorry
+#check (CategoryTheory.Grothendieck.IntegerPostnikov.tower_X F J K :
+  ∀ n : ℕ, (CategoryTheory.Grothendieck.IntegerPostnikov.tower F J K).X n =
+    CategoryTheory.Grothendieck.IntegerPostnikov.X F J K n)
 
-/-- Lemma 85.13.4 (4): in Situation 85.3.3 case B, `K` is the sequential homotopy
-colimit of the objects `Y_n⟦n⟧` in `D(C_total)`, once the constant integer sheaf
-is a derived left tensor unit for `K`. -/
-@[stacks 0D9I]
-theorem fiberAbelianPostnikov_isHocolim
-    (h_unit : IntegerPostnikov.integerUnitTensor F J K ≅ K) :
-    HomotopyColimit.IsOf (IntegerPostnikov.shiftedAux F J K) K :=
-  sorry
+/- Lemma 85.13.4 (homotopy colimit): the canonical sequence of shifted stages
+has homotopy colimit K. -/
+@[stacks 0D9I] #check (CategoryTheory.Grothendieck.fiberAbelianPostnikov_isHocolim F J K :
+  HomotopyColimit.IsOf (CategoryTheory.Grothendieck.IntegerPostnikov.shiftedAux F J K) K)
 
 end CategoryTheory.Grothendieck

@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_33_1_FiberStalkDimension
-public import stacks_project.Chap67.Definition_67_33_1_RelativeDimension
-public import stacks_project.Chap67.Definition_67_33_1_ResidueFieldTrdeg
-public import stacks_project.Chap67.Definition_67_40_1_FiniteType
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.RelativeDimension
+import StacksCheckRecall
 
 /-!
 # Fibre dimension at a point of a locally finite-type morphism
@@ -30,42 +22,39 @@ noncomputable section
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.34.1: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
+/- Lemma 67.34.1: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
 algebraic spaces over `S`. Let `x` be a point of `|X|`. If `f` is locally of
 finite type, then the relative dimension of `f` at `x` equals the dimension of
 the local ring of the fibre of `f` at `x` plus the transcendence degree of
 `x / f(x)`, in the notation of Definition 67.33.1. -/
-@[stacks 04NQ]
-theorem relativeDimensionAt_eq_fiberStalkDim_add_trdeg
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [LocallyOfFiniteType f] {d r : ℕ∞} {x : Points X}
-    (hd : FiberStalkDimEqAt f d x) (hr : ResidueFieldTrdegEqAt f r x) :
-    RelativeDimensionAt f (d + r) x :=
-  sorry
+@[stacks 04NQ] #check
+  (AlgebraicGeometry.AlgebraicSpace.relativeDimensionAt_eq_fiberStalkDim_add_trdeg :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      [LocallyOfFiniteType f] {d r : ℕ∞} {x : Points X},
+      FiberStalkDimEqAt f d x → ResidueFieldTrdegEqAt f r x →
+        RelativeDimensionEqAt f (d + r) x)
 
-/-- If `f` has relative dimension `e` at `x`, fibre-stalk dimension `d` at `x`,
+/- If `f` has relative dimension `e` at `x`, fibre-stalk dimension `d` at `x`,
 and residue-field transcendence degree `r` at `x`, then `e = d + r`. -/
-theorem relativeDimensionAt_add_eq {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [LocallyOfFiniteType f] {d r e : ℕ∞} {x : Points X}
-    (he : RelativeDimensionAt f e x) (hd : FiberStalkDimEqAt f d x)
-    (hr : ResidueFieldTrdegEqAt f r x) :
-    e = d + r :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.relativeDimensionAt_add_eq :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [LocallyOfFiniteType f] {d r e : ℕ∞} {x : Points X},
+    RelativeDimensionEqAt f e x → FiberStalkDimEqAt f d x →
+      ResidueFieldTrdegEqAt f r x → e = d + r)
 
-/-- On any étale scheme square over a locally finite-type morphism of algebraic
+/- On any étale scheme square over a locally finite-type morphism of algebraic
 spaces, the local topological Krull dimension of the scheme-theoretic fibre
 equals the Krull dimension of the fibre stalk plus the residue-field
 transcendence degree. -/
-theorem etaleSquare_topologicalKrullDimAt_eq_stalk_add_trdeg
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+#check (AlgebraicGeometry.AlgebraicSpace.etaleSquare_topologicalKrullDimAt_eq_stalk_add_trdeg :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     [LocallyOfFiniteType f] {U V : Over S} (a : ofOver U ⟶ X)
-    (b : ofOver V ⟶ Y) (h : U ⟶ V) (u : U.left)
-    (ha : (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf a)
-    (hb : (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf b)
-    (w : a ≫ f = ofOverMap h ≫ b) :
-    topologicalKrullDimAt (h.left.asFiber u) =
-      ringKrullDim (Scheme.Hom.fiberStalkAt h.left u) +
-        Scheme.Hom.residueFieldTrdegAt h.left u :=
-  sorry
+    (b : ofOver V ⟶ Y) (h : U ⟶ V) (u : U.left),
+    (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf a →
+      (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf b →
+        a ≫ f = ofOverMap h ≫ b →
+          topologicalKrullDimAt (h.left.asFiber u) =
+            ringKrullDim (Scheme.Hom.fiberStalkAt h.left u) +
+              Scheme.Hom.residueFieldTrdegAt h.left u)
 
 end AlgebraicGeometry.AlgebraicSpace

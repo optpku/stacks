@@ -1,38 +1,28 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_29_2_Pullback
-public import stacks_project.Chap66.Lemma_66_31_3_LocallyProjective
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.LocallyProjective.Pullback
+import StacksCheckRecall
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules
+/- Lemma 66.31.3: pullback along any morphism of algebraic spaces over a scheme preserves
+local projectivity of quasi-coherent modules. -/
+@[stacks 060S] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.pullback_isLocallyProjective :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Y : AlgebraicGeometry.AlgebraicSpace S}
+      (f : X ⟶ Y) (𝒢 : Y.Modules) [𝒢.IsQuasicoherent]
+      [AlgebraicGeometry.AlgebraicSpace.Modules.IsLocallyProjective 𝒢],
+      AlgebraicGeometry.AlgebraicSpace.Modules.IsLocallyProjective
+        ((AlgebraicGeometry.AlgebraicSpace.Modules.pullback f).obj 𝒢))
 
-/-- Lemma 66.31.3: let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of algebraic spaces
-over `S`. Let `𝒢` be a quasi-coherent `𝒪_Y`-module. If `𝒢` is locally projective on `Y`,
-then `f* 𝒢` is locally projective on `X`. -/
-@[stacks 060S]
-instance pullback_isLocallyProjective {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (𝒢 : Y.Modules) [𝒢.IsQuasicoherent] [IsLocallyProjective 𝒢] :
-    IsLocallyProjective ((pullback f).obj 𝒢) :=
-  sorry
-
-/-- Pullback along a morphism of algebraic spaces preserves local projectivity of quasi-coherent
-modules. -/
-theorem IsLocallyProjective.pullback {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    {𝒢 : Y.Modules} [𝒢.IsQuasicoherent] (h𝒢 : IsLocallyProjective 𝒢) :
-    IsLocallyProjective ((pullback f).obj 𝒢) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Modules
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.IsLocallyProjective.pullback :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Y : AlgebraicGeometry.AlgebraicSpace S}
+      (f : X ⟶ Y) {𝒢 : Y.Modules} [𝒢.IsQuasicoherent],
+      AlgebraicGeometry.AlgebraicSpace.Modules.IsLocallyProjective 𝒢 →
+        AlgebraicGeometry.AlgebraicSpace.Modules.IsLocallyProjective
+          ((AlgebraicGeometry.AlgebraicSpace.Modules.pullback f).obj 𝒢))

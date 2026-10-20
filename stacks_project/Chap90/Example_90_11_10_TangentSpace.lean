@@ -1,21 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Remark_90_6_3_PredeformationFunctor
-public import stacks_project.Chap90.Definition_90_10_1_DualNumber
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation.TangentSpace
 
-/-!
-# Tangent space of a predeformation functor
-
-The tangent space `TF` of a predeformation functor
-`F : ArtinianLocalAlgCat Λ k ⥤ Type v` is the value
-`F.obj (ArtinianLocalAlgCat.dualNumber Λ k)`.
--/
+/-! Typed compatibility checks for the tangent-space API. -/
 
 @[expose] public section
 
@@ -28,14 +15,11 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
 
 namespace CategoryTheory.Functor.IsPredeformationFunctor
 
-/-- The tangent space of a predeformation functor is its value at the dual-number
-object `k[ε]` of `ArtinianLocalAlgCat Λ k`. -/
-def tangentSpace (F : ArtinianLocalAlgCat Λ k ⥤ Type v) [IsPredeformationFunctor F] : Type v :=
-  F.obj (ArtinianLocalAlgCat.dualNumber Λ k)
+#check (tangentSpace :
+  ∀ (F : ArtinianLocalAlgCat Λ k ⥤ Type v) [IsPredeformationFunctor F], Type v)
 
-/-- The tangent space of a predeformation functor is `F` evaluated at
-`ArtinianLocalAlgCat.dualNumber Λ k`. -/
-theorem tangentSpace_def (F : ArtinianLocalAlgCat Λ k ⥤ Type v) [IsPredeformationFunctor F] :
-    tangentSpace F = F.obj (ArtinianLocalAlgCat.dualNumber Λ k) := sorry
+#check (tangentSpace_def :
+  ∀ (F : ArtinianLocalAlgCat Λ k ⥤ Type v) [IsPredeformationFunctor F],
+    tangentSpace F = F.obj (ArtinianLocalAlgCat.dualNumber Λ k))
 
 end CategoryTheory.Functor.IsPredeformationFunctor

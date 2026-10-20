@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Presheaf.Monoidal
@@ -85,24 +79,38 @@ noncomputable abbrev tensorLeftIso
         CategoryTheory.MonoidalCategory.tensorLeft ((moduleSheafification 𝒪).obj ℱ) :=
   PresheafOfModules.sheafificationTensorLeftIso (𝟙 (ringSheaf J 𝒪).obj) ℱ
 
+end ModuleSheafification
+
+section
+
+universe w
+
+variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [HasWeakSheafify J AddCommGrpCat.{w}]
+variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable (O : Sheaf J CommRingCat.{w})
+
+namespace ModuleSheafification
+
 /-- The tensor product of two module sheaves is canonically identified with the sheafification
 of the tensor product of their underlying module presheaves. -/
 @[stacks 03L6 "module-sheaf tensor as a sheafified pointwise tensor"]
 noncomputable def tensorObjIso
-    (ℱ 𝒢 : ringedSiteModuleCategory J 𝒪) :
+    (ℱ 𝒢 : ringedSiteModuleCategory.{u, v, w, w} J O) :
     moduleTensor ℱ 𝒢 ≅
-      ModuleSheafification.tensorObj 𝒪 ℱ.val 𝒢.val :=
+      (moduleSheafification O).obj
+        (CategoryTheory.MonoidalCategory.tensorObj ℱ.val 𝒢.val) :=
   (CategoryTheory.MonoidalCategory.tensorIso
-      (moduleSheafificationValIso 𝒪 ℱ).symm
-      (moduleSheafificationValIso 𝒪 𝒢).symm :
+      (moduleSheafificationValIso O ℱ).symm
+      (moduleSheafificationValIso O 𝒢).symm :
     moduleTensor ℱ 𝒢 ≅
       CategoryTheory.MonoidalCategory.tensorObj
-        ((moduleSheafification 𝒪).obj ℱ.val)
-        ((moduleSheafification 𝒪).obj 𝒢.val)) ≪≫
-    tensorIso 𝒪 ℱ.val 𝒢.val
-
-
+        ((moduleSheafification O).obj ℱ.val)
+        ((moduleSheafification O).obj 𝒢.val)) ≪≫
+    Functor.Monoidal.μIso (moduleSheafification O) ℱ.val 𝒢.val
 
 end ModuleSheafification
+
+end
 
 end SheafOfModules.RingedSite

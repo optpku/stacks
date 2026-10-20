@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap71.Definition_71_7_6_ZeroScheme
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.ZeroSection
 
 /-! Actual maps into the zero subspace from vanishing of the restricted section. -/
 @[expose] public section
@@ -45,6 +39,12 @@ def lift (h : VanishesOn L s g) : Y ⟶ (zeroScheme L s).X where
 @[simp] theorem lift_app (h : VanishesOn L s g) (T : (Over S)ᵒᵖ)
     (y : Y.functorOfPoints.obj T) :
     ((lift L s g h).app T y).val = g.app T y := rfl
+
+/-- A section vanishes after pullback precisely when the morphism factors
+through its zero subspace (Stacks 0846 (2)). -/
+theorem vanishesOn_iff_factors :
+    VanishesOn L s g ↔ ∃ a : Y ⟶ (zeroScheme L s).X, a ≫ zeroSchemeι L s = g :=
+  sorry
 
 theorem lift_unique (h : VanishesOn L s g) (a : Y ⟶ (zeroScheme L s).X)
     (ha : a ≫ zeroSchemeι L s = g) : a = lift L s g h := by

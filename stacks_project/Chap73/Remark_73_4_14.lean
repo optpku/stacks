@@ -1,122 +1,120 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap66.Lemma_66_21_3
-public import stacks_project.Chap66.Lemma_66_27_1_Hom
-public import stacks_project.Chap73.Remark_73_4_14_Ringed
-public import stacks_project.Chap73.Remark_73_4_14_StructureSheaf
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RingedSite.BigRelocalization
 
 /-!
 # Remark 73.4.14
 
-The sites `(Spaces/X)_étale` and `X_spaces,étale` carry structure sheaves, and the
-morphisms `i_f`, `π_X`, `i_X`, `f_small`, and `f_big` upgrade to morphisms of
-ringed sites (respectively topoi).
+The big and spaces-étale structure sheaves admit the canonical ringed upgrades
+of relocalization, projection, and the morphisms induced by algebraic-space maps.
 -/
 
 @[expose] public section
 
-open CategoryTheory Opposite AlgebraicGeometry
-open AlgebraicGeometry.AlgebraicSpace
+open CategoryTheory Opposite AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.Etale
-open scoped MorphismOfTopoiIn
 
 noncomputable section
 
 universe u
 
-variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : Y ⟶ X)
+variable {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : Y ⟶ X) (g : Z ⟶ Y)
 
-/- The small spaces-étale structure sheaf of Properties of Spaces, Section 66.21. -/
-#check spacesStructureSheaf
-
-#check spacesRingedSite
-
-/- the structure sheaf `𝒪` on `(Spaces/X)_étale` is `U ↦ Γ(U, 𝒪_U)`. -/
+/- Remark 73.4.14: relocalization carries its canonical invertible inverse-image
+structure map, making it a morphism of ringed topoi. -/
 @[stacks 0DF9] #check
-  (Big.structureSheaf :
-    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
-      Sheaf (overEtaleTopology X) RingCat.{u})
-
-@[stacks 0DF9] #check
-  (Big.structureSheaf_obj :
-    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) (U : Over X),
-      (Big.structureSheaf X).obj.obj (op U) = Big.gamma U.left)
-
-/- The comparison `𝒪_Y ⟶ i_f⁻¹ 𝒪`, objectwise `spacesStructureToGamma`. Its inverse is the
-source map `i_f^♯ : i_f⁻¹ 𝒪 ⟶ 𝒪_Y`. -/
-#check
-  (SpacesToBig.relocalizationStructureSheafMap f :
-    spacesStructureSheaf Y ⟶
-      (SpacesToBig.relocalizationPushforward f).obj (Big.structureSheaf X))
-
-/- Remark 73.4.14 (1): `i_f` is the morphism of topoi
-`Sh(Y_spaces,étale) ⟶ Sh((Spaces/X)_étale)`, and `i_f^♯ : i_f⁻¹ 𝒪 ⟶ 𝒪_Y` is the inverse
-of `relocalizationStructureSheafMap f`. -/
-@[stacks 0DF9] #check
-  (SpacesToBig.relocalizationMorphismOfTopoi f :
-    MorphismOfTopoiIn.{u + 1, u + 1, u + 1, u + 1, u}
-      (overEtaleTopology X) (spacesEtaleTopology Y))
-
-@[stacks 0DF9] #check
-  (SpacesToBig.relocalizationStructureSheafMap_isIso f :
-    IsIso (SpacesToBig.relocalizationStructureSheafMap f))
-
-/- Remark 73.4.14 (2): `i_X` is the special case of `i_f` with `f = 𝟙 X`. -/
-@[stacks 0DF9] #check
-  (SpacesToBig.identityRelocalization X :
-    MorphismOfTopoiIn.{u + 1, u + 1, u + 1, u + 1, u}
-      (overEtaleTopology X) (spacesEtaleTopology X))
-
-@[stacks 0DF9] #check
-  (SpacesToBig.identityRelocalization_eq X :
-    SpacesToBig.identityRelocalization X =
-      SpacesToBig.relocalizationMorphismOfTopoi (𝟙 X))
-
-@[stacks 0DF9] #check
-  (SpacesToBig.relocalizationStructureSheafMap_isIso (𝟙 X) :
-    IsIso (SpacesToBig.relocalizationStructureSheafMap (𝟙 X)))
-
-/- Remark 73.4.14 (3): `π_X` upgrades to a morphism of ringed sites with
-`π_X^♯ : 𝒪_X ⟶ π_{X,*} 𝒪` the comparison `(π_{X,*} 𝒪)(U) = 𝒪(U) = 𝒪_X(U)`. -/
-@[stacks 0DF9] #check
-  (SpacesToBig.siteHom X :
-    RingedSite.Hom (Big.ringedSite X) (spacesRingedSite X))
-
-@[stacks 0DF9] #check
-  (SpacesToBig.siteSharp_app X :
-    ∀ U : spacesEtaleSite X,
-      (SpacesToBig.siteSharp X).hom.app (op U) = Big.spacesStructureToGamma U)
-
-/- Remark 73.4.14 (4): the extension of `f_small` to a morphism of ringed topoi is
-Properties of Spaces, Lemma 66.21.3. -/
-@[stacks 0DF9] #check
-  (ringedToposHom :
+  (AlgebraicGeometry.AlgebraicSpace.Etale.SpacesToBig.relocalizationRingedHom :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S},
-      (X ⟶ Y) → RingedSite.ToposHom
-        (AlgebraicGeometry.AlgebraicSpace.ringedSite X)
-        (AlgebraicGeometry.AlgebraicSpace.ringedSite Y))
+      (Y ⟶ X) → RingedSite.ToposHom (spacesRingedSite Y) (Big.ringedSite X))
 
-#check
-  (spacesRingedToposHom :
-    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S},
-      (X ⟶ Y) → RingedSite.ToposHom (spacesRingedSite X) (spacesRingedSite Y))
+#check (AlgebraicGeometry.AlgebraicSpace.spacesStructureSheaf :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
+    Sheaf (spacesEtaleTopology X) RingCat.{u})
 
-/- Remark 73.4.14 (5): `f_big` upgrades to a morphism of ringed topoi
-`Sh((Spaces/Y)_étale) ⟶ Sh((Spaces/X)_étale)`, and
-`f_big^♯ : f_big⁻¹ 𝒪_X ⟶ 𝒪_Y` is an isomorphism. -/
-@[stacks 0DF9] #check
-  (Big.ringedHom f : RingedSite.ToposHom (Big.ringedSite Y) (Big.ringedSite X))
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.Big.structureSheaf :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
+    Sheaf (overEtaleTopology X) RingCat.{u})
 
-@[stacks 0DF9] #check
-  (Big.sharp f :
-    (Big.mapPushforward f).obj (Big.structureSheaf X) ⟶ Big.structureSheaf Y)
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.Big.structureSheaf_obj :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) (U : Over X),
+    (Big.structureSheaf X).obj.obj (op U) = Big.gamma U.left)
 
-@[stacks 0DF9] #check
-  (Big.sharp_isIso f : IsIso (Big.sharp f))
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.Big.structureSheaf_map :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U V : Over X} (h : U ⟶ V),
+    (Big.structureSheaf X).obj.map h.op = Big.gammaMap h.left)
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.Big.gamma_eq :
+  ∀ {S : Scheme.{u}} (U : AlgebraicSpace S),
+    Big.gamma U = (spacesStructureSheaf U).obj.obj (op (spacesEtaleSite.self U)))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.SpacesToBig.relocalizationStructureSheafMap f :
+  spacesStructureSheaf Y ⟶
+    (SpacesToBig.relocalizationPushforward f).obj (Big.structureSheaf X))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.SpacesToBig.relocalizationStructureSheafMap_app f :
+  ∀ U : spacesEtaleSite Y,
+    (SpacesToBig.relocalizationStructureSheafMap f).hom.app (op U) =
+      Big.spacesStructureToGamma U)
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.SpacesToBig.relocalizationRingedHom_structureMap f :
+  (SpacesToBig.relocalizationRingedHom f).structureMap = SpacesToBig.relocalizationSharp f)
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.SpacesToBig.relocalizationMorphismOfTopoi_inverseImage f :
+  (SpacesToBig.relocalizationMorphismOfTopoi f).inverseImage =
+    (SpacesToBig.relocalizationFunctor f).sheafPushforwardContinuous (Type u)
+      (spacesEtaleTopology Y) (overEtaleTopology X))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.SpacesToBig.relocalizationSharp_underlying f :
+  (sheafCompose (spacesEtaleTopology Y) (forget RingCat.{u})).map
+    (SpacesToBig.relocalizationSharp f) = SpacesToBig.relocalizationSharpUnderlying f)
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.SpacesToBig.relocalizationSharp_isIso f :
+  IsIso (SpacesToBig.relocalizationSharp f))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.SpacesToBig.identityRingedRelocalization X :
+  RingedSite.ToposHom (spacesRingedSite X) (Big.ringedSite X))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.SpacesToBig.identityRingedRelocalization_eq X :
+  SpacesToBig.identityRingedRelocalization X = SpacesToBig.relocalizationRingedHom (𝟙 X))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.SpacesToBig.siteHom X :
+  RingedSite.Hom (Big.ringedSite X) (spacesRingedSite X))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.SpacesToBig.siteSharp_app X :
+  ∀ U : spacesEtaleSite X,
+    (SpacesToBig.siteSharp X).hom.app (op U) = Big.spacesStructureToGamma U)
+
+#check (AlgebraicGeometry.AlgebraicSpace.ringedToposHom :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S},
+    (X ⟶ Y) → RingedSite.ToposHom
+      (AlgebraicGeometry.AlgebraicSpace.ringedSite X)
+      (AlgebraicGeometry.AlgebraicSpace.ringedSite Y))
+
+#check (AlgebraicGeometry.AlgebraicSpace.spacesRingedToposHom :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S},
+    (X ⟶ Y) → RingedSite.ToposHom (spacesRingedSite X) (spacesRingedSite Y))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.Big.ringedHom f :
+  RingedSite.ToposHom (Big.ringedSite Y) (Big.ringedSite X))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.Big.sharp_app f :
+  ∀ U : Over Y, (Big.sharp f).hom.app (op U) = 𝟙 (Big.gamma U.left))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.Big.ringedHom_structureMap_isIso f :
+  IsIso (Big.ringedHom f).structureMap)
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.Big.ringedHomCompIso f g :
+  RingedSite.ToposHom.TwoIso.{u + 1, u + 1, u + 1, u + 1, u}
+    (RingedSite.ToposHom.comp.{u + 1, u + 1, u + 1, u + 1, u + 1, u + 1, u}
+      (Big.ringedHom g) (Big.ringedHom f)) (Big.ringedHom (g ≫ f)))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.Big.ringedHomIdIso X :
+  RingedSite.ToposHom.TwoIso.{u + 1, u + 1, u + 1, u + 1, u} (Big.ringedHom (𝟙 X))
+    (RingedSite.ToposHom.id (Big.ringedSite X)))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Etale.SpacesToBig.relocalizationRingedHomCompIso f g :
+  RingedSite.ToposHom.TwoIso.{u + 1, u + 1, u + 1, u + 1, u}
+    (RingedSite.ToposHom.comp.{u + 1, u + 1, u + 1, u + 1, u + 1, u + 1, u}
+      (SpacesToBig.relocalizationRingedHom g) (Big.ringedHom f))
+    (SpacesToBig.relocalizationRingedHom (g ≫ f)))

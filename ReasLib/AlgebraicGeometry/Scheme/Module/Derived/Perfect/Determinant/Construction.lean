@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Perfect.Determinant.AffineRestriction
@@ -21,7 +15,9 @@ namespace ActualGlobalDeterminant
 
 open ActualAffineRestriction
 
-variable (X : Scheme.{u}) (K : Perfect X)
+variable (X : Scheme.{u})
+variable [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
+variable (K : Perfect X)
 
 theorem restriction_id (U : X.affineOpens) (s : line X K U) :
     (lineRestriction X K (U := U) (V := U) le_rfl).hom s = s := by sorry

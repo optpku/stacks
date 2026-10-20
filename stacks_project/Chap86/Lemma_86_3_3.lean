@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap86.Lemma_86_3_3_SheafyTrace
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.Pushforward.SheafyTrace.Coherator
 import StacksCheckRecall
 
 @[expose] public section
@@ -26,13 +20,14 @@ algebraic spaces over a scheme `S`, with `a` a right adjoint of
 after applying the right adjoint of `inclusion Y` (the functor `DQ_Y` of
 Derived Categories of Spaces, Section 75.19). -/
 @[stacks 0E58] #check
-  (coheratedSheafyTraceMapIsIso :
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.coheratedSheafyTraceMapIsIso :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
       [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
       [IsQuasiCompact Y] [IsAbsolutelyQuasiSeparated Y]
       [MonoidalCategory (ModuleDerived X)] [MonoidalCategory (ModuleDerived Y)]
       [MonoidalClosed (ModuleDerived X)] [MonoidalClosed (ModuleDerived Y)]
-      [Functor.LaxMonoidal (moduleDerivedPushforward f)]
+      [ModuleDerived.HasDerivedAdjunction f]
+      [Functor.Monoidal (ModuleDerived.pullback f)]
       (a : DerivedQCoh Y ⥤ DerivedQCoh X) (adj : pushforwardCohomologyIn f ⊣ a)
       (L : DerivedQCoh X) (K : DerivedQCoh Y),
       IsIso (coheratedSheafyTraceMap f a adj L K))

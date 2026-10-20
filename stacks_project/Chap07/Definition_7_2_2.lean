@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Opposites
+import ReasLib.CategoryTheory.Presheaf.Basic
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,19 +15,15 @@ variable (C : Type uC) [Category.{vC} C] (A : Type uA) [Category.{vA} A]
 
 /- Definition 7.2.2 (1): a presheaf on `C` with values in `A` is a contravariant functor
 from `C` to `A`, i.e. an object of type `Cᵒᵖ ⥤ A`. -/
-@[stacks 00V3 "(1)"]
-#check (Cᵒᵖ ⥤ A)
+@[stacks 00V3]
+#check (CategoryTheory.PresheafWithValues C A : Type (max (max vC vA) (max uC uA)))
 
-variable (F G : Cᵒᵖ ⥤ A)
+variable (F G : PresheafWithValues C A)
 
 /- Definition 7.2.2 (2): a morphism of `A`-valued presheaves on `C` is a transformation of
 functors, i.e. a natural transformation `NatTrans F G`. -/
 @[stacks 00V3 "(2)"]
-#check (NatTrans F G)
-
-/- Unspecialized owners of the two clauses above. -/
-#check Functor
-#check NatTrans
+#check (CategoryTheory.PresheafWithValues.Hom F G : Type (max uC vA))
 
 end
 

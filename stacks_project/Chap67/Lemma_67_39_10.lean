@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_16_4_Etale
-public import stacks_project.Chap67.Lemma_67_38_8_Unramified
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Etale.Unramified
+import StacksCheckRecall
 
 /-!
 # Étale morphisms of algebraic spaces are unramified
@@ -21,10 +15,8 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.39.10: An étale morphism of algebraic spaces is unramified. -/
-@[stacks 06CR]
-instance unramified_of_etale {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [Etale f] : Unramified f :=
-  sorry
+/- Lemma 67.39.10: An étale morphism of algebraic spaces is unramified. -/
+@[stacks 06CR] #check (AlgebraicGeometry.AlgebraicSpace.unramified_of_etale :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etale f], Unramified f)
 
 end AlgebraicGeometry.AlgebraicSpace

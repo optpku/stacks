@@ -1,20 +1,16 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Definition
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RegularSection
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
 # Regular sections of module sheaves on ringed spaces
 
-This file owns the categorical regularity condition for a global section of a module sheaf on a
-ringed space.  The condition is meaningful for every module sheaf; applications to invertible
-module sheaves add invertibility at their own source-facing boundary.
+This file specializes the canonical module-sheaf regularity condition
+`SheafOfModules.IsRegularSection` to the structure sheaf of a ringed space.  The condition is
+meaningful for every module sheaf; applications to invertible module sheaves add invertibility at
+their own source-facing boundary.
 -/
 
 @[expose] public section
@@ -30,20 +26,22 @@ namespace AlgebraicGeometry.RingedSpace
 
 variable {X : RingedSpace.{u}}
 
-/-- The morphism from the structure module induced by a global section of a module sheaf. -/
+/-- The morphism from the structure module induced by a global section of a module sheaf; the
+ringed-space specialization of `SheafOfModules.regularSectionHom`. -/
 abbrev regularSectionHom (ℒ : X.Modules) (s : ℒ.sections) :
     SheafOfModules.unit X.ringCatSheaf ⟶ ℒ :=
-  ℒ.unitHomEquiv.symm s
+  SheafOfModules.regularSectionHom ℒ s
 
 /-- A global section of a module sheaf is regular when its induced morphism from the structure
-module is a monomorphism. -/
+module is a monomorphism; the ringed-space specialization of `SheafOfModules.IsRegularSection`. -/
 @[stacks 01WY "categorical regularity of a global module-sheaf section"]
 abbrev IsRegularSection (ℒ : X.Modules) (s : ℒ.sections) : Prop :=
-  Mono (regularSectionHom ℒ s)
+  SheafOfModules.IsRegularSection ℒ s
 
 /-- A regular section is exactly a global section whose induced morphism from the structure
 module is a monomorphism. -/
 theorem isRegularSection_iff_mono (ℒ : X.Modules) (s : ℒ.sections) :
-    IsRegularSection ℒ s ↔ Mono (regularSectionHom ℒ s) := sorry
+    IsRegularSection ℒ s ↔ Mono (regularSectionHom ℒ s) :=
+  SheafOfModules.isRegularSection_iff_mono ℒ s
 
 end AlgebraicGeometry.RingedSpace

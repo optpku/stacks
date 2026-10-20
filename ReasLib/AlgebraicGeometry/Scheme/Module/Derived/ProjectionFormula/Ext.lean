@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.ProjectionFormula.ExtComparison
@@ -35,11 +29,11 @@ noncomputable instance tensorLeftCommShift (X : Scheme.{u})
       (RingedSpace.ModuleDerived.monoidalCategory X.toRingedSpace) E).CommShift ℤ :=
   Functor.CommShift.ofIso
     (BraidedCategory.tensorLeftIsoTensorRight E ≪≫
-      DerivedTensor.Right.Monoidal.tensorRightIsoFunctorOf E
+      (DerivedTensor.Right.Monoidal.functorIsoTensorRightOf E
         (@kFlatTensorCounit X (hasKFlatResolutions X) h_homotopy h_tensor h_tensor
           h_localization h_localization E)
         (@kFlatTensorCounit_isLeftDerived X (hasKFlatResolutions X) h_homotopy h_tensor h_tensor
-          h_localization h_localization (homotopyLocalization_isLocalization X) E)).symm ℤ
+          h_localization h_localization (homotopyLocalization_isLocalization X) E)).symm).symm ℤ
 
 /-- The canonical ambient left-tensor functor is triangulated exact. -/
 noncomputable instance tensorLeftIsTriangulated (X : Scheme.{u})

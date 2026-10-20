@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap70.Remark_70_23_5_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Limit.FiniteTypeApproximation.Equivalence
 import StacksCheckRecall
 
 open CategoryTheory Limits AlgebraicGeometry AlgebraicSpace
@@ -15,11 +9,19 @@ noncomputable section
 
 universe u
 
-/- Remark 70.23.5: two finite-type approximation systems of the same quasi-separated
-finite-type algebraic space over a directed affine limit admit identity-induced
-comparison morphisms in both directions on a common tail, and these become mutually
-inverse after further shrinking. -/
+/- Remark 70.23.5: quasi-separated finite-type algebraic spaces over a directed
+limit of Noetherian algebraic spaces with affine transitions are equivalent to
+admissible approximation systems with comparison morphisms modulo eventual equality. -/
 @[stacks 0CPB] #check
+  (AlgebraicGeometry.AlgebraicSpace.FiniteTypeApproximation.limitFunctor_isEquivalence :
+    ∀ {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
+      {S : Scheme.{u}} (D : OrderDual I ⥤ AlgebraicSpace S) (c : Cone D) (hc : IsLimit c)
+      [∀ j : I, IsNoetherian (D.obj j)]
+      [∀ {j j' : I} (hjj' : j ≤ j'), Affine (D.map (homOfLE hjj'))],
+      (AlgebraicGeometry.AlgebraicSpace.FiniteTypeApproximation.limitFunctor D c).IsEquivalence)
+
+-- The identity-induced comparisons between two descriptions become mutually inverse.
+#check
   (AlgebraicGeometry.AlgebraicSpace.FiniteTypeApproximationLimitSystem.exists_morphisms_eventually_inverse :
     ∀ {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
       {S : Scheme.{u}} (D : OrderDual I ⥤ AlgebraicSpace S) (c : Cone D) (hc : IsLimit c)

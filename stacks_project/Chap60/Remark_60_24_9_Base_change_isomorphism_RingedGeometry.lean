@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap60.Remark_60_24_9_Base_change_isomorphism_Coefficients
@@ -506,20 +500,20 @@ noncomputable def crystallineDerivedGlobalSectionsIso :
 /-- Base-linear identification of iterated restriction of scalars along the
 crystalline global-sections maps and the actual base-ring map. -/
 noncomputable def crystallineBaseRestrictionIso :
-    CategoryTheory.ModuleCat.derivedRestrictionOfScalars
+    CategoryTheory.ModuleCat.derivedRestrictionOfScalars.{u + 1, u + 1}
         ((smallRingedMorphism I γ hc x₀ I' γ' hc' s s' y₀ f g hf hpX hpY hγ).globalSectionsMap.hom) ⋙
-      CategoryTheory.ModuleCat.derivedRestrictionOfScalars
+      CategoryTheory.ModuleCat.derivedRestrictionOfScalars.{u + 1, u + 1}
         ((CrystallineCoefficients.baseToGlobalSections I' γ' hc' y₀ p s' hpY)) ≅
-      CategoryTheory.ModuleCat.derivedRestrictionOfScalars
+      CategoryTheory.ModuleCat.derivedRestrictionOfScalars.{u + 1, u + 1}
           ((CrystallineCoefficients.baseToGlobalSections I γ hc x₀ p s hpX)) ⋙
-        CategoryTheory.ModuleCat.derivedRestrictionOfScalars
+        CategoryTheory.ModuleCat.derivedRestrictionOfScalars.{u + 1, u + 1}
           (CrystallineCoefficients.baseRingMap g.base) :=
-  (CategoryTheory.ModuleCat.DerivedRestriction.compIso
+  (CategoryTheory.ModuleCat.DerivedRestriction.compIso.{u + 1}
       ((CrystallineCoefficients.baseToGlobalSections I' γ' hc' y₀ p s' hpY))
       ((smallRingedMorphism I γ hc x₀ I' γ' hc' s s' y₀ f g hf hpX hpY hγ).globalSectionsMap.hom)).symm ≪≫
-    eqToIso (congrArg CategoryTheory.ModuleCat.derivedRestrictionOfScalars
+    eqToIso (congrArg CategoryTheory.ModuleCat.derivedRestrictionOfScalars.{u + 1, u + 1}
       (baseActions_compatible I γ hc x₀ I' γ' hc' s s' y₀ f g hf hpX hpY hγ)) ≪≫
-    CategoryTheory.ModuleCat.DerivedRestriction.compIso
+    CategoryTheory.ModuleCat.DerivedRestriction.compIso.{u + 1}
       (CrystallineCoefficients.baseRingMap g.base)
       ((CrystallineCoefficients.baseToGlobalSections I γ hc x₀ p s hpX))
 
@@ -536,8 +530,8 @@ noncomputable def cohomologyBaseChange
   let f₀ := smallRingedMorphism I γ hc x₀ I' γ' hc' s s' y₀ f g hf hpX hpY hγ
   let cmp := crystallineDerivedGlobalSectionsIso I γ hc x₀ I' γ' hc' s s' y₀ f g hf hpX hpY hγ
   let ρ := crystallineBaseRestrictionIso I γ hc x₀ I' γ' hc' s s' y₀ f g hf hpX hpY hγ
-  ((CategoryTheory.ModuleCat.derivedExtensionRestrictionAdjunction σ).homEquiv _ _).symm
-    ((CategoryTheory.ModuleCat.derivedRestrictionOfScalars α).map
+  ((CategoryTheory.ModuleCat.derivedExtensionRestrictionAdjunction.{u + 1, u + 1} σ).homEquiv _ _).symm
+    ((CategoryTheory.ModuleCat.derivedRestrictionOfScalars.{u + 1, u + 1} α).map
       ((RingedSite.Hom.moduleDerivedGlobalSections.{u + 1} Ysite).map
           (f₀.moduleDerivedAdjunction.unit.app K) ≫
         cmp.inv.app (f₀.modulePullbackDerived.obj K)) ≫

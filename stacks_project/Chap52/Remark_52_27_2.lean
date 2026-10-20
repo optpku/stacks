@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap52.Lemma_52_24_1
-public import stacks_project.Chap52.Lemma_52_27_1
+public import ReasLib.AlgebraicGeometry.PuncturedSpectrum.Picard.SerreDepth
 import StacksCheckRecall
 
 @[expose] public section
@@ -18,23 +11,18 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.CoherentTripleSetup
-
-/-- Remark 52.27.2: the Picard-neighborhood extension conclusion of Lemma 52.27.1
+/- Remark 52.27.2: the Picard-neighborhood extension conclusion of Lemma 52.27.1
 holds for a Noetherian local ring with a dualizing complex when the finiteness
 hypotheses are replaced by either the stated Serre/minimal-prime condition or the
 primewise depth-dimension condition, while retaining `f`-adic completeness and the
 vanishing of third local cohomology of `A / fA`. -/
-@[stacks 0F2E]
-theorem picardNeighborhoodRestriction_surjective_of_serreOrDepth
-    {A : Type u} [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
-    [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
+@[stacks 0F2E] #check
+  (AlgebraicGeometry.PuncturedSpectrum.picardNeighborhoodRestriction_surjective_of_serreOrDepth :
+    ∀ {A : Type u} [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
     (f : A) (hf_mem : f ∈ IsLocalRing.maximalIdeal A)
     (hf_regular : IsRegular f)
     [IsAdicComplete (Ideal.span {f}) A]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (h_dualizing :
-      ∃ K : DerivedCategory (ModuleCat.{u} A), K.IsDualizingComplex H)
+    (h_dualizing : DerivedCategory.HasCanonicalDualizingComplex A)
     (h_alternative :
       (SerreConditionS (Localization.Away f) 2 ∧
         ∀ p : PrimeSpectrum A,
@@ -55,15 +43,14 @@ theorem picardNeighborhoodRestriction_surjective_of_serreOrDepth
     (h_h3 : IsZero
       ((localCohomology (IsLocalRing.maximalIdeal A) 3).obj
         (ModuleCat.of A
-          (A ⧸ (Ideal.span {f} • (⊤ : Submodule A A)))))) :
-    let S := CoherentTripleSetup.ofElement f hf_mem hf_regular
-    let U₀ := Opens.toScheme S.algebraization.U₀
-    let U := Opens.toScheme S.algebraization.U
-    ∀ x : Scheme.PicardGroup U₀,
-      ∃ (V : U.Opens)
-        (j : U₀ ⟶ V.toScheme),
-        j ≫ V.ι = S.closedFiberOnU ∧
+          (A ⧸ (Ideal.span {f} • (⊤ : Submodule A A)))))),
+    let quotientMap :=
+      Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk (Ideal.span {f})))
+    let punctured := AlgebraicGeometry.PuncturedSpectrum.puncturedOpen A
+    let closedFiber := (quotientMap ⁻¹ᵁ punctured).toScheme
+    ∀ x : Scheme.PicardGroup closedFiber,
+      ∃ (V : punctured.toScheme.Opens)
+        (j : closedFiber ⟶ V.toScheme),
+        j ≫ V.ι = quotientMap ∣_ punctured ∧
           ∃ y : Scheme.PicardGroup V.toScheme,
-            Scheme.Hom.picardPullback j y = x := sorry
-
-end AlgebraicGeometry.CoherentTripleSetup
+            Scheme.Hom.picardPullback j y = x)

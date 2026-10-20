@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.MvPolynomial.PDeriv
@@ -33,233 +27,6 @@ universe u
 
 namespace CommAlgCat.IndEtale
 
-/-- The presented ring of a relative-dimension-zero standard-étale relation family. -/
-abbrev presentationRing {A : Type u} [CommRing A] (n : ℕ)
-    (relations : Fin n → MvPolynomial (Fin n) A) : Type u :=
-  MvPolynomial (Fin n) A ⧸ Ideal.span (Set.range relations)
-
-/-- Unfolding lemma for the presented ring of a relation family. -/
-theorem presentationRing_eq {A : Type u} [CommRing A] (n : ℕ)
-    (relations : Fin n → MvPolynomial (Fin n) A) :
-    presentationRing n relations =
-      (MvPolynomial (Fin n) A ⧸ Ideal.span (Set.range relations)) := rfl
-
-/-- The Jacobian matrix of a square relation family, with `(i, j)`-entry the
-partial derivative of the `j`-th relation with respect to the `i`-th variable. -/
-def jacobiMatrix {A : Type u} [CommRing A] (n : ℕ)
-    (relations : Fin n → MvPolynomial (Fin n) A) :
-    Matrix (Fin n) (Fin n) (MvPolynomial (Fin n) A) :=
-  fun i j ↦ MvPolynomial.pderiv i (relations j)
-
-/-- The Jacobian matrix is the matrix of partial derivatives of the relations. -/
-theorem jacobiMatrix_apply {A : Type u} [CommRing A] (n : ℕ)
-    (relations : Fin n → MvPolynomial (Fin n) A) (i j : Fin n) :
-    jacobiMatrix n relations i j = MvPolynomial.pderiv i (relations j) := rfl
-
-/-- The Jacobian of a square relation family, viewed in the presented ring. -/
-def presentationJacobian {A : Type u} [CommRing A] (n : ℕ)
-    (relations : Fin n → MvPolynomial (Fin n) A) :
-    presentationRing n relations :=
-  Ideal.Quotient.mk _ (Matrix.det (jacobiMatrix n relations))
-
-/-- The Jacobian is the determinant of the Jacobian matrix, reduced to the presented ring. -/
-theorem presentationJacobian_eq {A : Type u} [CommRing A] (n : ℕ)
-    (relations : Fin n → MvPolynomial (Fin n) A) :
-    presentationJacobian n relations =
-      Ideal.Quotient.mk _ (Matrix.det (jacobiMatrix n relations)) := rfl
-
-/-- A relative-dimension-zero standard-étale factorization `A → B → T`. -/
-structure Factorization (A T : Type u) [CommRing A] [CommRing T] [Algebra A T] where
-  /-- The common number of generators and relations. -/
-  n : ℕ
-  /-- The square family of relations in `n` variables. -/
-  relations : Fin n → MvPolynomial (Fin n) A
-  /-- The Jacobian of the presentation is a unit in the presented ring. -/
-  jacobian_isUnit : IsUnit (presentationJacobian n relations)
-  /-- The structure map from the presented ring to the target. -/
-  toTarget : presentationRing n relations →ₐ[A] T
-
-namespace Factorization
-
-variable {A T : Type u} [CommRing A] [CommRing T] [Algebra A T]
-
-/-- The presented ring of a factorization. -/
-abbrev Ring (P : Factorization A T) : Type u :=
-  presentationRing P.n P.relations
-
-/-- The presented ring of a factorization is the quotient by its relations. -/
-theorem Ring_eq (P : Factorization A T) :
-    P.Ring = presentationRing P.n P.relations := rfl
-
-/-- A factorization is étale over the base. -/
-theorem etale (P : Factorization A T) : Algebra.Etale A P.Ring := sorry
-
-/-- The identity factorization `A → A → T`. -/
-def ofId (A T : Type u) [CommRing A] [CommRing T] [Algebra A T] :
-    Factorization A T where
-  n := 0
-  relations := isEmptyElim
-  jacobian_isUnit := sorry
-  toTarget :=
-    Ideal.Quotient.liftₐ _
-      (MvPolynomial.aeval (isEmptyElim : Fin 0 → T))
-      (fun a ha ↦
-        Eq.trans
-          (congrArg (MvPolynomial.aeval (isEmptyElim : Fin 0 → T))
-            (Ideal.mem_bot.mp
-              (Eq.mp
-                (congrArg (fun I : Ideal (MvPolynomial (Fin 0) A) ↦ a ∈ I)
-                  (Eq.trans (congrArg Ideal.span (Set.range_eq_empty isEmptyElim))
-                    Ideal.span_empty))
-                ha)))
-          (map_zero _))
-
-/-- The identity factorization has no generators or relations. -/
-theorem ofId_n (A T : Type u) [CommRing A] [CommRing T] [Algebra A T] :
-    (ofId A T).n = 0 := rfl
-
-/-- Package a relative-dimension-zero standard-étale presentation with a map to
-the target as a factorization. -/
-abbrev ofRelations (n : ℕ) (relations : Fin n → MvPolynomial (Fin n) A)
-    (h : IsUnit (presentationJacobian n relations))
-    (toTarget : presentationRing n relations →ₐ[A] T) :
-    Factorization A T where
-  n := n
-  relations := relations
-  jacobian_isUnit := h
-  toTarget := toTarget
-
-/-- The target map of `ofRelations` is the supplied algebra homomorphism. -/
-theorem ofRelations_toTarget (n : ℕ) (relations : Fin n → MvPolynomial (Fin n) A)
-    (h : IsUnit (presentationJacobian n relations))
-    (toTarget : presentationRing n relations →ₐ[A] T) :
-    (ofRelations n relations h toTarget).toTarget = toTarget := rfl
-
-/-- Postcomposition of the target map of a factorization. -/
-def postcompose {T' : Type u} [CommRing T'] [Algebra A T'] (f : T →ₐ[A] T')
-    (P : Factorization A T) : Factorization A T' where
-  n := P.n
-  relations := P.relations
-  jacobian_isUnit := P.jacobian_isUnit
-  toTarget := f.comp P.toTarget
-
-/-- Postcomposition acts on the target map by composition. -/
-theorem postcompose_toTarget {T' : Type u} [CommRing T'] [Algebra A T']
-    (f : T →ₐ[A] T') (P : Factorization A T) :
-    (postcompose f P).toTarget = f.comp P.toTarget := rfl
-
-/-- A presented factorization regarded as an algebra over its target. -/
-def toOver (presentation : Factorization A T) : Over (CommAlgCat.of A T) :=
-  Over.mk (CommAlgCat.ofHom presentation.toTarget)
-
-end Factorization
-
-/-- The small category of presented étale factorizations over a target, with
-morphisms induced from the over category of commutative algebras. -/
-abbrev FactorizationIndex (A T : Type u) [CommRing A] [CommRing T] [Algebra A T] :=
-  InducedCategory (Over (CommAlgCat.of A T)) (Factorization.toOver (A := A) (T := T))
-
-/-- A morphism of factorizations over a fixed target is an algebra map of
-presented rings commuting with the maps to the target. -/
-structure FactorizationHom {A T : Type u} [CommRing A] [CommRing T] [Algebra A T]
-    (P Q : Factorization A T) where
-  /-- The underlying algebra homomorphism of presented rings. -/
-  hom : P.Ring →ₐ[A] Q.Ring
-  /-- The two maps to the target agree. -/
-  comm : Q.toTarget.comp hom = P.toTarget
-
-namespace FactorizationHom
-
-variable {A T : Type u} [CommRing A] [CommRing T] [Algebra A T]
-
-/-- The identity morphism of a factorization. -/
-def id (P : Factorization A T) : FactorizationHom P P where
-  hom := AlgHom.id A P.Ring
-  comm := AlgHom.comp_id P.toTarget
-
-/-- The identity factorization morphism is the identity algebra map. -/
-theorem id_hom (P : Factorization A T) :
-    (id P).hom = AlgHom.id A P.Ring := rfl
-
-/-- Composition of factorization morphisms. -/
-def comp {P Q R : Factorization A T} (f : FactorizationHom P Q)
-    (g : FactorizationHom Q R) : FactorizationHom P R where
-  hom := g.hom.comp f.hom
-  comm := by rw [← AlgHom.comp_assoc, g.comm, f.comm]
-
-/-- Composition of factorization morphisms is composition of algebra maps. -/
-theorem comp_hom {P Q R : Factorization A T} (f : FactorizationHom P Q)
-    (g : FactorizationHom Q R) :
-    (comp f g).hom = g.hom.comp f.hom := rfl
-
-/-- A commuting algebra map defines a morphism of the canonical factorization index. -/
-def toIndexHom {source target : FactorizationIndex A T}
-    (morphism : FactorizationHom source target) : source ⟶ target :=
-  InducedCategory.homMk (Over.homMk (CommAlgCat.ofHom morphism.hom)
-    (congrArg CommAlgCat.ofHom morphism.comm))
-
-/-- A morphism of the canonical factorization index determines a commuting algebra map. -/
-def ofIndexHom {source target : FactorizationIndex A T} (morphism : source ⟶ target) :
-    FactorizationHom source target where
-  hom := morphism.hom.left.hom
-  comm := congrArg CommAlgCat.Hom.hom (Over.w morphism.hom)
-
-end FactorizationHom
-
-/-- The canonical induced category structure on the small factorization index. -/
-@[implicit_reducible]
-def Factorization.category {A T : Type u} [CommRing A] [CommRing T] [Algebra A T] :
-    Category (FactorizationIndex A T) := inferInstance
-
-/-- The small category of presented étale factorizations over a target is filtered. -/
-theorem Factorization.isFiltered {A T : Type u} [CommRing A] [CommRing T] [Algebra A T] :
-    IsFiltered (FactorizationIndex A T) := sorry
-
-/-- Postcomposition of targets as a functor on factorization categories. -/
-def Factorization.postcomposeFunctor {A T T' : Type u} [CommRing A] [CommRing T]
-    [CommRing T'] [Algebra A T] [Algebra A T'] (f : T →ₐ[A] T') :
-    FactorizationIndex A T ⥤ FactorizationIndex A T' where
-  obj := Factorization.postcompose f
-  map morphism := FactorizationHom.toIndexHom
-    { hom := (FactorizationHom.ofIndexHom morphism).hom
-      comm := (AlgHom.comp_assoc f _ _).trans
-        (congrArg (fun targetMap ↦ f.comp targetMap)
-          (FactorizationHom.ofIndexHom morphism).comm) }
-  map_id _ := by
-    apply InducedCategory.hom_ext
-    apply Over.OverMorphism.ext
-    rfl
-  map_comp _ _ := by
-    apply InducedCategory.hom_ext
-    apply Over.OverMorphism.ext
-    rfl
-
-/-- Postcomposition functor acts by `Factorization.postcompose` on objects. -/
-theorem Factorization.postcomposeFunctor_obj {A T T' : Type u} [CommRing A]
-    [CommRing T] [CommRing T'] [Algebra A T] [Algebra A T'] (f : T →ₐ[A] T')
-    (P : Factorization A T) :
-    (Factorization.postcomposeFunctor f).obj P = Factorization.postcompose f P := rfl
-
-/-- The diagram of presented rings of factorizations over a target. -/
-def diagram (A : Type u) [CommRing A] (T : Type u) [CommRing T] [Algebra A T] :
-    FactorizationIndex A T ⥤ CommAlgCat.{u} A :=
-  inducedFunctor (Factorization.toOver (A := A) (T := T)) ⋙
-    Over.forget (CommAlgCat.of A T)
-
-/-- The factorization diagram sends a presentation to its bundled presented ring. -/
-theorem diagram_obj (A : Type u) [CommRing A] (T : Type u) [CommRing T] [Algebra A T]
-    (P : Factorization A T) :
-    (diagram A T).obj P = .of A P.Ring := rfl
-
-/-- The canonical cocone from presented rings of factorizations to the target. -/
-def toTargetCocone (A : Type u) [CommRing A] (T : Type u) [CommRing T] [Algebra A T] :
-    Cocone (diagram A T) :=
-  (Over.forgetCocone (CommAlgCat.of A T)).whisker
-    (inducedFunctor (Factorization.toOver (A := A) (T := T)))
-
-/-- The cocone point of `toTargetCocone` is the bundled target algebra. -/
-theorem toTargetCocone_pt (A : Type u) [CommRing A] (T : Type u) [CommRing T] [Algebra A T] :
-    (toTargetCocone A T).pt = .of A T := rfl
 
 variable {A : Type u} [CommRing A] (I : Ideal A)
 
@@ -279,10 +46,64 @@ abbrev liftColimit (Cbar : IndEtale.{u} (A ⧸ I)) : CommAlgCat.{u} A :=
 theorem liftColimit_eq (Cbar : IndEtale.{u} (A ⧸ I)) :
     liftColimit I Cbar = colimit (diagram A Cbar) := rfl
 
+/-- The underlying ring diagram of the given factorization diagram. -/
+def liftRingDiagram (Cbar : IndEtale.{u} (A ⧸ I)) :
+    FactorizationIndex A Cbar ⥤ CommRingCat.{u} :=
+  diagram A Cbar ⋙ forget₂ (CommAlgCat A) CommRingCat
+
+/-- The original colimit injections, with the target's scalar lift retained. -/
+def liftRingCocone (Cbar : IndEtale.{u} (A ⧸ I)) : Cocone (liftRingDiagram I Cbar) where
+  pt := CommRingCat.of (ULift.{u} (liftColimit I Cbar))
+  ι :=
+    { app P := CommRingCat.ofHom
+        (ULift.ringEquiv.symm.toRingHom.comp
+          (colimit.ι (diagram A Cbar) P).hom.toRingHom)
+      naturality := sorry }
+
+/-- A ring cocone has the scalar action induced by the fixed identity stage.
+No object is selected from filteredness to construct this algebra cocone. -/
+def liftRingDescCocone (Cbar : IndEtale.{u} (A ⧸ I))
+    (c : Cocone (liftRingDiagram I Cbar)) : Cocone (diagram A Cbar) := by
+  let P₀ := Factorization.ofId A Cbar
+  letI : Algebra A c.pt :=
+    ((c.ι.app P₀).hom.comp (algebraMap A P₀.Ring)).toAlgebra
+  exact
+    { pt := CommAlgCat.of A c.pt
+      ι :=
+        { app P := CommAlgCat.ofHom
+            { toRingHom := (c.ι.app P).hom
+              commutes' := sorry }
+          naturality := sorry } }
+
+/-- The explicit ring-colimit eliminator inherited from the algebra colimit. -/
+def liftRingIsColimit (Cbar : IndEtale.{u} (A ⧸ I)) :
+    IsColimit (liftRingCocone I Cbar) where
+  desc c := CommRingCat.ofHom
+    ((colimit.desc (diagram A Cbar) (liftRingDescCocone I Cbar c)).hom.toRingHom.comp
+      ULift.ringEquiv.toRingHom)
+  fac := sorry
+  uniq := sorry
+
 /-- The colimit of the factorization diagram of an ind-étale algebra over a
 quotient remains ind-étale over the original ring. -/
 theorem lift_obj_indEtale (Cbar : IndEtale.{u} (A ⧸ I)) :
-    (algebraMap A (liftColimit I Cbar)).IndEtale := sorry
+    (algebraMap A (liftColimit I Cbar)).IndEtale := by
+  letI := Factorization.isFiltered (A := A) (T := Cbar)
+  refine ⟨FactorizationIndex A Cbar, inferInstance, inferInstance,
+    liftRingDiagram I Cbar,
+    { app := fun P ↦ CommRingCat.ofHom
+        ((algebraMap A P.Ring).comp ULift.ringEquiv.toRingHom)
+      naturality := by sorry },
+    (liftRingCocone I Cbar).ι, liftRingIsColimit I Cbar, ?_⟩
+  intro P
+  constructor
+  · exact RingHom.Etale.stableUnderComposition ULift.ringEquiv.toRingHom
+      (algebraMap A P.Ring)
+      (RingHom.Etale.of_bijective
+        (f := (ULift.ringEquiv : ULift.{u} A ≃+* A).toRingHom)
+        (ULift.ringEquiv : ULift.{u} A ≃+* A).bijective)
+      (RingHom.etale_algebraMap.mpr P.etale)
+  · sorry
 
 /-- Postcomposition with a map of quotient algebras gives a cocone to the
 factorization colimit of its codomain. -/
@@ -342,17 +163,179 @@ theorem counitApp_hom (Cbar : IndEtale.{u} (A ⧸ I)) :
         (AlgHom.liftEquiv A (A ⧸ I) (liftColimit I Cbar) Cbar
           (colimit.desc (diagram A Cbar) (toTargetCocone A Cbar)).hom) := rfl
 
+
+/-- Each étale stage mapping to `D` maps into the factorization colimit over
+`Ĉ` after postcomposition with `f`. -/
+def factorizationCocone (D : IndEtale.{u} A) (Cbar : IndEtale.{u} (A ⧸ I))
+    (f : D →ₐ[A] Cbar) : EtaleStageCocone D (liftColimit I Cbar) where
+  app B _ _ _ g :=
+    let P := (squarePresentation A B).2
+    (colimit.ι (diagram A Cbar) (Factorization.ofSubmersive P (f.comp g))).hom.comp
+      (Factorization.presentationSection P)
+  naturality := sorry
+
+/-- The map to the lift induced by a map to its quotient target. -/
+def homToLift (D : IndEtale.{u} A) (Cbar : IndEtale.{u} (A ⧸ I))
+    (f : D →ₐ[A] Cbar) : D →ₐ[A] liftColimit I Cbar :=
+  (factorizationCocone I D Cbar f).desc
+
+/-- On every étale stage, the induced map is the corresponding colimit injection
+composed with the presentation's explicit polynomial section. -/
+theorem homToLift_comp (D : IndEtale.{u} A) (Cbar : IndEtale.{u} (A ⧸ I))
+    (f : D →ₐ[A] Cbar) (B : Type u) [CommRing B] [Algebra A B] [Algebra.Etale A B]
+    (g : B →ₐ[A] D) :
+    (homToLift I D Cbar f).comp g =
+      let P := (squarePresentation A B).2
+      (colimit.ι (diagram A Cbar) (Factorization.ofSubmersive P (f.comp g))).hom.comp
+        (Factorization.presentationSection P) :=
+  (factorizationCocone I D Cbar f).desc_comp B g
+
+/-- The unit sends each étale stage of `D` to its factorization through the
+reduction of `D`. -/
+def unitApp (D : IndEtale.{u} A) : D ⟶ (lift I).obj ((reduction I).obj D) where
+  hom := CommAlgCat.ofHom (homToLift I D ((reduction I).obj D)
+    { toRingHom :=
+        (Algebra.TensorProduct.includeRight : D →ₐ[A] ((A ⧸ I) ⊗[A] D)).toRingHom
+      commutes' := sorry })
+
+/-- The reduction/lift adjunction with the explicit colimit unit and the
+original tensor-quotient comparison counit. -/
+def reductionLiftAdjunction : reduction I ⊣ lift I :=
+  Adjunction.mkOfUnitCounit
+    { unit := { app := unitApp I, naturality := sorry }
+      counit := { app := counitApp I, naturality := sorry }
+      left_triangle := sorry
+      right_triangle := sorry }
+
+/-- The unit of the constructed adjunction is the stagewise colimit map. -/
+@[simp]
+theorem reductionLiftAdjunction_unit_app (D : IndEtale.{u} A) :
+    (reductionLiftAdjunction I).unit.app D = unitApp I D := rfl
+
+/-- The counit of the constructed adjunction is the original comparison. -/
+@[simp]
+theorem reductionLiftAdjunction_counit_app (Cbar : IndEtale.{u} (A ⧸ I)) :
+    (reductionLiftAdjunction I).counit.app Cbar = counitApp I Cbar := rfl
+
+/-- The Hom correspondence is built from the explicit unit and counit. -/
+def reductionHomEquiv (D : IndEtale.{u} A) (Cbar : IndEtale.{u} (A ⧸ I)) :
+    ((reduction I).obj D ⟶ Cbar) ≃ (D ⟶ (lift I).obj Cbar) :=
+  (reductionLiftAdjunction I).homEquiv D Cbar
+
+/-- The inverse Hom correspondence reduces a map and follows it by the counit. -/
+@[simp]
+theorem reductionHomEquiv_symm_apply (D : IndEtale.{u} A)
+    (Cbar : IndEtale.{u} (A ⧸ I)) (f : D ⟶ (lift I).obj Cbar) :
+    (reductionHomEquiv I D Cbar).symm f =
+      (reduction I).map f ≫ counitApp I Cbar := rfl
+
 /-- Reduction modulo `I` is left adjoint to the colimit lift of ind-étale algebras. -/
-theorem reduction_adjunction : Nonempty (reduction I ⊣ lift I) := sorry
+theorem reduction_adjunction : Nonempty (reduction I ⊣ lift I) :=
+  ⟨reductionLiftAdjunction I⟩
 
 /-- Reduction is the left adjoint of the constructed lift functor. -/
 instance instIsLeftAdjoint : (reduction I).IsLeftAdjoint where
   exists_rightAdjoint := ⟨lift I, reduction_adjunction I⟩
 
+
+/-- Lift the finitely many coefficients of a polynomial along the quotient map.
+The only choice is from the native surjectivity of the quotient map. -/
+def liftPolynomial {n : ℕ} (p : MvPolynomial (Fin n) (A ⧸ I)) :
+    MvPolynomial (Fin n) A :=
+  p.support.sum fun d ↦
+    MvPolynomial.monomial d (Ideal.Quotient.mk_surjective (p.coeff d)).choose
+
+/-- Lifted polynomial relations reduce to the original relations. -/
+theorem map_liftPolynomial {n : ℕ} (p : MvPolynomial (Fin n) (A ⧸ I)) :
+    MvPolynomial.map (Ideal.Quotient.mk I) (liftPolynomial I p) = p := sorry
+
+/-- The determinant of the lifted square Jacobian before localization. -/
+def liftedJacobian {n : ℕ} (relations : Fin n → MvPolynomial (Fin n) (A ⧸ I)) :
+    MvPolynomial (Fin n) A :=
+  Matrix.det (jacobiMatrix n (fun i ↦ liftPolynomial I (relations i)))
+
+/-- Lift the relations and add a variable making the lifted Jacobian invertible. -/
+def liftedRelations {n : ℕ} (relations : Fin n → MvPolynomial (Fin n) (A ⧸ I)) :
+    Fin (n + 1) → MvPolynomial (Fin (n + 1)) A :=
+  Fin.cases
+    (MvPolynomial.X 0 * MvPolynomial.rename Fin.succ (liftedJacobian I relations) - 1)
+    (fun i ↦ MvPolynomial.rename Fin.succ (liftPolynomial I (relations i)))
+
+/-- The lifted presentation maps to the original quotient algebra. Its extra
+variable maps to the ring's native total inverse of the lifted Jacobian value. -/
+def liftedFactorization (Cbar : IndEtale.{u} (A ⧸ I))
+    {B : Type u} [CommRing B] [Algebra (A ⧸ I) B] {n : ℕ}
+    (P : Algebra.SubmersivePresentation (A ⧸ I) B (Fin n) (Fin n))
+    (f : B →ₐ[A ⧸ I] Cbar) : Factorization A Cbar := by
+  letI : Algebra A B :=
+    ((algebraMap (A ⧸ I) B).comp (algebraMap A (A ⧸ I))).toAlgebra
+  exact
+    { n := n + 1
+      relations := liftedRelations I P.relation
+      jacobian_isUnit := sorry
+      toTarget := Ideal.Quotient.liftₐ _
+        (MvPolynomial.aeval (Fin.cases
+          (f (Ring.inverse (MvPolynomial.aeval P.val (liftedJacobian I P.relation))))
+          (fun i ↦ f (P.val i)))) (by sorry) }
+
+/-- The map from an étale quotient stage into the reduction of the factorization
+colimit. Generators map to the reductions of the corresponding lifted generators. -/
+def counitInverseStage (Cbar : IndEtale.{u} (A ⧸ I))
+    (B : Type u) [CommRing B] [Algebra (A ⧸ I) B] [Algebra.Etale (A ⧸ I) B]
+    (f : B →ₐ[A ⧸ I] Cbar) : B →ₐ[A ⧸ I] ((reduction I).obj ((lift I).obj Cbar)) := by
+  let P := (squarePresentation (A ⧸ I) B).2
+  let Q := liftedFactorization I Cbar P f
+  exact
+    { toFun b := MvPolynomial.aeval
+        (fun i ↦ (1 : A ⧸ I) ⊗ₜ[A]
+          (colimit.ι (diagram A Cbar) Q).hom
+            (Ideal.Quotient.mk _ (MvPolynomial.X i.succ))) (P.σ b)
+      map_zero' := sorry
+      map_one' := sorry
+      map_add' := sorry
+      map_mul' := sorry
+      commutes' := sorry }
+
+/-- The inverse comparison on the input quotient algebra's étale stages. -/
+def counitInverseCocone (Cbar : IndEtale.{u} (A ⧸ I)) :
+    EtaleStageCocone Cbar ((reduction I).obj ((lift I).obj Cbar)) where
+  app := counitInverseStage I Cbar
+  naturality := sorry
+
+/-- The inverse of the counit, obtained by descending the lifted-generator maps
+along the original ind-étale presentation of `Ĉ`. -/
+def counitInverse (Cbar : IndEtale.{u} (A ⧸ I)) :
+    Cbar ⟶ (reduction I).obj ((lift I).obj Cbar) where
+  hom := CommAlgCat.ofHom (counitInverseCocone I Cbar).desc
+
+/-- The counit inverse is the lifted-generator map on each étale quotient stage. -/
+theorem counitInverse_comp (Cbar : IndEtale.{u} (A ⧸ I))
+    (B : Type u) [CommRing B] [Algebra (A ⧸ I) B] [Algebra.Etale (A ⧸ I) B]
+    (f : B →ₐ[A ⧸ I] Cbar) :
+    (counitInverse I Cbar).hom.hom.comp f = counitInverseStage I Cbar B f :=
+  (counitInverseCocone I Cbar).desc_comp B f
+
+/-- The canonical reduction/lift identification, with both maps constructed. -/
+def counitIso (Cbar : IndEtale.{u} (A ⧸ I)) :
+    (reduction I).obj ((lift I).obj Cbar) ≅ Cbar where
+  hom := counitApp I Cbar
+  inv := counitInverse I Cbar
+  hom_inv_id := sorry
+  inv_hom_id := sorry
+
+@[simp]
+theorem counitIso_hom (Cbar : IndEtale.{u} (A ⧸ I)) :
+    (counitIso I Cbar).hom = counitApp I Cbar := rfl
+
+@[simp]
+theorem counitIso_inv (Cbar : IndEtale.{u} (A ⧸ I)) :
+    (counitIso I Cbar).inv = counitInverse I Cbar := rfl
+
 /-- The counit comparison for every ind-étale quotient algebra is an isomorphism. -/
 theorem lift_reduction_iso {A : Type u} [CommRing A]
     (I : Ideal A) (Cbar : CommAlgCat.IndEtale.{u} (A ⧸ I)) :
-    IsIso (counitApp I Cbar) := sorry
+    IsIso (counitApp I Cbar) :=
+  (counitIso I Cbar).isIso_hom
 
 attribute [instance] lift_reduction_iso
 
@@ -365,9 +348,24 @@ theorem exists_lift_of_quotient {Cbar : Type u} [CommRing Cbar] [Algebra (A ⧸ 
           Ideal.map (algebraMap A ((lift I).obj (of (A ⧸ I) Cbar h))) I) ≃ₐ[A ⧸ I]
         Cbar) := sorry
 
+/-- The inverse on morphisms of the fully faithful lift functor, computed by
+reducing the map and conjugating by the explicit counit identifications. -/
+def liftFullyFaithful : (lift I).FullyFaithful where
+  preimage {Cbar Cbar'} f :=
+    counitInverse I Cbar ≫ (reduction I).map f ≫ counitApp I Cbar'
+  map_preimage := sorry
+  preimage_map := sorry
+
+@[simp]
+theorem liftFullyFaithful_preimage {Cbar Cbar' : IndEtale.{u} (A ⧸ I)}
+    (f : (lift I).obj Cbar ⟶ (lift I).obj Cbar') :
+    (liftFullyFaithful I).preimage f =
+      counitInverse I Cbar ≫ (reduction I).map f ≫ counitApp I Cbar' := rfl
+
 /-- The reduction and lift satisfy the fully faithful right-adjoint clause. -/
 theorem lift_isFullyFaithfulRightAdjoint
     {A : Type u} [CommRing A] (I : Ideal A) :
-    Nonempty (reduction I ⊣ lift I) ∧ Nonempty (lift I).FullyFaithful := sorry
+    Nonempty (reduction I ⊣ lift I) ∧ Nonempty (lift I).FullyFaithful :=
+  ⟨⟨reductionLiftAdjunction I⟩, ⟨liftFullyFaithful I⟩⟩
 
 end CommAlgCat.IndEtale

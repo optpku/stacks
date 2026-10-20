@@ -1,43 +1,29 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+import StacksCheckRecall
 public import Mathlib.RingTheory.Noetherian.Defs
 public import stacks_project.Chap89.«89_2_0_1_ProperIsoOverOpen»
 public import stacks_project.Chap89.«89_2_0_1_Punctured»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ProperIsoOverPuncturedSpectrum
 
 /-!
 # Proper morphisms of algebraic spaces that are isomorphisms over the punctured spectrum
 -/
 
-@[expose] public section
-
 open CategoryTheory CategoryTheory.ObjectProperty AlgebraicGeometry
+open AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- 89.2.0.1 For a Noetherian local ring `(A, 𝔪, κ)`, with `S = Spec(A)` and
+/- 89.2.0.1 For a Noetherian local ring `(A, 𝔪, κ)`, with `S = Spec(A)` and
 `U = S \ {𝔪}`, the category of morphisms `f : X ⟶ S` of algebraic spaces such
 that `f` is proper and `f⁻¹(U) ⟶ U` is an isomorphism. Morphisms `X / S ⟶ X' / S`
 are morphisms of algebraic spaces over `S`. -/
-@[stacks 0AE2]
-abbrev ProperIsoOverPuncturedSpectrum (A : Type u) [CommRing A] [IsLocalRing A]
-    [IsNoetherianRing A] :=
-  ProperIsoOverOpen (puncturedι A)
+@[stacks 0AE2] #check (AlgebraicGeometry.AlgebraicSpace.ProperIsoOverPuncturedSpectrum :
+  ∀ (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A], Type (u + 1))
 
-/-- Membership of a morphism over `specSpace A` in the object property of
-`ProperIsoOverPuncturedSpectrum A` is properness together with being an
-isomorphism over the punctured spectrum. -/
-theorem properIsoOverPuncturedSpectrum_iff (A : Type u) [CommRing A]
-    [IsLocalRing A] [IsNoetherianRing A] (X : Over (specSpace A)) :
+#check (AlgebraicGeometry.AlgebraicSpace.properIsoOverPuncturedSpectrum_iff :
+  ∀ (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
+    (X : Over (specSpace A)),
     properIsoOverOpenProperty (puncturedι A) X ↔
-      Proper X.hom ∧ IsIsoOverOpen X.hom (puncturedι A) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+      Proper X.hom ∧ IsIsoOverOpen X.hom (puncturedι A))

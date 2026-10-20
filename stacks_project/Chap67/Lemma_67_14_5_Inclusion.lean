@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_14_4_Subscheme
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.Inclusion
 
 /-!
 # Inclusions of closed subspaces of algebraic spaces
@@ -29,37 +23,30 @@ namespace AlgebraicGeometry.AlgebraicSpace
 
 variable {S : Scheme.{u}} {X : AlgebraicSpace S}
 
-/-- Vanishing of a larger ideal sheaf along a morphism implies vanishing of a
-smaller one. -/
-theorem vanishes_of_le {Y : AlgebraicSpace S} {I J : IdealSubobject X} (h : I ≤ J)
-    {f : Y ⟶ X} (hf : vanishes f J) : vanishes f I :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.vanishes_of_le :
+    ∀ {Y : AlgebraicSpace S} {I J : IdealSubobject X}, I ≤ J →
+      ∀ {f : Y ⟶ X}, vanishes f J → vanishes f I)
 
-/-- The closed-subspace morphism `subscheme J ⟶ subscheme I` induced by `I ≤ J`. -/
-def inclusion {I J : IdealSubobject X} [IsQuasiCoherent I] [IsQuasiCoherent J]
-    (h : I ≤ J) : subscheme J ⟶ subscheme I where
-  app T := TypeCat.ofHom fun p : (subschemeFunctor J).obj T ↦
-    ⟨p.val, vanishes_of_le h p.property⟩
-  naturality := sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.inclusion :
+    ∀ {I J : IdealSubobject X} [IsQuasiCoherent I] [IsQuasiCoherent J],
+      I ≤ J → (subscheme J ⟶ subscheme I))
 
-/-- On `T`-points, `inclusion h` keeps the underlying point of `X` and weakens the
-vanishing witness. -/
-theorem inclusion_app {I J : IdealSubobject X} [IsQuasiCoherent I] [IsQuasiCoherent J]
-    (h : I ≤ J) (T : (Over S)ᵒᵖ) (p : (subschemeFunctor J).obj T) :
-    (inclusion h).app T p = ⟨p.val, vanishes_of_le h p.property⟩ :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.inclusion_app :
+    ∀ {I J : IdealSubobject X} [IsQuasiCoherent I] [IsQuasiCoherent J]
+      (h : I ≤ J) (T : (Over S)ᵒᵖ) (p : (subschemeFunctor J).obj T),
+      (inclusion h).app T p = ⟨p.val, vanishes_of_le h p.property⟩)
 
-/-- The comparison `subscheme J ⟶ subscheme I` commutes with the closed-subspace
-inclusions into `X`. -/
-theorem inclusion_subschemeι {I J : IdealSubobject X} [IsQuasiCoherent I]
-    [IsQuasiCoherent J] (h : I ≤ J) :
-    inclusion h ≫ subschemeι I = subschemeι J :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.inclusion_subschemeι :
+    ∀ {I J : IdealSubobject X} [IsQuasiCoherent I] [IsQuasiCoherent J]
+      (h : I ≤ J), inclusion h ≫ subschemeι I = subschemeι J)
 
-/-- The closed-subspace morphism induced by `I ≤ J` is a closed immersion. -/
-instance instIsClosedImmersion_inclusion {I J : IdealSubobject X}
-    [IsQuasiCoherent I] [IsQuasiCoherent J] (h : I ≤ J) :
-    IsClosedImmersion (inclusion h) :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.instIsClosedImmersion_inclusion :
+    ∀ {I J : IdealSubobject X} [IsQuasiCoherent I] [IsQuasiCoherent J]
+      (h : I ≤ J), IsClosedImmersion (inclusion h))
 
 end AlgebraicGeometry.AlgebraicSpace

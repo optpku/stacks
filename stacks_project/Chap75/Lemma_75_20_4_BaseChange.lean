@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.BaseChange
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
 public import ReasLib.CategoryTheory.Adjunction.BaseChange
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.TotalLeftDerived.Composition
@@ -36,128 +31,85 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- The canonical comparison from iterated derived pullback to derived pullback along
-the composite morphism. -/
-noncomputable def modulePullbackDerived.compComparison {S : Scheme.{u}}
-    {X Y Z : AlgebraicSpace S} (f : Y ⟶ Z) (g : Z ⟶ X) :
-    modulePullbackDerived g ⋙ modulePullbackDerived f ⟶
-      modulePullbackDerived (f ≫ g) :=
-  Functor.LeftDerived.Homotopy.Composition.comparison
-    (Modules.pullback f) (Modules.pullback g) (Modules.pullback (f ≫ g))
-    (Modules.pullbackComp f g).symm
+#check (AlgebraicGeometry.AlgebraicSpace.modulePullbackDerived.compIso :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : Y ⟶ Z) (g : Z ⟶ X),
+    modulePullbackDerived g ⋙ modulePullbackDerived f ≅ modulePullbackDerived (f ≫ g))
 
-/-- The composition comparison is the total-left-derived composition comparison of
-module pullbacks. -/
-theorem modulePullbackDerived.compComparison_eq {S : Scheme.{u}}
-    {X Y Z : AlgebraicSpace S} (f : Y ⟶ Z) (g : Z ⟶ X) :
+#check (AlgebraicGeometry.AlgebraicSpace.modulePullbackDerived.compComparison :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : Y ⟶ Z) (g : Z ⟶ X),
+    modulePullbackDerived g ⋙ modulePullbackDerived f ⟶ modulePullbackDerived (f ≫ g))
+
+#check (AlgebraicGeometry.AlgebraicSpace.modulePullbackDerived.compComparison_isIso :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : Y ⟶ Z) (g : Z ⟶ X),
+    IsIso (modulePullbackDerived.compComparison f g))
+
+#check (AlgebraicGeometry.AlgebraicSpace.modulePullbackDerived.compComparison_eq :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : Y ⟶ Z) (g : Z ⟶ X),
     modulePullbackDerived.compComparison f g =
       Functor.LeftDerived.Homotopy.Composition.comparison
         (Modules.pullback f) (Modules.pullback g) (Modules.pullback (f ≫ g))
-        (Modules.pullbackComp f g).symm :=
-  sorry
+        (Modules.pullbackCompIso f g).symm)
 
 end AlgebraicGeometry.AlgebraicSpace
 
 namespace AlgebraicGeometry.AlgebraicSpace.Hom.DerivedBaseChange
 
-variable {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
+#check (source :
+  ∀ {S : Scheme.{u}} {X Y' Y : AlgebraicSpace S} (f : X ⟶ Y) (g : Y' ⟶ Y),
+    ModuleDerived X ⥤ ModuleDerived Y')
 
-/-- The source functor `Rf_* ⋙ Lg^*` of unbounded derived base change. -/
-abbrev source (f : X ⟶ Y) (g : Y' ⟶ Y) :
-    ModuleDerived X ⥤ ModuleDerived Y' :=
-  Modules.pushforwardDerived f ⋙ modulePullbackDerived g
+#check (target :
+  ∀ {S : Scheme.{u}} {X' X Y' : AlgebraicSpace S} (g' : X' ⟶ X) (f' : X' ⟶ Y'),
+    ModuleDerived X ⥤ ModuleDerived Y')
 
-/-- The source functor is derived pushforward along `f` followed by derived pullback
-along `g`. -/
-theorem source_eq (f : X ⟶ Y) (g : Y' ⟶ Y) :
-    source f g = Modules.pushforwardDerived f ⋙ modulePullbackDerived g :=
-  sorry
+#check (pullbackCartesianIso :
+  ∀ {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
+    {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y},
+    CommSq g' f' f g →
+      (modulePullbackDerived g ⋙ modulePullbackDerived f' ≅
+        modulePullbackDerived f ⋙ modulePullbackDerived g'))
 
-/-- The target functor `L(g')^* ⋙ Rf'_*` of unbounded derived base change. -/
-abbrev target (g' : X' ⟶ X) (f' : X' ⟶ Y') :
-    ModuleDerived X ⥤ ModuleDerived Y' :=
-  modulePullbackDerived g' ⋙ Modules.pushforwardDerived f'
-
-/-- The target functor is derived pullback along `g'` followed by derived pushforward
-along `f'`. -/
-theorem target_eq (g' : X' ⟶ X) (f' : X' ⟶ Y') :
-    target g' f' = modulePullbackDerived g' ⋙ Modules.pushforwardDerived f' :=
-  sorry
-
-variable {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y}
-variable [IsIso (modulePullbackDerived.compComparison f' g)]
-variable [IsIso (modulePullbackDerived.compComparison g' f)]
-
-/-- The derived pullback square obtained from invertibility of the two composition
-comparisons and the square equality `g' ≫ f = f' ≫ g`. -/
-noncomputable def pullbackCartesianIso (sq : CommSq g' f' f g) :
-    modulePullbackDerived g ⋙ modulePullbackDerived f' ≅
-      modulePullbackDerived f ⋙ modulePullbackDerived g' :=
-  asIso (modulePullbackDerived.compComparison f' g) ≪≫
-    eqToIso (congrArg (fun h : X' ⟶ Y ↦ modulePullbackDerived h) sq.w.symm) ≪≫
-    (asIso (modulePullbackDerived.compComparison g' f)).symm
-
-/-- The cartesian derived identification is the composition comparison along `f' ≫ g`,
-the equality `sq.w`, and the inverse composition comparison along `g' ≫ f`. -/
-theorem pullbackCartesianIso_hom (sq : CommSq g' f' f g) :
+#check (pullbackCartesianIso_hom :
+  ∀ {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
+    {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y}
+    (sq : CommSq g' f' f g),
     (pullbackCartesianIso sq).hom =
-      modulePullbackDerived.compComparison f' g ≫
-        eqToHom (congrArg (fun h : X' ⟶ Y ↦ modulePullbackDerived h) sq.w.symm) ≫
-          inv (modulePullbackDerived.compComparison g' f) :=
-  sorry
+      ModuleDerived.totalPullbackCompComparison f' g ≫
+        eqToHom (congrArg (fun h : X' ⟶ Y ↦
+          Functor.LeftDerived.Homotopy.functor (Modules.pullback h)) sq.w.symm) ≫
+          inv (ModuleDerived.totalPullbackCompComparison g' f))
 
-/-- The canonical unbounded derived base-change transformation associated to a
-commutative square of algebraic spaces. -/
-noncomputable def map (sq : CommSq g' f' f g) :
-    source f g ⟶ target g' f' :=
-  CategoryTheory.DerivedBaseChange.map
-    (modulePullbackDerivedPushforwardAdjunction f)
-    (modulePullbackDerivedPushforwardAdjunction f')
-    (pullbackCartesianIso sq)
+#check (map :
+  ∀ {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
+    {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y},
+    CommSq g' f' f g → (source f g ⟶ target g' f'))
 
-/-- The component of the unbounded derived base-change transformation at a derived
-module. -/
-noncomputable abbrev app (sq : CommSq g' f' f g) (E : ModuleDerived X) :
-    (source f g).obj E ⟶ (target g' f').obj E :=
-  (map sq).app E
+#check (app :
+  ∀ {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
+    {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y}
+    (sq : CommSq g' f' f g) (E : ModuleDerived X),
+    (source f g).obj E ⟶ (target g' f').obj E)
 
-/-- The algebraic-space derived base-change transformation is the categorical right
-mate of the derived pullback square. -/
-theorem map_eq (sq : CommSq g' f' f g) :
-    map sq =
-      CategoryTheory.DerivedBaseChange.map
-        (modulePullbackDerivedPushforwardAdjunction f)
-        (modulePullbackDerivedPushforwardAdjunction f')
-        (pullbackCartesianIso sq) :=
-  sorry
-
-/-- Transposing the canonical derived base-change component recovers the square
-comparison followed by the derived pullback of the counit. -/
-theorem map_spec (sq : CommSq g' f' f g) (E : ModuleDerived X) :
+#check (map_spec :
+  ∀ {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
+    {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y}
+    (sq : CommSq g' f' f g) (E : ModuleDerived X),
     ((modulePullbackDerivedPushforwardAdjunction f').homEquiv
         ((source f g).obj E) ((modulePullbackDerived g').obj E)).symm (app sq E) =
       (pullbackCartesianIso sq).hom.app ((Modules.pushforwardDerived f).obj E) ≫
         (modulePullbackDerived g').map
-          ((modulePullbackDerivedPushforwardAdjunction f).counit.app E) :=
-  sorry
+          ((modulePullbackDerivedPushforwardAdjunction f).counit.app E))
 
 end AlgebraicGeometry.AlgebraicSpace.Hom.DerivedBaseChange
 
 namespace AlgebraicGeometry.AlgebraicSpace.TorIndependentBaseChange
 
-variable {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
-
-/-- For a Tor-independent cartesian square whose vertical map is quasi-compact and
-quasi-separated, every component of the canonical unbounded derived base-change
-transformation on a derived module with quasi-coherent cohomology is invertible. -/
-theorem map_app_isIso (g' : X' ⟶ X) (f' : X' ⟶ Y') (f : X ⟶ Y) (g : Y' ⟶ Y)
-    [QuasiCompact f] [QuasiSeparated f]
-    [IsIso (modulePullbackDerived.compComparison f' g)]
-    [IsIso (modulePullbackDerived.compComparison g' f)]
-    (sq : IsPullback g' f' f g)
-    (hTor : TorIndependentOver (Over.mk f) (Over.mk g))
-    (E : DerivedQCoh X) :
-    IsIso ((Hom.DerivedBaseChange.map sq.toCommSq).app E.obj) :=
-  sorry
+#check (map_app_isIso :
+  ∀ {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
+    (g' : X' ⟶ X) (f' : X' ⟶ Y') (f : X ⟶ Y) (g : Y' ⟶ Y)
+    [QuasiCompact f] [QuasiSeparated f] (sq : IsPullback g' f' f g),
+    TorIndependentOver (Over.mk f) (Over.mk g) → ∀ (E : DerivedQCoh X),
+      IsIso ((Hom.DerivedBaseChange.map sq.toCommSq).app E.obj))
 
 end AlgebraicGeometry.AlgebraicSpace.TorIndependentBaseChange
+

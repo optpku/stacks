@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Homology.ExactCouple.Shifted
@@ -35,11 +29,11 @@ variable {C : Type u} [Category.{v} C] [Abelian C]
 variable {S T : C ≌ C}
 
 variable (K : Derived.Construction T)
-variable (X : ShiftedExactCouple S T)
+variable (X : ShiftedExactCouple (S.trans T) T)
 variable (Q : ShiftedDifferentialObject S.functor)
 
-/-- The zero-based page family obtained by adjoining `Q.previousPage` to the positive pages of
-`K.associatedSpectralSequence X`. -/
+/-- The zero-based page family obtained by adjoining `Q.previousPage`, with shift `S`, to the
+positive pages of an exact couple with initial shift `T ∘ S`. -/
 @[stacks 0AMK]
 def page (r : ℕ) : ShiftedDifferentialObject ((ShiftedSpectralSequence.zeroPageShift S T r).functor) :=
   match r with

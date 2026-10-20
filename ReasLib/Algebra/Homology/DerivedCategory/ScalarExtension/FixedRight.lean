@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension.Tensor
@@ -57,13 +51,13 @@ noncomputable def comparisonIsoApp
 @[reassoc, stacks 064M "naturality of fixed-right scalar-extension comparison"]
 theorem comparisonIsoApp_naturality
     (σ : R →+* S) (N : DR) {X Y : DR} (f : X ⟶ Y) :
-    (DerivedCategory.derivedTensorProduct N ⋙
-        ModuleCat.derivedExtensionOfScalars σ).map f ≫
-      (comparisonIsoApp σ N Y).hom =
-    (comparisonIsoApp σ N X).hom ≫
-      (ModuleCat.derivedExtensionOfScalars σ ⋙
-        DerivedCategory.derivedTensorProduct
-          ((ModuleCat.derivedExtensionOfScalars σ).obj N)).map f := sorry
+    let F := DerivedCategory.derivedTensorProduct N ⋙
+      ModuleCat.derivedExtensionOfScalars σ
+    let G := ModuleCat.derivedExtensionOfScalars σ ⋙
+      DerivedCategory.derivedTensorProduct ((ModuleCat.derivedExtensionOfScalars σ).obj N)
+    let eX : F.obj X ≅ G.obj X := comparisonIsoApp σ N X
+    let eY : F.obj Y ≅ G.obj Y := comparisonIsoApp σ N Y
+    F.map f ≫ eY.hom = eX.hom ≫ G.map f := sorry
 
 /-- The fixed-right scalar-extension tensor comparison as a natural isomorphism of functors. -/
 @[stacks 064M "fixed-right scalar-extension tensor comparison"]

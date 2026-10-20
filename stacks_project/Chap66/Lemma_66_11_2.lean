@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_11_1
-public import stacks_project.Chap66.Lemma_66_4_6_Topology
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Dimension.CodimensionZero
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -15,12 +9,10 @@ open AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 66.11.2: the codimension-zero points of an algebraic space are dense
+/- Lemma 66.11.2: the codimension-zero points of an algebraic space are dense
 in its canonical topological space of points. -/
-@[stacks 0BAR]
-theorem dense_setOf_localRingDimAt_eq_zero {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    Dense (setOf fun x : Points X ↦ localRingDimAt x = 0) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 0BAR] #check
+  (AlgebraicGeometry.AlgebraicSpace.dense_setOf_localRingDimAt_eq_zero :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
+      Dense (setOf fun x : AlgebraicGeometry.AlgebraicSpace.Points X ↦
+        AlgebraicGeometry.AlgebraicSpace.localRingDimAt x = 0))

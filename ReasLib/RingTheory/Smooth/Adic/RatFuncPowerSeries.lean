@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Field.ZMod
@@ -78,7 +72,7 @@ def localSubmonoid (k : Type u) [Field k] (a : k) :
 
 /-- The explicit local hypersurface
 `k[x, y]_(x, y ^ p - a) / (y ^ p - a - x)` from Example 15.40.2. -/
-@[stacks 07EM "explicit smooth local hypersurface"]
+@[stacks 07EM "explicit local hypersurface"]
 abbrev Ring (k : Type u) [Field k] (a : k) :=
   Localization (localSubmonoid (p := p) k a)
 
@@ -89,11 +83,12 @@ theorem isLocalRing (k : Type u) [Field k] [CharP k p] (a : k)
     (ha : a ∉ Set.range (fun b : k ↦ b ^ p)) :
     IsLocalRing (Ring (p := p) k a) := sorry
 
-/-- Example 15.40.2 (2): the map from `k` to the explicit hypersurface localization is smooth. -/
-@[stacks 07EM "Example 15.40.2 (2): smooth hypersurface localization"]
-theorem smooth (k : Type u) [Field k] [CharP k p] (a : k)
+/-- Example 15.40.2 (2): the map from `k` to the explicit hypersurface localization is
+formally smooth, since it is a localization of a smooth `k`-algebra. -/
+@[stacks 07EM "Example 15.40.2 (2): formally smooth hypersurface localization"]
+theorem formallySmooth (k : Type u) [Field k] [CharP k p] (a : k)
     (ha : a ∉ Set.range (fun b : k ↦ b ^ p)) :
-    Algebra.Smooth k (Ring (p := p) k a) := sorry
+    Algebra.FormallySmooth k (Ring (p := p) k a) := sorry
 
 /-- Example 15.40.2 (3): the explicit local hypersurface is geometrically regular over `k`. -/
 @[stacks 07EM "Example 15.40.2 (3): geometrically regular local hypersurface"]

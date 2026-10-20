@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Example_85_23_1_AffineCover
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Cohomology.Affine
+import StacksCheckRecall
 
 /-!
 # Example 85.23.1
@@ -20,55 +14,50 @@ families in `spacesEtalePrecoverage`, the assumptions (1), (2), (3) of
 section 85.23 hold.
 -/
 
-@[expose] public section
-
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
 open AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.Modules
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules
+/- Example 85.23.1 (1): restriction along an étale morphism preserves quasi-coherence,
+in particular along the underlying morphisms of the spaces-étale site. -/
+@[stacks 0DC5] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.restrict_isQuasicoherent :
+    ∀ {S : Scheme.{u}} {Y Z : AlgebraicSpace S} (f : Y ⟶ Z) [Etale f]
+      (F : Z.Modules) [F.IsQuasicoherent], (restrict F f).IsQuasicoherent)
 
-/-- Example 85.23.1 (1): restriction of a quasi-coherent module along a morphism of
-`C = spacesEtaleSite X` lands in quasi-coherent modules. Identifying `A_U` with
-quasi-coherent modules on `U.left`, the restriction `Mod(O_V) ⟶ Mod(O_U)` is
-`restrict` along `f.left`. -/
-@[stacks 0DC5, instance]
-instance restrict_isQuasicoherent {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {U V : spacesEtaleSite X} (f : U ⟶ V) (F : V.left.Modules) [F.IsQuasicoherent] :
-    (restrict F f.left).IsQuasicoherent :=
-  sorry
+/- Example 85.23.1 (2): quasi-coherence is local for every spaces-étale covering family. -/
+@[stacks 0DC5] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isQuasicoherent_iff_of_spacesEtaleCover :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : spacesEtaleSite X}
+      {ι : Type u} [Small.{u} ι] {V : ι → spacesEtaleSite X}
+      (f : ∀ i, V i ⟶ U) (hf : Presieve.ofArrows V f ∈ spacesEtalePrecoverage X U)
+      (F : U.left.Modules),
+      F.IsQuasicoherent ↔ ∀ i, (restrict F (f i).left).IsQuasicoherent)
 
-/-- Example 85.23.1 (2): membership in `A_U` is local on covering families of
-`C = spacesEtaleSite X`. A module on `U.left` is quasi-coherent if and only if its
-restrictions along a spaces-étale covering are quasi-coherent. -/
-@[stacks 0DC5]
-theorem isQuasicoherent_iff_of_spacesEtaleCover {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {U : spacesEtaleSite X} {ι : Type u} [Small.{u} ι] {V : ι → spacesEtaleSite X}
-    (f : ∀ i, V i ⟶ U) (hf : Presieve.ofArrows V f ∈ spacesEtalePrecoverage X U)
-    (F : U.left.Modules) :
-    F.IsQuasicoherent ↔ ∀ i, (restrict F (f i).left).IsQuasicoherent :=
-  sorry
+/- Example 85.23.1 (3): every object admits an affine covering family. -/
+@[stacks 0DC5] #check (AlgebraicGeometry.AlgebraicSpace.exists_affineCovering :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (V : spacesEtaleSite X),
+    ∃ (ι : Type u) (_ : Small.{u} ι) (U : ι → spacesEtaleSite X) (f : ∀ i, U i ⟶ V),
+      IsAffineCovering U f)
 
-end AlgebraicGeometry.AlgebraicSpace.Modules
+/- Example 85.23.1 (3): affine coverings are cofinal among spaces-étale coverings. -/
+@[stacks 0DC5] #check (AlgebraicGeometry.AlgebraicSpace.exists_affineCovering_refinement :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {V : spacesEtaleSite X}
+    {ι : Type u} [Small.{u} ι] {W : ι → spacesEtaleSite X}
+    (g : ∀ i, W i ⟶ V) (hg : Presieve.ofArrows W g ∈ spacesEtalePrecoverage X V),
+    ∃ (κ : Type u) (_ : Small.{u} κ) (U : κ → spacesEtaleSite X) (f : ∀ k, U k ⟶ V),
+      IsAffineCovering U f ∧ (Presieve.ofArrows U f).FactorsThru (Presieve.ofArrows W g))
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Example 85.23.1 (3): with `B = Ob(C)`, `d_V = 0`, and `Cov_V` the affine covering
-families of `V` in `spacesEtalePrecoverage X`, one has
-`IsZero (cohomology (U i).left (Modules.restrict F (f i).left) p)` whenever
-`IsAffineCovering U f`, `F` is quasi-coherent on `V.left`, and `0 < p`. -/
-@[stacks 0DC5]
-theorem affineCovering_higherCohomology_isZero {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {V : spacesEtaleSite X} {ι : Type u} {U : ι → spacesEtaleSite X} {f : ∀ i, U i ⟶ V}
-    (h : IsAffineCovering U f) (F : V.left.Modules) [F.IsQuasicoherent] (i : ι)
-    (p : ℕ) (hp : 0 < p)
-    [HasSheafify (smallEtaleTopology (U i).left) AddCommGrpCat.{u}]
-    [HasExt.{u} (Sheaf (smallEtaleTopology (U i).left) AddCommGrpCat.{u})] :
-    IsZero (cohomology (U i).left (Modules.restrict F (f i).left) p) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+/- Example 85.23.1 (3): the cohomological bound is zero on every member of an affine
+covering, for every quasi-coherent module on the covered object. -/
+@[stacks 0DC5] #check
+  (AlgebraicGeometry.AlgebraicSpace.affineCovering_higherCohomology_isZero :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {V : spacesEtaleSite X}
+      {ι : Type u} {U : ι → spacesEtaleSite X} {f : ∀ i, U i ⟶ V}
+      (h : IsAffineCovering U f) (F : V.left.Modules) [F.IsQuasicoherent] (i : ι)
+      (p : ℕ) (hp : 0 < p)
+      [HasSheafify (smallEtaleTopology (U i).left) AddCommGrpCat.{u}]
+      [HasExt.{u} (Sheaf (smallEtaleTopology (U i).left) AddCommGrpCat.{u})],
+      IsZero (cohomology (U i).left (Modules.restrict F (f i).left) p))

@@ -1,19 +1,34 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.«66_27_0_6_Site»
-public import stacks_project.Chap66.«66_27_0_6_Comparison»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.AffineRingedLocalization
 import StacksCheckRecall
 
 @[expose] public section
 
-/- 66.27.0.6: if `f : X ⟶ Y` is étale between algebraic spaces and `X` is an affine scheme, then
-`X` is an object of `Y_affine,étale` and the affine étale ringed sites are identified
-`(X_affine,étale, 𝒪_X) = (Y_affine,étale / X, 𝒪_Y |_{Y_affine,étale / X})` as
-`affineEtaleLocalizationIso`. -/
-@[stacks 04M3] #check AlgebraicGeometry.AlgebraicSpace.affineEtaleLocalizationIso
+open CategoryTheory AlgebraicGeometry
+
+universe u
+
+variable {S : Scheme.{u}} {Y : AlgebraicSpace S} {U : Over S}
+  (f : AlgebraicSpace.ofOver U ⟶ Y) [AlgebraicSpace.Etale f] [IsAffine U.left]
+
+/- 66.27.0.6: if `f : ofOver U ⟶ Y` is étale and `U` is affine, the canonical equivalence
+of affine étale sites identifies the structure sheaf of `ofOver U` with the restriction
+of the structure sheaf of `Y` to the slice over `affineEtaleSite.mk f`. -/
+@[stacks 04M3] #check
+  (AlgebraicGeometry.AlgebraicSpace.affineEtaleLocalizationIso f :
+      AlgebraicSpace.affineStructureSheaf (AlgebraicSpace.ofOver U) ≅
+        ((AlgebraicSpace.affineEtaleLocalizationFunctor f).sheafPushforwardContinuous RingCat.{u}
+          (AlgebraicSpace.affineEtaleTopology (AlgebraicSpace.ofOver U))
+          ((AlgebraicSpace.affineEtaleTopology Y).over (AlgebraicSpace.affineEtaleSite.mk f))).obj
+          ((AlgebraicSpace.affineStructureSheaf Y).over (AlgebraicSpace.affineEtaleSite.mk f)))
+
+#check
+  (AlgebraicGeometry.AlgebraicSpace.affineEtaleLocalizationEquiv f :
+      AlgebraicSpace.affineEtaleSite (AlgebraicSpace.ofOver U) ≌
+        Over (AlgebraicSpace.affineEtaleSite.mk f))
+
+#check
+  (AlgebraicGeometry.AlgebraicSpace.affineEtaleLocalizationEquiv_functor f :
+      (AlgebraicSpace.affineEtaleLocalizationEquiv f).functor =
+        AlgebraicSpace.affineEtaleLocalizationFunctor f)

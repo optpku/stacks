@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-import stacks_project.Chap72.Definition_72_6_9_ClassGroup
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Divisor.ClassGroup
 import StacksCheckRecall
 
 open AlgebraicGeometry
@@ -24,7 +18,7 @@ variable [IsLocallyNoetherian X] [IsIntegral X]
 `principalWeilDivisor` (`div`) and `weilDivisorClassGroupMk` present `Cl(X)` by
 the exact complex `R(X)ˣ → Div(X) → Cl(X) → 0`. -/
 @[stacks 0ENS] #check
-  (weilDivisorClass_exactSequence X :
+  (AlgebraicGeometry.AlgebraicSpace.weilDivisorClass_exactSequence X :
     Function.Exact (principalWeilDivisor X) (weilDivisorClassGroupMk X) ∧
       Function.Surjective (weilDivisorClassGroupMk X))
 

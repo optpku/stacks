@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.FullyFaithful
@@ -61,24 +55,123 @@ theorem toHomology_postcomp {X Y Y' : DerivedCategory A}
     toHomology X Y' a b (f ≫ g⟦b - a⟧') =
       toHomology X Y a b f ≫ (homologyFunctor A b).map g := sorry
 
-/-- At the gap between an upper and a lower derived t-structure bound, the
-canonical shifted-Hom-to-homology map is bijective. -/
+/-- The top-degree quotient of the upper truncation uses the actual cycles and homology
+quotient of the original cochain complex. -/
+noncomputable def cochainProjection (K : CochainComplex A ℤ) (a : ℤ) :
+    K.truncLE a ⟶ (CochainComplex.singleFunctor A a).obj (K.homology a) :=
+  HomologicalComplex.mkHomToSingle
+    ((K.truncLEXIsoCycles a).hom ≫ K.homologyπ a) (by sorry)
+
+/-- The lowest-degree inclusion into the lower truncation uses the actual homology
+subobject of the original cochain complex's opcycles. -/
+noncomputable def cochainInclusion (K : CochainComplex A ℤ) (b : ℤ) :
+    (CochainComplex.singleFunctor A b).obj (K.homology b) ⟶ K.truncGE b :=
+  HomologicalComplex.mkHomFromSingle
+    (K.homologyι b ≫ (K.truncGEXIsoOpcycles b).inv) (by sorry)
+
+/-- The native representative of an object with an upper bound has that cohomology bound. -/
+theorem representative_isLE (X : DerivedCategory A) (a : ℤ) (hX : X.IsLE a) :
+    (Q.objPreimage X).IsLE a := by
+  letI := hX
+  letI : (Q.obj (Q.objPreimage X)).IsLE a :=
+    TStructure.t.isLE_of_iso (Q.objObjPreimageIso X).symm a
+  exact (isLE_Q_obj_iff _ _).mp inferInstance
+
+/-- The native representative of an object with a lower bound has that cohomology bound. -/
+theorem representative_isGE (Y : DerivedCategory A) (b : ℤ) (hY : Y.IsGE b) :
+    (Q.objPreimage Y).IsGE b := by
+  letI := hY
+  letI : (Q.obj (Q.objPreimage Y)).IsGE b :=
+    TStructure.t.isGE_of_iso (Q.objObjPreimageIso Y).symm b
+  exact (isGE_Q_obj_iff _ _).mp inferInstance
+
+/-- Homology of the given derived object identified with homology of its native
+localization representative. Both maps are the existing realization comparisons. -/
+noncomputable def representativeHomologyIso (X : DerivedCategory A) (a : ℤ) :
+    (homologyFunctor A a).obj X ≅ (Q.objPreimage X).homology a :=
+  (homologyFunctor A a).mapIso (Q.objObjPreimageIso X).symm ≪≫
+    (homologyFunctorFactors A a).app (Q.objPreimage X)
+
+/-- Formal localization of the native upper-truncation quasi-isomorphism. Its certificate
+is Mathlib's proved truncation criterion applied to the supplied upper bound. -/
+noncomputable def upperTruncationIso (X : DerivedCategory A) (a : ℤ) (hX : X.IsLE a) :
+    Q.obj ((Q.objPreimage X).truncLE a) ≅ Q.obj (Q.objPreimage X) := by
+  letI := representative_isLE X a hX
+  exact asIso (Q.map ((Q.objPreimage X).ιTruncLE a))
+
+/-- Formal localization of the native lower-truncation quasi-isomorphism, using only
+Mathlib's proved criterion and the supplied lower bound. -/
+noncomputable def lowerTruncationIso (Y : DerivedCategory A) (b : ℤ) (hY : Y.IsGE b) :
+    Q.obj (Q.objPreimage Y) ≅ Q.obj ((Q.objPreimage Y).truncGE b) := by
+  letI := representative_isGE Y b hY
+  exact asIso (Q.map ((Q.objPreimage Y).πTruncGE b))
+
+/-- Project an upper-bounded derived object onto its top cohomology in the same degree.
+The map is the actual cycle quotient of its upper-truncated representative. -/
+noncomputable def upperProjection (X : DerivedCategory A) (a : ℤ) (hX : X.IsLE a) :
+    X ⟶ (singleFunctor A a).obj ((homologyFunctor A a).obj X) :=
+  (Q.objObjPreimageIso X).inv ≫ (upperTruncationIso X a hX).inv ≫
+    Q.map (cochainProjection (Q.objPreimage X) a) ≫
+    (singleFunctor A a).map (representativeHomologyIso X a).inv
+
+/-- Include the lowest cohomology of a lower-bounded derived object.
+The map is the actual homology subobject of its lower-truncated representative. -/
+noncomputable def lowerInclusion (Y : DerivedCategory A) (b : ℤ) (hY : Y.IsGE b) :
+    (singleFunctor A b).obj ((homologyFunctor A b).obj Y) ⟶ Y :=
+  (singleFunctor A b).map (representativeHomologyIso Y b).hom ≫
+    Q.map (cochainInclusion (Q.objPreimage Y) b) ≫
+    (lowerTruncationIso Y b hY).inv ≫ (Q.objObjPreimageIso Y).hom
+
+/-- The actual boundary inverse. Project to the highest source cohomology, apply the
+specified cohomology morphism, shift its single realization to the target degree, and
+include it as the target's lowest cohomology. -/
 @[stacks 06XS]
-theorem toHomology_bijective (X Y : DerivedCategory A)
-    (a b : ℤ) (hX : X.IsLE a) (hY : Y.IsGE b) :
-    Function.Bijective (toHomology X Y a b) := sorry
+noncomputable def fromHomology (X Y : DerivedCategory A) (a b : ℤ)
+    (hX : X.IsLE a) (hY : Y.IsGE b)
+    (f : (homologyFunctor A a).obj X ⟶ (homologyFunctor A b).obj Y) :
+    CategoryTheory.ShiftedHom X Y (b - a) :=
+  upperProjection X a hX ≫ (singleFunctor A a).map f ≫
+    ((singleFunctors A).shiftIso (b - a) a b (sub_add_cancel b a)).inv.app
+      ((homologyFunctor A b).obj Y) ≫
+    (lowerInclusion Y b hY)⟦b - a⟧'
 
-/-- The boundary comparison packaged as an equivalence.
+/-- The displayed inverse recovers the specified extremal cohomology morphism. -/
+@[simp, stacks 06XS]
+theorem toHomology_fromHomology (X Y : DerivedCategory A) (a b : ℤ)
+    (hX : X.IsLE a) (hY : Y.IsGE b)
+    (f : (homologyFunctor A a).obj X ⟶ (homologyFunctor A b).obj Y) :
+    toHomology X Y a b (fromHomology X Y a b hX hY f) = f := sorry
 
-This is the canonical downstream-facing form of `toHomology_bijective`: callers that need to
-transport a shifted morphism across the boundary should use this equivalence instead of rebuilding
-`Equiv.ofBijective` at each use site. -/
+/-- Projecting and including at the boundary recovers the original shifted morphism. -/
+@[simp, stacks 06XS]
+theorem fromHomology_toHomology (X Y : DerivedCategory A) (a b : ℤ)
+    (hX : X.IsLE a) (hY : Y.IsGE b) (f : CategoryTheory.ShiftedHom X Y (b - a)) :
+    fromHomology X Y a b hX hY (toHomology X Y a b f) = f := sorry
+
+/-- The boundary comparison with its specified inverse from native truncation maps. -/
 @[stacks 06XS]
 noncomputable def toHomologyEquiv (X Y : DerivedCategory A) (a b : ℤ)
     (hX : X.IsLE a) (hY : Y.IsGE b) :
     CategoryTheory.ShiftedHom X Y (b - a) ≃
-      ((homologyFunctor A a).obj X ⟶ (homologyFunctor A b).obj Y) :=
-  Equiv.ofBijective (toHomology X Y a b) (toHomology_bijective X Y a b hX hY)
+      ((homologyFunctor A a).obj X ⟶ (homologyFunctor A b).obj Y) where
+  toFun := toHomology X Y a b
+  invFun := fromHomology X Y a b hX hY
+  left_inv := fromHomology_toHomology X Y a b hX hY
+  right_inv := toHomology_fromHomology X Y a b hX hY
+
+/-- Bijectivity follows from the two specified directions and their inverse laws. -/
+@[stacks 06XS]
+theorem toHomology_bijective (X Y : DerivedCategory A)
+    (a b : ℤ) (hX : X.IsLE a) (hY : Y.IsGE b) :
+    Function.Bijective (toHomology X Y a b) :=
+  (toHomologyEquiv X Y a b hX hY).bijective
+
+/-- The inverse equivalence evaluates to the explicit truncation construction. -/
+@[simp, stacks 06XS]
+theorem toHomologyEquiv_symm_apply (X Y : DerivedCategory A) (a b : ℤ)
+    (hX : X.IsLE a) (hY : Y.IsGE b)
+    (f : (homologyFunctor A a).obj X ⟶ (homologyFunctor A b).obj Y) :
+    (toHomologyEquiv X Y a b hX hY).symm f = fromHomology X Y a b hX hY f := rfl
 
 /-- The boundary comparison as an additive homomorphism.
 
@@ -105,8 +198,15 @@ noncomputable def toHomologyAddEquiv (X Y : DerivedCategory A) (a b : ℤ)
     (hX : X.IsLE a) (hY : Y.IsGE b) :
     CategoryTheory.ShiftedHom X Y (b - a) ≃+
       ((homologyFunctor A a).obj X ⟶ (homologyFunctor A b).obj Y) :=
-  AddEquiv.ofBijective (toHomologyAddHom X Y a b)
-    (toHomology_bijective X Y a b hX hY)
+  { toHomologyEquiv X Y a b hX hY with
+    map_add' := (toHomologyAddHom X Y a b).map_add }
+
+/-- The additive equivalence retains the same explicit truncation inverse. -/
+@[simp, stacks 06XS]
+theorem toHomologyAddEquiv_symm_apply (X Y : DerivedCategory A) (a b : ℤ)
+    (hX : X.IsLE a) (hY : Y.IsGE b)
+    (f : (homologyFunctor A a).obj X ⟶ (homologyFunctor A b).obj Y) :
+    (toHomologyAddEquiv X Y a b hX hY).symm f = fromHomology X Y a b hX hY f := rfl
 
 /-- Evaluation of the additive boundary equivalence is the canonical comparison function. -/
 @[simp, stacks 06XS]

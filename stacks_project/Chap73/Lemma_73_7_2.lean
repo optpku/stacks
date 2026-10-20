@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap73.Definition_73_3_1_Precoverage
-public import stacks_project.Chap73.Definition_73_4_1_Precoverage
-public import stacks_project.Chap73.Definition_73_5_1_Covering
-public import stacks_project.Chap73.Definition_73_6_1_Covering
-public import stacks_project.Chap73.Definition_73_7_1_FppfCover
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Cover.Fppf.Comparison
+import StacksCheckRecall
 
 /-!
 # Syntomic, smooth, étale, and Zariski coverings are fppf coverings
@@ -28,35 +19,35 @@ universe u v
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 73.7.2 (1): any syntomic covering is an fppf covering. -/
-@[stacks 0DFC]
-theorem fppfCovering_of_syntomicCovering {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {ι : Type v} {family : ι → Over X} (h : SyntomicCovering family) :
-    FppfCovering (fun i ↦ (family i).left) (fun i ↦ (family i).hom) := sorry
+/- Lemma 73.7.2: any syntomic covering is an fppf covering, and therefore every
+smooth, étale, or Zariski covering is an fppf covering. -/
+@[stacks 0DFC] #check
+  (AlgebraicGeometry.AlgebraicSpace.fppfCovering_of_syntomicCovering :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {ι : Type v} {family : ι → Over X}
+      (h : SyntomicCovering family),
+      FppfCovering (fun i ↦ (family i).left) (fun i ↦ (family i).hom))
 
-/-- Lemma 73.7.2 (2): any smooth covering is an fppf covering. -/
-@[stacks 0DFC]
-theorem fppfCovering_of_smoothCovering {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {ι : Type v} {family : ι → Over X} (h : SmoothCovering family) :
-    FppfCovering (fun i ↦ (family i).left) (fun i ↦ (family i).hom) := sorry
+@[stacks 0DFC] #check
+  (AlgebraicGeometry.AlgebraicSpace.fppfCovering_of_smoothCovering :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {ι : Type v} {family : ι → Over X}
+      (h : SmoothCovering family),
+      FppfCovering (fun i ↦ (family i).left) (fun i ↦ (family i).hom))
 
-/-- Lemma 73.7.2 (3): any étale covering is an fppf covering. -/
-@[stacks 0DFC]
-theorem fppfCovering_of_etaleCovering {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {ι : Type v} {family : ι → Over X} (h : EtaleCovering family) :
-    FppfCovering (fun i ↦ (family i).left) (fun i ↦ (family i).hom) := sorry
+@[stacks 0DFC] #check
+  (AlgebraicGeometry.AlgebraicSpace.fppfCovering_of_etaleCovering :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {ι : Type v} {family : ι → Over X}
+      (h : EtaleCovering family),
+      FppfCovering (fun i ↦ (family i).left) (fun i ↦ (family i).hom))
 
-/-- Lemma 73.7.2 (4): any Zariski covering is an fppf covering. -/
-@[stacks 0DFC]
-theorem fppfCovering_of_zariskiPrecoverage {S : Scheme.{u}}
-    {X : AlgebraicSpace S} {ι : Type v} {Xᵢ : ι → AlgebraicSpace S}
-    {f : ∀ i, Xᵢ i ⟶ X} (h : Presieve.ofArrows Xᵢ f ∈ zariskiPrecoverage S X) :
-    FppfCovering Xᵢ f := sorry
+@[stacks 0DFC] #check
+  (AlgebraicGeometry.AlgebraicSpace.fppfCovering_of_zariskiPrecoverage :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {ι : Type v}
+      {Xᵢ : ι → AlgebraicSpace S} {f : ∀ i, Xᵢ i ⟶ X}
+      (h : Presieve.ofArrows Xᵢ f ∈ zariskiPrecoverage S X), FppfCovering Xᵢ f)
 
-/-- An indexed family that belongs to `etalePrecoverage` is an `FppfCovering`. -/
-theorem fppfCovering_of_mem_etalePrecoverage {S : Scheme.{u}}
-    {X : AlgebraicSpace S} {ι : Type v} {Xᵢ : ι → AlgebraicSpace S}
-    {f : ∀ i, Xᵢ i ⟶ X} (h : Presieve.ofArrows Xᵢ f ∈ etalePrecoverage X) :
-    FppfCovering Xᵢ f := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.fppfCovering_of_mem_etalePrecoverage :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {ι : Type v}
+    {Xᵢ : ι → AlgebraicSpace S} {f : ∀ i, Xᵢ i ⟶ X}
+    (h : Presieve.ofArrows Xᵢ f ∈ etalePrecoverage X), FppfCovering Xᵢ f)
 
 end AlgebraicGeometry.AlgebraicSpace

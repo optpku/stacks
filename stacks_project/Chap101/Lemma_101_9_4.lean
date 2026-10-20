@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Fibered.Groupoids.Diagonal.Construction
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
-public import stacks_project.Chap101.Definition_101_9_1_Affine
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Morphism.Affine.Diagonal
+import StacksCheckRecall
 
 /-!
 # Affine permanence for morphisms of algebraic stacks
@@ -31,16 +24,17 @@ noncomputable section
 namespace AlgebraicGeometry.Groupoids.Hom
 namespace Affine
 
-/-- Lemma 101.9.4: let `f : X ⟶ Y` and `b : Y ⟶ Z` be morphisms of algebraic
+/- Lemma 101.9.4: let `f : X ⟶ Y` and `b : Y ⟶ Z` be morphisms of algebraic
 stacks. If `a := f ≫ b` is affine and the relative diagonal
-`Hom.diagonal b` is affine, then `f` is affine. -/
-@[stacks 0GQE]
-theorem of_comp_of_affineDiagonal {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (b : Y ⟶ Z) [Affine (f ≫ b)]
-    [Affine (diagonal.{u + 1, u, u + 1} b)] :
-    Affine f :=
-  sorry
+`Hom.diagonal b` is affine, then `f` is affine. The commutative triangle is
+presented by its composite `a := f ≫ b`. -/
+@[stacks 0GQE] #check
+  (AlgebraicGeometry.Groupoids.Hom.Affine.of_comp_of_affineDiagonal :
+    ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
+      (f : X ⟶ Y) (b : Y ⟶ Z) [Affine (f ≫ b)]
+      [Affine (diagonal.{u + 1, u, u + 1} b)],
+      Affine f)
 
 end Affine
 end AlgebraicGeometry.Groupoids.Hom

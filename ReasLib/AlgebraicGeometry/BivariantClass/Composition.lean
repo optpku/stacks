@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.BivariantClass.ComponentRestriction
+public import ReasLib.AlgebraicGeometry.ChowGroup.Relative.Reindex
 public import Mathlib.Algebra.DirectSum.Ring
 
 @[expose] public section
@@ -19,13 +14,6 @@ noncomputable section
 universe u
 
 namespace AlgebraicGeometry.BivariantClass
-
-/-- Reindex a relative Chow group along an equality of grading indices. -/
-def castRelativeDegree
-    {S : Scheme.{u}} [UniversallyCatenary S] (delta : S → ℤ) [IsDimensionFunction delta]
-    {T : Over S} [LocallyOfFiniteType T.hom] {m n : ℤ} (h : m = n) :
-    RelativeChow delta T m →+ RelativeChow delta T n :=
-  h ▸ AddMonoidHom.id (RelativeChow delta T m)
 
 /-- The grading identity used by composition of cap operations. -/
 theorem compDegree (k p q : ℤ) : (k - q) - p = k - (p + q) := sorry
@@ -88,7 +76,7 @@ def compCap
     letI := ComponentRestriction.locallyOfFiniteTypeBaseChange g h
     -- Local instance justification (proof-local temporary data): the first cap map requires this finite-type proof for the base-change projection.
     letI := locallyOfFiniteTypeBaseChangeToSource g h
-    (castRelativeDegree delta (compDegree k p q)).comp
+    (RelativeChow.castDegree delta (compDegree k p q)).comp
       ((c.cap i (compLift f g i fg' h square)
         (ComponentRestriction.baseChangeToSource g h)
         (compLift_isPullback f g i fg' h square) (k - q)).comp

@@ -1,19 +1,15 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.DeRham
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.InverseImage
+public import Mathlib.CategoryTheory.Functor.Flat
 
 /-!
 # Inverse image of relative de Rham complexes
 
-The comparison is stated on arbitrary ringed sites.  Topological-space and ringed-space versions
-are direct specializations of this owner.
+The forward comparison is stated for every continuous functor of sites.  Its inverse side requires
+representable flatness, which holds for the open-preimage functor of a continuous map.
+Topological-space and ringed-space versions are direct specializations of this owner.
 -/
 
 @[expose] public section
@@ -135,10 +131,53 @@ theorem comparisonApp_adj (φ : O₁ ⟶ O₂) (p : ℕ) :
         (comparisonApp (J := J) (K := K) F φ p) =
       comparisonAdjoint (J := J) (K := K) F φ p := sorry
 
-/- The degreewise comparison is the one place where the current construction still needs an
-invertibility gate before the literal Iso can be assembled.  The named inverse below records the
-resulting categorical choice as a reusable owner. -/
-/-- The degreewise inverse-image comparison is an isomorphism. -/
+/-- The degreewise comparison maps commute with all de Rham differentials. -/
+theorem comparisonApp_comm (φ : O₁ ⟶ O₂) (i j : ℕ)
+    (hij : (up ℕ).Rel i j) :
+    comparisonApp (J := J) (K := K) F φ i ≫
+        (complex (inverseImageMap (J := J) (K := K) F φ)).d i j =
+      (((InverseImage.modulePullback (J := J) (K := K) F O₁).mapHomologicalComplex
+        (up ℕ)).obj (complex φ)).d i j ≫
+        comparisonApp (J := J) (K := K) F φ j := sorry
+
+/-- Lemma 17.30.2 (0FKP): the explicit comparison from the inverse image of a relative de Rham
+complex to the relative de Rham complex of the pulled-back ring map, assembled from the
+degreewise comparisons.  It exists for every continuous functor of sites. -/
+@[stacks 0FKP "comparison morphism"]
+noncomputable def comparison (φ : O₁ ⟶ O₂) :
+    ((InverseImage.modulePullback
+      (J := J) (K := K) F O₁).mapHomologicalComplex (up ℕ)).obj (complex φ) ⟶
+        complex (inverseImageMap (J := J) (K := K) F φ) where
+  f p := comparisonApp (J := J) (K := K) F φ p
+  comm' i j hij := comparisonApp_comm (J := J) (K := K) F φ i j hij
+
+/-- The degree-`p` component of the inverse-image comparison is `comparisonApp`. -/
+@[simp, stacks 0FKP "comparison component"]
+theorem comparison_f (φ : O₁ ⟶ O₂) (p : ℕ) :
+    (comparison (J := J) (K := K) F φ).f p =
+      comparisonApp (J := J) (K := K) F φ p := rfl
+
+/-!
+## Invertibility under representable flatness
+
+The source works with a continuous map of topological spaces, whose open-preimage functor is
+representably flat (`Opens.map f` has a mathlib `RepresentablyFlat` instance).  Flatness is needed:
+for an arbitrary continuous functor, inverse image of commutative ring sheaves is a colimit in
+`CommRingCat` over a possibly non-filtered index category, and already in degree `0` it differs
+from inverse image of the underlying module.  For the trivial topologies, a one-object `D`, and a
+two-object discrete `C` mapped to it, with constant `O₁ = 𝔽₂` and `O₂ = 𝔽₂³`, the pulled-back
+ring has dimension `9` while the pulled-back module has dimension `6`.
+
+The degreewise inverse below is still the categorical inverse selected from the admitted
+invertibility gate `comparisonApp_isIso`.  An explicit reverse map needs the reverse
+(lax) multiplicative structure of flat module pullback and the commutation of module pullback with
+restriction of scalars; these prerequisites are tracked separately in the lib-int ledger.
+-/
+
+variable [RepresentablyFlat F]
+
+/-- For a representably flat continuous functor, the degreewise inverse-image comparison is an
+isomorphism. -/
 @[stacks 0FKP "degreewise comparison invertibility gate"]
 instance comparisonApp_isIso (φ : O₁ ⟶ O₂) (p : ℕ) :
     IsIso (comparisonApp (J := J) (K := K) F φ p) := sorry
@@ -167,32 +206,23 @@ theorem comparisonApp_inv_hom_id (φ : O₁ ⟶ O₂) (p : ℕ) :
 @[stacks 0FKP "degreewise comparison isomorphism"]
 noncomputable def comparisonAppIso (φ : O₁ ⟶ O₂) (p : ℕ) :
     (InverseImage.modulePullback (J := J) (K := K) F O₁).obj (term φ p) ≅
-      inverseImageTerm (J := J) (K := K) F φ p :=
-  { hom := comparisonApp (J := J) (K := K) F φ p
-    inv := comparisonAppInv (J := J) (K := K) F φ p
-    hom_inv_id := comparisonApp_hom_inv_id (J := J) (K := K) F φ p
-    inv_hom_id := comparisonApp_inv_hom_id (J := J) (K := K) F φ p }
+      inverseImageTerm (J := J) (K := K) F φ p where
+  hom := comparisonApp (J := J) (K := K) F φ p
+  inv := comparisonAppInv (J := J) (K := K) F φ p
+  hom_inv_id := comparisonApp_hom_inv_id (J := J) (K := K) F φ p
+  inv_hom_id := comparisonApp_inv_hom_id (J := J) (K := K) F φ p
 
 /-- The forward map of the degreewise comparison isomorphism is `comparisonApp`. -/
 @[simp, stacks 0FKP "degreewise comparison isomorphism hom"]
 theorem comparisonAppIso_hom (φ : O₁ ⟶ O₂) (p : ℕ) :
     (comparisonAppIso (J := J) (K := K) F φ p).hom =
-      comparisonApp (J := J) (K := K) F φ p := sorry
+      comparisonApp (J := J) (K := K) F φ p := rfl
 
 /-- The inverse component of the degreewise comparison is the named map `comparisonAppInv`. -/
 @[simp, stacks 0FKP "degreewise comparison isomorphism inv"]
 theorem comparisonAppIso_inv (φ : O₁ ⟶ O₂) (p : ℕ) :
     (comparisonAppIso (J := J) (K := K) F φ p).inv =
-      comparisonAppInv (J := J) (K := K) F φ p := sorry
-
-/-- The degreewise comparison maps commute with all de Rham differentials. -/
-theorem comparisonApp_comm (φ : O₁ ⟶ O₂) (i j : ℕ)
-    (hij : (up ℕ).Rel i j) :
-    comparisonApp (J := J) (K := K) F φ i ≫
-        (complex (inverseImageMap (J := J) (K := K) F φ)).d i j =
-      (((InverseImage.modulePullback (J := J) (K := K) F O₁).mapHomologicalComplex
-        (up ℕ)).obj (complex φ)).d i j ≫
-        comparisonApp (J := J) (K := K) F φ j := sorry
+      comparisonAppInv (J := J) (K := K) F φ p := rfl
 
 /-- The degreewise comparison isomorphisms commute with all de Rham differentials. -/
 @[stacks 0FKP "degreewise comparison isomorphism compatibility"]
@@ -202,7 +232,8 @@ theorem comparisonAppIso_comm (φ : O₁ ⟶ O₂) (i j : ℕ)
         (complex (inverseImageMap (J := J) (K := K) F φ)).d i j =
       (((InverseImage.modulePullback (J := J) (K := K) F O₁).mapHomologicalComplex
         (up ℕ)).obj (complex φ)).d i j ≫
-        (comparisonAppIso (J := J) (K := K) F φ j).hom := sorry
+        (comparisonAppIso (J := J) (K := K) F φ j).hom :=
+  comparisonApp_comm (J := J) (K := K) F φ i j hij
 
 /-- The named inverses of the degreewise comparisons commute with all de Rham differentials. -/
 @[stacks 0FKP "degreewise inverse comparison compatibility"]
@@ -215,7 +246,7 @@ theorem comparisonAppIso_inv_comm (φ : O₁ ⟶ O₂) (i j : ℕ)
         comparisonAppInv (J := J) (K := K) F φ j := sorry
 
 /-- Lemma 17.30.2 (0FKP): the canonical inverse-image identification of relative de Rham
-complexes. -/
+complexes along a representably flat continuous functor. -/
 @[stacks 0FKP "canonical inverse-image identification"]
 noncomputable def comparisonIso (φ : O₁ ⟶ O₂) :
     ((InverseImage.modulePullback
@@ -225,32 +256,15 @@ noncomputable def comparisonIso (φ : O₁ ⟶ O₂) :
     (fun p ↦ comparisonAppIso (J := J) (K := K) F φ p)
     (fun i j hij ↦ comparisonAppIso_comm (J := J) (K := K) F φ i j hij)
 
-/-- Lemma 17.30.2 (0FKP): the explicit comparison from the inverse image of a relative de Rham
-complex to the relative de Rham complex of the pulled-back ring map.  It is the forward map of
-the componentwise literal isomorphism. -/
-@[stacks 0FKP "comparison morphism"]
-noncomputable abbrev comparison (φ : O₁ ⟶ O₂) :
-    ((InverseImage.modulePullback
-      (J := J) (K := K) F O₁).mapHomologicalComplex (up ℕ)).obj (complex φ) ⟶
-        complex (inverseImageMap (J := J) (K := K) F φ) :=
-  (comparisonIso (J := J) (K := K) F φ).hom
-
 /-- The forward map of `comparisonIso` is the canonical comparison. -/
 @[simp, stacks 0FKP "comparison isomorphism hom"]
 theorem comparisonIso_hom (φ : O₁ ⟶ O₂) :
     (comparisonIso (J := J) (K := K) F φ).hom =
       comparison (J := J) (K := K) F φ := sorry
 
-/-- The degree-`p` component of the inverse-image comparison is `comparisonApp`. -/
-@[stacks 0FKP "comparison component"]
-theorem comparison_f (φ : O₁ ⟶ O₂) (p : ℕ) :
-    (comparison (J := J) (K := K) F φ).f p =
-      comparisonApp (J := J) (K := K) F φ p := sorry
-
-/-- The canonical comparison is invertible.  Typeclass search also obtains this directly by
-unfolding `comparison` and applying `Iso.isIso_hom`. -/
+/-- The canonical comparison along a representably flat continuous functor is invertible. -/
 @[stacks 0FKP "comparison is an isomorphism"]
-theorem comparison_isIso (φ : O₁ ⟶ O₂) :
+instance comparison_isIso (φ : O₁ ⟶ O₂) :
     IsIso (comparison (J := J) (K := K) F φ) := sorry
 
 /-- The inverse morphism owned by the relative de Rham inverse-image comparison. -/
@@ -265,7 +279,7 @@ noncomputable def comparisonInv (φ : O₁ ⟶ O₂) :
 @[simp, stacks 0FKP "comparison isomorphism inv"]
 theorem comparisonIso_inv (φ : O₁ ⟶ O₂) :
     (comparisonIso (J := J) (K := K) F φ).inv =
-      comparisonInv (J := J) (K := K) F φ := sorry
+      comparisonInv (J := J) (K := K) F φ := rfl
 
 /-- The degree-`p` forward component of `comparisonIso` is `comparisonApp`. -/
 @[simp, stacks 0FKP "comparison isomorphism component"]
@@ -291,15 +305,16 @@ theorem comparison_inv_hom_id (φ : O₁ ⟶ O₂) :
     comparisonInv (J := J) (K := K) F φ ≫
         comparison (J := J) (K := K) F φ = 𝟙 _ := sorry
 
-/-- Inverse image identifies each scalar-restricted relative de Rham term with the corresponding
-term for the pulled-back ring-sheaf morphism. -/
+/-- Inverse image along a representably flat continuous functor identifies each
+scalar-restricted relative de Rham term with the corresponding term for the pulled-back
+ring-sheaf morphism. -/
 theorem inverseImage_term_isIsomorphic (φ : O₁ ⟶ O₂) (p : ℕ) :
     IsIsomorphic
       ((InverseImage.modulePullback (J := J) (K := K) F O₁).obj (term φ p))
       (term ((InverseImage.ringPullback (J := J) (K := K) F).map φ) p) := sorry
 
-/-- Lemma 17.30.2 (0FKP): inverse image preserves the relative de Rham complex of a morphism of
-commutative ring sheaves. -/
+/-- Lemma 17.30.2 (0FKP): inverse image along a representably flat continuous functor preserves
+the relative de Rham complex of a morphism of commutative ring sheaves. -/
 @[stacks 0FKP]
 theorem inverseImage_isIsomorphic (φ : O₁ ⟶ O₂) :
     IsIsomorphic
@@ -308,8 +323,3 @@ theorem inverseImage_isIsomorphic (φ : O₁ ⟶ O₂) :
       (complex ((InverseImage.ringPullback (J := J) (K := K) F).map φ)) := sorry
 
 end SheafOfModules.RingedSite.DeRham
-
--- The component inverse still uses the categorical inverse selected by
--- `comparisonApp_isIso`, so it inherits that gate's current proof debt.  The complex-level
--- comparison and inverse are instead the hom and inv of the componentwise literal Iso; no
--- second `IsIso` instance or categorical inverse is selected at the complex level.

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap88.Definition_88_24_1_Modification
-public import stacks_project.Chap88.Lemma_88_23_1
-public import stacks_project.Chap88.Lemma_88_23_9
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CompletionAlong.FormalModification
+import StacksCheckRecall
 
 /-!
 # Formal modifications from completed proper morphisms
@@ -27,19 +20,15 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 88.24.3: in the Section 88.23 setup, with `U` the open complement of
+/- Lemma 88.24.3: in the Section 88.23 setup, with `U` the open complement of
 the closed subset `T ⊆ Points X`, `T'` the closed preimage of `T` along `f`,
 and `U'` the inverse image of `U`, if `X` is locally Noetherian, `f` is proper,
 and the comparison `openInverseImageTo f (OpenSubspace.ofOpensι T.compl)` is an
 isomorphism, then `completionAlong.map f T` is a formal modification. -/
-@[stacks 0GDM, instance]
-instance formalModification_completionAlongMap {S : Scheme.{u}}
+@[stacks 0GDM] #check
+  (AlgebraicGeometry.AlgebraicSpace.formalModification_completionAlongMap :
+    ∀ {S : Scheme.{u}}
     {X X' : AlgebraicSpace S} [IsLocallyNoetherian X] (f : X' ⟶ X)
     [AlgebraicSpace.Proper f] (T : Closeds (Points X))
-    [IsIso (openInverseImageTo f (OpenSubspace.ofOpensι T.compl))] :
-    FormalAlgebraicSpace.FormalModification (completionAlong.map f T) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+    [IsIso (Open.complementComparison f T)],
+    FormalAlgebraicSpace.FormalModification (completionAlong.map f T))

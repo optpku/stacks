@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Topology.Spectral.Basic
-public import stacks_project.Chap66.Definition_66_5_1_QuasiCompact
-public import stacks_project.Chap66.Definition_66_3_1_Separation
-public import stacks_project.Chap66.Lemma_66_4_6_Topology
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Spectral
+import StacksCheckRecall
 
 /-!
 # Spectral spaces of quasi-compact quasi-separated algebraic spaces
@@ -25,11 +17,12 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 66.15.2: let `S` be a scheme. Let `X` be a quasi-compact and quasi-separated algebraic
+/- Lemma 66.15.2: let `S` be a scheme. Let `X` be a quasi-compact and quasi-separated algebraic
 space over `S`. Then the topological space `Points X` is a spectral space. -/
-@[stacks 0A4G]
-instance instSpectralSpacePoints {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X] : SpectralSpace (Points X) :=
-  sorry
+@[stacks 0A4G] #check (AlgebraicGeometry.AlgebraicSpace.instSpectralSpacePoints :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S)
+    [AlgebraicGeometry.AlgebraicSpace.IsQuasiCompact X]
+    [AlgebraicGeometry.AlgebraicSpace.IsAbsolutelyQuasiSeparated X],
+    SpectralSpace (AlgebraicGeometry.AlgebraicSpace.Points X))
 
 end AlgebraicGeometry.AlgebraicSpace

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap110.Proposition_110_77_1_Torsion
-public import stacks_project.Chap110.Proposition_110_77_1_Equivalence
+public import ReasLib.Algebra.Category.ModuleCat.Localization.Torsion
+public import ReasLib.Algebra.Category.ModuleCat.Localization.SerreQuotient
 import StacksCheckRecall
 
 @[expose] public section
@@ -24,7 +18,7 @@ variable {R : Type u} [CommRing R] [Small.{v} R] (S : Submonoid R)
 canonically equivalent to `ModuleCat (Localization S)`, via the induced functor of
 localization `M ↦ S⁻¹M ≅ M ⊗[A] Localization S`. -/
 @[stacks 0EA5]
-#check (inducedLocalizedFunctor_isEquivalence S :
-  (inducedLocalizedFunctor S).IsEquivalence)
+#check (ModuleCat.inducedLocalizedFunctor_isEquivalence S :
+  (ModuleCat.inducedLocalizedFunctor S).IsEquivalence)
 
 end ModuleCat

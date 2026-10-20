@@ -1,20 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Geometrically.Connected
-public import Mathlib.AlgebraicGeometry.Geometrically.Integral
-public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
-public import Mathlib.Data.List.TFAE
-public import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
-public import ReasLib.AlgebraicGeometry.Scheme.FieldExtension.Over
-public import ReasLib.AlgebraicGeometry.Scheme.GlobalSections
-public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve
-public import stacks_project.Chap109.Lemma_109_16_3_Substack
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.SmoothH0
 
 /-!
 # Smooth curves with universally trivial pushforward of 𝒪
@@ -30,40 +17,33 @@ closure.
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry CategoryTheory.Limits
+open CategoryTheory.ObjectProperty
 open AlgebraicGeometry.AlgebraicSpace
 
 noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-namespace Spaces
-namespace Curves
+namespace AlgebraicGeometry.AlgebraicSpace.Spaces.Curves
 
-/-- Lemma 109.16.3 (1): given a family of curves `X ⟶ S`, the classifying
-morphism `S ⟶ 𝒞urves` factors through `𝒞urves^{smooth, h0}` if and only if
-`𝒪_S ⟶ f_* 𝒪_X` is an isomorphism after every base change (including the
-identity) and `X ⟶ S` is smooth of relative dimension `1`. -/
-@[stacks 0E81]
-theorem classifying_factorsThrough_smoothH0_iff
-    {S : Scheme.{u}} (P : Obj S) :
-    smoothH0 S P ↔
-      (∀ {Z : AlgebraicSpace S} (g : Z ⟶ ofOver (base P)),
-          IsIso (Modules.unitToPushforwardObjUnit (pullback.snd (hom P) g))) ∧
-        AlgebraicSpace.Smooth (hom P) ∧ RelativeDimension (hom P) 1 :=
-  sorry
+/- Lemma 109.16.3. Smooth families of curves with universally trivial
+structure-sheaf pushforward and fibres of dimension one form an open substack,
+with the following family and field-valued characterizations. -/
+@[stacks 0E81] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.exists_smoothH0_open :
+    ∀ {S : Scheme.{u}} (P : Obj S),
+      ∃ U : (base P).left.Opens, ∀ {Q : Obj S} (φ : Q ⟶ P),
+        smoothH0 S Q ↔ Set.range (baseMap φ).left ⊆ U)
 
-/-- Lemma 109.16.3 (2): given a scheme `X` proper over a field `k` with
-dimension at most one, the classifying morphism `Spec k ⟶ 𝒞urves` factors
-through `𝒞urves^{smooth, h0}` if and only if `X` is smooth of dimension `1`
-with `k = H⁰(X, 𝒪_X)`, if and only if `X` is smooth of dimension `1` and
-geometrically connected, if and only if `X` is smooth of dimension `1` and
-geometrically integral, if and only if `X` base-changed to an algebraic
-closure of `k` is a smooth curve. -/
-@[stacks 0E81]
-theorem classifying_factorsThrough_smoothH0_tfae_scheme
-    {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
-    (hdim : topologicalKrullDim X.left ≤ 1) :
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.smoothH0_iff :
+    ∀ {S : Scheme.{u}} (P : Obj S),
+      smoothH0 S P ↔
+        (∀ {Z : AlgebraicSpace S} (g : Z ⟶ ofOver (base P)),
+            IsIso (Modules.unitToPushforwardObjUnit (pullback.snd (hom P) g))) ∧
+          AlgebraicSpace.Smooth (hom P) ∧ RelativeDimension (hom P) 1)
+
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.classifying_factorsThrough_smoothH0_tfae_scheme :
+    ∀ {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
+    (hdim : topologicalKrullDim X.left ≤ 1),
     List.TFAE
       [smoothH0 (Spec (CommRingCat.of k)) (mkOfSchemeOverField X hdim),
         AlgebraicGeometry.Smooth X.hom ∧ topologicalKrullDim X.left = 1 ∧
@@ -73,9 +53,6 @@ theorem classifying_factorsThrough_smoothH0_tfae_scheme
         AlgebraicGeometry.Smooth X.hom ∧ topologicalKrullDim X.left = 1 ∧
           GeometricallyIntegral X.hom,
         Curve (FieldExtension.Over.baseChange k (AlgebraicClosure k) X) ∧
-          AlgebraicGeometry.Smooth (FieldExtension.Over.baseChange k (AlgebraicClosure k) X).hom] :=
-  sorry
+          AlgebraicGeometry.Smooth (FieldExtension.Over.baseChange k (AlgebraicClosure k) X).hom])
 
-end Curves
-end Spaces
-end AlgebraicGeometry.AlgebraicSpace
+end AlgebraicGeometry.AlgebraicSpace.Spaces.Curves

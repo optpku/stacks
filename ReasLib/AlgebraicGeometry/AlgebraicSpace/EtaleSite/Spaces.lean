@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.MorphismProperty.Comma
@@ -95,10 +89,12 @@ instance smallEtaleInclusion_isSpecialCocontinuous {S : Scheme.{u}}
       (SmallEtale.topology X) (spacesEtaleTopology X) :=
   sorry
 
-/-- The opposite of the small-to-spaces étale inclusion admits pointwise right Kan extensions. -/
+/-- The opposite of the small-to-spaces étale inclusion admits pointwise right Kan extensions:
+each indexing category `StructuredArrow U (smallEtaleInclusion X).op` has objects in
+`Type (u + 1)` and morphisms in `Type u`, so the limits exist in `Type (u + 1)`. -/
 instance smallEtaleInclusion_op_hasPointwiseRightKanExtension {S : Scheme.{u}}
     (X : AlgebraicSpace S) (P : (SmallEtale.site X)ᵒᵖ ⥤ Type (u + 1)) :
     (smallEtaleInclusion X).op.HasPointwiseRightKanExtension P :=
-  sorry
+  fun _ ↦ inferInstance
 
 end AlgebraicGeometry.AlgebraicSpace

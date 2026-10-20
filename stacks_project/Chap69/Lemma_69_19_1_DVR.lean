@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.DiscreteValuationRing.Basic
 public import stacks_project.Chap67.Definition_67_41_1_ValuativeCriterion
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR
 
 /-!
 # DVR uniqueness for morphisms of algebraic spaces
@@ -24,35 +19,20 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.Uniqueness :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}, (X ⟶ Y) → Prop)
 
-/-- A morphism of algebraic spaces satisfies the uniqueness part of the DVR
-valuative criterion if every valuative commutative square whose ring is a
-discrete valuation ring has at most one lift. -/
-@[mk_iff]
-class ValuativeCriterion.DVR.Uniqueness {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) : Prop where
-  /-- Every DVR valuative square has at most one dotted lift. -/
-  subsingleton_liftStruct :
-    ∀ sq : ValuativeCommSq f, IsDiscreteValuationRing sq.R → Subsingleton sq.commSq.LiftStruct
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.Uniqueness.id :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S},
+    AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.Uniqueness (𝟙 X))
 
-namespace ValuativeCriterion.DVR.Uniqueness
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.Uniqueness.of_uniqueness :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.Uniqueness f],
+    AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.Uniqueness f)
 
-/-- The identity morphism of an algebraic space satisfies DVR uniqueness. -/
-instance id {S : Scheme.{u}} {X : AlgebraicSpace S} : Uniqueness (𝟙 X) := sorry
-
-/-- Uniqueness for all valuation rings implies uniqueness for discrete valuation rings. -/
-instance of_uniqueness {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [ValuativeCriterion.Uniqueness f] : Uniqueness f := sorry
-
-/-- A morphism satisfies DVR uniqueness if and only if every DVR valuative square
-has at most one lift. -/
-theorem spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    Uniqueness f ↔
-      ∀ sq : ValuativeCommSq f,
-        IsDiscreteValuationRing sq.R → Subsingleton sq.commSq.LiftStruct :=
-  sorry
-
-end ValuativeCriterion.DVR.Uniqueness
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.Uniqueness.spec :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.Uniqueness f ↔
+      ∀ sq : AlgebraicGeometry.AlgebraicSpace.ValuativeCommSq f,
+        IsDiscreteValuationRing sq.R → Subsingleton sq.commSq.LiftStruct)

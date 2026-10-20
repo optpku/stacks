@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.MvPowerSeries.Basic
@@ -19,7 +13,8 @@ public import ReasLib.RingTheory.Depth
 @[expose] public section
 
 open CategoryTheory CategoryTheory.MonoidalCategory
-open AlgebraicGeometry
+open AlgebraicGeometry Opposite
+open scoped AlgebraicGeometry
 
 noncomputable section
 
@@ -107,11 +102,153 @@ theorem quotientDepth_eq_two (k : Type u) [Field k] :
 theorem idealDepth_eq_three (k : Type u) [Field k] :
     Ideal.depth (IsLocalRing.maximalIdeal (Ring k)) (ideal k) = 3 := sorry
 
-/-- The coordinate ideal is isomorphic to the global sections of the negative divisor sheaf. -/
-theorem ideal_globalSections_iso (k : Type u) [Field k] :
-    Nonempty
-      (ModuleCat.of (Ring k) (ideal k) ≅
-        Scheme.Hom.globalSectionsMod (puncturedOpen k).ι (divisor k).negSheaf) := sorry
+/-- The inclusion of the negative divisor sheaf, on global sections over the coordinate ring. -/
+def idealGlobalSectionsInclusion (k : Type u) [Field k] :
+    Scheme.Hom.globalSectionsMod (puncturedOpen k).ι (divisor k).negSheaf ⟶
+      Scheme.Hom.globalSectionsMod (puncturedOpen k).ι
+        (SheafOfModules.unit (puncturedOpen k).toScheme.ringCatSheaf) :=
+  (Scheme.Hom.globalSectionsFunctor (puncturedOpen k).ι).map
+    (divisor k).toSubobject.arrow
+
+private theorem restriction_mem_kernel (k : Type u) [Field k] (a : ideal k) :
+    Scheme.Hom.globalSectionsMap (puncturedOpen k).ι a ∈
+      SheafOfModules.RingedSite.KernelIdeal.sectionIdeal
+        (RingedSpace.Hom.commRingSheafPushforwardMap (divisor k).subschemeι.toShHom)
+        (op ⊤) := sorry
+
+/-- Restriction of an element of the coordinate ideal to the negative divisor sheaf. -/
+def idealGlobalSectionsHom (k : Type u) [Field k] :
+    ModuleCat.of (Ring k) (ideal k) ⟶
+      Scheme.Hom.globalSectionsMod (puncturedOpen k).ι (divisor k).negSheaf :=
+  ConcreteCategory.ofHom (C := ModuleCat (Ring k))
+    (X := ModuleCat.of (Ring k) (ideal k))
+    (Y := Scheme.Hom.globalSectionsMod (puncturedOpen k).ι (divisor k).negSheaf)
+    { toFun := fun a ↦
+        (SheafOfModules.RingedSite.KernelIdeal.sectionsIso
+          (RingedSpace.Hom.commRingSheafPushforwardMap (divisor k).subschemeι.toShHom)
+          (op ⊤)).inv ⟨Scheme.Hom.globalSectionsMap (puncturedOpen k).ι a,
+            by exact restriction_mem_kernel k a⟩
+      map_add' := by sorry
+      map_smul' := by sorry }
+
+/-- After inclusion in the structure sheaf, ideal restriction is ordinary function restriction. -/
+@[simp]
+theorem idealGlobalSectionsHom_inclusion (k : Type u) [Field k] (a : ideal k) :
+    idealGlobalSectionsInclusion k (idealGlobalSectionsHom k a) =
+      Scheme.Hom.globalSectionsMap (puncturedOpen k).ι a := sorry
+
+private theorem basicOpen_y_le (k : Type u) [Field k] :
+    PrimeSpectrum.basicOpen (yBar k) ≤ puncturedOpen k := sorry
+
+-- Each reduction replaces a factor xy by zw. For a fixed output monomial only
+-- finitely many input monomials contribute, so this also applies to formal series.
+private def unreducedIndex (d : Fin 4 →₀ ℕ) (n : ℕ) : Fin 4 →₀ ℕ :=
+  Finsupp.single 0 (d 0 + n) + Finsupp.single 1 (d 1 + n) +
+    Finsupp.single 2 (d 2 - n) + Finsupp.single 3 (d 3 - n)
+
+private def normalForm (k : Type u) [Field k] (p : AmbientRing k) : AmbientRing k :=
+  fun d ↦ if d 0 = 0 ∨ d 1 = 0 then
+    ∑ n ∈ Finset.range (min (d 2) (d 3) + 1),
+      MvPowerSeries.coeff (unreducedIndex d n) p
+    else 0
+
+-- Multiplication by y^n is injective on the monomials not divisible by xy.
+-- Reading the coefficient at its image gives division on the image of this map.
+private def mulYIndex (d : Fin 4 →₀ ℕ) (n : ℕ) : Fin 4 →₀ ℕ :=
+  let t := min (d 0) n
+  Finsupp.single 0 (d 0 - t) + Finsupp.single 1 (d 1 + n - t) +
+    Finsupp.single 2 (d 2 + t) + Finsupp.single 3 (d 3 + t)
+
+private def divideYPower (k : Type u) [Field k] (n : ℕ)
+    (p : AmbientRing k) : AmbientRing k :=
+  fun d ↦ if d 0 = 0 ∨ d 1 = 0 then
+    MvPowerSeries.coeff (mulYIndex d n) (normalForm k p)
+    else 0
+
+private theorem normalForm_mk (k : Type u) [Field k] (p : AmbientRing k) :
+    Ideal.Quotient.mk (relationIdeal k) (normalForm k p) =
+      Ideal.Quotient.mk (relationIdeal k) p := sorry
+
+private theorem divideYPower_mul (k : Type u) [Field k] (n : ℕ)
+    (p : AmbientRing k) :
+    divideYPower k n (y k ^ n * p) = normalForm k p := sorry
+
+/-- Extend a punctured-spectrum function by extracting coefficients from its fraction on
+`D(y)`: reduce its numerator using `xy = zw`, then divide the reduced monomials by the
+chosen power of `y`. On functions extending across the closed point this recovers their
+unique element of the coordinate ring. -/
+@[no_expose]
+def extendFunction (k : Type u) [Field k]
+    (s : Γ((puncturedOpen k).toScheme, ⊤)) : Ring k :=
+  let sy := ((Spec (CommRingCat.of (Ring k))).presheaf.map
+    (homOfLE (basicOpen_y_le k)).op) ((puncturedOpen k).topIso.hom s)
+  let fraction := IsLocalization.Away.sec
+    (S := (Spec.structureSheaf (Ring k)).obj.obj (op (PrimeSpectrum.basicOpen (yBar k))))
+    (yBar k) sy
+  Ideal.Quotient.mk (relationIdeal k)
+    (divideYPower k fraction.2 (Quotient.out fraction.1))
+
+/-- Coefficient extension recovers an element of the coordinate ring from its restriction. -/
+@[simp]
+theorem extendFunction_restrict (k : Type u) [Field k] (a : Ring k) :
+    extendFunction k (Scheme.Hom.globalSectionsMap (puncturedOpen k).ι a) = a := sorry
+
+/-- The reconstructed element restricts to the original punctured-spectrum function. -/
+@[simp]
+theorem restrict_extendFunction (k : Type u) [Field k]
+    (s : Γ((puncturedOpen k).toScheme, ⊤)) :
+    Scheme.Hom.globalSectionsMap (puncturedOpen k).ι (extendFunction k s) = s := sorry
+
+private theorem extendFunction_mem_ideal (k : Type u) [Field k]
+    (s : Scheme.Hom.globalSectionsMod (puncturedOpen k).ι (divisor k).negSheaf) :
+    extendFunction k (idealGlobalSectionsInclusion k s) ∈ ideal k := sorry
+
+/-- Extension of a section of the negative divisor sheaf to the coordinate ideal. -/
+def idealGlobalSectionsInv (k : Type u) [Field k] :
+    Scheme.Hom.globalSectionsMod (puncturedOpen k).ι (divisor k).negSheaf ⟶
+      ModuleCat.of (Ring k) (ideal k) :=
+  ConcreteCategory.ofHom (C := ModuleCat (Ring k))
+    (X := Scheme.Hom.globalSectionsMod (puncturedOpen k).ι (divisor k).negSheaf)
+    (Y := ModuleCat.of (Ring k) (ideal k))
+    { toFun := fun s ↦ ⟨extendFunction k (idealGlobalSectionsInclusion k s),
+        by exact extendFunction_mem_ideal k s⟩
+      map_add' := by sorry
+      map_smul' := by sorry }
+
+/-- The inverse comparison extends the underlying regular function to the coordinate ring. -/
+@[simp]
+theorem idealGlobalSectionsInv_coe (k : Type u) [Field k]
+    (s : Scheme.Hom.globalSectionsMod (puncturedOpen k).ι (divisor k).negSheaf) :
+    (idealGlobalSectionsInv k s : Ring k) =
+      extendFunction k (idealGlobalSectionsInclusion k s) := rfl
+
+/-- Restricting the extended ideal element gives the original underlying regular function. -/
+theorem idealGlobalSectionsInv_restrict (k : Type u) [Field k]
+    (s : Scheme.Hom.globalSectionsMod (puncturedOpen k).ι (divisor k).negSheaf) :
+    Scheme.Hom.globalSectionsMap (puncturedOpen k).ι (idealGlobalSectionsInv k s) =
+      idealGlobalSectionsInclusion k s :=
+  restrict_extendFunction k (idealGlobalSectionsInclusion k s)
+
+/-- Extension after ideal restriction is the identity. -/
+@[simp]
+theorem idealGlobalSectionsInv_hom (k : Type u) [Field k] (a : ideal k) :
+    idealGlobalSectionsInv k (idealGlobalSectionsHom k a) = a := sorry
+
+/-- Ideal restriction after extension is the identity. -/
+@[simp]
+theorem idealGlobalSectionsHom_inv (k : Type u) [Field k]
+    (s : Scheme.Hom.globalSectionsMod (puncturedOpen k).ι (divisor k).negSheaf) :
+    idealGlobalSectionsHom k (idealGlobalSectionsInv k s) = s := sorry
+
+/-- The canonical restriction identification of the coordinate ideal with global sections of
+the negative divisor sheaf, with coefficient extension as its inverse. -/
+def ideal_globalSections_iso (k : Type u) [Field k] :
+    ModuleCat.of (Ring k) (ideal k) ≅
+      Scheme.Hom.globalSectionsMod (puncturedOpen k).ι (divisor k).negSheaf where
+  hom := idealGlobalSectionsHom k
+  inv := idealGlobalSectionsInv k
+  hom_inv_id := ModuleCat.hom_ext (LinearMap.ext (idealGlobalSectionsInv_hom k))
+  inv_hom_id := ModuleCat.hom_ext (LinearMap.ext (idealGlobalSectionsHom_inv k))
 
 /-- The coordinate ideal is not principal. -/
 theorem ideal_not_isPrincipal (k : Type u) [Field k] : ¬ (ideal k).IsPrincipal := sorry

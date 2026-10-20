@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.BasedCategory.Cospan.Basic.Core
@@ -40,26 +34,53 @@ variable {F₂ : X₂ ⥤ᵇ S₂} {G₂ : Y₂ ⥤ᵇ S₂}
 
 /-- A modification between based cospan transformations. It consists of based natural
 transformations at the three vertices satisfying the two generating naturality squares. -/
-structure Hom
-    (psi phi : BasedCospanTransform F₁ G₁ F₂ G₂) where
-  /-- The modification component at the left endpoint. -/
-  left : psi.left ⟶ phi.left
-  /-- The modification component at the right endpoint. -/
-  right : psi.right ⟶ phi.right
-  /-- The modification component at the common target. -/
-  base : psi.base ⟶ phi.base
-  /-- Naturality on the left cospan leg. -/
-  leftNaturality :
-    BasedCategory.whiskerRight left F₂ ≫ phi.leftIso.hom =
-      psi.leftIso.hom ≫ BasedCategory.whiskerLeft F₁ base
-  /-- Naturality on the right cospan leg. -/
-  rightNaturality :
-    BasedCategory.whiskerRight right G₂ ≫ phi.rightIso.hom =
-      psi.rightIso.hom ≫ BasedCategory.whiskerLeft G₁ base
+def Hom (psi phi : BasedCospanTransform F₁ G₁ F₂ G₂) :=
+  { components : (psi.left ⟶ phi.left) × (psi.right ⟶ phi.right) ×
+      (psi.base ⟶ phi.base) //
+    (BasedCategory.whiskerRight components.1 F₂ ≫ phi.leftIso.hom =
+      psi.leftIso.hom ≫ BasedCategory.whiskerLeft F₁ components.2.2) ∧
+    (BasedCategory.whiskerRight components.2.1 G₂ ≫ phi.rightIso.hom =
+      psi.rightIso.hom ≫ BasedCategory.whiskerLeft G₁ components.2.2) }
 
 namespace Hom
 
 variable {psi phi chi : BasedCospanTransform F₁ G₁ F₂ G₂}
+
+/-- Construct a modification from three vertex transformations satisfying the two cospan
+naturality equations. -/
+def mk (left : psi.left ⟶ phi.left) (right : psi.right ⟶ phi.right)
+    (base : psi.base ⟶ phi.base)
+    (leftNaturality :
+      BasedCategory.whiskerRight left F₂ ≫ phi.leftIso.hom =
+        psi.leftIso.hom ≫ BasedCategory.whiskerLeft F₁ base)
+    (rightNaturality :
+      BasedCategory.whiskerRight right G₂ ≫ phi.rightIso.hom =
+        psi.rightIso.hom ≫ BasedCategory.whiskerLeft G₁ base) : Hom psi phi :=
+  ⟨⟨left, right, base⟩, leftNaturality, rightNaturality⟩
+
+/-- The component of a based cospan modification at the left endpoint. -/
+def left (alpha : Hom psi phi) : psi.left ⟶ phi.left :=
+  alpha.val.1
+
+/-- The component of a based cospan modification at the right endpoint. -/
+def right (alpha : Hom psi phi) : psi.right ⟶ phi.right :=
+  alpha.val.2.1
+
+/-- The component of a based cospan modification at the common target. -/
+def base (alpha : Hom psi phi) : psi.base ⟶ phi.base :=
+  alpha.val.2.2
+
+/-- The left components of a based cospan modification satisfy the naturality equation. -/
+theorem leftNaturality (alpha : Hom psi phi) :
+    BasedCategory.whiskerRight alpha.left F₂ ≫ phi.leftIso.hom =
+      psi.leftIso.hom ≫ BasedCategory.whiskerLeft F₁ alpha.base :=
+  alpha.property.1
+
+/-- The right components of a based cospan modification satisfy the naturality equation. -/
+theorem rightNaturality (alpha : Hom psi phi) :
+    BasedCategory.whiskerRight alpha.right G₂ ≫ phi.rightIso.hom =
+      psi.rightIso.hom ≫ BasedCategory.whiskerLeft G₁ alpha.base :=
+  alpha.property.2
 
 /-- Identity components satisfy the left generating naturality square. -/
 theorem id.leftNaturality (psi : BasedCospanTransform F₁ G₁ F₂ G₂) :
@@ -72,12 +93,9 @@ theorem id.rightNaturality (psi : BasedCospanTransform F₁ G₁ F₂ G₂) :
       psi.rightIso.hom ≫ BasedCategory.whiskerLeft G₁ (𝟙 psi.base) := sorry
 
 /-- The identity modification of a based cospan transformation. -/
-def id (psi : BasedCospanTransform F₁ G₁ F₂ G₂) : Hom psi psi where
-  left := 𝟙 psi.left
-  right := 𝟙 psi.right
-  base := 𝟙 psi.base
-  leftNaturality := id.leftNaturality psi
-  rightNaturality := id.rightNaturality psi
+def id (psi : BasedCospanTransform F₁ G₁ F₂ G₂) : Hom psi psi :=
+  mk (𝟙 psi.left) (𝟙 psi.right) (𝟙 psi.base)
+    (id.leftNaturality psi) (id.rightNaturality psi)
 
 /-- Vertically composed components satisfy the left generating naturality square. -/
 theorem comp.leftNaturality (alpha : Hom psi phi) (beta : Hom phi chi) :
@@ -92,12 +110,9 @@ theorem comp.rightNaturality (alpha : Hom psi phi) (beta : Hom phi chi) :
         BasedCategory.whiskerLeft G₁ (alpha.base ≫ beta.base) := sorry
 
 /-- Vertical composition of modifications of based cospan transformations. -/
-def comp (alpha : Hom psi phi) (beta : Hom phi chi) : Hom psi chi where
-  left := alpha.left ≫ beta.left
-  right := alpha.right ≫ beta.right
-  base := alpha.base ≫ beta.base
-  leftNaturality := comp.leftNaturality alpha beta
-  rightNaturality := comp.rightNaturality alpha beta
+def comp (alpha : Hom psi phi) (beta : Hom phi chi) : Hom psi chi :=
+  mk (alpha.left ≫ beta.left) (alpha.right ≫ beta.right) (alpha.base ≫ beta.base)
+    (comp.leftNaturality alpha beta) (comp.rightNaturality alpha beta)
 
 /-- A modification of based cospan transformations is determined by its three vertex
 components. -/

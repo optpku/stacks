@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_7_2_QuasiCompact
-public import stacks_project.Chap101.Definition_101_13_2_Closed
-public import stacks_project.Chap101.Lemma_101_39_12_Existence
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.ValuativeCriterion.UniversallyClosed
+import StacksCheckRecall
 
 /-!
 # Valuative criterion for universal closedness
@@ -24,14 +17,12 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.UniversallyClosed
-
-/-- Lemma 101.42.1: A quasi-compact morphism of algebraic stacks that satisfies
+/- Lemma 101.42.1: A quasi-compact morphism of algebraic stacks that satisfies
 the existence part of the valuative criterion is universally closed. -/
-@[stacks 0CLW]
-instance of_quasiCompact_of_existence {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    [QuasiCompact f] [ValuativeCriterion.Existence f] : UniversallyClosed f :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.UniversallyClosed
+@[stacks 0CLW] #check
+  (AlgebraicGeometry.AlgebraicStack.UniversallyClosed.of_quasiCompact_of_existence :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Y : AlgebraicGeometry.GroupoidsOver S}
+      [AlgebraicGeometry.AlgebraicStack X] [AlgebraicGeometry.AlgebraicStack Y]
+      (f : X ⟶ Y), [AlgebraicGeometry.AlgebraicStack.QuasiCompact f] →
+      [AlgebraicGeometry.AlgebraicStack.ValuativeCriterion.Existence f] →
+      AlgebraicGeometry.AlgebraicStack.UniversallyClosed f)

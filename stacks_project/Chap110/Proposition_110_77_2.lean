@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap110.Proposition_110_77_2_Torsion
-public import stacks_project.Chap110.Proposition_110_77_1_Equivalence
+import StacksCheckRecall
+public import ReasLib.Algebra.Category.ModuleCat.Localization.Torsion
+public import ReasLib.Algebra.Category.ModuleCat.Localization.SerreQuotient
 public import Mathlib.RingTheory.Localization.FractionRing
 
 @[expose] public section
@@ -20,13 +15,12 @@ namespace ModuleCat
 
 variable {R : Type u} [CommRing R] [Small.{v} R]
 
-/-- Proposition 110.77.2: for a commutative ring `R`, the Serre quotient of `ModuleCat R` by the
+/- Proposition 110.77.2: for a commutative ring `R`, the Serre quotient of `ModuleCat R` by the
 Serre class of torsion modules is canonically equivalent to `ModuleCat (FractionRing R)`, via the
 induced functor of localization at the non-zero-divisors. -/
-@[stacks 0B0K]
-theorem inducedLocalizedFunctor_nonZeroDivisors_isEquivalence :
-    (inducedLocalizedFunctor (nonZeroDivisors R) :
-      isTorsion.isoModSerre.Localization ⥤ ModuleCat.{v} (FractionRing R)).IsEquivalence :=
-  sorry
+@[stacks 0B0K] #check (ModuleCat.inducedLocalizedFunctor_isEquivalence (nonZeroDivisors R) :
+  (ModuleCat.inducedLocalizedFunctor (nonZeroDivisors R) :
+    ModuleCat.isTorsion.isoModSerre.Localization ⥤
+      ModuleCat.{v} (FractionRing R)).IsEquivalence)
 
 end ModuleCat

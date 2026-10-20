@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.CompactIntrinsicHomComparison
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommResidualDerivedComparison
@@ -54,7 +48,7 @@ variable [∀ {Y Z : Scheme.{u}} (j : Y ⟶ Z) [IsOpenImmersion j]
   (etaleRestriction j).op.HasLeftKanExtension F]
 variable (hR : IsUnit (Nat.card R : k))
 variable (M : (finiteTypeDiscreteModule R
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X η)))).FullSubcategory)
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η)))).FullSubcategory)
 variable [∀ {Y Z : Scheme.{u}} (j : Y ⟶ Z) [IsOpenImmersion j]
   (F : Y.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} R), (etaleRestriction j).op.HasLeftKanExtension F]
 variable [∀ Y : Scheme.{u}, Y.smallEtaleTopology.HasSheafCompose
@@ -67,7 +61,7 @@ variable [EnoughInjectives (Sheaf P.obj.right.left.smallEtaleTopology (ModuleCat
 variable [∀ {Y Z : Scheme.{u}} (f : Y ⟶ Z) (F : Z.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} R),
   (smallEtalePullback f).op.HasLeftKanExtension F]
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj R Gal(AlgebraicClosure k/k)))]
+  (completedGroupRing R Gal(AlgebraicClosure k/k)))]
 variable [∀ Y : Scheme.{u}, HasWeakSheafify Y.smallEtaleTopology (ModuleCat.{u + 1} Rᵐᵒᵖᵐᵒᵖ)]
 variable [∀ {Y Z : Scheme.{u}} (f : Y ⟶ Z) (F : Z.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Rᵐᵒᵖᵐᵒᵖ),
   (smallEtalePullback f).op.HasLeftKanExtension F]
@@ -86,11 +80,11 @@ variable [HasDerivedCategory (Sheaf (Spec (CommRingCat.of k)).smallEtaleTopology
   (ModuleCat.{u + 1} (ActualRootsModule.Coeff.{u} (Nat.card R))))]
 variable [HasDerivedCategory (DiscreteModuleCat (ActualRootsModule.Coeff.{u} (Nat.card R)) Gal(AlgebraicClosure k/k))]
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj Rᵐᵒᵖᵐᵒᵖ Gal(AlgebraicClosure k/k)))]
+  (completedGroupRing Rᵐᵒᵖᵐᵒᵖ Gal(AlgebraicClosure k/k)))]
 variable [∀ U : (geometricBaseChange X).Etale,
   HasWeakSheafify ((geometricBaseChange X).smallEtaleTopology.over U) (ModuleCat.{u + 1} Rᵐᵒᵖ)]
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj Rᵐᵒᵖᵐᵒᵖ (NoncommResidualSectionsComparison.Q X η)))]
+  (completedGroupRing Rᵐᵒᵖᵐᵒᵖ (NoncommResidualSectionsComparison.Q X η)))]
 variable (hne : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
 variable [∀ Y : Scheme.{u}, HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} R))]
 variable [∀ Y : Scheme.{u}, EnoughInjectives (Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} R))]
@@ -150,7 +144,7 @@ def geometricCochainMap {M N : NoncommTensorNaturality.Input R X η} (f : M ⟶ 
 /-- Geometric compact support, on finite coefficients but resolved in the
 ambient sheaf category. Resolution homotopies give the functor laws. -/
 def geometricFunctor : NoncommTensorNaturality.Input R X η ⥤ DerivedCategory
-    (ModuleCat.{u + 1} (NoncommCompletedRing.Obj R Gal(AlgebraicClosure k/k))) where
+    (ModuleCat.{u + 1} (completedGroupRing R Gal(AlgebraicClosure k/k))) where
   obj M := DerivedCategory.Q.obj (CompactIntrinsicHomComparison.geometricSource R X η P M)
   map f := DerivedCategory.Q.map (geometricCochainMap R X η P f)
   map_id := by sorry
@@ -165,17 +159,17 @@ section FiniteField
 variable [Finite k]
 
 instance finiteField_additive : (NoncommFiniteFieldTransport.modules k R).Additive := by
-  unfold NoncommFiniteFieldTransport.modules NoncommCompletedTransport.modules
+  unfold NoncommFiniteFieldTransport.modules completedGroupRing.restrictScalars
   infer_instance
 instance finiteField_preservesFiniteLimits : PreservesFiniteLimits (NoncommFiniteFieldTransport.modules k R) := by
-  unfold NoncommFiniteFieldTransport.modules NoncommCompletedTransport.modules
+  unfold NoncommFiniteFieldTransport.modules completedGroupRing.restrictScalars
   infer_instance
 instance finiteField_preservesFiniteColimits : PreservesFiniteColimits (NoncommFiniteFieldTransport.modules k R) := by
-  unfold NoncommFiniteFieldTransport.modules NoncommCompletedTransport.modules
+  unfold NoncommFiniteFieldTransport.modules completedGroupRing.restrictScalars
   infer_instance
 
-variable [HasDerivedCategory (ModuleCat.{u + 1} (NoncommCompletedRing.Obj R
-  (ActualFiniteFieldTransport.profiniteInt.{u} : Type u)))]
+variable [HasDerivedCategory (ModuleCat.{u + 1} (completedGroupRing R
+  (ProfiniteGrp.hatZ.{u} : Type u)))]
 
 /-- Only this specialization assumes the field finite; it uses the actual
 arithmetic Frobenius completed-ring transport on the full enhanced iso. -/

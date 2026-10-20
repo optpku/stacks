@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_34_2_EtaleSmoothLocal
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.EtaleSmoothLocal
 import StacksCheckRecall
 
 @[expose] public section
@@ -25,7 +19,7 @@ for some such square with surjective source atlas
 `hasEtaleSmoothLocalAtSourceAndTarget P f`, identified with the existence
 predicate via `hasEtaleSmoothLocalAtSourceAndTarget_def`. -/
 @[stacks 0CIF] #check
-  (hasEtaleSmoothLocalAtSourceAndTarget_iff_forallEtaleSmoothComparison :
+  (AlgebraicGeometry.AlgebraicStack.hasEtaleSmoothLocalAtSourceAndTarget_iff_forallEtaleSmoothComparison :
     ∀ {S : Scheme.{u}} (P : MorphismProperty (AlgebraicSpace S))
       [AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget P]
       {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
@@ -33,12 +27,24 @@ predicate via `hasEtaleSmoothLocalAtSourceAndTarget_def`. -/
       hasEtaleSmoothLocalAtSourceAndTarget P f ↔
         forallEtaleSmoothComparison P f)
 
-/- Lemma 101.34.1 (2): if `X` and `Y` are representable by algebraic spaces, in
-the sense of the `toGroupoids` embedding of algebraic spaces rather than
-recovery along an equivalence, then the conditions of (1) are also equivalent
-to `P` on the evaluated morphism of algebraic spaces. -/
+/- Lemma 101.34.1 (2): if `X` and `Y` are representable by algebraic spaces,
+then the conditions of (1) are also equivalent to `P` on the morphism recovered
+along explicit representation equivalences. -/
 @[stacks 0CIF] #check
-  (hasEtaleSmoothLocalAtSourceAndTarget_iff_eval :
+  (AlgebraicGeometry.AlgebraicStack.hasEtaleSmoothLocalAtSourceAndTarget_iff_recover :
+    ∀ {S : Scheme.{u}} (P : MorphismProperty (AlgebraicSpace S))
+      {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+      [AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget P]
+      {U V : AlgebraicSpace S} (eX : X ≌ U.toGroupoids)
+      (eY : Y ≌ V.toGroupoids) (f : X ⟶ Y),
+      hasEtaleSmoothLocalAtSourceAndTarget P f ↔
+        P (AlgebraicSpace.toGroupoids.recover eX eY f))
+
+/- Lemma 101.34.1 (2): for the groupoid fibrations associated to algebraic
+spaces, the conditions of (1) are equivalent to `P` on the evaluated morphism
+of algebraic spaces. -/
+@[stacks 0CIF] #check
+  (AlgebraicGeometry.AlgebraicStack.hasEtaleSmoothLocalAtSourceAndTarget_iff_eval :
     ∀ {S : Scheme.{u}} (P : MorphismProperty (AlgebraicSpace S))
       [AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget P]
       {U V : AlgebraicSpace S} (f : U.toGroupoids ⟶ V.toGroupoids),
@@ -50,7 +56,7 @@ local on the base (`IsLocalAtTarget` of `fppfPrecoverage`), then for morphisms
 representable by algebraic spaces this is also equivalent to
 `Groupoids.Hom.has P` in the sense of Properties of Stacks, Section 100.3. -/
 @[stacks 0CIF] #check
-  (hasEtaleSmoothLocalAtSourceAndTarget_iff_has :
+  (AlgebraicGeometry.AlgebraicStack.hasEtaleSmoothLocalAtSourceAndTarget_iff_has :
     ∀ {S : Scheme.{u}} (P : MorphismProperty (AlgebraicSpace S))
       {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
       [AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget P]

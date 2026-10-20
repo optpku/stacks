@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap58.Lemma_58_6_3_GaloisFiber
@@ -26,7 +20,10 @@ variable [IsAlgClosed Kbar] [IsSepClosure K Ksep]
 
 /- Lemma 58.6.3 (1): finite étale schemes over `Spec K` are equivalent to finite
 discrete continuous `Gal(Ksep/K)`-sets. -/
-@[stacks 0BNE] #check (AlgebraicGeometry.Scheme.Etale.finiteEtaleGaloisFiber_isEquivalence K Ksep :
+@[stacks 0BNE] #check (AlgebraicGeometry.Scheme.Etale.finiteEtaleGaloisEquivalence K Ksep :
+  Scheme.FiniteEtale (Spec (.of K)) ≌ DiscreteContAction FintypeCat.{u} Gal(Ksep/K))
+
+#check (AlgebraicGeometry.Scheme.Etale.finiteEtaleGaloisFiber_isEquivalence K Ksep :
   (finiteEtaleGaloisFiber K Ksep).IsEquivalence)
 
 #check (AlgebraicGeometry.Scheme.Etale.finiteEtaleGaloisFiber_comp_forget_iso K Kbar Ksep :

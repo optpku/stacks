@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.ValuativeCriterion
@@ -17,9 +11,17 @@ import StacksCheckRecall
 
 open AlgebraicGeometry CategoryTheory
 open Algebra.Presentation
-open IsRelativeGlobalCompleteIntersection.Jacobian
 
-universe u
+universe u v
+
+/- Exercise 111.54.2 (Results) (2): for a variety `X` over a field `k`, the dimension of `X`
+equals the transcendence degree of the function field of `X` over `k`. -/
+@[stacks 06A1] #check
+  (AlgebraicGeometry.SchemeOverField.topologicalKrullDim_eq_trdeg_functionField :
+    ∀ {k : Type u} [Field k] (X : SchemeOverField k) [Variety X],
+      topologicalKrullDim X.left =
+        (Cardinal.toNat (Algebra.trdeg k
+          (AlgebraicGeometry.SchemeOverField.functionFieldCommAlg X)) : WithBot ℕ∞))
 
 /- Exercise 111.54.2 (Results) (1): the valuative criterion of properness. -/
 @[stacks 06A1] #check
@@ -30,27 +32,14 @@ universe u
           @AlgebraicGeometry.QuasiSeparated ⊓
             @AlgebraicGeometry.LocallyOfFiniteType)
 
-namespace AlgebraicGeometry.SchemeOverField
-
-/-- Exercise 111.54.2 (Results) (2): for a variety `X` over a field `k`, the dimension of `X`
-equals the transcendence degree of the function field of `X` over `k`. -/
-@[stacks 06A1]
-theorem topologicalKrullDim_eq_trdeg_functionField
-    {k : Type u} [Field k] (X : SchemeOverField k) [Variety X] :
-    topologicalKrullDim X.left =
-      (Cardinal.toNat (Algebra.trdeg k (functionFieldCommAlg X)) : WithBot ℕ∞) := sorry
-
-end AlgebraicGeometry.SchemeOverField
-
 /- Exercise 111.54.2 (Results) (3): the category of nonsingular projective curves over `k` and
 nonconstant morphisms is anti-equivalent to finitely generated field extensions of `k` of
 transcendence degree one. -/
 @[stacks 06A1] #check
-  (AlgebraicGeometry.CurveCategory.oneVariableFunctionFieldsEquivNonsingularProjectiveCurves :
-    ∀ (k : Type u) [Field k],
-      Nonempty
-        ((AlgebraicGeometry.FinitelyGeneratedFieldExtension.TranscendenceDegreeOne k)ᵒᵖ ≌
-          AlgebraicGeometry.CurveCategory.NonsingularProjective k))
+  (AlgebraicGeometry.CurveCategory.nonsingularProjectiveFunctionFieldFunctor_isEquivalence :
+    ∀ {k : Type u} [Field k],
+      (AlgebraicGeometry.CurveCategory.curveFunctionFieldFunctor
+        (AlgebraicGeometry.CurveCategory.nonsingularProjectiveProperty k) (fun X hX ↦ hX.1)).IsEquivalence)
 
 /- Exercise 111.54.2 (Results) (4): Noether normalization. -/
 @[stacks 06A1] #check
@@ -61,4 +50,12 @@ transcendence degree one. -/
         Function.Injective g ∧ g.IsIntegral)
 
 /- Exercise 111.54.2 (Results) (5): Jacobian criterion. -/
-@[stacks 06A1] #check @isSmoothAt_iff_exists_minor_not_mem
+@[stacks 06A1] #check
+  (Algebra.Presentation.IsRelativeGlobalCompleteIntersection.Jacobian.isSmoothAt_iff_exists_minor_not_mem :
+    ∀ {R : Type u} {S : Type v} [CommRing R] [CommRing S] [Algebra R S]
+      {n c : ℕ} {P : Algebra.Presentation R S (Fin n) (Fin c)}
+      (hP : P.IsRelativeGlobalCompleteIntersection) (q : PrimeSpectrum S),
+      Algebra.IsSmoothAt R q.asIdeal ↔
+        ∃ I : Set.powersetCard (Fin n) c,
+          algebraMap P.Ring S
+            (P.jacobianColumnMinor (Fin.castLEEmb le_rfl) I) ∉ q.asIdeal)

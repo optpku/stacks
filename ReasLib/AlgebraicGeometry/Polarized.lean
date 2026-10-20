@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Limits
@@ -57,6 +51,28 @@ def Obj.hom (x : Obj) : x.X ⟶ x.S := x.2.2.1
 
 /-- The relatively ample module of a polarized object. -/
 def Obj.line (x : Obj) : x.X.Modules := x.2.2.2.1
+
+/-- The structure morphism of a polarized object is proper. -/
+instance Obj.isProper (x : Obj) : IsProper x.hom :=
+  x.2.2.2.2.1
+
+/-- The structure morphism of a polarized object is flat. -/
+instance Obj.isFlat (x : Obj) : Flat x.hom :=
+  x.2.2.2.2.2.1
+
+/-- The structure morphism of a polarized object is of finite presentation. -/
+instance Obj.finitePresentation (x : Obj) : Scheme.Hom.FinitePresentation x.hom :=
+  x.2.2.2.2.2.2.1
+
+/-- The module of a polarized object is relatively ample over its base. -/
+instance Obj.relativelyAmple (x : Obj) : RelativelyAmple x.hom x.line :=
+  x.2.2.2.2.2.2.2
+
+/-- A polarized object has a proper flat finite-presentation structure morphism and an
+invertible relatively ample module. -/
+theorem Obj.spec (x : Obj) :
+    IsProper x.hom ∧ Flat x.hom ∧ Scheme.Hom.FinitePresentation x.hom ∧
+      Scheme.Modules.Invertible x.line ∧ RelativelyAmple x.hom x.line := sorry
 
 /-- Package a proper flat finite-presentation morphism and a relatively ample module as a
 polarized object. -/
@@ -176,6 +192,19 @@ instance category : Category Obj where
 def p : Obj ⥤ Scheme.{u} where
   obj x := x.S
   map φ := φ.base
+
+/-- The forgetful functor sends a polarized object to its base scheme. -/
+theorem p_obj (x : Obj) : p.obj x = x.S := sorry
+
+/-- The forgetful functor sends a polarized morphism to its base map. -/
+theorem p_map {x y : Obj} (φ : x ⟶ y) : p.map φ = φ.base := sorry
+
+/-- The category of polarized proper families over schemes, with projection to the base. -/
+def over : BasedCategory.{u, u + 1} Scheme.{u} :=
+  BasedCategory.ofFunctor p
+
+/-- The projection of the category of polarized families is the forgetful functor. -/
+theorem over_p : over.p = p := sorry
 
 /-- Identity morphisms are sent to identity morphisms in `Sch / Spec ℤ`. -/
 theorem schemeToOverSpecZ_map_id (T : Scheme.{u}) :

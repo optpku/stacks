@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap96.Definition_96_12_1_Restriction
-public import stacks_project.Chap96.Definition_96_12_1_LocallyQuasicoherent
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.LocallyQuasicoherent
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,4 +15,6 @@ groupoids. Let `F` be a presheaf of `𝒪_X`-modules. We say `F` is locally
 quasi-coherent if `F` is a sheaf for the étale topology and for every object
 `x` of `X` the restriction `x* F|_{U_étale}` is a quasi-coherent sheaf.
 Here `U = p(x)`. -/
-@[stacks 06WJ] #check IsLocallyQuasicoherent
+@[stacks 06WJ] #check (AlgebraicGeometry.GroupoidsOver.IsLocallyQuasicoherent :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {X : AlgebraicGeometry.GroupoidsOver S},
+    PresheafOfModules.{u} (AlgebraicGeometry.GroupoidsOver.structureSheaf X).obj → Prop)

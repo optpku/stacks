@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.GroupScheme.IdentityComponent
-public import ReasLib.AlgebraicGeometry.Scheme.AffineOpen.CountableCover
+public import ReasLib.AlgebraicGeometry.GroupScheme.Topology
 
 /-!
 # Countable affine opens in group schemes
@@ -32,30 +25,9 @@ theorem existsClopenCountableAffineCover {k : Type u} [Field k]
     ∃ U : G.left.Opens,
       η[G].left (IsLocalRing.closedPoint k) ∈ (U : Set G.left) ∧ IsClopen (U : Set G.left) ∧
       ∃ V : ℕ → G.left.Opens, (∀ n, IsAffineOpen (V n)) ∧ iSup V = U := by
-  let U := IdentityComponent.openSubset G
-  have hUmem : η[G].left (IsLocalRing.closedPoint k) ∈ (U : Set G.left) := by
-    -- The chosen open subset is the connected component of the identity point itself.
-    rw [show U = IdentityComponent.openSubset G by rfl, IdentityComponent.coe_openSubset]
-    exact mem_connectedComponent
-  have hUclopen : IsClopen (U : Set G.left) := by
-    refine ⟨?_, U.2⟩
-    -- The identity component is also the range of a closed immersion.
-    have hClosedRange : IsClosed (Set.range (identityComponent G).inclusion.left) := by
-      simpa using
-        (IsClosedImmersion.isClosedEmbedding (identityComponent G).inclusion.left).isClosed_range
-    simpa [U, IdentityComponent.coe_openSubset] using
-      (range_identityComponent G ▸ hClosedRange)
-  have hUcompact : IsCompact (U : Set G.left) := by
-    -- The identity component is the image of a compact subgroup scheme.
-    have hCompactRange : IsCompact (Set.range (identityComponent G).inclusion.left) := by
-      simpa using isCompact_range (f := (identityComponent G).inclusion.left) (by fun_prop)
-    simpa [U, IdentityComponent.coe_openSubset] using
-      (range_identityComponent G ▸ hCompactRange)
-  obtain ⟨s, hsAffine, hsFinite, hsSup⟩ :=
-    G.left.isBasis_affineOpens.exists_finite_of_isCompact hUcompact
-  obtain ⟨V, hVaffine, hVsup⟩ :=
-    Scheme.natAffineFamilyOfFiniteCover s hsFinite hsAffine hsSup.symm
-  -- Reindex the finite affine subcover by `ℕ` and package the clopen witness.
-  exact ⟨U, hUmem, hUclopen, V, hVaffine, hVsup⟩
+  -- Source argument (Stacks 047U): take a quasi-compact inverse-stable open `U ∋ e`; the union
+  -- `⋃ₙ mₙ(U × ⋯ × U)` of the open images of the `n`-fold multiplication maps is an open
+  -- subgroup, hence closed. The identity component need not be open here.
+  sorry
 
 end AlgebraicGeometry.GroupScheme

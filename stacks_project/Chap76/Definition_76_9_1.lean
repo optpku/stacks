@@ -1,15 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Definition_76_9_1_Arrow
-public import stacks_project.Chap76.Definition_76_9_1_FiniteOrder
-public import stacks_project.Chap76.Lemma_76_18_1_Thickening
-public import stacks_project.Chap76.Lemma_76_9_2_Thickening
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Thickening.Arrow
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Thickening.FiniteOrder
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Thickening.FirstOrder
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Thickening
 import StacksCheckRecall
 
 open CategoryTheory

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Definition_76_7_2_Differentials
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Differentials
 import StacksCheckRecall
 
 @[expose] public section
@@ -26,9 +20,11 @@ differentials (Modules on Sites, Definition 18.33.10) for the morphism of ringed
 topoi (f_small, f^♯) : (X_étale, 𝒪_X) ⟶ (Y_étale, 𝒪_Y) of Properties of Spaces,
 Lemma 66.21.3. The universal Y-derivation will be denoted d_{X/Y} : 𝒪_X ⟶ Ω_{X/Y}. -/
 @[stacks 04CT]
-#check (Hom.relativeDifferentials f : X.Modules)
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.relativeDifferentials f : X.Modules)
 
-#check (Hom.universalDerivation f : Hom.derivations f (Hom.relativeDifferentials f))
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.universalDerivation f :
+  AlgebraicGeometry.AlgebraicSpace.Hom.derivations f
+    (AlgebraicGeometry.AlgebraicSpace.Hom.relativeDifferentials f))
 
 #check (Ω[f] : X.Modules)
 

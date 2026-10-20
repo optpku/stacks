@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
@@ -223,7 +217,7 @@ theorem capFundamentalEquiv_comp
     (r : ℕ) [RelativeDimension X.hom r] (p : ℤ)
     (c : ChowCohomology.degree δ X.hom p) :
     capFundamentalEquiv δ h_delta X r p c =
-      castRelativeDegree δ (capFundamental_degree r p)
+      RelativeChow.castDegree δ (capFundamental_degree r p)
         ((Nonnegative.castGrading δ (capFundamental_comp_degree p r)
             (comp δ (𝟙 (Over.mk X.hom)) (structureToIdentity X) c
               (flatPullback δ (structureToIdentity X) r))).cap

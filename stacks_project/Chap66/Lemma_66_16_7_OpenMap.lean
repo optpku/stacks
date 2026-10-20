@@ -1,36 +1,14 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Topology.Defs.Basic
-public import stacks_project.Chap66.Lemma_66_16_4_Etale
-public import stacks_project.Chap66.Lemma_66_4_6_Topology
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale.Openness
 
-/-!
-# Étale morphisms of algebraic spaces are open on points
-
-An étale morphism of algebraic spaces over a scheme induces an open map of canonical
-point spaces.
--/
-
-@[expose] public section
-
-open CategoryTheory AlgebraicGeometry
+/-! Étale morphisms of algebraic spaces induce open maps on canonical point spaces. -/
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Etale
+open CategoryTheory AlgebraicGeometry
 
-/-- An étale morphism of algebraic spaces induces an open map on canonical point spaces. -/
-theorem isOpenMap {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etale f] :
-    IsOpenMap (Points.map f) := sorry
-
-/-- The image of an open set of points under an étale morphism of algebraic spaces is open. -/
-theorem isOpen_image {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etale f]
-    {U : Set (Points X)} (hU : IsOpen U) : IsOpen (Points.map f '' U) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Etale
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Etale.isOpenMap :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [AlgebraicSpace.Etale f],
+      IsOpenMap (AlgebraicSpace.Points.map f))

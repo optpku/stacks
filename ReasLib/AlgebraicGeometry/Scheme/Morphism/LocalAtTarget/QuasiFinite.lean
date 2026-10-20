@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.QuasiFinite.Operations
@@ -20,7 +14,7 @@ namespace AlgebraicGeometry.Scheme.Hom.FiniteType
 
 /-- Finite-type local quasi-finiteness of scheme morphisms is local on the target for the
 fpqc precoverage. -/
-theorem locallyQuasiFinite_isLocalAtTargetFpqc :
+instance locallyQuasiFinite_isLocalAtTargetFpqc :
     MorphismProperty.IsLocalAtTarget
       ((@AlgebraicGeometry.LocallyOfFiniteType ⊓ @AlgebraicGeometry.LocallyQuasiFinite) :
         MorphismProperty AlgebraicGeometry.Scheme.{u})
@@ -31,7 +25,7 @@ end AlgebraicGeometry.Scheme.Hom.FiniteType
 namespace AlgebraicGeometry.Scheme.Hom.QuasiFinite
 
 /-- Quasi-finiteness of scheme morphisms is local on the target for the fpqc precoverage. -/
-theorem isLocalAtTargetFpqc :
+instance isLocalAtTargetFpqc :
     MorphismProperty.IsLocalAtTarget
       (@AlgebraicGeometry.Scheme.Hom.QuasiFinite :
         MorphismProperty AlgebraicGeometry.Scheme.{u})

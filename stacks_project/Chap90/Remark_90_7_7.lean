@@ -1,32 +1,37 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Remark_90_7_7_Can
-public import stacks_project.Chap90.Remark_90_7_7_Nilpotency
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Completion.Restriction
+
 import StacksCheckRecall
 
 @[expose] public section
 
-open FormalObject
+open CategoryTheory
+open scoped BasedFunctor
 
-/- Remark 90.7.7 (1): if `p : F ⥤ ArtinianLocalAlgCat Λ k` is cofibered in groupoids,
-there is a canonical evaluation functor
-`can : hat F |_{C_Λ} ⟶ F` sending a formal object `(A, ξ_n, f_n)` over an Artinian
-algebra `A` to the nilpotency-stage object `ξ_m`, transported along
-`A ⧸ m_A^{m} ≅ A`. This is owned by `FormalObject.can`. -/
-@[stacks 06SJ] #check FormalObject.can
+universe u v
 
-/- Remark 90.7.7 (2): `can` is an equivalence of categories cofibered in groupoids over
-`C_Λ`, because it is a fibrewise equivalence by Lemma 90.7.4 and the fact that the
-`m_A`-adic topology on a local Artinian ring comes from the zero ideal. This is owned
-by `FormalObject.basedCan_isEquivalence`. -/
-@[stacks 06SJ] #check FormalObject.basedCan_isEquivalence
+variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+  [Module.Finite Λ k]
+variable {F : Type v} [Category.{v} F]
 
-/- Remark 90.7.7 (3): one identifies `F` with a full subcategory of `hat F` via a
-quasi-inverse to `can`. This is owned by `FormalObject.embed`. -/
-@[stacks 06SJ] #check FormalObject.embed
+/- Remark 90.7.7: evaluation at the least vanishing maximal-adic truncation is a canonical
+ equivalence of categories cofibered in groupoids over the Artinian base. -/
+@[stacks 06SJ] #check (FormalObject.basedCan_isEquivalence :
+  ∀ (p : F ⥤ ArtinianLocalAlgCat Λ k) [Functor.IsFibered.InGroupoids p.op],
+    BasedFunctor.IsEquivalence (FormalObject.basedCan p))
+
+#check (FormalObject.can : ∀ (p : F ⥤ ArtinianLocalAlgCat Λ k)
+  [Functor.IsFibered.InGroupoids p.op], FormalObject.Restrict p ⥤ F)
+
+#check (FormalObject.can_obj : ∀ {p : F ⥤ ArtinianLocalAlgCat Λ k}
+  [Functor.IsFibered.InGroupoids p.op] (ξ : FormalObject.Restrict p),
+  (FormalObject.can p).obj ξ = FormalObject.canObj ξ)
+
+#check (FormalObject.embed : ∀ (p : F ⥤ ArtinianLocalAlgCat Λ k)
+  [Functor.IsFibered.InGroupoids p.op], F ⥤ FormalObject p)
+
+#check (FormalObject.toRestrict_isQuasiInverse : ∀ {p : F ⥤ ArtinianLocalAlgCat Λ k}
+  [Functor.IsFibered.InGroupoids p.op],
+  Nonempty (𝟭 (FormalObject.Restrict p) ≅ FormalObject.can p ⋙ FormalObject.toRestrict p) ∧
+    Nonempty (FormalObject.toRestrict p ⋙ FormalObject.can p ≅ 𝟭 F))

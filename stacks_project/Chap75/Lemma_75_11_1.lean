@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap75.Lemma_75_11_1_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.Pushforward.Affine
 
 @[expose] public section
 
@@ -28,7 +22,7 @@ intertwine it with restricted ambient derived pushforward. -/
       [Affine f],
       IsIsomorphic
         (QCoh.Derived.pushforward f ⋙ DerivedQCoh.comparison Y)
-        (DerivedQCoh.comparison X ⋙ DerivedQCoh.pushforward f))
+        (DerivedQCoh.comparison X ⋙ DerivedQCoh.pushforwardCohomologyIn f))
 
 #check AlgebraicGeometry.AlgebraicSpace.QCoh.Derived.pushforward
 #check AlgebraicGeometry.AlgebraicSpace.QCoh.Derived.pushforwardIsRightDerived

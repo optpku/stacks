@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.RingHom.FaithfullyFlat
@@ -38,7 +32,8 @@ variable {R : Type uR} {S : Type uS} [CommRing R] [CommRing S]
 @[stacks 068T "faithfully flat descent of perfect derived objects"]
 theorem of_faithfullyFlat (f : R →+* S) (hf : f.FaithfullyFlat)
     {K : DerivedCategory (ModuleCat.{v, uR} R)}
-    (hK : ((ModuleCat.derivedExtensionOfScalars.{uR, uS, v} f).obj K).IsPerfect) :
+    (hK : ((ModuleCat.derivedExtensionOfScalars.{uR, uS, v} f
+        (hasLeftDerived := ModuleCat.DerivedExtension.Flat.hasLeftDerivedFunctor f hf.flat)).obj K).IsPerfect) :
     K.IsPerfect := sorry
 
 /-- Lemma 15.75.13 (Stacks `068T`): perfectness is invariant under faithfully flat derived
@@ -46,6 +41,7 @@ extension of scalars. -/
 @[stacks 068T "perfectness under faithfully flat derived extension"]
 theorem extension_iff_of_faithfullyFlat (f : R →+* S) (hf : f.FaithfullyFlat)
     (K : DerivedCategory (ModuleCat.{v, uR} R)) :
-    ((ModuleCat.derivedExtensionOfScalars.{uR, uS, v} f).obj K).IsPerfect ↔ K.IsPerfect := sorry
+    ((ModuleCat.derivedExtensionOfScalars.{uR, uS, v} f
+        (hasLeftDerived := ModuleCat.DerivedExtension.Flat.hasLeftDerivedFunctor f hf.flat)).obj K).IsPerfect ↔ K.IsPerfect := sorry
 
 end CategoryTheory.DerivedCategory.IsPerfect

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.PrimeSpectrum.Specialization
@@ -35,7 +29,7 @@ variable (R : Type u) [CommSemiring R]
   ∀ {x y : PrimeSpectrum R}, x ⤳ y ↔ y ∈ closure ({x} : Set (PrimeSpectrum R)))
 
 /- Companion: closed points correspond to maximal ideals. -/
-#check (PrimeSpectrum.mem_closedPoints_iff_isMaximal R :
+#check (PrimeSpectrum.mem_closedPoints_iff_isMaximal (R := R) :
   ∀ p : PrimeSpectrum R, p ∈ closedPoints (PrimeSpectrum R) ↔ p.asIdeal.IsMaximal)
 
 /- Companion: closed points have no proper specialization. -/

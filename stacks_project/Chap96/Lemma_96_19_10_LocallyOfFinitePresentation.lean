@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_28_11_LocallyOfFinitePresentation
-public import stacks_project.Chap94.Definition_94_12_1_MorphismProperty
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.LocallyOfFinitePresentation
 
 /-!
 # Locally of finite presentation morphisms of groupoid fibrations
@@ -29,54 +22,46 @@ universe u
 
 namespace AlgebraicGeometry.Groupoids.Hom
 
-/-- A 1-morphism of categories fibred in groupoids over `Over S` is locally of
+/- A 1-morphism of categories fibred in groupoids over `Over S` is locally of
 finite presentation when it is representable by algebraic spaces and every
 representing morphism `fy : Fy ⟶ ofOver U` is a locally of finite presentation
 morphism of algebraic spaces. -/
-class LocallyOfFinitePresentation {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    (f : X ⟶ Y) : Prop where
-  /-- The 1-morphism is representable by algebraic spaces. -/
-  representable : relativelyRepresentableByAlgebraicSpaces f
-  /-- Every representing morphism of algebraic spaces is locally of finite
-  presentation. -/
-  of_represents : ∀ ⦃U : Over S⦄ (y : GroupoidsOver.slice U ⟶ Y)
-    (Fy : AlgebraicSpace S) (fy : Fy ⟶ AlgebraicSpace.ofOver U),
-    RepresentsBaseChange f y Fy fy → AlgebraicSpace.LocallyOfFinitePresentation fy
+#check (AlgebraicGeometry.Groupoids.Hom.LocallyOfFinitePresentation :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}, (X ⟶ Y) → Prop)
 
 namespace LocallyOfFinitePresentation
 
-/-- The identity 1-morphism of a category fibred in groupoids is locally of
+/- The identity 1-morphism of a category fibred in groupoids is locally of
 finite presentation. -/
-instance id {S : Scheme.{u}} {X : GroupoidsOver S} :
-    LocallyOfFinitePresentation (𝟙 X) :=
-  sorry
+#check (AlgebraicGeometry.Groupoids.Hom.LocallyOfFinitePresentation.id :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S},
+    LocallyOfFinitePresentation (𝟙 X))
 
-/-- A representing morphism of algebraic spaces for a locally of finite
+/- A representing morphism of algebraic spaces for a locally of finite
 presentation 1-morphism is locally of finite presentation. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
+#check (AlgebraicGeometry.Groupoids.Hom.LocallyOfFinitePresentation.spec :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
     [LocallyOfFinitePresentation f] {U : Over S} (y : GroupoidsOver.slice U ⟶ Y)
-    {Fy : AlgebraicSpace S} {fy : Fy ⟶ AlgebraicSpace.ofOver U}
-    (h : RepresentsBaseChange f y Fy fy) :
-    AlgebraicSpace.LocallyOfFinitePresentation fy :=
-  sorry
+    {Fy : AlgebraicSpace S} {fy : Fy ⟶ AlgebraicSpace.ofOver U},
+    RepresentsBaseChange f y Fy fy → AlgebraicSpace.LocallyOfFinitePresentation fy)
 
-/-- A locally of finite presentation 1-morphism is representable by algebraic
+/- A locally of finite presentation 1-morphism is representable by algebraic
 spaces. -/
-theorem relativelyRepresentable {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    (f : X ⟶ Y) [LocallyOfFinitePresentation f] :
-    relativelyRepresentableByAlgebraicSpaces f :=
-  sorry
+#check (AlgebraicGeometry.Groupoids.Hom.LocallyOfFinitePresentation.relativelyRepresentable :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    (f : X ⟶ Y) [LocallyOfFinitePresentation f],
+    relativelyRepresentableByAlgebraicSpaces f)
 
-/-- A 1-morphism is locally of finite presentation if and only if it is
+/- A 1-morphism is locally of finite presentation if and only if it is
 representable by algebraic spaces and every representing morphism of algebraic
 spaces is locally of finite presentation. -/
-theorem iff {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) :
+#check (AlgebraicGeometry.Groupoids.Hom.LocallyOfFinitePresentation.iff :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y),
     LocallyOfFinitePresentation f ↔ relativelyRepresentableByAlgebraicSpaces f ∧
       ∀ ⦃U : Over S⦄ (y : GroupoidsOver.slice U ⟶ Y) (Fy : AlgebraicSpace S)
         (fy : Fy ⟶ AlgebraicSpace.ofOver U),
         RepresentsBaseChange f y Fy fy →
-          AlgebraicSpace.LocallyOfFinitePresentation fy :=
-  sorry
+          AlgebraicSpace.LocallyOfFinitePresentation fy)
 
 end LocallyOfFinitePresentation
 

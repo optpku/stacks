@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.CompactGeometricPairing
@@ -26,53 +20,53 @@ variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]
 variable (ηbar : GeometricPoint (geometricBaseChange X))
 
 /-- The explicit finite-fiber Galois comparison is bijective by the field's finite-étale classification. -/
-theorem galoisPointComparison_bijective : Function.Bijective (galoisToGaloisPoint X ηbar) := sorry
+theorem galoisPointComparison_bijective : Function.Bijective (galoisToGaloisPoint X ηbar) :=
+  (galoisPointEquiv X ηbar).bijective
 
 /-- The arithmetic quotient to the actual Galois group uses the specified fiber comparison inverse. -/
 def arithmeticGaloisQuotient :
-    Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)) →* Gal(AlgebraicClosure k/k) :=
-  (MulEquiv.ofBijective (galoisToGaloisPoint X ηbar)
-    (galoisPointComparison_bijective X ηbar)).symm.toMonoidHom.comp
+    Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)) →* Gal(AlgebraicClosure k/k) :=
+  (galoisPointEquiv X ηbar).symm.toMonoidHom.comp
       (arithmeticToGalois X (arithmeticPoint X ηbar)).hom.toMonoidHom
 
 /-- The actual arithmetic cyclotomic character is valued in coefficient units,
 using ZMod(card Λ) → Λ rather than an arbitrary character or a natural-number cast. -/
 def arithmeticCyclotomic (hΛ : IsUnit (Nat.card Λ : k)) :
-    Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)) →* Λˣ :=
+    Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)) →* Λˣ :=
   (cyclotomicCharacterMod (Λ := Λ) k hΛ).comp (arithmeticGaloisQuotient X ηbar)
 
 /-- This particular finite-level cyclotomic character has open kernel. -/
 theorem arithmeticCyclotomic_openKernel (hΛ : IsUnit (Nat.card Λ : k)) :
     IsOpen ((arithmeticCyclotomic Λ X ηbar hΛ).ker :
-      Set (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))) := sorry
+      Set (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))) := sorry
 
 /-- The actual cyclotomic character is trivial on geometric π₁ by the exact sequence. -/
 theorem arithmeticCyclotomic_geometric (hΛ : IsUnit (Nat.card Λ : k))
-    (g : Aut (standardFiniteEtaleFiber ηbar)) :
+    (g : Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)) :
     arithmeticCyclotomic Λ X ηbar hΛ (geometricToArithmetic X ηbar g) = 1 := sorry
 
 /-- The inverse Tate coefficient specializes Kuhn's explicit twist to the actual arithmetic character. -/
 def arithmeticInverseTate (hΛ : IsUnit (Nat.card Λ : k))
-    (M : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))) :=
+    (M : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))) :=
   CompactRepresentation.inverseCharacterTwist Λ
-    (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))
     (arithmeticCyclotomic Λ X ηbar hΛ) (arithmeticCyclotomic_openKernel Λ X ηbar hΛ) M
 
 /-- The specialized inverse Tate action is exactly inverse-cyclotomic scalar multiplication. -/
 theorem arithmeticInverseTate_action (hΛ : IsUnit (Nat.card Λ : k))
-    (M : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))))
-    (g : Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))) (m : M.obj.V) :
+    (M : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))))
+    (g : Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))) (m : M.obj.V) :
     ((arithmeticInverseTate Λ X ηbar hΛ M).obj.ρ g).hom m =
       (((arithmeticCyclotomic Λ X ηbar hΛ g)⁻¹ : Λˣ) : Λ) • (M.obj.ρ g).hom m := rfl
 
 /-- Actual geometric restriction of the inverse-Tate coefficient. -/
 def geometricInverseTate (hΛ : IsUnit (Nat.card Λ : k))
-    (M : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))) :=
+    (M : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))) :=
   geometricRestriction X ηbar (arithmeticInverseTate Λ X ηbar hΛ M)
 
 /-- Finiteness is retained because the actual inverse twist and restriction keep the carrier. -/
 instance geometricInverseTate_finite (hΛ : IsUnit (Nat.card Λ : k))
-    (M : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))))
+    (M : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))))
     [Finite M.obj.V] : Finite (geometricInverseTate Λ X ηbar hΛ M).obj.V :=
   inferInstanceAs (Finite M.obj.V)
 

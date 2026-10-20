@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_4_12_UniqueIso
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Monomorphism
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,8 +14,8 @@ open AlgebraicGeometry.AlgebraicSpace
 The assignment sending a monomorphism `Spec(k) ⟶ X`, with `k` a field, to its
 class in `|X|` is injective. -/
 @[stacks 03E1] #check
-  (FieldValuedPoint.iso_unique_of_mono :
+  (AlgebraicGeometry.AlgebraicSpace.FieldValuedPoint.unique_iso_of_mono :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {p q : FieldValuedPoint X}
       [Mono p.hom] [Mono q.hom],
       Points.mk p = Points.mk q →
-        Nonempty (p.Factorization q) ∧ Subsingleton (p.Factorization q))
+        Nonempty (p ≅ q) ∧ Subsingleton (p ≅ q))

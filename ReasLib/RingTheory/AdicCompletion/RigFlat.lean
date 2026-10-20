@@ -1,17 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.Noetherian.Basic
 public import Mathlib.RingTheory.RingHom.FaithfullyFlat
 public import Mathlib.RingTheory.RingHom.Flat
 public import Mathlib.Topology.Algebra.TopologicallyNilpotent
-public import ReasLib.RingTheory.AdicCompletion.LocalizationAway
-public import ReasLib.RingTheory.AdicCompletion.Map
+public import ReasLib.RingTheory.AdicCompletion.LocalizationAway.Map
 public import ReasLib.RingTheory.AdicCompletion.TopologicallyFiniteType
 public import ReasLib.RingTheory.Topology.Adic.Complete
 public import ReasLib.RingTheory.Topology.Adic.Continuity
@@ -167,51 +160,6 @@ end NaiveRigFlat
 
 end RingHom
 
-namespace completedPrincipalLocalization
-
-variable {A B : Type u} [CommRing A] [CommRing B]
-
-/-- The induced map on principal localizations is adically continuous for the
-extended ideals. -/
-theorem awayMap_adicContinuous (φ : A →+* B) (I : Ideal A) (f : A) :
-    (Localization.awayMap φ f).AdicContinuous
-      (I.map (algebraMap A (Localization.Away f)))
-      ((I.map φ).map (algebraMap B (Localization.Away (φ f)))) :=
-  RingHom.AdicContinuous.of_map_le <| by
-    rw [Ideal.map_map, Ideal.map_map]
-    have hcomp :
-        (Localization.awayMap φ f).comp (algebraMap A (Localization.Away f)) =
-          (algebraMap B (Localization.Away (φ f))).comp φ := by
-      ext a
-      simp [Localization.awayMap, IsLocalization.Away.map]
-    rw [hcomp]
-
-/-- The canonical map of completed principal localizations induced by a ring
-homomorphism. -/
-noncomputable def map (φ : A →+* B) (I : Ideal A) (f : A) :
-    completedPrincipalLocalization I f →+*
-      completedPrincipalLocalization (I.map φ) (φ f) :=
-  RingHom.AdicContinuous.completionMap (awayMap_adicContinuous φ I f)
-
-/-- `map` is the completion map of `awayMap_adicContinuous`. -/
-theorem map_eq (φ : A →+* B) (I : Ideal A) (f : A) :
-    map φ I f =
-      RingHom.AdicContinuous.completionMap (awayMap_adicContinuous φ I f) :=
-  sorry
-
-/-- `map` extends `Localization.awayMap` through the canonical maps from
-principal localizations. -/
-theorem map_comp_away (φ : A →+* B) (I : Ideal A) (f : A) :
-    (map φ I f).comp (ofAway I f) =
-      (ofAway (I.map φ) (φ f)).comp (Localization.awayMap φ f) :=
-  sorry
-
-/-- `map` extends `φ` through the canonical maps from `A` and `B`. -/
-theorem map_comp (φ : A →+* B) (I : Ideal A) (f : A) :
-    (map φ I f).comp (of I f) = (of (I.map φ) (φ f)).comp φ :=
-  sorry
-
-end completedPrincipalLocalization
 
 namespace RingHom
 

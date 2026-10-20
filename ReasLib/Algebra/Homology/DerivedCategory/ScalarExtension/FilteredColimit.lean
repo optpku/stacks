@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension.HomDiagram
@@ -88,7 +82,7 @@ structure RelativeDiagram.Rooted (D : RelativeDiagram (I := I)) where
 
 namespace RelativeDiagram
 
-variable (D : RelativeDiagram (I := I))
+variable (D : RelativeDiagram.{u, v, w} (I := I))
 
 /-- The stage algebra at `i`. -/
 @[stacks 0DHX "stage algebra in a filtered scalar-extension diagram"]
@@ -101,14 +95,16 @@ abbrev target : CommRingCat.{u} := D.algebraCocone.pt
 /-- The derived extension from a stage algebra to the target algebra. -/
 @[stacks 0DHX "derived extension from a stage to the target"]
 noncomputable abbrev extend (i : I) :
-    DerivedCategory (ModuleCat (D.algebra.obj i)) ⥤
-      DerivedCategory (ModuleCat D.algebraCocone.pt) :=
-  ModuleCat.derivedExtensionOfScalars (D.algebraCocone.ι.app i).hom
+    DerivedCategory (ModuleCat.{u, u} (D.algebra.obj i)) ⥤
+      DerivedCategory (ModuleCat.{u, u} D.algebraCocone.pt) :=
+  ModuleCat.derivedExtensionOfScalars.{u, u, u} (D.algebraCocone.ι.app i).hom
 
-/-- The source-facing object descent statement for a relative perfect target. -/
+/-- The source-facing object descent statement for a relative perfect target.
+The index category is nonempty because the conclusion selects a stage; in the
+rooted source presentation, the origin supplies this premise. -/
 @[stacks 0DHX "relative-perfect object descent along a filtered system"]
 theorem exists_stage_of_isPerfectOver
-    [IsFilteredOrEmpty I]
+    [IsFilteredOrEmpty I] [Nonempty I]
     (hbase : IsColimit D.baseCocone)
     (halgebra : IsColimit D.algebraCocone)
     (hflat : ∀ i,

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Order.SymmDiff
@@ -13,191 +7,203 @@ public import stacks_project.Chap67.Definition_67_45_2_Integral
 public import stacks_project.Chap79.Lemma_79_12_2_FinitePart
 public import stacks_project.Chap79.Lemma_79_12_4
 
-/-!
-# Boolean operations on finite-part sections
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FinitePart.Boolean
 
-For a separated morphism `f : X ⟶ Y` of algebraic spaces, compatible finite-part
-pairs `(a, Z)` over a scheme `T` are closed in `|T ×_Y X|`. Union, intersection,
-and set-difference therefore remain finite-part opens, and the fibrewise
-operations of Remark 79.12.5 are defined on `FinitePart.Point`.
--/
+/-! # Boolean operations on compatible finite-part opens -/
 
 @[expose] public section
-
-open CategoryTheory AlgebraicGeometry Limits Opposite TopologicalSpace
-
-noncomputable section
-
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Limits Opposite TopologicalSpace
+open AlgebraicGeometry.AlgebraicSpace.FinitePart AlgebraicGeometry.AlgebraicSpace.FinitePart.Point
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.FinitePart
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.castZMap :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    {p q : Point f T} (h : p.a = q.a),
+    C(Points (pullback p.a f), Points (pullback q.a f)))
 
-variable {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.castZ :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    {p q : Point f T} (h : p.a = q.a),
+    Opens (Points (pullback p.a f)))
 
-namespace Point
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.castZ_eq :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    {p q : Point f T} (h : p.a = q.a),
+    castZ h = Opens.comap (castZMap h) q.Z)
 
-variable {f : X ⟶ Y} {T : Over S}
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.castZ_carrier :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    {p q : Point f T} (h : p.a = q.a),
+    (castZ h).carrier = castZMap h ⁻¹' q.Z.carrier)
 
-/-- The continuous comparison `|T ×_Y X|` along `h : p.a = q.a`. -/
-def castZMap {p q : Point f T} (h : p.a = q.a) :
-    C(Points (pullback p.a f), Points (pullback q.a f)) :=
-  ⟨Points.map (pullback.congrHom h rfl).hom,
-    Points.continuous_map (pullback.congrHom h rfl).hom⟩
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.closedImmersion :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p : Point f T),
+    IsClosedImmersion (OpenSubspace.fromOpens p.Z).ι)
 
-/-- Transport the open `q.Z` to the fibre of `p.a` along `h : p.a = q.a`. -/
-def castZ {p q : Point f T} (h : p.a = q.a) :
-    Opens (Points (pullback p.a f)) :=
-  Opens.comap (castZMap h) q.Z
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.isOpen_sdiff :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    IsOpen (p.Z.carrier \ (castZ h).carrier))
 
-/-- `castZ h` is the preimage of `q.Z` along the comparison of fibres. -/
-theorem castZ_eq {p q : Point f T} (h : p.a = q.a) :
-    castZ h = Opens.comap (castZMap h) q.Z :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.isClosed_inter :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    IsClosed (p.Z.carrier ∩ (castZ h).carrier))
 
-/-- The carrier of `castZ h` is the preimage of `q.Z`. -/
-theorem castZ_carrier {p q : Point f T} (h : p.a = q.a) :
-    (castZ h).carrier = castZMap h ⁻¹' q.Z.carrier :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.union_isFinite :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    IsFinite ((OpenSubspace.fromOpens (p.Z ⊔ castZ h)).ι ≫ pullback.fst p.a f))
 
-/-- If `f` is separated, the open subspace cut out by a finite-part open is a closed
-immersion into `T ×_Y X`. -/
-instance instIsClosedImmersion_ofOpens_ι [Separated f] (p : Point f T) :
-    IsClosedImmersion (OpenSubspace.ofOpens p.Z).ι :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.union :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    Point f T)
 
-/-- Set-difference of compatible finite-part opens is open, using closedness of `Z₂`. -/
-theorem isOpen_sdiff [Separated f] (p q : Point f T) (h : p.a = q.a) :
-    IsOpen (p.Z.carrier \ (castZ h).carrier) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.inter_isFinite :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    IsFinite ((OpenSubspace.fromOpens (p.Z ⊓ castZ h)).ι ≫ pullback.fst p.a f))
 
-/-- Intersection of compatible finite-part opens is closed in `|T ×_Y X|`. -/
-theorem isClosed_inter [Separated f] (p q : Point f T) (h : p.a = q.a) :
-    IsClosed (p.Z.carrier ∩ (castZ h).carrier) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.inter :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    Point f T)
 
-/-- Union of compatible finite-part pairs: `(a, Z₁) ★₁ (a, Z₂) = (a, Z₁ ∪ Z₂)`. -/
-def union [Separated f] (p q : Point f T) (h : p.a = q.a) : Point f T where
-  a := p.a
-  Z := p.Z ⊔ castZ h
-  isFinite := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.sdiff_isFinite :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    IsFinite ((OpenSubspace.fromOpens (Opens.mk (p.Z.carrier \ (castZ h).carrier) (isOpen_sdiff p q h))).ι ≫ pullback.fst p.a f))
 
-/-- Intersection of compatible finite-part pairs: `(a, Z₁) ★₂ (a, Z₂) = (a, Z₁ ∩ Z₂)`. -/
-def inter [Separated f] (p q : Point f T) (h : p.a = q.a) : Point f T where
-  a := p.a
-  Z := p.Z ⊓ castZ h
-  isFinite := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.sdiff :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    Point f T)
 
-/-- Set-difference of compatible finite-part pairs: `(a, Z₁) ★₃ (a, Z₂) = (a, Z₁ \ Z₂)`. -/
-def sdiff [Separated f] (p q : Point f T) (h : p.a = q.a) : Point f T where
-  a := p.a
-  Z := Opens.mk (p.Z.carrier \ (castZ h).carrier) (isOpen_sdiff p q h)
-  isFinite := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.mul :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    Point f T)
 
-/-- Fibrewise multiplication of compatible finite-part pairs, as intersection. -/
-abbrev mul [Separated f] (p q : Point f T) (h : p.a = q.a) : Point f T :=
-  p.inter q h
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.add_isOpen :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    IsOpen (symmDiff p.Z.carrier (castZ h).carrier))
 
-/-- Symmetric difference of compatible finite-part pairs, as source addition. -/
-def add [Separated f] (p q : Point f T) (h : p.a = q.a) : Point f T where
-  a := p.a
-  Z := Opens.mk (symmDiff p.Z.carrier (castZ h).carrier) sorry
-  isFinite := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.add_isFinite :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    IsFinite ((OpenSubspace.fromOpens (Opens.mk (symmDiff p.Z.carrier (castZ h).carrier) (add_isOpen p q h))).ι ≫ pullback.fst p.a f))
 
-/-- The empty finite-part pair `(a, ∅)` over a morphism `a : T ⟶ Y`. -/
-def empty (a : ofOver T ⟶ Y) : Point f T where
-  a := a
-  Z := ⊥
-  isFinite := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.add :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    Point f T)
 
-/-- The full finite-part pair `(a, T ×_Y X)` when `f` is finite. -/
-def univ [IsFinite f] (a : ofOver T ⟶ Y) : Point f T where
-  a := a
-  Z := ⊤
-  isFinite := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.empty_isFinite :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    (a : ofOver T ⟶ Y),
+    IsFinite ((OpenSubspace.fromOpens ((⊥ : Opens (Points (pullback a f))))).ι ≫ pullback.fst a f))
 
-/-- Union preserves the morphism to `Y`. -/
-theorem union_a [Separated f] (p q : Point f T) (h : p.a = q.a) :
-    (p.union q h).a = p.a :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.empty :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    (a : ofOver T ⟶ Y),
+    Point f T)
 
-/-- The open of a union is the lattice join of the transported opens. -/
-theorem union_Z [Separated f] (p q : Point f T) (h : p.a = q.a) :
-    (p.union q h).Z = p.Z ⊔ castZ h :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.univ_isFinite :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [IsFinite f] (a : ofOver T ⟶ Y),
+    IsFinite ((OpenSubspace.fromOpens ((⊤ : Opens (Points (pullback a f))))).ι ≫ pullback.fst a f))
 
-/-- Intersection preserves the morphism to `Y`. -/
-theorem inter_a [Separated f] (p q : Point f T) (h : p.a = q.a) :
-    (p.inter q h).a = p.a :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.univ :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [IsFinite f] (a : ofOver T ⟶ Y),
+    Point f T)
 
-/-- The open of an intersection is the lattice meet of the transported opens. -/
-theorem inter_Z [Separated f] (p q : Point f T) (h : p.a = q.a) :
-    (p.inter q h).Z = p.Z ⊓ castZ h :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.union_a :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    (p.union q h).a = p.a)
 
-/-- Set-difference preserves the morphism to `Y`. -/
-theorem sdiff_a [Separated f] (p q : Point f T) (h : p.a = q.a) :
-    (p.sdiff q h).a = p.a :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.union_Z :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    (p.union q h).Z = p.Z ⊔ castZ h)
 
-/-- The open of a set-difference is the set-theoretic difference of carriers. -/
-theorem sdiff_Z [Separated f] (p q : Point f T) (h : p.a = q.a) :
-    (p.sdiff q h).Z = Opens.mk (p.Z.carrier \ (castZ h).carrier) (isOpen_sdiff p q h) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.inter_a :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    (p.inter q h).a = p.a)
 
-/-- Addition preserves the morphism to `Y`. -/
-theorem add_a [Separated f] (p q : Point f T) (h : p.a = q.a) :
-    (p.add q h).a = p.a :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.inter_Z :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    (p.inter q h).Z = p.Z ⊓ castZ h)
 
-/-- Addition is the union of the two set-differences. -/
-theorem add_eq_union_sdiff [Separated f] (p q : Point f T) (h : p.a = q.a) :
-    p.add q h = (p.sdiff q h).union (q.sdiff p h.symm) h :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.sdiff_a :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    (p.sdiff q h).a = p.a)
 
-/-- The carrier of addition is the symmetric difference of the transported opens. -/
-theorem add_eq_symmDiff [Separated f] (p q : Point f T) (h : p.a = q.a) :
-    (p.add q h).Z.carrier = symmDiff p.Z.carrier (castZ h).carrier :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.sdiff_Z :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    (p.sdiff q h).Z = Opens.mk (p.Z.carrier \ (castZ h).carrier) (isOpen_sdiff p q h))
 
-/-- Multiplication agrees with intersection. -/
-theorem mul_eq_inter [Separated f] (p q : Point f T) (h : p.a = q.a) :
-    p.mul q h = p.inter q h :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.add_a :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    (p.add q h).a = p.a)
 
-/-- The empty pair records the given morphism `a`. -/
-theorem empty_a (a : ofOver T ⟶ Y) : (empty a : Point f T).a = a :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.add_eq_union_sdiff :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    p.add q h = (p.sdiff q h).union (q.sdiff p h.symm) h)
 
-/-- The open of the empty pair is empty. -/
-theorem empty_Z (a : ofOver T ⟶ Y) : (empty a : Point f T).Z = ⊥ :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.add_eq_symmDiff :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    (p.add q h).Z.carrier = symmDiff p.Z.carrier (castZ h).carrier)
 
-/-- The full pair records the given morphism `a`. -/
-theorem univ_a [IsFinite f] (a : ofOver T ⟶ Y) : (univ a : Point f T).a = a :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.mul_eq_inter :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p q : Point f T) (h : p.a = q.a),
+    p.mul q h = p.inter q h)
 
-/-- The open of the full pair is the whole fibre. -/
-theorem univ_Z [IsFinite f] (a : ofOver T ⟶ Y) : (univ a : Point f T).Z = ⊤ :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.empty_a :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    (a : ofOver T ⟶ Y),
+    (empty a : Point f T).a = a)
 
-/-- Characteristic two: `s + s = 0` on each fibre. -/
-theorem add_self [Separated f] (p : Point f T) :
-    p.add p rfl = (empty p.a : Point f T) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.empty_Z :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    (a : ofOver T ⟶ Y),
+    (empty a : Point f T).Z = ⊥)
 
-/-- `★_3(s, s') = s(1 + s')` when `f` is finite. -/
-theorem sdiff_eq_mul_add_one [Separated f] [IsFinite f] (p q : Point f T)
-    (h : p.a = q.a) :
-    p.sdiff q h = p.mul ((univ p.a : Point f T).add q h) rfl :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.univ_a :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [IsFinite f] (a : ofOver T ⟶ Y),
+    (univ a : Point f T).a = a)
 
-/-- `★_4(s, s') = (1 + s)s'` when `f` is finite. -/
-theorem sdiff_swap_eq_add_one_mul [Separated f] [IsFinite f] (p q : Point f T)
-    (h : p.a = q.a) :
-    q.sdiff p h.symm = ((univ p.a : Point f T).add p rfl).mul q h :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.univ_Z :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [IsFinite f] (a : ofOver T ⟶ Y),
+    (univ a : Point f T).Z = ⊤)
 
-end Point
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.add_self :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] (p : Point f T),
+    p.add p rfl = (empty p.a : Point f T))
 
-end AlgebraicGeometry.AlgebraicSpace.FinitePart
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.sdiff_eq_mul_add_one :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] [IsFinite f] (p q : Point f T)
+    (h : p.a = q.a),
+    p.sdiff q h = p.mul ((univ p.a : Point f T).add q h) rfl)
+
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.Point.sdiff_swap_eq_add_one_mul :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {T : Over S}
+    [Separated f] [IsFinite f] (p q : Point f T)
+    (h : p.a = q.a),
+    q.sdiff p h.symm = ((univ p.a : Point f T).add p rfl).mul q h)

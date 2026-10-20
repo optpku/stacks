@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Module.Projective
@@ -39,11 +33,37 @@ theorem isIdempotentElem_comp_of_comp_eq_id
     (i : P →ₗ[R] F) (s : F →ₗ[R] P) (hs : s.comp i = LinearMap.id) :
     IsIdempotentElem (i.comp s) := sorry
 
-/-- A split summand is linearly equivalent to the range of its ambient projector. -/
-@[stacks 07LV "split summand as projector range"]
-theorem nonempty_linearEquiv_range_comp_of_comp_eq_id
+/-- A point of the ambient module lies in the range of the projector `i ∘ s` exactly when it is
+in the range of the split inclusion `i`. -/
+theorem range_comp_eq_range_of_comp_eq_id
     (i : P →ₗ[R] F) (s : F →ₗ[R] P) (hs : s.comp i = LinearMap.id) :
-    Nonempty (P ≃ₗ[R] LinearMap.range (i.comp s)) := sorry
+    LinearMap.range (i.comp s) = LinearMap.range i := sorry
+
+/-- A split summand is linearly equivalent to the range of its ambient projector: the forward
+map is the split inclusion `i` and the inverse is the retraction `s`. -/
+@[stacks 07LV "split summand as projector range"]
+def linearEquivRangeCompOfCompEqId
+    (i : P →ₗ[R] F) (s : F →ₗ[R] P) (hs : s.comp i = LinearMap.id) :
+    P ≃ₗ[R] LinearMap.range (i.comp s) where
+  toFun x := ⟨i x, (range_comp_eq_range_of_comp_eq_id i s hs).symm ▸ LinearMap.mem_range_self i x⟩
+  invFun y := s y
+  map_add' x y := by ext; simp
+  map_smul' c x := by ext; simp
+  left_inv x := by simpa using LinearMap.congr_fun hs x
+  right_inv y := sorry
+
+/-- The split-summand equivalence sends a point to its image under the split inclusion. -/
+@[simp]
+theorem linearEquivRangeCompOfCompEqId_apply
+    (i : P →ₗ[R] F) (s : F →ₗ[R] P) (hs : s.comp i = LinearMap.id) (x : P) :
+    (linearEquivRangeCompOfCompEqId i s hs x : F) = i x := rfl
+
+/-- The inverse of the split-summand equivalence is the retraction. -/
+@[simp]
+theorem linearEquivRangeCompOfCompEqId_symm_apply
+    (i : P →ₗ[R] F) (s : F →ₗ[R] P) (hs : s.comp i = LinearMap.id)
+    (y : LinearMap.range (i.comp s)) :
+    (linearEquivRangeCompOfCompEqId i s hs).symm y = s y := rfl
 
 /-- Subtracting the section component of a point lands in the kernel of a split surjection. -/
 @[stacks 0BC5 "split-surjection kernel correction"]

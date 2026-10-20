@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap74.Lemma_74_19_1_LocalAtSource
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Etale.LocalAtSource
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +14,7 @@ variable (S : Scheme.{u})
 /- Lemma 74.19.1: the property `P(f)` given by “`f` is étale” is étale
 local on the source. -/
 @[stacks 06F4] #check
-  (AlgebraicSpace.Etale.isLocalAtSourceEtale :
+  (AlgebraicGeometry.AlgebraicSpace.Etale.isLocalAtSourceEtale :
     MorphismProperty.IsLocalAtSource
       (@AlgebraicSpace.Etale S : MorphismProperty (AlgebraicSpace S))
-      (@etalePrecoverage S))
+      (etalePrecoverage (S := S)))

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Data.PNat.Basic
@@ -89,7 +83,6 @@ noncomputable def powerAnnihilatedStagesSupCoconeIsColimit (I : Ideal R) (M : Ty
     (fun n : ℕ+ ↦ I.powerAnnihilatedSubmodule M (n : ℕ))
     (fun n m h ↦
       I.powerAnnihilatedSubmodule_mono M ((PNat.coe_le_coe n m).2 h))
-    (powerAnnihilatedStages_directed I M)
 
 /-- If `M` is `I`-power torsion, the positive-power annihilator diagram has ambient module as its
 colimit.  The explicit `HasColimit` parameter keeps this API universe-polymorphic. -/
@@ -102,7 +95,6 @@ noncomputable def powerAnnihilatedDiagramColimitIsoOfSupEqTop (I : Ideal R) (M :
     (fun n : ℕ+ ↦ I.powerAnnihilatedSubmodule M (n : ℕ))
     (fun n m h ↦
       I.powerAnnihilatedSubmodule_mono M ((PNat.coe_le_coe n m).2 h))
-    (powerAnnihilatedStages_directed I M)
     hSup
 
 /-- If `M` is `I`-power torsion, the positive-power annihilator diagram has ambient module as its

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_19_4_AutomorphismGroup
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.AutomorphismGroup
 
 /-!
 # Isomorphisms of automorphism groups at a point
@@ -30,61 +24,43 @@ namespace AlgebraicGeometry.AlgebraicStack
 
 namespace automorphismGroup
 
-/-- `f` induces an isomorphism between automorphism groups at `x` and
-`Points.map f x`. This is the preferred packaging of the equivalent
-conditions of Lemma 101.19.4; literature also says that `f` is stabilizer
-preserving at `x` or fixed-point reflecting at `x`. -/
-def IsIsoAt {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X]
-    [AlgebraicStack Y] (f : X ⟶ Y) (x : |X|) : Prop :=
-  ∀ p : FieldValuedPoint X, Points.mk p = x → IsIsoMap f p
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.IsIsoAt :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X]
+    [AlgebraicStack Y], (X ⟶ Y) → |X| → Prop)
 
-/-- `IsIsoAt f x` means that the automorphism-group comparison along `f` is an
-isomorphism at every field-valued representative of `x`. -/
-theorem IsIsoAt_iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) (x : |X|) :
-    IsIsoAt f x ↔ ∀ p : FieldValuedPoint X, Points.mk p = x → IsIsoMap f p :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.IsIsoAt_iff :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) (x : |X|),
+    IsIsoAt f x ↔ ∀ p : FieldValuedPoint X, Points.mk p = x → IsIsoMap f p)
 
-/-- `IsIsoAt f x` if and only if some field-valued representative of `x` has
-an isomorphic automorphism-group comparison along `f`. -/
-theorem IsIsoAt_iff_exists {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) (x : |X|) :
-    IsIsoAt f x ↔ ∃ p : FieldValuedPoint X, Points.mk p = x ∧ IsIsoMap f p :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.IsIsoAt_iff_exists :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) (x : |X|),
+    IsIsoAt f x ↔ ∃ p : FieldValuedPoint X, Points.mk p = x ∧ IsIsoMap f p)
 
 namespace IsIsoAt
 
-/-- If `f` induces an isomorphism of automorphism groups at `x`, then the
-comparison along `f` is an isomorphism at every field-valued representative
-of `x`. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X]
-    [AlgebraicStack Y] {f : X ⟶ Y} {x : |X|} :
-    IsIsoAt f x → ∀ p : FieldValuedPoint X, Points.mk p = x → IsIsoMap f p :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.IsIsoAt.spec :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X]
+    [AlgebraicStack Y] {f : X ⟶ Y} {x : |X|},
+    IsIsoAt f x → ∀ p : FieldValuedPoint X, Points.mk p = x → IsIsoMap f p)
 
-/-- If the automorphism-group comparison along `f` is an isomorphism at one
-field-valued representative of `x`, then `f` induces an isomorphism of
-automorphism groups at `x`. -/
-theorem of_fieldValuedPoint {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.IsIsoAt.of_fieldValuedPoint :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y} {x : |X|}
-    {p : FieldValuedPoint X} :
-    Points.mk p = x → IsIsoMap f p → IsIsoAt f x :=
-  sorry
+    {p : FieldValuedPoint X},
+    Points.mk p = x → IsIsoMap f p → IsIsoAt f x)
 
 end IsIsoAt
 
 end automorphismGroup
 
-/-- Literature synonym: a morphism of algebraic stacks is stabilizer
-preserving at a point. -/
-abbrev IsStabilizerPreservingAt {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) (x : |X|) : Prop :=
-  automorphismGroup.IsIsoAt f x
+#check (AlgebraicGeometry.AlgebraicStack.IsStabilizerPreservingAt :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y], (X ⟶ Y) → |X| → Prop)
 
-/-- Literature synonym: a morphism of algebraic stacks is fixed-point
-reflecting at a point. -/
-abbrev IsFixedPointReflectingAt {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) (x : |X|) : Prop :=
-  automorphismGroup.IsIsoAt f x
+#check (AlgebraicGeometry.AlgebraicStack.IsFixedPointReflectingAt :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y], (X ⟶ Y) → |X| → Prop)
 
 end AlgebraicGeometry.AlgebraicStack

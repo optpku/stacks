@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.ClosedSubscheme.Structure
 public import Mathlib.AlgebraicGeometry.Properties
+public import Mathlib.RingTheory.Ideal.Quotient.Nilpotent
 public import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -33,27 +28,42 @@ variable {X : Scheme.{u}}
 /-- The support of the vanishing ideal is the closed subset from which it was constructed. -/
 @[simp, stacks 01J4 "reduced induced closed subscheme"]
 theorem support_vanishingIdeal (Z : TopologicalSpace.Closeds X) :
-    (vanishingIdeal Z).support = Z := sorry
+    (vanishingIdeal Z).support = Z := by
+  apply TopologicalSpace.Closeds.ext
+  exact coe_support_vanishingIdeal Z
 
 /-- The range of the vanishing-ideal closed-subscheme inclusion is the original closed subset. -/
 @[simp, stacks 01J4 "range of reduced induced closed subscheme"]
 theorem range_vanishingIdeal_subschemeι (Z : TopologicalSpace.Closeds X) :
-    Set.range (vanishingIdeal Z).subschemeι = Z := sorry
+    Set.range (vanishingIdeal Z).subschemeι = Z := by
+  rw [range_subschemeι, support_vanishingIdeal]
 
 /-- The closed subscheme defined by `I` is reduced exactly when `I` is radical. -/
 @[stacks 01J3 "reduced closed subscheme criterion"]
 theorem subscheme_isReduced_iff_radical_eq (I : X.IdealSheafData) :
-    IsReduced I.subscheme ↔ I.radical = I := sorry
+    IsReduced I.subscheme ↔ I.radical = I := by
+  rw [IsReduced.iff_of_openCover _ I.subschemeCover.openCover]
+  change (∀ U : X.affineOpens, IsReduced (Spec (.of (Γ(X, U) ⧸ I.ideal U)))) ↔ _
+  simp only [affine_isReduced_iff, ← Ideal.isRadical_iff_quotient_reduced,
+    ← Ideal.radical_eq_iff]
+  constructor
+  · intro h
+    ext U : 2
+    exact h U
+  · intro h U
+    exact congrArg (fun J : X.IdealSheafData ↦ J.ideal U) h
 
 /-- A vanishing ideal is fixed by the radical operation. -/
 @[simp, stacks 01J3 "radical of a vanishing ideal"]
 theorem radical_vanishingIdeal (Z : TopologicalSpace.Closeds X) :
-    (vanishingIdeal Z).radical = vanishingIdeal Z := sorry
+    (vanishingIdeal Z).radical = vanishingIdeal Z := by
+  rw [← vanishingIdeal_support, support_vanishingIdeal]
 
 /-- The closed subscheme defined by a vanishing ideal is reduced. -/
 @[stacks 01J3 "reduced induced closed subscheme is reduced"]
 instance vanishingIdeal_subscheme_isReduced (T : TopologicalSpace.Closeds X) :
-    IsReduced (vanishingIdeal T).subscheme := sorry
+    IsReduced (vanishingIdeal T).subscheme := by
+  exact (subscheme_isReduced_iff_radical_eq _).mpr (radical_vanishingIdeal T)
 
 /-- A reduced closed subscheme is the vanishing-ideal subscheme of its support. -/
 @[stacks 01J3 "uniqueness of reduced induced closed subscheme"]

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Scheme
-public import stacks_project.Chap94.Lemma_94_6_5_Product
+public import ReasLib.CategoryTheory.Fibered.RelativelyRepresentable.Product
 import StacksCheckRecall
 
 @[expose] public section
@@ -28,4 +22,4 @@ groupoids over `Over S` for `i = 1, 2`. If `fᵢ : Xᵢ ⟶ Yᵢ` are representa
 1-morphisms, then the product 1-morphism
 `prodMap f₁ f₂ : prod X₁ X₂ ⟶ prod Y₁ Y₂` is a representable 1-morphism. -/
 @[stacks 02ZU]
-#check (relativelyRepresentable.prod_map hf₁ hf₂ : relativelyRepresentable (prodMap f₁ f₂))
+#check (CategoryTheory.FiberedCategoryOver.Groupoids.relativelyRepresentable.prod_map hf₁ hf₂ : relativelyRepresentable (prodMap f₁ f₂))

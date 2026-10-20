@@ -1,22 +1,22 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_18_6_Site
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Affine
 import StacksCheckRecall
 
 @[expose] public section
+
+universe u
 
 /- Definition 66.18.5: let `S` be a scheme and let `X` be an algebraic space over `S`.
 The site `X_affine,étale` of `X` is the Grothendieck topology `affineEtaleTopology X` on
 the category `affineEtaleSite X` of étale morphisms `φ : ofOver U ⟶ X` with `U` an affine
 scheme over `S` and `Etale φ` (morphisms `χ : U ⟶ U'` of schemes over `X` satisfy
-`χ ≫ φ' = φ`). A family `{φ_i : (U_i ⟶ X) ⟶ (U ⟶ X)}` is a covering if and only if
-`{U_i ⟶ U}` is a standard étale covering in the sense of `StandardEtaleCover` (Topologies,
-Definition 34.4.5). Coverings are chosen as a `Small` set of such families, as in Sets
-Lemma 3.11.1, generating `affineEtalePrecoverage` and then `affineEtaleTopology`. -/
-@[stacks 0H01] #check AlgebraicGeometry.AlgebraicSpace.affineEtaleTopology
+`χ ≫ φ' = φ`). Standard étale covering families `{U_i ⟶ U}` are finite families of
+affine étale maps that are jointly surjective (Topologies, Definition 34.4.5).
+Their covering sieves generate `affineEtaleTopology`. The precoverage
+`affineEtalePrecoverage` uses an equivalent sieve presentation, so its displayed
+families need not themselves be finite. The fixed scheme universe supplies the
+ambient big-site convention. -/
+@[stacks 0H01] #check (AlgebraicGeometry.AlgebraicSpace.affineEtaleTopology :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S),
+    CategoryTheory.GrothendieckTopology (AlgebraicGeometry.AlgebraicSpace.affineEtaleSite X))

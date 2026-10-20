@@ -1,15 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Bicategory.LocallyGroupoid
-public import ReasLib.CategoryTheory.Bicategory.FullSubbicategory.Definition
-public import ReasLib.CategoryTheory.Fibered.Groupoids.Bicategory
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Bicategory
 public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
+import StacksCheckRecall
 
 /-!
 # The 2-category of algebraic stacks
@@ -31,69 +24,46 @@ universe u
 
 namespace AlgebraicGeometry
 
-set_option linter.checkUnivs false in
-/-- The 2-category of algebraic stacks over a scheme `S`, as the full
-sub-2-category of `GroupoidsOver S` on the object property `AlgebraicStack`. -/
-abbrev AlgebraicStacks (S : Scheme.{u}) :=
-  (AlgebraicStack.objectProperty S).FullSubbicategory
+/- Definition 94.12.3: algebraic stacks over a scheme form the full sub-2-category
+of categories fibred in groupoids on the objects satisfying `AlgebraicStack`. -/
+@[stacks 03YP] #check (AlgebraicGeometry.AlgebraicStacks : Scheme.{u} → Type (u + 2))
 
 namespace AlgebraicStacks
 
-/-- Package a category fibred in groupoids over `(Sch/S)_fppf` that is an
-algebraic stack as an object of `AlgebraicStacks S`. -/
-def of {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X] :
-    AlgebraicStacks S :=
-  ObjectProperty.FullSubbicategory.mk (AlgebraicStack.objectProperty S) X ‹AlgebraicStack X›
+#check (AlgebraicGeometry.AlgebraicStacks.of :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X], AlgebraicStacks S)
 
-/-- The underlying category fibred in groupoids over `(Sch/S)_fppf`. -/
-abbrev toGroupoids {S : Scheme.{u}} (X : AlgebraicStacks S) : GroupoidsOver S :=
-  X.1
+#check (AlgebraicGeometry.AlgebraicStacks.toGroupoids :
+  ∀ {S : Scheme.{u}}, AlgebraicStacks S → GroupoidsOver S)
 
-/-- The canonical inclusion of algebraic stacks into categories fibred in
-groupoids over `(Sch/S)_fppf`. -/
-abbrev ι (S : Scheme.{u}) :
-    StrictPseudofunctor (AlgebraicStacks S) (GroupoidsOver S) :=
-  ObjectProperty.FullSubbicategory.ι (AlgebraicStack.objectProperty S)
+#check (AlgebraicGeometry.AlgebraicStacks.ι :
+  ∀ (S : Scheme.{u}), StrictPseudofunctor (AlgebraicStacks S) (GroupoidsOver S))
 
-/-- `AlgebraicStacks S` is the full sub-2-category of `GroupoidsOver S` on
-algebraic stacks. -/
-theorem eq (S : Scheme.{u}) :
-    AlgebraicStacks S = (AlgebraicStack.objectProperty S).FullSubbicategory :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStacks.eq :
+  ∀ (S : Scheme.{u}),
+    AlgebraicStacks S = (AlgebraicStack.objectProperty S).FullSubbicategory)
 
-/-- The underlying groupoid fibration of an object of `AlgebraicStacks S` is an
-algebraic stack. -/
-instance mem {S : Scheme.{u}} (X : AlgebraicStacks S) :
-    AlgebraicStack (toGroupoids X) :=
-  X.property
+#check (AlgebraicGeometry.AlgebraicStacks.mem :
+  ∀ {S : Scheme.{u}} (X : AlgebraicStacks S), AlgebraicStack (toGroupoids X))
 
-/-- Packaging a category fibred in groupoids as an algebraic stack forgets to
-the original object. -/
-theorem of_toGroupoids {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X] :
-    toGroupoids (of X) = X := sorry
+#check (AlgebraicGeometry.AlgebraicStacks.of_toGroupoids :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
+    toGroupoids (of X) = X)
 
-/-- The inclusion into groupoid fibrations sends an algebraic stack to its
-underlying object of `GroupoidsOver S`. -/
-theorem ι_obj {S : Scheme.{u}} (X : AlgebraicStacks S) :
-    (ι S).obj X = toGroupoids X := sorry
+#check (AlgebraicGeometry.AlgebraicStacks.ι_obj :
+  ∀ {S : Scheme.{u}} (X : AlgebraicStacks S), (ι S).obj X = toGroupoids X)
 
-/-- The 2-category of algebraic stacks over `S` is a (2,1)-category: every
-2-morphism is invertible. -/
-instance locallyGroupoid {S : Scheme.{u}} :
-    Bicategory.IsLocallyGroupoid (AlgebraicStacks S) := sorry
+#check (AlgebraicGeometry.AlgebraicStacks.locallyGroupoid :
+  ∀ {S : Scheme.{u}}, Bicategory.IsLocallyGroupoid (AlgebraicStacks S))
 
-/-- The canonical inclusion of algebraic stacks into the 2-category
-`Cat / (Sch/S)_fppf` of categories over `(Sch/S)_fppf`. -/
-def toBased (S : Scheme.{u}) :
-    StrictPseudofunctor (AlgebraicStacks S) (BasedCategory.{u, u + 1} (Over S)) :=
-  (ι S).comp (FiberedCategoryOver.Groupoids.toBased.{u + 1, u, u + 1, u} (Over S))
+#check (AlgebraicGeometry.AlgebraicStacks.toBased :
+  ∀ (S : Scheme.{u}),
+    StrictPseudofunctor (AlgebraicStacks S) (BasedCategory.{u, u + 1} (Over S)))
 
-/-- The `Cat / (Sch/S)_fppf` inclusion is the composite of `ι` with the
-forgetful map from categories fibred in groupoids. -/
-theorem toBased_eq (S : Scheme.{u}) :
+#check (AlgebraicGeometry.AlgebraicStacks.toBased_eq :
+  ∀ (S : Scheme.{u}),
     toBased S =
-      (ι S).comp (FiberedCategoryOver.Groupoids.toBased.{u + 1, u, u + 1, u} (Over S)) :=
-  sorry
+      (ι S).comp (FiberedCategoryOver.Groupoids.toBased.{u + 1, u, u + 1, u} (Over S)))
 
 end AlgebraicStacks
 

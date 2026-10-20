@@ -1,23 +1,15 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Artinian
-public import Mathlib.AlgebraicGeometry.Limits
-public import Mathlib.AlgebraicGeometry.Morphisms.Flat
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiCompact
-public import Mathlib.AlgebraicGeometry.Morphisms.UnderlyingMap
-public import ReasLib.AlgebraicGeometry.Scheme.DescentData.Effectivity
+public import ReasLib.AlgebraicGeometry.Scheme.DescentData.Effectivity.Artinian
+import StacksCheckRecall
 
 /-!
 # Lemma 85.31.3
 
 A descent datum relative to a quasi-compact flat surjective morphism is effective
-when its unique component is locally Artinian.
+when the scheme in its single covering-family component is a disjoint union of
+spectra of Artinian rings. The covering family has one component; its scheme need
+not be connected.
 -/
 
 @[expose] public section
@@ -26,29 +18,21 @@ open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
 
 universe u v
 
-namespace AlgebraicGeometry.Scheme.DescentData
-namespace IsEffective
+/- Lemma 85.31.3: A descent datum along a quasi-compact flat surjective morphism
+is effective if its component scheme is a disjoint union of spectra of Artinian rings. -/
+@[stacks 024I] #check
+  (AlgebraicGeometry.Scheme.DescentData.IsEffective.of_sigma_artinianSpec :
+    ∀ {X S : Scheme.{u}} (f : X ⟶ S)
+      [QuasiCompact f] [Flat f] [Surjective f]
+      (D : Scheme.DescentData (fun _ : PUnit.{v + 1} ↦ X) (fun _ ↦ f))
+      {I : Type u} (A : I → CommRingCat.{u}) [∀ i, IsArtinianRing (A i)]
+      (e : (D.obj default).left ≅ ∐ fun i ↦ Spec (A i)),
+      D.IsEffective)
 
-/-- Lemma 85.31.3: if `f : X ⟶ S` is a quasi-compact, flat, and surjective morphism of
-schemes, and `D` is a descent datum relative to `f` whose unique component is locally
-Artinian (equivalently, a disjoint union of spectra of Artinian rings), then `D` is
-effective. -/
-@[stacks 024I]
-theorem ofIsLocallyArtinian {X S : Scheme.{u}} (f : X ⟶ S)
-    [QuasiCompact f] [Flat f] [Surjective f]
-    (D : DescentData (fun _ : PUnit.{v + 1} ↦ X) (fun _ ↦ f))
-    [IsLocallyArtinian (D.obj default).left] :
-    D.IsEffective := sorry
-
-/-- A descent datum relative to a quasi-compact, flat, and surjective morphism is
-effective if its unique component is isomorphic to a coproduct of spectra of Artinian
-rings. -/
-theorem of_sigma_artinianSpec {X S : Scheme.{u}} (f : X ⟶ S)
-    [QuasiCompact f] [Flat f] [Surjective f]
-    (D : DescentData (fun _ : PUnit.{v + 1} ↦ X) (fun _ ↦ f))
-    {I : Type u} (A : I → CommRingCat.{u}) [∀ i, IsArtinianRing (A i)]
-    (e : (D.obj default).left ≅ ∐ fun i ↦ Spec (A i)) :
-    D.IsEffective := sorry
-
-end IsEffective
-end AlgebraicGeometry.Scheme.DescentData
+#check
+  (AlgebraicGeometry.Scheme.DescentData.IsEffective.ofIsLocallyArtinian :
+    ∀ {X S : Scheme.{u}} (f : X ⟶ S)
+      [QuasiCompact f] [Flat f] [Surjective f]
+      (D : Scheme.DescentData (fun _ : PUnit.{v + 1} ↦ X) (fun _ ↦ f))
+      [IsLocallyArtinian (D.obj default).left],
+      D.IsEffective)

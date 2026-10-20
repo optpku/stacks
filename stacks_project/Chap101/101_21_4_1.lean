@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap101.«101_21_4_1_Covering»
@@ -94,6 +88,6 @@ theorem etaleCovering_kernelPair :
             h_source h_target)
           (GroupoidScheme.invariantSpectrumMap_respectsBase P tSharp eU eR
             h_source h_target))) :=
-  sorry
+  GroupoidScheme.invariantKernelPairComparison_isIso P tSharp eU eR h_source h_target
 
 end AlgebraicGeometry.AlgebraicStack

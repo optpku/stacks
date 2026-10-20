@@ -1,97 +1,97 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap87.Lemma_87_20_10
-public import stacks_project.Chap87.Remark_87_21_4_Variant_for_adic_star_Local
-public import stacks_project.Chap87.Remark_87_21_8_Variant_for_adic_star_Completed
-public import stacks_project.Chap87.Remark_87_21_8_Variant_for_adic_star_BaseChange
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.ChosenFppf.AdicStarBaseChange
 import StacksCheckRecall
 
 /-!
-# Base change of local tests of morphisms of locally adic* formal algebraic spaces
+# Base change of local tests of morphisms of locally adic-star formal algebraic spaces
 
-Remark 87.21.8 records that a local property `P` of morphisms of
-`WAdm^{adic*}` is stable under base change when `P (algebraMap B A)` implies
-`P (includeRight B A C)`, which is well-defined because `Completed B A C`
-remains in `WAdm^{adic*}` by Lemma 87.4.12, and that the same argument as
-Lemma 87.21.7 then transfers the equivalent local tests to
-`pullback.snd f g` for morphisms of locally adic* formal algebraic spaces
-over `S`.
+Completed base-change stability of a local adic-star ring morphism property
+transfers to the equivalent affine étale tests on formal algebraic spaces.
 -/
 
 @[expose] public section
 
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
 open AlgebraicGeometry.ChosenBigFppfSite TopologicalRing
+open AlgebraicGeometry.IsLocallyAdicStar
 
 universe u v
 
-/- Remark 87.21.8 (Variant for adic-star) (1): a local property P of morphisms
-of WAdm^{adic*} is stable under base change when P(B → A) implies
-P(C → A ⊗̂_B C). This is well-defined because A ⊗̂_B C remains in
-WAdm^{adic*} by Lemma 87.4.12. -/
-@[stacks 0GBE] #check TopologicalRing.IsAdicStarRing.IsLocalMorphismProperty.IsStableUnderBaseChange
-
-namespace AlgebraicGeometry.IsLocallyAdicStar
-
-variable {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
-variable [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
-variable [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
-variable (P : ∀ {A B : Type u}
+#check (TopologicalRing.IsAdicStarRing.IsLocalMorphismProperty.IsStableUnderBaseChange :
+  (∀ {A B : Type u}
     [CommRing A] [TopologicalSpace A] [IsAdicStarRing A]
     [CommRing B] [TopologicalSpace B] [IsAdicStarRing B],
-    (B →+* A) → Prop)
-variable {X Y Z : Sheaf (𝒮.bigTopology S) (Type (max u v))}
-variable [IsLocallyAdicStar X] [IsLocallyAdicStar Y]
-variable [IsLocallyAdicStar Z]
+    (B →+* A) → Prop) → Prop)
 
-/-- Remark 87.21.8 (Variant for adic-star) (2): Let `S` be a scheme. Let `P`
-be a local property of morphisms of `WAdm^{adic*}` which is stable under
-base change. Let `f : X ⟶ Y` and `g : Z ⟶ Y` be morphisms of locally adic*
-formal algebraic spaces over `S`. If `f` satisfies the equivalent conditions
-of the adic* variant of Lemma 87.21.3, then so does
-`pullback.snd f g : X ×_Y Z ⟶ Z`. -/
-@[stacks 0GBE]
-theorem etaleAffineLocally.pullback_snd
+/- Remark 87.21.8 (Variant for adic-star): a local property of morphisms of
+WAdm^{adic*} stable under completed base change induces local tests preserved
+by pullback of locally adic-star formal algebraic spaces. -/
+@[stacks 0GBE] #check (AlgebraicGeometry.IsLocallyAdicStar.etaleAffineLocally.pullback_snd :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsAdicStarRing A]
+      [CommRing B] [TopologicalSpace B] [IsAdicStarRing B],
+      (B →+* A) → Prop)
+    {X Y Z : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    [IsLocallyAdicStar X] [IsLocallyAdicStar Y] [IsLocallyAdicStar Z]
+    (h𝒮 : ChosenBigSite.IsSizeClosed 𝒮)
     (hP : IsAdicStarRing.IsLocalMorphismProperty P)
     (hbc : IsAdicStarRing.IsLocalMorphismProperty.IsStableUnderBaseChange P)
     (f : X ⟶ Y) (g : Z ⟶ Y) [HasPullback f g]
-    (hf : etaleAffineLocally P f) :
-    etaleAffineLocally P (pullback.snd f g) := sorry
+    (hf : etaleAffineLocally P f),
+    etaleAffineLocally P (pullback.snd f g))
 
-/-- If `IsPullback fst snd f g` and `f` satisfies `etaleAffineLocally P`, then
-the base-change leg `snd` satisfies `etaleAffineLocally P`. -/
-theorem etaleAffineLocally.of_isPullback
+#check (AlgebraicGeometry.IsLocallyAdicStar.etaleAffineLocally.of_isPullback :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsAdicStarRing A]
+      [CommRing B] [TopologicalSpace B] [IsAdicStarRing B],
+      (B →+* A) → Prop)
+    {X Y Z : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    [IsLocallyAdicStar X] [IsLocallyAdicStar Y] [IsLocallyAdicStar Z]
+    (h𝒮 : ChosenBigSite.IsSizeClosed 𝒮)
     (hP : IsAdicStarRing.IsLocalMorphismProperty P)
     (hbc : IsAdicStarRing.IsLocalMorphismProperty.IsStableUnderBaseChange P)
     {W : Sheaf (𝒮.bigTopology S) (Type (max u v))} [IsLocallyAdicStar W]
     {f : X ⟶ Y} {g : Z ⟶ Y} {fst : W ⟶ X} {snd : W ⟶ Z}
-    (sq : IsPullback fst snd f g) (hf : etaleAffineLocally P f) :
-    etaleAffineLocally P snd := sorry
+    (sq : IsPullback fst snd f g) (hf : etaleAffineLocally P f),
+    etaleAffineLocally P snd)
 
-/-- If `f` satisfies the covering-on-target test of the adic* variant of
-Lemma 87.21.3, then so does `pullback.snd f g`. -/
-theorem existsCoverOnTarget.pullback_snd
+#check (AlgebraicGeometry.IsLocallyAdicStar.existsCoverOnTarget.pullback_snd :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsAdicStarRing A]
+      [CommRing B] [TopologicalSpace B] [IsAdicStarRing B],
+      (B →+* A) → Prop)
+    {X Y Z : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    [IsLocallyAdicStar X] [IsLocallyAdicStar Y] [IsLocallyAdicStar Z]
+    (h𝒮 : ChosenBigSite.IsSizeClosed 𝒮)
     (hP : IsAdicStarRing.IsLocalMorphismProperty P)
     (hbc : IsAdicStarRing.IsLocalMorphismProperty.IsStableUnderBaseChange P)
     (f : X ⟶ Y) (g : Z ⟶ Y) [HasPullback f g]
-    (hf : existsCoverOnTarget P f) :
-    existsCoverOnTarget P (pullback.snd f g) := sorry
+    (hf : existsCoverOnTarget P f),
+    existsCoverOnTarget P (pullback.snd f g))
 
-/-- If `f` satisfies the covering-on-source test of the adic* variant of
-Lemma 87.21.3, then so does `pullback.snd f g`. -/
-theorem existsCoverOnSource.pullback_snd
+#check (AlgebraicGeometry.IsLocallyAdicStar.existsCoverOnSource.pullback_snd :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsAdicStarRing A]
+      [CommRing B] [TopologicalSpace B] [IsAdicStarRing B],
+      (B →+* A) → Prop)
+    {X Y Z : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    [IsLocallyAdicStar X] [IsLocallyAdicStar Y] [IsLocallyAdicStar Z]
+    (h𝒮 : ChosenBigSite.IsSizeClosed 𝒮)
     (hP : IsAdicStarRing.IsLocalMorphismProperty P)
     (hbc : IsAdicStarRing.IsLocalMorphismProperty.IsStableUnderBaseChange P)
     (f : X ⟶ Y) (g : Z ⟶ Y) [HasPullback f g]
-    (hf : existsCoverOnSource P f) :
-    existsCoverOnSource P (pullback.snd f g) := sorry
-
-end AlgebraicGeometry.IsLocallyAdicStar
+    (hf : existsCoverOnSource P f),
+    existsCoverOnSource P (pullback.snd f g))

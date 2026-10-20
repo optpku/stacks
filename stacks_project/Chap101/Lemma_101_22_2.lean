@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_19_2_AutomorphismGroup
-public import stacks_project.Chap101.Lemma_101_22_2_DMLocus
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.DMLocus
+import StacksCheckRecall
 
 /-!
 # Points of the DM and quasi-DM loci
@@ -24,28 +18,22 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack
+open AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 101.22.2 (1): Let `X` be an algebraic stack. Let `x ∈ |X|` correspond
-to a field-valued point `p : Spec(k) ⟶ X`. Let `G_x` be the automorphism group
-algebraic space of `p`. Then `x` is in the DM locus of `X` if and only if
-`G_x ⟶ Spec(k)` is unramified. -/
+/- Lemma 101.22.2 (1): A field-valued point lies in the DM locus exactly when
+its automorphism group is unramified over its source field. -/
 @[stacks 0DSN]
-theorem memDMLocus_iff_unramified {S : Scheme.{u}} {X : GroupoidsOver S}
-    [AlgebraicStack X] (p : FieldValuedPoint X) :
+#check (AlgebraicGeometry.AlgebraicStack.memDMLocus_iff_unramified :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    (p : FieldValuedPoint X),
     memDMLocus (Points.mk p) ↔
-      automorphismGroup.Has (@AlgebraicSpace.Unramified S) p :=
-  sorry
+      automorphismGroup.Has (@AlgebraicSpace.Unramified S) p)
 
-/-- Lemma 101.22.2 (2): Let `X` be an algebraic stack. Let `x ∈ |X|` correspond
-to a field-valued point `p : Spec(k) ⟶ X`. Let `G_x` be the automorphism group
-algebraic space of `p`. Then `x` is in the quasi-DM locus of `X` if and only if
-`G_x ⟶ Spec(k)` is locally quasi-finite. -/
+/- Lemma 101.22.2 (2): A field-valued point lies in the quasi-DM locus exactly
+when its automorphism group is locally quasi-finite over its source field. -/
 @[stacks 0DSN]
-theorem memQuasiDMLocus_iff_locallyQuasiFinite {S : Scheme.{u}}
-    {X : GroupoidsOver S} [AlgebraicStack X] (p : FieldValuedPoint X) :
+#check (AlgebraicGeometry.AlgebraicStack.memQuasiDMLocus_iff_locallyQuasiFinite :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    (p : FieldValuedPoint X),
     memQuasiDMLocus (Points.mk p) ↔
-      automorphismGroup.Has (@AlgebraicSpace.LocallyQuasiFinite S) p :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack
+      automorphismGroup.Has (@AlgebraicSpace.LocallyQuasiFinite S) p)

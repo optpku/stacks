@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Definition_76_7_2_Differentials
-public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Quasicoherent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Differentials.Quasicoherent
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -17,14 +11,9 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Hom
-
-/-- Lemma 76.7.4: let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of algebraic spaces
-over `S`. Then `Ω[f]` is a quasi-coherent `𝒪_X`-module. -/
-@[stacks 04CV]
-instance isQuasicoherent_relativeDifferentials {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) :
-    (relativeDifferentials f).IsQuasicoherent :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Hom
+/- Lemma 76.7.4: the sheaf of relative differentials of a morphism of algebraic spaces
+over a scheme is quasi-coherent. -/
+@[stacks 04CV] #check
+  (AlgebraicGeometry.AlgebraicSpace.isQuasicoherent_relativeDifferentials :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+      (AlgebraicGeometry.AlgebraicSpace.Hom.relativeDifferentials f).IsQuasicoherent)

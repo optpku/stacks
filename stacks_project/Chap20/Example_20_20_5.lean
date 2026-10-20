@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Sheaves.Basis.Cover
 public import ReasLib.Topology.Sheaves.ExtensionByInitial
 public import stacks_project.Chap20.Lemma_20_20_3
+public import Mathlib.CategoryTheory.Sites.SheafCohomology.Basic
 public import Mathlib.Topology.Order.UpperLowerSetTopology
 public import Mathlib.Topology.Spectral.Prespectral
 public import Mathlib.Data.PNat.Interval
@@ -50,22 +45,18 @@ Layer triage:
 /-- The basic open subset `U_n = { i | i ≤ n }` in the countable initial-segment topology. -/
 @[reducible] def countableInitialSegmentBasicOpen (n : ℕ+) :
     Set X :=
-  Set.Iic (toLowerSet n)
+  ofLowerSet ⁻¹' Set.Iic n
 
 -- Proof sketch: `U_n = Iic (toLowerSet n)` is a lower set, hence open in the canonical
 -- Alexandrov lower-set topology on `WithLowerSet ℕ+`.
 /-- Each finite initial segment `U_n` is open in the topology of Example 20.20.5. -/
 theorem countableInitialSegmentBasicOpen_isOpen (n : ℕ+) :
     IsOpen (countableInitialSegmentBasicOpen n) := by
-  simpa [countableInitialSegmentBasicOpen] using
-    (isOpen_iff_isLowerSet.2 (isLowerSet_Iic (toLowerSet n)))
+  exact isOpen_ofLowerSet_preimage.mpr (isLowerSet_Iic n)
 
 theorem countableInitialSegmentBasicOpen_isCompact (n : ℕ+) :
     IsCompact (countableInitialSegmentBasicOpen n) := by
-  have hfinite : Finite (countableInitialSegmentBasicOpen n) := by
-    simpa [countableInitialSegmentBasicOpen, ofLowerSetOrderIso.preimage_Iic] using
-      (Set.finite_Iic n).preimage_embedding ofLowerSetOrderIso.toEquiv.toEmbedding
-  exact Set.Finite.isCompact hfinite
+  exact Set.Finite.isCompact ((Set.finite_Iic n).preimage_embedding ofLowerSet.toEmbedding)
 
 /-- The basic open `U_n` as an object of `Opens X` for the space of Example 20.20.5. -/
 @[reducible] def countableInitialSegmentOpen (n : ℕ+) :
@@ -84,7 +75,7 @@ def countableInitialSegmentCompactOpen (n : ℕ+) :
 theorem countableInitialSegmentOpen_mono {m n : ℕ+} (h : m ≤ n) :
     countableInitialSegmentOpen m ≤ countableInitialSegmentOpen n := by
   intro x hx
-  exact le_trans hx (by simpa using h)
+  exact le_trans hx h
 
 theorem countableInitialSegmentBasicOpen_isTopologicalBasis :
     IsTopologicalBasis (Set.range countableInitialSegmentBasicOpen) := by
@@ -117,17 +108,17 @@ theorem countableInitialSegmentOpen_injective :
   intro m n hmn
   apply le_antisymm
   · have hm : toLowerSet m ∈ (countableInitialSegmentOpen m : Set X) := by
-      change toLowerSet m ≤ toLowerSet m
-      simp
+      change m ≤ m
+      exact le_rfl
     have hm' : toLowerSet m ∈ (countableInitialSegmentOpen n : Set X) := by
       simpa [hmn] using hm
-    simpa [countableInitialSegmentOpen, countableInitialSegmentBasicOpen] using hm'
+    exact hm'
   · have hn : toLowerSet n ∈ (countableInitialSegmentOpen n : Set X) := by
-      change toLowerSet n ≤ toLowerSet n
-      simp
+      change n ≤ n
+      exact le_rfl
     have hn' : toLowerSet n ∈ (countableInitialSegmentOpen m : Set X) := by
       simpa [hmn] using hn
-    simpa [countableInitialSegmentOpen, countableInitialSegmentBasicOpen] using hn'
+    exact hn'
 
 abbrev countableInitialSegmentBasis : Set (Opens X) :=
   Set.range countableInitialSegmentOpen
@@ -148,13 +139,12 @@ noncomputable def countableInitialSegmentBasisToPNat :
     homOfLE <| by
       have hx : toLowerSet (countableInitialSegmentBasisIndex U) ∈ (U.obj : Set X) := by
         rw [← countableInitialSegmentBasisIndex_spec U]
-        change toLowerSet (countableInitialSegmentBasisIndex U) ≤
-          toLowerSet (countableInitialSegmentBasisIndex U)
+        change countableInitialSegmentBasisIndex U ≤ countableInitialSegmentBasisIndex U
         exact le_rfl
       have hx' : toLowerSet (countableInitialSegmentBasisIndex U) ∈ (V.obj : Set X) :=
         (leOfHom f.hom) hx
       rw [← countableInitialSegmentBasisIndex_spec V] at hx'
-      simpa [countableInitialSegmentOpen, countableInitialSegmentBasicOpen] using hx'
+      exact hx'
 
 abbrev pnatToCountableInitialSegmentBasis :
     ℕ+ ⥤ BasisOpen countableInitialSegmentBasis where
@@ -167,18 +157,15 @@ noncomputable def countableInitialSegmentBasisEquiv :
   inverse := pnatToCountableInitialSegmentBasis
   unitIso := NatIso.ofComponents
     (fun U ↦ eqToIso <| by
-      ext x
-      change x ∈ (U.obj : Set X) ↔
-        x ∈ (countableInitialSegmentOpen (countableInitialSegmentBasisIndex U) : Set X)
-      rw [countableInitialSegmentBasisIndex_spec U])
+      apply ObjectProperty.FullSubcategory.ext
+      exact (countableInitialSegmentBasisIndex_spec U).symm)
     fun {_ _} _ ↦ by
       subsingleton
   counitIso := NatIso.ofComponents
     (fun n ↦ eqToIso <| by
       apply countableInitialSegmentOpen_injective
-      exact
-        countableInitialSegmentBasisIndex_spec
-          (pnatToCountableInitialSegmentBasis.obj n))
+      exact countableInitialSegmentBasisIndex_spec
+        (pnatToCountableInitialSegmentBasis.obj n))
     fun {_ _} _ ↦ by
       subsingleton
 
@@ -220,23 +207,14 @@ instance countableInitialSegmentBasisInclusion_isCoverDense :
 
 instance countableInitialSegmentBasisInclusion_isContinuous :
     Functor.IsContinuous (basisOpenInclusion countableInitialSegmentBasis)
-      (basisGrothendieckTopology countableInitialSegmentBasis
-        countableInitialSegmentOpen_isBasis)
-      (Opens.grothendieckTopology X) :=
-  Functor.IsCoverDense.isContinuous
-    (basisGrothendieckTopology countableInitialSegmentBasis
-      countableInitialSegmentOpen_isBasis)
-    (Opens.grothendieckTopology X)
-    (basisOpenInclusion countableInitialSegmentBasis)
-    (Functor.inducedTopology_coverPreserving
-      (basisOpenInclusion countableInitialSegmentBasis)
-      (Opens.grothendieckTopology X))
+      (basisGrothendieckTopology countableInitialSegmentBasis)
+      (Opens.grothendieckTopology X) := by
+  infer_instance
 
 def countableInitialSegmentBasisCoverOfSieve
     {U : BasisOpen countableInitialSegmentBasis} (S : Sieve U)
     (hS :
-      S ∈ basisGrothendieckTopology countableInitialSegmentBasis
-        countableInitialSegmentOpen_isBasis U) :
+      S ∈ basisGrothendieckTopology countableInitialSegmentBasis U) :
     BasisCover countableInitialSegmentBasis U where
   ι := Σ V : BasisOpen countableInitialSegmentBasis, { f : V ⟶ U // S f }
   obj := fun a ↦ a.1
@@ -252,7 +230,7 @@ def countableInitialSegmentBasisCoverOfSieve
       have hPush :
           S.functorPushforward (basisOpenInclusion countableInitialSegmentBasis) ∈
             Opens.grothendieckTopology X U.obj := by
-        rwa [Functor.mem_inducedTopology_sieves_iff] at hS'
+        exact (Functor.mem_inducedTopology_iff_of_isCoverDense _ _ _).mp hS'
       obtain ⟨W, g, hg, hxW⟩ := hPush x hx
       obtain ⟨_, ⟨V, hVB, rfl⟩, hxV, hVW⟩ :=
         countableInitialSegmentOpen_isBasis.exists_subset_of_mem_open hxW W.2
@@ -261,9 +239,12 @@ def countableInitialSegmentBasisCoverOfSieve
       have hVPush :
           (S.functorPushforward (basisOpenInclusion countableInitialSegmentBasis))
             ((basisOpenInclusion countableInitialSegmentBasis).map f) := by
-        simpa [f] using
+        have hDown :=
           (S.functorPushforward (basisOpenInclusion countableInitialSegmentBasis)).downward_closed
             hg (homOfLE hVW)
+        have hComp : homOfLE hVW ≫ g = (basisOpenInclusion countableInitialSegmentBasis).map f :=
+          Subsingleton.elim _ _
+        exact hComp ▸ hDown
       have hf : S f := by
         change
           (S.arrows.functorPushforward (basisOpenInclusion countableInitialSegmentBasis))
@@ -275,14 +256,15 @@ def countableInitialSegmentBasisCoverOfSieve
       exact (leOfHom a.2.1.hom) hx
 
 theorem countableInitialSegmentBasisGrothendieckTopology_eq_trivial :
-    basisGrothendieckTopology countableInitialSegmentBasis countableInitialSegmentOpen_isBasis =
+    basisGrothendieckTopology countableInitialSegmentBasis =
       GrothendieckTopology.trivial (BasisOpen countableInitialSegmentBasis) := by
   apply le_antisymm
   · intro U S hS
     let 𝒰 := countableInitialSegmentBasisCoverOfSieve S hS
     obtain ⟨i, hi⟩ := countableInitialSegmentBasisCover_exists_self 𝒰
     have hSi : S (𝒰.hom i) := by
-      simpa [𝒰, BasisCover.hom, BasisCover.obj] using i.2.2
+      dsimp [𝒰, countableInitialSegmentBasisCoverOfSieve]
+      exact i.2.2
     have hId : S (𝟙 U) := by
       have hEq : 𝒰.hom i = eqToHom hi := by
         ext
@@ -305,18 +287,15 @@ theorem countableInitialSegmentBasisGrothendieckTopology_eq_trivial :
     change S = ⊤ at hS
     rw [hS]
     exact
-      (basisGrothendieckTopology countableInitialSegmentBasis
-        countableInitialSegmentOpen_isBasis).top_mem U
+      (basisGrothendieckTopology countableInitialSegmentBasis).top_mem U
 
 noncomputable abbrev countableInitialSegmentBasisRestriction :
     AbSheaf ⥤
-      BasisSiteSheaf AddCommGrpCat countableInitialSegmentBasis
-        countableInitialSegmentOpen_isBasis := by
+      BasisSiteSheaf AddCommGrpCat countableInitialSegmentBasis := by
   exact
     (basisOpenInclusion countableInitialSegmentBasis).sheafPushforwardContinuous
       AddCommGrpCat
-      (basisGrothendieckTopology countableInitialSegmentBasis
-        countableInitialSegmentOpen_isBasis)
+      (basisGrothendieckTopology countableInitialSegmentBasis)
       (Opens.grothendieckTopology X)
 
 instance countableInitialSegmentBasisRestriction_isEquivalence :
@@ -324,54 +303,26 @@ instance countableInitialSegmentBasisRestriction_isEquivalence :
   simpa [countableInitialSegmentBasisRestriction] using inferInstanceAs
     (((basisOpenInclusion countableInitialSegmentBasis).sheafPushforwardContinuous
       AddCommGrpCat
-      (basisGrothendieckTopology countableInitialSegmentBasis
-        countableInitialSegmentOpen_isBasis)
+      (basisGrothendieckTopology countableInitialSegmentBasis)
       (Opens.grothendieckTopology X)).IsEquivalence)
 
 noncomputable abbrev countableInitialSegmentBasisSiteToInverseSystem :
-    BasisSiteSheaf AddCommGrpCat countableInitialSegmentBasis
-        countableInitialSegmentOpen_isBasis ⥤
-      ((ℕ+)ᵒᵖ ⥤ AddCommGrpCat) := by
-  let eSheaf :
-      BasisSiteSheaf AddCommGrpCat countableInitialSegmentBasis
-          countableInitialSegmentOpen_isBasis ≌
-        ((BasisOpen countableInitialSegmentBasis)ᵒᵖ ⥤ AddCommGrpCat) := by
-    change
-      Sheaf
-          (basisGrothendieckTopology countableInitialSegmentBasis
-            countableInitialSegmentOpen_isBasis)
-          AddCommGrpCat ≌
-        ((BasisOpen countableInitialSegmentBasis)ᵒᵖ ⥤ AddCommGrpCat)
-    rw [countableInitialSegmentBasisGrothendieckTopology_eq_trivial,
-      GrothendieckTopology.trivial_eq_bot]
-    exact CategoryTheory.sheafBotEquivalence AddCommGrpCat
-  let ePresheaf :
-      ((BasisOpen countableInitialSegmentBasis)ᵒᵖ ⥤ AddCommGrpCat) ≌
-        ((ℕ+)ᵒᵖ ⥤ AddCommGrpCat) := by
-    exact (countableInitialSegmentBasisEquiv.op).congrLeft
-  exact eSheaf.functor ⋙ ePresheaf.functor
+    BasisSiteSheaf AddCommGrpCat countableInitialSegmentBasis ⥤
+      ((ℕ+)ᵒᵖ ⥤ AddCommGrpCat) :=
+  sheafToPresheaf (basisGrothendieckTopology countableInitialSegmentBasis) AddCommGrpCat ⋙
+    (countableInitialSegmentBasisEquiv.op).congrLeft.functor
 
 instance countableInitialSegmentBasisSiteToInverseSystem_isEquivalence :
     Functor.IsEquivalence countableInitialSegmentBasisSiteToInverseSystem := by
-  let eSheaf :
-      BasisSiteSheaf AddCommGrpCat countableInitialSegmentBasis
-          countableInitialSegmentOpen_isBasis ≌
-        ((BasisOpen countableInitialSegmentBasis)ᵒᵖ ⥤ AddCommGrpCat) := by
-    change
-      Sheaf
-          (basisGrothendieckTopology countableInitialSegmentBasis
-            countableInitialSegmentOpen_isBasis)
-          AddCommGrpCat ≌
-        ((BasisOpen countableInitialSegmentBasis)ᵒᵖ ⥤ AddCommGrpCat)
+  letI : (sheafToPresheaf (basisGrothendieckTopology countableInitialSegmentBasis)
+      AddCommGrpCat).IsEquivalence := by
     rw [countableInitialSegmentBasisGrothendieckTopology_eq_trivial,
       GrothendieckTopology.trivial_eq_bot]
-    exact CategoryTheory.sheafBotEquivalence AddCommGrpCat
-  let ePresheaf :
-      ((BasisOpen countableInitialSegmentBasis)ᵒᵖ ⥤ AddCommGrpCat) ≌
-        ((ℕ+)ᵒᵖ ⥤ AddCommGrpCat) := by
-    exact (countableInitialSegmentBasisEquiv.op).congrLeft
-  simpa [countableInitialSegmentBasisSiteToInverseSystem] using inferInstanceAs
-    (Functor.IsEquivalence (eSheaf.functor ⋙ ePresheaf.functor))
+    exact inferInstanceAs (CategoryTheory.sheafBotEquivalence AddCommGrpCat).functor.IsEquivalence
+  exact inferInstanceAs
+    (Functor.IsEquivalence
+      (sheafToPresheaf (basisGrothendieckTopology countableInitialSegmentBasis) AddCommGrpCat ⋙
+        (countableInitialSegmentBasisEquiv.op).congrLeft.functor))
 
 instance countableInitialSegmentSpace_prespectral : PrespectralSpace X :=
   PrespectralSpace.of_isTopologicalBasis'

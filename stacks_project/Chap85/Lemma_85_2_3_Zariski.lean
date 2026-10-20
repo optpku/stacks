@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap85.Lemma_85_2_1_Site
-public import ReasLib.CategoryTheory.Sites.MorphismOfSites
+public import ReasLib.Topology.Category.TopCat.DiagramOpens.SimplicialMap
 
 /-!
 # Inverse image on the Zariski site of a simplicial space
@@ -25,29 +18,22 @@ open CategoryTheory TopologicalSpace TopCat
 
 namespace CategoryTheory.SimplicialObject
 
-/-- The functor `u : zariskiSite X ⥤ zariskiSite Y` sending an open of a stage of `X`
+/- The functor `u : zariskiSite X ⥤ zariskiSite Y` sending an open of a stage of `X`
 to its inverse image under the corresponding component of `f : Y ⟶ X`. -/
-def zariskiMap {X Y : SimplicialObject TopCat.{u}} (f : Y ⟶ X) :
-    zariskiSite X ⥤ zariskiSite Y where
-  obj U := DiagramOpens.ofOpens Y U.base ((Opens.map (f.app U.base)).obj U.opens)
-  map g := DiagramOpens.homMk g.base sorry
-  map_id := sorry
-  map_comp := sorry
+#check (CategoryTheory.SimplicialObject.zariskiMap :
+  ∀ {X Y : SimplicialObject TopCat.{u}} (f : Y ⟶ X), zariskiSite X ⥤ zariskiSite Y)
 
-/-- `zariskiMap f` sends `DiagramOpens.ofOpens X c U` to the inverse image of `U` along
+/- `zariskiMap f` sends `DiagramOpens.ofOpens X c U` to the inverse image of `U` along
 `f.app c`. -/
-@[simp]
-theorem zariskiMap_obj_ofOpens {X Y : SimplicialObject TopCat.{u}} (f : Y ⟶ X)
-    (c : SimplexCategoryᵒᵖ) (U : Opens (X.obj c)) :
+#check (CategoryTheory.SimplicialObject.zariskiMap_obj_ofOpens :
+  ∀ {X Y : SimplicialObject TopCat.{u}} (f : Y ⟶ X)
+    (c : SimplexCategoryᵒᵖ) (U : Opens (X.obj c)),
     (zariskiMap f).obj (DiagramOpens.ofOpens X c U) =
-      DiagramOpens.ofOpens Y c ((Opens.map (f.app c)).obj U) :=
-  rfl
+      DiagramOpens.ofOpens Y c ((Opens.map (f.app c)).obj U))
 
-/-- `zariskiMap f` preserves the underlying stage morphism of a morphism of diagram opens. -/
-@[simp]
-theorem zariskiMap_map_base {X Y : SimplicialObject TopCat.{u}} (f : Y ⟶ X)
-    {U V : zariskiSite X} (g : U ⟶ V) :
-    ((zariskiMap f).map g).base = g.base :=
-  rfl
+/- `zariskiMap f` preserves the underlying stage morphism of a morphism of diagram opens. -/
+#check (CategoryTheory.SimplicialObject.zariskiMap_map_base :
+  ∀ {X Y : SimplicialObject TopCat.{u}} (f : Y ⟶ X)
+    {U V : zariskiSite X} (g : U ⟶ V), ((zariskiMap f).map g).base = g.base)
 
 end CategoryTheory.SimplicialObject

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Lie.OfAssociative
@@ -147,13 +141,6 @@ noncomputable def decompose (x : reesAlgebra I) :
     (fun n ↦ ⟨coeffMonomial I x n.1,
       coeffMonomial_mem_grade I x n.1⟩)
 
-/-- The degree-`n` component of `decompose I x` is the monomial
-with coefficient `x.coeff n`. -/
-@[stacks 052Q "Rees algebra coefficient decomposition evaluation"]
-theorem decompose_apply (x : reesAlgebra I) (n : ℕ) :
-    ((decompose I x n : reesAlgebra I) : R[X]) =
-      monomial n (x.1.coeff n) := sorry
-
 /-- A member of the degree-`n` Rees piece is the monomial determined by its
 degree-`n` coefficient. -/
 @[stacks 052Q "Rees algebra graded-piece monomial form"]
@@ -190,17 +177,28 @@ theorem decompose_right_inv :
     Function.RightInverse (DirectSum.coeAddMonoidHom (grade I))
       (decompose I) := sorry
 
-/-- The degreewise Rees pieces form an internal direct-sum decomposition of
-`reesAlgebra I`. -/
-@[stacks 052Q "Rees algebra graded pieces internal decomposition"]
-theorem grade_isInternal :
-    DirectSum.IsInternal (grade I) := sorry
-
 /-- The canonical powers-of-an-ideal decomposition equips `reesAlgebra I`
 with its graded `R`-algebra structure. -/
 @[stacks 052Q "Rees algebra graded algebra structure"]
 instance gradedAlgebra : GradedAlgebra (grade I) :=
-  DirectSum.IsInternal.gradedAlgebra (grade_isInternal I)
+  { gradedMonoid I with
+    decompose' := decompose I
+    left_inv := decompose_left_inv I
+    right_inv := decompose_right_inv I }
+
+/-- The degreewise Rees pieces form an internal direct-sum decomposition of
+`reesAlgebra I`. -/
+@[stacks 052Q "Rees algebra graded pieces internal decomposition"]
+theorem grade_isInternal :
+    DirectSum.IsInternal (grade I) :=
+  DirectSum.Decomposition.isInternal (grade I)
+
+/-- The degree-`n` component of the canonical Rees decomposition is the monomial
+with coefficient `x.coeff n`. -/
+@[simp, stacks 052Q "Rees algebra coefficient decomposition evaluation"]
+theorem decompose_apply (x : reesAlgebra I) (n : ℕ) :
+    ((DirectSum.decompose (grade I) x n : reesAlgebra I) : R[X]) =
+      monomial n (x.1.coeff n) := sorry
 
 end
 

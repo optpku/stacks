@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommGeometricCochainPullback
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommCompletedCochainTransport
@@ -99,7 +93,7 @@ theorem discreteMap_quasiIso : QuasiIso (discreteMap R X P Q f hcart F) := by so
 include hfinite hproper in
 theorem completedMap_quasiIso : QuasiIso (completedMap R X P Q f hcart F) := by sorry
 
-variable [HasDerivedCategory (ModuleCat.{u + 1} (NoncommCompletedRing.Obj R Gal(AlgebraicClosure k/k)))]
+variable [HasDerivedCategory (ModuleCat.{u + 1} (completedGroupRing R Gal(AlgebraicClosure k/k)))]
 
 /-- Invert only the actual proper-refinement map after its quasi-isomorphism theorem. -/
 def derivedIso :

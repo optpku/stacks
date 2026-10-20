@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 -- Import decisions:
@@ -12,6 +6,7 @@ module
 -- * The bundled fibred-in-groupoids target is part of those result types.
 public import Mathlib.CategoryTheory.FiberedCategory.Grothendieck
 public import Mathlib.CategoryTheory.Groupoid.Grpd.Basic
+public import ReasLib.CategoryTheory.Fibered.CoGrothendieck.Cartesian
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Hom
 
 /-!
@@ -35,14 +30,18 @@ variable {𝒞 : Type u} [Category.{v₁} 𝒞]
 /-- A co-Grothendieck projection whose pseudofunctor is pointwise groupoidal is canonically
 fibred in groupoids. Strict `Grpd`-valued presheaves are a specialization below.
 
-Proof strategy: `CoGrothendieck.forget F` is fibered by the canonical cartesian lifts. For every
-`U`, compare its standard fiber with `F.obj ⟨Opposite.op U⟩` using
-`HasFibers.inducedFunctor`, transport the assumed `IsGroupoid` instance across that equivalence,
-and apply `Functor.IsFibered.InGroupoids.of_isFibered_fibersGroupoid`. -/
+Mathlib's reindexed object and identity-fibre arrow supply each canonical Cartesian lift.
+The explicit factor for every other arrow uses the inverse of its supplied fibre isomorphism;
+the groupoid-fibre recognition theorem is not used as an existence factory. -/
 instance forgetInGroupoids
     (F : LocallyDiscrete 𝒞ᵒᵖ ⥤ᵖ Cat.{v₂, w})
     [∀ U, IsGroupoid (F.obj U)] :
-    Functor.IsFibered.InGroupoids (forget F) := sorry
+    Functor.IsFibered.InGroupoids (forget F) where
+  toIsFibered := Functor.IsFibered.of_exists_isStronglyCartesian
+    (fun a _ f ↦
+      ⟨domainCartesianLift a.fiber f, cartesianLift a.fiber f,
+        isStronglyCartesian_homCartesianLift a.fiber f⟩)
+  all_isCartesian := arrowIsCartesian F
 
 /-- The category fibred in groupoids over `𝒞` represented by a pointwise groupoidal
 pseudofunctor. This canonical owner-level construction is the object map of the co-Grothendieck

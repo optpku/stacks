@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Affine
@@ -29,6 +23,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.AlgebraicSpace.Complexes
 
 /-- Lemma 99.16.9: in Situation 99.16.3, if `i : Z ⟶ Z'` is a finite-order
@@ -41,7 +37,15 @@ product with `(Chosen.reindex (p f) g) ⊡ (Chosen.reindex (p f) i)`, is an
 equivalence. -/
 @[stacks 0DLK]
 instance restrictionComparison.instIsEquivalence {S : Scheme.{u}}
-    {X B : AlgebraicSpace S} (f : X ⟶ B) [Proper f] [Flat f] [FinitePresentation f]
+    {X B : AlgebraicSpace S} (f : X ⟶ B)
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f]
     {Z Z' Y Y' : Over S} {i : Z ⟶ Z'} {g : Z ⟶ Y} {inl : Z' ⟶ Y'} {inr : Y ⟶ Y'}
     [IsFiniteOrderThickening i.left] [IsAffineHom g.left] (h : IsPushout i g inl inr) :
     (restrictionComparison (p f) h.w).IsEquivalence := sorry

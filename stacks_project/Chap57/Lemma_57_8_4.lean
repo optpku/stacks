@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -18,6 +12,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.FourierMukai
 
 /- Lemma 57.8.4 (1): under Noetherian and finite-type hypotheses, a bounded coherent
@@ -28,6 +24,9 @@ inverse-image structure sheaf of `Y` sends perfect complexes on `X` to perfect c
 #check (AlgebraicGeometry.Scheme.FourierMukai.mapsPerfect_of_coherent_of_finiteTorDimension :
     ∀ {S X Y : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
     [IsNoetherian S] [Scheme.Hom.FiniteType f] [Scheme.Hom.FiniteType g]
+    [DerivedCategory.DerivedTensor.Right.Has
+      (C := RingedSpace.Modules
+        (RingedSpace.Hom.inverseImageBase (Limits.pullback.snd f g).toShHom))]
     (K : RingedSpace.ModuleDerived (Limits.pullback f g).toRingedSpace)
     (hK_coherent : DerivedCategory.cohomologyIn
       (SheafOfModules.isCoherent (Limits.pullback f g).toRingedSpace.ringCatSheaf) K)
@@ -101,6 +100,10 @@ kernel is perfect over `Y`, then the Fourier--Mukai functor sends perfect comple
     ∀ {S X Y : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
     [Scheme.Hom.FinitePresentation f] [Flat f] [IsProper f]
     (K : RingedSpace.ModuleDerived (Limits.pullback f g).toRingedSpace)
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase (Limits.pullback.snd f g).toShHom).carrier,
+      CategoryTheory.DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase (Limits.pullback.snd f g).toShHom).restrict U.isOpenEmbedding))]
     (hK_yPerfect : RingedSpace.ModuleDerived.IsPerfectOver
       (Limits.pullback.snd f g).toShHom K),
     ∀ M : RingedSpace.ModuleDerived X.toRingedSpace,
@@ -116,6 +119,10 @@ perfect complexes on `Y`.
     ∀ {S X Y : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
     [IsNoetherian S] [Flat f] [IsProper f]
     (K : RingedSpace.ModuleDerived (Limits.pullback f g).toRingedSpace)
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase (Limits.pullback.snd f g).toShHom).carrier,
+      CategoryTheory.DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase (Limits.pullback.snd f g).toShHom).restrict U.isOpenEmbedding))]
     (hK_yPerfect : RingedSpace.ModuleDerived.IsPerfectOver
       (Limits.pullback.snd f g).toShHom K),
     ∀ M : RingedSpace.ModuleDerived X.toRingedSpace,

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.Ring.Colimits
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleLocalRing
 public import Mathlib.CategoryTheory.Yoneda
 public import stacks_project.Chap59.Definition_59_33_2_EtaleLocalRing
 public import stacks_project.Chap66.Definition_66_22_2_Point
@@ -29,29 +23,13 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- The étale local ring of an algebraic space at a geometric point is the stalk of the
-structure sheaf on the small étale site at that geometric point. The geometric point lies
-over `xbar.image ∈ |X|`. -/
-noncomputable abbrev etaleLocalRing {S : Scheme.{u}} (X : AlgebraicSpace S)
-    (xbar : GeometricPoint X) : Type u :=
-  ((GeometricPoint.toSmallEtalePoint xbar).presheafFiber :
-      ((smallEtaleSite X)ᵒᵖ ⥤ RingCat.{u}) ⥤ RingCat.{u}).obj
-    (structureSheaf X).obj
-
 /-- The étale local ring is definitionally the fiber of the small-étale structure sheaf. -/
 theorem etaleLocalRing_def {S : Scheme.{u}} (X : AlgebraicSpace S) (xbar : GeometricPoint X) :
     etaleLocalRing X xbar =
       ((GeometricPoint.toSmallEtalePoint xbar).presheafFiber :
           ((smallEtaleSite X)ᵒᵖ ⥤ RingCat.{u}) ⥤ RingCat.{u}).obj
         (structureSheaf X).obj :=
-  sorry
-
-/-- The étale-site stalk is commutative, using the underlying ring operations of the
-`RingCat` fiber. -/
-instance etaleLocalRing.instCommRing {S : Scheme.{u}} (X : AlgebraicSpace S)
-    (xbar : GeometricPoint X) : CommRing (etaleLocalRing X xbar) :=
-  { (inferInstance : Ring (etaleLocalRing X xbar)) with
-    mul_comm := sorry }
+  rfl
 
 /-- Recover the morphism in `Over S` underlying a morphism of represented algebraic spaces. -/
 def toOverHom {S : Scheme.{u}} {U V : Over S} (φ : ofOver U ⟶ ofOver V) : U ⟶ V :=

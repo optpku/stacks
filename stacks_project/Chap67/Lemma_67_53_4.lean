@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_53_4_UniversalHomeomorphism
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.UniversalHomeomorphism
+import StacksCheckRecall
 
 /-!
 # Base change of universal homeomorphisms of algebraic spaces
@@ -15,21 +10,13 @@ The base change of a universal homeomorphism of algebraic spaces by any morphism
 of algebraic spaces is again a universal homeomorphism.
 -/
 
-@[expose] public section
-
-open CategoryTheory AlgebraicGeometry CategoryTheory.MorphismProperty
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 67.53.4: The base change of a universal homeomorphism of algebraic spaces by
+/- Lemma 67.53.4: The base change of a universal homeomorphism of algebraic spaces by
 any morphism of algebraic spaces is a universal homeomorphism. -/
-@[stacks 0CFT]
-instance universalHomeomorphism_isStableUnderBaseChange {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderBaseChange
-      (@UniversalHomeomorphism S : MorphismProperty (AlgebraicSpace S)) := sorry
-
-#check UniversalHomeomorphism.pullback_snd
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 0CFT] #check
+  (AlgebraicGeometry.AlgebraicSpace.universalHomeomorphism_isStableUnderBaseChange :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}},
+      CategoryTheory.MorphismProperty.IsStableUnderBaseChange
+        (@AlgebraicGeometry.AlgebraicSpace.UniversalHomeomorphism S :
+          CategoryTheory.MorphismProperty (AlgebraicGeometry.AlgebraicSpace S)))

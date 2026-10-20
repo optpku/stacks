@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Remark_90_17_3_Comparison
-public import stacks_project.Chap90.Remark_90_17_3_Tensor
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Lifts.Tangent
 import StacksCheckRecall
 
 /-!
@@ -39,7 +32,10 @@ space. Then Lift(x0, k[V]) is the set of isomorphism classes of F_x0(k[V]),
 where F_x0 is the predeformation category of objects in F lying over x0.
 This is `liftsSquareZeroEquivIsoClass`. -/
 @[stacks 06JG]
-#check liftsSquareZeroEquivIsoClass p x0 V
+#check (CategoryTheory.Functor.liftsSquareZeroEquivIsoClass p x0 V :
+  lifts p (squareZeroToResidue Λ k V) x0 ≃
+    (fiberIsoClassFunctor (Over.forget (Fiber.fiberInclusion.obj x0) ⋙ p)).obj
+      (squareZero Λ k V))
 
 variable [HasSchlessingerS2 p]
 
@@ -47,4 +43,7 @@ variable [HasSchlessingerS2 p]
 Lift(x0, k[V]) = T F_x0 ⊗[k] V as k-vector spaces. This is
 `liftsSquareZeroLinearEquiv`. -/
 @[stacks 06JG]
-#check liftsSquareZeroLinearEquiv p x0 V
+#check (CategoryTheory.Functor.liftsSquareZeroLinearEquiv p x0 V :
+  lifts p (squareZeroToResidue Λ k V) x0 ≃ₗ[k]
+    (fiberIsoClassFunctor (Over.forget (Fiber.fiberInclusion.obj x0) ⋙ p)).obj
+      (dualNumber Λ k) ⊗[k] V)

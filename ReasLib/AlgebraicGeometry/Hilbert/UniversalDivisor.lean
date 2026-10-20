@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Hilbert.AddPoint
@@ -32,6 +26,7 @@ theorem universalDivisor_def {S : Scheme.{u}} (X : Over S) (d : ℕ)
 /-- The incidence morphism sends `(E, x)` to `(x, E + x)`. -/
 def addPointIncidenceMap {S : Scheme.{u}} (X : Over S)
     [SmoothOfRelativeDimension 1 X.hom]
+    [IsSeparated X.hom]
     [∀ n : ℕ, (functor X n).IsRepresentable] (d : ℕ) :
     ((functor X d).reprX ⊗ X).left ⟶
       pullback X.hom (functor X (d + 1)).reprX.hom :=
@@ -44,6 +39,7 @@ def addPointIncidenceMap {S : Scheme.{u}} (X : Over S)
 /-- The first projection of the incidence morphism is the marked point. -/
 theorem addPointIncidenceMap_fst {S : Scheme.{u}} (X : Over S)
     [SmoothOfRelativeDimension 1 X.hom]
+    [IsSeparated X.hom]
     [∀ n : ℕ, (functor X n).IsRepresentable] (d : ℕ) :
     addPointIncidenceMap X d ≫ pullback.fst X.hom (functor X (d + 1)).reprX.hom =
       (CartesianMonoidalCategory.snd (functor X d).reprX X).left := sorry
@@ -51,6 +47,7 @@ theorem addPointIncidenceMap_fst {S : Scheme.{u}} (X : Over S)
 /-- The second projection of the incidence morphism adds the marked point. -/
 theorem addPointIncidenceMap_snd {S : Scheme.{u}} (X : Over S)
     [SmoothOfRelativeDimension 1 X.hom]
+    [IsSeparated X.hom]
     [∀ n : ℕ, (functor X n).IsRepresentable] (d : ℕ) :
     addPointIncidenceMap X d ≫ pullback.snd X.hom (functor X (d + 1)).reprX.hom =
       (addPointMap X d).left := sorry
@@ -58,6 +55,7 @@ theorem addPointIncidenceMap_snd {S : Scheme.{u}} (X : Over S)
 /-- The incidence morphism is a closed immersion. -/
 theorem addPointIncidenceMap_isClosedImmersion {S : Scheme.{u}} (X : Over S)
     [SmoothOfRelativeDimension 1 X.hom]
+    [IsSeparated X.hom]
     [∀ n : ℕ, (functor X n).IsRepresentable] (d : ℕ) :
     IsClosedImmersion (addPointIncidenceMap X d) := sorry
 

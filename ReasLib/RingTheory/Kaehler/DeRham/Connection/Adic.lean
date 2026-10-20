@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.RingTheory.AdicCompletion.PrincipalMaps
+public import ReasLib.LinearAlgebra.ExteriorPower.AdicCompletion
 public import ReasLib.RingTheory.Kaehler.DeRham.DividedPowers.Calculus
 public import ReasLib.RingTheory.Kaehler.DeRham.DividedPowers.PolynomialPoincare
 public import ReasLib.RingTheory.Kaehler.DeRham.Connection
@@ -39,17 +33,6 @@ noncomputable abbrev completedRingB (B : Type u) [CommRing B] (p : ℕ) : Type u
 noncomputable abbrev completedRingP (B : Type u) [CommRing B] (ι : Type u) (p : ℕ) : Type u :=
   AdicCompletion (principalIdealP B ι p) (DPPolynomial B ι)
 
-/-- Degree-`i` completed forms as the p-adic completion of exterior forms. -/
-noncomputable abbrev completedForm (B : Type u) [CommRing B] (p : ℕ)
-    (Ω : Type u) [AddCommGroup Ω] [Module B Ω] (i : ℕ) : Type u :=
-  AdicCompletion (principalIdealB B p) (exteriorPower.form B Ω i)
-
-/-- Completed forms are p-adic completions of uncompleted exterior forms. -/
-theorem completedForm_spec (B : Type u) [CommRing B] (p : ℕ)
-    (Ω : Type u) [AddCommGroup Ω] [Module B Ω] (i : ℕ) :
-    completedForm B p Ω i =
-      AdicCompletion (principalIdealB B p) (exteriorPower.form B Ω i) := sorry
-
 /-- Completed tensor `M ⊗^∧[B] N` as the p-adic completion of `M ⊗[B] N`. -/
 noncomputable abbrev completedTensorB (B : Type u) [CommRing B] (p : ℕ) (M N : Type u)
     [AddCommGroup M] [Module B M] [AddCommGroup N] [Module B N] : Type u :=
@@ -75,7 +58,7 @@ noncomputable abbrev completedPolynomialForm (degree : ℕ) : Type u :=
 /-- Restricting coefficients to `B` does not change the p-adic completion of polynomial forms. -/
 noncomputable def completedPolynomialFormEquiv (degree : ℕ) :
     completedPolynomialForm A B δ ι p degree ≃+
-      completedForm (DPPolynomial B ι) p
+      exteriorPower.completedForm (DPPolynomial B ι) p
         (formB A (DPPolynomial B ι) (DPPolynomial.dividedPowers (ι := ι) δ)) degree where
   toFun := AdicCompletion.completeAddMap B (DPPolynomial B ι) p (AddMonoidHom.id _)
   invFun := AdicCompletion.completeAddMap (DPPolynomial B ι) B p (AddMonoidHom.id _)
@@ -93,27 +76,27 @@ theorem completedPolynomialFormEquiv_of (degree : ℕ)
 
 /-- The completed coefficient-and-form map is induced from the canonical scalar extension. -/
 noncomputable def completedFormComparison (degree : ℕ) :
-    completedForm B p (formB A B δ) degree →ₗ[completedRingB B p]
+    exteriorPower.completedForm B p (formB A B δ) degree →ₗ[completedRingB B p]
       completedPolynomialForm A B δ ι p degree :=
   AdicCompletion.map (principalIdealB B p)
     (Connection.inducedForm (coefficientFormMap A B δ ι) degree)
 
 /-- The derivative on `D` is the continuous extension of the divided-power derivation on `B`. -/
 noncomputable def completedDerivation :
-    completedRingB B p →+ completedForm B p (formB A B δ) 1 :=
+    completedRingB B p →+ exteriorPower.completedForm B p (formB A B δ) 1 :=
   AdicCompletion.completeAddMap B B p (derivationB A B δ).toLinearMap.toAddMonoidHom
 
 /-- The derivative of completed base forms is defined without an algebraic lift of a connection. -/
 noncomputable def completedBaseDifferential (degree : ℕ) :
-    completedForm B p (formB A B δ) degree →+
-      completedForm B p (formB A B δ) (degree + 1) :=
+    exteriorPower.completedForm B p (formB A B δ) degree →+
+      exteriorPower.completedForm B p (formB A B δ) (degree + 1) :=
   AdicCompletion.completeAddMap B B p (canonicalFamily A B δ degree).toAddMonoidHom
 
 /-- Wedge by a completed one-form in the completed base forms. -/
 noncomputable def completedBaseLeftWedge (degree : ℕ) :
-    completedForm B p (formB A B δ) 1 →ₗ[completedRingB B p]
-      completedForm B p (formB A B δ) degree →ₗ[completedRingB B p]
-        completedForm B p (formB A B δ) (degree + 1) :=
+    exteriorPower.completedForm B p (formB A B δ) 1 →ₗ[completedRingB B p]
+      exteriorPower.completedForm B p (formB A B δ) degree →ₗ[completedRingB B p]
+        exteriorPower.completedForm B p (formB A B δ) (degree + 1) :=
   AdicCompletion.completeBilinear B p ((canonicalCalculus A B δ).leftWedge degree)
 
 end CompletedForms
@@ -162,7 +145,7 @@ structure Adic (A B : Type v) [CommRing A] [CommRing B] [Algebra A B]
     {J : Ideal B} (δ : DividedPowers J) (p : ℕ)
     (M : Type v) [AddCommGroup M] [Module (completedRingB B p) M] where
   toAddMonoidHom : M →+
-    completedTensorB (completedRingB B p) p M (completedForm B p (formB A B δ) 1)
+    completedTensorB (completedRingB B p) p M (exteriorPower.completedForm B p (formB A B δ) 1)
   leibniz (coefficient : completedRingB B p) (element : M) :
     toAddMonoidHom (coefficient • element) = coefficient • toAddMonoidHom element +
       AdicCompletion.of (principalIdealB (completedRingB B p) p) _
@@ -176,7 +159,7 @@ variable {M : Type u} [AddCommGroup M] [Module (completedRingB B p) M]
 
 /-- Construct a completed-valued connection from its additive map and Leibniz law. -/
 def of (map : M →+
-    completedTensorB (completedRingB B p) p M (completedForm B p (formB A B δ) 1))
+    completedTensorB (completedRingB B p) p M (exteriorPower.completedForm B p (formB A B δ) 1))
     (leibniz : ∀ (coefficient : completedRingB B p) (element : M),
       map (coefficient • element) = coefficient • map element +
         AdicCompletion.of (principalIdealB (completedRingB B p) p) _
@@ -198,8 +181,8 @@ theorem apply_leibniz (conn : Adic A B δ p M) (coefficient : completedRingB B p
 
 /-- The connection Leibniz pairing with completed base forms. -/
 noncomputable def pairing (conn : Adic A B δ p M) (degree : ℕ) :
-    M →+ completedForm B p (formB A B δ) degree →+
-      completedTensorB (completedRingB B p) p M (completedForm B p (formB A B δ) (degree + 1)) where
+    M →+ exteriorPower.completedForm B p (formB A B δ) degree →+
+      completedTensorB (completedRingB B p) p M (exteriorPower.completedForm B p (formB A B δ) (degree + 1)) where
   toFun element :=
     { toFun := fun form ↦
         (AdicCompletion.map (principalIdealB (completedRingB B p) p)
@@ -207,9 +190,9 @@ noncomputable def pairing (conn : Adic A B δ p M) (degree : ℕ) :
             ((completedBaseLeftWedge A B δ p degree).flip form))
           (conn.toAddMonoidHom element) :
             completedTensorB (completedRingB B p) p M
-              (completedForm B p (formB A B δ) (degree + 1))) +
+              (exteriorPower.completedForm B p (formB A B δ) (degree + 1))) +
         (AdicCompletion.of (principalIdealB (completedRingB B p) p)
-          (M ⊗[completedRingB B p] completedForm B p (formB A B δ) (degree + 1)))
+          (M ⊗[completedRingB B p] exteriorPower.completedForm B p (formB A B δ) (degree + 1)))
           (element ⊗ₜ[completedRingB B p] completedBaseDifferential A B δ p degree form)
       map_zero' := sorry
       map_add' := sorry }
@@ -218,14 +201,14 @@ noncomputable def pairing (conn : Adic A B δ p M) (degree : ℕ) :
 
 /-- The extended connection differential on completed tensor products. -/
 noncomputable def differential (conn : Adic A B δ p M) (degree : ℕ) :
-    completedTensorB (completedRingB B p) p M (completedForm B p (formB A B δ) degree) →+
-      completedTensorB (completedRingB B p) p M (completedForm B p (formB A B δ) (degree + 1)) :=
+    completedTensorB (completedRingB B p) p M (exteriorPower.completedForm B p (formB A B δ) degree) →+
+      completedTensorB (completedRingB B p) p M (exteriorPower.completedForm B p (formB A B δ) (degree + 1)) :=
   AdicCompletion.extendCompleteAddMap (completedRingB B p) p
     (TensorProduct.liftAddHom (pairing A B δ p conn degree) sorry)
 
 /-- The completed source differential is the continuous extension of its Leibniz pairing. -/
 theorem differential_tmul (conn : Adic A B δ p M) (degree : ℕ) (element : M)
-    (form : completedForm B p (formB A B δ) degree) :
+    (form : exteriorPower.completedForm B p (formB A B δ) degree) :
     differential A B δ p conn degree
         (AdicCompletion.of (principalIdealB (completedRingB B p) p) _
           (element ⊗ₜ[completedRingB B p] form)) =
@@ -245,7 +228,7 @@ variable (M) in
 noncomputable def term : ℕ → AddCommGrpCat
   | 0 => AddCommGrpCat.of M
   | degree + 1 => AddCommGrpCat.of
-      (completedTensorB (completedRingB B p) p M (completedForm B p (formB A B δ) (degree + 1)))
+      (completedTensorB (completedRingB B p) p M (exteriorPower.completedForm B p (formB A B δ) (degree + 1)))
 
 /-- The source differential starts with the given completed-valued connection. -/
 noncomputable def deRhamDifferential (conn : Adic A B δ p M) :

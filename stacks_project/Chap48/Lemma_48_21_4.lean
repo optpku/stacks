@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Compactification.UpperShriek.TorAmplitude
@@ -42,6 +36,8 @@ restriction to `f⁻¹𝒪_Y`. -/
   (AlgebraicGeometry.Scheme.Compactification.Of.UpperShriek.dualizingObject_hasTorAmplitudeInOver_of_flat :
     ∀ {S : Scheme.{u}} [IsNoetherian S]
       {X Y : FiniteTypeSeparatedOver S} (f : X ⟶ Y) [Flat f.hom.left]
+      [DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules (RingedSpace.Hom.inverseImageBase f.hom.left.toShHom))]
       (P : Compactification.Of Y.obj.left (Over.mk f.hom.left))
       (A : DerivedQCoh.PlusRightAdjoint (Compactification.Of.ambientMorphism P))
       (d : ℕ) [Scheme.Hom.RelativeDimensionLE f.hom.left d],

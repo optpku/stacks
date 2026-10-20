@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.LocalCohomology.PolynomialModuleLift
@@ -22,16 +16,6 @@ open CategoryTheory CategoryTheory.Limits Opposite AlgebraicGeometry
 open scoped BigOperators
 
 universe u
-
-namespace AlgebraicGeometry.Scheme.CoherentFormalModules
-
-/-- The inverse limit sheaf underlying a coherent formal module. -/
-noncomputable abbrev limitModule {X : Scheme.{u}} {J : X.IdealSheafData}
-    (F : X.CoherentFormalModules J) : X.Modules :=
-  limit (F.obj ⋙ (SheafOfModules.isCoherent X.toRingedSpace.ringCatSheaf).ι :
-    SequentialInverseSystem X.Modules)
-
-end AlgebraicGeometry.Scheme.CoherentFormalModules
 
 namespace AlgebraicGeometry.Scheme.Modules.FormalReesModule
 

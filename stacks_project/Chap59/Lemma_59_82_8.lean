@@ -1,19 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Sheaf
-public import Mathlib.AlgebraicGeometry.AffineScheme
-public import Mathlib.AlgebraicGeometry.Morphisms.Affine
-public import Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion
-public import Mathlib.CategoryTheory.Abelian.Injective.Basic
-public import ReasLib.CategoryTheory.Sites.AbelianSheaf.Torsion
-public import stacks_project.Chap59.Lemma_59_82_1
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Cohomology.InjectiveRestriction
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -27,13 +15,13 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Etale
 
-/-- Lemma 59.82.8: if a scheme `X` has affine diagonal and is covered by `n + 1`
+/- Lemma 59.82.8: if a scheme `X` has affine diagonal and is covered by `n + 1`
 affine opens, `Z` is a closed subscheme of `X`, `A` is a torsion sheaf of rings
 on `X_étale`, and `I` is an injective sheaf of `A`-modules, then étale cohomology
 of the restriction of `I` to `Z` vanishes in degrees `q` with `n < q`. -/
-@[stacks 0A51]
-theorem etaleCohomology_restrict_injective_eq_zero_of_affineCover
-    {X Z : Scheme.{u}}
+@[stacks 0A51] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleCohomology_restrict_injective_eq_zero_of_affineCover :
+    ∀ {X Z : Scheme.{u}}
     [IsAffineHom (pullback.diagonal (terminal.from X))]
     (n : ℕ) (U : Fin (n + 1) → X.Opens)
     (hU : ∀ j, IsAffineOpen (U j)) (hcover : ⨆ j, U j = ⊤)
@@ -54,9 +42,8 @@ theorem etaleCohomology_restrict_injective_eq_zero_of_affineCover
     (hA : Sheaf.IsLocallyTorsion
       ((sheafCompose X.smallEtaleTopology
           (forget₂ RingCat.{u} AddCommGrpCat.{u})).obj A))
-    (I : SheafOfModules A) [Injective I] {q : ℕ} (hq : n < q) :
+    (I : SheafOfModules A) [Injective I] {q : ℕ} (hq : n < q),
     IsZero (etaleCohomology Z
-      ((etaleAbelianRestriction i).obj ((SheafOfModules.toSheaf A).obj I)) q) :=
-  sorry
+      ((etaleAbelianRestriction i).obj ((SheafOfModules.toSheaf A).obj I)) q))
 
 end AlgebraicGeometry.Scheme.Etale

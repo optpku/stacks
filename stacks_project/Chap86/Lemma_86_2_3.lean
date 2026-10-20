@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap86.Lemma_86_2_3_Comparison
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.InternalHom.EtaleComparison
 import StacksCheckRecall
 
 @[expose] public section
@@ -33,18 +27,10 @@ ringed sites from Derived Categories of Spaces, Section 75.4, encoded as
 schemeToZariskiDerived followed by exact pullback along smallEtaleToZariski. -/
 @[stacks 0E50]
 #check
-  (etaleAffineComparison_isIso :
+  (AlgebraicGeometry.Scheme.ModuleDerived.InternalHom.etaleAffineComparison_isIso :
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
-      [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      [@RHom.Has.{u, u} A _]
-      [MonoidalCategory
-        (DerivedCategory (RingedSite.ModuleCat.{u} (ringedSite (Spec (CommRingCat.of A)))))]
-      (M : @RHom.BifunctorComparison A _ _ _)
-      (H : MonoidalClosed
-        (DerivedCategory (RingedSite.ModuleCat.{u} (ringedSite (Spec (CommRingCat.of A))))))
-      (T : Functor.TensorComparison (affineEtaleTildeDerived A))
-      (K L : DerivedCategory (ModuleCat.{u} A)),
+      [RHom.Has (A := A)] (K L : DerivedCategory (ModuleCat.{u} A)),
       (∀ i : ℤ,
         Module.Finite A ((DerivedCategory.homologyFunctor (ModuleCat.{u} A) i).obj K)) →
       DerivedCategory.HasFiniteInjectiveDimension L →
-      IsIso (etaleAffineComparison M H T K L))
+      IsIso (AlgebraicGeometry.Scheme.ModuleDerived.InternalHom.etaleAffineComparison K L))

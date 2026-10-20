@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.EtaleLocal
@@ -29,15 +23,14 @@ namespace AlgebraicGeometry.AlgebraicSpace
 source-and-target to morphisms of algebraic spaces over `S`: every commutative
 square with étale vertical arrows from schemes has top arrow satisfying `P`. -/
 #check (AlgebraicGeometry.AlgebraicSpace.etaleLocal :
-  ∀ {S : Scheme.{u}} (P : MorphismProperty Scheme.{u})
-    [IsEtaleLocalAtSourceAndTarget P], MorphismProperty (AlgebraicSpace S))
+  ∀ {S : Scheme.{u}} (P : MorphismProperty Scheme.{u}), MorphismProperty (AlgebraicSpace S))
 
 /- A morphism of algebraic spaces has the lift of `P` if and only if every
 commutative square with étale vertical arrows from schemes has top arrow
 satisfying `P`. -/
 #check (AlgebraicGeometry.AlgebraicSpace.etaleLocal_iff :
   ∀ {S : Scheme.{u}} {P : MorphismProperty Scheme.{u}}
-    [IsEtaleLocalAtSourceAndTarget P] {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y),
     etaleLocal P f ↔
       ∀ {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
         (b : yoneda.obj V ⟶ Y.functorOfPoints) (h : U ⟶ V),
@@ -49,7 +42,7 @@ satisfying `P`. -/
 `P` has top arrow satisfying `P`. -/
 #check (AlgebraicGeometry.AlgebraicSpace.etaleLocal_spec :
   ∀ {S : Scheme.{u}} {P : MorphismProperty Scheme.{u}}
-    [IsEtaleLocalAtSourceAndTarget P] {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (hf : etaleLocal P f) {U V : Over S}
     (a : yoneda.obj U ⟶ X.functorOfPoints) (b : yoneda.obj V ⟶ Y.functorOfPoints)
     (h : U ⟶ V) (ha : (over (@AlgebraicGeometry.Etale)).presheaf a)

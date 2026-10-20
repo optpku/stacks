@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Localization
@@ -13,7 +7,7 @@ import Mathlib.Tactic.CrossRefAttribute
 /-!
 # Quasi-coherent derived modules over a category with a terminal object
 
-On a chaotic ringed site with flat restriction maps, a quasi-coherent derived module is
+On a chaotic ringed site, a quasi-coherent derived module is
 determined by its derived sections at a terminal object.  The canonical map on Hom sets is kept
 as explicit data; equivalence and bijectivity are separate propositions.
 -/
@@ -22,9 +16,10 @@ as explicit data; equivalence and bijectivity are separate propositions.
 
 noncomputable section
 
--- Local instance justification (defeq pin): the generic ringed-site ModuleCat derived owner is
--- required by the derived-category APIs in this presentation.
+-- Local instance justification (defeq pin): the site-presented and bundled module categories
+-- use the same existing standard derived localization.
 attribute [local instance] RingedSite.Hom.moduleCat_hasDerivedCategory
+  RingedSite.Hom.CommRingPresentation.moduleHasDerivedCategory
 
 open CategoryTheory
 open CategoryTheory.Limits
@@ -46,12 +41,12 @@ abbrev sections (X : C) :
     QC O ⥤ DerivedCategory (ModuleCat.{max (max u v) w} (O.1.obj (Opposite.op X))) :=
   ObjectProperty.ι (isQuasiCoherent O) ⋙ chaoticRGamma O X
 
-/-- Lemma 21.43.4 (0H0R): when `X` is terminal and the restriction maps of `O` are flat,
+/-- Lemma 21.43.4 (0H0R): when `X` is terminal,
 derived sections at `X` identify canonical quasi-coherent derived modules with
 `D(O(X))`. -/
 @[stacks 0H0R]
 theorem sections_isEquivalence
-    [Presheaf.Restriction.Flat O.1] (X : C) (hX : IsTerminal X) :
+    (X : C) (hX : IsTerminal X) :
     (sections O X).IsEquivalence := sorry
 
 /-- The canonical map on Hom sets induced by derived sections at `X`. -/
@@ -69,7 +64,7 @@ target, the canonical derived-sections map on Hom sets is bijective.  Applying t
 to the slice category over `U` gives the objectwise form of the lemma. -/
 @[stacks 0H0S]
 theorem homMap_bijective
-    [Presheaf.Restriction.Flat O.1] (X : C) (hX : IsTerminal X)
+    (X : C) (hX : IsTerminal X)
     (K : QC O)
     (M : DerivedCategory
       (ringedSiteModuleCategory.{u, v, max (max u v) w, max (max u v) w}

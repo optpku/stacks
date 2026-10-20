@@ -1,15 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.Ideal.PrimeAvoidance
 import StacksCheckRecall
 
 @[expose] public section
+
+universe u v
+
+open scoped Pointwise
 
 /-!
 # Lemma 10.15.3
@@ -21,7 +19,12 @@ prime-union criterion used by its induction is owned by `Ideal.subset_union_prim
 
 /- Lemma 10.15.3: a translate of a coset can avoid a finite family of prime ideals. -/
 @[stacks 0EHL]
-#check @Ideal.exists_add_not_mem_finset_primes
+#check (Ideal.exists_add_not_mem_finset_primes :
+  ∀ {R : Type u} [CommRing R] {ι : Type v} {x : R} {I : Ideal R}
+    (s : Finset ι) (p : ι → Ideal R),
+    (∀ i ∈ s, (p i).IsPrime) →
+    (∀ i ∈ s, ¬ (x +ᵥ (I : Set R)) ⊆ (p i : Set R)) →
+    ∃ y ∈ I, ∀ i ∈ s, x + y ∉ p i)
 
 @[stacks 0EHL "finite prime-union owner"]
 #check @Ideal.subset_union_prime

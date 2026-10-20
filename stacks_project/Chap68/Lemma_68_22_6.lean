@@ -1,15 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.AffineScheme
-public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
-public import stacks_project.Chap66.Lemma_66_16_4_Etale
-public import stacks_project.Chap68.Definition_68_22_1_Birational
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale.FiniteComponents
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Birational.Etale
+import StacksCheckRecall
 
 /-!
 # Étale affine localization of birational morphisms of algebraic spaces
@@ -29,55 +22,50 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- An affine scheme étale over a decent algebraic space with finitely many
-irreducible components, viewed via `ofOver`, has finitely many irreducible
-components. This cannot be a global instance: the étale morphism `g` is not
-determined by `ofOver V`, so Lean rejects a synthesization order. -/
-theorem HasFiniteIrreducibleComponents.ofOver_etale {S : Scheme.{u}}
+/- An affine étale chart over a decent algebraic space with
+finitely many irreducible components has finitely many irreducible components. -/
+#check (AlgebraicGeometry.AlgebraicSpace.HasFiniteIrreducibleComponents.ofOver_etale :
+  ∀ {S : Scheme.{u}}
     {Y : AlgebraicSpace S} [IsDecent Y] [HasFiniteIrreducibleComponents Y]
-    {V : Over S} [IsAffine V.left] (g : ofOver V ⟶ Y) [Etale g] :
-    HasFiniteIrreducibleComponents (ofOver V) :=
-  sorry
+    {V : Over S} [IsAffine V.left] (g : ofOver V ⟶ Y) [Etale g],
+    HasFiniteIrreducibleComponents (ofOver V))
 
-/-- Lemma 68.22.6 (1): Let `S` be a scheme. Let `f : X ⟶ Y` be a birational
+/- Lemma 68.22.6 (1): Let `S` be a scheme. Let `f : X ⟶ Y` be a birational
 morphism of algebraic spaces over `S` which are decent and have finitely many
 irreducible components. If `g : ofOver V ⟶ Y` is étale with `V` affine, then
-the fibre product `pullback f g` is decent. -/
-@[stacks 0B4D]
-instance IsDecent.pullback_etale {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    [IsDecent X] [IsDecent Y]
-    [HasFiniteIrreducibleComponents X] [HasFiniteIrreducibleComponents Y]
-    (f : X ⟶ Y) [IsBirational f] {V : Over S} [IsAffine V.left]
-    (g : ofOver V ⟶ Y) [Etale g] [HasPullback f g] : IsDecent (pullback f g) :=
-  sorry
+the fibre product `pullback f g` is decent. The canonical instance below gives
+this conclusion with `Z = ofOver V`, whose decency is supplied by
+`AlgebraicGeometry.AlgebraicSpace.instIsDecent_ofOver`. -/
+@[stacks 0B4D] #check (AlgebraicGeometry.AlgebraicSpace.instIsDecent_pullback :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+    (f : X ⟶ Y) (g : Z ⟶ Y) [IsDecent X] [IsDecent Z],
+    IsDecent (pullback f g))
 
-/-- Lemma 68.22.6 (2): Let `S` be a scheme. Let `f : X ⟶ Y` be a birational
+/- Lemma 68.22.6 (2): Let `S` be a scheme. Let `f : X ⟶ Y` be a birational
 morphism of algebraic spaces over `S` which are decent and have finitely many
 irreducible components. If `g : ofOver V ⟶ Y` is étale with `V` affine, then
 the fibre product `pullback f g` has finitely many irreducible components. -/
-@[stacks 0B4D]
-instance HasFiniteIrreducibleComponents.pullback_etale {S : Scheme.{u}}
+@[stacks 0B4D] #check (AlgebraicGeometry.AlgebraicSpace.HasFiniteIrreducibleComponents.pullback_etale :
+  ∀ {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} [IsDecent X] [IsDecent Y]
     [HasFiniteIrreducibleComponents X] [HasFiniteIrreducibleComponents Y]
     (f : X ⟶ Y) [IsBirational f] {V : Over S} [IsAffine V.left]
-    (g : ofOver V ⟶ Y) [Etale g] [HasPullback f g] :
-    HasFiniteIrreducibleComponents (pullback f g) :=
-  sorry
+    (g : ofOver V ⟶ Y) [Etale g],
+    HasFiniteIrreducibleComponents (pullback f g))
 
-/-- Lemma 68.22.6 (3): Let `S` be a scheme. Let `f : X ⟶ Y` be a birational
+/- Lemma 68.22.6 (3): Let `S` be a scheme. Let `f : X ⟶ Y` be a birational
 morphism of algebraic spaces over `S` which are decent and have finitely many
 irreducible components. If `g : ofOver V ⟶ Y` is étale with `V` affine, then
 `pullback.snd f g : pullback f g ⟶ ofOver V` is birational. -/
-@[stacks 0B4D]
-instance IsBirational.pullback_snd {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+@[stacks 0B4D] #check (AlgebraicGeometry.AlgebraicSpace.IsBirational.pullback_snd :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     [IsDecent X] [IsDecent Y]
     [HasFiniteIrreducibleComponents X] [HasFiniteIrreducibleComponents Y]
     (f : X ⟶ Y) [IsBirational f] {V : Over S} [IsAffine V.left]
-    (g : ofOver V ⟶ Y) [Etale g] [HasPullback f g] :
+    (g : ofOver V ⟶ Y) [Etale g],
     -- Local instance justification (search instability): finite components of `ofOver V` cannot be a global instance, since `g` is not determined by `ofOver V`.
     letI : HasFiniteIrreducibleComponents (ofOver V) :=
       HasFiniteIrreducibleComponents.ofOver_etale g
-    IsBirational (pullback.snd f g) :=
-  sorry
+    IsBirational (pullback.snd f g))
 
 end AlgebraicGeometry.AlgebraicSpace

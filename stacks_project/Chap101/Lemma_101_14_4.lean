@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_14_2_UniversallyInjective
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.UniversallyInjective.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of universally injective morphisms of algebraic stacks
@@ -22,19 +17,13 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack
-
-namespace UniversallyInjective
-
-/-- Lemma 101.14.4: The composition of a pair of universally injective
+/- Lemma 101.14.4: The composition of a pair of universally injective
 morphisms of algebraic stacks is universally injective. -/
-@[stacks 0CI4]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+@[stacks 0CI4] #check
+  (AlgebraicGeometry.AlgebraicStack.UniversallyInjective.comp :
+    ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [UniversallyInjective f] [UniversallyInjective g] :
-    UniversallyInjective (f ≫ g) :=
-  sorry
-
-end UniversallyInjective
-
-end AlgebraicGeometry.AlgebraicStack
+    (f : X ⟶ Y) (g : Y ⟶ Z)
+    [AlgebraicGeometry.AlgebraicStack.UniversallyInjective f]
+    [AlgebraicGeometry.AlgebraicStack.UniversallyInjective g],
+    AlgebraicGeometry.AlgebraicStack.UniversallyInjective (f ≫ g))

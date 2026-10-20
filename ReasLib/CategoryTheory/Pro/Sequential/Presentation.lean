@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Pro.Presentation
@@ -33,7 +27,7 @@ a sequential representative.  The project-local owner therefore stores exactly t
 comparison with the canonical pro-Hom belongs to `Sequential.Realization`.
 -/
 
-/-- Example 4.22.6 (1) (Stacks 0G2W): a monotone level presentation of a morphism between
+/-- A monotone level presentation of a morphism between
 sequential inverse systems:
 
 ```

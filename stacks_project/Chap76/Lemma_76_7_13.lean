@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_7_13_Product
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Differentials.Product
 import StacksCheckRecall
 
 /-!
@@ -21,7 +15,6 @@ of the fibre product.
 
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.Hom
-open AlgebraicGeometry.AlgebraicSpace.Hom.Differentials.Product
 
 noncomputable section
 
@@ -33,9 +26,9 @@ variable {S : Scheme.{u}} {X Y B : AlgebraicSpace S} (f : X ⟶ B) (g : Y ⟶ B)
 differentials of a fibre product of algebraic spaces with the direct sum of the pulled-back
 relative differentials of its factors. -/
 @[stacks 05ZD] #check
-  (comparison_isIso f g :
+  (AlgebraicGeometry.AlgebraicSpace.RelativeDifferentials.Product.comparison_isIso f g :
     IsIso
-      (comparison f g :
+      (AlgebraicGeometry.AlgebraicSpace.RelativeDifferentials.Product.comparison f g :
         ((Modules.pullback (pullback.fst f g)).obj (relativeDifferentials f) ⊞
           (Modules.pullback (pullback.snd f g)).obj (relativeDifferentials g)) ⟶
             relativeDifferentials (pullback.snd f g ≫ g)))

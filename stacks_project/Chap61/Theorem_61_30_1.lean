@@ -1,24 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.Proper
-public import ReasLib.Algebra.Homology.DerivedCategory.Perfect
-public import ReasLib.CategoryTheory.DerivedCategory.Bounded
-public import ReasLib.CategoryTheory.DerivedCategory.CohomologyIn.Basic
-public import stacks_project.Chap61.Theorem_61_30_1_Reduction
-public import stacks_project.Chap61.Theorem_61_30_1_BaseChange
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.ProEtale.Derived.ProperBaseChange
+import StacksCheckRecall
 
-/-!
-# Theorem 61.30.1
-
-Proper base change for derived-complete complexes on small pro-étale sites.
--/
+/-! Proper base change for derived-complete complexes on small pro-étale sites. -/
 
 @[expose] public section
 
@@ -30,6 +15,8 @@ open AlgebraicGeometry
 open AlgebraicGeometry.Scheme
 open AlgebraicGeometry.Scheme.ProEt
 open AlgebraicGeometry.Scheme.ProetaleDerived
+open RingedSite.Hom.ModuleDerived
+open RingedSite.ToposHom
 
 noncomputable section
 
@@ -39,7 +26,7 @@ namespace AlgebraicGeometry.Scheme.ProEt
 
 variable {X Y : Scheme.{u}} (f : X ⟶ Y)
 variable {X' Y' : Scheme.{u}} (g : Y' ⟶ Y) (f' : X' ⟶ Y') (g' : X' ⟶ X)
-variable {Λ : Type (u + 1)} [CommRing Λ] [IsNoetherianRing Λ]
+variable {Λ : Type (u + 1)} [CommRing Λ]
 variable [UnivLE.{u + 1, u + 1}]
 variable [∀ Z : Scheme.{u}, HasWeakSheafify (ProEt.topology Z) CommRingCat.{u + 1}]
 variable [∀ Z : Scheme.{u}, HasWeakSheafify (ProEt.topology Z) RingCat.{u + 1}]
@@ -137,71 +124,52 @@ variable [(baseChange f ⋙ baseChange g').IsContinuous
     (ProEt.topology Y) (ProEt.topology X')]
 variable [(baseChange g ⋙ baseChange f').IsContinuous
     (ProEt.topology Y) (ProEt.topology X')]
-variable [(Functor.Homotopy.toDerived
-    (ofConstantCoefficient f Λ).modulePullback).HasLeftDerivedFunctor
-    (HomotopyCategory.quasiIso _ (ComplexShape.up ℤ))]
-variable [(Functor.Homotopy.toDerived
-    (ofConstantCoefficient g Λ).modulePullback).HasLeftDerivedFunctor
-    (HomotopyCategory.quasiIso _ (ComplexShape.up ℤ))]
-variable [(Functor.Homotopy.toDerived
-    (ofConstantCoefficient f' Λ).modulePullback).HasLeftDerivedFunctor
-    (HomotopyCategory.quasiIso _ (ComplexShape.up ℤ))]
-variable [(Functor.Homotopy.toDerived
-    (ofConstantCoefficient g' Λ).modulePullback).HasLeftDerivedFunctor
-    (HomotopyCategory.quasiIso _ (ComplexShape.up ℤ))]
-variable [(Functor.Homotopy.toDerived
-    (RingedSite.ToposHom.comp (ofConstantCoefficient f' Λ)
-      (ofConstantCoefficient g Λ)).modulePullback).HasLeftDerivedFunctor
-    (HomotopyCategory.quasiIso _ (ComplexShape.up ℤ))]
-variable [(Functor.Homotopy.toDerived
-    (RingedSite.ToposHom.comp (ofConstantCoefficient g' Λ)
-      (ofConstantCoefficient f Λ)).modulePullback).HasLeftDerivedFunctor
-    (HomotopyCategory.quasiIso _ (ComplexShape.up ℤ))]
-variable [CategoryTheory.Adjunction.TotalDerived.HasPair
-    (G := (ofConstantCoefficient f Λ).modulePullback.mapHomotopyCategory (ComplexShape.up ℤ))
-    (F := (ofConstantCoefficient f Λ).modulePushforward.mapHomotopyCategory (ComplexShape.up ℤ))
-    (RingedSite.Hom.ModuleQis
-      (RingedSite.ofCommRingSheaf (ProEt.topology Y) (constantCoefficientRing Y Λ)))
-    (RingedSite.Hom.ModuleQis
+variable [(@Functor.Homotopy.toDerived _ _ _ _ _ _
+    (RingedSite.Hom.moduleCat_hasDerivedCategory
       (RingedSite.ofCommRingSheaf (ProEt.topology X) (constantCoefficientRing X Λ)))
-    (L1 := RingedSite.Hom.moduleLocalization
-      (RingedSite.ofCommRingSheaf (ProEt.topology Y) (constantCoefficientRing Y Λ)))
-    (L2 := RingedSite.Hom.moduleLocalization
-      (RingedSite.ofCommRingSheaf (ProEt.topology X) (constantCoefficientRing X Λ)))]
-variable [CategoryTheory.Adjunction.TotalDerived.HasPair
-    (G := (ofConstantCoefficient f' Λ).modulePullback.mapHomotopyCategory (ComplexShape.up ℤ))
-    (F := (ofConstantCoefficient f' Λ).modulePushforward.mapHomotopyCategory (ComplexShape.up ℤ))
-    (RingedSite.Hom.ModuleQis
+    (ofConstantCoefficient f Λ).modulePullback inferInstance).HasLeftDerivedFunctor
+    (HomotopyCategory.quasiIso _ (ComplexShape.up ℤ))]
+variable [(@Functor.Homotopy.toDerived _ _ _ _ _ _
+    (RingedSite.Hom.moduleCat_hasDerivedCategory
       (RingedSite.ofCommRingSheaf (ProEt.topology Y') (constantCoefficientRing Y' Λ)))
-    (RingedSite.Hom.ModuleQis
+    (ofConstantCoefficient g Λ).modulePullback inferInstance).HasLeftDerivedFunctor
+    (HomotopyCategory.quasiIso _ (ComplexShape.up ℤ))]
+variable [(@Functor.Homotopy.toDerived _ _ _ _ _ _
+    (RingedSite.Hom.moduleCat_hasDerivedCategory
       (RingedSite.ofCommRingSheaf (ProEt.topology X') (constantCoefficientRing X' Λ)))
-    (L1 := RingedSite.Hom.moduleLocalization
-      (RingedSite.ofCommRingSheaf (ProEt.topology Y') (constantCoefficientRing Y' Λ)))
-    (L2 := RingedSite.Hom.moduleLocalization
-      (RingedSite.ofCommRingSheaf (ProEt.topology X') (constantCoefficientRing X' Λ)))]
-variable [CategoryTheory.Adjunction.TotalDerived.HasPair
-    (G := (ofConstantCoefficient g Λ).modulePullback.mapHomotopyCategory (ComplexShape.up ℤ))
-    (F := (ofConstantCoefficient g Λ).modulePushforward.mapHomotopyCategory (ComplexShape.up ℤ))
-    (RingedSite.Hom.ModuleQis
-      (RingedSite.ofCommRingSheaf (ProEt.topology Y) (constantCoefficientRing Y Λ)))
-    (RingedSite.Hom.ModuleQis
-      (RingedSite.ofCommRingSheaf (ProEt.topology Y') (constantCoefficientRing Y' Λ)))
-    (L1 := RingedSite.Hom.moduleLocalization
-      (RingedSite.ofCommRingSheaf (ProEt.topology Y) (constantCoefficientRing Y Λ)))
-    (L2 := RingedSite.Hom.moduleLocalization
-      (RingedSite.ofCommRingSheaf (ProEt.topology Y') (constantCoefficientRing Y' Λ)))]
+    (ofConstantCoefficient f' Λ).modulePullback inferInstance).HasLeftDerivedFunctor
+    (HomotopyCategory.quasiIso _ (ComplexShape.up ℤ))]
+variable [(@Functor.Homotopy.toDerived _ _ _ _ _ _
+    (RingedSite.Hom.moduleCat_hasDerivedCategory
+      (RingedSite.ofCommRingSheaf (ProEt.topology X') (constantCoefficientRing X' Λ)))
+    (ofConstantCoefficient g' Λ).modulePullback inferInstance).HasLeftDerivedFunctor
+    (HomotopyCategory.quasiIso _ (ComplexShape.up ℤ))]
+variable [(@Functor.Homotopy.toDerived _ _ _ _ _ _
+    (RingedSite.Hom.moduleCat_hasDerivedCategory
+      (RingedSite.ofCommRingSheaf (ProEt.topology X') (constantCoefficientRing X' Λ)))
+    (RingedSite.ToposHom.comp (ofConstantCoefficient f' Λ)
+      (ofConstantCoefficient g Λ)).modulePullback inferInstance).HasLeftDerivedFunctor
+    (HomotopyCategory.quasiIso _ (ComplexShape.up ℤ))]
+variable [(@Functor.Homotopy.toDerived _ _ _ _ _ _
+    (RingedSite.Hom.moduleCat_hasDerivedCategory
+      (RingedSite.ofCommRingSheaf (ProEt.topology X') (constantCoefficientRing X' Λ)))
+    (RingedSite.ToposHom.comp (ofConstantCoefficient g' Λ)
+      (ofConstantCoefficient f Λ)).modulePullback inferInstance).HasLeftDerivedFunctor
+    (HomotopyCategory.quasiIso _ (ComplexShape.up ℤ))]
+variable [RingedSite.ToposHom.HasModuleDerivedAdjunction (ofConstantCoefficient f Λ)]
+variable [RingedSite.ToposHom.HasModuleDerivedAdjunction (ofConstantCoefficient f' Λ)]
+variable [RingedSite.ToposHom.HasModuleDerivedAdjunction (ofConstantCoefficient g Λ)]
 
-/-- Theorem 61.30.1: for a proper morphism of schemes, a cartesian base-change
-square, a Noetherian coefficient ring Λ with ideal I such that Λ ⧸ I is torsion,
-and a derived-complete object K of D(X_proétale, Λ) whose reductions
-K ⊗^L underline(Λ ⧸ I^n) are bounded below with cohomology sheaves coming from
-X_étale, and with each Λ ⧸ I^n a perfect Λ-module, the completed derived
-base-change map Lg_comp^* Rf_* K ⟶ Rf'_* L(g')_comp^* K is an isomorphism. -/
-@[stacks 09C9]
-theorem completedDerivedBaseChange_isIso_of_isProper
-    [IsProper f] (h_cart : IsPullback g' f' f g) (I : Ideal Λ)
-    (h_torsion : AddMonoid.IsTorsion (Λ ⧸ I))
-    (h_perf : ∀ n, ModuleCat.IsPerfect (ModuleCat.of Λ (Λ ⧸ I ^ n)))
+/- Theorem 61.30.1: Proper base change for derived-complete complexes on small pro-étale sites. -/
+@[stacks 09C9] #check
+  (AlgebraicGeometry.Scheme.ProEt.completedDerivedBaseChange_isIso_of_isProper_withReflectors f g f' g' :
+  ∀ [IsNoetherianRing Λ] [IsProper f] (h_cart : IsPullback g' f' f g) (I : Ideal Λ)
+    (RX : ObjectProperty.Reflector
+      (derivedCompleteObjectProperty (coefficientIdeal X' Λ I)))
+    (RY : ObjectProperty.Reflector
+      (derivedCompleteObjectProperty (coefficientIdeal Y' Λ I)))
+    (_ : AddMonoid.IsTorsion (Λ ⧸ I))
+    (_ : ∀ n, ModuleCat.IsPerfect (ModuleCat.of Λ (Λ ⧸ I ^ n)))
     (K : ProetaleDerived X Λ)
     (hK : IsDerivedCompleteWithRespectTo K I)
     [(coefficientIdeal X Λ I :
@@ -215,31 +183,25 @@ theorem completedDerivedBaseChange_isIso_of_isProper
           (ProEt.topology Y') (constantCoefficientRing Y' Λ)).IsFiniteType]
     [IsIso (modulePullbackDerivedCompComparison g Λ f')]
     [IsIso (modulePullbackDerivedCompComparison f Λ g')]
-    (h_bdd : ∀ (n : ℕ)
-      [HasSheafify (ProEt.topology X) (ModuleCat.{u + 1} (Λ ⧸ I ^ n))]
-      [HasDerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} (Λ ⧸ I ^ n)))]
-      [(proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ n)) X).Additive]
-      [(Functor.Homotopy.toDerived
-          (proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ n)) X)).HasLeftDerivedFunctor
-        (HomotopyCategory.quasiIso
-          (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} Λ)) (ComplexShape.up ℤ))],
-      IsProEtReductionBoundedBelow I n (toDerivedCategory K))
-    (h_etale : ∀ (n : ℕ)
-      [HasSheafify (ProEt.topology X) (ModuleCat.{u + 1} (Λ ⧸ I ^ n))]
-      [HasDerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} (Λ ⧸ I ^ n)))]
-      [(proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ n)) X).Additive]
-      [(Functor.Homotopy.toDerived
-          (proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ n)) X)).HasLeftDerivedFunctor
-        (HomotopyCategory.quasiIso
-          (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} Λ)) (ComplexShape.up ℤ))]
-      [HasSheafify X.smallEtaleTopology (ModuleCat.{u + 1} (Λ ⧸ I ^ n))]
-      [HasDerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{u + 1} (Λ ⧸ I ^ n)))]
-      [∀ F : X.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} (Λ ⧸ I ^ n),
-        (etaleToProEt X).op.HasLeftKanExtension F],
-      IsProEtReductionCohomologyFromEtale I n (toDerivedCategory K)) :
+    [∀ n : ℕ, HasSheafify (ProEt.topology X) (ModuleCat.{u + 1} (Λ ⧸ I ^ n))]
+    [∀ n : ℕ,
+      HasDerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} (Λ ⧸ I ^ n)))]
+    [∀ n : ℕ, (proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ n)) X).Additive]
+    [∀ n : ℕ, (Functor.Homotopy.toDerived
+        (proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ n)) X)).HasLeftDerivedFunctor
+      (HomotopyCategory.quasiIso
+        (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} Λ)) (ComplexShape.up ℤ))]
+    [∀ n : ℕ, HasSheafify X.smallEtaleTopology (ModuleCat.{u + 1} (Λ ⧸ I ^ n))]
+    [∀ n : ℕ,
+      HasDerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{u + 1} (Λ ⧸ I ^ n)))]
+    [∀ (n : ℕ) (F : X.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} (Λ ⧸ I ^ n)),
+      (etaleToProEt X).op.HasLeftKanExtension F]
+    (_ : ∀ n : ℕ, IsBoundedBelow (proEtReduction I n K))
+    (_ : ∀ n : ℕ,
+      cohomologyIn (etaleToProEtModuleEssImage X (Λ ⧸ I ^ n)) (proEtReduction I n K)),
     IsIso
-      (completedDerivedBaseChangeHom f Λ g f' g' h_cart I
-        (toConstantComplete Λ I K hK)) := sorry
+      (AlgebraicGeometry.Scheme.ProEt.completedDerivedBaseChangeHomWithReflectors f g f' g' h_cart I RX RY
+        (toConstantComplete Λ I K hK)))
 
 end AlgebraicGeometry.Scheme.ProEt
 

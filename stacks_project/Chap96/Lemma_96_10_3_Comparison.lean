@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Elements
@@ -58,26 +52,9 @@ variable (α : (f ≫ eY.symm.hom) ≅
 variable [HasSheafify (AlgebraicSpace.smallEtaleTopology F) (Type u)]
 variable [HasSheafify (AlgebraicSpace.smallEtaleTopology G) (Type u)]
 variable [∀ P : (AlgebraicSpace.smallEtaleSite F)ᵒᵖ ⥤ Type u,
-    (smallEtaleFunctor F X eX).op.HasPointwiseRightKanExtension P]
-variable [∀ P : (AlgebraicSpace.smallEtaleSite G)ᵒᵖ ⥤ Type u,
-    (smallEtaleFunctor G Y eY).op.HasPointwiseRightKanExtension P]
-variable [∀ P : (AlgebraicSpace.smallEtaleSite F)ᵒᵖ ⥤ RingCat.{u},
-    (smallEtaleFunctor F X eX).op.HasPointwiseRightKanExtension P]
-variable [∀ P : (AlgebraicSpace.smallEtaleSite G)ᵒᵖ ⥤ RingCat.{u},
-    (smallEtaleFunctor G Y eY).op.HasPointwiseRightKanExtension P]
-variable [(forget RingCat.{u}).PreservesRightKanExtensions (smallEtaleFunctor F X eX).op]
-variable [(forget RingCat.{u}).PreservesRightKanExtensions (smallEtaleFunctor G Y eY).op]
-variable [∀ P : (AlgebraicSpace.smallEtaleSite F)ᵒᵖ ⥤ Type u,
     (smallEtaleFunctor F X eX).op.HasLeftKanExtension P]
 variable [∀ P : (AlgebraicSpace.smallEtaleSite G)ᵒᵖ ⥤ Type u,
     (smallEtaleFunctor G Y eY).op.HasLeftKanExtension P]
-variable [∀ P : X.totalᵒᵖ ⥤ Type u,
-    (toCartesianBasedFunctor f).toFunctor.op.HasPointwiseRightKanExtension P]
-variable [∀ P : F.toGroupoids.totalᵒᵖ ⥤ Type u,
-    (toCartesianBasedFunctor
-        (AlgebraicSpace.toGroupoids.map (inducedHom eX eY f))).toFunctor.op.HasPointwiseRightKanExtension P]
-variable [∀ P : (AlgebraicSpace.smallEtaleSite F)ᵒᵖ ⥤ Type u,
-    (AlgebraicSpace.smallEtaleInclusion F).op.HasPointwiseRightKanExtension P]
 
 /-- Transport of the presentation `2`-iso `α` to
 `eX.hom ≫ f ≅ map(inducedHom) ≫ eY.hom` by units, counits, and associators. -/
@@ -110,6 +87,21 @@ abbrev compareBigDiagOver (𝒢 : Sheaf X.etaleTopology (Type u))
       (toCartesianBasedFunctor (AlgebraicSpace.toGroupoids.map (inducedHom eX eY f))).toFunctor.op ⋙
     (restrictAlongEquiv eX 𝒢).obj
 
+/-- The represented source and target provide an actual limit for the
+identity-presentation diagram of the given sheaf. -/
+instance compareBigDiagOver_hasLimit (𝒢 : Sheaf X.etaleTopology (Type u))
+    (V : AlgebraicSpace.smallEtaleSite G) :
+    HasLimit (compareBigDiagOver eX eY f 𝒢 V) :=
+  HasLimit.mk
+    ⟨RepresentedDirectImage.cone
+        (AlgebraicSpace.toGroupoids.map (inducedHom eX eY f))
+        (Bicategory.Equivalence.id _) (Bicategory.Equivalence.id _)
+        (restrictAlongEquiv eX 𝒢) ((smallEtaleToGroupoids G).obj V),
+      RepresentedDirectImage.coneIsLimit
+        (AlgebraicSpace.toGroupoids.map (inducedHom eX eY f))
+        (Bicategory.Equivalence.id _) (Bicategory.Equivalence.id _)
+        (restrictAlongEquiv eX 𝒢) ((smallEtaleToGroupoids G).obj V)⟩
+
 /-- The Type-`u` CFG Kan diagram of `𝒢` at `u_Y(V)`. -/
 abbrev compareConjBigDiag (𝒢 : Sheaf X.etaleTopology (Type u))
     (V : AlgebraicSpace.smallEtaleSite G) :
@@ -120,13 +112,31 @@ abbrev compareConjBigDiag (𝒢 : Sheaf X.etaleTopology (Type u))
       (toCartesianBasedFunctor f).toFunctor.op ⋙
     𝒢.obj
 
+/-- The supplied presentations give a concrete atlas descent limit of the
+original CFG comma diagram. -/
+instance compareConjBigDiag_hasLimit (𝒢 : Sheaf X.etaleTopology (Type u))
+    (V : AlgebraicSpace.smallEtaleSite G) :
+    HasLimit (compareConjBigDiag eX eY f 𝒢 V) :=
+  HasLimit.mk
+    ⟨RepresentedDirectImage.cone f eX eY 𝒢 ((smallEtaleFunctor G Y eY).obj V),
+      RepresentedDirectImage.coneIsLimit f eX eY 𝒢 ((smallEtaleFunctor G Y eY).obj V)⟩
+
 /-- The Type-`u` small-étale Kan diagram of `π_{F,*} 𝒢` at `V ×_G F`. -/
 abbrev compareSmallDiagOver (𝒢 : Sheaf X.etaleTopology (Type u))
     (V : AlgebraicSpace.smallEtaleSite G) :
     AlgebraicSpace.compareSmallIndex (inducedHom eX eY f) V ⥤ Type u :=
   StructuredArrow.proj (op ((AlgebraicSpace.etaleBaseChange (inducedHom eX eY f)).obj V))
-      (AlgebraicSpace.smallEtaleInclusion F).op ⋙
+      (AlgebraicSpace.smallEtaleToSpaces F).op ⋙
     ((piToposHom F X eX).toTopos.pushforward.obj 𝒢).obj
+
+/-- The actual small-chart extension supplies the limit of the restricted
+sheaf diagram at the geometric fibre. -/
+instance compareSmallDiagOver_hasLimit (𝒢 : Sheaf X.etaleTopology (Type u))
+    (V : AlgebraicSpace.smallEtaleSite G) :
+    HasLimit (compareSmallDiagOver eX eY f 𝒢 V) :=
+  AlgebraicSpace.EtaleTopos.allChartHasLimit F
+    ((piToposHom F X eX).toTopos.pushforward.obj 𝒢)
+    ((AlgebraicSpace.etaleBaseChange (inducedHom eX eY f)).obj V)
 
 /-- After restriction along `compareIndexMap`, the CFG diagram is the small-étale
 diagram. -/
@@ -162,7 +172,8 @@ def compareCoverSectionOver (𝒢 : Sheaf X.etaleTopology (Type u))
   limit.π (compareSmallDiagOver eX eY f 𝒢 V)
     (AlgebraicSpace.coverIndex (inducedHom eX eY f) V)
 
-/-- The family of sections on `T ×_F U₀`. -/
+/-- The family of sections on the atlas pullback along the original comma
+arrow into `V ×_G F`. -/
 def compareFibreSectionOver (𝒢 : Sheaf X.etaleTopology (Type u))
     (V : AlgebraicSpace.smallEtaleSite G)
     (j : AlgebraicSpace.compareBigIndex (inducedHom eX eY f) V) :
@@ -173,7 +184,8 @@ def compareFibreSectionOver (𝒢 : Sheaf X.etaleTopology (Type u))
     (restrictAlongEquiv eX 𝒢).obj.map
       (AlgebraicSpace.compareFibreToCover (inducedHom eX eY f) j).op
 
-/-- Compatibility of the one-arrow covering family on `T ×_F U₀`. -/
+/-- The atlas pullback overlap maps have equal images in `V ×_G F`, so the
+small-chart compatible family has equal restrictions on their overlap. -/
 theorem compareFibreSectionOver_compatible (𝒢 : Sheaf X.etaleTopology (Type u))
     (V : AlgebraicSpace.smallEtaleSite G)
     (j : AlgebraicSpace.compareBigIndex (inducedHom eX eY f) V) :
@@ -351,13 +363,14 @@ def compareConjLimitIso (𝒢 : Sheaf X.etaleTopology (Type u))
 /-- Evaluation of `π_{G,*} f_* 𝒢` at `V` as a CFG Kan limit of the restricted sheaf. -/
 def compareMorphismIso_leftEval (𝒢 : Sheaf X.etaleTopology (Type u))
     (V : AlgebraicSpace.smallEtaleSite G) :
+    letI := hasSmallCFGTypeSections_ofRepresented f eX eY
     ((RingedSite.ToposHom.comp (etaleRingedToposHom f)
             (piToposHom G Y eY)).toTopos.pushforward.obj 𝒢).obj.obj (op V) ≅
       limit (compareBigDiagOver eX eY f 𝒢 V) :=
+  letI := hasSmallCFGTypeSections_ofRepresented f eX eY
   sheafPushforwardContinuousObjObjIso (smallEtaleFunctor G Y eY) (Type u)
       ((etaleRingedToposHom f).toTopos.pushforward.obj 𝒢) V ≪≫
-    ((toCartesianBasedFunctor f).toFunctor.op.ranObjObjIsoLimit
-        𝒢.obj (op ((smallEtaleFunctor G Y eY).obj V))) ≪≫
+    (Iso.refl (limit (compareConjBigDiag eX eY f 𝒢 V))) ≪≫
       compareConjLimitIso eX eY f α 𝒢 V
 
 /-- The spaces-étale extension of `π_{F,*} 𝒢` used by `f_small,*`. -/
@@ -381,42 +394,51 @@ def compareMorphismIso_rightEval (𝒢 : Sheaf X.etaleTopology (Type u))
 /-- Sectionwise identification of `π_{G,*} f_* 𝒢` with `f_small,* π_{F,*} 𝒢`. -/
 def compareMorphismIso_app (𝒢 : Sheaf X.etaleTopology (Type u))
     (V : AlgebraicSpace.smallEtaleSite G) :
+    letI := hasSmallCFGTypeSections_ofRepresented f eX eY
     ((RingedSite.ToposHom.comp (etaleRingedToposHom f)
             (piToposHom G Y eY)).toTopos.pushforward.obj 𝒢).obj.obj (op V) ≅
       ((RingedSite.ToposHom.comp (piToposHom F X eX)
             (AlgebraicSpace.ringedToposHom (inducedHom eX eY f))).toTopos.pushforward.obj
         𝒢).obj.obj (op V) :=
+  letI := hasSmallCFGTypeSections_ofRepresented f eX eY
   compareMorphismIso_leftEval eX eY f α 𝒢 V ≪≫
     compareLimitIsoOver eX eY f 𝒢 V ≪≫
       compareMorphismIso_rightEval eX eY f 𝒢 V
 
 /-- Underlying presheaf identification of the two composites. -/
 def compareMorphismIsoPresheaf (𝒢 : Sheaf X.etaleTopology (Type u)) :
+    letI := hasSmallCFGTypeSections_ofRepresented f eX eY
     ((RingedSite.ToposHom.comp (etaleRingedToposHom f)
             (piToposHom G Y eY)).toTopos.pushforward.obj 𝒢).obj ≅
       ((RingedSite.ToposHom.comp (piToposHom F X eX)
             (AlgebraicSpace.ringedToposHom (inducedHom eX eY f))).toTopos.pushforward.obj
         𝒢).obj :=
+  letI := hasSmallCFGTypeSections_ofRepresented f eX eY
   NatIso.ofComponents (fun V => compareMorphismIso_app eX eY f α 𝒢 V.unop) sorry
 
 /-- The sheaf identification `π_{G,*} f_* 𝒢 ≅ f_small,* π_{F,*} 𝒢`. -/
 def compareMorphismIso_obj (𝒢 : Sheaf X.etaleTopology (Type u)) :
+    letI := hasSmallCFGTypeSections_ofRepresented f eX eY
     (RingedSite.ToposHom.comp (etaleRingedToposHom f)
           (piToposHom G Y eY)).toTopos.pushforward.obj 𝒢 ≅
       (RingedSite.ToposHom.comp (piToposHom F X eX)
-          (AlgebraicSpace.ringedToposHom (inducedHom eX eY f))).toTopos.pushforward.obj 𝒢 where
-  hom := CategoryTheory.ObjectProperty.homMk (compareMorphismIsoPresheaf eX eY f α 𝒢).hom
-  inv := CategoryTheory.ObjectProperty.homMk (compareMorphismIsoPresheaf eX eY f α 𝒢).inv
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+          (AlgebraicSpace.ringedToposHom (inducedHom eX eY f))).toTopos.pushforward.obj 𝒢 :=
+  letI := hasSmallCFGTypeSections_ofRepresented f eX eY
+  {
+    hom := CategoryTheory.ObjectProperty.homMk (compareMorphismIsoPresheaf eX eY f α 𝒢).hom
+    inv := CategoryTheory.ObjectProperty.homMk (compareMorphismIsoPresheaf eX eY f α 𝒢).inv
+    hom_inv_id := sorry
+    inv_hom_id := sorry }
 
 /-- The canonical Type-`u` identification `π_{G,*} f_* ≅ f_small,* π_{F,*}` of
 direct images of ringed topoi. -/
 def compareMorphismIso :
+    letI := hasSmallCFGTypeSections_ofRepresented f eX eY
     (RingedSite.ToposHom.comp (etaleRingedToposHom f)
           (piToposHom G Y eY)).toTopos.pushforward ≅
       (RingedSite.ToposHom.comp (piToposHom F X eX)
           (AlgebraicSpace.ringedToposHom (inducedHom eX eY f))).toTopos.pushforward :=
+  letI := hasSmallCFGTypeSections_ofRepresented f eX eY
   NatIso.ofComponents (fun 𝒢 => compareMorphismIso_obj eX eY f α 𝒢) sorry
 
 /-- The commutative square of ringed topoi with edges `f`, `π_F`, `π_G`, and
@@ -424,18 +446,21 @@ def compareMorphismIso :
 def compareMorphism :
     RingedSite.ToposHom.CommSquare
       (etaleRingedSite X) (etaleRingedSite Y)
-      (AlgebraicSpace.ringedSite F) (AlgebraicSpace.ringedSite G) where
-  upper := etaleRingedToposHom f
-  left := piToposHom F X eX
-  right := piToposHom G Y eY
-  lower := AlgebraicSpace.ringedToposHom (inducedHom eX eY f)
-  cell :=
-    { homIso := compareMorphismIso eX eY f α
-      comm := sorry }
+      (AlgebraicSpace.ringedSite F) (AlgebraicSpace.ringedSite G) :=
+  letI := hasSmallCFGTypeSections_ofRepresented f eX eY
+  {
+    upper := etaleRingedToposHom f
+    left := piToposHom F X eX
+    right := piToposHom G Y eY
+    lower := AlgebraicSpace.ringedToposHom (inducedHom eX eY f)
+    cell :=
+      { homIso := compareMorphismIso eX eY f α
+        comm := sorry } }
 
 /-- The four edges of `compareMorphism` are `f`, `π_F`, `π_G`, and `f_small`, and
 the stored `2`-cell is `compareMorphismIso`. -/
 theorem compareMorphism_spec :
+    letI := hasSmallCFGTypeSections_ofRepresented f eX eY
     (compareMorphism eX eY f α).upper = etaleRingedToposHom f ∧
       (compareMorphism eX eY f α).left = piToposHom F X eX ∧
       (compareMorphism eX eY f α).right = piToposHom G Y eY ∧

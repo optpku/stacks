@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Sites.Representability
@@ -78,7 +72,46 @@ abbrev toFunctor
 representable. -/
 instance instIsRepresentable
     [F : RelativeProjFunctor S 𝒜] :
-    F.toFunctor.IsRepresentable := sorry
+    F.toFunctor.IsRepresentable := by
+  letI (d : {n : ℕ // 1 ≤ n}) : (F.degreeFunctor d).toFunctor.IsRepresentable :=
+    F.degreeFunctor_isRepresentable d
+  let charts (d : ULift.{u} {n : ℕ // 1 ≤ n}) := (F.degreeFunctor d.down).toFunctor.reprX
+  let maps (d : ULift.{u} {n : ℕ // 1 ≤ n}) : yoneda.obj (charts d) ⟶ F.toSheaf.obj :=
+    (F.degreeFunctor d.down).toFunctor.reprW.hom ≫ F.degreeToFunctor d.down
+  have maps_open (d : ULift.{u} {n : ℕ // 1 ≤ n}) : IsOpenImmersion.presheaf (maps d) :=
+    MorphismProperty.comp_mem IsOpenImmersion.presheaf _ _
+      (MorphismProperty.of_isIso IsOpenImmersion.presheaf _)
+      (F.degreeToFunctor_isOpenImmersion d.down)
+  let reindex :
+      (∐ fun d : ULift.{u} {n : ℕ // 1 ≤ n} ↦ (F.degreeFunctor d.down).toFunctor) ≅
+        ∐ fun d ↦ (F.degreeFunctor d).toFunctor :=
+    { hom := Limits.Sigma.map' ULift.down (fun _ ↦ 𝟙 _)
+      inv := Limits.Sigma.map' ULift.up (fun _ ↦ 𝟙 _)
+      hom_inv_id := by
+        apply Limits.Sigma.hom_ext
+        intro d
+        simp only [Limits.Sigma.ι_comp_map'_assoc,
+          Limits.Sigma.ι_comp_map', Category.id_comp, Category.comp_id, ULift.up_down]
+      inv_hom_id := by
+        apply Limits.Sigma.hom_ext
+        intro d
+        simp only [Limits.Sigma.ι_comp_map'_assoc,
+          Limits.Sigma.ι_comp_map', Category.id_comp, Category.comp_id] }
+  let e := Limits.Sigma.mapIso (fun d : ULift.{u} {n : ℕ // 1 ≤ n} ↦
+    (F.degreeFunctor d.down).toFunctor.reprW) ≪≫ reindex
+  have fac : e.hom ≫ Limits.Sigma.desc F.degreeToFunctor = Limits.Sigma.desc maps := by
+    apply Limits.Sigma.hom_ext
+    intro d
+    simp only [e, Iso.trans_hom, Category.assoc, Limits.Sigma.ι_mapIso_hom_assoc]
+    simp only [reindex, Limits.Sigma.ι_comp_map'_assoc, Category.id_comp,
+      Limits.Sigma.ι_desc]
+    rfl
+  letI := F.coveredByDegree
+  letI : Presheaf.IsLocallySurjective Scheme.zariskiTopology (Limits.Sigma.desc maps) := by
+    rw [← fac]
+    infer_instance
+  exact Scheme.LocalRepresentability.isRepresentable
+    (F := F.toSheaf) (X := charts) (f := maps) maps_open
 
 end RelativeProjFunctor
 

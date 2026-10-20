@@ -1,25 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.«101_3_3_1_Isom»
-public import stacks_project.Chap101.«101_3_3_1_Pullback»
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
-import Mathlib.Tactic.CrossRefAttribute
-
-/-!
-# Equation 101.3.3.1 — fibre square of Isom sheaves along a diagonal
-
-For a morphism of algebraic stacks, the 2-fibre product of the diagonal
-against a 2-Yoneda triple `(x, x', α)` is cartesian as a square of sheaves
-over `T`.
--/
-
-@[expose] public section
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Diagonal
+import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry Opposite
 open FiberedCategoryOver.Groupoids
@@ -31,21 +13,26 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack
-
-/-- 101.3.3.1: Let `f : X ⟶ Y` be a morphism of algebraic stacks over `S`, let
-`T` be a scheme over `S`, and let `a : T ⟶ X ×_Y X` be given by the 2-Yoneda
-triple `(x, x', α)` with `x, x'` objects of `X` over `T` and
-`α : f(x) ⟶ f(x')` in the fibre of `Y` over `T`. Then the square of sheaves
-over `T` with corners `X ×_{X ×_Y X, a} T`, `Isom_X(x, x')`, `T`, and
-`Isom_Y(f(x), f(x'))` is a fibre square. -/
-@[stacks 04XT]
-theorem isomSquare_isPullback {S : Scheme.{u}} {X Y : GroupoidsOver S}
+/- 101.3.3.1: The diagonal base change along a Yoneda triple is the fibre square
+of Isom sheaves over the test scheme. -/
+@[stacks 04XT] #check (AlgebraicGeometry.AlgebraicStack.isomSquare_isPullback : ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) {T : Over S}
     (x x' : X.p.Fiber T)
-    (α : (fiberFunctor f T).obj x ≅ (fiberFunctor f T).obj x') :
+    (α : (fiberFunctor f T).obj x ≅ (fiberFunctor f T).obj x'),
     IsPullback (toIsom f x x' α) (toBase f x x' α)
-      (isomMap f x x') (alphaSection f x x' α) :=
-  sorry
+      (isomMap f x x') (alphaSection f x x' α))
 
-end AlgebraicGeometry.AlgebraicStack
+#check (AlgebraicGeometry.AlgebraicStack.diagonal_isom_isSheaf : ∀ {S : Scheme.{u}} {X : GroupoidsOver S}
+    [AlgebraicStack X] {T : Over S} (x x' : X.p.Fiber T),
+    Presheaf.IsSheaf ((Scheme.fppfTopology.over S).over T) (isom x x'))
+
+#check (AlgebraicGeometry.AlgebraicStack.diagonal_base_isSheaf : ∀ {S : Scheme.{u}} (T : Over S),
+    Presheaf.IsSheaf ((Scheme.fppfTopology.over S).over T)
+      (yoneda.obj (Over.mk (𝟙 T)) ⋙ uliftFunctor.{u + 1, u}))
+
+#check (AlgebraicGeometry.AlgebraicStack.diagonal_apexSheaf_isSheaf : ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) {T : Over S}
+    (x x' : X.p.Fiber T)
+    (α : (fiberFunctor f T).obj x ≅ (fiberFunctor f T).obj x'),
+    Presheaf.IsSheaf ((Scheme.fppfTopology.over S).over T) (apexSheaf f x x' α))
+

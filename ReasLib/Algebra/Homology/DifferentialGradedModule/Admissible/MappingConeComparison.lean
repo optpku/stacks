@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DifferentialGradedModule.Admissible.Triangle
@@ -60,22 +54,87 @@ def deshiftedTriangleK (sigma : GradedSplitting S) :
     Triangle (K R (DifferentialGradedModule.{u, v} A)) :=
   (toK A).mapTriangle.obj (deshiftedTriangle S sigma)
 
-/-- With a chosen graded splitting, the deshifted associated triangle is isomorphic to the
-standard mapping-cone triangle of the deshifted connecting morphism. -/
-theorem nonempty_deshiftedTriangleIso (sigma : GradedSplitting S) :
-    Nonempty
-      (deshiftedTriangleK S sigma ≅ MappingCone.triangleK (deshiftConnectingHom S sigma)) := sorry
+/-- The cone triangle `(S.X₃[-1], S.X₁, C(δ[-1]), δ[-1], i, p)` of Lemma 22.9.2, whose third
+map is the cone projection `p` itself (not the signed map `-p` of `MappingCone.triangle`). -/
+def deshiftedConeTriangle (sigma : GradedSplitting S) :
+    Triangle (DifferentialGradedModule.{u, v} A) :=
+  Triangle.mk (deshiftConnectingHom S sigma)
+    (MappingCone.inclusion (deshiftConnectingHom S sigma))
+    (MappingCone.projection (deshiftConnectingHom S sigma))
 
-/-- Lemma 22.9.2 (09KC): an admissible short exact sequence admits a graded splitting for which
-the deshifted associated triangle is isomorphic to the mapping-cone triangle of the deshifted
-connecting morphism. -/
+/-- The cone triangle `(S.X₃[-1], S.X₁, C(δ[-1]), δ[-1], i, p)` in the intrinsic DG homotopy
+category. -/
+def deshiftedConeTriangleK (sigma : GradedSplitting S) :
+    Triangle (K R (DifferentialGradedModule.{u, v} A)) :=
+  (toK A).mapTriangle.obj (deshiftedConeTriangle S sigma)
+
+/-- The splitting identification `S.X₂ = S.X₁ ⊕ S.X₃` of the middle term with the cone of the
+deshifted connecting morphism: `x ↦ (sigma.r x, S.g x)`, with inverse `(a, m) ↦ S.f a + sigma.s m`.
+Both differentials are the matrix `(d, δ; 0, d)`. -/
+def deshiftedConeIso (sigma : GradedSplitting S) :
+    S.X₂ ≅ mappingCone (deshiftConnectingHom S sigma) where
+  hom :=
+    { hom := fun n ↦
+        (sigma.retractionApp n).prod
+          (ModuleCat.castLinearMap (congrArg S.X₃.X (deshiftedThirdIndex n)) (S.g.hom n))
+      comm_d := sorry
+      comm_smul := sorry }
+  inv :=
+    { hom := fun n ↦
+        (S.f.hom n).coprod
+          ((sigma.sectionApp n).comp
+            (ModuleCat.castLinearMap (congrArg S.X₃.X (deshiftedThirdIndex n).symm)
+              LinearMap.id))
+      comm_d := sorry
+      comm_smul := sorry }
+  hom_inv_id := sorry
+  inv_hom_id := sorry
+
+/-- The forward splitting identification has coordinates `(sigma.r, S.g)`. -/
+@[simp]
+theorem deshiftedConeIso_hom_hom (sigma : GradedSplitting S) (n : ℤ) :
+    (deshiftedConeIso S sigma).hom.hom n =
+      (sigma.retractionApp n).prod
+        (ModuleCat.castLinearMap (congrArg S.X₃.X (deshiftedThirdIndex n)) (S.g.hom n)) := sorry
+
+/-- The inverse splitting identification is `(a, m) ↦ S.f a + sigma.s m`. -/
+@[simp]
+theorem deshiftedConeIso_inv_hom (sigma : GradedSplitting S) (n : ℤ) :
+    (deshiftedConeIso S sigma).inv.hom n =
+      (S.f.hom n).coprod
+        ((sigma.sectionApp n).comp
+          (ModuleCat.castLinearMap (congrArg S.X₃.X (deshiftedThirdIndex n).symm)
+            LinearMap.id)) := sorry
+
+/-- The module-level isomorphism of triangles of Lemma 22.9.2: the identity on the first two
+vertices and the splitting identification `deshiftedConeIso` on the third. -/
+def deshiftedTriangleIso (sigma : GradedSplitting S) :
+    deshiftedTriangle S sigma ≅ deshiftedConeTriangle S sigma :=
+  Triangle.isoMk _ _ (Iso.refl _) (Iso.refl _) (deshiftedConeIso S sigma) sorry sorry sorry
+
+/-- The third component of the Lemma 22.9.2 comparison is the splitting identification. -/
+@[simp]
+theorem deshiftedTriangleIso_hom_hom₃ (sigma : GradedSplitting S) :
+    (deshiftedTriangleIso S sigma).hom.hom₃ = (deshiftedConeIso S sigma).hom := sorry
+
+/-- Lemma 22.9.2 (09KC), with a chosen graded splitting: the triangle
+`(S.X₃[-1], S.X₁, S.X₂, δ[-1], S.f, S.g)` is isomorphic in the intrinsic DG homotopy category to
+`(S.X₃[-1], S.X₁, C(δ[-1]), δ[-1], i, p)`, by the image of `deshiftedTriangleIso`. -/
+@[stacks 09KC]
+def deshiftedTriangleIsoK (sigma : GradedSplitting S) :
+    deshiftedTriangleK S sigma ≅ deshiftedConeTriangleK S sigma :=
+  (toK A).mapTriangle.mapIso (deshiftedTriangleIso S sigma)
+
+/-- Lemma 22.9.2 (09KC): for an admissible short exact sequence, some graded splitting makes the
+deshifted associated triangle isomorphic to the cone triangle of the deshifted connecting
+morphism with third map `p`. -/
 @[stacks 09KC]
 theorem exists_deshiftedTriangleIso_of_admissible
     (hS : DifferentialGradedModule.IsAdmissibleShortExact S) :
     ∃ sigma : GradedSplitting S,
-      Nonempty
-        (deshiftedTriangleK S sigma ≅
-          MappingCone.triangleK (deshiftConnectingHom S sigma)) := sorry
+      Nonempty (deshiftedTriangleK S sigma ≅ deshiftedConeTriangleK S sigma) := by
+  obtain ⟨sigma⟩ := hS.nonempty_gradedSplitting
+  exact ⟨sigma, ⟨deshiftedTriangleIsoK S sigma⟩⟩
 
 /-- Projection from `mappingCone S.f` to the quotient term: retain the middle-term coordinate
 and apply `S.g`. -/

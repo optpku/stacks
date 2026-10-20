@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_16_5_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale.BaseChange
 import StacksCheckRecall
 
 @[expose] public section
@@ -18,7 +12,7 @@ open CategoryTheory AlgebraicGeometry MorphismProperty
 /- Lemma 66.16.5: The base change of an étale morphism of algebraic spaces by
 any morphism of algebraic spaces is étale. -/
 @[stacks 03FU] #check
-  (AlgebraicGeometry.AlgebraicSpace.Etale.instIsStableUnderBaseChange :
+  (AlgebraicGeometry.AlgebraicSpace.instIsStableUnderBaseChange_etale :
     ∀ {S : Scheme.{u}}, IsStableUnderBaseChange
       (@AlgebraicGeometry.AlgebraicSpace.Etale S :
         MorphismProperty (AlgebraicGeometry.AlgebraicSpace S)))

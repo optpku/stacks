@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Perfect
@@ -42,6 +36,8 @@ cohomology and either the source is perfect or the source is pseudo-coherent whi
 has finite Tor dimension. -/
 theorem diagram_isColimit
     (s : Scheme.Limit.QcqsAffineLimit D)
+    [DerivedCategory.DerivedTensor.Right.Has
+      (C := RingedSpace.Modules (D.obj (OrderDual.toDual s.base)).toRingedSpace)]
     (E₀ K₀ : RingedSpace.ModuleDerived
       (D.obj (OrderDual.toDual s.base)).toRingedSpace)
     (hK₀qc : DerivedCategory.cohomologyIn

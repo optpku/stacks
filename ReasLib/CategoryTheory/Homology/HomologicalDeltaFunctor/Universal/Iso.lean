@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Homology.HomologicalDeltaFunctor.Universal.Desc
+public import ReasLib.CategoryTheory.Homology.HomologicalDeltaFunctor.Universal.Lift
 public import ReasLib.CategoryTheory.Homology.HomologicalDeltaFunctor.Iso
 public import Mathlib.Tactic.CrossRefAttribute
 
@@ -30,24 +24,24 @@ variable {B : Type uB} [Category.{vB} B] [Preadditive B]
 
 /-- The two universal extensions of inverse degree-zero maps compose to the identity. -/
 @[simp]
-theorem desc_hom_comp_inv {F G : HomologicalDeltaFunctor A B}
+theorem lift_hom_comp_inv {F G : HomologicalDeltaFunctor A B}
     [IsUniversal F] [IsUniversal G] (e : (F 0).obj ≅ (G 0).obj) :
-    desc e.hom ≫ desc e.inv = 𝟙 F := sorry
+    lift e.hom ≫ lift e.inv = 𝟙 F := sorry
 
 /-- The two universal extensions in the opposite order compose to the identity. -/
 @[simp]
-theorem desc_inv_comp_hom {F G : HomologicalDeltaFunctor A B}
+theorem lift_inv_comp_hom {F G : HomologicalDeltaFunctor A B}
     [IsUniversal F] [IsUniversal G] (e : (F 0).obj ≅ (G 0).obj) :
-    desc e.inv ≫ desc e.hom = 𝟙 G := sorry
+    lift e.inv ≫ lift e.hom = 𝟙 G := sorry
 
 /-- The canonical universal comparison extending a degree-zero isomorphism. -/
 @[stacks 010U "canonical comparison of universal homological delta functors"]
 noncomputable def iso {F G : HomologicalDeltaFunctor A B}
     [IsUniversal F] [IsUniversal G] (e : (F 0).obj ≅ (G 0).obj) : F ≅ G where
-  hom := desc e.hom
-  inv := desc e.inv
-  hom_inv_id := desc_hom_comp_inv e
-  inv_hom_id := desc_inv_comp_hom e
+  hom := lift e.hom
+  inv := lift e.inv
+  hom_inv_id := lift_hom_comp_inv e
+  inv_hom_id := lift_inv_comp_hom e
 
 /-- The canonical comparison with universality supplied as ordinary proof arguments. -/
 noncomputable def isoOf {F G : HomologicalDeltaFunctor A B}
@@ -73,13 +67,13 @@ theorem isoOf_inv_app_zero {F G : HomologicalDeltaFunctor A B}
 @[simp]
 theorem iso_hom {F G : HomologicalDeltaFunctor A B}
     [IsUniversal F] [IsUniversal G] (e : (F 0).obj ≅ (G 0).obj) :
-    (iso e).hom = desc e.hom := sorry
+    (iso e).hom = lift e.hom := sorry
 
 /-- The inverse component of the canonical comparison is the chosen extension. -/
 @[simp]
 theorem iso_inv {F G : HomologicalDeltaFunctor A B}
     [IsUniversal F] [IsUniversal G] (e : (F 0).obj ≅ (G 0).obj) :
-    (iso e).inv = desc e.inv := sorry
+    (iso e).inv = lift e.inv := sorry
 
 /-- The degree-zero forward component of the canonical comparison. -/
 @[simp]

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Example_100_11_9_ResidualGerbe
-public import stacks_project.Chap101.Definition_101_4_2_Separation
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Separation.ResidualGerbe
+import StacksCheckRecall
 
 /-!
 # Separation axioms of residual gerbes
@@ -25,40 +19,34 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 101.4.16 (1): if `X` is DM and `ι : Z ⟶ X` is a residual gerbe of
+/- Lemma 101.4.16 (1): if `X` is DM and `ι : Z ⟶ X` is a residual gerbe of
 `X` at `x`, then `Z` is DM. -/
-@[stacks 06MZ]
-theorem IsDM.of_residualGerbe {S : Scheme.{u}} {X Z : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Z] (ι : Z ⟶ X) {x : Points X}
-    [IsResidualGerbe ι x] [IsDM X] : IsDM Z :=
-  sorry
+@[stacks 06MZ] #check (AlgebraicGeometry.AlgebraicStack.IsDM.of_residualGerbe :
+  ∀ {S : Scheme.{u}} {X Z : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Z] (ι : Z ⟶ X) (x : Points X)
+    [IsResidualGerbe ι x] [IsDM X], IsDM Z)
 
-/-- Lemma 101.4.16 (2): if `X` is quasi-DM and `ι : Z ⟶ X` is a residual gerbe
+/- Lemma 101.4.16 (2): if `X` is quasi-DM and `ι : Z ⟶ X` is a residual gerbe
 of `X` at `x`, then `Z` is quasi-DM. -/
-@[stacks 06MZ]
-theorem IsQuasiDM.of_residualGerbe {S : Scheme.{u}} {X Z : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Z] (ι : Z ⟶ X) {x : Points X}
-    [IsResidualGerbe ι x] [IsQuasiDM X] : IsQuasiDM Z :=
-  sorry
+@[stacks 06MZ] #check (AlgebraicGeometry.AlgebraicStack.IsQuasiDM.of_residualGerbe :
+  ∀ {S : Scheme.{u}} {X Z : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Z] (ι : Z ⟶ X) (x : Points X)
+    [IsResidualGerbe ι x] [IsQuasiDM X], IsQuasiDM Z)
 
-/-- Lemma 101.4.16 (3): if `X` is separated and `ι : Z ⟶ X` is a residual gerbe
+/- Lemma 101.4.16 (3): if `X` is separated and `ι : Z ⟶ X` is a residual gerbe
 of `X` at `x`, then `Z` is separated. -/
-@[stacks 06MZ]
-theorem IsSeparated.of_residualGerbe {S : Scheme.{u}} {X Z : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Z] (ι : Z ⟶ X) {x : Points X}
-    [IsResidualGerbe ι x] [IsSeparated X] : IsSeparated Z :=
-  sorry
+@[stacks 06MZ] #check (AlgebraicGeometry.AlgebraicStack.IsSeparated.of_residualGerbe :
+  ∀ {S : Scheme.{u}} {X Z : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Z] (ι : Z ⟶ X) (x : Points X)
+    [IsResidualGerbe ι x] [IsSeparated X], IsSeparated Z)
 
-/-- Lemma 101.4.16 (4): if `X` is quasi-separated and `ι : Z ⟶ X` is a residual
+/- Lemma 101.4.16 (4): if `X` is quasi-separated and `ι : Z ⟶ X` is a residual
 gerbe of `X` at `x`, then `Z` is quasi-separated. Absolute quasi-separatedness
 is quasi-separatedness over `Spec ℤ` after Construction A, as in
 Definition 101.4.2 (8). -/
-@[stacks 06MZ]
-theorem IsQuasiSeparated.of_residualGerbe {S : Scheme.{u}}
-    {X Z : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Z]
-    (ι : Z ⟶ X) {x : Points X} [IsResidualGerbe ι x]
-    [IsQuasiSeparatedOver (viewedOver (specULiftZIsTerminal.from S) X)] :
-    IsQuasiSeparatedOver (viewedOver (specULiftZIsTerminal.from S) Z) :=
-  sorry
+@[stacks 06MZ] #check (AlgebraicGeometry.AlgebraicStack.IsQuasiSeparated.of_residualGerbe :
+  ∀ {S : Scheme.{u}} {X Z : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Z] (ι : Z ⟶ X) (x : Points X)
+    [IsResidualGerbe ι x] [IsQuasiSeparated X], IsQuasiSeparated Z)
 
 end AlgebraicGeometry.AlgebraicStack

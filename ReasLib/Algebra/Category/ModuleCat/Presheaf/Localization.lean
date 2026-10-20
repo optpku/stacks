@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Presheaf.Abelian
@@ -72,13 +66,13 @@ noncomputable def coproductToLowerShriek
       ((lowerShriek R U).obj G).obj (op V) :=
   Sigma.desc (summandToLowerShriek R U G V)
 
-/-- Remark 18.19.7: the canonical coproduct map computes presheaf lower shriek objectwise. -/
+/-- The canonical coproduct map computes presheaf lower shriek objectwise. -/
 @[stacks 03EJ "presheaf lower-shriek coproduct formula"]
 theorem coproductToLowerShriek_isIso
     (G : PresheafOfModules ((Over.forget U).op ⋙ R)) (V : C) :
     IsIso (coproductToLowerShriek R U G V) := sorry
 
-/-- Remark 18.19.7: restriction of module presheaves to the slice has a right adjoint.  This is a
+/-- Restriction of module presheaves to the slice has a right adjoint.  This is a
 named instance so downstream code can use the canonical `Functor.rightAdjoint` without rebuilding
 local adjunction state. -/
 @[stacks 03EJ "presheaf direct image exists"]
@@ -113,7 +107,7 @@ noncomputable def restrictionDirectImageHomEquiv
 
 end DirectImage
 
-/-- Remark 18.19.7: presheaf lower shriek along slice localization is exact. -/
+/-- Presheaf lower shriek along slice localization is exact. -/
 @[stacks 03EJ "presheaf lower shriek is exact"]
 theorem lowerShriek_exact :
     exactFunctor _ _ (lowerShriek R U) := sorry

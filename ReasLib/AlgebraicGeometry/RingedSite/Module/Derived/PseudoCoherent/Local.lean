@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.PseudoCoherent
@@ -48,6 +42,8 @@ variable [∀ U : X, PreservesFiniteColimits (localizedRestriction.{w} X U)]
 complex. -/
 def HasStrictlyPerfectApproximationInDegree
     (K : ModuleDerived.{w} X) (U : X) (m : ℤ) : Prop :=
+  letI : HasDerivedCategory (ModuleCat.{w} (X.localization U)) :=
+    RingedSite.Hom.moduleCat_hasDerivedCategory (X.localization U)
   ∃ E' : CochainComplex (ModuleCat.{w} (X.localization U)) ℤ,
     IsStrictlyPerfect E' ∧
       ∃ α : DerivedCategory.Q.obj E' ⟶ (localizedRestrictionDerived.{w} X U).obj K,

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.FourierMukai.BoundedCoherent
@@ -23,6 +17,9 @@ namespace AlgebraicGeometry.Scheme.FourierMukai
 /- Lemma 57.8.5 (1) -/
 @[stacks 0FYU] #check (AlgebraicGeometry.Scheme.FourierMukai.mapsBoundedCoherent_of_finiteTorDimension :
     {S X Y : Scheme.{u}} → (f : X ⟶ S) → (g : Y ⟶ S) →
+    [DerivedCategory.DerivedTensor.Right.Has
+      (C := RingedSpace.Modules
+        (RingedSpace.Hom.inverseImageBase (Limits.pullback.fst f g).toShHom))] →
     [IsNoetherian S] → [Scheme.Hom.FiniteType f] → [Scheme.Hom.FiniteType g] →
     (K : RingedSpace.ModuleDerived (Limits.pullback f g).toRingedSpace) →
     DerivedCategory.cohomologyIn

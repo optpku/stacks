@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.FormalDeformation.ArtinianLocal
@@ -16,6 +10,8 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
   [Module.Finite Λ k]
 
 namespace ArtinianLocalAlgCat
+
+attribute [instance] Hom.isLocalHom
 
 /-- The carrier of an Artinian local algebra has its stored algebra structure. -/
 instance instAlgebraCarrier (A : ArtinianLocalAlgCat Λ k) : Algebra Λ A.carrier :=

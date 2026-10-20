@@ -1,16 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.KFlatResolution
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Flat.Coproduct
 public import ReasLib.Algebra.Homology.DerivedCategory.Monoidal.KFlat.TermwiseFlat
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Basic
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.Complex.Monoidal
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Complex.Monoidal
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!

@@ -1,15 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.GeometricSections
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.SiteExtComparison
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.ExactRightComposition
-public import stacks_project.Chap64.Remark_64_29_2_Cohomology
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.GeometricCohomology
 
 @[expose] public section
 open CategoryTheory CategoryTheory.Limits CategoryTheory.Action.ModuleCat

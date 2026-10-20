@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Perfect.Characterization
@@ -29,6 +23,7 @@ dimension. -/
 @[stacks 03TP] #check
   (AlgebraicGeometry.Scheme.ModuleDerived.isPerfect_iff_coherentCohomology_and_hasFiniteTorDimension :
     ∀ {X : Scheme.{u}} [IsNoetherian X]
+      [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
       (K : RingedSpace.ModuleDerived X.toRingedSpace),
       RingedSpace.ModuleDerived.IsPerfect K ↔
         DerivedCategory.cohomologyIn

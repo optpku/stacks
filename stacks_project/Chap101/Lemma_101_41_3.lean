@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_4_1_Separation
-public import stacks_project.Chap101.Lemma_101_39_8_Uniqueness
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.ValuativeCriterion.Separated
+import StacksCheckRecall
 
 /-!
 # Separated morphisms satisfy uniqueness in the valuative criterion
@@ -23,14 +17,10 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.ValuativeCriterion
-
-/-- Lemma 101.41.3: If `f : X ⟶ Y` is a separated morphism of algebraic stacks,
+/- Lemma 101.41.3: If `f : X ⟶ Y` is a separated morphism of algebraic stacks,
 then `f` satisfies the uniqueness part of the valuative criterion. -/
-@[stacks 0CLU]
-instance Uniqueness.of_separated {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Separated f] :
-    Uniqueness f :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.ValuativeCriterion
+@[stacks 0CLU] #check (AlgebraicGeometry.AlgebraicStack.ValuativeCriterion.Uniqueness.of_separated :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+    [AlgebraicGeometry.AlgebraicStack.Separated f],
+    AlgebraicGeometry.AlgebraicStack.ValuativeCriterion.Uniqueness f)

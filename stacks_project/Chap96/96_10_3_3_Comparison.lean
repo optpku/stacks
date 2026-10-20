@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PushforwardContinuous
@@ -21,6 +15,10 @@ public import stacks_project.Chap94.«94_8_2_1_FullyFaithful»
 public import stacks_project.Chap96.Lemma_96_8_1_Comparison
 public import stacks_project.Chap96.«96_10_3_1_Comparison»
 public import stacks_project.Chap96.«96_10_3_3_Restriction»
+public import ReasLib.CategoryTheory.Functor.KanExtension.SmallSections
+public import ReasLib.CategoryTheory.Sites.Pushforward.SmallSectionsRing
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.Adjunction
+public import stacks_project.Chap96.«96_10_3_3_RepresentedSections»
 
 /-!
 # Algebraic-space comparison morphisms of étale modules
@@ -48,23 +46,6 @@ namespace AlgebraicGeometry.GroupoidsOver
 
 variable {S : Scheme.{u}}
 
-/-- The total functor of a 1-morphism is a morphism of associated étale sites. -/
-instance toFunctor_isMorphismOfSites_etale {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    IsMorphismOfSites X.etaleTopology Y.etaleTopology (toFunctor h) :=
-  sorry
-
-/-- The total functor of a 1-morphism is continuous for associated étale topologies. -/
-instance toFunctor_isContinuous_etale {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    (toFunctor h).IsContinuous X.etaleTopology Y.etaleTopology :=
-  (toFunctor_isMorphismOfSites_etale h).toIsContinuous
-
-/-- The composite `toFunctor h ⋙ Y.p` is continuous from `X_étale` to the big
-étale site of `S`. -/
-instance toFunctor_comp_p_isContinuous_etale {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    (toFunctor h ⋙ Y.p).IsContinuous X.etaleTopology
-      (StandardTopology.etale.overTopology S) :=
-  toFunctor_comp_p_isContinuous h StandardTopology.etale
-
 /-- A composite of total functors is continuous for associated étale topologies. -/
 instance toFunctor_comp_isContinuous_etale {X Y Z : GroupoidsOver S}
     (h : X ⟶ Y) (k : Y ⟶ Z) :
@@ -85,24 +66,23 @@ instance etaleTopology_hasWeakSheafify_type (X : GroupoidsOver S) :
 /-- Pointwise right Kan extensions exist for type-valued presheaves along a cartesian
 total functor. -/
 instance toCartesian_op_hasPointwiseRightKanExtension_type {X Y : GroupoidsOver S}
-    (h : X ⟶ Y) (P : X.totalᵒᵖ ⥤ Type u) :
+    (h : X ⟶ Y) (P : X.totalᵒᵖ ⥤ Type u)
+    [hP : ∀ Z : Y.totalᵒᵖ,
+      Small.{u} (StructuredArrow.proj Z (toCartesianBasedFunctor h).toFunctor.op ⋙ P).sections] :
     (toCartesianBasedFunctor h).toFunctor.op.HasPointwiseRightKanExtension P :=
-  sorry
+  Functor.hasPointwiseRightKanExtension_of_small_sections
+    (toCartesianBasedFunctor h).toFunctor.op P
 
 /-- Pointwise right Kan extensions exist for ring-valued presheaves along a cartesian
 total functor. -/
 instance toCartesian_op_hasPointwiseRightKanExtension_ring {X Y : GroupoidsOver S}
-    (h : X ⟶ Y) (P : X.totalᵒᵖ ⥤ RingCat.{u}) :
+    (h : X ⟶ Y) (P : X.totalᵒᵖ ⥤ RingCat.{u})
+    [hP : ∀ Z : Y.totalᵒᵖ,
+      Small.{u} ((StructuredArrow.proj Z (toCartesianBasedFunctor h).toFunctor.op ⋙ P)
+        ⋙ forget RingCat.{u}).sections] :
     (toCartesianBasedFunctor h).toFunctor.op.HasPointwiseRightKanExtension P :=
-  sorry
-
-/-- Forgetting rings preserves the right Kan extensions used to form cocontinuous
-direct image along a cartesian total functor. -/
-instance forget_preservesRightKanExtensions_toCartesian {X Y : GroupoidsOver S}
-    (h : X ⟶ Y) :
-    (forget RingCat.{u}).PreservesRightKanExtensions
-      (toCartesianBasedFunctor h).toFunctor.op :=
-  sorry
+  Functor.hasPointwiseRightKanExtension_ring_of_small_sections
+    (toCartesianBasedFunctor h).toFunctor.op P
 
 /-- The cartesian total functor is continuous for associated étale topologies. -/
 instance toCartesianBasedFunctor_isContinuous_etale {X Y : GroupoidsOver S}
@@ -119,119 +99,6 @@ instance toCartesianBasedFunctor_isCocontinuous_etale {X Y : GroupoidsOver S}
       X.etaleTopology Y.etaleTopology :=
   CartesianBasedFunctor.inheritedTopology.isCocontinuous
     (toCartesianBasedFunctor h) (StandardTopology.etale.overTopology S)
-
-/-- The cartesian total functor agrees with `toFunctor`. -/
-theorem cartesian_toFunctor_eq {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    (toCartesianBasedFunctor h).toFunctor = toFunctor h :=
-  congrArg (fun F => F.toFunctor) (toCartesianBasedFunctor.toBasedFunctor h)
-
-/-- The structure-sheaf map of `etaleSiteHom`, identifying `𝒪_X` with the
-continuous pushforward of `𝒪_Y` along `toFunctor h`. -/
-def etaleSiteHom_structureSheafMap {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    (etaleRingedSite X).structureSheaf ⟶
-      ((toFunctor h).sheafPushforwardContinuous RingCat.{u}
-        X.etaleTopology Y.etaleTopology).obj (etaleRingedSite Y).structureSheaf :=
-  (sheafPushforwardContinuousIso (eqToIso (comm h).symm) RingCat.{u}
-      X.etaleTopology (StandardTopology.etale.overTopology S)).hom.app
-    (StandardTopology.Big.structureSheaf StandardTopology.etale S)
-
-/-- The morphism of étale ringed sites induced by a 1-morphism of categories
-fibred in groupoids, with underlying functor `toFunctor h`. -/
-def etaleSiteHom {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    RingedSite.Hom (etaleRingedSite Y) (etaleRingedSite X) where
-  base := toFunctor h
-  isMorphismOfSites := toFunctor_isMorphismOfSites_etale h
-  structureSheafMap := etaleSiteHom_structureSheafMap h
-
-/-- Inverse image `h^* = h⁻¹` of étale `𝒪`-modules along a 1-morphism of
-categories fibred in groupoids. -/
-def etaleModuleInverseImage {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    SheafOfModules.{u} (etaleRingedSite Y).structureSheaf ⥤
-      SheafOfModules.{u} (etaleRingedSite X).structureSheaf :=
-  (etaleSiteHom h).modulePushforward.{u}
-
-/-- `etaleModuleInverseImage h` is module pushforward along `etaleSiteHom h`. -/
-theorem etaleModuleInverseImage_eq {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    etaleModuleInverseImage h = (etaleSiteHom h).modulePushforward.{u} :=
-  rfl
-
-/-- Inverse-image form of the structure-sheaf map of a 1-morphism, identifying
-`h⁻¹ 𝒪_Y` with `𝒪_X`. -/
-def etaleModuleStructureSheafInv {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    ((toFunctor h).sheafPushforwardContinuous RingCat.{u}
-        X.etaleTopology Y.etaleTopology).obj (etaleRingedSite Y).structureSheaf ⟶
-      (etaleRingedSite X).structureSheaf :=
-  (sheafPushforwardContinuousIso (eqToIso (comm h).symm) RingCat.{u}
-      X.etaleTopology (StandardTopology.etale.overTopology S)).inv.app
-    (StandardTopology.Big.structureSheaf StandardTopology.etale S)
-
-/-- Direct-image form of the structure-sheaf map of a 1-morphism. -/
-def etaleModuleStructureSheafMap {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    (etaleRingedSite Y).structureSheaf ⟶
-      ((toCartesianBasedFunctor h).toFunctor.sheafPushforwardCocontinuous
-          RingCat.{u} X.etaleTopology Y.etaleTopology).obj
-        (etaleRingedSite X).structureSheaf :=
-  ((toCartesianBasedFunctor h).toFunctor.sheafAdjunctionCocontinuous
-      RingCat.{u} X.etaleTopology Y.etaleTopology).homEquiv _ _
-    (etaleModuleStructureSheafInv h)
-
-/-- The direct-image structure map of a 1-morphism preserves internal-ring operations. -/
-theorem etaleModuleStructureSheafMap_isRingCompatible {X Y : GroupoidsOver S}
-    (h : X ⟶ Y) :
-    @RingedSite.ToposHom.Direct.IsRingCompatible
-      (etaleRingedSite X) (etaleRingedSite Y) inferInstance inferInstance
-      ((toCartesianBasedFunctor h).morphismOfTopoiIn
-        (StandardTopology.etale.overTopology S) :
-        MorphismOfTopoiIn.{u + 1, u + 1, u, u, u} Y.etaleTopology X.etaleTopology)
-      ((toCartesianBasedFunctor h).toFunctor.sheafPushforwardCocontinuous
-        RingCat.{u} X.etaleTopology Y.etaleTopology)
-      (Functor.sheafPushforwardCocontinuous.compSheafComposeIso
-        (toCartesianBasedFunctor h).toFunctor (forget RingCat.{u})
-        X.etaleTopology Y.etaleTopology)
-      (etaleModuleStructureSheafMap h) :=
-  sorry
-
-/-- The morphism of étale ringed topoi induced by a 1-morphism of categories
-fibred in groupoids. -/
-def etaleRingedToposHom {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    RingedSite.ToposHom (etaleRingedSite X) (etaleRingedSite Y) :=
-  @RingedSite.ToposHom.ofDirectImage (etaleRingedSite X) (etaleRingedSite Y)
-    inferInstance inferInstance
-    ((toCartesianBasedFunctor h).morphismOfTopoiIn
-      (StandardTopology.etale.overTopology S) :
-      MorphismOfTopoiIn.{u + 1, u + 1, u, u, u} Y.etaleTopology X.etaleTopology)
-    ((toCartesianBasedFunctor h).toFunctor.sheafPushforwardCocontinuous
-      RingCat.{u} X.etaleTopology Y.etaleTopology)
-    (Functor.sheafPushforwardCocontinuous.compSheafComposeIso
-      (toCartesianBasedFunctor h).toFunctor (forget RingCat.{u})
-      X.etaleTopology Y.etaleTopology)
-    (etaleModuleStructureSheafMap h)
-    (etaleModuleStructureSheafMap_isRingCompatible h)
-
-/-- Restriction of scalars along the inverse-image structure map of a 1-morphism
-is a right adjoint. -/
-instance etaleRingedToposHom_restrictScalars_isRightAdjoint {X Y : GroupoidsOver S}
-    (h : X ⟶ Y) :
-    (SheafOfModules.restrictScalars.{u}
-      (etaleRingedToposHom h).structureMap).IsRightAdjoint :=
-  sorry
-
-/-- Direct image `h_*` of étale `𝒪`-modules along a 1-morphism. -/
-def etaleModuleDirectImage {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    SheafOfModules.{u} (etaleRingedSite X).structureSheaf ⥤
-      SheafOfModules.{u} (etaleRingedSite Y).structureSheaf :=
-  (etaleRingedToposHom h).modulePushforward
-
-/-- `etaleModuleDirectImage` is the module direct image of `etaleRingedToposHom`. -/
-theorem etaleModuleDirectImage_eq {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    etaleModuleDirectImage h = (etaleRingedToposHom h).modulePushforward :=
-  rfl
-
-/-- Unit of `h^* ⊣ h_*` on étale modules, for the topos-level inverse image. -/
-def etaleModuleUnit {X Y : GroupoidsOver S} (h : X ⟶ Y)
-    (G : SheafOfModules.{u} (etaleRingedSite Y).structureSheaf) :
-    G ⟶ (etaleModuleDirectImage h).obj ((etaleRingedToposHom h).modulePullback.obj G) :=
-  (etaleRingedToposHom h).moduleAdjunction.unit.app G
 
 /-- Continuity of the base of `etaleSiteHom` on the étale ringed sites. -/
 instance etaleSiteHom_base_isContinuous {X Y : GroupoidsOver S} (h : X ⟶ Y) :
@@ -348,12 +215,6 @@ def etaleModuleInverseImage_iso {X Y : GroupoidsOver S} {h₁ h₂ : X ⟶ Y} (e
     etaleModuleInverseImage h₁ ≅ etaleModuleInverseImage h₂ :=
   (etaleModuleInverseImage_iso₀ e ≪≫ etaleModuleInverseImage_iso₁ e).symm
 
-/-- The morphism of algebraic spaces corresponding to a presented 1-morphism `a`. -/
-def moduleComparisonSpaceMorphism {Ucfg Vcfg : GroupoidsOver S} (a : Ucfg ⟶ Vcfg)
-    {U V : AlgebraicSpace S} (eU : U.toGroupoids ≌ Ucfg) (eV : V.toGroupoids ≌ Vcfg) :
-    U ⟶ V :=
-  AlgebraicSpace.toGroupoids.recover eU.symm eV.symm a
-
 /-- 2-cell transport `a^* g^* ≅ f^*` on étale modules. -/
 def etaleModuleInverseImage_twoCell {X Ucfg Vcfg : GroupoidsOver S}
     (a : Ucfg ⟶ Vcfg) (f : Ucfg ⟶ X) (g : Vcfg ⟶ X) (φ : a ≫ g ≅ f) :
@@ -361,57 +222,11 @@ def etaleModuleInverseImage_twoCell {X Ucfg Vcfg : GroupoidsOver S}
       etaleModuleInverseImage f :=
   etaleModuleInverseImage_comp a g ≪≫ etaleModuleInverseImage_iso φ
 
-/-- Underlying type-valued comparison from geometric inverse image of `G` to
-continuous pushforward of `G` along `toFunctor h`. -/
-def etaleModuleInverseImage_fromPullbackUnderlying {X Y : GroupoidsOver S}
-    (h : X ⟶ Y) (G : SheafOfModules.{u} (etaleRingedSite Y).structureSheaf) :
-    (ToInternal.underlying
-          ((etaleRingedToposHom h).toTopos.ringInverseImage.obj
-            (etaleRingedSite Y).structureSheaf)).obj
-        (((etaleRingedToposHom h).toTopos.moduleInverseImage
-            (etaleRingedSite Y).structureSheaf).obj G) ⟶
-      (ToInternal.underlying
-          ((etaleRingedToposHom h).toTopos.ringInverseImage.obj
-            (etaleRingedSite Y).structureSheaf)).obj
-        ((SheafOfModules.restrictScalars (etaleRingedToposHom h).structureMap).obj
-          ((etaleModuleInverseImage h).obj G)) :=
-  ((etaleRingedToposHom h).toTopos.moduleInverseImageForgetIso
-        (etaleRingedSite Y).structureSheaf).hom.app G ≫
-    (asIso
-        (CartesianBasedFunctor.morphismOfTopoiIn.inverseImageComparison
-          (toCartesianBasedFunctor h)
-          (StandardTopology.etale.overTopology S))).hom.app
-      ((ToInternal.underlying (etaleRingedSite Y).structureSheaf).obj G) ≫
-      (sheafPushforwardContinuousIso (eqToIso (cartesian_toFunctor_eq h))
-          (Type u) X.etaleTopology Y.etaleTopology).hom.app
-        ((ToInternal.underlying (etaleRingedSite Y).structureSheaf).obj G)
-
-/-- Geometric inverse image of `G` over `h⁻¹ 𝒪_Y`, compared with restriction of
-scalars of the site-level inverse image. -/
-def etaleModuleInverseImage_fromPullback {X Y : GroupoidsOver S} (h : X ⟶ Y)
-    (G : SheafOfModules.{u} (etaleRingedSite Y).structureSheaf) :
-    ((etaleRingedToposHom h).toTopos.moduleInverseImage
-        (etaleRingedSite Y).structureSheaf).obj G ⟶
-      (SheafOfModules.restrictScalars (etaleRingedToposHom h).structureMap).obj
-        ((etaleModuleInverseImage h).obj G) :=
-  homOfUnderlying
-    ((etaleRingedToposHom h).toTopos.ringInverseImage.obj
-      (etaleRingedSite Y).structureSheaf)
-    (etaleModuleInverseImage_fromPullbackUnderlying h G) sorry sorry
-
-/-- Topos-level module pullback compared with site-level inverse image `h^*`. -/
-def etaleModulePullbackToInverseImage {X Y : GroupoidsOver S} (h : X ⟶ Y)
-    (G : SheafOfModules.{u} (etaleRingedSite Y).structureSheaf) :
-    (etaleRingedToposHom h).modulePullback.obj G ⟶ (etaleModuleInverseImage h).obj G :=
-  (RingedSite.ToposHom.ModulePullback.scalarHomEquiv (etaleRingedToposHom h)
-      (((etaleRingedToposHom h).toTopos.moduleInverseImage
-          (etaleRingedSite Y).structureSheaf).obj G)
-      ((etaleModuleInverseImage h).obj G)).symm
-    (etaleModuleInverseImage_fromPullback h G)
-
 /-- Evaluation of a restricted CFG module at `W` recovers sections at `u_V(W)`. -/
 def restrictDirectImageComparison_leftEval {Ucfg Vcfg : GroupoidsOver S}
-    (a : Ucfg ⟶ Vcfg) {V : AlgebraicSpace S} (eV : V.toGroupoids ≌ Vcfg)
+    (a : Ucfg ⟶ Vcfg) {V : AlgebraicSpace S}
+    [HasSmallCFGTypeSections (S := S) a]
+    (eV : V.toGroupoids ≌ Vcfg)
     (H : SheafOfModules.{u} (etaleRingedSite Ucfg).structureSheaf)
     (W : AlgebraicSpace.smallEtaleSite V) :
     ((ToInternal.underlying (AlgebraicSpace.structureSheaf V)).obj
@@ -455,31 +270,9 @@ abbrev restrictDirectImageComparison_smallDiag {Ucfg Vcfg : GroupoidsOver S}
   StructuredArrow.proj
       (op ((AlgebraicSpace.etaleBaseChange
           (moduleComparisonSpaceMorphism a eU eV)).obj W))
-      (AlgebraicSpace.smallEtaleInclusion U).op ⋙
+      (AlgebraicGeometry.AlgebraicSpace.smallEtaleToSpaces U).op ⋙
     ((ToInternal.underlying (AlgebraicSpace.structureSheaf U)).obj
       ((restrictModules eU).obj H)).obj
-
-/-- The inducing `2`-cell `eU.hom ≫ a ≅ map a_space ≫ eV.hom` of the recovered
-morphism of algebraic spaces. -/
-def restrictDirectImageComparison_presentedTwoCell {Ucfg Vcfg : GroupoidsOver S}
-    (a : Ucfg ⟶ Vcfg) {U V : AlgebraicSpace S}
-    (eU : U.toGroupoids ≌ Ucfg) (eV : V.toGroupoids ≌ Vcfg) :
-    eU.hom ≫ a ≅
-      AlgebraicSpace.toGroupoids.map (moduleComparisonSpaceMorphism a eU eV) ≫ eV.hom :=
-  let α := Classical.choice
-      (AlgebraicSpace.toGroupoids.InducesHom.recover eU.symm eV.symm a)
-  let a_space := moduleComparisonSpaceMorphism a eU eV
-  (ρ_ (eU.hom ≫ a)).symm ≪≫
-    Bicategory.whiskerLeftIso (eU.hom ≫ a) eV.counit.symm ≪≫
-    (α_ (eU.hom ≫ a) eV.inv eV.hom).symm ≪≫
-    Bicategory.whiskerRightIso (α_ eU.hom a eV.inv) eV.hom ≪≫
-    Bicategory.whiskerRightIso (Bicategory.whiskerLeftIso eU.hom α) eV.hom ≪≫
-    Bicategory.whiskerRightIso
-      (α_ eU.hom eU.inv (AlgebraicSpace.toGroupoids.map a_space)).symm eV.hom ≪≫
-    (α_ (eU.hom ≫ eU.inv) (AlgebraicSpace.toGroupoids.map a_space) eV.hom) ≪≫
-    Bicategory.whiskerRightIso eU.unit.symm
-      (AlgebraicSpace.toGroupoids.map a_space ≫ eV.hom) ≪≫
-    λ_ (AlgebraicSpace.toGroupoids.map a_space ≫ eV.hom)
 
 /-- The morphism `a(u_U(T')) ⟶ u_V(W)` in `Vcfg`, obtained by transporting the
 identity-presentation comparison morphism of `96.10.3.1` along `eV`. -/
@@ -492,15 +285,20 @@ def restrictDirectImageComparison_indexHom {Ucfg Vcfg : GroupoidsOver S}
         ((smallEtaleFunctor U Ucfg eU).obj k.right.unop) ⟶
       (smallEtaleFunctor V Vcfg eV).obj W :=
   let x := (smallEtaleToGroupoids U).obj k.right.unop
-  let a_space := moduleComparisonSpaceMorphism a eU eV
+  let z := (smallEtaleToGroupoids V).obj W
+  let ψ := RepresentedDirectImage.presentedMorphism a eU eV
+  let β : (toFunctor ψ).obj x ⟶ z :=
+    (CategoryOfElements.homMk (unop z) (unop ((toFunctor ψ).obj x))
+      (((eqToIso (comm ψ)).app x).hom ≫
+        AlgebraicSpace.compareOverHom (moduleComparisonSpaceMorphism a eU eV) k).op
+      sorry).op
   (eqToIso (cartesian_toFunctor_eq a)).hom.app ((toFunctor eU.hom).obj x) ≫
-    (ObjectProperty.FullSubbicategory.toFunctor.compIso eU.hom a).hom.app x ≫
-      (toFunctorIso (restrictDirectImageComparison_presentedTwoCell a eU eV)).hom.app x ≫
-        (ObjectProperty.FullSubbicategory.toFunctor.compIso
-            (AlgebraicSpace.toGroupoids.map a_space) eV.hom).inv.app x ≫
-          (toFunctor eV.hom).map
-            ((eqToIso (cartesian_toFunctor_eq (AlgebraicSpace.toGroupoids.map a_space)).symm).hom.app x ≫
-              AlgebraicSpace.compareIndexHom a_space k)
+    (RepresentedDirectImage.targetCounitIso eV).inv.app _ ≫
+    (toFunctor eV.hom).map
+      ((toFunctor eV.inv).map
+          ((ObjectProperty.FullSubbicategory.toFunctor.compIso eU.hom a).hom.app x) ≫
+        (ObjectProperty.FullSubbicategory.toFunctor.compIso (eU.hom ≫ a) eV.inv).hom.app x ≫
+        β)
 
 /-- Opposite form of `restrictDirectImageComparison_indexHom`, as a structured arrow. -/
 def restrictDirectImageComparison_indexArrow {Ucfg Vcfg : GroupoidsOver S}
@@ -537,14 +335,6 @@ def restrictDirectImageComparison_diagIso {Ucfg Vcfg : GroupoidsOver S}
       restrictDirectImageComparison_smallDiag a eU eV H W :=
   NatIso.ofComponents (fun _ => Iso.refl _) sorry
 
-/-- Type-valued limits exist for the CFG Kan diagram at `u_V(W)`. -/
-instance restrictDirectImageComparison_bigDiag_hasLimit {Ucfg Vcfg : GroupoidsOver S}
-    (a : Ucfg ⟶ Vcfg) {V : AlgebraicSpace S} (eV : V.toGroupoids ≌ Vcfg)
-    (H : SheafOfModules.{u} (etaleRingedSite Ucfg).structureSheaf)
-    (W : AlgebraicSpace.smallEtaleSite V) :
-    HasLimit (restrictDirectImageComparison_bigDiag a eV H W) :=
-  sorry
-
 /-- Type-valued limits exist for the small-étale Kan diagram at `W ×_V U`. -/
 instance restrictDirectImageComparison_smallDiag_hasLimit {Ucfg Vcfg : GroupoidsOver S}
     (a : Ucfg ⟶ Vcfg) {U V : AlgebraicSpace S}
@@ -565,7 +355,48 @@ instance restrictDirectImageComparison_indexBigDiag_hasLimit {Ucfg Vcfg : Groupo
     HasLimit
       (restrictDirectImageComparison_indexMap a eU eV W ⋙
         restrictDirectImageComparison_bigDiag a eV H W) :=
-  sorry
+  hasLimit_of_iso (restrictDirectImageComparison_diagIso a eU eV H W).symm
+
+section RepresentedBigLimit
+
+variable {Ucfg Vcfg : GroupoidsOver S} (a : Ucfg ⟶ Vcfg) {U V : AlgebraicSpace S}
+variable (eU : U.toGroupoids ≌ Ucfg) (eV : V.toGroupoids ≌ Vcfg)
+variable (H : SheafOfModules.{u} (etaleRingedSite Ucfg).structureSheaf)
+variable (W : AlgebraicSpace.smallEtaleSite V)
+
+include eU in
+/-- The actual fibre-atlas/kernel-pair descent cone for the original CFG comma
+diagram. Its construction uses each comma arrow into the specified target chart. -/
+def restrictDirectImageComparison_bigCone :
+    Cone (restrictDirectImageComparison_bigDiag a eV H W) :=
+  RepresentedDirectImage.cone a eU eV
+    ((ToInternal.underlying (etaleRingedSite Ucfg).structureSheaf).obj H)
+    ((smallEtaleFunctor V Vcfg eV).obj W)
+
+include eU in
+/-- The universal lift evaluates the supplied cone at the actual fibre atlas
+comma object and records its kernel-pair compatibility. -/
+def restrictDirectImageComparison_bigConeIsLimit :
+    IsLimit (restrictDirectImageComparison_bigCone a eU eV H W) :=
+  RepresentedDirectImage.coneIsLimit a eU eV
+    ((ToInternal.underlying (etaleRingedSite Ucfg).structureSheaf).obj H)
+    ((smallEtaleFunctor V Vcfg eV).obj W)
+
+include eU in
+/-- The represented limit cone consists of the actual atlas descent carrier
+and its concrete universal lift. -/
+def restrictDirectImageComparison_bigLimitCone :
+    LimitCone (restrictDirectImageComparison_bigDiag a eV H W) :=
+  ⟨restrictDirectImageComparison_bigCone a eU eV H W,
+    restrictDirectImageComparison_bigConeIsLimit a eU eV H W⟩
+
+include eU in
+/-- The given presentations provide a limit of the original comma diagram. -/
+theorem restrictDirectImageComparison_bigDiag_hasLimit :
+    HasLimit (restrictDirectImageComparison_bigDiag a eV H W) :=
+  HasLimit.mk (restrictDirectImageComparison_bigLimitCone a eU eV H W)
+
+end RepresentedBigLimit
 
 /-- Restriction of compatible families from the CFG Kan comma category to the
 small-étale Kan comma category. -/
@@ -574,12 +405,12 @@ def restrictDirectImageComparison_limitHom {Ucfg Vcfg : GroupoidsOver S}
     (eU : U.toGroupoids ≌ Ucfg) (eV : V.toGroupoids ≌ Vcfg)
     (H : SheafOfModules.{u} (etaleRingedSite Ucfg).structureSheaf)
     (W : AlgebraicSpace.smallEtaleSite V) :
-    limit (restrictDirectImageComparison_bigDiag a eV H W) ⟶
+    (restrictDirectImageComparison_bigLimitCone a eU eV H W).cone.pt ⟶
       limit (restrictDirectImageComparison_smallDiag a eU eV H W) :=
-  limit.pre (restrictDirectImageComparison_bigDiag a eV H W)
-      (restrictDirectImageComparison_indexMap a eU eV W) ≫
-    (HasLimit.isoOfNatIso
-      (restrictDirectImageComparison_diagIso a eU eV H W)).hom
+  limit.lift (restrictDirectImageComparison_smallDiag a eU eV H W)
+    ((Cone.postcompose (restrictDirectImageComparison_diagIso a eU eV H W).hom).obj
+      ((restrictDirectImageComparison_bigLimitCone a eU eV H W).cone.whisker
+        (restrictDirectImageComparison_indexMap a eU eV W)))
 
 /-- Evaluation of `a_small,*` of a restricted module at `W` compared with the
 CFG pushforward at `u_V(W)`, via the two Kan-extension limits. -/
@@ -588,6 +419,7 @@ def restrictDirectImageComparison_rightEval {Ucfg Vcfg : GroupoidsOver S}
     (eU : U.toGroupoids ≌ Ucfg) (eV : V.toGroupoids ≌ Vcfg)
     (H : SheafOfModules.{u} (etaleRingedSite Ucfg).structureSheaf)
     (W : AlgebraicSpace.smallEtaleSite V) :
+    letI := hasSmallCFGTypeSections_ofRepresented a eU eV
     ((ToInternal.underlying (etaleRingedSite Ucfg).structureSheaf ⋙
           (etaleRingedToposHom a).toTopos.pushforward).obj H).obj.obj
         (op ((smallEtaleFunctor V Vcfg eV).obj W)) ⟶
@@ -595,9 +427,10 @@ def restrictDirectImageComparison_rightEval {Ucfg Vcfg : GroupoidsOver S}
             (AlgebraicSpace.ringedToposHom
                 (moduleComparisonSpaceMorphism a eU eV)).toTopos.pushforward).obj
           ((restrictModules eU).obj H)).obj.obj (op W) :=
-  ((toCartesianBasedFunctor a).toFunctor.op.ranObjObjIsoLimit
-      ((ToInternal.underlying (etaleRingedSite Ucfg).structureSheaf).obj H).obj
-      (op ((smallEtaleFunctor V Vcfg eV).obj W))).hom ≫
+  letI := hasSmallCFGTypeSections_ofRepresented a eU eV
+  letI := restrictDirectImageComparison_bigDiag_hasLimit a eU eV H W
+  (restrictDirectImageComparison_bigConeIsLimit a eU eV H W).lift
+      (limit.cone (restrictDirectImageComparison_bigDiag a eV H W)) ≫
     restrictDirectImageComparison_limitHom a eU eV H W ≫
       (limit.isoLimitCone
         ⟨AlgebraicSpace.EtaleTopos.allChartCone U
@@ -613,12 +446,14 @@ def restrictDirectImageComparisonUnderlying_app {Ucfg Vcfg : GroupoidsOver S}
     (eU : U.toGroupoids ≌ Ucfg) (eV : V.toGroupoids ≌ Vcfg)
     (H : SheafOfModules.{u} (etaleRingedSite Ucfg).structureSheaf)
     (W : AlgebraicSpace.smallEtaleSite V) :
+    letI := hasSmallCFGTypeSections_ofRepresented a eU eV
     ((ToInternal.underlying (AlgebraicSpace.structureSheaf V)).obj
         ((restrictModules eV).obj ((etaleModuleDirectImage a).obj H))).obj.obj (op W) ⟶
       ((ToInternal.underlying (AlgebraicSpace.structureSheaf V)).obj
         (((AlgebraicSpace.ringedToposHom
             (moduleComparisonSpaceMorphism a eU eV)).modulePushforward).obj
           ((restrictModules eU).obj H))).obj.obj (op W) :=
+  letI := hasSmallCFGTypeSections_ofRepresented a eU eV
   (restrictDirectImageComparison_leftEval a eV H W).hom ≫
     ((sheafToPresheaf Vcfg.etaleTopology (Type u)).map
         ((RingedSite.ToposHom.ModulePushforward.forgetIso
@@ -637,12 +472,14 @@ def restrictDirectImageComparisonUnderlying {Ucfg Vcfg : GroupoidsOver S}
     (a : Ucfg ⟶ Vcfg) {U V : AlgebraicSpace S}
     (eU : U.toGroupoids ≌ Ucfg) (eV : V.toGroupoids ≌ Vcfg)
     (H : SheafOfModules.{u} (etaleRingedSite Ucfg).structureSheaf) :
+    letI := hasSmallCFGTypeSections_ofRepresented a eU eV
     (ToInternal.underlying (AlgebraicSpace.structureSheaf V)).obj
         ((restrictModules eV).obj ((etaleModuleDirectImage a).obj H)) ⟶
       (ToInternal.underlying (AlgebraicSpace.structureSheaf V)).obj
         (((AlgebraicSpace.ringedToposHom
             (moduleComparisonSpaceMorphism a eU eV)).modulePushforward).obj
           ((restrictModules eU).obj H)) :=
+  letI := hasSmallCFGTypeSections_ofRepresented a eU eV
   CategoryTheory.ObjectProperty.homMk
     { app := fun W => restrictDirectImageComparisonUnderlying_app a eU eV H W.unop
       naturality := sorry }
@@ -652,10 +489,12 @@ restriction. -/
 def restrictDirectImageComparison {Ucfg Vcfg : GroupoidsOver S} (a : Ucfg ⟶ Vcfg)
     {U V : AlgebraicSpace S} (eU : U.toGroupoids ≌ Ucfg) (eV : V.toGroupoids ≌ Vcfg)
     (H : SheafOfModules.{u} (etaleRingedSite Ucfg).structureSheaf) :
+    letI := hasSmallCFGTypeSections_ofRepresented a eU eV
     (restrictModules eV).obj ((etaleModuleDirectImage a).obj H) ⟶
       ((AlgebraicSpace.ringedToposHom
           (moduleComparisonSpaceMorphism a eU eV)).modulePushforward).obj
         ((restrictModules eU).obj H) :=
+  letI := hasSmallCFGTypeSections_ofRepresented a eU eV
   homOfUnderlying (AlgebraicSpace.structureSheaf V)
     (restrictDirectImageComparisonUnderlying a eU eV H) sorry sorry
 
@@ -667,14 +506,13 @@ def restrictPullbackComparison {Ucfg Vcfg : GroupoidsOver S} (a : Ucfg ⟶ Vcfg)
     (AlgebraicSpace.Modules.pullback (moduleComparisonSpaceMorphism a eU eV)).obj
         ((restrictModules eV).obj G) ⟶
       (restrictModules eU).obj ((etaleModuleInverseImage a).obj G) :=
+  letI := hasSmallCFGTypeSections_ofRepresented a eU eV
   ((AlgebraicSpace.Modules.pullbackPushforwardAdjunction
         (moduleComparisonSpaceMorphism a eU eV)).homEquiv
       ((restrictModules eV).obj G)
       ((restrictModules eU).obj ((etaleModuleInverseImage a).obj G))).symm
     ((restrictModules eV).map
-        (etaleModuleUnit a G ≫
-          (etaleModuleDirectImage a).map
-            (etaleModulePullbackToInverseImage a G)) ≫
+        (etaleModuleUnit a G) ≫
       restrictDirectImageComparison a eU eV ((etaleModuleInverseImage a).obj G))
 
 /-- The restricted 2-cell `(a^* g^* F)|_{U_étale} ⟶ (f^* F)|_{U_étale}`. -/
@@ -700,7 +538,8 @@ def moduleComparisonSpaceUnit {Ucfg Vcfg : GroupoidsOver S} (a : Ucfg ⟶ Vcfg)
 
 /-- The push-form comparison
 `g^* F |_{V_étale} ⟶ a_small,* (f^* F |_{U_étale})` of `𝒪_{V_étale}`-modules:
-the unit of `a_small^* ⊣ a_small,*` after restriction, then transport along `φ`. -/
+the restricted unit of `a^* ⊣ a_*`, transported along `φ` and followed by
+the direct-image comparison. -/
 def moduleComparisonSpacePushforward {X Ucfg Vcfg : GroupoidsOver S}
     (a : Ucfg ⟶ Vcfg) (f : Ucfg ⟶ X) (g : Vcfg ⟶ X) (φ : a ≫ g ≅ f)
     {U V : AlgebraicSpace S} (eU : U.toGroupoids ≌ Ucfg) (eV : V.toGroupoids ≌ Vcfg)
@@ -708,11 +547,11 @@ def moduleComparisonSpacePushforward {X Ucfg Vcfg : GroupoidsOver S}
     (restrictModules eV).obj ((etaleModuleInverseImage g).obj F) ⟶
       ((AlgebraicSpace.ringedToposHom (moduleComparisonSpaceMorphism a eU eV)).modulePushforward).obj
         ((restrictModules eU).obj ((etaleModuleInverseImage f).obj F)) :=
+  letI := hasSmallCFGTypeSections_ofRepresented a eU eV
   (restrictModules eV).map
       (etaleModuleUnit a ((etaleModuleInverseImage g).obj F) ≫
         (etaleModuleDirectImage a).map
-          (etaleModulePullbackToInverseImage a ((etaleModuleInverseImage g).obj F) ≫
-            (etaleModuleInverseImage_twoCell a f g φ).hom.app F)) ≫
+          ((etaleModuleInverseImage_twoCell a f g φ).hom.app F)) ≫
     restrictDirectImageComparison a eU eV ((etaleModuleInverseImage f).obj F)
 
 /-- The comparison morphism
@@ -726,6 +565,7 @@ def moduleComparisonSpace {X Ucfg Vcfg : GroupoidsOver S}
     (AlgebraicSpace.Modules.pullback (moduleComparisonSpaceMorphism a eU eV)).obj
         ((restrictModules eV).obj ((etaleModuleInverseImage g).obj F)) ⟶
       (restrictModules eU).obj ((etaleModuleInverseImage f).obj F) :=
+  letI := hasSmallCFGTypeSections_ofRepresented a eU eV
   ((AlgebraicSpace.Modules.pullbackPushforwardAdjunction
         (moduleComparisonSpaceMorphism a eU eV)).homEquiv
       ((restrictModules eV).obj ((etaleModuleInverseImage g).obj F))
@@ -747,18 +587,17 @@ theorem moduleComparisonSpace_adjunct {X Ucfg Vcfg : GroupoidsOver S}
   sorry
 
 /-- Source-semantic characterisation: the push-form of `c_φ` is the restricted
-unit of `a_small^* ⊣ a_small,*`, transported along `φ`. -/
+unit of `a^* ⊣ a_*`, transported along `φ` and followed by the direct-image comparison. -/
 theorem moduleComparisonSpace_spec {X Ucfg Vcfg : GroupoidsOver S}
     (a : Ucfg ⟶ Vcfg) (f : Ucfg ⟶ X) (g : Vcfg ⟶ X) (φ : a ≫ g ≅ f)
     {U V : AlgebraicSpace S} (eU : U.toGroupoids ≌ Ucfg) (eV : V.toGroupoids ≌ Vcfg)
     (F : SheafOfModules.{u} (etaleRingedSite X).structureSheaf) :
+    letI := hasSmallCFGTypeSections_ofRepresented a eU eV
     moduleComparisonSpacePushforward a f g φ eU eV F =
       (restrictModules eV).map
           (etaleModuleUnit a ((etaleModuleInverseImage g).obj F) ≫
             (etaleModuleDirectImage a).map
-              (etaleModulePullbackToInverseImage a
-                  ((etaleModuleInverseImage g).obj F) ≫
-                (etaleModuleInverseImage_twoCell a f g φ).hom.app F)) ≫
+              ((etaleModuleInverseImage_twoCell a f g φ).hom.app F)) ≫
         restrictDirectImageComparison a eU eV
           ((etaleModuleInverseImage f).obj F) :=
   sorry

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Perfect.Determinant
@@ -18,5 +12,7 @@ objects of Tor-amplitude in `[-1, 0]`, with canonical rank-zero sections and the
 comparison with the ring-level determinant construction. -/
 @[stacks 0FJX] #check
   (AlgebraicGeometry.Scheme.PerfectDerived.TorNegOneZero.nonemptyDeterminant :
-    ∀ X : AlgebraicGeometry.Scheme.{u},
+    ∀ (X : AlgebraicGeometry.Scheme.{u})
+      [CategoryTheory.DerivedCategory.DerivedTensor.Right.Has
+        (C := AlgebraicGeometry.RingedSpace.Modules X.toRingedSpace)],
       Nonempty (AlgebraicGeometry.Scheme.PerfectDerived.TorNegOneZero.Determinant X))

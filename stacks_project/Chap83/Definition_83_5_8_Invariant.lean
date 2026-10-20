@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.PreRelation.SetTheoreticInvariant
 public import stacks_project.Chap83.Definition_83_5_4_Orbit
 
 /-!
@@ -23,65 +18,48 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.PreRelation
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.IsSetTheoreticallyInvariant :
+  ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B},
+    PreRelation U → (U ⟶ X) → Prop)
 
-/-- A morphism `f : U ⟶ X` over `B` is set-theoretically invariant for a pre-relation `P` when
-the induced map on geometric `k`-points equalizes `P.s` and `P.t` for every algebraically closed
-field `k` over `B`. -/
-def IsSetTheoreticallyInvariant {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    (P : PreRelation U) (f : U ⟶ X) : Prop :=
-  ∀ (kbar : GeometricPoint B) (r : Over.mk kbar.hom ⟶ P.left),
-    r ≫ P.s ≫ f = r ≫ P.t ≫ f
-
-/-- Set-theoretic invariance is equalization of the two projections on geometric points. -/
-theorem isSetTheoreticallyInvariant_iff {S : Scheme.{u}} {B : AlgebraicSpace S}
-    {U X : Over B} (P : PreRelation U) (f : U ⟶ X) :
-    IsSetTheoreticallyInvariant P f ↔
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.isSetTheoreticallyInvariant_iff :
+  ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
+    (P : PreRelation U) (f : U ⟶ X),
+    PreRelation.IsSetTheoreticallyInvariant P f ↔
       ∀ (kbar : GeometricPoint B) (r : Over.mk kbar.hom ⟶ P.left),
-        r ≫ P.s ≫ f = r ≫ P.t ≫ f := sorry
+        r ≫ P.s ≫ f = r ≫ P.t ≫ f)
 
-/-- On geometric points, relatedness for `P` implies equal images under a set-theoretically
-invariant morphism. -/
-theorem isSetTheoreticallyInvariant_pointRel {S : Scheme.{u}} {B : AlgebraicSpace S}
-    {U X : Over B} {P : PreRelation U} {f : U ⟶ X} (hf : IsSetTheoreticallyInvariant P f)
-    {kbar : GeometricPoint B} {x y : Over.mk kbar.hom ⟶ U}
-    (hxy : P.pointRel (Over.mk kbar.hom) x y) : x ≫ f = y ≫ f := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.isSetTheoreticallyInvariant_pointRel :
+  ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
+    {P : PreRelation U} {f : U ⟶ X},
+    PreRelation.IsSetTheoreticallyInvariant P f →
+      ∀ {kbar : GeometricPoint B} {x y : Over.mk kbar.hom ⟶ U},
+        P.pointRel (Over.mk kbar.hom) x y → x ≫ f = y ≫ f)
 
-/-- A morphism `f : U ⟶ X` over `B` separates orbits of a pre-relation `P` when it is
-set-theoretically invariant and equal images in `X(k)` imply the same geometric `R`-orbit on
-`U(k)`. -/
-structure SeparatesOrbits {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    (P : PreRelation U) (f : U ⟶ X) : Prop where
-  /-- The morphism is set-theoretically invariant for the pre-relation. -/
-  isSetTheoreticallyInvariant : IsSetTheoreticallyInvariant P f
-  /-- Equal images in `X(k)` imply the same geometric `R`-orbit on `U(k)`. -/
-  eq_orbitEquivalent : ∀ (kbar : GeometricPoint B) (x y : Over.mk kbar.hom ⟶ U),
-    x ≫ f = y ≫ f → orbitEquivalent P kbar x y
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.SeparatesOrbits :
+  ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B},
+    PreRelation U → (U ⟶ X) → Prop)
 
-/-- Build a `SeparatesOrbits` witness from set-theoretic invariance and separation of geometric
-`R`-orbits. -/
-def SeparatesOrbits.of {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    {P : PreRelation U} {f : U ⟶ X} (h_inv : IsSetTheoreticallyInvariant P f)
-    (h_sep : ∀ (kbar : GeometricPoint B) (x y : Over.mk kbar.hom ⟶ U),
-      x ≫ f = y ≫ f → orbitEquivalent P kbar x y) : SeparatesOrbits P f where
-  isSetTheoreticallyInvariant := h_inv
-  eq_orbitEquivalent := h_sep
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.SeparatesOrbits.of :
+  ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
+    {P : PreRelation U} {f : U ⟶ X},
+    PreRelation.IsSetTheoreticallyInvariant P f →
+      (∀ (kbar : GeometricPoint B) (x y : Over.mk kbar.hom ⟶ U),
+        x ≫ f = y ≫ f → PreRelation.orbitEquivalent P kbar x y) →
+      PreRelation.SeparatesOrbits P f)
 
-/-- Separating orbits is set-theoretic invariance together with recovery of geometric `R`-orbits
-from equal images. -/
-theorem separatesOrbits_iff {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    (P : PreRelation U) (f : U ⟶ X) :
-    SeparatesOrbits P f ↔
-      IsSetTheoreticallyInvariant P f ∧
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.separatesOrbits_iff :
+  ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
+    (P : PreRelation U) (f : U ⟶ X),
+    PreRelation.SeparatesOrbits P f ↔
+      PreRelation.IsSetTheoreticallyInvariant P f ∧
         ∀ (kbar : GeometricPoint B) (x y : Over.mk kbar.hom ⟶ U),
-          x ≫ f = y ≫ f → orbitEquivalent P kbar x y := sorry
+          x ≫ f = y ≫ f → PreRelation.orbitEquivalent P kbar x y)
 
-/-- A morphism that separates orbits is set-theoretically invariant and identifies equal images
-with membership in the same geometric `R`-orbit. -/
-theorem separatesOrbits_spec {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    {P : PreRelation U} {f : U ⟶ X} (h : SeparatesOrbits P f) :
-    IsSetTheoreticallyInvariant P f ∧
-      ∀ (kbar : GeometricPoint B) (x y : Over.mk kbar.hom ⟶ U),
-        x ≫ f = y ≫ f → y ∈ orbit P kbar x := sorry
-
-end AlgebraicGeometry.AlgebraicSpace.PreRelation
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.separatesOrbits_spec :
+  ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
+    {P : PreRelation U} {f : U ⟶ X},
+    PreRelation.SeparatesOrbits P f →
+      PreRelation.IsSetTheoreticallyInvariant P f ∧
+        ∀ (kbar : GeometricPoint B) (x y : Over.mk kbar.hom ⟶ U),
+          x ≫ f = y ≫ f → y ∈ PreRelation.orbit P kbar x)

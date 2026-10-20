@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Lemma_100_4_3_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Points.Pullback
 import StacksCheckRecall
 
 @[expose] public section
@@ -23,10 +17,10 @@ open scoped Bicategory
 (Stacks diagram `Z ×_Y X → X` over `Z → Y`, written in mathlib cospan order `f : X ⟶ Y`,
 `g : Z ⟶ Y`), then the comparison of points `|P| → |X| ×_{|Y|} |Z|` is surjective. -/
 @[stacks 04XH] #check
-  (Points.pullbackComparison_surjective :
+  (AlgebraicGeometry.AlgebraicStack.Points.pullbackComparison_surjective :
     ∀ {S : Scheme.{u}} {P X Z Y : GroupoidsOver S}
       [AlgebraicStack P] [AlgebraicStack X] [AlgebraicStack Z] [AlgebraicStack Y]
       {fst : P ⟶ X} {snd : P ⟶ Z} {f : X ⟶ Y} {g : Z ⟶ Y}
-      (iso : fst ≫ f ≅ snd ≫ g) (h : (Points.cone iso).IsBilimit),
+      (iso : fst ≫ f ≅ snd ≫ g) (h : (PseudoPullbackCone.mk f g P fst snd iso).IsBilimit),
       Function.Surjective
-        (Points.pullbackComparison iso h : Points P → Points.pullbackObj f g))
+        (Points.pullbackComparison iso : Points P → Points.pullbackObj f g))

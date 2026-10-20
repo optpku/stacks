@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap103.«103_15_2_1»
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Sites.HigherDirectImage
 import StacksCheckRecall
 
 /-!
@@ -39,7 +33,10 @@ variable (H : Sheaf (lisseEtaleTopology X) AddCommGrpCat.{u + 1}) (p : ℕ)
 /- Lemma 103.15.2 (1): if `H` is an abelian sheaf on `X_lisse,étale`, then
 `R^p f'_* H` is the sheaf associated to `y ↦ H^p((V ×_{y, Y} X)', (pr')⁻¹ H)`. -/
 @[stacks 0GR2]
-#check (lisseEtaleHigherDirectImageIso f H p)
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleHigherDirectImageIso f H p :
+  lisseEtaleHigherDirectImage f H p ≅
+    (presheafToSheaf (lisseEtaleTopology Y) AddCommGrpCat.{u + 1}).obj
+      (lisseEtaleHigherDirectImagePresheaf f H p))
 
 end Smooth
 
@@ -54,6 +51,9 @@ variable (H : Sheaf (flatFppfTopology X) AddCommGrpCat.{u + 1}) (p : ℕ)
 /- Lemma 103.15.2 (2): if `H` is an abelian sheaf on `X_flat,fppf`, then
 `R^p f'_* H` is the sheaf associated to `y ↦ H^p((V ×_{y, Y} X)', (pr')⁻¹ H)`. -/
 @[stacks 0GR2]
-#check (flatFppfHigherDirectImageIso f H p)
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfHigherDirectImageIso f H p :
+  flatFppfHigherDirectImage f H p ≅
+    (presheafToSheaf (flatFppfTopology Y) AddCommGrpCat.{u + 1}).obj
+      (flatFppfHigherDirectImagePresheaf f H p))
 
 end Flat

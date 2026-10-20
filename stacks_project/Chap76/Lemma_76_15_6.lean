@@ -1,15 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_14_4_FormallyUnramified
-public import stacks_project.Chap76.«76_15_0_1_Universal»
-public import stacks_project.Chap76.Definition_76_12_1_Neighbourhood
-public import stacks_project.Chap76.Lemma_76_12_3
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Unramified.Differentials
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.InfinitesimalNeighbourhood.UniversalProperty
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.InfinitesimalNeighbourhood
 import StacksCheckRecall
 
 /-!
@@ -26,36 +19,37 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+/- Lemma 76.15.6: Let `S` be a scheme and `i : Z ⟶ X` an immersion of
+algebraic spaces over `S`. Then (1) `i` is formally unramified, (2) its universal
+first-order thickening over `X` is the first-order infinitesimal neighbourhood
+of Definition 76.12.1, and (3) its conormal sheaves in the senses of
+Definitions 76.5.1 and 76.15.5 agree. The main check records the unique-extension
+property of the canonical first-order infinitesimal neighbourhood. -/
+@[stacks 0608]
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.InfinitesimalNeighbourhood.existsUnique_lift_firstOrder :
+  ∀ {S : Scheme.{u}} {Z X T T' : AlgebraicSpace S}
+    (i : Z ⟶ X) [IsImmersion i] (j : T ⟶ T') [IsFirstOrderThickening j]
+    (a : T ⟶ Z) (b : T' ⟶ X) (sq : CommSq a j i b),
+    Nonempty (Unique
+      (Hom.InfinitesimalNeighbourhood.factorizationCommSq i 1 j a b sq).LiftStruct))
 
-/-- Lemma 76.15.6 (1): Let `S` be a scheme. Let `i : Z ⟶ X` be an immersion of
-algebraic spaces over `S`. Then `i` is formally unramified. -/
-@[stacks 0608, instance]
-instance formallyUnramified_of_isImmersion {S : Scheme.{u}} {Z X : AlgebraicSpace S}
-    (i : Z ⟶ X) [IsImmersion i] : FormallyUnramified i :=
-  sorry
+/- Composing these two implications proves assertion (1): every immersion is
+unramified, and every unramified morphism is formally unramified. -/
+#check (AlgebraicGeometry.AlgebraicSpace.unramified_of_isImmersion :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i],
+    Unramified i)
 
-namespace Hom.InfinitesimalNeighbourhood
+#check (AlgebraicGeometry.AlgebraicSpace.formallyUnramified_of_unramified :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [Unramified i],
+    FormallyUnramified i)
 
-/-- Lemma 76.15.6 (2): Let `S` be a scheme. Let `i : Z ⟶ X` be an immersion of
-algebraic spaces over `S`. The universal first-order thickening of `Z` over `X`
-is the first-order infinitesimal neighbourhood of `Z` in `X` of
-Definition 76.12.1. -/
-@[stacks 0608, instance]
-instance fromSource_isUniversalFirstOrder {S : Scheme.{u}} {Z X : AlgebraicSpace S}
-    (i : Z ⟶ X) [IsImmersion i] :
-    IsUniversalFirstOrder (fromSource i 1) (toAmbient i 1) :=
-  sorry
+/- Together with the unique-extension property, first-order thickness gives
+assertion (2). -/
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.InfinitesimalNeighbourhood.fromSource_isFirstOrderThickening :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i],
+    IsFirstOrderThickening (Hom.InfinitesimalNeighbourhood.fromSource i 1))
 
-end Hom.InfinitesimalNeighbourhood
-
-/- Lemma 76.15.6 (3): Let `S` be a scheme. Let `i : Z ⟶ X` be an immersion of
-algebraic spaces over `S`. The conormal sheaf of `i` in the sense of
-Definition 76.5.1 agrees with the conormal sheaf of `i` in the sense of
-Definition 76.15.5. -/
-@[stacks 0608] #check
-  (Hom.InfinitesimalNeighbourhood.conormalComparison_isIso :
-    ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i],
-      IsIso (Hom.InfinitesimalNeighbourhood.conormalComparison i))
-
-end AlgebraicGeometry.AlgebraicSpace
+/- The canonical comparison identifies the two conormal sheaves in assertion (3). -/
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.InfinitesimalNeighbourhood.conormalComparison_isIso :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i],
+    IsIso (Hom.InfinitesimalNeighbourhood.conormalComparison i))

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Comparison
@@ -16,3 +10,12 @@ The public comparison is the existing canonical comparison, with forward map
 given by Yoneda and inverse given by the underlying scheme morphism.
 The original chapter module remains a compatibility import of that same API.
 -/
+
+@[expose] public section
+
+universe u
+
+#check (AlgebraicGeometry.AlgebraicSpace.ofOver.pointsEquiv :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : CategoryTheory.Over S),
+    X.left ≃ AlgebraicGeometry.AlgebraicSpace.Points
+      (AlgebraicGeometry.AlgebraicSpace.ofOver X))

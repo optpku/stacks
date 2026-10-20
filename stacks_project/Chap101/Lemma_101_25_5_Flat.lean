@@ -1,21 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
-public import stacks_project.Chap100.Lemma_100_11_1_Flat
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Flat
+public import ReasLib.CategoryTheory.ObjectProperty.FullSubcategory.Restriction
 
 /-!
 # Flat morphisms of algebraic stacks
 
-A morphism of algebraic stacks is flat when it satisfies the equivalent
-conditions of the lemma on morphisms smooth local on the source-and-target
-with P = flat: some (equivalently, any) smooth algebraic-space presentation
-square with surjective source atlas has flat top arrow.
+Typed compatibility checks for smooth presentations and stack flatness.
 -/
 
 @[expose] public section
@@ -23,91 +14,63 @@ square with surjective source atlas has flat top arrow.
 open CategoryTheory AlgebraicGeometry
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack
+open AlgebraicGeometry.AlgebraicStack
 
-/-- A commutative square presenting a morphism of algebraic stacks by algebraic
-spaces, with smooth vertical arrows, surjective source atlas, and a 2-isomorphic
-comparison of the two paths `U.toGroupoids ⟶ Y`. -/
-def IsSmoothSurjectivePresentation {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.IsSmoothSurjectivePresentation :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     {U V : AlgebraicSpace S} (f : X ⟶ Y) (a : U.toGroupoids ⟶ X)
-    (b : V.toGroupoids ⟶ Y) (h : U ⟶ V) : Prop :=
-  Groupoids.Hom.Smooth a ∧ Groupoids.Hom.Surjective a ∧
-    Groupoids.Hom.Smooth b ∧
-      Nonempty (a ≫ f ≅ AlgebraicSpace.toGroupoids.map h ≫ b)
+    (b : V.toGroupoids ⟶ Y) (h : U ⟶ V),
+    Prop)
 
-/-- Unfolding of a smooth surjective algebraic-space presentation square. -/
-theorem isSmoothSurjectivePresentation_iff {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicStack.isSmoothSurjectivePresentation_iff :
+  ∀ {S : Scheme.{u}}
     {X Y : GroupoidsOver S} {U V : AlgebraicSpace S} (f : X ⟶ Y)
-    (a : U.toGroupoids ⟶ X) (b : V.toGroupoids ⟶ Y) (h : U ⟶ V) :
+    (a : U.toGroupoids ⟶ X) (b : V.toGroupoids ⟶ Y) (h : U ⟶ V),
     IsSmoothSurjectivePresentation f a b h ↔
       Groupoids.Hom.Smooth a ∧ Groupoids.Hom.Surjective a ∧
         Groupoids.Hom.Smooth b ∧
-          Nonempty (a ≫ f ≅ AlgebraicSpace.toGroupoids.map h ≫ b) :=
-  sorry
+          Nonempty (a ≫ f ≅ AlgebraicSpace.toGroupoids.map h ≫ b))
 
-/-- A morphism `f : X ⟶ Y` of algebraic stacks over `S` is flat if some
-commutative square with algebraic-space vertices, smooth vertical arrows, and
-surjective source atlas has flat top arrow. -/
-class Flat {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) : Prop where
-  /-- There is a smooth presentation of `f` by algebraic spaces whose source
-  atlas is surjective and whose top arrow is flat. -/
-  exists_surjective_smooth_presentation :
-    ∃ (U V : AlgebraicSpace S) (a : U.toGroupoids ⟶ X) (b : V.toGroupoids ⟶ Y)
-      (h : U ⟶ V),
-      IsSmoothSurjectivePresentation f a b h ∧ AlgebraicSpace.Flat h
+#check (AlgebraicGeometry.AlgebraicStack.Flat :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
+    Prop)
 
-/-- A morphism of algebraic stacks is flat if and only if it admits a smooth
-algebraic-space presentation with surjective source atlas and flat top
-arrow. -/
-theorem flat_iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) :
+#check (AlgebraicGeometry.AlgebraicStack.flat_iff :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
     Flat f ↔
       ∃ (U V : AlgebraicSpace S) (a : U.toGroupoids ⟶ X) (b : V.toGroupoids ⟶ Y)
         (h : U ⟶ V),
-        IsSmoothSurjectivePresentation f a b h ∧ AlgebraicSpace.Flat h :=
-  sorry
+        IsSmoothSurjectivePresentation f a b h ∧ AlgebraicSpace.Flat h)
 
-namespace Flat
+#check (AlgebraicGeometry.AlgebraicStack.Flat.id :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X],
+    Flat (𝟙 X))
 
-/-- The identity morphism of an algebraic stack is flat. -/
-instance id {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] :
-    Flat (𝟙 X) :=
-  sorry
-
-/-- A flat morphism of algebraic stacks admits a smooth algebraic-space
-presentation with surjective source atlas and flat top arrow. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Flat f] :
+#check (AlgebraicGeometry.AlgebraicStack.Flat.spec :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Flat f],
     ∃ (U V : AlgebraicSpace S) (a : U.toGroupoids ⟶ X) (b : V.toGroupoids ⟶ Y)
       (h : U ⟶ V),
-      IsSmoothSurjectivePresentation f a b h ∧ AlgebraicSpace.Flat h :=
-  sorry
+      IsSmoothSurjectivePresentation f a b h ∧ AlgebraicSpace.Flat h)
 
-/-- A 1-morphism of algebraic stacks which is flat in the sense of relative
-representability by algebraic spaces is flat as a morphism of algebraic
-stacks. -/
-instance of_groupoidsHom {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.Flat.of_groupoidsHom :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    [Groupoids.Hom.Flat f] : Flat f :=
-  sorry
+    [Groupoids.Hom.Flat f],
+    Flat f)
 
-/-- For a morphism of algebraic stacks representable by algebraic spaces,
-flatness in the sense of algebraic stacks agrees with relative-representable
-flatness. -/
-theorem iff_groupoidsHom {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.Flat.iff_groupoidsHom :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    (hf : relativelyRepresentableByAlgebraicSpaces f) :
-    Flat f ↔ Groupoids.Hom.Flat f :=
-  sorry
+    (hf : relativelyRepresentableByAlgebraicSpaces f),
+    Flat f ↔ Groupoids.Hom.Flat f)
 
-/-- If `f` is flat, then every smooth algebraic-space square over `f` whose
-comparison morphism to the 2-fibre product is smooth has flat top arrow. -/
-theorem of_smooth_square {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.Flat.of_smooth_square :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Flat f]
     {U V : AlgebraicSpace S} (a : U.toGroupoids ⟶ X) (b : V.toGroupoids ⟶ Y)
     (h : U ⟶ V)
@@ -118,10 +81,5 @@ theorem of_smooth_square {S : Scheme.{u}} {X Y : GroupoidsOver S}
       (φ ≫ TwoFibreProduct.fst.{u + 1, u, u + 1, u} b f ≅
         AlgebraicSpace.toGroupoids.map h))
     (hsnd : Nonempty
-      (φ ≫ TwoFibreProduct.snd.{u + 1, u, u + 1, u} b f ≅ a)) :
-    AlgebraicSpace.Flat h :=
-  sorry
-
-end Flat
-
-end AlgebraicGeometry.AlgebraicStack
+      (φ ≫ TwoFibreProduct.snd.{u + 1, u, u + 1, u} b f ≅ a)),
+    AlgebraicSpace.Flat h)

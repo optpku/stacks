@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_5_5_PointsTopology
-public import stacks_project.Chap66.Lemma_66_8_1_Constructible
-public import stacks_project.Chap66.Lemma_66_20_5_RingSheafSupport
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Sheaf.RingSupport
 
 /-!
 # Closedness of the support of a sheaf of rings
@@ -27,21 +20,16 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 66.20.5: the support of a sheaf of rings on the small étale site of an algebraic
+/- Lemma 66.20.5: the support of a sheaf of rings on the small étale site of an algebraic
 space is closed. -/
-@[stacks 04KC]
-theorem isClosed_ringSheafSupport {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (τ : TopologicalSpace (Points X)) (atlas : Points.OpenQuotientAtlas X τ)
-    (F : Sheaf (smallEtaleTopology X) RingCat.{u}) :
-    @IsClosed (Points X) τ (ringSheafSupport F) :=
-  sorry
+@[stacks 04KC] #check (AlgebraicGeometry.AlgebraicSpace.isClosed_ringSheafSupport :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (F : Sheaf (smallEtaleTopology X) RingCat.{u}), IsClosed (ringSheafSupport F))
 
-/-- Inverse images of the support of a sheaf of rings along étale morphisms from schemes are
-closed. -/
-theorem isClosed_schemePreimage_ringSheafSupport {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (F : Sheaf (smallEtaleTopology X) RingCat.{u}) {U : Over S} (f : ofOver U ⟶ X)
-    (hf : (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf f) :
-    IsClosed (schemePreimage f (ringSheafSupport F)) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.isClosed_schemePreimage_ringSheafSupport :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (F : Sheaf (smallEtaleTopology X) RingCat.{u}) {U : Over S} (f : ofOver U ⟶ X),
+    (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf f →
+    IsClosed (schemePreimage f (ringSheafSupport F)))
 
 end AlgebraicGeometry.AlgebraicSpace

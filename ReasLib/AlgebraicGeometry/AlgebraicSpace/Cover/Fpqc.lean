@@ -1,16 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Cover.StandardFpqc
 public import ReasLib.CategoryTheory.Sites.Family.Covering
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Flat
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Surjective
 
 /-!
 # Fpqc covering families of algebraic spaces
@@ -108,6 +104,34 @@ theorem source_spec {S : Scheme.{u}} {X : AlgebraicSpace S} {ι : Type v}
             { index := ι, obj := pullbackFamily family h } :=
   ⟨hfam.flat, hfam.exists_standardRefinement⟩
 
+/-- Every affine test morphism into an fpqc-covered algebraic space admits a
+standard fpqc cover whose charts factor through members of the covering family,
+with the resulting triangles over the target commuting. -/
+theorem exists_indices {S : Scheme.{u}} {X : AlgebraicSpace S} {ι : Type v}
+    {family : ι → Over X} (hfam : FpqcCovering family) {Z : Over S}
+    (hZ : IsAffine Z.left) (h : ofOver Z ⟶ X) :
+    ∃ (𝒰 : StandardFpqcCover Z.left) (α : Fin 𝒰.n → ι)
+      (φ : ∀ j, ofOver (Over.mk (𝒰.map j ≫ Z.hom)) ⟶ (family (α j)).left),
+      ∀ j, φ j ≫ (family (α j)).hom = ofStandardFpqcCoverMap 𝒰 j ≫ h :=
+  sorry
+
 end FpqcCovering
+
+/-- A family of morphisms of schemes over a base is an fpqc covering as a
+family of algebraic spaces if and only if its underlying scheme family is an
+fpqc covering. -/
+theorem fpqcCovering_ofOver_iff {S : Scheme.{u}} {T : Over S} {ι : Type v}
+    (U : ι → Over S) (f : ∀ i, U i ⟶ T) :
+    FpqcCovering (fun i ↦ Over.mk (ofOverMap (f i))) ↔
+      Scheme.FpqcCovering (fun i ↦ Over.mk (f i).left) :=
+  sorry
+
+/-- An indexed family of morphisms of algebraic spaces is an fpqc covering if
+and only if its pullback along a surjective étale morphism from a scheme is an
+fpqc covering. -/
+theorem fpqcCovering_iff_pullback_surjectiveEtale {S : Scheme.{u}}
+    {X : AlgebraicSpace S} {ι : Type v} (family : ι → Over X) {U : Over S}
+    (φ : ofOver U ⟶ X) [Etale φ] [Surjective φ] :
+    FpqcCovering family ↔ FpqcCovering (pullbackFamily family φ) := sorry
 
 end AlgebraicGeometry.AlgebraicSpace

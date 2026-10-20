@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Perfect.Determinant.Construction
@@ -20,6 +14,7 @@ universe u
 namespace ActualTate
 
 variable {X Y : Scheme.{u}} (f : Y ⟶ X) [Syntomic f]
+variable [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
 
 /-- The fixed global determinant of the actual naive cotangent complex,
 constructed from its affine finite-projective determinants and transition maps. -/

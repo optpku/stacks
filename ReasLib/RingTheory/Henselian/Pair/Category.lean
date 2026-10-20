@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.Ring.Basic
@@ -16,11 +10,9 @@ import Mathlib.Tactic.CrossRefAttribute
 /-!
 # The category of Henselian pairs
 
-This file owns the category of commutative-ring pairs `(A, I)`, its full subcategory of Henselian
-pairs, and the Henselization adjunction. The chosen Henselization object and its underlying ring,
-ideal, unit, and functorial maps form the reusable interface consumed by later comparison results.
-
-@stack 0A02
+Commutative-ring pairs `(A, I)` form a category via their quotient arrows. Henselian pairs
+form a full subcategory, and a left adjoint to its inclusion supplies Henselization objects,
+their underlying rings and ideals, and natural unit maps.
 -/
 
 @[expose] public section
@@ -33,11 +25,20 @@ noncomputable section
 
 /-- A commutative ring equipped with a distinguished ideal. -/
 @[stacks 0A02 "category of ring pairs"]
-structure RingPairCat where
-  ring : CommRingCat.{u}
-  ideal : Ideal ring
+def RingPairCat : Type (u + 1) :=
+  Σ R : CommRingCat.{u}, Ideal R
 
 namespace RingPairCat
+
+/-- The underlying commutative ring of a ring pair. -/
+abbrev ring (X : RingPairCat.{u}) : CommRingCat.{u} := X.1
+
+/-- The distinguished ideal of a ring pair. -/
+def ideal (X : RingPairCat.{u}) : Ideal X.ring := X.2
+
+/-- Pair a commutative ring with a distinguished ideal. -/
+abbrev mk (ring : CommRingCat.{u}) (ideal : Ideal ring) : RingPairCat.{u} :=
+  ⟨ring, ideal⟩
 
 /-- The quotient arrow `A ⟶ A ⧸ I` attached to a ring pair `(A, I)`. -/
 @[stacks 0A02 "quotient arrow of a ring pair"]
@@ -70,8 +71,8 @@ abbrev HenselianPairCat := henselianPairProperty.FullSubcategory
 abbrev henselianPairInclusion : HenselianPairCat.{u} ⥤ RingPairCat.{u} :=
   henselianPairProperty.ι
 
-/-- Lemma 15.12.1, Stacks `0A02`: the inclusion of Henselian pairs is a right adjoint. -/
-@[stacks 0A02 "Lemma 15.12.1"]
+/-- The inclusion of Henselian pairs into ring pairs is a right adjoint. -/
+@[stacks 0A02 "Lemma 15.12.1", instance]
 theorem henselianPairInclusion_isRightAdjoint :
     henselianPairInclusion.IsRightAdjoint := sorry
 
@@ -193,5 +194,21 @@ structure PairHenselizationData (X : RingPairCat.{u}) where
   universal :
     ∀ Z : HenselianPairCat.{u},
       Function.Bijective fun f : obj ⟶ Z ↦ unit ≫ henselianPairInclusion.map f
+
+namespace PairHenselizationData
+
+/-- Composition with the universal unit maps a Henselian-pair morphism to a morphism over
+the original ring pair. -/
+def comparisonMap {X : RingPairCat.{u}} (D : PairHenselizationData X)
+    (Z : HenselianPairCat.{u}) :
+    (D.obj ⟶ Z) → (X ⟶ henselianPairInclusion.obj Z) :=
+  fun f ↦ D.unit ≫ henselianPairInclusion.map f
+
+/-- Composition with the universal unit is a bijection on morphisms to every Henselian pair. -/
+theorem comparisonMap_bijective {X : RingPairCat.{u}} (D : PairHenselizationData X)
+    (Z : HenselianPairCat.{u}) : Function.Bijective (D.comparisonMap Z) :=
+  D.universal Z
+
+end PairHenselizationData
 
 end RingPairCat

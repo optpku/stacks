@@ -1,19 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap99.Lemma_99_3_8_Functor
-public import stacks_project.Chap99.Lemma_99_3_8_Yoneda
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.PseudoCoherent.Representability
 
 @[expose] public section
 
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
-open AlgebraicGeometry.AlgebraicSpace AlgebraicGeometry.AlgebraicSpace.ModuleDerived
-open Opposite
+open AlgebraicGeometry.AlgebraicSpace AlgebraicGeometry.AlgebraicSpace.Modules
+open DerivedCategory.TStructure Opposite
 
 noncomputable section
 
@@ -23,52 +17,42 @@ namespace AlgebraicGeometry.AlgebraicSpace.ModuleDerived
 
 variable {S : Scheme.{u}} {B : AlgebraicSpace S}
 
-/-- Lemma 99.3.8 (1): if `K` is pseudo-coherent in `D(𝒪_B)` and
-`H^{-1}(Lg^* K)` vanishes for every scheme `g : T ⟶ B` over `B`, then
-`T ↦ H^0(T, H^0(Lg^* K))` is an algebraic space affine of finite presentation
-over `B`. -/
-@[stacks 08JX]
-theorem cohomologyZeroFunctor_isAffineFinitePresentation (K : ModuleDerived B)
+/- Lemma 99.3.8 (1): The degree-zero cohomology-section functor of a pseudo-coherent derived module
+is affine and finitely presented when all scheme pullbacks have vanishing degree-minus-one
+cohomology. -/
+@[stacks 08JX] #check (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.cohomologyZeroFunctor_isAffineFinitePresentation :
+    ∀ (K : ModuleDerived B)
     (hK : IsPseudoCoherent B K)
     (hvan : ∀ σ : SchemeOver B,
-      IsZero (cohomologySheaf (pullbackOver K σ) (-1))) :
-    IsAffineFinitePresentationOver (cohomologyZeroFunctor K) :=
-  sorry
+      IsZero (cohomologySheaf (pullbackOver K σ) (-1))),
+      IsAffineFinitePresentationOver (cohomologyZeroFunctor K))
 
-/-- Lemma 99.3.8 (2): if `K` is pseudo-coherent in `D(𝒪_B)` and
-`H^i(Lg^* K)` vanishes for all `i < 0` and every scheme over `B`, then `K`
-is perfect. -/
-@[stacks 08JX]
-theorem isPerfect_of_negativePullbackCohomology (K : ModuleDerived B)
+/- Lemma 99.3.8 (2): A pseudo-coherent derived module is perfect when every scheme pullback has
+vanishing negative cohomology. -/
+@[stacks 08JX] #check (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.isPerfect_of_negativePullbackCohomology :
+    ∀ (K : ModuleDerived B)
     (hK : IsPseudoCoherent B K)
     (hvan : ∀ (σ : SchemeOver B) (i : ℤ), i < 0 →
-      IsZero (cohomologySheaf (pullbackOver K σ) i)) :
-    IsPerfect K :=
-  sorry
+      IsZero (cohomologySheaf (pullbackOver K σ) i)),
+      IsPerfect K)
 
-/-- Lemma 99.3.8 (3): if `K` is pseudo-coherent in `D(𝒪_B)` and
-`H^i(Lg^* K)` vanishes for all `i < 0` and every scheme over `B`, then on
-every affine étale scheme `σ : T ⟶ B` over `B` there exists `b ≥ 0` such
-that `pullbackOver K σ` has tor amplitude in `[0, b]`. -/
-@[stacks 08JX]
-theorem exists_hasTorAmplitudeIn_of_negativePullbackCohomology
-    (K : ModuleDerived B) (hK : IsPseudoCoherent B K)
+/- Lemma 99.3.8 (3): A pseudo-coherent derived module whose scheme pullbacks have vanishing negative
+cohomology has Tor-amplitude in `[0, b]` for some `b ≥ 0` on each affine étale scheme over the base.
+-/
+@[stacks 08JX] #check (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.exists_hasTorAmplitudeIn_of_negativePullbackCohomology :
+    ∀ (K : ModuleDerived B) (hK : IsPseudoCoherent B K)
     (hvan : ∀ (σ : SchemeOver B) (i : ℤ), i < 0 →
-      IsZero (cohomologySheaf (pullbackOver K σ) i)) :
-    ∀ (σ : SchemeOver B) [Etale σ.hom] [AlgebraicGeometry.IsAffine σ.left.left],
-      ∃ b : ℤ, 0 ≤ b ∧ HasTorAmplitudeIn (pullbackOver K σ) 0 b :=
-  sorry
+      IsZero (cohomologySheaf (pullbackOver K σ) i)),
+      ∀ (σ : SchemeOver B) [Etale σ.hom] [AlgebraicGeometry.IsAffine σ.left.left],
+      ∃ b : ℤ, 0 ≤ b ∧ HasTorAmplitudeIn (pullbackOver K σ) 0 b)
 
-/-- Lemma 99.3.8 (4): if `K` is pseudo-coherent in `D(𝒪_B)` and
-`H^i(Lg^* K)` vanishes for all `i < 0` and every scheme over `B`, then
-`T ↦ H^0(T, Lg^* K)` is an algebraic space affine of finite presentation
-over `B`. -/
-@[stacks 08JX]
-theorem derivedZeroFunctor_isAffineFinitePresentation (K : ModuleDerived B)
+/- Lemma 99.3.8 (4): The derived degree-zero section functor of a pseudo-coherent derived module is
+affine and finitely presented when every scheme pullback has vanishing negative cohomology. -/
+@[stacks 08JX] #check (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.derivedZeroFunctor_isAffineFinitePresentation :
+    ∀ (K : ModuleDerived B)
     (hK : IsPseudoCoherent B K)
     (hvan : ∀ (σ : SchemeOver B) (i : ℤ), i < 0 →
-      IsZero (cohomologySheaf (pullbackOver K σ) i)) :
-    IsAffineFinitePresentationOver (derivedZeroFunctor K) :=
-  sorry
+      IsZero (cohomologySheaf (pullbackOver K σ) i)),
+      IsAffineFinitePresentationOver (derivedZeroFunctor K))
 
 end AlgebraicGeometry.AlgebraicSpace.ModuleDerived

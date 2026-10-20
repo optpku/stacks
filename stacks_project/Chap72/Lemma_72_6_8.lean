@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap72.Definition_72_6_9_Principal
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Divisor.Principal
+import StacksCheckRecall
 
 /-!
 # Additivity of principal Weil divisors
@@ -28,25 +23,16 @@ namespace AlgebraicGeometry.AlgebraicSpace
 variable {S : Scheme.{u}} (X : AlgebraicSpace S)
 variable [IsLocallyNoetherian X] [IsIntegral X]
 
-/-- The order of vanishing of a product of rational units along a prime divisor is
-the sum of the orders of vanishing. -/
-theorem orderOfVanishing_mul (Z : PrimeDivisor X) (f g : (RationalFunction X)ˣ) :
-    Z.ord (f * g) = Z.ord f + Z.ord g := sorry
-
-/-- Coefficients of principal Weil divisors are additive in rational units. -/
-theorem principalWeilDivisor_mul_coeff (f g : (RationalFunction X)ˣ)
-    (Z : PrimeDivisor X) :
-    (principalWeilDivisor X (f * g)).coeff Z =
-      (principalWeilDivisor X f).coeff Z + (principalWeilDivisor X g).coeff Z := sorry
-
-/-- Lemma 72.6.8: Let `S` be a scheme. Let `X` be a locally Noetherian integral
+/- 0ENQ::statement_repair::1
+Lemma 72.6.8: Let `S` be a scheme. Let `X` be a locally Noetherian integral
 algebraic space over `S`. Let `f, g ∈ (RationalFunction X)ˣ`. Then
 `principalWeilDivisor X (f * g) =
 principalWeilDivisor X f + principalWeilDivisor X g`
 as Weil divisors on `X`. -/
 @[stacks 0ENQ]
-theorem principalWeilDivisor_mul (f g : (RationalFunction X)ˣ) :
+#check (AlgebraicGeometry.AlgebraicSpace.principalWeilDivisor_mul X :
+  ∀ (f g : (RationalFunction X)ˣ),
     principalWeilDivisor X (f * g) =
-      principalWeilDivisor X f + principalWeilDivisor X g := sorry
+      principalWeilDivisor X f + principalWeilDivisor X g)
 
 end AlgebraicGeometry.AlgebraicSpace

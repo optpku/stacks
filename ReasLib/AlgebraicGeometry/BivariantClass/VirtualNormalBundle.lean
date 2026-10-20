@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.BivariantClass.FlatPullback
@@ -234,3 +228,14 @@ theorem bivariantClass_eq_ofFactorization
           (forFactorization i j k h V)) := sorry
 
 end AlgebraicGeometry.Scheme.Hom.VirtualNormalBundle
+
+namespace AlgebraicGeometry.BivariantClass
+
+open Scheme.Hom.VirtualNormalBundle
+
+/-- An arrow of `Over S` agrees with the virtual-normal packaging of its underlying scheme
+morphism. -/
+theorem overHom_eq_over {S : Scheme.{u}} {X Y : Over S} (f : X ⟶ Y) :
+    overHom X.hom Y.hom f.left (Over.w f) = f := sorry
+
+end AlgebraicGeometry.BivariantClass

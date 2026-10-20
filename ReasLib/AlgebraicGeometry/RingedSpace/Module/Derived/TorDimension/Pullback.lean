@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Pullback
@@ -31,6 +25,8 @@ universe u
 namespace AlgebraicGeometry.RingedSpace.ModuleDerived.Pullback
 
 variable {X Y : RingedSpace.{u}}
+variable [DerivedCategory.DerivedTensor.Right.Has (C := Modules X)]
+variable [DerivedCategory.DerivedTensor.Right.Has (C := Modules Y)]
 
 /-- Lemma 20.48.4: derived pullback preserves a fixed Tor-amplitude interval. -/
 @[stacks 09U8]

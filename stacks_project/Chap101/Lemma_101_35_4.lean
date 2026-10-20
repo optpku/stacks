@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_9_1_Immersion
-public import stacks_project.Chap101.Lemma_101_36_4_Etale
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Etale.OpenImmersion
+import StacksCheckRecall
 
 /-!
 # Open immersions of algebraic stacks are étale
@@ -16,19 +10,14 @@ public import stacks_project.Chap101.Lemma_101_36_4_Etale
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry
-open AlgebraicGeometry.Groupoids.Hom (OpenImmersion)
 open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack
-
-/-- Lemma 101.35.4: An open immersion of algebraic stacks is étale. -/
+/- Lemma 101.35.4: An open immersion of algebraic stacks is étale. -/
 @[stacks 0CIP]
-instance etale_of_openImmersion {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicStack.etale_of_openImmersion :
+  ∀ {S : Scheme.{u}}
     {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
-    (f : X ⟶ Y) [OpenImmersion f] :
-    Etale f :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack
+    (f : X ⟶ Y) [AlgebraicGeometry.Groupoids.Hom.OpenImmersion f],
+    AlgebraicGeometry.AlgebraicStack.Etale f)

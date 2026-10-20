@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Comma.Over.Basic
@@ -70,7 +64,8 @@ private noncomputable def obj
   PseudoPullback.mk F G f.left
     { fst := A.left
       snd := Fiber.mk rfl
-      iso := asIso A.hom }
+      iso := @asIso _ _ _ _ A.hom
+        (Functor.IsFibered.InGroupoids.hom_isIso (p := pY) f.left A.hom) }
 
 /-- The comparison square induced by a costructured-arrow morphism. -/
 private theorem mapComm
@@ -221,7 +216,8 @@ standard fibre inclusion. -/
         ((Fiber.fiberInclusion :
           ((PseudoPullback.snd F G).toFunctor).Fiber f ⥤
             (PseudoPullback F G).obj).obj ((comparison F G f).obj A)) =
-      (Fiber.fiberInclusion : pY.Fiber f.left ⥤ Y).mapIso (asIso A.hom) := sorry
+      (Fiber.fiberInclusion : pY.Fiber f.left ⥤ Y).mapIso (@asIso _ _ _ _ A.hom
+        (Functor.IsFibered.InGroupoids.hom_isIso (p := pY) f.left A.hom)) := sorry
 
 /-- The first component of an evaluated costructured-arrow morphism is its stored left map. -/
 @[simp] theorem comparison.map.fst
@@ -261,7 +257,8 @@ theorem exists_hom_left_iff_map_eq [Functor.IsFibered.InGroupoids pY]
     (ψ : A.left ⟶ B.left) :
     (∃ α : A ⟶ B, α.left = ψ) ↔
       (F.fiberFunctor f.left).map ψ =
-        A.hom ≫ (asIso B.hom).inv := sorry
+        A.hom ≫ (@asIso _ _ _ _ B.hom
+          (Functor.IsFibered.InGroupoids.hom_isIso (p := pY) f.left B.hom)).inv := sorry
 
 end SndFiber
 end BasedCategory.PseudoPullback

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_5_5_PointsTopology
-public import stacks_project.Chap67.Lemma_67_25_4_FiniteTypePoint
-public import stacks_project.Chap68.Lemma_68_23_1_Jacobson
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Jacobson.FiniteTypePoints
 
 /-!
 # Finite-type points lift to closed points over Jacobson algebraic spaces
@@ -24,28 +17,25 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.IsJacobson
+open AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 68.23.2: Let `S` be a scheme. Let `X` be a Jacobson algebraic space over
+/- Lemma 68.23.2: Let `S` be a scheme. Let `X` be a Jacobson algebraic space over
 `S`. For `x ∈ finiteTypePoints X` and `g : ofOver W ⟶ X` locally of finite type
 with `W` a scheme, if `x ∈ Set.range (Points.mapOfOver g)`, then there exists a
 closed point of `W` mapping to `x`. -/
-@[stacks 0BA4]
-theorem exists_mem_closedPoints_mapOfOver_eq {S : Scheme.{u}}
-    {X : AlgebraicSpace S} [IsJacobson X] {W : Over S} (g : ofOver W ⟶ X)
-    [LocallyOfFiniteType g] {x : Points X} (hx : x ∈ finiteTypePoints X)
-    (hgx : x ∈ Set.range (Points.mapOfOver g)) :
-    ∃ w ∈ closedPoints W.left, Points.mapOfOver g w = x :=
-  sorry
+@[stacks 0BA4] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsJacobson.exists_mem_closedPoints_mapOfOver_eq :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsJacobson X] {W : Over S}
+      (g : ofOver W ⟶ X) [LocallyOfFiniteType g] {x : Points X},
+      x ∈ finiteTypePoints X → x ∈ Set.range (Points.mapOfOver g) →
+      ∃ w ∈ closedPoints W.left, Points.mapOfOver g w = x)
 
-/-- Finite-type points of a Jacobson algebraic space that lie in the image of a
+/- Finite-type points of a Jacobson algebraic space that lie in the image of a
 locally of finite type morphism from a scheme are images of closed points of
 that scheme. -/
-theorem finiteTypePoints_inter_range_subset_image_closedPoints
-    {S : Scheme.{u}} {X : AlgebraicSpace S} [IsJacobson X] {W : Over S}
-    (g : ofOver W ⟶ X) [LocallyOfFiniteType g] :
-    finiteTypePoints X ∩ Set.range (Points.mapOfOver g) ⊆
-      Points.mapOfOver g '' closedPoints W.left :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.IsJacobson
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsJacobson.finiteTypePoints_inter_range_subset_image_closedPoints :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsJacobson X] {W : Over S}
+      (g : ofOver W ⟶ X) [LocallyOfFiniteType g],
+      finiteTypePoints X ∩ Set.range (Points.mapOfOver g) ⊆
+        Points.mapOfOver g '' closedPoints W.left)

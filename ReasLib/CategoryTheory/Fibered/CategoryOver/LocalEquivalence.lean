@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
@@ -15,10 +9,10 @@ public import ReasLib.CategoryTheory.Fibered.CartesianBasedFunctor.LocalEquivale
 # Local equivalences of fibered categories
 
 This module exposes the fixed-universe view of
-`CartesianBasedFunctor.IsLocalEquivalence`. Its bridge theorem identifies the minimally lifted
-heterogeneous Hom-presheaf condition with the established same-universe Homwise condition and
-the same essential-image condition. Stack and stackification hypotheses remain absent from this
-layer.
+`CartesianBasedFunctor.IsLocalEquivalence`. Its Homwise and essential-image halves are the
+fixed-universe views `Homwise.IsLocalEquivalence` and `LocallyEssentiallySurjective` of the same
+cartesian-functor owners, so the defining criterion holds by definition. Stack and
+stackification hypotheses remain absent from this layer.
 -/
 
 @[expose] public section
@@ -40,28 +34,28 @@ abbrev IsLocalEquivalence
   CartesianBasedFunctor.IsLocalEquivalence J
     (FiberedCategoryOver.toCartesianBasedFunctor F)
 
-/-- The heterogeneous owner specializes to the established fixed-universe Homwise and
-essential-image conditions. -/
+/-- The heterogeneous owner specializes to the fixed-universe Homwise and essential-image
+conditions. -/
 @[stacks 02ZP "fixed-universe local-equivalence criterion"]
 theorem isLocalEquivalence_iff
     (J : GrothendieckTopology C) (F : X ⟶ Y) :
     IsLocalEquivalence J F ↔
       Homwise.IsLocalEquivalence J F ∧
-        LocallyEssentiallySurjective J F := sorry
+        LocallyEssentiallySurjective J F := Iff.rfl
 
 /-- A local equivalence is a local equivalence on all Hom-presheaves. -/
 @[stacks 02ZP "fixed-universe Homwise local-equivalence projection"]
 theorem IsLocalEquivalence.isHomwise
     {J : GrothendieckTopology C} {F : X ⟶ Y}
     (hF : IsLocalEquivalence J F) :
-    Homwise.IsLocalEquivalence J F := sorry
+    Homwise.IsLocalEquivalence J F := hF.1
 
 /-- A local equivalence is locally essentially surjective on fiber objects. -/
 @[stacks 02ZP "fixed-universe essential-image projection"]
 theorem IsLocalEquivalence.locallyEssentiallySurjective
     {J : GrothendieckTopology C} {F : X ⟶ Y}
     (hF : IsLocalEquivalence J F) :
-    LocallyEssentiallySurjective J F := sorry
+    LocallyEssentiallySurjective J F := hF.2
 
 /-- The canonical Hom-presheaf map of a local equivalence belongs to the
 localizing class of the corresponding slice site. -/

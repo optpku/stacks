@@ -1,20 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.CommAlgCat.Basic
-public import ReasLib.Algebra.Category.CommRingCat.PolynomialResolution.Construction
-public import stacks_project.Chap92.Lemma_92_4_1_Evaluation
+public import ReasLib.Algebra.PolynomialSite.StandardResolution
 
 /-!
 # Standard polynomial resolution as a polynomial-site object
 
-This leaf converts the standard simplicial resolution of `B` over `A` into an
-augmentation of `CommAlgCat A` and a cosimplicial object of `PolynomialSite A B`.
+The shared standard resolution supplies the augmentation of `CommAlgCat A` and
+the cosimplicial object of `PolynomialSite A B`.
 -/
 
 @[expose] public section
@@ -32,58 +24,36 @@ namespace Algebra.PolynomialSite
 
 variable (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
 
-/-- The standard simplicial polynomial resolution of `B` over `A`, as an augmented
-simplicial object of `CommAlgCat A`. -/
-noncomputable def standardAugmented : SimplicialObject.Augmented (CommAlgCat.{u} A) :=
-  (SimplicialObject.Augmented.whiskeringObj (Under (CommRingCat.of A))
-      (CommAlgCat.{u} A) (commAlgCatEquivUnder (CommRingCat.of A)).inverse).obj
-    ((evaluation (CommRingCat.of A)).obj ((CommRingCat.of A).mkUnder B))
+#check (Algebra.PolynomialSite.standardAugmented A B :
+  SimplicialObject.Augmented (CommAlgCat.{u} A))
 
-/-- The simplicial object of the standard polynomial resolution of `B` over `A`. -/
-theorem standardAugmented_left :
+#check (Algebra.PolynomialSite.standardAugmented_left A B :
     (standardAugmented A B).left =
       ((evaluation (CommRingCat.of A)).obj ((CommRingCat.of A).mkUnder B)).left ⋙
-        (commAlgCatEquivUnder (CommRingCat.of A)).inverse :=
-  sorry
+        (commAlgCatEquivUnder (CommRingCat.of A)).inverse)
 
-/-- The standard-resolution augmentation `ε : P_• ⟶ B` as a morphism of simplicial
-`A`-algebras. -/
-noncomputable def standardHom :
+#check (Algebra.PolynomialSite.standardHom A B :
     (standardAugmented A B).left ⟶
-      (const (CommAlgCat.{u} A)).obj (CommAlgCat.of A B) :=
-  (standardAugmented A B).hom ≫
-    (const (CommAlgCat.{u} A)).map
-      ((commAlgCatEquivUnder (CommRingCat.of A)).unitIso.inv.app (CommAlgCat.of A B))
+      (const (CommAlgCat.{u} A)).obj (CommAlgCat.of A B))
 
-/-- Components of `standardHom` are the transported standard-resolution augmentation
-maps. -/
-theorem standardHom_app (n : SimplexCategoryᵒᵖ) :
+#check (Algebra.PolynomialSite.standardHom_app A B :
+  ∀ n : SimplexCategoryᵒᵖ,
     (standardHom A B).app n =
       (standardAugmented A B).hom.app n ≫
-        (commAlgCatEquivUnder (CommRingCat.of A)).unitIso.inv.app (CommAlgCat.of A B) :=
-  sorry
+        (commAlgCatEquivUnder (CommRingCat.of A)).unitIso.inv.app (CommAlgCat.of A B))
 
-/-- Each term of the standard polynomial resolution of `B` over `A` is a polynomial
-`A`-algebra. -/
-instance standard_isPolynomial (n : SimplexCategoryᵒᵖ) :
-    IsPolynomial A ((standardAugmented A B).left.obj n) :=
-  sorry
+#check (Algebra.PolynomialSite.standard_isPolynomial A B :
+  ∀ n : SimplexCategoryᵒᵖ, IsPolynomial A ((standardAugmented A B).left.obj n))
 
-/-- The underlying simplicial-set map of the standard resolution is a trivial Kan
-fibration. -/
-theorem standardHom_rlp : I.rlp (underlyingSSetMap (standardHom A B)) :=
-  sorry
+#check (Algebra.PolynomialSite.standardHom_rlp A B :
+  I.rlp (underlyingSSetMap (standardHom A B)))
 
-/-- The standard polynomial resolution of `B` over `A`, as a cosimplicial object of
-`PolynomialSite A B`. -/
-noncomputable def standardCosimplicial : CosimplicialObject (PolynomialSite A B) :=
-  asCosimplicial (standardHom A B) (standard_isPolynomial A B)
+#check (Algebra.PolynomialSite.standardCosimplicial A B :
+  CosimplicialObject (PolynomialSite A B))
 
-/-- Unpacking `standardCosimplicial` in each degree recovers the corresponding
-standard augmentation component. -/
-theorem standardCosimplicial_obj (n : SimplexCategory) :
+#check (Algebra.PolynomialSite.standardCosimplicial_obj A B :
+  ∀ n : SimplexCategory,
     ((standardCosimplicial A B).obj n).unop.obj =
-      Over.mk ((standardHom A B).app (Opposite.op n)) :=
-  sorry
+      Over.mk ((standardHom A B).app (Opposite.op n)))
 
 end Algebra.PolynomialSite

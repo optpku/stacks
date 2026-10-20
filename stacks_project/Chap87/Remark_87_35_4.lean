@@ -1,18 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-import stacks_project.Chap110.Lemma_110_13_1
+import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.Quasicoherent.Padic
 
 @[expose] public section
 
 open AlgebraicGeometry CategoryTheory AlgebraicGeometry.GroupoidsOver
-open AlgebraicGeometry.GroupoidsOver.QCoh
+open AlgebraicGeometry.AffineFormalAlgebraicSpace
 
 /- Remark 87.35.4
 Even if the structure sheaf 𝒪_X has good properties, this does not yield a
@@ -24,4 +18,4 @@ p-adic thickenings.
 @[stacks 0DEM] #check
   (AlgebraicGeometry.GroupoidsOver.QCoh.not_abelian :
     ∀ (p : ℕ) [Fact p.Prime],
-      ¬ Nonempty (Abelian (QCoh (ofPresheafGroupoids (padicSpectrum p).obj))))
+      ¬ Nonempty (Abelian (QCoh (GroupoidsOver.ofPresheaf (padicSpectrum p).obj))))

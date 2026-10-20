@@ -1,54 +1,23 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Generators
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap67.Definition_67_4_2_Separation
-public import stacks_project.Chap67.Definition_67_40_1_FiniteType
-public import stacks_project.Chap67.Lemma_67_31_3_FlatOver
-public import stacks_project.Chap67.Lemma_67_31_6_ModuleSupport
-public import stacks_project.Chap75.Lemma_75_7_3_ProperOver
-public import stacks_project.Chap99.«99_3_1_1»
-public import stacks_project.Chap99.Lemma_99_3_8_Yoneda
-
-/-!
-# Lemma 99.3.9
-
-In Situation 99.3.1, if `B` is Noetherian, `f` is locally of finite type and
-quasi-separated, `F` is of finite type, and `G` is of finite type, flat over
-`B`, with support proper over `B`, then `Hom(F, G)` is an algebraic space
-affine of finite presentation over `B`.
--/
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.HomFunctor.Representability
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Opposite
-open TopologicalSpace
-
-noncomputable section
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
+open AlgebraicGeometry.AlgebraicSpace.Modules
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules
-
-/-- Lemma 99.3.9: In Situation 99.3.1, if `B` is a Noetherian algebraic space,
-`f` is locally of finite type and quasi-separated, `F` is a finite type
-`𝒪_X`-module, and `G` is a finite type `𝒪_X`-module, flat over `B`, with
-support proper over `B`, then the functor `Hom(F, G)` is an algebraic space
-affine of finite presentation over `B`. -/
-@[stacks 08JY]
-theorem homFunctor_isAffineFinitePresentation
-    {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B)
+/- Lemma 99.3.9: For finite-type quasi-coherent modules `F` and `G`, if the base is
+Noetherian, `f` is locally of finite type and quasi-separated, and `G` is flat over
+the base with proper support, the Hom functor is affine and of finite presentation
+over the base. -/
+@[stacks 08JY] #check (AlgebraicGeometry.AlgebraicSpace.Modules.homFunctor_isAffineFinitePresentation :
+    ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B)
     [LocallyOfFiniteType f] [QuasiSeparated f] [IsNoetherian B]
     (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent]
     [F.IsFiniteType] [G.IsFiniteType] (hG_flat : flatOver G f)
-    (hG_support : ClosedSubset.IsProperOver f (Closeds.closure (moduleSupport G))) :
-    IsAffineFinitePresentationOver (homFunctor f F G) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Modules
+    (hG_support : Proper ((ClosedSubspaceStructure.reduced (closedSupport G)).ι ≫ f)),
+    IsAffineFinitePresentationOver (homFunctor f F G))

@@ -1,15 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Sites.Etale
-public import Mathlib.CategoryTheory.Sites.Sheaf
-public import stacks_project.Chap58.Lemma_58_2_2
-public import stacks_project.Chap59.Theorem_59_56_3
+public import ReasLib.AlgebraicGeometry.Scheme.Etale.Representability
 import StacksCheckRecall
 
 open CategoryTheory
@@ -17,32 +8,25 @@ open AlgebraicGeometry
 
 @[expose] public section
 
-universe u v
+universe u
 
-namespace AlgebraicGeometry.Scheme.Etale
+/- Remark 59.56.4: every sheaf on the chosen small étale site of a field spectrum
+is represented by an ambient étale scheme. The representing scheme need not be
+an object of the chosen small site, so this is not necessarily representability
+in the sense of Sites, Definition 7.12.3. -/
+@[stacks 04JL] #check
+  (AlgebraicGeometry.Scheme.Etale.sheaf_isRepresentableByEtaleScheme :
+    ∀ {C : Type u} [Category.{u} C] (K : Type u) [Field K]
+      (J : GrothendieckTopology C) (ι : C ⥤ (Spec (.of K)).Etale)
+      [ι.Full] [ι.Faithful] [ι.IsDenseSubsite J (Spec (.of K)).smallEtaleTopology]
+      (F : Sheaf J (Type u)),
+      ∃ X : (Spec (.of K)).Etale, Nonempty (F.obj ≅ (ι.op ⋙ CategoryTheory.yoneda.obj X)))
 
-/- Sites Definition 7.12.3 is Yoneda representability of a
-contravariant set-valued functor. -/
-@[stacks 04JL] #check Functor.IsRepresentable
-
-/-- Remark 59.56.4 (1): combining Theorem 59.56.3 with Fundamental Groups,
-Lemma 58.2.2, every sheaf on `Spec K` étale is represented by some scheme
-étale over `Spec K`. -/
-@[stacks 04JL]
-theorem sheaf_isRepresentableByEtaleScheme
-    (K : Type u) [Field K] (F : Sheaf (Spec (.of K)).smallEtaleTopology (Type u)) :
-    F.obj.IsRepresentable := sorry
-
-/-- Remark 59.56.4 (2): this is not Sites Definition 7.12.3 representability on a
-merely chosen small subcategory of schemes étale over `Spec K`. If
-`ι : C ⥤ (Spec K).Etale` is fully faithful and not essentially surjective, some
-sheaf on the small étale site is not represented by any object in the image of
-`ι`. -/
-@[stacks 04JL]
-theorem not_isRepresentable_of_not_essSurj
-    {C : Type v} [Category.{u} C] (K : Type u) [Field K]
-    (ι : C ⥤ (Spec (.of K)).Etale) (hff : ι.FullyFaithful) (hι : ¬ Functor.EssSurj ι) :
-    ∃ F : Sheaf (Spec (.of K)).smallEtaleTopology (Type u),
-      ∀ c : C, ¬ Nonempty (F.obj.RepresentableBy (ι.obj c)) := sorry
-
-end AlgebraicGeometry.Scheme.Etale
+/- The chosen small site does not represent all of its set-valued sheaves by
+its own objects: the size obstruction is unconditional. -/
+#check
+  (AlgebraicGeometry.Scheme.Etale.exists_not_isRepresentable_on_smallSite :
+    ∀ {C : Type u} [Category.{u} C] (K : Type u) [Field K]
+      (J : GrothendieckTopology C) (ι : C ⥤ (Spec (.of K)).Etale)
+      [ι.Full] [ι.Faithful] [ι.IsDenseSubsite J (Spec (.of K)).smallEtaleTopology],
+      ∃ F : Sheaf J (Type u), ¬ F.obj.IsRepresentable)

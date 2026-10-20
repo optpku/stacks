@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_13_1_IsScheme
-public import stacks_project.Chap67.Lemma_67_48_6_Reduced
-public import stacks_project.Chap68.Lemma_68_12_8_Decent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Decent.Singleton
+import StacksCheckRecall
 
 /-!
 # Decent algebraic spaces with a singleton underlying space
@@ -23,27 +16,23 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+open AlgebraicGeometry.AlgebraicSpace
 
-namespace IsScheme
-
-/-- Lemma 68.14.2 (1): If `X` is a decent algebraic space over a scheme `S` and
+/- Lemma 68.14.2 (1): If `X` is a decent algebraic space over a scheme `S` and
 `Points X` is a singleton, then `X` is a scheme. -/
-@[stacks 047Z]
-instance of_singleton_points {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsDecent X] [Nonempty (Points X)] [Subsingleton (Points X)] :
-    IsScheme X := sorry
+@[stacks 047Z] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsScheme.of_singleton_points :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+      [IsDecent X] [Nonempty (Points X)] [Subsingleton (Points X)],
+      IsScheme X)
 
-end IsScheme
-
-/-- Lemma 68.14.2 (2): If `X` is a reduced decent algebraic space over a scheme `S`
+/- Lemma 68.14.2 (2): If `X` is a reduced decent algebraic space over a scheme `S`
 and `Points X` is a singleton, then there exist a field `k` and a morphism
 `σ : Spec (.of k) ⟶ S` such that `X` is isomorphic over `S` to
 `ofOver (Over.mk σ)`. -/
-@[stacks 047Z]
-theorem exists_iso_spec_of_singleton {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsDecent X] [IsReduced X] [Nonempty (Points X)] [Subsingleton (Points X)] :
-    ∃ (k : Type u) (_ : Field k) (σ : Spec (.of k) ⟶ S),
-      Nonempty (X ≅ ofOver (Over.mk σ)) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 047Z] #check
+  (AlgebraicGeometry.AlgebraicSpace.exists_iso_spec_of_singleton :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+      [IsDecent X] [IsReduced X] [Nonempty (Points X)] [Subsingleton (Points X)],
+      ∃ (k : Type u) (_ : Field k) (σ : Spec (.of k) ⟶ S),
+        Nonempty (X ≅ ofOver (Over.mk σ)))

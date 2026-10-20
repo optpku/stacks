@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap103.«103_15_1_1_Smooth»
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Smooth.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of smooth morphisms of algebraic stacks
@@ -25,13 +20,14 @@ namespace AlgebraicGeometry.AlgebraicStack
 
 namespace Smooth
 
-/-- Lemma 101.33.2: The composition of smooth morphisms is smooth. -/
-@[stacks 075V]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+/- Lemma 101.33.2: The composition of smooth morphisms is smooth. -/
+@[stacks 075V] #check (AlgebraicGeometry.AlgebraicStack.Smooth.comp :
+    ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [Smooth f] [Smooth g] :
-    Smooth (f ≫ g) :=
-  sorry
+    (f : X ⟶ Y) (g : Y ⟶ Z)
+    [AlgebraicGeometry.AlgebraicStack.Smooth f]
+    [AlgebraicGeometry.AlgebraicStack.Smooth g],
+    AlgebraicGeometry.AlgebraicStack.Smooth (f ≫ g))
 
 end Smooth
 

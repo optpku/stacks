@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Remark_75_19_3_Triangle
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.MayerVietoris
 import StacksCheckRecall
 
 @[expose] public section
@@ -41,3 +35,45 @@ Lemma 75.19.2. -/
       [IsQuasiCompact V] [IsAbsolutelyQuasiSeparated V]
       (K : ModuleDerived X),
       mayerVietorisCoreflectionTriangle j f K ∈ distTriang (ModuleDerived X))
+
+#check
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.mayerVietorisCoreflectionTriangle_obj₁ :
+    ∀ {S : Scheme.{u}} {U V X : AlgebraicSpace S} (j : U ⟶ X) [Etale j]
+      (f : V ⟶ X) [Etale f] [IsElementaryDistinguishedSquare j f]
+      [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
+      [IsQuasiCompact U] [IsAbsolutelyQuasiSeparated U]
+      [IsQuasiCompact V] [IsAbsolutelyQuasiSeparated V]
+      (K : ModuleDerived X),
+      (mayerVietorisCoreflectionTriangle j f K).obj₁ =
+        (inclusion X).obj ((inclusion X).rightAdjoint.obj K))
+
+#check
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.mayerVietorisCoreflectionTriangle_obj₂_isomorphic :
+    ∀ {S : Scheme.{u}} {U V X : AlgebraicSpace S} (j : U ⟶ X) [Etale j]
+      (f : V ⟶ X) [Etale f] [IsElementaryDistinguishedSquare j f]
+      [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
+      [IsQuasiCompact U] [IsAbsolutelyQuasiSeparated U]
+      [IsQuasiCompact V] [IsAbsolutelyQuasiSeparated V]
+      (K : ModuleDerived X),
+      IsIsomorphic (mayerVietorisCoreflectionTriangle j f K).obj₂
+        (biprod
+          ((moduleDerivedPushforward j).obj
+            ((inclusion U).obj
+              ((inclusion U).rightAdjoint.obj ((restrictFunctorDerived j).obj K))))
+          ((moduleDerivedPushforward f).obj
+            ((inclusion V).obj
+              ((inclusion V).rightAdjoint.obj ((restrictFunctorDerived f).obj K))))))
+
+#check
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.mayerVietorisCoreflectionTriangle_obj₃_isomorphic :
+    ∀ {S : Scheme.{u}} {U V X : AlgebraicSpace S} (j : U ⟶ X) [Etale j]
+      (f : V ⟶ X) [Etale f] [IsElementaryDistinguishedSquare j f]
+      [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
+      [IsQuasiCompact U] [IsAbsolutelyQuasiSeparated U]
+      [IsQuasiCompact V] [IsAbsolutelyQuasiSeparated V]
+      (K : ModuleDerived X),
+      IsIsomorphic (mayerVietorisCoreflectionTriangle j f K).obj₃
+        ((moduleDerivedPushforward (fiberHom j f)).obj
+          ((inclusion (pullback j f)).obj
+            ((inclusion (pullback j f)).rightAdjoint.obj
+              ((restrictFunctorDerived (fiberHom j f)).obj K)))))

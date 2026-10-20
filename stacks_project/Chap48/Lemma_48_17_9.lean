@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -20,6 +14,8 @@ open scoped DerivedCategory.CohomologyIn
 noncomputable section
 
 universe u
+
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
 
 namespace AlgebraicGeometry
 namespace Scheme
@@ -45,9 +41,14 @@ namespace UpperShriek
   ∀ {S : Scheme.{u}} [IsNoetherian S]
     {X Y : FiniteTypeSeparatedOver S} (f : X ⟶ Y)
     [LocallyOfType RingHom.IsPerfectRingMap f.hom.left]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.hom.left.toShHom).carrier,
+      CategoryTheory.DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.hom.left.toShHom).restrict U.isOpenEmbedding))]
     (P : Of (Over.left Y.obj) (Over.mk (Over.Hom.left f.hom)))
     (A : DerivedQCoh.PlusRightAdjoint (ambientMorphism P)),
     RingedSpace.ModuleDerived.LocallyHasFiniteTorDimension
+      (X := RingedSpace.Hom.inverseImageBase f.hom.left.toShHom)
       ((RingedSpace.ModuleDerived.relativeRestriction
           (Over.Hom.left f.hom).toShHom).obj
         (dualizingObject f P A).obj))

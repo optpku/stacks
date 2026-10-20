@@ -1,37 +1,19 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.«66_19_6_1_Neighborhood»
-public import stacks_project.Chap66.«66_19_6_1_Stalk»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Stalk.Spaces
+import StacksCheckRecall
 
-/-!
-# Identification of the small-étale stalk with the colimit over all étale neighborhoods
--/
-
-@[expose] public section
-
-open CategoryTheory AlgebraicGeometry
-
-noncomputable section
+open CategoryTheory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.GeometricPoint
-
-variable {S : Scheme.{u}} {X : AlgebraicSpace S}
-
-/-- 66.19.6.1: `stalk xbar F` is identified with
-`spacesEtaleStalk xbar (correspondingSpacesPresheaf F)`, i.e. the stalk `F_xbar` of a
-presheaf `F` on `smallEtaleSite X` equals the colimit of `F'(U)` over all étale neighborhoods
-`(U, ubar)` of `xbar`, where `F'` is the sheaf on `spacesEtaleSite X` corresponding to `F`. -/
+/- 66.19.6.1: The small-étale stalk is canonically identified with the colimit of the right Kan
+extension over all étale neighborhoods. For sheaves, this is the corresponding spaces-étale
+sheaf. -/
 @[stacks 04JZ]
-theorem isIso_stalkToSpacesColimit (xbar : GeometricPoint X)
-    (F : (smallEtaleSite X)ᵒᵖ ⥤ Type (u + 1)) :
-    IsIso (stalkToSpacesColimit xbar F) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace.GeometricPoint
+#check (AlgebraicGeometry.AlgebraicSpace.GeometricPoint.isIso_stalkToSpacesColimit :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {X : AlgebraicGeometry.AlgebraicSpace S}
+    (xbar : AlgebraicGeometry.AlgebraicSpace.GeometricPoint X)
+    (F : (AlgebraicGeometry.AlgebraicSpace.smallEtaleSite X)ᵒᵖ ⥤ Type (u + 1)),
+    CategoryTheory.IsIso
+      (AlgebraicGeometry.AlgebraicSpace.GeometricPoint.stalkToSpacesColimit xbar F))

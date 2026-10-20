@@ -1,18 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_16_5_TensorAnnihilator
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.ClosedSubset.Perfect.TensorAnnihilator
 import StacksCheckRecall
 
 @[expose] public section
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory
-open CategoryTheory.MonoidalCategory DerivedCategory.TStructure TopologicalSpace
+open DerivedCategory.TStructure TopologicalSpace
 
 universe u
 
@@ -21,9 +15,8 @@ universe u
   (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.SupportedOn.existsTensorAnnihilator :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
       [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
-      [MonoidalCategory (ModuleDerived X)]
       (T : Closeds (Points X)),
-      QuasiCompact (OpenSubspace.ofOpensι T.compl) →
+      QuasiCompact ((OpenSubspace.fromOpens T.compl).ι) →
         ∀ (P : DerivedQCoh X)
           (E : AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.SupportedOn X
             (T : Set (Points X)))
@@ -33,8 +26,10 @@ universe u
           ModuleDerived.IsPerfect P.obj ∨
               (IsPseudoCoherent X P.obj ∧
                 (t.plus : ObjectProperty (ModuleDerived X)) E.obj) →
-            ∃ (I : ModuleDerived X) (i : I ⟶ 𝟙_ (ModuleDerived X)),
+            ∃ (I : ModuleDerived X) (i : I ⟶ (DerivedQCoh.structureSheaf X).obj),
               ModuleDerived.IsPerfect I ∧
-                (i ⊗ₘ 𝟙 P.obj) ≫ (λ_ P.obj).hom ≫
+                ((ModuleDerived.tensorBifunctor X).map (Prod.mkHom i (𝟙 P.obj))) ≫
+                  ModuleDerived.tensorLeftUnitor P.obj ≫
                   (DerivedQCoh.inclusion X).map α = 0 ∧
-                IsIso ((ModuleDerived.pullback (OpenSubspace.ofOpensι T.compl)).map i))
+                IsIso ((ModuleDerived.pullback ((OpenSubspace.fromOpens T.compl).ι)).map i))
+

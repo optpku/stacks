@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_20_5_InternalHom
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.BaseChange.InternalHom.TorIndependence
 import StacksCheckRecall
 
 @[expose] public section
@@ -14,7 +8,7 @@ import StacksCheckRecall
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory
 open AlgebraicGeometry.AlgebraicSpace.Hom
 open CategoryTheory.Limits CategoryTheory.MonoidalClosed
-open DerivedCategory.TStructure
+open DerivedCategory.TStructure CategoryTheory.DerivedCategory
 
 universe u
 
@@ -32,16 +26,15 @@ when `M` is perfect and `K` lies in `D_QCoh(X)`. -/
       [QuasiCompact f] [QuasiSeparated f]
       [MonoidalCategory (ModuleDerived X)] [BraidedCategory (ModuleDerived X)]
       [MonoidalCategory (ModuleDerived X')] [BraidedCategory (ModuleDerived X')]
-      [(modulePullbackDerived g').Monoidal]
-      [IsIso (modulePullbackDerived.compComparison f' (specMap φ))]
-      [IsIso (modulePullbackDerived.compComparison g' f)]
       (sq : IsPullback g' f' f (specMap φ)),
       TorIndependentOver (Over.mk f) (Over.mk (specMap φ)) →
         ∀ (H_X : MonoidalClosed (ModuleDerived X))
           (H_X' : MonoidalClosed (ModuleDerived X'))
+          (T_X : DerivedTensor.Right.Monoidal.Model (C := X.Modules))
+          (T_X' : DerivedTensor.Right.Monoidal.Model (C := X'.Modules))
           (M : ModuleDerived X) (K : DerivedQCoh X),
           ModuleDerived.IsPerfect M →
-            IsIso (DerivedBaseChange.InternalHom.map sq.toCommSq H_X H_X' M K.obj))
+            IsIso (DerivedBaseChange.InternalHom.canonicalMap sq.toCommSq H_X H_X' T_X T_X' M K.obj))
 
 /- Lemma 75.20.5 (2): for a Tor-independent cartesian square of qcqs algebraic spaces
 over `g : Spec B ⟶ Spec A`, the same canonical map in `D(B)` is an isomorphism when
@@ -57,15 +50,14 @@ over `A`. -/
       [QuasiCompact f] [QuasiSeparated f]
       [MonoidalCategory (ModuleDerived X)] [BraidedCategory (ModuleDerived X)]
       [MonoidalCategory (ModuleDerived X')] [BraidedCategory (ModuleDerived X')]
-      [(modulePullbackDerived g').Monoidal]
-      [IsIso (modulePullbackDerived.compComparison f' (specMap φ))]
-      [IsIso (modulePullbackDerived.compComparison g' f)]
       (sq : IsPullback g' f' f (specMap φ)),
       TorIndependentOver (Over.mk f) (Over.mk (specMap φ)) →
         ∀ (H_X : MonoidalClosed (ModuleDerived X))
           (H_X' : MonoidalClosed (ModuleDerived X'))
+          (T_X : DerivedTensor.Right.Monoidal.Model (C := X.Modules))
+          (T_X' : DerivedTensor.Right.Monoidal.Model (C := X'.Modules))
           (M : ModuleDerived X) (K : DerivedQCoh X),
           IsPseudoCoherent X M →
             (t.plus : ObjectProperty (ModuleDerived X)) K.obj →
               φ.hom.HasFiniteTorDimension →
-                IsIso (DerivedBaseChange.InternalHom.map sq.toCommSq H_X H_X' M K.obj))
+                IsIso (DerivedBaseChange.InternalHom.canonicalMap sq.toCommSq H_X H_X' T_X T_X' M K.obj))

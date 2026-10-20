@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap70.Lemma_70_9_6_Finite
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Algebra.Finite
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,7 +15,7 @@ universe u
 space over `S`. Let `A` be a finite quasi-coherent `𝒪_X`-algebra. Then `A` is a directed colimit
 of finite and finitely presented quasi-coherent `𝒪_X`-algebras with surjective transition maps. -/
 @[stacks 086Z] #check
-  (exists_finite_finitelyPresentable_colimitPresentation_locallySurjective :
+  (AlgebraicGeometry.AlgebraicSpace.QcAlgebraUnder.exists_finite_finitelyPresentable_colimitPresentation_locallySurjective :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsQuasiCompact X]
       [IsAbsolutelyQuasiSeparated X] (A : X.QcAlgebraUnder) [IsFinite A],
       ∃ (I : Type u) (_ : SmallCategory I) (_ : IsFiltered I),

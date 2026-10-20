@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowGroup.FlatPullback
@@ -37,6 +31,12 @@ variable (Y : Over S) [LocallyOfFiniteType Y.hom]
 variable {L₁ L₂ : Y.left.Modules}
 variable [Scheme.Modules.Invertible L₁] [Scheme.Modules.Invertible L₂]
 variable {s : (L₁ ⊗ L₂).sections} (C : Scheme.TensorSectionSplitting L₁ L₂ s)
+
+local instance zero₁Over_finiteType : LocallyOfFiniteType (zero₁Over Y C).hom :=
+  zero₁Over_locallyOfFiniteType Y C
+
+local instance lineModel₁Over_finiteType : LocallyOfFiniteType (lineModel₁Over Y C).hom :=
+  lineModel₁Over_locallyOfFiniteType Y C
 
 /-- The first factor zero scheme is locally noetherian under the ambient finite-type
 hypothesis. -/

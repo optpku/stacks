@@ -1,14 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.MorphismProperty.Local
-public import stacks_project.Chap67.Lemma_67_28_11_LocallyOfFinitePresentation
-public import stacks_project.Chap73.Lemma_73_7_3_Precoverage
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.LocallyOfFinitePresentation.LocalAtSource
 
 /-!
 # Local finite presentation is fppf local on the source
@@ -23,23 +15,11 @@ open CategoryTheory AlgebraicGeometry AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.LocallyOfFinitePresentation
+variable (S : Scheme.{u})
 
-/-- Local finite presentation of morphisms of algebraic spaces is local on the
-source for the fppf precoverage. -/
-instance isLocalAtSourceFppf {S : Scheme.{u}} :
+#check
+  (AlgebraicGeometry.AlgebraicSpace.LocallyOfFinitePresentation.isLocalAtSourceFppf :
     MorphismProperty.IsLocalAtSource
-      (@LocallyOfFinitePresentation S : MorphismProperty (AlgebraicSpace S))
-      (fppfPrecoverage S) :=
-  sorry
-
-/-- A morphism of algebraic spaces is locally of finite presentation if and only
-if it remains so after precomposition with every member of an fppf covering of
-the source. -/
-theorem iff_forall_comp_fppf {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) (𝒰 : (fppfPrecoverage S).ZeroHypercover X) :
-    LocallyOfFinitePresentation f ↔
-      ∀ i, LocallyOfFinitePresentation (𝒰.f i ≫ f) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.LocallyOfFinitePresentation
+      (@AlgebraicGeometry.AlgebraicSpace.LocallyOfFinitePresentation S :
+        MorphismProperty (AlgebraicSpace S))
+      (AlgebraicGeometry.AlgebraicSpace.fppfPrecoverage S))

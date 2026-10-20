@@ -1,12 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Divisor.Principal
+public import ReasLib.AlgebraicGeometry.Scheme.OverField
+public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve
 
 /-!
 # The Weil divisor class group
@@ -89,3 +85,14 @@ theorem weilDivisorClass_exactSequence :
       Function.Surjective (weilDivisorClassGroupMk X) := sorry
 
 end AlgebraicGeometry
+
+namespace AlgebraicGeometry.Curve
+
+/-- The Weil divisor class group of a curve is the quotient of its Weil divisors by its
+principal Weil divisors. -/
+noncomputable abbrev classGroup {k : Type u} [Field k]
+    (X : SchemeOverField k) [AlgebraicGeometry.Curve X] : Type u :=
+  @AlgebraicGeometry.WeilDivisorClassGroup X.left
+    (LocallyOfFiniteType.isLocallyNoetherian X.hom) inferInstance
+
+end AlgebraicGeometry.Curve

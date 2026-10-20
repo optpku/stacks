@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_19_4_AutomorphismGroup
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.AutomorphismGroup
+import StacksCheckRecall
 
 /-!
 # Independence of automorphism-group isomorphisms on a representative
@@ -26,18 +21,18 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 101.19.4: Let `f : X ⟶ Y` be a morphism of algebraic stacks. Let
+/- Lemma 101.19.4: Let `f : X ⟶ Y` be a morphism of algebraic stacks. Let
 `x ∈ |X|` be a point. The following are equivalent: for some morphism
 `Spec(k) ⟶ X` in the class of `x`, setting `y = f ∘ x`, the map `G_x ⟶ G_y`
 of automorphism group algebraic spaces is an isomorphism; and for any such
 morphism the map of automorphism group algebraic spaces is an isomorphism. -/
-@[stacks 0DTV]
-theorem automorphismGroup_isIsoMap_exists_iff_forall {S : Scheme.{u}}
+@[stacks 0DTV] #check
+  (AlgebraicGeometry.AlgebraicStack.automorphismGroup_isIsoMap_exists_iff_forall :
+    ∀ {S : Scheme.{u}}
     {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
-    (f : X ⟶ Y) (x : |X|) :
+    (f : X ⟶ Y) (x : |X|),
     (∃ p : FieldValuedPoint X, Points.mk p = x ∧ automorphismGroup.IsIsoMap f p) ↔
       (∀ p : FieldValuedPoint X, Points.mk p = x →
-        automorphismGroup.IsIsoMap f p) :=
-  sorry
+        automorphismGroup.IsIsoMap f p))
 
 end AlgebraicGeometry.AlgebraicStack

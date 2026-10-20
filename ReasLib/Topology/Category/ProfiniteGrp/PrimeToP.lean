@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
 public import Mathlib.Topology.Algebra.Category.ProfiniteGrp.Limits
+public import ReasLib.Topology.Algebra.OpenNormalSubgroup
 
 @[expose] public section
 
@@ -16,29 +11,6 @@ noncomputable section
 open CategoryTheory CategoryTheory.Limits
 
 universe u
-
-namespace OpenNormalSubgroup
-
-/-- Pullback of an open normal subgroup along a continuous group homomorphism. -/
-def comap {G H : Type u} [Group G] [TopologicalSpace G] [Group H] [TopologicalSpace H]
-    (f : G →* H) (hf : Continuous f) (N : OpenNormalSubgroup H) :
-    OpenNormalSubgroup G where
-  toOpenSubgroup := N.toOpenSubgroup.comap f hf
-  isNormal' := sorry
-
-/-- The underlying subgroup of `OpenNormalSubgroup.comap` is the subgroup comap. -/
-theorem toSubgroup_comap {G H : Type u} [Group G] [TopologicalSpace G]
-    [Group H] [TopologicalSpace H] (f : G →* H) (hf : Continuous f)
-    (N : OpenNormalSubgroup H) :
-    (N.comap f hf).toSubgroup = N.toSubgroup.comap f := sorry
-
-/-- Pullback of open normal subgroups is monotone. -/
-theorem comap_mono {G H : Type u} [Group G] [TopologicalSpace G]
-    [Group H] [TopologicalSpace H] {N N' : OpenNormalSubgroup H}
-    (f : G →* H) (hf : Continuous f) (h : N ≤ N') :
-    N.comap f hf ≤ N'.comap f hf := sorry
-
-end OpenNormalSubgroup
 
 namespace ProfiniteGrp
 

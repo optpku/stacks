@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.LocallyFinite.Refinement
@@ -47,13 +41,13 @@ finite and the difference of the sums is the corresponding boundary. -/
 @[stacks 0EQ8]
 theorem rationallyEquivalent_locallyFiniteSum_of_supported
     (k : ℤ) {I : Type u} {J : I → Type u} (T : I → Closeds (Points X))
-    (α β : I → f.cycleGroup δ k)
+    (α β : I → AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f δ k)
     (hT : LocallyFinite fun i ↦ (T i).carrier)
     (hαT : ∀ i, (α i : Function.locallyFinsupp (Points X) ℤ).support ⊆ (T i).carrier)
     (hβT : ∀ i, (β i : Function.locallyFinsupp (Points X) ℤ).support ⊆ (T i).carrier)
     (W : (i : I) → J i → ClosedSubspace X)
     (hW_int : ∀ i j, IsIntegral (W i j).X)
-    (hW_dim : ∀ i j, f.deltaDimension δ
+    (hW_dim : ∀ i j, AlgebraicGeometry.AlgebraicSpace.Hom.deltaDimension f δ
       (@ClosedSubspace.irreducibleClosed S X (W i j) (hW_int i j)) = k + 1)
     (φ : ∀ i j, (RationalFunction (W i j).X)ˣ)
     (hlocal : ∀ i, LocallyFinite fun j ↦ (W i j).pointsSet)
@@ -70,13 +64,13 @@ theorem rationallyEquivalent_locallyFiniteSum_of_supported
 sigma-indexed family of integral closed subspaces contained in the `T i`. -/
 theorem locallyFiniteSum_sub_eq_boundary_of_supported
     (k : ℤ) {I : Type u} {J : I → Type u} (T : I → Closeds (Points X))
-    (α β : I → f.cycleGroup δ k)
+    (α β : I → AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f δ k)
     (hT : LocallyFinite fun i ↦ (T i).carrier)
     (hαT : ∀ i, (α i : Function.locallyFinsupp (Points X) ℤ).support ⊆ (T i).carrier)
     (hβT : ∀ i, (β i : Function.locallyFinsupp (Points X) ℤ).support ⊆ (T i).carrier)
     (W : (i : I) → J i → ClosedSubspace X)
     (hW_int : ∀ i j, IsIntegral (W i j).X)
-    (hW_dim : ∀ i j, f.deltaDimension δ
+    (hW_dim : ∀ i j, AlgebraicGeometry.AlgebraicSpace.Hom.deltaDimension f δ
       (@ClosedSubspace.irreducibleClosed S X (W i j) (hW_int i j)) = k + 1)
     (φ : ∀ i j, (RationalFunction (W i j).X)ˣ)
     (hlocal : ∀ i, LocallyFinite fun j ↦ (W i j).pointsSet)

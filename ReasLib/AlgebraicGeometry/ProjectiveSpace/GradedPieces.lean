@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Module.Graded.NatToInt
@@ -128,19 +122,3 @@ theorem mulDual_apply
 
 end ProjectiveSpace
 end AlgebraicGeometry
-
-/- The root spellings remain only as a migration facade for Chapter 30 and older downstream
-files.  The definitions above are the canonical owners. -/
-
-/-- Deprecated root spelling for `ProjectiveSpace.gradedPiece`; use the namespaced owner. -/
-@[deprecated AlgebraicGeometry.ProjectiveSpace.gradedPiece (since := "2026-08-05")]
-abbrev AlgebraicGeometry.projectiveSpaceGradedPiece
-    (R : Type u) [CommRing R] (n : ℕ) (d : ℤ) :
-    Submodule R (MvPolynomial (Fin (n + 1)) R) :=
-  AlgebraicGeometry.ProjectiveSpace.gradedPiece R n d
-
-/-- Deprecated root spelling for `ProjectiveSpace.topCohomologyDual`; use the namespaced owner. -/
-@[deprecated AlgebraicGeometry.ProjectiveSpace.topCohomologyDual (since := "2026-08-05")]
-abbrev AlgebraicGeometry.projectiveSpaceTopCohomologyDual
-    (R : Type u) [CommRing R] (n : ℕ) (d : ℤ) :=
-  AlgebraicGeometry.ProjectiveSpace.topCohomologyDual R n d

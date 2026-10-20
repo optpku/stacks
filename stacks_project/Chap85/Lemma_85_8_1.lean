@@ -1,16 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.QuasiIso
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_3_5
-public import stacks_project.Chap85.Lemma_85_8_1_Complex
-public import stacks_project.Chap85.Lemma_85_8_1_Fiberwise
+import StacksCheckRecall
+public import ReasLib.CategoryTheory.Sites.Simplicial.IntegerResolution
+public import ReasLib.CategoryTheory.Sites.Grothendieck.IntegerResolution
 
 /-!
 # Lemma 85.8.1
@@ -46,17 +38,14 @@ variable [∀ n, ∀ P : (C.obj n)ᵒᵖ ⥤ AddCommGrpCat.{w},
     (ofStage C n).op.HasLeftKanExtension P]
 variable [∀ n, ((J n).toGrothendieck).HasSheafCompose (forget AddCommGrpCat.{w})]
 
-/-- Lemma 85.8.1 (1): in Situation 85.3.3 case A, the complex
-`… → g_{2!} ℤ → g_{1!} ℤ → g_{0!} ℤ` of abelian sheaves on `C_total`, with
-differentials the alternating face sums, is a resolution of the constant sheaf
-`ℤ` on `C_total`. -/
-@[stacks 09WI, instance]
-instance augmentation_quasiIso :
+/- Lemma 85.8.1 (1): the alternating-face complex on the total site of a morphism
+diagram resolves the constant integer sheaf. -/
+@[stacks 09WI] #check
+  (CategoryTheory.SimplicialSites.augmentation_quasiIso C J :
     QuasiIso
-      (augmentation C J :
-        complex C J ⟶
-          (ChainComplex.single₀ _).obj (constantIntegerSheaf (topology C J))) :=
-  sorry
+      (CategoryTheory.SimplicialSites.augmentation C J :
+        CategoryTheory.SimplicialSites.complex C J ⟶
+          (ChainComplex.single₀ _).obj (constantIntegerSheaf (topology C J))))
 
 end CategoryTheory.SimplicialSites
 
@@ -80,16 +69,13 @@ variable [∀ n, ∀ P : (F.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{w},
 variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (F.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{w}),
     ((F.map φ.op).toFunctor).op.HasPointwiseRightKanExtension P]
 
-/-- Lemma 85.8.1 (2): in Situation 85.3.3 case B, the complex
-`… → g_{2!} ℤ → g_{1!} ℤ → g_{0!} ℤ` of abelian sheaves on `C_total`, with
-differentials the alternating face sums, is a resolution of the constant sheaf
-`ℤ` on `C_total`. -/
-@[stacks 09WI, instance]
-instance fiberAugmentation_quasiIso :
+/- Lemma 85.8.1 (2): the alternating-face complex on the total fiberwise site
+resolves the constant integer sheaf. -/
+@[stacks 09WI] #check
+  (CategoryTheory.Grothendieck.fiberAugmentation_quasiIso F J :
     QuasiIso
-      (fiberAugmentation F J :
-        fiberComplex F J ⟶
-          (ChainComplex.single₀ _).obj (constantIntegerSheaf (topology F J))) :=
-  sorry
+      (CategoryTheory.Grothendieck.fiberAugmentation F J :
+        CategoryTheory.Grothendieck.fiberComplex F J ⟶
+          (ChainComplex.single₀ _).obj (constantIntegerSheaf (topology F J))))
 
 end CategoryTheory.Grothendieck

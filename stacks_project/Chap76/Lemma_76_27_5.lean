@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleLocalRing.Noetherian
 public import stacks_project.Chap66.Lemma_66_24_4
 public import stacks_project.Chap76.Lemma_76_27_3_Gorenstein
 
@@ -45,9 +40,11 @@ locally Noetherian algebraic spaces over `S`. If `X` is Gorenstein, then
 `𝒪_{Y, f(x̄)}`, that is `etaleLocalRing Y (xbar.map f)`, is a Gorenstein local
 ring for every geometric point `x̄` of `X`. -/
 @[stacks 0E17]
-instance instTargetEtaleLocalRingOfFlat {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+theorem instTargetEtaleLocalRingOfFlat {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) [IsLocallyNoetherian X] [IsLocallyNoetherian Y] [Flat f]
     [IsGorenstein X] (xbar : GeometricPoint X) :
+    -- Local instance justification (proof-local temporary data): IsGorensteinLocalRing requires the explicit canonical locality proof as a class argument here; keep it local without registering a global companion instance.
+    letI := etaleLocalRing.instIsLocalRing (xbar.map f)
     IsGorensteinLocalRing (etaleLocalRing Y (xbar.map f)) :=
   sorry
 

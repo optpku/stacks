@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.InjectiveAmplitude
@@ -22,6 +16,7 @@ namespace CategoryTheory.DerivedCategory.InternalHom.RHom
 both arguments have finite cohomology and the target has finite injective dimension. -/
 theorem finiteCohomology_of_finiteInjectiveDimension
     {A : Type u} [CommRing A] [IsNoetherianRing A]
+    [Has (A := A)]
     (K L : DerivedCategory (ModuleCat.{u} A))
     (hK : DerivedCategory.cohomologyIn (ModuleCat.isFG A) K)
     (hL : DerivedCategory.cohomologyIn (ModuleCat.isFG A) L)

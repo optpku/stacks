@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.CommSq
@@ -38,7 +32,7 @@ variable {α : A ⟶ B} {ρ : A ⟶ A'} {β : A' ⟶ B'} {φ : B ⟶ B'}
 
 /-- The same-site ringed-site morphism on `C_{B'/A'}` induced by `B ⟶ B'`. -/
 def hHom (sq : CommSq ρ α β φ) :
-    constRingedSite β B' ⟶ constRingedSite β B :=
+    RingedSite.Hom (constRingedSite β B') (constRingedSite β B) :=
   sameSiteHom.{u + 1, u, u + 1} (constSheafMapLift β φ)
 
 /-- The morphism `h` is the identity on `Sh(C')` and is given by `B ⟶ B'` on sheaves of rings. -/
@@ -47,7 +41,7 @@ def h (sq : CommSq ρ α β φ) :
   Hom.toToposHom (hHom sq)
 
 /-- The same-site ringed-site morphism on the point induced by `B ⟶ B'`. -/
-def fHom (sq : CommSq ρ α β φ) : point B' ⟶ point B :=
+def fHom (sq : CommSq ρ α β φ) : RingedSite.Hom (point B') (point B) :=
   sameSiteHom.{u + 1, u + 1, u + 1} (pointRingSheafMap φ)
 
 /-- The morphism `f` is the identity on `Sh(*)` and is given by `B ⟶ B'` on sheaves of rings. -/

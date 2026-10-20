@@ -1,12 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap74.Lemma_74_8_3_Descent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Syntomic.Descent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Smooth.Descent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Etale.Descent
 import StacksCheckRecall
 
 @[expose] public section

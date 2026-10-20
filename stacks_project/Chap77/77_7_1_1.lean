@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap77.«77_7_1_1_BaseChange»
-public import stacks_project.Chap77.«77_7_1_1_IsomorphismFunctor»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.BaseChange.IsomorphismFunctor
 import StacksCheckRecall
 
 @[expose] public section
@@ -23,7 +16,7 @@ variable (u : ℱ ⟶ 𝒢) (T : SchemeOver B)
 /- 77.7.1.1: the contravariant functor on schemes over `B` is singleton precisely where
 the base change of `u` is an isomorphism, and empty otherwise. -/
 @[stacks 083G] #check
-  (Modules.isomorphismFunctor f u : (SchemeOver B)ᵒᵖ ⥤ Type u)
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isomorphismFunctor f u : (SchemeOver B)ᵒᵖ ⥤ Type u)
 
 #check
   (Modules.isomorphismFunctor_obj_nonempty_iff f u T :

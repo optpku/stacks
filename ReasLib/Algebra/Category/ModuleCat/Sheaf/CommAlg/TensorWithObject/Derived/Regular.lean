@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
@@ -31,6 +25,9 @@ open DifferentialGradedCategory
 open scoped DifferentialGradedCategory SheafOfModules.CommAlg
 
 namespace SheafOfModules.CommAlg.TensorWithObject.Derived
+
+-- Use the existing standard localization for the actual underlying ring-sheaf carrier.
+attribute [local instance] RingedSite.Hom.RingPresentation.moduleHasDerivedCategory
 
 variable {R : Type r} [CommRing R]
 variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}

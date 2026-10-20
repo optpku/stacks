@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Limits
@@ -20,6 +14,7 @@ public import Mathlib.CategoryTheory.Sites.Over
 public import Mathlib.CategoryTheory.Sites.Sheaf
 public import Mathlib.CategoryTheory.Yoneda
 public import Mathlib.Topology.Clopen
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Atlas.Input
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
 
 /-!
@@ -234,17 +229,40 @@ def coproductSheaf {S : Scheme.{u}} {I : Type v} [Small.{u} I] (F : I → Algebr
     map_id := laws.1
     map_comp := laws.2 }
 
+/-- The atlas map `yoneda.obj (∐ U) ⟶ coproductSheaf F` obtained by pulling back the clopen
+decomposition of `∐ U` along the given étale surjections `U i ⟶ F i`. Since
+`(coproduct F).functorOfPoints` is `coproductSheaf F`, this is the atlas of `coproduct F`. -/
+def coproductEtaleAtlas {S : Scheme.{u}} {I : Type v} [Small.{u} I]
+    (F : I → AlgebraicSpace S) {U : I → Over S}
+    (p : ∀ i, yoneda.obj (U i) ⟶ (F i).functorOfPoints) :
+    yoneda.obj (∐ U) ⟶ coproductSheaf F :=
+  yonedaEquiv.symm (CoproductSection.ofEtaleAtlas p)
+
+/-- If `U i ⟶ F i` are surjective étale and `∐ U i` exists in `Over S`, then the map
+`coproductEtaleAtlas` obtained by pulling back the clopen decomposition of `∐ U` is a
+surjective étale atlas of the coproduct. -/
+theorem coproduct_of_etale_atlas {S : Scheme.{u}} {I : Type v} [Small.{u} I]
+    (F : I → AlgebraicSpace S) {U : I → Over S}
+    (p : ∀ i, yoneda.obj (U i) ⟶ (F i).functorOfPoints)
+    (h_etale : ∀ i, (MorphismProperty.over (@Etale)).presheaf (p i))
+    (h_surj : ∀ i, Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) (p i)) :
+    (MorphismProperty.over (@Etale)).presheaf (coproductEtaleAtlas F p) ∧
+      Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) (coproductEtaleAtlas F p) := sorry
+
 /-- The algebraic space whose functor of points is the sheaf coproduct of a small family of
 algebraic spaces. The size hypothesis that `I` and the `F i` are not too large is encoded by
-`[Small.{u} I]`. -/
+`[Small.{u} I]`. Its atlas is the coproduct `∐ Uᵢ` in `Over S` of the stored atlases
+`Uᵢ ⟶ F i` of the summands, with the map `coproductEtaleAtlas`. -/
 def coproduct {S : Scheme.{u}} {I : Type v} [Small.{u} I] (F : I → AlgebraicSpace S) :
     AlgebraicSpace S :=
+  let atlas : ∀ i, yoneda.obj (AtlasInput.scheme (F i)) ⟶ (F i).functorOfPoints :=
+    fun i ↦ AtlasInput.map (F i)
   let laws : Presheaf.IsSheaf (Scheme.fppfTopology.over S) (coproductSheaf F) ∧
-      yoneda.relativelyRepresentable (Limits.diag (coproductSheaf F)) ∧
-        (∃ (U : Over S) (p : yoneda.obj U ⟶ coproductSheaf F),
-          MorphismProperty.presheaf (MorphismProperty.over (@Etale)) p ∧
-            Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p) := sorry
-  ofFunctor (coproductSheaf F) laws.1 laws.2.1 laws.2.2
+      yoneda.relativelyRepresentable (Limits.diag (coproductSheaf F)) := sorry
+  ofFunctor (coproductSheaf F) laws.1 laws.2
+    ⟨∐ fun i ↦ AtlasInput.scheme (F i), coproductEtaleAtlas F atlas,
+      coproduct_of_etale_atlas F atlas (fun i ↦ AtlasInput.representableEtale (F i))
+        (fun i ↦ AtlasInput.locallySurjective (F i))⟩
 
 /-- The canonical inclusion of a summand into the sheaf coproduct of algebraic spaces. -/
 def coproductι {S : Scheme.{u}} {I : Type v} [Small.{u} I] (F : I → AlgebraicSpace S) (i : I) :
@@ -274,7 +292,7 @@ theorem coproductι_desc {S : Scheme.{u}} {I : Type v} [Small.{u} I]
 @[simp]
 theorem coproduct_functorOfPoints {S : Scheme.{u}} {I : Type v} [Small.{u} I]
     (F : I → AlgebraicSpace S) :
-    (coproduct F).functorOfPoints = coproductSheaf F := sorry
+    (coproduct F).functorOfPoints = coproductSheaf F := rfl
 
 /-- The coproduct of algebraic spaces is an fppf sheaf with representable diagonal and a
 representable étale locally-surjective atlas. -/
@@ -293,25 +311,6 @@ theorem coproductSheaf_universal {S : Scheme.{u}} {I : Type v} [Small.{u} I]
     (p : ∀ i, (F i).functorOfPoints ⟶ P) :
     ∃! q : coproductSheaf F ⟶ P,
       ∀ i, NatTrans.vcomp (coproductι F i) q = p i := sorry
-
-/-- The atlas map `yoneda.obj (∐ U) ⟶ (coproduct F).functorOfPoints` obtained by pulling back the
-clopen decomposition of `∐ U` along the given étale surjections `U i ⟶ F i`. -/
-def coproductEtaleAtlas {S : Scheme.{u}} {I : Type v} [Small.{u} I]
-    (F : I → AlgebraicSpace S) {U : I → Over S}
-    (p : ∀ i, yoneda.obj (U i) ⟶ (F i).functorOfPoints) :
-    yoneda.obj (∐ U) ⟶ (coproduct F).functorOfPoints :=
-  yonedaEquiv.symm (CoproductSection.ofEtaleAtlas p)
-
-/-- If `U i ⟶ F i` are surjective étale and `∐ U i` exists in `Over S`, then the map
-`coproductEtaleAtlas` obtained by pulling back the clopen decomposition of `∐ U` is a
-surjective étale atlas of the coproduct. -/
-theorem coproduct_of_etale_atlas {S : Scheme.{u}} {I : Type v} [Small.{u} I]
-    (F : I → AlgebraicSpace S) {U : I → Over S}
-    (p : ∀ i, yoneda.obj (U i) ⟶ (F i).functorOfPoints)
-    (h_etale : ∀ i, (MorphismProperty.over (@Etale)).presheaf (p i))
-    (h_surj : ∀ i, Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) (p i)) :
-    (MorphismProperty.over (@Etale)).presheaf (coproductEtaleAtlas F p) ∧
-      Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) (coproductEtaleAtlas F p) := sorry
 
 /-- Algebraic spaces over `S` admit coproducts indexed by `Small.{u}` types, with coproduct object
 `coproduct` and inclusions `coproductι`. The instance is stated as colimits of discrete shape

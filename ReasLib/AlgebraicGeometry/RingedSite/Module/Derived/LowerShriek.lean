@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.InverseImage
@@ -50,7 +44,7 @@ noncomputable abbrev toDerived
 
 /-- The total-derived lower-shriek presentation is defined at every source object. -/
 @[stacks 07AC "pointwise derived lower-shriek existence"]
-noncomputable instance toDerived.everywhereDefined
+theorem toDerived.everywhereDefined
     (f : C ⥤ D) [f.IsContinuous J K] [f.IsCocontinuous J K]
     (R : Sheaf K RingCat.{w})
     [UnivLE.{max uC vC, z}] [UnivLE.{max uD vD, z}] :
@@ -62,7 +56,7 @@ noncomputable instance toDerived.everywhereDefined
 namespace toDerived
 
 /-- Existence of the total left-derived lower-shriek functor in a continuous presentation. -/
-@[stacks 07AC "derived lower-shriek existence", instance]
+@[stacks 07AC "derived lower-shriek existence"]
 theorem hasLeftDerived
     (f : C ⥤ D) [f.IsContinuous J K] [f.IsCocontinuous J K]
     (R : Sheaf K RingCat.{w})
@@ -74,12 +68,17 @@ theorem hasLeftDerived
 
 end toDerived
 
-/-- The total left-derived lower-shriek functor. -/
+/-- The total left-derived lower-shriek functor for a supplied derived-existence witness.
+The source existence theorem is kept separate from this data construction. -/
 @[stacks 07AC "derived lower shriek"]
 noncomputable abbrev derived
     (f : C ⥤ D) [f.IsContinuous J K] [f.IsCocontinuous J K]
     (R : Sheaf K RingCat.{w})
-    [UnivLE.{max uC vC, z}] [UnivLE.{max uD vD, z}] :
+    [UnivLE.{max uC vC, z}] [UnivLE.{max uD vD, z}]
+    [Functor.HasLeftDerivedFunctor
+      (toDerived (J := J) (K := K) f R)
+      (RingedSite.Hom.ModuleQis.{z}
+        (moduleInverseImage.source (J := J) (K := K) f R))] :
     RingedSite.Hom.ModuleDerived.{z}
         (moduleInverseImage.source (J := J) (K := K) f R) ⥤
       RingedSite.Hom.ModuleDerived.{z}
@@ -93,12 +92,16 @@ noncomputable abbrev derived
 
 namespace derived
 
-/-- The canonical certificate that the homotopy lower-shriek/inverse-image adjunction descends. -/
-@[stacks 07AC "derived adjunction certificate", instance]
-theorem hasPair
+/-- The absolute-derived pair condition for the site-presentation lower-shriek adjunction.
+This is a caller-supplied certificate for the chosen total-derived models. -/
+abbrev HasPair
     (f : C ⥤ D) [f.IsContinuous J K] [f.IsCocontinuous J K]
     (R : Sheaf K RingCat.{w})
-    [UnivLE.{max uC vC, z}] [UnivLE.{max uD vD, z}] :
+    [UnivLE.{max uC vC, z}] [UnivLE.{max uD vD, z}]
+    [Functor.HasLeftDerivedFunctor
+      (toDerived (J := J) (K := K) f R)
+      (RingedSite.Hom.ModuleQis.{z}
+        (moduleInverseImage.source (J := J) (K := K) f R))] : Prop :=
     CategoryTheory.Adjunction.TotalDerived.HasPair
       (G := (RingedSite.Cocontinuous.moduleLowerShriek
         (J := J) (K := K) f R).mapHomotopyCategory (up ℤ))
@@ -111,7 +114,20 @@ theorem hasPair
       (L1 := RingedSite.Hom.moduleLocalization
         (moduleInverseImage.source (J := J) (K := K) f R))
       (L2 := RingedSite.Hom.moduleLocalization
-        (moduleInverseImage.target (K := K) R)) := sorry
+        (moduleInverseImage.target (K := K) R))
+
+/-- The lower-shriek/inverse-image adjunction has the absolute-derived pair property.
+This existence statement is not registered as a data-selecting instance. -/
+@[stacks 07AC "derived adjunction certificate"]
+theorem hasPair
+    (f : C ⥤ D) [f.IsContinuous J K] [f.IsCocontinuous J K]
+    (R : Sheaf K RingCat.{w})
+    [UnivLE.{max uC vC, z}] [UnivLE.{max uD vD, z}]
+    [Functor.HasLeftDerivedFunctor
+      (toDerived (J := J) (K := K) f R)
+      (RingedSite.Hom.ModuleQis.{z}
+        (moduleInverseImage.source (J := J) (K := K) f R))] :
+    HasPair (J := J) (K := K) f R := sorry
 
 /-- The total-derived lower-shriek/inverse-image adjunction used to construct the canonical
 exact-derived adjunction. -/
@@ -119,7 +135,12 @@ exact-derived adjunction. -/
 noncomputable def totalAdjunction
     (f : C ⥤ D) [f.IsContinuous J K] [f.IsCocontinuous J K]
     (R : Sheaf K RingCat.{w})
-    [UnivLE.{max uC vC, z}] [UnivLE.{max uD vD, z}] :
+    [UnivLE.{max uC vC, z}] [UnivLE.{max uD vD, z}]
+    [Functor.HasLeftDerivedFunctor
+      (toDerived (J := J) (K := K) f R)
+      (RingedSite.Hom.ModuleQis.{z}
+        (moduleInverseImage.source (J := J) (K := K) f R))]
+    [HasPair (J := J) (K := K) f R] :
     moduleLowerShriek.derived (J := J) (K := K) f R ⊣
       moduleInverseImage.totalDerived (J := J) (K := K) f R :=
   CategoryTheory.Adjunction.TotalDerived.HasPair.derived
@@ -135,7 +156,12 @@ noncomputable def totalAdjunction
 noncomputable def adjunction
     (f : C ⥤ D) [f.IsContinuous J K] [f.IsCocontinuous J K]
     (R : Sheaf K RingCat.{w})
-    [UnivLE.{max uC vC, z}] [UnivLE.{max uD vD, z}] :
+    [UnivLE.{max uC vC, z}] [UnivLE.{max uD vD, z}]
+    [Functor.HasLeftDerivedFunctor
+      (toDerived (J := J) (K := K) f R)
+      (RingedSite.Hom.ModuleQis.{z}
+        (moduleInverseImage.source (J := J) (K := K) f R))]
+    [HasPair (J := J) (K := K) f R] :
     moduleLowerShriek.derived (J := J) (K := K) f R ⊣
       moduleInverseImage.derived (J := J) (K := K) f R :=
   (totalAdjunction (J := J) (K := K) f R).ofNatIsoRight
@@ -147,6 +173,11 @@ noncomputable def homEquiv
     (f : C ⥤ D) [f.IsContinuous J K] [f.IsCocontinuous J K]
     (R : Sheaf K RingCat.{w})
     [UnivLE.{max uC vC, z}] [UnivLE.{max uD vD, z}]
+    [Functor.HasLeftDerivedFunctor
+      (toDerived (J := J) (K := K) f R)
+      (RingedSite.Hom.ModuleQis.{z}
+        (moduleInverseImage.source (J := J) (K := K) f R))]
+    [HasPair (J := J) (K := K) f R]
     (M : RingedSite.Hom.ModuleDerived.{z}
       (moduleInverseImage.source (J := J) (K := K) f R))
     (N : RingedSite.Hom.ModuleDerived.{z}
@@ -162,6 +193,11 @@ noncomputable def homEquivSymm
     (f : C ⥤ D) [f.IsContinuous J K] [f.IsCocontinuous J K]
     (R : Sheaf K RingCat.{w})
     [UnivLE.{max uC vC, z}] [UnivLE.{max uD vD, z}]
+    [Functor.HasLeftDerivedFunctor
+      (toDerived (J := J) (K := K) f R)
+      (RingedSite.Hom.ModuleQis.{z}
+        (moduleInverseImage.source (J := J) (K := K) f R))]
+    [HasPair (J := J) (K := K) f R]
     (M : RingedSite.Hom.ModuleDerived.{z}
       (moduleInverseImage.source (J := J) (K := K) f R))
     (N : RingedSite.Hom.ModuleDerived.{z}
@@ -186,7 +222,7 @@ noncomputable abbrev structureModuleHomotopy
     (structureModule (inverseImageRingSheaf (J := J) (K := K) f R) U)
 
 /-- The localized structure module computes lower-shriek's total left-derived value. -/
-@[stacks 07AC "generator computes derived lower shriek", instance]
+@[stacks 07AC "generator computes derived lower shriek"]
 theorem structureModuleComputesAt
     (f : C ⥤ D) [f.IsContinuous J K] [f.IsCocontinuous J K]
     (R : Sheaf K RingCat.{w}) (U : C)
@@ -208,7 +244,16 @@ noncomputable def structureModuleToUnderivedIso
     [HasLowerShriek.{w}
       (inverseImageRingSheaf (J := J) (K := K) f R)]
     [HasLowerShriek.{w} R]
-    [UnivLE.{max uC vC, w}] [UnivLE.{max uD vD, w}] :
+    [UnivLE.{max uC vC, w}] [UnivLE.{max uD vD, w}]
+    [Functor.HasPointwiseLeftDerivedFunctor
+      (toDerived (J := J) (K := K) f R)
+      (RingedSite.Hom.ModuleQis.{w}
+        (moduleInverseImage.source (J := J) (K := K) f R))]
+    (h_compute : Functor.LeftDerived.ComputesAt
+      (toDerived (J := J) (K := K) f R)
+      (RingedSite.Hom.ModuleQis.{w}
+        (moduleInverseImage.source (J := J) (K := K) f R))
+      (structureModuleHomotopy f R U)) :
     (moduleLowerShriek.derived (J := J) (K := K) f R).obj
       ((DerivedCategory.singleFunctor
         (ModuleCat.{w} (moduleInverseImage.source (J := J) (K := K) f R)) 0).obj
@@ -223,7 +268,7 @@ noncomputable def structureModuleToUnderivedIso
         (moduleInverseImage.source (J := J) (K := K) f R))
       (RingedSite.Hom.moduleLocalization
         (moduleInverseImage.source (J := J) (K := K) f R))
-      (structureModuleHomotopy f R U) (structureModuleComputesAt f R U)) ≪≫
+      (structureModuleHomotopy f R U) h_compute) ≪≫
     (Functor.Homotopy.singleIso
       (RingedSite.Cocontinuous.moduleLowerShriek (J := J) (K := K) f R)
       0).app (structureModule (inverseImageRingSheaf (J := J) (K := K) f R) U)
@@ -237,7 +282,16 @@ noncomputable def structureModuleIso
     [HasLowerShriek.{w}
       (inverseImageRingSheaf (J := J) (K := K) f R)]
     [HasLowerShriek.{w} R]
-    [UnivLE.{max uC vC, w}] [UnivLE.{max uD vD, w}] :
+    [UnivLE.{max uC vC, w}] [UnivLE.{max uD vD, w}]
+    [Functor.HasPointwiseLeftDerivedFunctor
+      (toDerived (J := J) (K := K) f R)
+      (RingedSite.Hom.ModuleQis.{w}
+        (moduleInverseImage.source (J := J) (K := K) f R))]
+    (h_compute : Functor.LeftDerived.ComputesAt
+      (toDerived (J := J) (K := K) f R)
+      (RingedSite.Hom.ModuleQis.{w}
+        (moduleInverseImage.source (J := J) (K := K) f R))
+      (structureModuleHomotopy f R U)) :
     (moduleLowerShriek.derived (J := J) (K := K) f R).obj
       ((DerivedCategory.singleFunctor
         (ModuleCat.{w} (moduleInverseImage.source (J := J) (K := K) f R)) 0).obj
@@ -245,7 +299,7 @@ noncomputable def structureModuleIso
       (DerivedCategory.singleFunctor
         (ModuleCat.{w} (moduleInverseImage.target (K := K) R)) 0).obj
         (structureModule R (f.obj U)) :=
-  structureModuleToUnderivedIso f R U ≪≫
+  structureModuleToUnderivedIso f R U h_compute ≪≫
     (DerivedCategory.singleFunctor
       (ModuleCat.{w} (moduleInverseImage.target (K := K) R)) 0).mapIso
       (moduleLowerShriek.structureModuleIso f R U)

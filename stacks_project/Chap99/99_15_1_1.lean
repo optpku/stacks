@@ -1,18 +1,14 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap99.«99_15_1_1_Curves»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Category
 
 @[expose] public section
 
-open AlgebraicGeometry.AlgebraicSpace.Spaces
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace.Spaces
+universe u
 
-/- 99.15.1.1: the category Curves of families of curves is a full subcategory
-of Spaces'_{fp, flat, proper}. -/
-@[stacks 0D50] #check CurvesGroupoids.inclusion
+/- 99.15.1.1: the category of families of curves is a full subcategory of
+finite-presentation flat proper algebraic-space families. -/
+@[stacks 0D50] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.inclusion :
+  ∀ S : Scheme.{u}, Curves.Obj S ⥤ FpFlatProperGroupoids S)

@@ -1,70 +1,37 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import ReasLib.CategoryTheory.Limits.CategoricalPullback.CatCommSqOver
-public import ReasLib.CategoryTheory.Limits.CategoricalPullback.Resize
-public import stacks_project.Chap99.Remark_99_5_5_BaseChange
-public import stacks_project.Chap99.Remark_99_5_5_Forget
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CohStack.Forget
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CohStack.BaseChange
+public import stacks_project.Chap99.Lemma_99_5_4
 
 /-!
 # Remark 99.5.5
 
-In Situation 99.5.1 the rule `(T, g, F) ↦ (T, g)` is a 1-morphism of stacks in
-groupoids `Coh_{X/B} ⟶ 𝒮_B`. For `g : B' ⟶ B`, the square comparing
-`Coh_{X'/B'}` with `Coh_{X/B}` over `Sch/B' → Sch/B` (equivalently `𝒮_{B'} → 𝒮_B`)
-is a 2-fibre product square.
+For a finite-presentation morphism `f : X ⟶ B` of algebraic spaces over a scheme `S`,
+forgetting the module gives `Coh_{X/B} ⟶ 𝒮_B`. For any `g : B' ⟶ B`, the associated
+square over `Sch/B' → Sch/B` is a 2-fibre product square.
 -/
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.CohStack
 open CategoryTheory.Limits CategoricalPullback
 
 noncomputable section
 
 universe u
 
-/- Remark 99.5.5 (1): in Situation 99.5.1 the rule `(T, g, F) ↦ (T, g)` defines a
-1-morphism `Coh_{X/B} ⟶ 𝒮_B` of stacks in groupoids. -/
-@[stacks 08LP] #check toBase
+/- Remark 99.5.5 (1): the rule `(T, g, F) ↦ (T, g)` defines a 1-morphism
+`Coh_{X/B} ⟶ 𝒮_B` of stacks in groupoids in Situation 99.5.1. -/
+@[stacks 08LP] #check (AlgebraicGeometry.AlgebraicSpace.CohStack.toBase :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B) [FinitePresentation f],
+    AlgebraicGeometry.AlgebraicSpace.CohStack.toGroupoids f ⟶
+      AlgebraicGeometry.GroupScheme.Classifying.toGroupoids B)
 
-namespace AlgebraicGeometry.AlgebraicSpace.CohStack
-
-variable {S : Scheme.{u}} {X B B' : AlgebraicSpace S}
-
-/-- The commutative square with apex `Coh_{X'/B'}`, projecting to `Coh_{X/B}` and to
-`Sch/B'`, over `Sch/B`. Here `Sch/B` is the source's other notation for `𝒮_B`. -/
-def square (f : X ⟶ B) (g : B' ⟶ B) [FinitePresentation f] :
-    CatCommSqOver (toSchemesOver f) (CostructuredArrow.map g) (Obj (pullback.snd f g)) where
-  fst := baseChange f g
-  snd := toSchemesOver (pullback.snd f g)
-  iso := NatIso.ofComponents (fun _ ↦ Iso.refl _) (fun {_ _} _ ↦ rfl)
-
-/-- The comparison from `Coh_{X'/B'}` to the explicit categorical pullback of
-`toSchemesOver f` and `CostructuredArrow.map g`. -/
-abbrev square.comparison (f : X ⟶ B) (g : B' ⟶ B) [FinitePresentation f] :=
-  (square f g).comparison
-
-/-- Remark 99.5.5 (2): for a morphism `g : B' ⟶ B` of algebraic spaces over `S`,
-setting `X' = X ×_B B'` and `f' = pullback.snd f g`, the square
-`Coh_{X'/B'} → Coh_{X/B}` over `Sch/B' → Sch/B` (equivalently `𝒮_{B'} → 𝒮_B`)
-is a 2-fibre product square. -/
-@[stacks 08LP, instance]
-instance square.instIsBilimit (f : X ⟶ B) (g : B' ⟶ B) [FinitePresentation f] :
-    CatCommSqOver.Resized.IsBilimit (square f g) :=
-  sorry
-
-/-- The comparison functor is an equivalence when the square is a 2-fibre product. -/
-instance square.comparison_isEquivalence (f : X ⟶ B) (g : B' ⟶ B) [FinitePresentation f]
-    [CatCommSqOver.Resized.IsBilimit (square f g)] :
-    (square.comparison f g).IsEquivalence :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.CohStack
+/- Remark 99.5.5 (2): for every `g : B' ⟶ B`, the canonical square comparing
+`Coh_{X ×_B B'/B'}` and `Coh_{X/B}` over `Sch/B' → Sch/B` is a 2-fibre product square. -/
+@[stacks 08LP] #check (AlgebraicGeometry.AlgebraicSpace.CohStack.square.instIsBilimit :
+  ∀ {S : Scheme.{u}} {X B B' : AlgebraicSpace S} (f : X ⟶ B) (g : B' ⟶ B)
+    [FinitePresentation f],
+    CatCommSqOver.Resized.IsBilimit (AlgebraicGeometry.AlgebraicSpace.CohStack.square f g))

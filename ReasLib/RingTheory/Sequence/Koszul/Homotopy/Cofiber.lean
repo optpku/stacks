@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Biproducts
 public import Mathlib.Algebra.Homology.Embedding.Extend
+public import ReasLib.Algebra.Homology.Embedding.UpNat
 public import ReasLib.Algebra.Homology.Homotopy.CofiberScalarMul
 public import ReasLib.RingTheory.Sequence.Koszul.Family
 public import ReasLib.RingTheory.Sequence.Koszul.Map
@@ -192,31 +187,40 @@ end Family
 
 /-- Lemma 15.28.10: after adjoining scalar multiplication by `f`, `g`, and `f * g` to a linear
 form `φ`, the Koszul complex for `f * g` is homotopy equivalent to the cofiber of a map from the
-degree-one shift of the `f`-complex to the `g`-complex. -/
+degree-one shift of the `f`-complex to the `g`-complex.
+
+The comparison takes place among integer-indexed chain complexes: the Koszul complexes are
+extended along `ComplexShape.embeddingDownNatInt`, and `⟦(1 : ℤ)⟧` is the chain shift with
+`K⟦1⟧_n = K_{n+1}`, so degree `0` of the cofiber contains both `K_0(φ'_f)` and `K_0(φ'_g)`. -/
 @[stacks 062B "Lemma 15.28.10"]
 theorem coprodScalarMul_exists_homotopyEquiv {E : Type u} [AddCommGroup E] [Module R E]
     (φ : E →ₗ[R] R) (f g : R) :
     ∃ α :
-        (((koszulComplex (koszulCoprodScalarLinearMap φ f)).extend embeddingDownNat)⟦
-          (-1 : ℤ)⟧).restriction embeddingDownNat ⟶
-          koszulComplex (koszulCoprodScalarLinearMap φ g),
+        ((koszulComplex (koszulCoprodScalarLinearMap φ f)).extend
+            ComplexShape.embeddingDownNatInt)⟦(1 : ℤ)⟧ ⟶
+          (koszulComplex (koszulCoprodScalarLinearMap φ g)).extend
+            ComplexShape.embeddingDownNatInt,
       Nonempty
         (HomotopyEquiv
-          (koszulComplex (koszulCoprodScalarLinearMap φ (f * g)))
+          ((koszulComplex (koszulCoprodScalarLinearMap φ (f * g))).extend
+            ComplexShape.embeddingDownNatInt)
           (homotopyCofiber α)) := sorry
 
 namespace Family
 
 /-- Lemma 15.28.11: for a finite family `fs`, the Koszul complex on
 `Fin.snoc fs (f * g)` is homotopy equivalent to the cofiber of a map from the degree-one shift
-of the complex on `Fin.snoc fs f` to the complex on `Fin.snoc fs g`. -/
+of the complex on `Fin.snoc fs f` to the complex on `Fin.snoc fs g`, all extended to
+integer-indexed chain complexes along `ComplexShape.embeddingDownNatInt`. -/
 @[stacks 062C "Lemma 15.28.11"]
 theorem snocMul_exists_homotopyEquiv {r : ℕ} (fs : Fin r → R) (f g : R) :
     ∃ α :
-        (((family (Fin.snoc fs f)).extend embeddingDownNat)⟦(-1 : ℤ)⟧).restriction
-            embeddingDownNat ⟶ family (Fin.snoc fs g),
+        ((family (Fin.snoc fs f)).extend ComplexShape.embeddingDownNatInt)⟦(1 : ℤ)⟧ ⟶
+          (family (Fin.snoc fs g)).extend ComplexShape.embeddingDownNatInt,
       Nonempty
-        (HomotopyEquiv (family (Fin.snoc fs (f * g))) (homotopyCofiber α)) := sorry
+        (HomotopyEquiv
+          ((family (Fin.snoc fs (f * g))).extend ComplexShape.embeddingDownNatInt)
+          (homotopyCofiber α)) := sorry
 
 end Family
 end KoszulComplex

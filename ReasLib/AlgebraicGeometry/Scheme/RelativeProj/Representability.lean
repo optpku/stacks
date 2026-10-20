@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Comma.Over.Basic
@@ -75,12 +69,36 @@ theorem exists_isRepresentedBy_of_realization :
 
 /-- An equipped realization of the relative projective gluing datum is isomorphic over the base
 to every scheme carrying a universal point of the relative projective functor. -/
-theorem nonempty_iso_over_of_realization_and_isRepresentedBy
+noncomputable def realizationComparisonIso
+    {Y : Scheme.{u}} (x : F.toFunctor.obj (Opposite.op Y))
+    (hx : F.toFunctor.IsRepresentedBy x) : R.Y ≅ Y := by
+  let hR := exists_isRepresentedBy_of_realization
+    𝒜 hqc A σ sectionGrading model hModel P sectionRestrict sectionRestrict_spec
+    baseMap degreeToFunctor_base associatedToQuadruples R
+  let xR := Classical.choose hR
+  let hxR := (Classical.choose_spec hR).1
+  exact hxR.representableBy.uniqueUpToIso hx.representableBy
+
+noncomputable def nonempty_iso_over_of_realization_and_isRepresentedBy
     {Y : Scheme.{u}} (x : F.toFunctor.obj (Opposite.op Y))
     (hx : F.toFunctor.IsRepresentedBy x) :
-    Nonempty
-      (Over.mk R.toBase ≅
-        Over.mk (baseMap.app (Opposite.op Y) x)) := sorry
+    Over.mk R.toBase ≅
+      Over.mk (baseMap.app (Opposite.op Y) x) := by
+  exact Over.isoMk
+    (realizationComparisonIso 𝒜 hqc A σ sectionGrading model hModel P
+      sectionRestrict sectionRestrict_spec baseMap degreeToFunctor_base
+      associatedToQuadruples R x hx) (by sorry)
+
+@[simp]
+theorem nonempty_iso_over_of_realization_and_isRepresentedBy_hom
+    {Y : Scheme.{u}} (x : F.toFunctor.obj (Opposite.op Y))
+    (hx : F.toFunctor.IsRepresentedBy x) :
+    (nonempty_iso_over_of_realization_and_isRepresentedBy
+      𝒜 hqc A σ sectionGrading model hModel P sectionRestrict sectionRestrict_spec
+      baseMap degreeToFunctor_base associatedToQuadruples R x hx).hom.left =
+      (realizationComparisonIso 𝒜 hqc A σ sectionGrading model hModel P
+        sectionRestrict sectionRestrict_spec baseMap degreeToFunctor_base
+        associatedToQuadruples R x hx).hom := rfl
 
 end
 

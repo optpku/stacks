@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Pushforward
@@ -32,7 +26,10 @@ noncomputable def modulePushforwardCompIso.{z, uX, vX, uY, vY, uZ, vZ, w}
     {Z : RingedSite.{uZ, vZ, w}} (f : Hom X Y) (g : Hom Y Z) :
     f.modulePushforward.{z} ⋙ g.modulePushforward.{z} ≅
       (Hom.comp f g).modulePushforward.{z} :=
-  SheafOfModules.pushforwardComp.{z} g.structureSheafMap f.structureSheafMap
+  @SheafOfModules.pushforwardComp.{z} _ _ _ _ _ _
+    Z.siteTopology Y.siteTopology g.base Z.structureSheaf Y.structureSheaf
+    g.base_isContinuous g.structureSheafMap X.siteTopology f.base X.structureSheaf
+    f.base_isContinuous f.structureSheafMap
 
 /-- A composite module pushforward is automatically a right adjoint when both constituent
 pushforwards are right adjoints. -/
@@ -42,7 +39,8 @@ instance modulePushforwardComp_isRightAdjoint.{z, uX, vX, uY, vY, uZ, vZ, w}
     {Z : RingedSite.{uZ, vZ, w}} (f : Hom X Y) (g : Hom Y Z)
     [(f.modulePushforward.{z}).IsRightAdjoint]
     [(g.modulePushforward.{z}).IsRightAdjoint] :
-    ((Hom.comp f g).modulePushforward.{z}).IsRightAdjoint := sorry
+    ((Hom.comp f g).modulePushforward.{z}).IsRightAdjoint :=
+  Functor.isRightAdjoint_of_iso (modulePushforwardCompIso f g)
 
 namespace CommRingPresentation
 
@@ -67,7 +65,8 @@ instance modulePushforwardCompIsRightAdjoint.{z, uX, vX, uY, vY, uZ, vZ, w}
       (RingedSite.ofCommRingSheaf JZ OZ))
     [(f.modulePushforward.{z}).IsRightAdjoint]
     [(g.modulePushforward.{z}).IsRightAdjoint] :
-    ((f.comp g).modulePushforward.{z}).IsRightAdjoint := sorry
+    ((f.comp g).modulePushforward.{z}).IsRightAdjoint :=
+  modulePushforwardComp_isRightAdjoint f g
 
 end CommRingPresentation
 

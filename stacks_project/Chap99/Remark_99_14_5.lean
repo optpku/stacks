@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Comma.StructuredArrow.Basic
@@ -41,32 +35,32 @@ abbrev toOverSpecZ : Scheme.{u} ⥤ Over specZ :=
 
 /-- The category of polarized objects whose base scheme maps to `B`. -/
 abbrev polarizedOver (B : AlgebraicSpace specZ) :=
-  AlgebraicGeometry.AlgebraicSpace.baseChange p B
+  AlgebraicGeometry.AlgebraicSpace.categoryBaseChange p B
 
 namespace polarizedOver
 
 /-- Package a polarized object with a morphism from its base scheme into `B`. -/
 def mk {B : AlgebraicSpace specZ} (ξ : Obj)
-    (h : ofOver (overSpecZ ξ.S) ⟶ B) : polarizedOver B :=
-  AlgebraicGeometry.AlgebraicSpace.baseChange.mk ξ h
+    (h : ofOver (toOverSpecZ.obj ξ.S) ⟶ B) : polarizedOver B :=
+  AlgebraicGeometry.AlgebraicSpace.categoryBaseChange.mk ξ h
 
 /-- A morphism in `polarizedOver B` commutes with the structural maps to `B`. -/
 theorem hom_spec {B : AlgebraicSpace specZ} {x y : polarizedOver B} (α : x ⟶ y) :
     (ofOverFunctor specZ).map (toOverSpecZ.map α.left.base) ≫ y.hom = x.hom := by
-  exact AlgebraicGeometry.AlgebraicSpace.baseChange.hom_spec α
+  exact AlgebraicGeometry.AlgebraicSpace.categoryBaseChange.hom_spec α
 
 /-- The commutative projection square for `polarizedOver B`. -/
 def square (B : AlgebraicSpace specZ) :
     CatCommSqOver (p ⋙ toOverSpecZ) (CostructuredArrow.proj (ofOverFunctor specZ) B)
       (polarizedOver B) :=
-  AlgebraicGeometry.AlgebraicSpace.baseChange.square p B
+  AlgebraicGeometry.AlgebraicSpace.categoryBaseChange.square p B
 
 end polarizedOver
 
 #check (toOverSpecZ : Scheme.{u} ⥤ Over specZ)
 #check (polarizedOver : AlgebraicSpace specZ → Type (u + 1))
 #check (polarizedOver.mk : ∀ {B : AlgebraicSpace specZ} (ξ : Obj),
-  (ofOver (overSpecZ ξ.S) ⟶ B) → (polarizedOver B))
+  (ofOver (toOverSpecZ.obj ξ.S) ⟶ B) → (polarizedOver B))
 #check (polarizedOver.hom_spec : ∀ {B : AlgebraicSpace specZ} {x y : polarizedOver B}
   (α : x ⟶ y), (ofOverFunctor specZ).map (toOverSpecZ.map α.left.base) ≫ y.hom = x.hom)
 
@@ -74,7 +68,14 @@ end polarizedOver
 polarized families equipped with a map from their base to `B` sits in a 2-fibre product square
 over `Polarized` and schemes over `B`. -/
 @[stacks 0D1N]
-#check (AlgebraicGeometry.AlgebraicSpace.baseChange.instSquareIsBilimit (p := p) : ∀ (B : AlgebraicSpace specZ),
+#check (AlgebraicGeometry.AlgebraicSpace.categoryBaseChange.comparisonEquivalence (p := p) :
+  ∀ (B : AlgebraicSpace specZ), polarizedOver B ≌
+    CategoryTheory.Limits.CategoricalPullback (p ⋙ toOverSpecZ)
+      (CategoryTheory.CostructuredArrow.proj
+        AlgebraicGeometry.AlgebraicSpace.categoryBaseChange.ofOverFunctor B))
+
+@[stacks 0D1N]
+#check (AlgebraicGeometry.AlgebraicSpace.categoryBaseChange.instSquareIsBilimit (p := p) : ∀ (B : AlgebraicSpace specZ),
   CatCommSqOver.Resized.IsBilimit (polarizedOver.square B))
 
 end AlgebraicGeometry.Polarized

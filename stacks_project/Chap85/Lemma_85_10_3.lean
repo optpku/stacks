@@ -1,15 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.CategoryTheory.Filtration.Complex.Realization.Abutment
-public import stacks_project.Chap85.Lemma_85_10_3_Cohomology
-public import stacks_project.Chap85.Lemma_85_10_3_Fiberwise
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.RingedSite.Simplicial.SpectralSequence
+public import ReasLib.AlgebraicGeometry.RingedSite.Simplicial.FiberSpectralSequence
 
 /-!
 # Lemma 85.10.3
@@ -31,6 +24,8 @@ universe u v w
 
 namespace CategoryTheory.SimplicialSites
 
+open ModuleCohomology
+
 variable (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
 variable [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
 variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
@@ -47,6 +42,7 @@ variable [∀ n, ∀ P : (C.obj n)ᵒᵖ ⥤ Type w,
 variable [HasWeakSheafify (topology C J) (Type w)]
 variable [∀ n, (SheafOfModules.restrictScalars.{w}
     (stageMorphism C J O n).structureMap).IsRightAdjoint]
+variable [UnivLE.{max u v, w}]
 variable [∀ {m n : SimplexCategory} (φ : m ⟶ n),
     (SheafOfModules.restrictScalars.{w} (ringedToposMap C J O φ).structureMap).IsRightAdjoint]
 variable [∀ n, HasWeakSheafify (J n).toGrothendieck AddCommGrpCat.{w}]
@@ -55,57 +51,49 @@ variable [∀ n, HasSheafify ((J n).toGrothendieck) AddCommGrpCat.{w}]
 variable [HasSheafify (topology C J) AddCommGrpCat.{w}]
 variable [∀ n, ((J n).toGrothendieck).WEqualsLocallyBijective AddCommGrpCat.{w}]
 variable [(topology C J).WEqualsLocallyBijective AddCommGrpCat.{w}]
-variable [UnivLE.{max u v, w}]
 variable [∀ p : ℕ,
     (componentSectionsFunctor C J O p).toBoundedBelowDerived.HasRightDerivedFunctor
       (HomotopyCategory.Plus.quasiIso (SheafOfModules.{w} O))]
 variable [(totalSectionsFunctor C J O).toBoundedBelowDerived.HasRightDerivedFunctor
     (HomotopyCategory.Plus.quasiIso (SheafOfModules.{w} O))]
 
-/-- Lemma 85.10.3 (1): in Situation 85.3.3 case A, for `K` in `D⁺(O)` there is a
-spectral sequence `(E_r, d_r)_{r ≥ 0}` with `E₁^{p,q} = H^q(C_p, K_p)` and
-`d₁^{p,q} : E₁^{p,q} ⟶ E₁^{p+1,q}` converging to `H^{p+q}(C_total, K)`. -/
-@[stacks 0D7E]
-theorem exists_spectralSequence
-    (K : DerivedCategory.Plus (SheafOfModules.{w} O)) :
+
+/- Lemma 85.10.3: existence of the module hypercohomology spectral sequence. -/
+@[stacks 0D7E] #check (CategoryTheory.SimplicialSites.ModuleCohomology.exists_spectralSequence C J O :
+    ∀ (K : DerivedCategory.Plus (SheafOfModules.{w} O)),
     ∃ (S : WithAbutment (fun n ↦ totalHypercohomologyFunctor C J O n) K)
       (pageOneIso : ∀ p q : ℤ,
         (S.sequence.page 1).X (p, q) ≅ (modulePageOneFunctor C J O p q).obj K),
       ∀ p q : ℤ,
         (pageOneIso p q).hom ≫ (modulePageOneDifferential C J O p q).app K =
           (S.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIso (p + 1) q).hom :=
-  sorry
+            (pageOneIso (p + 1) q).hom)
 
-/-- Lemma 85.10.3 (2): in Situation 85.3.3 case A, the spectral sequence of
-`exists_spectralSequence` is functorial in `K`. -/
-@[stacks 0D7E]
-theorem spectralSequence_functorial
-    {K L : DerivedCategory.Plus (SheafOfModules.{w} O)}
-    (f : K ⟶ L) :
-    ∃ (SK : WithAbutment (fun n ↦ totalHypercohomologyFunctor C J O n) K)
-      (SL : WithAbutment (fun n ↦ totalHypercohomologyFunctor C J O n) L)
-      (pageOneIsoK : ∀ p q : ℤ,
-        (SK.sequence.page 1).X (p, q) ≅ (modulePageOneFunctor C J O p q).obj K)
-      (pageOneIsoL : ∀ p q : ℤ,
-        (SL.sequence.page 1).X (p, q) ≅ (modulePageOneFunctor C J O p q).obj L)
-      (φ : WithAbutment.Map (fun n ↦ totalHypercohomologyFunctor C J O n) f SK SL),
-      (∀ p q : ℤ,
-        (pageOneIsoK p q).hom ≫ (modulePageOneDifferential C J O p q).app K =
-          (SK.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIsoK (p + 1) q).hom) ∧
-      (∀ p q : ℤ,
-        (pageOneIsoL p q).hom ≫ (modulePageOneDifferential C J O p q).app L =
-          (SL.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIsoL (p + 1) q).hom) ∧
-      ∀ p q : ℤ,
-        ((φ.sequenceMap.hom 1).f (p, q)) ≫ (pageOneIsoL p q).hom =
-          (pageOneIsoK p q).hom ≫ (modulePageOneFunctor C J O p q).map f :=
-  sorry
+/- Lemma 85.10.3: simultaneous functoriality of the module hypercohomology spectral sequence. -/
+@[stacks 0D7E] #check (CategoryTheory.SimplicialSites.ModuleCohomology.spectralSequence_functorial C J O :
+    ∃ (S : ∀ K : DerivedCategory.Plus (SheafOfModules.{w} O),
+        WithAbutment (fun n ↦ totalHypercohomologyFunctor C J O n) K)
+      (pageOneIso : ∀ (K : DerivedCategory.Plus (SheafOfModules.{w} O)) (p q : ℤ),
+        ((S K).sequence.page 1).X (p, q) ≅ (modulePageOneFunctor C J O p q).obj K)
+      (m : ∀ {K L : DerivedCategory.Plus (SheafOfModules.{w} O)} (f : K ⟶ L),
+        WithAbutment.Map (fun n ↦ totalHypercohomologyFunctor C J O n) f (S K) (S L)),
+      (∀ (K : DerivedCategory.Plus (SheafOfModules.{w} O)) (p q : ℤ),
+        (pageOneIso K p q).hom ≫ (modulePageOneDifferential C J O p q).app K =
+          ((S K).sequence.page 1).d (p, q) (p + 1, q) ≫
+            (pageOneIso K (p + 1) q).hom) ∧
+      (∀ {K L : DerivedCategory.Plus (SheafOfModules.{w} O)} (f : K ⟶ L) (p q : ℤ),
+        ((m f).sequenceMap.hom 1).f (p, q) ≫ (pageOneIso L p q).hom =
+          (pageOneIso K p q).hom ≫ (modulePageOneFunctor C J O p q).map f) ∧
+      (∀ K : DerivedCategory.Plus (SheafOfModules.{w} O),
+        (m (𝟙 K)).sequenceMap = 𝟙 (S K).sequence) ∧
+      (∀ {K L M : DerivedCategory.Plus (SheafOfModules.{w} O)} (f : K ⟶ L) (g : L ⟶ M),
+        (m (f ≫ g)).sequenceMap = (m f).sequenceMap ≫ (m g).sequenceMap))
 
 end CategoryTheory.SimplicialSites
 
 namespace CategoryTheory.Grothendieck
+
+open ModuleCohomology
 
 variable (F : SimplicialObject Cat.{v, u}) (J : ∀ n, Precoverage (F.obj n))
 variable [IsFiberwiseSite F J]
@@ -138,12 +126,10 @@ variable [∀ p : ℕ,
 variable [(fiberTotalSectionsFunctor F J O).toBoundedBelowDerived.HasRightDerivedFunctor
     (HomotopyCategory.Plus.quasiIso (SheafOfModules.{w} O))]
 
-/-- Lemma 85.10.3 (3): in Situation 85.3.3 case B, for `K` in `D⁺(O)` there is a
-spectral sequence `(E_r, d_r)_{r ≥ 0}` with `E₁^{p,q} = H^q(C_p, K_p)` and
-`d₁^{p,q} : E₁^{p,q} ⟶ E₁^{p+1,q}` converging to `H^{p+q}(C_total, K)`. -/
-@[stacks 0D7E]
-theorem exists_spectralSequence
-    (K : DerivedCategory.Plus (SheafOfModules.{w} O)) :
+
+/- Lemma 85.10.3: existence of the module hypercohomology spectral sequence. -/
+@[stacks 0D7E] #check (CategoryTheory.Grothendieck.ModuleCohomology.exists_spectralSequence F J O :
+    ∀ (K : DerivedCategory.Plus (SheafOfModules.{w} O)),
     ∃ (S : WithAbutment (fun n ↦ fiberTotalHypercohomologyFunctor F J O n) K)
       (pageOneIso : ∀ p q : ℤ,
         (S.sequence.page 1).X (p, q) ≅
@@ -151,35 +137,26 @@ theorem exists_spectralSequence
       ∀ p q : ℤ,
         (pageOneIso p q).hom ≫ (fiberPageOneDifferential F J O p q).app K =
           (S.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIso (p + 1) q).hom :=
-  sorry
+            (pageOneIso (p + 1) q).hom)
 
-/-- Lemma 85.10.3 (4): in Situation 85.3.3 case B, the spectral sequence of
-`exists_spectralSequence` is functorial in `K`. -/
-@[stacks 0D7E]
-theorem spectralSequence_functorial
-    {K L : DerivedCategory.Plus (SheafOfModules.{w} O)}
-    (f : K ⟶ L) :
-    ∃ (SK : WithAbutment (fun n ↦ fiberTotalHypercohomologyFunctor F J O n) K)
-      (SL : WithAbutment (fun n ↦ fiberTotalHypercohomologyFunctor F J O n) L)
-      (pageOneIsoK : ∀ p q : ℤ,
-        (SK.sequence.page 1).X (p, q) ≅
-          (fiberPageOneFunctor F J O p q).obj K)
-      (pageOneIsoL : ∀ p q : ℤ,
-        (SL.sequence.page 1).X (p, q) ≅
-          (fiberPageOneFunctor F J O p q).obj L)
-      (φ : WithAbutment.Map (fun n ↦ fiberTotalHypercohomologyFunctor F J O n) f SK SL),
-      (∀ p q : ℤ,
-        (pageOneIsoK p q).hom ≫ (fiberPageOneDifferential F J O p q).app K =
-          (SK.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIsoK (p + 1) q).hom) ∧
-      (∀ p q : ℤ,
-        (pageOneIsoL p q).hom ≫ (fiberPageOneDifferential F J O p q).app L =
-          (SL.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIsoL (p + 1) q).hom) ∧
-      ∀ p q : ℤ,
-        ((φ.sequenceMap.hom 1).f (p, q)) ≫ (pageOneIsoL p q).hom =
-          (pageOneIsoK p q).hom ≫ (fiberPageOneFunctor F J O p q).map f :=
-  sorry
+/- Lemma 85.10.3: simultaneous functoriality of the module hypercohomology spectral sequence. -/
+@[stacks 0D7E] #check (CategoryTheory.Grothendieck.ModuleCohomology.spectralSequence_functorial F J O :
+    ∃ (S : ∀ K : DerivedCategory.Plus (SheafOfModules.{w} O),
+        WithAbutment (fun n ↦ fiberTotalHypercohomologyFunctor F J O n) K)
+      (pageOneIso : ∀ (K : DerivedCategory.Plus (SheafOfModules.{w} O)) (p q : ℤ),
+        ((S K).sequence.page 1).X (p, q) ≅ (fiberPageOneFunctor F J O p q).obj K)
+      (m : ∀ {K L : DerivedCategory.Plus (SheafOfModules.{w} O)} (f : K ⟶ L),
+        WithAbutment.Map (fun n ↦ fiberTotalHypercohomologyFunctor F J O n) f (S K) (S L)),
+      (∀ (K : DerivedCategory.Plus (SheafOfModules.{w} O)) (p q : ℤ),
+        (pageOneIso K p q).hom ≫ (fiberPageOneDifferential F J O p q).app K =
+          ((S K).sequence.page 1).d (p, q) (p + 1, q) ≫
+            (pageOneIso K (p + 1) q).hom) ∧
+      (∀ {K L : DerivedCategory.Plus (SheafOfModules.{w} O)} (f : K ⟶ L) (p q : ℤ),
+        ((m f).sequenceMap.hom 1).f (p, q) ≫ (pageOneIso L p q).hom =
+          (pageOneIso K p q).hom ≫ (fiberPageOneFunctor F J O p q).map f) ∧
+      (∀ K : DerivedCategory.Plus (SheafOfModules.{w} O),
+        (m (𝟙 K)).sequenceMap = 𝟙 (S K).sequence) ∧
+      (∀ {K L M : DerivedCategory.Plus (SheafOfModules.{w} O)} (f : K ⟶ L) (g : L ⟶ M),
+        (m (f ≫ g)).sequenceMap = (m f).sequenceMap ≫ (m g).sequenceMap))
 
 end CategoryTheory.Grothendieck

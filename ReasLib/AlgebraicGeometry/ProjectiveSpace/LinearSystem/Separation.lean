@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.AlgClosed.Basic
@@ -125,13 +119,32 @@ theorem inducesClosedImmersion_iff
           IsClosedImmersion (morphism hP X L ψ hψ) :=
   Iff.rfl
 
-/-- A subspace of sections that separates closed points and tangent vectors induces a closed
-immersion into its projective scheme. -/
+/-- If a linear system separates closed points of a scheme locally of finite type over a field
+with at least two closed points, then it generates the invertible module: for a closed point `x`
+choose a closed point `y ≠ x`, so some section vanishes at `y` but not at `x`, and closed points
+are dense in the closed non-generated locus. This is the first step of the proof of Stacks 0E8S;
+it fails when there is only one closed point, where separation of closed points is vacuous. -/
+theorem generates_of_separatesClosedPoints
+    (X : Over (Spec (CommRingCat.of k))) [LocallyOfFiniteType X.hom]
+    (L : X.left.Modules) [Scheme.Modules.Invertible L]
+    (ψ : ModuleCat.of k V ⟶ Scheme.Hom.globalSectionsMod X.hom L)
+    (h_nontrivial : (closedPoints X.left).Nontrivial)
+    (h_points : SeparatesClosedPoints X L ψ) :
+    Generates X L ψ := sorry
+
+/-- A generating subspace of sections that separates closed points and tangent vectors induces a
+closed immersion into its projective scheme.
+
+Stacks 0E8S does not list generation among its hypotheses; its proof derives it from separation
+of closed points, which is only valid when `X` has at least two closed points (see
+`generates_of_separatesClosedPoints`). For `X = Spec k` and `W = ⊥` both separation conditions
+hold vacuously while `W` does not generate, so generation is an explicit premise here. -/
 theorem inducesClosedImmersion_of_separates
     {k : Type u} [Field k] [IsAlgClosed k]
     (X : Over (Spec (CommRingCat.of k))) [IsProper X.hom]
     (L : X.left.Modules) [Scheme.Modules.Invertible L]
     (W : Submodule k (Scheme.Hom.globalSectionsMod X.hom L))
+    (h_generates : Generates X L (ConcreteCategory.ofHom (C := ModuleCat k) W.subtype))
     (h_points : SeparatesClosedPoints X L
       (ConcreteCategory.ofHom (C := ModuleCat k) W.subtype))
     (h_tangents : SeparatesTangentVectors X L

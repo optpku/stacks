@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Perfect
@@ -16,9 +10,9 @@ import Mathlib.Tactic.CrossRefAttribute
 /-!
 # Characterizations of perfect derived modules on ringed spaces
 
-The public statements use the native ringed-space predicates.  Tensor totalizations, derived
-tensor existence, and restriction presentations are inferred by the owner leaves and do not
-appear as mathematical hypotheses.
+The public statements use the native ringed-space predicates and the tensor product over the
+structure sheaf. Derivability of this fixed tensor is supplied for the spaces whose Tor
+predicates appear in each statement.
 -/
 
 open AlgebraicGeometry
@@ -35,10 +29,22 @@ variable {X : RingedSpace.{u}}
 `(a - 1)`-pseudo-coherent, then `E` is perfect. -/
 @[stacks 08CP]
 theorem isPerfect_of_hasTorAmplitudeIn_of_isMPseudoCoherent
+    [CategoryTheory.DerivedCategory.DerivedTensor.Right.Has (C := Modules X)]
     (E : ModuleDerived X) (a b : ℤ) (hab : a ≤ b)
     (hamp : RingedSpace.HasTorAmplitudeIn E a b)
     (hpc : IsMPseudoCoherent E (a - 1)) :
     IsPerfect E := sorry
+
+/-- A perfect derived module is pseudo-coherent. -/
+theorem IsPerfect.isPseudoCoherent
+    {E : ModuleDerived X} (hE : IsPerfect E) :
+    IsPseudoCoherent E := sorry
+
+section LocalTorCharacterization
+
+variable [∀ U : TopologicalSpace.Opens X.carrier,
+  CategoryTheory.DerivedCategory.DerivedTensor.Right.Has
+    (C := Modules (X.restrict U.isOpenEmbedding))]
 
 /-- Lemma 20.49.5: a derived `𝒪_X`-module is perfect exactly when it is pseudo-coherent
 and locally has finite Tor dimension. -/
@@ -52,11 +58,6 @@ theorem IsPerfect.isPseudoCoherent_and_locallyHasFiniteTorDimension
     {E : ModuleDerived X} (hE : IsPerfect E) :
     IsPseudoCoherent E ∧ LocallyHasFiniteTorDimension E := sorry
 
-/-- A perfect derived module is pseudo-coherent. -/
-theorem IsPerfect.isPseudoCoherent
-    {E : ModuleDerived X} (hE : IsPerfect E) :
-    IsPseudoCoherent E := sorry
-
 /-- A perfect derived module locally has finite Tor dimension. -/
 theorem IsPerfect.locallyHasFiniteTorDimension
     {E : ModuleDerived X} (hE : IsPerfect E) :
@@ -67,5 +68,7 @@ theorem IsPseudoCoherent.isPerfect_of_locallyHasFiniteTorDimension
     {E : ModuleDerived X} (hpc : IsPseudoCoherent E)
     (htor : LocallyHasFiniteTorDimension E) :
     IsPerfect E := sorry
+
+end LocalTorCharacterization
 
 end AlgebraicGeometry.RingedSpace.ModuleDerived

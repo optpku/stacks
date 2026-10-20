@@ -1,17 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_52_5_Tensor
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Perfect.Relative.Tensor
 import StacksCheckRecall
 
 @[expose] public section
 
 open AlgebraicGeometry CategoryTheory AlgebraicGeometry.AlgebraicSpace
+open scoped CategoryTheory.DerivedCategory.DerivedTensor
 
 universe u
 
@@ -35,5 +30,4 @@ object preserves `Y`-perfectness. -/
       {K M : ModuleDerived X},
       AlgebraicGeometry.AlgebraicSpace.ModuleDerived.IsPerfect K →
         AlgebraicGeometry.AlgebraicSpace.ModuleDerived.IsPerfectRelativeTo f M →
-          AlgebraicGeometry.AlgebraicSpace.ModuleDerived.IsPerfectRelativeTo f
-            (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.tensorObj K M))
+          AlgebraicGeometry.AlgebraicSpace.ModuleDerived.IsPerfectRelativeTo f (K ⊗ᴸ M))

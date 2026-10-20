@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.InternalHom.BaseChange.Tensor
@@ -37,6 +31,7 @@ variable {R A R' : Type u}
 variable [CommRing R] [CommRing A] [CommRing R']
 variable [Algebra R A] [Algebra R R'] [Module.Flat R A]
 variable {K L : DerivedCategory (ModuleCat A)}
+variable [hasSourceRHom : Has.{u, u} (A := A)] [hasTargetRHom : Has.{u, u} (A := A ⊗[R] R')]
 
 /-- A structured finite-Tor `RHom` model remains a canonical `RHom` model after arbitrary
 tensor-product base change of the coefficient ring (Lemma 15.84.6, Stacks `0E1U`). -/
@@ -52,7 +47,8 @@ theorem baseChange (M : FiniteTorModel R K L) :
         ((ModuleCat.derivedExtensionOfScalars
           (algebraMap A (A ⊗[R] R'))).obj L)) :=
   CochainComplex.HomComplex.Pushout.Tensor.representsRHom_of_finiteFree
-    M.source M.target M.sourceIso M.targetIso M.sourceMinus M.sourceFiniteFree
+    (R := R) (A := A) (R' := R') (K := K) (L := L)
+    (hasRHom := hasTargetRHom) M.source M.target M.sourceIso M.targetIso M.sourceMinus M.sourceFiniteFree
       M.targetBounded M.targetFlat
 
 end FiniteTorModel
@@ -63,6 +59,7 @@ variable {R A R' : Type u}
 variable [CommRing R] [CommRing A] [CommRing R']
 variable [Algebra R A] [Algebra R R'] [Module.Flat R A]
 variable {K L : DerivedCategory (ModuleCat A)}
+variable [hasSourceRHom : Has.{u, u} (A := A)] [hasTargetRHom : Has.{u, u} (A := A ⊗[R] R')]
 
 /-- Tensor-product base change of a relative-perfect `RHom` model, through its finite-Tor
 model projection. -/
@@ -77,7 +74,8 @@ abbrev baseChange (M : PerfectModel R K L) :
           (algebraMap A (A ⊗[R] R'))).obj K)
         ((ModuleCat.derivedExtensionOfScalars
           (algebraMap A (A ⊗[R] R'))).obj L)) :=
-  FiniteTorModel.baseChange (R' := R') M.toFiniteTorModel
+  FiniteTorModel.baseChange (R := R) (A := A) (R' := R')
+    (hasSourceRHom := hasSourceRHom) (hasTargetRHom := hasTargetRHom) M.toFiniteTorModel
 
 end PerfectModel
 

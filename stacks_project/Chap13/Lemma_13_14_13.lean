@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import ReasLib.CategoryTheory.Functor.Derived.ComputesAt.Retracts
@@ -14,17 +8,15 @@ import StacksCheckRecall
 /-!
 # Lemma 13.14.13 (05T0)
 
-This entry recalls the retract-stable object properties for the strong computation predicates
-`Functor.RightDerived.ComputesAt` and `Functor.LeftDerived.ComputesAt`.  The neutral owner retains
-the essential-constancy component; it does not silently replace it by weak pointwise existence.
-The binary-biproduct conclusions are thin bridges over the generic object-property retract API.
+Assumptions as in Situation 13.14.1: `F` is an exact functor of triangulated categories and `S`
+is a saturated multiplicative system compatible with the triangulation.  If `X ⊕ Y` computes
+`RF`, then `X` and `Y` compute `RF`; similarly for `LF`.  No Karoubian hypothesis on the target
+is involved.  The owners use the strong computation predicates
+`Functor.RightDerived.ComputesAt` and `Functor.LeftDerived.ComputesAt`, which retain the
+essential-constancy component rather than weak pointwise existence.
 -/
 
 open CategoryTheory
-
-/- The Karoubian retract-stability owners for the two computation predicates. -/
-#check @CategoryTheory.Functor.RightDerived.ComputesAt.stableUnderRetracts
-#check @CategoryTheory.Functor.LeftDerived.ComputesAt.stableUnderRetracts
 
 /- Lemma 13.14.13 (1)--(4): each summand of a computing binary biproduct computes the same
 orientation of the derived value. -/
@@ -39,7 +31,9 @@ orientation of the derived value. -/
 @[stacks 05T0 "left computation on both summands"]
 #check @CategoryTheory.Functor.LeftDerived.ComputesAt.of_biprod
 
-/- Explicit retract transport is available when a direct summand is represented by a `Retract`.
--/
+/- Consequence: since retracts in a pretriangulated category are biproduct summands, the
+computing objects are stable under retracts. -/
 #check @CategoryTheory.Functor.RightDerived.ComputesAt.of_retract
 #check @CategoryTheory.Functor.LeftDerived.ComputesAt.of_retract
+#check @CategoryTheory.Functor.RightDerived.ComputesAt.stableUnderRetracts
+#check @CategoryTheory.Functor.LeftDerived.ComputesAt.stableUnderRetracts

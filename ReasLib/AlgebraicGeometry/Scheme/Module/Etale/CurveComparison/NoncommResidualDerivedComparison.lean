@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommResidualSectionsComparison
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.ExactRightComposition
@@ -153,7 +147,7 @@ def geometricCompletedIso :
       (by sorry))
 
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj R Gal(AlgebraicClosure k/k)))]
+  (completedGroupRing R Gal(AlgebraicClosure k/k)))]
 
 /-- Full ordinary derived comparison for the actual finite source sheaf in
 D(R[[Gal]]), for arbitrary finite R and arbitrary ground field. -/

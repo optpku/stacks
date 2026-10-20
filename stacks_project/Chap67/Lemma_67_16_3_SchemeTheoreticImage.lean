@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.SchemeTheoreticImage.QuasiCompact
 public import stacks_project.Chap67.Definition_67_8_2_QuasiCompact
 public import stacks_project.Chap67.Definition_67_14_4_Subscheme
 public import stacks_project.Chap67.Definition_67_18_1_Dominant
@@ -33,130 +28,93 @@ namespace AlgebraicGeometry.AlgebraicSpace
 
 namespace Hom
 
-/-- A morphism vanishes on the kernel of `𝒪_Y ⟶ f_* 𝒪_X`. -/
-theorem vanishes_idealSheafSubobject {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) : vanishes f (idealSheafSubobject f) :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.vanishes_idealSheafSubobject :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y),
+      vanishes f (idealSheafSubobject f))
 
-/-- A `T`-point of `X` composes with `f` to a point of `Y` along which the kernel
-ideal of `f` vanishes. -/
-theorem vanishes_homOfPoint_idealSheafSubobject {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) {T : (Over S)ᵒᵖ}
-    (h : X.functorOfPoints.obj T) :
-    vanishes (homOfPoint (f.app T h)) (idealSheafSubobject f) :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.isQuasiCoherent_idealSheafSubobject_of_quasiCompact :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [QuasiCompact f],
+      IsQuasiCoherent (idealSheafSubobject f))
 
-/-- For a quasi-compact morphism of algebraic spaces, the kernel of
-`𝒪_Y ⟶ f_* 𝒪_X` is a quasi-coherent ideal sheaf on `Y`. -/
-instance instIsQuasiCoherent_idealSheafSubobject_of_quasiCompact
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [QuasiCompact f] :
-    IsQuasiCoherent (idealSheafSubobject f) :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.toIdealImage :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [QuasiCompact f],
+      X ⟶ subscheme (idealSheafSubobject f))
 
-/-- The factorization of a quasi-compact morphism through the closed subspace cut
-out by `Hom.idealSheafSubobject f`. -/
-def toIdealImage {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [QuasiCompact f] : X ⟶ subscheme (idealSheafSubobject f) where
-  app T := TypeCat.ofHom fun (h : X.functorOfPoints.obj T) ↦
-    (⟨f.app T h, vanishes_homOfPoint_idealSheafSubobject f h⟩ :
-      (subschemeFunctor (idealSheafSubobject f)).obj T)
-  naturality := sorry
-
-/-- On `T`-points, `toIdealImage f` is `f` paired with the kernel-vanishing
-witness. -/
-theorem toIdealImage_app {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.toIdealImage_app :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) [QuasiCompact f] (T : (Over S)ᵒᵖ)
-    (h : X.functorOfPoints.obj T) :
-    (toIdealImage f).app T h =
-      ⟨f.app T h, vanishes_homOfPoint_idealSheafSubobject f h⟩ :=
-  sorry
+    (h : X.functorOfPoints.obj T),
+      ((toIdealImage f).app T h).val = f.app T h)
 
-/-- `toIdealImage f` composed with the closed-subspace inclusion is `f`. -/
-theorem toIdealImage_comp_subschemeι {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [QuasiCompact f] :
-    toIdealImage f ≫ subschemeι (idealSheafSubobject f) = f :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.toIdealImage_comp_subschemeι :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) [QuasiCompact f],
+      toIdealImage f ≫ subschemeι (idealSheafSubobject f) = f)
 
-/-- The kernel-subscheme factorization of a quasi-compact morphism is a
-scheme-theoretic image factorization. -/
-instance instIsSchemeTheoreticImage_toIdealImage {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [QuasiCompact f] :
-    IsSchemeTheoreticImage f (toIdealImage f)
-      (subschemeι (idealSheafSubobject f)) :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.instIsSchemeTheoreticImage_toIdealImage :
+    ∀ {S : Scheme.{u}}
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [QuasiCompact f],
+      IsSchemeTheoreticImage f (toIdealImage f)
+      (subschemeι (idealSheafSubobject f)))
 
-/-- The canonical map from the source to the kernel subscheme of a quasi-compact
-morphism is dominant. -/
-instance instDominant_toIdealImage {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [QuasiCompact f] : Dominant (toIdealImage f) :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.instDominant_toIdealImage :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) [QuasiCompact f],
+      Dominant (toIdealImage f))
 
 end Hom
 
 namespace IsSchemeTheoreticImage
 
-/-- A scheme-theoretic image of a quasi-compact morphism has the same kernel
-ideal sheaf as the original morphism. -/
-theorem idealSheafSubobject_eq {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticImage.idealSheafSubobject_eq :
+    ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
     (f : X ⟶ Y) (toImage : X ⟶ Z) (ι : Z ⟶ Y) [QuasiCompact f]
-    [IsSchemeTheoreticImage f toImage ι] :
-    Hom.idealSheafSubobject ι = Hom.idealSheafSubobject f :=
-  sorry
+    [IsSchemeTheoreticImage f toImage ι],
+      Hom.idealSheafSubobject ι = Hom.idealSheafSubobject f)
 
-/-- Any scheme-theoretic image of a quasi-compact morphism admits a unique
-comparison over `Y` to the kernel subscheme. -/
-theorem existsUnique_toIdealImage {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticImage.existsUnique_toIdealImage :
+    ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
     (f : X ⟶ Y) (toImage : X ⟶ Z) (ι : Z ⟶ Y) [QuasiCompact f]
-    [IsSchemeTheoreticImage f toImage ι] :
-    ∃! k : Z ⟶ subscheme (Hom.idealSheafSubobject f),
+    [IsSchemeTheoreticImage f toImage ι],
+      ∃! k : Z ⟶ subscheme (Hom.idealSheafSubobject f),
       k ≫ subschemeι (Hom.idealSheafSubobject f) = ι ∧
-        toImage ≫ k = Hom.toIdealImage f :=
-  sorry
+        toImage ≫ k = Hom.toIdealImage f)
 
-/-- Scheme-theoretic images of quasi-compact morphisms commute with étale base
-change, as a statement about the closed inverse image. -/
-instance instOfInverseImageEtale_of_quasiCompact {S : Scheme.{u}}
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticImage.instOfInverseImageEtale_of_quasiCompact :
+    ∀ {S : Scheme.{u}}
     {X Y Z V : AlgebraicSpace S} (f : X ⟶ Y) (toImage : X ⟶ Z) (ι : Z ⟶ Y)
     [QuasiCompact f] [IsSchemeTheoreticImage f toImage ι]
-    [IsClosedImmersion ι] (φ : V ⟶ Y) [Etale φ] [HasPullback f φ] :
-    IsSchemeTheoreticImage (pullback.snd f φ)
-      (pullbackToInverseImage f toImage ι φ) (inverseImageι φ ι) :=
-  sorry
+    [IsClosedImmersion ι] (φ : V ⟶ Y) [Etale φ] [HasPullback f φ],
+      IsSchemeTheoreticImage (pullback.snd f φ)
+      (pullbackToInverseImage f toImage ι φ) (inverseImageι φ ι))
 
-/-- Scheme-theoretic images of quasi-compact morphisms commute with étale base
-change along `φ : V ⟶ Y`. -/
-theorem of_inverseImage_etale_of_quasiCompact {S : Scheme.{u}}
-    {X Y Z V : AlgebraicSpace S} (f : X ⟶ Y) (toImage : X ⟶ Z) (ι : Z ⟶ Y)
-    [QuasiCompact f] [IsSchemeTheoreticImage f toImage ι]
-    [IsClosedImmersion ι] (φ : V ⟶ Y) [Etale φ] [HasPullback f φ] :
-    IsSchemeTheoreticImage (pullback.snd f φ)
-      (pullbackToInverseImage f toImage ι φ) (inverseImageι φ ι) :=
-  sorry
-
-/-- Scheme-theoretic images of quasi-compact morphisms commute with étale base
-change, as a statement about chosen pullbacks. -/
-theorem of_pullback_etale_of_quasiCompact {S : Scheme.{u}}
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticImage.of_pullback_etale_of_quasiCompact :
+    ∀ {S : Scheme.{u}}
     {X Y Z V : AlgebraicSpace S} (f : X ⟶ Y) (toImage : X ⟶ Z) (ι : Z ⟶ Y)
     [QuasiCompact f] [IsSchemeTheoreticImage f toImage ι] (φ : V ⟶ Y)
-    [Etale φ] [HasPullback f φ] [HasPullback ι φ] :
-    IsSchemeTheoreticImage (pullback.snd f φ)
-      (pullbackToImage f toImage ι φ) (pullback.snd ι φ) :=
-  sorry
+    [Etale φ] [HasPullback f φ] [HasPullback ι φ],
+      IsSchemeTheoreticImage (pullback.snd f φ)
+      (pullbackToImage f toImage ι φ) (pullback.snd ι φ))
 
-/-- The comparison from a scheme-theoretic image of a quasi-compact morphism to
-that image is dominant. Competing factorizations remain explicit, so this is a
-theorem on `(f, toImage, ι)` rather than an instance on `toImage` alone. -/
-theorem dominant_toImage {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticImage.dominant_toImage :
+    ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
     (f : X ⟶ Y) (toImage : X ⟶ Z) (ι : Z ⟶ Y) [QuasiCompact f]
-    [IsSchemeTheoreticImage f toImage ι] : Dominant toImage :=
-  sorry
-
-/-- Factoring through a scheme-theoretic image places `|f|(|X|)` in `|Z|`. -/
-theorem range_subset {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    {f : X ⟶ Y} {toImage : X ⟶ Z} {ι : Z ⟶ Y}
-    [IsSchemeTheoreticImage f toImage ι] :
-    Set.range (Points.map f) ⊆ Set.range (Points.map ι) :=
-  sorry
+    [IsSchemeTheoreticImage f toImage ι],
+      Dominant toImage)
 
 end IsSchemeTheoreticImage
 

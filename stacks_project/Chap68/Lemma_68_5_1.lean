@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap66.Definition_66_3_1_Separation
@@ -13,6 +7,7 @@ public import stacks_project.Chap68.Lemma_68_5_1_PropertyAlpha
 public import stacks_project.Chap68.Lemma_68_12_8_Decent
 public import stacks_project.Chap68.Lemma_68_17_4_Relative
 public import stacks_project.Chap68.Remark_68_17_10_VeryReasonable
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conditions
 import StacksCheckRecall
 
 /-!
@@ -32,71 +27,53 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 68.5.1 (1): let `S` be a scheme and `X` an algebraic space over `S`.
-Condition (γ), that the equivalent conditions of Lemma 68.4.5 hold at every
-point of `|X|`, is equivalent to the conjunction of (α) and (β), that the
-equivalent conditions of Lemmas 68.4.2 and 68.4.3 hold at every point. -/
-@[stacks 03JX]
-theorem isDecent_iff_hasPropertyAlpha_and_hasPropertyBeta {S : Scheme.{u}}
-    (X : AlgebraicSpace S) :
-    IsDecent X ↔ HasPropertyAlpha X ∧ HasPropertyBeta X :=
-  sorry
+/- Lemma 68.5.1 (1): condition (γ) at every point is equivalent to (α) and
+(β) at every point. -/
+@[stacks 03JX] #check
+  (AlgebraicGeometry.AlgebraicSpace.isDecent_iff_hasPropertyAlpha_and_hasPropertyBeta :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
+      IsDecent X ↔ HasPropertyAlpha X ∧ HasPropertyBeta X)
 
-/-- A decent algebraic space has property (α). -/
-instance instHasPropertyAlpha_of_isDecent {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsDecent X] : HasPropertyAlpha X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.instHasPropertyAlpha_of_isDecent :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [IsDecent X], HasPropertyAlpha X)
 
-/-- A decent algebraic space has property (β). -/
-instance instHasPropertyBeta_of_isDecent {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsDecent X] : HasPropertyBeta X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.instHasPropertyBeta_of_isDecent :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [IsDecent X], HasPropertyBeta X)
 
-/-- Properties (α) and (β) together yield a decent algebraic space. -/
-instance instIsDecent_of_hasPropertyAlpha_of_hasPropertyBeta
-    {S : Scheme.{u}} (X : AlgebraicSpace S) [HasPropertyAlpha X] [HasPropertyBeta X] :
-    IsDecent X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.instIsDecent_of_hasPropertyAlpha_of_hasPropertyBeta :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [HasPropertyAlpha X] [HasPropertyBeta X],
+    IsDecent X)
 
-/-- Decency is equivalent to the equivalent conditions of Lemma 68.4.5 at every
-point of `|X|`. -/
-theorem isDecent_iff_forallAffineEtaleFiniteAbove {S : Scheme.{u}}
-    (X : AlgebraicSpace S) :
-    IsDecent X ↔ ∀ x : Points X, forallAffineEtaleFiniteAbove X x :=
-  sorry
+/- Condition (γ) is the affine étale chart and self-relation finite-fibre test
+at every point. -/
+#check (AlgebraicGeometry.AlgebraicSpace.isDecent_iff_forallAffineEtaleFiniteAbove :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
+    IsDecent X ↔ ∀ x : Points X, forallAffineEtaleFiniteAbove X x)
 
-/-- Lemma 68.5.1 (2): if the equivalent conditions of Lemma 68.4.6 hold, then
-the equivalent conditions of Lemma 68.4.5 hold at every point of `|X|`. -/
-@[stacks 03JX, instance 900]
-instance instIsDecent_of_isReasonable {S : Scheme.{u}}
-    (X : AlgebraicSpace S) [IsReasonable X] : IsDecent X :=
-  sorry
+/- Lemma 68.5.1 (2): (δ) implies (γ). -/
+@[stacks 03JX] #check (AlgebraicGeometry.AlgebraicSpace.instIsDecent_of_isReasonable :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [IsReasonable X], IsDecent X)
 
-/-- Lemma 68.5.1 (3): if the equivalent conditions of Lemma 68.4.7 hold, then
-the equivalent conditions of Lemma 68.4.6 hold. -/
-@[stacks 03JX, instance 900]
-instance instIsReasonable_of_isVeryReasonable {S : Scheme.{u}}
-    (X : AlgebraicSpace S) [IsVeryReasonable X] : IsReasonable X :=
-  sorry
+/- Lemma 68.5.1 (3): (ε) implies (δ). -/
+@[stacks 03JX] #check (AlgebraicGeometry.AlgebraicSpace.instIsReasonable_of_isVeryReasonable :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [IsVeryReasonable X], IsReasonable X)
 
-/-- Lemma 68.5.1 (4): if `X` is Zariski locally quasi-separated, then the
-equivalent conditions of Lemma 68.4.7 hold. -/
-@[stacks 03JX, instance 900]
-instance instIsVeryReasonable_of_isAbsolutelyZariskiLocallyQuasiSeparated
-    {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsAbsolutelyZariskiLocallyQuasiSeparated X] : IsVeryReasonable X :=
-  sorry
+/- Lemma 68.5.1 (4): (ζ) implies (ε). -/
+@[stacks 03JX] #check
+  (AlgebraicGeometry.AlgebraicSpace.instIsVeryReasonable_of_isAbsolutelyZariskiLocallyQuasiSeparated :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+      [IsAbsolutelyZariskiLocallyQuasiSeparated X], IsVeryReasonable X)
 
-/- Lemma 68.5.1 (5): if `X` is quasi-separated, then `X` is Zariski locally
-quasi-separated. -/
-@[stacks 03JX] #check AlgebraicGeometry.AlgebraicSpace.instIsAbsolutelyZariskiLocallyQuasiSeparated_of_isAbsolutelyQuasiSeparated
+/- Lemma 68.5.1 (5): (η) implies (ζ). -/
+@[stacks 03JX] #check
+  (AlgebraicGeometry.AlgebraicSpace.instIsAbsolutelyZariskiLocallyQuasiSeparated_of_isAbsolutelyQuasiSeparated :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [IsAbsolutelyQuasiSeparated X],
+      IsAbsolutelyZariskiLocallyQuasiSeparated X)
 
-/-- Lemma 68.5.1 (6): if `X` is representable, i.e. a scheme, then `X` is
-Zariski locally quasi-separated. -/
-@[stacks 03JX, instance 900]
-instance instIsAbsolutelyZariskiLocallyQuasiSeparated_of_isScheme
-    {S : Scheme.{u}} (X : AlgebraicSpace S) [IsScheme X] :
-    IsAbsolutelyZariskiLocallyQuasiSeparated X :=
-  sorry
+/- Lemma 68.5.1 (6): (θ) implies (ζ). -/
+@[stacks 03JX] #check
+  (AlgebraicGeometry.AlgebraicSpace.instIsAbsolutelyZariskiLocallyQuasiSeparated_of_isScheme :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [IsScheme X],
+      IsAbsolutelyZariskiLocallyQuasiSeparated X)
 
 end AlgebraicGeometry.AlgebraicSpace

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.ZeroMorphisms
@@ -54,6 +48,23 @@ end DecreasingFiltration
 namespace FilteredObject
 
 variable {X Y : FilteredObject C}
+
+/-- The direct sum of two filtered objects, with the biproduct of their stage inclusions as
+its filtration. -/
+noncomputable def binaryBiproduct (X Y : FilteredObject C) : FilteredObject C where
+  obj := X.obj ⊞ Y.obj
+  filtration := DecreasingFiltration.biprod X.filtration Y.filtration
+
+/-- The underlying object of the filtered direct sum is the ambient binary biproduct. -/
+@[simp]
+theorem binaryBiproduct_obj (X Y : FilteredObject C) :
+    (binaryBiproduct X Y).obj = (X.obj ⊞ Y.obj) := rfl
+
+/-- The filtration of the filtered direct sum is the stagewise biproduct filtration. -/
+@[simp]
+theorem binaryBiproduct_filtration (X Y : FilteredObject C) :
+    (binaryBiproduct X Y).filtration =
+      DecreasingFiltration.biprod X.filtration Y.filtration := rfl
 
 private theorem biprodFst_preserves (X Y : FilteredObject C) (p : ℤ) :
     (X.filtration.stage p).Factors
@@ -156,9 +167,7 @@ private theorem biprodDesc_preserves {Z : FilteredObject C} (f : X ⟶ Z) (g : Y
           biprod.desc f.hom g.hom := by simp
 
 private noncomputable def binaryBicone (X Y : FilteredObject C) : BinaryBicone X Y where
-  pt :=
-    { obj := X.obj ⊞ Y.obj
-      filtration := DecreasingFiltration.biprod X.filtration Y.filtration }
+  pt := binaryBiproduct X Y
   fst := { hom := biprod.fst, preserves := biprodFst_preserves X Y }
   snd := { hom := biprod.snd, preserves := biprodSnd_preserves X Y }
   inl := { hom := biprod.inl, preserves := biprodInl_preserves X Y }
@@ -193,10 +202,14 @@ private noncomputable def binaryBiconeIsBilimit (X Y : FilteredObject C) :
         apply biprod.hom_ext
         · change m.hom ≫ biprod.fst = biprod.lift _ _ ≫ biprod.fst
           rw [biprod.lift_fst]
-          simpa [binaryBicone] using congrArg Hom.hom (h ⟨WalkingPair.left⟩)
+          have condition := congrArg Hom.hom (h ⟨WalkingPair.left⟩)
+          change m.hom ≫ biprod.fst = (BinaryFan.fst s).hom at condition
+          exact condition
         · change m.hom ≫ biprod.snd = biprod.lift _ _ ≫ biprod.snd
           rw [biprod.lift_snd]
-          simpa [binaryBicone] using congrArg Hom.hom (h ⟨WalkingPair.right⟩) }
+          have condition := congrArg Hom.hom (h ⟨WalkingPair.right⟩)
+          change m.hom ≫ biprod.snd = (BinaryFan.snd s).hom at condition
+          exact condition }
   isColimit :=
     { desc := fun s ↦
         { hom := biprod.desc (BinaryCofan.inl s).hom (BinaryCofan.inr s).hom
@@ -212,20 +225,30 @@ private noncomputable def binaryBiconeIsBilimit (X Y : FilteredObject C) :
         apply biprod.hom_ext'
         · change biprod.inl ≫ m.hom = biprod.inl ≫ biprod.desc _ _
           rw [biprod.inl_desc]
-          simpa [binaryBicone] using congrArg Hom.hom (h ⟨WalkingPair.left⟩)
+          have condition := congrArg Hom.hom (h ⟨WalkingPair.left⟩)
+          change biprod.inl ≫ m.hom = (BinaryCofan.inl s).hom at condition
+          exact condition
         · change biprod.inr ≫ m.hom = biprod.inr ≫ biprod.desc _ _
           rw [biprod.inr_desc]
-          simpa [binaryBicone] using congrArg Hom.hom (h ⟨WalkingPair.right⟩) }
+          have condition := congrArg Hom.hom (h ⟨WalkingPair.right⟩)
+          change biprod.inr ≫ m.hom = (BinaryCofan.inr s).hom at condition
+          exact condition }
 
-/-- Filtered objects inherit binary biproducts from the ambient category via the stagewise
-biproduct filtration. -/
-noncomputable instance (X Y : FilteredObject C) : HasBinaryBiproduct X Y :=
+/-- The stagewise direct sum is a binary biproduct of the two filtered objects. -/
+noncomputable instance instHasBinaryBiproduct (X Y : FilteredObject C) :
+    HasBinaryBiproduct X Y :=
   HasBinaryBiproduct.mk
     { bicone := binaryBicone X Y
       isBilimit := binaryBiconeIsBilimit X Y }
 
-instance : HasBinaryBiproducts (FilteredObject C) where
-  has_binary_biproduct _ _ := inferInstance
+/-- The binary biproduct structure on filtered objects is given by the stagewise biproduct
+filtration. -/
+@[reducible] noncomputable def hasBinaryBiproduct (X Y : FilteredObject C) : HasBinaryBiproduct X Y :=
+  instHasBinaryBiproduct X Y
+
+/-- Filtered objects inherit all binary biproducts from the stagewise construction. -/
+noncomputable instance instHasBinaryBiproducts : HasBinaryBiproducts (FilteredObject C) where
+  has_binary_biproduct X Y := hasBinaryBiproduct X Y
 
 end FilteredObject
 

@@ -1,71 +1,50 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_8_2_QuasiCompact
-public import stacks_project.Chap67.Remark_67_12_5_Opens
-public import stacks_project.Chap87.Lemma_87_37_4_Completion
-public import stacks_project.Chap87.Lemma_87_37_7_Types
+import StacksCheckRecall
+import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.CompletionAlong.LocalTypes
 
 /-!
 # Types of the recompletion of a formal algebraic space
 
-The completion of a formal algebraic space along a closed subset of its
-reduction preserves locally countably indexed and locally adic* when the
-open complement immersion is quasi-compact, and preserves locally Noetherian
-unconditionally.
+Completion preserves local countable indexing and local adic* under
+quasi-compactness of the open-complement inclusion, and preserves local
+Noetherianity along every closed subset of the reduction.
 -/
 
-@[expose] public section
-
 open AlgebraicGeometry AlgebraicGeometry.FormalAlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace (Points OpenSubspace)
+open AlgebraicGeometry.AlgebraicSpace (Points)
 open CategoryTheory TopologicalSpace
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.FormalAlgebraicSpace
+/- Lemma 87.37.7 (1): Completion preserves local countable indexing when the
+open-complement inclusion in the reduction is quasi-compact. -/
+@[stacks 0GVW] #check
+  (AlgebraicGeometry.FormalAlgebraicSpace.Recompletion.isLocallyCountablyIndexed :
+    ∀ {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u}
+      [IsFormalAlgebraicSpace X] [IsLocallyCountablyIndexed X]
+      (R : ReductionData X) (T : Closeds (Points R.space))
+      [AlgebraicSpace.QuasiCompact (AlgebraicSpace.OpenSubspace.Construction.ι R.space T.compl)],
+      IsLocallyCountablyIndexed (Recompletion.functor R T)
+        (formalSpace := Recompletion.isFormalAlgebraicSpace R T))
 
-/-- Lemma 87.37.7 (1): Let `S` be a scheme. Let `X` be a formal algebraic space
-over `S`. Let `T ⊆ Points (reduction X)` be a closed subset. If the open
-immersion `OpenSubspace.ofOpensι T.compl` of `reduction X \ T` into
-`reduction X` is quasi-compact and `X` is locally countably indexed, then the
-completion `completionAlong X T` is locally countably indexed. -/
-@[stacks 0GVW]
-instance isLocallyCountablyIndexed_completionAlong {S : Scheme.{u}}
-    {X : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace X] [Reduction X]
-    [IsLocallyCountablyIndexed X] (T : Closeds (Points (reduction X)))
-    [AlgebraicSpace.QuasiCompact (OpenSubspace.ofOpensι T.compl)] :
-    IsLocallyCountablyIndexed (completionAlong X T) :=
-  sorry
+/- Lemma 87.37.7 (2): Completion preserves local adic* when the open-complement
+inclusion in the reduction is quasi-compact. -/
+@[stacks 0GVW] #check
+  (AlgebraicGeometry.FormalAlgebraicSpace.Recompletion.isLocallyAdicStar :
+    ∀ {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u}
+      [IsFormalAlgebraicSpace X] [IsLocallyAdicStar X]
+      (R : ReductionData X) (T : Closeds (Points R.space))
+      [AlgebraicSpace.QuasiCompact (AlgebraicSpace.OpenSubspace.Construction.ι R.space T.compl)],
+      IsLocallyAdicStar (Recompletion.functor R T)
+        (formalSpace := Recompletion.isFormalAlgebraicSpace R T))
 
-/-- Lemma 87.37.7 (2): Let `S` be a scheme. Let `X` be a formal algebraic space
-over `S`. Let `T ⊆ Points (reduction X)` be a closed subset. If the open
-immersion `OpenSubspace.ofOpensι T.compl` of `reduction X \ T` into
-`reduction X` is quasi-compact and `X` is locally adic*, then the completion
-`completionAlong X T` is locally adic*. -/
-@[stacks 0GVW]
-instance isLocallyAdicStar_completionAlong {S : Scheme.{u}}
-    {X : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace X] [Reduction X]
-    [IsLocallyAdicStar X] (T : Closeds (Points (reduction X)))
-    [AlgebraicSpace.QuasiCompact (OpenSubspace.ofOpensι T.compl)] :
-    IsLocallyAdicStar (completionAlong X T) :=
-  sorry
-
-/-- Lemma 87.37.7 (3): Let `S` be a scheme. Let `X` be a formal algebraic space
-over `S`. Let `T ⊆ Points (reduction X)` be a closed subset. If `X` is locally
-Noetherian, then the completion `completionAlong X T` is locally Noetherian. -/
-@[stacks 0GVW]
-instance isLocallyNoetherian_completionAlong {S : Scheme.{u}}
-    {X : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace X] [Reduction X]
-    [IsLocallyNoetherian X] (T : Closeds (Points (reduction X))) :
-    IsLocallyNoetherian (completionAlong X T) :=
-  sorry
-
-end AlgebraicGeometry.FormalAlgebraicSpace
+/- Lemma 87.37.7 (3): Completion preserves local Noetherianity along every
+closed subset of the reduction. -/
+@[stacks 0GVW] #check
+  (AlgebraicGeometry.FormalAlgebraicSpace.Recompletion.isLocallyNoetherian :
+    ∀ {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u}
+      [IsFormalAlgebraicSpace X] [IsLocallyNoetherian X]
+      (R : ReductionData X) (T : Closeds (Points R.space)),
+      IsLocallyNoetherian (Recompletion.functor R T)
+        (formalSpace := Recompletion.isFormalAlgebraicSpace R T))

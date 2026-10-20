@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Yoneda
+public import Mathlib.CategoryTheory.InducedCategory
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism
 
@@ -47,8 +42,9 @@ theorem ofOverHomMk_eq {S : Scheme.{u}} {XK XL : Scheme.{u}} {σK : XK ⟶ S} {�
     (f : XK ⟶ XL) (hf : f ≫ σL = σK) :
     ofOverHomMk f hf = ofOverMap (Over.homMk f hf) := sorry
 
+set_option backward.privateInPublic true in
 /-- Explicit field and morphism data for a field-valued point of an algebraic space. -/
-structure FieldValuedPoint {S : Scheme.{u}} (X : AlgebraicSpace S) where
+private structure FieldValuedPointObj {S : Scheme.{u}} (X : AlgebraicSpace S) where
   /-- The source field. -/
   K : Type u
   /-- The field structure on the source. -/
@@ -58,10 +54,54 @@ structure FieldValuedPoint {S : Scheme.{u}} (X : AlgebraicSpace S) where
   /-- The morphism `Spec(K) ⟶ X` of algebraic spaces over `S`. -/
   hom : ofOver (Over.mk structureHom) ⟶ X
 
+set_option backward.privateInPublic true in
+/-- The slice object over `X` determined by the stored field-valued morphism. -/
+private def FieldValuedPointObj.over {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (p : FieldValuedPointObj X) : Over X :=
+  Over.mk p.hom
+
+set_option backward.privateInPublic true in
+/-- Field-valued points with morphisms induced from the slice category over the algebraic space. -/
+abbrev FieldValuedPoint {S : Scheme.{u}} (X : AlgebraicSpace S) :=
+  InducedCategory (Over X) (FieldValuedPointObj.over (X := X))
+
 namespace FieldValuedPoint
 
 variable {S : Scheme.{u}} {X : AlgebraicSpace S}
 
+set_option backward.privateInPublic true in
+/-- The source-field carrier of a field-valued point. -/
+abbrev K (p : FieldValuedPoint X) : Type u := FieldValuedPointObj.K p
+
+set_option backward.privateInPublic true in
+/-- The field structure stored in a field-valued point. -/
+abbrev field (p : FieldValuedPoint X) : Field p.K := FieldValuedPointObj.field p
+
+attribute [instance] field
+
+set_option backward.privateInPublic true in
+/-- The structure morphism from the source-field spectrum to the base scheme. -/
+abbrev structureHom (p : FieldValuedPoint X) : Spec (.of p.K) ⟶ S :=
+  FieldValuedPointObj.structureHom p
+
+set_option backward.privateInPublic true in
+/-- The morphism from the source-field spectrum into the algebraic space. -/
+abbrev hom (p : FieldValuedPoint X) : ofOver (Over.mk p.structureHom) ⟶ X :=
+  FieldValuedPointObj.hom p
+
+set_option backward.privateInPublic true in
+/-- The object over `X` determined by the field-valued point. -/
+def over (p : FieldValuedPoint X) : Over X := FieldValuedPointObj.over p
+
+/-- The induced embedding of field-valued points into the slice over `X`. -/
+def toOver (X : AlgebraicSpace S) : FieldValuedPoint X ⥤ Over X :=
+  inducedFunctor FieldValuedPoint.over
+
+/-- The induced slice embedding of field-valued points is fully faithful. -/
+def toOverFullyFaithful (X : AlgebraicSpace S) : (toOver X).FullyFaithful :=
+  fullyFaithfulInducedFunctor FieldValuedPoint.over
+
+set_option backward.privateInPublic true in
 /-- Construct a field-valued point from a field, a structure morphism to `S`, and a morphism into
 `X`. -/
 def of (K : Type u) [Field K] (structureHom : Spec (.of K) ⟶ S)
@@ -88,6 +128,7 @@ abbrev overObj (p : FieldValuedPoint X) : Over S :=
 @[simp]
 theorem overObj_hom (p : FieldValuedPoint X) : p.overObj.hom = p.structureHom := sorry
 
+set_option backward.privateInPublic true in
 /-- Postcompose a field-valued point with a morphism of algebraic spaces over `S`. -/
 def map {Y : AlgebraicSpace S} (p : FieldValuedPoint X) (f : X ⟶ Y) : FieldValuedPoint Y :=
   { K := p.K
@@ -218,7 +259,8 @@ def Equivalent (p q : FieldValuedPoint X) : Prop :=
   Nonempty (CommonExtension p q)
 
 /-- Equivalence of field-valued points is reflexive. -/
-theorem Equivalent.refl (p : FieldValuedPoint X) : Equivalent p p := sorry
+theorem Equivalent.refl (p : FieldValuedPoint X) : Equivalent p p :=
+  ⟨CommonExtension.refl p⟩
 
 /-- Equivalence of field-valued points is symmetric. -/
 theorem Equivalent.symm {p q : FieldValuedPoint X} : Equivalent p q → Equivalent q p := sorry

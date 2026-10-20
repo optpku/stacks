@@ -1,91 +1,53 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap50.Proposition_50_20_4_CohomologyTrace
-public import stacks_project.Chap50.Lemma_50_20_3
+public import ReasLib.AlgebraicGeometry.Scheme.DeRham.PoincareDuality.Cohomology
+import StacksCheckRecall
 
 @[expose] public section
 
-open AlgebraicGeometry CategoryTheory CategoryTheory.MonoidalClosed TopologicalSpace
-open RingedSpace.ModuleDerived.KFlat RingedSite.Hom.DerivedAdjunction
-open SheafOfModules.RingedSite.IntGraded
+open AlgebraicGeometry CategoryTheory ComplexShape TopologicalSpace
 open scoped AlgebraicGeometry MonoidalCategory
-
-noncomputable section
 
 universe u
 
--- Local instance justification (defeq pin): imported cup products use the standard derived-category presentation.
-attribute [local instance] HasDerivedCategory.standard
--- Local instance justification (search instability): cup products require the canonical integer-graded tensor theorem.
-attribute [local instance] hasTensor
+/- Proposition 50.20.4: a nonempty smooth proper equidimensional scheme over a field admits
+ a top-degree de Rham trace whose cup-trace pairings are perfect in every integer degree. -/
+@[stacks 0FW7] #check
+  (AlgebraicGeometry.Scheme.DeRham.existsDeRhamPoincareTrace :
+    ∀ {k : Type u} [Field k] (X : SchemeOverField k) (d : ℕ)
+      [Nonempty X.left] [Smooth X.hom] [IsProper X.hom] [EquidimensionalSpace X.left]
+      [derivedMonoidal : MonoidalCategory
+        (AlgebraicGeometry.Scheme.DeRham.coefficientDerived X.hom)]
+      [qhMonoidal : Functor.Monoidal
+        (DerivedCategory.Qh : HomotopyCategory
+          (AlgebraicGeometry.Scheme.DeRham.coefficientModules X.hom) (up ℤ) ⥤
+            AlgebraicGeometry.Scheme.DeRham.coefficientDerived X.hom)]
+      [globalLaxMonoidal :
+        (AlgebraicGeometry.Scheme.DeRham.globalDerivedFunctor X.hom).LaxMonoidal]
+      (h_dimension : topologicalKrullDim X.left = d),
+      ∃ t : AlgebraicGeometry.Scheme.DeRham.cohomologyOverAffineBase X.hom
+          (2 * (d : ℤ)) ⟶ ModuleCat.of k k,
+        AlgebraicGeometry.Scheme.DeRham.CohomologyTrace.IsPerfect X.hom d t)
 
-namespace AlgebraicGeometry.Scheme.DeRham
-
-variable {k : Type u} [Field k] (X : SchemeOverField k) (d : ℕ)
--- Local instance justification (defeq pin): cup products use this canonical coefficient-sheaf monoidal structure.
-noncomputable local instance : MonoidalCategory
-    (RingedSpace.DeRham.Modules X.hom.toShHom) :=
-  SheafOfModules.RingedSite.moduleMonoidalCategory
-    (RingedSpace.DeRham.coefficients X.hom.toShHom)
-
--- Local instance justification (defeq pin): cup products use this standard totalized cochain monoidal structure.
-noncomputable local instance : MonoidalCategory
-    (CochainComplex (RingedSpace.DeRham.Modules X.hom.toShHom) ℤ) :=
-  HomologicalComplex.monoidalCategory _ (ComplexShape.up ℤ)
-
-variable [Nonempty X.left] [Smooth X.hom] [IsProper X.hom]
-variable [EquidimensionalSpace X.left]
-variable [HomotopyTensorDescends X.left.toRingedSpace]
-variable [TensorDescends X.left.toRingedSpace]
-variable [IsLocalization X.left.toRingedSpace]
-variable [HomotopyTensorDescends (Spec (CommRingCat.of k)).toRingedSpace]
-variable [TensorDescends (Spec (CommRingCat.of k)).toRingedSpace]
-variable [IsLocalization (Spec (CommRingCat.of k)).toRingedSpace]
-variable [HomotopyCategory.KFlat.HasResolutions X.left.Modules]
-variable [HasPair (RingedSpace.opensRingedSiteHom X.hom.toShHom)]
-variable [Functor.Monoidal (RingedSpace.modulePullbackDerived X.hom.toShHom)]
-variable [MonoidalClosed
-  (RingedSpace.ModuleDerived (Spec (CommRingCat.of k)).toRingedSpace)]
-variable [derivedMonoidal : MonoidalCategory (coefficientDerived X.hom)]
-variable [∀ G₁ G₂ : GradedObject ℤ (coefficientModules X.hom),
-  GradedObject.HasTensor G₁ G₂]
-variable [∀ G₁ G₂ G₃ : GradedObject ℤ (coefficientModules X.hom),
-  GradedObject.HasGoodTensor₁₂Tensor G₁ G₂ G₃]
-variable [∀ G₁ G₂ G₃ : GradedObject ℤ (coefficientModules X.hom),
-  GradedObject.HasGoodTensorTensor₂₃ G₁ G₂ G₃]
-variable [∀ G₁ G₂ G₃ G₄ : GradedObject ℤ (coefficientModules X.hom),
-  GradedObject.HasTensor₄ObjExt G₁ G₂ G₃ G₄]
-variable [qhMonoidal : Functor.Monoidal
-  (DerivedCategory.Qh : HomotopyCategory (coefficientModules X.hom) (ComplexShape.up ℤ) ⥤
-    coefficientDerived X.hom)]
-variable [globalLaxMonoidal : (globalDerivedFunctor X.hom).LaxMonoidal]
-
-/-- Proposition 50.20.4 (1): a nonempty smooth proper equidimensional `k`-scheme of
-dimension `d` admits a `k`-linear trace on `H^(2 * d)_dR(X / k)` whose cup-trace pairing
-is perfect in every integer degree. -/
-@[stacks 0FW7]
-theorem existsDeRhamPoincareTrace
-    (h_dimension : topologicalKrullDim X.left = d)
-    (T : CoefficientTensorModel X.hom) :
-    ∃ t : cohomologyOverAffineBase X.hom (2 * (d : ℤ)) ⟶ ModuleCat.of k k,
-      CohomologyTrace.IsPerfect X.hom T d t := sorry
-
-/-- Proposition 50.20.4 (2): any two perfect top-degree de Rham traces differ by
-precomposition with multiplication by a unit of `Γ(X.left, ⊤)`. -/
-@[stacks 0FW7]
-theorem deRhamPoincareTrace_unique
-    (h_dimension : topologicalKrullDim X.left = d)
-    (T : CoefficientTensorModel X.hom)
-    (t t' : cohomologyOverAffineBase X.hom (2 * (d : ℤ)) ⟶ ModuleCat.of k k)
-    (ht : CohomologyTrace.IsPerfect X.hom T d t)
-    (ht' : CohomologyTrace.IsPerfect X.hom T d t') :
-    ∃ u : Γ(X.left, ⊤)ˣ,
-      t' = CohomologyTrace.unitAction X.hom (2 * (d : ℤ)) u ≫ t := sorry
-
-end AlgebraicGeometry.Scheme.DeRham
+/- Proposition 50.20.4: any two perfect traces differ by precomposition with multiplication
+ by a global-function unit. -/
+@[stacks 0FW7] #check
+  (AlgebraicGeometry.Scheme.DeRham.deRhamPoincareTrace_unique :
+    ∀ {k : Type u} [Field k] (X : SchemeOverField k) (d : ℕ)
+      [Nonempty X.left] [Smooth X.hom] [IsProper X.hom] [EquidimensionalSpace X.left]
+      [derivedMonoidal : MonoidalCategory
+        (AlgebraicGeometry.Scheme.DeRham.coefficientDerived X.hom)]
+      [qhMonoidal : Functor.Monoidal
+        (DerivedCategory.Qh : HomotopyCategory
+          (AlgebraicGeometry.Scheme.DeRham.coefficientModules X.hom) (up ℤ) ⥤
+            AlgebraicGeometry.Scheme.DeRham.coefficientDerived X.hom)]
+      [globalLaxMonoidal :
+        (AlgebraicGeometry.Scheme.DeRham.globalDerivedFunctor X.hom).LaxMonoidal]
+      (h_dimension : topologicalKrullDim X.left = d)
+      (t t' : AlgebraicGeometry.Scheme.DeRham.cohomologyOverAffineBase X.hom
+        (2 * (d : ℤ)) ⟶ ModuleCat.of k k)
+      (ht : AlgebraicGeometry.Scheme.DeRham.CohomologyTrace.IsPerfect X.hom d t)
+      (ht' : AlgebraicGeometry.Scheme.DeRham.CohomologyTrace.IsPerfect X.hom d t'),
+      ∃ u : Γ(X.left, ⊤)ˣ,
+        t' = AlgebraicGeometry.Scheme.DeRham.CohomologyTrace.unitAction X.hom
+          (2 * (d : ℤ)) u ≫ t)

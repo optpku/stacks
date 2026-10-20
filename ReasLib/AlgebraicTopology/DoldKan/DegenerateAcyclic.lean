@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicTopology.DoldKan.DegenerateContractible
@@ -79,25 +73,3 @@ theorem acyclic (U : SimplicialObject A) :
 end cokernel
 
 end AlgebraicTopology.normalizedMooreComplex.inclusion
-
-namespace AlgebraicTopology.DoldKan.normalizedMoore.inclusion
-
-variable {A : Type u} [Category.{v} A] [Abelian A]
-
-/-- Deprecated compatibility name for the canonical normalized-Moore inclusion
-quasi-isomorphism. -/
-@[deprecated AlgebraicTopology.normalizedMooreComplex.inclusion.quasiIso
-  (since := "2026-08-06")]
-alias quasiIso := AlgebraicTopology.normalizedMooreComplex.inclusion.quasiIso
-
-namespace cokernel
-
-/-- Deprecated compatibility name for acyclicity of the canonical normalized-Moore
-inclusion's cokernel. -/
-@[deprecated AlgebraicTopology.normalizedMooreComplex.inclusion.cokernel.acyclic
-  (since := "2026-08-06")]
-alias acyclic := AlgebraicTopology.normalizedMooreComplex.inclusion.cokernel.acyclic
-
-end cokernel
-
-end AlgebraicTopology.DoldKan.normalizedMoore.inclusion

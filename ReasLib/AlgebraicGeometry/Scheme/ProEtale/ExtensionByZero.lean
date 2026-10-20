@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.ProEtale.Restriction
@@ -11,6 +5,9 @@ public import Mathlib.CategoryTheory.Sites.Pullback
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf
 public import Mathlib.AlgebraicGeometry.Limits
 public import Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion
+public import Mathlib.AlgebraicGeometry.Morphisms.OpenImmersion
+public import Mathlib.AlgebraicGeometry.Morphisms.QuasiCompact
+public import Mathlib.CategoryTheory.Limits.Preserves.Basic
 
 @[expose] public section
 
@@ -110,6 +107,15 @@ theorem abelianExtensionByZero_sections_isZero
     (F : Sheaf (topology U) AddCommGrpCat.{w}) :
     IsZero (((abelianExtensionByZero j).obj F).obj.obj (op V)) :=
   sorry
+
+/-- Extension by zero on abelian pro-étale sheaves along a quasi-compact
+open immersion of schemes preserves limits. -/
+instance abelianExtensionByZero_preservesLimits {U X : Scheme.{u}} (j : U ⟶ X)
+    [IsOpenImmersion j] [QuasiCompact j]
+    [∀ F : U.ProEtᵒᵖ ⥤ AddCommGrpCat.{u + 1},
+      (restriction j).op.HasLeftKanExtension F]
+    [HasWeakSheafify (topology X) AddCommGrpCat.{u + 1}] :
+    PreservesLimits (abelianExtensionByZero j) := sorry
 
 variable {Λ : Type w} [Ring Λ]
 

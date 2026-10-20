@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.Sheafification
@@ -101,10 +95,18 @@ noncomputable def iso (F : X.Presheaf C) (x : X) :
   hom_inv_id := comparison_hom_inv_id F x
   inv_hom_id := comparison_inv_hom_id F x
 
-/-- The sheafification-stalk comparison is available to typeclass search as an isomorphism. -/
+/-- The sheafification-stalk comparison is available to typeclass search as an isomorphism.
+The proof is mathlib's argument for `TopCat.Presheaf.stalkFunctor_map_unit_toSheafify_isIso`
+(the stalk functor and the sheafification adjunction compose to the skyscraper adjunction);
+that module is not imported here because its Type-valued `TopCat.Presheaf.sheafify` and
+`TopCat.Presheaf.toSheafify` would shadow the site-level names used in this namespace. -/
 @[stacks 007Z "sheafification stalk comparison is an isomorphism", instance]
 noncomputable instance comparison_isIso (F : X.Presheaf C) (x : X) :
-    IsIso (comparison F x) := sorry
+    IsIso (comparison F x) := by
+  classical
+  exact Adjunction.isIso_map_unit_of_isLeftAdjoint_comp
+    (sheafificationAdjunction (Opens.grothendieckTopology X) C)
+    (skyscraperSheafForgetAdjunction x)
 
 /-- The forward map of `iso` is the sheafification-unit comparison. -/
 @[simp, stacks 007Z "sheafification stalk isomorphism hom"]

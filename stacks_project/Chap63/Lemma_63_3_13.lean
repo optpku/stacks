@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap63.Lemma_63_3_13_LowerShriek
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.LowerShriek.Composition
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -17,17 +12,16 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Etale
 
-/-- Lemma 63.3.13: if `f : X ⟶ Y` and `g : Y ⟶ Z` are composable morphisms of
+/- Lemma 63.3.13: if `f : X ⟶ Y` and `g : Y ⟶ Z` are composable morphisms of
 schemes that are separated and locally of finite type, and `F` is an abelian
 sheaf on `X_étale`, then `g_! (f_! F) = (f ≫ g)_! F` as subsheaves of
 `(f ≫ g)_* F`. -/
-@[stacks 0F50]
-theorem etaleLowerShriek_comp {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶ Z)
-    [IsSeparated f] [LocallyOfFiniteType f] [IsSeparated g] [LocallyOfFiniteType g]
-    (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) (W : Z.Etale) :
-    compactSupportSections (f ≫ g) F W =
-      etaleLowerShriekCompSections f g F W :=
-  sorry
+@[stacks 0F50] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleLowerShriek_comp :
+    ∀ {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶ Z)
+      [IsSeparated f] [LocallyOfFiniteType f] [IsSeparated g] [LocallyOfFiniteType g]
+      (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) (W : Z.Etale),
+      compactSupportSections (f ≫ g) F W = etaleLowerShriekCompSections f g F W)
 
 end AlgebraicGeometry.Scheme.Etale
 

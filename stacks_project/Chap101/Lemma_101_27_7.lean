@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_27_7_Diagonal
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.FinitePresentation.Diagonal
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +14,7 @@ universe u
 /- Lemma 101.27.7 (1): if `f : X ⟶ Y` is locally of finite type, then its
 diagonal `Hom.diagonal f : X ⟶ X ×_Y X` is locally of finite presentation. -/
 @[stacks 0CMG] #check
-  (LocallyOfFinitePresentation.diagonal :
+  (AlgebraicGeometry.AlgebraicStack.LocallyOfFinitePresentation.diagonal :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
       [LocallyOfFiniteType f],
@@ -30,7 +24,7 @@ diagonal `Hom.diagonal f : X ⟶ X ×_Y X` is locally of finite presentation. -/
 type, then its diagonal `Hom.diagonal f : X ⟶ X ×_Y X` is of finite
 presentation. -/
 @[stacks 0CMG] #check
-  (FinitePresentation.diagonal :
+  (AlgebraicGeometry.AlgebraicStack.FinitePresentation.diagonal :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
       [QuasiSeparated f] [LocallyOfFiniteType f],

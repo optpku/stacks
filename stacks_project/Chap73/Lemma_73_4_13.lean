@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
 public import ReasLib.CategoryTheory.Sites.Over.BaseChange
-public import stacks_project.Chap73.Lemma_73_4_13_BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.MixedBaseChange
 
 @[expose] public section
 
@@ -34,7 +28,8 @@ variable (sq : IsPullback g' f' f g)
 relocalization morphism `i_g` agrees with first pulling back along `i_{g'}`
 and then applying the spaces-étale direct image `f'_small,*`. -/
 @[stacks 0DF8] #check
-  (Etale.SpacesToBig.pushforwardBaseChange_isomorphic f g f' g' sq :
+  (AlgebraicGeometry.AlgebraicSpace.Etale.SpacesToBig.pushforwardBaseChange_isomorphic
+      f g f' g' sq :
     IsIsomorphic
       ((Etale.Big.morphismOfTopoi f) _* ⋙
         (Etale.SpacesToBig.morphismOfTopoi g)⁻¹)
@@ -46,10 +41,10 @@ and then applying the spaces-étale direct image `f'_small,*`. -/
 `g_big` agrees with first pulling back along `g'_big` and then applying the
 big étale direct image `f'_big,*`. -/
 @[stacks 0DF8] #check
-  (CategoryTheory.GrothendieckTopology.Over.BaseChange.map_isIso
+  (CategoryTheory.GrothendieckTopology.Over.BaseChange.map_isIso.{u + 1, u + 1, u + 1}
       etaleTopology g' f' f g sq :
     IsIso
-      (CategoryTheory.GrothendieckTopology.Over.BaseChange.map
+      (CategoryTheory.GrothendieckTopology.Over.BaseChange.map.{u + 1, u + 1, u + 1}
         etaleTopology g' f' f g sq.w))
 
 end AlgebraicGeometry.AlgebraicSpace

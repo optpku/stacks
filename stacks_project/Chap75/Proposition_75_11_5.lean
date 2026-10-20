@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap75.Proposition_75_11_5_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Comparison.AffineDiagonal
 
 @[expose] public section
 
@@ -28,7 +22,7 @@ quasi-inverse given by `RQ_X`, identified with
         (DerivedQCoh.inclusion X ⋙ QCoh.Derived.coherator X))
 
 /- The equivalence clause of Proposition 75.11.5. -/
-#check
+@[stacks 08H1] #check
   (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.comparisonIsEquivalenceOfCompactAffineDiagonal :
     ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [IsQuasiCompact X] [IsAbsolutelyAffineDiagonal X],
       (DerivedQCoh.comparison X).IsEquivalence)

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Modules.Sheaf
@@ -54,7 +48,8 @@ class IsFiniteLocallyFree (f : X ⟶ S) : Prop extends IsAffineHom f where
 sheaf to typeclass search. -/
 instance IsFiniteLocallyFree.pushforwardStructureModule
     (f : X ⟶ S) [h : IsFiniteLocallyFree f] :
-    Scheme.Modules.IsFiniteLocallyFree f.pushforwardStructureModule := sorry
+    Scheme.Modules.IsFiniteLocallyFree f.pushforwardStructureModule :=
+  h.pushforward_isFiniteLocallyFree
 
 /-- A morphism is finite locally free exactly when it is affine and its pushforward structure
 sheaf is finite locally free. -/
@@ -73,7 +68,8 @@ class IsFiniteLocallyFreeOfRank (f : X ⟶ S) (d : ℕ) : Prop extends IsFiniteL
 structure sheaf to typeclass search. -/
 instance IsFiniteLocallyFreeOfRank.pushforwardStructureModule
     (f : X ⟶ S) (d : ℕ) [h : IsFiniteLocallyFreeOfRank f d] :
-    Scheme.Modules.IsFiniteLocallyFreeOfRank d f.pushforwardStructureModule := sorry
+    Scheme.Modules.IsFiniteLocallyFreeOfRank d f.pushforwardStructureModule :=
+  h.pushforward_isFiniteLocallyFreeOfRank
 
 /-- A morphism is finite locally free of rank `d` exactly when it is finite locally free and its
 pushforward structure sheaf has rank `d`. -/

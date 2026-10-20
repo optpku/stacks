@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap67.Lemma_67_28_8_FinitePresentation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FinitePresentation.Noetherian
+import StacksCheckRecall
 
 /-!
 # Finite presentation morphisms into Noetherian algebraic spaces
@@ -22,19 +16,12 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-namespace FinitePresentation
-
-/-- Lemma 67.28.6: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
+/- Lemma 67.28.6: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
 algebraic spaces over `S`. If `f` is of finite presentation and `Y` is
 Noetherian, then `X` is Noetherian. -/
-@[stacks 04ZL]
-theorem isNoetherian {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [FinitePresentation f] [IsNoetherian Y] :
-    IsNoetherian X :=
-  sorry
-
-end FinitePresentation
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 04ZL] #check
+  (AlgebraicGeometry.AlgebraicSpace.FinitePresentation.isNoetherian :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Y : AlgebraicGeometry.AlgebraicSpace S}
+      (f : X ⟶ Y) [AlgebraicGeometry.AlgebraicSpace.FinitePresentation f]
+      [AlgebraicGeometry.AlgebraicSpace.IsNoetherian Y],
+      AlgebraicGeometry.AlgebraicSpace.IsNoetherian X)

@@ -1,46 +1,17 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap95.Lemma_95_14_10_Comparison
-public import stacks_project.Chap95.Lemma_95_14_10_SheafTorsors
-public import stacks_project.Chap95.Lemma_95_14_10_Torsors
-
-/-!
-# Lemma 95.14.10
-
-The functor sending an fppf algebraic-space `G_U`-torsor to the same object
-viewed as an fppf sheaf is an equivalence of stacks in groupoids over
-`(Sch/S)_fppf`.
--/
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Torsor.SheafComparison
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry
-open AlgebraicGeometry.GroupAlgebraicSpace
-open AlgebraicGeometry.GroupAlgebraicSpace.Classifying
-open StackOver.Groupoids.Hom
-open scoped Bicategory
-
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.GroupAlgebraicSpace.Classifying
-
-/-- Lemma 95.14.10: Let `B` be an algebraic space over `S`. Let `G` be a group
-algebraic space over `B`. Denote `𝒢`, resp. `ℬ`, the algebraic space `G`,
-resp. `B`, seen as a sheaf on `(Sch/S)_fppf`. The functor
-`G`-Torsors ⟶ `𝒢/ℬ`-Torsors which associates to a triple `(U, b, X)` the
-triple `(U, b, 𝒳)` where `𝒳` is `X` viewed as a sheaf is an equivalence of
-stacks in groupoids over `(Sch/S)_fppf`. -/
-@[stacks 04UT]
-instance toSheafHom_isEquivalence {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupAlgebraicSpace B) :
-    IsEquivalence (toSheafHom G) := sorry
-
-end AlgebraicGeometry.GroupAlgebraicSpace.Classifying
+/- Lemma 95.14.10. Viewing an algebraic-space torsor as its sheaf of points is an
+ equivalence of stacks in groupoids over the fppf site. -/
+@[stacks 04UT] #check
+  (AlgebraicGeometry.GroupAlgebraicSpace.Classifying.toSheafHom_isEquivalence :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}} {B : AlgebraicGeometry.AlgebraicSpace S}
+      (G : AlgebraicGeometry.GroupAlgebraicSpace B),
+      CategoryTheory.StackOver.Groupoids.Hom.IsEquivalence
+        (AlgebraicGeometry.GroupAlgebraicSpace.Classifying.toSheafHom G))

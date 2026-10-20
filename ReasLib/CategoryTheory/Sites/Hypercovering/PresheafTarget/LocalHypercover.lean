@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Limits.FormalCoproduct.Presheaf
@@ -81,7 +75,7 @@ abbrev HypercoveringOf.HigherLocallySurjective
   Presheaf.IsLocallySurjective J
     (SimplicialObject.matchingMap (hypercoveringPresheaf simplicial) n)
 
-/-- Definition 25.6.1 (1): a hypercovering of a presheaf `𝒢` is a simplicial
+/-- A hypercovering of a presheaf `𝒢` is a simplicial
 semi-representable family whose induced augmentation is a local hypercover. -/
 @[stacks 09VU "hypercovering of a presheaf"]
 structure HypercoveringOf (𝒢 : Cᵒᵖ ⥤ Type (max w v)) where
@@ -100,10 +94,15 @@ namespace HypercoveringOf
 
 variable {J : GrothendieckTopology C} {𝒢 : Cᵒᵖ ⥤ Type (max w v)}
 
-/-- A hypercovering coerces to its underlying simplicial semi-representable family. -/
-instance instCoeToSimplicialObject :
-    CoeOut (HypercoveringOf J 𝒢) (SimplicialObject (SR(C))) where
-  coe H := H.simplicial
+/-- The augmented simplicial presheaf underlying a hypercovering of a presheaf. -/
+def augmentedPresheaf (H : HypercoveringOf J 𝒢) :
+    SimplicialObject.Augmented (Cᵒᵖ ⥤ Type (max w v)) :=
+  hypercoveringAugmentedPresheaf H.simplicial H.augmentation
+
+/-- The augmented simplicial presheaf underlying a hypercovering is a local hypercover. -/
+theorem augmentedPresheaf_isLocalHypercover (H : HypercoveringOf J 𝒢) :
+    H.augmentedPresheaf.IsLocalHypercover J :=
+  H.isLocalHypercover
 
 /-- The degree-`0` local-surjectivity property of a hypercovering. -/
 theorem zero_locallySurjective (H : HypercoveringOf J 𝒢) :
@@ -120,13 +119,13 @@ theorem higher_locallySurjective (H : HypercoveringOf J 𝒢) (n : ℕ) :
 /-- The degree-`0` augmentation map of a hypercovering. -/
 abbrev zeroMap (H : HypercoveringOf J 𝒢) :
     (hypercoveringPresheaf H.simplicial).obj (op ⦋0⦌) ⟶ 𝒢 :=
-  (hypercoveringAugmentedPresheaf H.simplicial H.augmentation).zeroMap
+  H.augmentedPresheaf.zeroMap
 
 /-- The degree-`1` matching map of a hypercovering. -/
 noncomputable abbrev oneMap (H : HypercoveringOf J 𝒢) :
     (hypercoveringPresheaf H.simplicial).obj (op ⦋1⦌) ⟶
       (pullback H.zeroMap H.zeroMap : Cᵒᵖ ⥤ Type (max w v)) :=
-  (hypercoveringAugmentedPresheaf H.simplicial H.augmentation).oneMap
+  H.augmentedPresheaf.oneMap
 
 /-- The two degree-`1` face maps agree after composing with the degree-`0` map. -/
 theorem oneMap_condition (H : HypercoveringOf J 𝒢) :

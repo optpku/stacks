@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_5_5_BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.NormalCone
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Limits
@@ -26,7 +21,7 @@ over `S` whose horizontal arrows `i : Z ⟶ X` and `i' : Z' ⟶ X'` are immersio
 the canonical map `f^* C_{Z'/X'} ⟶ C_{Z/X}` of Lemma 76.5.3 is surjective. -/
 @[stacks 04CQ]
 #check
-  (Hom.Conormal.map_epi_of_isPullback sq :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.map_epi_of_isPullback sq :
     Epi (Hom.Conormal.map sq.toCommSq))
 
 variable [Flat g]
@@ -35,5 +30,5 @@ variable [Flat g]
 is an isomorphism. -/
 @[stacks 04CQ]
 #check
-  (Hom.Conormal.map_isIso_of_isPullback_of_flat sq :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.map_isIso_of_isPullback_of_flat sq :
     IsIso (Hom.Conormal.map sq.toCommSq))

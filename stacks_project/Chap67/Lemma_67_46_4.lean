@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_46_2_FiniteLocallyFree
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FiniteLocallyFree
+import StacksCheckRecall
 
 /-!
 # Composition of finite locally free morphisms of algebraic spaces
@@ -24,17 +18,19 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.46.4: The composition of finite locally free morphisms of algebraic
+/- Lemma 67.46.4: The composition of finite locally free morphisms of algebraic
 spaces is finite locally free. -/
-@[stacks 03ZX]
-instance finiteLocallyFree_isStableUnderComposition {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderComposition
-      (@FiniteLocallyFree S : MorphismProperty (AlgebraicSpace S)) := sorry
+@[stacks 03ZX] #check
+  (AlgebraicGeometry.AlgebraicSpace.finiteLocallyFree_isStableUnderComposition :
+    ∀ {S : Scheme.{u}}, MorphismProperty.IsStableUnderComposition
+      (@AlgebraicGeometry.AlgebraicSpace.FiniteLocallyFree S :
+        MorphismProperty (AlgebraicGeometry.AlgebraicSpace S)))
 
-/-- The composition of finite locally free morphisms of algebraic spaces is
-finite locally free. -/
-instance finiteLocallyFree_comp {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [FiniteLocallyFree f] [FiniteLocallyFree g] :
-    FiniteLocallyFree (f ≫ g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.finiteLocallyFree_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicGeometry.AlgebraicSpace S}
+    (f : X ⟶ Y) (g : Y ⟶ Z)
+    [AlgebraicGeometry.AlgebraicSpace.FiniteLocallyFree f]
+    [AlgebraicGeometry.AlgebraicSpace.FiniteLocallyFree g],
+    AlgebraicGeometry.AlgebraicSpace.FiniteLocallyFree (f ≫ g))
 
 end AlgebraicGeometry.AlgebraicSpace

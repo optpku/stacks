@@ -1,18 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.FiniteType
-public import Mathlib.RingTheory.Smooth.Locus
-public import stacks_project.Chap90.Definition_90_8_1_Smooth
-public import stacks_project.Chap90.Definition_90_12_3
-public import stacks_project.Chap90.Lemma_90_20_3
-public import stacks_project.Chap93.Lemma_93_8_2
-public import stacks_project.Chap93.Lemma_93_8_7_Localization
+public import ReasLib.AlgebraicGeometry.FormalDeformation.FlatAlgebra.Localization.Smooth
+import StacksCheckRecall
 
 /-!
 # Smoothness of localization of ring deformation categories
@@ -31,39 +20,23 @@ open PrimeSpectrum
 
 universe u
 
-variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
-  [Module.Finite Λ k]
-variable {P : Type u} [CommRing P] [Algebra k P]
+/- Lemma 93.13.3: localization of a finite-type `k`-algebra `P` at a
+multiplicative subset `S` induces a smooth functor on deformation categories
+and an isomorphism on tangent spaces if `Spec P ⟶ Spec k` is smooth at every
+point of `zeroLocus {g}` for every `g ∈ S`. -/
+@[stacks 0DZ9] #check (FlatAlgebraCat.isSmooth_localizationBasedFunctor :
+  ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+    [Module.Finite Λ k] {P : Type u} [CommRing P] [Algebra k P]
+    [Algebra.FiniteType k P] (S : Submonoid P)
+    (hS : ∀ g ∈ S, zeroLocus ({g} : Set P) ⊆ smoothLocus k P),
+    BasedFunctor.IsSmooth (FlatAlgebraCat.localizationBasedFunctor Λ k S))
 
-namespace FlatAlgebraCat
+#check (FlatAlgebraCat.bijective_differential_localizationBasedFunctor :
+  ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+    [Module.Finite Λ k] {P : Type u} [CommRing P] [Algebra k P]
+    [Algebra.FiniteType k P] (S : Submonoid P)
+    (hS : ∀ g ∈ S, zeroLocus ({g} : Set P) ⊆ smoothLocus k P),
+    Function.Bijective
+      (BasedFunctor.differential (FlatAlgebraCat.localizationBasedFunctor Λ k S)))
 
-/-- Lemma 93.13.3 (1)
-In Example 93.8.1, let `P` be a finite type `k`-algebra and let `S ⊆ P` be a
-multiplicative subset such that `Spec P ⟶ Spec k` is smooth at all points of
-`zeroLocus {g}` for all `g ∈ S`. Then `localizationBasedFunctor Λ k S` is
-smooth. -/
-@[stacks 0DZ9]
-theorem isSmooth_localizationBasedFunctor [Algebra.FiniteType k P] (S : Submonoid P)
-    (hS : ∀ g ∈ S, zeroLocus ({g} : Set P) ⊆ smoothLocus k P) :
-    BasedFunctor.IsSmooth (localizationBasedFunctor Λ k S) := sorry
-
-/-- Lemma 93.13.3 (2)
-In Example 93.8.1, let `P` be a finite type `k`-algebra and let `S ⊆ P` be a
-multiplicative subset such that `Spec P ⟶ Spec k` is smooth at all points of
-`zeroLocus {g}` for all `g ∈ S`. Then the differential of
-`localizationBasedFunctor Λ k S` is bijective on tangent spaces. -/
-@[stacks 0DZ9]
-theorem bijective_differential_localizationBasedFunctor [Algebra.FiniteType k P]
-    (S : Submonoid P)
-    (hS : ∀ g ∈ S, zeroLocus ({g} : Set P) ⊆ smoothLocus k P) :
-    Function.Bijective (BasedFunctor.differential (localizationBasedFunctor Λ k S)) :=
-  sorry
-
-/-- Smoothness of `Spec P ⟶ Spec k` at every point of `zeroLocus {g}` for `g ∈ S`
-is equivalent to `S` meeting no prime outside `smoothLocus k P`. -/
-theorem smoothAtZeroLocus_iff_disjoint_nonsmooth (S : Submonoid P) :
-    (∀ g ∈ S, zeroLocus ({g} : Set P) ⊆ smoothLocus k P) ↔
-      ∀ q : PrimeSpectrum P, q ∉ smoothLocus k P → (S : Set P) ∩ q.asIdeal = ∅ :=
-  sorry
-
-end FlatAlgebraCat
+end

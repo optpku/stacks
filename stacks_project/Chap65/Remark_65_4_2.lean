@@ -1,151 +1,51 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.Affine
-public import Mathlib.AlgebraicGeometry.Morphisms.Etale
-public import Mathlib.AlgebraicGeometry.Morphisms.Finite
-public import Mathlib.AlgebraicGeometry.Morphisms.FinitePresentation
-public import Mathlib.AlgebraicGeometry.Morphisms.FiniteType
-public import Mathlib.AlgebraicGeometry.Morphisms.Flat
-public import Mathlib.AlgebraicGeometry.Morphisms.Immersion
-public import Mathlib.AlgebraicGeometry.Morphisms.Proper
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiCompact
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiFinite
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiSeparated
-public import Mathlib.AlgebraicGeometry.Morphisms.Separated
-public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
-public import Mathlib.AlgebraicGeometry.Morphisms.UniversallyClosed
-public import Mathlib.AlgebraicGeometry.Morphisms.UniversallyInjective
-public import Mathlib.AlgebraicGeometry.Morphisms.UniversallyOpen
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteLocallyFree.Operations
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FinitePresentation.Operations
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType.Operations
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.Composition
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.QuasiAffine.Operations
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.QuasiFinite.Operations
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Submersive
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Syntomic.Stability
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.UniversalHomeomorphism
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Unramified.Composition
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Composition
 import StacksCheckRecall
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry
-open CategoryTheory.MorphismProperty
 
 universe u
 
-/- Remark 65.4.2: of the properties listed in Remark 65.4.1, these are also stable under compositions. -/
-
-/- Remark 65.4.2 (1): closed, open, and locally closed immersions. -/
+/- Remark 65.4.2: the listed scheme-morphism properties are stable under composition. -/
 @[stacks 02WG] #check
-  (inferInstance : IsStableUnderComposition (@IsImmersion : MorphismProperty Scheme.{u}))
-@[stacks 02WG] #check
-  (inferInstance : IsStableUnderComposition (@IsClosedImmersion : MorphismProperty Scheme.{u}))
-@[stacks 02WG] #check isOpenImmersion_isStableUnderComposition
-
-/- Remark 65.4.2 (2): quasi-compact morphisms. -/
-@[stacks 02WG] #check quasiCompact_isStableUnderComposition
-
-/- Remark 65.4.2 (3): universally closed morphisms. -/
-@[stacks 02WG] #check universallyClosed_isStableUnderComposition
-
-/- Remark 65.4.2 (4): separated and quasi-separated morphisms. -/
-@[stacks 02WG] #check IsSeparated.stableUnderComposition
-@[stacks 02WG] #check quasiSeparated_isStableUnderComposition
-
-/- Remark 65.4.2 (5): monomorphisms. -/
-@[stacks 02WG] #check
-  (inferInstance : (monomorphisms Scheme.{u}).IsStableUnderComposition)
-
-/- Remark 65.4.2 (6): surjective morphisms. -/
-@[stacks 02WG] #check
-  (inferInstance : IsStableUnderComposition (@Surjective : MorphismProperty Scheme.{u}))
-
-/- Remark 65.4.2 (7): universally injective morphisms. -/
-@[stacks 02WG] #check universallyInjective_isStableUnderComposition
-
-/- Remark 65.4.2 (8): affine morphisms. -/
-@[stacks 02WG] #check
-  (inferInstance : IsStableUnderComposition (@IsAffineHom : MorphismProperty Scheme.{u}))
-
-/- Remark 65.4.2 (9): quasi-affine morphisms. -/
-@[stacks 02WG] #check
-  (QuasiAffineHom.comp :
-    ∀ {X Y Z : Scheme.{u}} {f : X ⟶ Y} {g : Y ⟶ Z},
-      QuasiAffineHom f → QuasiAffineHom g → QuasiAffineHom (f ≫ g))
-
-/- Remark 65.4.2 (10): locally of finite type, and of finite type. -/
-@[stacks 02WG] #check
-  (inferInstance : IsStableUnderComposition (@LocallyOfFiniteType : MorphismProperty Scheme.{u}))
-@[stacks 02WG] #check Scheme.Hom.finiteType_isStableUnderComposition
-
-/- Remark 65.4.2 (11): locally quasi-finite, and quasi-finite. -/
-@[stacks 02WG] #check
-  (inferInstance :
-    IsStableUnderComposition
-      (@LocallyOfFiniteType ⊓ @LocallyQuasiFinite : MorphismProperty Scheme.{u}))
-@[stacks 02WG] #check Scheme.Hom.quasiFinite_isStableUnderComposition
-
-/- Remark 65.4.2 (12): locally of finite presentation, and of finite presentation. -/
-@[stacks 02WG] #check
-  (inferInstance :
-    IsStableUnderComposition (@LocallyOfFinitePresentation : MorphismProperty Scheme.{u}))
-@[stacks 02WG] #check Scheme.Hom.finitePresentation_isStableUnderComposition
-
-/- Remark 65.4.2 (13): universally open morphisms. -/
-@[stacks 02WG] #check
-  (inferInstance : IsStableUnderComposition (@UniversallyOpen : MorphismProperty Scheme.{u}))
-
-/- Remark 65.4.2 (14): flat morphisms. -/
-@[stacks 02WG] #check
-  (inferInstance : IsStableUnderComposition (@Flat : MorphismProperty Scheme.{u}))
-
-/- Remark 65.4.2 (15): syntomic morphisms. -/
-@[stacks 02WG] #check instSyntomicIsStableUnderComposition
-
-/- Remark 65.4.2 (16): smooth morphisms. -/
-@[stacks 02WG] #check
-  (inferInstance : IsStableUnderComposition (@Smooth : MorphismProperty Scheme.{u}))
-
-/- Remark 65.4.2 (17): unramified and G-unramified morphisms. -/
-@[stacks 02WG] #check
-  (unramified_comp :
-    ∀ {X Y Z : Scheme.{u}} {f : X ⟶ Y} {g : Y ⟶ Z}
-      [Unramified f] [Unramified g], Unramified (f ≫ g))
-@[stacks 02WG] #check
-  (gUnramified_comp :
-    ∀ {X Y Z : Scheme.{u}} {f : X ⟶ Y} {g : Y ⟶ Z}
-      [GUnramified f] [GUnramified g], GUnramified (f ≫ g))
-
-/- Remark 65.4.2 (18): étale morphisms. -/
-@[stacks 02WG] #check
-  (inferInstance : IsStableUnderComposition (@Etale : MorphismProperty Scheme.{u}))
-
-/- Remark 65.4.2 (19): proper morphisms. -/
-@[stacks 02WG] #check IsProper.stableUnderComposition
-
-/- Remark 65.4.2 (20): H-projective morphisms. -/
-@[stacks 02WG] #check hProjective_isStableUnderComposition
-
-/- Remark 65.4.2 (21): finite or integral morphisms. -/
-@[stacks 02WG] #check
-  (inferInstance : IsStableUnderComposition (@IsFinite : MorphismProperty Scheme.{u}))
-@[stacks 02WG] #check
-  (inferInstance : IsStableUnderComposition (@IsIntegralHom : MorphismProperty Scheme.{u}))
-
-/- Remark 65.4.2 (22): finite locally free morphisms. -/
-@[stacks 02WG] #check finiteLocallyFree_isStableUnderComposition
-
-/- Remark 65.4.2 (23): universally submersive morphisms. -/
-@[stacks 02WG] #check universallySubmersive_isStableUnderComposition
-
-/- Remark 65.4.2 (24): universal homeomorphisms. -/
-@[stacks 02WG] #check universalHomeomorphism_isStableUnderComposition
+  (AlgebraicGeometry.Scheme.Hom.composition_properties :
+    ∀ {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶ Z),
+      (IsClosedImmersion f → IsClosedImmersion g → IsClosedImmersion (f ≫ g)) ∧
+      (IsOpenImmersion f → IsOpenImmersion g → IsOpenImmersion (f ≫ g)) ∧
+      (IsImmersion f → IsImmersion g → IsImmersion (f ≫ g)) ∧
+      (QuasiCompact f → QuasiCompact g → QuasiCompact (f ≫ g)) ∧
+      (UniversallyClosed f → UniversallyClosed g → UniversallyClosed (f ≫ g)) ∧
+      (IsSeparated f → IsSeparated g → IsSeparated (f ≫ g)) ∧
+      (QuasiSeparated f → QuasiSeparated g → QuasiSeparated (f ≫ g)) ∧
+      (Mono f → Mono g → Mono (f ≫ g)) ∧
+      (Surjective f → Surjective g → Surjective (f ≫ g)) ∧
+      (UniversallyInjective f → UniversallyInjective g → UniversallyInjective (f ≫ g)) ∧
+      (IsAffineHom f → IsAffineHom g → IsAffineHom (f ≫ g)) ∧
+      (QuasiAffineHom f → QuasiAffineHom g → QuasiAffineHom (f ≫ g)) ∧
+      (LocallyOfFiniteType f → LocallyOfFiniteType g → LocallyOfFiniteType (f ≫ g)) ∧
+      (Scheme.Hom.FiniteType f → Scheme.Hom.FiniteType g → Scheme.Hom.FiniteType (f ≫ g)) ∧
+      (LocallyOfFiniteType f ∧ LocallyQuasiFinite f →
+        LocallyOfFiniteType g ∧ LocallyQuasiFinite g →
+        LocallyOfFiniteType (f ≫ g) ∧ LocallyQuasiFinite (f ≫ g)) ∧
+      (Scheme.Hom.QuasiFinite f → Scheme.Hom.QuasiFinite g → Scheme.Hom.QuasiFinite (f ≫ g)) ∧
+      (LocallyOfFinitePresentation f → LocallyOfFinitePresentation g →
+        LocallyOfFinitePresentation (f ≫ g)) ∧
+      (Scheme.Hom.FinitePresentation f → Scheme.Hom.FinitePresentation g →
+        Scheme.Hom.FinitePresentation (f ≫ g)) ∧
+      (UniversallyOpen f → UniversallyOpen g → UniversallyOpen (f ≫ g)) ∧
+      (Flat f → Flat g → Flat (f ≫ g)) ∧
+      (Syntomic f → Syntomic g → Syntomic (f ≫ g)) ∧
+      (Smooth f → Smooth g → Smooth (f ≫ g)) ∧
+      (Unramified f → Unramified g → Unramified (f ≫ g)) ∧
+      (GUnramified f → GUnramified g → GUnramified (f ≫ g)) ∧
+      (Etale f → Etale g → Etale (f ≫ g)) ∧
+      (IsProper f → IsProper g → IsProper (f ≫ g)) ∧
+      (HProjective f → HProjective g → HProjective (f ≫ g)) ∧
+      (IsFinite f → IsFinite g → IsFinite (f ≫ g)) ∧
+      (IsIntegralHom f → IsIntegralHom g → IsIntegralHom (f ≫ g)) ∧
+      (IsFiniteLocallyFree f → IsFiniteLocallyFree g → IsFiniteLocallyFree (f ≫ g)) ∧
+      (UniversallySubmersive f → UniversallySubmersive g → UniversallySubmersive (f ≫ g)) ∧
+      (UniversalHomeomorphism f → UniversalHomeomorphism g → UniversalHomeomorphism (f ≫ g)))

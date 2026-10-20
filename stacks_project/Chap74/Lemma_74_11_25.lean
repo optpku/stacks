@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap74.Lemma_74_11_25_Instances
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.LocalAtTarget.Syntomic
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +14,7 @@ variable (S : Scheme.{u})
 /- Lemma 74.11.25: the property `P(f)` given by “`f` is syntomic” is fpqc local
 on the base. -/
 @[stacks 0428] #check
-  (AlgebraicSpace.Syntomic.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.AlgebraicSpace.Syntomic.isLocalAtTargetFpqc :
     MorphismProperty.IsLocalAtTarget
       (@AlgebraicSpace.Syntomic S : MorphismProperty (AlgebraicSpace S))
       (fpqcPrecoverage S))

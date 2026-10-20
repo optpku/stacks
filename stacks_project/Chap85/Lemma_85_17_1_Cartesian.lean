@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
@@ -32,7 +26,7 @@ universe u v w
 namespace CategoryTheory.Grothendieck.Sheaf
 
 variable (F : SimplicialObject Cat.{v, u}) (J : ∀ n, Precoverage (F.obj n))
-variable [h_fiberwise : IsFiberwiseSite F J]
+variable [h_fiberwise : HasSheafTransitions F J]
 include h_fiberwise
 variable [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
 variable [HasWeakSheafify (topology F J) (Type w)]
@@ -40,14 +34,13 @@ variable (A : Type (w + 1)) [Category.{w} A]
 variable [∀ n, HasWeakSheafify (J n).toGrothendieck A]
 variable [HasWeakSheafify (topology F J) A]
 
-/-- Direct-image form of the fiberwise comparison: restriction along `ιNatTrans` yields
-`(u_φ ⋙ ι_m)_* G ⟶ (ι_n)_* G`. -/
+/-- The presheaf transition obtained by restricting along `ιNatTrans`.
+Precomposition along a case-B structure map need not preserve sheaves, so this
+map is constructed before applying the sheafification adjunction. -/
 def transitionDirect {m n : SimplexCategory} (φ : m ⟶ n) (G : Sheaf (topology F J) A) :
-    (((F.map φ.op).toFunctor ⋙ ι F (op m)).sheafPushforwardContinuous A
-        (J (op n)).toGrothendieck (topology F J)).obj G ⟶
-      (component F J A n).obj G :=
-  (sheafPushforwardContinuousNatTrans (ιNatTrans φ.op) A
-      (J (op n)).toGrothendieck (topology F J)).app G
+    (F.map φ.op).toFunctor.op ⋙ ((component F J A m).obj G).obj ⟶
+      ((component F J A n).obj G).obj :=
+  whiskerRight (NatTrans.op (ιNatTrans φ.op)) G.obj
 
 /-- Inverse image `f_φ⁻¹` of sheaves with coefficients in `A` along a simplex operator. -/
 def sheafInverseImage {m n : SimplexCategory} (φ : m ⟶ n) :
@@ -69,7 +62,7 @@ def sheafTransition {m n : SimplexCategory} (φ : m ⟶ n) (G : Sheaf (topology 
   ((sheafificationAdjunction ((J (op n)).toGrothendieck) A).homEquiv
       ((F.map φ.op).toFunctor.op ⋙ ((component F J A m).obj G).obj)
       ((component F J A n).obj G)).symm
-    (transitionDirect F J A φ G).hom
+    (transitionDirect F J A φ G)
 
 /-- The sheafification mate of `sheafTransition` recovers the underlying map of
 `transitionDirect`. -/
@@ -79,7 +72,7 @@ theorem sheafTransition_homEquiv {m n : SimplexCategory} (φ : m ⟶ n)
         ((F.map φ.op).toFunctor.op ⋙ ((component F J A m).obj G).obj)
         ((component F J A n).obj G))
       (sheafTransition F J A φ G) =
-    (transitionDirect F J A φ G).hom :=
+    transitionDirect F J A φ G :=
   sorry
 
 /-- A sheaf on the fiberwise total site is cartesian when `F(φ) : f_φ⁻¹ F_m ⟶ F_n` is an

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Abelian.Projective.Basic
@@ -113,20 +107,123 @@ theorem leftSequence_shortExact (h₁ : S₁.ShortExact) :
 theorem rightSequence_shortExact (h₂ : S₂.ShortExact) :
     (rightSequence S₁ S₂).ShortExact := sorry
 
-/-- The Schanuel comparison as an isomorphism of stabilized short complexes.  Its commuting
-squares are the bundled laws of a `ShortComplex` isomorphism. -/
+/-- A map killed by the first stabilized quotient has first component in the original kernel. -/
+theorem leftProjection_comp_eq_zero {W : C} (k : W ⟶ S₁.X₂ ⊞ S₂.X₂)
+    (hk : k ≫ (leftSequence S₁ S₂).g = 0) :
+    (k ≫ biprod.fst) ≫ S₁.g = 0 := sorry
+
+/-- A map killed by the second stabilized quotient has second component in the original kernel. -/
+theorem rightProjection_comp_eq_zero {W : C} (k : W ⟶ S₁.X₂ ⊞ S₂.X₂)
+    (hk : k ≫ (rightSequence S₁ S₂).g = 0) :
+    (k ≫ biprod.snd) ≫ S₂.g = 0 := sorry
+
+/-- The two factorization laws identify the quotient map after the chosen shears. -/
+theorem shear_comp_rightProjection
+    (e₃ : S₁.X₃ ≅ S₂.X₃) (a : S₁.X₂ ⟶ S₂.X₂) (b : S₂.X₂ ⟶ S₁.X₂)
+    (ha : a ≫ S₂.g = S₁.g ≫ e₃.hom) (hb : b ≫ S₁.g = S₂.g ≫ e₃.inv) :
+    (Biprod.unipotentLower (-b) ≪≫ Biprod.unipotentUpper a).hom ≫
+      (rightSequence S₁ S₂).g = (leftSequence S₁ S₂).g ≫ e₃.hom := sorry
+
+/-- The Schanuel diagram determined by explicit lifts between the middle objects.  The two
+elementary shear isomorphisms supply the middle component; their restriction to the kernels
+supplies the left component.  Projectivity is needed only to obtain the lifts. -/
+@[stacks 00O3 "Schanuel diagram from chosen lifts"]
+noncomputable def diagramOfLifts
+    (h₁ : S₁.Exact) (h₂ : S₂.Exact) (e₃ : S₁.X₃ ≅ S₂.X₃)
+    [Mono S₁.f] [Mono S₂.f]
+    (a : S₁.X₂ ⟶ S₂.X₂) (b : S₂.X₂ ⟶ S₁.X₂)
+    (ha : a ≫ S₂.g = S₁.g ≫ e₃.hom) (hb : b ≫ S₁.g = S₂.g ≫ e₃.inv) :
+    leftSequence S₁ S₂ ≅ rightSequence S₁ S₂ := by
+  let e₂ : S₁.X₂ ⊞ S₂.X₂ ≅ S₁.X₂ ⊞ S₂.X₂ :=
+    Biprod.unipotentLower (-b) ≪≫ Biprod.unipotentUpper a
+  let leftIsKernel : IsLimit
+      (KernelFork.ofι (leftSequence S₁ S₂).f (leftSequence S₁ S₂).zero) :=
+    KernelFork.IsLimit.ofι _ _
+      (fun {W} (k : W ⟶ S₁.X₂ ⊞ S₂.X₂) hk => biprod.lift
+        (h₁.lift (k ≫ biprod.fst) (leftProjection_comp_eq_zero k hk))
+        (k ≫ biprod.snd))
+      (by sorry)
+      (by sorry)
+  let rightIsKernel : IsLimit
+      (KernelFork.ofι (rightSequence S₁ S₂).f (rightSequence S₁ S₂).zero) :=
+    KernelFork.IsLimit.ofι _ _
+      (fun {W} (k : W ⟶ S₁.X₂ ⊞ S₂.X₂) hk => biprod.lift
+        (k ≫ biprod.fst)
+        (h₂.lift (k ≫ biprod.snd) (rightProjection_comp_eq_zero k hk)))
+      (by sorry)
+      (by sorry)
+  have w : e₂.hom ≫ (rightSequence S₁ S₂).g =
+      (leftSequence S₁ S₂).g ≫ e₃.hom := shear_comp_rightProjection e₃ a b ha hb
+  let e₁ := KernelFork.mapIsoOfIsLimit leftIsKernel rightIsKernel (Arrow.isoMk e₂ e₃ w)
+  exact ShortComplex.isoMk e₁ e₂ e₃ (by
+    exact KernelFork.mapOfIsLimit_ι
+      (KernelFork.ofι (leftSequence S₁ S₂).f (leftSequence S₁ S₂).zero)
+      rightIsKernel (Arrow.isoMk e₂ e₃ w).hom) w
+
+/-- The middle component uses the two specified elementary shears. -/
+theorem diagramOfLifts_τ₂
+    (h₁ : S₁.Exact) (h₂ : S₂.Exact) (e₃ : S₁.X₃ ≅ S₂.X₃)
+    [Mono S₁.f] [Mono S₂.f]
+    (a : S₁.X₂ ⟶ S₂.X₂) (b : S₂.X₂ ⟶ S₁.X₂)
+    (ha : a ≫ S₂.g = S₁.g ≫ e₃.hom) (hb : b ≫ S₁.g = S₂.g ≫ e₃.inv) :
+    (diagramOfLifts h₁ h₂ e₃ a b ha hb).hom.τ₂ =
+      (Biprod.unipotentLower (-b) ≪≫ Biprod.unipotentUpper a).hom := rfl
+
+/-- The inverse middle component reverses the specified elementary shears. -/
+theorem diagramOfLifts_inv_τ₂
+    (h₁ : S₁.Exact) (h₂ : S₂.Exact) (e₃ : S₁.X₃ ≅ S₂.X₃)
+    [Mono S₁.f] [Mono S₂.f]
+    (a : S₁.X₂ ⟶ S₂.X₂) (b : S₂.X₂ ⟶ S₁.X₂)
+    (ha : a ≫ S₂.g = S₁.g ≫ e₃.hom) (hb : b ≫ S₁.g = S₂.g ≫ e₃.inv) :
+    (diagramOfLifts h₁ h₂ e₃ a b ha hb).inv.τ₂ =
+      (Biprod.unipotentLower (-b) ≪≫ Biprod.unipotentUpper a).inv := rfl
+
+/-- The right component is the supplied quotient isomorphism. -/
+theorem diagramOfLifts_τ₃
+    (h₁ : S₁.Exact) (h₂ : S₂.Exact) (e₃ : S₁.X₃ ≅ S₂.X₃)
+    [Mono S₁.f] [Mono S₂.f]
+    (a : S₁.X₂ ⟶ S₂.X₂) (b : S₂.X₂ ⟶ S₁.X₂)
+    (ha : a ≫ S₂.g = S₁.g ≫ e₃.hom) (hb : b ≫ S₁.g = S₂.g ≫ e₃.inv) :
+    (diagramOfLifts h₁ h₂ e₃ a b ha hb).hom.τ₃ = e₃.hom := rfl
+
+/-- The inverse right component is the inverse of the supplied quotient isomorphism. -/
+theorem diagramOfLifts_inv_τ₃
+    (h₁ : S₁.Exact) (h₂ : S₂.Exact) (e₃ : S₁.X₃ ≅ S₂.X₃)
+    [Mono S₁.f] [Mono S₂.f]
+    (a : S₁.X₂ ⟶ S₂.X₂) (b : S₂.X₂ ⟶ S₁.X₂)
+    (ha : a ≫ S₂.g = S₁.g ≫ e₃.hom) (hb : b ≫ S₁.g = S₂.g ≫ e₃.inv) :
+    (diagramOfLifts h₁ h₂ e₃ a b ha hb).inv.τ₃ = e₃.inv := rfl
+
+/-- The Schanuel comparison as an isomorphism of stabilized short complexes.  The lifts are
+chosen using projectivity; its commuting squares are the bundled laws of a `ShortComplex`
+isomorphism. -/
 @[stacks 00O3 "Schanuel comparison diagram"]
 noncomputable def diagram
     (h₁ : S₁.ShortExact) (h₂ : S₂.ShortExact) (e₃ : S₁.X₃ ≅ S₂.X₃)
     [Projective S₁.X₂] [Projective S₂.X₂] :
-    leftSequence S₁ S₂ ≅ rightSequence S₁ S₂ := sorry
+    leftSequence S₁ S₂ ≅ rightSequence S₁ S₂ := by
+  letI := h₁.mono_f
+  letI := h₂.mono_f
+  letI := h₁.epi_g
+  letI := h₂.epi_g
+  exact diagramOfLifts h₁.exact h₂.exact e₃
+    (Projective.factorThru (S₁.g ≫ e₃.hom) S₂.g)
+    (Projective.factorThru (S₂.g ≫ e₃.inv) S₁.g)
+    (Projective.factorThru_comp _ _)
+    (Projective.factorThru_comp _ _)
 
 /-- The right component of the Schanuel comparison is the supplied quotient isomorphism. -/
 @[stacks 00O3 "right component of the Schanuel diagram"]
 theorem diagram_τ₃
     (h₁ : S₁.ShortExact) (h₂ : S₂.ShortExact) (e₃ : S₁.X₃ ≅ S₂.X₃)
     [Projective S₁.X₂] [Projective S₂.X₂] :
-    (diagram h₁ h₂ e₃).hom.τ₃ = e₃.hom := sorry
+    (diagram h₁ h₂ e₃).hom.τ₃ = e₃.hom := rfl
+
+/-- The inverse right component is the inverse of the supplied quotient isomorphism. -/
+theorem diagram_inv_τ₃
+    (h₁ : S₁.ShortExact) (h₂ : S₂.ShortExact) (e₃ : S₁.X₃ ≅ S₂.X₃)
+    [Projective S₁.X₂] [Projective S₂.X₂] :
+    (diagram h₁ h₂ e₃).inv.τ₃ = e₃.inv := rfl
 
 end Schanuel
 

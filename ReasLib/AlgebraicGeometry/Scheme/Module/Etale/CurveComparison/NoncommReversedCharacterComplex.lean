@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommCompletedAction
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommRepresentationDuality
@@ -57,7 +51,7 @@ def map (f : K ⟶ L) : signed R G L ⟶ signed R G K :=
 
 theorem map_quasiIso (f : K ⟶ L) [QuasiIso f] : QuasiIso (map R G f) := by sorry
 
-variable [HasDerivedCategory (ModuleCat.{u} (NoncommCompletedRing.Obj Rᵐᵒᵖ G))]
+variable [HasDerivedCategory (ModuleCat.{u} (completedGroupRing Rᵐᵒᵖ G))]
 
 /-- A specified cochain quasi-isomorphism gives its specified signed-character
 derived isomorphism. This does not choose a map between unrelated models. -/

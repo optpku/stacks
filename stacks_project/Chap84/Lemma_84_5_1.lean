@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap84.Lemma_84_5_1_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.SmallToBig.Sections
 import StacksCheckRecall
 
 /-!
@@ -63,7 +57,7 @@ universe u
   (AlgebraicGeometry.AlgebraicSpace.Etale.SmallToBig.inverseImage_isSheaf_fpqc :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
       (F : Sheaf (smallEtaleTopology X) (Type (u + 1))),
-      Presheaf.IsSheaf (overFpqcTopology X)
+      Presheaf.IsSheaf ((fpqcPrecoverage S).toGrothendieck.over X)
         (((siteMorphismOfTopoi X)⁻¹).obj F).1)
 
 /- Lemma 84.5.1 (6): `π_X⁻¹ F` satisfies the sheaf condition for ph coverings. -/

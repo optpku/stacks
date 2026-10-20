@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Abelian.Injective.Resolution.ExactMap
@@ -34,19 +28,43 @@ variable (α : F ⋙ T ⟶ L ⋙ G) (degree : ℕ)
 /-- An additive functor square with exact horizontal functors induces a comparison
 on ordinary right derived objects in every degree. -/
 def exactSquareApp (X : A) :
-    T.obj ((F.rightDerived degree).obj X) ⟶ (G.rightDerived degree).obj (L.obj X) :=
+    T.obj ((F.rightDerived degree).obj X) ⟶ (G.rightDerived degree).obj (L.obj X) := by
   let sourceResolution := injectiveResolution X
   let targetResolution := injectiveResolution (L.obj X)
   let sourceComplex := (F.mapHomologicalComplex (ComplexShape.up ℕ)).obj
     sourceResolution.cocomplex
-  T.map (sourceResolution.isoRightDerivedObj F degree).hom ≫
-    ((sourceComplex.sc degree).mapHomologyIso T).inv ≫
-    (HomologicalComplex.homologyFunctor B' (ComplexShape.up ℕ) degree).map
-      ((NatTrans.mapHomologicalComplex α (ComplexShape.up ℕ)).app
-          sourceResolution.cocomplex ≫
-        (G.mapHomologicalComplex (ComplexShape.up ℕ)).map
-          (InjectiveResolution.ExactMap.map L sourceResolution targetResolution)) ≫
-    (targetResolution.isoRightDerivedObj G degree).inv
+  unfold Functor.rightDerived Functor.rightDerivedToHomotopyCategory
+    Functor.mapHomotopyCategory HomotopyCategory.homologyFunctor
+  change T.obj ((HomologicalComplex.homologyFunctor B (ComplexShape.up ℕ) degree).obj
+      sourceComplex) ⟶
+    (HomologicalComplex.homologyFunctor B' (ComplexShape.up ℕ) degree).obj
+      ((G.mapHomologicalComplex (ComplexShape.up ℕ)).obj targetResolution.cocomplex)
+  let targetComplex := (G.mapHomologicalComplex (ComplexShape.up ℕ)).obj
+    targetResolution.cocomplex
+  let comparison :=
+    (NatTrans.mapHomologicalComplex α (ComplexShape.up ℕ)).app
+        sourceResolution.cocomplex ≫
+      (G.mapHomologicalComplex (ComplexShape.up ℕ)).map
+        (InjectiveResolution.ExactMap.map L sourceResolution targetResolution)
+  let hS := (sourceComplex.sc degree).homologyData.left
+  let hU := (targetComplex.sc degree).homologyData.left
+  let φ : (sourceComplex.sc degree).map T ⟶ targetComplex.sc degree :=
+    (HomologicalComplex.shortComplexFunctor B' (ComplexShape.up ℕ) degree).map comparison
+  dsimp only [ShortComplex.map] at φ
+  have cycle : (T.map hS.i ≫ φ.τ₂) ≫ (targetComplex.sc degree).g = 0 := by
+    rw [Category.assoc, φ.comm₂₃, ← Category.assoc, ← T.map_comp,
+      hS.wi, T.map_zero, zero_comp]
+  let k := hU.liftK (T.map hS.i ≫ φ.τ₂) cycle
+  have boundary : T.map hS.f' ≫ k = φ.τ₁ ≫ hU.f' := by
+    apply (cancel_mono hU.i).1
+    dsimp only [k]
+    rw [Category.assoc, hU.liftK_i, ← Category.assoc, ← T.map_comp,
+      hS.f'_i, Category.assoc, hU.f'_i]
+    exact φ.comm₁₂.symm
+  have vanishes : T.map hS.f' ≫ (k ≫ hU.π) = 0 := by
+    rw [← Category.assoc, boundary, Category.assoc, hU.f'_π, comp_zero]
+  exact (CokernelCofork.mapIsColimit _ hS.hπ' T).desc
+    (CokernelCofork.ofπ (k ≫ hU.π) vanishes)
 
 /-- The ordinary derived-square comparison commutes with maps in the source category. -/
 theorem exactSquareApp_naturality {X Y : A} (morphism : X ⟶ Y) :

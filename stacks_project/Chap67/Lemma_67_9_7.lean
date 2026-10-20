@@ -1,13 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap67.Definition_67_8_2_QuasiCompact
 public import stacks_project.Chap67.Definition_67_9_2_Closed
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.UniversallyClosed.QuasiCompact
+import StacksCheckRecall
 
 /-!
 # Universally closed morphisms of algebraic spaces are quasi-compact
@@ -22,16 +18,10 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-namespace QuasiCompact
-
-/-- Lemma 67.9.7: a universally closed morphism of algebraic spaces over a
+/- Lemma 67.9.7: a universally closed morphism of algebraic spaces over a
 scheme `S` is quasi-compact. -/
-@[stacks 04XW]
-instance of_universallyClosed {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [UniversallyClosed f] : QuasiCompact f := sorry
-
-end QuasiCompact
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 04XW] #check
+  (AlgebraicGeometry.AlgebraicSpace.QuasiCompact.of_universallyClosed :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      [AlgebraicGeometry.AlgebraicSpace.UniversallyClosed f],
+      AlgebraicGeometry.AlgebraicSpace.QuasiCompact f)

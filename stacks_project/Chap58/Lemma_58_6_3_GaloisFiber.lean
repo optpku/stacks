@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap58.Lemma_58_2_2_GaloisFiber
@@ -14,6 +8,7 @@ public import stacks_project.Chap58.Lemma_58_5_5_Fiber
 public import Mathlib.CategoryTheory.Conj
 public import Mathlib.Topology.Algebra.Category.ProfiniteGrp.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.FundamentalGroup.Galois
+public import ReasLib.AlgebraicGeometry.Scheme.Etale.FiniteGaloisEquivalence
 
 @[expose] public section
 

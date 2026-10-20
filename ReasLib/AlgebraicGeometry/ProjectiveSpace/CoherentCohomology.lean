@@ -1,14 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Twist
+public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Proper
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.CoherentCohomology
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Cohomology.Map
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.EulerCharacteristic
 
 /-!
 # Cohomology of coherent sheaves on standard projective space
@@ -72,5 +68,13 @@ theorem truncatedSections_finite
       (Proj.TwistedSections.Cohomology.truncated (grading R n) ℱ k) := sorry
 
 end Coherent
+
+/-- The Euler characteristic of a coherent sheaf on projective `n`-space over a field is
+the signed sum of its cohomology dimensions in degrees from zero through `n`. -/
+theorem eulerCharacteristic_eq_sum
+    (k : Type u) [Field k] (n : ℕ) (ℱ : (scheme k n).Modules) [ℱ.IsCoherent] :
+    Scheme.Hom.eulerCharacteristic (toSpec k n) ℱ =
+      ∑ i ∈ Finset.range (n + 1),
+        ((i : ℤ).negOnePow : ℤ) * (Scheme.Hom.cohomologyFinrank (toSpec k n) ℱ i : ℤ) := sorry
 
 end AlgebraicGeometry.ProjectiveSpace

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.TorDimension
@@ -15,7 +9,6 @@ import Mathlib.Tactic.CrossRefAttribute
 -- Local instance justification (defeq pin): the imported ModuleDerived and localized ModuleCat aliases use the standard homotopy localization; this fallback is definitionally the same quotient as the named moduleCat_hasDerivedCategory and does not choose another derived model.
 attribute [local instance] HasDerivedCategory.standard
   SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
-  SheafOfModules.RingedSite.moduleCategoryHasDerivedTensor
 
 /-!
 # Tor-amplitude under derived pullback
@@ -47,6 +40,10 @@ variable [HasWeakSheafify JX AddCommGrpCat.{w}]
 variable [JX.WEqualsLocallyBijective AddCommGrpCat.{w}]
 variable [HasWeakSheafify JY AddCommGrpCat.{w}]
 variable [JY.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [DerivedCategory.DerivedTensor.Right.Has
+  (C := SheafOfModules.RingedSite.ringedSiteModuleCategory.{uX, vX, w, w} JX OX)]
+variable [DerivedCategory.DerivedTensor.Right.Has
+  (C := SheafOfModules.RingedSite.ringedSiteModuleCategory.{uY, vY, w, w} JY OY)]
 
 variable (f : RingedSite.Hom (RingedSite.ofCommRingSheaf JX OX)
   (RingedSite.ofCommRingSheaf JY OY))
@@ -61,8 +58,8 @@ preserves Tor-amplitude in every fixed interval. -/
 theorem modulePullbackDerived_hasTorAmplitudeIn
     (E : ModuleDerived.{w} (RingedSite.ofCommRingSheaf JY OY)) {a b : ℤ}
     (hE : ModuleDerived.HasTorAmplitudeIn
-      (X := RingedSite.ofCommRingSheaf JY OY) E a b) :
-    ModuleDerived.HasTorAmplitudeIn (X := RingedSite.ofCommRingSheaf JX OX)
+      (O := OY) E a b) :
+    ModuleDerived.HasTorAmplitudeIn (O := OX)
       ((modulePullbackDerived.{w} f).obj E) a b := sorry
 
 /-- Canonical derived pullback between commutative ringed-site presentations preserves finite
@@ -70,8 +67,8 @@ Tor dimension. -/
 theorem modulePullbackDerived_hasFiniteTorDimension
     (E : ModuleDerived.{w} (RingedSite.ofCommRingSheaf JY OY))
     (hE : ModuleDerived.HasFiniteTorDimension
-      (X := RingedSite.ofCommRingSheaf JY OY) E) :
-    ModuleDerived.HasFiniteTorDimension (X := RingedSite.ofCommRingSheaf JX OX)
+      (O := OY) E) :
+    ModuleDerived.HasFiniteTorDimension (O := OX)
       ((modulePullbackDerived.{w} f).obj E) := sorry
 
 end

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.CochainComplex.Bounded
@@ -32,6 +26,7 @@ universe u
 namespace AlgebraicGeometry.RingedSpace.FlatCokernel
 
 variable {X : RingedSpace.{u}}
+variable [DerivedCategory.DerivedTensor.Right.Has (C := Modules X)]
 
 /-- A bounded-above canonically termwise-flat representative with lower Tor-amplitude bound
 `a` has a flat opcycles object in degree `a`. -/

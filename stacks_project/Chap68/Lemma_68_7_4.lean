@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_4_6_Topology
-public import stacks_project.Chap66.Lemma_66_13_1_IsScheme
-public import stacks_project.Chap67.Lemma_67_30_5_Flat
-public import stacks_project.Chap68.Lemma_68_4_5_Fibre
-public import stacks_project.Chap68.Lemma_68_12_8_Decent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Flat.Specialization
+import StacksCheckRecall
 
 /-!
 # Specializations lift along flat morphisms of algebraic spaces
@@ -28,62 +19,50 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 68.7.4: Let `S` be a scheme. Let `f : Y ⟶ X` be a flat morphism of
+/- Lemma 68.7.4: Let `S` be a scheme. Let `f : Y ⟶ X` be a flat morphism of
 algebraic spaces over `S`. Let `x, x' : Points X` and assume `x' ⤳ x`, i.e.,
 `x` is a specialization of `x'`. Assume the pair `(X, x')` satisfies
 `forallAffineEtaleFiniteAbove X x'`. Then for every `y : Points Y` with
 `Points.map f y = x`, there exists a point `y' : Points Y` with `y' ⤳ y` and
 `Points.map f y' = x'`. -/
-@[stacks 0B7W]
-theorem exists_specializes_of_flat {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+@[stacks 0B7W] #check (AlgebraicGeometry.AlgebraicSpace.exists_specializes_of_flat :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : Y ⟶ X) [Flat f] {x x' : Points X} (hspec : Specializes x' x)
     (h_finiteAbove : forallAffineEtaleFiniteAbove X x') {y : Points Y}
-    (hy : Points.map f y = x) :
-    ∃ y' : Points Y, Specializes y' y ∧ Points.map f y' = x' :=
-  sorry
+    (hy : Points.map f y = x),
+    ∃ y' : Points Y, Specializes y' y ∧ Points.map f y' = x')
 
-/-- The lifting of specializations along a flat morphism of algebraic spaces also
-holds under the equivalent étale covering finite-above test
-`existsEtaleCoverFiniteAbove X x'`. -/
-theorem exists_specializes_of_flat_of_existsEtaleCoverFiniteAbove
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : Y ⟶ X) [Flat f]
+#check (AlgebraicGeometry.AlgebraicSpace.exists_specializes_of_flat_of_existsEtaleCoverFiniteAbove :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : Y ⟶ X) [Flat f]
     {x x' : Points X} (hspec : Specializes x' x)
     (h_cover : existsEtaleCoverFiniteAbove X x') {y : Points Y}
-    (hy : Points.map f y = x) :
-    ∃ y' : Points Y, Specializes y' y ∧ Points.map f y' = x' :=
-  sorry
+    (hy : Points.map f y = x),
+    ∃ y' : Points Y, Specializes y' y ∧ Points.map f y' = x')
 
-/-- If `X` is decent, then the map on points induced by a flat morphism of
-algebraic spaces is a generalizing map. -/
-theorem generalizingMap_map_of_flat {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : Y ⟶ X) [Flat f] [IsDecent X] : GeneralizingMap (Points.map f) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.generalizingMap_map_of_flat :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : Y ⟶ X) [Flat f] [IsDecent X],
+    GeneralizingMap (Points.map f))
 
-/-- If `X` is decent, then specializations lift along a flat morphism of
-algebraic spaces. -/
-theorem exists_specializes_of_flat_of_isDecent {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.exists_specializes_of_flat_of_isDecent :
+    ∀ {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : Y ⟶ X) [Flat f] [IsDecent X]
     {x x' : Points X} (hspec : Specializes x' x) {y : Points Y}
-    (hy : Points.map f y = x) :
-    ∃ y' : Points Y, Specializes y' y ∧ Points.map f y' = x' :=
-  sorry
+    (hy : Points.map f y = x),
+    ∃ y' : Points Y, Specializes y' y ∧ Points.map f y' = x')
 
-/-- If `X` is quasi-separated, then specializations lift along a flat morphism of
-algebraic spaces. -/
-theorem exists_specializes_of_flat_of_isQuasiSeparated {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.exists_specializes_of_flat_of_isQuasiSeparated :
+    ∀ {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : Y ⟶ X) [Flat f] [IsQuasiSeparated X]
     {x x' : Points X} (hspec : Specializes x' x) {y : Points Y}
-    (hy : Points.map f y = x) :
-    ∃ y' : Points Y, Specializes y' y ∧ Points.map f y' = x' :=
-  sorry
+    (hy : Points.map f y = x),
+    ∃ y' : Points Y, Specializes y' y ∧ Points.map f y' = x')
 
-/-- If `X` is representable by a scheme, then specializations lift along a flat
-morphism of algebraic spaces. -/
-theorem exists_specializes_of_flat_of_isScheme {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.exists_specializes_of_flat_of_isScheme :
+    ∀ {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : Y ⟶ X) [Flat f] [IsScheme X]
     {x x' : Points X} (hspec : Specializes x' x) {y : Points Y}
-    (hy : Points.map f y = x) :
-    ∃ y' : Points Y, Specializes y' y ∧ Points.map f y' = x' :=
-  sorry
+    (hy : Points.map f y = x),
+    ∃ y' : Points Y, Specializes y' y ∧ Points.map f y' = x')
 
 end AlgebraicGeometry.AlgebraicSpace

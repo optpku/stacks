@@ -1,16 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PushforwardContinuous
 public import Mathlib.CategoryTheory.Equivalence
 public import Mathlib.CategoryTheory.Sites.DenseSubsite.Basic
 public import Mathlib.CategoryTheory.Sites.Equivalence
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.Basic
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.InverseImage
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.PresentationRestriction
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Presentation
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.SchemeRestriction
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Ringed
@@ -116,5 +111,10 @@ def restrictToScheme {S : Scheme.{u}} (U : Over S) :
     (ofOver U).Modules ⥤ U.left.Modules :=
   toSmallEtaleModules (ofOver U) ⋙
     SmallEtale.Modules.toScheme (tautologicalChart U)
+
+/-- Restriction of an algebraic-space module to the underlying scheme of an étale chart. -/
+def restrictToEtaleScheme {S : Scheme.{u}} {X : AlgebraicSpace S} (U : smallEtaleSite X) :
+    X.Modules ⥤ U.left.left.Modules :=
+  @restrictFunctor S (ofOver U.left) X U.hom U.prop ⋙ restrictToScheme U.left
 
 end AlgebraicGeometry.AlgebraicSpace.Modules

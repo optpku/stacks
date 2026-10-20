@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Fiber.ResidueField
@@ -55,5 +49,18 @@ theorem compFiberToBaseFiber_fiberι {X Y S : Scheme.{u}}
     (f : X ⟶ Y) (g : Y ⟶ S) (s : S) :
     compFiberToBaseFiber f g s ≫ fiberι g s =
       fiberι (f ≫ g) s ≫ f := sorry
+
+/-- The square relating a composite fibre to the corresponding fibre of the
+second morphism is cartesian. -/
+theorem isPullback_compFiberToBaseFiber {X Y S : Scheme.{u}}
+    (f : X ⟶ Y) (p : Y ⟶ S) (s : S) :
+    IsPullback ((f ≫ p).fiberι s) (compFiberToBaseFiber f p s) f (p.fiberι s) :=
+  sorry
+
+/-- The canonical composite-fibre morphism is locally of finite type when
+the first morphism is locally of finite type. -/
+instance instLocallyOfFiniteType_compFiberToBaseFiber {X Y S : Scheme.{u}}
+    (f : X ⟶ Y) (p : Y ⟶ S) [LocallyOfFiniteType f] (s : S) :
+    LocallyOfFiniteType (compFiberToBaseFiber f p s) := sorry
 
 end AlgebraicGeometry.Scheme.Hom

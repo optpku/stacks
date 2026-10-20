@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.ShortComplex.Abelian
@@ -36,7 +30,7 @@ theorem categoryWithHomology.{z, u, v, w}
 
 /-- Module sheaves on a localized ringed site inherit the same canonical homology structure. -/
 theorem localizationCategoryWithHomology.{z, u, v, w}
-    (X : RingedSite.{u, v, w}) (U : X) [UnivLE.{max u v, z}] :
+    (X : RingedSite.{u, v, w}) (U : X.carrier) [UnivLE.{max u v, z}] :
     CategoryWithHomology (ModuleCat.{z} (X.localization U)) :=
   categoryWithHomology (X.localization U)
 

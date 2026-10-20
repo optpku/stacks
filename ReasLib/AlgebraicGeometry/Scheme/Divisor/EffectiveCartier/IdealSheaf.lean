@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.IdealSheaf.Basic
@@ -47,9 +41,9 @@ theorem effectiveCartierIdealInvertible
     Scheme.Modules.Invertible
       (Subobject.underlying.obj D.toSubobject) := sorry
 
-/-- The ideal sheaf of an effective Cartier divisor is tensor-invertible. -/
-instance instInvertibleToSubobject (D : X.IdealSheafData)
-    [hD : AlgebraicGeometry.IsEffectiveCartierDivisor D.subschemeι] :
+/-- The ideal module of an effective Cartier divisor is canonically invertible. -/
+instance instInvertibleToSubobject
+    (D : X.IdealSheafData) [hD : AlgebraicGeometry.IsEffectiveCartierDivisor D.subschemeι] :
     Scheme.Modules.Invertible D.toSubobject.toModule :=
   effectiveCartierIdealInvertible D hD
 

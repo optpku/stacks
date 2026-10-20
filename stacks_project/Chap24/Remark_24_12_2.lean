@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.RingedSite.DifferentialGraded.Algebra.Adjunction
+public import ReasLib.AlgebraicGeometry.RingedSite.Topos.DifferentialGraded.Algebra.Adjunction
 import StacksCheckRecall
 
 @[expose] public section
@@ -14,22 +8,45 @@ import StacksCheckRecall
 /-!
 # Remark 24.12.2
 
-The reusable implementation is owned by the ringed-site DGA adjunction API.  This chapter leaf
-records its three source-facing clauses for a ringed-site presentation; an arbitrary
-`RingedSite.ToposHom` requires a separate internal-module bridge.
+Pullback and pushforward of differential graded algebras along an arbitrary morphism of ringed
+topoi, together with the induced Hom equivalence.
 -/
 
+open CategoryTheory
+open scoped SheafOfModules.RingedSite.DifferentialGradedAlgebra
+
+universe uX vX uY vY w
+
+variable {CX : Type uX} [Category.{vX} CX]
+variable {CY : Type uY} [Category.{vY} CY]
+variable {JX : GrothendieckTopology CX} {JY : GrothendieckTopology CY}
+variable [JX.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [JY.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [JX.HasSheafCompose (forget RingCat.{w})]
+variable [JY.HasSheafCompose (forget RingCat.{w})]
+variable [HasWeakSheafify JX AddCommGrpCat.{w}]
+variable [JX.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [HasWeakSheafify JY AddCommGrpCat.{w}]
+variable [JY.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [UnivLE.{max uX vX, w}] [UnivLE.{max uY vY, w}]
+variable {OX : Sheaf JX CommRingCat.{w}} {OY : Sheaf JY CommRingCat.{w}}
+variable (f : RingedSite.ToposHom
+  (RingedSite.ofCommRingSheaf JX OX) (RingedSite.ofCommRingSheaf JY OY))
+variable [(SheafOfModules.restrictScalars.{w} f.structureMap).IsRightAdjoint]
+
 /- Remark 24.12.2 (1): direct image sends a differential graded algebra to a differential graded
-algebra on the target ringed-site presentation. -/
-@[stacks 0FRE "(1), site-presented pushforward"]
-#check @RingedSite.Hom.pushforwardDGA
+algebra on the target ringed topos. -/
+@[stacks 0FRG]
+#check (RingedSite.ToposHom.pushforwardDGA.{uX, vX, uY, vY, w} f : DGA(OX) ⥤ DGA(OY))
 
 /- Remark 24.12.2 (2): inverse image sends a differential graded algebra to a differential graded
-algebra on the source ringed-site presentation. -/
-@[stacks 0FRE "(2), site-presented pullback"]
-#check @RingedSite.Hom.pullbackDGA
+algebra on the source ringed topos. -/
+@[stacks 0FRG]
+#check (RingedSite.ToposHom.pullbackDGA.{uX, vX, uY, vY, w} f : DGA(OY) ⥤ DGA(OX))
 
 /- Remark 24.12.2 (3): inverse image is left adjoint to direct image on differential graded
 algebras, expressed by the induced Hom equivalence. -/
-@[stacks 0FRE "(3), site-presented Hom equivalence"]
-#check @RingedSite.Hom.pullbackDGAHomEquiv
+@[stacks 0FRG]
+#check (RingedSite.ToposHom.pullbackDGAHomEquiv f :
+  (B : DGA(OY)) → (A : DGA(OX)) →
+    (f.pullbackDGA.obj B ⟶ A) ≃ (B ⟶ f.pushforwardDGA.obj A))

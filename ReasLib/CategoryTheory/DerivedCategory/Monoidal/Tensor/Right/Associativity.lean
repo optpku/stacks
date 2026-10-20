@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.DerivedCategory.Monoidal.Tensor.Right.Closed
@@ -46,13 +40,13 @@ tensoring by the derived tensor of their two fixed factors, relative to `T`. -/
 noncomputable def tensorAssoc
     (T : Monoidal.Model (C := C)) (L M : D) :
     functor L ⋙ functor M ≅ functor (obj L M) :=
-  Functor.isoWhiskerRight (T.tensorRightIsoFunctor L).symm
+  Functor.isoWhiskerRight (T.functorIsoTensorRight L)
       (functor M) ≪≫
     Functor.isoWhiskerLeft ((tensoringRight D).obj L)
-      (T.tensorRightIsoFunctor M).symm ≪≫
+      (T.functorIsoTensorRight M) ≪≫
     (tensorRightTensor L M).symm ≪≫
-    (tensoringRight D).mapIso (T.tensorIsoObj L M) ≪≫
-    T.tensorRightIsoFunctor (obj L M)
+    (tensoringRight D).mapIso (T.objIsoTensor L M).symm ≪≫
+    (T.functorIsoTensorRight (obj L M)).symm
 
 /-- The objectwise form of `tensorAssoc`, with the source order matching iterated derived tensoring. -/
 @[stacks 0BYJ, stacks 0FNQ "objectwise derived tensor associativity"]
@@ -82,9 +76,8 @@ theorem assoc_hom_objIsoTensor
     Functor.whiskerRight_app, Functor.whiskerLeft_app,
     Functor.mapIso_hom, tensorRightTensor_inv_app,
     Category.assoc, Iso.inv_hom_id_app, Category.comp_id]
-  rw [(T.tensorRightIsoFunctor M).inv.naturality_assoc
-    ((T.tensorRightIsoFunctor L).inv.app K)]
-  rfl
+  rw [(T.functorIsoTensorRight M).hom.naturality_assoc
+    ((T.functorIsoTensorRight L).hom.app K)]
 
 /-- The model-parametrized associator is natural in its left object. -/
 @[reassoc, stacks 0BYJ "naturality of derived tensor associativity"]

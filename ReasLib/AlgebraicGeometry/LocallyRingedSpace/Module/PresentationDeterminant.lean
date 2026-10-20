@@ -1,20 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.ExteriorPower.Invertible
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.ExteriorPower.Epi
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.InternalHom
 public import ReasLib.AlgebraicGeometry.LocallyRingedSpace.Module.Basic
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.AlgebraSheaf.ExteriorPower
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.LocallyFree
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Stalk
-public import ReasLib.CategoryTheory.Monoidal.Closed.Dualizable
-public import ReasLib.CategoryTheory.Monoidal.Invertible.Duality
+public import ReasLib.CategoryTheory.Monoidal.Closed.Duality
 public import Mathlib.Algebra.Homology.ShortComplex.ShortExact
 public import Mathlib.CategoryTheory.Limits.Shapes.ZeroObjects
 
@@ -23,7 +15,9 @@ public import Mathlib.CategoryTheory.Limits.Shapes.ZeroObjects
 
 This file constructs the determinant map of a short exact presentation by finite locally free
 modules. The source is defined for every virtual rank, using the zero object when the virtual
-rank is negative.
+rank is negative. The target is the internal Hom from the first module's top exterior power to
+the second module's top exterior power. Its comparison with the determinant-dual tensor target
+is stated separately.
 -/
 
 @[expose] public section
@@ -72,52 +66,52 @@ theorem exteriorPowerMap_epi (hS : S.ShortExact) (n : ℕ) :
 /-- For a short exact presentation, the curried wedge map annihilates the kernel of the
 exterior-power quotient map. -/
 theorem kernelι_comp_curriedWedge
-    (hS : S.ShortExact) (r₁ r₀ : ℕ) (h : r₁ ≤ r₀) :
+    (hS : S.ShortExact) (r₁ r₀ : ℕ) (h : r₁ ≤ r₀)
+    [IsFiniteLocallyFreeOfRank r₁ S.X₁] :
     kernel.ι (RingedSpace.ExteriorPower.map S.g (r₀ - r₁)) ≫
       MonoidalClosed.curry (wedgeBeforeQuotient r₁ r₀ h) = 0 := sorry
 
 /-- The canonical determinant map attached to a short exact finite locally free presentation.
-Its target uses the closed-monoidal dual of the top exterior power of the first module, and its
-source is zero when the virtual rank is negative. -/
+Its internal-Hom target records the alternating wedge operation, and its source is zero when
+the virtual rank is negative. -/
 noncomputable def presentationMap
     (hS : S.ShortExact) (r₁ r₀ : ℕ)
     [IsFiniteLocallyFreeOfRank r₁ S.X₁]
     [IsFiniteLocallyFreeOfRank r₀ S.X₂] :
     presentationSource S r₁ r₀ ⟶
-      (MonoidalClosed.dual (Λ[r₁] S.X₁)) ⊗ (Λ[r₀] S.X₂) :=
+      (ihom (Λ[r₁] S.X₁)).obj (Λ[r₀] S.X₂) :=
   if h : r₁ ≤ r₀ then
     (presentationSourceIsoOfLE S r₁ r₀ h).hom ≫
       (let p := RingedSpace.ExteriorPower.map S.g (r₀ - r₁)
        let q := MonoidalClosed.curry (wedgeBeforeQuotient r₁ r₀ h)
-       let descended :=
-         @Abelian.epiDesc _ _ _ _ _ p
-           (exteriorPowerMap_epi hS (r₀ - r₁)) _ q
-           (kernelι_comp_curriedWedge hS r₁ r₀ h)
-       let hComparison : IsIso
-           (MonoidalClosed.Dual.tensorComparison (Λ[r₁] S.X₁) (Λ[r₀] S.X₂)) :=
-         (@MonoidalCategory.isInvertibleObject.isRightDualizable
-           _ _ _ (Λ[r₁] S.X₁)
-           (RingedSite.ExteriorPower.top_isInvertible S.X₁ r₁)).isIso_tensorComparison
-             (Λ[r₀] S.X₂)
-       descended ≫
-         @inv _ _ _ _ (MonoidalClosed.Dual.tensorComparison
-           (Λ[r₁] S.X₁) (Λ[r₀] S.X₂)) hComparison ≫
-           (β_ (Λ[r₀] S.X₂) (MonoidalClosed.dual (Λ[r₁] S.X₁))).hom)
+       @Abelian.epiDesc _ _ _ _ _ p
+         (exteriorPowerMap_epi hS (r₀ - r₁)) _ q
+         (kernelι_comp_curriedWedge hS r₁ r₀ h))
   else
     0
 
 /-- In nonnegative virtual rank, precomposing the determinant map with the exterior-power
-quotient recovers the curried wedge construction after the tensor/internal-Hom comparison. -/
+quotient recovers the curried wedge construction. -/
 theorem presentationMap_spec
     (hS : S.ShortExact) (r₁ r₀ : ℕ) (h : r₁ ≤ r₀)
     [IsFiniteLocallyFreeOfRank r₁ S.X₁]
     [IsFiniteLocallyFreeOfRank r₀ S.X₂] :
     RingedSpace.ExteriorPower.map S.g (r₀ - r₁) ≫
         (presentationSourceIsoOfLE S r₁ r₀ h).inv ≫
-          presentationMap hS r₁ r₀ ≫
-            (β_ (Λ[r₀] S.X₂) (MonoidalClosed.dual (Λ[r₁] S.X₁))).inv ≫
-              MonoidalClosed.Dual.tensorComparison (Λ[r₁] S.X₁) (Λ[r₀] S.X₂) =
+          presentationMap hS r₁ r₀ =
       MonoidalClosed.curry (wedgeBeforeQuotient r₁ r₀ h) := sorry
+
+/-- The internal-Hom determinant map corresponds to a unique map to the determinant-dual
+tensor target under the canonical tensor/internal-Hom comparison. -/
+theorem presentationMap_existsUnique_tensor
+    (hS : S.ShortExact) (r₁ r₀ : ℕ)
+    [IsFiniteLocallyFreeOfRank r₁ S.X₁]
+    [IsFiniteLocallyFreeOfRank r₀ S.X₂] :
+    ∃! φ : presentationSource S r₁ r₀ ⟶
+        (MonoidalClosed.dual (Λ[r₁] S.X₁)) ⊗ (Λ[r₀] S.X₂),
+      φ ≫ (β_ (Λ[r₀] S.X₂) (MonoidalClosed.dual (Λ[r₁] S.X₁))).inv ≫
+        MonoidalClosed.Dual.tensorComparison (Λ[r₁] S.X₁) (Λ[r₀] S.X₂) =
+          presentationMap hS r₁ r₀ := sorry
 
 /-- In negative virtual rank, the determinant map is the zero morphism under the canonical
 identification of its source with the zero object. -/
@@ -131,6 +125,7 @@ theorem presentationMap_zero_of_lt
 /-- The determinant map of a short exact finite locally free presentation is an isomorphism on
 the stalk at a point exactly when the virtual rank is nonnegative and the presented module is
 finite locally free of that rank on a neighborhood of the point. -/
+@[stacks 0E9Y]
 theorem presentationMap_stalk_isIso_iff
     (hS : S.ShortExact) (r₁ r₀ : ℕ)
     [IsFiniteLocallyFreeOfRank r₁ S.X₁]

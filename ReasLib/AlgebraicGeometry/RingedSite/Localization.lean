@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.Over
@@ -30,7 +24,7 @@ namespace RingedSite
 /-- The localization of a ringed site at `U`, with carrier `C / U`,
 slice topology `J.over U`, and restricted structure sheaf `𝒪.over U`. -/
 @[stacks 04IX "(1)"]
-abbrev localization (X : RingedSite.{u, v, w}) (U : X) :
+abbrev localization (X : RingedSite.{u, v, w}) (U : X.carrier) :
     RingedSite.{max u v, v, w} :=
   RingedSite.ofRingSheaf (X.siteTopology.over U) (X.structureSheaf.over U)
 

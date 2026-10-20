@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.Smooth.Adic.Basic
@@ -66,7 +60,7 @@ theorem formallySmoothTopologically_adicSource_iff_discreteSource
              Continuous f) :
     (letI : TopologicalSpace R := 𝔪.adicTopology
      letI : TopologicalSpace S := 𝔫.adicTopology
-     f.FormallySmoothTopologically) ↔
+     FormallySmoothTopologically.{u, v, max u v} f) ↔
       formally_smooth_for_adic f 𝔫 := sorry
 
 end SourceTopology

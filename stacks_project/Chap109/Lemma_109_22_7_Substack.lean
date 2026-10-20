@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.ObjectProperty.ClosedUnderIsomorphisms
@@ -34,29 +28,14 @@ namespace AlgebraicGeometry.AlgebraicSpace
 namespace Spaces
 namespace Curves
 
-/-- The object property of stable families of curves with `R¹ f_* 𝒪_X`
-finite locally free of rank `g`, corresponding to the open substack `ℳ̄_g`. -/
-def stableOfGenus (g : ℕ) (S : Scheme.{u}) : ObjectProperty (Obj S) :=
-  fun P ↦
-    stable S P ∧
-      SheafOfModules.IsFiniteLocallyFreeOfRank g (higherDirectImageOne (hom P))
-
-/-- Membership in `stableOfGenus g` means the family is stable and
-`R¹ f_* 𝒪_X` is finite locally free of rank `g`. -/
-theorem stableOfGenus_iff (g : ℕ) {S : Scheme.{u}} (P : Obj S) :
-    stableOfGenus g S P ↔
-      stable S P ∧
-        SheafOfModules.IsFiniteLocallyFreeOfRank g
-          (higherDirectImageOne (hom P)) :=
-  sorry
-
 /-- The genus-`g` stable locus is contained in the stable locus. -/
 theorem stableOfGenus_le_stable (g : ℕ) (S : Scheme.{u}) :
     stableOfGenus g S ≤ stable S :=
   sorry
 
-/-- A stable family of curves lies in at most one of the substacks `ℳ̄_g`. -/
-theorem eq_of_mem_stableOfGenus {S : Scheme.{u}} {P : Obj S} {g g' : ℕ}
+/-- Over a nonempty base, the genus of a stable family of curves is unique. -/
+theorem eq_of_mem_stableOfGenus {S : Scheme.{u}} {P : Obj S}
+    [Nonempty (base P).left] {g g' : ℕ}
     (hg : stableOfGenus g S P) (hg' : stableOfGenus g' S P) : g = g' :=
   sorry
 

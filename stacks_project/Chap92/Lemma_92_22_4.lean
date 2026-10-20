@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap92.Lemma_92_22_4_NaiveCotangent
 public import stacks_project.Chap92.Lemma_92_18_10_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.RingedSite.Topos.CotangentComplex.NaiveComparison
+import StacksCheckRecall
 
 /-!
 # Comparison of the cotangent complex of a morphism of ringed topoi with the naive cotangent complex
@@ -46,56 +41,31 @@ variable [JC.WEqualsLocallyBijective AddCommGrpCat.{u}]
 variable [HasColimitsOfShape (Discrete WalkingPair) CommRingCat.{u}]
 variable {OC : Sheaf JC CommRingCat.{u}} {OD : Sheaf JD CommRingCat.{u}}
 
-/-- Lemma 92.22.4 (1). Let `f : (Sh(C), O) ⟶ (Sh(B), O_B)` be a morphism of
-ringed topoi. There is a canonical cochain map `L[f] ⟶ NL[f]`. -/
-@[stacks 08V2]
-def toNaive
-    (f : ToposHom (RingedSite.ofCommRingSheaf JC OC)
-      (RingedSite.ofCommRingSheaf JD OD)) :
-    L[f] ⟶ NL[f] :=
-  CotangentComplex.toNaive (inverseImageStructureSheaf f) (Under.mk (structureSheafMap f))
+variable (f : ToposHom (RingedSite.ofCommRingSheaf JC OC)
+  (RingedSite.ofCommRingSheaf JD OD))
 
-/-- Lemma 92.22.4 (2). The canonical map identifies `NL[f]` with the truncation
-`τ_{≥ -1} L[f]`. -/
-@[stacks 08V2]
-instance toNaive_truncGE_quasiIso
-    (f : ToposHom (RingedSite.ofCommRingSheaf JC OC)
-      (RingedSite.ofCommRingSheaf JD OD)) :
-    QuasiIso (CochainComplex.truncGEMap (toNaive f) (-1)) :=
-  sorry
+/- Lemma 92.22.4. The canonical comparison identifies the naive cotangent complex
+with the good truncation of the cotangent complex in degrees at least `-1`. -/
+@[stacks 08V2] #check (SheafOfModules.RingedSite.CotangentComplex.toNaive_truncGE_quasiIso
+    (f.toTopos.commRingInverseImage.obj OD) (Under.mk (commRingStructureMap f)) :
+  QuasiIso (CochainComplex.truncGEMap (RingedSite.ToposHom.toNaive f) (-1)))
 
-/-- Unfolding of the source-facing comparison recovers the sheaf-level `toNaive`
-of `structureSheafMap f`. -/
-theorem toNaive_eq
-    (f : ToposHom (RingedSite.ofCommRingSheaf JC OC)
-      (RingedSite.ofCommRingSheaf JD OD)) :
-    toNaive f =
-      CotangentComplex.toNaive (inverseImageStructureSheaf f)
-        (Under.mk (structureSheafMap f)) :=
-  sorry
+#check (RingedSite.ToposHom.toNaive f : L[f] ⟶ NL[f])
 
-/-- Degree `0` of the source-facing `toNaive` is the identification of
-`Ω_{P₀/A} ⊗_{P₀} B`. -/
-theorem toNaive_f_zero
-    (f : ToposHom (RingedSite.ofCommRingSheaf JC OC)
-      (RingedSite.ofCommRingSheaf JD OD)) :
-    (toNaive f).f 0 =
-      (CotangentComplex.objXIso (inverseImageStructureSheaf f)
-          (Under.mk (structureSheafMap f)) 0).hom ≫
-        CotangentComplex.selfDifferentials (inverseImageStructureSheaf f)
-          (Under.mk (structureSheafMap f)) :=
-  sorry
+#check (SheafOfModules.RingedSite.CotangentComplex.toNaive_zero
+    (f.toTopos.commRingInverseImage.obj OD) (Under.mk (commRingStructureMap f)) :
+  (RingedSite.ToposHom.toNaive f).f 0 =
+    (CotangentComplex.objXIso (f.toTopos.commRingInverseImage.obj OD)
+        (Under.mk (commRingStructureMap f)) 0).hom ≫
+      CotangentComplex.selfDifferentials (f.toTopos.commRingInverseImage.obj OD)
+        (Under.mk (commRingStructureMap f)))
 
-/-- Degree `-1` of the source-facing `toNaive` is the face-difference map `toConormal`. -/
-theorem toNaive_f_negOne
-    (f : ToposHom (RingedSite.ofCommRingSheaf JC OC)
-      (RingedSite.ofCommRingSheaf JD OD)) :
-    (toNaive f).f (-1) =
-      (CotangentComplex.objXIso (inverseImageStructureSheaf f)
-          (Under.mk (structureSheafMap f)) 1).hom ≫
-        CotangentComplex.toConormal (inverseImageStructureSheaf f)
-          (Under.mk (structureSheafMap f)) :=
-  sorry
+#check (SheafOfModules.RingedSite.CotangentComplex.toNaive_negOne
+    (f.toTopos.commRingInverseImage.obj OD) (Under.mk (commRingStructureMap f)) :
+  (RingedSite.ToposHom.toNaive f).f (-1) =
+    (CotangentComplex.objXIso (f.toTopos.commRingInverseImage.obj OD)
+        (Under.mk (commRingStructureMap f)) 1).hom ≫
+      CotangentComplex.toConormal (f.toTopos.commRingInverseImage.obj OD)
+        (Under.mk (commRingStructureMap f)))
 
 end RingedSite.ToposHom
-

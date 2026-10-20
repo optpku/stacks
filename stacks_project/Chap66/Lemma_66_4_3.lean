@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_4_3_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Pullback
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,7 +15,7 @@ open AlgebraicGeometry.AlgebraicSpace
 (Stacks diagram `Z ×_Y X → X` over `Z → Y`, written in mathlib `IsPullback` order), then the
 comparison of points `|P| → |X| ×_{|Z|} |Y|` is surjective. -/
 @[stacks 03H4] #check
-  (Points.pullbackComparison_surjective :
+  (AlgebraicGeometry.AlgebraicSpace.Points.pullbackComparison_surjective :
     ∀ {S : Scheme.{u}} {P X Y Z : AlgebraicSpace S}
       {fst : P ⟶ X} {snd : P ⟶ Y} {f : X ⟶ Z} {g : Y ⟶ Z}
       (h : IsPullback fst snd f g),

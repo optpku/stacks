@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Functor.Derived.ComputesAt.Comparison
+public import ReasLib.CategoryTheory.Functor.Derived.ComputesAt.Value.Explicit
 
 /-!
 # Total Derived Values Computed by Local Replacements
@@ -34,24 +29,39 @@ variable (Q : D ⥤ E) [Q.IsLocalization S]
 
 section Right
 
-variable [F.HasRightDerivedFunctor S]
+variable [F.HasPointwiseRightDerivedFunctor S]
+
 
 /-- At an object which computes the right derived functor, the total right-derived unit is the
 canonical comparison isomorphism. -/
 @[stacks 05SX "the right-derived computation isomorphism"]
 noncomputable def RightDerived.ComputesAt.unitIso
     (X : D) (hX : RightDerived.ComputesAt F S X) :
-    F.obj X ≅ (F.totalRightDerived Q S).obj (Q.obj X) :=
-  @asIso _ _ _ _ ((F.totalRightDerivedUnit Q S).app X)
-    (RightDerived.ComputesAt.isIso_app F S Q
-      (F.totalRightDerived Q S) (F.totalRightDerivedUnit Q S) X hX inferInstance)
+    F.obj X ≅ (F.totalRightDerived Q S).obj (Q.obj X) where
+  hom := (F.totalRightDerivedUnit Q S).app X
+  inv := by
+    let e := Localization.compUniqFunctor S.Q Q S
+    let G := (Localization.uniq S.Q Q S).functor ⋙ F.totalRightDerived Q S
+    let β : F ⟶ S.Q ⋙ G :=
+      F.totalRightDerivedUnit Q S ≫ whiskerRight e.inv _ ≫ (associator _ _ _).hom
+    have : G.IsLeftKanExtension β :=
+      (isLeftKanExtension_iff_postcomp₁ _ e (F.totalRightDerivedUnit Q S)).mp
+        (IsRightDerivedFunctor.isLeftKanExtension _ _ S)
+    have : G.IsRightDerivedFunctor β S := ⟨inferInstance⟩
+    let eX : (F.totalRightDerived Q S).obj (Q.obj X) ≅ RightDerived.Value.obj F S X :=
+      (F.totalRightDerived Q S).mapIso (e.app X).symm ≪≫
+        ((isPointwiseLeftKanExtensionOfHasPointwiseRightDerivedFunctor
+          (F' := G) (F := F) (L := S.Q) (α := β) S) (S.Q.obj X)).isoColimit
+    exact eX.hom ≫ (RightDerived.ComputesAt.valueIsoOf F S X hX).inv
+  hom_inv_id := sorry
+  inv_hom_id := sorry
 
 /-- The forward computation isomorphism is the total right-derived unit. -/
 @[simp]
 theorem RightDerived.ComputesAt.unitIso_hom
     (X : D) (hX : RightDerived.ComputesAt F S X) :
     (RightDerived.ComputesAt.unitIso F S Q X hX).hom =
-      (F.totalRightDerivedUnit Q S).app X := sorry
+      (F.totalRightDerivedUnit Q S).app X := rfl
 
 /-- The inverse computation isomorphism is the inverse of the total right-derived unit. -/
 @[simp]
@@ -59,8 +69,7 @@ theorem RightDerived.ComputesAt.unitIso_inv
     (X : D) (hX : RightDerived.ComputesAt F S X) :
     (RightDerived.ComputesAt.unitIso F S Q X hX).inv =
       @CategoryTheory.inv _ _ _ _ ((F.totalRightDerivedUnit Q S).app X)
-        (RightDerived.ComputesAt.isIso_app F S Q
-          (F.totalRightDerived Q S) (F.totalRightDerivedUnit Q S) X hX inferInstance) := sorry
+        (RightDerived.ComputesAt.unitIso F S Q X hX).isIso_hom := sorry
 
 /-- A local replacement by an object computing the right derived functor computes the total
 right-derived value at the original object. -/
@@ -119,24 +128,39 @@ end Right
 
 section Left
 
-variable [F.HasLeftDerivedFunctor S]
+variable [F.HasPointwiseLeftDerivedFunctor S]
+
 
 /-- At an object which computes the left derived functor, the total left-derived counit is the
 canonical comparison isomorphism. -/
 @[stacks 05SX "the left-derived computation isomorphism"]
 noncomputable def LeftDerived.ComputesAt.counitIso
     (X : D) (hX : LeftDerived.ComputesAt F S X) :
-    (F.totalLeftDerived Q S).obj (Q.obj X) ≅ F.obj X :=
-  @asIso _ _ _ _ ((F.totalLeftDerivedCounit Q S).app X)
-    (LeftDerived.ComputesAt.isIso_app F S Q
-      (F.totalLeftDerived Q S) (F.totalLeftDerivedCounit Q S) X hX inferInstance)
+    (F.totalLeftDerived Q S).obj (Q.obj X) ≅ F.obj X where
+  hom := (F.totalLeftDerivedCounit Q S).app X
+  inv := by
+    let e := Localization.compUniqFunctor S.Q Q S
+    let G := (Localization.uniq S.Q Q S).functor ⋙ F.totalLeftDerived Q S
+    let β : S.Q ⋙ G ⟶ F :=
+      (associator _ _ _).inv ≫ whiskerRight e.hom _ ≫ F.totalLeftDerivedCounit Q S
+    have : G.IsRightKanExtension β :=
+      (isRightKanExtension_iff_postcomp₁ _ e (F.totalLeftDerivedCounit Q S)).mp
+        (IsLeftDerivedFunctor.isRightKanExtension _ _ S)
+    have : G.IsLeftDerivedFunctor β S := ⟨inferInstance⟩
+    let eX : (F.totalLeftDerived Q S).obj (Q.obj X) ≅ LeftDerived.Value.obj F S X :=
+      (F.totalLeftDerived Q S).mapIso (e.app X).symm ≪≫
+        ((isPointwiseRightKanExtensionOfHasPointwiseLeftDerivedFunctor
+          (F' := G) (F := F) (L := S.Q) (α := β) S) (S.Q.obj X)).isoLimit
+    exact (LeftDerived.ComputesAt.valueIsoOf F S X hX).inv ≫ eX.inv
+  hom_inv_id := sorry
+  inv_hom_id := sorry
 
 /-- The forward computation isomorphism is the total left-derived counit. -/
 @[simp]
 theorem LeftDerived.ComputesAt.counitIso_hom
     (X : D) (hX : LeftDerived.ComputesAt F S X) :
     (LeftDerived.ComputesAt.counitIso F S Q X hX).hom =
-      (F.totalLeftDerivedCounit Q S).app X := sorry
+      (F.totalLeftDerivedCounit Q S).app X := rfl
 
 /-- The inverse computation isomorphism is the inverse of the total left-derived counit. -/
 @[simp]
@@ -144,8 +168,7 @@ theorem LeftDerived.ComputesAt.counitIso_inv
     (X : D) (hX : LeftDerived.ComputesAt F S X) :
     (LeftDerived.ComputesAt.counitIso F S Q X hX).inv =
       @CategoryTheory.inv _ _ _ _ ((F.totalLeftDerivedCounit Q S).app X)
-        (LeftDerived.ComputesAt.isIso_app F S Q
-          (F.totalLeftDerived Q S) (F.totalLeftDerivedCounit Q S) X hX inferInstance) := sorry
+        (LeftDerived.ComputesAt.counitIso F S Q X hX).isIso_hom := sorry
 
 /-- A local coreplacement by an object computing the left derived functor computes the total
 left-derived value at the target object. -/

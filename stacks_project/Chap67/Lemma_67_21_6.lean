@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_21_6_QuasiAffine
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.QuasiAffine.Characterization
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +14,7 @@ of algebraic spaces `f : X ⟶ Y` over `S` is quasi-affine if and only if the
 canonical factorization `Hom.toPushforwardRelativeSpec f :
 X ⟶ relativeSpec (pushforwardStructureQcAlgebra f)` is an open immersion. -/
 @[stacks 086S] #check
-  (QuasiAffine.iff_isOpenImmersion_toPushforwardRelativeSpec :
+  (AlgebraicGeometry.AlgebraicSpace.QuasiAffine.iff_isOpenImmersion_toPushforwardRelativeSpec :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
       [QuasiCompact f] [QuasiSeparated f],
       QuasiAffine f ↔ IsOpenImmersion (Hom.toPushforwardRelativeSpec f))

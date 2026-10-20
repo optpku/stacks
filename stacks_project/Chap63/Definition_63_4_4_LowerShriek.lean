@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Sites.Sheafification
-public import stacks_project.Chap63.«63_4_0_2_LowerShriekPresheaf»
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.LowerShriek.LocallyQuasiFinite
 
 /-!
 # Direct image with compact support for locally quasi-finite morphisms
@@ -30,19 +23,10 @@ namespace AlgebraicGeometry.Scheme.Etale
 variable {X Y : Scheme.{u}} (f : X ⟶ Y) [LocallyQuasiFinite f]
 variable [HasSheafify Y.smallEtaleTopology AddCommGrpCat.{u}]
 
-/-- The direct image with compact support `f_!` along a locally quasi-finite
-morphism, obtained by sheafifying the presheaf `f_{p!}`. -/
-def lowerShriek :
-    Sheaf X.smallEtaleTopology AddCommGrpCat.{u} ⥤
-      Sheaf Y.smallEtaleTopology AddCommGrpCat.{u} :=
-  lowerShriekPresheaf f ⋙ presheafToSheaf Y.smallEtaleTopology AddCommGrpCat.{u}
-
-/-- Evaluating `f_!` sheafifies the compact-support presheaf `f_{p!}`. -/
-theorem lowerShriek_obj (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) :
-    (lowerShriek f).obj F =
-      (presheafToSheaf Y.smallEtaleTopology AddCommGrpCat.{u}).obj
-        ((lowerShriekPresheaf f).obj F) :=
-  sorry
+/- Direct image with compact support is the sheafification of the finite-support presheaf. -/
+#check (AlgebraicGeometry.Scheme.Etale.lowerShriek f :
+  Sheaf X.smallEtaleTopology AddCommGrpCat.{u} ⥤
+    Sheaf Y.smallEtaleTopology AddCommGrpCat.{u})
 
 end AlgebraicGeometry.Scheme.Etale
 

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Definition_90_7_3_CompleteLocal
-public import stacks_project.Chap90.Lemma_90_4_7_AdicTopology
+public import ReasLib.RingTheory.Completion.IdealFiltration
+import StacksCheckRecall
 
 /-!
 # Maximal-adic topology after quotient by an intersection
@@ -19,27 +13,28 @@ intersection.
 
 @[expose] public section
 
-open IsLocalRing CompleteLocalAlgCat
+open IsLocalRing
 
 universe u
 
-variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
-  [Module.Finite Λ k]
-
-namespace CompleteLocalAlgCat
-
-/-- Lemma 90.4.7: if `R` is an object of `Ĉ_Λ = CompleteLocalAlgCat Λ k` and `J` is a
-decreasing sequence of ideals with `maximalIdeal R.carrier ^ n ≤ J n`, then writing
-`I` for `⨅ i, J i`, the sequence of images `(J n).map (Ideal.Quotient.mk I)` defines
-the `maximalIdeal (R.carrier ⧸ I)`-adic topology on `R.carrier ⧸ I`. -/
-@[stacks 06SE]
-theorem definesMaximalAdicTopology_map_iInf (R : CompleteLocalAlgCat Λ k)
-    (J : ℕ → Ideal R.carrier) (hJ_anti : Antitone J)
-    (hJ_pow : ∀ n, maximalIdeal R.carrier ^ n ≤ J n)
-    [IsLocalRing (R.carrier ⧸ ⨅ i, J i)] :
+/- Lemma 90.4.7: objects of the completed base category supply the commutative,
+Noetherian, complete local ring hypotheses below. For `I = ⨅ i, J i`, the images
+of the decreasing family `J` define the topology given by powers of the image of
+`maximalIdeal R`. This image ideal is the quotient maximal ideal whenever `R ⧸ I`
+is nontrivial. The mapped-ideal formulation also covers the zero quotient. -/
+@[stacks 06SE] #check (IsCompleteLocalRing.definesMaximalAdicTopology_map_iInf :
+  ∀ {R : Type u} [CommRing R] [IsNoetherianRing R] [IsCompleteLocalRing R]
+    (J : ℕ → Ideal R), Antitone J → (∀ n, maximalIdeal R ^ n ≤ J n) →
     let I := ⨅ i, J i;
-    (∀ n, maximalIdeal (R.carrier ⧸ I) ^ n ≤ (J n).map (Ideal.Quotient.mk I)) ∧
+    (∀ n, (maximalIdeal R).map (Ideal.Quotient.mk I) ^ n ≤
+        (J n).map (Ideal.Quotient.mk I)) ∧
       ∀ n, ∃ N, (J N).map (Ideal.Quotient.mk I) ≤
-        maximalIdeal (R.carrier ⧸ I) ^ n := sorry
+        (maximalIdeal R).map (Ideal.Quotient.mk I) ^ n)
 
-end CompleteLocalAlgCat
+#check (IsCompleteLocalRing.definesMaximalAdicTopology_quotient :
+  ∀ {R : Type u} [CommRing R] [IsNoetherianRing R] [IsCompleteLocalRing R]
+    (J : ℕ → Ideal R), Antitone J → (∀ n, maximalIdeal R ^ n ≤ J n) →
+    ∀ [IsLocalRing (R ⧸ ⨅ i, J i)],
+    let I := ⨅ i, J i;
+    (∀ n, maximalIdeal (R ⧸ I) ^ n ≤ (J n).map (Ideal.Quotient.mk I)) ∧
+      ∀ n, ∃ N, (J N).map (Ideal.Quotient.mk I) ≤ maximalIdeal (R ⧸ I) ^ n)

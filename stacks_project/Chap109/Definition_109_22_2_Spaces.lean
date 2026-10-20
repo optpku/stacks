@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap109.Definition_109_21_2_Spaces
@@ -92,10 +86,6 @@ instance instIsStableFamily_ofOverMap {S : Scheme.{u}} {U V : Over S} (h : U ⟶
 end AlgebraicGeometry.AlgebraicSpace
 
 namespace AlgebraicGeometry.AlgebraicSpace.Spaces.Curves
-
-/-- The object property of stable families of curves. -/
-def stable (S : Scheme.{u}) : ObjectProperty (Obj S) :=
-  fun P ↦ IsStableFamily (hom P)
 
 /-- Membership in `stable` is that the structure morphism is a stable family. -/
 theorem stable_iff {S : Scheme.{u}} (P : Obj S) :

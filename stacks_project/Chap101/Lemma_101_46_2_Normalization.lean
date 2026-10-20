@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Pullbacks
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Smooth
 public import stacks_project.Chap67.Lemma_67_49_5
 public import stacks_project.Chap94.Definition_94_12_1_MorphismProperty
 public import stacks_project.Chap94.Lemma_94_16_1_QuotientMap
@@ -159,7 +154,8 @@ def normalizedTarget (X : GroupoidsOver S) [AlgebraicStack X]
     (atlasGroupoid X).R.left.normalization ⟶
       (atlasGroupoid X).U.left.normalization :=
   liftNormalization (atlasGroupoid X).t.left
-    (AlgebraicSpace.mapsCodimZero_of_smooth (atlasGroupoid X).t.left)
+    (@AlgebraicSpace.mapsCodimZero_of_smooth _ _ _ (atlasGroupoid X).t.left
+      (GroupoidAlgebraicSpace.Smooth.target (instSmooth_atlasGroupoid X)))
 
 /-- `normalizedTarget X` lifts `(atlasGroupoid X).t.left` through normalization. -/
 theorem normalizedTarget_comp (X : GroupoidsOver S) [AlgebraicStack X]
@@ -195,8 +191,9 @@ def targetPullbackIso (X : GroupoidsOver S) [AlgebraicStack X]
       pullback (atlasGroupoid X).U.left.normalizationTo (atlasGroupoid X).t.left :=
   Classical.choose
     (ExistsUnique.exists
-      (AlgebraicSpace.Normalization.existsUnique_pullbackIso_of_smooth
-        (atlasGroupoid X).t.left))
+      (@AlgebraicSpace.Normalization.existsUnique_pullbackIso_of_smooth _ _ _
+        (atlasGroupoid X).t.left
+        (GroupoidAlgebraicSpace.Smooth.target (instSmooth_atlasGroupoid X)) inferInstance))
 
 /-- The second projection of `targetPullbackIso X` recovers `R.normalizationTo`. -/
 theorem targetPullbackIso_snd (X : GroupoidsOver S) [AlgebraicStack X]

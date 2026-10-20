@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Divisor.OrderOfVanishing
@@ -28,6 +22,8 @@ noncomputable section
 universe u
 
 namespace AlgebraicGeometry.Scheme
+
+section
 
 variable (X : Scheme.{u}) [IsLocallyNoetherian X] [IsIntegral X]
 
@@ -131,5 +127,41 @@ theorem principalWeilDivisor_mul (f g : X.functionFieldˣ) :
 @[simp]
 theorem principalWeilDivisor_inv (f : X.functionFieldˣ) :
     principalWeilDivisor X f⁻¹ = -principalWeilDivisor X f := sorry
+
+end
+
+section
+
+/-- A unit in the local ring of a prime divisor has vanishing principal coefficient. -/
+theorem principalWeilDivisor_coeff_eq_zero_of_isUnit_stalk {X : Scheme.{u}}
+    [IsNoetherian X] [IsIntegral X] (f : X.functionFieldˣ) (Z : PrimeDivisor X)
+    (a : X.presheaf.stalk Z.genericPoint) (ha : IsUnit a)
+    (hfa : algebraMap (X.presheaf.stalk Z.genericPoint) X.functionField a = f) :
+    (principalWeilDivisor X f).coeff Z = 0 := sorry
+
+/-- If a rational function lies in the local ring of a prime divisor, its coefficient is the
+length of that local ring modulo the corresponding principal ideal. -/
+theorem principalWeilDivisor_coeff_eq_length {X : Scheme.{u}}
+    [IsNoetherian X] [IsIntegral X] (f : X.functionFieldˣ) (Z : PrimeDivisor X)
+    (a : X.presheaf.stalk Z.genericPoint)
+    (hfa : algebraMap (X.presheaf.stalk Z.genericPoint) X.functionField a = f) :
+    (principalWeilDivisor X f).coeff Z =
+      ((Ring.ord (X.presheaf.stalk Z.genericPoint) a).toNat : ℤ) := sorry
+
+/-- If a rational function is a ratio `a / b` in the local ring of a prime divisor, its
+coefficient is the difference of the corresponding lengths. -/
+theorem principalWeilDivisor_coeff_eq_length_sub {X : Scheme.{u}}
+    [IsNoetherian X] [IsIntegral X] (f : X.functionFieldˣ) (Z : PrimeDivisor X)
+    (a b : X.presheaf.stalk Z.genericPoint)
+    (hb : algebraMap (X.presheaf.stalk Z.genericPoint) X.functionField b ≠ 0)
+    (hfa :
+      algebraMap (X.presheaf.stalk Z.genericPoint) X.functionField a /
+          algebraMap (X.presheaf.stalk Z.genericPoint) X.functionField b =
+        f) :
+    (principalWeilDivisor X f).coeff Z =
+      ((Ring.ord (X.presheaf.stalk Z.genericPoint) a).toNat : ℤ) -
+        ((Ring.ord (X.presheaf.stalk Z.genericPoint) b).toNat : ℤ) := sorry
+
+end
 
 end AlgebraicGeometry.Scheme

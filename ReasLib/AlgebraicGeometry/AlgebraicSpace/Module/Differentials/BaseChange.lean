@@ -1,0 +1,36 @@
+module
+
+public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Pullback.Differentials
+
+/-!
+# Base change of relative differentials of algebraic spaces
+
+On a cartesian square of algebraic spaces, the canonical comparison from the
+pullback of relative differentials to the relative differentials of the base
+change is an isomorphism.
+-/
+
+@[expose] public section
+
+open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
+open AlgebraicGeometry.AlgebraicSpace.Hom.Differentials
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace.Hom.Differentials
+
+variable {S : Scheme.{u}}
+
+/-- For a cartesian square of algebraic spaces, the canonical comparison from the
+pullback of relative differentials to the relative differentials after base change is
+an isomorphism. -/
+theorem comparison_isIso_of_isPullback
+    {X X' Y Y' : AlgebraicSpace S} {f : X ⟶ Y} {g : Y' ⟶ Y} {g' : X' ⟶ X} {f' : X' ⟶ Y'}
+    (hpb : IsPullback g' f' f g) :
+    IsIso (comparison g' g f f' hpb.w) :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicSpace.Hom.Differentials

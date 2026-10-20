@@ -1,17 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap94.«94_16_1_1_CanonicalHom»
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.CanonicalHom
+import StacksCheckRecall
 
 /-!
 # Canonical action of `f_can` on morphisms
 
-Special-case formula for the morphism `f_can : [U/R] ⟶ X` on arrows of `[U/R]`.
+The switched-comparison equation describes the fibrewise arrow rule used in
+the construction of `f_can : [U/R] ⟶ X`.
 -/
 
 @[expose] public section
@@ -26,15 +22,14 @@ universe u
 
 namespace AlgebraicGeometry
 
-/-- 94.16.1.1: in the special-case description of `f_can : [U/R] ⟶ X` from
-lemma 04T4, a morphism `φ : a ⟶ b` in `[U/R]` over `T` is an object
-`φ = (b, a, α)` of the self 2-fibre product `R` of `f` over `T` (note the
-switch), and `f_can(φ)` is the fibre morphism `f(a) ⟶ f(b)` given by `α⁻¹`. -/
-@[stacks 04TG]
-theorem canonicalHom_eq_inv {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X)
+/- 94.16.1.1: a fibrewise arrow `φ : a ⟶ b` is represented by the switched
+triple `(b, a, α)`, with `α : f(b) ≅ f(a)`. The fibrewise arrow rule used in
+the construction of `f_can` sends this triple to `α.inv : f(a) ⟶ f(b)`. -/
+@[stacks 04TG] #check (AlgebraicGeometry.canonicalHom_eq_inv :
+  ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X)
     {T : Over S} (a b : U.p.Fiber T)
-    (α : (fiberFunctor f T).obj b ≅ (fiberFunctor f T).obj a) :
-    canonicalHom f (ofSwitchedComparison f a b α) = α.inv :=
-  sorry
+    (α : (fiberFunctor f T).obj b ≅ (fiberFunctor f T).obj a),
+    AlgebraicGeometry.canonicalHom f
+      (AlgebraicGeometry.ofSwitchedComparison f a b α) = α.inv)
 
 end AlgebraicGeometry

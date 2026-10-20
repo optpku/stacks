@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.PuncturedSpectrum.FiniteEtaleDualizing
@@ -32,8 +26,10 @@ of some finite étale `Y₀` over `X₀` already extends to a finite étale `Y` 
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
     (f : maximalIdeal A)
-    [H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A))]
-    [Fact (∃ K : DerivedCategory (ModuleCat.{u} A), K.IsDualizingComplex H)]
+    (C : DerivedCategory.CanonicalClosedPresentation (A := A))
+    [Fact
+      (∃ K : DerivedCategory (ModuleCat.{u} A),
+        K.IsCanonicalDualizingComplex C)]
     [HenselianRing A (principalIdeal f)]
     [Fact
       ((SerreConditionS (Localization.Away (f : A)) 2 ∧

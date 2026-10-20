@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.CategoryTheory.Sites.Over.SheafCompose
+public import stacks_project.Chap85.Lemma_85_16_3_Component
 public import stacks_project.Chap85.Lemma_85_24_2_Cartesian
 public import stacks_project.Chap85.Lemma_85_24_2_Component
 
@@ -23,6 +18,7 @@ isomorphisms compatible with the maps `ρ_a`.
 @[expose] public section
 
 open CategoryTheory CategoryTheory.Limits Opposite
+open Sheaf.InternalModule (underlyingApp)
 open RingedSite
 open RingedSite.Hom
 open RingedSite.ModuleDerived
@@ -58,39 +54,39 @@ theorem simplicialSR_obj (u : B ⥤ X) (L : SimplicialObject (FormalCoproduct.{�
 /-- Indexing functor of a locally given datum. The `UnivLE.{max u v, w}` argument is
 explicit so it cannot be filled by `UnivLE.{max ι u v, w}`. -/
 def locallyGivenU (h_le : UnivLE.{max u v, w})
-    (D : @LocallyGiven.{u, v, w, w, uB, vB} X B inferInstance h_le) : B ⥤ X :=
-  @LocallyGiven.u.{u, v, w, w, uB, vB} X B inferInstance h_le D
+    (D : @LocallyGiven.{u, v, w, w, uB, vB} h_le X B inferInstance) : B ⥤ X :=
+  D.u
 
 /-- `locallyGivenU h_le D` is the indexing functor of `D`. -/
 theorem locallyGivenU_eq (h_le : UnivLE.{max u v, w})
-    (D : @LocallyGiven.{u, v, w, w, uB, vB} X B inferInstance h_le) :
-    locallyGivenU h_le D = @LocallyGiven.u.{u, v, w, w, uB, vB} X B inferInstance h_le D :=
+    (D : @LocallyGiven.{u, v, w, w, uB, vB} h_le X B inferInstance) :
+    locallyGivenU h_le D = D.u :=
   sorry
 
 /-- The object `E_U` of a locally given datum. The `UnivLE.{max u v, w}` argument is
 explicit so it cannot be filled by `UnivLE.{max ι u v, w}`. -/
 def locallyGivenObj (h_le : UnivLE.{max u v, w})
-    (D : @LocallyGiven.{u, v, w, w, uB, vB} X B inferInstance h_le) (U : B) :
+    (D : @LocallyGiven.{u, v, w, w, uB, vB} h_le X B inferInstance) (U : B) :
     Hom.ModuleDerived.{w, max u v, v, w}
       (X.localization ((locallyGivenU h_le D).obj U)) :=
-  @LocallyGiven.obj.{u, v, w, w, uB, vB} X B inferInstance h_le D U
+  D.obj U
 
 /-- `locallyGivenObj h_le D U` is the object `E_U` of `D`. -/
 theorem locallyGivenObj_eq (h_le : UnivLE.{max u v, w})
-    (D : @LocallyGiven.{u, v, w, w, uB, vB} X B inferInstance h_le) (U : B) :
+    (D : @LocallyGiven.{u, v, w, w, uB, vB} h_le X B inferInstance) (U : B) :
     locallyGivenObj h_le D U =
-      @LocallyGiven.obj.{u, v, w, w, uB, vB} X B inferInstance h_le D U :=
+      D.obj U :=
   sorry
 
 /-- Negative self-Ext vanishing: `Hom(E_U⟦t⟧, E_U) = 0` for every `U` and every `t > 0`. -/
 def negativeSelfExt (h_le : UnivLE.{max u v, w})
-    (D : @LocallyGiven.{u, v, w, w, uB, vB} X B inferInstance h_le) : Prop :=
+    (D : @LocallyGiven.{u, v, w, w, uB, vB} h_le X B inferInstance) : Prop :=
   ∀ (U : B) (t : ℤ), 0 < t →
     Subsingleton ((locallyGivenObj h_le D U)⟦t⟧ ⟶ locallyGivenObj h_le D U)
 
 /-- Unfolding of negative self-Ext vanishing. -/
 theorem negativeSelfExt_iff (h_le : UnivLE.{max u v, w})
-    (D : @LocallyGiven.{u, v, w, w, uB, vB} X B inferInstance h_le) :
+    (D : @LocallyGiven.{u, v, w, w, uB, vB} h_le X B inferInstance) :
     negativeSelfExt h_le D ↔
       ∀ (U : B) (t : ℤ), 0 < t →
         Subsingleton ((locallyGivenObj h_le D U)⟦t⟧ ⟶ locallyGivenObj h_le D U) :=
@@ -118,14 +114,14 @@ end CarrierUnivLE
 
 /-- The simplicial object `K = u(L)` of `SR(C)`, with `UnivLE.{max u v, w}` pinned on `u`. -/
 def simplicialK (h_le : UnivLE.{max u v, w})
-    (D : @LocallyGiven.{u, v, w, w, uB, vB} X B inferInstance h_le)
+    (D : @LocallyGiven.{u, v, w, w, uB, vB} h_le X B inferInstance)
     (L : SimplicialObject (FormalCoproduct.{ι} B)) :
     SimplicialObject (FormalCoproduct.{ι} X.carrier) :=
   simplicialSR (locallyGivenU h_le D) L
 
 /-- `simplicialK h_le D L` is `u(L)` with the carrier universe inequality pinned. -/
 theorem simplicialK_eq (h_le : UnivLE.{max u v, w})
-    (D : @LocallyGiven.{u, v, w, w, uB, vB} X B inferInstance h_le)
+    (D : @LocallyGiven.{u, v, w, w, uB, vB} h_le X B inferInstance)
     (L : SimplicialObject (FormalCoproduct.{ι} B)) :
     simplicialK h_le D L = simplicialSR (locallyGivenU h_le D) L :=
   sorry
@@ -195,25 +191,25 @@ def sliceLocalizedRestrictionExact (h_le : UnivLE.{max u v, w}) (U : X) :
 /-- The transition isomorphism `ρ_a` of a locally given datum, with `UnivLE.{max u v, w}`
 pinned so instance search cannot feed `UnivLE.{max ι u v, w}`. -/
 def locallyGivenIso (h_le : UnivLE.{max u v, w})
-    (D : @LocallyGiven.{u, v, w, w, uB, vB} X B inferInstance h_le)
+    (D : @LocallyGiven.{u, v, w, w, uB, vB} h_le X B inferInstance)
     {V U : B} (a : V ⟶ U) :
     (sliceRestrictionDerived h_le ((locallyGivenU h_le D).map a)).obj
       (locallyGivenObj h_le D U) ≅ locallyGivenObj h_le D V :=
-  @LocallyGiven.iso.{u, v, w, w, uB, vB} X B inferInstance h_le D _ _ a
+  D.iso a
 
 /-- `locallyGivenIso h_le D a` is the transition isomorphism `ρ_a` of `D`. -/
 theorem locallyGivenIso_eq (h_le : UnivLE.{max u v, w})
-    (D : @LocallyGiven.{u, v, w, w, uB, vB} X B inferInstance h_le)
+    (D : @LocallyGiven.{u, v, w, w, uB, vB} h_le X B inferInstance)
     {V U : B} (a : V ⟶ U) :
     locallyGivenIso h_le D a =
-      @LocallyGiven.iso.{u, v, w, w, uB, vB} X B inferInstance h_le D _ _ a :=
+      D.iso a :=
   sorry
 
 variable {h_univLE_carrier : UnivLE.{max u v, w}}
 
 section Data
 
-variable (D : @LocallyGiven.{u, v, w, w, uB, vB} X B inferInstance h_univLE_carrier)
+variable (D : @LocallyGiven.{u, v, w, w, uB, vB} h_univLE_carrier X B inferInstance)
 variable (L : SimplicialObject (FormalCoproduct.{ι} B))
 variable [h_univLE_index : UnivLE.{max ι u v, w}]
 variable [HasSheafify (overSiteTotalTopology X.siteTopology (simplicialK h_univLE_carrier D L)) (Type w)]
@@ -463,6 +459,26 @@ theorem componentStageMap_underlyingApp_hom_inv_id {m n : SimplexCategory} (φ :
       (componentStageMap_underlyingApp D L φ i M).inv = 𝟙 _ :=
   sorry
 
+/-- The specified component comparison is natural in the input module sheaf. -/
+theorem componentStageMap_underlyingApp_naturality {m n : SimplexCategory} (φ : m ⟶ n)
+    (i : (L.obj (op n)).I)
+    {M N : SheafOfModules.{w}
+      (ringSheaf ((simplicialK h_univLE_carrier D L).obj (op m)))} (f : M ⟶ N) :
+    ((stageMap (simplicialK h_univLE_carrier D L) φ).modulePullback ⋙
+          component ((simplicialK h_univLE_carrier D L).obj (op n)) i ⋙
+            Sheaf.InternalModule.ToInternal.underlying
+              (X.structureSheaf.over
+                (((simplicialK h_univLE_carrier D L).obj (op n)).obj i))).map f ≫
+        (componentStageMap_underlyingApp D L φ i N).hom =
+      (componentStageMap_underlyingApp D L φ i M).hom ≫
+        (component ((simplicialK h_univLE_carrier D L).obj (op m)) ((L.map φ.op).f i) ⋙
+          sliceRestriction h_univLE_carrier
+            (((simplicialK h_univLE_carrier D L).map φ.op).φ i) ⋙
+            Sheaf.InternalModule.ToInternal.underlying
+              (X.structureSheaf.over
+                (((simplicialK h_univLE_carrier D L).obj (op n)).obj i))).map f :=
+  sorry
+
 /-- Underlying type-valued sheaf functor comparison of the two restriction paths. -/
 def componentStageMap_underlyingNatIso {m n : SimplexCategory} (φ : m ⟶ n)
     (i : (L.obj (op n)).I) :
@@ -477,14 +493,53 @@ def componentStageMap_underlyingNatIso {m n : SimplexCategory} (φ : m ⟶ n)
           Sheaf.InternalModule.ToInternal.underlying
             (X.structureSheaf.over
               (((simplicialK h_univLE_carrier D L).obj (op n)).obj i)) :=
-  NatIso.ofComponents (fun M ↦ componentStageMap_underlyingApp D L φ i M) sorry
+  NatIso.ofComponents (fun M ↦ componentStageMap_underlyingApp D L φ i M)
+    (componentStageMap_underlyingApp_naturality D L φ i)
 
 /-- `componentStageMap_underlyingNatIso` is the functorial form of
 `componentStageMap_underlyingApp`. -/
 theorem componentStageMap_underlyingNatIso_eq {m n : SimplexCategory} (φ : m ⟶ n)
     (i : (L.obj (op n)).I) :
     componentStageMap_underlyingNatIso D L φ i =
-      NatIso.ofComponents (fun M ↦ componentStageMap_underlyingApp D L φ i M) sorry :=
+      NatIso.ofComponents (fun M ↦ componentStageMap_underlyingApp D L φ i M)
+        (componentStageMap_underlyingApp_naturality D L φ i) :=
+  sorry
+
+/-- The specified canonical comparison preserves addition in its target module structure. -/
+theorem componentStageMap_underlyingNatIso_add {m n : SimplexCategory} (φ : m ⟶ n)
+    (i : (L.obj (op n)).I)
+    (M : SheafOfModules.{w}
+      (ringSheaf ((simplicialK h_univLE_carrier D L).obj (op m))))
+    (U : (Over (((simplicialK h_univLE_carrier D L).obj (op n)).obj i))ᵒᵖ)
+    (x y : ((component ((simplicialK h_univLE_carrier D L).obj (op n)) i).obj
+        ((stageMap (simplicialK h_univLE_carrier D L) φ).modulePullback.obj M)).val.obj U) :
+    underlyingApp (X.structureSheaf.over
+        (((simplicialK h_univLE_carrier D L).obj (op n)).obj i))
+        ((componentStageMap_underlyingNatIso D L φ i).hom.app M) U (x + y) =
+      underlyingApp (X.structureSheaf.over
+        (((simplicialK h_univLE_carrier D L).obj (op n)).obj i))
+        ((componentStageMap_underlyingNatIso D L φ i).hom.app M) U x +
+        underlyingApp (X.structureSheaf.over
+          (((simplicialK h_univLE_carrier D L).obj (op n)).obj i))
+          ((componentStageMap_underlyingNatIso D L φ i).hom.app M) U y :=
+  sorry
+
+/-- The specified canonical comparison preserves the target ring's scalar action. -/
+theorem componentStageMap_underlyingNatIso_smul {m n : SimplexCategory} (φ : m ⟶ n)
+    (i : (L.obj (op n)).I)
+    (M : SheafOfModules.{w}
+      (ringSheaf ((simplicialK h_univLE_carrier D L).obj (op m))))
+    (U : (Over (((simplicialK h_univLE_carrier D L).obj (op n)).obj i))ᵒᵖ)
+    (r : (X.structureSheaf.over
+        (((simplicialK h_univLE_carrier D L).obj (op n)).obj i)).obj.obj U)
+    (x : ((component ((simplicialK h_univLE_carrier D L).obj (op n)) i).obj
+        ((stageMap (simplicialK h_univLE_carrier D L) φ).modulePullback.obj M)).val.obj U) :
+    underlyingApp (X.structureSheaf.over
+        (((simplicialK h_univLE_carrier D L).obj (op n)).obj i))
+        ((componentStageMap_underlyingNatIso D L φ i).hom.app M) U (r • x) =
+      r • underlyingApp (X.structureSheaf.over
+        (((simplicialK h_univLE_carrier D L).obj (op n)).obj i))
+        ((componentStageMap_underlyingNatIso D L φ i).hom.app M) U x :=
   sorry
 
 /-- Underived identification of slice restriction after `f_φ^*` with slice restriction along
@@ -496,13 +551,23 @@ def componentStageMapIso {m n : SimplexCategory} (φ : m ⟶ n)
       component ((simplicialK h_univLE_carrier D L).obj (op m)) ((L.map φ.op).f i) ⋙
         sliceRestriction h_univLE_carrier
           (((simplicialK h_univLE_carrier D L).map φ.op).φ i) :=
-  moduleNatIsoOfUnderlying (componentStageMap_underlyingNatIso D L φ i)
+  Sheaf.InternalModule.functorIsoOfUnderlying
+    (X.structureSheaf.over
+      (((simplicialK h_univLE_carrier D L).obj (op n)).obj i))
+    (componentStageMap_underlyingNatIso D L φ i)
+    (componentStageMap_underlyingNatIso_add D L φ i)
+    (componentStageMap_underlyingNatIso_smul D L φ i)
 
 /-- `componentStageMapIso` is the module-level lift of `componentStageMap_underlyingNatIso`. -/
 theorem componentStageMapIso_eq {m n : SimplexCategory} (φ : m ⟶ n)
     (i : (L.obj (op n)).I) :
     componentStageMapIso D L φ i =
-      moduleNatIsoOfUnderlying (componentStageMap_underlyingNatIso D L φ i) :=
+      Sheaf.InternalModule.functorIsoOfUnderlying
+        (X.structureSheaf.over
+          (((simplicialK h_univLE_carrier D L).obj (op n)).obj i))
+        (componentStageMap_underlyingNatIso D L φ i)
+        (componentStageMap_underlyingNatIso_add D L φ i)
+        (componentStageMap_underlyingNatIso_smul D L φ i) :=
   sorry
 
 /-- Derived identification of `(componentDerived i).obj (L(f_φ)^* E_m)` with the iterated

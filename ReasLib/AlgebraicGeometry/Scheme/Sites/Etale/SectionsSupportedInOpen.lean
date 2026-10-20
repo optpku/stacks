@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Group.Equiv.Defs
@@ -89,6 +83,116 @@ theorem restrictSupportedInOpen_apply (U U' : X.Opens) (hU : Set.range ι ⊆ U)
       F.1.map (openEtaleHom h).op σ.val :=
   sorry
 
+namespace SectionsSupportedInOpen
+
+/-- The complement of a subscheme closed in `U` is open in the ambient scheme. -/
+theorem complement_isOpen (U : X.Opens) (hU : Set.range ι ⊆ U)
+    [IsClosedImmersion (liftToOpen ι U hU)] :
+    IsOpen ((U : Set X) \ Set.range ι) := sorry
+
+/-- The specified open complement of the support inside the larger open. -/
+def complement (U : X.Opens) (hU : Set.range ι ⊆ U)
+    [IsClosedImmersion (liftToOpen ι U hU)] : X.Opens :=
+  ⟨(U : Set X) \ Set.range ι, complement_isOpen ι U hU⟩
+
+/-- The complement open lies in `U`. -/
+theorem complement_le (U : X.Opens) (hU : Set.range ι ⊆ U)
+    [IsClosedImmersion (liftToOpen ι U hU)] : complement ι U hU ≤ U :=
+  fun _ hx ↦ hx.1
+
+variable (U U' : X.Opens) (hU : Set.range ι ⊆ U) (hU' : Set.range ι ⊆ U')
+variable (h : U' ≤ U) [IsClosedImmersion (liftToOpen ι U hU)]
+
+/-- The two pieces used for extension: the smaller open and the support complement. -/
+def coverObj : Bool → X.Etale
+  | false => mk U'.ι
+  | true => mk (complement ι U hU).ι
+
+/-- The two actual inclusions into the larger open. -/
+def coverMap : (b : Bool) → coverObj ι U U' hU b ⟶ mk U.ι
+  | false => openEtaleHom h
+  | true => openEtaleHom (complement_le ι U hU)
+
+/-- A containing smaller open and the complement of the closed support cover `U`. -/
+theorem cover_mem (hU' : Set.range ι ⊆ U') :
+    Sieve.ofArrows (coverObj ι U U' hU) (coverMap ι U U' hU h) ∈
+      X.smallEtaleTopology (mk U.ι) := sorry
+
+/-- The gluing datum is the supplied supported section on the smaller open and zero on
+the complement, expressed as actual additive maps. -/
+def family (b : Bool) :
+    AddCommGrpCat.of
+        (abelianSheafSectionsSupportedIn F (mk U'.ι) (Set.range (liftToOpen ι U' hU'))) ⟶
+      F.1.obj (op (coverObj ι U U' hU b)) :=
+  match b with
+  | false => AddCommGrpCat.ofHom
+      (abelianSheafSectionsSupportedIn F (mk U'.ι)
+        (Set.range (liftToOpen ι U' hU'))).subtype
+  | true => 0
+
+/-- Supported sections and zero agree after restriction to every overlap of the two pieces. -/
+theorem family_compatible {W : X.Etale} {i j : Bool}
+    (a : W ⟶ coverObj ι U U' hU i) (b : W ⟶ coverObj ι U U' hU j)
+    (w : a ≫ coverMap ι U U' hU h i = b ≫ coverMap ι U U' hU h j) :
+    family F ι U U' hU hU' i ≫ F.1.map a.op =
+      family F ι U U' hU hU' j ≫ F.1.map b.op := sorry
+
+/-- Sheaf amalgamation of the specified smaller-open/zero additive maps. -/
+def amalgamate :
+    AddCommGrpCat.of
+        (abelianSheafSectionsSupportedIn F (mk U'.ι) (Set.range (liftToOpen ι U' hU'))) ⟶
+      F.1.obj (op (mk U.ι)) :=
+  F.property.amalgamateOfArrows
+    (coverMap ι U U' hU h) (cover_mem (ι := ι) (U := U) (U' := U') (hU := hU) (h := h) hU')
+    (family F ι U U' hU hU')
+    (fun {_} {_} {_} a b w ↦ family_compatible F ι U U' hU hU' h a b w)
+
+/-- The amalgamation has support in the original closed subscheme. -/
+theorem amalgamate_supported
+    (σ : abelianSheafSectionsSupportedIn F (mk U'.ι) (Set.range (liftToOpen ι U' hU'))) :
+    amalgamate F ι U U' hU hU' h σ ∈
+      abelianSheafSectionsSupportedIn F (mk U.ι) (Set.range (liftToOpen ι U hU)) := sorry
+
+end SectionsSupportedInOpen
+
+/-- Extend a supported section by gluing it with zero on the open support complement. -/
+def extendSupportedInOpen (U U' : X.Opens) (hU : Set.range ι ⊆ U)
+    (hU' : Set.range ι ⊆ U') (h : U' ≤ U)
+    [IsClosedImmersion (liftToOpen ι U hU)] :
+    abelianSheafSectionsSupportedIn F (mk U'.ι) (Set.range (liftToOpen ι U' hU')) →+
+      abelianSheafSectionsSupportedIn F (mk U.ι) (Set.range (liftToOpen ι U hU)) :=
+  (SectionsSupportedInOpen.amalgamate F ι U U' hU hU' h).hom.codRestrict
+    (abelianSheafSectionsSupportedIn F (mk U.ι) (Set.range (liftToOpen ι U hU)))
+    (SectionsSupportedInOpen.amalgamate_supported F ι U U' hU hU' h)
+
+/-- Restriction recovers the smaller-open section from its zero extension. -/
+theorem restrict_extendSupportedInOpen (U U' : X.Opens) (hU : Set.range ι ⊆ U)
+    (hU' : Set.range ι ⊆ U') (h : U' ≤ U)
+    [IsClosedImmersion (liftToOpen ι U hU)]
+    (σ : abelianSheafSectionsSupportedIn F (mk U'.ι) (Set.range (liftToOpen ι U' hU'))) :
+    restrictSupportedInOpen F ι U U' hU hU' h
+      (extendSupportedInOpen F ι U U' hU hU' h σ) = σ := sorry
+
+/-- A supported section on the larger open is the zero extension of its restriction. -/
+theorem extend_restrictSupportedInOpen (U U' : X.Opens) (hU : Set.range ι ⊆ U)
+    (hU' : Set.range ι ⊆ U') (h : U' ≤ U)
+    [IsClosedImmersion (liftToOpen ι U hU)]
+    (σ : abelianSheafSectionsSupportedIn F (mk U.ι) (Set.range (liftToOpen ι U hU))) :
+    extendSupportedInOpen F ι U U' hU hU' h
+      (restrictSupportedInOpen F ι U U' hU hU' h σ) = σ := sorry
+
+/-- Restriction to a containing smaller open has the specified zero-extension inverse. -/
+def restrictSupportedInOpenAddEquiv (U U' : X.Opens) (hU : Set.range ι ⊆ U)
+    (hU' : Set.range ι ⊆ U') (h : U' ≤ U)
+    [IsClosedImmersion (liftToOpen ι U hU)] :
+    abelianSheafSectionsSupportedIn F (mk U.ι) (Set.range (liftToOpen ι U hU)) ≃+
+      abelianSheafSectionsSupportedIn F (mk U'.ι) (Set.range (liftToOpen ι U' hU')) where
+  toFun := restrictSupportedInOpen F ι U U' hU hU' h
+  invFun := extendSupportedInOpen F ι U U' hU hU' h
+  left_inv := extend_restrictSupportedInOpen F ι U U' hU hU' h
+  right_inv := restrict_extendSupportedInOpen F ι U U' hU hU' h
+  map_add' := (restrictSupportedInOpen F ι U U' hU hU' h).map_add
+
 /-- For an abelian étale sheaf and a locally closed subscheme, two containing
 Zariski opens on which the subscheme is closed have canonically additively
 equivalent groups of sections supported on the subscheme. -/
@@ -98,12 +202,10 @@ def abelianSheafSectionsSupportedInOpenAddEquiv (U U' : X.Opens)
     [IsClosedImmersion (liftToOpen ι U' hU')] :
     abelianSheafSectionsSupportedIn F (mk U.ι) (Set.range (liftToOpen ι U hU)) ≃+
       abelianSheafSectionsSupportedIn F (mk U'.ι) (Set.range (liftToOpen ι U' hU')) :=
-  (AddEquiv.ofBijective
-      (restrictSupportedInOpen F ι U (U ⊓ U') hU
-        (range_subset_inf ι U U' hU hU') inf_le_left) sorry).trans
-    (AddEquiv.ofBijective
-      (restrictSupportedInOpen F ι U' (U ⊓ U') hU'
-        (range_subset_inf ι U U' hU hU') inf_le_right) sorry).symm
+  (restrictSupportedInOpenAddEquiv F ι U (U ⊓ U') hU
+      (range_subset_inf ι U U' hU hU') inf_le_left).trans
+    (restrictSupportedInOpenAddEquiv F ι U' (U ⊓ U') hU'
+      (range_subset_inf ι U U' hU hU') inf_le_right).symm
 
 /-- If `U' ≤ U`, the canonical comparison of supported sections is restriction
 along the inclusion of Zariski opens. -/

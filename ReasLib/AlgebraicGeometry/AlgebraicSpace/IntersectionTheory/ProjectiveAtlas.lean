@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.AffineProjSym
@@ -143,11 +137,9 @@ theorem diagonal_representable : yoneda.relativelyRepresentable (Limits.diag (fu
   sorry
 
 /-- Actual P(E): small quotient-class carrier and explicitly displayed Proj atlas. -/
-def space : AlgebraicSpace S where
-  functorOfPoints := functor E
-  isSheaf := isSheaf E
-  representableDiagonal := diagonal_representable E
-  atlas := ⟨atlasOver E, atlasMap E, atlas_etale E, atlas_surjective E⟩
+def space : AlgebraicSpace S :=
+  ofFunctor (functor E) (isSheaf E) (diagonal_representable E)
+    ⟨atlasOver E, atlasMap E, atlas_etale E, atlas_surjective E⟩
 
 def projection : space E ⟶ X := baseMap E
 

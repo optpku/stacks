@@ -1,13 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap87.Lemma_87_14_4_Completion
 public import stacks_project.Chap88.Definition_88_21_1_Formal
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CompletionAlong.FiniteType
+import StacksCheckRecall
 
 /-!
 # Locally of finite type morphisms of completions
@@ -27,14 +23,13 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 88.23.1: If `f : X' ⟶ X` is locally of finite type, then the induced
+/- Lemma 88.23.1: If `f : X' ⟶ X` is locally of finite type, then the induced
 morphism `completionAlong.map f T` of completions along a closed subset `T` of
 `Points X` is locally of finite type. -/
-@[stacks 0AQ9, instance]
-instance locallyOfFiniteType_completionAlongMap {S : Scheme.{u}}
-    {X X' : AlgebraicSpace S} (f : X' ⟶ X) [AlgebraicSpace.LocallyOfFiniteType f]
-    (T : Closeds (Points X)) :
-    FormalAlgebraicSpace.LocallyOfFiniteType (completionAlong.map f T) :=
-  sorry
+@[stacks 0AQ9] #check
+  (AlgebraicGeometry.AlgebraicSpace.locallyOfFiniteType_completionAlongMap :
+    ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (f : X' ⟶ X)
+      [AlgebraicSpace.LocallyOfFiniteType f] (T : Closeds (Points X)),
+      FormalAlgebraicSpace.LocallyOfFiniteType (completionAlong.map f T))
 
 end AlgebraicGeometry.AlgebraicSpace

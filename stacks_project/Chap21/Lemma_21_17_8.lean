@@ -1,12 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.Complex.KFlat.BoundedAbove
+public import ReasLib.Algebra.Homology.CochainComplex.KFlat.BoundedAbove
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Grothendieck
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Tensor.Exact
 import StacksCheckRecall
 
 @[expose] public section
@@ -31,7 +27,7 @@ variable {𝒪 : Sheaf J CommRingCat.{max u v}}
 /- Lemma 21.17.8: a bounded-above cochain complex of flat modules on a ringed site is K-flat. -/
 @[stacks 06YQ]
 #check
-  (CochainComplex.IsTermwiseFlat.isKFlat_of_boundedAbove :
+  (HomologicalComplex.IsTermwiseFlat.isKFlat_of_boundedAbove :
     {K : CochainComplex (ringedSiteModuleCategory J 𝒪) ℤ} →
       HomologicalComplex.IsTermwiseFlat K →
       CochainComplex.minus (ringedSiteModuleCategory J 𝒪) K → K.IsKFlat)

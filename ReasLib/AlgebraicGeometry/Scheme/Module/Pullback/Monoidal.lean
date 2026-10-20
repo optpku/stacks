@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Pullback.Monoidal
@@ -96,5 +90,9 @@ noncomputable def pullbackTensorPowerIso (L : Y.Modules) (n : ℕ) :
       (pullbackMonoidal f) L n).symm ≪≫
       RingedSpace.TensorPower.monoidalComparison.iso
         ((Scheme.Modules.pullback f).obj L) n
+
+/-- Scheme-module pullback has its canonical strong monoidal structure. -/
+noncomputable instance instPullbackMonoidal :
+    (Scheme.Modules.pullback f).Monoidal := pullbackMonoidal f
 
 end AlgebraicGeometry.Scheme.Modules

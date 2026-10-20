@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.TStructure
@@ -41,9 +35,9 @@ module pullback. -/
 instance instIsLeftDerivedFunctor_pullback {S : Scheme.{u}} {Y X : AlgebraicSpace S}
     (g : Y ⟶ X) :
     (pullback g).IsLeftDerivedFunctor
-      (Functor.LeftDerived.Homotopy.counit (Modules.pullback g))
+      (ModuleDerived.pullbackCounit g)
       (HomotopyCategory.quasiIso (Modules X) (ComplexShape.up ℤ)) :=
-  Functor.LeftDerived.Homotopy.isLeftDerived (Modules.pullback g)
+  ModuleDerived.pullbackCounit_isLeftDerived g
 
 end AlgebraicGeometry.AlgebraicSpace.ModuleDerived
 
@@ -84,7 +78,7 @@ def higherDirectImageOneBaseChangeHom {S : Scheme.{u}} {X Y Y' : AlgebraicSpace 
     ModuleDerived.cohomologyPullbackComparison g ((t.truncGE 1).obj E) 1
       inferInstance inferInstance ≫
     (Functor.LeftDerived.Homotopy.TruncGE.homologyIso (Modules.pullback g)
-        (ModuleDerived.pullback g) (Functor.LeftDerived.Homotopy.counit (Modules.pullback g))
+        (ModuleDerived.pullback g) (ModuleDerived.pullbackCounit g)
         E 1 1 le_rfl).inv ≫
     (DerivedCategory.homologyFunctor (Modules Y') 1).map
       ((DerivedBaseChange.map (derivedPullbackPushforwardAdjunction f)
@@ -112,7 +106,7 @@ theorem higherDirectImageOneBaseChangeHom_eq {S : Scheme.{u}}
         ModuleDerived.cohomologyPullbackComparison g ((t.truncGE 1).obj E) 1
           inferInstance inferInstance ≫
         (Functor.LeftDerived.Homotopy.TruncGE.homologyIso (Modules.pullback g)
-            (ModuleDerived.pullback g) (Functor.LeftDerived.Homotopy.counit (Modules.pullback g))
+            (ModuleDerived.pullback g) (ModuleDerived.pullbackCounit g)
             E 1 1 le_rfl).inv ≫
         (DerivedCategory.homologyFunctor (Modules Y') 1).map
           ((DerivedBaseChange.map (derivedPullbackPushforwardAdjunction f)

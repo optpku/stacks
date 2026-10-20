@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.ChowCohomology.ChernClass.Derived.Tensor
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Perfect.Tensor
 public import stacks_project.Chap42.Lemma_42_43_4
 public import stacks_project.Chap42.Lemma_42_45_3
@@ -37,62 +32,45 @@ theorem isPerfect_kFlatTensor {X : Scheme.{u}}
     (hE : RingedSpace.ModuleDerived.IsPerfect E)
     (hF : RingedSpace.ModuleDerived.IsPerfect F) :
     RingedSpace.ModuleDerived.IsPerfect
-      (CategoryTheory.MonoidalCategory.tensorObj E F) := sorry
+      (CategoryTheory.MonoidalCategory.tensorObj E F) :=
+  RingedSpace.ModuleDerived.IsPerfect.kFlatTensor hE hF
 
-namespace IsDefined
 
-/-- Definedness of derived Chern classes is preserved by derived tensor products. -/
-theorem tensor {X : Scheme.{u}}
-    [KFlat.HomotopyTensorDescends X.toRingedSpace]
-    [KFlat.TensorDescends X.toRingedSpace]
-    [KFlat.IsLocalization X.toRingedSpace]
-    {E F : RingedSpace.ModuleDerived X.toRingedSpace}
-    (hEDefined : IsDefined E) (hFDefined : IsDefined F) :
-    IsDefined (CategoryTheory.MonoidalCategory.tensorObj E F) := sorry
-
-end IsDefined
-
-/-- Lemma 42.46.11 (1): the first Chern class of a derived tensor product is
-`rankClass(E) * c₁(F) + rankClass(F) * c₁(E)`. -/
-@[stacks 0FAG]
-theorem totalClass_tensor_one
+/- Lemma 42.46.11 (1): The first Chern class of a derived tensor product is the virtual-rank-weighted sum
+of the first Chern classes of its factors. -/
+@[stacks 0FAG] #check (AlgebraicGeometry.ChernClass.Derived.totalClass_tensor_one :
+    ∀
     {S X : Scheme.{u}} [UniversallyCatenary S]
     (δ : S → ℤ) [IsDimensionFunction δ] (π : X ⟶ S) [LocallyOfFiniteType π]
-    [KFlat.HomotopyTensorDescends X.toRingedSpace]
-    [KFlat.TensorDescends X.toRingedSpace]
-    [KFlat.IsLocalization X.toRingedSpace]
     (classes : ChernClass.Theory δ π)
     (E F : RingedSpace.ModuleDerived X.toRingedSpace)
     (hEPerfect : RingedSpace.ModuleDerived.IsPerfect E)
     (hFPerfect : RingedSpace.ModuleDerived.IsPerfect F)
-    (hEDefined : IsDefined E) (hFDefined : IsDefined F) :
+    (hEDefined : IsDefined E) (hFDefined : IsDefined F),
     ChernClass.homogeneous δ π 1
-        (totalClass δ π classes (CategoryTheory.MonoidalCategory.tensorObj E F) (isPerfect_kFlatTensor hEPerfect hFPerfect)
-          (hEDefined.tensor hFDefined) 1) =
+        (totalClass δ π classes (E ⊗ᴸ F) (RingedSpace.ModuleDerived.IsPerfect.tensor hEPerfect hFPerfect)
+          (hEDefined.derivedTensor hFDefined) 1) =
       ChernClass.homogeneous δ π 0 (rankClass δ π E hEPerfect) *
           ChernClass.homogeneous δ π 1
             (totalClass δ π classes F hFPerfect hFDefined 1) +
         ChernClass.homogeneous δ π 0 (rankClass δ π F hFPerfect) *
           ChernClass.homogeneous δ π 1
-            (totalClass δ π classes E hEPerfect hEDefined 1) := sorry
+            (totalClass δ π classes E hEPerfect hEDefined 1))
 
-/-- Lemma 42.46.11 (2): the second Chern class of a derived tensor product has the
-five-term virtual-rank expansion. -/
-@[stacks 0FAG]
-theorem totalClass_tensor_two
+/- Lemma 42.46.11 (2): The second Chern class of a derived tensor product has the five-term integral
+expansion in the Chern classes and generalized binomial virtual-rank classes of its factors. -/
+@[stacks 0FAG] #check (AlgebraicGeometry.ChernClass.Derived.totalClass_tensor_two :
+    ∀
     {S X : Scheme.{u}} [UniversallyCatenary S]
     (δ : S → ℤ) [IsDimensionFunction δ] (π : X ⟶ S) [LocallyOfFiniteType π]
-    [KFlat.HomotopyTensorDescends X.toRingedSpace]
-    [KFlat.TensorDescends X.toRingedSpace]
-    [KFlat.IsLocalization X.toRingedSpace]
     (classes : ChernClass.Theory δ π)
     (E F : RingedSpace.ModuleDerived X.toRingedSpace)
     (hEPerfect : RingedSpace.ModuleDerived.IsPerfect E)
     (hFPerfect : RingedSpace.ModuleDerived.IsPerfect F)
-    (hEDefined : IsDefined E) (hFDefined : IsDefined F) :
+    (hEDefined : IsDefined E) (hFDefined : IsDefined F),
     ChernClass.homogeneous δ π 2
-        (totalClass δ π classes (CategoryTheory.MonoidalCategory.tensorObj E F) (isPerfect_kFlatTensor hEPerfect hFPerfect)
-          (hEDefined.tensor hFDefined) 2) =
+        (totalClass δ π classes (E ⊗ᴸ F) (RingedSpace.ModuleDerived.IsPerfect.tensor hEPerfect hFPerfect)
+          (hEDefined.derivedTensor hFDefined) 2) =
       ChernClass.homogeneous δ π 0 (rankClass δ π E hEPerfect) *
           ChernClass.homogeneous δ π 2
             (totalClass δ π classes F hFPerfect hFDefined 2) +
@@ -110,54 +88,47 @@ theorem totalClass_tensor_two
             (totalClass δ π classes E hEPerfect hEDefined 1) +
         ChernClass.homogeneous δ π 0 (rankChoose δ π F hFPerfect 2) *
           ChernClass.homogeneous δ π 1
-            (totalClass δ π classes E hEPerfect hEDefined 1) ^ 2 := sorry
+            (totalClass δ π classes E hEPerfect hEDefined 1) ^ 2)
 
-/-- Lemma 42.46.11 (3): the Chern character of a derived tensor product is the
-coefficientwise product of the two Chern characters. -/
-@[stacks 0FAG]
-theorem character_tensor
+/- Lemma 42.46.11 (3): The degree components of the Chern character of a derived tensor product are
+the convolution of the components of the Chern characters of its factors. -/
+@[stacks 0FAG] #check (AlgebraicGeometry.ChernClass.Derived.character_tensor :
+    ∀
     {S X : Scheme.{u}} [UniversallyCatenary S]
     (δ : S → ℤ) [IsDimensionFunction δ] (π : X ⟶ S) [LocallyOfFiniteType π]
-    [KFlat.HomotopyTensorDescends X.toRingedSpace]
-    [KFlat.TensorDescends X.toRingedSpace]
-    [KFlat.IsLocalization X.toRingedSpace]
     (classes : ChernClass.Theory δ π)
     (E F : RingedSpace.ModuleDerived X.toRingedSpace)
     (hEPerfect : RingedSpace.ModuleDerived.IsPerfect E)
     (hFPerfect : RingedSpace.ModuleDerived.IsPerfect F)
-    (hEDefined : IsDefined E) (hFDefined : IsDefined F) (p : ℕ) :
+    (hEDefined : IsDefined E) (hFDefined : IsDefined F) (p : ℕ),
     ChowCohomology.Nonnegative.rationalHomogeneous δ π p
-        (character δ π classes (CategoryTheory.MonoidalCategory.tensorObj E F) (isPerfect_kFlatTensor hEPerfect hFPerfect)
-          (hEDefined.tensor hFDefined) p) =
+        (character δ π classes (E ⊗ᴸ F) (RingedSpace.ModuleDerived.IsPerfect.tensor hEPerfect hFPerfect)
+          (hEDefined.derivedTensor hFDefined) p) =
       ∑ j ∈ Finset.range (p + 1),
         ChowCohomology.Nonnegative.rationalHomogeneous δ π j
             (character δ π classes E hEPerfect hEDefined j) *
           ChowCohomology.Nonnegative.rationalHomogeneous δ π (p - j)
-            (character δ π classes F hFPerfect hFDefined (p - j)) := sorry
+            (character δ π classes F hFPerfect hFDefined (p - j)))
 
-/-- Lemma 42.46.11 (4): the degree-`p` Newton class of a derived tensor product is
-the binomial convolution of the Newton classes of its factors. -/
-@[stacks 0FAG]
-theorem newtonClass_tensor
+/- Lemma 42.46.11 (4): The Newton classes of a derived tensor product are the binomial convolution
+of the Newton classes of its factors. -/
+@[stacks 0FAG] #check (AlgebraicGeometry.ChernClass.Derived.newtonClass_tensor :
+    ∀
     {S X : Scheme.{u}} [UniversallyCatenary S]
     (δ : S → ℤ) [IsDimensionFunction δ] (π : X ⟶ S) [LocallyOfFiniteType π]
-    [KFlat.HomotopyTensorDescends X.toRingedSpace]
-    [KFlat.TensorDescends X.toRingedSpace]
-    [KFlat.IsLocalization X.toRingedSpace]
     (classes : ChernClass.Theory δ π)
     (E F : RingedSpace.ModuleDerived X.toRingedSpace)
     (hEPerfect : RingedSpace.ModuleDerived.IsPerfect E)
     (hFPerfect : RingedSpace.ModuleDerived.IsPerfect F)
-    (hEDefined : IsDefined E) (hFDefined : IsDefined F) (p : ℕ) :
+    (hEDefined : IsDefined E) (hFDefined : IsDefined F) (p : ℕ),
     ChernClass.homogeneous δ π p
-        (newtonClass δ π classes (CategoryTheory.MonoidalCategory.tensorObj E F) (isPerfect_kFlatTensor hEPerfect hFPerfect)
-          (hEDefined.tensor hFDefined) p) =
+        (newtonClass δ π classes (E ⊗ᴸ F) (RingedSpace.ModuleDerived.IsPerfect.tensor hEPerfect hFPerfect)
+          (hEDefined.derivedTensor hFDefined) p) =
       ∑ j ∈ Finset.range (p + 1),
         p.choose j •
           (ChernClass.homogeneous δ π j
               (newtonClass δ π classes E hEPerfect hEDefined j) *
             ChernClass.homogeneous δ π (p - j)
-              (newtonClass δ π classes F hFPerfect hFDefined (p - j))) := sorry
+              (newtonClass δ π classes F hFPerfect hFDefined (p - j))))
 
 end AlgebraicGeometry.ChernClass.Derived
-

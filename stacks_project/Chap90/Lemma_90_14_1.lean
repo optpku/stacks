@@ -1,23 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Definition_90_10_1_Schlessinger
-public import stacks_project.Chap90.Lemma_90_14_1_Pushforward
-public import stacks_project.Chap90.Lemma_90_14_1_SubringOver
-
-/-!
-# Lemma 90.14.1
-
-If `p : F ⥤ ArtinianLocalAlgCat Λ k` is cofibered in groupoids and satisfies (S1), then
-pushforward along `φ : y ⟶ x` sends minimal objects of `S_y` to minimal objects of `S_x`.
-If moreover `p.map φ` is surjective, every minimal object of `S_x` is isomorphic to the
-pushforward of some minimal object of `S_y`.
--/
+public import ReasLib.AlgebraicGeometry.FormalDeformation.SubringOver.Pushforward
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -31,23 +15,16 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
   [Module.Finite Λ k]
 variable {F : Type v} [Category.{w} F]
 
-namespace CategoryTheory.Functor.SubringOver
-
-/-- Lemma 90.14.1 (1): if `p` is cofibered in groupoids and has (S1), then for `φ : y ⟶ x`
-the pushforward functor `S_y ⥤ S_x` sends minimal objects to minimal objects. -/
-@[stacks 06T1]
-theorem pushforward_preserves_isMinimal (p : F ⥤ ArtinianLocalAlgCat Λ k)
+/- Lemma 90.14.1. Pushforward preserves minimal objects and, over a surjective
+base map, reaches every minimal object up to isomorphism. -/
+@[stacks 06T1] #check (CategoryTheory.Functor.SubringOver.pushforward_preserves_isMinimal :
+  ∀ (p : F ⥤ ArtinianLocalAlgCat Λ k)
     [IsFibered.InGroupoids p.op] [HasSchlessingerS1 p] {x y : F} (φ : y ⟶ x)
-    {a : SubringOver p y} (ha : IsMinimal a) :
-    IsMinimal ((pushforward p φ).obj a) := sorry
+    {a : SubringOver p y} (ha : IsMinimal a),
+    IsMinimal ((pushforward p φ).obj a))
 
-/-- Lemma 90.14.1 (2): if `p` is cofibered in groupoids and has (S1), and `φ : y ⟶ x` lies
-over a surjection, then every minimal object of `S_x` is isomorphic to the pushforward of
-some minimal object of `S_y`. -/
-@[stacks 06T1]
-theorem exists_isMinimal_of_surjective (p : F ⥤ ArtinianLocalAlgCat Λ k)
+#check (CategoryTheory.Functor.SubringOver.exists_isMinimal_of_surjective :
+  ∀ (p : F ⥤ ArtinianLocalAlgCat Λ k)
     [IsFibered.InGroupoids p.op] [HasSchlessingerS1 p] {x y : F} (φ : y ⟶ x)
-    (hφ : Function.Surjective (p.map φ).hom) (a : SubringOver p x) (ha : IsMinimal a) :
-    ∃ b : SubringOver p y, IsMinimal b ∧ Nonempty ((pushforward p φ).obj b ≅ a) := sorry
-
-end CategoryTheory.Functor.SubringOver
+    (hφ : Function.Surjective (p.map φ).hom) (a : SubringOver p x) (ha : IsMinimal a),
+    ∃ b : SubringOver p y, IsMinimal b ∧ Nonempty ((pushforward p φ).obj b ≅ a))

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.FieldCharacterCochain
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.GeometricProjectiveChain
@@ -39,14 +33,14 @@ variable [∀ {Y Z : Scheme.{u}} (f : Y ⟶ Z) (F : Z.Etaleᵒᵖ ⥤ ModuleCat.
   (smallEtalePullback f).op.HasLeftKanExtension F]
 variable (hR : IsUnit (Nat.card R : k))
 variable (M : (finiteTypeDiscreteModule R
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X η)))).FullSubcategory)
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η)))).FullSubcategory)
 
 abbrev B := GeometricProjectiveChain.chain R X η hR M
 
 /-- Characters of exactly the same finite chain used in the geometric Hom
 construction, with pointwise completed action and original left coefficients. -/
 def source : CochainComplex (ModuleCat.{u + 1}
-    (NoncommCompletedRing.Obj R Gal(AlgebraicClosure k/k))) ℤ :=
+    (completedGroupRing R Gal(AlgebraicClosure k/k))) ℤ :=
   -- Local instance justification (proof-local temporary data): these particular terms are finite.
   letI := GeometricProjectiveChain.term_finite R X η hR M
   ((NoncommCompletedTransport.doubleOppositeModules R (G := Gal(AlgebraicClosure k/k))).mapHomologicalComplex
@@ -70,7 +64,7 @@ def inputIso (i : ℕ) :
 the same actual functions. The completed scalar law uses the finite action,
 including the specified residual-group naming transport. -/
 def positiveEquiv (i : ℕ) :
-    (source R X η hR M).X (i : ℤ) ≃ₗ[NoncommCompletedRing.Obj R Gal(AlgebraicClosure k/k)]
+    (source R X η hR M).X (i : ℤ) ≃ₗ[completedGroupRing R Gal(AlgebraicClosure k/k)]
       (target R X η hR M).X (i : ℤ) := by
   -- Local instance justification (proof-local temporary data): the actual geometric chain terms are finite.
   letI := GeometricProjectiveChain.term_finite R X η hR M
@@ -108,9 +102,9 @@ def iso : source R X η hR M ≅ target R X η hR M :=
 variable [∀ U : (geometricBaseChange X).Etale,
   HasWeakSheafify ((geometricBaseChange X).smallEtaleTopology.over U) (ModuleCat.{u + 1} Rᵐᵒᵖ)]
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj Rᵐᵒᵖᵐᵒᵖ (NoncommResidualSectionsComparison.Q X η)))]
+  (completedGroupRing Rᵐᵒᵖᵐᵒᵖ (NoncommResidualSectionsComparison.Q X η)))]
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj R Gal(AlgebraicClosure k/k)))]
+  (completedGroupRing R Gal(AlgebraicClosure k/k)))]
 variable (hne : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
 
 /-- The signed finite field characters now reach the full tensor target via

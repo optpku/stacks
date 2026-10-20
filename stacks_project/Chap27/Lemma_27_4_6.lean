@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.RelativeSpectrum.Properties
@@ -93,11 +87,10 @@ the explicitly specified pulled-back algebra. -/
       (pullbackData : AlgebraicGeometry.Scheme.RelativeSpectrumPullback g A A')
       (P' : AlgebraicGeometry.Scheme.RelativeSpectrumOver A')
       [AlgebraicGeometry.Scheme.IsRelativeSpectrumOver P'],
-      Nonempty
-        (CategoryTheory.Over.mk
-            (CategoryTheory.Limits.pullback.snd
-              (AlgebraicGeometry.Scheme.relativeSpecπ P) g) ≅
-          CategoryTheory.Over.mk (AlgebraicGeometry.Scheme.relativeSpecπ P')))
+      CategoryTheory.Over.mk
+          (CategoryTheory.Limits.pullback.snd
+            (AlgebraicGeometry.Scheme.relativeSpecπ P) g) ≅
+        CategoryTheory.Over.mk (AlgebraicGeometry.Scheme.relativeSpecπ P'))
 
 /- Lemma 27.4.6 (3): the universal algebra map of a relative-spectrum model is an isomorphism. -/
 @[stacks 01LX] #check

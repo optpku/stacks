@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap78.Lemma_78_20_2_Atlas
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quotient.StructureMap
 import StacksCheckRecall
 
 universe u
@@ -17,20 +11,20 @@ open GroupoidAlgebraicSpace
 /- Lemma 78.20.2 (1): there is a canonical `1`-morphism `π : 𝒮_U ⟶ [U/R]` of stacks in
 groupoids over `(Sch/S)_fppf`. -/
 @[stacks 044R] #check
-  (@atlas :
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.fppfAtlas :
     ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B),
-      CartesianBasedFunctor (stackInSets G.U.left).p (quotientStack G).p)
+      CartesianBasedFunctor (stackInSets G.U.left).p (fppfQuotientStack G).p)
 
 /- Lemma 78.20.2 (2): there is a canonical `1`-morphism `[U/R] ⟶ 𝒮_B` of stacks in
 groupoids over `(Sch/S)_fppf`. -/
 @[stacks 044R] #check
-  (@toBase :
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.toBase :
     ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B),
-      CartesianBasedFunctor (quotientStack G).p (stackInSets B).p)
+      CartesianBasedFunctor (fppfQuotientStack G).p (stackInSets B).p)
 
 /- Lemma 78.20.2 (3): the composite `𝒮_U ⟶ 𝒮_B` is the `1`-morphism associated to the
 structure morphism `U ⟶ B`. -/
 @[stacks 044R] #check
-  (@atlas_comp_toBase :
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.atlas_comp_toBase :
     ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B),
-      (atlas G).comp (toBase G) ≅ stackInSets.map G.U.hom)
+      (fppfAtlas G).comp (toBase G) ≅ stackInSets.map G.U.hom)

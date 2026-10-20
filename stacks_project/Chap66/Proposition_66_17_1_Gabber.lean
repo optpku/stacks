@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Fpqc
+import StacksCheckRecall
 
 /-!
 # Algebraic spaces as fpqc sheaves
@@ -21,14 +16,9 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Proposition 66.17.1 (Gabber): let `S` be a scheme and let `X` be an algebraic space
+/- Proposition 66.17.1 (Gabber): let `S` be a scheme and let `X` be an algebraic space
 over `S`. Then `X.functorOfPoints` is a sheaf for `Scheme.fpqcTopology.over S` on the
 big site of schemes over `S`. -/
-@[stacks 0APL]
-theorem isSheaf_fpqc {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    Presheaf.IsSheaf (Scheme.fpqcTopology.over S) X.functorOfPoints :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 0APL] #check (AlgebraicGeometry.AlgebraicSpace.isSheaf_fpqc :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
+    Presheaf.IsSheaf (Scheme.fpqcTopology.over S) X.functorOfPoints)

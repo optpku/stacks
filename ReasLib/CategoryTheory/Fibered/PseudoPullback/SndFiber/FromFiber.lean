@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.PseudoPullback.SndFiber.Basic
@@ -183,12 +177,31 @@ end FromFiberImplementation
       PseudoPullback.comparison Q.1 ≫
         eqToHom (congrArg G.toFunctor.obj Q.2) := sorry
 
+/-- The recovered comparison has the inverse already stored by the pseudo-pullback,
+with the opposite endpoint transport supplied by the outer-fibre equality. -/
+def comparisonInverse.obj.homInv
+    (f : Over U)
+    (Q : ((PseudoPullback.snd F G).toFunctor).Fiber f) :
+    (G.fiberFunctor f.left).obj (Fiber.mk rfl) ⟶
+      ((F.fiberFunctor f.left).obj ((comparisonInverse F G f).obj Q).left) :=
+  ⟨eqToHom (congrArg G.toFunctor.obj Q.2.symm) ≫
+      (PseudoPullback.comparisonIsoApp Q.1).inv, by sorry⟩
+
+/-- The inverse comparison uses exactly the stored inverse and endpoint transport. -/
+@[simp] theorem comparisonInverse.obj.homInv_val
+    (f : Over U)
+    (Q : ((PseudoPullback.snd F G).toFunctor).Fiber f) :
+    (comparisonInverse.obj.homInv F G f Q).1 =
+      eqToHom (congrArg G.toFunctor.obj Q.2.symm) ≫
+      (PseudoPullback.comparisonIsoApp Q.1).inv := rfl
+
 /-- The structure map recovered from a fixed second fibre is canonically invertible. -/
 @[stacks 02Y5 "formal dual recovered comparison isomorphism instance"]
 instance comparisonInverse.obj.hom.isIso
     (f : Over U)
     (Q : ((PseudoPullback.snd F G).toFunctor).Fiber f) :
-    IsIso ((comparisonInverse F G f).obj Q).hom := sorry
+    IsIso ((comparisonInverse F G f).obj Q).hom :=
+  ⟨⟨comparisonInverse.obj.homInv F G f Q, by sorry, by sorry⟩⟩
 
 /-- After forgetting the standard fibre, the recovered isomorphism is the pseudo-pullback
 comparison followed by target transport induced by the second-projection equality. -/
@@ -197,7 +210,8 @@ theorem comparisonInverse.obj.homIso
     (f : Over U)
     (Q : ((PseudoPullback.snd F G).toFunctor).Fiber f) :
     (Fiber.fiberInclusion : pY.Fiber f.left ⥤ Y).mapIso
-        (asIso ((comparisonInverse F G f).obj Q).hom) =
+        (@asIso _ _ _ _ ((comparisonInverse F G f).obj Q).hom
+          (comparisonInverse.obj.hom.isIso F G f Q)) =
       PseudoPullback.comparisonIsoApp Q.1 ≪≫
         G.toFunctor.mapIso (eqToIso Q.2) := sorry
 

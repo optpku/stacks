@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap70.Lemma_70_9_7_Integral
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Algebra.Integral
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,19 +15,22 @@ universe u
 algebraic space over `S`. Let `A` be an integral quasi-coherent `𝒪_X`-algebra. Then `A` is
 the directed colimit of its finite quasi-coherent `𝒪_X`-subalgebras. -/
 @[stacks 082C] #check
-  (finiteQuasiCoherentSubalgebras_isDirectedColimit_of_isIntegral :
+  (AlgebraicGeometry.AlgebraicSpace.QcAlgebraUnder.finiteQuasiCoherentSubalgebras_directedColimit_of_isIntegral :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsQuasiCompact X]
       [IsAbsolutelyQuasiSeparated X] (A : X.QcAlgebraUnder) [IsIntegral A],
-      DirectedOn (· ≤ ·) (finiteQuasiCoherentSubalgebras A) ∧
-        IsLUB (finiteQuasiCoherentSubalgebras A) (⊤ : Subobject A.obj))
+      (finiteQuasiCoherentSubalgebras A).Nonempty ∧
+        DirectedOn (· ≤ ·) (finiteQuasiCoherentSubalgebras A) ∧
+          (∀ c : CategoryTheory.Limits.Cocone (finiteSubalgebraDiagram A),
+            ∃! f : A.obj ⟶ c.pt, ∀ B : finiteQuasiCoherentSubalgebras A,
+              B.val.arrow ≫ f = c.ι.app B))
 
 /- Lemma 70.9.7 (2): let `S` be a scheme. Let `X` be a quasi-compact and quasi-separated
 algebraic space over `S`. Let `A` be an integral quasi-coherent `𝒪_X`-algebra. Then `A` is
 a directed colimit of finite and finitely presented `𝒪_X`-algebras. -/
 @[stacks 082C] #check
-  (finiteFinitelyPresentable_ind_of_isIntegral :
+  (AlgebraicGeometry.AlgebraicSpace.QcAlgebraUnder.finiteFinitelyPresentable_ind_of_isIntegral :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsQuasiCompact X]
       [IsAbsolutelyQuasiSeparated X] (A : X.QcAlgebraUnder) [IsIntegral A],
       ObjectProperty.ind.{u}
-        (fun B : Under (commRingStructureSheaf X) ↦
+        (fun B : Under (commStructureSheaf X) ↦
           finiteProperty X B ∧ finitelyPresentableProperty X B) A.obj)

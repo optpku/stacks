@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_6_4_BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.Map.BaseChange
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Limits
@@ -27,7 +21,7 @@ the canonical map `ConormalAlgebra.pullback f i' ⟶ ConormalAlgebra.total i` of
 Lemma 76.6.3 is surjective. -/
 @[stacks 09RT]
 #check
-  (ConormalAlgebra.map_isLocallySurjective_of_isPullback sq :
+  (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.map_isLocallySurjective_of_isPullback sq :
     Sheaf.IsLocallySurjective (ConormalAlgebra.map sq.toCommSq).hom.right)
 
 variable [Flat g]
@@ -36,6 +30,6 @@ variable [Flat g]
 is an isomorphism. -/
 @[stacks 09RT]
 #check
-  (ConormalAlgebra.map_isIso_of_isPullback_of_flat sq :
+  (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.map_isIso_of_isPullback_of_flat sq :
     IsIso (ConormalAlgebra.map sq.toCommSq :
       ConormalAlgebra.pullback f i' ⟶ ConormalAlgebra.total i))

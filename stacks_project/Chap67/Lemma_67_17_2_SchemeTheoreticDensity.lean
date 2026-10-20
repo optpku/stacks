@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Open.SchemeTheoreticDensity
 public import stacks_project.Chap65.Lemma_65_6_2_OfOver
 public import stacks_project.Chap66.Lemma_66_16_4_Etale
 public import stacks_project.Chap67.Definition_67_5_2_Surjective
@@ -27,71 +22,52 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+namespace AlgebraicGeometry.AlgebraicSpace.SchemeTheoreticDensity
 
-namespace SchemeTheoreticDensity
+#check (AlgebraicGeometry.AlgebraicSpace.SchemeTheoreticDensity.forallEtale :
+  ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X) [IsOpenImmersion ι],
+    Prop)
 
-variable {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X) [IsOpenImmersion ι]
-
-/-- For every étale morphism `φ : V ⟶ X` of algebraic spaces, the scheme-theoretic
-closure of `openInverseImage φ ι` in `V` equals `V`. -/
-def forallEtale : Prop :=
-  ∀ {V : AlgebraicSpace S} (φ : V ⟶ X),
-    Etale φ → IsSchemeTheoreticallyDominant (openInverseImageι φ ι)
-
-/-- `forallEtale ι` means every étale preimage of `ι` is scheme-theoretically
-dominant into its source. -/
-theorem forallEtale_iff : forallEtale ι ↔
+#check (AlgebraicGeometry.AlgebraicSpace.SchemeTheoreticDensity.forallEtale_iff :
+  ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X) [IsOpenImmersion ι],
+    forallEtale ι ↔
     ∀ (V : AlgebraicSpace S) (φ : V ⟶ X),
-      Etale φ → IsSchemeTheoreticallyDominant (openInverseImageι φ ι) := sorry
+      Etale φ → IsSchemeTheoreticallyDominant (openInverseImageι φ ι))
 
-namespace forallEtale
+#check (AlgebraicGeometry.AlgebraicSpace.SchemeTheoreticDensity.forallEtale.of :
+  ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X) [IsOpenImmersion ι]
+    (h : ∀ {V : AlgebraicSpace S} (φ : V ⟶ X),
+    Etale φ → IsSchemeTheoreticallyDominant (openInverseImageι φ ι)),
+    forallEtale ι)
 
-/-- A universal étale-preimage dominance condition witnesses `forallEtale ι`. -/
-theorem of (h : ∀ {V : AlgebraicSpace S} (φ : V ⟶ X),
-    Etale φ → IsSchemeTheoreticallyDominant (openInverseImageι φ ι)) :
-    forallEtale ι := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.SchemeTheoreticDensity.forallEtale.spec :
+  ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X) [IsOpenImmersion ι]
+    (h : forallEtale ι) {V : AlgebraicSpace S} (φ : V ⟶ X)
+    (hφ : Etale φ),
+    IsSchemeTheoreticallyDominant (openInverseImageι φ ι))
 
-/-- Under `forallEtale ι`, the open inverse-image inclusion along any étale
-morphism to `X` is scheme-theoretically dominant. -/
-theorem spec (h : forallEtale ι) {V : AlgebraicSpace S} (φ : V ⟶ X)
-    (hφ : Etale φ) : IsSchemeTheoreticallyDominant (openInverseImageι φ ι) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.SchemeTheoreticDensity.existsSurjectiveEtale :
+  ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X) [IsOpenImmersion ι],
+    Prop)
 
-end forallEtale
-
-/-- There is a scheme `V` over `S` and a surjective étale morphism `φ` from
-`ofOver V` to `X` whose open inverse-image inclusion is scheme-theoretically
-dominant. -/
-def existsSurjectiveEtale : Prop :=
-  ∃ (V : Over S) (φ : ofOver V ⟶ X),
-    Etale φ ∧ Surjective φ ∧ IsSchemeTheoreticallyDominant (openInverseImageι φ ι)
-
-/-- `existsSurjectiveEtale ι` is the existence of a surjective étale scheme atlas
-of `X` along which the open inverse image of `ι` is scheme-theoretically
-dominant. -/
-theorem existsSurjectiveEtale_iff : existsSurjectiveEtale ι ↔
+#check (AlgebraicGeometry.AlgebraicSpace.SchemeTheoreticDensity.existsSurjectiveEtale_iff :
+  ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X) [IsOpenImmersion ι],
+    existsSurjectiveEtale ι ↔
     ∃ (V : Over S) (φ : ofOver V ⟶ X),
       Etale φ ∧ Surjective φ ∧
-        IsSchemeTheoreticallyDominant (openInverseImageι φ ι) := sorry
+        IsSchemeTheoreticallyDominant (openInverseImageι φ ι))
 
-namespace existsSurjectiveEtale
+#check (AlgebraicGeometry.AlgebraicSpace.SchemeTheoreticDensity.existsSurjectiveEtale.of :
+  ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X) [IsOpenImmersion ι]
+    {V : Over S} (φ : ofOver V ⟶ X) [Etale φ] [Surjective φ]
+    (h : IsSchemeTheoreticallyDominant (openInverseImageι φ ι)),
+    existsSurjectiveEtale ι)
 
-/-- A surjective étale scheme atlas of `X` along which the open inverse image of
-`ι` is scheme-theoretically dominant witnesses `existsSurjectiveEtale ι`. -/
-theorem of {V : Over S} (φ : ofOver V ⟶ X) [Etale φ] [Surjective φ]
-    (h : IsSchemeTheoreticallyDominant (openInverseImageι φ ι)) :
-    existsSurjectiveEtale ι := sorry
-
-/-- `existsSurjectiveEtale ι` supplies a surjective étale scheme atlas of `X`
-along which the open inverse image of `ι` is scheme-theoretically dominant. -/
-theorem spec (h : existsSurjectiveEtale ι) :
+#check (AlgebraicGeometry.AlgebraicSpace.SchemeTheoreticDensity.existsSurjectiveEtale.spec :
+  ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X) [IsOpenImmersion ι]
+    (h : existsSurjectiveEtale ι),
     ∃ (V : Over S) (φ : ofOver V ⟶ X),
       Etale φ ∧ Surjective φ ∧
-        IsSchemeTheoreticallyDominant (openInverseImageι φ ι) := sorry
+        IsSchemeTheoreticallyDominant (openInverseImageι φ ι))
 
-end existsSurjectiveEtale
-
-end SchemeTheoreticDensity
-
-end AlgebraicGeometry.AlgebraicSpace
+end AlgebraicGeometry.AlgebraicSpace.SchemeTheoreticDensity

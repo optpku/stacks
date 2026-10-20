@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.FieldHomCochainComparison
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.LocalHomTargetComparison
@@ -102,7 +96,7 @@ theorem characterMap_quasiIso (hB : ∀ i : ℕ, Finite (B.X i).obj.V) :
   exact HomologicalComplex.quasiIso_map_of_preservesHomology _ (FieldModuleDescent.forward k Rᵐᵒᵖ)
 
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj Rᵐᵒᵖ Gal(AlgebraicClosure k/k)))]
+  (completedGroupRing Rᵐᵒᵖ Gal(AlgebraicClosure k/k)))]
 
 /-- Completed residual trace from actual geometric Hom to the finite character
 model. Only the displayed trace-coefficient augmentation is inverted. -/

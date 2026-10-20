@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap72.Definition_72_4_1_Integral
-public import stacks_project.Chap82.Definition_82_6_1_AssociatedCycle
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.AssociatedCycle
+import StacksCheckRecall
 
 /-!
 # Coefficient of an integral closed subspace in a module cycle
@@ -25,20 +19,19 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.Hom
 
-/-- Lemma 82.6.2: In Situation 82.2.1, let `X / B` be good. Let `F` be a coherent
+/- Lemma 82.6.2: In Situation 82.2.1, let `X / B` be good. Let `F` be a coherent
 `𝒪_X`-module with `dim_δ(Supp(F)) ≤ k`. Let `Z` be an integral closed subspace of
 `X` with `dim_δ(Z) = k`. Let `ξ ∈ |Z|` be the generic point. Then the coefficient
 of `Z` in `[F]_k` is the length of `F` at `ξ`. -/
 @[stacks 0EEC]
-theorem moduleCycle_eq_lengthAt
-    {S : Scheme.{u}} {B X : AlgebraicSpace S} [UniversallyCatenary B]
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.moduleCycle_eq_lengthAt :
+    ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S} [UniversallyCatenary B]
     [IsQuasiSeparated B] (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
     (δ : Points B → ℤ) [IsDimensionFunction δ] (F : X.Modules) [F.IsCoherent]
-    (k : ℤ) (hF : f.moduleSupportDeltaDimension δ F ≤ (k : EInt))
+    (k : ℤ) (hF : (moduleSupportDeltaDimension f) δ F ≤ (k : EInt))
     (Z : ClosedSubspace X) [IsIntegral Z.X]
-    (hZ : f.closedSubspaceDeltaDimension δ Z = (k : EInt))
-    (ξ : Points X) (hξ : IsGenericPoint ξ Z.pointsSet) :
-    moduleCycle f δ F k hF ξ = (Modules.lengthAt F ξ).toNat :=
-  sorry
+    (hZ : (closedSubspaceDeltaDimension f) δ Z = (k : EInt))
+    (ξ : Points X) (hξ : IsGenericPoint ξ Z.pointsSet),
+    moduleCycle f δ F k hF ξ = (Modules.lengthAt F ξ).toNat)
 
 end AlgebraicGeometry.AlgebraicSpace.Hom

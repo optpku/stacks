@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap70.Lemma_70_9_8_Extension
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Quasicoherent.OpenImmersion
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,7 +16,7 @@ space over `S`. Let `U ⊂ X` be a quasi-compact open. Let `F` be a quasi-cohere
 Let `G ⊂ F|_U` be a quasi-coherent `𝒪_U`-submodule of finite type. Then there exists a
 quasi-coherent finite-type submodule `G' ⊂ F` such that `G'|_U = G`. -/
 @[stacks 0853] #check
-  (exists_finiteTypeQuasiCoherentSubsheafExtension :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.exists_finiteTypeQuasiCoherentSubsheafExtension :
     ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} [IsQuasiCompact X]
       [IsAbsolutelyQuasiSeparated X] (j : U ⟶ X) [IsOpenImmersion j] [QuasiCompact j]
       (F : X.Modules) [F.IsQuasicoherent] (G : Subobject (restrict F j))

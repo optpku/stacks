@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_23_4_GeometricBranch
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.GeometricBranch
 import StacksCheckRecall
 
 @[expose] public section
@@ -14,10 +8,9 @@ import StacksCheckRecall
 universe u
 
 /- Definition 66.23.4: for a scheme `S`, an algebraic space `X` over `S`, and a point
-`x ∈ |X|`, the number of geometric branches of `X` at `x` is the common value
-`X.geometricBranchNumberAt xbar` at any geometric point `xbar` with `xbar.liesOver x`,
-equal to `n` when the equivalent conditions of Lemma 66.23.3 hold, and `⊤` otherwise. -/
+`x ∈ |X|`, the number of geometric branches of `X` at `x` is `n` when the equivalent
+conditions of Lemma 66.23.3 hold, and `⊤` otherwise. -/
 @[stacks 0DQ4] #check
-  (AlgebraicGeometry.AlgebraicSpace.geometricBranchNumberAt :
+  (AlgebraicGeometry.AlgebraicSpace.geometricBranchNumber :
     {S : AlgebraicGeometry.Scheme.{u}} → (X : AlgebraicGeometry.AlgebraicSpace S) →
-      AlgebraicGeometry.AlgebraicSpace.GeometricPoint X → ℕ∞)
+      AlgebraicGeometry.AlgebraicSpace.Points X → ℕ∞)

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Small.RingedTopos
@@ -51,6 +45,32 @@ theorem existsUnique_schemeHom_of_smallEtale_locallyRingedTopos
     ExistsUnique fun f : X ⟶ Y ↦
       Nonempty (ToposHom.TwoIso.{u + 1, u, u + 1, u, u + 1}
         g (Etale.Small.liftedRingedHom f).toToposHom) := sorry
+
+/-- For arbitrary schemes, an objectwise-local morphism of their small étale ringed topoi
+is 2-isomorphic to the morphism induced by a unique scheme morphism. -/
+theorem existsUnique_schemeHom_of_smallEtale_locallyRingedTopos_ofScheme
+    {X Y : Scheme.{u}}
+    (g : ToposHom (Etale.Small.liftedRingedSite X) (Etale.Small.liftedRingedSite Y))
+    (h_local : ∀ U, IsLocalHom (toposHomStructureMapApp g U)) :
+    ExistsUnique fun f : X ⟶ Y ↦
+      Nonempty (ToposHom.TwoIso.{u + 1, u, u + 1, u, u + 1}
+        g (Etale.Small.liftedRingedHom f).toToposHom) := sorry
+
+/-- Induced small étale ringed-topos morphisms are 2-isomorphic if and only if the scheme
+morphisms coincide. -/
+theorem smallEtale_inducedToposHom_twoIso_iff_eq {X Y : Scheme.{u}} {a b : X ⟶ Y} :
+    Nonempty (ToposHom.TwoIso.{u + 1, u, u + 1, u, u + 1}
+      (Etale.Small.liftedRingedHom a).toToposHom
+      (Etale.Small.liftedRingedHom b).toToposHom) ↔ a = b := sorry
+
+/-- A morphism between the small étale ringed topoi of schemes is objectwise local if and
+only if it is 2-isomorphic to the morphism induced by a unique scheme morphism. -/
+theorem smallEtaleLocallyRingedTopos_fullyFaithful {X Y : Scheme.{u}}
+    (g : ToposHom (Etale.Small.liftedRingedSite X) (Etale.Small.liftedRingedSite Y)) :
+    (∀ U, IsLocalHom (toposHomStructureMapApp g U)) ↔
+      ExistsUnique fun f : X ⟶ Y ↦
+        Nonempty (ToposHom.TwoIso.{u + 1, u, u + 1, u, u + 1}
+          g (Etale.Small.liftedRingedHom f).toToposHom) := sorry
 
 end Hom
 end Scheme

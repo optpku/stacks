@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Reflexive
@@ -28,3 +22,12 @@ noncomputable instance dual {X : Scheme.{u}} (E : X.Modules)
     [E.IsFiniteLocallyFree] : (Scheme.Modules.dual E).IsFiniteLocallyFree := sorry
 
 end AlgebraicGeometry.Scheme.Modules.IsFiniteLocallyFree
+
+namespace AlgebraicGeometry.Scheme.Modules
+
+/-- The dual of a finite locally free module of rank `r` is finite locally free of rank `r`. -/
+instance instIsFiniteLocallyFreeOfRankDual {X : Scheme.{u}} (E : X.Modules) (r : ℕ)
+    [IsFiniteLocallyFreeOfRank r E] :
+    IsFiniteLocallyFreeOfRank r (dual E) := sorry
+
+end AlgebraicGeometry.Scheme.Modules

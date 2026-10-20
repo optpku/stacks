@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.ProEtale.DirectImage
@@ -84,23 +78,41 @@ theorem directImageFullyFaithful_of_isOpenImmersion
     Nonempty (directImage j A).FullyFaithful :=
   ⟨(directImage_adjunction j A).fullyFaithfulROfIsIsoCounit⟩
 
-/-- The identity is isomorphic to extension by zero followed by restriction
-along an open immersion of schemes. -/
-theorem idIso_extensionByZero_comp_restrictionSheaf
+/-- The canonical isomorphism `id ≅ j⁻¹ j_!` along an open immersion of schemes:
+the unit of the extension-by-zero/restriction adjunction. -/
+def idIso_extensionByZero_comp_restrictionSheaf
     [∀ F : U.ProEtᵒᵖ ⥤ A, (restriction j).op.HasLeftKanExtension F]
     [HasWeakSheafify (topology U) A] [HasWeakSheafify (topology X) A]
     [∀ F : U.ProEtᵒᵖ ⥤ A, (restriction j).op.HasPointwiseLeftKanExtension F]
     [∀ F : U.ProEtᵒᵖ ⥤ A, (restriction j).op.HasPointwiseRightKanExtension F] :
-    Nonempty (𝟭 (Sheaf (topology U) A) ≅
-      extensionByZero j A ⋙ restrictionSheaf j A) :=
-  sorry
+    𝟭 (Sheaf (topology U) A) ≅ extensionByZero j A ⋙ restrictionSheaf j A :=
+  asIso (extensionByZero_adjunction j A).unit
 
-/-- Direct image followed by restriction along an open immersion of schemes
-is isomorphic to the identity. -/
-theorem directImage_comp_restrictionSheaf_isoId
+/-- The forward map of `id ≅ j⁻¹ j_!` is the adjunction unit. -/
+@[simp]
+theorem idIso_extensionByZero_comp_restrictionSheaf_hom
+    [∀ F : U.ProEtᵒᵖ ⥤ A, (restriction j).op.HasLeftKanExtension F]
+    [HasWeakSheafify (topology U) A] [HasWeakSheafify (topology X) A]
+    [∀ F : U.ProEtᵒᵖ ⥤ A, (restriction j).op.HasPointwiseLeftKanExtension F]
     [∀ F : U.ProEtᵒᵖ ⥤ A, (restriction j).op.HasPointwiseRightKanExtension F] :
-    Nonempty (directImage j A ⋙ restrictionSheaf j A ≅ 𝟭 (Sheaf (topology U) A)) :=
-  sorry
+    (idIso_extensionByZero_comp_restrictionSheaf j A).hom =
+      (extensionByZero_adjunction j A).unit :=
+  rfl
+
+/-- The canonical isomorphism `j⁻¹ j_* ≅ id` along an open immersion of schemes:
+the counit of the restriction/direct-image adjunction. -/
+def directImage_comp_restrictionSheaf_isoId
+    [∀ F : U.ProEtᵒᵖ ⥤ A, (restriction j).op.HasPointwiseRightKanExtension F] :
+    directImage j A ⋙ restrictionSheaf j A ≅ 𝟭 (Sheaf (topology U) A) :=
+  asIso (directImage_adjunction j A).counit
+
+/-- The forward map of `j⁻¹ j_* ≅ id` is the adjunction counit. -/
+@[simp]
+theorem directImage_comp_restrictionSheaf_isoId_hom
+    [∀ F : U.ProEtᵒᵖ ⥤ A, (restriction j).op.HasPointwiseRightKanExtension F] :
+    (directImage_comp_restrictionSheaf_isoId j A).hom =
+      (directImage_adjunction j A).counit :=
+  rfl
 
 end ProEt
 

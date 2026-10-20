@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import stacks_project.Chap60.Remark_60_24_9_Base_change_isomorphism_RingedGeometry
 public import stacks_project.Chap60.«60_24_8_1»
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Flat
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.LocalCompleteIntersection
@@ -85,15 +80,16 @@ and `Γ(S, ⊤)`, with their actual pullback map; its coefficient object is the
 actual crystal in degree zero. All site, structure-sheaf, scalar-action and
 comparison data are fixed by this geometry. -/
 @[stacks 07MU]
-theorem crystallineCohomologyBaseChange_isIso
+instance crystallineCohomologyBaseChange_isIso
     [IsAffine S] [IsAffine S'] [QuasiCompact x'₀] [QuasiSeparated x'₀]
     [LocallyOfType RingHom.IsLocalCompleteIntersection x'₀]
-    (hpNil : IsNilpotent (p : Γ(S', ⊤)))
-    (hPull : IsPullback f x₀ x'₀ g.zeroFiberMap)
-    (hTor : Scheme.TorIndependentOver (Over.mk x'₀) (Over.mk g.zeroFiberMap))
+    [Fact (IsNilpotent (p : Γ(S', ⊤)))]
+    [Fact (IsPullback f x₀ x'₀ g.zeroFiberMap)]
+    [Fact (Scheme.TorIndependentOver (Over.mk x'₀) (Over.mk g.zeroFiberMap))]
     (F' : CrisModuleSheaf S' I' γ' hc' X' x'₀)
     [SectionsCoherent I' γ' hc' x'₀ F']
     [CrisModuleSheaf.IsCrystal F'] [CrisModuleSheaf.IsLocallyQuasiCoherent F']
-    (hFlat : ∀ T, SheafOfModules.IsFlat (F'.obj T)) :
-    IsIso (crystallineCohomologyBaseChange I γ hc x₀ I' γ' hc' s s' x'₀ f g
-      hf hpX hpX' hγ F') := sorry
+    [∀ T, SheafOfModules.IsFlat (F'.obj T)] :
+    IsIso (crystallineCohomologyBaseChange
+      I γ hc x₀ I' γ' hc' s s' x'₀ f g hf hpX hpX' hγ
+      (liftedOfCrystal I' γ' hc' x'₀ F' p s' hpX')) := sorry

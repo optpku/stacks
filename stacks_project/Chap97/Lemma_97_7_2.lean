@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap97.Lemma_97_7_1_SurjectiveOnObjects
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.SurjectiveOnObjects
+import StacksCheckRecall
 
 /-!
 # Composition of morphisms surjective on objects
@@ -28,13 +23,13 @@ namespace AlgebraicGeometry.Groupoids.Hom
 
 namespace SurjectiveOnObjects
 
-/-- Lemma 97.7.2: If `p : X ⟶ Y` and `q : Y ⟶ Z` are 1-morphisms of categories
+/- Lemma 97.7.2: If `p : X ⟶ Y` and `q : Y ⟶ Z` are 1-morphisms of categories
 fibred in groupoids over `(Sch/S)_fppf` and both are surjective on objects, then
 so is the composition `q ∘ p`, written `p ≫ q`. -/
-@[stacks 06D6]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [SurjectiveOnObjects f] [SurjectiveOnObjects g] :
-    SurjectiveOnObjects (f ≫ g) := sorry
+@[stacks 06D6] #check (AlgebraicGeometry.Groupoids.Hom.SurjectiveOnObjects.comp :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+    (f : X ⟶ Y) (g : Y ⟶ Z) [SurjectiveOnObjects f] [SurjectiveOnObjects g],
+    SurjectiveOnObjects (f ≫ g))
 
 end SurjectiveOnObjects
 

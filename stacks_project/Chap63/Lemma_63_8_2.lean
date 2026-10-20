@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap63.Lemma_63_8_2_Comparison
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.ProperLowerShriek.VerticalComposition
+import StacksCheckRecall
 
 /-!
 # Vertical composition of derived lower shriek / proper pushforward comparisons
@@ -40,7 +35,7 @@ variable [IsProper f] [IsProper f'] [IsProper g] [IsProper g']
 variable [IsSeparated k] [LocallyQuasiFinite k] [LocallyOfFiniteType k]
 variable [IsSeparated l] [LocallyQuasiFinite l] [LocallyOfFiniteType l]
 variable [IsSeparated m] [LocallyQuasiFinite m] [LocallyOfFiniteType m]
-variable (Λ : Type u) [CommRing Λ]
+variable (Λ : Type u) [Ring Λ]
 variable [X.smallEtaleTopology.HasSheafCompose
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
 variable [X'.smallEtaleTopology.HasSheafCompose
@@ -96,15 +91,7 @@ variable [HasDerivedCategory (Sheaf Y'.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [HasDerivedCategory (Sheaf Z.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [HasDerivedCategory (Sheaf Z'.smallEtaleTopology (ModuleCat.{u} Λ))]
 
-/-- Lemma 63.8.2: Consider a commutative diagram of schemes with vertical maps
-`f`, `f'`, `g`, `g'` proper and horizontal maps `k`, `l`, `m` separated and
-locally quasi-finite. After identifying `R(g ∘ f)_*` with `Rg_* ∘ Rf_*` and
-`R(g' ∘ f')_*` with `Rg'_* ∘ Rf'_*` via `etaleDerivedPushforwardComp`, the
-Lemma 63.8.1 comparison of the outer rectangle equals the composite of the
-two square comparisons
-`m_! ∘ Rg'_* ∘ Rf'_* ⟶ Rg_* ∘ l_! ∘ Rf'_* ⟶ Rg_* ∘ Rf_* ∘ k_!`. -/
-@[stacks 0F7C]
-theorem etaleDerivedLowerShriekPushforward_vcomp
+variable
     [(etaleModulePushforward f Λ).Additive]
     [(etaleModulePushforward f' Λ).Additive]
     [(etaleModulePushforward g Λ).Additive]
@@ -182,11 +169,16 @@ theorem etaleDerivedLowerShriekPushforward_vcomp
       (RightDerived.Cochain.toDerived
         (lowerShriekModule k Λ ⋙ etaleModulePushforward (f ≫ g) Λ))
       (HomologicalComplex.quasiIso
-        (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))] :
-    etaleDerivedLowerShriekPushforward_vcomp_inner f f' g g' k l m h_top h_bot Λ =
+        (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
+
+/- Lemma 63.8.2: the canonical comparison of the outer rectangle agrees with
+those of the two squares after transport along the canonical Leray comparisons. -/
+@[stacks 0F7C] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriekPushforward_vcomp
+    f f' g g' k l m h_top h_bot Λ :
+  etaleDerivedLowerShriekPushforward_vcomp_inner f f' g g' k l m h_top h_bot Λ =
       etaleDerivedLowerShriekPushforward_vcomp_outer f f' g g' k l m
-        h_top h_bot Λ :=
-  sorry
+        h_top h_bot Λ)
 
 end AlgebraicGeometry.Scheme.Etale
 

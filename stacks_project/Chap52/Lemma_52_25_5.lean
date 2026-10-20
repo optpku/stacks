@@ -1,70 +1,68 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap52.Lemma_52_25_5_Sections
-public import stacks_project.Chap52.Lemma_52_25_3_EulerCharacteristic
-public import stacks_project.Chap52.Proposition_52_25_4_Tensor
-public import ReasLib.RingTheory.Depth.RegularSequence
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Coherent.TripleEulerCharacteristic.Invertible
+import StacksCheckRecall
 
-@[expose] public section
-
-open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
-open CategoryTheory.MonoidalCategory
+open AlgebraicGeometry CategoryTheory
 open scoped AlgebraicGeometry
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.CoherentTriple
-
-variable {A : Type u} [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
-variable {S : CoherentTripleSetup A}
-
-/-- The depth-three hypothesis makes the cokernel of the canonical section restriction map
-finite-length over the local ring. -/
-theorem globalSectionsRestriction_cokernel_finiteLength
-    (L : CoherentTriple S) (hdepth : (3 : ℕ∞) ≤ moduleDepth A A) [L.IsInvertible] :
-    IsFiniteLength A
-      (Scheme.Hom.globalSectionsMod
-          (S.closedFiberOnU ≫ S.algebraization.U.ι)
-          (L.F₀.restrict S.algebraization.U₀.ι) ⧸
-        LinearMap.range L.globalSectionsRestriction.hom) := sorry
-
-/-- Lemma 52.25.5 (1): for an invertible coherent triple under the depth-three hypothesis, its
-Euler characteristic is the `A`-length of the cokernel of restriction on global sections. -/
+/- Lemma 52.25.5: the Euler characteristic of an invertible coherent triple is the
+cokernel length of restriction on sections, is nonnegative, and vanishes exactly when
+the punctured component is trivial. -/
 @[stacks 0F28]
-theorem eulerCharacteristic_eq_cokernelLength
-    (L : CoherentTriple S) (hdepth : (3 : ℕ∞) ≤ moduleDepth A A) [L.IsInvertible] :
-    L.eulerCharacteristic =
-      ((Module.length A
-          (Scheme.Hom.globalSectionsMod
-              (S.closedFiberOnU ≫ S.algebraization.U.ι)
-              (L.F₀.restrict S.algebraization.U₀.ι) ⧸
-            LinearMap.range L.globalSectionsRestriction.hom)).toNat : ℤ) := sorry
+#check (AlgebraicGeometry.Scheme.Modules.CoherentTriple.eulerCharacteristic_eq_cokernelLength :
+    ∀ (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
+      (f : A) (hf_mem : f ∈ IsLocalRing.maximalIdeal A)
+      (hf_regular : IsRegular f) (hdepth : (3 : ℕ∞) ≤ moduleDepth A A),
+    let S := AffineAlgebraizationSetup.ofIdeals (Ideal.span {f})
+      (IsLocalRing.maximalIdeal A)
+      ((Ideal.span_singleton_le_iff_mem (IsLocalRing.maximalIdeal A)).mpr hf_mem)
+    let U₀ := S.y ⁻¹ᵁ S.U
+    ∀ (L : S.U.toScheme.Modules) (L₀ : S.Y.Modules) [L.IsCoherent] [L₀.IsCoherent]
+      [Scheme.Modules.Invertible L] [Scheme.Modules.Invertible L₀],
+      (hL : ∀ V : S.U.toScheme.Opens, Function.Injective
+        (L.smul (S.U.toScheme.presheaf.map V.leTop.op (S.U.ι.appTop
+          ((Scheme.ΓSpecIso (CommRingCat.of A)).inv f)))).hom) →
+      (α : (Scheme.Modules.pullback (S.y ∣_ S.U)).obj L ≅ L₀.restrict U₀.ι) →
+      AlgebraicGeometry.Scheme.Modules.CoherentTriple.eulerCharacteristic A f hf_mem L L₀ hL α =
+        ((Module.length A
+          (Scheme.Hom.globalSectionsMod ((S.y ∣_ S.U) ≫ S.U.ι)
+            (L₀.restrict U₀.ι) ⧸
+          LinearMap.range (AlgebraicGeometry.Scheme.Modules.CoherentTriple.globalSectionsRestriction A f hf_mem L L₀ α).hom)).toNat : ℤ))
 
-/-- Lemma 52.25.5 (2): the Euler characteristic of an invertible coherent triple is
-nonnegative under the depth-three hypothesis. -/
-@[stacks 0F28]
-theorem eulerCharacteristic_nonneg
-    (L : CoherentTriple S) (hdepth : (3 : ℕ∞) ≤ moduleDepth A A) [L.IsInvertible] :
-    0 ≤ L.eulerCharacteristic := sorry
+#check (AlgebraicGeometry.Scheme.Modules.CoherentTriple.eulerCharacteristic_nonneg :
+    ∀ (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
+      (f : A) (hf_mem : f ∈ IsLocalRing.maximalIdeal A)
+      (hf_regular : IsRegular f) (hdepth : (3 : ℕ∞) ≤ moduleDepth A A),
+    let S := AffineAlgebraizationSetup.ofIdeals (Ideal.span {f})
+      (IsLocalRing.maximalIdeal A)
+      ((Ideal.span_singleton_le_iff_mem (IsLocalRing.maximalIdeal A)).mpr hf_mem)
+    let U₀ := S.y ⁻¹ᵁ S.U
+    ∀ (L : S.U.toScheme.Modules) (L₀ : S.Y.Modules) [L.IsCoherent] [L₀.IsCoherent]
+      [Scheme.Modules.Invertible L] [Scheme.Modules.Invertible L₀],
+      (hL : ∀ V : S.U.toScheme.Opens, Function.Injective
+        (L.smul (S.U.toScheme.presheaf.map V.leTop.op (S.U.ι.appTop
+          ((Scheme.ΓSpecIso (CommRingCat.of A)).inv f)))).hom) →
+      (α : (Scheme.Modules.pullback (S.y ∣_ S.U)).obj L ≅ L₀.restrict U₀.ι) →
+      0 ≤ AlgebraicGeometry.Scheme.Modules.CoherentTriple.eulerCharacteristic A f hf_mem L L₀ hL α)
 
-/-- Lemma 52.25.5 (3): under the depth-three hypothesis, vanishing Euler characteristic is
-equivalent to the punctured component being isomorphic to the structure module. -/
-@[stacks 0F28]
-theorem eulerCharacteristic_eq_zero_iff_isoUnit
-    (L : CoherentTriple S) (hdepth : (3 : ℕ∞) ≤ moduleDepth A A) [L.IsInvertible] :
-    let U := S.algebraization.U
-    L.eulerCharacteristic = 0 ↔
-      Nonempty
-        (L.F ≅
-          (SheafOfModules.unit U.toScheme.ringCatSheaf : U.toScheme.Modules)) := sorry
+#check (AlgebraicGeometry.Scheme.Modules.CoherentTriple.eulerCharacteristic_eq_zero_iff_isoUnit :
+    ∀ (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
+      (f : A) (hf_mem : f ∈ IsLocalRing.maximalIdeal A)
+      (hf_regular : IsRegular f) (hdepth : (3 : ℕ∞) ≤ moduleDepth A A),
+    let S := AffineAlgebraizationSetup.ofIdeals (Ideal.span {f})
+      (IsLocalRing.maximalIdeal A)
+      ((Ideal.span_singleton_le_iff_mem (IsLocalRing.maximalIdeal A)).mpr hf_mem)
+    let U₀ := S.y ⁻¹ᵁ S.U
+    ∀ (L : S.U.toScheme.Modules) (L₀ : S.Y.Modules) [L.IsCoherent] [L₀.IsCoherent]
+      [Scheme.Modules.Invertible L] [Scheme.Modules.Invertible L₀],
+      (hL : ∀ V : S.U.toScheme.Opens, Function.Injective
+        (L.smul (S.U.toScheme.presheaf.map V.leTop.op (S.U.ι.appTop
+          ((Scheme.ΓSpecIso (CommRingCat.of A)).inv f)))).hom) →
+      (α : (Scheme.Modules.pullback (S.y ∣_ S.U)).obj L ≅ L₀.restrict U₀.ι) →
+      AlgebraicGeometry.Scheme.Modules.CoherentTriple.eulerCharacteristic A f hf_mem L L₀ hL α = 0 ↔
+        Nonempty (L ≅
+          (SheafOfModules.unit S.U.toScheme.ringCatSheaf : S.U.toScheme.Modules)))
 
-end AlgebraicGeometry.CoherentTriple

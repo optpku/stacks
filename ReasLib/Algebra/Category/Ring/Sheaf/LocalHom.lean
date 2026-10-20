@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.Ring.Sheaf.LocallyRinged
@@ -44,7 +38,7 @@ instance app_isLocal (f : 𝒪₁ ⟶ 𝒪₂) [IsLocal f] (U : Cᵒᵖ) :
 def UnitsSquareCartesian (f : 𝒪₁ ⟶ 𝒪₂) : Prop :=
   ∀ U : Cᵒᵖ, Units.Square.IsCartesian (f.hom.app U).hom.toMonoidHom
 
-/-- Lemma 18.40.8 (04H9), sheaf-level core: objectwise cartesianness of the units square is
+/-- Objectwise cartesianness of the units square is
 equivalent to locality of the morphism. -/
 @[stacks 04H9 "objectwise units-square criterion"]
 theorem unitsSquareCartesian_iff_isLocal (f : 𝒪₁ ⟶ 𝒪₂) :

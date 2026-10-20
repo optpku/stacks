@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap99.Situation_99_16_3_Fiber
@@ -26,9 +20,13 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.AlgebraicSpace
 
 variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
+
+
 
 /-- Situation 99.16.3: for a proper, flat, finite-presentation morphism
 `f : X ⟶ B` of algebraic spaces over a scheme `S`, `Complexes f` is the category
@@ -40,7 +38,14 @@ over `T`. A morphism `(T, g, E) ⟶ (T', g', E')` is a pair `(h, φ)` where
 `φ : L(h')^* E' ≅ E` is an isomorphism in `D(𝒪_{X_T})`, where
 `h' : X_T ⟶ X_{T'}` is the base change of `h`. -/
 @[stacks 0DLE]
-abbrev Complexes (f : X ⟶ B) [Proper f] [Flat f] [FinitePresentation f] :=
+abbrev Complexes (f : X ⟶ B)
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)] [Proper f] [Flat f] [FinitePresentation f] :=
   ComplexesObj f
 
 end AlgebraicGeometry.AlgebraicSpace

@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap98.Remark_98_27_2_GRingStalks
-public import stacks_project.Chap98.Situation_98_27_1_Contraction
+public import ReasLib.AlgebraicGeometry.Scheme.GRingStalks
 import StacksCheckRecall
 
 /-!
@@ -16,13 +9,20 @@ import StacksCheckRecall
 
 @[expose] public section
 
-open AlgebraicGeometry
+universe u
 
-/- Remark 98.27.2: the desired Artin contraction is not claimed for every
-Situation 98.27.1 `ContractionSituation`, because the local rings of `S` must
-be G-rings. -/
-@[stacks 0GH9] #check Scheme.HasGRingStalks
+/- Remark 98.27.2: the Artin contraction argument requires the local rings of
+the base scheme to be G-rings. The desired result for every Situation 98.27.1
+remains unresolved without this assumption. -/
+@[stacks 0GH9] #check
+  (AlgebraicGeometry.Scheme.HasGRingStalks : AlgebraicGeometry.Scheme.{u} → Prop)
 
-#check Scheme.HasGRingStalks.spec
-#check Scheme.hasGRingStalks_iff_forall
-#check Scheme.instHasGRingStalks_of_isGRing
+#check (AlgebraicGeometry.Scheme.HasGRingStalks.spec :
+  ∀ (S : AlgebraicGeometry.Scheme.{u}) [AlgebraicGeometry.Scheme.HasGRingStalks S]
+    (x : S), IsGRing (S.presheaf.stalk x))
+#check (AlgebraicGeometry.Scheme.hasGRingStalks_iff_forall :
+  ∀ (S : AlgebraicGeometry.Scheme.{u}),
+    AlgebraicGeometry.Scheme.HasGRingStalks S ↔ ∀ x : S, IsGRing (S.presheaf.stalk x))
+#check (AlgebraicGeometry.Scheme.instHasGRingStalks_of_isGRing :
+  ∀ {R : Type u} [CommRing R] [IsGRing R],
+    AlgebraicGeometry.Scheme.HasGRingStalks (AlgebraicGeometry.Spec (.of R)))

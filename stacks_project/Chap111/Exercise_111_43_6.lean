@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Cohomology
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Picard
 import StacksCheckRecall
 
 @[expose] public section
@@ -19,15 +14,20 @@ noncomputable section
 
 section
 
-variable (X : Scheme.{u})
+variable (X : LocallyRingedSpace.{u})
 
 /- Exercise 111.43.6 (1): the rule `U ↦ 𝒪_X(U)ˣ` defines a sheaf of groups
 `𝒪_X⁎` on a scheme or locally ringed space. -/
 @[stacks 0DAP] #check
-  (CategoryTheory.Sheaf.unitsSheaf X.toRingedSpace.sheaf : Sheaf _ CommGrpCat)
+  (CategoryTheory.Sheaf.unitsSheaf X.toRingedSpace.sheaf :
+    Sheaf (Opens.grothendieckTopology X.toRingedSpace) CommGrpCat.{u})
 
-#check CategoryTheory.Sheaf.unitsSheaf_obj
-#check CategoryTheory.Sheaf.unitsAddSheaf
+#check (CategoryTheory.Sheaf.unitsSheaf_obj X.toRingedSpace.sheaf :
+  ∀ (U : (TopologicalSpace.Opens X.toRingedSpace)ᵒᵖ),
+    (CategoryTheory.Sheaf.unitsSheaf X.toRingedSpace.sheaf).1.obj U =
+      CommGrpCat.of (X.toRingedSpace.sheaf.1.obj U)ˣ)
+#check (CategoryTheory.Sheaf.unitsAddSheaf X.toRingedSpace.sheaf :
+  Sheaf (Opens.grothendieckTopology X.toRingedSpace) AddCommGrpCat.{u})
 
 end
 
@@ -40,4 +40,17 @@ end
     S.PicardGroup ≃+
       (CategoryTheory.Sheaf.unitsAddSheaf S.toRingedSpace.sheaf).H 1)
 
-#check @SheafOfModules.RingedSite.PicardGroup.cohomologyEquiv
+section
+
+variable (X : LocallyRingedSpace.{u})
+variable [HasExt.{u}
+  (Sheaf (Opens.grothendieckTopology X.toRingedSpace) AddCommGrpCat.{u})]
+
+/- Exercise 111.43.6 (3): for a locally ringed space, the Picard group is
+identified with `H¹(X, 𝒪_X⁎)`. -/
+@[stacks 0DAP] #check
+  (SheafOfModules.RingedSite.PicardGroup.cohomologyEquiv X.toRingedSpace.sheaf :
+    X.toRingedSpace.PicardGroup ≃+
+      (CategoryTheory.Sheaf.unitsAddSheaf X.toRingedSpace.sheaf).H 1)
+
+end

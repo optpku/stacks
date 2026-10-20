@@ -1,46 +1,34 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_20_7_BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.TorDimension.BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.ChartRestriction
 import StacksCheckRecall
 
-open CategoryTheory
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace ComplexShape
 
 universe u
 
 /- Lemma 75.20.7 (1): in a Tor-independent cartesian square of algebraic spaces,
 derived pullback preserves a fixed Tor-amplitude interval relative to the base. -/
 @[stacks 0DKD] #check
-  (@AlgebraicGeometry.AlgebraicSpace.TorIndependentBaseChange.hasTorAmplitudeInOver :
-    {S : AlgebraicGeometry.Scheme.{u}} →
-      {X' X Y' Y : AlgebraicGeometry.AlgebraicSpace S} →
+  (AlgebraicGeometry.AlgebraicSpace.TorIndependentBaseChange.hasTorAmplitudeInOver :
+    {S : Scheme.{u}} → {X' X Y' Y : AlgebraicSpace S} →
       (g' : X' ⟶ X) → (f' : X' ⟶ Y') → (f : X ⟶ Y) → (g : Y' ⟶ Y) →
-      (sq : CategoryTheory.IsPullback g' f' f g) →
-      (hTor : AlgebraicGeometry.AlgebraicSpace.TorIndependentOver
-        (CategoryTheory.Over.mk f) (CategoryTheory.Over.mk g)) →
-      (E : AlgebraicGeometry.AlgebraicSpace.ModuleDerived X) → (a b : ℤ) →
-      (hE : AlgebraicGeometry.AlgebraicSpace.ModuleDerived.HasTorAmplitudeInOver f E a b) →
-      AlgebraicGeometry.AlgebraicSpace.ModuleDerived.HasTorAmplitudeInOver f'
-        ((AlgebraicGeometry.AlgebraicSpace.modulePullbackDerived g').obj E) a b)
+      (sq : IsPullback g' f' f g) →
+      (hTor : TorIndependentOver (Over.mk f) (Over.mk g)) →
+      (E : ModuleDerived X) → (a b : ℤ) →
+      (hE : ModuleDerived.HasTorAmplitudeInOver f E a b) →
+      ModuleDerived.HasTorAmplitudeInOver f' ((ModuleDerived.pullback g').obj E) a b)
 
 /- Lemma 75.20.7 (2): in a Tor-independent cartesian square of algebraic spaces,
 a module flat over the base computes derived pullback at its degree-zero complex. -/
 @[stacks 0DKD] #check
-  (@AlgebraicGeometry.AlgebraicSpace.TorIndependentBaseChange.computesAtSingle :
-    {S : AlgebraicGeometry.Scheme.{u}} →
-      {X' X Y' Y : AlgebraicGeometry.AlgebraicSpace S} →
+  (AlgebraicGeometry.AlgebraicSpace.TorIndependentBaseChange.computesAtSingle :
+    {S : Scheme.{u}} → {X' X Y' Y : AlgebraicSpace S} →
       (g' : X' ⟶ X) → (f' : X' ⟶ Y') → (f : X ⟶ Y) → (g : Y' ⟶ Y) →
-      (sq : CategoryTheory.IsPullback g' f' f g) →
-      (hTor : AlgebraicGeometry.AlgebraicSpace.TorIndependentOver
-        (CategoryTheory.Over.mk f) (CategoryTheory.Over.mk g)) →
-      (𝒢 : X.Modules) →
-      (h𝒢 : AlgebraicGeometry.AlgebraicSpace.Modules.flatOver 𝒢 f) →
-      CategoryTheory.Functor.LeftDerived.ComputesAt
-        (AlgebraicGeometry.AlgebraicSpace.modulePullbackToDerived g')
-        (AlgebraicGeometry.AlgebraicSpace.ModuleQis X)
-        ((HomotopyCategory.singleFunctor X.Modules 0).obj 𝒢))
+      (sq : IsPullback g' f' f g) →
+      (hTor : TorIndependentOver (Over.mk f) (Over.mk g)) →
+      (M : Modules X) → (hM : Modules.IsFlatOver M f) →
+      Functor.LeftDerived.ComputesAt (Functor.Homotopy.toDerived (Modules.pullback g'))
+        (HomotopyCategory.quasiIso (Modules X) (up ℤ))
+        ((HomotopyCategory.singleFunctor (Modules X) 0).obj M))

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Sites.EtalePoint
@@ -96,12 +90,6 @@ theorem galoisFiber_map_apply
     ((CategoryTheory.forget₂ (DiscreteContAction TopCat Gal(Ksep/K)) TopCat).map
       ((galoisFiber K Ksep).map f)) x =
       x ≫ (Scheme.Etale.forget (Spec (.of K))).map f := sorry
-
-/-- The geometric-fiber functor identifies étale schemes over a field with discrete
-continuous actions of the Galois group of a chosen separable closure. -/
-instance galoisFiberIsEquivalence
-    (K Ksep : Type u) [Field K] [Field Ksep] [Algebra K Ksep] [IsSepClosure K Ksep] :
-    (galoisFiber K Ksep).IsEquivalence := sorry
 
 end AlgebraicGeometry.Scheme.Etale
 

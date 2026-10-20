@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Dualizing.Relative.AffineRestriction
@@ -17,6 +11,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.RelativeDualizingComplex
 
 /-- For a flat, locally finitely presented morphism, the homothety morphism of a relative
@@ -24,6 +20,10 @@ dualizing complex from the tensor unit to its derived internal endomorphism obje
 isomorphism. -/
 theorem homothetyIsIso
     {X S : Scheme.{u}} (f : X ⟶ S) [Flat f] [LocallyOfFinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     (W : (pullback f f).Opens) (δ : X ⟶ W.toScheme) [IsClosedImmersion δ]
     (hδ : δ ≫ W.ι = pullback.diagonal f)
     [MonoidalCategory (RingedSpace.ModuleDerived X.toRingedSpace)]

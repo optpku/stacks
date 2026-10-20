@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.DirectSum.Module
@@ -57,7 +51,7 @@ theorem tautologicalPicardClass_eq {X P : Scheme.{u}} (p : P ⟶ X)
 /-- The geometric and cohomological data of a category of qcqs schemes closed under clopen
 restrictions and the required projective-bundle morphisms, together with a contravariant
 nonnegatively graded ring theory and a first Chern class satisfying the Chern-class axioms. -/
-structure Theory
+structure CohomologyTheory
     {C : Type u} [Category.{v} C] (toScheme : C ⥤ Scheme.{w})
     (A : Cᵒᵖ ⥤ RingCat.{x})
     (Agrade : ∀ X, ℕ → Submodule ℤ (A.obj (Opposite.op X)))
@@ -241,7 +235,7 @@ structure Theory
         (quotientDivisorClass X E F r h_E h_F q h_q) :
           A.obj (Opposite.op (projectiveBundle X E))) = 0
 
-namespace Theory
+namespace CohomologyTheory
 
 /-- The quotient-divisor class in a theory is canonically the Picard class of the associated
 invertible sheaf of the effective Cartier divisor. -/
@@ -249,7 +243,7 @@ theorem quotientDivisorClass_eq
     {C : Type u} [Category.{v} C] {toScheme : C ⥤ Scheme.{w}}
     {A : Cᵒᵖ ⥤ RingCat.{x}}
     {Agrade : ∀ X, ℕ → Submodule ℤ (A.obj (Opposite.op X))}
-    [∀ X, GradedAlgebra (Agrade X)] (S : Theory toScheme A Agrade)
+    [∀ X, GradedAlgebra (Agrade X)] (S : CohomologyTheory toScheme A Agrade)
     (X : C)
     (E F : ObjectProperty.FullSubcategory
       (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules))
@@ -271,9 +265,6 @@ theorem quotientDivisorClass_eq
           ⟨Scheme.Modules.Invertible.tensorRight_isEquivalence
             (S.quotient_isEffectiveCartier X E F r h_E h_F q h_q).invertibleIdealSheaf⟩) := sorry
 
-/-- Assemble a cohomological theory from its geometric data and Chern-class axioms. -/
-def ofAxioms := @Theory.mk
-
-end Theory
+end CohomologyTheory
 
 end AlgebraicGeometry.ChernClass

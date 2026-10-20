@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_3_1_Separation
-public import stacks_project.Chap66.Definition_66_5_1_QuasiCompact
-public import stacks_project.Chap70.Lemma_70_17_1_MinimalNonscheme
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.MinimalNonscheme
+import StacksCheckRecall
 
 /-!
 # Minimal closed subspaces that are not schemes
@@ -26,17 +19,15 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 70.17.1: Let `S` be a scheme. Let `X` be a quasi-compact and
+/- Lemma 70.17.1: Let `S` be a scheme. Let `X` be a quasi-compact and
 quasi-separated algebraic space over `S`. Quasi-separatedness is absolute
 (Stacks Definition 66.3.1), in the same sense as Lemma 70.5.11. If `X` is not
 a scheme, then there exists a closed subspace `Z ⊂ X` such that `Z` is not a
 scheme, but every proper closed subspace `Z' ⊂ Z` is a scheme. A closed
 subspace of `Z` is proper when its inclusion is not an isomorphism. -/
-@[stacks 0B7Y]
-theorem exists_closedSubspace_isMinimalNonscheme {S : Scheme.{u}}
-    (X : AlgebraicSpace S) [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
-    (hX : ¬ IsScheme X) :
-    ∃ Z : ClosedSubspace X, IsMinimalNonscheme Z.X :=
-  sorry
+@[stacks 0B7Y] #check (AlgebraicGeometry.AlgebraicSpace.exists_closedSubspace_isMinimalNonscheme :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [IsQuasiCompact X]
+    [IsAbsolutelyQuasiSeparated X],
+    (¬ IsScheme X) → ∃ Z : ClosedSubspace X, IsMinimalNonscheme Z.X)
 
 end AlgebraicGeometry.AlgebraicSpace

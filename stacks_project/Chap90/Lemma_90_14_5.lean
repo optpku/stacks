@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Definition_90_16_8_Predeformation
-public import stacks_project.Chap90.Definition_90_27_1_MinimalVersal
-public import stacks_project.Chap90.Lemma_90_8_6_PowerSeries
+public import ReasLib.AlgebraicGeometry.FormalDeformation.FormalObject.MinimalVersal
+import StacksCheckRecall
 
 /-!
 # Minimal versal formal objects
@@ -30,45 +23,26 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
 variable {F : Type (u + 1)} [Category.{u + 1} F]
 variable {p : F ⥤ ArtinianLocalAlgCat Λ k}
 
-namespace FormalObject
+/- Lemma 90.14.5 (1): a predeformation category with a versal formal object has
+a minimal versal formal object. -/
+@[stacks 06T5] #check (FormalObject.exists_isMinimalVersal :
+  ∀ [Functor.IsPredeformationCategory p] (ξ : FormalObject p) [FormalObject.IsVersal ξ],
+    ∃ ξ' : FormalObject p, FormalObject.IsMinimalVersal ξ')
 
-/-- Predeformation categories are cofibered in groupoids. -/
-instance instIsFiberedInGroupoids_op [Functor.IsPredeformationCategory p] :
-    Functor.IsFibered.InGroupoids p.op :=
-  Functor.IsPredeformationCategory.isCofiberedInGroupoids
+/- Lemma 90.14.5 (2): minimal versal formal objects are unique up to isomorphism. -/
+@[stacks 06T5] #check (FormalObject.nonempty_iso :
+  ∀ [Functor.IsPredeformationCategory p] (ξ η : FormalObject p)
+    [FormalObject.IsMinimalVersal ξ] [FormalObject.IsMinimalVersal η],
+    Nonempty (ξ ≅ η))
 
-/-- Lemma 90.14.5 (1): if `p` is a predeformation category and `ξ` is a versal
-formal object of `p`, then `p` has a minimal versal formal object. -/
-@[stacks 06T5]
-theorem exists_isMinimalVersal [Functor.IsPredeformationCategory p]
-    (ξ : FormalObject p) [IsVersal ξ] :
-    ∃ ξ' : FormalObject p, IsMinimalVersal ξ' :=
-  sorry
-
-/-- Lemma 90.14.5 (2): if `p` is a predeformation category, then any two minimal
-versal formal objects of `p` are isomorphic. -/
-@[stacks 06T5]
-theorem nonempty_iso [Functor.IsPredeformationCategory p]
-    (ξ η : FormalObject p) [IsMinimalVersal ξ] [IsMinimalVersal η] :
-    Nonempty (ξ ≅ η) :=
-  sorry
-
-/-- Lemma 90.14.5 (3): if `p` is a predeformation category and `ξ` is a versal
-formal object of `p`, then `ξ` is the pushforward of a minimal versal formal
-object `ξ'` along a power series ring extension, realized by a morphism
-`f : ξ' ⟶ ξ` with `IsPowerSeriesOver f.base`. -/
-@[stacks 06T5]
-theorem exists_isPowerSeriesOver [Functor.IsPredeformationCategory p]
-    (ξ : FormalObject p) [IsVersal ξ] :
+/- Lemma 90.14.5 (3): every versal formal object is the pushforward of a minimal
+versal formal object along a finite-variable power series extension. -/
+@[stacks 06T5] #check (FormalObject.exists_isPowerSeriesOver :
+  ∀ [Functor.IsPredeformationCategory p] (ξ : FormalObject p) [FormalObject.IsVersal ξ],
     ∃ (ξ' : FormalObject p) (f : ξ' ⟶ ξ),
-      IsMinimalVersal ξ' ∧ IsPowerSeriesOver f.base :=
-  sorry
+      FormalObject.IsMinimalVersal ξ' ∧ CompleteLocalAlgCat.IsPowerSeriesOver f.base)
 
-/-- Every morphism of formal objects between minimal versal objects is an
-isomorphism. -/
-instance isIso [Functor.IsPredeformationCategory p]
-    {ξ η : FormalObject p} [IsMinimalVersal ξ] [IsMinimalVersal η]
-    (f : ξ ⟶ η) : IsIso f :=
-  sorry
-
-end FormalObject
+#check (FormalObject.isIso :
+  ∀ [Functor.IsPredeformationCategory p] {ξ η : FormalObject p}
+    [FormalObject.IsMinimalVersal ξ] [FormalObject.IsMinimalVersal η]
+    (f : ξ ⟶ η), IsIso f)

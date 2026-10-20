@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.AlmostCocontinuous
@@ -74,15 +68,5 @@ instance continuousSheafificationComparison_hom_isIso (G : Dᵒᵖ ⥤ Type w)
     [HasUniqueSectionsOn G K.IsSheafTheoreticallyEmpty] :
     IsIso (((u.continuousSheafificationComparison J K).app G).hom) := sorry
 
-section
-
-variable (G : Dᵒᵖ ⥤ Type w)
-variable [K.WEqualsLocallyBijective (Type w)] [u.IsAlmostCocontinuous J K]
-variable [HasUniqueSectionsOn G K.IsSheafTheoreticallyEmpty]
-
-#synth IsIso ((u.continuousSheafificationComparison J K).app G)
-#synth IsIso (((u.continuousSheafificationComparison J K).app G).hom)
-
-end
 
 end CategoryTheory.Presheaf.HasUniqueSectionsOn

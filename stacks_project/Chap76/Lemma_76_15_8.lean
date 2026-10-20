@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_15_8_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Thickening.UniversalFirstOrder.Functorial
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
@@ -29,12 +23,31 @@ formally unramified induces a canonical morphism of universal first-order
 thickenings `(f, f') : (Z ⊂ Z') ⟶ (W ⊂ W')` over `Y`. -/
 @[stacks 060A]
 #check
-  (IsUniversalFirstOrder.comparison iZ fZ iW fW f g sq : Z' ⟶ W')
+  (AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder.comparison iZ fZ iW fW f g sq : Z' ⟶ W')
+
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder.comparison_comp
+    iZ fZ iW fW f g sq :
+    f ≫ iW = iZ ≫
+      AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder.comparison iZ fZ iW fW f g sq)
+
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder.comparison_over
+    iZ fZ iW fW f g sq :
+    AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder.comparison iZ fZ iW fW f g sq ≫
+      fW = fZ ≫ g)
+
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder.comparison_unique
+    iZ fZ iW fW f g sq :
+    ∀ (k : Z' ⟶ W'), f ≫ iW = iZ ≫ k → k ≫ fW = fZ ≫ g →
+      k = AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder.comparison
+        iZ fZ iW fW f g sq)
 
 /- Lemma 76.15.8 (2): In particular the morphism of thickenings induces a
 morphism of conormal sheaves
 `(Modules.pullback f).obj (Hom.conormalSheaf iW) ⟶ Hom.conormalSheaf iZ`. -/
 @[stacks 060A]
 #check
-  (IsUniversalFirstOrder.conormalMap iZ fZ iW fW f g sq :
+  (AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder.conormalMap iZ fZ iW fW f g sq :
     (Modules.pullback f).obj (Hom.conormalSheaf iW) ⟶ Hom.conormalSheaf iZ)

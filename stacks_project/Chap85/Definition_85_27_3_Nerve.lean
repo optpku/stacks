@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Pullbacks
+public import ReasLib.AlgebraicGeometry.SimplicialScheme.CechNerve
 public import ReasLib.AlgebraicTopology.Cech.Nerve.LowDegree
 
 @[expose] public section
@@ -22,17 +16,10 @@ namespace AlgebraicGeometry.Scheme.Hom
 
 variable {X S : Scheme.{u}} (f : X ⟶ S)
 
-/-- The simplicial scheme associated to a morphism of schemes `f : X ⟶ S`, as the Čech nerve of
-`f`. -/
-abbrev simplicialScheme : SimplicialObject Scheme.{u} :=
-  (Arrow.mk f).cechNerve
+#check (simplicialScheme : ∀ {X S : Scheme.{u}}, (X ⟶ S) → SimplicialObject Scheme.{u})
 
-/-- Degree `n` of the simplicial scheme associated to `f : X ⟶ S` is the `(n + 1)`-fold fibre
-product of `X` over `S`. -/
-theorem simplicialScheme_obj (n : SimplexCategoryᵒᵖ) :
-    (simplicialScheme f).obj n =
-      widePullback.{0} S (fun _ : Fin (n.unop.len + 1) ↦ X) (fun _ ↦ f) :=
-  sorry
+#check (simplicialScheme_obj : ∀ {X S : Scheme.{u}} (f : X ⟶ S)
+    (n : SimplexCategoryᵒᵖ), (simplicialScheme f).obj n =
+      widePullback.{0} S (fun _ : Fin (n.unop.len + 1) ↦ X) (fun _ ↦ f))
 
 end AlgebraicGeometry.Scheme.Hom
-

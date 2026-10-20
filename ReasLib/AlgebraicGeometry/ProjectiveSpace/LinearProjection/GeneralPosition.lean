@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.IdealSheaf.Subscheme
@@ -55,13 +49,16 @@ theorem exists_open_isIso_toImage_restrict_near
               ∃ R : f.image.Opens, f.toImage x ∈ R ∧ IsIso (f.toImage ∣_ R) := sorry
 
 /-- If a closed subvariety of `ℙ(V)` has dimension `n - 1`, then at a smooth point its
-projection from every closed center in a nonempty open locus is étale. -/
+projection from every closed center in a nonempty open locus is étale.
+
+The dimension hypothesis is stated as `dim X + 1 = n`, matching the integer subtraction of the
+source: for `n = 0` it is unsatisfiable, rather than truncating to `dim X = 0`. -/
 theorem exists_open_etaleAt_restrict
     (n : ℕ) (hV : Module.finrank k V = n + 1)
     (X : SchemeOverField k) [Variety X]
     (i : X ⟶ Over.mk (toSpec k V)) [IsClosedImmersion i.left]
     (x : X.left) (hx : X.hom.SmoothAt x)
-    (hXdim : topologicalKrullDim X.left = (n - 1 : ℕ))
+    (hXdim : topologicalKrullDim X.left + 1 = n)
     (projection : ∀ (p : scheme k V),
       IsClosed ({p} : Set (scheme k V)) → LinearProjection k V p) :
     ∃ U : (scheme k V).Opens, Nonempty U ∧

@@ -1,17 +1,20 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_5_1_Surjective
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Surjective
 import StacksCheckRecall
 
 @[expose] public section
 
-/- Definition 100.5.1: a morphism `f : X ⟶ Y` of algebraic stacks is
-surjective if the map of associated topological spaces `Points.map f : |X| ⟶ |Y|`
-is surjective. -/
-@[stacks 04ZS] #check AlgebraicGeometry.AlgebraicStack.Surjective
+universe u
+
+open CategoryTheory AlgebraicGeometry
+open AlgebraicGeometry.AlgebraicStack
+open scoped Bicategory
+
+/- Definition 100.5.1. Let `f : X ⟶ Y` be a morphism of algebraic stacks.
+We say `f` is surjective if the map `Points.map f : |X| → |Y|` of associated
+topological spaces is surjective. -/
+@[stacks 04ZS] #check (AlgebraicGeometry.AlgebraicStack.surjective_iff_map_surjective :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+    (f : X ⟶ Y), AlgebraicGeometry.AlgebraicStack.Surjective f ↔
+      Function.Surjective (AlgebraicGeometry.AlgebraicStack.Points.map f))

@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.FiniteLocallyFree.Rank
-public import stacks_project.Chap71.Definition_71_17_1_Blowup
-public import stacks_project.Chap71.Definition_71_18_1_StrictTransform
-public import stacks_project.Chap71.Lemma_71_5_1_FittingIdeal
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FittingIdeal.Blowup
+import StacksCheckRecall
 
 /-!
 # Lemma 71.18.10
@@ -28,30 +19,16 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.fittingIdealSheaf
-
-/-- The `k`th Fitting ideal of a finite-type quasi-coherent module is a
-quasi-coherent ideal subobject. -/
-instance instIsQuasiCoherent {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (F : B.Modules) [F.IsFiniteType] [F.IsQuasicoherent] (k : ℕ) :
-    IsQuasiCoherent (fittingIdealSheaf F k) :=
-  sorry
-
-/-- Lemma 71.18.10: if `F` is a finite-type quasi-coherent `𝒪_B`-module on an
-algebraic space `B` over a scheme `S`, `Z_k ⊂ B` is the closed subspace cut out
-by `Fit_k(F)`, and `F` is locally free of rank `k` on `B \ Z_k`, then for a
-chosen blowup `π : B' ⟶ B` of `B` in `Z_k` the strict transform `F'` of `F` is
-locally free of rank `k`. -/
-@[stacks 0D0Q, instance]
-instance strictTransformModule_isFiniteLocallyFreeOfRank
-    {S : Scheme.{u}} {B : AlgebraicSpace S} (F : B.Modules)
-    [F.IsFiniteType] [F.IsQuasicoherent] (k : ℕ)
-    (π : Blowup B (fittingIdealSheaf F k))
-    [SheafOfModules.IsFiniteLocallyFreeOfRank k
+/- Lemma 71.18.10: A finite-type quasi-coherent module locally free of rank `k`
+outside its `k`th Fitting center has strict transform locally free of rank `k`
+under the blowup in that center. -/
+@[stacks 0D0Q] #check
+  (AlgebraicGeometry.AlgebraicSpace.fittingIdealSheaf.strictTransformModule_isFiniteLocallyFreeOfRank :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (F : B.Modules)
+      [F.IsFiniteType] [F.IsQuasicoherent] (k : ℕ)
+      (π : Blowup B (fittingIdealSheaf F k))
+      [SheafOfModules.IsFiniteLocallyFreeOfRank k
       ((Modules.pullback (closedImmersionComplementι
-          (Blowup.center (fittingIdealSheaf F k)).ι)).obj F)] :
+          (subschemeι (fittingIdealSheaf F k)))).obj F)],
     SheafOfModules.IsFiniteLocallyFreeOfRank k
-      (strictTransformModule π.hom (Blowup.exceptionalDivisor π) (𝟙 B) F) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.fittingIdealSheaf
+      (strictTransformModule π.hom (Blowup.exceptionalDivisor π) (𝟙 B) F))

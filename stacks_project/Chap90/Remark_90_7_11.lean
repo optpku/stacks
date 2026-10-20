@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Preserves.Basic
-public import Mathlib.CategoryTheory.Limits.Yoneda
-public import stacks_project.Chap90.Remark_90_7_10_Adjunction
+public import ReasLib.AlgebraicGeometry.FormalDeformation.TypesCompletion.Continuity
+import StacksCheckRecall
 
 /-!
 # Limit-preserving functors recover from the completion of their restriction
@@ -27,21 +20,17 @@ universe u w
 variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-namespace CategoryTheory.Functor
-
-/-- Remark 90.7.11 (1): if `G : CompleteLocalAlgCat Λ k ⥤ Type w` commutes with
+/- Remark 90.7.11 (1): if `G : CompleteLocalAlgCat Λ k ⥤ Type w` commutes with
 limits, then the unit `typesCompletionUnit.app G` is an isomorphism. -/
-@[stacks 06HE]
-instance typesCompletionUnit_isIso (G : CompleteLocalAlgCat Λ k ⥤ Type w)
-    [PreservesLimits G] : IsIso (typesCompletionUnit.app G) :=
-  sorry
+@[stacks 06HE] #check (CategoryTheory.Functor.typesCompletionUnit_isIso :
+  ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+    [Module.Finite Λ k] (G : CompleteLocalAlgCat Λ k ⥤ Type w)
+    [PreservesLimits G], IsIso (CategoryTheory.Functor.typesCompletionUnit.app G))
 
-/-- Remark 90.7.11 (2): if `R : CompleteLocalAlgCat Λ k`, then
-`typesCompletionUnit.app (coyoneda.obj (op R))` is an isomorphism, since the
-representable functor `coyoneda.obj (op R)` commutes with limits. -/
-@[stacks 06HE]
-instance coyoneda_typesCompletionUnit_isIso (R : CompleteLocalAlgCat Λ k) :
-    IsIso (typesCompletionUnit.app (coyoneda.obj (op R))) :=
-  sorry
-
-end CategoryTheory.Functor
+/- Remark 90.7.11 (2): if `R : CompleteLocalAlgCat Λ k`, then
+`typesCompletionUnit.app (coyoneda.obj (op R))` is an isomorphism. -/
+@[stacks 06HE] #check (CategoryTheory.Functor.coyoneda_typesCompletionUnit_isIso :
+  ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+    [Module.Finite Λ k] (R : CompleteLocalAlgCat Λ k),
+    IsIso (CategoryTheory.Functor.typesCompletionUnit.app
+      (CategoryTheory.coyoneda.obj (op R))))

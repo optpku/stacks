@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DifferentialGradedModule.Derived
@@ -34,4 +28,6 @@ differential graded homotopy category by its acyclic objects. -/
 
 #check DifferentialGradedModule.Derived.homologyFunctorFactors.{u, v} A 0
 
-#check DifferentialGradedModule.Derived.homologyFunctor_unique.{u, v} A 0
+#check DifferentialGradedModule.Derived.homologyFunctorUniqueIso.{u, v} A 0
+
+#check DifferentialGradedModule.Derived.homologyFunctorUniqueIso_hom_app.{u, v} A 0

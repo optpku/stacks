@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Subfunctor.Basic
@@ -16,7 +10,7 @@ open CategoryTheory
 
 universe u v w
 
-variable {C : Type u} [Category.{v} C] (G : Presheaf C) (H : Subfunctor G)
+variable {C : Type u} [Category.{v} C] (G : Presheaf.{u, v, w} C) (H : Subfunctor G)
 
 /-
 Definition 7.3.3: a Type-valued presheaf F is a subpresheaf of G when, for every object U of C,
@@ -27,7 +21,7 @@ Stacks writes F ⊂ G. Mathlib names this H : Subfunctor G, with H.obj the objec
 H.map the restriction compatibility, H.toFunctor the subpresheaf F, and H.ι : H.toFunctor ⟶ G
 the inclusion.
 -/
-@[stacks 00V8] #check Subfunctor G
+@[stacks 00V8] #check (CategoryTheory.Subfunctor G : Type (max u w))
 
 #check H.obj
 #check H.map

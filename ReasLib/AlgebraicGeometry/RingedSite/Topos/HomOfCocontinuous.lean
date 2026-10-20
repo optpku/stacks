@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Hom
@@ -19,9 +13,9 @@ universe uX vX uY vY w
 namespace RingedSite.Cocontinuous
 
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
-variable (G : X ⥤ Y) [G.IsCocontinuous X.siteTopology Y.siteTopology]
+variable (G : X.carrier ⥤ Y.carrier) [G.IsCocontinuous X.siteTopology Y.siteTopology]
 variable [HasSheafify X.siteTopology (Type w)]
-variable [∀ P : Xᵒᵖ ⥤ Type w, G.op.HasPointwiseRightKanExtension P]
+variable [∀ P : X.carrierᵒᵖ ⥤ Type w, G.op.HasPointwiseRightKanExtension P]
 variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
 variable [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
 variable (η : G.op ⋙ Y.structureSheaf.obj ⟶ X.structureSheaf.obj)
@@ -47,8 +41,40 @@ noncomputable def ringUnderlyingStructureMap :
   (toTopos G).ringInverseImageForgetIso.hom.app Y.structureSheaf ≫
     underlyingStructureMap G η
 
-/-- The structure-ring morphism induced by a genuine presheaf ring morphism.
-Only ring laws and naturality are proof obligations; its function is explicit. -/
+/-- The section function induced by sheafification preserves one. -/
+private theorem structureMap_map_one (U : X.carrierᵒᵖ) :
+    ((ringUnderlyingStructureMap G η).hom.app U)
+        (1 : ((toTopos G).ringInverseImage.obj Y.structureSheaf).obj.obj U) =
+      (1 : X.structureSheaf.obj.obj U) :=
+  sorry
+
+/-- The section function induced by sheafification preserves multiplication. -/
+private theorem structureMap_map_mul (U : X.carrierᵒᵖ)
+    (a b : ((toTopos G).ringInverseImage.obj Y.structureSheaf).obj.obj U) :
+    ((ringUnderlyingStructureMap G η).hom.app U) (a * b) =
+      (inferInstance : Mul (X.structureSheaf.obj.obj U)).mul
+        (((ringUnderlyingStructureMap G η).hom.app U) a)
+        (((ringUnderlyingStructureMap G η).hom.app U) b) :=
+  sorry
+
+/-- The section function induced by sheafification preserves zero. -/
+private theorem structureMap_map_zero (U : X.carrierᵒᵖ) :
+    ((ringUnderlyingStructureMap G η).hom.app U)
+        (0 : ((toTopos G).ringInverseImage.obj Y.structureSheaf).obj.obj U) =
+      (0 : X.structureSheaf.obj.obj U) :=
+  sorry
+
+/-- The section function induced by sheafification preserves addition. -/
+private theorem structureMap_map_add (U : X.carrierᵒᵖ)
+    (a b : ((toTopos G).ringInverseImage.obj Y.structureSheaf).obj.obj U) :
+    ((ringUnderlyingStructureMap G η).hom.app U) (a + b) =
+      (inferInstance : Add (X.structureSheaf.obj.obj U)).add
+        (((ringUnderlyingStructureMap G η).hom.app U) a)
+        (((ringUnderlyingStructureMap G η).hom.app U) b) :=
+  sorry
+
+/-- The structure-ring morphism induced by a presheaf ring morphism has the
+section functions obtained by sheafification and the coefficient-forgetful comparison. -/
 noncomputable def structureMap :
     (toTopos G).ringInverseImage.obj Y.structureSheaf ⟶ X.structureSheaf where
   hom :=
@@ -57,10 +83,10 @@ noncomputable def structureMap :
         let target : RingCat.{w} := X.structureSheaf.obj.obj U
         @RingCat.ofHom source target source.ring target.ring
         { toFun := (ringUnderlyingStructureMap G η).hom.app U
-          map_one' := sorry
-          map_mul' := sorry
-          map_zero' := sorry
-          map_add' := sorry }
+          map_one' := by exact structureMap_map_one G η U
+          map_mul' := by exact structureMap_map_mul G η U
+          map_zero' := by exact structureMap_map_zero G η U
+          map_add' := by exact structureMap_map_add G η U }
       naturality := sorry }
 
 /-- A cocontinuous functor with its actual structure-presheaf map determines

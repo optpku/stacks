@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap71.Definition_71_7_6_ZeroScheme
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.ZeroSection
 import StacksCheckRecall
 
 @[expose] public section
@@ -25,6 +19,6 @@ quasi-coherent sheaf of ideals `I ⊂ 𝒪_X` which is the image of the map
 `s : ℒ^{⊗ -1} ⟶ 𝒪_X`.
 -/
 @[stacks 0845] #check
-  (zeroScheme :
+  (AlgebraicGeometry.AlgebraicSpace.zeroScheme :
     {S : Scheme.{u}} → {X : AlgebraicSpace S} → (ℒ : X.Modules) →
       [isInvertibleObject ℒ] → ℒ.sections → ClosedSubspace X)

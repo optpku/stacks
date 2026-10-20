@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowGroup.ProjectiveBundle.ChernClassCap.FlatPullback
@@ -167,7 +161,7 @@ noncomputable def cap
       ((Scheme.Modules.pullback f.left).obj E) r
       (@Scheme.Modules.pullback_isFiniteLocallyFreeOfRank X'.left X f.left E r hE)
       j k).comp
-        ((castDegree δ (Int.sub_zero k)).comp
+        ((RelativeChow.castDegree δ (Int.sub_zero k)).comp
           (identityCap δ p f _ g square k))
 
 /-- Evaluation of the Chern cap family is Chern intersection after transport
@@ -185,7 +179,7 @@ theorem cap_apply
         ((Scheme.Modules.pullback f.left).obj E) r
         (@Scheme.Modules.pullback_isFiniteLocallyFreeOfRank X'.left X f.left E r hE)
         j k).comp
-          ((castDegree δ (Int.sub_zero k)).comp
+          ((RelativeChow.castDegree δ (Int.sub_zero k)).comp
             (identityCap δ p f f' g square k)) := sorry
 
 /-- Chern-component intersection commutes with proper pushforward. -/

@@ -1,35 +1,43 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap61.Lemma_61_5_3_Ring
-public import stacks_project.Chap61.Lemma_61_5_3_WLocal
+public import ReasLib.Algebra.WLocalHull.Properties
+public import ReasLib.AlgebraicGeometry.WLocalHull.Properties
 import StacksCheckRecall
 
 @[expose] public section
 
-open Algebra.WLocalHull
-open AlgebraicGeometry.WLocal.Construction
+universe u
 
 /- Lemma 61.5.3 (1): A → A_w is ind-Zariski and faithfully flat. -/
-@[stacks 0975] #check algebraMap_indZariski
-@[stacks 0975] #check algebraMap_faithfullyFlat
+@[stacks 0975] #check (Algebra.WLocalHull.algebraMap_indZariski :
+  ∀ (A : Type u) [CommRing A],
+    (algebraMap A (Algebra.WLocalHull.wLocalization A)).IndZariski)
+@[stacks 0975] #check (Algebra.WLocalHull.algebraMap_faithfullyFlat :
+  ∀ (A : Type u) [CommRing A],
+    (algebraMap A (Algebra.WLocalHull.wLocalization A)).FaithfullyFlat)
 
 /- Lemma 61.5.3 (2): X_w → X induces a bijection Z → X. -/
-@[stacks 0975] #check bijective_closedToSpec
+@[stacks 0975] #check (AlgebraicGeometry.WLocal.Construction.bijective_closedToSpec :
+  ∀ (A : Type u) [CommRing A],
+    Function.Bijective (AlgebraicGeometry.WLocal.Construction.closedToSpec A))
 
 /- Lemma 61.5.3 (3): Z is the set of closed points of X_w. -/
-@[stacks 0975] #check range_closedι_eq_closedPoints
+@[stacks 0975] #check (AlgebraicGeometry.WLocal.Construction.range_closedι_eq_closedPoints :
+  ∀ (A : Type u) [CommRing A],
+    Set.range (AlgebraicGeometry.WLocal.Construction.closedι A) =
+      closedPoints (AlgebraicGeometry.WLocal.Construction.scheme A))
 
 /- Lemma 61.5.3 (4): Z is a reduced scheme. -/
-@[stacks 0975] #check instIsReduced_closedSubscheme
+@[stacks 0975] #check (AlgebraicGeometry.WLocal.Construction.instIsReduced_closedSubscheme :
+  ∀ (A : Type u) [CommRing A],
+    AlgebraicGeometry.IsReduced (AlgebraicGeometry.WLocal.Construction.closedSubscheme A))
 
 /- Lemma 61.5.3 (5): every point of X_w specializes to a unique point of Z. -/
-@[stacks 0975] #check existsUnique_specializes_mem_range_closedι
+@[stacks 0975] #check (AlgebraicGeometry.WLocal.Construction.existsUnique_specializes_mem_range_closedι :
+  ∀ (A : Type u) [CommRing A] (x : AlgebraicGeometry.WLocal.Construction.scheme A),
+    ∃! y, y ∈ Set.range (AlgebraicGeometry.WLocal.Construction.closedι A) ∧ x ⤳ y)
 
 /- Lemma 61.5.3 (6): in particular X_w is w-local. -/
-@[stacks 0975] #check AlgebraicGeometry.WLocal.Construction.instWLocalSpace
+@[stacks 0975] #check (AlgebraicGeometry.WLocal.Construction.instWLocalSpace :
+  ∀ (A : Type u) [CommRing A],
+    WLocalSpace (AlgebraicGeometry.WLocal.Construction.scheme A))

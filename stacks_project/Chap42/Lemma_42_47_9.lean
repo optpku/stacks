@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap42.Lemma_42_47_9_Additivity
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.LocalizedChern.ClosedCover.Additive
 
 @[expose] public section
 
@@ -18,12 +13,11 @@ universe u
 
 namespace AlgebraicGeometry.LocalizedChern
 
-/-- Lemma 42.47.9: the localized Newton class of a binary biproduct of perfect derived
+/- Lemma 42.47.9: the localized Newton class of a binary biproduct of perfect derived
 modules that vanish on the intersection of a set-theoretic closed cover is the sum of
 their localized Newton classes. -/
-@[stacks 0FAM]
-theorem localizedNewtonClass_biprod
-    {S : Scheme.{u}} [UniversallyCatenary S] {delta : S → ℤ}
+@[stacks 0FAM] #check (AlgebraicGeometry.LocalizedChern.localizedNewtonClass_biprod :
+    ∀ {S : Scheme.{u}} [UniversallyCatenary S] {delta : S → ℤ}
     [IsDimensionFunction delta] {X : Over S} [LocallyOfFiniteType X.hom]
     {X₁ X₂ : Scheme.{u}} (i₁ : X₁ ⟶ X.left) (i₂ : X₂ ⟶ X.left)
     [IsClosedImmersion i₁] [IsClosedImmersion i₂]
@@ -49,7 +43,8 @@ theorem localizedNewtonClass_biprod
     (hlocalizedBiprod : BivariantClass.IsLocalizedExtension delta X i₁ i₂ (p : ℤ)
       (ChernClass.Derived.newtonClass delta (i₂ ≫ X.hom)
         (classes.reanchor (Over.mk (i₂ ≫ X.hom))) (E₂ ⊞ F₂)
-        (perfectE.biprod perfectF) (definedE.biprod definedF) p) localizedBiprod) :
-    localizedBiprod = localizedE + localizedF := sorry
+        (perfectE.biprod perfectF) (definedE.biprod definedF) p) localizedBiprod),
+    localizedBiprod = BivariantClass.pointwiseAdd delta
+      (Over.homMk i₂ : Over.mk (i₂ ≫ X.hom) ⟶ X) (p : ℤ) localizedE localizedF)
 
 end AlgebraicGeometry.LocalizedChern

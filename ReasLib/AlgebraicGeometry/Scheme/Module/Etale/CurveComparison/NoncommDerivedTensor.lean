@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommResidualCoinvariants
@@ -90,7 +84,7 @@ def cochainIso : coinvariantCochain R G Γ Q φ ψ hexact hsurj M ≅
         ((comparison R G Γ Q φ ψ hexact hsurj).app ((resolution R Γ M).complex.X i)))
       (fun _ _ _ ↦ by sorry))
 
-variable [HasDerivedCategory (ModuleCat.{u} (NoncommCompletedRing.Obj Rᵐᵒᵖ Q))]
+variable [HasDerivedCategory (ModuleCat.{u} (completedGroupRing Rᵐᵒᵖ Q))]
 
 /-- Noncommutative derived completed-tensor comparison, fully residual-equivariant.
 This is the group-side construction, not the missing geometric evaluation. -/

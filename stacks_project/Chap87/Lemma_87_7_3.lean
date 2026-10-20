@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.RingTheory.Topology.Adic.Complete
-public import stacks_project.Chap87.Definition_87_7_1_WeaklyAdic
+public import ReasLib.RingTheory.Topology.Adic.Weakly.FiniteGeneration
+import StacksCheckRecall
 
 /-!
 # Lemma 87.7.3
@@ -29,29 +22,20 @@ variable {A : Type u} [CommRing A] [TopologicalSpace A]
 variable [IsTopologicalRing A] [IsLinearTopology A A] [T2Space A]
 variable [@CompleteSpace A (IsTopologicalAddGroup.rightUniformSpace A)]
 
-/-- If `I` is a finitely generated weakly adic ideal of a complete linearly
-topologized ring, then the ambient topology is the `I`-adic topology. -/
-theorem isAdic {I : Ideal A} (hIfg : I.FG) (hI : IsWeaklyAdic I) : IsAdic I := sorry
-
-/-- If `I` is a finitely generated weakly adic ideal of a complete linearly
-topologized ring, then `I` is an ideal of definition. -/
-theorem isIdealOfDefinition {I : Ideal A} (hIfg : I.FG) (hI : IsWeaklyAdic I) :
-    IsIdealOfDefinition I := sorry
-
-/-- Lemma 87.7.3 (1): Let `A` be a complete linearly topologized ring. Let `I`
+/- Lemma 87.7.3 (1): Let `A` be a complete linearly topologized ring. Let `I`
 be a finitely generated ideal such that the closure of `I ^ n` is open for all
 `n ≥ 0` and these closures form a fundamental system of open ideals. Then `A`
 is adic. -/
-@[stacks 0GXG]
-theorem isAdicRing {I : Ideal A} (hIfg : I.FG) (hI : IsWeaklyAdic I) :
-    IsAdicRing A := sorry
+@[stacks 0GXG] #check (TopologicalRing.Ideal.IsWeaklyAdic.isAdicRing :
+    ∀ {I : Ideal A}, I.FG → TopologicalRing.Ideal.IsWeaklyAdic I →
+      TopologicalRing.IsAdicRing A)
 
-/-- Lemma 87.7.3 (2): Let `A` be a complete linearly topologized ring. Let `I`
+/- Lemma 87.7.3 (2): Let `A` be a complete linearly topologized ring. Let `I`
 be a finitely generated ideal such that the closure of `I ^ n` is open for all
 `n ≥ 0` and these closures form a fundamental system of open ideals. Then `A`
 has a finitely generated ideal of definition. -/
-@[stacks 0GXG]
-theorem exists_fg_isIdealOfDefinition {I : Ideal A} (hIfg : I.FG)
-    (hI : IsWeaklyAdic I) : ∃ J : Ideal A, J.FG ∧ IsIdealOfDefinition J := sorry
+@[stacks 0GXG] #check (TopologicalRing.Ideal.IsWeaklyAdic.exists_fg_isIdealOfDefinition :
+    ∀ {I : Ideal A}, I.FG → TopologicalRing.Ideal.IsWeaklyAdic I →
+      ∃ J : Ideal A, J.FG ∧ TopologicalRing.Ideal.IsIdealOfDefinition J)
 
 end TopologicalRing.Ideal.IsWeaklyAdic

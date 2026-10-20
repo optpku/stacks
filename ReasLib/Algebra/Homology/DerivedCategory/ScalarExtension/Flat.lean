@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.ChangeOfRings.Exact
 public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension
+public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension.Flat.Availability
 public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension.Homology
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Exact.LeftDerived
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Exact.Homology

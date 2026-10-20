@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.CurvePairing
 import StacksCheckRecall
@@ -55,7 +49,7 @@ variable [EnoughInjectives (Sheaf P.obj.right.left.smallEtaleTopology (ModuleCat
 variable [∀ {Y Z : Scheme.{u}} (f : Y ⟶ Z) (F : Z.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} R),
   (smallEtalePullback f).op.HasLeftKanExtension F]
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj R Gal(AlgebraicClosure k/k)))]
+  (completedGroupRing R Gal(AlgebraicClosure k/k)))]
 variable [∀ Y : Scheme.{u}, HasWeakSheafify Y.smallEtaleTopology (ModuleCat.{u + 1} Rᵐᵒᵖᵐᵒᵖ)]
 variable [∀ {Y Z : Scheme.{u}} (f : Y ⟶ Z) (F : Z.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Rᵐᵒᵖᵐᵒᵖ),
   (smallEtalePullback f).op.HasLeftKanExtension F]
@@ -74,11 +68,11 @@ variable [HasDerivedCategory (Sheaf (Spec (CommRingCat.of k)).smallEtaleTopology
   (ModuleCat.{u + 1} (ActualRootsModule.Coeff.{u} (Nat.card R))))]
 variable [HasDerivedCategory (DiscreteModuleCat (ActualRootsModule.Coeff.{u} (Nat.card R)) Gal(AlgebraicClosure k/k))]
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj Rᵐᵒᵖᵐᵒᵖ Gal(AlgebraicClosure k/k)))]
+  (completedGroupRing Rᵐᵒᵖᵐᵒᵖ Gal(AlgebraicClosure k/k)))]
 variable [∀ U : (geometricBaseChange X).Etale,
   HasWeakSheafify ((geometricBaseChange X).smallEtaleTopology.over U) (ModuleCat.{u + 1} Rᵐᵒᵖ)]
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj Rᵐᵒᵖᵐᵒᵖ (NoncommResidualSectionsComparison.Q X η)))]
+  (completedGroupRing Rᵐᵒᵖᵐᵒᵖ (NoncommResidualSectionsComparison.Q X η)))]
 variable [∀ Y : Scheme.{u}, HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} R))]
 variable [∀ Y : Scheme.{u}, EnoughInjectives (Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} R))]
 variable [∀ U : (geometricBaseChange X).Etale,

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap61.Lemma_61_12_18_BaseChange
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Proetale.ChosenPresentation.BaseChange
+public import ReasLib.CategoryTheory.Sites.Over.BaseChange
 import StacksCheckRecall
 
 @[expose] public section
@@ -32,8 +27,10 @@ pulling the big direct image `f_big,*` back along the relocalization `i_g`
 agrees with first pulling back along `i_g'` and then applying the small
 direct image `f'_small,*`. -/
 @[stacks 0F61] #check
-  (BaseChange.smallToBigComparison_isIso.{u, v, max u v} f g f' g' sq :
-    IsIso (BaseChange.smallToBigComparison.{u, v, max u v} f g f' g' sq))
+  (AlgebraicGeometry.ChosenBigProetaleSite.BaseChange.smallToBigComparison_isIso.{u, v, max u v}
+      f g f' g' sq :
+    IsIso (AlgebraicGeometry.ChosenBigProetaleSite.BaseChange.smallToBigComparison.{u, v, max u v}
+      f g f' g' sq))
 
 /- Lemma 61.12.18 (2): for a cartesian square in a chosen big pro-étale site,
 pulling the big direct image `f_big,*` back along `g_big` agrees with first

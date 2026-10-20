@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.SheafyTrace
 public import Mathlib.CategoryTheory.Monoidal.Closed.Basic
 public import stacks_project.Chap63.«63_11_4_1_UpperShriek»
 public import stacks_project.Chap63.Remark_63_10_9
@@ -13,7 +8,7 @@ public import stacks_project.Chap63.Remark_63_10_9
 /-!
 # Sheafy trace for derived étale lower/upper shriek
 
-The source morphism
+For the supplied monoidal structures, the conditional morphism
 `Rf_* RHom_Λ(L, Rf^! K) ⟶ RHom_Λ(Rf_! L, K)`
 is the compactification internal-Hom comparison of `Rf_!` followed by
 `RHom(Rf_! L, ε_K)` for the counit `ε` of `Rf_! ⊣ Rf^!`.
@@ -123,48 +118,35 @@ variable [(etaleDerivedPushforward (Over.hom P.obj.right) :
 variable [((etaleDerivedLowerShriek X P :
     EtaleDerived X.left Λ ⥤ EtaleDerived Y Λ)).IsLeftAdjoint]
 
-/-- The sheafy-trace morphism
-`Rf_* RHom_Λ(L, Rf^! K) ⟶ RHom_Λ(Rf_! L, K)`. -/
-def etaleDerivedSheafyTrace
-    (L : EtaleDerived X.left Λ) (K : EtaleDerived Y Λ) :
+#check (AlgebraicGeometry.Scheme.Etale.etaleDerivedSheafyTrace X P :
+  ∀ (L : EtaleDerived X.left Λ) (K : EtaleDerived Y Λ),
     (etaleDerivedPushforward X.hom).obj
       ((ihom L).obj ((etaleDerivedUpperShriek X Λ P).obj K)) ⟶
-    (ihom ((etaleDerivedLowerShriek X P).obj L)).obj K :=
-  etaleDerivedLowerShriekInternalHom X P L
-      ((etaleDerivedUpperShriek X Λ P).obj K) ≫
-    (ihom ((etaleDerivedLowerShriek X P).obj L)).map
-      ((etaleDerivedLowerShriekAdjunction X Λ P).counit.app K)
+    (ihom ((etaleDerivedLowerShriek X P).obj L)).obj K)
 
-/-- The sheafy-trace morphism is the internal-Hom comparison at
-`(L, Rf^! K)` followed by the counit of `Rf_! ⊣ Rf^!`. -/
-theorem etaleDerivedSheafyTrace_eq
-    (L : EtaleDerived X.left Λ) (K : EtaleDerived Y Λ) :
+#check (AlgebraicGeometry.Scheme.Etale.etaleDerivedSheafyTrace_eq X P :
+  ∀ (L : EtaleDerived X.left Λ) (K : EtaleDerived Y Λ),
     etaleDerivedSheafyTrace X P L K =
       etaleDerivedLowerShriekInternalHom X P L
           ((etaleDerivedUpperShriek X Λ P).obj K) ≫
         (ihom ((etaleDerivedLowerShriek X P).obj L)).map
-          ((etaleDerivedLowerShriekAdjunction X Λ P).counit.app K) :=
-  sorry
+          ((etaleDerivedLowerShriekAdjunction X Λ P).counit.app K))
 
-/-- The sheafy-trace morphism is natural in the source object `L`. -/
-theorem etaleDerivedSheafyTrace_natural_left
-    {L L' : EtaleDerived X.left Λ} (f : L ⟶ L') (K : EtaleDerived Y Λ) :
+#check (AlgebraicGeometry.Scheme.Etale.etaleDerivedSheafyTrace_natural_left X P :
+  ∀ {L L' : EtaleDerived X.left Λ} (f : L ⟶ L') (K : EtaleDerived Y Λ),
     (etaleDerivedPushforward X.hom).map
           ((MonoidalClosed.pre f).app ((etaleDerivedUpperShriek X Λ P).obj K)) ≫
         etaleDerivedSheafyTrace X P L K =
       etaleDerivedSheafyTrace X P L' K ≫
-        (MonoidalClosed.pre ((etaleDerivedLowerShriek X P).map f)).app K :=
-  sorry
+        (MonoidalClosed.pre ((etaleDerivedLowerShriek X P).map f)).app K)
 
-/-- The sheafy-trace morphism is natural in the target object `K`. -/
-theorem etaleDerivedSheafyTrace_natural_right
-    (L : EtaleDerived X.left Λ) {K K' : EtaleDerived Y Λ} (g : K ⟶ K') :
+#check (AlgebraicGeometry.Scheme.Etale.etaleDerivedSheafyTrace_natural_right X P :
+  ∀ (L : EtaleDerived X.left Λ) {K K' : EtaleDerived Y Λ} (g : K ⟶ K'),
     (etaleDerivedPushforward X.hom).map
           ((ihom L).map ((etaleDerivedUpperShriek X Λ P).map g)) ≫
         etaleDerivedSheafyTrace X P L K' =
       etaleDerivedSheafyTrace X P L K ≫
-        (ihom ((etaleDerivedLowerShriek X P).obj L)).map g :=
-  sorry
+        (ihom ((etaleDerivedLowerShriek X P).obj L)).map g)
 
 end AlgebraicGeometry.Scheme.Etale
 

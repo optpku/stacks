@@ -1,68 +1,33 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.DerivedCategory.Functor.Exact
-public import stacks_project.Chap59.Lemma_59_40_1_Hom
-public import stacks_project.Chap75.Lemma_75_13_4_Relative
-public import stacks_project.Chap75.Lemma_75_13_4_Sites
-
-/-!
-# Lemma 75.13.4
-
-Tor-amplitude in a fixed interval, and locally finite Tor dimension, of a
-derived `𝒪_X`-module as an object of `D(f⁻¹𝒪_Y)` may equivalently be tested
-after exact pullback along the commutative presentation of ε from 75.4.0.1.
--/
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Module.Derived.RelativeTorDimension
 
 @[expose] public section
 
-open AlgebraicGeometry
+open CategoryTheory AlgebraicGeometry
 open AlgebraicGeometry.Scheme.AssociatedModule
 open AlgebraicGeometry.Scheme.SiteRestriction
-open CategoryTheory
-open RingedSite.Hom
-open RingedSite.Hom.ModuleDerived
-open Scheme.Etale.Small
-
-noncomputable section
+open RingedSite.Hom RingedSite.Hom.ModuleDerived
 
 universe u
 
-namespace AlgebraicGeometry.Scheme.SiteRestriction
+/- Lemma 75.13.4 (1): relative Tor-amplitude in a fixed interval is equivalent
+before and after canonical small étale inverse image. -/
+@[stacks 0DK7] #check
+  (AlgebraicGeometry.Scheme.SiteRestriction.hasTorAmplitudeInOver_iff :
+    ∀ {X Y : Scheme.{u}} (f : X ⟶ Y)
+      (E : ModuleDerived.{u + 1} (smallCommRingedSite .zariski X)) (a b : ℤ),
+      HasTorAmplitudeInOver (zariskiCommRingedHom f) E a b ↔
+        HasTorAmplitudeInOver (Scheme.Etale.Small.commRingedHom f)
+          ((commSmallEtaleToZariskiDerived X).obj E) a b)
 
-variable {X Y : Scheme.{u}}
-
-/-- Lemma 75.13.4 (1): for a morphism of schemes `f : X ⟶ Y` and `E` in
-`D(𝒪_X)`, `E` has tor amplitude in `[a, b]` as an object of `D(f⁻¹𝒪_Y)` if and
-only if `ε* E` has tor amplitude in `[a, b]` as an object of
-`D(f_small⁻¹𝒪_{Y_étale})`, where `ε` is `commSmallEtaleToZariski` as in
-75.4.0.1. -/
-@[stacks 0DK7]
-theorem hasTorAmplitudeInOver_iff (f : X ⟶ Y)
-    (E : ModuleDerived.{u + 1} (smallCommRingedSite .zariski X)) (a b : ℤ) :
-    HasTorAmplitudeInOver (zariskiCommRingedHom f) E a b ↔
-      HasTorAmplitudeInOver (commRingedHom f)
-        ((IsFlat.exactPullback (commSmallEtaleToZariski X)).mapDerivedCategory.obj
-          E) a b :=
-  sorry
-
-/-- Lemma 75.13.4 (2): for a morphism of schemes `f : X ⟶ Y` and `E` in
-`D(𝒪_X)`, `E` locally has finite tor dimension as an object of `D(f⁻¹𝒪_Y)` if
-and only if `ε* E` locally has finite tor dimension as an object of
-`D(f_small⁻¹𝒪_{Y_étale})`, where `ε` is `commSmallEtaleToZariski` as in
-75.4.0.1. -/
-@[stacks 0DK7]
-theorem locallyHasFiniteTorDimensionOver_iff (f : X ⟶ Y)
-    (E : ModuleDerived.{u + 1} (smallCommRingedSite .zariski X)) :
-    LocallyHasFiniteTorDimensionOver (zariskiCommRingedHom f) E ↔
-      LocallyHasFiniteTorDimensionOver (commRingedHom f)
-        ((IsFlat.exactPullback (commSmallEtaleToZariski X)).mapDerivedCategory.obj
-          E) :=
-  sorry
-
-end AlgebraicGeometry.Scheme.SiteRestriction
+/- Lemma 75.13.4 (2): covering-local finite relative Tor dimension is equivalent
+before and after canonical small étale inverse image. -/
+@[stacks 0DK7] #check
+  (AlgebraicGeometry.Scheme.SiteRestriction.locallyHasFiniteTorDimensionOver_iff :
+    ∀ {X Y : Scheme.{u}} (f : X ⟶ Y)
+      (E : ModuleDerived.{u + 1} (smallCommRingedSite .zariski X)),
+      LocallyHasFiniteTorDimensionOver (zariskiCommRingedHom f) E ↔
+        LocallyHasFiniteTorDimensionOver (Scheme.Etale.Small.commRingedHom f)
+          ((commSmallEtaleToZariskiDerived X).obj E))

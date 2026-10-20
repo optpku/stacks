@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.LocalSectionMul
@@ -97,10 +91,7 @@ theorem localSectionActionNatTrans_app
 public noncomputable abbrev localizedRestrictionExact (U : C) :
     ExactFunctor (ModuleCat.{z} (RingedSite.ofCommRingSheaf J O))
       (ModuleCat.{z} ((RingedSite.ofCommRingSheaf J O).localization U)) :=
-  @ExactFunctor.of _ _ _ _
-    (localizedRestriction.{z} (RingedSite.ofCommRingSheaf J O) U)
-      (localizedRestriction_preservesFiniteLimits (RingedSite.ofCommRingSheaf J O) U)
-      (localizedRestriction_preservesFiniteColimits (RingedSite.ofCommRingSheaf J O) U)
+  ExactFunctor.of (localizedRestriction.{z} (RingedSite.ofCommRingSheaf J O) U)
 
 /-- The underlying functor of exact localized restriction is localized restriction. -/
 theorem localizedRestrictionExact_obj (U : C) :

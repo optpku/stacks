@@ -1,13 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.FunctionField
+public import Mathlib.RingTheory.AlgebraicIndependent.Basic
 public import Mathlib.RingTheory.EssentialFiniteness
+public import Mathlib.Topology.KrullDimension
 public import ReasLib.AlgebraicGeometry.Scheme.OverField
 public import ReasLib.AlgebraicGeometry.Scheme.Variety
 
@@ -57,7 +53,16 @@ noncomputable def functionFieldCommAlg
   @CommAlgCat.of k _ X.left.functionField _ (functionFieldAlgebra X)
 
 /-- The function field of a variety over `k` is essentially of finite type over `k`. -/
+@[instance]
 theorem functionField_essFiniteType (X : SchemeOverField k) [Variety X] :
     Algebra.EssFiniteType k (functionFieldCommAlg X) := sorry
+
+/-- The dimension of a variety over a field equals the transcendence degree of its
+function field with the canonical scalar structure. -/
+@[stacks 06A1]
+theorem topologicalKrullDim_eq_trdeg_functionField
+    {k : Type u} [Field k] (X : SchemeOverField k) [Variety X] :
+    topologicalKrullDim X.left =
+      (Cardinal.toNat (Algebra.trdeg k (functionFieldCommAlg X)) : WithBot ℕ∞) := sorry
 
 end AlgebraicGeometry.SchemeOverField

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_52_9_Colimit
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Limit.BaseChange.RelativePerfect.Colimit
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,7 +16,8 @@ universe u
   (AlgebraicGeometry.AlgebraicSpace.Limit.QcqsAffineLimit.isPerfectOverCategoryColimit :
     ∀ {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
       {S : Scheme.{u}} {D : OrderDual I ⥤ AlgebraicSpace S}
-      [∀ i, IsQuasiCompact (D.obj i)] [∀ i, IsQuasiSeparated (D.obj i)]
+
+      [∀ i, IsQuasiCompact (D.obj i)] [∀ i, IsAbsolutelyQuasiSeparated (D.obj i)]
       [∀ {i i' : I} (h : i ≤ i'), Affine (D.map (homOfLE h))]
       (s : AlgebraicSpace.Limit.QcqsAffineLimit D) (X₀ : AlgebraicSpace S)
       (x₀ : X₀ ⟶ D.obj (OrderDual.toDual s.base))

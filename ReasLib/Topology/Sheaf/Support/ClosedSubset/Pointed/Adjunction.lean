@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.ExactFunctor
 public import ReasLib.Topology.Sheaf.Subset.Closed
+public import ReasLib.Topology.Sheaf.Support.ClosedSubset.Supported
 public import ReasLib.Topology.Sheaf.Support.ClosedSubset.Pointed.Functor
 import Mathlib.Tactic.CrossRefAttribute
 
@@ -38,20 +33,13 @@ theorem subsheafPushforwardEqTop
     subsheaf hZ ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F) =
       ⊤ := sorry
 
-/-- The ambient support inclusion is invertible on pointed sheaves pushed forward from `Z`. -/
-@[stacks 01B0 "pointed support inclusion on a pushforward is invertible"]
-noncomputable instance inclusionPushforwardIsIso
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    IsIso
-      (inclusion hZ
-        ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F)) := sorry
-
 /-- The ambient pointed support object belongs to the essential image of closed-subset
 pushforward. -/
 @[stacks 01B0 "pointed support object lies in the pushforward essential image"]
 theorem objectMemEssImage (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :
     (Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).essImage
-      (object hZ F) := sorry
+      (object hZ F) :=
+  ⟨supportedRestriction hZ F, ⟨(supportedRestrictionPushforwardIso hZ F).symm⟩⟩
 
 /-- The pullback-pushforward unit is canonically invertible on the ambient support object. -/
 @[stacks 01B0 "pointed support unit is invertible"]
@@ -59,7 +47,9 @@ noncomputable instance objectUnitIsIso
     (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :
     IsIso
       ((Sheaf.pullbackPushforwardAdjunction Pointed.{u}
-        (TopCat.subsetInclusion Z)).unit.app (object hZ F)) := sorry
+        (TopCat.subsetInclusion Z)).unit.app (object hZ F)) :=
+  ⟨⟨supportedUnitInv hZ F, unit_supportedUnitInv hZ F,
+    supportedUnitInv_unit hZ F⟩⟩
 
 /-- The pullback-pushforward counit is invertible on every pointed sheaf over a subset. -/
 @[stacks 01B0 "pointed pullback-pushforward counit isomorphism instance"]
@@ -67,7 +57,9 @@ noncomputable instance counitAppIsIso (Z : Set X)
     (F : (TopCat.of Z).Sheaf Pointed.{u}) :
     IsIso
       ((Sheaf.pullbackPushforwardAdjunction Pointed.{u}
-        (TopCat.subsetInclusion Z)).counit.app F) := sorry
+        (TopCat.subsetInclusion Z)).counit.app F) :=
+  ⟨⟨Subset.counitInv Z F, Subset.counit_app_counitInv Z F,
+    Subset.counitInv_counit_app Z F⟩⟩
 
 /-- The explicit inverse of the closed-support inclusion on a pointed direct image. -/
 @[stacks 01B0 "inverse pointed closed-support inclusion on a direct image"]
@@ -76,9 +68,8 @@ noncomputable def inclusionPushforwardInv
     (Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F ⟶
       object hZ
         ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F) :=
-  inv
-    (inclusion hZ
-      ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F))
+  liftToObject hZ (𝟙 _) (by
+    simpa only [Category.id_comp] using restrictionPushforward_eq_zero hZ F)
 
 /-- The pointed closed-support inclusion and its inverse compose to the identity. -/
 @[simp, stacks 01B0 "pointed closed-support inclusion forward-inverse law"]
@@ -96,6 +87,16 @@ theorem inclusionPushforward_inv_hom_id
         inclusion hZ
           ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F) =
       𝟙 _ := sorry
+
+/-- The ambient support inclusion is invertible on pointed sheaves pushed forward from `Z`. -/
+@[stacks 01B0 "pointed support inclusion on a pushforward is invertible"]
+noncomputable instance inclusionPushforwardIsIso
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :
+    IsIso
+      (inclusion hZ
+        ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F)) :=
+  ⟨⟨inclusionPushforwardInv hZ F,
+    inclusionPushforward_hom_inv_id hZ F, inclusionPushforward_inv_hom_id hZ F⟩⟩
 
 /-- The pointed closed-support inclusion on a direct image is a literal isomorphism. -/
 @[stacks 01B0 "pointed closed-support inclusion isomorphism"]
@@ -131,10 +132,7 @@ noncomputable def pullbackPushforwardCounitAppInv (Z : Set X)
     F ⟶
       (Sheaf.pullback Pointed.{u} (TopCat.subsetInclusion Z)).obj
         ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F) :=
-  @CategoryTheory.inv _ _ _ _
-    ((Sheaf.pullbackPushforwardAdjunction Pointed.{u}
-      (TopCat.subsetInclusion Z)).counit.app F)
-    (counitAppIsIso Z F)
+  Subset.counitInv Z F
 
 /-- The pointed pullback-pushforward counit followed by its inverse is identity. -/
 @[simp, stacks 01B0 "pointed counit forward-inverse law"]
@@ -186,10 +184,7 @@ noncomputable def objectPullbackPushforwardUnitAppInv
     (Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj
         ((Sheaf.pullback Pointed.{u} (TopCat.subsetInclusion Z)).obj
           (object hZ F)) ⟶ object hZ F :=
-  @CategoryTheory.inv _ _ _ _
-    ((Sheaf.pullbackPushforwardAdjunction Pointed.{u}
-      (TopCat.subsetInclusion Z)).unit.app (object hZ F))
-    (objectUnitIsIso hZ F)
+  supportedUnitInv hZ F
 
 /-- The pointed pullback-pushforward unit followed by its inverse is identity. -/
 @[simp, stacks 01B0 "pointed ambient unit forward-inverse law"]
@@ -285,12 +280,14 @@ theorem adjunction_counit_app
 /-- Closed-subset pushforward of pointed sheaves is a left adjoint. -/
 @[stacks 01B0 "pointed closed-subset pushforward is a left adjoint"]
 theorem pushforwardIsLeftAdjoint (hZ : IsClosed Z) :
-    (Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).IsLeftAdjoint := sorry
+    (Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).IsLeftAdjoint :=
+  (adjunction hZ).isLeftAdjoint
 
 /-- Pointed sections with support form a right adjoint. -/
 @[stacks 01B0 "pointed sections with support are a right adjoint"]
 noncomputable instance functorIsRightAdjoint (hZ : IsClosed Z) :
-    (functor hZ).IsRightAdjoint := sorry
+    (functor hZ).IsRightAdjoint :=
+  (adjunction hZ).isRightAdjoint
 
 /-- Remark 17.6.4 (01B0): pushforward of pointed sheaves along a closed-subset inclusion is
 exact. -/

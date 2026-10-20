@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -21,7 +15,8 @@ universe u v
 /- Remark 49.13.1 (1): a locally quasi-finite syntomic morphism admits affine
 neighborhoods with a square relative-global-complete-intersection presentation. -/
 @[stacks 0FKC] #check (AlgebraicGeometry.quasiFiniteSyntomic_tfae :
-  ∀ {X Y : Scheme.{u}} (f : Y ⟶ X),
+  ∀ {X Y : Scheme.{u}} (f : Y ⟶ X)
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)],
     let L : RingedSpace.ModuleDerived Y.toRingedSpace :=
       DerivedCategory.Q.obj (RingedSpace.naiveCotangent f.toShHom)
     List.TFAE [

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap59.Theorem_59_53_1
+public import ReasLib.AlgebraicGeometry.Scheme.Henselization.Fiber
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.HigherDirectImageStalk
 
 @[expose] public section
 
@@ -27,40 +22,31 @@ variable (RshS : Type u) [CommRing RshS]
 variable [Algebra (S.presheaf.stalk sbar.image) RshS]
 variable [IsStrictHenselizationOf (S.presheaf.stalk sbar.image) RshS]
 
-/-- The comparison `Spec(κ(s̄)) ⟶ Spec(O^{sh}_{S,s̄})` over `S` induces
-`X ×_S Spec(κ(s̄)) ⟶ X ×_S Spec(O^{sh}_{S,s̄})`. -/
-def geometricFiberToHenselized
-    (iS : Spec (.of sbar.K) ⟶ strictHenselizationScheme S sbar RshS)
-    (hiS : iS ≫ strictHenselizationMap S sbar RshS = sbar.hom) :
-    pullback f sbar.hom ⟶ henselizedFiber f sbar RshS :=
-  pullback.map f sbar.hom f (strictHenselizationMap S sbar RshS) (𝟙 X) iS (𝟙 S)
-    ((Category.comp_id f).trans (Category.id_comp f).symm)
-    ((Category.comp_id sbar.hom).trans hiS.symm)
+#check (AlgebraicGeometry.Scheme.Etale.geometricFiberToHenselized f sbar RshS :
+  ∀ (iS : Spec (.of sbar.K) ⟶ strictHenselizationScheme S sbar RshS)
+    (_ : iS ≫ strictHenselizationMap S sbar RshS = sbar.hom),
+    pullback f sbar.hom ⟶ henselizedFiber f sbar RshS)
 
-/-- The geometric-fibre comparison is a morphism of `X`-schemes. -/
-theorem geometricFiberToHenselized_comp_toX
-    (iS : Spec (.of sbar.K) ⟶ strictHenselizationScheme S sbar RshS)
-    (hiS : iS ≫ strictHenselizationMap S sbar RshS = sbar.hom) :
+#check (AlgebraicGeometry.Scheme.Etale.geometricFiberToHenselized_comp_toX f sbar RshS :
+  ∀ (iS : Spec (.of sbar.K) ⟶ strictHenselizationScheme S sbar RshS)
+    (hiS : iS ≫ strictHenselizationMap S sbar RshS = sbar.hom),
     geometricFiberToHenselized f sbar RshS iS hiS ≫
         henselizedFiberToX f sbar RshS =
-      pullback.fst f sbar.hom := sorry
+      pullback.fst f sbar.hom)
 
-/-- The geometric-fibre comparison lies over `Spec(κ(s̄)) ⟶ Spec(O^{sh}_{S,s̄})`. -/
-theorem geometricFiberToHenselized_comp_toBase
-    (iS : Spec (.of sbar.K) ⟶ strictHenselizationScheme S sbar RshS)
-    (hiS : iS ≫ strictHenselizationMap S sbar RshS = sbar.hom) :
+#check (AlgebraicGeometry.Scheme.Etale.geometricFiberToHenselized_comp_toBase f sbar RshS :
+  ∀ (iS : Spec (.of sbar.K) ⟶ strictHenselizationScheme S sbar RshS)
+    (hiS : iS ≫ strictHenselizationMap S sbar RshS = sbar.hom),
     geometricFiberToHenselized f sbar RshS iS hiS ≫
         pullback.snd f (strictHenselizationMap S sbar RshS) =
-      pullback.snd f sbar.hom ≫ iS := sorry
+      pullback.snd f sbar.hom ≫ iS)
 
-/-- The geometric-fibre comparison is the pullback of
-`Spec(κ(s̄)) ⟶ Spec(O^{sh}_{S,s̄})` along the henselized-fibre projection. -/
-theorem isPullback_geometricFiberToHenselized
-    (iS : Spec (.of sbar.K) ⟶ strictHenselizationScheme S sbar RshS)
-    (hiS : iS ≫ strictHenselizationMap S sbar RshS = sbar.hom) :
+#check (AlgebraicGeometry.Scheme.Etale.isPullback_geometricFiberToHenselized f sbar RshS :
+  ∀ (iS : Spec (.of sbar.K) ⟶ strictHenselizationScheme S sbar RshS)
+    (hiS : iS ≫ strictHenselizationMap S sbar RshS = sbar.hom),
     IsPullback (geometricFiberToHenselized f sbar RshS iS hiS)
       (pullback.snd f sbar.hom)
-      (pullback.snd f (strictHenselizationMap S sbar RshS)) iS := sorry
+      (pullback.snd f (strictHenselizationMap S sbar RshS)) iS)
 
 end AlgebraicGeometry.Scheme.Etale
 

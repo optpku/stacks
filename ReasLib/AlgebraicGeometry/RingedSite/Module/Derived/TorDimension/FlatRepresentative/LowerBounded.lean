@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.TorDimension.FlatRepresentative
@@ -18,6 +12,11 @@ canonical tensor product associated to a commutative ring sheaf presentation.
 -/
 
 @[expose] public section
+
+-- The native coproduct totalization is available for the fixed structure-sheaf tensor.
+attribute [local instance] RingedSite.Hom.moduleCat_hasDerivedCategory
+  RingedSite.Hom.RingPresentation.moduleHasDerivedCategory
+  SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
 
 open CategoryTheory
 open CategoryTheory.MonoidalCategory
@@ -58,6 +57,9 @@ theorem hasFlatRepresentativeGE_iff
       ∃ (K : CochainComplex (ModuleCat.{w} (RingedSite.ofCommRingSheaf J O)) ℤ)
           (_ : E ≅ DerivedCategory.Q.obj K),
         K.IsStrictlyGE a ∧ K.IsKFlat ∧ HomologicalComplex.IsTermwiseFlat K := sorry
+
+variable [DerivedCategory.DerivedTensor.Right.Has
+  (C := SheafOfModules.RingedSite.ringedSiteModuleCategory.{u, v, w, w} J O)]
 
 /-- Lemma 21.46.4: lower Tor-amplitude at least `a` is equivalent to admitting a K-flat,
 termwise-flat representative supported in degrees `≥ a`. -/

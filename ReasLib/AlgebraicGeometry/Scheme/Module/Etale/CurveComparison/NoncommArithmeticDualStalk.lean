@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommIntrinsicDualStalk
@@ -34,7 +28,7 @@ variable [∀ U : X.left.Etale, HasWeakSheafify (X.left.smallEtaleTopology.over 
 variable [HasSheafify X.left.smallEtaleTopology AddCommGrpCat.{u + 1}]
 variable (hR : IsUnit (Nat.card R : k))
 variable (M : (finiteTypeDiscreteModule R
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X η)))).FullSubcategory)
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η)))).FullSubcategory)
 
 /-- Actual finite arithmetic coefficient from the published inverse. -/
 abbrev sourceSheaf :=

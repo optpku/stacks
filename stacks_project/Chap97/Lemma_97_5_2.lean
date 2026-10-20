@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap97.«97_5_0_1_OnObjects»
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.LimitPreservingOnObjects
+import StacksCheckRecall
 
 /-!
 # Composition of morphisms limit preserving on objects
@@ -28,13 +23,14 @@ namespace AlgebraicGeometry.Groupoids.Hom
 
 namespace LimitPreservingOnObjects
 
-/-- Lemma 97.5.2: If `p : X ⟶ Y` and `q : Y ⟶ Z` are 1-morphisms of categories
+/- Lemma 97.5.2: If `p : X ⟶ Y` and `q : Y ⟶ Z` are 1-morphisms of categories
 fibred in groupoids over `(Sch/S)_fppf` and both are limit preserving on objects,
 then so is the composition `q ∘ p`, written `p ≫ q`. -/
 @[stacks 06CW]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
-    (p : X ⟶ Y) (q : Y ⟶ Z) [LimitPreservingOnObjects p] [LimitPreservingOnObjects q] :
-    LimitPreservingOnObjects (p ≫ q) := sorry
+#check (AlgebraicGeometry.Groupoids.Hom.LimitPreservingOnObjects.comp :
+    ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+      (p : X ⟶ Y) (q : Y ⟶ Z) [LimitPreservingOnObjects p] [LimitPreservingOnObjects q],
+      LimitPreservingOnObjects (p ≫ q))
 
 end LimitPreservingOnObjects
 

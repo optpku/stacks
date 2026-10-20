@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_24_2_Colimit
-public import stacks_project.Chap75.Lemma_75_24_2_DerivedHom
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Limit.QcqsAffine.DerivedHom.Colimit
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,7 +15,7 @@ universe u
 
 variable {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
 variable {S : Scheme.{u}} {D : OrderDual I ⥤ AlgebraicSpace S}
-variable [∀ i, IsQuasiCompact (D.obj i)] [∀ i, IsQuasiSeparated (D.obj i)]
+variable [∀ i, IsQuasiCompact (D.obj i)] [∀ i, IsAbsolutelyQuasiSeparated (D.obj i)]
 variable [∀ {i i' : I} (h : i ≤ i'), Affine (D.map (homOfLE h))]
 
 /- Lemma 75.24.2: in Situation 75.24.1, the canonical cocone of derived Hom types
@@ -30,7 +23,7 @@ along the cofinal tail is a filtered colimit when `K₀` has quasi-coherent coho
 and either `E₀` is perfect or `E₀` is pseudo-coherent while `K₀` has finite Tor
 dimension. -/
 @[stacks 09RI] #check
-  (diagram_isColimit :
+  (AlgebraicGeometry.AlgebraicSpace.Limit.QcqsAffineLimit.DerivedHom.diagram_isColimit :
     ∀ (s : AlgebraicSpace.Limit.QcqsAffineLimit D)
       (E₀ K₀ : ModuleDerived (D.obj (OrderDual.toDual s.base))),
       derivedQuasiCoherentModuleProperty

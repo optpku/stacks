@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Monoidal.Closed.Basic
@@ -63,5 +57,10 @@ theorem isCoherent_tensor_of_isProper_over_field
     (F : X.Modules) [F.IsCoherent]
     (n : ℕ) (G : X.Modules) [IsFiniteLocallyFreeOfRank n G] :
     (F ⊗ G : X.Modules).IsCoherent := sorry
+
+/-- Tensoring with an invertible module preserves injectivity of multiplication by a section. -/
+theorem smul_injective_tensor {X : Scheme.{u}} (F G : X.Modules) [Invertible G]
+    (V : X.Opens) (s : Γ(X, V)) (hF : Function.Injective (F.smul s).hom) :
+    Function.Injective ((F ⊗ G).smul s).hom := sorry
 
 end AlgebraicGeometry.Scheme.Modules

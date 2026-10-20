@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_4_10_EtaleImage
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.OpenSubspace.EtaleImage
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +14,7 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 subspace corresponding to the open `|f|(|U|) ⊂ |X|` via Lemma 66.4.8. Then `f` factors
 through a surjective étale morphism `f' : U ⟶ X'`. -/
 @[stacks 06NF] #check
-  (OpenSubspace.exists_surjective_etale_lift :
+  (AlgebraicGeometry.AlgebraicSpace.OpenSubspace.exists_surjective_etale_lift :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : Over S} {f : ofOver U ⟶ X}
       (hf : (MorphismProperty.over (@Etale)).presheaf f)
       (X' : OpenSubspace X) (hX' : X'.pointsSet = Set.range (Points.map f)),
@@ -30,7 +24,7 @@ through a surjective étale morphism `f' : U ⟶ X'`. -/
 
 /- Lemma 66.4.10 (2): moreover, if `R = U ×_X U`, then `R = U ×_{X'} U`. -/
 @[stacks 06NF] #check
-  (OpenSubspace.isKernelPair_etale_lift :
+  (AlgebraicGeometry.AlgebraicSpace.OpenSubspace.isKernelPair_etale_lift :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : Over S} {f : ofOver U ⟶ X}
       (hf : (MorphismProperty.over (@Etale)).presheaf f)
       (X' : OpenSubspace X) (hX' : X'.pointsSet = Set.range (Points.map f))
@@ -41,7 +35,7 @@ through a surjective étale morphism `f' : U ⟶ X'`. -/
 /- Lemma 66.4.10 (3): moreover, if `R = U ×_X U`, then `X'` has the presentation
 `X' = U/R`. -/
 @[stacks 06NF] #check
-  (OpenSubspace.presentation_spec :
+  (AlgebraicGeometry.AlgebraicSpace.OpenSubspace.presentation_spec :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : Over S} {f : ofOver U ⟶ X}
       (hf : (MorphismProperty.over (@Etale)).presheaf f)
       (X' : OpenSubspace X) (hX' : X'.pointsSet = Set.range (Points.map f))

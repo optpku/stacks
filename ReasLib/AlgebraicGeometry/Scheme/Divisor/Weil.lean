@@ -1,13 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Divisor.Prime
 public import Mathlib.Topology.LocallyFinite
+public import Mathlib.AlgebraicGeometry.Noetherian
+import Mathlib.Topology.Compactness.LocallyFinite
 
 /-!
 # Weil divisors
@@ -41,9 +37,27 @@ def WeilDivisor.ofCoeff (coeff : PrimeDivisor X → ℤ)
     WeilDivisor X :=
   ⟨coeff, locallyFinite_support⟩
 
+/-- A coefficient function supported at a single prime divisor is locally finite. -/
+theorem WeilDivisor.locallyFinite_singleCoeff {Y : Scheme.{u}} (Z : PrimeDivisor Y) :
+    LocallyFinite fun W : PrimeDivisor Y ↦
+      if (@ite ℤ (W = Z) (Classical.propDecidable (W = Z)) 1 0) = 0 then
+        (∅ : Set Y) else (W.support : Set Y) := sorry
+
+/-- The Weil divisor with coefficient one along a given prime divisor and zero elsewhere. -/
+noncomputable def WeilDivisor.single {Y : Scheme.{u}} (Z : PrimeDivisor Y) :
+    WeilDivisor Y :=
+  WeilDivisor.ofCoeff Y
+    (fun W ↦ @ite ℤ (W = Z) (Classical.propDecidable (W = Z)) 1 0)
+    (WeilDivisor.locallyFinite_singleCoeff Z)
+
 /-- The integer coefficient of a prime divisor in a Weil divisor. -/
 abbrev WeilDivisor.coeff {Y : Scheme.{u}} (D : WeilDivisor Y) : PrimeDivisor Y → ℤ :=
   D.1
+
+/-- A singleton Weil divisor has coefficient one at its defining prime divisor and zero elsewhere. -/
+theorem WeilDivisor.coeff_single {Y : Scheme.{u}} (Z W : PrimeDivisor Y) :
+    (WeilDivisor.single Z).coeff W =
+      @ite ℤ (W = Z) (Classical.propDecidable (W = Z)) 1 0 := sorry
 
 /-- The family attached to a Weil divisor, supported on those prime divisors with nonzero
 coefficient. -/
@@ -55,6 +69,10 @@ abbrev WeilDivisor.supportFamily {Y : Scheme.{u}}
 theorem WeilDivisor.locallyFinite_supportFamily {Y : Scheme.{u}} (D : WeilDivisor Y) :
     LocallyFinite D.supportFamily :=
   D.2
+
+/-- A Weil divisor on a Noetherian scheme has only finitely many nonzero coefficients. -/
+theorem WeilDivisor.finite_support {Y : Scheme.{u}} [IsNoetherian Y] (D : WeilDivisor Y) :
+    Set.Finite {Z | D.coeff Z ≠ 0} := sorry
 
 private theorem locallyFinite_nonzeroCoefficients_add (D E : WeilDivisor X) :
     LocallyFinite fun Z : PrimeDivisor X ↦

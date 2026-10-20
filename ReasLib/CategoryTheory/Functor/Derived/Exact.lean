@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Bounded.Acyclic.Characterization
@@ -43,7 +37,15 @@ quasi-isomorphisms. -/
 @[stacks 015F "exact functors invert quasi-isomorphisms"]
 theorem isInvertedBy
     [PreservesFiniteLimits F] [PreservesFiniteColimits F] :
-    (HomotopyCategory.quasiIso A (up ℤ)).IsInvertedBy (Functor.Homotopy.toDerived F) := sorry
+    (HomotopyCategory.quasiIso A (up ℤ)).IsInvertedBy (Functor.Homotopy.toDerived F) := by
+  rw [HomotopyCategory.quasiIso_eq_quasiIso_map_quotient,
+    MorphismProperty.IsInvertedBy.map_iff]
+  apply (MorphismProperty.IsInvertedBy.iff_of_iso _ (Functor.Homotopy.cochainIso F)).2
+  intro K L f hf
+  have : QuasiIso f := hf
+  have : QuasiIso ((F.mapHomologicalComplex (up ℤ)).map f) := inferInstance
+  change IsIso (DerivedCategory.Q.map ((F.mapHomologicalComplex (up ℤ)).map f))
+  infer_instance
 
 /-- The canonical functor induced on derived categories is a right-derived functor. -/
 @[stacks 015F]
@@ -51,7 +53,27 @@ noncomputable instance isRightDerived
     [HasDerivedCategory.{w} A]
     [PreservesFiniteLimits F] [PreservesFiniteColimits F] :
     F.mapDerivedCategory.IsRightDerivedFunctor F.mapDerivedCategoryFactorsh.inv
-      (HomotopyCategory.quasiIso A (up ℤ)) := sorry
+      (HomotopyCategory.quasiIso A (up ℤ)) := by
+  let ff := Localization.fullyFaithfulWhiskeringLeft
+    (DerivedCategory.Qh : HomotopyCategory A (up ℤ) ⥤ DerivedCategory A)
+    (HomotopyCategory.quasiIso A (up ℤ)) (DerivedCategory B)
+  refine ⟨⟨⟨IsInitial.ofUniqueHom
+    (fun E ↦ StructuredArrow.homMk
+      (ff.preimage (F.mapDerivedCategoryFactorsh.hom ≫ E.hom)) ?_)
+    (fun E φ ↦ ?_)⟩⟩⟩
+  · change F.mapDerivedCategoryFactorsh.inv ≫
+      ((whiskeringLeft _ _ _).obj DerivedCategory.Qh).map
+        (ff.preimage (F.mapDerivedCategoryFactorsh.hom ≫ E.hom)) = E.hom
+    rw [ff.map_preimage]
+    simp
+  · apply StructuredArrow.hom_ext
+    apply ff.map_injective
+    change whiskerLeft DerivedCategory.Qh φ.right =
+      ((whiskeringLeft _ _ _).obj DerivedCategory.Qh).map
+        (ff.preimage (F.mapDerivedCategoryFactorsh.hom ≫ E.hom))
+    rw [ff.map_preimage]
+    apply (cancel_epi F.mapDerivedCategoryFactorsh.inv).1
+    simpa only [Iso.inv_hom_id_assoc, whiskeringLeft, LeftExtension.mk, StructuredArrow.mk] using StructuredArrow.w φ
 
 /-- The unbounded right-derived functor of an exact functor is source-defined everywhere. -/
 @[stacks 015F]
@@ -65,7 +87,28 @@ noncomputable instance everywhereDefined
 noncomputable instance hasFunctor
     [PreservesFiniteLimits F] [PreservesFiniteColimits F] :
     (Functor.Homotopy.toDerived F).HasRightDerivedFunctor
-      (HomotopyCategory.quasiIso A (up ℤ)) := sorry
+      (HomotopyCategory.quasiIso A (up ℤ)) := by
+  let W := HomotopyCategory.quasiIso A (up ℤ)
+  let RF := Localization.lift (Functor.Homotopy.toDerived F) (isInvertedBy F) W.Q
+  let e := Localization.fac (Functor.Homotopy.toDerived F) (isInvertedBy F) W.Q
+  let ff := Localization.fullyFaithfulWhiskeringLeft W.Q W (DerivedCategory B)
+  have universal : (LeftExtension.mk RF e.inv).IsUniversal :=
+    IsInitial.ofUniqueHom
+      (fun E ↦ StructuredArrow.homMk (ff.preimage (e.hom ≫ E.hom)) (by
+        change e.inv ≫ ((whiskeringLeft _ _ _).obj W.Q).map
+          (ff.preimage (e.hom ≫ E.hom)) = E.hom
+        rw [ff.map_preimage]
+        simp))
+      (fun E φ ↦ by
+        apply StructuredArrow.hom_ext
+        apply ff.map_injective
+        change whiskerLeft W.Q φ.right =
+          ((whiskeringLeft _ _ _).obj W.Q).map (ff.preimage (e.hom ≫ E.hom))
+        rw [ff.map_preimage]
+        apply (cancel_epi e.inv).1
+        simpa only [Iso.inv_hom_id_assoc, whiskeringLeft, LeftExtension.mk, StructuredArrow.mk] using StructuredArrow.w φ)
+  have : RF.IsRightDerivedFunctor e.inv W := ⟨⟨⟨universal⟩⟩⟩
+  exact HasRightDerivedFunctor.mk' (RF := RF) (α := e.inv)
 
 /-- Every homotopy object computes the unbounded right-derived functor of an exact functor. -/
 @[stacks 015F]

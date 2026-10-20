@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap102.Lemma_102_6_2_Factorization
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.FinitePresentation.Factorization
 import StacksCheckRecall
 
 @[expose] public section
@@ -23,7 +17,7 @@ over `Y`, through a closed immersion `𝒳 ⟶ 𝒳'` into an algebraic stack
 `𝒳'` whose structure morphism `f' : 𝒳' ⟶ Y` is separated and of finite
 presentation. -/
 @[stacks 0CQ2] #check
-  (exists_closedImmersion_factorization_of_finiteType_separated :
+  (AlgebraicGeometry.AlgebraicStack.exists_closedImmersion_factorization_of_finiteType_separated :
     ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
       {Y : AlgebraicSpace S} [AlgebraicSpace.IsQuasiCompact Y]
       [AlgebraicSpace.IsAbsolutelyQuasiSeparated Y]

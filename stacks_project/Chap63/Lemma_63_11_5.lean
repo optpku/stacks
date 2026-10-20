@@ -1,25 +1,14 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.GroupTheory.Torsion
-public import stacks_project.Chap63.«63_11_4_1_Trace»
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.SheafyTrace
+import StacksCheckRecall
 
 @[expose] public section
 
-open CategoryTheory
-open CategoryTheory.Functor
-open CategoryTheory.Limits
-open CategoryTheory.MonoidalCategory
-open CategoryTheory.MonoidalClosed
-open AlgebraicGeometry
-open AlgebraicGeometry.Scheme
-open AlgebraicGeometry.Scheme.Etale
+open CategoryTheory CategoryTheory.Functor CategoryTheory.Limits
+open CategoryTheory.MonoidalCategory CategoryTheory.MonoidalClosed
+open RightDerived.Cochain
+open AlgebraicGeometry AlgebraicGeometry.Scheme
 
 noncomputable section
 
@@ -27,106 +16,273 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Etale
 
-variable {Y : Scheme.{u}} (X : Over Y) {Λ : Type u} [CommRing Λ]
-variable [IsSeparated X.hom] [Scheme.Hom.FiniteType X.hom]
-variable [CompactSpace Y] [QuasiSeparatedSpace Y]
-variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]
-variable (P : Compactification.Of Y X)
-variable [HasSheafify (smallEtaleTopology X.left) (ModuleCat.{u} Λ)]
-variable [∀ U : X.left.Etale,
+variable {Λ : Type u} [CommRing Λ]
+
+  {Y : Scheme.{u}} (X : Over Y)
+  [IsSeparated X.hom] [Scheme.Hom.FiniteType X.hom]
+  [CompactSpace Y] [QuasiSeparatedSpace Y]
+  [CompactSpace X.left] [QuasiSeparatedSpace X.left]
+  (P : Compactification.Of Y X)
+  [sX : HasSheafify (smallEtaleTopology X.left) (ModuleCat.{u} Λ)]
+  [∀ U : X.left.Etale,
   HasWeakSheafify ((smallEtaleTopology X.left).over U) (ModuleCat.{u} Λ)]
-variable [HasDerivedCategory (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ))]
-variable [HasSheafify (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ)]
-variable [∀ U : (Over.left P.obj.right).Etale,
-  HasWeakSheafify ((smallEtaleTopology (Over.left P.obj.right)).over U)
-    (ModuleCat.{u} Λ)]
-variable [HasDerivedCategory
+  [HasDerivedCategory (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ))]
+  [sP : HasSheafify (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ)]
+  [∀ U : (Over.left P.obj.right).Etale,
+  HasWeakSheafify ((smallEtaleTopology (Over.left P.obj.right)).over U) (ModuleCat.{u} Λ)]
+  [HasDerivedCategory
   (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ))]
-variable [HasSheafify (smallEtaleTopology Y) (ModuleCat.{u} Λ)]
-variable [∀ U : Y.Etale,
+  [sY : HasSheafify (smallEtaleTopology Y) (ModuleCat.{u} Λ)]
+  [∀ U : Y.Etale,
   HasWeakSheafify ((smallEtaleTopology Y).over U) (ModuleCat.{u} Λ)]
-variable [HasDerivedCategory (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ))]
-variable [∀ F : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
+  [HasDerivedCategory (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ))]
+  [∀ F : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
   (etaleRestriction (Compactification.Of.ι P)).op.HasLeftKanExtension F]
-variable [(etaleExtensionByZero (Compactification.Of.ι P)
-    (ModuleCat.{u} Λ)).Additive]
-variable [PreservesFiniteLimits
-  (etaleExtensionByZero (Compactification.Of.ι P) (ModuleCat.{u} Λ))]
-variable [PreservesFiniteColimits
-  (etaleExtensionByZero (Compactification.Of.ι P) (ModuleCat.{u} Λ))]
-variable [((smallEtalePullback (Over.hom P.obj.right)).sheafPushforwardContinuous
-    (ModuleCat.{u} Λ) (smallEtaleTopology Y)
-    (smallEtaleTopology (Over.left P.obj.right))).Additive]
-variable [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
+  [((@etaleExtensionByZero _ _ (Compactification.Of.ι P) inferInstance
+    (ModuleCat.{u} Λ) inferInstance inferInstance sP.isRightAdjoint)).Additive]
+  [PreservesFiniteLimits
+  ((@etaleExtensionByZero _ _ (Compactification.Of.ι P) inferInstance
+    (ModuleCat.{u} Λ) inferInstance inferInstance sP.isRightAdjoint))]
+  [PreservesFiniteColimits
+  ((@etaleExtensionByZero _ _ (Compactification.Of.ι P) inferInstance
+    (ModuleCat.{u} Λ) inferInstance inferInstance sP.isRightAdjoint))]
+  [aP : (etaleModulePushforward (Over.hom P.obj.right) Λ).Additive]
+  [HasRightDerivedFunctor
+  (@RightDerived.Cochain.toDerived
+    (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ)) (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ))
+    inferInstance inferInstance inferInstance inferInstance inferInstance
     ((smallEtalePullback (Over.hom P.obj.right)).sheafPushforwardContinuous
       (ModuleCat.{u} Λ) (smallEtaleTopology Y)
-      (smallEtaleTopology (Over.left P.obj.right))))
+      (smallEtaleTopology (Over.left P.obj.right))) aP)
   (HomologicalComplex.quasiIso
     (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ))
     (ComplexShape.up ℤ))]
-variable [((smallEtalePullback X.hom).sheafPushforwardContinuous
-    (ModuleCat.{u} Λ) (smallEtaleTopology Y) (smallEtaleTopology X.left)).Additive]
-variable [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
+  [aX : (etaleModulePushforward X.hom Λ).Additive]
+  [HasRightDerivedFunctor
+  (@RightDerived.Cochain.toDerived
+    (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)) (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ))
+    inferInstance inferInstance inferInstance inferInstance inferInstance
     ((smallEtalePullback X.hom).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) (smallEtaleTopology Y) (smallEtaleTopology X.left)))
+      (ModuleCat.{u} Λ) (smallEtaleTopology Y) (smallEtaleTopology X.left)) aX)
   (HomologicalComplex.quasiIso
     (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ))
     (ComplexShape.up ℤ))]
-variable [(etaleRestrictionSheaf (Compactification.Of.ι P)
+  [(etaleRestrictionSheaf (Compactification.Of.ι P)
     (ModuleCat.{u} Λ)).Additive]
-variable [PreservesFiniteLimits
+  [PreservesFiniteLimits
   (etaleRestrictionSheaf (Compactification.Of.ι P) (ModuleCat.{u} Λ))]
-variable [PreservesFiniteColimits
+  [PreservesFiniteColimits
   (etaleRestrictionSheaf (Compactification.Of.ι P) (ModuleCat.{u} Λ))]
-variable [(etaleModulePushforward (Compactification.Of.ι P) Λ).Additive]
-variable [PreservesFiniteLimits
-  (etaleModulePushforward (Compactification.Of.ι P) Λ)]
-variable [PreservesFiniteColimits
-  (etaleModulePushforward (Compactification.Of.ι P) Λ)]
-variable [(etaleModulePushforward (Compactification.Of.ι P) Λ).PreservesInjectiveObjects]
-variable [(ExactFunctor.of
-    (etaleModulePushforward (Compactification.Of.ι P) Λ)).obj.PreservesInjectiveObjects]
-variable [(etaleModulePushforward (Over.hom P.obj.right) Λ).Additive]
-variable [(etaleModulePushforward X.hom Λ).Additive]
-variable [(etaleModulePushforward
+  [aJ : (etaleModulePushforward (Compactification.Of.ι P) Λ).Additive]
+  [PreservesFiniteLimits
+  (((smallEtalePullback (Compactification.Of.ι P)).sheafPushforwardContinuous (ModuleCat.{u} Λ) (smallEtaleTopology (Over.left P.obj.right)) (smallEtaleTopology X.left)))]
+  [(etaleModulePushforward
     (Compactification.Of.ι P ≫ Over.hom P.obj.right) Λ).Additive]
-variable [(etaleModulePushforward (Compactification.Of.ι P) Λ ⋙
-    etaleModulePushforward (Over.hom P.obj.right) Λ).Additive]
-variable [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    (etaleModulePushforward (Compactification.Of.ι P) Λ ⋙
-      etaleModulePushforward (Over.hom P.obj.right) Λ))
+  [aComp : (((smallEtalePullback (Compactification.Of.ι P)).sheafPushforwardContinuous (ModuleCat.{u} Λ) (smallEtaleTopology (Over.left P.obj.right)) (smallEtaleTopology X.left)) ⋙
+    ((smallEtalePullback (Over.hom P.obj.right)).sheafPushforwardContinuous (ModuleCat.{u} Λ) (smallEtaleTopology Y) (smallEtaleTopology (Over.left P.obj.right)))).Additive]
+  [HasRightDerivedFunctor
+  (@RightDerived.Cochain.toDerived
+    (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)) (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ))
+    inferInstance inferInstance inferInstance inferInstance inferInstance
+    (((smallEtalePullback (Compactification.Of.ι P)).sheafPushforwardContinuous (ModuleCat.{u} Λ) (smallEtaleTopology (Over.left P.obj.right)) (smallEtaleTopology X.left)) ⋙
+      ((smallEtalePullback (Over.hom P.obj.right)).sheafPushforwardContinuous (ModuleCat.{u} Λ) (smallEtaleTopology Y) (smallEtaleTopology (Over.left P.obj.right)))) aComp)
   (HomologicalComplex.quasiIso
     (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ))
     (ComplexShape.up ℤ))]
-variable [MonoidalCategory (EtaleDerived X.left Λ)]
-variable [MonoidalClosed (EtaleDerived X.left Λ)]
-variable [MonoidalCategory (EtaleDerived (Over.left P.obj.right) Λ)]
-variable [MonoidalClosed (EtaleDerived (Over.left P.obj.right) Λ)]
-variable [MonoidalCategory (EtaleDerived Y Λ)]
-variable [MonoidalClosed (EtaleDerived Y Λ)]
-variable [(etaleDerivedExtensionByZero (Compactification.Of.ι P) Λ).OplaxMonoidal]
-variable [(etaleDerivedExtensionByZeroAdjunction
-    (Compactification.Of.ι P) Λ).ProjectionFormulaMap]
-variable [(etaleDerivedPushforward (Over.hom P.obj.right) :
-    EtaleDerived (Over.left P.obj.right) Λ ⥤ EtaleDerived Y Λ).LaxMonoidal]
-variable [((etaleDerivedLowerShriek X P :
-    EtaleDerived X.left Λ ⥤ EtaleDerived Y Λ)).IsLeftAdjoint]
+  [HasRightDerivedFunctor
+  (@RightDerived.Cochain.toDerived
+    (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)) (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ))
+    inferInstance inferInstance inferInstance inferInstance inferInstance
+    (((smallEtalePullback (Compactification.Of.ι P)).sheafPushforwardContinuous (ModuleCat.{u} Λ) (smallEtaleTopology (Over.left P.obj.right)) (smallEtaleTopology X.left))) aJ)
+  (HomologicalComplex.quasiIso
+    (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
 
-/-- Lemma 63.11.5: for a separated finite-type morphism `X.hom : X.left ⟶ Y`
-of quasi-compact quasi-separated schemes and a torsion ring `Λ`, the
-sheafy-trace morphism `etaleDerivedSheafyTrace` of (63.11.4.1),
-`Rf_* RHom_Λ(L, Rf^! K) ⟶ RHom_Λ(Rf_! L, K)`, is an isomorphism in
-`D(Y_étale, Λ)` for every `K` in `D(Y_étale, Λ)` and
-`L` in `D(X_étale, Λ)`. -/
-@[stacks 0GLC]
-theorem etaleDerivedSheafyTrace_isIso
-    (hΛ : AddMonoid.IsTorsion Λ) (L : EtaleDerived X.left Λ)
-    (K : EtaleDerived Y Λ) :
-    IsIso (etaleDerivedSheafyTrace X P L K) :=
-  sorry
+section Normalized
+
+variable [rp : (etaleModulePushforward (Over.hom P.obj.right) Λ).IsRightAdjoint]
+  [(@etaleModuleInverseImage Λ inferInstance _ _ (Over.hom P.obj.right) rp).Additive]
+  [PreservesFiniteLimits (@etaleModuleInverseImage Λ inferInstance _ _ (Over.hom P.obj.right) rp)]
+  [PreservesFiniteColimits (@etaleModuleInverseImage Λ inferInstance _ _ (Over.hom P.obj.right) rp)]
+
+  [mX : MonoidalCategory (DerivedCategory (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)))]
+  [MonoidalClosed (DerivedCategory (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)))]
+  [mP : MonoidalCategory (DerivedCategory (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ)))]
+  [MonoidalClosed (DerivedCategory (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ)))]
+  [mY : MonoidalCategory (DerivedCategory (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)))]
+  [MonoidalClosed (DerivedCategory (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)))]
+  [((smallEtaleTopology X.left).W (A := ModuleCat.{u} Λ)).IsMonoidal]
+  [@MonoidalPreadditive (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ))
+    inferInstance inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology X.left) Λ
+    inferInstance sX.isRightAdjoint inferInstance)]
+  [∀ A B : GradedObject ℤ (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)),
+  @GradedObject.HasTensor ℤ inferInstance _ inferInstance
+    (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology X.left) Λ
+    inferInstance sX.isRightAdjoint inferInstance) A B]
+  [∀ A B C : GradedObject ℤ (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)),
+  @GradedObject.HasGoodTensor₁₂Tensor ℤ inferInstance _ inferInstance
+    (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology X.left) Λ
+    inferInstance sX.isRightAdjoint inferInstance) A B C]
+  [∀ A B C : GradedObject ℤ (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)),
+  @GradedObject.HasGoodTensorTensor₂₃ ℤ inferInstance _ inferInstance
+    (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology X.left) Λ
+    inferInstance sX.isRightAdjoint inferInstance) A B C]
+  [∀ A B C D : GradedObject ℤ (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)),
+  @GradedObject.HasTensor₄ObjExt ℤ inferInstance _ inferInstance
+    (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology X.left) Λ
+    inferInstance sX.isRightAdjoint inferInstance) A B C D]
+  [@DerivedCategory.DerivedTensor.Bifunctor.Has (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ))
+    inferInstance inferInstance inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology X.left) Λ
+    inferInstance sX.isRightAdjoint inferInstance)
+    inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance]
+  [((smallEtaleTopology (Over.left P.obj.right)).W (A := ModuleCat.{u} Λ)).IsMonoidal]
+  [@MonoidalPreadditive (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ))
+    inferInstance inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology (Over.left P.obj.right)) Λ
+    inferInstance sP.isRightAdjoint inferInstance)]
+  [∀ A B : GradedObject ℤ (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ)),
+  @GradedObject.HasTensor ℤ inferInstance _ inferInstance
+    (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology (Over.left P.obj.right)) Λ
+    inferInstance sP.isRightAdjoint inferInstance) A B]
+  [∀ A B C : GradedObject ℤ (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ)),
+  @GradedObject.HasGoodTensor₁₂Tensor ℤ inferInstance _ inferInstance
+    (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology (Over.left P.obj.right)) Λ
+    inferInstance sP.isRightAdjoint inferInstance) A B C]
+  [∀ A B C : GradedObject ℤ (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ)),
+  @GradedObject.HasGoodTensorTensor₂₃ ℤ inferInstance _ inferInstance
+    (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology (Over.left P.obj.right)) Λ
+    inferInstance sP.isRightAdjoint inferInstance) A B C]
+  [∀ A B C D : GradedObject ℤ (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ)),
+  @GradedObject.HasTensor₄ObjExt ℤ inferInstance _ inferInstance
+    (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology (Over.left P.obj.right)) Λ
+    inferInstance sP.isRightAdjoint inferInstance) A B C D]
+  [@DerivedCategory.DerivedTensor.Bifunctor.Has (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ))
+    inferInstance inferInstance inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology (Over.left P.obj.right)) Λ
+    inferInstance sP.isRightAdjoint inferInstance)
+    inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance]
+  [((smallEtaleTopology Y).W (A := ModuleCat.{u} Λ)).IsMonoidal]
+  [@MonoidalPreadditive (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ))
+    inferInstance inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology Y) Λ
+    inferInstance sY.isRightAdjoint inferInstance)]
+  [∀ A B : GradedObject ℤ (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)),
+  @GradedObject.HasTensor ℤ inferInstance _ inferInstance
+    (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology Y) Λ
+    inferInstance sY.isRightAdjoint inferInstance) A B]
+  [∀ A B C : GradedObject ℤ (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)),
+  @GradedObject.HasGoodTensor₁₂Tensor ℤ inferInstance _ inferInstance
+    (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology Y) Λ
+    inferInstance sY.isRightAdjoint inferInstance) A B C]
+  [∀ A B C : GradedObject ℤ (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)),
+  @GradedObject.HasGoodTensorTensor₂₃ ℤ inferInstance _ inferInstance
+    (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology Y) Λ
+    inferInstance sY.isRightAdjoint inferInstance) A B C]
+  [∀ A B C D : GradedObject ℤ (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)),
+  @GradedObject.HasTensor₄ObjExt ℤ inferInstance _ inferInstance
+    (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology Y) Λ
+    inferInstance sY.isRightAdjoint inferInstance) A B C D]
+  [@DerivedCategory.DerivedTensor.Bifunctor.Has (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ))
+    inferInstance inferInstance inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology Y) Λ
+    inferInstance sY.isRightAdjoint inferInstance)
+    inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance]
+  [@Functor.Monoidal _ inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology Y) Λ
+    inferInstance sY.isRightAdjoint inferInstance)
+    _ inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology (Over.left P.obj.right)) Λ
+    inferInstance sP.isRightAdjoint inferInstance) (@etaleModuleInverseImage Λ inferInstance _ _ (Over.hom P.obj.right) rp)]
+  [@Functor.Monoidal _ inferInstance mY _ inferInstance mP
+    (@etaleModuleInverseImage Λ inferInstance _ _ (Over.hom P.obj.right) rp).mapDerivedCategory]
+  [@Functor.Cochain.HasMappedTensorTotals
+    (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)) (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ))
+    inferInstance inferInstance inferInstance inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology Y) Λ
+    inferInstance sY.isRightAdjoint inferInstance)
+    inferInstance (@etaleModuleInverseImage Λ inferInstance _ _ (Over.hom P.obj.right) rp) inferInstance]
+  [@Functor.Monoidal _ inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology (Over.left P.obj.right)) Λ
+    inferInstance sP.isRightAdjoint inferInstance)
+    _ inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology X.left) Λ
+    inferInstance sX.isRightAdjoint inferInstance) (etaleRestrictionSheaf (Compactification.Of.ι P) (ModuleCat.{u} Λ))]
+  [@Functor.Monoidal _ inferInstance mP _ inferInstance mX
+    (etaleDerivedRestriction (Compactification.Of.ι P) Λ)]
+  [@Functor.Cochain.HasMappedTensorTotals
+    (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ)) (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ))
+    inferInstance inferInstance inferInstance inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology (Over.left P.obj.right)) Λ
+    inferInstance sP.isRightAdjoint inferInstance)
+    inferInstance (etaleRestrictionSheaf (Compactification.Of.ι P) (ModuleCat.{u} Λ)) inferInstance]
+
+
+
+
+variable [((etaleDerivedLowerShriek X P :
+    DerivedCategory (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)) ⥤
+      DerivedCategory (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)))).IsLeftAdjoint]
+
+variable
+    [∀ K L : CochainComplex (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ)) ℤ,
+  IsIso (@Functor.Cochain.tensorComparison
+    (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)) (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ))
+    inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance
+    (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology Y) Λ
+    inferInstance sY.isRightAdjoint inferInstance) (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology (Over.left P.obj.right)) Λ
+    inferInstance sP.isRightAdjoint inferInstance)
+    inferInstance inferInstance (@etaleModuleInverseImage Λ inferInstance _ _ (Over.hom P.obj.right) rp) inferInstance inferInstance K L
+    inferInstance inferInstance inferInstance)]
+    [∀ K L : CochainComplex
+    (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ)) ℤ,
+  IsIso (@Functor.Cochain.tensorComparison
+    (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ)) (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ))
+    inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance
+    (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology (Over.left P.obj.right)) Λ
+    inferInstance sP.isRightAdjoint inferInstance) (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology X.left) Λ
+    inferInstance sX.isRightAdjoint inferInstance)
+    inferInstance inferInstance (etaleRestrictionSheaf (Compactification.Of.ι P) (ModuleCat.{u} Λ)) inferInstance inferInstance K L
+    inferInstance inferInstance inferInstance)]
+    (TX : tensor (DerivedCategory (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ))) ≅ (@DerivedCategory.DerivedTensor.Bifunctor.functor (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ))
+      inferInstance inferInstance inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology X.left) Λ
+    inferInstance sX.isRightAdjoint inferInstance)
+      inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance))
+    (TP : tensor (DerivedCategory (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ))) ≅
+      (@DerivedCategory.DerivedTensor.Bifunctor.functor (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ))
+      inferInstance inferInstance inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology (Over.left P.obj.right)) Λ
+    inferInstance sP.isRightAdjoint inferInstance)
+      inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance))
+    (TY : tensor (DerivedCategory (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ))) ≅ (@DerivedCategory.DerivedTensor.Bifunctor.functor (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ))
+      inferInstance inferInstance inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology Y) Λ
+    inferInstance sY.isRightAdjoint inferInstance)
+      inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance))
+    (hj : @DerivedCategory.DerivedTensor.Presentation.Pullback
+      (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ)) inferInstance inferInstance inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology (Over.left P.obj.right)) Λ
+    inferInstance sP.isRightAdjoint inferInstance)
+      inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance mP
+      (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)) inferInstance inferInstance inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology X.left) Λ
+    inferInstance sX.isRightAdjoint inferInstance)
+      inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance mX (etaleRestrictionSheaf (Compactification.Of.ι P) (ModuleCat.{u} Λ))
+      inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance
+      TP TX
+      (modulePullbackTensor (Compactification.Of.ι P)
+        (etaleInteriorSheafPushforwardAdjunction X P)))
+    (hp : @DerivedCategory.DerivedTensor.Presentation.Pullback
+      (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)) inferInstance inferInstance inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology Y) Λ
+    inferInstance sY.isRightAdjoint inferInstance)
+      inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance mY
+      (Sheaf (smallEtaleTopology (Over.left P.obj.right)) (ModuleCat.{u} Λ)) inferInstance inferInstance inferInstance (@Sheaf.moduleSheafMonoidalCategory _ _ (smallEtaleTopology (Over.left P.obj.right)) Λ
+    inferInstance sP.isRightAdjoint inferInstance)
+      inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance mP (@etaleModuleInverseImage Λ inferInstance _ _ (Over.hom P.obj.right) rp)
+      inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance
+      TY TP
+      (modulePullbackTensor (Over.hom P.obj.right)
+        (@etaleModuleInverseImageAdjunction Λ inferInstance _ _ (Over.hom P.obj.right) rp)))
+    (hΛ : AddMonoid.IsTorsion Λ)
+
+variable
+    (L : DerivedCategory (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)))
+    (K : DerivedCategory (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)))
+
+set_option maxHeartbeats 2000000 in
+/- Lemma 63.11.5: for a separated finite-type morphism of quasi-compact
+quasi-separated schemes and torsion coefficients, the canonical sheafy-trace
+map `Rf_* RHom_Λ(L, Rf^! K) ⟶ RHom_Λ(Rf_! L, K)` is an isomorphism
+for all unbounded derived objects `L` and `K`. -/
+@[stacks 0GLC] #check (AlgebraicGeometry.Scheme.Etale.etaleDerivedSheafyTrace_isIso
+    X P TX TP TY hj hp hΛ L K :
+    IsIso (etaleDerivedSheafyTraceOfTensorPresentation X P TX TP TY hj hp hΛ L K))
+
+end Normalized
 
 end AlgebraicGeometry.Scheme.Etale
 

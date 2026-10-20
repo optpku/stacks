@@ -1,99 +1,21 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.Grp.Abelian
-public import Mathlib.Algebra.Category.Grp.Limits
-public import Mathlib.AlgebraicTopology.AlternatingFaceMapComplex
-public import Mathlib.CategoryTheory.Limits.Final.Type
-public import stacks_project.Chap96.Lemma_96_18_1_CoveringSimplex
+public import ReasLib.CategoryTheory.Fibered.Groupoids.Cech.Complex
 
-/-!
-# The Čech complex of a 1-morphism of categories fibred in groupoids
+/-! Compatibility checks for the covering-simplex Čech API. -/
 
-Global sections of an abelian presheaf on a total category, the associated
-cosimplicial abelian group of a covering simplex, and the Čech cochain complex.
--/
-
-@[expose] public section
-
-open CategoryTheory AlgebraicTopology
+open CategoryTheory FiberedCategoryOver.Groupoids
 open scoped Bicategory Simplicial
 
-noncomputable section
-
-universe u v w vS wA uD vD
-
-namespace CategoryTheory.FiberedCategoryOver.Groupoids.Cech
+universe u v w vS wA
 
 variable {C : Type u} [Category.{v} C]
 variable {U X : FiberedCategoryOver.Groupoids C}
 
-/-- The flat sections of an abelian-group-valued functor, as an additive subgroup of
-the pointwise product. -/
-def sectionsAddSubgroup {J : Type uD} [Category.{vD} J]
-    (G : J ⥤ AddCommGrpCat.{wA}) : AddSubgroup (∀ j, G.obj j) where
-  carrier := (G ⋙ forget AddCommGrpCat.{wA}).sections
-  add_mem' := sorry
-  zero_mem' := sorry
-  neg_mem' := sorry
+#check (CategoryTheory.FiberedCategoryOver.Groupoids.Cech.complex :
+  (f : U ⟶ X) → (X.totalᵒᵖ ⥤ AddCommGrpCat.{wA}) → CochainComplex AddCommGrpCat ℕ)
 
-/-- Pointwise additive commutative group structure on sections of an abelian-group-valued
-functor. -/
-instance sectionsAddCommGroup {J : Type uD} [Category.{vD} J]
-    (G : J ⥤ AddCommGrpCat.{wA}) :
-    AddCommGroup (G ⋙ forget AddCommGrpCat.{wA}).sections :=
-  (sectionsAddSubgroup G).toAddCommGroup
-
-/-- Global sections `Γ(D, G)` of an abelian presheaf on a category `D`. -/
-def globalSections {D : Type uD} [Category.{vD} D]
-    (G : Dᵒᵖ ⥤ AddCommGrpCat.{wA}) : AddCommGrpCat.{max uD wA} :=
-  AddCommGrpCat.of (G ⋙ forget AddCommGrpCat.{wA}).sections
-
-/-- The carrier of `globalSections G` is the type of sections of `G ⋙ forget`. -/
-theorem globalSections_carrier {D : Type uD} [Category.{vD} D]
-    (G : Dᵒᵖ ⥤ AddCommGrpCat.{wA}) :
-    globalSections G = AddCommGrpCat.of (G ⋙ forget AddCommGrpCat.{wA}).sections :=
-  rfl
-
-/-- Pullback of global sections along a functor of total categories. -/
-def globalSectionsMap {D E : Type uD} [Category.{vD} D] [Category.{vD} E]
-    (u : D ⥤ E) (G : Eᵒᵖ ⥤ AddCommGrpCat.{wA}) :
-    globalSections G ⟶ globalSections (u.op ⋙ G) :=
-  AddCommGrpCat.ofHom
-    { toFun := fun s ↦ u.op.sectionsPrecomp (P := G ⋙ forget AddCommGrpCat.{wA}) s
-      map_zero' := sorry
-      map_add' := sorry }
-
-/-- The `n`-th Čech term is global sections of `f_n⁻¹ F` on `U_n`. -/
-def term (f : U ⟶ X) (F : X.totalᵒᵖ ⥤ AddCommGrpCat.{wA}) (n : SimplexCategory) :=
-  globalSections ((apexFunctor f n).op ⋙ F)
-
-/-- The cosimplicial abelian group `n ↦ Γ(U_n, f_n⁻¹ F)`. -/
-def cosimplicial (f : U ⟶ X) (F : X.totalᵒᵖ ⥤ AddCommGrpCat.{wA}) :
-    CosimplicialObject AddCommGrpCat where
-  obj n := term f F n
-  map {m n} φ := globalSectionsMap (reindex φ) ((apexFunctor f m).op ⋙ F)
-  map_id := sorry
-  map_comp := sorry
-
-/-- The Čech complex `Cech^•(U ⟶ X, F)` associated to a 1-morphism of categories
-fibred in groupoids and an abelian presheaf on `X`. -/
-def complex (f : U ⟶ X) (F : X.totalᵒᵖ ⥤ AddCommGrpCat.{wA}) :
-    CochainComplex AddCommGrpCat ℕ :=
-  (alternatingCofaceMapComplex _).obj (cosimplicial f F)
-
-/-- Degree `n` of the Čech complex is `Γ(U_n, f_n⁻¹ F)`. -/
-theorem complex_X (f : U ⟶ X) (F : X.totalᵒᵖ ⥤ AddCommGrpCat.{wA}) (n : ℕ) :
-    (complex f F).X n = globalSections ((apexFunctor f ⦋n⦌).op ⋙ F) := sorry
-
-/-- The Čech differential is the alternating sum of coface maps. -/
-theorem complex_d (f : U ⟶ X) (F : X.totalᵒᵖ ⥤ AddCommGrpCat.{wA}) (n : ℕ) :
-    (complex f F).d n (n + 1) =
-      ∑ i : Fin (n + 2), (-1 : ℤ) ^ (i : ℕ) • (cosimplicial f F).δ i := sorry
-
-end CategoryTheory.FiberedCategoryOver.Groupoids.Cech
+#check (CategoryTheory.FiberedCategoryOver.Groupoids.Cech.complex_d :
+  ∀ (f : U ⟶ X) (F : X.totalᵒᵖ ⥤ AddCommGrpCat.{wA}) (n : ℕ),
+    (Cech.complex f F).d n (n + 1) =
+      ∑ i : Fin (n + 2), (-1 : ℤ) ^ (i : ℕ) • (Cech.cosimplicial f F).δ i)

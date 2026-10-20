@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_40_1_FiniteType
-public import stacks_project.Chap101.Lemma_101_3_2_Isom
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Isom.LocallyOfFiniteType
+import StacksCheckRecall
 
 /-!
 # Lemma 101.3.1
@@ -22,19 +15,12 @@ structure morphism `Isom_X(x, y) ⟶ T` is locally of finite type.
 open CategoryTheory AlgebraicGeometry
 open FiberedCategoryOver.Groupoids
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.Isom
-
-/-- Lemma 101.3.1: Let `X` be an algebraic stack. Let `T` be a scheme and let
+/- Lemma 101.3.1: Let `X` be an algebraic stack. Let `T` be a scheme and let
 `x`, `y` be objects of the fibre category of `X` over `T`. Then the morphism
 `Isom_X(x, y) ⟶ T` is locally of finite type. -/
-@[stacks 04XR, instance]
-instance locallyOfFiniteType_isomOverHom {S : Scheme.{u}} {X : GroupoidsOver S}
-    [AlgebraicStack X] {T : Over S} (x y : X.p.Fiber T) :
-    AlgebraicSpace.LocallyOfFiniteType (isomOverHom x y) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.Isom
+@[stacks 04XR] #check (AlgebraicGeometry.AlgebraicStack.Isom.locallyOfFiniteType_isomOverHom :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    {T : Over S} (x y : X.p.Fiber T),
+    AlgebraicSpace.LocallyOfFiniteType (AlgebraicGeometry.AlgebraicStack.Isom.isomOverHom x y))

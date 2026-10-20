@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap74.Lemma_74_21_3_Characterization
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSmoothLocal
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +14,7 @@ property if and only if every source point lies under a commutative square with
 smooth right vertical arrow, étale comparison into the fibre product, and top
 arrow of the property. -/
 @[stacks 0CG1] #check
-  (IsEtaleSmoothLocalAtSourceAndTarget.iff_exists :
+  (AlgebraicGeometry.AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget.iff_exists :
     ∀ {S : Scheme.{u}} (P : MorphismProperty (AlgebraicSpace S))
       [IsEtaleSmoothLocalAtSourceAndTarget P] {X Y : AlgebraicSpace S} (f : X ⟶ Y),
       P f ↔ ∀ x : Points X, existsEtaleSmoothSquareAt P f x)
@@ -30,7 +24,7 @@ property if and only if the property holds on the top arrow of some commutative
 square with smooth right vertical arrow, étale comparison into the fibre
 product, and surjective left vertical arrow. -/
 @[stacks 0CG1] #check
-  (IsEtaleSmoothLocalAtSourceAndTarget.iff_exists_surjective_square :
+  (AlgebraicGeometry.AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget.iff_exists_surjective_square :
     ∀ {S : Scheme.{u}} (P : MorphismProperty (AlgebraicSpace S))
       [IsEtaleSmoothLocalAtSourceAndTarget P] {X Y : AlgebraicSpace S} (f : X ⟶ Y),
       P f ↔
@@ -43,7 +37,7 @@ property if and only if the top arrow of every commutative square with smooth
 right vertical arrow and étale comparison into the fibre product has the
 property. -/
 @[stacks 0CG1] #check
-  (IsEtaleSmoothLocalAtSourceAndTarget.iff_forall_comparison :
+  (AlgebraicGeometry.AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget.iff_forall_comparison :
     ∀ {S : Scheme.{u}} (P : MorphismProperty (AlgebraicSpace S))
       [IsEtaleSmoothLocalAtSourceAndTarget P] {X Y : AlgebraicSpace S} (f : X ⟶ Y),
       P f ↔
@@ -55,7 +49,7 @@ property. -/
 property if and only if the property holds after base change along every member
 of some smooth covering of the target. -/
 @[stacks 0CG1] #check
-  (IsEtaleSmoothLocalAtSourceAndTarget.iff_exists_targetCover :
+  (AlgebraicGeometry.AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget.iff_exists_targetCover :
     ∀ {S : Scheme.{u}} (P : MorphismProperty (AlgebraicSpace S))
       [IsEtaleSmoothLocalAtSourceAndTarget P] {X Y : AlgebraicSpace S} (f : X ⟶ Y),
       P f ↔ ∃ 𝒰 : (smoothPrecoverage S).ZeroHypercover.{u} Y,
@@ -65,7 +59,7 @@ of some smooth covering of the target. -/
 property if and only if every member of some étale covering of the source has
 the property after composition with the morphism. -/
 @[stacks 0CG1] #check
-  (IsEtaleSmoothLocalAtSourceAndTarget.iff_exists_sourceCover :
+  (AlgebraicGeometry.AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget.iff_exists_sourceCover :
     ∀ {S : Scheme.{u}} (P : MorphismProperty (AlgebraicSpace S))
       [IsEtaleSmoothLocalAtSourceAndTarget P] {X Y : AlgebraicSpace S} (f : X ⟶ Y),
       P f ↔ ∃ 𝒰 : (@etalePrecoverage S).ZeroHypercover.{u} X,
@@ -76,7 +70,7 @@ property if and only if, after some smooth covering of the target, each base
 change admits an étale source covering whose composites to the target-cover
 member have the property. -/
 @[stacks 0CG1] #check
-  (IsEtaleSmoothLocalAtSourceAndTarget.iff_exists_targetSourceCovers :
+  (AlgebraicGeometry.AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget.iff_exists_targetSourceCovers :
     ∀ {S : Scheme.{u}} (P : MorphismProperty (AlgebraicSpace S))
       [IsEtaleSmoothLocalAtSourceAndTarget P] {X Y : AlgebraicSpace S} (f : X ⟶ Y),
       P f ↔ ∃ 𝒰 : (smoothPrecoverage S).ZeroHypercover.{u} Y, ∀ i : 𝒰.I₀,

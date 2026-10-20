@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.GlobalSections.Filtered.Truncation
@@ -28,7 +22,7 @@ the second Cartan--Eilenberg spectral sequence. -/
 #check @Realization.originalSequence
 #check @Realization.sequence
 #check @Realization.gradedPieceIso
-#check @CohomologicalSpectralSequence.IsRenumbering.entryIso
+#check @CohomologicalSpectralSequence.Renumber.entryIso
 #check @Realization.pageTwoIso
 #check @Realization.targetIso
 #check @Realization.isAssociated

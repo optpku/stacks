@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.SectionsPullback
-public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Hypercohomology.Pullback
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Exact
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.TotalRightDerived.Cochain.ExactFirst
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.TotalRightDerived.Homotopy
@@ -31,26 +24,38 @@ noncomputable def derivedEtaleSectionsPullback {X Y : Scheme.{u}} (f : X ⟶ Y)
     [IsGrothendieckAbelian (Sheaf Y.smallEtaleTopology AddCommGrpCat.{u})]
     [∀ P : Y.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
       (smallEtalePullback f).op.HasLeftKanExtension P]
-    [(Sheaf.smallEtaleInverseImage f AddCommGrpCat.{u}).Additive]
-    [PreservesFiniteLimits (Sheaf.smallEtaleInverseImage f AddCommGrpCat.{u})]
-    [PreservesFiniteColimits (Sheaf.smallEtaleInverseImage f AddCommGrpCat.{u})]
-    [(ExactFunctor.of (Sheaf.smallEtaleInverseImage f AddCommGrpCat.{u})).obj.PreservesInjectiveObjects]
-    [(siteAbelianSectionsFunctor Y.smallEtaleTopology
-        (MorphismProperty.Over.mk _ (𝟙 Y) inferInstance)).Additive]
-    [(siteAbelianSectionsFunctor X.smallEtaleTopology
+    [Functor.Additive ((@Sheaf.smallEtaleInverseImage _ _ f AddCommGrpCat.{u} inferInstance
+      (HasSheafify.isRightAdjoint (J := X.smallEtaleTopology) (A := AddCommGrpCat.{u}))
+      inferInstance))]
+    [PreservesFiniteLimits ((@Sheaf.smallEtaleInverseImage _ _ f AddCommGrpCat.{u} inferInstance
+      (HasSheafify.isRightAdjoint (J := X.smallEtaleTopology) (A := AddCommGrpCat.{u}))
+      inferInstance))]
+    [PreservesFiniteColimits ((@Sheaf.smallEtaleInverseImage _ _ f AddCommGrpCat.{u} inferInstance
+      (HasSheafify.isRightAdjoint (J := X.smallEtaleTopology) (A := AddCommGrpCat.{u}))
+      inferInstance))]
+    [(ExactFunctor.of ((@Sheaf.smallEtaleInverseImage _ _ f AddCommGrpCat.{u} inferInstance
+      (HasSheafify.isRightAdjoint (J := X.smallEtaleTopology) (A := AddCommGrpCat.{u}))
+      inferInstance))).obj.PreservesInjectiveObjects]
+    [Functor.Additive (siteAbelianSectionsFunctor Y.smallEtaleTopology
+        (MorphismProperty.Over.mk _ (𝟙 Y) inferInstance))]
+    [Functor.Additive (siteAbelianSectionsFunctor X.smallEtaleTopology
         ((smallEtalePullback f).obj
-          (MorphismProperty.Over.mk _ (𝟙 Y) inferInstance))).Additive]
-    [(Sheaf.smallEtaleInverseImage f AddCommGrpCat.{u} ⋙
+          (MorphismProperty.Over.mk _ (𝟙 Y) inferInstance)))]
+    [Functor.Additive ((@Sheaf.smallEtaleInverseImage _ _ f AddCommGrpCat.{u} inferInstance
+      (HasSheafify.isRightAdjoint (J := X.smallEtaleTopology) (A := AddCommGrpCat.{u}))
+      inferInstance) ⋙
         siteAbelianSectionsFunctor X.smallEtaleTopology
           ((smallEtalePullback f).obj
-            (MorphismProperty.Over.mk _ (𝟙 Y) inferInstance))).Additive]
+            (MorphismProperty.Over.mk _ (𝟙 Y) inferInstance)))]
     (G : DerivedCategory (Sheaf Y.smallEtaleTopology AddCommGrpCat.{u})) :
     (siteAbelianSectionsDerived Y.smallEtaleTopology
         (MorphismProperty.Over.mk _ (𝟙 Y) inferInstance)).obj G ⟶
       (siteAbelianSectionsDerived X.smallEtaleTopology
           ((smallEtalePullback f).obj
             (MorphismProperty.Over.mk _ (𝟙 Y) inferInstance))).obj
-        ((Sheaf.smallEtaleInverseImage f AddCommGrpCat.{u}).mapDerivedCategory.obj G) :=
+        (((@Sheaf.smallEtaleInverseImage _ _ f AddCommGrpCat.{u} inferInstance
+      (HasSheafify.isRightAdjoint (J := X.smallEtaleTopology) (A := AddCommGrpCat.{u}))
+      inferInstance)).mapDerivedCategory.obj G) :=
   (Functor.RightDerived.mapNatTrans
       (DerivedCategory.Q :
         CochainComplex (Sheaf Y.smallEtaleTopology AddCommGrpCat.{u}) ℤ ⥤
@@ -64,7 +69,9 @@ noncomputable def derivedEtaleSectionsPullback {X Y : Scheme.{u}} (f : X ⟶ Y)
           CochainComplex AddCommGrpCat.{u} ℤ ⥤
             DerivedCategory AddCommGrpCat.{u}))).app G ≫
     (Functor.RightDerived.Cochain.ExactFirst.iso
-        (ExactFunctor.of (Sheaf.smallEtaleInverseImage f AddCommGrpCat.{u}))
+        (ExactFunctor.of ((@Sheaf.smallEtaleInverseImage _ _ f AddCommGrpCat.{u} inferInstance
+      (HasSheafify.isRightAdjoint (J := X.smallEtaleTopology) (A := AddCommGrpCat.{u}))
+      inferInstance)))
         (siteAbelianSectionsFunctor X.smallEtaleTopology
           ((smallEtalePullback f).obj
             (MorphismProperty.Over.mk _ (𝟙 Y) inferInstance)))).inv.app G
@@ -77,19 +84,29 @@ theorem derivedEtaleSectionsPullback_eq {X Y : Scheme.{u}} (f : X ⟶ Y)
     [IsGrothendieckAbelian (Sheaf Y.smallEtaleTopology AddCommGrpCat.{u})]
     [∀ P : Y.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
       (smallEtalePullback f).op.HasLeftKanExtension P]
-    [(Sheaf.smallEtaleInverseImage f AddCommGrpCat.{u}).Additive]
-    [PreservesFiniteLimits (Sheaf.smallEtaleInverseImage f AddCommGrpCat.{u})]
-    [PreservesFiniteColimits (Sheaf.smallEtaleInverseImage f AddCommGrpCat.{u})]
-    [(ExactFunctor.of (Sheaf.smallEtaleInverseImage f AddCommGrpCat.{u})).obj.PreservesInjectiveObjects]
-    [(siteAbelianSectionsFunctor Y.smallEtaleTopology
-        (MorphismProperty.Over.mk _ (𝟙 Y) inferInstance)).Additive]
-    [(siteAbelianSectionsFunctor X.smallEtaleTopology
+    [Functor.Additive ((@Sheaf.smallEtaleInverseImage _ _ f AddCommGrpCat.{u} inferInstance
+      (HasSheafify.isRightAdjoint (J := X.smallEtaleTopology) (A := AddCommGrpCat.{u}))
+      inferInstance))]
+    [PreservesFiniteLimits ((@Sheaf.smallEtaleInverseImage _ _ f AddCommGrpCat.{u} inferInstance
+      (HasSheafify.isRightAdjoint (J := X.smallEtaleTopology) (A := AddCommGrpCat.{u}))
+      inferInstance))]
+    [PreservesFiniteColimits ((@Sheaf.smallEtaleInverseImage _ _ f AddCommGrpCat.{u} inferInstance
+      (HasSheafify.isRightAdjoint (J := X.smallEtaleTopology) (A := AddCommGrpCat.{u}))
+      inferInstance))]
+    [(ExactFunctor.of ((@Sheaf.smallEtaleInverseImage _ _ f AddCommGrpCat.{u} inferInstance
+      (HasSheafify.isRightAdjoint (J := X.smallEtaleTopology) (A := AddCommGrpCat.{u}))
+      inferInstance))).obj.PreservesInjectiveObjects]
+    [Functor.Additive (siteAbelianSectionsFunctor Y.smallEtaleTopology
+        (MorphismProperty.Over.mk _ (𝟙 Y) inferInstance))]
+    [Functor.Additive (siteAbelianSectionsFunctor X.smallEtaleTopology
         ((smallEtalePullback f).obj
-          (MorphismProperty.Over.mk _ (𝟙 Y) inferInstance))).Additive]
-    [(Sheaf.smallEtaleInverseImage f AddCommGrpCat.{u} ⋙
+          (MorphismProperty.Over.mk _ (𝟙 Y) inferInstance)))]
+    [Functor.Additive ((@Sheaf.smallEtaleInverseImage _ _ f AddCommGrpCat.{u} inferInstance
+      (HasSheafify.isRightAdjoint (J := X.smallEtaleTopology) (A := AddCommGrpCat.{u}))
+      inferInstance) ⋙
         siteAbelianSectionsFunctor X.smallEtaleTopology
           ((smallEtalePullback f).obj
-            (MorphismProperty.Over.mk _ (𝟙 Y) inferInstance))).Additive]
+            (MorphismProperty.Over.mk _ (𝟙 Y) inferInstance)))]
     (G : DerivedCategory (Sheaf Y.smallEtaleTopology AddCommGrpCat.{u})) :
     derivedEtaleSectionsPullback f G =
       (Functor.RightDerived.mapNatTrans
@@ -105,7 +122,9 @@ theorem derivedEtaleSectionsPullback_eq {X Y : Scheme.{u}} (f : X ⟶ Y)
               CochainComplex AddCommGrpCat.{u} ℤ ⥤
                 DerivedCategory AddCommGrpCat.{u}))).app G ≫
         (Functor.RightDerived.Cochain.ExactFirst.iso
-            (ExactFunctor.of (Sheaf.smallEtaleInverseImage f AddCommGrpCat.{u}))
+            (ExactFunctor.of ((@Sheaf.smallEtaleInverseImage _ _ f AddCommGrpCat.{u} inferInstance
+      (HasSheafify.isRightAdjoint (J := X.smallEtaleTopology) (A := AddCommGrpCat.{u}))
+      inferInstance)))
             (siteAbelianSectionsFunctor X.smallEtaleTopology
               ((smallEtalePullback f).obj
                 (MorphismProperty.Over.mk _ (𝟙 Y) inferInstance)))).inv.app G := sorry

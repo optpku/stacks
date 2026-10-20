@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap85.Situation_85_3_3_Fiberwise
-public import stacks_project.Chap85.Situation_85_3_3_MorphismDiagram
+public import ReasLib.CategoryTheory.Sites.Grothendieck.SimplicialTopos
+public import ReasLib.CategoryTheory.Sites.Simplicial.MorphismDiagram
 import StacksCheckRecall
 
 /-!
@@ -20,23 +14,64 @@ sites: morphisms of sites (case A) or cocontinuous functors with property `P`
 
 @[expose] public section
 
-open CategoryTheory
+universe u v w
+
+open CategoryTheory Opposite
 
 /- Situation 85.3.3 (1): case A, a covariant simplex diagram of morphisms of sites.
 For `φ : m ⟶ n` the continuous functor `u_φ : C.obj m ⥤ C.obj n` presents a
 morphism of sites `f_φ : C.obj n ⟶ C.obj m` and a morphism of topoi
 `f_φ : Sh(C.obj n) ⟶ Sh(C.obj m)`; `C_total` is the total site of Lemma 85.3.1. -/
-@[stacks 09WE] #check @SimplicialSites.IsMorphismDiagram
-@[stacks 09WE] #check @SimplicialSites.toposMap
-@[stacks 09WE] #check @SimplicialSites.totalSite
-@[stacks 09WE] #check @SimplicialSites.precoverage
-@[stacks 09WE] #check @SimplicialSites.topology
+@[stacks 09WE] #check (CategoryTheory.SimplicialSites.toposMap :
+  ∀ (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
+    [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
+    [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
+      (C.map φ).toFunctor.op.HasLeftKanExtension P]
+    [CategoryTheory.SimplicialSites.IsMorphismDiagram C J]
+    {m n : SimplexCategory} (φ : m ⟶ n),
+      MorphismOfTopoiIn.{u, u, v, v, w} (J m).toGrothendieck (J n).toGrothendieck)
+
+#check (CategoryTheory.SimplicialSites.IsMorphismDiagram :
+  ∀ (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
+    [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
+    [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
+      (C.map φ).toFunctor.op.HasLeftKanExtension P], Prop)
+
+#check (CategoryTheory.SimplicialSites.totalSite :
+  (C : SimplexCategory ⥤ Cat.{v, u}) → Type u)
+
+#check (CategoryTheory.SimplicialSites.precoverage :
+  ∀ (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n)),
+    Precoverage (CategoryTheory.SimplicialSites.totalSite C))
+
+#check (CategoryTheory.SimplicialSites.topology :
+  ∀ (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n)),
+    GrothendieckTopology (CategoryTheory.SimplicialSites.totalSite C))
 
 /- Situation 85.3.3 (2): case B, a simplicial object of sites whose structure maps
 are cocontinuous functors with property `P`. For `φ : m ⟶ n` the functor
 `u_φ : C_n ⥤ C_m` induces `f_φ : Sh(C_n) ⟶ Sh(C_m)`; `C_total` is the total site
 of Lemma 85.3.2. -/
-@[stacks 09WE] #check @Grothendieck.IsFiberwiseSite
-@[stacks 09WE] #check @Grothendieck.toposMap
-@[stacks 09WE] #check @Grothendieck.precoverage
-@[stacks 09WE] #check @Grothendieck.topology
+@[stacks 09WE] #check (CategoryTheory.Grothendieck.toposMap :
+  ∀ (F : SimplicialObject Cat.{v, u}) (J : ∀ n, Precoverage (F.obj n))
+    [CategoryTheory.Grothendieck.IsFiberwiseSite F J]
+    [∀ n, HasSheafify (J n).toGrothendieck (Type w)]
+    [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (F.obj (op n))ᵒᵖ ⥤ Type w),
+      (F.map φ.op).toFunctor.op.HasPointwiseRightKanExtension P]
+    {m n : SimplexCategory} (φ : m ⟶ n),
+      MorphismOfTopoiIn.{u, u, v, v, w}
+        (J (op m)).toGrothendieck (J (op n)).toGrothendieck)
+
+#check (CategoryTheory.Grothendieck.IsFiberwiseSite :
+  ∀ (F : SimplicialObject Cat.{v, u}) (J : ∀ n, Precoverage (F.obj n)), Prop)
+
+#check (CategoryTheory.Grothendieck :
+  (F : SimplicialObject Cat.{v, u}) → Type u)
+
+#check (CategoryTheory.Grothendieck.precoverage :
+  ∀ (F : SimplicialObject Cat.{v, u}) (J : ∀ n, Precoverage (F.obj n)),
+    Precoverage (CategoryTheory.Grothendieck F))
+
+#check (CategoryTheory.Grothendieck.topology :
+  ∀ (F : SimplicialObject Cat.{v, u}) (J : ∀ n, Precoverage (F.obj n)),
+    GrothendieckTopology (CategoryTheory.Grothendieck F))

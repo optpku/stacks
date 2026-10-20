@@ -1,12 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Remark_76_45_1_Relative
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType.Representable
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.SchemeComparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.PseudoCoherent.Relative.Representable
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,7 +17,7 @@ universe u
 representable algebraic spaces over `S` which is locally of finite type, represented
 by `f0 : X0 ⟶ Y0`. Then `f0` is locally of finite type. -/
 @[stacks 0CSW] #check
-  (locallyOfFiniteType_ofOverMap_iff :
+  (AlgebraicGeometry.AlgebraicSpace.locallyOfFiniteType_ofOverMap_iff :
     ∀ {S : Scheme.{u}} {X0 Y0 : Over S} (f0 : X0 ⟶ Y0),
       LocallyOfFiniteType (ofOverMap f0) ↔
         AlgebraicGeometry.LocallyOfFiniteType f0.left)
@@ -30,7 +26,7 @@ by `f0 : X0 ⟶ Y0`. Then `f0` is locally of finite type. -/
 then `E` is the pullback of a unique object `E0` in `D_QCoh(𝒪_{X0})`, see
 Lemma 75.4.2. -/
 @[stacks 0CSW] #check
-  (qcohScheme_unique :
+  (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.qcohScheme_unique :
     ∀ {S : Scheme.{u}} (U : Over S) {E : ModuleDerived (ofOver U)},
       derivedQuasiCoherentModuleProperty (ofOver U) E →
         ∃ E0 : Scheme.DerivedQCoh U.left,
@@ -47,7 +43,7 @@ Lemma 75.4.2. -/
 relative to `Y`” means that `E0` is `m`-pseudo-coherent relative to `Y0` as defined
 in Section 37.59. -/
 @[stacks 0CSW] #check
-  (IsMPseudoCoherentOver.ofOver_iff :
+  (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.IsMPseudoCoherentOver.ofOver_iff :
     ∀ {S : Scheme.{u}} {X0 Y0 : Over S} (f0 : X0 ⟶ Y0)
       [LocallyOfFiniteType (ofOverMap f0)]
       (E : ModuleDerived (ofOver X0))
@@ -55,4 +51,4 @@ in Section 37.59. -/
       IsMPseudoCoherentOver.ofOver f0 E hE m ↔
         ∃ E0 : Scheme.DerivedQCoh X0.left,
           isEpsilonStarPullback X0 E E0 ∧
-            IsMPseudoCoherentOver.onScheme f0.left E0.obj m)
+            AlgebraicGeometry.Scheme.ModuleDerived.IsMPseudoCoherentOver f0.left E0.obj m)

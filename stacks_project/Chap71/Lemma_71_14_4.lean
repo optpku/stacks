@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap67.Definition_67_8_2_QuasiCompact
-public import stacks_project.Chap67.Definition_67_4_2_Separation
-public import stacks_project.Chap71.Lemma_71_14_3_RelativelyAmple
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Ample.Relative.Properties
+import StacksCheckRecall
 
 /-!
 # Lemma 71.14.4
@@ -22,35 +14,24 @@ implies that the morphism is representable, quasi-compact, and separated.
 
 open AlgebraicGeometry AlgebraicSpace CategoryTheory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+/- Lemma 71.14.4: existence of a relatively ample invertible sheaf implies that
+the morphism is representable, quasi-compact, and separated. -/
+@[stacks 0D34] #check
+  (AlgebraicGeometry.AlgebraicSpace.RelativelyAmple.properties_of_exists :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+      (∃ L : X.Modules, RelativelyAmple f L) →
+        yoneda.relativelyRepresentable f ∧ QuasiCompact f ∧ Separated f)
 
-/-- Lemma 71.14.4 (1): let `S` be a scheme and let `f : X ⟶ Y` be a morphism of
-algebraic spaces over `S`. If there exists an `f`-ample invertible sheaf `L`,
-then `f` is representable. -/
-@[stacks 0D34]
-theorem RelativelyAmple.relativelyRepresentable {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) (L : X.Modules)
-    [RelativelyAmple f L] : yoneda.relativelyRepresentable f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.RelativelyAmple.representable :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} (L : X.Modules)
+    [RelativelyAmple f L], yoneda.relativelyRepresentable f)
 
-/-- Lemma 71.14.4 (2): let `S` be a scheme and let `f : X ⟶ Y` be a morphism of
-algebraic spaces over `S`. If there exists an `f`-ample invertible sheaf `L`,
-then `f` is quasi-compact. -/
-@[stacks 0D34]
-theorem RelativelyAmple.quasiCompact {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) (L : X.Modules) [RelativelyAmple f L] : QuasiCompact f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.RelativelyAmple.quasiCompact :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (L : X.Modules)
+    [RelativelyAmple f L], QuasiCompact f)
 
-/-- Lemma 71.14.4 (3): let `S` be a scheme and let `f : X ⟶ Y` be a morphism of
-algebraic spaces over `S`. If there exists an `f`-ample invertible sheaf `L`,
-then `f` is separated. -/
-@[stacks 0D34]
-theorem RelativelyAmple.separated {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) (L : X.Modules) [RelativelyAmple f L] : Separated f :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.RelativelyAmple.separated :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (L : X.Modules)
+    [RelativelyAmple f L], Separated f)

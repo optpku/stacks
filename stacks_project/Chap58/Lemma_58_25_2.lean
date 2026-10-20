@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.LocalCohomology
-public import Mathlib.Algebra.Regular.Defs
-public import Mathlib.RingTheory.AdicCompletion.Basic
-public import stacks_project.Chap58.Lemma_58_24_1
+public import ReasLib.AlgebraicGeometry.PuncturedSpectrum.PrincipalQuotientPurity
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -21,29 +13,23 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.PuncturedSpectrum
-
-variable {A : Type u} [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
-variable (f : maximalIdeal A)
-
-/-- Lemma 58.25.2: in Situation 58.19.1, if `A` is `f`-adically complete, `f` is a
-nonzerodivisor, `H¹_m(A ⧸ fA)` and `H²_m(A ⧸ fA)` are finite `A`-modules, purity
-holds at `(A_f)_p` for every maximal ideal `p` of `A_f`, and purity holds for `A`,
-then purity holds for `A ⧸ principalIdeal f`. -/
-@[stacks 0BPC, instance]
-instance hasPurity_principalQuotient_of_complete_localCohomology
-    [IsAdicComplete (principalIdeal f) A]
+/- Lemma 58.25.2: Let `(A, m)` be a Noetherian local ring and let `f ∈ m`.
+Assume `A` is `f`-adically complete, `f` is a nonzerodivisor,
+`H¹_m(A/fA)` and `H²_m(A/fA)` are finite `A`-modules, purity holds for
+`(A_f)_p` for every maximal ideal `p` of `A_f`, and purity holds for `A`.
+Then purity holds for `A/fA`. -/
+@[stacks 0BPC] #check
+  (AlgebraicGeometry.PuncturedSpectrum.hasPurity_principalQuotient_of_complete_localCohomology :
+    ∀ {A : Type u} [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
+      (f : maximalIdeal A)
+    [IsAdicComplete (principalIdeal (f : A)) A]
     [Fact (IsRegular (f : A))]
     [Module.Finite A
       ((localCohomology (maximalIdeal A) 1).obj
-        (ModuleCat.of A
-          (A ⧸ (principalIdeal f • (⊤ : Submodule A A)))))]
+        (ModuleCat.of A (A ⧸ principalIdeal (f : A))))]
     [Module.Finite A
       ((localCohomology (maximalIdeal A) 2).obj
-        (ModuleCat.of A
-          (A ⧸ (principalIdeal f • (⊤ : Submodule A A)))))]
+        (ModuleCat.of A (A ⧸ principalIdeal (f : A))))]
     [Fact (hasPurityAtMaximalsAway f)]
-    [HasPurity A] :
-    HasPurity (A ⧸ principalIdeal f) := sorry
-
-end AlgebraicGeometry.PuncturedSpectrum
+    [HasPurity A],
+    HasPurity (A ⧸ principalIdeal (f : A)))

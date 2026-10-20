@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Abelian.Injective.RightDerived.ExactSquare
-public import ReasLib.CategoryTheory.Sites.HigherDirectImage
-public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Pullback
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.HigherDirectImage
 public import Mathlib.CategoryTheory.Adjunction.CompositionIso
 public import Mathlib.CategoryTheory.Adjunction.Mates
 
@@ -23,28 +16,6 @@ noncomputable section
 universe u
 
 namespace AlgebraicGeometry.Scheme.Etale
-
-/-- The ordinary higher direct image of an abelian étale sheaf along a scheme morphism. -/
-def schemeHigherDirectImage {S X : Scheme.{u}} (morphism : X ⟶ S)
-    [HasSheafify X.smallEtaleTopology AddCommGrpCat.{u}]
-    [HasSheafify S.smallEtaleTopology AddCommGrpCat.{u}]
-    [HasInjectiveResolutions (Sheaf X.smallEtaleTopology AddCommGrpCat.{u})]
-    (sheaf : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) (degree : ℕ) :
-    Sheaf S.smallEtaleTopology AddCommGrpCat.{u} :=
-  ((smallEtalePullback morphism).sheafPushforwardContinuous AddCommGrpCat.{u}
-    S.smallEtaleTopology X.smallEtaleTopology).rightDerived degree |>.obj sheaf
-
-/-- A morphism of abelian étale sheaves induces a morphism of ordinary higher direct images. -/
-def schemeHigherDirectImageMap {S X : Scheme.{u}} (morphism : X ⟶ S)
-    [HasSheafify X.smallEtaleTopology AddCommGrpCat.{u}]
-    [HasSheafify S.smallEtaleTopology AddCommGrpCat.{u}]
-    [HasInjectiveResolutions (Sheaf X.smallEtaleTopology AddCommGrpCat.{u})]
-    {sheaf sheaf' : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}}
-    (map : sheaf ⟶ sheaf') (degree : ℕ) :
-    schemeHigherDirectImage morphism sheaf degree ⟶
-      schemeHigherDirectImage morphism sheaf' degree :=
-  ((smallEtalePullback morphism).sheafPushforwardContinuous AddCommGrpCat.{u}
-    S.smallEtaleTopology X.smallEtaleTopology).rightDerived degree |>.map map
 
 namespace HigherDirectImage
 

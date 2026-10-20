@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 -- The instance type exposes both the discrete-fibration predicate and mathlib's canonical
@@ -92,7 +86,7 @@ theorem homLift.unique
     (l₁ l₂ : Functor.HomLift ((π F).leftOp) f) :
     l₁ = l₂ := sorry
 
-/-- Example 4.38.5 (Stacks 04TM): the contravariant category-of-elements projection of a
+/-- The opposite category-of-elements projection of a
 set-valued presheaf is a discrete fibration. -/
 @[stacks 04TM "the projection is a discrete fibration"]
 instance π.leftOp.isDiscreteFibration

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.AffineScheme
-public import stacks_project.Chap79.Lemma_79_15_8
+public import ReasLib.AlgebraicGeometry.GroupoidScheme.StrongSplitting.AffineLocalization
+import StacksCheckRecall
 
 /-!
 # Strong splitting after an affine étale scheme localization
@@ -27,37 +21,33 @@ universe u
 
 namespace AlgebraicGeometry.GroupoidScheme
 
-/-- Lemma 79.15.11: in Situation 79.15.2, if `s` and `t` are also flat and
+/- Lemma 79.15.11: in Situation 79.15.2, if `s` and `t` are also flat and
 locally of finite presentation and `U` is affine, then there exist an affine
 scheme `U'` over `S`, an étale morphism `g : U' ⟶ U`, and a point `u'` of
 `U'` lying over `u` with `IsIso (g.left.residueFieldMap u')` such that the
 restriction `R' = R|_{U'}` of `R` to `U'` is strongly split over `u'`. -/
-@[stacks 04RZ]
-theorem exists_affineEtale_isStronglySplitOver {S : Scheme.{u}}
+@[stacks 04RZ] #check (AlgebraicGeometry.GroupoidScheme.exists_affineEtale_isStronglySplitOver :
+  ∀ {S : Scheme.{u}}
     (G : GroupoidScheme S) (u : G.U.left) [StrongSplitting G u]
     [IsAffine G.U.left]
     [AlgebraicGeometry.Flat G.s.left] [AlgebraicGeometry.Flat G.t.left]
     [AlgebraicGeometry.LocallyOfFinitePresentation G.s.left]
-    [AlgebraicGeometry.LocallyOfFinitePresentation G.t.left] :
+    [AlgebraicGeometry.LocallyOfFinitePresentation G.t.left],
     ∃ (U' : Over S) (g : U' ⟶ G.U) (u' : U'.left),
       IsAffine U'.left ∧ AlgebraicGeometry.Etale g.left ∧ g.left u' = u ∧
         IsIso (g.left.residueFieldMap u') ∧
           GroupoidAlgebraicSpace.IsStronglySplitOver
             (GroupoidAlgebraicSpace.pullback (GroupoidAlgebraicSpace.ofScheme G)
               (objectRestrictionHom G (ofOverMap g)))
-            (ofOver.pointsEquiv U' u') :=
-  sorry
+            (ofOver.pointsEquiv U' u'))
 
-/-- There exist an affine scheme `U'` over `S`, an étale morphism `U' ⟶ U`,
-and a `Spec(κ(u))`-point of `U'` lying over `u` at which the restriction of
-`R` is strongly split. Equality of residue fields is encoded by the domain
-`Spec(κ(u))`. -/
-theorem exists_affineEtale_residueMap_isStronglySplitOver {S : Scheme.{u}}
+#check (AlgebraicGeometry.GroupoidScheme.exists_affineEtale_residueMap_isStronglySplitOver :
+  ∀ {S : Scheme.{u}}
     (G : GroupoidScheme S) (u : G.U.left) [StrongSplitting G u]
     [IsAffine G.U.left]
     [AlgebraicGeometry.Flat G.s.left] [AlgebraicGeometry.Flat G.t.left]
     [AlgebraicGeometry.LocallyOfFinitePresentation G.s.left]
-    [AlgebraicGeometry.LocallyOfFinitePresentation G.t.left] :
+    [AlgebraicGeometry.LocallyOfFinitePresentation G.t.left],
     ∃ (U' : Over S) (g : U' ⟶ G.U)
       (u' : ofOver (residueOver G u) ⟶ ofOver U'),
       IsAffine U'.left ∧ AlgebraicGeometry.Etale g.left ∧
@@ -65,7 +55,6 @@ theorem exists_affineEtale_residueMap_isStronglySplitOver {S : Scheme.{u}}
           GroupoidAlgebraicSpace.IsStronglySplitOver
             (GroupoidAlgebraicSpace.pullback (GroupoidAlgebraicSpace.ofScheme G)
               (objectRestrictionHom G (ofOverMap g)))
-            (residueFieldPoint G u u') :=
-  sorry
+            (residueFieldPoint G u u'))
 
 end AlgebraicGeometry.GroupoidScheme

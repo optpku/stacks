@@ -1,150 +1,104 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_14_1_Quotient
-public import stacks_project.Chap69.Lemma_69_13_2_IdealPower
-public import stacks_project.Chap69.Lemma_69_17_2_Pullback
-public import stacks_project.Chap76.Definition_76_6_5_Conormal
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.IdealQuotient
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.IdealPower
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.UniverseLift
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IdealSubobject.Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.Algebra
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.Piece
 
-/-!
-# Degree-n pieces of the conormal algebra of an immersion
+/-! # Degree pieces of the conormal algebra of an immersion
 
-For an immersion `i : Z ⟶ X` of algebraic spaces, the coborder closed
-immersion `Z ⟶ X \ ∂Z` has kernel ideal `I`. The degree-`n` piece
-`C_{Z/X, n}` is the pullback to `Z` of the successive quotient `I^n / I^{n+1}`.
+The degree pieces are pullbacks of successive quotients of the coborder ideal.
 -/
 
-@[expose] public section
-
-open CategoryTheory AlgebraicGeometry
-open SheafOfModules.RingedSite
-
-noncomputable section
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
+open AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.coborderIdealPower :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i] (n : ℕ),
+    IdealSubobject (Hom.coborder i))
 
-variable {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i]
-
-/-- The coborder ideal power `I^n ⊂ 𝒪_{X \ ∂Z}` of the kernel ideal of
-`liftCoborder i`. -/
-noncomputable def coborderIdealPower (n : ℕ) : IdealSubobject (Hom.coborder i) :=
-  Modules.idealPowerProductSubobject
-    (Hom.idealSheafSubobject (IsImmersion.liftCoborder i))
-    (SheafOfModules.unit (structureSheaf (Hom.coborder i))) n
-
-/-- `coborderIdealPower i n` is the ideal-power product of the coborder kernel
-ideal against the structure module. -/
-theorem coborderIdealPower_eq (n : ℕ) :
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.coborderIdealPower_eq :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i] (n : ℕ),
     coborderIdealPower i n =
       Modules.idealPowerProductSubobject
         (Hom.idealSheafSubobject (IsImmersion.liftCoborder i))
-        (SheafOfModules.unit (structureSheaf (Hom.coborder i))) n :=
-  rfl
+        (SheafOfModules.unit (structureSheaf (Hom.coborder i))) n)
 
-/-- In degree one, the coborder ideal power is the coborder kernel ideal. -/
-theorem coborderIdealPower_one :
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.coborderIdealPower_one :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i],
     coborderIdealPower i 1 =
-      Hom.idealSheafSubobject (IsImmersion.liftCoborder i) :=
-  sorry
+      Hom.idealSheafSubobject (IsImmersion.liftCoborder i))
 
-/-- The successive coborder quotient `I^n / I^{n+1}` as an
-`𝒪_{X \ ∂Z}`-module. -/
-noncomputable def coborderQuotient (n : ℕ) : (Hom.coborder i).Modules :=
-  Modules.quotientByIdeal
-    (Hom.idealSheafSubobject (IsImmersion.liftCoborder i))
-    (coborderIdealPower i n).toModule
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.coborderQuotient :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i] (n : ℕ),
+    (Hom.coborder i).Modules)
 
-/-- `coborderQuotient i n` is the quotient of `I^n` by the action of `I`. -/
-theorem coborderQuotient_eq (n : ℕ) :
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.coborderQuotient_eq :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i] (n : ℕ),
     coborderQuotient i n =
       Modules.quotientByIdeal
         (Hom.idealSheafSubobject (IsImmersion.liftCoborder i))
-        (coborderIdealPower i n).toModule :=
-  rfl
+        (coborderIdealPower i n).toModule)
 
-/-- The degree-`n` piece `C_{Z/X, n}` of the conormal algebra of an immersion,
-as the pullback to `Z` of `I^n / I^{n+1}`. -/
-noncomputable def piece (n : ℕ) : Z.Modules :=
-  (Modules.pullback (IsImmersion.liftCoborder i)).obj (coborderQuotient i n)
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.piece :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i] (n : ℕ),
+    Z.Modules)
 
-/-- `piece i n` is the coborder pullback of `coborderQuotient i n`. -/
-theorem piece_eq (n : ℕ) :
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.piece_eq :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i] (n : ℕ),
     piece i n =
-      (Modules.pullback (IsImmersion.liftCoborder i)).obj (coborderQuotient i n) :=
-  rfl
+      (Modules.pullback (IsImmersion.liftCoborder i)).obj (coborderQuotient i n))
 
-/-- The canonical comparison `I^n / I^{n+1} ⟶ (liftCoborder i)_* C_{Z/X, n}`
-given by the module adjunction unit of the coborder closed immersion. -/
-noncomputable def piecePushforwardComparison (n : ℕ) :
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.piecePushforwardComparison :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i] (n : ℕ),
     coborderQuotient i n ⟶
-      (Modules.pushforward (IsImmersion.liftCoborder i)).obj (piece i n) :=
-  (Modules.pullbackPushforwardAdjunction (IsImmersion.liftCoborder i)).unit.app
-    (coborderQuotient i n)
+      (Modules.pushforward (IsImmersion.liftCoborder i)).obj (piece i n))
 
-/-- `piecePushforwardComparison i n` is the coborder adjunction unit at
-`coborderQuotient i n`. -/
-theorem piecePushforwardComparison_eq (n : ℕ) :
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.piecePushforwardComparison_eq :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i] (n : ℕ),
     piecePushforwardComparison i n =
       (Modules.pullbackPushforwardAdjunction (IsImmersion.liftCoborder i)).unit.app
-        (coborderQuotient i n) :=
-  rfl
+        (coborderQuotient i n))
 
-/-- The degree-`n` conormal piece is the coborder pullback of `I^n / I^{n+1}`
-along the coborder closed immersion. -/
-theorem piece_spec (n : ℕ) :
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.piece_spec :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i] (n : ℕ),
     piece i n =
         (Modules.pullback (IsImmersion.liftCoborder i)).obj (coborderQuotient i n) ∧
       coborderQuotient i n =
         Modules.quotientByIdeal
           (Hom.idealSheafSubobject (IsImmersion.liftCoborder i))
           (coborderIdealPower i n).toModule ∧
-      IsClosedImmersion (IsImmersion.liftCoborder i) :=
-  sorry
+      IsClosedImmersion (IsImmersion.liftCoborder i))
 
-/-- The successive coborder quotient `I^n / I^{n+1}` is quasi-coherent. -/
-instance instIsQuasicoherent_coborderQuotient (n : ℕ) :
-    (coborderQuotient i n).IsQuasicoherent :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.instIsQuasicoherent_coborderQuotient :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i] (n : ℕ),
+    (coborderQuotient i n).IsQuasicoherent)
 
-/-- The degree-`n` conormal piece is a quasi-coherent `𝒪_Z`-module. -/
-instance instIsQuasicoherent_piece (n : ℕ) : (piece i n).IsQuasicoherent :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.instIsQuasicoherent_piece :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i] (n : ℕ),
+    (piece i n).IsQuasicoherent)
 
-/-- In degree one, the coborder successive quotient is `I / I²`. -/
-theorem coborderQuotient_one :
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.coborderQuotient_one :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i],
     coborderQuotient i 1 =
       Modules.quotientByIdeal
         (Hom.idealSheafSubobject (IsImmersion.liftCoborder i))
-        (Hom.idealSheaf (IsImmersion.liftCoborder i)) :=
-  sorry
+        (Hom.idealSheaf (IsImmersion.liftCoborder i)))
 
-/-- The degree-one conormal piece is the conormal sheaf `C_{Z/X}`. -/
-theorem piece_one : piece i 1 = Hom.conormalSheaf i :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.piece_one :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i],
+    piece i 1 = Hom.conormalSheaf i)
 
-/-- The degree-zero comparison `C_{Z/X, 0} ⟶ 𝒪_Z` obtained from the coborder
-quotient comparison `I^0 / I ⟶ j_* j^* I^0`, the adjunction counit, and the
-structure-module pullback of `I^0`. -/
-noncomputable def pieceZeroComparison :
-    piece i 0 ⟶ SheafOfModules.unit (structureSheaf Z) :=
-  (Modules.pullback (IsImmersion.liftCoborder i)).map
-      (Modules.quotientByIdealComparison (IsImmersion.liftCoborder i)
-        (coborderIdealPower i 0).toModule) ≫
-    (Modules.pullbackPushforwardAdjunction (IsImmersion.liftCoborder i)).counit.app
-      ((Modules.pullback (IsImmersion.liftCoborder i)).obj
-        (coborderIdealPower i 0).toModule) ≫
-    IdealSubobject.pullbackMap (coborderIdealPower i 0) (IsImmersion.liftCoborder i)
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.pieceZeroComparison :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i],
+    piece i 0 ⟶ SheafOfModules.unit (structureSheaf Z))
 
-/-- `pieceZeroComparison i` is the composite of the coborder quotient
-comparison, the adjunction counit, and the structure-module pullback of `I^0`. -/
-theorem pieceZeroComparison_eq :
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.pieceZeroComparison_eq :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i],
     pieceZeroComparison i =
       (Modules.pullback (IsImmersion.liftCoborder i)).map
           (Modules.quotientByIdealComparison (IsImmersion.liftCoborder i)
@@ -153,13 +107,9 @@ theorem pieceZeroComparison_eq :
           ((Modules.pullback (IsImmersion.liftCoborder i)).obj
             (coborderIdealPower i 0).toModule) ≫
         IdealSubobject.pullbackMap (coborderIdealPower i 0)
-          (IsImmersion.liftCoborder i) :=
-  rfl
+          (IsImmersion.liftCoborder i))
 
-/-- The degree-zero conormal piece is identified with `𝒪_Z` by
-`pieceZeroComparison`. -/
-instance piece_zero : IsIso (pieceZeroComparison i) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.piece_zero :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i],
+    IsIso (pieceZeroComparison i))
 

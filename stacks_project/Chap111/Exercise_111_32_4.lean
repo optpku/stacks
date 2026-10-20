@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.Topology.Sheaves.Pullback.Adjunction
+public import Mathlib.Topology.Sheaves.Functors
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,5 +14,5 @@ variable {X Y : TopCat.{u}} (f : X ⟶ Y)
 /- Exercise 111.32.4: for a continuous map `f : X ⟶ Y` of topological spaces, pushforward and
 pullback of sheaves of sets form an adjoint pair, with pullback left adjoint to pushforward. -/
 @[stacks 02EV]
-#check (TopCat.Sheaf.typesPullbackPushforwardAdjunction f :
+#check (TopCat.Sheaf.pullbackPushforwardAdjunction (Type u) f :
     TopCat.Sheaf.pullback (Type u) f ⊣ TopCat.Sheaf.pushforward (Type u) f)

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_5_2_Surjective
-public import stacks_project.Chap67.Definition_67_8_2_QuasiCompact
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.QuasiCompact.Surjective
+import StacksCheckRecall
 
 /-!
 # Quasi-compactness along a surjection of algebraic spaces
@@ -25,28 +19,17 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-namespace IsQuasiCompact
-
-/-- Lemma 67.8.6 (1): if `f : X ⟶ Y` is a surjective morphism of algebraic
+/- Lemma 67.8.6 (1): if `f : X ⟶ Y` is a surjective morphism of algebraic
 spaces over `S` and `X` is quasi-compact, then `Y` is quasi-compact. -/
-@[stacks 040W]
-theorem of_surjective {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [Surjective f] [IsQuasiCompact X] : IsQuasiCompact Y :=
-  sorry
+@[stacks 040W] #check (AlgebraicGeometry.AlgebraicSpace.IsQuasiCompact.of_surjective :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    [Surjective f] → [IsQuasiCompact X] → IsQuasiCompact Y)
 
-end IsQuasiCompact
-
-namespace QuasiCompact
-
-/-- Lemma 67.8.6 (2): if `f : X ⟶ Y` and `q : Y ⟶ Z` are morphisms of algebraic
+/- Lemma 67.8.6 (2): if `f : X ⟶ Y` and `q : Y ⟶ Z` are morphisms of algebraic
 spaces over `S`, `f` is surjective, and the composite `f ≫ q` is quasi-compact,
 then `q` is quasi-compact. -/
-@[stacks 040W]
-theorem of_comp_surjective {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : X ⟶ Y) (q : Y ⟶ Z) [Surjective f] [QuasiCompact (f ≫ q)] :
-    QuasiCompact q :=
-  sorry
-
-end QuasiCompact
+@[stacks 040W] #check (AlgebraicGeometry.AlgebraicSpace.QuasiCompact.of_comp_surjective :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (q : Y ⟶ Z),
+    [Surjective f] → [QuasiCompact (f ≫ q)] → QuasiCompact q)
 
 end AlgebraicGeometry.AlgebraicSpace

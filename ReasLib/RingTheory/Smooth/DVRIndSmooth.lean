@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.DiscreteValuationRing.Extension.Residue
@@ -37,7 +31,7 @@ variable [IsExtensionOfDiscreteValuationRings.WeaklyUnramified R L]
 extension with separable residue- and fraction-field extensions. -/
 @[stacks 0BJ7]
 theorem hasFactorisations
-    [Algebra.IsSeparable (ResidueField R) (ResidueField L)]
+    [Algebra.IsSeparableOver (ResidueField R) (ResidueField L)]
     [FractionRing.IsSeparableExtension R L] :
     RingHom.IndSmooth.HasFactorisations (algebraMap R L) := sorry
 
@@ -45,7 +39,7 @@ theorem hasFactorisations
 separable residue- and fraction-field extensions is a filtered colimit of smooth algebras. -/
 @[stacks 0BJ7]
 theorem indSmooth
-    [Algebra.IsSeparable (ResidueField R) (ResidueField L)]
+    [Algebra.IsSeparableOver (ResidueField R) (ResidueField L)]
     [FractionRing.IsSeparableExtension R L] :
     (algebraMap R L).IndSmooth := sorry
 

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module.GlobalSections
@@ -29,6 +23,9 @@ attribute [local instance] Hom.moduleGlobalSectionsFunctor_additive
 -- Local instance justification (defeq pin): units use the same existence
 -- proof as Hom.moduleDerivedGlobalSections.
 attribute [local instance] Hom.moduleGlobalSectionsToModuleDerived_hasRightDerivedFunctor
+-- Local instance justification: use the existing additive direct image and its actual
+-- Grothendieck-source derived availability for the displayed target functor and unit.
+attribute [local instance] modulePushforward_additive modulePushforwardToDerived.hasRightDerived
 
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
 variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]

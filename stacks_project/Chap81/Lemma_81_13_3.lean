@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap81.Lemma_81_13_3_Glueing
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CoequalizerGlueing.Closed
 
 /-!
 # Lemma 81.13.3
@@ -28,51 +23,55 @@ namespace AlgebraicGeometry.AlgebraicSpace.CoequalizerGlueing
 
 variable {S : Scheme.{u}} {X X' Z : AlgebraicSpace S}
 
-/-- Lemma 81.13.3 (1): in Situation 81.13.2, let `Y = closedCoprod f i` be
-`X' ⨿ Z` and let `R` be the kernel pair of `g = closedCoprodToAmbient f i`,
-with projections `t = fst g` and `s = snd g`. Then `fromClosedCoprod f i` is a
-coequalizer of `s, t` in `AlgebraicSpace S`. -/
-@[stacks 0AGI]
-theorem isCoequalizer (f : X' ⟶ X) (i : Z ⟶ X) [IsLocallyNoetherian X]
-    [IsClosedImmersion i] [Proper f] {W : AlgebraicSpace S}
-    (φ : closedCoprod f i ⟶ W)
-    (h_equalizes : fst (closedCoprodToAmbient f i) ≫ φ =
-      snd (closedCoprodToAmbient f i) ≫ φ) :
-    ∃! ψ : closedSpace f i ⟶ W, fromClosedCoprod f i ≫ ψ = φ :=
-  sorry
+section
 
-/-- Lemma 81.13.3 (2): the structure morphism `closedSpaceToAmbient f i : X₁ ⟶ X`
-is finite. -/
-@[stacks 0AGI, instance]
-instance instIsFinite_closedSpaceToAmbient (f : X' ⟶ X) (i : Z ⟶ X)
-    [IsLocallyNoetherian X] [IsClosedImmersion i] [Proper f] :
-    IsFinite (closedSpaceToAmbient f i) :=
-  inferInstance
+variable (f : X' ⟶ X) (i : Z ⟶ X) [IsLocallyNoetherian X]
+  [IsClosedImmersion i] [Proper f]
 
-/-- Lemma 81.13.3 (3): the structure morphism `closedSpaceToAmbient f i : X₁ ⟶ X`
-is a universal homeomorphism. -/
-@[stacks 0AGI]
-theorem universalHomeomorphism_closedSpaceToAmbient (f : X' ⟶ X)
-    (i : Z ⟶ X) [IsLocallyNoetherian X] [IsClosedImmersion i] [Proper f]
-    (h_iso : IsIsoOverOpen f (closedImmersionComplementι i)) :
-    UniversalHomeomorphism (closedSpaceToAmbient f i) :=
-  sorry
+/- Lemma 81.13.3: the kernel-pair coequalizer of `X' ⨿ Z ⟶ X` exists. -/
+@[stacks 0AGI] #check
+  (AlgebraicGeometry.AlgebraicSpace.KernelPairCoequalizer.isCoequalizer
+    (closedCoprodToAmbient f i) :
+    ∀ {W : AlgebraicSpace S} (φ : closedCoprod f i ⟶ W),
+      fst (closedCoprodToAmbient f i) ≫ φ =
+        snd (closedCoprodToAmbient f i) ≫ φ →
+      ∃! ψ : closedSpace f i ⟶ W, fromClosedCoprod f i ≫ ψ = φ)
 
-/-- Lemma 81.13.3 (4): the structure morphism `closedSpaceToAmbient f i : X₁ ⟶ X`
-is an isomorphism over the complementary open `U` of `i`. -/
-@[stacks 0AGI]
-theorem isIsoOverOpen_closedSpaceToAmbient (f : X' ⟶ X) (i : Z ⟶ X)
-    [IsLocallyNoetherian X] [IsClosedImmersion i] [Proper f]
-    (h_iso : IsIsoOverOpen f (closedImmersionComplementι i)) :
-    IsIsoOverOpen (closedSpaceToAmbient f i) (closedImmersionComplementι i) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.KernelPairCoequalizer.equalizes
+  (closedCoprodToAmbient f i) :
+  fst (closedCoprodToAmbient f i) ≫ fromClosedCoprod f i =
+    snd (closedCoprodToAmbient f i) ≫ fromClosedCoprod f i)
 
-/-- Lemma 81.13.3 (5): the closed immersion `i : Z ⟶ X` lifts through `X₁` via
-`closedLift`. -/
-@[stacks 0AGI]
-theorem closedLift_comp (f : X' ⟶ X) (i : Z ⟶ X) [IsLocallyNoetherian X]
-    [IsClosedImmersion i] [Proper f] :
-    closedLift f i ≫ closedSpaceToAmbient f i = i :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.KernelPairCoequalizer.instIsFinite_toTarget
+  (closedCoprodToAmbient f i) : IsFinite (closedSpaceToAmbient f i))
+
+#check (AlgebraicGeometry.AlgebraicSpace.KernelPairCoequalizer.fromSource_comp_toTarget
+  (closedCoprodToAmbient f i) :
+  fromClosedCoprod f i ≫ closedSpaceToAmbient f i = closedCoprodToAmbient f i)
+
+#check (AlgebraicGeometry.AlgebraicSpace.coproductι_desc
+  ((fun b ↦ match b with
+    | false => (f : closedFamily f i false ⟶ X)
+    | true => (i : closedFamily f i true ⟶ X)) : ∀ b, closedFamily f i b ⟶ X) false :
+  coproductι (closedFamily f i) false ≫ closedCoprodToAmbient f i = f)
+
+#check (AlgebraicGeometry.AlgebraicSpace.coproductι_desc
+  ((fun b ↦ match b with
+    | false => (f : closedFamily f i false ⟶ X)
+    | true => (i : closedFamily f i true ⟶ X)) : ∀ b, closedFamily f i b ⟶ X) true :
+  coproductι (closedFamily f i) true ≫ closedCoprodToAmbient f i = i)
+
+#check (AlgebraicGeometry.AlgebraicSpace.CoequalizerGlueing.closedLift_comp f i :
+  closedLift f i ≫ closedSpaceToAmbient f i = i)
+
+variable [IsIso (openInverseImageTo f (closedImmersionComplementι i))]
+
+#check (AlgebraicGeometry.AlgebraicSpace.CoequalizerGlueing.universalHomeomorphism_closedSpaceToAmbient
+  f i : UniversalHomeomorphism (closedSpaceToAmbient f i))
+
+#check (AlgebraicGeometry.AlgebraicSpace.CoequalizerGlueing.isIsoOverOpen_closedSpaceToAmbient
+  f i : IsIsoOverOpen (closedSpaceToAmbient f i) (closedImmersionComplementι i))
+
+end
 
 end AlgebraicGeometry.AlgebraicSpace.CoequalizerGlueing

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Adjunction.BaseChange
@@ -32,6 +26,8 @@ open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory
 noncomputable section
 
 universe u
+
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
 
 namespace AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.BaseChange
 
@@ -97,6 +93,13 @@ dimension of `𝒪_{Y'}` over `g`, the right-adjoint base-change map is an isomo
 on every bounded-below quasi-coherent complex. -/
 theorem mapOfRight_app_isIso_of_finiteTorDimension
     (g' : X' ⟶ X) (f' : X' ⟶ Y') (f : X ⟶ Y) (g : Y' ⟶ Y)
+    [∀ sq : EtaleSquare g,
+      (Functor.Homotopy.toDerived
+        (SmallEtaleModuleGlueing.restrictFunctor_hom sq.left ⋙
+          Modules.restrictToScheme sq.left.left ⋙
+          Scheme.Modules.toRingedSpace sq.left.left.left)).HasLeftDerivedFunctor (ModuleQis Y')]
+    [∀ sq : EtaleSquare g, DerivedCategory.DerivedTensor.Right.Has
+      (C := RingedSpace.Modules (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom))]
     [QuasiCompact f] [QuasiSeparated f] [QuasiCompact f'] [QuasiSeparated f']
     [QuasiCompact g] [QuasiSeparated g] [QuasiCompact g'] [QuasiSeparated g']
     [IsIso (modulePullbackDerived.compComparison f' g)]

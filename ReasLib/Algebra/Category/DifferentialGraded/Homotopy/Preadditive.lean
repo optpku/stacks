@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Linear.LinearFunctor
@@ -83,9 +77,6 @@ def kLinearData : Linear R (K R C) where
 /-- The DG homotopy category is canonically `R`-linear. -/
 @[stacks 09JQ "linear structure on the DG homotopy category"]
 instance kLinear : Linear R (K R C) := kLinearData
-
-/-- Explicit access to the canonical linear structure on the DG homotopy category. -/
-abbrev linearStructure : Linear R (K R C) := kLinearData
 
 namespace Comp
 

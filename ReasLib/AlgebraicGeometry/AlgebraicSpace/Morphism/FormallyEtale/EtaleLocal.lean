@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.CommSq
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.EtaleSquare
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.EtaleLocal
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FormallyEtale
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FormallyEtale
@@ -51,9 +45,9 @@ theorem existsSurjectiveEtaleSchemeSquare_iff {S : Scheme.{u}}
 
 /-- Formal étaleness of an algebraic-space morphism is equivalent to formal
 étaleness étale locally on scheme charts. -/
-theorem iff_etaleLocally {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+theorem iff_etaleLocal {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) :
-    FormallyEtale f ↔ AlgebraicSpace.etaleLocally (@AlgebraicGeometry.FormallyEtale) f := sorry
+    FormallyEtale f ↔ AlgebraicSpace.etaleLocal @AlgebraicGeometry.FormallyEtale f := sorry
 
 /-- Formal étaleness of an algebraic-space morphism is equivalent to the
 existence of a surjective étale scheme square with formally étale top arrow. -/

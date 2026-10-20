@@ -1,23 +1,29 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_17_3_SchemeTheoreticDensity
-public import stacks_project.Chap67.Lemma_67_16_6_SchemeTheoreticImage
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Open.SchemeTheoreticClosure
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Open.SchemeTheoreticDensity
 import StacksCheckRecall
 
 @[expose] public section
 
+open CategoryTheory AlgebraicGeometry
+
+universe u
+
 /- Definition 67.17.3 (1): the scheme-theoretic closure of an open subspace `U`
 of an algebraic space `X` over a scheme `S` is the scheme-theoretic image of the
 open immersion `U ⟶ X`. -/
-@[stacks 0834] #check AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticImage
+@[stacks 0834] #check (AlgebraicGeometry.AlgebraicSpace.Open.isSchemeTheoreticClosure_iff :
+  ∀ {S : Scheme.{u}} {X U Z : AlgebraicSpace S} (j : U ⟶ X)
+    [AlgebraicSpace.IsOpenImmersion j] (toClosure : U ⟶ Z) (i : Z ⟶ X),
+    AlgebraicSpace.Open.IsSchemeTheoreticClosure j toClosure i ↔
+      AlgebraicSpace.IsSchemeTheoreticImage j toClosure i)
 
 /- Definition 67.17.3 (2): an open subspace `U` of an algebraic space `X` over a
 scheme `S` is scheme-theoretically dense in `X` if the equivalent conditions of
 Lemma 67.17.2 are satisfied. -/
-@[stacks 0834] #check AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticallyDense
+@[stacks 0834] #check (AlgebraicGeometry.AlgebraicSpace.Open.isSchemeTheoreticallyDense_iff_forallEtale :
+  ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X)
+    [AlgebraicSpace.IsOpenImmersion ι],
+    AlgebraicSpace.Open.IsSchemeTheoreticallyDense ι ↔
+      AlgebraicSpace.SchemeTheoreticDensity.forallEtale ι)

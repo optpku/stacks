@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowGroup.FlatPullback
@@ -58,7 +52,8 @@ def IsChernClassCap
               @reindex P
                 (@LocallyOfFiniteType.isLocallyNoetherian _ _ (π ≫ p)
                   (Formula.locallyOfFiniteTypeComp hπ p (q + 1)) inferInstance)
-                ((π ≫ p).relativeDimensionFunction δ)
+                (@Scheme.Hom.relativeDimensionFunction _ _ (π ≫ p)
+                  (Formula.locallyOfFiniteTypeComp hπ p (q + 1)) δ)
                 (@instIsDimensionFunctionRelativeDimensionFunction _ _ (π ≫ p)
                   inferInstance (Formula.locallyOfFiniteTypeComp hπ p (q + 1)) δ inferInstance)
                 ((k - (i.rev : ℕ)) + (q : ℤ) - (i : ℕ)) (k - 1)
@@ -95,7 +90,8 @@ theorem isChernClassCap_iff
                   @reindex P
                     (@LocallyOfFiniteType.isLocallyNoetherian _ _ (π ≫ p)
                       (Formula.locallyOfFiniteTypeComp hπ p (q + 1)) inferInstance)
-                    ((π ≫ p).relativeDimensionFunction δ)
+                    (@Scheme.Hom.relativeDimensionFunction _ _ (π ≫ p)
+                      (Formula.locallyOfFiniteTypeComp hπ p (q + 1)) δ)
                     (@instIsDimensionFunctionRelativeDimensionFunction _ _ (π ≫ p)
                       inferInstance (Formula.locallyOfFiniteTypeComp hπ p (q + 1)) δ inferInstance)
                     ((k - (i.rev : ℕ)) + (q : ℤ) - (i : ℕ)) (k - 1)

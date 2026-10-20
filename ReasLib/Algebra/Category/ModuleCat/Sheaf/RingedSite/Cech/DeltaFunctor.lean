@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Cech.Exact
@@ -66,7 +60,7 @@ noncomputable def deltaFunctor :
 /-- The degree branches of `deltaFunctor` are the canonical Cech cohomology functors. -/
 @[simp]
 theorem deltaFunctor_obj (n : ℕ) :
-    ((deltaFunctor 𝒪 U family n).obj) =
+    (((deltaFunctor 𝒪 U family).F n).obj) =
       cechComplex 𝒪 U family ⋙
         HomologicalComplex.homologyFunctor
           (ModuleCat.{w} (𝒪.obj.obj (op U))) (ComplexShape.up ℕ) n := sorry
@@ -76,7 +70,7 @@ object. -/
 @[simp]
 theorem deltaFunctor_obj_obj
     (n : ℕ) (M : PresheafOfModules.{w} 𝒪.obj) :
-    ((deltaFunctor 𝒪 U family n).obj).obj M =
+    (((deltaFunctor 𝒪 U family).F n).obj).obj M =
       cechCohomology 𝒪 U family M n := sorry
 
 /-- The connecting map of `deltaFunctor` is the boundary map of the mapped short exact

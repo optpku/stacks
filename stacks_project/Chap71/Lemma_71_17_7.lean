@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_48_6_Reduced
-public import stacks_project.Chap71.Definition_71_17_1_Blowup
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Blowup.Reduced
+import StacksCheckRecall
 
 /-!
 # Reducedness of blowups of reduced algebraic spaces
@@ -17,18 +11,13 @@ public import stacks_project.Chap71.Definition_71_17_1_Blowup
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Blowup
-
-/-- Lemma 71.17.7: let `S` be a scheme. Let `X` be an algebraic space over `S`.
+/- Lemma 71.17.7: let `S` be a scheme. Let `X` be an algebraic space over `S`.
 Let `I ⊂ 𝒪_X` be a quasi-coherent sheaf of ideals. If `X` is reduced, then the
 blowup of `X` in `I` is reduced. -/
-@[stacks 085W]
-instance instIsReduced {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {I : IdealSubobject X} [IsQuasiCoherent I] (π : Blowup X I) [IsReduced X] :
-    IsReduced π.space := sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Blowup
+@[stacks 085W] #check
+  (AlgebraicGeometry.AlgebraicSpace.Blowup.isReduced :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+      {I : IdealSubobject X} [IsQuasiCoherent I] (π : Blowup X I) [IsReduced X],
+      IsReduced π.space)

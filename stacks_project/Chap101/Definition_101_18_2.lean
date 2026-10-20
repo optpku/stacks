@@ -1,19 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_18_4_FiniteTypePoint
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.FiniteTypePoints
 import StacksCheckRecall
 
 /-!
 # Definition 101.18.2
 
 The finite type point predicate and its set-level API for algebraic stacks are
-owned by `stacks_project.Chap101.Lemma_101_18_4_FiniteTypePoint`.
+owned by `ReasLib.AlgebraicGeometry.AlgebraicStack.FiniteTypePoints`.
 
 @stack 06FY
 -/
@@ -28,28 +22,28 @@ the equivalent conditions of Lemma 101.18.1 hold (a locally finite type point
 would be more accurate). The set of such points is X_ft-pts, recovered as
 finiteTypePoints X.
 -/
-@[stacks 06FY] #check (@AlgebraicGeometry.AlgebraicStack.IsFiniteTypePoint :
-  {S : AlgebraicGeometry.Scheme.{u}} → {X : AlgebraicGeometry.GroupoidsOver S} →
-    [AlgebraicGeometry.AlgebraicStack X] →
+@[stacks 06FY] #check (AlgebraicGeometry.AlgebraicStack.IsFiniteTypePoint :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {X : AlgebraicGeometry.GroupoidsOver S}
+    [AlgebraicGeometry.AlgebraicStack X],
       AlgebraicGeometry.AlgebraicStack.Points X → Prop)
 
-#check (@AlgebraicGeometry.AlgebraicStack.isFiniteTypePoint_iff :
-  {S : AlgebraicGeometry.Scheme.{u}} → {X : AlgebraicGeometry.GroupoidsOver S} →
-    [AlgebraicGeometry.AlgebraicStack X] →
-      (x : AlgebraicGeometry.AlgebraicStack.Points X) →
+#check (AlgebraicGeometry.AlgebraicStack.isFiniteTypePoint_iff :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {X : AlgebraicGeometry.GroupoidsOver S}
+    [AlgebraicGeometry.AlgebraicStack X]
+      (x : AlgebraicGeometry.AlgebraicStack.Points X),
         AlgebraicGeometry.AlgebraicStack.IsFiniteTypePoint x ↔
           ∃ p : AlgebraicGeometry.AlgebraicStack.FieldValuedPoint X,
             AlgebraicGeometry.AlgebraicStack.LocallyOfFiniteType p.hom ∧
               AlgebraicGeometry.AlgebraicStack.Points.mk p = x)
 
-#check (@AlgebraicGeometry.AlgebraicStack.finiteTypePoints :
-  {S : AlgebraicGeometry.Scheme.{u}} → (X : AlgebraicGeometry.GroupoidsOver S) →
-    [AlgebraicGeometry.AlgebraicStack X] →
+#check (AlgebraicGeometry.AlgebraicStack.finiteTypePoints :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.GroupoidsOver S)
+    [AlgebraicGeometry.AlgebraicStack X],
       Set (AlgebraicGeometry.AlgebraicStack.Points X))
 
-#check (@AlgebraicGeometry.AlgebraicStack.mem_finiteTypePoints_iff :
-  {S : AlgebraicGeometry.Scheme.{u}} → {X : AlgebraicGeometry.GroupoidsOver S} →
-    [AlgebraicGeometry.AlgebraicStack X] →
-      {x : AlgebraicGeometry.AlgebraicStack.Points X} →
+#check (AlgebraicGeometry.AlgebraicStack.mem_finiteTypePoints_iff :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {X : AlgebraicGeometry.GroupoidsOver S}
+    [AlgebraicGeometry.AlgebraicStack X]
+      {x : AlgebraicGeometry.AlgebraicStack.Points X},
         x ∈ AlgebraicGeometry.AlgebraicStack.finiteTypePoints X ↔
           AlgebraicGeometry.AlgebraicStack.IsFiniteTypePoint x)

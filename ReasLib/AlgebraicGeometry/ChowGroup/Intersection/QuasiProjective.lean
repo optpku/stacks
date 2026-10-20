@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowGroup.Intersection
@@ -14,10 +8,10 @@ universe u
 
 namespace AlgebraicGeometry.CycleGroup
 
-/-- On a regular quasi-projective variety, a proper intersection with a rationally trivial
-cycle is rationally trivial. -/
+/-- On a regular quasi-projective variety over an algebraically closed field, a proper
+intersection with a rationally trivial cycle is rationally trivial. -/
 theorem intersection_rationallyEquivalent_zero_of_quasiProjective
-    {k : Type u} [Field k]
+    {k : Type u} [Field k] [IsAlgClosed k]
     (X : SchemeOverField k) [QuasiProjectiveVariety X] [Scheme.Regular X.left]
     (r s : ℤ)
     (α : CycleGroup X.left (X.hom.relativeDimensionFunction (fun _ ↦ 0)) r)

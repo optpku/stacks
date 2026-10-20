@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Noetherian
-public import stacks_project.Chap61.Definition_61_28_1
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.ProEtale.AdicSheaf
+import StacksCheckRecall
 
 /-!
 # Lemma 61.28.5
@@ -27,23 +20,20 @@ universe u w
 
 namespace AlgebraicGeometry.Scheme.ProEt
 
-variable {X : Scheme.{u}} {Λ : Type w} [CommRing Λ] [IsNoetherianRing Λ]
-variable [HasWeakSheafify (topology X) (ModuleCat.{w} Λ)]
-variable [∀ U : X.ProEt, HasWeakSheafify ((topology X).over U) (ModuleCat.{w} Λ)]
-variable [∀ {Y : Scheme.{u}} (f : Y ⟶ X) (P : X.ProEtᵒᵖ ⥤ ModuleCat.{w} Λ),
-  (baseChange f).op.HasLeftKanExtension P]
-variable [∀ {Y : Scheme.{u}}, HasWeakSheafify (topology Y) (ModuleCat.{w} Λ)]
-variable [∀ {Y : Scheme.{u}} (U : Y.ProEt),
-  HasWeakSheafify ((topology Y).over U) (ModuleCat.{w} Λ)]
-
-variable (I : Ideal Λ) (F : Sheaf (topology X) (ModuleCat.{w} Λ))
-
-/-- Lemma 61.28.5: if `X` is a Noetherian scheme, `Λ` is a Noetherian ring, and `I ⊆ Λ` is an
+/- Lemma 61.28.5: if `X` is a Noetherian scheme, `Λ` is a Noetherian ring, and `I ⊆ Λ` is an
 ideal, then every constructible `Λ`-sheaf on `X_proétale` is adic constructible. -/
-@[stacks 09BX]
-instance instIsAdicConstructible_of_isConstructibleLambdaSheaf
-    [IsNoetherian X] [IsConstructibleLambdaSheaf I F] :
-    IsAdicConstructible I F :=
-  sorry
+@[stacks 09BX] #check
+  (AlgebraicGeometry.Scheme.ProEt.instIsAdicConstructible_of_isConstructibleLambdaSheaf :
+    ∀ {X : Scheme.{u}} {Λ : Type w} [CommRing Λ] [IsNoetherianRing Λ]
+      [HasWeakSheafify (topology X) (ModuleCat.{w} Λ)]
+      [∀ U : X.ProEt, HasWeakSheafify ((topology X).over U) (ModuleCat.{w} Λ)]
+      [∀ {Y : Scheme.{u}} (f : Y ⟶ X) (P : X.ProEtᵒᵖ ⥤ ModuleCat.{w} Λ),
+        (baseChange f).op.HasLeftKanExtension P]
+      [∀ {Y : Scheme.{u}}, HasWeakSheafify (topology Y) (ModuleCat.{w} Λ)]
+      [∀ {Y : Scheme.{u}} (U : Y.ProEt),
+        HasWeakSheafify ((topology Y).over U) (ModuleCat.{w} Λ)]
+      (I : Ideal Λ) (F : Sheaf (topology X) (ModuleCat.{w} Λ))
+      [IsNoetherian X] [IsConstructibleLambdaSheaf I F],
+      IsAdicConstructible I F)
 
 end AlgebraicGeometry.Scheme.ProEt

@@ -1,16 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.«66_26_0_1_Pushforward»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.DirectImage
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.GeometricPullback
-public import stacks_project.Chap71.Definition_71_10_3_MeromorphicSection
-public import stacks_project.Chap71.Definition_71_10_6_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Meromorphic.Sections
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.MeromorphicFunction.Pullback
 
 /-! # Actual module sections on the small étale squares
 

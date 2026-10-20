@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.ExactFunctor
@@ -19,11 +13,11 @@ public import ReasLib.CategoryTheory.DerivedCategory.Functor.Colimit.Point
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
-# Connected derived colimits over a point
+# Constant-colimit counits over a point
 
-This leaf owns the counit of the constant-diagram/colimit adjunction and its derived analogue for
-presheaves.  Connectedness is the reusable core; the initial/final-object hypothesis is exposed
-only as a bridge to that core.
+The counit of the constant-diagram/colimit adjunction is invertible for a connected indexing
+category. Its derived analogue is invertible when the indexing category has an initial or
+terminal object.
 -/
 
 @[expose] public section
@@ -132,13 +126,8 @@ noncomputable abbrev derivedColimitCounit :
       (HomotopyCategory.quasiIso (Cᵒᵖ ⥤ A) (up ℤ)))
     ((Functor.const (Cᵒᵖ) : A ⥤ Cᵒᵖ ⥤ A).mapDerivedCategoryFactorsh.inv)
 
-/-- Lemma 21.39.5 (08Q7), connected form: the derived lower-shriek counit is invertible. -/
-@[stacks 08Q7 "connected derived lower-shriek counit"]
-instance derivedColimitCounit_isIso [IsConnected C] :
-    IsIso (derivedColimitCounit (C := C) (A := A)) := sorry
-
 /-- An initial or final object gives an invertible derived lower-shriek counit with coefficients
-in any abelian category. This is the coefficient-general bridge to the connected core. -/
+in any abelian category. -/
 @[stacks 08Q7 "coefficient-general initial-or-final derived lower-shriek counit"]
 theorem derivedColimitCounit_isIso_of_hasInitial_or_hasTerminal
     (hC : Nonempty (Limits.HasInitial C) ∨ Nonempty (Limits.HasTerminal C)) :
@@ -161,7 +150,7 @@ variable [Functor.HasLeftDerivedFunctor
       DerivedCategory.{q'} AddCommGrpCat)
   (HomotopyCategory.quasiIso (Cᵒᵖ ⥤ AddCommGrpCat) (up ℤ))]
 
-/-- Lemma 21.39.5 (1) (08Q7): if `C` has an initial or final object, then the derived
+/-- If `C` has an initial or final object, then the derived
 lower-shriek counit is invertible on the derived category of abelian groups. -/
 @[stacks 08Q7 "abelian initial-or-final derived lower-shriek counit"]
 theorem derivedColimitCounit_isIso_of_hasInitial_or_hasTerminal_abelian
@@ -182,7 +171,7 @@ variable [Functor.HasLeftDerivedFunctor
       DerivedCategory.{q'} (ModuleCat B))
   (HomotopyCategory.quasiIso (Cᵒᵖ ⥤ ModuleCat B) (up ℤ))]
 
-/-- Lemma 21.39.5 (2) (08Q7): for a ring `B`, if `C` has an initial or final object, then the
+/-- For a ring `B`, if `C` has an initial or final object, then the
 derived lower-shriek counit is invertible on the derived category of `B`-modules. -/
 @[stacks 08Q7 "module initial-or-final derived lower-shriek counit"]
 theorem derivedColimitCounit_isIso_of_hasInitial_or_hasTerminal_module

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_31_1_FiberDimension
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FiberDimension.Target
+import StacksCheckRecall
 
 /-!
 # Dimension of fibres of finite type morphisms of algebraic spaces
@@ -16,17 +11,11 @@ dimension at a point equals the dimension of any field-valued fibre over a
 representative of that point.
 -/
 
-@[expose] public section
-
-open CategoryTheory AlgebraicGeometry
-
-noncomputable section
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 76.31.1: Let `S` be a scheme. Let `f : X ⟶ Y` be a finite type
+/- Lemma 76.31.1: Let `S` be a scheme. Let `f : X ⟶ Y` be a finite type
 morphism of algebraic spaces over `S`. Let `y` be a point of `Y`, represented
 by a field-valued point `p`. Then the fibre dimension of `f` at `y` equals the
 dimension of the algebraic space `fieldFiber f p`.
@@ -36,21 +25,21 @@ Quantity (1) is `fiberDimension f (Points.mk p)`, equal to `⊥` when
 `d : ℕ` such that `f` has relative dimension at most `d` at every point of `X`
 mapping to `y`. Quantity (2) is `dimension (fieldFiber f p)` for any
 representative `p` of `y`. -/
-@[stacks 0D4M]
-theorem fiberDimension_eq_dimension_fieldFiber {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [FiniteType f]
-    (p : FieldValuedPoint Y) :
-    fiberDimension f (Points.mk p) = dimension (fieldFiber f p) :=
-  sorry
+@[stacks 0D4M] #check
+  (AlgebraicGeometry.AlgebraicSpace.fiberDimension_eq_dimension_fieldFiber :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [FiniteType f]
+      (p : FieldValuedPoint Y),
+      fiberDimension f (Points.mk p) = dimension (fieldFiber f p))
 
-/-- The identification of fibre dimension with the dimension of
-`Spec(k) ×_Y X` for a representative morphism `Spec(k) ⟶ Y`. -/
-theorem fiberDimension_eq_dimension_fieldFiber_of {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [FiniteType f]
-    (k : Type u) [Field k] (σ : Spec (.of k) ⟶ S)
-    (g : ofOver (Over.mk σ) ⟶ Y) :
-    fiberDimension f (Points.mk (FieldValuedPoint.of k σ g)) =
-      dimension (fieldFiber f (FieldValuedPoint.of k σ g)) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.fiberDimension_eq_bot_iff :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [FiniteType f]
+    (y : Points Y), fiberDimension f y = ⊥ ↔ y ∉ Set.range (Points.map f))
 
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.fiberDimension_le_iff :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (y : Points Y) (d : ℕ),
+    fiberDimension f y ≤ (d : WithBot ℕ∞) ↔
+      ∀ x ∈ fiberOver f y, RelativeDimensionLEAt f d x)
+
+#check (AlgebraicGeometry.AlgebraicSpace.fiberDimension_lt_top :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [FiniteType f]
+    (y : Points Y), fiberDimension f y < ⊤)

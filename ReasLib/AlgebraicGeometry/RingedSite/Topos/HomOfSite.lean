@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Hom
@@ -32,23 +26,22 @@ variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
 
 /-- The type-valued inverse image of a morphism of ringed sites is left exact in every
 coefficient universe containing the site universes. -/
-noncomputable def baseSheafPullbackPreservesFiniteLimits (f : X.Hom Y)
+theorem baseSheafPullbackPreservesFiniteLimits (f : X.Hom Y)
     [UnivLE.{max uX vX, w}] [UnivLE.{max uY vY, w}]
     [UnivLE.{max uY vX, w}] :
     PreservesFiniteLimits
-      (f.base.sheafPullback (Type w) Y.siteTopology X.siteTopology) := sorry
+      (f.sheafPullback (A := Type w)) := sorry
 
 /-- The canonical coefficient-forgetful comparison for the direct image presented by a
 morphism of ringed sites. -/
 noncomputable def toToposHomForgetIso (f : X.Hom Y)
     [UnivLE.{max uX vX, w}] [UnivLE.{max uY vY, w}]
     [UnivLE.{max uY vX, w}] :
-    f.base.sheafPushforwardContinuous RingCat.{w}
-          Y.siteTopology X.siteTopology ⋙
+    f.sheafPushforwardContinuous (A := RingCat.{w}) ⋙
         sheafCompose Y.siteTopology (forget RingCat.{w}) ≅
       sheafCompose X.siteTopology (forget RingCat.{w}) ⋙
         (@Functor.morphismOfTopoiInOfContinuous _ _ _ _ f.base
-          Y.siteTopology X.siteTopology inferInstance inferInstance inferInstance
+          Y.siteTopology X.siteTopology f.base_isContinuous inferInstance inferInstance
           (baseSheafPullbackPreservesFiniteLimits f)).pushforward :=
   Iso.refl _
 
@@ -61,10 +54,9 @@ theorem toToposIsRingCompatible (f : X.Hom Y)
     [UnivLE.{max uY vX, w}] :
     @ToposHom.Direct.IsRingCompatible X Y hasX hasY
       (@Functor.morphismOfTopoiInOfContinuous _ _ _ _ f.base
-        Y.siteTopology X.siteTopology inferInstance inferInstance inferInstance
+        Y.siteTopology X.siteTopology f.base_isContinuous inferInstance inferInstance
         (baseSheafPullbackPreservesFiniteLimits f))
-      (f.base.sheafPushforwardContinuous RingCat.{w}
-        Y.siteTopology X.siteTopology)
+      (f.sheafPushforwardContinuous (A := RingCat.{w}))
       (toToposHomForgetIso f) f.structureSheafMap := sorry
 
 /-- The morphism of ringed topoi presented by a morphism of ringed sites, expressed using
@@ -77,14 +69,13 @@ noncomputable def toToposHom (f : X.Hom Y)
     [UnivLE.{max uY vX, w}] : ToposHom X Y :=
   @ToposHom.ofDirectImage X Y hasX hasY
     (@Functor.morphismOfTopoiInOfContinuous _ _ _ _ f.base
-      Y.siteTopology X.siteTopology inferInstance inferInstance inferInstance
+      Y.siteTopology X.siteTopology f.base_isContinuous inferInstance inferInstance
       (baseSheafPullbackPreservesFiniteLimits f))
-    (f.base.sheafPushforwardContinuous RingCat.{w}
-      Y.siteTopology X.siteTopology)
+    (f.sheafPushforwardContinuous (A := RingCat.{w}))
     (toToposHomForgetIso f) f.structureSheafMap
     (toToposIsRingCompatible f)
 
--- Every non-Prop field is inherited directly from the continuous site presentation; the only
--- deferred obligation below is the Prop-valued left-exactness fact.
+-- Every non-Prop field is inherited directly from the continuous site presentation;
+-- left exactness and ring compatibility remain Prop-valued obligations.
 
 end RingedSite.Hom

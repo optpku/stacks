@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Topology.Sober
-public import stacks_project.Chap66.Lemma_66_4_6_Topology
-public import stacks_project.Chap68.Lemma_68_12_8_Decent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Sober
+import StacksCheckRecall
 
 /-!
 # Decent algebraic spaces have sober points
@@ -25,24 +18,18 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Proposition 68.12.4: Let `S` be a scheme. Let `X` be a decent algebraic space
+/- Proposition 68.12.4: Let `S` be a scheme. Let `X` be a decent algebraic space
 over `S`. Then the topological space `Points X` is sober in the sense of Topology,
 Definition 5.8.6, i.e. a `T0Space` and `QuasiSober`. -/
-@[stacks 03K6]
-theorem points_sober_of_isDecent {S : Scheme.{u}} (X : AlgebraicSpace S) [IsDecent X] :
-    T0Space (Points X) ∧ QuasiSober (Points X) :=
-  sorry
+@[stacks 03K6] #check (AlgebraicGeometry.AlgebraicSpace.points_sober_of_isDecent :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [IsDecent X],
+    T0Space (Points X) ∧ QuasiSober (Points X))
 
-/-- The space of points of a decent algebraic space is quasi-sober. -/
-instance instQuasiSoberPoints {S : Scheme.{u}} (X : AlgebraicSpace S) [IsDecent X] :
-    QuasiSober (Points X) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.instQuasiSoberPoints :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [IsDecent X], QuasiSober (Points X))
 
-/-- Every irreducible closed subset of `Points X` has a unique generic point. -/
-theorem existsUnique_isGenericPoint_of_isDecent {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [IsDecent X] {T : Set (Points X)} (hT_irred : IsIrreducible T)
-    (hT_closed : IsClosed T) :
-    ∃! x : Points X, IsGenericPoint x T :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.existsUnique_isGenericPoint_of_isDecent :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X] {T : Set (Points X)},
+    IsIrreducible T → IsClosed T → ∃! x : Points X, IsGenericPoint x T)
 
 end AlgebraicGeometry.AlgebraicSpace

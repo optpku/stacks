@@ -1,15 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_42_8_Algebraization
-public import stacks_project.Chap76.Lemma_76_42_8_Annihilation
-public import stacks_project.Chap76.Lemma_76_42_8_Completion
-public import stacks_project.Chap76.Lemma_76_42_8_FormalModules
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CoherentFormalModule.Algebraization
 import StacksCheckRecall
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory
@@ -23,4 +14,13 @@ a power of I algebraizes uniquely up to unique isomorphism to a coherent module
 F, a map a : F ⟶ G of the same torsion type, and an isomorphism
 β : (F_n) ≅ F^∧ with α = a^∧ ∘ β. -/
 @[stacks 08BB] #check
-  AlgebraicGeometry.AlgebraicSpace.CoherentCompletion.existsUnique_algebraization_to
+  (AlgebraicGeometry.AlgebraicSpace.CoherentCompletion.existsUnique_algebraization_to :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNoetherian X]
+      {I : IdealSubobject X} [IsQuasiCoherent I]
+      (E : CoherentFormalModules X I) (G : Coh X)
+      (alpha : E ⟶ (CoherentCompletion.functor I).obj G),
+      CoherentFormalMap.StagesHaveUniformKernelCokernelAnnihilation I alpha →
+        ∃ z : FormalMapToCompletionAlgebraization E G alpha,
+          ∀ z' : FormalMapToCompletionAlgebraization E G alpha,
+            ∃! e : z.F ≅ z'.F,
+              FormalMapToCompletionAlgebraization.IsomorphismCompatible z z' e)

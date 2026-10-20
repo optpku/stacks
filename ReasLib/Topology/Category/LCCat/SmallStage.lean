@@ -1,13 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Category.LCCat.Sites
+public import Mathlib.CategoryTheory.Adjunction.Limits
 public import Mathlib.CategoryTheory.Countable
+public import Mathlib.CategoryTheory.ObjectProperty.Equivalence
 public import Mathlib.CategoryTheory.ObjectProperty.Small
 public import Mathlib.CategoryTheory.ObjectProperty.LimitsClosure
 public import Mathlib.CategoryTheory.ObjectProperty.ColimitsCardinalClosure
@@ -33,49 +29,72 @@ namespace LCCat.SmallStage
 
 /-! ### Size and closure predicates -/
 
-/-- A cardinal bound has the closure points required by the set-theoretic replacement step in
-Remark 21.31.5.  In a foundational development this condition is supplied by the chosen
-replacement theorem for the universe of sets. -/
-def IsReplacementBound (Bound : Cardinal.{u} → Cardinal.{u}) : Prop :=
-  ∀ κ : Cardinal.{u}, ∃ κ' : Cardinal.{u},
-    κ ≤ κ' ∧ Order.succ Cardinal.aleph0.{u} ≤ κ' ∧
-      ∀ ⦃μ : Cardinal.{u}⦄, μ ≤ κ' → Bound μ ≤ κ'
-
-/-- A stage is closed under every countable diagram shape represented in the stage universe. -/
+/-- A property of objects of `LCCat` is closed under countable limits up to isomorphism: whenever
+a countable diagram of objects satisfying `P` has a limit in `LCCat`, that limit is isomorphic to
+an object satisfying `P`.  Equivalently, the isomorphism closure of `P` is closed under limits of
+every countable shape `J : Type u`.  The closure is only up to isomorphism because a set-sized
+stage keeps one representative per object, never a whole isomorphism class. -/
 class IsClosedUnderCountableLimits (P : ObjectProperty LCCat.{u}) : Prop where
-  isClosedUnderLimitsOfShape {J : Type u} [SmallCategory J] [CountableCategory J] :
-    P.IsClosedUnderLimitsOfShape J
+  isoClosure_isClosedUnderLimitsOfShape {J : Type u} [SmallCategory J] [CountableCategory J] :
+    P.isoClosure.IsClosedUnderLimitsOfShape J
 
-/-- A stage is closed under every countable colimit shape represented in the stage universe. -/
+/-- A property of objects of `LCCat` is closed under countable colimits up to isomorphism: the
+isomorphism closure of `P` is closed under colimits of every countable shape `J : Type u`. -/
 class IsClosedUnderCountableColimits (P : ObjectProperty LCCat.{u}) : Prop where
-  isClosedUnderColimitsOfShape {J : Type u} [SmallCategory J] [CountableCategory J] :
-    P.IsClosedUnderColimitsOfShape J
+  isoClosure_isClosedUnderColimitsOfShape {J : Type u} [SmallCategory J] [CountableCategory J] :
+    P.isoClosure.IsClosedUnderColimitsOfShape J
 
-/-- Typeclass access to the limit closure of any represented countable shape. -/
+/-- Typeclass access to the closure of `P.isoClosure` under limits of a countable shape. -/
 instance instIsClosedUnderCountableLimitShape
     (P : ObjectProperty LCCat.{u}) [IsClosedUnderCountableLimits P]
     {J : Type u} [SmallCategory J] [CountableCategory J] :
-    P.IsClosedUnderLimitsOfShape J := sorry
+    P.isoClosure.IsClosedUnderLimitsOfShape J :=
+  IsClosedUnderCountableLimits.isoClosure_isClosedUnderLimitsOfShape
 
-/-- Typeclass access to the colimit closure of any represented countable shape. -/
+/-- Typeclass access to the closure of `P.isoClosure` under colimits of a countable shape. -/
 instance instIsClosedUnderCountableColimitShape
     (P : ObjectProperty LCCat.{u}) [IsClosedUnderCountableColimits P]
     {J : Type u} [SmallCategory J] [CountableCategory J] :
-    P.IsClosedUnderColimitsOfShape J := sorry
+    P.isoClosure.IsClosedUnderColimitsOfShape J :=
+  IsClosedUnderCountableColimits.isoClosure_isClosedUnderColimitsOfShape
 
-/-- The bounded-size replacement clause for a stage property.  The conclusion uses the canonical
-`isoClosure` owner, so downstream arguments need not unpack a witness object or an isomorphism. -/
+/-- A limit in `LCCat` of a countable diagram in `P` is isomorphic to an object of `P`. -/
+theorem limitsOfShape_le_isoClosure
+    (P : ObjectProperty LCCat.{u}) [IsClosedUnderCountableLimits P]
+    (J : Type u) [SmallCategory J] [CountableCategory J] :
+    P.limitsOfShape J ≤ P.isoClosure := by
+  rw [← ObjectProperty.limitsOfShape_isoClosure]
+  exact ObjectProperty.IsClosedUnderLimitsOfShape.limitsOfShape_le P.isoClosure J
+
+/-- A colimit in `LCCat` of a countable diagram in `P` is isomorphic to an object of `P`. -/
+theorem colimitsOfShape_le_isoClosure
+    (P : ObjectProperty LCCat.{u}) [IsClosedUnderCountableColimits P]
+    (J : Type u) [SmallCategory J] [CountableCategory J] :
+    P.colimitsOfShape J ≤ P.isoClosure := by
+  rw [← ObjectProperty.colimitsOfShape_isoClosure]
+  exact ObjectProperty.IsClosedUnderColimitsOfShape.colimitsOfShape_le P.isoClosure J
+
+/-- The bounded-size clause for a property of objects: if `P X` and the underlying set of `Y`
+has cardinality at most `Bound (size X)`, then `Y` is isomorphic to an object satisfying `P`. -/
 def IsClosedUnderBoundedSize
     (P : ObjectProperty LCCat.{u}) (Bound : Cardinal.{u} → Cardinal.{u}) : Prop :=
   ∀ ⦃X Y : LCCat.{u}⦄, P X →
     Cardinal.mk Y.obj ≤ Bound (Cardinal.mk X.obj) → P.isoClosure Y
 
-/-- Countable-limit closure gives the pullback closure needed by the qc pretopology.  The proof
-also transports the countable shape from its canonical small representative to `WalkingCospan`. -/
+/-- Closure under countable limits up to isomorphism implies that `P.isoClosure` is closed under
+pullbacks: `WalkingCospan` is finite, and is equivalent to its countable representative in
+`Type u`. -/
 @[stacks 09X2 "countable limits imply pullback closure"]
 instance instIsClosedUnderPullbacks
     (P : ObjectProperty LCCat.{u}) [IsClosedUnderCountableLimits P] :
-    P.IsClosedUnderLimitsOfShape WalkingCospan := sorry
+    P.isoClosure.IsClosedUnderLimitsOfShape WalkingCospan := sorry
+
+/-- A full subcategory of `LCCat` whose isomorphism closure is closed under pullbacks has
+pullbacks: it is equivalent to the full subcategory on its isomorphism closure. -/
+instance instHasPullbacks
+    (P : ObjectProperty LCCat.{u}) [P.isoClosure.IsClosedUnderLimitsOfShape WalkingCospan] :
+    HasPullbacks P.FullSubcategory :=
+  Adjunction.hasLimitsOfShape_of_equivalence (ObjectProperty.ιOfLE P.le_isoClosure)
 
 /-! ### The canonical qc site on a full subcategory -/
 
@@ -129,27 +148,27 @@ instance instQcPrecoverageIsStableUnderComposition
 
 /-- The qc precoverage on a pullback-closed stage has the base-change axiom. -/
 instance instQcPrecoverageIsStableUnderBaseChange
-    (P : ObjectProperty LCCat.{u}) [P.IsClosedUnderLimitsOfShape WalkingCospan] :
+    (P : ObjectProperty LCCat.{u}) [P.isoClosure.IsClosedUnderLimitsOfShape WalkingCospan] :
     (qcPrecoverage P).IsStableUnderBaseChange := sorry
 
 /-- The qc pretopology on a pullback-closed stage is obtained from the canonical qc precoverage. -/
 @[stacks 09X2 "qc pretopology on a small full subcategory"]
 def qcPretopology (P : ObjectProperty LCCat.{u})
-    [P.IsClosedUnderLimitsOfShape WalkingCospan] :
+    [P.isoClosure.IsClosedUnderLimitsOfShape WalkingCospan] :
     Pretopology P.FullSubcategory :=
   (qcPrecoverage P).toPretopology
 
 /-- The Grothendieck topology generated by the canonical qc pretopology on a stage. -/
 @[stacks 09X2 "qc topology on a small full subcategory"]
 def qcTopology (P : ObjectProperty LCCat.{u})
-    [P.IsClosedUnderLimitsOfShape WalkingCospan] :
+    [P.isoClosure.IsClosedUnderLimitsOfShape WalkingCospan] :
     GrothendieckTopology P.FullSubcategory :=
   (qcPretopology P).toGrothendieck
 
 @[simp]
 theorem isCovering_qcPretopology_iff
     {P : ObjectProperty LCCat.{u}}
-    [P.IsClosedUnderLimitsOfShape WalkingCospan]
+    [P.isoClosure.IsClosedUnderLimitsOfShape WalkingCospan]
     {U : P.FullSubcategory} {𝒰 : SemiRepresentableFamily.Over.{w} U} :
     𝒰.IsCovering (qcPretopology P).toPrecoverage ↔
       𝒰.IsCovering (qcPrecoverage P) := sorry
@@ -160,20 +179,23 @@ end LCCat.SmallStage
 
 namespace LCCat
 
-/-- A small stage packages its concrete object property together with the closure and replacement
-conditions used in Remark 21.31.5.  Its canonical qc site is
+/-- A small stage of `LCCat` for a cardinal function `Bound`: a set (a `u`-small family) of
+representative objects whose countable limits and colimits existing in `LCCat` are isomorphic to
+members, and which contains, up to isomorphism, every space of size at most `Bound (size X)` for
+each member `X`.  The property itself is not closed under isomorphisms.  Its canonical qc site is
 `SmallStage.qcTopology property`; no representative-covering set is hidden in this owner. -/
 @[stacks 09X2 "small stage owner"]
 structure SmallStage (Bound : Cardinal.{u} → Cardinal.{u}) where
-  /-- The objects retained by the stage. -/
+  /-- The representative objects retained by the stage. -/
   property : ObjectProperty LCCat.{u}
-  /-- The stage is small in the selected universe. -/
-  small : ObjectProperty.Small.{w} property
-  /-- Closure under countable limits. -/
+  /-- The representatives form a set: the stage is `u`-small. -/
+  small : ObjectProperty.Small.{u} property
+  /-- Countable limits existing in `LCCat` are isomorphic to objects of the stage. -/
   limits : SmallStage.IsClosedUnderCountableLimits property
-  /-- Closure under countable colimits. -/
+  /-- Countable colimits existing in `LCCat` are isomorphic to objects of the stage. -/
   colimits : SmallStage.IsClosedUnderCountableColimits property
-  /-- Closure under the source's cardinal replacement bound. -/
+  /-- Spaces of size at most `Bound (size X)`, for `X` in the stage, are isomorphic to objects of
+  the stage. -/
   boundedSize : SmallStage.IsClosedUnderBoundedSize property Bound
 
 end LCCat
@@ -182,49 +204,50 @@ namespace LCCat.SmallStage
 
 /-- Smallness is available to typeclass search for every bundled stage. -/
 instance instSmall {Bound : Cardinal.{u} → Cardinal.{u}}
-    (S : LCCat.SmallStage.{u, w} Bound) :
-    ObjectProperty.Small.{w} S.property := sorry
+    (S : LCCat.SmallStage.{u} Bound) :
+    ObjectProperty.Small.{u} S.property :=
+  S.small
 
 /-- Countable-limit closure is available to typeclass search for every bundled stage. -/
 instance instCountableLimits {Bound : Cardinal.{u} → Cardinal.{u}}
-    (S : LCCat.SmallStage.{u, w} Bound) :
-    IsClosedUnderCountableLimits S.property := sorry
+    (S : LCCat.SmallStage.{u} Bound) :
+    IsClosedUnderCountableLimits S.property :=
+  S.limits
 
 /-- Countable-colimit closure is available to typeclass search for every bundled stage. -/
 instance instCountableColimits {Bound : Cardinal.{u} → Cardinal.{u}}
-    (S : LCCat.SmallStage.{u, w} Bound) :
-    IsClosedUnderCountableColimits S.property := sorry
+    (S : LCCat.SmallStage.{u} Bound) :
+    IsClosedUnderCountableColimits S.property :=
+  S.colimits
 
 /-- The canonical qc precoverage associated with a bundled small stage. -/
 abbrev qcPrecoverageOf {Bound : Cardinal.{u} → Cardinal.{u}}
-    (S : SmallStage.{u, w} Bound) :
+    (S : SmallStage.{u} Bound) :
     Precoverage S.property.FullSubcategory :=
   qcPrecoverage S.property
 
 /-- The canonical qc pretopology associated with a bundled small stage. -/
 abbrev qcPretopologyOf {Bound : Cardinal.{u} → Cardinal.{u}}
-    (S : SmallStage.{u, w} Bound) :
+    (S : SmallStage.{u} Bound) :
     Pretopology S.property.FullSubcategory :=
   qcPretopology S.property
 
 /-- The canonical qc topology associated with a bundled small stage. -/
 abbrev qcTopologyOf {Bound : Cardinal.{u} → Cardinal.{u}}
-    (S : SmallStage.{u, w} Bound) :
+    (S : SmallStage.{u} Bound) :
     GrothendieckTopology S.property.FullSubcategory :=
   qcTopology S.property
 
 /-! ### The set-theoretic existence statement -/
 
-/-- Remark 21.31.5 (09X2): for a set-sized initial family `S₀` in `LCCat`, set-theoretic
-replacement supplies a small stage containing it, closed under all countable limits and colimits
-which exist in `LCCat`, and satisfying the chosen bounded-size clause.  The associated qc site is
-the canonical `qcTopology` above; the textbook's representative set `Cov` is therefore represented
-by this concrete precoverage rather than by an existential package. -/
+/-- For every cardinal function `Bound` and every set-indexed family `S₀` of objects of `LCCat`,
+there is a small stage for `Bound` containing every `S₀ i`.  The associated qc site is the
+canonical `qcTopology` above; a representative set of coverings is therefore given by this
+concrete precoverage rather than by an existential package. -/
 @[stacks 09X2]
 theorem exists_containing
-    {I : Type w} (Bound : Cardinal.{u} → Cardinal.{u})
-    (hBound : IsReplacementBound Bound) (S₀ : I → LCCat.{u}) :
-    ∃ S : SmallStage.{u, w} Bound, ∀ i, S.property (S₀ i) := sorry
+    {I : Type u} (Bound : Cardinal.{u} → Cardinal.{u}) (S₀ : I → LCCat.{u}) :
+    ∃ S : SmallStage.{u} Bound, ∀ i, S.property (S₀ i) := sorry
 
 end LCCat.SmallStage
 

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Cohomology.Acyclic
-public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Sections.Limit
-public import ReasLib.CategoryTheory.DerivedCategory.Limit.Sequential.Grothendieck
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Limit.Cohomology.Comparison
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -32,12 +25,6 @@ namespace AlgebraicGeometry.RingedSpace.ModuleDerived.Limit.Cohomology
 
 variable {X : RingedSpace.{u}}
 
-/-- The tower of underlying additive cohomology sheaves of a sequential system of derived modules. -/
-@[stacks 0BKU "cohomology-sheaf tower of a derived inverse system"]
-abbrev cohomologySheafTower (Ksys : SequentialInverseSystem (ModuleDerived X)) (q : ℤ) :
-    SequentialInverseSystem (X.carrier.Sheaf AddCommGrpCat.{u}) :=
-  Ksys ⋙ DerivedCategory.homologyFunctor X.Modules q ⋙ moduleUnderlyingSheaf X
-
 /-- The tower of degree-`q` section groups over a fixed open. -/
 @[stacks 0BKU "open section cohomology tower"]
 abbrev sectionCohomologyTower (Ksys : SequentialInverseSystem (ModuleDerived X))
@@ -51,9 +38,8 @@ def BasiswiseAcyclic (Ksys : SequentialInverseSystem (ModuleDerived X))
     (𝓑 : Set (Opens X.carrier)) (q : ℤ) : Prop :=
   ∀ n : ℕ, Basis.AcyclicIn (Ksys.obj (op n)) 𝓑 q
 
-/-- The source-facing additive-sheaf formulation of basiswise acyclicity.  It is kept as a
-bridge because `Sheaf.H'` needs an explicit `HasExt` instance, while the module-valued condition
-is the canonical core predicate. -/
+/-- The degree-`q` underlying additive cohomology sheaf of every stage has vanishing positive
+cohomology on every member of the basis. -/
 @[stacks 0BKU "basiswise acyclicity in the underlying sheaf view"]
 def SheafwiseAcyclic (Ksys : SequentialInverseSystem (ModuleDerived X))
     (𝓑 : Set (Opens X.carrier)) (q : ℤ)
@@ -70,7 +56,7 @@ theorem basiswiseAcyclic_iff_sheafwiseAcyclic
 
 namespace Comparison
 
-/-- Stacks 0BKU: basiswise acyclicity and vanishing of the section `R¹ lim` identify the degree-`q`
+/-- Basiswise acyclicity and vanishing of the section `R¹ lim` identify the degree-`q`
 cohomology sheaf of a sequential derived limit with the inverse limit of the stage cohomology
 sheaves. -/
 @[stacks 0BKU "basiswise derived-limit cohomology comparison"]
@@ -85,8 +71,9 @@ theorem isoLimit
     IsIsomorphic (Cohomology.sheaf X K q)
       (limit (cohomologySheafTower Ksys q)) := sorry
 
-/-- Source-facing companion of the basiswise derived-limit comparison, using the ordinary
-cohomology groups of the underlying additive cohomology sheaves. -/
+/-- Basiswise acyclicity of the underlying additive cohomology sheaves and vanishing of the
+section `R¹ lim` identify the degree-`q` cohomology sheaf of a derived limit with the inverse
+limit of the stage cohomology sheaves. -/
 @[stacks 0BKU "underlying-sheaf basiswise derived-limit comparison"]
 theorem isoLimitOfSheaves
     (Ksys : SequentialInverseSystem (ModuleDerived X)) (K : ModuleDerived X)

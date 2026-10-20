@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.ObjectProperty.ContainsZero
@@ -29,23 +23,29 @@ variable {C : Type u} [Category.{v} C] [HasZeroMorphisms C] [HasZeroObject C]
 
 namespace FilteredObject
 
-private noncomputable abbrev zeroObject : FilteredObject C where
+/-- The filtered object whose ambient object is zero and every stage is maximal. -/
+noncomputable abbrev zeroObject : FilteredObject C where
   obj := (0 : C)
   filtration :=
     { toFun := fun _ ↦ ⊤
       monotone' := fun _ _ _ ↦ le_rfl }
 
-private theorem isZero_zeroObject : IsZero (zeroObject : FilteredObject C) := sorry
+/-- The canonical zero filtered object is a zero object. -/
+theorem isZero_zeroObject : IsZero (zeroObject : FilteredObject C) := sorry
 
-noncomputable instance : HasZeroObject (FilteredObject C) :=
+/-- The zero object structure on filtered objects is induced by the ambient zero object. -/
+@[reducible] noncomputable def hasZeroObject : HasZeroObject (FilteredObject C) :=
   ⟨⟨zeroObject, isZero_zeroObject⟩⟩
 
-/-- Stacks 015S: the canonical zero filtered object has a finite filtration. -/
+/-- The canonical zero-object instance on filtered objects. -/
+noncomputable instance instHasZeroObject : HasZeroObject (FilteredObject C) := hasZeroObject
+
+/-- The canonical zero filtered object has a finite filtration. -/
 @[stacks 015S]
 theorem isFinite_zero : (0 : FilteredObject C).IsFinite := sorry
 
-/-- Stacks 015S: finite filtered objects contain a zero object, so their full subcategory has a
-canonical zero object. -/
+/-- Finite filtered objects contain a zero object, so their full subcategory has a canonical zero
+object. -/
 @[stacks 015S]
 instance isFinite_containsZero :
     ObjectProperty.ContainsZero (FilteredObject.IsFinite : ObjectProperty (FilteredObject C)) where

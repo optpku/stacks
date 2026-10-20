@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Flat
@@ -62,18 +56,26 @@ noncomputable def restrictCycle (f : X ⟶ S) [LocallyOfFiniteType f] {r : ℕ}
   supportLocallyFiniteWithinDomain' := fun x _ ↦
     restrict_locallyFiniteSupport f α U V φ hφ t x
 
+/-- Restricting a locally finite type morphism to opens in source and target preserves
+local finite type. -/
+theorem locallyOfFiniteType_restriction (f : X ⟶ S) [LocallyOfFiniteType f]
+    (U : X.Opens) (V : S.Opens) (φ : U.toScheme ⟶ V.toScheme)
+    (hφ : φ ≫ V.ι = U.ι ≫ f) : LocallyOfFiniteType φ := sorry
+
 /-- The restricted fibre cycle remains supported in dimension `r`. -/
 theorem restrictCycle_mem_dimensionSubgroup (f : X ⟶ S) [LocallyOfFiniteType f]
     {r : ℕ} (α : f.FiberCycleFamily r) (U : X.Opens) (V : S.Opens)
     (φ : U.toScheme ⟶ V.toScheme) (hφ : φ ≫ V.ι = U.ι ≫ f) (t : V.toScheme) :
     restrictCycle f α U V φ hφ t ∈ AlgebraicCycle.dimensionSubgroup
-      (φ.fiberDimensionFunction t) r := sorry
+      (@Scheme.Hom.fiberDimensionFunction _ _ φ
+      (locallyOfFiniteType_restriction f U V φ hφ) t) r := sorry
 
 /-- Restriction of a family of fibrewise `r`-cycles to a morphism of opens over `f`. -/
 noncomputable def restrict {f : X ⟶ S} [LocallyOfFiniteType f] {r : ℕ}
     (U : X.Opens) (V : S.Opens) (φ : U.toScheme ⟶ V.toScheme)
     (hφ : φ ≫ V.ι = U.ι ≫ f) (α : f.FiberCycleFamily r) :
-    φ.FiberCycleFamily r :=
+    @Scheme.Hom.FiberCycleFamily _ _ φ
+      (locallyOfFiniteType_restriction f U V φ hφ) r :=
   fun t ↦ ⟨restrictCycle f α U V φ hφ t,
     restrictCycle_mem_dimensionSubgroup f α U V φ hφ t⟩
 
@@ -82,7 +84,8 @@ theorem restrict_apply {f : X ⟶ S} [LocallyOfFiniteType f] {r : ℕ}
     (U : X.Opens) (V : S.Opens) (φ : U.toScheme ⟶ V.toScheme)
     (hφ : φ ≫ V.ι = U.ι ≫ f) (α : f.FiberCycleFamily r) (t : V.toScheme)
     (x : φ.fiber t) :
-    CycleGroup.toAlgebraicCycle (φ.fiberDimensionFunction t) r
+    CycleGroup.toAlgebraicCycle (@Scheme.Hom.fiberDimensionFunction _ _ φ
+      (locallyOfFiniteType_restriction f U V φ hφ) t) r
         (restrict U V φ hφ α t) x =
       CycleGroup.toAlgebraicCycle (f.fiberDimensionFunction (V.ι t)) r (α (V.ι t))
         (restrictFiberMap f U V φ hφ t x) := sorry

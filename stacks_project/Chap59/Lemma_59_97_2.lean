@@ -1,23 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap59.Lemma_59_91_12_BaseChange
-public import stacks_project.Chap59.Lemma_59_92_3_BaseChange
-public import stacks_project.Chap59.Theorem_59_51_3_Cohomology
-public import ReasLib.Algebra.Homology.DerivedCategory.AddCommGrpCat
-public import ReasLib.AlgebraicGeometry.Scheme.OverField
-public import ReasLib.AlgebraicGeometry.Scheme.Algebraic
-public import ReasLib.CategoryTheory.DerivedCategory.CohomologyIn.Bounded
-public import ReasLib.CategoryTheory.DerivedCategory.Functor.TotalRightDerived.Cochain
-public import ReasLib.CategoryTheory.DerivedCategory.Monoidal.Tensor
-public import Mathlib.AlgebraicGeometry.Morphisms.Proper
-public import Mathlib.FieldTheory.IsSepClosed
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Cohomology.Kunneth
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -57,14 +41,13 @@ variable [∀ {A B : Scheme.{u}} (h : A ⟶ B),
       B.smallEtaleTopology A.smallEtaleTopology).IsRightAdjoint]
 variable [∀ Z : Scheme.{u},
     HasDerivedCategory.{u + 1} (Sheaf Z.smallEtaleTopology AddCommGrpCat.{u})]
-variable [MonoidalCategory AddCommGrpCat.{u}]
+variable [((pullback X.hom Y.hom).smallEtaleTopology.W
+    (A := AddCommGrpCat.{u})).IsMonoidal]
 variable [MonoidalPreadditive AddCommGrpCat.{u}]
 variable [∀ (K L : CochainComplex AddCommGrpCat.{u} ℤ),
     HomologicalComplex.HasMapBifunctor K L
       (curriedTensor AddCommGrpCat.{u}) (ComplexShape.up ℤ)]
-variable [hAbTensor : @DerivedTensor.Right.Has AddCommGrpCat.{u} _ _ _ _ _ _]
-variable [MonoidalCategory
-    (Sheaf (pullback X.hom Y.hom).smallEtaleTopology AddCommGrpCat.{u})]
+variable [hAbTensor : DerivedTensor.Right.Has (C := AddCommGrpCat.{u})]
 variable [MonoidalPreadditive
     (Sheaf (pullback X.hom Y.hom).smallEtaleTopology AddCommGrpCat.{u})]
 variable [∀ (K L : CochainComplex
@@ -74,9 +57,8 @@ variable [∀ (K L : CochainComplex
         (Sheaf (pullback X.hom Y.hom).smallEtaleTopology AddCommGrpCat.{u}))
       (ComplexShape.up ℤ)]
 variable [hXYTensor :
-    @DerivedTensor.Right.Has
-      (Sheaf (pullback X.hom Y.hom).smallEtaleTopology AddCommGrpCat.{u})
-      _ _ _ _ _ _]
+    DerivedTensor.Right.Has
+      (C := Sheaf (pullback X.hom Y.hom).smallEtaleTopology AddCommGrpCat.{u})]
 variable [∀ Z : Scheme.{u},
     ((sheafSections Z.smallEtaleTopology AddCommGrpCat.{u}).obj
       (op (globalEtale Z))).Additive]
@@ -88,18 +70,14 @@ variable [∀ Z : Scheme.{u},
       (HomologicalComplex.quasiIso
         (Sheaf Z.smallEtaleTopology AddCommGrpCat.{u}) (ComplexShape.up ℤ))]
 
-/-- Lemma 59.97.2 (1): if `k` is a separably closed field, `X` is proper over `k`,
-`Y` is quasi-compact and quasi-separated over `k`, `E ∈ D⁺(X_étale)` has torsion
-cohomology sheaves, and `K ∈ D⁺(Y_étale)`, then
-`RΓ(X ×_{Spec k} Y, pr₁⁻¹ E ⊗ᴸ pr₂⁻¹ K)` is isomorphic in `D(Ab)` to
-`RΓ(X, E) ⊗ᴸ RΓ(Y, K)`. -/
-@[stacks 0F14]
-theorem rGamma_kunneth
+/- Lemma 59.97.2 (1): the proper-factor étale Künneth formula. -/
+@[stacks 0F14] #check (AlgebraicGeometry.Scheme.Etale.rGamma_kunneth X Y :
+  ∀
     (E : DerivedCategory.Plus (Sheaf X.left.smallEtaleTopology AddCommGrpCat.{u}))
     (hE : DerivedCategory.Plus.cohomologyIn
       (IsLocallyTorsion :
         ObjectProperty (Sheaf X.left.smallEtaleTopology AddCommGrpCat.{u})) E)
-    (K : DerivedCategory.Plus (Sheaf Y.left.smallEtaleTopology AddCommGrpCat.{u})) :
+    (K : DerivedCategory.Plus (Sheaf Y.left.smallEtaleTopology AddCommGrpCat.{u})),
     Nonempty
       ((RightDerived.Cochain.functor
             ((sheafSections (pullback X.hom Y.hom).smallEtaleTopology
@@ -116,14 +94,14 @@ theorem rGamma_kunneth
           (RightDerived.Cochain.functor
               ((sheafSections Y.left.smallEtaleTopology AddCommGrpCat.{u}).obj
                 (op (globalEtale Y.left)))).obj
-            (DerivedCategory.Plus.ι.obj K))) := sorry
+            (DerivedCategory.Plus.ι.obj K))))
 
 end
 
 section
 
-variable [Algebraic Y]
 variable (n : ℕ) [NeZero n]
+variable [Algebraic Y]
 variable [∀ Z : Scheme.{u},
     HasSheafify Z.smallEtaleTopology (ModuleCat.{u} (ZMod n))]
 variable [∀ Z : Scheme.{u},
@@ -136,15 +114,14 @@ variable [∀ {A B : Scheme.{u}} (h : A ⟶ B),
     PreservesFiniteLimits (zmodSheafPullback h n)]
 variable [∀ {A B : Scheme.{u}} (h : A ⟶ B), (zmodSheafPullback h n).Additive]
 variable [∀ {A B : Scheme.{u}} (h : A ⟶ B), (zmodSheafPushforward h n).Additive]
-variable [MonoidalCategory (ModuleCat.{u} (ZMod n))]
+variable [((pullback X.hom Y.hom).smallEtaleTopology.W
+    (A := ModuleCat.{u} (ZMod n))).IsMonoidal]
 variable [MonoidalPreadditive (ModuleCat.{u} (ZMod n))]
 variable [∀ (K L : CochainComplex (ModuleCat.{u} (ZMod n)) ℤ),
     HomologicalComplex.HasMapBifunctor K L
       (curriedTensor (ModuleCat.{u} (ZMod n))) (ComplexShape.up ℤ)]
 variable [hModTensor :
-    @DerivedTensor.Right.Has (ModuleCat.{u} (ZMod n)) _ _ _ _ _ _]
-variable [MonoidalCategory
-    (Sheaf (pullback X.hom Y.hom).smallEtaleTopology (ModuleCat.{u} (ZMod n)))]
+    DerivedTensor.Right.Has (C := ModuleCat.{u} (ZMod n))]
 variable [MonoidalPreadditive
     (Sheaf (pullback X.hom Y.hom).smallEtaleTopology (ModuleCat.{u} (ZMod n)))]
 variable [∀ (K L : CochainComplex
@@ -154,9 +131,8 @@ variable [∀ (K L : CochainComplex
         (Sheaf (pullback X.hom Y.hom).smallEtaleTopology (ModuleCat.{u} (ZMod n))))
       (ComplexShape.up ℤ)]
 variable [hXYModTensor :
-    @DerivedTensor.Right.Has
-      (Sheaf (pullback X.hom Y.hom).smallEtaleTopology (ModuleCat.{u} (ZMod n)))
-      _ _ _ _ _ _]
+    DerivedTensor.Right.Has
+      (C := Sheaf (pullback X.hom Y.hom).smallEtaleTopology (ModuleCat.{u} (ZMod n)))]
 variable [∀ Z : Scheme.{u},
     ((sheafSections Z.smallEtaleTopology (ModuleCat.{u} (ZMod n))).obj
       (op (globalEtale Z))).Additive]
@@ -168,16 +144,13 @@ variable [∀ Z : Scheme.{u},
       (HomologicalComplex.quasiIso
         (Sheaf Z.smallEtaleTopology (ModuleCat.{u} (ZMod n))) (ComplexShape.up ℤ))]
 
-/-- Lemma 59.97.2 (2): if in addition `n ≥ 1` and `Y` is of finite type over `k`,
-then for `E ∈ D(X_étale, ZMod n)` and `K ∈ D(Y_étale, ZMod n)` one has
-`RΓ(X ×_{Spec k} Y, pr₁⁻¹ E ⊗ᴸ pr₂⁻¹ K) ≅ RΓ(X, E) ⊗ᴸ RΓ(Y, K)`
-in `D(ModuleCat (ZMod n))`. -/
-@[stacks 0F14]
-theorem rGamma_kunneth_zmod
+/- Lemma 59.97.2 (2): the proper-factor étale Künneth formula. -/
+@[stacks 0F14] #check (AlgebraicGeometry.Scheme.Etale.rGamma_kunneth_zmod X Y n :
+  ∀
     (E : DerivedCategory
       (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} (ZMod n))))
     (K : DerivedCategory
-      (Sheaf Y.left.smallEtaleTopology (ModuleCat.{u} (ZMod n)))) :
+      (Sheaf Y.left.smallEtaleTopology (ModuleCat.{u} (ZMod n)))),
     Nonempty
       ((RightDerived.Cochain.functor
             ((sheafSections (pullback X.hom Y.hom).smallEtaleTopology
@@ -192,7 +165,7 @@ theorem rGamma_kunneth_zmod
           (RightDerived.Cochain.functor
               ((sheafSections Y.left.smallEtaleTopology
                   (ModuleCat.{u} (ZMod n))).obj
-                (op (globalEtale Y.left)))).obj K)) := sorry
+                (op (globalEtale Y.left)))).obj K)))
 
 end
 

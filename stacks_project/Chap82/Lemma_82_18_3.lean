@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -27,5 +21,5 @@ Write `[Y]_{k+1} = ∑ n_i [Y_i]` where `Y_i ⊂ Y` are the irreducible componen
     (δ : Points B → ℤ) [IsDimensionFunction δ]
     (ℒ : Y.Modules) [isInvertibleObject ℒ] (s : ℒ.sections)
     [IsRegularSection ℒ s] (k : ℤ),
-    (∀ y : Points Y, p.relativeDimensionFunction δ y ≤ k + 1) →
+    (∀ y : Points Y, Hom.relativeDimensionFunction p δ y ≤ k + 1) →
     relativeZeroCycle p δ ℒ s k = relativeZeroCycleComponentSum p δ ℒ s k)

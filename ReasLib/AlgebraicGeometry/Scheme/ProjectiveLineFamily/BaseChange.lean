@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.ProjectiveLineFamily
+public import Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion
 
 @[expose] public section
 
@@ -52,5 +47,29 @@ theorem map_id {S : Scheme.{u}} (X : Over S) :
 theorem map_comp {S : Scheme.{u}} {X X' X'' : Over S}
     (h : X'' ⟶ X') (g : X' ⟶ X) :
     map (h ≫ g) = map h ≫ map g := sorry
+
+/-- The inverse image in a compactification of the projective-line family over a
+closed subscheme. -/
+def deformationCenterInclusion
+    {S : Scheme.{u}} {X : Over S} {Z W : Scheme.{u}}
+    (i : Z ⟶ X.left) (b : W ⟶ ProjectiveLineFamily.space X) :
+    pullback b (ProjectiveLineFamily.map
+      (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X)) ⟶ W :=
+  pullback.fst b (ProjectiveLineFamily.map
+    (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X))
+
+/-- `deformationCenterInclusion` is the first projection of its defining pullback. -/
+theorem deformationCenterInclusion_def
+    {S : Scheme.{u}} {X : Over S} {Z W : Scheme.{u}}
+    (i : Z ⟶ X.left) (b : W ⟶ ProjectiveLineFamily.space X) :
+    deformationCenterInclusion i b = pullback.fst b (ProjectiveLineFamily.map
+      (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X)) := sorry
+
+/-- The deformation-center inclusion is a closed immersion. -/
+instance deformationCenterInclusionIsClosedImmersion
+    {S : Scheme.{u}} {X : Over S} {Z W : Scheme.{u}}
+    (i : Z ⟶ X.left) [IsClosedImmersion i]
+    (b : W ⟶ ProjectiveLineFamily.space X) :
+    IsClosedImmersion (deformationCenterInclusion i b) := sorry
 
 end AlgebraicGeometry.ProjectiveLineFamily

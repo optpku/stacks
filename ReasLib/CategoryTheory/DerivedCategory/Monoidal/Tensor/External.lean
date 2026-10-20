@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.Presheaf.Tensor
@@ -40,31 +34,21 @@ variable [HasDerivedCategory.{q₁} (ModuleCat.Presheaf C₁ B)]
 variable [HasDerivedCategory.{q₂} (ModuleCat.Presheaf C₂ B)]
 variable [HasDerivedCategory.{q₁₂} (ModuleCat.Presheaf (C₁ × C₂) B)]
 
-/-- Pullback of module-valued presheaves along the first projection. -/
-@[stacks 08QB "first projection inverse image"]
-abbrev left :
-    (C₁ᵒᵖ ⥤ ModuleCat B) ⥤ ((C₁ × C₂)ᵒᵖ ⥤ ModuleCat B) :=
-  MonoidalCategory.ExternalProduct.left
-
-/-- Pullback of module-valued presheaves along the second projection. -/
-@[stacks 08QB "second projection inverse image"]
-abbrev right :
-    (C₂ᵒᵖ ⥤ ModuleCat B) ⥤ ((C₁ × C₂)ᵒᵖ ⥤ ModuleCat B) :=
-  MonoidalCategory.ExternalProduct.right
-
 /-- Exact inverse image along the first projection on derived presheaves. -/
 @[stacks 08QB "derived first projection inverse image"]
 noncomputable abbrev leftDerived :
     DerivedCategory (ModuleCat.Presheaf C₁ B) ⥤
       DerivedCategory (ModuleCat.Presheaf (C₁ × C₂) B) :=
-  (left (C₁ := C₁) (C₂ := C₂) (B := B)).mapDerivedCategory
+  (MonoidalCategory.ExternalProduct.left
+    (C₁ := C₁) (C₂ := C₂) (A := ModuleCat B)).mapDerivedCategory
 
 /-- Exact inverse image along the second projection on derived presheaves. -/
 @[stacks 08QB "derived second projection inverse image"]
 noncomputable abbrev rightDerived :
     DerivedCategory (ModuleCat.Presheaf C₂ B) ⥤
       DerivedCategory (ModuleCat.Presheaf (C₁ × C₂) B) :=
-  (right (C₁ := C₁) (C₂ := C₂) (B := B)).mapDerivedCategory
+  (MonoidalCategory.ExternalProduct.right
+    (C₁ := C₁) (C₂ := C₂) (A := ModuleCat B)).mapDerivedCategory
 
 /-- Simultaneous derived inverse image along the two projections. -/
 @[stacks 08QB "product of the derived projection inverse images"]

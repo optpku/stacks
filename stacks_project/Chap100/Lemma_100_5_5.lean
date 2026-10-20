@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_5_1_Surjective
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Surjective.Cancellation
+import StacksCheckRecall
 
 /-!
 # Permanence of surjectivity for morphisms of algebraic stacks
@@ -28,14 +23,13 @@ namespace AlgebraicGeometry.AlgebraicStack
 
 namespace Surjective
 
-/-- Lemma 100.5.5: Let X ⟶ Y ⟶ Z be morphisms of algebraic stacks. If
+/- Lemma 100.5.5: Let X ⟶ Y ⟶ Z be morphisms of algebraic stacks. If
 X ⟶ Z is surjective so is Y ⟶ Z. -/
 @[stacks 06PN]
-theorem of_comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.Surjective.of_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [Surjective (f ≫ g)] :
-    Surjective g :=
-  sorry
+    (f : X ⟶ Y) (g : Y ⟶ Z) [Surjective (f ≫ g)], Surjective g)
 
 end Surjective
 

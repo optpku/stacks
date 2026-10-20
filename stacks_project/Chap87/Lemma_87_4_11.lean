@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import Mathlib.Topology.Algebra.Ring.Ideal
-public import stacks_project.Chap87.Lemma_87_5_6_CompletedRing
+public import ReasLib.Topology.Algebra.TensorProduct.CompletedRing.Ideal
+import StacksCheckRecall
 
 /-!
 # Lemma 87.4.11
@@ -23,27 +16,24 @@ universe u
 
 open Algebra.TensorProduct
 
-namespace Ideal
-
-variable {A B : Type u}
-variable [CommRing A] [CommRing B]
-variable [TopologicalSpace A] [TopologicalSpace B]
-variable [IsTopologicalRing A] [IsTopologicalRing B]
-variable [IsLinearTopology A A] [IsLinearTopology B B]
-variable [Algebra A B]
-
-/-- Lemma 87.4.11: If `algebraMap A B` is a continuous map of linearly topologized rings
+/- Lemma 87.4.11: If `algebraMap A B` is a continuous map of linearly topologized rings
 and `I` is an ideal of `A`, then the topological closure of `I.map (algebraMap A B)`
 equals the kernel of `Completed.includeLeft A B (A ⧸ I)`. -/
-@[stacks 0AMZ]
-theorem closure_map_eq_ker_includeLeft (hφ : Continuous (algebraMap A B)) (I : Ideal A) :
-    (I.map (algebraMap A B)).closure = RingHom.ker (Completed.includeLeft A B (A ⧸ I)) := sorry
+@[stacks 0AMZ] #check (Ideal.closure_map_eq_ker_includeLeft :
+  ∀ {A B : Type u} [CommRing A] [CommRing B]
+    [TopologicalSpace A] [TopologicalSpace B]
+    [IsTopologicalRing A] [IsTopologicalRing B]
+    [IsLinearTopology A A] [IsLinearTopology B B] [Algebra A B]
+    (hφ : Continuous (algebraMap A B)) (I : Ideal A),
+    (I.map (algebraMap A B)).closure = RingHom.ker (Completed.includeLeft A B (A ⧸ I)))
 
-/-- Membership in the topological closure of the extended ideal `I.map (algebraMap A B)`
+/- Membership in the topological closure of the extended ideal `I.map (algebraMap A B)`
 is equivalent to vanishing under `Completed.includeLeft A B (A ⧸ I)`. -/
-theorem mem_closure_map_iff_includeLeft_eq_zero (hφ : Continuous (algebraMap A B))
-    (I : Ideal A) {b : B} :
+#check (Ideal.mem_closure_map_iff_includeLeft_eq_zero :
+  ∀ {A B : Type u} [CommRing A] [CommRing B]
+    [TopologicalSpace A] [TopologicalSpace B]
+    [IsTopologicalRing A] [IsTopologicalRing B]
+    [IsLinearTopology A A] [IsLinearTopology B B] [Algebra A B]
+    (hφ : Continuous (algebraMap A B)) (I : Ideal A) {b : B},
     b ∈ (I.map (algebraMap A B)).closure ↔
-      Completed.includeLeft A B (A ⧸ I) b = 0 := sorry
-
-end Ideal
+      Completed.includeLeft A B (A ⧸ I) b = 0)

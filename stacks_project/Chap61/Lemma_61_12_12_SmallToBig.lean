@@ -1,30 +1,17 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap61.Definition_61_12_8_Presentation
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Proetale.ChosenPresentation.SmallToBig
 public import stacks_project.Chap61.Lemma_61_12_10_Limits
-public import ReasLib.CategoryTheory.Sites.Pullback.FiniteConnectedLimits
-public import ReasLib.CategoryTheory.Sites.Topos.Cocontinuous
-public import ReasLib.CategoryTheory.Sites.Topos.Continuous
 
 /-!
 # Small-to-big pro-étale relocalization on a chosen site
 
-This leaf owns the reusable site and sheaf API for the functor sending a
-weakly étale object over `T` in a chosen big pro-étale presentation to the
-same object over `S` along a carrier morphism `f : T ⟶ S`.
+The chosen-presentation relocalization API is available from its mathematical owner.
 -/
 
 @[expose] public section
 
-open CategoryTheory
-open CategoryTheory.Limits
-open Opposite
+open CategoryTheory CategoryTheory.Limits Opposite
 open scoped MorphismOfTopoiIn
 
 noncomputable section
@@ -32,134 +19,88 @@ noncomputable section
 universe u v w
 
 namespace AlgebraicGeometry.ChosenBigProetaleSite
-namespace SmallToBig
 
-variable {X : ChosenBigProetaleSite.{u, v}} {S T : X.carrier}
+variable {X : ChosenBigProetaleSite.{u, v}} {S T : X.carrier} (f : T ⟶ S)
 
-/-- The chosen small pro-étale site of an object has fibre products. -/
-instance smallSite_hasPullbacks (X : ChosenBigProetaleSite.{u, v}) (T : X.carrier) :
-    HasPullbacks (smallSite X T) :=
-  smallSiteHasPullbacks X T
+#check (SmallToBig.smallSite_hasPullbacks X T : HasPullbacks (smallSite X T))
 
-/-- The chosen small pro-étale site of an object has equalizers. -/
-instance smallSite_hasEqualizers (X : ChosenBigProetaleSite.{u, v}) (T : X.carrier) :
-    HasEqualizers (smallSite X T) :=
-  smallSiteHasEqualizers X T
+#check (SmallToBig.smallSite_hasEqualizers X T : HasEqualizers (smallSite X T))
 
-/-- The relocalization functor from the chosen small pro-étale site of `T` to
-the chosen big pro-étale slice over `S`. On objects it sends a weakly étale
-morphism `j : U ⟶ T` to `j ≫ f : U ⟶ S`. -/
-abbrev relocalizationFunctor (f : T ⟶ S) : smallSite X T ⥤ bigSite X S :=
-  smallInclusion X T ⋙ Over.map f
+#check (SmallToBig.relocalizationFunctor f : smallSite X T ⥤ bigSite X S)
 
-/-- The relocalization functor is continuous for the chosen small-to-big
-pro-étale topologies. -/
-instance relocalizationFunctor_isContinuous (f : T ⟶ S) :
-    Functor.IsContinuous (relocalizationFunctor f) (smallTopology X T)
-      (bigTopology X S) := sorry
+#check (SmallToBig.relocalizationFunctor_isContinuous f :
+  Functor.IsContinuous (SmallToBig.relocalizationFunctor f)
+    (smallTopology X T) (bigTopology X S))
 
-/-- The relocalization functor is cocontinuous for the chosen small-to-big
-pro-étale topologies. -/
-instance relocalizationFunctor_isCocontinuous (f : T ⟶ S) :
-    Functor.IsCocontinuous (relocalizationFunctor f) (smallTopology X T)
-      (bigTopology X S) := sorry
+#check (SmallToBig.relocalizationFunctor_isCocontinuous f :
+  Functor.IsCocontinuous (SmallToBig.relocalizationFunctor f)
+    (smallTopology X T) (bigTopology X S))
 
-/-- Chosen pro-étale relocalization preserves fibre products. -/
-instance Relocalization.preservesPullbacks (f : T ⟶ S) :
-    PreservesLimitsOfShape WalkingCospan (relocalizationFunctor f) := sorry
+#check (SmallToBig.Relocalization.preservesPullbacks f :
+  PreservesLimitsOfShape WalkingCospan (SmallToBig.relocalizationFunctor f))
 
-/-- Chosen pro-étale relocalization preserves equalizers. -/
-instance Relocalization.preservesEqualizers (f : T ⟶ S) :
-    PreservesLimitsOfShape WalkingParallelPair (relocalizationFunctor f) := sorry
+#check (SmallToBig.Relocalization.preservesEqualizers f :
+  PreservesLimitsOfShape WalkingParallelPair (SmallToBig.relocalizationFunctor f))
 
-/-- The opposite relocalization functor has the left Kan extensions used by
-lower shriek. -/
-instance relocalizationFunctor_op_hasLeftKanExtension
-    (f : T ⟶ S) (P : (smallSite X T)ᵒᵖ ⥤ Type w) :
-    (relocalizationFunctor f).op.HasLeftKanExtension P := sorry
+variable [UnivLE.{max u v, w}]
 
-/-- The opposite relocalization functor has the pointwise left Kan extensions
-used by finite-connected-limit preservation of lower shriek. -/
-instance relocalizationFunctor_op_hasPointwiseLeftKanExtension
-    (f : T ⟶ S) (P : (smallSite X T)ᵒᵖ ⥤ Type w) :
-    (relocalizationFunctor f).op.HasPointwiseLeftKanExtension P := sorry
+#check (SmallToBig.relocalizationFunctor_op_hasLeftKanExtension f :
+  ∀ P : (smallSite X T)ᵒᵖ ⥤ Type w,
+    (SmallToBig.relocalizationFunctor f).op.HasLeftKanExtension P)
 
-/-- The opposite relocalization functor has the pointwise right Kan extensions
-used by the cocontinuous direct image. -/
-instance relocalizationFunctor_op_hasPointwiseRightKanExtension
-    (f : T ⟶ S) (P : (smallSite X T)ᵒᵖ ⥤ Type w) :
-    (relocalizationFunctor f).op.HasPointwiseRightKanExtension P := sorry
+#check (SmallToBig.relocalizationFunctor_op_hasPointwiseLeftKanExtension f :
+  ∀ P : (smallSite X T)ᵒᵖ ⥤ Type w,
+    (SmallToBig.relocalizationFunctor f).op.HasPointwiseLeftKanExtension P)
 
-/-- The inverse-image functor on sheaves induced by chosen pro-étale
-relocalization. -/
-abbrev inverseImage (f : T ⟶ S) :
-    Sheaf (bigTopology X S) (Type w) ⥤ Sheaf (smallTopology X T) (Type w) :=
-  (relocalizationFunctor f).sheafPushforwardContinuous (Type w)
-    (smallTopology X T) (bigTopology X S)
+#check (SmallToBig.relocalizationFunctor_op_hasPointwiseRightKanExtension f :
+  ∀ P : (smallSite X T)ᵒᵖ ⥤ Type w,
+    (SmallToBig.relocalizationFunctor f).op.HasPointwiseRightKanExtension P)
 
-/-- The inverse image is computed by evaluating on the same object viewed over
-`S`. -/
-theorem inverseImage_obj_obj (f : T ⟶ S)
-    (𝒢 : Sheaf (bigTopology X S) (Type w)) (U : smallSite X T) :
-    ((inverseImage f).obj 𝒢).1.obj (op U) =
-      𝒢.1.obj (op ((relocalizationFunctor f).obj U)) := sorry
+#check (SmallToBig.inverseImage f :
+  Sheaf (bigTopology X S) (Type w) ⥤ Sheaf (smallTopology X T) (Type w))
 
-/-- The inverse-image computation as a canonical objectwise isomorphism. -/
-noncomputable def inverseImage_objObjIso (f : T ⟶ S)
-    (𝒢 : Sheaf (bigTopology X S) (Type w)) (U : smallSite X T) :
-    ((inverseImage f).obj 𝒢).1.obj (op U) ≅
-      𝒢.1.obj (op ((relocalizationFunctor f).obj U)) :=
-  Functor.sheafPushforwardContinuousObjObjIso (relocalizationFunctor f) (Type w) 𝒢 U
+#check (SmallToBig.inverseImage_obj_obj f :
+  ∀ (𝒢 : Sheaf (bigTopology X S) (Type w)) (U : smallSite X T),
+    ((SmallToBig.inverseImage f).obj 𝒢).1.obj (op U) =
+      𝒢.1.obj (op ((SmallToBig.relocalizationFunctor f).obj U)))
 
-/-- The lower-shriek functor on chosen small-to-big pro-étale sheaves. -/
-abbrev lowerShriek (f : T ⟶ S)
-    [HasWeakSheafify (bigTopology X S) (Type w)] :
-    Sheaf (smallTopology X T) (Type w) ⥤ Sheaf (bigTopology X S) (Type w) :=
-  (relocalizationFunctor f).sheafPullback (Type w)
-    (smallTopology X T) (bigTopology X S)
+#check (SmallToBig.inverseImage_objObjIso f :
+  ∀ (𝒢 : Sheaf (bigTopology X S) (Type w)) (U : smallSite X T),
+    ((SmallToBig.inverseImage f).obj 𝒢).1.obj (op U) ≅
+      𝒢.1.obj (op ((SmallToBig.relocalizationFunctor f).obj U)))
 
-/-- The canonical lower-shriek/inverse-image adjunction. -/
-noncomputable def lowerShriekAdjunction (f : T ⟶ S)
-    [HasWeakSheafify (bigTopology X S) (Type w)] :
-    lowerShriek f ⊣ inverseImage f :=
-  (relocalizationFunctor f).sheafAdjunctionContinuous (Type w)
-    (smallTopology X T) (bigTopology X S)
+#check (SmallToBig.directImage f :
+  Sheaf (smallTopology X T) (Type w) ⥤ Sheaf (bigTopology X S) (Type w))
 
-/-- The direct-image functor presented by cocontinuous chosen pro-étale
-relocalization. -/
-abbrev directImage (f : T ⟶ S) :
-    Sheaf (smallTopology X T) (Type w) ⥤ Sheaf (bigTopology X S) (Type w) :=
-  (relocalizationFunctor f).sheafPushforwardCocontinuous (Type w)
-    (smallTopology X T) (bigTopology X S)
+#check (SmallToBig.inverseImage_preservesFiniteLimits f :
+  PreservesFiniteLimits (SmallToBig.inverseImage.{u, v, w} f))
 
-/-- The relocalization inverse image preserves finite limits. -/
-instance inverseImage_preservesFiniteLimits (f : T ⟶ S) :
-    PreservesFiniteLimits (inverseImage f) := sorry
+section
 
-/-- The bundled morphism of topoi presented by chosen pro-étale
-relocalization. -/
-noncomputable def morphismOfTopoi (f : T ⟶ S)
-    [HasSheafify (smallTopology X T) (Type w)] :
-    MorphismOfTopoiIn.{max u v, max u v, v, v, w}
-      (bigTopology X S) (smallTopology X T) where
-  inverseImageFunctor :=
-    LeftExactFunctor.of (inverseImage f)
-  pushforward := directImage f
-  adjunction :=
-    (relocalizationFunctor f).sheafAdjunctionCocontinuous (Type w)
-      (smallTopology X T) (bigTopology X S)
+variable [HasWeakSheafify (bigTopology X S) (Type w)]
 
-/-- The inverse-image projection of the bundled relocalization morphism. -/
-@[simp]
-theorem morphismOfTopoi_inverseImage (f : T ⟶ S)
-    [HasSheafify (smallTopology X T) (Type w)] :
-    (morphismOfTopoi f)⁻¹ = inverseImage f := sorry
+#check (SmallToBig.lowerShriek f :
+  Sheaf (smallTopology X T) (Type w) ⥤ Sheaf (bigTopology X S) (Type w))
 
-/-- The direct-image projection of the bundled relocalization morphism. -/
-@[simp]
-theorem morphismOfTopoi_pushforward (f : T ⟶ S)
-    [HasSheafify (smallTopology X T) (Type w)] :
-    (morphismOfTopoi f).pushforward = directImage f := sorry
+#check (SmallToBig.lowerShriekAdjunction f :
+  SmallToBig.lowerShriek.{u, v, w} f ⊣ SmallToBig.inverseImage.{u, v, w} f)
 
-end SmallToBig
+end
+
+section
+
+variable [HasSheafify (smallTopology X T) (Type w)]
+
+#check (SmallToBig.morphismOfTopoi f :
+  MorphismOfTopoiIn.{max u v, max u v, u, u, w}
+    (bigTopology X S) (smallTopology X T))
+
+#check (SmallToBig.morphismOfTopoi_inverseImage f :
+  (SmallToBig.morphismOfTopoi.{u, v, w} f)⁻¹ = SmallToBig.inverseImage f)
+
+#check (SmallToBig.morphismOfTopoi_pushforward f :
+  (SmallToBig.morphismOfTopoi.{u, v, w} f).pushforward = SmallToBig.directImage f)
+
+end
+
 end AlgebraicGeometry.ChosenBigProetaleSite

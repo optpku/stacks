@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap111.Exercise_111_37_6_DegreeMulHom
-public import stacks_project.Chap27.Lemma_27_11_8_Veronese
-public import ReasLib.RingTheory.MvPolynomial.StandardGrading
+public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Map.DegreeMul
+public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Map.DegreeMulExamples
+public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Veronese
 import StacksCheckRecall
 
 /-!
@@ -20,93 +14,45 @@ induces a scheme morphism from the open `U = ⋃ D₊(ψ(f)) ⊆ Proj S` to `Pro
 
 @[expose] public section
 
-open AlgebraicGeometry
 open CategoryTheory
-open MvPolynomial
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry
+/- Exercise 111.37.6 (1): the admissibility open consists of points for which some
+positive homogeneous element maps outside the homogeneous prime ideal. -/
+@[stacks 02A2] #check (AlgebraicGeometry.DegreeMulHom.mem_domain_iff :
+  ∀ {A B σ τ : Type u} [CommRing A] [SetLike σ A] [AddSubgroupClass σ A]
+    [CommRing B] [SetLike τ B] [AddSubgroupClass τ B]
+    {𝒜 : ℕ → σ} {ℬ : ℕ → τ} [GradedRing 𝒜] [GradedRing ℬ] {e : ℕ}
+    (ψ : AlgebraicGeometry.DegreeMulHom 𝒜 ℬ e) (p : AlgebraicGeometry.Proj ℬ),
+    p ∈ AlgebraicGeometry.DegreeMulHom.domain ψ ↔
+      ∃ f : A, ∃ d : ℕ, 0 < d ∧ f ∈ 𝒜 d ∧ ψ.toRingHom f ∉ p.asHomogeneousIdeal)
 
-/-
-Exercise 111.37.6 (1): a point `p` of `Proj ℬ` lies in the induced open
-`DegreeMulHom.domain ψ` if and only if some positive-degree homogeneous `f ∈ 𝒜 d`
-satisfies `ψ.toRingHom f ∉ p.asHomogeneousIdeal`.
--/
-@[stacks 02A2] #check DegreeMulHom.mem_domain_iff
+/- Exercise 111.37.6 (2): the coordinate inclusion from `ℤ[X]` into `ℤ[X,Y]`
+has a proper admissibility open. -/
+@[stacks 02A2] #check (AlgebraicGeometry.coordinateRename_domain_ne_top :
+  AlgebraicGeometry.DegreeMulHom.domain AlgebraicGeometry.coordinateRename ≠ ⊤)
 
-/-- The substitution `Fin 1 → Fin 2` preserves the standard polynomial grading. -/
-theorem coordinateRename_map_mem {d : ℕ} {x : MvPolynomial (Fin 1) ℤ}
-    (hx : x ∈ standardGrading (Fin 1) ℤ d) :
-    (rename (Fin.castSucc : Fin 1 → Fin 2)).toRingHom x ∈
-      standardGrading (Fin 2) ℤ (d * 1) := sorry
+/- Exercise 111.37.6 (3): the identity of standard-graded `ℤ[X,Y]` has full domain. -/
+@[stacks 02A2] #check (AlgebraicGeometry.DegreeMulHom.id_domain_eq_top
+  (MvPolynomial.standardGrading (Fin 2) ℤ) :
+  AlgebraicGeometry.DegreeMulHom.domain
+    (AlgebraicGeometry.DegreeMulHom.id (MvPolynomial.standardGrading (Fin 2) ℤ)) = ⊤)
 
-/-- The graded substitution of `ℤ[X]` into `ℤ[X, Y]` as a degree-preserving ring map. -/
-def coordinateRename :
-    DegreeMulHom (standardGrading (Fin 1) ℤ) (standardGrading (Fin 2) ℤ) 1 :=
-  DegreeMulHom.ofRingHom
-    (rename (Fin.castSucc : Fin 1 → Fin 2)).toRingHom
-    (Nat.le_refl 1) coordinateRename_map_mem
+/- Exercise 111.37.6 (4): the canonical continuous map comes with its sheaf map,
+constructed by gluing the prescribed homogeneous-localization morphisms. -/
+@[stacks 02A2] #check (AlgebraicGeometry.DegreeMulHom.map :
+  ∀ {A B σ τ : Type u} [CommRing A] [SetLike σ A] [AddSubgroupClass σ A]
+    [CommRing B] [SetLike τ B] [AddSubgroupClass τ B]
+    {𝒜 : ℕ → σ} {ℬ : ℕ → τ} [GradedRing 𝒜] [GradedRing ℬ] {e : ℕ}
+    (ψ : AlgebraicGeometry.DegreeMulHom 𝒜 ℬ e),
+    (AlgebraicGeometry.DegreeMulHom.domain ψ).toScheme ⟶ AlgebraicGeometry.Proj 𝒜)
 
-/-- Exercise 111.37.6 (2): the open induced by renaming `ℤ[X]` into `ℤ[X, Y]` is not
-all of `Proj` of the two-variable ring. -/
-@[stacks 02A2]
-theorem coordinateRename_domain_ne_top :
-    DegreeMulHom.domain coordinateRename ≠ ⊤ := sorry
-
-/-- The identity on `ℤ[X, Y]` preserves the standard polynomial grading. -/
-theorem idTwoVars_map_mem {d : ℕ} {x : MvPolynomial (Fin 2) ℤ}
-    (hx : x ∈ standardGrading (Fin 2) ℤ d) :
-    RingHom.id (MvPolynomial (Fin 2) ℤ) x ∈ standardGrading (Fin 2) ℤ (d * 1) := sorry
-
-/-- The identity of the standard-graded two-variable polynomial ring. -/
-def idTwoVars :
-    DegreeMulHom (standardGrading (Fin 2) ℤ) (standardGrading (Fin 2) ℤ) 1 :=
-  DegreeMulHom.ofRingHom (RingHom.id _) (Nat.le_refl 1) idTwoVars_map_mem
-
-/-- Exercise 111.37.6 (3): the identity on the standard-graded two-variable polynomial
-ring induces the full projective spectrum as domain. -/
-@[stacks 02A2]
-theorem idTwoVars_domain_eq_top :
-    DegreeMulHom.domain idTwoVars = ⊤ := sorry
-
-/-
-Exercise 111.37.6 (4): the glued scheme morphism `DegreeMulHom.map ψ` is a morphism
-of schemes `(DegreeMulHom.domain ψ).toScheme ⟶ Proj 𝒜`.
--/
-@[stacks 02A2] #check DegreeMulHom.map
-
-section veroneseInclusion
-
-variable {A σ : Type u} [CommRing A] [SetLike σ A] [AddSubgroupClass σ A]
-  (𝒜 : ℕ → σ) [GradedRing 𝒜]
-
-/-- The Veronese inclusion preserves the internal Veronese grading. -/
-theorem ofInclusion_map_mem (e : ℕ) (he : 1 ≤ e) {n : ℕ}
-    {x : GradedRing.Veronese 𝒜 e}
-    (hx : x ∈ GradedRing.Veronese.grading 𝒜 e n) :
-    GradedRing.Veronese.inclusion 𝒜 e x ∈ 𝒜 (n * e) := sorry
-
-/-- The inclusion of the `e`-Veronese subring of a graded ring as a degree-`e`
-homomorphism. -/
-def DegreeMulHom.ofInclusion (e : ℕ) (he : 1 ≤ e) :
-    DegreeMulHom (GradedRing.Veronese.grading 𝒜 e) 𝒜 e :=
-  DegreeMulHom.ofRingHom (GradedRing.Veronese.inclusion 𝒜 e) he
-    (ofInclusion_map_mem 𝒜 e he)
-
-/-- The Veronese inclusion induces the full projective spectrum as domain. -/
-theorem ofInclusion_domain_eq_top (e : ℕ) (he : 1 ≤ e) :
-    DegreeMulHom.domain (DegreeMulHom.ofInclusion 𝒜 e he) = ⊤ := sorry
-
-/-- Exercise 111.37.6 (5): if `R` is the `e`-Veronese subring of `S` and `ψ` is the
-inclusion, then the induced morphism is an isomorphism. -/
-@[stacks 02A2]
-theorem ofInclusion_isIso (e : ℕ) (he : 1 ≤ e) :
-    IsIso (DegreeMulHom.mapOnTarget (DegreeMulHom.ofInclusion 𝒜 e he)
-        (ofInclusion_domain_eq_top 𝒜 e he)) := sorry
-
-end veroneseInclusion
-
-end AlgebraicGeometry
+/- Exercise 111.37.6 (5): every positive Veronese inclusion has full domain,
+and its constructed morphism of projective spectra is an isomorphism. -/
+@[stacks 02A2] #check (AlgebraicGeometry.ofInclusion_isIso :
+  ∀ {A σ : Type u} [CommRing A] [SetLike σ A] [AddSubgroupClass σ A]
+    (𝒜 : ℕ → σ) [GradedRing 𝒜] (e : ℕ) (he : 1 ≤ e),
+    IsIso (AlgebraicGeometry.DegreeMulHom.mapOnTarget
+      (AlgebraicGeometry.DegreeMulHom.ofInclusion 𝒜 e he)
+      (AlgebraicGeometry.ofInclusion_domain_eq_top 𝒜 e he)))

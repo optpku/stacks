@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.MvPolynomial.Basic
@@ -14,10 +8,12 @@ public import ReasLib.RingTheory.Sequence.QuasiRegular.Internal
 /-!
 # Ring-level quasi-regular finite sequences
 
-This leaf gives the ring-level associated-graded formulation of a
-quasi-regular finite sequence. It uses the general quotient-Rees associated
-graded ring and its concrete degree-one elements, while remaining independent
-of the module-valued comparison construction.
+This leaf gives the ring-level quotient-Rees model of the canonical map
+`(R / I)[X_1, …, X_n] → gr_I(R)` attached to a finite sequence, using the
+general quotient-Rees associated graded ring and its concrete degree-one
+elements. The quasi-regularity predicate itself is owned by
+`RingTheory.Sequence.IsQuasiRegularSequence`; its characterization through
+this map is `RingTheory.Sequence.IsQuasiRegularSequence.quotientRees_iff`.
 -/
 
 @[expose] public section
@@ -48,13 +44,5 @@ noncomputable def sequenceAssociatedGradedMap (rs : List R) :
     MvPolynomial (Fin rs.length) (R ⧸ Ideal.ofList rs) →ₐ[R ⧸ Ideal.ofList rs]
       associatedGradedRing (Ideal.ofList rs) :=
   MvPolynomial.aeval (sequenceDegreeOne rs)
-
-/-- A finite sequence is quasi-regular when its canonical associated-graded map is bijective. -/
-def IsQuasiRegularSequence (rs : List R) : Prop :=
-  Function.Bijective (sequenceAssociatedGradedMap rs)
-
-/-- The associated-graded criterion defining quasi-regularity of a finite sequence. -/
-theorem isQuasiRegularSequence_iff (rs : List R) :
-    IsQuasiRegularSequence rs ↔ Function.Bijective (sequenceAssociatedGradedMap rs) := sorry
 
 end RingTheory.Sequence.QuasiRegular

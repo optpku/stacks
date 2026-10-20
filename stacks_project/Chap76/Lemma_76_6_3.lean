@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_6_3_Map
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.Map
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Limits
@@ -21,14 +15,14 @@ variable {f : Z ⟶ Z'} {i : Z ⟶ X} {i' : Z' ⟶ X'} {g : X ⟶ X'}
 variable [IsImmersion i] [IsImmersion i']
 variable (sq : CommSq f i i' g)
 
-/- Lemma 76.6.3: Let `S` be a scheme. A commutative diagram of algebraic spaces
-over `S` whose horizontal arrows `i : Z ⟶ X` and `i' : Z' ⟶ X'` are immersions
-induces a canonical morphism of graded `𝒪_Z`-algebras
-`ConormalAlgebra.pullback f i' ⟶ ConormalAlgebra.total i`. -/
-@[stacks 09RS]
-#check
-  (ConormalAlgebra.map sq :
-    ConormalAlgebra.pullback f i' ⟶ ConormalAlgebra.total i)
+/- Lemma 76.6.3: A commutative square of algebraic spaces over a scheme,
+with horizontal immersions, induces a canonical map of graded conormal algebras.
+The underlying algebra comparison commutes with every homogeneous inclusion. -/
+@[stacks 09RS] #check
+  (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.map_graded sq :
+    ∀ n : ℕ, ConormalAlgebra.pullbackDegreeToTotal f i' n ≫
+        QcAlgebraUnder.underlyingModuleMap (ConormalAlgebra.map sq) =
+      ConormalAlgebra.mapPiece sq n ≫ ConormalAlgebra.degreeToTotal i n)
 
-#check (ConormalAlgebra.map_spec sq)
-#check (ConormalAlgebra.mapPiece sq)
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.map sq :
+  ConormalAlgebra.pullback f i' ⟶ ConormalAlgebra.total i)

@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap96.«96_9_2_1_Comparison»
-public import stacks_project.Chap96.«96_9_2_2_Restriction»
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.SheafComparison
 
 /-!
 # Inverse-image comparison of small étale sheaves
@@ -35,35 +28,25 @@ variable [HasWeakSheafify (X.p.obj x).left.smallEtaleTopology (Type (u + 1))]
 variable [∀ P : (X.p.obj y).left.Etaleᵒᵖ ⥤ Type (u + 1),
     (smallEtalePullback (X.p.map φ).left).op.HasLeftKanExtension P]
 
-/-- Inverse-image comparison morphism
-`a_small⁻¹(F|_{V_étale}) ⟶ F|_{U_étale}` associated to `φ : x ⟶ y`, the
-adjunct of `comparisonPush φ F.obj`. -/
-def comparison (F : Sheaf X.etaleTopology (Type (u + 1))) :
+variable (F : Sheaf X.etaleTopology (Type (u + 1)))
+
+#check (AlgebraicGeometry.GroupoidsOver.comparison φ F :
     ((smallEtalePullback (X.p.map φ).left).sheafPullback (Type (u + 1))
         (X.p.obj y).left.smallEtaleTopology
         (X.p.obj x).left.smallEtaleTopology).obj
       (restrictSmallEtaleSheaf F y) ⟶
-    restrictSmallEtaleSheaf F x :=
-  ((smallEtalePullback_sheafAdjunction (X.p.map φ).left (Type (u + 1))).homEquiv
-      (restrictSmallEtaleSheaf F y) (restrictSmallEtaleSheaf F x)).symm
-    (ObjectProperty.homMk (comparisonPush φ F.obj))
+    restrictSmallEtaleSheaf F x)
 
-/-- `comparison` is the adjunct of the sheaf morphism whose underlying map is
-`comparisonPush φ F.obj`. -/
-theorem comparison_adjunct (F : Sheaf X.etaleTopology (Type (u + 1))) :
+#check (AlgebraicGeometry.GroupoidsOver.comparison_adjunct φ F :
     comparison φ F =
       ((smallEtalePullback_sheafAdjunction (X.p.map φ).left (Type (u + 1))).homEquiv
           (restrictSmallEtaleSheaf F y) (restrictSmallEtaleSheaf F x)).symm
-        (ObjectProperty.homMk (comparisonPush φ F.obj)) :=
-  sorry
+        (ObjectProperty.homMk (comparisonPush φ F.obj)))
 
-/-- The sheaf morphism corresponding to `comparison φ F` under the small étale
-pullback adjunction has underlying presheaf map `comparisonPush φ F.obj`. -/
-theorem comparison_hom (F : Sheaf X.etaleTopology (Type (u + 1))) :
+#check (AlgebraicGeometry.GroupoidsOver.comparison_hom φ F :
     (((smallEtalePullback_sheafAdjunction (X.p.map φ).left (Type (u + 1))).homEquiv
           (restrictSmallEtaleSheaf F y) (restrictSmallEtaleSheaf F x))
         (comparison φ F)).hom =
-      comparisonPush φ F.obj :=
-  sorry
+      comparisonPush φ F.obj)
 
 end AlgebraicGeometry.GroupoidsOver

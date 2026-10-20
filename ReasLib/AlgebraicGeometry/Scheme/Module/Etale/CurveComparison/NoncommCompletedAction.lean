@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommCompactTensor
@@ -34,9 +28,9 @@ def normalKernel (U : Index R G M) : OpenNormalSubgroup G where
 
 /-- Evaluate the finite group algebra by coefficients acting on the LEFT.
 For noncommutative R this is additive, not generally R-linear in x. -/
-def atStage (U : Index R G M) (r : NoncommCompletedRing.Obj R G)
+def atStage (U : Index R G M) (r : completedGroupRing R G)
     (x : Index.quotient U) : Index.quotient U :=
-  (NoncommCompletedRing.projection R G (normalKernel R G M U) r).coeff.sum
+  (completedGroupRing.π R G (normalKernel R G M U) r).coeff.sum
     (fun q a ↦ a • ((Index.action U).ρ (Quotient.out q)).hom x)
 
 /-- Compatibility equations of the original coefficient's finite quotient system. -/
@@ -61,17 +55,17 @@ def limitEquiv [CompactSpace G] : M.obj.V.toModule ≃ₗ[R] compatible R G M :=
   LinearEquiv.ofBijective (toLimit R G M) (toLimit_bijective R G M)
 
 /-- The finite completed actions respect all actual quotient transitions. -/
-theorem atStage_compatible (r : NoncommCompletedRing.Obj R G) (x : compatible R G M) :
+theorem atStage_compatible (r : completedGroupRing R G) (x : compatible R G M) :
     (fun U ↦ atStage R G M U r (x.val U)) ∈ compatible R G M := by sorry
 
 /-- Actual action on compatible families, with no false R-linearity requirement. -/
-def onLimit (r : NoncommCompletedRing.Obj R G) (x : compatible R G M) : compatible R G M :=
+def onLimit (r : completedGroupRing R G) (x : compatible R G M) : compatible R G M :=
   ⟨fun U ↦ atStage R G M U r (x.val U), atStage_compatible R G M r x⟩
 
 variable [CompactSpace G]
 
 /-- Action on the original compact coefficient through its actual quotient coordinates. -/
-def scalar (r : NoncommCompletedRing.Obj R G) (m : M.obj.V.toModule) : M.obj.V.toModule :=
+def scalar (r : completedGroupRing R G) (m : M.obj.V.toModule) : M.obj.V.toModule :=
   (limitEquiv R G M).symm (onLimit R G M r (limitEquiv R G M m))
 
 /-- Keep the completed-module carrier separate from its original R-module instance. -/
@@ -82,7 +76,7 @@ instance carrier_addCommGroup : AddCommGroup (Carrier R G M) :=
 
 /-- Noncommutative completed scalars satisfy the module laws as ADDITIVE maps.
 They are not placed in Module.End R, which would be false in general. -/
-instance completedModule : Module (NoncommCompletedRing.Obj R G) (Carrier R G M) where
+instance completedModule : Module (completedGroupRing R G) (Carrier R G M) where
   smul := scalar R G M
   one_smul := by sorry
   mul_smul := by sorry
@@ -92,23 +86,23 @@ instance completedModule : Module (NoncommCompletedRing.Obj R G) (Carrier R G M)
   add_smul := by sorry
 
 /-- The actual completed-ring module, over a possibly noncommutative ring. -/
-def module : ModuleCat.{u} (NoncommCompletedRing.Obj R G) :=
-  ModuleCat.of (NoncommCompletedRing.Obj R G) (Carrier R G M)
+def module : ModuleCat.{u} (completedGroupRing R G) :=
+  ModuleCat.of (completedGroupRing R G) (Carrier R G M)
 
 /-- Scalar restriction recovers exactly the original LEFT R action. -/
 theorem scalar_ofScalar (r : R) (m : M.obj.V.toModule) :
-    scalar R G M (NoncommCompletedRing.ofScalar R G r) m = r • m := by sorry
+    scalar R G M (completedGroupRing.ofScalar R G r) m = r • m := by sorry
 
 /-- Dirac families recover the independent original group action. -/
 theorem scalar_dirac (g : G) (m : M.obj.V.toModule) :
-    scalar R G M (NoncommCompletedRing.dirac R G g) m =
+    scalar R G M (completedGroupRing.dirac R G g) m =
       (show _ →L[R] _ from M.obj.ρ g) m := by sorry
 
 variable {M}
 
 /-- Continuous equivariant R-linear maps commute with the actual finite-stage actions. -/
 theorem scalar_naturality {N : NoncommCompactRepresentation.Cat R G} (f : M ⟶ N)
-    (r : NoncommCompletedRing.Obj R G) (m : M.obj.V.toModule) :
+    (r : completedGroupRing R G) (m : M.obj.V.toModule) :
     (show _ →L[R] _ from f.hom.hom) (scalar R G M r m) =
       scalar R G N r ((show _ →L[R] _ from f.hom.hom) m) := by sorry
 
@@ -121,7 +115,7 @@ def map {N : NoncommCompactRepresentation.Cat R G} (f : M ⟶ N) :
       map_smul' := scalar_naturality R G f }
 
 /-- Actual scalar-extension functor on compact representations. -/
-def functor : NoncommCompactRepresentation.Cat R G ⥤ ModuleCat.{u} (NoncommCompletedRing.Obj R G) where
+def functor : NoncommCompactRepresentation.Cat R G ⥤ ModuleCat.{u} (completedGroupRing R G) where
   obj := fun M ↦ module R G M
   map := map R G
   map_id := by sorry

@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap84.«84_5_2_1_Comparison»
-public import stacks_project.Chap84.«84_5_2_1_Site»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.SmallToBig
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +13,7 @@ noncomputable section
 
 universe u
 
-/- 84.5.2.1: (f_big,* F)|_{X_étale} = f_small,* (F|_{Y_étale}).
+/- 0DG9::statement_repair::1: (f_big,* F)|_{X_étale} = f_small,* (F|_{Y_étale}).
 Restriction of the big étale direct image of a sheaf on `(Spaces/Y)_étale`
 agrees with the small étale direct image of the restricted sheaf. If `F` is
 an `𝒪`-module on the big ringed site, the identification is an isomorphism

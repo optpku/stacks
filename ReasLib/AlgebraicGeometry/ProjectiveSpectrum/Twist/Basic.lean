@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Modules.Sheaf
 public import Mathlib.AlgebraicGeometry.ProjectiveSpectrum.Basic
 public import Mathlib.CategoryTheory.Monoidal.Category
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Monoidal
 
 /-!
 # Integral families of module sheaves on projective spectra
@@ -44,13 +39,13 @@ theorem twist_def (P : ProjTwistFamily calA) (n : Int) :
     P.twist n = P n := rfl
 
 /-- Tensor a module sheaf with the member of index `n` of an integral family. -/
-def tensorTwist [MonoidalCategory (Proj calA).Modules]
+noncomputable def tensorTwist
     (P : ProjTwistFamily calA) (F : (Proj calA).Modules) (n : Int) :
     (Proj calA).Modules :=
   tensorObj F (P.twist n)
 
 /-- Tensor twisting is tensor product with the member of the given index. -/
-theorem tensorTwist_def [MonoidalCategory (Proj calA).Modules]
+theorem tensorTwist_def
     (P : ProjTwistFamily calA) (F : (Proj calA).Modules) (n : Int) :
     P.tensorTwist F n = tensorObj F (P.twist n) := rfl
 

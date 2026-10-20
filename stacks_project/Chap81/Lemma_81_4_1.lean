@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap81.Lemma_81_4_1_Descent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Descent
+import StacksCheckRecall
 
 /-!
 # Lemma 81.4.1
@@ -21,17 +16,12 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 81.4.1: Let `S` be a scheme. Let `{f i : Xᵢ i ⟶ X}` be an étale covering
+/- Lemma 81.4.1: Let `S` be a scheme. Let `{f i : Xᵢ i ⟶ X}` be an étale covering
 of algebraic spaces. The functor `Sheaf (smallEtaleTopology X) (Type (u + 1)) ⥤
 etaleCoveringDescent f` is an equivalence of categories. -/
-@[stacks 0GFS]
-theorem sheafToEtaleCoveringDescent_isEquivalence
-    {S : Scheme.{u}} {X : AlgebraicSpace S} {ι : Type u}
-    {Xᵢ : ι → AlgebraicSpace S} (f : ∀ i, Xᵢ i ⟶ X) [∀ i, Etale (f i)]
-    (h_cover : (⋃ i, Set.range (Points.map (f i))) = Set.univ) :
-    (sheafToEtaleCoveringDescent f).IsEquivalence :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 0GFS] #check
+  (AlgebraicGeometry.AlgebraicSpace.sheafToEtaleCoveringDescent_isEquivalence :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {ι : Type u}
+    {Xᵢ : ι → AlgebraicSpace S} (f : ∀ i, Xᵢ i ⟶ X) [∀ i, Etale (f i)],
+    (⋃ i, Set.range (Points.map (f i))) = Set.univ →
+    (sheafToEtaleCoveringDescent f).IsEquivalence)

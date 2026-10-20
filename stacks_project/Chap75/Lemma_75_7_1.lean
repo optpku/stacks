@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_7_1_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubset.Proper
 import StacksCheckRecall
 
 @[expose] public section
@@ -24,7 +18,8 @@ closed-subspace structure on a fixed closed subset are equivalent. -/
       (f : X ⟶ Y) [AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType f]
       (T : TopologicalSpace.Closeds (AlgebraicGeometry.AlgebraicSpace.Points X)),
       List.TFAE [
-        AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f T,
+        AlgebraicGeometry.AlgebraicSpace.Proper
+          ((AlgebraicGeometry.AlgebraicSpace.ClosedSubspaceStructure.reduced T).ι ≫ f),
         ∃ Z : AlgebraicGeometry.AlgebraicSpace.ClosedSubspaceStructure T,
           AlgebraicGeometry.AlgebraicSpace.Proper (Z.ι ≫ f),
         ∀ Z : AlgebraicGeometry.AlgebraicSpace.ClosedSubspaceStructure T,

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.AdicCompletion.Basic
@@ -49,7 +43,8 @@ instance instOfIsAdicCompleteFiniteType
 `I`-adically complete and its special fiber is of finite type over `R ⧸ I`. -/
 theorem iff :
     TopologicallyFiniteType I S ↔
-      IsAdicComplete I S ∧ FiniteType (R ⧸ I) (S ⧸ I.map (algebraMap R S)) := sorry
+      IsAdicComplete I S ∧ FiniteType (R ⧸ I) (S ⧸ I.map (algebraMap R S)) :=
+  ⟨fun h ↦ ⟨h.isAdicComplete, h.finiteType_quotient⟩, fun h ↦ ⟨h.1, h.2⟩⟩
 
 end TopologicallyFiniteType
 

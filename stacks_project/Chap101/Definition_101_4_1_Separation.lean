@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Separation
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Diagonal.Construction
 public import stacks_project.Chap67.Definition_67_4_2_Separation
 public import stacks_project.Chap67.Definition_67_8_2_QuasiCompact
@@ -14,6 +9,7 @@ public import stacks_project.Chap67.Lemma_67_27_7_LocallyQuasiFinite
 public import stacks_project.Chap67.Lemma_67_38_8_Unramified
 public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
 public import stacks_project.Chap100.Lemma_100_3_2_MorphismProperty
+import StacksCheckRecall
 
 /-!
 # Separation axioms for morphisms of algebraic stacks
@@ -34,141 +30,87 @@ noncomputable section
 
 universe u
 
+/- Definition 101.4.1 (1): a morphism of algebraic stacks is DM if its
+relative 2-diagonal is unramified. -/
+@[stacks 04YW] #check (AlgebraicGeometry.AlgebraicStack.DM :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y],
+    (X ⟶ Y) → Prop)
+
+/- Definition 101.4.1 (2): a morphism of algebraic stacks is quasi-DM if its
+relative 2-diagonal is locally quasi-finite. -/
+@[stacks 04YW] #check (AlgebraicGeometry.AlgebraicStack.QuasiDM :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y],
+    (X ⟶ Y) → Prop)
+
+/- Definition 101.4.1 (3): a morphism of algebraic stacks is separated if its
+relative 2-diagonal is proper. -/
+@[stacks 04YW] #check (AlgebraicGeometry.AlgebraicStack.Separated :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y],
+    (X ⟶ Y) → Prop)
+
+/- Definition 101.4.1 (4): a morphism of algebraic stacks is quasi-separated if
+its relative 2-diagonal is quasi-compact and quasi-separated. -/
+@[stacks 04YW] #check (AlgebraicGeometry.AlgebraicStack.QuasiSeparated :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y],
+    (X ⟶ Y) → Prop)
+
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- A morphism of algebraic stacks is DM if its relative 2-diagonal is
-unramified. Equivalently, the fibres of such a morphism are Deligne–Mumford
-stacks. -/
-@[mk_iff]
-class DM {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) : Prop where
-  /-- The relative 2-diagonal is unramified. -/
-  unramified_diagonal :
+#check (AlgebraicGeometry.AlgebraicStack.DM.id :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X],
+    DM (𝟙 X))
+
+#check (AlgebraicGeometry.AlgebraicStack.DM.spec :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [DM f],
     Groupoids.Hom.has (@AlgebraicSpace.Unramified S)
-      (Hom.diagonal.{u + 1, u, u + 1} f)
+      (Hom.diagonal.{u + 1, u, u + 1} f))
 
-namespace DM
+#check (AlgebraicGeometry.AlgebraicStack.QuasiDM.id :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X],
+    QuasiDM (𝟙 X))
 
-/-- The identity morphism of an algebraic stack is DM. -/
-instance id {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] :
-    DM (𝟙 X) :=
-  sorry
-
-/-- The relative 2-diagonal of a DM morphism of algebraic stacks is
-unramified. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [DM f] :
-    Groupoids.Hom.has (@AlgebraicSpace.Unramified S)
-      (Hom.diagonal.{u + 1, u, u + 1} f) :=
-  sorry
-
-end DM
-
-/-- A morphism of algebraic stacks is quasi-DM if its relative 2-diagonal is
-locally quasi-finite. Equivalently, the fibres of such a morphism are
-quasi-DM. -/
-@[mk_iff]
-class QuasiDM {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) : Prop where
-  /-- The relative 2-diagonal is locally quasi-finite. -/
-  locallyQuasiFinite_diagonal :
+#check (AlgebraicGeometry.AlgebraicStack.QuasiDM.spec :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [QuasiDM f],
     Groupoids.Hom.has (@AlgebraicSpace.LocallyQuasiFinite S)
-      (Hom.diagonal.{u + 1, u, u + 1} f)
+      (Hom.diagonal.{u + 1, u, u + 1} f))
 
-namespace QuasiDM
+#check (AlgebraicGeometry.AlgebraicStack.Separated.id :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X],
+    Separated (𝟙 X))
 
-/-- The identity morphism of an algebraic stack is quasi-DM. -/
-instance id {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] :
-    QuasiDM (𝟙 X) :=
-  sorry
-
-/-- The relative 2-diagonal of a quasi-DM morphism of algebraic stacks is
-locally quasi-finite. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [QuasiDM f] :
-    Groupoids.Hom.has (@AlgebraicSpace.LocallyQuasiFinite S)
-      (Hom.diagonal.{u + 1, u, u + 1} f) :=
-  sorry
-
-end QuasiDM
-
-/-- A morphism of algebraic stacks is separated if its relative 2-diagonal is
-proper, not merely a closed immersion. -/
-@[mk_iff]
-class Separated {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) : Prop where
-  /-- The relative 2-diagonal is a proper morphism of algebraic spaces. -/
-  proper_diagonal :
+#check (AlgebraicGeometry.AlgebraicStack.Separated.spec :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Separated f],
     Groupoids.Hom.has (@AlgebraicSpace.Proper S)
-      (Hom.diagonal.{u + 1, u, u + 1} f)
+      (Hom.diagonal.{u + 1, u, u + 1} f))
 
-namespace Separated
+#check (AlgebraicGeometry.AlgebraicStack.QuasiSeparated.id :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X],
+    QuasiSeparated (𝟙 X))
 
-/-- The identity morphism of an algebraic stack is separated. -/
-instance id {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] :
-    Separated (𝟙 X) :=
-  sorry
-
-/-- The relative 2-diagonal of a separated morphism of algebraic stacks is
-proper. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Separated f] :
-    Groupoids.Hom.has (@AlgebraicSpace.Proper S)
-      (Hom.diagonal.{u + 1, u, u + 1} f) :=
-  sorry
-
-end Separated
-
-/-- A morphism of algebraic stacks is quasi-separated if its relative
-2-diagonal is both quasi-compact and quasi-separated. -/
-@[mk_iff]
-class QuasiSeparated {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) : Prop where
-  /-- The relative 2-diagonal is quasi-compact. -/
-  quasiCompact_diagonal :
-    Groupoids.Hom.has (@AlgebraicSpace.QuasiCompact S)
-      (Hom.diagonal.{u + 1, u, u + 1} f)
-  /-- The relative 2-diagonal is quasi-separated. -/
-  quasiSeparated_diagonal :
-    Groupoids.Hom.has (@AlgebraicSpace.QuasiSeparated S)
-      (Hom.diagonal.{u + 1, u, u + 1} f)
-
-namespace QuasiSeparated
-
-/-- The identity morphism of an algebraic stack is quasi-separated. -/
-instance id {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] :
-    QuasiSeparated (𝟙 X) :=
-  sorry
-
-/-- A morphism of algebraic stacks is quasi-separated if and only if its
-relative 2-diagonal is quasi-compact and quasi-separated. -/
-theorem iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) :
+#check (AlgebraicGeometry.AlgebraicStack.QuasiSeparated.iff :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
     QuasiSeparated f ↔
       Groupoids.Hom.has (@AlgebraicSpace.QuasiCompact S)
           (Hom.diagonal.{u + 1, u, u + 1} f) ∧
         Groupoids.Hom.has (@AlgebraicSpace.QuasiSeparated S)
-          (Hom.diagonal.{u + 1, u, u + 1} f) :=
-  sorry
+          (Hom.diagonal.{u + 1, u, u + 1} f))
 
-/-- The relative 2-diagonal of a quasi-separated morphism of algebraic stacks
-is quasi-compact and quasi-separated. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [QuasiSeparated f] :
+#check (AlgebraicGeometry.AlgebraicStack.QuasiSeparated.spec :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [QuasiSeparated f],
     Groupoids.Hom.has (@AlgebraicSpace.QuasiCompact S)
         (Hom.diagonal.{u + 1, u, u + 1} f) ∧
       Groupoids.Hom.has (@AlgebraicSpace.QuasiSeparated S)
-        (Hom.diagonal.{u + 1, u, u + 1} f) :=
-  sorry
+        (Hom.diagonal.{u + 1, u, u + 1} f))
 
-end QuasiSeparated
-
-/-- The relative 2-diagonal of a morphism of algebraic stacks is representable
-by algebraic spaces, so the scheme-slice tests above are well-defined. -/
-theorem relativelyRepresentable_diagonal {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) :
+#check (AlgebraicGeometry.AlgebraicStack.relativelyRepresentable_diagonal :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
     relativelyRepresentableByAlgebraicSpaces
-      (Hom.diagonal.{u + 1, u, u + 1} f) :=
-  sorry
+      (Hom.diagonal.{u + 1, u, u + 1} f))
 
 end AlgebraicGeometry.AlgebraicStack

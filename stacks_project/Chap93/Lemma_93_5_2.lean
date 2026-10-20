@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap93.Lemma_93_5_2_RimSchlessinger
+public import ReasLib.AlgebraicGeometry.FormalDeformation.GroupRepresentation.RimSchlessinger
 import StacksCheckRecall
 
 /-!

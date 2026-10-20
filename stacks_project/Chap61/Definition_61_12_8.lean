@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap61.Definition_61_12_8_Affine
@@ -50,7 +44,3 @@ subcategory of the chosen big slice with its standard pro-étale topology. -/
         GrothendieckTopology
           (AlgebraicGeometry.ChosenBigProetaleSite.bigAffineSite X S))
 
-#check AlgebraicGeometry.ChosenBigProetaleSite.mem_smallPrecoverage_iff
-#check AlgebraicGeometry.ChosenBigProetaleSite.mem_bigAffineStandardPrecoverage_iff
-#check AlgebraicGeometry.Scheme.ProEt
-#check AlgebraicGeometry.Scheme.proetaleTopology

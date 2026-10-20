@@ -1,80 +1,102 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap87.Remark_87_21_5_Variant_for_Noetherian
-public import stacks_project.Chap87.Remark_87_21_18_Variant_for_Noetherian_Cancellation
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.ChosenFppf.NoetherianLocalMorphismProperty.Cancellation
 import StacksCheckRecall
 
 /-!
 # Cancellation of local WAdm^Noeth morphism properties
 
-If `P` is a local property of morphisms of `WAdm^Noeth` that has the
-cancellation property, then the equivalent conditions of Remark 87.21.5
-cancel along postcomposition of morphisms of locally Noetherian formal
-algebraic spaces: `etaleAffineLocally P (f ≫ g)` and `etaleAffineLocally P g`
-imply `etaleAffineLocally P f`.
+A local property of continuous maps of Noetherian adic rings with cancellation
+induces cancellation for morphisms of locally Noetherian formal algebraic spaces.
+The source remark repeats the consequent and cites the composition lemma;
+we use the cancellation implication and geometric variant established by the
+immediately preceding cancellation situation, lemma, and proof.
 -/
 
 @[expose] public section
 
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
 open AlgebraicGeometry.ChosenBigFppfSite TopologicalRing
+open AlgebraicGeometry.IsFormalAlgebraicSpace
+open AlgebraicGeometry.IsFormalAlgebraicSpace.IsLocallyNoetherian
 
 universe u v
 
-/- Remark 87.21.18 (Variant for Noetherian) (1): a local property P of morphisms of
-WAdm^Noeth has the cancellation property when, for morphisms B → A and C → B,
-P(C → B) and P(C → A) imply P(B → A). -/
-@[stacks 0GBP] #check TopologicalRing.Noetherian.HasCancellationProperty
+/- Remark 87.21.18 (Variant for Noetherian): A local property of continuous maps
+of Noetherian adic rings with cancellation induces cancellation for morphisms of
+locally Noetherian formal algebraic spaces, in each equivalent local test. -/
+@[stacks 0GBP] #check (AlgebraicGeometry.IsFormalAlgebraicSpace.IsLocallyNoetherian.etaleAffineLocally.of_comp :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    {X Y Z : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    [IsLocallyNoetherian X] [IsLocallyNoetherian Y] [IsLocallyNoetherian Z]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsAdicRing A] [IsNoetherianRing A]
+      [CommRing B] [TopologicalSpace B] [IsAdicRing B] [IsNoetherianRing B],
+      (B →+* A) → Prop)
+    (f : X ⟶ Y) (g : Y ⟶ Z),
+    Noetherian.IsLocalMorphismProperty P →
+    Noetherian.HasCancellationProperty P →
+    etaleAffineLocally P (f ≫ g) → etaleAffineLocally P g → etaleAffineLocally P f)
 
-namespace AlgebraicGeometry.IsFormalAlgebraicSpace.IsLocallyNoetherian
+#check (AlgebraicGeometry.IsFormalAlgebraicSpace.IsLocallyNoetherian.existsCoverOnTarget.of_comp :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    {X Y Z : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    [IsLocallyNoetherian X] [IsLocallyNoetherian Y] [IsLocallyNoetherian Z]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsAdicRing A] [IsNoetherianRing A]
+      [CommRing B] [TopologicalSpace B] [IsAdicRing B] [IsNoetherianRing B],
+      (B →+* A) → Prop)
+    (f : X ⟶ Y) (g : Y ⟶ Z),
+    Noetherian.IsLocalMorphismProperty P →
+    Noetherian.HasCancellationProperty P →
+    existsCoverOnTarget P (f ≫ g) → existsCoverOnTarget P g → existsCoverOnTarget P f)
 
-variable {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
-variable [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
-variable [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
-variable {X Y Z : Sheaf (𝒮.bigTopology S) (Type (max u v))}
-variable [IsLocallyNoetherian X] [IsLocallyNoetherian Y]
-    [IsLocallyNoetherian Z]
-variable (P : ∀ {A B : Type u}
-    [CommRing A] [TopologicalSpace A] [IsAdicRing A] [IsNoetherianRing A]
-    [CommRing B] [TopologicalSpace B] [IsAdicRing B] [IsNoetherianRing B],
-    (B →+* A) → Prop)
-variable (f : X ⟶ Y) (g : Y ⟶ Z)
+#check (AlgebraicGeometry.IsFormalAlgebraicSpace.IsLocallyNoetherian.existsCoverOnSource.of_comp :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    {X Y Z : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    [IsLocallyNoetherian X] [IsLocallyNoetherian Y] [IsLocallyNoetherian Z]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsAdicRing A] [IsNoetherianRing A]
+      [CommRing B] [TopologicalSpace B] [IsAdicRing B] [IsNoetherianRing B],
+      (B →+* A) → Prop)
+    (f : X ⟶ Y) (g : Y ⟶ Z),
+    Noetherian.IsLocalMorphismProperty P →
+    Noetherian.HasCancellationProperty P →
+    existsCoverOnSource P (f ≫ g) → existsCoverOnSource P g → existsCoverOnSource P f)
 
-/-- Remark 87.21.18 (Variant for Noetherian) (2): Let `S` be a scheme. Let `P`
-be a local property of morphisms of `WAdm^Noeth` which has the cancellation
-property. Let `f : X ⟶ Y` and `g : Y ⟶ Z` be morphisms of locally Noetherian
-formal algebraic spaces over `S`. If `f ≫ g` and `g` satisfy the equivalent
-conditions of Remark 87.21.5 (`etaleAffineLocally`, `existsCoverOnTarget`,
-and `existsCoverOnSource`), then so does `f : X ⟶ Y`. -/
-@[stacks 0GBP]
-theorem etaleAffineLocally.of_comp (hP : Noetherian.IsLocalMorphismProperty P)
-    (hCancel : Noetherian.HasCancellationProperty P)
-    (hgf : etaleAffineLocally P (f ≫ g)) (hg : etaleAffineLocally P g) :
-    etaleAffineLocally P f := sorry
+#check (TopologicalRing.Noetherian.HasCancellationProperty :
+  (∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsAdicRing A] [IsNoetherianRing A]
+      [CommRing B] [TopologicalSpace B] [IsAdicRing B] [IsNoetherianRing B],
+      (B →+* A) → Prop) → Prop)
 
-/-- Condition (2) of the Noetherian variant of Lemma 87.21.3 cancels along
-postcomposition: if `P` is a local property of morphisms of `WAdm^Noeth` with
-the cancellation property, and `f ≫ g` and `g` admit Definition 87.11.1
-coverings of the target as in `existsCoverOnTarget`, then so does `f`. -/
-theorem existsCoverOnTarget.of_comp (hP : Noetherian.IsLocalMorphismProperty P)
-    (hCancel : Noetherian.HasCancellationProperty P)
-    (hgf : existsCoverOnTarget P (f ≫ g)) (hg : existsCoverOnTarget P g) :
-    existsCoverOnTarget P f := sorry
+#check (TopologicalRing.Noetherian.HasCancellationProperty.of :
+  ∀ (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsAdicRing A] [IsNoetherianRing A]
+      [CommRing B] [TopologicalSpace B] [IsAdicRing B] [IsNoetherianRing B],
+      (B →+* A) → Prop),
+    (∀ {A B C : Type u}
+      [CommRing A] [TopologicalSpace A] [IsAdicRing A] [IsNoetherianRing A]
+      [CommRing B] [TopologicalSpace B] [IsAdicRing B] [IsNoetherianRing B]
+      [CommRing C] [TopologicalSpace C] [IsAdicRing C] [IsNoetherianRing C]
+      (φ : B →+* A) (ψ : C →+* B),
+      Continuous φ → Continuous ψ → P ψ → P (φ.comp ψ) → P φ) → Noetherian.HasCancellationProperty P)
 
-/-- Condition (3) of the Noetherian variant of Lemma 87.21.3 cancels along
-postcomposition: if `P` is a local property of morphisms of `WAdm^Noeth` with
-the cancellation property, and `f ≫ g` and `g` admit Definition 87.11.1
-coverings of the source as in `existsCoverOnSource`, then so does `f`. -/
-theorem existsCoverOnSource.of_comp (hP : Noetherian.IsLocalMorphismProperty P)
-    (hCancel : Noetherian.HasCancellationProperty P)
-    (hgf : existsCoverOnSource P (f ≫ g)) (hg : existsCoverOnSource P g) :
-    existsCoverOnSource P f := sorry
-
-end AlgebraicGeometry.IsFormalAlgebraicSpace.IsLocallyNoetherian
+#check (TopologicalRing.Noetherian.HasCancellationProperty.iff :
+  ∀ (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsAdicRing A] [IsNoetherianRing A]
+      [CommRing B] [TopologicalSpace B] [IsAdicRing B] [IsNoetherianRing B],
+      (B →+* A) → Prop),
+    Noetherian.HasCancellationProperty P ↔
+    ∀ {A B C : Type u}
+      [CommRing A] [TopologicalSpace A] [IsAdicRing A] [IsNoetherianRing A]
+      [CommRing B] [TopologicalSpace B] [IsAdicRing B] [IsNoetherianRing B]
+      [CommRing C] [TopologicalSpace C] [IsAdicRing C] [IsNoetherianRing C]
+      (φ : B →+* A) (ψ : C →+* B),
+      Continuous φ → Continuous ψ → P ψ → P (φ.comp ψ) → P φ)

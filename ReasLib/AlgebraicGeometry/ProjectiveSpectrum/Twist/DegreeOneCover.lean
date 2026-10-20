@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.DegreeOpen
@@ -50,7 +44,6 @@ theorem projTwistMul_isIso_of_degreeOpen_one_eq_top
 /-- If the degree-one projective basic opens cover `Proj 𝒜`, then the action of a
 standard-open-specified canonical twist multiplication on any module sheaf is an isomorphism. -/
 theorem projSheafTwistMul_isIso_of_degreeOpen_one_eq_top
-    [SymmetricCategory (Proj 𝒜).Modules]
     (T : Proj.AssociatedModule.TwistMultiplication 𝒜)
     (hcover : Proj.degreeOpen 𝒜 1 = ⊤) (ℱ : (Proj 𝒜).Modules) (a b : ℤ) :
     IsIso

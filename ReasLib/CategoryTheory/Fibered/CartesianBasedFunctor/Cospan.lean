@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.CartesianBasedFunctor.Composition
-public import ReasLib.CategoryTheory.Fibered.BasedCategory.Cospan.Basic
+public import ReasLib.CategoryTheory.Fibered.BasedCategory.Cospan.Basic.Core
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -105,12 +99,10 @@ transformation. -/
 @[stacks 04Y1 "underlying based cospan transformation"]
 def toBased (ψ : CartesianCospanTransform F₁ G₁ F₂ G₂) :
     BasedCospanTransform F₁.toBasedFunctor G₁.toBasedFunctor
-      F₂.toBasedFunctor G₂.toBasedFunctor where
-  left := ψ.left.toBasedFunctor
-  right := ψ.right.toBasedFunctor
-  base := ψ.base.toBasedFunctor
-  leftIso := CartesianBasedFunctor.toBasedIso ψ.leftIso
-  rightIso := CartesianBasedFunctor.toBasedIso ψ.rightIso
+      F₂.toBasedFunctor G₂.toBasedFunctor :=
+  BasedCospanTransform.mk ψ.left.toBasedFunctor ψ.right.toBasedFunctor ψ.base.toBasedFunctor
+    (CartesianBasedFunctor.toBasedIso ψ.leftIso)
+    (CartesianBasedFunctor.toBasedIso ψ.rightIso)
 
 /-- The left component of the underlying based cospan transformation is the underlying based
 functor of the cartesian left component. -/

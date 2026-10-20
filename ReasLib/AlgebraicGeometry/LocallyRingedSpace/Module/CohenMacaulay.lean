@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.LocallyRingedSpace.Module.Depth
@@ -31,28 +25,31 @@ variable [∀ x : X, IsNoetherianRing (X.presheaf.stalk x)]
 
 /-- A module sheaf on a locally ringed space is Cohen-Macaulay when each
 stalk is a Cohen-Macaulay module over its local stalk ring. -/
-class CohenMacaulay (ℱ : X.Modules) : Prop where
-  /-- Every stalk is a Cohen-Macaulay module over its local ring. -/
+class CohenMacaulay (ℱ : X.Modules) : Prop extends HasFiniteStalks ℱ where
+  /-- A stalk is zero or is Cohen-Macaulay in the nonzero local-module convention. -/
   stalk (x : X) :
-    Module.CohenMacaulay (X.presheaf.stalk x) (RingedSpace.stalkModuleCat ℱ x)
+    Subsingleton (RingedSpace.stalkModuleCat ℱ x) ∨
+      Module.CohenMacaulay (X.presheaf.stalk x) (RingedSpace.stalkModuleCat ℱ x)
 
 namespace CohenMacaulay
 
 /-- A stalk of a Cohen-Macaulay module sheaf is a Cohen-Macaulay module. -/
 theorem stalk_cohenMacaulay
-    (ℱ : X.Modules) [CohenMacaulay ℱ] (x : X) :
+    (ℱ : X.Modules) [CohenMacaulay ℱ] (x : X)
+    [Nontrivial (RingedSpace.stalkModuleCat ℱ x)] :
     Module.CohenMacaulay (X.presheaf.stalk x) (RingedSpace.stalkModuleCat ℱ x) := sorry
 
 /-- A Cohen-Macaulay module sheaf supplies the Cohen-Macaulay instance at every stalk. -/
 instance instStalkCohenMacaulay
-    (ℱ : X.Modules) [CohenMacaulay ℱ] (x : X) :
+    (ℱ : X.Modules) [CohenMacaulay ℱ] (x : X)
+    [Nontrivial (RingedSpace.stalkModuleCat ℱ x)] :
     Module.CohenMacaulay (X.presheaf.stalk x) (RingedSpace.stalkModuleCat ℱ x) :=
   stalk_cohenMacaulay ℱ x
 
 /-- A Cohen-Macaulay module sheaf has finite stalks. -/
 theorem hasFiniteStalks
     (ℱ : X.Modules) [CohenMacaulay ℱ] :
-    HasFiniteStalks ℱ := sorry
+    HasFiniteStalks ℱ := CohenMacaulay.toHasFiniteStalks
 
 /-- A Cohen-Macaulay module sheaf supplies the finite-stalks instance needed by stalkwise depth
 and Serre-condition APIs. -/
@@ -60,6 +57,12 @@ instance instHasFiniteStalks
     (ℱ : X.Modules) [CohenMacaulay ℱ] :
     HasFiniteStalks ℱ :=
   hasFiniteStalks ℱ
+
+theorem of_subsingleton_stalks (ℱ : X.Modules)
+    (h : ∀ x : X, Subsingleton (RingedSpace.stalkModuleCat ℱ x)) :
+    CohenMacaulay ℱ := by
+  refine { toHasFiniteStalks := ?_, stalk := fun x ↦ Or.inl (h x) }
+  exact ⟨fun x ↦ by letI := h x; infer_instance⟩
 
 end CohenMacaulay
 

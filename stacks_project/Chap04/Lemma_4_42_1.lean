@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -48,10 +42,14 @@ fibre. -/
 #check (fun [Functor.IsFibered.InGroupoids pX]
     [Functor.IsFibered.InGroupoids pY] (f : Over U)
     (A B : structuredArrow G F f) ↦
+  letI : IsIso A.hom :=
+    Functor.IsFibered.InGroupoids.hom_isIso (p := pY) f.left A.hom
   StructuredArrow.homEquivInv A B :
     ∀ [Functor.IsFibered.InGroupoids pX]
         [Functor.IsFibered.InGroupoids pY] (f : Over U)
         (A B : structuredArrow G F f),
+      letI : IsIso A.hom :=
+        Functor.IsFibered.InGroupoids.hom_isIso (p := pY) f.left A.hom
       (A ⟶ B) ≃
         {ψ : A.right ⟶ B.right //
           (F.fiberFunctor f.left).map ψ =

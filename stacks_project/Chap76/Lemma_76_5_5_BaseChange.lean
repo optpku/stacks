@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
 public import stacks_project.Chap67.Lemma_67_30_5_Flat
 public import stacks_project.Chap76.Lemma_76_5_3_Map
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.BaseChange
 
 /-!
 # Base change for conormal sheaves of immersions of algebraic spaces
@@ -35,17 +30,16 @@ variable {Z X Z' X' : AlgebraicSpace S}
 variable {f : Z ⟶ Z'} {i : Z ⟶ X} {i' : Z' ⟶ X'} {g : X ⟶ X'}
 variable [IsImmersion i] [IsImmersion i']
 
-/-- The canonical comparison `f^* C_{Z'/X'} ⟶ C_{Z/X}` of a cartesian square of
-immersions of algebraic spaces is an epimorphism. -/
-instance map_epi_of_isPullback (sq : IsPullback f i i' g) :
-    Epi (map sq.toCommSq) :=
-  sorry
+variable (sq : IsPullback f i i' g)
 
-/-- If the ambient morphism `g` is flat, the canonical comparison of conormal
-sheaves associated to a cartesian square of immersions of algebraic spaces is an
-isomorphism. -/
-instance map_isIso_of_isPullback_of_flat [Flat g] (sq : IsPullback f i i' g) :
-    IsIso (map sq.toCommSq) :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.map_epi_of_isPullback sq :
+    Epi (map sq.toCommSq))
+
+variable [Flat g]
+
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.map_isIso_of_isPullback_of_flat sq :
+    IsIso (map sq.toCommSq))
 
 end AlgebraicGeometry.AlgebraicSpace.Hom.Conormal

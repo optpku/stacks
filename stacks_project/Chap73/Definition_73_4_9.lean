@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap73.Lemma_73_4_7_Relocalization
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Relocalization
 import StacksCheckRecall
 
 open CategoryTheory
@@ -24,6 +18,6 @@ the small étale site, from sheaves on the big étale site `(Spaces/X)_étale` t
 sheaves on `X_spaces,étale`; its value on a big-étale sheaf `F` is denoted
 `F|_{X_étale}`. -/
 @[stacks 0DF4] #check
-  (inverseImage (𝟙 X) :
+  (AlgebraicGeometry.AlgebraicSpace.Etale.SpacesToBig.inverseImage (𝟙 X) :
     Sheaf (overEtaleTopology X) (Type (u + 1)) ⥤
       Sheaf (spacesEtaleTopology X) (Type (u + 1)))

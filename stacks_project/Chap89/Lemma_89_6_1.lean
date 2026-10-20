@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.RingTheory.AdicCompletion.LocalMap
-public import stacks_project.Chap89.Lemma_89_6_1_BaseChange
-public import stacks_project.Chap89.Lemma_89_6_1_HenselianMap
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.HenselianLocalRing.Completion
 
 /-!
 # Completions of henselian local rings after base change to the completion
@@ -23,23 +16,19 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 89.6.1: Let `(A, m, κ)` be a local ring with finitely generated maximal
-ideal `m`. Let `X` be a decent algebraic space over `A`. Let
-`Y = completionBaseChange A X` be the base change of `X` to `Spec` of the
-`m`-adic completion of `A`. For a point `q` of `Y` whose image
-`p = Points.map (completionBaseChange.fst A X) q` in `X` lies over the closed
-point of `Spec(A)`, the map `henselianLocalRing.baseChangeHom q` of henselian
-local rings `henselianLocalRing X p ⟶ henselianLocalRing Y q` induces an
-isomorphism on maximal-ideal-adic completions. -/
-@[stacks 0BHP]
-theorem completionHenselianLocalRingMap_bijective_of_baseChange
-    (A : Type u) [CommRing A] [IsLocalRing A] (hfg : (maximalIdeal A).FG)
-    (X : AlgebraicSpace (Spec (.of A))) [IsDecent X]
-    (q : Points (completionBaseChange A X))
-    (hq : Points.base (Points.map (completionBaseChange.fst A X) q) =
-      closedPoint A) :
-    Function.Bijective
-      (AdicCompletion.mapLocal (henselianLocalRing.baseChangeHom q)) :=
-  sorry
+/- Lemma 89.6.1: Base change to the maximal-ideal-adic completion of a local ring
+with finitely generated maximal ideal induces an isomorphism on completions of
+henselian local rings over the closed point of the base. -/
+@[stacks 0BHP] #check
+  (AlgebraicGeometry.AlgebraicSpace.completionHenselianLocalRingMap_bijective_of_baseChange :
+    ∀ (A : Type u) [CommRing A] [IsLocalRing A] (hfg : (maximalIdeal A).FG)
+      (X : AlgebraicSpace (Spec (.of A))) [IsDecent X]
+      (q : Points (completionBaseChange A X))
+      (hq : Points.base (Points.map (completionBaseChange.fst A X) q) =
+        closedPoint A),
+      Function.Bijective
+        (AdicCompletion.mapLocal
+          (HenselianFunctoriality.map (completionBaseChange.fst A X) q
+            (Points.map (completionBaseChange.fst A X) q) rfl)))
 
 end AlgebraicGeometry.AlgebraicSpace

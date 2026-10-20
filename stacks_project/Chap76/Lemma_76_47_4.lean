@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Perfect.Flat
@@ -28,9 +22,6 @@ perfect if and only if it is flat and locally of finite presentation. -/
   (AlgebraicGeometry.AlgebraicSpace.flat_and_perfect_iff_flat_and_locallyOfFinitePresentation :
     ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Y : AlgebraicGeometry.AlgebraicSpace S}
       (f : X ⟶ Y),
-      (AlgebraicGeometry.AlgebraicSpace.onEtaleCharts (@AlgebraicGeometry.Flat) f ∧
-          AlgebraicGeometry.AlgebraicSpace.onEtaleCharts
-            (@AlgebraicGeometry.LocallyOfType.{u} RingHom.IsPerfectRingMap) f) ↔
-        (AlgebraicGeometry.AlgebraicSpace.onEtaleCharts (@AlgebraicGeometry.Flat) f ∧
-          AlgebraicGeometry.AlgebraicSpace.onEtaleCharts
-            (@AlgebraicGeometry.LocallyOfFinitePresentation) f))
+      (AlgebraicGeometry.AlgebraicSpace.Flat f ∧ AlgebraicGeometry.AlgebraicSpace.Perfect f) ↔
+        (AlgebraicGeometry.AlgebraicSpace.Flat f ∧
+          AlgebraicGeometry.AlgebraicSpace.LocallyOfFinitePresentation f))

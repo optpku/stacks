@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap92.Lemma_92_6_1_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.RingedSite.Cotangent.DerivedBaseChange
+import StacksCheckRecall
 
 /-!
 # Derived lower shriek after inverse image along a derived-tensor quasi-isomorphism
@@ -44,14 +38,13 @@ variable [Functor.HasLeftDerivedFunctor
   (categoryOverPointColimitToDerived (polynomialSite β) AddCommGrpCat.{u})
   (HomotopyCategory.quasiIso ((polynomialSite β)ᵒᵖ ⥤ AddCommGrpCat.{u}) (up ℤ))]
 
-/-- Lemma 92.6.1. Assume (92.6.0.1) induces a quasi-isomorphism `B ⊗[A]^L A' = B'`.
+/- Lemma 92.6.1. Assume (92.6.0.1) induces a quasi-isomorphism `B ⊗[A]^L A' = B'`.
 Then, with notation as in (92.6.0.2) and `F'` in `Ab(C')`, one has
 `Lπ_!(g⁻¹ F') = Lπ'_!(F')` in `D(Ab)`. Here `g⁻¹` is
 `presheafInverseImage (mapOp sq)`, `π` is `Lπ![polynomialSite α, AddCommGrpCat]`,
 and `π'` is `Lπ![polynomialSite β, AddCommGrpCat]`. -/
-@[stacks 08QP]
-theorem inverseImage_lowerShriek (sq : CommSq ρ α β φ)
-    (h : InducesDerivedTensorQuasiIso sq) :
+@[stacks 08QP] #check (RingedSite.Cotangent.Functoriality.inverseImage_lowerShriek :
+  ∀ (sq : CommSq ρ α β φ) (h : InducesDerivedTensorQuasiIso sq),
     IsIsomorphic
       ((DerivedCategory.singleFunctor
           ((polynomialSite β)ᵒᵖ ⥤ AddCommGrpCat.{u}) (0 : ℤ)) ⋙
@@ -59,5 +52,4 @@ theorem inverseImage_lowerShriek (sq : CommSq ρ α β φ)
         Lπ![(polynomialSite α), AddCommGrpCat.{u}])
       ((DerivedCategory.singleFunctor
           ((polynomialSite β)ᵒᵖ ⥤ AddCommGrpCat.{u}) (0 : ℤ)) ⋙
-        Lπ![(polynomialSite β), AddCommGrpCat.{u}]) :=
-  sorry
+        Lπ![(polynomialSite β), AddCommGrpCat.{u}]))

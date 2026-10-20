@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Modules.Sheaf
@@ -41,16 +35,6 @@ namespace AlgebraicGeometry.Scheme.Hom
 
 variable {R : Type u} [CommRing R]
 variable {X : Scheme.{u}}
-
-/-- Deprecated compatibility spelling for the carrier `Γ(X, ⊤)` of global functions relative to a
-chosen map `f : X ⟶ Spec R`. The carrier does not depend on `f`; use
-`Scheme.globalSectionsRing X` for the canonical owner and use `globalSectionsAlgebra f` or
-`globalSectionsMap f` for morphism-dependent constructions. -/
-@[deprecated AlgebraicGeometry.Scheme.globalSectionsRing (since := "2026-08-06")]
-abbrev globalSectionsRing (f : X ⟶ Spec (CommRingCat.of R)) : Type u :=
-  Scheme.globalSectionsRing X
-
-attribute [stacks 01JH "global-sections ring compatibility carrier"] globalSectionsRing
 
 /-- The ring map underlying the global-sections algebra induced by `f`.  The
 map is the primary morphism-dependent datum; algebra structures and affine

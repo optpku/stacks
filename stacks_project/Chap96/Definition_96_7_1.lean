@@ -1,14 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Presheaf
-public import Mathlib.Algebra.Category.ModuleCat.Sheaf
-public import stacks_project.Chap96.Definition_96_6_1_StructureSheaf
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.Basic
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,15 +13,15 @@ universe u z
 `(Sch/S)_fppf`. A presheaf of modules on `X` is a presheaf of `𝒪_X`-modules.
 The category of presheaves of modules is denoted `PMod(𝒪_X)`. -/
 @[stacks 06WB] #check
-  (fun {S : Scheme.{u}} (X : GroupoidsOver S) ↦
-    PresheafOfModules.{z} (GroupoidsOver.structureSheaf X).obj)
+  (AlgebraicGeometry.GroupoidsOver.PMod.{u, z} :
+    {S : Scheme.{u}} → GroupoidsOver S → Type (max (u + 1) (z + 1)))
 
 /- Definition 96.7.1 (2): a presheaf of modules `F` is an `𝒪_X`-module, or more
 precisely a sheaf of `𝒪_X`-modules, if `F` is an fppf sheaf. The category of
 `𝒪_X`-modules is denoted `Mod(𝒪_X)`. -/
 @[stacks 06WB] #check
-  (fun {S : Scheme.{u}} (X : GroupoidsOver S) ↦
-    SheafOfModules.{z} (GroupoidsOver.structureSheaf X))
+  (AlgebraicGeometry.GroupoidsOver.Mod.{u, z} :
+    {S : Scheme.{u}} → GroupoidsOver S → Type (max (u + 1) (z + 1)))
 
 variable {S : Scheme.{u}} (X : GroupoidsOver S)
 variable (F G : PresheafOfModules.{z} (GroupoidsOver.structureSheaf X).obj)

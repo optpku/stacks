@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap52.Proposition_52_12_3
-public import stacks_project.Chap52.Lemma_52_15_2_Comparison
+public import ReasLib.AlgebraicGeometry.Scheme.AffineAlgebraization.AssociatedPoints
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,15 +13,9 @@ noncomputable section
 
 universe u
 
-set_option allowUnsafeReducibility true in
--- Local declaration justification (localized automation): unfold `Scheme.Opens.toScheme` so typeclass search finds the canonical Noetherian open-restriction instance.
-attribute [local reducible] AlgebraicGeometry.Scheme.Opens.toScheme
-
 namespace AlgebraicGeometry.AffineAlgebraizationSetup
 
-variable {A : Type u} [CommRing A] [IsNoetherianRing A]
-
-/-- Lemma 52.15.9: let `I ⊆ 𝔞` be ideals of a Noetherian ring `A`, let
+/- Lemma 52.15.9: let `I ⊆ 𝔞` be ideals of a Noetherian ring `A`, let
 `U = Spec(A) ∖ V(𝔞)`, and let `F` and `G` be coherent modules on an open
 neighborhood `V` of `U ∩ V(I)`. If `A` is `I`-adically complete, admits a
 dualizing complex, and the closure of each associated point of `F` satisfies the
@@ -38,12 +25,10 @@ comparison is bijective. Sections of `internalHom G.obj F.obj` over refinements 
 the established canonical view of morphisms from the completion of `G` to that of
 `F`. -/
 @[stacks 0EIV]
-theorem neighborhoodHomComparison_bijective_of_associatedPointDimension
-    [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
+#check (AlgebraicGeometry.AffineAlgebraizationSetup.neighborhoodHomComparison_bijective_of_associatedPointDimension :
+    ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
     (S : AffineAlgebraizationSetup A)
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (h_dualizing :
-      ∃ K : DerivedCategory (ModuleCat.{u} A), K.IsDualizingComplex H)
+    (h_dualizing : CategoryTheory.DerivedCategory.HasCanonicalDualizingComplex A)
     [IsAdicComplete S.I A]
     (V : OpenNeighborhoods S)
     (F G : RingedSpace.Coh (toScheme V.val).toRingedSpace)
@@ -57,10 +42,10 @@ theorem neighborhoodHomComparison_bijective_of_associatedPointDimension
                   S.I.fg_of_isNoetherianRing + 1 : ℤ) : EInt) <
                 WithBot.map (WithTop.map Int.ofNat)
                   (ringKrullDim
-                    ((PointClosure.scheme ((V.val.ι ≫ S.U.ι) x)).presheaf.stalk z))) :
+                    ((PointClosure.scheme ((V.val.ι ≫ S.U.ι) x)).presheaf.stalk z))),
     Function.Bijective
       (Scheme.CoherentCompletion.neighborhoodComparison
         ((idealOnOpen S).comap V.val.ι)
-        (Scheme.Modules.internalHom G.obj F.obj)) := sorry
+        (Scheme.Modules.internalHom G.obj F.obj)))
 
 end AlgebraicGeometry.AffineAlgebraizationSetup

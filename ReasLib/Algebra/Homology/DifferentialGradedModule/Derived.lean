@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Localization.Predicate
@@ -176,20 +170,36 @@ noncomputable def homologyFunctorFactors (A : CochainDGAlgebra R) (n : ℤ) :
   Localization.fac (Homotopy.homologyFunctor A n)
     (Homotopy.Acyclic.trW_isInvertedBy_homologyFunctor A n) (Q A)
 
-/-- A functor from the derived category that recovers homology after localization is uniquely
-isomorphic to the canonical descended homology functor. -/
+/-- Derived homology is a lift of homology on the homotopy category along the localization
+`Q A`, witnessed by the canonical factorization `homologyFunctorFactors`.  Mathlib's generic
+`Localization.liftingLift` does not unfold the named definition `homologyFunctor`, so this
+specialization is stated explicitly. -/
+@[stacks 09KX "derived homology lifts homology"]
+noncomputable instance homologyFunctorLifting (A : CochainDGAlgebra R) (n : ℤ) :
+    Localization.Lifting (Q A) (Homotopy.acyclic.{u, v} A).trW
+      (Homotopy.homologyFunctor A n) (homologyFunctor A n) :=
+  ⟨homologyFunctorFactors A n⟩
+
+/-- A functor from the derived category that recovers homology after localization is
+canonically isomorphic to the descended homology functor: the comparison is the unique lift,
+along the localization `Q A`, of the given identification on the homotopy category. -/
 @[stacks 09KX "uniqueness of descended derived homology"]
-theorem homologyFunctor_unique (A : CochainDGAlgebra R) (n : ℤ)
+noncomputable def homologyFunctorUniqueIso (A : CochainDGAlgebra R) (n : ℤ)
     (F : Category.{u, v} A ⥤ ModuleCat.{v} R)
     (e : Q A ⋙ F ≅ Homotopy.homologyFunctor A n) :
-    Nonempty (F ≅ homologyFunctor A n) := sorry
+    F ≅ homologyFunctor A n :=
+  Localization.liftNatIso (Q A) (Homotopy.acyclic.{u, v} A).trW
+    (Q A ⋙ F) (Homotopy.homologyFunctor A n) F (homologyFunctor A n) e
 
-#synth (Q.{u, v} A).Additive
-#synth Linear R (Category.{u, v} A)
-#synth Functor.Linear R (Q.{u, v} A)
-#synth Functor.Linear R (shiftFunctor (Category.{u, v} A) (0 : ℤ))
-#synth (homologyFunctor.{u, v} A 0).Additive
-#synth Functor.Linear R (homologyFunctor.{u, v} A 0)
+/-- On objects coming from the homotopy category, the uniqueness comparison is the given
+identification followed by the inverse of the canonical factorization of derived homology. -/
+@[stacks 09KX "uniqueness comparison on localized objects"]
+theorem homologyFunctorUniqueIso_hom_app (A : CochainDGAlgebra R) (n : ℤ)
+    (F : Category.{u, v} A ⥤ ModuleCat.{v} R)
+    (e : Q A ⋙ F ≅ Homotopy.homologyFunctor A n)
+    (X : K R (DifferentialGradedModule.{u, v} A)) :
+    (homologyFunctorUniqueIso A n F e).hom.app ((Q A).obj X) =
+      e.hom.app X ≫ (homologyFunctorFactors A n).inv.app X := sorry
 
 end Derived
 

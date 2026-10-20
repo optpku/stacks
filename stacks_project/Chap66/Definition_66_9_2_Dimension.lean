@@ -1,84 +1,46 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.Topology.KrullDimension.Local
-public import stacks_project.Chap65.Definition_65_6_3_Hom
-public import stacks_project.Chap65.Lemma_65_6_2_OfOver
-public import stacks_project.Chap66.Definition_66_4_1_Points
-public import stacks_project.Chap66.Lemma_66_4_2_Comparison
-public import stacks_project.Chap66.Lemma_66_5_5_PointsTopology
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Dimension
 
 /-!
 # Dimension of an algebraic space
 
-The dimension of an algebraic space is the supremum of its étale-local dimensions at points.
-This is not the topological Krull dimension of the space of points.
+The pointwise and global dimension API is provided by its canonical mathematical owner.
 -/
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry
 
-noncomputable section
-
 universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- The dimension of an algebraic space at a point, as the supremum of local topological Krull
-dimensions along étale morphisms from schemes through that point. This is not the local
-topological Krull dimension of the space of points. -/
-noncomputable def dimensionAt {S : Scheme.{u}} {X : AlgebraicSpace S} (x : Points X) :
-    WithBot ℕ∞ :=
-  ⨆ (U : Over S) (f : ofOver U ⟶ X) (u : U.left)
-    (_hf : (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf f)
-    (_hx : Points.mapOfOver f u = x), topologicalKrullDimAt u
+variable {S : Scheme.{u}} (X : AlgebraicSpace S)
 
-/-- The dimension of an algebraic space, as the supremum of its dimensions at points. This is not
-the topological Krull dimension of the space of points. -/
-noncomputable def dimension {S : Scheme.{u}} (X : AlgebraicSpace S) : WithBot ℕ∞ :=
-  ⨆ x : Points X, dimensionAt x
+#check (AlgebraicGeometry.AlgebraicSpace.dimensionAt : Points X → WithBot ℕ∞)
 
-/-- The dimension at a point equals the local topological Krull dimension of any étale scheme
-chart through that point. -/
-theorem dimensionAt_eq_topologicalKrullDimAt {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {U : Over S} (f : ofOver U ⟶ X)
-    (hf : (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf f) (u : U.left)
-    {x : Points X} (hx : Points.mapOfOver f u = x) :
-    dimensionAt x = topologicalKrullDimAt u :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.dimension X : WithBot ℕ∞)
 
-namespace dimensionAt
+#check (AlgebraicGeometry.AlgebraicSpace.dimensionAt_eq_topologicalKrullDimAt :
+  ∀ {U : Over S} (f : ofOver U ⟶ X),
+    (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf f →
+    ∀ (u : U.left) {x : Points X}, Points.mapOfOver f u = x →
+      dimensionAt x = topologicalKrullDimAt u)
 
-/-- Every point of an algebraic space lies on an étale morphism from a scheme. -/
-theorem exists_etale {S : Scheme.{u}} {X : AlgebraicSpace S} (x : Points X) :
-    ∃ (U : Over S) (f : ofOver U ⟶ X),
+#check (AlgebraicGeometry.AlgebraicSpace.dimensionAt.exists_etale :
+  ∀ x : Points X, ∃ (U : Over S) (f : ofOver U ⟶ X),
       (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf f ∧
-        ∃ u : U.left, Points.mapOfOver f u = x :=
-  sorry
+        ∃ u : U.left, Points.mapOfOver f u = x)
 
-end dimensionAt
+#check (AlgebraicGeometry.AlgebraicSpace.dimension_eq_iSup_dimensionAt X :
+  dimension X = ⨆ x : Points X, dimensionAt x)
 
-/-- The dimension of an algebraic space is the supremum of its dimensions at points. -/
-theorem dimension_eq_iSup_dimensionAt {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    dimension X = ⨆ x : Points X, dimensionAt x :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.dimensionAt_ofOver :
+  ∀ (T : Over S) (t : T.left),
+    dimensionAt (ofOver.pointsEquiv T t) = topologicalKrullDimAt t)
 
-/-- On a scheme, viewed as an algebraic space, the dimension at a point is the usual local
-topological Krull dimension. -/
-theorem dimensionAt_ofOver {S : Scheme.{u}} (T : Over S) (t : T.left) :
-    dimensionAt (ofOver.pointsEquiv T t) = topologicalKrullDimAt t :=
-  sorry
-
-/-- On a scheme, viewed as an algebraic space, the dimension is the usual topological Krull
-dimension. -/
-theorem dimension_ofOver {S : Scheme.{u}} (T : Over S) :
-    dimension (ofOver T) = topologicalKrullDim T.left :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.dimension_ofOver :
+  ∀ T : Over S, dimension (ofOver T) = topologicalKrullDim T.left)
 
 end AlgebraicGeometry.AlgebraicSpace

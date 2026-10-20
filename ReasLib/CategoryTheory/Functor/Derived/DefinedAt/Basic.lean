@@ -1,15 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Functor.Derived.PointwiseLeftDerived
 public import Mathlib.CategoryTheory.Functor.Derived.PointwiseRightDerived
 public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.CategoryTheory.Filtered.EssentiallyConstant.Diagram
+public import ReasLib.CategoryTheory.Filtered.EssentiallyConstant.Limits
 
 /-!
 # Derived functors defined at an object
@@ -71,7 +65,7 @@ typeclass search. -/
 instance RightDerived.EverywhereDefined.toDefinedAt
     {F : D ⥤ D'} {S : MorphismProperty D} {X : D}
     [RightDerived.EverywhereDefined F S] :
-    RightDerived.DefinedAt F S X := sorry
+    RightDerived.DefinedAt F S X := RightDerived.EverywhereDefined.definedAt X
 
 /-- An everywhere-defined left derived functor supplies source-definedness at every object to
 typeclass search. -/
@@ -79,7 +73,7 @@ typeclass search. -/
 instance LeftDerived.EverywhereDefined.toDefinedAt
     {F : D ⥤ D'} {S : MorphismProperty D} {X : D}
     [LeftDerived.EverywhereDefined F S] :
-    LeftDerived.DefinedAt F S X := sorry
+    LeftDerived.DefinedAt F S X := LeftDerived.EverywhereDefined.definedAt X
 
 /-- An everywhere-defined right derived functor is equivalently source-defined at every
 object. -/
@@ -101,7 +95,8 @@ yields Mathlib's pointwise right-derived existence property. The converse is not
 noncomputable instance RightDerived.DefinedAt.hasPointwise
     {F : D ⥤ D'} {S : MorphismProperty D} {X : D}
     [RightDerived.DefinedAt F S X] :
-    F.HasPointwiseRightDerivedFunctorAt S X := sorry
+    F.HasPointwiseRightDerivedFunctorAt S X :=
+  ⟨⟨⟨(RightDerived.DefinedAt.isEssentiallyConstant (F := F) (S := S) (X := X)).colimitCocone⟩⟩⟩
 
 /-- A right-derived functor defined at every source object supplies Mathlib's global pointwise
 existence owner. -/
@@ -109,7 +104,9 @@ existence owner. -/
 noncomputable instance RightDerived.EverywhereDefined.hasPointwise
     {F : D ⥤ D'} {S : MorphismProperty D}
     [RightDerived.EverywhereDefined F S] :
-    F.HasPointwiseRightDerivedFunctor S := sorry
+    F.HasPointwiseRightDerivedFunctor S :=
+  fun X ↦ @RightDerived.DefinedAt.hasPointwise _ _ _ _ F S X
+    (RightDerived.EverywhereDefined.definedAt X)
 
 /-- Forgetting the essentially constant presentation of a source-defined left-derived value
 yields Mathlib's pointwise left-derived existence property. The converse is not asserted. -/
@@ -117,7 +114,8 @@ yields Mathlib's pointwise left-derived existence property. The converse is not 
 noncomputable instance LeftDerived.DefinedAt.hasPointwise
     {F : D ⥤ D'} {S : MorphismProperty D} {X : D}
     [LeftDerived.DefinedAt F S X] :
-    F.HasPointwiseLeftDerivedFunctorAt S X := sorry
+    F.HasPointwiseLeftDerivedFunctorAt S X :=
+  ⟨⟨⟨(LeftDerived.DefinedAt.isEssentiallyConstant (F := F) (S := S) (X := X)).limitCone⟩⟩⟩
 
 /-- A left-derived functor defined at every source object supplies Mathlib's global pointwise
 existence owner. -/
@@ -125,7 +123,9 @@ existence owner. -/
 noncomputable instance LeftDerived.EverywhereDefined.hasPointwise
     {F : D ⥤ D'} {S : MorphismProperty D}
     [LeftDerived.EverywhereDefined F S] :
-    F.HasPointwiseLeftDerivedFunctor S := sorry
+    F.HasPointwiseLeftDerivedFunctor S :=
+  fun X ↦ @LeftDerived.DefinedAt.hasPointwise _ _ _ _ F S X
+    (LeftDerived.EverywhereDefined.definedAt X)
 
 
 end CategoryTheory.Functor

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Lemma_100_3_5_LocalAtSource
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.MorphismProperty.LocalAtSource
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,7 +15,7 @@ open scoped Bicategory
 surjective étale 1-morphism of algebraic stacks representable by algebraic
 spaces, then `has P (f ≫ g)` implies `has P g`. -/
 @[stacks 06M2] #check
-  (has.of_comp_etale :
+  (AlgebraicGeometry.Groupoids.Hom.has.of_comp_etale :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
       (P : MorphismProperty (AlgebraicSpace S))
@@ -35,7 +29,7 @@ spaces, then `has P (f ≫ g)` implies `has P g`. -/
 surjective smooth 1-morphism of algebraic stacks representable by algebraic
 spaces, then `has P (f ≫ g)` implies `has P g`. -/
 @[stacks 06M2] #check
-  (has.of_comp_smooth :
+  (AlgebraicGeometry.Groupoids.Hom.has.of_comp_smooth :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
       (P : MorphismProperty (AlgebraicSpace S))
@@ -49,7 +43,7 @@ spaces, then `has P (f ≫ g)` implies `has P g`. -/
 surjective syntomic 1-morphism of algebraic stacks representable by algebraic
 spaces, then `has P (f ≫ g)` implies `has P g`. -/
 @[stacks 06M2] #check
-  (has.of_comp_syntomic :
+  (AlgebraicGeometry.Groupoids.Hom.has.of_comp_syntomic :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
       (P : MorphismProperty (AlgebraicSpace S))
@@ -65,7 +59,7 @@ spaces, then `has P (f ≫ g)` implies `has P g`. -/
 surjective flat locally of finite presentation 1-morphism of algebraic stacks
 representable by algebraic spaces, then `has P (f ≫ g)` implies `has P g`. -/
 @[stacks 06M2] #check
-  (has.of_comp_fppf :
+  (AlgebraicGeometry.Groupoids.Hom.has.of_comp_fppf :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
       (P : MorphismProperty (AlgebraicSpace S))

@@ -1,44 +1,51 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
-public import ReasLib.AlgebraicGeometry.Scheme.FieldExtension.Basic
+public import ReasLib.AlgebraicGeometry.Scheme.FieldExtension.Geometric
 public import ReasLib.AlgebraicGeometry.Scheme.FiniteEtale.FundamentalGroup
-public import ReasLib.AlgebraicGeometry.Scheme.OverField
+
+/-!
+# Fundamental-group maps for a scheme over a field
+
+Geometric base change belongs to `FieldExtension.Geometric`. This module
+owns the induced point maps and continuous fundamental-group homomorphisms.
+-/
 
 @[expose] public section
 
-noncomputable section
+open AlgebraicGeometry
+open AlgebraicGeometry.Scheme
 
-open CategoryTheory AlgebraicGeometry AlgebraicGeometry.Scheme
+noncomputable section
 
 universe u
 
 namespace AlgebraicGeometry.SchemeOverField
 
-/-- The base change of a scheme over `k` to an algebraic closure of `k`. -/
-abbrev geometricBaseChange {k : Type u} [Field k] (X : SchemeOverField k) : Scheme.{u} :=
-  FieldExtension.baseChange k (AlgebraicClosure k) X.hom
-
-/-- The image on `X` of a geometric point of its base change to an algebraic closure. -/
-abbrev arithmeticPoint {k : Type u} [Field k] (X : SchemeOverField k)
+/-- The image in `X` of a geometric point of the algebraic-closure base change. -/
+noncomputable def arithmeticPoint {k : Type u} [Field k] (X : SchemeOverField k)
     (xbar : GeometricPoint (geometricBaseChange X)) : GeometricPoint X.left :=
-  xbar.map (FieldExtension.toSource k (AlgebraicClosure k) X.hom)
+  xbar.map (geometricToArithmeticHom X)
 
-/-- The morphism of étale fundamental groups induced by the geometric base-change projection. -/
-def geometricToArithmetic {k : Type u} [Field k] (X : SchemeOverField k)
-    [ConnectedSpace (geometricBaseChange X)] [ConnectedSpace X.left]
+/-- The image in `Spec k` of a geometric point of a scheme over `k`. -/
+noncomputable def galoisPoint {k : Type u} [Field k] (X : SchemeOverField k)
+    (ybar : GeometricPoint X.left) : GeometricPoint (Spec (CommRingCat.of k)) :=
+  ybar.map X.hom
+
+/-- The homomorphism from the geometric to the arithmetic fundamental group. -/
+noncomputable def geometricToArithmetic {k : Type u} [Field k] (X : SchemeOverField k)
+    [ConnectedSpace (geometricBaseChange X)]
     (xbar : GeometricPoint (geometricBaseChange X)) :
-    etaleFundamentalGroup (geometricBaseChange X) xbar ⟶
-      etaleFundamentalGroup X.left (arithmeticPoint X xbar) :=
-  ProfiniteGrp.ofHom
-    ⟨(GeometricPoint.fundamentalGroupMap
-        (FieldExtension.toSource k (AlgebraicClosure k) X.hom) xbar).toMonoidHom,
-      sorry⟩
+    Scheme.GeometricPoint.etaleFundamentalGroup (geometricBaseChange X) xbar ⟶
+      Scheme.GeometricPoint.etaleFundamentalGroup X.left (arithmeticPoint X xbar) :=
+  ProfiniteGrp.ofHom (Scheme.GeometricPoint.fundamentalGroupMap
+    (geometricToArithmeticHom X) xbar)
+
+/-- The homomorphism from the arithmetic to the field-spectrum fundamental group. -/
+noncomputable def arithmeticToGalois {k : Type u} [Field k] (X : SchemeOverField k)
+    [ConnectedSpace X.left] (ybar : GeometricPoint X.left) :
+    Scheme.GeometricPoint.etaleFundamentalGroup X.left ybar ⟶
+      Scheme.GeometricPoint.etaleFundamentalGroup
+        (Spec (CommRingCat.of k)) (galoisPoint X ybar) :=
+  ProfiniteGrp.ofHom (Scheme.GeometricPoint.fundamentalGroupMap X.hom ybar)
 
 end AlgebraicGeometry.SchemeOverField

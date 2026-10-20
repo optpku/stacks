@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -68,7 +62,6 @@ isomorphism on the basic open. -/
   (AlgebraicGeometry.Proj.AssociatedModule.TwistAction.restrictBasicOpen_isIso :
     ∀ {A : Type u} [CommRing A]
       (𝒜 : ℕ → Submodule ℤ A) [GradedAlgebra 𝒜]
-      [SymmetricCategory (AlgebraicGeometry.Proj 𝒜).Modules]
       (T : AlgebraicGeometry.Proj.AssociatedModule.TwistMultiplication 𝒜)
       (ℱ : (AlgebraicGeometry.Proj 𝒜).Modules)
       {d : ℕ} (f : 𝒜 d) (hd : 0 < d) (n m : ℤ)

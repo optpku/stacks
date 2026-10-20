@@ -1,25 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.DerivedCategory.HomologySequence
-public import Mathlib.CategoryTheory.Sites.Abelian
-public import ReasLib.AlgebraicGeometry.Scheme.OverField
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.CompactSupport
 public import stacks_project.Chap59.Theorem_59_51_3_Cohomology
 public import stacks_project.Chap63.Definition_63_12_1_LowerShriek
 
 @[expose] public section
 
-open CategoryTheory
-open CategoryTheory.Limits
-open CategoryTheory.Functor
-open AlgebraicGeometry
-open AlgebraicGeometry.Scheme
-open Opposite
+open CategoryTheory CategoryTheory.Limits CategoryTheory.Functor CategoryTheory.Sheaf
+open AlgebraicGeometry AlgebraicGeometry.Scheme Opposite
 
 noncomputable section
 
@@ -44,21 +32,9 @@ variable [HasRightDerivedFunctor
   (HomologicalComplex.quasiIso
     (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
 
-/-- Derived global sections `RΓ(X, -)` on `D(X_étale, Λ)`, obtained as the
-total right derived functor of small-étale module sections at `globalEtale X`. -/
-def etaleDerivedGamma :
-    EtaleDerived X Λ ⥤ DerivedCategory (ModuleCat.{u} Λ) :=
-  RightDerived.Cochain.functor
-    ((sheafSections X.smallEtaleTopology (ModuleCat.{u} Λ)).obj
-      (op (globalEtale X)))
-
-/-- `RΓ(X, -)` is the cochain-level total right derived functor of sections at
-the terminal object of `X_étale`. -/
-theorem etaleDerivedGamma_def :
-    etaleDerivedGamma X Λ =
-      RightDerived.Cochain.functor
-        ((sheafSections X.smallEtaleTopology (ModuleCat.{u} Λ)).obj
-          (op (globalEtale X))) := sorry
+#check (AlgebraicGeometry.Scheme.Etale.etaleDerivedGamma X Λ :
+  DerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ)) ⥤
+    DerivedCategory (ModuleCat.{u} Λ))
 
 end DerivedGamma
 
@@ -118,35 +94,13 @@ variable [HasRightDerivedFunctor
 variable [CompactSpace (Spec (CommRingCat.of k))]
 variable [QuasiSeparatedSpace (Spec (CommRingCat.of k))]
 
-/-- Compactly supported derived sections `RΓ_c(X, -)` of a separated finite-type
-scheme over a field, defined by `RΓ(Spec k, Rf_! -)` for the structure
-morphism `f`. The source reads this on `D⁺_tors(X_étale, Λ)`, or on all of
-`D(X_étale, Λ)` when `Λ` is torsion. -/
-def etaleDerivedGammaCompactSupport :
-    EtaleDerived X.left Λ ⥤ DerivedCategory (ModuleCat.{u} Λ) :=
-  etaleDerivedLowerShriek X P ⋙
-    etaleDerivedGamma (Spec (CommRingCat.of k)) Λ
+#check (AlgebraicGeometry.Scheme.Etale.etaleDerivedGammaCompactSupport P :
+  DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)) ⥤
+    DerivedCategory (ModuleCat.{u} Λ))
 
-/-- Compactly supported derived sections evaluate as `RΓ(Spec k, Rf_! K)`. -/
-theorem etaleDerivedGammaCompactSupport_obj (K : EtaleDerived X.left Λ) :
-    (etaleDerivedGammaCompactSupport P).obj K =
-      (etaleDerivedGamma (Spec (CommRingCat.of k)) Λ).obj
-        ((etaleDerivedLowerShriek X P).obj K) := sorry
-
-/-- Compactly supported étale cohomology `H^i_c(X, K)` is the degree-`i`
-homology of `RΓ_c(X, K)`. -/
-def etaleDerivedCohomologyCompactSupport (i : ℤ) (K : EtaleDerived X.left Λ) :
-    ModuleCat.{u} Λ :=
-  (DerivedCategory.homologyFunctor (ModuleCat.{u} Λ) i).obj
-    ((etaleDerivedGammaCompactSupport P).obj K)
-
-/-- Compactly supported cohomology is homology of compactly supported derived
-sections. -/
-theorem etaleDerivedCohomologyCompactSupport_eq
-    (i : ℤ) (K : EtaleDerived X.left Λ) :
-    etaleDerivedCohomologyCompactSupport P i K =
-      (DerivedCategory.homologyFunctor (ModuleCat.{u} Λ) i).obj
-        ((etaleDerivedGammaCompactSupport P).obj K) := sorry
+#check (AlgebraicGeometry.Scheme.Etale.etaleDerivedCohomologyCompactSupport P :
+  ℤ → DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)) →
+    ModuleCat.{u} Λ)
 
 end CompactSupport
 

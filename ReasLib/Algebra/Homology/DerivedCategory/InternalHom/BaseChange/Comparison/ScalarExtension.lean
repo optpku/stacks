@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.InternalHom.BaseChange.Comparison
@@ -64,6 +58,7 @@ section Comparison
 
 variable [MonoidalCategory (DerivedCategory (ModuleCat.{u, u} R))]
 variable [MonoidalCategory (DerivedCategory (ModuleCat.{u, u} S))]
+variable [RHom.Has (A := R)] [RHom.Has (A := S)]
 
 /-- `0E1X:` The coherent scalar-extension comparison for canonical `RHom`. -/
 @[stacks 0E1X, stacks 08I4 "scalar-extension RHom base-change comparison"]

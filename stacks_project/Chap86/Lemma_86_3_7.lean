@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap86.Lemma_86_3_7_GlobalTrace
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.Pushforward.GlobalTrace
 import StacksCheckRecall
 
 @[expose] public section
@@ -15,7 +9,6 @@ open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.Modules
 open AlgebraicGeometry.AlgebraicSpace.DerivedQCoh
 open CategoryTheory CategoryTheory.MonoidalClosed
-open CategoryTheory.Functor.LaxMonoidal
 
 universe u
 
@@ -25,13 +18,14 @@ algebraic spaces over a scheme `S`, with `a` a right adjoint of
 `K` in `DerivedQCoh Y`, the sheafy-trace map (86.3.2.1) induces an isomorphism
 `RHom_X(L, a(K)) ⟶ RHom_Y(Rf_* L, K)` of global derived Homs. -/
 @[stacks 0E59] #check
-  (globalTraceMapIsIso :
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.globalTraceMapIsIso :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
       [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
       [IsQuasiCompact Y] [IsAbsolutelyQuasiSeparated Y]
       [MonoidalCategory (ModuleDerived X)] [MonoidalCategory (ModuleDerived Y)]
       [MonoidalClosed (ModuleDerived X)] [MonoidalClosed (ModuleDerived Y)]
-      [Functor.LaxMonoidal (moduleDerivedPushforward f)]
+      [ModuleDerived.HasDerivedAdjunction f]
+      [Functor.Monoidal (ModuleDerived.pullback f)]
       (a : DerivedQCoh Y ⥤ DerivedQCoh X) (adj : pushforwardCohomologyIn f ⊣ a)
       (L : DerivedQCoh X) (K : DerivedQCoh Y),
-      IsIso (globalTraceMap f a adj L K))
+      IsIso (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.globalTraceMap f a adj L K))

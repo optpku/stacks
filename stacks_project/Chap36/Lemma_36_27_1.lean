@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -23,6 +17,9 @@ dimension over `f⁻¹𝒪_S`, then its derived pushforward is perfect. -/
   (AlgebraicGeometry.Scheme.ModuleDerived.pushforward_isPerfect_of_finiteTorDimension :
     ∀ {X S : AlgebraicGeometry.Scheme.{u}} (f : X ⟶ S)
       [AlgebraicGeometry.IsNoetherian S] [AlgebraicGeometry.LocallyOfFiniteType f]
+      [DerivedCategory.DerivedTensor.Right.Has
+        (C := AlgebraicGeometry.RingedSpace.Modules
+          (AlgebraicGeometry.RingedSpace.Hom.inverseImageBase f.toShHom))]
       (E : AlgebraicGeometry.RingedSpace.ModuleDerived X.toRingedSpace)
       (hE_coherent : DerivedCategory.cohomologyIn
         (SheafOfModules.isCoherent X.toRingedSpace.ringCatSheaf) E)

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Maps.Proper.Characterization
@@ -14,7 +8,8 @@ import Mathlib.Tactic.CrossRefAttribute
 # Proper base change for bounded-below abelian sheaves
 
 This leaf contains only the topological input that makes the generic bounded-below sheaf
-base-change comparison invertible.
+base-change comparison invertible. Properness in the source means `IsProperMap` together with
+`IsSeparatedMap`.
 -/
 
 @[expose] public section
@@ -35,7 +30,7 @@ component for a cartesian square is an isomorphism when the original vertical ma
 @[stacks 09V6 "proper base change for bounded-below abelian sheaves"]
 theorem IsMapAt.isIso_of_proper
     {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y}
-    (hcart : IsPullback g' f' f g) (hf : IsProperMap f)
+    (hcart : IsPullback g' f' f g) (hf : IsProperMap f) (hseparated : IsSeparatedMap f)
     (K : D⁺(Ab(X)))
     {η : (source f g).obj K ⟶ (target g' f').obj K}
     (hη : IsMapAt hcart.toCommSq K η) : IsIso η := sorry
@@ -45,7 +40,7 @@ natural isomorphism. -/
 @[stacks 09V6 "functorial proper base change for bounded-below abelian sheaves"]
 theorem IsMap.isIso_of_proper
     {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y}
-    (hcart : IsPullback g' f' f g) (hf : IsProperMap f)
+    (hcart : IsPullback g' f' f g) (hf : IsProperMap f) (hseparated : IsSeparatedMap f)
     {η : source f g ⟶ target g' f'}
     (hη : IsMap hcart.toCommSq η) : IsIso η := sorry
 
@@ -54,7 +49,7 @@ square when its forward source comparison is the canonical one. -/
 @[stacks 09V6 "proper base change component from a source isomorphism"]
 theorem appOfIso_isIso_of_proper
     {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y}
-    (hcart : IsPullback g' f' f g) (hf : IsProperMap f)
+    (hcart : IsPullback g' f' f g) (hf : IsProperMap f) (hseparated : IsSeparatedMap f)
     (e : CategoryTheory.Functor.RightDerived.Bounded.functor
         (TopCat.Sheaf.pushforward AddCommGrpCat.{u} f ⋙
           TopCat.Sheaf.pullback AddCommGrpCat.{u} g) ≅ source f g)
@@ -66,7 +61,7 @@ cartesian square when its forward source comparison is the canonical one. -/
 @[stacks 09V6 "proper base change transformation from a source isomorphism"]
 theorem mapOfIso_isIso_of_proper
     {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y}
-    (hcart : IsPullback g' f' f g) (hf : IsProperMap f)
+    (hcart : IsPullback g' f' f g) (hf : IsProperMap f) (hseparated : IsSeparatedMap f)
     (e : CategoryTheory.Functor.RightDerived.Bounded.functor
         (TopCat.Sheaf.pushforward AddCommGrpCat.{u} f ⋙
           TopCat.Sheaf.pullback AddCommGrpCat.{u} g) ≅ source f g)

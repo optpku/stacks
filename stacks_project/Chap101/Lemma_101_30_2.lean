@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_30_1
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Points.Spectral
+import StacksCheckRecall
 
 /-!
 # Spectral spaces of quasi-compact quasi-separated algebraic stacks
@@ -22,12 +17,10 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 101.30.2: Let `X` be a quasi-compact and quasi-separated algebraic stack.
+/- Lemma 101.30.2: Let `X` be a quasi-compact and quasi-separated algebraic stack.
 Then `|X|` is a spectral topological space. -/
-@[stacks 0DQP]
-instance instSpectralSpacePoints {S : Scheme.{u}} (X : GroupoidsOver S)
-    [AlgebraicStack X] [IsQuasiCompact X] [IsQuasiSeparated X] :
-    SpectralSpace (Points X) :=
-  sorry
+@[stacks 0DQP] #check (AlgebraicGeometry.AlgebraicStack.instSpectralSpacePoints :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S)
+    [AlgebraicStack X] [IsQuasiCompact X] [IsQuasiSeparated X], SpectralSpace (Points X))
 
 end AlgebraicGeometry.AlgebraicStack

@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
-public import stacks_project.Chap65.Lemma_65_7_3_Pullback
-public import stacks_project.Chap67.Definition_67_4_2_Separation
-public import stacks_project.Chap67.Definition_67_9_2_Closed
-public import stacks_project.Chap75.Definition_75_9_1_Square
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Separation.ElementaryDistinguishedSquare
+import StacksCheckRecall
 
 /-!
 # Lemma 81.14.1
@@ -26,21 +17,15 @@ open CategoryTheory AlgebraicGeometry Limits
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+open AlgebraicGeometry.AlgebraicSpace
 
-namespace Separated
-
-/-- Lemma 81.14.1. Let `S` be a scheme. Let `g : X ⟶ Y` be a morphism of algebraic
+/- Lemma 81.14.1. Let `S` be a scheme. Let `g : X ⟶ Y` be a morphism of algebraic
 spaces over `S`. If `(j : U ⟶ X, f : V ⟶ X)` is an elementary distinguished
 square such that `U ⟶ Y` and `V ⟶ Y` are separated and
 `U ×_X V ⟶ U ×_Y V` is closed, then `X ⟶ Y` is separated. -/
-@[stacks 0F45]
-theorem of_isElementaryDistinguishedSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+@[stacks 0F45] #check
+  (AlgebraicGeometry.AlgebraicSpace.Separated.of_isElementaryDistinguishedSquare :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (g : X ⟶ Y) {U V : AlgebraicSpace S} (j : U ⟶ X) (f : V ⟶ X)
     [IsElementaryDistinguishedSquare j f] [Separated (j ≫ g)] [Separated (f ≫ g)]
-    [Closed (pullback.mapDesc j f g)] : Separated g :=
-  sorry
-
-end Separated
-
-end AlgebraicGeometry.AlgebraicSpace
+    [Closed (pullback.mapDesc j f g)], Separated g)

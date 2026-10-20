@@ -1,18 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap64.Theorem_64_14_4_Weil
-public import ReasLib.CategoryTheory.Monoidal.Grp.MulBy
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve.EllipticMulBy
+import StacksCheckRecall
 
 @[expose] public section
 
-open AlgebraicGeometry CategoryTheory
+open AlgebraicGeometry CategoryTheory MonoidalCategory
 open AlgebraicGeometry.AlgebraicCycle AlgebraicGeometry.RelativePicard
 open AlgebraicGeometry.AbelianVariety AlgebraicGeometry.Curve
 open scoped AlgebraicGeometry CategoryTheory MonObj
@@ -21,44 +14,43 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.Curve
-
 variable {k : Type u} [Field k] [IsAlgClosed k]
 variable (E : SchemeOverField k) [Curve E] [Smooth E.hom] [Projective E.hom]
   [GrpObj E] [AbelianVariety E]
 
-/-- Example 64.14.5 (1): if `E` is an elliptic curve and `φ = [n]`, then the
-Jacobian pullback `φ*` is multiplication by `n` on `RelativePicard.component E 0`. -/
-@[stacks 03U2]
-theorem pullbackComponentHom_mulBy_eq_mulBy (n : ℕ) :
-    pullbackComponentHom E (GrpObj.mulBy E n) =
-      GrpObj.mulBy (RelativePicard.component E 0) n := sorry
+/- 03U2::statement_repair::2. Example 64.14.5. For integer multiplication on an elliptic curve, the Jacobian
+pullback is multiplication by the same integer and has trace `2 * n`; the curve
+endomorphism has degree `n.natAbs ^ 2`. Fixed points are `(n - 1)`-torsion, and
+the fixed-point count uses local intersection multiplicities. Substituting the
+fixed-point formula into Weil's formula gives the displayed integer identity
+`(n - 1) ^ 2 = 1 - 2 * n + n ^ 2`. -/
+@[stacks 03U2] #check (AlgebraicGeometry.Curve.weilTraceFormula_mulByInt :
+  ∀ (E : SchemeOverField k) [Curve E] [Smooth E.hom] [Projective E.hom]
+    [GrpObj E] [AbelianVariety E] (n : ℤ) (hφ : GrpObj.mulByInt E n ≠ 𝟙 E),
+    fixedPointNumber (GrpObj.mulByInt E n) hφ = (1 : ℤ) - 2 * n + n ^ 2)
 
-/-- Example 64.14.5 (2): the Jacobian pullback of multiplication by `n` has
-integer trace `2 * n`. -/
-@[stacks 03U2]
-theorem endomorphismTrace_pullbackComponentHom_mulBy (n : ℕ) :
-    endomorphismTrace (pullbackComponentHom E (GrpObj.mulBy E n)) = 2 * (n : ℤ) := sorry
+#check (AlgebraicGeometry.Curve.pullbackComponentHom_mulByInt_eq_mulByInt :
+  ∀ (E : SchemeOverField k) [Curve E] [Smooth E.hom] [Projective E.hom]
+    [GrpObj E] [AbelianVariety E] (n : ℤ),
+    pullbackComponentHom E (GrpObj.mulByInt E n) =
+      GrpObj.mulByInt (RelativePicard.component E 0) n)
 
-/-- Example 64.14.5 (3): multiplication by `n` on the elliptic curve has degree
-`n ^ 2`, including degree zero for `n = 0`. -/
-@[stacks 03U2]
-theorem curveEndomorphismDegree_mulBy (n : ℕ) :
-    curveEndomorphismDegree (GrpObj.mulBy E n) = n ^ 2 := sorry
+#check (AlgebraicGeometry.Curve.endomorphismTrace_pullbackComponentHom_mulByInt :
+  ∀ (E : SchemeOverField k) [Curve E] [Smooth E.hom] [Projective E.hom]
+    [GrpObj E] [AbelianVariety E] (n : ℤ),
+    endomorphismTrace (pullbackComponentHom E (GrpObj.mulByInt E n)) = 2 * n)
 
-/-- Example 64.14.5 (4): for a non-identity multiplication map, the
-graph-diagonal fixed-point intersection number is `((n : ℤ) - 1) ^ 2`. -/
-@[stacks 03U2]
-theorem fixedPointNumber_mulBy (n : ℕ)
-    (hφ : GrpObj.mulBy E n ≠ 𝟙 E) :
-    fixedPointNumber (GrpObj.mulBy E n) hφ = ((n : ℤ) - 1) ^ 2 := sorry
+#check (AlgebraicGeometry.Curve.curveEndomorphismDegree_mulByInt :
+  ∀ (E : SchemeOverField k) [Curve E] [Smooth E.hom] [Projective E.hom]
+    [GrpObj E] [AbelianVariety E] (n : ℤ),
+    curveEndomorphismDegree (GrpObj.mulByInt E n) = n.natAbs ^ 2)
 
-/-- Example 64.14.5 (5): Weil's numerical identity for multiplication by `n` on
-an elliptic curve is `(n - 1) ^ 2 = 1 - 2 * n + n ^ 2`. -/
-@[stacks 03U2]
-theorem weilTraceFormula_mulBy (n : ℕ)
-    (hφ : GrpObj.mulBy E n ≠ 𝟙 E) :
-    fixedPointNumber (GrpObj.mulBy E n) hφ =
-      (1 : ℤ) - 2 * (n : ℤ) + (n : ℤ) ^ 2 := sorry
+#check (AlgebraicGeometry.Curve.fixedPointNumber_mulByInt :
+  ∀ (E : SchemeOverField k) [Curve E] [Smooth E.hom] [Projective E.hom]
+    [GrpObj E] [AbelianVariety E] (n : ℤ) (hφ : GrpObj.mulByInt E n ≠ 𝟙 E),
+    fixedPointNumber (GrpObj.mulByInt E n) hφ = (n - 1) ^ 2)
 
-end AlgebraicGeometry.Curve
+-- This holds for generalized points and specializes to rational points when X is the unit scheme.
+#check (CategoryTheory.GrpObj.comp_mulByInt_eq_self_iff E :
+  ∀ (n : ℤ) {X : SchemeOverField k} (p : X ⟶ E),
+    p ≫ GrpObj.mulByInt E n = p ↔ p ^ (n - 1) = 1)

@@ -1,65 +1,32 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Monoidal.Closed.LaxMonoidal
-public import stacks_project.Chap86.«86_3_2_1_Pushforward»
-
-/-!
-# Sheafy trace for derived pushforward on algebraic spaces
-
-The source morphism `Rf_* RHom(L, a(K)) ⟶ RHom(Rf_* L, K)` is the
-internal-Hom comparison of `Rf_*` followed by `RHom(Rf_* L, ε_K)` for
-the counit `ε` of a chosen adjunction `Rf_* ⊣ a` on `DerivedQCoh`.
--/
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.Pushforward.SheafyTrace
 
 @[expose] public section
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.Modules
+open AlgebraicGeometry.AlgebraicSpace.DerivedQCoh
 open CategoryTheory CategoryTheory.MonoidalClosed
 open CategoryTheory.Functor.LaxMonoidal
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.DerivedQCoh
+variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+variable [QuasiCompact f] [QuasiSeparated f]
+variable [MonoidalCategory (ModuleDerived X)] [MonoidalCategory (ModuleDerived Y)]
+variable [MonoidalClosed (ModuleDerived X)] [MonoidalClosed (ModuleDerived Y)]
+variable [Functor.LaxMonoidal (moduleDerivedPushforward f)]
+variable (a : DerivedQCoh Y ⥤ DerivedQCoh X) (adj : pushforwardCohomologyIn f ⊣ a)
+variable (L : DerivedQCoh X) (K : DerivedQCoh Y)
 
-/-- The sheafy-trace morphism
-`Rf_* RHom(L, a(K)) ⟶ RHom(Rf_* L, K)` in `D(𝒪_Y)`. -/
-noncomputable def sheafyTrace {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [QuasiCompact f] [QuasiSeparated f]
-    [MonoidalCategory (ModuleDerived X)] [MonoidalCategory (ModuleDerived Y)]
-    [MonoidalClosed (ModuleDerived X)] [MonoidalClosed (ModuleDerived Y)]
-    [Functor.LaxMonoidal (moduleDerivedPushforward f)]
-    (a : DerivedQCoh Y ⥤ DerivedQCoh X) (adj : pushforwardCohomologyIn f ⊣ a)
-    (L : DerivedQCoh X) (K : DerivedQCoh Y) :
-    (moduleDerivedPushforward f).obj ((ihom L.obj).obj (a.obj K).obj) ⟶
-      (ihom ((moduleDerivedPushforward f).obj L.obj)).obj K.obj :=
-  InternalHom.comparison (moduleDerivedPushforward f) L.obj (a.obj K).obj ≫
-    (ihom ((moduleDerivedPushforward f).obj L.obj)).map
-      ((pushforwardCohomologyIn.inclusionIso f).inv.app (a.obj K) ≫
-        (inclusion Y).map (adj.counit.app K))
+#check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.sheafyTrace f a adj L K :
+  (moduleDerivedPushforward f).obj ((ihom L.obj).obj (a.obj K).obj) ⟶
+    (ihom ((moduleDerivedPushforward f).obj L.obj)).obj K.obj)
 
-/-- The sheafy-trace morphism is the internal-Hom comparison of `Rf_*` followed by
-the included counit of the chosen derived pushforward adjunction. -/
-theorem sheafyTrace_eq {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [QuasiCompact f] [QuasiSeparated f]
-    [MonoidalCategory (ModuleDerived X)] [MonoidalCategory (ModuleDerived Y)]
-    [MonoidalClosed (ModuleDerived X)] [MonoidalClosed (ModuleDerived Y)]
-    [Functor.LaxMonoidal (moduleDerivedPushforward f)]
-    (a : DerivedQCoh Y ⥤ DerivedQCoh X) (adj : pushforwardCohomologyIn f ⊣ a)
-    (L : DerivedQCoh X) (K : DerivedQCoh Y) :
-    sheafyTrace f a adj L K =
-      InternalHom.comparison (moduleDerivedPushforward f) L.obj (a.obj K).obj ≫
-        (ihom ((moduleDerivedPushforward f).obj L.obj)).map
-          ((pushforwardCohomologyIn.inclusionIso f).inv.app (a.obj K) ≫
-            (inclusion Y).map (adj.counit.app K)) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.DerivedQCoh
+#check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.sheafyTrace_eq f a adj L K :
+  sheafyTrace f a adj L K =
+    InternalHom.comparison (moduleDerivedPushforward f) L.obj (a.obj K).obj ≫
+      (ihom ((moduleDerivedPushforward f).obj L.obj)).map
+        ((pushforwardCohomologyIn.inclusionIso f).inv.app (a.obj K) ≫
+          (inclusion Y).map (adj.counit.app K)))

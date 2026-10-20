@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_5_1_Surjective
-public import stacks_project.Chap100.Lemma_100_9_10_Substack
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Thickening
 
 /-!
 # Thickenings of algebraic stacks
@@ -20,62 +13,14 @@ associated point space agrees with the target.
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry
-open AlgebraicGeometry.Groupoids.Hom (ClosedImmersion)
+open AlgebraicGeometry.AlgebraicStack
 open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack
-
-/-- A morphism of algebraic stacks is a thickening if it is a closed immersion
-and the induced map of associated point spaces is surjective. -/
-class IsThickening {S : Scheme.{u}} {X X' : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack X'] (i : X ⟶ X') : Prop
-    extends ClosedImmersion i, Surjective i
-
-/-- A closed immersion of algebraic stacks that is surjective on associated
-points is a thickening. -/
-instance instIsThickening {S : Scheme.{u}} {X X' : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack X'] (i : X ⟶ X')
-    [ClosedImmersion i] [Surjective i] : IsThickening i where
-  toClosedImmersion := inferInstance
-  toSurjective := inferInstance
-
-/-- Being a thickening is equivalent to being both a closed immersion and
-surjective on associated point spaces. -/
-theorem isThickening_iff {S : Scheme.{u}} {X X' : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack X'] (i : X ⟶ X') :
-    IsThickening i ↔ ClosedImmersion i ∧ Surjective i := sorry
-
-namespace IsThickening
-
-/-- The identity morphism of an algebraic stack is a thickening. -/
-instance id {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] :
-    IsThickening (𝟙 X) :=
-  inferInstance
-
-/-- A thickening is a closed immersion that is surjective on associated point
-spaces. -/
-theorem spec {S : Scheme.{u}} {X X' : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack X'] (i : X ⟶ X') [IsThickening i] :
-    ClosedImmersion i ∧ Surjective i := sorry
-
-/-- The inclusion of a closed substack is a thickening if and only if it is
-surjective on associated point spaces. -/
-theorem closedSubstack_surjective {S : Scheme.{u}} {X' : GroupoidsOver S}
-    [AlgebraicStack X'] (Y : ClosedSubstack X') :
-    IsThickening Y.ι ↔ Surjective Y.ι := sorry
-
-/-- A thickening induces a surjective map of associated point spaces. -/
-theorem points_surjective {S : Scheme.{u}} {X X' : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack X'] (i : X ⟶ X') [IsThickening i] :
-    Function.Surjective (Points.map i) := sorry
-
-/-- A thickening induces a bijective map of associated point spaces. -/
-theorem points_bijective {S : Scheme.{u}} {X X' : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack X'] (i : X ⟶ X') [IsThickening i] :
-    Function.Bijective (Points.map i) := sorry
-
-end IsThickening
-
-end AlgebraicGeometry.AlgebraicStack
+/- Definition 106.3.1 (1): an algebraic stack `X'` is a thickening of an
+algebraic stack `X` if `X` is a closed substack of `X'` and the associated
+topological spaces are equal. -/
+#check (AlgebraicGeometry.AlgebraicStack.IsThickening :
+  {S : Scheme.{u}} → {X X' : GroupoidsOver S} →
+    [AlgebraicStack X] → [AlgebraicStack X'] → (X ⟶ X') → Prop)

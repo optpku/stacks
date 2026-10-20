@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap67.Lemma_67_30_4_Pullback
+import StacksCheckRecall
 
 /-!
 # Base change of flat morphisms of algebraic spaces
@@ -23,13 +18,10 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.30.4: The base change of a flat morphism is flat. -/
-@[stacks 03MO]
-instance flat_isStableUnderBaseChange {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderBaseChange
-      (@Flat S : MorphismProperty (AlgebraicSpace S)) := sorry
-
-#check Flat.of_isPullback
-#check Flat.pullback_snd
+/- Lemma 67.30.4: The base change of a flat morphism is flat. -/
+@[stacks 03MO] #check (AlgebraicGeometry.AlgebraicSpace.flat_isStableUnderBaseChange :
+  ∀ {S : Scheme.{u}}, CategoryTheory.MorphismProperty.IsStableUnderBaseChange
+    (@AlgebraicGeometry.AlgebraicSpace.Flat S :
+      CategoryTheory.MorphismProperty (AlgebraicGeometry.AlgebraicSpace S)))
 
 end AlgebraicGeometry.AlgebraicSpace

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Action.Basic
+public import ReasLib.CategoryTheory.Action.StableSubset
 public import Mathlib.CategoryTheory.ObjectProperty.ClosedUnderIsomorphisms
 public import Mathlib.SetTheory.Cardinal.Basic
 
@@ -48,6 +43,11 @@ theorem mk_le_size (S : Action (Type u) G) : #(S.V) ≤ S.size := sorry
 
 /-- Isomorphic `G`-sets have the same size. -/
 theorem size_eq_of_iso {S T : Action (Type u) G} (e : S ≅ T) : size S = size T := sorry
+
+/-- The size of a `G`-stable subset is at most the size of the ambient `G`-set. -/
+theorem size_ofStableSubset_le (U : Action (Type u) G) (O : Set U.V)
+    (hO : ∀ g : G, Set.MapsTo (fun x : U.V ↦ U.ρ g x) O O) :
+    size (ofStableSubset U O hO) ≤ size U := sorry
 
 /-- The object property of `G`-sets of size at most `κ`. -/
 def sizeLE (κ : Cardinal.{u}) : ObjectProperty (Action (Type u) G) :=

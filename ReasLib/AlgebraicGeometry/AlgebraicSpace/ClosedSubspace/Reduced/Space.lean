@@ -1,22 +1,14 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.Reduced.AtlasPullback
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.Mono
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.Support
-public import stacks_project.Chap67.Lemma_67_48_6_Reduced
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Reduced
 
-/-! # The actual algebraic space carried by the reduced closed image
+/-! # The algebraic space of a reduced closed image
 
-Its carrier is the existing Type-u relative image, with the explicit
-reduced atlas. Every representation used to supply the atlas is derived
-from the original input X's atlas representation and the fixed comparison.
-No new representability existence statement is used to select scheme data.
+The relative image sheaf has a representable diagonal and a surjective étale atlas given by
+the reduced closed subscheme of the ambient atlas.
 -/
 
 @[expose] public section
@@ -42,16 +34,19 @@ abbrev atlasNat := (toImage X Z).hom
 
 variable {T : Over S} (g : yoneda.obj T ⟶ (imageSheaf X Z).obj)
 
-/-- The scheme test pullback is supplied by the ORIGINAL input atlas of X. -/
+/-- The pullback of the ambient étale atlas along the test morphism to the image sheaf. -/
 def testScheme : Over S :=
   (AtlasInput.representableEtale X).rep.pullback (g ≫ inclusionNat X Z)
 
+/-- The projection from the test pullback to the ambient atlas. -/
 def testToInputAtlas : testScheme X Z g ⟶ atlasScheme X :=
   (AtlasInput.representableEtale X).rep.fst' (g ≫ inclusionNat X Z)
 
+/-- The projection from the test pullback to the test scheme. -/
 def testToBase : testScheme X Z g ⟶ T :=
   (AtlasInput.representableEtale X).rep.snd (g ≫ inclusionNat X Z)
 
+/-- The two test pullback projections have the same composite into the ambient space. -/
 theorem test_commutes :
     (yoneda.map (testToBase X Z g) ≫ g) ≫ inclusionNat X Z =
       yoneda.map (testToInputAtlas X Z g) ≫ atlasMap X := by
@@ -68,14 +63,13 @@ def testToPullback : yoneda.obj (testScheme X Z g) ⟶
 def testToReduced : testScheme X Z g ⟶ reducedAtlas X Z :=
   yoneda.preimage (testToPullback X Z g ≫ (ReducedClosed.AtlasPullback.comparisonIso X Z).inv)
 
-/-- Pullback coherence of these SPECIFIED maps follows by cancelling the
-fixed image pullback comparison and applying the original atlas pullback
-universal property. No object or map is selected by this law. -/
+/-- The test scheme represents the pullback of the reduced atlas to the test scheme. -/
 theorem test_isPullback :
     IsPullback (yoneda.map (testToReduced X Z g)) (yoneda.map (testToBase X Z g))
       (atlasNat X Z) g := by
   sorry
 
+/-- The test pullback projection is étale as a base change of the ambient atlas. -/
 theorem testToBase_etale : AlgebraicGeometry.Etale (testToBase X Z g).left :=
   (AtlasInput.representableEtale X).property
     (g ≫ inclusionNat X Z)
@@ -83,7 +77,7 @@ theorem testToBase_etale : AlgebraicGeometry.Etale (testToBase X Z g).left :=
     ((AtlasInput.representableEtale X).rep.isPullback'
       (g ≫ inclusionNat X Z))
 
-/-- The atlas representability witness is explicitly the preceding scheme and maps. -/
+/-- The reduced atlas morphism to its image sheaf is representable by schemes. -/
 theorem atlas_representable : yoneda.relativelyRepresentable (atlasNat X Z) := by
   intro T g
   exact ⟨testScheme X Z g, testToBase X Z g, yoneda.map (testToReduced X Z g),
@@ -130,39 +124,37 @@ theorem mapFromScheme_representable {T : Over S}
     rep.fst (h ≫ inclusionNat X Z),
     cancel_image_square X Z _ _ g h (rep.isPullback (h ≫ inclusionNat X Z))⟩
 
-/-- This diagonal witness is derived from the original X representation. -/
+/-- The diagonal of the image sheaf is representable by schemes. -/
 theorem diagonal_representable :
     yoneda.relativelyRepresentable (Limits.diag (imageSheaf X Z).obj) :=
   Functor.relativelyRepresentable.diag_of_map_from_obj
     (fun {_} g ↦ mapFromScheme_representable X Z g)
 
-/-- The actual algebraic-space object: no chosen IsAlgebraicSpace witness.
-In particular the existential atlas field explicitly contains reducedAtlas
-and the actual map toImage, with only their geometric laws deferred. -/
-def space : AlgebraicSpace S where
-  functorOfPoints := (imageSheaf X Z).obj
-  isSheaf := image_isSheaf X Z
-  representableDiagonal := diagonal_representable X Z
-  atlas := ⟨reducedAtlas X Z, atlasNat X Z, atlas_etale X Z, atlas_surjective X Z⟩
+/-- The algebraic space whose functor of points is the image of the reduced atlas. -/
+def space : AlgebraicSpace S :=
+  AlgebraicSpace.ofFunctor (imageSheaf X Z).obj
+    (image_isSheaf X Z) (diagonal_representable X Z)
+    ⟨reducedAtlas X Z, atlasNat X Z, atlas_etale X Z, atlas_surjective X Z⟩
 
 /-- The inclusion retains the actual image-subtype function. -/
 def ι : space X Z ⟶ X := inclusionNat X Z
 
+/-- The functor of points of the reduced closed space is the relative image sheaf. -/
 @[simp]
 theorem carrier_eq : (space X Z).functorOfPoints = (imageSheaf X Z).obj := rfl
 
 /-- The actual reduced atlas has the same image after packaging as a space. -/
 def chart : ofOver (reducedAtlas X Z) ⟶ space X Z := atlasNat X Z
 
+/-- The reduced atlas chart followed by the image inclusion is the ambient chart map. -/
 theorem chart_ι : chart X Z ≫ ι X Z = chartMap X Z :=
   congrArg (fun h ↦ h.hom) (factorization X Z)
 
-/-- The fixed explicit vanishing-ideal subscheme is reduced. This is a
-property of that actual scheme, not a new reduced-atlas existence axiom. -/
+/-- The closed subscheme defined by the radical vanishing ideal on the atlas is reduced. -/
 theorem reducedAtlas_reduced : AlgebraicGeometry.IsReduced (reducedAtlas X Z).left := by
   sorry
 
-/-- Reducedness records the actual constructed atlas as its witness. -/
+/-- The reduced closed image algebraic space is reduced on its surjective étale atlas. -/
 instance space_reduced : AlgebraicSpace.IsReduced (space X Z) where
   exists_reduced_etaleCover := ⟨reducedAtlas X Z, chart X Z,
     atlas_etale X Z, atlas_surjective X Z, reducedAtlas_reduced X Z⟩

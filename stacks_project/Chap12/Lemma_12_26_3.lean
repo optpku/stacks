@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Homology.DoubleComplex.CoaugmentedResolution
@@ -48,7 +42,7 @@ independent of the proof supplied for the coaugmentation relation. -/
 
 section
 
-variable [Mono ι]
+variable [CountableAB4Star C] [Mono ι]
 variable
   (hExact₀ : (HomologicalComplex₂.CoaugmentedResolution.shortComplex A ι hι).Exact)
   (hExact : ∀ n : ℕ, A.ExactAt (n + 1))
@@ -58,8 +52,9 @@ variable
   (hOpcyclesExact : ∀ q : ℤ, ∀ n : ℕ,
     (HomologicalComplex₂.CoaugmentedResolution.opcycles A q).ExactAt (n + 1))
 
-/- Lemma 12.26.3 [09J0]: exactness of the coaugmented row and every shifted rowwise-cokernel
-complex makes the canonical map into the product total a quasi-isomorphism. -/
+/- Lemma 12.26.3 [09J0]: in an abelian category with exact countable products, exactness of the
+coaugmented row and every shifted rowwise-cokernel complex makes the canonical map into the product
+total a quasi-isomorphism. -/
 @[stacks 09J0]
 #check (HomologicalComplex₂.CoaugmentedResolution.ToProductTotal.quasiIso_of_exact_opcycles
   A ι hι hExact₀ hExact hOpcyclesMono hOpcyclesExact₀ hOpcyclesExact :

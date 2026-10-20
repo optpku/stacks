@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap68.Lemma_68_22_7_Map
-public import stacks_project.Chap67.Definition_67_45_2_Integral
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Normalization.Birational
+import StacksCheckRecall
 
 /-!
 # Factorization of integral birational morphisms through normalization
@@ -27,31 +21,31 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.Normalization
 
-/-- Lemma 68.22.9: Let `S` be a scheme. Let `f : X ⟶ Y` be an integral
+/- Lemma 68.22.9: Let `S` be a scheme. Let `f : X ⟶ Y` be an integral
 birational morphism of decent algebraic spaces over `S` which have finitely
 many irreducible components. Then there is a factorization
 `β : Y.normalization ⟶ X` of `Y.normalizationTo` through `f`, and an
 isomorphism `e : Y.normalization ≅ X.normalization` identifying `β` with
 `X.normalizationTo`. -/
-@[stacks 0BBH]
-theorem exists_factorization {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+@[stacks 0BBH] #check
+  (AlgebraicGeometry.AlgebraicSpace.Normalization.exists_factorization :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     [IsDecent X] [IsDecent Y]
     [HasFiniteIrreducibleComponents X] [HasFiniteIrreducibleComponents Y]
-    (f : X ⟶ Y) [IsBirational f] [IsIntegralHom f] :
+    (f : X ⟶ Y) [IsBirational f] [IsIntegralHom f],
     ∃ (β : Y.normalization ⟶ X) (e : Y.normalization ≅ X.normalization),
-      β ≫ f = Y.normalizationTo ∧ β = e.hom ≫ X.normalizationTo :=
-  sorry
+      β ≫ f = Y.normalizationTo ∧ β = e.hom ≫ X.normalizationTo)
 
-/-- A morphism `β : Y.normalization ⟶ X` factoring `Y.normalizationTo` through
+/- A morphism `β : Y.normalization ⟶ X` factoring `Y.normalizationTo` through
 an integral birational morphism `f : X ⟶ Y` of decent algebraic spaces with
 finitely many irreducible components is identified with `X.normalizationTo` by
 an isomorphism `Y.normalization ≅ X.normalization`. -/
-theorem iso_of_factor {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.Normalization.iso_of_factor :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     [IsDecent X] [IsDecent Y]
     [HasFiniteIrreducibleComponents X] [HasFiniteIrreducibleComponents Y]
     (f : X ⟶ Y) [IsBirational f] [IsIntegralHom f]
-    {β : Y.normalization ⟶ X} (hβ : β ≫ f = Y.normalizationTo) :
-    ∃ e : Y.normalization ≅ X.normalization, β = e.hom ≫ X.normalizationTo :=
-  sorry
+    {β : Y.normalization ⟶ X} (hβ : β ≫ f = Y.normalizationTo),
+    ∃ e : Y.normalization ≅ X.normalization, β = e.hom ≫ X.normalizationTo)
 
 end AlgebraicGeometry.AlgebraicSpace.Normalization

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap96.Definition_96_6_1_StructureSheaf
@@ -19,9 +13,9 @@ universe u
 groupoids. The structure sheaf of `X` is the sheaf of rings
 `𝒪_X = p⁻¹ 𝒪`. -/
 @[stacks 06TV] #check
-  (GroupoidsOver.structureSheaf :
+  (AlgebraicGeometry.GroupoidsOver.structureSheaf :
     {S : Scheme.{u}} → (X : GroupoidsOver S) →
-      Sheaf (GroupoidsOver.inheritedFppfTopology X) RingCat.{u})
+      Sheaf (GroupoidsOver.fppfTopology X) RingCat.{u})
 
 /- For an object `x` of `X` lying over `U`, `𝒪_X(x) = Γ(U, 𝒪_U)`. -/
 #check GroupoidsOver.structureSheaf_obj

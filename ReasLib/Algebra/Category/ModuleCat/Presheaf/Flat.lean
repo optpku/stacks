@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Presheaf.Monoidal
@@ -33,31 +27,12 @@ namespace PresheafOfModules
 
 variable {C : Type u} [Category.{v} C]
 
-/-- Flatness of a module presheaf, specialized from the monoidal-category owner. -/
+/-- Flatness of a module presheaf, specialized from the monoidal-category owner.  Exactness of
+`tensorRight ℱ` is the canonical field `CategoryTheory.MonoidalCategory.IsFlat.exact_tensor`. -/
 @[stacks 03ER "presheaf modules"]
 abbrev IsFlat {𝒪 : Cᵒᵖ ⥤ CommRingCat.{max u v}}
     (ℱ : PresheafOfModules (ringPresheaf 𝒪)) : Prop :=
   CategoryTheory.MonoidalCategory.IsFlat ℱ
-
-namespace IsFlat
-
-/-- The exactness field of the canonical monoidal flatness owner. -/
-theorem exact_tensor {𝒪 : Cᵒᵖ ⥤ CommRingCat.{max u v}}
-    {ℱ : PresheafOfModules (ringPresheaf 𝒪)} [IsFlat ℱ] :
-    exactFunctor
-      (PresheafOfModules (ringPresheaf 𝒪))
-      (PresheafOfModules (ringPresheaf 𝒪))
-      (tensorRight ℱ) := sorry
-
-/-- The tensor-right functor of a flat presheaf of modules is exact. -/
-theorem exactTensor {𝒪 : Cᵒᵖ ⥤ CommRingCat.{max u v}}
-    (ℱ : PresheafOfModules (ringPresheaf 𝒪)) [IsFlat ℱ] :
-    exactFunctor
-      (PresheafOfModules (ringPresheaf 𝒪))
-      (PresheafOfModules (ringPresheaf 𝒪))
-      (tensorRight ℱ) := sorry
-
-end IsFlat
 
 /-- A morphism of commutative-ring-valued presheaves is flat when its target, restricted to a
 module over the source, is flat. -/
@@ -69,7 +44,7 @@ def IsFlatHom {𝒪 𝒪' : Cᵒᵖ ⥤ CommRingCat.{max u v}} (α : 𝒪 ⟶ �
 theorem isFlatHom_iff {𝒪 𝒪' : Cᵒᵖ ⥤ CommRingCat.{max u v}} (α : 𝒪 ⟶ 𝒪') :
     IsFlatHom α ↔
       IsFlat ((PresheafOfModules.restrictScalars (presheafStructureMap α)).obj
-        (PresheafOfModules.unit (ringPresheaf 𝒪'))) := sorry
+        (PresheafOfModules.unit (ringPresheaf 𝒪'))) := Iff.rfl
 
 /-- The structure presheaf, regarded as a module over itself, is flat. -/
 @[instance]

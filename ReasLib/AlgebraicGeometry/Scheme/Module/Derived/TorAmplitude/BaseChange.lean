@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.HomotopyCategory.SingleFunctors
@@ -29,6 +23,8 @@ variable {X' X S' S : Scheme.{u}}
 Tor-amplitude interval relative to the base. -/
 theorem hasTorAmplitudeInOver
     (g' : X' ⟶ X) (f' : X' ⟶ S') (f : X ⟶ S) (g : S' ⟶ S)
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules (RingedSpace.Hom.inverseImageBase f.toShHom))]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules (RingedSpace.Hom.inverseImageBase f'.toShHom))]
     (sq : IsPullback g' f' f g)
     (hTor : Scheme.TorIndependentOver (Over.mk f) (Over.mk g))
     (E : RingedSpace.ModuleDerived X.toRingedSpace) (a b : ℤ)

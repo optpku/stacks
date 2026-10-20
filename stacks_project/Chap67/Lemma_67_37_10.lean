@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_9_2_Dimension
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap67.Lemma_67_34_3_FiberDimension
-public import stacks_project.Chap67.Lemma_67_37_4_Smooth
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Smooth.Dimension
+import StacksCheckRecall
 
 /-!
 # Dimension formula for smooth morphisms of algebraic spaces
@@ -24,32 +16,22 @@ open CategoryTheory AlgebraicGeometry AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-namespace Smooth
-
-/-- Lemma 67.37.10: Let `X` and `Y` be locally Noetherian algebraic spaces over
+/- Lemma 67.37.10: Let `X` and `Y` be locally Noetherian algebraic spaces over
 a scheme `S`, and let `f : X ⟶ Y` be a smooth morphism. For every point `x` of
 `Points X` with image `y` of `Points Y`, `dimensionAt x = dimensionAt y +
 fiberDimensionAt f x`, where `fiberDimensionAt f x` is the relative dimension
 of `f` at `x` in the sense of Definition 67.33.1. -/
-@[stacks 0AFI]
-theorem dimensionAt_eq_image_add_fiberDimensionAt
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [IsLocallyNoetherian X] [IsLocallyNoetherian Y] [Smooth f] (x : Points X) :
-    dimensionAt x = dimensionAt (Points.map f x) + fiberDimensionAt f x :=
-  sorry
+@[stacks 0AFI] #check
+  (AlgebraicGeometry.AlgebraicSpace.Smooth.dimensionAt_eq_image_add_fiberDimensionAt :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      [IsLocallyNoetherian X] [IsLocallyNoetherian Y] [Smooth f] (x : Points X),
+      dimensionAt x = dimensionAt (Points.map f x) + fiberDimensionAt f x)
 
-/-- If a smooth morphism of locally Noetherian algebraic spaces has relative
+/- If a smooth morphism of locally Noetherian algebraic spaces has relative
 dimension `d` at a point, then the local dimension formula holds with addend
 `d`. -/
-theorem dimensionAt_eq_image_add_of_relativeDimensionAt
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [IsLocallyNoetherian X] [IsLocallyNoetherian Y] [Smooth f] {d : ℕ}
-    {x : Points X} (hd : RelativeDimensionAt f d x) :
-    dimensionAt x = dimensionAt (Points.map f x) + (d : WithBot ℕ∞) :=
-  sorry
-
-end Smooth
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.Smooth.dimensionAt_eq_image_add_of_relativeDimensionAt :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      [IsLocallyNoetherian X] [IsLocallyNoetherian Y] [Smooth f] {d : ℕ}
+      {x : Points X} (hd : RelativeDimensionAt f d x),
+      dimensionAt x = dimensionAt (Points.map f x) + (d : WithBot ℕ∞))

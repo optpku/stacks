@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Adjunction.HomotopyCategory
@@ -11,6 +5,8 @@ public import ReasLib.CategoryTheory.DerivedCategory.Functor.Bounded.RightDerive
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Exact.Bounded.RightDerived
 public import ReasLib.CategoryTheory.Functor.Derived.Adjunction.Restriction
 public import ReasLib.CategoryTheory.Functor.Exactness.Additive
+public import ReasLib.CategoryTheory.Abelian.Injective.Enough
+public import Mathlib.Algebra.Homology.DerivedCategory.DerivabilityStructureInjectives
 public import Mathlib.Tactic.CrossRefAttribute
 
 @[expose] public section
@@ -21,9 +17,9 @@ public import Mathlib.Tactic.CrossRefAttribute
 An exact left adjoint acts directly on bounded-below derived categories, while its additive right
 adjoint is represented by the canonical total right-derived functor.  This file packages the
 localization maps and the absolute-derived pair needed to retain the adjunction.  The pair is
-supplied canonically once the bounded-below right-derived functor exists, so site, ringed-space,
-and module-theoretic developments can specialize one common construction without rebuilding
-proof-local pair data.
+supplied canonically when the source of the right adjoint has enough injectives. On injective
+complexes the right-derived unit is invertible, and this remains so after the exact left action.
+Thus site, ringed-space, and module-theoretic developments can specialize one common construction.
 -/
 
 open CategoryTheory
@@ -113,14 +109,31 @@ attribute [instance] HasPair.leftRight HasPair.rightLeft
 /-- Exact left actions and canonical bounded-below right-derived actions form the absolute
 derived pair required by the derived-adjunction construction. -/
 @[stacks 015F "canonical exact-left bounded-below derived pair", instance]
-noncomputable instance hasPair (L : C ⥤ₑ D) (R : D ⥤ C) [R.Additive]
+noncomputable instance hasPair [EnoughInjectives D] (L : C ⥤ₑ D) (R : D ⥤ C) [R.Additive]
     [R.toBoundedBelowDerived.HasRightDerivedFunctor
       (HomotopyCategory.Plus.quasiIso D)] :
-    HasPair L R := sorry
+    HasPair L R where
+  leftRight := by
+    exact Functor.isLeftDerivedFunctor_of_inverts
+      (HomotopyCategory.Plus.quasiIso C) (left L ⋙ right R)
+      ((Functor.associator DerivedCategory.Plus.Qh (left L) (right R)).symm ≪≫
+        Functor.isoWhiskerRight (ExactFunctor.Derived.Plus.factorIso L).symm (right R))
+  rightLeft := by
+    apply (HomotopyCategory.Plus.localizerMorphism_derives
+      (R.mapHomotopyCategoryPlus ⋙ (DerivedCategory.Plus.Qh ⋙ left L))).isRightDerivedFunctor_of_isIso
+      (rightLeftUnit L R)
+    intro K
+    change IsIso ((left L).map
+      ((rightUnit R).app ((InjectiveObject.ι D).mapHomotopyCategoryPlus.obj K)) ≫ 𝟙 _)
+    have : IsIso ((rightUnit R).app
+        ((InjectiveObject.ι D).mapHomotopyCategoryPlus.obj K)) :=
+      (HomotopyCategory.Plus.localizerMorphism_derives R.toBoundedBelowDerived).isIso_of_isRightDerivedFunctor
+        (rightUnit R) K
+    infer_instance
 
 /-- The bounded-below derived adjunction associated to an exact-left adjoint pair. -/
 @[stacks 015F "exact-left bounded-below derived adjunction"]
-noncomputable def adjunction (L : C ⥤ₑ D) (R : D ⥤ C) [R.Additive]
+noncomputable def adjunction [EnoughInjectives D] (L : C ⥤ₑ D) (R : D ⥤ C) [R.Additive]
     [R.toBoundedBelowDerived.HasRightDerivedFunctor
       (HomotopyCategory.Plus.quasiIso D)]
     (adj : L.obj ⊣ R) :

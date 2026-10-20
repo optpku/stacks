@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Definition_90_11_1_ModuleLinear
-public import stacks_project.Chap90.Lemma_90_11_4_FGModuleCat
-public import stacks_project.Chap90.Lemma_90_11_4_LinearLift
+public import ReasLib.Algebra.Category.ModuleCat.LinearLift
+import StacksCheckRecall
 
 /-!
 # Lemma 90.11.4
@@ -27,28 +20,20 @@ universe u v
 
 variable {R : Type u} [CommRing R]
 
-namespace FGModuleCat
-
-/-- Lemma 90.11.4 (1): a functor `L : FGModuleCat R ⥤ Type` with `L.obj 0` a singleton
+/- Lemma 90.11.4 (1): a functor `L : FGModuleCat R ⥤ Type` with `L.obj 0` a singleton
 that preserves finite products lifts uniquely to an `R`-linear functor
 `FGModuleCat R ⥤ ModuleCat R` whose composite with `forget` is `L`. -/
-@[stacks 06I6]
-theorem existsUnique_linearLift (L : FGModuleCat.{v} R ⥤ Type v)
-    [PreservesFiniteProducts L] [Unique (L.obj 0)] :
-    ∃! F : FGModuleCat.{v} R ⥤ ModuleCat.{v} R,
-      F.ModuleLinear R ∧ F ⋙ forget (ModuleCat.{v} R) = L := sorry
+@[stacks 06I6] #check (FGModuleCat.existsUnique_linearLift (R := R) :
+  ∀ (L : FGModuleCat.{v} R ⥤ Type v),
+    ∀ [PreservesFiniteProducts L] [Unique (L.obj 0)],
+      ∃! F : FGModuleCat.{v} R ⥤ ModuleCat.{v} R,
+        F.ModuleLinear R ∧ F ⋙ forget (ModuleCat.{v} R) = L)
 
-end FGModuleCat
-
-namespace ModuleCat
-
-/-- Lemma 90.11.4 (2): a functor `L : ModuleCat R ⥤ Type` with `L.obj 0` a singleton
+/- Lemma 90.11.4 (2): a functor `L : ModuleCat R ⥤ Type` with `L.obj 0` a singleton
 that preserves finite products lifts uniquely to an `R`-linear functor
 `ModuleCat R ⥤ ModuleCat R` whose composite with `forget` is `L`. -/
-@[stacks 06I6]
-theorem existsUnique_linearLift (L : ModuleCat.{v} R ⥤ Type v)
-    [PreservesFiniteProducts L] [Unique (L.obj 0)] :
-    ∃! F : ModuleCat.{v} R ⥤ ModuleCat.{v} R,
-      F.ModuleLinear R ∧ F ⋙ forget (ModuleCat.{v} R) = L := sorry
-
-end ModuleCat
+@[stacks 06I6] #check (ModuleCat.existsUnique_linearLift (R := R) :
+  ∀ (L : ModuleCat.{v} R ⥤ Type v),
+    ∀ [PreservesFiniteProducts L] [Unique (L.obj 0)],
+      ∃! F : ModuleCat.{v} R ⥤ ModuleCat.{v} R,
+        F.ModuleLinear R ∧ F ⋙ forget (ModuleCat.{v} R) = L)

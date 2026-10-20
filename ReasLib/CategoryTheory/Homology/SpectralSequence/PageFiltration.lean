@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Homology.SpectralSequence.PositivePage
@@ -93,13 +87,6 @@ noncomputable def homologyPageTower (E : SpectralSequence C c 1) (pq : κ) :
   isIso_descToNext r := PositivePage.quotientToNext_isIso E pq r
 
 namespace HomologyTower
-
-/-- The complete lattice on the first object of the homology-page tower, transported from the
-corresponding first spectral-sequence entry. -/
-@[stacks 011O "homology-page tower first-page lattice bridge"]
-noncomputable abbrev pageOneCompleteLattice (E : SpectralSequence C c 1) (pq : κ)
-    [h : CompleteLattice (Subobject E⟦1,pq⟧)] :
-    CompleteLattice (Subobject ((E.homologyPageTower pq).page 1)) := h
 
 /-- The `r`-th object of the homology page tower is the corresponding spectral-sequence entry. -/
 @[simp, stacks 011O "homology tower page bridge"]
@@ -478,54 +465,47 @@ theorem Cycle.toPage_naturality
 
 section Infinity
 
+variable [LocallySmall.{v} C] [WellPowered.{v} C]
+  [HasWidePullbacks.{v} C] [HasCoproducts.{v} C]
+
 /-- The eventual cycle subobject `Z_infinity^{pq}`. -/
 @[stacks 011O]
 noncomputable abbrev cycleInfinity (E : SpectralSequence C c 1) (pq : κ)
-    [CompleteLattice (Subobject E⟦1,pq⟧)] :
-    Subobject E⟦1, pq⟧ :=
-  @HomologyPageTower.cycleInfinity _ _ _ (E.homologyPageTower pq)
-    (HomologyTower.pageOneCompleteLattice E pq)
+    : Subobject E⟦1, pq⟧ :=
+  HomologyPageTower.cycleInfinity (E.homologyPageTower pq)
 
 /-- The eventual boundary subobject `B_infinity^{pq}`. -/
 @[stacks 011O]
 noncomputable abbrev boundaryInfinity (E : SpectralSequence C c 1) (pq : κ)
-    [CompleteLattice (Subobject E⟦1,pq⟧)] :
-    Subobject E⟦1, pq⟧ :=
-  @HomologyPageTower.boundaryInfinity _ _ _ (E.homologyPageTower pq)
-    (HomologyTower.pageOneCompleteLattice E pq)
+    : Subobject E⟦1, pq⟧ :=
+  HomologyPageTower.boundaryInfinity (E.homologyPageTower pq)
 
 namespace InfinityPage
 
 /-- Eventual boundaries are contained in eventual cycles. -/
 @[stacks 011O]
-theorem boundary_le_cycle (E : SpectralSequence C c 1) (pq : κ)
-    [CompleteLattice (Subobject E⟦1,pq⟧)] :
+theorem boundary_le_cycle (E : SpectralSequence C c 1) (pq : κ) :
     E.boundaryInfinity pq ≤ E.cycleInfinity pq := sorry
 
 end InfinityPage
 
 /-- The infinity-page entry `Z_infinity^{pq} / B_infinity^{pq}`. -/
 @[stacks 011O]
-noncomputable abbrev infinityPage (E : SpectralSequence C c 1) (pq : κ)
-    [CompleteLattice (Subobject E⟦1,pq⟧)] : C :=
-  @HomologyPageTower.infinityPage _ _ _ (E.homologyPageTower pq)
-    (HomologyTower.pageOneCompleteLattice E pq)
+noncomputable abbrev infinityPage (E : SpectralSequence C c 1) (pq : κ) : C :=
+  HomologyPageTower.infinityPage (E.homologyPageTower pq)
 
 namespace InfinityPage
 
 /-- The canonical projection from eventual cycles to the proof-free infinity-page entry. -/
 @[stacks 011O]
-noncomputable abbrev π (E : SpectralSequence C c 1) (pq : κ)
-    [CompleteLattice (Subobject E⟦1,pq⟧)] :
+noncomputable abbrev π (E : SpectralSequence C c 1) (pq : κ) :
     (E.cycleInfinity pq : C) ⟶ E.infinityPage pq :=
-  @HomologyPageTower.InfinityPage.π _ _ _ (E.homologyPageTower pq)
-    (HomologyTower.pageOneCompleteLattice E pq)
+  HomologyPageTower.InfinityPage.π (E.homologyPageTower pq)
 
 /-- The proof-free infinity-page entry is isomorphic to the textbook quotient once eventual
 boundary containment is available. -/
 @[stacks 011O]
-theorem isIsomorphic (E : SpectralSequence C c 1) (pq : κ)
-    [CompleteLattice (Subobject E⟦1,pq⟧)] :
+theorem isIsomorphic (E : SpectralSequence C c 1) (pq : κ) :
     IsIsomorphic (E.infinityPage pq)
       (cokernel
         (Subobject.ofLE (E.boundaryInfinity pq) (E.cycleInfinity pq)

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.ResidueField
@@ -132,7 +126,7 @@ def geometricFrobeniusStalkClosed {X : SchemeOverField k}
     ((Hom.sheafFiber
         ⟨geometricPointFiberMap (geometricPointHomOfClosedPoint X x)
           (geometricPointGaloisIsoClosed X x
-            (arithmeticFrobeniusEquiv⁻¹ ^ X.hom.residueDegree x.1))⟩).app F)
+            ((FiniteField.arithmeticFrobenius k)⁻¹ ^ X.hom.residueDegree x.1))⟩).app F)
 
 /-- Evaluating geometric Frobenius on a closed-point stalk recovers the Galois
 action of the residue-field arithmetic Frobenius. -/
@@ -145,7 +139,7 @@ theorem geometricFrobeniusStalkClosed_spec {X : SchemeOverField k}
         ((Hom.sheafFiber
             ⟨geometricPointFiberMap (geometricPointHomOfClosedPoint X x)
               (geometricPointGaloisIsoClosed X x
-                (arithmeticFrobeniusEquiv⁻¹ ^
+                ((FiniteField.arithmeticFrobenius k)⁻¹ ^
                   X.hom.residueDegree x.1))⟩).app F) :=
   sorry
 

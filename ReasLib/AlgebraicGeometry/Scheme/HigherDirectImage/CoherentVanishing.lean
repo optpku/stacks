@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Fiber
@@ -38,6 +32,16 @@ theorem higherDirectImageModule_stalk_isZero_of_proper_fiberDimension
     (y : Y) (d : WithBot ℕ∞)
     (hdim : topologicalKrullDim (f.fiber y) = d)
     (F : X.Modules) [F.IsCoherent] (p : ℕ) (hp : d < (p : WithBot ℕ∞)) :
+    IsZero (RingedSpace.stalkModuleCat
+      (RingedSpace.Hom.higherDirectImageModule f.toShHom F p) y) := sorry
+
+/-- For a proper morphism to a locally Noetherian scheme, the positive-degree higher direct
+images of a coherent module have zero stalk at any point with finite point-set fibre. -/
+@[stacks 02OE]
+theorem higherDirectImageModule_stalk_isZero_of_proper_finite_fiber
+    {X Y : Scheme.{u}} [IsLocallyNoetherian Y] (f : X ⟶ Y) [IsProper f]
+    (y : Y) (hy : Set.Finite (f ⁻¹' ({y} : Set Y)))
+    (F : X.Modules) [F.IsCoherent] (p : ℕ) (hp : 0 < p) :
     IsZero (RingedSpace.stalkModuleCat
       (RingedSpace.Hom.higherDirectImageModule f.toShHom F p) y) := sorry
 

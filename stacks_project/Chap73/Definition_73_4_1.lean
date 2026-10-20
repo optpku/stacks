@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap73.Definition_73_4_1_Precoverage
@@ -13,11 +7,15 @@ import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
-universe u
-
-variable {S : Scheme.{u}}
+universe u v
 
 /- Definition 73.4.1 -/
-@[stacks 041E] #check (etalePrecoverage : Precoverage (AlgebraicSpace S))
+@[stacks 041E] #check
+  (AlgebraicGeometry.AlgebraicSpace.ofArrows_mem_etalePrecoverage_iff :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+      {ι : Type v} {Xᵢ : ι → AlgebraicSpace S} (f : ∀ i, Xᵢ i ⟶ X),
+      Presieve.ofArrows Xᵢ f ∈ etalePrecoverage X ↔
+        (∀ i, Etale (f i)) ∧ (⋃ i, Set.range (Points.map (f i))) = Set.univ)
 
-#check ofArrows_mem_etalePrecoverage_iff
+#check (AlgebraicGeometry.AlgebraicSpace.etalePrecoverage :
+  ∀ {S : Scheme.{u}}, Precoverage (AlgebraicSpace S))

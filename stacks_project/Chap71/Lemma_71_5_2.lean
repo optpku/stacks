@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap71.Lemma_71_5_2_FittingIdeal
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FittingIdeal.FinitePresentation
 import StacksCheckRecall
 
 @[expose] public section
@@ -19,14 +13,14 @@ universe u
 
 /- Lemma 71.5.2 (1) -/
 @[stacks 0CZ5] #check
-  (instIsQuasiCoherent_fittingIdealSheaf :
+  (AlgebraicGeometry.AlgebraicSpace.fittingIdealSheaf.instIsQuasicoherent :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (F : X.Modules)
       [F.IsFiniteType] [F.IsQuasicoherent] (i : ℕ),
       (fittingIdealSheaf F i : X.Modules).IsQuasicoherent)
 
 /- Lemma 71.5.2 (2) -/
 @[stacks 0CZ5] #check
-  (instIsFiniteType_fittingIdealSheaf :
+  (AlgebraicGeometry.AlgebraicSpace.instIsFiniteType_fittingIdealSheaf :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (F : X.Modules)
       [F.IsFinitePresentation] (r : ℕ),
       (fittingIdealSheaf F r : X.Modules).IsFiniteType)

@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.LocalCohomology
-public import Mathlib.Algebra.Regular.Defs
-public import Mathlib.RingTheory.AdicCompletion.Basic
-public import stacks_project.Chap58.Lemma_58_19_2
-public import stacks_project.Chap58.Lemma_58_24_1
+public import ReasLib.AlgebraicGeometry.PuncturedSpectrum.FiniteEtalePurity
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -20,33 +11,26 @@ open AlgebraicGeometry.Scheme
 open AlgebraicGeometry.PuncturedSpectrum
 open IsLocalRing
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.PuncturedSpectrum
-
-/-- Lemma 58.24.2: in Situation 58.19.1, if `A` is `f`-adically complete, `f` is a
+/- Lemma 58.24.2: let `A` be a Noetherian local ring and `f` an element of its
+maximal ideal. If `A` is `f`-adically complete, `f` is a
 nonzerodivisor, `H¹_m(A ⧸ fA)` and `H²_m(A ⧸ fA)` are finite `A`-modules, and
 purity holds at `(A_f)_p` for every maximal ideal `p` of `A_f`, then the restriction
 functor `FÉt_U ⟶ FÉt_{U₀}` identified with
 `Scheme.finiteEtaleBaseChange (principalQuotientMap f)` is essentially
 surjective. -/
-@[stacks 0EKA, instance]
-instance finiteEtaleBaseChange_essSurj_of_complete_localCohomology_purity
-    {A : Type u} [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
+@[stacks 0EKA] #check
+  (AlgebraicGeometry.PuncturedSpectrum.finiteEtaleBaseChange_essSurj_of_complete_localCohomology_purity :
+    ∀ {A : Type u} [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
     (f : maximalIdeal A)
-    [IsAdicComplete (principalIdeal f) A]
+    [IsAdicComplete (principalIdeal (f : A)) A]
     [Fact (IsRegular (f : A))]
     [Module.Finite A
       ((localCohomology (maximalIdeal A) 1).obj
-        (ModuleCat.of A
-          (A ⧸ (principalIdeal f • (⊤ : Submodule A A)))))]
+        (ModuleCat.of A (A ⧸ principalIdeal (f : A))))]
     [Module.Finite A
       ((localCohomology (maximalIdeal A) 2).obj
-        (ModuleCat.of A
-          (A ⧸ (principalIdeal f • (⊤ : Submodule A A)))))]
-    [Fact (hasPurityAtMaximalsAway f)] :
-    (Scheme.finiteEtaleBaseChange (principalQuotientMap f)).EssSurj := sorry
-
-end AlgebraicGeometry.PuncturedSpectrum
+        (ModuleCat.of A (A ⧸ principalIdeal (f : A))))]
+    [Fact (hasPurityAtMaximalsAway f)],
+    (Scheme.finiteEtaleBaseChange (principalQuotientMap f)).EssSurj)

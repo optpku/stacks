@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.CompactResidualHomology
@@ -28,9 +22,9 @@ variable (ηbar : GeometricPoint (geometricBaseChange X))
 specialized to the geometric-arithmetic exact sequence. -/
 def geometricCoinvariantsFunctor :=
   CompactResidualHomology.functor Λ
-    (Aut (standardFiniteEtaleFiber ηbar))
-    (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))
-    (Aut (standardFiniteEtaleFiber (galoisPoint X (arithmeticPoint X ηbar))))
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar))
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (galoisPoint X (arithmeticPoint X ηbar))))
     (geometricToArithmetic X ηbar).hom (arithmeticToGalois X (arithmeticPoint X ηbar)).hom
     (geometricToArithmetic_range_eq_arithmeticToGalois_ker X ηbar)
     (arithmeticToGalois_surjective X (arithmeticPoint X ηbar))
@@ -38,9 +32,9 @@ def geometricCoinvariantsFunctor :=
 /-- The specialized geometric closed-coinvariant functor retains additivity. -/
 instance geometricCoinvariantsFunctor_additive : (geometricCoinvariantsFunctor Λ X ηbar).Additive :=
   CompactResidualHomology.functor_additive Λ
-    (Aut (standardFiniteEtaleFiber ηbar))
-    (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))
-    (Aut (standardFiniteEtaleFiber (galoisPoint X (arithmeticPoint X ηbar))))
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar))
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (galoisPoint X (arithmeticPoint X ηbar))))
     (geometricToArithmetic X ηbar).hom (arithmeticToGalois X (arithmeticPoint X ηbar)).hom
     (geometricToArithmetic_range_eq_arithmeticToGalois_ker X ηbar)
     (arithmeticToGalois_surjective X (arithmeticPoint X ηbar))
@@ -49,9 +43,9 @@ instance geometricCoinvariantsFunctor_additive : (geometricCoinvariantsFunctor �
 instance geometricCoinvariantsFunctor_preservesFiniteColimits :
     PreservesFiniteColimits (geometricCoinvariantsFunctor Λ X ηbar) :=
   CompactResidualHomology.functor_preservesFiniteColimits Λ
-    (Aut (standardFiniteEtaleFiber ηbar))
-    (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))
-    (Aut (standardFiniteEtaleFiber (galoisPoint X (arithmeticPoint X ηbar))))
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar))
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (galoisPoint X (arithmeticPoint X ηbar))))
     (geometricToArithmetic X ηbar).hom (arithmeticToGalois X (arithmeticPoint X ηbar)).hom
     (geometricToArithmetic_range_eq_arithmeticToGalois_ker X ηbar)
     (arithmeticToGalois_surjective X (arithmeticPoint X ηbar))
@@ -64,10 +58,10 @@ def homology (n : ℕ) := (geometricCoinvariantsFunctor Λ X ηbar).leftDerived 
 Galois comparison, retaining the compact coefficient module and maps. -/
 def residualToGalois :
     CompactRepresentation.Cat Λ
-      (Aut (standardFiniteEtaleFiber (galoisPoint X (arithmeticPoint X ηbar)))) ⥤
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (galoisPoint X (arithmeticPoint X ηbar)))) ⥤
         Action (CompactModule Λ) Gal(AlgebraicClosure k/k) :=
   (CompactRepresentation.continuousAction Λ
-      (Aut (standardFiniteEtaleFiber (galoisPoint X (arithmeticPoint X ηbar))))).ι ⋙
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (galoisPoint X (arithmeticPoint X ηbar))))).ι ⋙
     Action.res (CompactModule Λ) (galoisToGaloisPoint X ηbar)
 
 /-- The actual higher residual Galois functor; its action is not conjugated through a cohomology comparison. -/
@@ -82,22 +76,22 @@ def galoisHomologyZeroIso : galoisHomology Λ X ηbar 0 ≅
 /-- The finite inverse-Tate input is included in the compact arithmetic category
 before applying higher residual homology; no finite projective resolution is used. -/
 instance arithmeticInverseTate_finite (hΛ : IsUnit (Nat.card Λ : k))
-    (M : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))))
+    (M : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))))
     [Finite M.obj.V] : Finite (AmbientGeometry.arithmeticInverseTate Λ X ηbar hΛ M).obj.V :=
   inferInstanceAs (Finite M.obj.V)
 
 /-- The actual finite inverse-Tate coefficient, included before compact arithmetic derivation. -/
 def finiteInverseTateHomology (hΛ : IsUnit (Nat.card Λ : k))
-    (M : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))))
+    (M : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))))
     [Finite M.obj.V] (n : ℕ) :=
   (galoisHomology Λ X ηbar n).obj
     (CompactRepresentation.finiteCompactification Λ
-      (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))
       (AmbientGeometry.arithmeticInverseTate Λ X ηbar hΛ M))
 
 /-- Higher residual actions are jointly continuous in their actual compact-module topology. -/
 theorem finiteInverseTateHomology_continuous (hΛ : IsUnit (Nat.card Λ : k))
-    (M : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))))
+    (M : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))))
     [Finite M.obj.V] (n : ℕ) :
     Continuous (fun gx : Gal(AlgebraicClosure k/k) ×
         (finiteInverseTateHomology Λ X ηbar hΛ M n).V.toModule ↦

@@ -1,17 +1,18 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_36_4_Etale
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Etale
 import StacksCheckRecall
 
 @[expose] public section
 
+open CategoryTheory AlgebraicGeometry
+open scoped Bicategory
+
+universe u
+
 /- Definition 101.35.1: a morphism `f : X ⟶ Y` of algebraic stacks is
 étale if it is DM and the equivalent conditions of Lemma 101.34.1 hold with
 `P` = étale. -/
-@[stacks 0CIL] #check AlgebraicGeometry.AlgebraicStack.Etale
+@[stacks 0CIL] #check (AlgebraicGeometry.AlgebraicStack.Etale :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y],
+    (X ⟶ Y) → Prop)

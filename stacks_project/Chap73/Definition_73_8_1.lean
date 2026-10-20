@@ -1,15 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap73.Definition_73_8_1_PhCovering
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Cover.Ph
 import StacksCheckRecall
 
 @[expose] public section
+
+open CategoryTheory
 
 universe u v
 
@@ -18,7 +14,10 @@ universe u v
 spaces over `S` that are locally of finite type, such that every morphism from
 an affine scheme `U` to `X` admits a standard ph covering of `U` refining the
 family `{Xᵢ ×_X U ⟶ U}`. -/
-@[stacks 0DFG] #check AlgebraicGeometry.AlgebraicSpace.PhCovering
+@[stacks 0DFG] #check (AlgebraicGeometry.AlgebraicSpace.PhCovering :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {ι : Type v}
+    {X : AlgebraicGeometry.AlgebraicSpace S}
+    (Xi : ι → AlgebraicGeometry.AlgebraicSpace S) (f : ∀ i, Xi i ⟶ X), Prop)
 
 #check AlgebraicGeometry.AlgebraicSpace.PhCovering.source_spec
 #check AlgebraicGeometry.AlgebraicSpace.PhCovering.exists_indices

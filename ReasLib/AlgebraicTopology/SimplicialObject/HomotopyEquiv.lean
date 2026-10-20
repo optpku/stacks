@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicTopology.SimplicialObject.Homotopy.Relation
@@ -66,12 +60,6 @@ end IsHomotopyEquivalence
 namespace HomotopyEquiv
 
 variable {U V : SimplicialObject C}
-
-/-- The type of homotopy self-equivalences of a simplicial object is inhabited by the identity
-homotopy equivalence. -/
-@[stacks 019N "inhabited simplicial homotopy self-equivalences"]
-protected instance inhabited (U : SimplicialObject C) : Inhabited (HomotopyEquiv U U) :=
-  ⟨HomRel.Equiv.refl (homotopyRel C) U⟩
 
 /-- The forward map of a simplicial homotopy equivalence is a simplicial homotopy-equivalence
 morphism. -/

@@ -1,62 +1,37 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_40_1_Proper
-public import stacks_project.Chap84.Lemma_84_6_5_Comparison
-public import stacks_project.Chap84.Lemma_84_6_6_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FppfEtale.Proper
+import StacksCheckRecall
 
 /-!
 # Lemma 84.6.5
 
-In the setup of Lemma 84.6.4, a proper morphism of algebraic spaces identifies
-`a_Y⁻¹ ∘ f_small,*` with `f_big,fppf,* ∘ a_X⁻¹` on sheaves of sets, and identifies
-`a_Y⁻¹(R f_small,* K)` with `R f_big,fppf,* (a_X⁻¹ K)` on `D⁺(X_étale)` when the
-cohomology sheaves of `K` are locally torsion. Here `a_X = π_X ∘ ε_X` and
-`a_Y = π_Y ∘ ε_Y`.
+For a proper morphism of algebraic spaces, small-étale to big-fppf inverse
+image commutes with direct image on sheaves of sets and with bounded-below
+derived direct image on complexes with locally torsion cohomology.
 -/
 
 @[expose] public section
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.Etale.SmallToBig
-open CategoryTheory CategoryTheory.Limits CategoryTheory.Sheaf
-open scoped MorphismOfTopoiIn
-
-noncomputable section
+open CategoryTheory CategoryTheory.Sheaf
+open AlgebraicGeometry.AlgebraicSpace.FppfEtale
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.FppfEtale
-
-/-- Lemma 84.6.5 (1): in the setup of Lemma 84.6.4, if `f : X ⟶ Y` is a proper morphism
-of algebraic spaces over a scheme `S`, then the functors `a_Y⁻¹ ∘ f_small,*` and
-`f_big,fppf,* ∘ a_X⁻¹` from sheaves of sets on `X_étale` to sheaves of sets on
-`(Spaces/Y)_fppf` are canonically isomorphic via `smallFppfPushforwardHom`. -/
+/- Lemma 84.6.5: proper direct image commutes with small-étale to big-fppf
+inverse image on sheaves of sets and on torsion bounded-below complexes. -/
 @[stacks 0DGJ]
-theorem proper_smallFppfPushforward_isIso {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [Proper f] :
-    IsIso (smallFppfPushforwardHom f) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FppfEtale.proper_smallFppfPushforward_isIso :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Proper f],
+    IsIso (smallFppfPushforwardHom f))
 
-/-- Lemma 84.6.5 (2): in the setup of Lemma 84.6.4, if `f : X ⟶ Y` is proper and `K` is
-in `D⁺(X_étale)` with locally torsion cohomology sheaves, then the canonical mate
-`a_Y⁻¹(R f_small,* K) ⟶ R f_big,fppf,* (a_X⁻¹ K)` is an isomorphism. -/
-@[stacks 0DGJ]
-theorem proper_derivedPushforward {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [Proper f]
+#check (AlgebraicGeometry.AlgebraicSpace.FppfEtale.proper_derivedPushforward :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Proper f]
     (K : DerivedCategory.Plus (Sheaf (smallEtaleTopology X) AddCommGrpCat.{u + 1}))
     (hK : DerivedCategory.Plus.cohomologyIn
       (IsLocallyTorsion :
-        ObjectProperty (Sheaf (smallEtaleTopology X) AddCommGrpCat.{u + 1})) K) :
-    IsIso (derivedBaseChangeApp f K) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace.FppfEtale
-
-end
+        ObjectProperty (Sheaf (smallEtaleTopology X) AddCommGrpCat.{u + 1})) K),
+    IsIso (derivedBaseChangeApp f K))
 
 end

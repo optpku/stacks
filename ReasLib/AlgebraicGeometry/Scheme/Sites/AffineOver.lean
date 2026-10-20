@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Sites.Fpqc
@@ -62,6 +56,16 @@ def mk {S : Scheme.{u}} (X : Scheme.{u}) (hX : IsAffine X) (f : X ⟶ S) :
     S.AffineOver :=
   MorphismProperty.CostructuredArrow.mk (Q := ⊤)
     (A := AffineScheme.mk X hX) f trivial
+
+/-- The affine scheme over `Spec A` associated to an algebra map `g : A ⟶ B`. -/
+def spec {A B : CommRingCat.{u}} (g : A ⟶ B) :
+    (Spec A).AffineOver :=
+  mk (Spec B) inferInstance (Spec.map g)
+
+/-- The structure morphism of `spec g` is `Spec.map g`. -/
+theorem spec_hom {A B : CommRingCat.{u}} (g : A ⟶ B) :
+    (obj (spec g)).hom = Spec.map g :=
+  rfl
 
 /-- Construct a morphism of affine schemes over `S` from a morphism of source
 schemes compatible with the structure morphisms. -/

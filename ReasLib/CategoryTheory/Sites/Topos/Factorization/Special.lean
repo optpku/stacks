@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Adjunction.LeftExact
@@ -14,6 +8,8 @@ public import ReasLib.CategoryTheory.Sites.SpecialCocontinuous
 public import ReasLib.CategoryTheory.Sites.Topos.Embedding
 public import ReasLib.CategoryTheory.Sites.Topos.Morphism
 public import Mathlib.CategoryTheory.Sites.Subcanonical
+public import Mathlib.CategoryTheory.Adjunction.Mates
+public import Mathlib.CategoryTheory.Adjunction.FullyFaithful
 public import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -217,24 +213,57 @@ theorem exists_of_equivalence
     [f.inverseImageFunctor.obj.IsEquivalence] :
     Nonempty (CommonSite (J := J) (K := K) f) := sorry
 
-/-- A common-site inverse-image square identifies the two cocontinuous direct
-images whenever the indicated pointwise right Kan extensions exist. -/
-theorem cocontinuousComparison_nonempty
-    {C' : Type u₂} [Category.{v₂} C'] {J' : GrothendieckTopology C'}
-    (f : MorphismOfTopoiIn K J)
-    (source : C ⥤ C') [source.IsSpecialCocontinuous J J']
-    [∀ P : Cᵒᵖ ⥤ Type w, source.op.HasPointwiseRightKanExtension P]
-    (target : D ⥤ C') [target.IsSpecialCocontinuous K J']
-    [∀ P : Dᵒᵖ ⥤ Type w, target.op.HasPointwiseRightKanExtension P]
-    (sq :
-      CatCommSq
-        (target.sheafPushforwardContinuous (Type w) K J')
-        (MorphismOfTopoiIn.id J').inverseImageFunctor.obj
-        f.inverseImageFunctor.obj
-        (source.sheafPushforwardContinuous (Type w) J J')) :
-    Nonempty
-      (f.inverseImageFunctor.obj ⋙ source.sheafPushforwardCocontinuous (Type w) J J' ≅
-        target.sheafPushforwardCocontinuous (Type w) K J') := sorry
+section Comparison
+
+variable {C' : Type u₂} [Category.{v₂} C'] {J' : GrothendieckTopology C'}
+  (f : MorphismOfTopoiIn K J)
+  (source : C ⥤ C') [source.IsSpecialCocontinuous J J']
+  [∀ P : Cᵒᵖ ⥤ Type w, source.op.HasPointwiseRightKanExtension P]
+  (target : D ⥤ C') [target.IsSpecialCocontinuous K J']
+  [∀ P : Dᵒᵖ ⥤ Type w, target.op.HasPointwiseRightKanExtension P]
+  (sq :
+    CatCommSq
+      (target.sheafPushforwardContinuous (Type w) K J')
+      (MorphismOfTopoiIn.id J').inverseImageFunctor.obj
+      f.inverseImageFunctor.obj
+      (source.sheafPushforwardContinuous (Type w) J J'))
+
+/-- The base-change (mate) transformation of a common-site inverse-image square with respect to
+the continuous/cocontinuous pushforward adjunctions of `target` and `source`. -/
+noncomputable def cocontinuousComparison :
+    target.sheafPushforwardCocontinuous (Type w) K J' ⟶
+      f.inverseImageFunctor.obj ⋙ source.sheafPushforwardCocontinuous (Type w) J J' :=
+  (mateEquiv (target.sheafAdjunctionCocontinuous (Type w) K J')
+    (source.sheafAdjunctionCocontinuous (Type w) J J')
+    (CatCommSq.iso (self := sq) _ _ _ _).inv).natTrans
+
+/-- Remark 7.29.8 (03CK): a common-site inverse-image square identifies the two cocontinuous
+direct images. Both cocontinuous direct images are equivalences (Lemma 7.29.1, 03A0), so the unit
+and counit of the two pushforward adjunctions are invertible; the comparison is obtained by
+conjugating the square with them. Its inverse is `cocontinuousComparison`. -/
+noncomputable def cocontinuousComparisonIso :
+    f.inverseImageFunctor.obj ⋙ source.sheafPushforwardCocontinuous (Type w) J J' ≅
+      target.sheafPushforwardCocontinuous (Type w) K J' :=
+  haveI : (target.sheafPushforwardCocontinuous (Type w) K J').IsEquivalence :=
+    Functor.IsSpecialCocontinuous.directImage_isEquivalence target
+  haveI : (source.sheafPushforwardCocontinuous (Type w) J J').IsEquivalence :=
+    Functor.IsSpecialCocontinuous.directImage_isEquivalence source
+  (Functor.leftUnitor _).symm ≪≫
+    Functor.isoWhiskerRight
+      (asIso (target.sheafAdjunctionCocontinuous (Type w) K J').counit).symm _ ≪≫
+    Functor.associator _ _ _ ≪≫
+    Functor.isoWhiskerLeft _ ((Functor.associator _ _ _).symm ≪≫
+      Functor.isoWhiskerRight (CatCommSq.iso (self := sq) _ _ _ _) _ ≪≫
+      Functor.isoWhiskerRight (Functor.leftUnitor _) _ ≪≫
+      (asIso (source.sheafAdjunctionCocontinuous (Type w) J J').unit).symm) ≪≫
+    Functor.rightUnitor _
+
+/-- The inverse of the common-site comparison is the base-change transformation of the square. -/
+theorem cocontinuousComparisonIso_inv :
+    (cocontinuousComparisonIso f source target sq).inv =
+      cocontinuousComparison f source target sq := sorry
+
+end Comparison
 
 end CommonSite
 

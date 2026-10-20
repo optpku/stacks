@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module.Derived.SectionsComparison
@@ -17,6 +11,11 @@ open CategoryTheory
 universe uX vX uY vY w
 
 namespace RingedSite.ToposHom
+
+-- Local instance justification: retain the existing derived-category presentation and
+-- the actual Grothendieck-source direct-image witness required by the supplied adjunction.
+attribute [local instance] Hom.moduleCat_hasDerivedCategory
+attribute [local instance] modulePushforwardToDerived.hasRightDerived
 
 /-- Commutative global sections retaining the bundled ring's operations. -/
 noncomputable instance globalSectionsCommRing

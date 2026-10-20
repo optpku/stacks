@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Pro.Representative
@@ -43,10 +37,15 @@ theorem of_iso {I : Type uI} [Category.{vI} I] [Small.{vC} I]
     {F : I ⥤ C} {X Y : C} (h : HasValue F X) (e : X ≅ Y) :
     HasValue F Y := sorry
 
-/-- Any two specified values of the same presentation are isomorphic. -/
+/-- Any two specified values of the same presentation are isomorphic. Given explicit
+corepresentations, the canonical isomorphism is mathlib's
+`Functor.CorepresentableBy.uniqueUpToIso`. -/
 theorem nonempty_iso {I : Type uI} [Category.{vI} I] [Small.{vC} I]
     {F : I ⥤ C} {X Y : C} (hX : HasValue F X) (hY : HasValue F Y) :
-    Nonempty (X ≅ Y) := sorry
+    Nonempty (X ≅ Y) :=
+  let ⟨eX⟩ := hX
+  let ⟨eY⟩ := hY
+  ⟨eX.uniqueUpToIso eY⟩
 
 /-- A pro-value of a cofiltered diagram implies that its presentation is essentially constant. -/
 theorem essentiallyConstant {I : Type uI} [Category.{vI} I] [Small.{vC} I]

@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap81.Lemma_81_6_7_Over
-public import stacks_project.Chap81.Lemma_81_6_7_MorphismProperties
-public import stacks_project.Chap81.Lemma_81_6_7_Flat
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Flat.Over
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pushout.Gluing.MorphismProperties
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pushout.Gluing.Flat
 import StacksCheckRecall
 
 @[expose] public section

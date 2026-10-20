@@ -1,16 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap94.Definition_94_12_1_Representable
 public import stacks_project.Chap98.Lemma_98_9_3_FormalObject
 public import stacks_project.Chap98.Definition_98_9_1_Hom
 public import stacks_project.Chap98.«98_9_3_1_Approximation»
-import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
 
 /-!
 # Approximation of objects by formal objects
@@ -30,21 +24,14 @@ namespace AlgebraicGeometry.GroupoidsOver
 
 variable {S : Scheme.{u}} [IsLocallyNoetherian S]
 
-/-- 98.9.3.1: the functor sending an object `x` of `X` over `Spec(R)`, where `R`
-is a Noetherian complete local `S`-algebra with `R ⧸ m` of finite type over `S`,
-to the formal object of restrictions `x` along `Spec(R ⧸ m^{n+1}) ⟶ Spec(R)`.
-The source is the full subcategory of such objects of `X`, and the target is the
-category of formal objects of `X`. Lean stage `n` lies over `Spec(R ⧸ m^{n+1})`,
-matching the Stacks object `ξ_{n+1}`. -/
-@[stacks 07X6]
-noncomputable def approximation (X : GroupoidsOver S) :
-    CompleteLocalObject X ⥤ FormalObject X :=
-  FormalObject.approximation
-
-/-- The labeled approximation functor sends an object over `Spec(R)` to the
-formal object of its restrictions along `Spec(R ⧸ m^{n+1}) ⟶ Spec(R)`. -/
-theorem approximation_obj {X : GroupoidsOver S} (x : CompleteLocalObject X) :
-    (approximation X).obj x = FormalObject.restriction x :=
-  sorry
+/- 98.9.3.1: Approximation sends an object over a Noetherian complete local
+`S`-algebra with residue field of finite type over `S` to its restrictions along
+`Spec(R ⧸ m^{n+1}) ⟶ Spec(R)`. Stage `n` is the source stage `ξ_{n+1}`.
+As authorized in source-issues/registry.json, key 07X6, the source category has
+the indicated objects and only morphisms inducing local `S`-algebra maps;
+this corrects the passage's full-subcategory assertion to a non-full subcategory. -/
+@[stacks 07X6] #check (AlgebraicGeometry.GroupoidsOver.approximation :
+  ∀ {S : Scheme.{u}} [IsLocallyNoetherian S] (X : GroupoidsOver S),
+    CompleteLocalObject X ⥤ FormalObject X)
 
 end AlgebraicGeometry.GroupoidsOver

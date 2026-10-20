@@ -1,15 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.CochainComplex.Monoidal.Functor
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Localization.Exact
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Localization.Monoidal
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.Complex.Monoidal
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Complex.Monoidal
 public import ReasLib.CategoryTheory.Adjunction.HomotopyCategory
 import Mathlib.Tactic.CrossRefAttribute
 

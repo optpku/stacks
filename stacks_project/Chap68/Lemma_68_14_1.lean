@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_3_1_Separation
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap68.Lemma_68_12_8_Decent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Separation.Absolute.Noetherian
+import StacksCheckRecall
 
 /-!
 # Locally Noetherian decent algebraic spaces are quasi-separated
@@ -23,16 +16,10 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-namespace IsAbsolutelyQuasiSeparated
-
-/-- Lemma 68.14.1: Any locally Noetherian decent algebraic space is quasi-separated. -/
-@[stacks 0BB6]
-instance of_isLocallyNoetherian_isDecent {S : Scheme.{u}}
-    (X : AlgebraicSpace S) [IsLocallyNoetherian X] [IsDecent X] :
-    IsAbsolutelyQuasiSeparated X := sorry
-
-end IsAbsolutelyQuasiSeparated
-
-end AlgebraicGeometry.AlgebraicSpace
+/- Lemma 68.14.1: Any locally Noetherian decent algebraic space is quasi-separated. -/
+@[stacks 0BB6] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsAbsolutelyQuasiSeparated.of_isLocallyNoetherian_isDecent :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+      [AlgebraicGeometry.AlgebraicSpace.IsLocallyNoetherian X]
+      [AlgebraicGeometry.AlgebraicSpace.IsDecent X],
+      AlgebraicGeometry.AlgebraicSpace.IsAbsolutelyQuasiSeparated X)

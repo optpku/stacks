@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.FiniteDualStalkComparison
@@ -31,10 +25,10 @@ variable [∀ U : (geometricBaseChange X).Etale,
       (ModuleCat.{u + 1} (ActualRootsModule.Coeff.{u} (Nat.card Λ)))]
 variable [HasSheafify (geometricBaseChange X).smallEtaleTopology AddCommGrpCat.{u + 1}]
 variable (hΛ : IsUnit (Nat.card Λ : k))
-variable (M : (finiteTypeDiscreteModule Λ (Aut (standardFiniteEtaleFiber ηbar))).FullSubcategory)
+variable (M : (finiteTypeDiscreteModule Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar))).FullSubcategory)
 
 /-- The actual contragredient action on the ordinary character module. -/
-def characterAction : Action (ModuleCat.{u + 1} Λ) (Aut (standardFiniteEtaleFiber ηbar)) where
+def characterAction : Action (ModuleCat.{u + 1} Λ) (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)) where
   V := ModuleCat.of Λ (CharacterModule M.obj.obj.V)
   ρ := { toFun := fun γ ↦ ModuleCat.ofHom (CharacterModule.dual (M.obj.obj.ρ γ⁻¹).hom)
          map_one' := sorry
@@ -43,9 +37,9 @@ def characterAction : Action (ModuleCat.{u + 1} Λ) (Aut (standardFiniteEtaleFib
 /-- Include the same finite character action with its Z/(card Lambda) scalars. -/
 def characterRepresentation :
     (finiteTypeDiscreteModule (ActualRootsModule.Coeff.{u} (Nat.card Λ))
-      (Aut (standardFiniteEtaleFiber ηbar))).FullSubcategory :=
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar))).FullSubcategory :=
   ⟨⟨((ActualFiniteCoefficient.modules Λ).mapAction
-      (Aut (standardFiniteEtaleFiber ηbar))).obj (characterAction Λ X ηbar M), by sorry⟩, by sorry⟩
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar))).obj (characterAction Λ X ηbar M), by sorry⟩, by sorry⟩
 
 include hΛ in
 /-- The intrinsic dual is finite locally constant because roots of unity
@@ -68,7 +62,7 @@ def stalkLinearEquiv :
 
 /-- Geometric monodromy on local Hom acts by precomposition on the source;
 the roots values from the algebraically closed ground field are fixed. -/
-theorem stalkLinearEquiv_equivariant (γ : Aut (standardFiniteEtaleFiber ηbar)) :
+theorem stalkLinearEquiv_equivariant (γ : Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)) :
     ((finiteTypeLocallyConstantModuleToFinitePi1LambdaModules
       (ActualRootsModule.Coeff.{u} (Nat.card Λ)) ηbar).obj
       (finiteDualSheaf Λ X ηbar hΛ M)).obj.obj.ρ γ ≫

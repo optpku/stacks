@@ -1,22 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
-public import Mathlib.CategoryTheory.MorphismProperty.Limits
-public import stacks_project.Chap67.Definition_67_40_1_FiniteType
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType.BaseChange
 
 /-!
 # Base change of finite-type morphisms of algebraic spaces
 
 Finite-type morphisms and locally-of-finite-type morphisms of algebraic spaces
-are stable under arbitrary base change. This module records the morphism-level
-pullback companions for the existing `FiniteType` and `LocallyOfFiniteType`
-classes from Definition 67.23.1.
+are stable under arbitrary base change. This module checks the morphism-level
+pullback companions for the existing `FiniteType` and `LocallyOfFiniteType` classes.
 -/
 
 @[expose] public section
@@ -28,50 +19,34 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-namespace FiniteType
+#check (AlgebraicGeometry.AlgebraicSpace.FiniteType.of_isPullback :
+  ∀ {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
+    {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X},
+    IsPullback f' g' g f → FiniteType g → FiniteType g')
 
-/-- Finite-type morphisms of algebraic spaces are stable under pullback along an
-arbitrary morphism, expressed by an `IsPullback` square. -/
-theorem of_isPullback {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
-    {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X}
-    (sq : IsPullback f' g' g f) (hg : FiniteType g) : FiniteType g' := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FiniteType.pullback_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} {f : X ⟶ Y},
+    FiniteType f → ∀ (g : Z ⟶ Y) [HasPullback f g],
+      FiniteType (pullback.snd f g))
 
-/-- The base-change projection `pullback.snd f g` of a finite-type morphism
-`f : X ⟶ Y` is of finite type. -/
-theorem pullback_snd {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} {f : X ⟶ Y}
-    (hf : FiniteType f) (g : Z ⟶ Y) [HasPullback f g] :
-    FiniteType (pullback.snd f g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.finiteType_pullback_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+    (f : X ⟶ Y) (g : Z ⟶ Y) [FiniteType f] [HasPullback f g],
+    FiniteType (pullback.snd f g))
 
-end FiniteType
+#check (AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType.of_isPullback :
+  ∀ {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
+    {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X},
+    IsPullback f' g' g f → LocallyOfFiniteType g → LocallyOfFiniteType g')
 
-/-- Typeclass form of base-change stability for a finite-type morphism along a
-morphism for which the pullback exists. -/
-instance finiteType_pullback_snd {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : X ⟶ Y) (g : Z ⟶ Y) [FiniteType f] [HasPullback f g] :
-    FiniteType (pullback.snd f g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType.pullback_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} {f : X ⟶ Y},
+    LocallyOfFiniteType f → ∀ (g : Z ⟶ Y) [HasPullback f g],
+      LocallyOfFiniteType (pullback.snd f g))
 
-namespace LocallyOfFiniteType
-
-/-- Locally-of-finite-type morphisms of algebraic spaces are stable under
-pullback along an arbitrary morphism, expressed by an `IsPullback` square. -/
-theorem of_isPullback {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
-    {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X}
-    (sq : IsPullback f' g' g f) (hg : LocallyOfFiniteType g) :
-    LocallyOfFiniteType g' := sorry
-
-/-- The base-change projection `pullback.snd f g` of a locally-of-finite-type
-morphism `f : X ⟶ Y` is locally of finite type. -/
-theorem pullback_snd {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} {f : X ⟶ Y}
-    (hf : LocallyOfFiniteType f) (g : Z ⟶ Y) [HasPullback f g] :
-    LocallyOfFiniteType (pullback.snd f g) := sorry
-
-end LocallyOfFiniteType
-
-/-- Typeclass form of base-change stability for a locally-of-finite-type
-morphism along a morphism for which the pullback exists. -/
-instance locallyOfFiniteType_pullback_snd {S : Scheme.{u}}
-    {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Z ⟶ Y)
-    [LocallyOfFiniteType f] [HasPullback f g] :
-    LocallyOfFiniteType (pullback.snd f g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.locallyOfFiniteType_pullback_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+    (f : X ⟶ Y) (g : Z ⟶ Y) [LocallyOfFiniteType f] [HasPullback f g],
+    LocallyOfFiniteType (pullback.snd f g))
 
 end AlgebraicGeometry.AlgebraicSpace

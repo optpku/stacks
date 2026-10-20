@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChernClass.ChernCharacter
@@ -26,7 +20,7 @@ theorem coeff_adamsTwo
     (A : Cᵒᵖ ⥤ RingCat.{x})
     (Agrade : ∀ X, ℕ → Submodule ℤ (A.obj (Opposite.op X)))
     [∀ X, GradedAlgebra (Agrade X)] [∀ X, Algebra ℚ (A.obj (Opposite.op X))]
-    (S : Theory toScheme A Agrade)
+    (S : CohomologyTheory toScheme A Agrade)
     (ch : ChernCharacter toScheme A Agrade S.firstChernClass)
     (X : C) (α : Scheme.VectorBundleK0 (toScheme.obj X)) (i : ℕ) :
     PowerSeries.coeff i

@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.Localization.FractionRing
-public import Mathlib.RingTheory.OrderOfVanishing.Basic
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Divisor.Order
 public import stacks_project.Chap72.Lemma_72_6_3
 
 /-!
@@ -21,61 +14,37 @@ henselian local ring at the generic point.
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry
+open AlgebraicGeometry.AlgebraicSpace
 open scoped nonZeroDivisors
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-variable {S : Scheme.{u}} {X : AlgebraicSpace S}
-variable [h_locallyNoetherian : IsLocallyNoetherian X] [h_integral : IsIntegral X]
-
-include h_locallyNoetherian h_integral
-
-namespace PrimeDivisor
-
-/-- The order of vanishing of a rational unit along a prime divisor, as the
-length difference of a nonzerodivisor presentation of its image under
-`functionFieldToHenselianFraction`. -/
-def ord (Z : PrimeDivisor X) (f : (RationalFunction X)ˣ) : ℤ :=
-  let A := henselianLocalRing X Z.genericPoint
-  let ab :=
-    IsLocalization.sec (nonZeroDivisors A)
-      (functionFieldToHenselianFraction Z (f : RationalFunction X))
-  ((Ring.ord A ab.1).toNat : ℤ) - ((Ring.ord A (ab.2 : A)).toNat : ℤ)
-
-/-- If `functionFieldToHenselianFraction` sends `f` to `IsLocalization.mk' a ⟨b, hb⟩`
-with `a` and `b` nonzerodivisors, then the order is the corresponding length
-difference in `O_{X, ξ}^h`. -/
-theorem ord_spec (Z : PrimeDivisor X) (f : (RationalFunction X)ˣ)
-    (a b : henselianLocalRing X Z.genericPoint)
-    (ha : a ∈ nonZeroDivisors (henselianLocalRing X Z.genericPoint))
-    (hb : b ∈ nonZeroDivisors (henselianLocalRing X Z.genericPoint))
-    (hrep : functionFieldToHenselianFraction Z (f : RationalFunction X) =
+#check (AlgebraicGeometry.AlgebraicSpace.PrimeDivisor.ord_spec :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+    [IsLocallyNoetherian X] [IsIntegral X]
+    (Z : PrimeDivisor X) (f : (RationalFunction X)ˣ)
+    (a b : henselianLocalRing X Z.genericPoint),
+    a ∈ nonZeroDivisors (henselianLocalRing X Z.genericPoint) →
+    ∀ (hb : b ∈ nonZeroDivisors (henselianLocalRing X Z.genericPoint)),
+    PrimeDivisor.functionFieldToHenselianFraction Z (f : RationalFunction X) =
       IsLocalization.mk' (FractionRing (henselianLocalRing X Z.genericPoint))
-        a ⟨b, hb⟩) :
-    ord Z f =
+        a ⟨b, hb⟩ →
+    Z.ord f =
       ((Ring.ord (henselianLocalRing X Z.genericPoint) a).toNat : ℤ) -
-        ((Ring.ord (henselianLocalRing X Z.genericPoint) b).toNat : ℤ) :=
-  sorry
+        ((Ring.ord (henselianLocalRing X Z.genericPoint) b).toNat : ℤ))
 
-/-- The order is the difference of principal-quotient lengths in `O_{X, ξ}^h`. -/
-theorem ord_eq_length (Z : PrimeDivisor X) (f : (RationalFunction X)ˣ)
-    (a b : henselianLocalRing X Z.genericPoint)
-    (ha : a ∈ nonZeroDivisors (henselianLocalRing X Z.genericPoint))
-    (hb : b ∈ nonZeroDivisors (henselianLocalRing X Z.genericPoint))
-    (hrep : functionFieldToHenselianFraction Z (f : RationalFunction X) =
+#check (AlgebraicGeometry.AlgebraicSpace.PrimeDivisor.ord_eq_length :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+    [IsLocallyNoetherian X] [IsIntegral X]
+    (Z : PrimeDivisor X) (f : (RationalFunction X)ˣ)
+    (a b : henselianLocalRing X Z.genericPoint),
+    a ∈ nonZeroDivisors (henselianLocalRing X Z.genericPoint) →
+    ∀ (hb : b ∈ nonZeroDivisors (henselianLocalRing X Z.genericPoint)),
+    PrimeDivisor.functionFieldToHenselianFraction Z (f : RationalFunction X) =
       IsLocalization.mk' (FractionRing (henselianLocalRing X Z.genericPoint))
-        a ⟨b, hb⟩) :
-    ord Z f =
+        a ⟨b, hb⟩ →
+    Z.ord f =
       ((Module.length (henselianLocalRing X Z.genericPoint)
           (henselianLocalRing X Z.genericPoint ⧸ Ideal.span {a})).toNat : ℤ) -
         ((Module.length (henselianLocalRing X Z.genericPoint)
-          (henselianLocalRing X Z.genericPoint ⧸ Ideal.span {b})).toNat : ℤ) :=
-  sorry
-
-end PrimeDivisor
-
-end AlgebraicGeometry.AlgebraicSpace
+          (henselianLocalRing X Z.genericPoint ⧸ Ideal.span {b})).toNat : ℤ))

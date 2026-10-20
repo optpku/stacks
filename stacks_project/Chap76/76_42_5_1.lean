@@ -1,46 +1,21 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.«76_42_5_1_ProperSupport»
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CoherentFormalModule.ProperSupport
 
 @[expose] public section
 
 open AlgebraicGeometry AlgebraicSpace CategoryTheory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- 76.42.5.1: in Situation 76.42.5, the unrestricted completion
-`F ↦ (n ↦ F / I^n F)` restricts to a functor from coherent `𝒪_X`-modules with
-support proper over the base to coherent formal modules along `I` whose first
-stage has support proper over the base. -/
-@[stacks 08B8]
-noncomputable abbrev coherentProperSupportCompletionFunctor
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) (I : IdealSubobject X)
-    [IsNoetherian X] [LocallyOfFiniteType f] [IsQuasiCoherent I] :
-    Modules.CoherentProperSupportOver f ⥤
-      Modules.CoherentFormalProperSupportOver f I :=
-  Modules.coherentProperSupportCompletionFunctor f I
-
-/-- The restricted completion of a coherent module with proper support over `f`
-is a coherent formal module whose first stage has proper support over `f`. -/
-theorem coherentProperSupportCompletionFunctor_obj_property
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) (I : IdealSubobject X)
-    [IsNoetherian X] [LocallyOfFiniteType f] [IsQuasiCoherent I]
-    (ℱ : Modules.CoherentProperSupportOver f) :
-    Modules.HasProperSupportOver f
-      (Modules.coherentFormalModuleStage
-        ((coherentProperSupportCompletionFunctor f I).obj ℱ).obj 1).obj :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+/- 76.42.5.1: in Situation 76.42.5, specialize to the finite-type separated
+morphism X → Spec A over a Noetherian I-adically complete ring A, with ideal
+sheaf I 𝒪_X. Completion by ideal-power quotients restricts from coherent modules
+with proper support over A to coherent formal modules whose first stage has
+proper support over A. -/
+@[stacks 08B8] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.coherentProperSupportCompletionFunctor :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (I : IdealSubobject X)
+      [IsNoetherian X] [LocallyOfFiniteType f] [IsQuasiCoherent I],
+      Modules.CoherentProperSupportOver f ⥤ Modules.CoherentFormalProperSupportOver f I)

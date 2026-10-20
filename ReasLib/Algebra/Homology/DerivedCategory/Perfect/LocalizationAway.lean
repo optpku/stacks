@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.Perfect
-public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension
+public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension.Flat.Availability
+public import Mathlib.RingTheory.Flat.Localization
 public import Mathlib.RingTheory.Localization.Away.Basic
 import Mathlib.Tactic.CrossRefAttribute
 

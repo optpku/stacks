@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.InternalHom.Model.RHom.Closed.Functoriality
@@ -31,6 +25,7 @@ open CategoryTheory CategoryTheory.MonoidalCategory
 namespace CategoryTheory.DerivedCategory.InternalHom.RHom.ClosedComparison
 
 variable {A : Type u} [CommRing A]
+variable [RHom.Has (A := A)]
 
 local notation "D(" A ")" => DerivedCategory (ModuleCat A)
 
@@ -44,14 +39,14 @@ variable [DerivedTensor.Right.Has (C := ModuleCat.{u} A)]
 noncomputable abbrev tensoringRightIsoDerivedTensorProduct
     (P : RHom.ClosedComparison (A := A)) (L : D(A)) :
     MonoidalCategory.tensorRight L ≅ DerivedTensor.Right.functor L :=
-  P.tensorModel.tensorRightIsoFunctor L
+  (P.tensorModel.functorIsoTensorRight L).symm
 
 /-- Objectwise ambient/fixed-right tensor comparison carried by `P`. -/
 @[stacks 064M "bundled ambient derived tensor object comparison"]
 noncomputable abbrev tensorObjIsoDerivedTensorProduct
     (P : RHom.ClosedComparison (A := A)) (K L : D(A)) :
     K ⊗ L ≅ DerivedTensor.Right.obj K L :=
-  P.tensorModel.tensorIsoObj K L
+  (P.tensorModel.objIsoTensor K L).symm
 
 /-- Successive fixed-right derived tensor functors compared with tensoring by their product. -/
 @[stacks 0BYJ "bundled derived tensor associativity"]

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.Grp.Presheaf.Derived
@@ -22,15 +16,17 @@ import Mathlib.Tactic.CrossRefAttribute
 /-!
 # Derived lower shriek to a point
 
-This leaf owns the reusable projection-to-a-point functor for module sheaves.  The construction
-first forgets module structure to additive presheaves and then applies the total derived colimit.
-The point construction is independent of any chapter-specific presentation; chaotic and constant
-ringed sites are supplied as thin specializations below.
+The derived projection-to-a-point functor for module sheaves forgets module structure to
+additive presheaves and then applies the total derived colimit. On chaotic sites, extension of
+scalars compares these functors, and constant coefficients give a factorization through the
+derived category of modules over the coefficient ring.
 -/
 
 @[expose] public section
 
 open CategoryTheory CategoryTheory.Limits
+-- Local instance justification (defeq pin): moduleHasDerivedCategory reduces to moduleCat_hasDerivedCategory and hence HasDerivedCategory.standard; registering this existing presentation spelling pins the same standard localization for SheafOfModules without selecting another derived model.
+attribute [local instance] RingedSite.Hom.RingPresentation.moduleHasDerivedCategory
 open ComplexShape
 open Opposite
 open SheafOfModules.RingedSite
@@ -51,9 +47,8 @@ variable {X : RingedSite.{u, v, w}}
 
 /-- The derived lower shriek of a ringed-site module category over the projection to a point.
 
-The only site-specific input is exactness of the forgetful functor to additive presheaves.  This
-keeps the point construction reusable for chaotic sites, ordinary sites with exact sheaf
-forgetful functors, and later coefficient categories without duplicating a derived model.
+When the forgetful functor to additive presheaves is exact and the total left derived colimit
+exists, their composite gives the derived projection to a point.
 -/
 @[stacks 08RX "derived lower shriek to a point"]
 noncomputable abbrev lowerShriek
@@ -62,13 +57,13 @@ noncomputable abbrev lowerShriek
     [X.siteTopology.WEqualsLocallyBijective AddCommGrpCat.{z}]
     [PreservesFiniteColimits
       (sheafToPresheaf X.siteTopology AddCommGrpCat.{z})]
-    [HasColimitsOfShape Xᵒᵖ AddCommGrpCat.{z}]
+    [HasColimitsOfShape X.carrierᵒᵖ AddCommGrpCat.{z}]
     [Functor.HasLeftDerivedFunctor
-      (categoryOverPointColimitToDerived X AddCommGrpCat.{z})
-      (HomotopyCategory.quasiIso (Xᵒᵖ ⥤ AddCommGrpCat.{z}) (up ℤ))] :
+      (categoryOverPointColimitToDerived X.carrier AddCommGrpCat.{z})
+      (HomotopyCategory.quasiIso (X.carrierᵒᵖ ⥤ AddCommGrpCat.{z}) (up ℤ))] :
     ModuleDerived.{z} X ⥤ DerivedCategory AddCommGrpCat.{z} :=
   underlyingAbelianPresheafDerived.{z} X ⋙
-    categoryOverPointDerivedColimit X AddCommGrpCat.{z}
+    categoryOverPointDerivedColimit X.carrier AddCommGrpCat.{z}
 
 end General
 
@@ -77,9 +72,7 @@ namespace Chaotic
 variable {O O' : Sheaf (⊥ : GrothendieckTopology C) RingCat.{w}}
 variable [UnivLE.{max u v, w}]
 
-/-- Derived extension of scalars on a chaotic site.  The topology is fixed at `⊥`, so the
-construction is the canonical same-site ringed-site morphism rather than a site-parameterized
-wrapper. -/
+/-- Derived extension of scalars along a morphism of ring sheaves on a chaotic site. -/
 @[stacks 06YY "chaotic derived extension of scalars"]
 noncomputable abbrev tensor (α : O ⟶ O') [UnivLE.{max u v, z}]
     [RingedSite.SameSite.HasPullbackDerived.{u, v, w, z} α] :
@@ -112,8 +105,8 @@ noncomputable abbrev unitComparisonIso (α : O ⟶ O')
 
 namespace tensor
 
-/-- Lemma 21.39.12 (08RX), functor form: under the pointlike hypothesis and an invertible unit
-comparison, derived extension of scalars does not change the point lower shriek. -/
+/-- Given a pointlike cosimplicial object and an invertible unit comparison, derived extension
+of scalars on a chaotic site preserves the lower-shriek functor to a point. -/
 @[stacks 08RX "chaotic derived lower-shriek change of rings"]
 theorem lowerShriek_isomorphic
     (α : O ⟶ O')
@@ -131,7 +124,8 @@ theorem lowerShriek_isomorphic
       (tensor α ⋙ lowerShriek
         (X := RingedSite.ofRingSheaf (⊥ : GrothendieckTopology C) O')) := sorry
 
-/-- Objectwise form of `lowerShriek_isomorphic`, convenient for downstream calculations. -/
+/-- Given a pointlike cosimplicial object and an invertible unit comparison, a complex and its
+derived extension of scalars have isomorphic lower shrieks to a point. -/
 @[stacks 08RX "chaotic derived lower-shriek change of rings on objects"]
 theorem lowerShriek_obj_isomorphic
     (α : O ⟶ O')
@@ -157,8 +151,8 @@ namespace Comm
 
 variable {R R' : Sheaf (⊥ : GrothendieckTopology C) CommRingCat.{w}}
 
-/-- The commutative-ring bridge for `Chaotic.tensor`; the reusable owner works at the underlying
-`RingCat` layer, while this spelling preserves the source-facing commutative presentation. -/
+/-- Derived extension of scalars along a morphism of commutative ring sheaves on a chaotic site,
+formed by forgetting commutativity of the structure sheaves. -/
 @[stacks 06YY "commutative chaotic derived extension of scalars"]
 noncomputable abbrev tensor (α : R ⟶ R') [UnivLE.{max u v, z}]
     [_root_.RingedSite.SameSite.HasPullbackDerived.{u, v, w, z}
@@ -179,8 +173,8 @@ noncomputable abbrev unitComparison (α : R ⟶ R')
       (HomotopyCategory.quasiIso (Cᵒᵖ ⥤ AddCommGrpCat.{w}) (up ℤ))] :=
   Chaotic.unitComparison (CategoryTheory.Sheaf.ringSheafOfCommMap α)
 
-/-- Source-facing object comparison for Lemma 21.39.12 after forgetting commutativity of the ring
-sheaves. -/
+/-- Given a pointlike cosimplicial object and an invertible unit comparison, derived extension
+of scalars along a commutative ring-sheaf map preserves the lower shriek of each complex. -/
 @[stacks 08RX "commutative chaotic derived lower-shriek change of rings on objects"]
 theorem lowerShriek_obj_isomorphic
     (α : R ⟶ R')
@@ -208,8 +202,9 @@ namespace Constant
 variable {B : Type w} [Ring B]
 variable {β : O ⟶ (constantSheaf (⊥ : GrothendieckTopology C) RingCat).obj (RingCat.of B)}
 
-/-- The derived functor in Remark 21.39.13: change scalars to the constant `B`-sheaf, present
-modules as `B`-module-valued presheaves, and take the derived colimit to a point. -/
+/-- The constant-coefficient derived functor extends scalars to the constant `B`-sheaf,
+identifies its module sheaves with `B`-module-valued presheaves, and takes the derived colimit
+to a point. -/
 @[stacks 09CZ "chaotic constant-coefficient derived functor"]
 noncomputable abbrev functor
     (O : Sheaf (⊥ : GrothendieckTopology C) RingCat.{w})
@@ -227,9 +222,9 @@ noncomputable abbrev functor
     _root_.ModuleCat.Presheaf.Chaotic.Constant.derived (C := C) (B := B) ⋙
     categoryOverPointDerivedColimit C (_root_.ModuleCat.{z} B)
 
-/-- Remark 21.39.13 (09CZ), comparison form: if the pointlike unit comparison is invertible, the
-additive lower shriek is identified with the constant-coefficient functor followed by forgetting
-the `B`-module structure. -/
+/-- Given a pointlike cosimplicial object and an invertible unit comparison, the additive lower
+shriek is isomorphic to the constant-coefficient functor followed by forgetting the `B`-module
+structure. -/
 @[stacks 09CZ "chaotic additive lower-shriek factorization"]
 theorem factorization
     (O : Sheaf (⊥ : GrothendieckTopology C) RingCat.{w})
@@ -255,7 +250,7 @@ theorem factorization
 
 namespace functor
 
-/-- The constant-coefficient functor carries a reusable triangulated-structure proposition. -/
+/-- The constant-coefficient derived functor admits a triangulated structure. -/
 @[stacks 09CZ "chaotic constant-coefficient triangulated functor"]
 theorem hasTriangulatedStructure
     (O : Sheaf (⊥ : GrothendieckTopology C) RingCat.{w})
@@ -275,8 +270,8 @@ namespace Comm
 variable {R : Sheaf (⊥ : GrothendieckTopology C) CommRingCat.{w}}
 variable {B : Type w} [CommRing B]
 
-/-- The commutative source-facing map obtained by forgetting commutativity and identifying the
-constant commutative sheaf with the constant `RingCat`-sheaf. -/
+/-- A map to a constant commutative ring sheaf induces a map of underlying ring sheaves to the
+constant ring sheaf. -/
 @[stacks 09CZ "commutative chaotic constant-coefficient ring map"]
 noncomputable abbrev map
     (β : R ⟶ (constantSheaf (⊥ : GrothendieckTopology C) CommRingCat).obj
@@ -306,7 +301,9 @@ noncomputable abbrev functor
     _root_.ModuleCat.Presheaf.Chaotic.Constant.derived (C := C) (B := B) ⋙
     categoryOverPointDerivedColimit C (_root_.ModuleCat.{z} B)
 
-/-- Source-facing comparison for Remark 21.39.13 in the commutative presentation. -/
+/-- Given a pointlike cosimplicial object and an invertible unit comparison, the additive lower
+shriek for commutative ring sheaves factors, up to isomorphism, through the constant-coefficient
+derived functor and the forgetful functor from `B`-modules. -/
 @[stacks 09CZ "commutative chaotic additive lower-shriek factorization"]
 theorem factorization
     (R : Sheaf (⊥ : GrothendieckTopology C) CommRingCat.{w})
@@ -334,8 +331,8 @@ theorem factorization
 
 namespace functor
 
-/-- The commutative source-facing constant-coefficient functor has a triangulated-structure
-proposition, with no chosen shift comparison exposed in the public API. -/
+/-- The constant-coefficient derived functor for commutative ring sheaves admits a triangulated
+structure. -/
 @[stacks 09CZ "commutative chaotic constant-coefficient triangulated functor"]
 theorem hasTriangulatedStructure
     (R : Sheaf (⊥ : GrothendieckTopology C) CommRingCat.{w})

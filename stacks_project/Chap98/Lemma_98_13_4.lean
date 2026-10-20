@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap98.«98_13_2_1_Smooth»
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.SmoothOnPredeformations
+import StacksCheckRecall
 
 /-!
 # Composition of smoothness on predeformations
@@ -25,16 +19,15 @@ universe u
 
 namespace AlgebraicGeometry.Groupoids.Hom
 
-/-- Lemma 98.13.4: if `S` is locally Noetherian and `f : X ⟶ Y`, `g : Y ⟶ Z`
+/- Lemma 98.13.4: if `S` is locally Noetherian and `f : X ⟶ Y`, `g : Y ⟶ Z`
 are composable 1-morphisms of categories fibred in groupoids over
 `(Sch/S)_fppf` that are smooth on predeformations (98.13.2.1), then so is
 `f ≫ g` (source `g ∘ f`). -/
-@[stacks 07XU]
-instance IsSmoothOnPredeformations.comp
-    {S : Scheme.{u}} [IsLocallyNoetherian S]
+@[stacks 07XU] #check
+  (AlgebraicGeometry.Groupoids.Hom.IsSmoothOnPredeformations.comp :
+    ∀ {S : Scheme.{u}} [IsLocallyNoetherian S]
     {X Y Z : GroupoidsOver S} (f : X ⟶ Y) (g : Y ⟶ Z)
-    [IsSmoothOnPredeformations f] [IsSmoothOnPredeformations g] :
-    IsSmoothOnPredeformations (f ≫ g) :=
-  sorry
+    [IsSmoothOnPredeformations f] [IsSmoothOnPredeformations g],
+    IsSmoothOnPredeformations (f ≫ g))
 
 end AlgebraicGeometry.Groupoids.Hom

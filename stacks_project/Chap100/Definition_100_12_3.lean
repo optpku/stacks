@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_12_3_Dimension
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Dimension
 import StacksCheckRecall
 
 @[expose] public section

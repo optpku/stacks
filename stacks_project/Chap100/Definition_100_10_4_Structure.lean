@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Topology.Sets.Closeds
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Substack.Points
 public import stacks_project.Chap100.Lemma_100_10_1_Points
 
 /-!
@@ -20,6 +14,7 @@ structures, each realized by a closed substack with that underlying point-set.
 
 open CategoryTheory AlgebraicGeometry TopologicalSpace
 open AlgebraicGeometry.Groupoids.Hom
+open FiberedCategoryOver.Groupoids (toFunctor)
 open scoped Bicategory
 
 noncomputable section
@@ -30,14 +25,6 @@ namespace AlgebraicGeometry.AlgebraicStack
 
 variable {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
 
-/-- An algebraic stack structure on a closed subset `Z` of `Points X` is a closed
-substack of `X` whose underlying point-set is `Z`. -/
-structure ClosedSubstackStructure (Z : Closeds (Points X)) where
-  /-- The closed substack realizing the structure. -/
-  substack : ClosedSubstack X
-  /-- The realizing closed substack has the prescribed point-set. -/
-  pointsSet_eq : substack.pointsSet = Z.carrier
-
 namespace ClosedSubstackStructure
 
 variable {Z : Closeds (Points X)}
@@ -45,38 +32,35 @@ variable {Z : Closeds (Points X)}
 /-- The algebraic stack structure on `Z` determined by a closed substack with that
 point-set. -/
 def ofSubstack (W : ClosedSubstack X) (h : W.pointsSet = Z.carrier) :
-    ClosedSubstackStructure Z where
-  substack := W
-  pointsSet_eq := h
+    ClosedSubstackStructure Z :=
+  ofProperty (toFunctor W.ι).essImage
+    (@image_isClosed S W.Y X W.isAlgebraicStack inferInstance W.ι W.isClosedImmersion)
+    ((@Substack.pointsSet_essImage S X W.Y inferInstance W.isAlgebraicStack
+      W.ι W.isClosedImmersion).trans h)
 
-/-- The algebraic stack underlying a closed-substack structure. -/
-abbrev Y (T : ClosedSubstackStructure Z) : GroupoidsOver S :=
-  T.substack.Y
-
-/-- The inclusion of a closed-substack structure into the ambient algebraic stack. -/
-abbrev ι (T : ClosedSubstackStructure Z) : T.Y ⟶ X :=
-  T.substack.ι
+/-- The closed substack presented by a canonical closed-substack structure. -/
+def substack (T : ClosedSubstackStructure Z) : ClosedSubstack X where
+  Y := T.Y
+  ι := T.ι
+  isAlgebraicStack := inferInstance
+  isClosedImmersion := (spec T).1
+  isStrictlyFull :=
+    { full := by
+        change T.val.ι.Full
+        infer_instance
+      faithful := by
+        change T.val.ι.Faithful
+        infer_instance }
 
 /-- The underlying stack of a closed-substack structure is the stack of its realizing
 closed substack. -/
 theorem Y_eq (T : ClosedSubstackStructure Z) : T.Y = T.substack.Y :=
-  sorry
+  rfl
 
 /-- The inclusion of a closed-substack structure is the inclusion of its realizing
 closed substack. -/
 theorem ι_eq (T : ClosedSubstackStructure Z) : T.ι = T.substack.ι :=
-  sorry
-
-/-- A closed-substack structure is a closed immersion into `X` with the prescribed
-point-set. -/
-theorem spec (T : ClosedSubstackStructure Z) :
-    ClosedImmersion T.ι ∧ T.substack.pointsSet = Z.carrier :=
-  sorry
-
-/-- The closed substack recovered from `ofSubstack` is the given closed substack. -/
-theorem ofSubstack_substack (W : ClosedSubstack X) (h : W.pointsSet = Z.carrier) :
-    (ofSubstack W h).substack = W :=
-  sorry
+  rfl
 
 end ClosedSubstackStructure
 

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Henselization.Neighborhood
@@ -27,17 +21,26 @@ namespace AlgebraicGeometry.Scheme
 variable (A : Type w) [Category.{v} A]
 variable [HasColimitsOfSize.{u, u + 1} A] [HasColimitsOfSize.{u, u} A]
 
+/-- Étale presheaves admit pointwise left Kan extensions to schemes over the base. -/
+private abbrev sectionsExtensionExists (S : Scheme.{u}) (P : S.Etaleᵒᵖ ⥤ A) :
+    (Etale.forget S).op.HasLeftKanExtension P :=
+  (@Functor.pointwiseLeftKanExtensionIsUniversal _ _ _ _ _ _
+    (Etale.forget S).op P (fun Y ↦ @HasColimitsOfShape.has_colimit _ _ _ _
+      (HasColimitsOfSize.has_colimits_of_shape (C := A)
+        (CostructuredArrow (Etale.forget S).op Y)) _)).hasInitial
+
 /-- Evaluation of the étale presheaf's left Kan extension at a scheme over the base. -/
 def strictHenselianSections {S X : Scheme.{u}} (p : X ⟶ S) :
     Sheaf S.smallEtaleTopology A ⥤ A :=
-  sheafToPresheaf S.smallEtaleTopology A ⋙ (Etale.forget S).op.lan ⋙
+  sheafToPresheaf S.smallEtaleTopology A ⋙ (@Functor.lan _ _ _ _ (Etale.forget S).op _ _ (sectionsExtensionExists A S)) ⋙
     (CategoryTheory.evaluation (Over S)ᵒᵖ A).obj (op (Over.mk p))
 
 /-- Kan-model sections are evaluated on the specified scheme over the base. -/
 theorem strictHenselianSections_obj {S X : Scheme.{u}} (p : X ⟶ S)
     (F : Sheaf S.smallEtaleTopology A) :
     (strictHenselianSections A p).obj F =
-      ((Etale.forget S).op.leftKanExtension F.obj).obj (op (Over.mk p)) := sorry
+      ((@Functor.leftKanExtension _ _ _ _ _ _ (Etale.forget S).op F.obj
+      (sectionsExtensionExists A S F.obj))).obj (op (Over.mk p)) := sorry
 
 /-- Pullback in the Kan-model sections construction is natural in the sheaf. -/
 theorem strictHenselianSectionsPullback_naturality {S X Y : Scheme.{u}}
@@ -45,9 +48,11 @@ theorem strictHenselianSectionsPullback_naturality {S X Y : Scheme.{u}}
     (comparison_over : comparison ≫ p = q) {F G : Sheaf S.smallEtaleTopology A}
     (morphism : F ⟶ G) :
     (strictHenselianSections A p).map morphism ≫
-        ((Etale.forget S).op.leftKanExtension G.obj).map
+        ((@Functor.leftKanExtension _ _ _ _ _ _ (Etale.forget S).op G.obj
+      (sectionsExtensionExists A S G.obj))).map
           (Over.homMk comparison comparison_over).op =
-      ((Etale.forget S).op.leftKanExtension F.obj).map
+      ((@Functor.leftKanExtension _ _ _ _ _ _ (Etale.forget S).op F.obj
+      (sectionsExtensionExists A S F.obj))).map
           (Over.homMk comparison comparison_over).op ≫
         (strictHenselianSections A q).map morphism := sorry
 
@@ -56,7 +61,8 @@ over-base morphism. -/
 def strictHenselianSectionsPullback {S X Y : Scheme.{u}} {p : X ⟶ S} {q : Y ⟶ S}
     (comparison : Y ⟶ X) (comparison_over : comparison ≫ p = q) :
     strictHenselianSections A p ⟶ strictHenselianSections A q where
-  app F := ((Etale.forget S).op.leftKanExtension F.obj).map
+  app F := ((@Functor.leftKanExtension _ _ _ _ _ _ (Etale.forget S).op F.obj
+      (sectionsExtensionExists A S F.obj))).map
     (Over.homMk comparison comparison_over).op
   naturality := fun _ _ morphism ↦
     strictHenselianSectionsPullback_naturality A comparison comparison_over morphism
@@ -66,7 +72,8 @@ theorem strictHenselianSectionsPullback_app {S X Y : Scheme.{u}}
     {p : X ⟶ S} {q : Y ⟶ S} (comparison : Y ⟶ X)
     (comparison_over : comparison ≫ p = q) (F : Sheaf S.smallEtaleTopology A) :
     (strictHenselianSectionsPullback A comparison comparison_over).app F =
-      ((Etale.forget S).op.leftKanExtension F.obj).map
+      ((@Functor.leftKanExtension _ _ _ _ _ _ (Etale.forget S).op F.obj
+      (sectionsExtensionExists A S F.obj))).map
         (Over.homMk comparison comparison_over).op := sorry
 
 /-- Composing a lift from a pointed neighborhood with its geometric closed point
@@ -108,10 +115,14 @@ theorem StrictHenselianNeighborhood.stalkSectionsIso_hom_compatible
     (neighborhood : StrictHenselianNeighborhood s p) (F : Sheaf S.smallEtaleTopology A)
     {U V : S.Etale} (morphism : U ⟶ V) (point : s.toSmallEtalePoint.fiber.obj U) :
     F.obj.map morphism.op ≫
-        ((Etale.forget S).op.leftKanExtensionUnit F.obj).app (op U) ≫
-        ((Etale.forget S).op.leftKanExtension F.obj).map (neighborhood.lift U point).op =
-      ((Etale.forget S).op.leftKanExtensionUnit F.obj).app (op V) ≫
-        ((Etale.forget S).op.leftKanExtension F.obj).map
+        ((@Functor.leftKanExtensionUnit _ _ _ _ _ _ (Etale.forget S).op F.obj
+      (sectionsExtensionExists A S F.obj))).app (op U) ≫
+        ((@Functor.leftKanExtension _ _ _ _ _ _ (Etale.forget S).op F.obj
+      (sectionsExtensionExists A S F.obj))).map (neighborhood.lift U point).op =
+      ((@Functor.leftKanExtensionUnit _ _ _ _ _ _ (Etale.forget S).op F.obj
+      (sectionsExtensionExists A S F.obj))).app (op V) ≫
+        ((@Functor.leftKanExtension _ _ _ _ _ _ (Etale.forget S).op F.obj
+      (sectionsExtensionExists A S F.obj))).map
           (neighborhood.lift V (s.toSmallEtalePoint.fiber.map morphism point)).op := sorry
 
 /-- The map from geometric stalks to Kan-model sections induced by normalized lifts. -/
@@ -119,8 +130,10 @@ private def stalkSectionsHom {S X : Scheme.{u}} {s : GeometricPoint S} {p : X �
     (neighborhood : StrictHenselianNeighborhood s p) (F : Sheaf S.smallEtaleTopology A) :
     s.toSmallEtalePoint.sheafFiber.obj F ⟶ (strictHenselianSections A p).obj F :=
   s.toSmallEtalePoint.presheafFiberDesc
-    (fun U point ↦ ((Etale.forget S).op.leftKanExtensionUnit F.obj).app (op U) ≫
-      ((Etale.forget S).op.leftKanExtension F.obj).map (neighborhood.lift U point).op)
+    (fun U point ↦ ((@Functor.leftKanExtensionUnit _ _ _ _ _ _ (Etale.forget S).op F.obj
+      (sectionsExtensionExists A S F.obj))).app (op U) ≫
+      ((@Functor.leftKanExtension _ _ _ _ _ _ (Etale.forget S).op F.obj
+      (sectionsExtensionExists A S F.obj))).map (neighborhood.lift U point).op)
     (fun _ _ morphism point ↦
       neighborhood.stalkSectionsIso_hom_compatible A F morphism point)
 
@@ -128,8 +141,15 @@ private def stalkSectionsHom {S X : Scheme.{u}} {s : GeometricPoint S} {p : X �
 private def stalkSectionsInv {S X : Scheme.{u}} {s : GeometricPoint S} {p : X ⟶ S}
     (neighborhood : StrictHenselianNeighborhood s p) (F : Sheaf S.smallEtaleTopology A) :
     (strictHenselianSections A p).obj F ⟶ s.toSmallEtalePoint.sheafFiber.obj F :=
-  ((Etale.forget S).op.leftKanExtensionObjIsoColimit F.obj (op (Over.mk p))).hom ≫
-    colimit.desc _ (sectionsToStalkCocone A neighborhood F)
+  ((@Functor.leftKanExtensionObjIsoColimit _ _ _ _ (Etale.forget S).op _ _ F.obj
+      (fun Y ↦ @HasColimitsOfShape.has_colimit _ _ _ _
+      (HasColimitsOfSize.has_colimits_of_shape (C := A)
+        (CostructuredArrow (Etale.forget S).op Y)) _) (sectionsExtensionExists A S F.obj) (op (Over.mk p)))).hom ≫
+    @colimit.desc _ _ _ _ _
+      (@HasColimitsOfShape.has_colimit _ _ _ _
+        (HasColimitsOfSize.has_colimits_of_shape (C := A)
+          (CostructuredArrow (Etale.forget S).op (op (Over.mk p)))) _)
+      (sectionsToStalkCocone A neighborhood F)
 
 /-- Normalized lift followed by the closed-point germ acts identically on stalks. -/
 theorem StrictHenselianNeighborhood.stalkSectionsIso_hom_inv_id
@@ -169,13 +189,23 @@ theorem StrictHenselianNeighborhood.stalkSectionsIso_germ {S X : Scheme.{u}}
     (point : s.toSmallEtalePoint.fiber.obj U) :
     s.toSmallEtalePoint.toPresheafFiber U point F.obj ≫
         (neighborhood.stalkSectionsIso A).hom.app F =
-      ((Etale.forget S).op.leftKanExtensionUnit F.obj).app (op U) ≫
-        ((Etale.forget S).op.leftKanExtension F.obj).map (neighborhood.lift U point).op := sorry
+      ((@Functor.leftKanExtensionUnit _ _ _ _ _ _ (Etale.forget S).op F.obj
+      (sectionsExtensionExists A S F.obj))).app (op U) ≫
+        ((@Functor.leftKanExtension _ _ _ _ _ _ (Etale.forget S).op F.obj
+      (sectionsExtensionExists A S F.obj))).map (neighborhood.lift U point).op := sorry
 
 section GenuineSections
 
 variable [HasProducts.{u} A]
 variable [∀ X : Scheme.{u}, HasWeakSheafify X.smallEtaleTopology A]
+
+/-- Small étale base change admits pointwise left Kan extensions of coefficient presheaves. -/
+private abbrev pullbackExtensionExists {X Y : Scheme.{u}} (f : X ⟶ Y)
+    (P : Y.Etaleᵒᵖ ⥤ A) : (smallEtalePullback f).op.HasLeftKanExtension P :=
+  (@Functor.pointwiseLeftKanExtensionIsUniversal _ _ _ _ _ _
+    (smallEtalePullback f).op P (fun U ↦ @HasColimitsOfShape.has_colimit _ _ _ _
+      (HasColimitsOfSize.has_colimits_of_shape (C := A)
+        (CostructuredArrow (smallEtalePullback f).op U)) _)).hasInitial
 
 /-- Evaluation at the identity object of the small étale site. -/
 private def identitySections (X : Scheme.{u}) : Sheaf X.smallEtaleTopology A ⥤ A :=
@@ -187,8 +217,12 @@ private def identitySections (X : Scheme.{u}) : Sheaf X.smallEtaleTopology A ⥤
 the identity étale object. -/
 def strictHenselianGlobalSections {S : Scheme.{u}} (s : GeometricPoint S) :
     Sheaf S.smallEtaleTopology A ⥤ A :=
-  (smallEtalePullback (StrictHenselization.toScheme S s)).sheafPullback A
-      S.smallEtaleTopology (strictHenselizationAt S s).smallEtaleTopology ⋙
+  (@Functor.sheafPullback _ _ _ _ (smallEtalePullback (StrictHenselization.toScheme S s)) A inferInstance
+      S.smallEtaleTopology (strictHenselizationAt S s).smallEtaleTopology inferInstance
+      ((@Functor.sheafPullbackConstruction.sheafAdjunctionContinuous _ _ _ _
+        (smallEtalePullback (StrictHenselization.toScheme S s)) A inferInstance S.smallEtaleTopology
+        (strictHenselizationAt S s).smallEtaleTopology inferInstance (pullbackExtensionExists A (StrictHenselization.toScheme S s))
+        (‹∀ X : Scheme.{u}, HasWeakSheafify X.smallEtaleTopology A› (strictHenselizationAt S s))).isRightAdjoint)) ⋙
     identitySections A (strictHenselizationAt S s)
 
 /-- The closed-point germ of a genuine strict-henselian section, transported to the
@@ -201,8 +235,12 @@ private def globalToStalkApp {S : Scheme.{u}} (s : GeometricPoint S)
     s.isAlgClosed (StrictHenselization.closedPoint s)
   let identityObject : (strictHenselizationAt S s).Etale :=
     MorphismProperty.Over.mk _ (𝟙 _) inferInstance
-  let pulled := ((smallEtalePullback structural).sheafPullback A
-    S.smallEtaleTopology (strictHenselizationAt S s).smallEtaleTopology).obj F
+  let pulled := ((@Functor.sheafPullback _ _ _ _ (smallEtalePullback structural) A inferInstance
+      S.smallEtaleTopology (strictHenselizationAt S s).smallEtaleTopology inferInstance
+      ((@Functor.sheafPullbackConstruction.sheafAdjunctionContinuous _ _ _ _
+        (smallEtalePullback structural) A inferInstance S.smallEtaleTopology
+        (strictHenselizationAt S s).smallEtaleTopology inferInstance (pullbackExtensionExists A structural)
+        (‹∀ X : Scheme.{u}, HasWeakSheafify X.smallEtaleTopology A› (strictHenselizationAt S s))).isRightAdjoint))).obj F
   let overIso : Over.mk (geometric.hom ≫ structural) ≅ Over.mk s.hom :=
     Over.isoMk (Iso.refl _)
       ((Category.id_comp s.hom).trans (StrictHenselization.closedPoint_over s).symm)
@@ -210,6 +248,11 @@ private def globalToStalkApp {S : Scheme.{u}} (s : GeometricPoint S)
   geometric.toSmallEtalePoint.toPresheafFiber identityObject
       (Over.homMk geometric.hom (Category.comp_id geometric.hom)) pulled.obj ≫
     (geometric.toSmallEtalePoint.sheafFiberComapIsoOfMorphismOfSites
+      (J := S.smallEtaleTopology)
+      (h_adj := (@Functor.sheafPullbackConstruction.sheafAdjunctionContinuous _ _ _ _
+        (smallEtalePullback structural) A inferInstance S.smallEtaleTopology
+        (strictHenselizationAt S s).smallEtaleTopology inferInstance (pullbackExtensionExists A structural)
+        (‹∀ X : Scheme.{u}, HasWeakSheafify X.smallEtaleTopology A› (strictHenselizationAt S s))).isRightAdjoint)
       (h_small := smallEtalePullback_fiber_initiallySmall structural s.K geometric.hom)
       (smallEtalePullback structural) A).inv.app F ≫
     (GrothendieckTopology.Point.Hom.sheafFiber
@@ -252,33 +295,61 @@ private def globalSectionsPullbackApp {S : Scheme.{u}} (s t : GeometricPoint S)
   let targetScheme := strictHenselizationAt S t
   let sourceIdentity : sourceScheme.Etale := MorphismProperty.Over.mk _ (𝟙 _) inferInstance
   let targetIdentity : targetScheme.Etale := MorphismProperty.Over.mk _ (𝟙 _) inferInstance
-  let pulled := ((smallEtalePullback sourceMap).sheafPullback A
-    S.smallEtaleTopology sourceScheme.smallEtaleTopology).obj F
-  let twicePulled := ((smallEtalePullback comparison).sheafPullback A
-    sourceScheme.smallEtaleTopology targetScheme.smallEtaleTopology).obj pulled
+  let pulled := ((@Functor.sheafPullback _ _ _ _ (smallEtalePullback sourceMap) A inferInstance
+      S.smallEtaleTopology sourceScheme.smallEtaleTopology inferInstance
+      ((@Functor.sheafPullbackConstruction.sheafAdjunctionContinuous _ _ _ _
+        (smallEtalePullback sourceMap) A inferInstance S.smallEtaleTopology
+        sourceScheme.smallEtaleTopology inferInstance (pullbackExtensionExists A sourceMap)
+        (‹∀ X : Scheme.{u}, HasWeakSheafify X.smallEtaleTopology A› sourceScheme)).isRightAdjoint))).obj F
+  let twicePulled := ((@Functor.sheafPullback _ _ _ _ (smallEtalePullback comparison) A inferInstance
+      sourceScheme.smallEtaleTopology targetScheme.smallEtaleTopology inferInstance
+      ((@Functor.sheafPullbackConstruction.sheafAdjunctionContinuous _ _ _ _
+        (smallEtalePullback comparison) A inferInstance sourceScheme.smallEtaleTopology
+        targetScheme.smallEtaleTopology inferInstance (pullbackExtensionExists A comparison)
+        (‹∀ X : Scheme.{u}, HasWeakSheafify X.smallEtaleTopology A› targetScheme)).isRightAdjoint))).obj pulled
   let siteIso : smallEtalePullback sourceMap ⋙ smallEtalePullback comparison ≅
       smallEtalePullback (comparison ≫ sourceMap) :=
     (MorphismProperty.Over.pullbackComp (P := @Etale) (Q := ⊤) comparison sourceMap).symm
   let compositionIso := Adjunction.leftAdjointCompIso
-    ((smallEtalePullback sourceMap).sheafAdjunctionContinuous A
-      S.smallEtaleTopology sourceScheme.smallEtaleTopology)
-    ((smallEtalePullback comparison).sheafAdjunctionContinuous A
-      sourceScheme.smallEtaleTopology targetScheme.smallEtaleTopology)
-    ((smallEtalePullback (comparison ≫ sourceMap)).sheafAdjunctionContinuous A
-      S.smallEtaleTopology targetScheme.smallEtaleTopology)
+    ((@Functor.sheafAdjunctionContinuous _ _ _ _ (smallEtalePullback sourceMap) A inferInstance
+      S.smallEtaleTopology sourceScheme.smallEtaleTopology inferInstance
+      ((@Functor.sheafPullbackConstruction.sheafAdjunctionContinuous _ _ _ _
+        (smallEtalePullback sourceMap) A inferInstance S.smallEtaleTopology
+        sourceScheme.smallEtaleTopology inferInstance (pullbackExtensionExists A sourceMap)
+        (‹∀ X : Scheme.{u}, HasWeakSheafify X.smallEtaleTopology A› sourceScheme)).isRightAdjoint)))
+    ((@Functor.sheafAdjunctionContinuous _ _ _ _ (smallEtalePullback comparison) A inferInstance
+      sourceScheme.smallEtaleTopology targetScheme.smallEtaleTopology inferInstance
+      ((@Functor.sheafPullbackConstruction.sheafAdjunctionContinuous _ _ _ _
+        (smallEtalePullback comparison) A inferInstance sourceScheme.smallEtaleTopology
+        targetScheme.smallEtaleTopology inferInstance (pullbackExtensionExists A comparison)
+        (‹∀ X : Scheme.{u}, HasWeakSheafify X.smallEtaleTopology A› targetScheme)).isRightAdjoint)))
+    ((@Functor.sheafAdjunctionContinuous _ _ _ _ (smallEtalePullback (comparison ≫ sourceMap)) A inferInstance
+      S.smallEtaleTopology targetScheme.smallEtaleTopology inferInstance
+      ((@Functor.sheafPullbackConstruction.sheafAdjunctionContinuous _ _ _ _
+        (smallEtalePullback (comparison ≫ sourceMap)) A inferInstance S.smallEtaleTopology
+        targetScheme.smallEtaleTopology inferInstance (pullbackExtensionExists A (comparison ≫ sourceMap))
+        (‹∀ X : Scheme.{u}, HasWeakSheafify X.smallEtaleTopology A› targetScheme)).isRightAdjoint)))
     (Functor.sheafPushforwardContinuousComp' siteIso A S.smallEtaleTopology
       sourceScheme.smallEtaleTopology targetScheme.smallEtaleTopology)
   let overTransport := eqToIso (congrArg (fun structural : targetScheme ⟶ S ↦
-    (smallEtalePullback structural).sheafPullback A
-      S.smallEtaleTopology targetScheme.smallEtaleTopology) comparison_over)
+    (@Functor.sheafPullback _ _ _ _ (smallEtalePullback structural) A inferInstance
+      S.smallEtaleTopology targetScheme.smallEtaleTopology inferInstance
+      ((@Functor.sheafPullbackConstruction.sheafAdjunctionContinuous _ _ _ _
+        (smallEtalePullback structural) A inferInstance S.smallEtaleTopology
+        targetScheme.smallEtaleTopology inferInstance (pullbackExtensionExists A structural)
+        (‹∀ X : Scheme.{u}, HasWeakSheafify X.smallEtaleTopology A› targetScheme)).isRightAdjoint))) comparison_over)
   let identityLift : targetIdentity ⟶ (smallEtalePullback comparison).obj sourceIdentity :=
     MorphismProperty.Over.homMk
       (pullback.lift comparison (𝟙 targetScheme)
         ((Category.comp_id comparison).trans (Category.id_comp comparison).symm))
       (pullback.lift_snd comparison (𝟙 targetScheme)
         ((Category.comp_id comparison).trans (Category.id_comp comparison).symm))
-  (((smallEtalePullback comparison).sheafAdjunctionContinuous A
-      sourceScheme.smallEtaleTopology targetScheme.smallEtaleTopology).unit.app pulled).hom.app
+  (((@Functor.sheafAdjunctionContinuous _ _ _ _ (smallEtalePullback comparison) A inferInstance
+      sourceScheme.smallEtaleTopology targetScheme.smallEtaleTopology inferInstance
+      ((@Functor.sheafPullbackConstruction.sheafAdjunctionContinuous _ _ _ _
+        (smallEtalePullback comparison) A inferInstance sourceScheme.smallEtaleTopology
+        targetScheme.smallEtaleTopology inferInstance (pullbackExtensionExists A comparison)
+        (‹∀ X : Scheme.{u}, HasWeakSheafify X.smallEtaleTopology A› targetScheme)).isRightAdjoint))).unit.app pulled).hom.app
       (op sourceIdentity) ≫
     (((smallEtalePullback comparison).sheafPushforwardContinuousCompSheafToPresheafIso A
       sourceScheme.smallEtaleTopology targetScheme.smallEtaleTopology).app twicePulled).hom.app

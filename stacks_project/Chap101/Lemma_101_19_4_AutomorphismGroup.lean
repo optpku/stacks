@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_19_2_AutomorphismGroup
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.AutomorphismGroup
 
 /-!
 # Isomorphisms of automorphism-group algebraic spaces along a morphism
@@ -30,44 +24,17 @@ namespace AlgebraicGeometry.AlgebraicStack
 
 namespace automorphismGroup
 
-/-- The comparison `G_p ⟶ G_{p ≫ f}` of automorphism group algebraic spaces
-induced by a morphism of algebraic stacks is an isomorphism. -/
-def IsIsoMap {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X]
-    [AlgebraicStack Y] (f : X ⟶ Y) (p : FieldValuedPoint X) : Prop :=
-  Groupoids.Hom.has (MorphismProperty.isomorphisms (AlgebraicSpace S))
-    (isomComparison f p.toHom p.toHom)
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.IsIsoMap :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X]
+    [AlgebraicStack Y], (X ⟶ Y) → FieldValuedPoint X → Prop)
 
-/-- `IsIsoMap f p` means that the Isom comparison of automorphism groups along
-`f` at `p` has the isomorphisms morphism property of algebraic spaces. -/
-theorem IsIsoMap_iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.IsIsoMap_iff :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    (p : FieldValuedPoint X) :
+    (p : FieldValuedPoint X),
     IsIsoMap f p ↔
       Groupoids.Hom.has (MorphismProperty.isomorphisms (AlgebraicSpace S))
-        (isomComparison f p.toHom p.toHom) :=
-  sorry
-
-namespace IsIsoMap
-
-/-- If the automorphism-group comparison along `f` at `p` is an isomorphism,
-then the underlying Isom comparison has the isomorphisms morphism property. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X]
-    [AlgebraicStack Y] {f : X ⟶ Y} {p : FieldValuedPoint X} :
-    IsIsoMap f p →
-      Groupoids.Hom.has (MorphismProperty.isomorphisms (AlgebraicSpace S))
-        (isomComparison f p.toHom p.toHom) :=
-  sorry
-
-/-- The automorphism-group comparison along `f` at `p` is an isomorphism if the
-underlying Isom comparison has the isomorphisms morphism property. -/
-theorem of {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X]
-    [AlgebraicStack Y] {f : X ⟶ Y} {p : FieldValuedPoint X} :
-    Groupoids.Hom.has (MorphismProperty.isomorphisms (AlgebraicSpace S))
-        (isomComparison f p.toHom p.toHom) →
-      IsIsoMap f p :=
-  sorry
-
-end IsIsoMap
+        (isomComparison f p.toHom p.toHom))
 
 end automorphismGroup
 

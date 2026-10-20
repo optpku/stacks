@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_7_2_Submersive
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Submersive
+import StacksCheckRecall
 
 /-!
 # Base change of universally submersive morphisms of algebraic spaces
@@ -23,14 +18,15 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.7.3: The base change of a universally submersive morphism of algebraic
+/- Lemma 67.7.3: The base change of a universally submersive morphism of algebraic
 spaces by any morphism of algebraic spaces is universally submersive. -/
 @[stacks 0CFR]
-instance universallySubmersive_isStableUnderBaseChange {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderBaseChange
-      (@UniversallySubmersive S : MorphismProperty (AlgebraicSpace S)) := sorry
-
-#check UniversallySubmersive.of_isPullback
-#check UniversallySubmersive.pullback_snd
+#check (AlgebraicGeometry.AlgebraicSpace.UniversallySubmersive.of_isPullback :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}}
+    {X Y Y' B : AlgebraicGeometry.AlgebraicSpace S}
+    {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X},
+    CategoryTheory.IsPullback f' g' g f →
+      AlgebraicGeometry.AlgebraicSpace.UniversallySubmersive g →
+      AlgebraicGeometry.AlgebraicSpace.UniversallySubmersive g')
 
 end AlgebraicGeometry.AlgebraicSpace

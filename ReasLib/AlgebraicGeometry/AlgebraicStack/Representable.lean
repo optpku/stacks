@@ -1,0 +1,86 @@
+module
+
+public import Mathlib.Data.List.TFAE
+public import ReasLib.CategoryTheory.Fibered.BasedCategory.Equivalence.Basic
+public import ReasLib.CategoryTheory.Fibered.Inertia.Groupoids.RelativeFunctoriality.Stable.Construction
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Basic
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Diagonal.RelativeIsom
+
+/-!
+# Second diagonal of morphisms of algebraic stacks
+
+A morphism of algebraic stacks is representable by algebraic spaces if and
+only if its second diagonal is an equivalence, equivalently if relative
+inertia is trivial via the identity section, equivalently if the kernel of
+each `Isom` comparison is trivial.
+-/
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry Opposite
+open FiberedCategoryOver.Groupoids
+open Hom.diagonal (relativeIsom)
+open scoped Bicategory
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicStack.Representable
+
+/-- Let `f : X ⟶ Y` be a morphism of algebraic stacks. The
+following are equivalent: `f` is representable by algebraic spaces; the
+second diagonal `Hom.diagonal (Hom.diagonal f)` is an isomorphism of stacks;
+the group stack `I_{X/Y}` is trivial over `X`, i.e. the identity section
+`RelativeInertia.identitySection f` is an equivalence; and for a scheme `T`
+and an object `x` of `X` over `T`, the kernel of
+`Isom_X(x, x) ⟶ Isom_Y(f(x), f(x))` is trivial. -/
+theorem tfae {S : Scheme.{u}}
+    {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+    (f : X ⟶ Y) :
+    List.TFAE
+      [relativelyRepresentableByAlgebraicSpaces f,
+        BasedFunctor.IsEquivalence
+          (toBasedFunctor (Hom.diagonal.{u + 1, u, u + 1}
+            (Hom.diagonal.{u + 1, u, u + 1} f))),
+        BasedFunctor.IsEquivalence
+          (toBasedFunctor (RelativeInertia.identitySection.{u + 1, u, u, u + 1} f)),
+        ∀ {T : Over S} (x : X.p.Fiber T) (T' : Over T),
+          ∃ φ : (relativeIsom f x).obj (op T'), ∀ ψ, ψ = φ] :=
+  sorry
+
+/-- A morphism of algebraic stacks is representable by algebraic spaces if and
+only if its second diagonal is an equivalence over the base. -/
+theorem iff_secondDiagonal
+    {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X]
+    [AlgebraicStack Y] (f : X ⟶ Y) :
+    relativelyRepresentableByAlgebraicSpaces f ↔
+      BasedFunctor.IsEquivalence
+        (toBasedFunctor (Hom.diagonal.{u + 1, u, u + 1}
+          (Hom.diagonal.{u + 1, u, u + 1} f))) :=
+  sorry
+
+/-- A morphism of algebraic stacks is representable by algebraic spaces if and
+only if the relative-inertia identity section is an equivalence over the
+base. -/
+theorem iff_identitySection
+    {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X]
+    [AlgebraicStack Y] (f : X ⟶ Y) :
+    relativelyRepresentableByAlgebraicSpaces f ↔
+      BasedFunctor.IsEquivalence
+        (toBasedFunctor
+          (RelativeInertia.identitySection.{u + 1, u, u, u + 1} f)) :=
+  sorry
+
+/-- A morphism of algebraic stacks is representable by algebraic spaces if and
+only if for every scheme `T` and object `x` of `X` over `T`, the kernel sheaf
+`relativeIsom f x` has exactly one section over every `T'`. -/
+theorem iff_unique_relativeIsom
+    {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X]
+    [AlgebraicStack Y] (f : X ⟶ Y) :
+    relativelyRepresentableByAlgebraicSpaces f ↔
+      ∀ {T : Over S} (x : X.p.Fiber T) (T' : Over T),
+        ∃ φ : (relativeIsom f x).obj (op T'), ∀ ψ, ψ = φ :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicStack.Representable

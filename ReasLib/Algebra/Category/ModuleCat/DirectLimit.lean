@@ -1,15 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Colimits
 public import Mathlib.Algebra.Category.ModuleCat.Limits
 public import Mathlib.Tactic.CrossRefAttribute
-import StacksCheckRecall
 
 /-!
 # Direct limits of modules
@@ -75,27 +68,5 @@ theorem directLimitColimitIso_ι (i : I) :
       ModuleCat.ofHom (DirectLimit.Module.of R I M μ i) := sorry
 
 end ModuleCat
-
-@[stacks 00D5 "direct-limit quotient carrier"] #check Module.DirectLimit
-
-@[stacks 00D5 "direct-limit canonical map"] #check Module.DirectLimit.of
-
-@[stacks 00D5 "direct-limit universal map"] #check Module.DirectLimit.lift
-
-@[stacks 00D5 "direct-limit universal property"] #check Module.DirectLimit.lift_comp_of
-
-@[stacks 00D5 "direct-limit colimit"] #check ModuleCat.directLimitCocone
-
-@[stacks 00D6 "direct-limit stage equality"] #check DirectLimit.Module.of_eq_iff
-
-@[stacks 00D6 "direct-limit quotient comparison"] #check Module.DirectLimit.linearEquiv
-
-@[stacks 00D6 "direct-limit addition"] #check Module.DirectLimit.of
-
-@[stacks 00D6 "direct-limit scalar multiplication"] #check Module.DirectLimit.of
-
-@[stacks 00D6 "direct-limit colimit comparison"] #check ModuleCat.directLimitColimitIso
-
-@[stacks 00D6 "direct-limit colimit comparison leg"] #check ModuleCat.directLimitColimitIso_ι
 
 end

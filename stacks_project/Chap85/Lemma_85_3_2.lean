@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap85.Lemma_85_3_2_Total
+public import ReasLib.CategoryTheory.Sites.Grothendieck.Fiberwise
 import StacksCheckRecall
 
 @[expose] public section
@@ -24,9 +18,8 @@ variable [Grothendieck.IsFiberwiseSite F J]
 morphisms `(φ, f)` given by `Grothendieck.Hom` (base `φ : [m] ⟶ [n]` and fiber
 `f : u_φ(U) ⟶ V`) and with selected coverings the identity-degree fiber families
 `Grothendieck.ofFiber`. -/
-@[stacks 09WD] #check Grothendieck.precoverage F J
-@[stacks 09WD] #check Grothendieck.precoverage.isStableUnderBind F J
-@[stacks 09WD] #check Grothendieck.precoverage.hasPullbacks F J
-@[stacks 09WD] #check Grothendieck.precoverage.hasFactoringPullbacks F J
-@[stacks 09WD] #check Grothendieck.exists_ofFiber_isPullback F J
-@[stacks 09WD] #check Grothendieck.precoverage.hasIsos F J
+@[stacks 09WD] #check (CategoryTheory.Grothendieck.precoverage.isSite F J :
+  (CategoryTheory.Grothendieck.precoverage F J).IsSite)
+
+#check (CategoryTheory.Grothendieck.precoverage F J :
+  CategoryTheory.Precoverage (CategoryTheory.Grothendieck F))

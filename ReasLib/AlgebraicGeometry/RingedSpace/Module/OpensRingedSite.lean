@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Preadditive.Projective.Resolution
+public import ReasLib.Algebra.Category.ModuleCat.Presheaf.PullbackSmallSource
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.ChangeOfRings
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Pullback
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Pushforward
@@ -63,7 +58,7 @@ or finite-limit-preservation parameter. -/
 noncomputable abbrev opensMorphismOfTopoi {X Y : RingedSpace.{u}} (f : X ⟶ Y) :
     CategoryTheory.MorphismOfTopoiIn
       (opensRingedSite Y).siteTopology (opensRingedSite X).siteTopology :=
-  (opensRingedSiteHom f).toMorphismOfTopoi.{u, u, u, u, u, u}
+  RingedSite.Hom.toMorphismOfTopoi.{u, u, u, u, u, u} (opensRingedSiteHom f)
 
 namespace opensRingedSiteHom
 
@@ -87,11 +82,14 @@ instance pullback_additive {X Y : RingedSpace.{u}} (f : X ⟶ Y)
 instance modulePushforward_additive {X Y : RingedSpace.{u}} (f : X ⟶ Y) :
     (RingedSite.Hom.modulePushforward (opensRingedSiteHom f)).Additive := sorry
 
-/-- Direct image along a composite of opens-ringed-site morphisms is a right adjoint. -/
+/-- Direct image along a composite of opens-ringed-site morphisms has the actual
+free-presentation left adjoint in the original module-section universe. -/
 instance compPushforward_isRightAdjoint
     {X Y Z : RingedSpace.{u}} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    (PresheafOfModules.pushforward
-      ((opensRingedSiteHom f ≫ opensRingedSiteHom g).structureSheafMap.hom)).IsRightAdjoint := sorry
+    (PresheafOfModules.pushforward.{u}
+      ((opensRingedSiteHom f ≫ opensRingedSiteHom g).structureSheafMap.hom)).IsRightAdjoint :=
+  PresheafOfModules.SmallSourcePullback.isRightAdjoint
+    (opensRingedSiteHom f ≫ opensRingedSiteHom g).structureSheafMap.hom
 
 /-- Direct image along a composite of opens-ringed-site morphisms is additive. -/
 instance compModulePushforward_additive

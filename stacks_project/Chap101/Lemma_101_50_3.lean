@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_50_1_Integral
-public import stacks_project.Chap101.Lemma_101_48_2
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Integral.QuasiSeparated
+import StacksCheckRecall
 
 /-!
 # Reduced quasi-separated irreducible algebraic stacks are integral
@@ -28,30 +22,25 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 101.50.3: Let `X` be an algebraic stack which is reduced and
+/- Lemma 101.50.3: Let `X` be an algebraic stack which is reduced and
 quasi-separated and whose associated topological space `|X|` is irreducible.
 Then `X` is integral. -/
-@[stacks 0GWD]
-instance instIsIntegral_of_isQuasiSeparated {S : Scheme.{u}} (X : GroupoidsOver S)
-    [AlgebraicStack X] [IsReduced X] [IsQuasiSeparated X] [IsIrreducible X] :
-    IsIntegral X :=
-  sorry
+@[stacks 0GWD] #check
+  (AlgebraicGeometry.AlgebraicStack.instIsIntegral_of_isQuasiSeparated :
+    ∀ {S : Scheme.{u}} (X : GroupoidsOver S)
+      [AlgebraicStack X] [IsReduced X] [IsQuasiSeparated X] [IsIrreducible X],
+      IsIntegral X)
 
-/-- The inertia morphism `I_X ⟶ X` of a quasi-separated algebraic stack is
-quasi-compact. -/
-instance instQuasiCompact_forget_of_isQuasiSeparated {S : Scheme.{u}}
-    (X : GroupoidsOver S) [AlgebraicStack X] [IsQuasiSeparated X] :
-    QuasiCompact (forget.{u + 1, u, u, u + 1} X) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.instQuasiCompact_forget_of_isQuasiSeparated :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X] [IsQuasiSeparated X],
+    QuasiCompact (forget.{u + 1, u, u, u + 1} X))
 
-/-- A reduced algebraic stack with irreducible space of points and
-quasi-compact absolute diagonal is integral. -/
-theorem IsIntegral.of_quasiCompact_diagonal {S : Scheme.{u}} {X : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.IsIntegral.of_quasiCompact_diagonal :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S}
     [AlgebraicStack X] [IsReduced X] [IsIrreducible X]
     (h_quasiCompact :
       Groupoids.Hom.has (@AlgebraicSpace.QuasiCompact (Spec (.of (ULift.{u} ℤ))))
-        (diagonal.{u + 1, u, u + 1} (viewedOverSpecZ X))) :
-    IsIntegral X :=
-  sorry
+        (diagonal.{u + 1, u, u + 1} (viewedOverSpecZ X))),
+    IsIntegral X)
 
 end AlgebraicGeometry.AlgebraicStack

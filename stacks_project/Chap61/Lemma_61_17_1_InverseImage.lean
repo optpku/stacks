@@ -1,21 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.Grp.Abelian
-public import Mathlib.AlgebraicGeometry.Sites.Proetale
-public import ReasLib.CategoryTheory.Sites.AbelianSheaf.Additive
-public import stacks_project.Chap61.Lemma_61_12_19_SmallToBig
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Proetale.Abelian
 
 /-!
 # Abelian inverse image along pro-étale relocalization
 
-This leaf owns the abelian sheaf functor `iInverseImage` induced by small-to-big
-pro-étale relocalization.
+The abelian sheaf functor induced by small-to-big pro-étale relocalization and
+its computation formulas.
 -/
 
 @[expose] public section
@@ -31,20 +22,19 @@ namespace AlgebraicGeometry.Scheme.ProEt
 
 variable {S T : Scheme.{u}} (f : T ⟶ S)
 
-/-- Inverse image on abelian sheaves along pro-étale relocalization from the big
-site over `S` to the small pro-étale site of `T`. -/
-abbrev iInverseImage :
+#check (AlgebraicGeometry.Scheme.ProEt.iInverseImage f :
     Sheaf (proetaleTopology.over S) AddCommGrpCat.{u + 1} ⥤
-      Sheaf (topology T) AddCommGrpCat.{u + 1} :=
-  (SmallToBig.relocalizationFunctor f).sheafPushforwardContinuous
-    AddCommGrpCat.{u + 1} (topology T) (proetaleTopology.over S)
+      Sheaf (topology T) AddCommGrpCat.{u + 1})
 
-/-- Inverse image on abelian sheaves is continuous sheaf pushforward along
-pro-étale relocalization. -/
-theorem iInverseImage_eq :
+#check (AlgebraicGeometry.Scheme.ProEt.iInverseImage_eq f :
     iInverseImage f =
       (SmallToBig.relocalizationFunctor f).sheafPushforwardContinuous
-        AddCommGrpCat.{u + 1} (topology T) (proetaleTopology.over S) := sorry
+        AddCommGrpCat.{u + 1} (topology T) (proetaleTopology.over S))
+
+#check (AlgebraicGeometry.Scheme.ProEt.iInverseImage_obj_obj f :
+    ∀ (F : Sheaf (proetaleTopology.over S) AddCommGrpCat.{u + 1}) (U : T.ProEt),
+      ((iInverseImage f).obj F).1.obj (Opposite.op U) =
+        F.1.obj (Opposite.op ((SmallToBig.relocalizationFunctor f).obj U)))
 
 end AlgebraicGeometry.Scheme.ProEt
 

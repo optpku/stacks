@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap71.Lemma_71_19_5_Separation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Blowup.Separation
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,13 +16,13 @@ Then there exists a `(U ∪ V)`-admissible blowup `b : X' ⟶ X` such that `X'` 
 disjoint union of open subspaces `X' = X₁ ∐ X₂` with `Points.map b ⁻¹' U.pointsSet ⊆
 X₁.pointsSet` and `Points.map b ⁻¹' V.pointsSet ⊆ X₂.pointsSet`. -/
 @[stacks 086F] #check
-  (exists_isAdmissibleBlowup_disjointOpenCover_of_disjoint_qc_opens :
+  (AlgebraicGeometry.AlgebraicSpace.exists_isAdmissibleBlowup_disjointOpenCover_of_disjoint_qc_opens :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsQuasiCompact X]
       [IsAbsolutelyQuasiSeparated X] (U V : OpenSubspace X)
       [QuasiCompact U.ι] [QuasiCompact V.ι],
       Disjoint U.pointsSet V.pointsSet →
         ∃ (X' : AlgebraicSpace S) (b : X' ⟶ X) (X₁ X₂ : OpenSubspace X'),
-          IsAdmissibleBlowup (OpenSubspace.ofOpens (U.pointsOpens ⊔ V.pointsOpens)) b ∧
+          IsAdmissibleBlowup (OpenSubspace.fromOpens (U.pointsOpens ⊔ V.pointsOpens)) b ∧
             Disjoint X₁.pointsSet X₂.pointsSet ∧
               X₁.pointsOpens ⊔ X₂.pointsOpens = ⊤ ∧
                 Points.map b ⁻¹' U.pointsSet ⊆ X₁.pointsSet ∧

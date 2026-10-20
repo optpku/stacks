@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion
@@ -11,7 +5,7 @@ public import Mathlib.AlgebraicGeometry.Morphisms.FinitePresentation
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.ClosedImmersion
 import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.KernelIdeal
 import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.LocalProperties.Covers
-import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Pullback.LocalGeneration
+import ReasLib.Algebra.Category.ModuleCat.Sheaf.PullbackContinuous.LocalGeneration
 import ReasLib.AlgebraicGeometry.LocallyRingedSpace.ClosedImmersion.Scheme
 import ReasLib.AlgebraicGeometry.RingedSite.Basic
 import ReasLib.AlgebraicGeometry.RingedSite.Module.Intrinsic

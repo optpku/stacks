@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap73.Definition_73_9_1_FpqcCovering
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Cover.Fpqc
 import StacksCheckRecall
 
 @[expose] public section
@@ -18,6 +12,18 @@ universe u v
 of algebraic spaces such that each `f_i` is flat and such that for every affine
 scheme `Z` and morphism `h : Z ⟶ X` there exists a standard fpqc covering
 `{g_j : Z_j ⟶ Z}` which refines the family `{X_i ×_X Z ⟶ Z}_{i ∈ I}`. -/
-@[stacks 03MQ] #check AlgebraicGeometry.AlgebraicSpace.FpqcCovering
+@[stacks 03MQ] #check (AlgebraicGeometry.AlgebraicSpace.FpqcCovering :
+  {S : AlgebraicGeometry.Scheme.{u}} → {X : AlgebraicGeometry.AlgebraicSpace S} →
+    {ι : Type v} → (ι → CategoryTheory.Over X) → Prop)
 
-#check AlgebraicGeometry.AlgebraicSpace.FpqcCovering.iff
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
+
+#check (AlgebraicGeometry.AlgebraicSpace.FpqcCovering.iff :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {ι : Type v}
+    (family : ι → Over X),
+    FpqcCovering family ↔
+      (∀ i, Flat (family i).hom) ∧
+        ∀ {Z : Over S}, IsAffine Z.left → ∀ (h : ofOver Z ⟶ X),
+          ∃ 𝒰 : StandardFpqcCover Z.left,
+            SemiRepresentableFamily.Over.Refines (ofStandardFpqcCover 𝒰)
+              { index := ι, obj := pullbackFamily family h })

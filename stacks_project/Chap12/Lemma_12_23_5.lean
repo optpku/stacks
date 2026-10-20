@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.HomologicalComplex.SpectralSequence
@@ -28,7 +22,7 @@ universe v u
 variable {C : Type u} [Category.{v} C] [Abelian C]
 variable (K : HomologicalComplex (FilteredObject C) (ComplexShape.refl PUnit.{1}))
 variable (E : SpectralSequence C (fun r ↦ ComplexShape.up' (r : ℤ)) 0)
-variable (hAssoc : HomologicalComplex.Filtered.Page.HasPresentation K E)
+variable (hAssoc : HomologicalComplex.Filtered.Association.IsAssociated K E)
 variable
   (L : SpectralSequence.LimitStages
     (HomologicalComplex.Filtered.Page.One.tail E))

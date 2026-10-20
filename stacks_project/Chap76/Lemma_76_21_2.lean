@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_21_2_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.NaiveCotangent.EtaleLocalization
 import StacksCheckRecall
 
 /-!
@@ -30,4 +24,12 @@ universe u
 /- Lemma 76.21.2: Let `S` be a scheme. Consider a commutative diagram of algebraic spaces
 over `S` with étale vertical arrows `p : U ⟶ X` and `q : V ⟶ Y`. Then there is a canonical
 identification `NL[f]|_{U_étale} = NL[g]` in `D(𝒪_U)`. -/
-@[stacks 0D0W] #check etaleRestrictIso_derived
+@[stacks 0D0W] #check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.NaiveCotangent.etaleRestrictIso_derived :
+    ∀ {S : Scheme.{u}} {U V X Y : AlgebraicSpace S}
+      (p : U ⟶ X) (g : U ⟶ V) (f : X ⟶ Y) (q : V ⟶ Y)
+      [Etale p] [Etale q] (hcomm : p ≫ f = g ≫ q),
+      DerivedCategory.Q.obj
+          (((Modules.restrictFunctor p).mapHomologicalComplex (ComplexShape.up ℤ)).obj
+            (Hom.naiveCotangent f)) ≅
+        DerivedCategory.Q.obj (Hom.naiveCotangent g))

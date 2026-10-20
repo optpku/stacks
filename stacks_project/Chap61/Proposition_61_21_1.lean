@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -78,6 +72,10 @@ of the intersection of the ideal-power submodules. -/
 
 section BoundedReduction
 
+attribute [local instance] RingedSite.Hom.moduleCat_hasDerivedCategory
+  RingedSite.Hom.RingPresentation.moduleHasDerivedCategory
+  SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 variable [MonoidalCategory (RingedSiteDerived J (constantRingSheaf J Λ))]
 
 /- Proposition 61.21.1 (6): reduction modulo the ideal detects boundedness above
@@ -100,12 +98,13 @@ implies boundedness of a derived-complete object. -/
 @[stacks 099Q] #check
   (RingedSite.Hom.ModuleDerived.isBounded_of_tensorQuotient_hasFiniteTorDimension J I :
     J.HasEnoughObjectsWithProperty J.IsWeaklyContractible →
-      ∀ K : RingedSiteDerived.{u, u, u, u} J (constantRingSheaf J Λ),
+      ∀ [DerivedCategory.DerivedTensor.Right.Has
+        (C := ringedSiteModuleCategory.{u, u, u, u} J
+          (PowerQuotient.sheaf (constantIdealSheaf J I) 1))]
+        (K : RingedSiteDerived.{u, u, u, u} J (constantRingSheaf J Λ)),
         IsDerivedCompleteWithRespectTo.{u, u, u, u} K (constantIdealSheaf J I) →
-          @HasFiniteTorDimension.{u, u, u}
-            (PowerQuotient.ringedSite (constantIdealSheaf J I) 1) _ _ _
-            (hasMapBifunctor_constantIdealPowerQuotient J I)
-            (derivedTensor_constantIdealPowerQuotient J I).right
+          HasFiniteTorDimension
+            (O := PowerQuotient.sheaf (constantIdealSheaf J I) 1)
             ((PowerQuotient.pullbackDerived (constantIdealSheaf J I) 1).obj K) →
               @DerivedCategory.IsBoundedAbove
                 (ringedSiteModuleCategory J (constantRingSheaf J Λ)) _ _

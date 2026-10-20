@@ -1,19 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.AffineScheme
-public import ReasLib.CategoryTheory.Sites.LocallyConstant.Finite
-public import ReasLib.CategoryTheory.Sites.WeaklyContractible
-public import stacks_project.Chap61.Definition_61_28_1_Completion
-public import stacks_project.Chap61.Lemma_61_28_6
-public import Mathlib.Algebra.Category.ModuleCat.Colimits
-public import Mathlib.CategoryTheory.Limits.FunctorCategory.Basic
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.ProEtale.Derived.FiniteGeneration
+import StacksCheckRecall
 
 /-!
 # Lemma 61.28.7
@@ -41,6 +29,24 @@ namespace AlgebraicGeometry.Scheme.ProEt
 
 variable {X : Scheme.{u}} {Λ : Type w} [CommRing Λ]
 variable [HasWeakSheafify (topology X) (ModuleCat.{w} Λ)]
+
+-- Canonical shape evidence is bound locally to avoid repeated colimit-instance search.
+-- This private proof must remain available in the exported coproduct type.
+set_option backward.privateInPublic true in
+private theorem sourceFiniteDiscreteSheafHasColimit (n : ℕ)
+    (D : Discrete (Fin n) ⥤ Sheaf (topology X) (ModuleCat.{w} Λ)) :
+    HasColimit D := by
+  -- Local instance justification (search instability): Pin canonical additive-group colimits for this finite shape before constructing module colimits, avoiding the previously timing-out generic search.
+  letI : HasColimitsOfShape (Discrete (Fin n)) AddCommGrpCat.{w} :=
+    AddCommGrpCat.hasColimitsOfShape
+  -- Local instance justification (search instability): Pin canonical module colimits for this finite shape before constructing sheaf colimits, avoiding the previously timing-out generic search.
+  letI : HasColimitsOfShape (Discrete (Fin n)) (ModuleCat.{w} Λ) :=
+    ModuleCat.hasColimitsOfShape (R := Λ) (J := Discrete (Fin n))
+  have h : HasColimitsOfShape (Discrete (Fin n))
+      (Sheaf (topology X) (ModuleCat.{w} Λ)) :=
+    Sheaf.instHasColimitsOfShape
+  exact h.has_colimit D
+
 variable [HasWeakSheafify (topology X) CommRingCat.{w}]
 variable [HasWeakSheafify (topology X) RingCat.{w}]
 variable [HasWeakSheafify (topology X) AddCommGrpCat.{w}]
@@ -56,47 +62,25 @@ variable [WellPowered
     (SheafOfModules (ringSheafOfComm (constantCoefficientRing X Λ)))]
 variable [∀ U : X.ProEt, HasWeakSheafify ((topology X).over U) (ModuleCat.{w} Λ)]
 
-/-- Finite discrete diagrams of abelian groups have colimits. -/
-instance instHasColimitsOfShapeDiscreteFinAddCommGrp (n : ℕ) :
-    HasColimitsOfShape (Discrete (Fin n)) AddCommGrpCat.{w} :=
-  AddCommGrpCat.hasColimitsOfShape
-
-/-- Finite discrete diagrams of `Λ`-modules have colimits. -/
-instance instHasColimitsOfShapeDiscreteFinModuleCat (n : ℕ) :
-    HasColimitsOfShape (Discrete (Fin n)) (ModuleCat.{w} Λ) :=
-  inferInstance
-
-/-- Finite discrete diagrams of presheaves of `Λ`-modules have colimits. -/
-instance instHasColimitsOfShapeDiscreteFinPresheafModuleCat (n : ℕ) :
-    HasColimitsOfShape (Discrete (Fin n)) (X.ProEtᵒᵖ ⥤ ModuleCat.{w} Λ) :=
-  functorCategoryHasColimitsOfShape
-
-/-- Finite discrete diagrams of sheaves of `Λ`-modules have colimits. -/
-instance instHasColimitsOfShapeDiscreteFinSheafModuleCat (n : ℕ) :
-    HasColimitsOfShape (Discrete (Fin n)) (Sheaf (topology X) (ModuleCat.{w} Λ)) :=
-  Sheaf.instHasColimitsOfShape
-
-/-- Lemma 61.28.7: if `X` is a weakly contractible affine scheme, `Λ` is a Noetherian
-ring, `I ⊆ Λ` is an ideal, and `F` is a derived-complete sheaf of `Λ`-modules on
-`X_proétale` with `F / I F` a locally constant sheaf of finite-type `Λ / I`-modules,
-then there exist `t : ℕ` and an epimorphism
-`(∐ fun _ : Fin t ↦ lambdaHat (topology X) I) ⟶ F`.
-
-Weakly contractible affine is `IsAffine` together with
-`(topology X).IsWeaklyContractible (ProEt.mk (𝟙 X))`. The completed constant sheaf
-`underline(Λ)^∧` is `lambdaHat`. The finite coproduct `(underline(Λ)^∧)^⊕t` is the
-coproduct of `t` copies of `lambdaHat`. The quotient `F / I F` is
-`IdealPower.quotient I F 1`. Locally constant of finite type as `Λ / I`-modules
-is `IsFiniteTypeLocallyConstantModule` on that quotient. Surjectivity is `Epi`. -/
-@[stacks 09BZ]
-theorem exists_epi_from_lambdaHat
-    [IsAffine X] [IsNoetherianRing Λ]
-    [(topology X).IsWeaklyContractible (ProEt.mk (𝟙 X))]
-    (I : Ideal Λ) (F : Sheaf (topology X) (ModuleCat.{w} Λ))
-    (hF : DerivedComplete.IsDerivedComplete I F)
-    (hquot : IsFiniteTypeLocallyConstantModule (IdealPower.quotient I F 1)) :
-    ∃ (t : ℕ) (π : (∐ fun _ : Fin t ↦ lambdaHat (topology X) I) ⟶ F),
-      Epi π :=
-  sorry
+-- The expected type uses the private proof of canonical colimit existence.
+set_option backward.privateInPublic true in
+/- Lemma 61.28.7: A derived-complete module sheaf on a weakly contractible affine
+scheme with locally constant finite-type reduction is a quotient of a finite
+coproduct of completed constant coefficient sheaves. -/
+@[stacks 09BZ] #check (AlgebraicGeometry.Scheme.ProEt.exists_epi_from_lambdaHat :
+    ∀ [IsAffine X] [IsNoetherianRing Λ]
+      [(topology X).IsWeaklyContractible (ProEt.mk (𝟙 X))]
+      (I : Ideal Λ) (F : Sheaf (topology X) (ModuleCat.{w} Λ))
+      (hF : DerivedComplete.IsDerivedComplete I F)
+      (hquot : IsFiniteTypeLocallyConstantModule (IdealPower.quotient I F 1)),
+    ∃ t : ℕ,
+      -- Local instance justification (search instability): Pin the proved colimit evidence for this exact completed-constant diagram after t is fixed, avoiding the previously timing-out polymorphic instance lookup.
+      letI : HasColimit (Discrete.functor (fun _ : Fin t ↦
+          ConstantSheaf.AdicCompletion.ofModule (topology X) I (ModuleCat.of Λ Λ))) :=
+        sourceFiniteDiscreteSheafHasColimit t (Discrete.functor (fun _ : Fin t ↦
+          ConstantSheaf.AdicCompletion.ofModule (topology X) I (ModuleCat.of Λ Λ)))
+      ∃ (π : (∐ fun _ : Fin t ↦
+          ConstantSheaf.AdicCompletion.ofModule (topology X) I (ModuleCat.of Λ Λ)) ⟶ F),
+        Epi π)
 
 end AlgebraicGeometry.Scheme.ProEt

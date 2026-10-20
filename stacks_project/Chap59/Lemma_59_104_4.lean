@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap59.Lemma_59_104_1_EtaleSheafDescent
-public import Mathlib.AlgebraicGeometry.Morphisms.Integral
-public import Mathlib.AlgebraicGeometry.Morphisms.Proper
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Descent
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -19,7 +11,7 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.EtaleSheaf
 
-/-- Lemma 59.104.4 (1): let `f : X ⟶ Y` be a morphism of schemes and let `g : Z ⟶ Y`
+/- Lemma 59.104.4 (1): let `f : X ⟶ Y` be a morphism of schemes and let `g : Z ⟶ Y`
 be a surjective integral morphism. If the functors from Type-valued sheaves on
 `Z.smallEtaleTopology` to singleton descent data along `{pullback.snd f g : X ×_Y Z ⟶ Z}`
 and from Type-valued sheaves on `(Z ×_Y Z).smallEtaleTopology` to singleton descent
@@ -28,14 +20,14 @@ are equivalences of categories, then the functor from Type-valued sheaves on
 `Y.smallEtaleTopology` to singleton descent data along `{f : X ⟶ Y}` is an
 equivalence. -/
 @[stacks 0GF1]
-theorem descentIsEquivalenceOfBaseChangeOfSurjectiveIntegral
-    {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Z ⟶ Y) [Surjective g] [IsIntegralHom g]
+#check (AlgebraicGeometry.Scheme.EtaleSheaf.descentIsEquivalenceOfBaseChangeOfSurjectiveIntegral :
+    ∀ {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Z ⟶ Y) [Surjective g] [IsIntegralHom g]
     (hZ : (pseudofunctor.toDescentData (fun _ : PUnit.{1} ↦ pullback.snd f g)).IsEquivalence)
     (hZZ : (pseudofunctor.toDescentData
-        (fun _ : PUnit.{1} ↦ pullback.snd f (pullback.fst g g ≫ g))).IsEquivalence) :
-    (pseudofunctor.toDescentData (fun _ : PUnit.{1} ↦ f)).IsEquivalence := sorry
+        (fun _ : PUnit.{1} ↦ pullback.snd f (pullback.fst g g ≫ g))).IsEquivalence),
+    (pseudofunctor.toDescentData (fun _ : PUnit.{1} ↦ f)).IsEquivalence)
 
-/-- Lemma 59.104.4 (2): let `f : X ⟶ Y` be a morphism of schemes and let `g : Z ⟶ Y`
+/- Lemma 59.104.4 (2): let `f : X ⟶ Y` be a morphism of schemes and let `g : Z ⟶ Y`
 be a surjective proper morphism. If the functors from Type-valued sheaves on
 `Z.smallEtaleTopology` to singleton descent data along `{pullback.snd f g : X ×_Y Z ⟶ Z}`
 and from Type-valued sheaves on `(Z ×_Y Z).smallEtaleTopology` to singleton descent
@@ -44,11 +36,11 @@ are equivalences of categories, then the functor from Type-valued sheaves on
 `Y.smallEtaleTopology` to singleton descent data along `{f : X ⟶ Y}` is an
 equivalence. -/
 @[stacks 0GF1]
-theorem descentIsEquivalenceOfBaseChangeOfSurjectiveProper
-    {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Z ⟶ Y) [Surjective g] [IsProper g]
+#check (AlgebraicGeometry.Scheme.EtaleSheaf.descentIsEquivalenceOfBaseChangeOfSurjectiveProper :
+    ∀ {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Z ⟶ Y) [Surjective g] [IsProper g]
     (hZ : (pseudofunctor.toDescentData (fun _ : PUnit.{1} ↦ pullback.snd f g)).IsEquivalence)
     (hZZ : (pseudofunctor.toDescentData
-        (fun _ : PUnit.{1} ↦ pullback.snd f (pullback.fst g g ≫ g))).IsEquivalence) :
-    (pseudofunctor.toDescentData (fun _ : PUnit.{1} ↦ f)).IsEquivalence := sorry
+        (fun _ : PUnit.{1} ↦ pullback.snd f (pullback.fst g g ≫ g))).IsEquivalence),
+    (pseudofunctor.toDescentData (fun _ : PUnit.{1} ↦ f)).IsEquivalence)
 
 end AlgebraicGeometry.Scheme.EtaleSheaf

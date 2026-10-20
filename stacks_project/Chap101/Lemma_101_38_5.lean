@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_38_5_SchemeTheoreticImage
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.SchemeTheoreticImage.BaseChange
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +14,7 @@ universe u
 stacks. Then formation of the scheme-theoretic image commutes with flat base
 change. -/
 @[stacks 0CMK] #check
-  (@AlgebraicGeometry.AlgebraicStack.IsSchemeTheoreticImage.of_twoFibreProduct_flat :
+  (AlgebraicGeometry.AlgebraicStack.IsSchemeTheoreticImage.of_twoFibreProduct_flat :
     ∀ {S : Scheme.{u}} {X Y Y' Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y]
       [AlgebraicStack Y'] [AlgebraicStack Z]
@@ -28,10 +22,9 @@ change. -/
       (g : Y' ⟶ Y) [AlgebraicGeometry.AlgebraicStack.Flat g]
       (toImage : X ⟶ Z) (ι : Z ⟶ Y)
       [AlgebraicGeometry.AlgebraicStack.IsSchemeTheoreticImage f toImage ι]
-      [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)]
-      [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} ι g)],
+      (α : toImage ≫ ι ≅ f),
       AlgebraicGeometry.AlgebraicStack.IsSchemeTheoreticImage
         (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g)
         (AlgebraicGeometry.AlgebraicStack.IsSchemeTheoreticImage.pullbackToImage
-          f toImage ι g)
+          f toImage ι g α)
         (TwoFibreProduct.snd.{u + 1, u, u + 1, u} ι g))

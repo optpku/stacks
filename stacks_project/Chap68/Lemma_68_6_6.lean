@@ -1,12 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap68.Lemma_68_17_4_Relative
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Decent.Etale
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Reasonable.Etale
+import StacksCheckRecall
 
 /-!
 # Étale ascent of decent and reasonable algebraic spaces
@@ -21,26 +17,16 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-namespace IsDecent
-
-/-- Lemma 68.6.6 (1): Let `S` be a scheme. If `f : X ⟶ Y` is an étale morphism of
+/- Lemma 68.6.6 (1): Let `S` be a scheme. If `f : X ⟶ Y` is an étale morphism of
 algebraic spaces over `S` and `Y` is decent, then `X` is decent. -/
-@[stacks 0ABU]
-theorem of_etale {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [Etale f] [IsDecent Y] : IsDecent X := sorry
+@[stacks 0ABU] #check (AlgebraicGeometry.AlgebraicSpace.IsDecent.of_etale :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [AlgebraicGeometry.AlgebraicSpace.Etale f] [AlgebraicGeometry.AlgebraicSpace.IsDecent Y],
+    AlgebraicGeometry.AlgebraicSpace.IsDecent X)
 
-end IsDecent
-
-namespace IsReasonable
-
-/-- Lemma 68.6.6 (2): Let `S` be a scheme. If `f : X ⟶ Y` is an étale morphism of
+/- Lemma 68.6.6 (2): Let `S` be a scheme. If `f : X ⟶ Y` is an étale morphism of
 algebraic spaces over `S` and `Y` is reasonable, then `X` is reasonable. -/
-@[stacks 0ABU]
-theorem of_etale {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [Etale f] [IsReasonable Y] : IsReasonable X := sorry
-
-end IsReasonable
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 0ABU] #check (AlgebraicGeometry.AlgebraicSpace.IsReasonable.of_etale :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [AlgebraicGeometry.AlgebraicSpace.Etale f] [AlgebraicGeometry.AlgebraicSpace.IsReasonable Y],
+    AlgebraicGeometry.AlgebraicSpace.IsReasonable X)

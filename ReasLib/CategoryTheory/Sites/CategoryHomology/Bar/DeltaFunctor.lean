@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.CategoryHomology.Bar.Augmentation
@@ -125,7 +119,9 @@ theorem deltaFunctor_degree_isCoeffaceable (n : ℕ) (hn : 0 < n) :
 /-- The bar homological delta functor is universal. -/
 @[stacks 08PG "universality of the bar homological delta functor"]
 instance deltaFunctor.isUniversal :
-    HomologicalDeltaFunctor.IsUniversal (deltaFunctor (C := C)) := sorry
+    HomologicalDeltaFunctor.IsUniversal (deltaFunctor (C := C)) :=
+  HomologicalDeltaFunctor.isUniversal_of_coeffaceable (deltaFunctor (C := C))
+    (fun n hn ↦ deltaFunctor_degree_isCoeffaceable (C := C) n hn)
 
 section ColimitComparison
 

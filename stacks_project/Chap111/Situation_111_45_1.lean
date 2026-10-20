@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -13,45 +7,24 @@ public import ReasLib.AlgebraicGeometry.ProjectiveSpace.HilbertPolynomial
 
 universe u
 
+open CategoryTheory.MonoidalCategory
+
 /- Situation 111.45.1 (1): Let `k` be a field, let `X = ProjectiveSpace.scheme k n`, and
-let `ℱ` be a coherent `𝒪_X`-module. The Euler characteristic `χ(X, ℱ)` is
-`Scheme.Hom.eulerCharacteristic (ProjectiveSpace.toSpec k n) ℱ`. Unfolding
-`eulerCharacteristic_def` recovers the signed cohomology-dimension sum; the source range
-`i = 0, …, n` matches the finsum over `ℕ` because cohomology of a coherent sheaf on
-projective `n`-space vanishes in degrees strictly greater than `n`. -/
+let `ℱ` be a coherent `𝒪_X`-module. Its Euler characteristic is the signed sum of
+cohomology dimensions in degrees `0, …, n`. -/
 @[stacks 0DCE] #check
-  (AlgebraicGeometry.Scheme.Hom.eulerCharacteristic :
-    ∀ {k : Type u} [Field k] {X : AlgebraicGeometry.Scheme.{u}}
-      (f : X ⟶ AlgebraicGeometry.Spec (CommRingCat.of k)) [AlgebraicGeometry.IsProper f]
-      (F : X.Modules) [F.IsCoherent], ℤ)
-
-@[stacks 0DCE] #check
-  (AlgebraicGeometry.Scheme.Hom.eulerCharacteristic_def :
-    ∀ {k : Type u} [Field k] {X : AlgebraicGeometry.Scheme.{u}}
-      (f : X ⟶ AlgebraicGeometry.Spec (CommRingCat.of k)) [AlgebraicGeometry.IsProper f]
-      (F : X.Modules) [F.IsCoherent],
-      AlgebraicGeometry.Scheme.Hom.eulerCharacteristic f F =
-        ∑ᶠ i : ℕ,
+  (AlgebraicGeometry.ProjectiveSpace.eulerCharacteristic_eq_sum :
+    ∀ (k : Type u) [Field k] (n : ℕ)
+      (ℱ : (AlgebraicGeometry.ProjectiveSpace.scheme k n).Modules) [ℱ.IsCoherent],
+      AlgebraicGeometry.Scheme.Hom.eulerCharacteristic
+          (AlgebraicGeometry.ProjectiveSpace.toSpec k n) ℱ =
+        ∑ i ∈ Finset.range (n + 1),
           ((i : ℤ).negOnePow : ℤ) *
-            (AlgebraicGeometry.Scheme.Hom.cohomologyFinrank f F i : ℤ))
-
-#check
-  (AlgebraicGeometry.ProjectiveSpace.Coherent.cohomology_isZero_of_dimension_lt :
-    ∀ (R : Type u) [CommRing R] [IsNoetherianRing R] (n : ℕ)
-      (ℱ : (AlgebraicGeometry.ProjectiveSpace.scheme R n).Modules) [ℱ.IsCoherent]
-      (i : ℕ), n < i →
-      CategoryTheory.Limits.IsZero
-        (AlgebraicGeometry.Scheme.Hom.cohomology
-          (AlgebraicGeometry.ProjectiveSpace.toSpec R n) ℱ i))
+            (AlgebraicGeometry.Scheme.Hom.cohomologyFinrank
+              (AlgebraicGeometry.ProjectiveSpace.toSpec k n) ℱ i : ℤ))
 
 /- Situation 111.45.1 (2): the Hilbert polynomial of `ℱ` is the function
 `t ↦ χ(X, ℱ(t))`, owned by `ProjectiveSpace.hilbertPolynomial`. -/
-@[stacks 0DCE] #check
-  (AlgebraicGeometry.ProjectiveSpace.hilbertPolynomial :
-    ∀ (k : Type u) [Field k] (n : ℕ)
-      (ℱ : (AlgebraicGeometry.ProjectiveSpace.scheme k n).Modules) [ℱ.IsCoherent],
-      ℤ → ℤ)
-
 @[stacks 0DCE] #check
   (AlgebraicGeometry.ProjectiveSpace.hilbertPolynomial_apply :
     ∀ (k : Type u) [Field k] (n : ℕ)
@@ -64,27 +37,16 @@ projective `n`-space vanishes in degrees strictly greater than `n`. -/
 /- Situation 111.45.1 (3): `ℱ(t) = ℱ ⊗ 𝒪_X(t)`, where `𝒪_X(t)` is the `t`th twist of
 the structure sheaf, as in Constructions, Definition 27.10.1. -/
 @[stacks 0DCE] #check
-  (AlgebraicGeometry.ProjectiveSpace.twist :
-    ∀ (R : Type u) [CommRing R] (n : ℕ),
-      (AlgebraicGeometry.ProjectiveSpace.scheme R n).Modules →
-        ℤ → (AlgebraicGeometry.ProjectiveSpace.scheme R n).Modules)
-
-@[stacks 0DCE] #check
-  (AlgebraicGeometry.ProjectiveSpace.twistingSheaf :
-    ∀ (R : Type u) [CommRing R] (n : ℕ),
-      ℤ → (AlgebraicGeometry.ProjectiveSpace.scheme R n).Modules)
+  (AlgebraicGeometry.ProjectiveSpace.twist_def :
+    ∀ (R : Type u) [CommRing R] (n : ℕ)
+      (ℱ : (AlgebraicGeometry.ProjectiveSpace.scheme R n).Modules) (d : ℤ),
+      AlgebraicGeometry.ProjectiveSpace.twist R n ℱ d =
+        ℱ ⊗ AlgebraicGeometry.ProjectiveSpace.twistingSheaf R n d)
 
 /- Situation 111.45.1 (4): Varieties, Subsection 33.35.13 proves that the Hilbert
 polynomial is a polynomial in `t`. -/
 @[stacks 0DCE] #check
-  (AlgebraicGeometry.ProjectiveSpace.hilbertPolynomial_isNumericalPolynomial :
+  (AlgebraicGeometry.ProjectiveSpace.exists_isHilbertPolynomial :
     ∀ (k : Type u) [Field k] (n : ℕ)
       (ℱ : (AlgebraicGeometry.ProjectiveSpace.scheme k n).Modules) [ℱ.IsCoherent],
-      IsNumericalPolynomial
-        (AlgebraicGeometry.ProjectiveSpace.hilbertPolynomial k n ℱ))
-
-@[stacks 0DCE] #check
-  (AlgebraicGeometry.ProjectiveSpace.IsHilbertPolynomial :
-    ∀ (k : Type u) [Field k] (n : ℕ)
-      (ℱ : (AlgebraicGeometry.ProjectiveSpace.scheme k n).Modules) [ℱ.IsCoherent],
-      Polynomial ℚ → Prop)
+      ∃ P : Polynomial ℚ, AlgebraicGeometry.ProjectiveSpace.IsHilbertPolynomial k n ℱ P)

@@ -1,15 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Sites.Etale
-public import Mathlib.CategoryTheory.Sites.Sheaf
-public import stacks_project.Chap96.Definition_96_4_1_AssociatedTopology
-public import stacks_project.Chap96.«96_9_2_1_Restriction»
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.SheafRestriction
 
 /-!
 # Small-étale sheaf restriction along an object of a groupoid fibration
@@ -31,18 +22,12 @@ namespace AlgebraicGeometry.GroupoidsOver
 
 variable {S : Scheme.{u}} {X : GroupoidsOver S}
 
-/-- Restriction of an étale sheaf on `X` to the small étale site of `U = p(x)`,
-obtained by packaging `restrictSmallEtale x F.obj`. -/
-def restrictSmallEtaleSheaf (F : Sheaf X.etaleTopology (Type (u + 1))) (x : X.total) :
-    Sheaf (X.p.obj x).left.smallEtaleTopology (Type (u + 1)) where
-  obj := restrictSmallEtale x F.obj
-  property := sorry
+variable (F : Sheaf X.etaleTopology (Type (u + 1))) (x : X.total)
 
-/-- The underlying presheaf of `restrictSmallEtaleSheaf F x` is
-`restrictSmallEtale x F.obj`. -/
-theorem restrictSmallEtaleSheaf_obj (F : Sheaf X.etaleTopology (Type (u + 1)))
-    (x : X.total) :
-    (restrictSmallEtaleSheaf F x).obj = restrictSmallEtale x F.obj :=
-  sorry
+#check (AlgebraicGeometry.GroupoidsOver.restrictSmallEtaleSheaf F x :
+    Sheaf (X.p.obj x).left.smallEtaleTopology (Type (u + 1)))
+
+#check (AlgebraicGeometry.GroupoidsOver.restrictSmallEtaleSheaf_obj F x :
+    (restrictSmallEtaleSheaf F x).obj = restrictSmallEtale x F.obj)
 
 end AlgebraicGeometry.GroupoidsOver

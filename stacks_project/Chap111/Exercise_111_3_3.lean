@@ -1,33 +1,30 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.Grp.Abelian
-public import ReasLib.CategoryTheory.Filtration.Preabelian
-public import ReasLib.CategoryTheory.Filtration.Preadditive
+public import ReasLib.CategoryTheory.Filtration.AbelianGroups
 import StacksCheckRecall
-import Mathlib.Tactic.CrossRefAttribute
 
 @[expose] public section
 
 open CategoryTheory Limits
 
-universe u
+universe u v w
 
 /- Exercise 111.3.3: `FilteredObject AddCommGrpCat` is additive and has kernels and cokernels,
 and is not the category of filtered k-vector spaces of Exercise 111.3.1 nor the category of
 finitely generated torsion-free modules of Exercise 111.3.2. -/
 @[stacks 0580]
-#check (inferInstance : Preadditive (FilteredObject AddCommGrpCat.{u}))
-@[stacks 0580]
-#check (inferInstance : HasZeroObject (FilteredObject AddCommGrpCat.{u}))
-@[stacks 0580]
-#check (inferInstance : HasBinaryBiproducts (FilteredObject AddCommGrpCat.{u}))
-@[stacks 0580]
-#check (inferInstance : HasKernels (FilteredObject AddCommGrpCat.{u}))
-@[stacks 0580]
-#check (inferInstance : HasCokernels (FilteredObject AddCommGrpCat.{u}))
+#check (CategoryTheory.FilteredObject.addCommGrp_not_equivalent_module_categories :
+  (∀ (k : Type w) [Field k],
+    ¬ Nonempty (FilteredObject AddCommGrpCat.{u} ≌ FilteredObject (ModuleCat.{v} k))) ∧
+  (∀ (R : Type w) [CommRing R] [IsDomain R] [IsNoetherianRing R],
+    ¬ Nonempty (FilteredObject AddCommGrpCat.{u} ≌ FGTorsionFreeModuleCat.{v} R)))
+#check (CategoryTheory.FilteredObject.instPreadditive :
+  Preadditive (FilteredObject AddCommGrpCat.{u}))
+#check (CategoryTheory.FilteredObject.instHasZeroObject :
+  HasZeroObject (FilteredObject AddCommGrpCat.{u}))
+#check (CategoryTheory.FilteredObject.instHasBinaryBiproducts :
+  HasBinaryBiproducts (FilteredObject AddCommGrpCat.{u}))
+#check (CategoryTheory.FilteredObject.hasKernels :
+  HasKernels (FilteredObject AddCommGrpCat.{u}))
+#check (CategoryTheory.FilteredObject.hasCokernels :
+  HasCokernels (FilteredObject AddCommGrpCat.{u}))

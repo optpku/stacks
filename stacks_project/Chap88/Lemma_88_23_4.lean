@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_40_1_Proper
-public import stacks_project.Chap87.Lemma_87_14_4_Completion
-public import stacks_project.Chap88.Lemma_88_23_4_Proper
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CompletionAlong.Proper
+import StacksCheckRecall
 
 /-!
 # Proper morphisms of completions
@@ -26,16 +19,13 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 88.23.4: If `f : X' ⟶ X` is proper, then the induced morphism
+/- Lemma 88.23.4: If `f : X' ⟶ X` is proper, then the induced morphism
 `completionAlong.map f T` of completions along a closed subset `T` of
 `Points X` is proper. -/
-@[stacks 0GDD, instance]
-instance proper_completionAlongMap {S : Scheme.{u}}
-    {X X' : AlgebraicSpace S} (f : X' ⟶ X) [AlgebraicSpace.Proper f]
-    (T : Closeds (Points X)) :
-    FormalAlgebraicSpace.Proper (completionAlong.map f T) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 0GDD] #check
+  (AlgebraicGeometry.AlgebraicSpace.proper_completionAlongMap :
+    ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (f : X' ⟶ X)
+      [AlgebraicGeometry.AlgebraicSpace.Proper f]
+      (T : Closeds (AlgebraicGeometry.AlgebraicSpace.Points X)),
+      AlgebraicGeometry.FormalAlgebraicSpace.Proper
+        (AlgebraicGeometry.AlgebraicSpace.completionAlong.map f T))

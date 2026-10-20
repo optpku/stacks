@@ -1,24 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat
-public import stacks_project.Chap92.Lemma_92_4_3
-public import stacks_project.Chap92.Lemma_92_5_7_Kaehler
-public import stacks_project.Chap92.«92_4_0_1_Morphism»
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.RingTheory.CotangentComplex.AbelianComparison
+import StacksCheckRecall
 
 /-!
-# Derived lower shriek of `O`, `underline{B}`, and `Ω_{O/A}` in `D(Ab)`
+# Derived lower shriek of the structure, constant, and differential presheaves
 
-Lemma 92.5.7 records the identifications
-`Lπ!(O) = Lπ!(underline{B}) = B` and
-`L_{B/A} = Lπ!(Ω_{O/A} ⊗_O underline{B}) = Lπ!(Ω_{O/A})` in `D(Ab)`,
-for `π`, `O`, and `underline{B}` as in 92.4.0.1.
+The five comparisons record both identifications in the additive derived category.
 -/
 
 @[expose] public section
@@ -27,47 +15,12 @@ open CategoryTheory
 open CategoryTheory.Limits
 open Algebra
 open Algebra.PolynomialSite
-open Algebra.CotangentComplex
-open CommAlgCat.Over.Polynomial
-open Site
+open CommAlgCat.Over.Polynomial.Site
 open scoped CategoryTheory
 
 noncomputable section
 
 universe u q q'
-
-namespace CommAlgCat.Over.Polynomial
-namespace Site
-
-variable (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
-
-/-- The structure sheaf `O` on `C_{B/A}`, viewed as an abelian presheaf. -/
-abbrev structureAbelianPresheaf : (PolynomialSite A B)ᵒᵖ ⥤ AddCommGrpCat.{u} :=
-  (structureSheaf A B).obj ⋙
-    forget₂ CommRingCat RingCat.{u} ⋙ forget₂ RingCat AddCommGrpCat.{u}
-
-/-- Unfolding `structureAbelianPresheaf` recovers the double forgetful functor applied to `O`. -/
-theorem structureAbelianPresheaf_eq :
-    structureAbelianPresheaf A B =
-      (structureSheaf A B).obj ⋙
-        forget₂ CommRingCat RingCat.{u} ⋙ forget₂ RingCat AddCommGrpCat.{u} :=
-  sorry
-
-/-- The constant sheaf `underline{B}` on `C_{B/A}`, viewed as an abelian presheaf. -/
-abbrev constantAbelianPresheaf : (PolynomialSite A B)ᵒᵖ ⥤ AddCommGrpCat.{u} :=
-  (constantRingSheaf A B).obj ⋙
-    forget₂ CommRingCat RingCat.{u} ⋙ forget₂ RingCat AddCommGrpCat.{u}
-
-/-- Unfolding `constantAbelianPresheaf` recovers the double forgetful functor applied to
-`underline{B}`. -/
-theorem constantAbelianPresheaf_eq :
-    constantAbelianPresheaf A B =
-      (constantRingSheaf A B).obj ⋙
-        forget₂ CommRingCat RingCat.{u} ⋙ forget₂ RingCat AddCommGrpCat.{u} :=
-  sorry
-
-end Site
-end CommAlgCat.Over.Polynomial
 
 namespace Algebra.PolynomialSite
 
@@ -80,34 +33,28 @@ variable [Functor.HasLeftDerivedFunctor
   (HomotopyCategory.quasiIso ((PolynomialSite A B)ᵒᵖ ⥤ AddCommGrpCat.{u})
     (ComplexShape.up ℤ))]
 
-/-- Lemma 92.5.7 (1). Let `A → B` be a ring map, and let `π`, `O`, `underline{B}` be as in
-92.4.0.1. Then `Lπ!(O) = B` in `D(Ab)`. -/
-@[stacks 08QK]
-theorem lowerShriek_structureSheaf :
+/- Lemma 92.5.7. For any ring map, derived lower shriek of the structure and constant
+presheaves is the target ring in degree zero; the cotangent complex is also identified
+with derived lower shriek of scalar-extended and untensored Kähler differentials. -/
+@[stacks 08QK] #check (Algebra.PolynomialSite.lowerShriek_structureSheaf A B :
     IsIsomorphic
       ((Lπ![(PolynomialSite A B), AddCommGrpCat.{u}]).obj
         ((DerivedCategory.singleFunctor
             ((PolynomialSite A B)ᵒᵖ ⥤ AddCommGrpCat.{u}) (0 : ℤ)).obj
           (structureAbelianPresheaf A B)))
       ((DerivedCategory.singleFunctor AddCommGrpCat.{u} (0 : ℤ)).obj
-        (AddCommGrpCat.of B)) :=
-  sorry
+        (AddCommGrpCat.of B)))
 
-/-- Lemma 92.5.7 (2). Let `A → B` be a ring map, and let `π`, `O`, `underline{B}` be as in
-92.4.0.1. Then `Lπ!(underline{B}) = B` in `D(Ab)`. -/
-@[stacks 08QK]
-theorem lowerShriek_constant :
+#check (Algebra.PolynomialSite.lowerShriek_constant A B :
     IsIsomorphic
       ((Lπ![(PolynomialSite A B), AddCommGrpCat.{u}]).obj
         ((DerivedCategory.singleFunctor
             ((PolynomialSite A B)ᵒᵖ ⥤ AddCommGrpCat.{u}) (0 : ℤ)).obj
           (constantAbelianPresheaf A B)))
       ((DerivedCategory.singleFunctor AddCommGrpCat.{u} (0 : ℤ)).obj
-        (AddCommGrpCat.of B)) :=
-  sorry
+        (AddCommGrpCat.of B)))
 
-/-- Transitivity of the identifications `Lπ!(O) ≅ Lπ!(underline{B})` in `D(Ab)`. -/
-theorem lowerShriek_structureSheaf_constant :
+#check (Algebra.PolynomialSite.lowerShriek_structureSheaf_constant A B :
     IsIsomorphic
       ((Lπ![(PolynomialSite A B), AddCommGrpCat.{u}]).obj
         ((DerivedCategory.singleFunctor
@@ -116,8 +63,7 @@ theorem lowerShriek_structureSheaf_constant :
       ((Lπ![(PolynomialSite A B), AddCommGrpCat.{u}]).obj
         ((DerivedCategory.singleFunctor
             ((PolynomialSite A B)ᵒᵖ ⥤ AddCommGrpCat.{u}) (0 : ℤ)).obj
-          (constantAbelianPresheaf A B))) :=
-  sorry
+          (constantAbelianPresheaf A B))))
 
 end Algebra.PolynomialSite
 
@@ -139,11 +85,7 @@ variable [Functor.HasLeftDerivedFunctor
   (HomotopyCategory.quasiIso ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)
     (ComplexShape.up ℤ))]
 
-/-- Lemma 92.5.7 (3). Let `A → B` be a ring map, and let `π`, `O`, `underline{B}` be as in
-92.4.0.1. Then `L_{B/A} = Lπ!(Ω_{O/A} ⊗_O underline{B})` in `D(Ab)`, obtained by applying
-the derived forgetful functor `D(B) ⥤ D(Ab)` to the identification of Lemma 92.4.3. -/
-@[stacks 08QK]
-theorem forgetDerived_lowerShriek_omega :
+#check (Algebra.CotangentComplex.forgetDerived_lowerShriek_omega A B :
     IsIsomorphic
       ((forget₂ (ModuleCat.{u} B) AddCommGrpCat.{u}).mapDerivedCategory.obj
         (DerivedCategory.Q.obj (Algebra.cotangentComplex A B)))
@@ -151,13 +93,9 @@ theorem forgetDerived_lowerShriek_omega :
         ((Lπ![(PolynomialSite A B), (ModuleCat.{u} B)]).obj
           ((DerivedCategory.singleFunctor
               ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B) (0 : ℤ)).obj
-            (omegaSheaf A B)))) :=
-  sorry
+            (omegaSheaf A B)))))
 
-/-- Lemma 92.5.7 (4). Let `A → B` be a ring map, and let `π`, `O`, `underline{B}` be as in
-92.4.0.1. Then `Lπ!(Ω_{O/A} ⊗_O underline{B}) = Lπ!(Ω_{O/A})` in `D(Ab)`. -/
-@[stacks 08QK]
-theorem lowerShriek_omega_kaehler :
+#check (Algebra.CotangentComplex.lowerShriek_omega_kaehler A B :
     IsIsomorphic
       ((forget₂ (ModuleCat.{u} B) AddCommGrpCat.{u}).mapDerivedCategory.obj
         ((Lπ![(PolynomialSite A B), (ModuleCat.{u} B)]).obj
@@ -167,7 +105,6 @@ theorem lowerShriek_omega_kaehler :
       ((Lπ![(PolynomialSite A B), AddCommGrpCat.{u}]).obj
         ((DerivedCategory.singleFunctor
             ((PolynomialSite A B)ᵒᵖ ⥤ AddCommGrpCat.{u}) (0 : ℤ)).obj
-          (kaehlerPresheaf A B))) :=
-  sorry
+          (kaehlerPresheaf A B))))
 
 end Algebra.CotangentComplex

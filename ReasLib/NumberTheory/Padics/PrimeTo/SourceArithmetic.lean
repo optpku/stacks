@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap64.Example_64_30_2_PrimeTo
+public import ReasLib.NumberTheory.Padics.PrimeTo.Basic
 import Mathlib.Tactic
 
 @[expose] public section
@@ -14,16 +8,6 @@ import Mathlib.Tactic
 namespace PadicInt.PrimeTo.SourceArithmetic
 
 open PadicInt
-
-/-- The actual Chinese-remainder reduction recovers the designated adic
-component. This proof does not use the admitted source companion. -/
-theorem toZMod_component (q m : ℕ) [NeZero m] (hm : m.Coprime q)
-    (x : PrimeTo q) (p : m.primeFactors) :
-    ZMod.equivPi m (NeZero.ne m) (PrimeTo.toZMod q m hm x) p =
-      PadicInt.toZModPow (m.factorization p.val)
-        (x (PrimeTo.indexOfPrimeFactor q m hm p)) := by
-  simp [PrimeTo.toZMod, PrimeTo.toZModPowAt, RingHom.comp_apply]
-  rfl
 
 /-- All prime-to-q reductions jointly distinguish elements of the actual
 product of adic integer rings. -/
@@ -52,7 +36,7 @@ theorem ext_of_reductions (q : ℕ) (x y : PrimeTo q)
       have hpdiv : p.1.val ∣ m := ⟨p.1.val ^ k, by simp [m, pow_succ, mul_comm]⟩
       let r : m.primeFactors := ⟨p.1.val, p.1.property.mem_primeFactors' hpdiv⟩
       have heq := congrArg (fun z => ZMod.equivPi m (NeZero.ne m) z r) (h m hc)
-      rw [toZMod_component, toZMod_component] at heq
+      rw [PrimeTo.toZMod_comp_eval, PrimeTo.toZMod_comp_eval] at heq
       change PadicInt.toZModPow (m.factorization p.1.val) (x p) =
         PadicInt.toZModPow (m.factorization p.1.val) (y p) at heq
       have hf : m.factorization p.1.val = k + 1 := Nat.factorization_pow_self p.1.property

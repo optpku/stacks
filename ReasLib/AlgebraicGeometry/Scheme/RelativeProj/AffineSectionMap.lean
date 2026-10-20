@@ -1,15 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.RelativeProj.AffineSectionRing
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.CanonicalAlgebra
-public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Associated.Adjunction
-public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Quasicoherent
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Associated.Affine
 
 /-!
 # Actual homogeneous maps to the Serre sheaves of the affine section algebra
@@ -61,26 +54,12 @@ def homogeneousSectionsMap (n : ℕ) :
       map_add' := sorry
       map_smul' := sorry }
 
-/-- The fixed associated-module counit is invertible on an affine scheme for
-a quasi-coherent module. This does not assert the same on arbitrary schemes. -/
-theorem associatedCounit_isIso (M : S.toRingedSpace.Modules) (hM : M.IsQuasicoherent) :
-    IsIso ((RingedSpace.Module.Associated.idAdjunction S.toRingedSpace).counit.app M) :=
-  sorry
-
-/-- Bundle the fixed counit in its own ringed-space module category. -/
-def associatedCounitIso (M : S.toRingedSpace.Modules) (hM : M.IsQuasicoherent) :
-    (RingedSpace.Module.Associated.functor (RingHom.id S.toRingedSpace.globalSectionsRing)).obj
-      (S.toRingedSpace.moduleGlobalSectionsFunctor.obj M) ≅ M :=
-  @asIso _ _ _ _
-    ((RingedSpace.Module.Associated.idAdjunction S.toRingedSpace).counit.app M)
-    (associatedCounit_isIso (S := S) M hM)
-
 /-- The homogeneous sheaf map is the adjoint of a/1, preceded by the inverse
 of the actual affine associated-module counit. -/
 def homogeneousSheafMap (hA : 𝒜.IsQuasicoherent) (n : ℕ) :
     𝒜 (n : ℤ) ⟶ (Scheme.Modules.pushforward (toBase 𝒜)).obj
       (Proj.AssociatedModule.twistingSheaf (grading 𝒜) (n : ℤ)) :=
-  (associatedCounitIso (S := S) (𝒜 (n : ℤ)) (hA (n : ℤ))).inv ≫
+  (Scheme.Modules.associatedCounitIso S (𝒜 (n : ℤ)) (hA (n : ℤ))).inv ≫
     (RingedSpace.Module.Associated.idHomEquiv S.toRingedSpace _ _).symm
       (homogeneousSectionsMap 𝒜 n)
 

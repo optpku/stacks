@@ -1,15 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Abelian
-public import Mathlib.Algebra.Category.ModuleCat.Localization
-public import Mathlib.Algebra.Module.Torsion.Basic
-public import Mathlib.CategoryTheory.Abelian.SerreClass.Basic
+public import ReasLib.Algebra.Category.ModuleCat.Localization.Torsion
 
 /-!
 # S-torsion modules as a Serre class
@@ -28,25 +19,18 @@ universe v u
 
 namespace ModuleCat
 
-variable {R : Type u} [CommRing R] [Small.{v} R]
+variable {R : Type u} [CommRing R] [Small.{v} R] (S : Submonoid R)
 
-/-- The object property of `S`-torsion modules: the kernel of localization at `S`. -/
-abbrev isTorsion' (S : Submonoid R) : ObjectProperty (ModuleCat.{v} R) :=
-  (localizedModuleFunctor.{v} S).kernel
+#check (ModuleCat.isTorsion' S : ObjectProperty (ModuleCat.{v} R))
 
-/-- A bundled module is `S`-torsion iff it is `S`-torsion in the module-theoretic sense. -/
-theorem isTorsion'_iff (S : Submonoid R) (M : ModuleCat.{v} R) :
-    isTorsion' S M ↔ Module.IsTorsion' M S :=
-  sorry
+#check (ModuleCat.isTorsion'_iff S :
+  ∀ M : ModuleCat.{v} R, ModuleCat.isTorsion' S M ↔ Module.IsTorsion' M S)
 
-/-- A bundled module is `S`-torsion iff every element is annihilated by some element of `S`. -/
-theorem isTorsion'_iff_exists_smul_eq_zero (S : Submonoid R) (M : ModuleCat.{v} R) :
-    isTorsion' S M ↔ ∀ m : M, ∃ s : S, (s : R) • m = 0 :=
-  sorry
+#check (ModuleCat.isTorsion'_iff_exists_smul_eq_zero S :
+  ∀ M : ModuleCat.{v} R,
+    ModuleCat.isTorsion' S M ↔ ∀ m : M, ∃ s : S, (s : R) • m = 0)
 
-/-- The `S`-torsion modules form a Serre class, as the kernel of exact localization. -/
-instance instIsSerreClassIsTorsion' (S : Submonoid R) :
-    (isTorsion' S).IsSerreClass :=
-  inferInstance
+#check (ModuleCat.instIsSerreClassIsTorsion' S :
+  (ModuleCat.isTorsion' S).IsSerreClass)
 
 end ModuleCat

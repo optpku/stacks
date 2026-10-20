@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap77.Lemma_77_4_1_EtaleCover
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.CompleteDevissage.EtaleCover
 import StacksCheckRecall
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
@@ -35,7 +29,7 @@ such that for each `i` there exists a complete dévissage of `F_i / W_i / Y'` ov
                   (Modules.pullbackToEtaleChart f Y' (W i) F) y'),
                 Set.range
                     (Points.map
-                      (fiberι (Limits.pullback.snd f Y'.hom)
+                      (fieldFiberι (Limits.pullback.snd f Y'.hom)
                         (FieldValuedPoint.ofScheme
                           (Scheme.FieldValuedPoint.residuePoint y')))) ⊆
                   ⋃ i, Set.range (Points.mapOfOver (W i).hom))

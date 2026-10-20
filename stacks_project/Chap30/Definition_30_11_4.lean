@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.CohenMacaulay
@@ -32,6 +26,9 @@ variable (𝒢 : Y.Modules)
 variable [AlgebraicGeometry.LocallyRingedSpace.Modules.CohenMacaulay 𝒢]
 variable (y : Y)
 
+section NonzeroStalk
+variable [Nontrivial (RingedSpace.stalkModuleCat 𝒢 y)]
+
 #check (AlgebraicGeometry.LocallyRingedSpace.Modules.CohenMacaulay 𝒢 : Prop)
 
 #check (AlgebraicGeometry.LocallyRingedSpace.Modules.CohenMacaulay.stalk_cohenMacaulay 𝒢 y :
@@ -39,6 +36,8 @@ variable (y : Y)
 
 #check (AlgebraicGeometry.LocallyRingedSpace.Modules.CohenMacaulay.instStalkCohenMacaulay 𝒢 y :
   Module.CohenMacaulay (Y.presheaf.stalk y) (RingedSpace.stalkModuleCat 𝒢 y))
+
+end NonzeroStalk
 
 #check (AlgebraicGeometry.LocallyRingedSpace.Modules.CohenMacaulay.hasFiniteStalks 𝒢 :
   AlgebraicGeometry.LocallyRingedSpace.Modules.HasFiniteStalks 𝒢)
@@ -88,6 +87,9 @@ variable (x : X) (k : ℕ)
 
 variable [AlgebraicGeometry.Scheme.Modules.CohenMacaulay ℱ]
 
+section NonzeroSchemeStalk
+variable [Nontrivial (RingedSpace.stalkModuleCat ℱ x)]
+
 #check (AlgebraicGeometry.Scheme.Modules.CohenMacaulay ℱ : Prop)
 
 #check (AlgebraicGeometry.Scheme.Modules.CohenMacaulay.stalk (ℱ := ℱ) x :
@@ -95,6 +97,8 @@ variable [AlgebraicGeometry.Scheme.Modules.CohenMacaulay ℱ]
 
 #check (AlgebraicGeometry.Scheme.Modules.CohenMacaulay.instStalkCohenMacaulay (ℱ := ℱ) x :
   Module.CohenMacaulay (X.presheaf.stalk x) (RingedSpace.stalkModuleCat ℱ x))
+
+end NonzeroSchemeStalk
 
 #check (AlgebraicGeometry.Scheme.Modules.cohenMacaulay_iff_forall_serreConditionS ℱ :
   AlgebraicGeometry.Scheme.Modules.CohenMacaulay ℱ ↔

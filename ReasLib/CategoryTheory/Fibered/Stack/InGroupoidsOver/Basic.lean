@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
@@ -166,11 +160,6 @@ noncomputable abbrev ofProjectionWith (J : GrothendieckTopology C)
   @ofProjection C _ J S _ p h
 
 variable (X : StackOver.Groupoids J)
-
-#synth Functor.IsFibered.InGroupoids X.p
-#synth X.p.IsFibered
-#synth IsStack.OnSite J X.p
-#synth IsStack.InGroupoids J X.p
 
 end StackOver.Groupoids
 

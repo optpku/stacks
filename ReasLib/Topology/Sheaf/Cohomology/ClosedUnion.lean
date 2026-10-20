@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.Ext.ExactSequences
 public import Mathlib.Algebra.Homology.ShortComplex.ShortExact
 public import Mathlib.CategoryTheory.Abelian.GrothendieckCategory.HasExt
+public import Mathlib.CategoryTheory.Preadditive.AdditiveFunctor
 public import Mathlib.Topology.Sheaves.Abelian
 public import Mathlib.Topology.Sheaves.Functors
 public import ReasLib.CategoryTheory.Sites.AbelianSheaf.Grothendieck
@@ -130,11 +125,6 @@ abbrev integerCohomology (Y : TopCat.{u}) (n : ℕ)
     [HasExt.{u} (Y.Sheaf AddCommGrpCat.{u})] : AddCommGrpCat.{u} :=
   (constantIntegerSheaf Y).H' n (⊤ : Opens Y)
 
-/-- The subset inclusion of a closed subset is a closed embedding. -/
-theorem subsetInclusion_isClosedEmbedding {Y : Set X} (hY : IsClosed Y) :
-    Topology.IsClosedEmbedding (subsetInclusion Y) :=
-  sorry
-
 /-- The canonical comparison from cohomology of a subset pushforward on `X` to integer
 cohomology of the subset. -/
 def integerPushforward_cohomologyMap (S : Set X)
@@ -150,7 +140,8 @@ theorem integerPushforward_cohomologyMap_isIso {Y : Set X} (hY : IsClosed Y)
     [HasExt.{u} (X.Sheaf AddCommGrpCat.{u})]
     [HasExt.{u} ((subsetSpace Y).Sheaf AddCommGrpCat.{u})] (n : ℕ) :
     IsIso (integerPushforward_cohomologyMap Y n) :=
-  sorry
+  CategoryTheory.Sheaf.ClosedEmbedding.comparison_isIso (subsetInclusion Y)
+    hY.isClosedEmbedding_subtypeVal (constantIntegerSheaf (subsetSpace Y)) n ⊤
 
 /-- The map on integer cohomology of `X` induced by `toSum`. -/
 def toSum_cohomology (Y Z : Set X)
@@ -180,7 +171,14 @@ def integerPushforwardBiprod_cohomologyComparison (Y Z : Set X)
 theorem integerPushforwardBiprod_cohomologyComparison_isIso (Y Z : Set X)
     [HasExt.{u} (X.Sheaf AddCommGrpCat.{u})] (n : ℕ) :
     IsIso (integerPushforwardBiprod_cohomologyComparison Y Z n) :=
-  sorry
+  -- Local instance justification (search instability): mathlib's bridge from finite to
+  -- binary biproduct preservation is a lemma, not a registered instance.
+  haveI := preservesBinaryBiproducts_of_preservesBiproducts
+    (CategoryTheory.Abelian.extFunctorObj (GrothendieckTopology.FreeAbelianYoneda.obj
+      (Opens.grothendieckTopology X) ⊤) n)
+  ((CategoryTheory.Abelian.extFunctorObj (GrothendieckTopology.FreeAbelianYoneda.obj
+    (Opens.grothendieckTopology X) ⊤) n).mapBiprod
+      (integerPushforward Y) (integerPushforward Z)).isIso_hom
 
 /-- Composite comparison from cohomology of `i_* ℤ_Y ⊞ j_* ℤ_Z` on `X` to
 integer cohomology of `Y` and `Z`. -/
@@ -193,6 +191,35 @@ def toIntegerCohomologyBiprod (Y Z : Set X)
   integerPushforwardBiprod_cohomologyComparison Y Z n ≫
     biprod.map (integerPushforward_cohomologyMap Y n) (integerPushforward_cohomologyMap Z n)
 
+/-- Closed-embedding cohomology comparisons, together with additivity of Ext, identify
+cohomology of the sum of the two direct images with the sum of their integer cohomologies. -/
+def toIntegerCohomologyBiprodIso {Y Z : Set X} (hY : IsClosed Y) (hZ : IsClosed Z)
+    [HasExt.{u} (X.Sheaf AddCommGrpCat.{u})]
+    [HasExt.{u} ((subsetSpace Y).Sheaf AddCommGrpCat.{u})]
+    [HasExt.{u} ((subsetSpace Z).Sheaf AddCommGrpCat.{u})] (n : ℕ) :
+    (integerPushforward Y ⊞ integerPushforward Z).H' n (⊤ : Opens X) ≅
+      integerCohomology (subsetSpace Y) n ⊞ integerCohomology (subsetSpace Z) n :=
+  -- Local instance justification (search instability): the canonical additive functor
+  -- preserves finite biproducts; mathlib exposes the binary bridge only as a lemma.
+  haveI := preservesBinaryBiproducts_of_preservesBiproducts
+    (CategoryTheory.Abelian.extFunctorObj (GrothendieckTopology.FreeAbelianYoneda.obj
+      (Opens.grothendieckTopology X) ⊤) n)
+  (CategoryTheory.Abelian.extFunctorObj (GrothendieckTopology.FreeAbelianYoneda.obj
+    (Opens.grothendieckTopology X) ⊤) n).mapBiprod _ _ ≪≫
+    biprod.mapIso
+      (CategoryTheory.Sheaf.ClosedEmbedding.comparisonIso (subsetInclusion Y)
+        hY.isClosedEmbedding_subtypeVal (constantIntegerSheaf (subsetSpace Y)) n ⊤)
+      (CategoryTheory.Sheaf.ClosedEmbedding.comparisonIso (subsetInclusion Z)
+        hZ.isClosedEmbedding_subtypeVal (constantIntegerSheaf (subsetSpace Z)) n ⊤)
+
+/-- The forward map of the biproduct identification is the composite comparison. -/
+@[simp]
+theorem toIntegerCohomologyBiprodIso_hom {Y Z : Set X} (hY : IsClosed Y) (hZ : IsClosed Z)
+    [HasExt.{u} (X.Sheaf AddCommGrpCat.{u})]
+    [HasExt.{u} ((subsetSpace Y).Sheaf AddCommGrpCat.{u})]
+    [HasExt.{u} ((subsetSpace Z).Sheaf AddCommGrpCat.{u})] (n : ℕ) :
+    (toIntegerCohomologyBiprodIso hY hZ n).hom = toIntegerCohomologyBiprod Y Z n := rfl
+
 /-- For closed subsets, the composite comparison to integer cohomology of `Y` and `Z` is an
 isomorphism. -/
 theorem toIntegerCohomologyBiprod_isIso {Y Z : Set X} (hY : IsClosed Y) (hZ : IsClosed Z)
@@ -200,7 +227,7 @@ theorem toIntegerCohomologyBiprod_isIso {Y Z : Set X} (hY : IsClosed Y) (hZ : Is
     [HasExt.{u} ((subsetSpace Y).Sheaf AddCommGrpCat.{u})]
     [HasExt.{u} ((subsetSpace Z).Sheaf AddCommGrpCat.{u})] (n : ℕ) :
     IsIso (toIntegerCohomologyBiprod Y Z n) :=
-  sorry
+  (toIntegerCohomologyBiprodIso hY hZ n).isIso_hom
 
 /-- Connecting map of the closed-union sequence on objectwise cohomology of the top open. -/
 def connecting {Y Z : Set X} (hS : (shortComplex Y Z).ShortExact)
@@ -227,8 +254,7 @@ def fromSum_integerCohomology {Y Z : Set X} (hY : IsClosed Y) (hZ : IsClosed Z)
     [HasExt.{u} ((subsetSpace (Y ∩ Z)).Sheaf AddCommGrpCat.{u})] (n : ℕ) :
     integerCohomology (subsetSpace Y) n ⊞ integerCohomology (subsetSpace Z) n ⟶
       integerCohomology (subsetSpace (Y ∩ Z)) n :=
-  @CategoryTheory.inv _ _ _ _ (toIntegerCohomologyBiprod Y Z n)
-      (toIntegerCohomologyBiprod_isIso hY hZ n) ≫
+  (toIntegerCohomologyBiprodIso hY hZ n).inv ≫
     fromSum_cohomology Y Z n ≫ integerPushforward_cohomologyMap (Y ∩ Z) n
 
 /-- Connecting map of the closed-union sequence on integer cohomology of `Y ∩ Z` and of `X`. -/
@@ -237,8 +263,9 @@ def connecting_integerCohomology {Y Z : Set X} (hY : IsClosed Y) (hZ : IsClosed 
     [HasExt.{u} (X.Sheaf AddCommGrpCat.{u})]
     [HasExt.{u} ((subsetSpace (Y ∩ Z)).Sheaf AddCommGrpCat.{u})] (n : ℕ) :
     integerCohomology (subsetSpace (Y ∩ Z)) n ⟶ integerCohomology X (n + 1) :=
-  @CategoryTheory.inv _ _ _ _ (integerPushforward_cohomologyMap (Y ∩ Z) n)
-      (integerPushforward_cohomologyMap_isIso (IsClosed.inter hY hZ) n) ≫
+  (CategoryTheory.Sheaf.ClosedEmbedding.comparisonIso (subsetInclusion (Y ∩ Z))
+    (hY.inter hZ).isClosedEmbedding_subtypeVal
+    (constantIntegerSheaf (subsetSpace (Y ∩ Z))) n ⊤).inv ≫
     connecting hS n
 
 /-- The six-term sequence of objectwise cohomology of the closed-union short complex, on the
@@ -248,18 +275,6 @@ def cohomologySequence {Y Z : Set X} (hS : (shortComplex Y Z).ShortExact)
     ComposableArrows AddCommGrpCat.{u} 5 :=
   ComposableArrows.mk₅ (toSum_cohomology Y Z n) (fromSum_cohomology Y Z n) (connecting hS n)
     (toSum_cohomology Y Z (n + 1)) (fromSum_cohomology Y Z (n + 1))
-
-/-- The closed-embedding comparisons and the biproduct comparison identify the middle and right
-terms of `cohomologySequence` in degree `n` with integer cohomology of `Y` and `Z`, and of
-`W = Y ∩ Z`. -/
-theorem cohomologySequence_spec {Y Z : Set X} (hY : IsClosed Y) (hZ : IsClosed Z)
-    [HasExt.{u} (X.Sheaf AddCommGrpCat.{u})]
-    [HasExt.{u} ((subsetSpace Y).Sheaf AddCommGrpCat.{u})]
-    [HasExt.{u} ((subsetSpace Z).Sheaf AddCommGrpCat.{u})]
-    [HasExt.{u} ((subsetSpace (Y ∩ Z)).Sheaf AddCommGrpCat.{u})] (n : ℕ) :
-    IsIso (toIntegerCohomologyBiprod Y Z n) ∧
-      IsIso (integerPushforward_cohomologyMap (Y ∩ Z) n) :=
-  sorry
 
 /-- The six-term sequence of objectwise cohomology of the closed-union short complex, on the
 top open of `X`, is exact. -/

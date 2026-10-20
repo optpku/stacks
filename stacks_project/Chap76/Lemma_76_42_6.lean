@@ -1,27 +1,41 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-import stacks_project.Chap76.Lemma_76_42_6_Hom
-import stacks_project.Chap76.Lemma_76_42_6_Instances
-import stacks_project.Chap76.Lemma_76_42_6_ProperOver
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.CoherentFormalModule.Completion.ProperSupport
 
-open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.CoherentCompletion
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.Modules
+open AlgebraicGeometry.AlgebraicSpace.Modules.IdealPowerCohomology
 
-/- Lemma 76.42.6 (1): in Situation 76.42.5, if F and G are coherent 𝒪_X-modules
-and the intersection of their supports is proper over Spec(A), then the map
-Hom(F, G) ⟶ Hom(F^∧, G^∧) coming from 76.42.2.1 is a bijection. -/
-@[stacks 08B9] #check homMap_bijective
+universe u
 
-/- Lemma 76.42.6 (2): in particular, the restricted functor 76.42.5.1 is full. -/
-@[stacks 08B9] #check instFull_coherentProperSupportCompletionFunctor
+/- Lemma 76.42.6 (1): over a Noetherian I-adically complete ring A, completion
+on a finite-type separated algebraic space is bijective on morphisms of coherent
+modules whose supports have proper intersection over Spec A. -/
+@[stacks 08B9] #check (AlgebraicGeometry.AlgebraicSpace.CoherentCompletion.homMap_bijective :
+  ∀ {A : Type u} [CommRing A] [IsNoetherianRing A] (I : Ideal A) [IsAdicComplete I A]
+    {X : AlgebraicSpace (Spec (CommRingCat.of A))}
+    [FiniteType (SchemeRealization.toBase X)] [Separated (SchemeRealization.toBase X)],
+    ∀ (ℱ 𝒢 : Coh X),
+      ClosedSubset.ProperOver (SchemeRealization.toBase X)
+        (closedSupport ℱ.obj ⊓ closedSupport 𝒢.obj) →
+      Function.Bijective (fun f : ℱ ⟶ 𝒢 ↦
+        (CoherentCompletion.functor (pullbackIdeal I (SchemeRealization.toBase X))).map f))
 
-/- Lemma 76.42.6 (3): in particular, the restricted functor 76.42.5.1 is faithful. -/
-@[stacks 08B9] #check instFaithful_coherentProperSupportCompletionFunctor
+/- Lemma 76.42.6 (2): the completion functor restricted to coherent modules
+with proper support over Spec A is full. -/
+@[stacks 08B9] #check (AlgebraicGeometry.AlgebraicSpace.Modules.instFull_coherentProperSupportCompletionFunctor :
+  ∀ {A : Type u} [CommRing A] [IsNoetherianRing A] (I : Ideal A) [IsAdicComplete I A]
+    {X : AlgebraicSpace (Spec (CommRingCat.of A))}
+    [FiniteType (SchemeRealization.toBase X)] [Separated (SchemeRealization.toBase X)],
+    (coherentProperSupportCompletionFunctor (SchemeRealization.toBase X)
+      (pullbackIdeal I (SchemeRealization.toBase X))).Full)
+
+/- Lemma 76.42.6 (3): the completion functor restricted to coherent modules
+with proper support over Spec A is faithful. -/
+@[stacks 08B9] #check (AlgebraicGeometry.AlgebraicSpace.Modules.instFaithful_coherentProperSupportCompletionFunctor :
+  ∀ {A : Type u} [CommRing A] [IsNoetherianRing A] (I : Ideal A) [IsAdicComplete I A]
+    {X : AlgebraicSpace (Spec (CommRingCat.of A))}
+    [FiniteType (SchemeRealization.toBase X)] [Separated (SchemeRealization.toBase X)],
+    (coherentProperSupportCompletionFunctor (SchemeRealization.toBase X)
+      (pullbackIdeal I (SchemeRealization.toBase X))).Faithful)

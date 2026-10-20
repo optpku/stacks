@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.InternalHom.Model.RHom.Closed
@@ -35,6 +29,7 @@ open scoped _root_.DerivedInternalHom
 namespace CategoryTheory.DerivedCategory.InternalHom.RHom.ClosedComparison
 
 variable {A : Type u} [CommRing A]
+variable [RHom.Has (A := A)]
 
 local notation "D(" A ")" => DerivedCategory (ModuleCat A)
 

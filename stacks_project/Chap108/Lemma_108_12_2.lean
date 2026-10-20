@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap67.Definition_67_40_1_Proper
@@ -30,6 +24,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.AlgebraicSpace.Complexes
 
 variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
@@ -37,7 +33,15 @@ variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
 /-- Lemma 108.12.2 (1): the structure morphism `toBase f : toGroupoids f ⟶
 Classifying.toGroupoids B` of `Complexes_{X/B}` is quasi-separated. -/
 @[stacks 0DPX]
-instance instQuasiSeparated_toBase (f : X ⟶ B) [Proper f] [Flat f]
+instance instQuasiSeparated_toBase (f : X ⟶ B)
+    [chartDerived : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [chartTensor : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f]
     [FinitePresentation f] : CohStack.Hom.QuasiSeparated (toBase f) :=
   sorry
 
@@ -45,7 +49,15 @@ instance instQuasiSeparated_toBase (f : X ⟶ B) [Proper f] [Flat f]
 Classifying.toGroupoids B` of `Complexes_{X/B}` is locally of finite
 presentation. -/
 @[stacks 0DPX]
-instance instLocallyOfFinitePresentation_toBase (f : X ⟶ B) [Proper f] [Flat f]
+instance instLocallyOfFinitePresentation_toBase (f : X ⟶ B)
+    [chartDerived : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [chartTensor : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f]
     [FinitePresentation f] :
     CohStack.Hom.LocallyOfFinitePresentation (toBase f) :=
   sorry

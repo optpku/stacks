@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.Additive
@@ -31,13 +25,9 @@ namespace RingedSite.Hom
 ringed site. -/
 @[stacks 04IX "restriction of complexes of module sheaves"]
 abbrev localizedRestrictionComplex.{z, u, v, w}
-    (X : RingedSite.{u, v, w}) (U : X) :
+    (X : RingedSite.{u, v, w}) (U : X.carrier) :
     CochainComplex (ModuleCat.{z} X) ℤ ⥤
       CochainComplex (ModuleCat.{z} (X.localization U)) ℤ :=
-  @Functor.mapHomologicalComplex _ _ _ _ _ _ _
-    (localizedRestriction.{z} X U)
-    (@Functor.preservesZeroMorphisms_of_additive _ _ _ _ _ _
-      (localizedRestriction.{z} X U) (localizedRestriction_additive X U))
-    (up ℤ)
+  (localizedRestriction.{z} X U).mapHomologicalComplex (up ℤ)
 
 end RingedSite.Hom

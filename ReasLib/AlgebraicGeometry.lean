@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.LocallyOfType
@@ -172,7 +166,6 @@ public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Flat
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Pushforward.Composition
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Pushforward.Composition.Canonical
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Flat
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.Complex.Flat
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Complex.KFlat.QuasiIso
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Complex.UpperResolution.Colimit
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.GlobalSections
@@ -276,7 +269,7 @@ public import ReasLib.AlgebraicGeometry.RingedSpace.Module.OpensRingedSite
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.OpenSubspace
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Picard
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Pullback.Monoidal
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Pullback.LocalGeneration
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.PullbackContinuous.LocalGeneration
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Rank.Invertible
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Pullback.Sections
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.PullbackStalk

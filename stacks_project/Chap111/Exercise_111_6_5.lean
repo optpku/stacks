@@ -1,18 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import Mathlib.RingTheory.Spectrum.Prime.Topology
+public import ReasLib.RingTheory.Spectrum.Prime.Compact
 
 @[expose] public section
 
-/- Exercise 111.6.5: for any ring `A`, `Spec(A)` is quasi-compact. Mathlib owns this as the
-canonical instance `PrimeSpectrum.compactSpace : CompactSpace (PrimeSpectrum R)`, already for a
-commutative semiring. -/
+universe u
+
+/- Exercise 111.6.5: for any ring `A`, `Spec(A)` is quasi-compact. -/
 @[stacks 02D1]
-#check @PrimeSpectrum.compactSpace
+#check (PrimeSpectrum.isQuasiCompact :
+  ∀ (R : Type u) [CommSemiring R], TopologicalSpace.IsQuasiCompact (PrimeSpectrum R))

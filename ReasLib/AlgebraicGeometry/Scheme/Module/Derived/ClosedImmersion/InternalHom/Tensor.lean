@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.ClosedImmersion.Adjunction
@@ -70,6 +64,9 @@ quasicoherent derived module `K`, and a quasicoherent derived module `M` locally
 of Tor-amplitude in `[a, ∞)`, the canonical comparison
 `RHom(𝒪_Z, K) ⊗ᴸ Li^*M ⟶ RHom(𝒪_Z, K ⊗ᴸ M)` is an isomorphism. -/
 theorem internalHomTensorPullbackComparison_isIso
+    [∀ U : TopologicalSpace.Opens (X.toRingedSpace).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules ((X.toRingedSpace).restrict U.isOpenEmbedding))]
     (K : Plus X) (M : Scheme.ModuleDerived.Quasicoherent X) (a : ℤ)
     (hM : ∃ (J : Type u) (U : J → X.Opens),
       TopologicalSpace.IsOpenCover U ∧ ∀ j : J,

@@ -1,164 +1,172 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap03.Lemma_3_9_2_ObjectProperty
-public import Mathlib.AlgebraicGeometry.Limits
-public import Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion
-public import Mathlib.AlgebraicGeometry.Morphisms.FiniteType
-public import Mathlib.AlgebraicGeometry.Morphisms.FinitePresentation
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiCompact
-public import Mathlib.RingTheory.AdicCompletion.Algebra
-public import Mathlib.RingTheory.FiniteType
-public import Mathlib.RingTheory.Localization.Basic
-public import Mathlib.RingTheory.LocalRing.ResidueField.Ideal
-public import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
-public import Mathlib.Topology.Sets.OpenCover
-public import Mathlib.Algebra.Ring.Subring.Basic
+public import ReasLib.AlgebraicGeometry.Scheme.SmallBoundClosed.Operations
+import StacksCheckRecall
 
 @[expose] public section
-
-noncomputable section
 
 universe u
 
 open AlgebraicGeometry CategoryTheory CategoryTheory.Limits TopologicalSpace
+open AlgebraicGeometry.Scheme
 open scoped Cardinal AlgebraicGeometry
 
-namespace AlgebraicGeometry.Scheme
+/- Lemma 3.9.9. Small bound-closed full subcategories of schemes have fibre products
+and countable coproducts preserved by inclusion, and contain representatives of the
+subschemes, bounded open gluings, and affine-ring constructions checked below. -/
+@[stacks 000R] #check (AlgebraicGeometry.Scheme.isoClosure_pullback :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {X Y S : Scheme.{u}},
+    P X →
+    P Y →
+    P S →
+    ∀ (f : X ⟶ S) (g : Y ⟶ S),
+    P.isoClosure (pullback f g))
 
-/-- Lemma 3.9.9 (1). If `X`, `Y`, and `S` satisfy `P`, then the scheme fibre product
-`pullback f g` is isomorphic to an object satisfying `P`. -/
-@[stacks 000R]
-theorem isoClosure_pullback {P : ObjectProperty Scheme.{u}} (hP : IsSmallBoundClosed P)
-    {X Y S : Scheme.{u}} (hX : P X) (hY : P Y) (hS : P S) (f : X ⟶ S) (g : Y ⟶ S) :
-    P.isoClosure (pullback f g) := sorry
+#check (AlgebraicGeometry.Scheme.hasPullback :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {X Y S : P.FullSubcategory} (f : X ⟶ S) (g : Y ⟶ S),
+    HasPullback f g)
 
-/-- The fibre product of morphisms in the full subcategory of `P` exists. -/
-theorem hasPullback {P : ObjectProperty Scheme.{u}} (hP : IsSmallBoundClosed P)
-    {X Y S : P.FullSubcategory} (f : X ⟶ S) (g : Y ⟶ S) : HasPullback f g := sorry
+#check (AlgebraicGeometry.Scheme.preservesPullback :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {X Y S : P.FullSubcategory} (f : X ⟶ S) (g : Y ⟶ S),
+    PreservesLimit (cospan f g) P.ι)
 
-/-- Lemma 3.9.9 (2). The coproduct in `Scheme` of an at most countable family of objects
-satisfying `P` is isomorphic to an object satisfying `P`. -/
-@[stacks 000R]
-theorem isoClosure_sigma {P : ObjectProperty Scheme.{u}} (hP : IsSmallBoundClosed P)
-    {ι : Type} [Countable ι] (S : ι → Scheme.{u}) (hS : ∀ i, P (S i)) :
-    P.isoClosure (∐ S) := sorry
+#check (AlgebraicGeometry.Scheme.isoClosure_sigma :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {ι : Type u} [Countable ι] (S : ι → Scheme.{u}),
+    (∀ i, P (S i)) →
+    P.isoClosure (∐ S))
 
-/-- An at most countable coproduct of objects of the full subcategory of `P` exists. -/
-theorem hasCoproduct {P : ObjectProperty Scheme.{u}} (hP : IsSmallBoundClosed P)
-    {ι : Type} [Countable ι] (S : ι → P.FullSubcategory) : HasCoproduct S := sorry
+#check (AlgebraicGeometry.Scheme.hasCoproduct :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {ι : Type u} [Countable ι] (S : ι → P.FullSubcategory),
+    HasCoproduct S)
 
-/-- Lemma 3.9.9 (3). If `S` satisfies `P` and `f : U ⟶ S` is an open immersion, then `U` is
-isomorphic to an object satisfying `P`. -/
-@[stacks 000R]
-theorem isoClosure_of_isOpenImmersion {P : ObjectProperty Scheme.{u}}
-    (hP : IsSmallBoundClosed P) {U S : Scheme.{u}} (hS : P S) (f : U ⟶ S) [IsOpenImmersion f] :
-    P.isoClosure U := sorry
+#check (AlgebraicGeometry.Scheme.preservesCoproduct :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {ι : Type u} [Countable ι] (S : ι → P.FullSubcategory),
+    PreservesColimit (Discrete.functor S) P.ι)
 
-/-- Lemma 3.9.9 (4). If `S` satisfies `P` and `f : T ⟶ S` is a closed immersion, then `T` is
-isomorphic to an object satisfying `P`. -/
-@[stacks 000R]
-theorem isoClosure_of_isClosedImmersion {P : ObjectProperty Scheme.{u}}
-    (hP : IsSmallBoundClosed P) {T S : Scheme.{u}} (hS : P S) (f : T ⟶ S) [IsClosedImmersion f] :
-    P.isoClosure T := sorry
+#check (AlgebraicGeometry.Scheme.isoClosure_of_isOpenImmersion :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {U S : Scheme.{u}},
+    P S →
+    ∀ (f : U ⟶ S) [IsOpenImmersion f],
+    P.isoClosure U)
 
-/-- Lemma 3.9.9 (5). If `S` satisfies `P` and `f : T ⟶ S` is of finite type, then `T` is
-isomorphic to an object satisfying `P`. -/
-@[stacks 000R]
-theorem isoClosure_of_finiteType {P : ObjectProperty Scheme.{u}} (hP : IsSmallBoundClosed P)
-    {T S : Scheme.{u}} (hS : P S) (f : T ⟶ S) [LocallyOfFiniteType f] [QuasiCompact f] :
-    P.isoClosure T := sorry
+#check (AlgebraicGeometry.Scheme.isoClosure_of_isClosedImmersion :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {T S : Scheme.{u}},
+    P S →
+    ∀ (f : T ⟶ S) [IsClosedImmersion f],
+    P.isoClosure T)
 
-/-- Lemma 3.9.9 (6). If a scheme `S` has an open covering `U` and some `T` satisfying `P` has
-`(U i).toScheme.size ≤ T.size ^ ℵ₀` for all `i` and `#ι ≤ T.size ^ ℵ₀`, then `S` is isomorphic
-to an object satisfying `P`. -/
-@[stacks 000R]
-theorem isoClosure_of_isOpenCover_size_le {P : ObjectProperty Scheme.{u}}
-    (hP : IsSmallBoundClosed P) {S T : Scheme.{u}} {ι : Type u} (hT : P T)
-    (U : ι → S.Opens) (hU : IsOpenCover U)
-    (hsize : ∀ i, (U i).toScheme.size ≤ T.size ^ ℵ₀) (hι : #ι ≤ T.size ^ ℵ₀) :
-    P.isoClosure S := sorry
+#check (AlgebraicGeometry.Scheme.isoClosure_of_finiteType :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {T S : Scheme.{u}},
+    P S →
+    ∀ (f : T ⟶ S) [LocallyOfFiniteType f] [QuasiCompact f],
+    P.isoClosure T)
 
-/-- Lemma 3.9.9 (7). If `S` satisfies `P` and `f : T ⟶ S` is locally of finite type, and `T`
-admits an affine open covering of cardinality at most `S.size ^ ℵ₀`, then `T` is isomorphic to
-an object satisfying `P`. -/
-@[stacks 000R]
-theorem isoClosure_of_locallyOfFiniteType_affine_le_power {P : ObjectProperty Scheme.{u}}
-    (hP : IsSmallBoundClosed P) {T S : Scheme.{u}} (hS : P S) (f : T ⟶ S)
-    [LocallyOfFiniteType f] {ι : Type u} (U : ι → T.Opens) (hU : IsOpenCover U)
-    (hAff : ∀ i, IsAffineOpen (U i)) (hι : #ι ≤ S.size ^ ℵ₀) :
-    P.isoClosure T := sorry
+#check (AlgebraicGeometry.Scheme.isoClosure_of_isOpenCover_size_le :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {S T : Scheme.{u}} {ι : Type u},
+    P T →
+    ∀ (U : ι → S.Opens),
+    IsOpenCover U →
+    (∀ i, (U i).toScheme.size ≤ T.size ^ ℵ₀) →
+    #ι ≤ T.size ^ ℵ₀ →
+    P.isoClosure S)
 
-/-- If `S` satisfies `P` and `f : T ⟶ S` is locally of finite type, and `T` admits an affine open
-covering of cardinality at most `|ℝ| = 2 ^ ℵ₀ = ℵ₀ ^ ℵ₀`, then `T` is isomorphic to an object
-satisfying `P`. -/
-theorem isoClosure_of_locallyOfFiniteType_affine_le_continuum {P : ObjectProperty Scheme.{u}}
-    (hP : IsSmallBoundClosed P) {T S : Scheme.{u}} (hS : P S) (f : T ⟶ S)
-    [LocallyOfFiniteType f] {ι : Type u} (U : ι → T.Opens) (hU : IsOpenCover U)
-    (hAff : ∀ i, IsAffineOpen (U i)) (hι : #ι ≤ 2 ^ ℵ₀) :
-    P.isoClosure T := sorry
+#check (AlgebraicGeometry.Scheme.isoClosure_of_locallyOfFiniteType_affine_le_power :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {T S : Scheme.{u}},
+    P S →
+    ∀ (f : T ⟶ S) [LocallyOfFiniteType f] {ι : Type u} (U : ι → T.Opens),
+    IsOpenCover U →
+    (∀ i, IsAffineOpen (U i)) →
+    #ι ≤ S.size ^ ℵ₀ →
+    P.isoClosure T)
 
-/-- Lemma 3.9.9 (8). If `S` satisfies `P` and `f : T ⟶ S` is a monomorphism which is either
-quasi-compact or locally of finite presentation, then `T` is isomorphic to an object
-satisfying `P`. -/
-@[stacks 000R]
-theorem isoClosure_of_mono {P : ObjectProperty Scheme.{u}} (hP : IsSmallBoundClosed P)
-    {T S : Scheme.{u}} (hS : P S) (f : T ⟶ S) [Mono f]
-    (h : QuasiCompact f ∨ LocallyOfFinitePresentation f) :
-    P.isoClosure T := sorry
+#check (AlgebraicGeometry.Scheme.isoClosure_of_locallyOfFiniteType_affine_le_continuum :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {T S : Scheme.{u}},
+    P S →
+    ∀ (f : T ⟶ S) [LocallyOfFiniteType f] {ι : Type u} (U : ι → T.Opens),
+    IsOpenCover U →
+    (∀ i, IsAffineOpen (U i)) →
+    #ι ≤ 2 ^ ℵ₀ →
+    P.isoClosure T)
 
-/-- Lemma 3.9.9 (9). If `T` is an affine scheme satisfying `P` and `I` is an ideal of `Γ(T, ⊤)`,
-then `Spec` of the `I`-adic completion is isomorphic to an object satisfying `P`. -/
-@[stacks 000R]
-theorem isoClosure_specAdicCompletion {P : ObjectProperty Scheme.{u}}
-    (hP : IsSmallBoundClosed P) {T : Scheme.{u}} (hT : P T) [IsAffine T] (I : Ideal Γ(T, ⊤)) :
-    P.isoClosure (Spec (.of (AdicCompletion I Γ(T, ⊤)))) := sorry
+#check (AlgebraicGeometry.Scheme.isoClosure_of_mono :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {T S : Scheme.{u}},
+    P S →
+    ∀ (f : T ⟶ S) [Mono f],
+    (QuasiCompact f ∨ LocallyOfFinitePresentation f) →
+    P.isoClosure T)
 
-/-- Lemma 3.9.9 (10). If `T` is an affine scheme satisfying `P` and `R'` is a finite type
-`Γ(T, ⊤)`-algebra, then `Spec R'` is isomorphic to an object satisfying `P`. -/
-@[stacks 000R]
-theorem isoClosure_specFiniteType {P : ObjectProperty Scheme.{u}} (hP : IsSmallBoundClosed P)
-    {T : Scheme.{u}} (hT : P T) [IsAffine T] {R' : Type u} [CommRing R']
-    [Algebra Γ(T, ⊤) R'] [Algebra.FiniteType Γ(T, ⊤) R'] :
-    P.isoClosure (Spec (.of R')) := sorry
+#check (AlgebraicGeometry.Scheme.isoClosure_specAdicCompletion :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {T : Scheme.{u}},
+    P T →
+    ∀ [IsAffine T] (I : Ideal Γ(T, ⊤)),
+    P.isoClosure (Spec (.of (AdicCompletion I Γ(T, ⊤)))))
 
-/-- Lemma 3.9.9 (11). If `T` is an affine scheme satisfying `P` and `S` is a submonoid of
-`Γ(T, ⊤)`, then `Spec` of the localization is isomorphic to an object satisfying `P`. -/
-@[stacks 000R]
-theorem isoClosure_specLocalization {P : ObjectProperty Scheme.{u}}
-    (hP : IsSmallBoundClosed P) {T : Scheme.{u}} (hT : P T) [IsAffine T]
-    (S : Submonoid Γ(T, ⊤)) :
-    P.isoClosure (Spec (.of (Localization S))) := sorry
+#check (AlgebraicGeometry.Scheme.isoClosure_specFiniteType :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {T : Scheme.{u}},
+    P T →
+    ∀ [IsAffine T] {R' : Type u} [CommRing R'] [Algebra Γ(T, ⊤) R'] [Algebra.FiniteType Γ(T, ⊤) R'],
+    P.isoClosure (Spec (.of R')))
 
-/-- Lemma 3.9.9 (12). If `T` is an affine scheme satisfying `P` and `p` is a prime ideal of
-`Γ(T, ⊤)`, then `Spec` of an algebraic closure of the residue field `κ(p)` is isomorphic to an
-object satisfying `P`. -/
-@[stacks 000R]
-theorem isoClosure_specAlgebraicClosureResidueField {P : ObjectProperty Scheme.{u}}
-    (hP : IsSmallBoundClosed P) {T : Scheme.{u}} (hT : P T) [IsAffine T]
-    (p : Ideal Γ(T, ⊤)) [p.IsPrime] :
-    P.isoClosure (Spec (.of (AlgebraicClosure (Ideal.ResidueField p)))) := sorry
+#check (AlgebraicGeometry.Scheme.isoClosure_specLocalization :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {T : Scheme.{u}},
+    P T →
+    ∀ [IsAffine T] (S : Submonoid Γ(T, ⊤)),
+    P.isoClosure (Spec (.of (Localization S))))
 
-/-- Lemma 3.9.9 (13). If `T` is an affine scheme satisfying `P` and `R'` is a subring of
-`Γ(T, ⊤)`, then `Spec R'` is isomorphic to an object satisfying `P`. -/
-@[stacks 000R]
-theorem isoClosure_specSubring {P : ObjectProperty Scheme.{u}} (hP : IsSmallBoundClosed P)
-    {T : Scheme.{u}} (hT : P T) [IsAffine T] (R' : Subring Γ(T, ⊤)) :
-    P.isoClosure (Spec (.of R')) := sorry
+#check (AlgebraicGeometry.Scheme.isoClosure_specAlgebraicClosureResidueField :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {T : Scheme.{u}},
+    P T →
+    ∀ [IsAffine T] (p : Ideal Γ(T, ⊤)) [p.IsPrime],
+    P.isoClosure (Spec (.of (AlgebraicClosure (Ideal.ResidueField p)))))
 
-/-- Lemma 3.9.9 (14). If `T` is an affine scheme satisfying `P` and `X` is of finite type over
-a ring of cardinality at most `#(Γ(T, ⊤)) ^ ℵ₀`, then `X` is isomorphic to an object
-satisfying `P`. -/
-@[stacks 000R]
-theorem isoClosure_finiteTypeOverCardinal {P : ObjectProperty Scheme.{u}}
-    (hP : IsSmallBoundClosed P) {T : Scheme.{u}} (hT : P T) [IsAffine T]
-    {A : Type u} [CommRing A] (hA : #A ≤ #(Γ(T, ⊤)) ^ ℵ₀) {X : Scheme.{u}}
-    (f : X ⟶ Spec (.of A)) [LocallyOfFiniteType f] [QuasiCompact f] :
-    P.isoClosure X := sorry
+#check (AlgebraicGeometry.Scheme.isoClosure_specSubring :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {T : Scheme.{u}},
+    P T →
+    ∀ [IsAffine T] (R' : Subring Γ(T, ⊤)),
+    P.isoClosure (Spec (.of R')))
 
-end AlgebraicGeometry.Scheme
+#check (AlgebraicGeometry.Scheme.isoClosure_finiteTypeOverCardinal :
+  ∀ {P : ObjectProperty Scheme.{u}},
+    IsSmallBoundClosed P →
+    ∀ {T : Scheme.{u}},
+    P T →
+    ∀ [IsAffine T] {A : Type u} [CommRing A],
+    #A ≤ #(Γ(T, ⊤)) ^ ℵ₀ →
+    ∀ {X : Scheme.{u}} (f : X ⟶ Spec (.of A)) [LocallyOfFiniteType f] [QuasiCompact f],
+    P.isoClosure X)

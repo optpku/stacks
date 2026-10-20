@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Catenary
@@ -31,7 +25,8 @@ namespace IsDimensionFunction
 
 variable [QuasiSober X] {δ : X → ℤ}
 
-/-- A dimension function on a quasi-sober space induces a catenary-space structure. -/
+/-- A dimension function on a quasi-sober space induces a catenary-space structure. The source's
+sober hypothesis adds `[T0Space X]`, which `IsDimensionFunction.t0Space` derives from `hδ`. -/
 @[stacks 02IA "catenarity from a dimension function"]
 theorem catenarySpace (hδ : IsDimensionFunction δ) : CatenarySpace X := sorry
 
@@ -50,7 +45,9 @@ section LocallyNoetherian
 variable [LocallyNoetherianSpace X] {δ' : X → ℤ}
 
 /-- On a locally Noetherian quasi-sober space, two dimension functions differ by a locally
-constant integer-valued function. -/
+constant integer-valued function. The source's sober hypothesis is the special case with
+`[T0Space X]`, which is redundant since `IsDimensionFunction.t0Space` derives it. -/
+@[stacks 02IB]
 theorem isLocallyConstant_sub (hδ : IsDimensionFunction δ)
     (hδ' : IsDimensionFunction δ') :
     IsLocallyConstant (δ - δ') := sorry
@@ -60,34 +57,7 @@ exactly when its difference from the chosen function is locally constant. -/
 theorem isDimensionFunction_iff_sub_isLocallyConstant (hδ : IsDimensionFunction δ) :
     IsDimensionFunction δ' ↔ IsLocallyConstant (δ' - δ) := sorry
 
-/-- On a locally Noetherian quasi-sober T₀ space, two dimension functions differ by a locally
-constant integer-valued function. -/
-@[stacks 02IB]
-theorem isLocallyConstant_sub_of_sober [T0Space X] (hδ : IsDimensionFunction δ)
-    (hδ' : IsDimensionFunction δ') :
-    IsLocallyConstant (δ - δ') := sorry
-
 end LocallyNoetherian
-
-section Sober
-
-variable [T0Space X]
-
-/-- A dimension function on a quasi-sober T₀ space induces a catenary-space structure. -/
-@[stacks 02IA "catenarity from a dimension function"]
-theorem catenarySpace_of_sober (hδ : IsDimensionFunction δ) : CatenarySpace X := sorry
-
-/-- Along a specialization in a quasi-sober T₀ space, a dimension function computes the relative
-codimension between the corresponding irreducible point closures. -/
-@[stacks 02IA "codimension formula for specialized point closures"]
-theorem sub_eq_codimBetween_pointClosure_of_sober (hδ : IsDimensionFunction δ)
-    (x y : X) (hxy : x ⤳ y) :
-    δ x - δ y =
-      (ENat.toNat
-        (codimBetween (toIrreducibleCloseds y) (toIrreducibleCloseds x)
-          hxy.toIrreducibleCloseds_le) : ℤ) := sorry
-
-end Sober
 
 end IsDimensionFunction
 

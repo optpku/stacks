@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Presheaf.Flat.Colimits
@@ -109,7 +103,7 @@ theorem exists_epi_from_coproduct_structureModule
     ∃ (I : Type (max u v)) (U : I → C)
       (φ : (∐ fun i ↦ localizedStructureModuleExtensionByZero 𝒪 (U i)) ⟶ ℱ), Epi φ := sorry
 
-/-- 21.42.2.1 (08S1): every module sheaf occurs as the cokernel term of the canonical
+/-- Every module sheaf occurs as the cokernel term of the canonical
 kernel sequence of an epimorphism from a coproduct of localized structure modules. -/
 @[stacks 08S1]
 theorem exists_shortExact_coproduct_structureModule

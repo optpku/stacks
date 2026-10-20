@@ -1,12 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Immersion
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.LocalCompleteIntersection
 
 /-!
@@ -70,6 +66,54 @@ intersection. -/
 instance id {S : Scheme.{u}} {X : AlgebraicSpace S} :
     IsLocalCompleteIntersection (𝟙 X) := sorry
 
+/-- A representable morphism of algebraic spaces with the relative
+local-complete-intersection property is a local complete intersection. -/
+theorem of_presheaf {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
+    (hf : (over
+        (@AlgebraicGeometry.LocallyOfType RingHom.IsLocalCompleteIntersection :
+          MorphismProperty Scheme.{u})).presheaf f) :
+    IsLocalCompleteIntersection f :=
+  sorry
+
 end IsLocalCompleteIntersection
+
+/-- A morphism `f : X ⟶ Y` of algebraic spaces is Koszul at a point `x` of `X`
+if it is a local complete intersection after restriction to some open subspace
+neighbourhood of `x`. -/
+def KoszulAt {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (x : Points X) : Prop :=
+  ∃ (X' : AlgebraicSpace S) (i : X' ⟶ X),
+    IsOpenImmersion i ∧ x ∈ Set.range (Points.map i) ∧
+      IsLocalCompleteIntersection (i ≫ f)
+
+/-- Koszulness at a point is the existence of an open subspace neighbourhood on
+which the morphism is a local complete intersection. -/
+theorem koszulAt_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (x : Points X) :
+    KoszulAt f x ↔
+      ∃ (X' : AlgebraicSpace S) (i : X' ⟶ X),
+        IsOpenImmersion i ∧ x ∈ Set.range (Points.map i) ∧
+          IsLocalCompleteIntersection (i ≫ f) :=
+  sorry
+
+namespace KoszulAt
+
+/-- An open immersion `i : X' ⟶ X` whose composite `i ≫ f` is a local complete
+intersection witnesses that `f` is Koszul at every point of the image of
+`|X'|`. -/
+theorem of {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
+    {x : Points X} {X' : AlgebraicSpace S} {i : X' ⟶ X}
+    [IsOpenImmersion i] (hx : x ∈ Set.range (Points.map i))
+    [IsLocalCompleteIntersection (i ≫ f)] : KoszulAt f x :=
+  sorry
+
+end KoszulAt
+
+/-- A local complete intersection morphism of algebraic spaces is Koszul at
+every point of its source. -/
+theorem koszulAt_of_isLocalCompleteIntersection {S : Scheme.{u}}
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsLocalCompleteIntersection f]
+    (x : Points X) : KoszulAt f x :=
+  sorry
 
 end AlgebraicGeometry.AlgebraicSpace

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap42.Remark_42_33_5_Bivariant
-public import ReasLib.AlgebraicGeometry.BivariantClass.Zero
+public import ReasLib.AlgebraicGeometry.BivariantClass.Additive
 public import stacks_project.Chap42.«42_37_1_1_FundamentalCycle»
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Modification
 
@@ -87,7 +81,7 @@ theorem zeroClass_cap
     [IsDimensionFunction delta] {X Y : Over S}
     [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
     (f : X ⟶ Y) (p : ℤ) :
-    ((zeroClass delta f p).cap : CapFamily delta f p) =
+    ((pointwiseZero delta f p).cap : CapFamily delta f p) =
       (zeroCap delta f p : CapFamily delta f p) := rfl
 
 /-- Bivariant classes have the canonical pointwise-zero value. -/
@@ -96,7 +90,7 @@ instance instZeroBivariantClass
     [IsDimensionFunction delta] {X Y : Over S}
     [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
     (f : X ⟶ Y) (p : ℤ) : Zero (BivariantClass delta f p) where
-  zero := zeroClass delta f p
+  zero := pointwiseZero delta f p
 
 /-- The two pullback projections define compatible structure maps to the base scheme. -/
 theorem pullback_fst_over

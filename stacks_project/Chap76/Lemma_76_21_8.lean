@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_21_8_NaiveCotangent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Smooth.NaiveCotangent
 import StacksCheckRecall
 
 @[expose] public section

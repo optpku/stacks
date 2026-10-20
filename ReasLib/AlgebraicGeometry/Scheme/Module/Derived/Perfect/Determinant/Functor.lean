@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Perfect.Determinant.Construction
@@ -22,6 +16,7 @@ namespace ActualGlobalDeterminant
 open ActualAffineRestriction
 
 variable (X : Scheme.{u})
+variable [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
 
 def underlyingIso {K L : Perfect X} (e : K ≅ L) : K.obj.obj ≅ L.obj.obj where
   hom := e.hom.hom.hom

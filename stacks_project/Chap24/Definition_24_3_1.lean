@@ -1,19 +1,15 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Graded.Algebra
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Graded.AlgebraHom
 import StacksCheckRecall
 
 /-!
 # Definition 24.3.1
 
-Sheaves of graded 𝒪-algebras on a ringed site, and their homomorphisms, are owned by
-`SheafOfModules.RingedSite.GradedAlgebraSheaf`.
+Sheaves of graded 𝒪-algebras on a ringed site reuse
+`SheafOfModules.RingedSite.GradedAlgebraSheaf`. Their source-defined homomorphisms
+preserve multiplication without a unit-preservation requirement.
 -/
 
 @[expose] public section
@@ -34,15 +30,18 @@ variable (𝒜 ℬ : GradedAlgebraSheaf 𝒪 ℤ)
 with associative 𝒪-bilinear multiplication maps 𝒜 n × 𝒜 m → 𝒜 (n + m) and a global
 section 1 of 𝒜 0 that is a two-sided identity. -/
 @[stacks 0FQW]
-#check GradedAlgebraSheaf 𝒪 ℤ
+#check (SheafOfModules.RingedSite.GradedAlgebraSheaf 𝒪 ℤ :
+  Type (max (u + 1) (v + 1)))
 
 #check 𝒜.obj
 #check 𝒜.one
 #check 𝒜.mul
 
+variable {𝒪}
+
 /- Definition 24.3.1 (2): a homomorphism of graded 𝒪-algebras is a family of 𝒪-module
 maps 𝒜 n ⟶ ℬ n compatible with the multiplication maps. -/
-@[stacks 0FQW]
-#check GradedAlgebraSheaf.Hom 𝒜 ℬ
+@[stacks 0FQW] #check (SheafOfModules.RingedSite.GradedAlgebraSheaf.NonUnitalHom 𝒜 ℬ :
+  Type (max u v))
 
 end

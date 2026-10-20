@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap101.Definition_101_7_2_QuasiCompact
 public import stacks_project.Chap101.Lemma_101_17_5_LocallyOfFiniteType
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.FiniteType
 
 /-!
 # Finite type morphisms of algebraic stacks
@@ -27,40 +22,32 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- A morphism of algebraic stacks is of finite type if it is quasi-compact
-and locally of finite type. -/
-@[mk_iff]
-class FiniteType {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) : Prop
-    extends QuasiCompact f, LocallyOfFiniteType f
+#check (AlgebraicGeometry.AlgebraicStack.FiniteType :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y], (X ⟶ Y) → Prop)
 
-namespace FiniteType
+#check (AlgebraicGeometry.AlgebraicStack.finiteType_iff :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
+    FiniteType f ↔ QuasiCompact f ∧ LocallyOfFiniteType f)
 
-/-- A finite-type morphism of algebraic stacks is quasi-compact and locally
-of finite type. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [FiniteType f] :
-    QuasiCompact f ∧ LocallyOfFiniteType f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.FiniteType.spec :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [FiniteType f],
+    QuasiCompact f ∧ LocallyOfFiniteType f)
 
-/-- The identity morphism of an algebraic stack is of finite type. -/
-instance id {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] :
-    FiniteType (𝟙 X) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.FiniteType.id :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X],
+    FiniteType (𝟙 X))
 
-/-- An isomorphism of algebraic stacks is of finite type. -/
-instance of_isIso {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [IsIso f] :
-    FiniteType f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.FiniteType.of_isIso :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [IsIso f],
+    FiniteType f)
 
-/-- A quasi-compact morphism of algebraic stacks that is locally of finite
-type is of finite type. -/
-instance instOfQuasiCompactLocallyOfFiniteType {S : Scheme.{u}}
-    {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
-    (f : X ⟶ Y) [QuasiCompact f] [LocallyOfFiniteType f] : FiniteType f :=
-  sorry
-
-end FiniteType
+#check (AlgebraicGeometry.AlgebraicStack.FiniteType.instOfQuasiCompactLocallyOfFiniteType :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+    [QuasiCompact f] [LocallyOfFiniteType f], FiniteType f)
 
 end AlgebraicGeometry.AlgebraicStack

@@ -1,50 +1,22 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap111.Exercise_111_35_8_PowerMap
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.TangentSpace
-import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.TangentSpace.InseparablePowerMap
 
 @[expose] public section
 
-noncomputable section
-
-open AlgebraicGeometry CategoryTheory
+open AlgebraicGeometry
 open AlgebraicGeometry.Scheme.Hom
 
-namespace AlgebraicGeometry.InseparablePowerMap
+/- Exercise 111.35.8 (1): the relative tangent space of
+`Spec (𝔽_p(t)) ⟶ Spec (𝔽_p(t^p))` has dimension one at its unique point. -/
+@[stacks 029J] #check (AlgebraicGeometry.InseparablePowerMap.tangentDimension_eq_one :
+  ∀ (p : ℕ) [Fact p.Prime],
+    tangentDimensionAt (AlgebraicGeometry.InseparablePowerMap.hom p) default = 1)
 
-/-- The relative tangent space of `hom p` at the unique point is
-finite-dimensional over the residue field. -/
-instance instFiniteDimensionalFunctionFieldTangentSpace (p : ℕ) [Fact p.Prime] :
-    FiniteDimensional ((scheme p).residueField default)
-      (tangentSpaceAt (hom p) default) := sorry
-
-/-- The relative tangent space of `affineLineHom p` is finite-dimensional over
-the residue field at every point. -/
-instance instFiniteDimensionalAffineLineTangentSpace (p : ℕ) [Fact p.Prime]
-    (x : affineLine p) :
-    FiniteDimensional ((affineLine p).residueField x)
-      (tangentSpaceAt (affineLineHom p) x) := sorry
-
-/-- Exercise 111.35.8 (1): the relative tangent space of
-`X = Spec (𝔽_p(t)) ⟶ Spec (𝔽_p(t^p)) = S` at the unique point of `X` is
-1-dimensional over the residue field. -/
-@[stacks 029J]
-theorem tangentDimension_eq_one (p : ℕ) [Fact p.Prime] :
-    tangentDimensionAt (hom p) default = 1 := sorry
-
-/-- Exercise 111.35.8 (2): the relative tangent space of the morphism
-corresponding to `𝔽_p[t^p] → 𝔽_p[t]` is 1-dimensional at every point of
-`Spec (𝔽_p[t])`. -/
-@[stacks 029J]
-theorem affineLine_tangentDimension_eq_one (p : ℕ) [Fact p.Prime]
-    (x : affineLine p) :
-    tangentDimensionAt (affineLineHom p) x = 1 := sorry
-
-end AlgebraicGeometry.InseparablePowerMap
+/- Exercise 111.35.8 (2): the relative tangent space of the morphism
+`Spec (𝔽_p[t]) ⟶ Spec (𝔽_p[t^p])` has dimension one at every point. -/
+@[stacks 029J] #check (AlgebraicGeometry.InseparablePowerMap.affineLine_tangentDimension_eq_one :
+  ∀ (p : ℕ) [Fact p.Prime]
+    (x : AlgebraicGeometry.InseparablePowerMap.affineLine p),
+    tangentDimensionAt (AlgebraicGeometry.InseparablePowerMap.affineLineHom p) x = 1)

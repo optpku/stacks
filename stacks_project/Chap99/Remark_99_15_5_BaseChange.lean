@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Category
 public import ReasLib.CategoryTheory.Limits.CategoricalPullback.CatCommSqOver
 public import ReasLib.CategoryTheory.Limits.CategoricalPullback.Resize
 public import stacks_project.Chap77.«77_7_1_1_IsomorphismFunctor»
@@ -15,7 +10,7 @@ public import stacks_project.Chap99.«99_15_1_1_Curves»
 # Base-change pair category of families of curves
 
 For an algebraic space `B` over a scheme `S`, the pair category `B-Curves` is the
-costructured-arrow category of `pCurvesGroupoids S ⋙ ofOverFunctor S` into `B`. It is the
+costructured-arrow category of `Curves.p S ⋙ ofOverFunctor S` into `B`. It is the
 apex of a 2-fibre product square over `Curves → Sch` along `(Sch/B) → Sch`.
 -/
 
@@ -31,51 +26,51 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.Spaces
 
-/-- The category of pairs `(P : CurvesGroupoids S, h : ofOver (p.obj P) ⟶ B)`, written
-`B-Curves` in the source. Morphisms are morphisms of `CurvesGroupoids S` commuting
+/-- The category of pairs `(P : Curves.Obj S, h : ofOver (p.obj P) ⟶ B)`, written
+`B-Curves` in the source. Morphisms are morphisms of `Curves.Obj S` commuting
 with the maps to `B`. Here `Over S` plays the role of `Sch_fppf` and `SchemeOver B`
 plays the role of `(Sch/B)_fppf`. -/
 abbrev CurvesGroupoidsOver {S : Scheme.{u}} (B : AlgebraicSpace S) :=
-  CostructuredArrow (pCurvesGroupoids S ⋙ ofOverFunctor S) B
+  CostructuredArrow (Curves.p S ⋙ ofOverFunctor S) B
 
 namespace CurvesGroupoidsOver
 
 /-- Package a family of curves `P` with a morphism from its base scheme into `B`. -/
-def mk {S : Scheme.{u}} {B : AlgebraicSpace S} (P : CurvesGroupoids S)
-    (h : (ofOverFunctor S).obj ((pCurvesGroupoids S).obj P) ⟶ B) :
+def mk {S : Scheme.{u}} {B : AlgebraicSpace S} (P : Curves.Obj S)
+    (h : (ofOverFunctor S).obj ((Curves.p S).obj P) ⟶ B) :
     CurvesGroupoidsOver B :=
   CostructuredArrow.mk h
 
 /-- The underlying object of `mk P h` is `P`. -/
-theorem mk_left {S : Scheme.{u}} {B : AlgebraicSpace S} (P : CurvesGroupoids S)
-    (h : (ofOverFunctor S).obj ((pCurvesGroupoids S).obj P) ⟶ B) :
+theorem mk_left {S : Scheme.{u}} {B : AlgebraicSpace S} (P : Curves.Obj S)
+    (h : (ofOverFunctor S).obj ((Curves.p S).obj P) ⟶ B) :
     (mk P h).left = P :=
   sorry
 
 /-- The structural morphism of `mk P h` is `h`. -/
-theorem mk_hom {S : Scheme.{u}} {B : AlgebraicSpace S} (P : CurvesGroupoids S)
-    (h : (ofOverFunctor S).obj ((pCurvesGroupoids S).obj P) ⟶ B) :
+theorem mk_hom {S : Scheme.{u}} {B : AlgebraicSpace S} (P : Curves.Obj S)
+    (h : (ofOverFunctor S).obj ((Curves.p S).obj P) ⟶ B) :
     (mk P h).hom = h :=
   sorry
 
 /-- A morphism `(P, h) ⟶ (Q, h')` in `CurvesGroupoidsOver B` is a morphism `φ` of
-`CurvesGroupoids` such that `h ∘ g = h'`. -/
+`Curves.Obj` such that `h ∘ g = h'`. -/
 theorem hom_w {S : Scheme.{u}} {B : AlgebraicSpace S} {P Q : CurvesGroupoidsOver B}
     (φ : P ⟶ Q) :
-    (pCurvesGroupoids S ⋙ ofOverFunctor S).map φ.left ≫ Q.hom = P.hom :=
+    (Curves.p S ⋙ ofOverFunctor S).map φ.left ≫ Q.hom = P.hom :=
   sorry
 
 /-- The commutative square with apex `CurvesGroupoidsOver B`, projecting to
-`CurvesGroupoids S` and to `SchemeOver B`. -/
+`Curves.Obj S` and to `SchemeOver B`. -/
 def square {S : Scheme.{u}} (B : AlgebraicSpace S) :
-    CatCommSqOver (pCurvesGroupoids S) (CostructuredArrow.proj (ofOverFunctor S) B)
+    CatCommSqOver (Curves.p S) (CostructuredArrow.proj (ofOverFunctor S) B)
       (CurvesGroupoidsOver B) where
-  fst := CostructuredArrow.proj (pCurvesGroupoids S ⋙ ofOverFunctor S) B
-  snd := CostructuredArrow.pre (pCurvesGroupoids S) (ofOverFunctor S) B
+  fst := CostructuredArrow.proj (Curves.p S ⋙ ofOverFunctor S) B
+  snd := CostructuredArrow.pre (Curves.p S) (ofOverFunctor S) B
   iso := NatIso.ofComponents (fun _ ↦ Iso.refl _) (fun {_ _} _ ↦ rfl)
 
 /-- The comparison from `CurvesGroupoidsOver B` to the explicit categorical pullback of
-`pCurvesGroupoids S` and `SchemeOver B ⥤ Over S`. -/
+`Curves.p S` and `SchemeOver B ⥤ Over S`. -/
 abbrev comparison {S : Scheme.{u}} (B : AlgebraicSpace S) :=
   (square B).comparison
 

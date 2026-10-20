@@ -1,19 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Subfunctor.Basic
-public import stacks_project.Chap99.«99_3_1_1»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.IsomFunctor
 
 /-!
 # The Isom functor of quasi-coherent modules on an algebraic space
 
-This module constructs the subfunctor of `Hom(F, G)` on schemes over `B`
-whose sections are the invertible `𝒪_{X_T}`-module maps `F_T ⟶ G_T`.
+The canonical invertibility subfunctor, its associated presheaf, and the
+constructor of sections are available through this source-facing entry.
 -/
 
 @[expose] public section
@@ -26,64 +19,32 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.Modules
 
-variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.isomSubfunctor :
+    ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
+      (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent],
+      Subfunctor (homFunctor f F G))
 
-namespace IsomFunctor
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.isomFunctor :
+    ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
+      (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent],
+      (SchemeOver B)ᵒᵖ ⥤ Type (u + 1))
 
-/-- The subfunctor of `Hom(F, G)` whose value on a scheme `T` over `B` is the
-set of invertible `𝒪_{X_T}`-module maps `F_T ⟶ G_T`. -/
-def subfunctor (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent] :
-    Subfunctor (homFunctor f F G) where
-  obj σ := {u | IsIso u}
-  map := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.IsomFunctor.mk :
+    ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
+      (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent]
+      {σ : SchemeOver B} (u : (homFunctor f F G).obj (op σ)) [IsIso u],
+      (isomFunctor f F G).obj (op σ))
 
-/-- The Type-valued functor `Isom(F, G)` associated to the invertibility
-subfunctor of `Hom(F, G)`. -/
-def functor (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent] :
-    (SchemeOver B)ᵒᵖ ⥤ Type (u + 1) :=
-  (subfunctor f F G).toFunctor
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.mem_isomSubfunctor :
+    ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
+      (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent]
+      {σ : SchemeOver B} (u : (homFunctor f F G).obj (op σ)),
+      u ∈ (isomSubfunctor f F G).obj (op σ) ↔ IsIso u)
 
-/-- Membership in the Isom subfunctor is invertibility of the corresponding
-Hom-section. -/
-theorem mem_subfunctor (f : X ⟶ B) (F G : X.Modules)
-    [F.IsQuasicoherent] [G.IsQuasicoherent] {σ : SchemeOver B}
-    (u : (homFunctor f F G).obj (op σ)) :
-    u ∈ (subfunctor f F G).obj (op σ) ↔ IsIso u :=
-  sorry
-
-/-- Package an already invertible Hom-section as a section of `Isom(F, G)`. -/
-def mk (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent]
-    {σ : SchemeOver B} (u : (homFunctor f F G).obj (op σ)) [IsIso u] :
-    (functor f F G).obj (op σ) :=
-  ⟨u, ‹IsIso u›⟩
-
-end IsomFunctor
-
-/-- The subfunctor of `Hom(F, G)` cut out by invertibility of `𝒪_{X_T}`-module
-maps. -/
-abbrev isomSubfunctor (f : X ⟶ B) (F G : X.Modules)
-    [F.IsQuasicoherent] [G.IsQuasicoherent] :=
-  IsomFunctor.subfunctor f F G
-
-/-- The functor `Isom(F, G) : (Sch/B)ᵒᵖ ⥤ Sets` sending a scheme `T` over `B`
-to the type of `𝒪_{X_T}`-module isomorphisms `F_T ⟶ G_T`. -/
-abbrev isomFunctor (f : X ⟶ B) (F G : X.Modules)
-    [F.IsQuasicoherent] [G.IsQuasicoherent] :=
-  IsomFunctor.functor f F G
-
-/-- Membership in `Isom(F, G)` is invertibility of the corresponding Hom-section. -/
-theorem mem_isomSubfunctor (f : X ⟶ B) (F G : X.Modules)
-    [F.IsQuasicoherent] [G.IsQuasicoherent] {σ : SchemeOver B}
-    (u : (homFunctor f F G).obj (op σ)) :
-    u ∈ (isomSubfunctor f F G).obj (op σ) ↔ IsIso u :=
-  sorry
-
-/-- Restriction of an invertible `𝒪_{X_T}`-module map along a morphism of
-schemes over `B` remains invertible. -/
-theorem baseChangeHom_isIso (f : X ⟶ B) (F G : X.Modules) {σ τ : SchemeOver B}
-    (h : τ ⟶ σ) {u : baseChangeModule f σ.hom F ⟶ baseChangeModule f σ.hom G}
-    (hu : IsIso u) : IsIso (baseChangeHom f F G h u) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.baseChangeHom_isIso :
+    ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
+      (f : X ⟶ B) (F G : X.Modules) {σ τ : SchemeOver B}
+      (h : τ ⟶ σ) {u : baseChangeModule f σ.hom F ⟶ baseChangeModule f σ.hom G}
+      (hu : IsIso u), IsIso (baseChangeHom f F G h u))
 
 end AlgebraicGeometry.AlgebraicSpace.Modules
-

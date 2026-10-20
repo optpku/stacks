@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_6_3_UniversallyOpen
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.UniversallyOpen.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of open morphisms of algebraic spaces
@@ -25,29 +19,31 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.6.4 (1): The composition of a pair of open morphisms of algebraic spaces
+/- Lemma 67.6.4 (1): The composition of a pair of open morphisms of algebraic spaces
 is open. -/
-@[stacks 03Z4]
-instance open_isStableUnderComposition {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderComposition
-      (@Open S : MorphismProperty (AlgebraicSpace S)) := sorry
+@[stacks 03Z4] #check
+  (AlgebraicGeometry.AlgebraicSpace.open_isStableUnderComposition :
+    ∀ {S : Scheme.{u}}, MorphismProperty.IsStableUnderComposition
+      (@AlgebraicGeometry.AlgebraicSpace.Open S : MorphismProperty (AlgebraicSpace S)))
 
-/-- The composition of open morphisms of algebraic spaces is open. -/
-instance open_comp {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [Open f] [Open g] :
-    Open (f ≫ g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.open_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+    (f : X ⟶ Y) (g : Y ⟶ Z) [AlgebraicGeometry.AlgebraicSpace.Open f]
+    [AlgebraicGeometry.AlgebraicSpace.Open g],
+    AlgebraicGeometry.AlgebraicSpace.Open (f ≫ g))
 
-/-- Lemma 67.6.4 (2): The composition of a pair of universally open morphisms of
+/- Lemma 67.6.4 (2): The composition of a pair of universally open morphisms of
 algebraic spaces is universally open. -/
-@[stacks 03Z4]
-instance universallyOpen_isStableUnderComposition {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderComposition
-      (@UniversallyOpen S : MorphismProperty (AlgebraicSpace S)) := sorry
+@[stacks 03Z4] #check
+  (AlgebraicGeometry.AlgebraicSpace.universallyOpen_isStableUnderComposition :
+    ∀ {S : Scheme.{u}}, MorphismProperty.IsStableUnderComposition
+      (@AlgebraicGeometry.AlgebraicSpace.UniversallyOpen S :
+        MorphismProperty (AlgebraicSpace S)))
 
-/-- The composition of universally open morphisms of algebraic spaces is
-universally open. -/
-instance universallyOpen_comp {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [UniversallyOpen f] [UniversallyOpen g] :
-    UniversallyOpen (f ≫ g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.universallyOpen_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+    (f : X ⟶ Y) (g : Y ⟶ Z) [AlgebraicGeometry.AlgebraicSpace.UniversallyOpen f]
+    [AlgebraicGeometry.AlgebraicSpace.UniversallyOpen g],
+    AlgebraicGeometry.AlgebraicSpace.UniversallyOpen (f ≫ g))
 
 end AlgebraicGeometry.AlgebraicSpace

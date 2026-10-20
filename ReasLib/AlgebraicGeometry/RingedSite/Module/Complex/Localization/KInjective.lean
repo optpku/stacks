@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Localization.Exact
@@ -29,11 +23,10 @@ universe u v w z
 
 namespace RingedSite.Hom
 
-variable (X : RingedSite.{u, v, w}) (U : X) [UnivLE.{max u v, z}]
+variable (X : RingedSite.{u, v, w}) (U : X.carrier) [UnivLE.{max u v, z}]
 variable [SheafOfModules.Localization.HasLowerShriek.{z} X.structureSheaf]
 
-/-- Lemma 21.20.1 (08FI): restriction to a localized ringed site preserves K-injective
-cochain complexes. -/
+/-- Restriction to a localized ringed site preserves K-injective cochain complexes. -/
 @[stacks 08FI "localized restriction preserves K-injectives", instance]
 theorem localizedRestrictionComplex_isKInjective
     (I : CochainComplex (ModuleCat.{z} X) ℤ)

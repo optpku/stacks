@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Group.Equiv.Defs
@@ -99,10 +93,29 @@ additive equivalence between the corresponding groups of supported sections. -/
 def abelianSheafSectionsSupportedInAddEquiv :
     abelianSheafSectionsSupportedIn F U (Set.range (ι ≫ φ.left)) ≃+
       abelianSheafSectionsSupportedIn F U' (Set.range ι) :=
-  (AddEquiv.ofBijective (SupportExcision.restrictSupportedInResidualOver F φ ι)
-    (SupportExcision.restrictSupportedInResidualOver_bijective F φ ι)).trans
-    (AddEquiv.ofBijective (SupportExcision.restrictSupportedInResidual F φ ι)
-      (SupportExcision.restrictSupportedInResidual_bijective F φ ι)).symm
+  let overEquiv :
+      abelianSheafSectionsSupportedIn F U (Set.range (ι ≫ φ.left)) ≃+
+        abelianSheafSectionsSupportedIn F (SupportExcision.residualEtale φ ι)
+          (SupportExcision.residualSupport φ ι) :=
+    { toFun := SupportExcision.restrictSupportedInResidualOver F φ ι
+      invFun := Function.invFun (SupportExcision.restrictSupportedInResidualOver F φ ι)
+      left_inv := Function.leftInverse_invFun
+        (SupportExcision.restrictSupportedInResidualOver_bijective F φ ι).injective
+      right_inv := Function.rightInverse_invFun
+        (SupportExcision.restrictSupportedInResidualOver_bijective F φ ι).surjective
+      map_add' := (SupportExcision.restrictSupportedInResidualOver F φ ι).map_add }
+  let residualEquiv :
+      abelianSheafSectionsSupportedIn F U' (Set.range ι) ≃+
+        abelianSheafSectionsSupportedIn F (SupportExcision.residualEtale φ ι)
+          (SupportExcision.residualSupport φ ι) :=
+    { toFun := SupportExcision.restrictSupportedInResidual F φ ι
+      invFun := Function.invFun (SupportExcision.restrictSupportedInResidual F φ ι)
+      left_inv := Function.leftInverse_invFun
+        (SupportExcision.restrictSupportedInResidual_bijective F φ ι).injective
+      right_inv := Function.rightInverse_invFun
+        (SupportExcision.restrictSupportedInResidual_bijective F φ ι).surjective
+      map_add' := (SupportExcision.restrictSupportedInResidual F φ ι).map_add }
+  overEquiv.trans residualEquiv.symm
 
 /-- If the inverse-image support equals the original closed image, the canonical comparison
 of supported sections is restriction along the étale-site morphism. -/
@@ -110,6 +123,31 @@ theorem abelianSheafSectionsSupportedInAddEquiv_apply_of_preimage_eq
     (h_preimage : φ.left ⁻¹' Set.range (ι ≫ φ.left) = Set.range ι)
     (σ : abelianSheafSectionsSupportedIn F U (Set.range (ι ≫ φ.left))) :
     (abelianSheafSectionsSupportedInAddEquiv F φ ι σ).val = F.1.map φ.op σ.val := sorry
+
+variable {X : Scheme.{u}} (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u})
+
+/-- Unique extension of sections supported on a closed subscheme along a
+morphism of small étale objects, via the inverse of
+`abelianSheafSectionsSupportedInAddEquiv`. -/
+@[expose] def extendSupportedAlongOpen {U U' : X.Etale} (φ : U' ⟶ U) {Z' : Scheme.{u}}
+    (ι : Z' ⟶ U'.left) [IsClosedImmersion ι]
+    (h_closed : IsClosedImmersion (ι ≫ φ.left)) :
+    abelianSheafSectionsSupportedIn F U' (Set.range ι) →+
+      abelianSheafSectionsSupportedIn F U (Set.range (ι ≫ φ.left)) :=
+  AddEquiv.toAddMonoidHom
+    (@abelianSheafSectionsSupportedInAddEquiv _ F _ _ φ _ ι inferInstance
+      h_closed).symm
+
+/-- Unique extension along an open acts by the inverse supported-section
+equivalence. -/
+theorem extendSupportedAlongOpen_apply {U U' : X.Etale} (φ : U' ⟶ U)
+    {Z' : Scheme.{u}} (ι : Z' ⟶ U'.left) [IsClosedImmersion ι]
+    (h_closed : IsClosedImmersion (ι ≫ φ.left))
+    (σ : abelianSheafSectionsSupportedIn F U' (Set.range ι)) :
+    extendSupportedAlongOpen F φ ι h_closed σ =
+      (@abelianSheafSectionsSupportedInAddEquiv _ F _ _ φ _ ι inferInstance
+        h_closed).symm σ :=
+  rfl
 
 end AlgebraicGeometry.Scheme.Etale
 

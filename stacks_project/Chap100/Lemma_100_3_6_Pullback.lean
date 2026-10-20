@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quotient.Algebraic
 public import ReasLib.CategoryTheory.Fibered.CartesianBasedFunctor.Composition
 public import ReasLib.CategoryTheory.Fibered.CoGrothendieck.Presheaf
 public import ReasLib.CategoryTheory.Fibered.BasedCategory.Equivalence.Basic
@@ -247,10 +242,17 @@ def atlasKernelToQuotientKernel (P : Presentation X) :
     kernelPair P.atlas ⟶ kernelPair P.groupoid.atlas :=
   TwoFibreProduct.map P.atlasToQuotientCospan
 
+section
+
+-- Local instance justification (proof-local temporary data): supply the anonymous quotient-algebraicity argument of kernelPair_isRepresentableByAlgebraicSpace only while elaborating groupoidKernel_isRepresentable; the enclosing section exports no instance registration.
+attribute [local instance] AlgebraicGeometry.GroupoidAlgebraicSpace.instAlgebraicStack_quotientStack
+
 /-- Space-representability of the kernel pair of the quotient-stack atlas. -/
 abbrev groupoidKernel_isRepresentable (P : Presentation X) :
     IsRepresentableByAlgebraicSpace (kernelPair P.groupoid.atlas) :=
   kernelPair_isRepresentableByAlgebraicSpace P.groupoid.atlas P.atlas_isRepresentable
+
+end
 
 /-- The reverse comparison `U ×_X U ⟶ R`: transport to the quotient-stack kernel pair,
 lift its comparison through fully faithful prestack stackification, and extract the `R`-point. -/

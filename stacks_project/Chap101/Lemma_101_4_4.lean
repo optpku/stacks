@@ -1,96 +1,49 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_4_4_BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Separation.Pullback
+import StacksCheckRecall
 
 /-!
 # Base change of separation axioms for morphisms of algebraic stacks
 
-Each of the separation axioms of Definition 101.4.1 is stable under
-2-fibre-product base change of morphisms of algebraic stacks.
+Each separation axiom is stable under 2-fibre-product base change.
 -/
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry
-open Bicategory
 open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.DM
-
-/-- Lemma 101.4.4 (1): The base change of a DM morphism of algebraic stacks by
-any morphism of algebraic stacks is DM.
-
-Stacks writes the base change as `Y' ×_Y X ⟶ Y'`; the Lean projection is
-`TwoFibreProduct.snd f g` of a DM morphism `f : X ⟶ Y` along a test morphism
-`g : Z ⟶ Y`. -/
-@[stacks 050F]
-instance twoFibreProduct_snd {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+/- Lemma 101.4.4: The base change of a DM morphism of algebraic stacks
+along any morphism of algebraic stacks is DM. -/
+@[stacks 050F] #check (AlgebraicGeometry.AlgebraicStack.DM.twoFibreProduct_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Z ⟶ Y) [DM f]
-    [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)] :
-    DM (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g) :=
-  sorry
+    (f : X ⟶ Y) (g : Z ⟶ Y) [AlgebraicStack.DM f],
+    AlgebraicStack.DM (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g))
 
-end AlgebraicGeometry.AlgebraicStack.DM
-
-namespace AlgebraicGeometry.AlgebraicStack.QuasiDM
-
-/-- Lemma 101.4.4 (2): The base change of a quasi-DM morphism of algebraic
-stacks by any morphism of algebraic stacks is quasi-DM.
-
-Stacks writes the base change as `Y' ×_Y X ⟶ Y'`; the Lean projection is
-`TwoFibreProduct.snd f g` of a quasi-DM morphism `f : X ⟶ Y` along a test
-morphism `g : Z ⟶ Y`. -/
-@[stacks 050F]
-instance twoFibreProduct_snd {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+/- Lemma 101.4.4: The base change of a quasi-DM morphism of algebraic stacks
+along any morphism of algebraic stacks is quasi-DM. -/
+@[stacks 050F] #check (AlgebraicGeometry.AlgebraicStack.QuasiDM.twoFibreProduct_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Z ⟶ Y) [QuasiDM f]
-    [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)] :
-    QuasiDM (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g) :=
-  sorry
+    (f : X ⟶ Y) (g : Z ⟶ Y) [AlgebraicStack.QuasiDM f],
+    AlgebraicStack.QuasiDM (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g))
 
-end AlgebraicGeometry.AlgebraicStack.QuasiDM
-
-namespace AlgebraicGeometry.AlgebraicStack.Separated
-
-/-- Lemma 101.4.4 (3): The base change of a separated morphism of algebraic
-stacks by any morphism of algebraic stacks is separated.
-
-Stacks writes the base change as `Y' ×_Y X ⟶ Y'`; the Lean projection is
-`TwoFibreProduct.snd f g` of a separated morphism `f : X ⟶ Y` along a test
-morphism `g : Z ⟶ Y`. -/
-@[stacks 050F]
-instance twoFibreProduct_snd {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+/- Lemma 101.4.4: The base change of a separated morphism of algebraic stacks
+along any morphism of algebraic stacks is separated. -/
+@[stacks 050F] #check (AlgebraicGeometry.AlgebraicStack.Separated.twoFibreProduct_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Z ⟶ Y) [Separated f]
-    [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)] :
-    Separated (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g) :=
-  sorry
+    (f : X ⟶ Y) (g : Z ⟶ Y) [AlgebraicStack.Separated f],
+    AlgebraicStack.Separated (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g))
 
-end AlgebraicGeometry.AlgebraicStack.Separated
-
-namespace AlgebraicGeometry.AlgebraicStack.QuasiSeparated
-
-/-- Lemma 101.4.4 (4): The base change of a quasi-separated morphism of
-algebraic stacks by any morphism of algebraic stacks is quasi-separated.
-
-Stacks writes the base change as `Y' ×_Y X ⟶ Y'`; the Lean projection is
-`TwoFibreProduct.snd f g` of a quasi-separated morphism `f : X ⟶ Y` along a
-test morphism `g : Z ⟶ Y`. -/
-@[stacks 050F]
-instance twoFibreProduct_snd {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+/- Lemma 101.4.4: The base change of a quasi-separated morphism of algebraic stacks
+along any morphism of algebraic stacks is quasi-separated. -/
+@[stacks 050F] #check (AlgebraicGeometry.AlgebraicStack.QuasiSeparated.twoFibreProduct_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Z ⟶ Y) [QuasiSeparated f]
-    [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)] :
-    QuasiSeparated (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.QuasiSeparated
+    (f : X ⟶ Y) (g : Z ⟶ Y) [AlgebraicStack.QuasiSeparated f],
+    AlgebraicStack.QuasiSeparated (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g))

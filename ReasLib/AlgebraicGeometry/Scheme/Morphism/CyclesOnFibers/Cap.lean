@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.FiniteType
@@ -29,7 +23,8 @@ namespace AlgebraicGeometry.Scheme.Hom.CyclesOnFibers
 /-- The coefficient of `cap p f δ α β` at a point `x` of `X` is the product of
 the coefficient of `β` at `f x` and the coefficient of the fibre cycle
 `α (f x)` at `f.asFiber x`. -/
-noncomputable def capCoeff {S X Y : Scheme.{u}} (p : Y ⟶ S) (f : X ⟶ Y)
+noncomputable def capCoeff {S X Y : Scheme.{u}} (p : Y ⟶ S) [LocallyOfFiniteType p]
+    (f : X ⟶ Y) [LocallyOfFiniteType f]
     (δ : S → ℤ) {r e : ℤ} (α : CyclesOnFibers f r)
     (β : CycleGroup Y (p.relativeDimensionFunction δ) e) (x : X) : ℤ :=
   CycleGroup.toAlgebraicCycle (p.relativeDimensionFunction δ) e β (f x) *
@@ -39,7 +34,7 @@ noncomputable def capCoeff {S X Y : Scheme.{u}} (p : Y ⟶ S) (f : X ⟶ Y)
 support. -/
 theorem capCoeff_locallyFiniteSupport {S X Y : Scheme.{u}} [UniversallyCatenary S]
     (p : Y ⟶ S) (f : X ⟶ Y)
-    [LocallyOfFiniteType p] [LocallyOfFiniteType (f ≫ p)]
+    [LocallyOfFiniteType p] [LocallyOfFiniteType f]
     (δ : S → ℤ) [IsDimensionFunction δ] {r e : ℤ}
     (α : CyclesOnFibers f r)
     (β : CycleGroup Y (p.relativeDimensionFunction δ) e) :
@@ -48,7 +43,7 @@ theorem capCoeff_locallyFiniteSupport {S X Y : Scheme.{u}} [UniversallyCatenary 
 /-- The underlying algebraic cycle of the fibre-cycle action. -/
 noncomputable def capCycle {S X Y : Scheme.{u}} [UniversallyCatenary S]
     (p : Y ⟶ S) (f : X ⟶ Y)
-    [LocallyOfFiniteType p] [LocallyOfFiniteType (f ≫ p)]
+    [LocallyOfFiniteType p] [LocallyOfFiniteType f]
     (δ : S → ℤ) [IsDimensionFunction δ] {r e : ℤ}
     (α : CyclesOnFibers f r)
     (β : CycleGroup Y (p.relativeDimensionFunction δ) e) :
@@ -61,7 +56,7 @@ noncomputable def capCycle {S X Y : Scheme.{u}} [UniversallyCatenary S]
 /-- The fibre-cycle action is supported in relative dimension `r + e`. -/
 theorem cap_mem_dimensionSubgroup {S X Y : Scheme.{u}} [UniversallyCatenary S]
     (p : Y ⟶ S) (f : X ⟶ Y)
-    [LocallyOfFiniteType p] [LocallyOfFiniteType (f ≫ p)]
+    [LocallyOfFiniteType p] [LocallyOfFiniteType f]
     (δ : S → ℤ) [IsDimensionFunction δ] {r e : ℤ}
     (α : CyclesOnFibers f r)
     (β : CycleGroup Y (p.relativeDimensionFunction δ) e) :
@@ -73,7 +68,7 @@ theorem cap_mem_dimensionSubgroup {S X Y : Scheme.{u}} [UniversallyCatenary S]
 degree-`e` cycle of `Y`, valued in degree `r + e` cycles of `X`. -/
 noncomputable def cap {S X Y : Scheme.{u}} [UniversallyCatenary S]
     (p : Y ⟶ S) (f : X ⟶ Y)
-    [LocallyOfFiniteType p] [LocallyOfFiniteType (f ≫ p)]
+    [LocallyOfFiniteType p] [LocallyOfFiniteType f]
     (δ : S → ℤ) [IsDimensionFunction δ] {r e : ℤ}
     (α : CyclesOnFibers f r)
     (β : CycleGroup Y (p.relativeDimensionFunction δ) e) :
@@ -84,7 +79,7 @@ noncomputable def cap {S X Y : Scheme.{u}} [UniversallyCatenary S]
 coefficientwise product `capCoeff`. -/
 theorem cap_apply {S X Y : Scheme.{u}} [UniversallyCatenary S]
     (p : Y ⟶ S) (f : X ⟶ Y)
-    [LocallyOfFiniteType p] [LocallyOfFiniteType (f ≫ p)]
+    [LocallyOfFiniteType p] [LocallyOfFiniteType f]
     (δ : S → ℤ) [IsDimensionFunction δ] {r e : ℤ}
     (α : CyclesOnFibers f r)
     (β : CycleGroup Y (p.relativeDimensionFunction δ) e) (x : X) :
@@ -95,7 +90,7 @@ theorem cap_apply {S X Y : Scheme.{u}} [UniversallyCatenary S]
 /-- The fibre-cycle action of the zero family is the zero cycle. -/
 theorem cap_zero_left {S X Y : Scheme.{u}} [UniversallyCatenary S]
     (p : Y ⟶ S) (f : X ⟶ Y)
-    [LocallyOfFiniteType p] [LocallyOfFiniteType (f ≫ p)]
+    [LocallyOfFiniteType p] [LocallyOfFiniteType f]
     (δ : S → ℤ) [IsDimensionFunction δ] {r e : ℤ}
     (β : CycleGroup Y (p.relativeDimensionFunction δ) e) :
     cap p f δ (0 : CyclesOnFibers f r) β = 0 := sorry
@@ -103,7 +98,7 @@ theorem cap_zero_left {S X Y : Scheme.{u}} [UniversallyCatenary S]
 /-- The fibre-cycle action on the zero cycle is zero. -/
 theorem cap_zero_right {S X Y : Scheme.{u}} [UniversallyCatenary S]
     (p : Y ⟶ S) (f : X ⟶ Y)
-    [LocallyOfFiniteType p] [LocallyOfFiniteType (f ≫ p)]
+    [LocallyOfFiniteType p] [LocallyOfFiniteType f]
     (δ : S → ℤ) [IsDimensionFunction δ] {r : ℤ}
     (α : CyclesOnFibers f r) (e : ℤ) :
     cap p f δ α (0 : CycleGroup Y (p.relativeDimensionFunction δ) e) = 0 := sorry
@@ -112,7 +107,7 @@ theorem cap_zero_right {S X Y : Scheme.{u}} [UniversallyCatenary S]
 @[stacks 0H66]
 theorem cap_add_left {S X Y : Scheme.{u}} [UniversallyCatenary S]
     (p : Y ⟶ S) (f : X ⟶ Y)
-    [LocallyOfFiniteType p] [LocallyOfFiniteType (f ≫ p)]
+    [LocallyOfFiniteType p] [LocallyOfFiniteType f]
     (δ : S → ℤ) [IsDimensionFunction δ] {r e : ℤ}
     (α₁ α₂ : CyclesOnFibers f r)
     (β : CycleGroup Y (p.relativeDimensionFunction δ) e) :
@@ -122,7 +117,7 @@ theorem cap_add_left {S X Y : Scheme.{u}} [UniversallyCatenary S]
 @[stacks 0H66]
 theorem cap_add_right {S X Y : Scheme.{u}} [UniversallyCatenary S]
     (p : Y ⟶ S) (f : X ⟶ Y)
-    [LocallyOfFiniteType p] [LocallyOfFiniteType (f ≫ p)]
+    [LocallyOfFiniteType p] [LocallyOfFiniteType f]
     (δ : S → ℤ) [IsDimensionFunction δ] {r e : ℤ}
     (α : CyclesOnFibers f r)
     (β₁ β₂ : CycleGroup Y (p.relativeDimensionFunction δ) e) :
@@ -132,7 +127,7 @@ theorem cap_add_right {S X Y : Scheme.{u}} [UniversallyCatenary S]
 cycle of `Y`. -/
 noncomputable def capHom {S X Y : Scheme.{u}} [UniversallyCatenary S]
     (p : Y ⟶ S) (f : X ⟶ Y)
-    [LocallyOfFiniteType p] [LocallyOfFiniteType (f ≫ p)]
+    [LocallyOfFiniteType p] [LocallyOfFiniteType f]
     (δ : S → ℤ) [IsDimensionFunction δ] {r : ℤ}
     (α : CyclesOnFibers f r) (e : ℤ) :
     CycleGroup Y (p.relativeDimensionFunction δ) e →+
@@ -144,7 +139,7 @@ noncomputable def capHom {S X Y : Scheme.{u}} [UniversallyCatenary S]
 /-- Evaluating the additive homomorphism of a fibre-cycle action recovers `cap`. -/
 theorem capHom_apply {S X Y : Scheme.{u}} [UniversallyCatenary S]
     (p : Y ⟶ S) (f : X ⟶ Y)
-    [LocallyOfFiniteType p] [LocallyOfFiniteType (f ≫ p)]
+    [LocallyOfFiniteType p] [LocallyOfFiniteType f]
     (δ : S → ℤ) [IsDimensionFunction δ] {r : ℤ}
     (α : CyclesOnFibers f r) (e : ℤ)
     (β : CycleGroup Y (p.relativeDimensionFunction δ) e) :

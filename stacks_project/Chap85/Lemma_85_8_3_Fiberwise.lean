@@ -1,25 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.Additive
-public import Mathlib.CategoryTheory.Limits.Shapes.ZeroMorphisms
-public import Mathlib.Algebra.Homology.DerivedCategory.Plus
-public import Mathlib.Algebra.Homology.Embedding.Extend
-public import Mathlib.Algebra.Homology.HomologicalBicomplex
-public import Mathlib.Algebra.Homology.HomotopyCategory.Plus
-public import Mathlib.CategoryTheory.Preadditive.Yoneda.Basic
-public import ReasLib.Algebra.Homology.DerivedCategory.AddCommGrpCat
-public import ReasLib.CategoryTheory.DerivedCategory.Functor.Bounded.RightDerived.Canonical
-public import ReasLib.CategoryTheory.DerivedCategory.Functor.Bounded.RightDerived.Naturality
-public import ReasLib.CategoryTheory.Homology.DoubleComplex.CoaugmentedResolution
-public import ReasLib.CategoryTheory.Homology.DoubleComplex.Pages
-public import ReasLib.CategoryTheory.Sites.AbelianSheaf.Derived
-public import stacks_project.Chap85.Lemma_85_8_2_Fiberwise
+public import ReasLib.CategoryTheory.Sites.Grothendieck.SpectralSequence
 
 /-!
 # Čech–injective double complex on a fiberwise simplicial site
@@ -62,105 +43,87 @@ variable [∀ n, ∀ P : (F.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{w},
 variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (F.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{w}),
     ((F.map φ.op).toFunctor).op.HasPointwiseRightKanExtension P]
 
-/-- The Čech cochain functor on abelian sheaves on the total fiberwise site preserves
+/- The Čech cochain functor on abelian sheaves on the total fiberwise site preserves
 zero morphisms. -/
-instance fiberSectionsComplexFunctor_preservesZeroMorphisms :
-    (fiberSectionsComplexFunctor F J).PreservesZeroMorphisms :=
-  sorry
+#check (CategoryTheory.Grothendieck.fiberSectionsComplexFunctor_preservesZeroMorphisms F J :
+  (fiberSectionsComplexFunctor F J).PreservesZeroMorphisms)
 
-/-- The Čech cochain functor on abelian sheaves on the total fiberwise site is additive. -/
-instance fiberSectionsComplexFunctor_additive :
-    (fiberSectionsComplexFunctor F J).Additive :=
-  sorry
+/- The Čech cochain functor on abelian sheaves on the total fiberwise site is additive. -/
+#check (CategoryTheory.Grothendieck.fiberSectionsComplexFunctor_additive F J :
+  (fiberSectionsComplexFunctor F J).Additive)
 
-/-- The ℕ-indexed cochain of vertical complexes `p ↦ (q ↦ Γ(C_p, I^q_p))`. -/
-def fiberSectionsColumnsFunctor :
-    CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ ⥤
-      CochainComplex (CochainComplex AddCommGrpCat.{max u w} ℤ) ℕ :=
-  (fiberSectionsComplexFunctor F J).mapHomologicalComplex (up ℤ) ⋙
-    HomologicalComplex₂.flipFunctor _ (up ℤ) (up ℕ)
+/- The ℕ-indexed cochain of vertical complexes `p ↦ (q ↦ Γ(C_p, I^q_p))`. -/
+#check (CategoryTheory.Grothendieck.fiberSectionsColumnsFunctor F J :
+  CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ ⥤
+      CochainComplex (CochainComplex AddCommGrpCat.{max u w} ℤ) ℕ)
 
-/-- The Čech–injective double complex functor, reindexed from nonnegative Čech degree. -/
-def fiberSectionsBicomplexFunctor :
-    CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ ⥤
-      HomologicalComplex₂ AddCommGrpCat.{max u w} (up ℤ) (up ℤ) :=
-  fiberSectionsColumnsFunctor F J ⋙
-    HomologicalComplex₂.CoaugmentedResolution.bicomplexFunctor
+/- The Čech–injective double complex functor, reindexed from nonnegative Čech degree. -/
+#check (CategoryTheory.Grothendieck.fiberSectionsBicomplexFunctor F J :
+  CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ ⥤
+      HomologicalComplex₂ AddCommGrpCat.{max u w} (up ℤ) (up ℤ))
 
-/-- The double complex `A^{p,q} = Γ(C_p, I^q_p)` of a cochain complex of abelian sheaves. -/
-def fiberSectionsBicomplex
-    (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ) :
-    HomologicalComplex₂ AddCommGrpCat.{max u w} (up ℤ) (up ℤ) :=
-  (fiberSectionsBicomplexFunctor F J).obj I
+/- The double complex `A^{p,q} = Γ(C_p, I^q_p)` of a cochain complex of abelian sheaves. -/
+#check (CategoryTheory.Grothendieck.fiberSectionsBicomplex F J :
+  ∀ (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ),
+    HomologicalComplex₂ AddCommGrpCat.{max u w} (up ℤ) (up ℤ))
 
-/-- Nonnegative columns of `fiberSectionsBicomplex` recover stagewise global sections of `I`. -/
-theorem fiberSectionsBicomplex_X_ofNat
-    (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ)
-    (p : ℕ) (q : ℤ) :
+/- Nonnegative columns of `fiberSectionsBicomplex` recover stagewise global sections of `I`. -/
+#check (CategoryTheory.Grothendieck.fiberSectionsBicomplex_X_ofNat F J :
+  ∀ (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ)
+    (p : ℕ) (q : ℤ),
     ((fiberSectionsBicomplex F J I).X p).X q =
-      (fiberSectionsComplex F J (I.X q)).X p :=
-  sorry
+      (fiberSectionsComplex F J (I.X q)).X p)
 
-/-- Negative Čech columns of `fiberSectionsBicomplex` vanish. -/
-theorem fiberSectionsBicomplex_isZero_of_neg
-    (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ)
-    {p : ℤ} (hp : p < 0) :
-    IsZero ((fiberSectionsBicomplex F J I).X p) :=
-  sorry
+/- Negative Čech columns of `fiberSectionsBicomplex` vanish. -/
+#check (CategoryTheory.Grothendieck.fiberSectionsBicomplex_isZero_of_neg F J :
+  ∀ (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ)
+    {p : ℤ} (hp : p < 0),
+    IsZero ((fiberSectionsBicomplex F J I).X p))
 
-/-- The functor `G ↦ Hom(ℤ, G)`, equivalently `Γ(C_total, G)` after Yoneda. -/
-def fiberSectionsTotalFunctor :
-    Sheaf (topology F J) AddCommGrpCat.{w} ⥤ AddCommGrpCat.{max u w} :=
-  preadditiveYoneda.flip.obj (op (constantIntegerSheaf (topology F J)))
+/- The functor `G ↦ Hom(ℤ, G)`, equivalently `Γ(C_total, G)` after Yoneda. -/
+#check (CategoryTheory.Grothendieck.fiberSectionsTotalFunctor F J :
+  Sheaf (topology F J) AddCommGrpCat.{w} ⥤ AddCommGrpCat.{max u w})
 
-/-- `fiberSectionsTotalFunctor` recovers `fiberSectionsTotal`. -/
-theorem fiberSectionsTotalFunctor_obj
-    (G : Sheaf (topology F J) AddCommGrpCat.{w}) :
-    (fiberSectionsTotalFunctor F J).obj G = fiberSectionsTotal F J G :=
-  sorry
+/- `fiberSectionsTotalFunctor` recovers `fiberSectionsTotal`. -/
+#check (CategoryTheory.Grothendieck.fiberSectionsTotalFunctor_obj F J :
+  ∀ (G : Sheaf (topology F J) AddCommGrpCat.{w}),
+    (fiberSectionsTotalFunctor F J).obj G = fiberSectionsTotal F J G)
 
-/-- Global sections of the total fiberwise site, as a Hom functor, preserve zero morphisms. -/
-instance fiberSectionsTotalFunctor_preservesZeroMorphisms :
-    (fiberSectionsTotalFunctor F J).PreservesZeroMorphisms :=
-  sorry
+/- Global sections of the total fiberwise site, as a Hom functor, preserve zero morphisms. -/
+#check (CategoryTheory.Grothendieck.fiberSectionsTotalFunctor_preservesZeroMorphisms F J :
+  (fiberSectionsTotalFunctor F J).PreservesZeroMorphisms)
 
-/-- The coaugmentation source `Γ(C_total, I^•)` as a cochain complex. -/
-def fiberSectionsTotalComplex
-    (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ) :
-    CochainComplex AddCommGrpCat.{max u w} ℤ :=
-  ((fiberSectionsTotalFunctor F J).mapHomologicalComplex (up ℤ)).obj I
+/- The coaugmentation source `Γ(C_total, I^•)` as a cochain complex. -/
+#check (CategoryTheory.Grothendieck.fiberSectionsTotalComplex F J :
+  ∀ (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ),
+    CochainComplex AddCommGrpCat.{max u w} ℤ)
 
-/-- The coaugmentation `Γ(C_total, I^•) ⟶` the zeroth column of the Čech bicomplex. -/
-def fiberSectionsBicomplexCoaugmentation
-    (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ) :
+/- The coaugmentation `Γ(C_total, I^•) ⟶` the zeroth column of the Čech bicomplex. -/
+#check (CategoryTheory.Grothendieck.fiberSectionsBicomplexCoaugmentation F J :
+  ∀ (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ),
     fiberSectionsTotalComplex F J I ⟶
-      ((fiberSectionsColumnsFunctor F J).obj I).X 0 where
-  f q := fiberSectionsCoaugmentation F J (I.X q)
-  comm' := sorry
+      ((fiberSectionsColumnsFunctor F J).obj I).X 0)
 
-/-- The coaugmentation is killed by the first Čech differential. -/
-theorem fiberSectionsBicomplexCoaugmentation_comp_d
-    (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ) :
+/- The coaugmentation is killed by the first Čech differential. -/
+#check (CategoryTheory.Grothendieck.fiberSectionsBicomplexCoaugmentation_comp_d F J :
+  ∀ (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ),
     fiberSectionsBicomplexCoaugmentation F J I ≫
-      ((fiberSectionsColumnsFunctor F J).obj I).d 0 1 = 0 :=
-  sorry
+      ((fiberSectionsColumnsFunctor F J).obj I).d 0 1 = 0)
 
-/-- Degree-`n` functor sending an abelian sheaf on `C_total` to `Γ(C_n, G_n)`. -/
-def fiberSectionsStageGamma (n : ℕ) :
-    Sheaf (topology F J) AddCommGrpCat.{w} ⥤ AddCommGrpCat.{max u w} :=
-  fiberSectionsComplexFunctor F J ⋙
-    HomologicalComplex.eval AddCommGrpCat.{max u w} (up ℕ) n
+/- Degree-`n` functor sending an abelian sheaf on `C_total` to `Γ(C_n, G_n)`. -/
+#check (CategoryTheory.Grothendieck.fiberSectionsStageGamma F J :
+  ∀ (n : ℕ),
+    Sheaf (topology F J) AddCommGrpCat.{w} ⥤ AddCommGrpCat.{max u w})
 
-/-- Stagewise global sections are additive. -/
-instance fiberSectionsStageGamma_additive (n : ℕ) :
-    (fiberSectionsStageGamma F J n).Additive :=
-  sorry
+/- Stagewise global sections are additive. -/
+#check (CategoryTheory.Grothendieck.fiberSectionsStageGamma_additive F J :
+  ∀ (n : ℕ),
+    (fiberSectionsStageGamma F J n).Additive)
 
-/-- The Čech differential as a natural transformation of stagewise global sections. -/
-def fiberSectionsStageGamma_d (n : ℕ) :
-    fiberSectionsStageGamma F J n ⟶ fiberSectionsStageGamma F J (n + 1) where
-  app G := (fiberSectionsComplex F J G).d n (n + 1)
-  naturality := sorry
+/- The Čech differential as a natural transformation of stagewise global sections. -/
+#check (CategoryTheory.Grothendieck.fiberSectionsStageGamma_d F J :
+  ∀ (n : ℕ),
+    fiberSectionsStageGamma F J n ⟶ fiberSectionsStageGamma F J (n + 1))
 
 variable [∀ n : ℕ,
     (fiberSectionsStageGamma F J n).toBoundedBelowDerived.HasRightDerivedFunctor
@@ -169,106 +132,87 @@ variable [(fiberSectionsTotalFunctor F J).Additive]
 variable [(fiberSectionsTotalFunctor F J).toBoundedBelowDerived.HasRightDerivedFunctor
     (HomotopyCategory.Plus.quasiIso (Sheaf (topology F J) AddCommGrpCat.{w}))]
 
-/-- Nonnegative first-page target: `H^q` of the derived functor of `Γ(C_n, (-)_n)`. -/
-def fiberPageOneFunctorNonneg (n : ℕ) (q : ℤ) :
+/- Nonnegative first-page target: `H^q` of the derived functor of `Γ(C_n, (-)_n)`. -/
+#check (CategoryTheory.Grothendieck.fiberPageOneFunctorNonneg F J :
+  ∀ (n : ℕ) (q : ℤ),
     DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w}) ⥤
-      AddCommGrpCat.{max u w} :=
-  Functor.RightDerived.Bounded.functor (fiberSectionsStageGamma F J n) ⋙
-    DerivedCategory.Plus.homologyFunctor AddCommGrpCat.{max u w} q
+      AddCommGrpCat.{max u w})
 
-/-- The Čech differential on nonnegative first-page functors. -/
-def fiberPageOneDifferentialNonneg (n : ℕ) (q : ℤ) :
-    fiberPageOneFunctorNonneg F J n q ⟶ fiberPageOneFunctorNonneg F J (n + 1) q :=
-  whiskerRight
-    (Functor.RightDerived.Bounded.map (fiberSectionsStageGamma_d F J n))
-    (DerivedCategory.Plus.homologyFunctor AddCommGrpCat.{max u w} q)
+/- The Čech differential on nonnegative first-page functors. -/
+#check (CategoryTheory.Grothendieck.fiberPageOneDifferentialNonneg F J :
+  ∀ (n : ℕ) (q : ℤ),
+    fiberPageOneFunctorNonneg F J n q ⟶ fiberPageOneFunctorNonneg F J (n + 1) q)
 
-/-- Successor of a nonnegative integer remains nonnegative. -/
-theorem fiber_nonneg_succ {n : ℤ} (hn : 0 ≤ n) : 0 ≤ n + 1 :=
-  sorry
+/- Successor of a nonnegative integer remains nonnegative. -/
+theorem fiber_nonneg_succ {n : ℤ} (hn : 0 ≤ n) : 0 ≤ n + 1 := by
+  omega
 
-/-- `toNat` converts a successor of a nonnegative integer into a successor of naturals. -/
+/- `toNat` converts a successor of a nonnegative integer into a successor of naturals. -/
 theorem fiber_toNat_succ_of_nonneg {n : ℤ} (hn : 0 ≤ n) :
-    (n + 1).toNat = n.toNat + 1 :=
-  sorry
+    (n + 1).toNat = n.toNat + 1 := by
+  omega
 
-/-- First-page target `K ↦ H^q(C_p, K_p)`, vanishing for `p < 0`. -/
-def fiberPageOneFunctor (p q : ℤ) :
+/- First-page target `K ↦ H^q(C_p, K_p)`, vanishing for `p < 0`. -/
+#check (CategoryTheory.Grothendieck.fiberPageOneFunctor F J :
+  ∀ (p q : ℤ),
     DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w}) ⥤
-      AddCommGrpCat.{max u w} :=
-  if 0 ≤ p then fiberPageOneFunctorNonneg F J p.toNat q else
-    (Functor.const
-      (DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w}))).obj
-      (0 : AddCommGrpCat.{max u w})
+      AddCommGrpCat.{max u w})
 
-/-- Nonnegative bidegrees of `fiberPageOneFunctor` recover `fiberPageOneFunctorNonneg`. -/
-theorem fiberPageOneFunctor_eq_of_nonneg (p q : ℤ) (hp : 0 ≤ p) :
-    fiberPageOneFunctor F J p q = fiberPageOneFunctorNonneg F J p.toNat q :=
-  sorry
+/- Nonnegative bidegrees of `fiberPageOneFunctor` recover `fiberPageOneFunctorNonneg`. -/
+#check (CategoryTheory.Grothendieck.fiberPageOneFunctor_eq_of_nonneg F J :
+  ∀ (p q : ℤ) (hp : 0 ≤ p),
+    fiberPageOneFunctor F J p q = fiberPageOneFunctorNonneg F J p.toNat q)
 
-/-- The first-page differential `d₁^{p,q} : E₁^{p,q} ⟶ E₁^{p+1,q}`. -/
-def fiberPageOneDifferential (p q : ℤ) :
-    fiberPageOneFunctor F J p q ⟶ fiberPageOneFunctor F J (p + 1) q :=
-  if hp : 0 ≤ p then
-    eqToHom (fiberPageOneFunctor_eq_of_nonneg F J p q hp) ≫
-      fiberPageOneDifferentialNonneg F J p.toNat q ≫
-      eqToHom (congrArg (fiberPageOneFunctorNonneg F J · q)
-        (fiber_toNat_succ_of_nonneg hp)).symm ≫
-      eqToHom (fiberPageOneFunctor_eq_of_nonneg F J (p + 1) q
-        (fiber_nonneg_succ hp)).symm
-  else
-    (0 : fiberPageOneFunctor F J p q ⟶ fiberPageOneFunctor F J (p + 1) q)
+/- The first-page differential `d₁^{p,q} : E₁^{p,q} ⟶ E₁^{p+1,q}`. -/
+#check (CategoryTheory.Grothendieck.fiberPageOneDifferential F J :
+  ∀ (p q : ℤ),
+    fiberPageOneFunctor F J p q ⟶ fiberPageOneFunctor F J (p + 1) q)
 
-/-- First-page groups in negative Čech degree vanish. -/
-theorem fiberPageOneFunctor_neg
-    (K : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w}))
-    {p : ℤ} (hp : p < 0) (q : ℤ) :
-    IsZero ((fiberPageOneFunctor F J p q).obj K) :=
-  sorry
+/- First-page groups in negative Čech degree vanish. -/
+#check (CategoryTheory.Grothendieck.fiberPageOneFunctor_neg F J :
+  ∀ (K : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w}))
+    {p : ℤ} (hp : p < 0) (q : ℤ),
+    IsZero ((fiberPageOneFunctor F J p q).obj K))
 
-/-- Abutment functor `K ↦ H^n(C_total, K)`. -/
-def fiberAbutmentFunctor (n : ℤ) :
+/- Abutment functor `K ↦ H^n(C_total, K)`. -/
+#check (CategoryTheory.Grothendieck.fiberAbutmentFunctor F J :
+  ∀ (n : ℤ),
     DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w}) ⥤
-      AddCommGrpCat.{max u w} :=
-  Functor.RightDerived.Bounded.functor (fiberSectionsTotalFunctor F J) ⋙
-    DerivedCategory.Plus.homologyFunctor AddCommGrpCat.{max u w} n
+      AddCommGrpCat.{max u w})
 
-/-- Evaluation of `fiberAbutmentFunctor` is cohomology of `RΓ(C_total, -)`. -/
-theorem fiberAbutmentFunctor_obj
-    (n : ℤ)
-    (K : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w})) :
+/- Evaluation of `fiberAbutmentFunctor` is cohomology of `RΓ(C_total, -)`. -/
+#check (CategoryTheory.Grothendieck.fiberAbutmentFunctor_obj F J :
+  ∀ (n : ℤ)
+    (K : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w})),
     (fiberAbutmentFunctor F J n).obj K =
       (DerivedCategory.Plus.homologyFunctor AddCommGrpCat.{max u w} n).obj
         ((Functor.RightDerived.Bounded.functor
-          (fiberSectionsTotalFunctor F J)).obj K) :=
-  sorry
+          (fiberSectionsTotalFunctor F J)).obj K))
 
-/-- For a bounded-below complex of injectives representing `K`, vertical homology of
+/- For a bounded-below complex of injectives representing `K`, vertical homology of
 `fiberSectionsBicomplex` recovers the first-page target. -/
-theorem fiberPageOne_isomorphic_of_injectiveRepresentative
-    (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ)
+#check (CategoryTheory.Grothendieck.fiberPageOne_isomorphic_of_injectiveRepresentative F J :
+  ∀ (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ)
     (hI : CochainComplex.plus _ I) [∀ n, Injective (I.X n)]
     (K : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w}))
     (hK : Nonempty
       (DerivedCategory.Plus.ι.obj K ≅ DerivedCategory.Q.obj I))
-    (p q : ℤ) :
+    (p q : ℤ),
     IsIsomorphic
       (HomologicalComplex₂.First.PageOne.entry (fiberSectionsBicomplex F J I) p q)
-      ((fiberPageOneFunctor F J p q).obj K) :=
-  sorry
+      ((fiberPageOneFunctor F J p q).obj K))
 
-/-- The coaugmentation-to-total comparison is a quasi-isomorphism when every term of `I`
+/- The coaugmentation-to-total comparison is a quasi-isomorphism when every term of `I`
 is injective. -/
-theorem fiberSectionsToTotal_quasiIso
-    [HasCountableCoproducts AddCommGrpCat.{max u w}]
+#check (CategoryTheory.Grothendieck.fiberSectionsToTotal_quasiIso F J :
+  ∀ [HasCountableCoproducts AddCommGrpCat.{max u w}]
     [CountableAB4 AddCommGrpCat.{max u w}]
     (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ)
-    [∀ n, Injective (I.X n)] :
+    [∀ n, Injective (I.X n)],
     QuasiIso
       (HomologicalComplex₂.CoaugmentedResolution.ToTotal.map
         ((fiberSectionsColumnsFunctor F J).obj I)
         (fiberSectionsBicomplexCoaugmentation F J I)
-        (fiberSectionsBicomplexCoaugmentation_comp_d F J I)) :=
-  sorry
+        (fiberSectionsBicomplexCoaugmentation_comp_d F J I)))
 
 end CategoryTheory.Grothendieck

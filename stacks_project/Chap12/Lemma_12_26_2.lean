@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Homology.DoubleComplex.AugmentedResolution
@@ -63,21 +57,25 @@ downstream exactness arguments. -/
 
 section Exactness
 
+variable [CountableAB4 C] [Epi augmentation]
+
 variable
   (hExact₀ : (HomologicalComplex₂.AugmentedResolution.shortComplex
     A augmentation h_augmentation).Exact)
   (hExact : ∀ n : ℕ, A.ExactAt (n + 1))
+  (hCyclesEpi : ∀ p : ℤ, Epi (cyclesMap augmentation p))
   (hCyclesExact₀ : ∀ p : ℤ,
     (HomologicalComplex₂.AugmentedResolution.cyclesShortComplex
       A augmentation h_augmentation p).Exact)
   (hCyclesExact : ∀ p : ℤ, ∀ n : ℕ,
     (HomologicalComplex₂.AugmentedResolution.cycles A p).ExactAt (n + 1))
 
-/- Lemma 12.26.2 [09IZ]: exactness of the augmented row and every row of cycles makes the
-canonical map from the coproduct total to the augmentation target a quasi-isomorphism. -/
+/- Lemma 12.26.2 [09IZ]: exactness of the augmented row and every row of cycles, with their
+terminal maps epimorphic, makes the canonical map from the coproduct total to the augmentation
+target a quasi-isomorphism when countable coproducts are exact, as they are for abelian groups. -/
 @[stacks 09IZ]
 #check (HomologicalComplex₂.AugmentedResolution.FromTotal.quasiIso_of_exact_cycles
-  A augmentation h_augmentation hExact₀ hExact hCyclesExact₀ hCyclesExact :
+  A augmentation h_augmentation hExact₀ hExact hCyclesEpi hCyclesExact₀ hCyclesExact :
   QuasiIso (HomologicalComplex₂.AugmentedResolution.FromTotal.map A augmentation h_augmentation))
 
 end Exactness

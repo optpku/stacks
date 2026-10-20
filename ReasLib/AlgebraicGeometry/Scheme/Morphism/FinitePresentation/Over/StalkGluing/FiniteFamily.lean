@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FinitePresentation.Over.StalkGluing
+import Mathlib.Tactic.CrossRefAttribute
 
 /-!
 # Finite-presentation gluing over a finite family of stalks
@@ -77,17 +72,54 @@ theorem stalkOpenIntersection_eq_puncturedOpen_of_compl_range
     stalkOpenIntersection S U (s i) =
       PuncturedSpectrum.puncturedOpen (S.presheaf.stalk (s i)) := sorry
 
-/-- Finite-presentation schemes over a scheme are equivalent to compatible finite-presentation
-schemes over the complement of a nonempty finite family of distinct closed points and over the
-corresponding local schemes. -/
-theorem finitePresentationOver_equivalence_stalkFamilyGluing
+/-- The canonical identification, for each point of the family, of the two restrictions to
+the stalk-open intersection. -/
+noncomputable def finitePresentationStalkFamilyGluingIso
+    {ι : Type u} (S : Scheme.{u}) (U : S.Opens) (s : ι → S) :
+    FinitePresentationOver.baseChange U.ι ⋙ finitePresentationToStalkOpenProduct S U s ≅
+      Functor.pi' (fun i ↦ FinitePresentationOver.baseChange (S.fromSpecStalk (s i))) ⋙
+        finitePresentationStalkProductToStalkOpenProduct S U s :=
+  NatIso.pi' fun i ↦ finitePresentationStalkGluingIso S U (s i)
+
+/-- The restriction functor of Stacks 0E8Q: `X → S` goes to its restriction over `U`, its
+restrictions over the local schemes `Spec(𝒪_{S,s_i})`, and the canonical identifications over
+the punctured local schemes. -/
+noncomputable def finitePresentationStalkFamilyGluingFunctor
+    {ι : Type u} (S : Scheme.{u}) (U : S.Opens) (s : ι → S) :
+    FinitePresentationOver S ⥤ finitePresentationStalkFamilyGluingCategory S U s :=
+  (CategoricalPullback.CatCommSqOver.toFunctorToCategoricalPullback _ _ _).obj
+    { fst := FinitePresentationOver.baseChange U.ι
+      snd := Functor.pi' (fun i ↦ FinitePresentationOver.baseChange (S.fromSpecStalk (s i)))
+      iso := finitePresentationStalkFamilyGluingIso S U s }
+
+/-- The `U`-component of the family gluing restriction functor is base change to `U`. -/
+@[simp]
+theorem finitePresentationStalkFamilyGluingFunctor_obj_fst
+    {ι : Type u} (S : Scheme.{u}) (U : S.Opens) (s : ι → S) (X : FinitePresentationOver S) :
+    ((finitePresentationStalkFamilyGluingFunctor S U s).obj X).fst =
+      (FinitePresentationOver.baseChange U.ι).obj X :=
+  rfl
+
+/-- The `i`-th local component of the family gluing restriction functor is base change to
+`Spec(𝒪_{S,s_i})`. -/
+@[simp]
+theorem finitePresentationStalkFamilyGluingFunctor_obj_snd
+    {ι : Type u} (S : Scheme.{u}) (U : S.Opens) (s : ι → S) (X : FinitePresentationOver S)
+    (i : ι) :
+    ((finitePresentationStalkFamilyGluingFunctor S U s).obj X).snd i =
+      (FinitePresentationOver.baseChange (S.fromSpecStalk (s i))).obj X :=
+  rfl
+
+/-- Stacks 0E8Q: for a nonempty finite family of distinct closed points with quasi-compact
+complement `U`, the restriction functor to family gluing data is an equivalence. -/
+@[stacks 0E8Q]
+theorem finitePresentationStalkFamilyGluingFunctor_isEquivalence
     {ι : Type u} [Finite ι] [Nonempty ι]
     (S : Scheme.{u}) (s : ι → S)
     (hs_closed : ∀ i, s i ∈ closedPoints S)
     (hs_pairwise : Function.Injective s)
     (U : S.Opens) (hU : (U : Set S) = (Set.range s)ᶜ)
     [QuasiCompact U.ι] :
-    Nonempty
-      (FinitePresentationOver S ≌ finitePresentationStalkFamilyGluingCategory S U s) := sorry
+    (finitePresentationStalkFamilyGluingFunctor S U s).IsEquivalence := sorry
 
 end AlgebraicGeometry

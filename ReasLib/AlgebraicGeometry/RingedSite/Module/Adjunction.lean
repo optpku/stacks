@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.ChangeOfRings
@@ -35,7 +29,9 @@ noncomputable def modulePullbackPushforwardAdjunction.{z, uX, vX, uY, vY, w}
     (f : Hom X Y)
     [(f.modulePushforward.{z}).IsRightAdjoint] :
     f.modulePullback.{z} ⊣ f.modulePushforward.{z} :=
-  SheafOfModules.pullbackPushforwardAdjunction.{z} f.structureSheafMap
+  @SheafOfModules.pullbackPushforwardAdjunction.{z} _ _ _ _
+    Y.siteTopology X.siteTopology f.base Y.structureSheaf X.structureSheaf
+    f.base_isContinuous f.structureSheafMap inferInstance
 
 /-- The Hom equivalence induced by the module pullback-pushforward adjunction. -/
 noncomputable def modulePullbackHomEquiv.{z, uX, vX, uY, vY, w}
@@ -53,7 +49,9 @@ theorem modulePullback_additive.{z, uX, vX, uY, vY, w}
     (f : Hom X Y)
     [(f.modulePushforward.{z}).IsRightAdjoint] :
     f.modulePullback.{z}.Additive :=
-  SheafOfModules.pullback_additive_of_isRightAdjoint f.structureSheafMap
+  @SheafOfModules.pullback_additive_of_isRightAdjoint _ _ _ _
+    Y.siteTopology X.siteTopology f.base f.base_isContinuous
+    Y.structureSheaf X.structureSheaf f.structureSheafMap inferInstance
 
 
 -- The possible `sorryAx` below is confined to Prop-valued ambient laws supplied by callers; the

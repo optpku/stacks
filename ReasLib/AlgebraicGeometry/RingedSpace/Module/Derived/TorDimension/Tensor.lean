@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.TorDimension
-public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.TensorProduct
 import Mathlib.Tactic.CrossRefAttribute
 
 @[expose] public section
@@ -21,7 +14,7 @@ model or a chosen resolution.
 -/
 
 open AlgebraicGeometry CategoryTheory
-open scoped RingedTensor
+open scoped CategoryTheory.DerivedCategory.DerivedTensor
 
 noncomputable section
 
@@ -30,13 +23,14 @@ universe u
 namespace AlgebraicGeometry.RingedSpace
 
 variable {X : RingedSpace.{u}}
+variable [DerivedCategory.DerivedTensor.Right.Has (C := Modules X)]
 
 /-- Stacks 09J4: Tor-amplitude intervals add under the canonical derived tensor product. -/
 @[stacks 09J4 "ringed-space Tor-amplitude tensor closure"]
 theorem HasTorAmplitudeIn.tensor
     {K L : ModuleDerived X} {a b c d : ℤ}
     (hK : HasTorAmplitudeIn K a b) (hL : HasTorAmplitudeIn L c d) :
-    HasTorAmplitudeIn (K ⊗^L L) (a + c) (b + d) := sorry
+    HasTorAmplitudeIn (K ⊗ᴸ L) (a + c) (b + d) := sorry
 
 end AlgebraicGeometry.RingedSpace
 

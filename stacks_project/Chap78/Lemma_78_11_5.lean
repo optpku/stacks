@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2026 Zichen Wang, Zaiwen Wen. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Zichen Wang, Zaiwen Wen
+-/
+
 module
 
 import stacks_project.Chap79.«79_3_0_2_Pullback»

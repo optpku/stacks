@@ -9,17 +9,15 @@ licenses in third-party material.
 
 ## Formalization credits
 
-All published Lean source files carry separate header credits:
+Lean source files carry the following initial header credit:
 
-- Statement formalization authors: **ReasBook team**
-- Proof formalization authors: **ReasBook team**
+- Authors: **Zichen Wang, Zaiwen Wen**
 
-These are temporary team credits, not a claim that every proof is complete or
-that existing contributors are replaced. They will be replaced or supplemented
-with names according to actual contributions. Publication scripts also carry
-team author credits. All original author notices and third-party terms remain
-in place. Contributors should identify their statement, proof, and library work
-in their Pull Requests so that the relevant file credits can be maintained.
+These credits do not imply that every proof is complete or replace existing
+contributors. They will be supplemented with names according to actual
+contributions. All original author notices and third-party terms remain in place.
+Contributors should identify their statement, proof, and library work in their
+Pull Requests so that the relevant file credits can be maintained.
 
 ## Mathematical source
 
@@ -53,5 +51,4 @@ The documentation organization was informed by established Lean projects:
 - [Sphere eversion](https://github.com/leanprover-community/sphere-eversion)
 - [Mathlib contribution guide](https://leanprover-community.github.io/contribute/how-to-contribute.html)
 
-Project-specific governance, automation, build badges, and completion claims from
-those projects are not implied for this repository.
+Project-specific governance, automation, build badges, and completion claims from those projects are not implied for this repository.

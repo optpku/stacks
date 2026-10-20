@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2026 Zichen Wang, Zaiwen Wen. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Zichen Wang, Zaiwen Wen
+-/
+
 import ReasLib.AlgebraicGeometry.RingedSpace.Module.Skyscraper
 import Mathlib.Algebra.Module.Torsion.Basic
 import Mathlib.AlgebraicGeometry.FunctionField

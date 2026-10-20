@@ -6,6 +6,8 @@
 *.ir
 *.ir.*
 *.trace
+tmp/
+*/__pycache__
 
 # Temporary Lean probes
 **/*[Pp]robe*.lean

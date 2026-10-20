@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.NaiveCotangent.TorAmplitude
@@ -20,6 +14,7 @@ its derived naive cotangent complex is perfect and has Tor-amplitude in `[-1, 0]
 @[stacks 0FV6] #check
   (AlgebraicGeometry.Scheme.Hom.NaiveCotangent.isPerfect_and_hasTorAmplitudeIn_of_lci :
     ∀ {X Y : AlgebraicGeometry.Scheme.{u}} (f : X ⟶ Y)
+      [DerivedCategory.DerivedTensor.Right.Has (C := AlgebraicGeometry.RingedSpace.Modules X.toRingedSpace)]
       [AlgebraicGeometry.LocallyOfType RingHom.IsLocalCompleteIntersection f],
       AlgebraicGeometry.RingedSpace.ModuleDerived.IsPerfect
           (DerivedCategory.Q.obj

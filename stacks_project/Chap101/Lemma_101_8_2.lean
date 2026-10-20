@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_9_1_Immersion
-public import stacks_project.Chap101.Definition_101_7_2_QuasiCompact
-public import stacks_project.Chap101.Definition_101_8_1_Noetherian
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Immersion.Noetherian
+import StacksCheckRecall
 
 /-!
 # Immersions into (locally) Noetherian algebraic stacks
@@ -28,28 +21,28 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 101.8.2 (1): an immersion of algebraic stacks into a locally
+/- Lemma 101.8.2 (1): an immersion of algebraic stacks into a locally
 Noetherian algebraic stack has locally Noetherian source. -/
-@[stacks 0CPM]
-theorem IsLocallyNoetherian.of_immersion {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (j : X ⟶ Y) [Immersion j]
-    [IsLocallyNoetherian Y] : IsLocallyNoetherian X :=
-  sorry
+@[stacks 0CPM] #check
+  (AlgebraicGeometry.AlgebraicStack.IsLocallyNoetherian.of_immersion :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] (j : X ⟶ Y) [Immersion j]
+      [IsLocallyNoetherian Y], IsLocallyNoetherian X)
 
-/-- Lemma 101.8.2 (2): an immersion of algebraic stacks into a locally
+/- Lemma 101.8.2 (2): an immersion of algebraic stacks into a locally
 Noetherian algebraic stack is quasi-compact. -/
-@[stacks 0CPM]
-instance QuasiCompact.of_immersion {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (j : X ⟶ Y) [Immersion j]
-    [IsLocallyNoetherian Y] : QuasiCompact j :=
-  sorry
+@[stacks 0CPM] #check
+  (AlgebraicGeometry.AlgebraicStack.QuasiCompact.of_immersion :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] (j : X ⟶ Y) [Immersion j]
+      [IsLocallyNoetherian Y], QuasiCompact j)
 
-/-- Lemma 101.8.2 (3): an immersion of algebraic stacks into a Noetherian
+/- Lemma 101.8.2 (3): an immersion of algebraic stacks into a Noetherian
 algebraic stack has Noetherian source. -/
-@[stacks 0CPM]
-theorem IsNoetherian.of_immersion {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (j : X ⟶ Y) [Immersion j]
-    [IsNoetherian Y] : IsNoetherian X :=
-  sorry
+@[stacks 0CPM] #check
+  (AlgebraicGeometry.AlgebraicStack.IsNoetherian.of_immersion :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] (j : X ⟶ Y) [Immersion j]
+      [IsNoetherian Y], IsNoetherian X)
 
 end AlgebraicGeometry.AlgebraicStack

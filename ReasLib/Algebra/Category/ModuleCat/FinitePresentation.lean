@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.FilteredColimits
@@ -414,6 +408,7 @@ end ModuleCat
 namespace Module.FinitePresentation
 
 /-- The regular right module of a ring is finitely presented over its opposite ring. -/
+@[instance]
 theorem rightRegular (A : Type u) [Ring A] :
     Module.FinitePresentation Aᵐᵒᵖ A := sorry
 

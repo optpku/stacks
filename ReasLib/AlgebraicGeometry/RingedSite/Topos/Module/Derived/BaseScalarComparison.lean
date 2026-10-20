@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module.Derived.ScalarComparison
@@ -16,6 +10,11 @@ open CategoryTheory
 universe uX vX uY vY w
 
 namespace RingedSite.ToposHom
+
+-- Local instance justification: the scalar comparison retains the canonical module
+-- localization and the actual direct-image availability from its existing Grothendieck input.
+attribute [local instance] Hom.moduleCat_hasDerivedCategory
+attribute [local instance] modulePushforwardToDerived.hasRightDerived
 
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
 variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]

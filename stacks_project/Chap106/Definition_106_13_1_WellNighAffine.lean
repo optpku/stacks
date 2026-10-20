@@ -1,21 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.AffineScheme
-public import stacks_project.Chap100.Definition_100_5_1_Surjective
-public import stacks_project.Chap101.Definition_101_10_1_Integral
-public import stacks_project.Chap106.Lemma_106_10_1_LocallyOfFinitePresentation
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.WellNighAffine
 
 /-!
 # Well-nigh affine algebraic stacks
 
 An algebraic stack is well-nigh affine when it admits a surjective, flat,
-finite, and locally of finite presentation atlas from an affine scheme.
+finite, and finitely presented atlas from an affine scheme.
 -/
 
 @[expose] public section
@@ -24,52 +15,27 @@ open CategoryTheory AlgebraicGeometry
 
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- An algebraic stack is well-nigh affine if there exists an affine scheme `U`
-and a 1-morphism `GroupoidsOver.slice U ⟶ X` that is surjective, flat, finite,
-and locally of finite presentation. -/
-@[mk_iff]
-class IsWellNighAffine {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X] : Prop where
-  /-- There is a surjective, flat, finite, locally of finite presentation
-  1-morphism from the slice of an affine scheme. -/
-  exists_affine_atlas :
+#check (IsWellNighAffine : ∀ {S : Scheme.{u}} (X : GroupoidsOver S)
+    [AlgebraicStack X], Prop)
+
+#check (IsWellNighAffine.spec : ∀ {S : Scheme.{u}} (X : GroupoidsOver S)
+    [AlgebraicStack X] [IsWellNighAffine X],
     ∃ (U : Over S) (p : GroupoidsOver.slice U ⟶ X),
       IsAffine U.left ∧ AlgebraicStack.Surjective p ∧ AlgebraicStack.Flat p ∧
-        AlgebraicStack.IsFinite p ∧ AlgebraicStack.LocallyOfFinitePresentation p
+        AlgebraicStack.IsFinite p ∧ AlgebraicStack.FinitePresentation p)
 
-namespace IsWellNighAffine
-
-/-- A well-nigh affine algebraic stack admits a surjective, flat, finite,
-locally of finite presentation atlas from an affine scheme. -/
-theorem spec {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
-    [IsWellNighAffine X] :
-    ∃ (U : Over S) (p : GroupoidsOver.slice U ⟶ X),
-      IsAffine U.left ∧ AlgebraicStack.Surjective p ∧ AlgebraicStack.Flat p ∧
-        AlgebraicStack.IsFinite p ∧ AlgebraicStack.LocallyOfFinitePresentation p :=
-  sorry
-
-/-- A surjective, flat, finite, locally of finite presentation atlas from an
-affine scheme witnesses that the algebraic stack is well-nigh affine. -/
-theorem of {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] {U : Over S}
+#check (IsWellNighAffine.of : ∀ {S : Scheme.{u}} {X : GroupoidsOver S}
+    [AlgebraicStack X] {U : Over S}
     [IsAffine U.left] (p : GroupoidsOver.slice U ⟶ X)
     [AlgebraicStack.Surjective p] [AlgebraicStack.Flat p]
-    [AlgebraicStack.IsFinite p] [AlgebraicStack.LocallyOfFinitePresentation p] :
-    IsWellNighAffine X :=
-  sorry
+    [AlgebraicStack.IsFinite p] [AlgebraicStack.FinitePresentation p],
+    IsWellNighAffine X)
 
-end IsWellNighAffine
-
-/-- The canonical slice of an affine scheme over `S` is a well-nigh affine
-algebraic stack. -/
-instance instIsWellNighAffine_slice {S : Scheme.{u}} (U : Over S)
-    [IsAffine U.left] : IsWellNighAffine (GroupoidsOver.slice U) where
-  exists_affine_atlas :=
-    ⟨U, 𝟙 (GroupoidsOver.slice U), inferInstance, inferInstance, inferInstance,
-      inferInstance, inferInstance⟩
+#check (instIsWellNighAffine_slice : ∀ {S : Scheme.{u}} (U : Over S)
+    [IsAffine U.left], IsWellNighAffine (GroupoidsOver.slice U))
 
 end AlgebraicGeometry.AlgebraicStack

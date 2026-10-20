@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Action.Size
@@ -125,5 +119,17 @@ theorem exists_isSmallBoundClosed {G : Type u} [Group G] {ι : Type u}
     (S0 : ι → Action (Type u) G) :
     ∃ P : ObjectProperty (Action (Type u) G),
       IsSmallBoundClosed P ∧ ObjectProperty.ofObj S0 ≤ P := sorry
+
+/-- A monomorphism into a member of a small bound-closed property has domain isomorphic
+to a member of that property. -/
+theorem isoClosure_of_mono {P : ObjectProperty (Action (Type u) G)} (hP : IsSmallBoundClosed P)
+    {O U : Action (Type u) G} (hU : P U) (f : O ⟶ U) [Mono f] : P.isoClosure O := sorry
+
+/-- A stable subset of a member of a small bound-closed property is isomorphic to a
+member of that property. -/
+theorem isoClosure_of_stableSubset {P : ObjectProperty (Action (Type u) G)}
+    (hP : IsSmallBoundClosed P) {U : Action (Type u) G} (hU : P U) (O : Set U.V)
+    (hO : ∀ g : G, Set.MapsTo (fun x : U.V ↦ U.ρ g x) O O) :
+    P.isoClosure (ofStableSubset U O hO) := sorry
 
 end Action

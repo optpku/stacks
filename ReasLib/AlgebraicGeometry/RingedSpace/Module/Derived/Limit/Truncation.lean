@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import Mathlib.CategoryTheory.Sites.SheafCohomology.Basic
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Cohomology.Presheaf
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Limit.StageComparison
 public import ReasLib.CategoryTheory.DerivedCategory.Truncation.Lower.Comparison

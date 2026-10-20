@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Basic
@@ -36,30 +30,33 @@ variable [UnivLE.{max uX vX, t}] [UnivLE.{max uY vX, t}]
 
 /-- The morphism of topoi presented by a morphism of ringed sites. -/
 @[stacks 01D3 "(2)"]
-noncomputable abbrev toMorphismOfTopoi (f : X.Hom Y)
+noncomputable def toMorphismOfTopoi (f : X.Hom Y)
     [PreservesFiniteLimits
-      (f.base.sheafPullback (Type t) Y.siteTopology X.siteTopology)] :
-    MorphismOfTopoiIn Y.siteTopology X.siteTopology :=
-  Functor.morphismOfTopoiInOfContinuous.{t} f.base
-    Y.siteTopology X.siteTopology
+      (f.sheafPullback (A := Type t))] :
+    MorphismOfTopoiIn Y.siteTopology X.siteTopology where
+  inverseImageFunctor := LeftExactFunctor.of (f.sheafPullback (A := Type t))
+  pushforward := f.sheafPushforwardContinuous (A := Type t)
+  adjunction := f.sheafAdjunctionContinuous (A := Type t)
 
 /-- The direct image of the topos morphism underlying a ringed-site morphism is the continuous
 sheaf pushforward along its base functor. -/
-@[simp] theorem toMorphismOfTopoi_pushforward
+@[simp]
+theorem toMorphismOfTopoi_pushforward
     (f : X.Hom Y)
     [PreservesFiniteLimits
-      (f.base.sheafPullback (Type t) Y.siteTopology X.siteTopology)] :
+      (f.sheafPullback (A := Type t))] :
     (f.toMorphismOfTopoi).pushforward =
-      f.base.sheafPushforwardContinuous (Type t) Y.siteTopology X.siteTopology := sorry
+      f.sheafPushforwardContinuous (A := Type t) := sorry
 
 /-- The inverse image of the topos morphism underlying a ringed-site morphism is the sheaf
 pullback along its base functor. -/
-@[simp] theorem toMorphismOfTopoi_inverseImage
+@[simp]
+theorem toMorphismOfTopoi_inverseImage
     (f : X.Hom Y)
     [PreservesFiniteLimits
-      (f.base.sheafPullback (Type t) Y.siteTopology X.siteTopology)] :
+      (f.sheafPullback (A := Type t))] :
     (f.toMorphismOfTopoi).inverseImage =
-      f.base.sheafPullback (Type t) Y.siteTopology X.siteTopology := sorry
+      f.sheafPullback (A := Type t) := sorry
 
 end PresentedTopos
 
@@ -71,13 +68,10 @@ class IsRingedEquivalence (f : X.Hom Y) : Prop where
   /-- The inverse-image functor of the underlying morphism of topoi is an equivalence. -/
   inverseImage_isEquivalence :
     Functor.IsEquivalence
-      (f.base.sheafPullback (Type (max uX vX uY vY))
-        Y.siteTopology X.siteTopology)
+      (f.sheafPullback (A := Type (max uX vX uY vY)))
   /-- The structure-sheaf map is an isomorphism. -/
   structureSheafMap_isIso : IsIso f.structureSheafMap
 
-attribute [instance] IsRingedEquivalence.inverseImage_isEquivalence
-attribute [instance] IsRingedEquivalence.structureSheafMap_isIso
 
 section PresentedTopos
 
@@ -88,11 +82,10 @@ morphism of topoi. -/
 theorem toMorphismOfTopoi_inverseImage_isEquivalence
     (f : X.Hom Y)
     [PreservesFiniteLimits
-      (f.base.sheafPullback (Type t) Y.siteTopology X.siteTopology)]
+      (f.sheafPullback (A := Type t))]
     [f.IsRingedEquivalence] :
     Functor.IsEquivalence (f.toMorphismOfTopoi).inverseImage := sorry
 
-attribute [instance] toMorphismOfTopoi_inverseImage_isEquivalence
 
 end PresentedTopos
 

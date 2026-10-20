@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Perfect.CohomologyTorDimension
@@ -22,7 +16,8 @@ differential image and every cycle object is finite locally free when all cohomo
 of `E` are perfect of Tor dimension at most one. -/
 @[stacks 0F8J]
 #check (AlgebraicGeometry.Scheme.ModuleDerived.cyclesAndBoundaries_finiteLocallyFree :
-  ∀ {X : Scheme.{u}} (E : RingedSpace.ModuleDerived X.toRingedSpace)
+  ∀ {X : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] (E : RingedSpace.ModuleDerived X.toRingedSpace)
     (K : _root_.CochainComplex X.Modules ℤ) (e : E ≅ DerivedCategory.Q.obj K)
     (hE : RingedSpace.ModuleDerived.IsPerfect E)
     (hK : SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree K)
@@ -37,7 +32,8 @@ of `E` are perfect of Tor dimension at most one. -/
 quotients of adjacent truncations are bounded complexes of finite locally free modules. -/
 @[stacks 0F8J]
 #check (AlgebraicGeometry.Scheme.ModuleDerived.truncLE_finiteLocallyFree :
-  ∀ {X : Scheme.{u}} (E : RingedSpace.ModuleDerived X.toRingedSpace)
+  ∀ {X : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] (E : RingedSpace.ModuleDerived X.toRingedSpace)
     (K : _root_.CochainComplex X.Modules ℤ) (e : E ≅ DerivedCategory.Q.obj K)
     (hE : RingedSpace.ModuleDerived.IsPerfect E)
     (hK : SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree K)
@@ -54,7 +50,8 @@ quotients of adjacent truncations are bounded complexes of finite locally free m
 and its quotient represents the degree-`k` cohomology of `E` placed in degree `k`. -/
 @[stacks 0F8J]
 #check (AlgebraicGeometry.Scheme.ModuleDerived.truncationStep_representsCohomology :
-  ∀ {X : Scheme.{u}} (E : RingedSpace.ModuleDerived X.toRingedSpace)
+  ∀ {X : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] (E : RingedSpace.ModuleDerived X.toRingedSpace)
     (K : _root_.CochainComplex X.Modules ℤ) (e : E ≅ DerivedCategory.Q.obj K)
     (hE : RingedSpace.ModuleDerived.IsPerfect E)
     (hK : SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree K)

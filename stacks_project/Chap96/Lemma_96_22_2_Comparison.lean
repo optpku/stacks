@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.AdditiveAdjunction
@@ -70,9 +64,7 @@ instance spacesEtaleTopology_hasSheafCompose_forget_addCommGrpCat (A : Algebraic
   sorry
 
 /-- Direct image of abelian sheaves along a morphism of algebraic spaces is additive. -/
-instance smallAbelianPushforward.instAdditive {A B : AlgebraicSpace S} (h : A ⟶ B)
-    [∀ P : (AlgebraicSpace.smallEtaleSite A)ᵒᵖ ⥤ AddCommGrpCat.{u},
-      (AlgebraicSpace.smallEtaleInclusion A).op.HasPointwiseRightKanExtension P] :
+instance smallAbelianPushforward.instAdditive {A B : AlgebraicSpace S} (h : A ⟶ B) :
     (AlgebraicSpace.EtaleAdditive.directImage h).Additive :=
   sorry
 
@@ -109,17 +101,13 @@ def addCommGrpCatIsoOfForget {A B : AddCommGrpCat.{u}}
   inv_hom_id := sorry
 
 /-- Direct image of abelian étale sheaves along a morphism of algebraic spaces. -/
-abbrev smallAbelianPushforward {A B : AlgebraicSpace S} (h : A ⟶ B)
-    [∀ P : (AlgebraicSpace.smallEtaleSite A)ᵒᵖ ⥤ AddCommGrpCat.{u},
-      (AlgebraicSpace.smallEtaleInclusion A).op.HasPointwiseRightKanExtension P] :
+abbrev smallAbelianPushforward {A B : AlgebraicSpace S} (h : A ⟶ B) :
     Sheaf (AlgebraicSpace.smallEtaleTopology A) AddCommGrpCat.{u} ⥤
       Sheaf (AlgebraicSpace.smallEtaleTopology B) AddCommGrpCat.{u} :=
   AlgebraicSpace.EtaleAdditive.directImage h
 
 /-- `smallAbelianPushforward` is the abelian-group analogue of `AlgebraicSpace.typePushforward`. -/
-theorem smallAbelianPushforward_eq {A B : AlgebraicSpace S} (h : A ⟶ B)
-    [∀ P : (AlgebraicSpace.smallEtaleSite A)ᵒᵖ ⥤ AddCommGrpCat.{u},
-      (AlgebraicSpace.smallEtaleInclusion A).op.HasPointwiseRightKanExtension P] :
+theorem smallAbelianPushforward_eq {A B : AlgebraicSpace S} (h : A ⟶ B) :
     smallAbelianPushforward h = AlgebraicSpace.EtaleAdditive.directImage h :=
   rfl
 
@@ -154,6 +142,7 @@ variable {X Y : GroupoidsOver S} {F G : AlgebraicSpace S}
 variable (eX : F.toGroupoids ≌ X) (eY : G.toGroupoids ≌ Y) (f : X ⟶ Y)
 variable (α : (f ≫ eY.symm.hom) ≅
     (eX.symm.hom ≫ AlgebraicSpace.toGroupoids.map (inducedHom eX eY f)))
+variable [HasSmallCFGTypeSections (S := S) f]
 
 variable [HasSheafify X.etaleTopology AddCommGrpCat.{u}]
 variable [HasSheafify Y.etaleTopology AddCommGrpCat.{u}]
@@ -181,22 +170,16 @@ variable [∀ P : X.totalᵒᵖ ⥤ Type u,
 variable [∀ P : F.toGroupoids.totalᵒᵖ ⥤ Type u,
     (toCartesianBasedFunctor
         (AlgebraicSpace.toGroupoids.map (inducedHom eX eY f))).toFunctor.op.HasPointwiseRightKanExtension P]
-variable [∀ P : (AlgebraicSpace.smallEtaleSite F)ᵒᵖ ⥤ Type u,
-    (AlgebraicSpace.smallEtaleInclusion F).op.HasPointwiseRightKanExtension P]
 variable [∀ P : X.totalᵒᵖ ⥤ AddCommGrpCat.{u},
     (toCartesianBasedFunctor f).toFunctor.op.HasPointwiseRightKanExtension P]
 variable [∀ P : F.toGroupoids.totalᵒᵖ ⥤ AddCommGrpCat.{u},
     (toCartesianBasedFunctor
         (AlgebraicSpace.toGroupoids.map (inducedHom eX eY f))).toFunctor.op.HasPointwiseRightKanExtension P]
-variable [∀ P : (AlgebraicSpace.smallEtaleSite F)ᵒᵖ ⥤ AddCommGrpCat.{u},
-    (AlgebraicSpace.smallEtaleInclusion F).op.HasPointwiseRightKanExtension P]
 variable [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
     (toCartesianBasedFunctor f).toFunctor.op]
 variable [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
     (toCartesianBasedFunctor
         (AlgebraicSpace.toGroupoids.map (inducedHom eX eY f))).toFunctor.op]
-variable [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
-    (AlgebraicSpace.smallEtaleInclusion F).op]
 variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
     (Sheaf X.etaleTopology AddCommGrpCat.{u})]
 variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
@@ -247,18 +230,23 @@ def restrictAbelianForgetIso_source :
     (NatIso.ofComponents (fun _ ↦ Iso.refl _) sorry)
 
 /-- Small abelian pushforward forgets to type-valued small étale pushforward. -/
-def smallAbelianPushforwardForgetIso {A B : AlgebraicSpace S} (h : A ⟶ B)
-    [∀ P : (AlgebraicSpace.smallEtaleSite A)ᵒᵖ ⥤ AddCommGrpCat.{u},
-      (AlgebraicSpace.smallEtaleInclusion A).op.HasPointwiseRightKanExtension P]
-    [∀ P : (AlgebraicSpace.smallEtaleSite A)ᵒᵖ ⥤ Type u,
-      (AlgebraicSpace.smallEtaleInclusion A).op.HasPointwiseRightKanExtension P]
-    [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
-      (AlgebraicSpace.smallEtaleInclusion A).op] :
+def smallAbelianPushforwardForgetIso {A B : AlgebraicSpace S} (h : A ⟶ B) :
     smallAbelianPushforward h ⋙
         sheafCompose (AlgebraicSpace.smallEtaleTopology B) (forget AddCommGrpCat.{u}) ≅
       sheafCompose (AlgebraicSpace.smallEtaleTopology A) (forget AddCommGrpCat.{u}) ⋙
         AlgebraicSpace.typePushforward h :=
   AlgebraicSpace.EtaleAdditive.directImageForgetIso h
+
+/-- The two constructed type-valued direct images are right adjoints of the same
+continuous restriction; their comparison uses both actual adjunctions. -/
+def etaleTypePushforwardSmallSectionsIso :
+    (toCartesianBasedFunctor f).toFunctor.sheafPushforwardCocontinuous (Type u)
+        X.etaleTopology Y.etaleTopology ≅
+      (etaleRingedToposHom f).toTopos.pushforward :=
+  ((toCartesianBasedFunctor f).toFunctor.sheafAdjunctionCocontinuous (Type u)
+    X.etaleTopology Y.etaleTopology).rightAdjointUniq
+      ((toFunctor f).sheafPushforwardOfSmallSectionsAdjunction
+        X.etaleTopology Y.etaleTopology)
 
 /-- Forgetting abelian groups after the left-hand composite recovers type-valued
 `π_{G,*} f_*`. -/
@@ -283,7 +271,11 @@ def compareAbelian_leftForgetIso :
       ((toCartesianBasedFunctor f).toFunctor.sheafPushforwardCocontinuous (Type u)
         X.etaleTopology Y.etaleTopology)
       ((smallEtaleFunctor G Y eY).sheafPushforwardContinuous (Type u)
-        (AlgebraicSpace.smallEtaleTopology G) Y.etaleTopology)
+        (AlgebraicSpace.smallEtaleTopology G) Y.etaleTopology) ≪≫
+    Functor.isoWhiskerLeft (sheafCompose X.etaleTopology (forget AddCommGrpCat.{u}))
+      (Functor.isoWhiskerRight (etaleTypePushforwardSmallSectionsIso f)
+        ((smallEtaleFunctor G Y eY).sheafPushforwardContinuous (Type u)
+          (AlgebraicSpace.smallEtaleTopology G) Y.etaleTopology))
 
 /-- Forgetting abelian groups after the right-hand composite recovers type-valued
 `f_small,* π_{F,*}`. -/

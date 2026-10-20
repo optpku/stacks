@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
@@ -21,6 +15,7 @@ public import Mathlib.CategoryTheory.Sites.Sheafification
 public import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 public import Mathlib.Topology.LocallyConstant.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Weighting
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Stalk.Coproduct
 public import ReasLib.CategoryTheory.Sites.ConstantSheaf.Integer
 public import ReasLib.CategoryTheory.Sites.Point.MorphismOfSites
 public import ReasLib.CategoryTheory.Sites.Pullback.SheafCompose
@@ -118,8 +113,9 @@ def constantPresheafFiberToCoeff (S : Scheme.{u})
 /-- The geometric point of `S` obtained by composing a geometric point of an
 étale `S`-scheme with its structure morphism. -/
 def etaleGeometricPoint {S : Scheme.{u}} (U : S.Etale)
-    (ū : GeometricPoint U.left) : GeometricPoint S :=
-  GeometricPoint.of ū.K (ū.hom ≫ U.hom)
+    (ū : GeometricPoint U.left) : GeometricPoint S where
+  toFieldValuedPoint := FieldValuedPoint.of ū.K (ū.hom ≫ U.hom)
+  isAlgClosed := ū.isAlgClosed
 
 /-- The structure morphism of `etaleGeometricPoint` is `ū.hom ≫ U.hom`. -/
 theorem etaleGeometricPoint_hom {S : Scheme.{u}} (U : S.Etale)

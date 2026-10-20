@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Properties
@@ -26,7 +20,7 @@ algebraic spaces is finitely presented if its restriction above a quasi-compact,
 scheme-theoretically dense open subspace of the target is finitely presented. -/
 theorem finitePresentation_of_restrict_of_flatOver
     {S : Scheme.{u}} {X Y V : AlgebraicSpace S} (f : X ⟶ Y)
-    (h_lfp : LocallyOfFinitePresentation f) (F : Modules X)
+    [LocallyOfFinitePresentation f] (F : Modules X)
     (h_quasicoherent : IsQuasicoherent F) (h_finiteType : IsFiniteType F)
     (h_flat : FlatOver F f) (ι : V ⟶ Y)
     (h_open : Representable.IsOpenImmersion ι) (h_quasiCompact : Representable.QuasiCompact ι)

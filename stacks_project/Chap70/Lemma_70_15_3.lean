@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_12_5_Reduced
-public import stacks_project.Chap66.Lemma_66_13_1_IsScheme
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IsScheme.Reduction
+import StacksCheckRecall
 
 /-!
 # Lemma 70.15.3
@@ -22,17 +16,7 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-namespace IsScheme
-
-/-- Lemma 70.15.3: Let `S` be a scheme. Let `X` be an algebraic space over `S`.
+/- Lemma 70.15.3: Let `S` be a scheme. Let `X` be an algebraic space over `S`.
 If `reduction X` is a scheme, then `X` is a scheme. -/
-@[stacks 07VU]
-theorem of_reduction {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsScheme (reduction X)] : IsScheme X :=
-  sorry
-
-end IsScheme
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 07VU] #check (AlgebraicGeometry.AlgebraicSpace.IsScheme.of_reduction :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [IsScheme (reduction X)], IsScheme X)

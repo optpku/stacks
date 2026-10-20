@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Presheaf
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
+public import ReasLib.AlgebraicGeometry.Scheme.RepresentableProperty
 public import Mathlib.AlgebraicGeometry.Properties
 public import Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion
 public import Mathlib.CategoryTheory.Sites.Subsheaf
@@ -14,6 +9,7 @@ public import Mathlib.CategoryTheory.Sites.Subsheaf
 @[expose] public section
 
 open CategoryTheory Opposite
+open AlgebraicGeometry.AlgebraicSpace (IsAlgebraicSpace)
 
 universe u
 
@@ -46,23 +42,23 @@ theorem reduction_isSheaf (F : (Over S)ᵒᵖ ⥤ Type u)
 
 /-- Every morphism from a reduced algebraic space to an algebraic space
 factors uniquely through its reduced subsheaf. -/
-theorem reduction_universal (F : (Over S)ᵒᵖ ⥤ Type u) (hF : IsAlgebraicSpace F)
-    {G : (Over S)ᵒᵖ ⥤ Type u} (hG : IsAlgebraicSpace G)
+theorem reduction_universal (F : (Over S)ᵒᵖ ⥤ Type u) [IsAlgebraicSpace F]
+    {G : (Over S)ᵒᵖ ⥤ Type u} [IsAlgebraicSpace G]
     (hReduced : HasReducedEtaleAtlas G) (morphism : G ⟶ F) :
     ∃! factor : G ⟶ (reduction F).toFunctor, factor ≫ (reduction F).ι = morphism := sorry
 
 /-- The reduced subsheaf of an algebraic space is an algebraic space. -/
 theorem reduction_isAlgebraicSpace (F : (Over S)ᵒᵖ ⥤ Type u)
-    (hF : IsAlgebraicSpace F) : IsAlgebraicSpace (reduction F).toFunctor := sorry
+    [IsAlgebraicSpace F] : IsAlgebraicSpace (reduction F).toFunctor := sorry
 
 /-- The reduced subsheaf of an algebraic space admits a reduced étale atlas. -/
 theorem reduction_hasReducedEtaleAtlas (F : (Over S)ᵒᵖ ⥤ Type u)
-    (hF : IsAlgebraicSpace F) : HasReducedEtaleAtlas (reduction F).toFunctor := sorry
+    [IsAlgebraicSpace F] : HasReducedEtaleAtlas (reduction F).toFunctor := sorry
 
 /-- The inclusion of the reduced subsheaf of an algebraic space is a
 representable surjective closed immersion. -/
 theorem reductionι_isThickening (F : (Over S)ᵒᵖ ⥤ Type u)
-    (hF : IsAlgebraicSpace F) :
+    [IsAlgebraicSpace F] :
     Scheme.representableMorphismProperty S (@IsClosedImmersion ⊓ @Surjective)
       (reduction F).ι := sorry
 

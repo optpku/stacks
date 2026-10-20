@@ -1,65 +1,31 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Definition_75_9_1_Square
-public import stacks_project.Chap75.Lemma_75_10_2_Sequence
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.MayerVietoris.Pushforward
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.MayerVietoris.Pushforward
 
-/-!
-# Mayer–Vietoris sequence for étale pushforward
-
-Lemma 75.10.2: along an elementary distinguished square of algebraic spaces,
-étale direct image of an `𝒪_X`-module yields a short exact sequence, and the same
-maps give a distinguished triangle in `D(𝒪_X)`.
--/
-
-@[expose] public section
+/-! # Mayer–Vietoris sequence for étale pushforward -/
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.Modules CategoryTheory.Limits
-open CategoryTheory.Pretriangulated
-
-noncomputable section
+open AlgebraicGeometry.AlgebraicSpace.Modules CategoryTheory.Pretriangulated
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules
+/- Lemma 75.10.2 (1). For an elementary distinguished square of algebraic spaces,
+every sheaf of structure modules has the canonical short exact sequence
+0 → F → j_{U,*} F|_U ⊞ j_{V,*} F|_V → j_{U×_X V,*} F|_{U×_X V} → 0. -/
+@[stacks 08GW] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.mayerVietorisPushforward_shortExact :
+    ∀ {S : Scheme.{u}} {U V X : AlgebraicSpace S}
+      (j : U ⟶ X) [Etale j] (f : V ⟶ X) [Etale f]
+      [IsElementaryDistinguishedSquare j f] (F : X.Modules),
+      (mayerVietorisPushforwardShortComplex j f F).ShortExact)
 
-/-- Lemma 75.10.2 (1). Let `S` be a scheme. Let `(U ⊂ X, V ⟶ X)` be an elementary
-distinguished square of algebraic spaces over `S`. For a sheaf of `𝒪_X`-modules
-`F` the sequence
-`0 ⟶ F ⟶ j_{U,*} F|_U ⊞ j_{V,*} F|_V ⟶ j_{U×_X V,*} F|_{U×_X V} ⟶ 0`
-is short exact. -/
-@[stacks 08GW]
-theorem mayerVietorisPushforward_shortExact {S : Scheme.{u}} {U V X : AlgebraicSpace S}
+/- Lemma 75.10.2 (2). For every object E of the unbounded derived module category,
+the canonical triangle E → Rj_{U,*} E|_U ⊞ Rj_{V,*} E|_V →
+Rj_{U×_X V,*} E|_{U×_X V} → E[1] is distinguished. -/
+@[stacks 08GW] #check (AlgebraicGeometry.AlgebraicSpace.Modules.mayerVietorisPushforward_mem_distTriang :
+  ∀ {S : Scheme.{u}} {U V X : AlgebraicSpace S}
     (j : U ⟶ X) [Etale j] (f : V ⟶ X) [Etale f]
-    [IsElementaryDistinguishedSquare j f] (F : X.Modules) :
-    (mayerVietorisPushforwardShortComplex j f F).ShortExact :=
-  sorry
-
-/-- Lemma 75.10.2 (2). Let `S` be a scheme. Let `(U ⊂ X, V ⟶ X)` be an elementary
-distinguished square of algebraic spaces over `S`. For an object `E` of `D(𝒪_X)`
-the triangle
-`E ⟶ Rj_{U,*} E|_U ⊞ Rj_{V,*} E|_V ⟶ Rj_{U×_X V,*} E|_{U×_X V} ⟶ E⟦1⟧`
-is distinguished in `D(𝒪_X)`. -/
-@[stacks 08GW]
-theorem mayerVietorisPushforward_mem_distTriang {S : Scheme.{u}}
-    {U V X : AlgebraicSpace S} (j : U ⟶ X) [Etale j] (f : V ⟶ X) [Etale f]
-    [IsElementaryDistinguishedSquare j f]
-    [(restrictFunctor (fiberHom j f)).Additive]
-    [(restrictFunctor j).Additive] [(restrictFunctor f).Additive]
-    [PreservesFiniteLimits (restrictFunctor (fiberHom j f))]
-    [PreservesFiniteColimits (restrictFunctor (fiberHom j f))]
-    [PreservesFiniteLimits (restrictFunctor j)]
-    [PreservesFiniteColimits (restrictFunctor j)]
-    [PreservesFiniteLimits (restrictFunctor f)]
-    [PreservesFiniteColimits (restrictFunctor f)]
-    (E : ModuleDerived X) :
-    mayerVietorisPushforwardTriangle j f E ∈ distTriang (ModuleDerived X) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Modules
+    [IsElementaryDistinguishedSquare j f] (E : ModuleDerived X),
+    mayerVietorisPushforwardTriangle j f E ∈ distTriang (ModuleDerived X))

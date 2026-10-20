@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension.PseudoCoherent
@@ -31,6 +25,9 @@ universe u v w
 /- Lemma 15.65.12 (1): derived extension of scalars preserves `m`-pseudo-coherence. -/
 @[stacks 0650 "Lemma 15.65.12 (1)"]
 #check fun {A : Type u} {B : Type v} [CommRing A] [CommRing B] [Algebra A B]
+    [hasLeftDerived : (ModuleCat.extendScalarsToDerived.{u, v, w}
+      (algebraMap A B)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (ModuleCat.{w, u} A) (ComplexShape.up ℤ))]
     (K : DerivedCategory (ModuleCat.{w, u} A)) (m : ℤ) (hK : K.IsMPseudoCoherent m) ↦
   (DerivedCategory.IsMPseudoCoherent.extension hK (algebraMap A B) :
     (K ⊗[A]^L[B]).IsMPseudoCoherent m)
@@ -38,6 +35,9 @@ universe u v w
 /- Lemma 15.65.12 (2): derived extension of scalars preserves pseudo-coherence. -/
 @[stacks 0650 "Lemma 15.65.12 (2)"]
 #check fun {A : Type u} {B : Type v} [CommRing A] [CommRing B] [Algebra A B]
+    [hasLeftDerived : (ModuleCat.extendScalarsToDerived.{u, v, w}
+      (algebraMap A B)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (ModuleCat.{w, u} A) (ComplexShape.up ℤ))]
     (K : DerivedCategory (ModuleCat.{w, u} A)) (hK : K.IsPseudoCoherent) ↦
   (DerivedCategory.IsPseudoCoherent.extension hK (algebraMap A B) :
     (K ⊗[A]^L[B]).IsPseudoCoherent)

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap75.Lemma_75_12_5_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.Pushforward.Noetherian
 
 @[expose] public section
 
@@ -26,7 +20,7 @@ comparisons to derived modules having quasi-coherent cohomology. -/
       [IsNoetherian X] [IsNoetherian Y] [QuasiCompact f] [QuasiSeparated f],
       IsIsomorphic
         (QCoh.Derived.pushforward f ⋙ DerivedQCoh.comparison Y)
-        (DerivedQCoh.comparison X ⋙ DerivedQCoh.pushforward f))
+        (DerivedQCoh.comparison X ⋙ DerivedQCoh.pushforwardCohomologyIn f))
 
 #check AlgebraicGeometry.AlgebraicSpace.QCoh.Derived.pushforward
 #check AlgebraicGeometry.AlgebraicSpace.QCoh.Derived.pushforwardIsRightDerived

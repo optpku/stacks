@@ -1,15 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
 public import stacks_project.Chap65.Lemma_65_7_3_Pullback
 public import stacks_project.Chap66.Lemma_66_4_6_Topology
 public import stacks_project.Chap75.Lemma_75_7_3_ProperOver
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubset.Proper.BaseChange
 
 /-!
 # Inverse images of closed subsets proper over a base
@@ -28,22 +23,18 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.ClosedSubset
 
-/-- Properness of a closed subset over a base is preserved by inverse image in a
-cartesian square of algebraic spaces. -/
-theorem IsProperOver.preimage {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
-    {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y}
-    (sq : IsPullback g' f' f g) [LocallyOfFiniteType f]
-    (T : Closeds (Points X)) [IsProperOver f T] :
-    IsProperOver f' (T.preimage (Points.continuous_map g')) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver.preimage :
+  ∀ {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
+    {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y},
+    IsPullback g' f' f g →
+      ∀ [LocallyOfFiniteType f] (T : Closeds (Points X)),
+        ProperOver f T → ProperOver f' (T.preimage (Points.continuous_map g')))
 
-/-- Properness of a closed subset over a base is preserved by inverse image along
-the source projection of a chosen pullback. -/
-theorem IsProperOver.preimage_pullback {S : Scheme.{u}} {X Y Y' : AlgebraicSpace S}
-    (f : X ⟶ Y) (g : Y' ⟶ Y) [LocallyOfFiniteType f]
-    (T : Closeds (Points X)) [IsProperOver f T] :
-    IsProperOver (pullback.snd f g)
-      (T.preimage (Points.continuous_map (pullback.fst f g))) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver.preimage_pullback :
+  ∀ {S : Scheme.{u}} {X Y Y' : AlgebraicSpace S}
+    (f : X ⟶ Y) (g : Y' ⟶ Y) [HasPullback f g] [LocallyOfFiniteType f]
+    (T : Closeds (Points X)),
+    ProperOver f T → ProperOver (pullback.snd f g)
+      (T.preimage (Points.continuous_map (pullback.fst f g))))
 
 end AlgebraicGeometry.AlgebraicSpace.ClosedSubset

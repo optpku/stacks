@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.DerivedCategory.Monoidal.Tensor.Right.Monoidal
@@ -55,7 +49,7 @@ noncomputable def adjunction
     (E : DerivedCategory C) [DerivedTensor.Right.Has (C := C)] :
     DerivedTensor.Right.functor E ⊣ H.hom.obj (Opposite.op E) :=
   (H.adj₂.adj E).ofNatIsoLeft
-    (DerivedTensor.Right.Monoidal.Model.tensorRightIsoFunctor M E)
+    (DerivedTensor.Right.Monoidal.Model.functorIsoTensorRight M E).symm
 
 /-- Stacks 064M: the fixed-right derived Hom equivalence supplied by bundled internal-Hom and
 explicit tensor-model owners. -/
@@ -192,7 +186,7 @@ noncomputable def adjunction
     [DerivedTensor.Right.Has (C := C)] :
     DerivedTensor.Right.functor E ⊣ H.hom.obj (Opposite.op E) :=
   (H.adj₂.adj E).ofNatIsoLeft
-    (DerivedTensor.Right.Monoidal.tensorRightIsoFunctorOf E ε h)
+    (DerivedTensor.Right.Monoidal.functorIsoTensorRightOf E ε h).symm
 
 /-- Stacks 064M: the fixed-right Hom equivalence supplied by bundled internal-Hom and explicit
 counit owners. -/
@@ -468,7 +462,7 @@ theorem tensorMapOf_objIsoTensor
       (adjunctionOf H T E).homEquiv K N ((T.objIsoTensor K E).hom ≫ g) =
         (ambientAdjunctionOf H E).homEquiv K N g := by
     change ((((RightInternalHom.ofBraidedClosedOf H).adj₂.adj E).ofNatIsoLeft
-        (T.tensorRightIsoFunctor E)).homEquiv K N)
+        (T.functorIsoTensorRight E).symm).homEquiv K N)
         ((T.objIsoTensor K E).hom ≫ g) = _
     rw [Adjunction.homEquiv_ofNatIsoLeft_apply]
     change (((RightInternalHom.ofBraidedClosedOf H).adj₂.adj E).homEquiv K N)

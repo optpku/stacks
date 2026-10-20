@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Bicategory.Functor.LocallyDiscrete
@@ -44,12 +38,22 @@ def groupoidPresheafProjection (F : 𝒞ᵒᵖ ⥤ Grpd.{v₂, w}) :
 
 namespace groupoidPresheafProjection
 
-/-- Example 4.37.1 (Stacks 0049): the canonical projection associated to a strict presheaf of groupoids is fibred in
+/-- The canonical projection associated to a strict presheaf of groupoids is fibred in
 groupoids. -/
 @[stacks 0049 "groupoid presheaf projection is fibred in groupoids"]
 instance inGroupoids
     (F : 𝒞ᵒᵖ ⥤ Grpd.{v₂, w}) :
-    Functor.IsFibered.InGroupoids (groupoidPresheafProjection F) := sorry
+    Functor.IsFibered.InGroupoids (groupoidPresheafProjection F) :=
+  letI (U : LocallyDiscrete 𝒞ᵒᵖ) :
+      Groupoid (((F ⋙ Grpd.forgetToCat).toPseudofunctor').obj U) :=
+    Grpd.str' (F.obj U.as)
+  have hGroupoid : ∀ U : LocallyDiscrete 𝒞ᵒᵖ,
+      IsGroupoid (((F ⋙ Grpd.forgetToCat).toPseudofunctor').obj U) := by
+    intro U
+    change IsGroupoid (F.obj U.as : Type _)
+    infer_instance
+  letI := hGroupoid
+  forgetInGroupoids ((F ⋙ Grpd.forgetToCat).toPseudofunctor')
 
 end groupoidPresheafProjection
 

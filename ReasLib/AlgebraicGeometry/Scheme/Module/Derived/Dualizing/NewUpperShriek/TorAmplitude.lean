@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.TorDimension.Relative
@@ -41,6 +35,7 @@ dualizing object has Tor-amplitude in `[-d, 0]` over the target. -/
 theorem dualizingObject_hasTorAmplitudeInOver_of_flat
     (D : NewUpperShriekAssignment S H ωS hωS)
     {X Y : FiniteTypeOver S} (f : X ⟶ Y) [Flat f.hom.left]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules (RingedSpace.Hom.inverseImageBase f.hom.left.toShHom))]
     (d : ℕ) [Scheme.Hom.RelativeDimensionLE f.hom.left d] :
     HasTorAmplitudeInOver (f.hom.left).toShHom (D.dualizingObject f) (-(d : ℤ)) 0 := sorry
 

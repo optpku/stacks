@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.InverseSystem.Milnor.Derived
@@ -15,8 +9,6 @@ public import Mathlib.Tactic.CrossRefAttribute
 /-!
 # Derived Limits and Milnor Triangles
 
-@stack 08TC
-
 For a sequential inverse system `Ksys : SequentialInverseSystem D` in a preadditive category `D`,
 this module uses the canonical Milnor difference endomorphism `1 - shift` of `∏ Ksys.family` to
 define the first derived limit `R¹ lim Ksys` as a cokernel and, in a triangulated category, the
@@ -25,10 +17,8 @@ notion of a derived limit (homotopy limit) via a Milnor distinguished triangle.
 ## Main definitions
 
 * `SequentialInverseSystem.family` -- the family `n ↦ Ksys.obj (op n)` underlying `Ksys`.
-* `DerivedLimit.R1` -- the compatibility name for the neutral Milnor-cokernel owner
-  `SequentialInverseSystem.Milnor.ProductCone.canonicalR1`.
-* `DerivedLimit.R1.map` -- the compatibility name for its induced map under a morphism of
-  sequential inverse systems.
+* `DerivedLimit.R1` -- the cokernel of the Milnor difference endomorphism.
+* `DerivedLimit.R1.map` -- the induced map on Milnor cokernels under a morphism of inverse systems.
 * `HasMilnorTriangle` -- `K` is equipped with a distinguished Milnor triangle for `Ksys`.
 * `IsDerivedLimit` -- `K` is a derived limit (homotopy limit) of `Ksys`.
 -/
@@ -50,21 +40,18 @@ section
 
 variable {D : Type u} [Category.{v} D] [Preadditive D] [HasCokernels D]
 
-/-- The compatibility name for the neutral first-derived-limit owner
-`SequentialInverseSystem.Milnor.ProductCone.canonicalR1`. -/
+/-- The first derived inverse limit, modeled by the cokernel of the Milnor difference map. -/
 abbrev R1 (Ksys : SequentialInverseSystem D) [HasProduct Ksys.family] :=
   SequentialInverseSystem.Milnor.ProductCone.canonicalR1 Ksys
 
 namespace R1
 
-/-- The compatibility name for the neutral canonical quotient to the first derived inverse
-limit. -/
+/-- The canonical quotient from the product to the first derived inverse limit. -/
 abbrev π (Ksys : SequentialInverseSystem D) [HasProduct Ksys.family] :
     ∏ᶜ Ksys.family ⟶ R1 Ksys :=
   SequentialInverseSystem.Milnor.ProductCone.canonicalR1.π Ksys
 
-/-- The compatibility name for the neutral canonical map on `R¹ lim` induced by a morphism
-of sequential inverse systems. -/
+/-- The map on first derived inverse limits induced by a morphism of sequential inverse systems. -/
 abbrev map {Ksys Lsys : SequentialInverseSystem D}
     [HasProduct Ksys.family] [HasProduct Lsys.family] (φ : Ksys ⟶ Lsys) :
     R1 Ksys ⟶ R1 Lsys :=
@@ -81,7 +68,7 @@ section
 
 variable [HasCountableProducts D]
 
-/-- The compatibility name for the neutral canonical first-derived-limit functor. -/
+/-- The functor sending a sequential inverse system to its Milnor cokernel. -/
 abbrev functor : SequentialInverseSystem D ⥤ D :=
   SequentialInverseSystem.Milnor.ProductCone.canonicalR1.functor
 
@@ -104,14 +91,10 @@ end
 end DerivedLimit
 
 /-!
-## Source-facing inverse-limit names
+## First derived inverse limits
 
-The canonical owner is `SequentialInverseSystem.Milnor.ProductCone.canonicalR1`, while this file
-retains `DerivedLimit.R1` as a compatibility facade.  A substantial amount of downstream Stacks
-material uses the older `SequentialInverseSystem.firstDerivedLimit` vocabulary; that vocabulary
-is mathematically the same cokernel model and is useful when stating `R¹ lim` results.  Keep the
-bridge here so chapter files do not become hidden providers of these declarations.  There is
-deliberately no second implementation.
+The first derived inverse limit of a sequential system is the cokernel of its Milnor
+difference endomorphism. Morphisms of systems induce morphisms of these cokernels.
 -/
 
 namespace SequentialInverseSystem
@@ -120,12 +103,11 @@ section
 
 variable {D : Type u} [Category.{v} D] [Preadditive D] [HasCokernels D]
 
-/-- The source-facing name for the compatibility facade `DerivedLimit.R1` over the neutral
-Milnor-cokernel owner. -/
+/-- The first derived inverse limit as the cokernel of the Milnor difference endomorphism. -/
 abbrev firstDerivedLimit (Ksys : SequentialInverseSystem D) [HasProduct Ksys.family] : D :=
   DerivedLimit.R1 Ksys
 
-/-- The source-facing name for the compatibility map on `DerivedLimit.R1`. -/
+/-- The map on Milnor cokernels induced by a morphism of inverse systems. -/
 abbrev firstDerivedLimitMap {Ksys Lsys : SequentialInverseSystem D}
     [HasProduct Ksys.family] [HasProduct Lsys.family] (φ : Ksys ⟶ Lsys) :
     Ksys.firstDerivedLimit ⟶ Lsys.firstDerivedLimit :=
@@ -139,18 +121,18 @@ section SourceNames
 
 variable {D : Type u} [Category.{v} D] [Preadditive D]
 
-/-- The source-facing family notation for a sequential inverse system.  The canonical owner is
-`SequentialInverseSystem.family`; this bridge keeps the historical name out of chapter files. -/
+/-- The family of stage objects of a sequential inverse system. -/
 abbrev inverseSystemFamily (Ksys : SequentialInverseSystem D) : ℕ → D :=
   Ksys.family
 
-/-- The source-facing name for the canonical Milnor difference map. -/
+/-- The Milnor difference endomorphism of the product of the stage objects. -/
 abbrev derivedLimitDifferenceMap (Ksys : SequentialInverseSystem D)
     [HasProduct Ksys.family] :
     ∏ᶜ inverseSystemFamily Ksys ⟶ ∏ᶜ inverseSystemFamily Ksys :=
   Ksys.milnorDifferenceMap
 
-/-- The projection formula for the source-facing Milnor difference-map name. -/
+/-- The projection of the Milnor difference is the current projection minus the next projection
+followed by the transition map. -/
 @[reassoc (attr := simp)]
 theorem derivedLimitDifferenceMap_comp_π (Ksys : SequentialInverseSystem D)
     [HasProduct Ksys.family] (n : ℕ) :
@@ -158,7 +140,8 @@ theorem derivedLimitDifferenceMap_comp_π (Ksys : SequentialInverseSystem D)
       Pi.π (inverseSystemFamily Ksys) n -
         Pi.π (inverseSystemFamily Ksys) (n + 1) ≫ Ksys.transitionMap (Nat.le_succ n) := sorry
 
-/-- Naturality of the source-facing Milnor difference-map name. -/
+/-- The Milnor difference endomorphism commutes with the product map induced by a morphism
+of inverse systems. -/
 @[reassoc]
 theorem derivedLimitDifferenceMap_naturality
     {Ksys Lsys : SequentialInverseSystem D}
@@ -188,7 +171,7 @@ structure HasMilnorTriangle (Ksys : SequentialInverseSystem D)
 
 namespace HasMilnorTriangle
 
-/-- Stacks 08TC: a Milnor triangle whose first map to the product is prescribed. -/
+/-- A Milnor triangle whose first map to the product is prescribed. -/
 @[stacks 08TC]
 def WithMap (Ksys : SequentialInverseSystem D) [HasProduct Ksys.family]
   {K : D} (ι : K ⟶ ∏ᶜ Ksys.family) : Prop :=
@@ -314,7 +297,7 @@ noncomputable def stageProjection {Ksys : SequentialInverseSystem D} {K : D}
     (h : IsDerivedLimit Ksys K) (n : ℕ) : K ⟶ Ksys.obj (op n) :=
   letI := h.hasProduct; h.ι ≫ Pi.π Ksys.family n
 
-/-- Stacks 08TC: a comparison from `X` to a derived limit of `Ksys`, specified by its composites
+/-- A comparison from `X` to a derived limit of `Ksys`, specified by its composites
 with the canonical stage projections.  Carrying the chosen `IsDerivedLimit` avoids forcing each
 consumer to select a product presentation again. -/
 @[stacks 08TC]
@@ -325,6 +308,14 @@ structure Comparison (Ksys : SequentialInverseSystem D) {X L : D}
   /-- The comparison recovers the prescribed map to each stage. -/
   comp_stageProjection (n : ℕ) :
     c ≫ derivedLimit.stageProjection n = stageMap n
+
+/-- A morphism to a chosen derived limit induces a comparison whose stage maps are its
+composites with the derived-limit projections. -/
+noncomputable def Comparison.ofDerivedLimit {Ksys : SequentialInverseSystem D} {X L : D}
+    (h : IsDerivedLimit Ksys L) (c : X ⟶ L) :
+    Comparison Ksys c (fun n => c ≫ h.stageProjection n) where
+  derivedLimit := h
+  comp_stageProjection := fun n => rfl
 
 end IsDerivedLimit
 

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Homology.ExactCouple.Shifted.ZeroPage
@@ -40,13 +34,13 @@ complex `S⁻¹Q ⟶ Q ⟶ SQ`. -/
 #check (Q.homology : C)
 
 variable (K : ShiftedExactCouple.Derived.Construction T)
-variable (X : ShiftedExactCouple S T)
+variable (X : ShiftedExactCouple (S.trans T) T)
 
-/- Remark 12.22.6 (Variant) (4) [0AMK]: the reusable exact-couple owner supplies all positive
-pages and their page-dependent shifts. -/
+/- Remark 12.22.6 (Variant) (4) [0AMK]: the exact couple has shifts `T ∘ S` and `T`, so its
+positive pages carry shifts `T^r ∘ S`. -/
 @[stacks 0AMK "(4)"]
 #check (K.associatedSpectralSequence X :
-  ShiftedSpectralSequence (ShiftedSpectralSequence.pageShift S T))
+  ShiftedSpectralSequence (ShiftedSpectralSequence.pageShift (S.trans T) T))
 
 /- Remark 12.22.6 (Variant) (5) [0AMK]: a specified `S⁻¹Q` zeroth page can be adjoined to
 the associated shifted spectral sequence. -/
@@ -54,6 +48,12 @@ the associated shifted spectral sequence. -/
 #check (ShiftedExactCouple.ZeroPage.page K X Q :
   (r : ℕ) → ShiftedDifferentialObject
     ((ShiftedSpectralSequence.zeroPageShift S T r).functor))
+#check (ShiftedSpectralSequence.ZeroPageShift.zero S T :
+  ShiftedSpectralSequence.zeroPageShift S T 0 = S)
+#check (ShiftedSpectralSequence.ZeroPageShift.one S T :
+  ShiftedSpectralSequence.zeroPageShift S T 1 = S.trans T)
+#check (ShiftedSpectralSequence.ZeroPageShift.eq_trans_pow S T :
+  ∀ r : ℕ, ShiftedSpectralSequence.zeroPageShift S T r = S.trans (T ^ (r : ℤ)))
 
 variable (e : X.E ≅ Q.previousPage.homology)
 

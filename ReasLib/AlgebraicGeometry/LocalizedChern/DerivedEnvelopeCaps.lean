@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowCohomology.ChernClass.Complex
@@ -48,6 +42,44 @@ structure Model (V : Over S) (g : V ⟶ X) : Type (u + 1) where
   above : RingedSpace.CochainComplex.IsLocallyBoundedAbove complex
   below : RingedSpace.CochainComplex.IsLocallyBoundedBelow complex
   free : ∀ n, Scheme.Modules.IsFiniteLocallyFree (complex.X n)
+
+/-- An envelope and a locally bounded finite locally free representative of the pulled-back
+derived module determine an explicit envelope model. -/
+def Model.ofRepresentative {V : Over S} (g : V ⟶ X)
+    (Y : Over S) [LocallyOfFiniteType Y.hom] (map : Y ⟶ V)
+    (envelope : IsEnvelope map.left) (complex : CochainComplex Y.left.Modules ℤ)
+    (represents : IsIsomorphic (DerivedCategory.Q.obj complex)
+      ((RingedSpace.modulePullbackDerived (map ≫ g).left.toShHom).obj E))
+    (above : RingedSpace.CochainComplex.IsLocallyBoundedAbove complex)
+    (below : RingedSpace.CochainComplex.IsLocallyBoundedBelow complex)
+    (free : ∀ n, Scheme.Modules.IsFiniteLocallyFree (complex.X n)) : Model E V g where
+  Y := Y
+  finiteType := inferInstance
+  map := map
+  envelope := envelope
+  complex := complex
+  represents := represents
+  above := above
+  below := below
+  free := free
+
+/-- The model constructed from an envelope representative has an envelope map and a
+representative that is locally bounded in both directions and termwise finite locally free. -/
+theorem Model.ofRepresentative_spec {V : Over S} (g : V ⟶ X)
+    (Y : Over S) [LocallyOfFiniteType Y.hom] (map : Y ⟶ V)
+    (envelope : IsEnvelope map.left) (complex : CochainComplex Y.left.Modules ℤ)
+    (represents : IsIsomorphic (DerivedCategory.Q.obj complex)
+      ((RingedSpace.modulePullbackDerived (map ≫ g).left.toShHom).obj E))
+    (above : RingedSpace.CochainComplex.IsLocallyBoundedAbove complex)
+    (below : RingedSpace.CochainComplex.IsLocallyBoundedBelow complex)
+    (free : ∀ n, Scheme.Modules.IsFiniteLocallyFree (complex.X n)) :
+    let model := Model.ofRepresentative E g Y map envelope complex represents above below free
+    IsEnvelope model.map.left ∧
+      IsIsomorphic (DerivedCategory.Q.obj model.complex)
+        ((RingedSpace.modulePullbackDerived (model.map ≫ g).left.toShHom).obj E) ∧
+      RingedSpace.CochainComplex.IsLocallyBoundedAbove model.complex ∧
+      RingedSpace.CochainComplex.IsLocallyBoundedBelow model.complex ∧
+      ∀ n, Scheme.Modules.IsFiniteLocallyFree (model.complex.X n) := sorry
 
 variable {V : Over S} [LocallyOfFiniteType V.hom] (g : V ⟶ X)
 
@@ -99,8 +131,7 @@ variable (perfect : RingedSpace.ModuleDerived.IsPerfect E)
 include perfect defined in
 /-- Envelopes remain envelopes under base change. The fixed family includes
 every base-changed model, so its actual pushforward-sum map is surjective. -/
-theorem coverMap_surjective (k : ℤ) : Function.Surjective (coverMap δ E g k) := by
-  sorry
+theorem coverMap_surjective (k : ℤ) : Function.Surjective (coverMap δ E g k) := sorry
 
 include perfect defined in
 /-- Common envelope refinements and equality of complex Chern classes for
@@ -109,8 +140,7 @@ the kernel of the displayed pushforward sum. -/
 theorem beforeDescent_kills_kernel (rankBound : Bool) (q : ℕ) (k : ℤ) :
     (coverMap δ E g k).ker ≤
       (beforeDescent (δ := δ) (classes := classes) (E := E) (g := g)
-        rankBound q k).ker := by
-  sorry
+        rankBound q k).ker := sorry
 
 /-- The degree-`q` operation on relative Chow groups obtained by descending the
 model-wise Chern operations through the envelope pushforward map. -/
@@ -160,19 +190,19 @@ def capFamily (rankBound : Bool) (q : ℕ) : BivariantClass.CapFamily δ (𝟙 X
 theorem cap_proper (rankBound : Bool) (q : ℕ) :
     BivariantClass.CompatibleWithProperPushforward δ
       (capFamily (δ := δ) (classes := classes) (E := E)
-        perfect defined rankBound q) := by sorry
+        perfect defined rankBound q) := sorry
 
 /-- The descended cap family commutes with flat pullback. -/
 theorem cap_flat (rankBound : Bool) (q : ℕ) :
     BivariantClass.CompatibleWithFlatPullback δ
       (capFamily (δ := δ) (classes := classes) (E := E)
-        perfect defined rankBound q) := by sorry
+        perfect defined rankBound q) := sorry
 
 /-- The descended cap family commutes with effective-Cartier Gysin pullback. -/
 theorem cap_gysin (rankBound : Bool) (q : ℕ) :
     BivariantClass.CompatibleWithCartierGysin δ
       (capFamily (δ := δ) (classes := classes) (E := E)
-        perfect defined rankBound q) := by sorry
+        perfect defined rankBound q) := sorry
 
 /-- The derived Newton class (`rankBound = false`) or total Chern class
 (`rankBound = true`) obtained by envelope descent. -/

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.Algebra.TensorProduct.RightAlgebra
@@ -38,6 +32,7 @@ namespace CochainComplex.HomComplex.Pushout.Tensor
 variable {R A R' : Type u}
 variable [CommRing R] [CommRing A] [CommRing R']
 variable [Algebra R A] [Algebra R R']
+variable [hasRHom : InternalHom.RHom.Has.{u, u} (A := A ⊗[R] R')]
 
 /-- For the canonical tensor-product pushout, separate upper and lower bounds together with
 relative termwise flatness give a scalar-extended model of canonical derived `RHom` (Lemma 15.85.6,

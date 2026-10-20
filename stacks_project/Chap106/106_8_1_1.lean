@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -11,7 +5,7 @@ public import Mathlib.AlgebraicGeometry.AffineScheme
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Thickening
 public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.Cone
 public import ReasLib.CategoryTheory.Fibered.Representable.Slice.Map
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Basic
 
 @[expose] public section
 
@@ -30,8 +24,15 @@ variable (x' : GroupoidsOver.slice T' ⟶ X)
 /- 106.8.1.1: the solid 2-commutative square for a morphism `f : X ⟶ Y` of
 algebraic stacks, with affine first-order thickening `i : T ⟶ T'`, points
 `x : GroupoidsOver.slice T ⟶ X` and `y : GroupoidsOver.slice T' ⟶ Y`, and
-witness `γ : overMap i ≫ y ≅ x ≫ f`. -/
-@[stacks 0DNX] #check (⟨GroupoidsOver.slice T, overMap i, x, γ⟩ : Bicategory.PseudoPullbackCone y f)
+witness `γ : overMap i ≫ y ≅ x ≫ f`. The canonical constructor is checked
+first, followed by the concrete displayed square. -/
+@[stacks 0DNX] #check (CategoryTheory.Bicategory.PseudoPullbackCone.mk :
+  ∀ (y₀ : GroupoidsOver.slice T' ⟶ Y) (f₀ : X ⟶ Y) (P : GroupoidsOver S)
+    (j : P ⟶ GroupoidsOver.slice T') (z : P ⟶ X),
+    (j ≫ y₀ ≅ z ≫ f₀) → Bicategory.PseudoPullbackCone y₀ f₀)
+
+#check (CategoryTheory.Bicategory.PseudoPullbackCone.mk y f
+  (GroupoidsOver.slice T) (overMap i) x γ : Bicategory.PseudoPullbackCone y f)
 
 /- Companion check: the displayed dotted diagonal has type
 `GroupoidsOver.slice T' ⟶ X`. -/

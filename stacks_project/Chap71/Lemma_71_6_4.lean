@@ -1,15 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_17_3_SchemeTheoreticDensity
-public import stacks_project.Chap67.Definition_67_20_2_Affine
-public import stacks_project.Chap67.Lemma_67_13_5_Complement
-public import stacks_project.Chap71.Definition_71_6_1_EffectiveCartier
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Divisor.EffectiveCartier.Complement
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Divisor.LocallyPrincipal.Complement
 
 /-!
 # Complements of effective Cartier divisors
@@ -24,26 +17,25 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.IsEffectiveCartierDivisor
-
-/-- Lemma 71.6.4 (1): Let `S` be a scheme. Let `X` be an algebraic space over `S`.
+/- Lemma 71.6.4: Let `S` be a scheme. Let `X` be an algebraic space over `S`.
 If `i : D ⟶ X` is an effective Cartier divisor, then the open complement
-inclusion `closedImmersionComplementι i : closedImmersionComplement i ⟶ X` is
-an affine morphism of algebraic spaces. -/
-@[stacks 083S]
-instance affine_closedImmersionComplementι {S : Scheme.{u}} {D X : AlgebraicSpace S}
-    (i : D ⟶ X) [IsEffectiveCartierDivisor i] :
-    Affine (closedImmersionComplementι i) :=
-  sorry
+inclusion `closedImmersionComplementι i` is affine and scheme-theoretically
+dense in `X`. -/
+@[stacks 083S] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsEffectiveCartierDivisor.schemeTheoreticallyDense_closedImmersionComplementι :
+    ∀ {S : Scheme.{u}} {D X : AlgebraicSpace S} (i : D ⟶ X)
+      [IsEffectiveCartierDivisor i],
+      IsSchemeTheoreticallyDense (closedImmersionComplementι i))
 
-/-- Lemma 71.6.4 (2): Let `S` be a scheme. Let `X` be an algebraic space over `S`.
-If `i : D ⟶ X` is an effective Cartier divisor, then the open complement
-inclusion `closedImmersionComplementι i` is scheme-theoretically dense in `X`. -/
-@[stacks 083S]
-instance schemeTheoreticallyDense_closedImmersionComplementι
-    {S : Scheme.{u}} {D X : AlgebraicSpace S} (i : D ⟶ X)
-    [IsEffectiveCartierDivisor i] :
-    IsSchemeTheoreticallyDense (closedImmersionComplementι i) :=
-  sorry
+section
 
-end AlgebraicGeometry.AlgebraicSpace.IsEffectiveCartierDivisor
+variable {S : Scheme.{u}} {D X : AlgebraicSpace S} (i : D ⟶ X)
+  [IsEffectiveCartierDivisor i]
+
+/- Effective Cartier divisors are locally principal, so the canonical affine
+complement instance also gives the affine conclusion. -/
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsLocallyPrincipal.affine_closedImmersionComplementι i :
+    Affine (closedImmersionComplementι i))
+
+end

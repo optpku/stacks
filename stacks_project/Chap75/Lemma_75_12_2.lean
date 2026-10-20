@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.AffineScheme
-public import Mathlib.CategoryTheory.Preadditive.Injective.Basic
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap75.Lemma_75_12_2_ArtinianPushforward
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.ArtinianPushforward
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -19,16 +11,15 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.QCoh
 
-/-- Lemma 75.12.2. Let `S` be an affine scheme. Let `X` be a Noetherian algebraic
+/- Lemma 75.12.2. Let `S` be an affine scheme. Let `X` be a Noetherian algebraic
 space over `S`. Every injective object of `QCoh X` is a direct summand of a small
 filtered colimit of quasi-coherent sheaves of the form `(Z_i ⟶ X)_* G_i`, where
 each `Z_i` is the spectrum of an Artinian ring and each `G_i` is a coherent
 module on `Z_i`. -/
-@[stacks 09TJ]
-theorem injective_retractClosure_ind_artinianSpecCoherentPushforward
-    {S : Scheme.{u}} [IsAffine S] {X : AlgebraicSpace S} [IsNoetherian X]
-    (J : QCoh X) [Injective J] :
-    (isArtinianSpecCoherentPushforward X).ind.{u}.retractClosure J :=
-  sorry
+@[stacks 09TJ] #check
+  (AlgebraicGeometry.AlgebraicSpace.QCoh.injective_retractClosure_ind_artinianSpecCoherentPushforward :
+    ∀ {S : Scheme.{u}} [IsAffine S] {X : AlgebraicSpace S} [IsNoetherian X]
+      (J : QCoh X) [Injective J],
+      (isArtinianSpecCoherentPushforward X).ind.{u}.retractClosure J)
 
 end AlgebraicGeometry.AlgebraicSpace.QCoh

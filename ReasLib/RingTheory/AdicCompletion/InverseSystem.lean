@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Limits
@@ -286,12 +280,28 @@ noncomputable def limitProjectionQuotientEquiv
     (n : ℕ+) :
     ((limit F : ModuleCat R) ⧸
         I ^ (n : ℕ) • (⊤ : Submodule R (limit F : ModuleCat R))) ≃ₗ[R] F.stage n :=
-  LinearEquiv.ofBijective
-    (F.limitProjectionQuotient I
+  { F.limitProjectionQuotient I
       (F.pow_smul_top_le_ker_limitProjection_of_stagewise_annihilated I
-        (F.stagewise_annihilated_of_stepKernel I h_step_surjective h_step_kernel)) n)
-    (F.limitProjectionQuotient_bijective_of_successiveIdealPowerQuotients I h_finite
-      h_step_surjective h_step_kernel n)
+        (F.stagewise_annihilated_of_stepKernel I h_step_surjective h_step_kernel)) n with
+    invFun := fun x ↦ Submodule.Quotient.mk (F.limitProjectionSection h_step_surjective n x)
+    left_inv := by
+      intro x
+      apply (F.limitProjectionQuotient_bijective_of_successiveIdealPowerQuotients I h_finite
+        h_step_surjective h_step_kernel n).injective
+      exact F.limitProjectionLinearMap_section h_step_surjective n _
+    right_inv := F.limitProjectionLinearMap_section h_step_surjective n }
+
+/-- The inverse quotient comparison is the class of a recursively lifted
+compatible family. -/
+theorem limitProjectionQuotientEquiv_symm_apply
+    (F : PNatInverseSystem (ModuleCat.{v} R)) (I : Ideal R) (h_finite : I.FG) [HasLimit F]
+    (h_step_surjective : ∀ n : ℕ+, Function.Surjective (F.stepLinearMap n))
+    (h_step_kernel : ∀ n : ℕ+,
+      LinearMap.ker (F.stepLinearMap n) =
+        I ^ (n : ℕ) • (⊤ : Submodule R (F.stage (n + 1))))
+    (n : ℕ+) (x : F.stage n) :
+    (F.limitProjectionQuotientEquiv I h_finite h_step_surjective h_step_kernel n).symm x =
+      Submodule.Quotient.mk (F.limitProjectionSection h_step_surjective n x) := rfl
 
 /-- The quotient equivalence for successive ideal-power quotients sends a
 representative to its canonical inverse-limit projection. -/

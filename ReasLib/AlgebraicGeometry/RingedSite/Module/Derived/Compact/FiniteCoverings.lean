@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Compact.LocalizedGenerator
@@ -26,6 +20,9 @@ open CategoryTheory.Sheaf.Cech.CofinalSystem
 open DerivedCategory.TStructure
 
 noncomputable section
+
+-- Use the standard model already fixed by `ModuleDerived` and `localizedGenerator`.
+attribute [local instance] RingedSite.Hom.moduleCat_hasDerivedCategory
 
 universe u v w
 

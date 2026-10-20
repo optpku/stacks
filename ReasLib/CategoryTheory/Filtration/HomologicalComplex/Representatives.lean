@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.HomologicalComplex.Homology
@@ -52,18 +46,20 @@ end Homology.Representative
 
 section CompleteSubobjects
 
-variable [CompleteLattice (Subobject ((K.X PUnit.unit).obj))]
+variable [LocallySmall.{v} C] [WellPowered.{v} C]
 
 namespace LimitPage.Representative
 
 /-- The eventual cycle representative obtained as the infimum of finite cycle stages. -/
 @[stacks 012J "eventual cycle representative"]
-noncomputable abbrev cycle (p : ℤ) : Subobject ((K.X PUnit.unit).obj) :=
+noncomputable abbrev cycle [HasWidePullbacks.{v} C] (p : ℤ) :
+    Subobject ((K.X PUnit.unit).obj) :=
   (differential K).eventualCycleRepresentative p
 
 /-- The eventual boundary representative obtained as the supremum of finite boundary stages. -/
 @[stacks 012J "eventual boundary representative"]
-noncomputable abbrev boundary (p : ℤ) : Subobject ((K.X PUnit.unit).obj) :=
+noncomputable abbrev boundary [HasCoproducts.{v} C] (p : ℤ) :
+    Subobject ((K.X PUnit.unit).obj) :=
   (differential K).eventualBoundaryRepresentative p
 
 end LimitPage.Representative

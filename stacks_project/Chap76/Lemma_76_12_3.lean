@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_12_3_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.InfinitesimalNeighbourhood
+import StacksCheckRecall
 
 /-!
 # Conormal sheaves of first-order infinitesimal neighbourhoods
@@ -16,30 +11,18 @@ spaces to the conormal sheaf of its first-order infinitesimal neighbourhood is
 an isomorphism.
 -/
 
-@[expose] public section
-
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-namespace Hom.InfinitesimalNeighbourhood
-
-/-- Lemma 76.12.3: Let `i : Z ⟶ X` be an immersion of algebraic spaces. Let
+/- Lemma 76.12.3: Let `i : Z ⟶ X` be an immersion of algebraic spaces. Let
 `Z ⊂ space i 1` be the first-order infinitesimal neighbourhood of `Z` in `X`.
 The identity square relating `Z`, `space i 1`, and `X` induces, by
 `Hom.Conormal.map`, a morphism
 `Hom.conormalSheaf i ⟶ Hom.conormalSheaf (fromSource i 1)`, and this morphism
 is an isomorphism. -/
-@[stacks 05ZX, instance]
-instance conormalComparison_isIso {S : Scheme.{u}} {Z X : AlgebraicSpace S}
-    (i : Z ⟶ X) [IsImmersion i] :
-    IsIso (conormalComparison i) :=
-  sorry
+@[stacks 05ZX]
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.InfinitesimalNeighbourhood.conormalComparison_isIso :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i],
+    IsIso (AlgebraicGeometry.AlgebraicSpace.Hom.InfinitesimalNeighbourhood.conormalComparison i))
 
-end Hom.InfinitesimalNeighbourhood
-
-end AlgebraicGeometry.AlgebraicSpace

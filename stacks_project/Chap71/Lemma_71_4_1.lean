@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Data.List.TFAE
-public import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Fiber.LocallyNoetherian
 public import stacks_project.Chap71.Lemma_71_4_1_Fiber
 
 /-!
@@ -30,7 +24,7 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 71.4.1 (1): let `S` be a scheme, let `f : X ⟶ Y` be a morphism of
+/- Lemma 71.4.1 (1): let `S` be a scheme, let `f : X ⟶ Y` be a morphism of
 algebraic spaces over `S`, and let `y` be a point of `Points Y`. The following
 are equivalent: there exist a scheme `V` over `S`, a point `v` of `V`, and an
 étale morphism `a : ofOver V ⟶ Y` mapping `v` to `y` such that
@@ -38,20 +32,18 @@ are equivalent: there exist a scheme `V` over `S`, a point `v` of `V`, and an
 étale morphism; and there exists a field-valued point of `Y` representing `y`
 such that `fieldFiber f p` is locally Noetherian. -/
 @[stacks 0CUW]
-theorem locallyNoetherianFiber_tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) (y : Points Y) :
-    List.TFAE [existsEtale f y, forallEtale f y, existsField f y] :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.locallyNoetherianFiber_tfae :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (y : Points Y),
+    List.TFAE [existsEtale f y, forallEtale f y, existsField f y])
 
-/-- Lemma 71.4.1 (2): if in addition there is a monomorphism `p₀.hom` from the
+/- Lemma 71.4.1 (2): if in addition there is a monomorphism `p₀.hom` from the
 spectrum of a field representing `y`, then the conditions of
 `locallyNoetherianFiber_tfae` are also equivalent to `fieldFiber f p₀` being
 locally Noetherian. -/
 @[stacks 0CUW]
-theorem locallyNoetherianFiber_iff_of_mono {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) (y : Points Y) (p₀ : FieldValuedPoint Y) [Mono p₀.hom]
-    (hp₀ : Points.mk p₀ = y) :
-    IsLocallyNoetherian (fieldFiber f p₀) ↔ existsField f y :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.locallyNoetherianFiber_iff_of_mono :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (y : Points Y)
+    (p₀ : FieldValuedPoint Y) [Mono p₀.hom] (hp₀ : Points.mk p₀ = y),
+    IsLocallyNoetherian (fieldFiber f p₀) ↔ existsField f y)
 
 end AlgebraicGeometry.AlgebraicSpace

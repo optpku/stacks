@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.BasedCategory.Cospan.Basic
@@ -41,12 +35,8 @@ while retaining its three based functors and two comparison isomorphisms. -/
 def obj
     (psi : Bicategory.CospanTransform
       (B := BasedCategory.{vB, uB} C) F₁ G₁ F₂ G₂) :
-    BasedCospanTransform F₁ G₁ F₂ G₂ where
-  left := psi.left
-  right := psi.right
-  base := psi.base
-  leftIso := psi.leftIso
-  rightIso := psi.rightIso
+    BasedCospanTransform F₁ G₁ F₂ G₂ :=
+  BasedCospanTransform.mk psi.left psi.right psi.base psi.leftIso psi.rightIso
 
 /-- Forgetting a bicategorical cospan transformation retains its left component. -/
 @[simp]
@@ -125,12 +115,12 @@ theorem map.rightNaturality (alpha : Pseudofunctor.StrongTrans.Hom psi phi) :
 /-- Forget a bicategorical modification to a modification between the generic based cospan
 transformations. -/
 def map (alpha : Pseudofunctor.StrongTrans.Hom psi phi) :
-    BasedCospanTransform.Hom (obj psi) (obj phi) where
-  left := Bicategory.CospanTransform.Hom.left alpha
-  right := Bicategory.CospanTransform.Hom.right alpha
-  base := Bicategory.CospanTransform.Hom.base alpha
-  leftNaturality := map.leftNaturality alpha
-  rightNaturality := map.rightNaturality alpha
+    BasedCospanTransform.Hom (obj psi) (obj phi) :=
+  BasedCospanTransform.Hom.mk
+    (Bicategory.CospanTransform.Hom.left alpha)
+    (Bicategory.CospanTransform.Hom.right alpha)
+    (Bicategory.CospanTransform.Hom.base alpha)
+    (map.leftNaturality alpha) (map.rightNaturality alpha)
 
 /-- Forgetting a bicategorical modification retains its left endpoint component. -/
 @[simp]

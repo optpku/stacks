@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap92.Remark_92_7_6_Comparison
+public import ReasLib.RingTheory.CotangentComplex.ResolutionComparison
 import Mathlib.Tactic.CrossRefAttribute
 import StacksCheckRecall
 
@@ -33,39 +27,39 @@ universe u q
 variable (A B C : Type u) [CommRing A] [CommRing B] [CommRing C]
 variable [Algebra A B] [Algebra B C] [Algebra A C] [IsScalarTower A B C]
 
-/-- Remark 92.7.6 (1): if `B → C` is injective, then each term `R_n` of the standard
-resolution of `C` over `B` is a polynomial algebra over the corresponding term `S_n` of
-the standard resolution of `B` over `B`. -/
-@[stacks 08SE]
-theorem isPolynomial_standardR_over_standardS_of_injective (n : SimplexCategoryᵒᵖ)
-    (h_inj : Function.Injective (algebraMap B C)) :
-    IsPolynomial (standardS B n) (standardR B C n) :=
-  sorry
+variable (n : SimplexCategoryᵒᵖ) (h_inj : Function.Injective (algebraMap B C))
 
-/-- Remark 92.7.6 (2): `R̄_• = R_• ⊗_{S_•} B` is a simplicial polynomial resolution of
-`C` over `B`. -/
-@[stacks 08SE]
-theorem isResolution_barR (h_inj : Function.Injective (algebraMap B C)) :
-    IsResolution (barRHom B C h_inj) :=
-  sorry
+/- Remark 92.7.6 (1): the standard term of `C` over `B` is polynomial over
+that of `B` over `B` when `B → C` is injective. -/
+@[stacks 08SE] #check (Algebra.CotangentComplex.isPolynomial_standardQ_over_standardP B B C n h_inj :
+  IsPolynomial (Algebra.CotangentComplex.standardP B B n)
+    (Algebra.CotangentComplex.standardQ B C n))
 
-/- Remark 92.7.6 (3): the commutative square of standard resolutions induces a canonical
-map `Q̄_• = Q_• ⊗_{P_•} B ⟶ R̄_•`. -/
-@[stacks 08SE] #check barQToBarR
+/- Remark 92.7.6 (2): the tensor base change of the standard resolutions over `B`
+is a polynomial simplicial resolution of `C`. -/
+@[stacks 08SE] #check (Algebra.CotangentComplex.isResolution_barQHom B B C h_inj :
+  IsResolution (Algebra.CotangentComplex.barQHom B B C h_inj))
 
-/- Remark 92.7.6 (4): the induced map
-`Ω_{R_•/B} ⊗_{R_•} C ⟶ Ω_{R̄_•/B} ⊗_{R̄_•} C` is a quasi-isomorphism. -/
-@[stacks 08SE] #check omegaEvalToBarR_quasiIso
+/- Remark 92.7.6 (3): the square of standard resolutions induces the canonical
+comparison between their tensor base changes. -/
+@[stacks 08SE] #check (Algebra.CotangentComplex.barQToBarR A B C h_inj :
+  Algebra.CotangentComplex.barQSimplicial A B C h_inj ⟶
+    Algebra.CotangentComplex.barQSimplicial B B C h_inj)
 
-/- Remark 92.7.6 (5): the induced map
-`Ω_{Q̄_•/B} ⊗_{Q̄_•} C ⟶ Ω_{R̄_•/B} ⊗_{R̄_•} C` is a quasi-isomorphism. -/
-@[stacks 08SE] #check omegaBarQToBarR_quasiIso
+/- Remark 92.7.6 (4): the differential map induced by the left tensor inclusion
+is a quasi-isomorphism. -/
+@[stacks 08SE] #check (Algebra.CotangentComplex.omegaEvalToBarR_quasiIso B C h_inj :
+  QuasiIso (Algebra.CotangentComplex.omegaEvalToBarR B C h_inj))
 
-/-- Remark 92.7.6 (6): composing one of these quasi-isomorphisms with the inverse of the
-other identifies `Ω_{Q̄_•/B} ⊗_{Q̄_•} C` with `Ω_{R_•/B} ⊗_{R_•} C` in `D(C)`. -/
-@[stacks 08SE]
-theorem barQ_iso_omegaEval_of_injective (h_inj : Function.Injective (algebraMap B C))
-    [HasDerivedCategory.{q} (ModuleCat.{u} C)] :
-    IsIso (DerivedCategory.Q.map (omegaBarQToBarR A B C h_inj) ≫
-      inv (DerivedCategory.Q.map (omegaEvalToBarR B C h_inj))) :=
-  sorry
+/- Remark 92.7.6 (5): the differential map induced by coefficient change
+is a quasi-isomorphism. -/
+@[stacks 08SE] #check (Algebra.CotangentComplex.omegaBarQToBarR_quasiIso A B C h_inj :
+  QuasiIso (Algebra.CotangentComplex.omegaBarQToBarR A B C h_inj))
+
+variable [HasDerivedCategory.{q} (ModuleCat.{u} C)]
+
+/- Remark 92.7.6 (6): the differential comparison followed by the inverse of the
+standard-resolution comparison gives the canonical identification in `D(C)`. -/
+@[stacks 08SE] #check (Algebra.CotangentComplex.barQ_iso_omegaEval A B C h_inj :
+  IsIso (DerivedCategory.Q.map (Algebra.CotangentComplex.omegaBarQToBarR A B C h_inj) ≫
+    inv (DerivedCategory.Q.map (Algebra.CotangentComplex.omegaEvalToBarR B C h_inj))))

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicTopology.CechNerve
@@ -103,7 +97,7 @@ variable {K K' : Cᵒᵖ ⥤ Type (max w v)} {φ : K' ⟶ K}
 
 /-- The first-page identification for one bidegree and coefficient sheaf. -/
 @[stacks 079Z "Cech first-page identification component"]
-abbrev pageOneIso (S : SpectralSequenceSystem φ)
+def pageOneIso (S : SpectralSequenceSystem φ)
     (p q : ℕ) (F : Sheaf J AddCommGrpCat.{max w v}) :
     ((S.functor.obj F).page 1 le_rfl).X (p, q) ≅
       (pageOneFunctor φ p q).obj F :=
@@ -134,7 +128,7 @@ theorem abuts_app (S : SpectralSequenceSystem φ)
 
 end SpectralSequenceSystem
 
-/-- Lemma 21.13.2 (079Z): a locally surjective presheaf map admits a first-quadrant spectral
+/-- A locally surjective presheaf map admits a first-quadrant spectral
 sequence with `E₁^{p,q}` equal to cohomology over its sheafified degree-`p` Cech level and
 abutment equal to cohomology over its target. -/
 @[stacks 079Z]

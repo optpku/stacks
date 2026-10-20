@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.Sieves
@@ -55,5 +49,15 @@ the given morphism belongs to the original sieve. -/
 theorem pullbackOrderHom_apply {V T : C} (morphism : V ⟶ U) (sieve : Sieve U)
     (arrow : T ⟶ V) :
     pullbackOrderHom morphism sieve arrow ↔ sieve (arrow ≫ morphism) := sorry
+
+/-- An arrow belongs to a bound sieve exactly when it factors through an arrow
+of the initial sieve via an arrow of the assigned refinement sieve. -/
+theorem mem_bind_iff (sieve : Sieve U)
+    (refinements : ∀ ⦃V : C⦄ ⦃outerArrow : V ⟶ U⦄, sieve outerArrow → Sieve V)
+    {T : C} (arrow : T ⟶ U) :
+    Sieve.bind sieve.arrows refinements arrow ↔
+      ∃ (V : C) (outerArrow : V ⟶ U) (outer_mem : sieve outerArrow)
+        (innerArrow : T ⟶ V),
+        refinements outer_mem innerArrow ∧ arrow = innerArrow ≫ outerArrow := sorry
 
 end CategoryTheory.Sieve

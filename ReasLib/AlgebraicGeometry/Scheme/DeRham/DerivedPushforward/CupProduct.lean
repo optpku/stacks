@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.DeRham.DifferentialGradedAlgebra
@@ -22,6 +16,9 @@ public import Mathlib.AlgebraicGeometry.Pullbacks
 open AlgebraicGeometry CategoryTheory CategoryTheory.MonoidalCategory ComplexShape
 open RingedSite.Hom
 open RingedSite.Hom.ModuleSections
+
+-- Pin the existing coefficient-module derived category used by ModuleDerived and Qh.
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasDerivedCategory
 
 noncomputable section
 
@@ -57,32 +54,8 @@ variable [moduleDerivedMonoidalQ : MonoidalCategory
   (ModuleDerived.{u, u, u, u} (RingedSpace.DeRham.coefficientSite q.toLRSHom.toShHom))]
 variable [(modulePullbackDerived.{u, u, u, u, u, u}
   (RingedSpace.DeRham.baseChangeHom (coefficientSheafedSquare f p q h sq))).OplaxMonoidal]
-variable [(moduleLocalization.{u, u, u, u}
+variable [moduleLocalizationLaxMonoidalP : (moduleLocalization.{u, u, u, u}
     (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom)).LaxMonoidal]
-variable [MonoidalCategory
-  (HomotopyCategory
-    (RingedSite.ModuleCat.{u, u, u, u}
-      (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom)) (up ℤ))]
-variable [MonoidalCategory
-  (HomotopyCategory
-    (RingedSite.ModuleCat.{u, u, u, u}
-      (RingedSpace.DeRham.coefficientSite q.toLRSHom.toShHom)) (up ℤ))]
-variable [moduleDerivedQhMonoidalP : (DerivedCategory.Qh :
-    HomotopyCategory
-      (RingedSite.ModuleCat.{u, u, u, u}
-        (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom)) (up ℤ) ⥤
-      ModuleDerived.{u, u, u, u}
-        (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom)).Monoidal]
-variable [moduleDerivedQhMonoidalQ : (DerivedCategory.Qh :
-    HomotopyCategory
-      (RingedSite.ModuleCat.{u, u, u, u}
-        (RingedSpace.DeRham.coefficientSite q.toLRSHom.toShHom)) (up ℤ) ⥤
-      ModuleDerived.{u, u, u, u}
-        (RingedSpace.DeRham.coefficientSite q.toLRSHom.toShHom)).Monoidal]
-variable [(HomotopyCategory.quotient
-    (RingedSite.ModuleCat.{u, u, u, u}
-      (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom)) (up ℤ)).LaxMonoidal]
-
 /-- The tensorator for restriction along the coefficient-ring map of the square. -/
 noncomputable def globalSectionsRestrictionTensorator (A B : coefficientModules p) :
     CategoryTheory.MonoidalCategory.tensorObj (C := coefficientModules q)
@@ -534,9 +507,9 @@ noncomputable def pushedCohomologyCupProduct
       (pushedGlobalDerivedObject f p q h sq)
       (pushedGlobalDerivedObject f p q h sq) ≫
     (DerivedCategory.homologyFunctor (coefficientModules q) (i + j)).map
-      (((coefficientTensorModel q).tensorIsoObj
+      (((coefficientTensorModel q).objIsoTensor
           (pushedGlobalDerivedObject f p q h sq)
-          (pushedGlobalDerivedObject f p q h sq)).inv ≫
+          (pushedGlobalDerivedObject f p q h sq)).hom ≫
         pushedGlobalMultiplication f p q h sq)
 
 /-- The pushed cohomology product is obtained from the canonical derived tensor comparison and
@@ -563,9 +536,9 @@ theorem pushedCohomologyCupProduct_eq
           (pushedGlobalDerivedObject f p q h sq)
           (pushedGlobalDerivedObject f p q h sq) ≫
         (DerivedCategory.homologyFunctor (coefficientModules q) (i + j)).map
-          (((coefficientTensorModel q).tensorIsoObj
+          (((coefficientTensorModel q).objIsoTensor
               (pushedGlobalDerivedObject f p q h sq)
-              (pushedGlobalDerivedObject f p q h sq)).inv ≫
+              (pushedGlobalDerivedObject f p q h sq)).hom ≫
             pushedGlobalMultiplication f p q h sq) := sorry
 
 /-- Through the canonical derived-global-sections and exact restriction-of-scalars comparisons,

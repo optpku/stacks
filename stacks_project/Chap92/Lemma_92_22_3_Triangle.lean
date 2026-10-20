@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap92.Definition_92_22_1_Morphism
@@ -14,13 +8,12 @@ public import ReasLib.Algebra.Category.CommRing.Sheaf.Internal
 public import Mathlib.Algebra.Homology.DerivedCategory.Basic
 public import Mathlib.CategoryTheory.Triangulated.Pretriangulated
 
-/-!
-# Transitivity triangle of cotangent complexes of morphisms of ringed topoi
+public import ReasLib.AlgebraicGeometry.RingedSite.Topos.CotangentComplex.Transitivity
 
-For morphisms of ringed topoi `f` and `g`, this module owns the displayed triangle
-`Lf^* L[g] ⟶ L[g ∘ f] ⟶ L[f] ⟶ (Lf^* L[g])⟦1⟧` in `D(O1)`. The sheaf-level
-transitivity triangle of `f⁻¹(g♯)` and `f♯` is conjugated along `compositeCotangentIso`
-so that the middle vertex is `Q.obj L[comp f g]`.
+/-!
+# Cotangent transitivity compatibility checks
+
+The canonical triangle API is available through this source-side import path.
 -/
 
 @[expose] public section
@@ -33,7 +26,6 @@ open CategoryTheory.Sheaf
 open CategoryTheory.Sheaf.InternalRing
 open CategoryTheory.Sheaf.InternalCommRing
 open SheafOfModules.RingedSite
-open scoped RingedSite.ToposHom
 open scoped SheafOfModules.RingedSite.CotangentComplex
 
 noncomputable section
@@ -64,18 +56,7 @@ variable [UnivLE.{u, u}]
 variable {OC1 : Sheaf JC1 CommRingCat.{u}} {OC2 : Sheaf JC2 CommRingCat.{u}}
 variable {OC3 : Sheaf JC3 CommRingCat.{u}}
 
--- Local instance justification (defeq pin): `moduleCategoryHasDerivedCategory` is the reducible standard owner for ringed-site modules; `DerivedCategory.Q` and `distTriang` need that same instance without registering a second derived-category owner.
-attribute [local instance] moduleCategoryHasDerivedCategory
-
-/-- Inverse image of commutative ring sheaves along a morphism of ringed topoi agrees with
-commutative-ring inverse image of the underlying morphism of topoi. -/
-theorem inverseImageCommRing_eq
-    (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
-      (RingedSite.ofCommRingSheaf JC2 OC2)) :
-    inverseImageCommRing f = f.toTopos.commRingInverseImage :=
-  sorry
-
-/-- The pulled structure map `φ = f⁻¹(g♯) : f⁻¹ g⁻¹ O3 ⟶ f⁻¹ O2`. -/
+/-- The legacy source presentation of the pulled structure map. -/
 def pulledBaseMap
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
@@ -83,352 +64,328 @@ def pulledBaseMap
       (RingedSite.ofCommRingSheaf JC3 OC3)) :
     (inverseImageCommRing f).obj (inverseImageStructureSheaf g) ⟶
       inverseImageStructureSheaf f :=
-  (inverseImageCommRing f).map (structureSheafMap g)
+  pulledStructureMap f g
 
-/-- Unfolding of `pulledBaseMap` as inverse image of `g♯`. -/
+/-- The legacy pulled structure map is the inverse image of the source structure map. -/
 theorem pulledBaseMap_eq
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
       (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    pulledBaseMap f g = (inverseImageCommRing f).map (structureSheafMap g) :=
-  sorry
+    pulledBaseMap f g = (inverseImageCommRing f).map (structureSheafMap g) := by rfl
 
-/-- Finite-product transport of internal commutative rings along `g⁻¹` then `f⁻¹`. -/
-def inverseImageInternalComp
+variable (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
+  (RingedSite.ofCommRingSheaf JC2 OC2))
+variable (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
+  (RingedSite.ofCommRingSheaf JC3 OC3))
+
+#check (RingedSite.ToposHom.pulledBaseMap : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    @mapCommRingOfFiniteProducts (Sheaf JC3 (Type u)) _ _
-        (sheafBraidedCategory JC3) (Sheaf JC1 (Type u)) _ _
-        (sheafBraidedCategory JC1)
-        (g.toTopos.inverseImage ⋙ f.toTopos.inverseImage) inferInstance ≅
-      @mapCommRingOfFiniteProducts (Sheaf JC3 (Type u)) _ _
-          (sheafBraidedCategory JC3) (Sheaf JC2 (Type u)) _ _
-          (sheafBraidedCategory JC2) g.toTopos.inverseImage inferInstance ⋙
-        @mapCommRingOfFiniteProducts (Sheaf JC2 (Type u)) _ _
-          (sheafBraidedCategory JC2) (Sheaf JC1 (Type u)) _ _
-          (sheafBraidedCategory JC1) f.toTopos.inverseImage inferInstance :=
-  @mapCommRingOfFiniteProductsCompIso (Sheaf JC3 (Type u)) _ _
-    (sheafBraidedCategory JC3) (Sheaf JC2 (Type u)) _ _
-    (sheafBraidedCategory JC2) (Sheaf JC1 (Type u)) _ _
-    (sheafBraidedCategory JC1) g.toTopos.inverseImage inferInstance
-    f.toTopos.inverseImage inferInstance
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    (inverseImageCommRing f).obj (inverseImageStructureSheaf g) ⟶
+      inverseImageStructureSheaf f)
 
-/-- Canonical identification `(g ∘ f)⁻¹ O3 ≅ f⁻¹ g⁻¹ O3` of commutative ring sheaves. -/
-def compositeBaseIso
+#check (RingedSite.ToposHom.pulledBaseMap_eq : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    inverseImageStructureSheaf (comp f g) ≅
-      (inverseImageCommRing f).obj (inverseImageStructureSheaf g) :=
-  fromInternal.mapIso
-      ((inverseImageInternalComp f g).app (toInternal.obj OC3)) ≪≫
-    fromInternal.mapIso
-      ((@mapCommRingOfFiniteProducts (Sheaf JC2 (Type u)) _ _
-          (sheafBraidedCategory JC2) (Sheaf JC1 (Type u)) _ _
-          (sheafBraidedCategory JC1) f.toTopos.inverseImage inferInstance).mapIso
-        (fromToIso.symm.app
-          ((@mapCommRingOfFiniteProducts (Sheaf JC3 (Type u)) _ _
-              (sheafBraidedCategory JC3) (Sheaf JC2 (Type u)) _ _
-              (sheafBraidedCategory JC2) g.toTopos.inverseImage inferInstance).obj
-            (toInternal.obj OC3))))
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    pulledBaseMap f g = (inverseImageCommRing f).map (structureSheafMap g))
 
-/-- The composite algebra map `f⁻¹(g♯) ≫ f♯` on `C1`. -/
-abbrev compositeAlgebraMap
+#check (RingedSite.ToposHom.pulledStructureMap : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    (inverseImageCommRing f).obj (inverseImageStructureSheaf g) ⟶ OC1 :=
-  pulledBaseMap f g ≫ structureSheafMap f
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    (f.toTopos.commRingInverseImage).obj ((g.toTopos.commRingInverseImage.obj OC3)) ⟶
+      (f.toTopos.commRingInverseImage.obj OC2))
 
-/-- After `compositeBaseIso`, the structure map of `g ∘ f` is `f⁻¹(g♯) ≫ f♯`. -/
-theorem compositeStructureSheafMap_comp
+#check (RingedSite.ToposHom.pulledStructureMap_eq : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    pulledStructureMap f g = (f.toTopos.commRingInverseImage).map (commRingStructureMap g))
+
+#check (RingedSite.ToposHom.compositeBaseIso : ∀
+    (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
+      (RingedSite.ofCommRingSheaf JC2 OC2))
+    (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    ((comp f g).toTopos.commRingInverseImage.obj OC3) ≅
+      (f.toTopos.commRingInverseImage).obj ((g.toTopos.commRingInverseImage.obj OC3)))
+
+#check (RingedSite.ToposHom.compositeAlgebraMap : ∀
+    (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
+      (RingedSite.ofCommRingSheaf JC2 OC2))
+    (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    (f.toTopos.commRingInverseImage).obj ((g.toTopos.commRingInverseImage.obj OC3)) ⟶ OC1)
+
+#check (RingedSite.ToposHom.compositeStructureSheafMap_comp : ∀
+    (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
+      (RingedSite.ofCommRingSheaf JC2 OC2))
+    (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
     (compositeBaseIso f g).hom ≫ compositeAlgebraMap f g =
-      structureSheafMap (comp f g) :=
-  sorry
+      commRingStructureMap (comp f g))
 
-/-- Cochain-level extension of scalars of `L(f⁻¹(g♯))` along `f♯`, the underived form of
-`Lf^* L[g]`. -/
-abbrev pullbackCotangentCochain
+#check (RingedSite.ToposHom.pullbackCotangentCochain : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    CochainComplex (SheafOfModules (ringSheaf JC1 OC1)) ℤ :=
-  CotangentComplex.tensorCochain (pulledBaseMap f g) (structureSheafMap f)
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    CochainComplex (SheafOfModules (ringSheaf JC1 OC1)) ℤ)
 
-/-- Unfolding of `pullbackCotangentCochain` as `tensorCochain` of `pulledBaseMap` and
-`f♯`. -/
-theorem pullbackCotangentCochain_eq
+#check (RingedSite.ToposHom.pullbackCotangentCochain_eq : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
     pullbackCotangentCochain f g =
-      CotangentComplex.tensorCochain (pulledBaseMap f g) (structureSheafMap f) :=
-  sorry
+      CotangentComplex.tensorCochain (pulledBaseMap f g) (commRingStructureMap f))
 
-/-- The first vertex `Lf^* L[g]` of the transitivity triangle, as the sheaf-level tensor
-`L(f⁻¹(g♯)) ⊗^L O1`. -/
-def pullbackCotangent
+#check (RingedSite.ToposHom.pullbackCotangent : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    DerivedCategory (SheafOfModules (ringSheaf JC1 OC1)) :=
-  CotangentComplex.tensor (pulledBaseMap f g) (structureSheafMap f)
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    RingedSiteDerived JC1 OC1)
 
-/-- Unfolding of `pullbackCotangent` as `DerivedCategory.Q` of `pullbackCotangentCochain`. -/
-theorem pullbackCotangent_eq
+#check (RingedSite.ToposHom.pullbackCotangent_eq : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    pullbackCotangent f g = DerivedCategory.Q.obj (pullbackCotangentCochain f g) :=
-  sorry
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    pullbackCotangent f g = (@DerivedCategory.Q _ inferInstance inferInstance
+      (moduleCategoryHasDerivedCategory (𝒪 := OC1))).obj (pullbackCotangentCochain f g))
 
-/-- The cotangent of the composite algebra map `f⁻¹(g♯) ≫ f♯`, i.e. the sheaf-level
-form of `L[g ∘ f]` after `compositeBaseIso`. -/
-abbrev compositeCotangent
+#check (Eq.refl (pullbackCotangent f g) :
+    pullbackCotangent f g =
+      CotangentComplex.tensor ((inverseImageCommRing f).map (structureSheafMap g))
+        (structureSheafMap f))
+
+#check (RingedSite.ToposHom.compositeCotangent : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    CochainComplex (SheafOfModules (ringSheaf JC1 OC1)) ℤ :=
-  L(compositeAlgebraMap f g)
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    CochainComplex (SheafOfModules (ringSheaf JC1 OC1)) ℤ)
 
-/-- Unfolding of `compositeCotangent` as the sheaf cotangent of `compositeAlgebraMap`. -/
-theorem compositeCotangent_eq
+#check (RingedSite.ToposHom.compositeCotangent_eq : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    compositeCotangent f g = L(pulledBaseMap f g ≫ structureSheafMap f) :=
-  sorry
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    compositeCotangent f g = L(pulledBaseMap f g ≫ commRingStructureMap f))
 
-/-- Transporting the structure map of `g ∘ f` along `compositeBaseIso` recovers the sheaf
-cotangent of `f⁻¹(g♯) ≫ f♯`. -/
-theorem compositeToRelativeSource_eq
+#check (RingedSite.ToposHom.compositeToRelativeSource_eq : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
     L((compositeBaseIso f g).hom ≫ compositeAlgebraMap f g) =
-      cotangentComplex (comp f g) :=
-  sorry
+      commRingCotangentComplex (comp f g))
 
-/-- Transporting `f⁻¹(g♯) ≫ f♯` along the inverse of `compositeBaseIso` recovers the
-structure map of `g ∘ f`. -/
-theorem compositeAlgebraMap_of_inv
+#check (RingedSite.ToposHom.compositeAlgebraMap_of_inv : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    (compositeBaseIso f g).inv ≫ structureSheafMap (comp f g) =
-      compositeAlgebraMap f g :=
-  sorry
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    (compositeBaseIso f g).inv ≫ commRingStructureMap (comp f g) =
+      compositeAlgebraMap f g)
 
-/-- Transporting the composite algebra map along the inverse of `compositeBaseIso` recovers
-the sheaf cotangent of `g ∘ f`. -/
-theorem relativeToCompositeSource_eq
+#check (RingedSite.ToposHom.relativeToCompositeSource_eq : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    L((compositeBaseIso f g).inv ≫ structureSheafMap (comp f g)) =
-      compositeCotangent f g :=
-  sorry
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    L((compositeBaseIso f g).inv ≫ commRingStructureMap (comp f g)) =
+      compositeCotangent f g)
 
-/-- Canonical cochain identification `L[comp f g] ≅ L(f⁻¹(g♯) ≫ f♯)` induced by
-`compositeBaseIso` and `compositeStructureSheafMap_comp`. -/
-def compositeCotangentIso
+#check (RingedSite.ToposHom.compositeCotangentIso_hom_inv_id : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    cotangentComplex (comp f g) ≅ compositeCotangent f g where
-  hom :=
-    eqToHom (compositeToRelativeSource_eq f g).symm ≫
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    (eqToHom (compositeToRelativeSource_eq f g).symm ≫
       CotangentComplex.toRelativeMapCochain
-        (compositeBaseIso f g).hom (compositeAlgebraMap f g)
-  inv :=
-    eqToHom (relativeToCompositeSource_eq f g).symm ≫
+        (compositeBaseIso f g).hom (compositeAlgebraMap f g)) ≫
+    (eqToHom (relativeToCompositeSource_eq f g).symm ≫
       CotangentComplex.toRelativeMapCochain
-        (compositeBaseIso f g).inv (structureSheafMap (comp f g))
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+        (compositeBaseIso f g).inv (commRingStructureMap (comp f g))) = 𝟙 (commRingCotangentComplex (comp f g)))
 
-/-- Unfolding of `compositeCotangentIso` as base change of sheaf cotangents along
-`compositeBaseIso`. -/
-theorem compositeCotangentIso_hom_eq
+#check (RingedSite.ToposHom.compositeCotangentIso_inv_hom_id : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    (eqToHom (relativeToCompositeSource_eq f g).symm ≫
+      CotangentComplex.toRelativeMapCochain
+        (compositeBaseIso f g).inv (commRingStructureMap (comp f g))) ≫
+    (eqToHom (compositeToRelativeSource_eq f g).symm ≫
+      CotangentComplex.toRelativeMapCochain
+        (compositeBaseIso f g).hom (compositeAlgebraMap f g)) = 𝟙 (compositeCotangent f g))
+
+#check (RingedSite.ToposHom.compositeCotangentIso : ∀
+    (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
+      (RingedSite.ofCommRingSheaf JC2 OC2))
+    (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    commRingCotangentComplex (comp f g) ≅ compositeCotangent f g)
+
+#check (RingedSite.ToposHom.compositeCotangentIso_hom_eq : ∀
+    (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
+      (RingedSite.ofCommRingSheaf JC2 OC2))
+    (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
     (compositeCotangentIso f g).hom =
       eqToHom (compositeToRelativeSource_eq f g).symm ≫
         CotangentComplex.toRelativeMapCochain
-          (compositeBaseIso f g).hom (compositeAlgebraMap f g) :=
-  sorry
+          (compositeBaseIso f g).hom (compositeAlgebraMap f g))
 
-/-- The first map `Lf^* L[g] ⟶ L[g ∘ f]` of the transitivity triangle in `D(O1)`. -/
-def transitivityMap
+#check (RingedSite.ToposHom.transitivityMap : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    pullbackCotangent f g ⟶ DerivedCategory.Q.obj (cotangentComplex (comp f g)) :=
-  CotangentComplex.tensorMap (pulledBaseMap f g) (structureSheafMap f) ≫
-    DerivedCategory.Q.map (compositeCotangentIso f g).inv
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    pullbackCotangent f g ⟶ (@DerivedCategory.Q _ inferInstance inferInstance
+      (moduleCategoryHasDerivedCategory (𝒪 := OC1))).obj (commRingCotangentComplex (comp f g)))
 
-/-- Unfolding of `transitivityMap` as the sheaf-level `tensorMap` conjugated by
-`compositeCotangentIso`. -/
-theorem transitivityMap_eq
+#check (RingedSite.ToposHom.transitivityMap_eq : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
     transitivityMap f g =
-      CotangentComplex.tensorMap (pulledBaseMap f g) (structureSheafMap f) ≫
-        DerivedCategory.Q.map (compositeCotangentIso f g).inv :=
-  sorry
+      CotangentComplex.tensorMap (pulledBaseMap f g) (commRingStructureMap f) ≫
+        (@DerivedCategory.Q _ inferInstance inferInstance
+      (moduleCategoryHasDerivedCategory (𝒪 := OC1))).map (compositeCotangentIso f g).inv)
 
-/-- The second map `L[g ∘ f] ⟶ L[f]` of the transitivity triangle in `D(O1)`. -/
-def toRelativeMap
+#check (RingedSite.ToposHom.toRelativeMap : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    DerivedCategory.Q.obj (cotangentComplex (comp f g)) ⟶
-      DerivedCategory.Q.obj (cotangentComplex f) :=
-  DerivedCategory.Q.map (compositeCotangentIso f g).hom ≫
-    CotangentComplex.toRelativeMap (pulledBaseMap f g) (structureSheafMap f)
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    (@DerivedCategory.Q _ inferInstance inferInstance
+      (moduleCategoryHasDerivedCategory (𝒪 := OC1))).obj (commRingCotangentComplex (comp f g)) ⟶
+      (@DerivedCategory.Q _ inferInstance inferInstance
+      (moduleCategoryHasDerivedCategory (𝒪 := OC1))).obj (commRingCotangentComplex f))
 
-/-- Unfolding of `toRelativeMap` as the sheaf-level `toRelativeMap` conjugated by
-`compositeCotangentIso`. -/
-theorem toRelativeMap_eq
+#check (RingedSite.ToposHom.toRelativeMap_eq : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
     toRelativeMap f g =
-      DerivedCategory.Q.map (compositeCotangentIso f g).hom ≫
-        CotangentComplex.toRelativeMap (pulledBaseMap f g) (structureSheafMap f) :=
-  sorry
+      (@DerivedCategory.Q _ inferInstance inferInstance
+      (moduleCategoryHasDerivedCategory (𝒪 := OC1))).map (compositeCotangentIso f g).hom ≫
+        CotangentComplex.toRelativeMap (pulledBaseMap f g) (commRingStructureMap f))
 
-/-- The connecting map `L[f] ⟶ (Lf^* L[g])⟦1⟧` of the transitivity triangle in `D(O1)`. -/
-def connectingMap
+#check (RingedSite.ToposHom.connectingMap : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    DerivedCategory.Q.obj (cotangentComplex f) ⟶ (pullbackCotangent f g)⟦(1 : ℤ)⟧ :=
-  CotangentComplex.connectingMap (pulledBaseMap f g) (structureSheafMap f)
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    (@DerivedCategory.Q _ inferInstance inferInstance
+      (moduleCategoryHasDerivedCategory (𝒪 := OC1))).obj (commRingCotangentComplex f) ⟶ (pullbackCotangent f g)⟦(1 : ℤ)⟧)
 
-/-- Unfolding of `connectingMap` as the sheaf-level connecting map of `f⁻¹(g♯)` and `f♯`. -/
-theorem connectingMap_eq
+#check (RingedSite.ToposHom.connectingMap_eq : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
     connectingMap f g =
-      CotangentComplex.connectingMap (pulledBaseMap f g) (structureSheafMap f) :=
-  sorry
+      CotangentComplex.connectingMap (pulledBaseMap f g) (commRingStructureMap f))
 
-/-- The displayed transitivity triangle of cotangent complexes of morphisms of ringed topoi
-in `D(O1)`. -/
-def transitivityTriangle
+#check (Eq.refl (connectingMap f g) :
+    connectingMap f g =
+      CotangentComplex.connectingMap ((inverseImageCommRing f).map (structureSheafMap g))
+        (structureSheafMap f))
+
+#check (RingedSite.ToposHom.transitivityTriangle : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    Triangle (DerivedCategory (SheafOfModules (ringSheaf JC1 OC1))) :=
-  Triangle.mk (transitivityMap f g) (toRelativeMap f g) (connectingMap f g)
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    Triangle (RingedSiteDerived JC1 OC1))
 
-/-- Unfolding of `transitivityTriangle` as `Triangle.mk` of the conjugated transitivity
-maps. -/
-theorem transitivityTriangle_eq
+#check (RingedSite.ToposHom.transitivityTriangle_eq : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
     transitivityTriangle f g =
-      Triangle.mk (transitivityMap f g) (toRelativeMap f g) (connectingMap f g) :=
-  sorry
+      Triangle.mk (transitivityMap f g) (toRelativeMap f g) (connectingMap f g))
 
-/-- The first vertex of `transitivityTriangle` is `pullbackCotangent`. -/
-theorem transitivityTriangle_obj₁
+#check (RingedSite.ToposHom.transitivityTriangle_obj₁ : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    (transitivityTriangle f g).obj₁ = pullbackCotangent f g :=
-  sorry
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    (transitivityTriangle f g).obj₁ = pullbackCotangent f g)
 
-/-- The second vertex of `transitivityTriangle` is `Q.obj L[comp f g]`. -/
-theorem transitivityTriangle_obj₂
+#check (RingedSite.ToposHom.transitivityTriangle_obj₂ : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
     (transitivityTriangle f g).obj₂ =
-      DerivedCategory.Q.obj (cotangentComplex (comp f g)) :=
-  sorry
+      (@DerivedCategory.Q _ inferInstance inferInstance
+      (moduleCategoryHasDerivedCategory (𝒪 := OC1))).obj (commRingCotangentComplex (comp f g)))
 
-/-- The third vertex of `transitivityTriangle` is `Q.obj L[f]`. -/
-theorem transitivityTriangle_obj₃
+#check (RingedSite.ToposHom.transitivityTriangle_obj₃ : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    (transitivityTriangle f g).obj₃ = DerivedCategory.Q.obj (cotangentComplex f) :=
-  sorry
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    (transitivityTriangle f g).obj₃ = (@DerivedCategory.Q _ inferInstance inferInstance
+      (moduleCategoryHasDerivedCategory (𝒪 := OC1))).obj (commRingCotangentComplex f))
 
-/-- The first morphism of `transitivityTriangle` is `transitivityMap`. -/
-theorem transitivityTriangle_mor₁
+#check (RingedSite.ToposHom.transitivityTriangle_mor₁ : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    (transitivityTriangle f g).mor₁ = transitivityMap f g :=
-  sorry
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    (transitivityTriangle f g).mor₁ = transitivityMap f g)
 
-/-- The second morphism of `transitivityTriangle` is `toRelativeMap`. -/
-theorem transitivityTriangle_mor₂
+#check (RingedSite.ToposHom.transitivityTriangle_mor₂ : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    (transitivityTriangle f g).mor₂ = toRelativeMap f g :=
-  sorry
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    (transitivityTriangle f g).mor₂ = toRelativeMap f g)
 
-/-- The third morphism of `transitivityTriangle` is `connectingMap`. -/
-theorem transitivityTriangle_mor₃
+#check (RingedSite.ToposHom.transitivityTriangle_mor₃ : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    (transitivityTriangle f g).mor₃ = connectingMap f g :=
-  sorry
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    (transitivityTriangle f g).mor₃ = connectingMap f g)
 
-/-- The inverse-image target of `L[g]` along `f` is the cotangent of `f⁻¹(g♯)`. -/
-theorem inverseImage_target_eq
+#check (RingedSite.ToposHom.inverseImage_target_eq : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
-      (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    CotangentComplex.InverseImage.target f.toTopos (structureSheafMap g) =
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    CotangentComplex.InverseImage.target f.toTopos (commRingStructureMap g) =
       CotangentComplex.obj
-        ((inverseImageCommRing f).obj (inverseImageStructureSheaf g))
-        (Under.mk (pulledBaseMap f g)) :=
-  sorry
+        ((f.toTopos.commRingInverseImage).obj ((g.toTopos.commRingInverseImage.obj OC3)))
+        (Under.mk (pulledBaseMap f g)))
+
+#check (RingedSite.ToposHom.transitivityTriangle_distinguished : ∀
+    (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
+      (RingedSite.ofCommRingSheaf JC2 OC2))
+    (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
+      (RingedSite.ofCommRingSheaf JC3 OC3)),
+    transitivityTriangle f g ∈ distTriang (RingedSiteDerived JC1 OC1))
+
+/- The shared lifted structure map agrees definitionally with the source presentation. -/
+#check (Eq.refl (commRingStructureMap f) : structureSheafMap f = commRingStructureMap f)
+
+/- The shared cotangent complex agrees definitionally with the source presentation. -/
+#check (Eq.refl (commRingCotangentComplex f) : cotangentComplex f = commRingCotangentComplex f)
 
 end RingedSite.ToposHom

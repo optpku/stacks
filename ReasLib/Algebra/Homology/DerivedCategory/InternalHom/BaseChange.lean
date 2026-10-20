@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.ChangeOfRings.Pushout
@@ -23,7 +17,8 @@ identifications from bounded relative flatness and keeps the source ring square 
 conclusions target the canonical `InternalHom.RHom.obj`; comparison with a selected ambient closed
 structure belongs to the optional compatibility leaf.  Like the underlying scalar-extension model
 owners, these source-facing comparisons currently use the standard same-universe module-category
-presentation; the canonical `RHom` object itself is more general.
+presentation; the canonical `RHom` object itself is more general. Each comparison retains
+the existing canonical `RHom` availability of its target coefficient ring.
 
 @stack 0E1U
 -/
@@ -42,6 +37,8 @@ namespace CochainComplex.HomComplex
 variable {A B : Type u} [CommRing A] [CommRing B]
 
 namespace ScalarExtension
+
+variable [hasRHom : CategoryTheory.DerivedCategory.InternalHom.RHom.Has.{u, u} (A := B)]
 
 /-- Lemma 15.85.6 (Stacks `0E1U`): scalar extension of a finite-projective Hom model represents
 canonical target-ring `RHom` after explicit identifications of the scalar-extended inputs. -/
@@ -100,6 +97,8 @@ apply `CochainComplex.HomComplex.ScalarExtension.comparison_isIso` and transport
 end ScalarExtension
 
 namespace DerivedExtension
+
+variable [hasRHom : CategoryTheory.DerivedCategory.InternalHom.RHom.Has.{u, u} (A := B)]
 
 /-- Lemma 15.85.6 (Stacks `0E1U`): for an arbitrary ring map, a finite-projective source model and
 a target model on which the derived-extension counit is invertible give a scalar-extended model of
@@ -164,6 +163,7 @@ variable [CommRing R] [CommRing A] [CommRing R'] [CommRing A']
 variable [Algebra R A] [Algebra R R'] [Algebra R A'] [Algebra A A'] [Algebra R' A']
 variable [IsScalarTower R A A'] [IsScalarTower R R' A']
 variable [hpush : Algebra.IsPushout R R' A A']
+variable [hasRHom : CategoryTheory.DerivedCategory.InternalHom.RHom.Has.{u, u} (A := A')]
 
 include hpush
 

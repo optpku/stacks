@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.MorphismProperty.Representable
@@ -30,8 +24,7 @@ variable {C : Type u} [Category.{v} C]
 
 namespace Functor.relativelyRepresentable
 
-/-- Lemma 4.8.3 (Stacks 03KC): a relatively representable morphism with representable codomain
-has representable domain. -/
+/-- A relatively representable morphism with representable codomain has representable domain. -/
 @[stacks 03KC]
 theorem domain_isRepresentable
     {F G : Cᵒᵖ ⥤ Type v} (a : F ⟶ G)
@@ -48,21 +41,21 @@ theorem sections_iff_pairwisePullbacks
       ∀ (U V : C) (ξ : yoneda.obj U ⟶ F) (ξ' : yoneda.obj V ⟶ F),
         (Limits.pullback ξ ξ').IsRepresentable := sorry
 
-variable [HasBinaryProducts C]
-
 /-- Relative representability of the diagonal is equivalent to representability of every
 pairwise pullback of representable sections. -/
 theorem diag_iff_pairwisePullbacks
+    [hasBinaryProducts : HasBinaryProducts C]
     (F : Cᵒᵖ ⥤ Type v) :
     yoneda.relativelyRepresentable (Limits.diag F) ↔
       ∀ (U V : C) (ξ : yoneda.obj U ⟶ F) (ξ' : yoneda.obj V ⟶ F),
         (Limits.pullback ξ ξ').IsRepresentable := sorry
 
-/-- Lemma 4.8.4 (Stacks 0024): relative representability of the diagonal, relative
-representability of every representable section, and representability of all pairwise section
-pullbacks are equivalent. -/
+/-- Relative representability of the diagonal, relative representability of every representable
+section, and representability of all pairwise section pullbacks are equivalent. -/
 @[stacks 0024]
-theorem diag_tfae (F : Cᵒᵖ ⥤ Type v) :
+theorem diag_tfae
+    [hasBinaryProducts : HasBinaryProducts C]
+    (F : Cᵒᵖ ⥤ Type v) :
     [yoneda.relativelyRepresentable (Limits.diag F),
       ∀ (U : C) (ξ : yoneda.obj U ⟶ F), yoneda.relativelyRepresentable ξ,
       ∀ (U V : C) (ξ : yoneda.obj U ⟶ F) (ξ' : yoneda.obj V ⟶ F),

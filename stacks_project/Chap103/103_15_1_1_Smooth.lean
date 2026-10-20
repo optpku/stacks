@@ -1,72 +1,39 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Smooth
 public import stacks_project.Chap67.Lemma_67_37_4_Smooth
 public import stacks_project.Chap101.Lemma_101_25_5_Flat
 
-/-!
-# Smooth morphisms of algebraic stacks
-
-A morphism of algebraic stacks is smooth when some (equivalently, any) smooth
-algebraic-space presentation square with surjective source atlas has smooth top
-arrow, in parallel with `AlgebraicStack.Flat`.
--/
+/-! # Smooth morphisms of algebraic stacks -/
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack
+open AlgebraicGeometry.AlgebraicStack
 
-/-- A morphism `f : X ⟶ Y` of algebraic stacks over `S` is smooth if some
-commutative square with algebraic-space vertices, smooth vertical arrows, and
-surjective source atlas has smooth top arrow. -/
-class Smooth {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) : Prop where
-  /-- There is a smooth presentation of `f` by algebraic spaces whose source
-  atlas is surjective and whose top arrow is smooth. -/
-  exists_surjective_smooth_presentation :
-    ∃ (U V : AlgebraicSpace S) (a : U.toGroupoids ⟶ X) (b : V.toGroupoids ⟶ Y)
-      (h : U ⟶ V),
-      IsSmoothSurjectivePresentation f a b h ∧ AlgebraicSpace.Smooth h
+#check (AlgebraicGeometry.AlgebraicStack.Smooth :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y), Prop)
 
-/-- A morphism of algebraic stacks is smooth if and only if it admits a smooth
-algebraic-space presentation with surjective source atlas and smooth top
-arrow. -/
-theorem smooth_iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) :
+#check (AlgebraicGeometry.AlgebraicStack.smooth_iff :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
     Smooth f ↔
       ∃ (U V : AlgebraicSpace S) (a : U.toGroupoids ⟶ X) (b : V.toGroupoids ⟶ Y)
         (h : U ⟶ V),
-        IsSmoothSurjectivePresentation f a b h ∧ AlgebraicSpace.Smooth h :=
-  sorry
+        IsSmoothSurjectivePresentation f a b h ∧ AlgebraicSpace.Smooth h)
 
-namespace Smooth
+#check (AlgebraicGeometry.AlgebraicStack.Smooth.id :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X],
+    Smooth (𝟙 X))
 
-/-- The identity morphism of an algebraic stack is smooth. -/
-instance id {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] :
-    Smooth (𝟙 X) :=
-  sorry
-
-/-- A smooth morphism of algebraic stacks admits a smooth algebraic-space
-presentation with surjective source atlas and smooth top arrow. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Smooth f] :
+#check (AlgebraicGeometry.AlgebraicStack.Smooth.spec :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Smooth f],
     ∃ (U V : AlgebraicSpace S) (a : U.toGroupoids ⟶ X) (b : V.toGroupoids ⟶ Y)
       (h : U ⟶ V),
-      IsSmoothSurjectivePresentation f a b h ∧ AlgebraicSpace.Smooth h :=
-  sorry
-
-end Smooth
-
-end AlgebraicGeometry.AlgebraicStack
+      IsSmoothSurjectivePresentation f a b h ∧ AlgebraicSpace.Smooth h)

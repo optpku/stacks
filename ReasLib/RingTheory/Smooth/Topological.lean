@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.Ideal.Quotient.Operations
@@ -52,6 +46,7 @@ every square-zero lifting problem with discrete quotient admits a continuous lif
 class FormallySmoothTopologically (f : R →+* S) : Prop extends Continuous f where
   /-- Continuous square-zero lifting for the given ring homomorphism. -/
   lift_condition {A : Type*} [CommRing A] [TopologicalSpace A] [IsTopologicalRing A]
+      [DiscreteTopology A]
       (J : Ideal A) [DiscreteTopology (A ⧸ J)] (hJ : J ^ 2 = ⊥)
       (g : S →+* A ⧸ J) (hg : Continuous g)
       (g0 : R →+* A) (hg0 : Continuous g0)

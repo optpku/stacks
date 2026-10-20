@@ -1,14 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.AffineScheme
 public import Mathlib.AlgebraicGeometry.Morphisms.FiniteType
 public import Mathlib.AlgebraicGeometry.Pullbacks
+public import Mathlib.CategoryTheory.ObjectProperty.ClosedUnderIsomorphisms
+public import Mathlib.CategoryTheory.ObjectProperty.Small
 public import Mathlib.SetTheory.Cardinal.Basic
 
 @[expose] public section
@@ -75,5 +71,41 @@ of the sizes of the two schemes over the base. -/
 theorem size_le_of_isPullback {X Y S P : Scheme.{u}} {f : X ⟶ S} {g : Y ⟶ S}
     {fst : P ⟶ X} {snd : P ⟶ Y} (h : IsPullback fst snd f g) :
     P.size ≤ max X.size Y.size := sorry
+
+/-- The size of a scheme is the maximum of the countable cardinal, the cardinality
+of its affine opens, and the supremum of their section-ring cardinalities. -/
+theorem size_eq (X : Scheme.{u}) :
+    size X = max (max ℵ₀ (#X.affineOpens)) (⨆ U : X.affineOpens, #(Γ(X, U))) := by
+  rfl
+
+/-- Isomorphic schemes have the same size. -/
+theorem size_eq_of_iso {X Y : Scheme.{u}} (e : X ≅ Y) : size X = size Y := sorry
+
+/-- The object property of schemes of size at most `κ`. -/
+def sizeLE (κ : Cardinal.{u}) : ObjectProperty Scheme.{u} :=
+  fun X ↦ X.size ≤ κ
+
+/-- Membership in `sizeLE κ` is the inequality `size X ≤ κ`. -/
+theorem sizeLE_iff (κ : Cardinal.{u}) (X : Scheme.{u}) :
+    sizeLE κ X ↔ X.size ≤ κ := by
+  rfl
+
+namespace sizeLE
+
+/-- The property of having size at most `κ` is invariant under isomorphism of schemes. -/
+instance instIsClosedUnderIsomorphisms (κ : Cardinal.{u}) :
+    ObjectProperty.IsClosedUnderIsomorphisms (sizeLE κ) := sorry
+
+/-- Schemes of size at most `κ` form an essentially small object property in universe `u`. -/
+instance essentiallySmall (κ : Cardinal.{u}) :
+    ObjectProperty.EssentiallySmall.{u} (sizeLE κ) := sorry
+
+end sizeLE
+
+/-- For every cardinal `κ`, a small family of schemes represents every scheme of size
+at most `κ` up to isomorphism. -/
+theorem exists_small_of_size_le (κ : Cardinal.{u}) :
+    ∃ (A : Type u) (X : A → Scheme.{u}),
+      ∀ S : Scheme.{u}, S.size ≤ κ → ∃ a, Nonempty (X a ≅ S) := sorry
 
 end AlgebraicGeometry.Scheme

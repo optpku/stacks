@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap98.«98_8_0_1_TangentSpace»
-import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.FormalDeformation.TangentSpace
 
 /-!
 # Tangent space of a predeformation category associated to a residue object
@@ -34,14 +29,13 @@ variable (h_factor : Spec.map (CommRingCat.ofHom (algebraMap Λ k)) ≫ openImme
 variable (X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u} (Over S))
 variable (x0 : X.p.Fiber (Over.mk kToS))
 
-/-- 98.8.0.1: the tangent space `Tℱ_{𝒳, k, x₀}` of the predeformation category
+/- 98.8.0.1: the tangent space `Tℱ_{𝒳, k, x₀}` of the predeformation category
 `ℱ_{𝒳, k, x₀}` is the type of isomorphism classes of morphisms `x₀ ⟶ x` over
 `Spec(k) ⟶ Spec(k[ε])`, recovered as the fibre of `ℱ_{𝒳, k, x₀}` over
 `ArtinianLocalAlgCat.dualNumber Λ k` via `specOver_toResidue`. -/
-@[stacks 07WZ]
-theorem tangentSpace_eq :
+@[stacks 07WZ] #check (CategoryTheory.Functor.tangentSpace_def
+    (predeformationFunctor X openImmersion kToS h_factor x0) :
     tangentSpace openImmersion kToS h_factor X x0 =
-      isomorphismClasses.obj (Cat.of (dualNumberFiber openImmersion kToS h_factor X x0)) :=
-  sorry
+      isomorphismClasses.obj (Cat.of (dualNumberFiber openImmersion kToS h_factor X x0)))
 
 end AlgebraicGeometry.GroupoidsOver.Predeformation

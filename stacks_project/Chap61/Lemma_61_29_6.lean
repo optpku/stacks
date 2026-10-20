@@ -1,23 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Topology.Connected.Basic
-public import ReasLib.CategoryTheory.Sites.LocallyConstant.Monoidal
-public import stacks_project.Chap61.Definition_61_29_1_Constructible
-public import stacks_project.Chap61.Definition_61_29_4_Lisse
-import Mathlib.Tactic.CrossRefAttribute
-
-/-!
-# Lemma 61.29.6
-
-On a connected scheme, a constructible derived object whose reduction modulo `I`
-has locally constant cohomology sheaves is adic lisse.
--/
+public import ReasLib.AlgebraicGeometry.Scheme.ProEtale.Derived.AdicLisse
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -43,9 +27,11 @@ variable [HasSheafify (topology X) (ModuleCat.{w} Λ)]
 variable [HasDerivedCategory (Sheaf (topology X) (ModuleCat.{w} Λ))]
 variable [MonoidalCategory (Sheaf (topology X) (ModuleCat.{w} Λ))]
 
--- Local declaration justification (instance diamond): `Sheaf` is a `FullSubcategory`,
--- so `HasZeroMorphisms`/`Preadditive` are synthesized from that embedding, while
--- derived tensor and `mapDerivedCategory` are typed using `Abelian.toPreadditive`.
+-- Local declaration justification (instance diamond): `Sheaf` inherits
+-- `HasZeroMorphisms` and `Preadditive` through `FullSubcategory`, whereas derived
+-- tensor and exact derived functors use `Abelian.toPreadditive`. Suppress the
+-- embedding instances only during parameter or declaration elaboration, and
+-- restore both registrations immediately afterward.
 attribute [-instance] ObjectProperty.instHasZeroMorphismsFullSubcategory
 attribute [-instance] Preadditive.fullSubcategory
 
@@ -72,35 +58,21 @@ variable [LocallySmall
 variable [WellPowered
   (SheafOfModules (ringSheafOfComm (ProetaleDerived.constantCoefficientRing X Λ)))]
 
-variable [∀ U : RingedSite.ofCommRingSheaf (topology X)
-      (ProetaleDerived.constantCoefficientRing X Λ),
-  MonoidalCategory
-    (RingedSite.ModuleCat.{w}
-      ((RingedSite.ofCommRingSheaf (topology X)
-        (ProetaleDerived.constantCoefficientRing X Λ)).localization U))]
-variable [∀ U : RingedSite.ofCommRingSheaf (topology X)
-      (ProetaleDerived.constantCoefficientRing X Λ),
-  MonoidalPreadditive
-    (RingedSite.ModuleCat.{w}
-      ((RingedSite.ofCommRingSheaf (topology X)
-        (ProetaleDerived.constantCoefficientRing X Λ)).localization U))]
-variable [∀ U : RingedSite.ofCommRingSheaf (topology X)
-      (ProetaleDerived.constantCoefficientRing X Λ),
-  ∀ (K L : CochainComplex
-      (RingedSite.ModuleCat.{w}
-        ((RingedSite.ofCommRingSheaf (topology X)
-          (ProetaleDerived.constantCoefficientRing X Λ)).localization U)) ℤ),
-    HomologicalComplex.HasMapBifunctor K L
-      (curriedTensor
-        (RingedSite.ModuleCat.{w}
-          ((RingedSite.ofCommRingSheaf (topology X)
-            (ProetaleDerived.constantCoefficientRing X Λ)).localization U)))
-      (ComplexShape.up ℤ)]
-variable [∀ U : RingedSite.ofCommRingSheaf (topology X)
-      (ProetaleDerived.constantCoefficientRing X Λ),
-  @DerivedTensor.Right.Has (RingedSite.ModuleCat.{w}
-      ((RingedSite.ofCommRingSheaf (topology X)
-        (ProetaleDerived.constantCoefficientRing X Λ)).localization U)) _ _ _ _ _ _]
+-- Tor tests on slices use the actual constant-coefficient structure-ring tensor.
+variable [∀ U : X.ProEt,
+  ((ProEt.topology X).over U).HasSheafCompose
+    (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [∀ U : X.ProEt, HasWeakSheafify ((ProEt.topology X).over U) AddCommGrpCat.{w}]
+variable [∀ U : X.ProEt,
+  ((ProEt.topology X).over U).WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [∀ U : X.ProEt, @DerivedTensor.Right.Has
+  (SheafOfModules.RingedSite.ringedSiteModuleCategory.{u + 1, u, w, w}
+    ((ProEt.topology X).over U)
+    ((constantCoefficientRing X Λ).over U)) _ _
+  (RingedSite.Hom.CommRingPresentation.moduleHasDerivedCategory
+    ((ProEt.topology X).over U) ((constantCoefficientRing X Λ).over U)) _ _
+  (SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+    ((constantCoefficientRing X Λ).over U))]
 variable [∀ U : RingedSite.ofCommRingSheaf (topology X)
       (ProetaleDerived.constantCoefficientRing X Λ),
   PreservesFiniteLimits
@@ -146,35 +118,14 @@ variable [LocallySmall
 variable [WellPowered
   (SheafOfModules (ringSheafOfComm (constantCoefficientRing X (Λ ⧸ I ^ (1 : ℕ)))))]
 
-variable [∀ U : (RingedSite.ofCommRingSheaf (ProEt.topology X)
-      (constantCoefficientRing X (Λ ⧸ I ^ (1 : ℕ)))).carrier,
-  MonoidalCategory
-    (RingedSite.ModuleCat.{w}
-      ((RingedSite.ofCommRingSheaf (ProEt.topology X)
-        (constantCoefficientRing X (Λ ⧸ I ^ (1 : ℕ)))).localization U))]
-variable [∀ U : (RingedSite.ofCommRingSheaf (ProEt.topology X)
-      (constantCoefficientRing X (Λ ⧸ I ^ (1 : ℕ)))).carrier,
-  MonoidalPreadditive
-    (RingedSite.ModuleCat.{w}
-      ((RingedSite.ofCommRingSheaf (ProEt.topology X)
-        (constantCoefficientRing X (Λ ⧸ I ^ (1 : ℕ)))).localization U))]
-variable [∀ U : (RingedSite.ofCommRingSheaf (ProEt.topology X)
-      (constantCoefficientRing X (Λ ⧸ I ^ (1 : ℕ)))).carrier,
-  ∀ (K L : CochainComplex
-      (RingedSite.ModuleCat.{w}
-        ((RingedSite.ofCommRingSheaf (ProEt.topology X)
-          (constantCoefficientRing X (Λ ⧸ I ^ (1 : ℕ)))).localization U)) ℤ),
-    HomologicalComplex.HasMapBifunctor K L
-      (curriedTensor
-        (RingedSite.ModuleCat.{w}
-          ((RingedSite.ofCommRingSheaf (ProEt.topology X)
-            (constantCoefficientRing X (Λ ⧸ I ^ (1 : ℕ)))).localization U)))
-      (ComplexShape.up ℤ)]
-variable [∀ U : (RingedSite.ofCommRingSheaf (ProEt.topology X)
-      (constantCoefficientRing X (Λ ⧸ I ^ (1 : ℕ)))).carrier,
-  @DerivedTensor.Right.Has (RingedSite.ModuleCat.{w}
-      ((RingedSite.ofCommRingSheaf (ProEt.topology X)
-        (constantCoefficientRing X (Λ ⧸ I ^ (1 : ℕ)))).localization U)) _ _ _ _ _ _]
+variable [∀ U : X.ProEt, @DerivedTensor.Right.Has
+  (SheafOfModules.RingedSite.ringedSiteModuleCategory.{u + 1, u, w, w}
+    ((ProEt.topology X).over U)
+    ((constantCoefficientRing X (Λ ⧸ I ^ (1 : ℕ))).over U)) _ _
+  (RingedSite.Hom.CommRingPresentation.moduleHasDerivedCategory
+    ((ProEt.topology X).over U) ((constantCoefficientRing X (Λ ⧸ I ^ (1 : ℕ))).over U)) _ _
+  (SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+    ((constantCoefficientRing X (Λ ⧸ I ^ (1 : ℕ))).over U))]
 
 variable [∀ U : (RingedSite.ofCommRingSheaf (ProEt.topology X)
       (constantCoefficientRing X (Λ ⧸ I ^ (1 : ℕ)))).carrier,
@@ -193,7 +144,10 @@ variable [∀ {Y : Scheme.{u}}, HasWeakSheafify (ProEt.topology Y) (ModuleCat.{w
 variable [∀ {Y : Scheme.{u}} (U : Y.ProEt),
   HasWeakSheafify ((ProEt.topology Y).over U) (ModuleCat.{w} (Λ ⧸ I ^ (1 : ℕ)))]
 
-/-- Lemma 61.29.6: let `X` be a connected scheme, `Λ` a Noetherian ring, and `I` an
+attribute [instance] ObjectProperty.instHasZeroMorphismsFullSubcategory Preadditive.fullSubcategory
+
+attribute [-instance] ObjectProperty.instHasZeroMorphismsFullSubcategory Preadditive.fullSubcategory in
+/- Lemma 61.29.6: let `X` be a connected scheme, `Λ` a Noetherian ring, and `I` an
 ideal of `Λ`. If `K` is an object of `D_cons(X, Λ)` such that
 `K ⊗ᴸ underline(Λ / I)` has locally constant cohomology sheaves, then `K` is
 adic lisse in the sense of Definition 61.29.4.
@@ -202,15 +156,13 @@ Membership in `D_cons(X, Λ)` is `ProetaleDerived.IsConstructible`. The reductio
 `K ⊗ᴸ underline(Λ / I)` is `proEtReduction I 1 K` in `D(X_proétale, Λ / I)`.
 Locally constant cohomology is `cohomologyIn` of `Sheaf.locallyConstant` on that
 reduction. The conclusion is `Derived.IsAdicLisse I K`. -/
-@[stacks 09C6]
-theorem isAdicLisse_of_locallyConstantCohomology
-    [ConnectedSpace X] [IsNoetherianRing Λ]
-    (K : ProetaleDerived X Λ)
-    [ProetaleDerived.IsConstructible I K]
-    (h_locallyConstant : DerivedCategory.cohomologyIn
-      (Sheaf.locallyConstant (topology X) (ModuleCat.{w} (Λ ⧸ I ^ (1 : ℕ))))
-      (proEtReduction I 1 K)) :
-    Derived.IsAdicLisse I K := sorry
+@[stacks 09C6] #check
+  (AlgebraicGeometry.Scheme.ProEt.isAdicLisse_of_locallyConstantCohomology I :
+    ∀ [ConnectedSpace X] [IsNoetherianRing Λ]
+      (K : ProetaleDerived X Λ) [ProetaleDerived.IsConstructible I K],
+      DerivedCategory.cohomologyIn
+        (Sheaf.locallyConstant (topology X) (ModuleCat.{w} (Λ ⧸ I ^ (1 : ℕ))))
+        (proEtReduction I 1 K) → Derived.IsAdicLisse I K)
 
 end AlgebraicGeometry.Scheme.ProEt
 

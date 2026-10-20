@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.HigherDirectImage.DerivedComparison
@@ -38,8 +32,8 @@ def higherDirectImageDerivedBaseChange
     (sq : CommSq g' f' f g) :
     DerivedBaseChange.source f g ⟶ DerivedBaseChange.target g' f' :=
   DerivedBaseChange.map
-    (modulePullbackDerivedPushforwardAdjunction f)
-    (modulePullbackDerivedPushforwardAdjunction f')
+    (moduleDerivedAdjunctionOfOpens f)
+    (moduleDerivedAdjunctionOfOpens f')
     (DerivedBaseChange.pullbackIsoOfIsIso sq
       (modulePullbackDerived.compComparison_isIso f' g)
       (modulePullbackDerived.compComparison_isIso g' f))

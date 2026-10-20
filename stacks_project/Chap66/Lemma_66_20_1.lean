@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_20_1_Sheaf
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Subterminal
 
 /-!
 # Subterminal étale sheaves are representable by unique opens
@@ -25,26 +20,22 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 66.20.1: let `S` be a scheme and let `X` be an algebraic space over `S`. If `F` is
-a subsheaf of the terminal object of the étale topos of `X` (the category
-`Sheaf (spacesEtaleTopology X) (Type (u + 1))`, see Sites, Example 7.10.2), then there
-exists a unique open `W ⊂ X` such that `F` is isomorphic to the representable sheaf `h_W`,
-implemented as `openSubspaceSheaf`. Uniqueness is as an open of `|X|`. -/
-@[stacks 04K8]
-theorem existsUnique_open_iso_openSubspaceSheaf {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (F : Sheaf (spacesEtaleTopology X) (Type (u + 1))) (hF : IsSubterminal F) :
+/- Lemma 66.20.1
+A subsheaf of the terminal object of the spaces-étale topos is represented by a unique open
+subspace, with uniqueness as an open subset of the canonical point space.
+-/
+@[stacks 04K8] #check (AlgebraicGeometry.AlgebraicSpace.existsUnique_open_iso_openSubspaceSheaf :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (F : Sheaf (spacesEtaleTopology X) (Type (u + 1))) (hF : IsSubterminal F),
     ∃ U : OpenSubspace X,
       Nonempty (F ≅ openSubspaceSheaf U) ∧
         ∀ V : OpenSubspace X, Nonempty (F ≅ openSubspaceSheaf V) →
-          V.pointsOpens = U.pointsOpens :=
-  sorry
+          V.pointsOpens = U.pointsOpens)
 
-/-- A subterminal sheaf on `X_spaces,étale` is isomorphic to `openSubspaceSheaf U` if and
-only if `U` occupies the unique open of `|X|` representing `F`. -/
-theorem nonempty_iso_openSubspaceSheaf_iff {S : Scheme.{u}} {X : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.nonempty_iso_openSubspaceSheaf_iff :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
     (F : Sheaf (spacesEtaleTopology X) (Type (u + 1))) (hF : IsSubterminal F)
-    (U : OpenSubspace X) :
-    Nonempty (F ≅ openSubspaceSheaf U) ↔ U.pointsOpens = subterminalOpens F :=
-  sorry
+    (U : OpenSubspace X),
+    Nonempty (F ≅ openSubspaceSheaf U) ↔ U.pointsOpens = subterminalOpens F)
 
 end AlgebraicGeometry.AlgebraicSpace

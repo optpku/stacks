@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_42_5_Along
-public import stacks_project.Chap67.Definition_67_8_2_QuasiCompact
-public import stacks_project.Chap67.Definition_67_18_1_Dominant
-public import stacks_project.Chap67.Definition_67_9_2_Closed
-public import stacks_project.Chap67.Definition_67_4_2_Separation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DenseRange
+import StacksCheckRecall
 
 /-!
 # Refined valuative criterion for universal closedness
@@ -20,39 +11,26 @@ existence of the valuative criterion along a quasi-compact dominant morphism is
 universally closed, and is separated if it is moreover quasi-separated.
 -/
 
-@[expose]
-public section
+@[expose] public section
 
-open CategoryTheory AlgebraicGeometry
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+/- Lemma 67.42.5: The restricted valuative criterion along a quasi-compact
+morphism with dense image implies universal closedness, and also separatedness
+when the given morphism is quasi-separated. -/
+@[stacks 089G] #check
+  (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.Along.universallyClosed :
+    ∀ {S : Scheme.{u}} {U X Y : AlgebraicSpace S}
+      (f : X ⟶ Y) (h : U ⟶ X),
+      [QuasiCompact f] → [QuasiCompact h] → [Dominant h] →
+      ValuativeCriterion.Along.Uniqueness h f → ValuativeCriterion.Along.Existence h f →
+      UniversallyClosed f)
 
-namespace ValuativeCriterion.Along
-
-/-- Lemma 67.42.5 (1): Let `S` be a scheme, and let `f : X ⟶ Y` and `h : U ⟶ X`
-be quasi-compact morphisms of algebraic spaces over `S`. If `|h|(|U|)` is dense
-in `|X|`, every valuative solid square whose generic arrow factors through `h`
-has at most one dotted lift `Spec(A) ⟶ X`, and every such square admits a
-dominating valuation-ring extension with a morphism `Spec(A') ⟶ X` filling the
-extended diagram, then `f` is universally closed. -/
-@[stacks 089G]
-theorem universallyClosed {S : Scheme.{u}} {U X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) (h : U ⟶ X) [QuasiCompact f] [QuasiCompact h] [Dominant h]
-    (h_uniqueness : Uniqueness h f) (h_existence : Existence h f) :
-    UniversallyClosed f :=
-  sorry
-
-/-- Lemma 67.42.5 (2): Under the hypotheses of Lemma 67.42.5 (1), if moreover
-`f` is quasi-separated, then `f` is separated. -/
-@[stacks 089G]
-theorem separated {S : Scheme.{u}} {U X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (h : U ⟶ X) [QuasiCompact f] [QuasiCompact h] [Dominant h] [QuasiSeparated f]
-    (h_uniqueness : Uniqueness h f) (h_existence : Existence h f) :
-    Separated f :=
-  sorry
-
-end ValuativeCriterion.Along
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.Along.separated :
+  ∀ {S : Scheme.{u}} {U X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) (h : U ⟶ X),
+    [QuasiCompact f] → [QuasiCompact h] → [Dominant h] → [QuasiSeparated f] →
+    ValuativeCriterion.Along.Uniqueness h f → ValuativeCriterion.Along.Existence h f →
+    Separated f)

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Topology.Sober
-public import stacks_project.Chap66.Definition_66_3_1_Separation
-public import stacks_project.Chap66.Lemma_66_4_6_Topology
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Sober
+import StacksCheckRecall
 
 /-!
 # Sobriety of Zariski locally quasi-separated algebraic spaces
@@ -25,33 +18,35 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 66.15.1: let `S` be a scheme. Let `X` be a Zariski locally quasi-separated
+/- Lemma 66.15.1: let `S` be a scheme. Let `X` be a Zariski locally quasi-separated
 algebraic space over `S`. Then the topological space `Points X` is sober. -/
-@[stacks 06NJ]
-theorem points_sober {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsAbsolutelyZariskiLocallyQuasiSeparated X] :
-    T0Space (Points X) ∧ QuasiSober (Points X) :=
-  sorry
+@[stacks 06NJ] #check (AlgebraicGeometry.AlgebraicSpace.points_sober :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S)
+    [AlgebraicGeometry.AlgebraicSpace.IsZariskiLocallyQuasiSeparated X],
+    T0Space (AlgebraicGeometry.AlgebraicSpace.Points X) ∧
+      QuasiSober (AlgebraicGeometry.AlgebraicSpace.Points X))
 
-namespace IsAbsolutelyZariskiLocallyQuasiSeparated
+/- Lemma 66.15.1: the point space of a Zariski locally quasi-separated algebraic space is
+Kolmogorov. -/
+@[stacks 06NJ] #check (AlgebraicGeometry.AlgebraicSpace.IsZariskiLocallyQuasiSeparated.instT0SpacePoints :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S)
+    [AlgebraicGeometry.AlgebraicSpace.IsZariskiLocallyQuasiSeparated X],
+    T0Space (AlgebraicGeometry.AlgebraicSpace.Points X))
 
-/-- The space of points of a Zariski locally quasi-separated algebraic space is Kolmogorov. -/
-instance instT0SpacePoints {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsAbsolutelyZariskiLocallyQuasiSeparated X] : T0Space (Points X) :=
-  sorry
+/- Lemma 66.15.1: the point space of a Zariski locally quasi-separated algebraic space is
+quasi-sober. -/
+@[stacks 06NJ] #check (AlgebraicGeometry.AlgebraicSpace.IsZariskiLocallyQuasiSeparated.instQuasiSoberPoints :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S)
+    [AlgebraicGeometry.AlgebraicSpace.IsZariskiLocallyQuasiSeparated X],
+    QuasiSober (AlgebraicGeometry.AlgebraicSpace.Points X))
 
-/-- The space of points of a Zariski locally quasi-separated algebraic space is quasi-sober. -/
-instance instQuasiSoberPoints {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsAbsolutelyZariskiLocallyQuasiSeparated X] : QuasiSober (Points X) :=
-  sorry
-
-/-- Every irreducible closed subset of `Points X` has a unique generic point. -/
-theorem existsUnique_isGenericPoint {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [IsAbsolutelyZariskiLocallyQuasiSeparated X] {T : Set (Points X)}
-    (hT_irred : IsIrreducible T) (hT_closed : IsClosed T) :
-    ∃! x : Points X, IsGenericPoint x T :=
-  sorry
-
-end IsAbsolutelyZariskiLocallyQuasiSeparated
+/- Lemma 66.15.1: every irreducible closed subset of the point space has a unique generic point. -/
+@[stacks 06NJ] #check (AlgebraicGeometry.AlgebraicSpace.IsZariskiLocallyQuasiSeparated.existsUnique_isGenericPoint :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}}
+    {X : AlgebraicGeometry.AlgebraicSpace S}
+    [AlgebraicGeometry.AlgebraicSpace.IsZariskiLocallyQuasiSeparated X]
+    {T : Set (AlgebraicGeometry.AlgebraicSpace.Points X)},
+    IsIrreducible T → IsClosed T →
+      ∃! x : AlgebraicGeometry.AlgebraicSpace.Points X, IsGenericPoint x T)
 
 end AlgebraicGeometry.AlgebraicSpace

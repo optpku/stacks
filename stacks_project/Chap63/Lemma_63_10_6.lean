@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.DerivedCategory.TStructure
-public import Mathlib.CategoryTheory.Limits.Preserves.Basic
-public import Mathlib.GroupTheory.Torsion
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Thickening
-public import stacks_project.Chap63.Definition_63_12_1_LowerShriek
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.LowerShriek.Thickening
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -29,12 +19,6 @@ namespace AlgebraicGeometry.Scheme.Etale
 
 variable {Y : Scheme.{u}} (X' : Over Y) (X : Over Y)
 variable (i : X.left ⟶ X'.left) {Λ : Type u} [CommRing Λ]
-variable [IsSeparated X'.hom] [Scheme.Hom.FiniteType X'.hom]
-variable [IsSeparated X.hom] [Scheme.Hom.FiniteType X.hom]
-variable [IsThickening i]
-variable [CompactSpace Y] [QuasiSeparatedSpace Y]
-variable [CompactSpace X'.left] [QuasiSeparatedSpace X'.left]
-variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]
 variable (P' : Compactification.Of Y X')
 variable (P : Compactification.Of Y X)
 variable [HasSheafify X'.left.smallEtaleTopology (ModuleCat.{u} Λ)]
@@ -112,37 +96,34 @@ variable [PreservesFiniteColimits
 variable [X'.left.smallEtaleTopology.HasSheafCompose
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
 
-/-- Lemma 63.10.6 (1): if `f' = X'.hom` is a finite type separated morphism of
-quasi-compact quasi-separated schemes, `i : X.left ⟶ X'.left` is a thickening,
-and `f = f' ∘ i` (equivalently `i ≫ X'.hom = X.hom`), then for `K'` in
-`D⁺_tors(X'_étale, Λ)` the object `Rf_!(i⁻¹ K')` is isomorphic in
-`D(Y_étale, Λ)` to `Rf'_! K'`, where `Rf_!` is `etaleDerivedLowerShriek X P`
-and `Rf'_!` is `etaleDerivedLowerShriek X' P'`. -/
-@[stacks 0GKQ]
-theorem etaleDerivedLowerShriek_inverseImage_thickening
+/- Lemma 63.10.6: derived lower shriek is invariant under inverse image along
+a thickening on bounded-below objects with torsion cohomology. -/
+@[stacks 0GKQ] #check (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriek_inverseImage_thickening X' X i P' P :
+  ∀ [IsThickening i] [IsSeparated X'.hom] [Scheme.Hom.FiniteType X'.hom]
+    [CompactSpace Y] [QuasiSeparatedSpace Y]
+    [CompactSpace X'.left] [QuasiSeparatedSpace X'.left]
     (h_comp : i ≫ X'.hom = X.hom)
-    (K' : EtaleDerived X'.left Λ) (h_tors : etaleDerivedIsTorsion K')
-    (n : ℤ) [DerivedCategory.IsGE K' n] :
+    (K' : DerivedCategory (Sheaf X'.left.smallEtaleTopology (ModuleCat.{u} Λ)))
+    (h_tors : etaleDerivedIsTorsion K') (n : ℤ) [DerivedCategory.IsGE K' n],
     IsIsomorphic
       ((etaleDerivedLowerShriek X P).obj
         (((smallEtalePullback i).sheafPullback (ModuleCat.{u} Λ)
             X'.left.smallEtaleTopology X.left.smallEtaleTopology).mapDerivedCategory.obj
           K'))
-      ((etaleDerivedLowerShriek X' P').obj K') :=
-  sorry
+      ((etaleDerivedLowerShriek X' P').obj K'))
 
-/-- Lemma 63.10.6 (2): if in addition `Λ` is a torsion ring, then
-`Rf_! ∘ i⁻¹` is isomorphic to `Rf'_!` as functors
-`D(X'_étale, Λ) ⥤ D(Y_étale, Λ)`. -/
-@[stacks 0GKQ]
-theorem etaleDerivedLowerShriek_inverseImage_thickening_of_isTorsion
-    (h_comp : i ≫ X'.hom = X.hom) (hΛ : AddMonoid.IsTorsion Λ) :
+/- Over a torsion coefficient ring, the same invariance holds as an
+isomorphism of functors on the entire derived category. -/
+#check (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriek_inverseImage_thickening_of_isTorsion X' X i P' P :
+  ∀ [IsThickening i] [IsSeparated X'.hom] [Scheme.Hom.FiniteType X'.hom]
+    [CompactSpace Y] [QuasiSeparatedSpace Y]
+    [CompactSpace X'.left] [QuasiSeparatedSpace X'.left]
+    (h_comp : i ≫ X'.hom = X.hom) (hΛ : AddMonoid.IsTorsion Λ),
     IsIsomorphic
       (((smallEtalePullback i).sheafPullback (ModuleCat.{u} Λ)
           X'.left.smallEtaleTopology X.left.smallEtaleTopology).mapDerivedCategory ⋙
         etaleDerivedLowerShriek X P)
-      (etaleDerivedLowerShriek X' P') :=
-  sorry
+      (etaleDerivedLowerShriek X' P'))
 
 end AlgebraicGeometry.Scheme.Etale
 

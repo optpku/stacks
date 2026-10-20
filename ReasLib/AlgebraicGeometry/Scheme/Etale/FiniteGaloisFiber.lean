@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Etale.GaloisFiber
 public import ReasLib.AlgebraicGeometry.Scheme.GeometricPoint.FiniteEtale
+public import Mathlib.AlgebraicGeometry.AffineScheme
 public import Mathlib.AlgebraicGeometry.Properties
 public import Mathlib.CategoryTheory.Action.Concrete
 public import Mathlib.Topology.Category.FinTopCat
@@ -106,14 +101,107 @@ def finiteEtaleSepFiber_toGeometric (K Kbar Ksep : Type u)
   Over.homMk (Spec.map (CommRingCat.ofHom (algebraMap Ksep Kbar)) ≫ element.left)
     (w := sorry)
 
+/-- The specified embedding lands in the relative separable closure inside `Kbar`. -/
+def finiteEtaleSepFiber_separableInclusion (K Kbar Ksep : Type u)
+    [Field K] [Field Kbar] [Field Ksep]
+    [Algebra K Kbar] [Algebra K Ksep] [Algebra Ksep Kbar]
+    [IsScalarTower K Ksep Kbar] [IsAlgClosed Kbar] [IsSepClosure K Ksep] :
+    Ksep →ₐ[K] separableClosure K Kbar :=
+  (IsScalarTower.toAlgHom K Ksep Kbar).codRestrict (separableClosure K Kbar).toSubalgebra
+    (fun x ↦ (Algebra.IsSeparable.isSeparable K x).map _
+      (RingHom.injective (algebraMap Ksep Kbar)))
+
+/-- The given separable closure is the relative separable closure inside `Kbar`. -/
+def finiteEtaleSepFiber_separableEquiv (K Kbar Ksep : Type u)
+    [Field K] [Field Kbar] [Field Ksep]
+    [Algebra K Kbar] [Algebra K Ksep] [Algebra Ksep Kbar]
+    [IsScalarTower K Ksep Kbar] [IsAlgClosed Kbar] [IsSepClosure K Ksep] :
+    Ksep ≃ₐ[K] separableClosure K Kbar := by
+  letI : IsSepClosed Ksep := IsSepClosure.sep_closed K
+  exact AlgEquiv.ofBijective (finiteEtaleSepFiber_separableInclusion K Kbar Ksep)
+    (Algebra.IsAlgebraic.algHom_bijective₂
+      (finiteEtaleSepFiber_separableInclusion K Kbar Ksep)
+      (IsSepClosed.lift : separableClosure K Kbar →ₐ[K] Ksep)).1
+
+/-- A geometric fiber point evaluates global functions of its finite étale scheme. -/
+def finiteEtaleSepFiber_geometricEvaluation (K Kbar : Type u)
+    [Field K] [Field Kbar] [Algebra K Kbar] [IsAlgClosed Kbar]
+    (Y : Scheme.FiniteEtale (Spec (.of K)))
+    (element : ((specFieldGeometricPoint K Kbar).finiteFiber).obj Y) :
+    Γ(Y.left, ⊤) →+* Kbar :=
+  (element.left.appTop ≫ (Scheme.ΓSpecIso (.of Kbar)).hom).hom
+
+/-- Finite étaleness makes every value of a geometric point separable over the base field. -/
+theorem finiteEtaleSepFiber_geometricEvaluation_isSeparable (K Kbar : Type u)
+    [Field K] [Field Kbar] [Algebra K Kbar] [IsAlgClosed Kbar]
+    (Y : Scheme.FiniteEtale (Spec (.of K)))
+    (element : ((specFieldGeometricPoint K Kbar).finiteFiber).obj Y) (r : Γ(Y.left, ⊤)) :
+    IsSeparable K (finiteEtaleSepFiber_geometricEvaluation K Kbar Y element r) := sorry
+
+/-- Evaluate a geometric fiber point in the given separable closure, by restricting its
+actual values to the relative separable closure and applying the specified field inverse. -/
+def finiteEtaleSepFiber_separableEvaluation (K Kbar Ksep : Type u)
+    [Field K] [Field Kbar] [Field Ksep]
+    [Algebra K Kbar] [Algebra K Ksep] [Algebra Ksep Kbar]
+    [IsScalarTower K Ksep Kbar] [IsAlgClosed Kbar] [IsSepClosure K Ksep]
+    (Y : Scheme.FiniteEtale (Spec (.of K)))
+    (element : ((specFieldGeometricPoint K Kbar).finiteFiber).obj Y) :
+    Γ(Y.left, ⊤) →+* Ksep :=
+  (finiteEtaleSepFiber_separableEquiv K Kbar Ksep).symm.toRingHom.comp
+    ((finiteEtaleSepFiber_geometricEvaluation K Kbar Y element).codRestrict
+      (separableClosure K Kbar).toSubalgebra.toSubsemiring
+      (finiteEtaleSepFiber_geometricEvaluation_isSeparable K Kbar Y element))
+
+/-- A geometric fiber point descends to the given separable closure through the actual
+affine presentation of the finite étale scheme. -/
+def finiteEtaleSepFiber_fromGeometric (K Kbar Ksep : Type u)
+    [Field K] [Field Kbar] [Field Ksep]
+    [Algebra K Kbar] [Algebra K Ksep] [Algebra Ksep Kbar]
+    [IsScalarTower K Ksep Kbar] [IsAlgClosed Kbar] [IsSepClosure K Ksep]
+    (Y : Scheme.FiniteEtale (Spec (.of K)))
+    (element : ((specFieldGeometricPoint K Kbar).finiteFiber).obj Y) :
+    finiteEtaleSepFiber K Ksep Y := by
+  let hfinite : AlgebraicGeometry.IsFinite Y.hom := Y.prop.1
+  let haffine : IsAffineHom Y.hom := hfinite.toIsAffineHom
+  let hbase : IsAffine ((Functor.fromPUnit (Spec (.of K))).obj Y.right) := by
+    change IsAffine (Spec (.of K))
+    infer_instance
+  letI : IsAffine Y.left := @isAffine_of_isAffineHom _ _ Y.hom haffine hbase
+  exact Over.homMk
+    (Spec.map (CommRingCat.ofHom
+      (finiteEtaleSepFiber_separableEvaluation K Kbar Ksep Y element)) ≫ Y.left.isoSpec.inv)
+    (w := sorry)
+
+/-- Descent to the separable closure followed by scalar extension is the original point. -/
+theorem finiteEtaleSepFiber_toGeometric_fromGeometric (K Kbar Ksep : Type u)
+    [Field K] [Field Kbar] [Field Ksep]
+    [Algebra K Kbar] [Algebra K Ksep] [Algebra Ksep Kbar]
+    [IsScalarTower K Ksep Kbar] [IsAlgClosed Kbar] [IsSepClosure K Ksep]
+    (Y : Scheme.FiniteEtale (Spec (.of K)))
+    (element : ((specFieldGeometricPoint K Kbar).finiteFiber).obj Y) :
+    finiteEtaleSepFiber_toGeometric K Kbar Ksep Y
+      (finiteEtaleSepFiber_fromGeometric K Kbar Ksep Y element) = element := sorry
+
+/-- Scalar extension followed by descent preserves every separable-closure-valued point. -/
+theorem finiteEtaleSepFiber_fromGeometric_toGeometric (K Kbar Ksep : Type u)
+    [Field K] [Field Kbar] [Field Ksep]
+    [Algebra K Kbar] [Algebra K Ksep] [Algebra Ksep Kbar]
+    [IsScalarTower K Ksep Kbar] [IsAlgClosed Kbar] [IsSepClosure K Ksep]
+    (Y : Scheme.FiniteEtale (Spec (.of K))) (element : finiteEtaleSepFiber K Ksep Y) :
+    finiteEtaleSepFiber_fromGeometric K Kbar Ksep Y
+      (finiteEtaleSepFiber_toGeometric K Kbar Ksep Y element) = element := sorry
+
 /-- Scalar extension identifies the separable point fiber with the geometric fiber. -/
 def finiteEtaleSepFiber_equivGeometric (K Kbar Ksep : Type u)
     [Field K] [Field Kbar] [Field Ksep]
     [Algebra K Kbar] [Algebra K Ksep] [Algebra Ksep Kbar]
     [IsScalarTower K Ksep Kbar] [IsAlgClosed Kbar] [IsSepClosure K Ksep]
     (Y : Scheme.FiniteEtale (Spec (.of K))) :
-    finiteEtaleSepFiber K Ksep Y ≃ ((specFieldGeometricPoint K Kbar).finiteFiber).obj Y :=
-  Equiv.ofBijective (finiteEtaleSepFiber_toGeometric K Kbar Ksep Y) sorry
+    finiteEtaleSepFiber K Ksep Y ≃ ((specFieldGeometricPoint K Kbar).finiteFiber).obj Y where
+  toFun := finiteEtaleSepFiber_toGeometric K Kbar Ksep Y
+  invFun := finiteEtaleSepFiber_fromGeometric K Kbar Ksep Y
+  left_inv := finiteEtaleSepFiber_fromGeometric_toGeometric K Kbar Ksep Y
+  right_inv := finiteEtaleSepFiber_toGeometric_fromGeometric K Kbar Ksep Y
 
 /-- Forgetting the finite Galois action gives the geometric-fiber functor by scalar extension. -/
 def finiteEtaleGaloisFiber_comp_forget_iso (K Kbar Ksep : Type u)
@@ -131,12 +219,6 @@ def finiteEtaleGaloisFiber_comp_forget_iso (K Kbar Ksep : Type u)
         hom_inv_id := sorry
         inv_hom_id := sorry })
     (fun _ ↦ sorry)
-
-/-- Finite étale schemes over a field are equivalent to finite discrete continuous
-actions of its separable Galois group. -/
-instance finiteEtaleGaloisFiber_isEquivalence (K Ksep : Type u)
-    [Field K] [Field Ksep] [Algebra K Ksep] [IsSepClosure K Ksep] :
-    (finiteEtaleGaloisFiber K Ksep).IsEquivalence := sorry
 
 end AlgebraicGeometry.Scheme.Etale
 

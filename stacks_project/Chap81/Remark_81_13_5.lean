@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Filtered.EssentiallyConstant.Presentation
-public import stacks_project.Chap81.«81_13_3_1_System»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CoequalizerGlueing.EssentiallyConstant
+import StacksCheckRecall
 
 /-!
 # Remark 81.13.5
@@ -23,19 +17,13 @@ open CategoryTheory.Limits
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.CoequalizerGlueing
-
-variable {S : Scheme.{u}} {X X' Z : AlgebraicSpace S}
-
-/-- Remark 81.13.5: in Situation 81.13.2 with `X` quasi-compact, Lemma 81.13.4
+/- Remark 81.13.5: in Situation 81.13.2 with `X` quasi-compact, Lemma 81.13.4
 means the sequential coequalizer system `X₁ ⟶ X₂ ⟶ X₃ ⟶ ⋯` is essentially
 constant with value `X`, in the sense of Categories, Definition 4.22.1. -/
-@[stacks 0AGL]
-theorem cocone_isEssentiallyConstant
+@[stacks 0AGL] #check
+  (AlgebraicGeometry.AlgebraicSpace.CoequalizerGlueing.cocone_isEssentiallyConstant :
+    ∀ {S : Scheme.{u}} {X X' Z : AlgebraicSpace S}
     (f : X' ⟶ X) (i : Z ⟶ X) [IsLocallyNoetherian X] [IsQuasiCompact X]
     [IsClosedImmersion i] [Proper f]
-    (h_iso : IsIsoOverOpen f (closedImmersionComplementι i)) :
-    (cocone f i h_iso).IsEssentiallyConstant :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.CoequalizerGlueing
+    (h_iso : IsIsoOverOpen f (closedImmersionComplementι i)),
+    (AlgebraicGeometry.AlgebraicSpace.CoequalizerGlueing.cocone f i h_iso).IsEssentiallyConstant)

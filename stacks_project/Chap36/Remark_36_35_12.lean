@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -19,6 +13,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.ModuleDerived.ProjectionFormula
 
 /- Remark 36.35.12 (1): under the hypotheses of Lemma 36.35.11, the relative Ext
@@ -28,6 +24,10 @@ functor of `K` against `E ⊗ Lf^*(-)` has a pseudo-coherent representative on `
     ∀ {X S : Scheme.{u}} (f : X ⟶ S)
       [CompactSpace S] [QuasiSeparatedSpace S]
       [Flat f] [IsProper f] [Scheme.Hom.FinitePresentation f]
+      [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+        DerivedCategory.DerivedTensor.Right.Has
+          (C := RingedSpace.Modules
+            ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
       [KFlat.HomotopyTensorDescends X.toRingedSpace]
       [KFlat.TensorDescends X.toRingedSpace]
       [KFlat.IsLocalization X.toRingedSpace]
@@ -50,6 +50,10 @@ functor furnished by Lemma 36.35.11 are isomorphic in the derived category of `S
     ∀ {X S : Scheme.{u}} (f : X ⟶ S)
       [CompactSpace S] [QuasiSeparatedSpace S]
       [Flat f] [IsProper f] [Scheme.Hom.FinitePresentation f]
+      [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+        DerivedCategory.DerivedTensor.Right.Has
+          (C := RingedSpace.Modules
+            ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
       [KFlat.HomotopyTensorDescends X.toRingedSpace]
       [KFlat.TensorDescends X.toRingedSpace]
       [KFlat.IsLocalization X.toRingedSpace]

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Presheaf.Sheafification
@@ -101,7 +95,7 @@ noncomputable def meromorphicSectionSheafificationUnit (L : X.Modules) :
           (PresheafOfModules.sheafificationRingMap (smallEtaleTopology X)
             (regularStructureSections X).localizationPresheaf)).obj
         (meromorphicSectionSheaf X L).val :=
-  (PresheafOfModules.sheafificationAdjunction
+  (PresheafOfModules.sheafificationAdjunction.{u + 1}
       (PresheafOfModules.sheafificationRingMap (smallEtaleTopology X)
         (regularStructureSections X).localizationPresheaf)).unit.app
     (meromorphicSectionPresheaf X L)
@@ -110,7 +104,7 @@ noncomputable def meromorphicSectionSheafificationUnit (L : X.Modules) :
 meromorphic-section presheaf. -/
 theorem meromorphicSectionSheafificationUnit_def (L : X.Modules) :
     meromorphicSectionSheafificationUnit L =
-      (PresheafOfModules.sheafificationAdjunction
+      (PresheafOfModules.sheafificationAdjunction.{u + 1}
           (PresheafOfModules.sheafificationRingMap (smallEtaleTopology X)
             (regularStructureSections X).localizationPresheaf)).unit.app
         (meromorphicSectionPresheaf X L) :=

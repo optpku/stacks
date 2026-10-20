@@ -1,26 +1,20 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap61.Lemma_61_5_7_AlongClosed
+public import ReasLib.Algebra.WLocalHull.AlongClosed
 import StacksCheckRecall
 
 @[expose] public section
 
-open Algebra.WLocalHull
+universe u
 
-/- Lemma 61.5.7 (1): A → alongClosed A I is ind-Zariski. -/
-@[stacks 0979] #check alongClosed_indZariski
-
-/- Lemma 61.5.7 (2): Spec(alongClosed A I) is w-local. -/
-@[stacks 0979] #check instWLocalSpace_alongClosed
-
-/- Lemma 61.5.7 (3): the closed points of Spec(alongClosed A I) are V(IB). -/
-@[stacks 0979] #check closedPoints_alongClosed
-
-/- Lemma 61.5.7 (4): A ⧸ I ≅ alongClosed A I ⧸ IB via the canonical quotient map. -/
-@[stacks 0979] #check bijective_quotientMap_alongClosed
+/- Lemma 61.5.7. A profinite closed locus admits an ind-Zariski extension with
+w-local spectrum, closed points V(IB), and canonical quotient isomorphism. -/
+@[stacks 0979] #check (Algebra.WLocalHull.exists_alongClosed :
+  ∀ (A : Type u) [CommRing A] (I : Ideal A)
+    [CompactSpace (PrimeSpectrum.zeroLocus (I : Set A))]
+    [T2Space (PrimeSpectrum.zeroLocus (I : Set A))]
+    [TotallyDisconnectedSpace (PrimeSpectrum.zeroLocus (I : Set A))],
+    ∃ (B : Type u) (ringB : CommRing B) (f : A →+* B),
+      f.IndZariski ∧ WLocalSpace (PrimeSpectrum B) ∧
+        closedPoints (PrimeSpectrum B) = PrimeSpectrum.zeroLocus (I.map f : Set B) ∧
+        Function.Bijective (Ideal.quotientMap (I.map f) f Ideal.le_comap_map))

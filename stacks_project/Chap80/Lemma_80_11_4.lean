@@ -1,19 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Sites.Fpqc
-public import Mathlib.CategoryTheory.MorphismProperty.Representable
-public import Mathlib.CategoryTheory.Sites.Over
-public import Mathlib.CategoryTheory.Sites.Sheaf
-public import stacks_project.Chap67.Definition_67_5_2_Surjective
-public import stacks_project.Chap67.Lemma_67_28_11_LocallyOfFinitePresentation
-public import stacks_project.Chap67.Lemma_67_30_5_Flat
-public import stacks_project.Chap80.Definition_80_4_1_Relative
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Representable.Cancellation
+import StacksCheckRecall
 
 /-!
 # Precomposition cancellation of representability by algebraic spaces
@@ -31,7 +19,7 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 80.11.4: let `S` be a scheme. Let `a : F ⟶ G` and `b : G ⟶ H` be
+/- Lemma 80.11.4: let `S` be a scheme. Let `a : F ⟶ G` and `b : G ⟶ H` be
 transformations of functors `(Over S)ᵒᵖ ⥤ Type u` (Stacks
 `(Sch/S)_fppf^opp → Sets`). Assume `F`, `G`, `H` are sheaves for the fppf
 topology, `a` is representable by algebraic spaces, flat, locally of finite
@@ -40,8 +28,9 @@ algebraic spaces. Then `b` is representable by algebraic spaces.
 
 Testing on `ξ : yoneda.obj U ⟶ H` (Stacks `ξ ∈ H(U)`) is the existing Yoneda
 unfolding of `representableByAlgebraicSpaces`. -/
-@[stacks 0AMP]
-theorem representableByAlgebraicSpaces.of_precomp {S : Scheme.{u}}
+@[stacks 0AMP] #check
+  (AlgebraicGeometry.AlgebraicSpace.representableByAlgebraicSpaces.of_precomp :
+    ∀ {S : Scheme.{u}}
     {F G H : (Over S)ᵒᵖ ⥤ Type u}
     (hF : Presheaf.IsSheaf (Scheme.fppfTopology.over S) F)
     (hG : Presheaf.IsSheaf (Scheme.fppfTopology.over S) G)
@@ -50,15 +39,16 @@ theorem representableByAlgebraicSpaces.of_precomp {S : Scheme.{u}}
     (ha : relativeAlgebraicSpaces
       (@Surjective S ⊓ @Flat S ⊓ @LocallyOfFinitePresentation S :
         MorphismProperty (AlgebraicSpace S)) a)
-    (hba : representableByAlgebraicSpaces (a ≫ b)) :
-    representableByAlgebraicSpaces b :=
-  sorry
+    (hba : representableByAlgebraicSpaces (a ≫ b)),
+    representableByAlgebraicSpaces b)
 
-/-- Representability by algebraic spaces of `b : G ⟶ H` is equivalent to that of
+/- Representability by algebraic spaces of `b : G ⟶ H` is equivalent to that of
 the composite `a ≫ b` when `a` is representable by algebraic spaces, surjective,
 flat, and locally of finite presentation, for fppf sheaves `F`, `G`, `H`. The
 forward direction is `of_precomp`; the reverse is composition stability. -/
-theorem representableByAlgebraicSpaces.of_precomp_iff {S : Scheme.{u}}
+#check
+  (AlgebraicGeometry.AlgebraicSpace.representableByAlgebraicSpaces.of_precomp_iff :
+    ∀ {S : Scheme.{u}}
     {F G H : (Over S)ᵒᵖ ⥤ Type u}
     (hF : Presheaf.IsSheaf (Scheme.fppfTopology.over S) F)
     (hG : Presheaf.IsSheaf (Scheme.fppfTopology.over S) G)
@@ -66,8 +56,7 @@ theorem representableByAlgebraicSpaces.of_precomp_iff {S : Scheme.{u}}
     (a : F ⟶ G) (b : G ⟶ H)
     (ha : relativeAlgebraicSpaces
       (@Surjective S ⊓ @Flat S ⊓ @LocallyOfFinitePresentation S :
-        MorphismProperty (AlgebraicSpace S)) a) :
-    representableByAlgebraicSpaces (a ≫ b) ↔ representableByAlgebraicSpaces b :=
-  sorry
+        MorphismProperty (AlgebraicSpace S)) a),
+    representableByAlgebraicSpaces (a ≫ b) ↔ representableByAlgebraicSpaces b)
 
 end AlgebraicGeometry.AlgebraicSpace

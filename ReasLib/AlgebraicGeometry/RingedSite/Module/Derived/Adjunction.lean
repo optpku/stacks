@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Basic
@@ -72,8 +66,8 @@ noncomputable def moduleDerivedAdjunction [DerivedAdjunction.HasPair.{z} f] :
       (modulePullbackPushforwardAdjunction.{z} f))
       (ModuleQis.{z} Y) (ModuleQis.{z} X)
 
-/- The short name above is the canonical owner.  The two aliases below preserve established
-descriptive spellings; they carry no additional data and inherit the same explicit
+/- The short name above is the canonical owner.  The descriptive spelling below preserves an
+established name; it carries no additional data and inherits the same explicit
 `DerivedAdjunction.HasPair` certificate. -/
 
 /-- The canonical derived pullback--pushforward adjunction under its descriptive spelling. -/
@@ -82,13 +76,6 @@ noncomputable abbrev modulePullbackDerivedPushforwardAdjunction
     [DerivedAdjunction.HasPair.{z} f] :
     modulePullbackDerived.{z} f ⊣ modulePushforwardDerived.{z} f :=
   moduleDerivedAdjunction.{z} f
-
-/-- A deprecated spelling of the canonical derived pullback--pushforward adjunction. -/
-@[deprecated modulePullbackDerivedPushforwardAdjunction (since := "2026-08-04")]
-noncomputable abbrev modulePullbackDerived_pushforward_adjunction
-    [DerivedAdjunction.HasPair.{z} f] :
-    modulePullbackDerived.{z} f ⊣ modulePushforwardDerived.{z} f :=
-  modulePullbackDerivedPushforwardAdjunction.{z} f
 
 /-- The derived adjunction does not depend on the supplied proof of the absolute-derived pair
 condition. -/

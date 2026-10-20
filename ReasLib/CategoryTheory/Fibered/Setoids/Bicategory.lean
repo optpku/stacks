@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 -- Import decisions:
@@ -72,7 +66,7 @@ instance isFiberedInSetoids.isClosedUnderEquivalences (C : Type u) [Category.{v}
 end BasedCategory
 
 set_option linter.checkUnivs false in
-/-- Definition 4.39.3 (Stacks 02Y1): the `2`-category of categories fibred in setoids over `C` consists of based categories whose projection
+/-- The `2`-category of categories fibred in setoids over `C` consists of based categories whose projection
 is fibred in setoids. The independent object and hom universes of the total categories are
 retained even though the carrier sort sees only their maximum. -/
 @[stacks 02Y1 "(1) categories fibred in setoids over a base"]

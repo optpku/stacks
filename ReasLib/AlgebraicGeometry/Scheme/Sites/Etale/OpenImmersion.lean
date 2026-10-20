@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Pullback
@@ -26,11 +20,45 @@ def openImmersionEtaleView {X Y : Scheme.{u}} (f : X ⟶ Y)
     (@AlgebraicGeometry.Etale.etale_comp U.left X
       (U.hom : U.left ⟶ X) Y f U.prop inferInstance)
 
-/-- Pulling back an étale object viewed over the target of an open immersion
-gives an object isomorphic to the original étale object. -/
-theorem openImmersionEtalePullbackIso
+/-- For an open immersion `f`, the first projection of `U ×_Y X` followed by the
+structure map of `U` is the second projection. -/
+@[reassoc]
+theorem openImmersionEtaleView_pullback_fst_comp
     {X Y : Scheme.{u}} (f : X ⟶ Y) [IsOpenImmersion f] (U : X.Etale) :
-    Nonempty ((Scheme.smallEtalePullback f).obj (openImmersionEtaleView f U) ≅ U) := sorry
+    pullback.fst ((U.hom : U.left ⟶ X) ≫ f) f ≫ (U.hom : U.left ⟶ X) =
+      pullback.snd ((U.hom : U.left ⟶ X) ≫ f) f :=
+  (cancel_mono f).mp ((Category.assoc _ _ _).trans pullback.condition)
+
+/-- For an open immersion `f : X ⟶ Y` and `U` étale over `X`, the first projection
+`U ×_Y X ⟶ U` is an isomorphism of schemes; its inverse is `(𝟙, U.hom)`. -/
+noncomputable def openImmersionEtaleViewPullbackLeftIso
+    {X Y : Scheme.{u}} (f : X ⟶ Y) [IsOpenImmersion f] (U : X.Etale) :
+    pullback ((U.hom : U.left ⟶ X) ≫ f) f ≅ U.left where
+  hom := pullback.fst _ _
+  inv := pullback.lift (𝟙 U.left) (U.hom : U.left ⟶ X) (Category.id_comp _)
+  hom_inv_id := pullback.hom_ext
+    (by simp only [Category.assoc, pullback.lift_fst, Category.id_comp]
+        exact Category.comp_id (pullback.fst ((U.hom : U.left ⟶ X) ≫ f) f))
+    (by simp only [Category.assoc, pullback.lift_snd, Category.id_comp]
+        exact openImmersionEtaleView_pullback_fst_comp f U)
+  inv_hom_id := pullback.lift_fst _ _ _
+
+/-- Pulling back an étale object viewed over the target of an open immersion
+recovers the original étale object: the canonical identification `U ×_Y X = U`
+is given by the first projection. -/
+noncomputable def openImmersionEtalePullbackIso
+    {X Y : Scheme.{u}} (f : X ⟶ Y) [IsOpenImmersion f] (U : X.Etale) :
+    (Scheme.smallEtalePullback f).obj (openImmersionEtaleView f U) ≅ U :=
+  MorphismProperty.Over.isoMk (openImmersionEtaleViewPullbackLeftIso f U)
+    (openImmersionEtaleView_pullback_fst_comp f U)
+
+/-- The canonical identification `U ×_Y X ≅ U` is the first projection. -/
+@[simp]
+theorem openImmersionEtalePullbackIso_hom_left
+    {X Y : Scheme.{u}} (f : X ⟶ Y) [IsOpenImmersion f] (U : X.Etale) :
+    (openImmersionEtalePullbackIso f U).hom.left =
+      pullback.fst ((U.hom : U.left ⟶ X) ≫ f) f :=
+  rfl
 
 /-- There exists an open immersion whose small étale direct image does not
 preserve both finite limits and finite colimits. -/

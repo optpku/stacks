@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.Localization.LocalizationLocalization
@@ -34,11 +28,25 @@ canonically equivalent to first localizing at `S'` and then at the image of `S`.
 @[stacks 02C6 "iterated localization equivalence"]
 noncomputable def supEquivIterated (S S' : Submonoid A) :
     Localization (S ⊔ S') ≃ₐ[A]
-      Localization (Algebra.algebraMapSubmonoid (Localization S') S) := sorry
+      Localization (Algebra.algebraMapSubmonoid (Localization S') S) := by
+  haveI : IsLocalization (S ⊔ S')
+      (Localization (Algebra.algebraMapSubmonoid (Localization S') S)) := by
+    sorry
+  exact IsLocalization.algEquiv (S ⊔ S') _ _
 
 /-- The iterated-localization equivalence agrees with the canonical maps from the base ring. -/
 @[simp, stacks 02C6 "iterated localization equivalence on scalars"]
 theorem supEquivIterated_apply_algebraMap (S S' : Submonoid A) (a : A) :
     supEquivIterated S S' (algebraMap A _ a) = algebraMap A _ a := sorry
+
+/-- The canonical equivalence sends `a / (s * s')` to the iterated fraction
+`(a / s') / (s / 1)`. -/
+@[stacks 02C6 "iterated localization equivalence on fractions"]
+theorem supEquivIterated_mk (S S' : Submonoid A) (a : A) (s : S) (s' : S') :
+    supEquivIterated S S'
+      (Localization.mk a
+        ⟨s * s', Submonoid.mul_mem_sup s.property s'.property⟩) =
+      Localization.mk (Localization.mk a s')
+        ⟨algebraMap A (Localization S') s, Algebra.mem_algebraMapSubmonoid_of_mem s⟩ := sorry
 
 end Localization

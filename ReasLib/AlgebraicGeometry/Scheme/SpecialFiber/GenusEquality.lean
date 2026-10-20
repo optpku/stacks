@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.NumericalType.SpecialFiber
@@ -67,7 +61,9 @@ variable (h_eq :
 
 /-- Every reduced irreducible component of the closed fibre is integral. -/
 instance componentIsIntegral (i : Fin n) :
-    IsIntegral (component f (components i)) := sorry
+    IsIntegral (component f (components i)) :=
+  AlgebraicGeometry.isIntegral_of_irreducibleSpace_of_isReduced
+    (component f (components i))
 
 /-- The global sections of an indexed proper integral component form a field. -/
 @[implicit_reducible]
@@ -121,16 +117,6 @@ theorem componentContainingPointIsGeometricallyIrreducible (i : Fin n)
       ((Spec (CommRingCat.of R)).residueField (IsLocalRing.closedPoint R))) ∈
         (f.fiber (IsLocalRing.closedPoint R)).irreducibleComponentClosed (components i)) :
     GeometricallyIrreducible (componentToResidueField f (components i)) := sorry
-
-/-- The global-sections algebra of another component is finite-dimensional over the residue field. -/
-theorem otherComponentSectionsFiniteDimensional (i j : Fin n)
-    (h_i_mem : s (IsLocalRing.closedPoint
-      ((Spec (CommRingCat.of R)).residueField (IsLocalRing.closedPoint R))) ∈
-        (f.fiber (IsLocalRing.closedPoint R)).irreducibleComponentClosed (components i))
-    (h_ne : j ≠ i) :
-    FiniteDimensional
-      ((Spec (CommRingCat.of R)).residueField (IsLocalRing.closedPoint R))
-      (globalSectionsAlg (componentToResidueField f (components j))) := sorry
 
 /-- The global-sections algebra of another component is separable over the residue field. -/
 theorem otherComponentSectionsSeparable (i j : Fin n)

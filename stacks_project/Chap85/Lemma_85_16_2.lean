@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_16_2_Comparison
-public import stacks_project.Chap85.Lemma_85_16_2_Shriek
+import StacksCheckRecall
+public import ReasLib.CategoryTheory.Sites.Family.Simplicial.Comparison
 
 /-!
 # Lemma 85.16.2
@@ -23,7 +16,7 @@ and on abelian sheaves, inverse image along `j_total` is degreewise inverse imag
 universe w v u
 
 open CategoryTheory CategoryTheory.Limits Opposite
-open scoped SemiRepresentableFamily Simplicial
+open scoped Simplicial
 
 noncomputable section
 
@@ -39,51 +32,26 @@ variable [∀ P : (Grothendieck (overSiteDiagram K))ᵒᵖ ⥤ Type (max w u v),
 variable [∀ P : (Grothendieck (overSiteDiagram K))ᵒᵖ ⥤ AddCommGrpCat.{max w u v},
   (totalForget K).op.HasLeftKanExtension P]
 
-/-- Lemma 85.16.2 (1): With assumption and notation as in Lemma 85.16.1, there is a functor
-`a^{Sh}_! : Sh((C / K)_total) ⥤ Sh(C)` left adjoint to `a⁻¹ : Sh(C) ⥤ Sh((C / K)_total)`.
-Here `a^{Sh}_!` is `sheafLowerShriek` and `a⁻¹` is continuous sheaf pushforward of
-`totalForget`, isomorphic to `totalLocalization.inverseImage` by
-`CocontinuousPullback.comparison`. -/
-@[stacks 09WM]
-def sheafLowerShriekAdjunction :
-    sheafLowerShriek J K ⊣
-      (totalForget K).sheafPushforwardContinuous (Type (max w u v))
-        (overSiteTotalTopology J K) J :=
-  (totalForget K).sheafAdjunctionContinuous (Type (max w u v)) (overSiteTotalTopology J K) J
+/- Lower shriek on sheaves of sets is left adjoint to total inverse image. -/
+#check (CategoryTheory.Functor.sheafAdjunctionContinuous (totalForget K)
+    (Type (max w u v)) (overSiteTotalTopology J K) J :
+  (totalForget K).sheafPullback (Type (max w u v)) (overSiteTotalTopology J K) J ⊣
+    (totalForget K).sheafPushforwardContinuous (Type (max w u v))
+      (overSiteTotalTopology J K) J)
 
-/-- Lemma 85.16.2 (2): With assumption and notation as in Lemma 85.16.1, there is a functor
-`a_! : Ab((C / K)_total) ⥤ Ab(C)` left adjoint to `a⁻¹ : Ab(C) ⥤ Ab((C / K)_total)`.
-Here `a_!` is `abelianLowerShriek` and `a⁻¹` is continuous sheaf pushforward of
-`totalForget` on `AddCommGrpCat`. -/
-@[stacks 09WM]
-def abelianLowerShriekAdjunction :
-    abelianLowerShriek J K ⊣
-      (totalForget K).sheafPushforwardContinuous AddCommGrpCat.{max w u v}
-        (overSiteTotalTopology J K) J :=
-  (totalForget K).sheafAdjunctionContinuous AddCommGrpCat.{max w u v}
-    (overSiteTotalTopology J K) J
+/- Lower shriek on abelian sheaves is left adjoint to total inverse image. -/
+#check (CategoryTheory.Functor.sheafAdjunctionContinuous (totalForget K)
+    AddCommGrpCat.{max w u v} (overSiteTotalTopology J K) J :
+  (totalForget K).sheafPullback AddCommGrpCat.{max w u v} (overSiteTotalTopology J K) J ⊣
+    (totalForget K).sheafPushforwardContinuous AddCommGrpCat.{max w u v}
+      (overSiteTotalTopology J K) J)
 
-/-- Lemma 85.16.2 (3): With assumption and notation as in Lemma 85.16.1, the functor `a⁻¹`
-associates to `F` in `Sh(C)` the sheaf on `(C / K)_total` which in degree `n` is equal to
-`a_n⁻¹ F`. Here `G_n` means restriction along `ι`, and `a_n⁻¹` is continuous sheaf
-pushforward of `forget (K.obj (op n))`, isomorphic to
-`localizationMorphism.inverseImage`. -/
-@[stacks 09WM]
-def inverseImage_fiberRestrict (n : SimplexCategory) :
+/- Total inverse image restricts degreewise to stage inverse image. -/
+#check (CategoryTheory.SemiRepresentableFamily.sheafInverseImage_fiberRestrict J K :
+  ∀ n : SimplexCategory,
     (totalForget K).sheafPushforwardContinuous (Type (max w u v))
         (overSiteTotalTopology J K) J ⋙ sheafFiberRestrict J K n ≅
-      sheafStageRestrict J K n :=
-  sheafInverseImage_fiberRestrict J K n
-
-/-- Degree-`n` evaluation of inverse image along `j_total`: the restriction of `a⁻¹ F`
-is `a_n⁻¹ F`. -/
-def inverseImage_fiberRestrict_app (n : SimplexCategory)
-    (F : Sheaf J (Type (max w u v))) :
-    (sheafFiberRestrict J K n).obj
-        (((totalForget K).sheafPushforwardContinuous (Type (max w u v))
-            (overSiteTotalTopology J K) J).obj F) ≅
-      (sheafStageRestrict J K n).obj F :=
-  (inverseImage_fiberRestrict J K n).app F
+      sheafStageRestrict J K n)
 
 variable [∀ P : (Grothendieck (overSiteDiagram K))ᵒᵖ ⥤ AddCommGrpCat.{max w u v},
   (totalForget K).op.HasPointwiseRightKanExtension P]
@@ -97,14 +65,12 @@ variable [∀ (i : Fin 2) (P : (OverSite (K.obj (op ⦋1⦌)))ᵒᵖ ⥤ AddComm
   (overSiteFace K i ⋙ forget (K.obj (op ⦋0⦌))).op.HasPointwiseRightKanExtension P]
 variable [HasEqualizers (Sheaf J AddCommGrpCat.{max w u v})]
 
-/-- Lemma 85.16.2 (4): With assumption and notation as in Lemma 85.16.1, the functor `a_*`
-associates to `G` in `Ab((C / K)_total)` the equalizer of the two maps
-`j_{0,*} G_0 ⇉ j_{1,*} G_1`. Here `j_{n,*}` is cocontinuous sheaf pushforward of
-`forget (K.obj (op n))` and `a_*` is cocontinuous sheaf pushforward of `totalForget`. -/
-@[stacks 09WM]
-theorem abelianPushforwardToEqualizer_isIso
-    (G : Sheaf (overSiteTotalTopology J K) AddCommGrpCat.{max w u v}) :
-    IsIso (abelianPushforwardToEqualizer J K G) :=
-  sorry
+/- Lemma 85.16.2. Total localization admits lower shriek on sheaves of sets and abelian
+sheaves, its inverse image is degreewise stage inverse image, and its abelian direct image
+is canonically the equalizer of the two coface direct-image maps. -/
+@[stacks 09WM] #check
+  (CategoryTheory.SemiRepresentableFamily.abelianPushforwardToEqualizer_isIso J K :
+    ∀ G : Sheaf (overSiteTotalTopology J K) AddCommGrpCat.{max w u v},
+      IsIso (abelianPushforwardToEqualizer J K G))
 
 end CategoryTheory.SemiRepresentableFamily

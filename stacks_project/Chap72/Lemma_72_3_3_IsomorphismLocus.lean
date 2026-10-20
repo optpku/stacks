@@ -1,20 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_4_8_Opens
-public import stacks_project.Chap67.Lemma_67_17_2_InverseImage
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.IsomorphismLocus
 
-/-!
-# Isomorphism loci of morphisms of algebraic spaces
-
-The maximal open of the target over which a morphism of algebraic spaces is an
-isomorphism, recorded as a point-set of `|Y|`.
--/
+/-! # Isomorphism loci of morphisms of algebraic spaces -/
 
 @[expose] public section
 
@@ -24,38 +12,23 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- The inclusion of an open subspace is an open immersion. -/
-instance OpenSubspace.instIsOpenImmersion {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (U : OpenSubspace X) : IsOpenImmersion U.ι :=
-  U.isOpenImmersion
+#check (AlgebraicGeometry.AlgebraicSpace.isomorphismLocus :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y), Set (Points Y))
 
-/-- The maximal open of the target over which a morphism of algebraic spaces is
-an isomorphism, as the set of points of `|Y|` that lie in some open subspace
-`U ⊂ Y` with `openInverseImageTo f U.ι` an isomorphism. -/
-def isomorphismLocus {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    Set (Points Y) :=
-  {y | ∃ U : OpenSubspace Y, y ∈ U.pointsSet ∧ IsIso (openInverseImageTo f U.ι)}
-
-/-- A point of the target lies in the isomorphism locus if and only if it belongs
-to an open subspace over which the comparison `openInverseImageTo f U.ι` is an
-isomorphism. -/
-theorem mem_isomorphismLocus_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) {y : Points Y} :
+#check (AlgebraicGeometry.AlgebraicSpace.mem_isomorphismLocus_iff :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) {y : Points Y},
     y ∈ isomorphismLocus f ↔
-      ∃ U : OpenSubspace Y, y ∈ U.pointsSet ∧ IsIso (openInverseImageTo f U.ι) :=
-  sorry
+      ∃ U : OpenSubspace Y, y ∈ U.pointsSet ∧ IsIso (restrictTo f U))
 
-/-- Every open subspace of the target over which the morphism restricts to an
-isomorphism is contained in the isomorphism locus. -/
-theorem mem_isomorphismLocus {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) {U : OpenSubspace Y} (h : IsIso (openInverseImageTo f U.ι)) :
-    U.pointsSet ⊆ isomorphismLocus f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.mem_isomorphismLocus :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) {U : OpenSubspace Y} (h : IsIso (restrictTo f U)),
+    U.pointsSet ⊆ isomorphismLocus f)
 
-/-- The isomorphism locus is an open subset of `|Y|`, hence is the maximal open
-of the target over which `f` is an isomorphism. -/
-theorem isOpen_isomorphismLocus {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) : IsOpen (isomorphismLocus f) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.isOpen_isomorphismLocus :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y),
+    IsOpen (isomorphismLocus f))
 
 end AlgebraicGeometry.AlgebraicSpace

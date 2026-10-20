@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import ReasLib.AlgebraicGeometry.Scheme.Module.FittingIdeal.CartierFiltration
@@ -19,7 +13,8 @@ vanishes on `U` acquires paired locally finite Cartier-rank filtrations after a
 `U`-admissible blowup. -/
 @[stacks 0ESU] #check
   (AlgebraicGeometry.Scheme.Modules.CartierRankFiltrations.exists_afterAdmissibleBlowup :
-    ∀ {X : Scheme.{u}} (F : X.Modules) (U : X.Opens),
+    ∀ {X : Scheme.{u}}
+      [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] (F : X.Modules) (U : X.Opens),
       SheafOfModules.IsPerfect F →
       RingedSpace.ModuleHasTorDimensionLE F 1 →
       IsZero (F.over U) →

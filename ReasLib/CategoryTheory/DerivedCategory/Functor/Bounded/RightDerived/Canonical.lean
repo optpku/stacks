@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Bounded.Acyclic.Existence
@@ -39,10 +33,21 @@ variable {A : Type uA} {B : Type uB}
 /-- Enough bounded right-acyclic objects canonically provide the bounded-below right derived
 functor required by the degree API. -/
 @[stacks 05TA]
-noncomputable instance hasDerived
+theorem hasDerived
     [(Functor.RightAcyclic.Bounded F).HasMonoEmbedding] :
     F.toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso A) := sorry
+      (HomotopyCategory.Plus.quasiIso A) := by
+  let hEverywhere :
+      Functor.RightDerived.EverywhereDefined F.toBoundedBelowDerived
+        (HomotopyCategory.Plus.quasiIso A) :=
+    Functor.RightAcyclic.Bounded.everywhereDefined F
+  let hPointwise :
+      F.toBoundedBelowDerived.HasPointwiseRightDerivedFunctor
+        (HomotopyCategory.Plus.quasiIso A) :=
+    @Functor.RightDerived.EverywhereDefined.hasPointwise _ _ _ _ _ _
+      hEverywhere
+  exact @Functor.hasRightDerivedFunctor_of_hasPointwiseRightDerivedFunctor
+    _ _ _ _ _ _ hPointwise
 
 /-- The canonical bounded-below right derived functor of `F`. -/
 @[stacks 015A]
@@ -87,7 +92,7 @@ noncomputable abbrev zero
 
 namespace Vanishes
 
-/-- Stacks 07K7: the canonical bounded-below right derived functor vanishes in degree `n`. -/
+/-- The canonical bounded-below right derived functor vanishes in degree `n`. -/
 @[stacks 07K7]
 abbrev inDegree
     [F.toBoundedBelowDerived.HasRightDerivedFunctor

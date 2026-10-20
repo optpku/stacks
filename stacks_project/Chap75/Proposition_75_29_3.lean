@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap75.Proposition_75_29_3_BoundednessDetection
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.BoundednessDetection
 
 @[expose] public section
 
@@ -15,7 +9,7 @@ open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory
 open AlgebraicGeometry.AlgebraicSpace.Modules
 open CategoryTheory.Limits CategoryTheory.MonoidalCategory CategoryTheory.MonoidalClosed
 open DerivedCategory.TStructure
-open scoped DerivedExt
+open scoped DerivedExt CategoryTheory.DerivedCategory.DerivedTensor
 
 noncomputable section
 
@@ -35,7 +29,9 @@ indices 6–10 as Hom, Ext, RHom, tensor cohomology, and tensor RΓ. -/
   (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.boundedAbove_tfae :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
       [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
-      [MonoidalCategory (ModuleDerived X)] (H : MonoidalClosed (ModuleDerived X))
+      [MonoidalCategory (ModuleDerived X)] [BraidedCategory (ModuleDerived X)]
+      (H : MonoidalClosed (ModuleDerived X))
+      (M : DerivedCategory.DerivedTensor.Right.Monoidal.Model (C := Modules X))
       (G E : DerivedQCoh X)
       (_ : ModuleDerived.IsPerfect G.obj) (_ : IsWeakGenerator G),
       List.TFAE
@@ -45,10 +41,10 @@ indices 6–10 as Hom, Ext, RHom, tensor cohomology, and tensor RΓ. -/
         , (t.minus : ObjectProperty (DerivedCategory AddCommGrpCat.{u}))
             ((moduleDerivedGlobalSectionsAb X).obj ((ihomOf H G.obj).obj E.obj))
         , ∀ᶠ i : ℤ in Filter.atTop,
-            IsZero (cohomologyAb X ((ihomOf H G.obj).obj (𝟙_ (ModuleDerived X)) ⊗ E.obj) i)
+            IsZero (cohomologyAb X ((ihomOf H G.obj).obj ((DerivedCategory.singleFunctor (Modules X) 0).obj (𝟙_ (Modules X))) ⊗ᴸ E.obj) i)
         , (t.minus : ObjectProperty (DerivedCategory AddCommGrpCat.{u}))
             ((moduleDerivedGlobalSectionsAb X).obj
-              ((ihomOf H G.obj).obj (𝟙_ (ModuleDerived X)) ⊗ E.obj))
+              ((ihomOf H G.obj).obj ((DerivedCategory.singleFunctor (Modules X) 0).obj (𝟙_ (Modules X))) ⊗ᴸ E.obj))
         , ∀ P : ModuleDerived X, ModuleDerived.IsPerfect P →
             ∀ᶠ i : ℤ in Filter.atTop, Subsingleton (P⟦-i⟧ ⟶ E.obj)
         , ∀ P : ModuleDerived X, ModuleDerived.IsPerfect P →
@@ -57,10 +53,10 @@ indices 6–10 as Hom, Ext, RHom, tensor cohomology, and tensor RΓ. -/
             (t.minus : ObjectProperty (DerivedCategory AddCommGrpCat.{u}))
               ((moduleDerivedGlobalSectionsAb X).obj ((ihomOf H P).obj E.obj))
         , ∀ P : ModuleDerived X, ModuleDerived.IsPerfect P →
-            ∀ᶠ i : ℤ in Filter.atTop, IsZero (cohomologyAb X (P ⊗ E.obj) i)
+            ∀ᶠ i : ℤ in Filter.atTop, IsZero (cohomologyAb X (P ⊗ᴸ E.obj) i)
         , ∀ P : ModuleDerived X, ModuleDerived.IsPerfect P →
             (t.minus : ObjectProperty (DerivedCategory AddCommGrpCat.{u}))
-              ((moduleDerivedGlobalSectionsAb X).obj (P ⊗ E.obj))
+              ((moduleDerivedGlobalSectionsAb X).obj (P ⊗ᴸ E.obj))
         ])
 
 #check
@@ -76,10 +72,9 @@ indices 6–10 as Hom, Ext, RHom, tensor cohomology, and tensor RΓ. -/
   (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.boundedAbove_iff_perfectTensorCohomologyEventually :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
       [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
-      [MonoidalCategory (ModuleDerived X)]
       (E : DerivedQCoh X),
       (t.minus : ObjectProperty (ModuleDerived X)) E.obj ↔
         ∀ P : ModuleDerived X, ModuleDerived.IsPerfect P →
-          ∀ᶠ i : ℤ in Filter.atTop, IsZero (cohomologyAb X (P ⊗ E.obj) i))
+          ∀ᶠ i : ℤ in Filter.atTop, IsZero (cohomologyAb X (P ⊗ᴸ E.obj) i))
 
 end AlgebraicGeometry.AlgebraicSpace.DerivedQCoh

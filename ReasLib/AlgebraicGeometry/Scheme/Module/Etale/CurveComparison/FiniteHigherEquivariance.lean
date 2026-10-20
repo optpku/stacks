@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.FiniteHigherSiteComparison
@@ -34,7 +28,7 @@ variable [∀ U : (geometricBaseChange X).Etale,
 variable [EnoughInjectives (Sheaf X.left.smallEtaleTopology (ModuleCat.{u + 1} Λ))]
 variable [EnoughInjectives (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
 variable [HasDerivedCategory (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
-variable [HasDerivedCategory (DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber ηbar)))]
+variable [HasDerivedCategory (DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)))]
 variable [HasDerivedCategory (ModuleCat.{u + 1} Λ)]
 variable [HasSheafify (geometricBaseChange X).smallEtaleTopology AddCommGrpCat.{u + 1}]
 variable [HasExt.{u + 1} (Sheaf (geometricBaseChange X).smallEtaleTopology AddCommGrpCat.{u + 1})]
@@ -45,7 +39,7 @@ variable [(geometricBaseChange X).smallEtaleTopology.HasSheafCompose
 /-- The continuous group cohomology side uses the independently derived residual quotient action. -/
 def finiteGroupCohomologyGaloisFunctor (n : ℕ) :
     (finiteTypeDiscreteModule Λ
-      (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))).FullSubcategory ⥤
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))).FullSubcategory ⥤
       Action (ModuleCat.{u + 1} Λ) Gal(AlgebraicClosure k/k) where
   obj M := AmbientGeometry.continuousCohomologyGaloisAction Λ X ηbar M.obj n
   map f := { hom := (Ambient.finiteCohomology Λ X ηbar n).map f
@@ -57,7 +51,7 @@ def finiteGroupCohomologyGaloisFunctor (n : ℕ) :
 from pullback/descent, with actual induced maps of associated sheaves. -/
 def finiteGeometricCohomologyGaloisFunctor (n : ℕ) :
     (finiteTypeDiscreteModule Λ
-      (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))).FullSubcategory ⥤
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))).FullSubcategory ⥤
       Action (ModuleCat.{u + 1} Λ) Gal(AlgebraicClosure k/k) where
   obj M := AmbientGeometry.geometricSiteGaloisAction Λ X
     ((associatedSheafFunctor Λ (arithmeticPoint X ηbar)).obj M) n
@@ -75,7 +69,7 @@ theorem finiteHigherSiteComparison_equivariant
     (h_ne_P1 : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
     (hΛ : IsUnit (Nat.card Λ : k))
     (M : (finiteTypeDiscreteModule Λ
-      (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))).FullSubcategory)
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))).FullSubcategory)
     (n : ℕ) (σ : Gal(AlgebraicClosure k/k)) :
     ((finiteGroupCohomologyGaloisFunctor Λ X ηbar n).obj M).ρ σ ≫
         (finiteHigherSiteComparisonIso Λ X ηbar h_ne_P1 hΛ M n).hom =
@@ -87,7 +81,7 @@ def finiteHigherEquivariantIso
     (h_ne_P1 : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
     (hΛ : IsUnit (Nat.card Λ : k))
     (M : (finiteTypeDiscreteModule Λ
-      (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))).FullSubcategory) (n : ℕ) :
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))).FullSubcategory) (n : ℕ) :
     (finiteGroupCohomologyGaloisFunctor Λ X ηbar n).obj M ≅
       (finiteGeometricCohomologyGaloisFunctor Λ X ηbar n).obj M :=
   Action.mkIso (finiteHigherSiteComparisonIso Λ X ηbar h_ne_P1 hΛ M n)

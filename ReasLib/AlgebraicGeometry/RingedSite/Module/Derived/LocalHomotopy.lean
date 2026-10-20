@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.LocalRepresentation
@@ -42,7 +36,7 @@ restricted `α`. -/
 @[stacks 08FQ "cover-wise local lifting"]
 def IsLocallyLiftableAt
     {E F G : _root_.CochainComplex (ModuleCat.{w} X) ℤ}
-    (α : E ⟶ F) (f : G ⟶ F) (U : X) : Prop :=
+    (α : E ⟶ F) (f : G ⟶ F) (U : X.carrier) : Prop :=
   ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
     ∃ β : (localizedRestrictionComplex.{w} X I.Y).obj E ⟶
         (localizedRestrictionComplex.{w} X I.Y).obj G,
@@ -55,7 +49,7 @@ omit [UnivLE.{max u v, w}] in
 criterion. -/
 theorem isLocallyLiftableAt_iff
     {E F G : _root_.CochainComplex (ModuleCat.{w} X) ℤ}
-    (α : E ⟶ F) (f : G ⟶ F) (U : X) :
+    (α : E ⟶ F) (f : G ⟶ F) (U : X.carrier) :
     IsLocallyLiftableAt α f U ↔
       ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
         ∃ β : (localizedRestrictionComplex.{w} X I.Y).obj E ⟶
@@ -68,8 +62,8 @@ namespace IsStrictlyPerfect
 
 variable [HasWeakSheafify X.siteTopology AddCommGrpCat.{w}]
 variable [X.siteTopology.WEqualsLocallyBijective AddCommGrpCat.{w}]
-variable [∀ U : X, HasWeakSheafify (X.localization U).siteTopology AddCommGrpCat.{w}]
-variable [∀ U : X,
+variable [∀ U : X.carrier, HasWeakSheafify (X.localization U).siteTopology AddCommGrpCat.{w}]
+variable [∀ U : X.carrier,
   (X.localization U).siteTopology.WEqualsLocallyBijective AddCommGrpCat.{w}]
 
 /- The bounds and vanishing hypotheses below are intentionally stated at the homology-map level.
@@ -79,7 +73,7 @@ namespace NullHomotopy
 @[stacks 08FP "strictly perfect source and acyclic target"]
 theorem at_of_acyclic
     {E F : _root_.CochainComplex (ModuleCat.{w} X) ℤ}
-    (hE : IsStrictlyPerfect E) (α : E ⟶ F) (hF : F.Acyclic) (U : X) :
+    (hE : IsStrictlyPerfect E) (α : E ⟶ F) (hF : F.Acyclic) (U : X.carrier) :
     IsLocallyNullHomotopicAt α U := sorry
 
 /-- A strictly perfect source bounded below by `a` maps locally null-homotopically into a complex
@@ -88,7 +82,7 @@ whose homology vanishes in all degrees at least `a`. -/
 theorem at_of_isStrictlyGE
     {E F : _root_.CochainComplex (ModuleCat.{w} X) ℤ} (a : ℤ)
     (hE : IsStrictlyPerfect E) (hE_ge : E.IsStrictlyGE a) (α : E ⟶ F)
-    (hF : ∀ i : ℤ, a ≤ i → IsZero (F.homology i)) (U : X) :
+    (hF : ∀ i : ℤ, a ≤ i → IsZero (F.homology i)) (U : X.carrier) :
     IsLocallyNullHomotopicAt α U := sorry
 
 end NullHomotopy
@@ -102,7 +96,7 @@ theorem at_of_isStrictlyGE
     (hE : IsStrictlyPerfect E) (hE_ge : E.IsStrictlyGE a)
     (α : E ⟶ F) (f : G ⟶ F)
     (hf_iso : ∀ j : ℤ, a < j → IsIso (HomologicalComplex.homologyMap f j))
-    (hf_epi : Epi (HomologicalComplex.homologyMap f a)) (U : X) :
+    (hf_epi : Epi (HomologicalComplex.homologyMap f a)) (U : X.carrier) :
     IsLocallyLiftableAt α f U := sorry
 
 end Lift

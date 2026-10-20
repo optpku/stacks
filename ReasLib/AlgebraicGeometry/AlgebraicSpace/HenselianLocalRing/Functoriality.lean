@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap68.Definition_68_11_7_HenselianLocalRing
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.HenselianLocalRing.Defs
+public import Mathlib.RingTheory.LocalRing.RingHom.Basic
 
 /-!
 # Functoriality through actual pointed elementary neighbourhoods
@@ -120,5 +115,29 @@ def map (f : X ⟶ Y) (x : Points X) (y : Points Y)
     { pt := henselianLocalRingCat X x
       ι := { app := fun j ↦ component f x y hxy (ULiftHom.objDown j).unop
              naturality := sorry } }).hom
+
+/-- The induced homomorphism sends a section to its restriction on any actual pointed
+elementary refinement over the target neighbourhood. -/
+theorem map_ι (f : X ⟶ Y) (x : Points X) (y : Points Y)
+    (hxy : Points.map f x = y) (V : EtaleNeighborhood.Elementary Y y)
+    (W : EtaleNeighborhood.Elementary X x) (m : PointedNeighborhoodMap f W V) :
+    (map f x y hxy).comp (henselianLocalRing.ι Y y V) =
+      (henselianLocalRing.ι X x W).comp (Scheme.Γ.map m.overHom.left.op).hom := sorry
+
+/-- The homomorphism induced by the identity of a pointed algebraic space is the identity. -/
+@[simp]
+theorem map_id (x : Points X) :
+    map (𝟙 X) x x (Points.map_id x) = RingHom.id (henselianLocalRing X x) := sorry
+
+/-- Pullback on henselian local rings reverses composition of pointed space morphisms. -/
+theorem map_comp {Z : AlgebraicSpace S} [IsDecent Z] (f : X ⟶ Y) (g : Y ⟶ Z)
+    (x : Points X) (y : Points Y) (z : Points Z)
+    (hxy : Points.map f x = y) (hyz : Points.map g y = z) :
+    map (f ≫ g) x z ((Points.map_comp f g x).trans ((congrArg (Points.map g) hxy).trans hyz)) =
+      (map f x y hxy).comp (map g y z hyz) := sorry
+
+/-- The homomorphism on henselian local rings induced by a pointed space morphism is local. -/
+instance map_isLocalHom (f : X ⟶ Y) (x : Points X) (y : Points Y)
+    (hxy : Points.map f x = y) : IsLocalHom (map f x y hxy) := sorry
 
 end AlgebraicGeometry.AlgebraicSpace.HenselianFunctoriality

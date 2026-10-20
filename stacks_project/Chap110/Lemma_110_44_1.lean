@@ -1,39 +1,28 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Polynomial.Coeff
-public import Mathlib.Data.ZMod.Basic
-public import Mathlib.FieldTheory.PerfectClosure
-public import Mathlib.RingTheory.Etale.Basic
-public import Mathlib.RingTheory.RingHom.Flat
-public import Mathlib.RingTheory.RingHom.Unramified
-public import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.RingTheory.PerfectClosure.Polynomial
+import StacksCheckRecall
 
 @[expose] public section
 
-namespace PerfectClosure
+/- Lemma 110.44.1: Let `A = F_p[T]` be the polynomial ring in one variable
+over `F_p`, and let `A_perf` denote its perfect closure. Then `A -> A_perf`
+is flat and formally unramified, but not formally étale. (1) In particular,
+`A -> A_perf` is flat. -/
+@[stacks 0G65] #check
+  (PerfectClosure.of_polynomial_flat : ∀ (p : ℕ), [Fact p.Prime] →
+    (PerfectClosure.of (Polynomial (ZMod p)) p).Flat)
 
-/-- Lemma 110.44.1 (1): the canonical map `PerfectClosure.of` from
-`A = Polynomial (ZMod p)` to `A_perf = PerfectClosure A p` is flat. -/
-@[stacks 0G65]
-theorem of_polynomial_flat (p : ℕ) [Fact p.Prime] :
-    (of (Polynomial (ZMod p)) p).Flat := sorry
+/- Lemma 110.44.1 (2): Let `A = F_p[T]` be the polynomial ring in one
+variable over `F_p`, and let `A_perf` denote its perfect closure. Then
+`A -> A_perf` is formally unramified. -/
+@[stacks 0G65] #check
+  (PerfectClosure.of_polynomial_formallyUnramified : ∀ (p : ℕ), [Fact p.Prime] →
+    (PerfectClosure.of (Polynomial (ZMod p)) p).FormallyUnramified)
 
-/-- Lemma 110.44.1 (2): the canonical map `PerfectClosure.of` from
-`A = Polynomial (ZMod p)` to `A_perf = PerfectClosure A p` is formally unramified. -/
-@[stacks 0G65]
-theorem of_polynomial_formallyUnramified (p : ℕ) [Fact p.Prime] :
-    (of (Polynomial (ZMod p)) p).FormallyUnramified := sorry
-
-/-- Lemma 110.44.1 (3): the canonical map `PerfectClosure.of` from
-`A = Polynomial (ZMod p)` to `A_perf = PerfectClosure A p` is not formally étale. -/
-@[stacks 0G65]
-theorem of_polynomial_not_formallyEtale (p : ℕ) [Fact p.Prime] :
-    ¬ (of (Polynomial (ZMod p)) p).FormallyEtale := sorry
-
-end PerfectClosure
+/- Lemma 110.44.1 (3): Let `A = F_p[T]` be the polynomial ring in one
+variable over `F_p`, and let `A_perf` denote its perfect closure. Then
+`A -> A_perf` is not formally étale. -/
+@[stacks 0G65] #check
+  (PerfectClosure.of_polynomial_not_formallyEtale : ∀ (p : ℕ), [Fact p.Prime] →
+    ¬ (PerfectClosure.of (Polynomial (ZMod p)) p).FormallyEtale)

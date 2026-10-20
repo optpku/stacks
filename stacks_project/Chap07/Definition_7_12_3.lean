@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.Subcanonical
@@ -24,10 +18,11 @@ J.yoneda : C ⥤ Sheaf J (Type v) is the Yoneda embedding h, it is fully faithfu
 and C is thereby a full subcategory of sheaves. Sheaves of the form J.yoneda.obj U
 (source h_U, sometimes written underline U) are the representable sheaves.
 -/
-@[stacks 00WR] #check (J.yoneda.obj U : Sheaf J (Type v))
+@[stacks 00WR] #check
+  ((CategoryTheory.GrothendieckTopology.yoneda J).obj U : Sheaf J (Type v))
 
-#check J.yoneda
-#check J.yonedaFullyFaithful
+#check (CategoryTheory.GrothendieckTopology.yoneda J : C ⥤ Sheaf J (Type v))
+#check (CategoryTheory.GrothendieckTopology.yonedaFullyFaithful J : (J.yoneda).FullyFaithful)
 
 /- Following source note, not part of Definition 7.12.3:
 Mor(J.yoneda.obj U, F) ≃ F.obj.obj (op U). -/

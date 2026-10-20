@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -15,6 +9,8 @@ open CategoryTheory DerivedCategory.TStructure
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.SchemeOverField
 
 open RingedSpace RingedSpace.ModuleDerived
@@ -25,6 +21,10 @@ finite-presentation scheme is equivalent to boundedness and pseudo-coherence. -/
   (AlgebraicGeometry.SchemeOverField.isPerfectOver_iff_bounded_and_pseudoCoherent :
     ∀ {k : Type u} [Field k] (X : SchemeOverField k)
       [Scheme.Hom.FinitePresentation X.hom]
+      [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase X.hom.toShHom).carrier,
+        CategoryTheory.DerivedCategory.DerivedTensor.Right.Has
+          (C := RingedSpace.Modules
+            ((RingedSpace.Hom.inverseImageBase X.hom.toShHom).restrict U.isOpenEmbedding))]
       (E : ModuleDerived X.left.toRingedSpace),
       IsPerfectOver X.hom.toShHom E ↔
         t.bounded E ∧ RingedSpace.ModuleDerived.IsPseudoCoherent E)
@@ -36,6 +36,10 @@ condition and does not assert perfectness on every fibre. -/
   (AlgebraicGeometry.SchemeOverField.isPerfectOver_iff_bounded_and_coherentCohomology :
     ∀ {k : Type u} [Field k] (X : SchemeOverField k)
       [Scheme.Hom.FinitePresentation X.hom]
+      [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase X.hom.toShHom).carrier,
+        CategoryTheory.DerivedCategory.DerivedTensor.Right.Has
+          (C := RingedSpace.Modules
+            ((RingedSpace.Hom.inverseImageBase X.hom.toShHom).restrict U.isOpenEmbedding))]
       (E : ModuleDerived X.left.toRingedSpace),
       IsPerfectOver X.hom.toShHom E ↔
         t.bounded E ∧

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Lemma_90_28_2_FormalHomotopy
+public import ReasLib.AlgebraicGeometry.FormalDeformation.CompleteLocal.PowerSeries
 
 /-!
 # Power series morphisms in `CompleteLocalAlgCat`
@@ -27,30 +21,20 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
 
 namespace CompleteLocalAlgCat
 
-/-- A morphism `f : R ⟶ S` exhibits `S` as a power series ring over `R` if there is
-`n : ℕ` and an isomorphism `e : S ≅ R.mvPowerSeries n` with
-`f ≫ e.hom = R.mvPowerSeriesC n`. -/
-def IsPowerSeriesOver {R S : CompleteLocalAlgCat Λ k} (f : R ⟶ S) : Prop :=
-  ∃ n : ℕ, ∃ e : S ≅ R.mvPowerSeries n, f ≫ e.hom = R.mvPowerSeriesC n
+#check (CompleteLocalAlgCat.IsPowerSeriesOver :
+  ∀ {R S : CompleteLocalAlgCat Λ k} (f : R ⟶ S), Prop)
 
-/-- Being a power series over `R` unpacks to a finite-variable isomorphism over the
-canonical coefficient inclusion. -/
-theorem isPowerSeriesOver_iff {R S : CompleteLocalAlgCat Λ k} (f : R ⟶ S) :
+#check (CompleteLocalAlgCat.isPowerSeriesOver_iff :
+  ∀ {R S : CompleteLocalAlgCat Λ k} (f : R ⟶ S),
     IsPowerSeriesOver f ↔
-      ∃ n : ℕ, ∃ e : S ≅ R.mvPowerSeries n, f ≫ e.hom = R.mvPowerSeriesC n :=
-  sorry
+      ∃ n : ℕ, ∃ e : S ≅ R.mvPowerSeries n, f ≫ e.hom = R.mvPowerSeriesC n)
 
-/-- An isomorphism onto `R.mvPowerSeries n` over `R.mvPowerSeriesC n` exhibits a
-power series morphism. -/
-theorem IsPowerSeriesOver.of_iso {R S : CompleteLocalAlgCat Λ k} {n : ℕ} {f : R ⟶ S}
-    (e : S ≅ R.mvPowerSeries n) (h : f ≫ e.hom = R.mvPowerSeriesC n) :
-    IsPowerSeriesOver f :=
-  sorry
+#check (CompleteLocalAlgCat.IsPowerSeriesOver.of_iso :
+  ∀ {R S : CompleteLocalAlgCat Λ k} {n : ℕ} {f : R ⟶ S}
+    (e : S ≅ R.mvPowerSeries n) (h : f ≫ e.hom = R.mvPowerSeriesC n),
+    IsPowerSeriesOver f)
 
-/-- The canonical coefficient inclusion `R.mvPowerSeriesC n` is a power series
-morphism over `R`. -/
-theorem isPowerSeriesOver_mvPowerSeriesC (R : CompleteLocalAlgCat Λ k) (n : ℕ) :
-    IsPowerSeriesOver (R.mvPowerSeriesC n) :=
-  sorry
+#check (CompleteLocalAlgCat.isPowerSeriesOver_mvPowerSeriesC :
+  ∀ (R : CompleteLocalAlgCat Λ k) (n : ℕ), IsPowerSeriesOver (R.mvPowerSeriesC n))
 
 end CompleteLocalAlgCat

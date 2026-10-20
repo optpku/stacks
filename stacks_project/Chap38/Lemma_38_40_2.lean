@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -25,21 +19,26 @@ which every cohomology sheaf of its derived pullback is perfect and has Tor dime
 one. -/
 @[stacks 0ESQ] #check
   (AlgebraicGeometry.Scheme.ModuleDerived.exists_isAdmissibleBlowup_cohomology :
-    ∀ {X : Scheme.{u}} (E : RingedSpace.ModuleDerived X.toRingedSpace)
+    ∀ {X : Scheme.{u}}
+      (E : RingedSpace.ModuleDerived X.toRingedSpace)
       (hE : RingedSpace.ModuleDerived.IsPerfect E) (U : X.Opens)
       (hU : schemeTheoreticallyDense U) (r : ℤ → ℕ)
       (h_rank : ∀ i : ℤ,
         SheafOfModules.IsFiniteLocallyFreeOfRank (r i)
           (RingedSpace.ModuleDerived.cohomologySheaf
-            ((RingedSpace.moduleRestrictionToOpenDerived X.toRingedSpace U).obj E) i)),
-      ∃ (X' : Scheme.{u}) (b : X' ⟶ X),
-        IsAdmissibleBlowup U b ∧
-          ∀ i : ℤ,
-            SheafOfModules.IsPerfect
-                (RingedSpace.ModuleDerived.cohomologySheaf
-                  ((RingedSpace.modulePullbackDerived b.toShHom).obj E) i) ∧
-              RingedSpace.ModuleHasTorDimensionLE
-                (RingedSpace.ModuleDerived.cohomologySheaf
-                  ((RingedSpace.modulePullbackDerived b.toShHom).obj E) i) 1)
+            ((RingedSpace.moduleRestrictionToOpenDerived X.toRingedSpace U).obj E) i))
+      (tensorOnBlowups : ∀ {X' : Scheme.{u}} (b : X' ⟶ X),
+        IsAdmissibleBlowup U b →
+          DerivedCategory.DerivedTensor.Right.Has
+            (C := RingedSpace.Modules X'.toRingedSpace)),
+      ∃ (X' : Scheme.{u}) (b : X' ⟶ X) (hb : IsAdmissibleBlowup U b),
+        letI := tensorOnBlowups b hb
+        ∀ i : ℤ,
+          SheafOfModules.IsPerfect
+              (RingedSpace.ModuleDerived.cohomologySheaf
+                ((RingedSpace.modulePullbackDerived b.toShHom).obj E) i) ∧
+            RingedSpace.ModuleHasTorDimensionLE
+              (RingedSpace.ModuleDerived.cohomologySheaf
+                ((RingedSpace.modulePullbackDerived b.toShHom).obj E) i) 1)
 
 end AlgebraicGeometry.Scheme.ModuleDerived

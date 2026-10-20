@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap106.«106_6_1_1_Object»
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Lift.Object
 import StacksCheckRecall
 
 @[expose] public section
@@ -23,4 +17,7 @@ from an algebraic space is a system `(U, U', a, i, x', α)` giving the
 2-commutative diagram `U —i→ U'`, `U —a→ W —x→ X —iX→ X'`, `U' —x'→ X'`,
 with square 2-cell `α` after composing `x ∘ a` with `iX`, `a` étale,
 `x'` smooth, and `U = X ×_{X'} U'`. -/
-@[stacks 0CJQ] #check Lift.Object
+@[stacks 0CJQ] #check (AlgebraicGeometry.AlgebraicStack.Lift.Object :
+  ∀ {S : Scheme.{u}} {X X' : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack X']
+    (iX : X ⟶ X') [IsThickening iX] {W : AlgebraicSpace S}
+    (x : W.toGroupoids ⟶ X) [Groupoids.Hom.Smooth x], Type (u + 1))

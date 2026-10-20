@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Extension.Zariski
@@ -61,5 +55,39 @@ theorem existsHSheafExtension
     ∃ (F' : (Over S)ᵒᵖ ⥤ Type (u + 1)), ∃ (eF' : C.ι.op ⋙ F' ≅ F),
       Presheaf.IsSheaf ((Scheme.hPrecoverage.toGrothendieck).over S) F' ∧
         Scheme.Over.PreservesDirectedAffineLimits S F' := sorry
+
+/-- An h-sheaf on a sufficiently rich full subcategory of schemes over a
+base, preserving directed affine limits, extends uniquely to an h-sheaf on
+all schemes over the base with the same limit-preservation property. -/
+theorem existsUniqueHSheafExtension
+    {S : Scheme.{u}} (C : ObjectProperty (Over S))
+    (F : C.FullSubcategoryᵒᵖ ⥤ Type (u + 1))
+    (hC_open : ContainsAffineOpens C)
+    (hC_fp : ContainsFinitelyPresentedAffines C)
+    (hF_h : Presheaf.IsSheaf
+      (C.ι.restrictedTopology ((Scheme.hPrecoverage.toGrothendieck).over S)) F)
+    (hF_limits : PreservesDirectedAffineLimits C F) :
+    ∃ (F' : (Over S)ᵒᵖ ⥤ Type (u + 1)), ∃ (eF' : C.ι.op ⋙ F' ≅ F),
+      ∃ (_ : Presheaf.IsSheaf ((Scheme.hPrecoverage.toGrothendieck).over S) F'),
+      ∃ (_ : Scheme.Over.PreservesDirectedAffineLimits S F'),
+        ∀ (G : (Over S)ᵒᵖ ⥤ Type (u + 1)) (eG : C.ι.op ⋙ G ≅ F),
+          Presheaf.IsSheaf ((Scheme.hPrecoverage.toGrothendieck).over S) G →
+          Scheme.Over.PreservesDirectedAffineLimits S G →
+          ∃! α : F' ≅ G, Functor.isoWhiskerLeft C.ι.op α ≪≫ eG = eF' := sorry
+
+/-- Two h-sheaf extensions of the same restricted functor that preserve
+directed affine limits are uniquely isomorphic compatibly with restriction. -/
+theorem isoUnique_of_isHSheafExtension
+    {S : Scheme.{u}} (C : ObjectProperty (Over S))
+    (F : C.FullSubcategoryᵒᵖ ⥤ Type (u + 1))
+    (F' : (Over S)ᵒᵖ ⥤ Type (u + 1)) (eF' : C.ι.op ⋙ F' ≅ F)
+    (hC_open : ContainsAffineOpens C)
+    (hC_fp : ContainsFinitelyPresentedAffines C)
+    (hF'_h : Presheaf.IsSheaf ((Scheme.hPrecoverage.toGrothendieck).over S) F')
+    (hF'_limits : Scheme.Over.PreservesDirectedAffineLimits S F')
+    (G : (Over S)ᵒᵖ ⥤ Type (u + 1)) (eG : C.ι.op ⋙ G ≅ F)
+    (hG_h : Presheaf.IsSheaf ((Scheme.hPrecoverage.toGrothendieck).over S) G)
+    (hG_limits : Scheme.Over.PreservesDirectedAffineLimits S G) :
+    ∃! α : F' ≅ G, Functor.isoWhiskerLeft C.ι.op α ≪≫ eG = eF' := sorry
 
 end AlgebraicGeometry.Scheme.Over.Extension

@@ -1,111 +1,84 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap61.Lemma_61_12_12_SmallToBig
-public import ReasLib.CategoryTheory.Sites.MorphismOfSites
-public import ReasLib.CategoryTheory.Sites.Topos.Continuous
-public import Mathlib.CategoryTheory.Whiskering
-
-/-!
-# Identity-base small-to-big pro-étale relocalization
-
-This leaf owns the identity-base extras of Sites Lemma 7.21.8 for a chosen big
-pro-étale site containing `S`: the small-to-big inclusion is a morphism of
-sites, induces `π_S`, and retracts the relocalization morphism `i_{id_S}`.
--/
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Proetale.ChosenPresentation.SmallToBig.Identity
 
 @[expose] public section
 
 open CategoryTheory
 open CategoryTheory.Limits
 open Opposite
+open AlgebraicGeometry
 open scoped MorphismOfTopoiIn
 
 noncomputable section
 
-universe u v w
+universe u v
 
 namespace AlgebraicGeometry.ChosenBigProetaleSite
-namespace SmallToBig
-
-section Identity
 
 variable (X : ChosenBigProetaleSite.{u, v}) (S : X.carrier)
 
-/-- The identity-base relocalization is canonically isomorphic to the inclusion
-of the chosen small pro-étale site. -/
-def relocalizationFunctor_id_iso :
-    relocalizationFunctor (𝟙 S) ≅ smallInclusion X S :=
-  Functor.isoWhiskerLeft (smallInclusion X S) (Over.mapId S) ≪≫
-    Functor.rightUnitor (smallInclusion X S)
-
-/-- The identity-base relocalization is full. -/
-instance relocalizationFunctor_id_full :
-    (relocalizationFunctor (𝟙 S)).Full := sorry
-
-/-- The identity-base relocalization is faithful. -/
-instance relocalizationFunctor_id_faithful :
-    (relocalizationFunctor (𝟙 S)).Faithful := sorry
-
-/-- The identity-base relocalization sends the small-site terminal object `S/S`
-to a terminal object of the chosen big slice. -/
-noncomputable def relocalizationFunctor_id_obj_isTerminal :
-    IsTerminal ((relocalizationFunctor (𝟙 S)).obj (smallTerminalObject X S)) :=
-  IsTerminal.ofIso (bigSiteIdentityTerminal X S)
-    ((relocalizationFunctor_id_iso X S).app (smallTerminalObject X S)).symm
-
-/-- The identity-base relocalization is a morphism of small-to-big pro-étale
-sites. -/
-instance identity_isMorphismOfSites :
+/- Lemma 61.12.13 (1): the identity-base relocalization functor defines a morphism
+of small-to-big pro-étale sites. -/
+#check
+  (AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.identity_isMorphismOfSites X S :
     IsMorphismOfSites (smallTopology X S) (bigTopology X S)
-      (relocalizationFunctor (𝟙 S)) := sorry
+      (AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.relocalizationFunctor (𝟙 S)))
 
-/-- The inverse image of the identity-base small-to-big site morphism preserves
-finite limits. -/
-instance identity_sheafPullback_preservesFiniteLimits
-    [HasWeakSheafify (bigTopology X S) (Type w)] :
+/- Lemma 61.12.13 (2): the identity-base site morphism induces the morphism of
+topoi `π_S`. -/
+#check
+  (AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.siteMorphismOfTopoi.{u, v, max u v} X S :
+    MorphismOfTopoiIn.{max u v, max u v, u, u, max u v}
+      (smallTopology X S) (bigTopology X S))
+
+/- Lemma 61.12.13 (3): the site-induced morphism `π_S` composed with
+`i_S = i_{𝟙 S}` has inverse image canonically isomorphic to the identity on the small pro-étale topos. -/
+#check
+  (AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.siteMorphismOfTopoi_comp_morphismOfTopoi_id_iso.{u, v, max u v} X S :
+    (MorphismOfTopoiIn.comp
+        (AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.siteMorphismOfTopoi.{u, v, max u v} X S)
+        (AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.morphismOfTopoi (𝟙 S)))⁻¹ ≅
+      (MorphismOfTopoiIn.id (smallTopology X S))⁻¹)
+
+/- Lemma 61.12.13 (4): the inverse image `i_S⁻¹` equals the direct image
+`π_{S,*}`. -/
+#check
+  (AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.morphismOfTopoi_id_inverseImage_eq_siteMorphismOfTopoi_pushforward.{u, v, max u v} X S :
+    (AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.morphismOfTopoi (𝟙 S))⁻¹ =
+      (AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.siteMorphismOfTopoi.{u, v, max u v} X S).pushforward)
+
+/- Lemma 61.12.13 (5): the direct image `π_{S,*}` evaluates a big pro-étale sheaf
+on the relocalized small pro-étale object. -/
+#check
+  (AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.siteMorphismOfTopoi_pushforward_obj_obj.{u, v, max u v} X S :
+    ∀ (𝒢 : Sheaf (bigTopology X S) (Type (max u v))) (U : smallSite X S),
+      ((AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.siteMorphismOfTopoi.{u, v, max u v} X S).pushforward.obj 𝒢).1.obj
+          (op U) =
+        𝒢.1.obj (op ((AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.relocalizationFunctor (𝟙 S)).obj U)))
+
+/- Identity-base relocalization agrees with the full inclusion. -/
+#check
+  (AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.relocalizationFunctor_id_iso X S :
+    AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.relocalizationFunctor (𝟙 S) ≅
+      smallInclusion X S)
+
+/- Identity-base relocalization is fully faithful. -/
+#check
+  (AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.relocalizationFunctor_id_fullyFaithful X S :
+    (AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.relocalizationFunctor (𝟙 S)).FullyFaithful)
+
+/- Identity-base relocalization preserves the terminal object. -/
+#check
+  (AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.relocalizationFunctor_id_obj_isTerminal X S :
+    IsTerminal ((AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.relocalizationFunctor
+      (𝟙 S)).obj (smallTerminalObject X S)))
+
+/- Sheaf pullback along identity-base relocalization preserves finite limits. -/
+#check
+  (AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.identity_sheafPullback_preservesFiniteLimits.{u, v, max u v} X S :
     PreservesFiniteLimits
-      ((relocalizationFunctor (𝟙 S)).sheafPullback (Type w)
-        (smallTopology X S) (bigTopology X S)) := sorry
+      ((AlgebraicGeometry.ChosenBigProetaleSite.SmallToBig.relocalizationFunctor (𝟙 S)).sheafPullback
+        (Type (max u v)) (smallTopology X S) (bigTopology X S)))
 
-/-- The morphism of topoi induced by the identity-base small-to-big pro-étale
-site morphism. -/
-noncomputable def siteMorphismOfTopoi
-    [HasWeakSheafify (bigTopology X S) (Type w)] :
-    MorphismOfTopoiIn.{max u v, max u v, v, v, w}
-      (smallTopology X S) (bigTopology X S) :=
-  Functor.morphismOfTopoiInOfContinuous.{w, max u v, max u v, v, v}
-    (relocalizationFunctor (𝟙 S)) (smallTopology X S) (bigTopology X S)
-
-/-- For identity-base pro-étale relocalization, the inverse image of `i_S`
-equals the direct image of the induced site morphism `π_S`. -/
-theorem morphismOfTopoi_id_inverseImage_eq_siteMorphismOfTopoi_pushforward
-    [HasWeakSheafify (bigTopology X S) (Type w)]
-    [HasSheafify (smallTopology X S) (Type w)] :
-    (morphismOfTopoi (𝟙 S))⁻¹ = (siteMorphismOfTopoi X S).pushforward := sorry
-
-/-- The identity-base small-to-big site morphism is a retraction of the
-relocalization morphism of topoi. -/
-theorem siteMorphismOfTopoi_comp_morphismOfTopoi_id
-    [HasWeakSheafify (bigTopology X S) (Type w)]
-    [HasSheafify (smallTopology X S) (Type w)] :
-    MorphismOfTopoiIn.comp (siteMorphismOfTopoi X S) (morphismOfTopoi (𝟙 S)) =
-      MorphismOfTopoiIn.id (smallTopology X S) := sorry
-
-/-- The direct image of the identity-base site morphism is computed by
-evaluation on relocalized small pro-étale objects. -/
-theorem siteMorphismOfTopoi_pushforward_obj_obj
-    [HasWeakSheafify (bigTopology X S) (Type w)]
-    (𝒢 : Sheaf (bigTopology X S) (Type w)) (U : smallSite X S) :
-    ((siteMorphismOfTopoi X S).pushforward.obj 𝒢).1.obj (op U) =
-      𝒢.1.obj (op ((relocalizationFunctor (𝟙 S)).obj U)) := sorry
-
-end Identity
-
-end SmallToBig
 end AlgebraicGeometry.ChosenBigProetaleSite

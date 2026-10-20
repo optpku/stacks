@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Module.Coherent.Category
 public import stacks_project.Chap103.Lemma_103_17_3_Instances
 public import stacks_project.Chap103.Lemma_103_17_4_Coherent
+import StacksCheckRecall
 
 /-!
 # Coherent modules on locally Noetherian algebraic stacks
@@ -29,41 +24,24 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- The object property of coherent `𝒪_X`-modules on a locally Noetherian
-algebraic stack. -/
-abbrev coherentModuleProperty {S : Scheme.{u}} (X : GroupoidsOver S)
-    [AlgebraicStack X] [IsLocallyNoetherian X] :
-    ObjectProperty (SheafOfModules.{u} (structureSheaf X)) :=
-  AlgebraicStack.IsCoherent
+variable {S : Scheme.{u}} (X : GroupoidsOver S)
+variable [AlgebraicStack X] [IsLocallyNoetherian X]
 
-/-- `coherentModuleProperty X` is the stack-local coherence class. -/
-theorem coherentModuleProperty_eq {S : Scheme.{u}} (X : GroupoidsOver S)
-    [AlgebraicStack X] [IsLocallyNoetherian X] :
-    coherentModuleProperty X = AlgebraicStack.IsCoherent :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.coherentModuleProperty X :
+  ObjectProperty (SheafOfModules.{u} (structureSheaf X)))
 
-/-- A module sheaf on a locally Noetherian algebraic stack lies in
-`coherentModuleProperty X` if and only if it is coherent. -/
-theorem mem_coherentModuleProperty_iff {S : Scheme.{u}} {X : GroupoidsOver S}
-    [AlgebraicStack X] [IsLocallyNoetherian X]
-    (F : SheafOfModules.{u} (structureSheaf X)) :
-    coherentModuleProperty X F ↔ AlgebraicStack.IsCoherent F :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.coherentModuleProperty_eq X :
+  coherentModuleProperty X = AlgebraicStack.IsCoherent)
 
-/-- The category `Coh(𝒪_X)` of coherent modules on a locally Noetherian
-algebraic stack. -/
-abbrev Coh {S : Scheme.{u}} (X : GroupoidsOver S)
-    [AlgebraicStack X] [IsLocallyNoetherian X] :=
-  (coherentModuleProperty X).FullSubcategory
+#check (AlgebraicGeometry.AlgebraicStack.mem_coherentModuleProperty_iff :
+  ∀ (F : SheafOfModules.{u} (structureSheaf X)),
+    coherentModuleProperty X F ↔ AlgebraicStack.IsCoherent F)
 
-namespace Coh
+/- Definition 103.17.2: the category of coherent `𝒪_X`-modules is denoted
+`Coh(𝒪_X)`. -/
+@[stacks 0GR6] #check (AlgebraicGeometry.AlgebraicStack.Coh X : Type (u + 1))
 
-/-- The inclusion of coherent modules into all `𝒪_X`-modules. -/
-abbrev inclusion {S : Scheme.{u}} (X : GroupoidsOver S)
-    [AlgebraicStack X] [IsLocallyNoetherian X] :
-    Coh X ⥤ SheafOfModules.{u} (structureSheaf X) :=
-  (coherentModuleProperty X).ι
-
-end Coh
+#check (AlgebraicGeometry.AlgebraicStack.Coh.inclusion X :
+  Coh X ⥤ SheafOfModules.{u} (structureSheaf X))
 
 end AlgebraicGeometry.AlgebraicStack

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap79.Lemma_79_8_1_Stability
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Restriction.Stability
 
 @[expose] public section
 

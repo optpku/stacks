@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Picard
@@ -168,5 +162,24 @@ noncomputable def picardEquivUnitsH1 (X : Scheme.{u})
     X.PicardGroup ≃+
       (CategoryTheory.Sheaf.unitsAddSheaf X.toRingedSpace.sheaf).H 1 :=
   SheafOfModules.RingedSite.PicardGroup.cohomologyEquiv X.toRingedSpace.sheaf
+
+variable {X : Scheme.{u}}
+variable [HasSheafify (Opens.grothendieckTopology X.toRingedSpace) AddCommGrpCat.{u}]
+variable [HasExt.{u} (Sheaf (Opens.grothendieckTopology X.toRingedSpace) AddCommGrpCat.{u})]
+
+/-- First cohomology of the structure-sheaf units is a nonzero object when the scheme's
+Picard group is nontrivial. -/
+theorem unitsAddSheaf_functorH_one_not_isZero [Nontrivial X.PicardGroup] :
+    ¬ CategoryTheory.Limits.IsZero
+        ((Sheaf.functorH (Opens.grothendieckTopology X.toRingedSpace) 1).obj
+          (Sheaf.unitsAddSheaf X.toRingedSpace.sheaf)) :=
+  sorry
+
+/-- The degree-one cohomology functor on abelian sheaves is nonzero for every scheme with
+nontrivial Picard group. -/
+theorem functorH_one_not_isZero [Nontrivial X.PicardGroup] :
+    ¬ CategoryTheory.Limits.IsZero
+      (Sheaf.functorH (Opens.grothendieckTopology X.toRingedSpace) 1) :=
+  sorry
 
 end AlgebraicGeometry.Scheme

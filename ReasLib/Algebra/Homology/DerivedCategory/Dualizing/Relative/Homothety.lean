@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.Dualizing.Relative
@@ -19,6 +13,8 @@ noncomputable section
 
 universe u
 
+open scoped TensorProduct
+
 namespace CategoryTheory.DerivedCategory.IsRelativeDualizingComplex
 
 /-- A relative dualizing complex has invertible homothety from the regular degree-zero object
@@ -26,6 +22,8 @@ to its canonical derived endomorphism object. -/
 theorem homothety_isIso
     {R A : Type u} [CommRing R] [CommRing A] [Algebra R A]
     [Module.Flat R A] [Algebra.FinitePresentation R A]
+    [InternalHom.RHom.Has (A := A ⊗[R] A)]
+    [InternalHom.RHom.Has (A := A)]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u, u} A))]
     [BraidedCategory (DerivedCategory (ModuleCat.{u, u} A))]
     {K : DerivedCategory (ModuleCat.{u, u} A)}

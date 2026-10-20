@@ -1,15 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
-public import Mathlib.CategoryTheory.Equivalence
-public import ReasLib.CategoryTheory.Abelian.SerreQuotient
-public import stacks_project.Chap110.Proposition_110_77_1_Torsion
+public import ReasLib.Algebra.Category.ModuleCat.Localization.SerreQuotient
 
 /-!
 # Serre quotient of modules by S-torsion
@@ -30,53 +21,39 @@ universe v u
 
 namespace ModuleCat
 
-variable {R : Type u} [CommRing R] [Small.{v} R]
+variable {R : Type u} [CommRing R] [Small.{v} R] (S : Submonoid R)
 
-/-- Localization of modules, bundled as an exact functor. -/
-def localizedExactFunctor (S : Submonoid R) :
-    ModuleCat.{v} R ⥤ₑ ModuleCat.{v} (Localization S) :=
-  ExactFunctor.of (localizedModuleFunctor.{v} S)
+#check (ModuleCat.localizedExactFunctor S :
+  ModuleCat.{v} R ⥤ₑ ModuleCat.{v} (Localization S))
 
-/-- The underlying functor of `localizedExactFunctor` is localization of modules. -/
-theorem localizedExactFunctor_obj (S : Submonoid R) :
-    (localizedExactFunctor S).obj = localizedModuleFunctor.{v} S :=
-  sorry
+#check (CategoryTheory.ExactFunctor.of_fst (ModuleCat.localizedModuleFunctor.{v} S) :
+  (ModuleCat.localizedExactFunctor S).obj = ModuleCat.localizedModuleFunctor.{v} S)
 
-/-- The exact functor induced on the Serre quotient of `S`-torsion modules by localization. -/
-def inducedLocalizedFunctor (S : Submonoid R) :
-    (isTorsion' S).isoModSerre.Localization ⥤ ModuleCat.{v} (Localization S) :=
-  SerreClassLocalization.inducedFunctor (isTorsion' S) (localizedExactFunctor S) le_rfl
+#check (ModuleCat.inducedLocalizedFunctor S :
+  (ModuleCat.isTorsion' S).isoModSerre.Localization ⥤ ModuleCat.{v} (Localization S))
 
-/-- Restriction of scalars, then the Serre quotient by `S`-torsion. -/
-def quotientRestrictScalars (S : Submonoid R) :
-    ModuleCat.{v} (Localization S) ⥤ (isTorsion' S).isoModSerre.Localization :=
-  restrictScalars (algebraMap R (Localization S)) ⋙ (isTorsion' S).isoModSerre.Q
+#check (ModuleCat.quotientRestrictScalars S :
+  ModuleCat.{v} (Localization S) ⥤ (ModuleCat.isTorsion' S).isoModSerre.Localization)
 
-/-- The Serre quotient followed by the induced functor recovers localization of modules. -/
-def inducedLocalizedFunctor_fac (S : Submonoid R) :
-    (isTorsion' S).isoModSerre.Q ⋙ inducedLocalizedFunctor S ≅
-      localizedModuleFunctor.{v} S :=
-  CategoryTheory.Localization.fac (localizedExactFunctor S).obj
-    (((isTorsion' S).isoModSerre_isInvertedBy_iff (localizedExactFunctor S).obj).2 le_rfl)
-    (isTorsion' S).isoModSerre.Q
+#check (ModuleCat.inducedLocalizedFunctor_fac S :
+  (ModuleCat.isTorsion' S).isoModSerre.Q ⋙ ModuleCat.inducedLocalizedFunctor S ≅
+    ModuleCat.localizedModuleFunctor.{v} S)
 
-/-- The factorization isomorphism is inverted by its inverse. -/
-theorem inducedLocalizedFunctor_fac_hom_inv_id (S : Submonoid R) :
-    (inducedLocalizedFunctor_fac S).hom ≫ (inducedLocalizedFunctor_fac S).inv =
-      𝟙 ((isTorsion' S).isoModSerre.Q ⋙ inducedLocalizedFunctor S) :=
-  sorry
+#check (CategoryTheory.Iso.hom_inv_id (ModuleCat.inducedLocalizedFunctor_fac S) :
+  (ModuleCat.inducedLocalizedFunctor_fac S).hom ≫
+      (ModuleCat.inducedLocalizedFunctor_fac S).inv =
+    𝟙 ((ModuleCat.isTorsion' S).isoModSerre.Q ⋙ ModuleCat.inducedLocalizedFunctor S))
 
-/-- The inverse sends an `S⁻¹R`-module to its restriction of scalars in the Serre quotient. -/
-theorem quotientRestrictScalars_obj (S : Submonoid R)
-    (N : ModuleCat.{v} (Localization S)) :
-    (quotientRestrictScalars S).obj N =
-      (isTorsion' S).isoModSerre.Q.obj
-        ((restrictScalars (algebraMap R (Localization S))).obj N) :=
-  sorry
+#check (ModuleCat.quotientRestrictScalars_obj S :
+  ∀ N : ModuleCat.{v} (Localization S),
+    (ModuleCat.quotientRestrictScalars S).obj N =
+      (ModuleCat.isTorsion' S).isoModSerre.Q.obj
+        ((ModuleCat.restrictScalars (algebraMap R (Localization S))).obj N))
 
-/-- The induced localization functor on the Serre quotient by `S`-torsion is an equivalence. -/
-theorem inducedLocalizedFunctor_isEquivalence (S : Submonoid R) :
-    (inducedLocalizedFunctor S).IsEquivalence :=
-  sorry
+#check (ModuleCat.inducedLocalizedFunctor_isEquivalence S :
+  (ModuleCat.inducedLocalizedFunctor S).IsEquivalence)
+
+#check (ModuleCat.instIsEquivalenceInducedLocalizedFunctor S :
+  (ModuleCat.inducedLocalizedFunctor S).IsEquivalence)
 
 end ModuleCat

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Comma.Over.Basic
@@ -11,13 +5,12 @@ public import Mathlib.CategoryTheory.Whiskering
 public import ReasLib.CategoryTheory.ObjectProperty.FullSubcategory.Restriction
 public import stacks_project.Chap65.Lemma_65_16_1_ChangeOfBase
 public import stacks_project.Chap70.Lemma_70_18_1_FinitePresentationOver
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FinitePresentation.Over.BaseChange
 
 /-!
-# Base change of algebraic spaces of finite presentation
+# Compatibility checks for finite-presentation base change
 
-A morphism of schemes `g : S ⟶ S'` induces a functor on algebraic spaces by
-restricting functors of points along `Over.map g`, and this preserves finite
-presentation of the structure morphism.
+The ambient and restricted base-change APIs are supplied by shared owners.
 -/
 
 @[expose] public section
@@ -30,99 +23,48 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- An isomorphism of functors of points induces an isomorphism of algebraic
-spaces over the same base. -/
-def isoOfFunctorOfPoints {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (e : X.functorOfPoints ≅ Y.functorOfPoints) : X ≅ Y where
-  hom := e.hom
-  inv := e.inv
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.isoOfFunctorOfPoints :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S},
+    (X.functorOfPoints ≅ Y.functorOfPoints) → (X ≅ Y))
 
-/-- The morphism `baseChange g X ⟶ baseChange g Y` obtained by whiskering a
-morphism of algebraic spaces along `(Over.map g).op`. -/
-def baseChangeMap {S S' : Scheme.{u}} (g : S ⟶ S') {X Y : AlgebraicSpace S'}
-    (α : X ⟶ Y) : baseChange g X ⟶ baseChange g Y :=
-  NatTrans.vcomp
-    (NatTrans.vcomp (eqToHom (baseChange_functorOfPoints g X))
-      (whiskerLeft (Over.map g).op α))
-    (eqToHom (baseChange_functorOfPoints g Y).symm)
+#check (AlgebraicGeometry.AlgebraicSpace.baseChangeMap :
+  ∀ {S S' : Scheme.{u}} (g : S ⟶ S') {X Y : AlgebraicSpace S'},
+    (X ⟶ Y) → (baseChange g X ⟶ baseChange g Y))
 
-/-- Base change of algebraic spaces along a morphism of schemes, as a functor
-on functors of points. -/
-def baseChangeFunctor {S S' : Scheme.{u}} (g : S ⟶ S') :
-    AlgebraicSpace S' ⥤ AlgebraicSpace S where
-  obj X := baseChange g X
-  map α := baseChangeMap g α
-  map_id := sorry
-  map_comp := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.baseChangeFunctor :
+  ∀ {S S' : Scheme.{u}}, (S ⟶ S') → AlgebraicSpace S' ⥤ AlgebraicSpace S)
 
-/-- The object map of `baseChangeFunctor g` is `baseChange g`. -/
-@[simp]
-theorem baseChangeFunctor_obj {S S' : Scheme.{u}} (g : S ⟶ S') (X : AlgebraicSpace S') :
-    (baseChangeFunctor g).obj X = baseChange g X :=
-  rfl
+#check (AlgebraicGeometry.AlgebraicSpace.baseChangeFunctor_obj :
+  ∀ {S S' : Scheme.{u}} (g : S ⟶ S') (X : AlgebraicSpace S'),
+    (baseChangeFunctor g).obj X = baseChange g X)
 
-/-- The morphism map of `baseChangeFunctor g` is `baseChangeMap g`. -/
-@[simp]
-theorem baseChangeFunctor_map {S S' : Scheme.{u}} (g : S ⟶ S')
-    {X Y : AlgebraicSpace S'} (α : X ⟶ Y) :
-    (baseChangeFunctor g).map α = baseChangeMap g α :=
-  rfl
+#check (AlgebraicGeometry.AlgebraicSpace.baseChangeFunctor_map :
+  ∀ {S S' : Scheme.{u}} (g : S ⟶ S') {X Y : AlgebraicSpace S'} (α : X ⟶ Y),
+    (baseChangeFunctor g).map α = baseChangeMap g α)
 
-/-- Base change of algebraic spaces is transitive in the base morphism. -/
-def baseChangeFunctor_comp {S S' S'' : Scheme.{u}} (f : S ⟶ S') (g : S' ⟶ S'') :
-    baseChangeFunctor (f ≫ g) ≅ baseChangeFunctor g ⋙ baseChangeFunctor f :=
-  NatIso.ofComponents
-    (fun X ↦ isoOfFunctorOfPoints
-      (eqToIso (baseChange_functorOfPoints (f ≫ g) X) ≪≫
-        isoWhiskerRight (NatIso.op (Over.mapComp f g)).symm X.functorOfPoints ≪≫
-        eqToIso (congrArg ((Over.map f).op ⋙ ·)
-          (baseChange_functorOfPoints g X).symm) ≪≫
-        eqToIso (baseChange_functorOfPoints f (baseChange g X)).symm))
-    sorry
+#check (AlgebraicGeometry.AlgebraicSpace.baseChangeFunctor_comp :
+  ∀ {S S' S'' : Scheme.{u}} (f : S ⟶ S') (g : S' ⟶ S''),
+    baseChangeFunctor (f ≫ g) ≅ baseChangeFunctor g ⋙ baseChangeFunctor f)
 
-/-- Finite presentation over the base is stable under base change of the base
-scheme. -/
-instance baseChange_finitePresentation {S S' : Scheme.{u}} (g : S ⟶ S')
-    (X : AlgebraicSpace S') [FinitePresentation (toBase X)] :
-    FinitePresentation (toBase (baseChange g X)) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.baseChange_finitePresentation :
+  ∀ {S S' : Scheme.{u}} (g : S ⟶ S') (X : AlgebraicSpace S'),
+    [FinitePresentation (toBase X)] → FinitePresentation (toBase (baseChange g X)))
 
-namespace FinitePresentationOver
-
-/-- Base change along `g : S ⟶ S'` sends algebraic spaces of finite presentation
-over `S'` to algebraic spaces of finite presentation over `S`. -/
-theorem mapsTo {S S' : Scheme.{u}} (g : S ⟶ S') :
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePresentationOver.mapsTo :
+  ∀ {S S' : Scheme.{u}} (g : S ⟶ S'),
     finitePresentationOverProperty S' ≤
-      (finitePresentationOverProperty S).inverseImage (baseChangeFunctor g) :=
-  sorry
+      (finitePresentationOverProperty S).inverseImage (baseChangeFunctor g))
 
-/-- Base change as a functor on categories of algebraic spaces of finite
-presentation. -/
-def baseChange {S S' : Scheme.{u}} (g : S ⟶ S') :
-    FinitePresentationOver S' ⥤ FinitePresentationOver S :=
-  FullSubcategory.restrict (baseChangeFunctor g) (mapsTo g)
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePresentationOver.baseChange :
+  ∀ {S S' : Scheme.{u}}, (S ⟶ S') → FinitePresentationOver S' ⥤ FinitePresentationOver S)
 
-/-- The underlying algebraic space of a restricted base change is the ambient
-base change. -/
-@[simp]
-theorem baseChange_obj {S S' : Scheme.{u}} (g : S ⟶ S')
-    (X : FinitePresentationOver S') :
-    ((baseChange g).obj X).obj = AlgebraicSpace.baseChange g X.obj :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePresentationOver.baseChange_obj :
+  ∀ {S S' : Scheme.{u}} (g : S ⟶ S') (X : FinitePresentationOver S'),
+    ((FinitePresentationOver.baseChange g).obj X).obj = AlgebraicSpace.baseChange g X.obj)
 
-/-- Restricted base change is transitive in the base morphism. -/
-def compIso {S S' S'' : Scheme.{u}} (f : S ⟶ S') (g : S' ⟶ S'') :
-    baseChange (f ≫ g) ≅ baseChange g ⋙ baseChange f :=
-  NatIso.ofComponents
-    (fun X ↦
-      { hom := homMk ((baseChangeFunctor_comp f g).hom.app X.obj)
-        inv := homMk ((baseChangeFunctor_comp f g).inv.app X.obj)
-        hom_inv_id := sorry
-        inv_hom_id := sorry })
-    sorry
-
-end FinitePresentationOver
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePresentationOver.compIso :
+  ∀ {S S' S'' : Scheme.{u}} (f : S ⟶ S') (g : S' ⟶ S''),
+    FinitePresentationOver.baseChange (f ≫ g) ≅
+      FinitePresentationOver.baseChange g ⋙ FinitePresentationOver.baseChange f)
 
 end AlgebraicGeometry.AlgebraicSpace

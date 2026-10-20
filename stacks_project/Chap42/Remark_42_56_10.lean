@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-import stacks_project.Chap42.Remark_42_56_10_Completion
-import stacks_project.Chap42.Remark_42_56_10_ChernClass
+import ReasLib.AlgebraicGeometry.Scheme.K0.Support.ChernClass
 
 @[expose] public section
 
@@ -31,7 +24,6 @@ multiplicatively for the product of Remark 42.34.7. -/
       [AlgebraicGeometry.IsClosedImmersion i],
       (CompactSpace X.left ∨
         ∀ C : irreducibleComponents X.left, IsCompact (C : Set X.left)) →
-      AlgebraicGeometry.ChernClass.Theory δ X.hom →
         AlgebraicGeometry.Scheme.K0WithSupport X.left (Set.range i.base) →
           AlgebraicGeometry.BivariantClass.Cutoff.Family δ
             (Over.homMk i rfl : Over.mk (i ≫ X.hom) ⟶ X) 1)
@@ -47,12 +39,11 @@ multiplicatively for the product of Remark 42.34.7. -/
       [AlgebraicGeometry.IsClosedImmersion i]
       (hqc : CompactSpace X.left ∨
         ∀ C : irreducibleComponents X.left, IsCompact (C : Set X.left))
-      (classes : AlgebraicGeometry.ChernClass.Theory δ X.hom)
       (E : AlgebraicGeometry.RingedSpace.ModuleDerived.PerfectSupportedOn
         (Set.range i.base)),
-      AlgebraicGeometry.Scheme.K0WithSupport.totalChernClass δ i hqc classes
+      AlgebraicGeometry.Scheme.K0WithSupport.totalChernClass δ i hqc
           (TriangulatedK0.of E) =
-        AlgebraicGeometry.Scheme.K0WithSupport.totalChernValue δ i hqc classes E)
+        AlgebraicGeometry.Scheme.K0WithSupport.totalChernValue δ i hqc E)
 
 /- Addition in supported-perfect `K₀` is sent to convolution multiplication of
 mixed total Chern classes. -/
@@ -65,9 +56,8 @@ mixed total Chern classes. -/
       [AlgebraicGeometry.IsClosedImmersion i]
       (hqc : CompactSpace X.left ∨
         ∀ C : irreducibleComponents X.left, IsCompact (C : Set X.left))
-      (classes : AlgebraicGeometry.ChernClass.Theory δ X.hom)
       (a b : AlgebraicGeometry.Scheme.K0WithSupport X.left (Set.range i.base)),
-      AlgebraicGeometry.Scheme.K0WithSupport.totalChernClass δ i hqc classes
+      AlgebraicGeometry.Scheme.K0WithSupport.totalChernClass δ i hqc
           (a + b) =
-        AlgebraicGeometry.Scheme.K0WithSupport.totalChernClass δ i hqc classes a *
-          AlgebraicGeometry.Scheme.K0WithSupport.totalChernClass δ i hqc classes b)
+        AlgebraicGeometry.Scheme.K0WithSupport.totalChernClass δ i hqc a *
+          AlgebraicGeometry.Scheme.K0WithSupport.totalChernClass δ i hqc b)

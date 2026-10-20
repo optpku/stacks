@@ -1,26 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap63.Lemma_63_10_3_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.LowerShriek.Comparison
+public import stacks_project.Chap59.Definition_59_77_1
+import StacksCheckRecall
 
-/-!
-# Agreement of derived and exact lower shriek for quasi-finite morphisms
--/
-
-@[expose] public section
-
-open CategoryTheory
-open CategoryTheory.Limits
-open CategoryTheory.Functor
-open AlgebraicGeometry
-open AlgebraicGeometry.Scheme
-open AlgebraicGeometry.Scheme.Etale
+open CategoryTheory CategoryTheory.Limits CategoryTheory.Functor CategoryTheory.Sheaf
+open AlgebraicGeometry AlgebraicGeometry.Scheme
 
 noncomputable section
 
@@ -28,12 +13,11 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Etale
 
-variable {Y : Scheme.{u}} (X : Over Y) {Λ : Type u} [CommRing Λ]
+variable {Y : Scheme.{u}} (X : Over Y) {Λ : Type u} [Ring Λ]
 variable [IsSeparated X.hom] [Scheme.Hom.QuasiFinite X.hom]
 variable [CompactSpace Y] [QuasiSeparatedSpace Y]
 variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]
 variable (P : Compactification.Of Y X)
-variable [IsFinite P.obj.right.hom]
 variable [HasSheafify X.left.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [∀ U : X.left.Etale,
   HasWeakSheafify (X.left.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
@@ -66,45 +50,17 @@ variable [HasRightDerivedFunctor
   (HomologicalComplex.quasiIso
     (Sheaf P.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))
     (ComplexShape.up ℤ))]
-variable [PreservesFiniteLimits
-  ((smallEtalePullback P.obj.right.hom).sheafPushforwardContinuous
-    (ModuleCat.{u} Λ) Y.smallEtaleTopology
-    P.obj.right.left.smallEtaleTopology)]
-variable [PreservesFiniteColimits
-  ((smallEtalePullback P.obj.right.hom).sheafPushforwardContinuous
-    (ModuleCat.{u} Λ) Y.smallEtaleTopology
-    P.obj.right.left.smallEtaleTopology)]
 
-/-- Lemma 63.10.3: Let `f = X.hom : X.left ⟶ Y` be a quasi-finite separated
-morphism of quasi-compact quasi-separated schemes. Then the functors
-`Rf_! = etaleDerivedLowerShriek X P` constructed in Section 63.9 agree with
-the exact functor `f_! : D(X_étale, Λ) ⥤ D(Y_étale, Λ)` of Section 63.7, on
-their common domains. On a finite compactification `P` this exact functor is
-`π_* ∘ j_!` (`etaleDerivedExactLowerShriek`), using Zariski's Main Theorem,
-`Rπ_* = π_*` for finite `π`, and `π_* ∘ j_! = f_!`. -/
-@[stacks 0GKM]
-def etaleDerivedLowerShriekIso :
-    (etaleDerivedLowerShriek X P :
-        EtaleDerived X.left Λ ⥤ EtaleDerived Y Λ) ≅
-      etaleDerivedExactLowerShriek X P :=
-  etaleDerivedLowerShriekComparisonIso X P
+variable [X.left.smallEtaleTopology.HasSheafCompose
+  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
 
-/-- The forward map of `etaleDerivedLowerShriekIso` is the compactification
-comparison natural transformation. -/
-theorem etaleDerivedLowerShriekIso_hom :
-    (etaleDerivedLowerShriekIso X P).hom =
-      (etaleDerivedLowerShriekComparison X P :
-        (etaleDerivedLowerShriek X P :
-            EtaleDerived X.left Λ ⥤ EtaleDerived Y Λ) ⟶
-          etaleDerivedExactLowerShriek X P) :=
-  sorry
-
-/-- The identification `Rf_! K ≅ (π_* ∘ j_!) K` at an object of
-`D(X_étale, Λ)`. -/
-theorem etaleDerivedLowerShriekIso_app (K : EtaleDerived X.left Λ) :
-    (etaleDerivedLowerShriekIso X P).app K =
-      (etaleDerivedLowerShriekComparisonIso X P).app K :=
-  sorry
+/- Lemma 63.10.3. Derived lower shriek agrees with exact lower shriek on their common domains. -/
+@[stacks 0GKM] #check (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriek_agrees X P :
+    IsIsomorphic
+      ((Derived.compactSupportAdmissible X.left Λ).ι ⋙ etaleDerivedLowerShriek X P)
+      ((Derived.compactSupportAdmissible X.left Λ).ι ⋙ etaleExactLowerShriek X.hom Λ) ∧
+    (AddMonoid.IsTorsion Λ →
+      IsIsomorphic (etaleDerivedLowerShriek X P) (etaleExactLowerShriek X.hom Λ)))
 
 end AlgebraicGeometry.Scheme.Etale
 

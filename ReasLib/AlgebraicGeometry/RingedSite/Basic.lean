@@ -1,13 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.Ring.Sheaf
 public import ReasLib.CategoryTheory.Sites.MorphismOfSites
+public import ReasLib.CategoryTheory.Sites.Ringed.Map
+public import Mathlib.CategoryTheory.Category.Cat
 public import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -24,33 +20,54 @@ open CategoryTheory
 
 noncomputable section
 
-universe u v w uX vX uY vY uZ vZ
-
-/-- A ringed site is a site equipped with a sheaf of rings. -/
-@[stacks 03AD "(1)"]
-structure RingedSite where
-  carrier : Type u
-  [str : Category.{v} carrier]
-  siteTopology : GrothendieckTopology carrier
-  structureSheaf : Sheaf siteTopology RingCat.{w}
-
-/-- A ringed site coerces to its underlying category of objects. -/
-instance : CoeSort RingedSite (Type u) where
-  coe X := X.carrier
-
-attribute [instance] RingedSite.str
+universe u v w uX vX uY vY uZ vZ t
 
 namespace RingedSite
+
+/-- The category of sites equipped with ring sheaves and explicit ringed-site maps. -/
+abbrev category : Cat.{max u v w, max (u + 1) (v + 1) (w + 1)} :=
+  ⟨(Σ C : Cat.{v, u}, Σ J : GrothendieckTopology C, Sheaf J RingCat.{w}), {
+    Hom := fun X Y ↦ CategoryTheory.RingedSiteMap X.2.1 X.2.2 Y.2.1 Y.2.2
+    id := fun X ↦ CategoryTheory.RingedSiteMap.id X.2.1 X.2.2
+    comp := fun f g ↦ CategoryTheory.RingedSiteMap.comp f g
+    id_comp := by rintro _ _ ⟨_, _, _⟩; rfl
+    comp_id := by rintro _ _ ⟨_, _, _⟩; rfl
+    assoc := by rintro _ _ _ _ ⟨_, _, _⟩ ⟨_, _, _⟩ ⟨_, _, _⟩; rfl
+  }⟩
+
+end RingedSite
+
+/-- A ringed site consists of a category, a Grothendieck topology, and a sheaf of rings. -/
+@[stacks 03AD "(1)"]
+abbrev RingedSite : Type (max (u + 1) (v + 1) (w + 1)) :=
+  RingedSite.category.{u, v, w}
+
+namespace RingedSite
+
+/-- The category of ringed sites with explicit ringed-site maps as morphisms. -/
+instance instCategory : Category.{max u v w} RingedSite.{u, v, w} :=
+  Cat.str RingedSite.category
+
+/-- The underlying category of a ringed site. -/
+abbrev carrier (X : RingedSite.{u, v, w}) : Cat.{v, u} := X.1
+
+/-- A ringed site coerces to the object type of its underlying category. -/
+instance carrierCoeSort : CoeSort RingedSite.{u, v, w} (Type u) := ⟨fun X ↦ X.carrier⟩
+
+/-- The Grothendieck topology of a ringed site. -/
+abbrev siteTopology (X : RingedSite.{u, v, w}) : GrothendieckTopology X.carrier := X.2.1
+
+/-- The ring-valued structure sheaf of a ringed site. -/
+abbrev structureSheaf (X : RingedSite.{u, v, w}) : Sheaf X.siteTopology RingCat.{w} :=
+  X.2.2
 
 /-- A site with a ring-valued sheaf, viewed as a ringed site. -/
 @[stacks 03AD "ring-sheaf presentation"]
 abbrev ofRingSheaf
     {C : Type u} [Category.{v} C] (J : GrothendieckTopology C)
     (𝒪 : Sheaf J RingCat.{w}) :
-    RingedSite.{u, v, w} where
-  carrier := C
-  siteTopology := J
-  structureSheaf := 𝒪
+    RingedSite.{u, v, w} :=
+  ⟨⟨C, inferInstance⟩, J, 𝒪⟩
 
 /-- A site with a sheaf of commutative rings, viewed as a ringed site through the canonical
 forgetful functor `CommRingCat ⥤ RingCat`. -/
@@ -101,90 +118,77 @@ abbrev ofCommSheafMax
 -- The remaining `sorryAx` in the max presentation is confined to the Prop-valued
 -- sheaf-composition instances supplied by `CommAlgCat.Limits`.
 
-/-- A morphism of ringed sites consists of a morphism of sites and the adjoint
-structure-sheaf map `𝒪_Y ⟶ f_* 𝒪_X`. -/
-@[stacks 03AD "(2)"]
-structure Hom
-    (X : RingedSite.{uX, vX, w}) (Y : RingedSite.{uY, vY, w}) where
-  base : Y ⥤ X
-  [isMorphismOfSites : IsMorphismOfSites Y.siteTopology X.siteTopology base]
-  structureSheafMap :
-    Y.structureSheaf ⟶
-      (base.sheafPushforwardContinuous RingCat.{w}
-        Y.siteTopology X.siteTopology).obj X.structureSheaf
-
-attribute [instance] Hom.isMorphismOfSites
+/-- A morphism of ringed sites is an explicit map of the underlying ringed-site data. -/
+abbrev Hom
+    (X : RingedSite.{uX, vX, w}) (Y : RingedSite.{uY, vY, w}) :=
+  CategoryTheory.RingedSiteMap X.siteTopology X.structureSheaf
+    Y.siteTopology Y.structureSheaf
 
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
   {Z : RingedSite.{uZ, vZ, w}}
 
-/-- The base functor of a morphism of ringed sites is continuous for the underlying site
-topologies. -/
-instance Hom.base_isContinuous (f : Hom X Y) :
+namespace Hom
+
+/-- The base functor of a ringed-site map is continuous for the underlying site topologies. -/
+theorem base_isContinuous (f : Hom X Y) :
     f.base.IsContinuous Y.siteTopology X.siteTopology :=
   f.isMorphismOfSites.toIsContinuous
 
-/-- The base functor of a morphism of ringed sites is representably flat.  This direct projection
-instance remains visible when the source and target ringed sites are given through reducible
-presentation abbreviations. -/
-@[stacks 03AD "representably flat base functor"]
-instance Hom.base_representablyFlat (f : Hom X Y) :
-    RepresentablyFlat f.base := sorry
+/-- The base functor of a ringed-site map is representably flat. -/
+theorem base_representablyFlat (f : Hom X Y) :
+    RepresentablyFlat f.base :=
+  f.isMorphismOfSites.toRepresentablyFlat
 
-/-- The representable-flatness projection remains available to typeclass search when both ringed
-sites are presented by commutative-ring sheaves.  This specialized entry compensates for the
-reducible `ofCommRingSheaf` presentation without adding a separate geometric hypothesis. -/
-@[stacks 03AD "commutative presentation representably flat base"]
-instance Hom.commRingBase_representablyFlat
+/-- The representable-flatness projection for a commutative-ring presentation. -/
+theorem commRingBase_representablyFlat
     {CX : Type uX} [Category.{vX} CX] {CY : Type uY} [Category.{vY} CY]
     {JX : GrothendieckTopology CX} {JY : GrothendieckTopology CY}
     [JX.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
     [JY.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
     {OX : Sheaf JX CommRingCat.{w}} {OY : Sheaf JY CommRingCat.{w}}
     (f : Hom (ofCommRingSheaf JX OX) (ofCommRingSheaf JY OY)) :
-    RepresentablyFlat f.base := sorry
+    RepresentablyFlat f.base :=
+  f.isMorphismOfSites.toRepresentablyFlat
 
-/-- The displayed composite of the base functors of two composable ringed-site morphisms is
-continuous. This instance supports APIs whose type is indexed by `g.base ⋙ f.base` rather than
-by the definitionally equal base functor of `f ≫ g`. -/
-instance Hom.baseComp_isContinuous (f : Hom X Y) (g : Hom Y Z) :
+/-- The displayed composite of base functors is continuous. -/
+theorem baseComp_isContinuous (f : Hom X Y) (g : Hom Y Z) :
     (g.base ⋙ f.base).IsContinuous Z.siteTopology X.siteTopology :=
-  Functor.isContinuous_comp g.base f.base
+  @Functor.isContinuous_comp _ _ _ _ _ _ g.base f.base
     Z.siteTopology Y.siteTopology X.siteTopology
+    g.isMorphismOfSites.toIsContinuous f.isMorphismOfSites.toIsContinuous
+
+/-- The continuous sheaf pushforward associated to an explicit ringed-site map. -/
+noncomputable abbrev sheafPushforwardContinuous
+    {A : Type u} [Category.{v} A] (f : Hom X Y) :
+    Sheaf X.siteTopology A ⥤ Sheaf Y.siteTopology A :=
+  @Functor.sheafPushforwardContinuous _ _ _ _ f.base A _
+    Y.siteTopology X.siteTopology f.isMorphismOfSites.toIsContinuous
+
+/-- The sheaf pullback left adjoint to continuous pushforward along a ringed-site map. -/
+noncomputable abbrev sheafPullback
+    {A : Type u} [Category.{v} A] (f : Hom X Y)
+    [(f.sheafPushforwardContinuous (A := A)).IsRightAdjoint] :
+    Sheaf Y.siteTopology A ⥤ Sheaf X.siteTopology A :=
+  @Functor.sheafPullback _ _ _ _ f.base A _ Y.siteTopology X.siteTopology
+    f.isMorphismOfSites.toIsContinuous inferInstance
+
+/-- Sheaf pullback is left adjoint to continuous pushforward along a ringed-site map. -/
+noncomputable abbrev sheafAdjunctionContinuous
+    {A : Type u} [Category.{v} A] (f : Hom X Y)
+    [(f.sheafPushforwardContinuous (A := A)).IsRightAdjoint] :
+    f.sheafPullback (A := A) ⊣ f.sheafPushforwardContinuous (A := A) :=
+  @Functor.sheafAdjunctionContinuous _ _ _ _ f.base A _ Y.siteTopology X.siteTopology
+    f.isMorphismOfSites.toIsContinuous inferInstance
 
 /-- The identity morphism of a ringed site. -/
-noncomputable def Hom.id (X : RingedSite.{uX, vX, w}) : Hom X X where
-  base := 𝟭 X
-  isMorphismOfSites := by infer_instance
-  structureSheafMap := 𝟙 X.structureSheaf
+noncomputable def id (X : RingedSite.{uX, vX, w}) : Hom X X :=
+  CategoryTheory.RingedSiteMap.id X.siteTopology X.structureSheaf
 
-/-- Composition of morphisms of ringed sites. The underlying site morphism is the composite of
-the underlying morphisms of sites, and the structure-sheaf map is composed in adjoint
-pushforward form. -/
-noncomputable def Hom.comp (f : Hom X Y) (g : Hom Y Z) : Hom X Z where
-  base := g.base ⋙ f.base
-  isMorphismOfSites :=
-    IsMorphismOfSites.comp
-      Y.siteTopology g.base f.base
-  structureSheafMap :=
-    g.structureSheafMap ≫
-      (g.base.sheafPushforwardContinuous RingCat.{w}
-        Z.siteTopology Y.siteTopology).map f.structureSheafMap
+/-- Composition of morphisms of ringed sites. -/
+noncomputable def comp (f : Hom X Y) (g : Hom Y Z) : Hom X Z :=
+  CategoryTheory.RingedSiteMap.comp f g
 
-/-- Ringed sites and their morphisms form a category. -/
-@[stacks 03AD "(3)"]
-instance : Category.{max u v w} (RingedSite.{u, v, w}) where
-  Hom := Hom
-  id := Hom.id
-  comp f g := Hom.comp f g
-  id_comp := by
-    rintro _ _ ⟨_, _, _⟩
-    rfl
-  comp_id := by
-    rintro _ _ ⟨_, _, _⟩
-    rfl
-  assoc := by
-    rintro _ _ _ _ ⟨_, _, _⟩ ⟨_, _, _⟩ ⟨_, _, _⟩
-    rfl
+end Hom
 
 end RingedSite
+

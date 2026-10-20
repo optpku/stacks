@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Perfect
@@ -88,6 +82,8 @@ theorem kernel_isZero_over_preimage
 construction is perfect and has Tor dimension at most one. -/
 theorem pullback_isPerfect_and_torDimensionLE_one
     {X X' : Scheme.{u}} (b : X' ⟶ X) (U : X.Opens) (ℱ : X.Modules)
+    [DerivedCategory.DerivedTensor.Right.Has
+      (C := RingedSpace.Modules (strictTransformAmbient b (𝟙 X)).toRingedSpace)]
     [ℱ.IsFinitePresentation] (r : ℕ)
     (hU_dense : schemeTheoreticallyDense U)
     (hℱU : SheafOfModules.IsFiniteLocallyFreeOfRank r
@@ -101,6 +97,8 @@ theorem pullback_isPerfect_and_torDimensionLE_one
 construction is perfect and has Tor dimension at most one. -/
 theorem kernel_isPerfect_and_torDimensionLE_one
     {X X' : Scheme.{u}} (b : X' ⟶ X) (U : X.Opens) (ℱ : X.Modules)
+    [DerivedCategory.DerivedTensor.Right.Has
+      (C := RingedSpace.Modules (strictTransformAmbient b (𝟙 X)).toRingedSpace)]
     [ℱ.IsFinitePresentation] (r : ℕ)
     (hU_dense : schemeTheoreticallyDense U)
     (hℱU : SheafOfModules.IsFiniteLocallyFreeOfRank r

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Module.Associated
@@ -311,7 +305,6 @@ namespace TwistAction
 /-- Restrict the action of a canonical twist on a module tensored with another canonical twist
 to a projective basic open. -/
 def restrictBasicOpenMap
-    [SymmetricCategory (Proj 𝒜).Modules]
     (T : TwistMultiplication 𝒜)
     (f : A) (ℱ : (Proj 𝒜).Modules) (a b : ℤ)
     [MonoidalCategory (Proj.basicOpen 𝒜 f).toScheme.Modules]
@@ -337,7 +330,6 @@ def restrictBasicOpenMap
 /-- The action of a standard-open-specified canonical twist multiplication on any module sheaf
 is an isomorphism after restriction when the twist degree is divisible by the basic-open degree. -/
 theorem restrictBasicOpen_isIso
-    [SymmetricCategory (Proj 𝒜).Modules]
     (T : TwistMultiplication 𝒜)
     (ℱ : (Proj 𝒜).Modules)
     {d : ℕ} (f : 𝒜 d) (hd : 0 < d) (n m : ℤ)

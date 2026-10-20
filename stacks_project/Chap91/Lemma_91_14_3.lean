@@ -1,45 +1,21 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap91.Lemma_91_14_3_Extension
-public import stacks_project.Chap91.Lemma_91_14_3_Pushout
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.SquareZeroExtension.Derived
+import StacksCheckRecall
 
-/-!
-# Pushout of square-zero f⁻¹𝒪_B-algebra extensions along a coefficient map
+/-! # Equivalence of coefficient pushout under the derived-coherator criterion -/
 
-On a quasi-compact quasi-separated algebraic space, if DQ_X(ℱ) ⟶ DQ_X(𝒢) is an
-isomorphism, then pushout along φ : ℱ ⟶ 𝒢 is an equivalence of categories of
-identity-base square-zero f⁻¹𝒪_B-algebra extensions.
--/
-
-@[expose] public section
-
-open CategoryTheory
-open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.Hom
-open SquareZeroAlgebraExtension
-
-noncomputable section
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
-
-/-- Lemma 91.14.3: if X is quasi-compact and quasi-separated and
-DQ_X(ℱ) ⟶ DQ_X(𝒢) is an isomorphism, then the pushout functor F along
-φ : ℱ ⟶ 𝒢 of identity-base square-zero f⁻¹𝒪_B-algebra extensions of 𝒪_X
-is an equivalence of categories. Coefficients need not be quasi-coherent.
-Here DQ_X is the right adjoint of DerivedQCoh.inclusion from Derived Categories
-of Spaces 75.19. -/
-@[stacks 0D3P]
-instance pushout_isEquivalence (f : X ⟶ B)
-    [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
-    {ℱ 𝒢 : X.Modules} (φ : ℱ ⟶ 𝒢) [IsIso (dqMap φ)] :
-    Functor.IsEquivalence (pushoutFunctor f φ) :=
-  sorry
+/- Lemma 91.14.3. On a quasi-compact and quasi-separated algebraic space, pushout along
+an arbitrary module map is an equivalence if its derived-coherator image is invertible. -/
+@[stacks 0D3P] #check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.SquareZeroAlgebraExtension.pushout_isEquivalence :
+    ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B)
+      [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
+      {ℱ 𝒢 : X.Modules} (φ : ℱ ⟶ 𝒢)
+      [IsIso (AlgebraicGeometry.AlgebraicSpace.Hom.SquareZeroAlgebraExtension.dqMap φ)],
+      Functor.IsEquivalence
+        (AlgebraicGeometry.AlgebraicSpace.Hom.SquareZeroAlgebraExtension.pushoutFunctor f φ))

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Module.LocalizedModule.Away.Gluing.Formal.H0.Adjunction
@@ -167,29 +161,65 @@ theorem h0Functor_isEquivalence_of_flat_of_quotientMap_bijective
         (Ideal.quotientMap (Ideal.map φ I) φ Ideal.le_comap_map)) :
     Functor.IsEquivalence (h0Functor (φ := φ) (f := f)) := sorry
 
-/-- Lemma 15.90.14 (1): for a flat map and a finite principal-open cover,
-canonical formal gluing followed by degree-zero sections is naturally
-isomorphic to the identity. -/
-@[stacks 05EP "(1) degree-zero left quasi-inverse on a principal-open cover"]
-theorem h0LeftQuasiInverse_of_flat_of_span_eq_top
-    [Finite ι] (φ : R →+* S) (f : ι → R) (hflat : φ.Flat)
-    (hspan : Ideal.span (Set.range f) = ⊤) :
-    Nonempty
-      (ofModuleFunctor.{u, w, w} φ f ⋙
-          h0Functor.{u, w, w} (φ := φ) (f := f) ≅
-        𝟭 (ModuleCat.{max u w} R)) := sorry
+/-- When the family generates the unit ideal, both quotients in the 05ER hypothesis are zero
+rings, so the induced quotient map is bijective. -/
+@[stacks 05EP "unit-ideal case of the quotient hypothesis"]
+theorem quotientMap_bijective_of_span_eq_top
+    (φ : R →+* S) (f : ι → R) (hspan : Ideal.span (Set.range f) = ⊤) :
+    let I : Ideal R := Ideal.span (Set.range f)
+    Function.Bijective
+      (Ideal.quotientMap (Ideal.map φ I) φ Ideal.le_comap_map) := sorry
 
-/-- Lemma 15.90.14 (2): for a flat map and a finite principal-open cover,
-degree-zero sections followed by canonical formal gluing are naturally
-isomorphic to the identity. -/
-@[stacks 05EP "(2) formal-gluing right quasi-inverse on a principal-open cover"]
-theorem h0RightQuasiInverse_of_flat_of_span_eq_top
+/-- Lemma 15.90.14 (05EP): for a flat map and a finite family generating the unit ideal,
+canonical formal gluing and degree-zero sections are quasi-inverse equivalences.  This is the
+05ER equivalence, whose unit and counit are those of the canonical `h0Adjunction`. -/
+@[stacks 05EP "(3) formal gluing equivalence on a principal-open cover"]
+noncomputable def equivalence_of_flat_of_span_eq_top
     [Finite ι] (φ : R →+* S) (f : ι → R) (hflat : φ.Flat)
     (hspan : Ideal.span (Set.range f) = ⊤) :
-    Nonempty
-      (h0Functor.{u, w, w} (φ := φ) (f := f) ⋙
-          ofModuleFunctor.{u, w, w} φ f ≅
-        𝟭 (FormalGluing.{u, w, w} φ f)) := sorry
+    ModuleCat.{max u w} R ≌ FormalGluing.{u, w, w} φ f :=
+  equivalence_of_flat_of_quotientMap_bijective φ f hflat
+    (quotientMap_bijective_of_span_eq_top φ f hspan)
+
+/-- Lemma 15.90.14 (1): for a flat map and a finite principal-open cover, canonical formal
+gluing followed by degree-zero sections is naturally isomorphic to the identity, by the inverse
+of the unit of the canonical formal-gluing adjunction. -/
+@[stacks 05EP "(1) degree-zero left quasi-inverse on a principal-open cover"]
+noncomputable def h0LeftQuasiInverseIso_of_flat_of_span_eq_top
+    [Finite ι] (φ : R →+* S) (f : ι → R) (hflat : φ.Flat)
+    (hspan : Ideal.span (Set.range f) = ⊤) :
+    ofModuleFunctor.{u, w, w} φ f ⋙ h0Functor.{u, w, w} (φ := φ) (f := f) ≅
+      𝟭 (ModuleCat.{max u w} R) :=
+  (equivalence_of_flat_of_span_eq_top φ f hflat hspan).unitIso.symm
+
+set_option maxRecDepth 2048 in
+/-- The inverse of the left quasi-inverse isomorphism is the explicit degree-zero unit. -/
+@[stacks 05EP "(1) left quasi-inverse component"]
+theorem h0LeftQuasiInverseIso_of_flat_of_span_eq_top_inv_app
+    [Finite ι] (φ : R →+* S) (f : ι → R) (hflat : φ.Flat)
+    (hspan : Ideal.span (Set.range f) = ⊤) (M : ModuleCat.{max u w} R) :
+    (h0LeftQuasiInverseIso_of_flat_of_span_eq_top φ f hflat hspan).inv.app M =
+      h0UnitHom φ f M := sorry
+
+/-- Lemma 15.90.14 (2): for a flat map and a finite principal-open cover, degree-zero sections
+followed by canonical formal gluing are naturally isomorphic to the identity, by the counit of
+the canonical formal-gluing adjunction. -/
+@[stacks 05EP "(2) formal-gluing right quasi-inverse on a principal-open cover"]
+noncomputable def h0RightQuasiInverseIso_of_flat_of_span_eq_top
+    [Finite ι] (φ : R →+* S) (f : ι → R) (hflat : φ.Flat)
+    (hspan : Ideal.span (Set.range f) = ⊤) :
+    h0Functor.{u, w, w} (φ := φ) (f := f) ⋙ ofModuleFunctor.{u, w, w} φ f ≅
+      𝟭 (FormalGluing.{u, w, w} φ f) :=
+  (equivalence_of_flat_of_span_eq_top φ f hflat hspan).counitIso
+
+/-- The right quasi-inverse isomorphism has the explicit `Can(H⁰(X)) ⟶ X` counit as forward
+components. -/
+@[stacks 05EP "(2) right quasi-inverse component"]
+theorem h0RightQuasiInverseIso_of_flat_of_span_eq_top_hom_app
+    [Finite ι] (φ : R →+* S) (f : ι → R) (hflat : φ.Flat)
+    (hspan : Ideal.span (Set.range f) = ⊤) (X : FormalGluing.{u, w, w} φ f) :
+    (h0RightQuasiInverseIso_of_flat_of_span_eq_top φ f hflat hspan).hom.app X =
+      h0CounitHom X := sorry
 
 /-- Lemma 15.90.14 (3): canonical formal gluing along a flat finite
 principal-open cover is an equivalence. -/

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.Basic
@@ -134,9 +128,7 @@ theorem colimitAugmentation_naturality
         (SimplicialObject.const A).map ((colim : (Cᵒᵖ ⥤ A) ⥤ A).map t) := sorry
 
 /-- The canonical natural augmentation from cosimplicial evaluation to the constant simplicial
-object on the presheaf colimit. This is the map-level input to the derived comparison in
-Lemma 21.39.7 (08Q9); the pointlike hypothesis is needed only to prove the derived comparison
-invertible. -/
+object on the presheaf colimit, induced degreewise by the colimit cocone. -/
 @[stacks 08Q9 "canonical cosimplicial evaluation augmentation"]
 def colimitAugmentation (Ubullet : CosimplicialObject C) :
     simplicial A Ubullet ⟶

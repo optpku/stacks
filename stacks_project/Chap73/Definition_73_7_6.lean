@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap73.Definition_73_7_6_Site
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FppfPrecoverage.ChosenSite
 import StacksCheckRecall
 
 @[expose] public section
@@ -15,18 +9,24 @@ universe u
 
 /- Definition 73.7.6: let `S` be a scheme. A big fppf site `(Spaces / S)_fppf`
 is any site constructed as follows: choosing a big fppf site `(Sch / S)_fppf`
-is recorded by the universe of `Scheme` and `AlgebraicSpace S`; the underlying
-category is `AlgebraicSpace S`; the coverings are a set of fppf covering
-families chosen by `Precoverage.exists_cardinalLE_site` from
-`fppfPrecoverage`, i.e. a value of `ChosenBigFppfSite S`. -/
-@[stacks 0DBV] #check AlgebraicGeometry.AlgebraicSpace.ChosenBigFppfSite
+is recorded by the established ambient model of `AlgebraicSpace S`; the
+underlying category is `AlgebraicSpace S`. The selected set-indexed fppf
+coverings satisfy both index-cardinality and family-code rank bounds, as in
+Sets Lemma 3.11.1 and `SetIndexedFamily.exists_cardinalRank_site`, and form a
+site combinatorially representing every ambient fppf covering. -/
+@[stacks 0DBV] #check (AlgebraicGeometry.AlgebraicSpace.ChosenBigFppfSite :
+  AlgebraicGeometry.Scheme.{u} → Type (u + 2))
 
-#check AlgebraicGeometry.AlgebraicSpace.ChosenBigFppfSite.ofCardinal
+#check AlgebraicGeometry.AlgebraicSpace.ChosenBigFppfSite.ofBounds
 
-#check AlgebraicGeometry.AlgebraicSpace.ChosenBigSite.precoverage
+#check AlgebraicGeometry.AlgebraicSpace.ChosenBigFppfSite.coverings
 
-#check AlgebraicGeometry.AlgebraicSpace.ChosenBigSite.toGrothendieck
+#check AlgebraicGeometry.AlgebraicSpace.ChosenBigFppfSite.mem_coverings_iff
 
-#check AlgebraicGeometry.AlgebraicSpace.ChosenBigSite.spec
+#check AlgebraicGeometry.AlgebraicSpace.ChosenBigFppfSite.precoverage
+
+#check AlgebraicGeometry.AlgebraicSpace.ChosenBigFppfSite.toGrothendieck
+
+#check AlgebraicGeometry.AlgebraicSpace.ChosenBigFppfSite.spec
 
 #check AlgebraicGeometry.AlgebraicSpace.ChosenBigFppfSite.exists

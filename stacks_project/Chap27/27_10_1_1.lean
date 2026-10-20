@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.Multiplication
@@ -21,6 +15,5 @@ morphisms `P.twist n ⊗ P.twist m ⟶ P.twist (n + m)` for every `n m : Int`. -
 @[stacks 01MO] #check
   (AlgebraicGeometry.ProjTwistFamily.Multiplication :
     forall {A : Type u} {sigma : Type v} [CommRing A] [SetLike sigma A]
-      [AddSubgroupClass sigma A] {calA : Nat -> sigma} [GradedRing calA]
-      [MonoidalCategory (AlgebraicGeometry.Proj calA).Modules],
+      [AddSubgroupClass sigma A] {calA : Nat -> sigma} [GradedRing calA],
       AlgebraicGeometry.ProjTwistFamily calA -> Type u)

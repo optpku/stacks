@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_4_9_Lift
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.OpenSubspace.Factorization
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +14,7 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 Then `f` factors through `X'` if and only if `|f| : |Y| ⟶ |X|` factors through
 `|X'| ⊂ |X|`. -/
 @[stacks 03IE] #check
-  (IsOpenImmersion.exists_lift_iff_range_subset :
+  (AlgebraicGeometry.AlgebraicSpace.IsOpenImmersion.exists_lift_iff_range_subset :
     ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (i : Z ⟶ X) [IsOpenImmersion i] (f : Y ⟶ X),
       (∃ g : Y ⟶ Z, g ≫ i = f) ↔
         Set.range (Points.map f) ⊆ Set.range (Points.map i))

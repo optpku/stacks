@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Group.Units.Hom
@@ -37,7 +31,7 @@ def comparison (f : R →* S) : Rˣ → Pullback f :=
 def IsCartesian (f : R →* S) : Prop :=
   Function.Bijective (comparison f)
 
-/-- Lemma 18.40.8 (04H9), algebraic core: the units square is cartesian exactly when the
+/-- The units square is cartesian exactly when the
 homomorphism reflects units. -/
 @[stacks 04H9 "algebraic units-square criterion"]
 theorem isCartesian_iff_isLocalHom (f : R →* S) :

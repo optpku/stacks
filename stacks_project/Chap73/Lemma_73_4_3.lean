@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap73.Lemma_73_4_3_Stability
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtalePrecoverage.Stability
 import StacksCheckRecall
 
 @[expose] public section
@@ -18,14 +12,14 @@ universe u v w
 
 /- Lemma 73.4.3 (1): an isomorphism gives a singleton étale covering. -/
 @[stacks 041F] #check
-  (etaleCovering_singleton_of_isIso :
+  (AlgebraicGeometry.AlgebraicSpace.etaleCovering_singleton_of_isIso :
     ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (f : X' ⟶ X) [IsIso f],
       Presieve.ofArrows (fun _ : Unit ↦ X') (fun _ : Unit ↦ f) ∈
         etalePrecoverage.coverings X)
 
 /- Lemma 73.4.3 (2): indexed composition preserves étale coverings. -/
 @[stacks 041F] #check
-  (etaleCovering_comp :
+  (AlgebraicGeometry.AlgebraicSpace.etaleCovering_comp :
     ∀ {S : Scheme.{u}} {ι : Type v} {κ : ι → Type w}
       {X : AlgebraicSpace S} {Xᵢ : ι → AlgebraicSpace S}
       (f : (i : ι) → Xᵢ i ⟶ X),
@@ -41,7 +35,7 @@ universe u v w
 /- Lemma 73.4.3 (3): base change along any morphism of algebraic spaces preserves
 étale coverings. -/
 @[stacks 041F] #check
-  (etaleCovering_pullback :
+  (AlgebraicGeometry.AlgebraicSpace.etaleCovering_pullback :
     ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} {ι : Type v}
       {Xᵢ : ι → AlgebraicSpace S} (f : (i : ι) → Xᵢ i ⟶ X),
       Presieve.ofArrows Xᵢ f ∈ etalePrecoverage.coverings X →

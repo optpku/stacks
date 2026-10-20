@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Exhaustive
@@ -32,23 +26,21 @@ namespace IndexedFiltration
 
 variable {I : Type*} [Preorder I] {A : C}
 
-/-- Definition 12.19.1 (1): an indexed filtration is exhaustive exactly when the supremum of
-its stages is the top subobject.  This formulation works for every indexing preorder whenever
-`Subobject A` is a complete lattice. -/
-theorem isExhaustive_iff_iSup_eq_top [CompleteLattice (Subobject A)]
+/-- An indexed filtration is exhaustive exactly when the top subobject is the least upper
+bound of its stages. -/
+theorem isExhaustive_iff_isLUB
     (F : IndexedFiltration I A) :
-    IsExhaustive F ↔ (⨆ i : I, F.stage i) = ⊤ := sorry
+    IsExhaustive F ↔ IsLUB (Set.range F.stage) ⊤ := sorry
 
 section ZeroObject
 
 variable [HasZeroObject C]
 
-/-- Definition 12.19.1 (2): an indexed filtration is separated exactly when the infimum of its
-stages is the bottom subobject.  This formulation works for every indexing preorder whenever
-`Subobject A` is a complete lattice. -/
-theorem isSeparated_iff_iInf_eq_bot [CompleteLattice (Subobject A)]
+/-- An indexed filtration is separated exactly when the bottom subobject is the greatest lower
+bound of its stages. -/
+theorem isSeparated_iff_isGLB
     (F : IndexedFiltration I A) :
-    IsSeparated F ↔ (⨅ i : I, F.stage i) = ⊥ := sorry
+    IsSeparated F ↔ IsGLB (Set.range F.stage) ⊥ := sorry
 
 end ZeroObject
 

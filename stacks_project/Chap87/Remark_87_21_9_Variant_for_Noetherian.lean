@@ -1,15 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap87.Remark_87_21_5_Variant_for_Noetherian_Local
-public import stacks_project.Chap87.Remark_87_21_9_Variant_for_Noetherian_BaseChange
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.ChosenFppf.NoetherianBaseChange
 import StacksCheckRecall
 
 /-!
@@ -30,12 +21,6 @@ open AlgebraicGeometry.ChosenBigFppfSite TopologicalRing
 
 universe u v
 
-/- Remark 87.21.9 (Variant for Noetherian) (1): a local property P of
-morphisms of WAdm^Noeth is stable under base change when P(B → A) implies
-both that A ⊗̂_B C is adic Noetherian (see Lemma 87.4.12 for a criterion)
-and that P(C → A ⊗̂_B C). -/
-@[stacks 0GBF] #check TopologicalRing.Noetherian.IsLocalMorphismProperty.IsStableUnderBaseChange
-
 namespace AlgebraicGeometry.IsFormalAlgebraicSpace.IsLocallyNoetherian
 
 variable {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
@@ -49,46 +34,42 @@ variable {X Y Z : Sheaf (𝒮.bigTopology S) (Type (max u v))}
 variable [IsLocallyNoetherian X] [IsLocallyNoetherian Y]
 variable [IsLocallyNoetherian Z]
 
-/-- Remark 87.21.9 (Variant for Noetherian) (2): Let `S` be a scheme. Let `P`
-be a local property of morphisms of `WAdm^Noeth` which is stable under base
-change. Let `f : X ⟶ Y` and `g : Z ⟶ Y` be morphisms of locally Noetherian
-formal algebraic spaces over `S`. If `f` satisfies the equivalent conditions
-of the Noetherian variant of Lemma 87.21.3, then so does
-`pullback.snd f g : X ×_Y Z ⟶ Z`. -/
-@[stacks 0GBF]
-theorem etaleAffineLocally.pullback_snd
+#check (TopologicalRing.Noetherian.IsLocalMorphismProperty.IsStableUnderBaseChange P : Prop)
+
+/- Remark 87.21.9 (Variant for Noetherian): a local property stable under
+completed base change is preserved by the second pullback projection for
+locally Noetherian formal algebraic spaces over a size-closed chosen site. -/
+@[stacks 0GBF] #check (AlgebraicGeometry.IsFormalAlgebraicSpace.IsLocallyNoetherian.etaleAffineLocally.pullback_snd P :
+    ∀ (h𝒮 : ChosenBigSite.IsSizeClosed 𝒮)
     (hP : Noetherian.IsLocalMorphismProperty P)
     (hbc : Noetherian.IsLocalMorphismProperty.IsStableUnderBaseChange P)
     (f : X ⟶ Y) (g : Z ⟶ Y) [HasPullback f g]
-    (hf : etaleAffineLocally P f) :
-    etaleAffineLocally P (pullback.snd f g) := sorry
+    (hf : etaleAffineLocally P f),
+    etaleAffineLocally P (pullback.snd f g))
 
-/-- If `IsPullback fst snd f g` and `f` satisfies `etaleAffineLocally P`, then
-the base-change leg `snd` satisfies `etaleAffineLocally P`. -/
-theorem etaleAffineLocally.of_isPullback
+#check (AlgebraicGeometry.IsFormalAlgebraicSpace.IsLocallyNoetherian.etaleAffineLocally.of_isPullback P :
+    ∀ (h𝒮 : ChosenBigSite.IsSizeClosed 𝒮)
     (hP : Noetherian.IsLocalMorphismProperty P)
     (hbc : Noetherian.IsLocalMorphismProperty.IsStableUnderBaseChange P)
     {W : Sheaf (𝒮.bigTopology S) (Type (max u v))} [IsLocallyNoetherian W]
     {f : X ⟶ Y} {g : Z ⟶ Y} {fst : W ⟶ X} {snd : W ⟶ Z}
-    (sq : IsPullback fst snd f g) (hf : etaleAffineLocally P f) :
-    etaleAffineLocally P snd := sorry
+    (sq : IsPullback fst snd f g) (hf : etaleAffineLocally P f),
+    etaleAffineLocally P snd)
 
-/-- If `f` satisfies the covering-on-target test of the Noetherian variant of
-Lemma 87.21.3, then so does `pullback.snd f g`. -/
-theorem existsCoverOnTarget.pullback_snd
+#check (AlgebraicGeometry.IsFormalAlgebraicSpace.IsLocallyNoetherian.existsCoverOnTarget.pullback_snd P :
+    ∀ (h𝒮 : ChosenBigSite.IsSizeClosed 𝒮)
     (hP : Noetherian.IsLocalMorphismProperty P)
     (hbc : Noetherian.IsLocalMorphismProperty.IsStableUnderBaseChange P)
     (f : X ⟶ Y) (g : Z ⟶ Y) [HasPullback f g]
-    (hf : existsCoverOnTarget P f) :
-    existsCoverOnTarget P (pullback.snd f g) := sorry
+    (hf : existsCoverOnTarget P f),
+    existsCoverOnTarget P (pullback.snd f g))
 
-/-- If `f` satisfies the covering-on-source test of the Noetherian variant of
-Lemma 87.21.3, then so does `pullback.snd f g`. -/
-theorem existsCoverOnSource.pullback_snd
+#check (AlgebraicGeometry.IsFormalAlgebraicSpace.IsLocallyNoetherian.existsCoverOnSource.pullback_snd P :
+    ∀ (h𝒮 : ChosenBigSite.IsSizeClosed 𝒮)
     (hP : Noetherian.IsLocalMorphismProperty P)
     (hbc : Noetherian.IsLocalMorphismProperty.IsStableUnderBaseChange P)
     (f : X ⟶ Y) (g : Z ⟶ Y) [HasPullback f g]
-    (hf : existsCoverOnSource P f) :
-    existsCoverOnSource P (pullback.snd f g) := sorry
+    (hf : existsCoverOnSource P f),
+    existsCoverOnSource P (pullback.snd f g))
 
 end AlgebraicGeometry.IsFormalAlgebraicSpace.IsLocallyNoetherian

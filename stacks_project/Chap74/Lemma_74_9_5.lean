@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.ObjectProperty.InheritedFromHom
-public import stacks_project.Chap67.Lemma_67_48_6_Reduced
-public import stacks_project.Chap67.Lemma_67_37_4_Smooth
-public import stacks_project.Chap67.Definition_67_5_2_Surjective
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Reduced.Smooth
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -17,31 +9,34 @@ open CategoryTheory AlgebraicGeometry AlgebraicSpace CategoryTheory.ObjectProper
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+variable (S : Scheme.{u})
 
-/-- Lemma 74.9.5 (1): Let `f : X ⟶ Y` be a smooth morphism of algebraic spaces.
+/- Lemma 74.9.5 (1): Let `f : X ⟶ Y` be a smooth morphism of algebraic spaces.
 If `Y` is reduced, then `X` is reduced. -/
-@[stacks 0GB3]
-instance isReduced_inheritedFromTarget {S : Scheme.{u}} :
-    InheritedFromTarget (@IsReduced S : ObjectProperty (AlgebraicSpace S))
-      (@Smooth S : MorphismProperty (AlgebraicSpace S)) := sorry
+@[stacks 0GB3] #check
+  (AlgebraicGeometry.AlgebraicSpace.isReduced_inheritedFromTarget :
+    InheritedFromTarget
+      (AlgebraicGeometry.AlgebraicSpace.IsReduced : ObjectProperty (AlgebraicSpace S))
+      (@AlgebraicGeometry.AlgebraicSpace.Smooth S : MorphismProperty (AlgebraicSpace S)))
 
-/-- Lemma 74.9.5 (2): Let `f : X ⟶ Y` be a surjective smooth morphism of algebraic
+/- Lemma 74.9.5 (2): Let `f : X ⟶ Y` be a surjective smooth morphism of algebraic
 spaces. If `X` is reduced, then `Y` is reduced. -/
-@[stacks 0GB3]
-instance isReduced_inheritedFromSource {S : Scheme.{u}} :
-    InheritedFromSource (@IsReduced S : ObjectProperty (AlgebraicSpace S))
-      ((@Smooth S : MorphismProperty (AlgebraicSpace S)) ⊓
-        (@Surjective S : MorphismProperty (AlgebraicSpace S))) := sorry
+@[stacks 0GB3] #check
+  (AlgebraicGeometry.AlgebraicSpace.isReduced_inheritedFromSource :
+    InheritedFromSource
+      (AlgebraicGeometry.AlgebraicSpace.IsReduced : ObjectProperty (AlgebraicSpace S))
+      ((@AlgebraicGeometry.AlgebraicSpace.Smooth S : MorphismProperty (AlgebraicSpace S)) ⊓
+        (@AlgebraicGeometry.AlgebraicSpace.Surjective S : MorphismProperty (AlgebraicSpace S))))
 
-/-- If `f : X ⟶ Y` is a smooth morphism of algebraic spaces and `Y` is reduced,
-then `X` is reduced. -/
-theorem IsReduced.of_smooth {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [Smooth f] [IsReduced Y] : IsReduced X := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.IsReduced.of_smooth :
+  ∀ {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [AlgebraicGeometry.AlgebraicSpace.Smooth f]
+    [AlgebraicGeometry.AlgebraicSpace.IsReduced Y],
+    AlgebraicGeometry.AlgebraicSpace.IsReduced X)
 
-/-- If `f : X ⟶ Y` is a surjective smooth morphism of algebraic spaces and `X` is
-reduced, then `Y` is reduced. -/
-theorem IsReduced.of_smooth_surjective {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [Smooth f] [Surjective f] [IsReduced X] : IsReduced Y := sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.IsReduced.of_smooth_surjective :
+  ∀ {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [AlgebraicGeometry.AlgebraicSpace.Smooth f]
+    [AlgebraicGeometry.AlgebraicSpace.Surjective f]
+    [AlgebraicGeometry.AlgebraicSpace.IsReduced X],
+    AlgebraicGeometry.AlgebraicSpace.IsReduced Y)

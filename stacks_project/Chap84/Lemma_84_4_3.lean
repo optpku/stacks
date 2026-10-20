@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.Henselian
-public import stacks_project.Chap67.Definition_67_40_1_Proper
-public import stacks_project.Chap84.Lemma_84_4_2_Sections
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.ProperHenselian
 
 /-!
 # Lemma 84.4.3
@@ -29,20 +22,20 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 84.4.3: if `A` is a henselian local ring and `X` is an algebraic space
+/- Lemma 84.4.3: if `A` is a henselian local ring and `X` is an algebraic space
 over `Spec A` whose structure morphism is proper, then for the inclusion of the
-fibre `X₀` of `toBase X` over the closed point (equivalently the special fibre
+fibre `X₀` of `SchemeRealization.toBase X` over the closed point (equivalently the special fibre
 at `I = IsLocalRing.maximalIdeal A`), restriction identifies `Γ(X, F)` with
 `Γ(X₀, F|_{X₀})` for every sheaf of sets `F` on `X_étale`. -/
-@[stacks 0DFZ]
-theorem smallEtaleGlobalSections_bijective_of_properHenselianLocal
-    {A : Type u} [CommRing A] [HenselianLocalRing A]
-    {X : AlgebraicSpace (Spec (CommRingCat.of A))} [Proper (toBase X)]
-    (F : Sheaf (smallEtaleTopology X) (Type (u + 1))) :
+@[stacks 0DFZ] #check
+  (AlgebraicGeometry.AlgebraicSpace.smallEtaleGlobalSections_bijective_of_properHenselianLocal :
+    ∀ {A : Type u} [CommRing A] [HenselianLocalRing A]
+      {X : AlgebraicSpace (Spec (CommRingCat.of A))}
+      [Proper (SchemeRealization.toBase X)]
+      (F : Sheaf (smallEtaleTopology X) (Type (u + 1))),
     Function.Bijective
       (smallEtaleGlobalSectionsPullback
-        (pullback.fst (toBase X) (ofOverSpecQuotientι (IsLocalRing.maximalIdeal A)))
-        F) :=
-  sorry
+        (pullback.fst (SchemeRealization.toBase X)
+          (specQuotientι (IsLocalRing.maximalIdeal A))) F))
 
 end AlgebraicGeometry.AlgebraicSpace

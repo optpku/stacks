@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicCycle.FactorSwap
@@ -50,23 +44,5 @@ theorem swapEquiv_chowClass {k : Type u} [Field k]
         (CycleGroup.mapHom (Limits.prod.braiding X Y).hom.left
           ((X ⨯ Y).hom.relativeDimensionFunction (fun _ ↦ 0))
           ((Y ⨯ X).hom.relativeDimensionFunction (fun _ ↦ 0)) n z) := sorry
-
-/-- Transport between Chow groups whose grading indices are equal. -/
-def degreeEquiv {k : Type u} [Field k] (X : SchemeOverField k)
-    [LocallyOfFiniteType X.hom] {m n : ℤ} (h : m = n) :
-    @ChowGroup X.left (LocallyOfFiniteType.isLocallyNoetherian X.hom)
-        (X.hom.relativeDimensionFunction (fun _ ↦ 0)) inferInstance m ≃+
-      @ChowGroup X.left (LocallyOfFiniteType.isLocallyNoetherian X.hom)
-        (X.hom.relativeDimensionFunction (fun _ ↦ 0)) inferInstance n :=
-  AddEquiv.cast (M := fun q : ℤ ↦
-    @ChowGroup X.left (LocallyOfFiniteType.isLocallyNoetherian X.hom)
-      (X.hom.relativeDimensionFunction (fun _ ↦ 0)) inferInstance q) h
-
-/-- Degree transport acts by equality transport on a Chow class. -/
-theorem degreeEquiv_apply {k : Type u} [Field k] (X : SchemeOverField k)
-    [LocallyOfFiniteType X.hom] {m n : ℤ} (h : m = n)
-    (c : @ChowGroup X.left (LocallyOfFiniteType.isLocallyNoetherian X.hom)
-      (X.hom.relativeDimensionFunction (fun _ ↦ 0)) inferInstance m) :
-    degreeEquiv X h c = h ▸ c := sorry
 
 end AlgebraicGeometry.ChowGroup

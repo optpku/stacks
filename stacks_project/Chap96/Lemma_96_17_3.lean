@@ -1,15 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Pullbacks
-public import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Equalizers
+public import ReasLib.CategoryTheory.Fibered.InGroupoids.PreservesLimits
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Basic
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Hom.OneCell
-public import stacks_project.Chap94.Definition_94_12_1_Representable
+import StacksCheckRecall
 
 /-!
 # Fibre products and equalizers along 1-morphisms of groupoid fibrations
@@ -27,20 +21,22 @@ universe u
 
 namespace AlgebraicGeometry.GroupoidsOver
 
-variable {S : Scheme.{u}} {X Y : GroupoidsOver S}
+variable {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
 
-/-- Lemma 96.17.3 (1): a 1-morphism `f : X ⟶ Y` of categories fibred in groupoids
+/- Lemma 96.17.3 (1): a 1-morphism `f : X ⟶ Y` of categories fibred in groupoids
 over `(Sch/S)_fppf` transforms fibre products into fibre products, i.e.
 `toFunctor f` preserves limits of shape `WalkingCospan`. -/
-@[stacks 06WZ]
-instance preservesPullbacks (f : X ⟶ Y) :
-    PreservesLimitsOfShape WalkingCospan (toFunctor f) := sorry
+@[stacks 06WZ] #check
+  (CategoryTheory.BasedFunctor.preservesPullbacksInGroupoids (toBasedFunctor f) :
+    PreservesLimitsOfShape WalkingCospan (toFunctor f))
 
-/-- Lemma 96.17.3 (2): if a 1-morphism `f : X ⟶ Y` of categories fibred in
+variable [Functor.Faithful (toFunctor f)]
+
+/- Lemma 96.17.3 (2): if a 1-morphism `f : X ⟶ Y` of categories fibred in
 groupoids over `(Sch/S)_fppf` is faithful, then `f` transforms equalizers into
 equalizers, i.e. `toFunctor f` preserves limits of shape `WalkingParallelPair`. -/
-@[stacks 06WZ]
-instance preservesEqualizers (f : X ⟶ Y) [Functor.Faithful (toFunctor f)] :
-    PreservesLimitsOfShape WalkingParallelPair (toFunctor f) := sorry
+@[stacks 06WZ] #check
+  (CategoryTheory.BasedFunctor.preservesEqualizersInGroupoids (toBasedFunctor f) :
+    PreservesLimitsOfShape WalkingParallelPair (toFunctor f))
 
 end AlgebraicGeometry.GroupoidsOver

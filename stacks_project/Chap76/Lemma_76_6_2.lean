@@ -1,15 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_6_2_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.Algebra.Etale
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Limits
+
+universe u
 
 /- Lemma 76.6.2: Let `S` be a scheme. Let `i : Z ⟶ X` be an immersion of
 algebraic spaces over `S`. Let `φ : U ⟶ X` be an étale morphism where `U` is a
@@ -19,4 +15,44 @@ identification is the isomorphism `ConormalAlgebra.restrictEtale` of
 quasi-coherent `𝒪_{Z_U}`-algebras, with `Z_U` realised as `pullback i φ` and
 restriction as `QcAlgebraUnder.pullback` along `Hom.Conormal.toZ`. -/
 @[stacks 09RR]
-#check AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.restrictEtale
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.restrictEtale :
+    ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i]
+      {U : Over S} (φ : ofOver U ⟶ X) [Etale φ],
+    (QcAlgebraUnder.pullback (Hom.Conormal.toZ i φ)).obj (ConormalAlgebra.total i) ≅
+      ConormalAlgebra.total (Hom.Conormal.ι i φ))
+
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.restrictEtale_natural :
+    ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i]
+      {U : Over S} (φ : ofOver U ⟶ X) [Etale φ],
+    ∀ {V : Over S} (ψ : ofOver V ⟶ X) [Etale ψ]
+      (f : ofOver U ⟶ ofOver V) (hf : f ≫ ψ = φ),
+    (QcAlgebraUnder.pullback (Hom.Conormal.spaceMap i φ ψ f hf)).map
+          (ConormalAlgebra.restrictEtale i ψ).hom ≫
+        ConormalAlgebra.restrictEtaleChartMap i φ ψ f hf =
+      (ConormalAlgebra.restrictEtaleToZReassoc i φ ψ f hf).hom ≫
+        (ConormalAlgebra.restrictEtale i φ).hom)
+
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.restrictEtalePiece :
+    ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i]
+      {U : Over S} (φ : ofOver U ⟶ X) [Etale φ],
+    ∀ n : ℕ, (Modules.pullback (Hom.Conormal.toZ i φ)).obj (ConormalAlgebra.piece i n) ≅
+      ConormalAlgebra.piece (Hom.Conormal.ι i φ) n)
+
+#check (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.restrictEtale_graded :
+    ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i]
+      {U : Over S} (φ : ofOver U ⟶ X) [Etale φ],
+    ∀ n : ℕ, ConormalAlgebra.pullbackDegreeToTotal (Hom.Conormal.toZ i φ) i n ≫
+        QcAlgebraUnder.underlyingModuleMap
+          ((ConormalAlgebra.pullbackTotalIso (Hom.Conormal.toZ i φ) i).inv ≫
+            (ConormalAlgebra.restrictEtale i φ).hom) =
+      ConormalAlgebra.mapPiece (IsPullback.of_hasPullback i φ).toCommSq n ≫
+        ConormalAlgebra.degreeToTotal (Hom.Conormal.ι i φ) n)
+
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.instIsScheme_space :
+    ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i]
+      {U : Over S} (φ : ofOver U ⟶ X) [Etale φ],
+    IsScheme (Hom.Conormal.space i φ))
+
+#check (AlgebraicGeometry.AlgebraicSpace.isImmersion_pullback_snd :
+    ∀ {S : Scheme.{u}} {Z X W : AlgebraicSpace S} (i : Z ⟶ X) (φ : W ⟶ X)
+      [IsImmersion i] [HasPullback i φ], IsImmersion (pullback.snd i φ))

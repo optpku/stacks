@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Module.Flat.Relative
@@ -33,7 +27,7 @@ variable {S : Scheme.{u}} {X Y : AlgebraicSpace S}
 over `S`. Let `F` be a quasi-coherent sheaf on `X`. Let `x ∈ |X|`. The following are
 equivalent. (1) For some étale square `sq : EtaleSquare f`, with schemes `U`, `V` and étale
 morphisms `a`, `b`, and some `u ∈ U` mapping to `x`, the restricted module
-`(restrictToScheme sq.left).obj F` is `Scheme.Modules.flatOverAt` over `V` at `u`.
+`(restrictFunctor sq.left.hom ⋙ restrictToScheme sq.left.left).obj F` is `Scheme.Modules.flatOverAt` over `V` at `u`.
 (2) For any geometric point `xbar` lying over `x`, with `ybar = xbar.map f`, the étale stalk
 `stalkModuleCat xbar F` is flat over `etaleLocalRing Y ybar` along
 `etaleLocalRingMap f xbar`. -/

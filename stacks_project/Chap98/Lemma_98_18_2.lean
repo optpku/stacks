@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap98.Definition_98_18_1
 public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.StrongRimSchlessinger
+import StacksCheckRecall
 
 /-!
 # Algebraic stacks satisfy the strong Rim-Schlessinger condition
@@ -24,12 +19,11 @@ universe u
 
 namespace AlgebraicGeometry.GroupoidsOver
 
-/-- Lemma 98.18.2: if `X` is an algebraic stack over a scheme `S`, then the
+/- Lemma 98.18.2: if `X` is an algebraic stack over a scheme `S`, then the
 category fibred in groupoids `X` satisfies condition (RS*). -/
 @[stacks 0CXP]
-instance instHasStrongRimSchlessinger_algebraicStack
-    {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] :
-    HasStrongRimSchlessinger X :=
-  sorry
+#check (AlgebraicGeometry.GroupoidsOver.instHasStrongRimSchlessinger_algebraicStack :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X],
+    HasStrongRimSchlessinger X)
 
 end AlgebraicGeometry.GroupoidsOver

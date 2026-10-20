@@ -1,25 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap99.Lemma_99_16_1_Hom
-public import stacks_project.Chap99.Lemma_99_16_1_Open
-public import stacks_project.Chap99.Lemma_99_16_1_Pullback
-
-/-!
-# Lemma 99.16.1
-
-For a proper, flat, finitely presented morphism of algebraic spaces, the
-locus in `|Y|` where negative fibre Ext-groups of a pseudo-coherent complex
-and a `Y`-perfect complex vanish is an open subspace `W ⊂ Y`. Negative Ext
-groups remain zero after any base change factoring through `W`, and the Hom
-functor on `Spaces/W` is represented by an algebraic space affine of finite
-presentation over `W`.
--/
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.BaseChange.Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.NegativeExt
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.HomFunctor
 
 @[expose] public section
 
@@ -31,39 +15,40 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.ModuleDerived
+/- Lemma 99.16.1 (1): Field-valued point characterization of the negative Ext vanishing open. -/
+@[stacks 0DLC] #check (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.mem_negativeExtVanishingOpen_iff :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [Proper f] [Flat f] [FinitePresentation f] (K E : ModuleDerived X)
+    (hK : IsPseudoCoherent X K) (hE : IsPerfectRelativeTo f E),
+    ∀ p : FieldValuedPoint Y,
+      Points.mk p ∈ negativeExtVanishingOpen f K E hK hE ↔
+        fiberNegativeExtVanish f K E p)
 
-variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-variable [Proper f] [Flat f] [FinitePresentation f]
-variable (K E : ModuleDerived X) (hK : IsPseudoCoherent X K)
-variable (hE : IsPerfectRelativeTo f E)
+/- Lemma 99.16.1 (2): Negative Ext vanishes after every base change factoring through the open. -/
+@[stacks 0DLC] #check (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.negativeExt_eq_zero_of_factors :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [Proper f] [Flat f] [FinitePresentation f] (K E : ModuleDerived X)
+    (hK : IsPseudoCoherent X K) (hE : IsPerfectRelativeTo f E),
+    ∀ {V : AlgebraicSpace S} (g : V ⟶ Y)
+      (h : V ⟶ (negativeExtVanishing f K E hK hE).X)
+      (hh : h ≫ (negativeExtVanishing f K E hK hE).ι = g) (i : ℤ) (hi : i < 0),
+      Subsingleton (Ext⁽i⁾(baseChangePullback f g K, baseChangePullback f g E)))
 
-/-- Lemma 99.16.1 (1): a field-valued point of `Y` lies in `|W|` if and only if
-the fibre Ext-groups `Ext⁽i⁾(K_y, E_y)` vanish for all `i < 0`. -/
-@[stacks 0DLC]
-theorem mem_negativeExtVanishingOpen_iff (p : FieldValuedPoint Y) :
-    Points.mk p ∈ negativeExtVanishingOpen f K E hK hE ↔
-      fiberNegativeExtVanish f K E p :=
-  sorry
+/- Lemma 99.16.1 (3): The derived Hom presheaf on all algebraic spaces over the open is an fppf sheaf. -/
+@[stacks 0DLC] #check (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.homFunctorOver_isSheaf :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [Proper f] [Flat f] [FinitePresentation f] (K E : ModuleDerived X)
+    (hK : IsPseudoCoherent X K) (hE : IsPerfectRelativeTo f E),
+    Presheaf.IsSheaf
+      ((AlgebraicGeometry.AlgebraicSpace.fppfTopology S).over
+        (negativeExtVanishing f K E hK hE).X)
+      (homFunctorOver f K E hK hE))
 
-/-- Lemma 99.16.1 (2): if `V ⟶ Y` factors through `W`, then the Ext-groups
-`Ext⁽i⁾(K_V, E_V)` vanish for all `i < 0`. -/
-@[stacks 0DLC]
-theorem negativeExt_eq_zero_of_factors {V : AlgebraicSpace S} (g : V ⟶ Y)
-    (h : V ⟶ (negativeExtVanishing f K E hK hE).X)
-    (hh : h ≫ (negativeExtVanishing f K E hK hE).ι = g) (i : ℤ) (hi : i < 0) :
-    Subsingleton
-      (Ext⁽i⁾(baseChangePullback f g K, baseChangePullback f g E)) :=
-  sorry
-
-/-- Lemma 99.16.1 (3): the functor `V ↦ Hom_{𝒪_{X_V}}(K_V, E_V)` on algebraic
-spaces over `W` is represented by an algebraic space affine of finite
-presentation over `W`. -/
-@[stacks 0DLC]
-theorem homFunctorOver_isAffineFinitePresentation :
+/- Lemma 99.16.1 (4): The full derived Hom presheaf is represented by an affine, finitely presented algebraic space. -/
+@[stacks 0DLC] #check (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.homFunctorOver_isAffineFinitePresentation :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [Proper f] [Flat f] [FinitePresentation f] (K E : ModuleDerived X)
+    (hK : IsPseudoCoherent X K) (hE : IsPerfectRelativeTo f E),
     ∃ (F : AlgebraicSpace S) (π : F ⟶ (negativeExtVanishing f K E hK hE).X),
       Affine π ∧ FinitePresentation π ∧
-        Nonempty (homFunctorOver f K E hK hE ≅ yoneda.obj (Over.mk π)) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.ModuleDerived
+        Nonempty (homFunctorOver f K E hK hE ≅ yoneda.obj (Over.mk π)))

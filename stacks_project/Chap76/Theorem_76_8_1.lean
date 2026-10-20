@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-import stacks_project.Chap76.Theorem_76_8_1_Equivalence
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.TopologicalInvariance
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
@@ -18,7 +12,7 @@ surjective morphism of algebraic spaces over a scheme `S`, the functor
 `V ↦ V_X = X ×_Y V` defines an equivalence of categories
 `Y_spaces,étale ⥤ X_spaces,étale`. -/
 @[stacks 05ZH] #check
-  (spacesEtalePullback.isEquivalence :
+  (AlgebraicGeometry.AlgebraicSpace.spacesEtalePullback.isEquivalence :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
       [IsIntegralHom f] [UniversallyInjective f] [Surjective f],
       (spacesEtalePullback f).IsEquivalence)

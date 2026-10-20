@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.Valuation.Ideal.ValueGroup
@@ -24,6 +18,15 @@ prime-ideal compatibility is exposed separately for downstream use.
 cone. -/
 @[stacks 00IH "(1) ideal correspondence"]
 #check @ValuationRing.idealOrderIso
+
+@[stacks 00IH "(1) values of an ideal"]
+#check @ValuationRing.mem_idealOrderIso
+
+@[stacks 00IH "(1) ideal of an order ideal"]
+#check @ValuationRing.mem_idealOrderIso_symm
+
+@[stacks 00IH "(1) zero ideal"]
+#check @ValuationRing.idealOrderIso_bot
 
 /- Lemma 10.50.17 (2): the correspondence identifies prime ideals on both sides. -/
 @[stacks 00IH "(2) prime ideals"]

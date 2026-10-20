@@ -1,13 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.IsomorphismClasses
-public import stacks_project.Chap98.«98_3_0_2_Category»
+public import ReasLib.AlgebraicGeometry.FormalDeformation.DualNumber
+public import ReasLib.AlgebraicGeometry.FormalDeformation.TangentSpace
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation.Projection
 
 /-!
 # Tangent space of `ℱ_{𝒳, k, x₀}`
@@ -49,25 +45,19 @@ def tangentSpace.mk (ξ : dualNumberFiber openImmersion kToS h_factor X x0) :
     tangentSpace openImmersion kToS h_factor X x0 :=
   Quotient.mk'' ξ
 
-/-- Two dual-number fibre objects determine the same tangent vector if and only if they
+/- Two dual-number fibre objects determine the same tangent vector if and only if they
 are isomorphic in the fibre. -/
-theorem tangentSpace.mk_eq_mk
-    (ξ η : dualNumberFiber openImmersion kToS h_factor X x0) :
+#check (CategoryTheory.Functor.tangentSpace.mk_eq_mk
+    (predeformationFunctor X openImmersion kToS h_factor x0) :
+    ∀ (ξ η : dualNumberFiber openImmersion kToS h_factor X x0),
     tangentSpace.mk openImmersion kToS h_factor X x0 ξ =
         tangentSpace.mk openImmersion kToS h_factor X x0 η ↔
-      Nonempty (ξ ≅ η) :=
-  sorry
+      Nonempty (ξ ≅ η))
 
-/-- The tangent space is the type of isomorphism classes of the dual-number fibre. -/
-theorem tangentSpace_def :
+/- The tangent space is the type of isomorphism classes of the dual-number fibre. -/
+#check (CategoryTheory.Functor.tangentSpace_def
+    (predeformationFunctor X openImmersion kToS h_factor x0) :
     tangentSpace openImmersion kToS h_factor X x0 =
-      isomorphismClasses.obj (Cat.of (dualNumberFiber openImmersion kToS h_factor X x0)) :=
-  sorry
-
-/-- The dual-number fibre is the fibre of `ℱ_{𝒳, k, x₀}` over `k[ε]`. -/
-theorem dualNumberFiber_eq :
-    dualNumberFiber openImmersion kToS h_factor X x0 =
-      fiber openImmersion kToS h_factor X x0 (ArtinianLocalAlgCat.dualNumber Λ k) :=
-  sorry
+      isomorphismClasses.obj (Cat.of (dualNumberFiber openImmersion kToS h_factor X x0)))
 
 end AlgebraicGeometry.GroupoidsOver.Predeformation

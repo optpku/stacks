@@ -1,32 +1,55 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap65.Lemma_65_15_1_InverseImage
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ChangeOfSite
 import StacksCheckRecall
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Limits
-open scoped MorphismOfTopoiIn
+open CategoryTheory AlgebraicGeometry Limits
 
-universe u v uC uD
+universe u v
 
-/- The morphisms of topoi `f` and `g` of Topologies Lemma 34.12.2, in the slice
-form used for a change of big site over an object `S`. -/
-#check CategoryTheory.Functor.Retraction.overCompInverseImageIso
+variable (𝒮 𝒯 : ChosenBigFppfSite.{u, v})
+variable (inclusion : 𝒮.carrier ⥤ 𝒯.carrier)
+variable (e : inclusion ⋙ 𝒯.toScheme ≅ 𝒮.toScheme) (S : 𝒮.carrier)
+variable [inclusion.Full] [inclusion.Faithful]
+variable [PreservesLimitsOfShape WalkingCospan inclusion]
+variable [(Over.post (X := S) inclusion).IsContinuous
+  (𝒮.bigTopology S) (𝒯.bigTopology (inclusion.obj S))]
+variable [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+variable [HasWeakSheafify (𝒯.bigTopology (inclusion.obj S)) (Type (max u v))]
+variable [∀ P : (Over S)ᵒᵖ ⥤ Type (max u v),
+  (Over.post (X := S) inclusion).op.HasLeftKanExtension P]
+variable [PreservesFiniteLimits
+  ((Over.post (X := S) inclusion).sheafPullback (Type (max u v))
+    (𝒮.bigTopology S) (𝒯.bigTopology (inclusion.obj S)))]
+variable [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+variable [HasPullbacks
+  (Sheaf (𝒯.bigTopology (inclusion.obj S)) (Type (max u v)))]
 
-/- Lemma 65.15.1 (1): suppose given big sites `Sch_fppf` and `Sch'_fppf` with
-`Sch_fppf` contained in `Sch'_fppf`, and let `S` be an object of `Sch_fppf`.
-Let `f, g` be the morphisms of topoi of Topologies Lemma 34.12.2. If a sheaf `F`
-on `(Sch/S)_fppf` is representable by a scheme `X` over `S`, then `f⁻¹ F` is
-representable by the same scheme `X`, now viewed as an object of `(Sch'/S)_fppf`. -/
-@[stacks 03FP] #check AlgebraicGeometry.AlgebraicSpace.inverseImageYonedaIso
+/- Lemma 65.15.1 (1): inverse image along the inclusion of two big fppf sites
+preserves representability. The compatibility isomorphism e identifies the image
+object with the same underlying scheme over the image of S. -/
+@[stacks 03FP] #check
+  (CategoryTheory.Functor.SheafifiedRepresentable.pullbackIso
+    (Over.post (X := S) inclusion) (𝒮.bigTopology S)
+    (𝒯.bigTopology (inclusion.obj S)) :
+    ∀ U : Over S,
+      (𝒯.bigTopology (inclusion.obj S)).sheafifiedRepresentable
+          ((Over.post (X := S) inclusion).obj U) ≅
+        ((Over.post (X := S) inclusion).sheafPullback (Type (max u v))
+          (𝒮.bigTopology S) (𝒯.bigTopology (inclusion.obj S))).obj
+          ((𝒮.bigTopology S).sheafifiedRepresentable U))
 
-/- Lemma 65.15.1 (2): in the same setup, if `F` is an algebraic space over `S`,
-then `f⁻¹ F` is an algebraic space over `S`. -/
-@[stacks 03FP] #check AlgebraicGeometry.AlgebraicSpace.ofInverseImage
+variable (F : Sheaf (𝒮.bigTopology S) (Type (max u v)))
+variable [ChosenBigFppfSite.IsAlgebraicSpace F]
+
+/- Lemma 65.15.1 (2): inverse image along a scheme-compatible inclusion of two
+big fppf sites sends an algebraic-space sheaf over S to an algebraic-space sheaf
+over the same scheme in the larger site. -/
+@[stacks 03FP] #check
+  (AlgebraicGeometry.ChosenBigFppfSite.inverseImage_isAlgebraicSpace
+    𝒮 𝒯 inclusion e S F :
+    ChosenBigFppfSite.IsAlgebraicSpace
+      (((Over.post (X := S) inclusion).sheafPullback (Type (max u v))
+        (𝒮.bigTopology S) (𝒯.bigTopology (inclusion.obj S))).obj F))

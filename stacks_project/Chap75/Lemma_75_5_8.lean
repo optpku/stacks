@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
 
-public import stacks_project.Chap75.Lemma_75_5_8_CohomologicalDimension
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.CohomologicalDimension
 
 @[expose] public section
 
@@ -26,7 +20,6 @@ degrees at most the truncation bound. -/
 @[stacks 08F7] #check
   (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.upperTruncation_homologyMap_isIso :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
-      [IsGrothendieckAbelian.{u} (Modules X)]
       (F : Modules X ⥤ AddCommGrpCat.{u}) [F.Additive] [PreservesFiniteLimits F]
       [PreservesLimitsOfShape (Discrete ℕ) F]
       (N : ℕ), F.HasCohomologicalDimensionLEOn
@@ -42,7 +35,6 @@ cohomology in degrees at least `b`. -/
 @[stacks 08F7] #check
   (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.lowerTruncation_homologyMap_isIso :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
-      [IsGrothendieckAbelian.{u} (Modules X)]
       (F : Modules X ⥤ AddCommGrpCat.{u}) [F.Additive] [PreservesFiniteLimits F]
       [PreservesLimitsOfShape (Discrete ℕ) F]
       (N : ℕ), F.HasCohomologicalDimensionLEOn
@@ -58,7 +50,6 @@ cohomology in degrees at least `b`. -/
 @[stacks 08F7] #check
   (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.rightDerived_cohomology_isZero_outside :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
-      [IsGrothendieckAbelian.{u} (Modules X)]
       (F : Modules X ⥤ AddCommGrpCat.{u}) [F.Additive] [PreservesFiniteLimits F]
       [PreservesLimitsOfShape (Discrete ℕ) F]
       (N : ℕ), F.HasCohomologicalDimensionLEOn

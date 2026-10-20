@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_26_1_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.EtalePullback
 import StacksCheckRecall
 
 /-!
@@ -27,20 +21,20 @@ universe u
 /- Lemma 66.26.1 (1): `f_small⁻¹ 𝒪_Y = 𝒪_X` as an isomorphism of the inverse-image structure
 map of `ringedToposHom f`. -/
 @[stacks 03LV] #check
-  (ringedToposHom_structureMap_isIso :
+  (AlgebraicGeometry.AlgebraicSpace.ringedToposHom_structureMap_isIso :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etale f],
       IsIso (ringedToposHom f).structureMap)
 
 /- Lemma 66.26.1 (2): `f^* 𝒢 = f_small⁻¹ 𝒢` on underlying sheaves, for any sheaf of
 `𝒪_Y`-modules `𝒢`. -/
 @[stacks 03LV] #check
-  (Modules.pullbackIsoInverseImage :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.pullbackIsoInverseImage :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etale f],
       Modules.pullback f ⋙ ToInternal.underlying (structureSheaf X) ≅
         ToInternal.underlying (structureSheaf Y) ⋙ etaleRestrictionSheaf f (Type u))
 
 /- Lemma 66.26.1 (3): in particular, `f^* : Mod(𝒪_Y) ⥤ Mod(𝒪_X)` is exact. -/
 @[stacks 03LV] #check
-  (Modules.pullback_exact :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.pullback_exact :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etale f],
       exactFunctor Y.Modules X.Modules (Modules.pullback f))

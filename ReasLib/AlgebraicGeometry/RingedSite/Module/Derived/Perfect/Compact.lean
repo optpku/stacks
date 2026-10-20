@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Perfect
@@ -49,12 +43,26 @@ variable [∀ U : X,
 namespace IsPerfect
 
 /-- Lemma 21.52.7 (09JC) (1): a perfect derived module is compact on ambient coproducts whose
-apex is bounded below when every quasi-compact object has a cofinal finite refinement system and
+apex is bounded below when every quasi-compact object has a cofinal system of finite coverings by
+quasi-compact objects, every such finite covering has quasi-compact pairwise fibre products, and
 the site has a quasi-compact terminal object. -/
 @[stacks 09JC "(1), bounded-below compactness of perfect objects"]
 theorem isCompactOnBoundedBelow_of_cofinalRefinement
-    (hQCovers : ∀ ⦃U : X⦄ (_ : X.siteTopology.QuasiCompactObject U),
-      X.siteTopology.HasCofinalRefinement U)
+    (hQCovers :
+      ∀ ⦃U : X⦄ (_ : X.siteTopology.QuasiCompactObject U)
+        (𝒰 : SemiRepresentableFamily.Over.{max u v} U),
+        𝒰.toSieve ∈ X.siteTopology U →
+          ∃ (𝒱 : SemiRepresentableFamily.Over.{max u v} U)
+            (_ : Finite 𝒱.index) (_ : 𝒱 ⟶ 𝒰)
+            (_ : 𝒱.toSieve ∈ X.siteTopology U),
+            ∀ i, X.siteTopology.QuasiCompactObject (𝒱.obj i).left)
+    (hQOverlaps :
+      ∀ ⦃U : X⦄ (_ : X.siteTopology.QuasiCompactObject U)
+        (𝒰 : SemiRepresentableFamily.Over.{max u v} U),
+        Finite 𝒰.index → 𝒰.toSieve ∈ X.siteTopology U →
+          (∀ i, X.siteTopology.QuasiCompactObject (𝒰.obj i).left) →
+            ∃ hpair : 𝒰.toPresieve.HasPairwisePullbacks,
+              @pairwiseOverlaps X _ X.siteTopology U 𝒰 hpair)
     (X0 : X) (hX0 : IsTerminal X0)
     (hX0qc : X.siteTopology.QuasiCompactObject X0)
     {K : ModuleDerived.{w} X} (hK : K.IsPerfect) :
@@ -62,11 +70,24 @@ theorem isCompactOnBoundedBelow_of_cofinalRefinement
 
 /-- Lemma 21.52.7 (09JC) (2): finite module-cohomological dimension at the quasi-compact
 terminal object upgrades bounded-below compactness of a perfect derived module to ordinary
-compactness. -/
+compactness, under the same covering and overlap hypotheses as part (1). -/
 @[stacks 09JC "(2), compactness of perfect objects"]
 theorem isCompactObject_of_finiteDimension
-    (hQCovers : ∀ ⦃U : X⦄ (_ : X.siteTopology.QuasiCompactObject U),
-      X.siteTopology.HasCofinalRefinement U)
+    (hQCovers :
+      ∀ ⦃U : X⦄ (_ : X.siteTopology.QuasiCompactObject U)
+        (𝒰 : SemiRepresentableFamily.Over.{max u v} U),
+        𝒰.toSieve ∈ X.siteTopology U →
+          ∃ (𝒱 : SemiRepresentableFamily.Over.{max u v} U)
+            (_ : Finite 𝒱.index) (_ : 𝒱 ⟶ 𝒰)
+            (_ : 𝒱.toSieve ∈ X.siteTopology U),
+            ∀ i, X.siteTopology.QuasiCompactObject (𝒱.obj i).left)
+    (hQOverlaps :
+      ∀ ⦃U : X⦄ (_ : X.siteTopology.QuasiCompactObject U)
+        (𝒰 : SemiRepresentableFamily.Over.{max u v} U),
+        Finite 𝒰.index → 𝒰.toSieve ∈ X.siteTopology U →
+          (∀ i, X.siteTopology.QuasiCompactObject (𝒰.obj i).left) →
+            ∃ hpair : 𝒰.toPresieve.HasPairwisePullbacks,
+              @pairwiseOverlaps X _ X.siteTopology U 𝒰 hpair)
     (X0 : X) (hX0 : IsTerminal X0)
     (hX0qc : X.siteTopology.QuasiCompactObject X0)
     {K : ModuleDerived.{w} X} (hK : K.IsPerfect)

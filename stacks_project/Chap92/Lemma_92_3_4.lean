@@ -1,27 +1,17 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap92.Lemma_92_3_4_DirectLimit
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.RingTheory.CotangentComplex.DirectLimit
+import StacksCheckRecall
 
 @[expose] public section
 
 universe u
 
-open CategoryTheory
-
-namespace Algebra.CotangentComplex.DirectLimit
-
-/-- Lemma 92.3.4: Let `A_i → B_i` be a system of ring maps over a directed index set `I`.
-Then `colim L_{B_i/A_i} = L_{colim B_i / colim A_i}`. -/
-@[stacks 08S9, instance]
-theorem comparison_isIso
-    {I : Type u} [Preorder I] [Nonempty I] [IsDirectedOrder I]
+/- Lemma 92.3.4: For a directed system of ring maps, the canonical comparison from
+the direct limit of their cotangent complexes to the cotangent complex of the
+induced direct-limit ring map is an isomorphism. -/
+@[stacks 08S9] #check (Algebra.CotangentComplex.DirectLimit.comparison_isIso :
+  ∀ {I : Type u} [Preorder I] [Nonempty I] [IsDirectedOrder I]
     {R S : I → Type u}
     [∀ i, CommRing (R i)] [∀ i, CommRing (S i)] [∀ i, Algebra (R i) (S i)]
     (ρ : ∀ i j, i ≤ j → R i →+* R j)
@@ -31,8 +21,5 @@ theorem comparison_isIso
     (hcomm :
       ∀ ⦃i j : I⦄ (h : i ≤ j),
         (algebraMap (R j) (S j)).comp (ρ i j h) =
-          (σ i j h).comp (algebraMap (R i) (S i))) :
-    IsIso (comparison ρ σ hcomm) :=
-  sorry
-
-end Algebra.CotangentComplex.DirectLimit
+          (σ i j h).comp (algebraMap (R i) (S i))),
+    CategoryTheory.IsIso (Algebra.CotangentComplex.DirectLimit.comparison ρ σ hcomm))

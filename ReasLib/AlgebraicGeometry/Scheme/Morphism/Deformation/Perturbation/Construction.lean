@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Deformation.Perturbation
@@ -218,7 +212,7 @@ noncomputable def perturbHom (S : Scheme.{u}) (i : X ⟶ X') (j : Y ⟶ Y')
     (sq : CommSq a i j a')
     (θ : (Scheme.Modules.pullback a).obj Ω[(Y ↘ S).toShHom] ⟶
       Scheme.Hom.conormalSheaf i) : X' ⟶ Y' :=
-  (inv (IsFirstOrderThickening.reconstructionOverHom i S)).left ≫
+  (IsFirstOrderThickening.reconstructionInverseOverHom i S).left ≫
     presentationPerturbHom S i j a a' sq θ ≫
       IsFirstOrderThickening.reconstructionHom j
 

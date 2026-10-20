@@ -1,17 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap86.Definition_86_9_1_RelativeDualizing
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.RelativeDualizing
 import StacksCheckRecall
 
 @[expose] public section
 
-open AlgebraicGeometry.AlgebraicSpace
+open CategoryTheory AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
@@ -21,4 +15,8 @@ for `X / Y` is a pair `(ω, τ)` consisting of a `Y`-perfect object `ω` of `D(�
 map `τ : Rf_* ω ⟶ 𝒪_Y` such that for any cartesian square with `Y'` an affine scheme the
 pair `(L(g')^* ω, Lg^* τ)` is isomorphic to the twisted-inverse pair
 `(a'(𝒪_{Y'}), Tr_{f', 𝒪_{Y'}})`. -/
-@[stacks 0E5X] #check AlgebraicGeometry.AlgebraicSpace.RelativeDualizingComplex
+@[stacks 0E5X] #check (AlgebraicGeometry.AlgebraicSpace.RelativeDualizingComplex :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Y : AlgebraicGeometry.AlgebraicSpace S}
+    (f : X ⟶ Y), [AlgebraicGeometry.AlgebraicSpace.Proper f] →
+    [AlgebraicGeometry.AlgebraicSpace.Flat f] →
+    [AlgebraicGeometry.AlgebraicSpace.FinitePresentation f] → Type (u + 1))

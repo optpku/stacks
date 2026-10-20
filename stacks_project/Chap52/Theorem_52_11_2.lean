@@ -1,18 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap52.Theorem_52_11_2_Comparison
-public import stacks_project.Chap52.Lemma_52_9_5
-public import stacks_project.Chap52.Lemma_52_9_3
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.PuncturedSpectrum.CohomologyStabilization
+public import ReasLib.Algebra.Homology.DerivedCategory.LocalCohomology.CohomologicalDimension
 
 @[expose] public section
 
-open CategoryTheory
+open CategoryTheory CategoryTheory.Limits
 
 noncomputable section
 
@@ -22,22 +16,26 @@ namespace AlgebraicGeometry.PuncturedSpectrum
 
 open Scheme Scheme.ModuleDerived.DerivedCompletion
 
-/-- Theorem 52.11.2 (1): let `A` be a Noetherian local ring with a dualizing
-complex and let `A` be `I`-adically complete. If `F` is coherent on the punctured
-spectrum, `HasDimensionLE I d`, and every point away from `V(I)` whose closure
-meets `puncturedOpen A ∩ V(I)` satisfies the stated depth alternative, then some
-neighborhood `V₀` of that intersection makes `cohomologyComparison` an isomorphism
-for every smaller admissible neighborhood and every `(i : ℤ) < s`. -/
-@[stacks 0DXQ]
-theorem existsCohomologyStableNeighborhood
-    (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
-    [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (h_dualizing :
-      ∃ K : DerivedCategory (ModuleCat.{u} A), K.IsDualizingComplex H)
+/-- Cohomology of the ordinary direct image of the restriction to `V`, retaining
+an ideal argument for compatibility with the degree-zero section construction. -/
+noncomputable abbrev neighborhoodCohomology
+    {A : Type u} [CommRing A] [IsLocalRing A] (I : Ideal A)
+    (M : (scheme A).Modules) (V : (scheme A).Opens) (i : ℕ) : ModuleCat.{u} A :=
+  directImageCohomology M V i
+
+/- Theorem 52.11.2: cohomology stabilizes uniformly on sufficiently small neighborhoods
+of the closed fiber under the stated vanishing and depth conditions. -/
+@[stacks 0DXQ] #check (AlgebraicGeometry.PuncturedSpectrum.existsCohomologyStableNeighborhood :
+  ∀ (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
+    (h_dualizing : DerivedCategory.HasCanonicalDualizingComplex A)
     (I : Ideal A) [IsAdicComplete I A]
     (F : RingedSpace.Coh (scheme A).toRingedSpace)
-    (s d : ℤ) (h_cd : Ideal.LocalCohomology.HasDimensionLE I d)
+    (s d : ℤ)
+    (h_cd : ∀ (G : (Spec (CommRingCat.of A)).Modules), G.IsQuasicoherent →
+      ∀ q : ℕ, d ≤ (q : ℤ) →
+        IsZero (((SheafOfModules.toSheaf (Spec (CommRingCat.of A)).ringCatSheaf).obj G).H'
+          q ⟨(PrimeSpectrum.zeroLocus (I : Set A))ᶜ,
+            (PrimeSpectrum.isClosed_zeroLocus (I : Set A)).isOpen_compl⟩))
     (h_depth : ∀ x : scheme A,
       x.1 ∉ PrimeSpectrum.zeroLocus (I : Set A) →
         Set.Nonempty
@@ -53,7 +51,7 @@ theorem existsCohomologyStableNeighborhood
                 (moduleDepth ((scheme A).presheaf.stalk x)
                   (RingedSpace.stalkModuleCat F.obj x)) : WithTop ℤ) : EInt) +
                 WithBot.map (WithTop.map Int.ofNat)
-                  (ringKrullDim (A ⧸ x.1.asIdeal))) :
+                  (ringKrullDim (A ⧸ x.1.asIdeal))),
     ∃ V₀ : (scheme A).Opens,
       (((idealSheafDataOfIdealOnSpec I).comap
         (puncturedOpen A).ι).support : Set (scheme A)) ⊆ (V₀ : Set (scheme A)) ∧
@@ -61,23 +59,22 @@ theorem existsCohomologyStableNeighborhood
         (hV : (((idealSheafDataOfIdealOnSpec I).comap
           (puncturedOpen A).ι).support : Set (scheme A)) ⊆ (V : Set (scheme A))) →
           ∀ i : ℕ, (i : ℤ) < s →
-            IsIso (cohomologyComparison I
-              ((Scheme.Modules.fromRingedSpace (scheme A)).obj F.obj) V hV i) := sorry
+            IsIso (openCohomologyComparison I
+              ((Scheme.Modules.fromRingedSpace (scheme A)).obj F.obj) V hV i))
 
-/-- Theorem 52.11.2 (2): under the hypotheses of part (1), if additionally
-`depth(Fₓ) + ringKrullDim (A ⧸ x.asIdeal) > s` on `puncturedOpen A ∩ V(I)`,
-the stable neighborhood can be chosen so that the same comparisons are isomorphisms
-and all the corresponding cohomology groups are finite `A`-modules. -/
-@[stacks 0DXQ]
-theorem existsCohomologyStableFiniteNeighborhood
-    (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
-    [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (h_dualizing :
-      ∃ K : DerivedCategory (ModuleCat.{u} A), K.IsDualizingComplex H)
+/- Theorem 52.11.2 (finiteness): under the additional depth condition on the closed
+fiber, the stabilized cohomology groups are finite over the local ring. -/
+@[stacks 0DXQ] #check (AlgebraicGeometry.PuncturedSpectrum.existsCohomologyStableFiniteNeighborhood :
+  ∀ (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
+    (h_dualizing : DerivedCategory.HasCanonicalDualizingComplex A)
     (I : Ideal A) [IsAdicComplete I A]
     (F : RingedSpace.Coh (scheme A).toRingedSpace)
-    (s d : ℤ) (h_cd : Ideal.LocalCohomology.HasDimensionLE I d)
+    (s d : ℤ)
+    (h_cd : ∀ (G : (Spec (CommRingCat.of A)).Modules), G.IsQuasicoherent →
+      ∀ q : ℕ, d ≤ (q : ℤ) →
+        IsZero (((SheafOfModules.toSheaf (Spec (CommRingCat.of A)).ringCatSheaf).obj G).H'
+          q ⟨(PrimeSpectrum.zeroLocus (I : Set A))ᶜ,
+            (PrimeSpectrum.isClosed_zeroLocus (I : Set A)).isOpen_compl⟩))
     (h_depth : ∀ x : scheme A,
       x.1 ∉ PrimeSpectrum.zeroLocus (I : Set A) →
         Set.Nonempty
@@ -101,7 +98,7 @@ theorem existsCohomologyStableFiniteNeighborhood
             (moduleDepth ((scheme A).presheaf.stalk x)
               (RingedSpace.stalkModuleCat F.obj x)) : WithTop ℤ) : EInt) +
             WithBot.map (WithTop.map Int.ofNat)
-              (ringKrullDim (A ⧸ x.1.asIdeal))) :
+              (ringKrullDim (A ⧸ x.1.asIdeal))),
     ∃ V₀ : (scheme A).Opens,
       (((idealSheafDataOfIdealOnSpec I).comap
         (puncturedOpen A).ι).support : Set (scheme A)) ⊆ (V₀ : Set (scheme A)) ∧
@@ -109,10 +106,10 @@ theorem existsCohomologyStableFiniteNeighborhood
         (hV : (((idealSheafDataOfIdealOnSpec I).comap
           (puncturedOpen A).ι).support : Set (scheme A)) ⊆ (V : Set (scheme A))) →
           ∀ i : ℕ, (i : ℤ) < s →
-            IsIso (cohomologyComparison I
+            IsIso (openCohomologyComparison I
               ((Scheme.Modules.fromRingedSpace (scheme A)).obj F.obj) V hV i) ∧
             Module.Finite A
-              (neighborhoodCohomology I
-                ((Scheme.Modules.fromRingedSpace (scheme A)).obj F.obj) V i) := sorry
+              (cohomologyOnOpen
+                ((Scheme.Modules.fromRingedSpace (scheme A)).obj F.obj) V i))
 
 end AlgebraicGeometry.PuncturedSpectrum

@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_17_2_Perturbation
-public import stacks_project.Chap76.Lemma_76_17_2_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Deformation.Perturbation
 import StacksCheckRecall
 
 @[expose] public section
@@ -25,7 +18,7 @@ over `B`. Let `θ : a^* Ω_{Y/B} ⟶ C_{X/X'}` be an `𝒪_X`-linear map. Then t
 exists a unique morphism of pairs `(b, b')` such that (1) and (2) of
 Lemma 76.17.1 hold and the derivation `D` of Lemma 76.17.1 satisfies
 `(a')^♯ - (b')^♯ = D = d_{Y/B} ∘ θ`. -/
-@[stacks 04D0] #check (existsUnique_perturbation :
+@[stacks 04D0] #check (AlgebraicGeometry.AlgebraicSpace.Hom.Deformation.existsUnique_perturbation :
     ∀ {S : Scheme.{u}} {B X X' Y Y' : AlgebraicSpace S}
       (sY : Y ⟶ B) (sX' : X' ⟶ B) (sY' : Y' ⟶ B)
       (iX : X ⟶ X') (iY : Y ⟶ Y') (a : X ⟶ Y) (a' : X' ⟶ Y')

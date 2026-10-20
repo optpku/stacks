@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Pullback
@@ -136,12 +130,14 @@ theorem upperPullbackComparison_def {X Y : RingedSpace.{u}}
 
 /-- A lower Tor-amplitude bound supplies the corresponding lower cohomological bound. -/
 theorem isGE_of_hasTorAmplitudeGE {X : RingedSpace.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X)]
     {E : RingedSpace.ModuleDerived X} {a : ℤ}
     (hE : RingedSpace.HasTorAmplitudeGE E a) : E.IsGE a := sorry
 
 /-- Derived pullback preserves the lower cohomological bound supplied by lower
 Tor-amplitude. -/
 theorem pullback_isGE_of_hasTorAmplitudeGE {X Y : RingedSpace.{u}} (g : X ⟶ Y)
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y)]
     (E : RingedSpace.ModuleDerived Y) (a : ℤ)
     (hE : RingedSpace.HasTorAmplitudeGE E a) :
     ((RingedSpace.modulePullbackDerived g).obj E).IsGE a := sorry
@@ -181,6 +177,7 @@ noncomputable def lowerPullbackComparison {X Y : RingedSpace.{u}} (g : X ⟶ Y)
 /-- At the lower endpoint of the Tor-amplitude, the canonical pullback comparison is
 invertible. -/
 theorem lowerPullbackComparison_isIso {X Y : RingedSpace.{u}} (g : X ⟶ Y)
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y)]
     (E : RingedSpace.ModuleDerived Y) (a : ℤ)
     (hTor : RingedSpace.HasTorAmplitudeGE E a) (hE : E.IsGE a)
     (hSingle : IsIso (singlePullbackHomologyComparison g

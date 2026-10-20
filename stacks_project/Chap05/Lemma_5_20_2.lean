@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Specialization.Dimension.Catenary
@@ -15,21 +9,15 @@ import StacksCheckRecall
 # Lemma 5.20.2
 
 Dimension-function catenarity and codimension APIs are owned by
-`ReasLib.Topology.Specialization.Dimension.Catenary`.
+`ReasLib.Topology.Specialization.Dimension.Catenary`. The source's sober hypothesis is
+`[QuasiSober X] [T0Space X]`; the `T₀` half is derived from the dimension function by
+`IsDimensionFunction.t0Space`, so the quasi-sober owners cover the source statement directly.
 -/
 
-/- Lemma 5.20.2: the reusable quasi-sober catenarity consequence. -/
+/- Lemma 5.20.2 (1): a sober space with a dimension function is catenary. -/
 @[stacks 02IA "catenarity from a dimension function"]
 #check @IsDimensionFunction.catenarySpace
 
-/- Lemma 5.20.2: the reusable quasi-sober point-closure codimension formula. -/
+/- Lemma 5.20.2 (2): for `x ⤳ y`, `δ x - δ y` is the codimension of the point closures. -/
 @[stacks 02IA "codimension formula for specialized point closures"]
 #check @IsDimensionFunction.sub_eq_codimBetween_pointClosure
-
-/- Lemma 5.20.2 (1): the sober catenarity consequence. -/
-@[stacks 02IA "catenarity from a dimension function"]
-#check @IsDimensionFunction.catenarySpace_of_sober
-
-/- Lemma 5.20.2 (2): the sober point-closure codimension formula. -/
-@[stacks 02IA "codimension formula for specialized point closures"]
-#check @IsDimensionFunction.sub_eq_codimBetween_pointClosure_of_sober

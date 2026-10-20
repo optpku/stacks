@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.WeaklyEtale
+public import Mathlib.AlgebraicGeometry.ResidueField
 public import Mathlib.FieldTheory.IsSepClosed
 
 open AlgebraicGeometry CategoryTheory Scheme
@@ -23,5 +18,19 @@ theorem exists_fac_of_weaklyEtale_of_isSepClosed {X S : Scheme.{u}} (f : X ⟶ S
     [WeaklyEtale f] {Ω : Type u} [Field Ω] [IsSepClosed Ω]
     (s : Spec (.of Ω) ⟶ S) (x : X) (hx : f x = s default) :
     ∃ (l : Spec (.of Ω) ⟶ X), l ≫ f = s ∧ l default = x := sorry
+
+/-- If all points of the base are closed, all points of a weakly étale scheme
+over it are closed. -/
+theorem isClosed_singleton_of_weaklyEtale {X Y : Scheme.{u}} (f : Y ⟶ X)
+    [WeaklyEtale f] (h_closed : ∀ x : X, IsClosed ({x} : Set X)) (y : Y) :
+    IsClosed ({y} : Set Y) :=
+  sorry
+
+/-- If the residue fields of the base are separably closed, the residue fields
+of a weakly étale scheme over it are separably closed. -/
+theorem isSepClosed_residueField_of_weaklyEtale {X Y : Scheme.{u}} (f : Y ⟶ X)
+    [WeaklyEtale f] (h_res : ∀ x : X, IsSepClosed (X.residueField x)) (y : Y) :
+    IsSepClosed (Y.residueField y) :=
+  sorry
 
 end AlgebraicGeometry.Scheme

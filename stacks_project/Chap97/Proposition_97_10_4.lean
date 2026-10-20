@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap97.Proposition_97_10_4_Space
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RelativeHom.Algebraicity
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,6 +15,6 @@ universe u
 of algebraic spaces over `S`. If `Z ⟶ B` is finite locally free then
 `Mor_B(Z, X)` is an algebraic space. -/
 @[stacks 05Y7]
-#check (instIsAlgebraicSpace :
+#check (AlgebraicGeometry.AlgebraicSpace.RelativeHom.instIsAlgebraicSpace :
     ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {Z X : Over B} [FiniteLocallyFree Z.hom],
       IsAlgebraicSpace (smallFunctor Z X))

@@ -1,23 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Sites.Pullback
 public import ReasLib.CategoryTheory.Sites.AbelianSheaf.Derived
-public import stacks_project.Chap61.Lemma_61_12_19_Pullback
-public import stacks_project.Chap61.Lemma_61_17_1_InverseImage
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Proetale.Abelian
 
-/-!
-# Abelian inverse image along small pro-étale pullback
-
-This leaf owns the abelian sheaf functor `f_small⁻¹` induced by
-`smallProetalePullback`, together with exactness instances for that functor
-and for relocalization inverse image `iInverseImage`.
--/
+/-! Typed compatibility checks for abelian pro-étale inverse image. -/
 
 @[expose] public section
 
@@ -30,55 +16,51 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.ProEt
 
-variable {S T : Scheme.{u}} (f : T ⟶ S)
-
-/-- Inverse image on abelian sheaves along small pro-étale base change `f_small`. -/
-abbrev smallInverseImage
+#check (AlgebraicGeometry.Scheme.ProEt.smallInverseImage :
+  ∀ {S T : Scheme.{u}} (f : T ⟶ S)
     [HasSheafify (topology S) AddCommGrpCat.{u + 1}]
     [HasSheafify (topology T) AddCommGrpCat.{u + 1}]
     [∀ P : S.ProEtᵒᵖ ⥤ AddCommGrpCat.{u + 1},
-      (smallProetalePullback f).op.HasLeftKanExtension P] :
+      (smallProetalePullback f).op.HasLeftKanExtension P],
     Sheaf (topology S) AddCommGrpCat.{u + 1} ⥤
-      Sheaf (topology T) AddCommGrpCat.{u + 1} :=
-  (smallProetalePullback f).sheafPullback AddCommGrpCat.{u + 1}
-    (topology S) (topology T)
+      Sheaf (topology T) AddCommGrpCat.{u + 1})
 
-/-- Inverse image `f_small⁻¹` is sheaf pullback along `smallProetalePullback`. -/
-theorem smallInverseImage_eq
+#check (AlgebraicGeometry.Scheme.ProEt.smallInverseImage_eq :
+  ∀ {S T : Scheme.{u}} (f : T ⟶ S)
     [HasSheafify (topology S) AddCommGrpCat.{u + 1}]
     [HasSheafify (topology T) AddCommGrpCat.{u + 1}]
     [∀ P : S.ProEtᵒᵖ ⥤ AddCommGrpCat.{u + 1},
-      (smallProetalePullback f).op.HasLeftKanExtension P] :
+      (smallProetalePullback f).op.HasLeftKanExtension P],
     smallInverseImage f =
       (smallProetalePullback f).sheafPullback AddCommGrpCat.{u + 1}
-        (topology S) (topology T) := sorry
+        (topology S) (topology T))
 
-/-- Inverse image `f_small⁻¹` on abelian sheaves preserves finite limits. -/
-instance smallInverseImage_preservesFiniteLimits
+#check (AlgebraicGeometry.Scheme.ProEt.smallInverseImage_preservesFiniteLimits :
+  ∀ {S T : Scheme.{u}} (f : T ⟶ S)
     [HasSheafify (topology S) AddCommGrpCat.{u + 1}]
     [HasSheafify (topology T) AddCommGrpCat.{u + 1}]
     [∀ P : S.ProEtᵒᵖ ⥤ AddCommGrpCat.{u + 1},
-      (smallProetalePullback f).op.HasLeftKanExtension P] :
-    PreservesFiniteLimits (smallInverseImage f) := sorry
+      (smallProetalePullback f).op.HasLeftKanExtension P],
+    PreservesFiniteLimits (smallInverseImage f))
 
-/-- Inverse image `f_small⁻¹` on abelian sheaves preserves finite colimits. -/
-instance smallInverseImage_preservesFiniteColimits
+#check (AlgebraicGeometry.Scheme.ProEt.smallInverseImage_preservesFiniteColimits :
+  ∀ {S T : Scheme.{u}} (f : T ⟶ S)
     [HasSheafify (topology S) AddCommGrpCat.{u + 1}]
     [HasSheafify (topology T) AddCommGrpCat.{u + 1}]
     [∀ P : S.ProEtᵒᵖ ⥤ AddCommGrpCat.{u + 1},
-      (smallProetalePullback f).op.HasLeftKanExtension P] :
-    PreservesFiniteColimits (smallInverseImage f) := sorry
+      (smallProetalePullback f).op.HasLeftKanExtension P],
+    PreservesFiniteColimits (smallInverseImage f))
 
-/-- Inverse image `iInverseImage f` on abelian sheaves preserves finite limits. -/
-instance iInverseImage_preservesFiniteLimits
+#check (AlgebraicGeometry.Scheme.ProEt.iInverseImage_preservesFiniteLimits :
+  ∀ {S T : Scheme.{u}} (f : T ⟶ S)
     [HasSheafify (topology T) AddCommGrpCat.{u + 1}]
-    [HasSheafify (proetaleTopology.over S) AddCommGrpCat.{u + 1}] :
-    PreservesFiniteLimits (iInverseImage f) := sorry
+    [HasSheafify (proetaleTopology.over S) AddCommGrpCat.{u + 1}],
+    PreservesFiniteLimits (iInverseImage f))
 
-/-- Inverse image `iInverseImage f` on abelian sheaves preserves finite colimits. -/
-instance iInverseImage_preservesFiniteColimits
+#check (AlgebraicGeometry.Scheme.ProEt.iInverseImage_preservesFiniteColimits :
+  ∀ {S T : Scheme.{u}} (f : T ⟶ S)
     [HasSheafify (topology T) AddCommGrpCat.{u + 1}]
-    [HasSheafify (proetaleTopology.over S) AddCommGrpCat.{u + 1}] :
-    PreservesFiniteColimits (iInverseImage f) := sorry
+    [HasSheafify (proetaleTopology.over S) AddCommGrpCat.{u + 1}],
+    PreservesFiniteColimits (iInverseImage f))
 
 end AlgebraicGeometry.Scheme.ProEt

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_8_4_QuasiSober
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Points.QuasiSober
 import StacksCheckRecall
 
 @[expose] public section

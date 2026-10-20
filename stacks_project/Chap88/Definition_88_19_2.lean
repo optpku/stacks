@@ -1,18 +1,18 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap88.Definition_88_20_1_Ring
+public import ReasLib.RingTheory.AdicCompletion.RigEtale
 import StacksCheckRecall
 
 @[expose] public section
+
+universe u
 
 /- Definition 88.19.2: let `φ : A →+* B` be a continuous ring homomorphism
 between adic Noetherian topological rings, i.e., `φ` is an arrow of
 `WAdm^{Noeth}`. We say `φ` is rig-étale if the equivalent conditions of
 Lemma 88.19.1 hold. -/
-@[stacks 0GCV] #check RingHom.RigEtale
+@[stacks 0GCV] #check (RingHom.RigEtale :
+  ∀ {A B : Type u} [CommRing A] [CommRing B]
+    [TopologicalSpace A] [TopologicalSpace B]
+    [TopologicalRing.IsAdicRing A] [TopologicalRing.IsAdicRing B]
+    [IsNoetherianRing A] [IsNoetherianRing B], (A →+* B) → Prop)

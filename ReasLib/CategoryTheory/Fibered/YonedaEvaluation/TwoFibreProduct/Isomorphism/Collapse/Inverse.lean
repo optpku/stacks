@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.YonedaEvaluation.TwoFibreProduct.Isomorphism.Collapse.Forward
@@ -92,7 +86,7 @@ noncomputable def sectionIso (q : total X x y) :
     (slice X x y q).hom⁎[X.chosenCleavage] x ≅
       (slice X x y q).hom⁎[X.chosenCleavage] y :=
   ((Functor.FiberPseudofunctor.mapIso X.p (slice X x y q).hom).app x).symm ≪≫
-    asIso (rawSection X x y q).1 ≪≫
+    @asIso _ _ _ _ (rawSection X x y q).1 (sectionIsIso X x y q) ≪≫
     (Functor.FiberPseudofunctor.mapIso X.p (slice X x y q).hom).app y
 
 /-- The left component of the deterministic relative-product comparison. -/

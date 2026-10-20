@@ -1,26 +1,14 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap67.Definition_67_40_1_FiniteType
-public import stacks_project.Chap67.Lemma_67_17_2_InverseImage
-public import stacks_project.Chap67.Lemma_67_37_4_Smooth
-public import stacks_project.Chap67.Remark_67_12_5_Opens
-public import stacks_project.Chap87.Lemma_87_14_4_Completion
-public import stacks_project.Chap88.Definition_88_18_1
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CompletionAlong.RigSmooth
+import StacksCheckRecall
 
 /-!
 # Rig-smooth morphisms of completions
 
-If a morphism of algebraic spaces is locally of finite type, the source is
-completed along the closed preimage of a closed subset, and the comparison of
-open complements is smooth, then the induced morphism of formal completions is
-rig-smooth.
+If a locally of finite type morphism into a locally Noetherian algebraic space
+is smooth over the complement of a closed subset, then the induced morphism of
+formal completions is rig-smooth.
 -/
 
 @[expose] public section
@@ -28,46 +16,14 @@ rig-smooth.
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open TopologicalSpace
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- The formal completion of an algebraic space along a closed subset is a
-formal algebraic space. -/
-instance instIsFormalAlgebraicSpace_completionAlong {S : Scheme.{u}}
-    (X : AlgebraicSpace S) (T : Closeds (Points X)) :
-    FormalAlgebraicSpace.IsFormalAlgebraicSpace (completionAlong X T) :=
-  sorry
-
-/-- The formal completion of a locally Noetherian algebraic space along a closed
-subset is a locally Noetherian formal algebraic space. -/
-instance instIsLocallyNoetherian_completionAlong {S : Scheme.{u}}
-    (X : AlgebraicSpace S) [IsLocallyNoetherian X] (T : Closeds (Points X)) :
-    FormalAlgebraicSpace.IsLocallyNoetherian (completionAlong X T) :=
-  sorry
-
-/-- Completing the source of a locally of finite type morphism into a locally
-Noetherian algebraic space along the closed preimage of `T` yields a locally
-Noetherian formal algebraic space. -/
-instance instIsLocallyNoetherian_completionAlong_preimage_locallyOfFiniteType
-    {S : Scheme.{u}} {X X' : AlgebraicSpace S} [IsLocallyNoetherian X]
-    (f : X' ⟶ X) [AlgebraicSpace.LocallyOfFiniteType f] (T : Closeds (Points X)) :
-    FormalAlgebraicSpace.IsLocallyNoetherian
-      (completionAlong X' (T.preimage (Points.continuous_map f))) :=
-  sorry
-
-/-- Lemma 88.23.8: if `X` is locally Noetherian, `f : X' ⟶ X` is locally of
-finite type, and the comparison
-`openInverseImageTo f (OpenSubspace.ofOpensι T.compl)` of the open complements of
-`T` is smooth, then `completionAlong.map f T` is rig-smooth. -/
-@[stacks 0GDH, instance]
-instance rigSmooth_completionAlongMap {S : Scheme.{u}}
+/- Lemma 88.23.8: if `X` is locally Noetherian, `f : X' ⟶ X` is locally of
+finite type, and the comparison of the open complements of `T` is smooth, then
+`completionAlong.map f T` is rig-smooth. -/
+@[stacks 0GDH] #check (AlgebraicGeometry.AlgebraicSpace.rigSmooth_completionAlongMap :
+    ∀ {S : Scheme.{u}}
     {X X' : AlgebraicSpace S} [IsLocallyNoetherian X] (f : X' ⟶ X)
     [AlgebraicSpace.LocallyOfFiniteType f] (T : Closeds (Points X))
-    [AlgebraicSpace.Smooth (openInverseImageTo f (OpenSubspace.ofOpensι T.compl))] :
-    FormalAlgebraicSpace.RigSmooth (completionAlong.map f T) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+    [AlgebraicSpace.Smooth (Open.complementComparison f T)],
+    FormalAlgebraicSpace.RigSmooth (completionAlong.map f T))

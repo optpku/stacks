@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap71.Lemma_71_2_3_WeaklyAssociated
-public import stacks_project.Chap71.Lemma_71_3_5_FieldExtension
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.WeaklyAssociatedPoints.FieldExtension
+import StacksCheckRecall
 
 /-!
 # Lemma 71.3.5
@@ -26,34 +19,26 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules.FieldExtension
-
-/-- Lemma 71.3.5: Let `K/k` be a field extension. Let `X` be an algebraic space
+/- Lemma 71.3.5: Let `K/k` be a field extension. Let `X` be an algebraic space
 over `k`. Let `F` be a quasi-coherent `𝒪_X`-module. Let `y` be a point of
-`AlgebraicSpace.FieldExtension.baseChange k K X` with image `x` in `X`. If `y`
-is a weakly associated point of the pullback `baseChange k K F`, then `x` is a
+`GenericFiber.baseChange k K X` with image `x` in `X`. If `y`
+is a weakly associated point of the pullback `FieldExtension.baseChange k K F`, then `x` is a
 weakly associated point of `F`. -/
-@[stacks 0CUS]
-theorem mem_weakAss_of_mem_weakAss
-    {k K : Type u} [Field k] [Field K] [Algebra k K]
+@[stacks 0CUS] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.FieldExtension.mem_weakAss_of_mem_weakAss :
+    ∀ {k K : Type u} [Field k] [Field K] [Algebra k K]
     {X : AlgebraicSpace (Spec (CommRingCat.of k))} (F : X.Modules)
     [F.IsQuasicoherent]
-    (y : Points (AlgebraicSpace.FieldExtension.baseChange k K X))
-    (hy : y ∈ (baseChange k K F).weakAss) :
-    Points.map (AlgebraicSpace.FieldExtension.toSource k K X) y ∈ F.weakAss :=
-  sorry
+    (y : Points (GenericFiber.baseChange k K X))
+    (hy : y ∈ (AlgebraicGeometry.AlgebraicSpace.Modules.FieldExtension.baseChange k K F).weakAss),
+    Points.map (GenericFiber.toSource k K X) y ∈ F.weakAss)
 
-/-- The image of the weakly associated locus of a field-extension pullback is
+/- The image of the weakly associated locus of a field-extension pullback is
 contained in the weakly associated locus of the original quasi-coherent module. -/
-theorem weakAss_map_subset
-    {k K : Type u} [Field k] [Field K] [Algebra k K]
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.FieldExtension.weakAss_map_subset :
+    ∀ {k K : Type u} [Field k] [Field K] [Algebra k K]
     {X : AlgebraicSpace (Spec (CommRingCat.of k))} (F : X.Modules)
-    [F.IsQuasicoherent] :
-    Points.map (AlgebraicSpace.FieldExtension.toSource k K X) ''
-        (baseChange k K F).weakAss ⊆ F.weakAss :=
-  sorry
-
-end FieldExtension
-end Modules
-end AlgebraicSpace
-end AlgebraicGeometry
+    [F.IsQuasicoherent],
+    Points.map (GenericFiber.toSource k K X) ''
+        (AlgebraicGeometry.AlgebraicSpace.Modules.FieldExtension.baseChange k K F).weakAss ⊆
+      F.weakAss)

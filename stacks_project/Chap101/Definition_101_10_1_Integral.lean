@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Fibered.RelativelyRepresentable.BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Morphism.Finite
 public import stacks_project.Chap67.Definition_67_45_2_Integral
 public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
 public import stacks_project.Chap100.Lemma_100_3_2_MorphismProperty
@@ -16,138 +10,19 @@ public import stacks_project.Chap100.Lemma_100_3_2_MorphismProperty
 
 A morphism of algebraic stacks is integral, respectively finite, when it is
 representable by algebraic spaces and has the algebraic-space integral,
-respectively finite, property on scheme-slice tests in the sense of
-Properties of Stacks, Section 100.3.
+respectively finite, property on scheme-slice tests.
 -/
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry
-open scoped Bicategory
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack
+#check (AlgebraicGeometry.AlgebraicStack.IsIntegralHom :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y], (X ⟶ Y) → Prop)
 
-/-- A morphism of algebraic stacks is integral when it is representable by
-algebraic spaces and has the algebraic-space integral property on scheme-slice
-representing morphisms. -/
-@[mk_iff]
-class IsIntegralHom {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) : Prop where
-  /-- The 1-morphism is representable by algebraic spaces. -/
-  representable : relativelyRepresentableByAlgebraicSpaces f
-  /-- Every scheme-slice representing morphism of algebraic spaces is integral. -/
-  has_isIntegralHom : Groupoids.Hom.has (@AlgebraicSpace.IsIntegralHom S) f
-
-/-- A morphism of algebraic stacks is finite when it is representable by
-algebraic spaces and has the algebraic-space finite property on scheme-slice
-representing morphisms. -/
-@[mk_iff]
-class IsFinite {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) : Prop where
-  /-- The 1-morphism is representable by algebraic spaces. -/
-  representable : relativelyRepresentableByAlgebraicSpaces f
-  /-- Every scheme-slice representing morphism of algebraic spaces is finite. -/
-  has_isFinite : Groupoids.Hom.has (@AlgebraicSpace.IsFinite S) f
-
-namespace IsIntegralHom
-
-/-- The identity morphism of an algebraic stack is integral. -/
-instance id {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] :
-    IsIntegralHom (𝟙 X) :=
-  sorry
-
-/-- An isomorphism of algebraic stacks is integral. -/
-instance of_isIso {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [IsIso f] :
-    IsIntegralHom f :=
-  sorry
-
-/-- A representing morphism of algebraic spaces for an integral morphism of
-algebraic stacks is integral. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [IsIntegralHom f]
-    {U : Over S} (y : GroupoidsOver.slice U ⟶ Y) {Fy : AlgebraicSpace S}
-    {fy : Fy ⟶ AlgebraicSpace.ofOver U} (h : RepresentsBaseChange f y Fy fy) :
-    AlgebraicSpace.IsIntegralHom fy :=
-  sorry
-
-/-- An integral morphism of algebraic stacks is representable by algebraic
-spaces. -/
-theorem relativelyRepresentable {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [IsIntegralHom f] :
-    relativelyRepresentableByAlgebraicSpaces f :=
-  sorry
-
-/-- An integral morphism of algebraic stacks is representable by schemes, the
-Stacks-project default meaning of representable. -/
-theorem relativelyRepresentable_scheme {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [IsIntegralHom f] :
-    FiberedCategoryOver.Groupoids.relativelyRepresentable f :=
-  sorry
-
-/-- An integral morphism of algebraic spaces induces an integral morphism of
-the associated algebraic stacks. -/
-instance of_toGroupoids {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [AlgebraicSpace.IsIntegralHom f] :
-    IsIntegralHom (AlgebraicSpace.toGroupoids.map f) :=
-  sorry
-
-end IsIntegralHom
-
-namespace IsFinite
-
-/-- The identity morphism of an algebraic stack is finite. -/
-instance id {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] :
-    IsFinite (𝟙 X) :=
-  sorry
-
-/-- An isomorphism of algebraic stacks is finite. -/
-instance of_isIso {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [IsIso f] :
-    IsFinite f :=
-  sorry
-
-/-- A representing morphism of algebraic spaces for a finite morphism of
-algebraic stacks is finite. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [IsFinite f]
-    {U : Over S} (y : GroupoidsOver.slice U ⟶ Y) {Fy : AlgebraicSpace S}
-    {fy : Fy ⟶ AlgebraicSpace.ofOver U} (h : RepresentsBaseChange f y Fy fy) :
-    AlgebraicSpace.IsFinite fy :=
-  sorry
-
-/-- A finite morphism of algebraic stacks is representable by algebraic
-spaces. -/
-theorem relativelyRepresentable {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [IsFinite f] :
-    relativelyRepresentableByAlgebraicSpaces f :=
-  sorry
-
-/-- A finite morphism of algebraic stacks is representable by schemes, the
-Stacks-project default meaning of representable. -/
-theorem relativelyRepresentable_scheme {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [IsFinite f] :
-    FiberedCategoryOver.Groupoids.relativelyRepresentable f :=
-  sorry
-
-/-- A finite morphism of algebraic spaces induces a finite morphism of the
-associated algebraic stacks. -/
-instance of_toGroupoids {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [AlgebraicSpace.IsFinite f] :
-    IsFinite (AlgebraicSpace.toGroupoids.map f) :=
-  sorry
-
-end IsFinite
-
-/-- A finite morphism of algebraic stacks is integral. -/
-instance (priority := 900) instIsIntegralHom_of_isFinite
-    {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [IsFinite f] :
-    IsIntegralHom f :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack
+#check (AlgebraicGeometry.AlgebraicStack.IsFinite :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y], (X ⟶ Y) → Prop)

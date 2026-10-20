@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-import stacks_project.Chap78.Lemma_78_10_2_Equivariant
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Action.Module.Quasicoherent
 import StacksCheckRecall
 
 universe u
@@ -23,9 +17,10 @@ from Lemma 78.15.1. The identity-on-data rule `(F, α) ↦ (F, α)` is an equiva
 of categories between `G`-equivariant `𝒪_X`-modules and quasi-coherent modules on
 `(U, R, s, t, c)`. -/
 @[stacks 0445] #check
-  (CategoryTheory.Equivalence.refl :
-    CategoryTheory.Equivalence (AlgebraicSpace.QCoh.Equivariant G X)
-      (GroupoidAlgebraicSpace.QCoh (GroupoidAlgebraicSpace.ofAction G X)))
+  (AlgebraicGeometry.AlgebraicSpace.QCoh.Equivariant.equivalenceActionGroupoid G X :
+    CategoryTheory.Equivalence (AlgebraicGeometry.AlgebraicSpace.QCoh.Equivariant G X)
+      (AlgebraicGeometry.GroupoidAlgebraicSpace.QCoh
+        (AlgebraicGeometry.GroupoidAlgebraicSpace.ofAction G X)))
 
 /- Companion: the action groupoid has target `t = a` and source `s = pr`. -/
 #check GroupoidAlgebraicSpace.ofAction_t

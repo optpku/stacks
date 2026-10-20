@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.Ideal.AssociatedPrime.Finiteness
@@ -78,12 +72,3 @@ theorem exists_isSMulRegular_iff_not_le_associatedPrimes [Module.Finite R M] (I 
 end Finite
 
 end Ideal
-
-/-- Compatibility alias for the former chapter-level regular-element criterion. -/
-@[deprecated Ideal.exists_isSMulRegular_iff_not_le_associatedPrimes (since := "2026-08-04")]
-theorem exists_mem_isSMulRegular_iff_forall_not_le_associatedPrimes
-    {R : Type u} [CommRing R] [IsNoetherianRing R]
-    {M : Type v} [AddCommGroup M] [Module R M] [Module.Finite R M] (I : Ideal R) :
-    (∃ x ∈ I, IsSMulRegular M x) ↔
-      ∀ p ∈ associatedPrimes R M, ¬ I ≤ p :=
-  Ideal.exists_isSMulRegular_iff_not_le_associatedPrimes I

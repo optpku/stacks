@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.HomologySequence
@@ -17,6 +11,7 @@ public import ReasLib.CategoryTheory.DerivedCategory.Truncation.Cochain
 public import ReasLib.Algebra.Category.CommRing.Sheaf.Internal
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.ChangeOfRings
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Differentials.Conormal.SquareZero
+public import ReasLib.AlgebraicGeometry.RingedSite.Topos.CotangentComplex.NaiveComparison
 public import ReasLib.CategoryTheory.DerivedCategory.Ext
 public import stacks_project.Chap91.Lemma_91_13_8_Extension
 public import stacks_project.Chap92.Lemma_92_22_2
@@ -617,15 +612,27 @@ def toTruncGESection :
     DerivedCategory.Q.obj NL[f] ⟶
       (DerivedCategory.TStructure.t.truncGE (-1)).obj (DerivedCategory.Q.obj L[f]) :=
   DerivedCategory.Q.map (NL[f].πTruncGE (-1)) ≫
-    inv (DerivedCategory.Q.map (CochainComplex.truncGEMap (toNaive f) (-1))) ≫
+    inv (DerivedCategory.Q.map (CochainComplex.truncGEMap (toNaive f) (-1)))
+      (I := (DerivedCategory.isIso_Q_map_iff_quasiIso
+        (SheafOfModules (ringSheaf JC O)) _).mpr
+        (CotangentComplex.toNaive_truncGE_quasiIso
+          (f.toTopos.commRingInverseImage.obj OB) (Under.mk (commRingStructureMap f)))) ≫
     inv (@DerivedCategory.TruncGE.qHom (SheafOfModules (ringSheaf JC O)) _ _ _ L[f] (-1))
+      (I := @DerivedCategory.TruncGE.qHom_isIso
+        (SheafOfModules (ringSheaf JC O)) _ _ _ L[f] (-1))
 
 /-- Unfolding of `toTruncGESection`. -/
 theorem toTruncGESection_eq :
     toTruncGESection f =
       DerivedCategory.Q.map (NL[f].πTruncGE (-1)) ≫
-        inv (DerivedCategory.Q.map (CochainComplex.truncGEMap (toNaive f) (-1))) ≫
-        inv (@DerivedCategory.TruncGE.qHom (SheafOfModules (ringSheaf JC O)) _ _ _ L[f] (-1)) :=
+        inv (DerivedCategory.Q.map (CochainComplex.truncGEMap (toNaive f) (-1)))
+          (I := (DerivedCategory.isIso_Q_map_iff_quasiIso
+            (SheafOfModules (ringSheaf JC O)) _).mpr
+            (CotangentComplex.toNaive_truncGE_quasiIso
+              (f.toTopos.commRingInverseImage.obj OB) (Under.mk (commRingStructureMap f)))) ≫
+        inv (@DerivedCategory.TruncGE.qHom (SheafOfModules (ringSheaf JC O)) _ _ _ L[f] (-1))
+          (I := @DerivedCategory.TruncGE.qHom_isIso
+            (SheafOfModules (ringSheaf JC O)) _ _ _ L[f] (-1)) :=
   sorry
 
 /-- The shifted coefficient object `G[1]` lies in `t.GE (-1)`. -/

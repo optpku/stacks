@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.DifferentialGraded.Module
@@ -36,15 +30,7 @@ variable [HasWeakSheafify J AddCommGrpCat.{max u v}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
 variable {𝒪 : Sheaf J CommRingCat.{max u v}}
 
--- Local declaration justification (parser conflict): this lexical alias avoids introducing a
--- public `Mod(𝒪)` notation overlapping the established bimodule `Mod(...)` scope; it carries no
--- local choice or instance.
-local notation "ModO" => ringedSiteModuleCategory J 𝒪
--- Local declaration justification (parser conflict): this complex alias is tied to the preceding
--- ambient-module parser boundary and carries no local choice or instance.
-local notation "CpxO" => CochainComplex ModO ℤ
-
-/-- Definition 24.17.1 (1): a differential graded `(𝒜, 𝒝)`-bimodule sheaf is a right
+/-- A differential graded `(𝒜, 𝒝)`-bimodule sheaf is a right
 differential graded `𝒝`-module sheaf with a compatible left `𝒜`-action satisfying
 associativity, unit, commutation, and Leibniz compatibilities. -/
 @[stacks 0FRQ]
@@ -116,17 +102,19 @@ instance instCoeOutRightModule (𝒜 𝒝 : DGA(𝒪)) :
   coe M := M.toRightModule
 
 /-- The underlying cochain complex of a differential graded bimodule sheaf. -/
-abbrev toComplex {𝒜 𝒝 : DGA(𝒪)} (M : Mod(𝒜, 𝒝, d)) : CpxO :=
+@[reducible]
+def toComplex {𝒜 𝒝 : DGA(𝒪)} (M : DifferentialGradedBimodule 𝒜 𝒝) :
+    CochainComplex (ringedSiteModuleCategory J 𝒪) ℤ :=
   M.toRightModule.toComplex
 
 /-- A differential graded bimodule sheaf coerces to its underlying cochain complex. -/
 instance instCoeOutComplex (𝒜 𝒝 : DGA(𝒪)) :
-    CoeOut (Mod(𝒜, 𝒝, d)) CpxO where
+    CoeOut (Mod(𝒜, 𝒝, d)) (CochainComplex (ringedSiteModuleCategory J 𝒪) ℤ) where
   coe M := M.toComplex
 
 /-- A differential graded bimodule sheaf evaluates degreewise on its underlying cochain complex. -/
 instance instCoeFun (𝒜 𝒝 : DGA(𝒪)) :
-    CoeFun (Mod(𝒜, 𝒝, d)) (fun _ ↦ ℤ → ModO) where
+    CoeFun (Mod(𝒜, 𝒝, d)) (fun _ ↦ ℤ → ringedSiteModuleCategory J 𝒪) where
   coe M := M.toComplex.X
 
 /-- The underlying cochain complex evaluates to the degree-`n` component of the bimodule sheaf. -/
@@ -139,7 +127,7 @@ theorem toComplex_X {𝒜 𝒝 : DGA(𝒪)} (M : Mod(𝒜, 𝒝, d)) (n : ℤ) :
 theorem coe_apply {𝒜 𝒝 : DGA(𝒪)} (M : Mod(𝒜, 𝒝, d)) (n : ℤ) :
     M n = M.toComplex.X n := sorry
 
-/-- Definition 24.17.1 (2): a homomorphism of differential graded `(𝒜, 𝒝)`-bimodule
+/-- A homomorphism of differential graded `(𝒜, 𝒝)`-bimodule
 sheaves is a homomorphism of right differential graded `𝒝`-modules compatible with the left
 `𝒜`-action. -/
 @[stacks 0FRQ, ext]
@@ -175,6 +163,19 @@ theorem id_toRightHom {𝒜 𝒝 : DGA(𝒪)} (M : Mod(𝒜, 𝒝, d)) :
 theorem comp_toRightHom {𝒜 𝒝 : DGA(𝒪)} {M N P : Mod(𝒜, 𝒝, d)}
     (f : Hom M N) (g : Hom N P) :
     (comp f g).toRightHom = DifferentialGradedModule.Hom.comp f.toRightHom g.toRightHom := sorry
+
+/-- Composing the identity bimodule homomorphism on the left leaves a homomorphism unchanged. -/
+theorem id_comp {𝒜 𝒝 : DGA(𝒪)} {M N : Mod(𝒜, 𝒝, d)} (f : Hom M N) :
+    comp (id M) f = f := sorry
+
+/-- Composing the identity bimodule homomorphism on the right leaves a homomorphism unchanged. -/
+theorem comp_id {𝒜 𝒝 : DGA(𝒪)} {M N : Mod(𝒜, 𝒝, d)} (f : Hom M N) :
+    comp f (id N) = f := sorry
+
+/-- Composition of differential graded bimodule homomorphisms is associative. -/
+theorem assoc {𝒜 𝒝 : DGA(𝒪)} {M N P Q : Mod(𝒜, 𝒝, d)}
+    (f : Hom M N) (g : Hom N P) (h : Hom P Q) :
+    comp (comp f g) h = comp f (comp g h) := sorry
 
 end Hom
 
@@ -222,25 +223,16 @@ instance instCategory (𝒜 𝒝 : DGA(𝒪)) : Category (Mod(𝒜, 𝒝, d)) wh
   Hom M N := Hom M N
   id := Hom.id
   comp := Hom.comp
-  id_comp := sorry
-  comp_id := sorry
-  assoc := sorry
-
-/-- Definition 24.17.1 (3): the category of differential graded `(𝒜, 𝒝)`-bimodule sheaves. -/
-@[stacks 0FRQ]
-abbrev bimoduleCategory (𝒜 𝒝 : DGA(𝒪)) := Mod(𝒜, 𝒝, d)
-
-/-- The named bimodule category is definitionally the bundled differential graded bimodule type. -/
-@[simp]
-theorem bimoduleCategory_def (𝒜 𝒝 : DGA(𝒪)) :
-    bimoduleCategory 𝒜 𝒝 = Mod(𝒜, 𝒝, d) := sorry
+  id_comp := Hom.id_comp
+  comp_id := Hom.comp_id
+  assoc := Hom.assoc
 
 /-- Forget the left differential graded action of a bimodule sheaf. -/
 def forgetToRightModule (𝒜 𝒝 : DGA(𝒪)) : Mod(𝒜, 𝒝, d) ⥤ Mod(𝒝, d) where
   obj M := M.toRightModule
   map f := f.toRightHom
-  map_id := sorry
-  map_comp := sorry
+  map_id M := Hom.id_toRightHom M
+  map_comp f g := Hom.comp_toRightHom f g
 
 /-- Forgetting a bimodule sheaf to right modules recovers its stored right module sheaf. -/
 @[simp]
@@ -258,7 +250,8 @@ instance forgetToRightModule_faithful (𝒜 𝒝 : DGA(𝒪)) :
   map_injective := sorry
 
 /-- Forget all bimodule structure while retaining the underlying cochain complex. -/
-abbrev forgetToComplex (𝒜 𝒝 : DGA(𝒪)) : Mod(𝒜, 𝒝, d) ⥤ CpxO :=
+abbrev forgetToComplex (𝒜 𝒝 : DGA(𝒪)) :
+    Mod(𝒜, 𝒝, d) ⥤ CochainComplex (ringedSiteModuleCategory J 𝒪) ℤ :=
   forgetToRightModule 𝒜 𝒝 ⋙ DifferentialGradedModule.forgetToComplex 𝒝
 
 /-- The bimodule-to-complex forgetful functor factors through the right-module forgetful functor. -/

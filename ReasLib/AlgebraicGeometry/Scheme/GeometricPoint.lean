@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Sites.Etale
 public import ReasLib.AlgebraicGeometry.Scheme.FieldValuedPoint
+public import Mathlib.CategoryTheory.InducedCategory
 public import Mathlib.CategoryTheory.Limits.Elements
 
 open CategoryTheory Opposite
@@ -22,15 +17,23 @@ namespace AlgebraicGeometry.Scheme
 
 /-- A geometric point of a scheme is a field-valued point whose source field is algebraically
 closed. -/
-structure GeometricPoint (S : Scheme.{u}) where
+structure GeometricPointObj (S : Scheme.{u}) where
   /-- The underlying field-valued point. -/
   toFieldValuedPoint : FieldValuedPoint S
   /-- The source field of a geometric point is algebraically closed. -/
   isAlgClosed : IsAlgClosed toFieldValuedPoint.K
 
+/-- Geometric points with morphisms induced from their underlying field-valued points. -/
+abbrev GeometricPoint (S : Scheme.{u}) :=
+  InducedCategory (FieldValuedPoint S) (GeometricPointObj.toFieldValuedPoint (S := S))
+
 namespace GeometricPoint
 
 variable {S : Scheme.{u}}
+
+/-- The underlying field-valued point of a geometric point. -/
+def toFieldValuedPoint (s : GeometricPoint S) : FieldValuedPoint S :=
+  GeometricPointObj.toFieldValuedPoint s
 
 /-- The source-field carrier of a geometric point. -/
 abbrev K (s : GeometricPoint S) : Type u := s.toFieldValuedPoint.K
@@ -38,8 +41,21 @@ abbrev K (s : GeometricPoint S) : Type u := s.toFieldValuedPoint.K
 /-- The field structure of the underlying field-valued point. -/
 abbrev field (s : GeometricPoint S) : Field s.K := s.toFieldValuedPoint.field
 
+/-- The stored algebraic closedness of the source field. -/
+abbrev isAlgClosed (s : GeometricPoint S) : IsAlgClosed s.K :=
+  GeometricPointObj.isAlgClosed s
+
 /-- The morphism from the source-field spectrum of a geometric point to its scheme. -/
 abbrev hom (s : GeometricPoint S) : Spec (.of s.K) ⟶ S := s.toFieldValuedPoint.hom
+
+/-- The forgetful functor from geometric points to field-valued points. -/
+def toFieldValuedPointFunctor (S : Scheme.{u}) : GeometricPoint S ⥤ FieldValuedPoint S :=
+  inducedFunctor GeometricPoint.toFieldValuedPoint
+
+/-- The forgetful functor from geometric points to field-valued points is fully faithful. -/
+def toFieldValuedPointFullyFaithful (S : Scheme.{u}) :
+    (toFieldValuedPointFunctor S).FullyFaithful :=
+  fullyFaithfulInducedFunctor GeometricPoint.toFieldValuedPoint
 
 /-- Construct a geometric point from an algebraically closed field and a morphism from its
 spectrum to the scheme. -/

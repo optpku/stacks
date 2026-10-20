@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap77.Definition_77_11_1_Universal
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FlatOver.Flattening.Universal
 import StacksCheckRecall
 
 @[expose] public section
@@ -15,16 +9,16 @@ open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory
 
 universe u
 
-variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-variable (ℱ : X.Modules) [ℱ.IsQuasicoherent]
-
 /- Definition 77.11.1 (1): the universal flattening of a quasi-coherent `𝒪_X`-module `ℱ`
 exists when the flattening functor `F_flat` of Situation 77.7.8, viewed as a functor
 `(Sch/S)ᵒᵖ ⥤ Type`, is an algebraic space. -/
 @[stacks 0CWR] #check
-  (Modules.Flattening.HasUniversalFlattening f ℱ : Prop)
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.HasUniversalFlattening :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      (ℱ : X.Modules) [ℱ.IsQuasicoherent], Prop)
 
 /- Definition 77.11.1 (2): the universal flattening of `X` exists when the universal
 flattening of `𝒪_X` exists. -/
 @[stacks 0CWR] #check
-  (HasUniversalFlattening f : Prop)
+  (AlgebraicGeometry.AlgebraicSpace.HasUniversalFlattening :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y), Prop)

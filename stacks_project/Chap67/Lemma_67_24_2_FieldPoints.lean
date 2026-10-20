@@ -1,21 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Types.Pullbacks
-public import stacks_project.Chap66.Definition_66_4_1_Points
-public import stacks_project.Chap66.Lemma_66_4_2_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.FieldPoints
 
 /-!
-# Field-valued points versus points of algebraic spaces
+# Field-valued point comparison API
 
-The unique morphism from an algebraic space `X` over `S` to `S` as an algebraic
-space induces `|X| → |S|`. Field-valued points over a morphism `Spec K ⟶ S` map
-to `|X|` and to the fibre product `|X| ×_{|Y|} Y(K)`.
+Typed checks expose the canonical point-comparison API. The structural-map
+compatibility names refer to the canonical scheme-realization morphism.
 -/
 
 @[expose] public section
@@ -28,105 +19,83 @@ open CategoryTheory AlgebraicGeometry Opposite CategoryTheory.Limits
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- The unique morphism from an algebraic space over `S` to `S` viewed as an
-algebraic space over itself. -/
-def toBase {S : Scheme.{u}} (X : AlgebraicSpace S) : X ⟶ ofOver (Over.mk (𝟙 S)) where
-  app T := ↾fun _ ↦ Over.homMk T.unop.hom
-  naturality := sorry
+/-- The structural morphism of an algebraic space to its base scheme. -/
+abbrev toBase {S : Scheme.{u}} (X : AlgebraicSpace S) : X ⟶ ofOver (Over.mk (𝟙 S)) :=
+  SchemeRealization.toBase X
 
-/-- The component of `toBase X` at `T` is the unique morphism `T.unop ⟶ Over.mk (𝟙 S)`. -/
-theorem toBase_app {S : Scheme.{u}} (X : AlgebraicSpace S) (T : (Over S)ᵒᵖ)
-    (x : X.functorOfPoints.obj T) :
-    (toBase X).app T x = Over.homMk T.unop.hom :=
-  sorry
-
-/-- Any morphism from `X` to `S` as an algebraic space over itself equals `toBase X`. -/
+/-- Every morphism to the base scheme equals the structural morphism. -/
 theorem eq_toBase {S : Scheme.{u}} {X : AlgebraicSpace S}
     (f : X ⟶ ofOver (Over.mk (𝟙 S))) : f = toBase X :=
-  sorry
+  SchemeRealization.eq_toBase f
+
+#check (AlgebraicGeometry.AlgebraicSpace.toBase_app :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) (T : (Over S)ᵒᵖ)
+    (x : X.functorOfPoints.obj T),
+    (SchemeRealization.toBase X).app T x = Over.homMk T.unop.hom)
 
 namespace Points
 
-/-- The map `|X| → |S|` induced by the unique morphism from `X` to `S` as an
-algebraic space over itself. -/
-def base {S : Scheme.{u}} {X : AlgebraicSpace S} (x : Points X) : S :=
-  (ofOver.pointsEquiv (Over.mk (𝟙 S))).symm (map (toBase X) x)
+#check (AlgebraicGeometry.AlgebraicSpace.Points.base :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (x : Points X),
+    S)
 
-/-- The image of a field-valued point in `|S|` is the image of the unique point of
-its source spectrum. -/
-theorem base_mk {S : Scheme.{u}} {X : AlgebraicSpace S} (p : FieldValuedPoint X) :
-    base (mk p) = p.structureHom default :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Points.base_mk :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (p : FieldValuedPoint X),
+    base (mk p) = p.structureHom default)
 
-/-- The map `|X| → |S|` is invariant under morphisms of algebraic spaces over `S`. -/
-theorem base_map {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (x : Points X) :
-    base (map f x) = base x :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Points.base_map :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (x : Points X),
+    base (map f x) = base x)
 
 end Points
 
-/-- The point of `|X|` associated to a morphism `Spec K ⟶ X` over `S`. -/
-def fieldPointsToPoints {S : Scheme.{u}} {X : AlgebraicSpace S} {K : Type u} [Field K]
-    (σ : Spec (.of K) ⟶ S) (p : ofOver (Over.mk σ) ⟶ X) : Points X :=
-  Points.mk (FieldValuedPoint.of K σ p)
+#check (AlgebraicGeometry.AlgebraicSpace.fieldPointsToPoints :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {K : Type u} [Field K]
+    (σ : Spec (.of K) ⟶ S) (p : ofOver (Over.mk σ) ⟶ X),
+    Points X)
 
-/-- `fieldPointsToPoints` is the class of the corresponding field-valued point. -/
-theorem fieldPointsToPoints_eq {S : Scheme.{u}} {X : AlgebraicSpace S} {K : Type u}
-    [Field K] (σ : Spec (.of K) ⟶ S) (p : ofOver (Over.mk σ) ⟶ X) :
-    fieldPointsToPoints σ p = Points.mk (FieldValuedPoint.of K σ p) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.fieldPointsToPoints_eq :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {K : Type u}
+    [Field K] (σ : Spec (.of K) ⟶ S) (p : ofOver (Over.mk σ) ⟶ X),
+    fieldPointsToPoints σ p = Points.mk (FieldValuedPoint.of K σ p))
 
-/-- A `K`-point of `X` over `σ` lands in the fibre of `Points.base` over the image
-of `σ`. -/
-theorem fieldPointsToPoints_base {S : Scheme.{u}} {X : AlgebraicSpace S} {K : Type u}
-    [Field K] (σ : Spec (.of K) ⟶ S) (p : ofOver (Over.mk σ) ⟶ X) :
-    Points.base (fieldPointsToPoints σ p) = σ default :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.fieldPointsToPoints_base :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {K : Type u}
+    [Field K] (σ : Spec (.of K) ⟶ S) (p : ofOver (Over.mk σ) ⟶ X),
+    Points.base (fieldPointsToPoints σ p) = σ default)
 
-/-- The set-theoretic fibre product `|X| ×_{|Y|} Y(K)` of points with `K`-points of
-`Y` over `S`. -/
-abbrev pullbackFieldPoints {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    {K : Type u} [Field K] (σ : Spec (.of K) ⟶ S) : Type (u + 1) :=
-  Types.PullbackObj (TypeCat.ofHom (Points.map f))
-    (TypeCat.ofHom fun p : ofOver (Over.mk σ) ⟶ Y ↦ fieldPointsToPoints σ p)
+#check (AlgebraicGeometry.AlgebraicSpace.pullbackFieldPoints :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {K : Type u} [Field K] (σ : Spec (.of K) ⟶ S),
+    Type (u + 1))
 
-/-- A pair in `pullbackFieldPoints f σ` consists of a point of `X` and a `K`-point
-of `Y` with the same image in `|Y|`. -/
-theorem pullbackFieldPoints_condition {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.pullbackFieldPoints_condition :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) {K : Type u} [Field K] (σ : Spec (.of K) ⟶ S)
-    (p : pullbackFieldPoints f σ) :
-    Points.map f p.1.1 = fieldPointsToPoints σ p.1.2 :=
-  sorry
+    (p : pullbackFieldPoints f σ),
+    Points.map f p.1.1 = fieldPointsToPoints σ p.1.2)
 
-/-- The comparison `X(K) → |X| ×_{|Y|} Y(K)` sending a `K`-point to its image in
-`|X|` and its postcomposition in `Y(K)`. -/
-def toPullbackFieldPoints {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    {K : Type u} [Field K] (σ : Spec (.of K) ⟶ S) (p : ofOver (Over.mk σ) ⟶ X) :
-    pullbackFieldPoints f σ :=
-  ⟨(fieldPointsToPoints σ p, p ≫ f), rfl⟩
+#check (AlgebraicGeometry.AlgebraicSpace.toPullbackFieldPoints :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {K : Type u} [Field K] (σ : Spec (.of K) ⟶ S) (p : ofOver (Over.mk σ) ⟶ X),
+    pullbackFieldPoints f σ)
 
-/-- `toPullbackFieldPoints` is the compatible pair of the image in `|X|` and the
-postcomposition in `Y(K)`. -/
-theorem toPullbackFieldPoints_apply {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.toPullbackFieldPoints_apply :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) {K : Type u} [Field K] (σ : Spec (.of K) ⟶ S)
-    (p : ofOver (Over.mk σ) ⟶ X) :
-    (toPullbackFieldPoints f σ p).1 = (fieldPointsToPoints σ p, p ≫ f) :=
-  sorry
+    (p : ofOver (Over.mk σ) ⟶ X),
+    (toPullbackFieldPoints f σ p).1 = (fieldPointsToPoints σ p, p ≫ f))
 
-/-- The first component of `toPullbackFieldPoints f σ p` is the image of `p` in
-`|X|`. -/
-theorem toPullbackFieldPoints_fst {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.toPullbackFieldPoints_fst :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) {K : Type u} [Field K] (σ : Spec (.of K) ⟶ S)
-    (p : ofOver (Over.mk σ) ⟶ X) :
-    (toPullbackFieldPoints f σ p).1.1 = fieldPointsToPoints σ p :=
-  sorry
+    (p : ofOver (Over.mk σ) ⟶ X),
+    (toPullbackFieldPoints f σ p).1.1 = fieldPointsToPoints σ p)
 
-/-- The second component of `toPullbackFieldPoints f σ p` is the postcomposition
-`p ≫ f`. -/
-theorem toPullbackFieldPoints_snd {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.toPullbackFieldPoints_snd :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) {K : Type u} [Field K] (σ : Spec (.of K) ⟶ S)
-    (p : ofOver (Over.mk σ) ⟶ X) :
-    (toPullbackFieldPoints f σ p).1.2 = p ≫ f :=
-  sorry
+    (p : ofOver (Over.mk σ) ⟶ X),
+    (toPullbackFieldPoints f σ p).1.2 = p ≫ f)
 
 end AlgebraicGeometry.AlgebraicSpace

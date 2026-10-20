@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap99.Lemma_99_14_2_Forget
+public import ReasLib.AlgebraicGeometry.Polarized.ToSpaces
+import StacksCheckRecall
 
 /-!
 # The forgetful functor from Polarized to Spaces'_{fp, flat, proper}
@@ -21,25 +16,25 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry
+/- 99.14.1.1: the forgetful construction sends a polarized proper flat
+finitely presented scheme family `(X ⟶ S, L)` to its underlying family
+`(X ⟶ S)` in `Spaces'_{fp, flat, proper}`, retaining the cartesian square on
+morphisms and forgetting the line-bundle isomorphism. -/
+@[stacks 0D3Y] #check
+  (AlgebraicGeometry.Polarized.toFpFlatProper :
+    AlgebraicGeometry.Polarized.Obj.{u} ⥤
+      AlgebraicGeometry.AlgebraicSpace.Spaces.FpFlatProperGroupoids
+        (⊤_ AlgebraicGeometry.Scheme.{u}))
 
-/-- 99.14.1.1: the forgetful functor Polarized ⟶ Spaces'_{fp, flat, proper} sends a
-pair `(X ⟶ S, L)`, with `X ⟶ S` a proper flat finitely presented morphism of
-schemes and `L` a relatively ample invertible `O_X`-module, to the underlying
-family `(X ⟶ S)`. Morphisms `(f, g, φ)` are cartesian squares together with an
-isomorphism `φ : f^* L ≅ L'`. Objects in the essential image have scheme total
-spaces and bases. -/
-@[stacks 0D3Y]
-abbrev forgetToFpFlatProper := Polarized.toFpFlatProper
+#check
+  (AlgebraicGeometry.Polarized.toFpFlatProper_obj :
+    ∀ (x : AlgebraicGeometry.Polarized.Obj.{u}),
+      AlgebraicGeometry.Polarized.toFpFlatProper.obj x =
+        AlgebraicGeometry.AlgebraicSpace.Spaces.FpFlatProperGroupoids.mk
+          (AlgebraicGeometry.Polarized.toHom x))
 
-/-- The object map of `forgetToFpFlatProper` is `FpFlatProperGroupoids.mk (toHom x)`. -/
-theorem forgetToFpFlatProper_obj (x : Polarized.Obj) :
-    forgetToFpFlatProper.obj x = FpFlatProperGroupoids.mk (Polarized.toHom x) :=
-  sorry
-
-/-- The morphism map of `forgetToFpFlatProper` forgets the line-bundle isomorphism. -/
-theorem forgetToFpFlatProper_map {x y : Polarized.Obj} (φ : x ⟶ y) :
-    forgetToFpFlatProper.map φ = Polarized.toFpFlatProperHom φ :=
-  sorry
-
-end AlgebraicGeometry
+#check
+  (AlgebraicGeometry.Polarized.toFpFlatProper_map :
+    ∀ {x y : AlgebraicGeometry.Polarized.Obj.{u}} (φ : x ⟶ y),
+      AlgebraicGeometry.Polarized.toFpFlatProper.map φ =
+        AlgebraicGeometry.Polarized.toFpFlatProperHom φ)

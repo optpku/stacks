@@ -1,0 +1,50 @@
+module
+
+public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FiniteLocallyFree
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.CapPower
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.RankGluedChern
+
+/-! # Chern classes after tensoring by an invertible module -/
+
+@[expose] public section
+
+open CategoryTheory CategoryTheory.MonoidalCategory
+open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
+open AlgebraicGeometry.AlgebraicSpace.Hom
+open scoped BigOperators MonoidalCategory
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace
+
+/-- For a good algebraic space `X` over a universally catenary quasi-separated
+base `B`, a finite locally free `𝒪_X`-module `E` of rank `r`, and an invertible
+`𝒪_X`-module `L`, the identity `c_i(E ⊗ L) = ∑ j, Nat.choose (r + j - i) j •
+c_{i-j}(E) * c_1(L)^j` holds as an equality of cap operations on every good
+test `g : Y ⟶ X`. -/
+theorem chernClass_tensor_invertible {S : Scheme.{u}} {B X : AlgebraicSpace S}
+    [UniversallyCatenary B] [IsQuasiSeparated B]
+    (δ : Points B → ℤ) [IsDimensionFunction δ]
+    (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
+    (E L : X.Modules) (r i : ℕ)
+    [SheafOfModules.IsFiniteLocallyFreeOfRank r E] [isInvertibleObject L]
+    {Y : AlgebraicSpace S} (g : Y ⟶ X)
+    [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)]
+    (k : ℤ) (α : chowGroup (g ≫ f) δ k) :
+    (ChernClass.chernClass δ f (E ⊗ L) i).cap g k α =
+      ∑ j ∈ Finset.range (i + 1),
+        Nat.choose (r + j - i) j •
+          (if hj : j ≤ i then
+            ChowCohomology.castChowGroup δ (g ≫ f)
+              (show (k - (j : ℤ)) - ((i - j : ℕ) : ℤ) = k - (i : ℤ) by
+                rw [Nat.cast_sub hj]
+                omega)
+              ((ChernClass.chernClass δ f E (i - j)).cap g (k - (j : ℤ))
+                (ChowCohomology.powCap (ChernClass.chernClass δ f L 1).cap j g k α))
+          else 0) :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicSpace

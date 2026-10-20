@@ -1,61 +1,35 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap65.Lemma_65_12_4_Immersion
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap69.«69_3_0_1_HigherDirectImage»
-public import stacks_project.Chap69.Definition_69_12_1_Instances
-public import stacks_project.Chap69.Lemma_69_20_1_ProjectiveSpace
-public import stacks_project.Chap69.Lemma_69_20_1_Tensor
-public import stacks_project.Chap69.Lemma_69_20_1_Twist
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Coherent
-
-/-!
-# Lemma 69.20.1
-
-Higher direct images of a coherent module on an algebraic space vanish after twisting
-by a sufficiently large power of the pullback of `𝒪(1)` along a closed immersion into
-projective space over a Noetherian algebraic space.
--/
-
-@[expose] public section
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.HigherDirectImage.SerreVanishing
+import StacksCheckRecall
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open CategoryTheory CategoryTheory.Limits CategoryTheory.MonoidalCategory
 open AlgebraicGeometry.AlgebraicSpace.Modules
 
-noncomputable section
-
 universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.Modules
 
--- Local instance justification (defeq pin): `HasInjectiveResolutions` and `higherDirectImage` pin the Abelian-induced `Preadditive`/`HasZeroMorphisms` instances for defeq of `higherDirectImage`.
+variable {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+
+-- Local instance justification (defeq pin): `HasInjectiveResolutions` and `higherDirectImage`
+-- pin the Abelian-induced `Preadditive`/`HasZeroMorphisms` instances for definitional equality.
 attribute [local instance 2000] Abelian.toPreadditive Preadditive.preadditiveHasZeroMorphisms
 
-/-- Lemma 69.20.1: let `S` be a scheme. Consider a commutative diagram of algebraic spaces
-over `S` with a closed immersion `i : X ⟶ ProjectiveSpace n Y` and structure morphism
-`ProjectiveSpace.toBase n Y : ProjectiveSpace n Y ⟶ Y`, and set
-`f = i ≫ ProjectiveSpace.toBase n Y`. Assume `i` is a closed immersion and `Y` is
-Noetherian. Set `L` to be the pullback of `ProjectiveSpace.twistingSheaf n Y` along `i`.
-Let `F` be a coherent module on `X`. Then there exists an integer `d0` such that for all
-`d ≥ d0` and all `p > 0` one has
-`IsZero (higherDirectImage f (F ⊗ tensorPowerInt L d) p)`. -/
-@[stacks 08AQ]
-theorem higherDirectImage_projectiveTwist_eventually_isZero
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (n : ℕ)
+/- Lemma 69.20.1. Higher direct images of a coherent module vanish uniformly in all
+positive cohomological degrees after sufficiently large twists by the pulled-back 𝒪(1).
+Natural twist degrees describe a cofinal nonnegative tail of the integer degrees in the
+source: the eventual bound may be increased to at least zero. -/
+@[stacks 08AQ] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.higherDirectImage_projectiveTwist_eventually_isZero :
+    ∀ (n : ℕ)
     (i : X ⟶ ProjectiveSpace n Y) [IsClosedImmersion i] [IsNoetherian Y]
     [Abelian X.Modules] [Abelian Y.Modules] [HasInjectiveResolutions X.Modules]
-    (F : X.Modules) [F.IsCoherent] :
+    (F : X.Modules) [F.IsCoherent],
     ∃ d0 : ℕ, ∀ d : ℕ, d0 ≤ d → ∀ p : ℕ, 0 < p →
       IsZero
         (higherDirectImage (i ≫ ProjectiveSpace.toBase n Y)
-          (F ⊗ tensorPowerInt ((pullback i).obj (ProjectiveSpace.twistingSheaf n Y)) d) p) :=
-  sorry
+          (F ⊗ tensorPower ((pullback i).obj (ProjectiveSpace.twistingSheaf n Y)) d) p))
 
 end AlgebraicGeometry.AlgebraicSpace.Modules

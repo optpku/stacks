@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap68.Definition_68_3_1_FiberDegree
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiberDegree.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of universally bounded fibres
@@ -24,25 +19,21 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 68.3.2: Let `S` be a scheme. Let `X` be an algebraic space over `S`. Let
+/- Lemma 68.3.2: Let `S` be a scheme. Let `X` be an algebraic space over `S`. Let
 `V ⟶ U` be a morphism of schemes over `S`, and let `U ⟶ X` be a morphism from
 `U` to `X`. If the fibres of `V ⟶ U` and `U ⟶ X` are universally bounded, then
 so are the fibres of `V ⟶ X`. -/
-@[stacks 03JM]
-theorem universallyBoundedFibres_comp {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {V U : Over S} (φ : V ⟶ U) (f : ofOver U ⟶ X)
-    (hφ : Scheme.Hom.universallyBoundedFibres φ.left) (hf : universallyBoundedFibres f) :
-    universallyBoundedFibres (ofOverMap φ ≫ f) :=
-  sorry
+@[stacks 03JM] #check
+  (AlgebraicGeometry.AlgebraicSpace.universallyBoundedFibres_comp :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {V U : Over S}
+      (φ : V ⟶ U) (f : ofOver U ⟶ X),
+      Scheme.Hom.universallyBoundedFibres φ.left → universallyBoundedFibres f →
+        universallyBoundedFibres (ofOverMap φ ≫ f))
 
-/-- If a scheme morphism over `S` has fibre degrees bounded by `n` and a morphism
-from a scheme to an algebraic space has fibre degrees bounded by `m`, then their
-composite has fibre degrees bounded by `n * m`. -/
-theorem degreesOfFibresBoundedBy_comp {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {V U : Over S} (φ : V ⟶ U) (f : ofOver U ⟶ X) {n m : ℕ}
-    (hφ : Scheme.Hom.degreesOfFibresBoundedBy φ.left n)
-    (hf : degreesOfFibresBoundedBy f m) :
-    degreesOfFibresBoundedBy (ofOverMap φ ≫ f) (n * m) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.degreesOfFibresBoundedBy_comp :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {V U : Over S}
+    (φ : V ⟶ U) (f : ofOver U ⟶ X) {n m : ℕ},
+    Scheme.Hom.degreesOfFibresBoundedBy φ.left n → degreesOfFibresBoundedBy f m →
+      degreesOfFibresBoundedBy (ofOverMap φ ≫ f) (n * m))
 
 end AlgebraicGeometry.AlgebraicSpace

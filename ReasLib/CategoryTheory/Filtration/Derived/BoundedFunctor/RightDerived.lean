@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Derived.BoundedFunctor
@@ -39,7 +33,6 @@ namespace Plus.GradedPiece.RightDerived
 
 /-- The canonical comparison between taking a graded piece after a bounded-below right-derived
 filtered functor and right-deriving the corresponding graded-piece functor. -/
-@[stacks 015U "filtered derived graded-piece comparison"]
 noncomputable def iso (p : ℤ)
     (h_pieceA : Inverts A p) (h_pieceB : Inverts B p)
     {source : HomotopyCategory.Plus (FilteredObject.Finite.category A) ⥤ DerivedCategory.Plus B}
@@ -60,7 +53,6 @@ derived categories.
 
 The source and the two candidate derived functors are inferred from `α` and `β`; the canonical
 localization and graded-piece inversion certificates remain internal to the library. -/
-@[stacks 015U "canonical filtered derived graded-piece comparison"]
 noncomputable def canonicalIso (p : ℤ)
     {source : HomotopyCategory.Plus (FilteredObject.Finite.category A) ⥤ DerivedCategory.Plus B}
     {filtered : Plus.canonicalCategory A ⥤ Plus.canonicalCategory B}
@@ -96,13 +88,13 @@ variable [Functor.IsRightDerivedFunctor
 
 /-- The canonical graded-piece comparison carries the first right-derived factorization to the
 second. -/
-@[reassoc (attr := simp), stacks 015U "canonical right-derived graded-piece factorization"]
+@[reassoc (attr := simp)]
 theorem fac :
     α ≫ Functor.whiskerLeft (Plus.Quotient.canonicalFunctor A)
         (canonicalIso p α β).hom = β := sorry
 
 /-- Componentwise form of `canonicalIso.fac`. -/
-@[simp, stacks 015U "canonical right-derived graded-piece factorization"]
+@[simp]
 theorem fac_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category A)) :
     α.app X ≫
         (canonicalIso p α β).hom.app
@@ -110,14 +102,13 @@ theorem fac_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category A)) :
 
 /-- The inverse canonical graded-piece comparison carries the second right-derived factorization
 back to the first. -/
-@[reassoc (attr := simp), stacks 015U
-  "canonical inverse right-derived graded-piece factorization"]
+@[reassoc (attr := simp)]
 theorem inv_fac :
     β ≫ Functor.whiskerLeft (Plus.Quotient.canonicalFunctor A)
         (canonicalIso p α β).inv = α := sorry
 
 /-- Componentwise form of `canonicalIso.inv_fac`. -/
-@[simp, stacks 015U "canonical inverse right-derived graded-piece factorization"]
+@[simp]
 theorem inv_fac_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category A)) :
     β.app X ≫
         (canonicalIso p α β).inv.app
@@ -141,26 +132,26 @@ variable [Functor.IsRightDerivedFunctor
   (lift A hA p h_pieceA ⋙ ordinary) β (Plus.QuasiIso A)]
 
 /-- The comparison `iso` carries the first right-derived factorization to the second. -/
-@[reassoc (attr := simp), stacks 015U "right-derived factorization"]
+@[reassoc (attr := simp)]
 theorem fac :
     α ≫ Functor.whiskerLeft (Plus.Quotient.functor A hA)
         (iso hA hB p h_pieceA h_pieceB α β).hom = β := sorry
 
 /-- Componentwise form of `RightDerived.fac`. -/
-@[simp, stacks 015U "right-derived factorization"]
+@[simp]
 theorem fac_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category A)) :
     α.app X ≫
         (iso hA hB p h_pieceA h_pieceB α β).hom.app
           ((Plus.Quotient.functor A hA).obj X) = β.app X := sorry
 
 /-- The inverse comparison carries the second right-derived factorization back to the first. -/
-@[reassoc (attr := simp), stacks 015U "right-derived inverse factorization"]
+@[reassoc (attr := simp)]
 theorem inv_fac :
     β ≫ Functor.whiskerLeft (Plus.Quotient.functor A hA)
         (iso hA hB p h_pieceA h_pieceB α β).inv = α := sorry
 
 /-- Componentwise form of `RightDerived.inv_fac`. -/
-@[simp, stacks 015U "right-derived inverse factorization"]
+@[simp]
 theorem inv_fac_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category A)) :
     β.app X ≫
         (iso hA hB p h_pieceA h_pieceB α β).inv.app
@@ -174,7 +165,6 @@ namespace Plus.Forget.RightDerived
 
 /-- The canonical comparison between forgetting after a bounded-below right-derived filtered
 functor and right-deriving the corresponding unfiltered functor. -/
-@[stacks 015V "filtered derived forgetful comparison"]
 noncomputable def iso
     (h_forgetA : Inverts A) (h_forgetB : Inverts B)
     {source : HomotopyCategory.Plus (FilteredObject.Finite.category A) ⥤ DerivedCategory.Plus B}
@@ -195,7 +185,6 @@ categories.
 
 The source and the two candidate derived functors are inferred from `α` and `β`; the canonical
 localization and forgetful inversion certificates remain internal to the library. -/
-@[stacks 015V "canonical filtered derived forgetful comparison"]
 noncomputable def canonicalIso
     {source : HomotopyCategory.Plus (FilteredObject.Finite.category A) ⥤ DerivedCategory.Plus B}
     {filtered : Plus.canonicalCategory A ⥤ Plus.canonicalCategory B}
@@ -230,13 +219,13 @@ variable [Functor.IsRightDerivedFunctor
 
 /-- The canonical forgetful comparison carries the first right-derived factorization to the
 second. -/
-@[reassoc (attr := simp), stacks 015V "canonical right-derived forgetful factorization"]
+@[reassoc (attr := simp)]
 theorem fac :
     α ≫ Functor.whiskerLeft (Plus.Quotient.canonicalFunctor A)
         (canonicalIso α β).hom = β := sorry
 
 /-- Componentwise form of `canonicalIso.fac`. -/
-@[simp, stacks 015V "canonical right-derived forgetful factorization"]
+@[simp]
 theorem fac_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category A)) :
     α.app X ≫
         (canonicalIso α β).hom.app
@@ -244,14 +233,13 @@ theorem fac_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category A)) :
 
 /-- The inverse canonical forgetful comparison carries the second right-derived factorization
 back to the first. -/
-@[reassoc (attr := simp), stacks 015V
-  "canonical inverse right-derived forgetful factorization"]
+@[reassoc (attr := simp)]
 theorem inv_fac :
     β ≫ Functor.whiskerLeft (Plus.Quotient.canonicalFunctor A)
         (canonicalIso α β).inv = α := sorry
 
 /-- Componentwise form of `canonicalIso.inv_fac`. -/
-@[simp, stacks 015V "canonical inverse right-derived forgetful factorization"]
+@[simp]
 theorem inv_fac_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category A)) :
     β.app X ≫
         (canonicalIso α β).inv.app
@@ -275,26 +263,26 @@ variable [Functor.IsRightDerivedFunctor
   (lift A hA h_forgetA ⋙ ordinary) β (Plus.QuasiIso A)]
 
 /-- The forgetful comparison carries the first right-derived factorization to the second. -/
-@[reassoc (attr := simp), stacks 015V "right-derived factorization"]
+@[reassoc (attr := simp)]
 theorem fac :
     α ≫ Functor.whiskerLeft (Plus.Quotient.functor A hA)
         (iso hA hB h_forgetA h_forgetB α β).hom = β := sorry
 
 /-- Componentwise form of `RightDerived.fac` for forgetting filtrations. -/
-@[simp, stacks 015V "right-derived factorization"]
+@[simp]
 theorem fac_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category A)) :
     α.app X ≫
         (iso hA hB h_forgetA h_forgetB α β).hom.app
           ((Plus.Quotient.functor A hA).obj X) = β.app X := sorry
 
 /-- The inverse forgetful comparison carries the second factorization back to the first. -/
-@[reassoc (attr := simp), stacks 015V "right-derived inverse factorization"]
+@[reassoc (attr := simp)]
 theorem inv_fac :
     β ≫ Functor.whiskerLeft (Plus.Quotient.functor A hA)
         (iso hA hB h_forgetA h_forgetB α β).inv = α := sorry
 
 /-- Componentwise form of `RightDerived.inv_fac` for forgetting filtrations. -/
-@[simp, stacks 015V "right-derived inverse factorization"]
+@[simp]
 theorem inv_fac_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category A)) :
     β.app X ≫
         (iso hA hB h_forgetA h_forgetB α β).inv.app

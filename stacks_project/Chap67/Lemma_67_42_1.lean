@@ -1,41 +1,21 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_8_2_QuasiCompact
-public import stacks_project.Chap67.Definition_67_9_2_Closed
-public import stacks_project.Chap67.Definition_67_41_1_ValuativeCriterion
-
-/-!
-# Quasi-compact morphisms satisfying existence are universally closed
-
-A quasi-compact morphism of algebraic spaces that satisfies the existence part of
-the valuative criterion is universally closed.
--/
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.UniversallyClosed
+import StacksCheckRecall
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry
+open CategoryTheory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-namespace UniversallyClosed
-
-/-- Lemma 67.42.1: If `f : X ⟶ Y` is a quasi-compact morphism of algebraic spaces
+/- Lemma 67.42.1: If `f : X ⟶ Y` is a quasi-compact morphism of algebraic spaces
 over a scheme `S` and `f` satisfies the existence part of the valuative criterion,
 then `f` is universally closed. -/
-@[stacks 03KA]
-instance of_quasiCompact_of_existence {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [QuasiCompact f] [ValuativeCriterion.Existence f] :
-    UniversallyClosed f :=
-  sorry
-
-end UniversallyClosed
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 03KA] #check
+  (AlgebraicGeometry.AlgebraicSpace.UniversallyClosed.of_quasiCompact_of_existence :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}}
+      {X Y : AlgebraicGeometry.AlgebraicSpace S} (f : X ⟶ Y),
+      [AlgebraicGeometry.AlgebraicSpace.QuasiCompact f] →
+      [AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.Existence f] →
+      AlgebraicGeometry.AlgebraicSpace.UniversallyClosed f)

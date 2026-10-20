@@ -1,17 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.FiniteLocallyFree.Rank
-public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Flat
-public import stacks_project.Chap71.Lemma_71_2_1_Pullback
-public import stacks_project.Chap71.Lemma_71_5_6
-public import stacks_project.Chap71.Lemma_71_5_7_FlatLocus
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FittingIdeal.Locus.Flat
 import StacksCheckRecall
 
 /-!
@@ -24,52 +13,48 @@ locus is finite locally free of that rank, and both the rank-locus inclusions
 and the coproduct structure map are of finite presentation.
 -/
 
-@[expose] public section
-
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-
-noncomputable section
 
 universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 71.5.7 (1): the coproduct of the Fitting rank loci represents the
+/- Lemma 71.5.7 (1): the coproduct of the Fitting rank loci represents the
 functor on `Sch/X` that is a singleton exactly when the pulled-back module is
 flat. -/
-@[stacks 0CZA]
-theorem fittingFlatLocus_nonempty_over_hom_iff_isFlat
+@[stacks 0CZA] #check
+  (AlgebraicGeometry.AlgebraicSpace.fittingFlatLocus_nonempty_over_hom_iff_isFlat :
+    ∀
     {S : Scheme.{u}} {X : AlgebraicSpace S} {T : Over S}
-    (g : ofOver T ⟶ X) (F : X.Modules) [F.IsFinitePresentation] :
+    (g : ofOver T ⟶ X) (F : X.Modules) [F.IsFinitePresentation],
     Subsingleton (Over.mk g ⟶ Over.mk (fittingFlatLocusι F)) ∧
       (Nonempty (Over.mk g ⟶ Over.mk (fittingFlatLocusι F)) ↔
-        SheafOfModules.IsFlat (Modules.pullbackToScheme g F)) :=
-  sorry
+        SheafOfModules.IsFlat (Modules.pullbackToScheme g F)))
 
-/-- Lemma 71.5.7 (2): the restriction of a finitely presented module to its
+/- Lemma 71.5.7 (2): the restriction of a finitely presented module to its
 rank-`r` Fitting locus is finite locally free of rank `r`. -/
-@[stacks 0CZA, instance]
-instance fittingRankLocus_pullback_isFiniteLocallyFreeOfRank
+@[stacks 0CZA] #check
+  (AlgebraicGeometry.AlgebraicSpace.fittingRankLocus_pullback_isFiniteLocallyFreeOfRank :
+    ∀
     {S : Scheme.{u}} {X : AlgebraicSpace S} (F : X.Modules)
-    [F.IsFinitePresentation] (r : ℕ) :
+    [F.IsFinitePresentation] (r : ℕ),
     SheafOfModules.IsFiniteLocallyFreeOfRank r
-      ((Modules.pullback (fittingRankLocus F r).ι).obj F) :=
-  sorry
+      ((Modules.pullback (fittingRankLocus F r).ι).obj F))
 
 /- Lemma 71.5.7 (3): if `F` is of finite presentation, then each rank-locus
 immersion `X_r ⟶ X` is of finite presentation. -/
 @[stacks 0CZA] #check
-  (fittingRankLocus_finitePresentation :
+  (AlgebraicGeometry.AlgebraicSpace.fittingRankLocus_finitePresentation :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (F : X.Modules)
       [F.IsFinitePresentation] (r : ℕ),
       FinitePresentation (fittingRankLocus F r).ι)
 
-/-- Lemma 71.5.7 (4): the structure morphism from the coproduct of the Fitting
+/- Lemma 71.5.7 (4): the structure morphism from the coproduct of the Fitting
 rank loci to the ambient algebraic space is of finite presentation. -/
-@[stacks 0CZA, instance]
-instance fittingFlatLocus_finitePresentation {S : Scheme.{u}}
-    {X : AlgebraicSpace S} (F : X.Modules) [F.IsFinitePresentation] :
-    FinitePresentation (fittingFlatLocusι F) :=
-  sorry
+@[stacks 0CZA] #check
+  (AlgebraicGeometry.AlgebraicSpace.fittingFlatLocus_finitePresentation :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (F : X.Modules)
+      [F.IsFinitePresentation],
+      FinitePresentation (fittingFlatLocusι F))
 
 end AlgebraicGeometry.AlgebraicSpace

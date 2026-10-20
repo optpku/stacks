@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Cover.Fppf
@@ -40,6 +34,21 @@ structure StandardFppfCover (T : Scheme.{u}) [IsAffine T] where
   locallyOfFinitePresentation : ∀ j, LocallyOfFinitePresentation (map j)
   /-- The images of all chart maps cover the target. -/
   cover : ∀ t : T, ∃ j, t ∈ Set.range (map j)
+
+/-- Construct a standard fppf cover from a finite family of affine charts,
+flat and locally finitely presented chart maps, and their joint covering law. -/
+def StandardFppfCover.ofCharts {T : Scheme.{u}} [IsAffine T]
+    (n : ℕ) (U : Fin n → Scheme.{u}) (map : (j : Fin n) → U j ⟶ T)
+    (isAffine : ∀ j, IsAffine (U j)) (flat : ∀ j, Flat (map j))
+    (locallyOfFinitePresentation : ∀ j, LocallyOfFinitePresentation (map j))
+    (cover : ∀ t : T, ∃ j, t ∈ Set.range (map j)) : StandardFppfCover T where
+  n := n
+  U := U
+  map := map
+  isAffine := isAffine
+  flat := flat
+  locallyOfFinitePresentation := locallyOfFinitePresentation
+  cover := cover
 
 /-- The defining affine, flat, finite-presentation, and cover conditions of a
 standard fppf cover. -/

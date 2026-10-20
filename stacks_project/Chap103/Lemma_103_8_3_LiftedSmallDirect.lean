@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.CategoryTheory.Functor.KanExtension.UniverseCertificates
 public import stacks_project.Chap103.Lemma_103_8_3_LiftedCFG
@@ -27,17 +21,17 @@ instance spacesTypeSheafifyLift (X : AlgebraicSpace S) :
 
 instance inclusionTypeRightKanLift (X : AlgebraicSpace S)
     (P : X.smallEtaleSiteᵒᵖ ⥤ Type (u + 1)) :
-    (smallEtaleInclusion X).op.HasPointwiseRightKanExtension P :=
-  Functor.UniverseKan.typeRight (smallEtaleInclusion X) P
+    (smallEtaleToSpaces X).op.HasPointwiseRightKanExtension P :=
+  Functor.UniverseKan.typeRight (smallEtaleToSpaces X) P
 
 instance inclusionRingRightKanLift (X : AlgebraicSpace S)
     (P : X.smallEtaleSiteᵒᵖ ⥤ RingCat.{u + 1}) :
-    (smallEtaleInclusion X).op.HasPointwiseRightKanExtension P :=
-  Functor.UniverseKan.ringRight (smallEtaleInclusion X) P
+    (smallEtaleToSpaces X).op.HasPointwiseRightKanExtension P :=
+  Functor.UniverseKan.ringRight (smallEtaleToSpaces X) P
 
 instance inclusionForgetRightKanLift (X : AlgebraicSpace S) :
-    (forget RingCat.{u + 1}).PreservesRightKanExtensions (smallEtaleInclusion X).op :=
-  Functor.UniverseKan.forgetRight (smallEtaleInclusion X)
+    (forget RingCat.{u + 1}).PreservesRightKanExtensions (smallEtaleToSpaces X).op :=
+  Functor.UniverseKan.forgetRight (smallEtaleToSpaces X)
 
 instance baseChangeTypeLeftKanLift {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (P : Y.smallEtaleSiteᵒᵖ ⥤ Type (u + 1)) :
@@ -53,7 +47,7 @@ instance spacesForgetRingLift (X : AlgebraicSpace S) :
 /-- The canonical small-site direct-image recipe, at the honest larger value universe. -/
 def typePushforwardLift {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Sheaf X.smallEtaleTopology (Type (u + 1)) ⥤ Sheaf Y.smallEtaleTopology (Type (u + 1)) :=
-  (smallEtaleInclusion X).sheafPushforwardCocontinuous (Type (u + 1))
+  (smallEtaleToSpaces X).sheafPushforwardCocontinuous (Type (u + 1))
       X.smallEtaleTopology (spacesEtaleTopology X) ⋙
     (etaleBaseChange f).sheafPushforwardContinuous (Type (u + 1))
       Y.smallEtaleTopology (spacesEtaleTopology X)
@@ -61,7 +55,7 @@ def typePushforwardLift {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
 /-- Ring-valued direct image uses the identical inclusion and base-change functors. -/
 def ringPushforwardLift {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Sheaf X.smallEtaleTopology RingCat.{u + 1} ⥤ Sheaf Y.smallEtaleTopology RingCat.{u + 1} :=
-  (smallEtaleInclusion X).sheafPushforwardCocontinuous RingCat.{u + 1}
+  (smallEtaleToSpaces X).sheafPushforwardCocontinuous RingCat.{u + 1}
       X.smallEtaleTopology (spacesEtaleTopology X) ⋙
     (etaleBaseChange f).sheafPushforwardContinuous RingCat.{u + 1}
       Y.smallEtaleTopology (spacesEtaleTopology X)
@@ -72,7 +66,7 @@ def typePullbackLift {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Sheaf Y.smallEtaleTopology (Type (u + 1)) ⥤ Sheaf X.smallEtaleTopology (Type (u + 1)) :=
   Functor.sheafPullbackConstruction.sheafPullback (etaleBaseChange f) (Type (u + 1))
       Y.smallEtaleTopology (spacesEtaleTopology X) ⋙
-    (smallEtaleInclusion X).sheafPushforwardContinuous (Type (u + 1))
+    (smallEtaleToSpaces X).sheafPushforwardContinuous (Type (u + 1))
       X.smallEtaleTopology (spacesEtaleTopology X)
 
 /-- The two actual site adjunctions compose to the geometric pullback/pushforward adjunction. -/
@@ -80,7 +74,7 @@ def typeAdjunctionLift {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     typePullbackLift f ⊣ typePushforwardLift f :=
   (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous (etaleBaseChange f)
     (Type (u + 1)) Y.smallEtaleTopology (spacesEtaleTopology X)).comp
-      ((smallEtaleInclusion X).sheafAdjunctionCocontinuous (Type (u + 1))
+      ((smallEtaleToSpaces X).sheafAdjunctionCocontinuous (Type (u + 1))
         X.smallEtaleTopology (spacesEtaleTopology X))
 
 /-- The specified inverse-image functor of this geometric site morphism is left exact. -/
@@ -98,7 +92,7 @@ def morphismOfTopoiLift {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
 def ringPushforwardForgetIsoLift {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     ringPushforwardLift f ⋙ sheafCompose Y.smallEtaleTopology (forget RingCat.{u + 1}) ≅
       sheafCompose X.smallEtaleTopology (forget RingCat.{u + 1}) ⋙ typePushforwardLift f :=
-  let i := smallEtaleInclusion X
+  let i := smallEtaleToSpaces X
   let v := etaleBaseChange f
   let F := forget RingCat.{u + 1}
   let J := X.smallEtaleTopology
@@ -118,7 +112,7 @@ def ringPushforwardForgetIsoLift {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
 
 /-- The lifted structure-ring cone retains the actual canonical étale-square appTop map. -/
 def structureSheafMapConeLift {X Y : AlgebraicSpace S} (f : X ⟶ Y) (V : Y.smallEtaleSite) :
-    Cone (StructuredArrow.proj (op ((etaleBaseChange f).obj V)) (smallEtaleInclusion X).op ⋙
+    Cone (StructuredArrow.proj (op ((etaleBaseChange f).obj V)) (smallEtaleToSpaces X).op ⋙
       (commRingedSiteLift X).structureSheaf.obj) where
   pt := (commRingedSiteLift Y).structureSheaf.obj.obj (op V)
   π :=
@@ -133,7 +127,7 @@ def structureSheafMapLift {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
       (ringPushforwardLift f).obj (commRingedSiteLift X).structureSheaf :=
   ObjectProperty.homMk
     { app := fun V => limit.lift _ (structureSheafMapConeLift f V.unop) ≫
-        ((smallEtaleInclusion X).op.ranObjObjIsoLimit (commRingedSiteLift X).structureSheaf.obj
+        ((smallEtaleToSpaces X).op.ranObjObjIsoLimit (commRingedSiteLift X).structureSheaf.obj
           (op ((etaleBaseChange f).obj V.unop))).inv
       naturality := by sorry }
 

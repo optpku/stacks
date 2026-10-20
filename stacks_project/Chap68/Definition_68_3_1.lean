@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap68.Definition_68_3_1_FiberDegree
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiberDegree
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,7 +15,7 @@ universally bounded if there exists an integer `n` such that for all fields `k` 
 morphisms `Spec(k) ⟶ X` the fibre product `Spec(k) ×_X U` is a finite scheme over `k` whose
 degree over `k` is `≤ n`. -/
 @[stacks 03JL] #check
-  (universallyBoundedFibres_iff :
+  (AlgebraicGeometry.AlgebraicSpace.universallyBoundedFibres_iff :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : Over S} (f : ofOver U ⟶ X),
       universallyBoundedFibres f ↔
         ∃ n : ℕ, ∀ p : FieldValuedPoint X,

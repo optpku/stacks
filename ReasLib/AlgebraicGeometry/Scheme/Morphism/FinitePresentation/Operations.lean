@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FinitePresentation.FiniteType
@@ -24,6 +18,13 @@ open scoped AlgebraicGeometry
 universe u
 
 namespace AlgebraicGeometry.Scheme.Hom
+
+/-- The base change of a locally finitely presented scheme morphism is locally finitely
+presented. -/
+theorem locallyOfFinitePresentation_pullback_snd
+    {X S S' : Scheme.{u}} (f : X ⟶ S) (g : S' ⟶ S)
+    (hf : LocallyOfFinitePresentation f) :
+    LocallyOfFinitePresentation (pullback.snd f g) := sorry
 
 /-- Finite-presentation scheme morphisms form a morphism property stable under composition. -/
 instance finitePresentation_isStableUnderComposition :

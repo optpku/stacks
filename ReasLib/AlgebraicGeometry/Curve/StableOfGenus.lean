@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve.Stable
@@ -62,8 +56,10 @@ theorem exists_isStableFamilyOfGenus_iff {k : Type u} [Field k]
     isStableCurve X ↔ ∃ g : ℕ, IsStableFamilyOfGenus (g + 2) X.hom :=
   sorry
 
-/-- The locally free rank of a stable family of a given genus is unique. -/
-theorem eq_of_isStableFamilyOfGenus {X S : Scheme.{u}} {f : X ⟶ S} {g g' : ℕ}
+/-- Over a nonempty base, the locally free rank of a stable family of a given genus is unique,
+so the genus-`g` pieces are disjoint. The base must be nonempty: over the empty scheme every
+module sheaf is finite locally free of every rank, so the family has every genus. -/
+theorem eq_of_isStableFamilyOfGenus {X S : Scheme.{u}} [Nonempty S] {f : X ⟶ S} {g g' : ℕ}
     (hg : IsStableFamilyOfGenus g f) (hg' : IsStableFamilyOfGenus g' f) :
     g = g' :=
   sorry

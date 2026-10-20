@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Triangulated.Pretriangulated
@@ -30,7 +24,7 @@ variable {D : Type u} [Category.{v} D] [Limits.HasZeroObject D] [HasShift D ℤ]
   [∀ n : ℤ, Functor.Additive (shiftFunctor D n)] [Pretriangulated D]
 
 variable (D) in
-/-- Stacks 0D8Z: a sequential Postnikov tower consists of rows `Xₙ₊₁ ⟶ Xₙ`, auxiliary objects
+/-- A sequential Postnikov tower consists of rows `Xₙ₊₁ ⟶ Xₙ`, auxiliary objects
 `Yₙ`, and compatible distinguished triangles `Yₙ₊₁ ⟶ Xₙ₊₁ ⟶ Yₙ ⟶ Yₙ₊₁[1]`. -/
 @[stacks 0D8Z "sequential Postnikov tower"]
 structure Tower where
@@ -57,8 +51,17 @@ structure Tower where
 namespace Tower
 
 /-- The base comparison of a sequential Postnikov tower is canonically an isomorphism. -/
-instance toX_zero_isIso (T : Tower D) : IsIso (T.toX 0) :=
+theorem toX_zero_isIso (T : Tower D) : IsIso (T.toX 0) :=
   T.base
+
+/-- The base comparison identifies the auxiliary object `Y₀` with the row object `X₀`. -/
+def baseIso (T : Tower D) : T.Y 0 ≅ T.X 0 :=
+  @asIso _ _ _ _ (T.toX 0) T.base
+
+/-- The forward map of the base isomorphism is the tower's base comparison. -/
+@[simp]
+theorem baseIso_hom (T : Tower D) : T.baseIso.hom = T.toX 0 :=
+  rfl
 
 /-- Consecutive differentials of a sequential Postnikov tower compose to zero. -/
 @[reassoc]

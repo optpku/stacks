@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Sites.AffineEtale
@@ -12,6 +6,7 @@ public import Mathlib.Algebra.Homology.DerivedCategory.Ext.Map
 public import Mathlib.CategoryTheory.Abelian.GrothendieckCategory.HasExt
 public import Mathlib.CategoryTheory.Sites.SheafCohomology.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Cohomology.Pullback
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.AbelianPullback
 
 @[expose] public section
 
@@ -22,20 +17,6 @@ open scoped AlgebraicGeometry
 universe u
 
 namespace AlgebraicGeometry.Scheme.Hom
-
-/-- Continuous sheaf pushforward along a small-étale pullback is a right adjoint. -/
-public instance instIsRightAdjoint_smallEtaleSheafPushforwardContinuous
-    {Z Z' : Scheme.{u}} {p : Z' ⟶ Z} :
-    ((smallEtalePullback p).sheafPushforwardContinuous AddCommGrpCat.{u}
-        Z.smallEtaleTopology Z'.smallEtaleTopology).IsRightAdjoint :=
-  sorry
-
-/-- Sheaf pullback of abelian sheaves along a small-étale base change. -/
-noncomputable abbrev etaleAbelianSheafPullback {Z Z' : Scheme.{u}} (p : Z' ⟶ Z) :
-    Sheaf Z.smallEtaleTopology AddCommGrpCat.{u} ⥤
-      Sheaf Z'.smallEtaleTopology AddCommGrpCat.{u} :=
-  (smallEtalePullback p).sheafPullback AddCommGrpCat.{u}
-    Z.smallEtaleTopology Z'.smallEtaleTopology
 
 /-- The canonical comparison from the pullback of a constant sheaf to the constant sheaf. -/
 noncomputable def constantSheaf_sheafPullback_hom
@@ -58,11 +39,34 @@ noncomputable def constantSheaf_sheafPullback_hom
           ((sheafificationAdjunction Z'.smallEtaleTopology AddCommGrpCat.{u}).unit.app
             ((Functor.const _).obj M))))
 
+set_option backward.isDefEq.respectTransparency false in
+set_option backward.defeqAttrib.useBackward true in
 /-- The comparison from the pullback of a constant sheaf to the constant sheaf is an isomorphism. -/
 public instance isIso_constantSheaf_sheafPullback_hom
     {Z Z' : Scheme.{u}} {p : Z' ⟶ Z} {M : AddCommGrpCat.{u}} :
     IsIso (constantSheaf_sheafPullback_hom p M) :=
-  sorry
+  by
+    let terminal := MorphismProperty.Over.mkIdTerminal (@Etale) Z
+    let imageTerminal := IsTerminal.ofIso
+      (MorphismProperty.Over.mkIdTerminal (@Etale) Z')
+      (Etale.globalEtalePullbackIso p).symm
+    let sourceAdj := (constantSheafAdj Z.smallEtaleTopology AddCommGrpCat.{u} terminal).comp
+      ((smallEtalePullback p).sheafAdjunctionContinuous AddCommGrpCat.{u}
+        Z.smallEtaleTopology Z'.smallEtaleTopology)
+    let targetAdj := constantSheafAdj Z'.smallEtaleTopology AddCommGrpCat.{u} imageTerminal
+    have comparison_eq : constantSheaf_sheafPullback_hom p M =
+        (sourceAdj.leftAdjointUniq targetAdj).hom.app M := by
+      apply (sourceAdj.homEquiv _ _).injective
+      rw [Adjunction.homEquiv_leftAdjointUniq_hom_app]
+      simp [sourceAdj, targetAdj, constantSheaf_sheafPullback_hom,
+        constantSheafAdj, constantPresheafAdj, Adjunction.comp_homEquiv]
+      erw [Equiv.apply_symm_apply]
+      erw [Adjunction.homEquiv_unit]
+      change 𝟙 M ≫ (𝟙 M ≫ _) = _
+      simp only [Category.id_comp]
+      rfl
+    rw [comparison_eq]
+    exact ((sourceAdj.leftAdjointUniq targetAdj).app M).isIso_hom
 
 /-- Sheaf pullback of a constant abelian sheaf is canonically isomorphic to the same constant sheaf. -/
 noncomputable def constantSheaf_sheafPullback

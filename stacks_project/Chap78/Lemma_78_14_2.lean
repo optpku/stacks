@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap78.Lemma_78_14_2_Generators
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quasicoherent.Generators
 import StacksCheckRecall
 
 @[expose] public section
@@ -23,7 +17,9 @@ object is the directed colimit of its submodules isomorphic to a family member. 
     ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
       [AlgebraicSpace.Flat G.s.left] [AlgebraicSpace.Flat G.t.left],
       ∃ (T : Type u) (family : T → G.QCoh), ∀ A : G.QCoh,
-        DirectedOn (· ≤ ·)
+        (AlgebraicGeometry.GroupoidAlgebraicSpace.QCoh.isoToFamilySubobjects G family A).Nonempty ∧
+          DirectedOn (· ≤ ·)
             (AlgebraicGeometry.GroupoidAlgebraicSpace.QCoh.isoToFamilySubobjects G family A) ∧
-          IsLUB (AlgebraicGeometry.GroupoidAlgebraicSpace.QCoh.isoToFamilySubobjects G family A)
-            (⊤ : Subobject A))
+            Nonempty (CategoryTheory.Limits.IsColimit
+              (AlgebraicGeometry.GroupoidAlgebraicSpace.QCoh.isoToFamilyCocone G family A)))
+

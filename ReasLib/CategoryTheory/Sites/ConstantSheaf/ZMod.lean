@@ -1,15 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.ConstantSheaf
 public import Mathlib.Algebra.Category.Grp.Basic
 public import Mathlib.Algebra.Ring.ULift
 public import Mathlib.Data.ZMod.Basic
+public import ReasLib.CategoryTheory.Sites.AbelianSheaf.Torsion
 
 /-!
 # Constant sheaves of integers modulo a natural number
@@ -41,5 +36,11 @@ theorem constantZModSheaf_eq_sheafification (J : GrothendieckTopology C)
     [HasWeakSheafify J AddCommGrpCat.{w}] (n : ℕ) :
     constantZModSheaf J n = (presheafToSheaf J AddCommGrpCat.{w}).obj
       ((Functor.const Cᵒᵖ).obj (AddCommGrpCat.of (ULift.{w} (ZMod n)))) := sorry
+
+/-- The constant additive sheaf of integers modulo a nonzero natural number is
+locally torsion. -/
+theorem constantZModSheaf_isLocallyTorsion (J : GrothendieckTopology C)
+    [HasSheafify J AddCommGrpCat.{w}] (n : ℕ) (hn : n ≠ 0) :
+    Sheaf.IsLocallyTorsion (constantZModSheaf J n) := sorry
 
 end CategoryTheory

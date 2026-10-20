@@ -1,21 +1,23 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.LinearAlgebra.FiniteDimensional.Defs
+public import Mathlib.RingTheory.AlgebraicIndependent.Basic
+public import Mathlib.RingTheory.EssentialFiniteness
 public import Mathlib.RingTheory.Etale.Basic
 public import Mathlib.RingTheory.FiniteType
 public import Mathlib.RingTheory.Flat.Basic
 public import Mathlib.RingTheory.Ideal.Quotient.Basic
+public import Mathlib.RingTheory.Kaehler.Basic
+public import Mathlib.RingTheory.KrullDimension.Basic
 public import Mathlib.RingTheory.LaurentSeries
+public import Mathlib.RingTheory.LocalRing.ResidueField.Basic
 public import Mathlib.RingTheory.PowerSeries.Basic
 public import Mathlib.RingTheory.Smooth.Basic
 public import Mathlib.RingTheory.TensorProduct.Basic
+public import Mathlib.SetTheory.Cardinal.ToNat
+public import ReasLib.RingTheory.CompleteIntersection.Basic
 public import ReasLib.RingTheory.CompleteIntersection.OverField
+public import ReasLib.RingTheory.FittingIdeal.Basic
 
 @[expose] public section
 
@@ -51,3 +53,26 @@ theorem exists_flat_finite_etale_smoothing {k : Type u} [Field k] {A : Type v}
       Algebra.Etale (LaurentSeries k) (LaurentSeries k ⊗[PowerSeries k] B) := sorry
 
 end IsLocalCompleteIntersection
+
+namespace Algebra.IsCompleteIntersectionOver
+
+/-- A local complete intersection essentially of finite type over a field admits a flat,
+essentially finite type power-series algebra model with special fibre isomorphic to the given
+algebra. If `d` is its Krull dimension plus the transcendence degree of its residue field,
+some power of the power-series variable belongs to the `d`th Fitting ideal of the model's
+relative Kähler differentials. -/
+theorem exists_flat_essFiniteType_fitting {k : Type u} [Field k] {A : Type v}
+    [CommRing A] [Algebra k A] [IsLocalRing A] [Algebra.EssFiniteType k A]
+    [IsCompleteIntersectionOver k A] (d : ℕ)
+    (hd : ringKrullDim A +
+        (Cardinal.toNat (Algebra.trdeg k (IsLocalRing.ResidueField A)) : WithBot ℕ∞) = d) :
+    ∃ (B : Type (max u v)) (_ : CommRing B) (_ : Algebra (PowerSeries k) B)
+      (_ : Algebra k B) (_ : IsScalarTower k (PowerSeries k) B)
+      (_ : Module.Flat (PowerSeries k) B) (_ : Algebra.EssFiniteType (PowerSeries k) B)
+      (e : (B ⧸ Ideal.span {(algebraMap (PowerSeries k) B) (PowerSeries.X : PowerSeries k)}) ≃ₐ[k] A)
+      (n : ℕ),
+      algebraMap (PowerSeries k) B (PowerSeries.X ^ n) ∈
+        fittingIdeal B (KaehlerDifferential (PowerSeries k) B) d :=
+  sorry
+
+end Algebra.IsCompleteIntersectionOver

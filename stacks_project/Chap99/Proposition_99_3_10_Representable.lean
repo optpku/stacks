@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap99.Lemma_99_3_8_Yoneda
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints.Over
 
 /-!
 # Representability by algebraic spaces affine or of finite presentation over a base
@@ -24,67 +18,43 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+/- Relative representability predicates and their comparison API. -/
+#check (AlgebraicGeometry.AlgebraicSpace.IsAffineOver :
+  ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}, ((SchemeOver B)ᵒᵖ ⥤ Type (u + 1)) → Prop)
 
-variable {S : Scheme.{u}} {B : AlgebraicSpace S}
-
-/-- A functor on `(Sch/B)ᵒᵖ` is represented by an algebraic space affine over `B`. -/
-def IsAffineOver (F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)) : Prop :=
-  ∃ (X : AlgebraicSpace S) (π : X ⟶ B), Affine π ∧ Nonempty (F ≅ yonedaOver π)
-
-/-- Representability by an algebraic space affine over `B` is existence of an
-affine morphism `π` together with an isomorphism to `yonedaOver π`. -/
-theorem isAffineOver_iff (F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)) :
+#check (AlgebraicGeometry.AlgebraicSpace.isAffineOver_iff :
+  ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)),
     IsAffineOver F ↔
-      ∃ (X : AlgebraicSpace S) (π : X ⟶ B), Affine π ∧ Nonempty (F ≅ yonedaOver π) :=
-  Iff.rfl
+      ∃ (X : AlgebraicSpace S) (π : X ⟶ B), Affine π ∧ Nonempty (F ≅ yonedaOver π))
 
-/-- Package an affine morphism over `B` and a representing isomorphism as `IsAffineOver`. -/
-theorem IsAffineOver.of {X : AlgebraicSpace S} {π : X ⟶ B} (hAffine : Affine π)
-    {F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)} (e : F ≅ yonedaOver π) : IsAffineOver F :=
-  ⟨X, π, hAffine, ⟨e⟩⟩
+#check (AlgebraicGeometry.AlgebraicSpace.IsAffineOver.of :
+  ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S} {π : X ⟶ B} (hAffine : Affine π)
+    {F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)} (e : F ≅ yonedaOver π), IsAffineOver F)
 
-/-- `IsAffineOver.of` records affinity and the given representing isomorphism. -/
-theorem IsAffineOver.of_spec {X : AlgebraicSpace S} {π : X ⟶ B} (hAffine : Affine π)
-    {F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)} (e : F ≅ yonedaOver π) :
-    Affine π ∧ Nonempty (F ≅ yonedaOver π) :=
-  ⟨hAffine, ⟨e⟩⟩
+#check (AlgebraicGeometry.AlgebraicSpace.IsAffineOver.of_spec :
+  ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S} {π : X ⟶ B} (hAffine : Affine π)
+    {F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)} (e : F ≅ yonedaOver π),
+    Affine π ∧ Nonempty (F ≅ yonedaOver π))
 
-/-- A functor on `(Sch/B)ᵒᵖ` is represented by an algebraic space of finite
-presentation over `B`. -/
-def IsFinitePresentationOver (F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)) : Prop :=
-  ∃ (X : AlgebraicSpace S) (π : X ⟶ B),
-    FinitePresentation π ∧ Nonempty (F ≅ yonedaOver π)
+#check (AlgebraicGeometry.AlgebraicSpace.IsFinitePresentationOver :
+  ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}, ((SchemeOver B)ᵒᵖ ⥤ Type (u + 1)) → Prop)
 
-/-- Representability by an algebraic space of finite presentation over `B` is
-existence of a finite presentation morphism `π` together with an isomorphism
-to `yonedaOver π`. -/
-theorem isFinitePresentationOver_iff (F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)) :
+#check (AlgebraicGeometry.AlgebraicSpace.isFinitePresentationOver_iff :
+  ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)),
     IsFinitePresentationOver F ↔
       ∃ (X : AlgebraicSpace S) (π : X ⟶ B),
-        FinitePresentation π ∧ Nonempty (F ≅ yonedaOver π) :=
-  Iff.rfl
+        FinitePresentation π ∧ Nonempty (F ≅ yonedaOver π))
 
-/-- Package a finite presentation morphism over `B` and a representing isomorphism
-as `IsFinitePresentationOver`. -/
-theorem IsFinitePresentationOver.of {X : AlgebraicSpace S} {π : X ⟶ B}
-    (hFP : FinitePresentation π) {F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)}
-    (e : F ≅ yonedaOver π) : IsFinitePresentationOver F :=
-  ⟨X, π, hFP, ⟨e⟩⟩
+#check (AlgebraicGeometry.AlgebraicSpace.IsFinitePresentationOver.of :
+  ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S} {π : X ⟶ B} (hFP : FinitePresentation π)
+    {F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)} (e : F ≅ yonedaOver π),
+    IsFinitePresentationOver F)
 
-/-- `IsFinitePresentationOver.of` records finite presentation and the given
-representing isomorphism. -/
-theorem IsFinitePresentationOver.of_spec {X : AlgebraicSpace S} {π : X ⟶ B}
-    (hFP : FinitePresentation π) {F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)}
-    (e : F ≅ yonedaOver π) :
-    FinitePresentation π ∧ Nonempty (F ≅ yonedaOver π) :=
-  ⟨hFP, ⟨e⟩⟩
+#check (AlgebraicGeometry.AlgebraicSpace.IsFinitePresentationOver.of_spec :
+  ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S} {π : X ⟶ B} (hFP : FinitePresentation π)
+    {F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)} (e : F ≅ yonedaOver π),
+    FinitePresentation π ∧ Nonempty (F ≅ yonedaOver π))
 
-/-- Representability by an algebraic space affine of finite presentation over `B`
-is the conjunction of affinity over `B` and finite presentation over `B`. -/
-theorem isAffineFinitePresentationOver_iff_affine_and_finitePresentation
-    (F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)) :
-    IsAffineFinitePresentationOver F ↔ IsAffineOver F ∧ IsFinitePresentationOver F :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.isAffineFinitePresentationOver_iff_affine_and_finitePresentation :
+  ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)),
+    IsAffineFinitePresentationOver F ↔ IsAffineOver F ∧ IsFinitePresentationOver F)

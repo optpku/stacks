@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Definition_90_16_8
-public import stacks_project.Chap90.Lemma_90_16_11
-public import stacks_project.Chap93.Example_93_10_1_Morphisms_of_schemes_Category
+public import ReasLib.AlgebraicGeometry.FormalDeformation.SchemeMorphism.RimSchlessinger
+import StacksCheckRecall
 
 /-!
 # Rim-Schlessinger condition for morphisms of schemes
@@ -27,35 +20,27 @@ universe u
 variable (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-namespace FlatSchemeMorphismCat
+variable (X Y : Scheme.{u}) (f : X ⟶ Y)
+  (hX : X ⟶ Spec (CommRingCat.of k)) (hY : Y ⟶ Spec (CommRingCat.of k))
+  (hf : f ≫ hY = hX)
 
-/-- The slice projection `Def_{X ⟶ Y} ⥤ C_Λ` of Example 93.10.1. -/
-abbrev deformationForget (X Y : Scheme.{u}) (f : X ⟶ Y)
-    (hX : X ⟶ Spec (CommRingCat.of k)) (hY : Y ⟶ Spec (CommRingCat.of k))
-    (hf : f ≫ hY = hX)
-    [AlgebraicGeometry.Flat hX] [AlgebraicGeometry.Flat hY] :
-    deformation Λ k X Y f hX hY hf ⥤ ArtinianLocalAlgCat Λ k :=
-  Over.forget (Fiber.fiberInclusion.obj (residueObj Λ k X Y f hX hY hf)) ⋙ forget Λ k
+/- Lemma 93.10.2 (1)
+Example 93.10.1 satisfies the Rim-Schlessinger condition (RS). -/
+@[stacks 0E3U]
+#check (FlatSchemeMorphismCat.instHasRimSchlessinger_forget Λ k :
+  HasRimSchlessinger (FlatSchemeMorphismCat.forget Λ k))
 
-/-- `deformationForget` is the composite of the Over-forgetful functor with `forget`. -/
-theorem deformationForget_eq (X Y : Scheme.{u}) (f : X ⟶ Y)
-    (hX : X ⟶ Spec (CommRingCat.of k)) (hY : Y ⟶ Spec (CommRingCat.of k))
-    (hf : f ≫ hY = hX)
-    [AlgebraicGeometry.Flat hX] [AlgebraicGeometry.Flat hY] :
-    deformationForget Λ k X Y f hX hY hf =
-      Over.forget (Fiber.fiberInclusion.obj (residueObj Λ k X Y f hX hY hf)) ⋙
-        forget Λ k := sorry
+/- Lemma 93.10.2 (2)
+The residue-object slice of any morphism of schemes over k is a deformation category. -/
+@[stacks 0E3U]
+#check (FlatSchemeMorphismCat.instIsDeformationCategory_deformationForget Λ k X Y f hX hY hf :
+  IsDeformationCategory (FlatSchemeMorphismCat.deformationForget Λ k X Y f hX hY hf))
 
-/-- Example 93.10.1 satisfies the Rim-Schlessinger condition (RS). -/
-instance instHasRimSchlessinger_forget : HasRimSchlessinger (forget Λ k) := sorry
+#check (FlatSchemeMorphismCat.deformationForget Λ k X Y f hX hY hf :
+  FlatSchemeMorphismCat.deformation Λ k X Y f hX hY hf ⥤ ArtinianLocalAlgCat Λ k)
 
-/-- The residue-fibre slice `Def_{X ⟶ Y}` is a deformation category. -/
-instance instIsDeformationCategory_deformationForget
-    (X Y : Scheme.{u}) (f : X ⟶ Y)
-    (hX : X ⟶ Spec (CommRingCat.of k)) (hY : Y ⟶ Spec (CommRingCat.of k))
-    (hf : f ≫ hY = hX)
-    [AlgebraicGeometry.Flat hX] [AlgebraicGeometry.Flat hY] :
-    IsDeformationCategory (deformationForget Λ k X Y f hX hY hf) :=
-  instIsDeformationCategory_overForget (forget Λ k) (residueObj Λ k X Y f hX hY hf)
-
-end FlatSchemeMorphismCat
+#check (FlatSchemeMorphismCat.deformationForget_eq Λ k X Y f hX hY hf :
+  FlatSchemeMorphismCat.deformationForget Λ k X Y f hX hY hf =
+    Over.forget
+      (Fiber.fiberInclusion.obj (FlatSchemeMorphismCat.residueObj Λ k X Y f hX hY hf)) ⋙
+      FlatSchemeMorphismCat.forget Λ k)

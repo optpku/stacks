@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommFiniteCoefficient
@@ -57,7 +51,7 @@ def scalarStalkIso (F : Sheaf X.left.smallEtaleTopology (ModuleCat.{u + 1} Λ)) 
     (StalkRepresentation.stalk (ActualRootsModule.Coeff.{u} (Nat.card Λ)) xbar).obj
       ((NoncommFiniteCoefficient.sheaves Λ X.left).obj F) ≅
     (NoncommFiniteCoefficient.modules Λ).obj ((StalkRepresentation.stalk Λ xbar).obj F) :=
-  ((geometricPointEtalePoint xbar).presheafFiberCompIso (NoncommFiniteCoefficient.modules Λ :
+  ((AlgebraicGeometry.Scheme.GeometricPoint.toSmallEtalePoint xbar).presheafFiberCompIso (NoncommFiniteCoefficient.modules Λ :
     ModuleCat.{u + 1} Λ ⥤ ModuleCat.{u + 1} (ActualRootsModule.Coeff.{u} (Nat.card Λ)))).app F.obj
 
 /-- Evaluate an intrinsic dual germ on a source germ, then evaluate its roots

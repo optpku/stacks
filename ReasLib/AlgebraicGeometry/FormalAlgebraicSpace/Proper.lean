@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Proper
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Representable.Property
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Morphism.FiniteType
 
 /-!
 # Proper morphisms of formal algebraic spaces
@@ -41,6 +36,12 @@ class Proper {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u} (f : X ⟶ Y) : 
         (AlgebraicSpace.representableByAlgebraicSpaces.pullbackHom representable ξ)
 
 namespace Proper
+
+/-- A proper morphism of functors of points is locally of finite type. -/
+instance toLocallyOfFiniteType {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
+    (f : X ⟶ Y) [hf : Proper f] : LocallyOfFiniteType f where
+  representable := hf.representable
+  of_pullback {_} ξ := (hf.of_pullback ξ).toFiniteType.toLocallyOfFiniteType
 
 /-- The identity morphism of a functor of points is proper. -/
 instance id {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u} : Proper (𝟙 X) :=

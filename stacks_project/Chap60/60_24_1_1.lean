@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap60.Remark_60_24_1_Higher_direct_images_Context
@@ -16,6 +10,7 @@ import Mathlib.Tactic.CrossRefAttribute
 open CategoryTheory CategoryTheory.Limits Opposite AlgebraicGeometry
 open RingedSite RingedSite.Hom
 open AlgebraicGeometry.Scheme.Crystalline
+open Scheme.IdealSheafData
 
 noncomputable section
 
@@ -63,7 +58,7 @@ def zeroScheme (c : HigherDirectImageContext.{u}) : DividedPowerScheme.{u} where
 /-- The zero-ideal source maps to the original divided-power base. -/
 def sourceToBase (c : HigherDirectImageContext.{u}) :
     DividedPowerScheme.Hom (zeroScheme c) c.S where
-  base := pullback.fst c.fSch c.T'.obj.1.source.hom ≫ c.x₀ ≫ c.S.ideal.subschemeι
+  base := pullback.fst c.fSch c.T'.obj.1.source.hom ≫ c.x₀ ≫ subschemeι c.S.ideal
   ideal_compatible := sorry
   dividedPowers_compatible := sorry
 
@@ -92,7 +87,7 @@ def sourceToPullback (c : HigherDirectImageContext.{u})
 /-- The induced source map to the zero fibre of the divided-power pullback. -/
 def sourceToZeroFiber (c : HigherDirectImageContext.{u})
     (targetIdentification : c.T'thick = targetDividedPowers c) :
-    openSource c ⟶ c.Tthick.ideal.subscheme :=
+    openSource c ⟶ subscheme c.Tthick.ideal :=
   inv (Scheme.IdealSheafData.subschemeι (⊥ : (openSource c).IdealSheafData)) ≫
     (sourceToPullback c targetIdentification).zeroFiberMap
 
@@ -153,7 +148,7 @@ def sliceThickening (c : HigherDirectImageContext.{u}) :
 /-- Restriction to an open covering of a thickening gives a covering in its crystalline slice. -/
 instance sliceThickening_isCocontinuous (c : HigherDirectImageContext.{u}) :
     (sliceThickening c).IsCocontinuous ((target c).localization c.T').siteTopology
-      c.T'thick.scheme.bigZariskiTopology := sorry
+      (Scheme.bigZariskiTopology c.T'thick.scheme) := sorry
 
 /-- Evaluation uses the same functions on every test thickening, not an arbitrary ring map. -/
 def evaluationStructureMap (c : HigherDirectImageContext.{u}) :
@@ -230,7 +225,7 @@ theorem zeroScheme_ideal (c : HigherDirectImageContext.{u}) :
 /-- The auxiliary source-to-base morphism has the prescribed scheme map. -/
 theorem sourceToBase_base (c : HigherDirectImageContext.{u}) :
     (sourceToBase c).base =
-      pullback.fst c.fSch c.T'.obj.1.source.hom ≫ c.x₀ ≫ c.S.ideal.subschemeι := sorry
+      pullback.fst c.fSch c.T'.obj.1.source.hom ≫ c.x₀ ≫ subschemeι c.S.ideal := sorry
 
 /-- The auxiliary source-to-target morphism is induced by the target inclusion. -/
 theorem sourceToTarget_base (c : HigherDirectImageContext.{u})

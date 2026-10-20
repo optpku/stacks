@@ -1,21 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.DerivedCategory.Basic
-public import ReasLib.CategoryTheory.DerivedCategory.Bounded
-public import ReasLib.CategoryTheory.DerivedCategory.CohomologyIn.Closure
-public import ReasLib.CategoryTheory.InverseSystem.Sequential
-public import ReasLib.CategoryTheory.Pretriangulated.HomotopyLimit.Definition
-public import stacks_project.Chap66.Definition_66_29_1_QCoh
-public import stacks_project.Chap67.Definition_67_20_2_Affine
-public import stacks_project.Chap75.Definition_75_5_1_DerivedQCoh
-public import stacks_project.Chap75.Lemma_75_10_5_Gamma
-public import stacks_project.Chap75.Lemma_75_19_1_Instances
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.HomotopyLimit
 
 @[expose] public section
 
@@ -28,44 +13,48 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.DerivedQCoh
 
-/-- The coherator carries an ambient homotopy limit of a sequential inverse system of
-quasi-coherent sheaves to its homotopy limit in `DerivedQCoh X`. -/
-theorem rightAdjoint_isHomotopyLimit
-    {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
-    (F : SequentialInverseSystem (QCoh X)) (K : ModuleDerived X)
-    (hK : HomotopyLimit.IsOf
-      (F ⋙ QCoh.inclusion X ⋙ DerivedCategory.singleFunctor (Modules X) (0 : ℤ)) K) :
-    HomotopyLimit.IsOf
-      (F ⋙ QCoh.inclusion X ⋙ DerivedCategory.singleFunctor (Modules X) (0 : ℤ) ⋙
-        (inclusion X).rightAdjoint)
-      ((inclusion X).rightAdjoint.obj K) :=
-  sorry
+/- Example 75.19.5 (1): the coherator carries an ambient homotopy limit of a sequential
+inverse system of quasi-coherent sheaves to its homotopy limit in `DerivedQCoh X`. -/
+#check
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.rightAdjoint_isHomotopyLimit :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+      [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
+      (F : SequentialInverseSystem (QCoh X)) (K : ModuleDerived X),
+      HomotopyLimit.IsOf
+          (F ⋙ QCoh.inclusion X ⋙
+            DerivedCategory.singleFunctor (Modules X) (0 : ℤ)) K →
+        HomotopyLimit.IsOf
+          (F ⋙ QCoh.inclusion X ⋙
+            DerivedCategory.singleFunctor (Modules X) (0 : ℤ) ⋙
+            (inclusion X).rightAdjoint)
+          ((inclusion X).rightAdjoint.obj K))
 
-/-- An ambient homotopy limit of a sequential inverse system of quasi-coherent sheaves has
-affine-étale hypercohomology only in degrees `0` and `1`. -/
-theorem homotopyLimit_affineEtaleHypercohomology_isZero
-    {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
-    (F : SequentialInverseSystem (QCoh X)) (K : ModuleDerived X)
-    (hK : HomotopyLimit.IsOf
-      (F ⋙ QCoh.inclusion X ⋙ DerivedCategory.singleFunctor (Modules X) (0 : ℤ)) K)
-    {U : AlgebraicSpace S} (φ : U ⟶ X) [IsAffine U] [Etale φ]
-    (i : ℤ) (hi : i ∉ Set.Icc (0 : ℤ) 1) :
-    IsZero (cohomologyAb U ((restrictFunctorDerived φ).obj K) i) :=
-  sorry
+/- Example 75.19.5 (2): an ambient homotopy limit of a sequential inverse system of
+quasi-coherent sheaves has affine-étale hypercohomology only in degrees `0` and `1`. -/
+#check
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.homotopyLimit_affineEtaleHypercohomology_isZero :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+      [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
+      (F : SequentialInverseSystem (QCoh X)) (K : ModuleDerived X),
+      HomotopyLimit.IsOf
+          (F ⋙ QCoh.inclusion X ⋙
+            DerivedCategory.singleFunctor (Modules X) (0 : ℤ)) K →
+        ∀ {U : AlgebraicSpace S} (φ : U ⟶ X) [IsAffine U] [Etale φ],
+          ∀ i : ℤ, i ∉ Set.Icc (0 : ℤ) 1 →
+            IsZero (cohomologyAb U ((restrictFunctorDerived φ).obj K) i))
 
-/-- The coherator of an ambient homotopy limit of a sequential inverse system of
-quasi-coherent sheaves is bounded above and has vanishing cohomology sheaves in
+/- Example 75.19.5 (3): the coherator of an ambient homotopy limit of a sequential inverse
+system of quasi-coherent sheaves lies in `Dᵇ_QCoh` and has vanishing cohomology sheaves in
 negative degrees. -/
-theorem rightAdjoint_homotopyLimit_isBounded
-    {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
-    (F : SequentialInverseSystem (QCoh X)) (K : ModuleDerived X)
-    (hK : HomotopyLimit.IsOf
-      (F ⋙ QCoh.inclusion X ⋙ DerivedCategory.singleFunctor (Modules X) (0 : ℤ)) K) :
-    ((inclusion X).rightAdjoint.obj K).obj.IsGE 0 ∧
-      DerivedCategory.IsBoundedAbove ((inclusion X).rightAdjoint.obj K).obj :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.rightAdjoint_homotopyLimit_isBounded :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+      [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
+      (F : SequentialInverseSystem (QCoh X)) (K : ModuleDerived X),
+      HomotopyLimit.IsOf
+          (F ⋙ QCoh.inclusion X ⋙
+            DerivedCategory.singleFunctor (Modules X) (0 : ℤ)) K →
+        ((inclusion X).rightAdjoint.obj K).obj.IsGE 0 ∧
+          DerivedCategory.IsBoundedAbove ((inclusion X).rightAdjoint.obj K).obj)
 
 end AlgebraicGeometry.AlgebraicSpace.DerivedQCoh

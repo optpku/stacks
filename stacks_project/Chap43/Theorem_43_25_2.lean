@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowGroup.Intersection
@@ -16,7 +10,7 @@ universe u
 /- Theorem 43.25.2 -/
 @[stacks 0B1V] #check
   (AlgebraicGeometry.CycleGroup.intersection_rationallyEquivalent_zero :
-    ∀ {k : Type u} [Field k]
+    ∀ {k : Type u} [Field k] [IsAlgClosed k]
       (X : AlgebraicGeometry.SchemeOverField k)
       [AlgebraicGeometry.ProjectiveVariety X]
       [AlgebraicGeometry.Scheme.Regular X.left]

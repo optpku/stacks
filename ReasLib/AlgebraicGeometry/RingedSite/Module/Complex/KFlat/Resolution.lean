@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.Complex.Flat
+public import ReasLib.Algebra.Homology.HomologicalComplex.Flat
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.Flat
 public import ReasLib.Algebra.Homology.CochainComplex.KFlat
 public import ReasLib.Algebra.Homology.CochainComplex.KFlat.QuasiIso
 public import ReasLib.Algebra.Homology.HomologicalComplex.MonoEpi
@@ -16,7 +11,7 @@ import Mathlib.Tactic.CrossRefAttribute
 # K-flat resolutions of ringed-site module complexes
 
 The resolution interface is stated directly with the canonical predicates `IsKFlat` and
-`IsTermwiseFlat`.  No chapter-specific property or proof-local instance is part of this owner.
+`HomologicalComplex.IsTermwiseFlat`.  No chapter-specific property or proof-local instance is part of this owner.
 -/
 
 @[expose] public section

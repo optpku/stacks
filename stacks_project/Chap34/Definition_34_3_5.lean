@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.ChosenPresentation
@@ -19,7 +13,7 @@ universe u v
 
 #check (AlgebraicGeometry.IsChosenBigSite.{u, v} :
   (P : CategoryTheory.Precoverage AlgebraicGeometry.Scheme.{u}) →
-    (carrier : CategoryTheory.Cat.{v, u}) →
+    (carrier : CategoryTheory.Cat.{u, v}) →
     (hasPullbacks : CategoryTheory.Limits.HasPullbacks carrier) →
     (toScheme : CategoryTheory.Functor carrier AlgebraicGeometry.Scheme.{u}) →
     (seedSchemes : Set carrier) →
@@ -33,7 +27,7 @@ universe u v
 
 #check (AlgebraicGeometry.ChosenBigSite.ofPretopology.{u, v} :
   {P : CategoryTheory.Precoverage AlgebraicGeometry.Scheme.{u}} →
-    (carrier : CategoryTheory.Cat.{v, u}) →
+    (carrier : CategoryTheory.Cat.{u, v}) →
     (hasPullbacks : CategoryTheory.Limits.HasPullbacks carrier) →
     (toScheme : CategoryTheory.Functor carrier AlgebraicGeometry.Scheme.{u}) →
     (fullyFaithful : CategoryTheory.Functor.FullyFaithful toScheme) →

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -26,21 +20,33 @@ open AlgebraicGeometry.GroupoidsOver
 
 universe u
 
+variable {S : AlgebraicGeometry.Scheme.{u}} [AlgebraicGeometry.IsLocallyNoetherian S]
+variable {X : AlgebraicGeometry.GroupoidsOver S}
+
 /- Definition 98.9.1 (1): for a locally Noetherian scheme `S` and a category
 `X` fibred in groupoids over `(Sch/S)_fppf`, a formal object is a Noetherian
 complete local `S`-algebra `R` with `R ⧸ m` of finite type over `S`, together
 with objects `ξ_n` of `X` over `Spec(R ⧸ m^n)` and transitions
 `ξ_n ⟶ ξ_{n+1}` over `Spec(R ⧸ m^n) ⟶ Spec(R ⧸ m^{n+1})`. Lean stage `n` is
 the source object `ξ_{n+1}` over `Spec(R ⧸ m^{n+1})`. -/
-@[stacks 07X4] #check FormalObject
+@[stacks 07X4] #check (AlgebraicGeometry.GroupoidsOver.FormalObject :
+  AlgebraicGeometry.GroupoidsOver S → Type (u + 1))
 
 /- Definition 98.9.1 (2): a morphism of formal objects `a : ξ ⟶ η` is a
 natural family `a_n : ξ_n ⟶ η_n`; applying `p` yields compatible truncated
 spectra and hence `a0 : Spec(R) ⟶ Spec(T)` over `S`, over which `a` lies. -/
-@[stacks 07X4] #check FormalObject.Hom
+@[stacks 07X4] #check (AlgebraicGeometry.GroupoidsOver.FormalObject.Hom :
+  AlgebraicGeometry.GroupoidsOver.FormalObject X →
+    AlgebraicGeometry.GroupoidsOver.FormalObject X → Type u)
 
 /- The induced scheme morphism `a0 : Spec(R) ⟶ Spec(T)`. -/
-#check FormalObject.Hom.overMorphism
+#check (AlgebraicGeometry.GroupoidsOver.FormalObject.Hom.overMorphism :
+  ∀ {ξ η : AlgebraicGeometry.GroupoidsOver.FormalObject X},
+    AlgebraicGeometry.GroupoidsOver.FormalObject.Hom ξ η →
+      (Spec (CommRingCat.of ξ.base.carrier) ⟶ Spec (CommRingCat.of η.base.carrier)))
 
 /- A morphism of formal objects lies over its induced morphism of spectra. -/
-#check FormalObject.Hom.liesOver
+#check (AlgebraicGeometry.GroupoidsOver.FormalObject.Hom.liesOver :
+  ∀ {ξ η : AlgebraicGeometry.GroupoidsOver.FormalObject X}
+    (a : AlgebraicGeometry.GroupoidsOver.FormalObject.Hom ξ η),
+    a.overMorphism ≫ η.base.toS = ξ.base.toS)

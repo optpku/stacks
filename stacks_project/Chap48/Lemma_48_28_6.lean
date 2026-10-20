@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -19,12 +13,22 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 /- Lemma 48.28.6 -/
 @[stacks 0E2Y]
 #check (AlgebraicGeometry.Scheme.RelativeDualizingComplex.baseChange :
   ∀ {X' X S' S : Scheme.{u}} (g' : X' ⟶ X) (f' : X' ⟶ S')
     (f : X ⟶ S) (g : S' ⟶ S) (sq : IsPullback g' f' f g)
     [Flat f] [LocallyOfFinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f'.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f'.toShHom).restrict U.isOpenEmbedding))]
     (W : (pullback f f).Opens) (δ : X ⟶ W.toScheme) [IsClosedImmersion δ]
     (hδ : δ ≫ W.ι = pullback.diagonal f)
     [MonoidalCategory (RingedSpace.ModuleDerived X.toRingedSpace)]
@@ -58,6 +62,6 @@ universe u
           (RingedSpace.modulePullbackDerived w.toShHom).map C.map ≫
           (AlgebraicGeometry.Scheme.RelativeDualizingComplex.baseChangeTargetIso g' w (W'.ι ≫ pullback.fst f' f')
             (W.ι ≫ pullback.fst f f) sq₁ C.complex).hom
-      @AlgebraicGeometry.Scheme.ModuleDerived.IsPerfectRelativeTo X' S' f' hFlat hFinitePresentation
+      @AlgebraicGeometry.Scheme.ModuleDerived.IsPerfectRelativeTo X' S' f' hFlat hFinitePresentation inferInstance
           ((RingedSpace.modulePullbackDerived g'.toShHom).obj C.complex) ∧
         IsIso (AlgebraicGeometry.Scheme.RelativeDualizingComplex.dualityMap δ' H' ξ'))

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.AdicCompletion.AsTensorProduct
@@ -15,17 +9,15 @@ public import Mathlib.Tactic.CrossRefAttribute
 /-!
 # Flatness of adic completion
 
-Mathlib already owns Noetherian adic-completion flatness through the instance
-`AdicCompletion.flat_of_isNoetherian`, and exactness through
-`AdicCompletion.map_exact`. This leaf retains only the root-level compatibility
-entry required by older consumers.
+For any ideal of a Noetherian commutative ring, the canonical map from the ring
+to its adic completion is flat.
 @stack 0BNP
 -/
 
 universe u
 
-/-- Compatibility bridge for the former root-level flatness theorem. New code
-should use `AdicCompletion.flat_of_isNoetherian` through typeclass search. -/
+/-- The canonical map from a Noetherian commutative ring to its completion
+with respect to any ideal is flat. -/
 @[stacks 00MB "compatibility",
   stacks 0BNP "Noetherian adic completion is flat"]
 theorem adicCompletion_algebraMap_flat

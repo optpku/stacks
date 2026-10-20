@@ -1,21 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Basic
 public import ReasLib.CategoryTheory.Monoidal.Closed.Triangulated
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.InternalHom.Triangulated
 
 @[expose] public section
 
 open AlgebraicGeometry CategoryTheory
-open AlgebraicGeometry.RingedSpace
-open CategoryTheory.MonoidalCategory
-open CategoryTheory.MonoidalClosed
 open scoped Pretriangulated.Opposite
 
 noncomputable section
@@ -24,45 +16,23 @@ universe u
 
 namespace AlgebraicGeometry.RingedSpace
 
-variable {X : RingedSpace.{u}}
-variable [MonoidalCategory (ModuleDerived X)]
-variable [BraidedCategory (ModuleDerived X)]
-variable [MonoidalClosed (ModuleDerived X)]
+variable {X : RingedSpace.{u}} (K L : ModuleDerived X)
 
-/-
-Lemma 20.42.4 (08I0): the derived internal-Hom bifunctor sends distinguished triangles to
-distinguished triangles in each variable.  The reusable owner states the exact categorical
-boundary: exactness in either internal-Hom variable follows from exactness of the corresponding
-fixed-factor tensor functor.
--/
+/- Lemma 20.42.4 (08I0): the actual derived sheaf internal-Hom bifunctor transforms
+ distinguished triangles into distinguished triangles in its covariant target variable. -/
+@[stacks 08I0 "actual target-variable distinguished triangles"]
+#check (inferInstance : (ModuleDerived.InternalHom.targetFunctor X K).IsTriangulated)
 
-section Target
+/- Lemma 20.42.4 (08I0): the actual derived sheaf internal-Hom bifunctor transforms
+ distinguished triangles into distinguished triangles in its contravariant source variable. -/
+@[stacks 08I0 "actual source-variable distinguished triangles"]
+#check (inferInstance : (ModuleDerived.InternalHom.sourceFunctor X L).IsTriangulated)
 
-variable (K : ModuleDerived X)
-variable [(tensorLeft K).CommShift ℤ] [(tensorLeft K).IsTriangulated]
-
-@[stacks 08I0 "Lemma 20.42.4, target-variable distinguished triangles"]
-#check (inferInstance : (ihom K).IsTriangulated)
-
-#check @ihom_commShift_of_tensorLeft
-#check @ihom_isTriangulated_of_tensorLeft
-
-end Target
-
-section Source
-
-variable (L : ModuleDerived X)
-variable [((tensoringRight (ModuleDerived X)).obj L).CommShift ℤ]
-variable [((tensoringRight (ModuleDerived X)).obj L).IsTriangulated]
-
-@[stacks 08I0 "Lemma 20.42.4, source-variable distinguished triangles"]
-#check (inferInstance :
-  ((MonoidalClosed.internalHom (C := ModuleDerived X)).flip.obj L).IsTriangulated)
-
-#check @internalHomFlip_commShift_of_tensorRight
-#check @internalHomFlip_isTriangulated_of_tensorRight
-
-end Source
+/- Canonical generic infrastructure remains available to the chapter's import clients. -/
+#check @MonoidalClosed.ihom_commShift_of_tensorLeft
+#check @MonoidalClosed.ihom_isTriangulated_of_tensorLeft
+#check @MonoidalClosed.internalHomFlip_commShift_of_tensorRight
+#check @MonoidalClosed.internalHomFlip_isTriangulated_of_tensorRight
 
 end AlgebraicGeometry.RingedSpace
 

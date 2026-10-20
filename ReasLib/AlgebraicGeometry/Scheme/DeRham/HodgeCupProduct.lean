@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.DeRham.CupProduct
@@ -107,7 +101,7 @@ noncomputable def hodgeCupProduct (f : X ⟶ S)
         (hD := ModuleCat.hasDerivedCategory (coefficientRing f)) T i j
         (hodgeDerivedObject f a) (hodgeDerivedObject f b) ≫
       (DerivedCategory.homologyFunctor (coefficientModules f) (i + j)).map
-        ((T.tensorIsoObj (hodgeDerivedObject f a) (hodgeDerivedObject f b)).inv ≫
+        ((T.objIsoTensor (hodgeDerivedObject f a) (hodgeDerivedObject f b)).hom ≫
           hodgeDerivedMultiplication f a b))
 
 /-- The component Hodge cup product associated to an explicit tensor model is associative. -/

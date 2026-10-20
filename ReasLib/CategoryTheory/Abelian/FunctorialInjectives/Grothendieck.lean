@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Abelian.FunctorialInjectives.Definition
@@ -62,12 +56,17 @@ noncomputable def injectiveι : 𝟭 C ⟶ injectiveFunctor where
 
 /-- The named natural embedding into Grothendieck injective targets is monomorphic. -/
 @[stacks 079H "functorial injective embedding is monomorphic", instance]
-theorem mono_injectiveι : Mono (injectiveι (C := C)) := sorry
+theorem mono_injectiveι : Mono (injectiveι (C := C)) := by
+  letI (X : C) : Mono ((injectiveι (C := C)).app X) :=
+    (monoMapFactorizationDataRlp (0 : X ⟶ (0 : C))).hi
+  exact NatTrans.mono_of_mono_app _
 
 /-- Every object selected by the named Grothendieck injective-target functor is injective. -/
 @[stacks 079H "functorial injective targets are injective", instance]
 theorem injectiveFunctor.obj_injective (X : C) :
-    Injective ((injectiveFunctor (C := C)).obj X) := sorry
+    Injective ((injectiveFunctor (C := C)).obj X) := by
+  change Injective (monoMapFactorizationDataRlp (0 : X ⟶ (0 : C))).Z
+  infer_instance
 
 /-- A Grothendieck abelian category has a canonical fallback choice of functorial injective
 embeddings. The low priority leaves room for a more specific choice on a concrete category. -/
@@ -76,8 +75,8 @@ noncomputable instance (priority := 100) hasFunctorialInjectives :
     HasFunctorialInjectives C where
   functor := injectiveFunctor
   ι := injectiveι
-  mono_app _ := sorry
-  injective_obj _ := sorry
+  mono_app X := (monoMapFactorizationDataRlp (0 : X ⟶ (0 : C))).hi
+  injective_obj X := injectiveFunctor.obj_injective X
 
 end IsGrothendieckAbelian
 

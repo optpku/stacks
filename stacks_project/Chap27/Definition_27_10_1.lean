@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.Basic
@@ -35,8 +29,7 @@ variable {A : Type u} {sigma : Type v} [CommRing A] [SetLike sigma A] [AddSubgro
 #check
   (AlgebraicGeometry.ProjTwistFamily.tensorTwist :
     forall {A : Type u} {sigma : Type v} [CommRing A] [SetLike sigma A]
-      [AddSubgroupClass sigma A] {calA : Nat -> sigma} [GradedRing calA]
-      [MonoidalCategory (AlgebraicGeometry.Proj calA).Modules],
+      [AddSubgroupClass sigma A] {calA : Nat -> sigma} [GradedRing calA],
       AlgebraicGeometry.ProjTwistFamily calA ->
         (AlgebraicGeometry.Proj calA).Modules -> Int ->
         (AlgebraicGeometry.Proj calA).Modules)
@@ -47,8 +40,7 @@ associated to the grading shift `S(n)`, and the twist of a module sheaf `F` is
 module sheaves. -/
 @[stacks 01MN] #check
   (AlgebraicGeometry.ProjTwistFamily.tensorTwist_def :
-    forall [MonoidalCategory (AlgebraicGeometry.Proj calA).Modules]
-      (P : AlgebraicGeometry.ProjTwistFamily calA)
+    forall (P : AlgebraicGeometry.ProjTwistFamily calA)
       (F : (AlgebraicGeometry.Proj calA).Modules) (n : Int),
       AlgebraicGeometry.ProjTwistFamily.tensorTwist P F n =
         tensorObj F (AlgebraicGeometry.ProjTwistFamily.twist P n))

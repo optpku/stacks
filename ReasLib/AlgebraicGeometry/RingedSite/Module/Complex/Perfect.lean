@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.QuasiIso
@@ -72,14 +66,14 @@ end Model
 section Local
 
 variable {X : RingedSite.{u, v, w}} [UnivLE.{max u v, w}]
-variable [∀ U : X,
+variable [∀ U : X.carrier,
   HasWeakSheafify (X.localization U).siteTopology AddCommGrpCat.{w}]
-variable [∀ U : X,
+variable [∀ U : X.carrier,
   (X.localization U).siteTopology.WEqualsLocallyBijective AddCommGrpCat.{w}]
 
 /-- Perfect complexes of modules on a ringed site, as an object property. -/
 def perfect : ObjectProperty (CochainComplex (ModuleCat.{w} X) ℤ) :=
-  fun E ↦ ∀ U : X, ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
+  fun E ↦ ∀ U : X.carrier, ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
     HasStrictlyPerfectModel ((localizedRestrictionComplex.{w} X I.Y).obj E)
 
 /-- A complex of modules on a ringed site is perfect when every localized restriction has a
@@ -105,19 +99,19 @@ end Perfect
 of every localization. -/
 theorem isPerfect_iff (E : CochainComplex (ModuleCat.{w} X) ℤ) :
     IsPerfect E ↔
-      ∀ U : X, ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
+      ∀ U : X.carrier, ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
         HasStrictlyPerfectModel ((localizedRestrictionComplex.{w} X I.Y).obj E) := sorry
 
 /-- A perfect complex supplies a cover by strictly perfect models over every object of the
 site. -/
 theorem IsPerfect.exists_cover
-    {E : CochainComplex (ModuleCat.{w} X) ℤ} (hE : IsPerfect E) (U : X) :
+    {E : CochainComplex (ModuleCat.{w} X) ℤ} (hE : IsPerfect E) (U : X.carrier) :
     ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
       HasStrictlyPerfectModel ((localizedRestrictionComplex.{w} X I.Y).obj E) := sorry
 
 /-- A perfect complex admits a strictly perfect local model over every localization. -/
 theorem exists_strictlyPerfect_localModel
-    {E : CochainComplex (ModuleCat.{w} X) ℤ} (hE : IsPerfect E) (U : X) :
+    {E : CochainComplex (ModuleCat.{w} X) ℤ} (hE : IsPerfect E) (U : X.carrier) :
     ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
       ∃ E' : CochainComplex (ModuleCat.{w} (X.localization I.Y)) ℤ,
         ∃ α : E' ⟶ (localizedRestrictionComplex.{w} X I.Y).obj E,

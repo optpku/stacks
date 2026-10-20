@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.FiberedCategory.Fiber
@@ -33,11 +27,21 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.AlgebraicSpace.Complexes
 
 variable {S : Scheme.{u}} [IsLocallyNoetherian S]
 variable {X B : AlgebraicSpace S}
-variable (f : X ⟶ B) [Proper f] [Flat f] [FinitePresentation f]
+variable (f : X ⟶ B)
+variable [chartDerived : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+  (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+    (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+variable [chartTensor : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+  ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+  let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+  DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+variable [Proper f] [Flat f] [FinitePresentation f]
 variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 variable (openImmersion : Spec (CommRingCat.of Λ) ⟶ S) [AlgebraicGeometry.IsOpenImmersion openImmersion]
@@ -102,14 +106,18 @@ structure Hom (ξ η : Obj f openImmersion kToS h_factor x0) where
 def Hom.of {ξ η : Obj f openImmersion kToS h_factor x0} (baseHom : ξ.base ⟶ η.base)
     (hom : Fiber.fiberInclusion.obj η.target ⟶ Fiber.fiberInclusion.obj ξ.target)
     (over_hom : (p f).IsHomLift (specOverMap openImmersion baseHom) hom)
-    (triangle : ξ.fromResidue = η.fromResidue ≫ hom) : Hom ξ η where
+    (triangle : ξ.fromResidue = η.fromResidue ≫ hom) :
+    Hom (f := f) (chartDerived := chartDerived) (chartTensor := chartTensor)
+    (openImmersion := openImmersion) (kToS := kToS) (h_factor := h_factor) (x0 := x0) ξ η where
   baseHom := baseHom
   hom := hom
   over_hom := over_hom
   triangle := triangle
 
 /-- The identity morphism of an object of `ℱ_{Complexes_{X/B}, k, x0}`. -/
-def Hom.id (ξ : Obj f openImmersion kToS h_factor x0) : Hom ξ ξ where
+def Hom.id (ξ : Obj f openImmersion kToS h_factor x0) :
+    Hom (f := f) (chartDerived := chartDerived) (chartTensor := chartTensor)
+    (openImmersion := openImmersion) (kToS := kToS) (h_factor := h_factor) (x0 := x0) ξ ξ where
   baseHom := 𝟙 ξ.base
   hom := 𝟙 (Fiber.fiberInclusion.obj ξ.target)
   over_hom := sorry
@@ -117,8 +125,12 @@ def Hom.id (ξ : Obj f openImmersion kToS h_factor x0) : Hom ξ ξ where
 
 /-- Composition of morphisms of `ℱ_{Complexes_{X/B}, k, x0}` composes base maps
 covariantly and total-category arrows in reverse. -/
-def Hom.comp {ξ η ζ : Obj f openImmersion kToS h_factor x0} (α : Hom ξ η) (β : Hom η ζ) :
-    Hom ξ ζ where
+def Hom.comp {ξ η ζ : Obj f openImmersion kToS h_factor x0} (α : Hom (f := f) (chartDerived := chartDerived) (chartTensor := chartTensor)
+    (openImmersion := openImmersion) (kToS := kToS) (h_factor := h_factor) (x0 := x0) ξ η)
+    (β : Hom (f := f) (chartDerived := chartDerived) (chartTensor := chartTensor)
+    (openImmersion := openImmersion) (kToS := kToS) (h_factor := h_factor) (x0 := x0) η ζ) :
+    Hom (f := f) (chartDerived := chartDerived) (chartTensor := chartTensor)
+    (openImmersion := openImmersion) (kToS := kToS) (h_factor := h_factor) (x0 := x0) ξ ζ where
   baseHom := α.baseHom ≫ β.baseHom
   hom := β.hom ≫ α.hom
   over_hom := sorry
@@ -126,7 +138,8 @@ def Hom.comp {ξ η ζ : Obj f openImmersion kToS h_factor x0} (α : Hom ξ η) 
 
 /-- A morphism of `ℱ_{Complexes_{X/B}, k, x0}` is a base map together with a
 reversed triangle in `Obj f`. -/
-theorem Hom.spec {ξ η : Obj f openImmersion kToS h_factor x0} (α : Hom ξ η) :
+theorem Hom.spec {ξ η : Obj f openImmersion kToS h_factor x0} (α : Hom (f := f) (chartDerived := chartDerived) (chartTensor := chartTensor)
+    (openImmersion := openImmersion) (kToS := kToS) (h_factor := h_factor) (x0 := x0) ξ η) :
     (p f).IsHomLift (specOverMap openImmersion α.baseHom) α.hom ∧
       ξ.fromResidue = η.fromResidue ≫ α.hom :=
   sorry
@@ -136,9 +149,12 @@ end
 /-- The category `ℱ_{Complexes_{X/B}, k, x0}` of morphisms `x0 ⟶ x` over
 Artinian local `Λ`-algebras. Hom-types of `Obj f` live in `Type (u + 1)`. -/
 instance category : Category.{u + 1} (Obj f openImmersion kToS h_factor x0) where
-  Hom := Hom
-  id := Hom.id
-  comp α β := Hom.comp α β
+  Hom := Hom (f := f) (chartDerived := chartDerived) (chartTensor := chartTensor)
+    (openImmersion := openImmersion) (kToS := kToS) (h_factor := h_factor) (x0 := x0)
+  id := Hom.id (f := f) (chartDerived := chartDerived) (chartTensor := chartTensor)
+    (openImmersion := openImmersion) (kToS := kToS) (h_factor := h_factor) (x0 := x0)
+  comp α β := Hom.comp (f := f) (chartDerived := chartDerived) (chartTensor := chartTensor)
+    (openImmersion := openImmersion) (kToS := kToS) (h_factor := h_factor) (x0 := x0) α β
   id_comp := sorry
   comp_id := sorry
   assoc := sorry

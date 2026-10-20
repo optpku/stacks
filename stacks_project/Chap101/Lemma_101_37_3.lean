@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_37_1_Proper
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Proper.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of proper morphisms of algebraic stacks
@@ -21,16 +16,11 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.Proper
-
-/-- Lemma 101.37.3: A composition of proper morphisms is proper.
+/- Lemma 101.37.3: A composition of proper morphisms is proper.
 
 Stacks writes the composition as `g ∘ f`; the Lean composite is `f ≫ g`. -/
-@[stacks 0CL7]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+@[stacks 0CL7] #check (AlgebraicGeometry.AlgebraicStack.Proper.comp :
+    ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [Proper f] [Proper g] :
-    Proper (f ≫ g) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.Proper
+    (f : X ⟶ Y) (g : Y ⟶ Z) [AlgebraicStack.Proper f] [AlgebraicStack.Proper g],
+    AlgebraicStack.Proper (f ≫ g))

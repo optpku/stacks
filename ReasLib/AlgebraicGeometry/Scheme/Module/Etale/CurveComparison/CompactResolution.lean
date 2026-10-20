@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.CompactCoinvariants
@@ -77,8 +71,8 @@ def homology {M : DiscreteModuleCat Λ G} (I : InjectiveResolution M) (i : ℕ) 
 /-- Character dual of the actual invariants cocomplex, with reversed maps. -/
 def dualInvariantsChain {M : DiscreteModuleCat Λ G} (I : InjectiveResolution M) :
     ChainComplex (CompactModule Λ) ℕ where
-  X n := CompactModule.ofCharacter Λ ((AmbientDiscreteCohomology.invariants Λ G).obj (I.cocomplex.X n))
-  d i j := CompactModule.dualMap Λ ((AmbientDiscreteCohomology.invariants Λ G).map (I.cocomplex.d j i))
+  X n := CompactModule.ofCharacter Λ ((CategoryTheory.Action.ModuleCat.DiscreteModuleCat.fixedPointsFunctor Λ G).obj (I.cocomplex.X n))
+  d i j := CompactModule.dualMap Λ ((CategoryTheory.Action.ModuleCat.DiscreteModuleCat.fixedPointsFunctor Λ G).map (I.cocomplex.d j i))
   shape := by sorry
   d_comp_d' := by sorry
 
@@ -98,14 +92,14 @@ the chain, exact forgetting, evaluation on cycles, then the canonical ambient
 injective-resolution comparison. -/
 def homologyCharacterIso {M : DiscreteModuleCat Λ G} (I : InjectiveResolution M) (i : ℕ) :
     (CompactModule.forget Λ).obj (homology Λ G I i) ≅
-      ModuleCat.of Λ (CharacterModule ((AmbientDiscreteCohomology.cohomology Λ G i).obj M)) :=
+      ModuleCat.of Λ (CharacterModule ((CategoryTheory.Action.ModuleCat.DiscreteModuleCat.derivedCohomologyFunctor Λ G i).obj M)) :=
   (CompactModule.forget Λ).mapIso
       (HomologicalComplex.homologyMapIso (coinvariantChainComparison Λ G I) i) ≪≫
     (((dualInvariantsChain Λ G I).sc i).mapHomologyIso (CompactModule.forget Λ)).symm ≪≫
     (CharacterHomologyEvaluation.evaluationEquiv
-      ((((AmbientDiscreteCohomology.invariants Λ G).mapHomologicalComplex
+      ((((CategoryTheory.Action.ModuleCat.DiscreteModuleCat.fixedPointsFunctor Λ G).mapHomologicalComplex
         (ComplexShape.up ℕ)).obj I.cocomplex).sc i)).toModuleIso ≪≫
-    (CharacterModule.congr (AmbientDiscreteCohomology.resolutionIso Λ G M I i).toLinearEquiv.symm).toModuleIso
+    (CharacterModule.congr (CategoryTheory.Action.ModuleCat.DiscreteModuleCat.derivedCohomologyResolutionIso Λ G M I i).toLinearEquiv.symm).toModuleIso
 
 /-- The chosen compact projective resolution is built from the existing
 ambient discrete injective resolution and the actual evaluation inverse. -/
@@ -126,7 +120,7 @@ not equated by definition with dual cohomology. -/
 def derivedHomologyCharacterIso {M : DiscreteModuleCat Λ G}
     (I : InjectiveResolution M) (i : ℕ) :
     (CompactModule.forget Λ).obj ((continuousHomology Λ G i).obj (dual Λ G M)) ≅
-      ModuleCat.of Λ (CharacterModule ((AmbientDiscreteCohomology.cohomology Λ G i).obj M)) :=
+      ModuleCat.of Λ (CharacterModule ((CategoryTheory.Action.ModuleCat.DiscreteModuleCat.derivedCohomologyFunctor Λ G i).obj M)) :=
   (CompactModule.forget Λ).mapIso
       ((dualProjectiveResolution Λ G I).isoLeftDerivedObj (coinvariantsFunctor Λ G) i) ≪≫
     homologyCharacterIso Λ G I i

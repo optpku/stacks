@@ -1,16 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap42.Remark_42_35_5_Composition
+public import ReasLib.AlgebraicGeometry.BivariantClass.Intersection
 
-@[expose] public section
-
-open CategoryTheory CategoryTheory.Limits
+open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
 
 noncomputable section
 
@@ -18,18 +10,14 @@ universe u
 
 namespace AlgebraicGeometry.BivariantClass
 
-/-- The canonical morphism over `S` induced by a closed immersion into the underlying
-scheme of an over-object is again a closed immersion on underlying schemes. -/
-instance instIsClosedImmersionHomMk
-    {S : Scheme.{u}} {X : Over S} {Z : Scheme.{u}}
-    (i : Z ⟶ X.left) [IsClosedImmersion i] :
+#check (AlgebraicGeometry.BivariantClass.instIsClosedImmersionHomMk :
+  ∀ {S : Scheme.{u}} {X : Over S} {Z : Scheme.{u}}
+    (i : Z ⟶ X.left) [IsClosedImmersion i],
     IsClosedImmersion
-      (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X).left := sorry
+      (Over.homMk i : Over.mk (i ≫ X.hom) ⟶ X).left)
 
-/-- Multiply bivariant classes on two maps to a common target after restricting the
-first class to a displayed cartesian intersection. -/
-def intersectionMul
-    {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
+#check (AlgebraicGeometry.BivariantClass.intersectionMul :
+  ∀ {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
     {W X₂ X₂' X : Over S} [LocallyOfFiniteType W.hom]
     [LocallyOfFiniteType X₂.hom] [LocallyOfFiniteType X₂'.hom]
     [LocallyOfFiniteType X.hom]
@@ -37,14 +25,11 @@ def intersectionMul
     (iW : W ⟶ X) [LocallyOfFiniteType i₂'.left]
     (square : IsPullback j₂.left j₂'.left i₂.left i₂'.left)
     (intersection : j₂' ≫ i₂' = iW) {a b : ℤ}
-    (c : BivariantClass δ i₂ a) (d : BivariantClass δ i₂' b) :
-    BivariantClass δ iW (a + b) :=
-  intersection ▸ comp δ j₂' i₂' (restrict δ j₂ j₂' i₂' square a c) d
+    (c : BivariantClass δ i₂ a) (d : BivariantClass δ i₂' b),
+    BivariantClass δ iW (a + b))
 
-/-- `intersectionMul` is restriction to the cartesian intersection followed by
-bivariant composition and transport to the chosen intersection map. -/
-theorem intersectionMul_def
-    {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
+#check (AlgebraicGeometry.BivariantClass.intersectionMul_def :
+  ∀ {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
     {W X₂ X₂' X : Over S} [LocallyOfFiniteType W.hom]
     [LocallyOfFiniteType X₂.hom] [LocallyOfFiniteType X₂'.hom]
     [LocallyOfFiniteType X.hom]
@@ -52,8 +37,8 @@ theorem intersectionMul_def
     (iW : W ⟶ X) [LocallyOfFiniteType i₂'.left]
     (square : IsPullback j₂.left j₂'.left i₂.left i₂'.left)
     (intersection : j₂' ≫ i₂' = iW) {a b : ℤ}
-    (c : BivariantClass δ i₂ a) (d : BivariantClass δ i₂' b) :
+    (c : BivariantClass δ i₂ a) (d : BivariantClass δ i₂' b),
     intersectionMul δ i₂ i₂' j₂ j₂' iW square intersection c d =
-      intersection ▸ comp δ j₂' i₂' (restrict δ j₂ j₂' i₂' square a c) d := sorry
+      intersection ▸ comp δ j₂' i₂' (restrict δ j₂ j₂' i₂' square a c) d)
 
 end AlgebraicGeometry.BivariantClass

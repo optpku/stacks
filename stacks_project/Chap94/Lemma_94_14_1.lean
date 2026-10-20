@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap94.Lemma_94_14_1_Product
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Product
 import StacksCheckRecall
 
 @[expose] public section
@@ -24,10 +18,11 @@ variable (T X' Y' : AlgebraicStacks S)
 /- Lemma 94.14.1 (1): let `S` be a scheme contained in `Sch_fppf`. Let `X`, `Y` be
 algebraic stacks over `S`. Then `X ×_{(Sch/S)_fppf} Y` is an algebraic stack. -/
 @[stacks 04TE]
-#check (inferInstance : AlgebraicStack (prod X Y))
+#check (AlgebraicGeometry.AlgebraicStack.prod X Y :
+  AlgebraicGeometry.AlgebraicStack (CategoryTheory.FiberedCategoryOver.Groupoids.prod X Y))
 
 /- Lemma 94.14.1 (2): the 2-fibre product `X ×_{(Sch/S)_fppf} Y` is a product in
 the 2-category of algebraic stacks over `S`. -/
 @[stacks 04TE]
-#check (AlgebraicStacks.prodHomEquiv T X' Y' :
-  (T ⟶ AlgebraicStacks.prod X' Y') ≌ (T ⟶ X') × (T ⟶ Y'))
+#check (AlgebraicGeometry.AlgebraicStacks.prodHomEquiv T X' Y' :
+  (T ⟶ AlgebraicGeometry.AlgebraicStacks.prod X' Y') ≌ (T ⟶ X') × (T ⟶ Y'))

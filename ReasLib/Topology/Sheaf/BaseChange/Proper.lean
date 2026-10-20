@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Maps.Proper.Characterization
@@ -16,7 +10,8 @@ import Mathlib.Tactic.CrossRefAttribute
 
 This leaf adds the properness theorem to the coefficient-generic base-change transformation.
 The square is an arbitrary cartesian square of spaces; no chosen pullback object or topos-level
-wrapper is part of the public API.
+wrapper is part of the public API. Properness in the source means `IsProperMap` together with
+`IsSeparatedMap`.
 -/
 
 @[expose] public section
@@ -37,7 +32,8 @@ component `g⁻¹ f_* ℱ ⟶ f'_* (g')⁻¹ ℱ` is an isomorphism. -/
 theorem map_app_isIso_of_proper
     {X X' Y Y' : TopCat.{u}}
     {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y}
-    (hcart : IsPullback g' f' f g) (hf : IsProperMap f) (ℱ : Sh(X)) :
+    (hcart : IsPullback g' f' f g) (hf : IsProperMap f) (hseparated : IsSeparatedMap f)
+    (ℱ : Sh(X)) :
     IsIso ((map (Type u) hcart.toCommSq).app ℱ) := sorry
 
 /-- The set-valued sheaf base-change transformation for a proper cartesian square is a natural
@@ -46,7 +42,7 @@ isomorphism. -/
 theorem map_isIso_of_proper
     {X X' Y Y' : TopCat.{u}}
     {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y}
-    (hcart : IsPullback g' f' f g) (hf : IsProperMap f) :
+    (hcart : IsPullback g' f' f g) (hf : IsProperMap f) (hseparated : IsSeparatedMap f) :
     IsIso (map (Type u) hcart.toCommSq) := sorry
 
 end TopCat.Sheaf.BaseChange

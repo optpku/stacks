@@ -1,20 +1,14 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap91.Lemma_91_10_4_Obstruction
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Extension.ExistenceObstruction
+import StacksCheckRecall
 
 /-!
 # Existence obstruction for mixed-scalar module extensions of ringed topoi
 
 On a first-order thickening of ringed topoi, a prescribed infinitesimal comparison
 c : ℐ ⊗ ℱ ⟶ 𝒦 of 𝒪-modules admits an 08MB sequence if and only if the canonical
-class obstruction F K c in Ext ℱ 𝒦 2 vanishes.
+class existenceObstruction π F K c in Ext ℱ 𝒦 2 vanishes.
 -/
 
 @[expose] public section
@@ -45,18 +39,22 @@ variable [HasFunctorialInjectives (ringedSiteModuleCategory.{u, v, max u v, max 
 variable [(SheafOfModules.restrictScalars (ringSheafMap π)).IsRightAdjoint]
 variable [SheafOfModules.Localization.HasLowerShriek.{max u v} (ringSheaf J 𝒪')]
 variable [HasExt.{w} (ringedSiteModuleCategory.{u, v, max u v, max u v} J 𝒪)]
-variable (F K : ringedSiteModuleCategory.{u, v, max u v, max u v} J 𝒪)
-variable (c : moduleTensor (ideal π) F ⟶ K)
 
-/-- Lemma 91.10.4: Let i : (Sh(C), 𝒪) ⟶ (Sh(D), 𝒪') be a first-order thickening of
+/- Lemma 91.10.4: Let i : (Sh(C), 𝒪) ⟶ (Sh(D), 𝒪') be a first-order thickening of
 ringed topoi. After identifying underlying topoi as a same-site map π : 𝒪' ⟶ 𝒪, assume
 given 𝒪-modules ℱ, 𝒦 and an 𝒪-linear map c : ℐ ⊗ ℱ ⟶ 𝒦. Then there is a canonical
-class obstruction F K c in Ext ℱ 𝒦 2 whose vanishing is necessary and sufficient for
-the existence of a sequence 0 ⟶ 𝒦 ⟶ ℱ' ⟶ ℱ ⟶ 0 as in 91.10.0.1 with c_ℱ' = c. -/
-@[stacks 08MF]
-theorem obstruction_eq_zero_iff :
-    obstruction π F K c = 0 ↔
-      Nonempty (ModuleExtension hπ.isSquareZero F K c) := sorry
+class existenceObstruction π F K c in Ext ℱ 𝒦 2 whose vanishing is necessary and sufficient
+for a sequence 0 ⟶ 𝒦 ⟶ ℱ' ⟶ ℱ ⟶ 0 as in 91.10.0.1 with c_ℱ' = c. -/
+@[stacks 08MF] #check
+  (SheafOfModules.RingedSite.FirstOrderThickening.ModuleExtension.existenceObstruction_eq_zero_iff π :
+    (F K : ringedSiteModuleCategory.{u, v, max u v, max u v} J 𝒪) →
+    (c : moduleTensor (ideal π) F ⟶ K) →
+      (existenceObstruction π F K c = 0 ↔
+        ∃ (M : ringedSiteModuleCategory.{u, v, max u v, max u v} J 𝒪')
+          (a : (restrictionAlong π).obj K ⟶ M)
+          (b : M ⟶ (restrictionAlong π).obj F) (hab : a ≫ b = 0)
+          (hS : (ShortComplex.mk a b hab).ShortExact),
+          infMap hπ.isSquareZero (ofMaps π K M F a b hab hS) = c))
 
 end ModuleExtension
 end SheafOfModules.RingedSite.FirstOrderThickening

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Perfect.Determinant.Pullback
@@ -20,6 +14,10 @@ and admits compatible determinant constructions, including the determinant-line 
 rank-zero preservation, and compatibility of canonical sections. -/
 @[stacks 0FJY] #check
   (AlgebraicGeometry.Scheme.PerfectDerived.TorNegOneZero.Determinant.Pullback.nonempty :
-    ∀ {X Y : AlgebraicGeometry.Scheme.{u}} (f : X ⟶ Y),
+    ∀ {X Y : AlgebraicGeometry.Scheme.{u}}
+      [DerivedCategory.DerivedTensor.Right.Has
+        (C := AlgebraicGeometry.RingedSpace.Modules X.toRingedSpace)]
+      [DerivedCategory.DerivedTensor.Right.Has
+        (C := AlgebraicGeometry.RingedSpace.Modules Y.toRingedSpace)] (f : X ⟶ Y),
       Nonempty
         (AlgebraicGeometry.Scheme.PerfectDerived.TorNegOneZero.Determinant.Pullback f))

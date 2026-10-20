@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap67.Lemma_67_30_5_Flat
 public import stacks_project.Chap94.Definition_94_12_1_MorphismProperty
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Flat
 
 /-!
 # Flat morphisms of groupoid fibrations
@@ -28,40 +23,30 @@ universe u
 
 namespace AlgebraicGeometry.Groupoids.Hom
 
-/-- A 1-morphism of categories fibred in groupoids over `Over S` is flat when
-it is representable by algebraic spaces and every representing morphism
-`fy : Fy ⟶ ofOver U` is a flat morphism of algebraic spaces. -/
-class Flat {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) : Prop where
-  /-- The 1-morphism is representable by algebraic spaces. -/
-  representable : relativelyRepresentableByAlgebraicSpaces f
-  /-- Every representing morphism of algebraic spaces is flat. -/
-  of_represents : ∀ ⦃U : Over S⦄ (y : GroupoidsOver.slice U ⟶ Y)
-    (Fy : AlgebraicSpace S) (fy : Fy ⟶ AlgebraicSpace.ofOver U),
-    RepresentsBaseChange f y Fy fy → AlgebraicSpace.Flat fy
+#check (AlgebraicGeometry.Groupoids.Hom.Flat :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}, (X ⟶ Y) → Prop)
 
 namespace Flat
 
-/-- The identity 1-morphism of a category fibred in groupoids is flat. -/
-instance id {S : Scheme.{u}} {X : GroupoidsOver S} : Flat (𝟙 X) := sorry
+#check (AlgebraicGeometry.Groupoids.Hom.Flat.id :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S}, Flat (𝟙 X))
 
-/-- A representing morphism of algebraic spaces for a flat 1-morphism is
-flat. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) [Flat f]
+#check (AlgebraicGeometry.Groupoids.Hom.Flat.spec :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) [Flat f]
     {U : Over S} (y : GroupoidsOver.slice U ⟶ Y) {Fy : AlgebraicSpace S}
-    {fy : Fy ⟶ AlgebraicSpace.ofOver U} (h : RepresentsBaseChange f y Fy fy) :
-    AlgebraicSpace.Flat fy := sorry
+    {fy : Fy ⟶ AlgebraicSpace.ofOver U},
+    RepresentsBaseChange f y Fy fy → AlgebraicSpace.Flat fy)
 
-/-- A flat 1-morphism is representable by algebraic spaces. -/
-theorem relativelyRepresentable {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    (f : X ⟶ Y) [Flat f] : relativelyRepresentableByAlgebraicSpaces f := sorry
+#check (AlgebraicGeometry.Groupoids.Hom.Flat.relativelyRepresentable :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) [Flat f],
+    relativelyRepresentableByAlgebraicSpaces f)
 
-/-- A 1-morphism is flat if and only if it is representable by algebraic spaces
-and every representing morphism of algebraic spaces is flat. -/
-theorem iff {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) :
+#check (AlgebraicGeometry.Groupoids.Hom.Flat.iff :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y),
     Flat f ↔ relativelyRepresentableByAlgebraicSpaces f ∧
       ∀ ⦃U : Over S⦄ (y : GroupoidsOver.slice U ⟶ Y) (Fy : AlgebraicSpace S)
         (fy : Fy ⟶ AlgebraicSpace.ofOver U),
-        RepresentsBaseChange f y Fy fy → AlgebraicSpace.Flat fy := sorry
+        RepresentsBaseChange f y Fy fy → AlgebraicSpace.Flat fy)
 
 end Flat
 

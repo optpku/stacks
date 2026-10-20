@@ -1,15 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Topology
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Submersive
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Flat
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.PreRelation.QuotientSheaf.BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.PreRelation.Comparison
 
 /-!
 # Topological properties of invariant morphisms
@@ -119,13 +114,6 @@ invariant closed images. -/
 theorem IntersectInvariantClosed.toMapsInvariantClosed {S : Scheme.{u}} {B : AlgebraicSpace S}
     {U X : Over B} {P : PreRelation U} {φ : U ⟶ X} (h : IntersectInvariantClosed P φ) :
     MapsInvariantClosed P φ := sorry
-
-/-- An invariant morphism induces the morphism from its pre-relation to its
-kernel pair, with projections equal to the target and source maps. -/
-def induced {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    (P : PreRelation U) {φ : U ⟶ X} (hφ : P.IsInvariantHom φ) :
-    P.left ⟶ pullback φ φ :=
-  pullback.lift P.t P.s hφ
 
 /-- The morphism from the relation to the kernel pair of an invariant morphism is
 universally submersive. -/

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Functor.Derived.Adjunction
@@ -30,7 +24,7 @@ open ComplexShape
 
 noncomputable section
 
-universe u
+universe u v
 
 namespace CategoryTheory.ModuleCat
 
@@ -42,24 +36,24 @@ variable {R S : Type u} [CommRing R] [CommRing S]
 functor. -/
 @[stacks 064M "cochain counit for derived extension of scalars"]
 noncomputable abbrev derivedExtensionComplexCounit (σ : R →+* S) :
-    (DerivedCategory.Q : CochainComplex (ModuleCat.{u, u} R) ℤ ⥤
-        DerivedCategory (ModuleCat.{u, u} R)) ⋙ derivedExtensionOfScalars σ ⟶
-      (ModuleCat.extendScalars.{u, u, u} σ).mapHomologicalComplex (up ℤ) ⋙
-        (DerivedCategory.Q : CochainComplex (ModuleCat.{u, u} S) ℤ ⥤
-          DerivedCategory (ModuleCat.{u, u} S)) :=
+    (DerivedCategory.Q : CochainComplex (ModuleCat.{max u v, u} R) ℤ ⥤
+        DerivedCategory (ModuleCat.{max u v, u} R)) ⋙ derivedExtensionOfScalars σ ⟶
+      (ModuleCat.extendScalars.{u, u, max u v} σ).mapHomologicalComplex (up ℤ) ⋙
+        (DerivedCategory.Q : CochainComplex (ModuleCat.{max u v, u} S) ℤ ⥤
+          DerivedCategory (ModuleCat.{max u v, u} S)) :=
   Functor.LeftDerived.Homotopy.cochainCounit
-    (ModuleCat.extendScalars.{u, u, u} σ)
+    (ModuleCat.extendScalars.{u, u, max u v} σ)
 
 /-- The cochain-level unit exhibiting derived restriction of scalars as a right-derived
 functor. -/
 @[stacks 0BYX "cochain unit for derived restriction of scalars"]
 noncomputable abbrev derivedRestrictionComplexUnit (σ : R →+* S) :
-    (ModuleCat.restrictScalars.{u} σ).mapHomologicalComplex (up ℤ) ⋙
-        (DerivedCategory.Q : CochainComplex (ModuleCat.{u, u} R) ℤ ⥤
-          DerivedCategory (ModuleCat.{u, u} R)) ⟶
-      (DerivedCategory.Q : CochainComplex (ModuleCat.{u, u} S) ℤ ⥤
-        DerivedCategory (ModuleCat.{u, u} S)) ⋙ derivedRestrictionOfScalars σ :=
-  (ModuleCat.restrictScalars.{u} σ).mapDerivedCategoryFactors.inv
+    (ModuleCat.restrictScalars.{max u v} σ).mapHomologicalComplex (up ℤ) ⋙
+        (DerivedCategory.Q : CochainComplex (ModuleCat.{max u v, u} R) ℤ ⥤
+          DerivedCategory (ModuleCat.{max u v, u} R)) ⟶
+      (DerivedCategory.Q : CochainComplex (ModuleCat.{max u v, u} S) ℤ ⥤
+        DerivedCategory (ModuleCat.{max u v, u} S)) ⋙ derivedRestrictionOfScalars σ :=
+  (ModuleCat.restrictScalars.{max u v} σ).mapDerivedCategoryFactors.inv
 
 /-- Derived extension of scalars, with its canonical cochain comparison, is a left-derived
 functor. -/
@@ -67,7 +61,7 @@ functor. -/
 instance derivedExtensionOfScalars_isLeftDerived (σ : R →+* S) :
     (derivedExtensionOfScalars σ).IsLeftDerivedFunctor
       (derivedExtensionComplexCounit σ)
-      (HomologicalComplex.quasiIso (ModuleCat.{u, u} R) (up ℤ)) := sorry
+      (HomologicalComplex.quasiIso (ModuleCat.{max u v, u} R) (up ℤ)) := sorry
 
 /-- Derived restriction of scalars, with the canonical exact-functor comparison, is a
 right-derived functor. -/
@@ -75,7 +69,7 @@ right-derived functor. -/
 instance derivedRestrictionOfScalars_isRightDerived (σ : R →+* S) :
     (derivedRestrictionOfScalars σ).IsRightDerivedFunctor
       (derivedRestrictionComplexUnit σ)
-      (HomologicalComplex.quasiIso (ModuleCat.{u, u} S) (up ℤ)) := sorry
+      (HomologicalComplex.quasiIso (ModuleCat.{max u v, u} S) (up ℤ)) := sorry
 
 /-- Derived extension followed by derived restriction retains the left-derived universal
 property required to derive the extension-restriction adjunction. -/
@@ -83,12 +77,12 @@ property required to derive the extension-restriction adjunction. -/
 instance derivedExtensionRestriction_isLeftDerived (σ : R →+* S) :
     (derivedExtensionOfScalars σ ⋙ derivedRestrictionOfScalars σ).IsLeftDerivedFunctor
       ((Functor.associator
-          (DerivedCategory.Q : CochainComplex (ModuleCat.{u, u} R) ℤ ⥤
-            DerivedCategory (ModuleCat.{u, u} R))
+          (DerivedCategory.Q : CochainComplex (ModuleCat.{max u v, u} R) ℤ ⥤
+            DerivedCategory (ModuleCat.{max u v, u} R))
           (derivedExtensionOfScalars σ) (derivedRestrictionOfScalars σ)).inv ≫
         Functor.whiskerRight (derivedExtensionComplexCounit σ)
           (derivedRestrictionOfScalars σ))
-      (HomologicalComplex.quasiIso (ModuleCat.{u, u} R) (up ℤ)) := sorry
+      (HomologicalComplex.quasiIso (ModuleCat.{max u v, u} R) (up ℤ)) := sorry
 
 /-- Derived restriction followed by derived extension retains the right-derived universal
 property required to derive the extension-restriction adjunction. -/
@@ -98,10 +92,10 @@ instance derivedRestrictionExtension_isRightDerived (σ : R →+* S) :
       (Functor.whiskerRight
           (derivedRestrictionComplexUnit σ) (derivedExtensionOfScalars σ) ≫
         (Functor.associator
-          (DerivedCategory.Q : CochainComplex (ModuleCat.{u, u} S) ℤ ⥤
-            DerivedCategory (ModuleCat.{u, u} S))
+          (DerivedCategory.Q : CochainComplex (ModuleCat.{max u v, u} S) ℤ ⥤
+            DerivedCategory (ModuleCat.{max u v, u} S))
           (derivedRestrictionOfScalars σ) (derivedExtensionOfScalars σ)).hom)
-      (HomologicalComplex.quasiIso (ModuleCat.{u, u} S) (up ℤ)) := sorry
+      (HomologicalComplex.quasiIso (ModuleCat.{max u v, u} S) (up ℤ)) := sorry
 
 /-- Derived extension of scalars is left adjoint to derived restriction of scalars. -/
 @[stacks 0BYX, stacks 0GMT "derived extension-restriction adjunction for modules"]
@@ -109,16 +103,16 @@ noncomputable def derivedExtensionRestrictionAdjunction (σ : R →+* S) :
     derivedExtensionOfScalars σ ⊣ derivedRestrictionOfScalars σ :=
   Adjunction.derived
     (Adjunction.mapHomologicalComplexAdjunction
-      (ModuleCat.extendRestrictScalarsAdj.{u, u, u} σ) (up ℤ))
-    (HomologicalComplex.quasiIso (ModuleCat.{u, u} R) (up ℤ))
-    (HomologicalComplex.quasiIso (ModuleCat.{u, u} S) (up ℤ))
+      (ModuleCat.extendRestrictScalarsAdj.{max u v, u, u} σ) (up ℤ))
+    (HomologicalComplex.quasiIso (ModuleCat.{max u v, u} R) (up ℤ))
+    (HomologicalComplex.quasiIso (ModuleCat.{max u v, u} S) (up ℤ))
     (derivedExtensionComplexCounit σ) (derivedRestrictionComplexUnit σ)
 
 /-- The Hom equivalence supplied by the derived extension-restriction adjunction. -/
 @[stacks 0BYX, stacks 0GMT "derived extension-restriction Hom equivalence for modules"]
 noncomputable def derivedExtensionRestrictionHomEquiv (σ : R →+* S)
-    (K : DerivedCategory (ModuleCat.{u, u} R))
-    (L : DerivedCategory (ModuleCat.{u, u} S)) :
+    (K : DerivedCategory (ModuleCat.{max u v, u} R))
+    (L : DerivedCategory (ModuleCat.{max u v, u} S)) :
     ((derivedExtensionOfScalars σ).obj K ⟶ L) ≃
       (K ⟶ (derivedRestrictionOfScalars σ).obj L) :=
   (derivedExtensionRestrictionAdjunction σ).homEquiv K L

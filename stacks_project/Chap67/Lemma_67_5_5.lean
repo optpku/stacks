@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_5_5_Pullback
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Surjective.BaseChange
 
 /-!
 # Base change of surjective morphisms of algebraic spaces
@@ -23,14 +18,11 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.5.5: The base change of a surjective morphism of algebraic spaces is
+/- Lemma 67.5.5: The base change of a surjective morphism of algebraic spaces is
 surjective. -/
-@[stacks 03MH]
-instance surjective_isStableUnderBaseChange {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderBaseChange
-      (@Surjective S : MorphismProperty (AlgebraicSpace S)) := sorry
-
-#check Surjective.of_isPullback
-#check Surjective.pullback_snd
+@[stacks 03MH] #check (AlgebraicGeometry.AlgebraicSpace.surjective_isStableUnderBaseChange :
+  ∀ {S : Scheme.{u}}, MorphismProperty.IsStableUnderBaseChange
+    (@AlgebraicGeometry.AlgebraicSpace.Surjective S :
+      MorphismProperty (AlgebraicGeometry.AlgebraicSpace S)))
 
 end AlgebraicGeometry.AlgebraicSpace

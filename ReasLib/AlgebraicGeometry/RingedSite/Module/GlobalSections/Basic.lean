@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Limits
@@ -39,8 +33,8 @@ abbrev globalSectionsRing (X : RingedSite.{u, v, w}) [UnivLE.{u, w}] : RingCat.{
 
 /-- The constant presheaf on the global-sections ring of a ringed site. -/
 abbrev globalSectionsRingPresheaf (X : RingedSite.{u, v, w}) [UnivLE.{u, w}] :
-    Xᵒᵖ ⥤ RingCat.{w} :=
-  (Functor.const Xᵒᵖ).obj (globalSectionsRing X)
+    X.carrierᵒᵖ ⥤ RingCat.{w} :=
+  (Functor.const X.carrierᵒᵖ).obj (globalSectionsRing X)
 
 /-- Evaluation of a global section gives a morphism from the constant global-sections presheaf
 to the structure sheaf. -/
@@ -59,7 +53,7 @@ abbrev moduleGlobalSectionsPresheaf (X : RingedSite.{u, v, w}) [UnivLE.{u, w}] :
 ring. -/
 abbrev moduleGlobalSectionsDiagram (X : RingedSite.{u, v, w}) [UnivLE.{u, w}]
     (ℱ : ModuleCat.{z} X) :
-    Xᵒᵖ ⥤ _root_.ModuleCat.{z} (globalSectionsRing X) := by
+    X.carrierᵒᵖ ⥤ _root_.ModuleCat.{z} (globalSectionsRing X) := by
   refine
     { obj := fun U ↦ ((moduleGlobalSectionsPresheaf X).obj ℱ).obj U
       map := fun f ↦ ((moduleGlobalSectionsPresheaf X).obj ℱ).map f
@@ -80,7 +74,7 @@ noncomputable def moduleGlobalSectionsDiagramMap
 ring. -/
 noncomputable def moduleGlobalSectionsDiagramFunctor
     (X : RingedSite.{u, v, w}) [UnivLE.{u, w}] :
-    ModuleCat.{z} X ⥤ Xᵒᵖ ⥤ _root_.ModuleCat.{z} (globalSectionsRing X) := by
+    ModuleCat.{z} X ⥤ X.carrierᵒᵖ ⥤ _root_.ModuleCat.{z} (globalSectionsRing X) := by
   refine
     { obj := moduleGlobalSectionsDiagram X
       map := moduleGlobalSectionsDiagramMap X
@@ -92,7 +86,7 @@ noncomputable def moduleGlobalSectionsDiagramFunctor
 the module universe contains the site-object universe. -/
 theorem moduleGlobalSectionsHasLimitsOfShape
     (X : RingedSite.{u, v, w}) [UnivLE.{u, w}] [UnivLE.{u, z}] :
-    HasLimitsOfShape Xᵒᵖ (_root_.ModuleCat.{z} (globalSectionsRing X)) :=
+    HasLimitsOfShape X.carrierᵒᵖ (_root_.ModuleCat.{z} (globalSectionsRing X)) :=
   _root_.ModuleCat.hasLimitsOfShape
 
 /-- The module of compatible global sections of a module sheaf on a ringed site. -/

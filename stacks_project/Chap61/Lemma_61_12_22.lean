@@ -1,15 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap61.Lemma_61_12_20_Affine
-public import stacks_project.Chap61.Lemma_61_12_22_Instances
-public import Mathlib.AlgebraicGeometry.Sites.Proetale
-public import Mathlib.CategoryTheory.Sites.SubcanonicalOver
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Proetale.Subcanonical
 import StacksCheckRecall
 
 /-!
@@ -26,34 +17,16 @@ open AlgebraicGeometry
 
 universe u v
 
-section
-
-variable (S : Scheme.{u})
-
-/- Lemma 61.12.22 (1): the topology on Sch_proétale is subcanonical. -/
+/- Lemma 61.12.22. The five pro-étale topologies are subcanonical. -/
 @[stacks 098Z] #check
-  (inferInstance : (Scheme.proetaleTopology : GrothendieckTopology Scheme.{u}).Subcanonical)
+  (AlgebraicGeometry.ChosenBigProetaleSite.topologies_subcanonical :
+    ∀ (X : AlgebraicGeometry.ChosenBigProetaleSite.{u, v}) (S : X.carrier),
+      X.toGrothendieck.Subcanonical ∧
+        (AlgebraicGeometry.ChosenBigProetaleSite.smallTopology X S).Subcanonical ∧
+        (AlgebraicGeometry.ChosenBigProetaleSite.bigTopology X S).Subcanonical ∧
+        (AlgebraicGeometry.Scheme.ProEt.affineTopology (X.toScheme.obj S)).Subcanonical ∧
+        (AlgebraicGeometry.ChosenBigProetaleSite.bigAffineTopology X S).Subcanonical)
 
-/- Lemma 61.12.22 (2): the topology on S_proétale is subcanonical. -/
-@[stacks 098Z] #check
-  (inferInstance : (Scheme.ProEt.topology S).Subcanonical)
-
-/- Lemma 61.12.22 (3): the topology on (Sch/S)_proétale is subcanonical. -/
-@[stacks 098Z] #check
-  (inferInstance : (Scheme.proetaleTopology.over S).Subcanonical)
-
-/- Lemma 61.12.22 (4): the topology on S_affine,proétale is subcanonical. -/
-@[stacks 098Z] #check
-  (inferInstance : (Scheme.ProEt.affineTopology S).Subcanonical)
-
-end
-
-section
-
-variable (X : ChosenBigProetaleSite.{u, v}) (S : X.carrier)
-
-/- Lemma 61.12.22 (5): the topology on (Aff/S)_proétale is subcanonical. -/
-@[stacks 098Z] #check
-  (inferInstance : (ChosenBigProetaleSite.bigAffineTopology X S).Subcanonical)
-
-end
+#check (AlgebraicGeometry.Scheme.ProEt.affineTopology_subcanonical :
+  ∀ (S : AlgebraicGeometry.Scheme.{u}),
+    (AlgebraicGeometry.Scheme.ProEt.affineTopology S).Subcanonical)

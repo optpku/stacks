@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Data.List.TFAE
-public import stacks_project.Chap67.Lemma_67_23_4_LocallyOfFiniteType
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType.Locality
+import StacksCheckRecall
 
 /-!
 # Characterizations of local finite type for morphisms of algebraic spaces
@@ -17,11 +11,9 @@ public import stacks_project.Chap67.Lemma_67_23_4_LocallyOfFiniteType
 
 open CategoryTheory AlgebraicGeometry AlgebraicSpace
 
-universe u
+universe u v
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 67.23.4: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
+/- Lemma 67.23.4: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
 algebraic spaces over `S`. The following are equivalent: `f` is locally of
 finite type; `f` is of finite type at every point of `X`; every base change of
 `f` along a morphism from a scheme is locally of finite type; every base change
@@ -34,9 +26,8 @@ square over `f` with surjective vertical source arrow has
 locally-of-finite-type top arrow; and there are Zariski coverings of `Y` and of
 the inverse images in `X` on which the pieces of `f` are locally of finite
 type. -/
-@[stacks 040Y]
-theorem locallyOfFiniteType_tfae {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+@[stacks 040Y] #check (AlgebraicGeometry.AlgebraicSpace.locallyOfFiniteType_tfae.{u, v} :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
     List.TFAE
       [ LocallyOfFiniteType f
       , ∀ x : Points X, FiniteTypeAt f x
@@ -46,7 +37,4 @@ theorem locallyOfFiniteType_tfae {S : Scheme.{u}}
       , LocallyOfFiniteType.existsSurjectiveEtaleSource f
       , LocallyOfFiniteType.forallEtaleSquare f
       , LocallyOfFiniteType.existsEtaleSquare f
-      , LocallyOfFiniteType.existsZariskiCover f ] :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+      , LocallyOfFiniteType.existsZariskiCover.{u, v} f ])

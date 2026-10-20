@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.RingTheory.Smooth.Adic.Basic
-public import stacks_project.Chap90.Definition_90_27_1_MinimalVersal
-public import stacks_project.Chap90.Situation_90_29_1_Pullback
+public import ReasLib.AlgebraicGeometry.FormalDeformation.FormalObject.ResidueChange
+import StacksCheckRecall
 
 /-!
 # Versal formal objects after change of residue field
@@ -33,25 +26,19 @@ variable {Λ k l : Type u} [CommRing Λ] [IsNoetherianRing Λ]
 variable {F : Type (u + 1)} [Category.{u + 1} F]
 variable {p : F ⥤ ArtinianLocalAlgCat Λ k}
 
-namespace FormalObject
-
-/-- Lemma 90.29.6: with notation and assumptions as in Situation 90.29.1, if `ξ`
+/- Lemma 90.29.6: with notation and assumptions as in Situation 90.29.1, if `ξ`
 is a versal formal object for `p` lying over `ξ.base` in
 `CompleteLocalAlgCat Λ k`, then there exist `S` in `CompleteLocalAlgCat Λ l` and
 a local `Λ`-algebra homomorphism `ξ.base.carrier →ₐ[Λ] S.carrier` which is
 formally smooth for the `m_S`-adic topology and induces the given field
 extension `l / k` on residue fields, and a versal formal object of
 `residueChangeOver Λ k l p` lying over `S`. -/
-@[stacks 0DQF]
-theorem exists_isVersal_residueChangeOver [Functor.IsFibered.InGroupoids p.op]
-    (ξ : FormalObject p) [IsVersal ξ] :
-    ∃ (S : CompleteLocalAlgCat Λ l) (f : ξ.base.carrier →ₐ[Λ] S.carrier)
-      (h_local : IsLocalHom f) (η : FormalObject (residueChangeOver Λ k l p)),
-      f.toRingHom.formally_smooth_for_adic (maximalIdeal S.carrier) ∧
-        S.residueFieldIso.toAlgHom.comp
-            (@ResidueField.mapAlgHom _ _ _ _ _ _ _ _ _ _ f h_local) =
-          (IsScalarTower.toAlgHom Λ k l).comp ξ.base.residueFieldIso.toAlgHom ∧
-        η.base = S ∧ IsVersal η :=
-  sorry
-
-end FormalObject
+@[stacks 0DQF] #check (FormalObject.exists_isVersal_residueChangeOver :
+  ∀ [Functor.IsFibered.InGroupoids p.op] (ξ : FormalObject p) [FormalObject.IsVersal ξ],
+    ∃ (S : CompleteLocalAlgCat Λ l) (f : ξ.base.carrier →ₐ[Λ] S.carrier),
+      IsLocalHom f ∧
+        f.toRingHom.formally_smooth_for_adic (IsLocalRing.maximalIdeal S.carrier) ∧
+        (CompleteLocalAlgCat.residueHom S).hom.comp f =
+          (IsScalarTower.toAlgHom Λ k l).comp (CompleteLocalAlgCat.residueHom ξ.base).hom ∧
+        ∃ η : FormalObject (ArtinianLocalAlgCat.residueChangeOver Λ k l p),
+          η.base = S ∧ FormalObject.IsVersal η)

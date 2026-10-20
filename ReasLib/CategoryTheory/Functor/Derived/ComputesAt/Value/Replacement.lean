@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Functor.Derived.ComputesAt.Value.Explicit
@@ -33,37 +27,42 @@ variable {D : Type u₁} {D' : Type u₂}
 
 namespace RightDerived.Value
 
+/-- A replacement by a computing object identifies its original value with the pointwise
+right-derived value of the source.  The inverse first transports to the target value and then
+uses the inverse identity-denominator leg supplied by the computation witness. -/
+@[stacks 05SX "pointwise right-derived replacement comparison"]
+noncomputable def replacementIso {X Y : D} (s : X ⟶ Y) (hs : S s)
+    [F.HasPointwiseRightDerivedFunctorAt S X]
+    (hY : RightDerived.ComputesAt F S Y) :
+    F.obj Y ≅ obj F S X where
+  hom := ι F S s hs
+  inv := map F S s ≫ (RightDerived.ComputesAt.valueIsoOf F S Y hY).inv
+  hom_inv_id := sorry
+  inv_hom_id := sorry
+
 /-- A right-derived denominator leg is invertible when its target computes the pointwise
 right-derived value. -/
 @[stacks 05SX "pointwise right-derived value computed by a replacement"]
 theorem isIso_ι_of_computesAt {X Y : D} (s : X ⟶ Y) (hs : S s)
     [F.HasPointwiseRightDerivedFunctorAt S X]
-    (hY : RightDerived.ComputesAt F S Y) : IsIso (ι F S s hs) := sorry
-
-/-- A replacement by a computing object identifies its original value with the pointwise
-right-derived value of the source. -/
-@[stacks 05SX "pointwise right-derived replacement comparison"]
-noncomputable def replacementIso {X Y : D} (s : X ⟶ Y) (hs : S s)
-    [F.HasPointwiseRightDerivedFunctorAt S X]
-    (hY : RightDerived.ComputesAt F S Y) :
-    F.obj Y ≅ obj F S X :=
-  @asIso _ _ _ _ (ι F S s hs) (isIso_ι_of_computesAt F S s hs hY)
+    (hY : RightDerived.ComputesAt F S Y) : IsIso (ι F S s hs) :=
+  (replacementIso F S s hs hY).isIso_hom
 
 /-- The forward pointwise replacement comparison is the canonical denominator leg. -/
 @[simp, stacks 05SX "pointwise right-derived replacement comparison, hom"]
 theorem replacementIso_hom {X Y : D} (s : X ⟶ Y) (hs : S s)
     [F.HasPointwiseRightDerivedFunctorAt S X]
     (hY : RightDerived.ComputesAt F S Y) :
-    (replacementIso F S s hs hY).hom = ι F S s hs := sorry
+    (replacementIso F S s hs hY).hom = ι F S s hs := rfl
 
-/-- The inverse pointwise replacement comparison is the inverse denominator leg. -/
+/-- The inverse pointwise replacement comparison transports the value along the denominator
+before applying the inverse comparison at the computing target. -/
 @[simp, stacks 05SX "pointwise right-derived replacement comparison, inv"]
 theorem replacementIso_inv {X Y : D} (s : X ⟶ Y) (hs : S s)
     [F.HasPointwiseRightDerivedFunctorAt S X]
     (hY : RightDerived.ComputesAt F S Y) :
     (replacementIso F S s hs hY).inv =
-      @CategoryTheory.inv _ _ _ _ (ι F S s hs)
-        (isIso_ι_of_computesAt F S s hs hY) := sorry
+      map F S s ≫ (RightDerived.ComputesAt.valueIsoOf F S Y hY).inv := rfl
 
 /-- Pointwise right-derived replacement comparisons are natural in commutative squares of
 denominators. -/
@@ -95,37 +94,42 @@ end RightDerived.Value
 
 namespace LeftDerived.Value
 
+/-- A coreplacement by a computing object identifies the pointwise left-derived value of the
+target with the original value at the source.  The inverse uses the inverse identity-denominator
+projection supplied by the computation witness and then transports to the target value. -/
+@[stacks 05SX "pointwise left-derived coreplacement comparison"]
+noncomputable def coreplacementIso {X Y : D} (s : X ⟶ Y) (hs : S s)
+    [F.HasPointwiseLeftDerivedFunctorAt S Y]
+    (hX : LeftDerived.ComputesAt F S X) :
+    obj F S Y ≅ F.obj X where
+  hom := π F S s hs
+  inv := (LeftDerived.ComputesAt.valueIsoOf F S X hX).inv ≫ map F S s
+  hom_inv_id := sorry
+  inv_hom_id := sorry
+
 /-- A left-derived denominator projection is invertible when its source computes the pointwise
 left-derived value. -/
 @[stacks 05SX "pointwise left-derived value computed by a coreplacement"]
 theorem isIso_π_of_computesAt {X Y : D} (s : X ⟶ Y) (hs : S s)
     [F.HasPointwiseLeftDerivedFunctorAt S Y]
-    (hX : LeftDerived.ComputesAt F S X) : IsIso (π F S s hs) := sorry
-
-/-- A coreplacement by a computing object identifies the pointwise left-derived value of the
-target with the original value at the source. -/
-@[stacks 05SX "pointwise left-derived coreplacement comparison"]
-noncomputable def coreplacementIso {X Y : D} (s : X ⟶ Y) (hs : S s)
-    [F.HasPointwiseLeftDerivedFunctorAt S Y]
-    (hX : LeftDerived.ComputesAt F S X) :
-    obj F S Y ≅ F.obj X :=
-  @asIso _ _ _ _ (π F S s hs) (isIso_π_of_computesAt F S s hs hX)
+    (hX : LeftDerived.ComputesAt F S X) : IsIso (π F S s hs) :=
+  (coreplacementIso F S s hs hX).isIso_hom
 
 /-- The forward pointwise coreplacement comparison is the canonical denominator projection. -/
 @[simp, stacks 05SX "pointwise left-derived coreplacement comparison, hom"]
 theorem coreplacementIso_hom {X Y : D} (s : X ⟶ Y) (hs : S s)
     [F.HasPointwiseLeftDerivedFunctorAt S Y]
     (hX : LeftDerived.ComputesAt F S X) :
-    (coreplacementIso F S s hs hX).hom = π F S s hs := sorry
+    (coreplacementIso F S s hs hX).hom = π F S s hs := rfl
 
-/-- The inverse pointwise coreplacement comparison is the inverse denominator projection. -/
+/-- The inverse pointwise coreplacement comparison first uses the inverse comparison at the
+computing source, then transports the value along the denominator. -/
 @[simp, stacks 05SX "pointwise left-derived coreplacement comparison, inv"]
 theorem coreplacementIso_inv {X Y : D} (s : X ⟶ Y) (hs : S s)
     [F.HasPointwiseLeftDerivedFunctorAt S Y]
     (hX : LeftDerived.ComputesAt F S X) :
     (coreplacementIso F S s hs hX).inv =
-      @CategoryTheory.inv _ _ _ _ (π F S s hs)
-        (isIso_π_of_computesAt F S s hs hX) := sorry
+      (LeftDerived.ComputesAt.valueIsoOf F S X hX).inv ≫ map F S s := rfl
 
 /-- Pointwise left-derived coreplacement comparisons are natural in commutative squares of
 denominators. -/

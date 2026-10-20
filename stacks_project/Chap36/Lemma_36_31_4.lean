@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -22,6 +16,7 @@ universe u
 @[stacks 0BDL] #check
   (AlgebraicGeometry.Scheme.ModuleDerived.rankLocus_isImmersion :
     {X : Scheme.{u}} →
+      ∀ [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)],
       (E : RingedSpace.ModuleDerived X.toRingedSpace) → (a b : ℤ) → (r : ℕ) →
       RingedSpace.ModuleDerived.IsPerfect E → RingedSpace.HasTorAmplitudeIn E a b →
       IsImmersion (AlgebraicGeometry.Scheme.ModuleDerived.rankLocusι E a r))
@@ -30,6 +25,7 @@ universe u
 @[stacks 0BDL] #check
   (AlgebraicGeometry.Scheme.ModuleDerived.rankLocus_cohomology_rank :
     {X : Scheme.{u}} →
+      ∀ [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)],
       (E : RingedSpace.ModuleDerived X.toRingedSpace) → (a b : ℤ) → (r : ℕ) →
       RingedSpace.ModuleDerived.IsPerfect E → RingedSpace.HasTorAmplitudeIn E a b →
       SheafOfModules.IsFiniteLocallyFreeOfRank r
@@ -42,6 +38,7 @@ further base change. -/
 @[stacks 0BDL] #check
   (AlgebraicGeometry.Scheme.ModuleDerived.rankLocus_factor_iff :
     {X Y : Scheme.{u}} →
+      ∀ [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)],
       (E : RingedSpace.ModuleDerived X.toRingedSpace) → (a b : ℤ) → (r : ℕ) →
       RingedSpace.ModuleDerived.IsPerfect E → RingedSpace.HasTorAmplitudeIn E a b →
       (f : Y ⟶ X) →
@@ -56,6 +53,7 @@ further base change. -/
 @[stacks 0BDL] #check
   (AlgebraicGeometry.Scheme.ModuleDerived.rankLocus_finitePresentation :
     {X : Scheme.{u}} →
+      ∀ [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)],
       (E : RingedSpace.ModuleDerived X.toRingedSpace) → (a b : ℤ) → (r : ℕ) →
       RingedSpace.ModuleDerived.IsPerfect E → RingedSpace.HasTorAmplitudeIn E a b →
       Scheme.Hom.FinitePresentation
@@ -65,6 +63,7 @@ further base change. -/
 @[stacks 0BDL] #check
   (AlgebraicGeometry.Scheme.ModuleDerived.rankLocus_comparison_isIso :
     {X Y : Scheme.{u}} →
+      ∀ [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)],
       (E : RingedSpace.ModuleDerived X.toRingedSpace) → (a b : ℤ) → (r : ℕ) →
       RingedSpace.ModuleDerived.IsPerfect E →
       (hTor : RingedSpace.HasTorAmplitudeIn E a b) →
@@ -83,6 +82,7 @@ further base change. -/
 @[stacks 0BDL] #check
   (AlgebraicGeometry.Scheme.ModuleDerived.rankLocus_isClosedImmersion :
     {X : Scheme.{u}} →
+      ∀ [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)],
       (E : RingedSpace.ModuleDerived X.toRingedSpace) → (a b : ℤ) → (r : ℕ) →
       RingedSpace.ModuleDerived.IsPerfect E → RingedSpace.HasTorAmplitudeIn E a b →
       (∀ x : X, AlgebraicGeometry.Scheme.ModuleDerived.fiberBetti E a x ≤ r) →
@@ -93,6 +93,7 @@ characterizes factorization. -/
 @[stacks 0BDL] #check
   (AlgebraicGeometry.Scheme.ModuleDerived.rankLocus_factor_iff_rank :
     {X Y : Scheme.{u}} →
+      ∀ [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)],
       (E : RingedSpace.ModuleDerived X.toRingedSpace) → (a b : ℤ) → (r : ℕ) →
       RingedSpace.ModuleDerived.IsPerfect E → RingedSpace.HasTorAmplitudeIn E a b →
       (∀ x : X, AlgebraicGeometry.Scheme.ModuleDerived.fiberBetti E a x ≤ r) →
@@ -108,6 +109,7 @@ factorization through the rank locus. -/
 @[stacks 0BDL] #check
   (AlgebraicGeometry.Scheme.ModuleDerived.rankOneLocus_factor_iff_action_mono :
     {X Y : Scheme.{u}} →
+      ∀ [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)],
       (E : RingedSpace.ModuleDerived X.toRingedSpace) → (a b : ℤ) →
       RingedSpace.ModuleDerived.IsPerfect E → RingedSpace.HasTorAmplitudeIn E a b →
       (∀ x : X, AlgebraicGeometry.Scheme.ModuleDerived.fiberBetti E a x ≤ 1) →

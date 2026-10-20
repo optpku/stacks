@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.Ring.Colimits
@@ -30,10 +24,7 @@ universes that lift into `w`. -/
 @[stacks 03D6 "universe-polymorphic commutative-ring colimits"]
 instance (priority := 100) hasColimitsOfSize
     [UnivLE.{a, w}] [UnivLE.{b, w}] :
-    Limits.HasColimitsOfSize.{a, b} CommRingCat.{w} := sorry
-
-
--- `HasColimitsOfSize` is an existence proposition; its `sorryAx` is proof debt, not hidden
--- commutative-ring or diagram data.
+    Limits.HasColimitsOfSize.{a, b} CommRingCat.{w} :=
+  Limits.hasColimitsOfSizeOfUnivLE.{w, w, a, b} CommRingCat.{w}
 
 end CommRingCat

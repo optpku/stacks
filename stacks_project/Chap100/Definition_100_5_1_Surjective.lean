@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_4_2_Points
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Surjective
 
 /-!
 # Surjective morphisms of algebraic stacks
@@ -28,44 +22,31 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- A morphism of algebraic stacks is surjective if the induced map of associated
-point spaces is surjective. -/
-@[mk_iff]
-class Surjective {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
-    (f : X ⟶ Y) : Prop where
-  /-- The induced map on points is surjective. -/
-  map_surjective : Function.Surjective (Points.map f)
+#check (AlgebraicGeometry.AlgebraicStack.Surjective :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+    (f : X ⟶ Y), Prop)
 
-namespace Surjective
+#check (AlgebraicGeometry.AlgebraicStack.surjective_iff_map_surjective :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+    (f : X ⟶ Y), Surjective f ↔ Function.Surjective (Points.map f))
 
-/-- The identity morphism of an algebraic stack is surjective. -/
-instance id {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] : Surjective (𝟙 X) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.Surjective.map_surjective :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+    (f : X ⟶ Y) [Surjective f], Function.Surjective (Points.map f))
 
-/-- A surjective morphism of algebraic stacks induces a surjective map of associated
-point spaces. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
-    (f : X ⟶ Y) [Surjective f] : Function.Surjective (Points.map f) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.Surjective.of :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+    {f : X ⟶ Y}, Function.Surjective (Points.map f) → Surjective f)
 
-/-- A morphism of algebraic stacks is surjective as soon as the induced map of
-associated point spaces is surjective. -/
-theorem of {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
-    {f : X ⟶ Y} (hf : Function.Surjective (Points.map f)) : Surjective f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.Surjective.id :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X], Surjective (𝟙 X))
 
-/-- A 1-morphism of algebraic stacks which is surjective in the sense of relative
-representability by algebraic spaces is surjective as a morphism of algebraic stacks. -/
-instance of_groupoidsHom {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Groupoids.Hom.Surjective f] :
-    Surjective f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.Surjective.of_groupoidsHom :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+    (f : X ⟶ Y) [Groupoids.Hom.Surjective f], Surjective f)
 
-/-- An isomorphism of algebraic stacks is surjective. -/
-instance of_isIso {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
-    (f : X ⟶ Y) [IsIso f] : Surjective f :=
-  sorry
-
-end Surjective
+#check (AlgebraicGeometry.AlgebraicStack.Surjective.of_isIso :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+    (f : X ⟶ Y) [IsIso f], Surjective f)
 
 end AlgebraicGeometry.AlgebraicStack

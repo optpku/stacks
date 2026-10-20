@@ -1,17 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Ample
-public import ReasLib.AlgebraicGeometry.Scheme.Variety.Properties
-public import stacks_project.Chap111.Exercise_111_49_9_Conic
-public import stacks_project.Chap111.Exercise_111_49_9_Line
-public import stacks_project.Chap111.Exercise_111_49_9_Quotient
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.ProjectiveSpace.LineConic
+public import ReasLib.AlgebraicGeometry.Scheme.Gluing.LineConicQuotient.Results
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -21,47 +12,32 @@ open scoped AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry
-
-/-- Exercise 111.49.9 (1): over a field `k`, given a line and a disjoint nonsingular conic in
-`ℙ³_k` and an isomorphism `φ` from the line to the conic over `k`, there is a `k`-scheme `X`
-obtained by glueing the conic to the line along `φ`. -/
-@[stacks 02AS]
-theorem exists_lineConicQuotient {k : Type u} [Field k] {L C : Scheme.{u}}
+/- Exercise 111.49.9 (1): identifying a line with a disjoint isomorphic nonsingular conic
+in projective 3-space gives a scheme over the field. -/
+@[stacks 02AS] #check (AlgebraicGeometry.exists_lineConicQuotient :
+    ∀ {k : Type u} [Field k] {L C : Scheme.{u}}
     (iL : L ⟶ scheme k 3) (iC : C ⟶ scheme k 3) [IsLine iL] [IsNonsingularConic iC]
     (h_disjoint : Disjoint (Set.range iL) (Set.range iC)) (φ : L ⟶ C) [IsIso φ]
-    (hφ : φ ≫ iC ≫ toSpec k 3 = iL ≫ toSpec k 3) :
+    (hφ : φ ≫ iC ≫ toSpec k 3 = iL ≫ toSpec k 3),
     ∃ (X : SchemeOverField k) (π : scheme k 3 ⟶ X.left) (U : X.left.Opens),
-      IsLineConicQuotient iL iC φ X π U := sorry
+      IsLineConicQuotient iL iC φ X π U)
 
-/-- Exercise 111.49.9 (2): over a field `k`, given a line and a disjoint nonsingular conic in
-`ℙ³_k` and an isomorphism `φ` from the line to the conic over `k`, there is a proper variety
-`X` over `k` obtained by glueing the conic to the line along `φ`. -/
-@[stacks 02AS]
-theorem exists_lineConicQuotient_properVariety {k : Type u} [Field k] {L C : Scheme.{u}}
+/- Exercise 111.49.9 (2): the line-conic identification quotient exists as a proper variety. -/
+@[stacks 02AS] #check (AlgebraicGeometry.exists_lineConicQuotient_properVariety :
+    ∀ {k : Type u} [Field k] {L C : Scheme.{u}}
     (iL : L ⟶ scheme k 3) (iC : C ⟶ scheme k 3) [IsLine iL] [IsNonsingularConic iC]
     (h_disjoint : Disjoint (Set.range iL) (Set.range iC)) (φ : L ⟶ C) [IsIso φ]
-    (hφ : φ ≫ iC ≫ toSpec k 3 = iL ≫ toSpec k 3) :
+    (hφ : φ ≫ iC ≫ toSpec k 3 = iL ≫ toSpec k 3),
     ∃ (X : SchemeOverField k) (π : scheme k 3 ⟶ X.left) (U : X.left.Opens),
-      IsLineConicQuotient iL iC φ X π U ∧ ProperVariety X := sorry
+      IsLineConicQuotient iL iC φ X π U ∧ ProperVariety X)
 
-/-- Exercise 111.49.9 (3): a scheme obtained by glueing a line in `ℙ³_k` to a disjoint
-nonsingular conic is not a projective variety over `k`. -/
-@[stacks 02AS]
-theorem not_projectiveVariety_of_isLineConicQuotient {k : Type u} [Field k]
+/- Exercise 111.49.9 (3): a line-conic identification quotient is not a projective variety. -/
+@[stacks 02AS] #check (AlgebraicGeometry.not_projectiveVariety_of_isLineConicQuotient :
+    ∀ {k : Type u} [Field k]
     {L C : Scheme.{u}} (iL : L ⟶ scheme k 3) (iC : C ⟶ scheme k 3)
     [IsLine iL] [IsNonsingularConic iC]
     (h_disjoint : Disjoint (Set.range iL) (Set.range iC)) (φ : L ⟶ C) [IsIso φ]
     (X : SchemeOverField k) (π : scheme k 3 ⟶ X.left) (U : X.left.Opens)
-    (h : IsLineConicQuotient iL iC φ X π U) : ¬ ProjectiveVariety X := sorry
+    (h : IsLineConicQuotient iL iC φ X π U),
+    ¬ ProjectiveVariety X)
 
-/-- A line-conic identification quotient over a field admits no ample invertible module. -/
-theorem not_hasAmpleInvertibleModule_of_isLineConicQuotient {k : Type u} [Field k]
-    {L C : Scheme.{u}} (iL : L ⟶ scheme k 3) (iC : C ⟶ scheme k 3)
-    [IsLine iL] [IsNonsingularConic iC]
-    (h_disjoint : Disjoint (Set.range iL) (Set.range iC)) (φ : L ⟶ C) [IsIso φ]
-    (X : SchemeOverField k) (π : scheme k 3 ⟶ X.left) (U : X.left.Opens)
-    (h : IsLineConicQuotient iL iC φ X π U) :
-    ¬ Scheme.Modules.HasAmpleInvertibleModule X.left := sorry
-
-end AlgebraicGeometry

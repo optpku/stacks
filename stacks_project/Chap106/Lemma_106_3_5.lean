@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap106.Lemma_106_3_5_Composition
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Thickening.Composition
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry
@@ -19,7 +13,8 @@ universe u
 then the composite inclusion `X ⊂ X''` is a thickening, recovered as the
 composite 1-morphism `f ≫ g`. -/
 @[stacks 0BPS] #check
-  (IsThickening.comp : ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+  (AlgebraicGeometry.AlgebraicStack.IsThickening.comp :
+    ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
     (f : X ⟶ Y) (g : Y ⟶ Z) [IsThickening f] [IsThickening g],
     IsThickening (f ≫ g))

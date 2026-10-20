@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.FiniteDualSheafComparison
@@ -38,28 +32,28 @@ variable [HasSheafify (geometricBaseChange X).smallEtaleTopology AddCommGrpCat.{
 variable (hΛ : IsUnit (Nat.card Λ : k))
 
 variable (N : (finiteTypeDiscreteModule Λ
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))).FullSubcategory)
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))).FullSubcategory)
 
 /-- Restrict the actual arithmetic coefficient to geometric pi1. -/
 def geometricInput :
-    (finiteTypeDiscreteModule Λ (Aut (standardFiniteEtaleFiber ηbar))).FullSubcategory :=
+    (finiteTypeDiscreteModule Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar))).FullSubcategory :=
   ⟨(Ambient.restriction Λ X ηbar).obj N.obj, by sorry⟩
 
 /-- The actual finite compact arithmetic inverse-Tate input. -/
 def compactInput :=
   CompactRepresentation.finiteCompactification Λ
-    (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))
     (AmbientGeometry.arithmeticInverseTate Λ X ηbar hΛ N.obj)
 
 /-- Geometric restriction of its continuous dual, then restriction of scalars.
 This is the coefficient used by the residual character comparison. -/
 def characterInput :
     (finiteTypeDiscreteModule (ActualRootsModule.Coeff.{u} (Nat.card Λ))
-      (Aut (standardFiniteEtaleFiber ηbar))).FullSubcategory :=
-  ⟨⟨((ActualFiniteCoefficient.modules Λ).mapAction (Aut (standardFiniteEtaleFiber ηbar))).obj
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar))).FullSubcategory :=
+  ⟨⟨((ActualFiniteCoefficient.modules Λ).mapAction (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar))).obj
     (((Ambient.restriction Λ X ηbar).obj
       (CompactRepresentation.continuousDual Λ
-        (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))
+        (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))
         (compactInput Λ X ηbar hΛ N))).obj), by sorry⟩, by sorry⟩
 
 /-- The actual finite-character inclusion inverted, retaining geometric action.
@@ -71,7 +65,7 @@ def coefficientIso :
     (Action.mkIso
       ((ActualFiniteCoefficient.modules Λ).mapIso
         (CompactRepresentation.finiteCharacterComparison Λ
-          (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))
+          (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))
           (AmbientGeometry.arithmeticInverseTate Λ X ηbar hΛ N.obj)).symm)
       (fun _ ↦ sorry)))
 

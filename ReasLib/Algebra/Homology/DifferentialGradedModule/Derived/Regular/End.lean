@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DifferentialGradedModule.Derived.Regular
@@ -87,11 +81,5 @@ noncomputable def regularEndAlgEquivOfBijective (A : CochainDGAlgebra.{u, v} R)
     (h : Function.Bijective (regularEndAlgHom A)) :
     A.homologyZero ≃ₐ[R] End (regularObject A) :=
   AlgEquiv.ofBijective (regularEndAlgHom A) h
-
-/-- The canonical ordinary algebra model of the regular derived endomorphisms. -/
-@[stacks 09S8 "zeroth cohomology models regular derived endomorphisms"]
-theorem nonempty_homologyZeroAlgEquiv_regularEnd
-    (A : CochainDGAlgebra.{u, v} R) :
-    Nonempty (A.homologyZero ≃ₐ[R] End (regularObject A)) := sorry
 
 end DifferentialGradedModule.Derived

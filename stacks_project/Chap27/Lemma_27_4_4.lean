@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.RelativeSpectrum.Representability
@@ -31,7 +25,7 @@ isomorphic over the base. -/
       AlgebraicGeometry.Scheme.realizesRelativeSpectrum A πX →
       (x : AlgebraicGeometry.Scheme.relativeSpectrumPair A Y) →
       (AlgebraicGeometry.Scheme.relativeSpectrumFunctor A).IsRepresentedBy x →
-      Nonempty (Over.mk πX ≅ Over.mk x.1))
+      (Over.mk πX ≅ Over.mk x.1))
 
 #check
   (AlgebraicGeometry.Scheme.relativeSpectrumFunctor_isRepresentedBySpecGlobalSections :

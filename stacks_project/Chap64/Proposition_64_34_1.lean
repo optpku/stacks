@@ -1,109 +1,42 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Geometrically.Irreducible
-public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
-public import Mathlib.Tactic.CrossRefAttribute
-public import Mathlib.Topology.Algebra.Group.Basic
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.Basic
-public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve
-public import stacks_project.Chap64.Theorem_64_31_2_Frobenius
-
-/-!
-# Topological generation of π₁ by finitely many Frobenius classes
-
-For a smooth geometrically irreducible projective curve over a finite field,
-finitely many closed points have geometric Frobenius conjugacy classes that
-topologically generate the étale fundamental group.
--/
-
-@[expose] public section
-
-noncomputable section
+public import ReasLib.AlgebraicGeometry.Scheme.FundamentalGroup.FrobeniusGeneration
+import StacksCheckRecall
 
 open AlgebraicGeometry AlgebraicGeometry.Scheme AlgebraicGeometry.SchemeOverField
 open CategoryTheory TopologicalSpace
 
 universe u
 
-namespace AlgebraicGeometry.SchemeOverField
+/- Proposition 64.34.1. For a smooth geometrically irreducible projective curve
+ over a finite field, all Frobenius elements at finitely many closed points
+ topologically generate the étale fundamental group. -/
+@[stacks 03W5] #check
+  (AlgebraicGeometry.SchemeOverField.exists_finset_etaleGeometricFrobenius_topologicallyGenerate :
+    ∀ {k : Type u} [Field k] (X : SchemeOverField k) [Finite k] [Curve X]
+      [Smooth X.hom] [Projective X.hom] [GeometricallyIrreducible X.hom]
+      [ConnectedSpace X.left] (xbar : GeometricPoint X.left),
+      ∃ S : Finset (closedPoints X.left),
+        (Subgroup.closure
+          (⋃ v ∈ S, etaleGeometricFrobeniusSet X xbar v)).topologicalClosure = ⊤)
 
-variable {k : Type u} [Field k]
-variable (X : SchemeOverField k)
+#check
+  (AlgebraicGeometry.SchemeOverField.exists_finset_etaleGeometricFrobenius_normalClosure :
+    ∀ {k : Type u} [Field k] (X : SchemeOverField k) [Finite k] [Curve X]
+      [Smooth X.hom] [Projective X.hom] [GeometricallyIrreducible X.hom]
+      [ConnectedSpace X.left] (xbar : GeometricPoint X.left),
+      ∃ S : Finset (closedPoints X.left),
+        ∀ F : S → Aut (GeometricPoint.finiteFiber xbar),
+          (∀ v : S, F v ∈ etaleGeometricFrobeniusSet X xbar v.1) →
+            (Subgroup.normalClosure (Set.range F)).topologicalClosure = ⊤)
 
-/-- The set of all geometric Frobenius elements in
-`Aut (standardFiniteEtaleFiber xbar)` associated to a closed point, obtained as
-the path-transports of local geometric Frobenius along fibre isomorphisms. -/
-def etaleGeometricFrobeniusSet [Finite k] [ConnectedSpace X.left]
-    [LocallyOfFiniteType X.hom] (xbar : GeometricPoint X.left)
-    (v : closedPoints X.left) :
-    Set (Aut (standardFiniteEtaleFiber xbar)) :=
-  Set.range (etaleGeometricFrobenius X xbar v)
-
-/-- Unfolding of `etaleGeometricFrobeniusSet` as the range of
-`etaleGeometricFrobenius`. -/
-theorem etaleGeometricFrobeniusSet_spec [Finite k] [ConnectedSpace X.left]
-    [LocallyOfFiniteType X.hom] (xbar : GeometricPoint X.left)
-    (v : closedPoints X.left) :
-    etaleGeometricFrobeniusSet X xbar v =
-      Set.range (etaleGeometricFrobenius X xbar v) := sorry
-
-/-- Each path-transport of local geometric Frobenius at a closed point lies in
-`etaleGeometricFrobeniusSet`. -/
-theorem etaleGeometricFrobenius_mem_set [Finite k] [ConnectedSpace X.left]
-    [LocallyOfFiniteType X.hom] (xbar : GeometricPoint X.left)
-    (v : closedPoints X.left)
-    (ι : standardFiniteEtaleFiber (geometricPointOverClosedPoint X v) ≅
-      standardFiniteEtaleFiber xbar) :
-    etaleGeometricFrobenius X xbar v ι ∈ etaleGeometricFrobeniusSet X xbar v :=
-  sorry
-
-/-- Proposition 64.34.1. Let `k` be a finite field and let `X` be a smooth,
-geometrically irreducible projective curve over `k`. For any geometric point
-`xbar` of `X`, there exists a finite set of closed points of `X` such that the
-set of all geometric Frobenius elements in `etaleFundamentalGroup X.left xbar`
-corresponding to these points topologically generates `π₁(X, xbar)`. -/
-@[stacks 03W5]
-theorem exists_finset_etaleGeometricFrobenius_topologicallyGenerate
-    [Finite k] [Curve X] [Smooth X.hom] [Projective X.hom]
-    [GeometricallyIrreducible X.hom] [ConnectedSpace X.left]
-    (xbar : GeometricPoint X.left) :
-    ∃ S : Finset (closedPoints X.left),
+#check
+  (AlgebraicGeometry.SchemeOverField.etaleGeometricFrobenius_topologicallyGenerate_iff_normalClosure :
+    ∀ {k : Type u} [Field k] (X : SchemeOverField k) [Finite k]
+      [ConnectedSpace X.left] [LocallyOfFiniteType X.hom]
+      (xbar : GeometricPoint X.left) (S : Finset (closedPoints X.left)),
       (Subgroup.closure
-          (⋃ v ∈ S, etaleGeometricFrobeniusSet X xbar v)).topologicalClosure = ⊤ :=
-  sorry
-
-/-- There exists a finite set of closed points such that for every choice of one
-geometric Frobenius element at each point, the topological closure of the
-normal closure of those elements is all of `π₁(X, xbar)`. -/
-theorem exists_finset_etaleGeometricFrobenius_normalClosure
-    [Finite k] [Curve X] [Smooth X.hom] [Projective X.hom]
-    [GeometricallyIrreducible X.hom] [ConnectedSpace X.left]
-    (xbar : GeometricPoint X.left) :
-    ∃ S : Finset (closedPoints X.left),
-      ∀ F : S → Aut (standardFiniteEtaleFiber xbar),
-        (∀ v : S, F v ∈ etaleGeometricFrobeniusSet X xbar v.1) →
-          (Subgroup.normalClosure (Set.range F)).topologicalClosure = ⊤ :=
-  sorry
-
-/-- For a fixed finite set of closed points, topological generation by all
-associated geometric Frobenius elements is equivalent to every choice of one
-geometric Frobenius per point having topological normal closure equal to the
-whole étale fundamental group. -/
-theorem etaleGeometricFrobenius_topologicallyGenerate_iff_normalClosure
-    [Finite k] [Curve X] [Smooth X.hom] [Projective X.hom]
-    [GeometricallyIrreducible X.hom] [ConnectedSpace X.left]
-    (xbar : GeometricPoint X.left) (S : Finset (closedPoints X.left)) :
-    (Subgroup.closure
         (⋃ v ∈ S, etaleGeometricFrobeniusSet X xbar v)).topologicalClosure = ⊤ ↔
-      ∀ F : S → Aut (standardFiniteEtaleFiber xbar),
-        (∀ v : S, F v ∈ etaleGeometricFrobeniusSet X xbar v.1) →
-          (Subgroup.normalClosure (Set.range F)).topologicalClosure = ⊤ :=
-  sorry
-
-end AlgebraicGeometry.SchemeOverField
+        ∀ F : S → Aut (GeometricPoint.finiteFiber xbar),
+          (∀ v : S, F v ∈ etaleGeometricFrobeniusSet X xbar v.1) →
+            (Subgroup.normalClosure (Set.range F)).topologicalClosure = ⊤)

@@ -1,15 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.RingTheory.Ideal.Nakayama
+public import ReasLib.RingTheory.Ideal.Nakayama.Basic
 import StacksCheckRecall
 
 @[expose] public section
+
+universe u v w
 
 /-!
 # Lemma 10.20.1 (Nakayama's lemma)
@@ -58,9 +54,13 @@ canonical theorem `Submodule.eq_top_of_sup_eq_top_of_le_jacobson`. -/
 #check @Submodule.eq_top_of_sup_eq_top_of_le_jacobson
 
 /- Lemma 10.20.1 (Nakayama's lemma) (5): localized surjectivity from a quotient map is owned by
-`LinearMap.exists_sub_one_mem_and_localizedAwayMap_surjective_of_quotientMap_surjective`. -/
+`LinearMap.exists_localizedAway_surjective`. -/
 @[stacks 00DV "(5)"]
-#check @LinearMap.exists_sub_one_mem_and_localizedAwayMap_surjective_of_quotientMap_surjective
+#check (LinearMap.exists_localizedAway_surjective :
+  ∀ {R : Type u} [CommRing R] {M : Type v} [AddCommGroup M] [Module R M]
+    {N : Type w} [AddCommGroup N] [Module R N] (f : N →ₗ[R] M) (I : Ideal R)
+    [Module.Finite R M], Function.Surjective (f.quotientMapByIdeal I) →
+    ∃ r : R, r - 1 ∈ I ∧ Function.Surjective (LocalizedModule.map (Submonoid.powers r) f))
 
 /- Lemma 10.20.1 (Nakayama's lemma) (6): surjectivity from a quotient map over a
 Jacobson-radical ideal is owned by `LinearMap.surjective_of_quotientMapByIdeal_surjective_of_le_jacobson`.

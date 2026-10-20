@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Monoidal.Basic
@@ -37,5 +31,25 @@ localization data. -/
 instance moduleSheafMonoidalCategory :
     MonoidalCategory (Sheaf J (ModuleCat.{w} Λ)) :=
   Sheaf.monoidalCategory J (ModuleCat.{w} Λ)
+
+variable (Λ)
+
+/-- The canonical map from pointwise tensor of sections to sections of the sheaf
+tensor. -/
+def moduleTensorSectionHom
+    (F G : Sheaf J (ModuleCat.{w} Λ)) (U : Cᵒᵖ) :
+    F.1.obj U ⊗ G.1.obj U ⟶ (F ⊗ G).1.obj U :=
+  ((sheafificationAdjunction J (ModuleCat.{w} Λ)).unit.app
+        (F.1 ⊗ G.1)).app U ≫
+    ((sheafToPresheaf J (ModuleCat.{w} Λ)).map
+      ((Functor.Monoidal.μIso
+            (presheafToSheaf J (ModuleCat.{w} Λ)) F.1 G.1).inv ≫
+        ((sheafificationAdjunction J
+              (ModuleCat.{w} Λ)).counit.app F ⊗ₘ
+          (sheafificationAdjunction J
+              (ModuleCat.{w} Λ)).counit.app G :
+            (presheafToSheaf J (ModuleCat.{w} Λ)).obj F.1 ⊗
+                (presheafToSheaf J (ModuleCat.{w} Λ)).obj G.1 ⟶
+              F ⊗ G))).app U
 
 end CategoryTheory.Sheaf

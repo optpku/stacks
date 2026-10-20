@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_4_1_Points
-public import stacks_project.Chap67.Definition_67_40_1_Proper
-public import stacks_project.Chap67.Definition_67_45_2_Integral
-public import stacks_project.Chap67.Lemma_67_17_2_InverseImage
-public import stacks_project.Chap67.Lemma_67_27_6_LocallyQuasiFinite
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Finite.Neighborhood
+import StacksCheckRecall
 
 /-!
 # Finite neighbourhoods of quasi-finite fibres of proper morphisms
@@ -28,7 +19,7 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 76.35.2: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
+/- Lemma 76.35.2: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
 algebraic spaces over `S`. Let `y : Points Y`. Assume `f` is proper, and `f`
 is quasi-finite at all `x : Points X` lying over `y`. Then there exists an
 open neighbourhood `V ⊂ Y` of `y` such that
@@ -38,13 +29,12 @@ The open neighbourhood is an open immersion `ι : V ⟶ Y` with
 `y ∈ Set.range (Points.map ι)`, and the restricted morphism is
 `openInverseImageTo f ι`. Quasi-finiteness at points of `X` is
 `QuasiFiniteAt` in the sense of Stacks 67.27.1 (2). -/
-@[stacks 0A4Y]
-theorem exists_isFinite_openInverseImageTo_of_quasiFiniteAt_fiber
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Proper f]
+@[stacks 0A4Y] #check
+  (AlgebraicGeometry.AlgebraicSpace.exists_isFinite_openInverseImageTo_of_quasiFiniteAt_fiber :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Proper f]
     (y : Points Y)
-    (h : ∀ x : Points X, Points.map f x = y → QuasiFiniteAt f x) :
+    (h : ∀ x : Points X, Points.map f x = y → QuasiFiniteAt f x),
     ∃ (V : AlgebraicSpace S) (ι : V ⟶ Y) (hι : IsOpenImmersion ι),
-      y ∈ Set.range (Points.map ι) ∧ IsFinite (openInverseImageTo f ι) :=
-  sorry
+      y ∈ Set.range (Points.map ι) ∧ IsFinite (openInverseImageTo f ι))
 
 end AlgebraicGeometry.AlgebraicSpace

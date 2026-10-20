@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_4_2_Points
-public import stacks_project.Chap100.Lemma_100_9_10_Substack
-public import stacks_project.Chap100.Lemma_100_11_2_Reduced
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Reduced.ClosedImmersion
+import StacksCheckRecall
 
 /-!
 # Reduced algebraic stacks are determined by their closed substack of points
@@ -22,37 +15,30 @@ ambient stack is the whole stack.
 open CategoryTheory AlgebraicGeometry FiberedCategoryOver.Groupoids
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.ClosedSubstack
+/- Lemma 100.10.2: A closed substack containing every point of a reduced
+algebraic stack is the whole stack. -/
+@[stacks 050A] #check
+  (AlgebraicGeometry.Groupoids.Hom.ClosedImmersion.isEquivalence_of_isReduced :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack.IsReduced X]
+      (i : Y ⟶ X) [Groupoids.Hom.ClosedImmersion i],
+      Set.range (AlgebraicStack.Points.map i) = Set.univ →
+        (toBasedFunctor i).IsEquivalence)
 
-/-- Lemma 100.10.2: Let `X` be an algebraic stack. If `Z` is a closed substack
-of `X`, `X` is reduced, and `|Z.Y| = |X|` in the sense that
-`Set.range (Points.map Z.ι) = Set.univ`, then `Z` is the whole stack, i.e.
-`(toBasedFunctor Z.ι).IsEquivalence`. -/
-@[stacks 050A]
-theorem isEquivalence_of_isReduced {S : Scheme.{u}} {X : GroupoidsOver S}
-    [AlgebraicStack X] [IsReduced X] (Z : ClosedSubstack X)
-    (h : Set.range (Points.map Z.ι) = Set.univ) :
-    (toBasedFunctor Z.ι).IsEquivalence :=
-  sorry
+#check
+  (AlgebraicGeometry.Groupoids.Hom.ClosedImmersion.essImage_eq_of_isReduced :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack.IsReduced X]
+      (i : Y ⟶ X) [Groupoids.Hom.ClosedImmersion i],
+      Set.range (AlgebraicStack.Points.map i) = Set.univ →
+        (toFunctor i).essImage = (toFunctor (𝟙 X)).essImage)
 
-/-- On a reduced algebraic stack, a closed substack containing every point has
-the same `objectProperty` as the identity substack. -/
-theorem objectProperty_eq_of_isReduced {S : Scheme.{u}} {X : GroupoidsOver S}
-    [AlgebraicStack X] [IsReduced X] (Z : ClosedSubstack X)
-    (h : Set.range (Points.map Z.ι) = Set.univ) :
-    Z.objectProperty = (toFunctor (𝟙 X)).essImage :=
-  sorry
-
-/-- A closed substack of a reduced algebraic stack is the whole stack if and
-only if its image of points is all of `|X|`. -/
-theorem isEquivalence_iff_range_eq_univ {S : Scheme.{u}} {X : GroupoidsOver S}
-    [AlgebraicStack X] [IsReduced X] (Z : ClosedSubstack X) :
-    (toBasedFunctor Z.ι).IsEquivalence ↔
-      Set.range (Points.map Z.ι) = Set.univ :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.ClosedSubstack
+#check
+  (AlgebraicGeometry.Groupoids.Hom.ClosedImmersion.isEquivalence_iff_range_eq_univ :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack.IsReduced X]
+      (i : Y ⟶ X) [Groupoids.Hom.ClosedImmersion i],
+      (toBasedFunctor i).IsEquivalence ↔
+        Set.range (AlgebraicStack.Points.map i) = Set.univ)

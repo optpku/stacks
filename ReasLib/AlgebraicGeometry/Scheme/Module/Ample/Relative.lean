@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Ample.Separated
@@ -58,6 +52,8 @@ class RelativelyAmple (f : X ⟶ S) (L : X.Modules) : Prop where
   /-- The restriction over each affine base open is ample. -/
   isAmpleOnAffinePreimage :
     ∀ U : S.affineOpens, IsAmpleOnBasePreimage f L (U : S.Opens)
+
+attribute [instance] RelativelyAmple.invertible
 
 /-- Relative ampleness is equivalent to invertibility, quasi-compactness of the morphism, and
 ampleness on the preimage of every affine open of the base. -/

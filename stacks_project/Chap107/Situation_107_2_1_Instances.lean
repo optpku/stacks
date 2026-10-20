@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Base
 public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Base
 
 /-!
 # Identity fibration of a scheme as an algebraic stack
@@ -25,9 +20,7 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- The universe-resized identity fibration on `Over S` is an algebraic stack. -/
-instance base (S : Scheme.{u}) :
-    AlgebraicStack (FiberedCategoryOver.Groupoids.base.{u + 1, u, u + 1} (Over S)) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.base : ∀ (S : Scheme.{u}),
+  AlgebraicStack (FiberedCategoryOver.Groupoids.base.{u + 1, u, u + 1} (Over S)))
 
 end AlgebraicGeometry.AlgebraicStack

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Modules.Sheaf
@@ -111,8 +105,6 @@ instance instRingedSpaceIsInvertible {L : X.Modules}
 /-- An invertible scheme module is canonically quasicoherent. -/
 instance instIsQuasicoherent (L : X.Modules) [Invertible L] :
     L.IsQuasicoherent := by
-  -- Local instance justification (defeq pin): select the ringed-space tensor-invertibility presentation required by the canonical quasicoherence instance.
-  letI : RingedSpaceIsInvertible L := instRingedSpaceIsInvertible
   infer_instance
 
 end Invertible

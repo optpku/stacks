@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_4_5_Quotient
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Presentation.Points
 import StacksCheckRecall
 
 @[expose] public section
@@ -19,7 +13,7 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 `X = U / R` be a presentation of `X`. Then the image of `|R| → |U| × |U|` is an
 equivalence relation on `|U|`. -/
 @[stacks 03BW] #check
-  (Presentation.pointsRel_equivalence :
+  (AlgebraicGeometry.AlgebraicSpace.Presentation.pointsRel_equivalence :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (P : Presentation X),
       Equivalence P.pointsRel)
 
@@ -27,7 +21,7 @@ equivalence relation on `|U|`. -/
 `X = U / R` be a presentation of `X`. Then `|X|` is the quotient of `|U|` by this
 equivalence relation. -/
 @[stacks 03BW] #check
-  (Presentation.isPointsQuotient :
+  (AlgebraicGeometry.AlgebraicSpace.Presentation.isPointsQuotient :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (P : Presentation X),
       Function.Surjective P.pointsMap ∧
         ∀ u v, P.pointsRel u v ↔ P.pointsMap u = P.pointsMap v)

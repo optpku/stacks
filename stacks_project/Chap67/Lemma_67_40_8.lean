@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_40_1_Proper
-public import stacks_project.Chap67.Definition_67_5_2_Surjective
-public import stacks_project.Chap67.Lemma_67_16_6_SchemeTheoreticImage
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.SchemeTheoreticImage.Proper
+import StacksCheckRecall
 
 /-!
 # Scheme-theoretic images of proper morphisms of algebraic spaces
@@ -25,28 +18,26 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticImage
+open AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.40.8 (1): Let `S` be a scheme, and let `h : X ⟶ Y`, `f : X ⟶ B`,
+/- Lemma 67.40.8 (1): Let `S` be a scheme, and let `h : X ⟶ Y`, `f : X ⟶ B`,
 `g : Y ⟶ B` be a commutative triangle of morphisms of algebraic spaces over
 `S`. If `f` is proper and `g` is separated and locally of finite type, then
 the scheme-theoretic image of `h` is proper over `B`. -/
 @[stacks 0AGD]
-theorem proper_comp {S : Scheme.{u}} {X Y B Z : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticImage.proper_comp :
+    ∀ {S : Scheme.{u}} {X Y B Z : AlgebraicSpace S}
     (h : X ⟶ Y) (f : X ⟶ B) (g : Y ⟶ B) (toImage : X ⟶ Z) (ι : Z ⟶ Y)
     (hcomm : h ≫ g = f) [Proper f] [Separated g] [LocallyOfFiniteType g]
-    [IsSchemeTheoreticImage h toImage ι] : Proper (ι ≫ g) :=
-  sorry
+    [IsSchemeTheoreticImage h toImage ι], Proper (ι ≫ g))
 
-/-- Lemma 67.40.8 (2): Let `S` be a scheme, and let `h : X ⟶ Y`, `f : X ⟶ B`,
+/- Lemma 67.40.8 (2): Let `S` be a scheme, and let `h : X ⟶ Y`, `f : X ⟶ B`,
 `g : Y ⟶ B` be a commutative triangle of morphisms of algebraic spaces over
 `S`. If `f` is proper and `g` is separated and locally of finite type, then
 the comparison from `X` to the scheme-theoretic image of `h` is surjective. -/
 @[stacks 0AGD]
-theorem surjective_toImage {S : Scheme.{u}} {X Y B Z : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticImage.surjective_toImage :
+    ∀ {S : Scheme.{u}} {X Y B Z : AlgebraicSpace S}
     (h : X ⟶ Y) (f : X ⟶ B) (g : Y ⟶ B) (toImage : X ⟶ Z) (ι : Z ⟶ Y)
     (hcomm : h ≫ g = f) [Proper f] [Separated g] [LocallyOfFiniteType g]
-    [IsSchemeTheoreticImage h toImage ι] : Surjective toImage :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticImage
+    [IsSchemeTheoreticImage h toImage ι], Surjective toImage)

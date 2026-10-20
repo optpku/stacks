@@ -1,47 +1,30 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap96.«96_24_3_1_StructureSheaf»
-public import stacks_project.Chap96.«96_24_3_1_Comparison»
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.AffineRingedComparison
+import StacksCheckRecall
 
 /-!
-# 96.24.3.1
+# Restriction to associated affine ringed sites
 
-Restriction of `𝒪_𝒳` to `𝒳_affine` is a sheaf `𝒪` for every standard
-topology `τ`, and the special cocontinuous inclusion of Lemma 96.24.3
-extends to an equivalence of ringed topoi
-`(Sh(𝒳_affine,τ), 𝒪) ⟶ (Sh(𝒳_τ), 𝒪_𝒳)`.
+Restriction of the canonical structure sheaf to the associated affine site
+extends the affine comparison to an equivalence of ringed topoi.
 -/
 
 @[expose] public section
 
 open AlgebraicGeometry CategoryTheory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.GroupoidsOver
-
-variable {S : Scheme.{u}} (X : GroupoidsOver S) (τ : StandardTopology)
-variable [HasSheafify (X.associatedAffineTopology τ) (Type (u + 1))]
-variable [∀ P : (Affine X)ᵒᵖ ⥤ Type (u + 1),
-    (affineInclusion X).op.HasPointwiseRightKanExtension P]
-variable [(X.associatedAffineTopology τ).HasSheafCompose (forget RingCat.{u + 1})]
-variable [(X.associatedTopology τ).HasSheafCompose (forget RingCat.{u + 1})]
-
-/-- 96.24.3.1: the special cocontinuous inclusion of the associated affine
-`τ`-site extends to an equivalence of ringed topoi
-`(Sh(𝒳_affine,τ), 𝒪) ⟶ (Sh(𝒳_τ), 𝒪_𝒳)`, where `𝒪` is the restriction of
-`𝒪_𝒳`. -/
-@[stacks 0H0C]
-instance associatedAffineComparison_isEquivalence :
-    (associatedAffineComparison X τ).IsEquivalence :=
-  sorry
-
-end AlgebraicGeometry.GroupoidsOver
+/- 96.24.3.1: restriction of the canonical structure sheaf to the associated
+affine site extends the special cocontinuous comparison to an equivalence
+of ringed topoi for every standard topology. -/
+@[stacks 0H0C] #check
+  (AlgebraicGeometry.GroupoidsOver.associatedAffineComparison_isEquivalence :
+    ∀ {S : Scheme.{u}} (X : GroupoidsOver S) (τ : StandardTopology)
+      [HasSheafify (X.associatedAffineTopology τ) (Type (u + 1))]
+      [∀ P : (GroupoidsOver.Affine X)ᵒᵖ ⥤ Type (u + 1),
+        (GroupoidsOver.affineInclusion X).op.HasPointwiseRightKanExtension P]
+      [(X.associatedAffineTopology τ).HasSheafCompose (forget RingCat.{u + 1})]
+      [(X.associatedTopology τ).HasSheafCompose (forget RingCat.{u + 1})],
+      (GroupoidsOver.associatedAffineComparison X τ).IsEquivalence)

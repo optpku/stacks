@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.Multiplication
@@ -39,8 +33,7 @@ universe u v
 #check
   (AlgebraicGeometry.ProjTwistFamily.tensorTwist :
     forall {A : Type u} {sigma : Type v} [CommRing A] [SetLike sigma A]
-      [AddSubgroupClass sigma A] {calA : Nat -> sigma} [GradedRing calA]
-      [MonoidalCategory (AlgebraicGeometry.Proj calA).Modules],
+      [AddSubgroupClass sigma A] {calA : Nat -> sigma} [GradedRing calA],
       AlgebraicGeometry.ProjTwistFamily calA ->
         (AlgebraicGeometry.Proj calA).Modules -> Int ->
         (AlgebraicGeometry.Proj calA).Modules)
@@ -49,7 +42,6 @@ universe u v
   (AlgebraicGeometry.ProjTwistFamily.tensorTwist_def :
     forall {A : Type u} {sigma : Type v} [CommRing A] [SetLike sigma A]
       [AddSubgroupClass sigma A] {calA : Nat -> sigma} [GradedRing calA]
-      [MonoidalCategory (AlgebraicGeometry.Proj calA).Modules]
       (P : AlgebraicGeometry.ProjTwistFamily calA)
       (F : (AlgebraicGeometry.Proj calA).Modules) (n : Int),
       P.tensorTwist F n = tensorObj F (P.twist n))
@@ -58,7 +50,6 @@ universe u v
   (AlgebraicGeometry.ProjTwistFamily.Multiplication :
     forall {A : Type u} {sigma : Type v} [CommRing A] [SetLike sigma A]
       [AddSubgroupClass sigma A] {calA : Nat -> sigma} [GradedRing calA]
-      [MonoidalCategory (AlgebraicGeometry.Proj calA).Modules]
       (P : AlgebraicGeometry.ProjTwistFamily calA),
       Type u)
 
@@ -66,8 +57,6 @@ universe u v
   forall {A : Type u} {sigma : Type v} [CommRing A] [SetLike sigma A]
     [AddSubgroupClass sigma A]
     (calA : Nat -> sigma) [GradedRing calA]
-    [MonoidalCategory (AlgebraicGeometry.Proj calA).Modules]
-    [BraidedCategory (AlgebraicGeometry.Proj calA).Modules]
     (twist : AlgebraicGeometry.ProjTwistFamily calA)
     (twistMul : AlgebraicGeometry.ProjTwistFamily.Multiplication twist)
     (F : (AlgebraicGeometry.Proj calA).Modules) (n m : Int),
@@ -84,8 +73,6 @@ universe u v
   forall {A : Type u} {sigma : Type v} [CommRing A] [SetLike sigma A]
     [AddSubgroupClass sigma A]
     (calA : Nat -> sigma) [GradedRing calA]
-    [MonoidalCategory (AlgebraicGeometry.Proj calA).Modules]
-    [BraidedCategory (AlgebraicGeometry.Proj calA).Modules]
     (P : AlgebraicGeometry.ProjTwistFamily calA) (twistMul : P.Multiplication)
     (F : (AlgebraicGeometry.Proj calA).Modules) (n m : Int),
     (tensorObj (P.twist n) (P.tensorTwist F m) :

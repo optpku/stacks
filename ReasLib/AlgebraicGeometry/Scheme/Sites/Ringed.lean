@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Pullback
@@ -217,7 +211,7 @@ theorem ringedHom_structureSheafMap_app (τ τ' : StandardTopology) (f : T ⟶ S
 identity ringed-site morphism. -/
 theorem ringedHom_id (τ : StandardTopology) (S : Scheme.{u})
     [IsMorphismOfSites (τ.overTopology S) (τ.overTopology S) (Over.pullback (𝟙 S))] :
-    ringedHom τ τ (𝟙 S) = 𝟙 (ringedSite τ S) := sorry
+    ringedHom τ τ (𝟙 S) = RingedSite.Hom.id (ringedSite τ S) := sorry
 
 /-- Standard big-site ringed morphisms respect composition of scheme morphisms. -/
 theorem ringedHom_comp {R S T : Scheme.{u}} (τ₀ τ₁ τ₂ : StandardTopology)
@@ -286,7 +280,7 @@ theorem ringedHom_structureSheafMap_app (f : T ⟶ S) (U : S.Etaleᵒᵖ) :
 
 /-- The small-étale ringed morphism associated to the identity is the identity. -/
 theorem ringedHom_id (S : Scheme.{u}) :
-    ringedHom (𝟙 S) = 𝟙 (ringedSite S) := sorry
+    ringedHom (𝟙 S) = RingedSite.Hom.id (ringedSite S) := sorry
 
 /-- Small-étale ringed morphisms respect composition of scheme morphisms. -/
 theorem ringedHom_comp {R S T : Scheme.{u}} (f : R ⟶ S) (g : S ⟶ T) :
@@ -351,7 +345,7 @@ theorem ringedHom_structureSheafMap_app (f : T ⟶ S)
 
 /-- The small-Zariski ringed morphism associated to the identity is the identity. -/
 theorem ringedHom_id (S : Scheme.{u}) :
-    ringedHom (𝟙 S) = 𝟙 (ringedSite S) := sorry
+    ringedHom (𝟙 S) = RingedSite.Hom.id (ringedSite S) := sorry
 
 /-- Small-Zariski ringed morphisms respect composition of scheme morphisms. -/
 theorem ringedHom_comp {R S T : Scheme.{u}} (f : R ⟶ S) (g : S ⟶ T) :

@@ -1,114 +1,83 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Constructions.Over.Basic
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.PreRelation.Comparison
 public import stacks_project.Chap83.Definition_83_4_1_Invariant
 
 /-!
 # Comparison square of a pre-relation and a morphism
 
-This module names the comparison morphism `c : U ×_X U ⟶ U ×_B U` of a slice morphism
-`φ : U ⟶ X`, the projections `p` and `q` of its pullback along a pre-relation, and the
-induced morphism `R ⟶ U ×_X U` when `φ` is `R`-invariant.
+The canonical comparison morphism, its pullback projections, and the induced
+kernel-pair morphism are available from their shared mathematical owner.
 -/
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry AlgebraicSpace Limits
-
-noncomputable section
+open AlgebraicGeometry.AlgebraicSpace.PreRelation
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.PreRelation
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.comparison :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B} (φ : U ⟶ X),
+      pullback φ φ ⟶ U ⨯ U)
 
-/-- The comparison `c : pullback φ φ ⟶ U ⨯ U` sending a pair in `U ×_X U` to the same
-pair in `U ×_B U`. -/
-def comparison {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B} (φ : U ⟶ X) :
-    pullback φ φ ⟶ U ⨯ U :=
-  prod.lift (pullback.fst φ φ) (pullback.snd φ φ)
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.comparison_fst :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
+    (φ : U ⟶ X),
+      comparison φ ≫ prod.fst = pullback.fst φ φ)
 
-/-- The first projection of `comparison φ` is `pullback.fst φ φ`. -/
-theorem comparison_fst {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    (φ : U ⟶ X) :
-    comparison φ ≫ prod.fst = pullback.fst φ φ :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.comparison_snd :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
+    (φ : U ⟶ X),
+      comparison φ ≫ prod.snd = pullback.snd φ φ)
 
-/-- The second projection of `comparison φ` is `pullback.snd φ φ`. -/
-theorem comparison_snd {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    (φ : U ⟶ X) :
-    comparison φ ≫ prod.snd = pullback.snd φ φ :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.comparison_spec :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
+    (φ : U ⟶ X),
+      comparison φ ≫ prod.fst = pullback.fst φ φ ∧
+      comparison φ ≫ prod.snd = pullback.snd φ φ)
 
-/-- The comparison morphism is the product lift of the two kernel-pair projections. -/
-theorem comparison_spec {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    (φ : U ⟶ X) :
-    comparison φ ≫ prod.fst = pullback.fst φ φ ∧
-      comparison φ ≫ prod.snd = pullback.snd φ φ :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.toRelation :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
+    (P : PreRelation U) (φ : U ⟶ X),
+      pullback (comparison φ) P.hom ⟶ P.left)
 
-/-- The projection `p` of the pullback of `comparison φ` along `P.hom`, landing in the
-source of the pre-relation. -/
-def toRelation {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    (P : PreRelation U) (φ : U ⟶ X) :
-    pullback (comparison φ) P.hom ⟶ P.left :=
-  pullback.snd (comparison φ) P.hom
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.toRelation_spec :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
+    (P : PreRelation U) (φ : U ⟶ X),
+      P.toRelation φ = pullback.snd (comparison φ) P.hom)
 
-/-- `P.toRelation φ` is the second projection of the pullback of `comparison φ` along
-`P.hom`. -/
-theorem toRelation_spec {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    (P : PreRelation U) (φ : U ⟶ X) :
-    P.toRelation φ = pullback.snd (comparison φ) P.hom :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.toKernelPair :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
+    (P : PreRelation U) (φ : U ⟶ X),
+      pullback (comparison φ) P.hom ⟶ pullback φ φ)
 
-/-- The projection `q` of the pullback of `comparison φ` along `P.hom`, landing in the
-kernel pair `U ×_X U`. -/
-def toKernelPair {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    (P : PreRelation U) (φ : U ⟶ X) :
-    pullback (comparison φ) P.hom ⟶ pullback φ φ :=
-  pullback.fst (comparison φ) P.hom
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.toKernelPair_spec :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
+    (P : PreRelation U) (φ : U ⟶ X),
+      P.toKernelPair φ = pullback.fst (comparison φ) P.hom)
 
-/-- `P.toKernelPair φ` is the first projection of the pullback of `comparison φ` along
-`P.hom`. -/
-theorem toKernelPair_spec {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    (P : PreRelation U) (φ : U ⟶ X) :
-    P.toKernelPair φ = pullback.fst (comparison φ) P.hom :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.toKernelPair_comp_comparison :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
+    {U X : Over B} (P : PreRelation U) (φ : U ⟶ X),
+      P.toKernelPair φ ≫ comparison φ = P.toRelation φ ≫ P.hom)
 
-/-- The square with vertices `pullback (comparison φ) P.hom`, `P.left`, `pullback φ φ`,
-and `U ⨯ U` commutes. -/
-theorem toKernelPair_comp_comparison {S : Scheme.{u}} {B : AlgebraicSpace S}
-    {U X : Over B} (P : PreRelation U) (φ : U ⟶ X) :
-    P.toKernelPair φ ≫ comparison φ = P.toRelation φ ≫ P.hom :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.induced :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
+    (P : PreRelation U) {φ : U ⟶ X} (hφ : P.IsInvariant φ),
+      P.left ⟶ pullback φ φ)
 
-/-- The induced morphism `R ⟶ U ×_X U` associated to an `R`-invariant morphism `φ`. -/
-def induced {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    (P : PreRelation U) {φ : U ⟶ X} (hφ : P.IsInvariant φ) :
-    P.left ⟶ pullback φ φ :=
-  pullback.lift P.t P.s hφ
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.induced_fst :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
+    (P : PreRelation U) {φ : U ⟶ X} (hφ : P.IsInvariant φ),
+      P.induced hφ ≫ pullback.fst φ φ = P.t)
 
-/-- The first projection of `P.induced hφ` is the target map of the pre-relation. -/
-theorem induced_fst {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    (P : PreRelation U) {φ : U ⟶ X} (hφ : P.IsInvariant φ) :
-    P.induced hφ ≫ pullback.fst φ φ = P.t :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.induced_snd :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
+    (P : PreRelation U) {φ : U ⟶ X} (hφ : P.IsInvariant φ),
+      P.induced hφ ≫ pullback.snd φ φ = P.s)
 
-/-- The second projection of `P.induced hφ` is the source map of the pre-relation. -/
-theorem induced_snd {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    (P : PreRelation U) {φ : U ⟶ X} (hφ : P.IsInvariant φ) :
-    P.induced hφ ≫ pullback.snd φ φ = P.s :=
-  sorry
-
-/-- The induced morphism composes with `comparison φ` to the defining map of `P`. -/
-theorem induced_comp {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
-    (P : PreRelation U) {φ : U ⟶ X} (hφ : P.IsInvariant φ) :
-    P.induced hφ ≫ comparison φ = P.hom :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.PreRelation
+#check (AlgebraicGeometry.AlgebraicSpace.PreRelation.induced_comp :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
+    (P : PreRelation U) {φ : U ⟶ X} (hφ : P.IsInvariant φ),
+      P.induced hφ ≫ comparison φ = P.hom)

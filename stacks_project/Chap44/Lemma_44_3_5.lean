@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Hilbert.Smooth
@@ -17,13 +11,14 @@ universe u
 
 namespace AlgebraicGeometry.Hilbert
 
-/- Lemma 44.3.5: if `X ⟶ S` is a smooth relative curve and all its Hilbert functors are
-representable, then the degree-`d` representing scheme is smooth over `S` of relative
-dimension `d`. -/
+/- Lemma 44.3.5: if `X ⟶ S` is a separated smooth relative curve and all its Hilbert functors
+are representable, then the degree-`d` representing scheme is smooth over `S` of relative
+dimension `d`; separatedness is the graph hypothesis used by the preceding universal-object
+lemma. -/
 @[stacks 0B9H] #check
   (AlgebraicGeometry.Hilbert.representingScheme_smoothOfRelativeDimension :
     ∀ {S : Scheme.{u}} (X : Over S)
-      [SmoothOfRelativeDimension 1 X.hom]
+      [SmoothOfRelativeDimension 1 X.hom] [IsSeparated X.hom]
       [∀ n : ℕ, (functor X n).IsRepresentable] (d : ℕ),
       SmoothOfRelativeDimension d (functor X d).reprX.hom)
 

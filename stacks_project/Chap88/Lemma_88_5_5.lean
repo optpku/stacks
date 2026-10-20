@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Module.Torsion.Basic
-public import Mathlib.RingTheory.Ideal.Quotient.Operations
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap88.Definition_88_18_1_Ring
+public import ReasLib.RingTheory.AdicCompletion.NaiveCotangent.PrincipalLifting
+import StacksCheckRecall
 
 /-!
 # Lifting maps along a principal adic filtration with torsion cutoff
@@ -24,17 +16,15 @@ congruence modulo `a^{n-c} C`.
 
 universe u
 
-namespace Algebra.NaiveCotangent.Adic
-
-/-- Lemma 88.5.5: Let `I = (a)` be a principal ideal of a Noetherian ring `A`.
+/- Lemma 88.5.5: Let `I = (a)` be a principal ideal of a Noetherian ring `A`.
 Let `B` be an object of (88.2.0.2). Assume given an integer `c ≥ 0` such that
 `Ext¹_B(NL_{B/A}^∧, N)` is annihilated by `a^c` for all `B`-modules `N`. Let
 `C` be an `I`-adically complete `A`-algebra. Assume given an integer `d ≥ 0`
 such that `C[a^∞] ∩ a^d C = 0`. Let `n > max (2c, c + d)`. For any `A`-algebra
 map `ψn : B →ₐ[A] C ⧸ a^n C` there exists an `A`-algebra map `φ : B →ₐ[A] C`
 such that `ψn` and `φ` agree as maps into `C ⧸ a^{n-c} C`. -/
-@[stacks 0AK7]
-theorem exists_hom_of_powerTorsion_disjoint {A B C : Type u}
+@[stacks 0AK7] #check (Algebra.NaiveCotangent.Adic.exists_hom_of_powerTorsion_disjoint :
+  ∀ {A B C : Type u}
     [CommRing A] [IsNoetherianRing A] [CommRing B] [CommRing C]
     [Algebra A B] [Algebra A C] {I : Ideal A} {a : A} (hI : I = Ideal.span {a})
     [Algebra.TopologicallyFiniteType I B] (c : ℕ)
@@ -43,10 +33,7 @@ theorem exists_hom_of_powerTorsion_disjoint {A B C : Type u}
     (hd : Submodule.torsion' C C (Submonoid.powers (algebraMap A C a)) ⊓
         (I.map (algebraMap A C)) ^ d = ⊥)
     {n : ℕ} (hn : max (2 * c) (c + d) < n)
-    (ψn : B →ₐ[A] C ⧸ (I.map (algebraMap A C)) ^ n) :
+    (ψn : B →ₐ[A] C ⧸ (I.map (algebraMap A C)) ^ n),
     ∃ φ : B →ₐ[A] C,
       (Ideal.Quotient.factorₐ A (Ideal.pow_le_pow_right (Nat.sub_le n c))).comp ψn =
-        (Ideal.Quotient.mkₐ A ((I.map (algebraMap A C)) ^ (n - c))).comp φ :=
-  sorry
-
-end Algebra.NaiveCotangent.Adic
+        (Ideal.Quotient.mkₐ A ((I.map (algebraMap A C)) ^ (n - c))).comp φ)

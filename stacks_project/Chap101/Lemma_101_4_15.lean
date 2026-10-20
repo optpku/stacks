@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_8_1_Mono
-public import stacks_project.Chap100.Definition_100_9_1_Immersion
-public import stacks_project.Chap101.Definition_101_4_1_Separation
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Separation.Monomorphism
+import StacksCheckRecall
 
 /-!
 # Monomorphisms and immersions of algebraic stacks are separated and DM
@@ -24,46 +17,24 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack
-
-namespace Separated
-
-/-- Lemma 101.4.15 (1): A monomorphism of algebraic stacks is separated. -/
-@[stacks 06MY]
-instance of_mono {S : Scheme.{u}} {X Y : GroupoidsOver S}
+/- Lemma 101.4.15: Monomorphisms and immersions of algebraic stacks are
+separated and DM. -/
+@[stacks 06MY] #check (AlgebraicGeometry.AlgebraicStack.Separated.of_mono :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    [Groupoids.Hom.Mono f] :
-    Separated f :=
-  sorry
+    [Groupoids.Hom.Mono f], AlgebraicGeometry.AlgebraicStack.Separated f)
 
-/-- Lemma 101.4.15 (3): An immersion of algebraic stacks is separated. -/
-@[stacks 06MY]
-instance of_immersion {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.Separated.of_immersion :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    [Groupoids.Hom.Immersion f] :
-    Separated f :=
-  sorry
+    [Groupoids.Hom.Immersion f], AlgebraicGeometry.AlgebraicStack.Separated f)
 
-end Separated
-
-namespace DM
-
-/-- Lemma 101.4.15 (2): A monomorphism of algebraic stacks is DM. -/
-@[stacks 06MY]
-instance of_mono {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.DM.of_mono :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    [Groupoids.Hom.Mono f] :
-    DM f :=
-  sorry
+    [Groupoids.Hom.Mono f], AlgebraicGeometry.AlgebraicStack.DM f)
 
-/-- Lemma 101.4.15 (4): An immersion of algebraic stacks is DM. -/
-@[stacks 06MY]
-instance of_immersion {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.DM.of_immersion :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    [Groupoids.Hom.Immersion f] :
-    DM f :=
-  sorry
-
-end DM
-
-end AlgebraicGeometry.AlgebraicStack
+    [Groupoids.Hom.Immersion f], AlgebraicGeometry.AlgebraicStack.DM f)

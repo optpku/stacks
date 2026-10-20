@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Pro.Sequential.Realization
@@ -56,13 +50,10 @@ def setoid : Setoid (Pro.SequentialHom X Y) where
   r := Equivalent
   iseqv := equivalentEquivalence
 
-/-- Typeclass owner for the common-refinement relation on sequential presentations. -/
-instance instSetoid : Setoid (Pro.SequentialHom X Y) := setoid
-
 /-- The quotient of sequential presentations by common refinement. -/
 abbrev Quotient := _root_.Quotient (setoid (X := X) (Y := Y))
 
-/-- Example 4.22.6 (1) (Stacks 0G2W): every morphism between the associated sequential
+/-- Every morphism between the associated sequential
 pro-objects has a representative given by a monotone reindexing and compatible level maps. -/
 @[stacks 0G2W "every morphism of sequential pro-objects has a sequential representative"]
 theorem toHom_surjective :
@@ -76,11 +67,11 @@ theorem toHom_refine (r : Pro.SequentialHom X Y)
     (reindex' : ℕ →o ℕ) (hle : r.reindex ≤ reindex') :
     (r.refine reindex' hle).toHom = r.toHom := sorry
 
-/-- Example 4.22.6 (3) (Stacks 0G2W): two monotone representatives determine the same pro-object
+/-- Two monotone representatives determine the same pro-object
 morphism if and only if they agree after one common monotone refinement. -/
 @[stacks 0G2W "equality of sequential pro-morphism presentations"]
 theorem toHom_eq_iff (r₁ r₂ : Pro.SequentialHom X Y) :
-    r₁.toHom = r₂.toHom ↔ r₁ ≈ r₂ := sorry
+    r₁.toHom = r₂.toHom ↔ Equivalent r₁ r₂ := sorry
 
 /-- The canonical map from common-refinement classes to morphisms of the associated pro-objects. -/
 noncomputable def quotientToHom :
@@ -93,11 +84,7 @@ noncomputable def quotientToHom :
 theorem quotientToHom_mk (r : Pro.SequentialHom X Y) :
     quotientToHom (_root_.Quotient.mk (setoid (X := X) (Y := Y)) r) = r.toHom := sorry
 
-/-- Example 4.22.6 (3) (Stacks 0G2W): the canonical map from common-refinement classes to
-pro-morphisms is bijective.
-
-An inverse function or `Equiv` should be constructed only after this proposition is proved, so no
-public data depends on a placeholder proof of representative existence. -/
+/-- The canonical map from common-refinement classes to pro-morphisms is bijective. -/
 @[stacks 0G2W "quotient presentation of sequential pro-morphisms"]
 theorem quotientToHom_bijective :
     Function.Bijective

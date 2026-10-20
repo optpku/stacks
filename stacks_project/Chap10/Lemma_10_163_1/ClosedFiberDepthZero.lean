@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.Depth
@@ -223,8 +217,8 @@ lemma maximalIdeal_mem_associatedPrimes_of_moduleDepth_eq_zero_for_entry
     have hq_eq : q = maximalIdeal A := le_antisymm hq_le hmq
     exact hmax (hq_eq ▸ hq)
   exact hno_regular <|
-    (exists_mem_isSMulRegular_iff_forall_not_le_associatedPrimes
-      (R := A) (M := P) (I := maximalIdeal A)).2 hforall
+    (Ideal.exists_isSMulRegular_iff_not_le_associatedPrimes
+      (R := A) (M := P) (maximalIdeal A)).2 hforall
 
 /-- Helper for Lemma 10.163.1: a nonzero element annihilated by the maximal ideal forces depth
 zero. -/

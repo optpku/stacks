@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Quasicoherent
-public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.Quasicoherent
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Basic
 public import stacks_project.Chap96.Definition_96_4_1_AssociatedTopology
 public import stacks_project.Chap96.Definition_96_6_1_StructureSheaf
@@ -37,67 +30,19 @@ variable {S : Scheme.{u}} (X : GroupoidsOver S)
 abbrev fppfRingedSite : RingedSite.{u + 1, u, u} :=
   X.ringedSite
 
-/-- The site of `fppfRingedSite X` is the associated fppf topology of `X`. -/
-theorem fppfRingedSite_siteTopology :
-    (fppfRingedSite X).siteTopology = X.fppfTopology :=
-  sorry
+#check (AlgebraicGeometry.GroupoidsOver.ringedSite_structureSheaf :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S),
+    (fppfRingedSite X).structureSheaf = structureSheaf X)
 
-/-- The structure sheaf of `fppfRingedSite X` is `𝒪_X`. -/
-theorem fppfRingedSite_structureSheaf :
-    (fppfRingedSite X).structureSheaf = X.structureSheaf :=
-  sorry
+#check (AlgebraicGeometry.GroupoidsOver.quasiCoherentModuleProperty :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S),
+    ObjectProperty (RingedSite.ModuleCat.{u} (fppfRingedSite X)))
 
-/-- Abelian-group-valued sheaf composition exists on every slice of the fppf
-ringed site of a category fibred in groupoids. -/
-instance hasSheafCompose_fppfRingedSite_over :
-    ∀ x, ((fppfRingedSite X).siteTopology.over x).HasSheafCompose
-      (forget₂ RingCat.{u} AddCommGrpCat.{u}) :=
-  sorry
+#check (AlgebraicGeometry.GroupoidsOver.QCoh :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S), Type (u + 1))
 
-/-- Weak sheafification of abelian groups exists on every slice of the fppf
-ringed site of a category fibred in groupoids. -/
-instance hasWeakSheafify_fppfRingedSite_over :
-    ∀ x, HasWeakSheafify ((fppfRingedSite X).siteTopology.over x)
-      AddCommGrpCat.{u} :=
-  sorry
-
-/-- Sheafification equivalences on slices of the fppf ringed site of a category
-fibred in groupoids are exactly the locally bijective morphisms. -/
-instance wEqualsLocallyBijective_fppfRingedSite_over :
-    ∀ x, ((fppfRingedSite X).siteTopology.over x).WEqualsLocallyBijective
-      AddCommGrpCat.{u} :=
-  sorry
-
-/-- The object property of quasi-coherent module sheaves on `𝒳`. -/
-abbrev quasiCoherentModuleProperty :
-    ObjectProperty (RingedSite.ModuleCat.{u} (fppfRingedSite X)) :=
-  SheafOfModules.isQuasicoherent (fppfRingedSite X).structureSheaf
-
-/-- `quasiCoherentModuleProperty X` is mathlib's quasi-coherence predicate on
-the structure sheaf of the fppf ringed site. -/
-theorem quasiCoherentModuleProperty_eq :
-    quasiCoherentModuleProperty X =
-      SheafOfModules.isQuasicoherent (fppfRingedSite X).structureSheaf :=
-  sorry
-
-/-- A module sheaf on `𝒳` lies in `quasiCoherentModuleProperty X` if and only
-if it is quasi-coherent. -/
-theorem mem_QCoh_iff {M : RingedSite.ModuleCat.{u} (fppfRingedSite X)} :
-    quasiCoherentModuleProperty X M ↔ M.IsQuasicoherent :=
-  sorry
-
-/-- The category `QCoh(𝒪_𝒳)` of quasi-coherent modules on a category fibred in
-groupoids. -/
-abbrev QCoh :=
-  (quasiCoherentModuleProperty X).FullSubcategory
-
-namespace QCoh
-
-/-- The inclusion of quasi-coherent modules into all module sheaves on the fppf
-ringed site of `X`. -/
-abbrev inclusion : QCoh X ⥤ RingedSite.ModuleCat.{u} (fppfRingedSite X) :=
-  (quasiCoherentModuleProperty X).ι
-
-end QCoh
+#check (AlgebraicGeometry.GroupoidsOver.QCoh.inclusion :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S),
+    QCoh X ⥤ RingedSite.ModuleCat.{u} (fppfRingedSite X))
 
 end AlgebraicGeometry.GroupoidsOver

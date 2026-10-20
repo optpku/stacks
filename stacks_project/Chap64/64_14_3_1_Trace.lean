@@ -1,28 +1,15 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.BigOperators.Finprod
-public import stacks_project.Chap64.«64_14_3_1_Stalk»
-public import stacks_project.Chap64.Proposition_64_10_2_Trace
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.CompactSupportTrace
+public import ReasLib.CategoryTheory.Abelian.StructureTransport
+public import stacks_project.Chap59.Definition_59_77_1
 
-/-!
-# Geometric Frobenius traces on stalks
-
-This leaf owns the local Lefschetz trace sum
-`∑_{x ∈ X(k)} Tr(π_X | K_x̄)`, valued in `Λ♮`. The global trace is
-`globalLefschetzNumber`.
--/
+/-! # Geometric Frobenius traces on stalks -/
 
 @[expose] public section
 
 open AlgebraicGeometry CategoryTheory CategoryTheory.Limits CategoryTheory.Functor
 open AlgebraicGeometry.Scheme AlgebraicGeometry.Scheme.Hom
-open AlgebraicGeometry.SchemeOverField
 open scoped AlgebraicGeometry MonoidalCategory Ring
 
 universe u
@@ -38,27 +25,40 @@ variable [HasColimitsOfSize.{u, u} (ModuleCat.{u} Λ)]
 variable [∀ {Y : Scheme.{u}}, HasSheafify Y.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [∀ {Y : Scheme.{u}} (U : Y.Etale),
     HasWeakSheafify (Y.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
-variable [∀ {Y : Scheme.{u}}, Abelian (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))]
+variable [sheafAbelian : ∀ {Y : Scheme.{u}},
+    Abelian (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [∀ {Y : Scheme.{u}},
     HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))]
 
-/-- Local Lefschetz trace sum `∑_{x ∈ X(k)} Tr(π_X | K_x̄)` in `Λ♮`. -/
-noncomputable def traceGeometricFrobeniusStalks (X : SchemeOverField k)
+/-- Derived geometric stalk of an étale module complex at a rational point. -/
+abbrev geometricDerivedStalk {X : SchemeOverField k}
+    (K : EtaleDerived X.left Λ) (x : 𝟙_ (SchemeOverField k) ⟶ X) :
+    DerivedCategory (ModuleCat.{u} Λ) :=
+  by
+  cases funext (fun Y : Scheme.{u} ↦
+    Abelian.structure_eq (sheafAbelian (Y := Y))
+      (CategoryTheory.sheafIsAbelian (J := Y.smallEtaleTopology) (D := ModuleCat.{u} Λ)))
+  exact CompactSupportTrace.geometricDerivedStalk K x
+
+/-- Geometric Frobenius on the derived geometric stalk at a rational point. -/
+abbrev geometricFrobeniusDerivedStalk {X : SchemeOverField k}
+    (K : EtaleDerived X.left Λ) (x : 𝟙_ (SchemeOverField k) ⟶ X) :
+    End (geometricDerivedStalk K x) :=
+  by
+  cases funext (fun Y : Scheme.{u} ↦
+    Abelian.structure_eq (sheafAbelian (Y := Y))
+      (CategoryTheory.sheafIsAbelian (J := Y.smallEtaleTopology) (D := ModuleCat.{u} Λ)))
+  exact CompactSupportTrace.geometricFrobeniusDerivedStalk K x
+
+/-- Sum of geometric Frobenius traces on the geometric stalks at rational points. -/
+def traceGeometricFrobeniusStalks (X : SchemeOverField k)
     (K : EtaleDerived X.left Λ)
     (hK : ∀ x : (𝟙_ (SchemeOverField k) ⟶ X),
       DerivedCategory.IsPerfect (geometricDerivedStalk K x)) : Λ♮ :=
-  ∑ᶠ x : (𝟙_ (SchemeOverField k) ⟶ X),
-    (hK x).traceNatural (geometricFrobeniusDerivedStalk K x)
-
-/-- Unfolding of the stalk-side trace as a finitely supported sum of traces of
-geometric Frobenius on derived geometric stalks. -/
-theorem traceGeometricFrobeniusStalks_spec (X : SchemeOverField k)
-    (K : EtaleDerived X.left Λ)
-    (hK : ∀ x : (𝟙_ (SchemeOverField k) ⟶ X),
-      DerivedCategory.IsPerfect (geometricDerivedStalk K x)) :
-    traceGeometricFrobeniusStalks X K hK =
-      ∑ᶠ x : (𝟙_ (SchemeOverField k) ⟶ X),
-        (hK x).traceNatural (geometricFrobeniusDerivedStalk K x) :=
-  sorry
+  by
+  cases funext (fun Y : Scheme.{u} ↦
+    Abelian.structure_eq (sheafAbelian (Y := Y))
+      (CategoryTheory.sheafIsAbelian (J := Y.smallEtaleTopology) (D := ModuleCat.{u} Λ)))
+  exact CompactSupportTrace.traceGeometricFrobeniusStalks K hK
 
 end AlgebraicGeometry.SchemeOverField

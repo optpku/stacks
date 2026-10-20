@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.Basic
@@ -32,3 +26,13 @@ noncomputable instance schemeModulesHasDerivedCategory (X : Scheme.{u}) :
   HasDerivedCategory.standard X.Modules
 
 end AlgebraicGeometry.Scheme.Modules
+
+namespace AlgebraicGeometry
+
+/-- Module sheaves on a scheme carry the homology structure induced by their abelian
+structure. -/
+instance schemeModulesCategoryWithHomology (X : Scheme.{u}) :
+    CategoryWithHomology X.Modules :=
+  CategoryTheory.categoryWithHomology_of_abelian
+
+end AlgebraicGeometry

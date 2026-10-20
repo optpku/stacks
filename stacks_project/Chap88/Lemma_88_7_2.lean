@@ -1,23 +1,15 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.AdicCompletion.Algebra
-public import Mathlib.RingTheory.Finiteness.Defs
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap88.«88_2_0_2_TopologicallyFiniteType»
-public import stacks_project.Chap88.Lemma_88_4_2_Jacobian
+public import ReasLib.RingTheory.AdicCompletion.NaiveCotangent.Algebraization
+import StacksCheckRecall
 
 /-!
 # Algebraization of an elementary Jacobian presentation
 
 A topologically finite type algebra over a Noetherian pair that admits a
-completed presentation with a single elementary Jacobian element covering
-`V(I B)` is isomorphic to the `I`-adic completion of a finite type algebra.
+completed presentation on a finite variable set and an elementary Jacobian
+element `b` with `V({b}) ⊆ V(I B)` is isomorphic to the `I`-adic completion of a
+finite type algebra.
 -/
 
 @[expose] public section
@@ -31,22 +23,24 @@ open Algebra.NaiveCotangent.Adic
 namespace Algebra.NaiveCotangent.Adic
 open Presentation
 
-/-- Lemma 88.7.2: Let `I` be an ideal of a Noetherian ring `A`. Let `B` be an
-object of (88.2.0.2). Let `B = A[x_ι]^∧ / J` be a presentation. Assume there
-exists an element `b ∈ B`, relations `f₁, …, fₘ ∈ J`, and columns such that
+/- Lemma 88.7.2: Let `I` be an ideal of a Noetherian ring `A`. Let `B` be an
+object of (88.2.0.2), so it is `I`-adically complete with finite type special
+fiber. Let `B = A[x_ι]^∧ / J` be a presentation with finite variable set `ι`.
+Assume there exists an element `b ∈ B`, relations `f₁, …, fₘ ∈ J`, and an
+embedding of the `m` selected columns into `ι`, encoding `m ≤ |ι|`, such that
 `V({b}) ⊆ V(I B)` in `Spec(B)`, the image of `Δ = jacobianMinor P fs cols` in
-`B` divides `b`, and `relationCondition P b fs`. Then there exists a finite
+`B` divides `b`, and `relationCondition P b fs`, namely
+`b J ⊆ (f₁, …, fₘ) + J²` using a lift of `b`. Then there exists a finite
 type `A`-algebra `C` and an `A`-algebra isomorphism `B ≅ C^∧`. -/
-@[stacks 0GAW]
-theorem exists_finiteTypeAlgEquiv_of_elementaryJacobian
-    {A B : Type u} [CommRing A] [IsNoetherianRing A] [CommRing B] [Algebra A B]
-    (I : Ideal A) [Algebra.TopologicallyFiniteType I B] {ι : Type u}
+@[stacks 0GAW] #check
+  (Algebra.NaiveCotangent.Adic.exists_finiteTypeAlgEquiv_of_elementaryJacobian :
+    ∀ {A B : Type u} [CommRing A] [IsNoetherianRing A] [CommRing B] [Algebra A B]
+    (I : Ideal A) [Algebra.TopologicallyFiniteType I B] {ι : Type u} [Fintype ι]
     (P : Presentation A B I ι) {m : ℕ} (b : B) (fs : Fin m → P.ker)
     (cols : Fin m ↪ ι) (hV : V({b}) ⊆ V((I.map (algebraMap A B) : Set B)))
-    (hΔ : jacobianMinor P fs cols ∣ b) (hrel : relationCondition P b fs) :
+    (hΔ : jacobianMinor P fs cols ∣ b) (hrel : relationCondition P b fs),
     ∃ (C : Type u) (_ : CommRing C) (_ : Algebra A C)
       (_ : Algebra.FiniteType A C),
-      Nonempty (AdicCompletion (I.map (algebraMap A C)) C ≃ₐ[A] B) :=
-  sorry
+      Nonempty (AdicCompletion (I.map (algebraMap A C)) C ≃ₐ[A] B))
 
 end Algebra.NaiveCotangent.Adic

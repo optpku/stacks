@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap74.Lemma_74_21_2_Instances
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSmoothLocal.Locality
 import StacksCheckRecall
 
 @[expose] public section
@@ -19,7 +13,7 @@ open CategoryTheory AlgebraicGeometry AlgebraicSpace
 `S` that is étale-smooth local on source-and-target is étale local on the
 source. -/
 @[stacks 0CG0] #check
-  (IsEtaleSmoothLocalAtSourceAndTarget.toIsLocalAtSource :
+  (AlgebraicGeometry.AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget.toIsLocalAtSource :
     ∀ {S : Scheme.{u}} {P : MorphismProperty (AlgebraicSpace S)}
       [IsEtaleSmoothLocalAtSourceAndTarget P],
       P.IsLocalAtSource (@etalePrecoverage S))
@@ -28,7 +22,7 @@ source. -/
 `S` that is étale-smooth local on source-and-target is smooth local on the
 target. -/
 @[stacks 0CG0] #check
-  (IsEtaleSmoothLocalAtSourceAndTarget.toIsLocalAtTarget :
+  (AlgebraicGeometry.AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget.toIsLocalAtTarget :
     ∀ {S : Scheme.{u}} {P : MorphismProperty (AlgebraicSpace S)}
       [IsEtaleSmoothLocalAtSourceAndTarget P],
       P.IsLocalAtTarget (smoothPrecoverage S))
@@ -37,7 +31,7 @@ target. -/
 `S` that is étale-smooth local on source-and-target is stable under
 postcomposition with étale morphisms. -/
 @[stacks 0CG0] #check
-  (IsEtaleSmoothLocalAtSourceAndTarget.toRespectsRightEtale :
+  (AlgebraicGeometry.AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget.toRespectsRightEtale :
     ∀ {S : Scheme.{u}} {P : MorphismProperty (AlgebraicSpace S)}
       [IsEtaleSmoothLocalAtSourceAndTarget P],
       P.RespectsRight (@Etale S : MorphismProperty (AlgebraicSpace S)))
@@ -46,7 +40,7 @@ postcomposition with étale morphisms. -/
 `S` that is étale-smooth local on source-and-target descends along
 postcomposition with étale morphisms. -/
 @[stacks 0CG0] #check
-  (IsEtaleSmoothLocalAtSourceAndTarget.toHasOfPostcompEtale :
+  (AlgebraicGeometry.AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget.toHasOfPostcompEtale :
     ∀ {S : Scheme.{u}} {P : MorphismProperty (AlgebraicSpace S)}
       [IsEtaleSmoothLocalAtSourceAndTarget P],
       P.HasOfPostcompProperty (@Etale S : MorphismProperty (AlgebraicSpace S)))

@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap67.Definition_67_40_1_Proper
-public import stacks_project.Chap67.Definition_67_45_2_Integral
-public import stacks_project.Chap67.Lemma_67_27_5_DiscreteFiber
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Finite.ProperDiscreteFieldFibers
 
 /-!
 # Finite morphisms of algebraic spaces over a locally Noetherian target
@@ -26,26 +18,14 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-namespace IsFinite
-
-/-- Lemma 69.23.1: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
+/- Lemma 69.23.1: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
 algebraic spaces over `S`. Assume `Y` is locally Noetherian. Then `f` is
 finite if and only if `f` is proper and every field fibre is discrete, i.e.
 `discreteFieldFibers f`. A more general version without local Noetherianity
 is Lemma 76.35.1. -/
-@[stacks 0A4V]
-theorem iff_proper_and_discreteFieldFibers_of_isLocallyNoetherian
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} [IsLocallyNoetherian Y]
-    (f : X ⟶ Y) : IsFinite f ↔ Proper f ∧ discreteFieldFibers f :=
-  sorry
-
-/-- A proper morphism of algebraic spaces over a locally Noetherian target,
-with discrete field fibres, is finite. -/
-theorem of_proper_of_discreteFieldFibers {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} [IsLocallyNoetherian Y] (f : X ⟶ Y) [Proper f]
-    (h : discreteFieldFibers f) : IsFinite f :=
-  sorry
-
-end IsFinite
+@[stacks 0A4V] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsFinite.iff_proper_and_discreteFieldFibers_of_isLocallyNoetherian :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} [IsLocallyNoetherian Y]
+      (f : X ⟶ Y), IsFinite f ↔ Proper f ∧ discreteFieldFibers f)
 
 end AlgebraicGeometry.AlgebraicSpace

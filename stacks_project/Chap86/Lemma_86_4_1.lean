@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap86.Lemma_86_4_1_BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.BaseChange.RightAdjoint
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.BaseChange.VerticalComposition
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,13 +16,11 @@ with Y' and X Tor independent over Y, the right-adjoint mate
 a' ⋙ pushforwardCohomologyIn g' ⟶ pushforwardCohomologyIn g ⋙ a of ordinary
 derived base change is an isomorphism on DerivedQCoh. -/
 @[stacks 0E5C] #check
-  (@AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.BaseChange.rightMate_isIso_of_torIndependent :
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.BaseChange.rightMate_isIso_of_torIndependent :
     ∀ {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
       (g' : X' ⟶ X) (f' : X' ⟶ Y') (f : X ⟶ Y) (g : Y' ⟶ Y)
       [QuasiCompact f] [QuasiSeparated f] [QuasiCompact f'] [QuasiSeparated f']
       [QuasiCompact g] [QuasiSeparated g] [QuasiCompact g'] [QuasiSeparated g']
-      [IsIso (modulePullbackDerived.compComparison f' g)]
-      [IsIso (modulePullbackDerived.compComparison g' f)]
       (sq : IsPullback g' f' f g)
       (a : DerivedQCoh Y ⥤ DerivedQCoh X)
       (a' : DerivedQCoh Y' ⥤ DerivedQCoh X')

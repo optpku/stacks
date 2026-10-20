@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Data.List.TFAE
-public import stacks_project.Chap67.Lemma_67_30_5_Flat
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Flat
+import StacksCheckRecall
 
 /-!
 # Characterizations of flatness for morphisms of algebraic spaces
@@ -17,11 +11,11 @@ public import stacks_project.Chap67.Lemma_67_30_5_Flat
 
 open CategoryTheory AlgebraicGeometry AlgebraicSpace
 
-universe u
+universe u v
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.30.5: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
+/- Lemma 67.30.5: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
 algebraic spaces over `S`. The following are equivalent: `f` is flat; `f` is
 flat at every point of `X`; every base change of `f` along a morphism from a
 scheme is flat; every base change of `f` along a morphism from an affine
@@ -32,8 +26,8 @@ square over `f` has flat top arrow; some étale scheme square over `f` with
 surjective vertical source arrow has flat top arrow; and there are Zariski
 coverings of `Y` and of the inverse images in `X` on which the pieces of `f`
 are flat. -/
-@[stacks 03MM]
-theorem flat_tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+@[stacks 03MM] #check (AlgebraicGeometry.AlgebraicSpace.flat_tfae :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
     List.TFAE
       [ Flat f
       , ∀ x : Points X, FlatAt f x
@@ -43,7 +37,6 @@ theorem flat_tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
       , Flat.existsSurjectiveEtaleSource f
       , Flat.forallEtaleSquare f
       , Flat.existsEtaleSquare f
-      , Flat.existsZariskiCover f ] :=
-  sorry
+      , Flat.existsZariskiCover.{u, v} f ])
 
 end AlgebraicGeometry.AlgebraicSpace

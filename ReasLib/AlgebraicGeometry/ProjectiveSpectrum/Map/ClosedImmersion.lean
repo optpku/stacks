@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion
@@ -75,7 +69,32 @@ map equal to the full target. -/
 theorem projMapDomain_eq_top_of_eventually_surjective
     (hpsisurj : Exists fun N : Nat =>
       ∀ d : Nat, N ≤ d → Function.Surjective (psi.gradedAddHom d)) :
-    projMapDomain psi = ⊤ := sorry
+    projMapDomain psi = ⊤ := by
+  classical
+  obtain ⟨N, hN⟩ := hpsisurj
+  apply top_unique
+  intro x _
+  by_contra hx
+  have hmap (f : PositiveHomogeneous calA) : psi f.val ∈ x.asHomogeneousIdeal := by
+    by_contra hf
+    exact hx (TopologicalSpace.Opens.mem_iSup.mpr ⟨f, hf⟩)
+  apply x.not_irrelevant_le
+  change (HomogeneousIdeal.irrelevant calB).toAddSubmonoid ≤
+    x.asHomogeneousIdeal.toAddSubmonoid
+  rw [HomogeneousIdeal.irrelevant_eq_iSup]
+  refine iSup₂_le fun j hj ↦ ?_
+  intro b hb
+  change b ∈ calB j at hb
+  have hdegree : N ≤ j * (N + 1) := by
+    have := Nat.mul_le_mul_right (N + 1) hj
+    omega
+  obtain ⟨a, ha⟩ := hN (j * (N + 1)) hdegree
+    ⟨b ^ (N + 1), by simpa [nsmul_eq_mul, Nat.mul_comm] using
+      SetLike.pow_mem_graded (N + 1) hb⟩
+  have hmem := hmap ⟨a.1, j * (N + 1), Nat.mul_pos hj (Nat.succ_pos N), a.2⟩
+  have he : psi a.1 = b ^ (N + 1) := congrArg Subtype.val ha
+  rw [he] at hmem
+  exact x.isPrime.mem_of_pow_mem (N + 1) hmem
 
 /-- Eventual degreewise surjectivity makes the induced map of full projective spectra a closed
 immersion. -/

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Module.FinitePresentation
@@ -82,7 +76,7 @@ theorem iff_piScalarRightHom_surjective {R : Type u} [CommSemiring R]
       ∀ A : Type (max u v w),
         Function.Surjective (TensorProduct.piScalarRightHom R R M A) := sorry
 
-/-- Proposition 10.89.2, tag `059J`: finite generation is equivalent to
+/-- Finite generation is equivalent to
 surjectivity of the product comparison map for arbitrary families, constant
 families, or scalar-valued families. -/
 @[stacks 059J]
@@ -145,7 +139,7 @@ theorem iff_piScalarRightHom_bijective :
       ∀ A : Type (max u v w),
         Function.Bijective (TensorProduct.piScalarRightHom R R M A) := sorry
 
-/-- Proposition 10.89.3, tag `059K`: finite presentation is equivalent to
+/-- Finite presentation is equivalent to
 bijectivity of the product comparison map for arbitrary families, constant
 families, or scalar-valued families. -/
 @[stacks 059K]

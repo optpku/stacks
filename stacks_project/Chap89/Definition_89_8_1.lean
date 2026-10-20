@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap89.Definition_89_8_1_Resolution
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Resolution
 import StacksCheckRecall
 
 @[expose] public section
@@ -14,8 +8,15 @@ import StacksCheckRecall
 open CategoryTheory AlgebraicGeometry
 open AlgebraicGeometry.AlgebraicSpace
 
+universe u
+
 /- Definition 89.8.1: Let `S` be a scheme. Let `Y` be a Noetherian integral algebraic space
 over `S`. A resolution of singularities of `Y` is a modification `f : X ⟶ Y` such that
 `X` is regular. -/
-@[stacks 0BHW] #check AlgebraicGeometry.AlgebraicSpace.IsResolution
-#check AlgebraicGeometry.AlgebraicSpace.isResolution_iff
+@[stacks 0BHW] #check (AlgebraicGeometry.AlgebraicSpace.IsResolution :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    [IsNoetherian Y] [IsIntegral Y] [IsIntegral X], (X ⟶ Y) → Prop)
+#check (AlgebraicGeometry.AlgebraicSpace.isResolution_iff :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    [IsNoetherian Y] [IsIntegral Y] [IsIntegral X] (f : X ⟶ Y),
+    IsResolution f ↔ IsModification f ∧ IsRegular X)

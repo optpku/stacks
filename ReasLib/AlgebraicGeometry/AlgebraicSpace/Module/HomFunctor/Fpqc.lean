@@ -1,0 +1,33 @@
+module
+
+public import Mathlib.CategoryTheory.Sites.Sheaf
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.HomFunctor
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Sites.Fpqc
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Opposite
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace.Modules
+
+/-- The Hom functor of two quasi-coherent modules on an algebraic space over `B`
+is a sheaf for the fpqc topology on schemes over `B`. -/
+theorem homFunctor_isSheaf_fpqc {S : Scheme.{u}} {X B : AlgebraicSpace S}
+    (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent] :
+    Presheaf.IsSheaf (SchemeOver.fpqcTopology B) (homFunctor f F G) :=
+  sorry
+
+/-- Compatible families of maps `F_{T_i} ⟶ G_{T_i}` on an fpqc covering of
+schemes over `B` glue uniquely to a map `F_T ⟶ G_T`. -/
+theorem homFunctor_isSheafFor_fpqcCovering {S : Scheme.{u}} {X B : AlgebraicSpace S}
+    (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent]
+    {ι : Type u} {U : SchemeOver B} {V : ι → SchemeOver B} (h : ∀ i, V i ⟶ U)
+    (h_cover : Presieve.ofArrows V h ∈ SchemeOver.fpqcPrecoverage B U) :
+    Presieve.IsSheafFor (homFunctor f F G) (Presieve.ofArrows V h) :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicSpace.Modules

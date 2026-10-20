@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap96.Definition_96_4_1_AssociatedTopology
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Topology
 public import Mathlib.AlgebraicGeometry.Sites.Etale
-public import stacks_project.Chap66.Definition_66_18_1_Site
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Presentation
 import StacksCheckRecall
 
 @[expose] public section
@@ -17,18 +11,18 @@ open AlgebraicGeometry CategoryTheory
 
 universe u
 
-/- Remark 96.4.2: associated-site notation such as 𝒳_étale, i.e.
-`GroupoidsOver.etaleTopology`, is used only when 𝒳 is a category fibred in
-groupoids, and not a scheme or algebraic space. This avoids confusion with the
-small étale site X_étale of a scheme or algebraic space, i.e.
-`Scheme.smallEtaleTopology` or `AlgebraicSpace.smallEtaleTopology` (roman
-capital). -/
-@[stacks 06TQ] #check
-  (fun {S : Scheme.{u}} (X : GroupoidsOver S) ↦
-    (X.etaleTopology : GrothendieckTopology X.total))
-@[stacks 06TQ] #check
-  (fun (X : Scheme.{u}) ↦ (X.smallEtaleTopology : GrothendieckTopology X.Etale))
-@[stacks 06TQ] #check
-  (fun {S : Scheme.{u}} (X : AlgebraicSpace S) ↦
-    (AlgebraicSpace.smallEtaleTopology X :
-      GrothendieckTopology (AlgebraicSpace.smallEtaleSite X)))
+/- Remark 96.4.2: associated-site notation such as 𝒳_étale is used only for
+categories fibred in groupoids. Roman X_étale denotes the small étale site of
+a scheme or algebraic space; this convention avoids confusing the two
+presentations. -/
+@[stacks 06TQ] #check (AlgebraicGeometry.GroupoidsOver.etaleTopology :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.GroupoidsOver S),
+    CategoryTheory.GrothendieckTopology X.total)
+#check (AlgebraicGeometry.Scheme.smallEtaleTopology :
+  ∀ (X : AlgebraicGeometry.Scheme.{u}),
+    CategoryTheory.GrothendieckTopology X.Etale)
+#check (AlgebraicGeometry.AlgebraicSpace.smallEtaleTopology :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}}
+    (X : AlgebraicGeometry.AlgebraicSpace S),
+    CategoryTheory.GrothendieckTopology
+      (AlgebraicGeometry.AlgebraicSpace.smallEtaleSite X))

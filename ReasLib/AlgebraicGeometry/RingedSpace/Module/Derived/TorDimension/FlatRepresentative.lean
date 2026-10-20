@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.TorDimension
@@ -47,6 +41,8 @@ theorem hasFlatRepresentativeIn_iff (E : ModuleDerived X) (a b : ℤ) :
     HasFlatRepresentativeIn E a b ↔
       ∃ (K : CochainComplex (Modules X) ℤ) (_ : E ≅ DerivedCategory.Q.obj K),
         K.IsStrictlyGE a ∧ K.IsStrictlyLE b ∧ HomologicalComplex.IsTermwiseFlat K := sorry
+
+variable [DerivedCategory.DerivedTensor.Right.Has (C := Modules X)]
 
 /-- A derived `𝒪_X`-module has Tor-amplitude in `[a, b]` exactly when it admits a
 termwise-flat representative supported in `[a, b]`. -/

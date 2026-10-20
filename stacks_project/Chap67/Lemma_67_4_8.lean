@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap67.Definition_67_4_2_Separation
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Separation.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of separation axioms for morphisms of algebraic spaces
@@ -24,42 +19,43 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.4.8 (1): Separated morphisms of algebraic spaces are stable under
+/- Lemma 67.4.8 (1): Separated morphisms of algebraic spaces are stable under
 composition. -/
-@[stacks 03KQ]
-instance separated_isStableUnderComposition {S : Scheme.{u}} :
+@[stacks 03KQ] #check
+  (AlgebraicGeometry.AlgebraicSpace.separated_isStableUnderComposition :
+    ∀ {S : Scheme.{u}},
     MorphismProperty.IsStableUnderComposition
-      (@Separated S : MorphismProperty (AlgebraicSpace S)) := sorry
+      (@Separated S : MorphismProperty (AlgebraicSpace S)))
 
-/-- The composition of separated morphisms of algebraic spaces is separated. -/
-instance separated_comp {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [Separated f] [Separated g] :
-    Separated (f ≫ g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.separated_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+    (f : X ⟶ Y) (g : Y ⟶ Z) [Separated f] [Separated g],
+    Separated (f ≫ g))
 
-/-- Lemma 67.4.8 (2): Locally separated morphisms of algebraic spaces are stable
+/- Lemma 67.4.8 (2): Locally separated morphisms of algebraic spaces are stable
 under composition. -/
-@[stacks 03KQ]
-instance locallySeparated_isStableUnderComposition {S : Scheme.{u}} :
+@[stacks 03KQ] #check
+  (AlgebraicGeometry.AlgebraicSpace.locallySeparated_isStableUnderComposition :
+    ∀ {S : Scheme.{u}},
     MorphismProperty.IsStableUnderComposition
-      (@LocallySeparated S : MorphismProperty (AlgebraicSpace S)) := sorry
+      (@LocallySeparated S : MorphismProperty (AlgebraicSpace S)))
 
-/-- The composition of locally separated morphisms of algebraic spaces is locally
-separated. -/
-instance locallySeparated_comp {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [LocallySeparated f] [LocallySeparated g] :
-    LocallySeparated (f ≫ g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.locallySeparated_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+    (f : X ⟶ Y) (g : Y ⟶ Z) [LocallySeparated f] [LocallySeparated g],
+    LocallySeparated (f ≫ g))
 
-/-- Lemma 67.4.8 (3): Quasi-separated morphisms of algebraic spaces are stable
+/- Lemma 67.4.8 (3): Quasi-separated morphisms of algebraic spaces are stable
 under composition. -/
-@[stacks 03KQ]
-instance quasiSeparated_isStableUnderComposition {S : Scheme.{u}} :
+@[stacks 03KQ] #check
+  (AlgebraicGeometry.AlgebraicSpace.quasiSeparated_isStableUnderComposition :
+    ∀ {S : Scheme.{u}},
     MorphismProperty.IsStableUnderComposition
-      (@QuasiSeparated S : MorphismProperty (AlgebraicSpace S)) := sorry
+      (@QuasiSeparated S : MorphismProperty (AlgebraicSpace S)))
 
-/-- The composition of quasi-separated morphisms of algebraic spaces is
-quasi-separated. -/
-instance quasiSeparated_comp {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [QuasiSeparated f] [QuasiSeparated g] :
-    QuasiSeparated (f ≫ g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.quasiSeparated_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+    (f : X ⟶ Y) (g : Y ⟶ Z) [QuasiSeparated f] [QuasiSeparated g],
+    QuasiSeparated (f ≫ g))
 
 end AlgebraicGeometry.AlgebraicSpace

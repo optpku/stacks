@@ -1,40 +1,120 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap64.Remark_64_15_10_Coinvariants
-public import stacks_project.Chap64.Remark_64_15_10_Comparison
-public import stacks_project.Chap64.Remark_64_15_10_Trace
-public import stacks_project.Chap64.Remark_64_15_10_Trivial
+import StacksCheckRecall
+public import ReasLib.LinearAlgebra.Trace.CoinvariantsComplex
 
 /-!
 # The trivial trace formula for a finite group
 
-Illustration of the formula of Lemma 64.15.9 on a finite resolution of the
-trivial `Γ`-module `Λ` by `Λ[Γ]`-modules that are finite projective as
-`Λ[G]`-modules. Informal commentary on point counts of `BG` and the pointer
-to (64.14.3.1) / §64.30 is not formalized here.
+A finite projective resolution of the trivial module computes group homology
+and Tor after taking kernel-group coinvariants. The action of the degree-one
+generator has the displayed centralizer trace formula on the associated perfect
+derived object. This gives a point-count interpretation on `BG`; over a field
+of characteristic prime to the group order the weighted count equals one.
+The later trace formula (64.14.3.1) and Section 64.30 give further interpretations.
 -/
-
-@[expose] public section
 
 open Ring CategoryTheory CategoryTheory.Limits HomologicalComplex
 open scoped MonoidAlgebra Ring
-open MonoidAlgebra LinearMap.FiniteProjective
-
-noncomputable section
+open MonoidAlgebra
 
 universe u v w
 
-namespace LinearMap.FiniteProjective
+section Traces
 
-variable {Λ : Type u} {G : Type v} {Γ : Type w}
-variable [Ring Λ] [Group G] [Monoid Γ] [Finite G]
+variable {Λ : Type u} {G : Type v} {E : Type w}
+variable [Ring Λ] [Group G] [Group E] [Finite G]
+variable (T : GroupExtension G E (Multiplicative ℤ))
+variable (P : ChainComplex (ModuleCat.{u} (Λ[NatMonoidExtension.nonneg T])) ℕ)
+variable [∀ n, Module (Λ[G]) (P.X n)] [∀ n, Module Λ (P.X n)]
+variable [∀ n, IsScalarTower Λ (Λ[NatMonoidExtension.nonneg T]) (P.X n)]
+variable [∀ n, IsScalarTower Λ (Λ[G]) (P.X n)]
+variable [∀ n, IsRestrictionAlongInl Λ (NatMonoidExtension.ofGroupExtension T) (P.X n)]
+variable [∀ n, Module.Finite (Λ[G]) (P.X n)]
+variable [∀ n, Module.Projective (Λ[G]) (P.X n)]
+
+/- Remark 64.15.10
+The degree-one generator acts on the perfect derived coinvariants object of the
+bounded resolution. Its trace is the sum of inverse centralizer orders.
+-/
+@[stacks 03UE] #check
+  (LinearMap.FiniteProjective.derivedTrace_eq_sum_inv_cardCentralizer T P :
+    ∀ (r : ℕ)
+      (ε : P ⟶ (ChainComplex.single₀ (ModuleCat.{u} (Λ[NatMonoidExtension.nonneg T]))).obj
+        (trivialModule Λ (NatMonoidExtension.nonneg T)))
+      [QuasiIso ε] (hr : ∀ n, r < n → IsZero (P.X n))
+      (hc : ∀ c : (NatMonoidExtension.ofGroupExtension T).DegreeOneGConjClass,
+        IsUnit ((NatMonoidExtension.ofGroupExtension T).cardCentralizer c : Λ)),
+      (LinearMap.FiniteProjective.coinvariantsComplex_isPerfect
+          (NatMonoidExtension.ofGroupExtension T) P r hr).traceNatural
+        (DerivedCategory.Q.map
+          (HomologicalComplex.extendMap (Coinvariants.oneEndChainMap (NatMonoidExtension.ofGroupExtension T) P)
+            ComplexShape.embeddingDownNat)) =
+        ∑ᶠ c : (NatMonoidExtension.ofGroupExtension T).DegreeOneGConjClass,
+          CommutatorQuotient.mk ((hc c).invertible.invOf : Λ))
+
+#check (LinearMap.FiniteProjective.traceGComplex_nsmul T P :
+  ∀ (r : ℕ)
+    (ε : P ⟶ (ChainComplex.single₀ (ModuleCat.{u} (Λ[NatMonoidExtension.nonneg T]))).obj
+      (trivialModule Λ (NatMonoidExtension.nonneg T)))
+    [QuasiIso ε] (hr : ∀ n, r < n → IsZero (P.X n)) (γ : NatMonoidExtension.nonneg T),
+    Nat.card ((NatMonoidExtension.ofGroupExtension T).centralizer γ) •
+      LinearMap.FiniteProjective.traceGComplex (NatMonoidExtension.ofGroupExtension T) P r γ =
+        CommutatorQuotient.mk (1 : Λ))
+
+#check (LinearMap.FiniteProjective.traceGComplex_eq_inv T P :
+  ∀ (r : ℕ)
+    (ε : P ⟶ (ChainComplex.single₀ (ModuleCat.{u} (Λ[NatMonoidExtension.nonneg T]))).obj
+      (trivialModule Λ (NatMonoidExtension.nonneg T)))
+    [QuasiIso ε] (hr : ∀ n, r < n → IsZero (P.X n)) (γ : NatMonoidExtension.nonneg T)
+    [Invertible (Nat.card ((NatMonoidExtension.ofGroupExtension T).centralizer γ) : Λ)],
+    LinearMap.FiniteProjective.traceGComplex (NatMonoidExtension.ofGroupExtension T) P r γ =
+      CommutatorQuotient.mk
+        (⅟(Nat.card ((NatMonoidExtension.ofGroupExtension T).centralizer γ) : Λ)))
+
+#check (LinearMap.FiniteProjective.trace_oneEndComplex_eq_sum_conjClassTrace T P :
+  ∀ r : ℕ,
+    LinearMap.FiniteProjective.trace_oneEndComplex (NatMonoidExtension.ofGroupExtension T) P r =
+      ∑ᶠ c : (NatMonoidExtension.ofGroupExtension T).DegreeOneGConjClass,
+        LinearMap.FiniteProjective.conjClassTraceComplex
+          (NatMonoidExtension.ofGroupExtension T) P r c)
+
+#check (LinearMap.FiniteProjective.conjClassTraceComplex_nsmul T P :
+  ∀ (r : ℕ)
+    (ε : P ⟶ (ChainComplex.single₀ (ModuleCat.{u} (Λ[NatMonoidExtension.nonneg T]))).obj
+      (trivialModule Λ (NatMonoidExtension.nonneg T)))
+    [QuasiIso ε] (hr : ∀ n, r < n → IsZero (P.X n))
+    (c : (NatMonoidExtension.ofGroupExtension T).DegreeOneGConjClass),
+    (NatMonoidExtension.ofGroupExtension T).cardCentralizer c •
+      LinearMap.FiniteProjective.conjClassTraceComplex
+        (NatMonoidExtension.ofGroupExtension T) P r c = CommutatorQuotient.mk (1 : Λ))
+
+#check (LinearMap.FiniteProjective.trace_oneEndComplex_eq_sum_inv_cardCentralizer T P :
+  ∀ (r : ℕ)
+    (ε : P ⟶ (ChainComplex.single₀ (ModuleCat.{u} (Λ[NatMonoidExtension.nonneg T]))).obj
+      (trivialModule Λ (NatMonoidExtension.nonneg T)))
+    [QuasiIso ε] (hr : ∀ n, r < n → IsZero (P.X n))
+    (hc : ∀ c : (NatMonoidExtension.ofGroupExtension T).DegreeOneGConjClass,
+      IsUnit ((NatMonoidExtension.ofGroupExtension T).cardCentralizer c : Λ)),
+    LinearMap.FiniteProjective.trace_oneEndComplex (NatMonoidExtension.ofGroupExtension T) P r =
+      ∑ᶠ c : (NatMonoidExtension.ofGroupExtension T).DegreeOneGConjClass,
+        CommutatorQuotient.mk ((hc c).invertible.invOf : Λ))
+
+#check (LinearMap.FiniteProjective.trace_oneEndComplex_eq_derivedTrace
+  (NatMonoidExtension.ofGroupExtension T) P :
+  ∀ (r : ℕ) (hr : ∀ n, r < n → IsZero (P.X n)),
+    LinearMap.FiniteProjective.trace_oneEndComplex (NatMonoidExtension.ofGroupExtension T) P r =
+      (LinearMap.FiniteProjective.coinvariantsComplex_isPerfect
+          (NatMonoidExtension.ofGroupExtension T) P r hr).traceNatural
+        (DerivedCategory.Q.map
+          (HomologicalComplex.extendMap (Coinvariants.oneEndChainMap (NatMonoidExtension.ofGroupExtension T) P)
+            ComplexShape.embeddingDownNat)))
+
+end Traces
+
+section DerivedCoinvariants
+
+variable {Λ G Γ : Type u} [Ring Λ] [Group G] [Monoid Γ] [Finite G]
 variable (S : NatMonoidExtension G Γ)
 variable (P : ChainComplex (ModuleCat.{u} (Λ[Γ])) ℕ)
 variable [∀ n, Module (Λ[G]) (P.X n)] [∀ n, Module Λ (P.X n)]
@@ -44,68 +124,17 @@ variable [∀ n, IsRestrictionAlongInl Λ S (P.X n)]
 variable [∀ n, Module.Finite (Λ[G]) (P.X n)]
 variable [∀ n, Module.Projective (Λ[G]) (P.X n)]
 
-/-- Remark 64.15.10 (2). If `P_•` is a finite resolution of the trivial
-`Γ`-module `Λ` by `Λ[Γ]`-modules that are finite projective as `Λ[G]`-modules,
-then for every `γ` the identity `#Z_γ • Tr_Λ^{Z_γ}(γ, P_•) = 1` holds in `Λ♮`. -/
-@[stacks 03UE]
-theorem traceGComplex_nsmul (r : ℕ)
-    (ε : P ⟶ (ChainComplex.single₀ (ModuleCat.{u} (Λ[Γ]))).obj (trivialModule Λ Γ))
-    [QuasiIso ε] (hr : ∀ n, r < n → IsZero (P.X n)) (γ : Γ) :
-    Nat.card (S.centralizer γ) • traceGComplex S P r γ =
-      CommutatorQuotient.mk (1 : Λ) :=
-  sorry
+#check (MonoidAlgebra.Coinvariants.homologyIso_leftDerived S P :
+  ∀ (ε : P ⟶ (ChainComplex.single₀ (ModuleCat.{u} (Λ[Γ]))).obj (trivialModule Λ Γ))
+    [QuasiIso ε] (n : ℕ),
+    (Coinvariants.complex S P).homology n ≅
+      ((Coinvariants.functor Λ G).leftDerived n).obj (trivialModule Λ G))
 
-/-- If `#Z_γ` is invertible in `Λ`, the `Z_γ`-trace of `γ` on the resolution is
-the class of `⅟(#Z_γ)`. -/
-theorem traceGComplex_eq_inv (r : ℕ)
-    (ε : P ⟶ (ChainComplex.single₀ (ModuleCat.{u} (Λ[Γ]))).obj (trivialModule Λ Γ))
-    [QuasiIso ε] (hr : ∀ n, r < n → IsZero (P.X n)) (γ : Γ)
-    [Invertible (Nat.card (S.centralizer γ) : Λ)] :
-    traceGComplex S P r γ =
-      CommutatorQuotient.mk (⅟(Nat.card (S.centralizer γ) : Λ)) :=
-  sorry
+end DerivedCoinvariants
 
-/-- Lemma 64.15.9 in alternating form: the identity trace of `1` on `(P_•)_G`
-equals the sum of class traces over `G`-conjugacy classes of degree-1
-elements. -/
-theorem trace_oneEndComplex_eq_sum_conjClassTrace (r : ℕ) :
-    trace_oneEndComplex S P r =
-      ∑ᶠ c : S.DegreeOneGConjClass, conjClassTraceComplex S P r c :=
-  sorry
+section Homology
 
-/-- On each `G`-conjugacy class of a degree-1 element, the alternating class
-trace of a finite resolution of the trivial module satisfies
-`#Z_γ • Tr_Λ^{Z_γ}(γ, P_•) = 1` in `Λ♮`. -/
-theorem conjClassTraceComplex_nsmul (r : ℕ)
-    (ε : P ⟶ (ChainComplex.single₀ (ModuleCat.{u} (Λ[Γ]))).obj (trivialModule Λ Γ))
-    [QuasiIso ε] (hr : ∀ n, r < n → IsZero (P.X n))
-    (c : S.DegreeOneGConjClass) :
-    S.cardCentralizer c • conjClassTraceComplex S P r c =
-      CommutatorQuotient.mk (1 : Λ) :=
-  sorry
-
-/-- Remark 64.15.10 (3). If the trivial `Γ`-module `Λ` admits a finite
-resolution `P_•` by `Λ[Γ]`-modules that are finite projective as `Λ[G]`-modules
-and each `#Z_γ` is a unit in `Λ`, then
-`Tr_Λ(1, (P_•)_G) = Tr(1 | H_*(G, Λ)) = ∑'_{γ ↦ 1} ⅟(#Z_γ)` in `Λ♮`.
-The middle term is the alternating oneEnd-trace of `(P_•)_G` after transport
-along `coinvariantsComplex_homology`. -/
-@[stacks 03UE]
-theorem trace_oneEndComplex_eq_sum_inv_cardCentralizer (r : ℕ)
-    (ε : P ⟶ (ChainComplex.single₀ (ModuleCat.{u} (Λ[Γ]))).obj (trivialModule Λ Γ))
-    [QuasiIso ε] (hr : ∀ n, r < n → IsZero (P.X n))
-    (hc : ∀ c : S.DegreeOneGConjClass, IsUnit (S.cardCentralizer c : Λ)) :
-    trace_oneEndComplex S P r =
-      ∑ᶠ c : S.DegreeOneGConjClass,
-        CommutatorQuotient.mk ((hc c).invertible.invOf : Λ) :=
-  sorry
-
-end LinearMap.FiniteProjective
-
-namespace LinearMap.FiniteProjective
-
-variable {Λ G Γ : Type u}
-variable [CommRing Λ] [Group G] [Monoid Γ] [Finite G]
+variable {Λ G Γ : Type u} [CommRing Λ] [Group G] [Monoid Γ] [Finite G]
 variable (S : NatMonoidExtension G Γ)
 variable (P : ChainComplex (ModuleCat.{u} (Λ[Γ])) ℕ)
 variable [∀ n, Module (Λ[G]) (P.X n)] [∀ n, Module Λ (P.X n)]
@@ -115,81 +144,70 @@ variable [∀ n, IsRestrictionAlongInl Λ S (P.X n)]
 variable [∀ n, Module.Finite (Λ[G]) (P.X n)]
 variable [∀ n, Module.Projective (Λ[G]) (P.X n)]
 
-/-- Remark 64.15.10 (1). If the trivial `Γ`-module `Λ` admits a finite resolution
-`P_•` by `Λ[Γ]`-modules that are finite projective as `Λ[G]`-modules, then
-`H_n((P_•)_G) ≅ H_n(G, Λ)`. -/
-@[stacks 03UE]
-noncomputable def coinvariantsComplex_homology (r : ℕ)
-    (ε : P ⟶ (ChainComplex.single₀ (ModuleCat.{u} (Λ[Γ]))).obj (trivialModule Λ Γ))
-    [QuasiIso ε] (hr : ∀ n, r < n → IsZero (P.X n)) (n : ℕ) :
+#check (MonoidAlgebra.Coinvariants.homologyIso S P :
+  ∀ (ε : P ⟶ (ChainComplex.single₀ (ModuleCat.{u} (Λ[Γ]))).obj (trivialModule Λ Γ))
+    [QuasiIso ε] (n : ℕ),
+    (Coinvariants.complex S P).homology n ≅ groupHomology (Rep.trivial Λ G Λ) n)
+
+#check (MonoidAlgebra.Coinvariants.homologyIso_tor S P :
+  ∀ (ε : P ⟶ (ChainComplex.single₀ (ModuleCat.{u} (Λ[Γ]))).obj (trivialModule Λ Γ))
+    [QuasiIso ε] (n : ℕ),
     (Coinvariants.complex S P).homology n ≅
-      groupHomology (Rep.trivial Λ G Λ) n :=
-  homologyIso S P ε n
+      ((Rep.Tor Λ G n).obj (Rep.trivial Λ G Λ)).obj (Rep.trivial Λ G Λ))
 
-/-- The homology of `(P_•)_G` is identified with `Tor_n^{Λ[G]}(Λ, Λ)`. -/
-noncomputable def coinvariantsComplex_homology_iso_tor (r : ℕ)
-    (ε : P ⟶ (ChainComplex.single₀ (ModuleCat.{u} (Λ[Γ]))).obj (trivialModule Λ Γ))
-    [QuasiIso ε] (hr : ∀ n, r < n → IsZero (P.X n)) (n : ℕ) :
-    (Coinvariants.complex S P).homology n ≅
-      ((Rep.Tor Λ G n).obj (Rep.trivial Λ G Λ)).obj (Rep.trivial Λ G Λ) :=
-  homologyIso_tor S P ε n
+open Classical in
+#check (groupHomologyIsoTor (Rep.trivial Λ G Λ) :
+  ∀ n : ℕ, groupHomology (Rep.trivial Λ G Λ) n ≅
+    ((Rep.Tor Λ G n).obj (Rep.trivial Λ G Λ)).obj (Rep.trivial Λ G Λ))
 
-/-- The identity trace `Tr(1 | H_*(G, Λ))` is the alternating oneEnd-trace of
-`(P_•)_G` after transport along `coinvariantsComplex_homology`. If `#G` is a
-unit then positive homology vanishes and `H_0 ≅ Λ`, so this equals the class
-of `1`. -/
-theorem trace_oneEndComplex_eq_homology (r : ℕ)
-    (ε : P ⟶ (ChainComplex.single₀ (ModuleCat.{u} (Λ[Γ]))).obj (trivialModule Λ Γ))
-    [QuasiIso ε] (hr : ∀ n, r < n → IsZero (P.X n))
-    (hG : IsUnit (Nat.card G : Λ)) :
-    trace_oneEndComplex S P r = CommutatorQuotient.mk (1 : Λ) :=
-  sorry
+#check (groupHomology.isZero_trivial_succ_of_isUnit_card (Λ := Λ) (G := G) :
+  ∀ (_ : IsUnit (Nat.card G : Λ)) (n : ℕ),
+    IsZero (groupHomology (Rep.trivial Λ G Λ) (n + 1)))
 
-end LinearMap.FiniteProjective
+#check (groupHomology.H0IsoOfIsTrivial (Rep.trivial Λ G Λ) :
+  groupHomology (Rep.trivial Λ G Λ) 0 ≅ ModuleCat.of Λ Λ)
 
-namespace LinearMap.FiniteProjective
+#check (groupHomology.H0IsoOfIsTrivial_inv_eq_π (Rep.trivial Λ G Λ) :
+  (groupHomology.H0IsoOfIsTrivial (Rep.trivial Λ G Λ)).inv =
+    groupHomology.H0π (Rep.trivial Λ G Λ))
 
-variable {Λ G : Type u} [CommRing Λ] [Group G] [Finite G]
+end Homology
 
-/-- If `#G` is a unit in the commutative coefficient ring `Λ`, then `H_n(G, Λ)`
-vanishes for all `n > 0`. -/
-theorem groupHomology_trivial_isZero_succ (hG : IsUnit (Nat.card G : Λ)) (n : ℕ) :
-    IsZero (groupHomology (Rep.trivial Λ G Λ) (n + 1)) :=
-  sorry
+section InvertibleOrder
 
-/-- For trivial coefficients, `H_0(G, Λ) ≅ Λ`. -/
-noncomputable def groupHomology_trivial_zero_iso :
-    groupHomology (Rep.trivial Λ G Λ) 0 ≅ ModuleCat.of Λ Λ :=
-  groupHomology.H0IsoOfIsTrivial (Rep.trivial Λ G Λ)
+variable {Λ G E : Type u} [CommRing Λ] [Group G] [Group E] [Finite G]
+variable (T : GroupExtension G E (Multiplicative ℤ))
+variable (P : ChainComplex (ModuleCat.{u} (Λ[NatMonoidExtension.nonneg T])) ℕ)
+variable [∀ n, Module (Λ[G]) (P.X n)] [∀ n, Module Λ (P.X n)]
+variable [∀ n, IsScalarTower Λ (Λ[NatMonoidExtension.nonneg T]) (P.X n)]
+variable [∀ n, IsScalarTower Λ (Λ[G]) (P.X n)]
+variable [∀ n, IsRestrictionAlongInl Λ (NatMonoidExtension.ofGroupExtension T) (P.X n)]
+variable [∀ n, Module.Finite (Λ[G]) (P.X n)]
+variable [∀ n, Module.Projective (Λ[G]) (P.X n)]
 
-/-- The inverse of `groupHomology_trivial_zero_iso` is the canonical map from
-coefficients to `H_0`. -/
-theorem groupHomology_trivial_zero_iso_inv :
-    (groupHomology_trivial_zero_iso).inv =
-      groupHomology.H0π (Rep.trivial Λ G Λ) :=
-  sorry
+#check (LinearMap.FiniteProjective.trace_oneEndComplex_eq_one_of_isUnit_card T P :
+  ∀ (r : ℕ)
+    (ε : P ⟶ (ChainComplex.single₀ (ModuleCat.{u} (Λ[NatMonoidExtension.nonneg T]))).obj
+      (trivialModule Λ (NatMonoidExtension.nonneg T)))
+    [QuasiIso ε] (hr : ∀ n, r < n → IsZero (P.X n)) (_ : IsUnit (Nat.card G : Λ)),
+    LinearMap.FiniteProjective.trace_oneEndComplex (NatMonoidExtension.ofGroupExtension T) P r =
+      CommutatorQuotient.mk (1 : Λ))
 
-end LinearMap.FiniteProjective
+end InvertibleOrder
 
-namespace LinearMap.FiniteProjective
+section Counting
 
-variable {Λ G Γ : Type u} [Field Λ] [Group G] [Monoid Γ] [Finite G]
-variable (S : NatMonoidExtension G Γ)
+variable {G : Type v} {E : Type w} [Group G] [Group E] [Finite G]
+variable (T : GroupExtension G E (Multiplicative ℤ))
 
-/-- Remark 64.15.10 (4). If `Λ` is a field in which `#G` is invertible, the
-trivial trace formula reads `1 = ∑ᶠ 1 / #Z_γ` over `G`-conjugacy classes of
-degree-1 elements of `Γ`. This is the source's `F_ℓ` identity when
-`Λ = ZMod ℓ` with `ℓ` prime to `#G`. -/
-@[stacks 03UE]
-theorem one_eq_sum_inv_cardCentralizer (hG : IsUnit (Nat.card G : Λ)) :
-    (1 : Λ) = ∑ᶠ c : S.DegreeOneGConjClass, (S.cardCentralizer c : Λ)⁻¹ :=
-  sorry
+#check (NatMonoidExtension.one_eq_sum_inv_cardCentralizer T :
+  ∀ {Λ : Type u} [Field Λ] (_ : IsUnit (Nat.card G : Λ)),
+    (1 : Λ) = ∑ᶠ c : (NatMonoidExtension.ofGroupExtension T).DegreeOneGConjClass,
+      ((NatMonoidExtension.ofGroupExtension T).cardCentralizer c : Λ)⁻¹)
 
-/-- The counting identity of Remark 64.15.10 (4) in `ZMod ℓ` when `ℓ` is prime
-to `#G`. -/
-theorem one_eq_sum_inv_cardCentralizer_zmod {ℓ : ℕ} [Fact ℓ.Prime]
-    (hG : IsUnit (Nat.card G : ZMod ℓ)) :
-    (1 : ZMod ℓ) = ∑ᶠ c : S.DegreeOneGConjClass, (S.cardCentralizer c : ZMod ℓ)⁻¹ :=
-  sorry
+#check (NatMonoidExtension.one_eq_sum_inv_cardCentralizer_zmod T :
+  ∀ {ℓ : ℕ} [Fact ℓ.Prime] (_ : IsUnit (Nat.card G : ZMod ℓ)),
+    (1 : ZMod ℓ) = ∑ᶠ c : (NatMonoidExtension.ofGroupExtension T).DegreeOneGConjClass,
+      ((NatMonoidExtension.ofGroupExtension T).cardCentralizer c : ZMod ℓ)⁻¹)
 
-end LinearMap.FiniteProjective
+end Counting

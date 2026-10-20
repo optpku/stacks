@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.ProjectiveQuotientFunctor
-public import stacks_project.Chap66.Proposition_66_32_1_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.SchemeComparison
 public import Mathlib.Logic.Small.Basic
 
 /-! A small carrier for the actual projective quotient functor, using kernel codes.
@@ -20,7 +14,7 @@ noncomputable section
 universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.SmallProjectiveFunctor
-variable {S : Scheme.{u}} {X : AlgebraicSpace S} (E : X.Modules) [E.IsQuasicoherent]
+variable {S : Scheme.{u}} {X : AlgebraicSpace S} (E : X.Modules)
 
 def testObject (T : Over S) (g : ofOver T ⟶ X) : Over X := Over.mk g
 
@@ -46,23 +40,48 @@ def classCode (T : Over S) (g : ofOver T ⟶ X) :
     ProjectiveQuotientFunctor.Point E (testObject T g) → KernelCode E T g :=
   Quotient.lift (kernelCode E T g) (fun _ _ ↦ kernelCode_rel E T g)
 
+/-- A represented quotient class is coded by its actual sectionwise kernel. -/
+@[simp]
+theorem classCode_mk (T : Over S) (g : ofOver T ⟶ X)
+    (q : CategoryTheory.InvertibleQuotient ((Modules.pullback g).obj E)) :
+    classCode E T g (CategoryTheory.InvertibleQuotient.IsoClass.mk q) =
+      kernelCode E T g q := rfl
+
 /-- Epimorphic quotients of the same QCoh module are determined up to compatible
 isomorphism by their kernel. Zariski restriction is faithful on these QCoh objects. -/
-theorem classCode_injective (T : Over S) (g : ofOver T ⟶ X) :
+theorem classCode_injective [E.IsQuasicoherent] (T : Over S) (g : ofOver T ⟶ X) :
     Function.Injective (classCode E T g) := by
   sorry
+
+variable [E.IsQuasicoherent]
 
 instance pointSmall (T : Over S) (g : ofOver T ⟶ X) :
     Small.{u} (ProjectiveQuotientFunctor.Point E (testObject T g)) :=
   small_of_injective (classCode_injective E T g)
 
-/-- Small quotient points over a specified scheme-valued base point. -/
+/-- Small quotient points are the actual kernel codes attained by invertible quotients. -/
 abbrev SmallPoint (T : Over S) (g : ofOver T ⟶ X) : Type u :=
-  Shrink.{u} (ProjectiveQuotientFunctor.Point E (testObject T g))
+  Set.range (classCode E T g)
 
+/-- Identify a quotient class with its attained kernel code. The inverse uses only the
+representative whose existence is supplied by the input range-membership witness. -/
 def pointEquiv (T : Over S) (g : ofOver T ⟶ X) :
     ProjectiveQuotientFunctor.Point E (testObject T g) ≃ SmallPoint E T g :=
-  equivShrink _
+  Equiv.ofInjective (classCode E T g) (classCode_injective E T g)
+
+/-- The small point attached to a quotient class has its actual kernel code as value. -/
+@[simp]
+theorem pointEquiv_val (T : Over S) (g : ofOver T ⟶ X)
+    (q : ProjectiveQuotientFunctor.Point E (testObject T g)) :
+    (pointEquiv E T g q).val = classCode E T g q := rfl
+
+/-- Small quotient points are determined by the kernels of their actual quotient classes. -/
+@[ext]
+theorem smallPoint_ext (T : Over S) (g : ofOver T ⟶ X)
+    {p q : SmallPoint E T g}
+    (h : classCode E T g ((pointEquiv E T g).symm p) =
+      classCode E T g ((pointEquiv E T g).symm q)) : p = q := by
+  sorry
 
 def overArrow {T U : Over S} (a : U ⟶ T) (g : ofOver T ⟶ X) :
     testObject U (ofOverMap a ≫ g) ⟶ testObject T g :=

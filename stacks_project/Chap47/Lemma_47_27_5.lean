@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -19,10 +13,14 @@ noncomputable section
 
 universe u
 
+open scoped TensorProduct
+
 /- Lemma 47.27.5 -/
 @[stacks 0E2G] #check (CategoryTheory.DerivedCategory.IsRelativeDualizingComplex.homothety_isIso :
     ∀ {R A : Type u} [CommRing R] [CommRing A] [Algebra R A]
       [Module.Flat R A] [Algebra.FinitePresentation R A]
+      [CategoryTheory.DerivedCategory.InternalHom.RHom.Has (A := A ⊗[R] A)]
+      [CategoryTheory.DerivedCategory.InternalHom.RHom.Has (A := A)]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u, u} A))]
       [BraidedCategory (DerivedCategory (ModuleCat.{u, u} A))]
       {K : DerivedCategory (ModuleCat.{u, u} A)},

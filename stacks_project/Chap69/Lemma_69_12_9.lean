@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Coherent
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap67.Definition_67_45_2_Integral
-public import stacks_project.Chap69.«69_3_0_1_HigherDirectImage»
-public import stacks_project.Chap69.Definition_69_12_1_Instances
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Coherent.Finite
+import StacksCheckRecall
 
 /-!
 # Lemma 69.12.9
@@ -30,29 +21,29 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.Modules
 
+section HigherDirectImage
+
 -- Local instance justification (defeq pin): `HasInjectiveResolutions` and `higherDirectImage` pin the Abelian-induced `Preadditive`/`HasZeroMorphisms` instances for defeq of `higherDirectImage`.
 attribute [local instance 2000] Abelian.toPreadditive Preadditive.preadditiveHasZeroMorphisms
 
-/-- Lemma 69.12.9 (1): if `f : X ⟶ Y` is a finite morphism of algebraic spaces over a scheme
-`S` with `Y` locally Noetherian, and `F` is a coherent `𝒪_X`-module, then
-`higherDirectImage f F p` is zero for `0 < p`. -/
-@[stacks 07UH]
-theorem higherDirectImage_isZero_of_isFinite
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsFinite f]
+/- Lemma 69.12.9
+For a finite morphism of algebraic spaces with locally Noetherian target,
+positive higher direct images of a coherent module vanish and its ordinary
+pushforward is coherent.
+-/
+@[stacks 07UH] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.higherDirectImage_isZero_of_isFinite :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsFinite f]
     [IsLocallyNoetherian Y] [Abelian X.Modules] [Abelian Y.Modules]
     [HasInjectiveResolutions X.Modules] (F : X.Modules) [F.IsCoherent]
-    (p : ℕ) (hp : 0 < p) :
-    IsZero (higherDirectImage f F p) :=
-  sorry
+    (p : ℕ), 0 < p → IsZero (higherDirectImage f F p))
 
-/-- Lemma 69.12.9 (2): if `f : X ⟶ Y` is a finite morphism of algebraic spaces over a scheme
-`S` with `Y` locally Noetherian, and `F` is a coherent `𝒪_X`-module, then
-`(pushforward f).obj F` is coherent. -/
-@[stacks 07UH]
-instance pushforward_obj_isCoherent_of_isFinite
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsFinite f]
-    [IsLocallyNoetherian Y] (F : X.Modules) [F.IsCoherent] :
-    ((pushforward f).obj F).IsCoherent :=
-  sorry
+end HigherDirectImage
+
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.pushforward_obj_isCoherent_of_isFinite :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsFinite f]
+    [IsLocallyNoetherian Y] (F : X.Modules) [F.IsCoherent],
+    ((pushforward f).obj F).IsCoherent)
 
 end AlgebraicGeometry.AlgebraicSpace.Modules

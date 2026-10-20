@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap86.Lemma_86_9_3_Uniqueness
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.RelativeDualizing
 import StacksCheckRecall
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
@@ -19,7 +13,7 @@ universe u
 algebraic spaces which is of finite presentation. If `(ωⱼ, τⱼ)`, `j = 1, 2` are two
 relative dualizing complexes on `X / Y`, then there is a unique isomorphism
 `(ω₁, τ₁) ⟶ (ω₂, τ₂)`. -/
-@[stacks 0E5Z] #check (RelativeDualizingComplex.existsUniqueIso :
+@[stacks 0E5Z] #check (AlgebraicGeometry.AlgebraicSpace.RelativeDualizingComplex.existsUniqueIso :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
       [Proper f] [Flat f] [FinitePresentation f]
       (C D : RelativeDualizingComplex f),

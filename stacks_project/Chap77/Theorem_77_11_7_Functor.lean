@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Generators
@@ -47,7 +41,7 @@ degree less than `n`. -/
 def isFlatInDimensions (T : SchemeOver Y) : Prop :=
   ∀ x : Points (Modules.baseChangeSpace f T.hom),
     ¬ Modules.flatOverAt (Modules.baseChangeModule f T.hom ℱ) (pullback.snd f T.hom) x →
-      residueFieldTrdegAt (pullback.snd f T.hom) x < n
+      residueFieldTranscendenceDegreeAt (pullback.snd f T.hom) x < (n : ℕ∞)
 
 /-- Relative flatness in dimensions at least `n` after base change is the
 pointwise residue-field characterization of Theorem 77.4.7. -/
@@ -56,7 +50,7 @@ theorem isFlatInDimensions_iff (T : SchemeOver Y) :
       ∀ x : Points (Modules.baseChangeSpace f T.hom),
         ¬ Modules.flatOverAt (Modules.baseChangeModule f T.hom ℱ)
             (pullback.snd f T.hom) x →
-          residueFieldTrdegAt (pullback.snd f T.hom) x < n :=
+          residueFieldTranscendenceDegreeAt (pullback.snd f T.hom) x < (n : ℕ∞) :=
   sorry
 
 /-- The flattening-in-dimensions functor of Situation 77.11.4, as a subfunctor of the

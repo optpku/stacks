@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap61.Lemma_61_27_2_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Constructible.ProEtaleComparison
+import StacksCheckRecall
 
 /-!
 # Lemma 61.27.2
@@ -40,12 +34,11 @@ variable [∀ {Y : Scheme.{u}} (f : Y ⟶ X) (P : X.ProEtᵒᵖ ⥤ ModuleCat.{w
     (ProEt.baseChange f).op.HasLeftKanExtension P]
 variable [∀ F : X.Etaleᵒᵖ ⥤ ModuleCat.{w} Λ, (etaleToProEt X).op.HasLeftKanExtension F]
 
-/-- Lemma 61.27.2: for a scheme `X` and a Noetherian ring `Λ`, inverse image `ε⁻¹`
+/- Lemma 61.27.2: for a scheme `X` and a Noetherian ring `Λ`, inverse image `ε⁻¹`
 along `etaleToProEt` is an equivalence between constructible sheaves of `Λ`-modules
 on `X.Etale` and constructible sheaves of `Λ`-modules on `X.ProEt`. -/
-@[stacks 09AK]
-instance etaleToProEtPullback_constructibleModule_isEquivalence :
-    (etaleToProEtPullback_constructibleModule X Λ).IsEquivalence :=
-  sorry
+@[stacks 09AK] #check
+  (AlgebraicGeometry.Scheme.etaleToProEtPullback_constructibleModule_isEquivalence X Λ :
+    (AlgebraicGeometry.Scheme.etaleToProEtPullback_constructibleModule X Λ).IsEquivalence)
 
 end AlgebraicGeometry.Scheme

@@ -1,118 +1,103 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
-public import Mathlib.AlgebraicGeometry.ProjectiveSpectrum.Topology
-public import Mathlib.CategoryTheory.IsomorphismClasses
-public import Mathlib.Tactic.CrossRefAttribute
-public import Mathlib.Topology.JacobsonSpace
-public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Line.FunctionField
-public import ReasLib.AlgebraicGeometry.RingedSpace.Module.MorphismDifferentials
-public import ReasLib.AlgebraicGeometry.Scheme.GlobalSections
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Birational.FunctionFieldDegree
-public import stacks_project.Chap53.Lemma_53_12_4_LocalRamification
-public import stacks_project.Chap111.Exercise_111_54_3_Hypersurface
-public import stacks_project.Chap111.Exercise_111_54_3_Projection
-
-/-!
-# Exercise 111.54.3
-
-For a field `k` and a degree-`d` form `F` whose vanishing `C = V₊(F) ⊂ P^2_k` is a
-smooth curve, the adjunction sequence `O(-d) ⟶ O ⟶ i_* O_C` is short exact, the
-global functions on `C` are `k`, the genus is `((d-1)*(d-2))/2`, projection from
-`(0 : 0 : 1)` has degree `d`, and under the stated ramification hypotheses the
-polar `∂F/∂X_2` cuts out `d*(d-1)` ramification points with canonical sheaf
-`i^* O(d-3)`.
--/
+public import ReasLib.AlgebraicGeometry.ProjectiveSpace.PlaneCurve.Cohomology
+public import ReasLib.AlgebraicGeometry.ProjectiveSpace.PlaneCurve.Projection
+public import ReasLib.AlgebraicGeometry.ProjectiveSpace.PlaneCurve.Adjunction
+import StacksCheckRecall
 
 @[expose] public section
 
 open AlgebraicGeometry CategoryTheory
+open AlgebraicGeometry.ProjectiveSpace
 open AlgebraicGeometry.ProjectiveSpace.PlaneCurve
 open scoped AlgebraicGeometry
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.ProjectiveSpace.PlaneCurve
-
-variable {k : Type u} [Field k] (d : ℕ) (F : MvPolynomial (Fin 3) k)
-  (hF : F ∈ ProjectiveSpace.grading k 2 d)
-variable [Curve (Over.mk (hom d F hF))] [Smooth (hom d F hF)]
-
-/-- Exercise 111.54.3 (1): if `C = V₊(F) ⊂ P^2_k` is a smooth curve over `k` with closed
-immersion `i`, then `0 → O_{P^2_k}(-d) → O_{P^2_k} → i_* O_C → 0` is a short exact
-sequence of coherent sheaves, where the first map is multiplication by `F` and the
-second map is the adjunction unit, identified with `i_* O_C` via
-`pullbackStructureSheafIso`. -/
+/- Exercise 111.54.3 (1) -/
 @[stacks 06A2]
-theorem structureSheafSequence_shortExact :
-    (sequence d F hF).ShortExact := sorry
+#check (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.structureSheafSequence_shortExact :
+  ∀ {k : Type u} [Field k] (d : ℕ) (F : MvPolynomial (Fin 3) k)
+    (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [Curve (Over.mk (Hypersurface.hom 2 d F hF))]
+    [Smooth (Hypersurface.hom 2 d F hF)],
+    (Hypersurface.sequence 2 d F hF).ShortExact)
 
-/-- Exercise 111.54.3 (2): the canonical map `k → H^0(C, O_C)` is bijective. -/
+/- Exercise 111.54.3 (2) -/
 @[stacks 06A2]
-theorem globalSectionsMap_bijective :
-    Function.Bijective (Scheme.Hom.globalSectionsMap (hom d F hF)) := sorry
+#check (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.globalSectionsMap_bijective :
+  ∀ {k : Type u} [Field k] (d : ℕ) (F : MvPolynomial (Fin 3) k)
+    (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [Curve (Over.mk (Hypersurface.hom 2 d F hF))]
+    [Smooth (Hypersurface.hom 2 d F hF)],
+    Function.Bijective (Scheme.Hom.globalSectionsMap (Hypersurface.hom 2 d F hF)))
 
-/-- Exercise 111.54.3 (3): the genus of `C` is `((d - 1) * (d - 2)) / 2`. -/
+/- Exercise 111.54.3 (3) -/
 @[stacks 06A2]
-theorem genus_eq :
-    Scheme.Hom.cohomologyFinrank (hom d F hF)
-        (SheafOfModules.unit (scheme d F hF).ringCatSheaf) 1 =
-      ((d - 1) * (d - 2)) / 2 := sorry
+#check (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.genus_eq :
+  ∀ {k : Type u} [Field k] (d : ℕ) (F : MvPolynomial (Fin 3) k)
+    (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [Curve (Over.mk (Hypersurface.hom 2 d F hF))]
+    [Smooth (Hypersurface.hom 2 d F hF)],
+    Scheme.Hom.cohomologyFinrank (Hypersurface.hom 2 d F hF)
+        (SheafOfModules.unit (Hypersurface.scheme 2 d F hF).ringCatSheaf) 1 =
+      ((d - 1) * (d - 2)) / 2)
 
-/-- Exercise 111.54.3 (4): if `P = (0 : 0 : 1)` is not on `C`, then the projection
-`π : C → P^1_k` given by `(a_0 : a_1 : a_2) ↦ (a_0 : a_1)` has degree `d`. -/
+/- Exercise 111.54.3 (4) -/
 @[stacks 06A2]
-theorem projection_degree
-    (hP : centerPoint k ∉ Set.range (closedImmersion d F hF).base) :
-    (projection d F hF hP).inducedFunctionFieldDegree = d := sorry
+#check (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.projection_degree :
+  ∀ {k : Type u} [Field k] (d : ℕ) (F : MvPolynomial (Fin 3) k)
+    (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [Curve (Over.mk (Hypersurface.hom 2 d F hF))]
+    [Smooth (Hypersurface.hom 2 d F hF)]
+    (hP : centerPoint k ∉ Set.range (Hypersurface.closedImmersion 2 d F hF).base),
+    (projection d F hF hP).inducedFunctionFieldDegree = d)
 
-/-- Exercise 111.54.3 (5): if `k` is algebraically closed of characteristic not `2` and
-every ramification index of `π` is `1` or `2`, then `π` has `d * (d - 1)` ramification
-points. -/
+/- Exercise 111.54.3 (5) -/
 @[stacks 06A2]
-theorem ramificationPoint_ncard
+#check (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.ramificationPoint_ncard :
+  ∀ {k : Type u} [Field k] (d : ℕ) (F : MvPolynomial (Fin 3) k)
+    (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [Curve (Over.mk (Hypersurface.hom 2 d F hF))]
+    [Smooth (Hypersurface.hom 2 d F hF)]
     [IsAlgClosed k]
-    (hP : centerPoint k ∉ Set.range (closedImmersion d F hF).base)
-    (h_char : (2 : k) ≠ 0)
-    (h_ramif : ∀ x : closedPoints (scheme d F hF),
+    (hP : centerPoint k ∉ Set.range (Hypersurface.closedImmersion 2 d F hF).base)
+    (_h_char : (2 : k) ≠ 0)
+    (_h_ramif : ∀ x : closedPoints (Hypersurface.scheme 2 d F hF),
       (projection d F hF hP).ramificationIndexAt x.1 = 1 ∨
-        (projection d F hF hP).ramificationIndexAt x.1 = 2) :
-    Set.ncard {x : closedPoints (scheme d F hF) |
+        (projection d F hF hP).ramificationIndexAt x.1 = 2),
+    Set.ncard {x : closedPoints (Hypersurface.scheme 2 d F hF) |
         (projection d F hF hP).ramificationIndexAt x.1 = 2} =
-      d * (d - 1) := sorry
+      d * (d - 1))
 
-/-- Exercise 111.54.3 (6): a closed point of `C` is a ramification point of `π` if and
-only if its image in `P^2_k` lies on the common vanishing locus of `F` and `∂F/∂X_2`. -/
+/- Exercise 111.54.3 (6) -/
 @[stacks 06A2]
-theorem ramificationPoint_iff
+#check (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.ramificationPoint_iff :
+  ∀ {k : Type u} [Field k] (d : ℕ) (F : MvPolynomial (Fin 3) k)
+    (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [Curve (Over.mk (Hypersurface.hom 2 d F hF))]
+    [Smooth (Hypersurface.hom 2 d F hF)]
     [IsAlgClosed k]
-    (hP : centerPoint k ∉ Set.range (closedImmersion d F hF).base)
-    (h_char : (2 : k) ≠ 0)
-    (h_ramif : ∀ x : closedPoints (scheme d F hF),
+    (hP : centerPoint k ∉ Set.range (Hypersurface.closedImmersion 2 d F hF).base)
+    (_h_char : (2 : k) ≠ 0)
+    (_h_ramif : ∀ x : closedPoints (Hypersurface.scheme 2 d F hF),
       (projection d F hF hP).ramificationIndexAt x.1 = 1 ∨
         (projection d F hF hP).ramificationIndexAt x.1 = 2)
-    (x : closedPoints (scheme d F hF)) :
+    (x : closedPoints (Hypersurface.scheme 2 d F hF)),
     (projection d F hF hP).ramificationIndexAt x.1 = 2 ↔
-      (closedImmersion d F hF).base x.1 ∈
+      (Hypersurface.closedImmersion 2 d F hF).base x.1 ∈
         ProjectiveSpectrum.zeroLocus (ProjectiveSpace.grading k 2)
-          {F, ramificationEquation F} := sorry
+          {F, ramificationEquation F})
 
-/-- Exercise 111.54.3 (7): the canonical sheaf `K_C = Ω_{C/k}` is isomorphic to
-`i^* O_{P^2}(d - 3)`. -/
+/- Exercise 111.54.3 (7) -/
 @[stacks 06A2]
-theorem canonicalSheaf_isIsomorphic :
+#check (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.canonicalSheaf_isIsomorphic :
+  ∀ {k : Type u} [Field k] (d : ℕ) (F : MvPolynomial (Fin 3) k)
+    (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [Curve (Over.mk (Hypersurface.hom 2 d F hF))]
+    [Smooth (Hypersurface.hom 2 d F hF)],
     IsIsomorphic
-      ((Scheme.Modules.pullback (closedImmersion d F hF)).obj
+      ((Scheme.Modules.pullback (Hypersurface.closedImmersion 2 d F hF)).obj
         (twistingSheaf k 2 ((d : ℤ) - 3)))
-      Ω[(hom d F hF).toShHom] := sorry
+      Ω[(Hypersurface.hom 2 d F hF).toShHom])
 
-end AlgebraicGeometry.ProjectiveSpace.PlaneCurve

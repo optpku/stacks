@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Definition_76_6_5_NormalCone
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.NormalCone
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
@@ -32,5 +26,4 @@ conormal sheaf. -/
 #check (AlgebraicGeometry.AlgebraicSpace.normalBundle_eq_relativeSpec i :
   AlgebraicGeometry.AlgebraicSpace.normalBundle i =
     AlgebraicGeometry.AlgebraicSpace.relativeSpec
-      (AlgebraicGeometry.AlgebraicSpace.SymmetricAlgebra.qcAlgebra
-        (AlgebraicGeometry.AlgebraicSpace.Hom.conormalSheaf i)))
+      (AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra.symmetric i))

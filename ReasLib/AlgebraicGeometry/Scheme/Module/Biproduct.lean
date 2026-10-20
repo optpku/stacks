@@ -1,19 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Modules.Sheaf
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.Basic
 
 /-!
 # Finite biproducts of scheme module sheaves
 
-This module provides the scheme-facing bridge from the canonical ringed-site module
-presentation to finite biproducts in `X.Modules`.
+The canonical Abelian structure on `X.Modules` supplies finite biproducts of
+module sheaves on a scheme.
 -/
 
 @[expose] public section
@@ -26,10 +19,10 @@ universe u
 
 namespace AlgebraicGeometry.Scheme
 
-/-- Finite biproducts in `X.Modules`, transported from the ring-sheaf presentation of a scheme. -/
+/-- The category of module sheaves on a scheme has finite biproducts. -/
 noncomputable instance moduleHasFiniteBiproducts (X : Scheme.{u}) :
     HasFiniteBiproducts X.Modules :=
-  inferInstanceAs (HasFiniteBiproducts (SheafOfModules.{u} X.ringCatSheaf))
+  CategoryTheory.Abelian.hasFiniteBiproducts
 
 end AlgebraicGeometry.Scheme
 

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Lemma_100_9_13_OpenImage
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Substack.OpenImage
+import StacksCheckRecall
 
 /-!
 # Open image of an open in a smooth atlas
@@ -24,20 +19,19 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack
-
-/-- Lemma 100.9.13: Let `X` be an algebraic stack. Let `U` be an algebraic space
+/- Lemma 100.9.13: Let `X` be an algebraic stack. Let `U` be an algebraic space
 and `p : U.toGroupoids ⟶ X` a surjective smooth morphism. For an open immersion
 `i : V ⟶ U`, there exists an algebraic stack `Y`, an open immersion `Y ⟶ X`,
-and a surjective smooth morphism `V.toGroupoids ⟶ Y`. The canonical such
-substack is `openImage p i`, with atlas `openImageHom p i`. -/
-@[stacks 05UP]
-theorem exists_openSubstack_of_openImmersion {S : Scheme.{u}}
-    {X : GroupoidsOver S} [AlgebraicStack X] {U V : AlgebraicSpace S}
+and a surjective smooth morphism `V.toGroupoids ⟶ Y` factoring the composite
+`V ⟶ X`. -/
+@[stacks 05UP] #check
+  (AlgebraicGeometry.AlgebraicStack.exists_openSubstack_of_openImmersion :
+    ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    {U V : AlgebraicSpace S}
     (p : U.toGroupoids ⟶ X) (i : V ⟶ U) [Groupoids.Hom.Smooth p]
-    [Groupoids.Hom.Surjective p] [AlgebraicSpace.IsOpenImmersion i] :
-    Groupoids.Hom.Smooth (openImageHom p i) ∧
-      Groupoids.Hom.Surjective (openImageHom p i) :=
-  sorry
+    [Groupoids.Hom.Surjective p] [AlgebraicSpace.IsOpenImmersion i],
+    ∃ (Y : GroupoidsOver S) (j : Y ⟶ X) (q : V.toGroupoids ⟶ Y),
+      AlgebraicStack Y ∧ Groupoids.Hom.OpenImmersion j ∧
+        Groupoids.Hom.Smooth q ∧ Groupoids.Hom.Surjective q ∧
+          q ≫ j = AlgebraicSpace.toGroupoids.map i ≫ p)
 
-end AlgebraicGeometry.AlgebraicStack

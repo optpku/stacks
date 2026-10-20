@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap94.Definition_94_12_1_Representable
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Representable
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,5 +16,5 @@ variable (S : Scheme.{u})
 and any `y : (Sch/U)_fppf ⟶ Y` the 2-fibre product `(Sch/U)_fppf ×_{y, Y} X` over
 `(Sch/U)_fppf` is representable by an algebraic space over `U`. -/
 @[stacks 02ZW]
-#check (relativelyRepresentableByAlgebraicSpaces :
-  MorphismProperty (GroupoidsOver S))
+#check (AlgebraicGeometry.relativelyRepresentableByAlgebraicSpaces :
+  MorphismProperty (AlgebraicGeometry.GroupoidsOver S))

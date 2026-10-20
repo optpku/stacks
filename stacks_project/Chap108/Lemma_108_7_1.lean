@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.FunctorCategory.Basic
-public import Mathlib.CategoryTheory.Limits.Shapes.BinaryProducts
-public import Mathlib.CategoryTheory.Limits.Types.Limits
-public import stacks_project.Chap67.Definition_67_4_2_Separation
-public import stacks_project.Chap99.«99_9_1_1_Functor»
-public import stacks_project.Chap108.Lemma_108_5_1_ClosedImmersion
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Hilbert.Diagonal
+import StacksCheckRecall
 
 /-!
 # Lemma 108.7.1
@@ -29,23 +19,19 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Hilbert
-
-variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
-
-/-- Lemma 108.7.1 (1): the diagonal of `hilbert f` over `B` is a closed immersion. -/
+/- Lemma 108.7.1 (1): the diagonal of `hilbert f` over `B` is a closed immersion. -/
 @[stacks 0DM6]
-theorem isClosedImmersion_diagonal (f : X ⟶ B) [FinitePresentation f]
-    [Separated f] :
-    Quot.IsClosedImmersionOnSchemesOver (Limits.diag (hilbert f)) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Hilbert.isClosedImmersion_diagonal :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B)
+    [FinitePresentation f] [Separated f],
+    SchemeOver.IsClosedImmersion
+      (Limits.diag (AlgebraicGeometry.AlgebraicSpace.Hilbert.hilbert f)))
 
-/-- Lemma 108.7.1 (2): the diagonal of `hilbert f` over `B` is of finite
+/- Lemma 108.7.1 (2): the diagonal of `hilbert f` over `B` is of finite
 presentation. -/
 @[stacks 0DM6]
-theorem finitePresentation_diagonal (f : X ⟶ B) [FinitePresentation f]
-    [Separated f] :
-    Quot.IsFinitePresentationOnSchemesOver (Limits.diag (hilbert f)) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Hilbert
+#check (AlgebraicGeometry.AlgebraicSpace.Hilbert.finitePresentation_diagonal :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B)
+    [FinitePresentation f] [Separated f],
+    SchemeOver.IsFinitePresentation
+      (Limits.diag (AlgebraicGeometry.AlgebraicSpace.Hilbert.hilbert f)))

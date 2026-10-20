@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_13_6_PseudoCoherent
-public import stacks_project.Chap81.Lemma_81_6_2_Pushout
-public import stacks_project.Chap81.Lemma_81_8_1_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Pushout
+import StacksCheckRecall
 
 /-!
 # Lemma 81.8.1
@@ -27,37 +20,28 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 81.8.1: Let `S` be a scheme. Consider a pushout square of algebraic spaces
+/- Lemma 81.8.1: Let `S` be a scheme. Consider a pushout square of algebraic spaces
 over `S` as in Lemma 81.6.2, and assume `i` is a thickening. Then the essential image
 of the derived-pullback functor `D(𝒪_{Y'}) ⥤ D(𝒪_Y) ×_{D(𝒪_X)} D(𝒪_{X'})` contains
 every triple `(M, K', α)` where `M : ModuleDerived Y` and `K' : ModuleDerived X'` are
 pseudo-coherent and `α : Lf^* M ≅ Li^* K'`. -/
-@[stacks 0DL7]
-theorem modulePullbackDerived.pushoutSquareFunctor_essImage_of_pseudoCoherent
-    {S : Scheme.{u}} {X X' Y Y' : AlgebraicSpace S}
+@[stacks 0DL7] #check
+  (AlgebraicGeometry.AlgebraicSpace.modulePullbackDerived.pushoutSquareFunctor_essImage_of_pseudoCoherent :
+    ∀ {S : Scheme.{u}} {X X' Y Y' : AlgebraicSpace S}
     {i : X ⟶ X'} {f : X ⟶ Y} {f' : X' ⟶ Y'} {j : Y ⟶ Y'}
     [IsThickening i] [Affine f]
-    [IsIso (modulePullbackDerived.compComparison f j)]
-    [IsIso (modulePullbackDerived.compComparison i f')]
     (h : IsPushout i f f' j) (M : ModuleDerived Y) (K' : ModuleDerived X')
     (hM : IsPseudoCoherent Y M) (hK' : IsPseudoCoherent X' K')
-    (α : (modulePullbackDerived f).obj M ≅ (modulePullbackDerived i).obj K') :
+    (α : (modulePullbackDerived f).obj M ≅ (modulePullbackDerived i).obj K'),
     (modulePullbackDerived.pushoutSquareFunctor h.toCommSq).essImage
-      (modulePullbackDerived.pullbackTriple M K' α) := sorry
+      (CategoricalPullback.mk M K' α))
 
-/-- A triple in `modulePullbackDerived f ⊡ modulePullbackDerived i` with
-pseudo-coherent components lies in the essential image of
-`modulePullbackDerived.pushoutSquareFunctor` along a Lemma 81.6.2 pushout. -/
-theorem modulePullbackDerived.pushoutSquareFunctor_essImage_of_pseudoCoherent_obj
-    {S : Scheme.{u}} {X X' Y Y' : AlgebraicSpace S}
+#check
+  (AlgebraicGeometry.AlgebraicSpace.modulePullbackDerived.pushoutSquareFunctor_essImage_of_pseudoCoherent_obj :
+    ∀ {S : Scheme.{u}} {X X' Y Y' : AlgebraicSpace S}
     {i : X ⟶ X'} {f : X ⟶ Y} {f' : X' ⟶ Y'} {j : Y ⟶ Y'}
     [IsThickening i] [Affine f]
-    [IsIso (modulePullbackDerived.compComparison f j)]
-    [IsIso (modulePullbackDerived.compComparison i f')]
     (h : IsPushout i f f' j) (T : (modulePullbackDerived f) ⊡ (modulePullbackDerived i))
-    (hM : IsPseudoCoherent Y T.fst) (hK' : IsPseudoCoherent X' T.snd) :
-    (modulePullbackDerived.pushoutSquareFunctor h.toCommSq).essImage T := sorry
+    (hM : IsPseudoCoherent Y T.fst) (hK' : IsPseudoCoherent X' T.snd),
+    (modulePullbackDerived.pushoutSquareFunctor h.toCommSq).essImage T)
 
-end AlgebraicGeometry.AlgebraicSpace

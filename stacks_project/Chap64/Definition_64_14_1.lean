@@ -1,17 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.ConstantSheaf
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve
-public import stacks_project.Chap64.Definition_64_14_1_Comparison
-public import stacks_project.Chap64.Proposition_64_10_2_Trace
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Lefschetz.Global
+import StacksCheckRecall
 
 /-!
 # Global Lefschetz number
@@ -51,32 +44,19 @@ variable [∀ Z : Scheme.{u},
 variable (X : SchemeOverField k)
 variable [Curve X] [Projective X.hom]
 
-/-- Definition 64.14.1. Let `Λ` be a finite ring, `X` a projective curve over a
-finite field `k`, and `K` an object of `D_ctf(X, Λ)` (for instance
-`K = underline Λ`). There is a canonical map
-`c_K : π_X⁻¹ K ⟶ K`, and its base change `c_K|_{X_k̄}` induces an action
-denoted `π_X^*` on the perfect complex `RΓ(X_k̄, K|_{X_k̄})`. The global
-Lefschetz number of `K` is the trace `Tr(π_X^* | RΓ(X_k̄, K))` of that
-action. It is an element of `Λ♮`. Here `c_K` is
-`geometricFrobeniusComparison`, the geometric restriction is
-`geometricRestrictionDerived`, `RΓ` is `geometricRGamma`, and `π_X^*` is
-`geometricFrobeniusRGamma`; the load-bearing elaborating hypothesis is
-perfectness of `geometricRGamma X K`, recording that `K` lies in `D_ctf`. -/
-@[stacks 03TX]
-def globalLefschetzNumber
-    (K : DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)))
-    (hK : DerivedCategory.IsPerfect (geometricRGamma X K)) :
-    Λ♮ :=
-  hK.traceNatural (geometricFrobeniusRGamma X K)
-
-/-- The global Lefschetz number is the finite-projective trace of `π_X^*` on
-`RΓ(X_k̄, K|_{X_k̄})`. -/
-theorem globalLefschetzNumber_spec
-    (K : DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)))
-    (hK : DerivedCategory.IsPerfect (geometricRGamma X K)) :
-    globalLefschetzNumber X K hK =
-      hK.traceNatural (geometricFrobeniusRGamma X K) :=
-  sorry
+/- Definition 64.14.1. Let Λ be a finite ring, X a projective curve over a finite
+field k, and K an object of D_ctf(X, Λ), for example the constant coefficient
+complex. The canonical comparison c_K : π_X⁻¹ K ⟶ K, after base change to the
+geometric fibre, induces π_X^* on RΓ(X_k̄, K|_{X_k̄}). The global Lefschetz number
+is the trace of this action in Λ♮.
+For K in D_ctf, geometric derived global sections are perfect. The definition
+below extends to any complex with perfect geometric derived global sections;
+this perfectness condition is not an identification with D_ctf. -/
+@[stacks 03TX] #check
+  (AlgebraicGeometry.SchemeOverField.globalLefschetzNumber :
+    ∀ (X : SchemeOverField k)
+      (K : DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)))
+      (hK : DerivedCategory.IsPerfect (geometricRGamma X K)), Λ♮)
 
 /-- The constant sheaf of coefficients, viewed as a derived object in degree
 zero. This is the parenthetical example `K = underline Λ` of
@@ -95,6 +75,6 @@ theorem constantCoefficient_eq :
           (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)) (0 : ℤ)).obj
         ((constantSheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)).obj
           (.of Λ Λ)) :=
-  sorry
+  rfl
 
 end AlgebraicGeometry.SchemeOverField

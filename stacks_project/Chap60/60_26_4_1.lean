@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -149,7 +143,7 @@ variable [SectionsCoherent I γS hc x₀ F] [CrisModuleSheaf.IsCrystal F]
       (CategoryTheory.ModuleCat.derivedRestrictionOfScalars σ').map
         ((CategoryTheory.ModuleCat.derivedRestrictionOfScalars β).map
           ((moduleDerivedGlobalSections.{u + 1} Xsite).map ordinaryPullback))) :
-    (CategoryTheory.ModuleCat.derivedExtensionOfScalars
+    (CategoryTheory.ModuleCat.derivedExtensionOfScalars.{u + 1, u + 1, u + 1}
       (CrystallineCoefficients.baseRingMap (specSigmaHom I s σ h_ideal h_over).base)).obj
       ((CategoryTheory.ModuleCat.derivedRestrictionOfScalars
         (baseToGlobalSections I γS hc x₀ p s hp)).obj

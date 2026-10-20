@@ -1,54 +1,28 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_46_2_FiniteLocallyFree
-public import stacks_project.Chap94.Definition_94_12_2_Etale
-public import stacks_project.Chap97.Lemma_97_11_3_Map
-
-/-!
-# Étale and surjective restriction of scalars
-
-If `X' ⟶ X` is étale and `Z ⟶ B` is finite locally free, the induced map
-`Res_{Z/B}(X') ⟶ Res_{Z/B}(X)` is representable by algebraic spaces and étale,
-and is surjective when `X' ⟶ X` is also surjective.
--/
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RestrictionOfScalars.Etale
+import StacksCheckRecall
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.RestrictionOfScalars
-
-/-- Lemma 97.11.3 (1): let `S` be a scheme and let `X' ⟶ X ⟶ Z ⟶ B` be morphisms
-of algebraic spaces over `S`. If `h : X' ⟶ X` is étale and `g : Z ⟶ B` is finite
-locally free, then `mapGroupoids h f g : toGroupoids (h ≫ f) g ⟶ toGroupoids f g`
-is representable by algebraic spaces and étale. -/
-@[stacks 05YD, instance]
-instance instEtale_map {S : Scheme.{u}} {X' X Z B : AlgebraicSpace S}
+/- Lemma 97.11.3. Restriction of scalars along a finite locally free morphism
+preserves étale morphisms and étale surjections. -/
+@[stacks 05YD] #check (AlgebraicGeometry.AlgebraicSpace.RestrictionOfScalars.instEtale_map :
+  ∀ {S : Scheme.{u}} {X' X Z B : AlgebraicSpace S}
     (h : X' ⟶ X) (f : X ⟶ Z) (g : Z ⟶ B)
-    [AlgebraicSpace.Etale h] [FiniteLocallyFree g] :
-    Groupoids.Hom.Etale (mapGroupoids h f g) :=
-  sorry
+    [AlgebraicSpace.Etale h] [AlgebraicSpace.FiniteLocallyFree g],
+    Groupoids.Hom.Etale
+      (AlgebraicGeometry.AlgebraicSpace.RestrictionOfScalars.mapGroupoids h f g))
 
-/-- Lemma 97.11.3 (2): let `S` be a scheme and let `X' ⟶ X ⟶ Z ⟶ B` be morphisms
-of algebraic spaces over `S`. If `h : X' ⟶ X` is étale and surjective and
-`g : Z ⟶ B` is finite locally free, then
-`mapGroupoids h f g : toGroupoids (h ≫ f) g ⟶ toGroupoids f g` is surjective. -/
-@[stacks 05YD, instance]
-instance instSurjective_map {S : Scheme.{u}} {X' X Z B : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.RestrictionOfScalars.instSurjective_map :
+  ∀ {S : Scheme.{u}} {X' X Z B : AlgebraicSpace S}
     (h : X' ⟶ X) (f : X ⟶ Z) (g : Z ⟶ B)
-    [AlgebraicSpace.Etale h] [AlgebraicSpace.Surjective h] [FiniteLocallyFree g] :
-    Groupoids.Hom.Surjective (mapGroupoids h f g) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.RestrictionOfScalars
+    [AlgebraicSpace.Etale h] [AlgebraicSpace.Surjective h]
+    [AlgebraicSpace.FiniteLocallyFree g],
+    Groupoids.Hom.Surjective
+      (AlgebraicGeometry.AlgebraicSpace.RestrictionOfScalars.mapGroupoids h f g))

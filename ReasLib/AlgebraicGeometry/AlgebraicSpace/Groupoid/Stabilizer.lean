@@ -1,16 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Monoidal.Cartesian.Grp
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CartesianMonoidal
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Group
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.PreRelation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.PreRelation
 /-!
 # Stabilizer groups of groupoids in algebraic spaces
 
@@ -37,22 +30,6 @@ def j {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B) :
 theorem j_eq_prod_lift {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) :
     G.j = prod.lift G.t G.s := sorry
-
-/-- Forget a groupoid in algebraic spaces to its underlying pre-relation, with defining
-map `(t, s)`. -/
-def toPreRelation {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) : AlgebraicSpace.PreRelation G.U :=
-  AlgebraicSpace.PreRelation.ofHom G.j
-
-/-- The target projection of the underlying pre-relation is the target map. -/
-theorem toPreRelation_t {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) :
-    G.toPreRelation.t = G.t := sorry
-
-/-- The source projection of the underlying pre-relation is the source map. -/
-theorem toPreRelation_s {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) :
-    G.toPreRelation.s = G.s := sorry
 
 end AlgebraicGeometry.GroupoidAlgebraicSpace
 

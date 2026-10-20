@@ -1,19 +1,14 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Constructions.Over.Connected
+public import Mathlib.CategoryTheory.Limits.Constructions.Over.Products
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.ChosenPresentation
 
 /-!
-# Pullbacks and terminal objects in chosen big-site slices
+# Pullbacks, binary products, and terminal objects in chosen big-site slices
 
 This file records pullback properties of a chosen big-site carrier and of its
-slice categories, together with the canonical terminal object of a slice.
+slice categories, together with binary products and the canonical terminal object of a slice.
 -/
 
 @[expose] public section
@@ -42,6 +37,12 @@ abbrev sliceToScheme : Over S ⥤ Scheme.{u} :=
 
 /-- The slice over an object of a chosen big-site carrier has pullbacks. -/
 theorem sliceHasPullbacks : Limits.HasPullbacks (Over S) := sorry
+
+/-- The slice over an object of a chosen big-site carrier has binary products,
+constructed from pullbacks in the carrier. -/
+@[implicit_reducible]
+def sliceHasBinaryProducts : Limits.HasBinaryProducts (Over S) :=
+  @Over.ConstructProducts.over_binaryProduct_of_pullback 𝒮.carrier _ 𝒮.hasPullbacks S
 
 /-- The functor from a chosen big-site slice to schemes preserves pullbacks. -/
 theorem sliceToSchemePreservesPullbacks :

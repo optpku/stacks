@@ -1,27 +1,19 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_15_4_SchemeTheoreticSupport
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.SchemeTheoreticSupport
 import StacksCheckRecall
 
 @[expose] public section
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.Modules
 
 noncomputable section
 
 universe u
 
-variable {S : Scheme.{u}} {X : AlgebraicSpace S}
-variable (F : X.Modules) [F.IsQuasicoherent] [F.IsFiniteType]
-
 /- Definition 67.15.4: Let `S` be a scheme. Let `X` be an algebraic space over `S`.
 Let `F` be a finite type quasi-coherent `𝒪_X`-module. The scheme-theoretic support
 of `F` is the closed subspace `Z ⊂ X` constructed in Lemma 67.15.3. -/
-@[stacks 07U1] #check (schemeTheoreticSupport F : ClosedSubspace X)
+@[stacks 07U1] #check (AlgebraicGeometry.AlgebraicSpace.Modules.schemeTheoreticSupport :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (F : X.Modules)
+    [F.IsQuasicoherent] [F.IsFiniteType], ClosedSubspace X)

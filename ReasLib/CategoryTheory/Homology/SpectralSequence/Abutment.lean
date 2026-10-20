@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Exhaustive
@@ -74,12 +68,15 @@ def AbutsAlong
     (F : ∀ n : ℕ, DecreasingFiltration (H n)) : Prop :=
   (∀ n : ℕ, IndexedFiltration.IsSeparated (F n)) ∧
     (∀ n : ℕ, IndexedFiltration.IsExhaustive (F n)) ∧
-      ∀ (n p : ℕ), p ≤ n →
-        IsIsomorphic ((F n).gradedPiece (Int.ofNat p))
-          (L.infinityPage (p, n - p))
+      (∀ n : ℕ, (F n).stage 0 = ⊤ ∧
+        (F n).stage (Int.ofNat (n + 1)) = ⊥) ∧
+        ∀ (n p : ℕ), p ≤ n →
+          IsIsomorphic ((F n).gradedPiece (Int.ofNat p))
+            (L.infinityPage (p, n - p))
 
 /-- A first-quadrant cohomological spectral sequence with arbitrary initial page abuts to `H`
-when it admits limit stages and separated, exhaustive filtrations realizing its infinity page. -/
+when it admits limit stages and separated, exhaustive filtrations supported in degrees `0` through
+`n` and realizing its infinity page. -/
 @[stacks 012U "first-quadrant abutment"]
 def AbutsTo (E : CohomologicalSpectralSequenceNat C r₀) (H : ℕ → C) : Prop :=
   ∃ (L : SpectralSequence.LimitStages (Page.One.ofInitial E))
@@ -99,6 +96,13 @@ theorem isSeparated (h : AbutsAlong E H L F) (n : ℕ) :
 /-- Every target filtration in an explicit first-quadrant abutment is exhaustive. -/
 theorem isExhaustive (h : AbutsAlong E H L F) (n : ℕ) :
     IndexedFiltration.IsExhaustive (F n) := sorry
+
+/-- The target filtration in an explicit first-quadrant abutment is supported in degrees
+`0` through `n`.  These endpoint conditions force all graded pieces outside that range to
+vanish, as required by the first-quadrant infinity page. -/
+theorem stage_bounds (h : AbutsAlong E H L F) (n : ℕ) :
+    (F n).stage 0 = ⊤ ∧
+      (F n).stage (Int.ofNat (n + 1)) = ⊥ := h.2.2.1 n
 
 /-- The degree-`p` graded piece in an explicit first-quadrant abutment is isomorphic to the
 corresponding infinity-page entry. -/
@@ -240,6 +244,13 @@ theorem isSeparated (h : AbutsAlong E H L F) (n : ℕ) :
 /-- Every target filtration in an explicit abutment is exhaustive. -/
 theorem isExhaustive (h : AbutsAlong E H L F) (n : ℕ) :
     IndexedFiltration.IsExhaustive (F n) := sorry
+
+/-- The target filtration in an explicit first-quadrant abutment is supported in degrees
+`0` through `n`. -/
+theorem stage_bounds (h : AbutsAlong E H L F) (n : ℕ) :
+    (F n).stage 0 = ⊤ ∧
+      (F n).stage (Int.ofNat (n + 1)) = ⊥ :=
+  CohomologicalSpectralSequenceNat.AbutsAlong.stage_bounds h n
 
 /-- The degree-`p` graded piece of an explicit abutment is isomorphic to the corresponding
 infinity-page entry. -/

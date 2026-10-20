@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.PseudoCoherent.Relative.FlatModel.Bounded
@@ -28,6 +22,8 @@ open scoped AlgebraicGeometry
 noncomputable section
 
 universe u
+
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
 
 namespace AlgebraicGeometry.Scheme.ModuleDerived
 
@@ -75,6 +71,10 @@ instance lieblichPerfectOver_isClosedUnderIsomorphisms (f : X ⟶ S)
 Lieblich local bounded-model condition. -/
 theorem isPerfectRelativeTo_iff_lieblichPerfectOver (f : X ⟶ S)
     [Flat f] [LocallyOfFinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     (E : RingedSpace.ModuleDerived X.toRingedSpace) :
     IsPerfectRelativeTo f E ↔ IsLieblichPerfectOver f E := sorry
 
@@ -82,6 +82,10 @@ theorem isPerfectRelativeTo_iff_lieblichPerfectOver (f : X ⟶ S)
 relative pseudo-coherence agrees with the standard scheme-relative predicate. -/
 theorem isPerfectOver_iff_isPerfectRelativeTo (f : X ⟶ S)
     [Flat f] [LocallyOfFinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     (E : RingedSpace.ModuleDerived X.toRingedSpace) :
     IsPerfectOver f E ↔ IsPerfectRelativeTo f E := sorry
 

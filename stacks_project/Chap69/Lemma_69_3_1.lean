@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap69.Lemma_69_3_1_Quasicoherent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Quasicoherent.HigherDirectImage
 import StacksCheckRecall
 
 @[expose] public section
@@ -26,14 +20,19 @@ attribute [local instance 2000] Abelian.toPreadditive Preadditive.preadditiveHas
 over `S`. If `f` is quasi-compact and quasi-separated, then `R^i f_*` transforms quasi-coherent
 `𝒪_X`-modules into quasi-coherent `𝒪_Y`-modules. -/
 @[stacks 0720] #check
-  (higherDirectImage.isQuasicoherent :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.higherDirectImage.isQuasicoherent :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
       [QuasiCompact f] [QuasiSeparated f]
       [Abelian X.Modules] [Abelian Y.Modules] [HasInjectiveResolutions X.Modules]
       (F : X.Modules) [F.IsQuasicoherent] (i : ℕ),
       (higherDirectImage f F i).IsQuasicoherent)
 
-#check QCoh.higherDirectImage
+#check
+  (AlgebraicGeometry.AlgebraicSpace.QCoh.higherDirectImage :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      [QuasiCompact f] [QuasiSeparated f]
+      [Abelian X.Modules] [Abelian Y.Modules] [HasInjectiveResolutions X.Modules]
+      (i : ℕ), QCoh X ⥤ QCoh Y)
 
 end
 

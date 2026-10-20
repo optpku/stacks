@@ -1,131 +1,87 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Module.Projective
-public import stacks_project.Chap66.Definition_66_29_1_QCoh
-public import stacks_project.Chap66.Lemma_66_18_6_Site
-public import stacks_project.Chap66.«66_26_1_1_Restrict»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.LocallyProjective
 
 /-!
 # Locally projective modules on algebraic spaces
 
-A sheaf of modules on an algebraic space is locally projective when its sections over every
-affine étale object are projective modules over the corresponding ring of functions. This is
-the algebraic-space analogue of `Scheme.Modules.IsLocallyProjective`.
+The local-projectivity predicate, section modules, and étale restriction criteria are
+provided by the mathematical owner imported above.
 -/
 
 @[expose] public section
 
 open CategoryTheory Opposite AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-
-noncomputable section
+open AlgebraicGeometry.AlgebraicSpace.Modules
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.structureRing :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (U : smallEtaleSite X), RingCat)
 
-variable {S : Scheme.{u}} {X : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.structureRing_obj :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (U : smallEtaleSite X),
+    structureRing U = RingCat.of Γ(U.left.left, ⊤))
 
-/-- The ring of functions `Γ(U, 𝒪_U)` of a scheme étale over `X`. -/
-abbrev structureRing (U : smallEtaleSite X) :=
-  (structureSheaf X).obj.obj (op U)
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.sectionModule :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (ℱ : X.Modules) (U : smallEtaleSite X),
+    ModuleCat (structureRing U))
 
-/-- The structure ring of an étale object is the global-sections ring of its underlying scheme. -/
-theorem structureRing_obj (U : smallEtaleSite X) :
-    structureRing U = RingCat.of Γ(U.left.left, ⊤) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.sectionModule_val :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (ℱ : X.Modules) (U : smallEtaleSite X),
+    sectionModule ℱ U = ℱ.val.obj (op U))
 
-/-- The module of sections of `ℱ` over a scheme étale over `X`. -/
-abbrev sectionModule (ℱ : X.Modules) (U : smallEtaleSite X) :=
-  (SheafOfModules.evaluation (structureSheaf X) (op U)).obj ℱ
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.IsLocallyProjective :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}, X.Modules → Prop)
 
-/-- Section modules are the values of the underlying presheaf of modules. -/
-theorem sectionModule_val (ℱ : X.Modules) (U : smallEtaleSite X) :
-    sectionModule ℱ U = ℱ.val.obj (op U) :=
-  sorry
-
-/-- A sheaf of modules on an algebraic space is locally projective when its sections over every
-affine étale object are projective over the corresponding ring of functions. -/
-class IsLocallyProjective (ℱ : X.Modules) : Prop where
-  /-- Projectivity of sections over a chosen affine étale object. -/
-  affineEtale_projective (U : affineEtaleSite X) :
-    Module.Projective (structureRing U.obj) (sectionModule ℱ U.obj)
-
-/-- Local projectivity is equivalent to affine-étale sectionwise projectivity. -/
-theorem isLocallyProjective_iff (ℱ : X.Modules) :
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.isLocallyProjective_iff :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (ℱ : X.Modules),
     IsLocallyProjective ℱ ↔
       ∀ U : affineEtaleSite X,
-        Module.Projective (structureRing U.obj) (sectionModule ℱ U.obj) :=
-  sorry
+        Module.Projective (structureRing U.obj) (sectionModule ℱ U.obj))
 
-namespace IsLocallyProjective
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.IsLocallyProjective.of_affineEtale :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {ℱ : X.Modules},
+    (∀ U : affineEtaleSite X,
+      Module.Projective (structureRing U.obj) (sectionModule ℱ U.obj)) →
+        IsLocallyProjective ℱ)
 
-/-- A module sheaf whose affine-étale sections are projective is locally projective. -/
-theorem of_affineEtale {ℱ : X.Modules}
-    (h : ∀ U : affineEtaleSite X,
-      Module.Projective (structureRing U.obj) (sectionModule ℱ U.obj)) :
-    IsLocallyProjective ℱ :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.IsLocallyProjective.projective_sections :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (ℱ : X.Modules) [IsLocallyProjective ℱ]
+    (U : smallEtaleSite X) [IsAffine U.left.left],
+    Module.Projective (structureRing U) (sectionModule ℱ U))
 
-/-- A locally projective module has projective sections over every affine étale object. -/
-theorem projective_sections (ℱ : X.Modules) [IsLocallyProjective ℱ]
-    (U : smallEtaleSite X) [IsAffine U.left.left] :
-    Module.Projective (structureRing U) (sectionModule ℱ U) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.instProjectiveAffineEtale :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (ℱ : X.Modules) [IsLocallyProjective ℱ]
+    (U : affineEtaleSite X),
+    Module.Projective (structureRing U.obj) (sectionModule ℱ U.obj))
 
-end IsLocallyProjective
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.instIsLocallyProjective_unit :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S},
+    IsLocallyProjective (SheafOfModules.unit (structureSheaf X) : X.Modules))
 
-/-- Projectivity of affine-étale sections is available to typeclass search from local
-projectivity. -/
-instance instProjectiveAffineEtale (ℱ : X.Modules) [IsLocallyProjective ℱ]
-    (U : affineEtaleSite X) :
-    Module.Projective (structureRing U.obj) (sectionModule ℱ U.obj) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.restrictEtale :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (𝒢 : Y.Modules) (f : X ⟶ Y)
+    (hf : Etale f), X.Modules)
 
-/-- The structure sheaf of an algebraic space, viewed as a module over itself, is locally
-projective. -/
-instance instIsLocallyProjective_unit :
-    IsLocallyProjective (SheafOfModules.unit (structureSheaf X) : X.Modules) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.restrictEtale_eq :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (𝒢 : Y.Modules) (f : X ⟶ Y)
+    [hf : Etale f], restrictEtale 𝒢 f hf = restrict 𝒢 f)
 
-/-- Restriction of an `𝒪_Y`-module along a morphism equipped with an explicit étaleness
-witness. -/
-def restrictEtale {X Y : AlgebraicSpace S} (𝒢 : Y.Modules) (f : X ⟶ Y) (hf : Etale f) :
-    X.Modules :=
-  @restrict S X Y 𝒢 f hf
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.IsLocallyProjective.restrict :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (ℱ : Y.Modules) (f : X ⟶ Y)
+    [Etale f] [ℱ.IsQuasicoherent],
+    IsLocallyProjective ℱ → IsLocallyProjective (restrict ℱ f))
 
-/-- `restrictEtale` agrees with `restrict` when étaleness is available as an instance. -/
-theorem restrictEtale_eq {X Y : AlgebraicSpace S} (𝒢 : Y.Modules) (f : X ⟶ Y)
-    [hf : Etale f] : restrictEtale 𝒢 f hf = restrict 𝒢 f :=
-  sorry
-
-/-- Étale restriction of a locally projective quasi-coherent module remains locally projective. -/
-theorem IsLocallyProjective.restrict {X Y : AlgebraicSpace S} (ℱ : Y.Modules)
-    (f : X ⟶ Y) [Etale f] [ℱ.IsQuasicoherent] (hℱ : IsLocallyProjective ℱ) :
-    IsLocallyProjective (restrict ℱ f) :=
-  sorry
-
-/-- A quasi-coherent module on an algebraic space is locally projective if and only if all of
-its restrictions along étale morphisms from schemes are locally projective. -/
-theorem isLocallyProjective_iff_forall_etale (ℱ : X.Modules) [ℱ.IsQuasicoherent] :
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.isLocallyProjective_iff_forall_etale :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (ℱ : X.Modules) [ℱ.IsQuasicoherent],
     IsLocallyProjective ℱ ↔
       ∀ (U : Over S) (φ : ofOver U ⟶ X) [Etale φ],
-        IsLocallyProjective (restrict ℱ φ) :=
-  sorry
+        IsLocallyProjective (restrict ℱ φ))
 
-/-- A quasi-coherent module on an algebraic space is locally projective if and only if it
-restricts to a locally projective module along some surjective étale morphism from a scheme. -/
-theorem isLocallyProjective_iff_exists_surjective_etale (ℱ : X.Modules)
-    [ℱ.IsQuasicoherent] :
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.isLocallyProjective_iff_exists_surjective_etale :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (ℱ : X.Modules) [ℱ.IsQuasicoherent],
     IsLocallyProjective ℱ ↔
       ∃ (U : Over S) (φ : ofOver U ⟶ X) (hφ : Etale φ),
         Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) φ ∧
-          IsLocallyProjective (restrictEtale ℱ φ hφ) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Modules
+          IsLocallyProjective (restrictEtale ℱ φ hφ))

@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_42_9_Algebraization
-public import stacks_project.Chap76.Lemma_76_42_9_Thickening
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CoherentFormalModule.Algebraization.Thickening
 import StacksCheckRecall
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory
@@ -23,23 +16,21 @@ and a coherent module ℋ with support proper over A approximates (ℱ_n) by a
 map α : (ℱ_n) ⟶ ℋ^∧ whose kernel and cokernel are annihilated by a power of
 𝒦, then (ℱ_n) lies in the essential image of 76.42.5.1. -/
 @[stacks 08BC] #check
-  (mem_essImage_of_thickening_equivalences_and_torsion_approximation :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.mem_essImage_of_thickening_equivalences_and_torsion_approximation :
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
       (I : Ideal A) [IsAdicComplete I A]
       {X : AlgebraicSpace (Spec (CommRingCat.of A))}
-      [FiniteType (toBase X)] [Separated (toBase X)]
+      [FiniteType (SchemeRealization.toBase X)] [Separated (SchemeRealization.toBase X)]
       (K : IdealSubobject X) [IsQuasiCoherent K],
       (∀ e : ℕ+,
-        (idealPowerCompletionFunctor (toBase X)
-            (pullbackIdeal I (toBase X)) K e).IsEquivalence) →
-      (E : CoherentFormalProperSupportOver (toBase X)
-        (pullbackIdeal I (toBase X))) →
-      (H : CoherentProperSupportOver (toBase X)) →
-      (alpha :
-        E ⟶
-          (coherentProperSupportCompletionFunctor (toBase X)
-              (pullbackIdeal I (toBase X))).obj H) →
-      CoherentFormalMap.StagesHaveUniformKernelCokernelAnnihilation K
-          alpha.hom →
-      (coherentProperSupportCompletionFunctor (toBase X)
-          (pullbackIdeal I (toBase X))).essImage E)
+        (idealPowerCompletionFunctor (SchemeRealization.toBase X)
+          (pullbackIdeal I (SchemeRealization.toBase X)) K e).IsEquivalence) →
+      (E : CoherentFormalProperSupportOver (SchemeRealization.toBase X)
+        (pullbackIdeal I (SchemeRealization.toBase X))) →
+      (H : CoherentProperSupportOver (SchemeRealization.toBase X)) →
+      (alpha : E ⟶
+        (coherentProperSupportCompletionFunctor (SchemeRealization.toBase X)
+          (pullbackIdeal I (SchemeRealization.toBase X))).obj H) →
+      CoherentFormalMap.StagesHaveUniformKernelCokernelAnnihilation K alpha.hom →
+      (coherentProperSupportCompletionFunctor (SchemeRealization.toBase X)
+        (pullbackIdeal I (SchemeRealization.toBase X))).essImage E)

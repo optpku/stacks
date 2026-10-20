@@ -1,12 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap83.Definition_83_5_13_SetTheoretic
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.PreRelation.SetTheoretic
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.PreRelation
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Action
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -16,24 +13,33 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.PreRelation
+/- Lemma 83.5.16 (1): a pre-equivalence relation is a set-theoretic
+pre-equivalence relation. -/
+@[stacks 0492] #check
+  (AlgebraicGeometry.AlgebraicSpace.PreRelation.isSetTheoreticPreEquivalence_of_isPreEquivalence :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B} (P : PreRelation U),
+      P.IsPreEquivalence → P.IsSetTheoreticPreEquivalence)
 
-variable {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
+/- Lemma 83.5.16 (2): an equivalence relation is a set-theoretic equivalence relation. -/
+@[stacks 0492] #check
+  (AlgebraicGeometry.AlgebraicSpace.PreRelation.isSetTheoreticEquivalence_of_isEquivalenceRelation :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B} (P : PreRelation U)
+      [IsEquivalenceRelation P.t P.s], P.IsSetTheoreticEquivalence)
 
-/-- Lemma 83.5.16 (1): if a pre-relation `j : R ⟶ U ⨯ U` over `B` is a pre-equivalence
-relation, then it is a set-theoretic pre-equivalence relation. This holds in particular
-when `j` comes from a groupoid in algebraic spaces, or from an action of a group
-algebraic space on `U`. -/
-@[stacks 0492]
-theorem isSetTheoreticPreEquivalence_of_isPreEquivalence (P : PreRelation U)
-    (hP : P.IsPreEquivalence) : P.IsSetTheoreticPreEquivalence :=
-  sorry
+variable {S : Scheme.{u}} {B : AlgebraicSpace S}
+variable (G : GroupoidAlgebraicSpace B)
+variable (H : GroupAlgebraicSpace B) (X : GroupAlgebraicSpace.Action H)
 
-/-- Lemma 83.5.16 (2): if a pre-relation `j : R ⟶ U ⨯ U` over `B` is an equivalence
-relation, then it is a set-theoretic equivalence relation. -/
-@[stacks 0492]
-instance isSetTheoreticEquivalence_of_isEquivalenceRelation (P : PreRelation U)
-    [IsEquivalenceRelation P.t P.s] : P.IsSetTheoreticEquivalence :=
-  sorry
+-- The pre-relation underlying a groupoid is a set-theoretic pre-equivalence relation.
+#check
+  (AlgebraicGeometry.AlgebraicSpace.PreRelation.isSetTheoreticPreEquivalence_of_isPreEquivalence
+    G.toPreRelation (GroupoidAlgebraicSpace.toPreRelation_isPreEquivalence G) :
+    G.toPreRelation.IsSetTheoreticPreEquivalence)
 
-end AlgebraicGeometry.AlgebraicSpace.PreRelation
+-- The same conclusion holds for the canonical groupoid of a group action.
+#check
+  (AlgebraicGeometry.AlgebraicSpace.PreRelation.isSetTheoreticPreEquivalence_of_isPreEquivalence
+    (GroupoidAlgebraicSpace.ofAction H X).toPreRelation
+    (GroupoidAlgebraicSpace.toPreRelation_isPreEquivalence
+      (GroupoidAlgebraicSpace.ofAction H X)) :
+    (GroupoidAlgebraicSpace.ofAction H X).toPreRelation.IsSetTheoreticPreEquivalence)

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Comma.StructuredArrow.Basic
@@ -87,9 +81,8 @@ theorem comp_eq_iff_map_eq
     (g : A.right ⟶ B.right) :
     A.hom ≫ T.map g = B.hom ↔ T.map g = (asIso A.hom).inv ≫ B.hom := sorry
 
-/-- Lemma 4.42.1 (Stacks 02Y5) (2), constructor form: build a structured-arrow morphism from an
-inverse-form equation for its right component. Only the source structure map must be
-invertible. -/
+/-- An inverse-form equation for a right-component map constructs a structured-arrow morphism
+when the source structure map is invertible. -/
 @[stacks 02Y5 "(2) reusable structured-arrow morphism constructor"]
 def homMkInv
     (A B : StructuredArrow S T) [IsIso A.hom]
@@ -126,8 +119,8 @@ theorem homEquivInv.rightInverse
         homEquivInv.condition A B (homMkInv A B g.1 g.2)⟩ :
       {h : A.right ⟶ B.right // T.map h = (asIso A.hom).inv ≫ B.hom}) = g := sorry
 
-/-- Lemma 4.42.1 (Stacks 02Y5) (2), in reusable form: when the source structure map is
-invertible, structured-arrow morphisms are canonically equivalent to right-component maps
+/-- When the source structure map is invertible, structured-arrow morphisms are canonically
+equivalent to right-component maps
 satisfying the inverse-form equation. -/
 @[stacks 02Y5 "(2) reusable structured-arrow Hom equivalence"]
 def homEquivInv
@@ -155,7 +148,3 @@ theorem homEquivInv.symm_apply_right
 end
 
 end CategoryTheory.StructuredArrow
-
-/- Axiom audit: `homEquiv`, `homMkInv`, and `homEquivInv` retain their supplied right-component
-maps as explicit non-Prop data. Any statement-stage `sorryAx` reported below is confined to the
-Prop-valued triangle and inverse-law fields. -/

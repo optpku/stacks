@@ -1,269 +1,396 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.CommSq
-public import stacks_project.Chap87.Lemma_87_21_3_WAdm
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.ChosenFppf.LocalMorphismProperty
 
 /-!
-# Étale affine tests of WAdm^count morphism properties
+# Affine étale local tests
 
-A local property `P` of morphisms of `WAdm^count` is tested on morphisms of
-locally countably indexed formal algebraic spaces by every étale affine-chart
-square, by some Definition 87.11.1 cover of the target and then of each fibre
-product with the source, and by some Definition 87.11.1 cover of the source
-factoring through affine étale charts of the target.
+The canonical local tests and their correspondence specification are exposed
+here together with a re-export of the canonical covering predicate used by
+the source variants.
 -/
 
 @[expose] public section
 
 open CategoryTheory CategoryTheory.Limits CategoryTheory.GrothendieckTopology
-open AlgebraicGeometry AlgebraicGeometry.ChosenBigFppfSite TopologicalRing
-
-noncomputable section
+open AlgebraicGeometry AlgebraicGeometry.AffineFormalAlgebraicSpace
+open AlgebraicGeometry.ChosenBigFppfSite TopologicalRing
 
 universe u v
 
 namespace AlgebraicGeometry.IsLocallyCountablyIndexed
 
-variable {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
-variable [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
-variable [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
-variable (P : ∀ {A B : Type u}
+export AlgebraicGeometry.ChosenBigFppfSite (IsEtaleAffineCover)
+
+end AlgebraicGeometry.IsLocallyCountablyIndexed
+
+namespace AlgebraicGeometry.IsLocallyCountablyIndexed
+
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.correspondsTo.{u, v} :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {U V : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    (f : U ⟶ V),
+    Prop)
+
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.correspondsTo_iff.{u, v} :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {U V : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    (f : U ⟶ V),
+    correspondsTo P f ↔
+      ∃ (A B : Type u) (_ : CommRing A) (_ : TopologicalSpace A)
+        (_ : IsWeaklyAdmissibleRing A) (_ : IsCountablyIndexed A)
+        (_ : CommRing B) (_ : TopologicalSpace B)
+        (_ : IsWeaklyAdmissibleRing B) (_ : IsCountablyIndexed B)
+        (hA : Spec (.of A) ⟶ 𝒮.toScheme.obj S)
+        (hB : Spec (.of B) ⟶ 𝒮.toScheme.obj S)
+        (φ : B →+* A) (_ : Continuous φ)
+        (h_over : Spec.map (CommRingCat.ofHom φ) ≫ hB = hA)
+        (DU : WeakIdealOfDefinition A ⥤ 𝒮.bigAffineSite S)
+        (eU : ∀ I, (𝒮.bigAffineToScheme S).obj (DU.obj I) ≅ (stage A hA I).left)
+        (cU : Cocone (DU ⋙ 𝒮.bigAffineInclusion S ⋙
+          (𝒮.bigTopology S).sheafifiedRepresentableFunctor))
+        (iU : U ≅ cU.pt)
+        (DV : WeakIdealOfDefinition B ⥤ 𝒮.bigAffineSite S)
+        (eV : ∀ J, (𝒮.bigAffineToScheme S).obj (DV.obj J) ≅ (stage B hB J).left)
+        (cV : Cocone (DV ⋙ 𝒮.bigAffineInclusion S ⋙
+          (𝒮.bigTopology S).sheafifiedRepresentableFunctor))
+        (iV : V ≅ cV.pt),
+        P φ ∧ Nonempty (IsColimit cU) ∧ Nonempty (IsColimit cV) ∧
+          (∀ {I J : WeakIdealOfDefinition A} (g : I ⟶ J),
+            (eU I).hom ≫ ((thickenings A hA).map g).left =
+              (𝒮.bigAffineToScheme S).map (DU.map g) ≫ (eU J).hom) ∧
+          (∀ {I J : WeakIdealOfDefinition B} (g : I ⟶ J),
+            (eV I).hom ≫ ((thickenings B hB).map g).left =
+              (𝒮.bigAffineToScheme S).map (DV.map g) ≫ (eV J).hom) ∧
+          (∀ {I J : WeakIdealOfDefinition A} (g : I ⟶ J),
+            IsThickening ((𝒮.bigAffineToScheme S).map (DU.map g))) ∧
+          (∀ {I J : WeakIdealOfDefinition B} (g : I ⟶ J),
+            IsThickening ((𝒮.bigAffineToScheme S).map (DV.map g))) ∧
+          ∀ (I : WeakIdealOfDefinition A) (J : WeakIdealOfDefinition B)
+            (hIJ : J.ideal ≤ Ideal.comap φ I.ideal),
+            ∃ t : DU.obj I ⟶ DV.obj J,
+              CommSq ((𝒮.bigAffineToScheme S).map t) (eU I).hom (eV J).hom
+                  (stageMap φ h_over hIJ).left ∧
+                cU.ι.app I ≫ iU.inv ≫ f ≫ iV.hom =
+                  (𝒮.bigTopology S).sheafifiedRepresentableMap
+                      ((𝒮.bigAffineInclusion S).map t) ≫ cV.ι.app J)
+
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.correspondsTo.of.{u, v} :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    {P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop}
+    {U V : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    {f : U ⟶ V} {A B : Type u}
     [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
-    [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
-    (B →+* A) → Prop)
+    [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B]
+    (hA : Spec (.of A) ⟶ 𝒮.toScheme.obj S)
+    (hB : Spec (.of B) ⟶ 𝒮.toScheme.obj S)
+    (φ : B →+* A) (hφ : Continuous φ)
+    (h_over : Spec.map (CommRingCat.ofHom φ) ≫ hB = hA)
+    (hPφ : P φ)
+    (DU : WeakIdealOfDefinition A ⥤ 𝒮.bigAffineSite S)
+    (eU : ∀ I, (𝒮.bigAffineToScheme S).obj (DU.obj I) ≅ (stage A hA I).left)
+    (cU : Cocone (DU ⋙ 𝒮.bigAffineInclusion S ⋙
+      (𝒮.bigTopology S).sheafifiedRepresentableFunctor))
+    (iU : U ≅ cU.pt)
+    (DV : WeakIdealOfDefinition B ⥤ 𝒮.bigAffineSite S)
+    (eV : ∀ J, (𝒮.bigAffineToScheme S).obj (DV.obj J) ≅ (stage B hB J).left)
+    (cV : Cocone (DV ⋙ 𝒮.bigAffineInclusion S ⋙
+      (𝒮.bigTopology S).sheafifiedRepresentableFunctor))
+    (iV : V ≅ cV.pt)
+    (hcU : Nonempty (IsColimit cU)) (hcV : Nonempty (IsColimit cV))
+    (hDU : ∀ {I J : WeakIdealOfDefinition A} (g : I ⟶ J),
+      (eU I).hom ≫ ((thickenings A hA).map g).left =
+        (𝒮.bigAffineToScheme S).map (DU.map g) ≫ (eU J).hom)
+    (hDV : ∀ {I J : WeakIdealOfDefinition B} (g : I ⟶ J),
+      (eV I).hom ≫ ((thickenings B hB).map g).left =
+        (𝒮.bigAffineToScheme S).map (DV.map g) ≫ (eV J).hom)
+    (hThU : ∀ {I J : WeakIdealOfDefinition A} (g : I ⟶ J),
+      IsThickening ((𝒮.bigAffineToScheme S).map (DU.map g)))
+    (hThV : ∀ {I J : WeakIdealOfDefinition B} (g : I ⟶ J),
+      IsThickening ((𝒮.bigAffineToScheme S).map (DV.map g)))
+    (hMap : ∀ (I : WeakIdealOfDefinition A) (J : WeakIdealOfDefinition B)
+      (hIJ : J.ideal ≤ Ideal.comap φ I.ideal),
+      ∃ t : DU.obj I ⟶ DV.obj J,
+        CommSq ((𝒮.bigAffineToScheme S).map t) (eU I).hom (eV J).hom
+            (stageMap φ h_over hIJ).left ∧
+          cU.ι.app I ≫ iU.inv ≫ f ≫ iV.hom =
+            (𝒮.bigTopology S).sheafifiedRepresentableMap
+                ((𝒮.bigAffineInclusion S).map t) ≫ cV.ι.app J),
+    correspondsTo P f)
 
-/-- A family `{X_ i ⟶ X}` is a covering as in Definition 87.11.1 when each
-source is an affine formal algebraic space, each map is representable by
-algebraic spaces and étale, and the coproduct map is locally surjective as a
-map of sheaves. -/
-structure IsEtaleAffineCover {ι : Type (max u v)}
-    {X_ : ι → Sheaf (𝒮.bigTopology S) (Type (max u v))}
-    {X : Sheaf (𝒮.bigTopology S) (Type (max u v))}
-    (π : ∀ i, X_ i ⟶ X) : Prop where
-  /-- Each chart is an affine formal algebraic space. -/
-  isAffine : ∀ i, IsAffineFormalAlgebraicSpace (X_ i)
-  /-- Each chart map is representable by algebraic spaces. -/
-  isRepresentable : ∀ i, representableByAlgebraicSpaces (π i)
-  /-- Each chart map is relatively étale. -/
-  isRelativelyEtale : ∀ i, relativelyEtale (π i)
-  /-- The coproduct of the chart maps is locally surjective. -/
-  isCover : ∃ (c : Cofan X_) (hc : IsColimit c),
-    Sheaf.IsLocallySurjective (Cofan.IsColimit.desc hc π)
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.correspondsTo.spec.{u, v} :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    {P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop}
+    {U V : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    {f : U ⟶ V} (h : correspondsTo P f),
+    ∃ (A B : Type u) (_ : CommRing A) (_ : TopologicalSpace A)
+      (_ : IsWeaklyAdmissibleRing A) (_ : IsCountablyIndexed A)
+      (_ : CommRing B) (_ : TopologicalSpace B)
+      (_ : IsWeaklyAdmissibleRing B) (_ : IsCountablyIndexed B)
+      (hA : Spec (.of A) ⟶ 𝒮.toScheme.obj S)
+      (hB : Spec (.of B) ⟶ 𝒮.toScheme.obj S)
+      (φ : B →+* A) (_ : Continuous φ)
+      (h_over : Spec.map (CommRingCat.ofHom φ) ≫ hB = hA)
+      (DU : WeakIdealOfDefinition A ⥤ 𝒮.bigAffineSite S)
+      (eU : ∀ I, (𝒮.bigAffineToScheme S).obj (DU.obj I) ≅ (stage A hA I).left)
+      (cU : Cocone (DU ⋙ 𝒮.bigAffineInclusion S ⋙
+        (𝒮.bigTopology S).sheafifiedRepresentableFunctor))
+      (iU : U ≅ cU.pt)
+      (DV : WeakIdealOfDefinition B ⥤ 𝒮.bigAffineSite S)
+      (eV : ∀ J, (𝒮.bigAffineToScheme S).obj (DV.obj J) ≅ (stage B hB J).left)
+      (cV : Cocone (DV ⋙ 𝒮.bigAffineInclusion S ⋙
+        (𝒮.bigTopology S).sheafifiedRepresentableFunctor))
+      (iV : V ≅ cV.pt),
+      P φ ∧ Nonempty (IsColimit cU) ∧ Nonempty (IsColimit cV) ∧
+        (∀ {I J : WeakIdealOfDefinition A} (g : I ⟶ J),
+          (eU I).hom ≫ ((thickenings A hA).map g).left =
+            (𝒮.bigAffineToScheme S).map (DU.map g) ≫ (eU J).hom) ∧
+        (∀ {I J : WeakIdealOfDefinition B} (g : I ⟶ J),
+          (eV I).hom ≫ ((thickenings B hB).map g).left =
+            (𝒮.bigAffineToScheme S).map (DV.map g) ≫ (eV J).hom) ∧
+        (∀ {I J : WeakIdealOfDefinition A} (g : I ⟶ J),
+          IsThickening ((𝒮.bigAffineToScheme S).map (DU.map g))) ∧
+        (∀ {I J : WeakIdealOfDefinition B} (g : I ⟶ J),
+          IsThickening ((𝒮.bigAffineToScheme S).map (DV.map g))) ∧
+        ∀ (I : WeakIdealOfDefinition A) (J : WeakIdealOfDefinition B)
+          (hIJ : J.ideal ≤ Ideal.comap φ I.ideal),
+          ∃ t : DU.obj I ⟶ DV.obj J,
+            CommSq ((𝒮.bigAffineToScheme S).map t) (eU I).hom (eV J).hom
+                (stageMap φ h_over hIJ).left ∧
+              cU.ι.app I ≫ iU.inv ≫ f ≫ iV.hom =
+                (𝒮.bigTopology S).sheafifiedRepresentableMap
+                    ((𝒮.bigAffineInclusion S).map t) ≫ cV.ι.app J)
 
-namespace IsEtaleAffineCover
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.etaleAffineLocally.{u, v} :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    (f : X ⟶ Y)
+,
+    Prop)
 
-/-- Package a Definition 87.11.1 covering from affine étale charts whose
-coproduct is locally surjective. -/
-def of {ι : Type (max u v)} {X_ : ι → Sheaf (𝒮.bigTopology S) (Type (max u v))}
-    {X : Sheaf (𝒮.bigTopology S) (Type (max u v))} {π : ∀ i, X_ i ⟶ X}
-    (hAffine : ∀ i, IsAffineFormalAlgebraicSpace (X_ i))
-    (hRep : ∀ i, representableByAlgebraicSpaces (π i))
-    (hEtale : ∀ i, relativelyEtale (π i))
-    (hCover : ∃ (c : Cofan X_) (hc : IsColimit c),
-      Sheaf.IsLocallySurjective (Cofan.IsColimit.desc hc π)) :
-    IsEtaleAffineCover π where
-  isAffine := hAffine
-  isRepresentable := hRep
-  isRelativelyEtale := hEtale
-  isCover := hCover
-
-/-- A family is a Definition 87.11.1 covering iff its objects are affine
-formal algebraic spaces, its maps are representable by algebraic spaces and
-étale, and the coproduct is locally surjective. -/
-theorem iff {ι : Type (max u v)}
-    {X_ : ι → Sheaf (𝒮.bigTopology S) (Type (max u v))}
-    {X : Sheaf (𝒮.bigTopology S) (Type (max u v))} (π : ∀ i, X_ i ⟶ X) :
-    IsEtaleAffineCover π ↔
-      (∀ i, IsAffineFormalAlgebraicSpace (X_ i)) ∧
-        (∀ i, representableByAlgebraicSpaces (π i)) ∧
-          (∀ i, relativelyEtale (π i)) ∧
-            ∃ (c : Cofan X_) (hc : IsColimit c),
-              Sheaf.IsLocallySurjective (Cofan.IsColimit.desc hc π) :=
-  sorry
-
-/-- A Definition 87.11.1 covering unpacks as affine sources, étale chart maps,
-and a locally surjective coproduct. -/
-theorem spec {ι : Type (max u v)}
-    {X_ : ι → Sheaf (𝒮.bigTopology S) (Type (max u v))}
-    {X : Sheaf (𝒮.bigTopology S) (Type (max u v))} {π : ∀ i, X_ i ⟶ X}
-    (h : IsEtaleAffineCover π) :
-    (∀ i, IsAffineFormalAlgebraicSpace (X_ i)) ∧
-      (∀ i, representableByAlgebraicSpaces (π i)) ∧
-        (∀ i, relativelyEtale (π i)) ∧
-          ∃ (c : Cofan X_) (hc : IsColimit c),
-            Sheaf.IsLocallySurjective (Cofan.IsColimit.desc hc π) :=
-  sorry
-
-end IsEtaleAffineCover
-
-variable {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))} (f : X ⟶ Y)
-
-/-- Every commutative square of `f` against étale maps from affine formal
-algebraic spaces has top arrow corresponding to a morphism of `WAdm^count`
-with property `P`. This is condition (1) of Lemma 87.21.3. -/
-def etaleAffineLocally : Prop :=
-  ∀ {U V : Sheaf (𝒮.bigTopology S) (Type (max u v))}
-    (pU : U ⟶ X) (q : U ⟶ V) (pV : V ⟶ Y)
-    [IsAffineFormalAlgebraicSpace U] [IsAffineFormalAlgebraicSpace V],
-    representableByAlgebraicSpaces pU → relativelyEtale pU →
-      representableByAlgebraicSpaces pV → relativelyEtale pV →
-      CommSq q pU pV f → correspondsTo P q
-
-/-- `etaleAffineLocally P f` means every étale affine-chart square over `f`
-has top arrow corresponding to a morphism of `WAdm^count` with property `P`. -/
-theorem etaleAffineLocally_iff : etaleAffineLocally P f ↔
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.etaleAffineLocally_iff.{u, v} :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    (f : X ⟶ Y)
+,
+    etaleAffineLocally P f ↔
     ∀ (U V : Sheaf (𝒮.bigTopology S) (Type (max u v)))
       (pU : U ⟶ X) (q : U ⟶ V) (pV : V ⟶ Y)
       [IsAffineFormalAlgebraicSpace U] [IsAffineFormalAlgebraicSpace V],
-      representableByAlgebraicSpaces pU → relativelyEtale pU →
-        representableByAlgebraicSpaces pV → relativelyEtale pV →
-        CommSq q pU pV f → correspondsTo P q :=
-  sorry
+      ChosenBigFppfSite.etale pU →
+        ChosenBigFppfSite.etale pV →
+        CommSq q pU pV f → correspondsTo P q)
 
-namespace etaleAffineLocally
-
-/-- A universal étale affine-chart correspondence witnesses
-`etaleAffineLocally P f`. -/
-theorem of (h : ∀ {U V : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.etaleAffineLocally.of.{u, v} :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    (f : X ⟶ Y)
+    (h : ∀ {U V : Sheaf (𝒮.bigTopology S) (Type (max u v))}
     (pU : U ⟶ X) (q : U ⟶ V) (pV : V ⟶ Y)
     [IsAffineFormalAlgebraicSpace U] [IsAffineFormalAlgebraicSpace V],
-    representableByAlgebraicSpaces pU → relativelyEtale pU →
-      representableByAlgebraicSpaces pV → relativelyEtale pV →
-      CommSq q pU pV f → correspondsTo P q) :
-    etaleAffineLocally P f := sorry
+    ChosenBigFppfSite.etale pU →
+      ChosenBigFppfSite.etale pV →
+      CommSq q pU pV f → correspondsTo P q),
+    etaleAffineLocally P f)
 
-/-- `etaleAffineLocally P f` tests `P` on the top arrow of every étale affine
-chart square over `f`. -/
-theorem spec (h : etaleAffineLocally P f)
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.etaleAffineLocally.spec.{u, v} :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    (f : X ⟶ Y)
+    (h : etaleAffineLocally P f)
     {U V : Sheaf (𝒮.bigTopology S) (Type (max u v))}
     (pU : U ⟶ X) (q : U ⟶ V) (pV : V ⟶ Y)
     [IsAffineFormalAlgebraicSpace U] [IsAffineFormalAlgebraicSpace V]
-    (hRepU : representableByAlgebraicSpaces pU) (hEtU : relativelyEtale pU)
-    (hRepV : representableByAlgebraicSpaces pV) (hEtV : relativelyEtale pV)
-    (sq : CommSq q pU pV f) :
-    correspondsTo P q := sorry
+    (hEtU : ChosenBigFppfSite.etale pU)
+    (hEtV : ChosenBigFppfSite.etale pV)
+    (sq : CommSq q pU pV f),
+    correspondsTo P q)
 
-end etaleAffineLocally
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.existsCoverOnTarget.{u, v} :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    (f : X ⟶ Y)
+,
+    Prop)
 
-/-- There is a Definition 87.11.1 covering `{Y_ j ⟶ Y}` such that each fibre
-product `Y_ j ×_Y X` admits a Definition 87.11.1 covering `{X_ ji ⟶ Y_ j ×_Y X}`
-with each `X_ ji ⟶ Y_ j` corresponding to a morphism of `WAdm^count` with
-property `P`. This is condition (2) of Lemma 87.21.3. -/
-def existsCoverOnTarget : Prop :=
-  ∃ (ι : Type (max u v)) (Y_ : ι → Sheaf (𝒮.bigTopology S) (Type (max u v)))
-    (π : ∀ j, Y_ j ⟶ Y),
-    IsEtaleAffineCover π ∧
-      ∀ j, ∃ (ι' : Type (max u v))
-        (X_ : ι' → Sheaf (𝒮.bigTopology S) (Type (max u v)))
-        (σ : ∀ k, X_ k ⟶ pullback (π j) f),
-        IsEtaleAffineCover σ ∧ ∀ k, correspondsTo P (σ k ≫ pullback.fst (π j) f)
-
-/-- `existsCoverOnTarget P f` unpacks as a Definition 87.11.1 covering of `Y`
-and, for each chart, a Definition 87.11.1 covering of the fibre product with
-`X` whose projections to the chart correspond to morphisms of `WAdm^count`
-with property `P`. -/
-theorem existsCoverOnTarget_iff : existsCoverOnTarget P f ↔
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.existsCoverOnTarget_iff.{u, v} :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    (f : X ⟶ Y)
+,
+    existsCoverOnTarget P f ↔
     ∃ (ι : Type (max u v)) (Y_ : ι → Sheaf (𝒮.bigTopology S) (Type (max u v)))
       (π : ∀ j, Y_ j ⟶ Y),
-      IsEtaleAffineCover π ∧
+      ChosenBigFppfSite.IsEtaleAffineCover π ∧
         ∀ j, ∃ (ι' : Type (max u v))
           (X_ : ι' → Sheaf (𝒮.bigTopology S) (Type (max u v)))
           (σ : ∀ k, X_ k ⟶ pullback (π j) f),
-          IsEtaleAffineCover σ ∧ ∀ k, correspondsTo P (σ k ≫ pullback.fst (π j) f) :=
-  sorry
+          ChosenBigFppfSite.IsEtaleAffineCover σ ∧ ∀ k, correspondsTo P (σ k ≫ pullback.fst (π j) f))
 
-namespace existsCoverOnTarget
-
-/-- A Definition 87.11.1 covering of `Y`, together with Definition 87.11.1
-coverings of each `Y_ j ×_Y X` whose projections to `Y_ j` correspond to
-morphisms of `WAdm^count` with property `P`, witnesses
-`existsCoverOnTarget P f`. -/
-theorem of {ι : Type (max u v)}
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.existsCoverOnTarget.of.{u, v} :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    (f : X ⟶ Y)
+    {ι : Type (max u v)}
     {Y_ : ι → Sheaf (𝒮.bigTopology S) (Type (max u v))}
-    (π : ∀ j, Y_ j ⟶ Y) (hY : IsEtaleAffineCover π)
+    (π : ∀ j, Y_ j ⟶ Y) (hY : ChosenBigFppfSite.IsEtaleAffineCover π)
     (hX : ∀ j, ∃ (ι' : Type (max u v))
       (X_ : ι' → Sheaf (𝒮.bigTopology S) (Type (max u v)))
       (σ : ∀ k, X_ k ⟶ pullback (π j) f),
-      IsEtaleAffineCover σ ∧ ∀ k, correspondsTo P (σ k ≫ pullback.fst (π j) f)) :
-    existsCoverOnTarget P f := sorry
+      ChosenBigFppfSite.IsEtaleAffineCover σ ∧ ∀ k, correspondsTo P (σ k ≫ pullback.fst (π j) f)),
+    existsCoverOnTarget P f)
 
-/-- `existsCoverOnTarget P f` supplies a Definition 87.11.1 covering of `Y`
-and compatible Definition 87.11.1 coverings of the fibre products with `X`. -/
-theorem spec (h : existsCoverOnTarget P f) :
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.existsCoverOnTarget.spec.{u, v} :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    (f : X ⟶ Y)
+    (h : existsCoverOnTarget P f),
     ∃ (ι : Type (max u v)) (Y_ : ι → Sheaf (𝒮.bigTopology S) (Type (max u v)))
       (π : ∀ j, Y_ j ⟶ Y),
-      IsEtaleAffineCover π ∧
+      ChosenBigFppfSite.IsEtaleAffineCover π ∧
         ∀ j, ∃ (ι' : Type (max u v))
           (X_ : ι' → Sheaf (𝒮.bigTopology S) (Type (max u v)))
           (σ : ∀ k, X_ k ⟶ pullback (π j) f),
-          IsEtaleAffineCover σ ∧ ∀ k, correspondsTo P (σ k ≫ pullback.fst (π j) f) :=
-  sorry
+          ChosenBigFppfSite.IsEtaleAffineCover σ ∧ ∀ k, correspondsTo P (σ k ≫ pullback.fst (π j) f))
 
-end existsCoverOnTarget
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.existsCoverOnSource.{u, v} :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    (f : X ⟶ Y)
+,
+    Prop)
 
-/-- There is a Definition 87.11.1 covering `{X_ i ⟶ X}` such that each chart
-factors as `X_ i ⟶ Y_ i ⟶ Y` with `Y_ i` an affine formal algebraic space,
-`Y_ i ⟶ Y` representable by algebraic spaces and étale, and `X_ i ⟶ Y_ i`
-corresponding to a morphism of `WAdm^count` with property `P`. This is
-condition (3) of Lemma 87.21.3. -/
-def existsCoverOnSource : Prop :=
-  ∃ (ι : Type (max u v)) (X_ : ι → Sheaf (𝒮.bigTopology S) (Type (max u v)))
-    (π : ∀ i, X_ i ⟶ X),
-    IsEtaleAffineCover π ∧
-      ∀ i, ∃ (Y_i : Sheaf (𝒮.bigTopology S) (Type (max u v)))
-        (q : X_ i ⟶ Y_i) (p : Y_i ⟶ Y),
-        IsAffineFormalAlgebraicSpace Y_i ∧
-          representableByAlgebraicSpaces p ∧ relativelyEtale p ∧
-            π i ≫ f = q ≫ p ∧ correspondsTo P q
-
-/-- `existsCoverOnSource P f` unpacks as a Definition 87.11.1 covering of `X`
-whose charts factor through affine étale charts of `Y` by morphisms
-corresponding to morphisms of `WAdm^count` with property `P`. -/
-theorem existsCoverOnSource_iff : existsCoverOnSource P f ↔
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.existsCoverOnSource_iff.{u, v} :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    (f : X ⟶ Y)
+,
+    existsCoverOnSource P f ↔
     ∃ (ι : Type (max u v)) (X_ : ι → Sheaf (𝒮.bigTopology S) (Type (max u v)))
       (π : ∀ i, X_ i ⟶ X),
-      IsEtaleAffineCover π ∧
+      ChosenBigFppfSite.IsEtaleAffineCover π ∧
         ∀ i, ∃ (Y_i : Sheaf (𝒮.bigTopology S) (Type (max u v)))
           (q : X_ i ⟶ Y_i) (p : Y_i ⟶ Y),
           IsAffineFormalAlgebraicSpace Y_i ∧
-            representableByAlgebraicSpaces p ∧ relativelyEtale p ∧
-              π i ≫ f = q ≫ p ∧ correspondsTo P q :=
-  sorry
+            ChosenBigFppfSite.etale p ∧
+              π i ≫ f = q ≫ p ∧ correspondsTo P q)
 
-namespace existsCoverOnSource
-
-/-- A Definition 87.11.1 covering of `X` with affine étale factorizations
-through `Y` corresponding to morphisms of `WAdm^count` with property `P`
-witnesses `existsCoverOnSource P f`. -/
-theorem of {ι : Type (max u v)}
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.existsCoverOnSource.of.{u, v} :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    (f : X ⟶ Y)
+    {ι : Type (max u v)}
     {X_ : ι → Sheaf (𝒮.bigTopology S) (Type (max u v))}
-    (π : ∀ i, X_ i ⟶ X) (hX : IsEtaleAffineCover π)
+    (π : ∀ i, X_ i ⟶ X) (hX : ChosenBigFppfSite.IsEtaleAffineCover π)
     (hFac : ∀ i, ∃ (Y_i : Sheaf (𝒮.bigTopology S) (Type (max u v)))
       (q : X_ i ⟶ Y_i) (p : Y_i ⟶ Y),
       IsAffineFormalAlgebraicSpace Y_i ∧
-        representableByAlgebraicSpaces p ∧ relativelyEtale p ∧
-          π i ≫ f = q ≫ p ∧ correspondsTo P q) :
-    existsCoverOnSource P f := sorry
+        ChosenBigFppfSite.etale p ∧
+          π i ≫ f = q ≫ p ∧ correspondsTo P q),
+    existsCoverOnSource P f)
 
-/-- `existsCoverOnSource P f` supplies a Definition 87.11.1 covering of `X`
-and affine étale factorizations through `Y`. -/
-theorem spec (h : existsCoverOnSource P f) :
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.existsCoverOnSource.spec.{u, v} :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    (f : X ⟶ Y)
+    (h : existsCoverOnSource P f),
     ∃ (ι : Type (max u v)) (X_ : ι → Sheaf (𝒮.bigTopology S) (Type (max u v)))
       (π : ∀ i, X_ i ⟶ X),
-      IsEtaleAffineCover π ∧
+      ChosenBigFppfSite.IsEtaleAffineCover π ∧
         ∀ i, ∃ (Y_i : Sheaf (𝒮.bigTopology S) (Type (max u v)))
           (q : X_ i ⟶ Y_i) (p : Y_i ⟶ Y),
           IsAffineFormalAlgebraicSpace Y_i ∧
-            representableByAlgebraicSpaces p ∧ relativelyEtale p ∧
-              π i ≫ f = q ≫ p ∧ correspondsTo P q :=
-  sorry
-
-end existsCoverOnSource
+            ChosenBigFppfSite.etale p ∧
+              π i ≫ f = q ≫ p ∧ correspondsTo P q)
 
 end AlgebraicGeometry.IsLocallyCountablyIndexed

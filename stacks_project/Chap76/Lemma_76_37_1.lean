@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FinitePresentation.DenseOpen
@@ -30,7 +24,7 @@ quasi-compact scheme-theoretically dense open subspace is finitely presented. -/
 @[stacks 0876] #check
   (AlgebraicGeometry.AlgebraicSpace.SmallEtale.Modules.finitePresentation_of_restrict_of_flatOver :
     ∀ {S : Scheme.{u}} {X Y V : AlgebraicSpace S} (f : X ⟶ Y),
-      SmallEtale.LocallyOfFinitePresentation f →
+      LocallyOfFinitePresentation f →
       ∀ (F : SmallEtale.Modules X),
         SmallEtale.Modules.IsQuasicoherent F → SmallEtale.Modules.IsFiniteType F →
         SmallEtale.Modules.FlatOver F f → ∀ (ι : V ⟶ Y)

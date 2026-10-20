@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap102.Definition_102_3_1_LimitPreserving
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Hom.LimitPreserving
+import StacksCheckRecall
 
 /-!
 # Limit-preserving 1-morphisms are limit preserving on objects
@@ -21,23 +16,14 @@ objects in the sense of Section 97.5.
 open CategoryTheory AlgebraicGeometry
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.Groupoids.Hom
-
-namespace LimitPreserving
-
-/-- Lemma 102.3.2: Let `S` be a scheme. Let `f : 𝒳 ⟶ 𝒴` be a 1-morphism of
+/- Lemma 102.3.2: Let `S` be a scheme. Let `f : 𝒳 ⟶ 𝒴` be a 1-morphism of
 categories fibred in groupoids over `(Sch/S)_fppf`. If `f` is limit
 preserving (Definition 102.3.1), then `f` is limit preserving on objects
 (Criteria for Representability, Section 97.5). -/
 @[stacks 0CMS]
-instance toLimitPreservingOnObjects {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    (f : X ⟶ Y) [LimitPreserving f] :
-    LimitPreservingOnObjects f := sorry
-
-end LimitPreserving
-
-end AlgebraicGeometry.Groupoids.Hom
+#check (AlgebraicGeometry.Groupoids.Hom.LimitPreserving.toLimitPreservingOnObjects :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Y : AlgebraicGeometry.GroupoidsOver S}
+    (f : X ⟶ Y) [AlgebraicGeometry.Groupoids.Hom.LimitPreserving f],
+    AlgebraicGeometry.Groupoids.Hom.LimitPreservingOnObjects f)

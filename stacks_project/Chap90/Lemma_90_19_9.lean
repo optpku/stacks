@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Lemma_90_19_9_Module
+public import ReasLib.AlgebraicGeometry.FormalDeformation.InfinitesimalAutomorphisms.Module
 import StacksCheckRecall
 
 /-!
@@ -37,19 +31,20 @@ variable (x0' : p.Fiber (dualNumber Λ k))
 variable (φ : fiberInclusion.obj x0 ⟶ fiberInclusion.obj x0')
 variable [p.IsStronglyCocartesian (residueToDualNumber Λ k) φ]
 
-/- Lemma 90.19.9 (1): Let F be a category cofibered in groupoids over C_Λ
-satisfying (RS). Let x0 be an object of F(k). Then Inf_{x0}(F) is equal as a
-set to T_id Aut(x0), via infinitesimalAutomorphismsAtMulEquiv. -/
-@[stacks 06JX]
-#check infinitesimalAutomorphismsAtMulEquiv
+/- Lemma 90.19.9: Infinitesimal automorphisms equal the identity tangent space
+of the automorphism functor, with its natural k-vector space structure and
+addition given by composition of automorphisms. -/
+@[stacks 06JX] #check (CategoryTheory.Functor.infinitesimalAutomorphismsAtLinearEquiv p x0 x0' φ :
+    infinitesimalAutomorphismsAt p x0 x0' φ ≃ₗ[k]
+      idTangentSpace p (fiberInclusion.obj x0))
 
-/- Lemma 90.19.9 (2): Inf_{x0}(F) has a natural k-vector space structure such
-that addition agrees with composition of automorphisms. -/
-@[stacks 06JX]
-#check (instModule_infinitesimalAutomorphismsAt p x0 x0' φ :
+#check (CategoryTheory.Functor.infinitesimalAutomorphismsAt_eq_idTangentSpace p x0 :
+    infinitesimalAutomorphismsAt p x0
+        (idTangentSpaceObj p (fiberInclusion.obj x0)) (infAutIdTangentHom p x0) =
+      idTangentSpace p (fiberInclusion.obj x0))
+
+#check (CategoryTheory.Functor.instModule_infinitesimalAutomorphismsAt p x0 x0' φ :
     Module k (infinitesimalAutomorphismsAt p x0 x0' φ))
 
-/- Lemma 90.19.9 (3): addition in Inf_{x0}(F) agrees with composition of
-automorphisms. -/
-@[stacks 06JX]
-#check infinitesimalAutomorphismsAt_add_eq_mul
+#check (CategoryTheory.Functor.infinitesimalAutomorphismsAt_add_eq_mul p x0 x0' φ :
+    ∀ α β : infinitesimalAutomorphismsAt p x0 x0' φ, α + β = α * β)

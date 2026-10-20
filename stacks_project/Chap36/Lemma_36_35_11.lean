@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -19,6 +13,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.ModuleDerived
 
 /- Lemma 36.35.11: for a proper flat morphism of finite presentation over a
@@ -31,6 +27,10 @@ change. -/
     ∀ {X S : Scheme.{u}} (f : X ⟶ S)
       [CompactSpace S] [QuasiSeparatedSpace S]
       [Flat f] [IsProper f] [Scheme.Hom.FinitePresentation f]
+      [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+        CategoryTheory.DerivedCategory.DerivedTensor.Right.Has
+          (C := RingedSpace.Modules
+            ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
       [MonoidalCategory (RingedSpace.ModuleDerived X.toRingedSpace)]
       [MonoidalClosed (RingedSpace.ModuleDerived X.toRingedSpace)]
       [MonoidalCategory (RingedSpace.ModuleDerived S.toRingedSpace)]

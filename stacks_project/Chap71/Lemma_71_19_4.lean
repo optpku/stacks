@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap71.Lemma_71_19_4_CommonRefinement
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Blowup.CommonRefinement
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,7 +16,7 @@ subspace. Let `bᵢ : Xᵢ ⟶ X` be a finite family of `U`-admissible blowups.
 There exists a `U`-admissible blowup `b : X' ⟶ X` which factors through every
 `bᵢ`, and each comparison `X' ⟶ Xᵢ` is a `U`-admissible blowup. -/
 @[stacks 086E] #check
-  (exists_isAdmissibleBlowup_common_refinement :
+  (AlgebraicGeometry.AlgebraicSpace.exists_isAdmissibleBlowup_common_refinement :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsQuasiCompact X]
       [IsAbsolutelyQuasiSeparated X] (U : OpenSubspace X)
       [QuasiCompact U.ι] {n : ℕ} (Xi : Fin n → AlgebraicSpace S)

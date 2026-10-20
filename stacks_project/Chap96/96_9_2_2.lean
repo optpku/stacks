@@ -1,15 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap96.«96_9_2_1_Comparison»
-public import stacks_project.Chap96.«96_9_2_2_Comparison»
-public import stacks_project.Chap96.«96_9_2_2_Restriction»
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.SheafComparison
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.SheafRestriction
 
 @[expose] public section
 
@@ -30,7 +23,7 @@ a_small⁻¹(F|_{V_étale}) ⟶ F|_{U_étale} of comparisonPush φ F.obj, obtain
 (smallEtalePullback a).sheafAdjunctionContinuous.homEquiv.symm of
 ObjectProperty.homMk (comparisonPush φ F.obj). -/
 @[stacks 06W3]
-#check (GroupoidsOver.comparison φ F :
+#check (AlgebraicGeometry.GroupoidsOver.comparison φ F :
     ((Scheme.smallEtalePullback (X.p.map φ).left).sheafPullback (Type (u + 1))
         (X.p.obj y).left.smallEtaleTopology
         (X.p.obj x).left.smallEtaleTopology).obj

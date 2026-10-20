@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowGroup.FirstChern
@@ -66,7 +60,8 @@ abbrev totalSpaceChowGroup
   @ChowGroup P
     (@LocallyOfFiniteType.isLocallyNoetherian _ _ (π ≫ p)
       (locallyOfFiniteTypeComp hπ p r) inferInstance)
-    ((π ≫ p).relativeDimensionFunction δ)
+    (@Scheme.Hom.relativeDimensionFunction _ _ (π ≫ p)
+      (locallyOfFiniteTypeComp hπ p r) δ)
     (@Scheme.Hom.instIsDimensionFunctionRelativeDimensionFunction _ _ (π ≫ p)
       inferInstance (locallyOfFiniteTypeComp hπ p r) δ inferInstance) k
 
@@ -82,7 +77,8 @@ theorem flatPullback_mem_boundaries
       (@RationalEquivalence.boundaries P
         (@LocallyOfFiniteType.isLocallyNoetherian _ _ (π ≫ p)
           (locallyOfFiniteTypeComp hπ p (q + 1)) inferInstance)
-        ((π ≫ p).relativeDimensionFunction δ)
+        (@Scheme.Hom.relativeDimensionFunction _ _ (π ≫ p)
+          (locallyOfFiniteTypeComp hπ p (q + 1)) δ)
         (@Scheme.Hom.instIsDimensionFunctionRelativeDimensionFunction _ _ (π ≫ p)
           inferInstance (locallyOfFiniteTypeComp hπ p (q + 1)) δ inferInstance)
         (k + (q : ℤ))).comap
@@ -109,7 +105,8 @@ noncomputable def flatPullback
     (@RationalEquivalence.boundaries P
       (@LocallyOfFiniteType.isLocallyNoetherian _ _ (π ≫ p)
         (locallyOfFiniteTypeComp hπ p (q + 1)) inferInstance)
-      ((π ≫ p).relativeDimensionFunction δ)
+      (@Scheme.Hom.relativeDimensionFunction _ _ (π ≫ p)
+        (locallyOfFiniteTypeComp hπ p (q + 1)) δ)
       (@Scheme.Hom.instIsDimensionFunctionRelativeDimensionFunction _ _ (π ≫ p)
         inferInstance (locallyOfFiniteTypeComp hπ p (q + 1)) δ inferInstance)
       (k + (q : ℤ)))
@@ -135,7 +132,8 @@ theorem flatPullback_chowClass
       @chowClass P
         (@LocallyOfFiniteType.isLocallyNoetherian _ _ (π ≫ p)
           (locallyOfFiniteTypeComp hπ p (q + 1)) inferInstance)
-        ((π ≫ p).relativeDimensionFunction δ)
+        (@Scheme.Hom.relativeDimensionFunction _ _ (π ≫ p)
+          (locallyOfFiniteTypeComp hπ p (q + 1)) δ)
         (@Scheme.Hom.instIsDimensionFunctionRelativeDimensionFunction _ _ (π ≫ p)
           inferInstance (locallyOfFiniteTypeComp hπ p (q + 1)) δ inferInstance)
         (k + (q : ℤ))
@@ -156,14 +154,16 @@ theorem firstChernClassCap_mem_ker
     @RationalEquivalence.boundaries P
         (@LocallyOfFiniteType.isLocallyNoetherian _ _ (π ≫ p)
           (locallyOfFiniteTypeComp hπ p r) inferInstance)
-        ((π ≫ p).relativeDimensionFunction δ)
+        (@Scheme.Hom.relativeDimensionFunction _ _ (π ≫ p)
+          (locallyOfFiniteTypeComp hπ p r) δ)
         (@Scheme.Hom.instIsDimensionFunctionRelativeDimensionFunction _ _ (π ≫ p)
           inferInstance (locallyOfFiniteTypeComp hπ p r) δ inferInstance) k ≤
       ((@Scheme.Modules.firstChernClassCap S P (π ≫ p) inferInstance
           (locallyOfFiniteTypeComp hπ p r) δ inferInstance
           (Scheme.ProjectiveBundle.tautologicalSheaf π hπ)
           (Scheme.ProjectiveBundle.tautologicalSheaf_isInvertible π hπ) (k - 1)).comp
-        (CycleGroup.reindex ((π ≫ p).relativeDimensionFunction δ)
+        (CycleGroup.reindex (@Scheme.Hom.relativeDimensionFunction _ _ (π ≫ p)
+          (locallyOfFiniteTypeComp hπ p r) δ)
           (sub_add_cancel k 1).symm)).ker := sorry
 
 /-- Intersection with the first Chern class of the tautological module on a represented
@@ -179,14 +179,16 @@ noncomputable def firstChernClassCap
     (@RationalEquivalence.boundaries P
       (@LocallyOfFiniteType.isLocallyNoetherian _ _ (π ≫ p)
         (locallyOfFiniteTypeComp hπ p r) inferInstance)
-      ((π ≫ p).relativeDimensionFunction δ)
+      (@Scheme.Hom.relativeDimensionFunction _ _ (π ≫ p)
+        (locallyOfFiniteTypeComp hπ p r) δ)
       (@Scheme.Hom.instIsDimensionFunctionRelativeDimensionFunction _ _ (π ≫ p)
         inferInstance (locallyOfFiniteTypeComp hπ p r) δ inferInstance) k)
     ((@Scheme.Modules.firstChernClassCap S P (π ≫ p) inferInstance
       (locallyOfFiniteTypeComp hπ p r) δ inferInstance
       (Scheme.ProjectiveBundle.tautologicalSheaf π hπ)
       (Scheme.ProjectiveBundle.tautologicalSheaf_isInvertible π hπ) (k - 1)).comp
-      (CycleGroup.reindex ((π ≫ p).relativeDimensionFunction δ)
+      (CycleGroup.reindex (@Scheme.Hom.relativeDimensionFunction _ _ (π ≫ p)
+        (locallyOfFiniteTypeComp hπ p r) δ)
         (sub_add_cancel k 1).symm))
     (firstChernClassCap_mem_ker δ p E r π hπ k)
 
@@ -197,19 +199,22 @@ theorem firstChernClassCap_chowClass
     (p : X ⟶ S) [LocallyOfFiniteType p] (E : X.Modules) (r : ℕ)
     [Scheme.Modules.IsFiniteLocallyFreeOfRank r E]
     (π : P ⟶ X) (hπ : Scheme.ProjectiveBundle.Representation π E) (k : ℤ)
-    (α : CycleGroup P ((π ≫ p).relativeDimensionFunction δ) k) :
+    (α : CycleGroup P (@Scheme.Hom.relativeDimensionFunction _ _ (π ≫ p)
+      (locallyOfFiniteTypeComp hπ p r) δ) k) :
     firstChernClassCap δ p E r π hπ k
         (@chowClass P
           (@LocallyOfFiniteType.isLocallyNoetherian _ _ (π ≫ p)
             (locallyOfFiniteTypeComp hπ p r) inferInstance)
-          ((π ≫ p).relativeDimensionFunction δ)
+          (@Scheme.Hom.relativeDimensionFunction _ _ (π ≫ p)
+            (locallyOfFiniteTypeComp hπ p r) δ)
           (@Scheme.Hom.instIsDimensionFunctionRelativeDimensionFunction _ _ (π ≫ p)
             inferInstance (locallyOfFiniteTypeComp hπ p r) δ inferInstance) k α) =
       @Scheme.Modules.firstChernClassCap S P (π ≫ p) inferInstance
         (locallyOfFiniteTypeComp hπ p r) δ inferInstance
         (Scheme.ProjectiveBundle.tautologicalSheaf π hπ)
         (Scheme.ProjectiveBundle.tautologicalSheaf_isInvertible π hπ) (k - 1)
-        (CycleGroup.reindex ((π ≫ p).relativeDimensionFunction δ)
+        (CycleGroup.reindex (@Scheme.Hom.relativeDimensionFunction _ _ (π ≫ p)
+          (locallyOfFiniteTypeComp hπ p r) δ)
           (sub_add_cancel k 1).symm α) := sorry
 
 /-- Transport a projective-bundle total-space Chow group along an equality of degrees. -/

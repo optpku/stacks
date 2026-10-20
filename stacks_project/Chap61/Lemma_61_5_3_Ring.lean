@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
-public import Mathlib.RingTheory.RingHom.FaithfullyFlat
-public import Mathlib.RingTheory.Spectrum.Prime.Topology
-public import stacks_project.Chap61.Definition_61_2_3_WLocal
-public import stacks_project.Chap61.Definition_61_4_1_IndZariski
-public import stacks_project.Chap61.«61_5_2_5_WLocalization»
+public import ReasLib.Algebra.WLocalHull.Properties
+public import ReasLib.AlgebraicGeometry.WLocalHull.Properties
 
 /-!
 # Ring-map properties of w-localization
@@ -24,24 +14,18 @@ spectrum of `A_w` is a w-local space.
 
 universe u
 
-namespace Algebra.WLocalHull
+#check (Algebra.WLocalHull.algebraMap_indZariski :
+  ∀ (A : Type u) [CommRing A],
+    (algebraMap A (Algebra.WLocalHull.wLocalization A)).IndZariski)
 
-variable (A : Type u) [CommRing A]
+#check (Algebra.WLocalHull.instFaithfullyFlat :
+  ∀ (A : Type u) [CommRing A],
+    Module.FaithfullyFlat A (Algebra.WLocalHull.wLocalization A))
 
-/-- The structure map `A → A_w` is ind-Zariski. -/
-theorem algebraMap_indZariski : (algebraMap A (wLocalization A)).IndZariski :=
-  sorry
+#check (Algebra.WLocalHull.algebraMap_faithfullyFlat :
+  ∀ (A : Type u) [CommRing A],
+    (algebraMap A (Algebra.WLocalHull.wLocalization A)).FaithfullyFlat)
 
-/-- The w-localization `A_w` is faithfully flat as an `A`-algebra. -/
-instance instFaithfullyFlat : Module.FaithfullyFlat A (wLocalization A) :=
-  sorry
-
-/-- The structure map `A → A_w` is faithfully flat. -/
-theorem algebraMap_faithfullyFlat : (algebraMap A (wLocalization A)).FaithfullyFlat :=
-  sorry
-
-/-- The prime spectrum of the w-localization `A_w` is a w-local space. -/
-instance instWLocalSpace : WLocalSpace (PrimeSpectrum (wLocalization A)) :=
-  sorry
-
-end Algebra.WLocalHull
+#check (Algebra.WLocalHull.instWLocalSpace :
+  ∀ (A : Type u) [CommRing A],
+    WLocalSpace (PrimeSpectrum (Algebra.WLocalHull.wLocalization A)))

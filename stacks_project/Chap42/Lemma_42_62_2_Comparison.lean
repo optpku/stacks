@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap42.Lemma_42_62_1_IntersectionProduct
@@ -192,7 +186,7 @@ theorem capFundamental_comp (X : SchemeOverField k) [Smooth X.hom] (d : ℕ)
     (c' : BivariantClass (fun _ ↦ 0) (𝟙 X) q) :
     capFundamental X d (p + q)
         (idComp_id X (p + q) (comp (fun _ ↦ 0) (𝟙 X) (𝟙 X) c c')) =
-      castRelativeDegree (fun _ ↦ 0) (capFundamental_comp_degree d p q)
+      RelativeChow.castDegree (fun _ ↦ 0) (capFundamental_comp_degree d p q)
         (ChowGroup.intersectionProduct X d D (capFundamental X d p c)
           (capFundamental X d q c')) := sorry
 
@@ -237,7 +231,7 @@ theorem capFundamentalEquiv_symm_cap (X : SchemeOverField k) [Smooth X.hom]
     (n : ℤ) (beta : RelativeChow (fun _ ↦ 0) Y n) :
     ((capFundamentalEquiv X d p).symm alpha).cap fY (𝟙 Y) fY
         IsPullback.of_id_snd n beta =
-      castRelativeDegree (fun _ ↦ 0) (capFundamentalEquiv_symm_cap_degree d p n)
+      RelativeChow.castDegree (fun _ ↦ 0) (capFundamentalEquiv_symm_cap_degree d p n)
         (ChowGroup.map (fun _ ↦ 0) (pullback (𝟙 X) fY) Y
           (pullback.snd (𝟙 X) fY) ((d : ℤ) - p + n - d)
           (ChowGroup.intersectionProductOver X (𝟙 X) fY d D alpha beta)) := sorry

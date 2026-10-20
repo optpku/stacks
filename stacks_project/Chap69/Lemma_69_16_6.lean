@@ -1,20 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_3_1_Separation
-public import stacks_project.Chap69.Lemma_69_16_2_ToSpec
-public import stacks_project.Chap69.Situation_69_16_1
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.GlobalSections.Separation
+import StacksCheckRecall
 
 /-!
 # Lemma 69.16.6
 
-In Situation 69.16.1, the canonical morphism `toSpecGamma X : X ⟶ specGamma X`
-is separated.
+In Situation 69.16.1, the absolute canonical morphism from `X` to the spectrum
+of its ring of global sections is separated.
 -/
 
 @[expose] public section
@@ -22,28 +15,26 @@ is separated.
 open CategoryTheory AlgebraicGeometry
 open AlgebraicGeometry.AlgebraicSpace
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 69.16.6: in Situation 69.16.1, the canonical morphism
-`toSpecGamma X : X ⟶ specGamma X` is separated. -/
+/- Lemma 69.16.6: in Situation 69.16.1, the absolute canonical morphism
+from `X` to the spectrum of its ring of global sections is separated. -/
 @[stacks 07V5]
-instance separated_toSpecGamma {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [IsQuasiCompact X] [IsQuasiSeparated X]
+#check (AlgebraicGeometry.AlgebraicSpace.separated_toSpecA :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+    [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
     [HasSheafify (smallEtaleTopology X) AddCommGrpCat.{u}]
     [HasExt.{u} (Sheaf (smallEtaleTopology X) AddCommGrpCat.{u})]
-    [HasVanishingH1 X] : Separated (toSpecGamma X) :=
-  sorry
+    [HasVanishingH1 X],
+    Separated
+      (extendBaseMap (specULiftZIsTerminal.from S) (toSpecGamma X) ≫
+        (extendBasePresheafYonedaIso (specULiftZIsTerminal.from S) (specGammaOver X)).hom ≫
+        ofOverMap ((Over.mapPullbackAdj (specULiftZIsTerminal.from S)).counit.app
+          (overSpecZ (Spec (globalSectionsRing X))))))
 
-/-- In Situation 69.16.1, `X` is a separated algebraic space. -/
-instance isAbsolutelySeparated_of_hasVanishingH1 {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [IsQuasiCompact X] [IsQuasiSeparated X]
+#check (AlgebraicGeometry.AlgebraicSpace.isAbsolutelySeparated_of_hasVanishingH1 :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+    [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
     [HasSheafify (smallEtaleTopology X) AddCommGrpCat.{u}]
     [HasExt.{u} (Sheaf (smallEtaleTopology X) AddCommGrpCat.{u})]
-    [HasVanishingH1 X] : IsAbsolutelySeparated X :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+    [HasVanishingH1 X], IsAbsolutelySeparated X)

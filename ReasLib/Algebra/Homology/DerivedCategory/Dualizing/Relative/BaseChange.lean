@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.Linear
@@ -27,7 +21,8 @@ namespace CategoryTheory.DerivedCategory
 /-- Every flat finitely presented commutative algebra admits a relative dualizing complex. -/
 theorem existsRelativeDualizingComplex
     (R A : Type u) [CommRing R] [CommRing A] [Algebra R A]
-    [Module.Flat R A] [Algebra.FinitePresentation R A] :
+    [Module.Flat R A] [Algebra.FinitePresentation R A]
+    [InternalHom.RHom.Has (A := A ⊗[R] A)] :
     ∃ K : DerivedCategory (ModuleCat A), IsRelativeDualizingComplex R K := sorry
 
 namespace IsRelativeDualizingComplex
@@ -36,14 +31,16 @@ namespace IsRelativeDualizingComplex
 theorem baseChange
     {R A : Type u} [CommRing R] [CommRing A] [Algebra R A]
     [Module.Flat R A] [Algebra.FinitePresentation R A]
+    [InternalHom.RHom.Has (A := A ⊗[R] A)]
     (K : DerivedCategory (ModuleCat A)) (hK : IsRelativeDualizingComplex R K)
-    (R' : Type u) [CommRing R'] [Algebra R R'] :
+    (R' : Type u) [CommRing R'] [Algebra R R']
+    [InternalHom.RHom.Has (A := (A ⊗[R] R') ⊗[R'] (A ⊗[R] R'))] :
     let A' := A ⊗[R] R'
     let K' := (ModuleCat.derivedExtensionOfScalars (algebraMap A A')).obj K
     let h_flat : Module.Flat R' A' := Algebra.TensorProduct.flat_right
     let h_finitePresentation : Algebra.FinitePresentation R' A' :=
       Algebra.finitePresentation_tensor_right
-    @IsRelativeDualizingComplex R' _ A' _ _ h_flat h_finitePresentation K' := sorry
+    @IsRelativeDualizingComplex R' _ A' _ _ h_flat h_finitePresentation inferInstance K' := sorry
 
 /-- The diagonal object is preserved up to isomorphism by tensor-square scalar extension. -/
 theorem baseChangeDiagonalIsomorphic
@@ -80,6 +77,7 @@ theorem baseChangeTargetIsomorphic
 theorem baseChangeGenerator
     {R A : Type u} [CommRing R] [CommRing A] [Algebra R A]
     [Module.Flat R A] [Algebra.FinitePresentation R A]
+    [InternalHom.RHom.Has (A := A ⊗[R] A)]
     (K : DerivedCategory (ModuleCat A)) (hK : IsRelativeDualizingComplex R K)
     (R' : Type u) [CommRing R'] [Algebra R R'] :
     let A' := A ⊗[R] R'

@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_17_2_InverseImage
-public import stacks_project.Chap68.Definition_68_22_1_GenericPoints
-public import stacks_project.Chap68.Lemma_68_9_2
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Cover.Integral
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Cover.Finite
+import StacksCheckRecall
 
 /-!
 # Integral scheme covers finite étale over a dense open
@@ -27,46 +21,30 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- The inclusion of an open subspace is an open immersion. -/
-instance instIsOpenImmersion_openSubspaceι {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (U : OpenSubspace X) : IsOpenImmersion U.ι :=
-  U.isOpenImmersion
-
-/-- Lemma 68.9.3 (1): Let `S` be a scheme. Let `X` be a quasi-compact and
-quasi-separated algebraic space over `S` such that `|X|` has finitely many
-irreducible components. There exists a surjective integral morphism `Y ⟶ X`
-where `Y` is a scheme such that `f` is finite étale over a quasi-compact dense
-open `U ⊂ X`. -/
-@[stacks 0GUL]
-theorem exists_surjective_isIntegralHom_isScheme_finiteEtaleOver_dense
-    {S : Scheme.{u}} (X : AlgebraicSpace S)
+/- Lemma 68.9.3 (1): Existence of the cover. -/
+@[stacks 0GUL] #check
+  (AlgebraicGeometry.AlgebraicSpace.IntegralCover.exists_finiteEtale_dense :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
     [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
-    [HasFiniteIrreducibleComponents X] :
+    [HasFiniteIrreducibleComponents X],
     ∃ (Y : AlgebraicSpace S) (f : Y ⟶ X) (U : OpenSubspace X),
       IsScheme Y ∧ IsIntegralHom f ∧ Surjective f ∧
         IsQuasiCompact U.X ∧ Dense U.pointsSet ∧
-          IsFinite (openInverseImageTo f U.ι) ∧
-            Etale (openInverseImageTo f U.ι) :=
-  sorry
+          IsFinite (CategoryTheory.Limits.pullback.snd (C := AlgebraicSpace S) f U.ι) ∧
+            Etale (CategoryTheory.Limits.pullback.snd (C := AlgebraicSpace S) f U.ι))
 
-/-- Lemma 68.9.3 (2): Let `S` be a scheme. Let `X` be a quasi-compact and
-quasi-separated algebraic space over `S` such that `|X|` has finitely many
-irreducible components. Given a surjective étale morphism `V ⟶ X` we may choose
-a surjective integral morphism `Y ⟶ X` with `Y` a scheme, finite étale over a
-quasi-compact dense open `U ⊂ X`, such that for every `y ∈ Y` there is an open
-neighbourhood `W ⊂ Y` such that `W ⟶ X` factors through `V`. -/
-@[stacks 0GUL]
-theorem exists_surjective_isIntegralHom_isScheme_finiteEtaleOver_dense_locallyFactorsThrough
-    {S : Scheme.{u}} (X : AlgebraicSpace S)
+/- Lemma 68.9.3 (2): Local factorization through a prescribed surjective étale cover. -/
+@[stacks 0GUL] #check
+  (AlgebraicGeometry.AlgebraicSpace.IntegralCover.exists_finiteEtale_dense_locallyFactorsThrough :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
     [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
     [HasFiniteIrreducibleComponents X]
-    {V : AlgebraicSpace S} (v : V ⟶ X) [Surjective v] [Etale v] :
+    {V : AlgebraicSpace S} (v : V ⟶ X) [Surjective v] [Etale v],
     ∃ (Y : AlgebraicSpace S) (f : Y ⟶ X) (U : OpenSubspace X),
       IsScheme Y ∧ IsIntegralHom f ∧ Surjective f ∧
         IsQuasiCompact U.X ∧ Dense U.pointsSet ∧
-          IsFinite (openInverseImageTo f U.ι) ∧
-            Etale (openInverseImageTo f U.ι) ∧
-              zariskiLocallyFactorsThrough f v :=
-  sorry
+          IsFinite (CategoryTheory.Limits.pullback.snd (C := AlgebraicSpace S) f U.ι) ∧
+            Etale (CategoryTheory.Limits.pullback.snd (C := AlgebraicSpace S) f U.ι) ∧
+              zariskiLocallyFactorsThrough f v)
 
 end AlgebraicGeometry.AlgebraicSpace

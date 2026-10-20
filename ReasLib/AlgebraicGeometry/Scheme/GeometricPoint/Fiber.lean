@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.GeometricPoint
+public import Mathlib.AlgebraicGeometry.Pullbacks
 
-open CategoryTheory AlgebraicGeometry
+open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
 
 universe u
 
@@ -59,3 +54,47 @@ theorem ext {x y : Fiber j xbar} (h : x.lift = y.lift) : x = y := sorry
 end Fiber
 
 end AlgebraicGeometry.Scheme.GeometricPoint
+
+namespace AlgebraicGeometry.Scheme.Hom
+
+/-- The scheme-theoretic geometric fibre `ȳ ×_Y X` of `f` at a geometric point `ȳ` of `Y`. -/
+noncomputable abbrev geometricFiber {X Y : Scheme.{u}} (f : X ⟶ Y)
+    (ybar : GeometricPoint Y) : Scheme.{u} :=
+  pullback ybar.hom f
+
+/-- `geometricFiber` is the chosen fibre product `ȳ ×_Y X`. -/
+theorem geometricFiber_def {X Y : Scheme.{u}} (f : X ⟶ Y) (ybar : GeometricPoint Y) :
+    geometricFiber f ybar = pullback ybar.hom f :=
+  rfl
+
+/-- The structure morphism `f' : ȳ ×_Y X ⟶ Spec κ(ȳ)` of the geometric fibre. -/
+noncomputable abbrev geometricFiberToPoint {X Y : Scheme.{u}} (f : X ⟶ Y)
+    (ybar : GeometricPoint Y) :
+    geometricFiber f ybar ⟶ Spec (.of ybar.K) :=
+  pullback.fst ybar.hom f
+
+/-- `geometricFiberToPoint` is the first projection of `ȳ ×_Y X`. -/
+theorem geometricFiberToPoint_def {X Y : Scheme.{u}} (f : X ⟶ Y)
+    (ybar : GeometricPoint Y) :
+    geometricFiberToPoint f ybar = pullback.fst ybar.hom f :=
+  rfl
+
+/-- The base-change morphism `g' : ȳ ×_Y X ⟶ X` of the geometric fibre. -/
+noncomputable abbrev geometricFiberToX {X Y : Scheme.{u}} (f : X ⟶ Y)
+    (ybar : GeometricPoint Y) :
+    geometricFiber f ybar ⟶ X :=
+  pullback.snd ybar.hom f
+
+/-- `geometricFiberToX` is the second projection of `ȳ ×_Y X`. -/
+theorem geometricFiberToX_def {X Y : Scheme.{u}} (f : X ⟶ Y)
+    (ybar : GeometricPoint Y) :
+    geometricFiberToX f ybar = pullback.snd ybar.hom f :=
+  rfl
+
+/-- The geometric fibre with its projections forms a cartesian square over the original morphism. -/
+theorem geometricFiber_isPullback {X Y : Scheme.{u}} (f : X ⟶ Y)
+    (ybar : GeometricPoint Y) :
+    IsPullback (geometricFiberToX f ybar) (geometricFiberToPoint f ybar) f ybar.hom :=
+  (IsPullback.of_hasPullback ybar.hom f).flip
+
+end AlgebraicGeometry.Scheme.Hom

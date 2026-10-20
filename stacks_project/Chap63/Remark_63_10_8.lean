@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.GroupTheory.Torsion
-public import stacks_project.Chap63.Remark_63_10_8_ChangeOfRings
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.CompactSupport.ChangeOfRings
+public import stacks_project.Chap59.Definition_59_77_1
+import StacksCheckRecall
 
 /-!
 # Change of rings for derived étale lower shriek
@@ -125,132 +120,19 @@ variable [(Functor.Homotopy.toDerived
   (HomotopyCategory.quasiIso
     (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ1)) (up ℤ))]
 
-/-- Remark 63.10.8 (1): for a homomorphism `φ : Λ1 →+* Λ2` of torsion rings and a
-separated finite-type morphism `f = X.hom` of quasi-compact quasi-separated
-schemes, `Rf_!` commutes with restriction of scalars
-`D(-, Λ2) ⥤ D(-, Λ1)`. -/
-@[stacks 0GL6]
-def etaleDerivedLowerShriekRestrictScalarsIso
-    (hΛ1 : AddMonoid.IsTorsion Λ1) (hΛ2 : AddMonoid.IsTorsion Λ2) :
-    (etaleDerivedLowerShriek X P ⋙ etaleDerivedRestrictScalars φ Y :
+/- Remark 63.10.8. Restriction of scalars and derived extension of scalars
+commute with derived lower shriek for homomorphisms of torsion rings. -/
+@[stacks 0GL6] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriekRestrictScalarsIso X φ P :
+    (hΛ1 : AddMonoid.IsTorsion Λ1) → (hΛ2 : AddMonoid.IsTorsion Λ2) →
+      (etaleDerivedLowerShriek X P ⋙ etaleDerivedRestrictScalars φ Y :
         EtaleDerived X.left Λ2 ⥤ EtaleDerived Y Λ1) ≅
-      (etaleDerivedRestrictScalars φ X.left ⋙ etaleDerivedLowerShriek X P) :=
-  Functor.associator
-      ((etaleExtensionByZero (Compactification.Of.ι P)
-          (ModuleCat.{u} Λ2)).mapDerivedCategory)
-      (etaleDerivedPushforward (Over.hom P.obj.right))
-      (etaleDerivedRestrictScalars φ Y) ≪≫
-    Functor.isoWhiskerLeft
-      ((etaleExtensionByZero (Compactification.Of.ι P)
-          (ModuleCat.{u} Λ2)).mapDerivedCategory)
-      (etaleDerivedRestrictScalars_pushforwardIso φ (Over.hom P.obj.right)) ≪≫
-    (Functor.associator
-      ((etaleExtensionByZero (Compactification.Of.ι P)
-          (ModuleCat.{u} Λ2)).mapDerivedCategory)
-      (etaleDerivedRestrictScalars φ (Over.left P.obj.right))
-      (etaleDerivedPushforward (Over.hom P.obj.right))).symm ≪≫
-    Functor.isoWhiskerRight
-      (etaleDerivedRestrictScalars_extensionByZeroIso φ
-        (Compactification.Of.ι P))
-      (etaleDerivedPushforward (Over.hom P.obj.right)) ≪≫
-    Functor.associator (etaleDerivedRestrictScalars φ X.left)
-      ((etaleExtensionByZero (Compactification.Of.ι P)
-          (ModuleCat.{u} Λ1)).mapDerivedCategory)
-      (etaleDerivedPushforward (Over.hom P.obj.right))
+      (etaleDerivedRestrictScalars φ X.left ⋙ etaleDerivedLowerShriek X P))
 
-/-- Evaluating the restriction-of-scalars comparison on an object of
-`D(X_étale, Λ2)`. -/
-theorem etaleDerivedLowerShriekRestrictScalarsIso_hom_app
-    (hΛ1 : AddMonoid.IsTorsion Λ1) (hΛ2 : AddMonoid.IsTorsion Λ2)
-    (K : EtaleDerived X.left Λ2) :
-    (etaleDerivedLowerShriekRestrictScalarsIso X φ P hΛ1 hΛ2).hom.app K =
-      (Functor.associator
-          ((etaleExtensionByZero (Compactification.Of.ι P)
-              (ModuleCat.{u} Λ2)).mapDerivedCategory)
-          (etaleDerivedPushforward (Over.hom P.obj.right))
-          (etaleDerivedRestrictScalars φ Y) ≪≫
-        Functor.isoWhiskerLeft
-          ((etaleExtensionByZero (Compactification.Of.ι P)
-              (ModuleCat.{u} Λ2)).mapDerivedCategory)
-          (etaleDerivedRestrictScalars_pushforwardIso φ (Over.hom P.obj.right)) ≪≫
-        (Functor.associator
-          ((etaleExtensionByZero (Compactification.Of.ι P)
-              (ModuleCat.{u} Λ2)).mapDerivedCategory)
-          (etaleDerivedRestrictScalars φ (Over.left P.obj.right))
-          (etaleDerivedPushforward (Over.hom P.obj.right))).symm ≪≫
-        Functor.isoWhiskerRight
-          (etaleDerivedRestrictScalars_extensionByZeroIso φ
-            (Compactification.Of.ι P))
-          (etaleDerivedPushforward (Over.hom P.obj.right)) ≪≫
-        Functor.associator (etaleDerivedRestrictScalars φ X.left)
-          ((etaleExtensionByZero (Compactification.Of.ι P)
-              (ModuleCat.{u} Λ1)).mapDerivedCategory)
-          (etaleDerivedPushforward (Over.hom P.obj.right))).hom.app K :=
-  sorry
-
-/-- Remark 63.10.8 (2): for a homomorphism `φ : Λ1 →+* Λ2` of torsion rings and a
-separated finite-type morphism `f = X.hom` of quasi-compact quasi-separated
-schemes, `Rf_!` commutes with derived extension of scalars
-`- ⊗_Λ1^L Λ2 : D(-, Λ1) ⥤ D(-, Λ2)`. -/
-@[stacks 0GL6]
-def etaleDerivedLowerShriekExtendScalarsIso
-    (hΛ1 : AddMonoid.IsTorsion Λ1) (hΛ2 : AddMonoid.IsTorsion Λ2) :
-    (etaleDerivedLowerShriek X P ⋙ etaleDerivedExtendScalars φ Y :
-        EtaleDerived X.left Λ1 ⥤ EtaleDerived Y Λ2) ≅
-      (etaleDerivedExtendScalars φ X.left ⋙ etaleDerivedLowerShriek X P) :=
-  Functor.associator
-      ((etaleExtensionByZero (Compactification.Of.ι P)
-          (ModuleCat.{u} Λ1)).mapDerivedCategory)
-      (etaleDerivedPushforward (Over.hom P.obj.right))
-      (etaleDerivedExtendScalars φ Y) ≪≫
-    Functor.isoWhiskerLeft
-      ((etaleExtensionByZero (Compactification.Of.ι P)
-          (ModuleCat.{u} Λ1)).mapDerivedCategory)
-      (etaleDerivedExtendScalars_pushforwardIso φ (Over.hom P.obj.right)) ≪≫
-    (Functor.associator
-      ((etaleExtensionByZero (Compactification.Of.ι P)
-          (ModuleCat.{u} Λ1)).mapDerivedCategory)
-      (etaleDerivedExtendScalars φ (Over.left P.obj.right))
-      (etaleDerivedPushforward (Over.hom P.obj.right))).symm ≪≫
-    Functor.isoWhiskerRight
-      (etaleDerivedExtendScalars_extensionByZeroIso φ
-        (Compactification.Of.ι P))
-      (etaleDerivedPushforward (Over.hom P.obj.right)) ≪≫
-    Functor.associator (etaleDerivedExtendScalars φ X.left)
-      ((etaleExtensionByZero (Compactification.Of.ι P)
-          (ModuleCat.{u} Λ2)).mapDerivedCategory)
-      (etaleDerivedPushforward (Over.hom P.obj.right))
-
-/-- Evaluating the derived extension-of-scalars comparison on an object of
-`D(X_étale, Λ1)`. -/
-theorem etaleDerivedLowerShriekExtendScalarsIso_hom_app
-    (hΛ1 : AddMonoid.IsTorsion Λ1) (hΛ2 : AddMonoid.IsTorsion Λ2)
-    (K : EtaleDerived X.left Λ1) :
-    (etaleDerivedLowerShriekExtendScalarsIso X φ P hΛ1 hΛ2).hom.app K =
-      (Functor.associator
-          ((etaleExtensionByZero (Compactification.Of.ι P)
-              (ModuleCat.{u} Λ1)).mapDerivedCategory)
-          (etaleDerivedPushforward (Over.hom P.obj.right))
-          (etaleDerivedExtendScalars φ Y) ≪≫
-        Functor.isoWhiskerLeft
-          ((etaleExtensionByZero (Compactification.Of.ι P)
-              (ModuleCat.{u} Λ1)).mapDerivedCategory)
-          (etaleDerivedExtendScalars_pushforwardIso φ (Over.hom P.obj.right)) ≪≫
-        (Functor.associator
-          ((etaleExtensionByZero (Compactification.Of.ι P)
-              (ModuleCat.{u} Λ1)).mapDerivedCategory)
-          (etaleDerivedExtendScalars φ (Over.left P.obj.right))
-          (etaleDerivedPushforward (Over.hom P.obj.right))).symm ≪≫
-        Functor.isoWhiskerRight
-          (etaleDerivedExtendScalars_extensionByZeroIso φ
-            (Compactification.Of.ι P))
-          (etaleDerivedPushforward (Over.hom P.obj.right)) ≪≫
-        Functor.associator (etaleDerivedExtendScalars φ X.left)
-          ((etaleExtensionByZero (Compactification.Of.ι P)
-              (ModuleCat.{u} Λ2)).mapDerivedCategory)
-          (etaleDerivedPushforward (Over.hom P.obj.right))).hom.app K :=
-  sorry
-
+#check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriekExtendScalars_isIso X φ P :
+    (hΛ1 : AddMonoid.IsTorsion Λ1) → (hΛ2 : AddMonoid.IsTorsion Λ2) →
+      IsIso (etaleDerivedLowerShriekExtendScalars_comparison X φ P hΛ1 hΛ2))
 end Etale
 end Scheme
 end AlgebraicGeometry

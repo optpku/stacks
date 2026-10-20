@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap62.Definition_62_9_1_Proper
+public import ReasLib.AlgebraicGeometry.RelativeCycle.Proper
 import StacksCheckRecall
 
 open AlgebraicGeometry CategoryTheory
@@ -26,8 +20,13 @@ support of `α` (Remark 62.5.6) is contained in a closed subset `W ⊆ X` proper
 over `S` (Cohomology of Schemes, Definition 30.26.2). The group of all proper
 relative `r`-cycles on `X / S` is denoted `c(X/S, r)`. -/
 @[stacks 0H61] #check
-  (RelativeCycle.proper f r : AddSubgroup (RelativeCycle.Family f r))
+  (AlgebraicGeometry.RelativeCycle.proper f r : AddSubgroup (f.FiberCycleFamily r))
 
-#check RelativeCycle.mem_proper
+#check (AlgebraicGeometry.RelativeCycle.mem_proper_iff f r :
+  ∀ α : f.FiberCycleFamily r,
+    α ∈ AlgebraicGeometry.RelativeCycle.proper f r ↔
+      RelativeCycle.IsRelative α ∧
+        ∃ W : TopologicalSpace.Closeds X,
+          Scheme.Hom.CyclesOnFibers.support α ⊆ W ∧ ClosedSubset.IsProperOver f W)
 
 end

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.DualNumber
@@ -83,6 +77,7 @@ instance instFlat_trivialSchemeOver (X : Scheme.{u}) (hX : X ⟶ Spec (CommRingC
 def trivialObj (X : Scheme.{u}) (hX : X ⟶ Spec (CommRingCat.of k))
     [AlgebraicGeometry.Flat hX] : FlatSchemeCat Λ k :=
   of (dualNumber Λ k) (trivialScheme Λ k X hX) (trivialSchemeOver Λ k X hX)
+    (instFlat_trivialSchemeOver Λ k X hX)
 
 /-- The base of `trivialObj` is `k[ε]`. -/
 theorem trivialObj_base (X : Scheme.{u}) (hX : X ⟶ Spec (CommRingCat.of k))
@@ -400,7 +395,7 @@ instance instModule_inf {X Y : Scheme.{u}} (f : X ⟶ Y)
 
 /-- Send a pair `(A, X ⟶ Y)` to the source pair `(A, X)`. -/
 def toSourceObj (P : FlatSchemeMorphismCat Λ k) : FlatSchemeCat Λ k :=
-  FlatSchemeCat.of P.base P.source P.sourceOver
+  FlatSchemeCat.of P.base P.source P.sourceOver (sourceFlat P)
 
 /-- Send a morphism of pairs to the induced morphism of source schemes. -/
 def toSourceMap {src tgt : FlatSchemeMorphismCat Λ k} (φ : src ⟶ tgt) :
@@ -420,7 +415,7 @@ theorem toSource_obj (P : FlatSchemeMorphismCat Λ k) :
 
 /-- Send a pair `(A, X ⟶ Y)` to the target pair `(A, Y)`. -/
 def toTargetObj (P : FlatSchemeMorphismCat Λ k) : FlatSchemeCat Λ k :=
-  FlatSchemeCat.of P.base P.target P.targetOver
+  FlatSchemeCat.of P.base P.target P.targetOver (targetFlat P)
 
 /-- Send a morphism of pairs to the induced morphism of target schemes. -/
 def toTargetMap {src tgt : FlatSchemeMorphismCat Λ k} (φ : src ⟶ tgt) :

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap61.Remark_61_10_4_Extension
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Extension.H.V
 import StacksCheckRecall
 
 @[expose] public section
@@ -26,7 +20,7 @@ h-sheaf of sets on `(Sch/S)_h` such that `F(T) = colim F(T_i)` whenever
 (a) `F'` is an h-sheaf and (b) `F'` is limit preserving.
 See More on Flatness, Lemma 38.35.4. -/
 @[stacks 0EVR] #check
-  (existsUniqueHSheafExtension :
+  (AlgebraicGeometry.Scheme.Over.Extension.existsUniqueHSheafExtension :
     ∀ {S : Scheme.{u}} (C : ObjectProperty (Over S))
       (F : C.FullSubcategoryᵒᵖ ⥤ Type (u + 1)),
       ContainsAffineOpens C → ContainsFinitelyPresentedAffines C →
@@ -45,7 +39,7 @@ See More on Flatness, Lemma 38.35.4. -/
 extension `F'` satisfies the sheaf property for the V topology.
 See Lemma 61.10.3. -/
 @[stacks 0EVR] #check
-  (existsHSheafExtension_satisfiesVSheafProperty :
+  (AlgebraicGeometry.Scheme.Over.Extension.existsHSheafExtension_satisfiesVSheafProperty :
     ∀ {S : Scheme.{u}} (C : ObjectProperty (Over S))
       (F : C.FullSubcategoryᵒᵖ ⥤ Type (u + 1)),
       ContainsAffineOpens C → ContainsFinitelyPresentedAffines C →

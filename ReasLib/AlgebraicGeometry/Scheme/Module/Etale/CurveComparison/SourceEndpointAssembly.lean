@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.LambdaEndpointAssembly
@@ -106,7 +100,7 @@ variable [∀ {Y Z : Scheme.{u}} (j : Y ⟶ Z) [IsOpenImmersion j]
 variable [∀ {Y Z : Scheme.{u}} (j : Y ⟶ Z) [IsOpenImmersion j]
     (F : Y.Etaleᵒᵖ ⥤ AddCommGrpCat.{u + 1}), (etaleRestriction j).op.HasLeftKanExtension F]
 variable (M : (finiteTypeDiscreteModule Λ
-    (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))).FullSubcategory)
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))).FullSubcategory)
 
 /-- The finite associated-sheaf base-change is the existing actual germ and
 finite-colimit comparison, now exposed before applying cohomology. -/

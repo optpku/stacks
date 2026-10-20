@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
-public import stacks_project.Chap87.Definition_87_30_1_Separation
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Separation.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of separation axioms for morphisms of formal algebraic spaces
@@ -24,30 +18,29 @@ universe u
 
 namespace AlgebraicGeometry.FormalAlgebraicSpace
 
-/-- Lemma 87.30.4 (1): Separated morphisms of formal algebraic spaces are stable
+/- Lemma 87.30.4 (1): Separated morphisms of formal algebraic spaces are stable
 under composition. -/
-@[stacks 0ARR]
-instance separated_isStableUnderComposition {S : Scheme.{u}} :
+@[stacks 0ARR] #check
+  (AlgebraicGeometry.FormalAlgebraicSpace.separated_isStableUnderComposition :
+    ∀ {S : Scheme.{u}},
     MorphismProperty.IsStableUnderComposition
-      (@Separated S : MorphismProperty ((Over S)ᵒᵖ ⥤ Type u)) := sorry
+      (@Separated S : MorphismProperty ((Over S)ᵒᵖ ⥤ Type u)))
 
-/-- The composition of separated morphisms of formal algebraic spaces is
-separated. -/
-instance separated_comp {S : Scheme.{u}} {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [Separated f] [Separated g] :
-    Separated (f ≫ g) := sorry
+#check (AlgebraicGeometry.FormalAlgebraicSpace.separated_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
+    (f : X ⟶ Y) (g : Y ⟶ Z) [Separated f] [Separated g], Separated (f ≫ g))
 
-/-- Lemma 87.30.4 (2): Quasi-separated morphisms of formal algebraic spaces are
+/- Lemma 87.30.4 (2): Quasi-separated morphisms of formal algebraic spaces are
 stable under composition. -/
-@[stacks 0ARR]
-instance quasiSeparated_isStableUnderComposition {S : Scheme.{u}} :
+@[stacks 0ARR] #check
+  (AlgebraicGeometry.FormalAlgebraicSpace.quasiSeparated_isStableUnderComposition :
+    ∀ {S : Scheme.{u}},
     MorphismProperty.IsStableUnderComposition
-      (@QuasiSeparated S : MorphismProperty ((Over S)ᵒᵖ ⥤ Type u)) := sorry
+      (@QuasiSeparated S : MorphismProperty ((Over S)ᵒᵖ ⥤ Type u)))
 
-/-- The composition of quasi-separated morphisms of formal algebraic spaces is
-quasi-separated. -/
-instance quasiSeparated_comp {S : Scheme.{u}} {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [QuasiSeparated f] [QuasiSeparated g] :
-    QuasiSeparated (f ≫ g) := sorry
+#check (AlgebraicGeometry.FormalAlgebraicSpace.quasiSeparated_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
+    (f : X ⟶ Y) (g : Y ⟶ Z) [QuasiSeparated f] [QuasiSeparated g],
+    QuasiSeparated (f ≫ g))
 
 end AlgebraicGeometry.FormalAlgebraicSpace

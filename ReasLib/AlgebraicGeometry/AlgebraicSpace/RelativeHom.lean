@@ -1,21 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Constructions.Over.Basic
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RelativeHom.Basic
 
 /-!
-# Relative morphisms of algebraic spaces
+# Postcomposition and identity sections of relative morphisms
 
-A test morphism `a : ofOver T ⟶ B` determines fibre products `pullback a z` and
-`pullback a x`. A relative morphism over `ofOver T` is an arrow between those
-objects in `Over (ofOver T)`. Pairs `(a, b)` package the test morphism with that
-arrow.
+Relative-morphism sheaves admit postcomposition and identity sections.
 -/
 
 @[expose] public section
@@ -28,91 +18,60 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.RelativeHom
 
-/-- Morphisms over `ofOver T` between the fibre products `pullback a z` and
-`pullback a x`. -/
-abbrev BaseChangeMorphism {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
-    {B Z X : AlgebraicSpace S}
-    (z : Z ⟶ B) (x : X ⟶ B) {T : Over S} (a : ofOver T ⟶ B) : Type (u + 1) :=
-  Over.mk (pullback.fst a z) ⟶ Over.mk (pullback.fst a x)
+variable {S : Scheme.{u}} {Z X B : AlgebraicSpace S}
 
-/-- A pair `(a, b)` consisting of a test morphism `a : ofOver T ⟶ B` and a
-morphism `b` over `ofOver T` from `pullback a z` to `pullback a x`. -/
-structure Pair {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)] {B Z X : AlgebraicSpace S}
-    (z : Z ⟶ B) (x : X ⟶ B) (T : Over S) : Type (u + 1) where
-  /-- The test morphism `a : ofOver T ⟶ B`. -/
-  a : ofOver T ⟶ B
-  /-- The morphism over `ofOver T` between the fibre products with `Z` and `X`. -/
-  b : BaseChangeMorphism z x a
+/-- Postcomposition preserves the triangle over the base. -/
+theorem postcomp_w (f : X ⟶ Z) (g : Z ⟶ B) {T : Over S}
+    (p : Pair g (f ≫ g) T) :
+    (BaseChangeMorphism.toMap p.b ≫ f) ≫ g = pullback.fst p.a g ≫ p.a :=
+  (Category.assoc (BaseChangeMorphism.toMap p.b) f g).trans
+    (BaseChangeMorphism.toMap_comm p.b)
 
-/-- Construct a pair from a test morphism `a` and a morphism `b` over `ofOver T`. -/
-def mk {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)] {B Z X : AlgebraicSpace S}
-    {z : Z ⟶ B} {x : X ⟶ B}
-    {T : Over S} (a : ofOver T ⟶ B) (b : BaseChangeMorphism z x a) : Pair z x T where
-  a := a
-  b := b
+/-- Postcompose a relative morphism with a morphism to `Z`. -/
+def postcompPoint (f : X ⟶ Z) (g : Z ⟶ B) {T : Over S}
+    (p : Pair g (f ≫ g) T) : Pair g g T :=
+  mk p.a (BaseChangeMorphism.ofMap
+    (BaseChangeMorphism.toMap p.b ≫ f) (postcomp_w f g p))
 
-namespace BaseChangeMorphism
+/-- Postcomposition commutes with restriction to test schemes. -/
+theorem postcomp_naturality (f : X ⟶ Z) (g : Z ⟶ B)
+    {T T' : (Over S)ᵒᵖ} (φ : T ⟶ T') :
+    (presheaf g (f ≫ g)).map φ ≫ TypeCat.ofHom (postcompPoint f g) =
+      TypeCat.ofHom (postcompPoint f g) ≫ (presheaf g g).map φ := sorry
 
-/-- The underlying arrow of `b` commutes with the projections to `ofOver T`. -/
-theorem over_fst {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
-    {B Z X : AlgebraicSpace S} {z : Z ⟶ B} {x : X ⟶ B}
-    {T : Over S} {a : ofOver T ⟶ B} (b : BaseChangeMorphism z x a) :
-    b.left ≫ pullback.fst a x = pullback.fst a z := sorry
+/-- The sheaf morphism induced by postcomposition with `f`. -/
+def postcomp (f : X ⟶ Z) (g : Z ⟶ B) : sheaf g (f ≫ g) ⟶ sheaf g g :=
+  ObjectProperty.homMk
+    { app T := TypeCat.ofHom (postcompPoint f g)
+      naturality := fun _ _ φ ↦ postcomp_naturality f g φ }
 
-/-- View `b` as a morphism `pullback a z ⟶ X`. -/
-def toMap {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
-    {B Z X : AlgebraicSpace S} {z : Z ⟶ B} {x : X ⟶ B}
-    {T : Over S} {a : ofOver T ⟶ B} (b : BaseChangeMorphism z x a) :
-    pullback a z ⟶ X :=
-  b.left ≫ pullback.snd a x
+/-- The components of postcomposition are given by postcomposition of pairs. -/
+theorem postcomp_app (f : X ⟶ Z) (g : Z ⟶ B) (T : (Over S)ᵒᵖ) :
+    (postcomp f g).hom.app T =
+      TypeCat.ofHom fun (p : Pair g (f ≫ g) T.unop) ↦ postcompPoint f g p := rfl
 
-/-- The morphism `toMap b` makes the triangle over `B` commute. -/
-theorem toMap_comm {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
-    {B Z X : AlgebraicSpace S} {z : Z ⟶ B} {x : X ⟶ B}
-    {T : Over S} {a : ofOver T ⟶ B} (b : BaseChangeMorphism z x a) :
-    toMap b ≫ x = pullback.fst a z ≫ a := sorry
+/-- The identity of the base change of `Z` defines a relative endomorphism. -/
+def idSectionPoint (g : Z ⟶ B) {T : Over S} (a : ofOver T ⟶ B) : Pair g g T :=
+  mk a (𝟙 (Over.mk (pullback.fst a g)))
 
-/-- The morphism `pullback a z ⟶ pullback a x` induced by a map to `X` making the
-triangle over `B` commute. -/
-def ofMap_left {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
-    {B Z X : AlgebraicSpace S} {z : Z ⟶ B} {x : X ⟶ B}
-    {T : Over S} {a : ofOver T ⟶ B} (b' : pullback a z ⟶ X)
-    (h : b' ≫ x = pullback.fst a z ≫ a) : pullback a z ⟶ pullback a x :=
-  pullback.lift (pullback.fst a z) b' h.symm
+/-- A point of `B` determines the identity of the corresponding base change of `Z`. -/
+def idSectionApp (g : Z ⟶ B) (T : (Over S)ᵒᵖ)
+    (x : (toSheaf.obj B).obj.obj T) : Pair g g T.unop :=
+  idSectionPoint g (yonedaEquiv.symm x.down)
 
-/-- `ofMap_left b' h` projects to `ofOver T` as `pullback.fst a z`. -/
-theorem ofMap_left_fst {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
-    {B Z X : AlgebraicSpace S} {z : Z ⟶ B} {x : X ⟶ B}
-    {T : Over S} {a : ofOver T ⟶ B} (b' : pullback a z ⟶ X)
-    (h : b' ≫ x = pullback.fst a z ≫ a) :
-    ofMap_left b' h ≫ pullback.fst a x = pullback.fst a z := sorry
+/-- The identity section commutes with restriction to test schemes. -/
+theorem idSection_naturality (g : Z ⟶ B) {T T' : (Over S)ᵒᵖ} (φ : T ⟶ T') :
+    (toSheaf.obj B).obj.map φ ≫ TypeCat.ofHom (idSectionApp g T') =
+      TypeCat.ofHom (idSectionApp g T) ≫ (presheaf g g).map φ := sorry
 
-/-- Reconstruct a morphism over `ofOver T` from a map `pullback a z ⟶ X` making
-the triangle over `B` commute. -/
-def ofMap {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
-    {B Z X : AlgebraicSpace S} {z : Z ⟶ B} {x : X ⟶ B}
-    {T : Over S} {a : ofOver T ⟶ B} (b' : pullback a z ⟶ X)
-    (h : b' ≫ x = pullback.fst a z ≫ a) : BaseChangeMorphism z x a :=
-  Over.homMk (ofMap_left b' h) (ofMap_left_fst b' h)
+/-- The identity section from `B` to its relative-endomorphism sheaf of `Z`. -/
+def idSection (g : Z ⟶ B) : toSheaf.obj B ⟶ sheaf g g :=
+  ObjectProperty.homMk
+    { app T := TypeCat.ofHom (idSectionApp g T)
+      naturality := fun _ _ φ ↦ idSection_naturality g φ }
 
-/-- `ofMap` recovers `b` from `toMap b`. -/
-theorem ofMap_toMap {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
-    {B Z X : AlgebraicSpace S} {z : Z ⟶ B} {x : X ⟶ B}
-    {T : Over S} {a : ofOver T ⟶ B} (b : BaseChangeMorphism z x a) :
-    ofMap (toMap b) (toMap_comm b) = b := sorry
-
-/-- `toMap` recovers the original map into `X` from `ofMap`. -/
-theorem toMap_ofMap {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
-    {B Z X : AlgebraicSpace S} {z : Z ⟶ B} {x : X ⟶ B}
-    {T : Over S} {a : ofOver T ⟶ B} (b' : pullback a z ⟶ X)
-    (h : b' ≫ x = pullback.fst a z ≫ a) : toMap (ofMap b' h) = b' := sorry
-
-end BaseChangeMorphism
-
-/-- The components of a pair are a test morphism and a morphism over `ofOver T`. -/
-theorem Pair.spec {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
-    {B Z X : AlgebraicSpace S} {z : Z ⟶ B} {x : X ⟶ B}
-    {T : Over S} (p : Pair z x T) :
-    p.b.left ≫ pullback.fst p.a x = pullback.fst p.a z := sorry
+/-- The components of the identity section are the identity pairs. -/
+theorem idSection_app (g : Z ⟶ B) (T : (Over S)ᵒᵖ) :
+    (idSection g).hom.app T = TypeCat.ofHom (idSectionApp g T) := rfl
 
 end AlgebraicGeometry.AlgebraicSpace.RelativeHom

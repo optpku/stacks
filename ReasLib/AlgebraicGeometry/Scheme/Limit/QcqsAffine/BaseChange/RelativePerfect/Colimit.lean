@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Limit.QcqsAffine.BaseChange.DerivedHom.Colimit
@@ -26,6 +20,8 @@ open AlgebraicGeometry
 noncomputable section
 
 universe u
+
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
 
 namespace AlgebraicGeometry.Scheme.Limit.QcqsAffineLimit
 
@@ -94,7 +90,20 @@ relative-perfect object at a stage, and at every stage the canonical diagram of 
 types between arbitrary relative-perfect objects is a filtered colimit. -/
 def IsPerfectOverCategoryColimit
     (s : QcqsAffineLimit D) {X₀ : Scheme.{u}}
-    (x₀ : X₀ ⟶ D.obj (OrderDual.toDual s.base)) : Prop :=
+    (x₀ : X₀ ⟶ D.obj (OrderDual.toDual s.base))
+    [∀ U : TopologicalSpace.Opens
+      (RingedSpace.Hom.inverseImageBase (s.limitRelative x₀).toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase (s.limitRelative x₀).toShHom).restrict
+            U.isOpenEmbedding))]
+    [∀ j : (Over (OrderDual.toDual s.base))ᵒᵖ,
+      ∀ U : TopologicalSpace.Opens
+        (RingedSpace.Hom.inverseImageBase (s.stageRelative x₀ j).toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase (s.stageRelative x₀ j).toShHom).restrict
+            U.isOpenEmbedding))] : Prop :=
   (∀ (K : (RingedSpace.ModuleDerived.perfectOver
       (s.limitRelative x₀).toLRSHom.toShHom).FullSubcategory),
       ∃ (j : (Over (OrderDual.toDual s.base))ᵒᵖ)
@@ -116,7 +125,20 @@ namespace IsPerfectOverCategoryColimit
 operational relative-perfect category colimit. -/
 theorem spec
     (s : QcqsAffineLimit D) {X₀ : Scheme.{u}}
-    (x₀ : X₀ ⟶ D.obj (OrderDual.toDual s.base)) :
+    (x₀ : X₀ ⟶ D.obj (OrderDual.toDual s.base))
+    [∀ U : TopologicalSpace.Opens
+      (RingedSpace.Hom.inverseImageBase (s.limitRelative x₀).toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase (s.limitRelative x₀).toShHom).restrict
+            U.isOpenEmbedding))]
+    [∀ j : (Over (OrderDual.toDual s.base))ᵒᵖ,
+      ∀ U : TopologicalSpace.Opens
+        (RingedSpace.Hom.inverseImageBase (s.stageRelative x₀ j).toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase (s.stageRelative x₀ j).toShHom).restrict
+            U.isOpenEmbedding))] :
     s.IsPerfectOverCategoryColimit x₀ ↔
       ((∀ (K : (RingedSpace.ModuleDerived.perfectOver
           (s.limitRelative x₀).toLRSHom.toShHom).FullSubcategory),
@@ -138,6 +160,19 @@ stage, up to isomorphism after derived pullback. -/
 theorem exists_stage
     {s : QcqsAffineLimit D} {X₀ : Scheme.{u}}
     {x₀ : X₀ ⟶ D.obj (OrderDual.toDual s.base)}
+    [∀ U : TopologicalSpace.Opens
+      (RingedSpace.Hom.inverseImageBase (s.limitRelative x₀).toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase (s.limitRelative x₀).toShHom).restrict
+            U.isOpenEmbedding))]
+    [∀ j : (Over (OrderDual.toDual s.base))ᵒᵖ,
+      ∀ U : TopologicalSpace.Opens
+        (RingedSpace.Hom.inverseImageBase (s.stageRelative x₀ j).toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase (s.stageRelative x₀ j).toShHom).restrict
+            U.isOpenEmbedding))]
     (h : s.IsPerfectOverCategoryColimit x₀)
     (K : (RingedSpace.ModuleDerived.perfectOver
       (s.limitRelative x₀).toLRSHom.toShHom).FullSubcategory) :
@@ -153,6 +188,19 @@ a filtered colimit after rebasing the specified limiting cone at that stage. -/
 theorem hom_isColimit
     {s : QcqsAffineLimit D} {X₀ : Scheme.{u}}
     {x₀ : X₀ ⟶ D.obj (OrderDual.toDual s.base)}
+    [∀ U : TopologicalSpace.Opens
+      (RingedSpace.Hom.inverseImageBase (s.limitRelative x₀).toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase (s.limitRelative x₀).toShHom).restrict
+            U.isOpenEmbedding))]
+    [∀ j : (Over (OrderDual.toDual s.base))ᵒᵖ,
+      ∀ U : TopologicalSpace.Opens
+        (RingedSpace.Hom.inverseImageBase (s.stageRelative x₀ j).toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase (s.stageRelative x₀ j).toShHom).restrict
+            U.isOpenEmbedding))]
     (h : s.IsPerfectOverCategoryColimit x₀)
     (j : (Over (OrderDual.toDual s.base))ᵒᵖ)
     (Kⱼ Lⱼ : (RingedSpace.ModuleDerived.perfectOver
@@ -168,6 +216,19 @@ objects and their morphisms satisfy the operational filtered-category-colimit pr
 theorem isPerfectOverCategoryColimit
     (s : QcqsAffineLimit D) (X₀ : Scheme.{u})
     (x₀ : X₀ ⟶ D.obj (OrderDual.toDual s.base))
+    [∀ U : TopologicalSpace.Opens
+      (RingedSpace.Hom.inverseImageBase (s.limitRelative x₀).toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase (s.limitRelative x₀).toShHom).restrict
+            U.isOpenEmbedding))]
+    [∀ j : (Over (OrderDual.toDual s.base))ᵒᵖ,
+      ∀ U : TopologicalSpace.Opens
+        (RingedSpace.Hom.inverseImageBase (s.stageRelative x₀ j).toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase (s.stageRelative x₀ j).toShHom).restrict
+            U.isOpenEmbedding))]
     [Flat x₀] [Scheme.Hom.FinitePresentation x₀] :
     s.IsPerfectOverCategoryColimit x₀ := sorry
 

@@ -1,15 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.CategoryTheory.Filtration.Complex.Realization.Abutment
-public import stacks_project.Chap85.Lemma_85_8_3_Bicomplex
-public import stacks_project.Chap85.Lemma_85_8_3_Fiberwise
+import StacksCheckRecall
+public import ReasLib.CategoryTheory.Sites.Simplicial.SpectralSequence
+public import ReasLib.CategoryTheory.Sites.Grothendieck.SpectralSequence
 
 /-!
 # Lemma 85.8.3
@@ -54,46 +47,38 @@ variable [(globalSectionsTotalFunctor C J).Additive]
 variable [(globalSectionsTotalFunctor C J).toBoundedBelowDerived.HasRightDerivedFunctor
     (HomotopyCategory.Plus.quasiIso (Sheaf (topology C J) AddCommGrpCat.{w}))]
 
-/-- Lemma 85.8.3 (1): in Situation 85.3.3 case A, for `K` in `D⁺(C_total)` there is a
-cohomological spectral sequence `(E_r)_{r ≥ 0}` with `E₁^{p,q} = H^q(C_p, K_p)` and
-`d₁^{p,q} : E₁^{p,q} ⟶ E₁^{p+1,q}`, converging to `H^{p+q}(C_total, K)`. -/
-@[stacks 09WJ]
-theorem exists_spectralSequence
-    (K : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w})) :
+variable [EnoughInjectives (Sheaf (topology C J) AddCommGrpCat.{w})]
+
+/- Lemma 85.8.3: existence and first-page differential on a morphism diagram of sites. -/
+@[stacks 09WJ] #check (CategoryTheory.SimplicialSites.exists_spectralSequence C J :
+  ∀ (K : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w})),
     ∃ (S : WithAbutment (fun n ↦ abutmentFunctor C J n) K)
       (pageOneIso : ∀ p q : ℤ,
         (S.sequence.page 1).X (p, q) ≅ (pageOneFunctor C J p q).obj K),
       ∀ p q : ℤ,
         (pageOneIso p q).hom ≫ (pageOneDifferential C J p q).app K =
           (S.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIso (p + 1) q).hom :=
-  sorry
+            (pageOneIso (p + 1) q).hom)
 
-/-- Lemma 85.8.3 (2): in Situation 85.3.3 case A, the spectral sequence of
-`exists_spectralSequence` is functorial in `K`. -/
-@[stacks 09WJ]
-theorem spectralSequence_functorial
-    {K L : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w})}
-    (f : K ⟶ L) :
-    ∃ (SK : WithAbutment (fun n ↦ abutmentFunctor C J n) K)
-      (SL : WithAbutment (fun n ↦ abutmentFunctor C J n) L)
-      (pageOneIsoK : ∀ p q : ℤ,
-        (SK.sequence.page 1).X (p, q) ≅ (pageOneFunctor C J p q).obj K)
-      (pageOneIsoL : ∀ p q : ℤ,
-        (SL.sequence.page 1).X (p, q) ≅ (pageOneFunctor C J p q).obj L)
-      (φ : WithAbutment.Map (fun n ↦ abutmentFunctor C J n) f SK SL),
-      (∀ p q : ℤ,
-        (pageOneIsoK p q).hom ≫ (pageOneDifferential C J p q).app K =
-          (SK.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIsoK (p + 1) q).hom) ∧
-      (∀ p q : ℤ,
-        (pageOneIsoL p q).hom ≫ (pageOneDifferential C J p q).app L =
-          (SL.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIsoL (p + 1) q).hom) ∧
-      ∀ p q : ℤ,
-        ((φ.sequenceMap.hom 1).f (p, q)) ≫ (pageOneIsoL p q).hom =
-          (pageOneIsoK p q).hom ≫ (pageOneFunctor C J p q).map f :=
-  sorry
+/- Lemma 85.8.3: coherent functoriality on a morphism diagram of sites. -/
+@[stacks 09WJ] #check (CategoryTheory.SimplicialSites.spectralSequence_functorial C J :
+  ∃ (S : ∀ K : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w}),
+        WithAbutment (fun n ↦ abutmentFunctor C J n) K)
+      (pageOneIso : ∀ (K : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w})) (p q : ℤ),
+        ((S K).sequence.page 1).X (p, q) ≅ (pageOneFunctor C J p q).obj K)
+      (m : ∀ {K L : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w})} (f : K ⟶ L),
+        WithAbutment.Map (fun n ↦ abutmentFunctor C J n) f (S K) (S L)),
+      (∀ (K : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w})) (p q : ℤ),
+        (pageOneIso K p q).hom ≫ (pageOneDifferential C J p q).app K =
+          ((S K).sequence.page 1).d (p, q) (p + 1, q) ≫
+            (pageOneIso K (p + 1) q).hom) ∧
+      (∀ {K L : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w})} (f : K ⟶ L) (p q : ℤ),
+        ((m f).sequenceMap.hom 1).f (p, q) ≫ (pageOneIso L p q).hom =
+          (pageOneIso K p q).hom ≫ (pageOneFunctor C J p q).map f) ∧
+      (∀ K : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w}),
+        (m (𝟙 K)).sequenceMap = 𝟙 (S K).sequence) ∧
+      (∀ {K L M : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w})} (f : K ⟶ L) (g : L ⟶ M),
+        (m (f ≫ g)).sequenceMap = (m f).sequenceMap ≫ (m g).sequenceMap))
 
 end CategoryTheory.SimplicialSites
 
@@ -124,12 +109,11 @@ variable [(fiberSectionsTotalFunctor F J).Additive]
 variable [(fiberSectionsTotalFunctor F J).toBoundedBelowDerived.HasRightDerivedFunctor
     (HomotopyCategory.Plus.quasiIso (Sheaf (topology F J) AddCommGrpCat.{w}))]
 
-/-- Lemma 85.8.3 (3): in Situation 85.3.3 case B, for `K` in `D⁺(C_total)` there is a
-cohomological spectral sequence `(E_r)_{r ≥ 0}` with `E₁^{p,q} = H^q(C_p, K_p)` and
-`d₁^{p,q} : E₁^{p,q} ⟶ E₁^{p+1,q}`, converging to `H^{p+q}(C_total, K)`. -/
-@[stacks 09WJ]
-theorem exists_spectralSequence
-    (K : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w})) :
+variable [EnoughInjectives (Sheaf (topology F J) AddCommGrpCat.{w})]
+
+/- Lemma 85.8.3: existence and first-page differential on a fiberwise simplicial site. -/
+@[stacks 09WJ] #check (CategoryTheory.Grothendieck.exists_spectralSequence F J :
+  ∀ (K : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w})),
     ∃ (S : WithAbutment (fun n ↦ fiberAbutmentFunctor F J n) K)
       (pageOneIso : ∀ p q : ℤ,
         (S.sequence.page 1).X (p, q) ≅
@@ -137,35 +121,26 @@ theorem exists_spectralSequence
       ∀ p q : ℤ,
         (pageOneIso p q).hom ≫ (fiberPageOneDifferential F J p q).app K =
           (S.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIso (p + 1) q).hom :=
-  sorry
+            (pageOneIso (p + 1) q).hom)
 
-/-- Lemma 85.8.3 (4): in Situation 85.3.3 case B, the spectral sequence of
-`exists_spectralSequence` is functorial in `K`. -/
-@[stacks 09WJ]
-theorem spectralSequence_functorial
-    {K L : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w})}
-    (f : K ⟶ L) :
-    ∃ (SK : WithAbutment (fun n ↦ fiberAbutmentFunctor F J n) K)
-      (SL : WithAbutment (fun n ↦ fiberAbutmentFunctor F J n) L)
-      (pageOneIsoK : ∀ p q : ℤ,
-        (SK.sequence.page 1).X (p, q) ≅
-          (fiberPageOneFunctor F J p q).obj K)
-      (pageOneIsoL : ∀ p q : ℤ,
-        (SL.sequence.page 1).X (p, q) ≅
-          (fiberPageOneFunctor F J p q).obj L)
-      (φ : WithAbutment.Map (fun n ↦ fiberAbutmentFunctor F J n) f SK SL),
-      (∀ p q : ℤ,
-        (pageOneIsoK p q).hom ≫ (fiberPageOneDifferential F J p q).app K =
-          (SK.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIsoK (p + 1) q).hom) ∧
-      (∀ p q : ℤ,
-        (pageOneIsoL p q).hom ≫ (fiberPageOneDifferential F J p q).app L =
-          (SL.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIsoL (p + 1) q).hom) ∧
-      ∀ p q : ℤ,
-        ((φ.sequenceMap.hom 1).f (p, q)) ≫ (pageOneIsoL p q).hom =
-          (pageOneIsoK p q).hom ≫ (fiberPageOneFunctor F J p q).map f :=
-  sorry
+/- Lemma 85.8.3: coherent functoriality on a fiberwise simplicial site. -/
+@[stacks 09WJ] #check (CategoryTheory.Grothendieck.spectralSequence_functorial F J :
+  ∃ (S : ∀ K : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w}),
+        WithAbutment (fun n ↦ fiberAbutmentFunctor F J n) K)
+      (pageOneIso : ∀ (K : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w})) (p q : ℤ),
+        ((S K).sequence.page 1).X (p, q) ≅ (fiberPageOneFunctor F J p q).obj K)
+      (m : ∀ {K L : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w})} (f : K ⟶ L),
+        WithAbutment.Map (fun n ↦ fiberAbutmentFunctor F J n) f (S K) (S L)),
+      (∀ (K : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w})) (p q : ℤ),
+        (pageOneIso K p q).hom ≫ (fiberPageOneDifferential F J p q).app K =
+          ((S K).sequence.page 1).d (p, q) (p + 1, q) ≫
+            (pageOneIso K (p + 1) q).hom) ∧
+      (∀ {K L : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w})} (f : K ⟶ L) (p q : ℤ),
+        ((m f).sequenceMap.hom 1).f (p, q) ≫ (pageOneIso L p q).hom =
+          (pageOneIso K p q).hom ≫ (fiberPageOneFunctor F J p q).map f) ∧
+      (∀ K : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w}),
+        (m (𝟙 K)).sequenceMap = 𝟙 (S K).sequence) ∧
+      (∀ {K L M : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w})} (f : K ⟶ L) (g : L ⟶ M),
+        (m (f ≫ g)).sequenceMap = (m f).sequenceMap ≫ (m g).sequenceMap))
 
 end CategoryTheory.Grothendieck

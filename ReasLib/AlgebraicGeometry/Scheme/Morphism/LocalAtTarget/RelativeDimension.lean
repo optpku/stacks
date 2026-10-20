@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.RelativeDimension.Operations
@@ -27,7 +21,7 @@ namespace AlgebraicGeometry.Scheme.Hom.RelativeDimension
 
 /-- Having a fixed relative dimension is local on the target for the fpqc
 precoverage. -/
-theorem isLocalAtTargetFpqc (d : ℕ) :
+instance isLocalAtTargetFpqc (d : ℕ) :
     MorphismProperty.IsLocalAtTarget
       ((fun _ _ f ↦ AlgebraicGeometry.Scheme.Hom.RelativeDimension f d) :
         MorphismProperty AlgebraicGeometry.Scheme.{u})

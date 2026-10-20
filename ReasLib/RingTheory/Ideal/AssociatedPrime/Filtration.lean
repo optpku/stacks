@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Module.LocalizedModule.AtPrime
@@ -79,22 +73,66 @@ theorem quotientPrime_unique {Q : Type w} [AddCommGroup Q] [Module R Q]
     (hq : Nonempty (Q ≃ₗ[R] R ⧸ q.asIdeal)) :
     p = q := sorry
 
-/-- Earlier successive quotients are unchanged when a final prime-quotient step is adjoined. -/
-theorem successiveQuotient_snoc_castSucc_equiv
+/-- The stage after an old index of `s.snoc N` is the corresponding stage of `s`. -/
+@[simp]
+theorem snoc_castSucc_succ
     (s : PrimeFiltration R M) {N : Submodule R M}
     (hrel : s.last.IsQuotientEquivQuotientPrime N) (i : Fin s.length) :
-    Nonempty
-      (successiveQuotient (s.snoc N hrel) i.castSucc ≃ₗ[R]
-        s.successiveQuotient i) := sorry
+    s.snoc N hrel i.castSucc.succ = s i.succ :=
+  (congrArg (s.snoc N hrel) (Fin.succ_castSucc i)).trans (RelSeries.snoc_castSucc _ _ _ _)
 
-/-- The last successive quotient of `s.snoc N` is the newly adjoined quotient. -/
-theorem successiveQuotient_snoc_last_equiv
-    (s : PrimeFiltration R M) {N : Submodule R M} {p : PrimeSpectrum R}
-    (hle : s.last ≤ N)
-    (hp : Nonempty ((N ⧸ s.last.submoduleOf N) ≃ₗ[R] R ⧸ p.asIdeal)) :
-    Nonempty
-      (successiveQuotient (s.snoc N ⟨hle, p, hp⟩) (Fin.last s.length) ≃ₗ[R]
-        (N ⧸ s.last.submoduleOf N)) := sorry
+/-- The transport of a quotient `B ⧸ A` of submodules of `M` along equalities `A = A'` and
+`B = B'`. -/
+def _root_.Submodule.submoduleOfQuotEquivOfEq {A A' B B' : Submodule R M}
+    (hA : A = A') (hB : B = B') :
+    (B ⧸ A.submoduleOf B) ≃ₗ[R] (B' ⧸ A'.submoduleOf B') :=
+  Submodule.Quotient.equiv _ _ (LinearEquiv.ofEq B B' hB) (by subst hA hB; ext; simp)
+
+/-- The transport `Submodule.submoduleOfQuotEquivOfEq` sends the class of `x` to the class of
+`x`. -/
+@[simp]
+theorem _root_.Submodule.submoduleOfQuotEquivOfEq_mk {A A' B B' : Submodule R M}
+    (hA : A = A') (hB : B = B') (x : B) :
+    Submodule.submoduleOfQuotEquivOfEq hA hB (Submodule.Quotient.mk x) =
+      Submodule.Quotient.mk (LinearEquiv.ofEq B B' hB x) := rfl
+
+/-- Lemma 10.62.1 (Tag 00L0), filtration extension: earlier successive quotients are unchanged
+when a final prime-quotient step is adjoined.  The equivalence is the identity transport along
+the stage equalities of `RelSeries.snoc`. -/
+def successiveQuotientSnocCastSuccEquiv
+    (s : PrimeFiltration R M) {N : Submodule R M}
+    (hrel : s.last.IsQuotientEquivQuotientPrime N) (i : Fin s.length) :
+    successiveQuotient (s.snoc N hrel) i.castSucc ≃ₗ[R] s.successiveQuotient i :=
+  Submodule.submoduleOfQuotEquivOfEq (RelSeries.snoc_castSucc s N hrel i.castSucc)
+    (snoc_castSucc_succ s hrel i)
+
+/-- The earlier-stage transport of `s.snoc N` sends the class of `x` to the class of `x`. -/
+@[simp]
+theorem successiveQuotientSnocCastSuccEquiv_mk
+    (s : PrimeFiltration R M) {N : Submodule R M}
+    (hrel : s.last.IsQuotientEquivQuotientPrime N) (i : Fin s.length)
+    (x : s.snoc N hrel i.castSucc.succ) :
+    successiveQuotientSnocCastSuccEquiv s hrel i (Submodule.Quotient.mk x) =
+      Submodule.Quotient.mk (LinearEquiv.ofEq _ _ (snoc_castSucc_succ s hrel i) x) := rfl
+
+/-- The last successive quotient of `s.snoc N` is the newly adjoined quotient `N / s.last`,
+via the identity transport along the stage equalities of `RelSeries.snoc`. -/
+def successiveQuotientSnocLastEquiv
+    (s : PrimeFiltration R M) {N : Submodule R M}
+    (hrel : s.last.IsQuotientEquivQuotientPrime N) :
+    successiveQuotient (s.snoc N hrel) (Fin.last s.length) ≃ₗ[R]
+      (N ⧸ s.last.submoduleOf N) :=
+  Submodule.submoduleOfQuotEquivOfEq (RelSeries.snoc_castSucc s N hrel (Fin.last _))
+    (RelSeries.last_snoc' s N hrel)
+
+/-- The last-stage transport of `s.snoc N` sends the class of `x` to the class of `x`. -/
+@[simp]
+theorem successiveQuotientSnocLastEquiv_mk
+    (s : PrimeFiltration R M) {N : Submodule R M}
+    (hrel : s.last.IsQuotientEquivQuotientPrime N)
+    (x : s.snoc N hrel (Fin.last s.length).succ) :
+    successiveQuotientSnocLastEquiv s hrel (Submodule.Quotient.mk x) =
+      Submodule.Quotient.mk (LinearEquiv.ofEq _ _ (RelSeries.last_snoc' s N hrel) x) := rfl
 
 /-- Prime factors already present in a filtration remain after adjoining one final step. -/
 theorem primeFactors_subset_snoc

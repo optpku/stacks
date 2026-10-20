@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap81.Lemma_81_11_3_FullyFaithful
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FormalGlueing.FullyFaithful
 import StacksCheckRecall
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
@@ -20,10 +14,10 @@ faithful on algebraic spaces separated over `X`. More precisely, it induces a
 bijection `Mor_X(X'_1, X'_2) ⟶ Mor_{category f i}(F(X'_1), F(X'_2))` whenever
 `X'_2 → X` is separated. -/
 @[stacks 0AF6] #check
-  (functor_map_bijective :
+  (AlgebraicGeometry.AlgebraicSpace.FormalGlueing.functor_map_bijective :
     ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : Y ⟶ X) (i : Z ⟶ X)
       [QuasiCompact f] [QuasiSeparated f] [IsClosedImmersion i] [FinitePresentation i]
       [IsFormalGlueing f i] {X₁ X₂ : Over X} [Separated X₂.hom],
       Function.Bijective
-        ((functor f i).map :
-          (X₁ ⟶ X₂) → ((functor f i).obj X₁ ⟶ (functor f i).obj X₂)))
+        ((AlgebraicGeometry.AlgebraicSpace.FormalGlueing.functor f i).map :
+          (X₁ ⟶ X₂) → ((AlgebraicGeometry.AlgebraicSpace.FormalGlueing.functor f i).obj X₁ ⟶ (AlgebraicGeometry.AlgebraicSpace.FormalGlueing.functor f i).obj X₂)))

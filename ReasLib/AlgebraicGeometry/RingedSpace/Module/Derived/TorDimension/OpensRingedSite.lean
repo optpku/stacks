@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.TorDimension
@@ -17,7 +11,6 @@ import Mathlib.Tactic.CrossRefAttribute
 -- Local instance justification (defeq pin): the imported ModuleDerived and localized ModuleCat aliases use the standard homotopy localization; this fallback is definitionally the same quotient as the named moduleCat_hasDerivedCategory and does not choose another derived model.
 attribute [local instance] HasDerivedCategory.standard
   SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
-  SheafOfModules.RingedSite.moduleCategoryHasDerivedTensor
 
 /-!
 # Tor-amplitude and the opens ringed site
@@ -36,6 +29,7 @@ universe u
 namespace AlgebraicGeometry.RingedSpace
 
 variable {X : RingedSpace.{u}}
+variable [CategoryTheory.DerivedCategory.DerivedTensor.Right.Has (C := Modules X)]
 
 /-- Tor-amplitude on a ringed space agrees with the shared ringed-site predicate on its
 canonical opens ringed site. -/
@@ -44,6 +38,6 @@ theorem hasTorAmplitudeIn_iff_opensRingedSiteHasTorAmplitudeIn
     (E : ModuleDerived X) (a b : ℤ) :
     HasTorAmplitudeIn E a b ↔
       RingedSite.Hom.ModuleDerived.HasTorAmplitudeIn
-        (X := opensRingedSite X) E a b := sorry
+        (O := X.sheaf) E a b := sorry
 
 end AlgebraicGeometry.RingedSpace

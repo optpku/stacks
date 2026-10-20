@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.SheafCohomology.Basic
@@ -29,9 +23,11 @@ variable {C : Type u} [CommRing C] [Algebra A C]
 variable (hIC : Ideal.map (algebraMap A C) IA = (⊥ : Ideal C))
 variable (hpnil : IsNilpotent (p : C))
 
+include hIC hpnil in
 /-- Lemma 60.21.2: under the affine Situation of Proposition 60.21.1, crystalline
 cohomology `H^j(Cris(X/S), F ⊗_{𝒪_{X/S}} Ω^i_{X/S})` vanishes for every `i > 0`
-and every `j : ℕ`. -/
+and every `j : ℕ`. The hypotheses `hF` and `hΩ` supply the intrinsic sheaf
+laws absent from the underlying module-assignment types. -/
 @[stacks 07LF]
 theorem affineCris_tensorOmegaPower_cohomology_isZero
     (I : (Spec.{u} (.of A)).IdealSheafData)
@@ -53,34 +49,21 @@ theorem affineCris_tensorOmegaPower_cohomology_isZero
       (smallCrystallineTopology p (Spec (.of A)) I γS h_compatible s
         (Spec (.of C)) x₀ h_p)
       AddCommGrpCat.{u}]
-    [HasSheafify (chaoticTopology (Spec (.of A)) I γS h_compatible (Spec (.of C)) x₀)
-      AddCommGrpCat.{u}]
-    [HasTerminal (smallCrystallineSite (Spec (.of A)) I γS h_compatible
-      (Spec (.of C)) x₀)]
-    [HasTerminal (chaoticSite (Spec (.of A)) I γS h_compatible (Spec (.of C)) x₀)]
-    [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-      (Sheaf (smallCrystallineTopology p (Spec (.of A)) I γS h_compatible s
-        (Spec (.of C)) x₀ h_p) AddCommGrpCat.{u})]
-    [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-      (Sheaf (chaoticTopology (Spec (.of A)) I γS h_compatible (Spec (.of C)) x₀)
-        AddCommGrpCat.{u})]
-    [HasSheafify (⊥ : GrothendieckTopology
-      (crisOppSite γA (algebraMap A C) hIC hpnil)) AddCommGrpCat.{u}]
     [HasExt (Sheaf (smallCrystallineTopology p (Spec (.of A)) I γS h_compatible s
       (Spec (.of C)) x₀ h_p) AddCommGrpCat.{u})]
     (F : CrisModuleSheaf (Spec (.of A)) I γS h_compatible (Spec (.of C)) x₀)
+    (hF : IsCrisSheaf p s h_p F)
     [ModuleSheaf.IsLocallyQuasiCoherent F]
     (h_epi : comparison_epi_of_closedImmersion (Spec (.of A)) I γS h_compatible
       (Spec (.of C)) x₀ F)
     (Ω : CrystallineDifferentials p (Spec (.of A)) I γS h_compatible
       h_I_quasiCoherent s (Spec (.of C)) x₀ h_p)
+    (hΩ : IsCrisSheaf p s h_p (restrictCrystallineModule Ω.module))
     (i j : ℕ) (hi : 0 < i) :
     IsZero
       ((Sheaf.functorH
           (smallCrystallineTopology p (Spec (.of A)) I γS h_compatible s
             (Spec (.of C)) x₀ h_p) j).obj
-        (toAbelianSheaf p (Spec (.of A)) I γS h_compatible s (Spec (.of C)) x₀ h_p
-          (crystallineTensorOmegaPower F Ω i))) :=
-  sorry
+        (crystallineTensorOmegaPowerSheaf p s h_p F hF Ω hΩ i)) := sorry
 
 end

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.InternalHom
@@ -22,15 +16,15 @@ attribute [instance] SheafOfModules.RingedSite.moduleCategoryHasDerivedCategory
 
 noncomputable section
 
-universe u
+universe u v
 
 namespace RingedSite.Hom.ModuleDerived.InternalHom
 
-variable {C : Type u} [SmallCategory C] {J : GrothendieckTopology C}
-variable [J.HasSheafCompose (forget₂ CommRingCat.{u} RingCat.{u})]
-variable [HasWeakSheafify J AddCommGrpCat.{u}]
-variable [J.WEqualsLocallyBijective AddCommGrpCat.{u}]
-variable {O : Sheaf J CommRingCat.{u}}
+variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
+variable [J.HasSheafCompose (forget₂ CommRingCat.{max u v} RingCat.{max u v})]
+variable [HasWeakSheafify J AddCommGrpCat.{max u v}]
+variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
+variable {O : Sheaf J CommRingCat.{max u v}}
 
 /-- A K-injective cochain representative selected by the integral K-injective localization. -/
 def injectiveModel (K : max J O) : CochainComplex (ringedSiteModuleCategory J O) ℤ :=

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Completion.Reduction
@@ -26,8 +20,8 @@ universe u
 a closed subspace is the reduction of that subspace, compatibly with their
 embeddings into the ambient algebraic space. -/
 @[stacks 0GXW] #check (AlgebraicGeometry.AlgebraicSpace.Completion.reduction_eq :
-  ∀ {S : Scheme.{u}} {X Z : (Over S)ᵒᵖ ⥤ Type u} (inclusion : Z ⟶ X),
-    IsAlgebraicSpace X → IsAlgebraicSpace Z →
+  ∀ {S : Scheme.{u}} {X Z : (Over S)ᵒᵖ ⥤ Type u} (inclusion : Z ⟶ X)
+    [AlgebraicSpace.IsAlgebraicSpace X] [AlgebraicSpace.IsAlgebraicSpace Z],
     Scheme.representableMorphismProperty S (@IsClosedImmersion) inclusion →
     (SpacePresheaf.reduction
       (AlgebraicGeometry.AlgebraicSpace.Completion.subfunctor inclusion).toFunctor).image
@@ -38,8 +32,8 @@ embeddings into the ambient algebraic space. -/
 inclusions. -/
 #check (AlgebraicGeometry.AlgebraicSpace.Completion.fromReduction_comp_ι :
   ∀ {S : Scheme.{u}} {X Z : (Over S)ᵒᵖ ⥤ Type u} (inclusion : Z ⟶ X)
-    (hX : IsAlgebraicSpace X) (hZ : IsAlgebraicSpace Z)
+    [AlgebraicSpace.IsAlgebraicSpace X] [AlgebraicSpace.IsAlgebraicSpace Z]
     (hClosed : Scheme.representableMorphismProperty S (@IsClosedImmersion) inclusion),
-    AlgebraicGeometry.AlgebraicSpace.Completion.fromReduction inclusion hX hZ hClosed ≫
+    AlgebraicGeometry.AlgebraicSpace.Completion.fromReduction inclusion hClosed ≫
       (AlgebraicGeometry.AlgebraicSpace.Completion.subfunctor inclusion).ι =
         (SpacePresheaf.reduction Z).ι ≫ inclusion)

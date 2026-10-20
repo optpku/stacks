@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
-public import stacks_project.Chap80.Definition_80_3_1_RelativelyRepresentable
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Representable.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of morphisms representable by algebraic spaces
@@ -22,20 +16,16 @@ open CategoryTheory AlgebraicGeometry MorphismProperty
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 80.3.8: let `S` be a scheme. For maps `a : F ⟶ G` and `b : G ⟶ H` of
+/- Lemma 80.3.8: let `S` be a scheme. For maps `a : F ⟶ G` and `b : G ⟶ H` of
 presheaves on `(Sch/S)_fppf`, if `a` and `b` are representable by algebraic
 spaces then so is `a ≫ b` (Stacks `b ∘ a`). -/
-@[stacks 03Y1]
-instance representableByAlgebraicSpaces.isStableUnderComposition {S : Scheme.{u}} :
-    IsStableUnderComposition (@representableByAlgebraicSpaces S) := sorry
+@[stacks 03Y1] #check
+  (AlgebraicGeometry.AlgebraicSpace.representableByAlgebraicSpaces.isStableUnderComposition :
+    ∀ {S : Scheme.{u}}, MorphismProperty.IsStableUnderComposition
+      (@AlgebraicGeometry.AlgebraicSpace.representableByAlgebraicSpaces S))
 
-/-- If `a : F ⟶ G` and `b : G ⟶ H` are representable by algebraic spaces, then
-so is the composite `a ≫ b`. -/
-theorem representableByAlgebraicSpaces.comp {S : Scheme.{u}}
-    {F G H : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G) (b : G ⟶ H)
-    (ha : representableByAlgebraicSpaces a) (hb : representableByAlgebraicSpaces b) :
-    representableByAlgebraicSpaces (a ≫ b) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.representableByAlgebraicSpaces.comp :
+  ∀ {S : Scheme.{u}} {F G H : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G) (b : G ⟶ H)
+    (ha : AlgebraicGeometry.AlgebraicSpace.representableByAlgebraicSpaces a)
+    (hb : AlgebraicGeometry.AlgebraicSpace.representableByAlgebraicSpaces b),
+    AlgebraicGeometry.AlgebraicSpace.representableByAlgebraicSpaces (a ≫ b))

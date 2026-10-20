@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.Etale.GaloisFiber
+public import ReasLib.AlgebraicGeometry.Scheme.Etale.GaloisEquivalence
 import StacksCheckRecall
 
 @[expose] public section
@@ -19,6 +13,12 @@ universe u
 /- Lemma 58.2.2: for a field `K` with chosen separable closure `Ksep`, the geometric-fiber
 functor from schemes étale over `Spec K` to discrete continuous `Gal(Ksep/K)`-sets is an
 equivalence of categories. -/
+@[stacks 03QR] #check
+  (AlgebraicGeometry.Scheme.Etale.galoisEquivalence :
+    ∀ (K Ksep : Type u) [Field K] [Field Ksep] [Algebra K Ksep]
+      [IsSepClosure K Ksep],
+      Scheme.Etale (Spec (.of K)) ≌ DiscreteContAction TopCat.{u} Gal(Ksep/K))
+
 @[stacks 03QR] #check
   (AlgebraicGeometry.Scheme.Etale.galoisFiberIsEquivalence :
     ∀ (K Ksep : Type u) [Field K] [Field Ksep] [Algebra K Ksep]

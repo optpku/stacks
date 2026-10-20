@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.Point.Conservative
@@ -41,7 +35,7 @@ variable (f : RingedSite.Hom (RingedSite.ofCommRingSheaf JC 𝒪C)
   (RingedSite.ofCommRingSheaf JD 𝒪D))
 variable [(f.base.sheafPushforwardContinuous CommRingCat.{max u v} JD JC).IsRightAdjoint]
 
-/-- Lemma 18.40.8 (04H9) (1): a local morphism induces a local homomorphism on every
+/-- A local morphism induces a local homomorphism on every
 commutative-ring stalk. -/
 @[stacks 04H9 "(1)"]
 instance stalkMap_isLocalHom [f.IsLocal]
@@ -49,7 +43,7 @@ instance stalkMap_isLocalHom [f.IsLocal]
     [InitiallySmall (f.base ⋙ p.fiber).Elements] :
     IsLocalHom (stalkMap f p).hom := sorry
 
-/-- Lemma 18.40.8 (04H9) (2): when the source site has enough points, locality of a bundled
+/-- When the source site has enough points, locality of a bundled
 ringed-site morphism is equivalent to locality of all its canonical stalk maps. -/
 @[stacks 04H9 "(2)"]
 theorem isLocal_iff_stalkMap_isLocalHom
@@ -60,7 +54,7 @@ theorem isLocal_iff_stalkMap_isLocalHom
       ∀ p : GrothendieckTopology.Point.{max u v} JC,
         IsLocalHom (stalkMap f p).hom := sorry
 
-/-- Lemma 18.40.8 (04H9) (3): between locally ringed presentations, locality of a stalk map is
+/-- Between locally ringed presentations, locality of a stalk map is
 equivalent to preservation of the distinguished maximal ideals. -/
 @[stacks 04H9 "(3)"]
 theorem stalkMap_isLocalHom_iff_comap_maximalIdeal
@@ -75,7 +69,7 @@ theorem stalkMap_isLocalHom_iff_comap_maximalIdeal
       Ideal.comap (stalkMap f p).hom (IsLocalRing.maximalIdeal (p.stalkCommRing 𝒪C)) =
         IsLocalRing.maximalIdeal ((pointMap f p).stalkCommRing 𝒪D) := sorry
 
-/-- Lemma 18.40.8 (04H9) (4): locality on a conservative family of source points implies
+/-- Locality on a conservative family of source points implies
 global locality of the bundled morphism. -/
 @[stacks 04H9 "(4)"]
 theorem IsLocal.of_stalkMap

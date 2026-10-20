@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Module.LinearMap.Defs
-public import stacks_project.Chap90.Lemma_90_12_6_Action
-public import stacks_project.Chap90.Lemma_90_12_6_Derivation
+public import ReasLib.AlgebraicGeometry.FormalDeformation.TangentSpace.SquareZeroDerivation
+import StacksCheckRecall
 
 /-!
 # Lemma 90.12.6
@@ -32,19 +25,14 @@ variable [IsPredeformationCategory p] [HasSchlessingerH2 (fiberIsoClassFunctor p
 variable (V : Type u) [AddCommGroup V] [Module k V] [Module.Finite k V]
   [Module Λ V] [IsScalarTower Λ k V]
 
-namespace CategoryTheory.Functor
-
-/-- Lemma 90.12.6 (1): Let `F` be a predeformation category over `C_Λ`. If
-`F-bar` has (S2) then the maps `γ_V` are `k`-linear. -/
+/- Lemma 90.12.6 (1): The canonical derivation maps are `k`-linear under (S2). -/
 @[stacks 06SU]
-theorem isoClassOfDerivation_isLinearMap :
-    IsLinearMap k (isoClassOfDerivation p V) := sorry
+#check (CategoryTheory.Functor.isoClassOfDerivation_isLinearMap p V :
+  IsLinearMap k (CategoryTheory.Functor.isoClassOfDerivation p V))
 
-/-- Lemma 90.12.6 (2): Let `F` be a predeformation category over `C_Λ`. If
-`F-bar` has (S2) then `a_V(D, x) = x + γ_V(D)`. -/
+/- Lemma 90.12.6 (2): The canonical derivation action is translation by `γ_V(D)`. -/
 @[stacks 06SU]
-theorem squareZeroDerivationAction_eq_add (D : Derivation Λ k V)
-    (x : (fiberIsoClassFunctor p).obj (squareZero Λ k V)) :
-    squareZeroDerivationAction p V D x = x + isoClassOfDerivation p V D := sorry
-
-end CategoryTheory.Functor
+#check (CategoryTheory.Functor.squareZeroDerivationAction_eq_add p V :
+  ∀ (D : Derivation Λ k V) (x : (fiberIsoClassFunctor p).obj (squareZero Λ k V)),
+    CategoryTheory.Functor.squareZeroDerivationAction p V D x =
+      x + CategoryTheory.Functor.isoClassOfDerivation p V D)

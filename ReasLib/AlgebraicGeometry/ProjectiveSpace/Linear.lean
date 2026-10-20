@@ -1,15 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Basic
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.GlobalSections.Linear
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Basic
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Monoidal
 public import Mathlib.AlgebraicGeometry.Modules.Sheaf
 public import Mathlib.Algebra.Homology.DerivedCategory.Linear
 
@@ -23,6 +18,8 @@ structure morphism and the induced action of global sections.
 @[expose] public section
 
 open CategoryTheory
+open CategoryTheory.MonoidalClosed
+open AlgebraicGeometry.Scheme.Modules
 
 noncomputable section
 
@@ -43,6 +40,10 @@ noncomputable instance instLinearModuleDerived
     (A : Type u) [CommRing A] (n : ℕ) :
     Linear A (RingedSpace.ModuleDerived (scheme A n).toRingedSpace) :=
   DerivedCategory.instLinear A (scheme A n).Modules
+
+/-- Internal Hom on projective space over a field is linear over that field. -/
+instance instLinear_ihom {k : Type u} [Field k] {d : ℕ} (F : (scheme k d).Modules) :
+    (ihom F).Linear k := sorry
 
 end AlgebraicGeometry.ProjectiveSpace
 

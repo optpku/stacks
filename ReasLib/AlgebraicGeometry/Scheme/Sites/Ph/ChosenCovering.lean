@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Ph.Presentation
@@ -32,13 +26,13 @@ theorem exists_coveringFamily_refining_phCovering
     {ι : Type u} (X : ι → Scheme.{u}) (π : ∀ i, X i ⟶ Schph.toScheme.obj T)
     (hπ : PhCovering X π) :
     ∃ 𝒱 : Limits.FormalCoproduct.{u} (Over T),
-      Limits.FormalCoproduct.Over.IsCovering
+      Limits.FormalCoproduct.IsCovering
           (@Pretopology.toPrecoverage Schph.carrier (Cat.str Schph.carrier)
             Schph.hasPullbacks Schph.pretopology) 𝒱 ∧
         Nonempty
           (((Limits.FormalCoproduct.map
             (Over.post (X := T) Schph.toScheme)).obj 𝒱) ⟶
-            Limits.FormalCoproduct.Over.ofArrows X π) := sorry
+            Limits.FormalCoproduct.ofArrows X π) := sorry
 
 /-- Every standard `ph` covering of the affine scheme underlying an object in
 a chosen big `ph` site is tautologically equivalent to a covering family in
@@ -46,11 +40,11 @@ the chosen carrier. -/
 theorem exists_coveringFamily_tautologicallyEquivalent_standardPhCovering
     [IsAffine (Schph.toScheme.obj T)] (𝒰₀ : StandardPhCovering (Schph.toScheme.obj T)) :
     ∃ 𝒱 : Limits.FormalCoproduct.{u} (Over T),
-      Limits.FormalCoproduct.Over.IsCovering
+      Limits.FormalCoproduct.IsCovering
           (@Pretopology.toPrecoverage Schph.carrier (Cat.str Schph.carrier)
             Schph.hasPullbacks Schph.pretopology) 𝒱 ∧
         Limits.FormalCoproduct.TautologicallyEquivalent
-          (Limits.FormalCoproduct.Over.ofArrows
+          (Limits.FormalCoproduct.ofArrows
             (fun j : ULift.{u} (Fin 𝒰₀.m) ↦ 𝒰₀.obj j.down)
             (fun j : ULift.{u} (Fin 𝒰₀.m) ↦ 𝒰₀.map j.down))
           ((Limits.FormalCoproduct.map
@@ -62,11 +56,11 @@ carrier. -/
 theorem exists_coveringFamily_tautologicallyEquivalent_zariskiCover
     (𝒰₀ : (Schph.toScheme.obj T).OpenCover.{u}) :
     ∃ 𝒱 : Limits.FormalCoproduct.{u} (Over T),
-      Limits.FormalCoproduct.Over.IsCovering
+      Limits.FormalCoproduct.IsCovering
           (@Pretopology.toPrecoverage Schph.carrier (Cat.str Schph.carrier)
             Schph.hasPullbacks Schph.pretopology) 𝒱 ∧
         Limits.FormalCoproduct.TautologicallyEquivalent
-          (Limits.FormalCoproduct.Over.ofArrows 𝒰₀.X 𝒰₀.f)
+          (Limits.FormalCoproduct.ofArrows 𝒰₀.X 𝒰₀.f)
           ((Limits.FormalCoproduct.map
             (Over.post (X := T) Schph.toScheme)).obj 𝒱) := sorry
 

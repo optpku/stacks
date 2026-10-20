@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.CommRing.Pullback
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.ChangeOfRings
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Monoidal
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Pullback.Composition.KFlat
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Pullback.TensorAction
 import Mathlib.Tactic.CrossRefAttribute
@@ -92,6 +87,11 @@ variable (f : RingedSite.Hom (RingedSite.ofCommRingSheaf JX OX)
   (RingedSite.ofCommRingSheaf JY OY))
 variable [(f.base.sheafPushforwardContinuous CommRingCat.{w} JY JX).IsRightAdjoint]
 variable [((PullbackFactorization.inverseImage f).modulePushforward.{w}).IsRightAdjoint]
+variable [((PullbackFactorization.scalarExtension f).modulePushforward.{w}).IsRightAdjoint]
+variable [Functor.HasLeftDerivedFunctor
+    (modulePullbackToDerived.{w} (PullbackFactorization.scalarExtension f))
+    (ModuleQis.{w}
+      (RingedSite.ofCommRingSheaf JX (inverseImageStructureSheaf f)))]
 variable [Functor.HasLeftDerivedFunctor
     (modulePullbackToDerived.{w} (PullbackFactorization.inverseImage f))
     (ModuleQis.{w} (RingedSite.ofCommRingSheaf JY OY))]
@@ -133,11 +133,18 @@ theorem compComparison_isIso :
       (PullbackFactorization.scalarExtension f)
       (PullbackFactorization.inverseImage f)) := sorry
 
-variable [MonoidalCategory
-  (@ModuleDerived.{w, uX, vX, w} (RingedSite.ofCommRingSheaf JX OX) hX)]
+variable [@ModuleDerived.KFlat.HomotopyTensorDescends C _ JX _ _ _ hX OX]
+variable [@ModuleDerived.KFlat.TensorDescends C _ JX _ _ _ hX OX _]
+variable [@ModuleDerived.KFlat.IsLocalization C _ JX _ _ _ hX OX]
+
+-- Local instance justification (defeq pin): the mixed tensor is over the displayed structure sheaf `OX`.
+-- Fix its K-flat localization model instead of accepting an arbitrary monoidal structure.
+local instance : MonoidalCategory
+    (@ModuleDerived.{w, uX, vX, w} (RingedSite.ofCommRingSheaf JX OX) hX) :=
+  @ModuleDerived.monoidalCategory C _ JX _ _ _ hX OX _ _ _
 
 /-- The mixed derived tensor bifunctor over `f⁻¹𝒪_Y`, modeled by derived extension of
-scalars followed by the ambient derived tensor product over `𝒪_X`. -/
+scalars followed by the canonical K-flat derived tensor product over `𝒪_X`. -/
 @[stacks 08I6 "mixed derived tensor bifunctor"]
 abbrev functor := Functor.tensorRightAction (scalarExtension f)
 

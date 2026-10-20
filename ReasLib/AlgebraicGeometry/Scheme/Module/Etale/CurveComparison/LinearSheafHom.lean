@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.SiteExtComparison
@@ -59,15 +53,15 @@ def functor : Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} R) ⥤
 instance functor_additive : (functor Y R F).Additive := sorry
 
 /-- A global local morphism evaluates over the unique map to the terminal etale object. -/
-def sectionsToHom (α : (obj Y R F G).obj.obj (op (globalEtale Y))) : F ⟶ G :=
+def sectionsToHom (α : (obj Y R F G).obj.obj (op (AlgebraicGeometry.Scheme.Etale.globalEtale Y))) : F ⟶ G :=
   ObjectProperty.homMk
     { app := fun U ↦ α.app (op (Over.mk
         ((MorphismProperty.Over.mkIdTerminal @Etale Y).from U.unop)))
       naturality := sorry }
 
 /-- A sheaf morphism restricts to every object over the terminal etale object. -/
-def homToSections (f : F ⟶ G) : (obj Y R F G).obj.obj (op (globalEtale Y)) :=
-  Functor.whiskerLeft (Over.forget (globalEtale Y)).op f.hom
+def homToSections (f : F ⟶ G) : (obj Y R F G).obj.obj (op (AlgebraicGeometry.Scheme.Etale.globalEtale Y)) :=
+  Functor.whiskerLeft (Over.forget (AlgebraicGeometry.Scheme.Etale.globalEtale Y)).op f.hom
 
 variable [HasWeakSheafify Y.smallEtaleTopology (ModuleCat.{u + 1} R)]
 
@@ -82,7 +76,7 @@ def sectionsHomIso :
        left_inv := sorry
        right_inv := sorry
        map_add' := sorry } :
-      (obj Y R F G).obj.obj (op (globalEtale Y)) ≃+ (F ⟶ G)).toAddCommGrpIso)
+      (obj Y R F G).obj.obj (op (AlgebraicGeometry.Scheme.Etale.globalEtale Y)) ≃+ (F ⟶ G)).toAddCommGrpIso)
     (fun _ ↦ sorry)
 
 end ActualLinearSheafHom

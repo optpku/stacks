@@ -1,65 +1,46 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap88.Lemma_88_2_1_Limit
-public import stacks_project.Chap88.Lemma_88_2_1_Presentation
+public import ReasLib.Algebra.Category.CommAlgCat.TopologicallyFiniteType.InverseLimit
+public import ReasLib.Algebra.Category.CommAlgCat.TopologicallyFiniteType.Polynomial
+import StacksCheckRecall
 
 /-!
 # Lemma 88.2.1
 
-The inverse-limit functor `C ⟶ C'` is a quasi-inverse of `toAdicSystem`.
-Polynomial completions `A[x_1, …, x_r]^∧` lie in `C'`, and every object of
-`C'` is a quotient of such a completion.
+Inverse limits reconstruct finite-type adic algebra systems. Finite-variable polynomial
+completions are topologically finite type, and every topologically finite type algebra
+is a quotient of one of these completions.
 -/
 
 @[expose] public section
 
 open CategoryTheory
-open CommAlgCat.TopologicallyFiniteType
-open Algebra.TopologicallyFiniteType
 
 universe u
 
-variable {A : Type u} [CommRing A]
+variable {A : Type u} [CommRing A] (I : Ideal A) (hI : I.FG)
 
-/-- Lemma 88.2.1 (1) Let A be a ring and let I ⊂ A be a finitely generated
-ideal. The functor C ⟶ C', (B n) ↦ lim B n is a quasi-inverse to
-(88.2.0.3). -/
-@[stacks 0AJP]
-noncomputable def inverseLimitQuasiInverse (I : Ideal A) (hI : I.FG) :
-    (toAdicSystem I).QuasiInverse :=
-  AdicAlgebraSystem.limitFunctorQuasiInverse I hI
+/- Lemma 88.2.1 (1). The inverse-limit functor is a quasi-inverse of the adic
+quotient-system functor for a finitely generated ideal. -/
+@[stacks 0AJP] #check (AdicAlgebraSystem.limitFunctorQuasiInverse I hI :
+  (CommAlgCat.TopologicallyFiniteType.toAdicSystem I).QuasiInverse)
 
-/-- The inverse functor in Lemma 88.2.1 (1) is the inverse-limit functor. -/
-theorem inverseLimitQuasiInverse_inverse (I : Ideal A) (hI : I.FG) :
-    (inverseLimitQuasiInverse I hI).inverse =
-      AdicAlgebraSystem.limitFunctor I hI :=
-  sorry
+#check (AdicAlgebraSystem.limitFunctorQuasiInverse_inverse I hI :
+  (AdicAlgebraSystem.limitFunctorQuasiInverse I hI).inverse =
+    AdicAlgebraSystem.limitFunctor I hI)
 
-/-- Lemma 88.2.1 (2) The completions A[x_1, …, x_r]^∧ are in C'. -/
-@[stacks 0AJP]
-noncomputable def mvPolynomialCompletion (I : Ideal A) (hI : I.FG) (r : ℕ) :
-    CommAlgCat.TopologicallyFiniteType.{u} A I :=
-  CommAlgCat.TopologicallyFiniteType.mvPolynomialCompletion I hI r
+/- Lemma 88.2.1 (2). The adic completion of a finite-variable polynomial ring
+is a topologically finite type algebra. -/
+@[stacks 0AJP] #check (CommAlgCat.TopologicallyFiniteType.mvPolynomialCompletion I hI :
+  ℕ → CommAlgCat.TopologicallyFiniteType.{u} A I)
 
-/-- The underlying algebra of Lemma 88.2.1 (2) is the `I`-adic restricted
-power series ring on `r` variables. -/
-theorem mvPolynomialCompletion_obj (I : Ideal A) (hI : I.FG) (r : ℕ) :
-    (_root_.mvPolynomialCompletion I hI r).obj =
-      CommAlgCat.of A (IAdicRestrictedPowerSeries (Fin r) I) :=
-  sorry
+#check (CommAlgCat.TopologicallyFiniteType.mvPolynomialCompletion_obj I hI :
+  ∀ r : ℕ, (CommAlgCat.TopologicallyFiniteType.mvPolynomialCompletion I hI r).obj =
+    CommAlgCat.of A (IAdicRestrictedPowerSeries (Fin r) I))
 
-/-- Lemma 88.2.1 (3) Any object of C' is of the form
-B = A[x_1, …, x_r]^∧ / J for some ideal J ⊂ A[x_1, …, x_r]^∧. -/
-@[stacks 0AJP]
-theorem exists_isQuotient_polynomialCompletion (I : Ideal A) (hI : I.FG)
-    (B : Type u) [CommRing B] [Algebra A B]
-    [Algebra.TopologicallyFiniteType I B] :
+/- Lemma 88.2.1 (3). Every topologically finite type algebra is isomorphic to
+an ideal quotient of a finite-variable polynomial completion. -/
+@[stacks 0AJP] #check (Algebra.TopologicallyFiniteType.exists_isQuotient_polynomialCompletion I hI :
+  ∀ (B : Type u) [CommRing B] [Algebra A B] [Algebra.TopologicallyFiniteType I B],
     ∃ (r : ℕ) (J : Ideal (IAdicRestrictedPowerSeries (Fin r) I)),
-      Nonempty (B ≃ₐ[A] IAdicRestrictedPowerSeries (Fin r) I ⧸ J) :=
-  sorry
+      Nonempty (B ≃ₐ[A] IAdicRestrictedPowerSeries (Fin r) I ⧸ J))

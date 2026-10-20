@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_14_1_Quotient
-public import stacks_project.Chap67.Remark_67_12_4_Coborder
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.Basic
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
@@ -23,9 +16,7 @@ conormal sheaf `C_{Z/X}` of `Z` in `X`, or the conormal sheaf of `i`, is the
 quasi-coherent `𝒪_Z`-module `I / I²` of the coborder closed immersion
 `Z ⟶ X \ ∂Z`. -/
 @[stacks 04CN]
-#check
-  ((Modules.pullback (IsImmersion.liftCoborder i)).obj
-      (Modules.quotientByIdeal
-        (Hom.idealSheafSubobject (IsImmersion.liftCoborder i))
-        (Hom.idealSheaf (IsImmersion.liftCoborder i))) :
-    Z.Modules)
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.conormalSheaf i : Z.Modules)
+
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.conormalSheaf_isQuasicoherent i :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.conormalSheaf i).IsQuasicoherent)

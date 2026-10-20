@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap65.Lemma_65_12_4_Immersion
-public import stacks_project.Chap71.Lemma_71_15_2_Fiber
-public import stacks_project.Chap76.Lemma_76_23_5
-public import stacks_project.Chap89.«89_2_0_1»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ProperIsoOverPuncturedSpectrum
+import StacksCheckRecall
 
 /-!
 # Closed immersions detected on the special fibre
@@ -27,20 +19,19 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 89.2.2 Let `(A, 𝔪, κ)` be a Noetherian local ring. Let `g : X ⟶ Y` be
+/- Lemma 89.2.2 Let `(A, 𝔪, κ)` be a Noetherian local ring. Let `g : X ⟶ Y` be
 a morphism in the category `ProperIsoOverPuncturedSpectrum A` (89.2.0.1). If
 the induced morphism of special fibres
 `overBaseChange g q (residueFieldHom (Spec (.of A)) (IsLocalRing.closedPoint A))`
 is a closed immersion, then `g` is a closed immersion. -/
 @[stacks 0AGM]
-theorem IsClosedImmersion.of_specialFiber
-    (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
+#check (AlgebraicGeometry.AlgebraicSpace.IsClosedImmersion.of_specialFiber :
+    ∀ (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
     {X Y : AlgebraicSpace (Spec (.of A))} (g : X ⟶ Y) (q : Y ⟶ specSpace A)
     (hX : IsProperIsoOverOpen (g ≫ q) (puncturedι A))
     (hY : IsProperIsoOverOpen q (puncturedι A))
     [IsClosedImmersion
-      (overBaseChange g q (residueFieldHom (Spec (.of A)) (IsLocalRing.closedPoint A)))] :
-    IsClosedImmersion g :=
-  sorry
+      (overBaseChange g q (residueFieldHom (Spec (.of A)) (IsLocalRing.closedPoint A)))],
+    IsClosedImmersion g)
 
 end AlgebraicGeometry.AlgebraicSpace

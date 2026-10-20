@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap60.Definition_60_26_2
@@ -359,7 +353,7 @@ def frobeniusCohomologyMap
         derivedOfCrystal I γS hc x₀ p s hp F) :=
   (baseRestriction A).map
     ((sigmaIdExtensionIso I s σ h_ideal h_over).inv.app _ ≫
-      (ModuleCat.derivedExtensionOfScalars
+      (ModuleCat.derivedExtensionOfScalars.{u + 1, u + 1, u + 1}
           (baseRingMap (idDividedPowerSchemeHom I s).base)).map
         (sigmaBaseChange I γS hc x₀ s hp σ h_ideal h_over h_sigma hPD F) ≫
       relativeFrobeniusBaseChange I γS hc x₀ s hp σ h_ideal h_over h_sigma hPD F ≫
@@ -374,7 +368,7 @@ theorem frobeniusCohomologyMap_comp
     frobeniusCohomologyMap I γS hc x₀ s hp σ h_ideal h_over h_sigma hPD F F_E =
       (baseRestriction A).map
         ((sigmaIdExtensionIso I s σ h_ideal h_over).inv.app _ ≫
-          (ModuleCat.derivedExtensionOfScalars
+          (ModuleCat.derivedExtensionOfScalars.{u + 1, u + 1, u + 1}
               (baseRingMap (idDividedPowerSchemeHom I s).base)).map
             (sigmaBaseChange I γS hc x₀ s hp σ h_ideal h_over h_sigma hPD F) ≫
           relativeFrobeniusBaseChange I γS hc x₀ s hp σ h_ideal h_over h_sigma hPD F ≫
@@ -406,7 +400,7 @@ theorem frobeniusCohomologyMap_isIso_after_inverting_p
     [IsCrystalInFiniteLocallyFreeModules (ofCrystal I γS hc x₀ F p s hp)]
     (h_nondegenerate :
       frobeniusMorphism_isNondegenerate I γS hc x₀ s hp F_E) :
-    IsIso ((ModuleCat.derivedExtensionOfScalars
+    IsIso ((ModuleCat.derivedExtensionOfScalars.{u, u, u + 1}
         (algebraMap A (Localization.Away (p : A)))).map
       (frobeniusCohomologyMap I γS hc x₀ s hp σ h_ideal h_over h_sigma hPD F F_E)) :=
   sorry

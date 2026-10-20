@@ -1,26 +1,49 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.Kaehler.Basic
+public import ReasLib.RingTheory.Kaehler.ResidueConormal
 import StacksCheckRecall
 
 @[expose]
 public section
 
-/- 90.3.10.1: for a surjective Λ-algebra map A → k, the conormal sequence
+universe u v w
+
+open scoped TensorProduct
+
+/- 90.3.10.1: for a Noetherian base Λ, a field k finite over Λ, and a
+surjective Λ-algebra map A → k, the sequence
 (ker (algebraMap A k)).Cotangent ⟶ Ω[A⁄Λ] ⊗[A] k ⟶ Ω[k⁄Λ] ⟶ 0
-is mathlib's surjective conormal sequence. The source map d_A is
-`KaehlerDifferential.kerCotangentToTensor Λ A k`; the next map is
-`KaehlerDifferential.mapBaseChange Λ A k`. Mathlib writes the middle module as
-k ⊗[A] Ω[A⁄Λ] (the source tensor order is `TensorProduct.comm` of this).
-Exactness at the middle is `exact_kerCotangentToTensor_mapBaseChange`; the
-terminal 0 is `mapBaseChange_surjective`. -/
-@[stacks 06S6] #check @KaehlerDifferential.kerCotangentToTensor
-@[stacks 06S6] #check @KaehlerDifferential.mapBaseChange
-@[stacks 06S6] #check @KaehlerDifferential.exact_kerCotangentToTensor_mapBaseChange
-@[stacks 06S6] #check @KaehlerDifferential.mapBaseChange_surjective
+is exact. Mathlib writes its middle module as k ⊗[A] Ω[A⁄Λ], canonically
+corresponding to the source's Ω[A⁄Λ] ⊗[A] k by `TensorProduct.comm`. -/
+@[stacks 06S6] #check (KaehlerDifferential.residueConormalSequence_exact :
+  ∀ (Λ : Type u) (A : Type v) (k : Type w)
+    [CommRing Λ] [IsNoetherianRing Λ] [CommRing A] [Field k]
+    [Algebra Λ A] [Algebra A k] [Algebra Λ k] [IsScalarTower Λ A k]
+    [Module.Finite Λ k],
+    Function.Surjective (algebraMap A k) →
+    Function.Exact (KaehlerDifferential.kerCotangentToTensor Λ A k)
+      (KaehlerDifferential.mapBaseChange Λ A k) ∧
+    Function.Surjective (KaehlerDifferential.mapBaseChange Λ A k))
+
+/- The conormal map sends the cotangent module of ker (algebraMap A k) to the
+fiber of Ω[A⁄Λ] over k. -/
+#check (KaehlerDifferential.kerCotangentToTensor :
+  ∀ (Λ : Type u) [CommRing Λ] (A : Type v) (k : Type w)
+    [CommRing A] [CommRing k]
+    [Algebra Λ A] [Algebra A k],
+    (RingHom.ker (algebraMap A k)).Cotangent →ₗ[A] k ⊗[A] Ω[A⁄Λ])
+
+/- The base-change map takes the differential fiber to Ω[k⁄Λ]. -/
+#check (KaehlerDifferential.mapBaseChange :
+  ∀ (Λ : Type u) [CommRing Λ] (A : Type v) (k : Type w)
+    [CommRing A] [CommRing k]
+    [Algebra Λ A] [Algebra A k] [Algebra Λ k] [IsScalarTower Λ A k],
+    k ⊗[A] Ω[A⁄Λ] →ₗ[k] Ω[k⁄Λ])
+
+/- The map from the differential fiber to Ω[k⁄Λ] is surjective. -/
+#check (KaehlerDifferential.mapBaseChange_surjective :
+  ∀ (Λ : Type u) [CommRing Λ] (A : Type v) (k : Type w)
+    [CommRing A] [CommRing k]
+    [Algebra Λ A] [Algebra A k] [Algebra Λ k] [IsScalarTower Λ A k],
+    Function.Surjective (algebraMap A k) →
+      Function.Surjective (KaehlerDifferential.mapBaseChange Λ A k))

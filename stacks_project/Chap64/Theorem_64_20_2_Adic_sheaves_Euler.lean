@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
@@ -214,7 +208,7 @@ def geometricFrobenius_cohomologyCompactSupportCone (i : ℕ) :
         limit.π (geometricCohomologyCompactSupportSystem P F i) n ≫
           galoisEtaleHq P.obj.right
             (compactificationExtensionByZeroStage P F n.unop) i
-            arithmeticFrobeniusEquiv⁻¹
+            (FiniteField.arithmeticFrobenius k)⁻¹
       naturality := sorry }
 
 /-- The cone projection of geometric Frobenius is inverse-limit projection
@@ -224,7 +218,7 @@ theorem geometricFrobenius_cohomologyCompactSupportCone_π_app (i : ℕ) (n : �
       limit.π (geometricCohomologyCompactSupportSystem P F i) n ≫
         galoisEtaleHq P.obj.right
           (compactificationExtensionByZeroStage P F n.unop) i
-          arithmeticFrobeniusEquiv⁻¹ :=
+          (FiniteField.arithmeticFrobenius k)⁻¹ :=
   sorry
 
 /-- Geometric Frobenius on geometric compactly supported `ℤ_[ℓ]`-cohomology, as

@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.Algebra.Homology.DerivedCategory.PseudoCoherent
-public import stacks_project.Chap75.Definition_75_14_1_PerfectApproximation
-public import stacks_project.Chap75.Lemma_75_5_6_Instances
-public import stacks_project.Chap75.Lemma_75_13_6_PseudoCoherent
-public import stacks_project.Chap75.Lemma_75_25_7_GlobalSections
-public import stacks_project.Chap75.Theorem_75_14_7_Qcqs
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.PseudoCoherent.GlobalSections
+import StacksCheckRecall
 
 /-!
 # Perfect complexes detect pseudo-coherence of derived global sections
@@ -32,13 +22,13 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.DerivedQCoh
 
-/-- Lemma 75.25.7: for a quasi-compact and quasi-separated algebraic space `X` over a
+/- Lemma 75.25.7: for a quasi-compact and quasi-separated algebraic space `X` over a
 ring `A` and `K` in `D⁻_QCoh(𝒪_X)`, if `RΓ(X, E ⊗^L K)` is pseudo-coherent in `D(A)`
 for every perfect `E` in `D(𝒪_X)`, then the same holds for every pseudo-coherent `E`
 in `D(𝒪_X)`. -/
-@[stacks 0CWH]
-theorem globalSectionsTensor_isPseudoCoherent
-    {A : Type u} [CommRing A]
+@[stacks 0CWH] #check
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.globalSectionsTensor_isPseudoCoherent :
+  ∀ {A : Type u} [CommRing A]
     {X : AlgebraicSpace (Spec (CommRingCat.of A))}
     [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
     (f : X ⟶ ofOver (Over.mk (𝟙 (Spec (CommRingCat.of A)))))
@@ -47,8 +37,7 @@ theorem globalSectionsTensor_isPseudoCoherent
     (hperfect :
       ∀ E : ModuleDerived X, ModuleDerived.IsPerfect E →
         ((Right.functor K.obj ⋙ Modules.globalSectionsOver f).obj E).IsPseudoCoherent)
-    {E : ModuleDerived X} (hE : IsPseudoCoherent X E) :
-    ((Right.functor K.obj ⋙ Modules.globalSectionsOver f).obj E).IsPseudoCoherent :=
-  sorry
+    {E : ModuleDerived X} (hE : IsPseudoCoherent X E),
+    ((Right.functor K.obj ⋙ Modules.globalSectionsOver f).obj E).IsPseudoCoherent)
 
 end AlgebraicGeometry.AlgebraicSpace.DerivedQCoh

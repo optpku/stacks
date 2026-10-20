@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.FiniteTensorAction
-public import stacks_project.Chap64.Proposition_64_29_3_CompletedGroupRingAlgebra
+public import ReasLib.RepresentationTheory.CompletedGroupRing.Basic
 
 @[expose] public section
 
@@ -81,7 +75,7 @@ resolution and the actual restriction/evaluation chain comparison. -/
 def completedTensorCharacterIso {M : DiscreteModuleCat Λ G}
     (I : InjectiveResolution M) (i : ℕ) :
     (CompactModule.forget Λ).obj ((completedTensorHomology Λ G i).obj (dual Λ G M)) ≅
-      ModuleCat.of Λ (CharacterModule ((AmbientDiscreteCohomology.cohomology Λ G i).obj M)) :=
+      ModuleCat.of Λ (CharacterModule ((CategoryTheory.Action.ModuleCat.DiscreteModuleCat.derivedCohomologyFunctor Λ G i).obj M)) :=
   (CompactModule.forget Λ).mapIso ((continuousHomologyCompletedTensorIso Λ G i).app (dual Λ G M)).symm ≪≫
     derivedHomologyCharacterIso Λ G I i
 

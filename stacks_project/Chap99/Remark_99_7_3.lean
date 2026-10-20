@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap99.Remark_99_7_3_Descent
-public import stacks_project.Chap99.Remark_99_7_3_Quotient
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Quasicoherent.Quotient.Fpqc
+import StacksCheckRecall
 
 /-!
 # Remark 99.7.3
@@ -27,19 +21,17 @@ universe u v w
 
 namespace AlgebraicGeometry.AlgebraicSpace.QCoh
 
-/-- Remark 99.7.3: for a quasi-coherent module `F` on an algebraic space `X`, an
-fpqc covering `family` of morphisms `X_i ⟶ X`, and fpqc coverings `overlap i j`
-of each fibre product `X_i ×_X X_j`, the restriction map `restrictClass` is a
-bijection between kernel-identified quasi-coherent quotients `F ⟶ Q` and
-compatible families of quasi-coherent quotients `f_i^* F ⟶ Q_i` that restrict
-to the same quotient on each `X_ijk`. -/
-@[stacks 08IU]
-theorem quotientsRestrict_bijective {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {I : Type v} {family : I → Over X} (hfamily : FpqcCovering family)
-    {K : I → I → Type w}
-    (overlap : ∀ i j, K i j → Over (Limits.pullback (family i).hom (family j).hom))
-    (hoverlap : ∀ i j, FpqcCovering (overlap i j))
-    (F : X.Modules) [F.IsQuasicoherent] :
-    Function.Bijective (restrictClass hfamily overlap hoverlap F) := sorry
+/- Remark 99.7.3: restriction gives a bijection between quasi-coherent quotients
+and compatible families of quasi-coherent quotients along an fpqc covering,
+with agreement tested on the specified fpqc coverings of pairwise fibre products. -/
+@[stacks 08IU] #check
+  (AlgebraicGeometry.AlgebraicSpace.QCoh.restrictClass_bijective :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+      {I : Type v} {family : I → Over X} (hfamily : FpqcCovering family)
+      {K : I → I → Type w}
+      (overlap : ∀ i j, K i j → Over (Limits.pullback (family i).hom (family j).hom))
+      (hoverlap : ∀ i j, FpqcCovering (overlap i j))
+      (F : X.Modules) [F.IsQuasicoherent],
+      Function.Bijective (restrictClass hfamily overlap hoverlap F))
 
 end AlgebraicGeometry.AlgebraicSpace.QCoh

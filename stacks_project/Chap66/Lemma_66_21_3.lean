@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.Sites.Ringed
-public import stacks_project.Chap66.Lemma_66_29_2_Pullback
-public import stacks_project.Chap66.Definition_66_4_1_Points
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RingedSite.Functoriality
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RingedSite.SchemeComparison
 import StacksCheckRecall
 
 @[expose] public section
@@ -33,119 +26,71 @@ whose component at `V` is `structureSheafMap_app f`. -/
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S},
       (X ⟶ Y) → RingedSite.ToposHom (ringedSite X) (ringedSite Y))
 
-#check
-  (fun {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) ↦
-    (ringedToposHom f).toTopos)
 
 #check
-  (fun {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) ↦
-    (ringedToposHom f).structureMap)
+  (AlgebraicGeometry.AlgebraicSpace.structureFMap_app :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} (sq : EtaleSquare f),
+      (structureSheaf Y).obj.obj (op sq.right) ⟶
+        (structureSheaf X).obj.obj (op sq.left))
 
-#check AlgebraicGeometry.AlgebraicSpace.structureFMap_app
+#check
+  (AlgebraicGeometry.AlgebraicSpace.structureSheafMap_app :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      (V : (smallEtaleSite Y)ᵒᵖ),
+      (structureSheaf Y).obj.obj V ⟶
+        ((ringPushforward f).obj (structureSheaf X)).obj.obj V)
 
-#check AlgebraicGeometry.AlgebraicSpace.structureSheafMap_app
+/- Lemma 66.21.3 (2): the canonical morphism of small étale ringed topoi is compatible
+with composition. -/
+@[stacks 03G8] #check
+  (AlgebraicGeometry.AlgebraicSpace.ringedToposHomCompIso :
+    ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y)
+    (g : Y ⟶ Z),
+    RingedSite.ToposHom.TwoIso.{u + 1, u, u + 1, u, u}
+      (RingedSite.ToposHom.comp.{u + 1, u, u + 1, u, u + 1, u, u} (ringedToposHom f) (ringedToposHom g))
+      (ringedToposHom (f ≫ g)))
 
-namespace AlgebraicGeometry.AlgebraicSpace
+#check
+  (AlgebraicGeometry.AlgebraicSpace.ringedToposHomIdIso :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
+    RingedSite.ToposHom.TwoIso.{u + 1, u, u + 1, u, u} (ringedToposHom (𝟙 X))
+      (RingedSite.ToposHom.id (ringedSite X)))
 
-/-- Lemma 66.21.3 (2): the construction `f ↦ (f_small, f^♯)` is compatible with
-compositions of morphisms of algebraic spaces over `S`. -/
-@[stacks 03G8]
-theorem ringedToposHom_comp {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y)
-    (g : Y ⟶ Z) :
-    RingedSite.ToposHom.comp (ringedToposHom f) (ringedToposHom g) =
-      ringedToposHom (f ≫ g) :=
-  sorry
-
-/-- The morphism of small étale ringed topoi associated to the identity of an algebraic
-space is the identity morphism of ringed topoi. -/
-theorem ringedToposHom_id {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    ringedToposHom (𝟙 X) = RingedSite.ToposHom.id (ringedSite X) :=
-  sorry
-
-/-- `ofOverMap` of an étale morphism of schemes over `S` is étale as a morphism of
-algebraic spaces. -/
-theorem etale_ofOverMap_overHomMk {S : Scheme.{u}} (U : Over S) (W : U.left.Etale) :
-    Etale (ofOverMap (Over.homMk W.hom rfl : Over.mk (W.hom ≫ U.hom) ⟶ U)) :=
-  sorry
-
-/-- The object of the small étale site of `ofOver U` associated to a scheme étale over
-`U.left`. -/
-def smallEtaleSite.ofSchemeEtale {S : Scheme.{u}} (U : Over S) (W : U.left.Etale) :
-    smallEtaleSite (ofOver U) :=
-  MorphismProperty.CostructuredArrow.mk ⊤
-    (ofOverMap (Over.homMk W.hom rfl : Over.mk (W.hom ≫ U.hom) ⟶ U))
-    (etale_ofOverMap_overHomMk U W)
-
-/-- The structural morphism of `smallEtaleSite.ofSchemeEtale U W` is `ofOverMap` of the
-over-morphism induced by `W.hom`. -/
-theorem smallEtaleSite.ofSchemeEtale_hom {S : Scheme.{u}} (U : Over S)
-    (W : U.left.Etale) :
-    (smallEtaleSite.ofSchemeEtale U W).hom =
-      ofOverMap (Over.homMk W.hom rfl : Over.mk (W.hom ≫ U.hom) ⟶ U) :=
-  sorry
-
-/-- Identity comparison of the underlying scheme of `W` with its algebraic-space
-realization. -/
-def smallEtaleSite.ofSchemeEtale_schemeHom {S : Scheme.{u}} (U : Over S)
-    (W : U.left.Etale) :
-    (smallEtaleToScheme (ofOver U)).obj (smallEtaleSite.ofSchemeEtale U W) ⟶
-      (Scheme.smallEtaleToScheme U.left).obj W :=
-  (𝟙 W.left :
-    (smallEtaleToScheme (ofOver U)).obj (smallEtaleSite.ofSchemeEtale U W) ⟶
-      (Scheme.smallEtaleToScheme U.left).obj W)
-
-/-- `smallEtaleSite.ofSchemeEtale_schemeHom` is the identity of the underlying scheme of
-`W`. -/
-theorem smallEtaleSite.ofSchemeEtale_schemeHom_apply {S : Scheme.{u}} (U : Over S)
-    (W : U.left.Etale) :
-    smallEtaleSite.ofSchemeEtale_schemeHom U W =
-      (𝟙 W.left :
-        (smallEtaleToScheme (ofOver U)).obj (smallEtaleSite.ofSchemeEtale U W) ⟶
-          (Scheme.smallEtaleToScheme U.left).obj W) :=
-  sorry
-
-/-- Direct-image structure-sheaf values of `ofOverHomMk f hf` at the algebraic-space
-object associated to `V` agree with the small étale direct image of
-`Small.ringedHom f` at `V`. -/
-theorem ringPushforward_obj_ofSchemeEtale {S : Scheme.{u}} {X Y : Scheme.{u}}
-    {σX : X ⟶ S} {σY : Y ⟶ S} (f : X ⟶ Y) (hf : f ≫ σY = σX) (V : Y.Etale) :
+#check
+  (AlgebraicGeometry.AlgebraicSpace.ringPushforwardObjOfSchemeEtaleIso :
+    ∀ {S : Scheme.{u}} {X Y : Scheme.{u}}
+    {σX : X ⟶ S} {σY : Y ⟶ S} (f : X ⟶ Y) (hf : f ≫ σY = σX) (V : Y.Etale),
     ((ringPushforward (ofOverHomMk f hf)).obj
         (structureSheaf (ofOver (Over.mk σX)))).obj.obj
-      (op (smallEtaleSite.ofSchemeEtale (Over.mk σY) V)) =
+      (op (schemeEtaleToSmallEtaleObj (Over.mk σY) V)) ≅
       (((Scheme.smallEtalePullback f).sheafPushforwardContinuous RingCat.{u}
           Y.smallEtaleTopology X.smallEtaleTopology).obj
-        (Small.structureSheaf X)).obj.obj (op V) :=
-  sorry
+        (Small.structureSheaf X)).obj.obj (op V))
 
-/-- Lemma 66.21.3 (3): if `f` is a morphism of schemes over `S`, then `f^♯` is the map of
-Descent, Remark 35.8.4. On `V : Y.Etale`, the direct-image component
-`structureSheafMap_app (ofOverHomMk f hf)` at the algebraic-space object associated to
-`V`, transported along the identity-on-underlying-schemes comparison, equals
-`(Small.ringedHom f).structureSheafMap.hom.app (op V)`, hence equals
-`RingCat.ofHom (pullback.fst V.hom f).appTop.hom`. This direct-image map is the mate of
-`(ringedToposHom (ofOverHomMk f hf)).structureMap`. -/
-@[stacks 03G8]
-theorem structureSheafMap_app_ofOverHomMk {S : Scheme.{u}} {X Y : Scheme.{u}}
-    {σX : X ⟶ S} {σY : Y ⟶ S} (f : X ⟶ Y) (hf : f ≫ σY = σX) (V : Y.Etale) :
+/- Lemma 66.21.3 (3): for a scheme morphism over the base, the transported direct-image
+structure map agrees with the scheme small étale structure map of Descent, Remark 35.8.4.
+This direct-image map is the mate of the inverse-image structure map `f^♯`. -/
+@[stacks 03G8] #check
+  (AlgebraicGeometry.AlgebraicSpace.structureSheafMap_app_ofOverHomMk :
+    ∀ {S : Scheme.{u}} {X Y : Scheme.{u}}
+    {σX : X ⟶ S} {σY : Y ⟶ S} (f : X ⟶ Y) (hf : f ≫ σY = σX) (V : Y.Etale),
     (Scheme.Γ ⋙ forget₂ CommRingCat RingCat).map
-          (smallEtaleSite.ofSchemeEtale_schemeHom (Over.mk σY) V).op ≫
+          ((schemeEtaleToSmallEtale_schemeProjection (Over.mk σY)).app V).op ≫
         structureSheafMap_app (ofOverHomMk f hf)
-          (op (smallEtaleSite.ofSchemeEtale (Over.mk σY) V)) ≫
-        eqToHom (ringPushforward_obj_ofSchemeEtale f hf V) =
-      (Small.ringedHom f).structureSheafMap.hom.app (op V) :=
-  sorry
+          (op (schemeEtaleToSmallEtaleObj (Over.mk σY) V)) ≫
+        (ringPushforwardObjOfSchemeEtaleIso f hf V).hom =
+      (Small.ringedHom f).structureSheafMap.hom.app (op V))
 
-/-- On a scheme morphism, the transported algebraic-space direct-image component is the
-fibre-product projection on global sections from Descent, Remark 35.8.4. -/
-theorem structureSheafMap_app_ofOverHomMk_eq_appTop {S : Scheme.{u}}
+/- Lemma 66.21.3 (3): the scheme comparison identifies the transported structure map
+with pullback of global sections along the fibre-product projection. -/
+@[stacks 03G8] #check
+  (AlgebraicGeometry.AlgebraicSpace.structureSheafMap_app_ofOverHomMk_eq_appTop :
+    ∀ {S : Scheme.{u}}
     {X Y : Scheme.{u}} {σX : X ⟶ S} {σY : Y ⟶ S} (f : X ⟶ Y) (hf : f ≫ σY = σX)
-    (V : Y.Etale) :
+    (V : Y.Etale),
     (Scheme.Γ ⋙ forget₂ CommRingCat RingCat).map
-          (smallEtaleSite.ofSchemeEtale_schemeHom (Over.mk σY) V).op ≫
+          ((schemeEtaleToSmallEtale_schemeProjection (Over.mk σY)).app V).op ≫
         structureSheafMap_app (ofOverHomMk f hf)
-          (op (smallEtaleSite.ofSchemeEtale (Over.mk σY) V)) ≫
-        eqToHom (ringPushforward_obj_ofSchemeEtale f hf V) =
-      RingCat.ofHom (pullback.fst V.hom f).appTop.hom :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+          (op (schemeEtaleToSmallEtaleObj (Over.mk σY) V)) ≫
+        (ringPushforwardObjOfSchemeEtaleIso f hf V).hom =
+      RingCat.ofHom (pullback.fst V.hom f).appTop.hom)

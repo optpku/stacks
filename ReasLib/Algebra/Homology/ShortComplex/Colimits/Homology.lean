@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.ShortComplex.Colimits
@@ -67,12 +61,50 @@ theorem naturality [HasColimitsOfShape J C]
 
 end iso
 
+/-- The actual homology comparison for an exact colimit, assembled from pointwise homology
+and the native homology comparison of the supplied colimit functor. -/
+noncomputable def exactIso [HasColimitsOfShape J C]
+    [(Limits.colim (J := J) (C := C)).PreservesHomology]
+    (S : J ⥤ ShortComplex C) :
+    colimit (S ⋙ homologyFunctor C) ≅ (colimit S).homology :=
+  (Limits.colim.mapIso (DiagramHomology.comparisonIso S)).symm ≪≫
+    (((functorEquivalence J C).inverse.obj S).mapHomologyIso
+      (Limits.colim (J := J) (C := C))).symm ≪≫
+    (homologyFunctor C).mapIso (Colimit.iso S).symm
+
+/-- The exact-colimit comparison carries every homology cocone leg to its actual homology map. -/
+@[reassoc]
+theorem ι_exactIso_hom [HasColimitsOfShape J C]
+    [(Limits.colim (J := J) (C := C)).PreservesHomology]
+    (S : J ⥤ ShortComplex C) (j : J) :
+    colimit.ι (S ⋙ homologyFunctor C) j ≫ (exactIso S).hom =
+      homologyMap (colimit.ι S j) := sorry
+
+/-- The image homology cocone has an explicit descent using the actual reverse comparison. -/
+noncomputable def isColimitHomologyCocone [HasColimitsOfShape J C]
+    [(Limits.colim (J := J) (C := C)).PreservesHomology]
+    (S : J ⥤ ShortComplex C) :
+    IsColimit ((homologyFunctor C).mapCocone (colimit.cocone S)) where
+  desc c := (exactIso S).inv ≫ colimit.desc (S ⋙ homologyFunctor C) c
+  fac := sorry
+  uniq := sorry
+
+/-- The universal homology descent uses the specified reverse comparison. -/
+@[simp]
+theorem isColimitHomologyCocone_desc [HasColimitsOfShape J C]
+    [(Limits.colim (J := J) (C := C)).PreservesHomology]
+    (S : J ⥤ ShortComplex C) (s : Cocone (S ⋙ homologyFunctor C)) :
+    (isColimitHomologyCocone S).desc s =
+      (exactIso S).inv ≫ colimit.desc (S ⋙ homologyFunctor C) s := rfl
+
 /-- If the colimit functor preserves homology, then the short-complex homology functor preserves
 the colimit of every particular diagram of the given shape. -/
 theorem preservesColimit_of_colim [HasColimitsOfShape J C]
     [(Limits.colim (J := J) (C := C)).PreservesHomology]
     (S : J ⥤ ShortComplex C) :
-    PreservesColimit S (homologyFunctor C) := sorry
+    PreservesColimit S (homologyFunctor C) :=
+  preservesColimit_of_preserves_colimit_cocone
+    (colimit.isColimit S) (isColimitHomologyCocone S)
 
 end ColimitHomology
 
@@ -80,6 +112,7 @@ end ColimitHomology
 ambient abelian category are exact. -/
 noncomputable instance homologyFunctor_preservesColimitsOfShape_of_exact
     [HasColimitsOfShape J C] [HasExactColimitsOfShape J C] :
-    PreservesColimitsOfShape J (homologyFunctor C) := sorry
+    PreservesColimitsOfShape J (homologyFunctor C) where
+  preservesColimit := fun {S} ↦ ColimitHomology.preservesColimit_of_colim S
 
 end CategoryTheory.ShortComplex

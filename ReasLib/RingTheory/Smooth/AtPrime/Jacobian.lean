@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.Smooth.Local
@@ -54,9 +48,8 @@ theorem isSmoothAt_iff_not_le
     IsSmoothAt R q.asIdeal ↔
       ¬ (P.jacobianIdeal (Fin.castLEEmb le_rfl) ≤ q.asIdeal) := sorry
 
-/-- Lemma 10.137.15, tag `00TE`: for a relative global complete-intersection
-presentation, smoothness at a prime is equivalent to a Jacobian column minor
-avoiding that prime. -/
+/-- For a relative global complete-intersection presentation, smoothness at a
+prime is equivalent to a Jacobian column minor avoiding that prime. -/
 @[stacks 00TE "Jacobian criterion at a prime"]
 theorem isSmoothAt_iff_exists_minor_not_mem
     {P : Presentation R S (Fin n) (Fin c)}

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap72.Definition_72_11_1_GeometricallyReduced
-public import stacks_project.Chap72.Lemma_72_11_6_BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Geometrically.Reduced.BaseChange
+import StacksCheckRecall
 
 /-!
 # Geometric reducedness after field extension
@@ -27,71 +21,24 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-namespace GeometricallyReducedAt
-
-/-- Lemma 72.11.6 (1): Let `k` be a field. Let `X` be an algebraic space over `k`.
-Let `k'/k` be a field extension. Let `x` be a point of `|X|` and let `x'` be a
-point of `|AlgebraicSpace.baseChange (specMap k k') X|` lying over `x`. Then `X`
-is geometrically reduced at `x` if and only if the base change is geometrically
-reduced at `x'`. -/
+/- Lemma 72.11.6 (1): Geometric reducedness at a point is invariant under a
+field extension at any point lying over it. -/
 @[stacks 0E04]
-theorem iff_baseChange {k k' : Type u} [Field k] [Field k'] [Algebra k k']
-    (X : AlgebraicSpace (Spec (CommRingCat.of k))) (x : Points X)
-    (x' : Points (AlgebraicSpace.baseChange (specMap k k') X))
-    (hx : FieldExtension.toSourceOnPoints k k' X x' = x) :
-    GeometricallyReducedAt X x ↔
-      GeometricallyReducedAt (AlgebraicSpace.baseChange (specMap k k') X) x' :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.GeometricallyReducedAt.iff_baseChange :
+  {k k' : Type u} → [Field k] → [Field k'] → [Algebra k k'] →
+    (X : AlgebraicSpace (Spec (CommRingCat.of k))) → (x : Points X) →
+    (x' : Points (AlgebraicSpace.baseChange (specMap k k') X)) →
+    FieldExtension.toSourceOnPoints k k' X x' = x →
+    (GeometricallyReducedAt X x ↔
+      GeometricallyReducedAt (AlgebraicSpace.baseChange (specMap k k') X) x'))
 
-/-- If `X` is geometrically reduced at `x`, then the field-extension base change
-is geometrically reduced at any point lying over `x`. -/
-theorem baseChange {k k' : Type u} [Field k] [Field k'] [Algebra k k']
-    (X : AlgebraicSpace (Spec (CommRingCat.of k))) (x : Points X)
-    (x' : Points (AlgebraicSpace.baseChange (specMap k k') X))
-    (hx : FieldExtension.toSourceOnPoints k k' X x' = x)
-    (h : GeometricallyReducedAt X x) :
-    GeometricallyReducedAt (AlgebraicSpace.baseChange (specMap k k') X) x' :=
-  sorry
-
-/-- If the field-extension base change is geometrically reduced at a point lying
-over `x`, then `X` is geometrically reduced at `x`. -/
-theorem of_baseChange {k k' : Type u} [Field k] [Field k'] [Algebra k k']
-    (X : AlgebraicSpace (Spec (CommRingCat.of k))) (x : Points X)
-    (x' : Points (AlgebraicSpace.baseChange (specMap k k') X))
-    (hx : FieldExtension.toSourceOnPoints k k' X x' = x)
-    (h : GeometricallyReducedAt (AlgebraicSpace.baseChange (specMap k k') X) x') :
-    GeometricallyReducedAt X x :=
-  sorry
-
-end GeometricallyReducedAt
-
-namespace GeometricallyReduced
-
-/-- Lemma 72.11.6 (2): In particular, `X` is geometrically reduced over `k` if and
-only if `AlgebraicSpace.baseChange (specMap k k') X` is geometrically reduced
-over `k'`. -/
+/- Lemma 72.11.6 (2): Geometric reducedness over the ground field is invariant
+under field extension. -/
 @[stacks 0E04]
-theorem iff_baseChange {k k' : Type u} [Field k] [Field k'] [Algebra k k']
-    (X : AlgebraicSpace (Spec (CommRingCat.of k))) :
-    GeometricallyReduced X ↔
-      GeometricallyReduced (AlgebraicSpace.baseChange (specMap k k') X) :=
-  sorry
-
-/-- A geometrically reduced algebraic space remains geometrically reduced after
-base change along a field extension. -/
-instance inst_baseChange {k k' : Type u} [Field k] [Field k'] [Algebra k k']
-    (X : AlgebraicSpace (Spec (CommRingCat.of k))) [GeometricallyReduced X] :
-    GeometricallyReduced (AlgebraicSpace.baseChange (specMap k k') X) :=
-  sorry
-
-/-- If the field-extension base change of `X` is geometrically reduced, then `X`
-is geometrically reduced. -/
-theorem of_baseChange {k k' : Type u} [Field k] [Field k'] [Algebra k k']
-    (X : AlgebraicSpace (Spec (CommRingCat.of k)))
-    (h : GeometricallyReduced (AlgebraicSpace.baseChange (specMap k k') X)) :
-    GeometricallyReduced X :=
-  sorry
-
-end GeometricallyReduced
+#check (AlgebraicGeometry.AlgebraicSpace.GeometricallyReduced.iff_baseChange :
+  {k k' : Type u} → [Field k] → [Field k'] → [Algebra k k'] →
+    (X : AlgebraicSpace (Spec (CommRingCat.of k))) →
+    (GeometricallyReduced X ↔
+      GeometricallyReduced (AlgebraicSpace.baseChange (specMap k k') X)))
 
 end AlgebraicGeometry.AlgebraicSpace

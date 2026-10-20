@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import ReasLib.Topology.Sheaf.Cohomology.ClosedUnion
@@ -20,7 +14,8 @@ universe u
     Y ∪ Z = Set.univ →
       (TopCat.Sheaf.ClosedUnion.shortComplex Y Z).ShortExact)
 
-/- Exercise 111.60.5 (2) -/
+/- Exercise 111.60.5 (2): the Mayer–Vietoris sequence uses the explicit closed-embedding
+cohomology isomorphisms and the additive Ext functor's biproduct isomorphism. -/
 @[stacks 0EEP] #check (TopCat.Sheaf.ClosedUnion.integerCohomologySequence_exact :
   ∀ {X : TopCat.{u}} {Y Z : Set X} (hY : IsClosed Y) (hZ : IsClosed Z)
     (hcover : Y ∪ Z = Set.univ)

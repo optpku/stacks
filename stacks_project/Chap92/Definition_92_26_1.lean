@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap92.«92_28_0_1_Transitivity»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CotangentComplex.Transitivity
 import StacksCheckRecall
 
 @[expose] public section
@@ -16,17 +10,20 @@ open AlgebraicGeometry.AlgebraicSpace.Cotangent
 
 universe u
 
-variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-
 /- Definition 92.26.1: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of algebraic
 spaces over `S`. The cotangent complex `L_{X/Y}` of `X` over `Y` is the cotangent
 complex of the morphism of ringed topoi `f_small` between the small étale sites of
 `X` and `Y` (see Properties of Spaces, Lemma 66.21.3 and Definition 92.22.1). -/
 @[stacks 08VD]
-#check (cotangentCochain f : CochainComplex (CommModules X) ℤ)
+#check (AlgebraicGeometry.AlgebraicSpace.Cotangent.cotangentCochain :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    CochainComplex (AlgebraicGeometry.AlgebraicSpace.Cotangent.CommModules X) ℤ)
 
-#check (cotangent f : DerivedCategory (CommModules X))
-#check cotangentCochain_eq
-#check (ringedToposHom f : RingedSite.ToposHom (ringedSite X) (ringedSite Y))
-#check structureMapLift
-#check commInverseImageStructureSheafMap_forget
+#check (AlgebraicGeometry.AlgebraicSpace.Cotangent.cotangent :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    DerivedCategory (AlgebraicGeometry.AlgebraicSpace.Cotangent.CommModules X))
+#check (AlgebraicGeometry.AlgebraicSpace.Cotangent.cotangentCochain_eq :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    AlgebraicGeometry.AlgebraicSpace.Cotangent.cotangentCochain f =
+      AlgebraicGeometry.AlgebraicSpace.Cotangent.cotangentCochainObj
+        (AlgebraicGeometry.AlgebraicSpace.Cotangent.structureMapLift f))

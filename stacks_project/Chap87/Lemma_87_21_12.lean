@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap87.Lemma_87_21_3
-public import stacks_project.Chap87.Situation_87_21_11_Composition
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.ChosenFppf.LocalMorphismProperty.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of local WAdm^count morphism properties
@@ -24,47 +18,56 @@ open AlgebraicGeometry.ChosenBigFppfSite TopologicalRing
 
 universe u v
 
-namespace AlgebraicGeometry.IsLocallyCountablyIndexed
+open AlgebraicGeometry.IsLocallyCountablyIndexed
 
-variable {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
-variable [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
-variable [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
-variable (P : ∀ {A B : Type u}
-    [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
-    [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
-    (B →+* A) → Prop)
-variable {X Y Z : Sheaf (𝒮.bigTopology S) (Type (max u v))}
-variable [IsLocallyCountablyIndexed X] [IsLocallyCountablyIndexed Y]
-    [IsLocallyCountablyIndexed Z]
-variable {f : X ⟶ Y} {g : Y ⟶ Z}
-
-/-- Lemma 87.21.12: Let `S` be a scheme. Let `P` be a local property of
-morphisms of `WAdm^count` which is stable under composition. Let `f : X ⟶ Y`
-and `g : Y ⟶ Z` be morphisms of locally countably indexed formal algebraic
-spaces over `S`. If `f` and `g` satisfy the equivalent conditions of Lemma
-87.21.3, then so does `f ≫ g : X ⟶ Z`. -/
+/- Lemma 87.21.12: A composition-stable local property of morphisms of
+countably indexed weakly admissible rings is preserved by composition of
+morphisms of locally countably indexed formal algebraic spaces. -/
 @[stacks 0GBI]
-theorem etaleAffineLocally.comp (hP : IsLocalMorphismProperty P)
-    (h_stable : IsStableUnderComposition P)
-    (hf : etaleAffineLocally P f) (hg : etaleAffineLocally P g) :
-    etaleAffineLocally P (f ≫ g) := sorry
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.etaleAffineLocally.comp :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {X Y Z : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    {f : X ⟶ Y} {g : Y ⟶ Z}
+    [IsLocallyCountablyIndexed X] [IsLocallyCountablyIndexed Y]
+    [IsLocallyCountablyIndexed Z],
+    IsLocalMorphismProperty P → IsStableUnderComposition P →
+    etaleAffineLocally P f → etaleAffineLocally P g →
+    etaleAffineLocally P (f ≫ g))
 
-/-- Condition (2) of Lemma 87.21.3 is stable under composition: if `P` is a
-local property of morphisms of `WAdm^count` that is stable under composition,
-and `f` and `g` admit Definition 87.11.1 coverings of the target as in
-`existsCoverOnTarget`, then so does `f ≫ g`. -/
-theorem existsCoverOnTarget.comp (hP : IsLocalMorphismProperty P)
-    (h_stable : IsStableUnderComposition P)
-    (hf : existsCoverOnTarget P f) (hg : existsCoverOnTarget P g) :
-    existsCoverOnTarget P (f ≫ g) := sorry
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.existsCoverOnTarget.comp :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {X Y Z : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    {f : X ⟶ Y} {g : Y ⟶ Z}
+    [IsLocallyCountablyIndexed X] [IsLocallyCountablyIndexed Y]
+    [IsLocallyCountablyIndexed Z],
+    IsLocalMorphismProperty P → IsStableUnderComposition P →
+    existsCoverOnTarget P f → existsCoverOnTarget P g →
+    existsCoverOnTarget P (f ≫ g))
 
-/-- Condition (3) of Lemma 87.21.3 is stable under composition: if `P` is a
-local property of morphisms of `WAdm^count` that is stable under composition,
-and `f` and `g` admit Definition 87.11.1 coverings of the source as in
-`existsCoverOnSource`, then so does `f ≫ g`. -/
-theorem existsCoverOnSource.comp (hP : IsLocalMorphismProperty P)
-    (h_stable : IsStableUnderComposition P)
-    (hf : existsCoverOnSource P f) (hg : existsCoverOnSource P g) :
-    existsCoverOnSource P (f ≫ g) := sorry
-
-end AlgebraicGeometry.IsLocallyCountablyIndexed
+#check (AlgebraicGeometry.IsLocallyCountablyIndexed.existsCoverOnSource.comp :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+      [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+      (B →+* A) → Prop)
+    {X Y Z : Sheaf (𝒮.bigTopology S) (Type (max u v))}
+    {f : X ⟶ Y} {g : Y ⟶ Z}
+    [IsLocallyCountablyIndexed X] [IsLocallyCountablyIndexed Y]
+    [IsLocallyCountablyIndexed Z],
+    IsLocalMorphismProperty P → IsStableUnderComposition P →
+    existsCoverOnSource P f → existsCoverOnSource P g →
+    existsCoverOnSource P (f ≫ g))

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.GradedAlgebra.Homogeneous.Ideal
@@ -54,21 +48,25 @@ noncomputable def componentMap (i : ι) :
 quotient piece. -/
 @[stacks 052N "homogeneous quotient class"]
 theorem mk_mem_grading {i : ι} {a : A} (ha : a ∈ 𝒜 i) :
-    Ideal.Quotient.mk J a ∈ grading 𝒜 J i := sorry
+    Ideal.Quotient.mk J a ∈ grading 𝒜 J i := by
+  exact ⟨a, ha, rfl⟩
 
 /-- Every element of a quotient degree piece has a representative in the
 corresponding source degree piece. -/
 @[stacks 052N "homogeneous quotient representative"]
 theorem exists_rep_of_mem_grading {i : ι}
     (x : grading 𝒜 J i) :
-    ∃ a : 𝒜 i, Ideal.Quotient.mk J (a : A) = x := sorry
+    ∃ a : 𝒜 i, Ideal.Quotient.mk J (a : A) = x := by
+  rcases x.2 with ⟨a, ha, hx⟩
+  exact ⟨⟨a, ha⟩, hx⟩
 
 /-- The component map has the expected quotient class after coercing out of
 the target degree piece. -/
 @[simp, stacks 052N "homogeneous quotient component value"]
 theorem componentMap_apply (i : ι) (a : 𝒜 i) :
     (componentMap 𝒜 J i a : A ⧸ J) =
-      Ideal.Quotient.mk J (a : A) := sorry
+      Ideal.Quotient.mk J (a : A) := by
+  rfl
 
 /-
 API design: a mapped submodule is a range by construction, so surjectivity belongs beside
@@ -79,7 +77,10 @@ must prove; quotient applications should not rebuild image witnesses or duplicat
 /-- The quotient component map is surjective onto its mapped degree piece. -/
 @[stacks 052N "homogeneous quotient component surjectivity"]
 theorem componentMap_surjective (i : ι) :
-    Function.Surjective (componentMap 𝒜 J i) := sorry
+    Function.Surjective (componentMap 𝒜 J i) := by
+  intro x
+  obtain ⟨a, ha⟩ := exists_rep_of_mem_grading 𝒜 J x
+  exact ⟨a, Subtype.ext ha⟩
 
 /-- An injective quotient component map identifies the source piece with its quotient image. -/
 @[stacks 052N "homogeneous quotient component equivalence"]
@@ -98,13 +99,17 @@ variable [GradedAlgebra 𝒜]
 
 /-- The quotient class of `1` belongs to the degree-zero quotient piece. -/
 @[stacks 052N "homogeneous quotient one membership"]
-theorem one_mem_grading : (1 : A ⧸ J) ∈ grading 𝒜 J 0 := sorry
+theorem one_mem_grading : (1 : A ⧸ J) ∈ grading 𝒜 J 0 := by
+  simpa using mk_mem_grading 𝒜 J (SetLike.one_mem_graded 𝒜)
 
 /-- Products of elements from quotient degree pieces have the expected degree. -/
 @[stacks 052N "homogeneous quotient multiplication membership"]
 theorem mul_mem_grading {i j : ι} {x y : A ⧸ J}
     (hx : x ∈ grading 𝒜 J i) (hy : y ∈ grading 𝒜 J j) :
-    x * y ∈ grading 𝒜 J (i + j) := sorry
+    x * y ∈ grading 𝒜 J (i + j) := by
+  rcases hx with ⟨a, ha, rfl⟩
+  rcases hy with ⟨b, hb, rfl⟩
+  simpa using mk_mem_grading 𝒜 J (SetLike.mul_mem_graded ha hb)
 
 /-- The quotient pieces are multiplicatively graded even before the
 homogeneity hypothesis needed for the internal direct-sum decomposition. -/
@@ -119,7 +124,10 @@ generator of the direct sum. -/
 @[stacks 052N "homogeneous quotient direct-sum one"]
 theorem directSumComponentMap_one :
     (DirectSum.lof R ι (fun i ↦ grading 𝒜 J i) 0)
-      (componentMap 𝒜 J 0 ⟨1, SetLike.one_mem_graded 𝒜⟩) = 1 := sorry
+      (componentMap 𝒜 J 0 ⟨1, SetLike.one_mem_graded 𝒜⟩) = 1 := by
+  change DirectSum.of (fun i ↦ grading 𝒜 J i) 0
+    (componentMap 𝒜 J 0 ⟨1, _⟩) = DirectSum.of (fun i ↦ grading 𝒜 J i) 0 _
+  congr 1
 
 /-- The degreewise quotient maps preserve multiplication of homogeneous
 direct-sum generators. -/
@@ -132,7 +140,9 @@ theorem directSumComponentMap_mul {i j : ι}
       (DirectSum.lof R ι (fun k ↦ grading 𝒜 J k) i)
         (componentMap 𝒜 J i x) *
         (DirectSum.lof R ι (fun k ↦ grading 𝒜 J k) j)
-          (componentMap 𝒜 J j y) := sorry
+          (componentMap 𝒜 J j y) := by
+  rw [DirectSum.lof_eq_of, DirectSum.lof_eq_of, DirectSum.lof_eq_of, DirectSum.of_mul_of]
+  congr 1
 
 /-- The algebra map from the direct sum of source pieces to the direct sum of
 their quotient images, defined degreewise by `componentMap`. -/
@@ -166,7 +176,14 @@ noncomputable def predecomposeAlgHom :
 /-- The algebraic and linear quotient predecompositions agree pointwise. -/
 @[stacks 052N "homogeneous quotient predecomposition value"]
 theorem predecomposeAlgHom_apply (a : A) :
-    predecomposeAlgHom 𝒜 J a = predecompose 𝒜 J a := sorry
+    predecomposeAlgHom 𝒜 J a = predecompose 𝒜 J a := by
+  have h : (directSumAlgHom 𝒜 J).toLinearMap =
+      DirectSum.lmap (fun i ↦ componentMap 𝒜 J i) := by
+    apply DirectSum.linearMap_ext
+    intro i
+    ext x
+    simp [directSumAlgHom, DirectSum.toAlgebra, DirectSum.lof_eq_of]
+  exact DFunLike.congr_fun h (DirectSum.decompose 𝒜 a)
 
 /-- A homogeneous source element maps under the quotient predecomposition to
 the matching direct-sum summand. -/
@@ -175,14 +192,23 @@ theorem predecompose_eq_of_mem {i : ι} {a : A}
     (ha : a ∈ 𝒜 i) :
     predecompose 𝒜 J a =
       DirectSum.of (fun k ↦ grading 𝒜 J k) i
-        ⟨Ideal.Quotient.mk J a, mk_mem_grading 𝒜 J ha⟩ := sorry
+        ⟨Ideal.Quotient.mk J a, mk_mem_grading 𝒜 J ha⟩ := by
+  change DirectSum.lmap _ (DirectSum.decompose 𝒜 a) = _
+  rw [DirectSum.decompose_of_mem 𝒜 ha, DirectSum.lmap_of]
+  rfl
 
 /-- A homogeneous ideal is killed by the componentwise quotient
 predecomposition. -/
 @[stacks 052N "homogeneous quotient predecomposition ideal kernel"]
 theorem predecomposeAlgHom_eq_zero_of_mem
     (hJ : J.IsHomogeneous 𝒜) (a : A) (ha : a ∈ J) :
-    predecomposeAlgHom 𝒜 J a = 0 := sorry
+    predecomposeAlgHom 𝒜 J a = 0 := by
+  rw [predecomposeAlgHom_apply]
+  apply DFinsupp.ext
+  intro i
+  apply Subtype.ext
+  change Ideal.Quotient.mk J (DirectSum.decompose 𝒜 a i : A) = 0
+  exact Ideal.Quotient.eq_zero_iff_mem.mpr ((hJ.mem_iff 𝒜).mp ha i)
 
 /-- The quotient predecomposition descended through a homogeneous ideal.  Its
 computational map is explicit; only the proof that the ideal is annihilated is
@@ -199,14 +225,23 @@ predecomposition after precomposing with the quotient map. -/
 @[stacks 052N "homogeneous quotient decomposition quotient map"]
 theorem decomposeAlgHom_comp_mk (hJ : J.IsHomogeneous 𝒜) :
     (decomposeAlgHom 𝒜 J hJ).comp (Ideal.Quotient.mkₐ R J) =
-      predecomposeAlgHom 𝒜 J := sorry
+      predecomposeAlgHom 𝒜 J := by
+  ext a
+  rfl
 
 /-- Recomposing the descended quotient decomposition is the identity on
 `A ⧸ J`. -/
 @[stacks 052N "homogeneous quotient decomposition right inverse"]
 theorem decomposeAlgHom_right_inv (hJ : J.IsHomogeneous 𝒜) :
     (DirectSum.coeAlgHom (grading 𝒜 J)).comp (decomposeAlgHom 𝒜 J hJ) =
-      AlgHom.id R (A ⧸ J) := sorry
+      AlgHom.id R (A ⧸ J) := by
+  apply Ideal.Quotient.algHom_ext
+  apply (AlgHom.cancel_right (f := (DirectSum.decomposeAlgEquiv 𝒜).symm.toAlgHom)
+    (DirectSum.decomposeAlgEquiv 𝒜).symm.surjective).mp
+  apply DirectSum.algHom_ext
+  intro i x
+  simp [AlgHom.comp_apply, decomposeAlgHom, predecomposeAlgHom_apply,
+    predecompose_eq_of_mem 𝒜 J x.2]
 
 /-- The descended quotient decomposition sends each quotient homogeneous
 element to its matching direct-sum generator. -/
@@ -214,7 +249,13 @@ element to its matching direct-sum generator. -/
 theorem decomposeAlgHom_left_inv (hJ : J.IsHomogeneous 𝒜)
     (i : ι) (x : grading 𝒜 J i) :
     decomposeAlgHom 𝒜 J hJ (x : A ⧸ J) =
-      DirectSum.of (fun k ↦ grading 𝒜 J k) i x := sorry
+      DirectSum.of (fun k ↦ grading 𝒜 J k) i x := by
+  obtain ⟨a, ha⟩ := exists_rep_of_mem_grading 𝒜 J x
+  rw [← ha]
+  change predecomposeAlgHom 𝒜 J a.1 = _
+  rw [predecomposeAlgHom_apply, predecompose_eq_of_mem 𝒜 J a.2]
+  congr 1
+  exact Subtype.ext ha
 
 /-- The canonical graded-algebra structure on the quotient by a homogeneous
 ideal.  This is an explicit owner rather than a global instance because the
@@ -249,7 +290,11 @@ inferable for commutative rings and mathematically necessary otherwise.
 @[stacks 00K1 "homogeneous principal ideal"]
 theorem spanSingleton_isHomogeneous {a : A}
     (ha : SetLike.IsHomogeneousElem 𝒜 a) :
-    (Ideal.span ({a} : Set A)).IsHomogeneous 𝒜 := sorry
+    (Ideal.span ({a} : Set A)).IsHomogeneous 𝒜 := by
+  apply Ideal.homogeneous_span
+  intro x hx
+  obtain rfl := Set.mem_singleton_iff.mp hx
+  exact ha
 
 /-- The canonical graded-algebra structure on the quotient by a homogeneous principal ideal. -/
 @[reducible, stacks 00K1 "homogeneous principal quotient graded algebra"]

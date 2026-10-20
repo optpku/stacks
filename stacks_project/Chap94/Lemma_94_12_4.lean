@@ -1,28 +1,31 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap94.Lemma_94_12_4_Equivalence
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Equivalence
 import StacksCheckRecall
 
 @[expose] public section
 
+open CategoryTheory AlgebraicGeometry
+open scoped Bicategory
+
+universe u
+
 /- Lemma 94.12.4 (1): let `S` be a scheme contained in `Sch_fppf`, and let `X`,
 `Y` be categories over `(Sch/S)_fppf`, formalized as objects of
-`GroupoidsOver S` (via `FiberedCategoryOver.Groupoids.toBased`). If `X` and `Y`
+`BasedCategory (Over S)`. If `X` and `Y`
 are equivalent as categories over `(Sch/S)_fppf`, then `X` is an algebraic
 stack if and only if `Y` is an algebraic stack. -/
 @[stacks 03YQ]
-#check @AlgebraicGeometry.AlgebraicStack.iff_of_equivalence
+#check (CategoryTheory.BasedCategory.IsAlgebraicStack.iff_of_equivalence :
+  ∀ {S : Scheme.{u}} {X Y : BasedCategory.{u, u + 1} (Over S)} (e : X ≌ Y),
+    BasedCategory.IsAlgebraicStack X ↔ BasedCategory.IsAlgebraicStack Y)
 
 /- Lemma 94.12.4 (2): let `S` be a scheme contained in `Sch_fppf`, and let `X`,
 `Y` be categories over `(Sch/S)_fppf`, formalized as objects of
-`GroupoidsOver S` (via `FiberedCategoryOver.Groupoids.toBased`). If `X` and `Y`
+`BasedCategory (Over S)`. If `X` and `Y`
 are equivalent as categories over `(Sch/S)_fppf`, then `X` is a Deligne-Mumford
 stack if and only if `Y` is a Deligne-Mumford stack. -/
 @[stacks 03YQ]
-#check @AlgebraicGeometry.DeligneMumfordStack.iff_of_equivalence
+#check (CategoryTheory.BasedCategory.IsDeligneMumfordStack.iff_of_equivalence :
+  ∀ {S : Scheme.{u}} {X Y : BasedCategory.{u, u + 1} (Over S)} (e : X ≌ Y),
+    BasedCategory.IsDeligneMumfordStack X ↔ BasedCategory.IsDeligneMumfordStack Y)

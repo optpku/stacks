@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap75.Lemma_75_26_3_FiberEulerCharacteristic
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.FiberEulerCharacteristic
 
 @[expose] public section
 
@@ -19,7 +13,7 @@ universe u
 `D(𝒪_X)` is perfect, then the Euler characteristic of the derived residue-field fiber of
 `E` is locally constant on `Points X`. -/
 @[stacks 0D1Z] #check
-  (ModuleDerived.fiberEulerChar_isLocallyConstant :
+  (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.fiberEulerChar_isLocallyConstant :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (E : ModuleDerived X),
       ModuleDerived.IsPerfect E →
         IsLocallyConstant (ModuleDerived.fiberEulerChar E))

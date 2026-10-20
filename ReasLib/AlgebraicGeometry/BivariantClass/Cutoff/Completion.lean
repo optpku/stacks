@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
@@ -55,7 +49,7 @@ theorem ext
     {f : Z ⟶ X} [IsClosedImmersion f.left] {p : ℕ} {a b : Family δ f p}
     (h : ∀ n, a n = b n) : a = b := sorry
 
-/-- The convolution unit of the source cutoff `A⁽¹⁾(Z ⟶ X)`: the identity class
+/-- The convolution unit of the cutoff-one family: the identity class
 of `X` in degree `0`, and zero in every positive degree. -/
 def one
     {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
@@ -80,9 +74,9 @@ theorem one_apply_succ
     (f : Z ⟶ X) [IsClosedImmersion f.left] (n : ℕ) :
     one δ f (n + 1) = 0 := sorry
 
-/-- The homogeneous mixed product of two coefficients in the source cutoff `p = 1`.
+/-- The homogeneous mixed product of two coefficients in the cutoff-one family.
 Ambient-ambient products occur only in degree `0`; every other antidiagonal factor
-uses a Remark 42.34.7 mixed product into a relative degree. -/
+uses a mixed bivariant product into a relative degree. -/
 def mulTerm
     {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
     {Z X : Over S} [LocallyOfFiniteType Z.hom] [LocallyOfFiniteType X.hom]
@@ -127,7 +121,7 @@ def mulTerm
           (toRelative δ f (not_lt.mpr (Nat.cast_le.mpr (le_of_not_gt hj))) d)))
 
 /-- Finite Cauchy convolution on `A⁰(X) × ∏_{i≥1} Aⁱ(Z ⟶ X)`, using ambient
-multiplication in degree `0` and the mixed Remark 42.34.7 products from degree `1`. -/
+multiplication in degree `0` and mixed bivariant products from degree `1`. -/
 def mul
     {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
     {Z X : Over S} [LocallyOfFiniteType Z.hom] [LocallyOfFiniteType X.hom]
@@ -147,7 +141,7 @@ theorem mul_apply
         mulTerm δ f (Finset.mem_antidiagonal.mp ij.property) (a ij.1.1) (b ij.1.2) :=
   sorry
 
-/-- The canonical unit on the source cutoff family `A⁽¹⁾(Z ⟶ X)`. -/
+/-- The canonical unit on the cutoff-one family. -/
 noncomputable instance instOne
     {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
     {Z X : Over S} [LocallyOfFiniteType Z.hom] [LocallyOfFiniteType X.hom]
@@ -155,7 +149,7 @@ noncomputable instance instOne
     One (Family δ f 1) :=
   ⟨one δ f⟩
 
-/-- The canonical convolution multiplication on the source cutoff family `A⁽¹⁾(Z ⟶ X)`. -/
+/-- The canonical convolution multiplication on the cutoff-one family. -/
 noncomputable instance instMul
     {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
     {Z X : Over S} [LocallyOfFiniteType Z.hom] [LocallyOfFiniteType X.hom]
@@ -163,7 +157,7 @@ noncomputable instance instMul
     Mul (Family δ f 1) :=
   ⟨mul δ f⟩
 
-/-- Convolution multiplication of source cutoff families is associative. -/
+/-- Convolution multiplication of cutoff-one families is associative. -/
 theorem mul_assoc_axiom
     {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
     {Z X : Over S} [LocallyOfFiniteType Z.hom] [LocallyOfFiniteType X.hom]
@@ -184,8 +178,8 @@ theorem mul_one_axiom
     (f : Z ⟶ X) [IsClosedImmersion f.left] (a : Family δ f 1) :
     a * 1 = a := sorry
 
-/-- The canonical monoid of source cutoff families under Cauchy convolution.
-The Remark 42.34.7 product is order-sensitive, so this is not a `CommMonoid`. -/
+/-- The canonical monoid of cutoff-one families under Cauchy convolution.
+The mixed bivariant product is order-sensitive, so this is not a `CommMonoid`. -/
 noncomputable instance instMonoid
     {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
     {Z X : Over S} [LocallyOfFiniteType Z.hom] [LocallyOfFiniteType X.hom]
@@ -197,7 +191,7 @@ noncomputable instance instMonoid
   one_mul := one_mul_axiom δ f
   mul_one := mul_one_axiom δ f
 
-/-- The recursive Cauchy inverse of a source cutoff family, normalized so that the
+/-- The recursive Cauchy inverse of a cutoff-one family, normalized so that the
 constant term is the convolution unit. -/
 def formalInverse
     {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]

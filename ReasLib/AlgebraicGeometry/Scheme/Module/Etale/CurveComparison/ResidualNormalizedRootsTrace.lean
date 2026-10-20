@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.ResidualGeometricSiteComparison
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.CentralRootsPullback
@@ -137,7 +131,7 @@ def completedSourceIso :
       (ComplexShape.up ℕ)).obj (injectiveResolution (compactRoots n X P)).cocomplex)
 
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj (A.{u} n) Gal(AlgebraicClosure k/k)))]
+  (completedGroupRing (A.{u} n) Gal(AlgebraicClosure k/k)))]
 
 /-- Fully residual-equivariant completed-linear normalized roots trace.
 The target is concentrated in degree 2, hence carries the approved [-2]. -/
@@ -145,7 +139,7 @@ def derivedCompletedTrace :
     DerivedCategory.Q.obj (NoncommGeometricSource.arithmeticCochain
       (A.{u} n) P.obj.right (compactRoots n X P)) ⟶
     DerivedCategory.Q.obj ((CochainComplex.singleFunctor
-      (ModuleCat.{u + 1} (NoncommCompletedRing.Obj (A.{u} n) Gal(AlgebraicClosure k/k))) 2).obj
+      (ModuleCat.{u + 1} (completedGroupRing (A.{u} n) Gal(AlgebraicClosure k/k))) 2).obj
         ((NoncommPointwiseCompletedAction.functor (A.{u} n) Gal(AlgebraicClosure k/k)).obj
           (target (k := k) n))) :=
   DerivedCategory.Q.map (completedSourceIso n X P).inv ≫

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowGroup.Moving.QuasiProjective
@@ -35,11 +29,11 @@ rationally equivalent to an `r`-cycle intersecting a prescribed `s`-cycle proper
           (CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction (fun _ ↦ 0)) r α')
           (CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction (fun _ ↦ 0)) s β))
 
-/- Remark 43.25.3 (2): on a nonsingular quasi-projective variety over any field, the
-proper intersection of a cycle rationally equivalent to zero with another cycle is
+/- Remark 43.25.3 (2): on a nonsingular quasi-projective variety over an algebraically closed
+field, the proper intersection of a cycle rationally equivalent to zero with another cycle is
 rationally equivalent to zero. -/
 @[stacks 0B61] #check (AlgebraicGeometry.CycleGroup.intersection_rationallyEquivalent_zero_of_quasiProjective :
-    ∀ {k : Type u} [Field k]
+    ∀ {k : Type u} [Field k] [IsAlgClosed k]
     (X : SchemeOverField k) [QuasiProjectiveVariety X] [Scheme.Regular X.left]
     (r s : ℤ)
     (α : CycleGroup X.left (X.hom.relativeDimensionFunction (fun _ ↦ 0)) r)

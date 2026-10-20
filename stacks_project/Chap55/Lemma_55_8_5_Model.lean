@@ -1,76 +1,32 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Fiber
-public import Mathlib.Algebra.Ring.Defs
-public import Mathlib.AlgebraicGeometry.Morphisms.Flat
-public import Mathlib.AlgebraicGeometry.Morphisms.Proper
-public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
-public import Mathlib.RingTheory.DiscreteValuationRing.Basic
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.Basic
-public import ReasLib.AlgebraicGeometry.Scheme.OverField
-public import ReasLib.AlgebraicGeometry.Scheme.Regular
-public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve
+public import ReasLib.AlgebraicGeometry.Scheme.Model.Regular.Basic
 
 @[expose] public section
 
 open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
 open scoped AlgebraicGeometry
 
-namespace AlgebraicGeometry.Scheme.Hom
-
-/-- A regular proper model of a smooth projective curve over the fraction field of a
-discrete valuation ring, together with its identification on the generic fibre. -/
-structure RegularModel.{u} (R K : Type u) [CommRing R] [IsDomain R]
-    [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
-    (C : SchemeOverField K) [Curve C] [Smooth C.hom] [Projective C.hom] where
-  /-- The scheme underlying the model. -/
-  scheme : Scheme.{u}
-  /-- The structural morphism of the model over the discrete valuation ring. -/
-  base : scheme ⟶ Spec (CommRingCat.of R)
-  /-- The model scheme is Noetherian. -/
-  isNoetherian : IsNoetherian scheme
-  /-- The structural morphism is flat. -/
-  flat : Flat base
-  /-- The structural morphism is of finite type. -/
-  finiteType : FiniteType base
-  /-- The structural morphism is proper. -/
-  proper : IsProper base
-  /-- The model scheme is regular. -/
-  regular : Scheme.Regular scheme
-  /-- The generic fibre is identified with the given curve. -/
-  genericFiberIso : C ≅ Over.mk
-    (pullback.snd base (Spec.map (CommRingCat.ofHom (algebraMap R K))))
-
 universe u
 
-namespace RegularModel
+namespace AlgebraicGeometry.Scheme.Hom
 
-/-- Construct a regular model from its structural data and generic-fibre identification. -/
-def ofData {R K : Type u} [CommRing R] [IsDomain R]
+/- The regular-model bundle is provided by its mathematical owner. -/
+#check (AlgebraicGeometry.Scheme.Hom.RegularModel :
+  ∀ (R K : Type u) [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
+    [Field K] [Algebra R K] [IsFractionRing R K]
+    (C : SchemeOverField K) [Curve C] [Smooth C.hom] [Projective C.hom], Type (u + 1))
+
+/- The explicit constructor preserves the structural data and generic-fibre identification. -/
+#check (AlgebraicGeometry.Scheme.Hom.RegularModel.ofData :
+  ∀ {R K : Type u} [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
     (X : Scheme.{u}) (f : X ⟶ Spec (CommRingCat.of R))
     (h_noetherian : IsNoetherian X) (h_flat : Flat f) (h_finiteType : FiniteType f)
     (h_proper : IsProper f) (h_regular : Scheme.Regular X)
     (genericFiberIso : C ≅ Over.mk
-      (pullback.snd f (Spec.map (CommRingCat.ofHom (algebraMap R K))))) :
-    RegularModel R K C :=
-  { scheme := X
-    base := f
-    isNoetherian := h_noetherian
-    flat := h_flat
-    finiteType := h_finiteType
-    proper := h_proper
-    regular := h_regular
-    genericFiberIso := genericFiberIso }
-
-end RegularModel
+      (pullback.snd f (Spec.map (CommRingCat.ofHom (algebraMap R K))))),
+    RegularModel R K C)
 
 end AlgebraicGeometry.Scheme.Hom

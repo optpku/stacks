@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowCohomology.ChernClass.Theory
 public import ReasLib.AlgebraicGeometry.ChowCohomology.ChernClass.RankDecomposition
+public import ReasLib.AlgebraicGeometry.ChowCohomology.ChernClass.Canonical
 
 @[expose] public section
 
@@ -21,3 +16,11 @@ universe u
     [AlgebraicGeometry.UniversallyCatenary S] [IsDimensionFunction δ]
     {X : AlgebraicGeometry.Scheme.{u}} (p : X ⟶ S)
     [AlgebraicGeometry.LocallyOfFiniteType p], Type (u + 1))
+
+/- The source-facing theory is inhabited by the rankwise canonical Chern classes. -/
+#check (AlgebraicGeometry.ChernClass.Theory.canonical :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (δ : S → ℤ)
+    [AlgebraicGeometry.UniversallyCatenary S] [IsDimensionFunction δ]
+    {X : AlgebraicGeometry.Scheme.{u}} (p : X ⟶ S)
+    [AlgebraicGeometry.LocallyOfFiniteType p],
+    AlgebraicGeometry.ChernClass.Theory δ p)

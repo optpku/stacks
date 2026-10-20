@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.MultiplicativeGroup.TameFiber
+public import ReasLib.AlgebraicGeometry.Scheme.GeometricPoint.FiniteEtale.Automorphism
 public import ReasLib.AlgebraicGeometry.Scheme.OverField.ClosedPoints
 public import Mathlib.FieldTheory.Finite.Basic
 public import Mathlib.Algebra.Group.Conj
@@ -41,31 +36,6 @@ def pointOver (x : closedPoints (overField k).left) : GeometricPoint (space k) :
         (AlgebraicClosure ((space k).residueField x.val)))) ≫
       (space k).fromSpecResidueField x.val)
 
-/-- Precompose lifts with a specified automorphism of their actual source spectrum. -/
-def pointAut {X : Scheme.{u}} (s : GeometricPoint X)
-    (τ : Spec (.of s.K) ≅ Spec (.of s.K)) (hτ : τ.hom ≫ s.hom = s.hom) :
-    Aut s.finiteFiber :=
-  NatIso.ofComponents (fun V : Scheme.FiniteEtale X ↦
-    { hom := FintypeCat.homMk (fun (a : Over.mk s.hom ⟶ Over.mk V.hom) ↦
-        Over.homMk (τ.hom ≫ a.left)
-          ((Category.assoc _ _ _).trans
-            ((congrArg (fun f ↦ τ.hom ≫ f) a.w).trans hτ)))
-      inv := FintypeCat.homMk (fun (a : Over.mk s.hom ⟶ Over.mk V.hom) ↦
-        Over.homMk (τ.inv ≫ a.left) (by
-          have hi : τ.inv ≫ s.hom = s.hom := by
-            calc
-              τ.inv ≫ s.hom = τ.inv ≫ τ.hom ≫ s.hom := congrArg (τ.inv ≫ ·) hτ.symm
-              _ = s.hom := τ.inv_hom_id_assoc _
-          exact (Category.assoc _ _ _).trans
-            ((congrArg (fun f ↦ τ.inv ≫ f) a.w).trans hi)))
-      hom_inv_id := by sorry
-      inv_hom_id := by sorry }) (fun _ ↦ by sorry)
-
-theorem pointAut_apply {X : Scheme.{u}} (s : GeometricPoint X)
-    (τ : Spec (.of s.K) ≅ Spec (.of s.K)) (hτ : τ.hom ≫ s.hom = s.hom)
-    (V : Scheme.FiniteEtale X) (a : s.finiteFiber.obj V) :
-    ((pointAut s τ hτ).hom.app V a).left = τ.hom ≫ a.left := rfl
-
 variable [Finite k]
 
 /-- Inverse of the actual #κ(x)-power automorphism, not an arbitrary degree-d element. -/
@@ -91,7 +61,7 @@ theorem residueSpecIso_over (x : closedPoints (overField k).left) :
 /-- The actual ordinary local Frobenius, before projection to tame covers. -/
 def ordinaryLocalFrobenius (x : closedPoints (overField k).left) :
     Aut (pointOver k x).finiteFiber :=
-  pointAut (pointOver k x) (residueSpecIso k x) (residueSpecIso_over k x)
+  GeometricPoint.finiteFiberAut (pointOver k x) (residueSpecIso k x) (residueSpecIso_over k x)
 
 /-- The local tame Frobenius is the canonical restriction of the preceding action. -/
 def localFrobenius (x : closedPoints (overField k).left) :
@@ -127,7 +97,7 @@ theorem frobeniusClass_unique (η : GeometricPoint (space k))
 /-- The actual degree image is the same inverse residue Frobenius acting on constant fibers. -/
 theorem localFrobenius_degree (x : closedPoints (overField k).left) :
     degree k (pointOver k x) (localFrobenius k x) =
-      pointAut (constantPoint k (pointOver k x)) (residueSpecIso k x)
+      GeometricPoint.finiteFiberAut (constantPoint k (pointOver k x)) (residueSpecIso k x)
         (by change (residueSpecIso k x).hom ≫ ((pointOver k x).hom ≫ structureMap k) = _
             rw [← Category.assoc, residueSpecIso_over]
             rfl) := by

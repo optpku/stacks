@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChernClass.Tensor
@@ -28,7 +22,7 @@ Chern classes of `E` and powers of the first Chern class of `L`. -/
       (A : Cᵒᵖ ⥤ RingCat.{x})
       (Agrade : ∀ X, ℕ → Submodule ℤ (A.obj (Opposite.op X)))
       [∀ X, GradedAlgebra (Agrade X)]
-      (S : AlgebraicGeometry.ChernClass.Theory toScheme A Agrade)
+      (S : AlgebraicGeometry.ChernClass.CohomologyTheory toScheme A Agrade)
       (c : AlgebraicGeometry.ChernClass.TotalChernClass
         toScheme A Agrade S.firstChernClass)
       (X : C) (E L : (toScheme.obj X).Modules) (r i : ℕ)

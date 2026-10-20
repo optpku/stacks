@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.CartesianBasedFunctor.Basic
 public import ReasLib.CategoryTheory.Fibered.CartesianBasedFunctor.HomPresheaf
 public import ReasLib.CategoryTheory.Fibered.Cleavage.Basic.Intrinsic
+public import ReasLib.CategoryTheory.Sites.LocallyBijective.SheafLift
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -234,18 +229,34 @@ theorem LocallyEssentiallySurjective.right_of_comp_iso
 namespace Homwise
 
 /-- A heterogeneous cartesian functor is locally fully faithful when every minimally lifted
-Hom-presheaf map belongs to the localizing class of the corresponding slice site. -/
+Hom-presheaf map is locally injective and locally surjective on the corresponding slice site. -/
 @[stacks 02ZP "(1), Hom-presheaf local equivalence",
   stacks 02ZN "(1), stackification Hom-presheaf local equivalence"]
 def IsLocalEquivalence
     (J : GrothendieckTopology C) (F : CartesianBasedFunctor p₁ p₂) : Prop :=
   ∀ {U : C} (x y : p₁.Fiber U),
-    (J.over U).W (HomPresheaf.Chosen.map F x y)
+    Presheaf.IsLocallyInjective (J.over U) (HomPresheaf.Chosen.map F x y) ∧
+      Presheaf.IsLocallySurjective (J.over U) (HomPresheaf.Chosen.map F x y)
+
+/-- Each Hom map of a locally fully faithful cartesian functor is locally injective. -/
+theorem IsLocalEquivalence.homPresheafMap_isLocallyInjective
+    {J : GrothendieckTopology C} {F : CartesianBasedFunctor p₁ p₂}
+    (hF : IsLocalEquivalence J F) {U : C} (x y : p₁.Fiber U) :
+    Presheaf.IsLocallyInjective (J.over U) (HomPresheaf.Chosen.map F x y) :=
+  (hF x y).1
+
+/-- Each Hom map of a locally fully faithful cartesian functor is locally surjective. -/
+theorem IsLocalEquivalence.homPresheafMap_isLocallySurjective
+    {J : GrothendieckTopology C} {F : CartesianBasedFunctor p₁ p₂}
+    (hF : IsLocalEquivalence J F) {U : C} (x y : p₁.Fiber U) :
+    Presheaf.IsLocallySurjective (J.over U) (HomPresheaf.Chosen.map F x y) :=
+  (hF x y).2
 
 /-- The pointwise localizing-class criterion for heterogeneous Homwise local equivalence. -/
 @[stacks 02ZN "stackification Homwise local-equivalence criterion"]
 theorem isLocalEquivalence_iff
-    (J : GrothendieckTopology C) (F : CartesianBasedFunctor p₁ p₂) :
+    (J : GrothendieckTopology C) (F : CartesianBasedFunctor p₁ p₂)
+    [∀ U : C, (J.over U).WEqualsLocallyBijective (Type (max vS₁ vS₂))] :
     IsLocalEquivalence J F ↔
       ∀ {U : C} (x y : p₁.Fiber U),
         (J.over U).W (HomPresheaf.Chosen.map F x y) := sorry
@@ -288,7 +299,8 @@ slice-site localizing class. -/
 theorem IsLocalEquivalence.homPresheafMap_mem
     {J : GrothendieckTopology C} {F : CartesianBasedFunctor p₁ p₂}
     (hF : IsLocalEquivalence J F) {U : C} (x y : p₁.Fiber U) :
-    (J.over U).W (HomPresheaf.Chosen.map F x y) := sorry
+    (J.over U).W (HomPresheaf.Chosen.map F x y) :=
+  Presheaf.LocallyBijective.mem_W _ _ (hF.1 x y).1 (hF.1 x y).2
 
 /-- The identity cartesian functor is a heterogeneous local equivalence. -/
 @[stacks 02ZN "identity stackification local equivalence"]

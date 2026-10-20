@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Limits
@@ -35,33 +29,26 @@ namespace AlgebraicGeometry
 
 namespace AlgebraicSpace
 
-/-- An algebraic space over `S` is represented by a functor of points on schemes over `S` that is
-an fppf sheaf with representable diagonal and a representable étale locally-surjective atlas. -/
-structure Obj (S : Scheme.{u}) where
-  /-- The functor of points on schemes over the base. -/
-  functorOfPoints : (Over S)ᵒᵖ ⥤ Type u
+/-- A functor of points on schemes over `S` is an algebraic space when it is an fppf sheaf
+with representable diagonal and a representable étale locally-surjective atlas. -/
+class IsAlgebraicSpace {S : Scheme.{u}} (F : (Over S)ᵒᵖ ⥤ Type u) : Prop where
   /-- The functor of points satisfies fppf descent. -/
-  isSheaf : Presheaf.IsSheaf (Scheme.fppfTopology.over S) functorOfPoints
+  isSheaf : Presheaf.IsSheaf (Scheme.fppfTopology.over S) F
   /-- The diagonal of the functor of points is representable by schemes. -/
-  representableDiagonal :
-    yoneda.relativelyRepresentable (Limits.diag functorOfPoints)
+  representableDiagonal : yoneda.relativelyRepresentable (Limits.diag F)
   /-- There is a representable étale atlas that is locally surjective. -/
-  atlas : ∃ (U : Over S) (p : yoneda.obj U ⟶ functorOfPoints),
+  atlas : ∃ (U : Over S) (p : yoneda.obj U ⟶ F),
     MorphismProperty.presheaf (MorphismProperty.over (@Etale)) p ∧
       Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p
 
-/-- Construct an algebraic-space object from its functor of points and defining conditions. -/
-def Obj.ofFunctor {S : Scheme.{u}} (F : (Over S)ᵒᵖ ⥤ Type u)
-    (isSheaf : Presheaf.IsSheaf (Scheme.fppfTopology.over S) F)
-    (representableDiagonal : yoneda.relativelyRepresentable (Limits.diag F))
-    (atlas : ∃ (U : Over S) (p : yoneda.obj U ⟶ F),
-      MorphismProperty.presheaf (MorphismProperty.over (@Etale)) p ∧
-        Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p) :
-    Obj S where
-  functorOfPoints := F
-  isSheaf := isSheaf
-  representableDiagonal := representableDiagonal
-  atlas := atlas
+/-- An algebraic space over `S` is a functor of points on schemes over `S` together with the proof
+that it is an algebraic space: an fppf sheaf with representable diagonal and a representable étale
+locally-surjective atlas. -/
+structure Obj (S : Scheme.{u}) where
+  /-- The functor of points on schemes over the base. -/
+  functorOfPoints : (Over S)ᵒᵖ ⥤ Type u
+  /-- The functor of points is an algebraic space. -/
+  isAlgebraicSpace : IsAlgebraicSpace functorOfPoints
 
 /-- The category whose objects are algebraic spaces over `S` and whose morphisms are natural
 transformations of their functors of points. -/
@@ -90,7 +77,8 @@ def ofFunctor {S : Scheme.{u}} (F : (Over S)ᵒᵖ ⥤ Type u)
     (atlas : ∃ (U : Over S) (p : yoneda.obj U ⟶ F),
       MorphismProperty.presheaf (MorphismProperty.over (@Etale)) p ∧
         Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p) :
-    AlgebraicSpace S := Obj.ofFunctor F isSheaf representableDiagonal atlas
+    AlgebraicSpace S :=
+  ({ functorOfPoints := F, isAlgebraicSpace := ⟨isSheaf, representableDiagonal, atlas⟩ } : Obj S)
 
 /-- The functor of points of an algebraic space over `S`. -/
 abbrev functorOfPoints {S : Scheme.{u}} (X : AlgebraicSpace S) : (Over S)ᵒᵖ ⥤ Type u :=
@@ -98,20 +86,20 @@ abbrev functorOfPoints {S : Scheme.{u}} (X : AlgebraicSpace S) : (Over S)ᵒᵖ 
 
 /-- The fppf-sheaf condition of an algebraic space over `S`. -/
 abbrev isSheaf {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    Presheaf.IsSheaf (Scheme.fppfTopology.over S) (Obj.functorOfPoints X) :=
-  Obj.isSheaf X
+    Presheaf.IsSheaf (Scheme.fppfTopology.over S) X.functorOfPoints :=
+  (Obj.isAlgebraicSpace X).isSheaf
 
 /-- The representability of the diagonal of an algebraic space over `S`. -/
 abbrev representableDiagonal {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    yoneda.relativelyRepresentable (Limits.diag (Obj.functorOfPoints X)) :=
-  Obj.representableDiagonal X
+    yoneda.relativelyRepresentable (Limits.diag X.functorOfPoints) :=
+  (Obj.isAlgebraicSpace X).representableDiagonal
 
 /-- The representable étale locally-surjective atlas condition of an algebraic space over `S`. -/
 abbrev atlas {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    ∃ (U : Over S) (p : yoneda.obj U ⟶ Obj.functorOfPoints X),
+    ∃ (U : Over S) (p : yoneda.obj U ⟶ X.functorOfPoints),
       MorphismProperty.presheaf (MorphismProperty.over (@Etale)) p ∧
         Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p :=
-  Obj.atlas X
+  (Obj.isAlgebraicSpace X).atlas
 
 /-- The functor of points of `ofFunctor F isSheaf representableDiagonal atlas` is `F`. -/
 @[simp]
@@ -121,22 +109,7 @@ theorem ofFunctor_functorOfPoints {S : Scheme.{u}} (F : (Over S)ᵒᵖ ⥤ Type 
     (atlas : ∃ (U : Over S) (p : yoneda.obj U ⟶ F),
       MorphismProperty.presheaf (MorphismProperty.over (@Etale)) p ∧
         Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p) :
-    (ofFunctor F isSheaf representableDiagonal atlas).functorOfPoints = F := sorry
-
-/-- The algebraic space constructed by `ofFunctor` satisfies the fppf sheaf, representable
-diagonal, and representable étale locally-surjective atlas conditions. -/
-theorem ofFunctor_spec {S : Scheme.{u}} (F : (Over S)ᵒᵖ ⥤ Type u)
-    (isSheaf : Presheaf.IsSheaf (Scheme.fppfTopology.over S) F)
-    (representableDiagonal : yoneda.relativelyRepresentable (Limits.diag F))
-    (atlas : ∃ (U : Over S) (p : yoneda.obj U ⟶ F),
-      MorphismProperty.presheaf (MorphismProperty.over (@Etale)) p ∧
-        Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p) :
-    let X := ofFunctor F isSheaf representableDiagonal atlas
-    Presheaf.IsSheaf (Scheme.fppfTopology.over S) X.functorOfPoints ∧
-      yoneda.relativelyRepresentable (Limits.diag X.functorOfPoints) ∧
-        ∃ (U : Over S) (p : yoneda.obj U ⟶ X.functorOfPoints),
-          MorphismProperty.presheaf (MorphismProperty.over (@Etale)) p ∧
-            Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p := sorry
+    (ofFunctor F isSheaf representableDiagonal atlas).functorOfPoints = F := rfl
 
 /-- The representable functor `yoneda.obj T` is an fppf sheaf on schemes over `S`. -/
 theorem ofOver_isSheaf {S : Scheme.{u}} (T : Over S) :
@@ -176,33 +149,12 @@ def ofOver {S : Scheme.{u}} (T : Over S) : AlgebraicSpace S :=
 /-- The functor of points of the algebraic space represented by `T` is `yoneda.obj T`. -/
 @[simp]
 theorem ofOver_functorOfPoints {S : Scheme.{u}} (T : Over S) :
-    (ofOver T).functorOfPoints = yoneda.obj T := sorry
-
-/-- The algebraic space represented by `T` has the fppf sheaf and representable diagonal
-properties, together with its identity étale locally-surjective atlas. -/
-theorem ofOver_spec {S : Scheme.{u}} (T : Over S) :
-    Presheaf.IsSheaf (Scheme.fppfTopology.over S) (ofOver T).functorOfPoints ∧
-      yoneda.relativelyRepresentable (Limits.diag (ofOver T).functorOfPoints) ∧
-        ∃ (U : Over S) (p : yoneda.obj U ⟶ (ofOver T).functorOfPoints),
-          (MorphismProperty.over (@Etale)).presheaf p ∧
-            Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p := sorry
-
-/-- A functor of points on schemes over `S` is an algebraic space when it is an fppf sheaf
-with representable diagonal and a representable étale locally-surjective atlas. -/
-class IsAlgebraicSpace {S : Scheme.{u}} (F : (Over S)ᵒᵖ ⥤ Type u) : Prop where
-  /-- The functor of points satisfies fppf descent. -/
-  isSheaf : Presheaf.IsSheaf (Scheme.fppfTopology.over S) F
-  /-- The diagonal of the functor of points is representable by schemes. -/
-  representableDiagonal : yoneda.relativelyRepresentable (Limits.diag F)
-  /-- There is a representable étale atlas that is locally surjective. -/
-  atlas : ∃ (U : Over S) (p : yoneda.obj U ⟶ F),
-    MorphismProperty.presheaf (MorphismProperty.over (@Etale)) p ∧
-      Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p
+    (ofOver T).functorOfPoints = yoneda.obj T := rfl
 
 /-- The functor of points of a bundled algebraic space is an algebraic space. -/
-theorem instIsAlgebraicSpace_functorOfPoints {S : Scheme.{u}} (X : AlgebraicSpace S) :
+def instIsAlgebraicSpace_functorOfPoints {S : Scheme.{u}} (X : AlgebraicSpace S) :
     IsAlgebraicSpace X.functorOfPoints :=
-  ⟨X.isSheaf, X.representableDiagonal, X.atlas⟩
+  Obj.isAlgebraicSpace X
 
 /-- The representable presheaf of a scheme over `S` is an algebraic space with its identity
 étale locally-surjective atlas. -/
@@ -216,14 +168,13 @@ instance instIsAlgebraicSpaceYoneda {S : Scheme.{u}} (T : Over S) :
 algebraic-space recognition conditions. -/
 def ofIsAlgebraicSpace {S : Scheme.{u}} (F : (Over S)ᵒᵖ ⥤ Type u) [IsAlgebraicSpace F] :
     AlgebraicSpace S :=
-  ofFunctor F IsAlgebraicSpace.isSheaf IsAlgebraicSpace.representableDiagonal
-    IsAlgebraicSpace.atlas
+  ({ functorOfPoints := F, isAlgebraicSpace := inferInstance } : Obj S)
 
 /-- The functor of points of `ofIsAlgebraicSpace F` is `F`. -/
 @[simp]
 theorem ofIsAlgebraicSpace_functorOfPoints {S : Scheme.{u}} (F : (Over S)ᵒᵖ ⥤ Type u)
     [IsAlgebraicSpace F] :
-    (ofIsAlgebraicSpace F).functorOfPoints = F := sorry
+    (ofIsAlgebraicSpace F).functorOfPoints = F := rfl
 
 /-- A functor of points is an algebraic space if and only if it is an fppf sheaf with
 representable diagonal and a representable étale locally-surjective atlas. -/
@@ -233,7 +184,24 @@ theorem isAlgebraicSpace_iff {S : Scheme.{u}} (F : (Over S)ᵒᵖ ⥤ Type u) :
         yoneda.relativelyRepresentable (Limits.diag F) ∧
           ∃ (U : Over S) (p : yoneda.obj U ⟶ F),
             MorphismProperty.presheaf (MorphismProperty.over (@Etale)) p ∧
-              Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p := sorry
+              Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p :=
+  ⟨fun h ↦ ⟨h.isSheaf, h.representableDiagonal, h.atlas⟩, fun ⟨h₁, h₂, h₃⟩ ↦ ⟨h₁, h₂, h₃⟩⟩
+
+/-- A functor of points is an algebraic space if and only if it is an fppf sheaf with
+representable diagonal and admits a scheme atlas `yoneda.obj U ⟶ F` that is representable,
+étale and surjective. -/
+theorem isAlgebraicSpace_iff_etale_surjective {S : Scheme.{u}} (F : (Over S)ᵒᵖ ⥤ Type u) :
+    IsAlgebraicSpace F ↔
+      Presheaf.IsSheaf (Scheme.fppfTopology.over S) F ∧
+        yoneda.relativelyRepresentable (Limits.diag F) ∧
+          ∃ (U : Over S) (p : yoneda.obj U ⟶ F),
+            MorphismProperty.presheaf (MorphismProperty.over (@Etale ⊓ @Surjective)) p := sorry
+
+/-- If two functors on schemes over a base are isomorphic and the second is an algebraic
+space, then the first is an algebraic space. -/
+theorem IsAlgebraicSpace.of_iso {S : Scheme.{u}} {F G : (Over S)ᵒᵖ ⥤ Type u}
+    (e : F ≅ G) [IsAlgebraicSpace G] : IsAlgebraicSpace F :=
+  sorry
 
 end AlgebraicSpace
 end AlgebraicGeometry

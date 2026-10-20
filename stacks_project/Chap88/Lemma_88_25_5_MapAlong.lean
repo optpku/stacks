@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap87.Lemma_87_14_4_Completion
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CompletionAlong.Map
 
 /-!
 # Morphisms of completions along closed subsets
@@ -26,42 +20,35 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- If a Yoneda section of `X` maps into `T` and `Points.map f` sends `T` into
-`T'`, then the postcomposition with `f` maps into `T'`. -/
-theorem mapsInto_comp_of_subset {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.mapsInto_comp_of_subset :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) (T : Closeds (Points X)) (T' : Closeds (Points Y))
     (h : Points.map f '' (T : Set (Points X)) ⊆ (T' : Set (Points Y)))
     {U : Over S} {x : X.functorOfPoints.obj (op U)}
-    (hx : mapsInto (T : Set (Points X)) x) :
-    mapsInto (T' : Set (Points Y)) (f.app (op U) x) :=
-  sorry
+    (hx : mapsInto (T : Set (Points X)) x),
+    mapsInto (T' : Set (Points Y)) (f.app (op U) x))
 
 namespace completionAlong
 
-/-- The morphism of completions induced by `f : X ⟶ Y` when
-`Points.map f` sends `T` into `T'`. -/
-def mapOfLe {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+#check (AlgebraicGeometry.AlgebraicSpace.completionAlong.mapOfLe :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (T : Closeds (Points X)) (T' : Closeds (Points Y))
-    (h : Points.map f '' (T : Set (Points X)) ⊆ (T' : Set (Points Y))) :
-    completionAlong X T ⟶ completionAlong Y T' where
-  app U := ofHom fun x ↦ ⟨f.app U x.1, mapsInto_comp_of_subset f T T' h x.2⟩
-  naturality := sorry
+    (h : Points.map f '' (T : Set (Points X)) ⊆ (T' : Set (Points Y))),
+    completionAlong X T ⟶ completionAlong Y T')
 
-/-- Postcomposing `mapOfLe f T T' h` with `ι Y T'` recovers `ι X T ≫ f`. -/
-theorem mapOfLe_comp_ι {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+#check (AlgebraicGeometry.AlgebraicSpace.completionAlong.mapOfLe_comp_ι :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (T : Closeds (Points X)) (T' : Closeds (Points Y))
-    (h : Points.map f '' (T : Set (Points X)) ⊆ (T' : Set (Points Y))) :
-    mapOfLe f T T' h ≫ ι Y T' = ι X T ≫ f :=
-  sorry
+    (h : Points.map f '' (T : Set (Points X)) ⊆ (T' : Set (Points Y))),
+    mapOfLe f T T' h ≫ ι Y T' = ι X T ≫ f)
 
-/-- The underlying section of `mapOfLe f T T' h` is the component of `f`. -/
-theorem mapOfLe_app {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+#check (AlgebraicGeometry.AlgebraicSpace.completionAlong.mapOfLe_app :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (T : Closeds (Points X)) (T' : Closeds (Points Y))
     (h : Points.map f '' (T : Set (Points X)) ⊆ (T' : Set (Points Y)))
-    (U : (Over S)ᵒᵖ) (x : (completionAlong X T).obj U) :
+    (U : (Over S)ᵒᵖ) (x : (completionAlong X T).obj U),
     (ι Y T').app U ((mapOfLe f T T' h).app U x) =
-      f.app U ((ι X T).app U x) :=
-  sorry
+      f.app U ((ι X T).app U x))
 
 end completionAlong
 

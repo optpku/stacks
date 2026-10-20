@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpace.LinearProjection.GeneralPosition
@@ -56,7 +50,7 @@ the restricted projection is étale at `x`. -/
         (i : X ⟶ Over.mk (ProjectiveSpace.VectorSpace.toSpec k V))
         [IsClosedImmersion i.left]
         (x : X.left), X.hom.SmoothAt x →
-          topologicalKrullDim X.left = (n - 1 : ℕ) →
+          topologicalKrullDim X.left + 1 = n →
             ∀ (projection : ∀ (p : ProjectiveSpace.VectorSpace.scheme k V),
               IsClosed ({p} : Set (ProjectiveSpace.VectorSpace.scheme k V)) →
                 ProjectiveSpace.VectorSpace.LinearProjection k V p),

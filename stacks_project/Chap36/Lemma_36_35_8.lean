@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Limit.QcqsAffine.BaseChange.DerivedHom.Colimit
@@ -18,6 +12,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 /- Lemma 36.35.8: for the base-changed cofinal tail of a directed inverse system of
 qcqs schemes with affine transition maps, the canonical cocone of derived Hom types is a
 filtered colimit when `K₀` is pseudo-coherent and `L₀` has quasi-coherent cohomology and
@@ -31,11 +27,16 @@ locally finite Tor dimension relative to the base. -/
       (s : Scheme.Limit.QcqsAffineLimit D) (X₀ : Scheme.{u})
       (x₀ : X₀ ⟶ D.obj (OrderDual.toDual s.base))
       [Flat x₀] [Scheme.Hom.FinitePresentation x₀]
+      [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase x₀.toShHom).carrier,
+        DerivedCategory.DerivedTensor.Right.Has
+          (C := RingedSpace.Modules
+            ((RingedSpace.Hom.inverseImageBase x₀.toShHom).restrict U.isOpenEmbedding))]
       (K₀ L₀ : RingedSpace.ModuleDerived X₀.toRingedSpace),
       RingedSpace.ModuleDerived.IsPseudoCoherent K₀ →
         DerivedCategory.cohomologyIn
             (RingedSpace.quasiCoherentModuleProperty X₀.toRingedSpace) L₀ →
           RingedSpace.ModuleDerived.LocallyHasFiniteTorDimension
+              (X := RingedSpace.Hom.inverseImageBase x₀.toShHom)
               ((RingedSpace.ModuleDerived.relativeRestriction
                 x₀.toLRSHom.toShHom).obj L₀) →
             Nonempty (IsColimit (s.homDiagram x₀ K₀ L₀).cocone))

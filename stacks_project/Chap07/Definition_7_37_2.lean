@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.Point.Category
@@ -13,12 +7,23 @@ import StacksCheckRecall
 
 open CategoryTheory GrothendieckTopology
 
+universe w v u
+
+variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
+
 /- Definition 7.37.2: on a site C, a morphism f : p ⟶ p' of points given by
 functors u, u' : C ⥤ Type is a natural transformation f_u : u' ⟶ u.
 
-The canonical owner is `GrothendieckTopology.Point.Hom`: a morphism Φ₁ ⟶ Φ₂ is
-a natural transformation Φ₂.fiber ⟶ Φ₁.fiber, opposite to the morphism of
-points. -/
-@[stacks 00YI] #check @Point.Hom
+`GrothendieckTopology.Point.Hom` is mathlib's morphism of points: a morphism
+`p ⟶ p'` is a natural transformation from the fiber functor of `p'` to the
+fiber functor of `p`, i.e. in the opposite direction. -/
+@[stacks 00YI] #check (CategoryTheory.GrothendieckTopology.Point.Hom :
+  Point.{w} J → Point.{w} J → Type (max u w))
 
-#check @Point.Hom.hom
+variable {sourcePoint targetPoint : Point.{w} J}
+
+#check (CategoryTheory.GrothendieckTopology.Point.Hom.hom :
+  Point.Hom sourcePoint targetPoint → (targetPoint.fiber ⟶ sourcePoint.fiber))
+
+#check (CategoryTheory.GrothendieckTopology.Point.Hom.mk :
+  (targetPoint.fiber ⟶ sourcePoint.fiber) → Point.Hom sourcePoint targetPoint)

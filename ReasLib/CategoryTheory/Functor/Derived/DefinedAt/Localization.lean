@@ -1,0 +1,218 @@
+module
+
+public import ReasLib.CategoryTheory.Functor.Derived.DefinedAt.Functor
+public import ReasLib.CategoryTheory.Functor.Derived.DefinedAt.Shift
+public import ReasLib.CategoryTheory.Functor.Derived.Definedness.Shift
+public import ReasLib.CategoryTheory.MorphismProperty.Shift.InverseImage
+public import ReasLib.CategoryTheory.ObjectProperty.Localization.Equivalence.Invariance
+public import ReasLib.CategoryTheory.ObjectProperty.Localization.Shift
+public import Mathlib.Tactic.CrossRefAttribute
+
+@[expose] public section
+
+/-!
+# Localizing the Essential-Constancy Domain of a Derived Functor
+
+Stacks 05SE concerns the full subcategory `E` of objects at which `RF` (resp. `LF`) is defined in
+the sense of 05S9, i.e. where the localization-indexed diagram is essentially constant.  This leaf
+restricts the denominators to `E`, records that they are morphisms of `E` (part (3)) and are
+inverted by the derived functor (part (4)), and provides the induced factorization of the derived
+functor through the localization of `E` (part (7)), together with the canonical shift
+comparisons.  The triangulated parts live in `DefinedAt.Triangulated`.
+-/
+
+universe v₁ v₂ u₁ u₂
+
+namespace CategoryTheory
+
+open Localization MorphismProperty ObjectProperty
+
+variable {D : Type u₁} {D' : Type u₂}
+  [Category.{v₁} D] [Category.{v₂} D']
+  (F : D ⥤ D') (S : MorphismProperty D)
+
+namespace Functor.RightDerived.DefinedAt
+
+/-- The localization class obtained by restricting `S` to the essential-constancy domain
+`E` of the right-derived functor: `S_E = Arrows(E) ∩ S`. -/
+@[stacks 05SE "restricted denominators on the right essential-constancy domain"]
+abbrev system : MorphismProperty (Domain F S) :=
+  fullSubcategoryLocalizationSystem (objects F S) S
+
+namespace objects
+
+/-- An element of `S` whose source lies in the right essential-constancy domain has its target
+in that domain. -/
+@[stacks 05SE "(3), right-derived, source"]
+instance inheritedFromSource [IsSaturatedMultiplicativeSystem S] :
+    (objects F S).InheritedFromSource S := sorry
+
+/-- An element of `S` whose target lies in the right essential-constancy domain has its source
+in that domain. -/
+@[stacks 05SE "(3), right-derived, target"]
+instance inheritedFromTarget [IsSaturatedMultiplicativeSystem S] :
+    (objects F S).InheritedFromTarget S := sorry
+
+end objects
+
+/-- The right-derived functor on its essential-constancy domain inverts the restricted
+denominators. -/
+@[stacks 05SE "(4), right-derived"]
+theorem functor.isInvertedBy [IsSaturatedMultiplicativeSystem S] :
+    (system F S).IsInvertedBy (functor F S) := sorry
+
+/-- The factorization of the right-derived functor on its essential-constancy domain through the
+localization `S_E⁻¹ E`. -/
+@[stacks 05SE "(7), right-derived factorization"]
+noncomputable abbrev localizationFactorization [IsSaturatedMultiplicativeSystem S] :
+    (system F S).Localization ⥤ D' :=
+  Localization.lift (functor F S) (functor.isInvertedBy F S) (system F S).Q
+
+/-- The canonical comparison between the localized right-derived factorization and the
+right-derived functor on the essential-constancy domain. -/
+@[stacks 05SE "right-derived factorization comparison"]
+noncomputable def facIso [IsSaturatedMultiplicativeSystem S] :
+    (system F S).Q ⋙ localizationFactorization F S ≅ functor F S :=
+  Localization.Lifting.iso (system F S).Q (system F S) (functor F S)
+    (localizationFactorization F S)
+
+namespace localizationFactorization
+
+/-- The localized right-derived factorization maps a localized morphism of the domain by
+conjugating the canonical pointwise value map with the factorization comparison. -/
+@[stacks 05SE "right-derived factorization on localized morphisms"]
+theorem map_Q [IsSaturatedMultiplicativeSystem S] {X Y : Domain F S} (f : X ⟶ Y) :
+    (localizationFactorization F S).map ((system F S).Q.map f) =
+      (facIso F S).hom.app X ≫ RightDerived.Value.map F S f.hom ≫
+        (facIso F S).inv.app Y := sorry
+
+end localizationFactorization
+
+section Shift
+
+variable [HasShift D ℤ] [HasShift D' ℤ] [F.CommShift ℤ] [S.IsCompatibleWithShift ℤ]
+
+/-- The inclusion of the essential-constancy domain into the pointwise-existence domain commutes
+with shifts; its comparison is transported from the two full-subcategory inclusions. -/
+@[stacks 05SE "shift comparison of the right domain inclusion"]
+noncomputable instance Domain.toPointwise.commShift : (Domain.toPointwise F S).CommShift ℤ :=
+  Functor.CommShift.ofComp
+    (ObjectProperty.ιOfLECompιIso (lePointwise F S)) ℤ
+
+/-- The right-derived functor on its essential-constancy domain commutes with shifts. -/
+@[stacks 05SE "(2), right-derived shift compatibility"]
+noncomputable instance functor.commShift : (functor F S).CommShift ℤ :=
+  inferInstanceAs ((Domain.toPointwise F S ⋙ Definedness.functor F S).CommShift ℤ)
+
+/-- The localized right-derived factorization commutes with shifts. -/
+@[stacks 05SE "(7), right-derived factorization shift compatibility"]
+noncomputable instance localizationFactorization.commShift [IsSaturatedMultiplicativeSystem S] :
+    (localizationFactorization F S).CommShift ℤ :=
+  Functor.commShiftOfLocalization (system F S).Q (system F S) ℤ
+    (functor F S) (localizationFactorization F S)
+
+/-- The right-derived factorization comparison is compatible with shifts. -/
+@[stacks 05SE "right-derived factorization comparison shift compatibility"]
+noncomputable instance facIso.homCommShift [IsSaturatedMultiplicativeSystem S] :
+    NatTrans.CommShift (facIso F S).hom ℤ :=
+  (inferInstance : NatTrans.CommShift
+    (Localization.Lifting.iso (system F S).Q (system F S) (functor F S)
+      (localizationFactorization F S)).hom ℤ)
+
+end Shift
+
+end Functor.RightDerived.DefinedAt
+
+namespace Functor.LeftDerived.DefinedAt
+
+/-- The localization class obtained by restricting `S` to the essential-constancy domain
+`E` of the left-derived functor: `S_E = Arrows(E) ∩ S`. -/
+@[stacks 05SE "restricted denominators on the left essential-constancy domain"]
+abbrev system : MorphismProperty (Domain F S) :=
+  fullSubcategoryLocalizationSystem (objects F S) S
+
+namespace objects
+
+/-- An element of `S` whose source lies in the left essential-constancy domain has its target
+in that domain. -/
+@[stacks 05SE "(3), left-derived, source"]
+instance inheritedFromSource [IsSaturatedMultiplicativeSystem S] :
+    (objects F S).InheritedFromSource S := sorry
+
+/-- An element of `S` whose target lies in the left essential-constancy domain has its source
+in that domain. -/
+@[stacks 05SE "(3), left-derived, target"]
+instance inheritedFromTarget [IsSaturatedMultiplicativeSystem S] :
+    (objects F S).InheritedFromTarget S := sorry
+
+end objects
+
+/-- The left-derived functor on its essential-constancy domain inverts the restricted
+denominators. -/
+@[stacks 05SE "(4), left-derived"]
+theorem functor.isInvertedBy [IsSaturatedMultiplicativeSystem S] :
+    (system F S).IsInvertedBy (functor F S) := sorry
+
+/-- The factorization of the left-derived functor on its essential-constancy domain through the
+localization `S_E⁻¹ E`. -/
+@[stacks 05SE "(7), left-derived factorization"]
+noncomputable abbrev localizationFactorization [IsSaturatedMultiplicativeSystem S] :
+    (system F S).Localization ⥤ D' :=
+  Localization.lift (functor F S) (functor.isInvertedBy F S) (system F S).Q
+
+/-- The canonical comparison between the localized left-derived factorization and the
+left-derived functor on the essential-constancy domain. -/
+@[stacks 05SE "left-derived factorization comparison"]
+noncomputable def facIso [IsSaturatedMultiplicativeSystem S] :
+    (system F S).Q ⋙ localizationFactorization F S ≅ functor F S :=
+  Localization.Lifting.iso (system F S).Q (system F S) (functor F S)
+    (localizationFactorization F S)
+
+namespace localizationFactorization
+
+/-- The localized left-derived factorization maps a localized morphism of the domain by
+conjugating the canonical pointwise value map with the factorization comparison. -/
+@[stacks 05SE "left-derived factorization on localized morphisms"]
+theorem map_Q [IsSaturatedMultiplicativeSystem S] {X Y : Domain F S} (f : X ⟶ Y) :
+    (localizationFactorization F S).map ((system F S).Q.map f) =
+      (facIso F S).hom.app X ≫ LeftDerived.Value.map F S f.hom ≫
+        (facIso F S).inv.app Y := sorry
+
+end localizationFactorization
+
+section Shift
+
+variable [HasShift D ℤ] [HasShift D' ℤ] [F.CommShift ℤ] [S.IsCompatibleWithShift ℤ]
+
+/-- The inclusion of the essential-constancy domain into the pointwise-existence domain commutes
+with shifts; its comparison is transported from the two full-subcategory inclusions. -/
+@[stacks 05SE "shift comparison of the left domain inclusion"]
+noncomputable instance Domain.toPointwise.commShift : (Domain.toPointwise F S).CommShift ℤ :=
+  Functor.CommShift.ofComp
+    (ObjectProperty.ιOfLECompιIso (lePointwise F S)) ℤ
+
+/-- The left-derived functor on its essential-constancy domain commutes with shifts. -/
+@[stacks 05SE "(2), left-derived shift compatibility"]
+noncomputable instance functor.commShift : (functor F S).CommShift ℤ :=
+  inferInstanceAs ((Domain.toPointwise F S ⋙ Definedness.functor F S).CommShift ℤ)
+
+/-- The localized left-derived factorization commutes with shifts. -/
+@[stacks 05SE "(7), left-derived factorization shift compatibility"]
+noncomputable instance localizationFactorization.commShift [IsSaturatedMultiplicativeSystem S] :
+    (localizationFactorization F S).CommShift ℤ :=
+  Functor.commShiftOfLocalization (system F S).Q (system F S) ℤ
+    (functor F S) (localizationFactorization F S)
+
+/-- The left-derived factorization comparison is compatible with shifts. -/
+@[stacks 05SE "left-derived factorization comparison shift compatibility"]
+noncomputable instance facIso.homCommShift [IsSaturatedMultiplicativeSystem S] :
+    NatTrans.CommShift (facIso F S).hom ℤ :=
+  (inferInstance : NatTrans.CommShift
+    (Localization.Lifting.iso (system F S).Q (system F S) (functor F S)
+      (localizationFactorization F S)).hom ℤ)
+
+end Shift
+
+end Functor.LeftDerived.DefinedAt
+
+end CategoryTheory

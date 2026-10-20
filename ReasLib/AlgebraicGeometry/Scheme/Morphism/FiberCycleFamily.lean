@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Fiber
@@ -50,21 +44,21 @@ namespace AlgebraicGeometry.Scheme.Hom
 /-- The dimension function on a scheme-theoretic fibre, obtained by pulling back the
 constant-zero dimension function along the morphism to `Spec κ(s)`. -/
 noncomputable abbrev fiberRelativeDimensionFunction
-    {X S : Scheme.{u}} (f : X ⟶ S) (s : S) : f.fiber s → ℤ :=
+    {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] (s : S) : f.fiber s → ℤ :=
   (f.fiberToSpecResidueField s).relativeDimensionFunction (fun _ ↦ 0)
 
 /-- On a fibre, the relative dimension function is the residue-field transcendence degree. -/
 theorem fiberRelativeDimensionFunction_apply
-    {X S : Scheme.{u}} (f : X ⟶ S) (s : S) (x : f.fiber s) :
+    {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] (s : S) (x : f.fiber s) :
     f.fiberRelativeDimensionFunction s x =
       ((f.fiberToSpecResidueField s).residueFieldTrdegAt x : ℤ) := sorry
 
 /-- A family of `k`-cycles on the scheme-theoretic fibres of `f : X ⟶ S`. -/
-abbrev FiberCycleFamily {X S : Scheme.{u}} (f : X ⟶ S) (k : ℤ) : Type u :=
+abbrev FiberCycleFamily {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] (k : ℤ) : Type u :=
   (s : S) → CycleGroup (f.fiber s) (f.fiberRelativeDimensionFunction s) k
 
 /-- Unfolding the type of a family of cycles on fibres. -/
-theorem FiberCycleFamily_def {X S : Scheme.{u}} (f : X ⟶ S) (k : ℤ) :
+theorem FiberCycleFamily_def {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] (k : ℤ) :
     f.FiberCycleFamily k =
       ((s : S) → CycleGroup (f.fiber s) (f.fiberRelativeDimensionFunction s) k) := sorry
 

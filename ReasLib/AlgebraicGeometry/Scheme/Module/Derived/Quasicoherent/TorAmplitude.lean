@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Topology.QuasiSeparated
@@ -27,6 +21,7 @@ namespace AlgebraicGeometry.Scheme.DerivedQCoh
 Tor-amplitude in `[a, b]` if and only if tensoring it with every quasicoherent module has
 vanishing cohomology outside `[a, b]`. -/
 theorem hasTorAmplitudeIn_iff_homology {X : Scheme.{u}} [QuasiSeparatedSpace X]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (E : AlgebraicGeometry.Scheme.ModuleDerived.Quasicoherent X)
     (a b : ℤ) (hab : a ≤ b) :
     RingedSpace.HasTorAmplitudeIn E.obj a b ↔

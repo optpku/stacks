@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap96.Lemma_96_26_3_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Derived.AffineEtale
+import StacksCheckRecall
 
 /-!
 # Lemma 96.26.3
@@ -39,29 +33,32 @@ variable [Functor.HasLeftDerivedFunctor
     (modulePullbackToDerived.{u + 1} (affineEtaleComparison X))
     (ModuleQis.{u + 1} (ofCommRingSheaf ⊥ (affineStructureSheaf X)))]
 
-/-- Lemma 96.26.3 (1): the comparison morphism
-`ε : 𝒳_affine,étale ⟶ 𝒳_affine` satisfies the K-flat sections unit
-condition of Cohomology on Sites, Lemma 21.43.12. -/
-@[stacks 0H0J]
-theorem affineEtaleComparison_unitCondition :
-    qcProperty X ≤ (affineEtaleDerivedAdjunction X).unitIsoProperty :=
-  sorry
-
-/-- Lemma 96.26.3 (2): restriction of `Rε_*` to objects whose derived
-pushforward lies in `QC(𝒳)` is an equivalence onto `QC(𝒳)`. -/
-@[stacks 0H0J, instance]
-instance affineEtaleComparison_pushforwardRestriction_isEquivalence :
+/- Lemma 96.26.3: the affine étale comparison satisfies the K-flat slice-sections
+hypothesis and the derived conclusions of the comparison theorem. -/
+@[stacks 0H0J] #check (AlgebraicGeometry.GroupoidsOver.affineEtaleComparison_spec X :
+    (∀ (x : affineSite X)
+      (M : CochainComplex (_root_.ModuleCat ((affineStructureSheaf X).obj.obj (Opposite.op x))) ℤ),
+      M.IsKFlat → IsIso (TensorSections.comparison (affineStructureSheaf X).obj x
+        (affineSiteEtaleTopology X) (affineEtaleStructureSheaf X)
+        (((𝟭 (affineSite X)).sheafAdjunctionContinuous CommRingCat.{u + 1} ⊥
+          (affineSiteEtaleTopology X)).unit.app (affineStructureSheaf X)).hom M)) ∧
+    (qcProperty X ≤ (affineEtaleDerivedAdjunction X).unitIsoProperty) ∧
     (Adjunction.InverseImageRestriction.right (qcProperty X) :
-        (affineEtaleTargetProperty X).FullSubcategory ⥤
-          (qcProperty X).FullSubcategory).IsEquivalence :=
-  sorry
-
-/-- Lemma 96.26.3 (3): restriction of `ε^*` is the mutually quasi-inverse
-equivalence of Cohomology on Sites, Lemma 21.43.12. -/
-@[stacks 0H0J, instance]
-instance affineEtaleComparison_pullbackRestriction_isEquivalence :
+      (affineEtaleTargetProperty X).FullSubcategory ⥤
+        (qcProperty X).FullSubcategory).IsEquivalence ∧
     (Adjunction.InverseImageRestriction.left (affineEtaleDerivedAdjunction X)
-      (qcProperty X) (affineEtaleComparison_unitCondition X)).IsEquivalence :=
-  sorry
+      (qcProperty X) (affineEtaleComparison_unitCondition X)).IsEquivalence)
+
+#check (AlgebraicGeometry.GroupoidsOver.affineEtaleComparison_unitCondition X :
+  qcProperty X ≤ (affineEtaleDerivedAdjunction X).unitIsoProperty)
+
+#check (AlgebraicGeometry.GroupoidsOver.affineEtaleComparison_pushforwardRestriction_isEquivalence X :
+  (Adjunction.InverseImageRestriction.right (qcProperty X) :
+    (affineEtaleTargetProperty X).FullSubcategory ⥤
+      (qcProperty X).FullSubcategory).IsEquivalence)
+
+#check (AlgebraicGeometry.GroupoidsOver.affineEtaleComparison_pullbackRestriction_isEquivalence X :
+  (Adjunction.InverseImageRestriction.left (affineEtaleDerivedAdjunction X)
+    (qcProperty X) (affineEtaleComparison_unitCondition X)).IsEquivalence)
 
 end AlgebraicGeometry.GroupoidsOver

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap61.Definition_61_29_1_Derived
-public import stacks_project.Chap61.Lemma_61_28_3_Quotient
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.ProEtale.Derived.SheafCompleteness
+import StacksCheckRecall
 
 /-!
 # Lemma 61.28.6
@@ -51,51 +44,13 @@ variable [LocallySmall
 variable [WellPowered
     (SheafOfModules (ringSheafOfComm (constantCoefficientRing X Λ)))]
 
-/-- A sheaf of `Λ`-modules on `X_proétale` is derived complete with respect to `I`
-when the degree-zero image of `(toConstantModuleFunctor X Λ).obj F` is derived
-complete with respect to `constantCoefficientIdeal I`. -/
-abbrev IsDerivedComplete (I : Ideal Λ) (F : Sheaf (ProEt.topology X) (ModuleCat.{w} Λ)) :
-    Prop :=
-  IsDerivedCompleteWithRespectTo
-    ((DerivedCategory.singleFunctor
-        (RingedSite.ModuleCat
-          (RingedSite.ofCommRingSheaf (ProEt.topology X) (constantCoefficientRing X Λ)))
-        (0 : ℤ)).obj
-      ((toConstantModuleFunctor X Λ).obj F))
-    (constantCoefficientIdeal I)
-
-/-- Unfolding of `IsDerivedComplete` as Chap52 completeness of the constant-ringed-site
-degree-zero image. -/
-theorem isDerivedComplete_iff
-    (I : Ideal Λ) (F : Sheaf (ProEt.topology X) (ModuleCat.{w} Λ)) :
-    IsDerivedComplete I F ↔
-      IsDerivedCompleteWithRespectTo
-        ((DerivedCategory.singleFunctor
-            (RingedSite.ModuleCat
-              (RingedSite.ofCommRingSheaf (ProEt.topology X)
-                (constantCoefficientRing X Λ)))
-            (0 : ℤ)).obj
-          ((toConstantModuleFunctor X Λ).obj F))
-        (constantCoefficientIdeal I) :=
-  sorry
-
-/-- Lemma 61.28.6: if `F` is a derived-complete sheaf of `Λ`-modules on `X_proétale`
-and `I ⊆ Λ` is finitely generated with `F / I F = 0`, then `F = 0`. -/
-@[stacks 09BY]
-theorem quotient_isZero (I : Ideal Λ) (hI : I.FG)
-    (F : Sheaf (ProEt.topology X) (ModuleCat.{w} Λ))
-    (hF : IsDerivedComplete I F)
-    (hquot : IsZero (IdealPower.quotient I F 1)) :
-    IsZero F :=
-  sorry
-
-/-- Under derived completeness and finite generation of `I`, vanishing of `F / I F`
-is equivalent to vanishing of `F`. -/
-theorem quotient_isZero_iff (I : Ideal Λ) (hI : I.FG)
-    (F : Sheaf (ProEt.topology X) (ModuleCat.{w} Λ))
-    (hF : IsDerivedComplete I F) :
-    IsZero (IdealPower.quotient I F 1) ↔ IsZero F :=
-  sorry
+/- Lemma 61.28.6: a derived-complete sheaf vanishes if its quotient by a
+finitely generated ideal vanishes. -/
+@[stacks 09BY] #check
+  (AlgebraicGeometry.Scheme.ProEt.DerivedComplete.quotient_isZero :
+    ∀ (I : Ideal Λ), I.FG → ∀ (F : Sheaf (ProEt.topology X) (ModuleCat.{w} Λ)),
+      AlgebraicGeometry.Scheme.ProEt.DerivedComplete.IsDerivedComplete I F →
+      IsZero (CategoryTheory.Sheaf.IdealPower.quotient I F 1) → IsZero F)
 
 end DerivedComplete
 end AlgebraicGeometry.Scheme.ProEt

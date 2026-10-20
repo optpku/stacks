@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap65.Lemma_65_12_4_Immersion
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Immersion.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of immersions of algebraic spaces
@@ -25,48 +20,39 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 65.12.2 (1): a composition of immersions of algebraic spaces over a scheme `S` is an
+/- Lemma 65.12.2 (1): a composition of immersions of algebraic spaces over a scheme `S` is an
 immersion of algebraic spaces over `S`. -/
-@[stacks 02YV]
-instance IsImmersion.comp {S : Scheme.{u}} {F G H : AlgebraicSpace S}
-    (f : F ⟶ G) (g : G ⟶ H) [IsImmersion f] [IsImmersion g] : IsImmersion (f ≫ g) :=
-  sorry
+@[stacks 02YV] #check (AlgebraicGeometry.AlgebraicSpace.IsImmersion.comp :
+  ∀ {S : Scheme.{u}} {F G H : AlgebraicSpace S}
+    (f : F ⟶ G) (g : G ⟶ H) [IsImmersion f] [IsImmersion g], IsImmersion (f ≫ g))
 
-/-- Lemma 65.12.2 (2): a composition of closed immersions of algebraic spaces over a scheme `S`
+/- Lemma 65.12.2 (2): a composition of closed immersions of algebraic spaces over a scheme `S`
 is a closed immersion of algebraic spaces over `S`. -/
-@[stacks 02YV]
-instance IsClosedImmersion.comp {S : Scheme.{u}} {F G H : AlgebraicSpace S}
-    (f : F ⟶ G) (g : G ⟶ H) [IsClosedImmersion f] [IsClosedImmersion g] :
-    IsClosedImmersion (f ≫ g) :=
-  sorry
+@[stacks 02YV] #check (AlgebraicGeometry.AlgebraicSpace.IsClosedImmersion.comp :
+  ∀ {S : Scheme.{u}} {F G H : AlgebraicSpace S}
+    (f : F ⟶ G) (g : G ⟶ H) [IsClosedImmersion f] [IsClosedImmersion g],
+    IsClosedImmersion (f ≫ g))
 
-/-- Lemma 65.12.2 (3): a composition of open immersions of algebraic spaces over a scheme `S` is
+/- Lemma 65.12.2 (3): a composition of open immersions of algebraic spaces over a scheme `S` is
 an open immersion of algebraic spaces over `S`. -/
-@[stacks 02YV]
-instance IsOpenImmersion.comp {S : Scheme.{u}} {F G H : AlgebraicSpace S}
-    (f : F ⟶ G) (g : G ⟶ H) [IsOpenImmersion f] [IsOpenImmersion g] :
-    IsOpenImmersion (f ≫ g) :=
-  sorry
+@[stacks 02YV] #check (AlgebraicGeometry.AlgebraicSpace.IsOpenImmersion.comp :
+  ∀ {S : Scheme.{u}} {F G H : AlgebraicSpace S}
+    (f : F ⟶ G) (g : G ⟶ H) [IsOpenImmersion f] [IsOpenImmersion g],
+    IsOpenImmersion (f ≫ g))
 
-/-- Immersions of algebraic spaces over `S` are stable under composition as a morphism
-property. -/
-instance isImmersion_isStableUnderComposition {S : Scheme.{u}} :
+#check (AlgebraicGeometry.AlgebraicSpace.isImmersion_isStableUnderComposition :
+  ∀ {S : Scheme.{u}},
     MorphismProperty.IsStableUnderComposition
-      (@IsImmersion S : MorphismProperty (AlgebraicSpace S)) :=
-  sorry
+      (@IsImmersion S : MorphismProperty (AlgebraicSpace S)))
 
-/-- Closed immersions of algebraic spaces over `S` are stable under composition as a morphism
-property. -/
-instance isClosedImmersion_isStableUnderComposition {S : Scheme.{u}} :
+#check (AlgebraicGeometry.AlgebraicSpace.isClosedImmersion_isStableUnderComposition :
+  ∀ {S : Scheme.{u}},
     MorphismProperty.IsStableUnderComposition
-      (@IsClosedImmersion S : MorphismProperty (AlgebraicSpace S)) :=
-  sorry
+      (@IsClosedImmersion S : MorphismProperty (AlgebraicSpace S)))
 
-/-- Open immersions of algebraic spaces over `S` are stable under composition as a morphism
-property. -/
-instance isOpenImmersion_isStableUnderComposition {S : Scheme.{u}} :
+#check (AlgebraicGeometry.AlgebraicSpace.isOpenImmersion_isStableUnderComposition :
+  ∀ {S : Scheme.{u}},
     MorphismProperty.IsStableUnderComposition
-      (@IsOpenImmersion S : MorphismProperty (AlgebraicSpace S)) :=
-  sorry
+      (@IsOpenImmersion S : MorphismProperty (AlgebraicSpace S)))
 
 end AlgebraicGeometry.AlgebraicSpace

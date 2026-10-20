@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.TorDimension.FlatRepresentative.LowerBounded
@@ -20,6 +14,10 @@ morphism in the target universes.
 
 @[expose] public section
 
+attribute [local instance] RingedSite.Hom.moduleCat_hasDerivedCategory
+  RingedSite.Hom.RingPresentation.moduleHasDerivedCategory
+  SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 open CategoryTheory
 open RingedSite.Hom
 
@@ -35,6 +33,8 @@ variable {O : Sheaf J CommRingCat.{w}}
 variable [UnivLE.{max u v, w}]
 variable [HasWeakSheafify J AddCommGrpCat.{w}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [DerivedCategory.DerivedTensor.Right.Has
+  (C := SheafOfModules.RingedSite.ringedSiteModuleCategory.{u, v, w, w} J O)]
 
 /-- Lemma 21.46.4, moreover clause: a lower Tor-amplitude representative can be chosen once so
 that all canonical module pullbacks remain K-flat and termwise flat. -/

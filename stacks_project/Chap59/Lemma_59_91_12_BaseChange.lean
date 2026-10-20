@@ -1,15 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap59.Lemma_59_91_6_BaseChange
-public import ReasLib.CategoryTheory.DerivedCategory.Functor.Composition.BoundedBelow.Square.Exact
-public import Mathlib.CategoryTheory.Limits.ExactFunctor
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.BaseChange.BoundedBelow
 
 @[expose] public section
 
@@ -34,42 +25,38 @@ variable [∀ {A B : Scheme.{u}} (h : A ⟶ B),
 variable [∀ Z : Scheme.{u},
     HasDerivedCategory.{w} (Sheaf Z.smallEtaleTopology AddCommGrpCat.{u})]
 
-/-- Exact inverse image of abelian small-étale sheaves along a morphism of schemes. -/
-noncomputable abbrev etalePullbackExact {Z Z' : Scheme.{u}} (p : Z' ⟶ Z) :
+#check (AlgebraicGeometry.Scheme.Hom.etalePullbackExact :
+  ∀ {Z Z' : Scheme.{u}} (p : Z' ⟶ Z),
     Sheaf Z.smallEtaleTopology AddCommGrpCat.{u} ⥤ₑ
-      Sheaf Z'.smallEtaleTopology AddCommGrpCat.{u} :=
-  ExactFunctor.of (etaleAbelianSheafPullback p)
+      Sheaf Z'.smallEtaleTopology AddCommGrpCat.{u})
 
-/-- Derived inverse image `p⁻¹` on `D⁺` of abelian small-étale sheaves. -/
-noncomputable abbrev etaleDerivedInverseImage {Z Z' : Scheme.{u}} (p : Z' ⟶ Z) :
+#check (AlgebraicGeometry.Scheme.Hom.etaleDerivedInverseImage :
+  ∀ {Z Z' : Scheme.{u}} (p : Z' ⟶ Z),
     DerivedCategory.Plus (Sheaf Z.smallEtaleTopology AddCommGrpCat.{u}) ⥤
-      DerivedCategory.Plus (Sheaf Z'.smallEtaleTopology AddCommGrpCat.{u}) :=
-  ExactFunctor.Derived.Plus.functor (etalePullbackExact p)
+      DerivedCategory.Plus (Sheaf Z'.smallEtaleTopology AddCommGrpCat.{u}))
 
-/-- Derived pushforward `Rp_*` on `D⁺` of abelian small-étale sheaves. -/
-noncomputable abbrev etaleDerivedPushforward {A B : Scheme.{u}} (p : A ⟶ B)
+#check (AlgebraicGeometry.Scheme.Hom.etaleDerivedPushforward :
+  ∀ {A B : Scheme.{u}} (p : A ⟶ B)
     [(abelianPushforwardAlong p).toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso (Sheaf A.smallEtaleTopology AddCommGrpCat.{u}))] :
+      (HomotopyCategory.Plus.quasiIso (Sheaf A.smallEtaleTopology AddCommGrpCat.{u}))],
     DerivedCategory.Plus (Sheaf A.smallEtaleTopology AddCommGrpCat.{u}) ⥤
-      DerivedCategory.Plus (Sheaf B.smallEtaleTopology AddCommGrpCat.{u}) :=
-  Functor.RightDerived.Bounded.functor (abelianPushforwardAlong p)
+      DerivedCategory.Plus (Sheaf B.smallEtaleTopology AddCommGrpCat.{u}))
 
-/-- Canonical comparison `R(g⁻¹ f_*) ⟶ Rf_* ⋙ g⁻¹` on `D⁺`. -/
-noncomputable abbrev derivedSourceComparison
+#check (AlgebraicGeometry.Scheme.Hom.derivedSourceComparison :
+  ∀
     (f : X ⟶ Y) {Y' : Scheme.{u}} (g : Y' ⟶ Y)
     [(abelianPushforwardAlong f).toBoundedBelowDerived.HasRightDerivedFunctor
       (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
     [(etalePullbackExact g).obj.toBoundedBelowDerived.HasRightDerivedFunctor
       (HomotopyCategory.Plus.quasiIso (Sheaf Y.smallEtaleTopology AddCommGrpCat.{u}))]
     [(abelianPushforwardAlong f ⋙ (etalePullbackExact g).obj).toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))] :
+      (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))],
     Functor.RightDerived.Bounded.functor
         (abelianPushforwardAlong f ⋙ (etalePullbackExact g).obj) ⟶
-      etaleDerivedPushforward f ⋙ etaleDerivedInverseImage g :=
-  Exact.sourceComparison
+      etaleDerivedPushforward f ⋙ etaleDerivedInverseImage g)
 
-/-- Canonical derived base-change transformation `g⁻¹ Rf_* ⟶ Rf'_* (g')⁻¹` on `D⁺`. -/
-noncomputable def derivedBaseChange
+#check (AlgebraicGeometry.Scheme.Hom.derivedBaseChange :
+  ∀
     (f : X ⟶ Y) {X' Y' : Scheme.{u}} (g : Y' ⟶ Y) (f' : X' ⟶ Y') (g' : X' ⟶ X)
     (h_cart : IsPullback g' f' f g)
     [(abelianPushforwardAlong f).toBoundedBelowDerived.HasRightDerivedFunctor
@@ -84,13 +71,12 @@ noncomputable def derivedBaseChange
       (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
     [((etalePullbackExact g').obj ⋙ abelianPushforwardAlong f').toBoundedBelowDerived.HasRightDerivedFunctor
       (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
-    (h_src : IsIso (derivedSourceComparison f g)) :
+    (h_src : IsIso (derivedSourceComparison f g)),
     etaleDerivedPushforward f ⋙ etaleDerivedInverseImage g ⟶
-      etaleDerivedInverseImage g' ⋙ etaleDerivedPushforward f' :=
-  Exact.map (underivedBaseChange f g f' g' h_cart) h_src
+      etaleDerivedInverseImage g' ⋙ etaleDerivedPushforward f')
 
-/-- Component of derived base change at an object of `D⁺(X_étale)`. -/
-noncomputable def derivedBaseChangeHom
+#check (AlgebraicGeometry.Scheme.Hom.derivedBaseChangeHom :
+  ∀
     (f : X ⟶ Y) {X' Y' : Scheme.{u}} (g : Y' ⟶ Y) (f' : X' ⟶ Y') (g' : X' ⟶ X)
     (h_cart : IsPullback g' f' f g)
     [(abelianPushforwardAlong f).toBoundedBelowDerived.HasRightDerivedFunctor
@@ -106,13 +92,12 @@ noncomputable def derivedBaseChangeHom
     [((etalePullbackExact g').obj ⋙ abelianPushforwardAlong f').toBoundedBelowDerived.HasRightDerivedFunctor
       (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
     (h_src : IsIso (derivedSourceComparison f g))
-    (E : DerivedCategory.Plus (Sheaf X.smallEtaleTopology AddCommGrpCat.{u})) :
+    (E : DerivedCategory.Plus (Sheaf X.smallEtaleTopology AddCommGrpCat.{u})),
     (etaleDerivedPushforward f ⋙ etaleDerivedInverseImage g).obj E ⟶
-      (etaleDerivedInverseImage g' ⋙ etaleDerivedPushforward f').obj E :=
-  (derivedBaseChange f g f' g' h_cart h_src).app E
+      (etaleDerivedInverseImage g' ⋙ etaleDerivedPushforward f').obj E)
 
-/-- `derivedBaseChange` is the exact-horizontal square map of the underived mate. -/
-theorem derivedBaseChange_eq
+#check (AlgebraicGeometry.Scheme.Hom.derivedBaseChange_eq :
+  ∀
     (f : X ⟶ Y) {X' Y' : Scheme.{u}} (g : Y' ⟶ Y) (f' : X' ⟶ Y') (g' : X' ⟶ X)
     (h_cart : IsPullback g' f' f g)
     [(abelianPushforwardAlong f).toBoundedBelowDerived.HasRightDerivedFunctor
@@ -127,12 +112,12 @@ theorem derivedBaseChange_eq
       (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
     [((etalePullbackExact g').obj ⋙ abelianPushforwardAlong f').toBoundedBelowDerived.HasRightDerivedFunctor
       (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
-    (h_src : IsIso (derivedSourceComparison f g)) :
+    (h_src : IsIso (derivedSourceComparison f g)),
     derivedBaseChange f g f' g' h_cart h_src =
-      Exact.map (underivedBaseChange f g f' g' h_cart) h_src := sorry
+      Exact.map (underivedBaseChange f g f' g' h_cart) h_src)
 
-/-- `derivedBaseChangeHom` is the component of `derivedBaseChange`. -/
-theorem derivedBaseChangeHom_eq
+#check (AlgebraicGeometry.Scheme.Hom.derivedBaseChangeHom_eq :
+  ∀
     (f : X ⟶ Y) {X' Y' : Scheme.{u}} (g : Y' ⟶ Y) (f' : X' ⟶ Y') (g' : X' ⟶ X)
     (h_cart : IsPullback g' f' f g)
     [(abelianPushforwardAlong f).toBoundedBelowDerived.HasRightDerivedFunctor
@@ -148,13 +133,12 @@ theorem derivedBaseChangeHom_eq
     [((etalePullbackExact g').obj ⋙ abelianPushforwardAlong f').toBoundedBelowDerived.HasRightDerivedFunctor
       (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
     (h_src : IsIso (derivedSourceComparison f g))
-    (E : DerivedCategory.Plus (Sheaf X.smallEtaleTopology AddCommGrpCat.{u})) :
+    (E : DerivedCategory.Plus (Sheaf X.smallEtaleTopology AddCommGrpCat.{u})),
     derivedBaseChangeHom f g f' g' h_cart h_src E =
-      (derivedBaseChange f g f' g' h_cart h_src).app E := sorry
+      (derivedBaseChange f g f' g' h_cart h_src).app E)
 
-/-- The derived base-change transformation satisfies the exact-horizontal square
-specification relative to the underived mate. -/
-theorem derivedBaseChange_isMap
+#check (AlgebraicGeometry.Scheme.Hom.derivedBaseChange_isMap :
+  ∀
     (f : X ⟶ Y) {X' Y' : Scheme.{u}} (g : Y' ⟶ Y) (f' : X' ⟶ Y') (g' : X' ⟶ X)
     (h_cart : IsPullback g' f' f g)
     [(abelianPushforwardAlong f).toBoundedBelowDerived.HasRightDerivedFunctor
@@ -169,9 +153,9 @@ theorem derivedBaseChange_isMap
       (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
     [((etalePullbackExact g').obj ⋙ abelianPushforwardAlong f').toBoundedBelowDerived.HasRightDerivedFunctor
       (HomotopyCategory.Plus.quasiIso (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))]
-    (h_src : IsIso (derivedSourceComparison f g)) :
+    (h_src : IsIso (derivedSourceComparison f g)),
     Exact.IsMap (underivedBaseChange f g f' g' h_cart)
-      (derivedBaseChange f g f' g' h_cart h_src) := sorry
+      (derivedBaseChange f g f' g' h_cart h_src))
 
 end AlgebraicGeometry.Scheme.Hom
 

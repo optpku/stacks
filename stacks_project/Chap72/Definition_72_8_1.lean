@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap72.Definition_72_8_1_Integral
-public import stacks_project.Chap72.Definition_72_8_1_Modification
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Modification
 import StacksCheckRecall
 
 @[expose] public section
@@ -15,8 +8,15 @@ import StacksCheckRecall
 open CategoryTheory AlgebraicGeometry
 open AlgebraicGeometry.AlgebraicSpace
 
+universe u
+
 /- Definition 72.8.1: Let `S` be a scheme. Let `X` be an integral algebraic space
 over `S`. A modification of `X` is a birational proper morphism `f : X' ⟶ X` of
 algebraic spaces over `S` with `X'` integral. -/
-@[stacks 0AD8] #check AlgebraicGeometry.AlgebraicSpace.IsModification
-#check AlgebraicGeometry.AlgebraicSpace.isModification_iff
+@[stacks 0AD8] #check (AlgebraicGeometry.AlgebraicSpace.IsModification :
+  ∀ {S : Scheme.{u}} {X' X : AlgebraicSpace S}
+    [IsIntegral X'] [IsIntegral X], (X' ⟶ X) → Prop)
+#check (AlgebraicGeometry.AlgebraicSpace.isModification_iff :
+  ∀ {S : Scheme.{u}} {X' X : AlgebraicSpace S}
+    [IsIntegral X'] [IsIntegral X] (f : X' ⟶ X),
+    IsModification f ↔ IsBirational f ∧ Proper f)

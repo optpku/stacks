@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.RelativeRestriction
@@ -23,18 +17,24 @@ variable {X S : RingedSpace.{u}}
 
 /-- The object property of having Tor-amplitude in `[a, b]` after restriction from
 `𝒪_X` to the inverse-image sheaf `f⁻¹𝒪_S`. -/
-noncomputable def torAmplitudeInOver (f : X ⟶ S) (a b : ℤ) :
+noncomputable def torAmplitudeInOver (f : X ⟶ S)
+    [DerivedCategory.DerivedTensor.Right.Has
+      (C := Modules (RingedSpace.Hom.inverseImageBase f))] (a b : ℤ) :
     ObjectProperty (ModuleDerived X) :=
   (RingedSpace.torAmplitudeIn a b).inverseImage (relativeRestriction f)
 
 /-- A derived `𝒪_X`-module has Tor-amplitude in `[a, b]` over `S` when its restriction to
 `f⁻¹𝒪_S` has that Tor-amplitude. -/
-abbrev HasTorAmplitudeInOver (f : X ⟶ S) (E : ModuleDerived X) (a b : ℤ) : Prop :=
+abbrev HasTorAmplitudeInOver (f : X ⟶ S)
+    [DerivedCategory.DerivedTensor.Right.Has
+      (C := Modules (RingedSpace.Hom.inverseImageBase f))] (E : ModuleDerived X) (a b : ℤ) : Prop :=
   torAmplitudeInOver f a b E
 
 /-- Relative Tor-amplitude is the ordinary Tor-amplitude of the derived restriction to
 `f⁻¹𝒪_S`. -/
-theorem hasTorAmplitudeInOver_iff (f : X ⟶ S) (E : ModuleDerived X) (a b : ℤ) :
+theorem hasTorAmplitudeInOver_iff (f : X ⟶ S)
+    [DerivedCategory.DerivedTensor.Right.Has
+      (C := Modules (RingedSpace.Hom.inverseImageBase f))] (E : ModuleDerived X) (a b : ℤ) :
     HasTorAmplitudeInOver f E a b ↔
       RingedSpace.HasTorAmplitudeIn ((relativeRestriction f).obj E) a b := sorry
 

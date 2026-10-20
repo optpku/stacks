@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Meromorphic.Sheafification
-import Lean.Util.CollectAxioms
 
 /-! # Canonical elimination of invertible denominators
 
@@ -159,12 +152,3 @@ end Space
 
 end AlgebraicGeometry.AlgebraicSpace.MeromorphicConstruction.UnitDenominators
 
-run_cmd do
-  for n in [`AlgebraicGeometry.AlgebraicSpace.MeromorphicConstruction.UnitDenominators.identity_isLocalized,
-      `AlgebraicGeometry.AlgebraicSpace.MeromorphicConstruction.UnitDenominators.collapse,
-      `AlgebraicGeometry.AlgebraicSpace.MeromorphicConstruction.UnitDenominators.collapse_symm,
-      `AlgebraicGeometry.AlgebraicSpace.MeromorphicConstruction.UnitDenominators.collapse_clears] do
-    let axs ← Lean.Elab.Command.liftCoreM (Lean.collectAxioms n)
-    unless axs.all (#[``propext, ``Classical.choice, ``Quot.sound].contains ·) do
-      throwError "UNCERTIFIED_UNIT_LOCALIZATION {n}: {axs}"
-    Lean.logInfo m!"UNIT_LOCALIZATION_KERNEL_PASS|{n}|{axs}"

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_46_5_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FiniteLocallyFree.BaseChange
+import StacksCheckRecall
 
 /-!
 # Base change of finite locally free morphisms of algebraic spaces
@@ -23,14 +18,13 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 67.46.5: The base change of a finite locally free morphism is finite
+/- Lemma 67.46.5: The base change of a finite locally free morphism is finite
 locally free. -/
-@[stacks 03ZY]
-instance finiteLocallyFree_isStableUnderBaseChange {S : Scheme.{u}} :
+@[stacks 03ZY] #check
+  (AlgebraicGeometry.AlgebraicSpace.finiteLocallyFree_isStableUnderBaseChange :
+    ∀ {S : Scheme.{u}},
     MorphismProperty.IsStableUnderBaseChange
-      (@FiniteLocallyFree S : MorphismProperty (AlgebraicSpace S)) := sorry
-
-#check FiniteLocallyFree.of_isPullback
-#check FiniteLocallyFree.pullback_snd
+      (@AlgebraicGeometry.AlgebraicSpace.FiniteLocallyFree S :
+        MorphismProperty (AlgebraicGeometry.AlgebraicSpace S)))
 
 end AlgebraicGeometry.AlgebraicSpace

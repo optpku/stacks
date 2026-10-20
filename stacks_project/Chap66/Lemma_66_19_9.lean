@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_19_9_Exact
-public import stacks_project.Chap66.Lemma_66_19_9_Representable
-public import stacks_project.Chap66.Lemma_66_19_9_Stalk
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.InverseImage.Exact
+public import ReasLib.CategoryTheory.Sites.SheafifiedRepresentable.Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.InverseImage.Stalk
 import StacksCheckRecall
 
 /-!
@@ -32,7 +26,10 @@ variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
 
 /- Lemma 66.19.9 (1): the functor `f_small⁻¹ : Ab(Y_étale) → Ab(X_étale)` is exact. -/
 @[stacks 04K2] #check
-  smallEtaleInverseImage_exact_addCommGrp f
+  (AlgebraicGeometry.AlgebraicSpace.smallEtaleInverseImage_exact_addCommGrp f :
+    exactFunctor (Sheaf (smallEtaleTopology Y) AddCommGrpCat.{u + 1})
+      (Sheaf (smallEtaleTopology X) AddCommGrpCat.{u + 1})
+      (sheafInverseImage AddCommGrpCat.{u + 1} f))
 
 end ExactAb
 
@@ -43,7 +40,10 @@ variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
 /- Lemma 66.19.9 (2): the functor `f_small⁻¹ : Sh(Y_étale) → Sh(X_étale)` is exact, i.e. it
 commutes with finite limits and finite colimits, see Categories, Definition 4.23.1. -/
 @[stacks 04K2] #check
-  smallEtaleInverseImage_exact_type f
+  (AlgebraicGeometry.AlgebraicSpace.smallEtaleInverseImage_exact_type f :
+    exactFunctor (Sheaf (smallEtaleTopology Y) (Type (u + 1)))
+      (Sheaf (smallEtaleTopology X) (Type (u + 1)))
+      (smallEtaleMorphismOfTopoi f).inverseImage)
 
 end ExactType
 
@@ -56,7 +56,13 @@ variable (V : spacesEtaleSite Y)
 `f_small⁻¹ h_V = h_{X ×_Y V}`, as sheaves on the étale sites of algebraic spaces, equivalently
 on the small étale sites via Lemma 66.18.3. -/
 @[stacks 04K2] #check
-  smallEtaleInverseImage_representableIso f V
+  (CategoryTheory.Functor.SheafifiedRepresentable.pullbackIso.{u + 1, u + 1, u + 1, u + 1, u + 1}
+      (spacesEtalePullback f) (spacesEtaleTopology Y) (spacesEtaleTopology X) V :
+    (spacesEtaleTopology X).uliftSheafifiedRepresentable.{u + 1, u + 1, u + 1}
+        ((spacesEtalePullback f).obj V) ≅
+      ((spacesEtalePullback f).sheafPullback (Type (u + 1))
+        (spacesEtaleTopology Y) (spacesEtaleTopology X)).obj
+        ((spacesEtaleTopology Y).uliftSheafifiedRepresentable.{u + 1, u + 1, u + 1} V))
 
 end Representable
 
@@ -64,15 +70,14 @@ section Stalk
 
 variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
 variable (xbar : GeometricPoint X)
-variable [InitiallySmall
-  ((spacesEtalePullback f ⋙ (toSpacesEtalePoint xbar).fiber).Elements)]
-variable [((spacesEtalePullback f).sheafPushforwardContinuous (Type (u + 1))
-    (spacesEtaleTopology Y) (spacesEtaleTopology X)).IsRightAdjoint]
 variable (G : Sheaf (smallEtaleTopology Y) (Type (u + 1)))
 
 /- Lemma 66.19.9 (4): there is a canonical identification `(f_small⁻¹ G)_x̄ ≅ G_ȳ` where
 `ȳ = f ∘ x̄`. -/
 @[stacks 04K2] #check
-  smallEtaleInverseImage_stalkIso f xbar G
+  (AlgebraicGeometry.AlgebraicSpace.smallEtaleInverseImage_stalkIso f xbar G :
+    (toSmallEtalePoint xbar).sheafFiber.obj
+        ((smallEtaleMorphismOfTopoi f).inverseImage.obj G) ≅
+      (toSmallEtalePoint (xbar.map f)).sheafFiber.obj G)
 
 end Stalk

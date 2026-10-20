@@ -1,16 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.Grp.Abelian
-public import Mathlib.CategoryTheory.Limits.ExactFunctor
-public import Mathlib.CategoryTheory.Sites.Sheafification
-public import stacks_project.Chap66.Lemma_66_18_8_Topos
-public import stacks_project.Chap66.Lemma_66_19_7_Point
+public import Mathlib.CategoryTheory.Abelian.GrothendieckAxioms.Types
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.GeometricPoint.SmallEtalePoint
+public import ReasLib.CategoryTheory.Sites.Point.Fiber.Exactness
+import StacksCheckRecall
 
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
 
@@ -21,54 +15,60 @@ universe u
 namespace AlgebraicGeometry.AlgebraicSpace.GeometricPoint
 
 variable {S : Scheme.{u}} {X : AlgebraicSpace S} (xbar : GeometricPoint X)
+variable {F : (smallEtaleSite X)ᵒᵖ ⥤ Type (u + 1)}
 
-/-- Lemma 66.19.8 (1): the stalk functor on abelian étale presheaves is exact. -/
-@[stacks 04K1]
-theorem presheafAbelianStalkExact :
-    exactFunctor _ _
-      ((toSmallEtalePoint xbar).presheafFiber : _ ⥤ AddCommGrpCat.{u + 1}) :=
-  sorry
+/- Lemma 66.19.8 -/
+@[stacks 04K1] #check
+  (CategoryTheory.GrothendieckTopology.Point.presheafFiber_exact
+    (Φ := toSmallEtalePoint xbar) (A := AddCommGrpCat.{u + 1}) :
+      exactFunctor
+        ((smallEtaleSite X)ᵒᵖ ⥤ AddCommGrpCat.{u + 1}) AddCommGrpCat.{u + 1}
+        ((toSmallEtalePoint xbar).presheafFiber :
+          ((smallEtaleSite X)ᵒᵖ ⥤ AddCommGrpCat.{u + 1}) ⥤ AddCommGrpCat.{u + 1}))
 
-/-- Lemma 66.19.8 (2): sheafification does not change the set-valued stalk at `xbar`. -/
-@[stacks 04K1]
-theorem sheafify_presheafFiber_iso (F : (smallEtaleSite X)ᵒᵖ ⥤ Type (u + 1)) :
-    IsIso ((toSmallEtalePoint xbar).presheafFiber.map
-      (toSheafify (smallEtaleTopology X) F)) :=
-  sorry
+#check
+  (CategoryTheory.GrothendieckTopology.Point.W_isInvertedBy_presheafFiber
+    (Φ := toSmallEtalePoint xbar) (A := Type (u + 1))
+    (CategoryTheory.toSheafify (smallEtaleTopology X) F)
+    ((smallEtaleTopology X).W_toSheafify F) :
+      IsIso ((toSmallEtalePoint xbar).presheafFiber.map
+        (CategoryTheory.toSheafify (smallEtaleTopology X) F)))
 
-/-- Lemma 66.19.8 (3): the stalk functor on abelian étale sheaves is exact. -/
-@[stacks 04K1]
-theorem sheafAbelianStalkExact :
-    exactFunctor _ _
-      ((toSmallEtalePoint xbar).sheafFiber : _ ⥤ AddCommGrpCat.{u + 1}) :=
-  sorry
+#check
+  (CategoryTheory.GrothendieckTopology.Point.sheafFiber_exact
+    (Φ := toSmallEtalePoint xbar) (A := AddCommGrpCat.{u + 1}) :
+      exactFunctor
+        (Sheaf (smallEtaleTopology X) AddCommGrpCat.{u + 1}) AddCommGrpCat.{u + 1}
+        ((toSmallEtalePoint xbar).sheafFiber :
+          Sheaf (smallEtaleTopology X) AddCommGrpCat.{u + 1} ⥤
+            AddCommGrpCat.{u + 1}))
 
-/-- Lemma 66.19.8 (4): the stalk functor on étale presheaves of sets is exact. -/
-@[stacks 04K1]
-theorem presheafTypeStalkExact :
-    exactFunctor _ _
-      ((toSmallEtalePoint xbar).presheafFiber : _ ⥤ Type (u + 1)) :=
-  sorry
+#check
+  (CategoryTheory.GrothendieckTopology.Point.presheafFiber_exact
+    (Φ := toSmallEtalePoint xbar) (A := Type (u + 1)) :
+      exactFunctor
+        ((smallEtaleSite X)ᵒᵖ ⥤ Type (u + 1)) (Type (u + 1))
+        ((toSmallEtalePoint xbar).presheafFiber :
+          ((smallEtaleSite X)ᵒᵖ ⥤ Type (u + 1)) ⥤ Type (u + 1)))
 
-/-- Lemma 66.19.8 (5): the stalk functor on étale sheaves of sets is exact. -/
-@[stacks 04K1]
-theorem sheafTypeStalkExact :
-    exactFunctor _ _
-      ((toSmallEtalePoint xbar).sheafFiber : _ ⥤ Type (u + 1)) :=
-  sorry
+#check
+  (CategoryTheory.GrothendieckTopology.Point.sheafFiber_exact
+    (Φ := toSmallEtalePoint xbar) (A := Type (u + 1)) :
+      exactFunctor
+        (Sheaf (smallEtaleTopology X) (Type (u + 1))) (Type (u + 1))
+        ((toSmallEtalePoint xbar).sheafFiber :
+          Sheaf (smallEtaleTopology X) (Type (u + 1)) ⥤ Type (u + 1)))
 
-/-- Lemma 66.19.8 (6): the set-valued étale presheaf stalk functor preserves colimits. -/
-@[stacks 04K1]
-theorem presheafTypeStalkPreservesColimits :
-    PreservesColimits
-      ((toSmallEtalePoint xbar).presheafFiber : _ ⥤ Type (u + 1)) :=
-  sorry
+#check (((toSmallEtalePoint xbar).skyscraperPresheafAdjunction (A := Type (u + 1))
+    ).leftAdjoint_preservesColimits :
+      PreservesColimits
+        ((toSmallEtalePoint xbar).presheafFiber :
+          ((smallEtaleSite X)ᵒᵖ ⥤ Type (u + 1)) ⥤ Type (u + 1)))
 
-/-- Lemma 66.19.8 (7): the set-valued étale sheaf stalk functor preserves colimits. -/
-@[stacks 04K1]
-theorem sheafTypeStalkPreservesColimits :
-    PreservesColimits
-      ((toSmallEtalePoint xbar).sheafFiber : _ ⥤ Type (u + 1)) :=
-  sorry
+#check (((toSmallEtalePoint xbar).skyscraperSheafAdjunction (A := Type (u + 1))
+    ).leftAdjoint_preservesColimits :
+      PreservesColimits
+        ((toSmallEtalePoint xbar).sheafFiber :
+          Sheaf (smallEtaleTopology X) (Type (u + 1)) ⥤ Type (u + 1)))
 
 end AlgebraicGeometry.AlgebraicSpace.GeometricPoint

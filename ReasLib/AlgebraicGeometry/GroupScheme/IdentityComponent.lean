@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.GroupScheme.Connected
@@ -33,74 +27,77 @@ variable {k : Type u} [Field k]
 
 namespace IdentityComponent
 
-/-- The connected component of the identity is open in a group scheme over a field. -/
-theorem isOpen (G : SchemeOverField k) [GrpObj G] :
-    IsOpen (connectedComponent (η[G].left (IsLocalRing.closedPoint k))) := sorry
+/-- The connected component of the identity point, as a point of `ConnectedComponents`. -/
+def component (G : SchemeOverField k) [GrpObj G] : ConnectedComponents G.left :=
+  (η[G].left (IsLocalRing.closedPoint k) : ConnectedComponents G.left)
 
-/-- The identity component as an open subset of the underlying scheme. -/
-def openSubset (G : SchemeOverField k) [GrpObj G] : G.left.Opens :=
-  ⟨connectedComponent (η[G].left (IsLocalRing.closedPoint k)), isOpen G⟩
-
-/-- The carrier of `openSubset G` is the connected component of the identity. -/
-theorem coe_openSubset (G : SchemeOverField k) [GrpObj G] :
-    (openSubset G : Set G.left) =
-      connectedComponent (η[G].left (IsLocalRing.closedPoint k)) := sorry
-
-/-- The inclusion of the identity component as an open subscheme is also closed. -/
-instance instIsClosedImmersionOpenSubset (G : SchemeOverField k) [GrpObj G] :
-    IsClosedImmersion (openSubset G).ι := sorry
-
-/-- The unique flat ideal-sheaf datum supported on the connected component of the identity. -/
+/-- The canonical flat ideal-sheaf datum supported on the connected component of the
+identity. -/
 def ideal (G : SchemeOverField k) [GrpObj G] : G.left.IdealSheafData :=
-  (openSubset G).ι.ker
+  G.left.connectedComponentIdeal (component G)
+
+/-- The identity-component closed immersion is flat. -/
+theorem flat_ideal (G : SchemeOverField k) [GrpObj G] : Flat (ideal G).subschemeι :=
+  G.left.flat_connectedComponentIdeal (component G)
+
+/-- The support of the identity-component ideal sheaf is the connected component of the
+identity. -/
+theorem support_ideal (G : SchemeOverField k) [GrpObj G] :
+    ((ideal G).support : Set G.left) =
+      connectedComponent (η[G].left (IsLocalRing.closedPoint k)) :=
+  G.left.support_connectedComponentIdeal (component G)
 
 /-- The selected ideal-sheaf datum is flat and has support the connected component of the
 identity. -/
 theorem ideal_spec (G : SchemeOverField k) [GrpObj G] :
     Flat (ideal G).subschemeι ∧
       ((ideal G).support : Set G.left) =
-        connectedComponent (η[G].left (IsLocalRing.closedPoint k)) := sorry
+        connectedComponent (η[G].left (IsLocalRing.closedPoint k)) :=
+  ⟨flat_ideal G, support_ideal G⟩
 
 /-- A flat ideal-sheaf datum supported on the identity component is the selected datum. -/
 theorem ideal_unique (G : SchemeOverField k) [GrpObj G]
     (I : G.left.IdealSheafData) (hI : Flat I.subschemeι)
     (h_support : (I.support : Set G.left) =
       connectedComponent (η[G].left (IsLocalRing.closedPoint k))) :
-    I = ideal G := sorry
+    I = ideal G :=
+  G.left.eq_connectedComponentIdeal (component G) I hI h_support
 
 /-- The identity-component closed subscheme, regarded as a scheme over the base field. -/
 def source (G : SchemeOverField k) [GrpObj G] : SchemeOverField k :=
-  Over.mk ((openSubset G).ι ≫ G.hom)
+  Over.mk ((ideal G).subschemeι ≫ G.hom)
 
 /-- The structural morphism of `source G` is the composite through `G`. -/
 theorem source_hom (G : SchemeOverField k) [GrpObj G] :
-    (source G).hom = (openSubset G).ι ≫ G.hom := sorry
+    (source G).hom = (ideal G).subschemeι ≫ G.hom := rfl
 
 /-- The closed-subscheme inclusion of the identity component in `G`. -/
 def inclusion (G : SchemeOverField k) [GrpObj G] : source G ⟶ G :=
-  Over.homMk (openSubset G).ι
+  Over.homMk (ideal G).subschemeι
 
 /-- The underlying scheme morphism of the identity-component inclusion is the canonical
 closed-subscheme immersion. -/
 theorem inclusion_left (G : SchemeOverField k) [GrpObj G] :
-    (inclusion G).left = (openSubset G).ι := sorry
+    (inclusion G).left = (ideal G).subschemeι := rfl
 
 /-- The identity-component inclusion is a closed immersion on underlying schemes. -/
 instance instIsClosedImmersionInclusion (G : SchemeOverField k) [GrpObj G] :
-    IsClosedImmersion (inclusion G).left := sorry
+    IsClosedImmersion (inclusion G).left := by
+  change IsClosedImmersion (ideal G).subschemeι
+  infer_instance
 
 /-- The identity-component inclusion is a monomorphism in the over category. -/
-instance instMonoInclusion (G : SchemeOverField k) [GrpObj G] : Mono (inclusion G) := sorry
+instance instMonoInclusion (G : SchemeOverField k) [GrpObj G] : Mono (inclusion G) :=
+  Over.mono_of_mono_left (inclusion G)
 
-/-- The image of the unit lies in the identity-component open subscheme. -/
+/-- The image of the unit lies in the identity component. -/
 theorem one_range_subset (G : SchemeOverField k) [GrpObj G] :
-    Set.range η[G].left ⊆ Set.range (openSubset G).ι := sorry
+    Set.range η[G].left ⊆ ((ideal G).support : Set G.left) := sorry
 
-/-- The explicit lift of the unit map to the identity-component open subscheme. -/
+/-- The explicit lift of the unit map through the flat closed identity-component subscheme. -/
 def oneLeft (G : SchemeOverField k) [GrpObj G] :
     (𝟙_ (SchemeOverField k)).left ⟶ (source G).left :=
-  @IsOpenImmersion.lift _ _ _ (openSubset G).ι η[G].left
-    (Scheme.Opens.instIsOpenImmersionι (openSubset G)) (one_range_subset G)
+  (ideal G).flatLift (flat_ideal G) η[G].left (one_range_subset G)
 
 /-- The underlying lifted unit map is a morphism over the base field. -/
 theorem oneLeft_over (G : SchemeOverField k) [GrpObj G] :
@@ -120,17 +117,17 @@ theorem one_unique (G : SchemeOverField k) [GrpObj G]
     (e : 𝟙_ (SchemeOverField k) ⟶ source G) (he : e ≫ inclusion G = η[G]) :
     e = one G := sorry
 
-/-- Restricted multiplication has image in the identity-component open subscheme. -/
+/-- Restricted multiplication has image in the identity component. -/
 theorem mul_range_subset (G : SchemeOverField k) [GrpObj G] :
     Set.range (((inclusion G ⊗ₘ inclusion G) ≫ μ[G]).left) ⊆
-      Set.range (openSubset G).ι := sorry
+      ((ideal G).support : Set G.left) := sorry
 
-/-- The explicit lift of restricted multiplication to the identity-component open subscheme. -/
+/-- The explicit lift of restricted multiplication through the flat closed identity-component
+subscheme. -/
 def mulLeft (G : SchemeOverField k) [GrpObj G] :
     (source G ⊗ source G).left ⟶ (source G).left :=
-  @IsOpenImmersion.lift _ _ _ (openSubset G).ι
-    (((inclusion G ⊗ₘ inclusion G) ≫ μ[G]).left)
-    (Scheme.Opens.instIsOpenImmersionι (openSubset G)) (mul_range_subset G)
+  (ideal G).flatLift (flat_ideal G) (((inclusion G ⊗ₘ inclusion G) ≫ μ[G]).left)
+    (mul_range_subset G)
 
 /-- The underlying lifted multiplication is a morphism over the base field. -/
 theorem mulLeft_over (G : SchemeOverField k) [GrpObj G] :
@@ -152,14 +149,14 @@ theorem mul_unique (G : SchemeOverField k) [GrpObj G]
     (hm : m ≫ inclusion G = (inclusion G ⊗ₘ inclusion G) ≫ μ[G]) :
     m = mul G := sorry
 
-/-- Restricted inversion has image in the identity-component open subscheme. -/
+/-- Restricted inversion has image in the identity component. -/
 theorem inv_range_subset (G : SchemeOverField k) [GrpObj G] :
-    Set.range ((inclusion G ≫ ι[G]).left) ⊆ Set.range (openSubset G).ι := sorry
+    Set.range ((inclusion G ≫ ι[G]).left) ⊆ ((ideal G).support : Set G.left) := sorry
 
-/-- The explicit lift of restricted inversion to the identity-component open subscheme. -/
+/-- The explicit lift of restricted inversion through the flat closed identity-component
+subscheme. -/
 def invLeft (G : SchemeOverField k) [GrpObj G] : (source G).left ⟶ (source G).left :=
-  @IsOpenImmersion.lift _ _ _ (openSubset G).ι ((inclusion G ≫ ι[G]).left)
-    (Scheme.Opens.instIsOpenImmersionι (openSubset G)) (inv_range_subset G)
+  (ideal G).flatLift (flat_ideal G) ((inclusion G ≫ ι[G]).left) (inv_range_subset G)
 
 /-- The underlying lifted inverse is a morphism over the base field. -/
 theorem invLeft_over (G : SchemeOverField k) [GrpObj G] :

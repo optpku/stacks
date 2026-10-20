@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.Tensor.CohomologyProduct
@@ -134,8 +128,8 @@ noncomputable def cohomologyCupProduct (p : X ⟶ S)
       (coefficientTensorModel p) i j
       (globalDerivedObject p) (globalDerivedObject p) ≫
     (DerivedCategory.homologyFunctor (coefficientModules p) (i + j)).map
-      (((coefficientTensorModel p).tensorIsoObj
-          (globalDerivedObject p) (globalDerivedObject p)).inv ≫
+      (((coefficientTensorModel p).objIsoTensor
+          (globalDerivedObject p) (globalDerivedObject p)).hom ≫
         Functor.LaxMonoidal.μ (globalDerivedFunctor p)
             (extendedDeRhamComplex p) (extendedDeRhamComplex p) ≫
           (globalDerivedFunctor p).map (extendedWedge p))

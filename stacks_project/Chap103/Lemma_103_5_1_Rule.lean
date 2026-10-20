@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.AffineScheme
@@ -11,6 +5,7 @@ public import Mathlib.CategoryTheory.Abelian.RightDerived
 public import ReasLib.CategoryTheory.ObjectProperty.WeakSerre
 public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
 public import stacks_project.Chap96.«96_10_3_3_Comparison»
+public import stacks_project.Chap103.Lemma_103_5_1_SmallSections
 public import stacks_project.Chap100.Definition_100_4_2_Points
 public import stacks_project.Chap103.«103_15_1_1_Smooth»
 
@@ -47,27 +42,25 @@ theorem etaleModules_eq (X : GroupoidsOver S) :
   sorry
 
 /-- The category of étale `𝒪_X`-modules is abelian. -/
-instance etaleModules_abelian (X : GroupoidsOver S) : Abelian (etaleModules X) where
-  toPreadditive := inferInstance
-  toIsNormalMonoCategory := sorry
-  toIsNormalEpiCategory := sorry
-  has_finite_products := sorry
-  has_kernels := sorry
-  has_cokernels := sorry
+instance etaleModules_abelian (X : GroupoidsOver S) : Abelian (etaleModules X) :=
+  GroupoidsOver.etaleModulesAbelian X
 
 /-- The underived étale module pushforward `f_*`, as the concrete module
 direct image along `etaleRingedToposHom f`. -/
-def etaleModulePushforward {X Y : GroupoidsOver S} (f : X ⟶ Y) :
+def etaleModulePushforward {X Y : GroupoidsOver S} (f : X ⟶ Y)
+    [HasSmallCFGTypeSections f] :
     etaleModules X ⥤ etaleModules Y :=
   etaleModuleDirectImage f
 
 /-- `etaleModulePushforward f` is `etaleModuleDirectImage f`. -/
-theorem etaleModulePushforward_eq {X Y : GroupoidsOver S} (f : X ⟶ Y) :
+theorem etaleModulePushforward_eq {X Y : GroupoidsOver S} (f : X ⟶ Y)
+    [HasSmallCFGTypeSections f] :
     etaleModulePushforward f = etaleModuleDirectImage f :=
   sorry
 
 /-- Étale module direct image is additive. -/
-instance etaleModulePushforward_additive {X Y : GroupoidsOver S} (f : X ⟶ Y) :
+instance etaleModulePushforward_additive {X Y : GroupoidsOver S} (f : X ⟶ Y)
+    [HasSmallCFGTypeSections f] :
     (etaleModulePushforward f).Additive :=
   RingedSite.ToposHom.modulePushforward_additive (etaleRingedToposHom f)
 
@@ -79,23 +72,27 @@ instance instHasInjectiveResolutions_etaleModules (X : GroupoidsOver S) :
 
 /-- The degree-`i` étale higher direct image functor `R^i f_*` on étale
 modules. -/
-abbrev higherDirectImageFunctor {X Y : GroupoidsOver S} (f : X ⟶ Y) (i : ℕ) :
+abbrev higherDirectImageFunctor {X Y : GroupoidsOver S} (f : X ⟶ Y)
+    [HasSmallCFGTypeSections f] (i : ℕ) :
     etaleModules X ⥤ etaleModules Y :=
   (etaleModulePushforward f).rightDerived i
 
 /-- `higherDirectImageFunctor f i` is the degree-`i` right derived functor of
 étale module direct image. -/
-theorem higherDirectImageFunctor_eq {X Y : GroupoidsOver S} (f : X ⟶ Y) (i : ℕ) :
+theorem higherDirectImageFunctor_eq {X Y : GroupoidsOver S} (f : X ⟶ Y)
+    [HasSmallCFGTypeSections f] (i : ℕ) :
     higherDirectImageFunctor f i = (etaleModulePushforward f).rightDerived i :=
   sorry
 
 /-- The degree-`i` étale higher direct image `R^i f_* F`. -/
 abbrev higherDirectImage {X Y : GroupoidsOver S} (f : X ⟶ Y)
+    [HasSmallCFGTypeSections f]
     (F : etaleModules X) (i : ℕ) : etaleModules Y :=
   (higherDirectImageFunctor f i).obj F
 
 /-- `higherDirectImage f F i` is the object map of `higherDirectImageFunctor`. -/
 theorem higherDirectImage_eq {X Y : GroupoidsOver S} (f : X ⟶ Y)
+    [HasSmallCFGTypeSections f]
     (F : etaleModules X) (i : ℕ) :
     higherDirectImage f F i = (higherDirectImageFunctor f i).obj F :=
   sorry

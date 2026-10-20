@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.TwoFibreProduct
 
 /-!
 # 2-fibre products of algebraic stacks over a stack with representable diagonal
@@ -21,24 +15,13 @@ by algebraic spaces, and `X`, `Y` are algebraic stacks over `S`, then the
 open CategoryTheory AlgebraicGeometry
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry
-
-namespace AlgebraicStack
-
-/-- The 2-fibre product of algebraic stacks over a stack in groupoids whose
-diagonal is representable by algebraic spaces is an algebraic stack. -/
-theorem twoFibreProduct {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.twoFibreProduct :
+    ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y]
     [IsStack.InGroupoids (Scheme.fppfTopology.over S) Z.p]
     (f : X ⟶ Z) (g : Y ⟶ Z)
     (h_diag : relativelyRepresentableByAlgebraicSpaces
-      (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} Z)) :
-    AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g) := sorry
-
-end AlgebraicStack
-
-end AlgebraicGeometry
+      (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} Z)),
+    AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g))

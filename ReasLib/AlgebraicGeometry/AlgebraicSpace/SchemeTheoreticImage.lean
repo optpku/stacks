@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Comma.Over.OverClass
@@ -11,6 +5,7 @@ public import Mathlib.CategoryTheory.CommSq
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Closed.InverseImage
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Immersion
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Separation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Subspace
 
 /-!
 # Scheme-theoretic images and dominance of morphisms of algebraic spaces
@@ -158,6 +153,32 @@ theorem le_inverseImage {S : Scheme.{u}}
     [IsSchemeTheoreticImage f₂ toImage₂ ι₂]
     [IsClosedImmersion ι₂] :
     ∃ k : Z1 ⟶ inverseImage gY ι₂, k ≫ inverseImageι gY ι₂ = ι₁ := sorry
+
+/-- Every morphism of algebraic spaces over a scheme admits a scheme-theoretic
+image factorization. -/
+theorem exists_schemeTheoreticImage {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+    ∃ (Z : AlgebraicSpace S) (toImage : X ⟶ Z) (ι : Z ⟶ Y),
+      IsSchemeTheoreticImage f toImage ι := sorry
+
+/-- There exists a least closed subspace of `Y` through which `f` factors: any
+other such closed subspace admits a comparison over `Y`. -/
+theorem exists_least_closedSubspace {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) :
+    ∃ Z : ClosedSubspace Y,
+      (∃ toZ : X ⟶ Z.X, toZ ≫ Z.ι = f) ∧
+        ∀ Z' : ClosedSubspace Y, (∃ toZ' : X ⟶ Z'.X, toZ' ≫ Z'.ι = f) →
+          ∃ k : Z.X ⟶ Z'.X, k ≫ Z'.ι = Z.ι := sorry
+
+/-- A least closed-subspace factorization of `f` is a scheme-theoretic image
+factorization. Uniqueness of the comparison follows from closed immersions
+being monomorphisms. -/
+theorem of_isLeast_closedSubspace {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) (Z : ClosedSubspace Y) (toImage : X ⟶ Z.X)
+    (hfac : toImage ≫ Z.ι = f)
+    (hleast : ∀ Z' : ClosedSubspace Y,
+      (∃ toZ' : X ⟶ Z'.X, toZ' ≫ Z'.ι = f) →
+        ∃ k : Z.X ⟶ Z'.X, k ≫ Z'.ι = Z.ι) :
+    IsSchemeTheoreticImage f toImage Z.ι := sorry
 
 end IsSchemeTheoreticImage
 

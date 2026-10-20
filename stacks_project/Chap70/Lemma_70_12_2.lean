@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap70.Lemma_70_12_2_Approximation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Limit.ProperNoetherianApproximation
 import StacksCheckRecall
 
 @[expose] public section
@@ -23,6 +17,6 @@ presentation, with affine transitions on both systems, and with each `Y_i` of
 finite presentation over `ℤ`. -/
 @[stacks 0A0X] #check
   (AlgebraicGeometry.AlgebraicSpace.exists_properNoetherianApproximation :
-    ∀ {X Y : AlgebraicSpace specULiftInt} (f : X ⟶ Y)
+    ∀ {X Y : AlgebraicSpace (Spec (CommRingCat.of (ULift.{u} ℤ)))} (f : X ⟶ Y)
       [Proper f] [IsQuasiCompact Y] [IsQuasiSeparated Y],
       Nonempty (ProperNoetherianApproximation f))

@@ -1,18 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Types.Basic
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap90.Definition_90_3_1_Classical
-public import stacks_project.Chap90.Definition_90_6_1_Prorepresentable
-public import stacks_project.Chap90.Definition_90_23_1_Smooth
-public import stacks_project.Chap90.Remarks_90_5_2_IsoClass
-public import stacks_project.Chap93.Lemma_93_6_3
+public import ReasLib.AlgebraicGeometry.FormalDeformation.ContinuousRepresentation.Hull
+import StacksCheckRecall
 
 /-!
 # Hull and prorepresentability of isomorphism classes of continuous representations
@@ -30,56 +19,42 @@ noncomputable section
 
 universe u
 
-namespace ContinuousRep
-
 variable (Γ Λ k : Type u) [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
   [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k] [Module.Finite Λ k]
 variable {V : Type u} [AddCommGroup V] [Module k V] [FiniteDimensional k V]
 
-/-- The functor of isomorphism classes of objects of `Def_{V, ρ0}`. -/
-abbrev isoClassFunctor (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V)
-    (hρ0 : IsContinuousDiscrete ρ0) :
-    ArtinianLocalAlgCat Λ k ⥤ Type (u + 1) :=
-  fiberIsoClassFunctor (deformationForget Γ Λ k ρ0 hρ0)
+variable (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V)
+variable (hρ0 : ContinuousRep.IsContinuousDiscrete ρ0)
+variable (hΓ : TopologicalGroup.IsFinitelyGenerated Γ)
+variable [ArtinianLocalAlgCat.IsClassical Λ k]
 
-/-- The value of `isoClassFunctor ρ0` at `A` is the type of isomorphism classes of objects
-of `(deformationForget Γ Λ k ρ0 hρ0).Fiber A`. -/
-theorem isoClassFunctor_obj (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V)
-    (hρ0 : IsContinuousDiscrete ρ0) (A : ArtinianLocalAlgCat Λ k) :
-    (isoClassFunctor Γ Λ k ρ0 hρ0).obj A =
-      isomorphismClasses.obj (Cat.of ((deformationForget Γ Λ k ρ0 hρ0).Fiber A)) :=
-  sorry
-
-/-- Lemma 93.6.4 (1)
+/- Lemma 93.6.4 (1)
 In Example 93.6.1 assume `Γ` is topologically finitely generated. Let
 `ρ0 : Γ →* LinearMap.GeneralLinearGroup k V` be a finite-dimensional continuous
 representation. Assume `Λ` is a complete local ring with residue field `k` (the
 classical case). Then the functor sending `A` to the isomorphism classes of objects
 of `Def_{V, ρ0}(A)`, i.e. `F(A) = Ob(Def_{V, ρ0}(A))/≅`, has a hull. -/
-@[stacks 0ET2]
-theorem exists_isHull_isoClass (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V)
-    (hρ0 : IsContinuousDiscrete ρ0) (hΓ : TopologicalGroup.IsFinitelyGenerated Γ)
-    [ArtinianLocalAlgCat.IsClassical Λ k] :
+@[stacks 0ET2] #check (ContinuousRep.exists_isHull_isoClass Γ Λ k ρ0 hρ0 hΓ :
     ∃ R : CompleteLocalAlgCat Λ k,
       ∃ η : CompleteLocalAlgCat.restrictedCoyoneda R ⋙ uliftFunctor.{u + 1, u} ⟶
-          isoClassFunctor Γ Λ k ρ0 hρ0,
+          ContinuousRep.isoClassFunctor Γ Λ k ρ0 hρ0,
         NatTrans.IsSmooth η ∧
-          Function.Bijective (η.app (ArtinianLocalAlgCat.dualNumber Λ k)) :=
-  sorry
+          Function.Bijective (η.app (ArtinianLocalAlgCat.dualNumber Λ k)))
 
-/-- Lemma 93.6.4 (2)
+/- Lemma 93.6.4 (2)
 If in addition `H^0(Γ, End_k(V)) = k`, recorded as
 `Module.finrank k (endRepresentation Γ Λ k ρ0 hρ0).invariants = 1`, then the functor
 of isomorphism classes is prorepresentable. -/
-@[stacks 0ET2]
-theorem isProrepresentable_isoClass (ρ0 : Γ →* LinearMap.GeneralLinearGroup k V)
-    (hρ0 : IsContinuousDiscrete ρ0) (hΓ : TopologicalGroup.IsFinitelyGenerated Γ)
-    [ArtinianLocalAlgCat.IsClassical Λ k]
-    (hH0 : Module.finrank k (endRepresentation Γ Λ k ρ0 hρ0).invariants = 1) :
+@[stacks 0ET2] #check (ContinuousRep.isProrepresentable_isoClass Γ Λ k ρ0 hρ0 hΓ :
+    Module.finrank k (ContinuousRep.endRepresentation Γ Λ k ρ0 hρ0).invariants = 1 →
     ∃ R : CompleteLocalAlgCat Λ k,
       Nonempty
         (CompleteLocalAlgCat.restrictedCoyoneda R ⋙ uliftFunctor.{u + 1, u} ≅
-          isoClassFunctor Γ Λ k ρ0 hρ0) :=
-  sorry
+          ContinuousRep.isoClassFunctor Γ Λ k ρ0 hρ0))
 
-end ContinuousRep
+#check (CategoryTheory.Functor.fiberIsoClassFunctor.obj
+    (ContinuousRep.deformationForget Γ Λ k ρ0 hρ0) :
+  ∀ A : ArtinianLocalAlgCat Λ k,
+    (ContinuousRep.isoClassFunctor Γ Λ k ρ0 hρ0).obj A =
+      isomorphismClasses.obj
+        (Cat.of ((ContinuousRep.deformationForget Γ Λ k ρ0 hρ0).Fiber A)))

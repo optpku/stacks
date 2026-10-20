@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.CochainComplex.KFlat.Tensor
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.Complex.Monoidal
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Complex.Monoidal
 import StacksCheckRecall
 
 @[expose] public section

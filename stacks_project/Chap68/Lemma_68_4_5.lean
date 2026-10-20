@@ -1,47 +1,21 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Data.List.TFAE
-public import stacks_project.Chap68.Lemma_68_4_5_Fibre
-
-/-!
-# Finite fibres above a point of an algebraic space
-
-Six pointwise tests at a point of an algebraic space are equivalent: affine
-étale charts with finite `|U|` and `|U ×_X U|` fibres, an étale scheme covering
-with those finite fibres, a field-valued monomorphism with finite affine étale
-fibres over the field, and the quasi-compact field-valued-point formulations.
--/
-
-@[expose] public section
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale.FiniteAbove
+import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 68.4.5: Let `S` be a scheme. Let `X` be an algebraic space over `S`. Let
-`x` be a point of `|X|`. The following are equivalent:
-`forallAffineEtaleFiniteAbove X x`, `existsEtaleCoverFiniteAbove X x`,
-`existsMonoFieldValuedFiniteAffineFibres X x`,
-`existsQuasiCompactMonoFieldValuedPoint X x`,
-`existsQuasiCompactFieldValuedPoint X x`, and
-`forallFieldValuedPointQuasiCompact X x`. -/
-@[stacks 03JV]
-theorem finiteAbove_tfae {S : Scheme.{u}} (X : AlgebraicSpace S) (x : Points X) :
+/- Lemma 68.4.5: For a point of an algebraic space, the six finite-fibre and
+quasi-compact field-valued representative conditions are equivalent. -/
+@[stacks 03JV] #check (AlgebraicGeometry.AlgebraicSpace.finiteAbove_tfae :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+    (x : AlgebraicGeometry.AlgebraicSpace.Points X),
     List.TFAE
-      [ forallAffineEtaleFiniteAbove X x
-      , existsEtaleCoverFiniteAbove X x
-      , existsMonoFieldValuedFiniteAffineFibres X x
-      , existsQuasiCompactMonoFieldValuedPoint X x
-      , existsQuasiCompactFieldValuedPoint X x
-      , forallFieldValuedPointQuasiCompact X x ] :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+      [ AlgebraicGeometry.AlgebraicSpace.forallAffineEtaleFiniteAbove X x
+      , AlgebraicGeometry.AlgebraicSpace.existsEtaleCoverFiniteAbove X x
+      , AlgebraicGeometry.AlgebraicSpace.existsMonoFieldValuedFiniteAffineFibres X x
+      , AlgebraicGeometry.AlgebraicSpace.existsQuasiCompactMonoFieldValuedPoint X x
+      , AlgebraicGeometry.AlgebraicSpace.existsQuasiCompactFieldValuedPoint X x
+      , AlgebraicGeometry.AlgebraicSpace.forallFieldValuedPointQuasiCompact X x ])

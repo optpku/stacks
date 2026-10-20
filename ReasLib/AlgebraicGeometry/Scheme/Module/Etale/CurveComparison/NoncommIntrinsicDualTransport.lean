@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommIntrinsicDual
@@ -77,7 +71,7 @@ def stalkIso (x : GeometricPoint Y) :
     (modules R).obj ((StalkRepresentation.stalk Rᵐᵒᵖ x).obj (NoncommIntrinsicDual.obj R Y F)) ≅
     (StalkRepresentation.stalk (ActualRootsModule.Coeff.{u} (Nat.card R)) x).obj
       (NoncommFiniteCoefficient.dual R Y F) :=
-  (((geometricPointEtalePoint x).presheafFiberCompIso
+  (((AlgebraicGeometry.Scheme.GeometricPoint.toSmallEtalePoint x).presheafFiberCompIso
     (modules R : ModuleCat.{u + 1} Rᵐᵒᵖ ⥤
       ModuleCat.{u + 1} (ActualRootsModule.Coeff.{u} (Nat.card R)))).app
       (NoncommIntrinsicDual.obj R Y F).obj).symm ≪≫

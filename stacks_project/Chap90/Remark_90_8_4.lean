@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Definition_90_8_1_Smooth
-public import stacks_project.Chap90.Definition_90_23_1_Smooth
-public import stacks_project.Chap90.Remarks_90_5_2_Grothendieck
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Smooth.TypeValued
+import StacksCheckRecall
 
 /-!
 # Smooth morphisms of categories cofibered in sets
@@ -30,7 +23,7 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
 
 namespace CategoryTheory.BasedFunctor
 
-/-- Remark 90.8.4: when categories cofibered in groupoids over `ArtinianLocalAlgCat Λ k`
+/- Remark 90.8.4: when categories cofibered in groupoids over `ArtinianLocalAlgCat Λ k`
 are cofibered in sets, associated via `Functor.ofTypeValued` to functors
 `F, G : ArtinianLocalAlgCat Λ k ⥤ Type v`, Stacks smoothness of
 `CofiberedCategoryOver.Groupoids.toBasedFunctor (Functor.ofTypeValuedMap η)` is
@@ -39,20 +32,18 @@ smooth if and only if for every surjection `f : B ⟶ A` the comparison
 `NatTrans.liftPair η f : F.obj B → F.obj A × G.obj B` is surjective onto pairs
 `(x, y)` satisfying `η.app A x = G.map f y`. This is analogous to the
 characterization in Remark 90.8.3 and to Schlessinger's Definition 2.2. -/
-@[stacks 06HJ]
-theorem isSmooth_ofTypeValuedMap_iff {F G : ArtinianLocalAlgCat Λ k ⥤ Type v} (η : F ⟶ G) :
+@[stacks 06HJ] #check (CategoryTheory.BasedFunctor.isSmooth_ofTypeValuedMap_iff :
+  ∀ {F G : ArtinianLocalAlgCat Λ k ⥤ Type v} (η : F ⟶ G),
     IsSmooth (CofiberedCategoryOver.Groupoids.toBasedFunctor (Functor.ofTypeValuedMap η)) ↔
-      NatTrans.IsSmooth η :=
-  sorry
+      NatTrans.IsSmooth η)
 
-/-- Stacks smoothness of `ofTypeValuedMap η` is equivalent to the fibre-product
+/- Stacks smoothness of `ofTypeValuedMap η` is equivalent to the fibre-product
 surjectivity of `NatTrans.liftPair η f` along every surjection `f : B ⟶ A`. -/
-theorem isSmooth_ofTypeValuedMap_iff_liftPair
-    {F G : ArtinianLocalAlgCat Λ k ⥤ Type v} (η : F ⟶ G) :
+#check (CategoryTheory.BasedFunctor.isSmooth_ofTypeValuedMap_iff_liftPair :
+  ∀ {F G : ArtinianLocalAlgCat Λ k ⥤ Type v} (η : F ⟶ G),
     IsSmooth (CofiberedCategoryOver.Groupoids.toBasedFunctor (Functor.ofTypeValuedMap η)) ↔
       ∀ {B A : ArtinianLocalAlgCat Λ k} (f : B ⟶ A), Function.Surjective f.hom →
         ∀ (x : F.obj A) (y : G.obj B), η.app A x = G.map f y →
-          ∃ x' : F.obj B, NatTrans.liftPair η f x' = (x, y) :=
-  sorry
+          ∃ x' : F.obj B, NatTrans.liftPair η f x' = (x, y))
 
 end CategoryTheory.BasedFunctor

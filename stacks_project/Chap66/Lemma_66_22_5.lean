@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_9_2_Dimension
-public import stacks_project.Chap66.Lemma_66_10_3_LocalRingDim
-public import stacks_project.Chap66.Lemma_66_16_4_Etale
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale.Dimension
+import StacksCheckRecall
 
 /-!
 # Dimension of algebraic spaces is invariant under étale morphisms
@@ -24,31 +17,19 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Etale
+open AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 66.22.5 (1): let `S` be a scheme. Let `f : X ⟶ Y` be an étale morphism of algebraic
-spaces over `S`. Let `x` be a point of `X`. Then `dimensionAt x = dimensionAt (Points.map f x)`. -/
-@[stacks 0A4H]
-theorem dimensionAt_eq {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etale f]
-    (x : Points X) :
-    dimensionAt x = dimensionAt (Points.map f x) :=
-  sorry
+/- Lemma 66.22.5 (1): an étale morphism preserves dimension at each source point. -/
+@[stacks 0A4H] #check (AlgebraicGeometry.AlgebraicSpace.Etale.dimensionAt_eq :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etale f] (x : Points X),
+    dimensionAt x = dimensionAt (Points.map f x))
 
-/-- Lemma 66.22.5 (2): let `S` be a scheme. Let `f : X ⟶ Y` be an étale morphism of algebraic
-spaces over `S`. Let `x` be a point of `X`. Then the dimension of the local ring of `X` at `x`
-equals the dimension of the local ring of `Y` at `Points.map f x`. -/
-@[stacks 0A4H]
-theorem localRingDimAt_eq {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etale f]
-    (x : Points X) :
-    localRingDimAt x = localRingDimAt (Points.map f x) :=
-  sorry
+/- Lemma 66.22.5 (2): an étale morphism preserves local-ring dimension at each source point. -/
+@[stacks 0A4H] #check (AlgebraicGeometry.AlgebraicSpace.Etale.localRingDimAt_eq :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etale f] (x : Points X),
+    localRingDimAt x = localRingDimAt (Points.map f x))
 
-/-- Lemma 66.22.5 (3): let `S` be a scheme. Let `f : X ⟶ Y` be an étale morphism of algebraic
-spaces over `S`. If `Points.map f` is surjective, then `dimension X = dimension Y`. -/
-@[stacks 0A4H]
-theorem dimension_eq_of_surjective {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [Etale f] (hf : Function.Surjective (Points.map f)) :
-    dimension X = dimension Y :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Etale
+/- Lemma 66.22.5 (3): a surjective étale morphism preserves global dimension. -/
+@[stacks 0A4H] #check (AlgebraicGeometry.AlgebraicSpace.Etale.dimension_eq_of_surjective :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etale f]
+    (hf : Function.Surjective (Points.map f)), dimension X = dimension Y)

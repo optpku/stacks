@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_23_3_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType.BaseChange
+import StacksCheckRecall
 
 /-!
 # Base change of finite-type morphisms of algebraic spaces
@@ -23,25 +18,17 @@ open CategoryTheory AlgebraicGeometry CategoryTheory.Limits
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+/- Lemma 67.23.3. A base change of a finite type morphism is finite type.
+The same holds for locally of finite type. -/
+@[stacks 03XH] #check
+  (AlgebraicGeometry.AlgebraicSpace.finiteType_isStableUnderBaseChange :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}},
+      CategoryTheory.MorphismProperty.IsStableUnderBaseChange
+        (@AlgebraicGeometry.AlgebraicSpace.FiniteType S :
+          CategoryTheory.MorphismProperty (AlgebraicGeometry.AlgebraicSpace S)))
 
-/-- Lemma 67.23.3 (1): The base change of a finite type morphism of algebraic
-spaces is finite type. -/
-@[stacks 03XH]
-instance finiteType_isStableUnderBaseChange {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderBaseChange
-      (@FiniteType S : MorphismProperty (AlgebraicSpace S)) := sorry
-
-/-- Lemma 67.23.3 (2): The base change of a locally of finite type morphism of
-algebraic spaces is locally of finite type. -/
-@[stacks 03XH]
-instance locallyOfFiniteType_isStableUnderBaseChange {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderBaseChange
-      (@LocallyOfFiniteType S : MorphismProperty (AlgebraicSpace S)) := sorry
-
-#check FiniteType.of_isPullback
-#check FiniteType.pullback_snd
-#check LocallyOfFiniteType.of_isPullback
-#check LocallyOfFiniteType.pullback_snd
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.locallyOfFiniteType_isStableUnderBaseChange :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}},
+    CategoryTheory.MorphismProperty.IsStableUnderBaseChange
+      (@AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType S :
+        CategoryTheory.MorphismProperty (AlgebraicGeometry.AlgebraicSpace S)))

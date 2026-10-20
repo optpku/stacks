@@ -1,26 +1,14 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Data.PNat.Basic
-public import ReasLib.CategoryTheory.DerivedCategory.Bounded
-public import ReasLib.CategoryTheory.DerivedCategory.CohomologyIn.Basic
-public import stacks_project.Chap61.Lemma_61_19_11_Reduction
-public import stacks_project.Chap61.Lemma_61_27_2_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.ProEtale.Derived.ConstructibleReduction
+import StacksCheckRecall
 
 /-!
 # Lemma 61.27.6
 
-If the reduction `K_1` of `K` in `D(X.ProEt, Λ)` lies in `D_c^-(X.ProEt, Λ ⧸ I)`,
-then every positive-power reduction `K_n` lies in `D_c^-(X.ProEt, Λ ⧸ I ^ n)`.
+Bounded-above constructibility of reduction modulo an ideal implies the same
+property for reduction modulo every natural power of that ideal.
 -/
-
-@[expose] public section
 
 open CategoryTheory
 open CategoryTheory.Functor
@@ -30,118 +18,136 @@ open ComplexShape
 
 noncomputable section
 
-universe u
+universe u w
 
-namespace AlgebraicGeometry.Scheme
-
-variable {X : Scheme.{u}} {Λ : Type (u + 1)} [CommRing Λ] [IsNoetherianRing Λ]
-variable (I : Ideal Λ)
-variable [HasSheafify (ProEt.topology X) (ModuleCat.{u + 1} Λ)]
-variable [HasDerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} Λ))]
-variable [HasSheafify (ProEt.topology X) (ModuleCat.{u + 1} (Λ ⧸ I))]
-variable [HasDerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} (Λ ⧸ I)))]
-variable [∀ Y : Scheme.{u}, HasWeakSheafify (ProEt.topology Y) (ModuleCat.{u + 1} (Λ ⧸ I))]
-variable [∀ (Y : Scheme.{u}) (U : Y.ProEt),
-    HasWeakSheafify ((ProEt.topology Y).over U) (ModuleCat.{u + 1} (Λ ⧸ I))]
-variable [∀ {Y : Scheme.{u}} (f : Y ⟶ X) (P : X.ProEtᵒᵖ ⥤ ModuleCat.{u + 1} (Λ ⧸ I)),
-    (ProEt.baseChange f).op.HasLeftKanExtension P]
-variable [(proEtModuleExtendScalars (Ideal.Quotient.mk I) X).Additive]
-variable [(Functor.Homotopy.toDerived
-    (proEtModuleExtendScalars (Ideal.Quotient.mk I) X)).HasLeftDerivedFunctor
-  (HomotopyCategory.quasiIso
-    (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} Λ)) (up ℤ))]
-
-/-- Lemma 61.27.6: for a scheme `X`, a Noetherian ring `Λ`, an ideal `I ⊆ Λ`,
-and `K` in `D(X.ProEt, Λ)`, writing `K_n` for the derived reduction
-`proEtReduction I n K` (the object `K ⊗^L underline(Λ ⧸ I ^ n)` of
-`D(X.ProEt, Λ ⧸ I ^ n)`), if `K_1` lies in `D_c^-(X.ProEt, Λ ⧸ I)`, then
-every positive-power reduction `K_n` lies in `D_c^-(X.ProEt, Λ ⧸ I ^ n)`. -/
-@[stacks 09BR]
-theorem proEtReduction_constructibleProEtaleModule
-    (K : DerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} Λ)))
+/- Lemma 61.27.6
+For a scheme, a Noetherian coefficient ring, an ideal, and a derived pro-étale
+complex, bounded-above constructibility modulo the ideal implies bounded-above
+constructibility modulo every natural power of the ideal. -/
+@[stacks 09BR] #check (AlgebraicGeometry.Scheme.proEtReduction_constructibleProEtaleModule :
+  ∀ {X : Scheme.{u}} {Λ : Type w} [CommRing Λ] [IsNoetherianRing Λ]
+    (I : Ideal Λ)
+    [HasSheafify (ProEt.topology X) (ModuleCat.{w} Λ)]
+    [HasDerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{w} Λ))]
+    [HasSheafify (ProEt.topology X) (ModuleCat.{w} (Λ ⧸ I))]
+    [HasDerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{w} (Λ ⧸ I)))]
+    [∀ Y : Scheme.{u}, HasWeakSheafify (ProEt.topology Y) (ModuleCat.{w} (Λ ⧸ I))]
+    [∀ (Y : Scheme.{u}) (U : Y.ProEt),
+      HasWeakSheafify ((ProEt.topology Y).over U) (ModuleCat.{w} (Λ ⧸ I))]
+    [∀ {Y : Scheme.{u}} (f : Y ⟶ X) (P : X.ProEtᵒᵖ ⥤ ModuleCat.{w} (Λ ⧸ I)),
+      (ProEt.baseChange f).op.HasLeftKanExtension P]
+    [(proEtModuleExtendScalars (Ideal.Quotient.mk I) X).Additive]
+    [(Functor.Homotopy.toDerived
+        (proEtModuleExtendScalars (Ideal.Quotient.mk I) X)).HasLeftDerivedFunctor
+      (HomotopyCategory.quasiIso
+        (Sheaf (ProEt.topology X) (ModuleCat.{w} Λ)) (up ℤ))]
+    (K : DerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{w} Λ)))
     (h1 : IsBoundedAbove
       ((proEtDerivedExtendScalars (Ideal.Quotient.mk I) X).obj K))
     (h1c : cohomologyIn (constructibleProEtaleModule X (Λ ⧸ I))
       ((proEtDerivedExtendScalars (Ideal.Quotient.mk I) X).obj K))
-    (n : ℕ+)
-    [HasSheafify (ProEt.topology X) (ModuleCat.{u + 1} (Λ ⧸ I ^ (n : ℕ)))]
+    (n : ℕ)
+    [HasSheafify (ProEt.topology X) (ModuleCat.{w} (Λ ⧸ I ^ n))]
     [HasDerivedCategory
-      (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} (Λ ⧸ I ^ (n : ℕ))))]
-    [(proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ (n : ℕ))) X).Additive]
+      (Sheaf (ProEt.topology X) (ModuleCat.{w} (Λ ⧸ I ^ n)))]
+    [(proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ n)) X).Additive]
     [(Functor.Homotopy.toDerived
-        (proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ (n : ℕ))) X)).HasLeftDerivedFunctor
+        (proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ n)) X)).HasLeftDerivedFunctor
       (HomotopyCategory.quasiIso
-        (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} Λ)) (up ℤ))]
+        (Sheaf (ProEt.topology X) (ModuleCat.{w} Λ)) (up ℤ))]
     [∀ Y : Scheme.{u},
-      HasWeakSheafify (ProEt.topology Y) (ModuleCat.{u + 1} (Λ ⧸ I ^ (n : ℕ)))]
+      HasWeakSheafify (ProEt.topology Y) (ModuleCat.{w} (Λ ⧸ I ^ n))]
     [∀ (Y : Scheme.{u}) (U : Y.ProEt),
       HasWeakSheafify ((ProEt.topology Y).over U)
-        (ModuleCat.{u + 1} (Λ ⧸ I ^ (n : ℕ)))]
+        (ModuleCat.{w} (Λ ⧸ I ^ n))]
     [∀ {Y : Scheme.{u}} (f : Y ⟶ X)
-      (P : X.ProEtᵒᵖ ⥤ ModuleCat.{u + 1} (Λ ⧸ I ^ (n : ℕ))),
-      (ProEt.baseChange f).op.HasLeftKanExtension P] :
+      (P : X.ProEtᵒᵖ ⥤ ModuleCat.{w} (Λ ⧸ I ^ n)),
+      (ProEt.baseChange f).op.HasLeftKanExtension P],
     IsBoundedAbove (proEtReduction I n K) ∧
-      cohomologyIn (constructibleProEtaleModule X (Λ ⧸ I ^ (n : ℕ)))
-        (proEtReduction I n K) :=
-  sorry
+      cohomologyIn (constructibleProEtaleModule X (Λ ⧸ I ^ n))
+        (proEtReduction I n K))
 
-/-- The reduction `proEtReduction I n K` is bounded above. -/
-theorem proEtReduction_constructibleProEtaleModule_isBoundedAbove
-    (K : DerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} Λ)))
+#check (AlgebraicGeometry.Scheme.proEtReduction_constructibleProEtaleModule_isBoundedAbove :
+  ∀ {X : Scheme.{u}} {Λ : Type w} [CommRing Λ] [IsNoetherianRing Λ]
+    (I : Ideal Λ)
+    [HasSheafify (ProEt.topology X) (ModuleCat.{w} Λ)]
+    [HasDerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{w} Λ))]
+    [HasSheafify (ProEt.topology X) (ModuleCat.{w} (Λ ⧸ I))]
+    [HasDerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{w} (Λ ⧸ I)))]
+    [∀ Y : Scheme.{u}, HasWeakSheafify (ProEt.topology Y) (ModuleCat.{w} (Λ ⧸ I))]
+    [∀ (Y : Scheme.{u}) (U : Y.ProEt),
+      HasWeakSheafify ((ProEt.topology Y).over U) (ModuleCat.{w} (Λ ⧸ I))]
+    [∀ {Y : Scheme.{u}} (f : Y ⟶ X) (P : X.ProEtᵒᵖ ⥤ ModuleCat.{w} (Λ ⧸ I)),
+      (ProEt.baseChange f).op.HasLeftKanExtension P]
+    [(proEtModuleExtendScalars (Ideal.Quotient.mk I) X).Additive]
+    [(Functor.Homotopy.toDerived
+        (proEtModuleExtendScalars (Ideal.Quotient.mk I) X)).HasLeftDerivedFunctor
+      (HomotopyCategory.quasiIso
+        (Sheaf (ProEt.topology X) (ModuleCat.{w} Λ)) (up ℤ))]
+    (K : DerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{w} Λ)))
     (h1 : IsBoundedAbove
       ((proEtDerivedExtendScalars (Ideal.Quotient.mk I) X).obj K))
     (h1c : cohomologyIn (constructibleProEtaleModule X (Λ ⧸ I))
       ((proEtDerivedExtendScalars (Ideal.Quotient.mk I) X).obj K))
-    (n : ℕ+)
-    [HasSheafify (ProEt.topology X) (ModuleCat.{u + 1} (Λ ⧸ I ^ (n : ℕ)))]
+    (n : ℕ)
+    [HasSheafify (ProEt.topology X) (ModuleCat.{w} (Λ ⧸ I ^ n))]
     [HasDerivedCategory
-      (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} (Λ ⧸ I ^ (n : ℕ))))]
-    [(proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ (n : ℕ))) X).Additive]
+      (Sheaf (ProEt.topology X) (ModuleCat.{w} (Λ ⧸ I ^ n)))]
+    [(proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ n)) X).Additive]
     [(Functor.Homotopy.toDerived
-        (proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ (n : ℕ))) X)).HasLeftDerivedFunctor
+        (proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ n)) X)).HasLeftDerivedFunctor
       (HomotopyCategory.quasiIso
-        (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} Λ)) (up ℤ))]
+        (Sheaf (ProEt.topology X) (ModuleCat.{w} Λ)) (up ℤ))]
     [∀ Y : Scheme.{u},
-      HasWeakSheafify (ProEt.topology Y) (ModuleCat.{u + 1} (Λ ⧸ I ^ (n : ℕ)))]
+      HasWeakSheafify (ProEt.topology Y) (ModuleCat.{w} (Λ ⧸ I ^ n))]
     [∀ (Y : Scheme.{u}) (U : Y.ProEt),
       HasWeakSheafify ((ProEt.topology Y).over U)
-        (ModuleCat.{u + 1} (Λ ⧸ I ^ (n : ℕ)))]
+        (ModuleCat.{w} (Λ ⧸ I ^ n))]
     [∀ {Y : Scheme.{u}} (f : Y ⟶ X)
-      (P : X.ProEtᵒᵖ ⥤ ModuleCat.{u + 1} (Λ ⧸ I ^ (n : ℕ))),
-      (ProEt.baseChange f).op.HasLeftKanExtension P] :
-    IsBoundedAbove (proEtReduction I n K) :=
-  sorry
+      (P : X.ProEtᵒᵖ ⥤ ModuleCat.{w} (Λ ⧸ I ^ n)),
+      (ProEt.baseChange f).op.HasLeftKanExtension P],
+    IsBoundedAbove (proEtReduction I n K))
 
-/-- The reduction `proEtReduction I n K` has constructible cohomology sheaves. -/
-theorem proEtReduction_constructibleProEtaleModule_cohomologyIn
-    (K : DerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} Λ)))
+#check (AlgebraicGeometry.Scheme.proEtReduction_constructibleProEtaleModule_cohomologyIn :
+  ∀ {X : Scheme.{u}} {Λ : Type w} [CommRing Λ] [IsNoetherianRing Λ]
+    (I : Ideal Λ)
+    [HasSheafify (ProEt.topology X) (ModuleCat.{w} Λ)]
+    [HasDerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{w} Λ))]
+    [HasSheafify (ProEt.topology X) (ModuleCat.{w} (Λ ⧸ I))]
+    [HasDerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{w} (Λ ⧸ I)))]
+    [∀ Y : Scheme.{u}, HasWeakSheafify (ProEt.topology Y) (ModuleCat.{w} (Λ ⧸ I))]
+    [∀ (Y : Scheme.{u}) (U : Y.ProEt),
+      HasWeakSheafify ((ProEt.topology Y).over U) (ModuleCat.{w} (Λ ⧸ I))]
+    [∀ {Y : Scheme.{u}} (f : Y ⟶ X) (P : X.ProEtᵒᵖ ⥤ ModuleCat.{w} (Λ ⧸ I)),
+      (ProEt.baseChange f).op.HasLeftKanExtension P]
+    [(proEtModuleExtendScalars (Ideal.Quotient.mk I) X).Additive]
+    [(Functor.Homotopy.toDerived
+        (proEtModuleExtendScalars (Ideal.Quotient.mk I) X)).HasLeftDerivedFunctor
+      (HomotopyCategory.quasiIso
+        (Sheaf (ProEt.topology X) (ModuleCat.{w} Λ)) (up ℤ))]
+    (K : DerivedCategory (Sheaf (ProEt.topology X) (ModuleCat.{w} Λ)))
     (h1 : IsBoundedAbove
       ((proEtDerivedExtendScalars (Ideal.Quotient.mk I) X).obj K))
     (h1c : cohomologyIn (constructibleProEtaleModule X (Λ ⧸ I))
       ((proEtDerivedExtendScalars (Ideal.Quotient.mk I) X).obj K))
-    (n : ℕ+)
-    [HasSheafify (ProEt.topology X) (ModuleCat.{u + 1} (Λ ⧸ I ^ (n : ℕ)))]
+    (n : ℕ)
+    [HasSheafify (ProEt.topology X) (ModuleCat.{w} (Λ ⧸ I ^ n))]
     [HasDerivedCategory
-      (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} (Λ ⧸ I ^ (n : ℕ))))]
-    [(proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ (n : ℕ))) X).Additive]
+      (Sheaf (ProEt.topology X) (ModuleCat.{w} (Λ ⧸ I ^ n)))]
+    [(proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ n)) X).Additive]
     [(Functor.Homotopy.toDerived
-        (proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ (n : ℕ))) X)).HasLeftDerivedFunctor
+        (proEtModuleExtendScalars (Ideal.Quotient.mk (I ^ n)) X)).HasLeftDerivedFunctor
       (HomotopyCategory.quasiIso
-        (Sheaf (ProEt.topology X) (ModuleCat.{u + 1} Λ)) (up ℤ))]
+        (Sheaf (ProEt.topology X) (ModuleCat.{w} Λ)) (up ℤ))]
     [∀ Y : Scheme.{u},
-      HasWeakSheafify (ProEt.topology Y) (ModuleCat.{u + 1} (Λ ⧸ I ^ (n : ℕ)))]
+      HasWeakSheafify (ProEt.topology Y) (ModuleCat.{w} (Λ ⧸ I ^ n))]
     [∀ (Y : Scheme.{u}) (U : Y.ProEt),
       HasWeakSheafify ((ProEt.topology Y).over U)
-        (ModuleCat.{u + 1} (Λ ⧸ I ^ (n : ℕ)))]
+        (ModuleCat.{w} (Λ ⧸ I ^ n))]
     [∀ {Y : Scheme.{u}} (f : Y ⟶ X)
-      (P : X.ProEtᵒᵖ ⥤ ModuleCat.{u + 1} (Λ ⧸ I ^ (n : ℕ))),
-      (ProEt.baseChange f).op.HasLeftKanExtension P] :
-    cohomologyIn (constructibleProEtaleModule X (Λ ⧸ I ^ (n : ℕ)))
-      (proEtReduction I n K) :=
-  sorry
-
-end AlgebraicGeometry.Scheme
-
-end
+      (P : X.ProEtᵒᵖ ⥤ ModuleCat.{w} (Λ ⧸ I ^ n)),
+      (ProEt.baseChange f).op.HasLeftKanExtension P],
+    cohomologyIn (constructibleProEtaleModule X (Λ ⧸ I ^ n))
+      (proEtReduction I n K))
 
 end

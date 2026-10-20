@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Morphism
@@ -27,8 +21,8 @@ variable {C : Type u} [Category.{v} C]
 
 namespace FilteredObject
 
-/-- The category of filtered objects over `C`. -/
-instance : Category (FilteredObject C) where
+/-- The category structure on filtered objects with filtration-preserving morphisms. -/
+@[reducible] def categoryStructure : Category (FilteredObject C) where
   Hom X Y := FilteredObject.Hom X Y
   id X := Hom.id X
   comp f g := Hom.comp f g
@@ -36,8 +30,13 @@ instance : Category (FilteredObject C) where
   comp_id := comp_id_eq
   assoc := assoc_eq
 
+/-- The canonical category of filtered objects over `C`. -/
+instance instCategory : Category (FilteredObject C) := categoryStructure
+
+/-- The underlying morphism of a filtered identity is the ambient identity. -/
 @[simp] theorem id_hom (X : FilteredObject C) : (𝟙 X : X ⟶ X).hom = 𝟙 X.obj := rfl
 
+/-- The underlying morphism of a filtered composite is the composite of the underlying morphisms. -/
 @[simp] theorem comp_hom {X Y Z : FilteredObject C} (f : X ⟶ Y) (g : Y ⟶ Z) :
     (f ≫ g).hom = f.hom ≫ g.hom := rfl
 
@@ -54,15 +53,18 @@ theorem forget_obj (X : FilteredObject C) : forget.obj X = X.obj := sorry
 @[simp]
 theorem forget_map {X Y : FilteredObject C} (f : X ⟶ Y) : forget.map f = f.hom := sorry
 
-instance : (forget : FilteredObject C ⥤ C).Faithful where
-  map_injective {_ _} _ _ h := FilteredObject.Hom.ext h
+/-- The forgetful functor from filtered objects is faithful. -/
+@[instance] theorem forget_faithful : Functor.Faithful (forget (C := C)) :=
+  { map_injective := fun {_ _} _ _ h => FilteredObject.Hom.ext h }
 
 variable {X Y : FilteredObject C}
 
-instance (f : X ⟶ Y) [Epi f.hom] : Epi f :=
+/-- A filtered morphism is an epimorphism if its underlying morphism is an epimorphism. -/
+@[instance] theorem epi_of_epi_hom (f : X ⟶ Y) [Epi f.hom] : Epi f :=
   (forget : FilteredObject C ⥤ C).epi_of_epi_map (by simpa)
 
-instance (f : X ⟶ Y) [Mono f.hom] : Mono f :=
+/-- A filtered morphism is a monomorphism if its underlying morphism is a monomorphism. -/
+@[instance] theorem mono_of_mono_hom (f : X ⟶ Y) [Mono f.hom] : Mono f :=
   (forget : FilteredObject C ⥤ C).mono_of_mono_map (by simpa)
 
 end FilteredObject

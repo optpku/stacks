@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Cech.Universal
@@ -70,7 +64,7 @@ abbrev derivedDeltaFunctor :
 degree-zero functor. -/
 noncomputable def zeroIso
     (hF : PreservesFiniteLimits (degreeZero 𝒪 U family)) :
-    ((deltaFunctor 𝒪 U family 0).obj) ≅ ((derivedDeltaFunctor 𝒪 U family 0).obj) :=
+    (((deltaFunctor 𝒪 U family).F 0).obj) ≅ (((derivedDeltaFunctor 𝒪 U family).F 0).obj) :=
   @asIso _ _ _ _ (Functor.RightDerived.Bounded.zero (degreeZero 𝒪 U family))
     ((Functor.RightDerived.Bounded.zero.isIso_iff_preservesFiniteLimits
       (degreeZero 𝒪 U family)).2 hF) ≪≫
@@ -81,7 +75,7 @@ noncomputable def zeroIso
 abstract Cech delta-functor interface. -/
 @[stacks 01EN "canonical zero-degree Cech comparison"]
 noncomputable def canonicalZeroIso :
-    ((deltaFunctor 𝒪 U family 0).obj) ≅ ((derivedDeltaFunctor 𝒪 U family 0).obj) :=
+    (((deltaFunctor 𝒪 U family).F 0).obj) ≅ (((derivedDeltaFunctor 𝒪 U family).F 0).obj) :=
   zeroIso 𝒪 U family
     (CohomologicalDeltaFunctor.degreeZeroPreservesFiniteLimits
       (deltaFunctor 𝒪 U family))
@@ -91,14 +85,14 @@ noncomputable def canonicalZeroIso :
 noncomputable def deltaIso
     (hCech : IsUniversal (deltaFunctor 𝒪 U family))
     (hDerived : IsUniversal (derivedDeltaFunctor 𝒪 U family)) :
-    deltaFunctor 𝒪 U family ≅ derivedDeltaFunctor 𝒪 U family :=
+    HomIso (deltaFunctor 𝒪 U family) (derivedDeltaFunctor 𝒪 U family) :=
   IsUniversal.isoOf hCech hDerived (canonicalZeroIso 𝒪 U family)
 
 /-- The canonical comparison using the universal presheaf-module Cech instance and a supplied
 right-derived universality proof. -/
 @[stacks 01EN "canonical universal Cech comparison"]
 noncomputable def canonicalDeltaIso :
-    deltaFunctor 𝒪 U family ≅ derivedDeltaFunctor 𝒪 U family :=
+    HomIso (deltaFunctor 𝒪 U family) (derivedDeltaFunctor 𝒪 U family) :=
   deltaIso 𝒪 U family (deltaFunctor.isUniversal 𝒪 U family)
     (Functor.RightDerived.Bounded.cohomological.isUniversal
       (degreeZero 𝒪 U family))

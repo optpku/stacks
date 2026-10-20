@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.TorDimension
@@ -74,6 +68,7 @@ cotangent complex has Tor-amplitude in `[-1, 0]`, then the derived base-change c
 isomorphism. -/
 theorem derivedComparison_isIso_of_flat_of_hasTorAmplitudeIn
     (hcart : IsPullback g' f' f g) [Flat f]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (hNL : RingedSpace.HasTorAmplitudeIn
       (DerivedCategory.Q.obj (RingedSpace.naiveCotangent f.toShHom)) (-1) 0) :
     IsIso (derivedComparison hcart.toCommSq) := sorry

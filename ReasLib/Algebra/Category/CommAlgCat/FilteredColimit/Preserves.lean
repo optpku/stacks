@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.CommAlgCat.Basic
@@ -33,7 +27,13 @@ namespace forget₂CommRing
 specified size. -/
 noncomputable instance preservesFilteredColimitsOfSize :
     PreservesFilteredColimitsOfSize.{v, v}
-      (forget₂ (CommAlgCat.{u} k) CommRingCat.{u}) := sorry
+      (forget₂ (CommAlgCat.{u} k) CommRingCat.{u}) where
+  preserves_filtered_colimits _ _ _ :=
+    -- `forget₂` is `commAlgCatEquivUnder` followed by `Under.forget`, which preserves filtered
+    -- colimits by mathlib's explicit cocone construction.
+    preservesColimitsOfShape_of_natIso
+      (F := (commAlgCatEquivUnder (.of k)).functor ⋙ Under.forget (CommRingCat.of k))
+      (NatIso.ofComponents fun _ ↦ Iso.refl _)
 
 end forget₂CommRing
 
@@ -43,7 +43,14 @@ namespace forgetToType
 index universe is bounded by the algebra universe. -/
 noncomputable instance preservesFilteredColimitsOfSize [UnivLE.{v, u}] :
     PreservesFilteredColimitsOfSize.{v, v}
-      (forget (CommAlgCat.{u} k)) := sorry
+      (forget (CommAlgCat.{u} k)) :=
+  haveI : PreservesFilteredColimitsOfSize.{v, v} (forget CommRingCat.{u}) :=
+    preservesFilteredColimitsOfSize_of_univLE.{u, u, v, v} _
+  { preserves_filtered_colimits _ _ _ :=
+      -- The carrier functor factors through the ring forgetful functor.
+      preservesColimitsOfShape_of_natIso
+        (F := forget₂ (CommAlgCat.{u} k) CommRingCat.{u} ⋙ forget CommRingCat.{u})
+        (NatIso.ofComponents fun _ ↦ Iso.refl _) }
 
 end forgetToType
 

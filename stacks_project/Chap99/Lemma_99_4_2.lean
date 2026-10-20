@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap99.Lemma_99_4_2_SpaceIsom
-public import stacks_project.Chap99.Lemma_99_4_2_Sheaf
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.IsomSheaf
 
 /-!
 # Lemma 99.4.2
@@ -17,27 +11,16 @@ over `S` into `Isom(F, G)` are identified with pairs `(h, u)` where
 `h : T ⟶ B` and `u : F_T ⟶ G_T` is an `𝒪_{X_T}`-module isomorphism.
 -/
 
-@[expose] public section
-
-open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Opposite
-
-noncomputable section
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules
-
-variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
-
-/-- Lemma 99.4.2: in Situation 99.3.1, let `T` be an algebraic space over `S`.
+/- Lemma 99.4.2: in Situation 99.3.1, let `T` be an algebraic space over `S`.
 Morphisms of fppf sheaves `T ⟶ Isom(F, G)` on `(Sch/S)_fppf` are in bijection
 with pairs `(h, u)` where `h : T ⟶ B` and `u : F_T ⟶ G_T` is an
 `𝒪_{X_T}`-module isomorphism, with `X_T = X ×_{B,h} T` the pullback of `f`
 along `h` and `F_T`, `G_T` the pullbacks of `F`, `G` along `X_T ⟶ X`. -/
-@[stacks 0D3T]
-theorem sheafIsom_bijective (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent]
-    [G.IsQuasicoherent] (T : AlgebraicSpace S) :
-    Function.Bijective (toSheafIsom f F G T) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Modules
+@[stacks 0D3T] #check (AlgebraicGeometry.AlgebraicSpace.Modules.sheafIsom_bijective :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B) (F G : X.Modules)
+    [F.IsQuasicoherent] [G.IsQuasicoherent] (T : AlgebraicSpace S),
+    Function.Bijective (AlgebraicGeometry.AlgebraicSpace.Modules.toSheafIsom f F G T))

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.Perfect.Determinant.ScalarChange
@@ -86,6 +80,8 @@ def scalarComparison {U V : X.Opens} (h : V ≤ U) (K : DerivedCategory X.Module
       (derived X V).obj K :=
   (ModuleCat.derivedExtensionRestrictionHomEquiv (ringMap X h) _ _).symm
     ((derivedRestriction X h).app K)
+
+variable [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
 
 abbrev Perfect := Scheme.PerfectDerived.TorNegOneZero X
 

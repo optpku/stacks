@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Hilbert.AddPoint
@@ -22,7 +16,7 @@ namespace AlgebraicGeometry.Hilbert
 #check
   (AlgebraicGeometry.Hilbert.addPointMap :
     ∀ {S : Scheme.{u}} (X : Over S)
-      [SmoothOfRelativeDimension 1 X.hom]
+      [SmoothOfRelativeDimension 1 X.hom] [IsSeparated X.hom]
       [∀ n : ℕ, (functor X n).IsRepresentable] (d : ℕ),
       (functor X d).reprX ⊗ X ⟶ (functor X (d + 1)).reprX)
 

@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.Restriction
 public import stacks_project.Chap75.Lemma_75_11_3_GlobalSections
 public import stacks_project.Chap75.Lemma_75_8_4_Linear
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.GlobalSections.OverAffine
 
 /-!
 # Derived global sections over an affine base
@@ -28,31 +23,29 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.Modules
 
-variable {A : Type u} [CommRing A]
-variable {X : AlgebraicSpace (Spec (CommRingCat.of A))}
+/- Derived global sections over an affine base. -/
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.globalSectionsOver :
+  ∀ {A : Type u} [CommRing A]
+    {X : AlgebraicSpace (Spec (CommRingCat.of A))},
+    (X ⟶ ofOver (Over.mk (𝟙 (Spec (CommRingCat.of A))))) →
+      ModuleDerived X ⥤ DerivedCategory (ModuleCat.{u} A))
 
-/-- Derived global sections of an algebraic space over `A`, as an object of `D(A)`. -/
-abbrev globalSectionsOver
-    (f : X ⟶ ofOver (Over.mk (𝟙 (Spec (CommRingCat.of A))))) :
-    ModuleDerived X ⥤ DerivedCategory (ModuleCat.{u} A) :=
-  moduleDerivedGlobalSections X ⋙
-    CategoryTheory.ModuleCat.derivedRestrictionOfScalars (Hom.globalSectionsMap f)
-
-/-- `globalSectionsOver` is derived global sections followed by restriction of scalars
-along `A →+* Γ(X, 𝒪_X)`. -/
-theorem globalSectionsOver_def
-    (f : X ⟶ ofOver (Over.mk (𝟙 (Spec (CommRingCat.of A))))) :
+/- The defining functor equation for derived global sections over an affine base. -/
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.globalSectionsOver_def :
+  ∀ {A : Type u} [CommRing A]
+    {X : AlgebraicSpace (Spec (CommRingCat.of A))}
+    (f : X ⟶ ofOver (Over.mk (𝟙 (Spec (CommRingCat.of A))))),
     globalSectionsOver f =
       moduleDerivedGlobalSections X ⋙
-        CategoryTheory.ModuleCat.derivedRestrictionOfScalars (Hom.globalSectionsMap f) :=
-  sorry
+        CategoryTheory.ModuleCat.derivedRestrictionOfScalars (Hom.globalSectionsMap f))
 
-/-- On objects, `globalSectionsOver` is `RΓ(X, E)` viewed in `D(A)`. -/
-theorem globalSectionsOver_obj
-    (f : X ⟶ ofOver (Over.mk (𝟙 (Spec (CommRingCat.of A))))) (E : ModuleDerived X) :
+/- The object equation for derived global sections over an affine base. -/
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.globalSectionsOver_obj :
+  ∀ {A : Type u} [CommRing A]
+    {X : AlgebraicSpace (Spec (CommRingCat.of A))}
+    (f : X ⟶ ofOver (Over.mk (𝟙 (Spec (CommRingCat.of A))))) (E : ModuleDerived X),
     (globalSectionsOver f).obj E =
       (CategoryTheory.ModuleCat.derivedRestrictionOfScalars (Hom.globalSectionsMap f)).obj
-        ((moduleDerivedGlobalSections X).obj E) :=
-  sorry
+        ((moduleDerivedGlobalSections X).obj E))
 
 end AlgebraicGeometry.AlgebraicSpace.Modules

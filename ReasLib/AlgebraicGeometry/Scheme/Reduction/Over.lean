@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Reduction.Functor
@@ -42,9 +36,7 @@ noncomputable abbrev reductionι {S : Scheme.{u}} (X : CategoryTheory.Over S) :
   reduction X ⟶ X :=
   Over.homMk (Scheme.reductionι X.left) (reductionι_w X)
 
-/-- The relative reduction inclusion is an isomorphism when the underlying scheme is reduced. This
-remains an ordinary theorem while its proof is deferred, so no inverse is selected from typeclass
-search. -/
+/-- The relative reduction inclusion is an isomorphism when the underlying scheme is reduced. -/
 @[stacks 0356 "relative reduction of a reduced scheme"]
 theorem reductionι_isIso
     {S : Scheme.{u}} (X : CategoryTheory.Over S) [IsReduced X.left] :

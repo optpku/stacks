@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.DifferentialGraded.Bimodule
@@ -34,7 +28,8 @@ variable {𝒜 𝒝 : DGA(𝒪)} (M N : Mod(𝒜, 𝒝, d))
 is a complex of `𝒪`-modules with `𝒪`-bilinear left `𝒜`-action and right `𝒝`-action,
 associative on each side, mutually commuting, unital for `1` in `𝒜⁰` and `1` in `𝒝⁰`,
 and satisfying the graded Leibniz rules. -/
-@[stacks 0FRQ] #check (DifferentialGradedBimodule 𝒜 𝒝)
+@[stacks 0FRQ] #check
+  (SheafOfModules.RingedSite.DifferentialGradedBimodule 𝒜 𝒝 : Type (max (u + 1) (v + 1)))
 
 /- The right multiplication is the packaged right differential graded `𝒝`-module. -/
 #check (M.toRightModule : Mod(𝒝, d))
@@ -47,7 +42,8 @@ and satisfying the graded Leibniz rules. -/
 
 /- Definition 24.17.1 (2): a homomorphism of differential graded `(𝒜, 𝒝)`-bimodules is a map
 of complexes of `𝒪`-modules compatible with both multiplication maps. -/
-@[stacks 0FRQ] #check (DifferentialGradedBimodule.Hom M N)
+@[stacks 0FRQ] #check
+  (SheafOfModules.RingedSite.DifferentialGradedBimodule.Hom M N : Type (max u v))
 
 /- Morphisms in the bimodule category are the same homomorphisms. -/
 #check (M ⟶ N)

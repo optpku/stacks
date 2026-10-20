@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap97.Definition_97_8_1_Algebraic
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Algebraic
+import StacksCheckRecall
 
 /-!
 # Diagonals of algebraic morphisms of stacks in groupoids
@@ -29,20 +24,19 @@ universe u
 
 namespace AlgebraicGeometry
 
-/-- Lemma 97.8.4: Let `S` be a scheme. Let `F : X ⟶ Y` be a 1-morphism of
+/- Lemma 97.8.4: Let `S` be a scheme. Let `F : X ⟶ Y` be a 1-morphism of
 stacks in groupoids over `(Sch/S)_fppf`. If `F` is algebraic and
 `Δ : Y ⟶ Y × Y` is representable by algebraic spaces, then
 `Δ : X ⟶ X × X` is representable by algebraic spaces. -/
-@[stacks 0D3R]
-theorem relativelyRepresentableByAlgebraicSpaces.diagonal_of_algebraic
-    {S : Scheme.{u}} {X Y : GroupoidsOver S}
+@[stacks 0D3R] #check
+  (AlgebraicGeometry.relativelyRepresentableByAlgebraicSpaces.diagonal_of_algebraic :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [IsStack.InGroupoids (Scheme.fppfTopology.over S) X.p]
     [IsStack.InGroupoids (Scheme.fppfTopology.over S) Y.p]
-    (F : X ⟶ Y) [Algebraic F]
-    (hY : relativelyRepresentableByAlgebraicSpaces
-      (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} Y)) :
+    (F : X ⟶ Y) [Algebraic F],
     relativelyRepresentableByAlgebraicSpaces
-      (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} X) :=
-  sorry
+      (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} Y) →
+    relativelyRepresentableByAlgebraicSpaces
+      (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} X))
 
 end AlgebraicGeometry

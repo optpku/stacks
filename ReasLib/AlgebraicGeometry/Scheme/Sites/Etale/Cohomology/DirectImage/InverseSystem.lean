@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Cohomology.DirectImage.BaseChange
@@ -67,6 +61,8 @@ def pullbackStageHigherDirectImage (i : I) :
     (stageHigherDirectImage DX DS g F p i)
 
 
+namespace HigherDirectImage.InverseSystem
+
 /-- Transition compatibility identifies the source-side composite of small étale
 pullbacks with pullback along the base-side composite scheme morphism. -/
 def structureSiteCompIso {i j : I} (hij : i ≤ j) :
@@ -112,6 +108,8 @@ def structurePushforwardCompIso {i j : I} (hij : i ≤ j) :
       (DS.obj (OrderDual.toDual i)).smallEtaleTopology (DS.obj (OrderDual.toDual j)).smallEtaleTopology
       (DX.obj (OrderDual.toDual j)).smallEtaleTopology).symm
 
+
+end HigherDirectImage.InverseSystem
 
 /-- Sheafification on the cone point is also available on each constant-diagram stage. -/
 instance conePointX_hasSheafify (i : I) :

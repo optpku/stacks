@@ -1,17 +1,17 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-import stacks_project.Chap97.«97_10_0_2_Morphism»
-import stacks_project.Chap97.«97_10_0_2_Presheaf»
 import StacksCheckRecall
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.RelativeHom
+
+universe u
+
+open CategoryTheory AlgebraicGeometry
 
 /- 97.10.0.2: For morphisms `Z ⟶ B` and `X ⟶ B` of algebraic spaces over a
 scheme `S`, `Mor_B(Z, X)` is the functor `(Over S)ᵒᵖ ⥤ Type (u + 1)` sending a
 scheme `T` over `S` to the type of pairs `(a, b)` with `a : ofOver T ⟶ B` and
-`b` a morphism over `ofOver T` from `pullback a Z.hom` to `pullback a X.hom`. -/
-@[stacks 05Y2] #check AlgebraicGeometry.AlgebraicSpace.RelativeHom.functor
+`b` a morphism over `ofOver T` from `pullback a g` to `pullback a h`, where
+`g : Z ⟶ B` and `h : X ⟶ B`; these pairs form `RelativeHom.Pair g h T`. -/
+@[stacks 05Y2] #check (AlgebraicGeometry.AlgebraicSpace.RelativeHom.presheaf :
+  ∀ {S : Scheme.{u}} {Z X B : AlgebraicSpace S},
+    (Z ⟶ B) → (X ⟶ B) → (Over S)ᵒᵖ ⥤ Type (u + 1))

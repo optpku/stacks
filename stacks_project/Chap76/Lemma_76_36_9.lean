@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_36_9_Instances
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Normalization.Stein.Etale
 import StacksCheckRecall
 
 /-!
@@ -30,7 +24,7 @@ and has geometrically reduced fibres in the sense of Definition 76.29.2, then
 the Stein factorization map `Hom.fromNormalization f : Hom.normalization f ⟶ Y`
 of Theorem 76.36.5, with first factor `Hom.toNormalization f`, is finite. -/
 @[stacks 0E0D] #check
-  (Hom.instIsFinite_fromNormalization_of_flat_geometricallyReduced :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.instIsFiniteFromNormalizationOfFlatGeometricallyReduced :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
       [Proper f] [FinitePresentation f] [Flat f]
       [Hom.HasReducedGeometricFibres f],
@@ -40,7 +34,7 @@ of Theorem 76.36.5, with first factor `Hom.toNormalization f`, is finite. -/
 `Hom.fromNormalization f : Hom.normalization f ⟶ Y` of Theorem 76.36.5, with
 first factor `Hom.toNormalization f`, is étale. -/
 @[stacks 0E0D] #check
-  (Hom.instEtale_fromNormalization_of_flat_geometricallyReduced :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.instEtaleFromNormalizationOfFlatGeometricallyReduced :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
       [Proper f] [FinitePresentation f] [Flat f]
       [Hom.HasReducedGeometricFibres f],

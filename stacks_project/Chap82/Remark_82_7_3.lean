@@ -1,18 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap65.Definition_65_13_2_Separation
-public import stacks_project.Chap66.Lemma_66_12_3
-public import stacks_project.Chap67.Definition_67_4_2_Separation
-public import stacks_project.Chap67.Definition_67_40_1_FiniteType
-public import stacks_project.Chap72.Definition_72_4_1_Integral
-public import stacks_project.Chap72.Definition_72_5_2_ResidueField
-public import stacks_project.Chap72.Lemma_72_4_2_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RationalFunction.Monomorphism
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.Integral
 import StacksCheckRecall
 
 /-!
@@ -31,30 +20,34 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/- Remark 82.7.3 (1): in Situation 82.2.1, if `X / B` is good and `X` is
-integral, the function field `R(X)` is defined as `RationalFunction X` with
-`Field` instance `instField_rationalFunctionRing`, and equals the residue field
-of `X` at a generic point via `rationalFunctionRingEquivResidueField`, i.e.
-`RationalFunction X ≃+* ULift (X.residueField η)` for `η ∈ genericPoints X`.
-See Spaces over Fields, Definition 72.4.3. -/
-@[stacks 0ENX] #check instField_rationalFunctionRing
-@[stacks 0ENX] #check rationalFunctionRingEquivResidueField
+/- Remark 82.7.3: in Situation 82.2.1, the function field of a good integral
+algebraic space is its residue field at the generic point. Every point `x` is
+the generic point of a unique integral closed subspace `Z`. Its inclusion is
+monomorphic by `ClosedSubspace.spec`, and the generic point of `Z.X` maps to `x`.
+The following comparison applied to that inclusion therefore identifies
+`RationalFunction Z.X` with the ambient residue field at `x`. The companion
+checks retain the field structure, generic-point comparison, and full uniqueness
+of the integral closed subspace over the ambient space. -/
+@[stacks 0ENX] #check
+  (AlgebraicGeometry.AlgebraicSpace.rationalFunctionRingEquivResidueFieldOfMono :
+    ∀ {S : Scheme.{u}} {Y X : AlgebraicSpace S} [IsIntegral Y] [IsDecent X]
+      (i : Y ⟶ X) [Mono i] {η : Points Y}, η ∈ genericPoints Y →
+      RationalFunction Y ≃+* ULift.{u + 1} (X.residueField (Points.map i η)))
 
-/-- Remark 82.7.3 (2): in Situation 82.2.1, if `X / B` is good and `X` is
-integral, then for any `x` in `Points X` the residue field `X.residueField x`
-is the function field of the unique integral closed subspace `Z ⊂ X` whose
-generic point is `x`. Uniqueness of `Z` is `existsUnique_integralClosedSubspace`.
-If `IsGenericPoint x Z.pointsSet` and `Points.map Z.ι η = x`, then
-`Hom.residueFieldHom Z.ι η` is an isomorphism, so `X.residueField x` agrees
-with `Z.X.residueField η`. Combined with `rationalFunctionRingEquivResidueField`
-on `Z.X`, this identifies `X.residueField x` with `RationalFunction Z.X`. -/
-@[stacks 0ENX]
-theorem isIso_residueFieldHom_of_integralClosedSubspace {S : Scheme.{u}}
-    {B X : AlgebraicSpace S} [IsQuasiSeparated B] (f : X ⟶ B)
-    [QuasiSeparated f] [LocallyOfFiniteType f] [IsIntegral X] (x : Points X)
-    (Z : ClosedSubspace X) [IsIntegral Z.X] (hZ : IsGenericPoint x Z.pointsSet)
-    {η : Points Z.X} (hmap : Points.map Z.ι η = x) :
-    IsIso (Hom.residueFieldHom Z.ι η) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.instField_rationalFunctionRing :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsIntegral X],
+    Field (RationalFunction X))
+
+#check (AlgebraicGeometry.AlgebraicSpace.rationalFunctionRingEquivResidueField :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsIntegral X]
+    {η : Points X}, η ∈ genericPoints X →
+    RationalFunction X ≃+* ULift.{u + 1} (X.residueField η))
+
+#check (AlgebraicGeometry.AlgebraicSpace.existsUnique_integralClosedSubspace :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X] (ξ : Points X),
+    ∃ Z : ClosedSubspace X,
+      IsIntegral Z.X ∧ IsGenericPoint ξ Z.pointsSet ∧
+        ∀ (Z' : ClosedSubspace X), IsIntegral Z'.X → IsGenericPoint ξ Z'.pointsSet →
+          ∃! g : Z'.X ⟶ Z.X, g ≫ Z.ι = Z'.ι)
 
 end AlgebraicGeometry.AlgebraicSpace

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.FieldTheory.IsAlgClosed.Basic
@@ -92,7 +86,8 @@ theorem invariantSpectrumMap_isFiniteLocallyFree {S : Scheme.{u}} (G : GroupoidS
     IsFiniteLocallyFree (invariantSpectrumMap G tSharp eU) := sorry
 
 /-- The canonical map from an affine finite locally free equivalence-relation groupoid to
-the spectrum of its invariant equalizer ring is an effective epimorphism. -/
+the spectrum of its invariant equalizer ring is an effective epimorphism. The descent
+structure comes from the native construction for flat surjections between affine schemes. -/
 theorem invariantSpectrumMap_effectiveEpi {S : Scheme.{u}} (G : GroupoidScheme S)
     {A B : Type u} [CommRing A] [CommRing B] [Algebra A B] (tSharp : A →+* B)
     (eU : Spec (CommRingCat.of A) ≅ G.U.left) (eR : Spec (CommRingCat.of B) ≅ G.R.left)
@@ -101,6 +96,13 @@ theorem invariantSpectrumMap_effectiveEpi {S : Scheme.{u}} (G : GroupoidScheme S
     (h_target : eR.hom ≫ G.t.left = Spec.map (CommRingCat.ofHom tSharp) ≫ eU.hom)
     [IsFiniteLocallyFree G.s.left] [IsFiniteLocallyFree G.t.left]
     [IsEquivalenceRelation G.t G.s] :
-    EffectiveEpi (invariantSpectrumMap G tSharp eU) := sorry
+    EffectiveEpi (invariantSpectrumMap G tSharp eU) :=
+  let objectAffine := IsAffine.of_isIso eU.inv
+  let finiteLocallyFree :=
+    invariantSpectrumMap_isFiniteLocallyFree G tSharp eU eR h_source h_target
+  let surjective := invariantSpectrumMap_surjective G tSharp eU eR h_source h_target
+  (isRegularEpi_iff_effectiveEpi (invariantSpectrumMap G tSharp eU)).mp
+    (@isRegularEpi_of_flat_of_surjective_of_isAffine _ _ objectAffine (isAffine_Spec _)
+      (invariantSpectrumMap G tSharp eU) ⟨surjective⟩ finiteLocallyFree.flat)
 
 end AlgebraicGeometry.GroupoidScheme

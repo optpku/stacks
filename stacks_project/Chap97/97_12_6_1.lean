@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap97.«97_12_6_1_Map»
-public import stacks_project.Chap97.«97_12_6_1_Pullback»
+public import ReasLib.AlgebraicGeometry.FiniteHilbertStack.TwoFibreProduct
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,5 +15,13 @@ open scoped Bicategory CategoryTheory.TwoFibreProduct
 `FiniteHilbertStack.twoFibreProduct G F d ξ` in `GroupoidsOver S`.
 Here `GroupoidsOver.slice U` is `(Sch/U)_fppf`, `ξ` is an object of
 `H_d(X/Y)` over `U`, and `map G F d` is the 1-morphism
-`H_d(X'/Y) ⟶ H_d(X/Y)` induced by `G : X' ⟶ X`. -/
-@[stacks 05YK] #check AlgebraicGeometry.FiniteHilbertStack.twoFibreProduct
+`H_d(X'/Y) ⟶ H_d(X/Y)` induced by `G : X' ⟶ X`.
+The source defines finite Hilbert stacks for `d ≥ 1`; the concrete construction
+here also supports rank zero and is stated for every natural rank. -/
+@[stacks 05YK] #check (AlgebraicGeometry.FiniteHilbertStack.twoFibreProduct :
+  ∀ {S : Scheme.{u}} {X' X Y : GroupoidsOver S}
+    [IsStack.InGroupoids (Scheme.fppfTopology.over S) X'.p]
+    [IsStack.InGroupoids (Scheme.fppfTopology.over S) X.p]
+    [IsStack.InGroupoids (Scheme.fppfTopology.over S) Y.p]
+    (G : X' ⟶ X) (F : X ⟶ Y) (d : ℕ) {U : Over S}
+    (ξ : (FiniteHilbertStack.toGroupoids F d).p.Fiber U), GroupoidsOver S)

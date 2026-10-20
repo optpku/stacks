@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.SmallAtlas
-public import stacks_project.Chap66.Definition_66_18_9_Square
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Square
 
 /-! # Small, actual étale squares over a morphism of algebraic spaces
 

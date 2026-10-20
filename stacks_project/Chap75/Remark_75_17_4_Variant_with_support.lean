@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Remark_75_17_4_Variant_with_support_Morita
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.Support.Morita
 import StacksCheckRecall
 
 @[expose] public section
@@ -26,7 +20,7 @@ derived category is linearly triangulated equivalent to `D_QCoh,T(𝒪_X)`. -/
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
       [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
       (T : Closeds (Points X)),
-      QuasiCompact (OpenSubspace.ofOpensι T.compl) →
+      IsCompact (T.compl : Set (Points X)) →
       ∃ E : CochainDGAlgebra.{0, u} ℤ,
         Set.Finite {i | ¬ IsZero (E.homology i)} ∧
           Nonempty (RLinear.TriangulatedEquivalence ℤ

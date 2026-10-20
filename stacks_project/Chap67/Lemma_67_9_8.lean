@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_3_1_Separation
-public import stacks_project.Chap67.Definition_67_4_2_Separation
-public import stacks_project.Chap67.Definition_67_5_2_Surjective
-public import stacks_project.Chap67.Definition_67_9_2_Closed
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Separation.Descent
+import StacksCheckRecall
 
 /-!
 # Descent of separation along a universally closed surjection
@@ -25,56 +17,29 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+open AlgebraicGeometry.AlgebraicSpace
 
-namespace IsAbsolutelyQuasiSeparated
+/- Lemma 67.9.8: a surjective universally closed morphism descends absolute
+quasi-separatedness and separatedness, and both properties relative to any
+algebraic-space base. -/
+@[stacks 05Z2] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsAbsolutelyQuasiSeparated.of_surjective_universallyClosed :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+      [Surjective f] → [UniversallyClosed f] → [IsAbsolutelyQuasiSeparated X] →
+      IsAbsolutelyQuasiSeparated Y)
 
-/-- Lemma 67.9.8 (1): if `f : X ⟶ Y` is a surjective universally closed morphism of
-algebraic spaces over `S` and `X` is quasi-separated, then `Y` is quasi-separated. -/
-@[stacks 05Z2]
-theorem of_surjective_universallyClosed {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [Surjective f] [UniversallyClosed f] [IsAbsolutelyQuasiSeparated X] :
-    IsAbsolutelyQuasiSeparated Y :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsAbsolutelySeparated.of_surjective_universallyClosed :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+      [Surjective f] → [UniversallyClosed f] → [IsAbsolutelySeparated X] →
+      IsAbsolutelySeparated Y)
 
-end IsAbsolutelyQuasiSeparated
+#check
+  (AlgebraicGeometry.AlgebraicSpace.QuasiSeparated.of_comp_surjective_universallyClosed :
+    ∀ {S : Scheme.{u}} {X Y B : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ B),
+      [Surjective f] → [UniversallyClosed f] → [QuasiSeparated (f ≫ g)] → QuasiSeparated g)
 
-namespace IsAbsolutelySeparated
-
-/-- Lemma 67.9.8 (2): if `f : X ⟶ Y` is a surjective universally closed morphism of
-algebraic spaces over `S` and `X` is separated, then `Y` is separated. -/
-@[stacks 05Z2]
-theorem of_surjective_universallyClosed {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [Surjective f] [UniversallyClosed f] [IsAbsolutelySeparated X] :
-    IsAbsolutelySeparated Y :=
-  sorry
-
-end IsAbsolutelySeparated
-
-namespace QuasiSeparated
-
-/-- Lemma 67.9.8 (3): if `f : X ⟶ Y` and `g : Y ⟶ B` are morphisms of algebraic
-spaces over `S`, `f` is surjective and universally closed, and the composite
-`f ≫ g` is quasi-separated, then `g` is quasi-separated. -/
-@[stacks 05Z2]
-theorem of_comp_surjective_universallyClosed {S : Scheme.{u}}
-    {X Y B : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ B) [Surjective f]
-    [UniversallyClosed f] [QuasiSeparated (f ≫ g)] : QuasiSeparated g :=
-  sorry
-
-end QuasiSeparated
-
-namespace Separated
-
-/-- Lemma 67.9.8 (4): if `f : X ⟶ Y` and `g : Y ⟶ B` are morphisms of algebraic
-spaces over `S`, `f` is surjective and universally closed, and the composite
-`f ≫ g` is separated, then `g` is separated. -/
-@[stacks 05Z2]
-theorem of_comp_surjective_universallyClosed {S : Scheme.{u}}
-    {X Y B : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ B) [Surjective f]
-    [UniversallyClosed f] [Separated (f ≫ g)] : Separated g :=
-  sorry
-
-end Separated
-
-end AlgebraicGeometry.AlgebraicSpace
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Separated.of_comp_surjective_universallyClosed :
+    ∀ {S : Scheme.{u}} {X Y B : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ B),
+      [Surjective f] → [UniversallyClosed f] → [Separated (f ≫ g)] → Separated g)

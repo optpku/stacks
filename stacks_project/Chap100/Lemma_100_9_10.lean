@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Lemma_100_9_10_Substack
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Substack
+import StacksCheckRecall
 
 /-!
 # Image of an immersion of algebraic stacks
@@ -23,46 +18,36 @@ open AlgebraicGeometry.Groupoids.Hom
 open FiberedCategoryOver.Groupoids
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack
-
-variable {S : Scheme.{u}} {Z X : GroupoidsOver S}
-
-/-- Lemma 100.9.10 (1): For any immersion `i : Z ⟶ X` there exists a unique
+/- Lemma 100.9.10 (1): For any immersion `i : Z ⟶ X` there exists a unique
 locally closed substack `X' ⊂ X` such that `i` factors as the composition of
 an equivalence `i' : Z ⟶ X'` followed by the inclusion `X' ⟶ X`. The
-canonical such substack is `image i`, with equivalence `imageLift i`.
-Uniqueness is equality of `objectProperty`, not of a bundled pair `(Y, ι)`. -/
+canonical such substack is the essential-image full subcategory.
+Uniqueness is equality of object properties. -/
 @[stacks 0506]
-theorem existsUnique_image [AlgebraicStack Z] [AlgebraicStack X]
-    (i : Z ⟶ X) [Immersion i] :
-    (toBasedFunctor (LocallyClosedSubstack.imageLift i)).IsEquivalence ∧
-      LocallyClosedSubstack.imageLift i ≫
-          (LocallyClosedSubstack.image i).ι = i ∧
-        ∀ {X' : LocallyClosedSubstack X} {i' : Z ⟶ X'.Y},
-          (toBasedFunctor i').IsEquivalence →
-            i' ≫ X'.ι = i →
-              X'.objectProperty = LocallyClosedSubstack.imageObjects i := sorry
+#check (AlgebraicGeometry.AlgebraicStack.existsUnique_image :
+  ∀ {S : Scheme.{u}} {Z X : GroupoidsOver S} [AlgebraicStack Z] [AlgebraicStack X]
+    (i : Z ⟶ X) [Immersion i],
+    AlgebraicStack.Substack.IsLocallyClosed X (toFunctor i).essImage ∧
+      AlgebraicStack.Substack.IsImage i (toFunctor i).essImage ∧
+        ∀ P : ObjectProperty X.total,
+          AlgebraicStack.Substack.IsLocallyClosed X P →
+            AlgebraicStack.Substack.IsImage i P → P = (toFunctor i).essImage)
 
-/-- Lemma 100.9.10 (2): If `i` is a closed immersion, then the unique locally
+/- Lemma 100.9.10 (2): If `i` is a closed immersion, then the unique locally
 closed image of `i` is a closed substack of `X`. -/
 @[stacks 0506]
-theorem image_isClosed [AlgebraicStack Z] [AlgebraicStack X]
-    (i : Z ⟶ X) [ClosedImmersion i] :
-    (ClosedSubstack.image i).toLocallyClosed =
-        LocallyClosedSubstack.image i ∧
-      ClosedImmersion (LocallyClosedSubstack.image i).ι := sorry
+#check (AlgebraicGeometry.AlgebraicStack.image_isClosed :
+  ∀ {S : Scheme.{u}} {Z X : GroupoidsOver S} [AlgebraicStack Z] [AlgebraicStack X]
+    (i : Z ⟶ X) [ClosedImmersion i],
+    AlgebraicStack.Substack.IsClosed X (toFunctor i).essImage)
 
-/-- Lemma 100.9.10 (3): If `i` is an open immersion, then the unique locally
+/- Lemma 100.9.10 (3): If `i` is an open immersion, then the unique locally
 closed image of `i` is an open substack of `X`. -/
 @[stacks 0506]
-theorem image_isOpen [AlgebraicStack Z] [AlgebraicStack X]
-    (i : Z ⟶ X) [OpenImmersion i] :
-    (OpenSubstack.image i).toLocallyClosed =
-        LocallyClosedSubstack.image i ∧
-      OpenImmersion (LocallyClosedSubstack.image i).ι := sorry
+#check (AlgebraicGeometry.AlgebraicStack.image_isOpen :
+  ∀ {S : Scheme.{u}} {Z X : GroupoidsOver S} [AlgebraicStack Z] [AlgebraicStack X]
+    (i : Z ⟶ X) [OpenImmersion i],
+    AlgebraicStack.Substack.IsOpen X (toFunctor i).essImage)
 
-end AlgebraicGeometry.AlgebraicStack

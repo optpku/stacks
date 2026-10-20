@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.FunctorCategory.Basic
@@ -79,8 +73,23 @@ theorem representableByAlgebraicSpaces.of_hom {S : Scheme.{u}} {X Y : AlgebraicS
     (f : X ⟶ Y) : representableByAlgebraicSpaces f := sorry
 
 /-- The pullback of a morphism between algebraic spaces along a scheme-valued point is an algebraic space. -/
-instance instIsAlgebraicSpace_pullback_hom {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+def instIsAlgebraicSpace_pullback_hom {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) {U : Over S} (ξ : yoneda.obj U ⟶ Y.functorOfPoints) :
-    IsAlgebraicSpace (pullback ξ f) := sorry
+    IsAlgebraicSpace (pullback ξ f) :=
+  representableByAlgebraicSpaces.of_hom f ξ
+
+/-- A presheaf admitting a morphism representable by algebraic spaces to an algebraic
+space is itself an algebraic space. -/
+theorem IsAlgebraicSpace.of_representableByAlgebraicSpaces {S : Scheme.{u}}
+    {F G : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G) [IsAlgebraicSpace G]
+    (ha : representableByAlgebraicSpaces a) : IsAlgebraicSpace F :=
+  sorry
+
+/-- The fibre product of a morphism representable by algebraic spaces along a map
+from an algebraic-space presheaf is an algebraic space. -/
+theorem IsAlgebraicSpace.pullback {S : Scheme.{u}} {F G X : (Over S)ᵒᵖ ⥤ Type u}
+    (a : F ⟶ G) (ha : representableByAlgebraicSpaces a) [IsAlgebraicSpace X]
+    (f : X ⟶ G) : IsAlgebraicSpace (pullback f a) :=
+  sorry
 
 end AlgebraicGeometry.AlgebraicSpace

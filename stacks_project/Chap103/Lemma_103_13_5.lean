@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap103.Lemma_103_13_5_Hom
-public import stacks_project.Chap103.Lemma_103_13_5_TestSet
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Module.FinitePresentation.FilteredColimit
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.FppfSite.QuasiCompact
 import StacksCheckRecall
 
 /-!
@@ -30,28 +24,29 @@ stack. Let `G` be a finitely presented `𝒪_X`-module. Then `Hom_X(G, -)`
 commutes with filtered colimits of arbitrary `𝒪_X`-modules. -/
 @[stacks 0GQZ]
 #check
-  (homComparison_isIso :
+  (AlgebraicGeometry.AlgebraicStack.homComparison_isIso :
     ∀ {S : Scheme.{u}} {X : GroupoidsOver S}
       [AlgebraicStack X] [IsQuasiCompact X] [IsQuasiSeparated X]
       {Λ : Type (u + 1)} [SmallCategory Λ] [IsFiltered Λ]
-      (G : RingedSite.ModuleCat.{u} (fppfRingedSite X)) [G.IsFinitePresentation]
-      (F : Λ ⥤ RingedSite.ModuleCat.{u} (fppfRingedSite X))
+      (G : SheafOfModules.{u} (AlgebraicGeometry.GroupoidsOver.structureSheaf X))
+      [G.IsFinitePresentation]
+      (F : Λ ⥤ SheafOfModules.{u} (AlgebraicGeometry.GroupoidsOver.structureSheaf X))
       [HasColimit F] [HasColimit (F ⋙ coyoneda.obj (op G))],
-      IsIso (homComparison G F))
+      IsIso (colimit.post F (coyoneda.obj (op G))))
 
-@[stacks 0GQZ]
 #check
-  (isFinitelyPresentable :
+  (AlgebraicGeometry.AlgebraicStack.isFinitelyPresentable :
     ∀ {S : Scheme.{u}} {X : GroupoidsOver S}
       [AlgebraicStack X] [IsQuasiCompact X] [IsQuasiSeparated X]
-      (G : RingedSite.ModuleCat.{u} (fppfRingedSite X)) [G.IsFinitePresentation],
+      (G : SheafOfModules.{u} (AlgebraicGeometry.GroupoidsOver.structureSheaf X))
+      [G.IsFinitePresentation],
       IsFinitelyPresentable.{u + 1} G)
 
 /- Lemma 103.13.5 (2): in particular, `Hom_X(G, -)` commutes with filtered
 colimits in `QCoh(𝒪_X)`. -/
 @[stacks 0GQZ]
 #check
-  (QCoh.isFinitelyPresentable :
+  (AlgebraicGeometry.GroupoidsOver.QCoh.isFinitelyPresentable :
     ∀ {S : Scheme.{u}} {X : GroupoidsOver S}
       [AlgebraicStack X] [IsQuasiCompact X] [IsQuasiSeparated X]
       (G : QCoh X) [G.obj.IsFinitePresentation],

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap67.Lemma_67_17_2_SchemeTheoreticDensity
@@ -25,43 +19,37 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- An open immersion of algebraic spaces is scheme-theoretically dense when
-every étale preimage inclusion is scheme-theoretically dominant. -/
-@[mk_iff]
-class IsSchemeTheoreticallyDense {S : Scheme.{u}} {X U : AlgebraicSpace S}
-    (ι : U ⟶ X) [IsOpenImmersion ι] : Prop where
-  /-- Every étale preimage of `ι` is scheme-theoretically dominant into its source. -/
-  forallEtale : SchemeTheoreticDensity.forallEtale ι
+#check (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticallyDense :
+  ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X) [IsOpenImmersion ι], Prop)
 
-namespace IsSchemeTheoreticallyDense
+#check (AlgebraicGeometry.AlgebraicSpace.isSchemeTheoreticallyDense_iff :
+  ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X) [IsOpenImmersion ι],
+    IsSchemeTheoreticallyDense ι ↔ SchemeTheoreticDensity.forallEtale ι)
 
-/-- The identity morphism of an algebraic space is scheme-theoretically dense. -/
-instance id {S : Scheme.{u}} {X : AlgebraicSpace S} :
-    IsSchemeTheoreticallyDense (𝟙 X) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticallyDense.id :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}, IsSchemeTheoreticallyDense (𝟙 X))
 
-/-- An open immersion that is an isomorphism is scheme-theoretically dense. -/
-instance of_isIso {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X)
-    [IsOpenImmersion ι] [IsIso ι] : IsSchemeTheoreticallyDense ι := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticallyDense.of_isIso :
+  ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X)
+    [IsOpenImmersion ι] [IsIso ι], IsSchemeTheoreticallyDense ι)
 
-/-- The universal étale-preimage dominance test witnesses scheme-theoretic density. -/
-theorem of {S : Scheme.{u}} {X U : AlgebraicSpace S} {ι : U ⟶ X}
-    [IsOpenImmersion ι] (h : SchemeTheoreticDensity.forallEtale ι) :
-    IsSchemeTheoreticallyDense ι := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticallyDense.of :
+  ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} {ι : U ⟶ X}
+    [IsOpenImmersion ι], SchemeTheoreticDensity.forallEtale ι →
+      IsSchemeTheoreticallyDense ι)
 
-/-- A scheme-theoretically dense open immersion satisfies the universal
-étale-preimage dominance test. -/
-theorem spec {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X)
-    [IsOpenImmersion ι] [IsSchemeTheoreticallyDense ι] :
-    SchemeTheoreticDensity.forallEtale ι := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticallyDense.spec :
+  ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X)
+    [IsOpenImmersion ι] [IsSchemeTheoreticallyDense ι],
+    SchemeTheoreticDensity.forallEtale ι)
 
-/-- Scheme-theoretic density of an open immersion is equivalent to the existence
-of a surjective étale scheme atlas along which the open inverse image is
-scheme-theoretically dominant. -/
-theorem iff_existsSurjectiveEtale {S : Scheme.{u}} {X U : AlgebraicSpace S}
-    (ι : U ⟶ X) [IsOpenImmersion ι] :
-    IsSchemeTheoreticallyDense ι ↔
-      SchemeTheoreticDensity.existsSurjectiveEtale ι := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticallyDense.forallEtale :
+  ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} {ι : U ⟶ X}
+    [IsOpenImmersion ι] [IsSchemeTheoreticallyDense ι],
+    SchemeTheoreticDensity.forallEtale ι)
 
-end IsSchemeTheoreticallyDense
+#check (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticallyDense.iff_existsSurjectiveEtale :
+  ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X) [IsOpenImmersion ι],
+    IsSchemeTheoreticallyDense ι ↔ SchemeTheoreticDensity.existsSurjectiveEtale ι)
 
 end AlgebraicGeometry.AlgebraicSpace

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.CochainComplex.Filtration.Truncation
+public import ReasLib.CategoryTheory.Filtration.HomologicalComplex.TwoStep
 
 @[expose] public section
 
@@ -84,13 +79,45 @@ theorem comparison_hom
     (K.truncationFiltration).stageComparison (indexLE j) ≫ (iso K j).hom =
       (prevIso K j).hom ≫ _root_.CochainComplex.truncLEStep K j := sorry
 
-/-- The `(-j)`-th graded piece of the truncation filtration is isomorphic to the cokernel of
-the canonical adjacent upper-truncation step. -/
+/-- The stage `-j + 1` (the successor index used by graded pieces) is identified with the upper
+truncation `K.truncLE (j - 1)`. -/
 @[stacks 06XX]
-theorem gradedPieceIsoCokernel
+noncomputable def succIso
     (K : _root_.CochainComplex 𝒜 ℤ) (j : ℤ) :
-    Nonempty ((K.truncationFiltration).gradedPiece (-j) ≅
-      cokernel (_root_.CochainComplex.truncLEStep K j)) := sorry
+    (K.truncationFiltration).stage (-j + 1) ≅ K.truncLE (j - 1) :=
+  stageIso K (-j + 1) ≪≫
+    eqToIso (congrArg K.truncLE (by omega : -(-j + 1) = j - 1))
+
+/-- The successive stage comparison defining `gr^{-j}` agrees with the canonical
+upper-truncation step after the reindexing identifications. -/
+@[stacks 06XX]
+theorem succComparison_hom
+    (K : _root_.CochainComplex 𝒜 ℤ) (j : ℤ) :
+    (K.truncationFiltration).stageComparison (lt_add_one (-j)).le ≫ (iso K j).hom =
+      (succIso K j).hom ≫ _root_.CochainComplex.truncLEStep K j := sorry
+
+/-- The `(-j)`-th graded piece of the truncation filtration is isomorphic to the cokernel of
+the canonical adjacent upper-truncation step: the degreewise graded piece is first compared with
+the categorical cokernel of the successive stage comparison, and that cokernel is then
+transported along the stage identifications `succIso` and `iso`. -/
+@[stacks 06XX]
+noncomputable def gradedPieceIsoCokernel
+    (K : _root_.CochainComplex 𝒜 ℤ) (j : ℤ) :
+    (K.truncationFiltration).gradedPiece (-j) ≅
+      cokernel (_root_.CochainComplex.truncLEStep K j) :=
+  HomologicalComplex.Filtered.TwoStep.GradedPiece.cokernelIso (K.truncationFiltration) (-j) ≪≫
+    cokernel.mapIso _ _ (succIso K j) (iso K j) (succComparison_hom K j)
+
+/-- The forward map of `gradedPieceIsoCokernel` is induced on cokernels by the stage
+identifications: precomposed with the cokernel projection of the stage comparison it is the
+identification `iso` followed by the cokernel projection of the truncation step. -/
+@[stacks 06XX]
+theorem π_gradedPieceIsoCokernel_hom
+    (K : _root_.CochainComplex 𝒜 ℤ) (j : ℤ) :
+    cokernel.π ((K.truncationFiltration).stageComparison (lt_add_one (-j)).le) ≫
+        (HomologicalComplex.Filtered.TwoStep.GradedPiece.cokernelIso
+          (K.truncationFiltration) (-j)).inv ≫ (gradedPieceIsoCokernel K j).hom =
+      (iso K j).hom ≫ cokernel.π (_root_.CochainComplex.truncLEStep K j) := sorry
 
 end Step
 

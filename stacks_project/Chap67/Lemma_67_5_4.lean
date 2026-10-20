@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_5_2_Surjective
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Surjective
+import StacksCheckRecall
 
 /-!
 # Composition of surjective morphisms of algebraic spaces
@@ -18,21 +12,17 @@ surjective.
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry CategoryTheory.MorphismProperty
+open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+/- Lemma 67.5.4: The composition of surjective morphisms is surjective. -/
+@[stacks 03MG] #check (AlgebraicGeometry.AlgebraicSpace.surjective_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z)
+    [AlgebraicGeometry.AlgebraicSpace.Surjective f]
+    [AlgebraicGeometry.AlgebraicSpace.Surjective g],
+    AlgebraicGeometry.AlgebraicSpace.Surjective (f ≫ g))
 
-/-- Lemma 67.5.4: The composition of surjective morphisms is surjective. -/
-@[stacks 03MG]
-instance surjective_isStableUnderComposition {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderComposition
-      (@Surjective S : MorphismProperty (AlgebraicSpace S)) := sorry
-
-/-- The composition of surjective morphisms of algebraic spaces is surjective. -/
-instance surjective_comp {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [Surjective f] [Surjective g] :
-    Surjective (f ≫ g) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.surjective_isStableUnderComposition :
+  ∀ {S : Scheme.{u}}, MorphismProperty.IsStableUnderComposition
+    (@AlgebraicGeometry.AlgebraicSpace.Surjective S : MorphismProperty (AlgebraicSpace S)))

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.ChainComplex.FreeResolution.HomCohomology
@@ -27,7 +21,7 @@ import StacksCheckRecall
 #check @ChainComplex.IsFreeResolution.homologyMap_eq_id
 
 /- Reusable lift and induced-map objects behind the three source clauses. -/
-#check @ChainComplex.IsFreeResolution.identityLift
-#check @ChainComplex.IsFreeResolution.compLift
-#check @ChainComplex.IsFreeResolution.inverseLift
+#check @CategoryTheory.ProjectiveResolution.Hom.id
+#check @CategoryTheory.ProjectiveResolution.Hom.comp
+#check @CategoryTheory.ProjectiveResolution.Hom.lift
 #check @ChainComplex.IsFreeResolution.homologyMap

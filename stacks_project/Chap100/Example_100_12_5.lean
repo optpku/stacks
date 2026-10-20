@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_12_3_Dimension
-public import stacks_project.Chap100.Example_100_12_5_Quotient
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Dimension.Quotient
 
 /-!
 # Dimension of quotient stacks
@@ -27,34 +21,21 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-variable {k : Type u} [Field k]
-
-/-- Example 100.12.5 (1): if `X` is a scheme of finite type over a field `k` and
-`G` is a group scheme of finite type over `k` acting on `X`, then
-`dimension (quotient G X) = dimensionDiff (topologicalKrullDim X.X.left)
-(topologicalKrullDim G.X.left)`. -/
-@[stacks 0AFR]
-theorem dimension_quotient (G : GroupScheme (Spec (.of k))) (X : GroupScheme.Action G)
-    [Algebraic X.X] [Algebraic G.X] :
+/- Example 100.12.5: the dimension of the quotient stack of a finite-type scheme
+by a finite-type group scheme over a field is the difference of their dimensions. -/
+@[stacks 0AFR] #check (AlgebraicGeometry.AlgebraicStack.dimension_quotient :
+    ∀ {k : Type u} [Field k] (G : GroupScheme (Spec (.of k)))
+    (X : GroupScheme.Action G) [Algebraic X.X] [Algebraic G.X],
     dimension (quotient G X) =
-      dimensionDiff (topologicalKrullDim X.X.left) (topologicalKrullDim G.X.left) :=
-  sorry
+      dimensionDiff (topologicalKrullDim X.X.left) (topologicalKrullDim G.X.left))
 
-/-- Example 100.12.5 (2): the classifying stack `BG = classifying G` has
-`dimension (classifying G) = dimensionDiff 0 (topologicalKrullDim G.X.left)`. -/
-@[stacks 0AFR]
-theorem dimension_classifying (G : GroupScheme (Spec (.of k))) [Algebraic G.X] :
-    dimension (classifying G) =
-      dimensionDiff 0 (topologicalKrullDim G.X.left) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.dimension_classifying :
+    ∀ {k : Type u} [Field k] (G : GroupScheme (Spec (.of k))) [Algebraic G.X],
+    dimension (classifying G) = dimensionDiff 0 (topologicalKrullDim G.X.left))
 
-/-- Example 100.12.5 (3): if `G` has positive dimension, then
-`dimension (classifying G)` is a negative integer, in contrast to dimensions of
-schemes or algebraic spaces. -/
-@[stacks 0AFR]
-theorem dimension_classifying_lt_zero (G : GroupScheme (Spec (.of k)))
-    [Algebraic G.X] (hG : 0 < topologicalKrullDim G.X.left) :
-    dimension (classifying G) < (0 : EInt) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.dimension_classifying_lt_zero :
+    ∀ {k : Type u} [Field k] (G : GroupScheme (Spec (.of k))) [Algebraic G.X]
+    (hG : 0 < topologicalKrullDim G.X.left),
+    dimension (classifying G) < (0 : EInt))
 
 end AlgebraicGeometry.AlgebraicStack

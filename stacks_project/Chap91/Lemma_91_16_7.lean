@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap91.Lemma_91_16_7_IsoClass
-public import stacks_project.Chap91.Lemma_91_16_7_Lift
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.SquareZeroLift.IsoClass
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.SquareZeroLift.Automorphisms
+import StacksCheckRecall
 
 /-!
 # Automorphisms and isomorphism classes of first-order lifts of complexes
@@ -92,25 +86,21 @@ variable [IsIso (pushforwardSingleUnit π (unitModule J 𝒪₀))]
 
 variable (K₀ : ModuleDerived.{w, u, v, w} (RingedSite.ofCommRingSheaf.{u, v, w} J 𝒪₀))
 
-/-- Lemma 91.16.7 (1): Let `C` be a site. Let `π : 𝒪 ⟶ 𝒪₀` be a surjection of sheaves of rings
-whose kernel is an ideal sheaf `ℐ` of square zero. Let `K₀` be an object of `D⁻(𝒪₀)`, and let
-`(K, α₀)` be a lift of `K₀`. The group of automorphisms of the pair is canonically the cokernel
-of the map `Ext⁽-1⁾_{𝒪₀}(K₀, K₀) ⟶ Hom_{𝒪₀}(K₀, K₀ ⊗ᴸ ℐ)`. -/
-@[stacks 0DIZ]
-noncomputable def autEquiv (L : Lift π h_sq K₀) (hK : K₀.IsBoundedAbove) :
-    autCoker π h_sq L ≃ Aut π h_sq L :=
-  Equiv.ofBijective (ofCoker π h_sq L) (ofCoker_bijective π h_sq L hK)
+/- Lemma 91.16.7 (1): The automorphism group of a bounded-above lift is canonically the
+cokernel of the negative first-extension boundary, with its canonical lifting specification. -/
+@[stacks 0DIZ] #check (RingedSite.Hom.ModuleDerived.autEquiv π h_sq K₀ :
+  ∀ (L : Lift π h_sq K₀), K₀.IsBoundedAbove →
+    ∃! e : Multiplicative (autCoker π h_sq L) ≃* Aut π h_sq L,
+      ∀ f : K₀ ⟶ K₀ ⊗ kernelIdeal0Single π h_sq,
+        autLiftRelation π h_sq L f (e (Multiplicative.ofAdd (Quotient.mk _ f))))
 
-/-- The forward map of `autEquiv` is `ofCoker`. -/
-theorem autEquiv_apply (L : Lift π h_sq K₀) (hK : K₀.IsBoundedAbove)
-    (x : autCoker π h_sq L) :
-    autEquiv π h_sq K₀ L hK x = ofCoker π h_sq L x := sorry
-
-/-- Lemma 91.16.7 (2): If there is a lift of `K₀`, then the set of isomorphism classes of lifts
-is principal homogeneous under `Ext⁽1⁾_{𝒪₀}(K₀, K₀ ⊗ᴸ ℐ)`, via the obstruction class of
-Lemma 91.16.6. -/
-@[stacks 0DIZ]
-theorem isoClass_extClass_bijective (hK : K₀.IsBoundedAbove) (L0 : Lift π h_sq K₀) :
-    Function.Bijective (extClass π h_sq K₀ L0 hK) := sorry
+/- Lemma 91.16.7 (2): If a lift exists, its isomorphism classes form the canonical additive
+torsor under the first-extension group, with differences given by comparison obstructions. -/
+@[stacks 0DIZ] #check (RingedSite.Hom.ModuleDerived.isoClass_isTorsor π h_sq K₀ :
+  K₀.IsBoundedAbove → Lift π h_sq K₀ →
+    ∃! t : AddTorsor (Ext⁽(1 : ℤ)⁾(K₀, K₀ ⊗ kernelIdeal0Single π h_sq)) (IsoClass π h_sq K₀),
+      ∀ L L' : Lift π h_sq K₀,
+        t.toVSub.vsub (IsoClass.mk π h_sq K₀ L') (IsoClass.mk π h_sq K₀ L) =
+          obstruction π h_sq K₀ L L')
 
 end RingedSite.Hom.ModuleDerived

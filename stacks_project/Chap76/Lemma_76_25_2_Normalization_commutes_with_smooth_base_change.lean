@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_25_2_Normalization_commutes_with_smooth_base_change_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Normalization.SmoothBaseChange
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Limits
@@ -19,7 +13,7 @@ spaces over S, with f : Y₁ ⟶ X₁ quasi-compact and quasi-separated and φ :
 smooth. Writing Yᵢ ⟶ Xᵢ' ⟶ Xᵢ for the relative normalization of Xᵢ in Yᵢ, one has
 X₂' ≅ X₂ ×_{X₁} X₁'. -/
 @[stacks 082F] #check
-  (Hom.existsUnique_isIso_normalizationPullback_of_smooth :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.existsUnique_isIso_normalizationPullback_of_smooth :
     ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Z ⟶ Y)
       [QuasiCompact f] [QuasiSeparated f] [Smooth g],
       ∃! h : Hom.normalization (pullback.snd f g) ⟶

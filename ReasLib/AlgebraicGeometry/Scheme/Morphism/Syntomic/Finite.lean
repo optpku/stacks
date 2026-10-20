@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Syntomic.QuasiFinite
@@ -31,7 +25,8 @@ equations as variables; its derived naive cotangent complex has Tor-amplitude in
 complex is perfect of fiber Euler characteristic zero with the same Tor-amplitude and
 the same three properties of `f`. -/
 theorem AlgebraicGeometry.finiteSyntomic_tfae
-    {X Y : Scheme.{u}} (f : Y ⟶ X) :
+    {X Y : Scheme.{u}} (f : Y ⟶ X)
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)] :
     let L : RingedSpace.ModuleDerived Y.toRingedSpace :=
       DerivedCategory.Q.obj (RingedSpace.naiveCotangent f.toShHom)
     List.TFAE [

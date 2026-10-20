@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion
-public import Mathlib.CategoryTheory.Limits.Shapes.BinaryProducts
-public import Mathlib.CategoryTheory.MorphismProperty.Representable
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap87.Definition_87_9_1_Affine
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.ChosenFppf.Diagonal
+import StacksCheckRecall
 
 /-!
 # Lemma 87.9.2
@@ -28,47 +19,36 @@ noncomputable section
 
 universe u v
 
-namespace AlgebraicGeometry
-namespace IsAffineFormalAlgebraicSpace
+open AlgebraicGeometry
 
-/-- Lemma 87.9.2 (1): Let `S` be a scheme. If `X` is an affine formal algebraic
-space over `S`, then the diagonal morphism `Δ : X ⟶ X ×_S X` is representable. -/
-@[stacks 0AI8]
-theorem relativelyRepresentable_diag {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+/- Lemma 87.9.2: The diagonal of an affine formal algebraic space is
+representable and a closed immersion. -/
+@[stacks 0AI8] #check (AlgebraicGeometry.IsAffineFormalAlgebraicSpace.isClosedImmersion_diag :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
     (X : Sheaf (𝒮.bigTopology S) (Type (max u v)))
-    [IsAffineFormalAlgebraicSpace X] :
-    (𝒮.bigTopology S).sheafifiedRepresentableFunctor.relativelyRepresentable (diag X) :=
-  sorry
-
-/-- Lemma 87.9.2 (2): Let `S` be a scheme. If `X` is an affine formal algebraic
-space over `S`, then the diagonal morphism `Δ : X ⟶ X ×_S X` is a closed
-immersion. -/
-@[stacks 0AI8]
-theorem isClosedImmersion_diag {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
-    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
-    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
-    (X : Sheaf (𝒮.bigTopology S) (Type (max u v)))
-    [IsAffineFormalAlgebraicSpace X] :
+    [IsAffineFormalAlgebraicSpace X],
     (MorphismProperty.inverseImage (@IsClosedImmersion) (𝒮.bigToScheme S)).relative
-      (𝒮.bigTopology S).sheafifiedRepresentableFunctor (diag X) :=
-  sorry
+      (𝒮.bigTopology S).sheafifiedRepresentableFunctor (diag X))
 
-/-- Relative closed-immersion of the diagonal unpacks as relative representability
-together with closed immersions of represented pullbacks on source schemes. -/
-theorem isClosedImmersion_diag_spec {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+#check (AlgebraicGeometry.IsAffineFormalAlgebraicSpace.relativelyRepresentable_diag :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
     (X : Sheaf (𝒮.bigTopology S) (Type (max u v)))
-    [IsAffineFormalAlgebraicSpace X] :
+    [IsAffineFormalAlgebraicSpace X],
+    (𝒮.bigTopology S).sheafifiedRepresentableFunctor.relativelyRepresentable (diag X))
+
+#check (AlgebraicGeometry.IsAffineFormalAlgebraicSpace.isClosedImmersion_diag_spec :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    (X : Sheaf (𝒮.bigTopology S) (Type (max u v)))
+    [IsAffineFormalAlgebraicSpace X],
     (𝒮.bigTopology S).sheafifiedRepresentableFunctor.relativelyRepresentable (diag X) ∧
       ∀ {U V : 𝒮.bigSite S}
         (ξ : (𝒮.bigTopology S).sheafifiedRepresentable U ⟶ X ⨯ X)
         (fst : (𝒮.bigTopology S).sheafifiedRepresentable V ⟶ X) (snd : V ⟶ U),
         IsPullback fst ((𝒮.bigTopology S).sheafifiedRepresentableMap snd) (diag X) ξ →
-          IsClosedImmersion ((𝒮.bigToScheme S).map snd) :=
-  sorry
-
-end IsAffineFormalAlgebraicSpace
-end AlgebraicGeometry
+          IsClosedImmersion ((𝒮.bigToScheme S).map snd))

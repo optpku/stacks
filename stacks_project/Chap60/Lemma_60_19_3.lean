@@ -1,58 +1,40 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicTopology.CosimplicialObject.Abelian
-public import ReasLib.AlgebraicTopology.CosimplicialObject.Homotopy.DeltaOne.Relation
-public import stacks_project.Chap60.Lemma_60_19_3_OmegaPower
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.RingTheory.DividedPowers.DeRham.Cosimplicial.ExteriorPower
+import StacksCheckRecall
 
-open CategoryTheory PresheafOfModules
-open scoped Simplicial
-
-@[expose] public section
-
-noncomputable section
+open CategoryTheory
 
 universe u
 
-variable {A : Type u} [CommRing A]
-variable (p : ℕ) [Fact (Nat.Prime p)]
-variable [Algebra (Localization.AtPrime (Ideal.span ({(p : ℤ)} : Set ℤ))) A]
-variable (I : Ideal A) (γ : DividedPowers I)
-variable {C : Type u} [CommRing C] [Algebra A C]
-variable {ι : Type u} (π : MvPolynomial ι A →ₐ[A] C)
-variable (hπ : Function.Surjective π)
-variable (hIC : Ideal.map (algebraMap A C) I = (⊥ : Ideal C))
-variable (hpnil : IsNilpotent (p : C))
-variable (J : (n : ℕ) → Ideal (tensorPowerCarrier A ι n))
-variable (hJ : ∀ n, J n = RingHom.ker (tensorPowerAlgHom π n).toRingHom)
-variable (hIJ : ∀ n, Ideal.map (algebraMap A (tensorPowerCarrier A ι n)) I ≤ J n)
-variable (E : (n : ℕ) →
-    DividedPowerEnvelope I γ (algebraMap A (tensorPowerCarrier A ι n)) (J n) (hIJ n))
-variable (hE : ∀ n,
-    DividedPowerEnvelope.IsUniversal γ
-      (algebraMap A (tensorPowerCarrier A ι n)) (hIJ n) (E n))
-variable (γbar : (n : ℕ) →
-    DividedPowers
-      (crystallineDnIdeal p I γ π hπ n hIC hpnil (J n) (hJ n) (hIJ n) (E n) (hE n)))
-
-/-- Lemma 60.19.3: with notation as in (60.17.0.4) and (60.17.0.5), for any
-cosimplicial `D(*)`-module `M_*` and any `i > 0` the cosimplicial module with
-stages `M_n ⊗^∧_{D(n)} Ω^i_{D(n)}` is homotopic to zero, where `Ω^i_{D(n)}` is
-the `p`-adic completion of `∧^i Ω_{D(n)}`. -/
-@[stacks 07LA]
-theorem crystallineOmegaPowerTensor_homotopic_zero
+/- Lemma 60.19.3: for every cosimplicial module over the crystalline completed
+ring diagram and every positive degree, the completed tensor product with the
+completed exterior power of differentials is homotopic to zero. -/
+@[stacks 07LA] #check (crystallineOmegaPowerTensor_homotopic_zero :
+  ∀ {A : Type u} [CommRing A] (p : ℕ) [Fact (Nat.Prime p)]
+    [Algebra (Localization.AtPrime (Ideal.span ({(p : ℤ)} : Set ℤ))) A]
+    (I : Ideal A) (γ : DividedPowers I)
+    {C : Type u} [CommRing C] [Algebra A C]
+    {ι : Type u} (π : MvPolynomial ι A →ₐ[A] C)
+    (hπ : Function.Surjective π)
+    (hIC : Ideal.map (algebraMap A C) I = (⊥ : Ideal C))
+    (hpnil : IsNilpotent (p : C))
+    (J : (n : ℕ) → Ideal (MvPolynomial.TensorPower.carrier A ι n))
+    (hJ : ∀ n, J n = RingHom.ker (MvPolynomial.TensorPower.diagonal A ι π n).toRingHom)
+    (hIJ : ∀ n, Ideal.map (algebraMap A (MvPolynomial.TensorPower.carrier A ι n)) I ≤ J n)
+    (E : (n : ℕ) →
+      DividedPowerEnvelope I γ (algebraMap A (MvPolynomial.TensorPower.carrier A ι n))
+        (J n) (hIJ n))
+    (hE : ∀ n, DividedPowerEnvelope.IsUniversal γ
+      (algebraMap A (MvPolynomial.TensorPower.carrier A ι n)) (hIJ n) (E n))
+    (γbar : (n : ℕ) → DividedPowers (Crystalline.dnIdeal p I γ J hIJ E n))
+    (hγbar : ∀ n, DividedPowers.IsDPMorphism (E n).D.dividedPowers (γbar n)
+      (algebraMap (E n).D (AdicCompletion (Ideal.span {(p : (E n).D)}) (E n).D)))
     (M : PresheafOfModules.{u}
-      (moduleRingPresheaf (crystallineDStar p I γ π hπ hIC hpnil J hJ hIJ E hE)))
-    (i : ℕ) (hi : 0 < i) :
-    CosimplicialObject.DeltaOneHomotopic
-      (𝟙 (crystallineOmegaPowerTensor p I γ π hπ hIC hpnil J hJ hIJ E hE γbar i M))
+      (moduleRingPresheaf (Crystalline.dStar p I γ π J hJ hIJ E hE)))
+    (i : ℕ) (hi : 0 < i),
+    CosimplicialModule.Homotopic
+      (𝟙 (Crystalline.omegaPowerTensor p I γ π J hJ hIJ E hE γbar hγbar i M))
       (0 :
-        crystallineOmegaPowerTensor p I γ π hπ hIC hpnil J hJ hIJ E hE γbar i M ⟶
-          crystallineOmegaPowerTensor p I γ π hπ hIC hpnil J hJ hIJ E hE γbar i M) :=
-  sorry
+        Crystalline.omegaPowerTensor p I γ π J hJ hIJ E hE γbar hγbar i M ⟶
+          Crystalline.omegaPowerTensor p I γ π J hJ hIJ E hE γbar hγbar i M))

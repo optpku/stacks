@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommSourceTarget
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommResidualDualComplex
@@ -24,13 +18,13 @@ variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]
 variable (η : GeometricPoint (geometricBaseChange X))
 variable (hR : IsUnit (Nat.card R : k))
 variable (M : (finiteTypeDiscreteModule R
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X η)))).FullSubcategory)
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η)))).FullSubcategory)
 
 /-- Signed character reversal of the SAME ambient injective resolution used
 by the compact projective tensor model. -/
 def residualCochain := NoncommResidualDualComplex.signedCharacterCochain Rᵐᵒᵖ
-  (Aut (standardFiniteEtaleFiber η))
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X η))) (NoncommSourceTarget.residualGroup X η)
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber η))
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η))) (NoncommSourceTarget.residualGroup X η)
   (geometricToArithmetic X η).hom (arithmeticToGalois X (arithmeticPoint X η)).hom
   (geometricToArithmetic_range_eq_arithmeticToGalois_ker X η)
   (arithmeticToGalois_surjective X (arithmeticPoint X η))
@@ -39,8 +33,8 @@ def residualCochain := NoncommResidualDualComplex.signedCharacterCochain Rᵐᵒ
 /-- Explicit phase/restriction/tensor comparison before coefficient normalization. -/
 def residualIso : residualCochain R X η hR M ≅ NoncommSourceTarget.residualCochain R X η hR M :=
   NoncommResidualDualComplex.tensorIso Rᵐᵒᵖ
-    (Aut (standardFiniteEtaleFiber η))
-    (Aut (standardFiniteEtaleFiber (arithmeticPoint X η))) (NoncommSourceTarget.residualGroup X η)
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber η))
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η))) (NoncommSourceTarget.residualGroup X η)
     (geometricToArithmetic X η).hom (arithmeticToGalois X (arithmeticPoint X η)).hom
     (geometricToArithmetic_range_eq_arithmeticToGalois_ker X η)
     (arithmeticToGalois_surjective X (arithmeticPoint X η))
@@ -62,7 +56,7 @@ def cochainIso : galoisCochain R X η hR M ≅ NoncommSourceTarget.galoisCochain
         (residualIso R X η hR M))
 
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj R Gal(AlgebraicClosure k/k)))]
+  (completedGroupRing R Gal(AlgebraicClosure k/k)))]
 
 /-- Integrated signed-character endpoint to the existing full noncommutative
 derived completed-tensor target. No geometric comparison is assumed here. -/

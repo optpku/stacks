@@ -1,59 +1,37 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.FiberedCategory.BasedCategory
-public import stacks_project.Chap93.Lemma_93_8_3_Deformation
-public import stacks_project.Chap93.Lemma_93_8_8_Henselization
+public import ReasLib.AlgebraicGeometry.FormalDeformation.FlatAlgebra.Henselization.Smooth
 
 /-!
-# Pair henselization as a morphism of deformation categories over C_Λ
+# Pair henselization as a morphism of deformation categories
 
-The functor `Def_P ⥤ Def_{P^h}` of Lemma 93.8.8, packaged as a based functor
-over `ArtinianLocalAlgCat`.
+The canonical based functor and its underlying-functor identities.
 -/
 
-@[expose] public section
+public section
 
 open CategoryTheory Functor RingPairCat
 open scoped BasedFunctor
 
 universe u
 
-noncomputable section
-
-namespace FlatAlgebraCat
-
 variable (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
-variable (P : Type u) [CommRing P] [Algebra k P]
-variable (J : Ideal P)
+variable (P : Type u) [CommRing P] [Algebra k P] (J : Ideal P)
 variable [henselianPairInclusion.IsRightAdjoint]
 
-/-- Pair henselization of deformations commutes with forgetting to `ArtinianLocalAlgCat`. -/
-theorem henselizationFunctor_comp_forget :
-    henselizationFunctor Λ k P J ⋙
-        deformationForget Λ k (henselizationRing (pairOfIdeal J) : Type u) =
-      deformationForget Λ k P :=
-  sorry
+#check (FlatAlgebraCat.henselizationFunctor_comp_forget Λ k P J :
+  FlatAlgebraCat.henselizationFunctor Λ k P J ⋙
+      FlatAlgebraCat.deformationForget Λ k (henselizationRing (pairOfIdeal J) : Type u) =
+    FlatAlgebraCat.deformationForget Λ k P)
 
-/-- The functor `Def_P ⟶ Def_{P^h}` of Lemma 93.8.8 as a morphism of categories over `C_Λ`. -/
-def henselizationBasedFunctor :
-    BasedCategory.ofFunctor (deformationForget Λ k P) ⥤ᵇ
-      BasedCategory.ofFunctor
-        (deformationForget Λ k (henselizationRing (pairOfIdeal J) : Type u)) where
-  toFunctor := henselizationFunctor Λ k P J
-  w := henselizationFunctor_comp_forget Λ k P J
+#check (FlatAlgebraCat.henselizationBasedFunctor Λ k P J :
+  BasedCategory.ofFunctor (FlatAlgebraCat.deformationForget Λ k P) ⥤ᵇ
+    BasedCategory.ofFunctor
+      (FlatAlgebraCat.deformationForget Λ k (henselizationRing (pairOfIdeal J) : Type u)))
 
-/-- The underlying functor of `henselizationBasedFunctor` is `henselizationFunctor`. -/
-theorem henselizationBasedFunctor_toFunctor :
-    (henselizationBasedFunctor Λ k P J).toFunctor = henselizationFunctor Λ k P J :=
-  sorry
-
-end FlatAlgebraCat
+#check (FlatAlgebraCat.henselizationBasedFunctor_toFunctor Λ k P J :
+  (FlatAlgebraCat.henselizationBasedFunctor Λ k P J).toFunctor =
+    FlatAlgebraCat.henselizationFunctor Λ k P J)
 
 end

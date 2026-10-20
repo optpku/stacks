@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_5_2_Surjective
-public import stacks_project.Chap67.Lemma_67_28_11_LocallyOfFinitePresentation
-public import stacks_project.Chap67.Lemma_67_30_5_Flat
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Monomorphism.Field
+import StacksCheckRecall
 
 /-!
 # Monomorphisms into an fppf Spec(k)-cover
@@ -26,25 +19,27 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 68.13.4: Let `S` be a scheme. Let `f : X ⟶ Y` be a monomorphism of
+/- Lemma 68.13.4: Let `S` be a scheme. Let `f : X ⟶ Y` be a monomorphism of
 algebraic spaces over `S`. Assume there exists a field `k` and a locally
 finitely presented, surjective, flat morphism
 `g : ofOver (Over.mk σ) ⟶ Y` from `Spec (.of k)`. Then either
 `IsEmpty (Points X)` or `IsIso f`. -/
 @[stacks 06QY]
-theorem isEmpty_or_isIso_of_mono_of_spec_field_fppf {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Mono f] {k : Type u} [Field k]
+#check (AlgebraicGeometry.AlgebraicSpace.isEmpty_or_isIso_of_mono_of_spec_field_fppf :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Mono f]
+    {k : Type u} [Field k]
     {σ : Spec (.of k) ⟶ S} (g : ofOver (Over.mk σ) ⟶ Y)
-    [LocallyOfFinitePresentation g] [Surjective g] [Flat g] :
-    IsEmpty (Points X) ∨ IsIso f := sorry
+    [LocallyOfFinitePresentation g] [Surjective g] [Flat g],
+    IsEmpty (Points X) ∨ IsIso f)
 
-/-- A monomorphism of algebraic spaces over a scheme `S` into a target admitting
+/- A monomorphism of algebraic spaces over a scheme `S` into a target admitting
 a locally finitely presented, surjective, flat morphism from `Spec (.of k)` is
 an isomorphism if and only if the source is nonempty. -/
-theorem isIso_iff_nonempty_of_mono_of_spec_field_fppf {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Mono f] {k : Type u} [Field k]
+#check (AlgebraicGeometry.AlgebraicSpace.isIso_iff_nonempty_of_mono_of_spec_field_fppf :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Mono f]
+    {k : Type u} [Field k]
     {σ : Spec (.of k) ⟶ S} (g : ofOver (Over.mk σ) ⟶ Y)
-    [LocallyOfFinitePresentation g] [Surjective g] [Flat g] :
-    IsIso f ↔ Nonempty (Points X) := sorry
+    [LocallyOfFinitePresentation g] [Surjective g] [Flat g],
+    IsIso f ↔ Nonempty (Points X))
 
 end AlgebraicGeometry.AlgebraicSpace

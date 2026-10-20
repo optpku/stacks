@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap71.Definition_71_4_2_LocallyNoetherianFibers
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Fiber.LocallyNoetherian
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Fiber.FiniteType
 import StacksCheckRecall
 
 /-!
@@ -28,11 +23,11 @@ universe u
 locally Noetherian if and only if the equivalent conditions (1), (2), and (3)
 of Lemma 71.4.1 hold. -/
 @[stacks 0CUX] #check
-  (IsLocallyNoetherianFiber :
+  (AlgebraicGeometry.AlgebraicSpace.IsLocallyNoetherianFiber :
     {S : Scheme.{u}} → {X Y : AlgebraicSpace S} → (X ⟶ Y) → Points Y → Prop)
 
 /- Definition 71.4.2 (2): the fibres of `f : X ⟶ Y` are locally Noetherian if
 and only if this holds for every `y` in `Points Y`. -/
 @[stacks 0CUX] #check
-  (LocallyNoetherianFibers :
+  (AlgebraicGeometry.AlgebraicSpace.LocallyNoetherianFibers :
     {S : Scheme.{u}} → {X Y : AlgebraicSpace S} → (X ⟶ Y) → Prop)

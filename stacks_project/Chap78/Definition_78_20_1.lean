@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap78.Definition_78_20_1_Quotient
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quotient.Basic
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quotient.Action
 import StacksCheckRecall
 
 universe u
@@ -17,7 +12,7 @@ open CategoryTheory AlgebraicGeometry AlgebraicSpace
 algebraic spaces (U, R, s, t, c) over B is the stackification of the category fibred in
 groupoids [U/_p R] associated to the groupoid-valued functor of points. -/
 @[stacks 044Q] #check
-  (@GroupoidAlgebraicSpace.quotientStack :
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.fppfQuotientStack :
     ∀ {S : Scheme.{u}} {B : AlgebraicSpace S},
       GroupoidAlgebraicSpace B → StackOver.Groupoids (Scheme.fppfTopology.over S))
 
@@ -25,9 +20,7 @@ groupoids [U/_p R] associated to the groupoid-valued functor of points. -/
 group algebraic space (G, m) over B on an algebraic space X over B is the quotient stack
 associated to the action groupoid (X, G ×_B X, s, t, c) of Lemma 78.15.1. -/
 @[stacks 044Q] #check
-  (fun {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B)
-      (X : GroupAlgebraicSpace.Action G) ↦
-    (GroupoidAlgebraicSpace.ofAction G X).quotientStack :
+  (AlgebraicGeometry.GroupAlgebraicSpace.Action.fppfQuotientStack :
     {S : Scheme.{u}} → {B : AlgebraicSpace S} → (G : GroupAlgebraicSpace B) →
       GroupAlgebraicSpace.Action G →
         StackOver.Groupoids (Scheme.fppfTopology.over S))

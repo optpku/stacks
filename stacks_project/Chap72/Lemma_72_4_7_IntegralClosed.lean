@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.Integral
 public import Mathlib.Topology.Sets.Closeds
 public import Mathlib.Topology.Sober
 public import stacks_project.Chap66.Definition_66_12_5_Reduced
@@ -35,85 +30,59 @@ namespace AlgebraicGeometry.AlgebraicSpace
 /-- The space of points of a decent algebraic space is in bijection with its
 irreducible closed subsets. -/
 noncomputable def pointsEquivIrreducibleCloseds {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsDecent X] : Points X ≃ IrreducibleCloseds (Points X) where
-  toFun x :=
-    IrreducibleCloseds.mk (closure {x}) isIrreducible_singleton.closure isClosed_closure
-  invFun T := T.isIrreducible.genericPoint
-  left_inv := sorry
-  right_inv := sorry
+    [IsDecent X] : Points X ≃ IrreducibleCloseds (Points X) :=
+  irreducibleSetEquivPoints.toEquiv.symm
 
 /-- The bijection from points of a decent algebraic space to irreducible closed
 subsets sends a point `x` to the closure of `{x}`. -/
 theorem coe_pointsEquivIrreducibleCloseds {S : Scheme.{u}} (X : AlgebraicSpace S)
     [IsDecent X] (x : Points X) :
     (pointsEquivIrreducibleCloseds X x : Set (Points X)) = closure {x} :=
-  sorry
+  coe_irreducibleEquivPoints_symm_apply x
 
 /-- The inverse of `pointsEquivIrreducibleCloseds` sends an irreducible closed
 subset to its generic point. -/
 theorem isGenericPoint_pointsEquivIrreducibleCloseds_symm {S : Scheme.{u}}
     {X : AlgebraicSpace S} [IsDecent X] (T : IrreducibleCloseds (Points X)) :
     IsGenericPoint ((pointsEquivIrreducibleCloseds X).symm T) (T : Set (Points X)) :=
-  sorry
+  T.isIrreducible.isGenericPoint_genericPoint T.isClosed
 
-namespace ClosedSubspace
+#check (ClosedSubspace.ofIrreducibleClosed :
+  {S : Scheme.{u}} → {X : AlgebraicSpace S} → [IsDecent X] →
+    IrreducibleCloseds (Points X) → ClosedSubspace X)
 
-/-- The integral closed subspace of a decent algebraic space associated to an
-irreducible closed subset, given by the reduced induced structure. -/
-noncomputable def ofIrreducibleClosed {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [IsDecent X] (T : IrreducibleCloseds (Points X)) : ClosedSubspace X :=
-  (ClosedSubspaceStructure.reduced (Closeds.mk (T : Set (Points X)) T.isClosed)).subspace
+#check (ReducedClosed.Space.instIsIntegral_irreducibleClosed :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
+    (T : IrreducibleCloseds (Points X)),
+    IsIntegral (ReducedClosed.Space.space X (Closeds.mk (T : Set (Points X)) T.isClosed)))
 
-/-- The reduced induced closed subspace on an irreducible closed subset of a
-decent algebraic space is integral. -/
-instance instIsIntegral_ofIrreducibleClosed {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [IsDecent X] (T : IrreducibleCloseds (Points X)) :
-    IsIntegral (ofIrreducibleClosed T).X :=
-  sorry
+#check (ClosedSubspace.pointsSet_ofIrreducibleClosed :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
+    (T : IrreducibleCloseds (Points X)),
+    (ClosedSubspace.ofIrreducibleClosed T).pointsSet = (T : Set (Points X)))
 
-/-- The underlying point-set of the reduced induced integral closed subspace is
-the original irreducible closed subset. -/
-theorem pointsSet_ofIrreducibleClosed {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [IsDecent X] (T : IrreducibleCloseds (Points X)) :
-    (ofIrreducibleClosed T).pointsSet = (T : Set (Points X)) :=
-  sorry
+#check (ClosedSubspace.ofIrreducibleClosed_spec :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
+    (T : IrreducibleCloseds (Points X)),
+    IsIntegral (ClosedSubspace.ofIrreducibleClosed T).X ∧
+      (ClosedSubspace.ofIrreducibleClosed T).pointsSet = (T : Set (Points X)))
 
-/-- The reduced induced closed subspace on an irreducible closed subset is
-integral and has that subset as its space of points. -/
-theorem ofIrreducibleClosed_spec {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [IsDecent X] (T : IrreducibleCloseds (Points X)) :
-    IsIntegral (ofIrreducibleClosed T).X ∧
-      (ofIrreducibleClosed T).pointsSet = (T : Set (Points X)) :=
-  sorry
+#check (ClosedSubspace.isIrreducible_pointsSet :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (Z : ClosedSubspace X) [IsIntegral Z.X],
+    _root_.IsIrreducible Z.pointsSet)
 
-/-- The image of an integral closed subspace in the ambient space of points is
-irreducible. -/
-theorem isIrreducible_pointsSet {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (Z : ClosedSubspace X) [IsIntegral Z.X] :
-    _root_.IsIrreducible Z.pointsSet :=
-  sorry
+#check (ClosedSubspace.irreducibleClosed :
+  {S : Scheme.{u}} → {X : AlgebraicSpace S} → (Z : ClosedSubspace X) →
+    [IsIntegral Z.X] → IrreducibleCloseds (Points X))
 
-/-- The irreducible closed subset of `Points X` associated to an integral closed
-subspace, namely its space of points. -/
-noncomputable def irreducibleClosed {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (Z : ClosedSubspace X) [IsIntegral Z.X] : IrreducibleCloseds (Points X) :=
-  IrreducibleCloseds.mk Z.pointsSet (isIrreducible_pointsSet Z) (isClosed_pointsSet Z)
+#check (ClosedSubspace.coe_irreducibleClosed :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (Z : ClosedSubspace X) [IsIntegral Z.X],
+    (Z.irreducibleClosed : Set (Points X)) = Z.pointsSet)
 
-/-- The irreducible closed subset associated to an integral closed subspace is
-its underlying point-set. -/
-theorem coe_irreducibleClosed {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (Z : ClosedSubspace X) [IsIntegral Z.X] :
-    (irreducibleClosed Z : Set (Points X)) = Z.pointsSet :=
-  sorry
-
-/-- An integral closed subspace of a decent algebraic space admits a unique
-morphism over `X` to the reduced induced structure on its point-set. -/
-theorem existsUnique_hom_ofIrreducibleClosed {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [IsDecent X] (Z : ClosedSubspace X) [IsIntegral Z.X] :
-    ∃! f : Z.X ⟶ (ofIrreducibleClosed (irreducibleClosed Z)).X,
-      f ≫ (ofIrreducibleClosed (irreducibleClosed Z)).ι = Z.ι :=
-  sorry
-
-end ClosedSubspace
+#check (ClosedSubspace.existsUnique_hom_ofIrreducibleClosed :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
+    (Z : ClosedSubspace X) [IsIntegral Z.X],
+    ∃! f : Z.X ⟶ (ClosedSubspace.ofIrreducibleClosed Z.irreducibleClosed).X,
+      f ≫ (ClosedSubspace.ofIrreducibleClosed Z.irreducibleClosed).ι = Z.ι)
 
 end AlgebraicGeometry.AlgebraicSpace

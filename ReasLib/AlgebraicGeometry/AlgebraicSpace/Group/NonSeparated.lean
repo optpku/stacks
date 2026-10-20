@@ -1,0 +1,28 @@
+module
+
+public import Mathlib.Algebra.Field.Defs
+public import Mathlib.AlgebraicGeometry.Spec
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Group
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Separation
+
+@[expose] public section
+
+universe u
+
+open CategoryTheory AlgebraicGeometry
+open AlgebraicGeometry.AlgebraicSpace
+
+namespace AlgebraicGeometry.GroupAlgebraicSpace
+
+/-- There exists a group algebraic space of finite type over a field which is neither
+separated, quasi-separated, nor locally separated. -/
+theorem exists_finiteType_not_separated :
+    ∃ (k : Type u) (_ : Field k)
+      (G : GroupAlgebraicSpace (ofOver (Over.mk (𝟙 (Spec (CommRingCat.of k)))))),
+      AlgebraicSpace.FiniteType G.X.hom ∧
+        ¬ AlgebraicSpace.IsSeparated G.X.left ∧
+        ¬ AlgebraicSpace.IsQuasiSeparated G.X.left ∧
+        ¬ AlgebraicSpace.IsLocallySeparated G.X.left := sorry
+
+end AlgebraicGeometry.GroupAlgebraicSpace

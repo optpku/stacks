@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Algebra.Baire
@@ -27,17 +21,19 @@ universe u v
 namespace ContinuousAddMonoidHom
 
 variable {N : Type u} {M : Type v}
-variable [TopologicalSpace N] [AddCommGroup N] [IsTopologicalAddGroup N]
-  [IsLinearTopology ℤ N] [(nhds (0 : N)).IsCountablyGenerated]
-  [@CompleteSpace N (IsTopologicalAddGroup.rightUniformSpace N)]
-variable [TopologicalSpace M] [AddCommGroup M] [IsTopologicalAddGroup M] [T2Space M]
+variable [TopologicalSpace N] [AddCommGroup N]
+variable [TopologicalSpace M] [AddCommGroup M]
 
 /-- Lemma 15.36.5 (Open mapping lemma) (0CQW): a continuous homomorphism from a complete
 linearly topologized abelian group with a countable fundamental system of neighborhoods of zero
 to a separated topological abelian group is open exactly when no open subgroup has nowhere-dense
 image. -/
 @[stacks 0CQW "Open mapping lemma"]
-theorem isOpenMap_xor_exists_nowhereDense_image (u : N →ₜ+ M) :
+theorem isOpenMap_xor_exists_nowhereDense_image
+    [IsTopologicalAddGroup N] [IsLinearTopology ℤ N]
+    [(nhds (0 : N)).IsCountablyGenerated]
+    [@CompleteSpace N (IsTopologicalAddGroup.rightUniformSpace N)]
+    [IsTopologicalAddGroup M] [T2Space M] (u : N →ₜ+ M) :
     Xor (IsOpenMap u)
       (∃ U : OpenAddSubgroup N, IsNowhereDense (u '' (U : Set N))) := sorry
 

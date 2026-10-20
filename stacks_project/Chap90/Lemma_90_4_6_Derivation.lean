@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.Derivation.Basic
-public import stacks_project.Chap90.Lemma_90_4_5_Residue
+public import ReasLib.AlgebraicGeometry.FormalDeformation.CompleteLocal.DerivationRestriction
 
 /-!
 # Restriction of residue derivations along morphisms in `Ĉ_Λ`
@@ -24,27 +17,11 @@ universe u
 variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-namespace CompleteLocalAlgCat
-namespace Hom
+#check (CompleteLocalAlgCat.Hom.mapDerivation :
+  ∀ {R S : CompleteLocalAlgCat Λ k} (f : CompleteLocalAlgCat.Hom R S),
+    Derivation Λ S.carrier k →ₗ[k] Derivation Λ R.carrier k)
 
-/-- The restriction map `Derivation Λ S.carrier k → Derivation Λ R.carrier k` induced by a
-morphism `f` in `CompleteLocalAlgCat Λ k`, given by precomposition with the underlying
-algebra map of `f`. -/
-def mapDerivation {R S : CompleteLocalAlgCat Λ k} (f : Hom R S) :
-    Derivation Λ S.carrier k →ₗ[k] Derivation Λ R.carrier k where
-  toFun D :=
-    { toLinearMap := D.toLinearMap.comp f.hom.toLinearMap
-      map_one_eq_zero' := sorry
-      leibniz' := sorry }
-  map_add' := sorry
-  map_smul' := sorry
-
-/-- The restriction of a residue derivation along `f` evaluates as precomposition with the
-underlying algebra map of `f`. -/
-theorem mapDerivation_apply {R S : CompleteLocalAlgCat Λ k} (f : Hom R S)
-    (D : Derivation Λ S.carrier k) (x : R.carrier) :
-    mapDerivation f D x = D (f.hom x) :=
-  sorry
-
-end Hom
-end CompleteLocalAlgCat
+#check (CompleteLocalAlgCat.Hom.mapDerivation_apply :
+  ∀ {R S : CompleteLocalAlgCat Λ k} (f : CompleteLocalAlgCat.Hom R S)
+    (D : Derivation Λ S.carrier k) (x : R.carrier),
+    CompleteLocalAlgCat.Hom.mapDerivation f D x = D (f.hom x))

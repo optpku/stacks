@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_37_1_Proper
-public import stacks_project.Chap101.Lemma_101_39_8_Uniqueness
-public import stacks_project.Chap101.Lemma_101_39_12_Existence
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Proper.ValuativeCriterion
+import StacksCheckRecall
 
 /-!
 # Valuative criterion for properness
@@ -25,26 +18,20 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.Proper
-
-/-- Lemma 101.43.1: Let `f : X ⟶ Y` be a morphism of algebraic stacks. Assume
+/- Lemma 101.43.1: Let `f : X ⟶ Y` be a morphism of algebraic stacks. Assume
 `f` is of finite type and quasi-separated. Then `f` is proper if and only if
 `f` satisfies both the uniqueness and existence parts of the valuative
 criterion. -/
-@[stacks 0CLZ]
-theorem iff_valuativeCriterion {S : Scheme.{u}} {X Y : GroupoidsOver S}
+@[stacks 0CLZ] #check (AlgebraicGeometry.AlgebraicStack.Proper.iff_valuativeCriterion :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    [FiniteType f] [QuasiSeparated f] :
-    Proper f ↔ ValuativeCriterion.Uniqueness f ∧ ValuativeCriterion.Existence f :=
-  sorry
+    [AlgebraicStack.FiniteType f] [AlgebraicStack.QuasiSeparated f],
+    AlgebraicStack.Proper f ↔ AlgebraicStack.ValuativeCriterion.Uniqueness f ∧
+      AlgebraicStack.ValuativeCriterion.Existence f)
 
-/-- A finite-type quasi-separated morphism of algebraic stacks that satisfies
-both the uniqueness and existence parts of the valuative criterion is proper. -/
-instance of_valuativeCriterion {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.Proper.of_valuativeCriterion :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    [FiniteType f] [QuasiSeparated f]
-    [ValuativeCriterion.Uniqueness f] [ValuativeCriterion.Existence f] :
-    Proper f :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.Proper
+    [AlgebraicStack.FiniteType f] [AlgebraicStack.QuasiSeparated f]
+    [AlgebraicStack.ValuativeCriterion.Uniqueness f]
+    [AlgebraicStack.ValuativeCriterion.Existence f], AlgebraicStack.Proper f)

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.Kaehler.DeRham.Connection.Adic
@@ -50,7 +44,7 @@ noncomputable def polynomialLeftWedge (degree : ℕ) :
 
 /-- Wedge by a completed base one-form in the completed polynomial forms. -/
 noncomputable def completedPolynomialLeftWedge (degree : ℕ) :
-    completedForm B p (formB A B δ) 1 →ₗ[completedRingB B p]
+    exteriorPower.completedForm B p (formB A B δ) 1 →ₗ[completedRingB B p]
       completedPolynomialForm A B δ ι p degree →ₗ[completedRingB B p]
         completedPolynomialForm A B δ ι p (degree + 1) :=
   (AdicCompletion.completeBilinear B p (polynomialLeftWedge A B δ ι degree)).comp
@@ -91,7 +85,7 @@ theorem polynomialLeftWedge_apply (degree : ℕ)
 
 /-- Wedge by a completed base one-form first applies the completed canonical form map. -/
 theorem completedPolynomialLeftWedge_apply (degree : ℕ)
-    (first : completedForm B p (formB A B δ) 1)
+    (first : exteriorPower.completedForm B p (formB A B δ) 1)
     (second : completedPolynomialForm A B δ ι p degree) :
     completedPolynomialLeftWedge A B δ ι p degree first second =
       AdicCompletion.completeBilinear B p (polynomialLeftWedge A B δ ι degree)

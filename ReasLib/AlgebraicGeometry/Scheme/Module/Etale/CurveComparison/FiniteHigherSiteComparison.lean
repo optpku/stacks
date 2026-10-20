@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.HigherSiteComparison
-public import stacks_project.Chap64.Remark_64_29_2_Cohomology
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.GeometricCohomology
 
 @[expose] public section
 open CategoryTheory CategoryTheory.Limits CategoryTheory.Action.ModuleCat
@@ -33,7 +27,7 @@ variable [∀ U : (geometricBaseChange X).Etale,
     HasWeakSheafify ((geometricBaseChange X).smallEtaleTopology.over U) (ModuleCat.{u + 1} Λ)]
 variable [EnoughInjectives (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
 variable [HasDerivedCategory (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
-variable [HasDerivedCategory (DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber ηbar)))]
+variable [HasDerivedCategory (DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)))]
 variable [HasDerivedCategory (ModuleCat.{u + 1} Λ)]
 variable [HasSheafify (geometricBaseChange X).smallEtaleTopology AddCommGrpCat.{u + 1}]
 variable [HasExt.{u + 1} (Sheaf (geometricBaseChange X).smallEtaleTopology AddCommGrpCat.{u + 1})]
@@ -45,7 +39,7 @@ variable [(geometricBaseChange X).smallEtaleTopology.HasSheafCompose
 identified by the already specified fiber projection/lift construction. -/
 def finiteRestrictionModelIso
     (M : (finiteTypeDiscreteModule Λ
-      (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))).FullSubcategory) :
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))).FullSubcategory) :
     (restriction Λ (geometricToArithmeticHom X) ηbar).obj M.obj ≅
       (Ambient.restriction Λ X ηbar).obj M.obj :=
   eqToIso (congrArg (fun φ ↦ (discreteModuleRes (R := Λ) φ).obj M.obj)
@@ -55,7 +49,7 @@ def finiteRestrictionModelIso
 arithmetic associated-sheaf API through actual base change and finite-input maps. -/
 def finiteGeometricSiteIso
     (M : (finiteTypeDiscreteModule Λ
-      (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))).FullSubcategory) (n : ℕ) :
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))).FullSubcategory) (n : ℕ) :
     (realizedCohomology Λ ηbar n).obj ((Ambient.restriction Λ X ηbar).obj M.obj) ≅
       geometricModuleEtaleHq X ((associatedSheafFunctor Λ (arithmeticPoint X ηbar)).obj M) n :=
   (siteModuleCohomologyModuleFunctor (J := (geometricBaseChange X).smallEtaleTopology)
@@ -69,7 +63,7 @@ def finiteGeometricSiteIso
 published finite associated sheaf, with its actual coefficient maps. -/
 def finiteGeometricCohomology (n : ℕ) :
     (finiteTypeDiscreteModule Λ
-      (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))).FullSubcategory ⥤ ModuleCat.{u + 1} Λ :=
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))).FullSubcategory ⥤ ModuleCat.{u + 1} Λ :=
   associatedSheafFunctor Λ (arithmeticPoint X ηbar) ⋙
     AmbientGeometry.modulePullback Λ (geometricToArithmeticHom X) ⋙
       siteModuleCohomologyModuleFunctor (J := (geometricBaseChange X).smallEtaleTopology) (A := Λ) n
@@ -82,7 +76,7 @@ def finiteHigherSiteComparisonIso
     (h_ne_P1 : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
     (hΛ : IsUnit (Nat.card Λ : k))
     (M : (finiteTypeDiscreteModule Λ
-      (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))).FullSubcategory) (n : ℕ) :
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))).FullSubcategory) (n : ℕ) :
     (Ambient.finiteCohomology Λ X ηbar n).obj M ≅
       geometricModuleEtaleHq X ((associatedSheafFunctor Λ (arithmeticPoint X ηbar)).obj M) n :=
   higherSiteComparisonIso Λ X ηbar h_ne_P1 hΛ ((Ambient.restriction Λ X ηbar).obj M.obj) n ≪≫
@@ -93,7 +87,7 @@ theorem finiteHigherSiteComparisonIso_naturality
     (h_ne_P1 : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
     (hΛ : IsUnit (Nat.card Λ : k))
     {M N : (finiteTypeDiscreteModule Λ
-      (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))).FullSubcategory} (a : M ⟶ N) (n : ℕ) :
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))).FullSubcategory} (a : M ⟶ N) (n : ℕ) :
     (Ambient.finiteCohomology Λ X ηbar n).map a ≫
         (finiteHigherSiteComparisonIso Λ X ηbar h_ne_P1 hΛ N n).hom =
       (finiteHigherSiteComparisonIso Λ X ηbar h_ne_P1 hΛ M n).hom ≫

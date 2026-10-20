@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.FormallyUnramified
@@ -76,5 +70,13 @@ theorem iff_exists_surjectiveEtaleSchemeSquare {S : Scheme.{u}}
         Etale a ∧ Etale b ∧ Function.Surjective (Points.map a) ∧
           Function.Surjective (Points.map b) ∧ CommSq (ofOverMap h) a b f ∧
             AlgebraicGeometry.FormallyUnramified h.left := sorry
+
+/-- On a commutative square of algebraic spaces with étale vertical arrows, the
+top arrow is formally unramified as soon as the bottom arrow is. -/
+theorem of_etaleCommSq {S : Scheme.{u}} {X Z U V : AlgebraicSpace S}
+    (fVU : V ⟶ U) (fVZ : V ⟶ Z) (fUX : U ⟶ X) (h : Z ⟶ X)
+    [FormallyUnramified h] [Etale fVZ] [Etale fUX]
+    (sq : CommSq fVU fVZ fUX h) : FormallyUnramified fVU :=
+  sorry
 
 end AlgebraicGeometry.AlgebraicSpace.FormallyUnramified

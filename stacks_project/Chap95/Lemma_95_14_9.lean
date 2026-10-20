@@ -1,20 +1,14 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.FiberedCategory.Fiber
-public import Mathlib.CategoryTheory.ObjectProperty.Small
-public import stacks_project.Chap95.Lemma_95_14_10_Torsors
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Torsor.Category
+import StacksCheckRecall
 
 /-!
 # Lemma 95.14.9
 
 The functor `p : G-Torsors ⟶ (Sch/S)_fppf` is a stack in groupoids, up to the
 small-fiber replacement of Remark 8.4.9.
+Fiberwise essential smallness supplies the size condition for that replacement.
 -/
 
 @[expose] public section
@@ -25,21 +19,19 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.GroupAlgebraicSpace.Torsors
-
-variable {S : Scheme.{u}} {B : AlgebraicSpace S}
-
-/-- Lemma 95.14.9: up to a replacement as in Remark 8.4.9, the functor
+/- Lemma 95.14.9: up to a replacement as in Remark 8.4.9, the functor
 `p : G-Torsors ⟶ (Sch/S)_fppf` sending `(U, b, X)` to `U` is a stack in groupoids
 over `(Sch/S)_fppf`. -/
-@[stacks 04US]
-instance isStackInGroupoids (G : GroupAlgebraicSpace B) :
-    IsStack.InGroupoids (Scheme.fppfTopology.over S) (forget G) := sorry
+@[stacks 04US] #check
+  (AlgebraicGeometry.GroupAlgebraicSpace.Torsors.instIsStackInGroupoids :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {G : GroupAlgebraicSpace B},
+      IsStack.InGroupoids (Scheme.fppfTopology.over S)
+        (AlgebraicGeometry.GroupAlgebraicSpace.Torsors.forget G))
 
-/-- Remark 8.4.9 condition (4): the fibre of `G`-Torsors over `U` is essentially
-small, so a small model exists via `StackOver.SmallModel`. -/
-theorem fibers_essentiallySmall (G : GroupAlgebraicSpace B) (U : Over S) :
+/- The fiberwise essential smallness supplies the size condition of
+Remark 8.4.9 for the replacement. -/
+#check (AlgebraicGeometry.GroupAlgebraicSpace.Torsors.fibers_essentiallySmall :
+  ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B) (U : Over S),
     ObjectProperty.EssentiallySmall.{u}
-      (⊤ : ObjectProperty ((forget G).Fiber U)) := sorry
-
-end AlgebraicGeometry.GroupAlgebraicSpace.Torsors
+      (⊤ : ObjectProperty
+        ((AlgebraicGeometry.GroupAlgebraicSpace.Torsors.forget G).Fiber U)))

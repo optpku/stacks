@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.Family.BaseChange
@@ -42,6 +36,8 @@ class IsEffectiveEpiFamily (K : Over.{w} U) : Prop where
   effectiveEpiFamily :
     EffectiveEpiFamily (fun i : K.index ↦ (K.obj i).left) (fun i ↦ (K.obj i).hom)
 
+attribute [instance] IsEffectiveEpiFamily.effectiveEpiFamily
+
 /-- Characterization of effective epi families. -/
 theorem isEffectiveEpiFamily_iff (K : Over.{w} U) :
     IsEffectiveEpiFamily K ↔
@@ -54,6 +50,7 @@ theorem IsEffectiveEpiFamily.presieveEffEpimorphic (K : Over.{w} U)
     K.toPresieve.EffectiveEpimorphic := sorry
 
 /-- Every component of an effective family admits pullbacks along arbitrary maps. -/
+@[instance]
 theorem IsEffectiveEpiFamily.hasPullbacksAlong
     (K : Over.{w} U) [IsEffectiveEpiFamily K] (i : K.index) :
     HasPullbacksAlong (K.obj i).hom := sorry

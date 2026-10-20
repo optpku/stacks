@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.LinearAlgebra.SymmetricAlgebra.Basic
@@ -12,6 +6,9 @@ import Mathlib.Tactic.CrossRefAttribute
 
 /-!
 # Symmetric algebras and base change
+
+The forward map extends the symmetric-algebra lift across scalar extension. The inverse lifts
+the generators transported by the inverse module base-change equivalence.
 
 @stack 0C6F
 -/
@@ -33,7 +30,14 @@ variable {f : M →ₗ[R] N}
 /-- Symmetric algebra commutes with an arbitrary module base change. -/
 @[stacks 0C6F "symmetric algebra under module base change"]
 noncomputable def symmetricAlgebraEquiv (h : IsBaseChange A f) :
-    A ⊗[R] SymmetricAlgebra R M ≃ₐ[A] SymmetricAlgebra A N := sorry
+    A ⊗[R] SymmetricAlgebra R M ≃ₐ[A] SymmetricAlgebra A N :=
+  let forward : A ⊗[R] SymmetricAlgebra R M →ₐ[A] SymmetricAlgebra A N :=
+    AlgHom.liftEquiv R A (SymmetricAlgebra R M) (SymmetricAlgebra A N)
+      (SymmetricAlgebra.lift ((SymmetricAlgebra.ι A N).restrictScalars R ∘ₗ f))
+  let inverse : SymmetricAlgebra A N →ₐ[A] A ⊗[R] SymmetricAlgebra R M :=
+    SymmetricAlgebra.lift
+      ((SymmetricAlgebra.ι R M).baseChange A ∘ₗ h.equiv.symm.toLinearMap)
+  AlgEquiv.ofAlgHom forward inverse (by sorry) (by sorry)
 
 /-- The symmetric-algebra base-change equivalence on source generators. -/
 @[simp, stacks 0C6F "symmetric algebra base change on generators"]

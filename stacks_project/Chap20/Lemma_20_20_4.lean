@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap20.Lemma_20_20_3
+public import Mathlib.CategoryTheory.Sites.SheafCohomology.Basic
 public import Mathlib.Topology.Spectral.Prespectral
 
 @[expose] public section
@@ -67,9 +62,9 @@ class HasAcyclicExtensionByZeroConstantIntegerSheaves
   isZero (U : CompactOpens Y) (p : ℕ) (hp : d < p) :
     IsZero ((j!ℤ[U.toOpens]).H' p (⊤ : Opens Y))
 
-/-- Typeclass form of the compact-open acyclicity hypothesis: for `p > d`, the extension-by-zero
+/-- Under the compact-open acyclicity hypothesis: for `p > d`, the extension-by-zero
 constant integer sheaf `j!ℤ[U.toOpens]` has vanishing global cohomology in degree `p`. -/
-instance instIsZeroExtensionByZeroConstantIntegerSheafOfHasAcyclicExtensionByZeroConstantIntegerSheaves
+theorem instIsZeroExtensionByZeroConstantIntegerSheafOfHasAcyclicExtensionByZeroConstantIntegerSheaves
     [PrespectralSpace X] [QuasiSeparatedSpace X]
     [HasSheafify JX AddCommGrpCat.{u}]
     [HasExt.{u} (Sheaf JX AddCommGrpCat.{u})]
@@ -78,11 +73,10 @@ instance instIsZeroExtensionByZeroConstantIntegerSheafOfHasAcyclicExtensionByZer
     IsZero ((j!ℤ[U.toOpens]).H' p (⊤ : Opens X)) :=
   hacyclic.isZero U p Fact.out
 
-/-- Typeclass form of Lemma 20.20.4: under the acyclicity hypothesis for the compact-open
-extension-by-zero constant integer sheaves, every cohomology object `H^p(X, 𝓕)` with `p > d`
-vanishes. -/
-instance instIsZeroHigherCohomologyOfAcyclicExtensionByZeroConstantIntegerSheaf
-    [PrespectralSpace X] [QuasiSeparatedSpace X]
+/-- Under the compact-open acyclicity hypothesis of Lemma 20.20.4, every cohomology object
+`H^p(X, 𝓕)` with `p > d` vanishes. -/
+theorem instIsZeroHigherCohomologyOfAcyclicExtensionByZeroConstantIntegerSheaf
+    [CompactSpace X] [PrespectralSpace X] [QuasiSeparatedSpace X]
     [HasSheafify JX AddCommGrpCat.{u}]
     [HasExt.{u} (Sheaf JX AddCommGrpCat.{u})]
     {d : ℕ} [hacyclic : HasAcyclicExtensionByZeroConstantIntegerSheaves X d]
@@ -90,12 +84,13 @@ instance instIsZeroHigherCohomologyOfAcyclicExtensionByZeroConstantIntegerSheaf
     IsZero (F.H' p (⊤ : Opens X)) := by
   sorry
 
-/-- Lemma 20.20.4: if `X` is prespectral and quasi-separated, and if `H^p(X, j!ℤ[U]) = 0` for
+/-- Lemma 20.20.4: if `X` is compact, prespectral and quasi-separated, and if
+`H^p(X, j!ℤ[U]) = 0` for
 every compact open `U` and every `p > d`, then `H^p(X, 𝓕) = 0` for every abelian sheaf `𝓕` and
 every `p > d`. -/
 @[stacks 02UX]
 theorem isZero_higherCohomology_of_acyclic_extensionByZeroConstantIntegerSheaf
-    [PrespectralSpace X] [QuasiSeparatedSpace X]
+    [CompactSpace X] [PrespectralSpace X] [QuasiSeparatedSpace X]
     [HasSheafify JX AddCommGrpCat.{u}]
     [HasExt.{u} (Sheaf JX AddCommGrpCat.{u})]
     (d : ℕ)

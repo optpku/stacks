@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Curve.StableOfGenus
@@ -32,7 +26,7 @@ equivalently with ample canonical dualizing module. -/
     isStableCurve X ↔ ∃ g : ℕ, IsStableFamilyOfGenus (g + 2) X.hom)
 
 #check (AlgebraicGeometry.eq_of_isStableFamilyOfGenus :
-  ∀ {X S : Scheme.{u}} {f : X ⟶ S} {g g' : ℕ},
+  ∀ {X S : Scheme.{u}} [Nonempty S] {f : X ⟶ S} {g g' : ℕ},
     IsStableFamilyOfGenus g f → IsStableFamilyOfGenus g' f → g = g')
 
 #check (AlgebraicGeometry.isStableFamilyOfGenus_iff_atWorstNodal_genus :

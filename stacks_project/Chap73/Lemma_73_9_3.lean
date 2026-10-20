@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap73.Lemma_73_9_3_FpqcCovering
-public import stacks_project.Chap73.Lemma_73_9_3_Stability
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Cover.Fpqc.Stability
 
 open CategoryTheory
 

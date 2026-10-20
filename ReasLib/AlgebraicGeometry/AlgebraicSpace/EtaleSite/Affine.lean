@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
 public import Mathlib.CategoryTheory.Sites.CoverLifting
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Presentation
 public import ReasLib.CategoryTheory.Sites.SpecialCocontinuous
 
 /-!
@@ -30,31 +24,78 @@ namespace AlgebraicGeometry.AlgebraicSpace
 
 /-- The object property selecting affine source schemes in the small étale site. -/
 def affineEtaleObjects {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    ObjectProperty (SmallEtale.site X) :=
+    ObjectProperty (smallEtaleSite X) :=
   fun U ↦ AlgebraicGeometry.IsAffine U.left.left
+
+/-- A small étale chart is selected precisely when its source scheme is affine. -/
+theorem mem_affineEtaleObjects_iff {S : Scheme.{u}} {X : AlgebraicSpace S}
+    {U : smallEtaleSite X} : affineEtaleObjects X U ↔ IsAffine U.left.left :=
+  Iff.rfl
 
 /-- The affine étale site is the full subcategory on affine source schemes. -/
 abbrev affineEtaleSite {S : Scheme.{u}} (X : AlgebraicSpace S) :=
   (affineEtaleObjects X).FullSubcategory
 
+/-- An étale morphism from an affine scheme over the base defines an affine étale chart. -/
+def affineEtaleSite.mk {S : Scheme.{u}} {X : AlgebraicSpace S} {U : Over S} [IsAffine U.left]
+    (φ : ofOver U ⟶ X) [Etale φ] : affineEtaleSite X where
+  obj := MorphismProperty.CostructuredArrow.mk ⊤ φ ‹_›
+  property := ‹IsAffine U.left›
+
+/-- The underlying small étale chart of a constructed affine chart is the chart of its map. -/
+@[simp]
+theorem affineEtaleSite.mk_obj {S : Scheme.{u}} {X : AlgebraicSpace S} {U : Over S}
+    [IsAffine U.left] (φ : ofOver U ⟶ X) [Etale φ] :
+    (affineEtaleSite.mk φ).obj = smallEtaleSite.mk φ :=
+  rfl
+
+/-- The underlying scheme over the base of a constructed affine chart is its domain. -/
+@[simp]
+theorem affineEtaleSite.mk_left {S : Scheme.{u}} {X : AlgebraicSpace S} {U : Over S}
+    [IsAffine U.left] (φ : ofOver U ⟶ X) [Etale φ] :
+    (affineEtaleSite.mk φ).obj.left = U :=
+  rfl
+
+/-- Every affine étale chart has an affine source scheme. -/
+instance affineEtaleSite_obj_isAffine {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (U : affineEtaleSite X) : IsAffine U.obj.left.left :=
+  U.property
+
 /-- The inclusion of the affine étale site into the small étale site. -/
 def affineEtaleInclusion {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    affineEtaleSite X ⥤ SmallEtale.site X :=
+    affineEtaleSite X ⥤ smallEtaleSite X :=
   (affineEtaleObjects X).ι
+
+/-- The affine étale inclusion is the full-subcategory inclusion of affine charts. -/
+theorem affineEtaleInclusion_def {S : Scheme.{u}} (X : AlgebraicSpace S) :
+    affineEtaleInclusion X = (affineEtaleObjects X).ι :=
+  rfl
+
+/-- The affine étale inclusion sends a chart to its underlying small étale chart. -/
+@[simp]
+theorem affineEtaleInclusion_obj {S : Scheme.{u}} {X : AlgebraicSpace S} (U : affineEtaleSite X) :
+    (affineEtaleInclusion X).obj U = U.obj :=
+  rfl
+
+/-- The affine étale inclusion sends a morphism to its underlying chart morphism. -/
+@[simp]
+theorem affineEtaleInclusion_map {S : Scheme.{u}} {X : AlgebraicSpace S}
+    {U V : affineEtaleSite X} (f : U ⟶ V) : (affineEtaleInclusion X).map f = f.hom :=
+  rfl
 
 /-- The forgetful functor from the affine étale site to schemes. -/
 abbrev affineEtaleToScheme {S : Scheme.{u}} (X : AlgebraicSpace S) :
     affineEtaleSite X ⥤ Scheme :=
-  affineEtaleInclusion X ⋙ SmallEtale.toScheme X
+  affineEtaleInclusion X ⋙ smallEtaleToScheme X
 
 /-- A presieve covers affinely when it covers in the small site and has a standard étale
 refinement after passage to schemes. -/
 def affineEtaleCovering {S : Scheme.{u}} (X : AlgebraicSpace S)
     {U : affineEtaleSite X} (R : Presieve U) : Prop :=
-  R.map (affineEtaleInclusion X) ∈ SmallEtale.precoverage X U.obj ∧
+  R.map (affineEtaleInclusion X) ∈ smallEtalePrecoverage X U.obj ∧
     ∃ (n : ℕ) (V : Fin n → Scheme)
       (f : (j : Fin n) → V j ⟶ (affineEtaleToScheme X).obj U),
-      (∀ j, IsAffine (V j)) ∧ (∀ j, Etale (f j)) ∧
+      (∀ j, IsAffine (V j)) ∧ (∀ j, AlgebraicGeometry.Etale (f j)) ∧
         (∀ t : (affineEtaleToScheme X).obj U, ∃ j, t ∈ Set.range (f j)) ∧
       Sieve.generate (R.map (affineEtaleToScheme X)) =
         Sieve.generate (Presieve.ofArrows V f)
@@ -64,22 +105,57 @@ def affineEtalePrecoverage {S : Scheme.{u}} (X : AlgebraicSpace S) :
     Precoverage (affineEtaleSite X) where
   coverings := fun _ ↦ { R | affineEtaleCovering X R }
 
+/-- A presieve covers in the affine étale precoverage precisely when it covers in the small
+site and generates the same sieve on schemes as a finite affine étale jointly surjective
+family. -/
+theorem mem_affineEtalePrecoverage_iff {S : Scheme.{u}} {X : AlgebraicSpace S}
+    {U : affineEtaleSite X} {R : Presieve U} :
+    R ∈ affineEtalePrecoverage X U ↔
+      R.map (affineEtaleInclusion X) ∈ smallEtalePrecoverage X U.obj ∧
+        ∃ (n : ℕ) (V : Fin n → Scheme)
+          (f : (j : Fin n) → V j ⟶ (affineEtaleToScheme X).obj U),
+          (∀ j, IsAffine (V j)) ∧ (∀ j, AlgebraicGeometry.Etale (f j)) ∧
+            (∀ t : (affineEtaleToScheme X).obj U, ∃ j, t ∈ Set.range (f j)) ∧
+          Sieve.generate (R.map (affineEtaleToScheme X)) =
+            Sieve.generate (Presieve.ofArrows V f) :=
+  Iff.rfl
+
+/-- A displayed affine chart family covers precisely when its image covers in the small
+site and generates the same sieve on schemes as a finite affine étale jointly surjective
+family. -/
+theorem ofArrows_mem_affineEtalePrecoverage_iff {S : Scheme.{u}} {X : AlgebraicSpace S}
+    {ι : Type v} {U : affineEtaleSite X} {V : ι → affineEtaleSite X} {f : ∀ i, V i ⟶ U} :
+    Presieve.ofArrows V f ∈ affineEtalePrecoverage X U ↔
+      Presieve.ofArrows (fun i ↦ (affineEtaleInclusion X).obj (V i))
+          (fun i ↦ (affineEtaleInclusion X).map (f i)) ∈
+        smallEtalePrecoverage X U.obj ∧
+        ∃ (n : ℕ) (W : Fin n → Scheme)
+          (g : (j : Fin n) → W j ⟶ (affineEtaleToScheme X).obj U),
+          (∀ j, IsAffine (W j)) ∧ (∀ j, AlgebraicGeometry.Etale (g j)) ∧
+            (∀ t : (affineEtaleToScheme X).obj U, ∃ j, t ∈ Set.range (g j)) ∧
+          Sieve.generate (Presieve.ofArrows (fun i ↦ (affineEtaleToScheme X).obj (V i))
+              (fun i ↦ (affineEtaleToScheme X).map (f i))) =
+            Sieve.generate (Presieve.ofArrows W g) := sorry
+
 /-- The affine étale topology generated by the affine precoverage. -/
 def affineEtaleTopology {S : Scheme.{u}} (X : AlgebraicSpace S) :
     GrothendieckTopology (affineEtaleSite X) :=
   (affineEtalePrecoverage X).toGrothendieck
 
+/-- The affine étale topology is generated by the affine étale precoverage. -/
+theorem affineEtaleTopology_def {S : Scheme.{u}} (X : AlgebraicSpace S) :
+    affineEtaleTopology X = (affineEtalePrecoverage X).toGrothendieck :=
+  rfl
+
 /-- The affine-to-small étale inclusion is special cocontinuous. -/
 instance affineEtaleInclusion_isSpecialCocontinuous {S : Scheme.{u}}
     (X : AlgebraicSpace S) :
     (affineEtaleInclusion X).IsSpecialCocontinuous
-      (affineEtaleTopology X) (SmallEtale.topology X) :=
-  sorry
+      (affineEtaleTopology X) (smallEtaleTopology X) := sorry
 
 /-- The opposite of the affine étale inclusion admits pointwise right Kan extensions. -/
 instance affineEtaleInclusion_op_hasPointwiseRightKanExtension {S : Scheme.{u}}
     (X : AlgebraicSpace S) (P : (affineEtaleSite X)ᵒᵖ ⥤ Type (u + 1)) :
-    (affineEtaleInclusion X).op.HasPointwiseRightKanExtension P :=
-  sorry
+    (affineEtaleInclusion X).op.HasPointwiseRightKanExtension P := sorry
 
 end AlgebraicGeometry.AlgebraicSpace

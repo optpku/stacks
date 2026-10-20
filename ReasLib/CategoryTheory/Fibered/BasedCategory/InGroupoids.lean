@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Bicategory.Equivalence
@@ -33,6 +27,54 @@ open scoped BasedFunctor Bicategory
 
 variable {C : Type u} [Category.{v} C]
 
+namespace BasedNatTrans
+
+universe uX vX uY vY
+
+variable {X : BasedCategory.{vX, uX} C} {Y : BasedCategory.{vY, uY} C}
+variable [Functor.IsFibered.InGroupoids Y.p] {F G : X ⥤ᵇ Y}
+
+/-- A vertical component is invertible by the original target's Cartesian
+universal property. The native inverse factors the identity through that component. -/
+noncomputable def componentIso (α : F ⟶ G) (a : X.obj) :
+    F.obj a ≅ G.obj a := by
+  letI : Y.p.IsHomLift (𝟙 (X.p.obj a)) (α.toNatTrans.app a) := α.isHomLift' a
+  letI : IsIso (Y.p.map (α.toNatTrans.app a)) := by
+    rw [IsHomLift.fac' Y.p (𝟙 (X.p.obj a)) (α.toNatTrans.app a)]
+    infer_instance
+  letI : Y.p.IsStronglyCartesian (Y.p.map (α.toNatTrans.app a))
+      (α.toNatTrans.app a) :=
+    Functor.IsFibered.isStronglyCartesian_of_isCartesian Y.p
+      (Y.p.map (α.toNatTrans.app a)) (α.toNatTrans.app a)
+  letI : IsIso (α.toNatTrans.app a) :=
+    Functor.IsStronglyCartesian.isIso_of_base_isIso Y.p
+      (Y.p.map (α.toNatTrans.app a)) (α.toNatTrans.app a)
+  exact asIso (α.toNatTrans.app a)
+
+/-- The component isomorphism has the supplied component as its forward map. -/
+@[simp]
+theorem componentIso_hom (α : F ⟶ G) (a : X.obj) :
+    (componentIso α a).hom = α.toNatTrans.app a := rfl
+
+/-- A based transformation into a category fibred in groupoids has an actual
+inverse, assembled from its native Cartesian component inverses. -/
+noncomputable def isoOfTargetInGroupoids (α : F ⟶ G) : F ≅ G :=
+  BasedNatIso.mkNatIso
+    (NatIso.ofComponents (componentIso α) (fun f ↦ α.toNatTrans.naturality f))
+    α.isHomLift'
+
+/-- The based isomorphism retains the supplied transformation. -/
+@[simp]
+theorem isoOfTargetInGroupoids_hom (α : F ⟶ G) :
+    (isoOfTargetInGroupoids α).hom = α := rfl
+
+/-- Its inverse uses the explicit native inverse at each component. -/
+@[simp]
+theorem isoOfTargetInGroupoids_inv_app (α : F ⟶ G) (a : X.obj) :
+    (isoOfTargetInGroupoids α).inv.toNatTrans.app a = (componentIso α a).inv := rfl
+
+end BasedNatTrans
+
 namespace BasedFunctor
 
 universe uX vX uY vY
@@ -54,11 +96,12 @@ implication apply the same argument to `F.asQuasiInverse.symm`. -/
 groupoid. This is the reusable hom-level reason that categories fibred in groupoids form a
 `(2,1)`-category.
 
-Proof strategy: regard every component of a based natural transformation as a morphism in the
-corresponding fiber of `Y.p`; it is invertible by `Functor.IsFibered.InGroupoids.fiberIsGroupoid`.
-Then use `NatIso.isIso_of_isIso_app` and reflection of isomorphisms by
-`BasedNatTrans.forgetful`. -/
-instance homGroupoid [Functor.IsFibered.InGroupoids Y.p] : IsGroupoid (X ⥤ᵇ Y) := sorry
+The inverse of each transformation is stored by
+`BasedNatTrans.isoOfTargetInGroupoids`, using the given target's Cartesian factors. -/
+instance homGroupoid [Functor.IsFibered.InGroupoids Y.p] : IsGroupoid (X ⥤ᵇ Y) where
+  all_isIso α := by
+    rw [← BasedNatTrans.isoOfTargetInGroupoids_hom α]
+    infer_instance
 
 end BasedFunctor
 

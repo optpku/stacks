@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_49_5
-public import stacks_project.Chap67.Definition_67_5_2_Surjective
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Normalization.Absolute.Properties
 import StacksCheckRecall
 
 /-!
@@ -32,7 +25,7 @@ namespace AlgebraicGeometry.AlgebraicSpace
 `S` satisfying the equivalent conditions of Lemma 67.49.1. Then the absolute
 normalization `X.normalization` is a normal algebraic space. -/
 @[stacks 0BB4] #check
-  (instIsNormal_normalization :
+  (AlgebraicGeometry.AlgebraicSpace.instIsNormal_normalization :
     ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
       [HasFiniteIrreducibleComponentsOnCompactOpens X],
       IsNormal X.normalization)
@@ -41,46 +34,42 @@ normalization `X.normalization` is a normal algebraic space. -/
 `S` satisfying the equivalent conditions of Lemma 67.49.1. Then the canonical
 morphism `X.normalizationTo` is integral. -/
 @[stacks 0BB4] #check
-  (instIsIntegralHom_normalizationTo :
+  (AlgebraicGeometry.AlgebraicSpace.instIsIntegralHom_normalizationTo :
     ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
       [HasFiniteIrreducibleComponentsOnCompactOpens X],
       IsIntegralHom X.normalizationTo)
 
-/-- Lemma 67.49.8 (3): let `S` be a scheme and let `X` be an algebraic space over
+/- Lemma 67.49.8 (2): let `S` be a scheme and let `X` be an algebraic space over
 `S` satisfying the equivalent conditions of Lemma 67.49.1. Then the canonical
 morphism `X.normalizationTo` is surjective. -/
-@[stacks 0BB4]
-instance instSurjective_normalizationTo {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [HasFiniteIrreducibleComponentsOnCompactOpens X] :
-    Surjective X.normalizationTo :=
-  sorry
+@[stacks 0BB4] #check
+  (AlgebraicGeometry.AlgebraicSpace.instSurjective_normalizationTo :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+      [HasFiniteIrreducibleComponentsOnCompactOpens X],
+      Surjective X.normalizationTo)
 
-namespace Normalization
-
-/-- Lemma 67.49.8 (4): let `S` be a scheme and let `X` be an algebraic space over
+/- Lemma 67.49.8 (3): let `S` be a scheme and let `X` be an algebraic space over
 `S` satisfying the equivalent conditions of Lemma 67.49.1. Then
 `Points.map X.normalizationTo` induces a bijection between the sets of
 codimension-`0` points of `X.normalization` and of `X`, in the sense of
 Definition 66.10.2. -/
-@[stacks 0BB4]
-theorem bijOn_codimZeroPoints {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [HasFiniteIrreducibleComponentsOnCompactOpens X] :
-    Set.BijOn (Points.map X.normalizationTo)
-      (codimZeroPoints X.normalization) (codimZeroPoints X) :=
-  sorry
+@[stacks 0BB4] #check
+  (AlgebraicGeometry.AlgebraicSpace.Normalization.bijOn_codimZeroPoints :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+      [HasFiniteIrreducibleComponentsOnCompactOpens X],
+      Set.BijOn (Points.map X.normalizationTo)
+        (codimZeroPoints X.normalization) (codimZeroPoints X))
 
-/-- Lemma 67.49.8 (5): let `S` be a scheme and let `X` be an algebraic space over
+/- Lemma 67.49.8 (4): let `S` be a scheme and let `X` be an algebraic space over
 `S` satisfying the equivalent conditions of Lemma 67.49.1. If `Z` is a normal
 algebraic space over `S` and `f : Z ⟶ X` sends every codimension-`0` point of
 `Z` to a codimension-`0` point of `X`, then there is a unique factorization
 `f = h ≫ X.normalizationTo`. -/
-@[stacks 0BB4]
-theorem existsUnique_lift_of_isNormal {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [HasFiniteIrreducibleComponentsOnCompactOpens X] {Z : AlgebraicSpace S}
-    [IsNormal Z] (f : Z ⟶ X) (hf : mapsCodimZero f) :
-    ∃! h : Z ⟶ X.normalization, h ≫ X.normalizationTo = f :=
-  sorry
-
-end Normalization
+@[stacks 0BB4] #check
+  (AlgebraicGeometry.AlgebraicSpace.Normalization.existsUnique_lift_of_isNormal :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+      [HasFiniteIrreducibleComponentsOnCompactOpens X] {Z : AlgebraicSpace S}
+      [IsNormal Z] (f : Z ⟶ X) (hf : mapsCodimZero f),
+      ∃! h : Z ⟶ X.normalization, h ≫ X.normalizationTo = f)
 
 end AlgebraicGeometry.AlgebraicSpace

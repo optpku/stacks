@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_7_12_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Differentials.BaseChange
 import StacksCheckRecall
 
 /-!
@@ -35,5 +29,5 @@ variable (hpb : IsPullback g' f' f g)
 morphism `g : Y' ⟶ Y`, if `X'` is the base change of `X` along `g` with projection
 `g' : X' ⟶ X`, then the comparison `(g')^* Ω_{X/Y} ⟶ Ω_{X'/Y'}` of Lemma 76.7.6 is an
 isomorphism. -/
-@[stacks 05ZC] #check (comparison_isIso_of_isPullback hpb :
+@[stacks 05ZC] #check (AlgebraicGeometry.AlgebraicSpace.Hom.Differentials.comparison_isIso_of_isPullback hpb :
   IsIso (comparison g' g f f' hpb.w))

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_7_3_ProperOver
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubset.Proper
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,11 +14,11 @@ namespace AlgebraicGeometry.AlgebraicSpace.ClosedSubset
 variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyOfFiniteType f]
 variable (T : TopologicalSpace.Closeds (Points X))
 
-/- Definition 75.7.2: the equivalent conditions of Lemma 75.7.1 /
-`isProperOver_tfae` define when the closed subset `T` of `Points X` is proper
-over `Y` along a locally of finite type morphism `f : X ⟶ Y` of algebraic
-spaces over the scheme `S`; equivalently, `IsProperOver f T` says that the
-reduced induced closed subspace of `T` is proper over `Y`. -/
-@[stacks 0CZD] #check (IsProperOver f T : Prop)
+/- Definition 75.7.2: the closed subset `T` is proper over `Y` when it is the
+existence of a closed-subspace structure proper over `Y`, expressed by a closed
+immersion with point image `T` and proper composite. Under the stated
+locally-of-finite-type hypothesis, this is equivalent to the reduced and
+universal closed-subspace conditions of Lemma 75.7.1. -/
+@[stacks 0CZD] #check (AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f T : Prop)
 
 end AlgebraicGeometry.AlgebraicSpace.ClosedSubset

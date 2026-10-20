@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.OverField
@@ -18,7 +12,7 @@ open CategoryTheory CategoryTheory.Limits
 
 noncomputable section
 
-universe u
+universe u moduleUniverse
 
 namespace AlgebraicGeometry.Scheme
 
@@ -69,8 +63,11 @@ theorem rationalEvenCohomology_def (X : QcqsOverQ.{u}) (i : ℕ) :
 /-- The binary biproduct presentation used by rational relative de Rham comparisons. -/
 noncomputable instance rationalCoefficientHasBinaryBiproducts (X : QcqsOverQ.{u}) :
     HasBinaryBiproducts
-      (RingedSpace.DeRham.coefficientSite X.obj.hom.toLRSHom.toShHom).ModuleCat :=
-  Abelian.hasBinaryBiproducts
+      (RingedSite.ModuleCat.{max u moduleUniverse}
+        (RingedSpace.DeRham.coefficientSite X.obj.hom.toLRSHom.toShHom)) :=
+  @Abelian.hasBinaryBiproducts _ _
+    (RingedSite.moduleCatAbelian.{max u moduleUniverse}
+      (RingedSpace.DeRham.coefficientSite X.obj.hom.toLRSHom.toShHom))
 
 /-- The graded tensor coproducts for rational relative coefficient modules. -/
 instance rationalCoefficientGradedHasTensor (X : QcqsOverQ.{u}) :
@@ -107,7 +104,7 @@ structure RationalChernTheory.{v} where
   /-- The rational algebra structure on each value. -/
   algebra : ∀ X, Algebra ℚ (A.obj (Opposite.op X))
   /-- The Chern-class theory axioms. -/
-  toTheory : @ChernClass.Theory QcqsOverQ _ QcqsOverQ.toScheme A Agrade gradedAlgebra
+  toTheory : @ChernClass.CohomologyTheory QcqsOverQ _ QcqsOverQ.toScheme A Agrade gradedAlgebra
   /-- Identification of degree `i` with `H_dR^(2i)(X/ℚ)`. -/
   componentEquiv : ∀ X i, Agrade X i ≃+ rationalEvenCohomology X i
   /-- The canonical constant-one class in relative degree zero. -/
@@ -215,7 +212,7 @@ def ofRealization
     (Agrade : ∀ X, ℕ → Submodule ℤ (A.obj (Opposite.op X)))
     (gradedAlgebra : ∀ X, GradedAlgebra (Agrade X))
     (algebra : ∀ X, Algebra ℚ (A.obj (Opposite.op X)))
-    (toTheory : @ChernClass.Theory QcqsOverQ _ QcqsOverQ.toScheme
+    (toTheory : @ChernClass.CohomologyTheory QcqsOverQ _ QcqsOverQ.toScheme
       A Agrade gradedAlgebra)
     (componentEquiv : ∀ X i, Agrade X i ≃+ rationalEvenCohomology X i)
     (cohomologyUnit : ∀ X : QcqsOverQ.{u}, cohomology X.obj.hom 0)
@@ -345,28 +342,28 @@ theorem pullback_spec (D : RationalChernTheory.{u}) {X' X : QcqsOverQ.{u}}
     D.deRhamPullback f i (D.componentEquiv X i a) =
       D.componentEquiv X' i
         ⟨D.A.map f.op a,
-          @ChernClass.Theory.pullback_mem _ _ QcqsOverQ.toScheme D.A D.Agrade
+          @ChernClass.CohomologyTheory.pullback_mem _ _ QcqsOverQ.toScheme D.A D.Agrade
             D.gradedAlgebra D.toTheory X' X f i a⟩ := sorry
 
 /-- The transported first Chern class is the Chapter 50 relative de Rham class. -/
 theorem firstChernClass_spec (D : RationalChernTheory.{u}) (X : QcqsOverQ.{u})
     (L : X.obj.left.PicardGroup) :
     D.componentEquiv X 1
-        (@ChernClass.Theory.firstChernClass _ _ QcqsOverQ.toScheme D.A D.Agrade
+        (@ChernClass.CohomologyTheory.firstChernClass _ _ QcqsOverQ.toScheme D.A D.Agrade
           D.gradedAlgebra D.toTheory X L) =
       (D.chernClass X).deRhamFirstChern L := sorry
 
 /-- The graded first Chern class carried by a rational de Rham realization. -/
 def gradedFirstChernClass (D : RationalChernTheory.{u}) :
     ∀ X, (QcqsOverQ.toScheme.obj X).PicardGroup →+ D.Agrade X 1 :=
-  @ChernClass.Theory.firstChernClass _ _ QcqsOverQ.toScheme D.A D.Agrade
+  @ChernClass.CohomologyTheory.firstChernClass _ _ QcqsOverQ.toScheme D.A D.Agrade
     D.gradedAlgebra D.toTheory
 
 /-- `gradedFirstChernClass` is the first Chern class of the underlying theory. -/
 theorem gradedFirstChernClass_apply (D : RationalChernTheory.{u})
     (X : QcqsOverQ.{u}) (L : (QcqsOverQ.toScheme.obj X).PicardGroup) :
     D.gradedFirstChernClass X L =
-      @ChernClass.Theory.firstChernClass _ _ QcqsOverQ.toScheme D.A D.Agrade
+      @ChernClass.CohomologyTheory.firstChernClass _ _ QcqsOverQ.toScheme D.A D.Agrade
         D.gradedAlgebra D.toTheory X L := sorry
 
 end RationalChernTheory

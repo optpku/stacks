@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.PowerSeries.Basic
@@ -79,68 +73,13 @@ structure TotalChernClass
       1 + PowerSeries.monomial 1
         (firstChernClass X L : A.obj (Opposite.op X))
 
-namespace TotalChernClass
-
-variable {C : Type u} [Category.{v} C] (toScheme : C ⥤ Scheme.{w})
-  (A : Cᵒᵖ ⥤ RingCat.{x})
-  (Agrade : ∀ X, ℕ → Submodule ℤ (A.obj (Opposite.op X)))
-  (firstChernClass : ∀ X, (toScheme.obj X).PicardGroup →+ Agrade X 1)
-
-/-- Construct a total Chern class from a rule satisfying its multiplicativity, normalization,
-grading, naturality, and line-bundle laws. -/
-def ofLaws
-    (app : ∀ X, Scheme.VectorBundleK0 (toScheme.obj X) →
-      PowerSeries (A.obj (Opposite.op X)))
-    (map_add : ∀ X (alpha beta : Scheme.VectorBundleK0 (toScheme.obj X)),
-      app X (alpha + beta) = app X alpha * app X beta)
-    (map_zero : ∀ X, app X 0 = 1)
-    (coeff_mem : ∀ X (alpha : Scheme.VectorBundleK0 (toScheme.obj X)) (i : ℕ),
-      PowerSeries.coeff i (app X alpha) ∈ Agrade X i)
-    (naturality : ∀ {X' X : C} (f : X' ⟶ X)
-        (alpha : Scheme.VectorBundleK0 (toScheme.obj X)),
-      PowerSeries.map (A.map f.op).hom (app X alpha) =
-        app X' (Scheme.VectorBundleK0.pullback (toScheme.map f) alpha))
-    (lineBundle : ∀ (X : C) (L : (toScheme.obj X).PicardGroup),
-      app X (picardK0Class (toScheme.obj X) L) =
-        1 + PowerSeries.monomial 1
-          (firstChernClass X L : A.obj (Opposite.op X))) :
-    TotalChernClass toScheme A Agrade firstChernClass where
-  app := app
-  map_add := map_add
-  map_zero := map_zero
-  coeff_mem := coeff_mem
-  naturality := naturality
-  lineBundle := lineBundle
-
-/-- The rule underlying `ofLaws` is the supplied rule. -/
-theorem ofLaws_app
-    (app : ∀ X, Scheme.VectorBundleK0 (toScheme.obj X) →
-      PowerSeries (A.obj (Opposite.op X)))
-    (map_add : ∀ X (alpha beta : Scheme.VectorBundleK0 (toScheme.obj X)),
-      app X (alpha + beta) = app X alpha * app X beta)
-    (map_zero : ∀ X, app X 0 = 1)
-    (coeff_mem : ∀ X (alpha : Scheme.VectorBundleK0 (toScheme.obj X)) (i : ℕ),
-      PowerSeries.coeff i (app X alpha) ∈ Agrade X i)
-    (naturality : ∀ {X' X : C} (f : X' ⟶ X)
-        (alpha : Scheme.VectorBundleK0 (toScheme.obj X)),
-      PowerSeries.map (A.map f.op).hom (app X alpha) =
-        app X' (Scheme.VectorBundleK0.pullback (toScheme.map f) alpha))
-    (lineBundle : ∀ (X : C) (L : (toScheme.obj X).PicardGroup),
-      app X (picardK0Class (toScheme.obj X) L) =
-        1 + PowerSeries.monomial 1
-          (firstChernClass X L : A.obj (Opposite.op X))) (X : C) :
-    (ofLaws toScheme A Agrade firstChernClass app map_add map_zero coeff_mem naturality
-      lineBundle).app X = app X := sorry
-
-end TotalChernClass
-
 /-- A graded cohomology theory satisfying the Chern-class axioms has a unique total Chern class
 on the Grothendieck groups of finite locally free modules. -/
 theorem existsUniqueTotalChernClass
     {C : Type u} [Category.{v} C] (toScheme : C ⥤ Scheme.{w})
     (A : Cᵒᵖ ⥤ RingCat.{x})
     (Agrade : ∀ X, ℕ → Submodule ℤ (A.obj (Opposite.op X)))
-    [∀ X, GradedAlgebra (Agrade X)] (S : Theory toScheme A Agrade) :
+    [∀ X, GradedAlgebra (Agrade X)] (S : CohomologyTheory toScheme A Agrade) :
     ∃ c : TotalChernClass toScheme A Agrade S.firstChernClass,
       ∀ c', c' = c := sorry
 

@@ -1,19 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Meromorphic.Pullback
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Meromorphic.UnitDenominators
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.InvertiblePullback
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Point.ResidualConstruction
-public import stacks_project.Chap72.Definition_72_4_1_Integral
-public import stacks_project.Chap68.Definition_68_11_2_ResidueField
-public import stacks_project.Chap68.Definition_68_22_1_GenericPoints
-public import stacks_project.Chap71.Definition_71_10_9_Regular
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Integral
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Point.GenericPoints
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Meromorphic.Regular
 public import Mathlib.LinearAlgebra.Dimension.Constructions
 public import Mathlib.LinearAlgebra.Pi
 

@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Topology.Spectral.Basic
-public import ReasLib.CategoryTheory.Fibered.Groupoids.Diagonal.Construction
-public import stacks_project.Chap100.Lemma_100_4_7_Topology
-public import stacks_project.Chap101.Definition_101_8_1_Noetherian
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Points.Spectral
+import StacksCheckRecall
 
 /-!
 # Spectral spaces of quasi-compact algebraic stacks with quasi-compact diagonal
@@ -28,15 +20,13 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 101.30.1: Let `X` be a quasi-compact algebraic stack whose diagonal `Δ`
+/- Lemma 101.30.1: Let `X` be a quasi-compact algebraic stack whose diagonal `Δ`
 is quasi-compact. Then `|X|` is a spectral topological space. -/
-@[stacks 0DQN]
-theorem spectralSpace_of_quasiCompact_diagonal {S : Scheme.{u}} (X : GroupoidsOver S)
-    [AlgebraicStack X] [IsQuasiCompact X]
-    (h_quasiCompact :
+@[stacks 0DQN] #check
+  (AlgebraicGeometry.AlgebraicStack.spectralSpace_of_quasiCompact_diagonal :
+    ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X] [IsQuasiCompact X],
       Groupoids.Hom.has (@AlgebraicSpace.QuasiCompact (Spec (.of (ULift.{u} ℤ))))
-        (diagonal.{u + 1, u, u + 1} (viewedOverSpecZ X))) :
-    SpectralSpace (Points X) :=
-  sorry
+        (diagonal.{u + 1, u, u + 1} (viewedOverSpecZ X)) →
+      SpectralSpace (Points X))
 
 end AlgebraicGeometry.AlgebraicStack

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Sheaf.Cohomology.Cech.ColimitComparison
@@ -124,6 +118,14 @@ def toComparison {κ : ClassMap (X := X)}
   map := c.map
   isColimitIso := DegreeOne.isColimitIso κ hκ c.coverwise
 
+/-- The certified degree-one comparison carried by a coverwise comparison datum.  This is the
+source-defined Cech-to-cohomology map used by the degree-one theorem. -/
+abbrev canonicalComparison {κ : ClassMap (X := X)}
+    (c : CoverwiseComparison (X := X) κ)
+    (hκ : ClassMap.IsBijective (X := X) κ) :
+    Comparison.{0, u, u + 1} (X := X) 1 :=
+  c.toComparison hκ
+
 /-- The functor-level isomorphism carried by a coverwise degree-one comparison. -/
 @[stacks 09V1 "degree-one global Cech comparison of coefficient functors"]
 noncomputable def iso {κ : ClassMap (X := X)}
@@ -145,11 +147,13 @@ noncomputable def isoApp {κ : ClassMap (X := X)}
 
 end CoverwiseComparison
 
-/-- Global degree-one Čech cohomology is isomorphic to first sheaf cohomology for every abelian
-sheaf on a topological space. -/
+/-- The source-defined degree-one Cech-to-cohomology map is an isomorphism. -/
 @[stacks 09V1 "degree-one global Cech cohomology comparison"]
-theorem isIsomorphic (F : X.Sheaf AddCommGrpCat.{u + 1}) :
-    IsIsomorphic (cohomology.{0, u, u + 1} F 1)
-      ((liftedTargetCohomology.{0, u, u + 1} X 1).obj F) := sorry
+theorem isIsomorphic {κ : ClassMap (X := X)}
+    (c : CoverwiseComparison (X := X) κ)
+    (hκ : ClassMap.IsBijective (X := X) κ)
+    (F : X.Sheaf AddCommGrpCat.{u + 1}) :
+    IsIso ((comparison (CoverwiseComparison.canonicalComparison c hκ).map).app F) :=
+  Comparison.isIso_app (CoverwiseComparison.canonicalComparison c hκ) F
 
 end TopCat.Sheaf.Cohomology.Cech.DegreeOne

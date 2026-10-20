@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.ExactFunctor
@@ -81,7 +75,7 @@ namespace RingedSite.Hom
 
 section LocalizedModuleCategory
 
-variable {X : RingedSite.{u, v, w}} (U : X)
+variable {X : RingedSite.{u, v, w}} (U : X.carrier)
 variable [UnivLE.{max u v, z}]
 
 /-- The localized module category has the canonical abelian structure of a ringed-site module
@@ -102,14 +96,14 @@ end LocalizedModuleCategory
 /-- Sheafification on an equiverse localized ringed site is inherited from its over-site
 topology. -/
 theorem localizedModuleCatHasSheafify
-    {X : RingedSite.{u, u, u}} (U : X) :
+    {X : RingedSite.{u, u, u}} (U : X.carrier) :
     HasSheafify (X.siteTopology.over U) AddCommGrpCat.{u} := by
   infer_instance
 
 /-- Ext groups on an equiverse localized ringed site use the small model supplied by its
 Grothendieck abelian module category. -/
 theorem localizedModuleCatHasExt
-    {X : RingedSite.{u, u, u}} (U : X)
+    {X : RingedSite.{u, u, u}} (U : X.carrier)
     [(X.siteTopology.over U).WEqualsLocallyBijective AddCommGrpCat.{u}] :
     HasExt.{u} (ModuleCat.{u} (X.localization U)) :=
   @IsGrothendieckAbelian.hasExt _ inferInstance
@@ -121,16 +115,14 @@ theorem localizedModuleCatHasExt
 /-- The exact functor on derived categories induced by restricting module sheaves to the
 localized ringed site `(X/U, 𝒪_U)`. -/
 abbrev localizedRestrictionDerived.{z', u', v', w'}
-    (X : _root_.RingedSite.{u', v', w'}) (U : X)
+    (X : _root_.RingedSite.{u', v', w'}) (U : X.carrier)
     [UnivLE.{max u' v', z'}] :
     ModuleDerived.{z'} X ⥤ ModuleDerived.{z'} (X.localization U) :=
   @CategoryTheory.Functor.mapDerivedCategory
     (ModuleCat.{z'} X) inferInstance inferInstance (moduleCat_hasDerivedCategory X)
     (ModuleCat.{z'} (X.localization U)) inferInstance (localizedModuleCatAbelian U)
       (localizedModuleCatHasDerivedCategory U)
-    (localizedRestriction.{z'} X U) (localizedRestriction_additive X U)
-      (localizedRestriction_preservesFiniteLimits X U)
-      (localizedRestriction_preservesFiniteColimits X U)
+    (localizedRestriction.{z'} X U) inferInstance inferInstance inferInstance
 
 namespace RingedSiteDerived
 

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Affine
-public import stacks_project.Chap106.Definition_106_12_1_Moduli
-public import stacks_project.Chap106.Definition_106_13_1_WellNighAffine
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.WellNighAffine.Moduli
+import StacksCheckRecall
 
 /-!
 # Uniform categorical moduli spaces of well-nigh affine stacks
@@ -26,16 +19,13 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.IsWellNighAffine
-
-/-- Lemma 106.13.6. Let the algebraic stack `X` be well-nigh affine. The morphism
+/- Lemma 106.13.6. Let the algebraic stack `X` be well-nigh affine. The morphism
 `f : X ⟶ M.toGroupoids` of Lemma 106.13.4 is a uniform categorical moduli space. -/
-@[stacks 0DUR, instance]
-instance instIsUniformCategoricalModuliSpace {S : Scheme.{u}} {X : GroupoidsOver S}
-    [AlgebraicStack X] [IsWellNighAffine X] {M : AlgebraicSpace S}
-    (f : X ⟶ M.toGroupoids)
-    [IsUniformCategoricalModuliSpaceIn (@AlgebraicSpace.IsAffine S) f] :
-    IsUniformCategoricalModuliSpace f :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.IsWellNighAffine
+@[stacks 0DUR] #check
+  (AlgebraicGeometry.AlgebraicStack.IsWellNighAffine.instIsUniformCategoricalModuliSpace :
+    ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+      [AlgebraicGeometry.AlgebraicStack.IsWellNighAffine X] {M : AlgebraicSpace S}
+      (f : X ⟶ M.toGroupoids)
+      [AlgebraicGeometry.AlgebraicStack.IsUniformCategoricalModuliSpaceIn
+        AlgebraicSpace.IsAffine f],
+      AlgebraicGeometry.AlgebraicStack.IsUniformCategoricalModuliSpace f)

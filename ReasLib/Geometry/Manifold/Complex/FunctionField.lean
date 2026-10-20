@@ -1,14 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Geometry.Manifold.Complex.CompactRiemannSurface
 public import ReasLib.Geometry.Manifold.Complex.MeromorphicFunctionField
+public import ReasLib.Geometry.Manifold.Complex.MeromorphicFunctionField.Pullback
+public import ReasLib.FieldTheory.Extension.Category
 public import ReasLib.FieldTheory.Transcendence.OneVariable
+public import Mathlib.CategoryTheory.Equivalence
 
 @[expose] public section
 
@@ -22,6 +19,7 @@ transcendence-degree-one API in `FieldExtension`.
 open scoped IntermediateField Manifold MeromorphicFunctionField
 open IntermediateField
 open IntermediateField.AdjoinSimple
+open CategoryTheory Opposite
 
 universe u
 
@@ -31,6 +29,52 @@ namespace CompactRiemannSurface
 `ℂ`. -/
 theorem functionField_trdeg_eq_one (X : CompactRiemannSurface.{u}) :
     Algebra.trdeg ℂ (ℂ(X)) = 1 := sorry
+
+/-- The meromorphic function field of a compact Riemann surface is finitely generated as a
+field extension of `ℂ`. It is essentially finite type as an algebra, rather than finite type. -/
+instance functionField_essFiniteType (X : CompactRiemannSurface.{u}) :
+    Algebra.EssFiniteType ℂ (ℂ(X)) := sorry
+
+/-- The contravariant function-field functor sends a nonconstant holomorphic map to pullback
+of meromorphic functions. -/
+noncomputable def functionFieldFunctor : CompactRiemannSurface.Nonconstant.{u} ⥤
+    (AlgebraicGeometry.FinitelyGeneratedFieldExtension.TranscendenceDegreeOne.{0, u} ℂ)ᵒᵖ where
+  obj X := op <| AlgebraicGeometry.FinitelyGeneratedFieldExtension.TranscendenceDegreeOne.of ℂ
+    ℂ(X.obj) (functionField_trdeg_eq_one X.obj)
+  map {X Y} f :=
+    (ObjectProperty.homMk <| ObjectProperty.homMk <| CommAlgCat.ofHom <|
+      MeromorphicFunctionField.pullback (X := X.obj) (Y := Y.obj) f.hom f.property).op
+  map_id X := sorry
+  map_comp f g := sorry
+
+/-- The underlying complex algebra of the functor's object is the meromorphic function field. -/
+@[simp]
+theorem functionFieldFunctor_obj (X : CompactRiemannSurface.Nonconstant.{u}) :
+    (functionFieldFunctor.obj X).unop.obj.obj = CommAlgCat.of ℂ ℂ(X.obj) := rfl
+
+/-- The algebra map underlying the functor's image of a morphism is meromorphic pullback. -/
+@[simp]
+theorem functionFieldFunctor_map {X Y : CompactRiemannSurface.Nonconstant.{u}} (f : X ⟶ Y) :
+    (functionFieldFunctor.map f).unop.hom.hom.hom =
+      MeromorphicFunctionField.pullback (X := X.obj) (Y := Y.obj) f.hom f.property := rfl
+
+/-- Every complex-algebra map between function fields is pullback by a nonconstant
+holomorphic map. -/
+instance functionFieldFunctor_full : functionFieldFunctor.{u}.Full := sorry
+
+/-- Nonconstant holomorphic maps are determined by pullback on meromorphic functions. -/
+instance functionFieldFunctor_faithful : functionFieldFunctor.{u}.Faithful := sorry
+
+/-- Every finitely generated complex field extension of transcendence degree one is in the
+essential image of the function-field functor. -/
+instance functionFieldFunctor_essSurj : functionFieldFunctor.{u}.EssSurj := sorry
+
+/-- Compact Riemann surfaces with nonconstant holomorphic maps are anti-equivalent to
+finitely generated complex field extensions of transcendence degree one. -/
+instance functionFieldFunctor_isEquivalence : functionFieldFunctor.{u}.IsEquivalence where
+  full := functionFieldFunctor_full
+  faithful := functionFieldFunctor_faithful
+  essSurj := functionFieldFunctor_essSurj
 
 /-- Every essentially finite type extension of `ℂ` of transcendence degree one is realized as the
 meromorphic function field of a compact Riemann surface. -/

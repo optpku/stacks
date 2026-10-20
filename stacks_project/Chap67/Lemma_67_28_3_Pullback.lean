@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
-public import Mathlib.CategoryTheory.MorphismProperty.Limits
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FinitePresentation.BaseChange
 public import stacks_project.Chap67.Lemma_67_28_8_FinitePresentation
 
 /-!
@@ -28,55 +21,34 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-namespace FinitePresentation
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePresentation.of_isPullback :
+  ∀ {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
+    {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X},
+    IsPullback f' g' g f → FinitePresentation g → FinitePresentation g')
 
-/-- Finite-presentation morphisms of algebraic spaces are stable under pullback
-along an arbitrary morphism, expressed by an `IsPullback` square. -/
-theorem of_isPullback {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
-    {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X}
-    (sq : IsPullback f' g' g f) (hg : FinitePresentation g) :
-    FinitePresentation g' := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePresentation.pullback_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} {f : X ⟶ Y},
+    FinitePresentation f → ∀ (g : Z ⟶ Y) [HasPullback f g],
+      FinitePresentation (pullback.snd f g))
 
-/-- The base-change projection `pullback.snd f g` of a finite-presentation
-morphism `f : X ⟶ Y` is of finite presentation. -/
-theorem pullback_snd {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} {f : X ⟶ Y}
-    (hf : FinitePresentation f) (g : Z ⟶ Y) [HasPullback f g] :
-    FinitePresentation (pullback.snd f g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.finitePresentation_pullback_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Z ⟶ Y),
+    [FinitePresentation f] → [HasPullback f g] →
+      FinitePresentation (pullback.snd f g))
 
-end FinitePresentation
+#check (AlgebraicGeometry.AlgebraicSpace.LocallyOfFinitePresentation.of_isPullback :
+  ∀ {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
+    {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X},
+    IsPullback f' g' g f → LocallyOfFinitePresentation g → LocallyOfFinitePresentation g')
 
-/-- Typeclass form of base-change stability for a finite-presentation morphism
-along a morphism for which the pullback exists. -/
-instance finitePresentation_pullback_snd {S : Scheme.{u}}
-    {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Z ⟶ Y)
-    [FinitePresentation f] [HasPullback f g] :
-    FinitePresentation (pullback.snd f g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.LocallyOfFinitePresentation.pullback_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} {f : X ⟶ Y},
+    LocallyOfFinitePresentation f → ∀ (g : Z ⟶ Y) [HasPullback f g],
+      LocallyOfFinitePresentation (pullback.snd f g))
 
-namespace LocallyOfFinitePresentation
-
-/-- Locally-of-finite-presentation morphisms of algebraic spaces are stable
-under pullback along an arbitrary morphism, expressed by an `IsPullback`
-square. -/
-theorem of_isPullback {S : Scheme.{u}} {X Y Y' B : AlgebraicSpace S}
-    {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X}
-    (sq : IsPullback f' g' g f) (hg : LocallyOfFinitePresentation g) :
-    LocallyOfFinitePresentation g' := sorry
-
-/-- The base-change projection `pullback.snd f g` of a
-locally-of-finite-presentation morphism `f : X ⟶ Y` is locally of finite
-presentation. -/
-theorem pullback_snd {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} {f : X ⟶ Y}
-    (hf : LocallyOfFinitePresentation f) (g : Z ⟶ Y) [HasPullback f g] :
-    LocallyOfFinitePresentation (pullback.snd f g) := sorry
-
-end LocallyOfFinitePresentation
-
-/-- Typeclass form of base-change stability for a
-locally-of-finite-presentation morphism along a morphism for which the
-pullback exists. -/
-instance locallyOfFinitePresentation_pullback_snd {S : Scheme.{u}}
-    {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Z ⟶ Y)
-    [LocallyOfFinitePresentation f] [HasPullback f g] :
-    LocallyOfFinitePresentation (pullback.snd f g) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.locallyOfFinitePresentation_pullback_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Z ⟶ Y),
+    [LocallyOfFinitePresentation f] → [HasPullback f g] →
+      LocallyOfFinitePresentation (pullback.snd f g))
 
 end AlgebraicGeometry.AlgebraicSpace

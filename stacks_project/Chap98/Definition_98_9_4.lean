@@ -1,20 +1,17 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap98.Definition_98_9_4_Effective
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.FormalObject.Effective
 import StacksCheckRecall
 
 @[expose] public section
 
-open AlgebraicGeometry.GroupoidsOver
+universe u
 
 /- Definition 98.9.4: for a locally Noetherian scheme `S` and a category `X`
 fibred in groupoids over `(Sch/S)_fppf`, a formal object `ξ = (R, ξ_n, f_n)` of
 `X` is effective if it lies in the essential image of the approximation functor
 `98.9.3.1`. -/
-@[stacks 07X7] #check FormalObject.IsEffective
+@[stacks 07X7] #check (AlgebraicGeometry.GroupoidsOver.FormalObject.IsEffective :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} [AlgebraicGeometry.IsLocallyNoetherian S]
+    {X : AlgebraicGeometry.GroupoidsOver S},
+    AlgebraicGeometry.GroupoidsOver.FormalObject X → Prop)

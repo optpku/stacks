@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Complex.Cohomology
@@ -66,10 +60,10 @@ theorem isSubquotient_of_limitPageQuotient
 subquotient of the canonical infinity page. -/
 @[stacks 012Q "cohomology graded pieces as canonical infinity-page subquotients"]
 theorem isSubquotient_of_infinityPage
+    [LocallySmall.{v} C] [WellPowered.{v} C]
+    [HasWidePullbacks.{v} C] [HasCoproducts.{v} C]
     (K : FilteredComplex C) (E : CohomologicalSpectralSequence C 0)
-    (hAssoc : FilteredComplex.IsAssociated K E) (n p : ℤ)
-    [CompleteLattice
-      (Subobject ((CohomologicalSpectralSequence.Page.One.ofZero E).pageObject (p, n - p) 1))] :
+    (hAssoc : FilteredComplex.IsAssociated K E) (n p : ℤ) :
     IsSubquotient ((K.inducedCohomologyFiltration n).gradedPiece p)
       ((CohomologicalSpectralSequence.Page.One.ofZero E).infinityPage (p, n - p)) := sorry
 

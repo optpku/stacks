@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Topology.Sheaves.Functors
@@ -82,7 +76,6 @@ noncomputable def pullbackCorep (f : X ⟶ Y) (U : Opens Y) :
 
 /-- Pullback carries the sheafified free abelian Yoneda object at `U` to the corresponding
 object at the inverse-image open. -/
-@[stacks 09V3 "free abelian Yoneda pullback"]
 noncomputable def pullbackIso (f : X ⟶ Y) (U : Opens Y) :
     GrothendieckTopology.FreeAbelianYoneda.obj
         (Opens.grothendieckTopology X) ((Opens.map f).obj U) ≅
@@ -102,7 +95,6 @@ theorem pullbackIso_naturality (f : X ⟶ Y) {U V : Opens Y} (i : U ⟶ V) :
             (Opens.grothendieckTopology Y) i) := sorry
 
 /-- The pullback comparison for free abelian Yoneda objects, natural in the represented open. -/
-@[stacks 09V3 "free abelian Yoneda pullback, natural form"]
 noncomputable def pullbackNatIso (f : X ⟶ Y) :
     Opens.map f ⋙ GrothendieckTopology.FreeAbelianYoneda.functor
         (Opens.grothendieckTopology X) ≅

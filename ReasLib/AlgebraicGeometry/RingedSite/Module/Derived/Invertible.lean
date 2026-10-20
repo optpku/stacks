@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Monoidal.Functor
@@ -41,13 +35,13 @@ universe u v w z
 namespace RingedSite.Hom.ModuleDerived
 
 variable {X : RingedSite.{u, v, w}} [UnivLE.{max u v, z}]
-variable [∀ U : X, MonoidalCategory (ModuleCat.{z} (X.localization U))]
+variable [∀ U : X.carrier, MonoidalCategory (ModuleCat.{z} (X.localization U))]
 
 /-- Derived module sheaves which are locally shifts of invertible modules, as an object
 property. -/
 @[stacks 0FPY "local shifted-invertibility object property"]
 def locallyShiftedInvertible : ObjectProperty (ModuleDerived.{z} X) :=
-  fun M ↦ ∀ U : X, ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
+  fun M ↦ ∀ U : X.carrier, ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
     ∃ n : ℤ, ∃ L : ModuleCat.{z} (X.localization I.Y),
       Functor.IsEquivalence (tensorRight L) ∧
         IsIsomorphic
@@ -77,7 +71,7 @@ end LocallyShiftedInvertible
 /-- Local shifted invertibility supplies a cover and shifted invertible module on every cover
 member. -/
 theorem IsLocallyShiftedInvertible.exists_cover
-    {M : ModuleDerived.{z} X} (hM : IsLocallyShiftedInvertible M) (U : X) :
+    {M : ModuleDerived.{z} X} (hM : IsLocallyShiftedInvertible M) (U : X.carrier) :
     ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
       ∃ n : ℤ, ∃ L : ModuleCat.{z} (X.localization I.Y),
         Functor.IsEquivalence (tensorRight L) ∧
@@ -113,8 +107,7 @@ variable [MonoidalCategory
 variable [∀ U : C,
   MonoidalCategory (ModuleCat ((RingedSite.ofCommRingSheaf J O).localization U))]
 
-/-- Lemma 21.49.2 (3): on a locally ringed site, a derived module sheaf is invertible exactly
-when it is locally a shift of an invertible module. -/
+/-- On a locally ringed site, a derived module sheaf is invertible exactly when it is locally a shift of an invertible module. -/
 @[stacks 0FPY "(3)"]
 theorem isInvertible_iff_isLocallyShiftedInvertible
     (M : ModuleDerived (RingedSite.ofCommRingSheaf J O)) :

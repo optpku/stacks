@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Limit.QcqsAffine.DerivedHom.Colimit
@@ -36,6 +30,8 @@ quasi-coherent homology and either `E₀` is perfect or `E₀` is pseudo-coheren
 @[stacks 09RE] #check
   (AlgebraicGeometry.Scheme.Limit.QcqsAffineLimit.DerivedHom.diagram_isColimit :
     ∀ (s : Scheme.Limit.QcqsAffineLimit D)
+      [DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules (D.obj (OrderDual.toDual s.base)).toRingedSpace)]
       (E₀ K₀ : RingedSpace.ModuleDerived
         (D.obj (OrderDual.toDual s.base)).toRingedSpace),
       DerivedCategory.cohomologyIn

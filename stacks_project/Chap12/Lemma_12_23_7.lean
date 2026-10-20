@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Filtration.DifferentialObject
@@ -27,7 +21,8 @@ universe v u
 
 variable {C : Type u} [Category.{v} C] [Abelian C]
 variable (K : HomologicalComplex (FilteredObject C) (ComplexShape.refl PUnit.{1}))
-variable [CompleteLattice (Subobject ((K.X PUnit.unit).obj))]
+variable [LocallySmall.{v} C] [WellPowered.{v} C]
+  [HasWidePullbacks.{v} C] [HasCoproducts.{v} C]
 
 /- Lemma 12.23.7 (1) [012J]: under complete subobject lattices, the canonical
 weak-convergence representative criterion is the formal expression of the two pagewise

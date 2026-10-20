@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Example_76_52_2_OverField
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Perfect.Relative.OverField
 import StacksCheckRecall
 
 @[expose] public section
@@ -23,9 +17,8 @@ pseudo-coherent. -/
 @[stacks 0DKP] #check
   (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.OverField.isPerfectRelativeTo_iff_bounded_and_pseudoCoherent :
     ∀ {k : Type u} [Field k] (X : AlgebraicSpace (Spec (.of k)))
-      [FinitePresentation (toBase X)]
-      (E : ModuleDerived X),
-      IsPerfectRelativeTo (toBase X) E ↔
+      [FinitePresentation (SchemeRealization.toBase X)] (E : ModuleDerived X),
+      IsPerfectRelativeTo (SchemeRealization.toBase X) E ↔
         (t.bounded : ObjectProperty (ModuleDerived X)) E ∧ IsPseudoCoherent X E)
 
 /- Example 76.52.2 (2): over a field, an object of `D(𝒪_X)` on an algebraic space of
@@ -35,9 +28,8 @@ relative condition and does not assert perfectness on every fibre. -/
 @[stacks 0DKP] #check
   (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.OverField.isPerfectRelativeTo_iff_bounded_and_coherentCohomology :
     ∀ {k : Type u} [Field k] (X : AlgebraicSpace (Spec (.of k)))
-      [FinitePresentation (toBase X)]
-      (E : ModuleDerived X),
-      IsPerfectRelativeTo (toBase X) E ↔
+      [FinitePresentation (SchemeRealization.toBase X)] (E : ModuleDerived X),
+      IsPerfectRelativeTo (SchemeRealization.toBase X) E ↔
         (t.bounded : ObjectProperty (ModuleDerived X)) E ∧
           DerivedCategory.cohomologyIn
             (SheafOfModules.isCoherent (structureSheaf X)) E)

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Data.List.TFAE
-public import stacks_project.Chap100.Lemma_100_6_2_Cover
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.QuasiCompact.Cover
+import StacksCheckRecall
 
 /-!
 # Characterizations of quasi-compact algebraic stacks
@@ -30,7 +24,7 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 100.6.2: Let `X` be an algebraic stack. The following are equivalent:
+/- Lemma 100.6.2: Let `X` be an algebraic stack. The following are equivalent:
 `X` is quasi-compact; there exists a surjective smooth morphism `U ⟶ X` with
 `U` an affine scheme; there exists a surjective smooth morphism `U ⟶ X` with
 `U` a quasi-compact scheme; there exists a surjective smooth morphism `U ⟶ X`
@@ -40,43 +34,18 @@ morphism `𝒰 ⟶ X` of algebraic stacks such that `𝒰` is quasi-compact.
 Source (1) (`|X|` is quasi-compact) is represented by `IsQuasiCompact`, because
 Definition 100.6.1 took a surjective smooth atlas from a quasi-compact scheme
 as the owner. -/
-@[stacks 04YC]
-theorem isQuasiCompact_tfae {S : Scheme.{u}} (X : GroupoidsOver S)
-    [AlgebraicStack X] :
+@[stacks 04YC] #check (AlgebraicGeometry.AlgebraicStack.isQuasiCompact_tfae :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
     List.TFAE
       [ IsQuasiCompact X
-      , existsAffineSmoothCover X
-      , existsQuasiCompactSchemeSmoothCover X
-      , existsQuasiCompactSpaceSmoothCover X
-      , existsQuasiCompactSurjection X ] :=
-  sorry
-
-/-- An algebraic stack is quasi-compact if and only if it admits a surjective
-smooth atlas from an affine scheme. -/
-theorem isQuasiCompact_iff_existsAffineSmoothCover {S : Scheme.{u}}
-    {X : GroupoidsOver S} [AlgebraicStack X] :
-    IsQuasiCompact X ↔ existsAffineSmoothCover X :=
-  sorry
-
-/-- An algebraic stack is quasi-compact if and only if it admits a surjective
-smooth atlas from a quasi-compact scheme. -/
-theorem isQuasiCompact_iff_existsQuasiCompactSchemeSmoothCover {S : Scheme.{u}}
-    {X : GroupoidsOver S} [AlgebraicStack X] :
-    IsQuasiCompact X ↔ existsQuasiCompactSchemeSmoothCover X :=
-  sorry
-
-/-- An algebraic stack is quasi-compact if and only if it admits a surjective
-smooth atlas from a quasi-compact algebraic space. -/
-theorem isQuasiCompact_iff_existsQuasiCompactSpaceSmoothCover {S : Scheme.{u}}
-    {X : GroupoidsOver S} [AlgebraicStack X] :
-    IsQuasiCompact X ↔ existsQuasiCompactSpaceSmoothCover X :=
-  sorry
-
-/-- An algebraic stack is quasi-compact if and only if it admits a surjective
-morphism from a quasi-compact algebraic stack. -/
-theorem isQuasiCompact_iff_existsQuasiCompactSurjection {S : Scheme.{u}}
-    {X : GroupoidsOver S} [AlgebraicStack X] :
-    IsQuasiCompact X ↔ existsQuasiCompactSurjection X :=
-  sorry
+      , ∃ (U : Over S) (p : GroupoidsOver.slice U ⟶ X),
+          Groupoids.Hom.Smooth p ∧ Groupoids.Hom.Surjective p ∧ IsAffine U.left
+      , ∃ (U : Over S) (p : GroupoidsOver.slice U ⟶ X),
+          Groupoids.Hom.Smooth p ∧ Groupoids.Hom.Surjective p ∧ CompactSpace U.left
+      , ∃ (U : AlgebraicSpace S) (p : U.toGroupoids ⟶ X),
+          Groupoids.Hom.Smooth p ∧ Groupoids.Hom.Surjective p ∧
+            AlgebraicSpace.IsQuasiCompact U
+      , ∃ (U : AlgebraicStacks S) (p : AlgebraicStacks.toGroupoids U ⟶ X),
+          Surjective p ∧ IsQuasiCompact (AlgebraicStacks.toGroupoids U) ])
 
 end AlgebraicGeometry.AlgebraicStack

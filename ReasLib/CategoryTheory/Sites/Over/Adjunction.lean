@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.Over
@@ -33,8 +27,8 @@ variable {C : Type u} [Category.{v} C]
 
 /-- Pullback on slice categories is continuous for the induced topologies whenever the required
 pullbacks exist. -/
-@[stacks 00XY "continuity of pullback on slice sites", instance]
-instance overPullback_isContinuous (J : GrothendieckTopology C)
+@[stacks 00XY "continuity of pullback on slice sites"]
+theorem overPullback_isContinuous (J : GrothendieckTopology C)
     {X Y : C} (f : X ⟶ Y) [HasPullbacksAlong f] :
     (Over.pullback f).IsContinuous (J.over Y) (J.over X) := sorry
 
@@ -44,7 +38,8 @@ noncomputable abbrev overMapPushforward
     (J : GrothendieckTopology C) (A : Type w) [Category.{t} A]
     {X Y : C} (f : X ⟶ Y) [HasPullbacksAlong f] :
     Sheaf (J.over X) A ⥤ Sheaf (J.over Y) A :=
-  (Over.pullback f).sheafPushforwardContinuous A (J.over Y) (J.over X)
+  @Functor.sheafPushforwardContinuous _ _ _ _ (Over.pullback f) A _
+    (J.over Y) (J.over X) (J.overPullback_isContinuous f)
 
 /-- The continuous and cocontinuous presentations of direct image on a slice site are canonically
 isomorphic. -/
@@ -55,8 +50,9 @@ noncomputable def overMapPushforwardIsoCocontinuous
     [∀ P : (Over X)ᵒᵖ ⥤ A, (Over.map f).op.HasPointwiseRightKanExtension P] :
     J.overMapPushforward A f ≅
       (Over.map f).sheafPushforwardCocontinuous A (J.over X) (J.over Y) :=
-  Functor.ContinuousRightAdjoint.pushforwardContinuousIso
-    (Over.map f) (Over.pullback f) A (Over.mapPullbackAdj f)
+  @Functor.ContinuousRightAdjoint.pushforwardContinuousIso _ _ _ _
+    (J.over X) (J.over Y) (Over.map f) (Over.pullback f) A _
+    (Over.mapPullbackAdj f) (J.overPullback_isContinuous f) inferInstance inferInstance
 
 /-- The inverse-image/continuous-direct-image adjunction on sheaves over slice sites. -/
 @[stacks 00XY "slice inverse-image/direct-image adjunction"]
@@ -64,8 +60,9 @@ noncomputable def overMapPushforwardAdjunction
     (J : GrothendieckTopology C) (A : Type w) [Category.{t} A]
     {X Y : C} (f : X ⟶ Y) [HasPullbacksAlong f] :
     J.overMapPullback A f ⊣ J.overMapPushforward A f :=
-  Adjunction.sheafPushforwardContinuous
-    (Over.mapPullbackAdj f) (J.over X) (J.over Y)
+  @Adjunction.sheafPushforwardContinuous _ _ _ _ A _ _ _
+    (Over.mapPullbackAdj f) (J.over X) (J.over Y) inferInstance
+    (J.overPullback_isContinuous f)
 
 /-- The inverse-image/cocontinuous-direct-image adjunction on sheaves over slice sites. -/
 @[stacks 00XY "slice inverse-image/cocontinuous-direct-image adjunction"]

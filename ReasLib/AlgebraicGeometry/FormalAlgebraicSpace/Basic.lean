@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.AffineScheme
@@ -13,6 +7,7 @@ public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
 public import Mathlib.CategoryTheory.Limits.Types.Limits
 public import Mathlib.CategoryTheory.Sites.LocallyInjective
 public import Mathlib.CategoryTheory.Yoneda
+public import Mathlib.CategoryTheory.Whiskering
 public import Mathlib.Order.Directed
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleLocal
@@ -97,6 +92,22 @@ class IsDirectedAffineThickeningColimit {S : Scheme.{u}} {Λ : Type v} [Preorder
           Presheaf.IsLocallyInjective (Scheme.fppfTopology.over S) η
 
 namespace IsDirectedAffineThickeningColimit
+
+/-- A compatible isomorphism of diagrams preserves the affine thickening presentation. -/
+theorem of_iso {S : Scheme.{u}} {Λ : Type v} [Preorder Λ]
+    [IsDirected Λ (· ≤ ·)] {D E : Λ ⥤ Over S}
+    {X : (Over S)ᵒᵖ ⥤ Type u} (e : D ≅ E)
+    (h : IsDirectedAffineThickeningColimit D X) :
+    IsDirectedAffineThickeningColimit E X := by
+  refine ⟨?_, ?_, h.isSheaf, ?_⟩
+  · intro i
+    sorry
+  · intro i j f
+    sorry
+  · obtain ⟨c, η, ⟨hc⟩, hsurj, hinj⟩ := h.exists_colimit
+    let eYoneda := Functor.isoWhiskerRight e.symm yoneda
+    exact ⟨(Cocone.precompose eYoneda.hom).obj c, η,
+      ⟨(IsColimit.precomposeHomEquiv eYoneda c).symm hc⟩, hsurj, hinj⟩
 
 /-- The constant `PUnit`-indexed diagram on an affine scheme is a directed affine
 thickening colimit of its representable functor. -/

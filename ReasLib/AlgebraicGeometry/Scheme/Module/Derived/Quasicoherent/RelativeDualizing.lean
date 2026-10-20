@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Quasicoherent.RightAdjoint.ProperFlat
@@ -22,6 +16,8 @@ open RingedSite.Hom.DerivedAdjunction
 noncomputable section
 
 universe u
+
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
 
 namespace AlgebraicGeometry.Scheme.DerivedQCoh
 
@@ -148,6 +144,10 @@ quasi-compact quasi-separated scheme is perfect relative to the base. -/
 theorem relativeDualizingComplex_isPerfectRelativeTo
     {X Y : Scheme.{u}} [CompactSpace Y] [QuasiSeparatedSpace Y]
     (f : X ⟶ Y) [IsProper f] [Flat f] [Scheme.Hom.FinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     (a : DerivedQCoh Y ⥤ DerivedQCoh X)
     (aAdjunction : pushforwardCohomologyIn f ⊣ a) :
     ModuleDerived.IsPerfectRelativeTo f

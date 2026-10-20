@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Perfect.LocallyFree
@@ -27,6 +21,7 @@ namespace AlgebraicGeometry.Scheme.ModuleDerived
 cohomology sheaves are perfect of Tor dimension at most one, every differential image and
 cycle object is finite locally free. -/
 theorem cyclesAndBoundaries_finiteLocallyFree {X : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (E : RingedSpace.ModuleDerived X.toRingedSpace)
     (K : _root_.CochainComplex X.Modules ℤ) (e : E ≅ DerivedCategory.Q.obj K)
     (hE : RingedSpace.ModuleDerived.IsPerfect E)
@@ -41,6 +36,7 @@ theorem cyclesAndBoundaries_finiteLocallyFree {X : Scheme.{u}}
 /-- The canonical upper truncations of such a representative and the cokernels of adjacent
 truncation maps are bounded complexes of finite locally free modules. -/
 theorem truncLE_finiteLocallyFree {X : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (E : RingedSpace.ModuleDerived X.toRingedSpace)
     (K : _root_.CochainComplex X.Modules ℤ) (e : E ≅ DerivedCategory.Q.obj K)
     (hE : RingedSpace.ModuleDerived.IsPerfect E)
@@ -57,6 +53,7 @@ theorem truncLE_finiteLocallyFree {X : Scheme.{u}}
 /-- The cokernel sequence of adjacent upper truncations is short exact, and its quotient
 represents the corresponding cohomology sheaf placed in its cochain degree. -/
 theorem truncationStep_representsCohomology {X : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (E : RingedSpace.ModuleDerived X.toRingedSpace)
     (K : _root_.CochainComplex X.Modules ℤ) (e : E ≅ DerivedCategory.Q.obj K)
     (hE : RingedSpace.ModuleDerived.IsPerfect E)

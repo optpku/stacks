@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap94.Definition_94_16_5_Quotient
-public import stacks_project.Chap94.Lemma_94_10_11
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quotient.Diagonal
+import StacksCheckRecall
 
 /-!
 # Diagonal of a quotient stack
@@ -26,27 +20,22 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.GroupoidAlgebraicSpace
-
-/-- Lemma 94.17.1: let `S` be a scheme contained in `Sch_fppf`. Let
+/- Lemma 94.17.1: let `S` be a scheme contained in `Sch_fppf`. Let
 `(U, R, s, t, c)` be a groupoid in algebraic spaces over `S`. Then the
 diagonal of `[U/R]` is representable by algebraic spaces. Formalized for a
 groupoid `G` in algebraic spaces over an algebraic space `B` over `S`, with
-`[U/R]` as `G.quotientStack` and the diagonal as
-`FiberedCategoryOver.Groupoids.diagonal G.quotientStack`. -/
-@[stacks 04WZ]
-theorem relativelyRepresentableByAlgebraicSpaces_diagonal
-    {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B) :
-    relativelyRepresentableByAlgebraicSpaces
-      (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} G.quotientStack) :=
-  sorry
+`[U/R]` as `GroupoidAlgebraicSpace.SmallQuotient.quotientStack G` and its
+canonical diagonal. -/
+@[stacks 04WZ] #check
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.relativelyRepresentableByAlgebraicSpaces_diagonal :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B),
+      relativelyRepresentableByAlgebraicSpaces
+        (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1}
+          (GroupoidAlgebraicSpace.SmallQuotient.quotientStack G)))
 
-/-- The isomorphism presheaves of the quotient stack `G.quotientStack` are
-algebraic spaces. This is the Isom criterion used to deduce representability of
-the diagonal via Lemma 94.10.11. -/
-theorem isomorphismPresheaf_isAlgebraicSpace {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) :
-    isomorphismPresheaf.isAlgebraicSpace G.quotientStack :=
-  sorry
-
-end AlgebraicGeometry.GroupoidAlgebraicSpace
+-- The isomorphism presheaves give the criterion for representability of the diagonal.
+#check
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.isomorphismPresheaf_isAlgebraicSpace :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B),
+      isomorphismPresheaf.isAlgebraicSpace
+        (GroupoidAlgebraicSpace.SmallQuotient.quotientStack G))

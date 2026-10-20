@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap78.Lemma_78_20_3_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quotient.Comparison
 import StacksCheckRecall
 
 universe u
@@ -19,34 +13,35 @@ open GroupoidAlgebraicSpace
 Lemma 78.20.3 is the familiar square with legs
 `s := stackInSets.map G.s.left`, `t := stackInSets.map G.t.left` from
 `stackInSets G.R.left` to `stackInSets G.U.left`, and atlas
-`π := atlas G : stackInSets G.U.left ⟶ quotientStack G`, together with the canonical
+`π := fppfAtlas G : stackInSets G.U.left ⟶ fppfQuotientStack G`, together with the canonical
 `2`-cell `sourceTarget : atlasSource G ⟶ atlasTarget G`. Sections 78.22 and 78.23 later
 show that this square is a `2`-fibre product and close to a `2`-coequalizer of `s` and `t`. -/
 @[stacks 04M7] #check
-  (@sourceTarget :
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.sourceTarget :
     ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B),
-      atlasSource G ⟶ atlasTarget G)
+      AlgebraicGeometry.GroupoidAlgebraicSpace.atlasSource G ⟶
+        AlgebraicGeometry.GroupoidAlgebraicSpace.atlasTarget G)
 
 #check
-  (@stackInSets :
+  (AlgebraicGeometry.AlgebraicSpace.stackInSets :
     ∀ {S : Scheme.{u}}, AlgebraicSpace S → StackOver.Sets (Scheme.fppfTopology.over S))
 
 #check
-  (@stackInSets.map :
+  (AlgebraicGeometry.AlgebraicSpace.stackInSets.map :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S},
       (X ⟶ Y) → CartesianBasedFunctor (stackInSets X).p (stackInSets Y).p)
 
 #check
-  (@atlas :
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.fppfAtlas :
     ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B),
-      CartesianBasedFunctor (stackInSets G.U.left).p (quotientStack G).p)
+      CartesianBasedFunctor (stackInSets G.U.left).p (fppfQuotientStack G).p)
 
 #check
-  (@atlasSource :
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.atlasSource :
     ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B),
-      CartesianBasedFunctor (stackInSets G.R.left).p (quotientStack G).p)
+      CartesianBasedFunctor (stackInSets G.R.left).p (fppfQuotientStack G).p)
 
 #check
-  (@atlasTarget :
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.atlasTarget :
     ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B),
-      CartesianBasedFunctor (stackInSets G.R.left).p (quotientStack G).p)
+      CartesianBasedFunctor (stackInSets G.R.left).p (fppfQuotientStack G).p)

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Sites.Etale
-public import Mathlib.CategoryTheory.Sites.Over
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.EtaleCriterion
 
 /-!
 # Algebraic stacks from étale stacks with a smooth scheme atlas
@@ -29,7 +22,7 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 97.19.1: denote the common underlying category of `Sch_fppf` and
+/- Lemma 97.19.1: denote the common underlying category of `Sch_fppf` and
 `Sch_étale` by `Sch_α` (see Sheaves on Stacks, Section 96.4 and Topologies,
 Remark 34.11.1), recovered here as the common `Over S` of
 `Scheme.etaleTopology` and `Scheme.fppfTopology`. Let `S` be a scheme. Let
@@ -41,14 +34,14 @@ Remark 34.11.1), recovered here as the common `Over S` of
 surjective and smooth (`[Groupoids.Hom.Smooth u]` and
 `[Groupoids.Hom.Surjective u]`), then `X` is an algebraic stack in the sense
 of Algebraic Stacks, Definition 94.12.1. -/
-@[stacks 076V]
-theorem of_etale_smooth_surjective {S : Scheme.{u}} {X : GroupoidsOver S}
+@[stacks 076V] #check
+  (AlgebraicGeometry.AlgebraicStack.of_etale_smooth_surjective :
+    ∀ {S : Scheme.{u}} {X : GroupoidsOver S}
     [IsStack.InGroupoids (Scheme.etaleTopology.over S) X.p]
     (hΔ : relativelyRepresentableByAlgebraicSpaces
       (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} X))
     {U : Over S} (u : GroupoidsOver.slice U ⟶ X)
-    [Groupoids.Hom.Smooth u] [Groupoids.Hom.Surjective u] :
-    AlgebraicStack X :=
-  sorry
+    [Groupoids.Hom.Smooth u] [Groupoids.Hom.Surjective u],
+    AlgebraicStack X)
 
 end AlgebraicGeometry.AlgebraicStack

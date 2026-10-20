@@ -1,23 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.Ideal.Cotangent
-public import stacks_project.Chap90.Definition_90_7_3_CompleteLocal
-public import stacks_project.Chap90.Lemma_90_4_8_InverseLimit
-public import stacks_project.Chap90.Lemma_90_7_4_Filtration
-
-/-!
-# Inverse limits of surjective towers in `C_Λ`
-
-A surjective sequence in `ArtinianLocalAlgCat` with bounded cotangent rank has
-inverse limit an object of `CompleteLocalAlgCat`, and the kernels of the
-projections define the maximal-adic topology.
--/
+public import ReasLib.AlgebraicGeometry.FormalDeformation.CompleteLocal.InverseLimit
+public import ReasLib.AlgebraicGeometry.FormalDeformation.ArtinianLocal.InverseLimit
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -28,75 +13,57 @@ universe u
 variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-namespace CompleteLocalAlgCat
-
-variable (A : ℕ → ArtinianLocalAlgCat Λ k) (f : ∀ n, A (n + 1) ⟶ A n)
-
-/-- Lemma 90.4.8 (1): if `A (n + 1) ⟶ A n` is a sequence of surjective maps in
-`ArtinianLocalAlgCat Λ k` and `Module.finrank` of `CotangentSpace (A n).carrier` is
-bounded, then `ArtinianLocalAlgCat.inverseLimit A f` is an object of
-`CompleteLocalAlgCat Λ k`. -/
-@[stacks 06SF]
-noncomputable def ofInverseLimit
+/- Lemma 90.4.8. A surjective tower with bounded cotangent dimensions has a
+complete local inverse limit, and its projection kernels define the maximal-adic topology. -/
+@[stacks 06SF] #check (CompleteLocalAlgCat.ofInverseLimit :
+  ∀ (A : ℕ → ArtinianLocalAlgCat Λ k) (f : ∀ n, A (n + 1) ⟶ A n)
     (hf : ∀ n, Function.Surjective (f n).hom)
     (hdim : ∃ B : ℕ, ∀ n,
-      Module.finrank (ResidueField (A n).carrier) (CotangentSpace (A n).carrier) ≤ B) :
-    CompleteLocalAlgCat Λ k where
-  carrier := ArtinianLocalAlgCat.inverseLimit A f
-  commRing := ArtinianLocalAlgCat.instCommRing_inverseLimit A f
-  algebra := ArtinianLocalAlgCat.instAlgebra_inverseLimit A f
-  isLocalRing := inferInstance
-  isNoetherianRing := sorry
-  isCompleteLocalRing := sorry
-  residueFieldIso := ArtinianLocalAlgCat.inverseLimitResidueFieldIso A f
+      Module.finrank (ResidueField (A n).carrier) (CotangentSpace (A n).carrier) ≤ B),
+    CompleteLocalAlgCat Λ k)
 
-/-- The carrier of `ofInverseLimit` is the inverse-limit ring of the tower. -/
-theorem ofInverseLimit_carrier
+#check (CompleteLocalAlgCat.kerAdicFiltration :
+  ∀ (A : ℕ → ArtinianLocalAlgCat Λ k) (f : ∀ n, A (n + 1) ⟶ A n)
     (hf : ∀ n, Function.Surjective (f n).hom)
     (hdim : ∃ B : ℕ, ∀ n,
-      Module.finrank (ResidueField (A n).carrier) (CotangentSpace (A n).carrier) ≤ B) :
-    (ofInverseLimit A f hf hdim).carrier = ArtinianLocalAlgCat.inverseLimit A f := sorry
+      Module.finrank (ResidueField (A n).carrier) (CotangentSpace (A n).carrier) ≤ B),
+    CompleteLocalAlgCat.AdicIdealFiltration (CompleteLocalAlgCat.ofInverseLimit A f hf hdim))
 
-/-- `ofInverseLimit` is Noetherian and complete, with the canonical residue identification. -/
-theorem ofInverseLimit_spec
+#check (CompleteLocalAlgCat.ofInverseLimit_carrier :
+  ∀ (A : ℕ → ArtinianLocalAlgCat Λ k) (f : ∀ n, A (n + 1) ⟶ A n)
     (hf : ∀ n, Function.Surjective (f n).hom)
     (hdim : ∃ B : ℕ, ∀ n,
-      Module.finrank (ResidueField (A n).carrier) (CotangentSpace (A n).carrier) ≤ B) :
-    IsNoetherianRing (ofInverseLimit A f hf hdim).carrier ∧
-      IsCompleteLocalRing (ofInverseLimit A f hf hdim).carrier ∧
-        (ofInverseLimit A f hf hdim).residueFieldIso =
-          ArtinianLocalAlgCat.inverseLimitResidueFieldIso A f := sorry
+      Module.finrank (ResidueField (A n).carrier) (CotangentSpace (A n).carrier) ≤ B),
+    (CompleteLocalAlgCat.ofInverseLimit A f hf hdim).carrier =
+      ArtinianLocalAlgCat.inverseLimit A f)
 
-/-- Lemma 90.4.8 (2): the ideals `Ker(S ⟶ A n)` define the `maximalIdeal S`-adic
-topology on the inverse limit `S`. -/
-@[stacks 06SF]
-noncomputable def kerAdicFiltration
+#check (CompleteLocalAlgCat.ofInverseLimit_spec :
+  ∀ (A : ℕ → ArtinianLocalAlgCat Λ k) (f : ∀ n, A (n + 1) ⟶ A n)
     (hf : ∀ n, Function.Surjective (f n).hom)
     (hdim : ∃ B : ℕ, ∀ n,
-      Module.finrank (ResidueField (A n).carrier) (CotangentSpace (A n).carrier) ≤ B) :
-    AdicIdealFiltration (ofInverseLimit A f hf hdim) :=
-  AdicIdealFiltration.of (ArtinianLocalAlgCat.ker A f) sorry sorry sorry sorry
+      Module.finrank (ResidueField (A n).carrier) (CotangentSpace (A n).carrier) ≤ B),
+    IsNoetherianRing (CompleteLocalAlgCat.ofInverseLimit A f hf hdim).carrier ∧
+      IsCompleteLocalRing (CompleteLocalAlgCat.ofInverseLimit A f hf hdim).carrier ∧
+        (CompleteLocalAlgCat.ofInverseLimit A f hf hdim).residueFieldIso =
+          ArtinianLocalAlgCat.inverseLimitResidueFieldIso A f hf)
 
-/-- The underlying ideals of `kerAdicFiltration` are the kernels of the projections. -/
-theorem kerAdicFiltration_ideal
+#check (CompleteLocalAlgCat.kerAdicFiltration_ideal :
+  ∀ (A : ℕ → ArtinianLocalAlgCat Λ k) (f : ∀ n, A (n + 1) ⟶ A n)
     (hf : ∀ n, Function.Surjective (f n).hom)
     (hdim : ∃ B : ℕ, ∀ n,
-      Module.finrank (ResidueField (A n).carrier) (CotangentSpace (A n).carrier) ≤ B)
-    (n : ℕ) :
-    (kerAdicFiltration A f hf hdim).ideal n = ArtinianLocalAlgCat.ker A f n := sorry
+      Module.finrank (ResidueField (A n).carrier) (CotangentSpace (A n).carrier) ≤ B),
+    ∀ n : ℕ, (CompleteLocalAlgCat.kerAdicFiltration A f hf hdim).ideal n =
+      ArtinianLocalAlgCat.ker A f n)
 
-/-- `kerAdicFiltration` is antitone, contained in the maximal ideal, and cofinal with
-the maximal-adic powers in both directions. -/
-theorem kerAdicFiltration_spec
+#check (CompleteLocalAlgCat.kerAdicFiltration_spec :
+  ∀ (A : ℕ → ArtinianLocalAlgCat Λ k) (f : ∀ n, A (n + 1) ⟶ A n)
     (hf : ∀ n, Function.Surjective (f n).hom)
     (hdim : ∃ B : ℕ, ∀ n,
-      Module.finrank (ResidueField (A n).carrier) (CotangentSpace (A n).carrier) ≤ B) :
-    Antitone (kerAdicFiltration A f hf hdim).ideal ∧
-      (∀ n, (kerAdicFiltration A f hf hdim).ideal n ≤
-        maximalIdeal (ofInverseLimit A f hf hdim).carrier) ∧
-      (∀ n, ∃ m, (kerAdicFiltration A f hf hdim).ideal m ≤
-        maximalIdeal (ofInverseLimit A f hf hdim).carrier ^ (n + 1)) ∧
-      (∀ n, ∃ m, maximalIdeal (ofInverseLimit A f hf hdim).carrier ^ (m + 1) ≤
-        (kerAdicFiltration A f hf hdim).ideal n) := sorry
-
-end CompleteLocalAlgCat
+      Module.finrank (ResidueField (A n).carrier) (CotangentSpace (A n).carrier) ≤ B),
+    Antitone (CompleteLocalAlgCat.kerAdicFiltration A f hf hdim).ideal ∧
+      (∀ n, (CompleteLocalAlgCat.kerAdicFiltration A f hf hdim).ideal n ≤
+        maximalIdeal (CompleteLocalAlgCat.ofInverseLimit A f hf hdim).carrier) ∧
+      (∀ n, ∃ m, (CompleteLocalAlgCat.kerAdicFiltration A f hf hdim).ideal m ≤
+        maximalIdeal (CompleteLocalAlgCat.ofInverseLimit A f hf hdim).carrier ^ (n + 1)) ∧
+      (∀ n, ∃ m, maximalIdeal (CompleteLocalAlgCat.ofInverseLimit A f hf hdim).carrier ^ (m + 1) ≤
+        (CompleteLocalAlgCat.kerAdicFiltration A f hf hdim).ideal n))

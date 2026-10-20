@@ -1,19 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Adjunction.Unique
-public import Mathlib.CategoryTheory.Functor.KanExtension.Adjunction
+public import ReasLib.CategoryTheory.Functor.RightKanExtension.Composition
 
 /-!
 # Composition of right Kan extensions
 
-For composable functors `L : C ⥤ D` and `K : D ⥤ E`, uniqueness of right adjoints
-supplies a canonical isomorphism `(L ⋙ K).ran ≅ L.ran ⋙ K.ran`.
+The composed adjunction, canonical comparison isomorphism, and its compatibility
+with adjunction hom-equivalences are provided by the shared composition API.
 -/
 
 @[expose] public section
@@ -22,7 +15,7 @@ noncomputable section
 
 universe u₁ u₂ u₃ u₄ v₁ v₂ v₃ v₄
 
-namespace CategoryTheory.Functor
+open CategoryTheory CategoryTheory.Functor
 
 variable {C : Type u₁} [Category.{v₁} C]
 variable {D : Type u₂} [Category.{v₂} D]
@@ -32,37 +25,19 @@ variable (L : C ⥤ D) (K : D ⥤ E)
 variable [∀ F : C ⥤ H, L.HasRightKanExtension F]
 variable [∀ F : D ⥤ H, K.HasRightKanExtension F]
 
-/-- The composed adjunction whose left adjoint is precomposition with `L ⋙ K` and
-whose right adjoint is `L.ran ⋙ K.ran`. -/
-def ranCompAdjunction :
-    (whiskeringLeft C E H).obj (L ⋙ K) ⊣ L.ran ⋙ K.ran :=
-  (K.ranAdjunction H).comp (L.ranAdjunction H)
+#check (CategoryTheory.Functor.ranCompAdjunction L K :
+  (whiskeringLeft C E H).obj (L ⋙ K) ⊣ L.ran ⋙ K.ran)
 
 variable [∀ F : C ⥤ H, (L ⋙ K).HasRightKanExtension F]
 
-/-- The canonical isomorphism `(L ⋙ K).ran ≅ L.ran ⋙ K.ran`, with forward map
-from the composite right Kan extension to the composite of the individual
-right Kan extensions. -/
-def ranCompIso :
-    ((L ⋙ K).ran : (C ⥤ H) ⥤ (E ⥤ H)) ≅
-      (L.ran ⋙ K.ran : (C ⥤ H) ⥤ (E ⥤ H)) :=
-  ((L ⋙ K).ranAdjunction H).rightAdjointUniq (L.ranCompAdjunction K)
+#check (CategoryTheory.Functor.ranCompIso L K :
+  ((L ⋙ K).ran : (C ⥤ H) ⥤ (E ⥤ H)) ≅
+    (L.ran ⋙ K.ran : (C ⥤ H) ⥤ (E ⥤ H)))
 
-/-- `ranCompIso` is the uniqueness isomorphism of the composed right Kan
-adjunctions. -/
-theorem ranCompIso_eq :
-    L.ranCompIso K =
-      ((L ⋙ K).ranAdjunction H).rightAdjointUniq (L.ranCompAdjunction K) :=
-  sorry
-
-/-- Compatibility of `ranCompIso` with the hom-equivalences of
-`(L ⋙ K).ranAdjunction` and `ranCompAdjunction`. -/
-theorem ranCompIso_homEquiv {F : E ⥤ H} {G : C ⥤ H}
-    (α : ((whiskeringLeft C E H).obj (L ⋙ K)).obj F ⟶ G) :
+#check (CategoryTheory.Functor.ranCompIso_homEquiv L K :
+  ∀ {F : E ⥤ H} {G : C ⥤ H}
+    (α : ((whiskeringLeft C E H).obj (L ⋙ K)).obj F ⟶ G),
     ((L ⋙ K).ranAdjunction H).homEquiv F G α ≫ (L.ranCompIso K).hom.app G =
-      (L.ranCompAdjunction K).homEquiv F G α :=
-  sorry
-
-end CategoryTheory.Functor
+      (L.ranCompAdjunction K).homEquiv F G α)
 
 end

@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.UniversallyCatenary
-public import stacks_project.Chap67.Definition_67_40_1_FiniteType
-public import stacks_project.Chap67.Lemma_67_24_2_FieldPoints
-public import stacks_project.Chap68.Definition_68_25_1_Catenary
-public import stacks_project.Chap68.Lemma_68_12_8_Decent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Catenary.FiniteType
+import StacksCheckRecall
 
 /-!
 # Catenary decent algebraic spaces of finite type
@@ -27,14 +18,12 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 68.25.3: If `S` is a locally Noetherian universally catenary scheme
+/- Lemma 68.25.3: If `S` is a locally Noetherian universally catenary scheme
 and `X` is a decent algebraic space over `S` whose structure morphism `X ⟶ S`
 is locally of finite type, then `X` is catenary. -/
 @[stacks 0ED6]
-instance instIsCatenary_of_locallyOfFiniteType {S : Scheme.{u}}
-    (X : AlgebraicSpace S) [AlgebraicGeometry.UniversallyCatenary S]
-    [LocallyOfFiniteType (toBase X)] [IsDecent X] :
-    IsCatenary X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.instIsCatenary_of_locallyOfFiniteType :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [AlgebraicGeometry.UniversallyCatenary S]
+    [LocallyOfFiniteType (SchemeRealization.toBase X)] [IsDecent X], IsCatenary X)
 
 end AlgebraicGeometry.AlgebraicSpace

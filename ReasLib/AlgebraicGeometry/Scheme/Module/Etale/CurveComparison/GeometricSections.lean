@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.AmbientBaseChange
-public import stacks_project.Chap64.Proposition_64_29_3_GeometricInvariants
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.AmbientSections
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.ResidualInvariants
 public import ReasLib.AlgebraicGeometry.Scheme.FieldExtension.Galois.Basic
 public import Mathlib.CategoryTheory.Adjunction.CompositionIso
 
@@ -49,8 +44,8 @@ def sectionsPullback {Y Z : Scheme.{u}} (f : Y ⟶ Z) :
   app F :=
     ((sheafToPresheaf Z.smallEtaleTopology (ModuleCat.{u + 1} Λ)).map
       ((smallEtalePullback_sheafAdjunction f (ModuleCat.{u + 1} Λ)).unit.app F)).app
-        (op (globalEtale Z)) ≫
-      ((modulePullback Λ f).obj F).obj.map (op (globalEtalePullbackIso f).inv)
+        (op (AlgebraicGeometry.Scheme.Etale.globalEtale Z)) ≫
+      ((modulePullback Λ f).obj F).obj.map (op (AlgebraicGeometry.Scheme.Etale.globalEtalePullbackIso f).inv)
   naturality := sorry
 
 variable {k : Type u} [Field k] (X : SchemeOverField k)
@@ -97,21 +92,21 @@ variable [∀ U : (geometricBaseChange X).Etale,
 
 /-- The two induced fundamental-group maps use the same corrected projection/lift fiber comparison. -/
 theorem geometricFundamentalMap_eq :
-    etaleFundamentalGroupMap (geometricToArithmeticHom X) ηbar = (geometricToArithmetic X ηbar).hom := sorry
+    AlgebraicGeometry.Scheme.GeometricPoint.fundamentalGroupMap (geometricToArithmeticHom X) ηbar = (geometricToArithmetic X ηbar).hom := sorry
 
 /-- The generic restriction/invariants functor is the existing geometric invariants functor. -/
 def geometricInvariantsRestrictionIso :
     restriction Λ (geometricToArithmeticHom X) ηbar ⋙
-        AmbientDiscreteCohomology.invariants Λ (Aut (standardFiniteEtaleFiber ηbar)) ≅
+        CategoryTheory.Action.ModuleCat.DiscreteModuleCat.fixedPointsFunctor Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)) ≅
       Ambient.invariants Λ X ηbar :=
   eqToIso (congrArg
     (fun φ ↦ discreteModuleRes (R := Λ) φ ⋙
-      AmbientDiscreteCohomology.invariants Λ (Aut (standardFiniteEtaleFiber ηbar)))
+      CategoryTheory.Action.ModuleCat.DiscreteModuleCat.fixedPointsFunctor Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)))
     (geometricFundamentalMap_eq X ηbar))
 
 /-- Geometric sections of the actual arithmetic associated sheaf, on all discrete coefficients. -/
 def geometricSections :
-    DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))) ⥤
+    DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))) ⥤
       ModuleCat.{u + 1} Λ :=
   (functor (Λ := Λ) (xbar := arithmeticPoint X ηbar) ⋙
     modulePullback Λ (geometricToArithmeticHom X)) ⋙ sections Λ
@@ -126,7 +121,7 @@ def geometricSectionsIso : geometricSections Λ X ηbar ≅ Ambient.invariants �
 
 /-- Geometric sections carry the independently constructed Galois pullback action. -/
 def geometricSectionsAction
-    (M : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))) :
+    (M : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))) :
     Action (ModuleCat.{u + 1} Λ) Gal(AlgebraicClosure k/k) where
   V := (geometricSections Λ X ηbar).obj M
   ρ := { toFun := fun σ ↦ geometricSectionsEnd Λ X σ (obj M)
@@ -136,27 +131,27 @@ def geometricSectionsAction
 /-- The actual section-germ comparison intertwines geometric Galois pullback with
 arithmetic translation on invariant vectors, independently of the chosen lift. -/
 theorem geometricSectionsIso_equivariant
-    (M : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))))
+    (M : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))))
     (σ : Gal(AlgebraicClosure k/k)) :
     (geometricSectionsAction Λ X ηbar M).ρ σ ≫ (geometricSectionsIso Λ X ηbar).hom.app M =
       (geometricSectionsIso Λ X ηbar).hom.app M ≫ (Ambient.residualInvariants Λ X ηbar M).ρ σ := sorry
 
 /-- The equivariant geometric sections/invariants isomorphism retains the specified maps. -/
 def geometricSectionsResidualIso
-    (M : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))) :
+    (M : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))) :
     geometricSectionsAction Λ X ηbar M ≅ Ambient.residualInvariants Λ X ηbar M :=
   Action.mkIso ((geometricSectionsIso Λ X ηbar).app M) (geometricSectionsIso_equivariant Λ X ηbar M)
 
 /-- The geometric Galois action is natural for coefficient morphisms, through geometric pullback. -/
 theorem geometricSectionsAction_naturality
-    {M N : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))}
+    {M N : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))}
     (a : M ⟶ N) (σ : Gal(AlgebraicClosure k/k)) :
     (geometricSectionsAction Λ X ηbar M).ρ σ ≫ (geometricSections Λ X ηbar).map a =
       (geometricSections Λ X ηbar).map a ≫ (geometricSectionsAction Λ X ηbar N).ρ σ := sorry
 
 /-- The residual geometric sections functor retains the actual section maps on morphisms. -/
 def geometricSectionsActionFunctor :
-    DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))) ⥤
+    DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))) ⥤
       Action (ModuleCat.{u + 1} Λ) Gal(AlgebraicClosure k/k) where
   obj := geometricSectionsAction Λ X ηbar
   map a := { hom := (geometricSections Λ X ηbar).map a
@@ -166,7 +161,7 @@ def geometricSectionsActionFunctor :
 
 /-- The residual invariants functor restricts the original coefficient maps to fixed vectors. -/
 def residualInvariantsFunctor :
-    DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))) ⥤
+    DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))) ⥤
       Action (ModuleCat.{u + 1} Λ) Gal(AlgebraicClosure k/k) where
   obj := Ambient.residualInvariants Λ X ηbar
   map a := { hom := (Ambient.invariants Λ X ηbar).map a
@@ -182,9 +177,9 @@ def geometricSectionsResidualNatIso :
 /-- Compatibility names any arithmetic lift with the prescribed Galois image;
 the geometric section action therefore does not depend on the selected lift. -/
 theorem geometricSectionsResidual_lift
-    (M : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))))
+    (M : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))))
     (σ : Gal(AlgebraicClosure k/k))
-    (a : Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))
+    (a : Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))
     (ha : arithmeticToGalois X (arithmeticPoint X ηbar) a = galoisToGaloisPoint X ηbar σ)
     (s : (geometricSections Λ X ηbar).obj M) :
     (((geometricSectionsIso Λ X ηbar).hom.app M).hom

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Functor.KanExtension.Adjunction
 public import Mathlib.CategoryTheory.Limits.HasLimits
-public import Mathlib.CategoryTheory.Limits.Preserves.Ulift
 public import Mathlib.CategoryTheory.Limits.Types.Limits
 public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Pushforward
@@ -21,9 +14,11 @@ public import ReasLib.CategoryTheory.Sites.Topos.InternalModule
 public import stacks_project.Chap65.Lemma_65_7_2_Pullback
 public import stacks_project.Chap66.«66_26_0_1_Pushforward»
 public import stacks_project.Chap66.Lemma_66_18_12_Pushforward
-public import stacks_project.Chap66.Lemma_66_18_3
 public import stacks_project.Chap96.Lemma_96_10_1_Comparison
 public import stacks_project.Chap96.«96_10_3_1_Restriction»
+public import stacks_project.Chap96.«96_10_3_1_Geometry»
+public import stacks_project.Chap96.«96_10_3_3_RepresentedSections»
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.Adjunction
 
 /-!
 # Big-versus-small étale pushforward comparison
@@ -50,238 +45,18 @@ namespace AlgebraicGeometry.AlgebraicSpace
 
 variable {S : Scheme.{u}}
 
-/-- The CFG étale pushforward `f_*` associated to a morphism of algebraic spaces,
-as the direct image of the morphism of topoi induced by `toGroupoids.map f`. -/
-abbrev etalePushforward {F G : AlgebraicSpace S} (f : F ⟶ G)
-    [HasSheafify F.toGroupoids.etaleTopology (Type (u + 1))]
-    [∀ P : F.toGroupoids.totalᵒᵖ ⥤ Type (u + 1),
-      (toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.op.HasPointwiseRightKanExtension P] :
+/-- The CFG étale pushforward of a sheaf with successor-universe coefficients.
+Each actual comma diagram already has coefficients and indices in this universe. -/
+abbrev etalePushforward {F G : AlgebraicSpace S} (f : F ⟶ G) :
     Sheaf F.toGroupoids.etaleTopology (Type (u + 1)) ⥤
       Sheaf G.toGroupoids.etaleTopology (Type (u + 1)) :=
-  (toCartesianBasedFunctor (toGroupoids.map f)).morphismOfTopoiIn
-    (StandardTopology.etale.overTopology S) |>.pushforward
-
-/-- The comma category computing `f_* ℱ` at the tautological object `u_G(V)`. -/
-abbrev compareBigIndex {F G : AlgebraicSpace S} (f : F ⟶ G) (V : smallEtaleSite G) :=
-  StructuredArrow (op ((smallEtaleToGroupoids G).obj V))
-    (toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.op
-
-/-- The comma category computing `f_small,* (ℱ |_{F_étale})` at `V ×_G F`. -/
-abbrev compareSmallIndex {F G : AlgebraicSpace S} (f : F ⟶ G) (V : smallEtaleSite G) :=
-  StructuredArrow (op ((etaleBaseChange f).obj V)) (smallEtaleInclusion F).op
-
-/-- The Kan-extension diagram for the CFG pushforward at `u_G(V)`. -/
-abbrev compareBigDiag {F G : AlgebraicSpace S} (f : F ⟶ G)
-    (ℱ : Sheaf F.toGroupoids.etaleTopology (Type (u + 1))) (V : smallEtaleSite G) :
-    compareBigIndex f V ⥤ Type (u + 1) :=
-  StructuredArrow.proj (op ((smallEtaleToGroupoids G).obj V))
-      (toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.op ⋙
-    ℱ.obj
-
-/-- The Kan-extension diagram for the small étale pushforward at `V ×_G F`. -/
-abbrev compareSmallDiag {F G : AlgebraicSpace S} (f : F ⟶ G)
-    (ℱ : Sheaf F.toGroupoids.etaleTopology (Type (u + 1))) (V : smallEtaleSite G) :
-    compareSmallIndex f V ⥤ Type (u + 1) :=
-  StructuredArrow.proj (op ((etaleBaseChange f).obj V)) (smallEtaleInclusion F).op ⋙
-    ((restrictEtale F).obj ℱ).obj
-
-/-- The underlying scheme over `S` of a comma object computing `f_* ℱ` at `u_G(V)`. -/
-def compareBigScheme {F G : AlgebraicSpace S} (f : F ⟶ G) {V : smallEtaleSite G}
-    (k : compareSmallIndex f V) : Over S :=
-  k.right.unop.left
-
-/-- The morphism `ofOver U ⟶ V ×_G F` underlying a comma object of the small
-étale pushforward diagram. -/
-def compareSmallToBaseChange {F G : AlgebraicSpace S} (f : F ⟶ G) {V : smallEtaleSite G}
-    (k : compareSmallIndex f V) :
-    ofOver (compareBigScheme f k) ⟶ etaleBaseChangeSpace f V :=
-  k.hom.unop.left
-
-/-- The morphism in `Over S` from the domain of a small-étale comma object to `V`,
-obtained by Yoneda from the projection `U ⟶ V ×_G F ⟶ V`. -/
-def compareOverHom {F G : AlgebraicSpace S} (f : F ⟶ G) {V : smallEtaleSite G}
-    (k : compareSmallIndex f V) : compareBigScheme f k ⟶ V.left :=
-  yonedaEquiv (compareSmallToBaseChange f k ≫ etaleBaseChangeSnd f V)
-
-/-- The morphism `f(u_F(U)) ⟶ u_G(V)` in `G.toGroupoids` induced by a scheme
-étale over `F` lying over `V ×_G F`. -/
-def compareIndexHom {F G : AlgebraicSpace S} (f : F ⟶ G) {V : smallEtaleSite G}
-    (k : compareSmallIndex f V) :
-    (toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.obj
-        ((smallEtaleToGroupoids F).obj k.right.unop) ⟶
-      (smallEtaleToGroupoids G).obj V :=
-  (homMk
-      (unop ((smallEtaleToGroupoids G).obj V))
-      (unop ((toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.obj
-          ((smallEtaleToGroupoids F).obj k.right.unop)))
-      (compareOverHom f k).op sorry).op
-
-/-- The morphism in `G.totalᵒᵖ` presenting a small-étale comma object as a
-comma object for the CFG pushforward. -/
-def compareIndexArrow {F G : AlgebraicSpace S} (f : F ⟶ G) {V : smallEtaleSite G}
-    (k : compareSmallIndex f V) :
-    op ((smallEtaleToGroupoids G).obj V) ⟶
-      (toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.op.obj
-        (op ((smallEtaleToGroupoids F).obj k.right.unop)) :=
-  (compareIndexHom f k).op
-
-/-- The functor from the small-étale Kan comma category to the CFG Kan comma
-category, sending `U → V ×_G F` to the tautological object `u_F(U)`. -/
-def compareIndexMap {F G : AlgebraicSpace S} (f : F ⟶ G) (V : smallEtaleSite G) :
-    compareSmallIndex f V ⥤ compareBigIndex f V where
-  obj k := StructuredArrow.mk (compareIndexArrow f k)
-  map {k k'} α :=
-    StructuredArrow.homMk ((smallEtaleToGroupoids F).map α.right.unop).op sorry
-  map_id _ := sorry
-  map_comp _ _ := sorry
-
-/-- The Kan-extension diagrams are identified after restriction along `compareIndexMap`,
-because sections of `ℱ |_{F_étale}` at `U` are sections of `ℱ` at `u_F(U)`. -/
-def compareDiagIso {F G : AlgebraicSpace S} (f : F ⟶ G)
-    (ℱ : Sheaf F.toGroupoids.etaleTopology (Type (u + 1))) (V : smallEtaleSite G) :
-    compareIndexMap f V ⋙ compareBigDiag f ℱ V ≅ compareSmallDiag f ℱ V :=
-  NatIso.ofComponents (fun k => Iso.refl _) sorry
-
-/-- An étale atlas scheme of `F`, extracted from the atlas field. -/
-def compareAtlasScheme (F : AlgebraicSpace S) : Over S :=
-  Classical.choose F.atlas
-
-/-- The atlas morphism `ofOver (compareAtlasScheme F) ⟶ F`. -/
-def compareAtlasHom (F : AlgebraicSpace S) : ofOver (compareAtlasScheme F) ⟶ F :=
-  Exists.choose (Classical.choose_spec F.atlas)
-
-/-- The chosen atlas section of `F.atlas` is étale as a morphism of functors of
-points, and étale-locally surjective. -/
-theorem compareAtlasHom_spec (F : AlgebraicSpace S) :
-    MorphismProperty.presheaf (MorphismProperty.over (@AlgebraicGeometry.Etale)) (compareAtlasHom F) ∧
-      Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) (compareAtlasHom F) :=
-  sorry
-
-/-- The chosen atlas morphism is étale as a morphism of algebraic spaces. -/
-instance compareAtlasHom_isEtale (F : AlgebraicSpace S) : Etale (compareAtlasHom F) :=
-  sorry
-
-/-- The scheme `U₀ = atlas_F ×_G V` covering `V ×_G F`. -/
-def coverScheme {F G : AlgebraicSpace S} (f : F ⟶ G) (V : smallEtaleSite G) : Over S :=
-  pullbackOverAtlas (homFunctor f) V.hom G.representableDiagonal
-    (compareAtlasHom F) (𝟙 _)
-
-/-- The structure morphism `U₀ ⟶ F`. -/
-def coverHom {F G : AlgebraicSpace S} (f : F ⟶ G) (V : smallEtaleSite G) :
-    ofOver (coverScheme f V) ⟶ F :=
-  pullbackOverAtlasFst (homFunctor f) V.hom G.representableDiagonal
-      (compareAtlasHom F) (𝟙 _) ≫
-    compareAtlasHom F
-
-/-- The covering morphism `U₀ ⟶ F` is étale, as the composite of a pullback of
-the chosen étale atlas `compareAtlasHom F` with that atlas morphism. -/
-instance coverHom_isEtale {F G : AlgebraicSpace S} (f : F ⟶ G) (V : smallEtaleSite G) :
-    Etale (coverHom f V) :=
-  sorry
-
-/-- The object of `F_étale` classified by the covering morphism `U₀ ⟶ F`. -/
-def coverSite {F G : AlgebraicSpace S} (f : F ⟶ G) (V : smallEtaleSite G) :
-    smallEtaleSite F :=
-  smallEtaleSite.mk (coverHom f V)
-
-/-- The morphism `U₀ ⟶ V ×_G F` of algebraic spaces. -/
-def coverToBaseChange {F G : AlgebraicSpace S} (f : F ⟶ G) (V : smallEtaleSite G) :
-    ofOver (coverScheme f V) ⟶ etaleBaseChangeSpace f V :=
-  pullbackOverAtlasHom (homFunctor f) V.hom G.representableDiagonal
-    (compareAtlasHom F) (𝟙 _)
-
-/-- The covering object as a morphism of the spaces étale site of `F`. -/
-def coverOverHom {F G : AlgebraicSpace S} (f : F ⟶ G) (V : smallEtaleSite G) :
-    (smallEtaleInclusion F).obj (coverSite f V) ⟶ (etaleBaseChange f).obj V :=
-  MorphismProperty.Over.homMk (coverToBaseChange f V) sorry
-
-/-- The covering object as a comma object of the small étale pushforward diagram. -/
-def coverIndex {F G : AlgebraicSpace S} (f : F ⟶ G) (V : smallEtaleSite G) :
-    compareSmallIndex f V :=
-  StructuredArrow.mk (op (coverOverHom f V))
-
-/-- The underlying scheme of a CFG comma object computing `f_* ℱ` at `u_G(V)`. -/
-def compareBigDomain {F G : AlgebraicSpace S} (f : F ⟶ G) {V : smallEtaleSite G}
-    (j : compareBigIndex f V) : Over S :=
-  (unop (j.right.unop)).1.unop
-
-/-- The Yoneda section of a CFG comma object. -/
-def compareBigSection {F G : AlgebraicSpace S} (f : F ⟶ G) {V : smallEtaleSite G}
-    (j : compareBigIndex f V) :
-    F.functorOfPoints.obj (op (compareBigDomain f j)) :=
-  (unop (j.right.unop)).2
-
-/-- The morphism `T ⟶ F` classified by a CFG comma object. -/
-def compareBigToF {F G : AlgebraicSpace S} (f : F ⟶ G) {V : smallEtaleSite G}
-    (j : compareBigIndex f V) :
-    ofOver (compareBigDomain f j) ⟶ F :=
-  yonedaEquiv.symm (compareBigSection f j)
-
-/-- The scheme `T ×_F U₀` obtained by pulling the atlas cover back along `T ⟶ F`. -/
-def compareFibreScheme {F G : AlgebraicSpace S} (f : F ⟶ G) {V : smallEtaleSite G}
-    (j : compareBigIndex f V) : Over S :=
-  pullbackOverAtlas (compareBigToF f j) (coverHom f V) F.representableDiagonal
-    (𝟙 _) (𝟙 _)
-
-/-- The projection `T ×_F U₀ ⟶ T`. -/
-def compareFibreToDomain {F G : AlgebraicSpace S} (f : F ⟶ G) {V : smallEtaleSite G}
-    (j : compareBigIndex f V) :
-    yoneda.obj (compareFibreScheme f j) ⟶ yoneda.obj (compareBigDomain f j) :=
-  pullbackOverAtlasFst (compareBigToF f j) (coverHom f V) F.representableDiagonal
-    (𝟙 _) (𝟙 _)
-
-/-- The projection `T ×_F U₀ ⟶ U₀`. -/
-def compareFibreToCoverScheme {F G : AlgebraicSpace S} (f : F ⟶ G) {V : smallEtaleSite G}
-    (j : compareBigIndex f V) :
-    compareFibreScheme f j ⟶ coverScheme f V :=
-  pullbackOverAtlasSnd (compareBigToF f j) (coverHom f V) F.representableDiagonal
-    (𝟙 _) (𝟙 _)
-
-/-- The morphism `T ×_F U₀ ⟶ F`. -/
-def compareFibreHom {F G : AlgebraicSpace S} (f : F ⟶ G) {V : smallEtaleSite G}
-    (j : compareBigIndex f V) :
-    ofOver (compareFibreScheme f j) ⟶ F :=
-  yoneda.map (compareFibreToCoverScheme f j) ≫ coverHom f V
-
-/-- The object of `S_F` classified by `T ×_F U₀ ⟶ F`. -/
-def compareFibreObj {F G : AlgebraicSpace S} (f : F ⟶ G) {V : smallEtaleSite G}
-    (j : compareBigIndex f V) : F.toGroupoids.total :=
-  op ⟨op (compareFibreScheme f j),
-    yonedaEquiv (compareFibreHom f j)⟩
-
-/-- The morphism `T ×_F U₀ ⟶ U₀` in `S_F`. -/
-def compareFibreToCover {F G : AlgebraicSpace S} (f : F ⟶ G) {V : smallEtaleSite G}
-    (j : compareBigIndex f V) :
-    compareFibreObj f j ⟶ (smallEtaleToGroupoids F).obj (coverSite f V) :=
-  (homMk
-      (unop ((smallEtaleToGroupoids F).obj (coverSite f V)))
-      (unop (compareFibreObj f j))
-      (compareFibreToCoverScheme f j).op sorry).op
-
-/-- The morphism `T ×_F U₀ ⟶ T` in `S_F`. -/
-def compareFibreToBig {F G : AlgebraicSpace S} (f : F ⟶ G) {V : smallEtaleSite G}
-    (j : compareBigIndex f V) :
-    compareFibreObj f j ⟶ j.right.unop :=
-  (homMk
-      (unop (j.right.unop))
-      (unop (compareFibreObj f j))
-      (yonedaEquiv (compareFibreToDomain f j)).op sorry).op
-
-/-- The covering family `{T ×_F U₀ ⟶ T}` is an étale covering in `S_F`. -/
-theorem compareFibre_cover_mem {F G : AlgebraicSpace S} (f : F ⟶ G)
-    {V : smallEtaleSite G} (j : compareBigIndex f V) :
-    Sieve.ofArrows (fun _ : Unit => compareFibreObj f j)
-        (fun _ => compareFibreToBig f j) ∈
-      F.toGroupoids.etaleTopology (j.right.unop) :=
-  sorry
+  (toFunctor (toGroupoids.map f)).sheafPushforwardOfSmallSections.{u + 1, u, u + 1, u, u + 1}
+    F.toGroupoids.etaleTopology G.toGroupoids.etaleTopology
 
 section CompareTypeSucc
 
 variable {F G : AlgebraicSpace S} (f : F ⟶ G)
 variable (ℱ : Sheaf F.toGroupoids.etaleTopology (Type (u + 1)))
-variable [HasSheafify F.toGroupoids.etaleTopology (Type (u + 1))]
-variable [∀ P : F.toGroupoids.totalᵒᵖ ⥤ Type (u + 1),
-    (toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.op.HasPointwiseRightKanExtension P]
 
 /-- Restriction of compatible families from the CFG Kan comma category to the
 small-étale Kan comma category. -/
@@ -297,13 +72,13 @@ def compareCoverSection (V : smallEtaleSite G) :
   (HasLimit.isoOfNatIso (compareDiagIso f ℱ V)).inv ≫
     limit.π (compareIndexMap f V ⋙ compareBigDiag f ℱ V) (coverIndex f V)
 
-/-- The family of sections of `ℱ` on `T ×_F U₀` obtained by restricting the atlas
+/-- The family of sections of `ℱ` on `T ×_{F ×_G V} U₀` obtained by restricting the atlas
 cover section. -/
 def compareFibreSection (V : smallEtaleSite G) (j : compareBigIndex f V) :
     limit (compareSmallDiag f ℱ V) ⟶ ℱ.obj.obj (op (compareFibreObj f j)) :=
   compareCoverSection f ℱ V ≫ ℱ.obj.map (compareFibreToCover f j).op
 
-/-- Compatibility of the one-arrow covering family on `T ×_F U₀`. -/
+/-- Compatibility of the one-arrow covering family on `T ×_{F ×_G V} U₀`. -/
 theorem compareFibreSection_compatible (V : smallEtaleSite G)
     (j : compareBigIndex f V) :
     ∀ ⦃W : F.toGroupoids.total⦄ ⦃i k : Unit⦄
@@ -323,7 +98,7 @@ def compareInvπ (V : smallEtaleSite G) (j : compareBigIndex f V) :
     (compareFibreSection_compatible f ℱ V j)
 
 /-- Extension of a small-étale compatible family to a CFG compatible family, by
-amalgamating along the étale cover `T ×_F U₀ ⟶ T`. -/
+amalgamating along the étale cover `T ×_{F ×_G V} U₀ ⟶ T`. -/
 def compareLimitInv (V : smallEtaleSite G) :
     limit (compareSmallDiag f ℱ V) ⟶ limit (compareBigDiag f ℱ V) :=
   limit.lift (compareBigDiag f ℱ V)
@@ -343,7 +118,7 @@ def compareLimitIso (V : smallEtaleSite G) :
 /-- The spaces-étale extension of `ℱ |_{F_étale}` used by `f_small,*`. -/
 abbrev compareSmallExtended :
     Sheaf (spacesEtaleTopology F) (Type (u + 1)) :=
-  ((smallEtaleInclusion F).sheafPushforwardCocontinuous (Type (u + 1))
+  ((AlgebraicGeometry.AlgebraicSpace.smallEtaleToSpaces F).sheafPushforwardCocontinuous (Type (u + 1))
       (smallEtaleTopology F) (spacesEtaleTopology F)).obj
     ((restrictEtale F).obj ℱ)
 
@@ -354,10 +129,11 @@ def compareBigSmall_app (V : smallEtaleSite G) :
       ((sheafPushforwardType f).obj ((restrictEtale F).obj ℱ)).obj.obj (op V) :=
   (sheafPushforwardContinuousObjObjIso (smallEtaleToGroupoids G) (Type (u + 1))
       ((etalePushforward f).obj ℱ) V) ≪≫
-    ((toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.op.ranObjObjIsoLimit
-        ℱ.obj (op ((smallEtaleToGroupoids G).obj V))) ≪≫
+    (pointwiseRightKanExtensionIsPointwiseRightKanExtension
+      (toFunctor (toGroupoids.map f)).op ℱ.obj
+      (op ((smallEtaleToGroupoids G).obj V))).isoLimit ≪≫
       compareLimitIso f ℱ V ≪≫
-        ((smallEtaleInclusion F).op.ranObjObjIsoLimit
+        ((AlgebraicGeometry.AlgebraicSpace.smallEtaleToSpaces F).op.ranObjObjIsoLimit
             ((restrictEtale F).obj ℱ).obj
             (op ((etaleBaseChange f).obj V))).symm ≪≫
           (sheafPushforwardContinuousObjObjIso (etaleBaseChange f) (Type (u + 1))
@@ -395,16 +171,6 @@ theorem compareBigSmall_natural
   sorry
 
 end CompareTypeSucc
-
-/-- Ring-valued sheaves on an associated étale topology compose with `forget RingCat`. -/
-instance toGroupoids_etale_hasSheafCompose_ring (X : GroupoidsOver S) :
-    X.etaleTopology.HasSheafCompose (forget RingCat.{u}) :=
-  sorry
-
-/-- Type-valued sheafification exists on an associated étale topology in universe `u`. -/
-instance toGroupoids_etale_hasSheafify_type (X : GroupoidsOver S) :
-    HasSheafify X.etaleTopology (Type u) :=
-  sorry
 
 /-- The total functor of `toGroupoids.map f` is continuous for associated étale topologies. -/
 instance toGroupoids_map_isContinuous_etale {F G : AlgebraicSpace S} (f : F ⟶ G) :
@@ -447,26 +213,6 @@ theorem toGroupoids_map_cartesian_eq {F G : AlgebraicSpace S} (f : F ⟶ G) :
   congrArg (fun F => F.toFunctor)
     (toCartesianBasedFunctor.toBasedFunctor (toGroupoids.map f))
 
-/-- Pointwise right Kan extensions exist for type-valued presheaves in universe `u`
-along `toGroupoids.map f`. -/
-instance toGroupoids_map_op_hasPointwiseRightKanExtension_type {F G : AlgebraicSpace S}
-    (f : F ⟶ G) (P : F.toGroupoids.totalᵒᵖ ⥤ Type u) :
-    (toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.op.HasPointwiseRightKanExtension P :=
-  sorry
-
-/-- Pointwise right Kan extensions exist for ring-valued presheaves along `toGroupoids.map f`. -/
-instance toGroupoids_map_op_hasPointwiseRightKanExtension_ring {F G : AlgebraicSpace S}
-    (f : F ⟶ G) (P : F.toGroupoids.totalᵒᵖ ⥤ RingCat.{u}) :
-    (toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.op.HasPointwiseRightKanExtension P :=
-  sorry
-
-/-- Forgetting rings preserves the right Kan extensions used by CFG étale direct image. -/
-instance toGroupoids_map_forget_preservesRightKanExtensions {F G : AlgebraicSpace S}
-    (f : F ⟶ G) :
-    (forget RingCat.{u}).PreservesRightKanExtensions
-      (toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.op :=
-  sorry
-
 /-- The composite `toFunctor (toGroupoids.map f) ⋙ G.toGroupoids.p` is continuous
 from `F_étale` to the big étale site of `S`. -/
 instance toGroupoids_map_comp_p_isContinuous {F G : AlgebraicSpace S} (f : F ⟶ G) :
@@ -484,54 +230,46 @@ def toGroupoidsEtaleStructureSheafInv {F G : AlgebraicSpace S} (f : F ⟶ G) :
       F.toGroupoids.etaleTopology (StandardTopology.etale.overTopology S)).inv.app
     (StandardTopology.Big.structureSheaf StandardTopology.etale S)
 
-/-- Direct-image form of the structure-sheaf map of `toGroupoids.map f`. -/
+/-- The actual per-sheaf direct-image structure map, with the size certificate
+derived from the supplied identity presentations of the source and target. -/
 def toGroupoidsEtaleStructureSheafMap {F G : AlgebraicSpace S} (f : F ⟶ G) :
+    letI := GroupoidsOver.hasSmallCFGTypeSections_ofRepresented (toGroupoids.map f)
+      (Bicategory.Equivalence.id F.toGroupoids) (Bicategory.Equivalence.id G.toGroupoids)
     (GroupoidsOver.etaleRingedSite G.toGroupoids).structureSheaf ⟶
-      ((toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.sheafPushforwardCocontinuous
-          RingCat.{u} F.toGroupoids.etaleTopology G.toGroupoids.etaleTopology).obj
-        (GroupoidsOver.etaleRingedSite F.toGroupoids).structureSheaf :=
-  ((toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.sheafAdjunctionCocontinuous
-      RingCat.{u} F.toGroupoids.etaleTopology G.toGroupoids.etaleTopology).homEquiv _ _
-    (toGroupoidsEtaleStructureSheafInv f)
+      ((toFunctor (toGroupoids.map f)).sheafPushforwardRingOfSmallSections.{u + 1, u, u + 1, u, u}
+        F.toGroupoids.etaleTopology G.toGroupoids.etaleTopology).obj
+          (GroupoidsOver.etaleRingedSite F.toGroupoids).structureSheaf :=
+  letI := GroupoidsOver.hasSmallCFGTypeSections_ofRepresented (toGroupoids.map f)
+    (Bicategory.Equivalence.id F.toGroupoids) (Bicategory.Equivalence.id G.toGroupoids)
+  GroupoidsOver.etaleModuleStructureSheafMap (toGroupoids.map f)
 
-/-- The direct-image structure map of `toGroupoids.map f` preserves internal-ring operations. -/
+/-- The actual direct structure map is compatible with internal ring operations. -/
 theorem toGroupoidsEtaleStructureSheafMap_isRingCompatible {F G : AlgebraicSpace S}
     (f : F ⟶ G) :
+    letI := GroupoidsOver.hasSmallCFGTypeSections_ofRepresented (toGroupoids.map f)
+      (Bicategory.Equivalence.id F.toGroupoids) (Bicategory.Equivalence.id G.toGroupoids)
     @RingedSite.ToposHom.Direct.IsRingCompatible
       (GroupoidsOver.etaleRingedSite F.toGroupoids)
       (GroupoidsOver.etaleRingedSite G.toGroupoids) inferInstance inferInstance
-      ((toCartesianBasedFunctor (toGroupoids.map f)).morphismOfTopoiIn
-        (StandardTopology.etale.overTopology S) :
-        MorphismOfTopoiIn.{u + 1, u + 1, u, u, u}
-          G.toGroupoids.etaleTopology F.toGroupoids.etaleTopology)
-      ((toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.sheafPushforwardCocontinuous
-        RingCat.{u} F.toGroupoids.etaleTopology G.toGroupoids.etaleTopology)
-      (Functor.sheafPushforwardCocontinuous.compSheafComposeIso
-        (toCartesianBasedFunctor (toGroupoids.map f)).toFunctor (forget RingCat.{u})
+      ((toFunctor (toGroupoids.map f)).morphismOfTopoiOfSmallSheafSections.{u + 1, u, u + 1, u, u}
+        F.toGroupoids.etaleTopology G.toGroupoids.etaleTopology)
+      ((toFunctor (toGroupoids.map f)).sheafPushforwardRingOfSmallSections.{u + 1, u, u + 1, u, u}
+        F.toGroupoids.etaleTopology G.toGroupoids.etaleTopology)
+      ((toFunctor (toGroupoids.map f)).sheafPushforwardRingOfSmallSectionsForgetIso.{u + 1, u, u + 1, u, u}
         F.toGroupoids.etaleTopology G.toGroupoids.etaleTopology)
       (toGroupoidsEtaleStructureSheafMap f) :=
-  sorry
+  letI := GroupoidsOver.hasSmallCFGTypeSections_ofRepresented (toGroupoids.map f)
+    (Bicategory.Equivalence.id F.toGroupoids) (Bicategory.Equivalence.id G.toGroupoids)
+  GroupoidsOver.etaleModuleStructureSheafMap_isRingCompatible (toGroupoids.map f)
 
-/-- The morphism of étale ringed topoi induced by `toGroupoids.map f`. -/
+/-- The morphism of ringed topoi is the canonical actual per-sheaf direct image. -/
 def toGroupoidsEtaleRingedToposHom {F G : AlgebraicSpace S} (f : F ⟶ G) :
     RingedSite.ToposHom
       (GroupoidsOver.etaleRingedSite F.toGroupoids)
       (GroupoidsOver.etaleRingedSite G.toGroupoids) :=
-  @RingedSite.ToposHom.ofDirectImage
-    (GroupoidsOver.etaleRingedSite F.toGroupoids)
-    (GroupoidsOver.etaleRingedSite G.toGroupoids)
-    inferInstance inferInstance
-    ((toCartesianBasedFunctor (toGroupoids.map f)).morphismOfTopoiIn
-      (StandardTopology.etale.overTopology S) :
-      MorphismOfTopoiIn.{u + 1, u + 1, u, u, u}
-        G.toGroupoids.etaleTopology F.toGroupoids.etaleTopology)
-    ((toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.sheafPushforwardCocontinuous
-      RingCat.{u} F.toGroupoids.etaleTopology G.toGroupoids.etaleTopology)
-    (Functor.sheafPushforwardCocontinuous.compSheafComposeIso
-      (toCartesianBasedFunctor (toGroupoids.map f)).toFunctor (forget RingCat.{u})
-      F.toGroupoids.etaleTopology G.toGroupoids.etaleTopology)
-    (toGroupoidsEtaleStructureSheafMap f)
-    (toGroupoidsEtaleStructureSheafMap_isRingCompatible f)
+  letI := GroupoidsOver.hasSmallCFGTypeSections_ofRepresented (toGroupoids.map f)
+    (Bicategory.Equivalence.id F.toGroupoids) (Bicategory.Equivalence.id G.toGroupoids)
+  GroupoidsOver.etaleRingedToposHom (toGroupoids.map f)
 
 /-- Direct image `f_*` of étale `𝒪`-modules along `toGroupoids.map f`. -/
 def etaleModulePushforward {F G : AlgebraicSpace S} (f : F ⟶ G) :
@@ -572,41 +310,10 @@ theorem moduleUnderlyingType_eq {F : AlgebraicSpace S}
           (GroupoidsOver.etaleRingedSite F.toGroupoids).structureSheaf).obj ℳ :=
   rfl
 
-/-- Universe embedding of the underlying sheaf of an étale `𝒪`-module into the
-`Type (u + 1)` étale sheaf category used by `compareBigSmall`. -/
-def moduleUnderlyingULift {F : AlgebraicSpace S}
-    (ℳ : SheafOfModules.{u} (GroupoidsOver.etaleRingedSite F.toGroupoids).structureSheaf) :
-    Sheaf F.toGroupoids.etaleTopology (Type (u + 1)) where
-  obj := (moduleUnderlyingType ℳ).obj ⋙ uliftFunctor.{u + 1, u}
-  property := sorry
-
-/-- Objectwise, `moduleUnderlyingULift` is `ULift` of the underlying type of `ℳ`. -/
-theorem moduleUnderlyingULift_obj {F : AlgebraicSpace S}
-    (ℳ : SheafOfModules.{u} (GroupoidsOver.etaleRingedSite F.toGroupoids).structureSheaf)
-    (x : F.toGroupoids.totalᵒᵖ) :
-    (moduleUnderlyingULift ℳ).obj.obj x = ULift.{u + 1, u} ((moduleUnderlyingType ℳ).obj.obj x) :=
-  rfl
-
-/-- Universe embedding of the underlying sheaf of a small-étale `𝒪`-module. -/
-def smallEtaleModulesULift {H : AlgebraicSpace S} (N : H.Modules) :
-    Sheaf (smallEtaleTopology H) (Type (u + 1)) where
-  obj := ((ToInternal.underlying (structureSheaf H)).obj N).obj ⋙ uliftFunctor.{u + 1, u}
-  property := sorry
-
-/-- Objectwise, `smallEtaleModulesULift` is `ULift` of the underlying type. -/
-theorem smallEtaleModulesULift_obj {H : AlgebraicSpace S} (N : H.Modules)
-    (V : (smallEtaleSite H)ᵒᵖ) :
-    (smallEtaleModulesULift N).obj.obj V =
-      ULift.{u + 1, u} (((ToInternal.underlying (structureSheaf H)).obj N).obj.obj V) :=
-  rfl
-
 section CompareModules
 
 variable {F G : AlgebraicSpace S} (f : F ⟶ G)
 variable (ℳ : SheafOfModules.{u} (GroupoidsOver.etaleRingedSite F.toGroupoids).structureSheaf)
-variable [HasSheafify F.toGroupoids.etaleTopology (Type (u + 1))]
-variable [∀ P : F.toGroupoids.totalᵒᵖ ⥤ Type (u + 1),
-    (toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.op.HasPointwiseRightKanExtension P]
 
 /-- Evaluation of the restricted CFG module pushforward at `V` recovers sections at `u(V)`. -/
 def compareBigSmall_modules_leftEval (V : smallEtaleSite G) :
@@ -628,14 +335,20 @@ abbrev compareBigDiagType (V : smallEtaleSite G) :
 /-- The Type-`u` comma diagram computing `f_small,*` of the restricted underlying sheaf. -/
 abbrev compareSmallDiagType (V : smallEtaleSite G) :
     compareSmallIndex f V ⥤ Type u :=
-  StructuredArrow.proj (op ((etaleBaseChange f).obj V)) (smallEtaleInclusion F).op ⋙
+  StructuredArrow.proj (op ((etaleBaseChange f).obj V)) (AlgebraicGeometry.AlgebraicSpace.smallEtaleToSpaces F).op ⋙
     ((ToInternal.underlying (structureSheaf F)).obj
       ((restrictEtaleModules F).obj ℳ)).obj
 
 /-- Type-valued limits exist for the Type-`u` CFG Kan diagram. -/
 instance compareBigDiagType_hasLimit (V : smallEtaleSite G) :
     HasLimit (compareBigDiagType f ℳ V) :=
-  sorry
+  HasLimit.mk
+    ⟨GroupoidsOver.RepresentedDirectImage.cone (toGroupoids.map f)
+      (Bicategory.Equivalence.id F.toGroupoids) (Bicategory.Equivalence.id G.toGroupoids)
+      (moduleUnderlyingType ℳ) ((smallEtaleToGroupoids G).obj V),
+     GroupoidsOver.RepresentedDirectImage.coneIsLimit (toGroupoids.map f)
+      (Bicategory.Equivalence.id F.toGroupoids) (Bicategory.Equivalence.id G.toGroupoids)
+      (moduleUnderlyingType ℳ) ((smallEtaleToGroupoids G).obj V)⟩
 
 /-- Type-valued limits exist for the Type-`u` small-étale Kan diagram. -/
 instance compareSmallDiagType_hasLimit (V : smallEtaleSite G) :
@@ -644,15 +357,15 @@ instance compareSmallDiagType_hasLimit (V : smallEtaleSite G) :
     ((ToInternal.underlying (structureSheaf F)).obj ((restrictEtaleModules F).obj ℳ))
     ((etaleBaseChange f).obj V)
 
-/-- Type-valued limits exist after restriction along `compareIndexMap`. -/
-instance compareIndexBigDiagType_hasLimit (V : smallEtaleSite G) :
-    HasLimit (compareIndexMap f V ⋙ compareBigDiagType f ℳ V) :=
-  sorry
-
 /-- The Type-`u` Kan diagrams are identified after restriction along `compareIndexMap`. -/
 def compareDiagIsoType (V : smallEtaleSite G) :
     compareIndexMap f V ⋙ compareBigDiagType f ℳ V ≅ compareSmallDiagType f ℳ V :=
   NatIso.ofComponents (fun _ => Iso.refl _) sorry
+
+/-- Type-valued limits exist after restriction along `compareIndexMap`. -/
+instance compareIndexBigDiagType_hasLimit (V : smallEtaleSite G) :
+    HasLimit (compareIndexMap f V ⋙ compareBigDiagType f ℳ V) :=
+  hasLimit_of_iso (compareDiagIsoType f ℳ V).symm
 
 /-- Restriction of compatible families from the CFG Kan comma category to the
 small-étale Kan comma category, in universe `u`. -/
@@ -669,14 +382,14 @@ def compareCoverSectionType (V : smallEtaleSite G) :
   (HasLimit.isoOfNatIso (compareDiagIsoType f ℳ V)).inv ≫
     limit.π (compareIndexMap f V ⋙ compareBigDiagType f ℳ V) (coverIndex f V)
 
-/-- The family of sections of the underlying sheaf on `T ×_F U₀`. -/
+/-- The family of sections of the underlying sheaf on `T ×_{F ×_G V} U₀`. -/
 def compareFibreSectionType (V : smallEtaleSite G) (j : compareBigIndex f V) :
     limit (compareSmallDiagType f ℳ V) ⟶
       (moduleUnderlyingType ℳ).obj.obj (op (compareFibreObj f j)) :=
   compareCoverSectionType f ℳ V ≫
     (moduleUnderlyingType ℳ).obj.map (compareFibreToCover f j).op
 
-/-- Compatibility of the one-arrow covering family on `T ×_F U₀`, in universe `u`. -/
+/-- Compatibility of the one-arrow covering family on `T ×_{F ×_G V} U₀`, in universe `u`. -/
 theorem compareFibreSectionType_compatible (V : smallEtaleSite G)
     (j : compareBigIndex f V) :
     ∀ ⦃W : F.toGroupoids.total⦄ ⦃i k : Unit⦄
@@ -735,14 +448,16 @@ def compareBigSmall_modules_app (V : smallEtaleSite G) :
         ((restrictEtaleModules G).obj ((etaleModulePushforward f).obj ℳ))).obj.obj (op V) ≅
       ((ToInternal.underlying (structureSheaf G)).obj
         ((Modules.pushforward f).obj ((restrictEtaleModules F).obj ℳ))).obj.obj (op V) :=
+  letI := GroupoidsOver.hasSmallCFGTypeSections_ofRepresented (toGroupoids.map f)
+    (Bicategory.Equivalence.id F.toGroupoids) (Bicategory.Equivalence.id G.toGroupoids)
   compareBigSmall_modules_leftEval f ℳ V ≪≫
     ((sheafToPresheaf G.toGroupoids.etaleTopology (Type u)).mapIso
         ((RingedSite.ToposHom.ModulePushforward.forgetIso
             (toGroupoidsEtaleRingedToposHom f)).app ℳ)).app
       (op ((smallEtaleToGroupoids G).obj V)) ≪≫
-      ((toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.op.ranObjObjIsoLimit
-          (moduleUnderlyingType ℳ).obj
-          (op ((smallEtaleToGroupoids G).obj V))) ≪≫
+      (pointwiseRightKanExtensionIsPointwiseRightKanExtension
+        (toFunctor (toGroupoids.map f)).op (moduleUnderlyingType ℳ).obj
+        (op ((smallEtaleToGroupoids G).obj V))).isoLimit ≪≫
         (compareLimitIsoType f ℳ V) ≪≫
           compareBigSmall_modules_rightEval f ℳ V
 
@@ -777,22 +492,6 @@ def compareBigSmall_modules :
     (compareBigSmall_modules_underlyingInv f ℳ) sorry sorry
   hom_inv_id := sorry
   inv_hom_id := sorry
-
-/-- After universe embedding, the underlying sheaf of the left-hand `𝒪_G`-module
-is the Type-`(u + 1)` restriction of the CFG pushforward. -/
-theorem compareBigSmall_modules_spec :
-    smallEtaleModulesULift
-        ((restrictEtaleModules G).obj ((etaleModulePushforward f).obj ℳ)) =
-      (restrictEtale G).obj ((etalePushforward f).obj (moduleUnderlyingULift ℳ)) :=
-  sorry
-
-/-- After universe embedding, the underlying sheaf of the right-hand `𝒪_G`-module
-is the Type-`(u + 1)` small étale pushforward of the restricted underlying sheaf. -/
-theorem compareBigSmall_modules_spec_small :
-    smallEtaleModulesULift
-        ((Modules.pushforward f).obj ((restrictEtaleModules F).obj ℳ)) =
-      (sheafPushforwardType f).obj ((restrictEtale F).obj (moduleUnderlyingULift ℳ)) :=
-  sorry
 
 /-- The underlying type-valued sheaf map of `compareBigSmall_modules` is
 `compareBigSmall_modules_underlying`. -/

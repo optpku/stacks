@@ -1,47 +1,42 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.GroupTheory.PGroup
-public import Mathlib.Topology.Algebra.Group.Basic
+public import ReasLib.GroupTheory.ProP
 
 @[expose] public section
 
-open scoped Topology
-
 universe u
 
-/-- A closed `p`-subgroup that is maximal among closed `p`-subgroups. -/
-def IsMaximalProPSubgroup (p : ℕ) {G : Type u} [Group G] [TopologicalSpace G]
-    (H : Subgroup G) : Prop :=
-  IsPGroup p H ∧ IsClosed (H : Set G) ∧
-    ∀ K : Subgroup G, IsPGroup p K → IsClosed (K : Set G) → H ≤ K → K = H
+#check (IsProPGroup :
+  ℕ → ∀ (G : Type u) [Group G] [TopologicalSpace G], Prop)
 
-namespace IsMaximalProPSubgroup
+#check (IsProPGroup.iff :
+  ∀ {p : ℕ} {G : Type u} [Group G] [TopologicalSpace G],
+    IsProPGroup p G ↔
+      IsTopologicalGroup G ∧ CompactSpace G ∧ T2Space G ∧ TotallyDisconnectedSpace G ∧
+        ∀ N : OpenNormalSubgroup G, IsPGroup p (G ⧸ N.toSubgroup))
 
-variable (p : ℕ) {G : Type u} [Group G] [TopologicalSpace G] {H : Subgroup G}
+#check (IsProPGroup.isPGroup_quotient :
+  ∀ {p : ℕ} {G : Type u} [Group G] [TopologicalSpace G],
+    IsProPGroup p G → ∀ N : OpenNormalSubgroup G, IsPGroup p (G ⧸ N.toSubgroup))
 
-/-- A maximal pro-`p` subgroup is a `p`-group. -/
-theorem isPGroup (hH : IsMaximalProPSubgroup p H) : IsPGroup p H := sorry
+#check (IsMaximalProPSubgroup :
+  ℕ → ∀ {G : Type u} [Group G] [TopologicalSpace G], Subgroup G → Prop)
 
-/-- A maximal pro-`p` subgroup is closed. -/
-theorem isClosed (hH : IsMaximalProPSubgroup p H) : IsClosed (H : Set G) :=
-  sorry
+#check (IsMaximalProPSubgroup.isProPGroup :
+  ∀ {p : ℕ} {G : Type u} [Group G] [TopologicalSpace G] {H : Subgroup G},
+    IsMaximalProPSubgroup p H → IsProPGroup p H)
 
-/-- A closed `p`-supergroup of a maximal pro-`p` subgroup equals it. -/
-theorem eq_of_le (hH : IsMaximalProPSubgroup p H) {K : Subgroup G}
-    (hK : IsPGroup p K) (hKcl : IsClosed (K : Set G)) (hHK : H ≤ K) : K = H :=
-  sorry
+#check (IsMaximalProPSubgroup.isClosed :
+  ∀ {p : ℕ} {G : Type u} [Group G] [TopologicalSpace G] {H : Subgroup G},
+    IsMaximalProPSubgroup p H → IsClosed (H : Set G))
 
-/-- Unfolding of maximality among closed `p`-subgroups. -/
-theorem iff :
+#check (IsMaximalProPSubgroup.eq_of_le :
+  ∀ {p : ℕ} {G : Type u} [Group G] [TopologicalSpace G] {H : Subgroup G},
+    IsMaximalProPSubgroup p H → ∀ {K : Subgroup G},
+      IsProPGroup p K → IsClosed (K : Set G) → H ≤ K → K = H)
+
+#check (IsMaximalProPSubgroup.iff :
+  ∀ {p : ℕ} {G : Type u} [Group G] [TopologicalSpace G] {H : Subgroup G},
     IsMaximalProPSubgroup p H ↔
-      IsPGroup p H ∧ IsClosed (H : Set G) ∧
-        ∀ K : Subgroup G, IsPGroup p K → IsClosed (K : Set G) → H ≤ K → K = H :=
-  sorry
-
-end IsMaximalProPSubgroup
+      IsProPGroup p H ∧ IsClosed (H : Set G) ∧
+        ∀ K : Subgroup G, IsProPGroup p K → IsClosed (K : Set G) → H ≤ K → K = H)

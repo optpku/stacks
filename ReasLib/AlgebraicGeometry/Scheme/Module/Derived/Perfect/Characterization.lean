@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Noetherian
@@ -27,6 +21,7 @@ cohomology sheaves are coherent and it has finite Tor dimension. -/
 @[stacks 03TP]
 theorem isPerfect_iff_coherentCohomology_and_hasFiniteTorDimension
     {X : Scheme.{u}} [IsNoetherian X]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     (K : RingedSpace.ModuleDerived X.toRingedSpace) :
     RingedSpace.ModuleDerived.IsPerfect K ↔
       DerivedCategory.cohomologyIn
@@ -45,6 +40,7 @@ theorem IsPerfect.cohomologyIn_isCoherent
 /-- A perfect derived module on a Noetherian scheme has finite Tor dimension. -/
 theorem IsPerfect.hasFiniteTorDimension
     {X : Scheme.{u}} [IsNoetherian X]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     {K : RingedSpace.ModuleDerived X.toRingedSpace}
     (hK : RingedSpace.ModuleDerived.IsPerfect K) :
     RingedSpace.HasFiniteTorDimension K := sorry
@@ -53,6 +49,7 @@ theorem IsPerfect.hasFiniteTorDimension
 degree and finite Tor dimension is perfect. -/
 theorem isPerfect_of_coherentCohomology_of_hasFiniteTorDimension
     {X : Scheme.{u}} [IsNoetherian X]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     {K : RingedSpace.ModuleDerived X.toRingedSpace}
     (hcoh : DerivedCategory.cohomologyIn
       (SheafOfModules.isCoherent X.toRingedSpace.ringCatSheaf) K)

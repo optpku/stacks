@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.PowerSeries.Exp
@@ -67,42 +61,6 @@ variable {C : Type u} [Category.{v} C] (toScheme : C ⥤ Scheme.{w})
   (firstChernClass : ∀ X, (toScheme.obj X).PicardGroup →+ Agrade X 1)
   [∀ X, Algebra ℚ (A.obj (Opposite.op X))]
 
-/-- Construct a Chern character from an explicit family of ring homomorphisms and its
-grading, naturality, and line-bundle laws. -/
-def ofLaws
-    (app : ∀ X, Scheme.VectorBundleK0 (toScheme.obj X) →+*
-      PowerSeries (A.obj (Opposite.op X)))
-    (coeff_mem : ∀ X (alpha : Scheme.VectorBundleK0 (toScheme.obj X)) (i : ℕ),
-      PowerSeries.coeff i (app X alpha) ∈ Agrade X i)
-    (naturality : ∀ {X' X : C} (f : X' ⟶ X)
-        (alpha : Scheme.VectorBundleK0 (toScheme.obj X)),
-      PowerSeries.map (A.map f.op).hom (app X alpha) =
-        app X' (Scheme.VectorBundleK0.pullback (toScheme.map f) alpha))
-    (lineBundle : ∀ (X : C) (L : (toScheme.obj X).PicardGroup),
-      app X (picardK0Class (toScheme.obj X) L) =
-        exp (firstChernClass X L : A.obj (Opposite.op X))) :
-    ChernCharacter toScheme A Agrade firstChernClass where
-  app := app
-  coeff_mem := coeff_mem
-  naturality := naturality
-  lineBundle := lineBundle
-
-/-- The family underlying `ofLaws` is the supplied family of ring homomorphisms. -/
-theorem ofLaws_app
-    (app : ∀ X, Scheme.VectorBundleK0 (toScheme.obj X) →+*
-      PowerSeries (A.obj (Opposite.op X)))
-    (coeff_mem : ∀ X (alpha : Scheme.VectorBundleK0 (toScheme.obj X)) (i : ℕ),
-      PowerSeries.coeff i (app X alpha) ∈ Agrade X i)
-    (naturality : ∀ {X' X : C} (f : X' ⟶ X)
-        (alpha : Scheme.VectorBundleK0 (toScheme.obj X)),
-      PowerSeries.map (A.map f.op).hom (app X alpha) =
-        app X' (Scheme.VectorBundleK0.pullback (toScheme.map f) alpha))
-    (lineBundle : ∀ (X : C) (L : (toScheme.obj X).PicardGroup),
-      app X (picardK0Class (toScheme.obj X) L) =
-        exp (firstChernClass X L : A.obj (Opposite.op X))) (X : C) :
-    (ofLaws toScheme A Agrade firstChernClass app coeff_mem naturality lineBundle).app X =
-      app X := sorry
-
 /-- Two Chern characters are equal when their objectwise ring homomorphisms agree. -/
 @[ext]
 theorem ext
@@ -127,7 +85,7 @@ theorem existsUniqueChernCharacter
     (A : Cᵒᵖ ⥤ RingCat.{x})
     (Agrade : ∀ X, ℕ → Submodule ℤ (A.obj (Opposite.op X)))
     [∀ X, GradedAlgebra (Agrade X)] [∀ X, Algebra ℚ (A.obj (Opposite.op X))]
-    (S : Theory toScheme A Agrade) :
+    (S : CohomologyTheory toScheme A Agrade) :
     ∃ ch : ChernCharacter toScheme A Agrade S.firstChernClass,
       ∀ ch', ch' = ch := sorry
 

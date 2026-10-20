@@ -1,51 +1,33 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap99.Lemma_99_10_1_Picard
-public import stacks_project.Chap99.Lemma_99_10_1_Inclusion
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Picard.OpenImmersion
 
 /-!
-# Lemma 99.10.1
+# The Picard stack is open in the stack of coherent sheaves
 
-The natural map from the Picard category of a flat, finitely presented, proper
-morphism of algebraic spaces to the category of coherent sheaves is
-representable by open immersions: invertibility of a coherent module on a
-fibre is cut out by an open subscheme of the test scheme.
+For a flat, finitely presented, proper morphism of algebraic spaces, the
+natural inclusion `Picard.toCoh f` is representable by open immersions.
+The pinned source identifies this with the following equivalent criterion:
+each coherent family has an open subscheme representing all base changes
+on which its actual pulled-back module is invertible.
 -/
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.Picard
 open CategoryTheory.MonoidalCategory
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Picard
-
-variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
-
-/-- Lemma 99.10.1: let `S` be a scheme, and let `f : X ⟶ B` be a morphism of
-algebraic spaces over `S` which is flat, of finite presentation, and proper.
-The natural map `toCoh f : Pic_{X/B} ⟶ Coh_{X/B}` is representable by open
-immersions. Equivalently, for every object `(T, g, F)` of `CohStack.Obj f`
-there is an open subscheme `U ⊂ T` such that a morphism of schemes `T' ⟶ T`
-over `B` factors through `U` if and only if the pullback of `F` to `X_{T'}` is
-invertible. -/
-@[stacks 0D03]
-theorem exists_opens_isInvertible_iff (f : X ⟶ B) [Flat f] [FinitePresentation f]
-    [Proper f] (x : CohStack.Obj f) :
-    ∃ U : (x.σ.left.left).Opens,
-      ∀ {τ : CohStack.SchemesOver B} (h : τ ⟶ x.σ),
-        Nonempty (Over.mk h.left.left ⟶ Over.mk U.ι) ↔
-          isInvertibleObject
-            ((Modules.pullback (CohStack.fiberMap f h)).obj x.module) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Picard
+/- Lemma 99.10.1: the natural inclusion of the Picard stack into the coherent
+stack is representable by open immersions, expressed by its equivalent
+open-subscheme criterion for arbitrary base changes. -/
+@[stacks 0D03] #check
+  (AlgebraicGeometry.AlgebraicSpace.Picard.exists_opens_isInvertible_iff :
+    ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B),
+      [Flat f] → [FinitePresentation f] → [Proper f] →
+      ∀ x : CohStack.Obj f, ∃ U : (x.σ.left.left).Opens,
+        ∀ {τ : CohStack.SchemesOver B} (h : τ ⟶ x.σ),
+          Nonempty (Over.mk h.left.left ⟶ Over.mk U.ι) ↔
+            isInvertibleObject ((Modules.pullback (CohStack.fiberMap f h)).obj x.module))

@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.Algebra.Category.ModuleCat.ChangeOfRings.Additive
 public import ReasLib.Algebra.Category.ModuleCat.Presheaf.BaseChange
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite
 import Mathlib.Tactic.CrossRefAttribute
@@ -52,7 +47,24 @@ abbrev functor {U V : C} (f : U ⟶ V) :
       ModuleCat.{max w z} (O.obj.obj (op U)) :=
   forget O ⋙ PresheafOfModules.BaseChange.functor O.obj f.op
 
-/-- Lemma 18.24.3 (0GZN): the module-sheaf component of the presheaf base-change map. -/
+/-- Forgetting the sheaf condition preserves addition of module morphisms. -/
+instance forget_additive : (forget.{u, v, w, z} O).Additive where
+  map_add := by intros; rfl
+
+/-- Evaluation of module sheaves preserves addition of morphisms. -/
+instance evaluation_additive (U : C) : (evaluation.{u, v, w, z} O U).Additive where
+  map_add := by intros; rfl
+
+/-- Evaluation followed by extension of scalars preserves addition of morphisms. -/
+instance functor_additive {U V : C} (f : U ⟶ V) :
+    (functor.{u, v, w, z} O f).Additive where
+  map_add {M N} a b := by
+    change (ModuleCat.extendScalars.{w, w, max w z} ((O.obj.map f.op).hom)).map
+        ((evaluation O V).map (a + b)) = _
+    rw [Functor.map_add, Functor.map_add]
+    rfl
+
+/-- The canonical base-change map from scalar-extended sections to sections over the target. -/
 @[stacks 0GZN "module-sheaf base-change map"]
 noncomputable abbrev map
     (M : ringedSiteModuleCategory.{u, v, max w z, w} J O)
@@ -60,7 +72,7 @@ noncomputable abbrev map
     (functor O f).obj M ⟶ (evaluation O U).obj M :=
   PresheafOfModules.BaseChange.map O.obj M.val f.op
 
-/-- Lemma 18.24.3 (0GZN): the natural module-sheaf base-change comparison associated to
+/-- The natural module-sheaf base-change comparison associated to
 `f : U ⟶ V`. -/
 @[stacks 0GZN "natural module-sheaf base-change comparison"]
 noncomputable abbrev natTrans {U V : C} (f : U ⟶ V) :
@@ -74,7 +86,7 @@ theorem natTrans_app
     {U V : C} (f : U ⟶ V) :
     (natTrans O f).app M = map O M f := sorry
 
-/-- Lemma 18.24.3 (0GZN): base-change compatibility of a module sheaf, pulled back from the
+/-- Base-change compatibility of a module sheaf, pulled back from the
 canonical property of its underlying module presheaf. -/
 @[stacks 0GZN "module-sheaf base-change compatibility"]
 abbrev compatible :

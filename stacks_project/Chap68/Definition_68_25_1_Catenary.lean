@@ -1,67 +1,31 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.Topology.Catenary
-public import stacks_project.Chap65.Lemma_65_6_2_OfOver
-public import stacks_project.Chap66.Definition_66_4_1_Points
-public import stacks_project.Chap67.Lemma_67_53_4_UniversalHomeomorphism
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Catenary
 
 /-!
 # Catenary algebraic spaces
 
-An algebraic space is catenary when every canonical topology on its points
-is a catenary topological space.
+An algebraic space is catenary when its canonical space of points is catenary.
 -/
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry TopologicalSpace
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.IsCatenary :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}}, AlgebraicGeometry.AlgebraicSpace S → Prop)
 
-/-- An algebraic space is catenary when every canonical topology on `|X|` is a
-catenary space. -/
-@[mk_iff]
-class IsCatenary {S : Scheme.{u}} (X : AlgebraicSpace S) : Prop where
-  /-- Every canonical topology on `|X|` is a catenary space. -/
-  catenarySpace :
-    ∀ (τ : TopologicalSpace (Points X)),
-      IsPointsTopology X τ → @CatenarySpace (Points X) τ
+#check (AlgebraicGeometry.AlgebraicSpace.isCatenary_iff :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S),
+    AlgebraicGeometry.AlgebraicSpace.IsCatenary X ↔
+      TopologicalSpace.CatenarySpace (AlgebraicGeometry.AlgebraicSpace.Points X))
 
-namespace IsCatenary
+#check (AlgebraicGeometry.AlgebraicSpace.isCatenary_ofOver_iff :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (U : CategoryTheory.Over S),
+    AlgebraicGeometry.AlgebraicSpace.IsCatenary (AlgebraicGeometry.AlgebraicSpace.ofOver U) ↔
+      TopologicalSpace.CatenarySpace U.left)
 
-/-- A catenary algebraic space has catenary underlying point space in every
-canonical topology. -/
-theorem spec {S : Scheme.{u}} (X : AlgebraicSpace S) [IsCatenary X]
-    {τ : TopologicalSpace (Points X)} (hτ : IsPointsTopology X τ) :
-    @CatenarySpace (Points X) τ :=
-  sorry
-
-/-- Catenarity of every canonical topology on `|X|` witnesses `IsCatenary`. -/
-theorem of {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (h : ∀ (τ : TopologicalSpace (Points X)),
-      IsPointsTopology X τ → @CatenarySpace (Points X) τ) :
-    IsCatenary X :=
-  sorry
-
-end IsCatenary
-
-/-- A catenary scheme over `S`, viewed as an algebraic space, is catenary. -/
-instance instIsCatenary_ofOver {S : Scheme.{u}} (U : Over S)
-    [CatenarySpace U.left] : IsCatenary (ofOver U) :=
-  sorry
-
-/-- A scheme over `S`, viewed as an algebraic space, is catenary if and only if
-the underlying scheme is a catenary space. -/
-theorem isCatenary_ofOver_iff {S : Scheme.{u}} (U : Over S) :
-    IsCatenary (ofOver U) ↔ CatenarySpace U.left :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.instIsCatenary_ofOver :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (U : CategoryTheory.Over S)
+    [TopologicalSpace.CatenarySpace U.left],
+    AlgebraicGeometry.AlgebraicSpace.IsCatenary (AlgebraicGeometry.AlgebraicSpace.ofOver U))

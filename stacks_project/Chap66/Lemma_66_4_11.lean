@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_4_11_Factorization
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Monomorphism
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,7 +15,7 @@ open AlgebraicGeometry.AlgebraicSpace
 Assume `p` and `q` determine the same point of `|X|` and `p` is a monomorphism.
 Then `q` factors uniquely through `p`. -/
 @[stacks 0H2X] #check
-  (FieldValuedPoint.unique_factorization_of_mono :
-    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {p q : FieldValuedPoint X} [Mono p.hom],
-      Points.mk p = Points.mk q →
+  (AlgebraicGeometry.AlgebraicSpace.FieldValuedPoint.unique_factorization_of_mono :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {q p : FieldValuedPoint X},
+      Mono p.hom → Points.mk q = Points.mk p →
         Nonempty (q.Factorization p) ∧ Subsingleton (q.Factorization p))

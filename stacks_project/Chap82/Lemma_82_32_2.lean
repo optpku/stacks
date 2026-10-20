@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap82.Lemma_82_32_2_Degree
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CycleGroup.Degree
 import StacksCheckRecall
 
 /-!
@@ -29,9 +23,10 @@ Let α = ∑ n_i [Z_i] be in Z_0(X). Then deg(α) = ∑ n_i deg(Z_i), where
 deg(Z_i) is the degree of Z_i ⟶ Spec k, i.e.
 deg(Z_i) = dim_k Γ(Z_i, 𝒪_{Z_i}). -/
 @[stacks 0ESH]
-#check (Hom.zeroCycleDegree_eq_finsum :
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.zeroCycleDegree_eq_finsum :
   ∀ {k : Type u} [Field k] {X : AlgebraicSpace (Spec (CommRingCat.of k))}
-    [Proper (toBase X)] (α : (toBase X).cycleGroup (fun _ ↦ (0 : ℤ)) 0),
+    [Proper (SchemeRealization.toBase X)]
+    (α : Hom.cycleGroup (SchemeRealization.toBase X) (fun _ ↦ (0 : ℤ)) 0),
     Hom.zeroCycleDegree α =
       ∑ᶠ x : Points X,
         (α : Function.locallyFinsupp (Points X) ℤ) x *

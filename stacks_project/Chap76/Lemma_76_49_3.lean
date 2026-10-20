@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_49_3_BaseLocus
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.ClosedImmersion.BaseLocus
+import StacksCheckRecall
 
 /-!
 # Where a morphism of algebraic spaces is a closed immersion
@@ -26,19 +21,18 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.IsClosedImmersion
 
-/-- Lemma 76.49.3: Consider a commutative triangle of algebraic spaces over `S`
+/- Lemma 76.49.3: Consider a commutative triangle of algebraic spaces over `S`
 given by `f : X ⟶ Y` and `q : Y ⟶ Z`. Assume that `p = f ≫ q` is locally of
 finite type and universally closed, and that `q` is separated. Then a
 morphism `g : Z' ⟶ Z` factors through the open subspace
 `baseLocus f q ⊂ Z` if and only if the base change
-`overBaseChange f q g : X_{Z'} ⟶ Y_{Z'}` is a closed immersion. -/
-@[stacks 05XA]
-theorem exists_lift_iff_overBaseChange {S : Scheme.{u}}
+`Unramified.overBaseChange f q g : X_{Z'} ⟶ Y_{Z'}` is a closed immersion. -/
+@[stacks 05XA] #check (AlgebraicGeometry.AlgebraicSpace.IsClosedImmersion.exists_lift_iff_overBaseChange :
+    ∀ {S : Scheme.{u}}
     {X Y Z Z' : AlgebraicSpace S} (f : X ⟶ Y) (q : Y ⟶ Z) (g : Z' ⟶ Z)
     [LocallyOfFiniteType (f ≫ q)] [UniversallyClosed (f ≫ q)]
-    [Separated q] :
+    [Separated q],
     (∃ ℓ : Z' ⟶ (baseLocus f q).X, ℓ ≫ (baseLocus f q).ι = g) ↔
-      IsClosedImmersion (overBaseChange f q g) :=
-  sorry
+      IsClosedImmersion (Unramified.overBaseChange f q g))
 
 end AlgebraicGeometry.AlgebraicSpace.IsClosedImmersion

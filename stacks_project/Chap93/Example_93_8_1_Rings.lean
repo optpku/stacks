@@ -1,18 +1,14 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+import StacksCheckRecall
 public import stacks_project.Chap93.Example_93_8_1_Rings_Category
+public import ReasLib.AlgebraicGeometry.FormalDeformation.FlatAlgebra.Localization
+public import ReasLib.AlgebraicGeometry.FormalDeformation.FlatAlgebra.Henselization
 
 /-!
 # Deformation category of a ring
 
-The category `F` of pairs `(A, P)` and the residue-fibre slice
-`Def_P = F_{x0}` of Example 93.8.1.
+The category of flat algebras over Artinian local bases and its residue-object slice.
 -/
 
 @[expose] public section
@@ -24,34 +20,48 @@ universe u
 variable (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-/-- Example 93.8.1 (Rings) (1)
-Let `F` be the category of pairs `(A, P)` consisting of an object `A` of
-`ArtinianLocalAlgCat Λ k` and a flat `A`-algebra `P`, with morphisms
-`(f, g) : (B, Q) ⟶ (A, P)` given by `f : B ⟶ A` in
-`ArtinianLocalAlgCat Λ k` together with an `f`-linear ring map `g : Q → P`
-inducing an isomorphism `Q ⊗_{B, f} A ≅ P` via `canonicalTensorMap`. The
-forgetful functor `p = FlatAlgebraCat.forget` sends `(A, P)` to `A` and
-`(f, g)` to `f`, and is cofibered in groupoids. -/
-@[stacks 0DY1]
-abbrev flatAlgebraCategory := FlatAlgebraCat Λ k
+/- Example 93.8.1 (Rings) (1)
+An object is a pair (A, P) with A in C_Λ and P a flat commutative A-algebra.
+A morphism (f, g) : (B, Q) ⟶ (A, P) has a base arrow f and an f-linear ring
+map g whose canonical tensor lift A ⊗[B] Q → P is bijective. The reversed
+tensor order is the canonical commutative convention for Q ⊗[B] A ≅ P.
+-/
+@[stacks 0DY1] #check (FlatAlgebraCat Λ k : Type (u + 1))
 
-/-- The forgetful functor of `flatAlgebraCategory` sends `(A, P)` to `A`. -/
-theorem flatAlgebraCategory_forget_obj (X : flatAlgebraCategory Λ k) :
-    FlatAlgebraCat.forget.obj X = X.base := sorry
+#check (FlatAlgebraCat.forget : FlatAlgebraCat Λ k ⥤ ArtinianLocalAlgCat Λ k)
+#check (FlatAlgebraCat.forget_obj :
+  ∀ (X : FlatAlgebraCat Λ k), FlatAlgebraCat.forget.obj X = X.base)
+#check (FlatAlgebraCat.forget_map :
+  ∀ {Q P : FlatAlgebraCat Λ k} (f : Q ⟶ P), FlatAlgebraCat.forget.map f = f.baseHom)
 
-/-- The forgetful functor of `flatAlgebraCategory` sends `(f, g)` to `f`. -/
-theorem flatAlgebraCategory_forget_map {Q P : flatAlgebraCategory Λ k} (f : Q ⟶ P) :
-    FlatAlgebraCat.forget.map f = f.baseHom := sorry
+/- Example 93.8.1 (Rings) (1), cofiberedness
+The projection sends (A, P) to A and (f, g) to f and is cofibered in groupoids.
+-/
+@[stacks 0DY1] #check (FlatAlgebraCat.instIsFiberedInGroupoids_forget :
+  IsFibered.InGroupoids
+    (FlatAlgebraCat.forget : FlatAlgebraCat Λ k ⥤ ArtinianLocalAlgCat Λ k).op)
 
-/-- Example 93.8.1 (Rings) (2)
-Given a `k`-algebra `P`, let `x0 = (k, P)` be the corresponding object of the
-fibre `F(k)`. The deformation category is the residue-fibre slice
-`Def_P = F_{x0} = Over (Fiber.fiberInclusion.obj (residueObj Λ P))`. -/
-@[stacks 0DY1]
+/- Example 93.8.1 (Rings) (2)
+For a commutative k-algebra P, the residue-fiber object x₀ is the pair (k, P).
+The deformation category Def_P = F_{x₀} consists of arrows to this residue
+object, with morphisms the commuting triangles.
+-/
+@[stacks 0DY1] #check (FlatAlgebraCat.deformationCategory Λ k :
+  ∀ (P : Type u) [CommRing P] [Algebra k P], Type (u + 1))
+
+#check (FlatAlgebraCat.residueObj Λ k :
+  ∀ (P : Type u) [CommRing P] [Algebra k P],
+    (FlatAlgebraCat.forget : FlatAlgebraCat Λ k ⥤ ArtinianLocalAlgCat Λ k).Fiber
+      (ArtinianLocalAlgCat.residue Λ k))
+#check (FlatAlgebraCat.residueObj_fiberInclusion Λ k :
+  ∀ (P : Type u) [CommRing P] [Algebra k P],
+    Fiber.fiberInclusion.obj (FlatAlgebraCat.residueObj Λ k P) =
+      FlatAlgebraCat.ofResidue Λ k P)
+#check (FlatAlgebraCat.deformationCategory_spec Λ k :
+  ∀ (P : Type u) [CommRing P] [Algebra k P],
+    FlatAlgebraCat.deformationCategory Λ k P =
+      Over (Fiber.fiberInclusion.obj (FlatAlgebraCat.residueObj Λ k P)))
+
+/-- The deformation category of a commutative residue-field algebra. -/
 abbrev deformationCategory (P : Type u) [CommRing P] [Algebra k P] :=
   FlatAlgebraCat.deformationCategory Λ k P
-
-/-- `deformationCategory P` is the Over-slice of the residue-fibre object `x0 = (k, P)`. -/
-theorem deformationCategory_spec (P : Type u) [CommRing P] [Algebra k P] :
-    deformationCategory Λ k P =
-      Over (Fiber.fiberInclusion.obj (FlatAlgebraCat.residueObj Λ k P)) := sorry

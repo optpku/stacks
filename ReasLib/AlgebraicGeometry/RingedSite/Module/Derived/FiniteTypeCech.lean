@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.ExtendedCech
@@ -122,9 +116,7 @@ noncomputable def localizedMapToUnit (U : C) {K : RingedSiteDerived J O}
       (RingedSite.Hom.moduleCat_hasDerivedCategory
         ((RingedSite.ofCommRingSheaf J O).localization U))
       (localizedRestriction.{u} (RingedSite.ofCommRingSheaf J O) U)
-      (localizedRestriction_additive (RingedSite.ofCommRingSheaf J O) U)
-      (localizedRestriction_preservesFiniteLimits (RingedSite.ofCommRingSheaf J O) U)
-      (localizedRestriction_preservesFiniteColimits (RingedSite.ofCommRingSheaf J O) U)
+      inferInstance inferInstance inferInstance
       (0 : ℤ)).hom.app (unitModule J O))
 
 /-- The localized map to the structure module is the derived restricted map followed by the
@@ -145,9 +137,7 @@ theorem localizedMapToUnit_eq (U : C) {K : RingedSiteDerived J O}
           (RingedSite.Hom.moduleCat_hasDerivedCategory
             ((RingedSite.ofCommRingSheaf J O).localization U))
           (localizedRestriction.{u} (RingedSite.ofCommRingSheaf J O) U)
-          (localizedRestriction_additive (RingedSite.ofCommRingSheaf J O) U)
-          (localizedRestriction_preservesFiniteLimits (RingedSite.ofCommRingSheaf J O) U)
-          (localizedRestriction_preservesFiniteColimits (RingedSite.ofCommRingSheaf J O) U)
+          inferInstance inferInstance inferInstance
           (0 : ℤ)).hom.app (unitModule J O)) := sorry
 
 /-- A finite-type ideal sheaf admits a derived Čech object mapping to the structure sheaf.

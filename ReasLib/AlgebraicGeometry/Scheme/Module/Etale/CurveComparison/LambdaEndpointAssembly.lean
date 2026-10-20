@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.ArithmeticGeometricTrace
@@ -60,12 +54,12 @@ variable [∀ U : Y.Etale, HasWeakSheafify (Y.smallEtaleTopology.over U) (Module
 variable [HasWeakSheafify Y.smallEtaleTopology (ModuleCat.{u + 1} (ActualRootsModule.Coeff.{u} (Nat.card Λ)))]
 variable [∀ U : Y.Etale, HasWeakSheafify (Y.smallEtaleTopology.over U)
     (ModuleCat.{u + 1} (ActualRootsModule.Coeff.{u} (Nat.card Λ)))]
-variable (M : (finiteTypeDiscreteModule Λ (Aut (standardFiniteEtaleFiber xbar))).FullSubcategory)
+variable (M : (finiteTypeDiscreteModule Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber xbar))).FullSubcategory)
 
 def scalarRepresentation :
     (finiteTypeDiscreteModule (ActualRootsModule.Coeff.{u} (Nat.card Λ))
-      (Aut (standardFiniteEtaleFiber xbar))).FullSubcategory :=
-  ⟨⟨((ActualFiniteCoefficient.modules Λ).mapAction (Aut (standardFiniteEtaleFiber xbar))).obj M.obj.obj,
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber xbar))).FullSubcategory :=
+  ⟨⟨((ActualFiniteCoefficient.modules Λ).mapAction (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber xbar))).obj M.obj.obj,
       by sorry⟩, by sorry⟩
 
 def finiteScalarSheaf :
@@ -86,7 +80,7 @@ by the PUBLISHED concrete counit. -/
 def scalarStalkIso :
     (StalkRepresentation.stalk (ActualRootsModule.Coeff.{u} (Nat.card Λ)) xbar).obj
       (finiteScalarSheaf Λ xbar M).obj ≅ (scalarRepresentation Λ xbar M).obj.obj.V :=
-  ((geometricPointEtalePoint xbar).presheafFiberCompIso
+  ((AlgebraicGeometry.Scheme.GeometricPoint.toSmallEtalePoint xbar).presheafFiberCompIso
       (ActualFiniteCoefficient.modules Λ : ModuleCat.{u + 1} Λ ⥤
         ModuleCat.{u + 1} (ActualRootsModule.Coeff.{u} (Nat.card Λ)))).app
       ((associatedSheafFunctor Λ xbar).obj M).obj ≪≫

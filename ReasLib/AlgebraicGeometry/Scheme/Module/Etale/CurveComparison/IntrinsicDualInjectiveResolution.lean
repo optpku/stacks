@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.LocalHomResolutionAugmentation
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.LocalHomIntrinsicBridge
@@ -34,7 +28,7 @@ variable [∀ Y : Scheme.{u}, EnoughInjectives (Sheaf Y.smallEtaleTopology
 variable [∀ {Y Z : Scheme.{u}} (j : Y ⟶ Z) [IsOpenImmersion j]
   (F : Y.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} (ActualRootsModule.Coeff.{u} (Nat.card R))),
   (etaleRestriction j).op.HasLeftKanExtension F]
-variable (M : (finiteTypeDiscreteModule R (Aut (standardFiniteEtaleFiber x))).FullSubcategory)
+variable (M : (finiteTypeDiscreteModule R (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber x))).FullSubcategory)
 
 abbrev source := (associatedSheafFunctor R x).obj M
 abbrev sourceResolution := FiniteAssociatedResolution.complex R x M

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap97.Lemma_97_5_1_Pullback
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.LimitPreservingOnObjects.BaseChange
 import StacksCheckRecall
 
 @[expose] public section

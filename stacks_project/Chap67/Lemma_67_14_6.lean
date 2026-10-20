@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.ShortComplex.ShortExact
-public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
-public import stacks_project.Chap67.Lemma_67_14_6_Union
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.Union
 
 /-!
 # Lemma 67.14.6
@@ -29,27 +22,20 @@ namespace AlgebraicGeometry.AlgebraicSpace
 variable {S : Scheme.{u}} {X : AlgebraicSpace S}
 variable (I J : IdealSubobject X) [IsQuasiCoherent I] [IsQuasiCoherent J]
 
-/-- Lemma 67.14.6 (1): for closed subspaces `Y = subscheme I` and `Z = subscheme J`
-of an algebraic space `X` over a scheme `S`, the pushed-forward structure sheaves
-fit into a short exact sequence
-`0 ⟶ 𝒪_{Y ∪ Z} ⟶ 𝒪_Y × 𝒪_Z ⟶ 𝒪_{Y ∩ Z} ⟶ 0` of `𝒪_X`-modules, where the
-terms are viewed as `𝒪_X`-modules via closed-immersion pushforward. -/
-@[stacks 0CZ1]
-theorem schemeTheoreticUnion_structureSheaf_shortExact :
-    (schemeTheoreticUnionShortComplex I J).ShortExact :=
-  sorry
+/- Lemma 67.14.6 (1): the structure-sheaf Mayer–Vietoris sequence is short
+exact after closed-immersion pushforward to the ambient algebraic space. -/
+@[stacks 0CZ1] #check
+  (AlgebraicGeometry.AlgebraicSpace.schemeTheoreticUnion_structureSheaf_shortExact I J :
+    (schemeTheoreticUnionShortComplex I J).ShortExact)
 
-/-- Lemma 67.14.6 (2): for closed subspaces `Y = subscheme I` and `Z = subscheme J`
-of an algebraic space `X` over a scheme `S`, the square of closed-subspace
-inclusions `Y ∩ Z ⟶ Y`, `Y ∩ Z ⟶ Z`, `Y ⟶ Y ∪ Z`, `Z ⟶ Y ∪ Z` is cocartesian
-in `AlgebraicSpace S`, i.e. it is a pushout `Y ∪ Z ≅ Y ⨿_{Y ∩ Z} Z`. -/
-@[stacks 0CZ1]
-theorem schemeTheoreticUnion_isPushout :
+/- Lemma 67.14.6 (2): the scheme-theoretic union is the pushout over the
+scheme-theoretic intersection in algebraic spaces over the base scheme. -/
+@[stacks 0CZ1] #check
+  (AlgebraicGeometry.AlgebraicSpace.schemeTheoreticUnion_isPushout I J :
     IsPushout (inclusion (le_sup_left : I ≤ I ⊔ J))
       (inclusion (le_sup_right : J ≤ I ⊔ J))
       (inclusion (inf_le_left : I ⊓ J ≤ I))
-      (inclusion (inf_le_right : I ⊓ J ≤ J)) :=
-  sorry
+      (inclusion (inf_le_right : I ⊓ J ≤ J)))
 
 #check
   (inferInstance :

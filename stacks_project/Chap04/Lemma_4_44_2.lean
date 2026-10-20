@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Bicategory.DottedArrow.Postcompose
@@ -24,7 +18,8 @@ variable {T X' Y' X Y : B} {y : T ⟶ Y'} {p : X' ⟶ Y'}
 variable {q : X' ⟶ X} {g : Y' ⟶ Y} {f : X ⟶ Y}
 variable (sq : Bicategory.PseudoPullbackCone y p) (φ : p ≫ g ≅ q ≫ f)
 variable [Bicategory.IsLocallyGroupoid B]
-variable [(⟨X', q, p, φ.symm⟩ : Bicategory.PseudoPullbackCone f g).IsBilimit]
+variable [Bicategory.PseudoPullbackCone.IsBilimit
+  (⟨X', q, p, φ.symm⟩ : Bicategory.PseudoPullbackCone f g)]
 
 /- Lemma 4.44.2: postcomposition by a `2`-cartesian right square induces an equivalence on
 dotted-arrow categories. -/

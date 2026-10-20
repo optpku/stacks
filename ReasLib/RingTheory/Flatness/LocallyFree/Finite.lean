@@ -1,12 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.Spectrum.Prime.FreeLocus
+public import Mathlib.RingTheory.LocalProperties.FinitePresentation
+public import Mathlib.RingTheory.Flat.Localization
 public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.RingTheory.Finiteness.Projective.Flat
 public import ReasLib.RingTheory.Flatness.LocallyFree
@@ -32,17 +28,25 @@ variable {M : Type v} [AddCommGroup M] [Module R M]
 
 /-- A finite locally free module is finite. -/
 @[stacks 00NX "finite locally free modules are finite"]
-theorem finite (h : FiniteLocallyFree R M) : Module.Finite R M := sorry
+theorem finite (h : FiniteLocallyFree R M) : Module.Finite R M := by
+  obtain ⟨s, hs, hlocal⟩ := h.exists_standardOpen_cover
+  exact Module.Finite.of_localizationSpan s hs fun g ↦ (hlocal g g.property).2
 
 /-- Finite local freeness supplies finite generation to typeclass search. -/
-instance instFinite [FiniteLocallyFree R M] : Module.Finite R M := sorry
+instance instFinite [h : FiniteLocallyFree R M] : Module.Finite R M := h.finite
 
 /-- A finite locally free module is finitely presented. -/
 @[stacks 00NX "finite locally free modules are finitely presented"]
-theorem finitePresentation (h : FiniteLocallyFree R M) : Module.FinitePresentation R M := sorry
+theorem finitePresentation (h : FiniteLocallyFree R M) : Module.FinitePresentation R M := by
+  obtain ⟨s, hs, hlocal⟩ := h.exists_standardOpen_cover
+  refine Module.FinitePresentation.of_localizationSpan s hs fun g ↦ ?_
+  letI := (hlocal g g.property).1
+  letI := (hlocal g g.property).2
+  exact Module.finitePresentation_of_projective _ _
 
 /-- Finite local freeness supplies finite presentation to typeclass search. -/
-instance instFinitePresentation [FiniteLocallyFree R M] : Module.FinitePresentation R M := sorry
+instance instFinitePresentation [h : FiniteLocallyFree R M] :
+    Module.FinitePresentation R M := h.finitePresentation
 
 /-- The free locus of a finite locally free module is all of `Spec R`. -/
 @[stacks 00NX "free locus of a finite locally free module"]
@@ -51,14 +55,23 @@ theorem freeLocus_eq_univ (h : FiniteLocallyFree R M) :
 
 /-- A finite locally free module is projective. -/
 @[stacks 00NX "finite locally free modules are projective"]
-theorem projective (h : FiniteLocallyFree R M) : Projective R M := sorry
+theorem projective (h : FiniteLocallyFree R M) : Projective R M := by
+  letI := h.finitePresentation
+  have hflat : Flat R M := by
+    obtain ⟨s, hs, hlocal⟩ := h.exists_standardOpen_cover
+    refine Module.flat_of_localized_span R M s hs fun g ↦ ?_
+    letI := (hlocal g g.property).1
+    exact (Module.flat_iff_of_isLocalization (Localization.Away g.val)
+      (Submonoid.powers g.val) (LocalizedModule.Away g.val M)).mp inferInstance
+  exact @Module.Flat.projective_of_finitePresentation R M _ _ _ hflat inferInstance
 
 /-- Finite local freeness supplies projectivity to typeclass search. -/
-instance instProjective [FiniteLocallyFree R M] : Projective R M := sorry
+instance instProjective [h : FiniteLocallyFree R M] : Projective R M := h.projective
 
 /-- A finite locally free module is flat. -/
 @[stacks 00NX "finite locally free modules are flat"]
-theorem flat (h : FiniteLocallyFree R M) : Flat R M := sorry
+theorem flat (h : FiniteLocallyFree R M) : Flat R M :=
+  @Module.Flat.of_projective R M _ _ _ h.projective
 
 /-- Finite generation and local freeness construct finite local freeness. -/
 @[stacks 00NX "finite locally free module from finite locally free data"]

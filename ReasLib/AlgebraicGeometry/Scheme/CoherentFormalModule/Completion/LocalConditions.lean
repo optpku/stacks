@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.CoherentFormalModule.Completion.Inequalities
@@ -25,14 +19,18 @@ universe u
 namespace AlgebraicGeometry.Scheme.CoherentFormalModules
 
 /-- A coherent formal module over a local Noetherian ring with a dualizing complex and
-cohomological dimension one satisfies the `(2, 3)`-inequalities if its completed stalks
-are finite locally free away from the completed ideal and either the localizations
-outside `V(I)` satisfy `(S₂)` with component dimension at least four, or the primewise
-depth-plus-quotient-dimension bound outside `V(I)` holds. -/
+cohomological dimension one satisfies the `(2, 3)`-inequalities if `I` and `(f)` have
+equal radicals, its completed stalks are finite locally free away from the completed
+ideal, and either `A_f` satisfies `(S₂)` with dimension at least four for components
+not contained in `V(I)`, or the primewise depth-plus-quotient-dimension bound outside
+`V(f)` holds. -/
 theorem satisfiesInequalities_of_local_conditions
     {A : Type u} [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
     (S : AffineAlgebraizationSetup A)
+    (f : A)
+    -- Source context: f is not introduced in the Stacks statement; Lemma lemma-equivalence-better applies it with I = (f), and the proof needs V(f) = V(I).
+    (h_I_radical : S.I.radical = (Ideal.span ({f} : Set A)).radical)
     (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
     (h_a : S.a = IsLocalRing.maximalIdeal A)
     (h_dualizing :
@@ -48,15 +46,14 @@ theorem satisfiesInequalities_of_local_conditions
               (LocalizedModule.Away g
                 (completedStalk S F (closedFiberOpenPoint S y hy))))
     (h_alternative :
-      ((∀ p : PrimeSpectrum A, p ∉ PrimeSpectrum.zeroLocus (S.I : Set A) →
-          SerreConditionS (Localization.AtPrime p.asIdeal) 2) ∧
+      (SerreConditionS (Localization.Away f) 2 ∧
         (∀ Z : irreducibleComponents S.X,
           ¬ ((Z : Set S.X) ⊆ Set.range S.y) →
             (4 : WithBot ℕ∞) ≤ topologicalKrullDim Z)) ∨
       (∀ p : PrimeSpectrum A,
-        p ∉ PrimeSpectrum.zeroLocus (S.I : Set A) →
+        p ∉ PrimeSpectrum.zeroLocus ({f} : Set A) →
           PrimeSpectrum.zeroLocus (p.asIdeal : Set A) ∩
-              PrimeSpectrum.zeroLocus (S.I : Set A) ≠
+              PrimeSpectrum.zeroLocus ({f} : Set A) ≠
             {IsLocalRing.closedPoint A} →
             (3 : EInt) <
               ((WithTop.map Int.ofNat

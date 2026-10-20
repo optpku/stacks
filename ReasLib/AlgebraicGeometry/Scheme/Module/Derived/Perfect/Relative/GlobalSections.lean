@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.Perfect
@@ -19,6 +13,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.DerivedQCoh
 
 /-- If a separated, finitely presented, flat scheme morphism has affine base and
@@ -26,7 +22,12 @@ namespace AlgebraicGeometry.Scheme.DerivedQCoh
 theorem isPerfectOver_of_globalSectionsTensor
     {A : Type u} [CommRing A] {X : Scheme.{u}}
     (f : X ⟶ Spec (CommRingCat.of A)) [IsSeparated f]
-    [Scheme.Hom.FinitePresentation f] [Flat f] (K : DerivedQCoh X)
+    [Scheme.Hom.FinitePresentation f] [Flat f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] (K : DerivedQCoh X)
     (hperfect : ∀ E : RingedSpace.ModuleDerived X.toRingedSpace,
       RingedSpace.ModuleDerived.IsPerfect E →
         DerivedCategory.IsPerfect

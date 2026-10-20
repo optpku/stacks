@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.LinearAlgebra.ExteriorAlgebra.Basic
@@ -33,7 +27,20 @@ variable {f : M →ₗ[R] N}
 /-- Exterior algebra commutes with an arbitrary module base change. -/
 @[stacks 0C6F "exterior algebra under module base change"]
 noncomputable def exteriorAlgebraEquiv (h : IsBaseChange A f) :
-    A ⊗[R] ExteriorAlgebra R M ≃ₐ[A] ExteriorAlgebra A N := sorry
+    A ⊗[R] ExteriorAlgebra R M ≃ₐ[A] ExteriorAlgebra A N := by
+  letI : Algebra R (ExteriorAlgebra A N) :=
+    Algebra.compHom (ExteriorAlgebra A N) (algebraMap R A)
+  letI : IsScalarTower R A (ExteriorAlgebra A N) :=
+    IsScalarTower.of_algebraMap_eq' rfl
+  let forward : A ⊗[R] ExteriorAlgebra R M →ₐ[A] ExteriorAlgebra A N :=
+    AlgHom.liftEquiv R A (ExteriorAlgebra R M) (ExteriorAlgebra A N)
+      (ExteriorAlgebra.lift R
+        ⟨((ExteriorAlgebra.ι A).restrictScalars R).comp f,
+          fun m => ExteriorAlgebra.ι_sq_zero (f m)⟩)
+  let inverse : ExteriorAlgebra A N →ₐ[A] A ⊗[R] ExteriorAlgebra R M :=
+    ExteriorAlgebra.lift A
+      ⟨((ExteriorAlgebra.ι R).baseChange A).comp h.equiv.symm.toLinearMap, by sorry⟩
+  exact AlgEquiv.ofAlgHom forward inverse (by sorry) (by sorry)
 
 /-- The exterior-algebra base-change equivalence on source generators. -/
 @[simp, stacks 0C6F "exterior algebra base change on generators"]

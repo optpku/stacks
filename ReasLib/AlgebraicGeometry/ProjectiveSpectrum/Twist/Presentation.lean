@@ -1,23 +1,20 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Quasicoherent
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Graded.Algebra
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Map.Basic
+public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.CanonicalAlgebra
+public import ReasLib.AlgebraicGeometry.Scheme.RelativeProj.Degree.GradedPullback
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Pullback.GradedAlgebra
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Monoidal
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Sections
 
 /-!
 # Chosen twists on a projective spectrum
 
-`Proj` currently has no canonical project-wide owner for its integral twists. This leaf records
-an explicit graded-algebra sheaf of twists, its coherent pullbacks, and the universal comparison
-attached to a graded ring map.
+This leaf records an explicit graded-algebra sheaf of twists, its coherent pullbacks, and the
+universal comparison attached to a graded ring map. It also provides the canonical Serre-twist
+instance from the associated-module construction.
 -/
 
 @[expose] public section
@@ -54,14 +51,28 @@ structure ProjTwistAlgebra (calA : Nat -> sigma) [GradedRing calA] where
   isQuasicoherent : forall d : Int, (algebra.obj d).IsQuasicoherent
   /-- The degree-zero twist is the structure sheaf. -/
   twist_zero : algebra.obj 0 ≅ SheafOfModules.unit (Proj calA).ringCatSheaf
+  /-- The degree-zero twist identification carries the graded unit to the structure-sheaf unit. -/
+  twist_zero_one : ∀ U : (Proj calA).Opensᵒᵖ,
+    ((twist_zero.hom.val.app U).hom) (algebra.one U) =
+      ((SheafOfModules.unit (Proj calA).ringCatSheaf).unitHomEquiv (𝟙 _)).1 U
   /-- The canonical section map from each nonnegative graded-ring piece. -/
   sectionMap : forall d : Nat, AddCommGrpCat.of (calA d) ⟶ globalSections (algebra.obj d)
+  /-- The degree-zero section map sends the graded unit to the algebra-sheaf unit. -/
+  sectionMap_one :
+    (sectionMap 0).hom
+        (@GradedMonoid.GOne.one Nat (fun n : Nat => calA n) _ _) =
+      algebra.one (Opposite.op ⊤)
+  /-- The section maps preserve homogeneous multiplication. -/
+  sectionMap_mul : ∀ (m n : Nat) (a : calA m) (b : calA n),
+    (sectionMap (m + n)).hom ((SetLike.gMul calA).mul a b) =
+      algebra.mul (Opposite.op ⊤) (m : Int) (n : Int)
+        ((sectionMap m).hom a) ((sectionMap n).hom b)
   /-- A coherent graded algebra model for the pullback along every scheme morphism. -/
   pullbackAlgebra : forall {X : Scheme.{u}} (_ : X ⟶ Proj calA),
     SheafOfModules.RingedSite.GradedAlgebraSheaf.{u, u} X.sheaf Int
-  /-- The degreewise identification of a module pullback with its coherent graded algebra model. -/
-  pullbackIso : forall {X : Scheme.{u}} (r : X ⟶ Proj calA) (d : Int),
-    (Scheme.Modules.pullback r).obj (algebra.obj d) ≅ (pullbackAlgebra r).obj d
+  /-- The coherent graded pullback data for every scheme morphism. -/
+  pullbackData : forall {X : Scheme.{u}} (r : X ⟶ Proj calA),
+    Scheme.RelativeProjGradedPullback r algebra (pullbackAlgebra r)
 
 namespace ProjTwistAlgebra
 
@@ -71,18 +82,68 @@ noncomputable def ofPullback
     (algebra : SheafOfModules.RingedSite.GradedAlgebraSheaf.{u, u} (Proj calA).sheaf Int)
     (isQuasicoherent : forall d : Int, (algebra.obj d).IsQuasicoherent)
     (twist_zero : algebra.obj 0 ≅ SheafOfModules.unit (Proj calA).ringCatSheaf)
+    (twist_zero_one : ∀ U : (Proj calA).Opensᵒᵖ,
+      ((twist_zero.hom.val.app U).hom) (algebra.one U) =
+        ((SheafOfModules.unit (Proj calA).ringCatSheaf).unitHomEquiv (𝟙 _)).1 U)
     (sectionMap : forall d : Nat, AddCommGrpCat.of (calA d) ⟶ globalSections (algebra.obj d))
+    (sectionMap_one :
+      (sectionMap 0).hom
+          (@GradedMonoid.GOne.one Nat (fun n : Nat => calA n) _ _) =
+        algebra.one (Opposite.op ⊤))
+    (sectionMap_mul : ∀ (m n : Nat) (a : calA m) (b : calA n),
+      (sectionMap (m + n)).hom ((SetLike.gMul calA).mul a b) =
+        algebra.mul (Opposite.op ⊤) (m : Int) (n : Int)
+          ((sectionMap m).hom a) ((sectionMap n).hom b))
     (pullbackAlgebra : forall {X : Scheme.{u}} (_ : X ⟶ Proj calA),
       SheafOfModules.RingedSite.GradedAlgebraSheaf.{u, u} X.sheaf Int)
-    (pullbackIso : forall {X : Scheme.{u}} (r : X ⟶ Proj calA) (d : Int),
-      (Scheme.Modules.pullback r).obj (algebra.obj d) ≅ (pullbackAlgebra r).obj d) :
+    (pullbackData : forall {X : Scheme.{u}} (r : X ⟶ Proj calA),
+      Scheme.RelativeProjGradedPullback r algebra (pullbackAlgebra r)) :
     ProjTwistAlgebra calA where
   algebra := algebra
   isQuasicoherent := isQuasicoherent
   twist_zero := twist_zero
+  twist_zero_one := twist_zero_one
   sectionMap := sectionMap
+  sectionMap_one := sectionMap_one
+  sectionMap_mul := sectionMap_mul
   pullbackAlgebra := pullbackAlgebra
-  pullbackIso := pullbackIso
+  pullbackData := pullbackData
+
+/-- The canonical coherent twist algebra built from the Serre twisting sheaves. -/
+noncomputable def canonical
+    {A : Type u} [CommRing A] (calA : Nat → Submodule ℤ A) [GradedAlgebra calA] :
+    ProjTwistAlgebra calA := by
+  let algebra := Proj.AssociatedModule.CanonicalAlgebra.algebra calA
+  let pullbackAlgebra : ∀ {X : Scheme.{u}} (_ : X ⟶ Proj calA),
+      SheafOfModules.RingedSite.GradedAlgebraSheaf.{u, u} X.sheaf Int :=
+    fun {X} r ↦ Scheme.Modules.GradedAlgebra.pullback r algebra
+  let sectionMap : ∀ d : Nat,
+      AddCommGrpCat.of (calA d) ⟶ globalSections (algebra.obj d) :=
+    fun d ↦ AddCommGrpCat.ofHom
+      { toFun := fun a ↦
+          Proj.AssociatedModule.degreeZeroToGlobalSections calA
+            (GradedModule.shiftGrading
+              (DirectSum.Decomposition.natToIntGrading calA) (d : Int))
+            ⟨a, by simpa⟩
+        map_zero' := by sorry
+        map_add' := by sorry }
+  exact
+    { algebra := algebra
+      isQuasicoherent := by
+        intro d
+        exact Proj.AssociatedModule.CanonicalAlgebra.algebra_isQuasicoherent calA d
+      twist_zero := (asIso (Proj.AssociatedModule.CanonicalAlgebra.unitHom calA)).symm
+      twist_zero_one := by sorry
+      sectionMap := sectionMap
+      sectionMap_one := by sorry
+      sectionMap_mul := by sorry
+      pullbackAlgebra := pullbackAlgebra
+      pullbackData := fun {X} r ↦
+        { degreeIso := fun d ↦ Iso.refl _
+          pullbackOne := Scheme.Modules.GradedAlgebra.pullbackOne r algebra
+          pullbackMul := Scheme.Modules.GradedAlgebra.pullbackMul r algebra
+          map_one := by sorry
+          map_mul := by sorry } }
 
 /-- The actual integral twist family underlying a coherent twist algebra. -/
 abbrev actualTwist (P : ProjTwistAlgebra calA) : Int -> (Proj calA).Modules :=
@@ -93,11 +154,17 @@ abbrev actualSectionMap (P : ProjTwistAlgebra calA) :
     forall d : Nat, AddCommGrpCat.of (calA d) ⟶ globalSections (P.actualTwist d) :=
   P.sectionMap
 
+/-- The degreewise pullback identification underlying a coherent twist algebra. -/
+abbrev pullbackIso (P : ProjTwistAlgebra calA)
+    {X : Scheme.{u}} (r : X ⟶ Proj calA) (d : Int) :
+    (Scheme.Modules.pullback r).obj (P.algebra.obj d) ≅ (P.pullbackAlgebra r).obj d :=
+  (P.pullbackData r).degreeIso d
+
 /-- The degree-zero unit on a pullback, transported from its coherent graded algebra model. -/
 noncomputable def actualOne (P : ProjTwistAlgebra calA)
     {X : Scheme.{u}} (r : X ⟶ Proj calA) (U : (X.Opens)ᵒᵖ) :
     projTwistPullbackSection P.actualTwist r 0 U :=
-  (((P.pullbackIso r 0).inv.val.app U).hom) ((P.pullbackAlgebra r).one U)
+  (P.pullbackData r).pullbackOne U
 
 /-- Multiplication on pulled-back twists, transported from the coherent graded algebra model. -/
 noncomputable def actualMul (P : ProjTwistAlgebra calA)
@@ -105,10 +172,8 @@ noncomputable def actualMul (P : ProjTwistAlgebra calA)
     (x : projTwistPullbackSection P.actualTwist r a U)
     (y : projTwistPullbackSection P.actualTwist r b U) :
     projTwistPullbackSection P.actualTwist r (a + b) U :=
-  (((P.pullbackIso r (a + b)).inv.val.app U).hom)
-    ((P.pullbackAlgebra r).mul U a b
-      ((((P.pullbackIso r a).hom.val.app U).hom) x)
-      ((((P.pullbackIso r b).hom.val.app U).hom) y))
+  (P.pullbackData r).pullbackMul U a b
+    x y
 
 /-- Transport to the coherent pullback model identifies the chosen unit and multiplication with
 the graded algebra operations. -/

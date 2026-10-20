@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap72.Definition_72_6_9_Principal
-public import stacks_project.Chap72.Definition_72_6_9_ClassGroup
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Divisor.ClassGroup
 import StacksCheckRecall
 
 /-!
@@ -29,4 +22,4 @@ variable [IsLocallyNoetherian X] [IsIntegral X]
 /- Definition 72.6.9: Let `S` be a scheme. Let `X` be a locally Noetherian integral algebraic
 space over `S`. The Weil divisor class group of `X` is the quotient of the group of Weil
 divisors by the subgroup of principal Weil divisors. Notation: Cl(X). -/
-@[stacks 0ENR] #check (AlgebraicSpace.WeilDivisorClassGroup X : Type (u + 1))
+@[stacks 0ENR] #check (AlgebraicGeometry.AlgebraicSpace.WeilDivisorClassGroup X : Type (u + 1))

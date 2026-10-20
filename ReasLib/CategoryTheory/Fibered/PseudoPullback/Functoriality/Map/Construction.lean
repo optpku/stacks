@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.PseudoPullback.Projections
-public import ReasLib.CategoryTheory.Fibered.BasedCategory.Cospan.Basic
+public import ReasLib.CategoryTheory.Fibered.BasedCategory.Cospan.Basic.Fiber
 public import ReasLib.CategoryTheory.Limits.CategoricalPullback.Map
 import Mathlib.Tactic.CrossRefAttribute
 

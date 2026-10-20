@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.BinaryBiproducts
@@ -51,10 +45,12 @@ theorem inr_map_snd {X Y Z : C} (source : BinaryBiproductData X Y)
     (target : BinaryBiproductData X Z) (f : Y ⟶ Z) :
     source.bicone.inr ≫ map source target f ≫ target.bicone.snd = f := sorry
 
-/-- A morphism preserving the common left projection is determined by its right coordinate. -/
+/-- A morphism preserving the common left projection, and whose right coordinate vanishes on the
+left summand, is the binary-biproduct map determined by its right coordinate. -/
 theorem eq_map_of_comp_fst {X Y Z : C} (source : BinaryBiproductData X Y)
     (target : BinaryBiproductData X Z) (g : source.bicone.pt ⟶ target.bicone.pt)
-    (hg : g ≫ target.bicone.fst = source.bicone.fst) :
+    (hg : g ≫ target.bicone.fst = source.bicone.fst)
+    (hinl : source.bicone.inl ≫ g ≫ target.bicone.snd = 0) :
     g = map source target (source.bicone.inr ≫ g ≫ target.bicone.snd) := sorry
 
 /-- The map induced by the zero morphism is the inclusion of the common left summand followed by

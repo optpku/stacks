@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.UniverseLift
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.CoefficientEquivalence
-public import stacks_project.Chap96.Lemma_96_12_4_EtaleModules
-public import stacks_project.Chap66.Lemma_66_29_7_CommSheaf
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.Module
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RingedSite.CommRing
 
 @[expose] public section
 open AlgebraicGeometry CategoryTheory Opposite

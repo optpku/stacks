@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import Mathlib.Topology.Algebra.Ring.Ideal
-public import stacks_project.Chap87.Lemma_87_27_3_ClosedImmersion
-public import stacks_project.Chap87.Lemma_87_9_10_Map
-public import stacks_project.Chap87.Lemma_87_37_6_CountablyIndexed
-public import stacks_project.Chap87.«87_21_2_1_LocalizeSquare»
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Morphism.ClosedImmersion.CountablyIndexed
+import StacksCheckRecall
 
 /-!
 # Closed immersions into countably indexed affine formal algebraic spaces
@@ -31,23 +21,17 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AffineFormalAlgebraicSpace
-
-namespace IsCountablyIndexedAffine
-
-/-- Lemma 87.29.5 (1): Let `S` be a scheme. Let `X` be a countably indexed
+/- Lemma 87.29.5 (1): Let `S` be a scheme. Let `X` be a countably indexed
 affine formal algebraic space over `S`. If `f : Y ⟶ X` is a closed immersion
 of formal algebraic spaces over `S`, then `Y` is a countably indexed affine
 formal algebraic space. -/
 @[stacks 0AQI]
-theorem of_closedImmersion {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
+#check (AlgebraicGeometry.AffineFormalAlgebraicSpace.IsCountablyIndexedAffine.of_closedImmersion :
+    ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsCountablyIndexedAffine X] [IsFormalAlgebraicSpace Y] (f : Y ⟶ X)
-    [ClosedImmersion f] : IsCountablyIndexedAffine Y :=
-  sorry
+    [ClosedImmersion f], IsCountablyIndexedAffine Y)
 
-end IsCountablyIndexedAffine
-
-/-- Lemma 87.29.5 (2): Let `S` be a scheme. Let `X` be a countably indexed
+/- Lemma 87.29.5 (2): Let `S` be a scheme. Let `X` be a countably indexed
 affine formal algebraic space over `S`. If `f : Y ⟶ X` is a closed immersion
 of formal algebraic spaces over `S`, then `f` corresponds to
 `Ideal.Quotient.mk K : A →+* A ⧸ K` for a countably indexed weakly admissible
@@ -58,11 +42,11 @@ from the underlying functors of `spf A hA` and
 `(sheafToPresheaf (Scheme.fppfTopology.over S) (Type u)).map
 (spfMap (Ideal.Quotient.mk K) hφ rfl)`. -/
 @[stacks 0AQI]
-theorem exists_spfMap_quotient_of_closedImmersion
-    {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
+#check (AlgebraicGeometry.AffineFormalAlgebraicSpace.exists_spfMap_quotient_of_closedImmersion :
+    ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsCountablyIndexedAffine X] [IsFormalAlgebraicSpace Y] (f : Y ⟶ X)
     [ClosedImmersion f]
-    [HasWeakSheafify (Scheme.fppfTopology.over S) (Type u)] :
+    [HasWeakSheafify (Scheme.fppfTopology.over S) (Type u)],
     ∃ (A : Type u) (_ : CommRing A) (_ : TopologicalSpace A)
       (_ : TopologicalRing.IsWeaklyAdmissibleRing A)
       (_ : TopologicalRing.IsCountablyIndexed A)
@@ -76,7 +60,4 @@ theorem exists_spfMap_quotient_of_closedImmersion
             (Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk K)) ≫ hA)) ≅ Y),
       eY.hom ≫ f =
         (sheafToPresheaf (Scheme.fppfTopology.over S) (Type u)).map
-            (spfMap (Ideal.Quotient.mk K) hφ rfl) ≫ eX.hom :=
-  sorry
-
-end AlgebraicGeometry.AffineFormalAlgebraicSpace
+            (spfMap (Ideal.Quotient.mk K) hφ rfl) ≫ eX.hom)

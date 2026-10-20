@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.MvPolynomial.Basic
@@ -11,7 +5,9 @@ public import Mathlib.AlgebraicGeometry.IdealSheaf.Basic
 public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.AlgebraicGeometry.Scheme.ClosedSubscheme.Proper
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.EulerCharacteristic
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Invertible.Pullback
 public import ReasLib.AlgebraicGeometry.Scheme.Module.TensorPower
+public import ReasLib.AlgebraicGeometry.Scheme.Module.TensorPower.Multi
 
 /-!
 # Twists on closed subschemes
@@ -44,7 +40,7 @@ def subsetExponent {d : ℕ} (s : Finset (Fin d)) : Fin d → ℤ :=
 
 /-- The family obtained by pulling back all but the first factor of a nonempty finite family to a
 closed subscheme. -/
-noncomputable def tailPullback
+noncomputable abbrev tailPullback
     {X : Scheme.{u}} {d : ℕ} (hd : 0 < d) (Z : X.IdealSheafData)
     (L : Fin d → X.Modules) : Fin (d - 1) → Z.subscheme.Modules :=
   fun i ↦
@@ -53,7 +49,7 @@ noncomputable def tailPullback
 
 /-- If every member of a finite family is invertible, then every member of its pulled-back tail
 is invertible. -/
-instance instInvertibleTailPullback
+@[instance] theorem tailPullback_invertible
     {X : Scheme.{u}} {d : ℕ} (hd : 0 < d) (Z : X.IdealSheafData)
     (L : Fin d → X.Modules) [∀ j : Fin d, Invertible (L j)] :
     ∀ j : Fin (d - 1), Invertible (tailPullback hd Z L j) := sorry
@@ -88,24 +84,34 @@ theorem pullbackTensorTwist_def
         (SheafOfModules.unit Z.subscheme.ringCatSheaf : Z.subscheme.Modules) := sorry
 
 /-- The concrete pullback tensor twist of invertible modules is coherent. -/
-instance instIsCoherentPullbackTensorTwist
+@[instance] theorem pullbackTensorTwist_isCoherent
     {X : Scheme.{u}} (Z : X.IdealSheafData)
+    [IsLocallyNoetherian Z.subscheme]
     {d : ℕ} (L : Fin d → X.Modules) [∀ j : Fin d, Invertible (L j)]
     (n : Fin d → ℤ) :
     (pullbackTensorTwist Z L n).IsCoherent := sorry
 
 /-- The ordered ambient tensor twist beginning with the pushforward of the structure module of a
 closed subscheme and followed by integral powers of invertible modules. -/
-noncomputable def pushforwardStructureTwist
+noncomputable def closedImmersionStructureTwist
+    (k : Type u) [Field k] {X : Scheme.{u}}
+    (f : X ⟶ Spec (CommRingCat.of k)) [IsProper f]
+    {Y : Scheme.{u}} (inclusion : Y ⟶ X) [IsClosedImmersion inclusion]
+    {d : ℕ}
+    (L : Fin d → X.Modules) [∀ j : Fin d, Invertible (L j)]
+    (n : Fin d → ℤ) : X.Modules :=
+  Scheme.Modules.TensorPower.multiTwist
+    ((Scheme.Modules.pushforward inclusion).obj
+      (SheafOfModules.unit Y.ringCatSheaf : Y.Modules)) L n
+
+/-- The ambient tensor twist associated to an effective-Cartier ideal-sheaf presentation. -/
+noncomputable abbrev pushforwardStructureTwist
     (k : Type u) [Field k] {X : Scheme.{u}}
     (f : X ⟶ Spec (CommRingCat.of k)) [IsProper f]
     (Z : X.IdealSheafData) {d : ℕ}
     (L : Fin d → X.Modules) [∀ j : Fin d, Invertible (L j)]
     (n : Fin d → ℤ) : X.Modules :=
-  (List.finRange d).foldl
-    (fun acc j ↦ tensorObj acc (tensorPowerInt (L j) (n j)))
-    ((Scheme.Modules.pushforward Z.subschemeι).obj
-      (SheafOfModules.unit Z.subscheme.ringCatSheaf : Z.subscheme.Modules))
+  closedImmersionStructureTwist k f Z.subschemeι L n
 
 /-- The ambient pushforward structure twist unfolds to its ordered finite tensor product. -/
 theorem pushforwardStructureTwist_def
@@ -121,13 +127,14 @@ theorem pushforwardStructureTwist_def
           (SheafOfModules.unit Z.subscheme.ringCatSheaf : Z.subscheme.Modules)) := sorry
 
 /-- The ambient pushforward structure twist on a scheme proper over a field is coherent. -/
-instance instIsCoherentPushforwardStructureTwist
+instance closedImmersionStructureTwist_isCoherent
     (k : Type u) [Field k] {X : Scheme.{u}}
     (f : X ⟶ Spec (CommRingCat.of k)) [IsProper f]
-    (Z : X.IdealSheafData) {d : ℕ}
+    {Y : Scheme.{u}} (inclusion : Y ⟶ X) [IsClosedImmersion inclusion]
+    {d : ℕ}
     (L : Fin d → X.Modules) [∀ j : Fin d, Invertible (L j)]
     (n : Fin d → ℤ) :
-    (pushforwardStructureTwist k f Z L n).IsCoherent := sorry
+    (closedImmersionStructureTwist k f inclusion L n).IsCoherent := sorry
 
 /-- The Euler characteristic of the pullback tensor twist on a closed subscheme of a scheme
 proper over a field. -/
@@ -138,7 +145,10 @@ noncomputable def eulerCharacteristic
     [HasExt (Sheaf (Opens.grothendieckTopology Z.subscheme.carrier) AddCommGrpCat.{u})]
     (L : Fin d → X.Modules) [∀ j : Fin d, Invertible (L j)]
     (n : Fin d → ℤ) : ℤ :=
-  Scheme.Hom.eulerCharacteristic (Z.subschemeι ≫ f) (pullbackTensorTwist Z L n)
+  @Scheme.Hom.eulerCharacteristic k _ Z.subscheme
+    (Z.subschemeι ≫ f) inferInstance (pullbackTensorTwist Z L n)
+    (@pullbackTensorTwist_isCoherent X Z
+      (LocallyOfFiniteType.isLocallyNoetherian (Z.subschemeι ≫ f)) d L _ n)
 
 /-- The closed-subscheme twist Euler characteristic is the alternating finite-rank sum of the
 cohomology of its concrete pullback tensor twist. -/
@@ -150,8 +160,10 @@ theorem eulerCharacteristic_def
     (L : Fin d → X.Modules) [∀ j : Fin d, Invertible (L j)]
     (n : Fin d → ℤ) :
     eulerCharacteristic k f Z L n =
-      Scheme.Hom.eulerCharacteristic (Z.subschemeι ≫ f)
-        (pullbackTensorTwist Z L n) := sorry
+      @Scheme.Hom.eulerCharacteristic k _ Z.subscheme
+        (Z.subschemeι ≫ f) inferInstance (pullbackTensorTwist Z L n)
+        (@pullbackTensorTwist_isCoherent X Z
+          (LocallyOfFiniteType.isLocallyNoetherian (Z.subschemeι ≫ f)) d L _ n) := sorry
 
 /-- The Euler characteristic of the ambient pushforward structure twist equals that of the
 corresponding tensor twist restricted to the closed subscheme. -/

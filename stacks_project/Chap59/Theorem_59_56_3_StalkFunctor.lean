@@ -1,119 +1,71 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Sites.EtalePoint
-public import Mathlib.CategoryTheory.Action.Continuous
-public import Mathlib.FieldTheory.Galois.Profinite
-public import stacks_project.Chap58.Lemma_58_2_2_GaloisFiber
-public import stacks_project.Chap59.«59_56_0_1»
-public import stacks_project.Chap59.Definition_59_56_1_ResidueGalois
+public import ReasLib.AlgebraicGeometry.Scheme.Etale.StalkGaloisSet
 
-open CategoryTheory Opposite
-open AlgebraicGeometry
+open CategoryTheory Opposite AlgebraicGeometry AlgebraicGeometry.Scheme
+open AlgebraicGeometry.Scheme.Etale
 
 @[expose] public section
 
 universe u
 
-noncomputable section
+#check (AlgebraicGeometry.Scheme.Etale.residueFieldOf :
+  ∀ (K : Type u) [Field K] (s : GeometricPoint (Spec (.of K))), Type u)
 
-namespace AlgebraicGeometry.Scheme.Etale
+#check (AlgebraicGeometry.Scheme.Etale.geometricPointHom :
+  ∀ (K : Type u) [Field K] (s : GeometricPoint (Spec (.of K))),
+    Spec (.of s.separableClosure) ⟶ Spec (.of K))
 
-/-- The residue field of the image of a geometric point of `Spec K`. -/
-abbrev residueFieldOf (K : Type u) [Field K] (s : GeometricPoint (Spec (.of K))) :
-    Type u :=
-  (Spec (.of K)).residueField s.toFieldValuedPoint.image
+#check (AlgebraicGeometry.Scheme.Etale.geometricPointGaloisIso :
+  ∀ (K : Type u) [Field K] (s : GeometricPoint (Spec (.of K)))
+    (σ : s.absoluteGaloisGroup),
+    Over.mk (geometricPointHom K s) ≅ Over.mk (geometricPointHom K s))
 
-/-- The geometric point `Spec κ(s)^sep ⟶ Spec K` through which the absolute
-Galois group of `κ(s)` acts on étale stalks. -/
-def geometricPointHom (K : Type u) [Field K] (s : GeometricPoint (Spec (.of K))) :
-    Spec (.of s.separableClosure) ⟶ Spec (.of K) :=
-  Spec.map (CommRingCat.ofHom (algebraMap (residueFieldOf K s) s.separableClosure)) ≫
-    (Spec (.of K)).fromSpecResidueField s.toFieldValuedPoint.image
+#check (AlgebraicGeometry.Scheme.FieldValuedPoint.separableClosureOfAlgClosedIsSepClosed :
+  ∀ {X : Scheme.{u}} (p : FieldValuedPoint X) (isAlgClosed : IsAlgClosed p.K),
+    IsSepClosed (p.separableClosureOfAlgClosed isAlgClosed))
 
-/-- A Galois automorphism of `κ(s)^sep` induces an automorphism of
-`geometricPointHom` in the slice over `Spec K`. -/
-def geometricPointGaloisIso (K : Type u) [Field K]
-    (s : GeometricPoint (Spec (.of K))) (σ : s.absoluteGaloisGroup) :
-    Over.mk (geometricPointHom K s) ≅ Over.mk (geometricPointHom K s) where
-  hom := Over.homMk (Spec.map (CommRingCat.ofHom σ.toRingHom)) (w := sorry)
-  inv := Over.homMk (Spec.map (CommRingCat.ofHom σ.symm.toRingHom)) (w := sorry)
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+#check (AlgebraicGeometry.Scheme.Etale.etalePoint :
+  ∀ (K : Type u) [Field K] (s : GeometricPoint (Spec (.of K))),
+    (Spec (.of K)).smallEtaleTopology.Point)
 
-/-- The separable closure of `κ(s)` is separably closed. -/
-instance separableClosure_isSepClosed (K : Type u) [Field K]
-    (s : GeometricPoint (Spec (.of K))) :
-    IsSepClosed s.separableClosure :=
-  IsSepClosure.sep_closed (residueFieldOf K s)
+#check (AlgebraicGeometry.Scheme.Etale.stalkGaloisSetObj :
+  ∀ (K : Type u) [Field K] (s : GeometricPoint (Spec (.of K)))
+    (F : Sheaf (Spec (.of K)).smallEtaleTopology (Type u)),
+    DiscreteContAction TopCat s.absoluteGaloisGroup)
 
-/-- The small-étale point of `Spec K` associated to the separable closure of
-`κ(s)`. -/
-def etalePoint (K : Type u) [Field K] (s : GeometricPoint (Spec (.of K))) :
-    ((Spec (.of K)).smallEtaleTopology).Point :=
-  Scheme.pointSmallEtale (geometricPointHom K s)
-
-/-- The discrete continuous Galois set obtained by taking the étale stalk of a
-sheaf at the geometric point determined by `κ(s)^sep`. -/
-def stalkGaloisSetObj (K : Type u) [Field K] (s : GeometricPoint (Spec (.of K)))
-    (F : Sheaf (Spec (.of K)).smallEtaleTopology (Type u)) :
-    DiscreteContAction TopCat s.absoluteGaloisGroup :=
-  ⟨⟨
-    { V := TopCat.discrete.obj ((etalePoint K s).presheafFiber.obj F.1)
-      ρ :=
-        { toFun := fun σ ↦
-            @TopCat.ofHom _ _ ⊥ ⊥
-              (@ContinuousMap.mk _ _ ⊥ ⊥
-                (stalkGaloisAction (geometricPointHom K s)
-                  (geometricPointGaloisIso K s σ) F.1)
-                sorry)
-          map_one' := sorry
-          map_mul' := sorry } },
-    sorry⟩,
-    sorry⟩
-
-/-- Taking étale stalks `F ↦ F_s̄` as a functor from sheaves on the small étale
-site of `Spec K` to discrete continuous `Gal_κ(s)`-sets. -/
-def stalkGaloisSet (K : Type u) [Field K] (s : GeometricPoint (Spec (.of K))) :
+#check (AlgebraicGeometry.Scheme.Etale.stalkGaloisSet :
+  ∀ (K : Type u) [Field K] (s : GeometricPoint (Spec (.of K))),
     Sheaf (Spec (.of K)).smallEtaleTopology (Type u) ⥤
-      DiscreteContAction TopCat s.absoluteGaloisGroup where
-  obj := stalkGaloisSetObj K s
-  map {F G} f :=
-    ObjectProperty.homMk <| ObjectProperty.homMk
-      { hom :=
-          @TopCat.ofHom _ _ ⊥ ⊥
-            (@ContinuousMap.mk _ _ ⊥ ⊥
-              ((etalePoint K s).presheafFiber.map f.1) sorry)
-        comm := sorry }
-  map_id := sorry
-  map_comp := sorry
+      DiscreteContAction TopCat s.absoluteGaloisGroup)
 
-/-- The underlying discrete space of `stalkGaloisSet` is the étale stalk at
-the separable geometric point associated to `s`. -/
-theorem stalkGaloisSet_obj_carrier (K : Type u) [Field K]
-    (s : GeometricPoint (Spec (.of K)))
-    (F : Sheaf (Spec (.of K)).smallEtaleTopology (Type u)) :
+#check (AlgebraicGeometry.Scheme.Etale.stalkGaloisSet_obj_carrier :
+  ∀ (K : Type u) [Field K] (s : GeometricPoint (Spec (.of K)))
+    (F : Sheaf (Spec (.of K)).smallEtaleTopology (Type u)),
     ((stalkGaloisSet K s).obj F).obj.obj.V =
-      TopCat.discrete.obj ((etalePoint K s).presheafFiber.obj F.1) :=
-  sorry
+      TopCat.discrete.obj ((etalePoint K s).presheafFiber.obj F.1))
 
-/-- The Galois action on a stalk is the action of `59.56.0.1` by precomposition
-with the automorphism of the geometric point. -/
-theorem stalkGaloisSet_smul_apply (K : Type u) [Field K]
-    (s : GeometricPoint (Spec (.of K)))
+#check (AlgebraicGeometry.Scheme.Etale.stalkGaloisSet_smul_apply :
+  ∀ (K : Type u) [Field K] (s : GeometricPoint (Spec (.of K)))
     (F : Sheaf (Spec (.of K)).smallEtaleTopology (Type u))
-    (σ : s.absoluteGaloisGroup)
-    (x : (etalePoint K s).presheafFiber.obj F.1) :
+    (σ : s.absoluteGaloisGroup) (x : (etalePoint K s).presheafFiber.obj F.1),
     ConcreteCategory.hom (((stalkGaloisSet K s).obj F).obj.obj.ρ σ) x =
-      stalkGaloisAction (geometricPointHom K s)
-        (geometricPointGaloisIso K s σ) F.1 x :=
-  sorry
+      stalkGaloisAction (geometricPointHom K s) (geometricPointGaloisIso K s σ) F.1 x)
 
-end AlgebraicGeometry.Scheme.Etale
+#check (AlgebraicGeometry.Scheme.Etale.stalkGaloisSet_map_apply :
+  ∀ (K : Type u) [Field K] (s : GeometricPoint (Spec (.of K)))
+    {F G : Sheaf (Spec (.of K)).smallEtaleTopology (Type u)} (f : F ⟶ G)
+    (x : (etalePoint K s).presheafFiber.obj F.1),
+    ConcreteCategory.hom (((stalkGaloisSet K s).map f).hom.hom.hom) x =
+      (etalePoint K s).presheafFiber.map f.1 x)
 
-end
+#check (AlgebraicGeometry.Scheme.Etale.separableStalkToGeometricStalk :
+  ∀ (K : Type u) [Field K] (s : GeometricPoint (Spec (.of K))),
+    (etalePoint K s).sheafFiber (A := Type u) ⟶
+      (@Scheme.pointSmallEtale _ s.K s.field
+        (@IsSepClosed.of_isAlgClosed s.K s.field s.isAlgClosed) s.hom).sheafFiber)
+
+#check (AlgebraicGeometry.Scheme.Etale.separableStalkToGeometricStalk_bijective :
+  ∀ (K : Type u) [Field K] (s : GeometricPoint (Spec (.of K)))
+    (F : Sheaf (Spec (.of K)).smallEtaleTopology (Type u)),
+    Function.Bijective ((separableStalkToGeometricStalk K s).app F))

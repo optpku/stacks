@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_44_4_LocalCompleteIntersection
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.LocalCompleteIntersection
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +14,7 @@ universe u
 intersection morphism, then `f : X ⟶ Y` is a local complete intersection
 morphism. -/
 @[stacks 0CJ6] #check
-  (IsLocalCompleteIntersection.of_comp :
+  (AlgebraicGeometry.AlgebraicStack.IsLocalCompleteIntersection.of_comp :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
       (f : X ⟶ Y) (g : Y ⟶ Z)

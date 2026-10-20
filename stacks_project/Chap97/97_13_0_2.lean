@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-import stacks_project.Chap97.«97_13_0_2_FreeDimAlgebra»
-import stacks_project.Chap97.«97_13_0_2_Functor»
+import ReasLib.AlgebraicGeometry.FreeDimensionalAlgebra
 import StacksCheckRecall
 
 universe u

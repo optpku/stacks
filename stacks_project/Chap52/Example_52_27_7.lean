@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.CompletedQuadricCone
@@ -156,12 +150,44 @@ universe u
 #check
   (AlgebraicGeometry.CompletedQuadricCone.ideal_globalSections_iso :
     ∀ (k : Type u) [Field k],
-      Nonempty
-        (ModuleCat.of (AlgebraicGeometry.CompletedQuadricCone.Ring k)
-            (AlgebraicGeometry.CompletedQuadricCone.ideal k) ≅
-          Scheme.Hom.globalSectionsMod
-            (AlgebraicGeometry.CompletedQuadricCone.puncturedOpen k).ι
-            (AlgebraicGeometry.CompletedQuadricCone.divisor k).negSheaf))
+      ModuleCat.of (AlgebraicGeometry.CompletedQuadricCone.Ring k)
+          (AlgebraicGeometry.CompletedQuadricCone.ideal k) ≅
+        Scheme.Hom.globalSectionsMod
+          (AlgebraicGeometry.CompletedQuadricCone.puncturedOpen k).ι
+          (AlgebraicGeometry.CompletedQuadricCone.divisor k).negSheaf)
+#check
+  (AlgebraicGeometry.CompletedQuadricCone.idealGlobalSectionsHom :
+    ∀ (k : Type u) [Field k],
+      ModuleCat.of (AlgebraicGeometry.CompletedQuadricCone.Ring k)
+          (AlgebraicGeometry.CompletedQuadricCone.ideal k) ⟶
+        Scheme.Hom.globalSectionsMod
+          (AlgebraicGeometry.CompletedQuadricCone.puncturedOpen k).ι
+          (AlgebraicGeometry.CompletedQuadricCone.divisor k).negSheaf)
+#check
+  (AlgebraicGeometry.CompletedQuadricCone.idealGlobalSectionsInv :
+    ∀ (k : Type u) [Field k],
+      Scheme.Hom.globalSectionsMod
+          (AlgebraicGeometry.CompletedQuadricCone.puncturedOpen k).ι
+          (AlgebraicGeometry.CompletedQuadricCone.divisor k).negSheaf ⟶
+        ModuleCat.of (AlgebraicGeometry.CompletedQuadricCone.Ring k)
+          (AlgebraicGeometry.CompletedQuadricCone.ideal k))
+#check
+  (AlgebraicGeometry.CompletedQuadricCone.idealGlobalSectionsHom_inclusion :
+    ∀ (k : Type u) [Field k] (a : AlgebraicGeometry.CompletedQuadricCone.ideal k),
+      AlgebraicGeometry.CompletedQuadricCone.idealGlobalSectionsInclusion k
+          (AlgebraicGeometry.CompletedQuadricCone.idealGlobalSectionsHom k a) =
+        Scheme.Hom.globalSectionsMap
+          (AlgebraicGeometry.CompletedQuadricCone.puncturedOpen k).ι a)
+#check
+  (AlgebraicGeometry.CompletedQuadricCone.idealGlobalSectionsInv_coe :
+    ∀ (k : Type u) [Field k]
+      (s : Scheme.Hom.globalSectionsMod
+        (AlgebraicGeometry.CompletedQuadricCone.puncturedOpen k).ι
+        (AlgebraicGeometry.CompletedQuadricCone.divisor k).negSheaf),
+      (AlgebraicGeometry.CompletedQuadricCone.idealGlobalSectionsInv k s :
+          AlgebraicGeometry.CompletedQuadricCone.Ring k) =
+        AlgebraicGeometry.CompletedQuadricCone.extendFunction k
+          (AlgebraicGeometry.CompletedQuadricCone.idealGlobalSectionsInclusion k s))
 
 /- Example 52.27.7 (13): the coordinate ideal is not principal. -/
 @[stacks 0F2J]

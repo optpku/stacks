@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Simplicial
@@ -26,6 +20,8 @@ the chapter only needs the short `lowerShriek` name.
 @[expose] public section
 
 open CategoryTheory
+-- Use the existing standard localization for the actual ring-sheaf module carrier.
+attribute [local instance] RingedSite.Hom.RingPresentation.moduleHasDerivedCategory
 
 noncomputable section
 

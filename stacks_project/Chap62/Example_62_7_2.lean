@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap62.Example_62_7_2_Family
-public import stacks_project.Chap62.Lemma_62_6_6_Relative
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.RelativeCycle.AffineLineOverPlane
+import StacksCheckRecall
 
 /-!
 # Example 62.7.2
@@ -20,40 +13,28 @@ so is not equidimensional.
 
 @[expose] public section
 
-open AlgebraicGeometry CategoryTheory CategoryTheory.Limits TopologicalSpace
-open Scheme.Hom
-open CyclesOnFibers
-open scoped AlgebraicGeometry
-
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AffineLineOverPlane
+/- Example 62.7.2
+Over any field, on the affine line over the affine plane, let `a` and `b` be
+the residue-field images of `x` and `y` at each base point. The family is zero
+when `b = 0` and otherwise is the difference of the rational-point cycles at
+`a / b` and `(a + b²) / b`. It is compatible with specializations, its support
+closure contains the whole fibre over `(0, 0)`, and it is not equidimensional.
+-/
+@[stacks 0H5J] #check (AlgebraicGeometry.AffineLineOverPlane.family_isRelative :
+  ∀ (k : Type u) [Field k],
+    AlgebraicGeometry.RelativeCycle.IsRelative
+      (AlgebraicGeometry.AffineLineOverPlane.family k))
 
-/-- Example 62.7.2 (1): the family `α` of 0-cycles on `X / S` is a relative
-0-cycle, i.e. compatible with specializations. The heuristic is that `a / b`
-and `(a + b²) / b = a / b + b` limit to the same point of `ℙ¹` over the
-residue field of any valuation `v` on `κ(s)` with `v(b) > 0`. -/
-@[stacks 0H5J]
-theorem family_isRelative (k : Type u) [Field k] :
-    RelativeCycle.IsRelative (family k) :=
-  sorry
+#check (AlgebraicGeometry.AffineLineOverPlane.closure_support_contains_originFiber :
+  ∀ (k : Type u) [Field k],
+    Set.range ((AlgebraicGeometry.AffineLineOverPlane.hom k).fiberι
+      (AlgebraicGeometry.AffineLineOverPlane.origin k)) ⊆
+      closure (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.support
+        (AlgebraicGeometry.AffineLineOverPlane.family k)))
 
-/-- Example 62.7.2 (2): the closure of the support of `α` contains the whole
-fibre over the origin `(0, 0)`. -/
-@[stacks 0H5J]
-theorem closure_support_contains_originFiber (k : Type u) [Field k] :
-    Set.range ((hom k).fiberι (origin k)) ⊆
-      closure (CyclesOnFibers.support (family k)) :=
-  sorry
-
-/-- Example 62.7.2 (3): the family `α` is not equidimensional: its support is
-not contained in any closed subscheme of relative dimension at most `0` over
-`S`. -/
-@[stacks 0H5J]
-theorem not_equidimensional (k : Type u) [Field k] :
-    ¬ Equidimensional (family k) :=
-  sorry
-
-end AlgebraicGeometry.AffineLineOverPlane
+#check (AlgebraicGeometry.AffineLineOverPlane.not_equidimensional :
+  ∀ (k : Type u) [Field k],
+    ¬ AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.Equidimensional
+      (AlgebraicGeometry.AffineLineOverPlane.family k))

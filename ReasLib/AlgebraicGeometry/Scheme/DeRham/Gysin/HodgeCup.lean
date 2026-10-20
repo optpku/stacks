@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.DeRham.HodgeCup
@@ -134,7 +128,9 @@ noncomputable abbrev coefficientRightDerived (f : X ⟶ S) (q : ℕ) :=
 
 /-- Canonical bounded-below right derived functor of coefficient global sections. -/
 noncomputable abbrev coefficientBoundedDerived (f : X ⟶ S) :=
-  @Functor.RightDerived.Bounded.functor _ _ _ _ _ _ _ _
+  @Functor.RightDerived.Bounded.functor _ _ _ _ _ _
+    (RingedSite.Hom.moduleCat_hasDerivedCategory.{u}
+      (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom)) _
     (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
     (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _
       (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
@@ -281,24 +277,36 @@ noncomputable abbrev hodgeSinglePlus (f : X ⟶ S) (p : ℕ) :=
 /-- The bounded-derived single-complex model of a relative form is canonically its degree-zero
 single object. -/
 noncomputable def hodgeSingleDerivedIso (f : X ⟶ S) (p : ℕ) :
-    (DerivedCategory.Plus.Qh : HomotopyCategory.Plus
+    (@DerivedCategory.Plus.Qh _ _ _
+      (RingedSite.Hom.moduleCat_hasDerivedCategory.{u}
+        (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom)) : HomotopyCategory.Plus
       (RingedSpace.DeRham.Modules f.toLRSHom.toShHom) ⥤
-        DerivedCategory.Plus (RingedSpace.DeRham.Modules f.toLRSHom.toShHom)).obj
+        @DerivedCategory.Plus (RingedSpace.DeRham.Modules f.toLRSHom.toShHom) _ _
+          (RingedSite.Hom.moduleCat_hasDerivedCategory.{u}
+            (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom))).obj
       ((HomotopyCategory.Plus.quotient
         (RingedSpace.DeRham.Modules f.toLRSHom.toShHom)).obj
           (hodgeSinglePlus f p)) ≅
-      (DerivedCategory.Plus.singleFunctor
-        (RingedSpace.DeRham.Modules f.toLRSHom.toShHom) 0).obj
+      (@DerivedCategory.Plus.singleFunctor
+        (RingedSpace.DeRham.Modules f.toLRSHom.toShHom) _ _
+        (RingedSite.Hom.moduleCat_hasDerivedCategory.{u}
+          (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom)) 0).obj
           (hodgeCoefficientForm f p) :=
-  (DerivedCategory.Plus.Qh : HomotopyCategory.Plus
+  (@DerivedCategory.Plus.Qh _ _ _
+    (RingedSite.Hom.moduleCat_hasDerivedCategory.{u}
+      (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom)) : HomotopyCategory.Plus
     (RingedSpace.DeRham.Modules f.toLRSHom.toShHom) ⥤
-      DerivedCategory.Plus
-        (RingedSpace.DeRham.Modules f.toLRSHom.toShHom)).mapIso
+      @DerivedCategory.Plus
+        (RingedSpace.DeRham.Modules f.toLRSHom.toShHom) _ _
+        (RingedSite.Hom.moduleCat_hasDerivedCategory.{u}
+          (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom))).mapIso
     ((CochainComplex.Plus.singleFunctorCompQuotientIso
       (RingedSpace.DeRham.Modules f.toLRSHom.toShHom) 0).app
         (hodgeCoefficientForm f p)) ≪≫
-  (DerivedCategory.Plus.singleFunctor.fromHomotopy.iso
-    (RingedSpace.DeRham.Modules f.toLRSHom.toShHom) 0).app
+  (@DerivedCategory.Plus.singleFunctor.fromHomotopy.iso
+    (RingedSpace.DeRham.Modules f.toLRSHom.toShHom) _ _
+    (RingedSite.Hom.moduleCat_hasDerivedCategory.{u}
+      (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom)) 0).app
       (hodgeCoefficientForm f p)
 
 /-- The Hodge single-complex model is canonically the ordinary right-derived global-sections
@@ -308,7 +316,9 @@ noncomputable def hodgeCohomologyRightDerivedIso (f : X ⟶ S) (p q : ℕ) :
       (coefficientRightDerived f q).obj
           (hodgeCoefficientForm f p) :=
   (DerivedCategory.homologyFunctor (coefficientModules f) (q : ℤ)).mapIso
-      (@Functor.RightDerived.Homotopy.BoundedBelow.canonicalCochainValueIso _ _ _ _ _ _ _ _
+      (@Functor.RightDerived.Homotopy.BoundedBelow.canonicalCochainValueIso _ _ _
+        (RingedSite.Hom.moduleCat_hasDerivedCategory.{u}
+          (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom)) _ _ _ _
         (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
         (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _
           (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
@@ -321,7 +331,9 @@ noncomputable def hodgeCohomologyRightDerivedIso (f : X ⟶ S) (p q : ℕ) :
         DerivedCategory (coefficientModules f)).mapIso
           ((coefficientBoundedDerived f).mapIso
                 (hodgeSingleDerivedIso f p))) ≪≫
-    @Functor.RightDerived.Bounded.degree.degreeIsoRightDerived _ _ _ _ _ _ _ _ _
+    @Functor.RightDerived.Bounded.degree.degreeIsoRightDerived _ _ _ _ _ _
+      (RingedSite.Hom.moduleCat_hasDerivedCategory.{u}
+        (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom)) _ _
       (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
       (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _
         (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
@@ -434,18 +446,24 @@ noncomputable def hodgeCohomologyUnderlyingIso (f : X ⟶ S) (p q : ℕ) :
   ((forget₂ (ModuleCat (coefficientRing f)) AddCommGrpCat).mapIso
     (hodgeCohomologyRightDerivedIso f p q)) ≪≫
   ((forget₂ (ModuleCat (coefficientRing f)) AddCommGrpCat).mapIso
-    (@Functor.RightDerived.Bounded.degree.degreeIsoRightDerived _ _ _ _ _ _ _ _ _
+    (@Functor.RightDerived.Bounded.degree.degreeIsoRightDerived _ _ _ _ _ _
+      (RingedSite.Hom.moduleCat_hasDerivedCategory.{u}
+        (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom)) _ _
       (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
       (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _
         (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
         inferInstance)
       q (hodgeCoefficientForm f p)).symm) ≪≫
   ((@Functor.RightDerived.Composition.BoundedBelow.ExactSecond.degreeIso
-      _ _ _ _ _ _ _ _ _ _ _ _
+      _ _ _ _ _ _ _ _ _
+      (RingedSite.Hom.moduleCat_hasDerivedCategory.{u}
+        (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom)) _ _
       (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
       (hodgeCoefficientForget f) inferInstance inferInstance (q : ℤ)).app
     (hodgeCoefficientForm f p)) ≪≫
-  (@Functor.RightDerived.Bounded.degree.degreeIsoRightDerived _ _ _ _ _ _ _ _ _
+  (@Functor.RightDerived.Bounded.degree.degreeIsoRightDerived _ _ _ _ _ _
+    (RingedSite.Hom.moduleCat_hasDerivedCategory.{u}
+      (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom)) _ _
     (coefficientGlobalSections f ⋙ (hodgeCoefficientForget f).obj)
     (coefficientGlobalSections_compForget_additive f)
     (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _

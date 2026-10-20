@@ -1,12 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap106.«106_6_8_1_Comparison»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Deformation.Automorphism
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Deformation.Diagonal
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -17,25 +13,15 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Hom
-namespace Deformation
-
-variable {S : Scheme.{u}} {U U' I I' : AlgebraicSpace S}
-variable (iU : U ⟶ U') (iI : I ⟶ I') (p' : I' ⟶ U') (p : I ⟶ U)
-variable (Δ' : U' ⟶ I') (Δ : U ⟶ I)
-variable [IsFirstOrderThickening iU] [IsFirstOrderThickening iI]
-
-/-- 106.6.8.1: acting on the diagonal section `Δ'` via the spaces action-sheaf lemma
-yields a sheaf isomorphism
-`Hom_{O_U}(Δ^* Ω_{I/U}, C_{U/U'}) ≅ Aut(ξ)`
-on `U_spaces,étale`, sending the zero section to `Δ'`. Here `Aut(ξ)` is identified
-with the deformation sheaf of the first-order thickenings `(U ⊂ U')` and
-`(I ⊂ I')` over `(U ⊂ U')` along `𝟙 U'` and `p'`. -/
-@[stacks 0CKH]
-theorem parameter_iso_aut (hΔ : IsPullback Δ iU iI Δ')
-    (hp : IsPullback p iI iU p') (hsec : Δ' ≫ p' = 𝟙 U') :
-    IsIsomorphic (parameterSheafEtale iU p Δ) (autSheaf iU iI p' Δ' Δ hΔ) :=
-  sorry
-
-end Deformation
-end AlgebraicGeometry.AlgebraicSpace.Hom
+/- 106.6.8.1: Acting on the supplied diagonal identifies the sheaf of
+`O_U`-linear maps from `Δ^* Ω_{I/U}` to `C_{U/U'}` with the automorphism
+sections of the first-order cartesian diagram. -/
+@[stacks 0CKH] #check (AlgebraicGeometry.AlgebraicSpace.Hom.Deformation.parameterAutIso :
+  ∀ {S : Scheme.{u}} {U U' I I' : AlgebraicSpace S}
+    (iU : U ⟶ U') (iI : I ⟶ I') (p' : I' ⟶ U') (p : I ⟶ U)
+    (Δ' : U' ⟶ I') (Δ : U ⟶ I)
+    [IsFirstOrderThickening iU] [IsFirstOrderThickening iI]
+    (hΔ : IsPullback Δ iU iI Δ') (hp : IsPullback p iI iU p')
+    (hsec : Δ' ≫ p' = 𝟙 U'),
+    Hom.Deformation.parameterSheafEtale iU p Δ ≅
+      Hom.Deformation.autSheaf iU iI p' Δ' Δ hΔ)

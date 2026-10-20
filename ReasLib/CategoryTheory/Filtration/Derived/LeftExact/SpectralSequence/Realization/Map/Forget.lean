@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.SpectralSequence.Realization.Forget
@@ -236,20 +230,5 @@ theorem reindex
         (Abutment.functor T) h m.toWithAbutmentMap := sorry
 
 end Realization.Map.toWithAbutmentMap
-
-/- The three former spellings below are retained because Chapter 13 still checks them directly;
-the namespaced declarations above are the canonical API. -/
-
-/-- Compatibility alias for `Realization.Map.toWithAbutmentMap.id`; use the namespaced theorem. -/
-@[deprecated Realization.Map.toWithAbutmentMap.id (since := "2026-08-06")]
-alias Realization.Map.toWithAbutmentMap_id := Realization.Map.toWithAbutmentMap.id
-
-/-- Compatibility alias for `Realization.Map.toWithAbutmentMap.comp`; use the namespaced theorem. -/
-@[deprecated Realization.Map.toWithAbutmentMap.comp (since := "2026-08-06")]
-alias Realization.Map.toWithAbutmentMap_comp := Realization.Map.toWithAbutmentMap.comp
-
-/-- Compatibility alias for `Realization.Map.toWithAbutmentMap.reindex`; use the namespaced theorem. -/
-@[deprecated Realization.Map.toWithAbutmentMap.reindex (since := "2026-08-06")]
-alias Realization.Map.toWithAbutmentMap_reindex := Realization.Map.toWithAbutmentMap.reindex
 
 end CategoryTheory.FilteredObject.Finite.RightDerived.SpectralSequence

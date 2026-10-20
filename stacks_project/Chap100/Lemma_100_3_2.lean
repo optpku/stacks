@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.MorphismProperty.Local
-public import stacks_project.Chap73.Lemma_73_7_3_Precoverage
-public import stacks_project.Chap94.«94_9_8_1_Comparison»
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
-public import stacks_project.Chap100.Lemma_100_3_2_MorphismProperty
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.MorphismProperty
+import StacksCheckRecall
 
 /-!
 # Scheme tests versus algebraic-space tests for representable morphisms
@@ -26,27 +17,18 @@ scheme base changes.
 open CategoryTheory AlgebraicGeometry
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.Groupoids.Hom
-
-/-- Lemma 100.3.2: Let `P` be a property of morphisms of algebraic spaces that is
-fppf local on the target and stable under base change. Let `f : X ⟶ Y` be a
-morphism of algebraic stacks representable by algebraic spaces. Then `f` has `P`
-if and only if for every algebraic space `Z` and morphism `Z.toGroupoids ⟶ Y`,
-every morphism of algebraic spaces representing `Z ×_Y X ⟶ Z` has `P`. -/
-@[stacks 04XC]
-theorem has_iff_forall_algebraicSpace {S : Scheme.{u}} {X Y : GroupoidsOver S}
+/- Lemma 100.3.2: A morphism of algebraic stacks representable by algebraic
+spaces has a base-change stable, fppf target-local property if and only if
+every algebraic-space base-change projection has that property. -/
+@[stacks 04XC] #check (AlgebraicGeometry.Groupoids.Hom.has_iff_forall_algebraicSpace :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y]
     (P : MorphismProperty (AlgebraicSpace S))
     [P.IsStableUnderBaseChange]
     [P.IsLocalAtTarget (AlgebraicSpace.fppfPrecoverage S)]
-    {f : X ⟶ Y} (hf : relativelyRepresentableByAlgebraicSpaces f) :
-    has P f ↔
+    {f : X ⟶ Y} (hf : relativelyRepresentableByAlgebraicSpaces f),
+    AlgebraicGeometry.Groupoids.Hom.has P f ↔
       ∀ (Z : AlgebraicSpace S) (z : Z.toGroupoids ⟶ Y) (W : AlgebraicSpace S)
-        (w : W ⟶ Z), RepresentsTwoFibreProductOnSpace f z W Z w → P w :=
-  sorry
-
-end AlgebraicGeometry.Groupoids.Hom
+        (w : W ⟶ Z), RepresentsTwoFibreProductOnSpace f z W Z w → P w)

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_9_1_Immersion
-public import stacks_project.Chap101.Definition_101_7_2_QuasiCompact
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Morphism.ClosedImmersion.QuasiCompact
+import StacksCheckRecall
 
 /-!
 # Closed immersions of algebraic stacks are quasi-compact
@@ -22,13 +16,8 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.Groupoids.Hom
-
-/-- Lemma 101.7.5: A closed immersion of algebraic stacks is quasi-compact. -/
-@[stacks 0CL1]
-instance ClosedImmersion.quasiCompact {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [ClosedImmersion f] :
-    AlgebraicStack.QuasiCompact f :=
-  sorry
-
-end AlgebraicGeometry.Groupoids.Hom
+/- Lemma 101.7.5: A closed immersion of algebraic stacks is quasi-compact. -/
+@[stacks 0CL1] #check (AlgebraicGeometry.Groupoids.Hom.ClosedImmersion.quasiCompact :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+    (f : X ⟶ Y) [AlgebraicGeometry.Groupoids.Hom.ClosedImmersion f],
+    AlgebraicGeometry.AlgebraicStack.QuasiCompact f)

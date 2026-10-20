@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_8_2_QuasiCompact
-public import stacks_project.Chap67.Definition_67_15_4_SchemeTheoreticSupport
-public import stacks_project.Chap77.«77_7_1_1_IsomorphismFunctor»
-public import stacks_project.Chap77.Lemma_77_7_4_Limit
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.BaseChange.Limit
+import StacksCheckRecall
 
 /-!
 # Lemma 77.7.4
@@ -22,51 +14,42 @@ presentation and quasi-compact scheme-theoretic support hypotheses.
 @[expose] public section
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory Opposite
+open AlgebraicGeometry.AlgebraicSpace.Modules
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules
-
-variable {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B)
-variable {ℱ 𝒢 : X.Modules} [ℱ.IsQuasicoherent] [𝒢.IsQuasicoherent]
-
-/-- Lemma 77.7.4 (1): In Situation 77.7.1, if `𝒢` is of finite type and the
-scheme-theoretic support of `𝒢` is quasi-compact over `B`, then a subterminal
-functor detecting epimorphicity of `baseChangeMap f T.hom u` preserves directed
-affine limits on `SchemeOver B`. -/
-@[stacks 083J]
-theorem surjectivityFunctor_preservesDirectedAffineLimits
+/- Lemma 77.7.4 (1): Surjectivity is limit preserving under the stated
+finiteness and quasi-compact scheme-theoretic support hypotheses. -/
+@[stacks 083J] #check (AlgebraicGeometry.AlgebraicSpace.Modules.surjectivityFunctor_preservesDirectedAffineLimits :
+    ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B)
+      {ℱ 𝒢 : X.Modules} [ℱ.IsQuasicoherent] [𝒢.IsQuasicoherent]
     (u : ℱ ⟶ 𝒢) [𝒢.IsFiniteType]
     [QuasiCompact ((schemeTheoreticSupport 𝒢).ι ≫ f)]
     (F_surj : (SchemeOver B)ᵒᵖ ⥤ Type u)
     [hF_subterminal : ∀ T : SchemeOver B, Subsingleton (F_surj.obj (op T))]
     (hF_surj : ∀ T : SchemeOver B,
-      Nonempty (F_surj.obj (op T)) ↔ Epi (baseChangeMap f T.hom u)) :
-    SchemeOver.PreservesDirectedAffineLimits B F_surj := sorry
+      Nonempty (F_surj.obj (op T)) ↔ Epi (baseChangeMap f T.hom u)),
+    SchemeOver.PreservesDirectedAffineLimits B F_surj)
 
-/-- Lemma 77.7.4 (2): In Situation 77.7.1, if `ℱ` is of finite type and the
-scheme-theoretic support of `ℱ` is quasi-compact over `B`, then a subterminal
-functor detecting vanishing of `baseChangeMap f T.hom u` preserves directed
-affine limits on `SchemeOver B`. -/
-@[stacks 083J]
-theorem zeroFunctor_preservesDirectedAffineLimits
+/- Lemma 77.7.4 (2): Vanishing is limit preserving under the stated
+finiteness and quasi-compact scheme-theoretic support hypotheses. -/
+@[stacks 083J] #check (AlgebraicGeometry.AlgebraicSpace.Modules.zeroFunctor_preservesDirectedAffineLimits :
+    ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B)
+      {ℱ 𝒢 : X.Modules} [ℱ.IsQuasicoherent] [𝒢.IsQuasicoherent]
     (u : ℱ ⟶ 𝒢) [ℱ.IsFiniteType]
     [QuasiCompact ((schemeTheoreticSupport ℱ).ι ≫ f)]
     (F_zero : (SchemeOver B)ᵒᵖ ⥤ Type u)
     [hF_subterminal : ∀ T : SchemeOver B, Subsingleton (F_zero.obj (op T))]
     (hF_zero : ∀ T : SchemeOver B,
-      Nonempty (F_zero.obj (op T)) ↔ baseChangeMap f T.hom u = 0) :
-    SchemeOver.PreservesDirectedAffineLimits B F_zero := sorry
+      Nonempty (F_zero.obj (op T)) ↔ baseChangeMap f T.hom u = 0),
+    SchemeOver.PreservesDirectedAffineLimits B F_zero)
 
-/-- Lemma 77.7.4 (3): In Situation 77.7.1, if `ℱ` is of finite type, `𝒢` is of
-finite presentation, and the scheme-theoretic supports of `ℱ` and `𝒢` are
-quasi-compact over `B`, then `isomorphismFunctor f u` preserves directed affine
-limits on `SchemeOver B`. -/
-@[stacks 083J]
-theorem isomorphismFunctor_preservesDirectedAffineLimits
+/- Lemma 77.7.4 (3): Isomorphism is limit preserving under the stated
+finiteness and quasi-compact scheme-theoretic support hypotheses. -/
+@[stacks 083J] #check (AlgebraicGeometry.AlgebraicSpace.Modules.isomorphismFunctor_preservesDirectedAffineLimits :
+    ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B)
+      {ℱ 𝒢 : X.Modules} [ℱ.IsQuasicoherent] [𝒢.IsQuasicoherent]
     (u : ℱ ⟶ 𝒢) [ℱ.IsFiniteType] [𝒢.IsFinitePresentation]
     [QuasiCompact ((schemeTheoreticSupport ℱ).ι ≫ f)]
-    [QuasiCompact ((schemeTheoreticSupport 𝒢).ι ≫ f)] :
-    SchemeOver.PreservesDirectedAffineLimits B (isomorphismFunctor f u) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Modules
+    [QuasiCompact ((schemeTheoreticSupport 𝒢).ι ≫ f)],
+    SchemeOver.PreservesDirectedAffineLimits B (isomorphismFunctor f u))

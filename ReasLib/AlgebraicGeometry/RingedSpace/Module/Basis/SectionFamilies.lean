@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Definition
@@ -64,35 +58,6 @@ abbrev LinearFamily
       ((SheafOfModules.toSheaf (RingedSpace.ringCatSheaf X)).obj ℱ).obj //
     IsLinear f η}
 
-/-- A raw compatible two-basis family together with a linearity proof extends uniquely to a
-morphism from a module sheaf on `Y` to the pushforward of a module sheaf on `X`. -/
-theorem existsUniquePushforwardHom_of_isLinear
-    {ℱ : X.Modules} {𝒢 : Y.Modules}
-    (hBX : Opens.IsBasis BX) (hBY : Opens.IsBasis BY)
-    (η : TopCat.Presheaf.BasisPushforwardHomFamily f.hom.base BX BY
-      ((SheafOfModules.toSheaf (RingedSpace.ringCatSheaf Y)).obj 𝒢).obj
-      ((SheafOfModules.toSheaf (RingedSpace.ringCatSheaf X)).obj ℱ).obj)
-    (hη : IsLinear f η) :
-    ∃! φ : 𝒢 ⟶ (pushforward f).obj ℱ,
-      ∀ (U : BasisOpen BX) (V : BasisOpen BY)
-        (hUV : U.obj ≤ (Opens.map f.hom.base).obj V.obj),
-        ((SheafOfModules.toSheaf (RingedSpace.ringCatSheaf Y)).map φ).hom.app (op V.obj) ≫
-            ℱ.val.presheaf.map (homOfLE hUV).op =
-          η.app U V hUV := sorry
-
-/-- A compatible linear two-basis family extends uniquely to a morphism of module sheaves into
-the pushforward. -/
-theorem existsUniquePushforwardHom
-    {ℱ : X.Modules} {𝒢 : Y.Modules}
-    (hBX : Opens.IsBasis BX) (hBY : Opens.IsBasis BY)
-    (η : LinearFamily (BX := BX) (BY := BY) (ℱ := ℱ) (𝒢 := 𝒢) f) :
-    ∃! φ : 𝒢 ⟶ (pushforward f).obj ℱ,
-      ∀ (U : BasisOpen BX) (V : BasisOpen BY)
-        (hUV : U.obj ≤ (Opens.map f.hom.base).obj V.obj),
-        ((SheafOfModules.toSheaf (RingedSpace.ringCatSheaf Y)).map φ).hom.app (op V.obj) ≫
-            ℱ.val.presheaf.map (homOfLE hUV).op =
-          η.val.app U V hUV := sorry
-
 /-- The two-basis family induced by a morphism of module sheaves is linear. -/
 theorem ofHom_isLinear
     {ℱ : X.Modules} {𝒢 : Y.Modules}
@@ -121,16 +86,40 @@ theorem ofHom_app
       ((SheafOfModules.toSheaf (RingedSpace.ringCatSheaf Y)).map φ).hom.app (op V.obj) ≫
         ℱ.val.presheaf.map (homOfLE hUV).op := sorry
 
+/-- The morphism of underlying abelian sheaves extending a compatible linear two-basis family,
+constructed by `TopCat.Presheaf.BasisPushforwardHomFamily.toHom`. -/
+noncomputable abbrev toSheafHom
+    {ℱ : X.Modules} {𝒢 : Y.Modules}
+    (hBX : Opens.IsBasis BX) (hBY : Opens.IsBasis BY)
+    (η : LinearFamily (BX := BX) (BY := BY) (ℱ := ℱ) (𝒢 := 𝒢) f) :
+    (SheafOfModules.toSheaf (RingedSpace.ringCatSheaf Y)).obj 𝒢 ⟶
+      (SheafOfModules.toSheaf (RingedSpace.ringCatSheaf Y)).obj ((pushforward f).obj ℱ) :=
+  TopCat.Presheaf.BasisPushforwardHomFamily.toHom f.hom.base hBX hBY η.val
+
+/-- The abelian extension of a linear two-basis family is linear over `𝒪_Y` on every open. -/
+theorem toSheafHom_map_smul
+    {ℱ : X.Modules} {𝒢 : Y.Modules}
+    (hBX : Opens.IsBasis BX) (hBY : Opens.IsBasis BY)
+    (η : LinearFamily (BX := BX) (BY := BY) (ℱ := ℱ) (𝒢 := 𝒢) f)
+    (V : (Opens Y)ᵒᵖ) (r : (RingedSpace.ringCatSheaf Y).obj.obj V) (s : 𝒢.val.obj V) :
+    ((toSheafHom f hBX hBY η).hom : 𝒢.val.presheaf ⟶ ((pushforward f).obj ℱ).val.presheaf).app V
+        (r • s) =
+      SMul.smul (α := ((pushforward f).obj ℱ).val.presheaf.obj V) r
+        (((toSheafHom f hBX hBY η).hom :
+          𝒢.val.presheaf ⟶ ((pushforward f).obj ℱ).val.presheaf).app V s) := sorry
+/- Proof strategy: both sides are sections of `ℱ` over `f⁻¹(V)`; by the sheaf condition it
+suffices to compare restrictions to basis opens `U ⊆ f⁻¹(W)` for basis opens `W ⊆ V`, where
+`TopCat.Presheaf.BasisPushforwardHomFamily.toHom_app` reduces the claim to `η.property`. -/
+
 /-- Extend a compatible linear two-basis family to its uniquely determined morphism of module
-sheaves into the pushforward. -/
+sheaves into the pushforward: the underlying abelian extension `toSheafHom` together with its
+`𝒪_Y`-linearity. -/
 noncomputable def toHom
     {ℱ : X.Modules} {𝒢 : Y.Modules}
     (hBX : Opens.IsBasis BX) (hBY : Opens.IsBasis BY)
     (η : LinearFamily (BX := BX) (BY := BY) (ℱ := ℱ) (𝒢 := 𝒢) f) :
     𝒢 ⟶ (pushforward f).obj ℱ :=
-  Classical.choose (ExistsUnique.exists
-    (existsUniquePushforwardHom (BX := BX) (BY := BY) (ℱ := ℱ) (𝒢 := 𝒢)
-      f hBX hBY η))
+  ⟨PresheafOfModules.homMk (toSheafHom f hBX hBY η).hom (toSheafHom_map_smul f hBX hBY η)⟩
 
 /-- The module-sheaf morphism selected by `toHom` restricts to the prescribed linear family. -/
 theorem toHom_app
@@ -142,7 +131,8 @@ theorem toHom_app
     ((SheafOfModules.toSheaf (RingedSpace.ringCatSheaf Y)).map
         (toHom (BX := BX) (BY := BY) (ℱ := ℱ) (𝒢 := 𝒢) f hBX hBY η)).hom.app (op V.obj) ≫
         ℱ.val.presheaf.map (homOfLE hUV).op =
-      η.val.app U V hUV := sorry
+      η.val.app U V hUV :=
+  TopCat.Presheaf.BasisPushforwardHomFamily.toHom_app f.hom.base hBX hBY η.val U V hUV
 
 /-- A module-sheaf morphism with the prescribed two-basis family is `toHom f hBX hBY η`. -/
 theorem toHom_unique
@@ -156,6 +146,37 @@ theorem toHom_unique
           ℱ.val.presheaf.map (homOfLE hUV).op =
         η.val.app U V hUV) :
     φ = toHom (BX := BX) (BY := BY) (ℱ := ℱ) (𝒢 := 𝒢) f hBX hBY η := sorry
+
+/-- A compatible linear two-basis family extends uniquely to a morphism of module sheaves into
+the pushforward. -/
+theorem existsUniquePushforwardHom
+    {ℱ : X.Modules} {𝒢 : Y.Modules}
+    (hBX : Opens.IsBasis BX) (hBY : Opens.IsBasis BY)
+    (η : LinearFamily (BX := BX) (BY := BY) (ℱ := ℱ) (𝒢 := 𝒢) f) :
+    ∃! φ : 𝒢 ⟶ (pushforward f).obj ℱ,
+      ∀ (U : BasisOpen BX) (V : BasisOpen BY)
+        (hUV : U.obj ≤ (Opens.map f.hom.base).obj V.obj),
+        ((SheafOfModules.toSheaf (RingedSpace.ringCatSheaf Y)).map φ).hom.app (op V.obj) ≫
+            ℱ.val.presheaf.map (homOfLE hUV).op =
+          η.val.app U V hUV :=
+  ⟨toHom f hBX hBY η, toHom_app f hBX hBY η, toHom_unique f hBX hBY η⟩
+
+/-- A raw compatible two-basis family together with a linearity proof extends uniquely to a
+morphism from a module sheaf on `Y` to the pushforward of a module sheaf on `X`. -/
+theorem existsUniquePushforwardHom_of_isLinear
+    {ℱ : X.Modules} {𝒢 : Y.Modules}
+    (hBX : Opens.IsBasis BX) (hBY : Opens.IsBasis BY)
+    (η : TopCat.Presheaf.BasisPushforwardHomFamily f.hom.base BX BY
+      ((SheafOfModules.toSheaf (RingedSpace.ringCatSheaf Y)).obj 𝒢).obj
+      ((SheafOfModules.toSheaf (RingedSpace.ringCatSheaf X)).obj ℱ).obj)
+    (hη : IsLinear f η) :
+    ∃! φ : 𝒢 ⟶ (pushforward f).obj ℱ,
+      ∀ (U : BasisOpen BX) (V : BasisOpen BY)
+        (hUV : U.obj ≤ (Opens.map f.hom.base).obj V.obj),
+        ((SheafOfModules.toSheaf (RingedSpace.ringCatSheaf Y)).map φ).hom.app (op V.obj) ≫
+            ℱ.val.presheaf.map (homOfLE hUV).op =
+          η.app U V hUV :=
+  existsUniquePushforwardHom f hBX hBY ⟨η, hη⟩
 
 /-- Extending the linear two-basis restriction of a module-sheaf morphism recovers that
 morphism. -/

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
@@ -55,10 +49,9 @@ end IsRelativeGlobalCompleteIntersection
 
 namespace IsRelativeGlobalCompleteIntersection
 
-/-- Lemma 10.136.15, tag `00SY`: a ring homomorphism is relative globally a
-complete intersection at a target prime when this holds on some principal-open
-neighbourhood of that prime.  This is the relative-global-complete-intersection
-specialization of `RingHom.AtPrime`. -/
+/-- A ring homomorphism is relative globally a complete intersection at a target
+prime when it is a relative global complete intersection on some principal-open
+neighbourhood of that prime. -/
 @[stacks 00SY "relative global complete intersection at a prime"]
 def AtPrime (f : R →+* S) (q : PrimeSpectrum S) : Prop :=
   RingHom.AtPrime (fun g ↦ g.IsRelativeGlobalCompleteIntersection) f q

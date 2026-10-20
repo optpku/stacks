@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap54.Lemma_54_16_10
-public import stacks_project.Chap29.Lemma_29_43_13
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.DimensionTwo
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -18,11 +12,10 @@ universe u
 
 namespace AlgebraicGeometry.Projective
 
-/-- Lemma 54.16.11: if `S` is Noetherian and `f : X ⟶ S` is proper with `X` regular of
+/- Lemma 54.16.11: if `S` is Noetherian and `f : X ⟶ S` is proper with `X` regular of
 topological Krull dimension `2`, then `f` is projective over `S`. -/
-@[stacks 0C5P]
-instance instOfProperRegularDimensionTwo
-    {X S : Scheme.{u}} [IsNoetherian S] (f : X ⟶ S) [IsProper f] [Scheme.Regular X]
-    [h_dim : Fact (topologicalKrullDim X = 2)] : Projective f := sorry
+@[stacks 0C5P] #check (AlgebraicGeometry.Projective.instOfProperRegularDimensionTwo :
+    ∀ {X S : Scheme.{u}} [IsNoetherian S] (f : X ⟶ S) [IsProper f] [Scheme.Regular X],
+      topologicalKrullDim X = 2 → Projective f)
 
 end AlgebraicGeometry.Projective

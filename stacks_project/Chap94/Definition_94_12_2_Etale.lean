@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale
 public import stacks_project.Chap66.Lemma_66_16_4_Etale
 public import stacks_project.Chap94.Definition_94_12_1_MorphismProperty
 
@@ -28,36 +23,30 @@ universe u
 
 namespace AlgebraicGeometry.Groupoids.Hom
 
-/-- A 1-morphism of categories fibred in groupoids over `Over S` is étale when
-it is representable by algebraic spaces and every representing morphism
-`fy : Fy ⟶ ofOver U` is an étale morphism of algebraic spaces. -/
-class Etale {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) : Prop where
-  /-- The 1-morphism is representable by algebraic spaces. -/
-  representable : relativelyRepresentableByAlgebraicSpaces f
-  /-- Every representing morphism of algebraic spaces is étale. -/
-  of_represents : ∀ ⦃U : Over S⦄ (y : GroupoidsOver.slice U ⟶ Y)
-    (Fy : AlgebraicSpace S) (fy : Fy ⟶ AlgebraicSpace.ofOver U),
-    RepresentsBaseChange f y Fy fy → AlgebraicSpace.Etale fy
+#check (AlgebraicGeometry.Groupoids.Hom.Etale :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}, (X ⟶ Y) → Prop)
 
 namespace Etale
 
-/-- The identity 1-morphism of a category fibred in groupoids is étale. -/
-instance id {S : Scheme.{u}} {X : GroupoidsOver S} : Etale (𝟙 X) := sorry
+#check (AlgebraicGeometry.Groupoids.Hom.Etale.id :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S},
+    Etale (𝟙 X))
 
-/-- A representing morphism of algebraic spaces for an étale 1-morphism is
-étale. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) [Etale f]
+#check (AlgebraicGeometry.Groupoids.Hom.Etale.spec :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) [Etale f]
     {U : Over S} (y : GroupoidsOver.slice U ⟶ Y) {Fy : AlgebraicSpace S}
-    {fy : Fy ⟶ AlgebraicSpace.ofOver U} (h : RepresentsBaseChange f y Fy fy) :
-    AlgebraicSpace.Etale fy := sorry
+    {fy : Fy ⟶ AlgebraicSpace.ofOver U} (h : RepresentsBaseChange f y Fy fy),
+    AlgebraicSpace.Etale fy)
 
-/-- An étale 1-morphism is representable by algebraic spaces. -/
-theorem relativelyRepresentable {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    (f : X ⟶ Y) [Etale f] : relativelyRepresentableByAlgebraicSpaces f := sorry
+#check (AlgebraicGeometry.Groupoids.Hom.Etale.relativelyRepresentable :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    (f : X ⟶ Y) [Etale f],
+    relativelyRepresentableByAlgebraicSpaces f)
 
-/-- An étale 1-morphism of categories fibred in groupoids is smooth. -/
-instance smooth_of_etale {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    (f : X ⟶ Y) [Etale f] : Smooth f := sorry
+#check (AlgebraicGeometry.Groupoids.Hom.Etale.smooth_of_etale :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    (f : X ⟶ Y) [Etale f],
+    Smooth f)
 
 end Etale
 

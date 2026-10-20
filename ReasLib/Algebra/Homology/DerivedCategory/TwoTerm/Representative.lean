@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.TStructure
@@ -44,7 +38,7 @@ def IsTwoTermRepresentative
 
 namespace IsTwoTermRepresentative
 
-/-- Lemma 15.85.3 (1): a derived `R`-module concentrated in degrees `-1` and `0` admits a
+/-- A derived `R`-module concentrated in degrees `-1` and `0` admits a
 two-term representative whose degree-zero term is free. -/
 @[stacks 0G9E "free two-term representative"]
 theorem exists_free
@@ -57,7 +51,7 @@ theorem exists_free
 the supplied cohomological bounds to identify the quotient complex with `K`.  The degree-zero
 term is unchanged by the cut and remains free. -/
 
-/-- Lemma 15.85.3 (2): over a Noetherian ring, finite cohomology in degrees `-1` and `0` gives
+/-- Over a Noetherian ring, finite cohomology in degrees `-1` and `0` gives
 a two-term representative with finite free degree-zero term and finite degree-`-1` term. -/
 @[stacks 0G9E "finite two-term representative"]
 theorem exists_finiteFree
@@ -76,7 +70,7 @@ pseudo-coherent model, truncate it to degrees `-1` and `0`, and transport the re
 quasi-isomorphism through `DerivedCategory.Q`; finiteness of the boundary term follows from the
 Noetherian kernel/cokernel API. -/
 
-/-- Lemma 15.85.6, commutative-ring specialization: scalar extension of a two-term
+/-- Scalar extension of a two-term
 representative whose degree-zero term is flat represents the truncation in degrees `≥ -1` of the
 derived scalar extension. -/
 @[stacks 0G9G]

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.FormalDeformation.CompleteLocal
@@ -132,13 +126,29 @@ theorem truncation_spec (n : ℕ) :
     IsArtinianRing (I.truncation n).carrier ∧ IsLocalRing (I.truncation n).carrier ∧
       (I.truncation n).residueFieldIso = I.truncationResidueFieldIso n := sorry
 
+/-- The factor map between successive filtration quotients is local. -/
+theorem truncationMap_isLocalHom (n : ℕ) :
+    IsLocalHom (@Ideal.Quotient.factorₐ Λ R.carrier inferInstance inferInstance R.algebra
+      (I.ideal (n + 1)) (I.ideal n) inferInstance inferInstance
+      (I.antitone n.le_succ)) := sorry
+
+/-- The factor map between successive filtration quotients respects residue identifications. -/
+theorem truncationMap_residue_compat (n : ℕ) :
+    ArtinianLocalAlgCat.residueCompat
+      (A := I.truncation (n + 1)) (B := I.truncation n)
+      (@Ideal.Quotient.factorₐ Λ R.carrier inferInstance inferInstance R.algebra
+        (I.ideal (n + 1)) (I.ideal n) inferInstance inferInstance
+        (I.antitone n.le_succ)) (I.truncationMap_isLocalHom n) =
+      ArtinianLocalAlgCat.residueIsoHom (I.truncation (n + 1)) := sorry
+
 /-- The projection between successive filtration quotients. -/
 noncomputable def truncationMap (n : ℕ) :
     ArtinianLocalAlgCat.Hom (I.truncation (n + 1)) (I.truncation n) :=
   ArtinianLocalAlgCat.Hom.of (A := I.truncation (n + 1)) (B := I.truncation n)
     (@Ideal.Quotient.factorₐ Λ R.carrier inferInstance inferInstance R.algebra
       (I.ideal (n + 1)) (I.ideal n) inferInstance inferInstance
-      (I.antitone n.le_succ)) sorry sorry
+      (I.antitone n.le_succ)) (I.truncationMap_isLocalHom n)
+    (I.truncationMap_residue_compat n)
 
 /-- The underlying algebra map of a filtration projection. -/
 theorem truncationMap_hom (n : ℕ) :
@@ -148,7 +158,7 @@ theorem truncationMap_hom (n : ℕ) :
         (I.antitone n.le_succ) := sorry
 
 /-- Decidability of containment in a maximal-adic power. -/
-noncomputable def lePowDecidable (n : ℕ) :
+@[reducible] noncomputable def lePowDecidable (n : ℕ) :
     DecidablePred (fun m ↦ I.ideal m ≤ maximalIdeal R ^ (n + 1)) :=
   fun _ ↦ Classical.propDecidable _
 
@@ -158,13 +168,13 @@ noncomputable def stageIndex (n : ℕ) : ℕ :=
     (I.lePowDecidable n) (I.exists_le_pow n)
 
 /-- The selected stage is contained in the corresponding maximal-adic power. -/
-def stageIndex_le (n : ℕ) :
+theorem stageIndex_le (n : ℕ) :
     I.ideal (I.stageIndex n) ≤ maximalIdeal R ^ (n + 1) :=
   @Nat.find_spec (fun m ↦ I.ideal m ≤ maximalIdeal R ^ (n + 1))
     (I.lePowDecidable n) (I.exists_le_pow n)
 
 /-- The selected stages are monotone. -/
-def stageIndex_mono (n : ℕ) : I.stageIndex n ≤ I.stageIndex (n + 1) :=
+theorem stageIndex_mono (n : ℕ) : I.stageIndex n ≤ I.stageIndex (n + 1) :=
   @Nat.find_min' (fun m ↦ I.ideal m ≤ maximalIdeal R ^ (n + 1))
     (I.lePowDecidable n) (I.exists_le_pow n) (I.stageIndex (n + 1))
     (le_trans
@@ -172,13 +182,30 @@ def stageIndex_mono (n : ℕ) : I.stageIndex n ≤ I.stageIndex (n + 1) :=
         (I.lePowDecidable (n + 1)) (I.exists_le_pow (n + 1)))
       (Ideal.pow_le_pow_right (Nat.le_succ (n + 1))))
 
+/-- The factor map from a selected filtration stage to a maximal-adic stage is local. -/
+theorem truncationComparison_isLocalHom (n : ℕ) :
+    IsLocalHom (@Ideal.Quotient.factorₐ Λ R.carrier inferInstance inferInstance R.algebra
+      (I.ideal (I.stageIndex n)) (CompleteLocalAlgCat.maximalIdeal R ^ (n + 1))
+      inferInstance inferInstance (I.stageIndex_le n)) := sorry
+
+/-- The comparison to a maximal-adic quotient respects residue identifications. -/
+theorem truncationComparison_residue_compat (n : ℕ) :
+    ArtinianLocalAlgCat.residueCompat
+      (A := I.truncation (I.stageIndex n)) (B := R.truncation n)
+      (@Ideal.Quotient.factorₐ Λ R.carrier inferInstance inferInstance R.algebra
+        (I.ideal (I.stageIndex n)) (CompleteLocalAlgCat.maximalIdeal R ^ (n + 1))
+        inferInstance inferInstance (I.stageIndex_le n))
+      (I.truncationComparison_isLocalHom n) =
+      ArtinianLocalAlgCat.residueIsoHom (I.truncation (I.stageIndex n)) := sorry
+
 /-- The quotient comparison from a selected filtration stage to a maximal-adic stage. -/
 noncomputable def truncationComparison (n : ℕ) :
     ArtinianLocalAlgCat.Hom (I.truncation (I.stageIndex n)) (R.truncation n) :=
   ArtinianLocalAlgCat.Hom.of (A := I.truncation (I.stageIndex n)) (B := R.truncation n)
     (@Ideal.Quotient.factorₐ Λ R.carrier inferInstance inferInstance R.algebra
       (I.ideal (I.stageIndex n)) (CompleteLocalAlgCat.maximalIdeal R ^ (n + 1))
-      inferInstance inferInstance (I.stageIndex_le n)) sorry sorry
+      inferInstance inferInstance (I.stageIndex_le n))
+    (I.truncationComparison_isLocalHom n) (I.truncationComparison_residue_compat n)
 
 /-- The underlying algebra map of a quotient comparison. -/
 theorem truncationComparison_hom (n : ℕ) :

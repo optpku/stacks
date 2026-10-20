@@ -1,19 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.FieldTheory.IsAlgClosed.Basic
-public import Mathlib.Tactic.CrossRefAttribute
-public import Mathlib.Topology.JacobsonSpace
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.Basic
-public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve
-public import stacks_project.Chap111.Exercise_111_46_2_Coincidence
-public import stacks_project.Chap111.Exercise_111_46_4_PointSum
-public import stacks_project.Chap111.Exercise_111_46_6_Effective
+public import ReasLib.AlgebraicGeometry.LinearSystem.DifferenceEffectiveLocus
+import StacksCheckRecall
 
 /-!
 # Closed points of the difference-effective locus on `X^r × X^s`
@@ -34,16 +22,15 @@ universe u
 
 namespace AlgebraicGeometry.Curve
 
-/-- Exercise 111.46.6: let `k` be an algebraically closed field, let `X` be a
+/- Exercise 111.46.6: let `k` be an algebraically closed field, let `X` be a
 smooth projective curve over `k`, and let `r ≥ s` be natural numbers. There is a
 natural closed subset `Z ⊂ X^r × X^s` whose closed points
 `(x 1, …, x r, y 1, …, y s)` are exactly those for which the divisor
 `x 1 + ⋯ + x r - y 1 - ⋯ - y s` is linearly equivalent to an effective divisor. -/
-@[stacks 0EGE]
-theorem exists_differenceEffectiveLocus
-    {k : Type u} [Field k] [IsAlgClosed k]
+@[stacks 0EGE] #check (AlgebraicGeometry.Curve.exists_differenceEffectiveLocus :
+  ∀ {k : Type u} [Field k] [IsAlgClosed k]
     (X : SchemeOverField k) [Curve X] [Projective X.hom] [Smooth X.hom]
-    (r s : ℕ) (hs : s ≤ r) :
+    (r s : ℕ) (hs : s ≤ r),
     ∃ Z : (tensorPower X r ⊗ tensorPower X s).left.IdealSheafData,
       ∀ {x : Fin r → X.left} (hx : ∀ i, x i ∈ closedPoints X.left)
         {y : Fin s → X.left} (hy : ∀ j, y j ∈ closedPoints X.left)
@@ -53,7 +40,6 @@ theorem exists_differenceEffectiveLocus
           (∀ j, (snd (tensorPower X r) (tensorPower X s) ≫ coord X s j).left.base z = y j) →
             (z ∈ Z.support ↔
               differenceLinearlyEquivalentToEffective
-                (pointSumDivisor X x hx) (pointSumDivisor X y hy)) :=
-  sorry
+                (pointSumDivisor X x hx) (pointSumDivisor X y hy)))
 
 end AlgebraicGeometry.Curve

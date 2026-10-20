@@ -1,79 +1,52 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Abelian
-public import ReasLib.CategoryTheory.Filtration.Finite
-public import ReasLib.RingTheory.Finiteness.Projective
-public import stacks_project.Chap64.Definition_64_7_1_Projective
+public import ReasLib.CategoryTheory.Filtration.FiniteProjective
 
 /-!
 # Filtered finite projective objects
 
-This leaf owns the source predicate that every associated graded piece of a
-filtered left module is a finite projective module, together with the induced
-`Module.Finite` and `Module.Projective` instances on graded pieces and on the
-underlying object of a finite filtration.
+The filtered finite-projectivity predicate and its canonical instances are
+available from their shared mathematical owner.
 -/
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.Limits
+open CategoryTheory CategoryTheory.Limits CategoryTheory.FilteredObject
 open scoped ZeroObject FilteredObject.Finite
 
 universe u v
 
-namespace CategoryTheory.FilteredObject
-
 variable {R : Type u} [Ring R]
 
-/-- A filtered left `R`-module is filtered finite projective when every associated
-graded piece is a finite projective `R`-module. -/
-class IsFilteredFiniteProjective (P : FilteredObject (ModuleCat.{v} R)) : Prop where
-  /-- Every graded piece of a filtered finite-projective object is finite projective. -/
-  finiteProjective (p : ℤ) : Module.FiniteProjective R (P.gradedPiece p)
+#check (CategoryTheory.FilteredObject.IsFilteredFiniteProjective :
+    FilteredObject (ModuleCat.{v} R) → Prop)
 
-/-- Filtered finite-projectivity is equivalent to finite projectivity of every
-associated graded piece. -/
-theorem isFilteredFiniteProjective_iff {P : FilteredObject (ModuleCat.{v} R)} :
-    IsFilteredFiniteProjective P ↔ ∀ p, Module.FiniteProjective R (P.gradedPiece p) :=
-  sorry
+#check (CategoryTheory.FilteredObject.isFilteredFiniteProjective_iff :
+    ∀ {P : FilteredObject (ModuleCat.{v} R)},
+      IsFilteredFiniteProjective P ↔ ∀ p, Module.FiniteProjective R (P.gradedPiece p))
 
-/-- Filtered finite-projectivity transports across an isomorphism of filtered objects. -/
-theorem IsFilteredFiniteProjective.of_iso {P Q : FilteredObject (ModuleCat.{v} R)}
-    (e : P ≅ Q) (hQ : IsFilteredFiniteProjective Q) :
-    IsFilteredFiniteProjective P := sorry
+#check (CategoryTheory.FilteredObject.IsFilteredFiniteProjective.of_iso :
+    ∀ {P Q : FilteredObject (ModuleCat.{v} R)}
+      (e : P ≅ Q) (hQ : IsFilteredFiniteProjective Q),
+      IsFilteredFiniteProjective P)
 
-/-- The zero filtered module is filtered finite projective. -/
-noncomputable instance instIsFilteredFiniteProjectiveZero :
-    IsFilteredFiniteProjective (0 : FilteredObject (ModuleCat.{v} R)) := sorry
+#check (CategoryTheory.FilteredObject.instIsFilteredFiniteProjectiveZero :
+    IsFilteredFiniteProjective (0 : FilteredObject (ModuleCat.{v} R)))
 
-/-- Graded pieces of a filtered finite-projective object are finite modules. -/
-instance instFinite_gradedPiece (P : FilteredObject (ModuleCat.{v} R))
-    [IsFilteredFiniteProjective P] (p : ℤ) :
-    Module.Finite R (P.gradedPiece p) := sorry
+#check (CategoryTheory.FilteredObject.instFinite_gradedPiece :
+    ∀ (P : FilteredObject (ModuleCat.{v} R)) [IsFilteredFiniteProjective P] (p : ℤ),
+      Module.Finite R (P.gradedPiece p))
 
-/-- Graded pieces of a filtered finite-projective object are projective modules. -/
-instance instProjective_gradedPiece (P : FilteredObject (ModuleCat.{v} R))
-    [IsFilteredFiniteProjective P] (p : ℤ) :
-    Module.Projective R (P.gradedPiece p) := sorry
+#check (CategoryTheory.FilteredObject.instProjective_gradedPiece :
+    ∀ (P : FilteredObject (ModuleCat.{v} R)) [IsFilteredFiniteProjective P] (p : ℤ),
+      Module.Projective R (P.gradedPiece p))
 
-namespace Finite
+#check (CategoryTheory.FilteredObject.Finite.instFinite :
+    ∀ (P : FilteredObject.Finite.category (ModuleCat.{v} R))
+      [IsFilteredFiniteProjective P.obj],
+      Module.Finite R ((FilteredObject.Finite.Forget.functor (ModuleCat.{v} R)).obj P))
 
-/-- The underlying module of a finite filtered finite-projective object is finite. -/
-instance instFinite (P : category (ModuleCat.{v} R))
-    [IsFilteredFiniteProjective P.obj] :
-    Module.Finite R ((Forget.functor (ModuleCat.{v} R)).obj P) := sorry
-
-/-- The underlying module of a finite filtered finite-projective object is projective. -/
-instance instProjective (P : category (ModuleCat.{v} R))
-    [IsFilteredFiniteProjective P.obj] :
-    Module.Projective R ((Forget.functor (ModuleCat.{v} R)).obj P) := sorry
-
-end Finite
-
-end CategoryTheory.FilteredObject
+#check (CategoryTheory.FilteredObject.Finite.instProjective :
+    ∀ (P : FilteredObject.Finite.category (ModuleCat.{v} R))
+      [IsFilteredFiniteProjective P.obj],
+      Module.Projective R ((FilteredObject.Finite.Forget.functor (ModuleCat.{v} R)).obj P))

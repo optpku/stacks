@@ -1,50 +1,42 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Scheme
-public import Mathlib.CategoryTheory.Limits.Shapes.BinaryProducts
-public import Mathlib.CategoryTheory.MorphismProperty.Comma
-public import Mathlib.CategoryTheory.MorphismProperty.Representable
+public import ReasLib.CategoryTheory.MorphismProperty.Representable.PresheafDiagonal
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.ChosenPresentation.Limits
+public import Mathlib.AlgebraicGeometry.Sites.Fpqc
+public import Mathlib.CategoryTheory.MorphismProperty.Local
+import StacksCheckRecall
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry Limits MorphismProperty
+open CategoryTheory Limits AlgebraicGeometry
 
-universe u
+universe u v
 
-/-- Lemma 65.5.11: let `S` be a scheme and let `F` be a presheaf of sets
-`(Over S)ᵒᵖ ⥤ Type u` on `(Sch/S)_fppf`. Let `P` be a property of morphisms of
-schemes in the sense of Definition 65.5.1 that is stable under base change.
-If for every `U`, `V` in `Over S` and Yoneda sections `ξ : yoneda.obj U ⟶ F`,
-`ξ' : yoneda.obj V ⟶ F` the pairwise fibre product `pullback ξ ξ'` is
-representable and the comparison
-`prod.lift (pullback.fst ξ ξ') (pullback.snd ξ ξ') :
-  pullback ξ ξ' ⟶ yoneda.obj U ⨯ yoneda.obj V`
-(that is, `h_U ×_{ξ, F, ξ'} h_V ⟶ h_U × h_V`) has property `(over P).presheaf`,
-then the diagonal `diag F : F ⟶ F ⨯ F` has property `(over P).presheaf`.
-By Lemma 65.5.3, that comparison has `(over P).presheaf` if and only if the
-corresponding scheme morphism `W ⟶ U ×_S V` has property `P`. -/
-@[stacks 0CB7]
-lemma over_presheaf_diag {S : Scheme.{u}} {P : MorphismProperty Scheme.{u}}
-    [P.IsStableUnderBaseChange] {F : (Over S)ᵒᵖ ⥤ Type u}
-    (h_rep : ∀ (U V : Over S) (ξ : yoneda.obj U ⟶ F) (ξ' : yoneda.obj V ⟶ F),
-      (pullback ξ ξ').IsRepresentable)
-    (hP : ∀ (U V : Over S) (ξ : yoneda.obj U ⟶ F) (ξ' : yoneda.obj V ⟶ F),
-      (over P).presheaf (prod.lift (pullback.fst ξ ξ') (pullback.snd ξ ξ'))) :
-    (over P).presheaf (diag F) := sorry
+variable (X : ChosenBigSite.{u, v} Scheme.fppfPrecoverage) (S : X.carrier)
+  (P : MorphismProperty Scheme.{u})
+  [P.IsStableUnderBaseChange] [P.IsLocalAtTarget Scheme.fppfPrecoverage]
+  (F : (Over S)ᵒᵖ ⥤ Type u)
 
-/-- The diagonal `diag F` has property `(over P).presheaf` if and only if every
-pairwise fibre product of Yoneda sections is representable and the comparison
-`prod.lift (pullback.fst ξ ξ') (pullback.snd ξ ξ')` has property
-`(over P).presheaf`. -/
-lemma over_presheaf_diag_iff {S : Scheme.{u}} {P : MorphismProperty Scheme.{u}}
-    [P.IsStableUnderBaseChange] {F : (Over S)ᵒᵖ ⥤ Type u} :
-    (over P).presheaf (diag F) ↔
-      ∀ (U V : Over S) (ξ : yoneda.obj U ⟶ F) (ξ' : yoneda.obj V ⟶ F),
-        (pullback ξ ξ').IsRepresentable ∧
-          (over P).presheaf (prod.lift (pullback.fst ξ ξ') (pullback.snd ξ ξ')) := sorry
+/- Lemma 65.5.11: for a presheaf of sets on the chosen fppf-site slice, if every
+pairwise pullback of Yoneda sections is representable and its comparison to the
+product has the scheme morphism property `P`, then the diagonal is representable
+and has `P`. The property `P` is stable under base change and fppf local on the base.
+The property on the slice is pulled back along its actual functor to schemes. -/
+@[stacks 0CB7] #check (CategoryTheory.MorphismProperty.presheaf_diag
+    (C := Over S) (hasBinaryProducts := X.sliceHasBinaryProducts S)
+    (P := P.inverseImage (ChosenBigSite.sliceToScheme X S)) (F := F) :
+  (∀ (U V : Over S) (ξ : yoneda.obj U ⟶ F) (ξ' : yoneda.obj V ⟶ F),
+    (pullback ξ ξ').IsRepresentable) →
+  (∀ (U V : Over S) (ξ : yoneda.obj U ⟶ F) (ξ' : yoneda.obj V ⟶ F),
+    (P.inverseImage (ChosenBigSite.sliceToScheme X S)).presheaf
+      (prod.lift (pullback.fst ξ ξ') (pullback.snd ξ ξ'))) →
+  (P.inverseImage (ChosenBigSite.sliceToScheme X S)).presheaf (diag F))
+
+#check (CategoryTheory.MorphismProperty.presheaf_diag_iff
+    (C := Over S) (hasBinaryProducts := X.sliceHasBinaryProducts S)
+    (P := P.inverseImage (ChosenBigSite.sliceToScheme X S)) (F := F) :
+  (P.inverseImage (ChosenBigSite.sliceToScheme X S)).presheaf (diag F) ↔
+    ∀ (U V : Over S) (ξ : yoneda.obj U ⟶ F) (ξ' : yoneda.obj V ⟶ F),
+      (pullback ξ ξ').IsRepresentable ∧
+        (P.inverseImage (ChosenBigSite.sliceToScheme X S)).presheaf
+          (prod.lift (pullback.fst ξ ξ') (pullback.snd ξ ξ')))

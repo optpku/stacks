@@ -1,12 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import Mathlib.AlgebraicGeometry.IdealSheaf.Functorial
+public import Mathlib.AlgebraicGeometry.Morphisms.Separated
+public import Mathlib.RingTheory.AdicCompletion.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.CoherentFormalModule.Completion
+public import ReasLib.AlgebraicGeometry.Scheme.IdealSheafData.Spec
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Support.Proper
 
 /-!
@@ -60,7 +59,7 @@ theorem coherentFormalProperSupportOver_obj_property (f : X ⟶ S) (I : X.IdealS
     (M : CoherentFormalProperSupportOver f I) :
     HasProperSupportOver f (coherentFormalModuleStage M.obj 1).obj := sorry
 
-/-- 088D: canonical completion preserves proper support at the first coherent stage. -/
+/-- Canonical completion preserves proper support at the first coherent stage. -/
 @[stacks 088D "canonical completion preserves proper support"]
 theorem coherentCompletion_preservesProperSupportOver
     {f : X ⟶ S} [IsNoetherian X] [LocallyOfFiniteType f] {I : X.IdealSheafData}
@@ -68,7 +67,7 @@ theorem coherentCompletion_preservesProperSupportOver
     HasProperSupportOver f
       (coherentFormalModuleStage ((Scheme.CoherentCompletion.functor I).obj ℱ.obj) 1).obj := sorry
 
-/-- 30.27.0.1 (088D): canonical completion restricted from coherent modules with proper support
+/-- Canonical completion restricted from coherent modules with proper support
 to coherent formal modules whose first stage has proper support. -/
 @[stacks 088D "canonical proper-support completion functor"]
 noncomputable def coherentProperSupportCompletionFunctor
@@ -82,5 +81,18 @@ noncomputable def coherentProperSupportCompletionFunctor
       ((fun ℱ : RingedSpace.Coh X.toRingedSpace ↦ HasProperSupportOver f ℱ.obj) :
         ObjectProperty (RingedSpace.Coh X.toRingedSpace)) ⋙ Scheme.CoherentCompletion.functor I)
     coherentCompletion_preservesProperSupportOver
+
+/-- Over an ideal-adically complete Noetherian ring, canonical completion on a separated
+finite-type scheme is an equivalence from coherent modules with proper support to coherent
+formal modules whose first stage has proper support. -/
+@[stacks 088E, instance]
+instance instIsEquivalence_coherentProperSupportCompletionFunctor
+    {A : Type u} [CommRing A] [IsNoetherianRing A]
+    {X : Scheme.{u}} [IsNoetherian X] (I : Ideal A) [IsAdicComplete I A]
+    (f : X ⟶ Spec (CommRingCat.of A)) [IsSeparated f] [Scheme.Hom.FiniteType f] :
+    (coherentProperSupportCompletionFunctor :
+      CoherentProperSupportOver f ⥤
+        CoherentFormalProperSupportOver f ((idealSheafDataOfIdealOnSpec I).comap f)).IsEquivalence :=
+  sorry
 
 end AlgebraicGeometry.Scheme.Modules

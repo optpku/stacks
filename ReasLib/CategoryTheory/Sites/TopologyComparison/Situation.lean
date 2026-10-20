@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf
@@ -44,9 +38,9 @@ variable {C : Type u} [Category.{v} C]
 
 namespace TopologyComparison
 
-/-- Situation 21.30.1 (0EZ3): the data and closure conditions comparing `τ'`- and `τ`-cohomology.
-The family `A'` records the allowed coefficient sheaves on each slice, while `P` controls the
-relocalizations used in the comparison. -/
+/-- Closure and refinement conditions for comparing cohomology of two topologies.
+The family `A'` specifies coefficient sheaves on each slice, and `P` specifies the morphisms
+along which higher direct images and covering refinements are controlled. -/
 @[stacks 0EZ3]
 class Situation
     (τ τ' : GrothendieckTopology C)
@@ -80,7 +74,8 @@ class Situation
       {ℱ : Sheaf (τ'.over X) AddCommGrpCat.{max u v}} (_ : A' X ℱ) :
       A' Y ((((Over.map f).sheafPushforwardCocontinuous AddCommGrpCat.{max u v}
         (τ'.over X) (τ'.over Y)).rightDerived i).obj ℱ)
-  /-- The covering refinement condition from Situation 21.30.1. -/
+  /-- Every finer covering family admits a coarser cover followed by singleton finer covers
+  in `P` and coarser covers factoring through the original family. -/
   tau_covering_refinement {U : C} {ι : Type i} (cover : ι → Over U)
       (_ : (τ.over U).CoversTop cover) :
       ∃ (J : Type j) (V : J → Over U),
@@ -162,7 +157,8 @@ noncomputable def selectedCohomologyPresheaf
     (Over X)ᵒᵖ ⥤ AddCommGrpCat.{max u v} :=
   Sheaf.uliftCohomologyPresheaf (τ.over X) (h.finerSheaf hℱ) (n + 1)
 
-/-- Situation 21.30.1 (0EZ3): the local vanishing condition `(V_n)`. -/
+/-- Every section of the degree `n + 1` cohomology presheaf of a chosen coefficient sheaf
+vanishes locally for the coarser topology. -/
 @[stacks 0EZ3]
 def LocalVanishing
     (h : Situation τ τ' P A') (n : ℕ) : Prop :=

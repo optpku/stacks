@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Data.List.TFAE
@@ -34,10 +28,10 @@ def AtPrimes (f : R →+* S) : Prop :=
   ∀ q : PrimeSpectrum S,
     (Localization.localRingHom (q.asIdeal.comap f) q.asIdeal f rfl).Regular
 
-/-- A ring map is regular at the relevant maximal ideals of its target. -/
+/-- A ring map is regular at every maximal ideal of its target. -/
 @[stacks 07C0 "regular at target maximal ideals"]
 def AtMaximals (f : R →+* S) : Prop :=
-  ∀ m : MaximalSpectrum S, Ideal.IsMaximal (m.asIdeal.comap f) →
+  ∀ m : MaximalSpectrum S,
     (Localization.localRingHom (m.asIdeal.comap f) m.asIdeal f rfl).Regular
 
 variable {f : R →+* S}
@@ -53,7 +47,7 @@ variable [IsNoetherianRing S]
 @[stacks 07C0 "regularity is local at target primes"]
 theorem iff_atPrimes : f.Regular ↔ AtPrimes f := sorry
 
-/-- For a Noetherian target, regularity is detected at the relevant maximal ideals. -/
+/-- For a Noetherian target, regularity is detected at all target maximal ideals. -/
 @[stacks 07C0 "regularity is local at target maximal ideals"]
 theorem iff_atMaximals : f.Regular ↔ AtMaximals f := sorry
 

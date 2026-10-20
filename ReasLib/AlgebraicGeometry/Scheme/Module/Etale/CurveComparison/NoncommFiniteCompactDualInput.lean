@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommArithmeticDualCoefficient
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommRepresentationDuality
@@ -24,10 +18,10 @@ variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]
 variable (η : GeometricPoint (geometricBaseChange X))
 variable (hR : IsUnit (Nat.card R : k))
 variable (M : (finiteTypeDiscreteModule R
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X η)))).FullSubcategory)
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η)))).FullSubcategory)
 
 abbrev inverseInput := NoncommRepresentationDuality.inverseDiscrete Rᵐᵒᵖ
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X η)))
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η)))
   (NoncommArithmeticTate.compactInput R X η hR M)
 
 /-- On this finite discrete compact input every additive character is continuous. -/
@@ -60,7 +54,7 @@ def representationIso : inverseInput R X η hR M ≅
 theorem inverseInput_finiteType : Module.Finite Rᵐᵒᵖ (inverseInput R X η hR M).obj.V := by sorry
 
 def finiteInput : (finiteTypeDiscreteModule Rᵐᵒᵖ
-    (Aut (standardFiniteEtaleFiber (arithmeticPoint X η)))).FullSubcategory :=
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η)))).FullSubcategory :=
   ⟨inverseInput R X η hR M, inverseInput_finiteType R X η hR M⟩
 
 /-- Actual finite-category comparison; no injective/projective resolution is

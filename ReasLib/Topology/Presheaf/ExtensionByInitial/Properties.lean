@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Presheaf.ExtensionByInitial.Functor
@@ -61,6 +55,53 @@ noncomputable def unit (U : Opens X) (ℱ : (space U).Presheaf C) :
       ((TopCat.Presheaf.ExtensionByInitial.functor U).obj ℱ) where
   app := unitApp U ℱ
   naturality := fun _ _ i => unitApp_naturality U ℱ i
+
+/-- The component on an open of the inverse of the extension-by-initial unit: the pullback of
+`jₚ! ℱ` to `U` is computed on the image open, where `jₚ! ℱ` recovers the sections of `ℱ`. -/
+noncomputable def unitInvApp (U : Opens X) (ℱ : (space U).Presheaf C)
+    (V : (Opens (space U))ᵒᵖ) :
+    ((TopCat.Presheaf.pullback C (inclusion U)).obj
+        ((TopCat.Presheaf.ExtensionByInitial.functor U).obj ℱ)).obj V ⟶ ℱ.obj V :=
+  let hImage : (subspaceInclusionFunctor U).obj (unop V) ≤ U :=
+    (U.isOpenEmbedding.functor.map (homOfLE le_top)).le.trans_eq
+      (Opens.isOpenEmbedding_obj_top U)
+  let hObj :=
+    (TopCat.Presheaf.ExtensionByInitial.presheaf_obj_eq_of_le U ℱ hImage).trans
+      (congrArg ℱ.obj (congrArg op (Opens.map_functor_eq (unop V))))
+  (U.isOpenEmbedding.isOpenMap.pullbackObjIso
+      ((TopCat.Presheaf.ExtensionByInitial.functor U).obj ℱ)).hom.app V ≫
+    eqToHom hObj
+
+/-- The inverse unit components are natural in the subspace open. -/
+theorem unitInvApp_naturality (U : Opens X) (ℱ : (space U).Presheaf C)
+    {V W : (Opens (space U))ᵒᵖ} (i : V ⟶ W) :
+    ((TopCat.Presheaf.pullback C (inclusion U)).obj
+        ((TopCat.Presheaf.ExtensionByInitial.functor U).obj ℱ)).map i ≫ unitInvApp U ℱ W =
+      unitInvApp U ℱ V ≫ ℱ.map i := sorry
+
+/-- The explicit inverse of the extension-by-initial unit. -/
+noncomputable def unitInv (U : Opens X) (ℱ : (space U).Presheaf C) :
+    (TopCat.Presheaf.pullback C (inclusion U)).obj
+      ((TopCat.Presheaf.ExtensionByInitial.functor U).obj ℱ) ⟶ ℱ where
+  app := unitInvApp U ℱ
+  naturality := fun _ _ i ↦ unitInvApp_naturality U ℱ i
+
+/-- The unit followed by its explicit inverse is the identity. -/
+theorem unit_comp_unitInv (U : Opens X) (ℱ : (space U).Presheaf C) :
+    unit U ℱ ≫ unitInv U ℱ = 𝟙 ℱ := sorry
+
+/-- The explicit inverse followed by the unit is the identity. -/
+theorem unitInv_comp_unit (U : Opens X) (ℱ : (space U).Presheaf C) :
+    unitInv U ℱ ≫ unit U ℱ = 𝟙 _ := sorry
+
+/-- The extension-by-initial unit `ℱ ≅ j⁻¹ jₚ! ℱ` as an isomorphism with explicit inverse. -/
+noncomputable def unitIso (U : Opens X) (ℱ : (space U).Presheaf C) :
+    ℱ ≅ (TopCat.Presheaf.pullback C (inclusion U)).obj
+      ((TopCat.Presheaf.ExtensionByInitial.functor U).obj ℱ) where
+  hom := unit U ℱ
+  inv := unitInv U ℱ
+  hom_inv_id := unit_comp_unitInv U ℱ
+  inv_hom_id := unitInv_comp_unit U ℱ
 
 /-- Transpose a morphism out of extension by initial to a morphism into presheaf pullback. -/
 noncomputable def toPullback (U : Opens X) {ℱ : (space U).Presheaf C}
@@ -203,12 +244,26 @@ theorem unit_isIso_of_adj (U : Opens X)
 
 /-- The unit of the canonical presheaf extension-by-initial adjunction is an isomorphism. -/
 instance unit_isIso (U : Opens X) :
-    IsIso (adjunction (C := C) U).unit := sorry
+    IsIso (adjunction (C := C) U).unit := by
+  rw [adjunction_unit]
+  have (ℱ : (space U).Presheaf C) : IsIso ((unitNat (C := C) U).app ℱ) :=
+    (unitIso U ℱ).isIso_hom
+  exact NatIso.isIso_of_isIso_app _
 
-/-- Presheaf extension by an initial object is fully faithful. -/
+/-- Presheaf extension by an initial object is fully faithful; a morphism
+`jₚ! ℱ ⟶ jₚ! 𝒢` is pulled back along the open inclusion and composed with the explicit inverse
+unit. -/
 noncomputable def fullyFaithful (U : Opens X) :
-    (TopCat.Presheaf.ExtensionByInitial.functor (C := C) U).FullyFaithful :=
-  (adjunction (C := C) U).fullyFaithfulLOfIsIsoUnit
+    (TopCat.Presheaf.ExtensionByInitial.functor (C := C) U).FullyFaithful where
+  preimage {_ 𝒢} f := toPullback U f ≫ unitInv U 𝒢
+  map_preimage := sorry
+  preimage_map := sorry
+
+/-- The preimage of a morphism is restriction followed by the explicit inverse unit. -/
+@[simp] theorem fullyFaithful_preimage (U : Opens X) {ℱ 𝒢 : (space U).Presheaf C}
+    (f : (TopCat.Presheaf.ExtensionByInitial.functor U).obj ℱ ⟶
+      (TopCat.Presheaf.ExtensionByInitial.functor U).obj 𝒢) :
+    (fullyFaithful U).preimage f = toPullback U f ≫ unitInv U 𝒢 := rfl
 
 end TopCat.Presheaf.ExtensionByInitial.Properties
 

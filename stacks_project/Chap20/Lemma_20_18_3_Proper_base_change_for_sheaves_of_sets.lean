@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Sheaf.BaseChange.Proper
@@ -12,7 +6,8 @@ import StacksCheckRecall
 @[expose] public section
 
 /- [stacks 0D90] Lemma 20.18.3 (Proper base change for sheaves of sets): the canonical
-set-valued sheaf base-change map is an isomorphism for a proper cartesian square. -/
+set-valued sheaf base-change map is an isomorphism for a proper cartesian square. The source's
+properness requires both `IsProperMap` and `IsSeparatedMap`. -/
 
 namespace TopCat.Sheaf.BaseChange
 

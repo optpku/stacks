@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Algebra.Pi
@@ -82,6 +76,10 @@ finite commutative algebra over the base ring. -/
 def factorObj (D : FiniteProduct R S) (i : D.index) : CommAlgCat.Finite.{max u v} R :=
   @CommAlgCat.Finite.of R _ (D.factor i) (D.factorCommRing i)
     (D.factorAlgebra i) (D.factorModuleFinite i)
+
+/-- The bundled finite factor retains its supplied henselian local structure. -/
+instance factorObj_henselian (D : FiniteProduct R S) (i : D.index) :
+    HenselianLocalRing (D.factorObj i) := D.factorHenselian i
 
 /-- A finite henselian-local product presentation has finitely many factors,
 each henselian local and module-finite over the base ring. -/

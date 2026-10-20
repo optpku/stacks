@@ -1,14 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.Spectrum.Prime.Topology
-public import stacks_project.Chap101.«101_39_1_1_ValuativeSquare»
-public import stacks_project.Chap101.Definition_101_13_2_Closed
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.ValuativeSquare.ClosedPoint
 
 /-!
 # Closed points of valuative squares of algebraic stacks
@@ -29,30 +21,25 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-namespace ValuativeCommSq
+#check (AlgebraicGeometry.AlgebraicStack.ValuativeCommSq.closedPoint :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
+    (sq : ValuativeCommSq f), sq.specR.left)
 
-variable {S : Scheme.{u}} {X Y : GroupoidsOver S}
-variable [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
+#check (AlgebraicGeometry.AlgebraicStack.ValuativeCommSq.closedPointImage :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y},
+    ValuativeCommSq f → Points Y)
 
-/-- The closed point of `Spec(R)` in a valuative square. -/
-def closedPoint (sq : ValuativeCommSq f) : sq.specR.left :=
-  IsLocalRing.closedPoint sq.R
+#check (AlgebraicGeometry.AlgebraicStack.ValuativeCommSq.closedPointImage_spec :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
+    (sq : ValuativeCommSq f),
+    sq.closedPointImage = Points.mapOfSlice sq.i₂ sq.closedPoint)
 
-/-- The image in `|Y|` of the closed point of `Spec(R)`. -/
-noncomputable def closedPointImage (sq : ValuativeCommSq f) : Points Y :=
-  Points.mapOfSlice sq.i₂ sq.closedPoint
-
-/-- `closedPointImage` is the image of the closed point of `Spec(R)` along
-`sq.i₂`. -/
-theorem closedPointImage_spec (sq : ValuativeCommSq f) :
-    closedPointImage sq = Points.mapOfSlice sq.i₂ sq.closedPoint :=
-  sorry
-
-/-- The closed point of `Spec(R)` is the closed point of the local ring `R`. -/
-theorem closedPoint_eq (sq : ValuativeCommSq f) :
-    closedPoint sq = IsLocalRing.closedPoint sq.R :=
-  sorry
-
-end ValuativeCommSq
+#check (AlgebraicGeometry.AlgebraicStack.ValuativeCommSq.closedPoint_eq :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
+    (sq : ValuativeCommSq f), sq.closedPoint = IsLocalRing.closedPoint sq.R)
 
 end AlgebraicGeometry.AlgebraicStack

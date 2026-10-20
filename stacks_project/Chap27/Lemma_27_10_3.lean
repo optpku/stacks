@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -45,7 +39,6 @@ sheaf is an isomorphism. -/
   (AlgebraicGeometry.projSheafTwistMul_isIso_of_degreeOpen_one_eq_top :
     ∀ {A : Type u} [CommRing A]
       (𝒜 : ℕ → Submodule ℤ A) [GradedAlgebra 𝒜]
-      [SymmetricCategory (AlgebraicGeometry.Proj 𝒜).Modules]
       (T : AlgebraicGeometry.Proj.AssociatedModule.TwistMultiplication 𝒜),
       AlgebraicGeometry.Proj.degreeOpen 𝒜 1 = ⊤ →
         ∀ (ℱ : (AlgebraicGeometry.Proj 𝒜).Modules) (a b : ℤ),

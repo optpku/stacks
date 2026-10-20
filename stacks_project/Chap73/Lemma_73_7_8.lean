@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap73.Lemma_73_7_8_Topology
-public import stacks_project.Chap73.Lemma_73_7_8_Big
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Fppf.Topology
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Fppf.Big
 
 /-!
 # Lemma 73.7.8
@@ -38,79 +32,91 @@ variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : Y ⟶ X)
 
 /- Lemma 73.7.8 -/
 @[stacks 0DFD] #check
-  (morphismOfTopoi f :
-    MorphismOfTopoiIn ((fppfTopology S).over X) ((fppfTopology S).over Y))
+  (CategoryTheory.Over.Site.morphismOfTopoi (fppfTopology S) f :
+    MorphismOfTopoiIn.{u + 1, u + 1, u + 1, u + 1, u + 1}
+      ((fppfTopology S).over X) ((fppfTopology S).over Y))
 
 /- Postcomposition and pullback are the functors between the big fppf slices. -/
-#check (map f : Over Y ⥤ Over X)
+#check (Over.map f : Over Y ⥤ Over X)
 
-#check (Fppf.Big.pullback f : Over X ⥤ Over Y)
+#check (Over.pullback f : Over X ⥤ Over Y)
 
 /- Postcomposition is cocontinuous and continuous, pullback is continuous, and
 the two functors form the canonical adjunction. -/
 #check
   (inferInstance :
-    Functor.IsCocontinuous (map f)
+    Functor.IsCocontinuous (Over.map f)
       ((fppfTopology S).over Y) ((fppfTopology S).over X))
 
 #check
   (inferInstance :
-    Functor.IsContinuous (map f)
+    Functor.IsContinuous (Over.map f)
       ((fppfTopology S).over Y) ((fppfTopology S).over X))
 
 #check
   (inferInstance :
-    Functor.IsContinuous (pullback f)
+    Functor.IsContinuous (Over.pullback f)
       ((fppfTopology S).over X) ((fppfTopology S).over Y))
 
 #check
-  (mapPullbackAdjunction f : map f ⊣ pullback f)
+  (Over.mapPullbackAdj f : Over.map f ⊣ Over.pullback f)
 
 /- The continuous presentations associated to the adjoint slice functors are adjoint. -/
 #check
   (CategoryTheory.Adjunction.sheafPushforwardContinuous
-      (mapPullbackAdjunction f)
+      (Over.mapPullbackAdj f)
       ((fppfTopology S).over Y) ((fppfTopology S).over X) :
-    inverseImage f ⊣ continuousDirectImage f)
+    CategoryTheory.Over.Site.inverseImage (fppfTopology S) f ⊣
+      (Over.pullback f).sheafPushforwardContinuous (Type (u + 1))
+        ((fppfTopology S).over X) ((fppfTopology S).over Y))
 
 /- The cocontinuous and continuous-right-adjoint presentations of direct image agree. -/
 #check
-  (directImageIsoPullbackPresentation f :
-    directImage f ≅ continuousDirectImage f)
+  (CategoryTheory.Over.Site.DirectImage.pullbackPresentation (fppfTopology S) f :
+    CategoryTheory.Over.Site.directImage (fppfTopology S) f ≅
+      (Over.pullback f).sheafPushforwardContinuous (Type (u + 1))
+        ((fppfTopology S).over X) ((fppfTopology S).over Y))
 
 /- Inverse image is computed by postcomposition on the slice object. -/
 #check
-  (inverseImage_obj_obj f :
+  (CategoryTheory.Over.Site.InverseImage.obj_eq (fppfTopology S) f :
     ∀ (G : Sheaf ((fppfTopology S).over X) (Type (u + 1))) (U : Over Y),
-      (((inverseImage f).obj G).obj.obj (op U)) =
-        G.obj.obj (op ((map f).obj U)))
+      (((CategoryTheory.Over.Site.inverseImage (fppfTopology S) f).obj G).obj.obj (op U)) =
+        G.obj.obj (op ((Over.map f).obj U)))
 
 /- Direct image is canonically computed by evaluation on the pullback slice object. -/
 #check
-  (directImage_objObjIso f :
+  (CategoryTheory.Over.Site.DirectImage.objIso (fppfTopology S) f :
     ∀ (F : Sheaf ((fppfTopology S).over Y) (Type (u + 1))) (U : Over X),
-      (((directImage f).obj F).obj.obj (op U)) ≅
-        F.obj.obj (op ((Fppf.Big.pullback f).obj U)))
+      (((CategoryTheory.Over.Site.directImage (fppfTopology S) f).obj F).obj.obj (op U)) ≅
+        F.obj.obj (op ((Over.pullback f).obj U)))
 
 /- The continuous direct-image presentation has the corresponding objectwise formula. -/
 #check
-  (continuousDirectImage_obj_obj f :
+  (CategoryTheory.Functor.sheafPushforwardContinuousObjObjIso
+      (Over.pullback f) (Type (u + 1)) :
     ∀ (F : Sheaf ((fppfTopology S).over Y) (Type (u + 1))) (U : Over X),
-      (((continuousDirectImage f).obj F).obj.obj (op U)) =
-        F.obj.obj (op ((Fppf.Big.pullback f).obj U)))
+      ((((Over.pullback f).sheafPushforwardContinuous (Type (u + 1))
+        ((fppfTopology S).over X) ((fppfTopology S).over Y)).obj F).obj.obj (op U)) ≅
+        F.obj.obj (op ((Over.pullback f).obj U)))
 
 /- The concrete lower-shriek functor is left adjoint to inverse image. -/
 #check
-  (lowerShriekAdjunction f : lowerShriek f ⊣ inverseImage f)
+  (CategoryTheory.Over.Site.LowerShriek.adjunction.{u + 1, u + 1, u + 1}
+      (fppfTopology S) f :
+    CategoryTheory.Over.Site.lowerShriek.{u + 1, u + 1, u + 1} (fppfTopology S) f ⊣
+      CategoryTheory.Over.Site.inverseImage.{u + 1, u + 1, u + 1} (fppfTopology S) f)
 
 /- Lower shriek preserves pullbacks and equalizers. -/
 #check
   (lowerShriek_preservesPullbacks f :
-    PreservesLimitsOfShape WalkingCospan (lowerShriek f))
+    PreservesLimitsOfShape WalkingCospan
+      (CategoryTheory.Over.Site.lowerShriek.{u + 1, u + 1, u + 1} (fppfTopology S) f))
 
 #check
   (lowerShriek_preservesEqualizers f :
-    PreservesLimitsOfShape WalkingParallelPair (lowerShriek f))
+    PreservesLimitsOfShape WalkingParallelPair
+      (CategoryTheory.Over.Site.lowerShriek.{u + 1, u + 1, u + 1} (fppfTopology S) f))
 
 end
 

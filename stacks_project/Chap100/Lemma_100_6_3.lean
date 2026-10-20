@@ -1,39 +1,20 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_6_1_QuasiCompact
-public import stacks_project.Chap100.Lemma_100_6_3_Coproduct
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.QuasiCompact.Coproduct
+import StacksCheckRecall
 
 /-!
 # Finite coproducts of quasi-compact algebraic stacks
-
-A finite disjoint union of quasi-compact algebraic stacks is again
-quasi-compact.
 -/
 
-@[expose] public section
-
-open CategoryTheory AlgebraicGeometry
-open scoped Bicategory
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicStack
 
 universe u v
 
-noncomputable section
-
-namespace AlgebraicGeometry.AlgebraicStack
-
-/-- Lemma 100.6.3: a finite disjoint union of quasi-compact algebraic stacks is a
+/- Lemma 100.6.3: a finite disjoint union of quasi-compact algebraic stacks is a
 quasi-compact algebraic stack. -/
-@[stacks 04YD, instance]
-instance instIsQuasiCompact_coproduct {S : Scheme.{u}} {I : Type v} [Finite I]
-    (X : I → GroupoidsOver S) [∀ i, AlgebraicStack (X i)]
-    [∀ i, IsQuasiCompact (X i)] :
-    IsQuasiCompact (GroupoidsOver.coproduct X) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack
+@[stacks 04YD] #check
+  (AlgebraicGeometry.AlgebraicStack.instIsQuasiCompact_coproduct :
+    ∀ {S : Scheme.{u}} {I : Type v} [Finite I] (X : I → GroupoidsOver S)
+      [∀ i, AlgebraicStack (X i)] [∀ i, IsQuasiCompact (X i)],
+      IsQuasiCompact (GroupoidsOver.coproduct X))

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap100.Definition_100_10_4_Structure
-public import stacks_project.Chap100.Lemma_100_10_1
-public import stacks_project.Chap100.Lemma_100_11_2_Reduced
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Reduction
 
 /-!
 # Reduced induced structures and reduction of algebraic stacks
@@ -29,76 +22,40 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.ClosedSubstackStructure
-
-variable {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
-
-/-- The reduced induced algebraic stack structure on a closed subset of `Points X`. -/
-def reduced (Z : Closeds (Points X)) : ClosedSubstackStructure Z :=
-  ofSubstack (Classical.choose (ClosedSubstack.exists_reduced Z.carrier Z.isClosed))
-    (Classical.choose_spec (ClosedSubstack.exists_reduced Z.carrier Z.isClosed)).1
-
-/-- The reduced induced structure on `Z` is a reduced closed substack with
-point-set `Z`. -/
-theorem reduced_spec (Z : Closeds (Points X)) :
-    (reduced Z).substack.pointsSet = Z.carrier ∧
-      hasSmoothLocal (AlgebraicGeometry.IsReduced : ObjectProperty Scheme.{u})
-        (reduced Z).Y :=
-  sorry
-
-/-- A reduced algebraic stack structure on `Z` determines the same strictly full
-subcategory of `X` as the reduced induced structure. -/
-theorem reduced_unique {Z : Closeds (Points X)} (T : ClosedSubstackStructure Z)
-    (hT : hasSmoothLocal (AlgebraicGeometry.IsReduced : ObjectProperty Scheme.{u})
-      T.Y) :
-    T.substack.objectProperty = (reduced Z).substack.objectProperty :=
-  sorry
-
-/-- The reduced induced closed substack on `Z` is a reduced algebraic stack. -/
-instance instIsReduced_reduced (Z : Closeds (Points X)) :
-    IsReduced (reduced Z).Y :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.ClosedSubstackStructure
-
 namespace AlgebraicGeometry.AlgebraicStack
 
-variable {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicStack.ClosedSubstackStructure.reduced :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    (Z : Closeds (Points X)), ClosedSubstackStructure Z)
 
-/-- The reduction of an algebraic stack is the reduced induced structure on its
-space of points. -/
-abbrev reduction (X : GroupoidsOver S) [AlgebraicStack X] : GroupoidsOver S :=
-  (ClosedSubstackStructure.reduced (⊤ : Closeds (Points X))).Y
+#check (AlgebraicGeometry.AlgebraicStack.ClosedSubstackStructure.reduced_spec :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    (Z : Closeds (Points X)),
+    Set.range (Points.map (ClosedSubstackStructure.reduced Z).ι) = Z.carrier ∧
+      IsReduced (ClosedSubstackStructure.reduced Z).Y)
 
-/-- The canonical closed immersion from the reduction into the original algebraic
-stack. -/
-abbrev reductionι (X : GroupoidsOver S) [AlgebraicStack X] : reduction X ⟶ X :=
-  (ClosedSubstackStructure.reduced (⊤ : Closeds (Points X))).ι
+#check (AlgebraicGeometry.AlgebraicStack.ClosedSubstackStructure.reduced_unique :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    {Z : Closeds (Points X)} (T : ClosedSubstackStructure Z),
+    IsReduced T.Y → T.val = (ClosedSubstackStructure.reduced Z).val)
 
-/-- The reduction of `X` is reduced, its inclusion is a closed immersion, and that
-inclusion is surjective on points. -/
-theorem reduction_spec (X : GroupoidsOver S) [AlgebraicStack X] :
-    hasSmoothLocal (AlgebraicGeometry.IsReduced : ObjectProperty Scheme.{u})
-        (reduction X) ∧
-      ClosedImmersion (reductionι X) ∧
-      Function.Surjective (Points.map (reductionι X)) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.reduction :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X], GroupoidsOver S)
 
-/-- The reduction of `X` is the underlying stack of the reduced induced structure
-on `⊤`. -/
-theorem reduction_eq_reduced_top (X : GroupoidsOver S) [AlgebraicStack X] :
-    reduction X = (ClosedSubstackStructure.reduced (⊤ : Closeds (Points X))).Y :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.reductionι :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X], reduction X ⟶ X)
 
-/-- The reduction inclusion is the inclusion of the reduced induced structure on
-`⊤`. -/
-theorem reductionι_eq_reduced_top_ι (X : GroupoidsOver S) [AlgebraicStack X] :
-    reductionι X = (ClosedSubstackStructure.reduced (⊤ : Closeds (Points X))).ι :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.reduction_spec :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
+    IsReduced (reduction X) ∧ ClosedImmersion (reductionι X) ∧
+      Function.Surjective (Points.map (reductionι X)))
 
-/-- The reduction of an algebraic stack is reduced. -/
-instance instIsReduced_reduction (X : GroupoidsOver S) [AlgebraicStack X] :
-    IsReduced (reduction X) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.reduction_eq_reduced_top :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
+    reduction X = (ClosedSubstackStructure.reduced (⊤ : Closeds (Points X))).Y)
+
+#check (AlgebraicGeometry.AlgebraicStack.reductionι_eq_reduced_top_ι :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
+    reductionι X = (ClosedSubstackStructure.reduced (⊤ : Closeds (Points X))).ι)
 
 end AlgebraicGeometry.AlgebraicStack

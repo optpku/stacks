@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap65.Lemma_65_8_4_Coproduct
-public import stacks_project.Chap66.Definition_66_5_1_QuasiCompact
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.QuasiCompact.Coproduct
+import StacksCheckRecall
 
 /-!
 # Finite coproducts of quasi-compact algebraic spaces
@@ -15,21 +9,13 @@ public import stacks_project.Chap66.Definition_66_5_1_QuasiCompact
 A finite disjoint union of quasi-compact algebraic spaces is again quasi-compact.
 -/
 
-@[expose] public section
-
-open CategoryTheory AlgebraicGeometry
-
 universe u v
 
-noncomputable section
-
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 66.5.3: a finite disjoint union of quasi-compact algebraic spaces is a
+/- Lemma 66.5.3: a finite disjoint union of quasi-compact algebraic spaces is a
 quasi-compact algebraic space. -/
-@[stacks 040T, instance]
-instance instIsQuasiCompact_coproduct {S : Scheme.{u}} {I : Type v} [Finite I]
-    (X : I → AlgebraicSpace S) [∀ i, IsQuasiCompact (X i)] :
-    IsQuasiCompact (coproduct X) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 040T] #check (AlgebraicGeometry.AlgebraicSpace.instIsQuasiCompact_coproduct :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {I : Type v} [Finite I]
+    (X : I → AlgebraicGeometry.AlgebraicSpace S)
+    [∀ i, AlgebraicGeometry.AlgebraicSpace.IsQuasiCompact (X i)],
+    AlgebraicGeometry.AlgebraicSpace.IsQuasiCompact
+      (AlgebraicGeometry.AlgebraicSpace.coproduct X))

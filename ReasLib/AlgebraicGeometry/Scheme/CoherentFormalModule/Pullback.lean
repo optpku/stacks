@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.CoherentFormalModule.Category
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Pullback.Coherent
 public import Mathlib.AlgebraicGeometry.IdealSheaf.Functorial
 public import Mathlib.AlgebraicGeometry.Modules.Sheaf
 public import Mathlib.AlgebraicGeometry.Morphisms.Flat
@@ -133,6 +128,43 @@ theorem coherentFormalModules_pullback_exact_of_flat
   sorry
 
 namespace CoherentFormalModules
+
+variable {X Y : Scheme.{u}}
+
+/-- Stage `n` of the stagewise pullback of a coherent formal module along `f`. -/
+def pullbackStage [IsLocallyNoetherian X] [IsLocallyNoetherian Y] (f : X ⟶ Y)
+    {J : Y.IdealSheafData} (G : CoherentFormalModules Y J) (n : ℕ) :
+    RingedSpace.Coh X.toRingedSpace :=
+  ⟨(Modules.pullback f).obj (((G.obj).obj (op n)).obj),
+    @Modules.pullback_isCoherent X Y _ _ f
+      (((G.obj).obj (op n)).obj) ((G.obj).obj (op n)).property⟩
+
+/-- The underlying module of `pullbackStage` is ordinary pullback of the corresponding stage. -/
+theorem pullbackStage_obj [IsLocallyNoetherian X] [IsLocallyNoetherian Y] (f : X ⟶ Y)
+    {J : Y.IdealSheafData} (G : CoherentFormalModules Y J) (n : ℕ) :
+    (pullbackStage f G n).obj = (Modules.pullback f).obj (((G.obj).obj (op n)).obj) :=
+  rfl
+
+/-- The stagewise pullback of a coherent formal module along `f`, as an object of
+`CoherentFormalModules X (J.comap f)`. -/
+def pullbackObj [IsLocallyNoetherian X] [IsLocallyNoetherian Y] (f : X ⟶ Y)
+    (J : Y.IdealSheafData) (G : CoherentFormalModules Y J) :
+    CoherentFormalModules X (J.comap f) where
+  obj :=
+    Functor.ofOpSequence fun n ↦
+      (ObjectProperty.homMk
+        ((Modules.pullback f).map
+          (((G.obj).map (homOfLE (Nat.le_add_right n 1)).op).hom)) :
+        pullbackStage f G (n + 1) ⟶ pullbackStage f G n)
+  property := sorry
+
+/-- Stage `n` of `pullbackObj` is the ordinary module pullback of stage `n`. -/
+theorem pullbackObj_stage_obj [IsLocallyNoetherian X] [IsLocallyNoetherian Y]
+    (f : X ⟶ Y) (J : Y.IdealSheafData) (G : CoherentFormalModules Y J) (n : ℕ) :
+    (((pullbackObj f J G).obj).obj (op n)).obj =
+      (Modules.pullback f).obj (((G.obj).obj (op n)).obj) :=
+  rfl
+
 
 /-- A stagewise pullback functor along a flat morphism of Noetherian schemes is an equivalence
 when the canonical map from the inverse-image closed subscheme is an isomorphism. -/

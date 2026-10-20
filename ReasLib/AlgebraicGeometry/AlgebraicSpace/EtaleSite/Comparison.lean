@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Affine
@@ -38,6 +32,6 @@ sheaves of types. -/
 instance affineEtaleInclusion_directImage_isEquivalence {S : Scheme.{u}}
     (X : AlgebraicSpace S) :
     ((affineEtaleInclusion X).sheafPushforwardCocontinuous (Type (u + 1))
-      (affineEtaleTopology X) (SmallEtale.topology X)).IsEquivalence := sorry
+      (affineEtaleTopology X) (smallEtaleTopology X)).IsEquivalence := sorry
 
 end AlgebraicGeometry.AlgebraicSpace

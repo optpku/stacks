@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.Ring.Sheaf.Point
@@ -40,8 +34,7 @@ variable (p : GrothendieckTopology.Point.{w} JC)
 variable [InitiallySmall (f.base ⋙ p.fiber).Elements]
 
 /-- The image `f(p)` of a point under a morphism of commutative ringed sites, obtained by the
-canonical comap along the contravariant base functor. This is the point-level construction used
-in Lemma 18.36.4 (05V5). -/
+canonical comap along the contravariant base functor. -/
 @[stacks 05V5 "image point"]
 abbrev pointMap : GrothendieckTopology.Point.{w} JD :=
   p.comapOfMorphismOfSites (J := JD) f.base (hF := f.isMorphismOfSites)
@@ -56,8 +49,7 @@ noncomputable abbrev commRingFiberIso :
   p.sheafFiberComapIsoOfMorphismOfSites (J := JD) f.base CommRingCat
     (hF := f.isMorphismOfSites)
 
-/-- The canonical map `O'_{f(p)} ⟶ O_p` on commutative stalk rings, used in Lemma 18.36.4
-(05V5). -/
+/-- The canonical map `O'_{f(p)} ⟶ O_p` on commutative stalk rings. -/
 @[stacks 05V5 "stalk ring map"]
 noncomputable abbrev stalkMap :
     (pointMap f p).stalkCommRing O' ⟶ p.stalkCommRing O :=

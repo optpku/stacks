@@ -1,17 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Topology.Defs.Basic
-public import stacks_project.Chap65.Definition_65_12_1_Subspace
-public import stacks_project.Chap66.Definition_66_4_1_Points
-public import stacks_project.Chap66.Lemma_66_4_6_Topology
-public import stacks_project.Chap66.Definition_66_7_2
-public import stacks_project.Chap66.Remark_66_7_3_EtaleLocal
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Subspace
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Topology
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleLocal
+public import ReasLib.AlgebraicGeometry.Scheme.Reduced.Etale
 
 /-!
 # Reduced closed subspaces of algebraic spaces

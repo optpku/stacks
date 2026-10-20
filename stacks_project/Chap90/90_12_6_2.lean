@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.«90_12_6_2_Action»
+public import ReasLib.AlgebraicGeometry.FormalDeformation.TangentSpace.Action
 import StacksCheckRecall
 
 /-!
@@ -20,9 +14,19 @@ cofibered pushforward along the dual-number automorphism `f_{1,D}`.
 
 open CategoryTheory
 
+universe u v
+
+variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+  [Module.Finite Λ k]
+variable {F : Type v} [Category.{v} F]
+
 /- 90.12.6.2: the action `a : Derivation Λ k k × T F ⟶ T F` of a `Λ`-derivation of `k` on the
 tangent space of a predeformation category, given by `a(D, [x]) = [f_{1,D,*}(x)]`, where
 `f_{1,D}` is the automorphism `ArtinianLocalAlgCat.dualNumberAut D` of
 `ArtinianLocalAlgCat.dualNumber Λ k` sending `inl r + inr v` to `inl r + inr (v + D r)`. -/
 @[stacks 06SW]
-#check Functor.derivationAction
+#check (CategoryTheory.Functor.derivationAction :
+  ∀ (p : F ⥤ ArtinianLocalAlgCat Λ k),
+    [CategoryTheory.Functor.IsPredeformationCategory p] →
+    Derivation Λ k k → CategoryTheory.Functor.tangentSpace p →
+      CategoryTheory.Functor.tangentSpace p)

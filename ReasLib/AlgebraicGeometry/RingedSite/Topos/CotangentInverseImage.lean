@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.CotangentComplex
@@ -319,6 +313,31 @@ private def differentialsInverseImageCarrier {X Y : Sheaf JC CommRingCat.{u}} (�
           (f.commRingInverseImageForgetRingIso.app Y).hom
           ((f.moduleInverseImage (ringSheaf JC Y)).obj (relativeDifferentials ψ))
 
+/-- The inverse image of the universal derivation preserves addition, satisfies the Leibniz
+rule, vanishes on the base, and commutes with restriction. -/
+private theorem differentialsInverseImageDerivation_laws {X Y : Sheaf JC CommRingCat.{u}}
+    (ψ : X ⟶ Y) :
+    let M : SheafOfModules (ringSheaf JD (f.commRingInverseImage.obj Y)) :=
+      (SheafOfModules.restrictScalars
+          (f.commRingInverseImageForgetRingIso.app Y).hom).obj
+        ((f.moduleInverseImage (ringSheaf JC Y)).obj (relativeDifferentials ψ))
+    let d : ∀ U : Dᵒᵖ, (f.commRingInverseImage.obj Y).obj.obj U → M.val.obj U :=
+      fun U y ↦
+          (ToInternal.sectionEquiv
+              (ringSheaf JD (f.commRingInverseImage.obj Y))
+              ((SheafOfModules.restrictScalars
+                  (f.commRingInverseImageForgetRingIso.app Y).hom).obj
+                ((f.moduleInverseImage (ringSheaf JC Y)).obj
+                  (relativeDifferentials ψ)))
+              U)
+            ((differentialsInverseImageCarrier f ψ).hom.app U y)
+    (∀ U x y, d U (x + y) = d U x + d U y) ∧
+    (∀ U x y, d U (x * y) = x • d U y + y • d U x) ∧
+    (∀ U (a : (f.commRingInverseImage.obj X).obj.obj U), d U ((f.commRingInverseImage.map ψ).hom.app U a) = 0) ∧
+    (∀ {U V : Dᵒᵖ} (i : U ⟶ V) (x : (f.commRingInverseImage.obj Y).obj.obj U),
+      d V ((f.commRingInverseImage.obj Y).obj.map i x) = M.val.map i (d U x)) := by
+  sorry
+
 /-- The inverse-image module of `Ω(ψ)` as a derivation target over `f⁻¹Y`. -/
 private def differentialsInverseImageDerivation {X Y : Sheaf JC CommRingCat.{u}}
     (ψ : X ⟶ Y) :
@@ -338,8 +357,10 @@ private def differentialsInverseImageDerivation {X Y : Sheaf JC CommRingCat.{u}}
                   (relativeDifferentials ψ)))
               U)
             ((differentialsInverseImageCarrier f ψ).hom.app U y))
-        (fun _ _ ↦ sorry) (fun _ _ ↦ sorry) (fun _ ↦ sorry))
-    (fun _ _ _ _ ↦ sorry)
+        ((differentialsInverseImageDerivation_laws f ψ).1 U)
+        ((differentialsInverseImageDerivation_laws f ψ).2.1 U)
+        ((differentialsInverseImageDerivation_laws f ψ).2.2.1 U))
+    (fun _ _ i x ↦ (differentialsInverseImageDerivation_laws f ψ).2.2.2 i x)
 
 /-- The inverse comparison on relative differentials, from the universal property of
 `Ω(f⁻¹ψ)`. -/
@@ -377,6 +398,24 @@ private def differentialsPushforwardCarrier {X Y : Sheaf JC CommRingCat.{u}} (ψ
     (f.moduleRightOverForgetIso (ringSheaf JC Y)).inv.app
       (differentialsPushforwardCoeff f ψ)
 
+/-- The adjoint of the inverse-image universal derivation preserves addition, satisfies the
+Leibniz rule, vanishes on the base, and commutes with restriction. -/
+private theorem differentialsPushforwardDerivation_laws {X Y : Sheaf JC CommRingCat.{u}}
+    (ψ : X ⟶ Y) :
+    let M : SheafOfModules (ringSheaf JC (Y)) :=
+      differentialsPushforwardTarget f ψ
+    let d : ∀ U : Cᵒᵖ, (Y).obj.obj U → M.val.obj U :=
+      fun U y ↦
+          (ToInternal.sectionEquiv (ringSheaf JC Y)
+              (differentialsPushforwardTarget f ψ) U)
+            ((differentialsPushforwardCarrier f ψ).hom.app U y)
+    (∀ U x y, d U (x + y) = d U x + d U y) ∧
+    (∀ U x y, d U (x * y) = x • d U y + y • d U x) ∧
+    (∀ U (a : (X).obj.obj U), d U ((ψ).hom.app U a) = 0) ∧
+    (∀ {U V : Cᵒᵖ} (i : U ⟶ V) (x : (Y).obj.obj U),
+      d V ((Y).obj.map i x) = M.val.map i (d U x)) := by
+  sorry
+
 /-- The universal derivation of `f⁻¹ψ`, viewed as a `ψ`-derivation with values in the
 pushforward module. -/
 private def differentialsPushforwardDerivation {X Y : Sheaf JC CommRingCat.{u}} (ψ : X ⟶ Y) :
@@ -388,8 +427,10 @@ private def differentialsPushforwardDerivation {X Y : Sheaf JC CommRingCat.{u}} 
           (ToInternal.sectionEquiv (ringSheaf JC Y)
               (differentialsPushforwardTarget f ψ) U)
             ((differentialsPushforwardCarrier f ψ).hom.app U y))
-        (fun _ _ ↦ sorry) (fun _ _ ↦ sorry) (fun _ ↦ sorry))
-    (fun _ _ _ _ ↦ sorry)
+        ((differentialsPushforwardDerivation_laws f ψ).1 U)
+        ((differentialsPushforwardDerivation_laws f ψ).2.1 U)
+        ((differentialsPushforwardDerivation_laws f ψ).2.2.1 U))
+    (fun _ _ i x ↦ (differentialsPushforwardDerivation_laws f ψ).2.2.2 i x)
 
 /-- The forward comparison on relative differentials, obtained by transposing the
 pushforward of `Ω(f⁻¹ψ)`. -/
@@ -413,6 +454,12 @@ private def differentialsIsoHom {X Y : Sheaf JC CommRingCat.{u}} (ψ : X ⟶ Y) 
         (ringSheaf JD (f.commRingInverseImage.obj Y))).inv.app
       (relativeDifferentials (f.commRingInverseImage.map ψ))
 
+/-- The canonical forward and reverse comparisons of relative differentials are inverse. -/
+private theorem differentialsIso_laws {X Y : Sheaf JC CommRingCat.{u}} (ψ : X ⟶ Y) :
+    differentialsIsoHom f ψ ≫ differentialsIsoInv f ψ = 𝟙 _ ∧
+      differentialsIsoInv f ψ ≫ differentialsIsoHom f ψ = 𝟙 _ := by
+  sorry
+
 /-- Inverse image of relative differentials along a morphism of topoi. -/
 private def differentialsIso {X Y : Sheaf JC CommRingCat.{u}} (ψ : X ⟶ Y) :
     (SheafOfModules.restrictScalars
@@ -421,8 +468,8 @@ private def differentialsIso {X Y : Sheaf JC CommRingCat.{u}} (ψ : X ⟶ Y) :
     relativeDifferentials (f.commRingInverseImage.map ψ) where
   hom := differentialsIsoHom f ψ
   inv := differentialsIsoInv f ψ
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+  hom_inv_id := (differentialsIso_laws f ψ).1
+  inv_hom_id := (differentialsIso_laws f ψ).2
 
 /-- Restriction of scalars after inverse image commutes with restriction along a ring-sheaf
 homomorphism, on underlying type-valued sheaves. -/
@@ -463,6 +510,25 @@ private def tensorRestrictionCommuteUnderlying {X Y Z : Sheaf JC CommRingCat.{u}
         ((f.moduleInverseImage (ringSheaf JC Z)).obj ((SheafOfModules.ChangeOfRings.extendScalars (ringSheafMap α)).obj
                                                         (relativeDifferentials ψ))))
 
+/-- The canonical comparison of underlying sheaves preserves addition and scalar
+multiplication on sections. -/
+private theorem tensorRestrictionCommute_linear {X Y Z : Sheaf JC CommRingCat.{u}}
+    (ψ : X ⟶ Y) (α : Y ⟶ Z) :
+    let M : SheafOfModules (ringSheaf JD (f.commRingInverseImage.obj Y)) :=
+      (SheafOfModules.restrictScalars
+        (f.commRingInverseImageForgetRingIso.app Y).hom).obj
+      ((f.moduleInverseImage (ringSheaf JC Y)).obj
+        ((restrictionAlong α).obj ((SheafOfModules.ChangeOfRings.extendScalars (ringSheafMap α)).obj
+                                     (relativeDifferentials ψ))))
+    (∀ U (x y : M.val.obj U),
+      underlyingApp (ringSheaf JD (f.commRingInverseImage.obj Y)) (tensorRestrictionCommuteUnderlying f ψ α) U (x + y) =
+        underlyingApp (ringSheaf JD (f.commRingInverseImage.obj Y)) (tensorRestrictionCommuteUnderlying f ψ α) U x +
+          underlyingApp (ringSheaf JD (f.commRingInverseImage.obj Y)) (tensorRestrictionCommuteUnderlying f ψ α) U y) ∧
+    (∀ U (r : (ringSheaf JD (f.commRingInverseImage.obj Y)).obj.obj U) (x : M.val.obj U),
+      underlyingApp (ringSheaf JD (f.commRingInverseImage.obj Y)) (tensorRestrictionCommuteUnderlying f ψ α) U (r • x) =
+        r • underlyingApp (ringSheaf JD (f.commRingInverseImage.obj Y)) (tensorRestrictionCommuteUnderlying f ψ α) U x) := by
+  sorry
+
 /-- Restriction of scalars after inverse image commutes with restriction along a ring-sheaf
 homomorphism. -/
 private def tensorRestrictionCommute {X Y Z : Sheaf JC CommRingCat.{u}}
@@ -478,7 +544,8 @@ private def tensorRestrictionCommute {X Y Z : Sheaf JC CommRingCat.{u}}
         ((f.moduleInverseImage (ringSheaf JC Z)).obj ((SheafOfModules.ChangeOfRings.extendScalars (ringSheafMap α)).obj
                                                         (relativeDifferentials ψ)))) :=
   homOfUnderlying (ringSheaf JD (f.commRingInverseImage.obj Y))
-    (tensorRestrictionCommuteUnderlying f ψ α) sorry sorry
+    (tensorRestrictionCommuteUnderlying f ψ α)
+    (tensorRestrictionCommute_linear f ψ α).1 (tensorRestrictionCommute_linear f ψ α).2
 
 /-- The extension-of-scalars unit, after inverse image and coefficient transport. -/
 private def tensorInverseImageUnit {X Y Z : Sheaf JC CommRingCat.{u}}
@@ -557,6 +624,27 @@ private def tensorRightOverRestrictionUnderlying {X Y Z : Sheaf JC CommRingCat.{
           (ringSheafMap (f.commRingInverseImage.map α))).obj
           (    (relativeDifferentials (f.commRingInverseImage.map ψ))))))
 
+/-- The canonical comparison of underlying sheaves preserves addition and scalar
+multiplication on sections. -/
+private theorem tensorRightOverRestrictionCommute_linear {X Y Z : Sheaf JC CommRingCat.{u}}
+    (ψ : X ⟶ Y) (α : Y ⟶ Z) :
+    let M : SheafOfModules (ringSheaf JC Y) :=
+      (f.moduleRightOver (ringSheaf JC Y)).obj
+      ((SheafOfModules.restrictScalars
+          (f.commRingInverseImageForgetRingIso.app Y).inv).obj
+        ((restrictionAlong (J := JD) (f.commRingInverseImage.map α)).obj
+          ((SheafOfModules.ChangeOfRings.extendScalars
+          (ringSheafMap (f.commRingInverseImage.map α))).obj
+          (    (relativeDifferentials (f.commRingInverseImage.map ψ))))))
+    (∀ U (x y : M.val.obj U),
+      underlyingApp (ringSheaf JC Y) (tensorRightOverRestrictionUnderlying f ψ α) U (x + y) =
+        underlyingApp (ringSheaf JC Y) (tensorRightOverRestrictionUnderlying f ψ α) U x +
+          underlyingApp (ringSheaf JC Y) (tensorRightOverRestrictionUnderlying f ψ α) U y) ∧
+    (∀ U (r : (ringSheaf JC Y).obj.obj U) (x : M.val.obj U),
+      underlyingApp (ringSheaf JC Y) (tensorRightOverRestrictionUnderlying f ψ α) U (r • x) =
+        r • underlyingApp (ringSheaf JC Y) (tensorRightOverRestrictionUnderlying f ψ α) U x) := by
+  sorry
+
 /-- Direct image commutes with restriction along a ring-sheaf homomorphism. -/
 private def tensorRightOverRestrictionCommute {X Y Z : Sheaf JC CommRingCat.{u}}
     (ψ : X ⟶ Y) (α : Y ⟶ Z) :
@@ -575,7 +663,8 @@ private def tensorRightOverRestrictionCommute {X Y Z : Sheaf JC CommRingCat.{u}}
           (ringSheafMap (f.commRingInverseImage.map α))).obj
           (    (relativeDifferentials (f.commRingInverseImage.map ψ)))))) :=
   homOfUnderlying (ringSheaf JC Y)
-    (tensorRightOverRestrictionUnderlying f ψ α) sorry sorry
+    (tensorRightOverRestrictionUnderlying f ψ α)
+    (tensorRightOverRestrictionCommute_linear f ψ α).1 (tensorRightOverRestrictionCommute_linear f ψ α).2
 
 /-- The source tensor term, mapped into the direct image of the inverse-image tensor term. -/
 private def tensorPushforwardMap {X Y Z : Sheaf JC CommRingCat.{u}}
@@ -598,17 +687,16 @@ private def tensorPushforwardMap {X Y Z : Sheaf JC CommRingCat.{u}}
             (relativeDifferentials (f.commRingInverseImage.map ψ)))) ≫
       tensorRightOverRestrictionCommute f ψ α)
 
-/-- Inverse image of a conormal tensor term, after coefficient transport to `f⁻¹Z`. -/
-private def tensorInverseImageIso {X Y Z : Sheaf JC CommRingCat.{u}}
+/-- The canonical forward comparison of inverse-image tensor terms. -/
+private def tensorInverseImageIsoHom {X Y Z : Sheaf JC CommRingCat.{u}}
     (ψ : X ⟶ Y) (α : Y ⟶ Z) :
     (SheafOfModules.restrictScalars
         (f.commRingInverseImageForgetRingIso.app Z).hom).obj
       ((f.moduleInverseImage (ringSheaf JC Z)).obj ((SheafOfModules.ChangeOfRings.extendScalars (ringSheafMap α)).obj
-                                                      (relativeDifferentials ψ))) ≅
+                                                      (relativeDifferentials ψ))) ⟶
     (SheafOfModules.ChangeOfRings.extendScalars
       (ringSheafMap (f.commRingInverseImage.map α))).obj
-        (relativeDifferentials (f.commRingInverseImage.map ψ)) where
-  hom :=
+        (relativeDifferentials (f.commRingInverseImage.map ψ)) :=
     (SheafOfModules.restrictScalars
         (f.commRingInverseImageForgetRingIso.app Z).hom).map
       (f.moduleUnmate (ringSheaf JC Z)
@@ -633,12 +721,42 @@ private def tensorInverseImageIso {X Y Z : Sheaf JC CommRingCat.{u}}
       ((SheafOfModules.ChangeOfRings.extendScalars
           (ringSheafMap (f.commRingInverseImage.map α))).obj
         (relativeDifferentials (f.commRingInverseImage.map ψ)))
-  inv :=
+
+/-- The canonical reverse comparison of inverse-image tensor terms. -/
+private def tensorInverseImageIsoInv {X Y Z : Sheaf JC CommRingCat.{u}}
+    (ψ : X ⟶ Y) (α : Y ⟶ Z) :
+    (SheafOfModules.ChangeOfRings.extendScalars
+      (ringSheafMap (f.commRingInverseImage.map α))).obj
+        (relativeDifferentials (f.commRingInverseImage.map ψ)) ⟶
+    (SheafOfModules.restrictScalars
+        (f.commRingInverseImageForgetRingIso.app Z).hom).obj
+      ((f.moduleInverseImage (ringSheaf JC Z)).obj ((SheafOfModules.ChangeOfRings.extendScalars (ringSheafMap α)).obj
+                                                      (relativeDifferentials ψ))) :=
     ((SheafOfModules.ChangeOfRings.extendRestrictAdjunction
         (ringSheafMap (f.commRingInverseImage.map α))).homEquiv _ _).symm
       ((differentialsIso f ψ).inv ≫ tensorInverseImageUnit f ψ α)
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+
+/-- The canonical forward and reverse tensor comparisons are mutually inverse. -/
+private theorem tensorInverseImageIso_laws {X Y Z : Sheaf JC CommRingCat.{u}}
+    (ψ : X ⟶ Y) (α : Y ⟶ Z) :
+    tensorInverseImageIsoHom f ψ α ≫ tensorInverseImageIsoInv f ψ α = 𝟙 _ ∧
+      tensorInverseImageIsoInv f ψ α ≫ tensorInverseImageIsoHom f ψ α = 𝟙 _ := by
+  sorry
+
+/-- Inverse image of a conormal tensor term, after coefficient transport to `f⁻¹Z`. -/
+private def tensorInverseImageIso {X Y Z : Sheaf JC CommRingCat.{u}}
+    (ψ : X ⟶ Y) (α : Y ⟶ Z) :
+    (SheafOfModules.restrictScalars
+        (f.commRingInverseImageForgetRingIso.app Z).hom).obj
+      ((f.moduleInverseImage (ringSheaf JC Z)).obj ((SheafOfModules.ChangeOfRings.extendScalars (ringSheafMap α)).obj
+                                                      (relativeDifferentials ψ))) ≅
+    (SheafOfModules.ChangeOfRings.extendScalars
+      (ringSheafMap (f.commRingInverseImage.map α))).obj
+        (relativeDifferentials (f.commRingInverseImage.map ψ)) where
+  hom := tensorInverseImageIsoHom f ψ α
+  inv := tensorInverseImageIsoInv f ψ α
+  hom_inv_id := (tensorInverseImageIso_laws f ψ α).1
+  inv_hom_id := (tensorInverseImageIso_laws f ψ α).2
 
 /-- The pulled tensor term and the target tensor term are related by `standardTermIso`. -/
 private theorem pulledAugmentation_comp_ringSheaf (φ : A ⟶ B) (n : ℕ) :
@@ -658,12 +776,11 @@ private theorem pulledAugmentation_comp_ringSheaf_inv (φ : A ⟶ B) (n : ℕ) :
         ringSheafMap (pulledAugmentation f φ (op ⦋n⦌)) :=
   sorry
 
-/-- Degreewise comparison of pulled tensor terms with the tensor terms of `L(f⁻¹φ)`. -/
-private def standardTermTensorIso (φ : A ⟶ B) (n : ℕ) :
-    pulledTensor f φ n ≅
+/-- The canonical forward comparison of inverse-image tensor terms. -/
+private def standardTermTensorHom (φ : A ⟶ B) (n : ℕ) :
+    pulledTensor f φ n ⟶
       (simplicialModule (f.commRingInverseImage.obj A)
-        (Under.mk (f.commRingInverseImage.map φ))).obj (op ⦋n⦌) where
-  hom :=
+        (Under.mk (f.commRingInverseImage.map φ))).obj (op ⦋n⦌) :=
     ((SheafOfModules.ChangeOfRings.extendRestrictAdjunction
         (ringSheafMap (pulledAugmentation f φ (op ⦋n⦌)))).homEquiv _ _).symm
       (RelativeDifferentials.map
@@ -683,7 +800,12 @@ private def standardTermTensorIso (φ : A ⟶ B) (n : ℕ) :
                   (Under.mk (f.commRingInverseImage.map φ)) (op ⦋n⦌)))
               (ringSheafMap (pulledAugmentation f φ (op ⦋n⦌)))
               (pulledAugmentation_comp_ringSheaf f φ n)).hom.app _)
-  inv :=
+
+/-- The canonical reverse comparison of inverse-image tensor terms. -/
+private def standardTermTensorInv (φ : A ⟶ B) (n : ℕ) :
+      (simplicialModule (f.commRingInverseImage.obj A)
+        (Under.mk (f.commRingInverseImage.map φ))).obj (op ⦋n⦌) ⟶
+    pulledTensor f φ n :=
     ((SheafOfModules.ChangeOfRings.extendRestrictAdjunction
           (ringSheafMap
             (standardAugmentation (f.commRingInverseImage.obj A)
@@ -702,8 +824,22 @@ private def standardTermTensorIso (φ : A ⟶ B) (n : ℕ) :
                 (standardAugmentation (f.commRingInverseImage.obj A)
                   (Under.mk (f.commRingInverseImage.map φ)) (op ⦋n⦌)))
               (pulledAugmentation_comp_ringSheaf_inv f φ n)).hom.app _)
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+
+/-- The canonical forward and reverse tensor comparisons are mutually inverse. -/
+private theorem standardTermTensorIso_laws (φ : A ⟶ B) (n : ℕ) :
+    standardTermTensorHom f φ n ≫ standardTermTensorInv f φ n = 𝟙 _ ∧
+      standardTermTensorInv f φ n ≫ standardTermTensorHom f φ n = 𝟙 _ := by
+  sorry
+
+/-- Degreewise comparison of pulled tensor terms with the tensor terms of `L(f⁻¹φ)`. -/
+private def standardTermTensorIso (φ : A ⟶ B) (n : ℕ) :
+    pulledTensor f φ n ≅
+      (simplicialModule (f.commRingInverseImage.obj A)
+        (Under.mk (f.commRingInverseImage.map φ))).obj (op ⦋n⦌) where
+  hom := standardTermTensorHom f φ n
+  inv := standardTermTensorInv f φ n
+  hom_inv_id := (standardTermTensorIso_laws f φ n).1
+  inv_hom_id := (standardTermTensorIso_laws f φ n).2
 
 end
 
@@ -720,6 +856,15 @@ def termIso (φ : A ⟶ B) (n : ℕ) :
       (standardAugmentation A (Under.mk φ) (op ⦋n⦌)) ≪≫
     standardTermTensorIso f φ n
 
+/-- In strictly positive degrees, the zero comparisons of cotangent complexes compose
+to the identities. -/
+private theorem appIso_laws (φ : A ⟶ B) (k : ℕ) :
+    (0 : (source f φ).X (Int.ofNat k.succ) ⟶ (target f φ).X (Int.ofNat k.succ)) ≫
+      (0 : (target f φ).X (Int.ofNat k.succ) ⟶ (source f φ).X (Int.ofNat k.succ)) = 𝟙 _ ∧
+    (0 : (target f φ).X (Int.ofNat k.succ) ⟶ (source f φ).X (Int.ofNat k.succ)) ≫
+      (0 : (source f φ).X (Int.ofNat k.succ) ⟶ (target f φ).X (Int.ofNat k.succ)) = 𝟙 _ := by
+  sorry
+
 set_option backward.privateInPublic true in
 /-- Degreewise comparison of the inverse-image and target cotangent complexes. -/
 private def appIso (φ : A ⟶ B) :
@@ -727,8 +872,8 @@ private def appIso (φ : A ⟶ B) :
   | Int.ofNat (Nat.succ k) =>
       { hom := (0 : (source f φ).X (Int.ofNat k.succ) ⟶ (target f φ).X (Int.ofNat k.succ))
         inv := (0 : (target f φ).X (Int.ofNat k.succ) ⟶ (source f φ).X (Int.ofNat k.succ))
-        hom_inv_id := sorry
-        inv_hom_id := sorry }
+        hom_inv_id := (appIso_laws f φ k).1
+        inv_hom_id := (appIso_laws f φ k).2 }
   | (0 : ℤ) =>
       (sourceXIso f φ 0).trans ((termIso f φ 0).trans (targetXIso f φ 0).symm)
   | Int.negSucc k =>

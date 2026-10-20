@@ -1,12 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Category
+public import ReasLib.CategoryTheory.Limits.CategoricalPullback.CostructuredArrow.Bilimit
 public import stacks_project.Chap99.Remark_99_15_5_BaseChange
+import StacksCheckRecall
 
 /-!
 # Remark 99.15.5
@@ -27,12 +24,14 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.Spaces
 
-/-- Remark 99.15.5: the category `CurvesGroupoidsOver B` of pairs
-`(X ⟶ S in CurvesGroupoids, h : S ⟶ B)` sits in a 2-fibre product square over
-`pCurvesGroupoids : CurvesGroupoids S ⥤ Over S` along `SchemeOver B ⥤ Over S`. -/
-@[stacks 0D54, instance]
-instance CurvesGroupoidsOver.instSquareIsBilimit {S : Scheme.{u}} (B : AlgebraicSpace S) :
-    CatCommSqOver.Resized.IsBilimit (CurvesGroupoidsOver.square B) :=
-  sorry
+variable {S : Scheme.{u}} (B : AlgebraicSpace S)
+
+/- Remark 99.15.5: the category `CurvesGroupoidsOver B` of pairs
+`(X ⟶ S in Curves.Obj, h : S ⟶ B)` sits in a 2-fibre product square over
+`Curves.p : Curves.Obj S ⥤ Over S` along `SchemeOver B ⥤ Over S`. -/
+@[stacks 0D54] #check
+  (CategoryTheory.Limits.CategoricalPullback.CostructuredArrow.instSquareIsBilimit
+    (Curves.p S) (ofOverFunctor S) B :
+    CatCommSqOver.Resized.IsBilimit (CurvesGroupoidsOver.square B))
 
 end AlgebraicGeometry.AlgebraicSpace.Spaces

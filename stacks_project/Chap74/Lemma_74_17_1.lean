@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap74.Lemma_74_17_1_LocalAtSource
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Syntomic.LocalAtSource
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +14,7 @@ variable (S : Scheme.{u})
 /- Lemma 74.17.1: the property `P(f)` given by “`f` is syntomic” is syntomic
 local on the source. -/
 @[stacks 06F0] #check
-  (Syntomic.isLocalAtSourceSyntomic :
+  (AlgebraicGeometry.AlgebraicSpace.Syntomic.isLocalAtSourceSyntomic :
     MorphismProperty.IsLocalAtSource
       (@Syntomic S : MorphismProperty (AlgebraicSpace S))
       (precoverage (@Syntomic S)))

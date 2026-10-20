@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
-public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
-public import stacks_project.Chap87.Definition_87_25_1_Surjective
-public import stacks_project.Chap88.Definition_88_18_1_Affine
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Surjective.BaseChange
+import StacksCheckRecall
 
 /-!
 # Base change of surjective morphisms of formal algebraic spaces
@@ -22,37 +14,33 @@ surjective.
 
 open CategoryTheory AlgebraicGeometry CategoryTheory.Limits
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.FormalAlgebraicSpace
+open AlgebraicGeometry.FormalAlgebraicSpace
 
-namespace Surjective
-
-/-- Lemma 87.25.3: A base change of a surjective morphism of formal algebraic
+/- Lemma 87.25.3: A base change of a surjective morphism of formal algebraic
 spaces is a surjective morphism. -/
-@[stacks 0GHR]
-theorem of_isPullback {S : Scheme.{u}}
+@[stacks 0GHR] #check
+  (AlgebraicGeometry.FormalAlgebraicSpace.ReductionData.Surjective.of_isPullback :
+    ∀ {S : Scheme.{u}}
     {X Y Y' B : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
-    [IsFormalAlgebraicSpace Y'] [IsFormalAlgebraicSpace B]
-    [Reduction X] [Reduction Y] [Reduction Y'] [Reduction B]
+    [IsFormalAlgebraicSpace Y'] [IsFormalAlgebraicSpace B],
+    (RX : ReductionData X) → (RY : ReductionData Y) →
+    (RY' : ReductionData Y') → (RB : ReductionData B) →
+    ∀
     {f : X ⟶ B} {g : Y ⟶ B} {f' : Y' ⟶ Y} {g' : Y' ⟶ X}
-    (sq : IsPullback f' g' g f) (hg : Surjective g) : Surjective g' :=
-  sorry
+    (sq : IsPullback f' g' g f),
+    ReductionData.Surjective RY RB g → ReductionData.Surjective RY' RX g')
 
-end Surjective
-
-/-- The base-change projection `pullback.snd f g` of a surjective morphism
-`f : X ⟶ Y` of formal algebraic spaces is surjective. -/
-instance surjective_pullback_snd {S : Scheme.{u}}
+#check
+  (AlgebraicGeometry.FormalAlgebraicSpace.ReductionData.Surjective.pullback_snd :
+    ∀ {S : Scheme.{u}}
     {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
-    [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y] [IsFormalAlgebraicSpace Z]
-    [Reduction X] [Reduction Y] [Reduction Z]
+    [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y] [IsFormalAlgebraicSpace Z],
+    (RX : ReductionData X) → (RY : ReductionData Y) → (RZ : ReductionData Z) →
+    ∀
     (f : X ⟶ Y) (g : Z ⟶ Y) [HasPullback f g]
-    [IsFormalAlgebraicSpace (pullback f g)] [Reduction (pullback f g)]
-    [Surjective f] : Surjective (pullback.snd f g) :=
-  sorry
-
-end AlgebraicGeometry.FormalAlgebraicSpace
+    [IsFormalAlgebraicSpace (pullback f g)],
+    (RP : ReductionData (pullback f g)) →
+    ReductionData.Surjective RX RY f → ReductionData.Surjective RP RZ (pullback.snd f g))

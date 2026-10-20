@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap76.Lemma_76_42_2_Epi
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CoherentFormalModule.Epi
 
 open AlgebraicGeometry CategoryTheory Opposite
 open AlgebraicGeometry.AlgebraicSpace
@@ -19,7 +13,7 @@ and a quasi-coherent ideal sheaf `I ⊂ 𝒪_X`, a morphism of coherent formal
 modules is an epimorphism if and only if its first-stage component is an
 epimorphism. -/
 @[stacks 08B3] #check
-  (coherentFormalModules_epi_iff_firstStage_epi :
+  (AlgebraicGeometry.AlgebraicSpace.coherentFormalModules_epi_iff_firstStage_epi :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNoetherian X]
       {I : IdealSubobject X} [IsQuasiCoherent I]
       {F G : CoherentFormalModules X I} (φ : F ⟶ G),

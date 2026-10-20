@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.Finiteness.Defs
-public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.RingTheory.Topology.Adic.Complete
-public import stacks_project.Chap87.Definition_87_7_1_WeaklyAdic
+public import ReasLib.RingTheory.Topology.Adic.Weakly.FiniteGeneration
+import StacksCheckRecall
 
 /-!
 # Lemma 87.7.4
@@ -29,22 +21,21 @@ namespace TopologicalRing.IsWeaklyAdicRing
 
 variable {A : Type u} [CommRing A] [TopologicalSpace A] [IsWeaklyAdicRing A]
 
-/-- Lemma 87.7.4 (1): Let `A` be a weakly adic topological ring. Let `I` be an
+/- Lemma 87.7.4 (1): Let `A` be a weakly adic topological ring. Let `I` be an
 ideal of definition such that `I / I₂` is a finitely generated module, where
 `I₂` is the closure of `I ^ 2`. Then `A` is adic. -/
-@[stacks 0GXH]
-theorem isAdicRing {I : Ideal A} (hI : Ideal.IsIdealOfDefinition I)
-    (hfg : Module.Finite A (I ⧸ Submodule.comap I.subtype (I ^ 2).closure)) :
-    IsAdicRing A := sorry
+@[stacks 0GXH] #check (TopologicalRing.IsWeaklyAdicRing.isAdicRing :
+    ∀ {I : Ideal A}, Ideal.IsIdealOfDefinition I →
+      Module.Finite A (I ⧸ Submodule.comap I.subtype (I ^ 2).closure) →
+      IsAdicRing A)
 
-/-- Lemma 87.7.4 (2): Let `A` be a weakly adic topological ring. Let `I` be an
+/- Lemma 87.7.4 (2): Let `A` be a weakly adic topological ring. Let `I` be an
 ideal of definition such that `I / I₂` is a finitely generated module, where
 `I₂` is the closure of `I ^ 2`. Then `A` has a finitely generated ideal of
 definition. -/
-@[stacks 0GXH]
-theorem exists_fg_isIdealOfDefinition {I : Ideal A}
-    (hI : Ideal.IsIdealOfDefinition I)
-    (hfg : Module.Finite A (I ⧸ Submodule.comap I.subtype (I ^ 2).closure)) :
-    ∃ J : Ideal A, J.FG ∧ Ideal.IsIdealOfDefinition J := sorry
+@[stacks 0GXH] #check (TopologicalRing.IsWeaklyAdicRing.exists_fg_isIdealOfDefinition :
+    ∀ {I : Ideal A}, Ideal.IsIdealOfDefinition I →
+      Module.Finite A (I ⧸ Submodule.comap I.subtype (I ^ 2).closure) →
+      ∃ J : Ideal A, J.FG ∧ Ideal.IsIdealOfDefinition J)
 
 end TopologicalRing.IsWeaklyAdicRing

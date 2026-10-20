@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Flat
@@ -28,6 +22,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.ModuleDerived
 
 /-- Derived pushforward along a locally finite type morphism to a Noetherian scheme is perfect
@@ -35,6 +31,8 @@ for bounded complexes with coherent cohomology, degreewise proper support over t
 finite Tor dimension over the inverse-image structure sheaf. -/
 theorem pushforward_isPerfect_of_finiteTorDimension
     {X S : Scheme.{u}} (f : X ⟶ S) [IsNoetherian S] [LocallyOfFiniteType f]
+    [DerivedCategory.DerivedTensor.Right.Has
+      (C := RingedSpace.Modules (RingedSpace.Hom.inverseImageBase f.toShHom))]
     (E : RingedSpace.ModuleDerived X.toRingedSpace)
     (hE_coherent : DerivedCategory.cohomologyIn
       (SheafOfModules.isCoherent X.toRingedSpace.ringCatSheaf) E)
@@ -72,6 +70,10 @@ theorem pushforward_baseChange_isIso_of_isPerfectRelativeTo
     {X' X S' S : Scheme.{u}}
     (g' : X' ⟶ X) (f' : X' ⟶ S') (f : X ⟶ S) (g : S' ⟶ S)
     [Flat f] [IsProper f] [Scheme.Hom.FinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     [RingedSite.Hom.DerivedAdjunction.HasPair
       (RingedSpace.opensRingedSiteHom f.toShHom)]
     [RingedSite.Hom.DerivedAdjunction.HasPair
@@ -88,6 +90,10 @@ perfect relative to the base to perfect objects. -/
 theorem pushforward_isPerfect_of_isPerfectRelativeTo
     {X S : Scheme.{u}} (f : X ⟶ S)
     [Flat f] [IsProper f] [Scheme.Hom.FinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     (E : RingedSpace.ModuleDerived X.toRingedSpace)
     (hE : IsPerfectRelativeTo f E) :
     RingedSpace.ModuleDerived.IsPerfect

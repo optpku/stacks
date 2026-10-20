@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.LocalAtTarget.Affine
@@ -51,107 +45,107 @@ following are fpqc local on the base (and a fortiori fppf local on the base). -/
 
 /- Remark 65.4.3 (1): closed, open, and quasi-compact immersions. -/
 @[stacks 02WH] #check
-  (IsClosedImmersion.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.IsClosedImmersion.isLocalAtTargetFpqc :
     IsLocalAtTarget (@IsClosedImmersion : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 @[stacks 02WH] #check
-  (IsOpenImmersion.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.IsOpenImmersion.isLocalAtTargetFpqc :
     IsLocalAtTarget (@IsOpenImmersion : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 @[stacks 02WH] #check
-  (QuasiCompactImmersion.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.QuasiCompactImmersion.isLocalAtTargetFpqc :
     IsLocalAtTarget
       ((@QuasiCompact ⊓ @IsImmersion) : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (2): quasi-compact morphisms. -/
 @[stacks 02WH] #check
-  (QuasiCompact.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.QuasiCompact.isLocalAtTargetFpqc :
     IsLocalAtTarget (@QuasiCompact : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (3): universally closed morphisms. -/
 @[stacks 02WH] #check
-  (UniversallyClosed.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.UniversallyClosed.isLocalAtTargetFpqc :
     IsLocalAtTarget (@UniversallyClosed : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (4): separated and quasi-separated morphisms. -/
 @[stacks 02WH] #check
-  (QuasiSeparated.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.QuasiSeparated.isLocalAtTargetFpqc :
     IsLocalAtTarget (@QuasiSeparated : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 @[stacks 02WH] #check
-  (IsSeparated.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.IsSeparated.isLocalAtTargetFpqc :
     IsLocalAtTarget (@IsSeparated : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (5): monomorphisms. -/
 @[stacks 02WH] #check
-  (Monomorphisms.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.Monomorphisms.isLocalAtTargetFpqc :
     IsLocalAtTarget (monomorphisms Scheme.{u}) Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (6): surjective morphisms. -/
 @[stacks 02WH] #check
-  (Surjective.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.Surjective.isLocalAtTargetFpqc :
     IsLocalAtTarget (@Surjective : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (7): universally injective morphisms. -/
 @[stacks 02WH] #check
-  (UniversallyInjective.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.UniversallyInjective.isLocalAtTargetFpqc :
     IsLocalAtTarget (@UniversallyInjective : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (8): affine morphisms. -/
 @[stacks 02WH] #check
-  (IsAffineHom.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.IsAffineHom.isLocalAtTargetFpqc :
     IsLocalAtTarget (@IsAffineHom : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (9): quasi-affine morphisms. -/
 @[stacks 02WH] #check
-  (QuasiAffineHom.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.QuasiAffineHom.isLocalAtTargetFpqc :
     IsLocalAtTarget (@QuasiAffineHom : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (10): locally of finite type, and of finite type. -/
 @[stacks 02WH] #check
-  (LocallyOfFiniteType.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.LocallyOfFiniteType.isLocalAtTargetFpqc :
     IsLocalAtTarget (@LocallyOfFiniteType : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 @[stacks 02WH] #check
-  (Scheme.Hom.FiniteType.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.Scheme.Hom.FiniteType.isLocalAtTargetFpqc :
     IsLocalAtTarget (@Scheme.Hom.FiniteType : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (11): locally quasi-finite, and quasi-finite. -/
 @[stacks 02WH] #check
-  (Scheme.Hom.FiniteType.locallyQuasiFinite_isLocalAtTargetFpqc :
+  (AlgebraicGeometry.Scheme.Hom.FiniteType.locallyQuasiFinite_isLocalAtTargetFpqc :
     IsLocalAtTarget
       ((@LocallyOfFiniteType ⊓ @LocallyQuasiFinite) :
         MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 @[stacks 02WH] #check
-  (Scheme.Hom.QuasiFinite.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.Scheme.Hom.QuasiFinite.isLocalAtTargetFpqc :
     IsLocalAtTarget (@Scheme.Hom.QuasiFinite : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (12): locally of finite presentation, and of finite presentation. -/
 @[stacks 02WH] #check
-  (LocallyOfFinitePresentation.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.LocallyOfFinitePresentation.isLocalAtTargetFpqc :
     IsLocalAtTarget
       (@LocallyOfFinitePresentation : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 @[stacks 02WH] #check
-  (Scheme.Hom.FinitePresentation.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.Scheme.Hom.FinitePresentation.isLocalAtTargetFpqc :
     IsLocalAtTarget
       (@Scheme.Hom.FinitePresentation : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (13): locally of finite type of relative dimension d. -/
 @[stacks 02WH] #check
-  (Scheme.Hom.RelativeDimension.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.Scheme.Hom.RelativeDimension.isLocalAtTargetFpqc :
     ∀ d : ℕ,
       IsLocalAtTarget
         ((fun _ _ f ↦ Scheme.Hom.RelativeDimension f d) :
@@ -160,81 +154,81 @@ following are fpqc local on the base (and a fortiori fppf local on the base). -/
 
 /- Remark 65.4.3 (14): universally open morphisms. -/
 @[stacks 02WH] #check
-  (UniversallyOpen.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.UniversallyOpen.isLocalAtTargetFpqc :
     IsLocalAtTarget (@UniversallyOpen : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (15): flat morphisms. -/
 @[stacks 02WH] #check
-  (Flat.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.Flat.isLocalAtTargetFpqc :
     IsLocalAtTarget (@Flat : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (16): syntomic morphisms. -/
 @[stacks 02WH] #check
-  (Syntomic.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.Syntomic.isLocalAtTargetFpqc :
     IsLocalAtTarget (@Syntomic : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (17): smooth morphisms. -/
 @[stacks 02WH] #check
-  (Smooth.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.Smooth.isLocalAtTargetFpqc :
     IsLocalAtTarget (@Smooth : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (18): unramified and G-unramified morphisms. -/
 @[stacks 02WH] #check
-  (Unramified.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.Unramified.isLocalAtTargetFpqc :
     IsLocalAtTarget (@Unramified : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 @[stacks 02WH] #check
-  (GUnramified.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.GUnramified.isLocalAtTargetFpqc :
     IsLocalAtTarget (@GUnramified : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (19): étale morphisms. -/
 @[stacks 02WH] #check
-  (Etale.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.Etale.isLocalAtTargetFpqc :
     IsLocalAtTarget (@Etale : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (20): proper morphisms. -/
 @[stacks 02WH] #check
-  (IsProper.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.IsProper.isLocalAtTargetFpqc :
     IsLocalAtTarget (@IsProper : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (21): finite or integral morphisms. -/
 @[stacks 02WH] #check
-  (IsFinite.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.IsFinite.isLocalAtTargetFpqc :
     IsLocalAtTarget (@IsFinite : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 @[stacks 02WH] #check
-  (IsIntegralHom.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.IsIntegralHom.isLocalAtTargetFpqc :
     IsLocalAtTarget (@IsIntegralHom : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (22): finite locally free morphisms. -/
 @[stacks 02WH] #check
-  (IsFiniteLocallyFree.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.IsFiniteLocallyFree.isLocalAtTargetFpqc :
     IsLocalAtTarget (@IsFiniteLocallyFree : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (23): universally submersive morphisms. -/
 @[stacks 02WH] #check
-  (UniversallySubmersive.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.UniversallySubmersive.isLocalAtTargetFpqc :
     IsLocalAtTarget (@UniversallySubmersive : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (24): universal homeomorphisms. -/
 @[stacks 02WH] #check
-  (UniversalHomeomorphism.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.UniversalHomeomorphism.isLocalAtTargetFpqc :
     IsLocalAtTarget (@UniversalHomeomorphism : MorphismProperty Scheme.{u})
       Scheme.fpqcPrecoverage)
 
 /- Remark 65.4.3 (25): a general immersion may fail to be fpqc local on the base,
 but is fppf local on the base. -/
 @[stacks 02WH] #check
-  (IsImmersion.isLocalAtTargetFppf :
+  (AlgebraicGeometry.IsImmersion.isLocalAtTargetFppf :
     IsLocalAtTarget (@IsImmersion : MorphismProperty Scheme.{u})
       Scheme.fppfPrecoverage)

@@ -1,26 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Germ
-public import Mathlib.AlgebraicGeometry.Morphisms.Etale
+public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
 
 @[expose] public section
 
 namespace AlgebraicGeometry.Scheme.Germ.Hom
-
-/-- A morphism of scheme germs is étale if it has an étale representative on an open
-neighborhood of the distinguished source point. -/
-def Etale {X Y : Germ} (f : Hom X Y) : Prop :=
-  ∃ r : Representative X Y, mk r = f ∧ AlgebraicGeometry.Etale r.hom
-
-/-- A morphism of scheme germs is étale exactly when it has an étale representative. -/
-theorem etale_iff_exists_representation {X Y : Germ} (f : Hom X Y) :
-    f.Etale ↔ ∃ r : Representative X Y, mk r = f ∧ AlgebraicGeometry.Etale r.hom := sorry
 
 /-- A morphism of scheme germs is smooth if it has a smooth representative on an open
 neighborhood of the distinguished source point. -/

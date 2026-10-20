@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Field.ZMod
@@ -56,6 +50,16 @@ def baseSubfield (n p : ℕ) [Fact p.Prime] : Subfield (functionField n p) :=
 
 /-- The field of rational functions in the `p`th powers of the variables. -/
 abbrev baseField (n p : ℕ) [Fact p.Prime] : Type := baseSubfield n p
+
+/-- A coordinate of the rational function field over the prime field. -/
+@[expose]
+def coordinate (n p : ℕ) [Fact p.Prime] (index : Fin n) : functionField n p :=
+  algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p) (MvPolynomial.X index)
+
+/-- The image of a coordinate under power substitution, viewed in the image subfield. -/
+@[expose]
+def baseCoordinate (n p : ℕ) [Fact p.Prime] (index : Fin n) : baseField n p :=
+  (expandFraction n p).rangeRestrictField (coordinate n p index)
 
 /-- The inclusion of the power-substitution image sends its variable generators to
 the `p`th powers of the ambient variables. -/

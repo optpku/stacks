@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap96.«96_9_2_1_Comparison»
-public import stacks_project.Chap96.«96_9_2_1_Restriction»
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.Comparison
 
 @[expose] public section
 
@@ -27,7 +20,7 @@ whose component on an étale neighborhood `V' → V` is `F.map (op (comparisonPu
 where `U' = V' ×_V U` and `comparisonPushHom φ V'` is the unique lift in `X` of
 the pullback square. -/
 @[stacks 06W2]
-#check (GroupoidsOver.comparisonPush φ F :
+#check (AlgebraicGeometry.GroupoidsOver.comparisonPush φ F :
     GroupoidsOver.restrictSmallEtale y F ⟶
       (Scheme.smallEtalePullback (X.p.map φ).left).op ⋙
         GroupoidsOver.restrictSmallEtale x F)

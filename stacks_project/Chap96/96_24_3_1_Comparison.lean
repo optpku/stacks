@@ -1,192 +1,28 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.Algebra.Category.Ring.KanExtension
-public import ReasLib.AlgebraicGeometry.RingedSite.Topos.HomOfCocontinuous
-public import ReasLib.CategoryTheory.Sites.Topos.Cocontinuous
-public import stacks_project.Chap96.«96_24_3_1_StructureSheaf»
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.AffineRingedComparison
+public import stacks_project.Chap96.Lemma_96_8_1_RingedSite
+public import stacks_project.Chap96.Lemma_96_24_3
 
 /-!
 # Affine comparison of associated ringed topoi
 
-The special cocontinuous inclusion `𝒳_affine,τ ⟶ 𝒳_τ` induces a morphism of
-ringed topoi `(Sh(𝒳_affine,τ), 𝒪) ⟶ (Sh(𝒳_τ), 𝒪_𝒳)`, where `𝒪` is the
-restriction of the universe-lifted structure sheaf.  The ring-valued inverse
-image differs from this restriction by the canonical
-`CocontinuousPullback.comparison`.
+The canonical ringed-topos comparison is induced by the affine inclusion and
+the restriction of the lifted structure sheaf.
 -/
 
 @[expose] public section
 
 open AlgebraicGeometry CategoryTheory
-open scoped MorphismOfTopoiIn
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.GroupoidsOver
-
-variable {S : Scheme.{u}}
-
-
-/-- The geometric morphism `Sh(𝒳_affine,τ) ⟶ Sh(𝒳_τ)` induced by the special
-cocontinuous affine inclusion. -/
-noncomputable def affineInclusionToTopos (X : GroupoidsOver S) (τ : StandardTopology)
+#check (AlgebraicGeometry.GroupoidsOver.associatedAffineComparison :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) (τ : StandardTopology)
     [HasSheafify (X.associatedAffineTopology τ) (Type (u + 1))]
-    [∀ P : (Affine X)ᵒᵖ ⥤ Type (u + 1),
-      (affineInclusion X).op.HasPointwiseRightKanExtension P] :
-    MorphismOfTopoiIn.{u + 1, u + 1, u, u, u + 1}
-      (X.associatedTopology τ) (X.associatedAffineTopology τ) :=
-  Functor.morphismOfTopoiInOfCocontinuous.{u + 1, u, u, u + 1, u + 1}
-    (affineInclusion X) (X.associatedAffineTopology τ) (X.associatedTopology τ)
-
-/-- The inverse image of `affineInclusionToTopos` is the cocontinuous sheaf
-pullback. -/
-theorem affineInclusionToTopos_inverseImage (X : GroupoidsOver S)
-    (τ : StandardTopology)
-    [HasSheafify (X.associatedAffineTopology τ) (Type (u + 1))]
-    [∀ P : (Affine X)ᵒᵖ ⥤ Type (u + 1),
-      (affineInclusion X).op.HasPointwiseRightKanExtension P] :
-    (affineInclusionToTopos X τ).inverseImage =
-      (affineInclusion X).sheafPullbackCocontinuous (Type (u + 1))
-        (X.associatedAffineTopology τ) (X.associatedTopology τ) :=
-  sorry
-
-/-- The type-valued comparison from cocontinuous pullback to restriction along
-the affine inclusion. -/
-noncomputable def affineInclusionPullbackComparison (X : GroupoidsOver S)
-    (τ : StandardTopology)
-    [HasSheafify (X.associatedAffineTopology τ) (Type (u + 1))]
-    [HasSheafify (X.associatedTopology τ) (Type (u + 1))]
-    [∀ P : (Affine X)ᵒᵖ ⥤ Type (u + 1),
-      (affineInclusion X).op.HasPointwiseRightKanExtension P] :
-    (affineInclusion X).sheafPullbackCocontinuous (Type (u + 1))
-        (X.associatedAffineTopology τ) (X.associatedTopology τ) ⟶
-      (affineInclusion X).sheafPushforwardContinuous (Type (u + 1))
-        (X.associatedAffineTopology τ) (X.associatedTopology τ) :=
-  Functor.CocontinuousPullback.comparison.{u + 1} (affineInclusion X)
-    (X.associatedAffineTopology τ) (X.associatedTopology τ)
-
-/-- `affineInclusionPullbackComparison` is `CocontinuousPullback.comparison`. -/
-theorem affineInclusionPullbackComparison_eq (X : GroupoidsOver S)
-    (τ : StandardTopology)
-    [HasSheafify (X.associatedAffineTopology τ) (Type (u + 1))]
-    [HasSheafify (X.associatedTopology τ) (Type (u + 1))]
-    [∀ P : (Affine X)ᵒᵖ ⥤ Type (u + 1),
-      (affineInclusion X).op.HasPointwiseRightKanExtension P] :
-    affineInclusionPullbackComparison X τ =
-      Functor.CocontinuousPullback.comparison.{u + 1} (affineInclusion X)
-        (X.associatedAffineTopology τ) (X.associatedTopology τ) :=
-  sorry
-
-/-- The type-valued affine pullback comparison is an isomorphism. -/
-instance affineInclusionPullbackComparison_isIso (X : GroupoidsOver S)
-    (τ : StandardTopology)
-    [HasSheafify (X.associatedAffineTopology τ) (Type (u + 1))]
-    [HasSheafify (X.associatedTopology τ) (Type (u + 1))]
-    [∀ P : (Affine X)ᵒᵖ ⥤ Type (u + 1),
-      (affineInclusion X).op.HasPointwiseRightKanExtension P] :
-    IsIso (affineInclusionPullbackComparison X τ) :=
-  sorry
-
-/-- The ring-valued comparison from the canonical inverse image of the lifted
-`𝒪_𝒳` to the restriction `𝒪`, the mate of `CocontinuousPullback.comparison`. -/
-noncomputable def associatedAffineStructureSheafComparison (X : GroupoidsOver S)
-    (τ : StandardTopology)
-    [HasSheafify (X.associatedAffineTopology τ) (Type (u + 1))]
-    [∀ P : (Affine X)ᵒᵖ ⥤ Type (u + 1),
-      (affineInclusion X).op.HasPointwiseRightKanExtension P]
+    [∀ P : (GroupoidsOver.Affine X)ᵒᵖ ⥤ Type (u + 1),
+      (GroupoidsOver.affineInclusion X).op.HasPointwiseRightKanExtension P]
     [(X.associatedAffineTopology τ).HasSheafCompose (forget RingCat.{u + 1})]
-    [(X.associatedTopology τ).HasSheafCompose (forget RingCat.{u + 1})] :
-    (RingedSite.Cocontinuous.toTopos (affineInclusionRinged X τ)).ringInverseImage.obj
-        (liftedAssociatedStructureSheaf X τ) ⟶
-      associatedAffineStructureSheaf X τ :=
-  RingedSite.Cocontinuous.structureMap (affineInclusionRinged X τ)
-    (associatedAffineStructureSheafToPushforward X τ).inv
-
-/-- `associatedAffineStructureSheafComparison` is the cocontinuous ring-valued
-structure map induced by restriction. -/
-theorem associatedAffineStructureSheafComparison_eq (X : GroupoidsOver S)
-    (τ : StandardTopology)
-    [HasSheafify (X.associatedAffineTopology τ) (Type (u + 1))]
-    [∀ P : (Affine X)ᵒᵖ ⥤ Type (u + 1),
-      (affineInclusion X).op.HasPointwiseRightKanExtension P]
-    [(X.associatedAffineTopology τ).HasSheafCompose (forget RingCat.{u + 1})]
-    [(X.associatedTopology τ).HasSheafCompose (forget RingCat.{u + 1})] :
-    associatedAffineStructureSheafComparison X τ =
-      RingedSite.Cocontinuous.structureMap (affineInclusionRinged X τ)
-        (associatedAffineStructureSheafToPushforward X τ).inv :=
-  sorry
-
-/-- The ring-valued comparison from inverse image to restriction is an
-isomorphism. -/
-instance associatedAffineStructureSheafComparison_isIso (X : GroupoidsOver S)
-    (τ : StandardTopology)
-    [HasSheafify (X.associatedAffineTopology τ) (Type (u + 1))]
-    [∀ P : (Affine X)ᵒᵖ ⥤ Type (u + 1),
-      (affineInclusion X).op.HasPointwiseRightKanExtension P]
-    [(X.associatedAffineTopology τ).HasSheafCompose (forget RingCat.{u + 1})]
-    [(X.associatedTopology τ).HasSheafCompose (forget RingCat.{u + 1})] :
-    IsIso (associatedAffineStructureSheafComparison X τ) :=
-  sorry
-
-/-- After forgetting to types, the ring-valued comparison is an isomorphism,
-as required of the mate of `CocontinuousPullback.comparison`. -/
-theorem associatedAffineStructureSheafComparison_forget (X : GroupoidsOver S)
-    (τ : StandardTopology)
-    [HasSheafify (X.associatedAffineTopology τ) (Type (u + 1))]
-    [∀ P : (Affine X)ᵒᵖ ⥤ Type (u + 1),
-      (affineInclusion X).op.HasPointwiseRightKanExtension P]
-    [(X.associatedAffineTopology τ).HasSheafCompose (forget RingCat.{u + 1})]
-    [(X.associatedTopology τ).HasSheafCompose (forget RingCat.{u + 1})] :
-    IsIso
-      ((sheafCompose (X.associatedAffineTopology τ) (forget RingCat.{u + 1})).map
-        (associatedAffineStructureSheafComparison X τ)) :=
-  sorry
-
-/-- The morphism of ringed topoi
-`(Sh(𝒳_affine,τ), 𝒪) ⟶ (Sh(𝒳_τ), 𝒪_𝒳)` induced by the affine inclusion. -/
-noncomputable def associatedAffineComparison (X : GroupoidsOver S)
-    (τ : StandardTopology)
-    [HasSheafify (X.associatedAffineTopology τ) (Type (u + 1))]
-    [∀ P : (Affine X)ᵒᵖ ⥤ Type (u + 1),
-      (affineInclusion X).op.HasPointwiseRightKanExtension P]
-    [(X.associatedAffineTopology τ).HasSheafCompose (forget RingCat.{u + 1})]
-    [(X.associatedTopology τ).HasSheafCompose (forget RingCat.{u + 1})] :
-    RingedSite.ToposHom (associatedAffineRingedSite X τ)
-      (liftedAssociatedRingedSite X τ) where
-  toTopos := RingedSite.Cocontinuous.toTopos (affineInclusionRinged X τ)
-  structureMap := associatedAffineStructureSheafComparison X τ
-
-/-- The underlying topos morphism of `associatedAffineComparison` is
-`affineInclusionToTopos`. -/
-theorem associatedAffineComparison_toTopos (X : GroupoidsOver S)
-    (τ : StandardTopology)
-    [HasSheafify (X.associatedAffineTopology τ) (Type (u + 1))]
-    [∀ P : (Affine X)ᵒᵖ ⥤ Type (u + 1),
-      (affineInclusion X).op.HasPointwiseRightKanExtension P]
-    [(X.associatedAffineTopology τ).HasSheafCompose (forget RingCat.{u + 1})]
-    [(X.associatedTopology τ).HasSheafCompose (forget RingCat.{u + 1})] :
-    (associatedAffineComparison X τ).toTopos = affineInclusionToTopos X τ :=
-  sorry
-
-/-- The structure map of `associatedAffineComparison` is the ring-valued
-comparison from inverse image to restriction. -/
-theorem associatedAffineComparison_structureMap (X : GroupoidsOver S)
-    (τ : StandardTopology)
-    [HasSheafify (X.associatedAffineTopology τ) (Type (u + 1))]
-    [∀ P : (Affine X)ᵒᵖ ⥤ Type (u + 1),
-      (affineInclusion X).op.HasPointwiseRightKanExtension P]
-    [(X.associatedAffineTopology τ).HasSheafCompose (forget RingCat.{u + 1})]
-    [(X.associatedTopology τ).HasSheafCompose (forget RingCat.{u + 1})] :
-    (associatedAffineComparison X τ).structureMap =
-      associatedAffineStructureSheafComparison X τ :=
-  sorry
-
-end AlgebraicGeometry.GroupoidsOver
+    [(X.associatedTopology τ).HasSheafCompose (forget RingCat.{u + 1})],
+    RingedSite.ToposHom (GroupoidsOver.associatedAffineRingedSite X τ)
+      (GroupoidsOver.liftedAssociatedRingedSite X τ))

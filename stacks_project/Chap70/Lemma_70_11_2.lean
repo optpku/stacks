@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap70.Lemma_70_11_2_Approximation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Integral.Approximation
 import StacksCheckRecall
 
 @[expose] public section

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.GlobalSections.Terminal
@@ -12,8 +6,8 @@ public import ReasLib.CategoryTheory.Sites.Topos.Morphism
 /-!
 # Global sections and morphisms of topoi
 
-This leaf owns the canonical terminal-object and global-sections comparisons
-attached to a left-exact adjunction of type-valued sheaf topoi.
+This leaf owns the global-sections comparisons attached to a left-exact adjunction
+of type-valued sheaf topoi, using the terminal comparison from `Topos.Morphism`.
 -/
 
 @[expose] public section
@@ -29,17 +23,6 @@ namespace CategoryTheory.MorphismOfTopoiIn
 variable {C : Type u₁} [Category.{v₁} C]
 variable {D : Type u₂} [Category.{v₂} D]
 variable {JC : GrothendieckTopology C} {JD : GrothendieckTopology D}
-
-/-- Inverse image along a morphism of topoi preserves the chosen terminal
-type-valued sheaf. -/
-noncomputable def inverseImageTerminalIso
-    (f : MorphismOfTopoiIn JD JC) :
-    f.inverseImage.obj
-        (Sheaf.terminal JD Types.isTerminalPUnit : Sheaf JD (Type w)) ≅
-      (Sheaf.terminal JC Types.isTerminalPUnit : Sheaf JC (Type w)) :=
-  LeftExactAdjunction.inverseImageTerminalIso f
-    (Sheaf.isTerminalTerminal JD Types.isTerminalPUnit)
-    (Sheaf.isTerminalTerminal JC Types.isTerminalPUnit)
 
 /-- Direct image followed by global sections is canonically isomorphic to
 global sections on the source topos. -/

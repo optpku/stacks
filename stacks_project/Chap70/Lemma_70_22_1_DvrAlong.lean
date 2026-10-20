@@ -1,22 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.DiscreteValuationRing.Basic
-public import stacks_project.Chap67.Lemma_67_42_5_Along
-public import stacks_project.Chap69.Lemma_69_19_2_DVR
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.Factorization
 
 /-!
 # DVR valuative existence along a morphism of algebraic spaces
 
-A morphism of algebraic spaces satisfies the existence part of the DVR
-valuative criterion along a second morphism when every valuative square whose
-generic arrow factors through that morphism, and whose ring is a discrete
-valuation ring, admits a dotted lift.
+The shared factored-DVR API supplies existence of dotted lifts over the original
+DVR for squares whose generic arrow factors through a fixed morphism.
 -/
 
 @[expose]
@@ -28,48 +18,29 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-namespace ValuativeCriterion.DVR.Along
+#check (ValuativeCriterion.DVR.Along.Existence :
+  ∀ {S : Scheme.{u}} {U X Y : AlgebraicSpace S} (h : U ⟶ X) (f : X ⟶ Y), Prop)
 
-/-- Every valuative square whose generic arrow factors through `h` and whose ring
-is a discrete valuation ring admits a dotted lift `Spec(A) ⟶ X`. -/
-def Existence {S : Scheme.{u}} {U X Y : AlgebraicSpace S} (h : U ⟶ X)
-    (f : X ⟶ Y) : Prop :=
-  ∀ sq : ValuativeCommSqFactorsThrough h f,
-    IsDiscreteValuationRing sq.sq.R → sq.commSq.HasLift
-
-/-- Restricted DVR existence is equivalent to every factored DVR valuative square
-having a dotted lift. -/
-theorem existence_iff {S : Scheme.{u}} {U X Y : AlgebraicSpace S} (h : U ⟶ X)
-    (f : X ⟶ Y) :
-    Existence h f ↔
+#check (ValuativeCriterion.DVR.Along.existence_iff :
+  ∀ {S : Scheme.{u}} {U X Y : AlgebraicSpace S} (h : U ⟶ X) (f : X ⟶ Y),
+    ValuativeCriterion.DVR.Along.Existence h f ↔
       ∀ sq : ValuativeCommSqFactorsThrough h f,
-        IsDiscreteValuationRing sq.sq.R → sq.commSq.HasLift :=
-  sorry
+        IsDiscreteValuationRing sq.sq.R → sq.commSq.HasLift)
 
-/-- Restricted DVR existence follows from a lift in every factored DVR valuative
-square. -/
-theorem of {S : Scheme.{u}} {U X Y : AlgebraicSpace S} {h : U ⟶ X} {f : X ⟶ Y}
-    (h_existence :
-      ∀ sq : ValuativeCommSqFactorsThrough h f,
-        IsDiscreteValuationRing sq.sq.R → sq.commSq.HasLift) :
-    Existence h f :=
-  sorry
+#check (ValuativeCriterion.DVR.Along.of :
+  ∀ {S : Scheme.{u}} {U X Y : AlgebraicSpace S} {h : U ⟶ X} {f : X ⟶ Y},
+    (∀ sq : ValuativeCommSqFactorsThrough h f,
+      IsDiscreteValuationRing sq.sq.R → sq.commSq.HasLift) →
+    ValuativeCriterion.DVR.Along.Existence h f)
 
-/-- Restricted DVR existence supplies a dotted lift of a factored DVR valuative
-square. -/
-theorem existence {S : Scheme.{u}} {U X Y : AlgebraicSpace S} {h : U ⟶ X}
-    {f : X ⟶ Y} (h_existence : Existence h f)
-    (sq : ValuativeCommSqFactorsThrough h f)
-    (hR : IsDiscreteValuationRing sq.sq.R) :
-    sq.commSq.HasLift :=
-  sorry
+#check (ValuativeCriterion.DVR.Along.existence :
+  ∀ {S : Scheme.{u}} {U X Y : AlgebraicSpace S} {h : U ⟶ X} {f : X ⟶ Y},
+    ValuativeCriterion.DVR.Along.Existence h f →
+    ∀ sq : ValuativeCommSqFactorsThrough h f,
+      IsDiscreteValuationRing sq.sq.R → sq.commSq.HasLift)
 
-/-- Unrestricted DVR existence implies DVR existence along any morphism. -/
-theorem existence_of_dvrExistence {S : Scheme.{u}} {U X Y : AlgebraicSpace S}
-    (h : U ⟶ X) (f : X ⟶ Y) [ValuativeCriterion.DVR.Existence f] :
-    Existence h f :=
-  sorry
-
-end ValuativeCriterion.DVR.Along
+#check (ValuativeCriterion.DVR.Along.existence_of_dvrExistence :
+  ∀ {S : Scheme.{u}} {U X Y : AlgebraicSpace S} (h : U ⟶ X) (f : X ⟶ Y)
+    [ValuativeCriterion.DVR.Existence f], ValuativeCriterion.DVR.Along.Existence h f)
 
 end AlgebraicGeometry.AlgebraicSpace

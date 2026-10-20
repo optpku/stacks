@@ -1,111 +1,160 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.RingTheory.Localization.AtPrime.FractionRing
-public import ReasLib.RingTheory.Localization.FractionRing.IntegralClosure.AtPrime
-public import ReasLib.RingTheory.DiscreteValuationRing.Extension.Basic
-public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Over
-public import stacks_project.Chap53.Definition_53_8_1_Genus
-public import stacks_project.Chap53.Lemma_53_20_12_Nodal
-public import stacks_project.Chap53.Remark_53_19_8_The_quadratic_extension_associated_to_a_node_NodeAlgebra
-public import stacks_project.Chap55.Definition_55_8_4_MinimalModel
-public import stacks_project.Chap55.Lemma_55_8_5_Model
-public import stacks_project.Chap55.Lemma_55_9_1_SpecialFiber
-
-@[expose] public section
+public import ReasLib.AlgebraicGeometry.Curve.SemistableReduction.Model
 
 open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
+open AlgebraicGeometry.Scheme.Hom
 open scoped AlgebraicGeometry
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.Scheme.Hom
+#check (AlgebraicGeometry.Scheme.Hom.RationalCurve :
+  ∀ (k : Type u) [Field k] (X : SchemeOverField k), Type (u))
 
-/-- A semistable model consists of a regular model whose structural morphism is at worst nodal. -/
-structure SemistableModel (R K : Type u) [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.RationalCurve.ofIso :
+  ∀ {k : Type u} [Field k] {X : SchemeOverField k}
+    (iso : X ≅ ProjectiveSpace.schemeOver k 1),
+    RationalCurve k X)
+
+#check (AlgebraicGeometry.Scheme.Hom.RationalCurve_iff :
+  ∀ {k : Type u} [Field k] (X : SchemeOverField k),
+    Nonempty (RationalCurve k X) ↔
+      Nonempty (X ≅ ProjectiveSpace.schemeOver k 1))
+
+#check (AlgebraicGeometry.Scheme.Hom.RationalCycleWitness.normalizedComponentOver :
+  ∀ {k : Type u} [Field k]
+    (X : SchemeOverField k) [IsNoetherian X.left]
+    (component : irreducibleComponents X.left),
+    SchemeOverField k)
+
+#check (AlgebraicGeometry.Scheme.Hom.RationalCycleWitness.normalizedComponentTo :
+  ∀ {k : Type u} [Field k]
+    (X : SchemeOverField k) [IsNoetherian X.left]
+    (component : irreducibleComponents X.left),
+    (RationalCycleWitness.normalizedComponentOver X component).left ⟶ X.left)
+
+#check (AlgebraicGeometry.Scheme.Hom.RationalCycleWitness.projectiveComponentTo :
+  ∀ {k : Type u} [Field k]
+    (X : SchemeOverField k) [IsNoetherian X.left]
+    (component : irreducibleComponents X.left)
+    (rational : RationalCurve k (RationalCycleWitness.normalizedComponentOver X component)),
+    (ProjectiveSpace.schemeOver k 1).left ⟶ X.left)
+
+#check (AlgebraicGeometry.Scheme.Hom.RationalCycleWitness.projectiveComponentTo_apply :
+  ∀ {k : Type u} [Field k]
+    (X : SchemeOverField k) [IsNoetherian X.left]
+    (component : irreducibleComponents X.left)
+    (rational : RationalCurve k (RationalCycleWitness.normalizedComponentOver X component))
+    (point : ProjectiveSpectrum (ProjectiveSpace.grading k 1)),
+    RationalCycleWitness.projectiveComponentTo X component rational point =
+      RationalCycleWitness.normalizedComponentTo X component (rational.iso.inv.left point))
+
+#check (AlgebraicGeometry.Scheme.Hom.RationalCycleWitness :
+  ∀ (k : Type u) [Field k] (X : SchemeOverField k)
+    [noetherian : IsNoetherian X.left], Type (u))
+
+#check (AlgebraicGeometry.Scheme.Hom.RationalCycleWitness.ofData :
+  ∀ {k : Type u} [Field k] {X : SchemeOverField k}
+    [noetherian : IsNoetherian X.left]
+    (reduced : IsReduced X.left) (atWorstNodal : SchemeOverField.atWorstNodal X)
+    (n : ℕ) (n_pos : 0 < n)
+    (components : Fin n ≃ irreducibleComponents X.left)
+    (rational : ∀ index, RationalCurve k (RationalCycleWitness.normalizedComponentOver X (components index)))
+    (next : Equiv.Perm (Fin n))
+    (next_transitive : ∀ first last, ∃ step : ℕ, step < n ∧ (next^[step]) first = last)
+    (node : Fin n → X.left) (node_injective : Function.Injective node)
+    (node_nodal : ∀ index, SchemeOverField.isNode X (node index))
+    (nodes_exhaustive : ∀ point, SchemeOverField.isNode X point ↔
+      ∃ index, node index = point)
+    (node_mem : ∀ index, node index ∈ (components index : Set X.left))
+    (node_mem_next : ∀ index, node index ∈ (components (next index) : Set X.left))
+    (branchLeft : Fin n → ProjectiveSpectrum (ProjectiveSpace.grading k 1))
+    (branchRight : Fin n → ProjectiveSpectrum (ProjectiveSpace.grading k 1))
+    (branches_distinct : ∀ index,
+      (index, branchLeft index) ≠ (next index, branchRight index))
+    (branch_fiber : ∀ index
+      (branch : Fin n × ProjectiveSpectrum (ProjectiveSpace.grading k 1)),
+      RationalCycleWitness.projectiveComponentTo X (components branch.1) (rational branch.1)
+        branch.2 = node index ↔
+        branch = (index, branchLeft index) ∨ branch = (next index, branchRight index))
+    (component_intersection : ∀ first last, first ≠ last →
+      (components first : Set X.left) ∩ (components last : Set X.left) =
+        {point | (next first = last ∧ point = node first) ∨
+          (next last = first ∧ point = node last)}),
+    RationalCycleWitness k X)
+
+#check (AlgebraicGeometry.Scheme.Hom.RationalCycleWitness.spec :
+  ∀ {k : Type u} [Field k] {X : SchemeOverField k}
+    [noetherian : IsNoetherian X.left] (cycle : RationalCycleWitness k X),
+    IsReduced X.left ∧ SchemeOverField.atWorstNodal X ∧ 0 < cycle.n ∧
+      (∀ index, Nonempty (RationalCycleWitness.normalizedComponentOver X (cycle.components index) ≅
+        ProjectiveSpace.schemeOver k 1)) ∧
+      (∀ first last, ∃ step : ℕ,
+        step < cycle.n ∧ (cycle.next^[step]) first = last) ∧
+      Function.Injective cycle.node ∧
+      (∀ index, SchemeOverField.isNode X (cycle.node index)) ∧
+      (∀ point, SchemeOverField.isNode X point ↔ ∃ index, cycle.node index = point) ∧
+      (∀ index, cycle.node index ∈ (cycle.components index : Set X.left)) ∧
+      (∀ index, cycle.node index ∈ (cycle.components (cycle.next index) : Set X.left)) ∧
+      (∀ index,
+        (index, cycle.branchLeft index) ≠ (cycle.next index, cycle.branchRight index)) ∧
+      (∀ index (branch : Fin cycle.n × ProjectiveSpectrum (ProjectiveSpace.grading k 1)),
+        RationalCycleWitness.projectiveComponentTo X (cycle.components branch.1)
+          (cycle.rational branch.1) branch.2 = cycle.node index ↔
+          branch = (index, cycle.branchLeft index) ∨
+            branch = (cycle.next index, cycle.branchRight index)) ∧
+      (∀ first last, first ≠ last →
+        (cycle.components first : Set X.left) ∩ (cycle.components last : Set X.left) =
+          {point | (cycle.next first = last ∧ point = cycle.node first) ∨
+            (cycle.next last = first ∧ point = cycle.node last)}))
+
+#check (AlgebraicGeometry.Scheme.Hom.SemistableModel :
+  ∀ (R K : Type u) [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
-    (C : SchemeOverField K) [Curve C] [Smooth C.hom] [Projective C.hom] where
-  /-- The underlying regular model. -/
-  regularModel : RegularModel R K C
-  /-- The model morphism is at worst nodal. -/
-  atWorstNodal : AtWorstNodal regularModel.base
+    (C : SchemeOverField K) [Curve C] [Smooth C.hom] [Projective C.hom], Type (u + 1))
 
-/-- Construct a semistable model from a regular model and an at-worst-nodal proof. -/
-def SemistableModel.ofRegularModel {R K : Type u} [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.SemistableModel.ofRegularModel :
+  ∀ {R K : Type u} [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
-    (M : RegularModel R K C) (h_nodal : AtWorstNodal M.base) :
-    SemistableModel R K C :=
-  { regularModel := M
-    atWorstNodal := h_nodal }
+    (M : RegularModel R K C) (h_nodal : AtWorstNodal M.base),
+    SemistableModel R K C)
 
-/-- Minimality of the regular model underlying a semistable model. -/
-def SemistableModel.isMinimal (R K : Type u) [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.SemistableModel.isMinimal :
+  ∀ (R K : Type u) [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
-    (M : SemistableModel R K C) : Prop :=
-  IsMinimalModel M.regularModel.base
+    (M : SemistableModel R K C),
+    Prop)
 
-/-- Semistable-model minimality is minimality of its underlying regular-model morphism. -/
-theorem SemistableModel.isMinimal_iff {R K : Type u} [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.SemistableModel.isMinimal_iff :
+  ∀ {R K : Type u} [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
-    (M : SemistableModel R K C) :
-    SemistableModel.isMinimal R K M ↔ IsMinimalModel M.regularModel.base := sorry
+    (M : SemistableModel R K C),
+    SemistableModel.isMinimal R K M ↔ IsMinimalModel M.regularModel.base)
 
-/-- A smooth projective curve over a fraction field has semistable reduction when a
-semistable model exists over the discrete valuation ring. -/
-def hasSemistableReduction (R K : Type u) [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.hasSemistableReduction :
+  ∀ (R K : Type u) [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
-    (C : SchemeOverField K) [Curve C] [Smooth C.hom] [Projective C.hom] : Prop :=
-  Nonempty (SemistableModel R K C)
+    (C : SchemeOverField K) [Curve C] [Smooth C.hom] [Projective C.hom],
+    Prop)
 
-/-- The semistable-reduction predicate is witnessed by a regular model with an at-worst-nodal
-structural morphism. -/
-theorem hasSemistableReduction_iff {R K : Type u} [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.hasSemistableReduction_iff :
+  ∀ {R K : Type u} [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
-    {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom] :
+    {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom],
     hasSemistableReduction R K C ↔
-      ∃ M : RegularModel R K C, AtWorstNodal M.base := sorry
+      ∃ M : RegularModel R K C, AtWorstNodal M.base)
 
-/-- A branch of semistable reduction over a maximal localization of an integral closure. -/
-structure SemistableReductionBranch (R K K' : Type u) [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.SemistableReductionBranch :
+  ∀ (R K K' : Type u) [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     [Field K'] [Algebra K K'] [Algebra R K'] [IsScalarTower R K K']
-    (C : SchemeOverField K') (m : MaximalSpectrum (integralClosure R K')) where
-  /-- The base-changed curve is a curve over the extension field. -/
-  curve : Curve C
-  /-- The base-changed curve is smooth. -/
-  smooth : Smooth C.hom
-  /-- The base-changed curve is projective. -/
-  projective : Projective C.hom
-  /-- The localized integral closure is a discrete valuation ring. -/
-  localDVR : IsDiscreteValuationRing (Localization.AtPrime m.asIdeal)
-  /-- The selected localization is an extension of the original discrete valuation ring. -/
-  extension : @IsExtensionOfDiscreteValuationRings R (Localization.AtPrime m.asIdeal)
-    inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance localDVR
-  /-- The chosen fraction-field algebra of the local branch. -/
-  localAlgebra : Algebra (Localization.AtPrime m.asIdeal) K'
-  /-- The local fraction-field map agrees with the given map from the original DVR. -/
-  localAlgebra_compatible : ∀ r : R,
-    (@algebraMap (Localization.AtPrime m.asIdeal) K' _ _ localAlgebra)
-      (algebraMap R (Localization.AtPrime m.asIdeal) r) = algebraMap R K' r
-  /-- The extension field is a fraction field of the local branch. -/
-  localFraction : IsFractionRing (Localization.AtPrime m.asIdeal) K'
-  /-- A semistable model over the selected local branch. -/
-  model : @SemistableModel (Localization.AtPrime m.asIdeal) K'
-    inferInstance inferInstance localDVR inferInstance localAlgebra localFraction C
-      curve smooth projective
+    (C : SchemeOverField K') (m : MaximalSpectrum (integralClosure R K')), Type (u + 1))
 
-/-- Construct a maximal-localization branch from its local structures and semistable model. -/
-def SemistableReductionBranch.ofData {R K K' : Type u} [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.SemistableReductionBranch.ofData :
+  ∀ {R K K' : Type u} [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     [Field K'] [Algebra K K'] [Algebra R K'] [IsScalarTower R K K']
     (C : SchemeOverField K') (m : MaximalSpectrum (integralClosure R K'))
@@ -117,235 +166,180 @@ def SemistableReductionBranch.ofData {R K K' : Type u} [CommRing R] [IsDomain R]
     (h_localAlgebra_compatible : ∀ r : R,
       (@algebraMap (Localization.AtPrime m.asIdeal) K' _ _ h_localAlgebra)
         (algebraMap R (Localization.AtPrime m.asIdeal) r) = algebraMap R K' r)
+    (h_localAlgebra_extendsIntegralClosure : ∀ a : integralClosure R K',
+      (@algebraMap (Localization.AtPrime m.asIdeal) K' _ _ h_localAlgebra)
+        (algebraMap (integralClosure R K') (Localization.AtPrime m.asIdeal) a) =
+          algebraMap (integralClosure R K') K' a)
     (h_localFraction : IsFractionRing (Localization.AtPrime m.asIdeal) K')
     (M : @SemistableModel (Localization.AtPrime m.asIdeal) K'
       inferInstance inferInstance h_localDVR inferInstance h_localAlgebra h_localFraction C
-        h_curve h_smooth h_projective) :
-    SemistableReductionBranch R K K' C m :=
-  { curve := h_curve
-    smooth := h_smooth
-    projective := h_projective
-    localDVR := h_localDVR
-    extension := h_extension
-    localAlgebra := h_localAlgebra
-    localAlgebra_compatible := h_localAlgebra_compatible
-    localFraction := h_localFraction
-    model := M }
+        h_curve h_smooth h_projective),
+    SemistableReductionBranch R K K' C m)
 
-/-- Semistable reduction over every maximal localization of the integral closure of `R` in `K'`.
-The branch witness records the local DVR, its fraction-field identification, and the model. -/
-def hasSemistableReductionAtMaximal (R K K' : Type u) [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.hasSemistableReductionAtMaximal :
+  ∀ (R K K' : Type u) [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     [Field K'] [Algebra K K'] [Algebra R K'] [IsScalarTower R K K']
-    (C : SchemeOverField K') : Prop :=
-  ∀ m : MaximalSpectrum (integralClosure R K'),
-    Nonempty (SemistableReductionBranch R K K' C m)
+    (C : SchemeOverField K'),
+    Prop)
 
-/-- The maximal-branch predicate exposes the chosen branch model and local field data. -/
-theorem hasSemistableReductionAtMaximal_iff {R K K' : Type u} [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.hasSemistableReductionAtMaximal_iff :
+  ∀ {R K K' : Type u} [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     [Field K'] [Algebra K K'] [Algebra R K'] [IsScalarTower R K K']
-    (C : SchemeOverField K') :
+    (C : SchemeOverField K'),
     hasSemistableReductionAtMaximal R K K' C ↔
       ∀ m : MaximalSpectrum (integralClosure R K'),
-        Nonempty (SemistableReductionBranch R K K' C m) := sorry
+        Nonempty (SemistableReductionBranch R K K' C m))
 
-/-- The scheme-theoretic special fibre of a semistable model over a local base. -/
-noncomputable def specialFiber (R K : Type u) [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.specialFiber :
+  ∀ (R K : Type u) [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
-    (M : SemistableModel R K C) : Scheme :=
-  M.regularModel.base.fiber (IsLocalRing.closedPoint R)
+    (M : SemistableModel R K C),
+    Scheme)
 
-/-- The named special fibre is the fibre over the closed point of the local base. -/
-theorem specialFiber_def {R K : Type u} [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.specialFiber_def :
+  ∀ {R K : Type u} [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
-    (M : SemistableModel R K C) :
+    (M : SemistableModel R K C),
     specialFiber R K M =
-      M.regularModel.base.fiber (IsLocalRing.closedPoint R) := sorry
+      M.regularModel.base.fiber (IsLocalRing.closedPoint R))
 
-/-- The special fibre with its canonical structure over the residue field of the local base. -/
-noncomputable def specialFiberOverResidueField (R K : Type u) [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.specialFiberOverResidueField :
+  ∀ (R K : Type u) [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
-    (M : SemistableModel R K C) :=
-  Over.mk (M.regularModel.base.fiberOverSpecResidueField (IsLocalRing.closedPoint R)).hom
+    (M : SemistableModel R K C),
+    SchemeOverField ((Spec (CommRingCat.of R)).residueField (IsLocalRing.closedPoint R)))
 
-/-- The residue-field special fibre has the canonical fibre structural morphism. -/
-theorem specialFiberOverResidueField_def {R K : Type u} [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.specialFiberOverResidueField_def :
+  ∀ {R K : Type u} [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
-    (M : SemistableModel R K C) :
+    (M : SemistableModel R K C),
     (specialFiberOverResidueField R K M).hom =
-      (M.regularModel.base.fiberOverSpecResidueField (IsLocalRing.closedPoint R)).hom := sorry
+      (M.regularModel.base.fiberOverSpecResidueField (IsLocalRing.closedPoint R)).hom)
 
-/-- A local semistable model has smooth genus-one special fibre when its canonical fibre over the
-residue field is a smooth projective curve with constant global functions and genus one. -/
-def SmoothGenusOneFiber (R K : Type u) [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.SemistableModel.specialFiber_isNoetherian :
+  ∀ {R K : Type u} [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
-    (M : SemistableModel R K C) : Prop :=
-  let X := specialFiberOverResidueField R K M
-  ∃ (h_curve : Curve X) (h_smooth : Smooth X.hom) (h_projective : Projective X.hom)
-    (h_proper : IsProper X.hom)
-    (hΓ : Function.Bijective (Scheme.Hom.globalSectionsMap X.hom)),
-    @SchemeOverField.genus _ inferInstance X h_proper
-      (@topologicalKrullDim_eq_one _ inferInstance X h_curve) hΓ = 1
+    (model : SemistableModel R K C),
+    IsNoetherian (specialFiberOverResidueField R K model).left)
 
-/-- The smooth-genus-one predicate exposes all properties of the residue-field special fibre. -/
-theorem SmoothGenusOneFiber_iff {R K : Type u} [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.SmoothGenusOneFiber :
+  ∀ (R K : Type u) [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
-    (M : SemistableModel R K C) :
+    (M : SemistableModel R K C),
+    Prop)
+
+#check (AlgebraicGeometry.Scheme.Hom.SmoothGenusOneFiber_iff :
+  ∀ {R K : Type u} [CommRing R] [IsDomain R]
+    [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
+    {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
+    (M : SemistableModel R K C),
     SmoothGenusOneFiber R K M ↔
       let X := specialFiberOverResidueField R K M
       ∃ (h_curve : Curve X) (h_smooth : Smooth X.hom) (h_projective : Projective X.hom)
         (h_proper : IsProper X.hom)
         (hΓ : Function.Bijective (Scheme.Hom.globalSectionsMap X.hom)),
         @SchemeOverField.genus _ inferInstance X h_proper
-          (@topologicalKrullDim_eq_one _ inferInstance X h_curve) hΓ = 1 := sorry
+          (@topologicalKrullDim_eq_one _ inferInstance X h_curve) hΓ = 1)
 
-/-- An explicit rationality witness for a scheme over a fixed field. -/
-structure RationalCurve (k : Type u) [Field k] (X : SchemeOverField k) where
-  /-- The projective-line isomorphism over the chosen base field. -/
-  iso : X ≅ ProjectiveSpace.schemeOver k 1
-
-/-- Construct a rational-curve witness from its projective-line isomorphism. -/
-def RationalCurve.ofIso {k : Type u} [Field k] {X : SchemeOverField k}
-    (e : X ≅ ProjectiveSpace.schemeOver k 1) : RationalCurve k X :=
-  { iso := e }
-
-/-- The rational-curve witness is equivalent to an isomorphism with the projective line over `k`. -/
-theorem RationalCurve_iff {k : Type u} [Field k] (X : SchemeOverField k) :
-    Nonempty (RationalCurve k X) ↔
-      Nonempty (X ≅ ProjectiveSpace.schemeOver k 1) := sorry
-
-/-- Concrete component, rationality, and exact nodal-incidence data for a cycle of rational
-curves over the residue field of the special fibre. -/
-structure RationalCycleWitness (k : Type u) [Field k] (X : SchemeOverField k) where
-  /-- The number of irreducible components in the cycle. -/
-  n : ℕ
-  /-- A cycle contains at least one irreducible component. -/
-  n_pos : 0 < n
-  /-- An enumeration of all irreducible components. -/
-  components : Fin n ≃ irreducibleComponents X.left
-  /-- Every enumerated component is a rational curve over the residue field. -/
-  rational : ∀ i, RationalCurve k
-    (Over.mk (X.left.irreducibleComponentSubschemeι (components i) ≫ X.hom))
-  /-- The cyclic successor permutation on the components. -/
-  next : Equiv.Perm (Fin n)
-  /-- Iterating the successor reaches every component from every other component. -/
-  next_transitive : ∀ i j, ∃ r : ℕ, r < n ∧ (next^[r]) i = j
-  /-- The nodal intersection following each component in the cycle. -/
-  node : Fin n → X.left
-  /-- Distinct cycle edges have distinct nodes. -/
-  node_injective : Function.Injective node
-  /-- Each displayed intersection point is nodal. -/
-  node_nodal : ∀ i, IsNodalLocalRing (X.left.presheaf.stalk (node i))
-  /-- The node following a component lies on that component. -/
-  node_mem : ∀ i, node i ∈ (components i : Set X.left)
-  /-- The same node lies on the successor component. -/
-  node_mem_next : ∀ i, node i ∈ (components (next i) : Set X.left)
-  /-- The intersection of two distinct components consists exactly of their recorded cycle
-  nodes, so there are no additional intersections or parallel unrecorded nodes. -/
-  component_intersection : ∀ i j, i ≠ j →
-    (components i : Set X.left) ∩ (components j : Set X.left) =
-      {x | (next i = j ∧ x = node i) ∨ (next j = i ∧ x = node j)}
-
-/-- Construct a rational-cycle witness from its component, rationality, and incidence data. -/
-def RationalCycleWitness.ofData {k : Type u} [Field k] {X : SchemeOverField k}
-    (n : ℕ) (n_pos : 0 < n)
-    (components : Fin n ≃ irreducibleComponents X.left)
-    (h_rational : ∀ i, RationalCurve k
-      (Over.mk (X.left.irreducibleComponentSubschemeι (components i) ≫ X.hom)))
-    (next : Equiv.Perm (Fin n))
-    (h_next : ∀ i j, ∃ r : ℕ, r < n ∧ (next^[r]) i = j)
-    (node : Fin n → X.left)
-    (h_node_injective : Function.Injective node)
-    (h_node_nodal : ∀ i, IsNodalLocalRing (X.left.presheaf.stalk (node i)))
-    (h_node_mem : ∀ i, node i ∈ (components i : Set X.left))
-    (h_node_mem_next : ∀ i, node i ∈ (components (next i) : Set X.left))
-    (h_intersection : ∀ i j, i ≠ j →
-      (components i : Set X.left) ∩ (components j : Set X.left) =
-        {x | (next i = j ∧ x = node i) ∨ (next j = i ∧ x = node j)}) :
-    RationalCycleWitness k X :=
-  { n := n
-    n_pos := n_pos
-    components := components
-    rational := h_rational
-    next := next
-    next_transitive := h_next
-    node := node
-    node_injective := h_node_injective
-    node_nodal := h_node_nodal
-    node_mem := h_node_mem
-    node_mem_next := h_node_mem_next
-    component_intersection := h_intersection }
-
-/-- The two source alternatives for the special fibre of a minimal genus-one model. -/
-def GenusOneMinimalFiberShape (R K : Type u) [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.GenusOneMinimalFiberShape :
+  ∀ (R K : Type u) [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
-    (M : SemistableModel R K C) : Prop :=
-  IsMinimalModel M.regularModel.base ∧
-    (SmoothGenusOneFiber R K M ∨
-      Nonempty (RationalCycleWitness
-        ((Spec (CommRingCat.of R)).residueField (IsLocalRing.closedPoint R))
-        (specialFiberOverResidueField R K M)))
+    (M : SemistableModel R K C),
+    Prop)
 
-/-- The genus-one minimal-fibre predicate exposes the minimality and smooth-versus-cycle split. -/
-theorem GenusOneMinimalFiberShape_iff {R K : Type u} [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.GenusOneMinimalFiberShape_iff :
+  ∀ {R K : Type u} [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
-    (M : SemistableModel R K C) :
+    (M : SemistableModel R K C),
     GenusOneMinimalFiberShape R K M ↔
       IsMinimalModel M.regularModel.base ∧
         (SmoothGenusOneFiber R K M ∨
           Nonempty (RationalCycleWitness
             ((Spec (CommRingCat.of R)).residueField (IsLocalRing.closedPoint R))
-            (specialFiberOverResidueField R K M))) := sorry
+            (specialFiberOverResidueField R K M)
+            (noetherian := SemistableModel.specialFiber_isNoetherian M))))
 
-/-- The genus-one special-fibre shape attached to a maximal-localization branch. -/
-def SemistableReductionBranch.genusOneShape {R K K' : Type u} [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.SemistableReductionBranch.genusOneShape :
+  ∀ {R K K' : Type u} [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     [Field K'] [Algebra K K'] [Algebra R K'] [IsScalarTower R K K']
     {C : SchemeOverField K'} (m : MaximalSpectrum (integralClosure R K'))
-    (B : SemistableReductionBranch R K K' C m) : Prop :=
-  @GenusOneMinimalFiberShape (Localization.AtPrime m.asIdeal) K'
-    inferInstance inferInstance B.localDVR inferInstance B.localAlgebra B.localFraction C
-      B.curve B.smooth B.projective B.model
+    (B : SemistableReductionBranch R K K' C m),
+    Prop)
 
-/-- Minimality of the semistable model stored by a maximal-localization branch. -/
-def SemistableReductionBranch.isMinimal {R K K' : Type u} [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.SemistableReductionBranch.isMinimal :
+  ∀ {R K K' : Type u} [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     [Field K'] [Algebra K K'] [Algebra R K'] [IsScalarTower R K K']
     {C : SchemeOverField K'} (m : MaximalSpectrum (integralClosure R K'))
-    (B : SemistableReductionBranch R K K' C m) : Prop :=
-  @SemistableModel.isMinimal (Localization.AtPrime m.asIdeal) K'
-    inferInstance inferInstance B.localDVR inferInstance B.localAlgebra B.localFraction C
-      B.curve B.smooth B.projective B.model
+    (B : SemistableReductionBranch R K K' C m),
+    Prop)
 
-/-- Branch minimality is exactly minimality of the branch's stored model morphism. -/
-theorem SemistableReductionBranch.isMinimal_iff {R K K' : Type u} [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.SemistableReductionBranch.isMinimal_iff :
+  ∀ {R K K' : Type u} [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     [Field K'] [Algebra K K'] [Algebra R K'] [IsScalarTower R K K']
     {C : SchemeOverField K'} (m : MaximalSpectrum (integralClosure R K'))
-    (B : SemistableReductionBranch R K K' C m) :
+    (B : SemistableReductionBranch R K K' C m),
     SemistableReductionBranch.isMinimal m B ↔
       @SemistableModel.isMinimal (Localization.AtPrime m.asIdeal) K'
         inferInstance inferInstance B.localDVR inferInstance B.localAlgebra B.localFraction C
-          B.curve B.smooth B.projective B.model := sorry
+          B.curve B.smooth B.projective B.model)
 
-/-- The branch-level shape bridge unfolds to the selected model's minimal special-fibre shape. -/
-theorem SemistableReductionBranch.genusOneShape_iff {R K K' : Type u} [CommRing R] [IsDomain R]
+#check (AlgebraicGeometry.Scheme.Hom.SemistableReductionBranch.genusOneShape_iff :
+  ∀ {R K K' : Type u} [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     [Field K'] [Algebra K K'] [Algebra R K'] [IsScalarTower R K K']
     {C : SchemeOverField K'} (m : MaximalSpectrum (integralClosure R K'))
-    (B : SemistableReductionBranch R K K' C m) :
+    (B : SemistableReductionBranch R K K' C m),
     SemistableReductionBranch.genusOneShape m B ↔
       @GenusOneMinimalFiberShape (Localization.AtPrime m.asIdeal) K'
         inferInstance inferInstance B.localDVR inferInstance B.localAlgebra B.localFraction C
-          B.curve B.smooth B.projective B.model := sorry
+          B.curve B.smooth B.projective B.model)
 
-end AlgebraicGeometry.Scheme.Hom
+#check (AlgebraicGeometry.Scheme.Hom.SemistableReductionBranch.allMinimalModelsHaveGenusOneShape :
+  ∀ {R K K' : Type u} [CommRing R] [IsDomain R]
+    [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
+    [Field K'] [Algebra K K'] [Algebra R K'] [IsScalarTower R K K']
+    {C : SchemeOverField K'} (m : MaximalSpectrum (integralClosure R K'))
+    (branch : SemistableReductionBranch R K K' C m), Prop)
+
+#check (AlgebraicGeometry.Scheme.Hom.SemistableReductionBranch.allMinimalModelsHaveGenusOneShape_iff :
+  ∀ {R K K' : Type u} [CommRing R] [IsDomain R]
+    [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
+    [Field K'] [Algebra K K'] [Algebra R K'] [IsScalarTower R K K']
+    {C : SchemeOverField K'} (m : MaximalSpectrum (integralClosure R K'))
+    (branch : SemistableReductionBranch R K K' C m),
+    SemistableReductionBranch.allMinimalModelsHaveGenusOneShape m branch ↔
+      ∀ model : @RegularModel (Localization.AtPrime m.asIdeal) K'
+          inferInstance inferInstance branch.localDVR inferInstance branch.localAlgebra
+            branch.localFraction C branch.curve branch.smooth branch.projective,
+        let modelBase := @RegularModel.base (Localization.AtPrime m.asIdeal) K'
+          inferInstance inferInstance branch.localDVR inferInstance branch.localAlgebra
+            branch.localFraction C branch.curve branch.smooth branch.projective model
+        let selectedModel := @SemistableModel.regularModel (Localization.AtPrime m.asIdeal) K'
+          inferInstance inferInstance branch.localDVR inferInstance branch.localAlgebra
+            branch.localFraction C branch.curve branch.smooth branch.projective branch.model
+        let selectedBase := @RegularModel.base (Localization.AtPrime m.asIdeal) K'
+          inferInstance inferInstance branch.localDVR inferInstance branch.localAlgebra
+            branch.localFraction C branch.curve branch.smooth branch.projective selectedModel
+        @IsMinimalModel (Localization.AtPrime m.asIdeal) inferInstance inferInstance
+      branch.localDVR _ modelBase →
+          ∃ nodal : AtWorstNodal modelBase,
+            @GenusOneMinimalFiberShape (Localization.AtPrime m.asIdeal) K'
+          inferInstance inferInstance branch.localDVR inferInstance branch.localAlgebra
+            branch.localFraction C branch.curve branch.smooth branch.projective
+              (@SemistableModel.ofRegularModel (Localization.AtPrime m.asIdeal) K'
+          inferInstance inferInstance branch.localDVR inferInstance branch.localAlgebra
+            branch.localFraction C branch.curve branch.smooth branch.projective model nodal) ∧
+              Nonempty (Over.mk modelBase ≅ Over.mk selectedBase))

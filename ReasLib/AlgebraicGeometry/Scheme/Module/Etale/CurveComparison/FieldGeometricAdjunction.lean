@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.FieldModuleDescent
@@ -43,7 +37,7 @@ def pointedLift (U : (Spec (.of k)).Etale) (x : (FieldModuleDescent.point k).fib
 
 /-- The same pointing as a section of the geometrically pulled-back etale object. -/
 def pointedSection (U : (Spec (.of k)).Etale) (x : (FieldModuleDescent.point k).fiber.obj U) :
-    globalEtale (geometricBaseChange X) ⟶
+    AlgebraicGeometry.Scheme.Etale.globalEtale (geometricBaseChange X) ⟶
       (smallEtalePullback (geometricToArithmeticHom X)).obj (pulledObject X U) :=
   MorphismProperty.Over.homMk
     (pullback.lift (pointedLift X U x) (𝟙 (geometricBaseChange X)) (by sorry)) (by sorry)

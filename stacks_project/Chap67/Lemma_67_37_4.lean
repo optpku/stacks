@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Data.List.TFAE
-public import stacks_project.Chap67.Lemma_67_37_4_Smooth
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Smooth
+import StacksCheckRecall
 
 /-!
 # Characterizations of smoothness for morphisms of algebraic spaces
@@ -17,23 +11,15 @@ public import stacks_project.Chap67.Lemma_67_37_4_Smooth
 
 open CategoryTheory AlgebraicGeometry AlgebraicSpace
 
-universe u
+universe u v
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 67.37.4: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
-algebraic spaces over `S`. The following are equivalent: `f` is smooth; `f` is
-smooth at every point of `X`; every base change of `f` along a morphism from a
-scheme is smooth; every base change of `f` along a morphism from an affine
-scheme is smooth; there is a surjective étale morphism from a scheme to `Y`
-along which the base change of `f` is smooth; there is a surjective étale
-morphism `φ` from a scheme to `X` with `φ ≫ f` smooth; every étale scheme
-square over `f` has smooth top arrow; some étale scheme square over `f` with
-surjective vertical source arrow has smooth top arrow; and there are Zariski
-coverings of `Y` and of the inverse images in `X` on which the pieces of `f`
-are smooth. -/
-@[stacks 03ZF]
-theorem smooth_tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+/- Lemma 67.37.4: For a morphism of algebraic spaces over a scheme, smoothness,
+pointwise smoothness, the scheme and affine-scheme base-change tests, the
+surjective étale target and source cover tests, the universal and existential
+étale scheme-square tests, and smoothness on Zariski covers of the target and
+its inverse images are equivalent. -/
+@[stacks 03ZF] #check (AlgebraicGeometry.AlgebraicSpace.smooth_tfae :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
     List.TFAE
       [ Smooth f
       , ∀ x : Points X, SmoothAt f x
@@ -43,7 +29,4 @@ theorem smooth_tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
       , Smooth.existsSurjectiveEtaleSource f
       , Smooth.forallEtaleSquare f
       , Smooth.existsEtaleSquare f
-      , Smooth.existsZariskiCover f ] :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+      , Smooth.existsZariskiCover.{u, v} f ])

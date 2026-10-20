@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap99.«99_9_1_1_Functor»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Hilbert.Functor
 
 @[expose] public section
 
@@ -23,4 +17,6 @@ morphism `f : X ⟶ B` of finite presentation of algebraic spaces over a scheme
 `Z ⊂ X_T = X ×_B T` such that `Z ⟶ T` is of finite presentation, flat, and
 proper. Base change of those properties yields a functor
 `(Sch/B)ᵒᵖ ⥤ Sets`. -/
-@[stacks 0CZZ] #check AlgebraicGeometry.AlgebraicSpace.Hilbert.hilbert
+@[stacks 0CZZ] #check (AlgebraicGeometry.AlgebraicSpace.Hilbert.hilbert :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B) [FinitePresentation f],
+    (SchemeOver B)ᵒᵖ ⥤ Type (u + 1))

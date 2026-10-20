@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.Henselian.Criteria
@@ -42,8 +36,8 @@ theorem existsFinitePartDecomposition
       ∃ E : HenselianLocalRing.FiniteProduct R D.finitePart,
         (∀ i : E.index,
           RingHom.ResidueField.FinitePurelyInseparable
-            (algebraMap R (E.factor i))
-            (Algebra.isLocalHom_of_moduleFinite (R := R) (S := E.factor i))) ∧
+            (algebraMap R (E.factorObj i))
+            (Algebra.isLocalHom_of_moduleFinite (R := R) (S := E.factorObj i))) ∧
           D.noQuasiFinitePoints (closedPoint R) := sorry
 
 end StrictHenselianLocalRing.FiniteType

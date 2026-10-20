@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Data.List.TFAE
@@ -282,6 +276,9 @@ theorem iff_finiteKernelFactorization :
   rw [← FiniteKernelFactorization.iff_ulift (R := R) (M := N)]
   constructor
   · rintro ⟨⟨P⟩⟩
+    letI : Preorder P.index := P.indexPreorder
+    letI : Nonempty P.index := P.indexNonempty
+    letI : IsDirectedOrder P.index := P.indexDirected
     exact (Presentation.kernelFactorization_iff_homMittagLeffler
       P.toColimitPresentation P.isMittagLeffler.finitePresentation).2
         P.isMittagLeffler.homMittagLeffler

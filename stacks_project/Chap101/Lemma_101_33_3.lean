@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_33_3_BaseChange
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Smooth.BaseChange
 
 /-!
 # Base change of smooth morphisms of algebraic stacks
@@ -22,19 +17,22 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.Smooth
-
-/-- Lemma 101.33.3: A base change of a smooth morphism is smooth.
-
-Stacks writes the base change as `Y' ×_Y X ⟶ Y'`; the Lean projection is
-`TwoFibreProduct.snd f g` of a smooth morphism `f : X ⟶ Y` along a test
-morphism `g : Z ⟶ Y`. -/
-@[stacks 075W]
-instance twoFibreProduct_snd {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+/- Lemma 101.33.3: A base change of a smooth morphism is smooth. -/
+@[stacks 075W] #check (AlgebraicGeometry.AlgebraicStack.Smooth.twoFibreProduct_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Z ⟶ Y) [Smooth f]
-    [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)] :
-    Smooth (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g) :=
-  sorry
+    (f : X ⟶ Y) (g : Z ⟶ Y) [AlgebraicStack.Smooth f],
+    AlgebraicStack.Smooth (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g))
 
-end AlgebraicGeometry.AlgebraicStack.Smooth
+#check (AlgebraicGeometry.AlgebraicStack.Smooth.of_isBilimit :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
+    {f : X ⟶ Y} {g : Z ⟶ Y} [AlgebraicStack.Smooth f]
+    (c : PseudoPullbackCone f g) [AlgebraicStack c.pt] (hc : c.IsBilimit),
+    AlgebraicStack.Smooth c.snd)
+
+#check (AlgebraicGeometry.AlgebraicStack.Smooth.twoFibreProduct_fst :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
+    (f : X ⟶ Y) (g : Z ⟶ Y) [AlgebraicStack.Smooth g],
+    AlgebraicStack.Smooth (TwoFibreProduct.fst.{u + 1, u, u + 1, u} f g))

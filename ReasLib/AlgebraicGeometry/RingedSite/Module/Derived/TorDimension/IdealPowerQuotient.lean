@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Ideal.Quotient
@@ -31,6 +25,11 @@ noncomputable section
 universe u v w
 
 namespace SheafOfModules.RingedSite.IdealSheaf.PowerQuotient
+
+-- Use the existing standard derived model and the native tensor totalizations.
+attribute [local instance] RingedSite.Hom.moduleCat_hasDerivedCategory
+  RingedSite.Hom.RingPresentation.moduleHasDerivedCategory
+  SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
 
 variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
 variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
@@ -92,18 +91,13 @@ preserved after reduction modulo every positive power of `I`. -/
 @[stacks 0942 "(2)"]
 theorem pullbackDerived_hasTorAmplitudeIn
     (I : Subobject (unitModule J O))
+    [∀ n : ℕ, DerivedCategory.DerivedTensor.Right.Has
+      (C := ringedSiteModuleCategory.{u, v, w, w} J (sheaf I n))]
     (K : ModuleDerived.{w} (RingedSite.ofCommRingSheaf J O)) (a b : ℤ)
-    (hModI : @DerivedCategory.DerivedTensor.HasTorAmplitudeIn
-      (ringedSite I 1).ModuleCat _ _
-      (moduleCategoryHasDerivedCategory (𝒪 := sheaf I 1)) _ _
-      (moduleCategoryHasMapBifunctor (sheaf I 1))
-      (moduleCategoryHasDerivedTensor (sheaf I 1)).right
-      ((pullbackDerived I 1).obj K) a b)
+    (hModI : RingedSite.Hom.ModuleDerived.HasTorAmplitudeIn
+      (O := sheaf I 1) ((pullbackDerived I 1).obj K) a b)
     (n : ℕ+) :
-    @DerivedCategory.DerivedTensor.HasTorAmplitudeIn (ringedSite I n).ModuleCat _ _
-      (moduleCategoryHasDerivedCategory (𝒪 := sheaf I n)) _ _
-      (moduleCategoryHasMapBifunctor (sheaf I n))
-      (moduleCategoryHasDerivedTensor (sheaf I n)).right
-      ((pullbackDerived I n).obj K) a b := sorry
+    RingedSite.Hom.ModuleDerived.HasTorAmplitudeIn
+      (O := sheaf I n) ((pullbackDerived I n).obj K) a b := sorry
 
 end SheafOfModules.RingedSite.IdealSheaf.PowerQuotient

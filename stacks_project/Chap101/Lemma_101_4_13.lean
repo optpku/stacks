@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_4_13_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Separation.Comparison
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +14,7 @@ universe u
 /- Lemma 101.4.13 (1): an algebraic stack over `S` is DM if and only if it is
 DM over `S`. -/
 @[stacks 050N] #check
-  (IsDM.iff_over :
+  (AlgebraicGeometry.AlgebraicStack.IsDM.iff_over :
     ∀ {S : Scheme.{u}} (X : GroupoidsOver S)
       [AlgebraicStack X],
       IsDM X ↔ IsDMOver X)
@@ -28,7 +22,7 @@ DM over `S`. -/
 /- Lemma 101.4.13 (2): an algebraic stack over `S` is quasi-DM if and only if
 it is quasi-DM over `S`. -/
 @[stacks 050N] #check
-  (IsQuasiDM.iff_over :
+  (AlgebraicGeometry.AlgebraicStack.IsQuasiDM.iff_over :
     ∀ {S : Scheme.{u}} (X : GroupoidsOver S)
       [AlgebraicStack X],
       IsQuasiDM X ↔ IsQuasiDMOver X)
@@ -36,7 +30,7 @@ it is quasi-DM over `S`. -/
 /- Lemma 101.4.13 (3): if an algebraic stack over `S` is separated, then it is
 separated over `S`. -/
 @[stacks 050N] #check
-  (IsSeparatedOver.of_isSeparated :
+  (AlgebraicGeometry.AlgebraicStack.IsSeparatedOver.of_isSeparated :
     ∀ {S : Scheme.{u}} (X : GroupoidsOver S)
       [AlgebraicStack X] [IsSeparated X],
       IsSeparatedOver X)
@@ -44,7 +38,7 @@ separated over `S`. -/
 /- Lemma 101.4.13 (4): if an algebraic stack over `S` is quasi-separated, then
 it is quasi-separated over `S`. -/
 @[stacks 050N] #check
-  (IsQuasiSeparatedOver.of_isQuasiSeparated :
+  (AlgebraicGeometry.AlgebraicStack.IsQuasiSeparatedOver.of_isQuasiSeparated :
     ∀ {S : Scheme.{u}} (X : GroupoidsOver S)
       [AlgebraicStack X] [IsQuasiSeparated X],
       IsQuasiSeparatedOver X)
@@ -52,7 +46,7 @@ it is quasi-separated over `S`. -/
 /- Lemma 101.4.13 (5): if `X` is DM over `S`, then a morphism `f : X ⟶ Y` of
 algebraic stacks over `S` is DM. -/
 @[stacks 050N] #check
-  (DM.of_isDMOver :
+  (AlgebraicGeometry.AlgebraicStack.DM.of_isDMOver :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y]
       (f : X ⟶ Y)
@@ -62,7 +56,7 @@ algebraic stacks over `S` is DM. -/
 /- Lemma 101.4.13 (6): if `X` is quasi-DM over `S`, then a morphism
 `f : X ⟶ Y` of algebraic stacks over `S` is quasi-DM. -/
 @[stacks 050N] #check
-  (QuasiDM.of_isQuasiDMOver :
+  (AlgebraicGeometry.AlgebraicStack.QuasiDM.of_isQuasiDMOver :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y]
       (f : X ⟶ Y)
@@ -73,7 +67,7 @@ algebraic stacks over `S` is DM. -/
 separated, then a morphism `f : X ⟶ Y` of algebraic stacks over `S` is
 separated. -/
 @[stacks 050N] #check
-  (Separated.of_isSeparatedOver :
+  (AlgebraicGeometry.AlgebraicStack.Separated.of_isSeparatedOver :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y]
       (f : X ⟶ Y)
@@ -86,7 +80,7 @@ separated. -/
 quasi-separated, then a morphism `f : X ⟶ Y` of algebraic stacks over `S` is
 quasi-separated. -/
 @[stacks 050N] #check
-  (QuasiSeparated.of_isQuasiSeparatedOver :
+  (AlgebraicGeometry.AlgebraicStack.QuasiSeparated.of_isQuasiSeparatedOver :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y]
       (f : X ⟶ Y)

@@ -1,23 +1,20 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Definition_90_19_5_AutFunctor
+public import ReasLib.CategoryTheory.Fibered.AutomorphismFunctor
 import StacksCheckRecall
 
 @[expose] public section
 
 open CategoryTheory
 
-/- Definition 90.19.5: if `p : F ⥤ C` is cofibered in groupoids and a choice of
-pushforwards has been made, the automorphism functor of `x : F` is
-`Functor.autFunctor p x : Under (p.obj x) ⥤ Type v`, sending `f : p.obj x ⟶ V` to
-`Aut (Chosen.pushforwardObj p f.hom (Fiber.ofObj p x))` in the fibre over `V` and
-sending an under-morphism to the homomorphism induced by
-`Chosen.pushforwardComparison`. -/
+universe u₁ v₁ u₂ v₂
+
+/- Definition 90.19.5: for a projection cofibered in groupoids and a supplied
+cleavage of its opposite, the automorphism functor sends an arrow under `p.obj x`
+to the automorphisms of its pushforward of `x` in the fibre over the codomain.
+Its maps are induced by the unique compatible pushforward comparison. -/
 @[stacks 06JT]
-#check Functor.autFunctor
+#check (CategoryTheory.Functor.Cleavage.autFunctor :
+  {C : Type u₁} → [Category.{v₁} C] → {F : Type u₂} → [Category.{v₂} F] →
+    {p : F ⥤ C} → [Functor.IsFibered.InGroupoids p.op] → (χ : p.op.Cleavage) →
+      (x : F) → Under (p.obj x) ⥤ Type v₂)

@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.Topology.RegularLocus
-public import stacks_project.Chap55.Example_55_10_3_Conic
-public import stacks_project.Chap55.Example_55_15_1_SumSquaresConic
-public import stacks_project.Chap55.Lemma_55_12_4
+public import ReasLib.AlgebraicGeometry.ProjectiveSpace.SumSquaresConic.RealModel
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -18,88 +10,108 @@ open scoped AlgebraicGeometry
 
 noncomputable section
 
-namespace AlgebraicGeometry.SumSquaresConic
+universe u
 
-/-- Example 55.15.1 (1): after coefficientwise extension to `ℂ[[X]]`, the real
-sum-of-squares conic is isomorphic over the base to the split conic. -/
-@[stacks 0CDL]
-theorem complexBaseChange_iso_splitConic :
-    Nonempty
-      (Over.mk (pullback.snd (toSpec (PowerSeries ℝ) PowerSeries.X)
-          (Spec.map (CommRingCat.ofHom complexPowerSeriesHom))) ≅
-        Over.mk (SplitConic.toSpec (PowerSeries ℂ) PowerSeries.X)) := sorry
+/- Example 55.15.1: the conic T₁² + T₂² = πT₀² over real power series is the unique
+minimal regular model of its generic fibre, with its given generic-fibre marking. -/
+@[stacks 0CDL] #check
+  (AlgebraicGeometry.SumSquaresConic.realRegularModel_unique :
+    ∀ (M : RegularModel (PowerSeries ℝ) (LaurentSeries ℝ)
+      AlgebraicGeometry.SumSquaresConic.realGenericFiber) [IsMinimalModel M.base],
+      RegularModel.Isomorphic AlgebraicGeometry.SumSquaresConic.realRegularModel M)
 
-/-- Example 55.15.1 (2): the sum-of-squares conic over `ℝ[[X]]` is regular. -/
-@[stacks 0CDL, instance]
-instance realModel_regular : Scheme.Regular (model (PowerSeries ℝ) PowerSeries.X) := sorry
+#check (AlgebraicGeometry.SumSquaresConic.equation :
+  ∀ (R : Type u) [CommRing R], R → MvPolynomial (Fin 3) R)
 
-/-- Example 55.15.1 (3): the special fibre over `ℝ` is irreducible. -/
-@[stacks 0CDL, instance]
-instance realSpecialFiber_irreducible :
-    IrreducibleSpace (specialFiber (PowerSeries ℝ) PowerSeries.X) := sorry
+#check (AlgebraicGeometry.SumSquaresConic.equationIdeal_toIdeal :
+  ∀ (R : Type u) [CommRing R] (π : R),
+    (AlgebraicGeometry.SumSquaresConic.equationIdeal R π).toIdeal =
+      Ideal.span ({AlgebraicGeometry.SumSquaresConic.equation R π} :
+        Set (MvPolynomial (Fin 3) R)))
 
-/-- Example 55.15.1 (4): the irreducible special fibre has a singular point. -/
-@[stacks 0CDL]
-theorem realSpecialFiber_singular :
-    (Sing(specialFiber (PowerSeries ℝ) PowerSeries.X)).Nonempty := sorry
+#check (AlgebraicGeometry.SumSquaresConic.toSpec :
+  ∀ (R : Type u) [CommRing R] (π : R),
+    AlgebraicGeometry.SumSquaresConic.model R π ⟶ Spec (CommRingCat.of R))
 
-/-- Example 55.15.1 (5): the sum-of-squares conic is a minimal model over `ℝ[[X]]`. -/
-@[stacks 0CDL, instance]
-instance realModel_isMinimal :
-    Scheme.Hom.IsMinimalModel (toSpec (PowerSeries ℝ) PowerSeries.X) := sorry
+#check (AlgebraicGeometry.SumSquaresConic.specialFiber_def :
+  ∀ (R : Type u) [CommRing R] (π : R) [IsLocalRing R],
+    AlgebraicGeometry.SumSquaresConic.specialFiber R π =
+      (AlgebraicGeometry.SumSquaresConic.toSpec R π).fiber (IsLocalRing.closedPoint R))
 
-/-- The generic fibre of the real sum-of-squares conic. -/
-abbrev realGenericFiber : SchemeOverField (LaurentSeries ℝ) :=
-  genericFiber (PowerSeries ℝ) PowerSeries.X (LaurentSeries ℝ)
+#check (AlgebraicGeometry.SumSquaresConic.genericFiber_def :
+  ∀ (R : Type u) [CommRing R] (π : R) (K : Type u)
+    [IsDomain R] [Field K] [Algebra R K] [IsFractionRing R K],
+    AlgebraicGeometry.SumSquaresConic.genericFiber R π K =
+      Over.mk (pullback.snd (AlgebraicGeometry.SumSquaresConic.toSpec R π)
+        (Spec.map (CommRingCat.ofHom (algebraMap R K)))))
 
-/-- The real generic fibre is a curve. -/
-instance realGenericFiber_curve : Curve realGenericFiber := sorry
+#check (PowerSeries.map_X (algebraMap ℝ ℂ) :
+  PowerSeries.map (algebraMap ℝ ℂ) PowerSeries.X = PowerSeries.X)
 
-/-- The real generic fibre is smooth. -/
-instance realGenericFiber_smooth : Smooth realGenericFiber.hom := sorry
+#check (AlgebraicGeometry.SumSquaresConic.complexFactorization :
+  (MvPolynomial.X 1 : MvPolynomial (Fin 3) (PowerSeries ℂ)) ^ 2 +
+      MvPolynomial.X 2 ^ 2 =
+    (MvPolynomial.X 1 + MvPolynomial.C (PowerSeries.C Complex.I) * MvPolynomial.X 2) *
+      (MvPolynomial.X 1 - MvPolynomial.C (PowerSeries.C Complex.I) * MvPolynomial.X 2))
 
-/-- The real generic fibre is projective. -/
-instance realGenericFiber_projective : Projective realGenericFiber.hom := sorry
+#check (AlgebraicGeometry.SumSquaresConic.complexBaseChange_iso_splitConic :
+  Nonempty
+    (Over.mk (pullback.snd
+        (AlgebraicGeometry.SumSquaresConic.toSpec (PowerSeries ℝ) PowerSeries.X)
+        (Spec.map (CommRingCat.ofHom (algebraMap (PowerSeries ℝ) (PowerSeries ℂ))))) ≅
+      Over.mk (AlgebraicGeometry.SplitConic.toSpec (PowerSeries ℂ) PowerSeries.X)))
 
-/-- The real generic fibre is proper. -/
-instance realGenericFiber_proper : IsProper realGenericFiber.hom := sorry
+#check (AlgebraicGeometry.SumSquaresConic.realModel_regular :
+  Scheme.Regular (AlgebraicGeometry.SumSquaresConic.model (PowerSeries ℝ) PowerSeries.X))
 
-/-- The global functions on the real generic fibre are exactly the ground field. -/
-theorem realGenericFiber_globalSections :
-    Function.Bijective (Scheme.Hom.globalSectionsMap realGenericFiber.hom) := sorry
+#check (AlgebraicGeometry.SumSquaresConic.realSpecialFiber_irreducible :
+  IrreducibleSpace
+    (AlgebraicGeometry.SumSquaresConic.specialFiber (PowerSeries ℝ) PowerSeries.X))
 
-/-- The real conic model is Noetherian. -/
-instance realModel_noetherian : IsNoetherian (model (PowerSeries ℝ) PowerSeries.X) := sorry
+#check (AlgebraicGeometry.SumSquaresConic.realSpecialFiber_singular :
+  (Sing(AlgebraicGeometry.SumSquaresConic.specialFiber (PowerSeries ℝ) PowerSeries.X)).Nonempty)
 
-/-- The concrete regular model marked by the identity on its generic fibre. -/
-def realRegularModel :
-    RegularModel (PowerSeries ℝ) (LaurentSeries ℝ) realGenericFiber :=
-  RegularModel.ofData (model (PowerSeries ℝ) PowerSeries.X)
-    (toSpec (PowerSeries ℝ) PowerSeries.X) inferInstance inferInstance inferInstance
-    inferInstance inferInstance (Iso.refl _)
+#check (AlgebraicGeometry.SumSquaresConic.realModel_isMinimal :
+  Scheme.Hom.IsMinimalModel
+    (AlgebraicGeometry.SumSquaresConic.toSpec (PowerSeries ℝ) PowerSeries.X))
 
-/-- The structural morphism underlying `realRegularModel` is the concrete conic morphism. -/
-theorem realRegularModel_base :
-    realRegularModel.base = toSpec (PowerSeries ℝ) PowerSeries.X := sorry
+#check (AlgebraicGeometry.SumSquaresConic.realGenericFiber : SchemeOverField (LaurentSeries ℝ))
 
-/-- Example 55.15.1 (6): every minimal regular model of the real generic conic is
-isomorphic to the concrete sum-of-squares model, compatibly with its generic-fibre marking. -/
-@[stacks 0CDL]
-theorem realRegularModel_unique
-    (M : RegularModel (PowerSeries ℝ) (LaurentSeries ℝ) realGenericFiber)
-    [IsMinimalModel M.base] :
-    RegularModel.Isomorphic realRegularModel M := sorry
+#check (AlgebraicGeometry.SumSquaresConic.realGenericFiber_curve :
+  Curve AlgebraicGeometry.SumSquaresConic.realGenericFiber)
 
-/-- Example 55.15.1 (7): the real generic conic has genus zero. -/
-@[stacks 0CDL]
-theorem realGenericFiber_genus_zero :
-    SchemeOverField.genus realGenericFiber (topologicalKrullDim_eq_one realGenericFiber)
-      realGenericFiber_globalSections = 0 := sorry
+#check (AlgebraicGeometry.SumSquaresConic.realGenericFiber_smooth :
+  Smooth AlgebraicGeometry.SumSquaresConic.realGenericFiber.hom)
 
-/-- Example 55.15.1 (8): the genus-zero real generic conic is not already a projective line
-over `ℝ((X))`. -/
-@[stacks 0CDL]
-theorem realGenericFiber_not_iso_projectiveLine :
-    ¬ Nonempty (realGenericFiber ≅ ProjectiveSpace.schemeOver (LaurentSeries ℝ) 1) := sorry
+#check (AlgebraicGeometry.SumSquaresConic.realGenericFiber_projective :
+  Projective AlgebraicGeometry.SumSquaresConic.realGenericFiber.hom)
 
-end AlgebraicGeometry.SumSquaresConic
+#check (AlgebraicGeometry.SumSquaresConic.realGenericFiber_proper :
+  IsProper AlgebraicGeometry.SumSquaresConic.realGenericFiber.hom)
+
+#check (AlgebraicGeometry.SumSquaresConic.realGenericFiber_globalSections :
+  Function.Bijective
+    (Scheme.Hom.globalSectionsMap AlgebraicGeometry.SumSquaresConic.realGenericFiber.hom))
+
+#check (AlgebraicGeometry.SumSquaresConic.realModel_noetherian :
+  IsNoetherian (AlgebraicGeometry.SumSquaresConic.model (PowerSeries ℝ) PowerSeries.X))
+
+#check (AlgebraicGeometry.SumSquaresConic.realRegularModel :
+  RegularModel (PowerSeries ℝ) (LaurentSeries ℝ) AlgebraicGeometry.SumSquaresConic.realGenericFiber)
+
+#check (AlgebraicGeometry.SumSquaresConic.realRegularModel_base :
+  AlgebraicGeometry.SumSquaresConic.realRegularModel.base =
+    AlgebraicGeometry.SumSquaresConic.toSpec (PowerSeries ℝ) PowerSeries.X)
+
+#check (AlgebraicGeometry.SumSquaresConic.realGenericFiber_genus_zero :
+  SchemeOverField.genus AlgebraicGeometry.SumSquaresConic.realGenericFiber
+    (topologicalKrullDim_eq_one AlgebraicGeometry.SumSquaresConic.realGenericFiber)
+    AlgebraicGeometry.SumSquaresConic.realGenericFiber_globalSections = 0)
+
+#check (AlgebraicGeometry.SumSquaresConic.realGenericFiber_not_iso_projectiveLine :
+  ¬ Nonempty (AlgebraicGeometry.SumSquaresConic.realGenericFiber ≅
+    ProjectiveSpace.schemeOver (LaurentSeries ℝ) 1))
+
+#check (AlgebraicGeometry.SumSquaresConic.realGenericFiber_not_hasGoodReduction :
+  ¬ Scheme.Hom.hasGoodReduction (PowerSeries ℝ) (LaurentSeries ℝ)
+    AlgebraicGeometry.SumSquaresConic.realGenericFiber)

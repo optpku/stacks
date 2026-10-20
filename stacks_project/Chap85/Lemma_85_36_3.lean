@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_36_2_Hypercovering
-public import stacks_project.Chap85.Lemma_85_33_3_Adjunction
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Simplicial.ProperCohomologicalDescent
+import StacksCheckRecall
 
 /-!
 # Lemma 85.36.3
@@ -22,36 +15,29 @@ isomorphism, where `a` is the Section 85.32 spaces-étale augmentation.
 
 universe u
 
-open CategoryTheory CategoryTheory.Limits Opposite AlgebraicGeometry
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.Simplicial
-open Functor
-open scoped Simplicial MorphismOfTopoiIn
+open scoped Simplicial
 
-noncomputable section
-
-namespace AlgebraicGeometry.AlgebraicSpace.Simplicial
-
-variable {S : Scheme.{u}} {X : AlgebraicSpace S}
-variable {U : SimplicialObject (AlgebraicSpace S)}
-variable (a : U ⟶ (const SimplexCategoryᵒᵖ).obj X)
-
-/-- Lemma 85.36.3. Let `S` be a scheme, `X` an algebraic space over `S`, `U` a
+/- Lemma 85.36.3. Let `S` be a scheme, `X` an algebraic space over `S`, `U` a
 simplicial algebraic space over `S`, and `a : U ⟶ X` a proper hypercovering of
 `X`. Then for `K` in `D⁺(X_étale)` the canonical derived unit
 `K ⟶ Ra_*(a⁻¹ K)` is an isomorphism. Here `a : Sh(U_étale) ⟶ Sh(X_étale)` is the
-Section 85.32 spaces-étale augmentation, and the map is `(plusDerivedUnit a).app K`. -/
-@[stacks 0DHL]
-theorem properPlusDerivedUnit_app_isIso (ha : IsProperHypercovering a)
-    (K : DerivedCategory.Plus (Sheaf (spacesEtaleTopology X) AddCommGrpCat.{u + 1})) :
-    IsIso ((plusDerivedUnit a).app K) :=
-  sorry
+Section 85.32 spaces-étale augmentation, and the map is
+`(EtaleDerived.plusDerivedUnit a).app K`. -/
+@[stacks 0DHL] #check
+  (AlgebraicGeometry.AlgebraicSpace.Simplicial.properPlusDerivedUnit_app_isIso :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+      {U : SimplicialObject (AlgebraicSpace S)}
+      (a : U ⟶ (Functor.const SimplexCategoryᵒᵖ).obj X)
+      (ha : IsProperHypercovering a)
+      (K : DerivedCategory.Plus (Sheaf (spacesEtaleTopology X) AddCommGrpCat.{u + 1})),
+      IsIso ((EtaleDerived.plusDerivedUnit a).app K))
 
-/-- The derived unit `𝟭 ⟶ plusInverseImage a ⋙ plusDirectImage a` is an isomorphism
+/- The derived unit `𝟭 ⟶ a⁻¹ ⋙ Ra_*` is an isomorphism
 when `a` is a proper hypercovering. -/
-theorem properPlusDerivedUnit_isIso (ha : IsProperHypercovering a) :
-    IsIso (plusDerivedUnit a) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Simplicial
-
-end
+#check (AlgebraicGeometry.AlgebraicSpace.Simplicial.properPlusDerivedUnit_isIso :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+    {U : SimplicialObject (AlgebraicSpace S)}
+    (a : U ⟶ (Functor.const SimplexCategoryᵒᵖ).obj X)
+    (ha : IsProperHypercovering a), IsIso (EtaleDerived.plusDerivedUnit a))

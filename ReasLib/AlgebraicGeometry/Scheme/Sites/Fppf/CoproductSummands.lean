@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.Products
@@ -19,6 +13,15 @@ noncomputable section
 universe u v
 
 namespace AlgebraicGeometry
+
+/-- Every inclusion `F i ⟶ ∐ F` into an indexed coproduct of fppf sheaves is representable by
+open and closed immersions (the indexed form of Stacks 0F15, as used in 02WP). -/
+theorem sheafCoprodInj_isOpenAndClosedImmersion
+    {S : Scheme.{u}} {I : Type v}
+    {F : I → Sheaf (Scheme.fppfTopology.over S) (Type u)}
+    {c : Cofan F} (hc : IsColimit c) (i : I) :
+    (over ((@IsOpenImmersion : MorphismProperty Scheme.{u}) ⊓
+        (@IsClosedImmersion : MorphismProperty Scheme.{u}))).presheaf (c.inj i).hom := sorry
 
 /-- An indexed coproduct inclusion of fppf sheaves identified with a scheme is
 represented by an open and closed immersion. -/

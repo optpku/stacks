@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap62.Lemma_62_5_10_Family
@@ -26,18 +20,16 @@ universe u
 namespace AlgebraicGeometry.RelativeCycle
 
 /-- A family of `r`-cycles on the scheme-theoretic fibres of `f : X ⟶ S`. -/
-abbrev Family {X S : Scheme.{u}} (f : X ⟶ S) (r : ℕ) : Type u :=
+abbrev Family {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] (r : ℕ) : Type u :=
   familyOfCyclesOnFibres f r
 
 /-- Base change of a family of fibrewise `r`-cycles along `g : S' ⟶ S`. -/
-noncomputable abbrev baseChange {X S S' : Scheme.{u}} (f : X ⟶ S) (g : S' ⟶ S)
-    [LocallyOfFiniteType f] (r : ℕ) :
+noncomputable abbrev baseChange {X S S' : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] (g : S' ⟶ S) (r : ℕ) :
     Family f r →+ Family (pullback.snd f g) r :=
   FamilyOfCyclesOnFibres.baseChange f g r
 
 #check (AlgebraicGeometry.FamilyOfCyclesOnFibres.baseChange_apply :
-  ∀ {X S S' : Scheme.{u}} (f : X ⟶ S) (g : S' ⟶ S)
-    [LocallyOfFiniteType f] (r : ℕ) (α : Family f r) (s' : S'),
+  ∀ {X S S' : Scheme.{u}} (f : X ⟶ S) (g : S' ⟶ S) [LocallyOfFiniteType f] (r : ℕ) (α : Family f r) (s' : S'),
     baseChange f g r α s' =
       FamilyOfCyclesOnFibres.fiberBaseChange f g r s' (α (g s')))
 

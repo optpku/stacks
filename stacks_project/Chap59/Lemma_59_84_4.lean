@@ -1,27 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Basic
-public import Mathlib.Algebra.Module.Torsion.Basic
-public import Mathlib.AlgebraicGeometry.Morphisms.Etale
-public import Mathlib.AlgebraicGeometry.Morphisms.Proper
-public import Mathlib.AlgebraicGeometry.Morphisms.Separated
-public import Mathlib.CategoryTheory.Sites.ConstantSheaf
-public import Mathlib.CategoryTheory.Sites.SheafCohomology.Basic
-public import Mathlib.FieldTheory.IsAlgClosed.Basic
-public import Mathlib.RingTheory.Finiteness.Basic
-public import Mathlib.RingTheory.Noetherian.Basic
-public import Mathlib.Topology.KrullDimension
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Cohomology
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType
-public import ReasLib.AlgebraicGeometry.Scheme.OverField
-public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Basic
-public import stacks_project.Chap59.Definition_59_70_1_ExtensionByZero
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Cohomology.Curve.ConstantExtensionByZero
 
 @[expose] public section
 
@@ -33,13 +13,13 @@ universe u v
 
 namespace AlgebraicGeometry.Scheme.Etale
 
-/-- Lemma 59.84.4 (1): for a Noetherian ring `Λ`, a finite `Λ`-module `M` annihilated by an
+/- Lemma 59.84.4 (1): for a Noetherian ring `Λ`, a finite `Λ`-module `M` annihilated by an
 integer `n > 0`, an algebraically closed field `k`, a separated finite-type `k`-scheme
 `X` of dimension at most one, and an open immersion `j : U ⟶ X.left`, the étale
 cohomology of `j_!` of the constant sheaf of `M` is a finite `Λ`-module whenever `n`
 is a unit in `k`. -/
-@[stacks 0GJF]
-theorem etaleCohomology_extensionByZero_constant_finite_of_primeToChar
+@[stacks 0GJF] #check (AlgebraicGeometry.Scheme.Etale.etaleCohomology_extensionByZero_constant_finite_of_primeToChar :
+    ∀
     {Λ : Type u} [CommRing Λ] [IsNoetherianRing Λ]
     {M : Type (max u (v + 1))} [AddCommGroup M] [Module Λ M] [Module.Finite Λ M]
     {k : Type v} [Field k] [IsAlgClosed k]
@@ -55,20 +35,20 @@ theorem etaleCohomology_extensionByZero_constant_finite_of_primeToChar
     [HasSheafify X.left.smallEtaleTopology AddCommGrpCat.{max u (v + 1)}]
     [HasExt (Sheaf X.left.smallEtaleTopology AddCommGrpCat.{max u (v + 1)})]
     [HasSheafCompose X.left.smallEtaleTopology
-      (forget₂ (ModuleCat.{max u (v + 1)} Λ) AddCommGrpCat)] :
+      (forget₂ (ModuleCat.{max u (v + 1)} Λ) AddCommGrpCat)],
     Module.Finite Λ
       ((siteModuleCohomologyModuleFunctor q).obj
         ((etaleExtensionByZero j (ModuleCat.{max u (v + 1)} Λ)).obj
           ((constantSheaf U.smallEtaleTopology (ModuleCat.{max u (v + 1)} Λ)).obj
-            (.of Λ M)))) := sorry
+            (.of Λ M)))))
 
-/-- Lemma 59.84.4 (2): for a Noetherian ring `Λ`, a finite `Λ`-module `M` annihilated by an
+/- Lemma 59.84.4 (2): for a Noetherian ring `Λ`, a finite `Λ`-module `M` annihilated by an
 integer `n > 0`, an algebraically closed field `k`, a separated finite-type `k`-scheme
 `X` of dimension at most one, and an open immersion `j : U ⟶ X.left`, the étale
 cohomology of `j_!` of the constant sheaf of `M` is a finite `Λ`-module whenever `X`
 is proper over `k`. -/
-@[stacks 0GJF]
-theorem etaleCohomology_extensionByZero_constant_finite_of_isProper
+@[stacks 0GJF] #check (AlgebraicGeometry.Scheme.Etale.etaleCohomology_extensionByZero_constant_finite_of_isProper :
+    ∀
     {Λ : Type u} [CommRing Λ] [IsNoetherianRing Λ]
     {M : Type (max u (v + 1))} [AddCommGroup M] [Module Λ M] [Module.Finite Λ M]
     {k : Type v} [Field k] [IsAlgClosed k]
@@ -85,11 +65,11 @@ theorem etaleCohomology_extensionByZero_constant_finite_of_isProper
     [HasSheafify X.left.smallEtaleTopology AddCommGrpCat.{max u (v + 1)}]
     [HasExt (Sheaf X.left.smallEtaleTopology AddCommGrpCat.{max u (v + 1)})]
     [HasSheafCompose X.left.smallEtaleTopology
-      (forget₂ (ModuleCat.{max u (v + 1)} Λ) AddCommGrpCat)] :
+      (forget₂ (ModuleCat.{max u (v + 1)} Λ) AddCommGrpCat)],
     Module.Finite Λ
       ((siteModuleCohomologyModuleFunctor q).obj
         ((etaleExtensionByZero j (ModuleCat.{max u (v + 1)} Λ)).obj
           ((constantSheaf U.smallEtaleTopology (ModuleCat.{max u (v + 1)} Λ)).obj
-            (.of Λ M)))) := sorry
+            (.of Λ M)))))
 
 end AlgebraicGeometry.Scheme.Etale

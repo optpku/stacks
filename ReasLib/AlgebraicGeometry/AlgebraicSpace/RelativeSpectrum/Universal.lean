@@ -1,185 +1,300 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_48_3_RelativeSpectrum
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RelativeSpectrum.Basic
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RelativeSpectrum.Reconstruction
 
 /-!
-# Universal algebra sections of a relative spectrum
+# Universal algebra maps and the relative-spectrum hom correspondence
 
-The relative-spectrum point already contains a descended atlas algebra map.
-Section reconstruction chooses only an actual preimage of that supplied datum;
-zero is a total-function fallback. Atlas descent and sheaf uniqueness show that
-the fallback is unreachable on this domain. Neither an arbitrary base morphism
-nor an admitted bijectivity witness is used to select data.
+Evaluate each actual scheme-valued spectrum point's reconstructed algebra map
+on direct-image comma charts. The canonical chart-cone lift assembles these
+values into the universal algebra map. The hom correspondence uses this map
+in one direction and the original point constructor in the other. Its inverse
+recovers coefficients on affine section spectra of atlas overlaps and glues
+them in the supplied algebra sheaf.
 -/
 
 @[expose] public section
+
 open CategoryTheory CategoryTheory.Limits Opposite AlgebraicGeometry
+open AlgebraicGeometry.AlgebraicSpace.QcAlgebraUnder
+
 noncomputable section
+
 universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
+
 variable {S : Scheme.{u}} {X : AlgebraicSpace S}
 
-namespace relativeSpectrumAlgebraMap
-
-/-- A section is the value of an actual global algebra map with the supplied atlas restriction. -/
-def IsLiftedSection {A : X.QcAlgebraUnder} {T : Over S} {g : ofOver T ⟶ X}
-    (e : relativeSpectrumAlgebraMap A g) (U : (smallEtaleSite X)ᵒᵖ)
-    (a : A.obj.right.obj.obj U)
-    (s : (relativeSpectrumTarget g).right.obj.obj U) : Prop :=
-  ∃ α : A.obj ⟶ relativeSpectrumTarget g,
-    relativeSpectrumAlgebraMap.ofHom α = e ∧
-      ((InducedCategory.Hom.hom α.right).app U).hom a = s
-
-/-- Recover the value only from an actual in-range witness; otherwise return zero. -/
-def liftedSection {A : X.QcAlgebraUnder} {T : Over S} {g : ofOver T ⟶ X}
-    (e : relativeSpectrumAlgebraMap A g) (U : (smallEtaleSite X)ᵒᵖ)
-    (a : A.obj.right.obj.obj U) :
-    (relativeSpectrumTarget g).right.obj.obj U := by
-  classical
-  exact if h : ∃ s, IsLiftedSection e U a s then Classical.choose h else 0
-
-/-- Effective atlas descent supplies a value for a descended algebra map. -/
-theorem liftedSection_inRange {A : X.QcAlgebraUnder} {T : Over S} {g : ofOver T ⟶ X}
-    (e : relativeSpectrumAlgebraMap A g) (U : (smallEtaleSite X)ᵒᵖ)
-    (a : A.obj.right.obj.obj U) : ∃ s, IsLiftedSection e U a s := sorry
-
-/-- The selected value satisfies the actual descended-data relation. -/
-theorem liftedSection_spec {A : X.QcAlgebraUnder} {T : Over S} {g : ofOver T ⟶ X}
-    (e : relativeSpectrumAlgebraMap A g) (U : (smallEtaleSite X)ᵒᵖ)
-    (a : A.obj.right.obj.obj U) : IsLiftedSection e U a (liftedSection e U a) := by
-  classical
-  unfold liftedSection
-  split_ifs with h
-  · exact Classical.choose_spec h
-  · exact False.elim (h (liftedSection_inRange e U a))
-
-/-- A known global map has exactly its own values after atlas reconstruction. -/
-theorem liftedSection_ofHom {A : X.QcAlgebraUnder} {T : Over S} {g : ofOver T ⟶ X}
-    (α : A.obj ⟶ relativeSpectrumTarget g) (U : (smallEtaleSite X)ᵒᵖ)
-    (a : A.obj.right.obj.obj U) :
-    liftedSection (relativeSpectrumAlgebraMap.ofHom α) U a =
-      ((InducedCategory.Hom.hom α.right).app U).hom a := by
-  classical
-  have h : ∃ s, IsLiftedSection (relativeSpectrumAlgebraMap.ofHom α) U a s :=
-    ⟨_, α, rfl, rfl⟩
-  rw [liftedSection, dif_pos h]
-  obtain ⟨β, hβ, hv⟩ := Classical.choose_spec h
-  have heq : β = α := relativeSpectrumAlgebraMap.restrict_bijective.injective hβ
-  simpa only [heq] using hv.symm
-
-/-- The ring map reconstructed from a genuinely descended atlas map. -/
-def liftedRingHom {A : X.QcAlgebraUnder} {T : Over S} {g : ofOver T ⟶ X}
-    (e : relativeSpectrumAlgebraMap A g) (U : (smallEtaleSite X)ᵒᵖ) :
-    A.obj.right.obj.obj U →+*
-      (relativeSpectrumTarget g).right.obj.obj U where
-  toFun := liftedSection e U
-  map_one' := sorry
-  map_mul' := sorry
-  map_zero' := sorry
-  map_add' := sorry
-
-/-- The sheaf morphism reconstructed from the supplied descended algebra map. -/
-def toSheafHom {A : X.QcAlgebraUnder} {T : Over S} {g : ofOver T ⟶ X}
-    (e : relativeSpectrumAlgebraMap A g) :
-    A.obj.right ⟶ (relativeSpectrumTarget g).right :=
-  ⟨{ app := fun U ↦ @CommRingCat.ofHom (A.obj.right.obj.obj U)
-         ((relativeSpectrumTarget g).right.obj.obj U)
-         (inferInstanceAs (CommRing (A.obj.right.obj.obj U)))
-         (inferInstanceAs (CommRing ((relativeSpectrumTarget g).right.obj.obj U)))
-         (liftedRingHom e U)
-     naturality := sorry }⟩
-
-/-- Algebra reconstruction uses the actual descended atlas datum. -/
-def toHom {A : X.QcAlgebraUnder} {T : Over S} {g : ofOver T ⟶ X}
-    (e : relativeSpectrumAlgebraMap A g) : A.obj ⟶ relativeSpectrumTarget g :=
-  Under.homMk (toSheafHom e) sorry
-
-/-- Reconstruction is an inverse to restricting an actual global algebra map. -/
-theorem toHom_ofHom {A : X.QcAlgebraUnder} {T : Over S} {g : ofOver T ⟶ X}
-    (α : A.obj ⟶ relativeSpectrumTarget g) :
-    toHom (relativeSpectrumAlgebraMap.ofHom α) = α := sorry
-
-end relativeSpectrumAlgebraMap
-
-/-- A relative-spectrum test point has base morphism equal to its composite with the projection. -/
+/-- A test point projects to the base morphism obtained by composing with the spectrum projection. -/
 theorem relativeSpecPoint_base (A : X.QcAlgebraUnder) {T : Over S}
     (t : ofOver T ⟶ relativeSpec A) :
-    yonedaEquiv.symm (yonedaEquiv t).1 = t ≫ relativeSpecπ A := by
-  change yonedaEquiv.symm (yonedaEquiv (t ≫ relativeSpecπ A)) = t ≫ relativeSpecπ A
-  exact Equiv.symm_apply_apply yonedaEquiv _
+    relativeSpectrumPointBase A (yonedaEquiv t) = t ≫ relativeSpecπ A := sorry
 
-/-- The actual algebra datum carried by a map from a test scheme to the relative spectrum. -/
-def relativeSpecPointAlgebra (A : X.QcAlgebraUnder) {T : Over S}
-    (t : ofOver T ⟶ relativeSpec A) : relativeSpectrumAlgebraMap A (t ≫ relativeSpecπ A) :=
-  (relativeSpecPoint_base A t) ▸ (yonedaEquiv t).2
+/-- The actual global algebra map carried by a supplied scheme-valued spectrum point. -/
+def relativeSpecPointAlgebraMap (A : X.QcAlgebraUnder) {T : Over S}
+    (t : ofOver T ⟶ relativeSpec A) : A.obj ⟶ relativeSpectrumTarget (t ≫ relativeSpecπ A) :=
+  relativeSpectrumPointAlgebraMap A (yonedaEquiv t) ≫
+    eqToHom (congrArg relativeSpectrumTarget (relativeSpecPoint_base A t))
 
-/-- Restrict a direct-image section to a test scheme over its source. -/
+/-- Restrict direct-image structure sections to the supplied scheme-valued test point. -/
 def pushforwardStructureTest {Y : AlgebraicSpace S} (q : Y ⟶ X)
     {T : Over S} (t : ofOver T ⟶ Y) :
-    (commRingPushforward q).obj (commRingStructureSheaf Y) ⟶
-      (commRingPushforward (t ≫ q)).obj (commRingStructureSheaf (ofOver T)) :=
-  (commRingPushforward q).map (commRingStructureSheafMap t) ≫
+    (commRingPushforward q).obj (commStructureSheaf Y) ⟶
+      (commRingPushforward (t ≫ q)).obj (commStructureSheaf (ofOver T)) :=
+  (commRingPushforward q).map (commStructureSheafMap t) ≫
     commRingPushforwardPrecomp t q
 
-/-- A universal section has the values prescribed by all actual relative-spectrum test points. -/
-def IsRelativeSpecSection (A : X.QcAlgebraUnder) (U : (smallEtaleSite X)ᵒᵖ)
-    (a : A.obj.right.obj.obj U)
-    (s : ((commRingPushforward (relativeSpecπ A)).obj
-      (commRingStructureSheaf (relativeSpec A))).obj.obj U) : Prop :=
-  ∀ (T : Over S) (t : ofOver T ⟶ relativeSpec A),
-    ((InducedCategory.Hom.hom (pushforwardStructureTest (relativeSpecπ A) t)).app U).hom s =
-      relativeSpectrumAlgebraMap.liftedSection (relativeSpecPointAlgebra A t) U a
+/-- The actual spectrum point defined by a direct-image comma scheme chart. -/
+def relativeSpecUniversalCommaPoint (A : X.QcAlgebraUnder) (W : smallEtaleSite X)
+    (a : StructuredArrow (op ((etaleBaseChange (relativeSpecπ A)).obj W))
+      (smallEtaleToSpaces (relativeSpec A)).op) :
+    ofOver a.right.unop.left ⟶ relativeSpec A :=
+  a.right.unop.hom
 
-/-- Reconstruct the universal value from actual compatible local algebra data, with zero fallback. -/
-def relativeSpecUniversalSection (A : X.QcAlgebraUnder) (U : (smallEtaleSite X)ᵒᵖ)
-    (a : A.obj.right.obj.obj U) :
-    ((commRingPushforward (relativeSpecπ A)).obj
-      (commRingStructureSheaf (relativeSpec A))).obj.obj U := by
-  classical
-  exact if h : ∃ s, IsRelativeSpecSection A U a s then Classical.choose h else 0
+/-- The actual arrow from the comma scheme to the base's étale chart. -/
+def relativeSpecUniversalCommaToChart (A : X.QcAlgebraUnder) (W : smallEtaleSite X)
+    (a : StructuredArrow (op ((etaleBaseChange (relativeSpecπ A)).obj W))
+      (smallEtaleToSpaces (relativeSpec A)).op) : a.right.unop.left ⟶ W.left :=
+  yoneda.preimage (a.hom.unop.left ≫ etaleBaseChangeSnd (relativeSpecπ A) W)
 
-/-- The universal compatible test-point family is in the image of sheaf restriction. -/
-theorem relativeSpecUniversalSection_inRange (A : X.QcAlgebraUnder)
-    (U : (smallEtaleSite X)ᵒᵖ) (a : A.obj.right.obj.obj U) :
-    ∃ s, IsRelativeSpecSection A U a s := sorry
+/-- The identity scheme chart used to evaluate the actual point's direct-image algebra map. -/
+def relativeSpecUniversalCommaIdentityChart (A : X.QcAlgebraUnder) (W : smallEtaleSite X)
+    (a : StructuredArrow (op ((etaleBaseChange (relativeSpecπ A)).obj W))
+      (smallEtaleToSpaces (relativeSpec A)).op) : smallEtaleSite (ofOver a.right.unop.left) :=
+  smallEtaleSite.mk (𝟙 (ofOver a.right.unop.left))
 
-/-- Universal evaluation agrees with each actual relative-spectrum test point. -/
-theorem relativeSpecUniversalSection_spec (A : X.QcAlgebraUnder)
-    (U : (smallEtaleSite X)ᵒᵖ) (a : A.obj.right.obj.obj U) :
-    IsRelativeSpecSection A U a (relativeSpecUniversalSection A U a) := by
-  classical
-  unfold relativeSpecUniversalSection
-  split_ifs with h
-  · exact Classical.choose_spec h
-  · exact False.elim (h (relativeSpecUniversalSection_inRange A U a))
+/-- The comma scheme's two actual arrows give an evaluation arrow into its base-chart pullback. -/
+def relativeSpecUniversalCommaEvaluationArrow (A : X.QcAlgebraUnder) (W : smallEtaleSite X)
+    (a : StructuredArrow (op ((etaleBaseChange (relativeSpecπ A)).obj W))
+      (smallEtaleToSpaces (relativeSpec A)).op) :
+    (smallEtaleToSpaces (ofOver a.right.unop.left)).obj
+        (relativeSpecUniversalCommaIdentityChart A W a) ⟶
+      (etaleBaseChange (relativeSpecUniversalCommaPoint A W a ≫ relativeSpecπ A)).obj W :=
+  MorphismProperty.Over.homMk
+    ((pullback.lift (relativeSpecUniversalCommaIdentityChart A W a).hom
+      (ofOverMap (relativeSpecUniversalCommaToChart A W a)) sorry :
+      yoneda.obj a.right.unop.left ⟶
+        (etaleBaseChangeSpace (relativeSpecUniversalCommaPoint A W a ≫ relativeSpecπ A) W).functorOfPoints))
+    sorry
 
-/-- The canonical relative-spectrum counit on each ring of sections. -/
-def relativeSpecUniversalRingHom (A : X.QcAlgebraUnder) (U : (smallEtaleSite X)ᵒᵖ) :
-    A.obj.right.obj.obj U →+*
-      ((commRingPushforward (relativeSpecπ A)).obj
-        (commRingStructureSheaf (relativeSpec A))).obj.obj U where
-  toFun := relativeSpecUniversalSection A U
-  map_one' := sorry
-  map_mul' := sorry
-  map_zero' := sorry
-  map_add' := sorry
+/-- Evaluate the given point's actual algebra map on the comma scheme itself. -/
+def relativeSpecUniversalCommaSectionMap (A : X.QcAlgebraUnder) (W : smallEtaleSite X)
+    (a : StructuredArrow (op ((etaleBaseChange (relativeSpecπ A)).obj W))
+      (smallEtaleToSpaces (relativeSpec A)).op) :
+    QcAlgebraUnder.sectionRing A W ⟶ (commStructureSheaf (relativeSpec A)).obj.obj (op a.right.unop) := by
+  change QcAlgebraUnder.sectionRing A W ⟶ Scheme.Γ.obj (op a.right.unop.left.left)
+  let evaluation :
+      ((commRingPushforward (relativeSpecUniversalCommaPoint A W a ≫ relativeSpecπ A)).obj
+        (commStructureSheaf (ofOver a.right.unop.left))).obj.obj (op W) ⟶
+      Scheme.Γ.obj (op a.right.unop.left.left) :=
+    commRingPushforwardEvaluation (relativeSpecUniversalCommaPoint A W a ≫ relativeSpecπ A)
+      (commStructureSheaf (ofOver a.right.unop.left)) (relativeSpecUniversalCommaEvaluationArrow A W a)
+  exact (InducedCategory.Hom.hom
+      (relativeSpecPointAlgebraMap A (relativeSpecUniversalCommaPoint A W a)).right).app (op W) ≫ evaluation
 
-/-- The actual universal sheaf-algebra map A → q_*O of its relative spectrum. -/
+/-- The actual universal evaluations form the cone defining direct-image sections. -/
+def relativeSpecUniversalAlgebraCone (A : X.QcAlgebraUnder) (W : smallEtaleSite X) :
+    Cone (StructuredArrow.proj (op ((etaleBaseChange (relativeSpecπ A)).obj W))
+      (smallEtaleToSpaces (relativeSpec A)).op ⋙ (commStructureSheaf (relativeSpec A)).obj) where
+  pt := QcAlgebraUnder.sectionRing A W
+  π := { app := fun a ↦ relativeSpecUniversalCommaSectionMap A W a, naturality := sorry }
+
+/-- The universal algebra map is assembled from actual scheme-valued point evaluations. -/
 def relativeSpecUniversalAlgebraMap (A : X.QcAlgebraUnder) :
-    A.obj ⟶ Under.mk (commRingStructureSheafMap (relativeSpecπ A)) :=
+    A.obj ⟶ Under.mk (commStructureSheafMap (relativeSpecπ A)) :=
   Under.homMk
-    ⟨{ app := fun U ↦ @CommRingCat.ofHom (A.obj.right.obj.obj U)
-         (((commRingPushforward (relativeSpecπ A)).obj (commRingStructureSheaf (relativeSpec A))).obj.obj U)
-         (inferInstanceAs (CommRing (A.obj.right.obj.obj U)))
-         (inferInstanceAs (CommRing (((commRingPushforward (relativeSpecπ A)).obj (commRingStructureSheaf (relativeSpec A))).obj.obj U)))
-         (relativeSpecUniversalRingHom A U)
+    ⟨{ app := fun W ↦ ConormalAlgebra.commRingPushforwardConeLift (relativeSpecπ A)
+          (commStructureSheaf (relativeSpec A)) W.unop (relativeSpecUniversalAlgebraCone A W.unop)
        naturality := sorry }⟩ sorry
+
+/-- Universal sections restrict to the actual algebra map of every supplied test point. -/
+theorem relativeSpecUniversalAlgebraMap_test (A : X.QcAlgebraUnder) {T : Over S}
+    (t : ofOver T ⟶ relativeSpec A) :
+    (relativeSpecUniversalAlgebraMap A).right ≫ pushforwardStructureTest (relativeSpecπ A) t =
+      (relativeSpecPointAlgebraMap A t).right := sorry
+
+/-- The universal algebra map is bijective on every étale chart's sections. -/
+theorem relativeSpecUniversalAlgebraMap_app_bijective (A : X.QcAlgebraUnder)
+    (W : (smallEtaleSite X)ᵒᵖ) :
+    Function.Bijective ((InducedCategory.Hom.hom (relativeSpecUniversalAlgebraMap A).right).app W).hom :=
+  sorry
+
+/-- The affine opens of the atlas overlap, regarded as a covering family of the base chart. -/
+def relativeSpecUniversalInverseCoverMap (W : smallEtaleSite X)
+    (Q : (relativeSpectrumAtlasOverlapChart X W).left.left.affineOpens) :
+    (chartOpens (relativeSpectrumAtlasOverlapChart X W)).obj
+        (Q : (relativeSpectrumAtlasOverlapChart X W).left.left.Opens) ⟶ W :=
+  relativeSpectrumOpenChartInclusion (relativeSpectrumAtlasOverlapChart X W) Q ≫
+    relativeSpectrumAtlasOverlapToChart X W
+
+/-- An affine section spectrum is an actual affine piece of the overlap's native spectrum. -/
+def relativeSpecUniversalInverseAffineOver (A : X.QcAlgebraUnder) (W : smallEtaleSite X)
+    (Q : (relativeSpectrumAtlasOverlapChart X W).left.left.affineOpens) : Over S :=
+  Over.mk (colimit.ι
+    (Scheme.relativeSpectrumNativeGluingData (onChart A (relativeSpectrumAtlasOverlapChart X W))).functor Q ≫
+      (relativeSpectrumChartOver A (relativeSpectrumAtlasOverlapChart X W)).hom)
+
+/-- The affine spectrum maps to the original relative spectrum through its specified atlas. -/
+def relativeSpecUniversalInverseAffineChart (A : X.QcAlgebraUnder) (W : smallEtaleSite X)
+    (Q : (relativeSpectrumAtlasOverlapChart X W).left.left.affineOpens) :
+    smallEtaleSite (relativeSpec A) :=
+  @smallEtaleSite.mk S (relativeSpec A) (relativeSpecUniversalInverseAffineOver A W Q)
+    (ofOverMap
+      ((Over.homMk (colimit.ι
+          (Scheme.relativeSpectrumNativeGluingData
+            (onChart A (relativeSpectrumAtlasOverlapChart X W))).functor Q) rfl :
+          relativeSpecUniversalInverseAffineOver A W Q ⟶
+            relativeSpectrumChartOver A (relativeSpectrumAtlasOverlapChart X W)) ≫
+        relativeSpectrumChartOverMap A (relativeSpectrumAtlasOverlapToAtlas X W)) ≫
+      relativeSpecAtlas A) sorry
+
+/-- The same affine piece maps to the base chart through the overlap projection. -/
+def relativeSpecUniversalInverseAffineToBase (A : X.QcAlgebraUnder) (W : smallEtaleSite X)
+    (Q : (relativeSpectrumAtlasOverlapChart X W).left.left.affineOpens) :
+    relativeSpecUniversalInverseAffineOver A W Q ⟶ W.left :=
+  Over.homMk (colimit.ι
+    (Scheme.relativeSpectrumNativeGluingData
+      (onChart A (relativeSpectrumAtlasOverlapChart X W))).functor Q ≫
+    (Scheme.relativeSpectrumOver (onChart A (relativeSpectrumAtlasOverlapChart X W))).π ≫
+    (relativeSpectrumAtlasOverlapToChart X W).left.left) sorry
+
+/-- The two specified affine-piece maps give a chart of the direct-image fibre product. -/
+def relativeSpecUniversalInverseAffineEvaluationArrow (A : X.QcAlgebraUnder)
+    (W : smallEtaleSite X)
+    (Q : (relativeSpectrumAtlasOverlapChart X W).left.left.affineOpens) :
+    (smallEtaleToSpaces (relativeSpec A)).obj (relativeSpecUniversalInverseAffineChart A W Q) ⟶
+      (etaleBaseChange (relativeSpecπ A)).obj W :=
+  MorphismProperty.Over.homMk
+    ((pullback.lift (relativeSpecUniversalInverseAffineChart A W Q).hom
+      (ofOverMap (relativeSpecUniversalInverseAffineToBase A W Q)) sorry :
+      yoneda.obj (relativeSpecUniversalInverseAffineOver A W Q) ⟶
+        (etaleBaseChangeSpace (relativeSpecπ A) W).functorOfPoints)) sorry
+
+/-- Evaluate on an actual affine section spectrum and recover its coefficients by `ΓSpecIso`. -/
+def relativeSpecUniversalInverseAffineMap (A : X.QcAlgebraUnder) (W : smallEtaleSite X)
+    (Q : (relativeSpectrumAtlasOverlapChart X W).left.left.affineOpens) :
+    ((commRingPushforward (relativeSpecπ A)).obj (commStructureSheaf (relativeSpec A))).obj.obj (op W) ⟶
+      sectionRing A ((chartOpens (relativeSpectrumAtlasOverlapChart X W)).obj
+        (Q : (relativeSpectrumAtlasOverlapChart X W).left.left.Opens)) :=
+  commRingPushforwardEvaluation (relativeSpecπ A) (commStructureSheaf (relativeSpec A))
+      (relativeSpecUniversalInverseAffineEvaluationArrow A W Q) ≫
+    (Scheme.ΓSpecIso (sectionRing A ((chartOpens (relativeSpectrumAtlasOverlapChart X W)).obj
+      (Q : (relativeSpectrumAtlasOverlapChart X W).left.left.Opens)))).hom
+
+/-- Affine opens of the atlas pullback cover the original étale chart. -/
+theorem relativeSpecUniversalInverseCover_mem (W : smallEtaleSite X) :
+    Sieve.ofArrows _ (relativeSpecUniversalInverseCoverMap W) ∈ (smallEtaleTopology X) W := sorry
+
+/-- The affine coefficient maps agree on every common étale refinement. -/
+theorem relativeSpecUniversalInverseAffineMap_compatible (A : X.QcAlgebraUnder)
+    (W : smallEtaleSite X) {E : smallEtaleSite X}
+    {Q Q' : (relativeSpectrumAtlasOverlapChart X W).left.left.affineOpens}
+    (a : E ⟶ (chartOpens (relativeSpectrumAtlasOverlapChart X W)).obj
+      (Q : (relativeSpectrumAtlasOverlapChart X W).left.left.Opens))
+    (b : E ⟶ (chartOpens (relativeSpectrumAtlasOverlapChart X W)).obj
+      (Q' : (relativeSpectrumAtlasOverlapChart X W).left.left.Opens))
+    (h : a ≫ relativeSpecUniversalInverseCoverMap W Q =
+      b ≫ relativeSpecUniversalInverseCoverMap W Q') :
+    relativeSpecUniversalInverseAffineMap A W Q ≫ A.obj.right.obj.map a.op =
+      relativeSpecUniversalInverseAffineMap A W Q' ≫ A.obj.right.obj.map b.op := sorry
+
+/-- Glue the actual affine coefficient maps in the supplied algebra sheaf. -/
+def relativeSpecUniversalInverseChartMap (A : X.QcAlgebraUnder) (W : smallEtaleSite X) :
+    ((commRingPushforward (relativeSpecπ A)).obj (commStructureSheaf (relativeSpec A))).obj.obj (op W) ⟶
+      sectionRing A W :=
+  A.obj.right.property.amalgamateOfArrows (relativeSpecUniversalInverseCoverMap W)
+    (relativeSpecUniversalInverseCover_mem W) (relativeSpecUniversalInverseAffineMap A W)
+    (by
+      intro E Q Q' a b h
+      exact relativeSpecUniversalInverseAffineMap_compatible A W a b h)
+
+/-- The glued inverse restricts to the specified coefficient map on each affine overlap chart. -/
+@[reassoc (attr := simp)]
+theorem relativeSpecUniversalInverseChartMap_restrict (A : X.QcAlgebraUnder) (W : smallEtaleSite X)
+    (Q : (relativeSpectrumAtlasOverlapChart X W).left.left.affineOpens) :
+    relativeSpecUniversalInverseChartMap A W ≫
+        A.obj.right.obj.map (relativeSpecUniversalInverseCoverMap W Q).op =
+      relativeSpecUniversalInverseAffineMap A W Q :=
+  A.obj.right.property.amalgamateOfArrows_map (relativeSpecUniversalInverseCoverMap W)
+    (relativeSpecUniversalInverseCover_mem W) (relativeSpecUniversalInverseAffineMap A W)
+    (by
+      intro E Q Q' a b h
+      exact relativeSpecUniversalInverseAffineMap_compatible A W a b h) Q
+
+/-- The inverse section function evaluates on affine spectra and glues their coefficients. -/
+def relativeSpecUniversalInverseSection (A : X.QcAlgebraUnder) (W : (smallEtaleSite X)ᵒᵖ) :
+    ((commRingPushforward (relativeSpecπ A)).obj (commStructureSheaf (relativeSpec A))).obj.obj W →
+      A.obj.right.obj.obj W :=
+  (relativeSpecUniversalInverseChartMap A W.unop).hom
+
+/-- The fixed inverse function recovers every original algebra section. -/
+@[simp]
+theorem relativeSpecUniversalInverseSection_apply (A : X.QcAlgebraUnder)
+    (W : (smallEtaleSite X)ᵒᵖ) (a : A.obj.right.obj.obj W) :
+    relativeSpecUniversalInverseSection A W
+      (((InducedCategory.Hom.hom (relativeSpecUniversalAlgebraMap A).right).app W).hom a) = a := sorry
+
+/-- Every direct-image section is the universal image of its specified inverse section. -/
+@[simp]
+theorem relativeSpecUniversalAlgebraMap_apply_inverseSection (A : X.QcAlgebraUnder)
+    (W : (smallEtaleSite X)ᵒᵖ)
+    (s : ((commRingPushforward (relativeSpecπ A)).obj (commStructureSheaf (relativeSpec A))).obj.obj W) :
+    ((InducedCategory.Hom.hom (relativeSpecUniversalAlgebraMap A).right).app W).hom
+      (relativeSpecUniversalInverseSection A W s) = s := sorry
+
+/-- The inverse ring homomorphism is the amalgamation of actual affine coefficient maps. -/
+def relativeSpecUniversalInverseRingHom (A : X.QcAlgebraUnder) (W : (smallEtaleSite X)ᵒᵖ) :
+    ((commRingPushforward (relativeSpecπ A)).obj (commStructureSheaf (relativeSpec A))).obj.obj W →+*
+      A.obj.right.obj.obj W :=
+  (relativeSpecUniversalInverseChartMap A W.unop).hom
+
+/-- The actual inverse sheaf-algebra map, defined from the fixed section maps. -/
+def relativeSpecUniversalAlgebraInverse (A : X.QcAlgebraUnder) :
+    Under.mk (commStructureSheafMap (relativeSpecπ A)) ⟶ A.obj :=
+  Under.homMk
+    ⟨{ app := fun W ↦ relativeSpecUniversalInverseChartMap A W.unop
+       naturality := sorry }⟩ sorry
+
+/-- The algebra/direct-image identification has specified actual hom and inverse maps. -/
+def relativeSpecUniversalAlgebraIso (A : X.QcAlgebraUnder) :
+    A.obj ≅ Under.mk (commStructureSheafMap (relativeSpecπ A)) where
+  hom := relativeSpecUniversalAlgebraMap A
+  inv := relativeSpecUniversalAlgebraInverse A
+  hom_inv_id := sorry
+  inv_hom_id := sorry
+
+/-- The global algebra map of a spectrum morphism is its actual universal-map pullback. -/
+def relativeSpecHomAlgebra {Y : AlgebraicSpace S} (A : X.QcAlgebraUnder)
+    (t : Y ⟶ relativeSpec A) :
+    A.obj ⟶ Under.mk (commStructureSheafMap (t ≫ relativeSpecπ A)) :=
+  Under.homMk ((relativeSpecUniversalAlgebraMap A).right ≫
+    (commRingPushforward (relativeSpecπ A)).map (commStructureSheafMap t) ≫
+      (commRingPushforwardComp t (relativeSpecπ A)).hom.app (commStructureSheaf Y)) sorry
+
+/-- The actual algebraic-space morphism induced by a base map and a global algebra map. -/
+def relativeSpecHomOfAlgebra {Y : AlgebraicSpace S} (A : X.QcAlgebraUnder)
+    (g : Y ⟶ X) (α : A.obj ⟶ Under.mk (commStructureSheafMap g)) : Y ⟶ relativeSpec A where
+  app T := TypeCat.ofHom fun y ↦
+    let t : ofOver T.unop ⟶ Y := yonedaEquiv.symm y
+    relativeSpectrumPairMk (t ≫ g)
+      (Under.homMk (α.right ≫ (commRingPushforward g).map (commStructureSheafMap t) ≫
+        (commRingPushforwardComp t g).hom.app (commStructureSheaf (ofOver T.unop))) sorry)
+  naturality := sorry
+
+/-- The induced spectrum morphism has exactly the given base arrow. -/
+theorem relativeSpecHomOfAlgebra_toBase {Y : AlgebraicSpace S} (A : X.QcAlgebraUnder)
+    (g : Y ⟶ X) (α : A.obj ⟶ Under.mk (commStructureSheafMap g)) :
+    relativeSpecHomOfAlgebra A g α ≫ relativeSpecπ A = g := sorry
+
+/-- The hom correspondence uses actual universal-map pullback and pointwise algebra-map construction. -/
+def relativeSpecHomEquiv (A : X.QcAlgebraUnder) (Y : AlgebraicSpace S) :
+    (Y ⟶ relativeSpec A) ≃
+      Σ g : Y ⟶ X, A.obj ⟶ Under.mk (commStructureSheafMap g) where
+  toFun t := ⟨t ≫ relativeSpecπ A, relativeSpecHomAlgebra A t⟩
+  invFun p := relativeSpecHomOfAlgebra A p.1 p.2
+  left_inv := sorry
+  right_inv := sorry
 
 end AlgebraicGeometry.AlgebraicSpace

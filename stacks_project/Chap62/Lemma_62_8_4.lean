@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.UnderlyingMap
-public import stacks_project.Chap62.Lemma_62_6_6_Relative
-public import stacks_project.Chap62.Lemma_62_7_3_Operations
-public import stacks_project.Chap62.Lemma_62_8_3_RelativeCycle
+public import ReasLib.AlgebraicGeometry.RelativeCycle.EffectiveBaseChange
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -21,18 +13,14 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry
-
-open Scheme.Hom
-
-/-- Lemma 62.8.4: if `S` is locally Noetherian and `f : X ⟶ S` is locally of
+/- Lemma 62.8.4: if `S` is locally Noetherian and `f : X ⟶ S` is locally of
 finite type, then a relative `r`-cycle `α` on `X / S` is effective if and only
 if its base change along a surjective morphism `g : S' ⟶ S` is effective. -/
-@[stacks 0H5U]
-theorem isEffective_iff_baseChange {X S S' : Scheme.{u}} (f : X ⟶ S)
-    [IsLocallyNoetherian S] [LocallyOfFiniteType f] (r : ℕ)
-    (α : CyclesOnFibers f r) (hα : RelativeCycle.IsRelative α)
-    (g : S' ⟶ S) [Surjective g] :
-    α.IsEffective ↔ (α.baseChange g).IsEffective := sorry
-
-end AlgebraicGeometry
+@[stacks 0H5U] #check (AlgebraicGeometry.isEffective_iff_baseChange :
+    ∀ {X S S' : Scheme.{u}} (f : X ⟶ S)
+      [IsLocallyNoetherian S] [LocallyOfFiniteType f] (r : ℕ)
+      (α : Scheme.Hom.CyclesOnFibers f r) (hα : RelativeCycle.IsRelative α)
+      (g : S' ⟶ S) [Surjective g],
+      Scheme.Hom.CyclesOnFibers.IsEffective α ↔
+        Scheme.Hom.CyclesOnFibers.IsEffective
+          (Scheme.Hom.FiberCycleFamily.baseChange (IsPullback.of_hasPullback f g) α))

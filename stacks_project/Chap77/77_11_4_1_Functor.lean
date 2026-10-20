@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Subfunctor.Basic
@@ -12,93 +6,67 @@ public import stacks_project.Chap77.Lemma_77_11_2_InDimensions
 public import stacks_project.Chap77.«77_7_1_1_BaseChange»
 public import stacks_project.Chap77.«77_7_1_1_IsomorphismFunctor»
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Flattening.InDimensions
+
 /-!
 # The flat-in-dimensions functor on algebraic spaces
 
-This module defines the subterminal functor on schemes over an algebraic space `Y`
-that records the base changes on which a finite-type quasi-coherent module is
-flat over the base in dimensions at least a fixed natural number.
+Typed checks of the canonical functor and its flatness specifications, retaining
+the import surface used by existing consumers.
 -/
 
 @[expose] public section
 
 open CategoryTheory Opposite AlgebraicGeometry CategoryTheory.Limits
-
-noncomputable section
+open AlgebraicGeometry.AlgebraicSpace
 
 universe u
-
-namespace AlgebraicGeometry.AlgebraicSpace.Flattening
 
 variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (ℱ : X.Modules)
 variable [LocallyOfFiniteType f] [ℱ.IsQuasicoherent] [ℱ.IsFiniteType] (n : ℕ)
 
-/-- Flatness in dimensions at least `n` is preserved when the test scheme over `Y`
-is changed further. -/
-theorem flatInDimensionsGE_pullback {T T' : SchemeOver Y} (g : T' ⟶ T)
-    (h : Modules.flatOverInDimensionsGE
-      (Modules.baseChangeModule f T.hom ℱ) (pullback.snd f T.hom) n) :
+#check (AlgebraicGeometry.AlgebraicSpace.Flattening.flatInDimensionsGE_pullback f ℱ n :
+  ∀ {T T' : SchemeOver Y} (g : T' ⟶ T),
     Modules.flatOverInDimensionsGE
-      (Modules.baseChangeModule f T'.hom ℱ) (pullback.snd f T'.hom) n :=
-  sorry
+      (Modules.baseChangeModule f T.hom ℱ) (pullback.snd f T.hom) n →
+    Modules.flatOverInDimensionsGE
+      (Modules.baseChangeModule f T'.hom ℱ) (pullback.snd f T'.hom) n)
 
-/-- The subfunctor of the terminal `PUnit` functor cut out by flatness of the
-base-changed module in dimensions at least `n`. -/
-def flatInDimensionsSubfunctor :
-    CategoryTheory.Subfunctor
-      ((Functor.const (SchemeOver Y)ᵒᵖ).obj (PUnit : Type u)) where
-  obj T := fun _ ↦ Modules.flatOverInDimensionsGE
-    (Modules.baseChangeModule f T.unop.hom ℱ) (pullback.snd f T.unop.hom) n
-  map g _ h := flatInDimensionsGE_pullback f ℱ n g.unop h
+#check (AlgebraicGeometry.AlgebraicSpace.Flattening.flatInDimensionsSubfunctor f ℱ n :
+  CategoryTheory.Subfunctor ((Functor.const (SchemeOver Y)ᵒᵖ).obj (PUnit : Type u)))
 
-/-- Membership of the terminal section is exactly flatness of the base-changed
-module in dimensions at least `n`. -/
-theorem mem_flatInDimensionsSubfunctor (T : SchemeOver Y) :
-    PUnit.unit ∈ (flatInDimensionsSubfunctor f ℱ n).obj (op T) ↔
+#check (AlgebraicGeometry.AlgebraicSpace.Flattening.mem_flatInDimensionsSubfunctor f ℱ n :
+  ∀ T : SchemeOver Y,
+    PUnit.unit ∈ (Flattening.flatInDimensionsSubfunctor f ℱ n).obj (op T) ↔
       Modules.flatOverInDimensionsGE
-        (Modules.baseChangeModule f T.hom ℱ) (pullback.snd f T.hom) n :=
-  sorry
+        (Modules.baseChangeModule f T.hom ℱ) (pullback.snd f T.hom) n)
 
-/-- The contravariant subterminal functor recording flatness of the base-changed
-module in dimensions at least `n`. -/
-def flatInDimensionsFunctor : (SchemeOver Y)ᵒᵖ ⥤ Type u :=
-  (flatInDimensionsSubfunctor f ℱ n).toFunctor
+#check (AlgebraicGeometry.AlgebraicSpace.Flattening.flatInDimensionsFunctor f ℱ n :
+  (SchemeOver Y)ᵒᵖ ⥤ Type u)
 
-/-- An object value of the flat-in-dimensions functor is inhabited exactly when
-the base-changed module is flat over the base in dimensions at least `n`. -/
-theorem flatInDimensionsFunctor_nonempty_iff (T : SchemeOver Y) :
-    Nonempty ((flatInDimensionsFunctor f ℱ n).obj (op T)) ↔
+#check (AlgebraicGeometry.AlgebraicSpace.Flattening.flatInDimensionsFunctor_nonempty_iff f ℱ n :
+  ∀ T : SchemeOver Y,
+    Nonempty ((Flattening.flatInDimensionsFunctor f ℱ n).obj (op T)) ↔
       Modules.flatOverInDimensionsGE
-        (Modules.baseChangeModule f T.hom ℱ) (pullback.snd f T.hom) n :=
-  sorry
+        (Modules.baseChangeModule f T.hom ℱ) (pullback.snd f T.hom) n)
 
-/-- An object value of the flat-in-dimensions functor is empty exactly when the
-base-changed module is not flat over the base in dimensions at least `n`. -/
-theorem flatInDimensionsFunctor_isEmpty_iff (T : SchemeOver Y) :
-    IsEmpty ((flatInDimensionsFunctor f ℱ n).obj (op T)) ↔
+#check (AlgebraicGeometry.AlgebraicSpace.Flattening.flatInDimensionsFunctor_isEmpty_iff f ℱ n :
+  ∀ T : SchemeOver Y,
+    IsEmpty ((Flattening.flatInDimensionsFunctor f ℱ n).obj (op T)) ↔
       ¬ Modules.flatOverInDimensionsGE
-        (Modules.baseChangeModule f T.hom ℱ) (pullback.snd f T.hom) n :=
-  sorry
+        (Modules.baseChangeModule f T.hom ℱ) (pullback.snd f T.hom) n)
 
-/-- Every object value of the flat-in-dimensions functor has at most one element. -/
-instance flatInDimensionsFunctorObjSubsingleton (T : SchemeOver Y) :
-    Subsingleton ((flatInDimensionsFunctor f ℱ n).obj (op T)) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Flattening.flatInDimensionsFunctorObjSubsingleton f ℱ n :
+  ∀ T : SchemeOver Y, Subsingleton ((Flattening.flatInDimensionsFunctor f ℱ n).obj (op T)))
 
-/-- A morphism `a : ofOver T ⟶ Y` is a section of `flatInDimensionsFunctor` iff
-the base change of `ℱ` along `a` is flat over `T` in dimensions at least `n`. -/
-theorem flatInDimensionsFunctor_nonempty_iff_mk {T : Over S} (a : ofOver T ⟶ Y) :
-    Nonempty ((flatInDimensionsFunctor f ℱ n).obj (op (SchemeOver.mk a))) ↔
+#check (AlgebraicGeometry.AlgebraicSpace.Flattening.flatInDimensionsFunctor_nonempty_iff_mk f ℱ n :
+  ∀ {T : Over S} (a : ofOver T ⟶ Y),
+    Nonempty ((Flattening.flatInDimensionsFunctor f ℱ n).obj (op (SchemeOver.mk a))) ↔
       Modules.flatOverInDimensionsGE
-        (Modules.baseChangeModule f a ℱ) (pullback.snd f a) n :=
-  sorry
+        (Modules.baseChangeModule f a ℱ) (pullback.snd f a) n)
 
-/-- A morphism `a : ofOver T ⟶ Y` is not a section of `flatInDimensionsFunctor` iff
-the base change of `ℱ` along `a` is not flat over `T` in dimensions at least `n`. -/
-theorem flatInDimensionsFunctor_isEmpty_iff_mk {T : Over S} (a : ofOver T ⟶ Y) :
-    IsEmpty ((flatInDimensionsFunctor f ℱ n).obj (op (SchemeOver.mk a))) ↔
+#check (AlgebraicGeometry.AlgebraicSpace.Flattening.flatInDimensionsFunctor_isEmpty_iff_mk f ℱ n :
+  ∀ {T : Over S} (a : ofOver T ⟶ Y),
+    IsEmpty ((Flattening.flatInDimensionsFunctor f ℱ n).obj (op (SchemeOver.mk a))) ↔
       ¬ Modules.flatOverInDimensionsGE
-        (Modules.baseChangeModule f a ℱ) (pullback.snd f a) n :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Flattening
+        (Modules.baseChangeModule f a ℱ) (pullback.snd f a) n)

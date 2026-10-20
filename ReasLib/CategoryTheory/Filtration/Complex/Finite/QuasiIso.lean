@@ -1,13 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Complex.Finite.Bounded
 public import ReasLib.CategoryTheory.Filtration.Complex.FiniteAcyclic
+public import ReasLib.CategoryTheory.Filtration.Complex.Finite.Stage
+public import ReasLib.CategoryTheory.Filtration.Complex.Finite.Quotient
+public import ReasLib.CategoryTheory.Filtration.Complex.Finite.Acyclic
+public import ReasLib.CategoryTheory.Filtration.FiniteBiproduct
+public import ReasLib.CategoryTheory.Filtration.Complex.QuasiIso
+public import Mathlib.Algebra.Homology.HomotopyCategory.MappingCone
 
 /-!
 # Quasi-isomorphisms of bounded-below finite filtered complexes
@@ -92,5 +92,38 @@ theorem underlying
     _root_.QuasiIso (((Forget.cochain C).map f).hom) := sorry
 
 end QuasiIso
+
+section Abelian
+
+variable {C : Type u} [Category.{v} C] [Abelian C]
+variable {K L : CochainComplex.Plus (FilteredObject.Finite.category C)}
+
+/-- A morphism of bounded-below complexes of finite filtered objects is a filtered
+quasi-isomorphism if and only if every induced filtration-stage map is a quasi-isomorphism. -/
+theorem QuasiIso.stageMap_iff (f : K ⟶ L) :
+    QuasiIso C f ↔
+      ∀ p : ℤ, _root_.QuasiIso (((Stage.cochain C p).map f).hom) := sorry
+
+/-- A morphism of bounded-below complexes of finite filtered objects is a filtered
+quasi-isomorphism if and only if every induced quotient-by-stage map is a quasi-isomorphism. -/
+theorem QuasiIso.quotientMap_iff (f : K ⟶ L) :
+    QuasiIso C f ↔
+      ∀ p : ℤ, _root_.QuasiIso (((Quotient.cochain C p).map f).hom) := sorry
+
+/-- A morphism of bounded-below complexes of finite filtered objects is a filtered
+quasi-isomorphism if and only if its canonical mapping cone is filtered acyclic. -/
+theorem QuasiIso.mappingCone_iff (f : K ⟶ L) :
+    QuasiIso C f ↔
+      CochainComplex.acyclic (_root_.CochainComplex.mappingCone f.hom) := sorry
+
+/-- A morphism of bounded-below complexes of finite filtered objects is a finite filtered
+quasi-isomorphism if and only if its inclusion into all filtered complexes is a filtered
+quasi-isomorphism. -/
+theorem QuasiIso.isFilteredQuasiIso_iff (f : K ⟶ L) :
+    QuasiIso C f ↔
+      FilteredComplex.IsFilteredQuasiIso
+        ((CochainComplex.inclusion C).map f.hom) := sorry
+
+end Abelian
 
 end CategoryTheory.FilteredObject.Finite.Plus

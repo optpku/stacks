@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import stacks_project.Chap103.Lemma_103_8_3_Comparison
 
@@ -24,7 +18,7 @@ def smallEvaluation {S : Scheme.{u}} {U V : AlgebraicSpace S} (fU : U ⟶ V)
   let Q := (CategoryTheory.Sheaf.InternalModule.ToInternal.underlying
     (AlgebraicSpace.commRingedSiteLift U).structureSheaf).obj N
   let v := op ((AlgebraicSpace.etaleBaseChange fU).obj b)
-  let i := AlgebraicSpace.smallEtaleInclusion U
+  let i := AlgebraicSpace.smallEtaleToSpaces U
   let k := ((RingedSite.ToposHom.ModulePushforward.forgetIso
     (AlgebraicSpace.ringedToposHomLift fU)).hom.app N).hom.app (op b)
   let t := (i.op.ranObjObjIsoLimit Q.obj v).hom ≫

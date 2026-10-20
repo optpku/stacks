@@ -1,193 +1,169 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_33_2_RelativeDimension
-public import stacks_project.Chap67.Definition_67_39_1_Etale
-public import stacks_project.Chap67.Definition_67_40_1_FiniteType
-public import stacks_project.Chap67.Lemma_67_27_7_LocallyQuasiFinite
-public import stacks_project.Chap67.Lemma_67_34_4_FiberDimensionLocus
-public import stacks_project.Chap67.Lemma_67_34_7_QuasiFiniteLocus
-public import stacks_project.Chap67.Lemma_67_38_10_SourceLocus
-public import stacks_project.Chap100.Remark_100_9_19
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.RelativeDimension.SourceLocus
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.QuasiFinite.SourceLocus
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Unramified.SourceLocus
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Flat.SourceLocus
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Etale.SourceLocus
 
 /-!
-# Unambiguous source opens for Lemma 100.9.18
+# Unambiguous source opens
 
-Despite the warning in Remark 100.9.19, Lemma 100.9.18 applies unambiguously
-for several triples of morphism properties of algebraic spaces. In each case
-the fppf-local and smoothness hypotheses of Lemma 100.9.18 are omitted, while
-cited Morphisms-of-Spaces results supply the largest-source-open existence and
-base-change statements. Additional triples may be added by comparison with
-Remark 40.6.3.
+The five cases are relative dimension at most `d`, local quasi-finiteness,
+unramifiedness, flatness, and étaleness. The first three assume local finite
+type and commute with arbitrary base change: the empty condition on base
+change means no restriction. The last two assume local finite presentation
+and commute with flat, locally finite-presentation base change. In particular,
+the largest flat source open then equals the pointwise flat locus.
+
+The source omits verification of assumptions (1) and (2) of Lemma 100.9.18;
+these assumptions still apply. Its references establish assumptions (3) and (4).
 -/
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry Limits MorphismProperty
+open CategoryTheory AlgebraicGeometry Limits
 open AlgebraicGeometry.AlgebraicSpace
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+/- Remark 100.9.20. The largest source open for bounded relative dimension. -/
+@[stacks 06M5] #check (AlgebraicGeometry.AlgebraicSpace.exists_isLargestSourceOpen_relativeDimensionLE :
+  ∀ {S : Scheme.{u}}
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyOfFiniteType f] (d : ℕ),
+    ∃ W : OpenSubspace X, (RelativeDimensionLE (W.ι ≫ f) d ∧
+      ∀ U : OpenSubspace X, RelativeDimensionLE (U.ι ≫ f) d →
+        U.pointsSet ⊆ W.pointsSet))
 
-/-- The morphism property of having relative dimension at most `d`. -/
-abbrev relativeDimensionLE {S : Scheme.{u}} (d : ℕ) :
-    MorphismProperty (AlgebraicSpace S) :=
-  fun _ _ f ↦ RelativeDimensionLE f d
-
-/-- Unfolding `relativeDimensionLE d` recovers the class `RelativeDimensionLE`. -/
-theorem relativeDimensionLE_def {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (d : ℕ) (f : X ⟶ Y) :
-    relativeDimensionLE d f ↔ RelativeDimensionLE f d :=
-  sorry
-
-/-- Remark 100.9.20 (1): Lemma 100.9.18 applies with
-`P = relativeDimensionLE d`, `Q = (@LocallyOfFiniteType S)`, and `R = ⊤`.
-Thus a morphism `f : X ⟶ Y` of algebraic spaces which is locally of finite
-type has a largest open source subspace `W` such that `W.ι ≫ f` has relative
-dimension at most `d`. -/
-@[stacks 06M5]
-theorem exists_isLargestSourceOpen_relativeDimensionLE {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyOfFiniteType f] (d : ℕ) :
-    ∃ W : OpenSubspace X, IsLargestSourceOpen (relativeDimensionLE d) f W :=
-  sorry
-
-/-- The largest open source subspace on which `f` has relative dimension at most
-`d` is stable under arbitrary base change. -/
-theorem isLargestSourceOpen_relativeDimensionLE_pullback {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.isLargestSourceOpen_relativeDimensionLE_pullback :
+  ∀ {S : Scheme.{u}}
     {X Y Y' : AlgebraicSpace S} (f : X ⟶ Y) (g : Y' ⟶ Y)
     [LocallyOfFiniteType f] (d : ℕ) (W : OpenSubspace X)
-    (hW : IsLargestSourceOpen (relativeDimensionLE d) f W) :
-    IsLargestSourceOpen (relativeDimensionLE d) (pullback.snd f g)
-      (W.inverseImage (pullback.fst f g)) :=
-  sorry
+    (hW : (RelativeDimensionLE (W.ι ≫ f) d ∧
+      ∀ U : OpenSubspace X, RelativeDimensionLE (U.ι ≫ f) d →
+        U.pointsSet ⊆ W.pointsSet)),
+    (RelativeDimensionLE ((W.inverseImage (pullback.fst f g)).ι ≫ (pullback.snd f g)) d ∧
+      ∀ U : OpenSubspace (pullback f g), RelativeDimensionLE (U.ι ≫ (pullback.snd f g)) d →
+        U.pointsSet ⊆ (W.inverseImage (pullback.fst f g)).pointsSet))
 
-/-- If `W` is a largest open source subspace on which `f` has relative dimension
-at most `d`, then the points of `W` are exactly the points at which `f` has
-relative dimension at most `d`. -/
-theorem isLargestSourceOpen_relativeDimensionLE_pointsSet {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.isLargestSourceOpen_relativeDimensionLE_pointsSet :
+  ∀ {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyOfFiniteType f] (d : ℕ)
-    (W : OpenSubspace X) (hW : IsLargestSourceOpen (relativeDimensionLE d) f W) :
-    W.pointsSet = fiberDimensionLELocus f d :=
-  sorry
+    (W : OpenSubspace X) (hW : (RelativeDimensionLE (W.ι ≫ f) d ∧
+      ∀ U : OpenSubspace X, RelativeDimensionLE (U.ι ≫ f) d →
+        U.pointsSet ⊆ W.pointsSet)),
+    W.pointsSet = fiberDimensionLELocus f d)
 
-/-- Remark 100.9.20 (2): Lemma 100.9.18 applies with
-`P = (@LocallyQuasiFinite S)`, `Q = (@LocallyOfFiniteType S)`, and `R = ⊤`.
-This is the case `d = 0` of the previous item. -/
-@[stacks 06M5]
-theorem exists_isLargestSourceOpen_locallyQuasiFinite {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyOfFiniteType f] :
-    ∃ W : OpenSubspace X, IsLargestSourceOpen (@LocallyQuasiFinite S) f W :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.exists_isLargestSourceOpen_locallyQuasiFinite :
+  ∀ {S : Scheme.{u}}
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyOfFiniteType f],
+    ∃ W : OpenSubspace X, (LocallyQuasiFinite (W.ι ≫ f) ∧
+      ∀ U : OpenSubspace X, LocallyQuasiFinite (U.ι ≫ f) →
+        U.pointsSet ⊆ W.pointsSet))
 
-/-- The quasi-finite locus is a largest open source subspace on which `f` is
-locally quasi-finite. -/
-theorem isLargestSourceOpen_locallyQuasiFinite_quasiFiniteLocus
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [LocallyOfFiniteType f] :
-    IsLargestSourceOpen (@LocallyQuasiFinite S) f (quasiFiniteLocus f) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.isLargestSourceOpen_locallyQuasiFinite_quasiFiniteLocus :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [LocallyOfFiniteType f],
+    (LocallyQuasiFinite ((quasiFiniteLocus f).ι ≫ f) ∧
+      ∀ U : OpenSubspace X, LocallyQuasiFinite (U.ι ≫ f) →
+        U.pointsSet ⊆ (quasiFiniteLocus f).pointsSet))
 
-/-- The largest open source subspace on which `f` is locally quasi-finite is
-stable under arbitrary base change. -/
-theorem isLargestSourceOpen_locallyQuasiFinite_pullback {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.isLargestSourceOpen_locallyQuasiFinite_pullback :
+  ∀ {S : Scheme.{u}}
     {X Y Y' : AlgebraicSpace S} (f : X ⟶ Y) (g : Y' ⟶ Y)
     [LocallyOfFiniteType f] (W : OpenSubspace X)
-    (hW : IsLargestSourceOpen (@LocallyQuasiFinite S) f W) :
-    IsLargestSourceOpen (@LocallyQuasiFinite S) (pullback.snd f g)
-      (W.inverseImage (pullback.fst f g)) :=
-  sorry
+    (hW : (LocallyQuasiFinite (W.ι ≫ f) ∧
+      ∀ U : OpenSubspace X, LocallyQuasiFinite (U.ι ≫ f) →
+        U.pointsSet ⊆ W.pointsSet)),
+    (LocallyQuasiFinite ((W.inverseImage (pullback.fst f g)).ι ≫ (pullback.snd f g)) ∧
+      ∀ U : OpenSubspace (pullback f g), LocallyQuasiFinite (U.ι ≫ (pullback.snd f g)) →
+        U.pointsSet ⊆ (W.inverseImage (pullback.fst f g)).pointsSet))
 
-/-- Under the locally-of-finite-type hypothesis, a largest source open for
-locally quasi-finite morphisms is the same as a largest source open for
-relative dimension at most `0`. -/
-theorem isLargestSourceOpen_locallyQuasiFinite_iff_relativeDimensionLE_zero
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [LocallyOfFiniteType f] (W : OpenSubspace X) :
-    IsLargestSourceOpen (@LocallyQuasiFinite S) f W ↔
-      IsLargestSourceOpen (relativeDimensionLE 0) f W :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.isLargestSourceOpen_locallyQuasiFinite_iff_relativeDimensionLE_zero :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [LocallyOfFiniteType f] (W : OpenSubspace X),
+    (LocallyQuasiFinite (W.ι ≫ f) ∧
+      ∀ U : OpenSubspace X, LocallyQuasiFinite (U.ι ≫ f) →
+        U.pointsSet ⊆ W.pointsSet) ↔
+      (RelativeDimensionLE (W.ι ≫ f) 0 ∧
+      ∀ U : OpenSubspace X, RelativeDimensionLE (U.ι ≫ f) 0 →
+        U.pointsSet ⊆ W.pointsSet))
 
-/-- Remark 100.9.20 (3): Lemma 100.9.18 applies with `P = (@Unramified S)`,
-`Q = (@LocallyOfFiniteType S)`, and `R = ⊤`. -/
-@[stacks 06M5]
-theorem exists_isLargestSourceOpen_unramified {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyOfFiniteType f] :
-    ∃ W : OpenSubspace X, IsLargestSourceOpen (@Unramified S) f W :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.exists_isLargestSourceOpen_unramified :
+  ∀ {S : Scheme.{u}}
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyOfFiniteType f],
+    ∃ W : OpenSubspace X, (Unramified (W.ι ≫ f) ∧
+      ∀ U : OpenSubspace X, Unramified (U.ι ≫ f) →
+        U.pointsSet ⊆ W.pointsSet))
 
-/-- The unramified source locus is a largest open source subspace on which `f`
-is unramified. -/
-theorem isLargestSourceOpen_unramified_sourceLocus {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyOfFiniteType f] :
-    IsLargestSourceOpen (@Unramified S) f (Unramified.sourceLocus f) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.isLargestSourceOpen_unramified_sourceLocus :
+  ∀ {S : Scheme.{u}}
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyOfFiniteType f],
+    (Unramified ((Unramified.sourceLocus f).ι ≫ f) ∧
+      ∀ U : OpenSubspace X, Unramified (U.ι ≫ f) →
+        U.pointsSet ⊆ (Unramified.sourceLocus f).pointsSet))
 
-/-- The largest open source subspace on which `f` is unramified is stable under
-arbitrary base change. -/
-theorem isLargestSourceOpen_unramified_pullback {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.isLargestSourceOpen_unramified_pullback :
+  ∀ {S : Scheme.{u}}
     {X Y Y' : AlgebraicSpace S} (f : X ⟶ Y) (g : Y' ⟶ Y)
     [LocallyOfFiniteType f] (W : OpenSubspace X)
-    (hW : IsLargestSourceOpen (@Unramified S) f W) :
-    IsLargestSourceOpen (@Unramified S) (pullback.snd f g)
-      (W.inverseImage (pullback.fst f g)) :=
-  sorry
+    (hW : (Unramified (W.ι ≫ f) ∧
+      ∀ U : OpenSubspace X, Unramified (U.ι ≫ f) →
+        U.pointsSet ⊆ W.pointsSet)),
+    (Unramified ((W.inverseImage (pullback.fst f g)).ι ≫ (pullback.snd f g)) ∧
+      ∀ U : OpenSubspace (pullback f g), Unramified (U.ι ≫ (pullback.snd f g)) →
+        U.pointsSet ⊆ (W.inverseImage (pullback.fst f g)).pointsSet))
 
-/-- If `W` is a largest open source subspace on which `f` is unramified, then
-the points of `W` are exactly the points at which `f` is unramified. -/
-theorem isLargestSourceOpen_unramified_pointsSet {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.isLargestSourceOpen_unramified_pointsSet :
+  ∀ {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyOfFiniteType f]
-    (W : OpenSubspace X) (hW : IsLargestSourceOpen (@Unramified S) f W) :
-    W.pointsSet = {x | UnramifiedAt f x} :=
-  sorry
+    (W : OpenSubspace X) (hW : (Unramified (W.ι ≫ f) ∧
+      ∀ U : OpenSubspace X, Unramified (U.ι ≫ f) →
+        U.pointsSet ⊆ W.pointsSet)),
+    W.pointsSet = {x | UnramifiedAt f x})
 
-/-- Remark 100.9.20 (4): Lemma 100.9.18 applies with `P = (@Flat S)`,
-`Q = (@LocallyOfFinitePresentation S)`, and
-`R = (@Flat S ⊓ @LocallyOfFinitePresentation S)`. If `f` is locally of finite
-presentation, then there is a largest open source subspace `W` on which `f` is
-flat, and the points of `W` are exactly the points at which `f` is flat. -/
-@[stacks 06M5]
-theorem exists_isLargestSourceOpen_flat_of_locallyOfFinitePresentation
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [LocallyOfFinitePresentation f] :
+#check (AlgebraicGeometry.AlgebraicSpace.exists_isLargestSourceOpen_flat_of_locallyOfFinitePresentation :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [LocallyOfFinitePresentation f],
     ∃ W : OpenSubspace X,
-      IsLargestSourceOpen (@Flat S) f W ∧ W.pointsSet = {x | FlatAt f x} :=
-  sorry
+      (Flat (W.ι ≫ f) ∧
+      ∀ U : OpenSubspace X, Flat (U.ι ≫ f) →
+        U.pointsSet ⊆ W.pointsSet) ∧ W.pointsSet = {x | FlatAt f x})
 
-/-- Remark 100.9.20 (5): Lemma 100.9.18 applies with `P = (@Etale S)`,
-`Q = (@LocallyOfFinitePresentation S)`, and
-`R = (@Flat S ⊓ @LocallyOfFinitePresentation S)`. This combines (3) and (4),
-since an unramified morphism which is flat and locally of finite presentation
-is étale. -/
-@[stacks 06M5]
-theorem exists_isLargestSourceOpen_etale {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyOfFinitePresentation f] :
-    ∃ W : OpenSubspace X, IsLargestSourceOpen (@Etale S) f W :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.isLargestSourceOpen_flat_pullback :
+  ∀ {S : Scheme.{u}}
+    {X Y Y' : AlgebraicSpace S} (f : X ⟶ Y) (g : Y' ⟶ Y)
+    [Flat g] [LocallyOfFinitePresentation g] (W : OpenSubspace X)
+    (hW : Flat (W.ι ≫ f) ∧
+      ∀ U : OpenSubspace X, Flat (U.ι ≫ f) → U.pointsSet ⊆ W.pointsSet),
+    Flat ((W.inverseImage (pullback.fst f g)).ι ≫ pullback.snd f g) ∧
+      ∀ U : OpenSubspace (pullback f g),
+        Flat (U.ι ≫ pullback.snd f g) →
+          U.pointsSet ⊆ (W.inverseImage (pullback.fst f g)).pointsSet)
 
-/-- The largest open source subspace on which `f` is étale is stable under base
-change along morphisms that are flat and locally of finite presentation. -/
-theorem isLargestSourceOpen_etale_pullback {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.exists_isLargestSourceOpen_etale :
+  ∀ {S : Scheme.{u}}
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyOfFinitePresentation f],
+    ∃ W : OpenSubspace X, (Etale (W.ι ≫ f) ∧
+      ∀ U : OpenSubspace X, Etale (U.ι ≫ f) →
+        U.pointsSet ⊆ W.pointsSet))
+
+#check (AlgebraicGeometry.AlgebraicSpace.isLargestSourceOpen_etale_pullback :
+  ∀ {S : Scheme.{u}}
     {X Y Y' : AlgebraicSpace S} (f : X ⟶ Y) (g : Y' ⟶ Y)
     [LocallyOfFinitePresentation f] [Flat g] [LocallyOfFinitePresentation g]
-    (W : OpenSubspace X) (hW : IsLargestSourceOpen (@Etale S) f W) :
-    IsLargestSourceOpen (@Etale S) (pullback.snd f g)
-      (W.inverseImage (pullback.fst f g)) :=
-  sorry
+    (W : OpenSubspace X) (hW : (Etale (W.ι ≫ f) ∧
+      ∀ U : OpenSubspace X, Etale (U.ι ≫ f) →
+        U.pointsSet ⊆ W.pointsSet)),
+    (Etale ((W.inverseImage (pullback.fst f g)).ι ≫ (pullback.snd f g)) ∧
+      ∀ U : OpenSubspace (pullback f g), Etale (U.ι ≫ (pullback.snd f g)) →
+        U.pointsSet ⊆ (W.inverseImage (pullback.fst f g)).pointsSet))
 
-/-- If `W` is a largest open source subspace on which `f` is étale, then the
-points of `W` are exactly the points at which `f` is étale. -/
-theorem isLargestSourceOpen_etale_pointsSet {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.isLargestSourceOpen_etale_pointsSet :
+  ∀ {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyOfFinitePresentation f]
-    (W : OpenSubspace X) (hW : IsLargestSourceOpen (@Etale S) f W) :
-    W.pointsSet = {x | EtaleAt f x} :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+    (W : OpenSubspace X) (hW : (Etale (W.ι ≫ f) ∧
+      ∀ U : OpenSubspace X, Etale (U.ι ≫ f) →
+        U.pointsSet ⊆ W.pointsSet)),
+    W.pointsSet = {x | EtaleAt f x})

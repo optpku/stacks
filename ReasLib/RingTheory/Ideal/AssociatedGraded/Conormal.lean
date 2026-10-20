@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.LinearAlgebra.SymmetricAlgebra.Basic
 public import Mathlib.RingTheory.Ideal.Cotangent
-public import ReasLib.RingTheory.Ideal.AssociatedGraded.Basic
+public import ReasLib.RingTheory.Ideal.AssociatedGraded.DegreeZero
 
 /-!
 # The conormal algebra map
@@ -78,8 +72,8 @@ private noncomputable def idealConormalDegreeOneLinear :
     map_smul' := by
       intro a x
       obtain ⟨r, rfl⟩ := Ideal.Quotient.mk_surjective a
-      change f (r • x) = r • f x
-      simpa using f.map_smul r x }
+      change f (algebraMap R (R ⧸ I) r • x) = algebraMap R (R ⧸ I) r • f x
+      simpa only [IsScalarTower.algebraMap_smul] using f.map_smul r x }
 
 @[simp] private theorem idealConormalDegreeOneLinear_toCotangent
     (x : I) :
@@ -141,9 +135,10 @@ public noncomputable def idealConormalAlgebraQuotient :
       map_smul' := by
         intro a x
         obtain ⟨r, rfl⟩ := Ideal.Quotient.mk_surjective a
-        change idealConormalDegreeOneLinearR (r • x) =
-          r • idealConormalDegreeOneLinearR x
-        simpa using idealConormalDegreeOneLinearR.map_smul r x }
+        change idealConormalDegreeOneLinearR (algebraMap R (R ⧸ I) r • x) =
+          algebraMap R (R ⧸ I) r • idealConormalDegreeOneLinearR x
+        simpa only [IsScalarTower.algebraMap_smul] using
+          idealConormalDegreeOneLinearR.map_smul r x }
   exact SymmetricAlgebra.lift (A := Ideal.AssociatedGraded.ring I)
     idealConormalDegreeOneLinear
 
@@ -194,4 +189,26 @@ public theorem idealConormalDegreeOne_naturality
 /-- The canonical map from the symmetric algebra of an ideal's conormal module onto its
 associated graded ring is surjective. -/
 public theorem idealConormalAlgebraQuotient_surjective :
-    Function.Surjective (idealConormalAlgebraQuotient I) := sorry
+    Function.Surjective (idealConormalAlgebraQuotient I) := by
+  let f := idealConormalAlgebraQuotient I
+  let P : Subalgebra R (reesAlgebra I) :=
+    (f.range.restrictScalars R).comap (Ideal.AssociatedGraded.quotientMap I)
+  let Q : Subalgebra R R[X] := P.map (reesAlgebra I).val
+  have hgen : Algebra.adjoin R
+      (Submodule.map (monomial 1 : R →ₗ[R] R[X]) I : Set R[X]) ≤ Q := by
+    apply Algebra.adjoin_le
+    rintro _ ⟨r, hr, rfl⟩
+    refine ⟨ReesAlgebra.Grading.degreeOne I ⟨r, hr⟩, ?_, rfl⟩
+    change Ideal.AssociatedGraded.quotientMap I
+      (ReesAlgebra.Grading.degreeOne I ⟨r, hr⟩) ∈ f.range
+    refine ⟨SymmetricAlgebra.ι (R ⧸ I) I.Cotangent (I.toCotangent ⟨r, hr⟩), ?_⟩
+    exact idealConormalAlgebraQuotient_ι_toCotangent I ⟨r, hr⟩
+  intro z
+  obtain ⟨p, rfl⟩ := Ideal.Quotient.mk_surjective z
+  have hp : p.1 ∈ Q := by
+    rw [adjoin_monomial_eq_reesAlgebra] at hgen
+    exact hgen p.2
+  obtain ⟨q, hq, heq⟩ := hp
+  have heq' : q = p := Subtype.ext heq
+  subst q
+  exact hq

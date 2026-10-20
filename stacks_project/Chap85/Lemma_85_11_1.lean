@@ -1,20 +1,14 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_11_1_Component
-public import stacks_project.Chap85.Lemma_85_11_1_Flat
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.RingedSite.Simplicial.Flat
+public import ReasLib.CategoryTheory.Sites.Grothendieck.Fiberwise
 
 /-!
 # Lemma 85.11.1
 
-An augmentation of ringed simplicial sites is flat if and only if every
-degree-`n` component morphism is flat.
+A morphism from a ringed simplicial total site is flat if and only if every
+canonical component is flat, for both total-site presentations.
 -/
 
 @[expose] public section
@@ -41,14 +35,53 @@ variable [(SheafOfModules.restrictScalars.{w} a.structureMap).IsRightAdjoint]
 variable [∀ n, (SheafOfModules.restrictScalars.{w}
     (augmentationComponent C J O a n).structureMap).IsRightAdjoint]
 
-/-- Lemma 85.11.1: the morphism `a : (Sh(C_total), O) ⟶ (Sh(D), O_D)` of ringed topoi is
-flat if and only if `a_n : (Sh(C_n), O_n) ⟶ (Sh(D), O_D)` is flat for every
-`n : SimplexCategory`. Here `a_n` is the composite `a ∘ g_n` of `a` with the degree-`n`
-inclusion `g_n`, and `a^♯` is `a.directStructureMap`. -/
-@[stacks 0DH3]
-theorem augmentation_isFlat_iff :
-    ToposHom.IsFlat a ↔
-      ∀ n : SimplexCategory, ToposHom.IsFlat (augmentationComponent C J O a n) :=
-  sorry
+/- Lemma 85.11.1. Flatness is equivalent to flatness of all degree components
+for the continuous-diagram total site. -/
+@[stacks 0DH3] #check (CategoryTheory.SimplicialSites.augmentation_isFlat_iff C J O a :
+  ToposHom.IsFlat a ↔
+    ∀ n : SimplexCategory, ToposHom.IsFlat (augmentationComponent C J O a n))
 
 end CategoryTheory.SimplicialSites
+
+section Fiberwise
+
+variable (F : SimplicialObject Cat.{v, u}) (J : ∀ n, Precoverage (F.obj n))
+variable [Grothendieck.IsFiberwiseSite F J]
+variable (O : Sheaf (Grothendieck.precoverage F J).toGrothendieck RingCat.{w})
+variable {D : RingedSite.{uD, vD, w}}
+variable [UnivLE.{max u v, w}]
+variable [D.siteTopology.HasSheafCompose (forget RingCat.{w})]
+variable [GrothendieckTopology.HasSheafCompose
+    (Grothendieck.precoverage F J).toGrothendieck (forget RingCat.{w})]
+variable [∀ n : SimplexCategory,
+    (Grothendieck.ι F (op n)).IsContinuous (J (op n)).toGrothendieck
+      (Grothendieck.precoverage F J).toGrothendieck]
+variable [∀ n : SimplexCategory,
+    (Grothendieck.ι F (op n)).IsCocontinuous (J (op n)).toGrothendieck
+      (Grothendieck.precoverage F J).toGrothendieck]
+variable [∀ n : SimplexCategory,
+    ((J (op n)).toGrothendieck).HasSheafCompose (forget RingCat.{w})]
+variable [∀ n : SimplexCategory, HasSheafify (J (op n)).toGrothendieck (Type w)]
+variable [∀ n : SimplexCategory, ∀ P : (F.obj (op n))ᵒᵖ ⥤ Type w,
+    (Grothendieck.ι F (op n)).op.HasPointwiseRightKanExtension P]
+variable (a : ToposHom (ofRingSheaf (Grothendieck.precoverage F J).toGrothendieck O) D)
+variable [(SheafOfModules.restrictScalars.{w} a.structureMap).IsRightAdjoint]
+variable [∀ n : SimplexCategory, Functor.IsRightAdjoint (SheafOfModules.restrictScalars.{w}
+    ((Cocontinuous.restrictionMorphism
+      (ofRingSheaf (Grothendieck.precoverage F J).toGrothendieck O)
+      (J (op n)).toGrothendieck (Grothendieck.ι F (op n))).comp a).structureMap)]
+
+/- Lemma 85.11.1. Flatness is equivalent to flatness of all degree components
+for the fiberwise Grothendieck total site. -/
+@[stacks 0DH3] #check (RingedSite.ToposHom.isFlat_iff_restrictions
+  (ofRingSheaf (Grothendieck.precoverage F J).toGrothendieck O)
+  (fun n : SimplexCategory ↦ F.obj (op n))
+  (fun n ↦ (J (op n)).toGrothendieck)
+  (fun n ↦ Grothendieck.ι F (op n))
+  (fun totalObject ↦ ⟨totalObject.base.unop, totalObject.fiber, rfl⟩) a :
+  ToposHom.IsFlat a ↔ ∀ n : SimplexCategory,
+    ToposHom.IsFlat ((Cocontinuous.restrictionMorphism
+      (ofRingSheaf (Grothendieck.precoverage F J).toGrothendieck O)
+      (J (op n)).toGrothendieck (Grothendieck.ι F (op n))).comp a))
+
+end Fiberwise

@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_24_1_Noetherian
-public import stacks_project.Chap72.Definition_72_6_2_Prime
-public import stacks_project.Chap72.Definition_72_6_2_Weil
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Noetherian
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Divisor.Prime
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Divisor.Weil
 import StacksCheckRecall
 
 /-!
@@ -30,12 +24,13 @@ variable [IsLocallyNoetherian X] [IsIntegral X]
 
 /- Definition 72.6.2 (1): a prime divisor is an integral closed subspace of
 codimension one. -/
-@[stacks 0ENJ] #check PrimeDivisor X
+@[stacks 0ENJ] #check (AlgebraicGeometry.AlgebraicSpace.PrimeDivisor X : Type (u + 1))
 
 /- Definition 72.6.2 (2): a Weil divisor is a locally finite integer formal sum
 of prime divisors. -/
-@[stacks 0ENJ] #check WeilDivisor X
+@[stacks 0ENJ] #check (AlgebraicGeometry.AlgebraicSpace.WeilDivisor X : Type (u + 1))
 
 /- Definition 72.6.2 (3): the Weil divisors on `X` form the additive commutative
 group `Div(X)`. -/
-@[stacks 0ENJ] #check instAddCommGroupWeilDivisor X
+@[stacks 0ENJ] #check (AlgebraicGeometry.AlgebraicSpace.instAddCommGroupWeilDivisor X :
+  AddCommGroup (AlgebraicGeometry.AlgebraicSpace.WeilDivisor X))

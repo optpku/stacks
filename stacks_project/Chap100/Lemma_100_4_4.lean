@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_4_2_Points
-public import stacks_project.Chap94.Definition_94_12_1_MorphismProperty
-public import stacks_project.Chap100.Lemma_100_3_2_MorphismProperty
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Points.Surjective
+import StacksCheckRecall
 
 /-!
 # Points-map characterization of surjective representable morphisms
@@ -27,46 +20,36 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.Groupoids.Hom
-
-namespace Surjective
-
-/-- Lemma 100.4.4: Let `f : X ⟶ Y` be a morphism of algebraic stacks which is
+/- Lemma 100.4.4: Let `f : X ⟶ Y` be a morphism of algebraic stacks which is
 representable by algebraic spaces. Then `Points.map f : Points X → Points Y` is
 surjective if and only if `f` is surjective in the sense of Section 100.3. -/
-@[stacks 04XI]
-theorem iff_map {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
-    (hf : relativelyRepresentableByAlgebraicSpaces f) :
-    Surjective f ↔ Function.Surjective (AlgebraicStack.Points.map f) :=
-  sorry
+@[stacks 04XI] #check (AlgebraicGeometry.Groupoids.Hom.Surjective.iff_map :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y},
+    relativelyRepresentableByAlgebraicSpaces f →
+      (Groupoids.Hom.Surjective f ↔ Function.Surjective (AlgebraicStack.Points.map f)))
 
-/-- If a morphism of algebraic stacks representable by algebraic spaces induces a
+/- If a morphism of algebraic stacks representable by algebraic spaces induces a
 surjective map of points, then it is surjective in the sense of Section 100.3. -/
-theorem of_map {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
-    (hf : relativelyRepresentableByAlgebraicSpaces f)
-    (h : Function.Surjective (AlgebraicStack.Points.map f)) :
-    Surjective f :=
-  sorry
+#check (AlgebraicGeometry.Groupoids.Hom.Surjective.of_map :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y},
+    relativelyRepresentableByAlgebraicSpaces f →
+      Function.Surjective (AlgebraicStack.Points.map f) → Groupoids.Hom.Surjective f)
 
-/-- A 1-morphism of algebraic stacks which is surjective in the sense of
+/- A 1-morphism of algebraic stacks which is surjective in the sense of
 Section 100.3 induces a surjective map of points. -/
-theorem map_surjective {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Surjective f] :
-    Function.Surjective (AlgebraicStack.Points.map f) :=
-  sorry
+#check (AlgebraicGeometry.Groupoids.Hom.Surjective.map_surjective :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Groupoids.Hom.Surjective f],
+    Function.Surjective (AlgebraicStack.Points.map f))
 
-/-- A morphism of algebraic stacks representable by algebraic spaces has the
+/- A morphism of algebraic stacks representable by algebraic spaces has the
 algebraic-space surjectivity property on scheme-slice representing morphisms if
 and only if the induced map of points is surjective. -/
-theorem has_iff_map {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
-    (hf : relativelyRepresentableByAlgebraicSpaces f) :
-    has (@AlgebraicSpace.Surjective S) f ↔
-      Function.Surjective (AlgebraicStack.Points.map f) :=
-  sorry
-
-end Surjective
-
-end AlgebraicGeometry.Groupoids.Hom
+#check (AlgebraicGeometry.Groupoids.Hom.Surjective.has_iff_map :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y},
+    relativelyRepresentableByAlgebraicSpaces f →
+      (Groupoids.Hom.has (@AlgebraicSpace.Surjective S) f ↔
+        Function.Surjective (AlgebraicStack.Points.map f)))

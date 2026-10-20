@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
 public import stacks_project.Chap94.Definition_94_16_4_Smooth
 public import stacks_project.Chap94.Definition_94_16_5_Quotient
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Presentation
 
 /-!
 # Presentations of algebraic stacks
@@ -28,65 +23,47 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- A presentation of an algebraic stack `X` over `S` consists of a smooth groupoid
-`(U, R, s, t, c)` in algebraic spaces over `S` and an equivalence `f : [U / R] ⟶ X`. -/
-structure Presentation {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X] where
-  /-- The presenting groupoid in algebraic spaces over `S`. -/
-  groupoid : GroupoidAlgebraicSpace (ofOver (Over.mk (𝟙 S)))
-  /-- The presenting groupoid is smooth. -/
-  isSmooth : GroupoidAlgebraicSpace.Smooth groupoid
-  /-- The equivalence `f : [U / R] ⟶ X`. -/
-  hom : groupoid.quotientStack ⟶ X
-  /-- `hom` is an equivalence of categories fibred in groupoids over `Over S`. -/
-  isEquivalence : (FiberedCategoryOver.Groupoids.toBasedFunctor hom).IsEquivalence
+#check (AlgebraicGeometry.AlgebraicStack.Presentation :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X], Type (u + 1))
 
 namespace Presentation
 
-/-- Build a presentation from a smooth groupoid over `S` and an equivalence from its
-quotient stack. -/
-def of {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+#check (AlgebraicGeometry.AlgebraicStack.Presentation.of :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
     (G : GroupoidAlgebraicSpace (ofOver (Over.mk (𝟙 S))))
     [GroupoidAlgebraicSpace.Smooth G] (f : G.quotientStack ⟶ X)
-    (hf : (FiberedCategoryOver.Groupoids.toBasedFunctor f).IsEquivalence) :
-    Presentation X where
-  groupoid := G
-  isSmooth := inferInstance
-  hom := f
-  isEquivalence := hf
+    (hf : (FiberedCategoryOver.Groupoids.toBasedFunctor f).IsEquivalence),
+    Presentation X)
 
-/-- The groupoid of `of G f hf` is the supplied groupoid. -/
-@[simp]
-theorem of_groupoid {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+#check (AlgebraicGeometry.AlgebraicStack.Presentation.of_groupoid :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
     (G : GroupoidAlgebraicSpace (ofOver (Over.mk (𝟙 S))))
     [GroupoidAlgebraicSpace.Smooth G] (f : G.quotientStack ⟶ X)
-    (hf : (FiberedCategoryOver.Groupoids.toBasedFunctor f).IsEquivalence) :
-    (of G f hf).groupoid = G := sorry
+    (hf : (FiberedCategoryOver.Groupoids.toBasedFunctor f).IsEquivalence),
+    (of G f hf).groupoid = G)
 
-/-- The equivalence of `of G f hf` is the supplied `1`-morphism. -/
-@[simp]
-theorem of_hom {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+#check (AlgebraicGeometry.AlgebraicStack.Presentation.of_hom :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
     (G : GroupoidAlgebraicSpace (ofOver (Over.mk (𝟙 S))))
     [GroupoidAlgebraicSpace.Smooth G] (f : G.quotientStack ⟶ X)
-    (hf : (FiberedCategoryOver.Groupoids.toBasedFunctor f).IsEquivalence) :
-    (of G f hf).hom = f := sorry
+    (hf : (FiberedCategoryOver.Groupoids.toBasedFunctor f).IsEquivalence),
+    (of G f hf).hom = f)
 
-variable {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
-
-/-- A presentation consists of a smooth groupoid over `S` and an equivalence from its
-quotient stack. -/
-theorem spec (P : Presentation X) :
+#check (AlgebraicGeometry.AlgebraicStack.Presentation.spec :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    (P : Presentation X),
     GroupoidAlgebraicSpace.Smooth P.groupoid ∧
-      (FiberedCategoryOver.Groupoids.toBasedFunctor P.hom).IsEquivalence :=
-  sorry
+      (FiberedCategoryOver.Groupoids.toBasedFunctor P.hom).IsEquivalence)
 
-/-- The presenting groupoid of a presentation is smooth. -/
-theorem smooth (P : Presentation X) : GroupoidAlgebraicSpace.Smooth P.groupoid :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.Presentation.smooth :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    (P : Presentation X),
+    GroupoidAlgebraicSpace.Smooth P.groupoid)
 
-/-- The `1`-morphism of a presentation is an equivalence over `Over S`. -/
-theorem hom_isEquivalence (P : Presentation X) :
-    (FiberedCategoryOver.Groupoids.toBasedFunctor P.hom).IsEquivalence :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.Presentation.hom_isEquivalence :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    (P : Presentation X),
+    (FiberedCategoryOver.Groupoids.toBasedFunctor P.hom).IsEquivalence)
 
 end Presentation
 

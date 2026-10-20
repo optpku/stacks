@@ -1,21 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap71.Lemma_71_7_2_Comparison
-
-/-!
-# Lemma 71.7.2
-
-The conormal sheaf of an effective Cartier divisor on an algebraic space is the
-restriction of its negative/ideal sheaf.
--/
-
-@[expose] public section
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Divisor.EffectiveCartier.Conormal
+import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
@@ -23,23 +9,13 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+variable {S : Scheme.{u}} {D X : AlgebraicSpace S}
+variable (i : D ⟶ X) [IsEffectiveCartierDivisor i]
 
-namespace Hom.Conormal
-
-/-- Lemma 71.7.2. Let `S` be a scheme, let `X` be an algebraic space over `S`, and
-let `i : D ⟶ X` be an effective Cartier divisor. Then the conormal sheaf
-`Hom.conormalSheaf i` is canonically the restriction `(Modules.pullback i).obj`
-of the ideal sheaf `Hom.idealSheaf i`, equivalently of `Hom.negSheaf i` which
-is `𝒪_X(D)^{⊗ -1}`. -/
-@[stacks 0B4F]
-theorem pullbackIdealComparison_isIso {S : Scheme.{u}} {D X : AlgebraicSpace S}
-    (i : D ⟶ X) [IsEffectiveCartierDivisor i] :
+/- Lemma 71.7.2. The conormal sheaf of an effective Cartier divisor is the
+restriction of its ideal sheaf, equivalently its negative divisor sheaf. -/
+@[stacks 0B4F] #check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.pullbackIdealComparison_isIso i :
     IsIso
-      (pullbackIdealComparison i :
-        (Modules.pullback i).obj (negSheaf i) ⟶ conormalSheaf i) :=
-  sorry
-
-end Hom.Conormal
-
-end AlgebraicGeometry.AlgebraicSpace
+      (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.pullbackIdealComparison i :
+        (Modules.pullback i).obj (Hom.negSheaf i) ⟶ Hom.conormalSheaf i))

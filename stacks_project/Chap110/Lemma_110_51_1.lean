@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap66.Lemma_66_16_4_Etale
-public import stacks_project.Chap66.Lemma_66_4_6_Topology
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale.Specialization
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -18,13 +11,12 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 110.51.1: there exists an étale morphism of algebraic spaces `f : X ⟶ Y`
+/- Lemma 110.51.1: there exists an étale morphism of algebraic spaces `f : X ⟶ Y`
 and a nontrivial specialization of points `x ⤳ x'` in `|X|` with `f(x) = f(x')`
 in `|Y|`. -/
-@[stacks 06UK]
-theorem exists_etale_nontrivial_specialization_in_fibre :
+@[stacks 06UK] #check
+  (AlgebraicGeometry.AlgebraicSpace.exists_etale_nontrivial_specialization_in_fibre :
     ∃ (S : Scheme.{u}) (X Y : AlgebraicSpace S) (f : X ⟶ Y) (x x' : Points X),
-      Etale f ∧ Specializes x x' ∧ x ≠ x' ∧ Points.map f x = Points.map f x' :=
-  sorry
+      Etale f ∧ Specializes x x' ∧ x ≠ x' ∧ Points.map f x = Points.map f x')
 
 end AlgebraicGeometry.AlgebraicSpace

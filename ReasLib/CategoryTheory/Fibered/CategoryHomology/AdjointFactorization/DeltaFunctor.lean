@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.CategoryHomology.AdjointFactorization
@@ -130,7 +124,9 @@ theorem deltaFunctor_degree_isCoeffaceable (n : ℕ) (hn : 0 < n) :
 /-- The comparison-index homological delta functor is universal. -/
 @[stacks 08PK "universality of comparison-index homology"]
 instance deltaFunctor.isUniversal :
-    HomologicalDeltaFunctor.IsUniversal (deltaFunctor g J K) := sorry
+    HomologicalDeltaFunctor.IsUniversal (deltaFunctor g J K) :=
+  HomologicalDeltaFunctor.isUniversal_of_coeffaceable (deltaFunctor g J K)
+    (fun n hn ↦ deltaFunctor_degree_isCoeffaceable g J K n hn)
 
 variable [Functor.IsContinuous (toFunctor g) K J]
 variable [

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.HomDerivedExt
@@ -33,7 +27,7 @@ abbrev moduleForget := sheafCompose Y.smallEtaleTopology
 
 /-- Evaluation of additive sheaves on the identity étale object. -/
 def abSections : Sheaf Y.smallEtaleTopology AddCommGrpCat.{u + 1} ⥤ AddCommGrpCat.{u + 1} :=
-  sheafToPresheaf _ _ ⋙ (CategoryTheory.evaluation _ AddCommGrpCat.{u + 1}).obj (op (globalEtale Y))
+  sheafToPresheaf _ _ ⋙ (CategoryTheory.evaluation _ AddCommGrpCat.{u + 1}).obj (op (AlgebraicGeometry.Scheme.Etale.globalEtale Y))
 
 /-- Additive sections preserve addition on maps. -/
 instance abSections_additive : (abSections Y).Additive := sorry

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.NaiveCotangent.Presentation.Derived
@@ -37,7 +31,7 @@ variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
 variable {A B : Sheaf J CommRingCat.{w}}
 variable (φ : A ⟶ B)
 variable (G : SheafOfModules (ringSheaf J (Under.mk φ).right))
-variable [HasDerivedCategory (SheafOfModules (ringSheaf J (Under.mk φ).right))]
+variable [derivedCategory : HasDerivedCategory (SheafOfModules (ringSheaf J (Under.mk φ).right))]
 
 /-- Incoming differentials into degree `-1` of a presentation model vanish after composing with
 a map out of the conormal source. -/

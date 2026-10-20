@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap69.Lemma_69_13_4_Product
-public import stacks_project.Chap69.Lemma_69_13_4_Restriction
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.IdealPower.Restriction
 import StacksCheckRecall
 
 open AlgebraicGeometry CategoryTheory

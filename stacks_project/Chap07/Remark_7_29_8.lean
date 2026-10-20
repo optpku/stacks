@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.Topos.Factorization.Special
@@ -24,4 +18,4 @@ finite-limit site with special-cocontinuous presentations from both sides. -/
 
 @[stacks 03CK "existence"] #check @CategoryTheory.MorphismOfTopoiIn.Factorization.CommonSite.exists_of_equivalence
 
-@[stacks 03CK "comparison"] #check @CategoryTheory.MorphismOfTopoiIn.Factorization.CommonSite.cocontinuousComparison_nonempty
+@[stacks 03CK "comparison"] #check @CategoryTheory.MorphismOfTopoiIn.Factorization.CommonSite.cocontinuousComparisonIso

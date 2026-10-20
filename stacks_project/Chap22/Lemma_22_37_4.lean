@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DifferentialGradedModule.DerivedMorita.Ordinary
@@ -43,7 +37,7 @@ characterized by a compact generator with the prescribed shifted endomorphisms. 
 #check @CochainDGAlgebra.Hom.homologyZeroMap
 #check @DifferentialGradedModule.Derived.regularEndAlgHom
 #check @DifferentialGradedModule.Derived.regularEndAlgHom_bijective
-#check @DifferentialGradedModule.Derived.nonempty_homologyZeroAlgEquiv_regularEnd
+#check @DifferentialGradedModule.Derived.regularEndAlgEquiv
 
 /- Lemma 22.37.4 (2) (09S8): the constructed equivalence sends the regular object to the chosen
 generator. -/

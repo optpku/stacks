@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_39_8_Uniqueness
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.ValuativeCriterion.Uniqueness
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,7 +15,7 @@ satisfy the uniqueness part of the valuative criterion is another morphism
 of algebraic stacks which satisfies the uniqueness part of the valuative
 criterion. -/
 @[stacks 0CLI] #check
-  (ValuativeCriterion.Uniqueness.comp :
+  (AlgebraicGeometry.AlgebraicStack.ValuativeCriterion.Uniqueness.comp :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
       (f : X ⟶ Y) (g : Y ⟶ Z)

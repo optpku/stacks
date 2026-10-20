@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_13_7_PseudoCoherent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.PseudoCoherent.Noetherian
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +14,7 @@ universe u
 `m`-pseudo-coherent exactly when it is bounded above and its cohomology sheaves in degrees
 `i ≥ m` are coherent. -/
 @[stacks 08IK] #check
-  (ModuleDerived.isMPseudoCoherent_iff_boundedAbove_and_cohomology_coherent_ge :
+  (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.isMPseudoCoherent_iff_boundedAbove_and_cohomology_coherent_ge :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNoetherian X] (E : DerivedQCoh X) (m : ℤ),
       IsMPseudoCoherent X E.obj m ↔
         (t.minus : ObjectProperty (ModuleDerived X)) E.obj ∧
@@ -30,7 +24,7 @@ universe u
 /- Lemma 75.13.7 (2): over a Noetherian algebraic space, an object of `D_QCoh(𝒪_X)` is
 pseudo-coherent exactly when it is bounded above and has coherent cohomology in every degree. -/
 @[stacks 08IK] #check
-  (ModuleDerived.isPseudoCoherent_iff_boundedAbove_and_cohomology_coherent :
+  (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.isPseudoCoherent_iff_boundedAbove_and_cohomology_coherent :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNoetherian X] (E : DerivedQCoh X),
       IsPseudoCoherent X E.obj ↔
         (t.minus : ObjectProperty (ModuleDerived X)) E.obj ∧

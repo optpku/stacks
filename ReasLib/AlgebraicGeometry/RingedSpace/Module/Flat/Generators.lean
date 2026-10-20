@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Presheaf.Flat.Generators
@@ -55,14 +49,14 @@ abbrev localizedGeneratorCoproducts (X : RingedSpace.{u}) :
     ObjectProperty X.Modules :=
   SheafOfModules.RingedSite.localizedGeneratorCoproducts X.sheaf
 
-/-- Lemma 17.17.7 (05NI) (1): every module sheaf on a ringed space is an epimorphic image of a
+/-- Every module sheaf on a ringed space is an epimorphic image of a
 coproduct of localized structure-module generators. -/
 @[stacks 05NI "(1)"]
 theorem exists_epi_from_localizedGenerators (ℱ : X.Modules) :
     ∃ (I : Type u) (U : I → Opens X)
       (φ : (∐ fun i ↦ localizedGenerator X (U i)) ⟶ ℱ), Epi φ := sorry
 
-/-- Lemma 17.17.7 (05NI) (2): every module sheaf on a ringed space is an epimorphic image of a
+/-- Every module sheaf on a ringed space is an epimorphic image of a
 flat module sheaf. -/
 @[stacks 05NI "(2)"]
 theorem exists_epi_from_flat (ℱ : X.Modules) :

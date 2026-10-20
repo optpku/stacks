@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Geometrically.Irreducible
@@ -39,6 +33,7 @@ variable {k : Type u} [Field k] [Fintype k]
 variable {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
 variable (X : SchemeOverField k)
 variable [ConnectedSpace X.left] [ConnectedSpace (Spec (CommRingCat.of k))]
+variable [ConnectedSpace (geometricBaseChange X)]
 variable (etaBar : GeometricPoint X.left)
 
 /-- Small étale Grothendieck topology of the underlying scheme of `X`. -/

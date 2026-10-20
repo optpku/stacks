@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.GroupoidScheme
@@ -34,6 +28,11 @@ class IsQuasiSplittingSituation {S : Scheme.{u}} (G : GroupoidScheme S) (u : G.U
   [target_locallyOfFiniteType : LocallyOfFiniteType G.t.left]
   /-- The source map is quasi-finite at the identity arrow of `u`. -/
   source_quasiFiniteAt_identity : G.s.left.QuasiFiniteAt (G.e.left u)
+
+attribute [instance] IsQuasiSplittingSituation.source_isSeparated
+  IsQuasiSplittingSituation.target_isSeparated
+  IsQuasiSplittingSituation.source_locallyOfFiniteType
+  IsQuasiSplittingSituation.target_locallyOfFiniteType
 
 namespace IsQuasiSplittingSituation
 

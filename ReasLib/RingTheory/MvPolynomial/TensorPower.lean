@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.PiTensorProduct
@@ -54,6 +48,26 @@ theorem liftSlots_slot {R : Type u} [CommRing R] [Algebra A R]
     (n : ℕ) (f : Fin (n + 1) → MvPolynomial ι A →ₐ[A] R)
     (j : Fin (n + 1)) (x : MvPolynomial ι A) :
     liftSlots A ι n f (slot A ι n j x) = f j x := sorry
+
+/-- Reindex tensor factors along a map of slots. -/
+noncomputable def reindex (n m : ℕ) (σ : Fin (n + 1) → Fin (m + 1)) :
+    carrier A ι n →ₐ[A] carrier A ι m :=
+  liftSlots A ι n (fun j ↦ slot A ι m (σ j))
+
+/-- Reindexing carries each polynomial slot to its designated target slot. -/
+theorem reindex_slot (n m : ℕ) (σ : Fin (n + 1) → Fin (m + 1))
+    (j : Fin (n + 1)) (x : MvPolynomial ι A) :
+    reindex A ι n m σ (slot A ι n j x) = slot A ι m (σ j) x := sorry
+
+/-- Reindexing by the identity fixes the tensor product. -/
+theorem reindex_id (n : ℕ) :
+    reindex A ι n n id = AlgHom.id A (carrier A ι n) := sorry
+
+/-- Successive reindexings agree with reindexing by the composite slot map. -/
+theorem reindex_comp (n m k : ℕ) (σ : Fin (n + 1) → Fin (m + 1))
+    (τ : Fin (m + 1) → Fin (k + 1)) :
+    (reindex A ι m k τ).comp (reindex A ι n m σ) =
+      reindex A ι n k (τ ∘ σ) := sorry
 
 /-- Map every factor through the same polynomial presentation. -/
 noncomputable def diagonal {R : Type u} [CommRing R] [Algebra A R]

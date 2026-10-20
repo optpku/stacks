@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.TorDimension.Local
@@ -26,6 +20,8 @@ open RingedSpace.ModuleDerived (LocallyHasFiniteTorDimension relativeRestriction
 
 universe u v
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.AlgebraicSpace.ModuleDerived
 
 /-- A derived `𝒪_X`-module locally has finite Tor dimension as an object of
@@ -33,19 +29,39 @@ namespace AlgebraicGeometry.AlgebraicSpace.ModuleDerived
 restriction to the source chart and to the inverse-image structure sheaf of the
 chart morphism. -/
 def HasLocallyFiniteTorDimensionOver {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) (E : ModuleDerived X) : Prop :=
+    (f : X ⟶ Y)
+    [∀ sq : EtaleSquare f,
+      (Functor.Homotopy.toDerived
+        (SmallEtaleModuleGlueing.restrictFunctor_hom sq.left ⋙ Modules.restrictToScheme sq.left.left ⋙
+          Scheme.Modules.toRingedSpace sq.left.left.left)).HasLeftDerivedFunctor (ModuleQis X)]
+    [∀ sq : EtaleSquare f,
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding))] (E : ModuleDerived X) : Prop :=
   ∀ sq : EtaleSquare f,
     LocallyHasFiniteTorDimension
+      (X := RingedSpace.Hom.inverseImageBase sq.map.left.toShHom)
       ((relativeRestriction (sq.map.left).toShHom).obj
         ((restrictToEtaleChart sq.left).obj E))
 
 /-- Locally finite relative Tor dimension unfolds to the étale-chart ringed-space
 condition along each scheme morphism of an `EtaleSquare`. -/
 theorem hasLocallyFiniteTorDimensionOver_iff {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) (E : ModuleDerived X) :
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [∀ sq : EtaleSquare f,
+      (Functor.Homotopy.toDerived
+        (SmallEtaleModuleGlueing.restrictFunctor_hom sq.left ⋙ Modules.restrictToScheme sq.left.left ⋙
+          Scheme.Modules.toRingedSpace sq.left.left.left)).HasLeftDerivedFunctor (ModuleQis X)]
+    [∀ sq : EtaleSquare f,
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding))] (E : ModuleDerived X) :
     HasLocallyFiniteTorDimensionOver f E ↔
       ∀ sq : EtaleSquare f,
         LocallyHasFiniteTorDimension
+          (X := RingedSpace.Hom.inverseImageBase sq.map.left.toShHom)
           ((relativeRestriction (sq.map.left).toShHom).obj
             ((restrictToEtaleChart sq.left).obj E)) :=
   sorry
@@ -63,6 +79,20 @@ Here `X_i` is the fibre product `Y_i ×_Y X` with projections
 theorem hasTorAmplitudeInOver_iff_fpqcCovering
     {S : Scheme.{u}} {X Y : AlgebraicSpace S} {ι : Type v}
     (f : X ⟶ Y) (family : ι → Over Y) (hfamily : FpqcCovering family)
+    [∀ sq : EtaleSquare f,
+      (Functor.Homotopy.toDerived
+        (SmallEtaleModuleGlueing.restrictFunctor_hom sq.left ⋙ Modules.restrictToScheme sq.left.left ⋙
+          Scheme.Modules.toRingedSpace sq.left.left.left)).HasLeftDerivedFunctor (ModuleQis X)]
+    [∀ sq : EtaleSquare f, DerivedCategory.DerivedTensor.Right.Has
+      (C := RingedSpace.Modules (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom))]
+    [∀ i : ι, ∀ sq : EtaleSquare (overPullbackFst f (family i)),
+      (Functor.Homotopy.toDerived
+        (SmallEtaleModuleGlueing.restrictFunctor_hom sq.left ⋙ Modules.restrictToScheme sq.left.left ⋙
+          Scheme.Modules.toRingedSpace sq.left.left.left)).HasLeftDerivedFunctor
+            (ModuleQis (overPullbackObj f (family i)))]
+    [∀ i : ι, ∀ sq : EtaleSquare (overPullbackFst f (family i)),
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom))]
     (E : ModuleDerived X) (hE : derivedQuasiCoherentModuleProperty X E)
     (a b : ℤ) :
     HasTorAmplitudeInOver f E a b ↔
@@ -82,6 +112,25 @@ tor dimension as an object of `D(f_i⁻¹ 𝒪_{Y_i})`. Here `X_i` is the fibre 
 theorem locallyFiniteTorDimensionOver_iff_fpqcCovering
     {S : Scheme.{u}} {X Y : AlgebraicSpace S} {ι : Type v}
     (f : X ⟶ Y) (family : ι → Over Y) (hfamily : FpqcCovering family)
+    [∀ sq : EtaleSquare f,
+      (Functor.Homotopy.toDerived
+        (SmallEtaleModuleGlueing.restrictFunctor_hom sq.left ⋙ Modules.restrictToScheme sq.left.left ⋙
+          Scheme.Modules.toRingedSpace sq.left.left.left)).HasLeftDerivedFunctor (ModuleQis X)]
+    [∀ sq : EtaleSquare f,
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding))]
+    [∀ i : ι, ∀ sq : EtaleSquare (overPullbackFst f (family i)),
+      (Functor.Homotopy.toDerived
+        (SmallEtaleModuleGlueing.restrictFunctor_hom sq.left ⋙ Modules.restrictToScheme sq.left.left ⋙
+          Scheme.Modules.toRingedSpace sq.left.left.left)).HasLeftDerivedFunctor
+            (ModuleQis (overPullbackObj f (family i)))]
+    [∀ i : ι, ∀ sq : EtaleSquare (overPullbackFst f (family i)),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding))]
     (E : ModuleDerived X) (hE : derivedQuasiCoherentModuleProperty X E) :
     HasLocallyFiniteTorDimensionOver f E ↔
       ∀ i, HasLocallyFiniteTorDimensionOver (overPullbackFst f (family i))

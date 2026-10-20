@@ -1,13 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Remark_101_19_5_AutomorphismGroup
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.AutomorphismGroup
 import StacksCheckRecall
+
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicStack
+open scoped Bicategory
+
+universe u
 
 /- Remark 101.19.5
 Let `f : X ⟶ Y` be a morphism of algebraic stacks. Let `x ∈ |X|` be a point.
@@ -16,4 +15,6 @@ and `x` in the literature the terminology `f` is stabilizer preserving at `x`
 or `f` is fixed-point reflecting at `x` is used. We prefer to say `f` induces
 an isomorphism between automorphism groups at `x` and `f(x)`.
 -/
-@[stacks 0DTW] #check AlgebraicGeometry.AlgebraicStack.automorphismGroup.IsIsoAt
+@[stacks 0DTW] #check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.IsIsoAt :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X]
+    [AlgebraicStack Y], (X ⟶ Y) → |X| → Prop)

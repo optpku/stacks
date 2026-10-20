@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve.Genus
-public import stacks_project.Chap111.Situation_111_56_5_Notation_plane_curve_Normalization
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.ProjectiveSpace.PlaneCurve.Rational
+import StacksCheckRecall
 
 /-!
 # Exercise 111.56.8
@@ -19,65 +12,40 @@ abstract curve has genus `0`.
 
 @[expose] public section
 
+open AlgebraicGeometry
+open AlgebraicGeometry.ProjectiveSpace.PlaneCurve
+
 noncomputable section
 
 universe u
 
-open AlgebraicGeometry MvPolynomial
-open AlgebraicGeometry.ProjectiveSpace.PlaneCurve
+variable {k : Type u} [Field k] [IsAlgClosed k]
 
-namespace AlgebraicGeometry.ProjectiveSpace.PlaneCurve
+#check (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.rationalForm_eq k 99 :
+  AlgebraicGeometry.ProjectiveSpace.PlaneCurve.rationalForm k 99 =
+    MvPolynomial.X 1 ^ 100 - MvPolynomial.X 0 ^ 99 * MvPolynomial.X 2)
 
-/-- Exercise 111.56.8 (1): the homogeneous form `X 1 ^ 100 - X 0 ^ 99 * X 2` of
-degree `100` in `k[X 0, X 1, X 2]`, as in Situation 111.56.5. -/
-@[stacks 09U3]
-def rationalForm (k : Type u) [CommRing k] : MvPolynomial (Fin 3) k :=
-  X 1 ^ 100 - X 0 ^ 99 * X 2
+#check (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.rationalForm_mem_grading k 99 :
+  AlgebraicGeometry.ProjectiveSpace.PlaneCurve.rationalForm k 99 ∈
+    AlgebraicGeometry.ProjectiveSpace.grading k 2 100)
 
-/-- Unfolding of `rationalForm k` as `X 1 ^ 100 - X 0 ^ 99 * X 2`. -/
-theorem rationalForm_eq (k : Type u) [CommRing k] :
-    rationalForm k = X 1 ^ 100 - X 0 ^ 99 * X 2 := sorry
+#check (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.rationalForm_totalDegree k 99 :
+  (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.rationalForm k 99).totalDegree = 100)
 
-/-- `rationalForm k` lies in the degree-`100` piece of the standard grading on
-`k[X 0, X 1, X 2]`. -/
-theorem rationalForm_mem_grading (k : Type u) [CommRing k] :
-    rationalForm k ∈ ProjectiveSpace.grading k 2 100 := sorry
+#check (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.irreducible_rationalForm k 99 :
+  Irreducible (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.rationalForm k 99))
 
-/-- `rationalForm k` is a nonzero polynomial over a nontrivial ring. -/
-theorem rationalForm_ne_zero (k : Type u) [CommRing k] [Nontrivial k] :
-    rationalForm k ≠ 0 := sorry
+#check (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.affineEquation_rationalForm k 99 :
+  AlgebraicGeometry.ProjectiveSpace.PlaneCurve.affineEquation
+      (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.rationalForm k 99) =
+    MvPolynomial.X 0 ^ 100 - MvPolynomial.X 1)
 
-/-- `rationalForm k` is irreducible over a field. -/
-theorem irreducible_rationalForm (k : Type u) [Field k] :
-    Irreducible (rationalForm k) := sorry
+#check (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.irreducible_affineEquation_rationalForm k 99 :
+  Irreducible (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.affineEquation
+    (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.rationalForm k 99)))
 
-/-- Irreducibility of `rationalForm k`, as a `Fact`. -/
-instance instFact_irreducible_rationalForm (k : Type u) [Field k] :
-    Fact (Irreducible (rationalForm k)) :=
-  ⟨irreducible_rationalForm k⟩
-
-/-- The abstract curve attached to `rationalForm k` in Situation 111.56.5 with
-`d = 100`. -/
-abbrev rationalAbstractCurve (k : Type u) [Field k] : SchemeOverField k :=
-  abstractCurve 100 (rationalForm k) (rationalForm_mem_grading k)
-
-/-- The abstract curve attached to `rationalForm k` is projective over `k`. -/
-instance instProjective_rationalAbstractCurve (k : Type u) [Field k] :
-    Projective (rationalAbstractCurve k).hom := sorry
-
-/-- The abstract curve attached to `rationalForm k` is smooth over `k`. -/
-instance instSmooth_rationalAbstractCurve (k : Type u) [Field k] :
-    Smooth (rationalAbstractCurve k).hom := sorry
-
-/-- The abstract curve attached to `rationalForm k` is geometrically irreducible
-over `k`. -/
-instance instGeometricallyIrreducible_rationalAbstractCurve (k : Type u) [Field k] :
-    GeometricallyIrreducible (rationalAbstractCurve k).hom := sorry
-
-/-- Exercise 111.56.8 (2): the abstract curve `C` attached to `rationalForm k`
-in Situation 111.56.5 with `d = 100` has genus `0`. -/
-@[stacks 09U3]
-theorem genus_eq_zero (k : Type u) [Field k] [IsAlgClosed k] :
-    Curve.genus (rationalAbstractCurve k) = 0 := sorry
-
-end AlgebraicGeometry.ProjectiveSpace.PlaneCurve
+/- Exercise 111.56.8
+The normalized curve associated to the degree-100 rational plane form has genus zero. -/
+@[stacks 09U3] #check (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.genus_rationalAbstractCurve k 99 :
+  AlgebraicGeometry.Curve.genus
+      (AlgebraicGeometry.ProjectiveSpace.PlaneCurve.rationalAbstractCurve k 99) = 0)

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap91.Lemma_91_5_1_Lift
-public import stacks_project.Chap91.Lemma_91_5_2_Comparison
-public import stacks_project.Chap91.Situation_91_6_2_Diagram
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Lift.Relative
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Thickening.Flat
 
 /-!
 # Relative Hom-action on lifts of module maps
@@ -32,88 +25,88 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.RingedSpace.Thickening.Hom
-namespace ModuleMap
+open AlgebraicGeometry.RingedSpace.Thickening.Hom
+open AlgebraicGeometry.RingedSpace.Thickening.Hom.ModuleMap
 
-variable {T U : Thickening.{u}}
-variable [hT : IsFirstOrderThickening T.hom] [hU : IsFirstOrderThickening U.hom]
-include hT hU
-variable (g : T ⟶ U)
-
-/-- The comparison `𝒢 ⊗_{𝒪_X} f^* 𝒥 ⟶ ℐ𝒢'` obtained by braiding the canonical map
-`f^* 𝒥 ⊗ 𝒢 ⟶ ℐ𝒢'`. -/
-def sourceIdealTensorCompare (G' : T.right.Modules) :
+#check (AlgebraicGeometry.RingedSpace.Thickening.Hom.ModuleMap.sourceIdealTensorCompare :
+  {T U : Thickening.{u}} → [IsFirstOrderThickening T.hom] →
+    [IsFirstOrderThickening U.hom] → (g : T ⟶ U) → (G' : T.right.Modules) →
     (T.hom^*).obj G' ⊗ (g.left^*).obj (idealModule U.hom) ⟶
-      idealMulRestrict T.hom G' :=
-  (β_ ((T.hom^*).obj G') ((g.left^*).obj (idealModule U.hom))).hom ≫
-    sourceIdealMulMap g G'
+      idealMulRestrict T.hom G')
 
-/-- `sourceIdealTensorCompare` is the braiding of `𝒢` with `f^* 𝒥` followed by
-`sourceIdealMulMap`. -/
-theorem sourceIdealTensorCompare_comp (G' : T.right.Modules) :
+#check (AlgebraicGeometry.RingedSpace.Thickening.Hom.ModuleMap.sourceIdealTensorCompare_comp :
+  ∀ {T U : Thickening.{u}} [IsFirstOrderThickening T.hom] [IsFirstOrderThickening U.hom]
+    (g : T ⟶ U) (G' : T.right.Modules),
     sourceIdealTensorCompare g G' =
       (β_ ((T.hom^*).obj G') ((g.left^*).obj (idealModule U.hom))).hom ≫
-        sourceIdealMulMap g G' := sorry
+        sourceIdealMulMap g G')
 
-variable {F' G' : T.right.Modules}
-variable {φ : (T.hom^*).obj F' ⟶ (T.hom^*).obj G'}
+#check (AlgebraicGeometry.RingedSpace.Thickening.Hom.ModuleMap.relativePerturb :
+  {T U : Thickening.{u}} → [IsFirstOrderThickening T.hom] →
+    [IsFirstOrderThickening U.hom] → (g : T ⟶ U) → {F' G' : T.right.Modules} →
+    {φ : (T.hom^*).obj F' ⟶ (T.hom^*).obj G'} →
+    ((T.hom^*).obj F' ⟶ (T.hom^*).obj G' ⊗ (g.left^*).obj (idealModule U.hom)) →
+    Lift F' G' φ → Lift F' G' φ)
 
-/-- Translate a lift of `φ` by an `𝒪_X`-linear map `α : ℱ ⟶ 𝒢 ⊗_{𝒪_X} f^* 𝒥`. -/
-def relativePerturb
+#check (AlgebraicGeometry.RingedSpace.Thickening.Hom.ModuleMap.relativePerturb_hom :
+  ∀ {T U : Thickening.{u}} [IsFirstOrderThickening T.hom] [IsFirstOrderThickening U.hom]
+    (g : T ⟶ U) {F' G' : T.right.Modules}
+    {φ : (T.hom^*).obj F' ⟶ (T.hom^*).obj G'}
     (α : (T.hom^*).obj F' ⟶
       (T.hom^*).obj G' ⊗ (g.left^*).obj (idealModule U.hom))
-    (φ' : Lift F' G' φ) : Lift F' G' φ :=
-  @perturb T.left T.right T.hom F' G' φ hT (α ≫ sourceIdealTensorCompare g G') φ'
-
-/-- The underlying middle map of a `Hom_{𝒪_X}(ℱ, 𝒢 ⊗_{𝒪_X} f^* 𝒥)`-translate is the
-`perturb` of `φ'` by `α ≫ sourceIdealTensorCompare g G'`. -/
-theorem relativePerturb_hom
-    (α : (T.hom^*).obj F' ⟶
-      (T.hom^*).obj G' ⊗ (g.left^*).obj (idealModule U.hom))
-    (φ' : Lift F' G' φ) :
+    (φ' : Lift F' G' φ),
     (relativePerturb g α φ').hom =
-      (perturb (α ≫ sourceIdealTensorCompare g G') φ').hom := sorry
+      (perturb (α ≫ sourceIdealTensorCompare g G') φ').hom)
 
-/-- Along a strict morphism of first-order thickenings, if `𝒢'` is flat over `S'`, the
-comparison `f^* 𝒥 ⊗ 𝒢 ⟶ ℐ𝒢'` is an isomorphism. -/
-theorem isIso_sourceIdealMulMap_of_isFlatOver
-    [SheafOfModules.IsFlatOver G' g.right] (hg : IsStrict g) :
-    IsIso (sourceIdealMulMap g G') := sorry
+#check (AlgebraicGeometry.RingedSpace.Thickening.Hom.ModuleMap.relativePerturb_zero :
+  ∀ {T U : Thickening.{u}} [IsFirstOrderThickening T.hom] [IsFirstOrderThickening U.hom]
+    (g : T ⟶ U) {F' G' : T.right.Modules}
+    {φ : (T.hom^*).obj F' ⟶ (T.hom^*).obj G'} (φ' : Lift F' G' φ),
+    relativePerturb g 0 φ' = φ')
 
-/-- Postcomposition with `sourceIdealTensorCompare` identifies
-`Hom_{𝒪_X}(ℱ, 𝒢 ⊗_{𝒪_X} f^* 𝒥)` with `Hom_{𝒪_X}(ℱ, ℐ𝒢')`. -/
-def homSourceIdealMulEquiv [hμ : IsIso (sourceIdealMulMap g G')]
-    (F' : T.right.Modules) :
+#check (AlgebraicGeometry.RingedSpace.Thickening.Hom.ModuleMap.relativePerturb_add :
+  ∀ {T U : Thickening.{u}} [IsFirstOrderThickening T.hom] [IsFirstOrderThickening U.hom]
+    (g : T ⟶ U) {F' G' : T.right.Modules}
+    {φ : (T.hom^*).obj F' ⟶ (T.hom^*).obj G'}
+    (α β : (T.hom^*).obj F' ⟶
+      (T.hom^*).obj G' ⊗ (g.left^*).obj (idealModule U.hom)) (φ' : Lift F' G' φ),
+    relativePerturb g (α + β) φ' = relativePerturb g α (relativePerturb g β φ'))
+
+#check (AlgebraicGeometry.RingedSpace.Thickening.Hom.isIso_sourceIdealMulMap_of_isFlatOver :
+  ∀ {T U : Thickening.{u}} [IsFirstOrderThickening T.hom] [IsFirstOrderThickening U.hom]
+    (g : T ⟶ U) {G' : T.right.Modules} [SheafOfModules.IsFlatOver G' g.right],
+    IsStrict g → IsIso (sourceIdealMulMap g G'))
+
+#check (AlgebraicGeometry.RingedSpace.Thickening.Hom.ModuleMap.homSourceIdealMulEquiv :
+  {T U : Thickening.{u}} → [IsFirstOrderThickening T.hom] →
+    [IsFirstOrderThickening U.hom] → (g : T ⟶ U) → {G' : T.right.Modules} →
+    [IsIso (sourceIdealMulMap g G')] → (F' : T.right.Modules) →
     ((T.hom^*).obj F' ⟶
       (T.hom^*).obj G' ⊗ (g.left^*).obj (idealModule U.hom)) ≃
-      ((T.hom^*).obj F' ⟶ idealMulRestrict T.hom G') :=
-  ((Iso.refl ((T.hom^*).obj F')).homCongr
-      (β_ ((T.hom^*).obj G') ((g.left^*).obj (idealModule U.hom)))).trans
-    ((Iso.refl ((T.hom^*).obj F')).homCongr
-      (@asIso _ _ _ _ (sourceIdealMulMap g G') hμ))
+      ((T.hom^*).obj F' ⟶ idealMulRestrict T.hom G'))
 
-/-- The forward map of `homSourceIdealMulEquiv` is postcomposition with
-`sourceIdealTensorCompare`. -/
-theorem homSourceIdealMulEquiv_apply [IsIso (sourceIdealMulMap g G')]
+#check (AlgebraicGeometry.RingedSpace.Thickening.Hom.ModuleMap.homSourceIdealMulEquiv_apply :
+  ∀ {T U : Thickening.{u}} [IsFirstOrderThickening T.hom] [IsFirstOrderThickening U.hom]
+    (g : T ⟶ U) {G' : T.right.Modules} [IsIso (sourceIdealMulMap g G')]
     {F' : T.right.Modules}
     (α : (T.hom^*).obj F' ⟶
-      (T.hom^*).obj G' ⊗ (g.left^*).obj (idealModule U.hom)) :
-    homSourceIdealMulEquiv g F' α = α ≫ sourceIdealTensorCompare g G' := sorry
+      (T.hom^*).obj G' ⊗ (g.left^*).obj (idealModule U.hom)),
+    homSourceIdealMulEquiv g F' α = α ≫ sourceIdealTensorCompare g G')
 
-/-- Relative to one lift of `φ`, perturbation by `Hom_{𝒪_X}(ℱ, 𝒢 ⊗_{𝒪_X} f^* 𝒥)`
-parametrizes all lifts. -/
-def relativePerturbEquiv [IsIso (sourceIdealMulMap g G')] (φ' : Lift F' G' φ) :
+#check (AlgebraicGeometry.RingedSpace.Thickening.Hom.ModuleMap.relativePerturbEquiv :
+  {T U : Thickening.{u}} → [IsFirstOrderThickening T.hom] →
+    [IsFirstOrderThickening U.hom] → (g : T ⟶ U) → {F' G' : T.right.Modules} →
+    {φ : (T.hom^*).obj F' ⟶ (T.hom^*).obj G'} →
+    [IsIso (sourceIdealMulMap g G')] → (φ' : Lift F' G' φ) →
     ((T.hom^*).obj F' ⟶
       (T.hom^*).obj G' ⊗ (g.left^*).obj (idealModule U.hom)) ≃
-      Lift F' G' φ :=
-  (homSourceIdealMulEquiv g F').trans (perturbEquiv φ')
+      Lift F' G' φ)
 
-/-- The forward map of `relativePerturbEquiv` is `relativePerturb`. -/
-theorem relativePerturbEquiv_apply [IsIso (sourceIdealMulMap g G')]
+#check (AlgebraicGeometry.RingedSpace.Thickening.Hom.ModuleMap.relativePerturbEquiv_apply :
+  ∀ {T U : Thickening.{u}} [IsFirstOrderThickening T.hom] [IsFirstOrderThickening U.hom]
+    (g : T ⟶ U) {F' G' : T.right.Modules}
+    {φ : (T.hom^*).obj F' ⟶ (T.hom^*).obj G'} [IsIso (sourceIdealMulMap g G')]
     (φ' : Lift F' G' φ)
     (α : (T.hom^*).obj F' ⟶
-      (T.hom^*).obj G' ⊗ (g.left^*).obj (idealModule U.hom)) :
-    relativePerturbEquiv g φ' α = relativePerturb g α φ' := sorry
-
-end ModuleMap
-end AlgebraicGeometry.RingedSpace.Thickening.Hom
+      (T.hom^*).obj G' ⊗ (g.left^*).obj (idealModule U.hom)),
+    relativePerturbEquiv g φ' α = relativePerturb g α φ')

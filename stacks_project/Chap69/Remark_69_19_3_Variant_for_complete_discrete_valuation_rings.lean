@@ -1,23 +1,21 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.FieldTheory.IsAlgClosed.Basic
-public import Mathlib.RingTheory.LocalRing.ResidueField.Defs
-public import stacks_project.Chap69.Lemma_69_19_1
-public import stacks_project.Chap69.Lemma_69_19_2
-public import stacks_project.Chap69.Remark_69_19_3_Variant_for_complete_discrete_valuation_rings_CompleteDVR
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.CompleteDVR.Separated
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.CompleteDVR.Proper
 
 /-!
 # Remark 69.19.3
 
-The Noetherian valuative criteria for morphisms of algebraic spaces still hold
-when discrete valuation rings are replaced by complete discrete valuation rings,
-or more generally by any extension-dense class of discrete valuation rings.
+The Noetherian valuative criteria for morphisms of algebraic spaces suffice when
+tested on complete discrete valuation rings. More generally, any extension-dense
+class of discrete valuation rings suffices, including complete DVRs with
+algebraically closed residue field.
+
+In the existence hypotheses, `ValuativeCommSq.Extension` already stores a lift
+of the extended square, a dominating ring extension, compatible fraction-field
+algebras, and scalar towers. Thus the complete-DVR existence condition requires
+an actual unique lift after an extension of complete DVRs.
 -/
 
 @[expose]
@@ -27,83 +25,43 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+/- Remark 69.19.3 (Variant for complete discrete valuation rings)
+(1) Uniqueness on complete DVR squares implies separatedness under the
+Noetherian finiteness hypotheses. -/
+@[stacks 0ARL] #check
+  (AlgebraicGeometry.AlgebraicSpace.Separated.of_completeDvrUniqueness :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+      [IsLocallyNoetherian Y] → [LocallyOfFiniteType f] → [QuasiSeparated f] →
+      [ValuativeCriterion.CompleteDVR.Uniqueness f] → Separated f)
 
-namespace Separated
+/- (2) A unique lift after a complete-DVR extension implies properness under
+the Noetherian finiteness hypotheses; separatedness is a consequence. -/
+#check (AlgebraicGeometry.AlgebraicSpace.Proper.of_completeDvr :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    [IsLocallyNoetherian Y] → [FiniteType f] → [QuasiSeparated f] →
+    [ValuativeCriterion.CompleteDVR.Existence f] → Proper f)
 
-/-- Remark 69.19.3 (Variant for complete discrete valuation rings) (1): If
-`f : X ⟶ Y` is a morphism of algebraic spaces over a scheme `S`, `Y` is locally
-Noetherian, `f` is locally of finite type and quasi-separated, and every
-complete DVR valuative square has at most one lift, then `f` is separated. -/
-@[stacks 0ARL]
-instance of_completeDvrUniqueness {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [IsLocallyNoetherian Y] [LocallyOfFiniteType f] [QuasiSeparated f]
-    [ValuativeCriterion.CompleteDVR.Uniqueness f] : Separated f :=
-  sorry
+/- (3) Uniqueness can be tested on any extension-dense class of DVRs. -/
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.Uniqueness.of_extensionDense :
+  ∀ {P : ∀ (R : Type u) [CommRing R] [IsDomain R] [IsDiscreteValuationRing R], Prop}
+    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    [IsDiscreteValuationRing.ExtensionDense P] →
+    (∀ (sq : ValuativeCommSq f) [IsDiscreteValuationRing sq.R],
+      P sq.R → Subsingleton sq.commSq.LiftStruct) →
+    ValuativeCriterion.DVR.Uniqueness f)
 
-end Separated
+/- (4) For a separated morphism, existence follows from lifts after extensions
+within an extension-dense class. The extension itself supplies the lift. -/
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.Existence.of_extensionDense :
+  ∀ {P : ∀ (R : Type u) [CommRing R] [IsDomain R] [IsDiscreteValuationRing R], Prop}
+    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    [Separated f] → [IsDiscreteValuationRing.ExtensionDense P] →
+    (∀ (sq : ValuativeCommSq f) [IsDiscreteValuationRing sq.R],
+      P sq.R → ∃ (e : sq.Extension) (hR' : IsDiscreteValuationRing e.R'), P e.R') →
+    ValuativeCriterion.DVR.Existence f)
 
-namespace Proper
-
-/-- Remark 69.19.3 (Variant for complete discrete valuation rings) (2): If
-`f : X ⟶ Y` is a morphism of algebraic spaces over a scheme `S`, `Y` is locally
-Noetherian, `f` is of finite type and quasi-separated, and every complete DVR
-valuative square admits an extension `A ⊂ A'` of complete discrete valuation
-rings with a unique arrow `Spec(A') ⟶ X`, then `f` is proper. -/
-@[stacks 0ARL]
-instance of_completeDvr {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [IsLocallyNoetherian Y] [FiniteType f] [QuasiSeparated f]
-    [ValuativeCriterion.CompleteDVR.Existence f] : Proper f :=
-  sorry
-
-end Proper
-
-namespace ValuativeCriterion.DVR.Uniqueness
-
-/-- Remark 69.19.3 (Variant for complete discrete valuation rings) (3): If `P` is
-an extension-dense class of discrete valuation rings and every valuative square
-whose ring lies in `P` has at most one lift, then `f` satisfies DVR uniqueness. -/
-@[stacks 0ARL]
-theorem of_extensionDense
-    {P : ∀ (R : Type u) [CommRing R] [IsDomain R] [IsDiscreteValuationRing R], Prop}
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [ValuativeCriterion.DVR.ExtensionDense P]
-    (h : ∀ (sq : ValuativeCommSq f) [IsDiscreteValuationRing sq.R],
-      P sq.R → Subsingleton sq.commSq.LiftStruct) :
-    Uniqueness f :=
-  sorry
-
-end ValuativeCriterion.DVR.Uniqueness
-
-namespace ValuativeCriterion.DVR.Existence
-
-/-- Remark 69.19.3 (Variant for complete discrete valuation rings) (4): If `f` is
-separated and `P` is an extension-dense class of discrete valuation rings such
-that every valuative square whose ring lies in `P` admits a `P`-valued
-extension with a lift, then `f` satisfies DVR existence. -/
-@[stacks 0ARL]
-theorem of_extensionDense
-    {P : ∀ (R : Type u) [CommRing R] [IsDomain R] [IsDiscreteValuationRing R], Prop}
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [Separated f] [ValuativeCriterion.DVR.ExtensionDense P]
-    (h : ∀ (sq : ValuativeCommSq f) [IsDiscreteValuationRing sq.R],
-      P sq.R → ∃ (e : sq.Extension) (hR' : IsDiscreteValuationRing e.R'), P e.R') :
-    Existence f :=
-  sorry
-
-end ValuativeCriterion.DVR.Existence
-
-namespace ValuativeCriterion.DVR.ExtensionDense
-
-/-- Remark 69.19.3 (Variant for complete discrete valuation rings) (5): Complete
-discrete valuation rings with algebraically closed residue field form an
-extension-dense class of discrete valuation rings. -/
-@[stacks 0ARL]
-instance completeAlgClosedResidue :
-    ExtensionDense fun (R : Type u) [CommRing R] [IsDomain R] [IsDiscreteValuationRing R] ↦
-      IsCompleteLocalRing R ∧ IsAlgClosed (IsLocalRing.ResidueField R) :=
-  sorry
-
-end ValuativeCriterion.DVR.ExtensionDense
-
-end AlgebraicGeometry.AlgebraicSpace
+/- (5) Complete DVRs with algebraically closed residue field are extension-dense. -/
+#check (IsDiscreteValuationRing.ExtensionDense.completeAlgClosedResidue :
+  IsDiscreteValuationRing.ExtensionDense
+    fun (R : Type u) [CommRing R] [IsDomain R] [IsDiscreteValuationRing R] ↦
+      IsCompleteLocalRing R ∧ IsAlgClosed (IsLocalRing.ResidueField R))

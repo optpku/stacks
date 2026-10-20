@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.HomologicalComplex.Convergence
@@ -44,7 +38,8 @@ end Homology.Filtration
 
 section CompleteSubobjects
 
-variable [CompleteLattice (Subobject ((K.X PUnit.unit).obj))]
+variable [LocallySmall.{v} C] [WellPowered.{v} C]
+  [HasWidePullbacks.{v} C] [HasCoproducts.{v} C]
 
 namespace Homology.Filtration
 

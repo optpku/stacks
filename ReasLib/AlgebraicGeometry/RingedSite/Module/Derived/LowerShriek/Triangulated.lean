@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.LowerShriek
@@ -15,8 +9,8 @@ import Mathlib.Tactic.CrossRefAttribute
 # Triangulated derived lower shriek on ringed sites
 
 The lower-shriek presentation is a total left-derived functor.  This leaf registers the
-pointwise-derived existence owner needed by the generic total-derived shift and triangulation
-API, so downstream geometry does not rebuild local derived-category instances.
+caller-supplied pointwise-derived existence needed by the generic total-derived shift and
+triangulation API, so downstream geometry does not rebuild local derived-category instances.
 -/
 
 @[expose] public section
@@ -39,6 +33,11 @@ variable (R : Sheaf K RingCat.{w})
 variable [UnivLE.{max uC vC, w}] [UnivLE.{max uD vD, w}]
 
 namespace derived
+
+variable [Functor.HasPointwiseLeftDerivedFunctor
+  (toDerived (J := J) (K := K) f R)
+  (RingedSite.Hom.ModuleQis.{w}
+    (moduleInverseImage.source (J := J) (K := K) f R))]
 
 /-- The total left-derived lower shriek commutes with integer shifts. -/
 @[stacks 07AC "derived lower-shriek shift"]

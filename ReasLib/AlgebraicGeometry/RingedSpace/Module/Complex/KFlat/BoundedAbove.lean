@@ -1,13 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Complex.Flat
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.Complex.KFlat.BoundedAbove
+public import ReasLib.Algebra.Homology.CochainComplex.KFlat.BoundedAbove
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Grothendieck
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Tensor.Exact
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -15,7 +11,8 @@ import Mathlib.Tactic.CrossRefAttribute
 
 @stack 06YD
 
-The opens-ringed-site criterion is the reusable owner.  These two declarations keep the
+The categorical criterion `HomologicalComplex.IsTermwiseFlat.isKFlat_of_boundedAbove` is the
+reusable owner.  These two declarations keep the
 ringed-space surface source-friendly while exposing only the canonical boundedness and flatness
 predicates.
 -/

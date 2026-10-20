@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap64.Definition_64_7_1_Projective
+public import ReasLib.CategoryTheory.Filtration.Projective
 import ReasLib.CategoryTheory.Filtration.FiniteBiproduct
 import ReasLib.CategoryTheory.Filtration.FiniteInjective
 import ReasLib.CategoryTheory.Filtration.Derived.BoundedLocalization
@@ -24,48 +18,51 @@ variable {C : Type u} [Category.{v} C] [Abelian C]
 variable [CategoryWithHomology (GradedObject ℤ C)]
 variable [HasDerivedCategory (GradedObject ℤ C)]
 
-/- Definition 64.7.1 (1): Fil(C) is the additive category of decreasing ℤ-filtrations. -/
-@[stacks 03TA] #check @FilteredObject
-@[stacks 03TA] #check @DecreasingFiltration
-@[stacks 03TA] #check (inferInstance : Category (FilteredObject C))
-@[stacks 03TA] #check (inferInstance : Preadditive (FilteredObject C))
-@[stacks 03TA] #check (inferInstance : HasZeroObject (FilteredObject C))
-@[stacks 03TA] #check (inferInstance : HasBinaryBiproducts (FilteredObject C))
+/- Definition 64.7.1: filtered projectivity is projectivity of every associated graded piece. -/
+@[stacks 03TA] #check (CategoryTheory.FilteredObject.IsFilteredProjective : CategoryTheory.FilteredObject C → Prop)
 
-/- Definition 64.7.1 (2): Filᶠ(C) is the full additive subcategory of finite filtrations. -/
-@[stacks 03TA] #check @FilteredObject.IsFinite
-@[stacks 03TA] #check @FilteredObject.Finite.category
-@[stacks 03TA] #check @FilteredObject.Finite.inclusion
-@[stacks 03TA] #check @FilteredObject.Finite.preadditive
-@[stacks 03TA] #check @FilteredObject.Finite.hasBinaryBiproducts
+/- (1): Fil(C) is the additive category of decreasing ℤ-filtrations. -/
+#check @FilteredObject
+#check @DecreasingFiltration
+#check (inferInstance : Category (FilteredObject C))
+#check (inferInstance : Preadditive (FilteredObject C))
+#check (inferInstance : HasZeroObject (FilteredObject C))
+#check (inferInstance : HasBinaryBiproducts (FilteredObject C))
 
-/- Definition 64.7.1 (3): a finite filtered object is filtered injective (resp. projective) when
+/- (2): Filᶠ(C) is the full additive subcategory of finite filtrations. -/
+#check @FilteredObject.IsFinite
+#check @FilteredObject.Finite.category
+#check @FilteredObject.Finite.inclusion
+#check @FilteredObject.Finite.preadditive
+#check @FilteredObject.Finite.hasBinaryBiproducts
+
+/- (3): a finite filtered object is filtered injective (resp. projective) when
 every graded piece is injective (resp. projective). -/
-@[stacks 03TA] #check @FilteredObject.gradedPiece
-@[stacks 03TA] #check @FilteredObject.IsFilteredInjective
-@[stacks 03TA] #check @FilteredObject.Finite.FilteredInjective.property
-@[stacks 03TA] #check @FilteredObject.IsFilteredProjective
+#check @FilteredObject.gradedPiece
+#check @FilteredObject.IsFilteredInjective
+#check @FilteredObject.Finite.FilteredInjective.property
+#check @FilteredObject.IsFilteredProjective
 
-/- Definition 64.7.1 (4): Comp(Filᶠ(C)) ⊃ Comp⁺(Filᶠ(C)) and K(Filᶠ(C)) ⊃ K⁺(Filᶠ(C)) are the
+/- (4): Comp(Filᶠ(C)) ⊃ Comp⁺(Filᶠ(C)) and K(Filᶠ(C)) ⊃ K⁺(Filᶠ(C)) are the
 usual cochain and homotopy categories. -/
-@[stacks 03TA] #check CochainComplex (FilteredObject.Finite.category C) ℤ
-@[stacks 03TA] #check CochainComplex.Plus (FilteredObject.Finite.category C)
-@[stacks 03TA] #check HomotopyCategory (FilteredObject.Finite.category C) (ComplexShape.up ℤ)
-@[stacks 03TA] #check HomotopyCategory.Plus (FilteredObject.Finite.category C)
+#check CochainComplex (FilteredObject.Finite.category C) ℤ
+#check CochainComplex.Plus (FilteredObject.Finite.category C)
+#check HomotopyCategory (FilteredObject.Finite.category C) (ComplexShape.up ℤ)
+#check HomotopyCategory.Plus (FilteredObject.Finite.category C)
 
-/- Definition 64.7.1 (5): a morphism of complexes is a filtered quasi-isomorphism when every
+/- (5): a morphism of complexes is a filtered quasi-isomorphism when every
 associated-graded piece is a quasi-isomorphism. -/
-@[stacks 03TA] #check @FilteredObject.Finite.AssociatedGraded.cochain
-@[stacks 03TA] #check @FilteredObject.Finite.CochainComplex.quasiIso
-@[stacks 03TA] #check @FilteredObject.Finite.Homotopy.quasiIso
-@[stacks 03TA] #check @FilteredObject.Finite.Homotopy.quasiIso_iff
+#check @FilteredObject.Finite.AssociatedGraded.cochain
+#check @FilteredObject.Finite.CochainComplex.quasiIso
+#check @FilteredObject.Finite.Homotopy.quasiIso
+#check @FilteredObject.Finite.Homotopy.quasiIso_iff
 
-/- Definition 64.7.1 (6): DF(C) (resp. DF⁺(C)) is obtained by inverting filtered
+/- (6): DF(C) (resp. DF⁺(C)) is obtained by inverting filtered
 quasi-isomorphisms in K(Filᶠ(C)) (resp. K⁺(Filᶠ(C))). -/
-@[stacks 03TA] #check @FilteredObject.FiniteDerived.Quotient.Category
-@[stacks 03TA] #check @FilteredObject.FiniteDerived.Quotient.functor
-@[stacks 03TA] #check @FilteredObject.FiniteDerived.Quotient.isLocalization
-@[stacks 03TA] #check @FilteredObject.FiniteDerived.Plus.QuasiIso
-@[stacks 03TA] #check @FilteredObject.FiniteDerived.Plus.Quotient.canonicalFunctor
-@[stacks 03TA] #check @FilteredObject.FiniteDerived.Plus.Quotient.canonical_isLocalization
-@[stacks 03TA] #check @FilteredObject.FiniteDerived.Plus.canonicalCategory
+#check @FilteredObject.FiniteDerived.Quotient.Category
+#check @FilteredObject.FiniteDerived.Quotient.functor
+#check @FilteredObject.FiniteDerived.Quotient.isLocalization
+#check @FilteredObject.FiniteDerived.Plus.QuasiIso
+#check @FilteredObject.FiniteDerived.Plus.Quotient.canonicalFunctor
+#check @FilteredObject.FiniteDerived.Plus.Quotient.canonical_isLocalization
+#check @FilteredObject.FiniteDerived.Plus.canonicalCategory

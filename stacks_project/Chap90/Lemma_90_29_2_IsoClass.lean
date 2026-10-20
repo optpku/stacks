@@ -1,28 +1,17 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Remarks_90_5_2_IsoClass
-public import stacks_project.Chap90.Situation_90_29_1_Pullback
+public import ReasLib.AlgebraicGeometry.FormalDeformation.ArtinianLocal.ResidueChange.IsoClass
+import StacksCheckRecall
 
 /-!
 # Fibrewise isomorphism classes after residue-field change
-
-The fibre equivalence of Situation 90.29.1 identifies isomorphism classes of
-`residueChangeOver p` over `B` with those of `p` over `B ×_l k`.
 -/
 
 @[expose] public section
 
-open CategoryTheory Functor
+open CategoryTheory Functor ArtinianLocalAlgCat
 
 universe u v w
-
-namespace ArtinianLocalAlgCat
 
 variable (Λ k l : Type u) [CommRing Λ] [IsNoetherianRing Λ]
   [Field k] [Algebra Λ k] [Module.Finite Λ k]
@@ -30,50 +19,44 @@ variable (Λ k l : Type u) [CommRing Λ] [IsNoetherianRing Λ]
   [Algebra k l] [IsScalarTower Λ k l] [Module.Finite k l]
 variable {F : Type v} [Category.{w} F] (p : F ⥤ ArtinianLocalAlgCat Λ k)
 
-noncomputable section
+section IsoClass
 
-namespace residueChangeOver
+variable [IsFibered.InGroupoids p.op]
 
-/-- Pointwise identification of fibrewise isomorphism classes:
-`fiberIsoClassFunctor (residueChangeOver p)` at `B` with
-`fiberIsoClassFunctor p` at `(residueChangeFunctor Λ k l).obj B`. -/
-def isoClassEquiv [IsFibered.InGroupoids p.op] (B : ArtinianLocalAlgCat Λ l) :
+/- Lemma 90.29.2 (1): Fibrewise isomorphism classes commute naturally with
+residue-field change. -/
+@[stacks 07WA]
+#check (ArtinianLocalAlgCat.residueChangeOver.isoClassEquiv Λ k l p :
+  ∀ B : ArtinianLocalAlgCat Λ l,
     isomorphismClasses.obj (Cat.of ((residueChangeOver Λ k l p).Fiber B)) ≃
-      isomorphismClasses.obj
-        (Cat.of (p.Fiber ((residueChangeFunctor Λ k l).obj B))) where
-  toFun := (fiberFwd Λ k l p B).isoClassesMap
-  invFun := (fiberMk Λ k l p B).isoClassesMap
-  left_inv := sorry
-  right_inv := sorry
+      isomorphismClasses.obj (Cat.of (p.Fiber ((residueChangeFunctor Λ k l).obj B))))
 
-/-- The forward map of `isoClassEquiv` is `isoClassesMap` of `fiberFwd`. -/
-theorem isoClassEquiv_apply [IsFibered.InGroupoids p.op]
-    (B : ArtinianLocalAlgCat Λ l) (x : (residueChangeOver Λ k l p).Fiber B) :
-    isoClassEquiv Λ k l p B (Quotient.mk'' x) =
-      (fiberFwd Λ k l p B).isoClassesMap (Quotient.mk'' x) :=
-  sorry
-
-/-- The inverse map of `isoClassEquiv` is `isoClassesMap` of `fiberMk`. -/
-theorem isoClassEquiv_symm_apply [IsFibered.InGroupoids p.op]
-    (B : ArtinianLocalAlgCat Λ l)
-    (y : p.Fiber ((residueChangeFunctor Λ k l).obj B)) :
-    (isoClassEquiv Λ k l p B).symm (Quotient.mk'' y) =
-      (fiberMk Λ k l p B).isoClassesMap (Quotient.mk'' y) :=
-  sorry
-
-/-- `isoClassEquiv` intertwines `fiberIsoClassFunctor (residueChangeOver p)` with
-`fiberIsoClassFunctor p` after `residueChangeFunctor`. -/
-theorem isoClassEquiv_natural [IsFibered.InGroupoids p.op]
-    {B B' : ArtinianLocalAlgCat Λ l} (f : B ⟶ B')
-    (x : isomorphismClasses.obj (Cat.of ((residueChangeOver Λ k l p).Fiber B))) :
-    isoClassEquiv Λ k l p B'
+#check (ArtinianLocalAlgCat.residueChangeOver.isoClassEquiv_natural Λ k l p :
+  ∀ {B B' : ArtinianLocalAlgCat Λ l} (f : B ⟶ B')
+    (x : isomorphismClasses.obj (Cat.of ((residueChangeOver Λ k l p).Fiber B))),
+    ArtinianLocalAlgCat.residueChangeOver.isoClassEquiv Λ k l p B'
         ((fiberIsoClassFunctor (residueChangeOver Λ k l p)).map f x) =
       (fiberIsoClassFunctor p).map ((residueChangeFunctor Λ k l).map f)
-        (isoClassEquiv Λ k l p B x) :=
-  sorry
+        (ArtinianLocalAlgCat.residueChangeOver.isoClassEquiv Λ k l p B x))
 
-end residueChangeOver
+#check (ArtinianLocalAlgCat.residueChangeOver.isoClassMaps_leftInverse Λ k l p :
+  ∀ B : ArtinianLocalAlgCat Λ l,
+    Function.LeftInverse (ArtinianLocalAlgCat.residueChangeOver.fiberMk Λ k l p B).isoClassesMap
+      (ArtinianLocalAlgCat.residueChangeOver.fiberFwd Λ k l p B).isoClassesMap)
 
-end
+#check (ArtinianLocalAlgCat.residueChangeOver.isoClassMaps_rightInverse Λ k l p :
+  ∀ B : ArtinianLocalAlgCat Λ l,
+    Function.RightInverse (ArtinianLocalAlgCat.residueChangeOver.fiberMk Λ k l p B).isoClassesMap
+      (ArtinianLocalAlgCat.residueChangeOver.fiberFwd Λ k l p B).isoClassesMap)
 
-end ArtinianLocalAlgCat
+#check (ArtinianLocalAlgCat.residueChangeOver.isoClassEquiv_apply Λ k l p :
+  ∀ (B : ArtinianLocalAlgCat Λ l) (x : (residueChangeOver Λ k l p).Fiber B),
+    ArtinianLocalAlgCat.residueChangeOver.isoClassEquiv Λ k l p B (Quotient.mk'' x) =
+      (ArtinianLocalAlgCat.residueChangeOver.fiberFwd Λ k l p B).isoClassesMap (Quotient.mk'' x))
+
+#check (ArtinianLocalAlgCat.residueChangeOver.isoClassEquiv_symm_apply Λ k l p :
+  ∀ (B : ArtinianLocalAlgCat Λ l) (y : p.Fiber ((residueChangeFunctor Λ k l).obj B)),
+    (ArtinianLocalAlgCat.residueChangeOver.isoClassEquiv Λ k l p B).symm (Quotient.mk'' y) =
+      (ArtinianLocalAlgCat.residueChangeOver.fiberMk Λ k l p B).isoClassesMap (Quotient.mk'' y))
+
+end IsoClass

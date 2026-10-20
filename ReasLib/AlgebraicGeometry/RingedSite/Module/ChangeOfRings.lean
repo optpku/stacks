@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.ExactFunctor
@@ -47,7 +41,7 @@ abbrev structureMap (α : O ⟶ O') :
 /-- The same-site morphism of ringed sites induced by a morphism of arbitrary ring sheaves. -/
 @[stacks 03CZ "same-site morphism of ringed sites"]
 abbrev hom (α : O ⟶ O') :
-    RingedSite.ofRingSheaf J O' ⟶ RingedSite.ofRingSheaf J O where
+    RingedSite.Hom (RingedSite.ofRingSheaf J O') (RingedSite.ofRingSheaf J O) where
   base := 𝟭 C
   isMorphismOfSites := inferInstance
   structureSheafMap := structureMap α
@@ -65,7 +59,7 @@ abbrev sameSiteHom {C : Type u} [Category.{v} C]
     {J : GrothendieckTopology C}
     [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
     {𝒪 𝒪' : Sheaf J CommRingCat.{w}} (α : 𝒪 ⟶ 𝒪') :
-    RingedSite.ofCommRingSheaf J 𝒪' ⟶ RingedSite.ofCommRingSheaf J 𝒪 where
+    RingedSite.Hom (RingedSite.ofCommRingSheaf J 𝒪') (RingedSite.ofCommRingSheaf J 𝒪) where
   base := 𝟭 C
   isMorphismOfSites := inferInstance
   structureSheafMap := ringedSiteStructureMap α
@@ -89,22 +83,50 @@ def explicitExtendAlong (α : O₀ ⟶ O₁) :
   exact SheafOfModules.forget (ringSheaf J O₀) ⋙
     PresheafOfModules.SameSiteTensorExtension.functor α.hom ⋙ sh
 
+/-- Tensor extension followed by sheafification has the Hom correspondence with
+restriction of scalars on module sheaves. -/
+private def explicitExtendRestrictHomEquiv (α : O₀ ⟶ O₁)
+    (M : SheafOfModules.{w} (ringSheaf J O₀))
+    (N : SheafOfModules.{w} (ringSheaf J O₁)) :
+    ((explicitExtendAlong α).obj M ⟶ N) ≃
+      (M ⟶ (restrictionAlong.{u, v, w, w} α).obj N) :=
+  ((PresheafOfModules.sheafificationAdjunction (𝟙 (ringSheaf J O₁).obj)).homEquiv _ _).trans
+    ((PresheafOfModules.SameSiteTensorExtension.homEquiv α.hom M.val N.val).trans
+      ((SheafOfModules.fullyFaithfulForget (ringSheaf J O₀)).homEquiv
+        (Y := (restrictionAlong.{u, v, w, w} α).obj N)).symm)
+
+/-- The inverse scalar-extension Hom correspondence commutes with precomposition. -/
+private theorem explicitExtendRestrictHomEquiv_naturality_left_symm (α : O₀ ⟶ O₁) :
+    ∀ {M' M : SheafOfModules.{w} (ringSheaf J O₀)}
+      {N : SheafOfModules.{w} (ringSheaf J O₁)}
+      (f : M' ⟶ M) (g : M ⟶ (restrictionAlong.{u, v, w, w} α).obj N),
+      (explicitExtendRestrictHomEquiv α M' N).symm (f ≫ g) =
+        (explicitExtendAlong α).map f ≫
+          (explicitExtendRestrictHomEquiv α M N).symm g := sorry
+
+/-- The scalar-extension Hom correspondence commutes with postcomposition. -/
+private theorem explicitExtendRestrictHomEquiv_naturality_right (α : O₀ ⟶ O₁) :
+    ∀ {M : SheafOfModules.{w} (ringSheaf J O₀)}
+      {N N' : SheafOfModules.{w} (ringSheaf J O₁)}
+      (f : (explicitExtendAlong α).obj M ⟶ N) (g : N ⟶ N'),
+      explicitExtendRestrictHomEquiv α M N' (f ≫ g) =
+        explicitExtendRestrictHomEquiv α M N f ≫
+          (restrictionAlong.{u, v, w, w} α).map g := sorry
+
 /-- The explicit tensor/sheafification adjunction on independently-sized sites. -/
-def explicitExtendRestrictAdj (α : O₀ ⟶ O₁) :
+@[no_expose] def explicitExtendRestrictAdj (α : O₀ ⟶ O₁) :
     explicitExtendAlong α ⊣ restrictionAlong.{u, v, w, w} α :=
   Adjunction.mkOfHomEquiv
-    { homEquiv := fun M N ↦
-        ((PresheafOfModules.sheafificationAdjunction (𝟙 (ringSheaf J O₁).obj)).homEquiv _ _).trans
-          ((PresheafOfModules.SameSiteTensorExtension.homEquiv α.hom M.val N.val).trans
-            ((SheafOfModules.fullyFaithfulForget (ringSheaf J O₀)).homEquiv
-              (Y := (restrictionAlong.{u, v, w, w} α).obj N)).symm)
-      homEquiv_naturality_left_symm := sorry
-      homEquiv_naturality_right := sorry }
+    { homEquiv := explicitExtendRestrictHomEquiv α
+      homEquiv_naturality_left_symm := explicitExtendRestrictHomEquiv_naturality_left_symm α
+      homEquiv_naturality_right := explicitExtendRestrictHomEquiv_naturality_right α }
 
+/-- Restriction of scalars for sheaves of modules is a right adjoint. -/
 instance restrictionAlong_isRightAdjoint (α : O₀ ⟶ O₁) :
     (restrictionAlong.{u, v, w, w} α).IsRightAdjoint :=
   (explicitExtendRestrictAdj α).isRightAdjoint
 
+/-- Same-site pushforward of module sheaves is a right adjoint. -/
 instance sameSitePushforward_isRightAdjoint (α : O₀ ⟶ O₁) :
     (SheafOfModules.pushforward.{w} (ringedSiteStructureMap α)).IsRightAdjoint :=
   Functor.isRightAdjoint_of_iso (SheafOfModules.ChangeOfRings.pushforwardIso
@@ -123,9 +145,8 @@ noncomputable def extendRestrictAdj (alpha : O₀ ⟶ O₁) :
     extendAlong alpha ⊣ restrictionAlong.{u, v, w, w} alpha :=
   SheafOfModules.ChangeOfRings.extendRestrictAdjunction (ringSheafMap alpha)
 
-/-- The original same-site module-sheaf pullback construction is canonically extension of
-scalars.  This is the compatibility bridge for APIs that were defined before `extendAlong`
-became the public owner. -/
+/-- Pullback of module sheaves along a same-site morphism is canonically isomorphic
+to extension of scalars along its structure-sheaf map. -/
 @[stacks 03CZ "same-site pullback as extension of scalars"]
 noncomputable def pullbackExtendIso (alpha : O₀ ⟶ O₁) :
     SheafOfModules.pullback.{w} (ringedSiteStructureMap alpha) ≅ extendAlong alpha :=
@@ -169,8 +190,8 @@ noncomputable abbrev extendComplex (alpha : O₀ ⟶ O₁) :
       CochainComplex (ringedSiteModuleCategory.{u, v, w, w} J O₁) ℤ :=
   (extendAlong alpha).mapHomologicalComplex (ComplexShape.up ℤ)
 
-/-- The complex-level comparison between the original same-site pullback construction and
-extension of scalars. -/
+/-- Pullback of cochain complexes along a same-site morphism is canonically isomorphic
+to extension of scalars along its structure-sheaf map. -/
 @[stacks 03CZ "same-site pullback of complexes as extension of scalars"]
 noncomputable def pullbackComplexExtendIso (alpha : O₀ ⟶ O₁) :
     (SheafOfModules.pullback.{w} (ringedSiteStructureMap alpha)).mapHomologicalComplex

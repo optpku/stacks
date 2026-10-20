@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap70.Lemma_70_6_5_UniversallyInjective
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Limit.UniversallyInjective
 import StacksCheckRecall
 
 open CategoryTheory Limits
@@ -23,9 +17,9 @@ stagewise base change `fᵢ` is universally injective for a stage `i ≥ i₀`. 
     ∀ {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
       {S : Scheme.{u}} {D : OrderDual I ⥤ AlgebraicSpace S} {i0 : I}
       {X0 Y0 : AlgebraicSpace S}
-      [IsQuasiCompact (D.obj i0)] [IsQuasiSeparated (D.obj i0)]
-      [IsQuasiCompact X0] [IsQuasiSeparated X0]
-      [IsQuasiCompact Y0] [IsQuasiSeparated Y0]
+      [IsQuasiCompact (D.obj i0)] [IsAbsolutelyQuasiSeparated (D.obj i0)]
+      [IsQuasiCompact X0] [IsAbsolutelyQuasiSeparated X0]
+      [IsQuasiCompact Y0] [IsAbsolutelyQuasiSeparated Y0]
       [∀ {i i' : I} (h : i ≤ i'), Affine (D.map (homOfLE h))]
       (s : AlgebraicSpace.Limit.QcqsMorphismBaseChange D i0 X0 Y0),
       AlgebraicSpace.UniversallyInjective s.limitHom →

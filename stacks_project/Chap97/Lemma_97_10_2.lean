@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap97.Lemma_97_10_2_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RelativeHom.BaseChange
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,7 +15,7 @@ universe u
 over a scheme `S`, with `Z' = B' ×_B Z` and `X' = B' ×_B X`, the fppf sheaves on
 `Sch/S` satisfy `Mor_{B'}(Z', X') ≅ B' ×_B Mor_B(Z, X)`. -/
 @[stacks 05Y4]
-#check (pullbackIso :
+#check (AlgebraicGeometry.AlgebraicSpace.RelativeHom.pullbackIso :
     ∀ {S : Scheme.{u}} {B B' : AlgebraicSpace S} (Z X : Over B) (h : B' ⟶ B),
-      homSheaf (pullbackObj Z h) (pullbackObj X h) ≅
-        pullback (uliftSheafMap h) (toBase Z X))
+      sheaf (pullbackObj Z h).hom (pullbackObj X h).hom ≅
+        pullback (toSheaf.map h) (baseMap Z X))

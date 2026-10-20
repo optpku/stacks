@@ -1,15 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
 public import Mathlib.CategoryTheory.Adjunction.Additive
 public import ReasLib.Algebra.Category.ModuleCat.ChangeOfRings.Additive
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat
+public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.LeftDerived
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.TotalLeftDerived
 public import ReasLib.CategoryTheory.Functor.Derived.Model
 public import ReasLib.CategoryTheory.Functor.Derived.Total.Triangulated
@@ -23,8 +18,9 @@ public import ReasLib.CategoryTheory.Functor.Derived.Total.Triangulated
 @stack 064M
 
 For a map of commutative rings, this leaf packages extension of scalars as an additive functor
-and applies the generic total-left-derived-functor construction.  Its public API is owned directly
-by `ModuleCat`.
+and applies the generic total-left-derived-functor construction.  The existence certificates are
+supplied by the displayed unbounded cell model of `Functor.ModuleCatCellModel`.  Its public API is
+owned directly by `ModuleCat`.
 -/
 
 open CategoryTheory
@@ -47,18 +43,25 @@ noncomputable abbrev extendScalarsToDerived (σ : R →+* A) :
       DerivedCategory (ModuleCat.{max uA v, uA} A) :=
   Functor.Homotopy.toDerived (ModuleCat.extendScalars.{uR, uA, v} σ)
 
-/-- Extension of scalars along every map of commutative rings admits the
-unbounded total left derived functor. -/
-@[stacks 05S9 "existence of derived extension of scalars"]
-instance extendScalarsToDerived_hasLeftDerived (σ : R →+* A) :
-    (extendScalarsToDerived σ).HasLeftDerivedFunctor
-      (HomotopyCategory.quasiIso (ModuleCat.{v, uR} R) (up ℤ)) := sorry
-
-/-- Extension of scalars has a pointwise unbounded left derived functor. -/
+/-- Extension of scalars has a pointwise unbounded left derived functor: at every complex the
+pointwise limit is the displayed cone of the cell-model derived functor, whose lift evaluates at
+the specified K-projective cell augmentation of the arbitrary unbounded input.  The smallness of
+`R` in the module universe is the standard condition making free `R`-modules available there; it
+is automatic when `v` is at least the universe of `R`. -/
 @[stacks 05S9 "pointwise existence of derived extension of scalars"]
-instance extendScalarsToDerived_hasPointwiseLeftDerived (σ : R →+* A) :
+instance extendScalarsToDerived_hasPointwiseLeftDerived [Small.{v} R] (σ : R →+* A) :
     (extendScalarsToDerived σ).HasPointwiseLeftDerivedFunctor
-      (HomotopyCategory.quasiIso (ModuleCat.{v, uR} R) (up ℤ)) := sorry
+      (HomotopyCategory.quasiIso (ModuleCat.{v, uR} R) (up ℤ)) :=
+  Functor.ModuleCatCellModel.hasPointwiseLeftDerivedFunctor
+    (ModuleCat.extendScalars.{uR, uA, v} σ)
+
+/-- Extension of scalars along every map of commutative rings admits the
+unbounded total left derived functor, obtained from the displayed pointwise limits. -/
+@[stacks 05S9 "existence of derived extension of scalars"]
+instance extendScalarsToDerived_hasLeftDerived [Small.{v} R] (σ : R →+* A) :
+    (extendScalarsToDerived σ).HasLeftDerivedFunctor
+      (HomotopyCategory.quasiIso (ModuleCat.{v, uR} R) (up ℤ)) :=
+  Functor.ModuleCatCellModel.hasLeftDerivedFunctor (ModuleCat.extendScalars.{uR, uA, v} σ)
 
 /-- The unbounded derived extension-of-scalars functor `D(R) ⥤ D(A)`. -/
 @[stacks 064M "derived extension of scalars"]
@@ -100,6 +103,8 @@ noncomputable instance derivedExtensionOfScalars_commShift (σ : R →+* A)
 @[stacks 05SE "derived extension of scalars is triangulated"]
 instance derivedExtensionOfScalars_isTriangulated (σ : R →+* A)
     [hasLeftDerived : (extendScalarsToDerived σ).HasLeftDerivedFunctor
+      (HomotopyCategory.quasiIso (ModuleCat.{v, uR} R) (up ℤ))]
+    [hasPointwiseLeftDerived : (extendScalarsToDerived σ).HasPointwiseLeftDerivedFunctor
       (HomotopyCategory.quasiIso (ModuleCat.{v, uR} R) (up ℤ))] :
     (derivedExtensionOfScalars σ (hasLeftDerived := hasLeftDerived)).IsTriangulated := sorry
 
@@ -115,7 +120,9 @@ abbrev DerivedExtensionOfScalarsModel (σ : R →+* A) :=
     (HomotopyCategory.quasiIso (ModuleCat.{v, uR} R) (up ℤ))
 
 /-- The canonical explicit model whose concrete fields are the derived extension and its counit,
-together with the universal property identifying it as a left-derived functor. -/
+together with the universal property identifying it as a left-derived functor.  The universal
+property is mathlib's native right-Kan-extension witness for `totalLeftDerived` and its counit,
+so the model stores no separately admitted universal data. -/
 @[stacks 05SA "canonical explicit derived extension-of-scalars model"]
 noncomputable def derivedExtensionOfScalarsModel (σ : R →+* A)
     [hasLeftDerived : (extendScalarsToDerived σ).HasLeftDerivedFunctor
@@ -123,7 +130,7 @@ noncomputable def derivedExtensionOfScalarsModel (σ : R →+* A)
     DerivedExtensionOfScalarsModel σ where
   functor := derivedExtensionOfScalars σ (hasLeftDerived := hasLeftDerived)
   counit := derivedExtensionOfScalarsCounit σ (hasLeftDerived := hasLeftDerived)
-  isLeftDerived := sorry
+  isLeftDerived := inferInstance
 
 variable {σ : R →+* A}
 

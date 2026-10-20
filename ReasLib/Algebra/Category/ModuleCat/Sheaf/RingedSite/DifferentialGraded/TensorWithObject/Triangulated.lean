@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.HomotopyCategory.Pretriangulated
@@ -14,7 +8,6 @@ public import ReasLib.Algebra.Homology.CochainComplex.DifferentialGraded.Homotop
 public import ReasLib.Algebra.Homology.DifferentialGradedModule.Shift.Category
 public import ReasLib.Algebra.Homology.DifferentialGradedModule.Shift.GradedHom
 public import ReasLib.Algebra.Homology.DifferentialGradedModule.Triangulated
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.Basic
 public import ReasLib.CategoryTheory.Pretriangulated.Functor.TriangulatedStructure
 
 /-!

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Elements
+public import Mathlib.CategoryTheory.Whiskering
 public import Mathlib.CategoryTheory.Yoneda
 public import ReasLib.AlgebraicGeometry.FormalDeformation.ArtinianLocal.Inclusion
 public import ReasLib.AlgebraicGeometry.FormalDeformation.CompleteLocal.Residue
@@ -38,6 +33,29 @@ theorem restrictedCoyoneda_map (R : CompleteLocalAlgCat Λ k)
     {A B : ArtinianLocalAlgCat Λ k} (f : A ⟶ B) :
     (restrictedCoyoneda R).map f =
       (coyoneda.obj (op R)).map (ArtinianLocalAlgCat.inclusion.map f) := sorry
+
+/-- The morphism of restricted coyoneda functors induced by `f : R ⟶ S`, obtained by
+whiskering `coyoneda.map f.op` with `ArtinianLocalAlgCat.inclusion`. -/
+noncomputable def restrictedCoyonedaMap {R S : CompleteLocalAlgCat Λ k} (f : R ⟶ S) :
+    restrictedCoyoneda S ⟶ restrictedCoyoneda R :=
+  ArtinianLocalAlgCat.inclusion.whiskerLeft (coyoneda.map f.op)
+
+/-- The component of `restrictedCoyonedaMap f` at `A` is precomposition with `f`. -/
+theorem restrictedCoyonedaMap_app {R S : CompleteLocalAlgCat Λ k} (f : R ⟶ S)
+    (A : ArtinianLocalAlgCat Λ k) (g : S ⟶ ArtinianLocalAlgCat.inclusion.obj A) :
+    (restrictedCoyonedaMap f).app A g = f ≫ g :=
+  sorry
+
+/-- The restricted coyoneda map of an identity is the identity transformation. -/
+theorem restrictedCoyonedaMap_id (R : CompleteLocalAlgCat Λ k) :
+    restrictedCoyonedaMap (𝟙 R) = 𝟙 (restrictedCoyoneda R) :=
+  sorry
+
+/-- Restricted coyoneda maps reverse composition of morphisms in `CompleteLocalAlgCat`. -/
+theorem restrictedCoyonedaMap_comp {R S T : CompleteLocalAlgCat Λ k}
+    (f : R ⟶ S) (g : S ⟶ T) :
+    restrictedCoyonedaMap (f ≫ g) = restrictedCoyonedaMap g ≫ restrictedCoyonedaMap f :=
+  sorry
 
 end CompleteLocalAlgCat
 

@@ -1,212 +1,192 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Sites.LeftExact
-public import Mathlib.CategoryTheory.Sites.Limits
-public import stacks_project.Chap79.Lemma_79_12_9_Sheaf
-public import stacks_project.Chap79.Remark_79_12_5_Algebra
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FinitePart.Algebra
 import StacksCheckRecall
 
-/-!
-# Finite-part sheaves as non-unital F₂-algebras over the base
-
-A separated morphism `f : X ⟶ Y` of algebraic spaces has a structure map
-`(X/Y)_fin ⟶ Y`. Compatible pairs over `Y` carry union, intersection, and
-set-difference, making `(X/Y)_fin` a non-unital F₂-algebra over `Y`. If `f` is
-finite, the algebra is unital.
--/
+/-! # Finite-part sheaves as algebras over the base -/
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry Limits Opposite TypeCat
-open AlgebraicGeometry.AlgebraicSpace
-
-noncomputable section
+open AlgebraicGeometry.AlgebraicSpace AlgebraicGeometry.AlgebraicSpace.FinitePart
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+/- Remark 79.12.5
+The finite-part sheaf of a separated morphism is a non-unital algebra over the
+field with two elements, with symmetric difference as addition and intersection
+as multiplication, compatibly with restriction. -/
+@[stacks 04PI] #check (AlgebraicGeometry.AlgebraicSpace.finitePartAlgebraLaws :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) [Separated f],
+    ∀ (T : Over S) (a : ofOver T ⟶ Y),
+      (∀ (p q r : Fiber f a),
+        Fiber.add (Fiber.add p q) r = Fiber.add p (Fiber.add q r) ∧
+        Fiber.add p q = Fiber.add q p ∧
+        Fiber.add (Fiber.zero f a) p = p ∧
+        Fiber.add p (Fiber.zero f a) = p ∧
+        Fiber.add p p = Fiber.zero f a ∧
+        Fiber.mul (Fiber.mul p q) r = Fiber.mul p (Fiber.mul q r) ∧
+        Fiber.mul p q = Fiber.mul q p ∧
+        Fiber.mul (Fiber.zero f a) p = Fiber.zero f a ∧
+        Fiber.mul p (Fiber.zero f a) = Fiber.zero f a ∧
+        Fiber.mul p (Fiber.add q r) = Fiber.add (Fiber.mul p q) (Fiber.mul p r) ∧
+        Fiber.mul (Fiber.add p q) r = Fiber.add (Fiber.mul p r) (Fiber.mul q r) ∧
+        Fiber.mul p p = p ∧
+        Fiber.add p q = Fiber.union (Fiber.sdiff p q) (Fiber.sdiff q p)) ∧
+      (∀ (c d : ZMod 2) (p q : Fiber f a),
+        Fiber.smul 1 p = p ∧
+        Fiber.smul 0 p = Fiber.zero f a ∧
+        Fiber.smul c (Fiber.zero f a) = Fiber.zero f a ∧
+        Fiber.smul (c * d) p = Fiber.smul c (Fiber.smul d p) ∧
+        Fiber.smul (c + d) p = Fiber.add (Fiber.smul c p) (Fiber.smul d p) ∧
+        Fiber.smul c (Fiber.add p q) = Fiber.add (Fiber.smul c p) (Fiber.smul c q) ∧
+        Fiber.smul c (Fiber.mul p q) = Fiber.mul (Fiber.smul c p) q ∧
+        Fiber.smul c (Fiber.mul p q) = Fiber.mul p (Fiber.smul c q)) ∧
+      (∀ (T' : Over S) (h : T' ⟶ T) (p q : Fiber f a) (c : ZMod 2),
+        Fiber.restrict (Fiber.zero f a) h = Fiber.zero f (ofOverMap h ≫ a) ∧
+        Fiber.restrict (Fiber.add p q) h =
+          Fiber.add (Fiber.restrict p h) (Fiber.restrict q h) ∧
+        Fiber.restrict (Fiber.mul p q) h =
+          Fiber.mul (Fiber.restrict p h) (Fiber.restrict q h) ∧
+        Fiber.restrict (Fiber.smul c p) h = Fiber.smul c (Fiber.restrict p h)))
 
-/-- Type-valued fppf sheaves on schemes over `S` have pullbacks. -/
-instance instHasPullbacks_fppfSheaf (S : Scheme.{u}) :
-    HasPullbacks (Sheaf (Scheme.fppfTopology.over S) (Type (u + 1))) :=
-  inferInstance
+#check (AlgebraicGeometry.AlgebraicSpace.finitePartTo :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    finitePartSheaf f ⟶ (toFppfSheaf S).obj Y)
 
-/- Remark 79.12.5 (1): the sheaf `(X/Y)_fin` maps to `Y` by sending a pair
-`(a, Z)` to the section `a`. -/
-@[stacks 04PI] #check AlgebraicGeometry.AlgebraicSpace.finitePartTo
-
-/-- The first factor of a compatible pair of finite-part sections over `Y`. -/
-def starFst {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+#check (AlgebraicGeometry.AlgebraicSpace.starFst :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (T : (Over S)ᵒᵖ)
-    (s : (pullback (finitePartTo f) (finitePartTo f)).obj.obj T) :
-    FinitePart.Point f T.unop :=
-  (pullback.fst (finitePartTo f) (finitePartTo f)).hom.app T s
+    (s : (pullback (finitePartTo f) (finitePartTo f)).obj.obj T),
+    FinitePart.Point f T.unop)
 
-/-- The second factor of a compatible pair of finite-part sections over `Y`. -/
-def starSnd {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+#check (AlgebraicGeometry.AlgebraicSpace.starSnd :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (T : (Over S)ᵒᵖ)
-    (s : (pullback (finitePartTo f) (finitePartTo f)).obj.obj T) :
-    FinitePart.Point f T.unop :=
-  (pullback.snd (finitePartTo f) (finitePartTo f)).hom.app T s
+    (s : (pullback (finitePartTo f) (finitePartTo f)).obj.obj T),
+    FinitePart.Point f T.unop)
 
-/-- Compatible pairs in the self-fibre product over `Y` have the same morphism `a`. -/
-theorem star_a_eq {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+#check (AlgebraicGeometry.AlgebraicSpace.star_a_eq :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (T : (Over S)ᵒᵖ)
-    (s : (pullback (finitePartTo f) (finitePartTo f)).obj.obj T) :
-    (starFst f T s).a = (starSnd f T s).a :=
-  sorry
+    (s : (pullback (finitePartTo f) (finitePartTo f)).obj.obj T),
+    (starFst f T s).a = (starSnd f T s).a)
 
-/-- Assemble a fibrewise operation on compatible finite-part pairs as a morphism
-of sheaves over `Y`. -/
-def starMk {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (op : ∀ {T : Over S} (p q : FinitePart.Point f T),
-      p.a = q.a → FinitePart.Point f T) :
-    pullback (finitePartTo f) (finitePartTo f) ⟶ finitePartSheaf f :=
-  ObjectProperty.homMk
-    { app T := TypeCat.ofHom fun s ↦ op (starFst f T s) (starSnd f T s) (star_a_eq f T s)
-      naturality := sorry }
+#check (AlgebraicGeometry.AlgebraicSpace.star1 :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Separated f],
+    (pullback (finitePartTo f) (finitePartTo f)) ⟶ finitePartSheaf f)
 
-/-- Components of `starMk` apply the given fibrewise operation to the two projections. -/
-theorem starMk_app {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (op : ∀ {T : Over S} (p q : FinitePart.Point f T),
-      p.a = q.a → FinitePart.Point f T)
-    (T : (Over S)ᵒᵖ)
-    (s : (pullback (finitePartTo f) (finitePartTo f)).obj.obj T) :
-    (starMk f op).hom.app T s =
-      op (starFst f T s) (starSnd f T s) (star_a_eq f T s) :=
-  sorry
-
-/-- Remark 79.12.5 (2): union of compatible finite-part pairs over `Y`. -/
-@[stacks 04PI]
-def star1 {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Separated f] :
-    pullback (finitePartTo f) (finitePartTo f) ⟶ finitePartSheaf f :=
-  starMk f fun p q h ↦ p.union q h
-
-/-- Remark 79.12.5 (3): intersection of compatible finite-part pairs over `Y`. -/
-@[stacks 04PI]
-def star2 {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Separated f] :
-    pullback (finitePartTo f) (finitePartTo f) ⟶ finitePartSheaf f :=
-  starMk f fun p q h ↦ p.inter q h
-
-/-- Remark 79.12.5 (4): set-difference of compatible finite-part pairs over `Y`. -/
-@[stacks 04PI]
-def star3 {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Separated f] :
-    pullback (finitePartTo f) (finitePartTo f) ⟶ finitePartSheaf f :=
-  starMk f fun p q h ↦ p.sdiff q h
-
-/-- Remark 79.12.5 (5): swapped set-difference of compatible finite-part pairs over `Y`. -/
-@[stacks 04PI]
-def star4 {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Separated f] :
-    pullback (finitePartTo f) (finitePartTo f) ⟶ finitePartSheaf f :=
-  starMk f fun p q h ↦ q.sdiff p h.symm
-
-/-- Components of `star1` are fibrewise union of compatible pairs. -/
-theorem star1_app {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+#check (AlgebraicGeometry.AlgebraicSpace.star1_app :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     [Separated f] (T : (Over S)ᵒᵖ)
-    (s : (pullback (finitePartTo f) (finitePartTo f)).obj.obj T) :
+    (s : (pullback (finitePartTo f) (finitePartTo f)).obj.obj T),
     (star1 f).hom.app T s =
-      (starFst f T s).union (starSnd f T s) (star_a_eq f T s) :=
-  sorry
+      (starFst f T s).union (starSnd f T s) (star_a_eq f T s))
 
-/-- Components of `star2` are fibrewise intersection of compatible pairs. -/
-theorem star2_app {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [Separated f] (T : (Over S)ᵒᵖ)
-    (s : (pullback (finitePartTo f) (finitePartTo f)).obj.obj T) :
-    (star2 f).hom.app T s =
-      (starFst f T s).inter (starSnd f T s) (star_a_eq f T s) :=
-  sorry
-
-/-- Components of `star3` are fibrewise set-difference of compatible pairs. -/
-theorem star3_app {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [Separated f] (T : (Over S)ᵒᵖ)
-    (s : (pullback (finitePartTo f) (finitePartTo f)).obj.obj T) :
-    (star3 f).hom.app T s =
-      (starFst f T s).sdiff (starSnd f T s) (star_a_eq f T s) :=
-  sorry
-
-/-- Components of `star4` are the swapped fibrewise set-difference. -/
-theorem star4_app {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [Separated f] (T : (Over S)ᵒᵖ)
-    (s : (pullback (finitePartTo f) (finitePartTo f)).obj.obj T) :
-    (star4 f).hom.app T s =
-      (starSnd f T s).sdiff (starFst f T s) (star_a_eq f T s).symm :=
-  sorry
-
-/-- Union is a morphism over `Y`. -/
-theorem star1_comp_finitePartTo {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [Separated f] :
+#check (AlgebraicGeometry.AlgebraicSpace.star1_comp_finitePartTo :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Separated f],
     star1 f ≫ finitePartTo f =
-      pullback.fst (finitePartTo f) (finitePartTo f) ≫ finitePartTo f :=
-  sorry
+      pullback.fst (finitePartTo f) (finitePartTo f) ≫ finitePartTo f)
 
-/-- Intersection is a morphism over `Y`. -/
-theorem star2_comp_finitePartTo {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [Separated f] :
+#check (AlgebraicGeometry.AlgebraicSpace.star2 :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Separated f],
+    (pullback (finitePartTo f) (finitePartTo f)) ⟶ finitePartSheaf f)
+
+#check (AlgebraicGeometry.AlgebraicSpace.star2_app :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [Separated f] (T : (Over S)ᵒᵖ)
+    (s : (pullback (finitePartTo f) (finitePartTo f)).obj.obj T),
+    (star2 f).hom.app T s =
+      (starFst f T s).inter (starSnd f T s) (star_a_eq f T s))
+
+#check (AlgebraicGeometry.AlgebraicSpace.star2_comp_finitePartTo :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Separated f],
     star2 f ≫ finitePartTo f =
-      pullback.fst (finitePartTo f) (finitePartTo f) ≫ finitePartTo f :=
-  sorry
+      pullback.fst (finitePartTo f) (finitePartTo f) ≫ finitePartTo f)
 
-/-- Set-difference is a morphism over `Y`. -/
-theorem star3_comp_finitePartTo {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [Separated f] :
+#check (AlgebraicGeometry.AlgebraicSpace.star3 :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Separated f],
+    (pullback (finitePartTo f) (finitePartTo f)) ⟶ finitePartSheaf f)
+
+#check (AlgebraicGeometry.AlgebraicSpace.star3_app :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [Separated f] (T : (Over S)ᵒᵖ)
+    (s : (pullback (finitePartTo f) (finitePartTo f)).obj.obj T),
+    (star3 f).hom.app T s =
+      (starFst f T s).sdiff (starSnd f T s) (star_a_eq f T s))
+
+#check (AlgebraicGeometry.AlgebraicSpace.star3_comp_finitePartTo :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Separated f],
     star3 f ≫ finitePartTo f =
-      pullback.fst (finitePartTo f) (finitePartTo f) ≫ finitePartTo f :=
-  sorry
+      pullback.fst (finitePartTo f) (finitePartTo f) ≫ finitePartTo f)
 
-/-- Swapped set-difference is a morphism over `Y`. -/
-theorem star4_comp_finitePartTo {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [Separated f] :
+#check (AlgebraicGeometry.AlgebraicSpace.star4 :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Separated f],
+    (pullback (finitePartTo f) (finitePartTo f)) ⟶ finitePartSheaf f)
+
+#check (AlgebraicGeometry.AlgebraicSpace.star4_app :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [Separated f] (T : (Over S)ᵒᵖ)
+    (s : (pullback (finitePartTo f) (finitePartTo f)).obj.obj T),
+    (star4 f).hom.app T s =
+      (starSnd f T s).sdiff (starFst f T s) (star_a_eq f T s).symm)
+
+#check (AlgebraicGeometry.AlgebraicSpace.star4_comp_finitePartTo :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Separated f],
     star4 f ≫ finitePartTo f =
-      pullback.fst (finitePartTo f) (finitePartTo f) ≫ finitePartTo f :=
-  sorry
+      pullback.fst (finitePartTo f) (finitePartTo f) ≫ finitePartTo f)
 
-/-- Remark 79.12.5 (6): the zero section of `(X/Y)_fin` over `Y` is `(a, ∅)`. -/
-@[stacks 04PI]
-def finitePartZero {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    (toFppfSheaf S).obj Y ⟶ finitePartSheaf f :=
-  ObjectProperty.homMk
-    { app T := TypeCat.ofHom fun y ↦
-        FinitePart.Point.empty (OpenSubspace.homOfPointsSection (ULift.down y))
-      naturality := sorry }
+#check (AlgebraicGeometry.AlgebraicSpace.finitePartAdd :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Separated f],
+    (pullback (finitePartTo f) (finitePartTo f)) ⟶ finitePartSheaf f)
 
-/-- Components of `finitePartZero` are empty finite-part pairs. -/
-theorem finitePartZero_app {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (T : (Over S)ᵒᵖ) (y : ((toFppfSheaf S).obj Y).obj.obj T) :
-    (finitePartZero f).hom.app T y =
-      FinitePart.Point.empty (OpenSubspace.homOfPointsSection (ULift.down y)) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.finitePartAdd_app :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [Separated f] (T : (Over S)ᵒᵖ)
+    (s : (pullback (finitePartTo f) (finitePartTo f)).obj.obj T),
+    (finitePartAdd f).hom.app T s =
+      (starFst f T s).add (starSnd f T s) (star_a_eq f T s))
 
-/-- The zero section of `(X/Y)_fin` is a section of the structure map to `Y`. -/
-theorem finitePartZero_comp {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    finitePartZero f ≫ finitePartTo f = 𝟙 ((toFppfSheaf S).obj Y) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.finitePartAdd_comp_finitePartTo :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Separated f],
+    finitePartAdd f ≫ finitePartTo f =
+      pullback.fst (finitePartTo f) (finitePartTo f) ≫ finitePartTo f)
 
-/-- Remark 79.12.5 (7): if `f` is finite, the unit section is `(a, T ×_Y X)`. -/
-@[stacks 04PI]
-def finitePartOne {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [IsFinite f] : (toFppfSheaf S).obj Y ⟶ finitePartSheaf f :=
-  ObjectProperty.homMk
-    { app T := TypeCat.ofHom fun y ↦
-        FinitePart.Point.univ (OpenSubspace.homOfPointsSection (ULift.down y))
-      naturality := sorry }
+#check (AlgebraicGeometry.AlgebraicSpace.finitePartZero :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    (toFppfSheaf S).obj Y ⟶ finitePartSheaf f)
 
-/-- Components of `finitePartOne` are full finite-part pairs. -/
-theorem finitePartOne_app {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [IsFinite f] (T : (Over S)ᵒᵖ) (y : ((toFppfSheaf S).obj Y).obj.obj T) :
-    (finitePartOne f).hom.app T y =
-      FinitePart.Point.univ (OpenSubspace.homOfPointsSection (ULift.down y)) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.finitePartZero_app :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (T : (Over S)ᵒᵖ) (y : ((toFppfSheaf S).obj Y).obj.obj T),
+    (finitePartZero f).hom.app T y = FinitePart.Point.empty (yonedaEquiv.symm (ULift.down y)))
 
-/-- The unit section of `(X/Y)_fin` is a section of the structure map to `Y`. -/
-theorem finitePartOne_comp {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [IsFinite f] :
-    finitePartOne f ≫ finitePartTo f = 𝟙 ((toFppfSheaf S).obj Y) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.finitePartZero_comp :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    finitePartZero f ≫ finitePartTo f = 𝟙 ((toFppfSheaf S).obj Y))
 
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.finitePartOne :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsFinite f],
+    (toFppfSheaf S).obj Y ⟶ finitePartSheaf f)
+
+#check (AlgebraicGeometry.AlgebraicSpace.finitePartOne_app :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsFinite f]
+    (T : (Over S)ᵒᵖ) (y : ((toFppfSheaf S).obj Y).obj.obj T),
+    (finitePartOne f).hom.app T y = FinitePart.Point.univ (yonedaEquiv.symm (ULift.down y)))
+
+#check (AlgebraicGeometry.AlgebraicSpace.finitePartOne_comp :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsFinite f],
+    finitePartOne f ≫ finitePartTo f = 𝟙 ((toFppfSheaf S).obj Y))
+
+#check (AlgebraicGeometry.AlgebraicSpace.finitePartUnitLaws :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) [Separated f] [IsFinite f],
+    ∀ (T : Over S) (a : ofOver T ⟶ Y),
+      (∀ (p q : Fiber f a),
+        Fiber.mul (Fiber.one f a) p = p ∧
+        Fiber.mul p (Fiber.one f a) = p ∧
+        Fiber.sdiff p q = Fiber.mul p (Fiber.add (Fiber.one f a) q) ∧
+        Fiber.sdiff q p = Fiber.mul (Fiber.add (Fiber.one f a) p) q) ∧
+      (∀ (T' : Over S) (h : T' ⟶ T),
+        Fiber.restrict (Fiber.one f a) h = Fiber.one f (ofOverMap h ≫ a)))

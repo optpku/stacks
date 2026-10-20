@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.BasedCategory.Whiskering
@@ -42,20 +36,11 @@ variable {S₃ : BasedCategory.{vS₃, uS₃} C}
 The three component functors commute strictly with the projections to `C`; the two comparison
 isomorphisms express pseudonaturality along the cospan legs. Source and target endpoint
 categories are universe-independent. -/
-structure BasedCospanTransform
+def BasedCospanTransform
     (F₁ : X₁ ⥤ᵇ S₁) (G₁ : Y₁ ⥤ᵇ S₁)
-    (F₂ : X₂ ⥤ᵇ S₂) (G₂ : Y₂ ⥤ᵇ S₂) where
-  /-- The based functor on the left endpoint. -/
-  left : X₁ ⥤ᵇ X₂
-  /-- The based functor on the right endpoint. -/
-  right : Y₁ ⥤ᵇ Y₂
-  /-- The based functor on the common target. -/
-  base : S₁ ⥤ᵇ S₂
-  /-- The comparison from the transformed target left leg to the source left leg followed by
-  the common-target functor. -/
-  leftIso : left ⋙ F₂ ≅ F₁ ⋙ base
-  /-- The analogous comparison on the right leg. -/
-  rightIso : right ⋙ G₂ ≅ G₁ ⋙ base
+    (F₂ : X₂ ⥤ᵇ S₂) (G₂ : Y₂ ⥤ᵇ S₂) :=
+  Σ left : X₁ ⥤ᵇ X₂, Σ right : Y₁ ⥤ᵇ Y₂, Σ base : S₁ ⥤ᵇ S₂,
+    (left ⋙ F₂ ≅ F₁ ⋙ base) × (right ⋙ G₂ ≅ G₁ ⋙ base)
 
 namespace BasedCospanTransform
 
@@ -63,14 +48,41 @@ variable {F₁ : X₁ ⥤ᵇ S₁} {G₁ : Y₁ ⥤ᵇ S₁}
 variable {F₂ : X₂ ⥤ᵇ S₂} {G₂ : Y₂ ⥤ᵇ S₂}
 variable {F₃ : X₃ ⥤ᵇ S₃} {G₃ : Y₃ ⥤ᵇ S₃}
 
+/-- Construct a based cospan transformation from its three vertex functors and its two
+comparison isomorphisms. -/
+def mk (left : X₁ ⥤ᵇ X₂) (right : Y₁ ⥤ᵇ Y₂) (base : S₁ ⥤ᵇ S₂)
+    (leftIso : left ⋙ F₂ ≅ F₁ ⋙ base) (rightIso : right ⋙ G₂ ≅ G₁ ⋙ base) :
+    BasedCospanTransform F₁ G₁ F₂ G₂ :=
+  ⟨left, right, base, leftIso, rightIso⟩
+
+/-- The based functor on the left endpoint of a based cospan transformation. -/
+def left (psi : BasedCospanTransform F₁ G₁ F₂ G₂) : X₁ ⥤ᵇ X₂ :=
+  psi.1
+
+/-- The based functor on the right endpoint of a based cospan transformation. -/
+def right (psi : BasedCospanTransform F₁ G₁ F₂ G₂) : Y₁ ⥤ᵇ Y₂ :=
+  psi.2.1
+
+/-- The based functor on the common target of a based cospan transformation. -/
+def base (psi : BasedCospanTransform F₁ G₁ F₂ G₂) : S₁ ⥤ᵇ S₂ :=
+  psi.2.2.1
+
+/-- The comparison from the transformed target left leg to the source left leg followed by
+the common-target functor. -/
+def leftIso (psi : BasedCospanTransform F₁ G₁ F₂ G₂) :
+    psi.left ⋙ F₂ ≅ F₁ ⋙ psi.base :=
+  psi.2.2.2.1
+
+/-- The comparison from the transformed target right leg to the source right leg followed by
+the common-target functor. -/
+def rightIso (psi : BasedCospanTransform F₁ G₁ F₂ G₂) :
+    psi.right ⋙ G₂ ≅ G₁ ⋙ psi.base :=
+  psi.2.2.2.2
+
 /-- The identity transformation of a based cospan. -/
 def id (F : X₁ ⥤ᵇ S₁) (G : Y₁ ⥤ᵇ S₁) :
-    BasedCospanTransform F G F G where
-  left := 𝟙 X₁
-  right := 𝟙 Y₁
-  base := 𝟙 S₁
-  leftIso := BasedNatIso.id F
-  rightIso := BasedNatIso.id G
+    BasedCospanTransform F G F G :=
+  mk (𝟙 X₁) (𝟙 Y₁) (𝟙 S₁) (BasedNatIso.id F) (BasedNatIso.id G)
 
 /-- The left component of the identity based cospan transformation is the identity based
 functor. -/
@@ -106,16 +118,12 @@ theorem id.rightIso (F : X₁ ⥤ᵇ S₁) (G : Y₁ ⥤ᵇ S₁) :
 def comp
     (psi : BasedCospanTransform F₁ G₁ F₂ G₂)
     (phi : BasedCospanTransform F₂ G₂ F₃ G₃) :
-    BasedCospanTransform F₁ G₁ F₃ G₃ where
-  left := psi.left ⋙ phi.left
-  right := psi.right ⋙ phi.right
-  base := psi.base ⋙ phi.base
-  leftIso :=
-    BasedNatIso.whiskerLeft psi.left phi.leftIso ≪≫
-      BasedNatIso.whiskerRight psi.leftIso phi.base
-  rightIso :=
-    BasedNatIso.whiskerLeft psi.right phi.rightIso ≪≫
-      BasedNatIso.whiskerRight psi.rightIso phi.base
+    BasedCospanTransform F₁ G₁ F₃ G₃ :=
+  mk (psi.left ⋙ phi.left) (psi.right ⋙ phi.right) (psi.base ⋙ phi.base)
+    (BasedNatIso.whiskerLeft psi.left phi.leftIso ≪≫
+      BasedNatIso.whiskerRight psi.leftIso phi.base)
+    (BasedNatIso.whiskerLeft psi.right phi.rightIso ≪≫
+      BasedNatIso.whiskerRight psi.rightIso phi.base)
 
 /-- The left component of a composite based cospan transformation is the composite of the left
 components. -/

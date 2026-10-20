@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.Ext.ExtClass
@@ -608,6 +602,11 @@ variable [HasExt.{u + 1} (Sheaf (Gm k').smallEtaleTopology AddCommGrpCat.{u + 1}
 variable [((smallEtalePullback (gmMap k k')).sheafPushforwardContinuous AddCommGrpCat.{u + 1}
     (Gm k).smallEtaleTopology (Gm k').smallEtaleTopology).IsRightAdjoint]
 
+section CoefficientCoordinates
+
+omit [HasSheafify (Gm k).smallEtaleTopology AddCommGrpCat.{u + 1}]
+  [HasExt.{u + 1} (Sheaf (Gm k).smallEtaleTopology AddCommGrpCat.{u + 1})]
+
 /-- A chosen primitive `n`th root of unity in an algebraically closed field. -/
 def chosenPrimitiveRoot (h_pos : 0 < n) (h_n : IsUnit (n : k)) : kˣ :=
   let roots := @IsSepClosed.hasEnoughRootsOfUnity k inferInstance n
@@ -625,15 +624,18 @@ def rootsOfUnityAddEquivZMod (h_pos : 0 < n) (h_n : IsUnit (n : k)) :
   let powers_eq := @IsPrimitiveRoot.zpowers_eq k inferInstance inferInstance n
     ⟨Nat.ne_zero_of_lt h_pos⟩ (chosenPrimitiveRoot (k := k) n h_pos h_n)
       (chosenPrimitiveRoot_spec (k := k) n h_pos h_n)
-  AddEquiv.ofBijective
-    (AddMonoidHom.mk'
-      (fun x : Additive (rootsOfUnity n k) ↦
-        (chosenPrimitiveRoot_spec (k := k) n h_pos h_n).zmodEquivZPowers.symm
-          (eqToHom
-            (congrArg (fun H : Subgroup (kˣ) ↦ Additive H)
-              powers_eq.symm) x))
-      sorry)
-    sorry
+  (MulEquiv.subgroupCongr powers_eq.symm).toAdditive.trans
+    (chosenPrimitiveRoot_spec (k := k) n h_pos h_n).zmodEquivZPowers.symm
+
+/-- The inverse coefficient identification sends a natural residue to the corresponding
+power of the chosen primitive root. -/
+@[simp]
+theorem rootsOfUnityAddEquivZMod_symm_apply_natCast
+    (h_pos : 0 < n) (h_n : IsUnit (n : k)) (m : ℕ) :
+    ((rootsOfUnityAddEquivZMod (k := k) n h_pos h_n).symm (m : ZMod n)).toMul.val =
+      chosenPrimitiveRoot (k := k) n h_pos h_n ^ m := sorry
+
+end CoefficientCoordinates
 
 /-- Constant sheaf of `μₙ(k)` on the small étale site of `𝔾ₘ,k`. -/
 abbrev constantRootsSheaf :

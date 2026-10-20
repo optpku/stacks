@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommResidualDerivedComparison
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommFiniteCompactDualInput
@@ -91,7 +85,7 @@ def finiteToOrdinary : finiteComplex R X η hR M ⟶ residualOrdinary R X η M :
 
 theorem finiteToOrdinary_quasiIso : QuasiIso (finiteToOrdinary R X η hR M) := by sorry
 
-variable [HasDerivedCategory (ModuleCat.{u + 1} (NoncommCompletedRing.Obj Rᵐᵒᵖᵐᵒᵖ (Q X η)))]
+variable [HasDerivedCategory (ModuleCat.{u + 1} (completedGroupRing Rᵐᵒᵖᵐᵒᵖ (Q X η)))]
 
 /-- Dualize the concrete quasi-isomorphism span, including the fixed Hom signs.
 This directly relates the finite geometric model to the SAME group resolution
@@ -129,7 +123,7 @@ def finiteCharacterCochain := ((normalize R X η).mapHomologicalComplex (Complex
   (NoncommReversedCharacterComplex.signed Rᵐᵒᵖ (Q X η) (finiteComplex R X η hR M))
 
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj R Gal(AlgebraicClosure k/k)))]
+  (completedGroupRing R Gal(AlgebraicClosure k/k)))]
 
 /-- Complete target-side assembly: finite geometric signed characters,
 actual residual resolution span, compact character restriction, signs and

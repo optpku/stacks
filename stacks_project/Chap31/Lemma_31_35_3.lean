@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import ReasLib.AlgebraicGeometry.Scheme.Module.FittingIdeal.Flattening
@@ -72,6 +66,8 @@ image of the dense open. -/
 #check
   (AlgebraicGeometry.Scheme.fittingIdealSheaf.Flattening.pullback_isPerfect_and_torDimensionLE_one :
     ∀ {X X' : Scheme.{u}} (b : X' ⟶ X) (U : X.Opens) (ℱ : X.Modules)
+      [DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules (strictTransformAmbient b (𝟙 X)).toRingedSpace)]
       [ℱ.IsFinitePresentation] (r : ℕ)
       (_ : schemeTheoreticallyDense U)
       (_ : SheafOfModules.IsFiniteLocallyFreeOfRank r
@@ -87,6 +83,8 @@ one. -/
 #check
   (AlgebraicGeometry.Scheme.fittingIdealSheaf.Flattening.kernel_isPerfect_and_torDimensionLE_one :
     ∀ {X X' : Scheme.{u}} (b : X' ⟶ X) (U : X.Opens) (ℱ : X.Modules)
+      [DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules (strictTransformAmbient b (𝟙 X)).toRingedSpace)]
       [ℱ.IsFinitePresentation] (r : ℕ)
       (_ : schemeTheoreticallyDense U)
       (_ : SheafOfModules.IsFiniteLocallyFreeOfRank r

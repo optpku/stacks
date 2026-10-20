@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_48_4_Comparison
-public import stacks_project.Chap67.Lemma_67_48_4_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Normalization.SchemeComparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Normalization.BaseChange
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,23 +16,25 @@ namespace AlgebraicGeometry.AlgebraicSpace
 of algebraic spaces over a scheme `S` and `g : W ⟶ Y` is étale, then
 `W ×_Y Hom.normalization f` is the normalization of `W` in `W ×_Y X`. -/
 @[stacks 0ABP] #check
-  (isNormalization_pullback_snd_of_etale :
+  (AlgebraicGeometry.AlgebraicSpace.isNormalization_pullback_snd_of_etale :
     ∀ {S : Scheme.{u}} {X Y W : AlgebraicSpace S} (f : X ⟶ Y) (g : W ⟶ Y)
       [QuasiCompact f] [QuasiSeparated f] [Etale g]
       [HasPullback f g] [HasPullback (Hom.fromNormalization f) g],
       IsNormalization (pullback.snd f g) (pullbackToNormalization f g)
         (pullback.snd (Hom.fromNormalization f) g))
 
-/- Lemma 67.48.4 (2): if `X` and `Y` are representable by schemes over `S` and
-`f : X ⟶ Y` is quasi-compact and quasi-separated, then the algebraic-space
-relative normalization is representable and canonically identified with the
-scheme-level relative normalization of Morphisms 29.53. -/
+/- Lemma 67.48.4 (2): for schemes over `S`, any relative-normalization
+factorization is represented by and uniquely isomorphic to the scheme-level
+relative normalization, compatibly with both factorization maps. -/
 @[stacks 0ABP] #check
-  (isNormalization_ofOverMap :
+  (AlgebraicGeometry.AlgebraicSpace.existsUnique_iso_ofOverNormalization :
     ∀ {S : Scheme.{u}} {X Y : Over S} (f : X ⟶ Y)
       [AlgebraicGeometry.QuasiCompact f.left]
-      [AlgebraicGeometry.QuasiSeparated f.left],
-      IsNormalization (ofOverMap f) (ofOverToNormalization f)
-        (ofOverFromNormalization f))
+      [AlgebraicGeometry.QuasiSeparated f.left]
+      {N : AlgebraicSpace S} (toN : ofOver X ⟶ N) (fromN : N ⟶ ofOver Y)
+      (hN : IsNormalization (ofOverMap f) toN fromN),
+      ∃! e : N ≅ ofOver (ofOverNormalization f),
+        toN ≫ e.hom = ofOverToNormalization f ∧
+          e.hom ≫ ofOverFromNormalization f = fromN)
 
 end AlgebraicGeometry.AlgebraicSpace

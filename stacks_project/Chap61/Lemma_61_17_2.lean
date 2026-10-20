@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.DerivedCategory.ExactFunctor
-public import Mathlib.CategoryTheory.IsomorphismClasses
-public import ReasLib.CategoryTheory.Sites.Over.Derived.BaseChange
-public import stacks_project.Chap61.Lemma_61_17_2_Derived
-public import stacks_project.Chap61.Lemma_61_17_2_Pushforward
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Proetale.DerivedPushforward
+import StacksCheckRecall
 
 /-!
 # Lemma 61.17.2
@@ -20,8 +10,6 @@ Restriction of `Rf_big,*` to a small pro-étale site agrees with `Rf_small,*`
 of the restriction, and the same comparison holds after cartesian base change
 on both the small and the big sites.
 -/
-
-@[expose] public section
 
 open AlgebraicGeometry AlgebraicGeometry.Scheme
 open CategoryTheory CategoryTheory.Limits
@@ -34,78 +22,69 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.ProEt
 
-/-- Lemma 61.17.2 (1): for `f : T ⟶ S` and `K` in `D((Sch/T)_proétale)`, the
-restriction of `Rf_big,* K` to `S_proétale` agrees with `Rf_small,*` of the
-restriction of `K`. -/
+/- Lemma 61.17.2. Restriction of the big derived direct image to the small site. -/
 @[stacks 0F68]
-theorem restrict_bigDerivedPushforward {S T : Scheme.{u}} (f : T ⟶ S)
+#check (AlgebraicGeometry.Scheme.ProEt.restrict_bigDerivedPushforward :
+  ∀ {S T : Scheme.{u}} (f : T ⟶ S)
     [HasSheafify (topology S) AddCommGrpCat.{u + 1}]
     [HasSheafify (topology T) AddCommGrpCat.{u + 1}]
     [HasSheafify (proetaleTopology.over S) AddCommGrpCat.{u + 1}]
     [HasSheafify (proetaleTopology.over T) AddCommGrpCat.{u + 1}]
-    [IsGrothendieckAbelian (Sheaf (topology S) AddCommGrpCat.{u + 1})]
-    [IsGrothendieckAbelian (Sheaf (topology T) AddCommGrpCat.{u + 1})]
-    [IsGrothendieckAbelian (Sheaf (proetaleTopology.over T) AddCommGrpCat.{u + 1})]
     [∀ P : (Over T)ᵒᵖ ⥤ AddCommGrpCat.{u + 1},
       (Over.map f).op.HasPointwiseRightKanExtension P]
-    [(iInverseImage (𝟙 S)).Additive]
-    [PreservesFiniteLimits (iInverseImage (𝟙 S))]
-    [PreservesFiniteColimits (iInverseImage (𝟙 S))]
-    [(iInverseImage (𝟙 T)).Additive]
-    [PreservesFiniteLimits (iInverseImage (𝟙 T))]
-    [PreservesFiniteColimits (iInverseImage (𝟙 T))]
-    (K : DerivedCategory (Sheaf (proetaleTopology.over T) AddCommGrpCat.{u + 1})) :
+    (K : DerivedCategory (Sheaf (proetaleTopology.over T) AddCommGrpCat.{u + 1})),
     IsIsomorphic
       ((iInverseImage (𝟙 S)).mapDerivedCategory.obj
         ((bigDerivedPushforward f).obj K))
       ((smallDerivedPushforward f).obj
-        ((iInverseImage (𝟙 T)).mapDerivedCategory.obj K)) := sorry
+        ((iInverseImage (𝟙 T)).mapDerivedCategory.obj K)))
 
-/-- Lemma 61.17.2 (2): for a cartesian square and `K` in `D((Sch/T)_proétale)`,
-`iInverseImage g` of `Rf_big,* K` agrees with `Rf'_small,*` of
-`iInverseImage g' K` in `D(S'_proétale)`. -/
-@[stacks 0F68]
-theorem iInverseImage_bigDerivedPushforward
+/- The cartesian comparison after relocalization to the small site. -/
+#check (AlgebraicGeometry.Scheme.ProEt.iInverseImage_bigDerivedPushforward :
+  ∀
     {S T S' T' : Scheme.{u}} (f : T ⟶ S) (g : S' ⟶ S) (f' : T' ⟶ S') (g' : T' ⟶ T)
-    (sq : IsPullback g' f' f g)
+    (_sq : IsPullback g' f' f g)
     [HasSheafify (topology S') AddCommGrpCat.{u + 1}]
     [HasSheafify (topology T') AddCommGrpCat.{u + 1}]
     [HasSheafify (proetaleTopology.over S) AddCommGrpCat.{u + 1}]
     [HasSheafify (proetaleTopology.over T) AddCommGrpCat.{u + 1}]
-    [IsGrothendieckAbelian (Sheaf (topology S') AddCommGrpCat.{u + 1})]
-    [IsGrothendieckAbelian (Sheaf (topology T') AddCommGrpCat.{u + 1})]
-    [IsGrothendieckAbelian (Sheaf (proetaleTopology.over T) AddCommGrpCat.{u + 1})]
     [∀ P : (Over T)ᵒᵖ ⥤ AddCommGrpCat.{u + 1},
       (Over.map f).op.HasPointwiseRightKanExtension P]
-    [(iInverseImage g).Additive]
-    [PreservesFiniteLimits (iInverseImage g)]
-    [PreservesFiniteColimits (iInverseImage g)]
-    [(iInverseImage g').Additive]
-    [PreservesFiniteLimits (iInverseImage g')]
-    [PreservesFiniteColimits (iInverseImage g')]
-    (K : DerivedCategory (Sheaf (proetaleTopology.over T) AddCommGrpCat.{u + 1})) :
+    (K : DerivedCategory (Sheaf (proetaleTopology.over T) AddCommGrpCat.{u + 1})),
     IsIsomorphic
       ((iInverseImage g).mapDerivedCategory.obj
         ((bigDerivedPushforward f).obj K))
       ((smallDerivedPushforward f').obj
-        ((iInverseImage g').mapDerivedCategory.obj K)) := sorry
+        ((iInverseImage g').mapDerivedCategory.obj K)))
 
-/-- Lemma 61.17.2 (3): for a cartesian square and `K` in `D((Sch/T)_proétale)`,
-`g_big⁻¹ (Rf_big,* K)` agrees with `Rf'_big,* ((g'_big)⁻¹ K)` in
-`D((Sch/S')_proétale)`. -/
-@[stacks 0F68]
-theorem bigInverseImage_bigDerivedPushforward
-    {S T S' T' : Scheme.{u}} (f : T ⟶ S) (g : S' ⟶ S) (f' : T' ⟶ S') (g' : T' ⟶ T)
-    (sq : IsPullback g' f' f g)
-    [HasSheafify (proetaleTopology.over S) AddCommGrpCat.{u + 1}]
-    [HasSheafify (proetaleTopology.over T) AddCommGrpCat.{u + 1}]
-    [HasSheafify (proetaleTopology.over S') AddCommGrpCat.{u + 1}]
-    [HasSheafify (proetaleTopology.over T') AddCommGrpCat.{u + 1}]
-    [∀ P : (Over T)ᵒᵖ ⥤ AddCommGrpCat.{u + 1},
-      (Over.map f).op.HasPointwiseRightKanExtension P]
-    [∀ P : (Over T')ᵒᵖ ⥤ AddCommGrpCat.{u + 1},
-      (Over.map f').op.HasPointwiseRightKanExtension P]
-    (K : DerivedCategory (Sheaf (proetaleTopology.over T) AddCommGrpCat.{u + 1})) :
-    IsIso ((BaseChange.map proetaleTopology g' f' f g sq.w).app K) := sorry
+section BigBaseChange
+
+variable {S T S' T' : Scheme.{u}}
+variable (f : T ⟶ S) (g : S' ⟶ S) (f' : T' ⟶ S') (g' : T' ⟶ T)
+variable (sq : IsPullback g' f' f g)
+variable [HasSheafify (proetaleTopology.over S) AddCommGrpCat.{u + 1}]
+variable [HasSheafify (proetaleTopology.over T) AddCommGrpCat.{u + 1}]
+variable [HasSheafify (proetaleTopology.over S') AddCommGrpCat.{u + 1}]
+variable [HasSheafify (proetaleTopology.over T') AddCommGrpCat.{u + 1}]
+variable [∀ P : (Over T)ᵒᵖ ⥤ AddCommGrpCat.{u + 1},
+  (Over.map f).op.HasPointwiseRightKanExtension P]
+variable [∀ P : (Over T')ᵒᵖ ⥤ AddCommGrpCat.{u + 1},
+  (Over.map f').op.HasPointwiseRightKanExtension P]
+
+/- The canonical base-change transformation on the big sites is invertible. -/
+#check (CategoryTheory.GrothendieckTopology.Derived.Over.BaseChange.map_isIso
+    proetaleTopology g' f' f g sq :
+  IsIso (BaseChange.map proetaleTopology g' f' f g sq.w))
+
+/- Its isomorphism at every unbounded derived abelian sheaf. -/
+#check (CategoryTheory.GrothendieckTopology.Derived.Over.BaseChange.appIso
+    proetaleTopology g' f' f g sq :
+  ∀ K : DerivedCategory (Sheaf (proetaleTopology.over T) AddCommGrpCat.{u + 1}),
+    (Derived.Over.pullback proetaleTopology g).obj
+        ((Derived.Over.pushforward proetaleTopology f).obj K) ≅
+      (Derived.Over.pushforward proetaleTopology f').obj
+        ((Derived.Over.pullback proetaleTopology g').obj K))
+
+end BigBaseChange
 
 end AlgebraicGeometry.Scheme.ProEt

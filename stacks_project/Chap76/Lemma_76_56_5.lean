@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Category.Preorder
-public import Mathlib.CategoryTheory.Limits.HasLimits
-public import stacks_project.Chap66.Definition_66_3_1_Separation
-public import stacks_project.Chap66.Definition_66_5_1_QuasiCompact
-public import stacks_project.Chap67.Definition_67_20_2_Affine
-public import stacks_project.Chap75.Definition_75_28_1_ResolutionProperty
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ResolutionProperty.Limit
+import StacksCheckRecall
 
 /-!
 # Resolution property of directed affine limits of algebraic spaces
@@ -27,19 +17,16 @@ open CategoryTheory Limits AlgebraicGeometry AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Limit
-
-/-- Lemma 76.56.5: a specified inverse limit of quasi-compact and quasi-separated
+/- Lemma 76.56.5: a specified inverse limit of quasi-compact and quasi-separated
 algebraic spaces over a scheme `S` with affine transition morphisms has the
 resolution property if and only if some stage does. -/
 @[stacks 0GV2]
-theorem hasResolutionProperty_iff_exists_stage
-    {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
+#check (AlgebraicGeometry.AlgebraicSpace.Limit.hasResolutionProperty_iff_exists_stage :
+    ∀ {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
     {S : Scheme.{u}} (D : OrderDual I ⥤ AlgebraicSpace S)
     (c : Cone D) (hc : IsLimit c)
     [∀ i, IsQuasiCompact (D.obj i)]
     [∀ i, IsAbsolutelyQuasiSeparated (D.obj i)]
-    [∀ {i i' : I} (hii' : i ≤ i'), Affine (D.map (homOfLE hii'))] :
-    HasResolutionProperty c.pt ↔ ∃ i : I, HasResolutionProperty (D.obj i) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Limit
+    [∀ {i i' : I} (hii' : i ≤ i'), Affine (D.map (homOfLE hii'))],
+    SheafOfModules.HasResolutionProperty (structureSheaf c.pt) ↔
+      ∃ i : I, SheafOfModules.HasResolutionProperty (structureSheaf (D.obj i)))

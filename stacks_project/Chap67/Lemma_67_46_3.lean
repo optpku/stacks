@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Data.List.TFAE
-public import stacks_project.Chap67.Lemma_67_46_3_FiniteLocallyFree
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FiniteLocallyFree.Locality
+import StacksCheckRecall
 
 /-!
 # Characterizations of finite locally free morphisms of algebraic spaces
@@ -20,40 +14,17 @@ of the target has finite locally free inverse images.
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry Limits
+open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-namespace FiniteLocallyFree
-
-variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-
-/-- Lemma 67.46.3: for a morphism `f : X ⟶ Y` of algebraic spaces over a scheme
-`S`, the following are equivalent: `f` is representable and finite locally free;
-`FiniteLocallyFree f`; some scheme `V` with a surjective étale morphism `V ⟶ Y`
-has `V ×_Y X ⟶ V` finite locally free; and some Zariski covering `Y = ⋃ Yᵢ` has
-each inverse-image morphism `f⁻¹(Yᵢ) ⟶ Yᵢ` finite locally free. -/
-@[stacks 03ZW]
-theorem tfae :
-    List.TFAE [representable f, FiniteLocallyFree f, existsSurjectiveEtaleTarget f,
-      existsZariskiCover f] := sorry
-
-/-- A morphism of algebraic spaces is finite locally free iff it is representable
-and finite locally free in the Section 67.3 sense. -/
-theorem iff_representable : FiniteLocallyFree f ↔ representable f := sorry
-
-/-- A morphism of algebraic spaces is finite locally free iff some surjective
-étale scheme atlas of the target has finite locally free pullback projection. -/
-theorem iff_existsSurjectiveEtaleTarget :
-    FiniteLocallyFree f ↔ existsSurjectiveEtaleTarget f := sorry
-
-/-- A morphism of algebraic spaces is finite locally free iff some Zariski
-covering of the target has finite locally free inverse images under `f`. -/
-theorem iff_existsZariskiCover :
-    FiniteLocallyFree f ↔ existsZariskiCover f := sorry
-
-end FiniteLocallyFree
-
-end AlgebraicGeometry.AlgebraicSpace
+/- Lemma 67.46.3: for a morphism of algebraic spaces over a scheme, representable
+finite local freeness, finite local freeness, finite local freeness after a
+surjective étale scheme atlas of the target, and finite local freeness on a
+Zariski covering of the target are equivalent. -/
+@[stacks 03ZW] #check (AlgebraicGeometry.AlgebraicSpace.FiniteLocallyFree.tfae :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    List.TFAE [AlgebraicGeometry.AlgebraicSpace.FiniteLocallyFree.representable f,
+      AlgebraicGeometry.AlgebraicSpace.FiniteLocallyFree f,
+      AlgebraicGeometry.AlgebraicSpace.FiniteLocallyFree.existsSurjectiveEtaleTarget f,
+      AlgebraicGeometry.AlgebraicSpace.FiniteLocallyFree.existsZariskiCover f])

@@ -1,14 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import Mathlib.RingTheory.Ideal.Quotient.Noetherian
 public import Mathlib.RingTheory.Localization.AtPrime.Basic
+public import Mathlib.RingTheory.Localization.Submodule
 public import Mathlib.RingTheory.MvPolynomial.Ideal
+public import Mathlib.RingTheory.Polynomial.Basic
 public import Mathlib.RingTheory.KrullDimension.Basic
+public import ReasLib.RingTheory.CohenMacaulay.Module
 
 /-!
 # The local ring of a line with an embedded point
@@ -111,5 +109,9 @@ theorem ringKrullDim_quotient_span_yParam :
 theorem yParam_spec :
     yParam k ∈ IsLocalRing.maximalIdeal (LocalRing k) ∧
       ringKrullDim (LocalRing k ⧸ Ideal.span {yParam k}) = 0 := sorry
+
+/-- The local ring of a line with an embedded point at the origin is not Cohen--Macaulay. -/
+theorem localRing_not_cohenMacaulay :
+    ¬ Module.CohenMacaulay (LocalRing k) (LocalRing k) := sorry
 
 end MvPolynomial.LineWithEmbeddedPoint

@@ -1,23 +1,21 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap110.Lemma_110_43_1_Cotangent
+public import ReasLib.RingTheory.CotangentComplex.Basic
 import StacksCheckRecall
+
+universe u
 
 /- Definition 92.3.2: The cotangent complex `L_{B/A}` of a ring map `A ⟶ B` is
 the complex of `B`-modules associated to the simplicial `B`-module
 `Ω_{P_•/A} ⊗_{P_•, ε} B`, where `ε : P_• ⟶ B` is the standard resolution of `B`
 over `A`. -/
 @[stacks 08PN]
-#check @RingHom.cotangentComplex
+#check (RingHom.cotangentComplex :
+  ∀ {R S : Type u} [CommRing R] [CommRing S],
+    (R →+* S) → CochainComplex (ModuleCat.{u} S) ℤ)
 
-#check @Algebra.cotangentComplex
-#check @CategoryTheory.CommRingCat.Under.CotangentComplex.obj
-#check @CategoryTheory.CommRingCat.Under.CotangentComplex.simplicialModule
-#check @CategoryTheory.CommRingCat.Under.CotangentComplex.obj_X
-#check @CategoryTheory.CommRingCat.Under.CotangentComplex.isZero_obj_X_of_pos
+#check Algebra.cotangentComplex
+#check CategoryTheory.CommRingCat.Under.CotangentComplex.obj
+#check CategoryTheory.CommRingCat.Under.CotangentComplex.simplicialModule
+#check CategoryTheory.CommRingCat.Under.CotangentComplex.obj_X
+#check CategoryTheory.CommRingCat.Under.CotangentComplex.isZero_obj_X_of_pos

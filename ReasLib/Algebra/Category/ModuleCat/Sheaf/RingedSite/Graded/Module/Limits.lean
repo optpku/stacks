@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Grothendieck
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Graded.Module
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Graded.Module.Preadditive
 
 /-!
 # Limits of graded module sheaves
@@ -89,12 +83,19 @@ variable [J.HasSheafCompose (forget₂ CommRingCat RingCat)]
 variable {𝒪 : Sheaf J CommRingCat.{max u v}}
 variable {ι : Type} [AddMonoid ι]
 
-/-- Lemma 24.4.2 (0FR0): graded module sheaves form an abelian category. -/
+/-- Lemma 24.4.2 (0FR0): graded module sheaves form an abelian category with the
+canonical degreewise preadditive structure. -/
 @[stacks 0FR0 "abelian category"]
 instance instAbelian
     [h_sheafify : HasSheafify J AddCommGrpCat.{max u v}]
     [h_local : J.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
-    (𝒜 : GradedAlgebraSheaf 𝒪 ι) : Abelian (Mod(𝒜)) := sorry
+    (𝒜 : GradedAlgebraSheaf 𝒪 ι) : Abelian (Mod(𝒜)) where
+  toPreadditive := instPreadditive 𝒜
+  toIsNormalMonoCategory := sorry
+  toIsNormalEpiCategory := sorry
+  has_finite_products := sorry
+  has_kernels := sorry
+  has_cokernels := sorry
 
 /-- Lemma 24.4.2 (0FR0): filtered colimits of graded module sheaves are exact. -/
 @[stacks 0FR0 "AB5"]

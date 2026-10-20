@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.ResidueField
@@ -41,6 +35,12 @@ namespace AlgebraicGeometry.Scheme.Hom
 noncomputable abbrev stalkAlgebra {X S : Scheme.{u}} (f : X ⟶ S) (x : X) :
     Algebra (S.presheaf.stalk (f x)) (X.presheaf.stalk x) :=
   (f.stalkMap x).hom.toAlgebra
+
+/-- A scheme morphism induces the canonical algebra structure on the source
+stalk over the target stalk. -/
+noncomputable instance instAlgebra_stalkMap {X S : Scheme.{u}} (f : X ⟶ S) (x : X) :
+    Algebra (S.presheaf.stalk (f x)) (X.presheaf.stalk x) :=
+  f.stalkAlgebra x
 
 variable {k : Type u} [Field k]
 variable {X : Scheme.{u}} (f : X ⟶ Spec (CommRingCat.of k))

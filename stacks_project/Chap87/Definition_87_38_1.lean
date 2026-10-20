@@ -1,19 +1,19 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap87.Definition_87_38_1_Completion
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CompletionAlongSubspace
 import StacksCheckRecall
 
 @[expose] public section
+
+open CategoryTheory AlgebraicGeometry
+
+universe u
 
 /- Definition 87.38.1: Let `S` be a scheme. Let `X` be an algebraic space over `S`.
 Let `Z ⊂ X` be a closed subspace and denote `Z_n ⊂ X` the `n`th order infinitesimal
 neighbourhood `Hom.InfinitesimalNeighbourhood.space i n`. The formal algebraic space
 `completionAlongSubspace i`, the colimit of the spaces `Z_n` (see Lemma 87.36.2),
 is called the completion of `X` along `Z`. -/
-@[stacks 0GXU] #check AlgebraicGeometry.AlgebraicSpace.completionAlongSubspace
+@[stacks 0GXU] #check (AlgebraicGeometry.AlgebraicSpace.completionAlongSubspace :
+  ∀ {S : Scheme.{u}} {X Z : AlgebraicSpace S} (i : Z ⟶ X)
+    [AlgebraicSpace.IsClosedImmersion i], (Over S)ᵒᵖ ⥤ Type u)

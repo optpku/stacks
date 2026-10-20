@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
@@ -12,7 +6,7 @@ public import Mathlib.CategoryTheory.Limits.FunctorCategory.Basic
 public import Mathlib.CategoryTheory.Limits.Types.Limits
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
 public import Mathlib.Algebra.Field.Subfield.Basic
-public import stacks_project.Chap68.Lemma_68_12_8_Decent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Decent
 
 /-! # Actual residual-field data for a quasi-separated algebraic space
 
@@ -200,10 +194,8 @@ def hom : yoneda.obj (fieldOver X x) ⟶ X.functorOfPoints :=
 theorem cover_hom : yoneda.map (coverOver X x) ≫ hom X x = (representative X x).hom :=
   congrArg Subtype.val ((restrictionEquiv X x).apply_symm_apply _)
 
-def point : FieldValuedPoint X where
-  K := K X x
-  structureHom := structureHom X x
-  hom := hom X x
+def point : FieldValuedPoint X :=
+  FieldValuedPoint.of (K X x) (structureHom X x) (hom X x)
 
 /-- The effective field-relation theorem says this specified descended map
 is the residual monomorphism. Quasi-separatedness makes it quasi-compact. -/

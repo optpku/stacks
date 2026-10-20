@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Definition_90_10_1_Schlessinger
-public import stacks_project.Chap90.Definition_90_16_8_RimSchlessinger
+public import ReasLib.AlgebraicGeometry.FormalDeformation.RimSchlessinger.Schlessinger
+import StacksCheckRecall
 
 /-!
 # Rim-Schlessinger implies Schlessinger's conditions
@@ -28,18 +22,18 @@ variable {F : Type v} [Category.{w} F]
 
 namespace CategoryTheory.Functor
 
-/-- Lemma 90.16.6 (1): if `p : F ⥤ ArtinianLocalAlgCat Λ k` is cofibered in groupoids
+/- Lemma 90.16.6 (1): if `p : F ⥤ ArtinianLocalAlgCat Λ k` is cofibered in groupoids
 and satisfies (RS), then `p` satisfies Schlessinger's condition (S1). -/
 @[stacks 06J7]
-instance HasRimSchlessinger.toHasSchlessingerS1
-    (p : F ⥤ ArtinianLocalAlgCat Λ k) [HasRimSchlessinger p] :
-    HasSchlessingerS1 p := sorry
+#check (CategoryTheory.Functor.HasRimSchlessinger.toHasSchlessingerS1 :
+  ∀ (p : F ⥤ ArtinianLocalAlgCat Λ k) [CategoryTheory.Functor.HasRimSchlessinger p],
+    CategoryTheory.Functor.HasSchlessingerS1 p)
 
-/-- Lemma 90.16.6 (2): if `p : F ⥤ ArtinianLocalAlgCat Λ k` is cofibered in groupoids
+/- Lemma 90.16.6 (2): if `p : F ⥤ ArtinianLocalAlgCat Λ k` is cofibered in groupoids
 and satisfies (RS), then `p` satisfies Schlessinger's condition (S2). -/
 @[stacks 06J7]
-instance HasRimSchlessinger.toHasSchlessingerS2
-    (p : F ⥤ ArtinianLocalAlgCat Λ k) [HasRimSchlessinger p] :
-    HasSchlessingerS2 p := sorry
+#check (CategoryTheory.Functor.HasRimSchlessinger.toHasSchlessingerS2 :
+  ∀ (p : F ⥤ ArtinianLocalAlgCat Λ k) [CategoryTheory.Functor.HasRimSchlessinger p],
+    CategoryTheory.Functor.HasSchlessingerS2 p)
 
 end CategoryTheory.Functor

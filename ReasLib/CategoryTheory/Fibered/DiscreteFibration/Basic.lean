@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import Mathlib.Tactic.CrossRefAttribute
@@ -114,8 +108,8 @@ proof theorem or `sorryAx` supplies its non-`Prop` payload. -/
 theorem lift.isHomLift
     (p : S ⥤ C) [Functor.IsDiscreteFibration p]
     {R : C} {a : S} (f : R ⟶ p.obj a) :
-    p.IsHomLift f (lift p f).hom := sorry
-/- Proof strategy: project the `isHomLift` field of the selected `Functor.HomLift`. -/
+    p.IsHomLift f (lift p f).hom :=
+  (lift p f).isHomLift
 
 /-- Every lift of the same base morphism with the same codomain is the selected lift. -/
 theorem lift.eq
@@ -147,14 +141,27 @@ end IsDiscreteFibration
 namespace IsHomLift
 
 /-- In a discrete fibration, every morphism lying over a displayed base arrow is strongly
-cartesian. -/
+cartesian. The factor arrow is the supplied unique lift of the remaining base arrow, transported
+along the domain equality obtained from uniqueness of the composite lift. -/
 theorem isStronglyCartesian
     {p : S ⥤ C} [Functor.IsDiscreteFibration p]
     {R T : C} {a b : S} {f : R ⟶ T} {φ : a ⟶ b}
-    (hφ : p.IsHomLift f φ) : p.IsStronglyCartesian f φ := sorry
-/- Proof strategy: any competing factorization packages as a lift with the same codomain.
-Existence and uniqueness of its factor through `φ` follow from lift subsingletonity after
-composing with the uniquely determined lift of the remaining base arrow. -/
+    (hφ : p.IsHomLift f φ) : p.IsStronglyCartesian f φ := by
+  obtain ⟨⟩ := hφ
+  refine { universal_property' := ?_ }
+  intro a' g φ' hφ'
+  let l := IsDiscreteFibration.lift p g
+  letI : p.IsHomLift g l.hom := l.isHomLift
+  let composite : HomLift p (g ≫ p.map φ) :=
+    ⟨l.domain, l.hom ≫ φ, IsHomLift.comp p g (p.map φ) l.hom φ⟩
+  let original : HomLift p (g ≫ p.map φ) := ⟨a', φ', hφ'⟩
+  have domain_eq : l.domain = a' :=
+    congrArg HomLift.domain
+      ((IsDiscreteFibration.homLiftSubsingleton (g ≫ p.map φ)).elim composite original)
+  refine ⟨eqToHom domain_eq.symm ≫ l.hom, ⟨?_, ?_⟩, ?_⟩
+  · infer_instance
+  · sorry
+  · sorry
 
 end IsHomLift
 
@@ -164,8 +171,8 @@ namespace IsDiscreteFibration
 theorem lift.isStronglyCartesian
     (p : S ⥤ C) [Functor.IsDiscreteFibration p]
     {R : C} {a : S} (f : R ⟶ p.obj a) :
-    p.IsStronglyCartesian f (lift p f).hom := sorry
-/- Proof strategy: apply `IsHomLift.isStronglyCartesian` to `lift.isHomLift p f`. -/
+    p.IsStronglyCartesian f (lift p f).hom :=
+  IsHomLift.isStronglyCartesian (lift p f).isHomLift
 
 end IsDiscreteFibration
 

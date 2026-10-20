@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Exact
@@ -28,7 +22,7 @@ open CategoryTheory.Limits
 
 noncomputable section
 
-universe uC vC uD vD w
+universe uC vC uD vD w dC dD
 
 namespace CategoryTheory
 
@@ -96,14 +90,15 @@ noncomputable abbrev siteAbelianInverseImageBoundedBelowDerived
     (JC : GrothendieckTopology C) (JD : GrothendieckTopology D) (f : C ⥤ D)
     [Functor.IsContinuous f JC JD] [Functor.IsCocontinuous f JC JD]
     [HasSheafify JC AddCommGrpCat.{w}]
-    [HasSheafify JD AddCommGrpCat.{w}] :
+    [HasSheafify JD AddCommGrpCat.{w}]
+    [HasDerivedCategory.{dC} (Sheaf JC AddCommGrpCat.{w})]
+    [HasDerivedCategory.{dD} (Sheaf JD AddCommGrpCat.{w})] :
     DerivedCategory.Plus (Sheaf JD AddCommGrpCat.{w}) ⥤
       DerivedCategory.Plus (Sheaf JC AddCommGrpCat.{w}) :=
   ExactFunctor.Derived.Plus.functor (siteAbelianInverseImageExact JC JD f)
 
 /-- Preservation of injective objects passes from the underlying continuous sheaf functor to
-the canonical bundled exact inverse-image functor. This bridge keeps exact-first derived
-composition free of local instance pins. -/
+the canonical bundled exact inverse-image functor. -/
 @[stacks 03YU "inverse image preserves injectives through its exact presentation"]
 noncomputable instance siteAbelianInverseImageExact_preservesInjectiveObjects
     (JC : GrothendieckTopology C) (JD : GrothendieckTopology D) (f : C ⥤ D)

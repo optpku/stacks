@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.CartesianBasedFunctor.Basic
@@ -134,6 +128,20 @@ noncomputable abbrev inverseImageComparison
   Functor.CocontinuousPullback.comparison.{uA} F.toFunctor
     (p₁.inheritedTopology J) (p₂.inheritedTopology J)
 
+/-- The inherited inverse-image comparison with both actual sheaf maps supplied. -/
+@[stacks 06NW "actual inherited-topology inverse-image isomorphism"]
+noncomputable abbrev inverseImageComparisonIso
+    (F : CartesianBasedFunctor p₁ p₂) (J : GrothendieckTopology C)
+    [p₁.IsFibered] [p₂.IsFibered]
+    [HasSheafify (p₁.inheritedTopology J) (Type uA)]
+    [HasWeakSheafify (p₂.inheritedTopology J) (Type uA)]
+    [∀ P : S₁ᵒᵖ ⥤ Type uA, F.toFunctor.op.HasPointwiseRightKanExtension P] :
+    (F.morphismOfTopoiIn J).inverseImage ≅
+      F.toFunctor.sheafPushforwardContinuous (Type uA)
+        (p₁.inheritedTopology J) (p₂.inheritedTopology J) :=
+  Functor.CocontinuousPullback.comparisonIso.{uA} F.toFunctor
+    (p₁.inheritedTopology J) (p₂.inheritedTopology J)
+
 /-- The canonical inverse-image comparison for inherited topologies is invertible. -/
 @[stacks 06NW]
 instance inverseImageComparison.isIso
@@ -142,7 +150,8 @@ instance inverseImageComparison.isIso
     [HasSheafify (p₁.inheritedTopology J) (Type uA)]
     [HasWeakSheafify (p₂.inheritedTopology J) (Type uA)]
     [∀ P : S₁ᵒᵖ ⥤ Type uA, F.toFunctor.op.HasPointwiseRightKanExtension P] :
-    IsIso (inverseImageComparison F J) := sorry
+    IsIso (inverseImageComparison F J) :=
+  (inverseImageComparisonIso F J).isIso_hom
 
 /-- The canonical objectwise inverse-image comparison at a source object.  It is the value of
 `inverseImageComparison`, followed by the direct computation of continuous sheaf pushforward. -/
@@ -170,7 +179,12 @@ instance inverseImageEvalComparison.isIso
     [HasWeakSheafify (p₂.inheritedTopology J) (Type uA)]
     [∀ P : S₁ᵒᵖ ⥤ Type uA, F.toFunctor.op.HasPointwiseRightKanExtension P]
     (G : Sheaf (p₂.inheritedTopology J) (Type uA)) (x : S₁) :
-    IsIso (inverseImageEvalComparison F J G x) := sorry
+    IsIso (inverseImageEvalComparison F J G x) :=
+  Iso.isIso_hom
+    (((Functor.isoWhiskerRight (inverseImageComparisonIso F J)
+        (sheafToPresheaf (p₁.inheritedTopology J) (Type uA))).app G).app (op x) ≪≫
+      F.toFunctor.sheafPushforwardContinuousObjObjIso (Type uA)
+        (J := p₁.inheritedTopology J) (K := p₂.inheritedTopology J) G x)
 
 namespace inverseImageEvalIso
 

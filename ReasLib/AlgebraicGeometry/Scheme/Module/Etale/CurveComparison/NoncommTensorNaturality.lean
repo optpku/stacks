@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommSourceTarget
 
@@ -24,7 +18,7 @@ variable (η : GeometricPoint (geometricBaseChange X))
 variable (hR : IsUnit (Nat.card R : k))
 
 abbrev Input := (finiteTypeDiscreteModule R
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X η)))).FullSubcategory
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η)))).FullSubcategory
 
 /-- The inverse Tate functor preserves the given coefficient map. Scalars are
 transported through the specified double opposite, never commuted. -/
@@ -40,14 +34,14 @@ def compactInputMap {M N : Input R X η} (f : M ⟶ N) :
       comm := fun _ ↦ by sorry }
 
 abbrev tensorFunctor := NoncommDerivedTensor.tensorFunctor Rᵐᵒᵖ
-  (Aut (standardFiniteEtaleFiber η))
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X η))) (NoncommSourceTarget.residualGroup X η)
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber η))
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η))) (NoncommSourceTarget.residualGroup X η)
   (geometricToArithmetic X η).hom (arithmeticToGalois X (arithmeticPoint X η)).hom
   (geometricToArithmetic_range_eq_arithmeticToGalois_ker X η)
   (arithmeticToGalois_surjective X (arithmeticPoint X η))
 
 abbrev resolution (M : Input R X η) := NoncommDualResolution.chosen Rᵐᵒᵖ
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X η))) (NoncommArithmeticTate.compactInput R X η hR M)
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η))) (NoncommArithmeticTate.compactInput R X η hR M)
 
 /-- Use the actual recursive projective lift between the SAME chosen compact
 resolutions. Functoriality holds after homotopy/localization. -/
@@ -68,12 +62,12 @@ def map {M N : Input R X η} (f : M ⟶ N) :
         (residualMap R X η hR f))
 
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj R Gal(AlgebraicClosure k/k)))]
+  (completedGroupRing R Gal(AlgebraicClosure k/k)))]
 
 /-- Full target functor on finite source coefficients, derived using ambient
 compact projectives. Identity/composition are the actual lift homotopies. -/
 def derivedFunctor : Input R X η ⥤ DerivedCategory
-    (ModuleCat.{u + 1} (NoncommCompletedRing.Obj R Gal(AlgebraicClosure k/k))) where
+    (ModuleCat.{u + 1} (completedGroupRing R Gal(AlgebraicClosure k/k))) where
   obj M := NoncommSourceTarget.derivedTarget R X η hR M
   map f := DerivedCategory.Q.map (map R X η hR f)
   map_id := by sorry

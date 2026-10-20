@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Homology.CohomologicalDeltaFunctor.PrincipalPower.Tower
@@ -175,13 +169,6 @@ theorem cohomologyCompletionShortComplex_shortExact
     (hℱ : IsTorsionFreeByGlobalSection f ℱ) :
     (cohomologyCompletionShortComplex f ℱ p hℱ).ShortExact := sorry
 
-/-- Remark 20.36.6 (3): the induced map on first derived inverse limits is an isomorphism. -/
-@[stacks 0H3A]
-theorem cohomologyTower_firstDerivedLimitMap_isIso
-    (hℱ : IsTorsionFreeByGlobalSection f ℱ) :
-    IsIso (SequentialInverseSystem.firstDerivedLimitMap
-      (cohomologyTowerBoundaryMap f ℱ p hℱ)) := sorry
-
 /-- The concrete `R¹ lim` comparison isomorphism for the source-facing towers. -/
 @[stacks 0H3A "principal-power cohomology first derived limit iso"]
 noncomputable def cohomologyTower_firstDerivedLimitIso
@@ -194,6 +181,14 @@ noncomputable def cohomologyTower_firstDerivedLimitIso
     GlobalSections.Power.isTorsionFree_of f ℱ hℱ
   CategoryTheory.CohomologicalDeltaFunctor.PrincipalPower.firstDerivedLimitIso
     (cohomology X) f ℱ p
+
+/-- Remark 20.36.6 (3): the induced map on first derived inverse limits is an isomorphism. -/
+@[stacks 0H3A]
+theorem cohomologyTower_firstDerivedLimitMap_isIso
+    (hℱ : IsTorsionFreeByGlobalSection f ℱ) :
+    IsIso (SequentialInverseSystem.firstDerivedLimitMap
+      (cohomologyTowerBoundaryMap f ℱ p hℱ)) :=
+  (cohomologyTower_firstDerivedLimitIso f ℱ p hℱ).isIso_hom
 
 /-- Remark 20.36.6 (4): the quotient cohomology tower is Mittag-Leffler exactly when the torsion
 tower is Mittag-Leffler. -/

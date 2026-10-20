@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap70.Proposition_70_8_1_Approximation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Limit.AbsoluteNoetherianApproximation
 import StacksCheckRecall
 
 @[expose] public section

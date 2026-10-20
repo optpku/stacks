@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Cover.Open
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.ChosenPresentation
+public import ReasLib.CategoryTheory.Sites.Family.FormalCoproduct.Basis
 
 /-!
 # Realizing covers in chosen big-site presentations
@@ -32,13 +27,13 @@ theorem exists_coveringFamily_tautologicallyEquivalent
     (X : ChosenBigSite.{u, v} P) {T : X.carrier}
     (𝒰 : Scheme.Cover.{u} P (X.toScheme.obj T)) :
     ∃ 𝒱 : Limits.FormalCoproduct.{u} (CategoryTheory.Over T),
-      Limits.FormalCoproduct.Over.IsCovering
+      Limits.FormalCoproduct.IsCovering
           (@Pretopology.toPrecoverage X.carrier (Cat.str X.carrier)
             X.hasPullbacks X.pretopology) 𝒱 ∧
         Limits.FormalCoproduct.TautologicallyEquivalent
           ((Limits.FormalCoproduct.map
             (CategoryTheory.Over.post (X := T) X.toScheme)).obj 𝒱)
-          (Limits.FormalCoproduct.Over.ofArrows 𝒰.X 𝒰.f) := sorry
+          (Limits.FormalCoproduct.ofArrows 𝒰.X 𝒰.f) := sorry
 
 /-- Every ambient cover of the scheme underlying an object in a chosen big site is
 refined by the image of a covering family in the chosen carrier. -/
@@ -46,12 +41,12 @@ theorem exists_coveringFamily_refining
     (X : ChosenBigSite.{u, v} P) {T : X.carrier}
     (𝒰 : Scheme.Cover.{u} P (X.toScheme.obj T)) :
     ∃ 𝒱 : Limits.FormalCoproduct.{u} (CategoryTheory.Over T),
-      Limits.FormalCoproduct.Over.IsCovering
+      Limits.FormalCoproduct.IsCovering
           (@Pretopology.toPrecoverage X.carrier (Cat.str X.carrier)
             X.hasPullbacks X.pretopology) 𝒱 ∧
         Nonempty
           (((Limits.FormalCoproduct.map
             (CategoryTheory.Over.post (X := T) X.toScheme)).obj 𝒱) ⟶
-            Limits.FormalCoproduct.Over.ofArrows 𝒰.X 𝒰.f) := sorry
+            Limits.FormalCoproduct.ofArrows 𝒰.X 𝒰.f) := sorry
 
 end AlgebraicGeometry.ChosenBigSite

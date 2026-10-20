@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Definition_90_23_1_Smooth
-public import stacks_project.Chap90.Lemma_90_8_6_Coyoneda
-public import stacks_project.Chap90.Lemma_90_8_6_PowerSeries
+public import ReasLib.AlgebraicGeometry.FormalDeformation.SmoothPowerSeries
+import StacksCheckRecall
 
 /-!
 # Smoothness of restricted coyoneda maps
@@ -27,14 +20,9 @@ universe u
 variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-namespace CompleteLocalAlgCat
-
-/-- Lemma 90.8.6: for a morphism `f : R ⟶ S` in `CompleteLocalAlgCat Λ k`, the induced
-morphism `restrictedCoyoneda S ⟶ restrictedCoyoneda R` is smooth if and only if `S`
-is a finite-variable power series ring over `R` along `f`. -/
-@[stacks 06HL]
-theorem restrictedCoyonedaMap_isSmooth_iff {R S : CompleteLocalAlgCat Λ k} (f : R ⟶ S) :
-    NatTrans.IsSmooth (restrictedCoyonedaMap f) ↔ IsPowerSeriesOver f :=
-  sorry
-
-end CompleteLocalAlgCat
+/- Lemma 90.8.6: a morphism of complete local algebras induces a smooth morphism
+of restricted coyoneda functors exactly when it is a power series extension. -/
+@[stacks 06HL] #check (CompleteLocalAlgCat.restrictedCoyonedaMap_isSmooth_iff :
+  ∀ {R S : CompleteLocalAlgCat Λ k} (f : R ⟶ S),
+    CategoryTheory.NatTrans.IsSmooth (CompleteLocalAlgCat.restrictedCoyonedaMap f) ↔
+      CompleteLocalAlgCat.IsPowerSeriesOver f)

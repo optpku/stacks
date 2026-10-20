@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
@@ -116,7 +110,7 @@ noncomputable def ofChowCap (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
   fun {X' Y'} _ _ i f' g _ square n ↦
     (ChowGroup.map (fun _ ↦ 0) (X ⨯ Y') X'
       (pointProductIso X i f' g square).inv (n - p)).comp
-      ((BivariantClass.castRelativeDegree (fun _ ↦ 0) (neg_add_eq_sub p n)).comp
+      ((RelativeChow.castDegree (fun _ ↦ 0) (neg_add_eq_sub p n)).comp
         (ChowGroup.exteriorProductPairing X Y' (-p) n alpha))
 
 /-- Evaluation of the exterior-product cap family uses the point-product comparison. -/
@@ -131,7 +125,7 @@ theorem ofChowCap_apply (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     ofChowCap X p alpha i f' g square n beta =
       ChowGroup.map (fun _ ↦ 0) (X ⨯ Y') X'
         (pointProductIso X i f' g square).inv (n - p)
-        (BivariantClass.castRelativeDegree (fun _ ↦ 0) (neg_add_eq_sub p n)
+        (RelativeChow.castDegree (fun _ ↦ 0) (neg_add_eq_sub p n)
           (ChowGroup.exteriorProductPairing X Y' (-p) n alpha beta)) := sorry
 
 /-- Exterior-product cap families commute with proper pushforward. -/
@@ -194,7 +188,7 @@ theorem ofChow_apply (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
 noncomputable def toChowValue (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) (c : BivariantClass (fun _ ↦ 0) (terminal.from X) p) :
     RelativeChow (fun _ ↦ 0) X (-p) :=
-  BivariantClass.castRelativeDegree (fun _ ↦ 0) (zero_sub p)
+  RelativeChow.castDegree (fun _ ↦ 0) (zero_sub p)
     (c.cap (𝟙 X) (terminal.from X) (𝟙 (SchemeOverField.point k))
       IsPullback.of_id_fst 0 (pointFundamentalClass k))
 
@@ -202,7 +196,7 @@ noncomputable def toChowValue (X : SchemeOverField k) [LocallyOfFiniteType X.hom
 theorem toChowValue_def (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) (c : BivariantClass (fun _ ↦ 0) (terminal.from X) p) :
     toChowValue X p c =
-      BivariantClass.castRelativeDegree (fun _ ↦ 0) (zero_sub p)
+      RelativeChow.castDegree (fun _ ↦ 0) (zero_sub p)
         (c.cap (𝟙 X) (terminal.from X) (𝟙 (SchemeOverField.point k))
           IsPullback.of_id_fst 0 (pointFundamentalClass k)) := sorry
 
@@ -513,13 +507,13 @@ theorem castDegree_apply {X Y : SchemeOverField k} [LocallyOfFiniteType X.hom]
 def castHomologyDegree {X : SchemeOverField k} [LocallyOfFiniteType X.hom]
     {m n : ℤ} (h : m = n) :
     RationalChowHomology X m →ₗ[ℚ] RationalChowHomology X n :=
-  (BivariantClass.castRelativeDegree (fun _ ↦ 0) h).toIntLinearMap.baseChange ℚ
+  (RelativeChow.castDegree (fun _ ↦ 0) h).toIntLinearMap.baseChange ℚ
 
 /-- Homological grading transport is scalar extension of integral grading transport. -/
 theorem castHomologyDegree_apply {X : SchemeOverField k} [LocallyOfFiniteType X.hom]
     {m n : ℤ} (h : m = n) (alpha : RationalChowHomology X m) :
     castHomologyDegree h alpha =
-      (BivariantClass.castRelativeDegree (fun _ ↦ 0) h).toIntLinearMap.baseChange ℚ alpha := sorry
+      (RelativeChow.castDegree (fun _ ↦ 0) h).toIntLinearMap.baseChange ℚ alpha := sorry
 
 /-- Transport rational operational Chow cohomology along an equality of degrees. -/
 def castCohomologyDegree {X : SchemeOverField k} [LocallyOfFiniteType X.hom]
@@ -589,7 +583,7 @@ def pullback (X Y : SchemeOverField k) [Smooth X.hom] [Projective X.hom]
   let integralValue := fun (c : Integral X Y r)
       (alpha : RelativeChow (fun _ ↦ 0) Y (-s)) ↦
     ChowGroup.map (fun _ ↦ 0) (X ⨯ Y) X Limits.prod.fst (-(r + s))
-      (BivariantClass.castRelativeDegree (fun _ ↦ 0) (pullbackDegree r s)
+      (RelativeChow.castDegree (fun _ ↦ 0) (pullbackDegree r s)
         (c.cap (𝟙 (X ⨯ Y)) Limits.prod.snd (𝟙 Y) IsPullback.of_id_fst (-s) alpha))
   let integralPullback := @LinearMap.mk₂ ℤ inferInstance (Integral X Y r)
     (RelativeChow (fun _ ↦ 0) Y (-s)) (RelativeChow (fun _ ↦ 0) X (-(r + s)))
@@ -614,7 +608,7 @@ theorem pullback_tmul (X Y : SchemeOverField k) [Smooth X.hom] [Projective X.hom
         (b ⊗ₜ[ℤ] alpha) =
       (a * b) ⊗ₜ[ℤ]
         ChowGroup.map (fun _ ↦ 0) (X ⨯ Y) X Limits.prod.fst (-(r + s))
-          (BivariantClass.castRelativeDegree (fun _ ↦ 0) (pullbackDegree r s)
+          (RelativeChow.castDegree (fun _ ↦ 0) (pullbackDegree r s)
             (c.cap (𝟙 (X ⨯ Y)) Limits.prod.snd (𝟙 Y)
               IsPullback.of_id_fst (-s) alpha)) := sorry
 

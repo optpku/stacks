@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_27_1_QuasiFinite
-public import stacks_project.Chap67.Lemma_67_27_6_LocallyQuasiFinite
-public import stacks_project.Chap67.Lemma_67_38_5_Unramified
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Unramified.QuasiFinite
+import StacksCheckRecall
 
 /-!
 # Unramified morphisms of algebraic spaces are locally quasi-finite
@@ -22,23 +15,18 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-namespace UnramifiedAt
-
-/-- Lemma 67.38.7 (1): If `f` is unramified at `x` then `f` is quasi-finite at
+/- Lemma 67.38.7 (1): If `f` is unramified at `x` then `f` is quasi-finite at
 `x`. -/
 @[stacks 05W0]
-theorem quasiFiniteAt {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
-    {x : Points X} (h : UnramifiedAt f x) : FiniteType.QuasiFiniteAt f x :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.UnramifiedAt.quasiFiniteAt :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {x : Points X},
+    UnramifiedAt f x → FiniteType.QuasiFiniteAt f x)
 
-end UnramifiedAt
-
-/-- Lemma 67.38.7 (2): An unramified morphism of algebraic spaces is locally
+/- Lemma 67.38.7 (2): An unramified morphism of algebraic spaces is locally
 quasi-finite. -/
 @[stacks 05W0]
-instance locallyQuasiFinite_of_unramified {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Unramified f] :
-    LocallyQuasiFinite f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.locallyQuasiFinite_of_unramified :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Unramified f],
+    LocallyQuasiFinite f)
 
 end AlgebraicGeometry.AlgebraicSpace

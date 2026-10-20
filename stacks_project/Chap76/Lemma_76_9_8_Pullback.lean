@@ -1,15 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap65.Lemma_65_7_3_Pullback
 public import stacks_project.Chap76.Definition_76_9_1_Arrow
 public import stacks_project.Chap76.Definition_76_9_1_FiniteOrder
 public import stacks_project.Chap76.Lemma_76_18_1_Thickening
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Thickening.BaseChange
+import StacksCheckRecall
 
 /-!
 # Base change of thickenings of algebraic spaces
@@ -26,64 +22,43 @@ open CategoryTheory AlgebraicGeometry Limits
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.IsThickening.pullbackSnd :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {Y Y' X' : AlgebraicGeometry.AlgebraicSpace S}
+    (i : Y ⟶ Y') (f' : X' ⟶ Y')
+    [AlgebraicGeometry.AlgebraicSpace.IsThickening i],
+    AlgebraicGeometry.AlgebraicSpace.IsThickening (pullback.snd i f'))
 
-namespace IsThickening
+/- Lemma 76.9.8: the pullback square of a thickening induces the canonical
+morphism from the pullback thickening to the original thickening. -/
+@[stacks 09ZX] #check (AlgebraicGeometry.AlgebraicSpace.Thickening.pullbackHom :
+  {S : AlgebraicGeometry.Scheme.{u}} →
+    {Y Y' X' : AlgebraicGeometry.AlgebraicSpace S} →
+      (i : Y ⟶ Y') → (f' : X' ⟶ Y') →
+        [AlgebraicGeometry.AlgebraicSpace.IsThickening i] →
+          AlgebraicGeometry.AlgebraicSpace.Thickening.of (pullback.snd i f') ⟶
+            AlgebraicGeometry.AlgebraicSpace.Thickening.of i)
 
-/-- The base-change projection `pullback.snd i f'` of a thickening
-`i : Y ⟶ Y'` is a thickening. -/
-instance pullbackSnd {S : Scheme.{u}} {Y Y' X' : AlgebraicSpace S}
-    (i : Y ⟶ Y') (f' : X' ⟶ Y') [IsThickening i] :
-    IsThickening (pullback.snd i f') :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Thickening.pullbackHom_left :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {Y Y' X' : AlgebraicGeometry.AlgebraicSpace S}
+    (i : Y ⟶ Y') (f' : X' ⟶ Y')
+    [AlgebraicGeometry.AlgebraicSpace.IsThickening i],
+    (AlgebraicGeometry.AlgebraicSpace.Thickening.pullbackHom i f').left =
+      pullback.fst i f')
 
-end IsThickening
+#check (AlgebraicGeometry.AlgebraicSpace.Thickening.pullbackHom_right :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {Y Y' X' : AlgebraicGeometry.AlgebraicSpace S}
+    (i : Y ⟶ Y') (f' : X' ⟶ Y')
+    [AlgebraicGeometry.AlgebraicSpace.IsThickening i],
+    (AlgebraicGeometry.AlgebraicSpace.Thickening.pullbackHom i f').right = f')
 
-namespace Thickening
+#check (AlgebraicGeometry.AlgebraicSpace.IsFirstOrderThickening.pullbackSnd :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {Y Y' X' : AlgebraicGeometry.AlgebraicSpace S}
+    (i : Y ⟶ Y') (f' : X' ⟶ Y')
+    [AlgebraicGeometry.AlgebraicSpace.IsFirstOrderThickening i],
+    AlgebraicGeometry.AlgebraicSpace.IsFirstOrderThickening (pullback.snd i f'))
 
-/-- A pullback square of a thickening of algebraic spaces induces a morphism
-from the pullback thickening to the original thickening. -/
-noncomputable def pullbackHom {S : Scheme.{u}} {Y Y' X' : AlgebraicSpace S}
-    (i : Y ⟶ Y') (f' : X' ⟶ Y') [IsThickening i] :
-    Thickening.of (pullback.snd i f') ⟶ Thickening.of i :=
-  Thickening.homMk (pullback.fst i f') f' pullback.condition
-
-/-- The closed-subspace leg of `pullbackHom i f'` is the first projection of
-the fibre product. -/
-theorem pullbackHom_left {S : Scheme.{u}} {Y Y' X' : AlgebraicSpace S}
-    (i : Y ⟶ Y') (f' : X' ⟶ Y') [IsThickening i] :
-    (pullbackHom i f').left = pullback.fst i f' :=
-  sorry
-
-/-- The ambient-space leg of `pullbackHom i f'` is the morphism
-`f' : X' ⟶ Y'`. -/
-theorem pullbackHom_right {S : Scheme.{u}} {Y Y' X' : AlgebraicSpace S}
-    (i : Y ⟶ Y') (f' : X' ⟶ Y') [IsThickening i] :
-    (pullbackHom i f').right = f' :=
-  sorry
-
-end Thickening
-
-namespace IsFirstOrderThickening
-
-/-- The pullback of a first-order thickening of algebraic spaces is a
-first-order thickening. -/
-instance pullbackSnd {S : Scheme.{u}} {Y Y' X' : AlgebraicSpace S}
-    (i : Y ⟶ Y') (f' : X' ⟶ Y') [IsFirstOrderThickening i] :
-    IsFirstOrderThickening (pullback.snd i f') :=
-  sorry
-
-end IsFirstOrderThickening
-
-namespace IsFiniteOrderThickening
-
-/-- The pullback of a finite-order thickening of algebraic spaces is a
-finite-order thickening. -/
-instance pullbackSnd {S : Scheme.{u}} {Y Y' X' : AlgebraicSpace S}
-    (i : Y ⟶ Y') (f' : X' ⟶ Y') [IsFiniteOrderThickening i] :
-    IsFiniteOrderThickening (pullback.snd i f') :=
-  sorry
-
-end IsFiniteOrderThickening
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.IsFiniteOrderThickening.pullbackSnd :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {Y Y' X' : AlgebraicGeometry.AlgebraicSpace S}
+    (i : Y ⟶ Y') (f' : X' ⟶ Y')
+    [AlgebraicGeometry.AlgebraicSpace.IsFiniteOrderThickening i],
+    AlgebraicGeometry.AlgebraicSpace.IsFiniteOrderThickening (pullback.snd i f'))

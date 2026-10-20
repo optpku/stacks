@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSquare
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Immersion
 public import Mathlib.AlgebraicGeometry.Morphisms.FinitePresentation
@@ -15,17 +10,6 @@ public import Mathlib.AlgebraicGeometry.Morphisms.FinitePresentation
 open CategoryTheory
 
 universe u
-
-namespace AlgebraicGeometry.AlgebraicSpace.SmallEtale
-
-variable {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-
-/-- A morphism of algebraic spaces is locally of finite presentation if the scheme arrow
-in every étale scheme square is locally of finite presentation. -/
-def LocallyOfFinitePresentation (f : X ⟶ Y) : Prop :=
-  ∀ square : Square f, AlgebraicGeometry.LocallyOfFinitePresentation square.map.left
-
-end AlgebraicGeometry.AlgebraicSpace.SmallEtale
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
@@ -89,17 +73,15 @@ theorem of_presheaf {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
 
 end LocallyOfFinitePresentation
 
-/-- The étale-square class interface for local finite presentation agrees with
-the predicate defined using bundled small étale squares. -/
-theorem locallyOfFinitePresentation_iff_smallEtale {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    LocallyOfFinitePresentation f ↔ SmallEtale.LocallyOfFinitePresentation f :=
-  sorry
-
 /-- An open immersion of algebraic spaces is locally of finite presentation. -/
 instance locallyOfFinitePresentation_of_isOpenImmersion {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsOpenImmersion f] :
     LocallyOfFinitePresentation f :=
+  sorry
+
+/-- An étale morphism of algebraic spaces is locally of finite presentation. -/
+instance locallyOfFinitePresentation_of_etale {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) [Etale f] : LocallyOfFinitePresentation f :=
   sorry
 
 end AlgebraicGeometry.AlgebraicSpace

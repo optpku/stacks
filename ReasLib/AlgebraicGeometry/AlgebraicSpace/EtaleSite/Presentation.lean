@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite
@@ -156,6 +150,50 @@ def SmallEtale.toPresentation {S : Scheme.{u}} (X : AlgebraicSpace S) :
   map f := MorphismProperty.CostructuredArrow.homMk f.left trivial f.w
   map_id := fun _ => MorphismProperty.CostructuredArrow.Hom.ext rfl
   map_comp := fun _ _ => MorphismProperty.CostructuredArrow.Hom.ext rfl
+
+/-- The forward chart comparison preserves the underlying scheme over the base. -/
+@[simp]
+theorem SmallEtale.fromPresentation_obj_left {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (U : smallEtaleSite X) : ((SmallEtale.fromPresentation X).obj U).left = U.left := rfl
+
+/-- The forward chart comparison preserves the structural map. -/
+@[simp]
+theorem SmallEtale.fromPresentation_obj_hom {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (U : smallEtaleSite X) : ((SmallEtale.fromPresentation X).obj U).hom = U.hom := rfl
+
+/-- The forward chart comparison preserves the underlying scheme morphism. -/
+@[simp]
+theorem SmallEtale.fromPresentation_map_left {S : Scheme.{u}} {X : AlgebraicSpace S}
+    {U V : smallEtaleSite X} (g : U ⟶ V) :
+    ((SmallEtale.fromPresentation X).map g).left = g.left := rfl
+
+/-- The reverse chart comparison preserves the underlying scheme over the base. -/
+@[simp]
+theorem SmallEtale.toPresentation_obj_left {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (U : SmallEtale.site X) : ((SmallEtale.toPresentation X).obj U).left = U.left := rfl
+
+/-- The reverse chart comparison preserves the structural map. -/
+@[simp]
+theorem SmallEtale.toPresentation_obj_hom {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (U : SmallEtale.site X) : ((SmallEtale.toPresentation X).obj U).hom = U.hom := rfl
+
+/-- The reverse chart comparison preserves the underlying scheme morphism. -/
+@[simp]
+theorem SmallEtale.toPresentation_map_left {S : Scheme.{u}} {X : AlgebraicSpace S}
+    {U V : SmallEtale.site X} (g : U ⟶ V) :
+    ((SmallEtale.toPresentation X).map g).left = g.left := rfl
+
+/-- Converting a canonical-site chart to the presentation and back recovers the chart. -/
+@[simp]
+theorem SmallEtale.fromPresentation_obj_toPresentation_obj {S : Scheme.{u}}
+    {X : AlgebraicSpace S} (U : SmallEtale.site X) :
+    (SmallEtale.fromPresentation X).obj ((SmallEtale.toPresentation X).obj U) = U := rfl
+
+/-- Converting a presentation chart to the canonical site and back recovers the chart. -/
+@[simp]
+theorem SmallEtale.toPresentation_obj_fromPresentation_obj {S : Scheme.{u}}
+    {X : AlgebraicSpace S} (U : smallEtaleSite X) :
+    (SmallEtale.toPresentation X).obj ((SmallEtale.fromPresentation X).obj U) = U := rfl
 
 /-- The chart-presentation round trip is the identity functor. -/
 theorem SmallEtale.fromPresentation_toPresentation {S : Scheme.{u}} (X : AlgebraicSpace S) :

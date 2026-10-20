@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.CochainComplex.CartanEilenberg.TotalFunctoriality
@@ -87,7 +81,7 @@ theorem Total.computesRightDerivedAt :
       ((HomotopyCategory.Plus.quotient A).obj
         (Total.toInjectivePlus I : CochainComplex.Plus A)) := sorry
 
-variable [G.HasRightDerivedFunctor (HomotopyCategory.Plus.quasiIso A)]
+variable [G.HasPointwiseRightDerivedFunctor (HomotopyCategory.Plus.quasiIso A)]
 
 /-- Evaluation on the Cartan--Eilenberg total injective model is canonically isomorphic to the
 total right-derived value at the original bounded-below complex. -/

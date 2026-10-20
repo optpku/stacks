@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.TorAmplitude.BaseChange
@@ -19,6 +13,12 @@ fixed Tor-amplitude interval relative to the base. -/
   (@AlgebraicGeometry.Scheme.TorIndependentBaseChange.hasTorAmplitudeInOver :
     {X' X S' S : AlgebraicGeometry.Scheme.{u}} →
       (g' : X' ⟶ X) → (f' : X' ⟶ S') → (f : X ⟶ S) → (g : S' ⟶ S) →
+      ∀ [DerivedCategory.DerivedTensor.Right.Has
+        (C := AlgebraicGeometry.RingedSpace.Modules
+          (AlgebraicGeometry.RingedSpace.Hom.inverseImageBase f.toShHom))]
+        [DerivedCategory.DerivedTensor.Right.Has
+          (C := AlgebraicGeometry.RingedSpace.Modules
+            (AlgebraicGeometry.RingedSpace.Hom.inverseImageBase f'.toShHom))],
       (sq : CategoryTheory.IsPullback g' f' f g) →
       (hTor : AlgebraicGeometry.Scheme.TorIndependentOver
         (CategoryTheory.Over.mk f) (CategoryTheory.Over.mk g)) →

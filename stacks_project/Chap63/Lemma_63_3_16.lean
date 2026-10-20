@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Preserves.Basic
-public import stacks_project.Chap63.Lemma_63_3_4_LowerShriek
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.LowerShriek.Coproduct
+import StacksCheckRecall
 
 /-!
 # Compact-support pushforward preserves direct sums
@@ -20,20 +14,14 @@ open CategoryTheory.Limits
 open AlgebraicGeometry
 open AlgebraicGeometry.Scheme
 
-noncomputable section
-
 universe u v
 
-namespace AlgebraicGeometry.Scheme.Etale
-
-/-- Lemma 63.3.16: if `f : X ⟶ Y` is a morphism of schemes which is separated
+/- Lemma 63.3.16: if `f : X ⟶ Y` is a morphism of schemes which is separated
 and locally of finite type, then the functor `etaleLowerShriek f` commutes with
 direct sums. -/
-@[stacks 0F56]
-instance etaleLowerShriek_preservesCoproducts {X Y : Scheme.{u}} (f : X ⟶ Y)
-    [IsSeparated f] [LocallyOfFiniteType f] {I : Type v} :
-    PreservesColimitsOfShape (Discrete I) (etaleLowerShriek f) := sorry
-
-end AlgebraicGeometry.Scheme.Etale
-
-end
+@[stacks 0F56] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleLowerShriek_preservesCoproducts :
+    ∀ {X Y : Scheme.{u}} (f : X ⟶ Y) [IsSeparated f] [LocallyOfFiniteType f]
+      {I : Type v},
+      PreservesColimitsOfShape (Discrete I)
+        (AlgebraicGeometry.Scheme.Etale.etaleLowerShriek f))

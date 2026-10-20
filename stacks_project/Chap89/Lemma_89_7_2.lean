@@ -1,19 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.RingTheory.AdicCompletion.AtPrime
-public import ReasLib.RingTheory.Normal.Local
-public import ReasLib.RingTheory.Normal.Nagata
-public import ReasLib.RingTheory.Regular.JRing
-public import ReasLib.RingTheory.RingHom.Fiber.Map
-public import stacks_project.Chap66.Lemma_66_25_4_Regular
-public import stacks_project.Chap72.Definition_72_8_3_Alteration
-public import stacks_project.Chap89.Lemma_89_2_1
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Alteration.LocalConsequences
+import StacksCheckRecall
 
 /-!
 # Regular alterations of spectra imply local ring-theoretic consequences
@@ -32,53 +20,58 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.IsAlteration
 
-variable (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A] [IsDomain A]
-variable (X : AlgebraicSpace (Spec (.of A))) [IsIntegral X] [IsIntegral (specSpace A)]
-variable (f : X ⟶ specSpace A) [IsAlteration f] [IsRegular X]
-
-include X f
-
-/-- Lemma 89.7.2 (1) Let `(A, 𝔪, κ)` be a local Noetherian domain. If there is
+/- Lemma 89.7.2 (1) Let `(A, 𝔪, κ)` be a local Noetherian domain. If there is
 an alteration `f : X ⟶ specSpace A` with `X` regular, then there exists a
 nonzero `a : A` such that `Localization.Away a` is a regular ring. -/
 @[stacks 0BHU]
-theorem exists_regularLocalization :
-    ∃ a : A, a ≠ 0 ∧ IsRegularRing (Localization.Away a) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.IsAlteration.exists_regularLocalization :
+  ∀ (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A] [IsDomain A]
+    (X : AlgebraicSpace (Spec (.of A))) [IsIntegral X]
+    (f : X ⟶ specSpace A) [IsAlteration f] [IsRegular X],
+    ∃ a : A, a ≠ 0 ∧ IsRegularRing (Localization.Away a))
 
-/-- Lemma 89.7.2 (2) Let `(A, 𝔪, κ)` be a local Noetherian domain. If there is
+/- Lemma 89.7.2 (2) Let `(A, 𝔪, κ)` be a local Noetherian domain. If there is
 an alteration `f : X ⟶ specSpace A` with `X` regular, then the integral
 closure of `A` in its fraction field is finite over `A`. -/
 @[stacks 0BHU]
-theorem isN1Ring : IsN1Ring A :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.IsAlteration.isN1Ring :
+  ∀ (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A] [IsDomain A]
+    (X : AlgebraicSpace (Spec (.of A))) [IsIntegral X]
+    (f : X ⟶ specSpace A) [IsAlteration f] [IsRegular X], IsN1Ring A)
 
-/-- Lemma 89.7.2 (3) Let `(A, 𝔪, κ)` be a local Noetherian domain. If there is
+/- Lemma 89.7.2 (3) Let `(A, 𝔪, κ)` be a local Noetherian domain. If there is
 an alteration `f : X ⟶ specSpace A` with `X` regular, then the 𝔪-adic
 completion of the integral closure of `A` in its fraction field is a normal
 ring. -/
 @[stacks 0BHU]
-theorem isNormalRing_adicCompletion :
+#check (AlgebraicGeometry.AlgebraicSpace.IsAlteration.isNormalRing_adicCompletion :
+  ∀ (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A] [IsDomain A]
+    (X : AlgebraicSpace (Spec (.of A))) [IsIntegral X]
+    (f : X ⟶ specSpace A) [IsAlteration f] [IsRegular X],
     let B := integralClosure A (FractionRing A)
-    IsNormalRing (AdicCompletion (Ideal.map (algebraMap A B) (maximalIdeal A)) B) :=
-  sorry
+    IsNormalRing (AdicCompletion (Ideal.map (algebraMap A B) (maximalIdeal A)) B))
 
-/-- Lemma 89.7.2 (4) Let `(A, 𝔪, κ)` be a local Noetherian domain. If there is
+/- Lemma 89.7.2 (3), maximal-local formulation. Let `(A, 𝔪, κ)` be a local
+Noetherian domain. If there is
 an alteration `f : X ⟶ specSpace A` with `X` regular, then the completions of
 the integral closure of `A` at its maximal ideals are normal domains. -/
 @[stacks 0BHU]
-theorem isNormalRing_completedLocalRing :
+#check (AlgebraicGeometry.AlgebraicSpace.IsAlteration.isNormalRing_completedLocalRing :
+  ∀ (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A] [IsDomain A]
+    (X : AlgebraicSpace (Spec (.of A))) [IsIntegral X]
+    (f : X ⟶ specSpace A) [IsAlteration f] [IsRegular X],
     let B := integralClosure A (FractionRing A)
     ∀ n : MaximalSpectrum B,
-      IsNormalRing (PrimeSpectrum.CompletedLocalRing n.toPrimeSpectrum) :=
-  sorry
+      IsNormalRing (PrimeSpectrum.CompletedLocalRing n.toPrimeSpectrum))
 
-/-- Lemma 89.7.2 (5) Let `(A, 𝔪, κ)` be a local Noetherian domain. If there is
+/- Lemma 89.7.2 (4) Let `(A, 𝔪, κ)` be a local Noetherian domain. If there is
 an alteration `f : X ⟶ specSpace A` with `X` regular, then the generic formal
 fibre of `A` is a regular ring. -/
 @[stacks 0BHU]
-theorem isRegularRing_genericFormalFiber :
-    IsRegularRing ((algebraMap A (AdicCompletion (maximalIdeal A) A)).Fiber (⊥ : Ideal A)) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.IsAlteration.isRegularRing_genericFormalFiber :
+  ∀ (A : Type u) [CommRing A] [IsLocalRing A] [IsNoetherianRing A] [IsDomain A]
+    (X : AlgebraicSpace (Spec (.of A))) [IsIntegral X]
+    (f : X ⟶ specSpace A) [IsAlteration f] [IsRegular X],
+    IsRegularRing ((algebraMap A (AdicCompletion (maximalIdeal A) A)).Fiber (⊥ : Ideal A)))
 
 end AlgebraicGeometry.AlgebraicSpace.IsAlteration

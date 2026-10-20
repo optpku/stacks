@@ -1,10 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
+
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Smooth
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Etale
 public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
@@ -36,188 +33,93 @@ universe u v
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- A morphism `f : X ⟶ Y` of algebraic spaces over `S` is smooth if every
-commutative square with étale vertical arrows from schemes has smooth top
-arrow. -/
-class Smooth {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) : Prop where
-  /-- Every étale scheme square over `f` has smooth top arrow. -/
-  of_etale {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
-      (b : yoneda.obj V ⟶ Y.functorOfPoints) (h : U ⟶ V)
-      (ha : (over (@AlgebraicGeometry.Etale)).presheaf a)
-      (hb : (over (@AlgebraicGeometry.Etale)).presheaf b)
-      (w : a ≫ f = yoneda.map h ≫ b) :
-    AlgebraicGeometry.Smooth h.left
+#check (AlgebraicGeometry.AlgebraicSpace.SmoothAt :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (x : Points X),
+    Prop)
 
-/-- A morphism of algebraic spaces is smooth if and only if every commutative
-square with étale vertical arrows from schemes has smooth top arrow. -/
-theorem smooth_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    Smooth f ↔
-      ∀ {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
-        (b : yoneda.obj V ⟶ Y.functorOfPoints) (h : U ⟶ V),
-        (over (@AlgebraicGeometry.Etale)).presheaf a →
-          (over (@AlgebraicGeometry.Etale)).presheaf b →
-            a ≫ f = yoneda.map h ≫ b → AlgebraicGeometry.Smooth h.left :=
-  sorry
-
-namespace Smooth
-
-/-- An étale scheme square over a smooth morphism of algebraic spaces has smooth
-top arrow. -/
-theorem spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Smooth f]
-    {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
-    (b : yoneda.obj V ⟶ Y.functorOfPoints) (h : U ⟶ V)
-    (ha : (over (@AlgebraicGeometry.Etale)).presheaf a)
-    (hb : (over (@AlgebraicGeometry.Etale)).presheaf b)
-    (w : a ≫ f = yoneda.map h ≫ b) : AlgebraicGeometry.Smooth h.left :=
-  sorry
-
-/-- The identity morphism of an algebraic space is smooth. -/
-instance id {S : Scheme.{u}} {X : AlgebraicSpace S} : Smooth (𝟙 X) :=
-  sorry
-
-end Smooth
-
-/-- A morphism `f : X ⟶ Y` of algebraic spaces is smooth at a point `x` of `X`
-if it is smooth after restriction to some open subspace neighbourhood of `x`. -/
-def SmoothAt {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (x : Points X) : Prop :=
-  ∃ (X' : AlgebraicSpace S) (i : X' ⟶ X),
-    IsOpenImmersion i ∧ x ∈ Set.range (Points.map i) ∧ Smooth (i ≫ f)
-
-/-- Smoothness at a point is the existence of an open subspace neighbourhood on
-which the morphism is smooth. -/
-theorem smoothAt_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (x : Points X) :
+#check (AlgebraicGeometry.AlgebraicSpace.smoothAt_iff :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (x : Points X),
     SmoothAt f x ↔
       ∃ (X' : AlgebraicSpace S) (i : X' ⟶ X),
-        IsOpenImmersion i ∧ x ∈ Set.range (Points.map i) ∧ Smooth (i ≫ f) :=
-  sorry
+        IsOpenImmersion i ∧ x ∈ Set.range (Points.map i) ∧ Smooth (i ≫ f))
 
-/-- Functor-of-points pullbacks exist in the presheaf category on schemes over `S`. -/
-instance hasPullbacks_over_presheaf (S : Scheme.{u}) :
-    HasPullbacks ((Over S)ᵒᵖ ⥤ Type u) := inferInstance
+#check (AlgebraicGeometry.AlgebraicSpace.pullbackAlongSchemeFunctorOfPoints :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) {V : Over S} (b : ofOver V ⟶ Y),
+    (Over S)ᵒᵖ ⥤ Type u)
 
-/-- The functor of points of the fibre product of `X` with a scheme over `Y`. -/
-def pullbackAlongSchemeFunctorOfPoints {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) {V : Over S} (b : ofOver V ⟶ Y) : (Over S)ᵒᵖ ⥤ Type u :=
-  let fP : X.functorOfPoints ⟶ Y.functorOfPoints := f
-  let bP : (ofOver V).functorOfPoints ⟶ Y.functorOfPoints := b
-  pullback fP bP
+#check (AlgebraicGeometry.AlgebraicSpace.pullbackAlongSchemeFstNat :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) {V : Over S} (b : ofOver V ⟶ Y),
+    pullbackAlongSchemeFunctorOfPoints f b ⟶ X.functorOfPoints)
 
-/-- The first projection of the functor-of-points fibre product. -/
-def pullbackAlongSchemeFstNat {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) {V : Over S} (b : ofOver V ⟶ Y) :
-    pullbackAlongSchemeFunctorOfPoints f b ⟶ X.functorOfPoints :=
-  let fP : X.functorOfPoints ⟶ Y.functorOfPoints := f
-  let bP : (ofOver V).functorOfPoints ⟶ Y.functorOfPoints := b
-  pullback.fst fP bP
+#check (AlgebraicGeometry.AlgebraicSpace.pullbackAlongSchemeSndNat :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) {V : Over S} (b : ofOver V ⟶ Y),
+    pullbackAlongSchemeFunctorOfPoints f b ⟶ (ofOver V).functorOfPoints)
 
-/-- The second projection of the functor-of-points fibre product. -/
-def pullbackAlongSchemeSndNat {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) {V : Over S} (b : ofOver V ⟶ Y) :
-    pullbackAlongSchemeFunctorOfPoints f b ⟶ (ofOver V).functorOfPoints :=
-  let fP : X.functorOfPoints ⟶ Y.functorOfPoints := f
-  let bP : (ofOver V).functorOfPoints ⟶ Y.functorOfPoints := b
-  pullback.snd fP bP
+#check (AlgebraicGeometry.AlgebraicSpace.pullbackAlongScheme :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {V : Over S} (b : ofOver V ⟶ Y),
+    AlgebraicSpace S)
 
-/-- The fibre product `V ×_Y X` of an algebraic space morphism `f : X ⟶ Y` with
-a morphism from a scheme `V` over `S`. -/
-def pullbackAlongScheme {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    {V : Over S} (b : ofOver V ⟶ Y) : AlgebraicSpace S :=
-  ofFunctor (pullbackAlongSchemeFunctorOfPoints f b) sorry sorry sorry
+#check (AlgebraicGeometry.AlgebraicSpace.pullbackAlongScheme.fst :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) {V : Over S}
+    (b : ofOver V ⟶ Y),
+    pullbackAlongScheme f b ⟶ X)
 
-namespace pullbackAlongScheme
+#check (AlgebraicGeometry.AlgebraicSpace.pullbackAlongScheme.snd :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) {V : Over S}
+    (b : ofOver V ⟶ Y),
+    pullbackAlongScheme f b ⟶ ofOver V)
 
-/-- The projection `V ×_Y X ⟶ X`. -/
-def fst {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) {V : Over S}
-    (b : ofOver V ⟶ Y) : pullbackAlongScheme f b ⟶ X :=
-  pullbackAlongSchemeFstNat f b
-
-/-- The projection `V ×_Y X ⟶ V`. -/
-def snd {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) {V : Over S}
-    (b : ofOver V ⟶ Y) : pullbackAlongScheme f b ⟶ ofOver V :=
-  pullbackAlongSchemeSndNat f b
-
-/-- The functor of points of `pullbackAlongScheme f b` is the presheaf pullback. -/
-theorem functorOfPoints_eq {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    {V : Over S} (b : ofOver V ⟶ Y) :
+#check (AlgebraicGeometry.AlgebraicSpace.pullbackAlongScheme.functorOfPoints_eq :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {V : Over S} (b : ofOver V ⟶ Y),
     (pullbackAlongScheme f b).functorOfPoints =
-      pullbackAlongSchemeFunctorOfPoints f b :=
-  sorry
+      pullbackAlongSchemeFunctorOfPoints f b)
 
-/-- The two projections of `pullbackAlongScheme f b` commute with `f` and `b`. -/
-theorem fst_comp {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    {V : Over S} (b : ofOver V ⟶ Y) : fst f b ≫ f = snd f b ≫ b :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.pullbackAlongScheme.fst_comp :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {V : Over S} (b : ofOver V ⟶ Y),
+    pullbackAlongScheme.fst f b ≫ f = pullbackAlongScheme.snd f b ≫ b)
 
-/-- `V ×_Y X` is a fibre product of `f` and a morphism from a scheme over `Y`. -/
-theorem isPullback {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    {V : Over S} (b : ofOver V ⟶ Y) :
-    IsPullback (fst f b) (snd f b) f b :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.pullbackAlongScheme.isPullback :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {V : Over S} (b : ofOver V ⟶ Y),
+    IsPullback (pullbackAlongScheme.fst f b) (pullbackAlongScheme.snd f b) f b)
 
-end pullbackAlongScheme
+#check (AlgebraicGeometry.AlgebraicSpace.Smooth.baseChangeOnSchemes :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    Prop)
 
-namespace Smooth
+#check (AlgebraicGeometry.AlgebraicSpace.Smooth.baseChangeOnAffineSchemes :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y),
+    Prop)
 
-/-- Every base change of `f` along a morphism from a scheme is smooth. -/
-def baseChangeOnSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    Prop :=
-  ∀ {Z : Over S} (g : ofOver Z ⟶ Y), Smooth (pullbackAlongScheme.snd f g)
+#check (AlgebraicGeometry.AlgebraicSpace.Smooth.existsSurjectiveEtaleTarget :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y),
+    Prop)
 
-/-- Every base change of `f` along a morphism from an affine scheme is smooth. -/
-def baseChangeOnAffineSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) : Prop :=
-  ∀ {Z : Over S} (g : ofOver Z ⟶ Y),
-    IsAffine Z.left → Smooth (pullbackAlongScheme.snd f g)
+#check (AlgebraicGeometry.AlgebraicSpace.Smooth.existsSurjectiveEtaleSource :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y),
+    Prop)
 
-/-- There is a surjective étale morphism from a scheme to `Y` along which the
-base change of `f` is smooth. -/
-def existsSurjectiveEtaleTarget {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) : Prop :=
-  ∃ (V : Over S) (b : ofOver V ⟶ Y),
-    (over (@AlgebraicGeometry.Etale)).presheaf b ∧
-      Surjective b ∧ Smooth (pullbackAlongScheme.snd f b)
+#check (AlgebraicGeometry.AlgebraicSpace.Smooth.forallEtaleSquare :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    Prop)
 
-/-- There is a surjective étale morphism `φ` from a scheme to `X` such that
-`φ ≫ f` is smooth. -/
-def existsSurjectiveEtaleSource {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) : Prop :=
-  ∃ (U : Over S) (φ : ofOver U ⟶ X),
-    (over (@AlgebraicGeometry.Etale)).presheaf φ ∧ Surjective φ ∧ Smooth (φ ≫ f)
+#check (AlgebraicGeometry.AlgebraicSpace.Smooth.existsEtaleSquare :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    Prop)
 
-/-- Every étale scheme square over `f` has smooth top arrow. -/
-def forallEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    Prop :=
-  ∀ {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
-    (b : yoneda.obj V ⟶ Y.functorOfPoints) (h : U ⟶ V),
-    (over (@AlgebraicGeometry.Etale)).presheaf a →
-      (over (@AlgebraicGeometry.Etale)).presheaf b →
-        a ≫ f = yoneda.map h ≫ b → AlgebraicGeometry.Smooth h.left
-
-/-- There is an étale scheme square over `f` with surjective source cover and
-smooth top arrow. -/
-def existsEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    Prop :=
-  ∃ (U V : Over S) (a : ofOver U ⟶ X) (b : ofOver V ⟶ Y) (h : U ⟶ V),
-    (over (@AlgebraicGeometry.Etale)).presheaf a ∧
-      (over (@AlgebraicGeometry.Etale)).presheaf b ∧
-        a ≫ f = ofOverMap h ≫ b ∧
-          Surjective a ∧ AlgebraicGeometry.Smooth h.left
-
-/-- There are Zariski coverings of `Y` and of the inverse images in `X` on which
-the pieces of `f` are smooth. -/
-def existsZariskiCover {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    Prop :=
-  ∃ 𝒱 : ZariskiCover.{u, v} Y, ∀ i : 𝒱.I₀,
-    ∃ (Xi : AlgebraicSpace S) (ι : Xi ⟶ X) (_ : IsOpenImmersion ι)
-      (𝒰 : ZariskiCover.{u, v} Xi) (h : ∀ j, 𝒰.X j ⟶ 𝒱.X i),
-      (∀ j, 𝒰.f j ≫ ι ≫ f = h j ≫ 𝒱.f i) ∧
-        (∀ j, Smooth (h j)) ∧
-          ∀ x : Points X,
-            Points.map f x ∈ Set.range (Points.map (𝒱.f i)) →
-              x ∈ Set.range (Points.map ι)
-
-end Smooth
+#check (AlgebraicGeometry.AlgebraicSpace.Smooth.existsZariskiCover.{u, v} :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    Prop)
 
 end AlgebraicGeometry.AlgebraicSpace

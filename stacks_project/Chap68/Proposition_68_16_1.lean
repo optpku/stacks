@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_8_2_QuasiCompact
-public import stacks_project.Chap67.Definition_67_9_2_Closed
-public import stacks_project.Chap67.Definition_67_41_1_ValuativeCriterion
-public import stacks_project.Chap68.Lemma_68_12_8_Decent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.Decent
+import StacksCheckRecall
 
 /-!
 # Valuative criterion for universal closedness of decent algebraic spaces
@@ -25,31 +17,20 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+open AlgebraicGeometry.AlgebraicSpace
 
-namespace UniversallyClosed
-
-/-- Proposition 68.16.1: Let `f : X ⟶ Y` be a quasi-compact morphism of
+/- Proposition 68.16.1: Let `f : X ⟶ Y` be a quasi-compact morphism of
 algebraic spaces over a scheme `S`, and assume `X` is decent. Then `f` is
 universally closed if and only if the existence part of the valuative
 criterion holds. -/
-@[stacks 03KJ]
-theorem iff_existence_of_isDecent {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [QuasiCompact f] [IsDecent X] :
-    UniversallyClosed f ↔ ValuativeCriterion.Existence f :=
-  sorry
+@[stacks 03KJ] #check
+  (AlgebraicGeometry.AlgebraicSpace.UniversallyClosed.iff_existence_of_isDecent :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      [QuasiCompact f] [IsDecent X],
+      UniversallyClosed f ↔ ValuativeCriterion.Existence f)
 
-end UniversallyClosed
-
-namespace ValuativeCriterion.Existence
-
-/-- If `f : X ⟶ Y` is a universally closed morphism of algebraic spaces over a
-scheme `S` and the source `X` is decent, then `f` satisfies the existence part
-of the valuative criterion. -/
-theorem of_universallyClosed_of_isDecent {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [IsDecent X] [UniversallyClosed f] : Existence f :=
-  sorry
-
-end ValuativeCriterion.Existence
-
-end AlgebraicGeometry.AlgebraicSpace
+#check
+  (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.Existence.of_universallyClosed_of_isDecent :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      [QuasiCompact f] [IsDecent X] [UniversallyClosed f],
+      ValuativeCriterion.Existence f)

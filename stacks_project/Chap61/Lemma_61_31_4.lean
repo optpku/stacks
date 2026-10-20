@@ -1,180 +1,88 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap61.Lemma_61_31_3
-public import ReasLib.CategoryTheory.Sites.Derived.SectionsComparison
-public import ReasLib.CategoryTheory.Sites.FullyFaithful
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Proetale.Cohomology.ChangeOfUniverse
+import StacksCheckRecall
 
-/-!
-# Lemma 61.31.4
+open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
+open AlgebraicGeometry.BigProetaleSite
 
-Restriction of abelian sheaves along the inclusion of a contained big pro-étale
-site of `S` does not change objectwise cohomology, and every abelian sheaf on
-the smaller site extends to a larger contained big pro-étale site.
--/
+universe u w
 
-@[expose] public section
+variable {X Y : BigProetaleSite.{u}}
+variable (incl : X.carrier ⥤ Y.carrier) (e : incl ⋙ Y.toScheme ≅ X.toScheme)
+variable (S : X.carrier)
 
-open CategoryTheory
-open CategoryTheory.Limits
-open CategoryTheory.Functor
-open AlgebraicGeometry
+section Cohomology
 
-noncomputable section
+variable [HasSheafify (X.toGrothendieck.over S) AddCommGrpCat.{w}]
+variable [HasSheafify (Y.toGrothendieck.over (incl.obj S)) AddCommGrpCat.{w}]
+variable [IsGrothendieckAbelian (Sheaf (X.toGrothendieck.over S) AddCommGrpCat.{w})]
+variable [IsGrothendieckAbelian
+  (Sheaf (Y.toGrothendieck.over (incl.obj S)) AddCommGrpCat.{w})]
+variable [HasInjectiveResolutions
+  (Sheaf (Y.toGrothendieck.over (incl.obj S)) AddCommGrpCat.{w})]
+variable [HasInjectiveResolutions
+  (Sheaf (X.toGrothendieck.over S) AddCommGrpCat.{w})]
+variable (p : ℕ) (U : Over S)
+variable (F' : Sheaf (Y.toGrothendieck.over (incl.obj S)) AddCommGrpCat.{w})
 
-universe u v v' w
 
-namespace AlgebraicGeometry.ChosenBigProetaleSite
+/- Lemma 61.31.4. Restricting an abelian sheaf along a bounded big pro-étale
+slice inclusion preserves its derived sections, and every abelian sheaf on the
+smaller slice is the restriction of its canonical extension. -/
+@[stacks 0F4T] #check (AlgebraicGeometry.BigProetaleSite.cohomology_restriction_isIsomorphic incl e S p U F' :
+    CategoryTheory.IsIsomorphic
+      (((siteAbelianSectionsFunctor (X.toGrothendieck.over S) U).rightDerived p).obj
+        ((sliceAbelianRestriction incl e S).obj F'))
+      (((siteAbelianSectionsFunctor (Y.toGrothendieck.over (incl.obj S))
+        ((Over.post incl).obj U)).rightDerived p).obj F'))
 
-variable {X : ChosenBigProetaleSite.{u, v}} {Y : ChosenBigProetaleSite.{u, v'}}
-variable (incl : X.carrier ⥤ Y.carrier)
+#check (AlgebraicGeometry.BigProetaleSite.containedSliceInclusion_cohomology_restrict incl e S p U F' :
+    (((sliceAbelianRestriction incl e S) ⋙
+        siteAbelianSectionsFunctor (X.toGrothendieck.over S) U).rightDerived p).obj F' ≅
+      ((siteAbelianSectionsFunctor (Y.toGrothendieck.over (incl.obj S))
+        ((Over.post incl).obj U)).rightDerived p).obj F')
 
-/-- Lemma 61.31.4 (1): for an abelian sheaf on a larger contained big pro-étale
-site of `S`, degree-`p` cohomology over an object `U` of the smaller site agrees
-with cohomology of the restriction of that sheaf to the smaller site. -/
-@[stacks 0F4T]
-def containedSliceInclusion_cohomology_restrict
-    (e : incl ⋙ Y.toScheme ≅ X.toScheme)
-    (hcov : ∀ ⦃T : X.carrier⦄ ⦃R : Presieve T⦄,
-      R ∈ X.pretopology.coverings T →
-        R.map incl ∈ Y.pretopology.coverings (incl.obj T))
-    (S : X.carrier)
-    [HasSheafify (X.bigTopology S) AddCommGrpCat.{w}]
-    [HasSheafify (Y.bigTopology ((containedInclusion incl e hcov).obj S))
-      AddCommGrpCat.{w}]
-    [IsGrothendieckAbelian (Sheaf (X.bigTopology S) AddCommGrpCat.{w})]
-    [IsGrothendieckAbelian
-      (Sheaf (Y.bigTopology ((containedInclusion incl e hcov).obj S))
-        AddCommGrpCat.{w})]
-    [HasInjectiveResolutions
-      (Sheaf (Y.bigTopology ((containedInclusion incl e hcov).obj S))
-        AddCommGrpCat.{w})]
-    (p : ℕ) (U : X.bigSite S)
-    (F' : Sheaf (Y.bigTopology ((containedInclusion incl e hcov).obj S))
-      AddCommGrpCat.{w}) :
-    (((Over.post (containedInclusion incl e hcov)).sheafPushforwardContinuous
-          AddCommGrpCat.{w} (X.bigTopology S)
-          (Y.bigTopology ((containedInclusion incl e hcov).obj S)) ⋙
-        siteAbelianSectionsFunctor (X.bigTopology S) U).rightDerived p).obj F' ≅
-      ((siteAbelianSectionsFunctor
-          (Y.bigTopology ((containedInclusion incl e hcov).obj S))
-          ((Over.post (containedInclusion incl e hcov)).obj U)).rightDerived p).obj F' :=
-  (SiteAbelianSectionsDerived.derivedSectionsIso
-      (Over.post (containedInclusion incl e hcov)) p U).app F'
+#check (AlgebraicGeometry.BigProetaleSite.containedSliceInclusion_cohomology_restrict_eq incl e S p U F' :
+    containedSliceInclusion_cohomology_restrict incl e S p U F' =
+      (@SiteAbelianSectionsDerived.derivedSectionsIso _ _ _ _
+      (X.toGrothendieck.over S) (Y.toGrothendieck.over (incl.obj S))
+      (Over.post (X := S) incl) (sliceInclusion_isContinuous incl e S)
+      (sliceInclusion_isCocontinuous incl e S) inferInstance inferInstance
+      inferInstance inferInstance inferInstance p U).app F')
 
-/-- The contained slice-inclusion restriction comparison is the Sites 21.7.2
-derived sections isomorphism at `F'`. -/
-theorem containedSliceInclusion_cohomology_restrict_eq
-    (e : incl ⋙ Y.toScheme ≅ X.toScheme)
-    (hcov : ∀ ⦃T : X.carrier⦄ ⦃R : Presieve T⦄,
-      R ∈ X.pretopology.coverings T →
-        R.map incl ∈ Y.pretopology.coverings (incl.obj T))
-    (S : X.carrier)
-    [HasSheafify (X.bigTopology S) AddCommGrpCat.{w}]
-    [HasSheafify (Y.bigTopology ((containedInclusion incl e hcov).obj S))
-      AddCommGrpCat.{w}]
-    [IsGrothendieckAbelian (Sheaf (X.bigTopology S) AddCommGrpCat.{w})]
-    [IsGrothendieckAbelian
-      (Sheaf (Y.bigTopology ((containedInclusion incl e hcov).obj S))
-        AddCommGrpCat.{w})]
-    [HasInjectiveResolutions
-      (Sheaf (Y.bigTopology ((containedInclusion incl e hcov).obj S))
-        AddCommGrpCat.{w})]
-    (p : ℕ) (U : X.bigSite S)
-    (F' : Sheaf (Y.bigTopology ((containedInclusion incl e hcov).obj S))
-      AddCommGrpCat.{w}) :
-    containedSliceInclusion_cohomology_restrict incl e hcov S p U F' =
-      (SiteAbelianSectionsDerived.derivedSectionsIso
-          (Over.post (containedInclusion incl e hcov)) p U).app F' := sorry
+end Cohomology
 
-/-- The canonical extension of an abelian sheaf along a contained big pro-étale
-slice inclusion, given by cocontinuous sheaf pushforward. -/
-def containedSliceInclusion_extension
-    (e : incl ⋙ Y.toScheme ≅ X.toScheme)
-    (hcov : ∀ ⦃T : X.carrier⦄ ⦃R : Presieve T⦄,
-      R ∈ X.pretopology.coverings T →
-        R.map incl ∈ Y.pretopology.coverings (incl.obj T))
-    (S : X.carrier)
-    [∀ P : (X.bigSite S)ᵒᵖ ⥤ AddCommGrpCat.{w},
-      (Over.post (containedInclusion incl e hcov)).op.HasPointwiseRightKanExtension
-        P]
-    (F : Sheaf (X.bigTopology S) AddCommGrpCat.{w}) :
-    Sheaf (Y.bigTopology ((containedInclusion incl e hcov).obj S))
-      AddCommGrpCat.{w} :=
-  ((Over.post (containedInclusion incl e hcov)).sheafPushforwardCocontinuous
-      AddCommGrpCat.{w} (X.bigTopology S)
-      (Y.bigTopology ((containedInclusion incl e hcov).obj S))).obj F
+section Extension
 
-/-- The contained slice-inclusion extension is cocontinuous sheaf pushforward. -/
-theorem containedSliceInclusion_extension_eq
-    (e : incl ⋙ Y.toScheme ≅ X.toScheme)
-    (hcov : ∀ ⦃T : X.carrier⦄ ⦃R : Presieve T⦄,
-      R ∈ X.pretopology.coverings T →
-        R.map incl ∈ Y.pretopology.coverings (incl.obj T))
-    (S : X.carrier)
-    [∀ P : (X.bigSite S)ᵒᵖ ⥤ AddCommGrpCat.{w},
-      (Over.post (containedInclusion incl e hcov)).op.HasPointwiseRightKanExtension
-        P]
-    (F : Sheaf (X.bigTopology S) AddCommGrpCat.{w}) :
-    containedSliceInclusion_extension incl e hcov S F =
-      ((Over.post (containedInclusion incl e hcov)).sheafPushforwardCocontinuous
-          AddCommGrpCat.{w} (X.bigTopology S)
-          (Y.bigTopology ((containedInclusion incl e hcov).obj S))).obj F := sorry
+variable [∀ P : (Over S)ᵒᵖ ⥤ AddCommGrpCat.{w},
+  (Over.post (X := S) incl).op.HasPointwiseRightKanExtension P]
 
-/-- Lemma 61.31.4 (2): every abelian sheaf on a contained big pro-étale site of
-`S` is isomorphic to the restriction of its canonical extension to a larger
-contained big pro-étale site. -/
-@[stacks 0F4T]
-def containedSliceInclusion_extension_restrict
-    (e : incl ⋙ Y.toScheme ≅ X.toScheme)
-    (hcov : ∀ ⦃T : X.carrier⦄ ⦃R : Presieve T⦄,
-      R ∈ X.pretopology.coverings T →
-        R.map incl ∈ Y.pretopology.coverings (incl.obj T))
-    (S : X.carrier)
-    [∀ P : (X.bigSite S)ᵒᵖ ⥤ AddCommGrpCat.{w},
-      (Over.post (containedInclusion incl e hcov)).op.HasPointwiseRightKanExtension
-        P]
-    (F : Sheaf (X.bigTopology S) AddCommGrpCat.{w}) :
-    ((Over.post (containedInclusion incl e hcov)).sheafPushforwardContinuous
-          AddCommGrpCat.{w} (X.bigTopology S)
-          (Y.bigTopology ((containedInclusion incl e hcov).obj S))).obj
-      (containedSliceInclusion_extension incl e hcov S F) ≅ F :=
-  @asIso _ _ _ _
-    (((Over.post (containedInclusion incl e hcov)).sheafAdjunctionCocontinuous
-        AddCommGrpCat.{w} (X.bigTopology S)
-        (Y.bigTopology ((containedInclusion incl e hcov).obj S))).counit.app F)
-    (sheafAdjunctionCocontinuous_counit_app_isIso_of_fullyFaithful
-      (X.bigTopology S)
-      (Y.bigTopology ((containedInclusion incl e hcov).obj S))
-      (Over.post (containedInclusion incl e hcov)) F)
 
-/-- The contained slice-inclusion extension comparison is the Sites 7.21.8
-counit isomorphism at `F`. -/
-theorem containedSliceInclusion_extension_restrict_eq
-    (e : incl ⋙ Y.toScheme ≅ X.toScheme)
-    (hcov : ∀ ⦃T : X.carrier⦄ ⦃R : Presieve T⦄,
-      R ∈ X.pretopology.coverings T →
-        R.map incl ∈ Y.pretopology.coverings (incl.obj T))
-    (S : X.carrier)
-    [∀ P : (X.bigSite S)ᵒᵖ ⥤ AddCommGrpCat.{w},
-      (Over.post (containedInclusion incl e hcov)).op.HasPointwiseRightKanExtension
-        P]
-    (F : Sheaf (X.bigTopology S) AddCommGrpCat.{w}) :
-    containedSliceInclusion_extension_restrict incl e hcov S F =
-      @asIso _ _ _ _
-        (((Over.post (containedInclusion incl e hcov)).sheafAdjunctionCocontinuous
-            AddCommGrpCat.{w} (X.bigTopology S)
-            (Y.bigTopology ((containedInclusion incl e hcov).obj S))).counit.app
-          F)
-        (sheafAdjunctionCocontinuous_counit_app_isIso_of_fullyFaithful
-          (X.bigTopology S)
-          (Y.bigTopology ((containedInclusion incl e hcov).obj S))
-          (Over.post (containedInclusion incl e hcov)) F) := sorry
+variable (F : Sheaf (X.toGrothendieck.over S) AddCommGrpCat.{w})
 
-end AlgebraicGeometry.ChosenBigProetaleSite
+#check (AlgebraicGeometry.BigProetaleSite.containedSliceInclusion_extension incl e S F :
+    Sheaf (Y.toGrothendieck.over (incl.obj S)) AddCommGrpCat.{w})
+
+#check (AlgebraicGeometry.BigProetaleSite.containedSliceInclusion_extension_eq incl e S F :
+    containedSliceInclusion_extension incl e S F =
+      (@Functor.sheafPushforwardCocontinuous _ _ _ _ (Over.post (X := S) incl)
+        AddCommGrpCat.{w} _ (X.toGrothendieck.over S)
+        (Y.toGrothendieck.over (incl.obj S)) (sliceInclusion_isCocontinuous incl e S)
+        inferInstance).obj F)
+
+#check (AlgebraicGeometry.BigProetaleSite.containedSliceInclusion_extension_restrict incl e S F :
+    (sliceAbelianRestriction incl e S).obj
+      (containedSliceInclusion_extension incl e S F) ≅ F)
+
+#check (AlgebraicGeometry.BigProetaleSite.containedSliceInclusion_extension_restrict_eq incl e S F :
+    containedSliceInclusion_extension_restrict incl e S F =
+      @asIso _ _ _ _ ((sliceAbelianRestrictionExtensionAdjunction incl e S).counit.app F)
+    (@Functor.FullyFaithful.sheafAdjunctionCocontinuous_counit_app_isIso _ _ _ _
+      (X.toGrothendieck.over S) (Y.toGrothendieck.over (incl.obj S))
+      (Over.post (X := S) incl) AddCommGrpCat.{w} _
+      (Functor.FullyFaithful.over S incl (inclusionFullyFaithful incl e))
+      (sliceInclusion_isContinuous incl e S) (sliceInclusion_isCocontinuous incl e S)
+      inferInstance F))
+
+end Extension

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Fiber.Specialization
@@ -45,13 +39,14 @@ namespace Scheme.Hom
     [LocallyOfFiniteType f] (s : S),
   IsLocallyNoetherian (f.fiber s))
 
-#check (AlgebraicGeometry.Scheme.Hom.fiberDimensionFunction : ∀ {X S : Scheme.{u}} (f : X ⟶ S) (s : S),
+#check (AlgebraicGeometry.Scheme.Hom.fiberDimensionFunction : ∀ {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] (s : S),
   f.fiber s → ℤ)
 
-#check (AlgebraicGeometry.Scheme.Hom.fiberDimensionFunction_apply : ∀ {X S : Scheme.{u}} (f : X ⟶ S) (s : S)
+#check (AlgebraicGeometry.Scheme.Hom.fiberDimensionFunction_apply : ∀ {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] (s : S)
     (x : f.fiber s),
   f.fiberDimensionFunction s x =
-      (f.fiberToSpecResidueField s).relativeDimensionFunction (fun _ ↦ 0) x)
+      @Scheme.Hom.relativeDimensionFunction _ _ (f.fiberToSpecResidueField s)
+      (inferInstanceAs (LocallyOfFiniteType (CategoryTheory.Limits.pullback.snd f (S.fromSpecResidueField s)))) (fun _ ↦ 0) x)
 
 #check (AlgebraicGeometry.Scheme.Hom.instIsDimensionFunction_fiberDimensionFunction : ∀ {X S : Scheme.{u}}
     (f : X ⟶ S) [LocallyOfFiniteType f] (s : S),
@@ -174,12 +169,12 @@ end Scheme.Hom
 
 namespace Scheme.Modules
 
-#check (AlgebraicGeometry.Scheme.Modules.fiberAssociatedCycle : ∀ {X S : Scheme.{u}} (f : X ⟶ S)
+#check (AlgebraicGeometry.Scheme.Modules.fiberAssociatedCycle : ∀ {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f]
     (F : X.Modules) [F.IsCoherent] [IsLocallyNoetherian X] (s : S) (r : ℕ)
     [IsLocallyNoetherian (f.fiber s)],
   CycleGroup (f.fiber s) (f.fiberDimensionFunction s) r)
 
-#check (AlgebraicGeometry.Scheme.Modules.fiberAssociatedCycle_toAlgebraicCycle : ∀ {X S : Scheme.{u}} (f : X ⟶ S)
+#check (AlgebraicGeometry.Scheme.Modules.fiberAssociatedCycle_toAlgebraicCycle : ∀ {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f]
     (F : X.Modules) [F.IsCoherent] [IsLocallyNoetherian X] (s : S) (r : ℕ)
     [IsLocallyNoetherian (f.fiber s)] (x : f.fiber s),
   CycleGroup.toAlgebraicCycle (f.fiberDimensionFunction s) r
@@ -187,7 +182,7 @@ namespace Scheme.Modules
       associatedCycle ((pullback (f.fiberι s)).obj F)
         (f.fiberDimensionFunction s) r x)
 
-#check (AlgebraicGeometry.Scheme.Modules.fiberAssociatedCycle_apply : ∀ {X S : Scheme.{u}} (f : X ⟶ S)
+#check (AlgebraicGeometry.Scheme.Modules.fiberAssociatedCycle_apply : ∀ {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f]
     (F : X.Modules) [F.IsCoherent] [IsLocallyNoetherian X] (s : S) (r : ℕ)
     [IsLocallyNoetherian (f.fiber s)] (x : f.fiber s),
   CycleGroup.toAlgebraicCycle (f.fiberDimensionFunction s) r

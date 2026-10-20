@@ -1,18 +1,18 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap99.«99_7_1_1_Functor»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Quot.Functor
 
 @[expose] public section
 
-/- 99.7.1.1: the functor of quotients `Q_{F/X/B}` of a quasi-coherent `𝒪_X`-module `F`
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Opposite
+
+universe u
+
+/- 082N::statement_repair::1: the functor of quotients `Q_{F/X/B}` of a quasi-coherent `𝒪_X`-module `F`
 along a morphism `f : X ⟶ B` of algebraic spaces over a scheme `S`. It sends a scheme
 `T` over `B` to the set of quotients `F_T ⟶ Q` with `Q` quasi-coherent on
 `X_T = X ×_B T` and flat over `T`, identifying quotients with the same kernel. -/
-@[stacks 082N] #check AlgebraicGeometry.AlgebraicSpace.Quot.functor
+@[stacks 082N] #check (AlgebraicGeometry.AlgebraicSpace.Quot.functor :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B) (F : X.Modules)
+    [F.IsQuasicoherent], (SchemeOver B)ᵒᵖ ⥤ Type (u + 1))

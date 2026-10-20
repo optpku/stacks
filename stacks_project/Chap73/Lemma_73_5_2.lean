@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap73.Definition_73_4_1_Precoverage
-public import stacks_project.Chap73.Definition_73_5_1_Covering
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Cover.Smooth.Comparison
 
 /-!
 # Étale and Zariski coverings are smooth coverings
@@ -25,29 +19,25 @@ universe u v
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 73.5.2 (1): any étale covering is a smooth covering. -/
-@[stacks 0DFA]
-theorem smoothCovering_of_etaleCovering {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {ι : Type v} {family : ι → Over X} :
-    EtaleCovering family → SmoothCovering family :=
-  sorry
+/- Lemma 73.5.2: any étale covering is a smooth covering. -/
+@[stacks 0DFA] #check (AlgebraicGeometry.AlgebraicSpace.smoothCovering_of_etaleCovering :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {ι : Type v}
+    {family : ι → Over X},
+    EtaleCovering family → SmoothCovering family)
 
-/-- Lemma 73.5.2 (2): any Zariski covering is a smooth covering. -/
-@[stacks 0DFA]
-theorem smoothCovering_of_zariskiPrecoverage {S : Scheme.{u}}
-    {X : AlgebraicSpace S} {ι : Type v} {Xᵢ : ι → AlgebraicSpace S}
-    {f : ∀ i, Xᵢ i ⟶ X} :
+/- Lemma 73.5.2: any Zariski covering is a smooth covering. -/
+@[stacks 0DFA] #check (AlgebraicGeometry.AlgebraicSpace.smoothCovering_of_zariskiPrecoverage :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {ι : Type v}
+    {Xᵢ : ι → AlgebraicSpace S} {f : ∀ i, Xᵢ i ⟶ X},
     Presieve.ofArrows Xᵢ f ∈ zariskiPrecoverage S X →
-      SmoothCovering (fun i ↦ Over.mk (f i)) :=
-  sorry
+      SmoothCovering (fun i ↦ Over.mk (f i)))
 
-/-- An indexed family that belongs to `etalePrecoverage` is a `SmoothCovering`
+/- An indexed family that belongs to `etalePrecoverage` is a `SmoothCovering`
 after presentation as an `Over` family. -/
-theorem smoothCovering_of_mem_etalePrecoverage {S : Scheme.{u}}
-    {X : AlgebraicSpace S} {ι : Type v} {Xᵢ : ι → AlgebraicSpace S}
-    {f : ∀ i, Xᵢ i ⟶ X} :
+#check (AlgebraicGeometry.AlgebraicSpace.smoothCovering_of_mem_etalePrecoverage :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {ι : Type v}
+    {Xᵢ : ι → AlgebraicSpace S} {f : ∀ i, Xᵢ i ⟶ X},
     Presieve.ofArrows Xᵢ f ∈ etalePrecoverage X →
-      SmoothCovering (fun i ↦ Over.mk (f i)) :=
-  sorry
+      SmoothCovering (fun i ↦ Over.mk (f i)))
 
 end AlgebraicGeometry.AlgebraicSpace

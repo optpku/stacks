@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
-public import stacks_project.Chap67.Lemma_67_14_5_Inclusion
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.Intersection
+import StacksCheckRecall
 
 /-!
 # Lemma 67.14.5
@@ -28,16 +22,15 @@ namespace AlgebraicGeometry.AlgebraicSpace
 variable {S : Scheme.{u}} {X : AlgebraicSpace S}
 variable (I J : IdealSubobject X) [IsQuasiCoherent I] [IsQuasiCoherent J]
 
-/-- Lemma 67.14.5: for closed subspaces `Z = subscheme I` and `Y = subscheme J` of an
+/- Lemma 67.14.5: for closed subspaces `Z = subscheme I` and `Y = subscheme J` of an
 algebraic space `X` over a scheme `S`, the scheme-theoretic intersection
 `schemeTheoreticIntersection I J` includes into `Z` and into `Y` by closed immersions,
 and the square with `subschemeι J` and `subschemeι I` is cartesian, i.e. it is the
 fibre product `Z ×_X Y`. -/
-@[stacks 0CZ0]
-theorem schemeTheoreticIntersection_isPullback :
+@[stacks 0CZ0] #check
+  (AlgebraicGeometry.AlgebraicSpace.schemeTheoreticIntersection_isPullback I J :
     IsPullback (inclusion (le_sup_right : J ≤ I ⊔ J))
-      (inclusion (le_sup_left : I ≤ I ⊔ J)) (subschemeι J) (subschemeι I) :=
-  sorry
+      (inclusion (le_sup_left : I ≤ I ⊔ J)) (subschemeι J) (subschemeι I))
 
 #check
   (inferInstance :

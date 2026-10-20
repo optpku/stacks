@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.InGroupoids.Basic
@@ -25,6 +19,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.AlgebraicSpace.Complexes
 
 variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
@@ -33,24 +29,56 @@ variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
 finite presentation, the projection `p : Complexes f ⟶ Over S`, `(T, g, E) ↦ T`,
 is fibred in groupoids. -/
 @[stacks 0DLF]
-instance instIsFiberedInGroupoids (f : X ⟶ B) [Proper f] [Flat f] [FinitePresentation f] :
+instance instIsFiberedInGroupoids (f : X ⟶ B)
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f] :
     Functor.IsFibered.InGroupoids (p f) := sorry
 
 /-- The category of admissible complexes on fibres of `f`, bundled as a category
 fibred in groupoids over `Over S`. The Hom-universe is `u + 1`, so this cannot
 land in `GroupoidsOver S`. -/
-def toGroupoids (f : X ⟶ B) [Proper f] [Flat f] [FinitePresentation f] :
+def toGroupoids (f : X ⟶ B)
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f] :
     FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S) :=
   FiberedCategoryOver.Groupoids.ofFunctor.{u + 1, u, u + 1, u + 1} (p f)
 
 /-- The projection of `toGroupoids f` is the source functor `p f`, sending
 `(T, g, E)` to `T`. -/
-theorem toGroupoids_p (f : X ⟶ B) [Proper f] [Flat f] [FinitePresentation f] :
+theorem toGroupoids_p (f : X ⟶ B)
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f] :
     (toGroupoids f).p = p f := sorry
 
 /-- The total category of `toGroupoids f` is the category `Obj f` of
 Situation 99.16.3. -/
-theorem toGroupoids_total (f : X ⟶ B) [Proper f] [Flat f] [FinitePresentation f] :
+theorem toGroupoids_total (f : X ⟶ B)
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f] :
     (toGroupoids f).total = Obj f := sorry
 
 end AlgebraicGeometry.AlgebraicSpace.Complexes

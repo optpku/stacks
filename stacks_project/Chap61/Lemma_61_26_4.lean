@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.ProEtale.OpenImmersion
@@ -36,8 +30,10 @@ variable [∀ F : U.ProEtᵒᵖ ⥤ A, (restriction j).op.HasPointwiseRightKanEx
 restrict back to the identity, and both functors are fully faithful. -/
 @[stacks 09BN] #check
   (AlgebraicGeometry.Scheme.ProEt.idIso_extensionByZero_comp_restrictionSheaf j A :
-    Nonempty (𝟭 (Sheaf (topology U) A) ≅
-      extensionByZero j A ⋙ restrictionSheaf j A))
+    𝟭 (Sheaf (topology U) A) ≅ extensionByZero j A ⋙ restrictionSheaf j A)
+
+#check (AlgebraicGeometry.Scheme.ProEt.idIso_extensionByZero_comp_restrictionSheaf_hom j A :
+  (idIso_extensionByZero_comp_restrictionSheaf j A).hom = (extensionByZero_adjunction j A).unit)
 
 #check (AlgebraicGeometry.Scheme.ProEt.extensionByZero_unit_isIso_of_isOpenImmersion j A :
   IsIso (extensionByZero_adjunction j A).unit)
@@ -52,7 +48,10 @@ section DirectImage
 variable [∀ F : U.ProEtᵒᵖ ⥤ A, (restriction j).op.HasPointwiseRightKanExtension F]
 
 #check (AlgebraicGeometry.Scheme.ProEt.directImage_comp_restrictionSheaf_isoId j A :
-  Nonempty (directImage j A ⋙ restrictionSheaf j A ≅ 𝟭 (Sheaf (topology U) A)))
+  directImage j A ⋙ restrictionSheaf j A ≅ 𝟭 (Sheaf (topology U) A))
+
+#check (AlgebraicGeometry.Scheme.ProEt.directImage_comp_restrictionSheaf_isoId_hom j A :
+  (directImage_comp_restrictionSheaf_isoId j A).hom = (directImage_adjunction j A).counit)
 
 #check (AlgebraicGeometry.Scheme.ProEt.directImage_counit_isIso_of_isOpenImmersion j A :
   IsIso (directImage_adjunction j A).counit)

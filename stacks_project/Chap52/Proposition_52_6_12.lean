@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap52.Lemma_52_6_8
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Completion
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -26,12 +21,13 @@ variable [HasWeakSheafify J CommRingCat.{u}]
 variable [J.WEqualsLocallyBijective CommRingCat.{u}]
 variable {O : Sheaf J CommRingCat.{u}}
 
-/-- Proposition 52.6.12: for a finite-type ideal sheaf, the inclusion of the
-derived-complete objects into the derived category admits a left adjoint. -/
-@[stacks 099F]
-instance derivedCompleteInclusionIsRightAdjoint
-    (I : Subobject (unitModule J O))
-    [(I : ringedSiteModuleCategory J O).IsFiniteType] :
-    (derivedCompleteObjectProperty I).ι.IsRightAdjoint := sorry
+/- Proposition 52.6.12: Let (C, O) be a ringed site. Let I ⊆ O be a finite-type
+sheaf of ideals. There exists a left adjoint to the inclusion functor
+D_comp(O) → D(O). -/
+@[stacks 099F] #check
+  (RingedSite.Hom.ModuleDerived.Completion.inclusionIsRightAdjoint.{u, u, u} :
+    ∀ (I : Subobject (unitModule J O))
+      [hI : (I : ringedSiteModuleCategory J O).IsFiniteType],
+      (derivedCompleteObjectProperty.{u, u, u, u} I).ι.IsRightAdjoint)
 
 end RingedSite.Hom.ModuleDerived

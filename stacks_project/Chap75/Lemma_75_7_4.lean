@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_7_4_Preimage
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubset.Proper.BaseChange
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,12 +14,12 @@ if `f : X ⟶ Y` is locally of finite type and a closed subset `T ⊆ Points X` 
 proper over `Y`, then its inverse image in `X'` is a closed subset of `Points X'`
 proper over `Y'`. -/
 @[stacks 0CZF] #check
-  (AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver.preimage :
+  (AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver.preimage :
     ∀ {S : AlgebraicGeometry.Scheme.{u}} {X' X Y' Y : AlgebraicGeometry.AlgebraicSpace S}
       {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y},
       IsPullback g' f' f g →
         ∀ [AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType f]
-          (T : TopologicalSpace.Closeds (AlgebraicGeometry.AlgebraicSpace.Points X))
-          [AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f T],
-          AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f'
+          (T : TopologicalSpace.Closeds (AlgebraicGeometry.AlgebraicSpace.Points X)),
+          AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f T →
+          AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f'
             (T.preimage (AlgebraicGeometry.AlgebraicSpace.Points.continuous_map g')))

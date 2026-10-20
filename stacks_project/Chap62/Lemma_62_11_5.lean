@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.Flat
-public import stacks_project.Chap62.Example_62_5_4_AssociatedCycle
-public import stacks_project.Chap62.Lemma_62_11_1_Cap
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.CyclesOnFibers.ClosedSubscheme
+import StacksCheckRecall
 
 /-!
 # Associated cycles of a closed-subscheme cap product
@@ -31,21 +23,19 @@ universe u
 namespace AlgebraicGeometry.Scheme.Hom
 namespace CyclesOnFibers
 
-/-- The `δ`-dimension of the closed subscheme `Z ⊔ W.comap f` of `X`, which
-realizes the scheme-theoretic fibre product `Z ×_Y W ⊂ X`, is at most
-`(r : ℤ) + e`. -/
-theorem closedSubschemeDeltaDimension_sup_comap_le {S X Y : Scheme.{u}}
+/- The scheme-theoretic fibre product has the required dimension bound. -/
+#check (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.closedSubschemeDeltaDimension_sup_comap_le :
+  ∀ {S X Y : Scheme.{u}}
     [UniversallyCatenary S] (p : Y ⟶ S) (f : X ⟶ Y)
     [LocallyOfFiniteType p] [LocallyOfFiniteType f] [LocallyOfFiniteType (f ≫ p)]
     (δ : S → ℤ) [IsDimensionFunction δ]
     (Z : X.IdealSheafData) (r : ℕ) (hZ : f.fiberClosedSubschemeDimensionLE Z r)
     (W : Y.IdealSheafData) (e : ℤ)
-    (hW : p.closedSubschemeDeltaDimension δ W ≤ (e : EInt)) :
+    (hW : p.closedSubschemeDeltaDimension δ W ≤ (e : EInt)),
     (f ≫ p).closedSubschemeDeltaDimension δ (Z ⊔ W.comap f) ≤
-      ((r : ℤ) + e : EInt) :=
-  sorry
+      ((r : ℤ) + e : EInt))
 
-/-- Lemma 62.11.5: Let `(S, δ)` and `f : X ⟶ Y` be as in the fibre-cycle action
+/- Lemma 62.11.5: Let `(S, δ)` and `f : X ⟶ Y` be as in the fibre-cycle action
 setup, and let `Z ⊂ X` be a closed subscheme of relative dimension `≤ r` over
 `Y`. Set `α = [Z/X/Y]_r` as `closedSubschemeFiberCycleFamily f Z r hZ`. Let
 `W ⊂ Y` be a closed subscheme of `δ`-dimension `≤ e`. Set `β = [W]_e` as
@@ -53,30 +43,31 @@ setup, and let `Z ⊂ X` be a closed subscheme of relative dimension `≤ r` ove
 `α ∩ β = [Z ×_Y W]_{r + e}`, where `Z ×_Y W ⊂ X` is the closed subscheme
 `Z ⊔ W.comap f`. -/
 @[stacks 0H6A]
-theorem cap_closedSubschemeFiberCycleFamily {S X Y : Scheme.{u}}
+#check (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.cap_closedSubschemeFiberCycleFamily :
+  ∀ {S X Y : Scheme.{u}}
     [UniversallyCatenary S] (p : Y ⟶ S) (f : X ⟶ Y)
     [LocallyOfFiniteType p] [LocallyOfFiniteType f] [LocallyOfFiniteType (f ≫ p)]
     (δ : S → ℤ) [IsDimensionFunction δ]
     (Z : X.IdealSheafData) (r : ℕ) (hZ : f.fiberClosedSubschemeDimensionLE Z r)
     (W : Y.IdealSheafData) (e : ℤ)
     (hW : p.closedSubschemeDeltaDimension δ W ≤ (e : EInt))
-    [Flat (Z.subschemeι ≫ f)] :
+    [Flat (Z.subschemeι ≫ f)],
     cap p f δ (closedSubschemeFiberCycleFamily f Z r hZ)
         (p.closedSubschemeCycle δ W e hW) =
       (f ≫ p).closedSubschemeCycle δ (Z ⊔ W.comap f) ((r : ℤ) + e)
-        (closedSubschemeDeltaDimension_sup_comap_le p f δ Z r hZ W e hW) :=
-  sorry
+        (closedSubschemeDeltaDimension_sup_comap_le p f δ Z r hZ W e hW))
 
-/-- Evaluating `cap_closedSubschemeFiberCycleFamily` compares coefficients of
+/- Evaluating `cap_closedSubschemeFiberCycleFamily` compares coefficients of
 both sides at a point of `X`. -/
-theorem cap_closedSubschemeFiberCycleFamily_apply {S X Y : Scheme.{u}}
+#check (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.cap_closedSubschemeFiberCycleFamily_apply :
+  ∀ {S X Y : Scheme.{u}}
     [UniversallyCatenary S] (p : Y ⟶ S) (f : X ⟶ Y)
     [LocallyOfFiniteType p] [LocallyOfFiniteType f] [LocallyOfFiniteType (f ≫ p)]
     (δ : S → ℤ) [IsDimensionFunction δ]
     (Z : X.IdealSheafData) (r : ℕ) (hZ : f.fiberClosedSubschemeDimensionLE Z r)
     (W : Y.IdealSheafData) (e : ℤ)
     (hW : p.closedSubschemeDeltaDimension δ W ≤ (e : EInt))
-    [Flat (Z.subschemeι ≫ f)] (x : X) :
+    [Flat (Z.subschemeι ≫ f)] (x : X),
     CycleGroup.toAlgebraicCycle ((f ≫ p).relativeDimensionFunction δ)
         ((r : ℤ) + e)
         (cap p f δ (closedSubschemeFiberCycleFamily f Z r hZ)
@@ -84,8 +75,7 @@ theorem cap_closedSubschemeFiberCycleFamily_apply {S X Y : Scheme.{u}}
       CycleGroup.toAlgebraicCycle ((f ≫ p).relativeDimensionFunction δ)
         ((r : ℤ) + e)
         ((f ≫ p).closedSubschemeCycle δ (Z ⊔ W.comap f) ((r : ℤ) + e)
-          (closedSubschemeDeltaDimension_sup_comap_le p f δ Z r hZ W e hW)) x :=
-  sorry
+          (closedSubschemeDeltaDimension_sup_comap_le p f δ Z r hZ W e hW)) x)
 
 end CyclesOnFibers
 end AlgebraicGeometry.Scheme.Hom

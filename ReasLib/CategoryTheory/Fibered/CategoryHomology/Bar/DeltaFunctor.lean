@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.CategoryHomology.Bar.Complex
@@ -125,7 +119,9 @@ theorem deltaFunctor_degree_isCoeffaceable (n : ℕ) (hn : 0 < n) :
 /-- The fiber Bar homological delta functor is universal. -/
 @[stacks 08PJ "universality of fiber bar homology"]
 instance deltaFunctor.isUniversal :
-    HomologicalDeltaFunctor.IsUniversal (deltaFunctor J X) := sorry
+    HomologicalDeltaFunctor.IsUniversal (deltaFunctor J X) :=
+  HomologicalDeltaFunctor.isUniversal_of_coeffaceable (deltaFunctor J X)
+    (fun n hn ↦ deltaFunctor_degree_isCoeffaceable J X n hn)
 
 variable [
   (X.p.sheafPushforwardContinuous AddCommGrpCat.{w}

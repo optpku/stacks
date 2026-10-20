@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.NaiveCotangent.Determinant.Canonical
@@ -23,6 +17,8 @@ namespace ActualTate
 /-- The determinant of the naive cotangent complex commutes with pullback along an
 open subscheme of a base change of a syntomic morphism. -/
 def baseChangeIso {X' X Y' Y : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y'.toRingedSpace)]
     (b : Y' ⟶ Y) (f' : Y' ⟶ X') (f : Y ⟶ X) (a : X' ⟶ X)
     (sq : CommSq b f' f a) [IsOpenImmersion (pullback.lift b f' sq.w)]
     [Syntomic f] [Syntomic f'] :
@@ -33,6 +29,8 @@ def baseChangeIso {X' X Y' Y : Scheme.{u}}
 /-- The determinant comparison on an open pullback square carries the pulled-back
 canonical determinant section to the canonical determinant section. -/
 theorem baseChangeIso_delta {X' X Y' Y : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y'.toRingedSpace)]
     (b : Y' ⟶ Y) (f' : Y' ⟶ X') (f : Y ⟶ X) (a : X' ⟶ X)
     (sq : CommSq b f' f a) [IsOpenImmersion (pullback.lift b f' sq.w)]
     [Syntomic f] [Syntomic f'] [LocallyQuasiFinite f] [LocallyQuasiFinite f'] :
@@ -43,6 +41,7 @@ theorem baseChangeIso_delta {X' X Y' Y : Scheme.{u}}
 trace sections for locally quasi-finite syntomic morphisms of locally Noetherian schemes. -/
 structure Rule where
   component : ∀ {X Y : Scheme.{u}} (f : Y ⟶ X)
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
     [IsLocallyNoetherian X] [IsLocallyNoetherian Y]
     [LocallyQuasiFinite f] [Syntomic f]
     (W : f.RelativeDualizingSheaf) (τ : W.module.obj.sections), W.IsTraceSection τ →
@@ -52,6 +51,7 @@ structure Rule where
 isomorphisms to relative dualizing sheaves with trace sections. -/
 def Rule.of
     (component : ∀ {X Y : Scheme.{u}} (f : Y ⟶ X)
+      [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
       [IsLocallyNoetherian X] [IsLocallyNoetherian Y]
       [LocallyQuasiFinite f] [Syntomic f]
       (W : f.RelativeDualizingSheaf) (τ : W.module.obj.sections), W.IsTraceSection τ →
@@ -62,11 +62,14 @@ def Rule.of
 relative dualizing comparison on every open pullback square. -/
 structure IsRule (r : Rule.{u}) : Prop where
   maps_delta : ∀ {X Y : Scheme.{u}} (f : Y ⟶ X)
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
     [IsLocallyNoetherian X] [IsLocallyNoetherian Y]
     [LocallyQuasiFinite f] [Syntomic f]
     (W : f.RelativeDualizingSheaf) (τ : W.module.obj.sections) (hτ : W.IsTraceSection τ),
       SheafOfModules.sectionsMap (r.component f W τ hτ).hom (delta f) = τ
   naturality : ∀ {X' X Y' Y : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y'.toRingedSpace)]
     (b : Y' ⟶ Y) (f' : Y' ⟶ X') (f : Y ⟶ X) (a : X' ⟶ X)
     (sq : CommSq b f' f a) [IsOpenImmersion (pullback.lift b f' sq.w)]
     [IsLocallyNoetherian X] [IsLocallyNoetherian Y]
@@ -86,11 +89,14 @@ structure IsRule (r : Rule.{u}) : Prop where
 and commutes with the relative dualizing comparison. -/
 def IsRule.of {r : Rule.{u}}
     (maps_delta : ∀ {X Y : Scheme.{u}} (f : Y ⟶ X)
+      [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
       [IsLocallyNoetherian X] [IsLocallyNoetherian Y]
       [LocallyQuasiFinite f] [Syntomic f]
       (W : f.RelativeDualizingSheaf) (τ : W.module.obj.sections) (hτ : W.IsTraceSection τ),
         SheafOfModules.sectionsMap (r.component f W τ hτ).hom (delta f) = τ)
     (naturality : ∀ {X' X Y' Y : Scheme.{u}}
+      [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
+      [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y'.toRingedSpace)]
       (b : Y' ⟶ Y) (f' : Y' ⟶ X') (f : Y ⟶ X) (a : X' ⟶ X)
       (sq : CommSq b f' f a) [IsOpenImmersion (pullback.lift b f' sq.w)]
       [IsLocallyNoetherian X] [IsLocallyNoetherian Y]
@@ -113,12 +119,15 @@ and compatibility with the relative dualizing comparison. -/
 theorem isRule_iff (r : Rule.{u}) :
     IsRule r ↔
       (∀ {X Y : Scheme.{u}} (f : Y ⟶ X)
+        [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
         [IsLocallyNoetherian X] [IsLocallyNoetherian Y]
         [LocallyQuasiFinite f] [Syntomic f]
         (W : f.RelativeDualizingSheaf) (τ : W.module.obj.sections)
         (hτ : W.IsTraceSection τ),
           SheafOfModules.sectionsMap (r.component f W τ hτ).hom (delta f) = τ) ∧
       (∀ {X' X Y' Y : Scheme.{u}}
+        [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
+        [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y'.toRingedSpace)]
         (b : Y' ⟶ Y) (f' : Y' ⟶ X') (f : Y ⟶ X) (a : X' ⟶ X)
         (sq : CommSq b f' f a) [IsOpenImmersion (pullback.lift b f' sq.w)]
         [IsLocallyNoetherian X] [IsLocallyNoetherian Y]

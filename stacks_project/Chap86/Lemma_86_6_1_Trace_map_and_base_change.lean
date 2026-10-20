@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap86.Lemma_86_6_1_Trace_map_and_base_change_Trace
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.BaseChange.Trace
 import StacksCheckRecall
 
 @[expose] public section
@@ -28,8 +22,6 @@ Lg^*(Tr_{f,K}). -/
       (g' : X' ⟶ X) (f' : X' ⟶ Y') (f : X ⟶ Y) (g : Y' ⟶ Y)
       [QuasiCompact f] [QuasiSeparated f] [QuasiCompact f'] [QuasiSeparated f']
       [QuasiCompact g] [QuasiSeparated g] [QuasiCompact g'] [QuasiSeparated g']
-      [IsIso (modulePullbackDerived.compComparison f' g)]
-      [IsIso (modulePullbackDerived.compComparison g' f)]
       (sq : IsPullback g' f' f g)
       (a : DerivedQCoh Y ⥤ DerivedQCoh X)
       (a' : DerivedQCoh Y' ⥤ DerivedQCoh X')

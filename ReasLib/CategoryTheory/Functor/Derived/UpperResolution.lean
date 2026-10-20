@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Abelian.GrothendieckAxioms.Basic
@@ -38,11 +32,14 @@ variable {A : Type u₁} {B : Type u₂}
 variable {P : ObjectProperty A} {K : CochainComplex A ℤ}
 variable [HasColimitsOfShape ℕ B] [HasExactColimitsOfShape ℕ B]
 
-/-- Stacks 0794: the colimit of an upper-resolution tower computes the
-unbounded left derived functor whenever the target has exact sequential
-colimits and the original functor preserves them. -/
+/-- The colimit of an upper-resolution tower computes the unbounded left
+derived functor when the resolving class contains zero, is closed under finite
+coproducts, and has epi covers, both categories have exact sequential colimits,
+and the original functor preserves sequential colimits. -/
 @[stacks 0794]
 theorem colimit_computesLeftDerivedAt
+    [P.ContainsZero] [P.IsClosedUnderFiniteCoproducts] [P.HasEpiCover]
+    [HasColimitsOfShape ℕ A] [HasExactColimitsOfShape ℕ A]
     (S : UpperTruncation.Resolution P K) [HasColimit S.tower] (F : A ⥤ B)
     [F.Additive] [PreservesColimitsOfShape ℕ F]
     (hF : F.IsBoundedAboveAcyclicClass P) :
@@ -50,10 +47,14 @@ theorem colimit_computesLeftDerivedAt
       (HomotopyCategory.quasiIso A (up ℤ))
       ((HomotopyCategory.quotient A (up ℤ)).obj (colimit S.tower)) := sorry
 
-/-- Stacks 0794: an upper-resolution whose colimit comparison is a
-quasi-isomorphism gives pointwise left-derived existence at its target. -/
+/-- An upper-resolution whose colimit comparison is a quasi-isomorphism gives
+pointwise left-derived existence at its target when the resolving class contains
+zero, is closed under finite coproducts, and has epi covers, both categories have
+exact sequential colimits, and the original functor preserves sequential colimits. -/
 @[stacks 0794]
 theorem hasPointwiseLeftDerivedFunctorAt
+    [P.ContainsZero] [P.IsClosedUnderFiniteCoproducts] [P.HasEpiCover]
+    [HasColimitsOfShape ℕ A] [HasExactColimitsOfShape ℕ A]
     (S : UpperTruncation.Resolution P K) [HasColimit S.tower] (F : A ⥤ B)
     [F.Additive] [PreservesColimitsOfShape ℕ F]
     (hF : F.IsBoundedAboveAcyclicClass P) [QuasiIso S.fromColimit] :

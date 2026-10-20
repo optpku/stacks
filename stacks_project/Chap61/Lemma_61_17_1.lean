@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.Additive
-public import Mathlib.Algebra.Homology.HomotopyCategory.KInjective
-public import Mathlib.CategoryTheory.Preadditive.Injective.Preserves
-public import stacks_project.Chap61.Lemma_61_17_1_InverseImage
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Proetale.Injective
+import StacksCheckRecall
 
 /-!
 # Lemma 61.17.1
@@ -32,51 +23,42 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.ProEt
 
-/-- Lemma 61.17.1 (1): inverse image `iInverseImage f` from the big pro-étale site
-over `S` to the small pro-étale site of `T` preserves injective abelian sheaves. -/
-@[stacks 0F67]
-instance iInverseImage_preservesInjectiveObjects
-    {S T : Scheme.{u}} (f : T ⟶ S)
-    [HasSheafify (topology T) AddCommGrpCat.{u + 1}]
-    [HasSheafify (proetaleTopology.over S) AddCommGrpCat.{u + 1}] :
-    (iInverseImage f).PreservesInjectiveObjects := sorry
+variable {S T : Scheme.{u}} (f : T ⟶ S)
+  [HasSheafify (topology T) AddCommGrpCat.{u + 1}]
+  [HasSheafify (proetaleTopology.over S) AddCommGrpCat.{u + 1}]
 
-/-- Lemma 61.17.1 (2): restriction from the big pro-étale site over `S` to the
-small pro-étale site of `S`, as `iInverseImage (𝟙 S)`, preserves injective
-abelian sheaves. -/
-@[stacks 0F67]
-instance iInverseImage_id_preservesInjectiveObjects
-    (S : Scheme.{u})
-    [HasSheafify (topology S) AddCommGrpCat.{u + 1}]
-    [HasSheafify (proetaleTopology.over S) AddCommGrpCat.{u + 1}] :
-    (iInverseImage (𝟙 S)).PreservesInjectiveObjects := sorry
+/- Lemma 61.17.1 (1)(a): inverse image preserves injective abelian sheaves. -/
+@[stacks 0F67] #check
+  (AlgebraicGeometry.Scheme.ProEt.iInverseImage_preservesInjectiveObjects f :
+    (iInverseImage f).PreservesInjectiveObjects)
 
-/-- Lemma 61.17.1 (3): inverse image `iInverseImage f` from the big pro-étale site
-over `S` to the small pro-étale site of `T` preserves K-injective cochain
-complexes of abelian sheaves. -/
-@[stacks 0F67]
-instance iInverseImage_obj_isKInjective
-    {S T : Scheme.{u}} (f : T ⟶ S)
-    [HasSheafify (topology T) AddCommGrpCat.{u + 1}]
-    [HasSheafify (proetaleTopology.over S) AddCommGrpCat.{u + 1}]
-    (I : CochainComplex
-      (Sheaf (proetaleTopology.over S) AddCommGrpCat.{u + 1}) ℤ)
-    [I.IsKInjective] :
+section
+
+variable [HasSheafify (topology S) AddCommGrpCat.{u + 1}]
+
+/- Lemma 61.17.1 (1)(b): restriction to the small site preserves injectives. -/
+@[stacks 0F67] #check (AlgebraicGeometry.Scheme.ProEt.iInverseImage_preservesInjectiveObjects (𝟙 S) :
+    (iInverseImage (𝟙 S)).PreservesInjectiveObjects)
+
+end
+
+variable (I : CochainComplex
+  (Sheaf (proetaleTopology.over S) AddCommGrpCat.{u + 1}) ℤ) [I.IsKInjective]
+
+/- Lemma 61.17.1 (2)(a): inverse image preserves K-injective complexes. -/
+@[stacks 0F67] #check (AlgebraicGeometry.Scheme.ProEt.iInverseImage_obj_isKInjective f I :
     CochainComplex.IsKInjective
-      (((iInverseImage f).mapHomologicalComplex (up ℤ)).obj I) := sorry
+      (((iInverseImage f).mapHomologicalComplex (up ℤ)).obj I))
 
-/-- Lemma 61.17.1 (4): restriction from the big pro-étale site over `S` to the
-small pro-étale site of `S`, as `iInverseImage (𝟙 S)`, preserves K-injective
-cochain complexes of abelian sheaves. -/
-@[stacks 0F67]
-instance iInverseImage_id_obj_isKInjective
-    (S : Scheme.{u})
-    [HasSheafify (topology S) AddCommGrpCat.{u + 1}]
-    [HasSheafify (proetaleTopology.over S) AddCommGrpCat.{u + 1}]
-    (I : CochainComplex
-      (Sheaf (proetaleTopology.over S) AddCommGrpCat.{u + 1}) ℤ)
-    [I.IsKInjective] :
+section
+
+variable [HasSheafify (topology S) AddCommGrpCat.{u + 1}]
+
+/- Lemma 61.17.1 (2)(b): restriction to the small site preserves K-injectives. -/
+@[stacks 0F67] #check (AlgebraicGeometry.Scheme.ProEt.iInverseImage_obj_isKInjective (𝟙 S) I :
     CochainComplex.IsKInjective
-      (((iInverseImage (𝟙 S)).mapHomologicalComplex (up ℤ)).obj I) := sorry
+      (((iInverseImage (𝟙 S)).mapHomologicalComplex (up ℤ)).obj I))
+
+end
 
 end AlgebraicGeometry.Scheme.ProEt

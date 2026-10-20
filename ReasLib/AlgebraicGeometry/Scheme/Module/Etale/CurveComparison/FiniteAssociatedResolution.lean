@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.FiniteQuotientCoefficientResolution
@@ -22,18 +16,18 @@ variable {X : Scheme.{u}} (R : Type (u + 1)) [Ring R] [Finite R]
 variable [ConnectedSpace X] (xbar : GeometricPoint X)
 variable [HasWeakSheafify X.smallEtaleTopology (ModuleCat.{u + 1} R)]
 variable [∀ U : X.Etale, HasWeakSheafify (X.smallEtaleTopology.over U) (ModuleCat.{u + 1} R)]
-variable (M : (finiteTypeDiscreteModule R (Aut (standardFiniteEtaleFiber xbar))).FullSubcategory)
+variable (M : (finiteTypeDiscreteModule R (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber xbar))).FullSubcategory)
 
 /-- The explicit finite-quotient free resolution, realized by the actual germ-based sheaf functor. -/
 def complex := ((functor (Λ := R) (xbar := xbar)).mapHomologicalComplex
   (ComplexShape.down ℕ)).obj
-    (FiniteQuotientCoefficientResolution.complex R (Aut (standardFiniteEtaleFiber xbar)) M.obj)
+    (FiniteQuotientCoefficientResolution.complex R (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber xbar)) M.obj)
 
 /-- Augmentation to the published finite inverse, using the specified finite-stage comparison. -/
 def augmentation : complex R xbar M ⟶ (ChainComplex.single₀ _).obj
     ((associatedSheafFunctor R xbar).obj M) :=
   ((functor (Λ := R) (xbar := xbar)).mapHomologicalComplex (ComplexShape.down ℕ)).map
-    (FiniteQuotientCoefficientResolution.augmentation R (Aut (standardFiniteEtaleFiber xbar)) M.obj) ≫
+    (FiniteQuotientCoefficientResolution.augmentation R (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber xbar)) M.obj) ≫
   ((HomologicalComplex.singleMapHomologicalComplex (functor (Λ := R) (xbar := xbar))
     (ComplexShape.down ℕ) 0).app M.obj).hom ≫
   (ChainComplex.single₀ _).map (finiteComparison M)

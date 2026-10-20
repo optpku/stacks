@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_29_5_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.PullbackStalk
+import StacksCheckRecall
 
 /-!
 # Lemma 66.29.5
@@ -20,26 +15,13 @@ of the source.
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.GeometricPoint
-open AlgebraicGeometry.AlgebraicSpace.Modules
-open ModuleCat
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules
-
-variable {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-
-/-- Lemma 66.29.5: let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of algebraic spaces
-over `S`. Let `G` be a quasi-coherent `𝒪_Y`-module. Let `xbar` be a geometric point of `X`
-and let `ȳ = xbar.map f` be the image in `Y`. Then there is a canonical isomorphism
-`(f* G)_{xbar} ≅ G_ȳ ⊗_{𝒪_{Y, ȳ}} 𝒪_{X, xbar}`
-of modules over `etaleLocalRing X xbar`. -/
-@[stacks 05VQ]
-instance pullbackStalkComparison_isIso (f : X ⟶ Y) (G : Y.Modules) [G.IsQuasicoherent]
-    (xbar : GeometricPoint X) :
-    IsIso (pullbackStalkComparison f G xbar) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Modules
+/- Lemma 66.29.5: the canonical comparison identifies the stalk of a pulled-back
+quasi-coherent module with scalar extension of its stalk at the image geometric point. -/
+@[stacks 05VQ] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.pullbackStalkComparison_isIso :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (G : Y.Modules)
+      [G.IsQuasicoherent] (xbar : GeometricPoint X),
+      IsIso (AlgebraicGeometry.AlgebraicSpace.Modules.pullbackStalkComparison f G xbar))

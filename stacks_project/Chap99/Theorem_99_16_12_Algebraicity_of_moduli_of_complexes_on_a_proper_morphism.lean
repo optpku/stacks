@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap99.Lemma_99_16_4
@@ -27,6 +21,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.AlgebraicSpace.Complexes
 
 variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
@@ -37,7 +33,15 @@ let `S` be a scheme and let `f : X ⟶ B` be a morphism of algebraic spaces over
 an algebraic stack over `S` in the sense of Definition 94.12.1 at Hom-universe
 `u + 1`. -/
 @[stacks 0DLN]
-instance instAlgebraicStack (f : X ⟶ B) [Proper f] [Flat f] [FinitePresentation f] :
+instance instAlgebraicStack (f : X ⟶ B)
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f] :
     CohStack.AlgebraicStack (toGroupoids f) :=
   sorry
 
@@ -46,7 +50,15 @@ of Definition 94.12.1: `p f` is a stack in groupoids over `(Sch/S)_fppf`, the
 diagonal of `toGroupoids f` is representable by algebraic spaces, and there is a
 scheme `U` over `S` with a surjective smooth 1-morphism
 `Classifying.slice U ⟶ toGroupoids f`. -/
-theorem algebraicStack_iff (f : X ⟶ B) [Proper f] [Flat f] [FinitePresentation f] :
+theorem algebraicStack_iff (f : X ⟶ B)
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f] [FinitePresentation f] :
     CohStack.AlgebraicStack (toGroupoids f) ↔
       IsStack.InGroupoids (Scheme.fppfTopology.over S) (p f) ∧
         Classifying.relativelyRepresentableByAlgebraicSpaces
@@ -57,7 +69,15 @@ theorem algebraicStack_iff (f : X ⟶ B) [Proper f] [Flat f] [FinitePresentation
 
 /-- An algebraic stack `toGroupoids f` admits a scheme `U` over `S` and a
 surjective smooth 1-morphism `Classifying.slice U ⟶ toGroupoids f`. -/
-theorem existsSmoothSurjectiveAtlas (f : X ⟶ B) [Proper f] [Flat f]
+theorem existsSmoothSurjectiveAtlas (f : X ⟶ B)
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f]
     [FinitePresentation f] [CohStack.AlgebraicStack (toGroupoids f)] :
     ∃ (U : Over S) (π : Classifying.slice U ⟶ toGroupoids f),
       Classifying.Smooth π ∧ Classifying.Surjective π :=
@@ -66,7 +86,15 @@ theorem existsSmoothSurjectiveAtlas (f : X ⟶ B) [Proper f] [Flat f]
 /-- If `toGroupoids f` is an algebraic stack, then fibrewise isomorphism
 presheaves of `p f` are algebraic spaces, which is the 94.10.11(1) form of a
 representable diagonal. -/
-theorem isAlgebraicSpace_of_algebraicStack (f : X ⟶ B) [Proper f] [Flat f]
+theorem isAlgebraicSpace_of_algebraicStack (f : X ⟶ B)
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+    [Proper f] [Flat f]
     [FinitePresentation f] [CohStack.AlgebraicStack (toGroupoids f)] :
     isAlgebraicSpace f :=
   sorry

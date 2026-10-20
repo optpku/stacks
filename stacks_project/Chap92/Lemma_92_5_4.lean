@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.FiniteType
-public import Mathlib.RingTheory.Finiteness.Defs
-public import Mathlib.RingTheory.Noetherian.Defs
-public import stacks_project.Chap110.Lemma_110_43_1_Cotangent
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.RingTheory.CotangentComplex.Finiteness
+import StacksCheckRecall
 
 /-!
 # Finite André-Quillen homology of finite-type algebras
@@ -23,27 +14,14 @@ cohomology module of the André-Quillen complex `L_{B/A}` is a finite `B`-module
 
 universe u
 
-namespace Algebra.CotangentComplex
-
-section
-
-variable (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
-variable [IsNoetherianRing A] [Algebra.FiniteType A B]
-
-/-- Lemma 92.5.4. Let `A` be a Noetherian ring. Let `A → B` be a finite type ring map.
+/- Lemma 92.5.4. Let `A` be a Noetherian ring. Let `A → B` be a finite type ring map.
 Then `H^n(L_{B/A})` is a finite `B`-module for all `n : ℤ`. -/
-@[stacks 08PZ]
-instance homology_finite (n : ℤ) :
-    Module.Finite B ((Algebra.cotangentComplex A B).homology n) :=
-  sorry
+@[stacks 08PZ] #check (Algebra.CotangentComplex.homology_finite :
+  ∀ (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
+    [IsNoetherianRing A] [Algebra.FiniteType A B] (n : ℤ),
+    Module.Finite B ((Algebra.cotangentComplex A B).homology n))
 
-end
-
-/-- The André-Quillen homology of a finite-type ring homomorphism from a Noetherian
-source is a finite module over the codomain. -/
-theorem homology_finite_ringHom {A B : Type u} [CommRing A] [CommRing B]
-    (f : A →+* B) [IsNoetherianRing A] (hf : f.FiniteType) (n : ℤ) :
-    Module.Finite B ((RingHom.cotangentComplex f).homology n) :=
-  sorry
-
-end Algebra.CotangentComplex
+#check (Algebra.CotangentComplex.homology_finite_ringHom :
+  ∀ {A B : Type u} [CommRing A] [CommRing B]
+    (f : A →+* B) [IsNoetherianRing A] (hf : f.FiniteType) (n : ℤ),
+    Module.Finite B ((RingHom.cotangentComplex f).homology n))

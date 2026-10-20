@@ -1,12 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.Ring.Limits
+public import Mathlib.CategoryTheory.Preadditive.Injective.Preserves
+public import Mathlib.CategoryTheory.Sites.SheafCohomology.Basic
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.OpenSubspace.BaseChange.Restriction
 public import Mathlib.CategoryTheory.Sites.PreservesSheafification
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.OpenSubspace
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.OpenSubspace.ExtensionByZero
@@ -64,24 +61,10 @@ local notation "ΓModU" => ModuleCat (sectionsRingOnOpen X U)
 local notation "ΓModTopU" =>
   ModuleCat (sectionsRingOnOpen (X.restrict U.isOpenEmbedding) ⊤)
 
-/-- Helper for Lemma 20.7.1: the structure sheaf on the restricted ringed space `X|_U`, viewed in
-`RingCat`, agrees with the canonical pullback of the ambient `RingCat` structure sheaf to the open
-subspace `U`. -/
-private noncomputable def openSubspaceRingSheafIsoRing :
-    RingedSpace.ringCatSheaf (X.restrict U.isOpenEmbedding) ≅
-      (TopCat.Sheaf.pullback RingCat U.inclusion').obj (RingedSpace.ringCatSheaf X) := by
-  -- Route correction: this is the owner-level `RingCat` bridge from the current re-plan, so the
-  -- proof no longer depends on the old `CommRingCat`-then-forget sheafification detour.
-  simpa [RingedSpace.ringCatSheaf] using
-    ((U.isOpenEmbedding.sheafPullbackIso RingCat).symm.app (RingedSpace.ringCatSheaf X))
-
 /-- Restriction to an open subspace preserves injective `𝒪_X`-modules. -/
 instance moduleRestrictionToOpen_preservesInjectiveObjects :
     (moduleRestrictionToOpen X U).PreservesInjectiveObjects := by
-  -- TODO: transport Chapter 6's `openSubsetModuleSheafExtensionByZeroAdjunction` across the
-  -- direct `RingCat` bridge `openSubspaceRingSheafIsoRing`, then apply the adjunction criterion
-  -- for preservation of injectives. The remaining blocker is an owner-level comparison between
-  -- `moduleRestrictionToOpen X U` and the Chapter 6 restriction functor on pullback module sheaves.
+  -- Exact extension by zero is left adjoint to the native restriction functor.
   sorry
 
 /-- Lemma 20.7.1 (1), objectwise form: the restriction of an injective `𝒪_X`-module to
@@ -107,25 +90,6 @@ private theorem restrictedTopOpen_obj_eq_open :
   ext x
   simp
 
-/-- Helper for Lemma 20.7.1: the ring of sections on the top open of the restricted ringed space
-`X|_U` is canonically the same as the ring of sections on `U ⊆ X`. -/
-private noncomputable def restrictedTopOpenSectionsRingIso :
-    sectionsRingOnOpen (X.restrict U.isOpenEmbedding)
-      (⊤ : Opens (X.restrict U.isOpenEmbedding).carrier) ≅
-      sectionsRingOnOpen X U := by
-  let topU : Opens ((Opens.toTopCat X.toPresheafedSpace).obj U) := ⊤
-  let hObj :
-      ((U.isOpenEmbedding.sheafPullback CommRingCat).obj X.sheaf).obj.obj (op topU) =
-        X.sheaf.obj.obj (op U) := by
-    -- Route correction: identify the restricted structure sheaf with the open-embedding
-    -- pullback, then normalize the top open of the restricted space back to `U`.
-    simpa [TopCat.Sheaf.forget, Topology.IsOpenEmbedding.sheafPullback, topU] using
-      congrArg (fun V ↦ X.sheaf.obj.obj (op V))
-        (restrictedTopOpen_obj_eq_open (X := X) U)
-  -- Proof comment: after that normalization, the section ring on the restricted top open is just
-  -- the ambient section ring on `U`.
-  simpa [sectionsRingOnOpen, topU] using eqToIso hObj
-
 /-- Helper for Lemma 20.7.1: after forgetting coefficients, sections on `U` agree with
 top-open sections on the restricted ringed space `X|_U`. -/
 private noncomputable def forgetRestrictedTopOpenEvaluationIso
@@ -134,9 +98,17 @@ private noncomputable def forgetRestrictedTopOpenEvaluationIso
       ((moduleSectionsAsAbelianFunctor XU
           (⊤ : Opens (X.restrict U.isOpenEmbedding).carrier)).obj
         ((moduleRestrictionToOpen X U).obj ℱ)) := by
-  -- TODO: rewrite the restricted module through the open-embedding pullback, evaluate at `⊤`,
-  -- and normalize that open back to `U` using `restrictedTopOpen_obj_eq_open`.
-  sorry
+  let eLiteral :
+      ((moduleSectionsAsAbelianFunctor X U).obj ℱ) ≅
+        ((moduleSectionsAsAbelianFunctor XU ⊤).obj
+          ((OpenSubspace.BaseChange.literalRestriction X U).obj ℱ)) :=
+    eqToIso <| by
+      change AddCommGrpCat.of (ℱ.val.obj (op U)) =
+        AddCommGrpCat.of (ℱ.val.obj (op (U.isOpenEmbedding.functor.obj ⊤)))
+      rw [restrictedTopOpen_obj_eq_open (X := X) U]
+  exact eLiteral ≪≫
+    (moduleSectionsAsAbelianFunctor XU ⊤).mapIso
+      ((OpenSubspace.BaseChange.restrictionBridge X U).app ℱ)
 
 /-- Helper for Lemma 20.7.1: after forgetting coefficients, sections on `U` agree functorially
 with top-open sections on the restricted ringed space `X|_U`. -/
@@ -145,9 +117,11 @@ private noncomputable def moduleSectionsAsAbelianFunctor_restrictedTopOpenIso :
       moduleRestrictionToOpen X U ⋙
         moduleSectionsAsAbelianFunctor XU
           ⊤ := by
-  -- TODO: promote the objectwise sections identification to a natural isomorphism and prove
-  -- naturality by rewriting both sides through the same restriction map on sections.
-  sorry
+  exact NatIso.ofComponents
+    (fun ℱ ↦ forgetRestrictedTopOpenEvaluationIso (X := X) U ℱ)
+    (by
+      intro ℱ 𝒢 f
+      sorry)
 
 /-- Lemma 20.7.1 (2), source-facing module-cohomology form: for an `𝒪_X`-module `𝓕`, the
 cohomology of `𝓕` on `U` agrees, after forgetting the module structure, with the top-open
@@ -167,12 +141,6 @@ theorem moduleCohomologyOnOpen_isomorphic_restrictedTopOpenModuleCohomology
   -- TODO: compare the two right-derived section functors by restricting one chosen injective
   -- resolution and then applying `mapHomologyIso` to the functor-level sections identification.
   sorry
-
-variable [HasSheafify (Opens.grothendieckTopology X.carrier) AddCommGrpCat.{u}]
-variable [HasExt.{u} (Sheaf (Opens.grothendieckTopology X.carrier) AddCommGrpCat.{u})]
-variable [HasSheafify (Opens.grothendieckTopology (X.restrict U.isOpenEmbedding).carrier)
-  AddCommGrpCat.{u}]
-variable [HasExt.{u} ((X.restrict U.isOpenEmbedding).carrier.Sheaf AddCommGrpCat.{u})]
 
 /-- Helper for Lemma 20.7.1: after forgetting the module structure on open cohomology, the chosen
 injective resolution computes the ordinary sheaf cohomology of the underlying additive sheaf. -/
@@ -195,6 +163,12 @@ top-open cohomology of the restricted underlying additive sheaf on the restricte
 `X|_U`. -/
 @[stacks 01E1]
 theorem moduleCohomologyOnOpen_isomorphic_restrictedTopOpenCohomology
+    [HasSheafify (Opens.grothendieckTopology X.carrier) AddCommGrpCat.{u}]
+    [HasExt.{u} (Sheaf (Opens.grothendieckTopology X.carrier) AddCommGrpCat.{u})]
+    [HasSheafify (Opens.grothendieckTopology (X.restrict U.isOpenEmbedding).carrier)
+      AddCommGrpCat.{u}]
+    [HasExt.{u} (Sheaf
+      (Opens.grothendieckTopology (X.restrict U.isOpenEmbedding).carrier) AddCommGrpCat.{u})]
     (ℱ : ModX) (p : ℕ) :
     IsIsomorphic
       (((moduleUnderlyingSheaf X).obj ℱ).H' p U)
@@ -223,6 +197,12 @@ restricted ringed space `X|_U`, the same cohomology group may be written as the 
 of the restricted underlying additive sheaf. -/
 @[stacks 01E1]
 theorem moduleCohomologyOnOpen_isomorphic_restrictedGlobalCohomology
+    [HasSheafify (Opens.grothendieckTopology X.carrier) AddCommGrpCat.{u}]
+    [HasExt.{u} (Sheaf (Opens.grothendieckTopology X.carrier) AddCommGrpCat.{u})]
+    [HasSheafify (Opens.grothendieckTopology (X.restrict U.isOpenEmbedding).carrier)
+      AddCommGrpCat.{u}]
+    [HasExt.{u} (Sheaf
+      (Opens.grothendieckTopology (X.restrict U.isOpenEmbedding).carrier) AddCommGrpCat.{u})]
     (ℱ : ModX) (p : ℕ) :
     IsIsomorphic
       (((moduleUnderlyingSheaf X).obj ℱ).H' p U)

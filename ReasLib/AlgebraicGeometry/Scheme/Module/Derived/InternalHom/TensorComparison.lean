@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.InternalHom.Functoriality.Perfect
@@ -54,6 +48,7 @@ theorem comparison_isIso_of_tensor_isPerfect {X : Scheme.{u}}
 pseudo-coherent, its target is bounded below, and its tensor factor has finite Tor dimension. -/
 theorem comparison_isIso_of_pseudoCoherent_boundedBelow_finiteTorDimension
     {X : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     [KFlat.HomotopyTensorDescends X.toRingedSpace]
     [KFlat.TensorDescends X.toRingedSpace]
     [KFlat.IsLocalization X.toRingedSpace]
@@ -95,6 +90,7 @@ its target has finite Tor dimension, and the latter two objects have affine-loca
 injective dimension. -/
 theorem comparison_isIso_of_boundedCoherent_finiteDimensions
     {X : Scheme.{u}} [IsNoetherian X]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     [KFlat.HomotopyTensorDescends X.toRingedSpace]
     [KFlat.TensorDescends X.toRingedSpace]
     [KFlat.IsLocalization X.toRingedSpace]

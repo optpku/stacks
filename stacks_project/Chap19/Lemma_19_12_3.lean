@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.CochainComplex.KInjective.SmallAcyclic
+public import ReasLib.Algebra.Homology.CochainComplex.KInjective.AcyclicReduction
 public import ReasLib.Algebra.Homology.CochainComplex.SmallAcyclic.Grothendieck
 import StacksCheckRecall
 
@@ -23,7 +18,7 @@ a typed check.
 open CategoryTheory
 open ComplexShape
 
-universe w v u
+universe z w v u
 
 namespace CochainComplex
 
@@ -41,5 +36,14 @@ controlled by that cardinal vanish in the homotopy category. -/
 #check @SmallAcyclic.HomotopyVanishing
 #check @SmallAcyclic.HomotopyVanishing.rightOrthogonal
 #check @IsKInjective.ofSmallAcyclic
+
+/- Lemma 19.12.3, proof: starting from a specified supply of the subcomplexes in
+Lemma 19.12.2 (1), transfinite inverse images and unions give an exhaustive tower of
+acyclic subcomplexes with small bounded-above successor quotients. -/
+#check
+  fun (A : Type u) [Category.{v} A] [Abelian A] [IsGrothendieckAbelian.{w} A]
+      (kappa : Cardinal.{z}) (S : SmallAcyclic.SubcomplexSupply A kappa)
+      (M : CochainComplex A ℤ) (hM : M.Acyclic) ↦
+    (AcyclicReduction.ofSupply S hM : AcyclicReduction M kappa)
 
 end CochainComplex

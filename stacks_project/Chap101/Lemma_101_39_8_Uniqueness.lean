@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Bicategory.DottedArrow.Construction
-public import stacks_project.Chap101.«101_39_1_1_ValuativeSquare»
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.ValuativeCriterion.Uniqueness
 
 /-!
 # Uniqueness part of the valuative criterion for algebraic stacks
@@ -24,54 +18,7 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.ValuativeCriterion
+#check (AlgebraicGeometry.AlgebraicStack.ValuativeCriterion.Uniqueness :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y], (X ⟶ Y) → Prop)
 
-/-- A morphism of algebraic stacks satisfies the uniqueness part of the
-valuative criterion when, for every valuative 2-commutative square, the
-category of dotted arrows is either empty or a setoid with exactly one
-isomorphism class. -/
-@[mk_iff]
-class Uniqueness {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) : Prop where
-  /-- Hom-spaces in the dotted-arrow category are subsingleton. -/
-  isThin : ∀ sq : ValuativeCommSq f, Quiver.IsThin (DottedArrow sq.toCone)
-  /-- Any two dotted arrows are isomorphic. -/
-  uniqueIsoClass :
-    ∀ (sq : ValuativeCommSq f) (A A' : DottedArrow sq.toCone), Nonempty (A ≅ A')
-
-namespace Uniqueness
-
-/-- Uniqueness means that every valuative square has a thin dotted-arrow
-category with at most one isomorphism class. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) :
-    Uniqueness f ↔
-      (∀ sq : ValuativeCommSq f, Quiver.IsThin (DottedArrow sq.toCone)) ∧
-        ∀ (sq : ValuativeCommSq f) (A A' : DottedArrow sq.toCone),
-          Nonempty (A ≅ A') :=
-  sorry
-
-/-- The dotted-arrow category of a valuative square is thin. -/
-theorem isThin_dottedArrow {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y} [Uniqueness f]
-    (sq : ValuativeCommSq f) : Quiver.IsThin (DottedArrow sq.toCone) :=
-  sorry
-
-/-- Any two dotted arrows of a valuative square are isomorphic. -/
-theorem nonempty_iso {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y} [Uniqueness f]
-    (sq : ValuativeCommSq f) (A A' : DottedArrow sq.toCone) :
-    Nonempty (A ≅ A') :=
-  sorry
-
-/-- The composition of morphisms of algebraic stacks satisfying uniqueness
-again satisfies uniqueness. -/
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [Uniqueness f] [Uniqueness g] :
-    Uniqueness (f ≫ g) :=
-  sorry
-
-end Uniqueness
-
-end AlgebraicGeometry.AlgebraicStack.ValuativeCriterion

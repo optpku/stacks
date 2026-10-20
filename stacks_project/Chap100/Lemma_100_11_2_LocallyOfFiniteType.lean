@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_40_1_FiniteType
-public import stacks_project.Chap94.Definition_94_12_1_MorphismProperty
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.LocallyOfFiniteType
 
 /-!
 # Locally of finite type morphisms of groupoid fibrations
@@ -29,50 +22,34 @@ universe u
 
 namespace AlgebraicGeometry.Groupoids.Hom
 
-/-- A 1-morphism of categories fibred in groupoids over `Over S` is locally of
-finite type when it is representable by algebraic spaces and every representing
-morphism `fy : Fy ⟶ ofOver U` is a locally of finite type morphism of algebraic
-spaces. -/
-class LocallyOfFiniteType {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) :
-    Prop where
-  /-- The 1-morphism is representable by algebraic spaces. -/
-  representable : relativelyRepresentableByAlgebraicSpaces f
-  /-- Every representing morphism of algebraic spaces is locally of finite type. -/
-  of_represents : ∀ ⦃U : Over S⦄ (y : GroupoidsOver.slice U ⟶ Y)
-    (Fy : AlgebraicSpace S) (fy : Fy ⟶ AlgebraicSpace.ofOver U),
-    RepresentsBaseChange f y Fy fy → AlgebraicSpace.LocallyOfFiniteType fy
+#check (AlgebraicGeometry.Groupoids.Hom.LocallyOfFiniteType :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y),
+    Prop)
 
 namespace LocallyOfFiniteType
 
-/-- The identity 1-morphism of a category fibred in groupoids is locally of
-finite type. -/
-instance id {S : Scheme.{u}} {X : GroupoidsOver S} : LocallyOfFiniteType (𝟙 X) :=
-  sorry
+#check (AlgebraicGeometry.Groupoids.Hom.LocallyOfFiniteType.id :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S},
+    LocallyOfFiniteType (𝟙 X))
 
-/-- A representing morphism of algebraic spaces for a locally of finite type
-1-morphism is locally of finite type. -/
-theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
+#check (AlgebraicGeometry.Groupoids.Hom.LocallyOfFiniteType.spec :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
     [LocallyOfFiniteType f] {U : Over S} (y : GroupoidsOver.slice U ⟶ Y)
     {Fy : AlgebraicSpace S} {fy : Fy ⟶ AlgebraicSpace.ofOver U}
-    (h : RepresentsBaseChange f y Fy fy) :
-    AlgebraicSpace.LocallyOfFiniteType fy :=
-  sorry
+    (h : RepresentsBaseChange f y Fy fy),
+    AlgebraicSpace.LocallyOfFiniteType fy)
 
-/-- A locally of finite type 1-morphism is representable by algebraic spaces. -/
-theorem relativelyRepresentable {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    (f : X ⟶ Y) [LocallyOfFiniteType f] :
-    relativelyRepresentableByAlgebraicSpaces f :=
-  sorry
+#check (AlgebraicGeometry.Groupoids.Hom.LocallyOfFiniteType.relativelyRepresentable :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    (f : X ⟶ Y) [LocallyOfFiniteType f],
+    relativelyRepresentableByAlgebraicSpaces f)
 
-/-- A 1-morphism is locally of finite type if and only if it is representable by
-algebraic spaces and every representing morphism of algebraic spaces is locally
-of finite type. -/
-theorem iff {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) :
+#check (AlgebraicGeometry.Groupoids.Hom.LocallyOfFiniteType.iff :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y),
     LocallyOfFiniteType f ↔ relativelyRepresentableByAlgebraicSpaces f ∧
       ∀ ⦃U : Over S⦄ (y : GroupoidsOver.slice U ⟶ Y) (Fy : AlgebraicSpace S)
         (fy : Fy ⟶ AlgebraicSpace.ofOver U),
-        RepresentsBaseChange f y Fy fy → AlgebraicSpace.LocallyOfFiniteType fy :=
-  sorry
+        RepresentsBaseChange f y Fy fy → AlgebraicSpace.LocallyOfFiniteType fy)
 
 end LocallyOfFiniteType
 

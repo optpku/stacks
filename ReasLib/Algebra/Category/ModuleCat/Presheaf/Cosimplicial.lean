@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Presheaf.BaseChange
@@ -75,13 +69,15 @@ namespace CartesianModule
 
 /-- The underlying module of a cartesian module satisfies the cartesian condition. -/
 theorem isCartesian {A : CosimplicialObject (CommAlgCat.{u} R)}
-    (M : CartesianModule A) : Module.IsCartesian M.obj := sorry
+    (M : CartesianModule A) : Module.IsCartesian M.obj :=
+  M.property
 
-/-- Every base-change comparison of a cartesian module is canonically registered as an
-isomorphism. -/
+/-- Every base-change comparison of a cartesian module is an isomorphism; the witness is the
+cartesian property carried by the object. -/
 instance baseChangeMap_isIso {A : CosimplicialObject (CommAlgCat.{u} R)}
     (M : CartesianModule A) {n m : SimplexCategory} (f : n ⟶ m) :
-    IsIso (Module.baseChangeMap M.obj f) := sorry
+    IsIso (Module.baseChangeMap M.obj f) :=
+  M.property f.op.op
 
 /-- The canonical base-change isomorphism of a cartesian module. -/
 noncomputable def baseChangeIso {A : CosimplicialObject (CommAlgCat.{u} R)}

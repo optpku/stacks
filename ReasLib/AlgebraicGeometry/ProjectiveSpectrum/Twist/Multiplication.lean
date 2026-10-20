@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.Basic
-public import Mathlib.CategoryTheory.Monoidal.Braided.Basic
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Monoidal
 
 /-!
 # Multiplication of twists on projective spectra
@@ -35,7 +29,7 @@ namespace ProjTwistFamily
 
 /-- A multiplication on an integral twist family assigns a morphism from the tensor product of
 the twists of indices `n` and `m` to the twist of index `n + m`. -/
-abbrev Multiplication [MonoidalCategory (Proj calA).Modules] (P : ProjTwistFamily calA) :=
+abbrev Multiplication (P : ProjTwistFamily calA) :=
   forall n m : Int, tensorObj (P.twist n) (P.twist m) ⟶ P.twist (n + m)
 
 end ProjTwistFamily
@@ -43,7 +37,6 @@ end ProjTwistFamily
 section
 
 variable (calA : Nat -> sigma) [GradedRing calA]
-variable [MonoidalCategory (Proj calA).Modules] [BraidedCategory (Proj calA).Modules]
 
 /-- Multiplication on an integral twist family induces a morphism from a twist tensored with a
 twisted module to the module twisted by the sum of the two indices. -/

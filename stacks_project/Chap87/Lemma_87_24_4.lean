@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap87.Lemma_87_24_4_FiniteType
-public import stacks_project.Chap87.Lemma_87_24_4_Pullback
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Morphism.FiniteType.BaseChange
+import StacksCheckRecall
 
 /-!
 # Base change of finite-type morphisms of formal algebraic spaces
@@ -23,22 +17,17 @@ open CategoryTheory AlgebraicGeometry CategoryTheory.MorphismProperty
 
 universe u
 
-namespace AlgebraicGeometry.FormalAlgebraicSpace
+/- Lemma 87.24.4: A base change of a finite type morphism is finite type.
+The same holds for locally of finite type. -/
+@[stacks 0AQ5] #check
+  (AlgebraicGeometry.FormalAlgebraicSpace.finiteType_isStableUnderBaseChange :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}},
+      CategoryTheory.MorphismProperty.IsStableUnderBaseChange
+        (@AlgebraicGeometry.FormalAlgebraicSpace.FiniteType S :
+          CategoryTheory.MorphismProperty ((CategoryTheory.Over S)ᵒᵖ ⥤ Type u)))
 
-/-- Lemma 87.24.4 (1): The base change of a finite type morphism of formal
-algebraic spaces is finite type. -/
-@[stacks 0AQ5]
-instance finiteType_isStableUnderBaseChange {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderBaseChange
-      (@FiniteType S : MorphismProperty ((Over S)ᵒᵖ ⥤ Type u)) :=
-  sorry
-
-/-- Lemma 87.24.4 (2): The base change of a locally of finite type morphism of
-formal algebraic spaces is locally of finite type. -/
-@[stacks 0AQ5]
-instance locallyOfFiniteType_isStableUnderBaseChange {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderBaseChange
-      (@LocallyOfFiniteType S : MorphismProperty ((Over S)ᵒᵖ ⥤ Type u)) :=
-  sorry
-
-end AlgebraicGeometry.FormalAlgebraicSpace
+#check (AlgebraicGeometry.FormalAlgebraicSpace.LocallyOfFiniteType.instIsStableUnderBaseChange :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}},
+    CategoryTheory.MorphismProperty.IsStableUnderBaseChange
+      (@AlgebraicGeometry.FormalAlgebraicSpace.LocallyOfFiniteType S :
+        CategoryTheory.MorphismProperty ((CategoryTheory.Over S)ᵒᵖ ⥤ Type u)))

@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_7_1_Instances
-public import stacks_project.Chap76.Lemma_76_7_1_Comparison
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Differentials
 import StacksCheckRecall
 
 @[expose] public section
@@ -18,7 +11,7 @@ open AlgebraicGeometry.Scheme
 open AlgebraicGeometry.Scheme.AssociatedModule
 open AlgebraicGeometry.Scheme.Etale.Small
 open Scheme.Etale.Small
-open scoped AlgebraicGeometry RingedSite.Hom
+open scoped AlgebraicGeometry RelativeDerivation
 
 noncomputable section
 
@@ -26,18 +19,16 @@ universe u
 
 variable {X Y : Scheme.{u}} (f : X ⟶ Y)
 
-/- Lemma 76.7.1 (1): for a morphism of schemes `f : X ⟶ Y`, the sheaf on `X.Etale`
-associated to the quasi-coherent module `Ω[f.toShHom]` is canonically isomorphic
-to the site-theoretic relative differentials `Ω[commRingedHom f]` of the small
-étale ringed morphism `f_small`. -/
+/- Lemma 76.7.1: the associated étale sheaf of scheme differentials is
+canonically isomorphic to the small-étale site differentials, compatibly with
+universal derivations. -/
 @[stacks 04CS]
-#check (associatedModuleIso f :
-  RingedSite.Hom.relativeDifferentials.{u + 1, u} (commRingedHom f) ≅
-    StandardSmall.comm .etale X (Ω[f.toShHom]))
-
-/- Lemma 76.7.1 (2): the comparison intertwines the site-theoretic universal
-derivation with the associated étale derivation `d^a`. -/
-@[stacks 04CS]
-#check (associatedModuleIso_comp_universalDerivation f :
-  (d[commRingedHom f]).postcomp (associatedModuleIso f).hom.val =
-    associatedUniversalDerivation f)
+#check (AlgebraicGeometry.Scheme.Etale.Small.existsUnique_associatedModuleIso f :
+  ∃! e : RingedSite.Hom.relativeDifferentials.{u + 1, u} (commRingedHom f) ≅
+    StandardSmall.comm .etale X (Ω[f.toShHom]),
+    ∀ (U : X.Etaleᵒᵖ)
+      (t : (StandardSmall.commStructureSheaf .etale X).obj.obj U),
+      etaleComparisonSections f U.unop
+        (ULift.down (e.hom.val.app U
+          ((RingedSite.Hom.relativeDifferential (commRingedHom f)).d t))) =
+        (d[(U.unop.hom ≫ f).toShHom]).d (ULift.down t))

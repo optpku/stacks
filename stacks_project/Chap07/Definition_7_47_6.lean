@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Sites.Grothendieck
+public import ReasLib.CategoryTheory.Sites.GrothendieckTopology
 import StacksCheckRecall
 
 @[expose] public section
@@ -23,8 +17,26 @@ sieves on U such that (1) if f : V ⟶ U and S ∈ J U then S.pullback f ∈ J V
 f : V ⟶ U in S, then S' ∈ J U, and (3) the maximal sieve ⊤ belongs to J U.
 Covering sieves are the members of J U. This is the canonical owner
 GrothendieckTopology. -/
-@[stacks 00Z4] #check GrothendieckTopology C
+@[stacks 00Z4] #check (CategoryTheory.GrothendieckTopology.exists_sieves_eq_iff :
+  ∀ sieves : ∀ X : C, Set (Sieve X),
+    (∃ J : GrothendieckTopology C, J.sieves = sieves) ↔
+      (∀ ⦃X Y : C⦄ ⦃S : Sieve X⦄ (f : Y ⟶ X),
+        S ∈ sieves X → S.pullback f ∈ sieves Y) ∧
+      (∀ ⦃X : C⦄ ⦃S : Sieve X⦄, S ∈ sieves X → ∀ R : Sieve X,
+        (∀ ⦃Y : C⦄ ⦃f : Y ⟶ X⦄, S f → R.pullback f ∈ sieves Y) → R ∈ sieves X) ∧
+      (∀ X : C, (⊤ : Sieve X) ∈ sieves X))
 
-#check @GrothendieckTopology.pullback_stable
-#check @GrothendieckTopology.transitive
-#check @GrothendieckTopology.top_mem
+#check (CategoryTheory.GrothendieckTopology C : Type (max u v))
+
+variable {X Y : C} {S : Sieve X}
+
+#check (CategoryTheory.GrothendieckTopology.pullback_stable :
+  ∀ (J : GrothendieckTopology C) (f : Y ⟶ X),
+    S ∈ J X → S.pullback f ∈ J Y)
+
+#check (CategoryTheory.GrothendieckTopology.transitive :
+  ∀ (J : GrothendieckTopology C), S ∈ J X → ∀ R : Sieve X,
+    (∀ ⦃Y : C⦄ ⦃f : Y ⟶ X⦄, S f → R.pullback f ∈ J Y) → R ∈ J X)
+
+#check (CategoryTheory.GrothendieckTopology.top_mem :
+  ∀ (J : GrothendieckTopology C) (X : C), (⊤ : Sieve X) ∈ J X)

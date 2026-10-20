@@ -1,21 +1,18 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_16_8_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Etale.FormallyEtale
 import StacksCheckRecall
 
-open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
+open CategoryTheory
 
 universe u
 
 /- Lemma 76.16.8: A morphism of algebraic spaces is étale if and only if it is
 locally of finite presentation and formally étale. -/
 @[stacks 0616] #check
-  (Etale.iff_locallyOfFinitePresentation_and_formallyEtale :
-    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
-      Etale f ↔ LocallyOfFinitePresentation f ∧ FormallyEtale f)
+  (AlgebraicGeometry.AlgebraicSpace.Etale.iff_locallyOfFinitePresentation_and_formallyEtale :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Y : AlgebraicGeometry.AlgebraicSpace S}
+      (f : X ⟶ Y),
+      AlgebraicGeometry.AlgebraicSpace.Etale f ↔
+        AlgebraicGeometry.AlgebraicSpace.LocallyOfFinitePresentation f ∧
+          AlgebraicGeometry.AlgebraicSpace.FormallyEtale f)

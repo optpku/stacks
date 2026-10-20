@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap71.Lemma_71_9_1_BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Divisor.EffectiveCartier.Relative.BaseChange
 import StacksCheckRecall
 
 /-!
@@ -28,16 +22,20 @@ universe u
 spaces over `S`. Let `D ⊂ X` be a closed subspace. Assume `D` is an effective
 Cartier divisor, and `D ⟶ Y` is a flat morphism. Then for every morphism of
 schemes `g : Y' ⟶ Y` the inverse image `(g')⁻¹D` along the projection
-`g' : X' ⟶ X` of `X' = Y' ×_Y X` is an effective Cartier divisor on `X'`. -/
+`g' : X' ⟶ X` of `X' = Y' ×_Y X` is an effective Cartier divisor on `X'`.
+The closed subspace is represented by its inclusion `i : D ⟶ X`; effective
+Cartier-ness supplies that this inclusion is a closed immersion. -/
 @[stacks 0EPN] #check
-  (IsRelativeEffectiveCartierDivisor.isEffectiveCartierDivisor_inverseImage_pullback_fst :
-    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (D : ClosedSubspace X)
-      [IsRelativeEffectiveCartierDivisor f D.ι] {Y' : Over S} (g : ofOver Y' ⟶ Y),
-      IsEffectiveCartierDivisor (D.inverseImage (pullback.fst f g)).ι)
+  (AlgebraicGeometry.AlgebraicSpace.IsRelativeEffectiveCartierDivisor.isEffectiveCartierDivisor_inverseImage_pullback_fst :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      {D : AlgebraicSpace S} (i : D ⟶ X)
+      [IsRelativeEffectiveCartierDivisor f i] {Y' : Over S} (g : ofOver Y' ⟶ Y),
+      IsEffectiveCartierDivisor (inverseImageι (pullback.fst f g) i))
 
 #check
-  (IsRelativeEffectiveCartierDivisor.inverseImage_pullback_fst :
-    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (D : ClosedSubspace X)
-      [IsRelativeEffectiveCartierDivisor f D.ι] {Y' : Over S} (g : ofOver Y' ⟶ Y),
+  (AlgebraicGeometry.AlgebraicSpace.IsRelativeEffectiveCartierDivisor.inverseImage_pullback_fst :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      {D : AlgebraicSpace S} (i : D ⟶ X)
+      [IsRelativeEffectiveCartierDivisor f i] {Y' : Over S} (g : ofOver Y' ⟶ Y),
       IsRelativeEffectiveCartierDivisor (pullback.snd f g)
-        (D.inverseImage (pullback.fst f g)).ι)
+        (inverseImageι (pullback.fst f g) i))

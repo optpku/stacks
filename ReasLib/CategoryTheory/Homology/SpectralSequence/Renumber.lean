@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.Embedding.RestrictionHomology
@@ -171,23 +165,76 @@ def IsRenumbering (E : CohomologicalSpectralSequence C 1)
 theorem isRenumbering_renumber (E : CohomologicalSpectralSequence C 1) :
     IsRenumbering E (renumber E) := sorry
 
-namespace IsRenumbering
+/-- A specified isomorphism with the canonical renumbering witnesses the renumbering relation. -/
+theorem IsRenumbering.of_iso {E : CohomologicalSpectralSequence C 1}
+    {E' : E₂CohomologicalSpectralSequence C} (e : E' ≅ renumber E) :
+    IsRenumbering E E' := sorry
 
-/-- A renumbering identifies every new page with the restriction of the preceding old page
-along the standard bidegree equivalence. -/
-theorem pageIso {E : CohomologicalSpectralSequence C 1}
-    {E' : E₂CohomologicalSpectralSequence C} (h : IsRenumbering E E')
+namespace Renumber
+
+/-- A specified isomorphism `E' ≅ renumber E` identifies every new page with the restriction of
+the preceding old page along the standard bidegree equivalence.  For `E' = renumber E` and the
+identity isomorphism this is the identity of `Renumber.page E r hr`. -/
+@[stacks 0G1Y "page comparison for a renumbering", stacks 0G20]
+noncomputable def pageIso {E : CohomologicalSpectralSequence C 1}
+    {E' : E₂CohomologicalSpectralSequence C} (e : E' ≅ renumber E)
     (r : ℤ) (hr : 2 ≤ r) :
-    Nonempty (E'.page r hr ≅ Renumber.page E r hr) := sorry
+    E'.page r hr ≅ page E r hr :=
+  (SpectralSequence.pageFunctor C (fun r => ComplexShape.up' (⟨r, 1 - r⟩ : ℤ × ℤ)) 2 r hr).mapIso e
 
-/-- Entrywise form of the standard renumbering formula
-`E'_r^{i,j} ≅ E_{r-1}^{-j,i+2j}`. -/
-theorem entryIso {E : CohomologicalSpectralSequence C 1}
-    {E' : E₂CohomologicalSpectralSequence C} (h : IsRenumbering E E')
+/-- The forward page comparison is the page component of the specified isomorphism. -/
+@[simp]
+theorem pageIso_hom {E : CohomologicalSpectralSequence C 1}
+    {E' : E₂CohomologicalSpectralSequence C} (e : E' ≅ renumber E)
+    (r : ℤ) (hr : 2 ≤ r) :
+    (pageIso e r hr).hom = e.hom.hom r hr := sorry
+
+/-- The inverse page comparison is the page component of the inverse isomorphism. -/
+@[simp]
+theorem pageIso_inv {E : CohomologicalSpectralSequence C 1}
+    {E' : E₂CohomologicalSpectralSequence C} (e : E' ≅ renumber E)
+    (r : ℤ) (hr : 2 ≤ r) :
+    (pageIso e r hr).inv = e.inv.hom r hr := sorry
+
+/-- For the canonical renumbering itself, the page comparison of the identity is the identity. -/
+@[simp]
+theorem pageIso_refl (E : CohomologicalSpectralSequence C 1) (r : ℤ) (hr : 2 ≤ r) :
+    pageIso (Iso.refl (renumber E)) r hr = Iso.refl (page E r hr) := sorry
+
+/-- Entrywise form of the standard renumbering formula `E'_r^{i,j} ≅ E_{r-1}^{-j,i+2j}`,
+obtained from a specified isomorphism `E' ≅ renumber E`. -/
+@[stacks 0G1Y "entry comparison for a renumbering", stacks 0G20]
+noncomputable def entryIso {E : CohomologicalSpectralSequence C 1}
+    {E' : E₂CohomologicalSpectralSequence C} (e : E' ≅ renumber E)
     (r : ℤ) (hr : 2 ≤ r) (i j : ℤ) :
-    Nonempty
-      ((E'.page r hr).X (i, j) ≅
-        (E.page (r - 1) (Renumber.one_le_priorPage r hr)).X (-j, i + 2 * j)) := sorry
+    (E'.page r hr).X (i, j) ≅
+      (E.page (r - 1) (one_le_priorPage r hr)).X (-j, i + 2 * j) :=
+  (HomologicalComplex.eval C (newShape r) (i, j)).mapIso (pageIso e r hr)
+
+/-- The entry comparison is the `(i,j)` component of the page comparison. -/
+@[simp]
+theorem entryIso_hom {E : CohomologicalSpectralSequence C 1}
+    {E' : E₂CohomologicalSpectralSequence C} (e : E' ≅ renumber E)
+    (r : ℤ) (hr : 2 ≤ r) (i j : ℤ) :
+    (entryIso e r hr i j).hom = (pageIso e r hr).hom.f (i, j) := sorry
+
+/-- The inverse entry comparison is the `(i,j)` component of the inverse page comparison. -/
+@[simp]
+theorem entryIso_inv {E : CohomologicalSpectralSequence C 1}
+    {E' : E₂CohomologicalSpectralSequence C} (e : E' ≅ renumber E)
+    (r : ℤ) (hr : 2 ≤ r) (i j : ℤ) :
+    (entryIso e r hr i j).inv = (pageIso e r hr).inv.f (i, j) := sorry
+
+/-- For the canonical renumbering itself, the entry comparison of the identity is the identity:
+`(renumber E)_r^{i,j}` is literally `E_{r-1}^{-j,i+2j}`. -/
+@[simp]
+theorem entryIso_refl (E : CohomologicalSpectralSequence C 1) (r : ℤ) (hr : 2 ≤ r) (i j : ℤ) :
+    entryIso (Iso.refl (renumber E)) r hr i j =
+      Iso.refl ((E.page (r - 1) (one_le_priorPage r hr)).X (-j, i + 2 * j)) := sorry
+
+end Renumber
+
+namespace IsRenumbering
 
 /-- Standard page-and-bidegree renumbering preserves boundedness. -/
 @[stacks 0G1Y "boundedness under renumbering", stacks 0G20]

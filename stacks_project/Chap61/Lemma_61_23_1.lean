@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiCompact
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiSeparated
-public import stacks_project.Chap61.Lemma_61_23_1_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.ProEtalePushforward
+import StacksCheckRecall
 
 /-!
 # Lemma 61.23.1
@@ -24,20 +16,13 @@ open CategoryTheory CategoryTheory.Limits
 open AlgebraicGeometry AlgebraicGeometry.Scheme
 open AlgebraicGeometry.Scheme.ProEt
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.Scheme
-
-variable {X Y : Scheme.{u}} (f : X ⟶ Y)
-variable [QuasiCompact f] [QuasiSeparated f]
-
-/-- Lemma 61.23.1 (1): for a quasi-compact quasi-separated morphism `f : X ⟶ Y` and a
-sheaf of sets `F` on `X_étale`, the canonical mate
-`ε⁻¹ (f_étale,* F) ⟶ f_proétale,* (ε⁻¹ F)` is an isomorphism. -/
-@[stacks 09A6]
-theorem etaleToProEt_pushforwardHom_isIso
+/- Lemma 61.23.1 (1): for every sheaf of sets, the canonical comparison between
+étale pushforward followed by comparison inverse image and pro-étale pushforward
+after comparison inverse image is an isomorphism. -/
+@[stacks 09A6] #check (AlgebraicGeometry.Scheme.etaleToProEt_pushforwardHom_isIso :
+  ∀ {X Y : Scheme.{u}} (f : X ⟶ Y) [QuasiCompact f] [QuasiSeparated f]
     [∀ F : Y.Etaleᵒᵖ ⥤ Type (u + 1), (etaleToProEt Y).op.HasLeftKanExtension F]
     [∀ F : X.Etaleᵒᵖ ⥤ Type (u + 1), (etaleToProEt X).op.HasLeftKanExtension F]
     [∀ F : Y.Etaleᵒᵖ ⥤ Type (u + 1), (smallEtalePullback f).op.HasLeftKanExtension F]
@@ -45,15 +30,14 @@ theorem etaleToProEt_pushforwardHom_isIso
     [HasWeakSheafify X.smallEtaleTopology (Type (u + 1))]
     [HasWeakSheafify (topology X) (Type (u + 1))]
     [HasWeakSheafify (topology Y) (Type (u + 1))]
-    (F : Sheaf X.smallEtaleTopology (Type (u + 1))) :
-    IsIso ((etaleToProEt_pushforwardHom (Type (u + 1)) f).app F) :=
-  sorry
+    (F : Sheaf X.smallEtaleTopology (Type (u + 1))),
+    IsIso ((etaleToProEt_pushforwardHom (Type (u + 1)) f).app F))
 
-/-- Lemma 61.23.1 (2): for a quasi-compact quasi-separated morphism `f : X ⟶ Y` and an
-abelian sheaf `F` on `X_étale`, the canonical mate
-`ε⁻¹ (Rf_étale,* F) ⟶ Rf_proétale,* (ε⁻¹ F)` is an isomorphism. -/
-@[stacks 09A6]
-theorem etaleToProEt_derivedPushforwardHom_isIso
+/- Lemma 61.23.1 (2): for every abelian étale sheaf embedded in degree zero,
+the corresponding canonical comparison of bounded-below derived pushforwards
+is an isomorphism. -/
+@[stacks 09A6] #check (AlgebraicGeometry.Scheme.etaleToProEt_derivedPushforwardHom_isIso :
+  ∀ {X Y : Scheme.{u}} (f : X ⟶ Y) [QuasiCompact f] [QuasiSeparated f]
     [HasSheafify X.smallEtaleTopology AddCommGrpCat.{u + 1}]
     [HasSheafify Y.smallEtaleTopology AddCommGrpCat.{u + 1}]
     [HasSheafify (topology X) AddCommGrpCat.{u + 1}]
@@ -66,8 +50,5 @@ theorem etaleToProEt_derivedPushforwardHom_isIso
       (smallEtalePullback f).op.HasLeftKanExtension F]
     [∀ F : Y.ProEtᵒᵖ ⥤ AddCommGrpCat.{u + 1},
       (baseChange f).op.HasLeftKanExtension F]
-    (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1}) :
-    IsIso (etaleToProEt_derivedPushforwardHom f F) :=
-  sorry
-
-end AlgebraicGeometry.Scheme
+    (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1}),
+    IsIso (etaleToProEt_derivedPushforwardHom f F))

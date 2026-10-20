@@ -1,19 +1,16 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Thickening
 public import stacks_project.Chap65.Lemma_65_12_4_Immersion
 public import stacks_project.Chap67.Definition_67_5_2_Surjective
+import StacksCheckRecall
 
 /-!
 # Thickenings of algebraic spaces
 
-A morphism of algebraic spaces is a thickening when it is a closed immersion and
-surjective on associated points, matching the scheme-theoretic thickening class.
+Definition 76.9.1 (1), tag 05ZK, says that a thickening is a closed immersion
+whose associated point spaces agree. Its canonical property and instances are
+owned by `ReasLib.AlgebraicGeometry.AlgebraicSpace.Thickening`.
 -/
 
 @[expose] public section
@@ -24,25 +21,12 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- A morphism of algebraic spaces is a thickening if it is a closed immersion and
-surjective on associated points. -/
-class IsThickening {S : Scheme.{u}} {X X' : AlgebraicSpace S} (i : X ⟶ X') : Prop
-    extends IsClosedImmersion i, Surjective i
+/- Definition 76.9.1 (1): A thickening is a closed immersion surjective on associated points. -/
+@[stacks 05ZK] #check (AlgebraicGeometry.AlgebraicSpace.IsThickening :
+  ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S}, (X ⟶ X') → Prop)
 
-/-- A closed immersion of algebraic spaces that is surjective on associated points is a
-thickening. -/
-instance instIsThickening {S : Scheme.{u}} {X X' : AlgebraicSpace S} (i : X ⟶ X')
-    [IsClosedImmersion i] [Surjective i] : IsThickening i where
-  toIsClosedImmersion := inferInstance
-  toSurjective := inferInstance
-
-/-- Being a thickening is equivalent to being both a closed immersion and surjective on
-associated points. -/
-theorem isThickening_iff {S : Scheme.{u}} {X X' : AlgebraicSpace S} (i : X ⟶ X') :
-    IsThickening i ↔ IsClosedImmersion i ∧ Surjective i := sorry
-
-/-- The identity morphism of an algebraic space is a thickening. -/
-instance IsThickening.id {S : Scheme.{u}} {X : AlgebraicSpace S} :
-    IsThickening (𝟙 X) := inferInstance
+@[stacks 05ZK] #check (isThickening_iff :
+  ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (i : X ⟶ X'),
+    IsThickening i ↔ IsClosedImmersion i ∧ Surjective i)
 
 end AlgebraicGeometry.AlgebraicSpace

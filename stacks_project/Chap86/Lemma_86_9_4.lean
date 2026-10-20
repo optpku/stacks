@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap86.Lemma_86_9_4_Covering
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.RelativeDualizing.EtaleCovering
 import StacksCheckRecall
 
 @[expose] public section
@@ -25,11 +19,11 @@ a `Y`-perfect object of `D(𝒪_X)` and a map `τ : Rf_* ω ⟶ 𝒪_Y`. Assume 
 cartesian diagrams with `Y_i` affine such that `{g_i : Y_i ⟶ Y}` is an étale covering
 and isomorphisms of pairs `(ω|_{X_i}, τ|_{Y_i}) ⟶ (a_i(𝒪_{Y_i}), Tr_{f_i})` as in
 Definition 86.9.1. Then `(ω, τ)` is a relative dualizing complex for `X` over `Y`. -/
-@[stacks 0E60] #check (RelativeDualizingComplex.ofEtaleCovering :
+@[stacks 0E60] #check (AlgebraicGeometry.AlgebraicSpace.RelativeDualizingComplex.ofEtaleCovering :
   ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
     [Proper f] [Flat f] [FinitePresentation f]
     (ω : ModuleDerived X)
-    (τ : (moduleDerivedPushforward f).obj ω ⟶ derivedStructureSheaf Y),
+    (τ : (moduleDerivedPushforward f).obj ω ⟶ structureSheafDerived Y),
     IsPerfectRelativeTo f ω →
     ∀ {ι : Type v} {Yi : ι → AlgebraicSpace S} {Xi : ι → AlgebraicSpace S}
       (g' : ∀ i, Xi i ⟶ X) (fi : ∀ i, Xi i ⟶ Yi i) (g : ∀ i, Yi i ⟶ Y)

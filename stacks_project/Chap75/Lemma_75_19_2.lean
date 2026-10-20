@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap75.Lemma_75_19_2_Coreflection
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.Pushforward.Coreflection
 
 @[expose] public section
 
@@ -26,7 +20,7 @@ modules with quasi-coherent cohomology. -/
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
       [QuasiCompact f] [QuasiSeparated f]
       [(inclusion X).IsLeftAdjoint] [(inclusion Y).IsLeftAdjoint],
-      IsIsomorphic ((inclusion X).rightAdjoint ⋙ pushforward f)
-        (Modules.pushforwardDerived f ⋙ (inclusion Y).rightAdjoint))
+      IsIsomorphic ((inclusion X).rightAdjoint ⋙ pushforwardCohomologyIn f)
+        (Modules.moduleDerivedPushforward f ⋙ (inclusion Y).rightAdjoint))
 
 end AlgebraicGeometry.AlgebraicSpace.DerivedQCoh

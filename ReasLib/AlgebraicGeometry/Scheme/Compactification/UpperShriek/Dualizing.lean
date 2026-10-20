@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Compactification.UpperShriek
@@ -26,6 +20,8 @@ open AlgebraicGeometry.RingedSpace.ModuleDerived.KFlat
 noncomputable section
 
 universe u
+
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
 
 namespace AlgebraicGeometry
 namespace Scheme
@@ -58,6 +54,10 @@ a relative dualizing complex for the morphism. -/
 theorem structureSheaf_isFirstComponent
     {S : Scheme.{u}} [IsNoetherian S]
     {X Y : FiniteTypeSeparatedOver S} (f : X ⟶ Y) [Flat f.hom.left]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.hom.left.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.hom.left.toShHom).restrict U.isOpenEmbedding))]
     (P : Of Y.obj.left (Over.mk f.hom.left))
     (A : DerivedQCoh.PlusRightAdjoint (ambientMorphism P))
     [HomotopyTensorDescends (X.obj.left).toRingedSpace]

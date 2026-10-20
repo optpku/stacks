@@ -1,12 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import Mathlib.AlgebraicGeometry.Noetherian
 public import Mathlib.RingTheory.Finiteness.Defs
+public import Mathlib.Topology.Connected.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.ProEtale.ConstructibleModule
 public import ReasLib.CategoryTheory.Sites.LocallyIsomorphic
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.IdealPower
@@ -107,6 +103,12 @@ theorem IsAdicLisse.spec [IsAdicLisse I F] :
         Module.Finite Λ (M ⧸ (I • (⊤ : Submodule Λ M))) ∧
           Sheaf.IsLocallyIsomorphic F (ConstantSheaf.AdicCompletion.ofModule (topology X) I M) := sorry
 
+/-- On a connected scheme, every lisse constructible sheaf of modules over a Noetherian
+ring is adic lisse. -/
+instance instIsAdicLisse_of_isLisse [ConnectedSpace X] [IsLisse I F] :
+    IsAdicLisse I F :=
+  sorry
+
 /-- The completed constant sheaf of an `I`-adically complete finite-reduction module is adic
 lisse. -/
 instance instIsAdicLisse_constantAdicCompletion (M : ModuleCat.{w} Λ)
@@ -158,6 +160,13 @@ theorem IsAdicConstructible.spec [IsAdicConstructible I F] :
 /-- An adic lisse sheaf is adic constructible. -/
 instance instIsAdicConstructible_of_isAdicLisse [IsAdicLisse I F] :
     IsAdicConstructible I F := sorry
+
+/-- On a Noetherian scheme, every constructible sheaf of modules over a Noetherian ring
+is adic constructible. -/
+instance instIsAdicConstructible_of_isConstructibleLambdaSheaf
+    [IsNoetherian X] [IsConstructibleLambdaSheaf I F] :
+    IsAdicConstructible I F :=
+  sorry
 
 /-- The completed constant sheaf `underline{Λ}^∧` is a constructible `Λ`-sheaf. -/
 instance instIsConstructibleLambdaSheaf_lambdaHat :

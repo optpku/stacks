@@ -1,11 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.HenselianLocalRing.ResidueField
 public import stacks_project.Chap68.Definition_68_11_2_ResidueField
 public import stacks_project.Chap68.Definition_68_11_7_HenselianLocalRing
 
@@ -22,27 +18,18 @@ universe u
 
 open CategoryTheory AlgebraicGeometry AlgebraicSpace
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-variable {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X] {x : Points X}
-
-/-- Lemma 68.11.10: Let `S` be a scheme. Let `X` be a decent algebraic space over `S`.
-Let `x : Points X`. The residue field of the henselian local ring of `X` at `x` is
-the residue field of `X` at `x`. The identification is a `CommRingCat` isomorphism
-after `CommRingCat.universeLift`. -/
-@[stacks 0EN0]
-theorem henselianLocalRing.residueField_nonempty_iso :
+/- Lemma 68.11.10: The residue field of the henselian local ring of a decent
+algebraic space at a point is the residue field of the algebraic space at that point. -/
+@[stacks 0EN0] #check
+  (AlgebraicGeometry.AlgebraicSpace.henselianLocalRing.residueField_nonempty_iso :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X] {x : Points X},
     Nonempty
       ((CommRingCat.universeLift.{u, u + 1}).obj (X.residueField x) ≅
-        CommRingCat.of (IsLocalRing.ResidueField (henselianLocalRing X x))) :=
-  sorry
+        CommRingCat.of (IsLocalRing.ResidueField (henselianLocalRing X x))))
 
-/-- The residue field of a decent algebraic space at a point is ring-equivalent,
-after `ULift`, to the residue field of its henselian local ring. -/
-theorem henselianLocalRing.residueField_nonempty_ringEquiv :
+#check
+  (AlgebraicGeometry.AlgebraicSpace.henselianLocalRing.residueField_nonempty_ringEquiv :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X] {x : Points X},
     Nonempty
       (ULift.{u + 1} (X.residueField x : Type u) ≃+*
-        IsLocalRing.ResidueField (henselianLocalRing X x)) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+        IsLocalRing.ResidueField (henselianLocalRing X x)))

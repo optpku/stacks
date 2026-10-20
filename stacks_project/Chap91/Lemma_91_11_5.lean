@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap91.Lemma_91_11_1_Lift
-public import stacks_project.Chap91.Lemma_91_11_5_Obstruction
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.FirstOrderThickening.Obstruction
+import StacksCheckRecall
 
 /-!
 # Obstruction to lifting a module map on a first-order thickening of ringed topoi
@@ -56,14 +49,12 @@ variable (F' G' : ringedSiteModuleCategory.{u, v, max u v, max u v} J 𝒪')
 variable (φ : (SheafOfModules.ChangeOfRings.extendScalars (ringSheafMap π)).obj F' ⟶
     (SheafOfModules.ChangeOfRings.extendScalars (ringSheafMap π)).obj G')
 
-/-- Lemma 91.11.5: Let i : (Sh(C), 𝒪) ⟶ (Sh(D), 𝒪') be a first-order thickening of ringed
+/- Lemma 91.11.5: Let i : (Sh(C), 𝒪) ⟶ (Sh(D), 𝒪') be a first-order thickening of ringed
 topoi. Let ℱ', 𝒢' be 𝒪'-modules and set ℱ = i^* ℱ' and 𝒢 = i^* 𝒢'. Let φ : ℱ ⟶ 𝒢 be an
 𝒪-linear map. There exists an element o(φ) ∈ Ext⁽1⁾_𝒪(Li^* ℱ', ℐ 𝒢') whose vanishing is a
 necessary and sufficient condition for the existence of a lift of φ to an 𝒪'-linear map
 φ' : ℱ' ⟶ 𝒢'. -/
-@[stacks 08MS]
-theorem liftObstruction_eq_zero_iff :
-    liftObstruction π F' G' φ = 0 ↔ Nonempty (Lift F' G' φ) :=
-  sorry
+@[stacks 08MS] #check (SheafOfModules.RingedSite.FirstOrderThickening.liftObstruction_eq_zero_iff F' G' φ :
+  liftObstruction π F' G' φ = 0 ↔ Nonempty (Lift F' G' φ))
 
 end SheafOfModules.RingedSite.FirstOrderThickening

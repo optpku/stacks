@@ -1,75 +1,35 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap42.Definition_42_59_4
-public import ReasLib.AlgebraicGeometry.BivariantClass.Composition
-public import ReasLib.AlgebraicGeometry.BivariantClass.FlatPullback
-public import stacks_project.Chap42.Lemma_42_55_3_NormalClass
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.RegularImmersion
-
-@[expose] public section
+public import ReasLib.AlgebraicGeometry.BivariantClass.Gysin.Factorization
+import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry
-
-noncomputable section
+open AlgebraicGeometry.Scheme.Hom AlgebraicGeometry.Scheme.Hom.VirtualNormalBundle
+open AlgebraicGeometry.BivariantClass.Gysin
 
 universe u
 
-namespace AlgebraicGeometry.BivariantClass
-
-open Scheme.Hom.VirtualNormalBundle
-
-/-- An arrow of `Over S` agrees with the virtual-normal packaging of its underlying scheme
-morphism. -/
-theorem overHom_eq_over {S : Scheme.{u}} {X Y : Over S} (f : X ⟶ Y) :
-    overHom X.hom Y.hom f.left (Over.w f) = f := sorry
-
-/-- Lemma 42.59.3: in Situation 42.7.1, if `f : X ⟶ Y` is a local complete intersection
-morphism of schemes locally of finite type over `S`, the bivariant class `f^!` is independent
-of the choice of factorization `f = g ∘ i` with `g` smooth, provided one exists. Here `f^!`
-means `bivariantGysinClassOfFactorization` of the rank-`r` closed Gysin class of `i` and
-`flatPullback` of the smooth factor. -/
-@[stacks 0FF2]
-theorem gysin_eq_of_factorization
-    {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
+/- Lemma 42.59.3: the Gysin class of a local complete intersection morphism is independent
+of its immersion–smooth factorization, including varying normal ranks and smooth dimensions. -/
+@[stacks 0FF2] #check (AlgebraicGeometry.BivariantClass.gysin_eq_of_factorization :
+  ∀ {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
     {X Y : Over S} [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
     (f : X ⟶ Y) [LocallyOfType RingHom.IsLocalCompleteIntersection f.left]
     {P : Over S} [LocallyOfFiniteType P.hom]
-    (i : X ⟶ P) (g : P ⟶ Y) (hi : IsImmersion i.left)
-    [IsClosedImmersion i.left] [IsRegularImmersion i.left]
-    [hg : Smooth g.left] (hfac : i ≫ g = f)
-    (t : ℕ) [Scheme.Hom.RelativeDimension g.left t]
-    (r : ℕ) [Scheme.Modules.IsFiniteLocallyFreeOfRank r (Scheme.Hom.conormalSheaf i.left)]
-    (e : Scheme.Modules.dual (Scheme.Hom.normalSheaf i.left) ≅
-      Scheme.Hom.conormalSheaf i.left)
-    (D : ClosedSpecialization δ X.hom P.hom i.left (Over.w i)
-      (ofNormalSheaf i.left r e))
+    (i : X ⟶ P) (g : P ⟶ Y) [IsRegularImmersion i.left] [Smooth g.left]
+    (hfac : i ≫ g = f)
+    (e : Scheme.Modules.dual (normalSheaf i.left) ≅ conormalSheaf i.left)
+    (D : ClosedDeformation X.hom (i.left.coborderRange.ι ≫ P.hom)
+      i.left.liftCoborder
+      (by rw [← Category.assoc, i.left.liftCoborder_ι]; exact Over.w i)
+      (normalBundle i.left e).toCoborder)
     {P' : Over S} [LocallyOfFiniteType P'.hom]
-    (i' : X ⟶ P') (g' : P' ⟶ Y) (hi' : IsImmersion i'.left)
-    [IsClosedImmersion i'.left] [IsRegularImmersion i'.left]
-    [hg' : Smooth g'.left] (hfac' : i' ≫ g' = f)
-    (t' : ℕ) [Scheme.Hom.RelativeDimension g'.left t']
-    (r' : ℕ) [Scheme.Modules.IsFiniteLocallyFreeOfRank r' (Scheme.Hom.conormalSheaf i'.left)]
-    (e' : Scheme.Modules.dual (Scheme.Hom.normalSheaf i'.left) ≅
-      Scheme.Hom.conormalSheaf i'.left)
-    (D' : ClosedSpecialization δ X.hom P'.hom i'.left (Over.w i')
-      (ofNormalSheaf i'.left r' e'))
-    (hdeg : (r : ℤ) + (-(t : ℤ)) = (r' : ℤ) + (-(t' : ℤ))) :
-    Nonnegative.castGrading δ hdeg
-      (bivariantGysinClassOfFactorization δ X Y f P i g hi hg hfac
-        (overHom_eq_over i ▸
-          globalClassOfRank δ X.hom P.hom i.left (Over.w i)
-            (ofNormalSheaf i.left r e) D r)
-        (flatPullback δ g t)) =
-      bivariantGysinClassOfFactorization δ X Y f P' i' g' hi' hg' hfac'
-        (overHom_eq_over i' ▸
-          globalClassOfRank δ X.hom P'.hom i'.left (Over.w i')
-            (ofNormalSheaf i'.left r' e') D' r')
-        (flatPullback δ g' t') := sorry
-
-end AlgebraicGeometry.BivariantClass
+    (i' : X ⟶ P') (g' : P' ⟶ Y) [IsRegularImmersion i'.left] [Smooth g'.left]
+    (hfac' : i' ≫ g' = f)
+    (e' : Scheme.Modules.dual (normalSheaf i'.left) ≅ conormalSheaf i'.left)
+    (D' : ClosedDeformation X.hom (i'.left.coborderRange.ι ≫ P'.hom)
+      i'.left.liftCoborder
+      (by rw [← Category.assoc, i'.left.liftCoborder_ι]; exact Over.w i')
+      (normalBundle i'.left e').toCoborder),
+    (fun p : ℤ ↦ factorizationClassDegree δ f i g hfac e D p) =
+      (fun p : ℤ ↦ factorizationClassDegree δ f i' g' hfac' e' D' p))

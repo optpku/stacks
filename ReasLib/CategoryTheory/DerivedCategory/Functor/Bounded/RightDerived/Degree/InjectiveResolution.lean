@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.CochainComplex.Bounded.SingleFunctor
@@ -82,17 +76,31 @@ noncomputable def resolutionValueIso (X : A) :
     F.toBoundedBelowDerived.obj
         ((HomotopyCategory.Plus.quotient A).obj (resolutionPlus X).obj) ≅
       (Functor.RightDerived.Bounded.functor F).obj
-        ((DerivedCategory.Plus.singleFunctor A 0).obj X) :=
-  Functor.RightDerived.ComputesAt.replacementIso
-      F.toBoundedBelowDerived (HomotopyCategory.Plus.quasiIso A)
-      (DerivedCategory.Plus.Qh : HomotopyCategory.Plus A ⥤ DerivedCategory.Plus A)
-      (resolutionHomotopy X) (resolutionHomotopy_mem X)
+        ((DerivedCategory.Plus.singleFunctor A 0).obj X) := by
+  let Q : HomotopyCategory.Plus A ⥤ DerivedCategory.Plus A :=
+    (DerivedCategory.Plus.Qh : HomotopyCategory.Plus A ⥤ DerivedCategory.Plus A)
+  let S := HomotopyCategory.Plus.quasiIso A
+  let R := F.toBoundedBelowDerived.totalRightDerived Q S
+  let Y := (HomotopyCategory.Plus.quotient A).obj (resolutionPlus X).obj
+  let U := (F.toBoundedBelowDerived.totalRightDerivedUnit Q S).app Y
+  let hU : IsIso U :=
+    Functor.RightDerived.ComputesAt.isIso_app
+      F.toBoundedBelowDerived S Q R
+      (F.toBoundedBelowDerived.totalRightDerivedUnit Q S)
+      Y
       (Functor.KInjective.Bounded.computesAtOfInjectivePlus
-        F.toBoundedBelowDerived (resolutionPlus X)) ≪≫
-    (F.toBoundedBelowDerived.totalRightDerived
-      (DerivedCategory.Plus.Qh : HomotopyCategory.Plus A ⥤ DerivedCategory.Plus A)
-      (HomotopyCategory.Plus.quasiIso A)).mapIso
-      ((DerivedCategory.Plus.singleFunctor.fromHomotopy.iso A 0).app X)
+        F.toBoundedBelowDerived (resolutionPlus X))
+      inferInstance
+  let uIso : F.toBoundedBelowDerived.obj Y ≅ R.obj (Q.obj Y) :=
+    { hom := U
+      inv := @CategoryTheory.inv _ _ _ _ U hU
+      hom_inv_id := @IsIso.hom_inv_id _ _ _ _ U hU
+      inv_hom_id := @IsIso.inv_hom_id _ _ _ _ U hU }
+  exact uIso ≪≫
+    R.mapIso
+      (CategoryTheory.Localization.isoOfHom Q S (resolutionHomotopy X)
+        (resolutionHomotopy_mem X)).symm ≪≫
+    R.mapIso ((DerivedCategory.Plus.singleFunctor.fromHomotopy.iso A 0).app X)
 
 /-- The component comparison from a bounded-below degree to the ordinary
 injective-resolution right-derived degree. -/
@@ -116,7 +124,7 @@ theorem degreeIsoRightDerived_hom_naturality {X Y : A} (f : X ⟶ Y) (n : ℕ) :
         (degreeIsoRightDerived F n Y).hom =
       (degreeIsoRightDerived F n X).hom ≫ (F.rightDerived n).map f := sorry
 
-/-- Stacks 015A: the bounded-below degree functor is canonically isomorphic to the ordinary
+/-- The bounded-below degree functor is canonically isomorphic to the ordinary
 injective-resolution right-derived functor in every nonnegative degree. -/
 @[stacks 015A "bounded and ordinary right-derived degree isomorphism"]
 noncomputable def degreeFunctorIsoRightDerived (n : ℕ) :

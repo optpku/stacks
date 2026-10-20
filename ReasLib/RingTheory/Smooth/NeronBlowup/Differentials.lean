@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.ShortComplex.ModuleCat
 public import Mathlib.RingTheory.Kaehler.Basic
 public import ReasLib.RingTheory.DiscreteValuationRing.Extension.Residue
+public import ReasLib.FieldTheory.Separable.Generated
 public import ReasLib.RingTheory.Smooth.AtPrime
 public import ReasLib.RingTheory.Smooth.NeronBlowup.Core
 
@@ -179,7 +174,7 @@ closed center. -/
 @[stacks 0BJ4]
 theorem NeronBlowup.smoothAtClosedCenter
     (S : Algebra.DVR.Factorization R L) (π : R) (hπ : Irreducible π)
-    [Algebra.IsSeparable (ResidueField R) (ResidueField L)]
+    [Algebra.IsSeparableOver (ResidueField R) (ResidueField L)]
     (hsmooth : Algebra.SmoothAtPrime R S.mid S.closedPoint) :
     Algebra.SmoothAtPrime R (S.neronBlowupStage π hπ).mid
       (S.neronBlowupStage π hπ).closedPoint := sorry
@@ -190,7 +185,7 @@ sequence whose cokernel rank is the dimension of the old local special fiber. -/
 @[stacks 0BJ4 "existence of the Kaehler sequence"]
 theorem NeronBlowup.Differential.Sequence.nonempty
     (S : Algebra.DVR.Factorization R L) (π : R) (hπ : Irreducible π)
-    [Algebra.IsSeparable (ResidueField R) (ResidueField L)]
+    [Algebra.IsSeparableOver (ResidueField R) (ResidueField L)]
     (hsmooth : Algebra.SmoothAtPrime R S.mid S.closedPoint) :
     Nonempty (NeronBlowup.Differential.Sequence S π hπ) := sorry
 

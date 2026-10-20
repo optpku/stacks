@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.Extension.Cotangent.Basic
@@ -70,6 +64,15 @@ theorem extOneOf_self (A B N : Type u) [CommRing A] [CommRing B] [Algebra A B]
     [AddCommGroup N] [Module B N] :
     extOneOf (Generators.self A B) N = extOneNaiveCotangent A B N := sorry
 
+/-- Pullback along the canonical presentation comparison preserves coboundaries. -/
+private theorem compareToSelf_preserves_range {ι : Type u} (G : Algebra.Generators A B ι)
+    (N : Type u) [AddCommGroup N] [Module B N] :
+    LinearMap.range (LinearMap.lcomp B N G.toExtension.cotangentComplex) ≤
+      (LinearMap.range (LinearMap.lcomp B N
+        (Generators.self A B).toExtension.cotangentComplex)).comap
+        (LinearMap.lcomp B N
+          (Cotangent.map (Algebra.Extension.defaultHom A B G.toExtension))) := sorry
+
 /-- Comparison from a presentation-level Ext model to the self-presentation model. -/
 def compareToSelf {ι : Type u} (G : Algebra.Generators A B ι) (N : Type u)
     [AddCommGroup N] [Module B N] :
@@ -80,7 +83,7 @@ def compareToSelf {ι : Type u} (G : Algebra.Generators A B ι) (N : Type u)
         (Generators.self A B).toExtension.cotangentComplex))
       (LinearMap.lcomp B N
         (Cotangent.map (Algebra.Extension.defaultHom A B G.toExtension)))
-      sorry).toAddMonoidHom
+      (by exact compareToSelf_preserves_range G N)).toAddMonoidHom
 
 /-- The comparison map on quotient representatives. -/
 theorem compareToSelf_mk {ι : Type u} (G : Algebra.Generators A B ι) (N : Type u)
@@ -99,3 +102,18 @@ theorem extOneOf_eq_zero_iff {ι : Type u} (G : Algebra.Generators A B ι)
         f = g ∘ₗ G.toExtension.cotangentComplex := sorry
 
 end RingHom.SquareZeroExtension
+
+namespace Algebra
+
+/-- First-order algebra extension classes, modeled by the first cotangent cokernel. -/
+abbrev Exal (A B N : Type u) [CommRing A] [CommRing B] [Algebra A B]
+    [AddCommGroup N] [Module B N] : Type u :=
+  RingHom.SquareZeroExtension.extOneNaiveCotangent A B N
+
+/-- The extension class represented by a linear map from the conormal module. -/
+abbrev Exal.mk (A B N : Type u) [CommRing A] [CommRing B] [Algebra A B]
+    [AddCommGroup N] [Module B N]
+    (f : (Generators.self A B).toExtension.Cotangent →ₗ[B] N) : Exal A B N :=
+  RingHom.SquareZeroExtension.extOneNaiveCotangent_mk A B N f
+
+end Algebra

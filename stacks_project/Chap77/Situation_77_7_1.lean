@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap77.«77_7_1_1_BaseChange»
-public import stacks_project.Chap77.«77_7_1_1_IsomorphismFunctor»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.BaseChange.IsomorphismFunctor
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,11 +13,16 @@ variable {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B)
 variable {ℱ 𝒢 : X.Modules} [ℱ.IsQuasicoherent] [𝒢.IsQuasicoherent]
 variable (u : ℱ ⟶ 𝒢) (T : SchemeOver B)
 
+-- Source context: injectivity is not preserved by arbitrary base change. Following the scheme
+-- analogue, only F_iso is constructed; the other variants are recorded as Mono, Epi, and
+-- vanishing conditions on the base-changed map.
+
 /- Situation 77.7.1: the base changes on which `u` is an isomorphism define a
-subterminal contravariant functor on schemes over `B`, with injective, surjective,
-and zero variants. -/
+subterminal contravariant functor on schemes over `B`. Injectivity, surjectivity,
+and vanishing are recorded as conditions on the base-changed map. -/
 @[stacks 083F] #check
-  (Modules.isomorphismFunctor f u : (SchemeOver B)ᵒᵖ ⥤ Type u)
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isomorphismFunctor f u :
+    (SchemeOver B)ᵒᵖ ⥤ Type u)
 
 #check
   (Modules.baseChangeSpace f T.hom : AlgebraicSpace S)

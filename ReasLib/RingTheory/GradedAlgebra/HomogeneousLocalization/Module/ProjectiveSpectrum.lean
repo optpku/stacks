@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Module.LocalizedModule.Submodule
@@ -94,7 +88,12 @@ submonoid. -/
 noncomputable def awayToAtPrimeAmbient {d : ℕ} (f : 𝒜 d)
     (x : AlgebraicGeometry.Proj.basicOpen 𝒜 (f : S)) :
     LocalizedModule.Away (f : S) M →ₗ[Away 𝒜 (f : S)]
-      LocalizedModule x.1.asHomogeneousIdeal.toIdeal.primeCompl M := sorry
+      LocalizedModule x.1.asHomogeneousIdeal.toIdeal.primeCompl M :=
+  { toFun := LocalizedModule.liftOfLE (Submonoid.powers (f : S))
+      x.1.asHomogeneousIdeal.toIdeal.primeCompl (Submonoid.powers_le.mpr x.2)
+    map_add' := (LocalizedModule.liftOfLE (Submonoid.powers (f : S))
+      x.1.asHomogeneousIdeal.toIdeal.primeCompl (Submonoid.powers_le.mpr x.2)).map_add
+    map_smul' := liftOfLE_map_smul 𝒜 f x }
 
 /-- The ambient comparison preserves the degree-zero parts. -/
 theorem awayToAtPrimeAmbient_mem_degreeZeroPart {d : ℕ} (f : 𝒜 d)
@@ -111,7 +110,9 @@ noncomputable def awayToAtPrime {d : ℕ} (f : 𝒜 d)
     (x : AlgebraicGeometry.Proj.basicOpen 𝒜 (f : S)) :
     Away.Module.degreeZeroPart 𝒜 ℳ f →ₗ[Away 𝒜 (f : S)]
       (degreeZeroPart 𝒜 ℳ x.1.asHomogeneousIdeal.toIdeal.primeCompl).restrictScalars
-        (Away 𝒜 (f : S)) := sorry
+        (Away 𝒜 (f : S)) :=
+  (awayToAtPrimeAmbient 𝒜 f x).restrict
+    (fun _ hz => awayToAtPrimeAmbient_mem_degreeZeroPart 𝒜 ℳ f x hz)
 
 /-- On ordinary localized modules, `awayToAtPrime` is denominator
 enlargement. -/

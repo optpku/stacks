@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Topology.LocallyFinsupp
 public import stacks_project.Chap66.Lemma_66_12_3
-public import stacks_project.Chap82.Definition_82_3_1_CycleGroup
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CycleGroup.Basic
 
 /-!
 # Closed-immersion pushforward of cycles on algebraic spaces
@@ -37,7 +31,7 @@ instance ClosedSubspace.instIsClosedImmersion {S : Scheme.{u}} {X : AlgebraicSpa
 namespace Hom
 
 variable {S : Scheme.{u}} {B X : AlgebraicSpace S}
-variable (f : X ⟶ B) (δ : Points B → ℤ)
+variable (f : X ⟶ B) [LocallyOfFiniteType f] (δ : Points B → ℤ)
 
 /-- Weight-1 closed-immersion pushforward of a cycle has locally finite support. -/
 theorem closedImmersionPushforwardCycle_locallyFiniteSupport

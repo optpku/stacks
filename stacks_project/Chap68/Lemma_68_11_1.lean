@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_4_12_UniqueIso
-public import stacks_project.Chap68.Lemma_68_4_3_Fibre
-public import stacks_project.Chap68.Lemma_68_12_8_Decent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Monomorphism
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Decent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.RelationFiniteFibre
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,23 +14,21 @@ open AlgebraicGeometry.AlgebraicSpace
 
 /- Lemma 68.11.1 (1): let `S` be a scheme. Let `X` be an algebraic space over `S`.
 The assignment sending a monomorphism `Spec(k) ⟶ X`, with `k` a field, to its
-class in `|X|` is always injective. -/
+class in `|X|` is always injective on isomorphism classes: monomorphic
+representatives of the same point are uniquely isomorphic. -/
 @[stacks 03K4] #check
-  (FieldValuedPoint.iso_unique_of_mono :
+  (AlgebraicGeometry.AlgebraicSpace.FieldValuedPoint.unique_iso_of_mono :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {p q : FieldValuedPoint X}
       [Mono p.hom] [Mono q.hom],
       Points.mk p = Points.mk q →
-        Nonempty (p.Factorization q) ∧ Subsingleton (p.Factorization q))
+        Nonempty (p ≅ q) ∧ Subsingleton (p ≅ q))
 
-namespace AlgebraicGeometry.AlgebraicSpace.existsMonoFieldValuedPoint
-
-/-- Lemma 68.11.1 (2): let `S` be a scheme. Let `X` be a decent algebraic space
+/- Lemma 68.11.1 (2): let `S` be a scheme. Let `X` be a decent algebraic space
 over `S`. Every point of `|X|` arises from a monomorphism `Spec(k) ⟶ X` with
-`k` a field. Combined with unique factorization of such monomorphisms, this
-assignment is bijective. -/
-@[stacks 03K4]
-theorem of_isDecent {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
-    (x : Points X) : existsMonoFieldValuedPoint X x :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.existsMonoFieldValuedPoint
+`k` a field. The canonical result additionally supplies quasi-compactness,
+hence proves the required surjectivity. Together with unique isomorphism of
+monomorphic representatives, this gives bijectivity on isomorphism classes. -/
+@[stacks 03K4] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsDecent.exists_quasiCompact_mono :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X] (x : Points X),
+      ∃ p : FieldValuedPoint X, QuasiCompact p.hom ∧ Mono p.hom ∧ Points.mk p = x)

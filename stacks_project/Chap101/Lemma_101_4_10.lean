@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_4_1_Separation
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Separation.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of separation axioms for morphisms of algebraic stacks
@@ -24,64 +19,35 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-namespace DM
-
-/-- Lemma 101.4.10 (1): The composition of a pair of DM morphisms of algebraic
-stacks is DM.
-
-Stacks writes the composition as `g ∘ f`; the Lean composite is `f ≫ g`. -/
-@[stacks 050K]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+/- Lemma 101.4.10 (1): The composition of DM morphisms of algebraic stacks is DM. -/
+@[stacks 050K] #check (AlgebraicGeometry.AlgebraicStack.DM.comp :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [DM f] [DM g] :
-    DM (f ≫ g) :=
-  sorry
+    (f : X ⟶ Y) (g : Y ⟶ Z) [DM f] [DM g],
+    DM (f ≫ g))
 
-end DM
-
-namespace QuasiDM
-
-/-- Lemma 101.4.10 (2): The composition of a pair of quasi-DM morphisms of
-algebraic stacks is quasi-DM.
-
-Stacks writes the composition as `g ∘ f`; the Lean composite is `f ≫ g`. -/
-@[stacks 050K]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+/- Lemma 101.4.10 (2): The composition of quasi-DM morphisms of algebraic stacks
+is quasi-DM. -/
+@[stacks 050K] #check (AlgebraicGeometry.AlgebraicStack.QuasiDM.comp :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [QuasiDM f] [QuasiDM g] :
-    QuasiDM (f ≫ g) :=
-  sorry
+    (f : X ⟶ Y) (g : Y ⟶ Z) [QuasiDM f] [QuasiDM g],
+    QuasiDM (f ≫ g))
 
-end QuasiDM
-
-namespace Separated
-
-/-- Lemma 101.4.10 (3): The composition of a pair of separated morphisms of
-algebraic stacks is separated.
-
-Stacks writes the composition as `g ∘ f`; the Lean composite is `f ≫ g`. -/
-@[stacks 050K]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+/- Lemma 101.4.10 (3): The composition of separated morphisms of algebraic stacks
+is separated. -/
+@[stacks 050K] #check (AlgebraicGeometry.AlgebraicStack.Separated.comp :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [Separated f] [Separated g] :
-    Separated (f ≫ g) :=
-  sorry
+    (f : X ⟶ Y) (g : Y ⟶ Z) [Separated f] [Separated g],
+    Separated (f ≫ g))
 
-end Separated
-
-namespace QuasiSeparated
-
-/-- Lemma 101.4.10 (4): The composition of a pair of quasi-separated morphisms
-of algebraic stacks is quasi-separated.
-
-Stacks writes the composition as `g ∘ f`; the Lean composite is `f ≫ g`. -/
-@[stacks 050K]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+/- Lemma 101.4.10 (4): The composition of quasi-separated morphisms of algebraic
+stacks is quasi-separated. -/
+@[stacks 050K] #check (AlgebraicGeometry.AlgebraicStack.QuasiSeparated.comp :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [QuasiSeparated f] [QuasiSeparated g] :
-    QuasiSeparated (f ≫ g) :=
-  sorry
-
-end QuasiSeparated
+    (f : X ⟶ Y) (g : Y ⟶ Z) [QuasiSeparated f] [QuasiSeparated g],
+    QuasiSeparated (f ≫ g))
 
 end AlgebraicGeometry.AlgebraicStack

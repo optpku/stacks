@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.Bilimit.Lift
-public import ReasLib.CategoryTheory.Fibered.RelativelyRepresentable.Comparison.Iso
+public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.Hom.Construction
+public import ReasLib.CategoryTheory.Fibered.RelativelyRepresentable.Comparison.Map
+public import ReasLib.CategoryTheory.Fibered.RelativelyRepresentable.Comparison.Target
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Diagonal
 
 /-!
@@ -66,7 +61,7 @@ private noncomputable def comparisonTargetIsoApp
     (comparisonTargetIsoApp_w X x)
 
 /-- The explicit diagonal-target comparisons are natural in total-category morphisms. -/
-private theorem comparisonTargetIsoApp_naturality
+theorem comparisonTargetIsoApp_naturality
     (X : FiberedCategoryOver.Groupoids C)
     {x y : X.total} (f : x ⟶ y) :
     (PseudoPullbackComparison.target
@@ -77,7 +72,8 @@ private theorem comparisonTargetIsoApp_naturality
 
 end Implementation
 
-/-- The categorical-pullback target of the generic diagonal cone is explicitly naturally
+set_option backward.privateInPublic true in
+/- The categorical-pullback target of the generic diagonal cone is explicitly naturally
 isomorphic to the ordinary categorical diagonal. -/
 @[stacks 0H2E "categorical target of the diagonal comparison"]
 noncomputable def comparisonTargetIso
@@ -113,61 +109,82 @@ theorem comparisonTargetIso.inv.app.snd
     (X : FiberedCategoryOver.Groupoids C) (x : X.total) :
     ((comparisonTargetIso X).inv.app x).snd = 𝟙 x := sorry
 
-/-- The canonical morphism from the diagonal pseudo-pullback cone to the chosen
-two-fibre-product cone. Naming this concrete datum keeps downstream comparisons independent of
-the implementation of `PseudoPullbackCone.homMk`. -/
+/-- The morphism from the diagonal cone to the two-fibre-product cone whose apex map is the
+canonical diagonal itself. Its comparison uses the same identity components as that diagonal. -/
 @[stacks 0H2E "canonical diagonal cone comparison"]
 noncomputable def coneComparison
     (X : FiberedCategoryOver.Groupoids C) :
     PseudoPullbackCone.diagonal X.baseProjection ⟶
       CategoryTheory.TwoFibreProduct.cone X.baseProjection X.baseProjection :=
-  PseudoPullbackCone.lift.hom
-    (PseudoPullbackCone.diagonal X.baseProjection)
-    (CategoryTheory.TwoFibreProduct.cone X.baseProjection X.baseProjection)
+  PseudoPullbackCone.homMk
+    (FiberedCategoryOver.Groupoids.diagonal X)
+    (Hom.diagonal.comparisonIso X.baseProjection).hom
 
-/-- Under the explicit Remark-4.35.8 equivalence, the canonical relative diagonal is the ordinary
-categorical-pullback diagonal. The construction uses its universal comparison isomorphism, not
-definitional equality with a concrete pullback implementation. -/
+namespace Implementation
+
+/-- The actual diagonal has the identity comparison on its two equal entries. -/
+private theorem toCategoricalPullbackIsoApp_w
+    (X : FiberedCategoryOver.Groupoids C) (x : X.total) :
+    X.p.map (𝟙 x) ≫ ((Δₚ X.p).obj x).iso.hom =
+      ((PseudoPullbackComparison.map (FiberedCategoryOver.Groupoids.diagonal X)).obj x).iso.hom ≫
+        X.p.map (𝟙 x) := sorry
+
+/-- Both legs of the diagonal comparison are actual identity isomorphisms. -/
+private noncomputable def toCategoricalPullbackIsoApp
+    (X : FiberedCategoryOver.Groupoids C) (x : X.total) :
+    (PseudoPullbackComparison.map (FiberedCategoryOver.Groupoids.diagonal X)).obj x ≅
+      (Δₚ X.p).obj x :=
+  CategoricalPullback.mkIso
+    (Iso.refl x) (Iso.refl x)
+    (toCategoricalPullbackIsoApp_w X x)
+
+/-- The identity-pair comparison is natural in the original total-category arrows. -/
+theorem toCategoricalPullbackIsoApp_naturality
+    (X : FiberedCategoryOver.Groupoids C)
+    {x y : X.total} (f : x ⟶ y) :
+    (PseudoPullbackComparison.map (FiberedCategoryOver.Groupoids.diagonal X)).map f ≫
+        (toCategoricalPullbackIsoApp X y).hom =
+      (toCategoricalPullbackIsoApp X x).hom ≫ (Δₚ X.p).map f := sorry
+
+end Implementation
+
+set_option backward.privateInPublic true in
+/- Under the explicit Remark-4.35.8 equivalence, the canonical relative diagonal is the ordinary
+categorical-pullback diagonal. The comparison and its inverse use identity components on both
+entries of the actual diagonal object. -/
 @[stacks 0H2E "canonical relative diagonal as a categorical diagonal"]
 noncomputable def toCategoricalPullbackIso
     (X : FiberedCategoryOver.Groupoids C) :
     PseudoPullbackComparison.map
         (FiberedCategoryOver.Groupoids.diagonal X) ≅
       Δₚ X.p :=
-  PseudoPullbackComparison.iso (coneComparison X) ≪≫
-    comparisonTargetIso X
+  NatIso.ofComponents
+    (Implementation.toCategoricalPullbackIsoApp X)
+    (fun f ↦ Implementation.toCategoricalPullbackIsoApp_naturality X f)
 
-/-- The first forward component of the canonical relative-diagonal comparison is the first
-component of the universal pseudo-pullback leg comparison. -/
+/-- The first forward component of the relative-diagonal comparison is the identity. -/
 @[simp]
 theorem toCategoricalPullbackIso.hom.app.fst
     (X : FiberedCategoryOver.Groupoids C) (x : X.total) :
-    ((toCategoricalPullbackIso X).hom.app x).fst =
-      (PseudoPullbackComparison.fstIso (coneComparison X)).hom.app x := sorry
+    ((toCategoricalPullbackIso X).hom.app x).fst = 𝟙 x := sorry
 
-/-- The second forward component of the canonical relative-diagonal comparison is the second
-component of the universal pseudo-pullback leg comparison. -/
+/-- The second forward component of the relative-diagonal comparison is the identity. -/
 @[simp]
 theorem toCategoricalPullbackIso.hom.app.snd
     (X : FiberedCategoryOver.Groupoids C) (x : X.total) :
-    ((toCategoricalPullbackIso X).hom.app x).snd =
-      (PseudoPullbackComparison.sndIso (coneComparison X)).hom.app x := sorry
+    ((toCategoricalPullbackIso X).hom.app x).snd = 𝟙 x := sorry
 
-/-- The first inverse component of the canonical relative-diagonal comparison is the first
-component of the inverse universal pseudo-pullback leg comparison. -/
+/-- The first inverse component of the relative-diagonal comparison is the identity. -/
 @[simp]
 theorem toCategoricalPullbackIso.inv.app.fst
     (X : FiberedCategoryOver.Groupoids C) (x : X.total) :
-    ((toCategoricalPullbackIso X).inv.app x).fst =
-      (PseudoPullbackComparison.fstIso (coneComparison X)).inv.app x := sorry
+    ((toCategoricalPullbackIso X).inv.app x).fst = 𝟙 x := sorry
 
-/-- The second inverse component of the canonical relative-diagonal comparison is the second
-component of the inverse universal pseudo-pullback leg comparison. -/
+/-- The second inverse component of the relative-diagonal comparison is the identity. -/
 @[simp]
 theorem toCategoricalPullbackIso.inv.app.snd
     (X : FiberedCategoryOver.Groupoids C) (x : X.total) :
-    ((toCategoricalPullbackIso X).inv.app x).snd =
-      (PseudoPullbackComparison.sndIso (coneComparison X)).inv.app x := sorry
+    ((toCategoricalPullbackIso X).inv.app x).snd = 𝟙 x := sorry
 end FiberedCategoryOver.Groupoids.Diagonal
 
 end CategoryTheory

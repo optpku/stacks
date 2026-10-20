@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -14,7 +8,7 @@ universe u
 /- Exercise 111.6.13: in a T0 space `X`, every irreducible closed subset has at most one
 generic point. -/
 @[stacks 02D6]
-#check (TopologicalSpace.IsIrreducible.subsingleton_isGenericPoint :
+#check (IsIrreducible.subsingleton_isGenericPoint :
   ∀ {X : Type u} [TopologicalSpace X] [T0Space X] {Z : Set X},
     IsIrreducible Z → IsClosed Z → Set.Subsingleton {x : X | IsGenericPoint x Z})
 

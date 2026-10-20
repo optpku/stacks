@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap110.Proposition_110_77_1_Torsion
+public import ReasLib.Algebra.Category.ModuleCat.Localization.Torsion
 
 /-!
 # Torsion modules as a Serre class
@@ -27,24 +21,16 @@ namespace ModuleCat
 
 variable {R : Type u} [CommRing R] [Small.{v} R]
 
-/-- The object property of torsion modules: the kernel of localization at the non-zero-divisors. -/
-abbrev isTorsion : ObjectProperty (ModuleCat.{v} R) :=
-  isTorsion' (nonZeroDivisors R)
+#check (ModuleCat.isTorsion : ObjectProperty (ModuleCat.{v} R))
 
-/-- A bundled module is torsion iff it is torsion in the module-theoretic sense. -/
-theorem isTorsion_iff (M : ModuleCat.{v} R) :
-    isTorsion M ↔ Module.IsTorsion R M :=
-  sorry
+#check (ModuleCat.isTorsion'_iff (nonZeroDivisors R) :
+  ∀ M : ModuleCat.{v} R, ModuleCat.isTorsion M ↔ Module.IsTorsion R M)
 
-/-- A bundled module is torsion iff every element is annihilated by some non-zero-divisor. -/
-theorem isTorsion_iff_exists_smul_eq_zero (M : ModuleCat.{v} R) :
-    isTorsion M ↔ ∀ m : M, ∃ a : nonZeroDivisors R, (a : R) • m = 0 :=
-  sorry
+#check (ModuleCat.isTorsion'_iff_exists_smul_eq_zero (nonZeroDivisors R) :
+  ∀ M : ModuleCat.{v} R,
+    ModuleCat.isTorsion M ↔ ∀ m : M, ∃ a : nonZeroDivisors R, (a : R) • m = 0)
 
-/-- The torsion modules form a Serre class, as the kernel of exact localization at the
-non-zero-divisors. -/
-instance instIsSerreClassIsTorsion :
-    (isTorsion : ObjectProperty (ModuleCat.{v} R)).IsSerreClass :=
-  inferInstance
+#check (ModuleCat.instIsSerreClassIsTorsion' (nonZeroDivisors R) :
+  (ModuleCat.isTorsion : ObjectProperty (ModuleCat.{v} R)).IsSerreClass)
 
 end ModuleCat

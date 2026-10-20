@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
-public import stacks_project.Chap100.Definition_100_9_1_Immersion
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Immersion.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of immersions of algebraic stacks
@@ -25,54 +19,39 @@ universe u
 
 namespace AlgebraicGeometry.Groupoids.Hom
 
-namespace Immersion
-
-/-- Lemma 100.9.3 (1): compositions of immersions of algebraic stacks are
+/- Lemma 100.9.3 (1): compositions of immersions of algebraic stacks are
 immersions. -/
-@[stacks 0502]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S} (f : X ⟶ Y)
-    (g : Y ⟶ Z) [Immersion f] [Immersion g] : Immersion (f ≫ g) := sorry
+@[stacks 0502] #check (AlgebraicGeometry.Groupoids.Hom.Immersion.comp :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S} (f : X ⟶ Y)
+    (g : Y ⟶ Z) [Immersion f] [Immersion g], Immersion (f ≫ g))
 
-end Immersion
-
-namespace ClosedImmersion
-
-/-- Lemma 100.9.3 (2): compositions of closed immersions of algebraic stacks are
+/- Lemma 100.9.3 (2): compositions of closed immersions of algebraic stacks are
 closed immersions. -/
-@[stacks 0502]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S} (f : X ⟶ Y)
-    (g : Y ⟶ Z) [ClosedImmersion f] [ClosedImmersion g] :
-    ClosedImmersion (f ≫ g) := sorry
+@[stacks 0502] #check (AlgebraicGeometry.Groupoids.Hom.ClosedImmersion.comp :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S} (f : X ⟶ Y)
+    (g : Y ⟶ Z) [ClosedImmersion f] [ClosedImmersion g],
+    ClosedImmersion (f ≫ g))
 
-end ClosedImmersion
-
-namespace OpenImmersion
-
-/-- Lemma 100.9.3 (3): compositions of open immersions of algebraic stacks are
+/- Lemma 100.9.3 (3): compositions of open immersions of algebraic stacks are
 open immersions. -/
-@[stacks 0502]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S} (f : X ⟶ Y)
-    (g : Y ⟶ Z) [OpenImmersion f] [OpenImmersion g] :
-    OpenImmersion (f ≫ g) := sorry
+@[stacks 0502] #check (AlgebraicGeometry.Groupoids.Hom.OpenImmersion.comp :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S} (f : X ⟶ Y)
+    (g : Y ⟶ Z) [OpenImmersion f] [OpenImmersion g],
+    OpenImmersion (f ≫ g))
 
-end OpenImmersion
-
-/-- Immersions of groupoid fibrations over `S` are stable under composition as a
-morphism property. -/
-instance isImmersion_isStableUnderComposition {S : Scheme.{u}} :
+#check (AlgebraicGeometry.Groupoids.Hom.isImmersion_isStableUnderComposition :
+  ∀ {S : Scheme.{u}},
     MorphismProperty.IsStableUnderComposition
-      (@Immersion S : MorphismProperty (GroupoidsOver S)) := sorry
+      (@Immersion S : MorphismProperty (GroupoidsOver S)))
 
-/-- Closed immersions of groupoid fibrations over `S` are stable under
-composition as a morphism property. -/
-instance isClosedImmersion_isStableUnderComposition {S : Scheme.{u}} :
+#check (AlgebraicGeometry.Groupoids.Hom.isClosedImmersion_isStableUnderComposition :
+  ∀ {S : Scheme.{u}},
     MorphismProperty.IsStableUnderComposition
-      (@ClosedImmersion S : MorphismProperty (GroupoidsOver S)) := sorry
+      (@ClosedImmersion S : MorphismProperty (GroupoidsOver S)))
 
-/-- Open immersions of groupoid fibrations over `S` are stable under composition
-as a morphism property. -/
-instance isOpenImmersion_isStableUnderComposition {S : Scheme.{u}} :
+#check (AlgebraicGeometry.Groupoids.Hom.isOpenImmersion_isStableUnderComposition :
+  ∀ {S : Scheme.{u}},
     MorphismProperty.IsStableUnderComposition
-      (@OpenImmersion S : MorphismProperty (GroupoidsOver S)) := sorry
+      (@OpenImmersion S : MorphismProperty (GroupoidsOver S)))
 
 end AlgebraicGeometry.Groupoids.Hom

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Equivalence
-public import stacks_project.Chap81.Lemma_81_12_2_Affine
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.BeauvilleLaszlo.Affine
 
 /-!
 # Lemma 81.12.2
@@ -27,17 +21,11 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.BeauvilleLaszloGlueing
-
-/-- Lemma 81.12.2: let `(algebraMap R R', f)` be a glueing pair. The functor
-`functor R' f` restricts to an equivalence between the category of affine
-algebraic spaces `Y` over `X` which are glueable for the pair and the full
-subcategory of objects `(V, V', Y')` of `category R' f` with `V`, `V'`, and
-`Y'` affine. -/
-@[stacks 0F9Q, instance]
-instance affineGlueableFunctor_isEquivalence {R R' : Type u} [CommRing R] [CommRing R']
-    [Algebra R R'] (f : R) [IsBeauvilleLaszloGlueingPairAlong (algebraMap R R') f] :
-    (affineGlueableFunctor R' f).IsEquivalence :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.BeauvilleLaszloGlueing
+/- Lemma 81.12.2: for a glueing pair, the canonical functor restricts to an
+equivalence between affine glueable algebraic spaces over the base and triples
+whose three components are affine. -/
+@[stacks 0F9Q] #check
+  (AlgebraicGeometry.AlgebraicSpace.BeauvilleLaszloGlueing.affineGlueableFunctor_isEquivalence :
+    {R R' : Type u} → [CommRing R] → [CommRing R'] → [Algebra R R'] → (f : R) →
+      [IsBeauvilleLaszloGlueingPairAlong (algebraMap R R') f] →
+      (AlgebraicGeometry.AlgebraicSpace.BeauvilleLaszloGlueing.affineGlueableFunctor R' f).IsEquivalence)

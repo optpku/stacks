@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_21_5_TwoTerm
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.NaiveCotangent.FinitePresentation
 import StacksCheckRecall
 
 @[expose] public section
@@ -26,7 +20,7 @@ universe u
 étale locally on `X` quasi-isomorphic to a complex `… → 0 → F⁻¹ → F⁰ → 0 → …` of
 quasi-coherent `𝒪_X`-modules with `F⁰` of finite presentation and `F⁻¹` of finite type. -/
 @[stacks 0D0Z] #check
-  (@AlgebraicGeometry.AlgebraicSpace.Hom.NaiveCotangent.exists_etaleLocal_twoTerm_of_locallyOfFinitePresentation :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.NaiveCotangent.exists_etaleLocal_twoTerm_of_locallyOfFinitePresentation :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
       [AlgebraicSpace.LocallyOfFinitePresentation f],
       ∀ x : Points X, ∃ U : EtaleNeighborhood X x,

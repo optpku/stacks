@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
-public import stacks_project.Chap76.Definition_76_48_1_LocalCompleteIntersection
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.LocalCompleteIntersection.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of local complete intersection morphisms of algebraic spaces
@@ -24,20 +18,20 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 76.48.5: A composition of local complete intersection morphisms is
-a local complete intersection morphism. -/
-@[stacks 06C8]
-instance IsLocalCompleteIntersection.comp {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
-    (f : X ⟶ Y) (g : Y ⟶ Z)
-    [IsLocalCompleteIntersection f] [IsLocalCompleteIntersection g] :
-    IsLocalCompleteIntersection (f ≫ g) :=
-  sorry
+/- Lemma 76.48.5
 
-/-- Local complete intersection morphisms of algebraic spaces are stable under
-composition. -/
-instance IsLocalCompleteIntersection.instIsStableUnderComposition {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderComposition
-      (@IsLocalCompleteIntersection S : MorphismProperty (AlgebraicSpace S)) :=
-  sorry
+A composition of local complete intersection morphisms is a local complete
+intersection morphism.
+-/
+@[stacks 06C8] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsLocalCompleteIntersection.comp :
+    ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z)
+      [IsLocalCompleteIntersection f] [IsLocalCompleteIntersection g],
+      IsLocalCompleteIntersection (f ≫ g))
+
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsLocalCompleteIntersection.instIsStableUnderComposition :
+    ∀ {S : Scheme.{u}}, MorphismProperty.IsStableUnderComposition
+      (@IsLocalCompleteIntersection S : MorphismProperty (AlgebraicSpace S)))
 
 end AlgebraicGeometry.AlgebraicSpace

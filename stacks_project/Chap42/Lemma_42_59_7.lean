@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+import StacksCheckRecall
+
 public import stacks_project.Chap42.Lemma_42_59_5
-public import ReasLib.AlgebraicGeometry.BivariantClass.Restriction
-public import ReasLib.AlgebraicGeometry.BivariantClass.Commutation
+public import ReasLib.AlgebraicGeometry.BivariantClass.Gysin.Commutation
 
 @[expose] public section
 
@@ -20,18 +15,17 @@ universe u
 
 namespace AlgebraicGeometry.BivariantClass
 
-open Scheme.Hom.VirtualNormalBundle
+open Scheme.Hom.VirtualNormalBundle Gysin
 
-/-- Lemma 42.59.7: in Situation 42.7.1, consider a cartesian square of schemes locally of
-finite type over `S`. If `f : X ⟶ Y` is a local complete intersection morphism for which a
-Gysin map exists, given by a closed regular immersion followed by a smooth morphism, then
-every homogeneous class `c` on `h : Y'' ⟶ Y'` commutes with the restriction of the Gysin
-class of `f` along that square. Here `f^!` is `bivariantGysinClassOfFactorization` of the
-rank-`r` closed Gysin class and `flatPullback` of the smooth factor, `res(f^!)` is
-`restrict` along the right-hand cartesian square as in Remark 42.33.5, and commute is
-`Commute` as in Remark 42.33.6. -/
-@[stacks 0FF6]
-theorem gysin_restrict_commute
+/- Lemma 42.59.7: every bivariant class commutes with the restricted Gysin class of a
+local complete intersection morphism admitting an immersion–smooth factorization.
+This is expressed coefficientwise in every integer degree, allowing varying normal ranks
+and smooth relative dimensions. Regularity, the normal-sheaf bidual identification and a
+deformation realization are asserted to exist; the assembled factorization coefficients
+represent the Gysin class independently of that realization. The canonical common pullback
+in `Commute` accounts for the left cartesian square. -/
+@[stacks 0FF6] #check (AlgebraicGeometry.BivariantClass.gysin_restrict_commute :
+  ∀
     {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
     {X Y X' Y' Y'' : Over S}
     [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
@@ -40,26 +34,22 @@ theorem gysin_restrict_commute
     (f : X ⟶ Y) [LocallyOfType RingHom.IsLocalCompleteIntersection f.left]
     {P : Over S} [LocallyOfFiniteType P.hom]
     (ι : X ⟶ P) (σ : P ⟶ Y) (hι : IsImmersion ι.left)
-    [IsClosedImmersion ι.left] [IsRegularImmersion ι.left]
     [hσ : Smooth σ.left] (hfac : ι ≫ σ = f)
-    (t : ℕ) [Scheme.Hom.RelativeDimension σ.left t]
-    (r : ℕ) [Scheme.Modules.IsFiniteLocallyFreeOfRank r (Scheme.Hom.conormalSheaf ι.left)]
-    (e : Scheme.Modules.dual (Scheme.Hom.normalSheaf ι.left) ≅
-      Scheme.Hom.conormalSheaf ι.left)
-    (D : ClosedSpecialization δ X.hom P.hom ι.left (Over.w ι)
-      (ofNormalSheaf ι.left r e))
     (i : X' ⟶ X) (f' : X' ⟶ Y') (g : Y' ⟶ Y)
     [LocallyOfFiniteType g.left] [LocallyOfFiniteType f'.left]
     (square : IsPullback i.left f'.left f.left g.left)
-    (h : Y'' ⟶ Y') [LocallyOfFiniteType h.left]
-    (q : ℤ) (c : BivariantClass δ h q) :
-    Commute δ h f' c
-      (restrict δ i f' g square ((r : ℤ) + (-(t : ℤ)))
-        (bivariantGysinClassOfFactorization δ X Y f P ι σ hι hσ hfac
-          (overHom_eq_over ι ▸
-            globalClassOfRank δ X.hom P.hom ι.left (Over.w ι)
-              (ofNormalSheaf ι.left r e) D r)
-          (flatPullback δ σ t))) :=
-  sorry
+    (h : Y'' ⟶ Y') [LocallyOfFiniteType h.left],
+    ∃ hreg : IsRegularImmersion ι.left,
+    ∃ e : Scheme.Modules.dual (Scheme.Hom.normalSheaf ι.left) ≅
+      Scheme.Hom.conormalSheaf ι.left,
+    ∃ D : ClosedDeformation X.hom (ι.left.coborderRange.ι ≫ P.hom)
+      ι.left.liftCoborder
+      (by rw [← Category.assoc, ι.left.liftCoborder_ι]; exact Over.w ι)
+      (@normalBundle X.left P.left ι.left hreg e).toCoborder,
+    ∀ (p q : ℤ) (c : BivariantClass δ h q),
+      Commute δ h f' c
+        (restrict δ i f' g square p
+          (@factorizationClassDegree S inferInstance δ inferInstance X Y P
+            inferInstance inferInstance inferInstance f ι σ hreg hσ hfac e D p)))
 
 end AlgebraicGeometry.BivariantClass

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Shapes.BinaryProducts
-public import stacks_project.Chap80.Definition_80_3_1_RelativelyRepresentable
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Representable.Product
+import StacksCheckRecall
 
 /-!
 # Products of morphisms representable by algebraic spaces
@@ -22,17 +16,14 @@ open CategoryTheory AlgebraicGeometry Limits
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 80.3.9: let `S` be a scheme. For maps `a₁ : F₁ ⟶ G₁` and
+/- Lemma 80.3.9: let `S` be a scheme. For maps `a₁ : F₁ ⟶ G₁` and
 `a₂ : F₂ ⟶ G₂` of presheaves on `(Sch/S)_fppf` that are representable by
 algebraic spaces, the product morphism `prod.map a₁ a₂ : F₁ ⨯ F₂ ⟶ G₁ ⨯ G₂`
 (Stacks `a₁ × a₂`) is representable by algebraic spaces. -/
 @[stacks 046D]
-theorem representableByAlgebraicSpaces.prod_map {S : Scheme.{u}}
-    {F₁ F₂ G₁ G₂ : (Over S)ᵒᵖ ⥤ Type u} (a₁ : F₁ ⟶ G₁) (a₂ : F₂ ⟶ G₂)
-    (ha₁ : representableByAlgebraicSpaces a₁) (ha₂ : representableByAlgebraicSpaces a₂) :
-    representableByAlgebraicSpaces (prod.map a₁ a₂) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.representableByAlgebraicSpaces.prod_map :
+  ∀ {S : Scheme.{u}} {F₁ F₂ G₁ G₂ : (Over S)ᵒᵖ ⥤ Type u}
+    (a₁ : F₁ ⟶ G₁) (a₂ : F₂ ⟶ G₂),
+    AlgebraicSpace.representableByAlgebraicSpaces a₁ →
+    AlgebraicSpace.representableByAlgebraicSpaces a₂ →
+    AlgebraicSpace.representableByAlgebraicSpaces (prod.map a₁ a₂))

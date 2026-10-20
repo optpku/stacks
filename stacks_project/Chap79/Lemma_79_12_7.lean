@@ -1,51 +1,22 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.OpenImmersion
-public import Mathlib.CategoryTheory.MorphismProperty.Comma
-public import Mathlib.CategoryTheory.MorphismProperty.Representable
-public import stacks_project.Chap79.Lemma_79_12_7_Hom
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FinitePart.Diagonal
+import StacksCheckRecall
 
-/-!
-# Representability of the diagonals of the finite-part functor
--/
+/-! # Diagonals of the finite-part presheaf -/
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry AlgebraicSpace Limits MorphismProperty
-
-noncomputable section
+open CategoryTheory AlgebraicGeometry Limits MorphismProperty
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.FinitePart
+/- Lemma 79.12.7: The finite-part presheaf of an arbitrary morphism of algebraic spaces
+has a relative diagonal that is representable by schemes and an open immersion,
+and an absolute diagonal that is representable by schemes. -/
+@[stacks 04PK] #check (AlgebraicGeometry.AlgebraicSpace.FinitePart.diagonals :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    (over (@AlgebraicGeometry.IsOpenImmersion : MorphismProperty Scheme.{u})).presheaf
+      (AlgebraicGeometry.AlgebraicSpace.FinitePart.diagonal f) ∧
+    yoneda.relativelyRepresentable (AlgebraicGeometry.AlgebraicSpace.FinitePart.diag f))
 
-/-- Lemma 79.12.7 (1): Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
-algebraic spaces over `S`. The diagonal of `(X/Y)_fin ⟶ Y`,
-`(X/Y)_fin ⟶ (X/Y)_fin ×_Y (X/Y)_fin`, is representable (by schemes) and an
-open immersion. -/
-@[stacks 04PK]
-theorem isOpenImmersion_diagonal {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) :
-    (over (@AlgebraicGeometry.IsOpenImmersion : MorphismProperty Scheme.{u})).presheaf (diagonal f) :=
-  sorry
-
-/-- The relative diagonal of `(X/Y)_fin ⟶ Y` is representable by schemes. -/
-theorem relativelyRepresentable_diagonal {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) : yoneda.relativelyRepresentable (diagonal f) :=
-  sorry
-
-/-- Lemma 79.12.7 (2): Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
-algebraic spaces over `S`. The absolute diagonal
-`(X/Y)_fin ⟶ (X/Y)_fin × (X/Y)_fin` is representable (by schemes). -/
-@[stacks 04PK]
-theorem relativelyRepresentable_diag {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) : yoneda.relativelyRepresentable (diag f) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.FinitePart

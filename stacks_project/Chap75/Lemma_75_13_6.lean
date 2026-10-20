@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_13_6_PseudoCoherent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.PseudoCoherent
 import StacksCheckRecall
 
 @[expose] public section
@@ -18,7 +12,7 @@ universe u
 /- Lemma 75.13.6 (1): if `E` is `m`-pseudo-coherent in `D(𝒪_X)`, then `H^i(E)` is a
 quasi-coherent `𝒪_X`-module for `i > m`. -/
 @[stacks 08JL] #check
-  (ModuleDerived.PseudoCoherent.higherCohomology_isQuasicoherent :
+  (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.PseudoCoherent.higherCohomology_isQuasicoherent :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {E : ModuleDerived X} {m i : ℤ},
       IsMPseudoCoherent X E m → m < i →
         ((DerivedCategory.homologyFunctor (Modules X) i).obj E).IsQuasicoherent)
@@ -26,6 +20,6 @@ quasi-coherent `𝒪_X`-module for `i > m`. -/
 /- Lemma 75.13.6 (2): if `E` is pseudo-coherent in `D(𝒪_X)`, then `E` is an object of
 `D_QCoh(𝒪_X)`. -/
 @[stacks 08JL] #check
-  (ModuleDerived.PseudoCoherent.derivedQuasiCoherentModuleProperty :
+  (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.PseudoCoherent.derivedQuasiCoherentModuleProperty :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {E : ModuleDerived X},
       IsPseudoCoherent X E → derivedQuasiCoherentModuleProperty X E)

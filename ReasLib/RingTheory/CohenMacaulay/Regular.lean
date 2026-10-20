@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.RegularLocalRing.Defs
@@ -29,8 +23,7 @@ namespace Module.CohenMacaulay
 
 variable {R : Type u} [CommRing R]
 
-/-- Lemma 10.106.3 (4), tag `00NQ`: the self-module of a regular local ring
-is Cohen--Macaulay. -/
+/-- The self-module of a regular local ring is Cohen--Macaulay. -/
 @[stacks 00NQ "regular local ring self-module is Cohen-Macaulay"]
 theorem self_of_isRegularLocalRing [IsRegularLocalRing R] :
     Module.CohenMacaulay R R := sorry

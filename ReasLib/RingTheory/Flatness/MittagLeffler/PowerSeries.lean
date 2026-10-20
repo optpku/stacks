@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.PowerSeries.Basic
@@ -14,12 +8,8 @@ public import ReasLib.RingTheory.Flatness.MittagLeffler.Pi
 /-!
 # Formal Power Series as Flat Mittag-Leffler Modules
 
-@stack 059T
-@stack 059Y
-
-Multivariate formal power series are products of copies of the coefficient ring.  This leaf
-installs the resulting flat and Mittag-Leffler instances on the canonical Mathlib objects rather
-than relying on reducible unfolding at each use site.
+Multivariate formal power series are products of copies of the coefficient ring. They are flat
+over a coherent coefficient ring and Mittag-Leffler over a Noetherian coefficient ring.
 -/
 
 universe u v
@@ -78,7 +68,7 @@ theorem flat_mittagLeffler [IsNoetherianRing R] (σ : Type v) :
     Module.Flat R (MvPowerSeries σ R) ∧
       Module.MittagLeffler R (MvPowerSeries σ R) := sorry
 
-/-- Lemma 10.91.4, tag `059T`: finite-variable formal power series over a Noetherian ring are flat
+/-- Finite-variable formal power series over a Noetherian ring are flat
 and Mittag-Leffler over the coefficient ring. -/
 @[stacks 059T]
 theorem fin_flat_mittagLeffler [IsNoetherianRing R] (n : ℕ) :

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Ideal.Extension
@@ -69,7 +63,7 @@ theorem derivedCompleteRestriction_obj
 
 /-- Under flatness and the quotient comparison for a finite-type ideal sheaf,
 restriction induces an equivalence on the derived-complete categories. -/
-instance derivedCompleteRestrictionIsEquivalence
+theorem derivedCompleteRestrictionIsEquivalence
     (alpha : O ⟶ O') (I : Subobject (unitModule J O))
     [(I : ringedSiteModuleCategory J O).IsFiniteType]
     [IsFlat O ((restrictionAlong alpha).obj (unitModule J O'))]

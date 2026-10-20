@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.Dualizing.Relative.BaseChange
@@ -18,7 +12,8 @@ open scoped TensorProduct Algebra.TensorProduct.Right
 /- Lemma 47.27.4 (1) -/
 @[stacks 0E2F] #check (CategoryTheory.DerivedCategory.existsRelativeDualizingComplex :
   ∀ (R A : Type u) [CommRing R] [CommRing A] [Algebra R A]
-    [Module.Flat R A] [Algebra.FinitePresentation R A],
+    [Module.Flat R A] [Algebra.FinitePresentation R A]
+    [CategoryTheory.DerivedCategory.InternalHom.RHom.Has (A := A ⊗[R] A)],
     ∃ K : DerivedCategory (ModuleCat A),
       CategoryTheory.DerivedCategory.IsRelativeDualizingComplex R K)
 
@@ -26,21 +21,25 @@ open scoped TensorProduct Algebra.TensorProduct.Right
 @[stacks 0E2F] #check (CategoryTheory.DerivedCategory.IsRelativeDualizingComplex.baseChange :
   ∀ {R A : Type u} [CommRing R] [CommRing A] [Algebra R A]
     [Module.Flat R A] [Algebra.FinitePresentation R A]
+    [CategoryTheory.DerivedCategory.InternalHom.RHom.Has (A := A ⊗[R] A)]
     (K : DerivedCategory (ModuleCat A))
     (hK : CategoryTheory.DerivedCategory.IsRelativeDualizingComplex R K)
-    (R' : Type u) [CommRing R'] [Algebra R R'],
+    (R' : Type u) [CommRing R'] [Algebra R R']
+    [CategoryTheory.DerivedCategory.InternalHom.RHom.Has
+      (A := (A ⊗[R] R') ⊗[R'] (A ⊗[R] R'))],
     let A' := A ⊗[R] R'
     let K' := (ModuleCat.derivedExtensionOfScalars (algebraMap A A')).obj K
     let h_flat : Module.Flat R' A' := Algebra.TensorProduct.flat_right
     let h_finitePresentation : Algebra.FinitePresentation R' A' :=
       Algebra.finitePresentation_tensor_right
     @CategoryTheory.DerivedCategory.IsRelativeDualizingComplex R' _ A' _ _ h_flat
-      h_finitePresentation K')
+      h_finitePresentation inferInstance K')
 
 /- Lemma 47.27.4 (3) -/
 @[stacks 0E2F] #check (CategoryTheory.DerivedCategory.IsRelativeDualizingComplex.baseChangeGenerator :
   ∀ {R A : Type u} [CommRing R] [CommRing A] [Algebra R A]
     [Module.Flat R A] [Algebra.FinitePresentation R A]
+    [CategoryTheory.DerivedCategory.InternalHom.RHom.Has (A := A ⊗[R] A)]
     (K : DerivedCategory (ModuleCat A))
     (hK : CategoryTheory.DerivedCategory.IsRelativeDualizingComplex R K)
     (R' : Type u) [CommRing R'] [Algebra R R'],

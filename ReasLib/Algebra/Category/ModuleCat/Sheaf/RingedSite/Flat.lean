@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite
@@ -34,31 +28,12 @@ variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
 variable [HasWeakSheafify J AddCommGrpCat.{w}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
 
-/-- Flatness of a module sheaf, specialized from the monoidal-category owner. -/
+/-- Flatness of a module sheaf, specialized from the monoidal-category owner.  Exactness of
+`tensorRight ℱ` is the canonical field `CategoryTheory.MonoidalCategory.IsFlat.exact_tensor`. -/
 @[stacks 03ER "sheaves of modules"]
 abbrev IsFlat (𝒪 : Sheaf J CommRingCat.{w})
     (ℱ : ringedSiteModuleCategory.{u, v, w, w} J 𝒪) : Prop :=
   CategoryTheory.MonoidalCategory.IsFlat ℱ
-
-namespace IsFlat
-
-/-- The exactness field of the canonical monoidal flatness owner. -/
-theorem exact_tensor {𝒪 : Sheaf J CommRingCat.{w}}
-    {ℱ : ringedSiteModuleCategory.{u, v, w, w} J 𝒪} [IsFlat 𝒪 ℱ] :
-    exactFunctor
-      (ringedSiteModuleCategory J 𝒪)
-      (ringedSiteModuleCategory J 𝒪)
-      (tensorRight ℱ) := sorry
-
-/-- The tensor-right functor of a flat module sheaf is exact. -/
-theorem exactTensor (𝒪 : Sheaf J CommRingCat.{w})
-    (ℱ : ringedSiteModuleCategory.{u, v, w, w} J 𝒪) [IsFlat 𝒪 ℱ] :
-    exactFunctor
-      (ringedSiteModuleCategory J 𝒪)
-      (ringedSiteModuleCategory J 𝒪)
-      (tensorRight ℱ) := sorry
-
-end IsFlat
 
 /-- A same-site morphism of commutative structure sheaves is flat when the target unit module,
 restricted to the source, is flat. -/
@@ -70,7 +45,7 @@ def IsFlatHom {𝒪 𝒪' : Sheaf J CommRingCat.{w}}
 /-- Same-site flatness is flatness of the target unit module after restriction of scalars. -/
 theorem isFlatHom_iff {𝒪 𝒪' : Sheaf J CommRingCat.{w}}
     (α : 𝒪 ⟶ 𝒪') :
-    IsFlatHom α ↔ IsFlat 𝒪 ((restrictionAlong α).obj (unitModule J 𝒪')) := sorry
+    IsFlatHom α ↔ IsFlat 𝒪 ((restrictionAlong α).obj (unitModule J 𝒪')) := Iff.rfl
 
 /-- The structure module of a ringed site is flat. -/
 @[instance]

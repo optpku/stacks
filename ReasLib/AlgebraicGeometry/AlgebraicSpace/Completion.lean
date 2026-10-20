@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Presheaf
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
+public import ReasLib.AlgebraicGeometry.Scheme.RepresentableProperty
 public import Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion
 public import Mathlib.CategoryTheory.Sites.Subsheaf
 
@@ -45,8 +40,8 @@ theorem mem_stage_iff (inclusion : Z ⟶ X) (n : ℕ) {U : Over S}
     element ∈ (stage inclusion n).obj (op U) ↔ inStage inclusion n element := sorry
 
 /-- The zeroth infinitesimal neighbourhood of a closed subspace is its image. -/
-theorem stage_zero (inclusion : Z ⟶ X) (hX : IsAlgebraicSpace X)
-    (hZ : IsAlgebraicSpace Z)
+theorem stage_zero (inclusion : Z ⟶ X) [IsAlgebraicSpace X]
+    [IsAlgebraicSpace Z]
     (hClosed : Scheme.representableMorphismProperty S (@IsClosedImmersion) inclusion) :
     stage inclusion 0 = Subfunctor.range inclusion := sorry
 
@@ -55,15 +50,15 @@ theorem stage_mono (inclusion : Z ⟶ X) : Monotone (stage inclusion) := sorry
 
 /-- Every infinitesimal neighbourhood of a closed algebraic subspace is an
 algebraic space. -/
-theorem stage_isAlgebraicSpace (inclusion : Z ⟶ X) (hX : IsAlgebraicSpace X)
-    (hZ : IsAlgebraicSpace Z)
+theorem stage_isAlgebraicSpace (inclusion : Z ⟶ X) [IsAlgebraicSpace X]
+    [IsAlgebraicSpace Z]
     (hClosed : Scheme.representableMorphismProperty S (@IsClosedImmersion) inclusion)
     (n : ℕ) : IsAlgebraicSpace (stage inclusion n).toFunctor := sorry
 
 /-- The transitions between infinitesimal neighbourhoods are representable
 surjective closed immersions. -/
-theorem stage_transition_isThickening (inclusion : Z ⟶ X) (hX : IsAlgebraicSpace X)
-    (hZ : IsAlgebraicSpace Z)
+theorem stage_transition_isThickening (inclusion : Z ⟶ X) [IsAlgebraicSpace X]
+    [IsAlgebraicSpace Z]
     (hClosed : Scheme.representableMorphismProperty S (@IsClosedImmersion) inclusion)
     {m n : ℕ} (hOrder : m ≤ n) :
     Scheme.representableMorphismProperty S (@IsClosedImmersion ⊓ @Surjective)

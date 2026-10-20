@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap88.Definition_88_13_4
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Morphism.Flat
 
 /-!
 # Bootstrap-flat representable morphisms of locally Noetherian formal algebraic spaces
@@ -19,26 +13,18 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.FormalAlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.FormalAlgebraicSpace
-
-namespace Flat
-
-/-- Lemma 88.13.8: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
+/- Lemma 88.13.8: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
 locally Noetherian formal algebraic spaces over `S`. If `f` is representable
 by algebraic spaces and flat in the sense of Bootstrap, Definition 80.4.1,
 i.e. every scheme Yoneda pullback of `f` is `AlgebraicSpace.Flat`, then `f`
 is flat in the sense of Definition 88.13.4. -/
-@[stacks 0GCG]
-theorem of_relativeAlgebraicSpaces {S : Scheme.{u}}
+@[stacks 0GCG] #check
+  (AlgebraicGeometry.FormalAlgebraicSpace.Flat.of_relativeAlgebraicSpaces :
+    ∀ {S : Scheme.{u}}
     {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
     [IsLocallyNoetherian X] [IsLocallyNoetherian Y] (f : X ⟶ Y)
     (hf : AlgebraicSpace.representableByAlgebraicSpaces f)
     (hflat : ∀ ⦃U : Over S⦄ (ξ : yoneda.obj U ⟶ Y),
-      AlgebraicSpace.Flat (hf.pullbackHom ξ)) :
-    Flat f :=
-  sorry
-
-end Flat
-
-end AlgebraicGeometry.FormalAlgebraicSpace
+      AlgebraicSpace.Flat (hf.pullbackHom ξ)),
+    AlgebraicGeometry.FormalAlgebraicSpace.Flat f)

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
@@ -36,7 +30,7 @@ namespace AlgebraicGeometry.AlgebraicSpace
 morphism `f : X ⟶ Y` if `f` is representable by schemes and, after every base
 change along a morphism from a scheme, the restricted pullback is relatively
 ample in the scheme sense. -/
-@[mk_iff]
+@[mk_iff RelativelyAmple.iff]
 class RelativelyAmple {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (L : X.Modules) : Prop where
   /-- The morphism `f` is representable by schemes. -/

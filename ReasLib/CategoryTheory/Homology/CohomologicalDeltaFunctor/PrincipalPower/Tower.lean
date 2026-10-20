@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.AB
@@ -214,22 +208,26 @@ theorem completionShortComplex_shortExact (f : R) (M : C)
     [CategoryTheory.Linear.PrincipalPower.IsTorsionFree f M] (p : ℕ) :
     (completionShortComplex H f M p).ShortExact := sorry
 
-/-- The canonical map on first derived inverse limits is an isomorphism. -/
-@[stacks 0H3A "principal-power cohomology first derived limit isomorphism"]
-theorem firstDerivedLimitMap_isIso (f : R) (M : C)
-    [CategoryTheory.Linear.PrincipalPower.IsTorsionFree f M] (p : ℕ) :
-    IsIso (SequentialInverseSystem.firstDerivedLimitMap (boundaryMap H f M p)) := sorry
-
-/-- The concrete isomorphism on first derived inverse limits. -/
+/-- The concrete isomorphism on first derived inverse limits, the instance of the Milnor
+comparison `ModuleCat.ShortExact.firstDerivedLimitIso` for the short exact principal-power row
+whose left term, a principal-power quotient tower, is Mittag-Leffler. -/
 @[stacks 0H3A "principal-power cohomology first derived limit iso"]
 noncomputable def firstDerivedLimitIso (f : R) (M : C)
     [CategoryTheory.Linear.PrincipalPower.IsTorsionFree f M] (p : ℕ) :
     (quotientSystem H f M p).firstDerivedLimit ≅
       (torsionSystem H f M p).firstDerivedLimit :=
-  -- Local instance justification (proof-local temporary data): `asIso` consumes the explicit
-  -- theorem certificate, while no global `IsIso` instance should be registered for this map.
-  letI := firstDerivedLimitMap_isIso H f M p
-  asIso (SequentialInverseSystem.firstDerivedLimitMap (boundaryMap H f M p))
+  CategoryTheory.ModuleCat.ShortExact.firstDerivedLimitIso
+    (R := R) (S := shortComplex H f M p)
+    (shortComplex_shortExact H f M p)
+    (CategoryTheory.Linear.PrincipalPower.quotientSystem_isMittagLeffler f
+      (((H.F p).obj).obj M))
+
+/-- The canonical map on first derived inverse limits is an isomorphism. -/
+@[stacks 0H3A "principal-power cohomology first derived limit isomorphism"]
+theorem firstDerivedLimitMap_isIso (f : R) (M : C)
+    [CategoryTheory.Linear.PrincipalPower.IsTorsionFree f M] (p : ℕ) :
+    IsIso (SequentialInverseSystem.firstDerivedLimitMap (boundaryMap H f M p)) :=
+  (firstDerivedLimitIso H f M p).isIso_hom
 
 /-- The quotient cohomology and torsion towers are Mittag-Leffler simultaneously. -/
 @[stacks 0H3A "principal-power cohomology Mittag-Leffler equivalence"]

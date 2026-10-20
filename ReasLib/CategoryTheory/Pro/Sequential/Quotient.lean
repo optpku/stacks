@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Pro.Sequential.CommonRefinement
@@ -32,9 +26,9 @@ namespace Equivalent
 
 /-- Composition respects common-refinement equivalence in both variables. -/
 theorem comp :
-    ∀ {r r' : Pro.SequentialHom X Y}, r ≈ r' →
-      ∀ {s s' : Pro.SequentialHom Y Z}, s ≈ s' →
-        Pro.SequentialHom.comp r s ≈ Pro.SequentialHom.comp r' s' := sorry
+    ∀ {r r' : Pro.SequentialHom X Y}, Equivalent r r' →
+      ∀ {s s' : Pro.SequentialHom Y Z}, Equivalent s s' →
+        Equivalent (Pro.SequentialHom.comp r s) (Pro.SequentialHom.comp r' s') := sorry
 
 end Equivalent
 

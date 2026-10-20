@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Divisor.EffectiveCartier
@@ -56,6 +50,13 @@ theorem isEffectiveCartierDivisor_of_affineLocal_nonZeroDivisorGenerator
     (hlocal : AffineLocalNonZeroDivisorGenerator D) :
     AlgebraicGeometry.IsEffectiveCartierDivisor D.subschemeι :=
   (isEffectiveCartierDivisor_iff_affineLocalNonZeroDivisorGenerator D).2 hlocal
+
+/-- A supplied affine-local nonzerodivisor-generator fact gives the canonical effective
+Cartier-divisor instance. -/
+instance instIsEffectiveCartierDivisorOfFactAffineLocal (D : S.IdealSheafData)
+    [hlocal : Fact (AffineLocalNonZeroDivisorGenerator D)] :
+    AlgebraicGeometry.IsEffectiveCartierDivisor D.subschemeι :=
+  isEffectiveCartierDivisor_of_affineLocal_nonZeroDivisorGenerator D hlocal.out
 
 /-- Every effective Cartier divisor presented by ideal-sheaf data has affine-local
 nonzerodivisor generators. -/

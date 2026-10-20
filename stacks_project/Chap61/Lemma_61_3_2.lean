@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.LocalIso
@@ -11,9 +5,12 @@ public import ReasLib.RingTheory.RingHom.Local.Properties
 import StacksCheckRecall
 
 /- Lemma 61.3.2 (1): if A → B is a local isomorphism, then the base change
-A' → B ⊗_A A' is a local isomorphism. Canonical owner:
-`Algebra.IsLocalIso.instTensorProduct`. -/
-@[stacks 096F] #check Algebra.IsLocalIso.instTensorProduct
+A' → B ⊗_A A' is a local isomorphism. Equivalently, a principal-open cover
+of the target makes the map a standard open immersion on each member;
+this is `RingHom.Locally RingHom.IsStandardOpenImmersion`. -/
+@[stacks 096F] #check
+  (RingHom.locallyStandardOpenImmersion_isStableUnderBaseChange :
+    RingHom.IsStableUnderBaseChange (RingHom.Locally RingHom.IsStandardOpenImmersion))
 
 /- Lemma 61.3.2 (2): if A → B identifies local rings, then the base change
 A' → B ⊗_A A' identifies local rings. Canonical owner:

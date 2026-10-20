@@ -1,22 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.GammaSpecAdjunction
-public import Mathlib.Data.Fin.VecNotation
+public import ReasLib.AlgebraicGeometry.ProjectiveSpace.IntersectionNumber
 public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Picard
-public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Proper
-public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Twist.Invertible
-public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Variety
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.Affine
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Intersection.Number
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Intersection.Whole
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Tilde.GradedEquivariant.Sections
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiberDimension.ProperFlat
+public import ReasLib.AlgebraicGeometry.Scheme.OverSpec
 import StacksCheckRecall
 
 @[expose] public section
@@ -29,9 +18,9 @@ open scoped AlgebraicGeometry
 /- Exercise 111.65.2 (Theorems) (1): morphisms `X ⟶ Spec A` correspond to ring maps
 `A ⟶ Γ(X, ⊤)` via the `Γ ⊣ Spec` adjunction. -/
 @[stacks 0GYA] #check
-  (ΓSpec.adjunction.homEquiv :
-    ∀ (X : Scheme.{u}) (R : CommRingCatᵒᵖ),
-      (Scheme.Γ.rightOp.obj X ⟶ R) ≃ (X ⟶ Scheme.Spec.obj R))
+  (AlgebraicGeometry.Scheme.homToSpecGlobalSectionsEquiv :
+    ∀ (X : Scheme.{u}) (R : CommRingCat.{u}),
+      (X ⟶ Spec R) ≃ (R ⟶ Γ(X, ⊤)))
 
 /- Exercise 111.65.2 (Theorems) (2): on an affine scheme `X`, the cohomology of a
 quasi-coherent module `ℱ` vanishes in positive degree. -/
@@ -67,24 +56,17 @@ counit is an isomorphism. -/
       (D : Scheme.QCoh.Equivariant MultiplicativeGroup.group (GradedSpec.action 𝒜)) →
         IsIso (GradedSpec.EquivariantSections.counit 𝒜 D))
 
-namespace AlgebraicGeometry.ProjectiveSpace
-
-open Scheme.Modules
-open Scheme.Modules.Intersection
-
-/-- Factorwise invertibility of `![𝒪(d), 𝒪(e)]` on `P^2`. -/
-instance instInvertible_twistingSheafPair (k : Type u) [Field k] (d e : ℤ) :
-    ∀ j : Fin 2, Invertible (![twistingSheaf k 2 d, twistingSheaf k 2 e] j) := sorry
-
-/-- Exercise 111.65.2 (Theorems) (6): Bézout on `P^2_k`: the intersection number of the
+/- Exercise 111.65.2 (Theorems) (6): Bézout on `P^2_k`: the intersection number of the
 twisting sheaves `𝒪(d)` and `𝒪(e)` equals `d * e`. -/
-@[stacks 0GYA]
-theorem intersectionNumber_twistingSheaves_eq_mul
-    {k : Type u} [Field k] (d e : ℤ)
+@[stacks 0GYA] #check
+  (AlgebraicGeometry.ProjectiveSpace.intersectionNumber_twistingSheaves_eq_mul :
+    ∀ {k : Type u} [Field k] (d e : ℤ)
     [HasExt (Sheaf (Opens.grothendieckTopology
-      (⊥ : (scheme k 2).IdealSheafData).subscheme.carrier) AddCommGrpCat.{u})] :
-    number k (toSpec k 2) (⊥ : (scheme k 2).IdealSheafData)
-      (topologicalKrullDim_bot_eq (scheme k 2) (topologicalKrullDim_scheme_eq k 2))
-      ![twistingSheaf k 2 d, twistingSheaf k 2 e] = (d * e : ℚ) := sorry
-
-end AlgebraicGeometry.ProjectiveSpace
+      (⊥ : (ProjectiveSpace.scheme k 2).IdealSheafData).subscheme.carrier)
+        AddCommGrpCat.{u})],
+    Scheme.Modules.Intersection.number k (ProjectiveSpace.toSpec k 2)
+      (⊥ : (ProjectiveSpace.scheme k 2).IdealSheafData)
+      (Scheme.Modules.Intersection.topologicalKrullDim_bot_eq (ProjectiveSpace.scheme k 2)
+        (ProjectiveSpace.topologicalKrullDim_scheme_eq k 2))
+      ![ProjectiveSpace.twistingSheaf k 2 d, ProjectiveSpace.twistingSheaf k 2 e] =
+        (d * e : ℚ))

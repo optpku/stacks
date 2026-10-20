@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Syntomic.Finite
-public import stacks_project.Chap42.Lemma_42_46_10_Rank
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.ConstantRank
 
 @[expose] public section
 
@@ -26,7 +20,8 @@ cotangent complex has Tor-amplitude in `[-1, 0]` in addition to finiteness, flat
 and local finite presentation; or that complex is perfect of rank zero with the same
 Tor-amplitude and the same three properties of `f`. -/
 @[stacks 0FKY] #check (AlgebraicGeometry.finiteSyntomic_tfae :
-  ∀ {X Y : Scheme.{u}} (f : Y ⟶ X),
+  ∀ {X Y : Scheme.{u}} (f : Y ⟶ X)
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)],
     let L : RingedSpace.ModuleDerived Y.toRingedSpace :=
       DerivedCategory.Q.obj (RingedSpace.naiveCotangent f.toShHom)
     List.TFAE [

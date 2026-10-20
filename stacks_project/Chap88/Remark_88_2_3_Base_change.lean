@@ -1,20 +1,16 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap88.Remark_88_2_3_Base_change_Comparison
+public import ReasLib.Algebra.Category.CommAlgCat.TopologicallyFiniteType.BaseChange.Comparison
 import StacksCheckRecall
 
 /-!
 # Remark 88.2.3 (Base change)
 
-A ring map `φ : A1 → A2` with `φ(I1 ^ c) ⊆ I2` for some `c ≥ 1` induces the
-systems functor of 88.2.3.1 and, when `I2` is finitely generated, the completed
-functor of 88.2.3.2. The two functors agree via `toAdicSystem`.
+A ring map carrying a positive power of `I1` into `I2` induces base change on
+adic systems. When `I2` is finitely generated, completed tensor product gives
+base change on complete algebras. Both constructions commute with passage to
+quotient systems; when both ideals are finitely generated, the reconstruction
+equivalences identify them.
 -/
 
 @[expose] public section
@@ -23,38 +19,50 @@ open CategoryTheory
 
 universe u
 
-/- Remark 88.2.3 (Base change) (1) A ring map `φ : A1 →+* A2` and ideals `Iᵢ`
-with `φ(I1 ^ c) ⊆ I2` for some `c ≥ 1` induce stage maps
-`A1 ⧸ I1 ^ (c * n) → A2 ⧸ I2 ^ n` and a systems base-change functor
-`C1 ⥤ C2`, `(Bn) ↦ (B (c * n) ⊗[A1 ⧸ I1 ^ (c * n)] (A2 ⧸ I2 ^ n))`. -/
-@[stacks 0AL5] #check AdicAlgebraSystem.baseChange
+variable {A1 A2 : Type u} [CommRing A1] [CommRing A2]
 
-/- Remark 88.2.3 (Base change) (2) If `I2` is finitely generated, there is a
-completed base-change functor `C1' ⥤ C2'` sending `B` to `(B ⊗[A1] A2)^∧`,
-because the completion is complete by Algebra, Lemma 10.96.3. -/
-@[stacks 0AL5] #check CommAlgCat.TopologicallyFiniteType.baseChange
+#check (AdicAlgebraSystem.baseChange :
+  ∀ (φ : A1 →+* A2) (I1 : Ideal A1) (I2 : Ideal A2) {c : ℕ},
+    1 ≤ c → Ideal.map φ (I1 ^ c) ≤ I2 →
+      AdicAlgebraSystem A1 I1 ⥤ AdicAlgebraSystem A2 I2)
 
-variable {A1 A2 : Type u} [CommRing A1] [CommRing A2] [Algebra A1 A2]
+variable [Algebra A1 A2]
+variable (I1 : Ideal A1) (I2 : Ideal A2) {c : ℕ} (hc : 1 ≤ c)
+variable (hI : I1.map (algebraMap A1 A2) ^ c ≤ I2) (hI2 : I2.FG)
 
-namespace AdicCompleteFiniteType
+#check (CommAlgCat.TopologicallyFiniteType.baseChange I1 I2 hc hI hI2 :
+  CommAlgCat.TopologicallyFiniteType.{u} A1 I1 ⥤
+    CommAlgCat.TopologicallyFiniteType.{u} A2 I2)
 
-/-- Remark 88.2.3 (Base change) (3) If both `I1` and `I2` are finitely generated,
-the two base-change functors agree via `toAdicSystem`, which are equivalences by
-Lemma 88.2.1. The comparison is the natural isomorphism of the square
-`toAdicSystem I1 ⋙ systemsBaseChange ≅ completedBaseChange ⋙ toAdicSystem I2`;
-completed base change uses `I2.FG` because the completion is complete by
-Algebra, Lemma 10.96.3. -/
-@[stacks 0AL5]
-noncomputable abbrev baseChangeToAdicSystemIso (I1 : Ideal A1) (I2 : Ideal A2)
-    {c : ℕ} (hc : 1 ≤ c) (hI : I1.map (algebraMap A1 A2) ^ c ≤ I2) (hI2 : I2.FG) :=
-  CommAlgCat.TopologicallyFiniteType.baseChangeToAdicSystemIso I1 I2 hc hI hI2
+/- Remark 88.2.3 (Base change)
+Systems base change agrees with completed base change after passing to adic
+quotient systems. With both ideals finitely generated, the reconstruction
+equivalences below give the asserted agreement of the two base-change functors. -/
+@[stacks 0AL5] #check
+  (CommAlgCat.TopologicallyFiniteType.baseChangeToAdicSystemIso I1 I2 hc hI hI2 :
+    CommAlgCat.TopologicallyFiniteType.toAdicSystem I1 ⋙
+      AdicAlgebraSystem.baseChange (algebraMap A1 A2) I1 I2 hc
+        (by simpa only [Ideal.map_pow] using hI) ≅
+    CommAlgCat.TopologicallyFiniteType.baseChange I1 I2 hc hI hI2 ⋙
+      CommAlgCat.TopologicallyFiniteType.toAdicSystem I2)
 
-/-- Components of the comparison isomorphism are `baseChangeObjIso`. -/
-theorem baseChangeToAdicSystemIso_app (I1 : Ideal A1) (I2 : Ideal A2) {c : ℕ}
-    (hc : 1 ≤ c) (hI : I1.map (algebraMap A1 A2) ^ c ≤ I2) (hI2 : I2.FG)
-    (B : CommAlgCat.TopologicallyFiniteType.{u} A1 I1) :
-    (baseChangeToAdicSystemIso I1 I2 hc hI hI2).app B =
-      CommAlgCat.TopologicallyFiniteType.baseChangeObjIso I1 I2 hc hI hI2 B :=
-  sorry
+#check (CommAlgCat.TopologicallyFiniteType.baseChangeToAdicSystemIso_app
+    I1 I2 hc hI hI2 :
+  ∀ B : CommAlgCat.TopologicallyFiniteType.{u} A1 I1,
+    (CommAlgCat.TopologicallyFiniteType.baseChangeToAdicSystemIso I1 I2 hc hI hI2).app B =
+      CommAlgCat.TopologicallyFiniteType.baseChangeObjIso I1 I2 hc hI hI2 B)
 
-end AdicCompleteFiniteType
+variable (hI1 : I1.FG)
+
+#check (CommAlgCat.TopologicallyFiniteType.baseChangeLimitIso I1 I2 hc hI hI1 hI2 :
+  AdicAlgebraSystem.limitFunctor I1 hI1 ⋙
+    CommAlgCat.TopologicallyFiniteType.baseChange I1 I2 hc hI hI2 ≅
+  AdicAlgebraSystem.baseChange (algebraMap A1 A2) I1 I2 hc
+      (by simpa only [Ideal.map_pow] using hI) ⋙
+    AdicAlgebraSystem.limitFunctor I2 hI2)
+
+#check (AdicAlgebraSystem.limitFunctorEquivalence I1 hI1 :
+  AdicAlgebraSystem A1 I1 ≌ CommAlgCat.TopologicallyFiniteType.{u} A1 I1)
+
+#check (AdicAlgebraSystem.limitFunctorEquivalence I2 hI2 :
+  AdicAlgebraSystem A2 I2 ≌ CommAlgCat.TopologicallyFiniteType.{u} A2 I2)

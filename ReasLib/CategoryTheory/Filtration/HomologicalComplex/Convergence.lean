@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.HomologicalComplex.Representatives
@@ -34,7 +28,8 @@ variable (K : HomologicalComplex (FilteredObject C) (ComplexShape.refl PUnit.{1}
 
 section CompleteSubobjects
 
-variable [CompleteLattice (Subobject ((underlying K).homology PUnit.unit))]
+variable [LocallySmall.{v} C] [WellPowered.{v} C]
+  [HasWidePullbacks.{v} C] [HasCoproducts.{v} C]
 
 namespace Homology.Filtration
 

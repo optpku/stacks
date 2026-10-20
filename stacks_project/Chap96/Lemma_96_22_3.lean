@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap94.Lemma_94_9_8
@@ -99,14 +93,10 @@ variable [∀ P : F'.toGroupoids.totalᵒᵖ ⥤ Type u,
     (toCartesianBasedFunctor
         (AlgebraicSpace.toGroupoids.map
           (inducedHom eX' eY' (fibreProductFst f g)))).toFunctor.op.HasPointwiseRightKanExtension P]
-variable [∀ P : (AlgebraicSpace.smallEtaleSite F')ᵒᵖ ⥤ Type u,
-    (AlgebraicSpace.smallEtaleInclusion F').op.HasPointwiseRightKanExtension P]
 variable [∀ P : F'.toGroupoids.totalᵒᵖ ⥤ AddCommGrpCat.{u},
     (toCartesianBasedFunctor
         (AlgebraicSpace.toGroupoids.map
           (inducedHom eX' eY' (fibreProductFst f g)))).toFunctor.op.HasPointwiseRightKanExtension P]
-variable [∀ P : (AlgebraicSpace.smallEtaleSite F')ᵒᵖ ⥤ AddCommGrpCat.{u},
-    (AlgebraicSpace.smallEtaleInclusion F').op.HasPointwiseRightKanExtension P]
 variable [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
     (toCartesianBasedFunctor f).toFunctor.op]
 variable [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
@@ -115,8 +105,6 @@ variable [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
     (toCartesianBasedFunctor
         (AlgebraicSpace.toGroupoids.map
           (inducedHom eX' eY' (fibreProductFst f g)))).toFunctor.op]
-variable [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
-    (AlgebraicSpace.smallEtaleInclusion F').op]
 variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
     (Sheaf X.etaleTopology AddCommGrpCat.{u})]
 variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}

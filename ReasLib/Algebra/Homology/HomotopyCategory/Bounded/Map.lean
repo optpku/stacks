@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.HomotopyCategory.Bounded.Basic
@@ -88,10 +82,6 @@ def _root_.CategoryTheory.Functor.mapHomotopyCategoryMinus (F : 𝒜 ⥤ ℬ) [F
 
 namespace Minus
 
-/-- Compatibility name for `Functor.mapHomotopyCategoryMinus`. -/
-@[deprecated Functor.mapHomotopyCategoryMinus (since := "2026-08-03")]
-abbrev map (F : 𝒜 ⥤ ℬ) [F.Additive] := F.mapHomotopyCategoryMinus
-
 /-- The bounded-above functor induced by an additive functor agrees with the ambient homotopy
 functor after forgetting boundedness. -/
 noncomputable def compInclusionIso (F : 𝒜 ⥤ ℬ) [F.Additive] :
@@ -171,10 +161,6 @@ def _root_.CategoryTheory.Functor.mapHomotopyCategoryBounded (F : 𝒜 ⥤ ℬ) 
     (F.mapHomotopyCategory (up ℤ)) (Bounded.mapsTo F)
 
 namespace Bounded
-
-/-- Compatibility name for `Functor.mapHomotopyCategoryBounded`. -/
-@[deprecated Functor.mapHomotopyCategoryBounded (since := "2026-08-03")]
-abbrev map (F : 𝒜 ⥤ ℬ) [F.Additive] := F.mapHomotopyCategoryBounded
 
 /-- The bounded functor induced by an additive functor agrees with the ambient homotopy functor
 after forgetting boundedness. -/

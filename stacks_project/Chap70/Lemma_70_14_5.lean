@@ -1,57 +1,54 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap70.Lemma_70_14_5_SectionsWithSupport
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.SectionsWithSupport
 import StacksCheckRecall
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.Limits Opposite AlgebraicGeometry
+open CategoryTheory Opposite AlgebraicGeometry
 open AlgebraicGeometry.AlgebraicSpace AlgebraicGeometry.AlgebraicSpace.Modules
-open scoped AlgebraicGeometry
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules
-
 variable {S : Scheme.{u}} {X U : AlgebraicSpace S}
-variable (ι : U ⟶ X) [IsOpenImmersion ι] (F : X.Modules)
-variable (W : smallEtaleSite X)
 
-/- The sheaf of sections supported in the closed complement of an open
-subspace is the kernel of restriction along the open immersion. -/
+/- Lemma 70.14.5: on every étale chart, the supported subsheaf consists exactly of sections
+whose support lies over the closed complement of the open subspace. -/
 @[stacks 0859]
-#check (sectionsWithSupportIn ι F : X.Modules)
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.range_sectionsWithSupportInι_app_eq_supportedSections :
+  ∀ (ι : U ⟶ X) [IsOpenImmersion ι] (F : X.Modules) (W : smallEtaleSite X)
+    {T : Set (Points X)}, T = (Set.range (Points.map ι))ᶜ →
+      Set.range ((sectionsWithSupportInι ι F).val.app (op W)) =
+        {s | sectionSupport F W s ⊆ Points.mapOfOver W.hom ⁻¹' T})
 
-/- The canonical map to the original module sheaf is the kernel inclusion. -/
+/- Lemma 70.14.5 (1): every affine étale chart admits a finitely generated ideal cutting out
+the inverse image of the closed complement of a quasi-compact open subspace. -/
 @[stacks 0859]
-#check (sectionsWithSupportInι ι F : sectionsWithSupportIn ι F ⟶ F)
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.exists_fg_ideal_of_quasiCompact_openComplement :
+  ∀ (ι : U ⟶ X) [IsOpenImmersion ι] [QuasiCompact ι]
+    {T : Set (Points X)}, IsClosed T → T = (Set.range (Points.map ι))ᶜ →
+      ∀ (W : smallEtaleSite X) [IsAffine W.left.left],
+        ∃ I : Ideal (structureRing W), I.FG ∧
+          Points.mapOfOver W.hom ⁻¹' T =
+            W.left.left.zeroLocus (I : Set (structureRing W)))
 
-/- A section over an étale object lies in the kernel sheaf if and only if it is sent to zero
-by the unit of `ι^* ⊣ ι_*`. -/
+/- Lemma 70.14.5 (2): on an affine étale chart, the supported sections are precisely those
+annihilated by a power of any finitely generated ideal cutting out the inverse image. -/
 @[stacks 0859]
-#check (mem_range_sectionsWithSupportInι_app_iff ι F W)
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.range_sectionsWithSupportInι_app_eq_affine_idealPowerTorsion :
+  ∀ (ι : U ⟶ X) [IsOpenImmersion ι] [QuasiCompact ι]
+    (F : X.Modules) [F.IsQuasicoherent] {T : Set (Points X)},
+      IsClosed T → T = (Set.range (Points.map ι))ᶜ →
+        ∀ (W : smallEtaleSite X) [IsAffine W.left.left]
+          (I : Ideal (structureRing W)), I.FG →
+            Points.mapOfOver W.hom ⁻¹' T =
+              W.left.left.zeroLocus (I : Set (structureRing W)) →
+            Set.range ((sectionsWithSupportInι ι F).val.app (op W)) =
+              {x | ∃ n : ℕ, ∀ a, a ∈ I ^ n → a • x = 0})
 
-/- Lemma 70.14.5 (1): if `U ⟶ X` is quasi-compact, every affine étale `W` admits a finitely
-generated ideal cutting out the preimage of the closed complement of `|U|`. -/
+/- Lemma 70.14.5 (3): sections of a quasi-coherent module supported in the complement of a
+quasi-compact open subspace form a quasi-coherent sheaf. -/
 @[stacks 0859]
-#check exists_fg_ideal_of_quasiCompact_openComplement
-
-/- Lemma 70.14.5 (2): on such an affine étale `W`, the supported sections are the sections
-annihilated by some power of that ideal. -/
-@[stacks 0859]
-#check range_sectionsWithSupportInι_app_eq_affine_idealPowerTorsion
-
-/- Lemma 70.14.5 (3): under the same quasi-compactness hypothesis, the sheaf of supported
-sections of a quasi-coherent module is quasi-coherent. -/
-@[stacks 0859]
-#check sectionsWithSupportIn_isQuasicoherent
-
-end AlgebraicGeometry.AlgebraicSpace.Modules
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.sectionsWithSupportIn_isQuasicoherent :
+  ∀ (ι : U ⟶ X) [IsOpenImmersion ι] [QuasiCompact ι]
+    (F : X.Modules) [F.IsQuasicoherent], (sectionsWithSupportIn ι F).IsQuasicoherent)

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_19_2_AutomorphismGroup
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.AutomorphismGroup
 public import stacks_project.Chap67.Lemma_67_37_4_Smooth
 public import stacks_project.Chap67.Definition_67_40_1_Proper
 
@@ -30,101 +24,67 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Smooth morphisms of algebraic spaces are invariant under ground field
-extensions. -/
-instance smooth_isInvariantUnderGroundFieldExtension {S : Scheme.{u}} :
-    IsInvariantUnderGroundFieldExtension (@AlgebraicSpace.Smooth S) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.smooth_isInvariantUnderGroundFieldExtension :
+  ∀ {S : Scheme.{u}},
+    IsInvariantUnderGroundFieldExtension (@AlgebraicSpace.Smooth S))
 
-/-- Proper morphisms of algebraic spaces are invariant under ground field
-extensions. -/
-instance proper_isInvariantUnderGroundFieldExtension {S : Scheme.{u}} :
-    IsInvariantUnderGroundFieldExtension (@AlgebraicSpace.Proper S) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.proper_isInvariantUnderGroundFieldExtension :
+  ∀ {S : Scheme.{u}},
+    IsInvariantUnderGroundFieldExtension (@AlgebraicSpace.Proper S))
 
-namespace automorphismGroup
-
-/-- The automorphism group of an algebraic stack at a point has a morphism
-property `P` of algebraic spaces over fields, invariant under ground field
-extensions, when every field-valued representative of the point has `P`. -/
-def HasAt {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.HasAt :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
     (P : MorphismProperty (AlgebraicSpace S))
-    [IsInvariantUnderGroundFieldExtension P] (x : |X|) : Prop :=
-  ∀ p : FieldValuedPoint X, Points.mk p = x → Has P p
+    [IsInvariantUnderGroundFieldExtension P] (x : Points X), Prop)
 
-/-- The automorphism group at a point has `P` if and only if some field-valued
-representative has `P`. -/
-theorem HasAt_iff_exists {S : Scheme.{u}} {X : GroupoidsOver S}
-    [AlgebraicStack X] (P : MorphismProperty (AlgebraicSpace S))
-    [IsInvariantUnderGroundFieldExtension P] (x : |X|) :
-    HasAt P x ↔ ∃ p : FieldValuedPoint X, Points.mk p = x ∧ Has P p :=
-  sorry
-
-namespace HasAt
-
-/-- If the automorphism group at `x` has `P`, then the automorphism group of
-every field-valued representative of `x` has `P`. -/
-theorem spec {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.HasAt_iff_exists :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
     (P : MorphismProperty (AlgebraicSpace S))
-    [IsInvariantUnderGroundFieldExtension P] {x : |X|} :
-    HasAt P x → ∀ p : FieldValuedPoint X, Points.mk p = x → Has P p :=
-  sorry
+    [IsInvariantUnderGroundFieldExtension P] (x : Points X),
+    automorphismGroup.HasAt P x ↔
+      ∃ p : FieldValuedPoint X, Points.mk p = x ∧ automorphismGroup.Has P p)
 
-/-- If the automorphism group of a field-valued representative of `x` has `P`,
-then the automorphism group at `x` has `P`. -/
-theorem of_fieldValuedPoint {S : Scheme.{u}} {X : GroupoidsOver S}
-    [AlgebraicStack X] (P : MorphismProperty (AlgebraicSpace S))
-    [IsInvariantUnderGroundFieldExtension P] {x : |X|} {p : FieldValuedPoint X} :
-    Points.mk p = x → Has P p → HasAt P x :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.HasAt.spec :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    (P : MorphismProperty (AlgebraicSpace S))
+    [IsInvariantUnderGroundFieldExtension P] {x : Points X},
+    automorphismGroup.HasAt P x →
+      ∀ p : FieldValuedPoint X, Points.mk p = x → automorphismGroup.Has P p)
 
-end HasAt
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.HasAt.of_fieldValuedPoint :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    (P : MorphismProperty (AlgebraicSpace S))
+    [IsInvariantUnderGroundFieldExtension P] {x : Points X} {p : FieldValuedPoint X},
+    Points.mk p = x → automorphismGroup.Has P p → automorphismGroup.HasAt P x)
 
-/-- The automorphism group of an algebraic stack at a point is finite. -/
-def IsFinite {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
-    (x : |X|) : Prop :=
-  HasAt (@AlgebraicSpace.IsFinite S) x
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.IsFinite :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    (x : Points X), Prop)
 
-/-- The automorphism group at `x` is finite if and only if the structure
-morphism of the automorphism group of every field-valued representative is
-finite. -/
-theorem IsFinite_iff {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
-    (x : |X|) :
-    IsFinite x ↔
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.IsFinite_iff :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] (x : Points X),
+    automorphismGroup.IsFinite x ↔
       ∀ p : FieldValuedPoint X, Points.mk p = x →
-        Has (@AlgebraicSpace.IsFinite S) p :=
-  sorry
+        automorphismGroup.Has (@AlgebraicSpace.IsFinite S) p)
 
-/-- The automorphism group of an algebraic stack at a point is smooth. -/
-def Smooth {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
-    (x : |X|) : Prop :=
-  HasAt (@AlgebraicSpace.Smooth S) x
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.Smooth :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    (x : Points X), Prop)
 
-/-- The automorphism group at `x` is smooth if and only if the structure
-morphism of the automorphism group of every field-valued representative is
-smooth. -/
-theorem Smooth_iff {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
-    (x : |X|) :
-    Smooth x ↔
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.Smooth_iff :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] (x : Points X),
+    automorphismGroup.Smooth x ↔
       ∀ p : FieldValuedPoint X, Points.mk p = x →
-        Has (@AlgebraicSpace.Smooth S) p :=
-  sorry
+        automorphismGroup.Has (@AlgebraicSpace.Smooth S) p)
 
-/-- The automorphism group of an algebraic stack at a point is proper. -/
-def Proper {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
-    (x : |X|) : Prop :=
-  HasAt (@AlgebraicSpace.Proper S) x
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.Proper :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    (x : Points X), Prop)
 
-/-- The automorphism group at `x` is proper if and only if the structure
-morphism of the automorphism group of every field-valued representative is
-proper. -/
-theorem Proper_iff {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
-    (x : |X|) :
-    Proper x ↔
+#check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.Proper_iff :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] (x : Points X),
+    automorphismGroup.Proper x ↔
       ∀ p : FieldValuedPoint X, Points.mk p = x →
-        Has (@AlgebraicSpace.Proper S) p :=
-  sorry
-
-end automorphismGroup
+        automorphismGroup.Has (@AlgebraicSpace.Proper S) p)
 
 end AlgebraicGeometry.AlgebraicStack

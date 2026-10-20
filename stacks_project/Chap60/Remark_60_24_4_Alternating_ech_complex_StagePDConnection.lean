@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import stacks_project.Chap60.Remark_60_24_4_Alternating_ech_complex_PDSquareZeroGeometry
 public import Mathlib.Algebra.Category.ModuleCat.Limits

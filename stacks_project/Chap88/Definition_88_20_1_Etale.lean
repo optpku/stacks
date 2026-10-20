@@ -1,13 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap66.Lemma_66_16_4_Etale
 public import stacks_project.Chap80.Lemma_80_4_6
+
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Morphism.Etale
 
 /-!
 # Étale morphisms of functors of points
@@ -19,44 +15,9 @@ morphism of algebraic spaces.
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-
-noncomputable section
+open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.FormalAlgebraicSpace
-
-/-- A morphism of functors of points on schemes over `S` is étale when it is
-representable by algebraic spaces and every Yoneda pullback is étale. -/
-@[mk_iff]
-class Etale {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u} (f : X ⟶ Y) : Prop where
-  /-- `f` is representable by algebraic spaces. -/
-  representable : representableByAlgebraicSpaces f
-  /-- Every Yoneda pullback of `f` is an étale morphism of algebraic spaces. -/
-  of_pullback :
-    ∀ ⦃U : Over S⦄ (ξ : yoneda.obj U ⟶ Y),
-      AlgebraicSpace.Etale (representableByAlgebraicSpaces.pullbackHom representable ξ)
-
-namespace Etale
-
-/-- The identity morphism of a functor of points is étale. -/
-instance id {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u} : Etale (𝟙 X) := sorry
-
-/-- An étale morphism is representable by algebraic spaces. -/
-theorem relativelyRepresentable {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
-    (f : X ⟶ Y) [Etale f] : representableByAlgebraicSpaces f :=
-  sorry
-
-/-- Yoneda pullbacks of an étale morphism are étale morphisms of algebraic
-spaces. -/
-theorem spec {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u} (f : X ⟶ Y)
-    [hf : Etale f] {U : Over S} (ξ : yoneda.obj U ⟶ Y) :
-    representableByAlgebraicSpaces f ∧
-      AlgebraicSpace.Etale
-        (representableByAlgebraicSpaces.pullbackHom hf.representable ξ) :=
-  sorry
-
-end Etale
-
-end AlgebraicGeometry.FormalAlgebraicSpace
+#check (AlgebraicGeometry.FormalAlgebraicSpace.Etale :
+  ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}, (X ⟶ Y) → Prop)

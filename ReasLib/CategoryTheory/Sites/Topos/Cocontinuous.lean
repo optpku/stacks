@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.Topos.Morphism
@@ -101,11 +95,32 @@ noncomputable def CocontinuousPullback.comparison :
     (fun {_ _} η ↦
       CocontinuousPullback.comparisonApp_naturality G J K η)
 
+/-- The isomorphism from cocontinuous pullback to continuous pushforward is the
+sheafification compatibility isomorphism followed by the inverse of the
+pushforward of the sheafification isomorphism. -/
+@[stacks 06NW "actual cocontinuous-to-continuous comparison"]
+noncomputable def CocontinuousPullback.comparisonIso :
+    G.sheafPullbackCocontinuous (Type w) J K ≅
+      G.sheafPushforwardContinuous (Type w) J K :=
+  NatIso.ofComponents
+    (fun F =>
+      (G.pushforwardContinuousSheafificationCompatibility (Type w) J K).app F.obj ≪≫
+        ((G.sheafPushforwardContinuous (Type w) J K).mapIso (sheafificationIso F)).symm)
+    (fun {_ _} η ↦ CocontinuousPullback.comparisonApp_naturality G J K η)
+
+/-- The actual isomorphism's forward transformation is the canonical comparison. -/
+@[simp]
+theorem CocontinuousPullback.comparisonIso_hom :
+    (CocontinuousPullback.comparisonIso G J K).hom =
+      CocontinuousPullback.comparison G J K :=
+  rfl
+
 /-- The canonical comparison from cocontinuous pullback to continuous
 pushforward is invertible. -/
 @[stacks 06NW "invertibility of the cocontinuous-to-continuous comparison"]
 instance CocontinuousPullback.comparison.isIso :
-    IsIso (CocontinuousPullback.comparison G J K) := sorry
+    IsIso (CocontinuousPullback.comparison G J K) :=
+  (CocontinuousPullback.comparisonIso G J K).isIso_hom
 
 /-- An explicit isomorphism presentation of the canonical cocontinuous-to-continuous
 comparison.  The equality field is part of the presentation, so downstream constructions can
@@ -211,21 +226,21 @@ cocontinuous sheaf pushforward. -/
 @[simp] theorem morphismOfTopoiInOfCocontinuous_pushforward
     [HasSheafify J (Type w)] :
     (G.morphismOfTopoiInOfCocontinuous J K).pushforward =
-      G.sheafPushforwardCocontinuous (Type w) J K := sorry
+      G.sheafPushforwardCocontinuous (Type w) J K := rfl
 
 /-- The inverse image of the cocontinuously induced morphism of topoi is the
 sheafified cocontinuous pullback. -/
 @[simp] theorem morphismOfTopoiInOfCocontinuous_inverseImage
     [HasSheafify J (Type w)] :
     (G.morphismOfTopoiInOfCocontinuous J K).inverseImage =
-      G.sheafPullbackCocontinuous (Type w) J K := sorry
+      G.sheafPullbackCocontinuous (Type w) J K := rfl
 
 /-- The adjunction stored by the cocontinuously induced morphism of topoi is
 the canonical cocontinuous pullback-pushforward adjunction. -/
 theorem morphismOfTopoiInOfCocontinuous_spec
     [HasSheafify J (Type w)] :
     (G.morphismOfTopoiInOfCocontinuous J K).adjunction =
-      G.sheafPullbackCocontinuousAdjunction J K := sorry
+      G.sheafPullbackCocontinuousAdjunction J K := rfl
 
 end Cocontinuous
 

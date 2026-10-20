@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.BivariantClass.GysinAtInfinity
@@ -25,7 +19,7 @@ noncomputable def gysinPullback
     (b : W ⟶ ProjectiveLineFamily.space X) [IsProper b] (k : ℤ) :
     RelativeChow δ (compactification X b) (k + 1) →+
       RelativeChow δ (infinityFiber X b) k :=
-  (ChowCohomology.castDegree δ (gysinDegree k)).comp
+  (RelativeChow.castDegree δ (gysinDegree k)).comp
     (ChowGroup.gysin δ (compactification X b) (infinityLineBundle X b)
       (infinitySection X b) (k + 1))
 
@@ -35,7 +29,7 @@ theorem gysinPullback_def
     (X : Over S) [LocallyOfFiniteType X.hom]
     (b : W ⟶ ProjectiveLineFamily.space X) [IsProper b] (k : ℤ) :
     gysinPullback δ X b k =
-      (ChowCohomology.castDegree δ (gysinDegree k)).comp
+      (RelativeChow.castDegree δ (gysinDegree k)).comp
         (ChowGroup.gysin δ (compactification X b) (infinityLineBundle X b)
           (infinitySection X b) (k + 1)) := sorry
 
@@ -46,7 +40,7 @@ noncomputable def capAtBase
     (b : W ⟶ ProjectiveLineFamily.space X) [IsProper b]
     [IsIso (b ∣_ affinePart X)] (k : ℤ) :
     RelativeChow δ (Over.mk X.hom) k →+ RelativeChow δ (infinityFiber X b) k :=
-  (ChowCohomology.castDegree δ (Int.sub_zero k)).comp
+  (RelativeChow.castDegree δ (Int.sub_zero k)).comp
     ((BivariantClass.gysinAtInfinity δ X b).cap (𝟙 (infinityFiber X b))
       (infinityToX X b) (𝟙 (Over.mk X.hom))
       (IsPullback.id_horiz (infinityToX X b).left) k)
@@ -58,7 +52,7 @@ theorem capAtBase_def
     (b : W ⟶ ProjectiveLineFamily.space X) [IsProper b]
     [IsIso (b ∣_ affinePart X)] (k : ℤ) :
     capAtBase δ X b k =
-      (ChowCohomology.castDegree δ (Int.sub_zero k)).comp
+      (RelativeChow.castDegree δ (Int.sub_zero k)).comp
         ((BivariantClass.gysinAtInfinity δ X b).cap (𝟙 (infinityFiber X b))
           (infinityToX X b) (𝟙 (Over.mk X.hom))
           (IsPullback.id_horiz (infinityToX X b).left) k) := sorry

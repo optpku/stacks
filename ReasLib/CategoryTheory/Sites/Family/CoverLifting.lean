@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.Grothendieck
@@ -119,7 +113,7 @@ structure Request (J : GrothendieckTopology C) (p : C ⥤ Type w) where
 namespace Request
 
 /-- The finite covering family carried by a finite-cover lifting request. -/
-def cover (r : Request J p) : SemiRepresentableFamily.Over.{0} r.W where
+abbrev cover (r : Request J p) : SemiRepresentableFamily.Over.{0} r.W where
   index := Fin r.n
   obj := r.obj
 
@@ -142,10 +136,6 @@ theorem ofFamily_cover {W : C}
     (𝒰 : SemiRepresentableFamily.Over.{w'} W) [Finite 𝒰.index]
     (h𝒰 : 𝒰.toSieve ∈ J W) (f : p.obj W) :
     (ofFamily 𝒰 h𝒰 f).cover = SemiRepresentableFamily.Over.finReindex 𝒰 := rfl
-
-/-- The covering family carried by a finite-cover lifting request has finite
-index type. -/
-instance finite_index (r : Request J p) : Finite r.cover.index := sorry
 
 /-- A finite-cover lifting request is realized when its stored section lifts
 through one arrow of its stored cover. -/
@@ -173,12 +163,14 @@ def map (r : Request J p) {q : C ⥤ Type w} (η : p ⟶ q) :
 
 /-- Transporting a finite-cover lifting request along the identity natural
 transformation leaves the request unchanged. -/
-@[simp] theorem map_id (r : Request J p) :
+@[simp]
+theorem map_id (r : Request J p) :
     r.map (𝟙 p) = r := sorry
 
 /-- Transporting a finite-cover lifting request through two natural
 transformations agrees with transport through their composite. -/
-@[simp] theorem map_comp {q s : C ⥤ Type w} (r : Request J p)
+@[simp]
+theorem map_comp {q s : C ⥤ Type w} (r : Request J p)
     (η : p ⟶ q) (θ : q ⟶ s) :
     (r.map η).map θ = r.map (η ≫ θ) := sorry
 

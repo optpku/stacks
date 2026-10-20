@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.FiniteType
@@ -12,6 +6,7 @@ public import Mathlib.AlgebraicGeometry.Pullbacks
 public import Mathlib.CategoryTheory.Adjunction.CompositionIso
 public import Mathlib.CategoryTheory.Subobject.FactorThru
 public import ReasLib.CategoryTheory.Adjunction.BaseChange
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.LowerShriek.BaseChange
 public import stacks_project.Chap59.Lemma_59_54_1
 public import stacks_project.Chap59.Lemma_59_80_9_Pullback
 public import stacks_project.Chap63.Lemma_63_3_4_LowerShriek
@@ -40,138 +35,28 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Etale
 
-/-- Pullback of abelian small-étale sheaves along a composite is the composite
-pullback. -/
-def etaleLowerShriekBaseChange_pullbackComp {A B C : Scheme.{u}}
-    (p : B ⟶ A) (q : C ⟶ B) :
-    etaleAbelianSheafPullback p ⋙ etaleAbelianSheafPullback q ≅
-      etaleAbelianSheafPullback (q ≫ p) :=
-  let siteIso :
-      smallEtalePullback p ⋙ smallEtalePullback q ≅ smallEtalePullback (q ≫ p) :=
-    (MorphismProperty.Over.pullbackComp q p).symm
-  Adjunction.leftAdjointCompIso
-    ((smallEtalePullback p).sheafAdjunctionContinuous AddCommGrpCat.{u}
-      A.smallEtaleTopology B.smallEtaleTopology)
-    ((smallEtalePullback q).sheafAdjunctionContinuous AddCommGrpCat.{u}
-      B.smallEtaleTopology C.smallEtaleTopology)
-    ((smallEtalePullback (q ≫ p)).sheafAdjunctionContinuous AddCommGrpCat.{u}
-      A.smallEtaleTopology C.smallEtaleTopology)
-    (sheafPushforwardContinuousComp' siteIso AddCommGrpCat.{u}
-      A.smallEtaleTopology B.smallEtaleTopology C.smallEtaleTopology)
-
-section
 variable {X Y X' Y' : Scheme.{u}}
 variable (f : X ⟶ Y) (g : Y' ⟶ Y) (f' : X' ⟶ Y') (g' : X' ⟶ X)
 variable (h_cart : IsPullback g' f' f g)
 variable [IsSeparated f] [LocallyOfFiniteType f]
-
-/-- The inverse-image square of abelian small-étale sheaves associated to a
-cartesian square of schemes. -/
-def etaleLowerShriekBaseChange_pullbackSquare :
-    etaleAbelianSheafPullback g ⋙ etaleAbelianSheafPullback f' ≅
-      etaleAbelianSheafPullback f ⋙ etaleAbelianSheafPullback g' :=
-  etaleLowerShriekBaseChange_pullbackComp g f' ≪≫
-    eqToIso (congrArg (fun h : X' ⟶ Y ↦ etaleAbelianSheafPullback h) h_cart.w.symm) ≪≫
-    (etaleLowerShriekBaseChange_pullbackComp f g').symm
-
-/-- The underived Sites pullback mate `g⁻¹ f_* ⟶ f'_* (g')⁻¹` of the cartesian
-square, obtained as the right mate of the inverse-image square. -/
-def etaleLowerShriekBaseChange_pushforwardMate :
-    etaleAbelianPushforward f ⋙ etaleAbelianSheafPullback g ⟶
-      etaleAbelianSheafPullback g' ⋙ etaleAbelianPushforward f' :=
-  DerivedBaseChange.map
-    ((smallEtalePullback f).sheafAdjunctionContinuous AddCommGrpCat.{u}
-      Y.smallEtaleTopology X.smallEtaleTopology)
-    ((smallEtalePullback f').sheafAdjunctionContinuous AddCommGrpCat.{u}
-      Y'.smallEtaleTopology X'.smallEtaleTopology)
-    (etaleLowerShriekBaseChange_pullbackSquare f g f' g' h_cart)
-
-/-- The composite `g⁻¹ f_! ⟶ g⁻¹ f_* ⟶ f'_* (g')⁻¹` obtained by whiskering the
-compact-support inclusion with étale inverse image and then applying the
-underived Sites pullback mate of the cartesian square. -/
-def etaleLowerShriekBaseChangeToPushforward :
-    etaleLowerShriek f ⋙ etaleAbelianSheafPullback g ⟶
-      etaleAbelianSheafPullback g' ⋙ etaleAbelianPushforward f' :=
-  whiskerRight (etaleLowerShriekι f) (etaleAbelianSheafPullback g) ≫
-    etaleLowerShriekBaseChange_pushforwardMate f g f' g' h_cart
-
 variable [IsSeparated f'] [LocallyOfFiniteType f']
 
-/-- Whiskering the compact-support inclusion `f'_! ⟶ f'_*` on the left by
-`(g')⁻¹` remains a monomorphism. -/
-instance etaleLowerShriekι_whiskerLeft_mono :
-    Mono (whiskerLeft (etaleAbelianSheafPullback g') (etaleLowerShriekι f')) :=
-  sorry
+/- The compact-support comparison retains its functorial type. -/
+#check (AlgebraicGeometry.Scheme.Etale.etaleLowerShriekBaseChange f g f' g' h_cart :
+  etaleLowerShriek f ⋙ etaleAbelianSheafPullback g ⟶
+    etaleAbelianSheafPullback g' ⋙ etaleLowerShriek f')
 
-/-- The underived Sites pullback mate sends `g⁻¹ f_!` into the compact-support
-subfunctor `f'_! (g')⁻¹` of `f'_* (g')⁻¹`. -/
-theorem etaleLowerShriekBaseChange_factors :
-    MonoOver.Factors
-      (MonoOver.mk
-        (whiskerLeft (etaleAbelianSheafPullback g') (etaleLowerShriekι f')))
-      (etaleLowerShriekBaseChangeToPushforward f g f' g' h_cart) :=
-  sorry
-
-/-- The canonical comparison `g⁻¹ f_! ⟶ f'_! (g')⁻¹` obtained by uniquely
-factoring the Sites pullback mate through the compact-support inclusion
-`f'_! ⟶ f'_*`. -/
-def etaleLowerShriekBaseChange :
-    etaleLowerShriek f ⋙ etaleAbelianSheafPullback g ⟶
-      etaleAbelianSheafPullback g' ⋙ etaleLowerShriek f' :=
-  MonoOver.factorThru
-    (MonoOver.mk
-      (whiskerLeft (etaleAbelianSheafPullback g') (etaleLowerShriekι f')))
-    (etaleLowerShriekBaseChangeToPushforward f g f' g' h_cart)
-    (etaleLowerShriekBaseChange_factors f g f' g' h_cart)
-
-/-- The comparison at an abelian étale sheaf `F`. -/
-def etaleLowerShriekBaseChange_app
-    (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) :
+/- Its component is a morphism of abelian sheaves on the new base. -/
+#check (AlgebraicGeometry.Scheme.Etale.etaleLowerShriekBaseChange_app f g f' g' h_cart :
+  ∀ (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}),
     (etaleAbelianSheafPullback g).obj ((etaleLowerShriek f).obj F) ⟶
-      (etaleLowerShriek f').obj ((etaleAbelianSheafPullback g').obj F) :=
-  (etaleLowerShriekBaseChange f g f' g' h_cart).app F
+      (etaleLowerShriek f').obj ((etaleAbelianSheafPullback g').obj F))
 
-/-- The comparison fills the triangle with compact-support inclusions and the
-underived Sites pullback mate. -/
-theorem etaleLowerShriekBaseChange_ι :
-    etaleLowerShriekBaseChange f g f' g' h_cart ≫
-        whiskerLeft (etaleAbelianSheafPullback g') (etaleLowerShriekι f') =
-      etaleLowerShriekBaseChangeToPushforward f g f' g' h_cart :=
-  sorry
-
-/-- Any morphism making the compact-support triangle commute equals the
-canonical comparison. -/
-theorem etaleLowerShriekBaseChange_lift_unique
-    (α : etaleLowerShriek f ⋙ etaleAbelianSheafPullback g ⟶
-      etaleAbelianSheafPullback g' ⋙ etaleLowerShriek f')
-    (hα : α ≫ whiskerLeft (etaleAbelianSheafPullback g') (etaleLowerShriekι f') =
-      etaleLowerShriekBaseChangeToPushforward f g f' g' h_cart) :
-    α = etaleLowerShriekBaseChange f g f' g' h_cart :=
-  sorry
-
-/-- The comparison `g⁻¹ f_! ⟶ f'_! (g')⁻¹` is an isomorphism. -/
-instance etaleLowerShriekBaseChange_isIso :
-    IsIso (etaleLowerShriekBaseChange f g f' g' h_cart) :=
-  sorry
-
-end
-
-section
-
-variable {X Y Y' : Scheme.{u}} (f : X ⟶ Y) (g : Y' ⟶ Y)
-variable [IsSeparated f] [LocallyOfFiniteType f]
-
-/-- Specialization of the compact-support base-change comparison to the chosen
-pullback square of `g` and `f`. -/
-def etaleLowerShriekBaseChangeIso_pullback :
-    etaleLowerShriek f ⋙ etaleAbelianSheafPullback g ≅
-      etaleAbelianSheafPullback (pullback.snd g f) ⋙
-        etaleLowerShriek (pullback.fst g f) :=
-  asIso
-    (etaleLowerShriekBaseChange f g (pullback.fst g f) (pullback.snd g f)
-      (IsPullback.of_hasPullback g f).flip)
-
-end
+/- The compact-support comparison restricts the ordinary base-change mate. -/
+#check (AlgebraicGeometry.Scheme.Etale.etaleLowerShriekBaseChange_ι f g f' g' h_cart :
+  etaleLowerShriekBaseChange f g f' g' h_cart ≫
+      whiskerLeft (etaleAbelianSheafPullback g') (etaleLowerShriekι f') =
+    etaleLowerShriekBaseChangeToPushforward f g f' g' h_cart)
 
 end AlgebraicGeometry.Scheme.Etale
 

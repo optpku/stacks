@@ -1,19 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap62.Lemma_62_11_1_Cap
-public import stacks_project.Chap62.Example_62_5_2_AssociatedCycle
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Coherent.Quasicoherent
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Coherent.Tensor
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Flat
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Monoidal
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Pullback.Coherent
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.CyclesOnFibers.AssociatedCycle
+import StacksCheckRecall
 
 /-!
 # Associated cycles of a cap product
@@ -35,14 +23,15 @@ universe u
 namespace AlgebraicGeometry.Scheme.Hom
 namespace CyclesOnFibers
 
-/-- Lemma 62.11.4: Let `(S, δ)` and `f : X ⟶ Y` be as in the fibre-cycle action
+/- Lemma 62.11.4: Let `(S, δ)` and `f : X ⟶ Y` be as in the fibre-cycle action
 setup, and let `F` be a coherent `O_X`-module with `dim(Supp(F_y)) ≤ r` for all
 `y ∈ Y`. Let `G` be a coherent `O_Y`-module with `dim_δ(Supp(G)) ≤ e`. Set
-`α = [F/X/Y]_r` as `moduleFiberCycleFamily f F r hF` and
-`β = [G]_e` as `Modules.relativeAssociatedCycle p δ G e`. If `F` is flat over
-`Y`, then `α ∩ β = [F ⊗ (Modules.pullback f).obj G]_{r + e}`. -/
-@[stacks 0H69]
-theorem cap_moduleFiberCycleFamily {S X Y : Scheme.{u}} [UniversallyCatenary S]
+`α = [F/X/Y]_r` as `moduleFiberCycleFamily f F r hF` and `β = [G]_e` as
+`Modules.relativeAssociatedCycle p δ G e`. If `F` is flat over `Y`, then
+`α ∩ β = [F ⊗ (Modules.pullback f).obj G]_{r + e}`. -/
+@[stacks 0H69] #check
+  (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.cap_moduleFiberCycleFamily :
+    ∀ {S X Y : Scheme.{u}} [UniversallyCatenary S]
     [IsLocallyNoetherian X] [IsLocallyNoetherian Y]
     (p : Y ⟶ S) (f : X ⟶ Y)
     [LocallyOfFiniteType p] [LocallyOfFiniteType f] [LocallyOfFiniteType (f ≫ p)]
@@ -51,16 +40,19 @@ theorem cap_moduleFiberCycleFamily {S X Y : Scheme.{u}} [UniversallyCatenary S]
     (hF : f.fiberModuleSupportDimensionLE F r)
     (G : Y.Modules) [G.IsCoherent] (e : ℤ)
     (hG : ∀ y ∈ Modules.moduleSupport G, p.relativeDimensionFunction δ y ≤ e)
-    (hflat : Modules.flatOver F f) :
+    (hflat : ∀ x : X,
+      Module.Flat (Y.presheaf.stalk (f x))
+        ((ModuleCat.restrictScalars (f.stalkMap x).hom).obj
+          (RingedSpace.stalkModuleCat F x))),
     cap p f δ (moduleFiberCycleFamily f F r hF)
         (Modules.relativeAssociatedCycle p δ G e) =
       Modules.relativeAssociatedCycle (f ≫ p) δ
-        (F ⊗ (Modules.pullback f).obj G) ((r : ℤ) + e) :=
-  sorry
+        (F ⊗ (Modules.pullback f).obj G) ((r : ℤ) + e))
 
-/-- Evaluating `cap_moduleFiberCycleFamily` compares coefficients of both sides
-at a point of `X`. -/
-theorem cap_moduleFiberCycleFamily_apply {S X Y : Scheme.{u}}
+/- The coefficientwise consequence of the same tensor-cycle equality. -/
+#check
+  (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.cap_moduleFiberCycleFamily_apply :
+    ∀ {S X Y : Scheme.{u}}
     [UniversallyCatenary S] [IsLocallyNoetherian X] [IsLocallyNoetherian Y]
     (p : Y ⟶ S) (f : X ⟶ Y)
     [LocallyOfFiniteType p] [LocallyOfFiniteType f] [LocallyOfFiniteType (f ≫ p)]
@@ -69,7 +61,10 @@ theorem cap_moduleFiberCycleFamily_apply {S X Y : Scheme.{u}}
     (hF : f.fiberModuleSupportDimensionLE F r)
     (G : Y.Modules) [G.IsCoherent] (e : ℤ)
     (hG : ∀ y ∈ Modules.moduleSupport G, p.relativeDimensionFunction δ y ≤ e)
-    (hflat : Modules.flatOver F f) (x : X) :
+    (hflat : ∀ x : X,
+      Module.Flat (Y.presheaf.stalk (f x))
+        ((ModuleCat.restrictScalars (f.stalkMap x).hom).obj
+          (RingedSpace.stalkModuleCat F x))) (x : X),
     CycleGroup.toAlgebraicCycle ((f ≫ p).relativeDimensionFunction δ)
         ((r : ℤ) + e)
         (cap p f δ (moduleFiberCycleFamily f F r hF)
@@ -77,8 +72,7 @@ theorem cap_moduleFiberCycleFamily_apply {S X Y : Scheme.{u}}
       CycleGroup.toAlgebraicCycle ((f ≫ p).relativeDimensionFunction δ)
         ((r : ℤ) + e)
         (Modules.relativeAssociatedCycle (f ≫ p) δ
-          (F ⊗ (Modules.pullback f).obj G) ((r : ℤ) + e)) x :=
-  sorry
+          (F ⊗ (Modules.pullback f).obj G) ((r : ℤ) + e)) x)
 
 end CyclesOnFibers
 end AlgebraicGeometry.Scheme.Hom

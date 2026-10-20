@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_36_4_Unramified
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Unramified.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of unramified morphisms of algebraic stacks
@@ -24,15 +19,14 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack.Unramified
 
-/-- Lemma 101.36.2: The composition of unramified morphisms of algebraic stacks
+/- Lemma 101.36.2: The composition of unramified morphisms of algebraic stacks
 is unramified.
 
 Stacks writes the composition as `g ∘ f`; the Lean composite is `f ≫ g`. -/
-@[stacks 0CIU]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+@[stacks 0CIU] #check (AlgebraicGeometry.AlgebraicStack.Unramified.comp :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [Unramified f] [Unramified g] :
-    Unramified (f ≫ g) :=
-  sorry
+    (f : X ⟶ Y) (g : Y ⟶ Z) [Unramified f] [Unramified g],
+    Unramified (f ≫ g))
 
 end AlgebraicGeometry.AlgebraicStack.Unramified

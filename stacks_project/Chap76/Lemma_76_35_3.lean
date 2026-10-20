@@ -1,20 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Data.Set.Finite.Basic
-public import stacks_project.Chap65.Lemma_65_7_3_Pullback
-public import stacks_project.Chap65.Lemma_65_12_4_Immersion
-public import stacks_project.Chap66.Definition_66_4_1_Points
-public import stacks_project.Chap67.Definition_67_40_1_Proper
-public import stacks_project.Chap67.Definition_67_45_2_Integral
-public import stacks_project.Chap68.Lemma_68_12_8_Decent
-public import stacks_project.Chap68.Lemma_68_18_10_Fibre
-public import stacks_project.Chap76.Lemma_76_23_5
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Proper.FiniteFactorization
+import StacksCheckRecall
 
 /-!
 # Neighbourhood finite factorizations of proper families
@@ -37,7 +24,7 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 76.35.3 (1): Let `S` be a scheme. Let `h : X ⟶ Y`, `f : X ⟶ B`,
+/- Lemma 76.35.3 (1): Let `S` be a scheme. Let `h : X ⟶ Y`, `f : X ⟶ B`,
 `g : Y ⟶ B` be a commutative triangle of morphisms of algebraic spaces over
 `S`. Assume `f` is proper and `g` is separated and locally of finite type.
 Let `p` be a field-valued point of `B`. If the image of `|X_k| ⟶ |Y_k|` is
@@ -48,21 +35,19 @@ over `B'`.
 Here `overBaseChange h g p.hom` is the comparison `|X_k| ⟶ |Y_k|`, and
 `overBaseChange h g ι` is `X_{B'} ⟶ Y_{B'}`. The identification of
 `pullback (h ≫ g)` with `pullback f` uses `hcomm`. -/
-@[stacks 0AEJ]
-theorem exists_isFinite_factor_of_finite_fieldFiber_image
-    {S : Scheme.{u}} {X Y B : AlgebraicSpace S}
+@[stacks 0AEJ] #check (AlgebraicGeometry.AlgebraicSpace.exists_isFinite_factor_of_finite_fieldFiber_image :
+    ∀ {S : Scheme.{u}} {X Y B : AlgebraicSpace S}
     (h : X ⟶ Y) (f : X ⟶ B) (g : Y ⟶ B) (hcomm : h ≫ g = f)
     [Proper f] [Separated g] [LocallyOfFiniteType g] (p : FieldValuedPoint B)
-    (hfin : (Set.range (Points.map (overBaseChange h g p.hom))).Finite) :
+    (hfin : (Set.range (Points.map (overBaseChange h g p.hom))).Finite),
     ∃ (B' : AlgebraicSpace S) (ι : B' ⟶ B) (hι : IsOpenImmersion ι)
       (Z : AlgebraicSpace S) (ιZ : Z ⟶ pullback g ι)
       (toZ : pullback (h ≫ g) ι ⟶ Z),
       Points.mk p ∈ Set.range (Points.map ι) ∧ IsClosedImmersion ιZ ∧
         toZ ≫ ιZ = overBaseChange h g ι ∧
-        IsFinite (ιZ ≫ pullback.snd g ι) :=
-  sorry
+        IsFinite (ιZ ≫ pullback.snd g ι))
 
-/-- Lemma 76.35.3 (2): Let `S` be a scheme. Let `h : X ⟶ Y`, `f : X ⟶ B`,
+/- Lemma 76.35.3 (2): Let `S` be a scheme. Let `h : X ⟶ Y`, `f : X ⟶ B`,
 `g : Y ⟶ B` be a commutative triangle of morphisms of algebraic spaces over
 `S`. Assume `f` is proper, `g` is separated and locally of finite type, and
 `B` is decent. Let `b` be a point of `B`. If the image of `|f|⁻¹({b})` in
@@ -74,18 +59,16 @@ Here `Set.image (Points.map h) (fiberOver f b)` is the image of the
 set-theoretic fibre in `|Y|`, and `overBaseChange h g ι` is
 `X_{B'} ⟶ Y_{B'}`. The identification of `pullback (h ≫ g)` with
 `pullback f` uses `hcomm`. -/
-@[stacks 0AEJ]
-theorem exists_isFinite_factor_of_finite_fiberOver_image
-    {S : Scheme.{u}} {X Y B : AlgebraicSpace S}
+@[stacks 0AEJ] #check (AlgebraicGeometry.AlgebraicSpace.exists_isFinite_factor_of_finite_fiberOver_image :
+    ∀ {S : Scheme.{u}} {X Y B : AlgebraicSpace S}
     (h : X ⟶ Y) (f : X ⟶ B) (g : Y ⟶ B) (hcomm : h ≫ g = f)
     [Proper f] [Separated g] [LocallyOfFiniteType g] [IsDecent B] (b : Points B)
-    (hfin : (Set.image (Points.map h) (fiberOver f b)).Finite) :
+    (hfin : (Set.image (Points.map h) (fiberOver f b)).Finite),
     ∃ (B' : AlgebraicSpace S) (ι : B' ⟶ B) (hι : IsOpenImmersion ι)
       (Z : AlgebraicSpace S) (ιZ : Z ⟶ pullback g ι)
       (toZ : pullback (h ≫ g) ι ⟶ Z),
       b ∈ Set.range (Points.map ι) ∧ IsClosedImmersion ιZ ∧
         toZ ≫ ιZ = overBaseChange h g ι ∧
-        IsFinite (ιZ ≫ pullback.snd g ι) :=
-  sorry
+        IsFinite (ιZ ≫ pullback.snd g ι))
 
 end AlgebraicGeometry.AlgebraicSpace

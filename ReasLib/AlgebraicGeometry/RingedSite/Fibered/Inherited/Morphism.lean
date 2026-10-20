@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Fibered.Inherited
@@ -33,9 +27,9 @@ namespace Functor
 
 section
 
-variable {D : RingedSite.{u, v}}
+variable {D : RingedSite.{u, v, max u v}}
 variable {S S' : Type u} [Category.{v} S] [Category.{v} S']
-variable {p : S ⥤ D} {p' : S' ⥤ D}
+variable {p : S ⥤ D.carrier} {p' : S' ⥤ D.carrier}
 
 /-- The canonical comparison from the inherited structure sheaf along `p'`
 to the direct image of the inherited structure sheaf along `p`, for a
@@ -53,17 +47,13 @@ def inheritedStructureSheafComparison
       (u.sheafPushforwardContinuous RingCat.{max u v}
         (p'.inheritedTopology D.siteTopology)
         (p.inheritedTopology D.siteTopology)).obj p.inheritedStructureSheaf :=
-  let _ : p'.IsContinuous (p'.inheritedTopology D.siteTopology) D.siteTopology := hp'
-  let _ : p.IsContinuous (p.inheritedTopology D.siteTopology) D.siteTopology := hp
-  let _ : u.IsContinuous
-      (p'.inheritedTopology D.siteTopology)
-      (p.inheritedTopology D.siteTopology) := hSite.toIsContinuous
-  let e := Functor.sheafPushforwardContinuousComp'
+  let e := @Functor.sheafPushforwardContinuousComp'
+    _ _ _ _ _ _ u p p'
     (eqToIso hcomm)
-    RingCat.{max u v}
+    RingCat.{max u v} _
     (p'.inheritedTopology D.siteTopology)
     (p.inheritedTopology D.siteTopology)
-    D.siteTopology
+    D.siteTopology hSite.toIsContinuous hp hp'
   (e.symm.app D.structureSheaf).hom
 
 /-- The morphism of ringed sites induced by a strictly commuting triangle of
@@ -77,7 +67,7 @@ def inheritedRingedSiteHom
       (p'.inheritedTopology D.siteTopology)
       (p.inheritedTopology D.siteTopology)
       u] :
-    p.inheritedRingedSite ⟶ p'.inheritedRingedSite where
+    RingedSite.Hom p.inheritedRingedSite p'.inheritedRingedSite where
   base := u
   isMorphismOfSites := hSite
   structureSheafMap := inheritedStructureSheafComparison u hcomm
@@ -92,7 +82,7 @@ variable [IsMorphismOfSites
 
 /-- The base functor of the inherited-ringed-site morphism is `u`. -/
 @[simp] theorem inheritedRingedSiteHom_base :
-    RingedSite.Hom.base (inheritedRingedSiteHom u hcomm) = u := sorry
+    (inheritedRingedSiteHom u hcomm).base = u := sorry
 
 /-- The structure-sheaf map of `inheritedRingedSiteHom u hcomm` is the
 canonical comparison map. -/
@@ -104,9 +94,9 @@ end
 
 section
 
-variable {D : RingedSite.{u, v}}
+variable {D : RingedSite.{u, v, max u v}}
 variable {S S' : Type u} [Category.{v} S] [Category.{v} S']
-variable {p : S ⥤ D} {p' : S' ⥤ D}
+variable {p : S ⥤ D.carrier} {p' : S' ⥤ D.carrier}
 variable (u : S' ⥤ S) (hcomm : u ⋙ p = p')
 variable [IsMorphismOfSites (p'.inheritedTopology D.siteTopology) D.siteTopology p']
 variable [IsMorphismOfSites (p.inheritedTopology D.siteTopology) D.siteTopology p]
@@ -119,17 +109,19 @@ variable [IsMorphismOfSites
 with the canonical projections to its common base ringed site. -/
 @[stacks 08PA "commutative triangle of inherited ringed sites"]
 theorem inheritedRingedSiteHom_projection :
-    CommSq
+    @CommSq RingedSite.category.{u, v, max u v}
+      (Cat.str RingedSite.category) D p.inheritedRingedSite
+      p'.inheritedRingedSite p'.inheritedRingedSite
       p.inheritedProjectionRingedSiteHom
       p'.inheritedProjectionRingedSiteHom
       (inheritedRingedSiteHom u hcomm)
-      (𝟙 p'.inheritedRingedSite) := sorry
+      (RingedSite.Hom.id p'.inheritedRingedSite) := sorry
 
 /-- Projection compatibility of `inheritedRingedSiteHom u hcomm` as an
 equality of ringed-site morphisms. -/
 @[stacks 08PA "projection composition law", simp]
 theorem inheritedRingedSiteHom_projection_w :
-    p.inheritedProjectionRingedSiteHom ≫ inheritedRingedSiteHom u hcomm =
+    RingedSite.Hom.comp p.inheritedProjectionRingedSiteHom (inheritedRingedSiteHom u hcomm) =
       p'.inheritedProjectionRingedSiteHom := sorry
 
 end
@@ -138,8 +130,8 @@ namespace inheritedProjectionRingedSiteHom
 
 section
 
-variable {D : RingedSite.{u, v}} {S : Type u} [Category.{v} S]
-variable (p : S ⥤ D)
+variable {D : RingedSite.{u, v, max u v}} {S : Type u} [Category.{v} S]
+variable (p : S ⥤ D.carrier)
 variable [IsMorphismOfSites (p.inheritedTopology D.siteTopology) D.siteTopology p]
 
 /-- The localization of the inherited projection has the canonical continuous base functor.
@@ -175,9 +167,9 @@ namespace inheritedRingedSiteHom
 
 section
 
-variable {D : RingedSite.{u, v}}
+variable {D : RingedSite.{u, v, max u v}}
 variable {S S' : Type u} [Category.{v} S] [Category.{v} S']
-variable {p : S ⥤ D} {p' : S' ⥤ D}
+variable {p : S ⥤ D.carrier} {p' : S' ⥤ D.carrier}
 
 /-- A strictly commuting inherited-site comparison has the expected equality on objects over
 the common base. -/
@@ -189,9 +181,9 @@ end
 
 section
 
-variable {D : RingedSite.{u, v}}
+variable {D : RingedSite.{u, v, max u v}}
 variable {S S' : Type u} [Category.{v} S] [Category.{v} S']
-variable {p : S ⥤ D} {p' : S' ⥤ D}
+variable {p : S ⥤ D.carrier} {p' : S' ⥤ D.carrier}
 variable (f : S' ⥤ S) (hcomm : f ⋙ p = p')
 variable [IsMorphismOfSites (p'.inheritedTopology D.siteTopology) D.siteTopology p']
 variable [IsMorphismOfSites (p.inheritedTopology D.siteTopology) D.siteTopology p]

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology
@@ -518,13 +512,7 @@ noncomputable def localizedTwistedCohomologyFractionValue
           ((RingedSpace.opensRingedSite X.toRingedSpace).localization U).structureSheaf ⟶
         R.obj (SheafOfModules.unit
           (RingedSpace.opensRingedSite X.toRingedSpace).structureSheaf) :=
-    (SheafOfModules.RingedSite.unitIsoTensorUnit
-      (J := ((RingedSpace.opensRingedSite X.toRingedSpace).localization U).siteTopology)
-      (𝒪 := X.toRingedSpace.sheaf.over U)).hom ≫
-      (Functor.Monoidal.εIso R).hom ≫
-      R.map (SheafOfModules.RingedSite.unitIsoTensorUnit
-        (J := (RingedSpace.opensRingedSite X.toRingedSpace).siteTopology)
-        (𝒪 := X.toRingedSpace.sheaf)).inv
+    𝟙 _
   let restricted : @Ext _ _ _ hExt
       (SheafOfModules.unit
         ((RingedSpace.opensRingedSite X.toRingedSpace).localization U).structureSheaf)
@@ -533,12 +521,7 @@ noncomputable def localizedTwistedCohomologyFractionValue
       (@Ext.mk₀ _ _ _ hExt _ _ unitComparison)
       (R.obj G) _ _ (zero_add p))
       ((@Functor.mapExtAddHom _ _ _ _ _ _ R
-        (RingedSite.Hom.localizedRestriction_additive
-          (RingedSpace.opensRingedSite X.toRingedSpace) U)
-        (RingedSite.Hom.localizedRestriction_preservesFiniteLimits
-          (RingedSpace.opensRingedSite X.toRingedSpace) U)
-        (RingedSite.Hom.localizedRestriction_preservesFiniteColimits
-          (RingedSpace.opensRingedSite X.toRingedSpace) U) _
+        inferInstance inferInstance inferInstance _
         hExt
         (SheafOfModules.unit
           (RingedSpace.opensRingedSite X.toRingedSpace).structureSheaf) G p) ξ))

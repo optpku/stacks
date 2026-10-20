@@ -1,53 +1,33 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap61.Lemma_61_8_7_Cover
-public import stacks_project.Chap61.Lemma_61_8_7_Over
+public import ReasLib.Algebra.WLocalIndEtale.Over
 import StacksCheckRecall
 
 @[expose] public section
 
-open Algebra.WLocalIndEtale
+universe u v
 
-/- Commutative square A → Cover A, B → Over A B. -/
-@[stacks 097X] #check Cover
-@[stacks 097X] #check Over
-@[stacks 097X] #check comm
-
-/- Lemma 61.8.7 (1): A → Cover A is faithfully flat and ind-étale. -/
-@[stacks 097X] #check instFaithfullyFlat
-@[stacks 097X] #check indEtale
-
-/- Lemma 61.8.7 (2): B → Over A B is faithfully flat and ind-étale. -/
-@[stacks 097X] #check instFaithfullyFlat_over
-@[stacks 097X] #check indEtale_over
-
-/- Lemma 61.8.7 (3): PrimeSpectrum (Cover A) is w-local. -/
-@[stacks 097X] #check instWLocalSpace
-
-/- Lemma 61.8.7 (4): PrimeSpectrum (Over A B) is w-local. -/
-@[stacks 097X] #check instWLocalSpace_over
-
-/- Lemma 61.8.7 (5): PrimeSpectrum.comap (toOver A B) is w-local. -/
-@[stacks 097X] #check instIsWLocalMap
-
-/- Lemma 61.8.7 (6): closed points of PrimeSpectrum (Over A B) are the inverse
-image of those of PrimeSpectrum (Cover A). -/
-@[stacks 097X] #check closedPoints_eq_preimage
-
-/- Lemma 61.8.7 (7): closed points of PrimeSpectrum (Cover A) surject onto
-PrimeSpectrum A. -/
-@[stacks 097X] #check surjOn_closedPoints
-
-/- Lemma 61.8.7 (8): closed points of PrimeSpectrum (Over A B) surject onto
-PrimeSpectrum B. -/
-@[stacks 097X] #check surjOn_closedPoints_over
-
-/- Lemma 61.8.7 (9): localizations of Cover A at maximal ideals are strictly
-henselian. -/
-@[stacks 097X] #check instStrictHenselianLocalRing
+/- Lemma 61.8.7. A ring map inducing algebraic residue-field extensions admits
+the canonical commutative square with all nine asserted properties. -/
+@[stacks 097X] #check (Algebra.WLocalIndEtale.square_spec :
+  ∀ (A : Type u) (B : Type v) [CommRing A] [CommRing B] [Algebra A B]
+    [Fact (Algebra.IsAlgebraicOnResidueFields A B)],
+    (Algebra.WLocalIndEtale.toOver A B).comp
+        (algebraMap A (Algebra.WLocalIndEtale.Cover A)) =
+        (algebraMap B (Algebra.WLocalIndEtale.Over A B)).comp (algebraMap A B) ∧
+      (algebraMap A (Algebra.WLocalIndEtale.Cover A)).FaithfullyFlat ∧
+      (algebraMap A (Algebra.WLocalIndEtale.Cover A)).IndEtale ∧
+      (algebraMap B (Algebra.WLocalIndEtale.Over A B)).FaithfullyFlat ∧
+      (algebraMap B (Algebra.WLocalIndEtale.Over A B)).IndEtale ∧
+      WLocalSpace (PrimeSpectrum (Algebra.WLocalIndEtale.Cover A)) ∧
+      WLocalSpace (PrimeSpectrum (Algebra.WLocalIndEtale.Over A B)) ∧
+      IsWLocalMap (PrimeSpectrum.comap (Algebra.WLocalIndEtale.toOver A B)) ∧
+      PrimeSpectrum.comap (Algebra.WLocalIndEtale.toOver A B) ⁻¹'
+          closedPoints (PrimeSpectrum (Algebra.WLocalIndEtale.Cover A)) =
+        closedPoints (PrimeSpectrum (Algebra.WLocalIndEtale.Over A B)) ∧
+      Set.SurjOn (PrimeSpectrum.comap (algebraMap A (Algebra.WLocalIndEtale.Cover A)))
+        (closedPoints (PrimeSpectrum (Algebra.WLocalIndEtale.Cover A))) Set.univ ∧
+      Set.SurjOn (PrimeSpectrum.comap (algebraMap B (Algebra.WLocalIndEtale.Over A B)))
+        (closedPoints (PrimeSpectrum (Algebra.WLocalIndEtale.Over A B))) Set.univ ∧
+      ∀ (m : Ideal (Algebra.WLocalIndEtale.Cover A)) [m.IsMaximal],
+        StrictHenselianLocalRing (Localization.AtPrime m))

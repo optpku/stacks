@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_29_3_Glueing
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Quasicoherent.Glueing
 import StacksCheckRecall
-
-open CategoryTheory
-open AlgebraicGeometry
-open AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
@@ -20,6 +10,6 @@ quasi-coherent 𝒪_U-module F_U on U_étale for every U in Ob(X_étale), togeth
 module isomorphisms c_f : f_small^* F_U ≅ F_{U'} for morphisms f : U' ⟶ U in X_étale,
 subject to the cocycle c_g ∘ g_small^* c_f = c_{f ∘ g}. -/
 @[stacks 03LZ] #check
-  (SmallEtaleQCohGlueing.fromQCoh_isEquivalence :
-    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
-      Functor.IsEquivalence (SmallEtaleQCohGlueing.fromQCoh X))
+  (AlgebraicGeometry.AlgebraicSpace.SmallEtaleQCohGlueing.fromQCoh_isEquivalence :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S),
+      CategoryTheory.Functor.IsEquivalence (AlgebraicGeometry.AlgebraicSpace.SmallEtaleQCohGlueing.fromQCoh X))

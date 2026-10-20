@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap106.«106_6_1_2_Hom»
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Lift.Hom
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,6 +16,8 @@ universe u
 space maps `f : V ⟶ U` over `W` (so `f ≫ a = b`), `f' : V' ⟶ U'` restricting
 to `f` (so `j ≫ f' = f ≫ i`), and 2-cell `γ : toGroupoids.map f' ≫ x' ≅ y'`
 in the right triangle. -/
-@[stacks 0CJR] #check Lift.Hom
-#check Lift.Hom.mk
-#check Lift.Hom.spec
+@[stacks 0CJR] #check (AlgebraicGeometry.AlgebraicStack.Lift.Hom :
+  ∀ {S : Scheme.{u}} {X' : GroupoidsOver S} [AlgebraicStack X']
+    {W U U' V V' : AlgebraicSpace S},
+    (U ⟶ W) → (U ⟶ U') → (U'.toGroupoids ⟶ X') →
+    (V ⟶ W) → (V ⟶ V') → (V'.toGroupoids ⟶ X') → Type (u + 1))

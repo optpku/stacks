@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Complex.Localization
@@ -34,15 +28,15 @@ section
 
 variable {X : RingedSite.{u, v, w}}
 variable [UnivLE.{max u v, w}]
-variable [∀ U : X, HasWeakSheafify (X.localization U).siteTopology AddCommGrpCat.{w}]
-variable [∀ U : X,
+variable [∀ U : X.carrier, HasWeakSheafify (X.localization U).siteTopology AddCommGrpCat.{w}]
+variable [∀ U : X.carrier,
   (X.localization U).siteTopology.WEqualsLocallyBijective AddCommGrpCat.{w}]
 
 /-- Complexes that are strictly perfect locally on the site, as an object property. -/
 @[stacks 0FPR "object property"]
 def locallyStrictlyPerfect :
     ObjectProperty (CochainComplex (ModuleCat.{w} X) ℤ) :=
-  fun E ↦ ∀ U : X, ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
+  fun E ↦ ∀ U : X.carrier, ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
     IsStrictlyPerfect ((localizedRestrictionComplex.{w} X I.Y).obj E)
 
 /-- A complex of modules on a ringed site is locally strictly perfect when it belongs to
@@ -68,20 +62,20 @@ end LocallyStrictlyPerfect
 restrictions. -/
 theorem isLocallyStrictlyPerfect_iff (E : CochainComplex (ModuleCat.{w} X) ℤ) :
     IsLocallyStrictlyPerfect E ↔
-      ∀ U : X, ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
+      ∀ U : X.carrier, ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
         IsStrictlyPerfect ((localizedRestrictionComplex.{w} X I.Y).obj E) := sorry
 
 /-- Cover-wise strict perfectness constructs a locally strictly perfect complex. -/
 theorem isLocallyStrictlyPerfect_of_cover
     {E : CochainComplex (ModuleCat.{w} X) ℤ}
-    (hE : ∀ U : X, ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
+    (hE : ∀ U : X.carrier, ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
       IsStrictlyPerfect ((localizedRestrictionComplex.{w} X I.Y).obj E)) :
     IsLocallyStrictlyPerfect E := sorry
 
 /-- A locally strictly perfect complex supplies a strict-perfect cover over every site object. -/
 theorem IsLocallyStrictlyPerfect.exists_cover
     {E : CochainComplex (ModuleCat.{w} X) ℤ}
-    (hE : IsLocallyStrictlyPerfect E) (U : X) :
+    (hE : IsLocallyStrictlyPerfect E) (U : X.carrier) :
     ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
       IsStrictlyPerfect ((localizedRestrictionComplex.{w} X I.Y).obj E) := sorry
 

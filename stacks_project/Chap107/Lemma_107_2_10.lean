@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_25_5_Flat
-public import stacks_project.Chap107.Remark_107_2_9_Upgrading_versal_rings_Morphism
-public import stacks_project.Chap107.Situation_107_2_1_Instances
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.VersalRing.Flat
+import StacksCheckRecall
 
 /-!
 # Flatness of the morphism from a versal ring
@@ -30,20 +22,18 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-set_option synthInstance.checkSynthOrder false in
-/-- Lemma 107.2.10: In Situation 107.2.1 let `x0 : Spec(k) ⟶ X` be a morphism,
+/- Lemma 107.2.10: In Situation 107.2.1 let `x0 : Spec(k) ⟶ X` be a morphism,
 where `k` is a finite type field over `S`. Let `A` be a versal ring to `X` at
-`x0`. Then the morphism `Spec(A) ⟶ X` of Remark 107.2.9 is flat. -/
+`x0`. Then the morphism `Spec(A) ⟶ X` of Remark 107.2.9 is flat.
+For `hx : RealizesVersalRing x0 A x`, the proof `hx.2.2` supplies formal
+versality of the actual restriction, and `hx.1` identifies `x.base = A`. -/
 @[stacks 0DR2]
-instance isFlat_yonedaOfObject {S : Scheme.{u}} [IsLocallyNoetherian S]
-    {X : GroupoidsOver S} [AlgebraicStack X]
-    [AlgebraicStack.LocallyOfFiniteType (baseProjection.{u + 1, u, u + 1} X)]
-    (x0 : FieldValuedPoint X)
-    [AlgebraicGeometry.LocallyOfFiniteType x0.structureHom]
-    (A : CompleteLocalSAlgebra S) [IsVersalRing x0 A]
-    (x : CompleteLocalObject X) (hx : RealizesVersalRing x0 A x) :
-    let _ := hx
-    Flat (yonedaOfObject x.base.toS x.object x.over_obj) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.isFlat_yonedaOfObject :
+    {S : Scheme.{u}} → [IsLocallyNoetherian S] →
+    {X : GroupoidsOver S} → [AlgebraicStack X] →
+    [AlgebraicStack.LocallyOfFiniteType (baseProjection.{u + 1, u, u + 1} X)] →
+    (x : CompleteLocalObject X) →
+    [hversal : GroupoidsOver.FormalObject.IsVersal (FormalObject.restriction x)] →
+    Flat (yonedaOfObject x.base.toS x.object x.over_obj))
 
 end AlgebraicGeometry.AlgebraicStack

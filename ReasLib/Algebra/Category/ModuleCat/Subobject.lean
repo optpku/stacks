@@ -1,13 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.EpiMono
 public import Mathlib.Algebra.Category.ModuleCat.Subobject
+public import Mathlib.Algebra.Category.ModuleCat.Abelian
+public import Mathlib.Algebra.Category.ModuleCat.Colimits
+public import Mathlib.CategoryTheory.Abelian.Images
+public import Mathlib.CategoryTheory.Subobject.Lattice
 
 /-!
 # Explicit ModuleCat Subobjects
@@ -25,13 +23,12 @@ namespace ModuleCat
 
 variable {R : Type u} [Ring R]
 
-/-- Categorical subobjects of an `R`-module form a complete lattice, transported from the
-complete lattice of its submodules. This low-priority instance is a fallback when Mathlib's
-generic categorical construction is unavailable at the required universe of coproducts. -/
+/-- The canonical categorical complete lattice of module subobjects, with the size universe
+fixed to the module carrier universe so that instance inference can find it. -/
 @[instance 100, stacks 012J "complete lattice of ModuleCat subobjects"]
-noncomputable instance subobjectCompleteLattice (M : ModuleCat R) :
+noncomputable instance subobjectCompleteLattice (M : ModuleCat.{v} R) :
     CompleteLattice (Subobject M) :=
-  (subobjectModule M).toEquiv.completeLattice
+  Subobject.instCompleteLattice.{v}
 
 /-- The inverse of `subobjectModule` sends a submodule to the subobject represented by its
 subtype inclusion. -/

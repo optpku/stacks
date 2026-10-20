@@ -1,38 +1,24 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap60.Definition_60_7_2
-public import Mathlib.AlgebraicGeometry.Pullbacks
-public import Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion
-public import stacks_project.Chap60.Lemma_60_7_4_Category
-public import stacks_project.Chap60.Lemma_60_7_4_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.DividedPowers.Scheme.Pullback
+import StacksCheckRecall
 
-open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
+open AlgebraicGeometry CategoryTheory
 
 @[expose] public section
 
 universe u
 
-variable {S T T' : DividedPowerScheme.{u}}
-
-/-- Lemma 60.7.4: for morphisms of divided-power schemes with common target,
-there is a divided-power pullback whose underlying scheme maps by a closed
-immersion to the ordinary pullback and whose induced zero-fibre comparison is
-an isomorphism. -/
-@[stacks 07ME]
-theorem DividedPowerScheme.existsPullback
-    (f : DividedPowerScheme.Hom T S) (f' : DividedPowerScheme.Hom T' S) :
+/- Lemma 60.7.4 -/
+@[stacks 07ME] #check (DividedPowerScheme.existsPullback :
+  ∀ {S T T' : DividedPowerScheme.{u}}
+    (f : DividedPowerScheme.Hom T S)
+    (f' : DividedPowerScheme.Hom T' S),
     ∃ (T'' : DividedPowerScheme.{u})
       (g : DividedPowerScheme.Hom T'' T)
       (g' : DividedPowerScheme.Hom T'' T')
-      (h : @CategoryTheory.IsPullback DividedPowerScheme _ T'' T T' S g g' f f'),
+      (h : DividedPowerScheme.IsPullback g g' f f'),
       IsClosedImmersion
           (DividedPowerScheme.Pullback.baseComparison f f' g g' h) ∧
         IsIso
-          (DividedPowerScheme.Pullback.zeroFiberComparison f f' g g' h) := sorry
+          (DividedPowerScheme.Pullback.zeroFiberComparison f f' g g' h))

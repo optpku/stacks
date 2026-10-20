@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.SheafifiedRepresentable.Hom
@@ -27,7 +21,7 @@ sheafification adjointness and the second is Yoneda; no subcanonical hypothesis
 is used. This is the composite Equiv
 J.sheafifiedRepresentableHomEquiv F U :
 (J.sheafifiedRepresentable U ⟶ F) ≃ F.obj.obj (op U). -/
-@[stacks 090I] #check (J.sheafifiedRepresentableHomEquiv F U :
+@[stacks 090I] #check (CategoryTheory.GrothendieckTopology.sheafifiedRepresentableHomEquiv J F U :
   (J.sheafifiedRepresentable U ⟶ F) ≃ F.obj.obj (op U))
 
 #check ((sheafificationAdjunction J (Type (max u v))).homEquiv

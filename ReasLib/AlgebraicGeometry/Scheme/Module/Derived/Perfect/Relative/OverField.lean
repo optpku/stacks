@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Perfect.Relative
@@ -24,6 +18,8 @@ open CategoryTheory DerivedCategory.TStructure
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.SchemeOverField
 
 open RingedSpace RingedSpace.ModuleDerived
@@ -32,6 +28,10 @@ open RingedSpace RingedSpace.ModuleDerived
 the field if and only if it is cohomologically bounded and pseudo-coherent. -/
 theorem isPerfectOver_iff_bounded_and_pseudoCoherent {k : Type u} [Field k]
     (X : SchemeOverField k) [Scheme.Hom.FinitePresentation X.hom]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase X.hom.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase X.hom.toShHom).restrict U.isOpenEmbedding))]
     (E : ModuleDerived X.left.toRingedSpace) :
     IsPerfectOver X.hom.toShHom E ↔
       t.bounded E ∧ RingedSpace.ModuleDerived.IsPseudoCoherent E := sorry
@@ -41,6 +41,10 @@ the field if and only if it is cohomologically bounded and has coherent cohomolo
 degree. -/
 theorem isPerfectOver_iff_bounded_and_coherentCohomology {k : Type u} [Field k]
     (X : SchemeOverField k) [Scheme.Hom.FinitePresentation X.hom]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase X.hom.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase X.hom.toShHom).restrict U.isOpenEmbedding))]
     (E : ModuleDerived X.left.toRingedSpace) :
     IsPerfectOver X.hom.toShHom E ↔
       t.bounded E ∧

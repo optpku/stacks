@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Algebra.Pi
@@ -34,7 +28,40 @@ noncomputable def Pattern.restrict (E₁ : Finset A) {E₂ : Finset A} (p : Patt
 specializing submonoid of the finer pattern. -/
 theorem specializingSubmonoid_mono {E₁ E₂ : Finset A} (hE : E₁ ⊆ E₂) (p : Pattern A E₂) :
     specializingSubmonoid A (Pattern.restrict A E₁ p).elem (Pattern.restrict A E₁ p).span ≤
-      (specializingSubmonoid A p.elem p.span).comap (RingHom.id A) := sorry
+      (specializingSubmonoid A p.elem p.span).comap (RingHom.id A) := by
+  classical
+  have span_le : (Pattern.restrict A E₁ p).span ≤ p.span := by
+    apply Ideal.span_mono
+    intro element element_mem
+    simp only [Pattern.restrict, Finset.mem_coe, Finset.mem_sdiff,
+      Finset.mem_inter] at element_mem ⊢
+    exact ⟨hE element_mem.1, fun pattern_mem ↦ element_mem.2 ⟨element_mem.1, pattern_mem⟩⟩
+  have elem_dvd : (Pattern.restrict A E₁ p).elem ∣ p.elem :=
+    Finset.prod_dvd_prod_of_subset (E₁ ∩ p.1) p.1 (fun element ↦ element)
+      Finset.inter_subset_right
+  let quotientMap := Ideal.Quotient.factor span_le
+  let stratumMap :=
+    (algebraMap (A ⧸ p.span) (stratumSections A p.elem p.span)).comp quotientMap
+  have generator_isUnit :
+      IsUnit (stratumMap (Ideal.Quotient.mk (Pattern.restrict A E₁ p).span
+        (Pattern.restrict A E₁ p).elem)) := by
+    change IsUnit (algebraMap (A ⧸ p.span) (stratumSections A p.elem p.span)
+      (Ideal.Quotient.mk p.span (Pattern.restrict A E₁ p).elem))
+    exact IsLocalization.Away.isUnit_of_dvd (Ideal.Quotient.mk p.span p.elem)
+      (map_dvd (Ideal.Quotient.mk p.span) elem_dvd)
+  let localizationMap :
+      stratumSections A (Pattern.restrict A E₁ p).elem (Pattern.restrict A E₁ p).span →+*
+        stratumSections A p.elem p.span :=
+    IsLocalization.Away.lift
+      (Ideal.Quotient.mk (Pattern.restrict A E₁ p).span (Pattern.restrict A E₁ p).elem)
+      generator_isUnit
+  intro element element_mem
+  change IsUnit (toStratumSections A p.elem p.span element)
+  change IsUnit (toStratumSections A (Pattern.restrict A E₁ p).elem
+    (Pattern.restrict A E₁ p).span element) at element_mem
+  simpa only [toStratumSections, RingHom.comp_apply, localizationMap,
+    IsLocalization.Away.lift_eq, stratumMap, quotientMap, Ideal.Quotient.factor_mk] using
+    element_mem.map localizationMap
 
 /-- The localization map induced by refinement of finite subsets and the
 identity ring homomorphism. -/

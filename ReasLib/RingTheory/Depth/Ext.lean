@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Ext.Basic
@@ -137,37 +131,3 @@ theorem smul_residueField_eq_zero_of_mem_maximalIdeal
     x • y = 0 := sorry
 
 end IsLocalRing
-
-/-- Deprecated compatibility spelling for `Module.maximalIdeal_smul_top_ne_top`. -/
-@[deprecated Module.maximalIdeal_smul_top_ne_top (since := "2026-08-04")]
-theorem maximalIdeal_smul_top_ne_top
-    {R : Type u} [CommRing R] [IsLocalRing R] [IsNoetherianRing R]
-    {M : Type v} [AddCommGroup M] [Module R M] [Module.Finite R M] [Nontrivial M] :
-    maximalIdeal R • (⊤ : Submodule R M) ≠ ⊤ := sorry
-
-/-- Deprecated compatibility spelling for
-`Module.moduleDepth_eq_zero_iff_no_isSMulRegular`. -/
-@[deprecated Module.moduleDepth_eq_zero_iff_no_isSMulRegular (since := "2026-08-04")]
-theorem moduleDepth_eq_zero_iff_no_maximalIdeal_regular
-    {R : Type u} [CommRing R] [IsLocalRing R] [IsNoetherianRing R]
-    {M : Type v} [AddCommGroup M] [Module R M] [Module.Finite R M] [Nontrivial M] :
-    moduleDepth R M = 0 ↔ ¬ ∃ x ∈ maximalIdeal R, IsSMulRegular M x := sorry
-
-/-- Deprecated compatibility spelling for
-`Module.exists_isSMulRegular_of_moduleDepth_ne_zero`. -/
-@[deprecated Module.exists_isSMulRegular_of_moduleDepth_ne_zero (since := "2026-08-04")]
-theorem exists_mem_maximalIdeal_isSMulRegular_of_moduleDepth_ne_zero
-    {R : Type u} [CommRing R] [IsLocalRing R] [IsNoetherianRing R]
-    {M : Type v} [AddCommGroup M] [Module R M] [Module.Finite R M] [Nontrivial M]
-    (hdepth : moduleDepth R M ≠ 0) :
-    ∃ x ∈ maximalIdeal R, IsSMulRegular M x := sorry
-
-/-- Deprecated compatibility spelling for
-`Module.exists_isRegular_of_moduleDepth_eq`. -/
-@[deprecated Module.exists_isRegular_of_moduleDepth_eq (since := "2026-08-04")]
-theorem exists_regularSequence_of_length_eq_moduleDepth
-    {R : Type u} [CommRing R] [IsLocalRing R] [IsNoetherianRing R]
-    {M : Type v} [AddCommGroup M] [Module R M] [Module.Finite R M] [Nontrivial M]
-    {n : ℕ} (hdepth : moduleDepth R M = n) :
-    ∃ rs : List R, RingTheory.Sequence.IsRegular M rs ∧
-      Ideal.ofList rs ≤ maximalIdeal R ∧ rs.length = n := sorry

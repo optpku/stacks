@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Topology.Algebra.Nonarchimedean.AdicTopology
@@ -70,6 +64,10 @@ class IsPreadicRing (R : Type u) [CommRing R] [TopologicalSpace R] : Prop
 
 /-- A pre-adic ring is pre-admissible after forgetting the chosen adic ideal. -/
 instance instIsPreadmissibleRing [IsPreadicRing R] : IsPreadmissibleRing R := sorry
+
+/-- In a pre-adic ring, every ideal of definition induces the ambient topology. -/
+theorem Ideal.IsIdealOfDefinition.isAdic [IsPreadicRing R] {I : Ideal R}
+    (hI : Ideal.IsIdealOfDefinition I) : IsAdic I := sorry
 
 end
 

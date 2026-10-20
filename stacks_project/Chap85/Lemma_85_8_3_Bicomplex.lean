@@ -1,25 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.Additive
-public import Mathlib.CategoryTheory.Limits.Shapes.ZeroMorphisms
-public import Mathlib.Algebra.Homology.DerivedCategory.Plus
-public import Mathlib.Algebra.Homology.Embedding.Extend
-public import Mathlib.Algebra.Homology.HomologicalBicomplex
-public import Mathlib.Algebra.Homology.HomotopyCategory.Plus
-public import Mathlib.CategoryTheory.Preadditive.Yoneda.Basic
-public import ReasLib.Algebra.Homology.DerivedCategory.AddCommGrpCat
-public import ReasLib.CategoryTheory.DerivedCategory.Functor.Bounded.RightDerived.Canonical
-public import ReasLib.CategoryTheory.DerivedCategory.Functor.Bounded.RightDerived.Naturality
-public import ReasLib.CategoryTheory.Homology.DoubleComplex.CoaugmentedResolution
-public import ReasLib.CategoryTheory.Homology.DoubleComplex.Pages
-public import ReasLib.CategoryTheory.Sites.AbelianSheaf.Derived
-public import stacks_project.Chap85.Lemma_85_8_2_Complex
+public import ReasLib.CategoryTheory.Sites.Simplicial.Bicomplex
 
 /-!
 # Čech–injective double complex on a morphism diagram of sites
@@ -60,101 +41,84 @@ variable [∀ n, ∀ P : (C.obj n)ᵒᵖ ⥤ AddCommGrpCat.{w},
     (ofStage C n).op.HasLeftKanExtension P]
 variable [∀ n, ((J n).toGrothendieck).HasSheafCompose (forget AddCommGrpCat.{w})]
 
-/-- The Čech cochain functor on abelian sheaves on `C_total` preserves zero morphisms. -/
-instance globalSectionsComplexFunctor_preservesZeroMorphisms :
-    (globalSectionsComplexFunctor C J).PreservesZeroMorphisms :=
-  sorry
+/- The Čech cochain functor on abelian sheaves on `C_total` preserves zero morphisms. -/
+#check (CategoryTheory.SimplicialSites.globalSectionsComplexFunctor_preservesZeroMorphisms C J :
+  (globalSectionsComplexFunctor C J).PreservesZeroMorphisms)
 
-/-- The Čech cochain functor on abelian sheaves on `C_total` is additive. -/
-instance globalSectionsComplexFunctor_additive :
-    (globalSectionsComplexFunctor C J).Additive :=
-  sorry
+/- The Čech cochain functor on abelian sheaves on `C_total` is additive. -/
+#check (CategoryTheory.SimplicialSites.globalSectionsComplexFunctor_additive C J :
+  (globalSectionsComplexFunctor C J).Additive)
 
-/-- The ℕ-indexed cochain of vertical complexes `p ↦ (q ↦ Γ(C_p, I^q_p))`. -/
-def sectionsColumnsFunctor :
-    CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ ⥤
-      CochainComplex (CochainComplex AddCommGrpCat.{max u w} ℤ) ℕ :=
-  (globalSectionsComplexFunctor C J).mapHomologicalComplex (up ℤ) ⋙
-    HomologicalComplex₂.flipFunctor _ (up ℤ) (up ℕ)
+/- The ℕ-indexed cochain of vertical complexes `p ↦ (q ↦ Γ(C_p, I^q_p))`. -/
+#check (CategoryTheory.SimplicialSites.sectionsColumnsFunctor C J :
+  CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ ⥤
+      CochainComplex (CochainComplex AddCommGrpCat.{max u w} ℤ) ℕ)
 
-/-- The Čech–injective double complex functor, reindexed from nonnegative Čech degree. -/
-def sectionsBicomplexFunctor :
-    CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ ⥤
-      HomologicalComplex₂ AddCommGrpCat.{max u w} (up ℤ) (up ℤ) :=
-  sectionsColumnsFunctor C J ⋙ HomologicalComplex₂.CoaugmentedResolution.bicomplexFunctor
+/- The Čech–injective double complex functor, reindexed from nonnegative Čech degree. -/
+#check (CategoryTheory.SimplicialSites.sectionsBicomplexFunctor C J :
+  CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ ⥤
+      HomologicalComplex₂ AddCommGrpCat.{max u w} (up ℤ) (up ℤ))
 
-/-- The double complex `A^{p,q} = Γ(C_p, I^q_p)` of a cochain complex of abelian sheaves. -/
-def sectionsBicomplex
-    (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ) :
-    HomologicalComplex₂ AddCommGrpCat.{max u w} (up ℤ) (up ℤ) :=
-  (sectionsBicomplexFunctor C J).obj I
+/- The double complex `A^{p,q} = Γ(C_p, I^q_p)` of a cochain complex of abelian sheaves. -/
+#check (CategoryTheory.SimplicialSites.sectionsBicomplex C J :
+  ∀ (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ),
+    HomologicalComplex₂ AddCommGrpCat.{max u w} (up ℤ) (up ℤ))
 
-/-- Nonnegative columns of `sectionsBicomplex` recover stagewise global sections of `I`. -/
-theorem sectionsBicomplex_X_ofNat
-    (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ)
-    (p : ℕ) (q : ℤ) :
+/- Nonnegative columns of `sectionsBicomplex` recover stagewise global sections of `I`. -/
+#check (CategoryTheory.SimplicialSites.sectionsBicomplex_X_ofNat C J :
+  ∀ (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ)
+    (p : ℕ) (q : ℤ),
     ((sectionsBicomplex C J I).X p).X q =
-      (globalSectionsComplex C J (I.X q)).X p :=
-  sorry
+      (globalSectionsComplex C J (I.X q)).X p)
 
-/-- Negative Čech columns of `sectionsBicomplex` vanish. -/
-theorem sectionsBicomplex_isZero_of_neg
-    (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ)
-    {p : ℤ} (hp : p < 0) :
-    IsZero ((sectionsBicomplex C J I).X p) :=
-  sorry
+/- Negative Čech columns of `sectionsBicomplex` vanish. -/
+#check (CategoryTheory.SimplicialSites.sectionsBicomplex_isZero_of_neg C J :
+  ∀ (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ)
+    {p : ℤ} (hp : p < 0),
+    IsZero ((sectionsBicomplex C J I).X p))
 
-/-- The functor `F ↦ Hom(ℤ, F)`, equivalently `Γ(C_total, F)` after Yoneda. -/
-def globalSectionsTotalFunctor :
-    Sheaf (topology C J) AddCommGrpCat.{w} ⥤ AddCommGrpCat.{max u w} :=
-  preadditiveYoneda.flip.obj (op (constantIntegerSheaf (topology C J)))
+/- The functor `F ↦ Hom(ℤ, F)`, equivalently `Γ(C_total, F)` after Yoneda. -/
+#check (CategoryTheory.SimplicialSites.globalSectionsTotalFunctor C J :
+  Sheaf (topology C J) AddCommGrpCat.{w} ⥤ AddCommGrpCat.{max u w})
 
-/-- `globalSectionsTotalFunctor` recovers `globalSectionsTotal`. -/
-theorem globalSectionsTotalFunctor_obj
-    (F : Sheaf (topology C J) AddCommGrpCat.{w}) :
-    (globalSectionsTotalFunctor C J).obj F = globalSectionsTotal C J F :=
-  sorry
+/- `globalSectionsTotalFunctor` recovers `globalSectionsTotal`. -/
+#check (CategoryTheory.SimplicialSites.globalSectionsTotalFunctor_obj C J :
+  ∀ (F : Sheaf (topology C J) AddCommGrpCat.{w}),
+    (globalSectionsTotalFunctor C J).obj F = globalSectionsTotal C J F)
 
-/-- Global sections of the total site, as a Hom functor, preserve zero morphisms. -/
-instance globalSectionsTotalFunctor_preservesZeroMorphisms :
-    (globalSectionsTotalFunctor C J).PreservesZeroMorphisms :=
-  sorry
+/- Global sections of the total site, as a Hom functor, preserve zero morphisms. -/
+#check (CategoryTheory.SimplicialSites.globalSectionsTotalFunctor_preservesZeroMorphisms C J :
+  (globalSectionsTotalFunctor C J).PreservesZeroMorphisms)
 
-/-- The coaugmentation source `Γ(C_total, I^•)` as a cochain complex. -/
-def sectionsTotalComplex
-    (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ) :
-    CochainComplex AddCommGrpCat.{max u w} ℤ :=
-  ((globalSectionsTotalFunctor C J).mapHomologicalComplex (up ℤ)).obj I
+/- The coaugmentation source `Γ(C_total, I^•)` as a cochain complex. -/
+#check (CategoryTheory.SimplicialSites.sectionsTotalComplex C J :
+  ∀ (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ),
+    CochainComplex AddCommGrpCat.{max u w} ℤ)
 
-/-- The coaugmentation `Γ(C_total, I^•) ⟶` the zeroth column of the Čech bicomplex. -/
-def sectionsCoaugmentation
-    (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ) :
-    sectionsTotalComplex C J I ⟶ ((sectionsColumnsFunctor C J).obj I).X 0 where
-  f q := globalSectionsCoaugmentation C J (I.X q)
-  comm' := sorry
+/- The coaugmentation `Γ(C_total, I^•) ⟶` the zeroth column of the Čech bicomplex. -/
+#check (CategoryTheory.SimplicialSites.sectionsCoaugmentation C J :
+  ∀ (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ),
+    sectionsTotalComplex C J I ⟶ ((sectionsColumnsFunctor C J).obj I).X 0)
 
-/-- The coaugmentation is killed by the first Čech differential. -/
-theorem sectionsCoaugmentation_comp_d
-    (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ) :
-    sectionsCoaugmentation C J I ≫ ((sectionsColumnsFunctor C J).obj I).d 0 1 = 0 :=
-  sorry
+/- The coaugmentation is killed by the first Čech differential. -/
+#check (CategoryTheory.SimplicialSites.sectionsCoaugmentation_comp_d C J :
+  ∀ (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ),
+    sectionsCoaugmentation C J I ≫ ((sectionsColumnsFunctor C J).obj I).d 0 1 = 0)
 
-/-- Degree-`n` functor sending an abelian sheaf on `C_total` to `Γ(C_n, F_n)`. -/
-def sectionsStageGamma (n : ℕ) :
-    Sheaf (topology C J) AddCommGrpCat.{w} ⥤ AddCommGrpCat.{max u w} :=
-  globalSectionsComplexFunctor C J ⋙
-    HomologicalComplex.eval AddCommGrpCat.{max u w} (up ℕ) n
+/- Degree-`n` functor sending an abelian sheaf on `C_total` to `Γ(C_n, F_n)`. -/
+#check (CategoryTheory.SimplicialSites.sectionsStageGamma C J :
+  ∀ (n : ℕ),
+    Sheaf (topology C J) AddCommGrpCat.{w} ⥤ AddCommGrpCat.{max u w})
 
-/-- Stagewise global sections are additive. -/
-instance sectionsStageGamma_additive (n : ℕ) :
-    (sectionsStageGamma C J n).Additive :=
-  sorry
+/- Stagewise global sections are additive. -/
+#check (CategoryTheory.SimplicialSites.sectionsStageGamma_additive C J :
+  ∀ (n : ℕ),
+    (sectionsStageGamma C J n).Additive)
 
-/-- The Čech differential as a natural transformation of stagewise global sections. -/
-def sectionsStageGamma_d (n : ℕ) :
-    sectionsStageGamma C J n ⟶ sectionsStageGamma C J (n + 1) where
-  app F := (globalSectionsComplex C J F).d n (n + 1)
-  naturality := sorry
+/- The Čech differential as a natural transformation of stagewise global sections. -/
+#check (CategoryTheory.SimplicialSites.sectionsStageGamma_d C J :
+  ∀ (n : ℕ),
+    sectionsStageGamma C J n ⟶ sectionsStageGamma C J (n + 1))
 
 variable [∀ n : ℕ,
     (sectionsStageGamma C J n).toBoundedBelowDerived.HasRightDerivedFunctor
@@ -163,105 +127,87 @@ variable [(globalSectionsTotalFunctor C J).Additive]
 variable [(globalSectionsTotalFunctor C J).toBoundedBelowDerived.HasRightDerivedFunctor
     (HomotopyCategory.Plus.quasiIso (Sheaf (topology C J) AddCommGrpCat.{w}))]
 
-/-- Nonnegative first-page target: `H^q` of the derived functor of `Γ(C_n, (-)_n)`. -/
-def pageOneFunctorNonneg (n : ℕ) (q : ℤ) :
+/- Nonnegative first-page target: `H^q` of the derived functor of `Γ(C_n, (-)_n)`. -/
+#check (CategoryTheory.SimplicialSites.pageOneFunctorNonneg C J :
+  ∀ (n : ℕ) (q : ℤ),
     DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w}) ⥤
-      AddCommGrpCat.{max u w} :=
-  Functor.RightDerived.Bounded.functor (sectionsStageGamma C J n) ⋙
-    DerivedCategory.Plus.homologyFunctor AddCommGrpCat.{max u w} q
+      AddCommGrpCat.{max u w})
 
-/-- The Čech differential on nonnegative first-page functors. -/
-def pageOneDifferentialNonneg (n : ℕ) (q : ℤ) :
-    pageOneFunctorNonneg C J n q ⟶ pageOneFunctorNonneg C J (n + 1) q :=
-  whiskerRight
-    (Functor.RightDerived.Bounded.map (sectionsStageGamma_d C J n))
-    (DerivedCategory.Plus.homologyFunctor AddCommGrpCat.{max u w} q)
+/- The Čech differential on nonnegative first-page functors. -/
+#check (CategoryTheory.SimplicialSites.pageOneDifferentialNonneg C J :
+  ∀ (n : ℕ) (q : ℤ),
+    pageOneFunctorNonneg C J n q ⟶ pageOneFunctorNonneg C J (n + 1) q)
 
-/-- Successor of a nonnegative integer remains nonnegative. -/
-theorem nonneg_succ {n : ℤ} (hn : 0 ≤ n) : 0 ≤ n + 1 :=
-  sorry
+/- Successor of a nonnegative integer remains nonnegative. -/
+theorem nonneg_succ {n : ℤ} (hn : 0 ≤ n) : 0 ≤ n + 1 := by
+  omega
 
-/-- `toNat` converts a successor of a nonnegative integer into a successor of naturals. -/
+/- `toNat` converts a successor of a nonnegative integer into a successor of naturals. -/
 theorem toNat_succ_of_nonneg {n : ℤ} (hn : 0 ≤ n) :
-    (n + 1).toNat = n.toNat + 1 :=
-  sorry
+    (n + 1).toNat = n.toNat + 1 := by
+  omega
 
-/-- First-page target `K ↦ H^q(C_p, K_p)`, vanishing for `p < 0`. -/
-def pageOneFunctor (p q : ℤ) :
+/- First-page target `K ↦ H^q(C_p, K_p)`, vanishing for `p < 0`. -/
+#check (CategoryTheory.SimplicialSites.pageOneFunctor C J :
+  ∀ (p q : ℤ),
     DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w}) ⥤
-      AddCommGrpCat.{max u w} :=
-  if 0 ≤ p then pageOneFunctorNonneg C J p.toNat q else
-    (Functor.const
-      (DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w}))).obj
-      (0 : AddCommGrpCat.{max u w})
+      AddCommGrpCat.{max u w})
 
-/-- Nonnegative bidegrees of `pageOneFunctor` recover `pageOneFunctorNonneg`. -/
-theorem pageOneFunctor_eq_of_nonneg (p q : ℤ) (hp : 0 ≤ p) :
-    pageOneFunctor C J p q = pageOneFunctorNonneg C J p.toNat q :=
-  sorry
+/- Nonnegative bidegrees of `pageOneFunctor` recover `pageOneFunctorNonneg`. -/
+#check (CategoryTheory.SimplicialSites.pageOneFunctor_eq_of_nonneg C J :
+  ∀ (p q : ℤ) (hp : 0 ≤ p),
+    pageOneFunctor C J p q = pageOneFunctorNonneg C J p.toNat q)
 
-/-- The first-page differential `d₁^{p,q} : E₁^{p,q} ⟶ E₁^{p+1,q}`. -/
-def pageOneDifferential (p q : ℤ) :
-    pageOneFunctor C J p q ⟶ pageOneFunctor C J (p + 1) q :=
-  if hp : 0 ≤ p then
-    eqToHom (pageOneFunctor_eq_of_nonneg C J p q hp) ≫
-      pageOneDifferentialNonneg C J p.toNat q ≫
-      eqToHom (congrArg (pageOneFunctorNonneg C J · q)
-        (toNat_succ_of_nonneg hp)).symm ≫
-      eqToHom (pageOneFunctor_eq_of_nonneg C J (p + 1) q (nonneg_succ hp)).symm
-  else
-    (0 : pageOneFunctor C J p q ⟶ pageOneFunctor C J (p + 1) q)
+/- The first-page differential `d₁^{p,q} : E₁^{p,q} ⟶ E₁^{p+1,q}`. -/
+#check (CategoryTheory.SimplicialSites.pageOneDifferential C J :
+  ∀ (p q : ℤ),
+    pageOneFunctor C J p q ⟶ pageOneFunctor C J (p + 1) q)
 
-/-- First-page groups in negative Čech degree vanish. -/
-theorem pageOneFunctor_neg
-    (K : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w}))
-    {p : ℤ} (hp : p < 0) (q : ℤ) :
-    IsZero ((pageOneFunctor C J p q).obj K) :=
-  sorry
+/- First-page groups in negative Čech degree vanish. -/
+#check (CategoryTheory.SimplicialSites.pageOneFunctor_neg C J :
+  ∀ (K : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w}))
+    {p : ℤ} (hp : p < 0) (q : ℤ),
+    IsZero ((pageOneFunctor C J p q).obj K))
 
-/-- Abutment functor `K ↦ H^n(C_total, K)`. -/
-def abutmentFunctor (n : ℤ) :
+/- Abutment functor `K ↦ H^n(C_total, K)`. -/
+#check (CategoryTheory.SimplicialSites.abutmentFunctor C J :
+  ∀ (n : ℤ),
     DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w}) ⥤
-      AddCommGrpCat.{max u w} :=
-  Functor.RightDerived.Bounded.functor (globalSectionsTotalFunctor C J) ⋙
-    DerivedCategory.Plus.homologyFunctor AddCommGrpCat.{max u w} n
+      AddCommGrpCat.{max u w})
 
-/-- Evaluation of `abutmentFunctor` is cohomology of `RΓ(C_total, -)`. -/
-theorem abutmentFunctor_obj
-    (n : ℤ)
-    (K : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w})) :
+/- Evaluation of `abutmentFunctor` is cohomology of `RΓ(C_total, -)`. -/
+#check (CategoryTheory.SimplicialSites.abutmentFunctor_obj C J :
+  ∀ (n : ℤ)
+    (K : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w})),
     (abutmentFunctor C J n).obj K =
       (DerivedCategory.Plus.homologyFunctor AddCommGrpCat.{max u w} n).obj
         ((Functor.RightDerived.Bounded.functor
-          (globalSectionsTotalFunctor C J)).obj K) :=
-  sorry
+          (globalSectionsTotalFunctor C J)).obj K))
 
-/-- For a bounded-below complex of injectives representing `K`, vertical homology of
+/- For a bounded-below complex of injectives representing `K`, vertical homology of
 `sectionsBicomplex` recovers the first-page target. -/
-theorem pageOne_isomorphic_of_injectiveRepresentative
-    (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ)
+#check (CategoryTheory.SimplicialSites.pageOne_isomorphic_of_injectiveRepresentative C J :
+  ∀ (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ)
     (hI : CochainComplex.plus _ I) [∀ n, Injective (I.X n)]
     (K : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w}))
     (hK : Nonempty
       (DerivedCategory.Plus.ι.obj K ≅ DerivedCategory.Q.obj I))
-    (p q : ℤ) :
+    (p q : ℤ),
     IsIsomorphic
       (HomologicalComplex₂.First.PageOne.entry (sectionsBicomplex C J I) p q)
-      ((pageOneFunctor C J p q).obj K) :=
-  sorry
+      ((pageOneFunctor C J p q).obj K))
 
-/-- The coaugmentation-to-total comparison is a quasi-isomorphism when every term of `I`
+/- The coaugmentation-to-total comparison is a quasi-isomorphism when every term of `I`
 is injective. -/
-theorem sectionsToTotal_quasiIso
-    [HasCountableCoproducts AddCommGrpCat.{max u w}]
+#check (CategoryTheory.SimplicialSites.sectionsToTotal_quasiIso C J :
+  ∀ [HasCountableCoproducts AddCommGrpCat.{max u w}]
     [CountableAB4 AddCommGrpCat.{max u w}]
     (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ)
-    [∀ n, Injective (I.X n)] :
+    [∀ n, Injective (I.X n)],
     QuasiIso
       (HomologicalComplex₂.CoaugmentedResolution.ToTotal.map
         ((sectionsColumnsFunctor C J).obj I)
         (sectionsCoaugmentation C J I)
-        (sectionsCoaugmentation_comp_d C J I)) :=
-  sorry
+        (sectionsCoaugmentation_comp_d C J I)))
 
 end CategoryTheory.SimplicialSites

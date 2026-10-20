@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Basic
@@ -68,6 +62,21 @@ noncomputable abbrev derived
   letI := RingedSite.Hom.moduleCat_hasDerivedCategory (target (K := K) R)
   (exactFunctor (J := J) (K := K) f R).mapDerivedCategory
 
+namespace derived
+
+/-- The exact derived inverse image carries its canonical right-derived-functor certificate in
+the continuous ring-sheaf presentation. -/
+@[stacks 07AC "exact inverse-image derived certificate", instance]
+theorem isRightDerived
+    (f : C ⥤ D) [f.IsContinuous J K] [f.IsCocontinuous J K]
+    (R : Sheaf K RingCat.{w})
+    [UnivLE.{max uC vC, z}] [UnivLE.{max uD vD, z}] :
+    (derived (J := J) (K := K) f R).IsRightDerivedFunctor
+      ((exactFunctor (J := J) (K := K) f R).obj.mapDerivedCategoryFactorsh.inv)
+      (RingedSite.Hom.ModuleQis.{z} (target (K := K) R)) := sorry
+
+end derived
+
 namespace toDerived
 
 /-- The continuous-presentation inverse image has a total right-derived functor.  This named
@@ -80,7 +89,10 @@ theorem hasRightDerived
     [UnivLE.{max uC vC, z}] [UnivLE.{max uD vD, z}] :
     Functor.HasRightDerivedFunctor
       (moduleInverseImage.toDerived (J := J) (K := K) f R)
-      (RingedSite.Hom.ModuleQis.{z} (target (K := K) R)) := sorry
+      (RingedSite.Hom.ModuleQis.{z} (target (K := K) R)) :=
+  Functor.HasRightDerivedFunctor.mk'
+    (RF := derived (J := J) (K := K) f R)
+    (α := (exactFunctor (J := J) (K := K) f R).obj.mapDerivedCategoryFactorsh.inv)
 
 end toDerived
 
@@ -99,20 +111,6 @@ noncomputable abbrev totalDerived
     (RingedSite.Hom.moduleLocalization (target (K := K) R))
     (RingedSite.Hom.ModuleQis.{z} (target (K := K) R))
 
-namespace derived
-
-/-- The exact derived inverse image carries its canonical right-derived-functor certificate in
-the continuous ring-sheaf presentation. -/
-@[stacks 07AC "exact inverse-image derived certificate", instance]
-theorem isRightDerived
-    (f : C ⥤ D) [f.IsContinuous J K] [f.IsCocontinuous J K]
-    (R : Sheaf K RingCat.{w})
-    [UnivLE.{max uC vC, z}] [UnivLE.{max uD vD, z}] :
-    (derived (J := J) (K := K) f R).IsRightDerivedFunctor
-      ((exactFunctor (J := J) (K := K) f R).obj.mapDerivedCategoryFactorsh.inv)
-      (RingedSite.Hom.ModuleQis.{z} (target (K := K) R)) := sorry
-
-end derived
 
 /-- The total-right-derived model agrees canonically with the exact derived inverse image. -/
 @[stacks 07AC "total-to-exact derived inverse-image comparison"]

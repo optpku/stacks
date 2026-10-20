@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import Mathlib.LinearAlgebra.Matrix.Notation
@@ -240,12 +234,15 @@ public inductive IsGenusOneConfiguration (T : NumericalType) : Prop where
       (weight_eq : ∀ i, T.weight (e i) =
         if i.val = 0 then w else if i.val + 1 = n then 4 * w else 2 * w)
       (componentGenus_eq : ∀ i, T.componentGenus (e i) = 0)
-  /-- The variable chain family with uniform multiplicity and light endpoints. -/
+  /-- The variable chain family with uniform multiplicity and light endpoints.
+  The edge intersection is `2 * w`, as in the five-component configuration:
+  the printed coefficient `w` in `item-up-chain-equal-down` contradicts divisibility
+  by the interior weight `2 * w`. -/
   | uniformMultiplicityChainFamily (n m w : ℕ)
       (hn : 6 ≤ n) (hm : 0 < m) (hw : 0 < w) (e : Fin n ≃ Fin T.n)
       (multiplicity_eq : ∀ i, T.multiplicity (e i) = m)
       (intersection_eq : ∀ i j, i < j → T.intersection (e i) (e j) =
-        if IsLinearEdge i j then (w : ℤ) else 0)
+        if IsLinearEdge i j then (2 * w : ℕ) else 0)
       (weight_eq : ∀ i, T.weight (e i) =
         if i.val = 0 ∨ i.val + 1 = n then w else 2 * w)
       (componentGenus_eq : ∀ i, T.componentGenus (e i) = 0)

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 -- Import decisions:
@@ -117,11 +111,18 @@ instance projectionInGroupoids (X : FiberedCategoryOver.Groupoids C) :
 transformation is invertible. This named owner instance is intentional because the object map of
 `InducedBicategory` cannot be reconstructed from its carrier synonym by typeclass search alone.
 
-Proof strategy: for each `X` and `Y`, obtain groupoidality of the ambient based-functor hom from
-`BasedFunctor.homGroupoid` and `Y.property`, then transport it through
-`Bicategory.InducedBicategory.homGroupoid`. -/
+For each transformation, the native induced-bicategory isomorphism constructor
+wraps the actual componentwise inverse from `BasedNatTrans.isoOfTargetInGroupoids`. -/
 @[stacks 0040 "locally groupoidal bicategory of groupoid-fibred categories"]
-instance locallyGroupoid : IsLocallyGroupoid (FiberedCategoryOver.Groupoids C) := sorry
+instance locallyGroupoid : IsLocallyGroupoid (FiberedCategoryOver.Groupoids C) := by
+  intro X Y
+  letI : Functor.IsFibered.InGroupoids Y.p := Y.property
+  constructor
+  intro F G α
+  let e : F ≅ G :=
+    InducedBicategory.isoMk (BasedNatTrans.isoOfTargetInGroupoids α.hom)
+  change IsIso e.hom
+  infer_instance
 
 /-- Canonical coercion to the direct ambient based-category API. -/
 instance coeBasedCategory : CoeOut (FiberedCategoryOver.Groupoids C) (BasedCategory.{vS, w} C) where

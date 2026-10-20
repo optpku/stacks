@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap60.Remark_60_9_3_Functoriality
 public import stacks_project.Chap60.Remark_60_8_5_Functoriality_Functor
-public import stacks_project.Chap60.Lemma_60_7_4
+public import ReasLib.AlgebraicGeometry.DividedPowers.Scheme.Pullback
 public import stacks_project.Chap60.Definition_60_9_1
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.StructureSheaf
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Ringed
@@ -42,7 +36,7 @@ structure HigherDirectImageContext where
   iDP : DividedPowerScheme.Hom Tthick T'thick
   πT : DividedPowerScheme.Hom Tthick S
   πT' : DividedPowerScheme.Hom T'thick S'
-  h_cart : @IsPullback DividedPowerScheme _ Tthick T'thick S S' iDP πT πT' g
+  h_cart : DividedPowerScheme.IsPullback iDP πT πT' g
   Xsch : Scheme.{u}
   X'sch : Scheme.{u}
   x₀ : Xsch ⟶ S.ideal.subscheme
@@ -77,7 +71,7 @@ def ofSquare
     (iDP : DividedPowerScheme.Hom Tthick T'thick)
     (πT : DividedPowerScheme.Hom Tthick S)
     (πT' : DividedPowerScheme.Hom T'thick S')
-    (h_cart : @IsPullback DividedPowerScheme _ Tthick T'thick S S' iDP πT πT' g)
+    (h_cart : DividedPowerScheme.IsPullback iDP πT πT' g)
     (Xsch X'sch : Scheme.{u})
     (x₀ : Xsch ⟶ S.ideal.subscheme) (x'₀ : X'sch ⟶ S'.ideal.subscheme)
     (s₀ : S.ideal.subscheme ⟶ S'.ideal.subscheme) (fSch : Xsch ⟶ X'sch)
@@ -113,11 +107,11 @@ noncomputable def zariskiHom :
   ringedHom c.iDP.base
 
 /-- The setup morphism has the given underlying scheme map. -/
-theorem setupHom_base : c.setupHom.base = c.g.base := sorry
+theorem setupHom_base : c.setupHom.base = c.g.base := rfl
 
 /-- The Zariski comparison is small-Zariski base change along `iDP`. -/
 theorem zariskiHom_base :
-    c.zariskiHom.base = Scheme.smallZariskiPullback c.iDP.base := sorry
+    c.zariskiHom.base = Scheme.smallZariskiPullback c.iDP.base := rfl
 
 end HigherDirectImageContext
 

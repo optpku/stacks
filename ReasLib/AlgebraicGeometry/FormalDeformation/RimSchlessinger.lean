@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
@@ -40,6 +34,8 @@ class HasRimSchlessinger (p : F ⥤ ArtinianLocalAlgCat Λ k) : Prop where
       ∃ (w : F) (π1 : w ⟶ x1) (π2 : w ⟶ x2),
         IsPullback π1 π2 f1 f2 ∧
           IsPullback (p.map π1) (p.map π2) (p.map f1) (p.map f2)
+
+attribute [instance] HasRimSchlessinger.isCofiberedInGroupoids
 
 /-- The identity functor on `ArtinianLocalAlgCat Λ k` satisfies (RS). -/
 instance instHasRimSchlessingerId :

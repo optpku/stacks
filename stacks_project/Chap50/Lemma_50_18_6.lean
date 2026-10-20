@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Differentials.CanonicalComparison
@@ -29,7 +23,9 @@ fixed determinant of the naive cotangent complex, on arbitrary schemes. -/
 @[stacks 0FLA]
 #check (AlgebraicGeometry.Scheme.RelativeDifferentials.ComparisonRule.absoluteFormComparison_comp_component :
   ∀ (r : ComparisonRule.{u}) (hr : IsComparisonRule r)
-    {X Y : Scheme.{u}} (f : Y ⟶ X) [LocallyQuasiFinite f] [Syntomic f] (p : ℕ),
+    {X Y : Scheme.{u}}
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
+    (f : Y ⟶ X) [LocallyQuasiFinite f] [Syntomic f] (p : ℕ),
     absoluteFormComparison f p ≫ r.component f p =
       RingedSpace.tensorSectionHom
         ((Scheme.Modules.pullback f).obj (Λ[p] Ω[(terminal.from X).toShHom]))

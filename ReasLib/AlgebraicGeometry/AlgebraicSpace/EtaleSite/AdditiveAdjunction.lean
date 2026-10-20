@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.SheafAdjunction
 public import Mathlib.Algebra.Category.Grp.FilteredColimits
@@ -69,7 +63,7 @@ def spaceEquivalence (X : AlgebraicSpace S) :
 /-- Actual restriction from spaces-étale sheaves to scheme charts. -/
 def restriction (X : AlgebraicSpace S) :
     Sheaf (spacesEtaleTopology X) AddCommGrpCat.{u} ⥤ Sheaf (smallEtaleTopology X) AddCommGrpCat.{u} :=
-  (smallEtaleInclusion X).sheafPushforwardContinuous AddCommGrpCat.{u}
+  (AlgebraicGeometry.AlgebraicSpace.smallEtaleToSpaces X).sheafPushforwardContinuous AddCommGrpCat.{u}
     (smallEtaleTopology X) (spacesEtaleTopology X)
 
 /-- Extension from scheme charts uses only the small chart Kan extension. -/
@@ -83,7 +77,7 @@ def restrictionExtensionIso (X : AlgebraicSpace S) :
   (spaceEquivalence X).unitIso ≪≫
     Functor.isoWhiskerRight
       (Functor.sheafPushforwardContinuousComp (AlgebraicGeometry.AlgebraicSpace.SmallEtale.AtlasCharts.inclusion X)
-        (smallEtaleInclusion X) AddCommGrpCat.{u} (AlgebraicGeometry.AlgebraicSpace.SmallEtale.AtlasCharts.topology X)
+        (AlgebraicGeometry.AlgebraicSpace.smallEtaleToSpaces X) AddCommGrpCat.{u} (AlgebraicGeometry.AlgebraicSpace.SmallEtale.AtlasCharts.topology X)
         (smallEtaleTopology X) (spacesEtaleTopology X)).symm
       (spaceEquivalence X).inverse ≪≫ Functor.associator _ _ _
 

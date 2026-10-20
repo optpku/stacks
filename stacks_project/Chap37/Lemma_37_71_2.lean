@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Thickening.Perfect
@@ -16,6 +10,8 @@ open CategoryTheory
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 /- Lemma 37.71.2: relative perfectness descends across a cartesian base change
 whose base morphism is a finite-order thickening. -/
 @[stacks 0DJY] #check
@@ -25,6 +21,14 @@ whose base morphism is a finite-order thickening. -/
       (sq : IsPullback i f f' j)
       [Flat f'] [LocallyOfFinitePresentation f']
       [IsFiniteOrderThickening j]
+      [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+        DerivedCategory.DerivedTensor.Right.Has
+          (C := RingedSpace.Modules
+            ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
+      [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f'.toShHom).carrier,
+        DerivedCategory.DerivedTensor.Right.Has
+          (C := RingedSpace.Modules
+            ((RingedSpace.Hom.inverseImageBase f'.toShHom).restrict U.isOpenEmbedding))]
       (E' : RingedSpace.ModuleDerived X'.toRingedSpace)
       (hE : RingedSpace.ModuleDerived.IsPerfectOver f.toShHom
         ((RingedSpace.modulePullbackDerived i.toShHom).obj E')),

@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap84.Lemma_84_6_1_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FppfEtale.Comparison
+import StacksCheckRecall
 
 /-!
 # Lemma 84.6.1
@@ -23,40 +17,32 @@ open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.Etale.SmallToBig
 open AlgebraicGeometry.AlgebraicSpace.FppfEtale
 open CategoryTheory CategoryTheory.Limits
-open CategoryTheory.GrothendieckTopology
 open scoped MorphismOfTopoiIn
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.FppfEtale
-
-/-- Lemma 84.6.1 (1): for a sheaf of sets `F` on `X_étale`, the canonical map
+/- Lemma 84.6.1 (1a): the canonical map
 `π_X⁻¹ F ⟶ ε_{X,*}(a_X⁻¹ F)` is an isomorphism. -/
 @[stacks 0DGF]
-theorem epsilon_pushforward_aInverse_unit_isIso {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (F : Sheaf (smallEtaleTopology X) (Type (u + 1))) :
-    IsIso ((Fppf.epsilon X).adjunction.unit.app ((siteMorphismOfTopoi X)⁻¹.obj F)) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FppfEtale.epsilon_pushforward_aInverse_unit_isIso :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (F : Sheaf (smallEtaleTopology X) (Type (u + 1))),
+    IsIso ((Fppf.epsilon X).adjunction.unit.app ((siteMorphismOfTopoi X)⁻¹.obj F)))
 
-/-- Lemma 84.6.1 (2): for a sheaf of sets `F` on `X_étale`, the canonical map
+/- Lemma 84.6.1 (1b): the canonical map
 `F ⟶ a_{X,*}(a_X⁻¹ F)` is an isomorphism. -/
 @[stacks 0DGF]
-theorem fppfComparison_unit_isIso {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (F : Sheaf (smallEtaleTopology X) (Type (u + 1))) :
-    IsIso ((fppfComparison X).adjunction.unit.app F) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FppfEtale.fppfComparison_unit_isIso :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (F : Sheaf (smallEtaleTopology X) (Type (u + 1))),
+    IsIso ((fppfComparison X).adjunction.unit.app F))
 
-/-- Lemma 84.6.1 (3): for an abelian sheaf `F` on `X_étale` and `0 < i`, the higher
-direct images `R^i ε_{X,*}(a_X⁻¹ F)` vanish. -/
+/- Lemma 84.6.1 (2): for an abelian sheaf `F` and `0 < i`,
+`R^i ε_{X,*}(a_X⁻¹ F)` vanishes. -/
 @[stacks 0DGF]
-theorem aInverse_higherDirectImage_isZero {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (F : Sheaf (smallEtaleTopology X) AddCommGrpCat.{u + 1}) (i : ℕ) (hi : 0 < i) :
-    IsZero (((epsilonPushforward X).rightDerived i).obj ((aInverseAb X).obj F)) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.FppfEtale
-
-end
+#check (AlgebraicGeometry.AlgebraicSpace.FppfEtale.aInverse_higherDirectImage_isZero :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (F : Sheaf (smallEtaleTopology X) AddCommGrpCat.{u + 1}) (i : ℕ) (hi : 0 < i),
+    IsZero (((epsilonPushforward X).rightDerived i).obj ((aInverseAb X).obj F)))
 
 end

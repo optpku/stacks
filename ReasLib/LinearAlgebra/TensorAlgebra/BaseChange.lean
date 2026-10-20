@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.LinearAlgebra.TensorAlgebra.Basic
@@ -37,7 +31,14 @@ variable {f : M →ₗ[R] N}
 `IsBaseChange.equiv`: scalar extension of the source maps to the chosen target model. -/
 @[stacks 0C6F "tensor algebra under module base change"]
 noncomputable def tensorAlgebraEquiv (h : IsBaseChange A f) :
-    A ⊗[R] TensorAlgebra R M ≃ₐ[A] TensorAlgebra A N := sorry
+    A ⊗[R] TensorAlgebra R M ≃ₐ[A] TensorAlgebra A N :=
+  AlgEquiv.ofAlgHom
+    (AlgHom.liftEquiv R A (TensorAlgebra R M) (TensorAlgebra A N)
+      (TensorAlgebra.lift R ((TensorAlgebra.ι A).restrictScalars R ∘ₗ f)))
+    (TensorAlgebra.lift A
+      ((TensorAlgebra.ι R).baseChange A ∘ₗ h.equiv.symm.toLinearMap))
+    (by sorry)
+    (by sorry)
 
 /-- The tensor-algebra base-change equivalence maps a scalar multiple of a source generator to
 the corresponding target generator. -/

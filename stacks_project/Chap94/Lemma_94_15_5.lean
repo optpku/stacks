@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
-public import stacks_project.Chap94.Lemma_94_9_11
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.RepresentableSource
 import StacksCheckRecall
 
 /-!
@@ -30,18 +23,21 @@ namespace AlgebraicGeometry
 `(Sch/S)_fppf`. Assume `f` is representable by algebraic spaces
 (`hf : relativelyRepresentableByAlgebraicSpaces f`). If `Y` is a stack in
 groupoids, then so is `X`. -/
-@[stacks 05UN] #check relativelyRepresentableByAlgebraicSpaces.source_isStack
+@[stacks 05UN] #check
+  (AlgebraicGeometry.relativelyRepresentableByAlgebraicSpaces.source_isStack :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
+      (hf : relativelyRepresentableByAlgebraicSpaces f)
+      [IsStack.InGroupoids (Scheme.fppfTopology.over S) Y.p],
+      IsStack.InGroupoids (Scheme.fppfTopology.over S) X.p)
 
-/-- Lemma 94.15.5 (2): let `S` be a scheme contained in `Sch_fppf`. Let
+/- Lemma 94.15.5 (2): let `S` be a scheme contained in `Sch_fppf`. Let
 `f : X ⟶ Y` be a 1-morphism of categories fibred in groupoids over
 `(Sch/S)_fppf`. Assume `f` is representable by algebraic spaces
 (`hf : relativelyRepresentableByAlgebraicSpaces f`). If `Y` is an algebraic
 stack (`[AlgebraicStack Y]`), then `X` is an algebraic stack over `S`. -/
-@[stacks 05UN]
-theorem relativelyRepresentableByAlgebraicSpaces.source_isAlgebraicStack
-    {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack Y] (f : X ⟶ Y)
-    (hf : relativelyRepresentableByAlgebraicSpaces f) :
-    AlgebraicStack X :=
-  sorry
+@[stacks 05UN] #check
+  (AlgebraicGeometry.relativelyRepresentableByAlgebraicSpaces.source_isAlgebraicStack :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack Y] (f : X ⟶ Y)
+      (hf : relativelyRepresentableByAlgebraicSpaces f), AlgebraicStack X)
 
 end AlgebraicGeometry

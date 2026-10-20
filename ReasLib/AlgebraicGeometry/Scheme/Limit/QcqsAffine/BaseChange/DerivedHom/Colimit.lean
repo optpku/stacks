@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Flat
@@ -29,6 +23,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.Limit.QcqsAffineLimit
 
 variable {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
@@ -43,11 +39,20 @@ theorem homDiagram_isColimit_exists
     (s : QcqsAffineLimit D) (X₀ : Scheme.{u})
     (x₀ : X₀ ⟶ D.obj (OrderDual.toDual s.base))
     [Flat x₀] [Scheme.Hom.FinitePresentation x₀]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase x₀.toShHom).carrier,
+      letI : HasWeakSheafify
+        (_root_.Opens.grothendieckTopology
+          ((RingedSpace.Hom.inverseImageBase x₀.toShHom).restrict U.isOpenEmbedding).carrier) AddCommGrpCat.{u} :=
+        (TopCat.addCommGrpHasSheafifySelf
+          ((RingedSpace.Hom.inverseImageBase x₀.toShHom).restrict U.isOpenEmbedding).carrier).isRightAdjoint;
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules ((RingedSpace.Hom.inverseImageBase x₀.toShHom).restrict U.isOpenEmbedding))]
     (K₀ L₀ : RingedSpace.ModuleDerived X₀.toRingedSpace)
     (hK₀ : RingedSpace.ModuleDerived.IsPseudoCoherent K₀)
     (hL₀qc : DerivedCategory.cohomologyIn
       (RingedSpace.quasiCoherentModuleProperty X₀.toRingedSpace) L₀)
     (hL₀tor : RingedSpace.ModuleDerived.LocallyHasFiniteTorDimension
+      (X := RingedSpace.Hom.inverseImageBase x₀.toShHom)
       ((RingedSpace.ModuleDerived.relativeRestriction x₀.toLRSHom.toShHom).obj L₀)) :
     Nonempty (IsColimit (s.homDiagram x₀ K₀ L₀).cocone) := sorry
 

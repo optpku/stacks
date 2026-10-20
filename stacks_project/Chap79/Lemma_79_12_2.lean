@@ -1,39 +1,23 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap79.Lemma_79_12_2_FinitePart
-public import stacks_project.Chap79.Lemma_79_12_2_Map
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FinitePart.OpenImmersion
+import StacksCheckRecall
 
-/-!
-# Canonical injectivity of finite-part sheaves along open immersions
--/
-
-@[expose] public section
+/-! # Canonical injectivity of finite-part sheaves along open immersions -/
 
 open CategoryTheory AlgebraicGeometry AlgebraicSpace Limits Opposite
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+/- Lemma 79.12.2. An open immersion over the target induces a canonical injective
+map of finite-part fppf sheaves, sending each pair `(a, Z)` to `(a, j(Z))`. -/
+@[stacks 04PF] #check (AlgebraicGeometry.AlgebraicSpace.instMono_finitePartOpenMap :
+  ∀ {S : Scheme.{u}} {X' X Y : AlgebraicSpace S} {f' : X' ⟶ Y} {f : X ⟶ Y}
+    (j : X' ⟶ X) [IsOpenImmersion j] (hcomm : j ≫ f = f'),
+    Mono (finitePartOpenMap j hcomm))
 
-/-- Lemma 79.12.2: Let `S` be a scheme. For a commutative triangle of algebraic spaces
-over `S` with `j : X' ⟶ X` an open immersion over `Y`, the canonical map of fppf sheaves
-`finitePartOpenMap j hcomm : finitePartSheaf f' ⟶ finitePartSheaf f` is a monomorphism. -/
-@[stacks 04PF, instance]
-instance instMono_finitePartOpenMap {S : Scheme.{u}} {X' X Y : AlgebraicSpace S}
-    {f' : X' ⟶ Y} {f : X ⟶ Y} (j : X' ⟶ X) [IsOpenImmersion j]
-    (hcomm : j ≫ f = f') : Mono (finitePartOpenMap j hcomm) := sorry
-
-/-- The components of `finitePartOpenMap j hcomm` are injective on sections. -/
-theorem finitePartOpenMap_injective {S : Scheme.{u}} {X' X Y : AlgebraicSpace S}
-    {f' : X' ⟶ Y} {f : X ⟶ Y} (j : X' ⟶ X) [IsOpenImmersion j]
-    (hcomm : j ≫ f = f') (T : (Over S)ᵒᵖ) :
+#check (AlgebraicGeometry.AlgebraicSpace.finitePartOpenMap_injective :
+  ∀ {S : Scheme.{u}} {X' X Y : AlgebraicSpace S} {f' : X' ⟶ Y} {f : X ⟶ Y}
+    (j : X' ⟶ X) [IsOpenImmersion j] (hcomm : j ≫ f = f') (T : (Over S)ᵒᵖ),
     Function.Injective fun (p : FinitePart.Point f' T.unop) ↦
-      FinitePart.Point.map j hcomm p := sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+      FinitePart.Point.map j hcomm p)

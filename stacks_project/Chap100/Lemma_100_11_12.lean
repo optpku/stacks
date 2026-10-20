@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_11_8_ResidualGerbe
-public import stacks_project.Chap100.Example_100_11_9_ResidualGerbe
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.ResidualGerbe.Uniqueness
+import StacksCheckRecall
 
 /-!
 # Residual gerbes from monomorphisms of singleton stacks
@@ -17,72 +11,52 @@ whose image on points is a single point `x` produces the residual gerbe of
 the target at `x`, and is equivalent to it over the target.
 -/
 
-@[expose] public section
-
 open CategoryTheory AlgebraicGeometry
 open FiberedCategoryOver.Groupoids
+open AlgebraicGeometry.AlgebraicStack
 open scoped Bicategory
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.IsResidualGerbe
-
-/-- Lemma 100.11.12 (1): Let `X` be an algebraic stack. Let `x ∈ |X|`. Let `Z`
-be an algebraic stack satisfying the equivalent conditions of Lemma 100.11.3
-and let `Z ⟶ X` be a monomorphism such that the image of `|Z| ⟶ |X|` is `x`.
-Then the residual gerbe of `X` at `x` exists. -/
+/- Lemma 100.11.12 (1): A monomorphism from a singleton algebraic stack with
+point-image `{x}` implies existence of the residual gerbe at `x`. -/
 @[stacks 06MX]
-theorem exists_of_mono {S : Scheme.{u}} {X Z : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.HasResidualGerbe.of_mono :
+  ∀ {S : Scheme.{u}} {X Z : GroupoidsOver S} [AlgebraicStack X]
+    [AlgebraicStack Z] {x : Points X} (f : Z ⟶ X) [Groupoids.Hom.Mono f]
+    [Nonempty (Points Z)] [Subsingleton (Points Z)],
+    Set.range (Points.map f) = {x} → HasResidualGerbe X x)
+
+/- Lemma 100.11.12 (2): The monomorphism from a reduced, locally Noetherian
+singleton algebraic stack factors through the canonical residual gerbe by an
+equivalence over the ambient stack. -/
+@[stacks 06MX]
+#check (AlgebraicGeometry.AlgebraicStack.IsResidualGerbe.factors_of_mono :
+  ∀ {S : Scheme.{u}} {X Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Z] [IsReduced Z] [IsLocallyNoetherian Z]
     [Nonempty (Points Z)] [Subsingleton (Points Z)] (f : Z ⟶ X)
-    [Groupoids.Hom.Mono f] {x : Points X}
-    (hx : Set.range (Points.map f) = {x}) :
-    HasResidualGerbe X x :=
-  sorry
-
-/-- Lemma 100.11.12 (2): Let `X` be an algebraic stack. Let `x ∈ |X|`. Let `Z`
-be an algebraic stack satisfying the equivalent conditions of Lemma 100.11.3
-and let `Z ⟶ X` be a monomorphism such that the image of `|Z| ⟶ |X|` is `x`.
-If the residual gerbe of `X` at `x` exists, then `Z ⟶ X` factors as
-`Z ⟶ residualGerbe X x ⟶ X` where the first arrow is an equivalence. -/
-@[stacks 06MX]
-theorem factors_of_mono {S : Scheme.{u}} {X Z : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Z] [IsReduced Z] [IsLocallyNoetherian Z]
-    [Nonempty (Points Z)] [Subsingleton (Points Z)] (f : Z ⟶ X)
-    [Groupoids.Hom.Mono f] {x : Points X}
-    (hx : Set.range (Points.map f) = {x}) [HasResidualGerbe X x] :
+    [Groupoids.Hom.Mono f] {x : Points X},
+    Set.range (Points.map f) = {x} → ∀ [HasResidualGerbe X x],
     ∃ g : Z ⟶ residualGerbe X x,
       (toBasedFunctor g).IsEquivalence ∧
-        Nonempty (g ≫ residualGerbeι X x ≅ f) :=
-  sorry
+        Nonempty (g ≫ residualGerbeι X x ≅ f))
 
-/-- A monomorphism from a reduced, locally Noetherian singleton algebraic stack
-whose image on points is `{x}` is a residual gerbe at `x`. -/
-theorem of_mono {S : Scheme.{u}} {X Z : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Z] [IsReduced Z] [IsLocallyNoetherian Z]
-    [Subsingleton (Points Z)] (f : Z ⟶ X) [Groupoids.Hom.Mono f]
-    {x : Points X} (hx : Set.range (Points.map f) = {x}) :
-    IsResidualGerbe f x :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.IsResidualGerbe.iff :
+  ∀ {S : Scheme.{u}} {X Z : GroupoidsOver S} [AlgebraicStack X]
+    [AlgebraicStack Z] (ι : Z ⟶ X) (x : Points X),
+    IsResidualGerbe ι x ↔
+      Groupoids.Hom.Mono ι ∧ IsReduced Z ∧ IsLocallyNoetherian Z ∧
+        Subsingleton (Points Z) ∧ Set.range (Points.map ι) = {x})
 
-/-- Any two residual gerbes of an algebraic stack at the same point are
-equivalent over that stack. -/
-theorem unique {S : Scheme.{u}} {X Z Zx : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.IsResidualGerbe.unique :
+  ∀ {S : Scheme.{u}} {X Z Zx : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Z] [AlgebraicStack Zx] {x : Points X}
-    (f : Z ⟶ X) (ι : Zx ⟶ X) [IsResidualGerbe f x] [IsResidualGerbe ι x] :
-    ∃ g : Z ⟶ Zx, (toBasedFunctor g).IsEquivalence ∧ Nonempty (g ≫ ι ≅ f) :=
-  sorry
+    (f : Z ⟶ X) (ι : Zx ⟶ X) [IsResidualGerbe f x] [IsResidualGerbe ι x],
+    ∃ g : Z ⟶ Zx, (toBasedFunctor g).IsEquivalence ∧ Nonempty (g ≫ ι ≅ f))
 
-/-- Comparison 1-morphisms between residual gerbes at the same point are unique
-up to 2-isomorphism. -/
-theorem unique_lift {S : Scheme.{u}} {X Z Zx : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.IsResidualGerbe.unique_lift :
+  ∀ {S : Scheme.{u}} {X Z Zx : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Z] [AlgebraicStack Zx] {x : Points X}
     (f : Z ⟶ X) (ι : Zx ⟶ X) [IsResidualGerbe f x] [IsResidualGerbe ι x]
-    (g g' : Z ⟶ Zx) (hg : Nonempty (g ≫ ι ≅ f))
-    (hg' : Nonempty (g' ≫ ι ≅ f)) :
-    Nonempty (g ≅ g') :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.IsResidualGerbe
+    (g g' : Z ⟶ Zx), Nonempty (g ≫ ι ≅ f) → Nonempty (g' ≫ ι ≅ f) →
+    Nonempty (g ≅ g'))

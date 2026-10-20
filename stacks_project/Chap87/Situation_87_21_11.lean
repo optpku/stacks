@@ -1,19 +1,20 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap87.Situation_87_21_11_Composition
+public import ReasLib.RingTheory.Topology.WeaklyAdmissible.Composition
 import StacksCheckRecall
 
 @[expose] public section
 
+universe u
+
 open TopologicalRing
 
-/- Situation 87.21.11: let P be a local property of morphisms of WAdm^count in
-the sense of Situation 87.21.2. Then P is stable under composition if continuous
-φ : B →+* A and ψ : C →+* B in WAdm^count with P φ and P ψ imply P (φ.comp ψ). -/
-@[stacks 0GBH] #check TopologicalRing.IsStableUnderComposition
+/- Situation 87.21.11: the source considers a local property P of morphisms of
+WAdm^count in the sense of Situation 87.21.2. The stability condition itself is
+defined independently of locality: for continuous φ : B →+* A and ψ : C →+* B,
+P φ and P ψ imply P (φ.comp ψ). -/
+@[stacks 0GBH] #check (TopologicalRing.IsStableUnderComposition :
+    (∀ {A B : Type u}
+    [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+    [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+    (B →+* A) → Prop) → Prop)

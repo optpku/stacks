@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Module.Injective
-public import stacks_project.Chap84.Lemma_84_5_2_Injective
-public import stacks_project.Chap84.Lemma_84_5_2_Relocalization
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Injective
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Relocalization
 import StacksCheckRecall
 
 @[expose] public section
@@ -27,7 +21,7 @@ universe u
 /- Lemma 84.5.2 (1): inverse image from `(Spaces/X)_étale` to `Y_étale` along an
 arbitrary morphism of algebraic spaces over `S` preserves injective abelian sheaves. -/
 @[stacks 0DG8] #check
-  (relocalization_preservesInjective :
+  (AlgebraicGeometry.AlgebraicSpace.Etale.SmallToBig.relocalization_preservesInjective :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : Y ⟶ X)
       [HasSheafify (smallEtaleTopology Y) AddCommGrpCat.{u + 1}]
       [HasSheafify (overEtaleTopology X) AddCommGrpCat.{u + 1}]
@@ -38,7 +32,7 @@ arbitrary morphism of algebraic spaces over `S` preserves injective abelian shea
 /- Lemma 84.5.2 (2): restriction from `(Spaces/X)_étale` to `X_étale` preserves
 injective abelian sheaves. -/
 @[stacks 0DG8] #check
-  (relocalization_restriction_preservesInjective :
+  (AlgebraicGeometry.AlgebraicSpace.Etale.SmallToBig.relocalization_restriction_preservesInjective :
     ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
       [HasSheafify (smallEtaleTopology X) AddCommGrpCat.{u + 1}]
       [HasSheafify (overEtaleTopology X) AddCommGrpCat.{u + 1}]
@@ -50,7 +44,7 @@ injective abelian sheaves. -/
 arbitrary morphism of algebraic spaces over `S` preserves K-injective cochain
 complexes of abelian sheaves. -/
 @[stacks 0DG8] #check
-  (relocalization_preservesKInjective :
+  (AlgebraicGeometry.AlgebraicSpace.Etale.SmallToBig.relocalization_preservesKInjective :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : Y ⟶ X)
       [HasSheafify (smallEtaleTopology Y) AddCommGrpCat.{u + 1}]
       [HasSheafify (overEtaleTopology X) AddCommGrpCat.{u + 1}]
@@ -62,7 +56,7 @@ complexes of abelian sheaves. -/
 /- Lemma 84.5.2 (4): restriction from `(Spaces/X)_étale` to `X_étale` preserves
 K-injective cochain complexes of abelian sheaves. -/
 @[stacks 0DG8] #check
-  (relocalization_restriction_preservesKInjective :
+  (AlgebraicGeometry.AlgebraicSpace.Etale.SmallToBig.relocalization_restriction_preservesKInjective :
     ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
       [HasSheafify (smallEtaleTopology X) AddCommGrpCat.{u + 1}]
       [HasSheafify (overEtaleTopology X) AddCommGrpCat.{u + 1}]
@@ -73,7 +67,7 @@ K-injective cochain complexes of abelian sheaves. -/
 
 /- Lemma 84.5.2 (5): the corresponding statements for modules do not hold. -/
 @[stacks 0DG8] #check
-  (specIntegerModulePullback_not_preservesInjective :
+  (AlgebraicGeometry.Scheme.Etale.SmallToBig.Module.specIntegerModulePullback_not_preservesInjective :
     ¬ specIntegerModulePullback.PreservesInjectiveObjects)
 
 end

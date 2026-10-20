@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Tilde.ChangeOfRings.GlobalSections
 public import Mathlib.Tactic.CrossRefAttribute
+public import Mathlib.Algebra.Homology.Additive
 
 /-!
 # Pullback in affine change of rings
@@ -59,6 +54,25 @@ noncomputable def iso
     tilde.functor R ⋙ Scheme.Modules.pullback (Spec.map φ) ≅
       ModuleCat.extendScalars φ.hom ⋙ tilde.functor S :=
   (restrictAdjunction φ).leftAdjointUniq (extendAdjunction φ)
+
+/-- Extension of scalars followed by affine tilde sheafification preserves zero morphisms. -/
+instance extendTilde_preservesZeroMorphisms
+    {R S : CommRingCat.{u}} (φ : R ⟶ S) :
+    (ModuleCat.extendScalars.{u, u, u} φ.hom ⋙ tilde.functor S).PreservesZeroMorphisms :=
+  Functor.preservesZeroMorphisms_of_iso (iso φ)
+
+/-- Pullback of complexes of affine tilde sheaves agrees with extension of scalars
+followed by degreewise tilde sheafification. -/
+noncomputable def mapHomologicalComplexIso
+    {R S : CommRingCat.{u}} (φ : R ⟶ S) {ι : Type*} (c : ComplexShape ι) :
+    (tilde.functor R).mapHomologicalComplex c ⋙
+        (Scheme.Modules.pullback (Spec.map φ)).mapHomologicalComplex c ≅
+      (ModuleCat.extendScalars.{u, u, u} φ.hom).mapHomologicalComplex c ⋙
+        (tilde.functor S).mapHomologicalComplex c :=
+  @NatIso.mapHomologicalComplex _ _ _ _ _ _ _ _ _
+    (inferInstance : (tilde.functor R ⋙
+      Scheme.Modules.pullback (Spec.map φ)).PreservesZeroMorphisms)
+    (extendTilde_preservesZeroMorphisms φ) (iso φ) c
 
 /-- The hom component of `iso` is the mate of the extension-of-scalars unit. -/
 @[simp, stacks 01I9 "pullback change-of-rings hom mate"]

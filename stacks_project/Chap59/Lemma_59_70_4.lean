@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.ExtensionByZero.OpenImmersion
@@ -44,8 +38,9 @@ where `j_*` is the continuous sheaf pushforward of `smallEtalePullback j` and
 
 /- Lemma 59.70.4 (3): `j_! F` is unique up to isomorphism among abelian étale
 sheaves on `X` whose restriction to `U` is `F` and whose stalks vanish at
-geometric points of `X` whose image misses `j.opensRange`. -/
-@[stacks 0F70] #check (AlgebraicGeometry.Scheme.abelianExtensionByZero_unique_of_restriction_and_vanishingStalks :
+geometric points of `X` whose image misses `j.opensRange`; the identification is
+the inverse of the canonical comparison `j_! F ⟶ G` adjoint to `F ≅ j⁻¹ G`. -/
+@[stacks 0F70] #check (AlgebraicGeometry.Scheme.abelianExtensionByZeroIsoOfRestriction :
     ∀ {U X : Scheme.{u}} (j : U ⟶ X) [IsOpenImmersion j]
       [∀ F : U.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
         (etaleRestriction j).op.HasLeftKanExtension F]
@@ -55,7 +50,19 @@ geometric points of `X` whose image misses `j.opensRange`. -/
       (e : (etaleRestrictionSheaf j AddCommGrpCat.{u}).obj G ≅ F)
       (hG : ∀ xbar : GeometricPoint X, xbar.image ∉ j.opensRange →
         IsZero ((GeometricPoint.toSmallEtalePoint xbar).sheafFiber.obj G)),
-      Nonempty (G ≅ (abelianExtensionByZero j).obj F))
+      G ≅ (abelianExtensionByZero j).obj F)
+
+#check (AlgebraicGeometry.Scheme.isIso_abelianExtensionByZeroComparison :
+    ∀ {U X : Scheme.{u}} (j : U ⟶ X) [IsOpenImmersion j]
+      [∀ F : U.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
+        (etaleRestriction j).op.HasLeftKanExtension F]
+      [HasWeakSheafify X.smallEtaleTopology AddCommGrpCat.{u}]
+      (F : Sheaf U.smallEtaleTopology AddCommGrpCat.{u})
+      (G : Sheaf X.smallEtaleTopology AddCommGrpCat.{u})
+      (e : (etaleRestrictionSheaf j AddCommGrpCat.{u}).obj G ≅ F)
+      (hG : ∀ xbar : GeometricPoint X, xbar.image ∉ j.opensRange →
+        IsZero ((GeometricPoint.toSmallEtalePoint xbar).sheafFiber.obj G)),
+      IsIso (abelianExtensionByZeroComparison j F G e))
 
 /- Lemma 59.70.4 (4): the stalks of `j_! F` vanish at geometric points
 whose image is outside `j.opensRange`. -/

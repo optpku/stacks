@@ -1,0 +1,30 @@
+module
+
+public import Mathlib.CategoryTheory.MorphismProperty.Local
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Flat
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Sites.FpqcPrecoverage
+
+/-!
+# Flat morphisms are fpqc local on the target
+
+Flat morphisms of algebraic spaces over a scheme `S` satisfy `IsLocalAtTarget`
+for the fpqc precoverage.
+-/
+
+@[expose] public section
+
+open CategoryTheory AlgebraicGeometry Limits
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicSpace.Flat
+
+/-- Flatness of morphisms of algebraic spaces is local on the target for the
+fpqc precoverage. -/
+instance isLocalAtTargetFpqc {S : Scheme.{u}} :
+    MorphismProperty.IsLocalAtTarget
+      (@Flat S : MorphismProperty (AlgebraicSpace S))
+      (fpqcPrecoverage S) :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicSpace.Flat

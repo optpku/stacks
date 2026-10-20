@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_7_8_Instances
-public import stacks_project.Chap101.Lemma_101_7_8_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.QuasiCompact.Permanence
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.QuasiSeparated.Permanence
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,7 +15,7 @@ universe u
 /- Lemma 101.7.8 (1): if `X` is quasi-compact and `Y` is quasi-separated, then `f`
 is quasi-compact. -/
 @[stacks 075S] #check
-  (QuasiCompact.of_isQuasiCompact :
+  (AlgebraicGeometry.AlgebraicStack.QuasiCompact.of_isQuasiCompact :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
       [IsQuasiCompact X] [IsQuasiSeparated Y],
@@ -30,14 +24,14 @@ is quasi-compact. -/
 /- Lemma 101.7.8 (2): if `X` is quasi-compact and quasi-separated and `Y` is
 quasi-separated, then `f` is quasi-compact and quasi-separated. -/
 @[stacks 075S] #check
-  (QuasiCompact.of_isQuasiCompact :
+  (AlgebraicGeometry.AlgebraicStack.QuasiCompact.of_isQuasiCompact :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
       [IsQuasiCompact X] [IsQuasiSeparated Y],
       QuasiCompact f)
 
 @[stacks 075S] #check
-  (QuasiSeparated.of_isQuasiSeparated :
+  (AlgebraicGeometry.AlgebraicStack.QuasiSeparated.of_isQuasiSeparated :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
       [IsQuasiSeparated X] [IsQuasiSeparated Y],
@@ -46,7 +40,7 @@ quasi-separated, then `f` is quasi-compact and quasi-separated. -/
 /- Lemma 101.7.8 (3): a 2-fibre product of quasi-compact and quasi-separated
 algebraic stacks is quasi-compact and quasi-separated. -/
 @[stacks 075S] #check
-  (IsQuasiCompact.of_isBilimit :
+  (AlgebraicGeometry.AlgebraicStack.IsQuasiCompact.of_isBilimit :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
       {f : X ⟶ Y} {g : Z ⟶ Y}
@@ -55,7 +49,7 @@ algebraic stacks is quasi-compact and quasi-separated. -/
       c.IsBilimit → IsQuasiCompact c.pt)
 
 @[stacks 075S] #check
-  (IsQuasiSeparated.of_isBilimit :
+  (AlgebraicGeometry.AlgebraicStack.IsQuasiSeparated.of_isBilimit :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
       {f : X ⟶ Y} {g : Z ⟶ Y}
@@ -64,7 +58,7 @@ algebraic stacks is quasi-compact and quasi-separated. -/
       c.IsBilimit → IsQuasiSeparated c.pt)
 
 @[stacks 075S] #check
-  (IsQuasiCompact.instTwoFibreProduct :
+  (AlgebraicGeometry.AlgebraicStack.IsQuasiCompact.instTwoFibreProduct :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
       (f : X ⟶ Y) (g : Z ⟶ Y)
@@ -73,7 +67,7 @@ algebraic stacks is quasi-compact and quasi-separated. -/
       IsQuasiCompact (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g))
 
 @[stacks 075S] #check
-  (IsQuasiSeparated.instTwoFibreProduct :
+  (AlgebraicGeometry.AlgebraicStack.IsQuasiSeparated.instTwoFibreProduct :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
       (f : X ⟶ Y) (g : Z ⟶ Y)

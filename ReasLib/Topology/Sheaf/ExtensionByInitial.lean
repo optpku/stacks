@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Sheaf.ExtensionByInitial.Basic
@@ -137,14 +131,75 @@ theorem stalk_isInitial_of_not_mem (U : Opens X) (ℱ : (space U).Sheaf C)
     IsIso (initial.to
       (((TopCat.Sheaf.ExtensionByInitial.functor U).obj ℱ).presheaf.stalk x)) := sorry
 
+/-- Restricting the presheaf extension `jₚ! ℱ` along the open-subspace inclusion recovers `ℱ`:
+the inverse of the presheaf unit, transported along the open-map description of pullback. -/
+noncomputable def presheafRestrictIso (U : Opens X) (ℱ : (space U).Presheaf C) :
+    U.isOpenEmbedding.functor.op ⋙ (TopCat.Presheaf.ExtensionByInitial.functor U).obj ℱ ≅
+      ℱ :=
+  (U.isOpenEmbedding.isOpenMap.pullbackObjIso
+      ((TopCat.Presheaf.ExtensionByInitial.functor U).obj ℱ)).symm ≪≫
+    (TopCat.Presheaf.ExtensionByInitial.Properties.unitIso U ℱ).symm
+
+/-- The explicit inverse of the sheaf unit, `j⁻¹ j! ℱ ≅ ℱ`: sheaf pullback along the open
+inclusion is restriction along the image functor, restriction commutes with sheafification
+(the image functor of an open embedding is continuous and cocontinuous), restriction of
+`jₚ! ℱ` recovers `ℱ`, and the sheafification of a sheaf is the sheaf itself. -/
+noncomputable def pullbackObjIso (U : Opens X) (ℱ : (space U).Sheaf C) :
+    (TopCat.Sheaf.pullback C (inclusion U)).obj
+        ((TopCat.Sheaf.ExtensionByInitial.functor U).obj ℱ) ≅ ℱ :=
+  -- Local instance justification (defeq pin): use the continuity witness for the exact
+  -- image-open functor occurring in mathlib's `sheafPullback` construction.
+  haveI := U.isOpenEmbedding.functor_isContinuous
+  -- Local instance justification (defeq pin): use the same image-open functor in the
+  -- sheafification comparison, with cocontinuity supplied by its open-map adjunction.
+  haveI : U.isOpenEmbedding.functor.IsCocontinuous
+      (Opens.grothendieckTopology (space U)) (Opens.grothendieckTopology X) :=
+    (U.isOpenEmbedding.isOpenMap.adjunction.isCocontinuous_iff_coverPreserving _ _).mpr
+      (coverPreserving_opens_map (inclusion U))
+  (U.isOpenEmbedding.sheafPullbackIso C).app _ ≪≫
+    ((U.isOpenEmbedding.functor.pushforwardContinuousSheafificationCompatibility C
+        (Opens.grothendieckTopology (space U)) (Opens.grothendieckTopology X)).app
+      ((TopCat.Presheaf.ExtensionByInitial.functor U).obj ℱ.presheaf)).symm ≪≫
+    (presheafToSheaf _ C).mapIso (presheafRestrictIso U ℱ.presheaf) ≪≫
+    (sheafificationIso ℱ).symm
+
+/-- The canonical unit followed by the explicit inverse is the identity. -/
+theorem unit_app_comp_pullbackObjIso_hom (U : Opens X) (ℱ : (space U).Sheaf C) :
+    (adjunction (C := C) U).unit.app ℱ ≫ (pullbackObjIso U ℱ).hom = 𝟙 ℱ := sorry
+
+/-- The explicit inverse followed by the canonical unit is the identity. -/
+theorem pullbackObjIso_hom_comp_unit_app (U : Opens X) (ℱ : (space U).Sheaf C) :
+    (pullbackObjIso U ℱ).hom ≫ (adjunction (C := C) U).unit.app ℱ = 𝟙 _ := sorry
+
+/-- The unit component `ℱ ≅ j⁻¹ j! ℱ` of the sheaf adjunction, with explicit inverse. -/
+noncomputable def unitIso (U : Opens X) (ℱ : (space U).Sheaf C) :
+    ℱ ≅ (TopCat.Sheaf.pullback C (inclusion U)).obj
+      ((TopCat.Sheaf.ExtensionByInitial.functor U).obj ℱ) where
+  hom := (adjunction (C := C) U).unit.app ℱ
+  inv := (pullbackObjIso U ℱ).hom
+  hom_inv_id := unit_app_comp_pullbackObjIso_hom U ℱ
+  inv_hom_id := pullbackObjIso_hom_comp_unit_app U ℱ
+
 /-- The unit of the canonical sheaf extension-by-initial adjunction is an isomorphism. -/
 instance unit_isIso (U : Opens X) :
-    IsIso (adjunction (C := C) U).unit := sorry
+    IsIso (adjunction (C := C) U).unit :=
+  have (ℱ : (space U).Sheaf C) : IsIso ((adjunction (C := C) U).unit.app ℱ) :=
+    (unitIso U ℱ).isIso_hom
+  NatIso.isIso_of_isIso_app _
 
-/-- Sheaf extension by an initial object is fully faithful. -/
+/-- Sheaf extension by an initial object is fully faithful; a morphism `j! ℱ ⟶ j! 𝒢` is
+transposed along the adjunction and composed with the explicit inverse unit. -/
 noncomputable def fullyFaithful (U : Opens X) :
-    (TopCat.Sheaf.ExtensionByInitial.functor (C := C) U).FullyFaithful :=
-  (adjunction (C := C) U).fullyFaithfulLOfIsIsoUnit
+    (TopCat.Sheaf.ExtensionByInitial.functor (C := C) U).FullyFaithful where
+  preimage {_ 𝒢} f := homEquiv U _ _ f ≫ (pullbackObjIso U 𝒢).hom
+  map_preimage := sorry
+  preimage_map := sorry
+
+/-- The preimage of a morphism is its adjoint transpose followed by the explicit inverse unit. -/
+@[simp] theorem fullyFaithful_preimage (U : Opens X) {ℱ 𝒢 : (space U).Sheaf C}
+    (f : (TopCat.Sheaf.ExtensionByInitial.functor U).obj ℱ ⟶
+      (TopCat.Sheaf.ExtensionByInitial.functor U).obj 𝒢) :
+    (fullyFaithful U).preimage f = homEquiv U ℱ _ f ≫ (pullbackObjIso U 𝒢).hom := rfl
 
 /-- A sheaf is in the essential image of extension by an initial object exactly when every stalk
 outside the open subspace is initial. -/

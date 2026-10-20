@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_5_4_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.SchemeComparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.Composition
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry.AlgebraicSpace Limits
@@ -27,7 +22,7 @@ agrees with `Scheme.Hom.conormalSheaf` from Morphisms, Definition 29.31.1, after
 `Modules.restrictToScheme`. -/
 @[stacks 04G2]
 #check
-  (Hom.Conormal.restrictToSchemeIso i :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.restrictToSchemeIso i :
     (Modules.restrictToScheme Z).obj (Hom.conormalSheaf (ofOverMap i)) ≅
       Scheme.Hom.conormalSheaf i.left)
 
@@ -45,10 +40,10 @@ variable (sq : CommSq f i i' g)
 `(Modules.pullback f).obj (Hom.conormalSheaf i') ⟶ Hom.conormalSheaf i` is the same
 as the one constructed in Morphisms, Lemma 29.31.3. -/
 @[stacks 04G2]
-#check (Hom.Conormal.map_restrictToScheme sq :
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.map_restrictToScheme sq :
   (Hom.Conormal.pullbackRestrictIso f i').hom ≫ Scheme.Hom.Conormal.map (ofOverSqLeft sq) =
     (Modules.restrictToScheme Z).map (Hom.Conormal.map (ofOverCommSq sq)) ≫
-      (Hom.Conormal.restrictToSchemeIso i).hom)
+      (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.restrictToSchemeIso i).hom)
 
 end schemeSquare
 
@@ -68,9 +63,9 @@ algebraic spaces over `S` whose horizontal arrows are immersions, the map
 is the composition of `Hom.Conormal.map sq` with the pullback by `f` of
 `Hom.Conormal.map sq'`. -/
 @[stacks 04G2]
-#check (Hom.Conormal.map_comp sq sq' :
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.map_comp sq sq' :
   Hom.Conormal.map (sq.horiz_comp sq') =
-    (Modules.pullbackComp f f').inv.app (Hom.conormalSheaf i'') ≫
+    (Modules.pullbackCompIso f f').inv.app (Hom.conormalSheaf i'') ≫
       (Modules.pullback f).map (Hom.Conormal.map sq') ≫ Hom.Conormal.map sq)
 
 end stackedSquares

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.HomologicalComplex.Representatives
@@ -270,6 +264,44 @@ def Page.HasPresentation
     (E : SpectralSequence C (fun r ↦ ComplexShape.up' (r : ℤ)) 0) : Prop :=
   Nonempty (Page.Presentation K E)
 
+/-- The current-page class of a strict successor-page cycle, expressed in a chosen
+representative presentation. -/
+@[stacks 012C "successor strict cycles lie in the current cycle representative"]
+theorem Page.Representative.successor_strictCycle_le_cycle
+    (K : HomologicalComplex (FilteredObject C) (ComplexShape.refl PUnit.{1}))
+    (r : ℕ) (p : ℤ) :
+    Page.Representative.strictCycle K (r + 1) p ≤
+      Page.Representative.cycle K r p := sorry
+
+/-- The current-page class of a strict successor-page cycle, expressed in a chosen
+representative presentation. -/
+@[stacks 012C "successor cycle class in the current page"]
+noncomputable def Page.Presentation.successorCycleToPage
+    {K : HomologicalComplex (FilteredObject C) (ComplexShape.refl PUnit.{1})}
+    {E : SpectralSequence C (fun r ↦ ComplexShape.up' (r : ℤ)) 0}
+    (A : Page.Presentation K E) (r : ℕ) (p : ℤ) :
+    (Page.Representative.strictCycle K (r + 1) p : C) ⟶ (E.page r).X p :=
+  Subobject.ofLE _ _ (Page.Representative.successor_strictCycle_le_cycle K r p) ≫
+    Page.Representative.toQuotient K r p ≫ (A.pageIso r p).inv
+
+/-- Strict successor-page cycles give cycles of the current-page differential. -/
+@[stacks 012C "successor representative classes are current-page cycles"]
+theorem Page.Presentation.successorCycleToPage_comp_d
+    {K : HomologicalComplex (FilteredObject C) (ComplexShape.refl PUnit.{1})}
+    {E : SpectralSequence C (fun r ↦ ComplexShape.up' (r : ℤ)) 0}
+    (A : Page.Presentation K E) (r : ℕ) (p : ℤ) :
+    A.successorCycleToPage r p ≫ (E.page r).d p (p + r) = 0 := sorry
+
+/-- The homology class on page `r` of a strict `(r+1)`-cycle. -/
+@[stacks 012C "successor cycle class in page homology"]
+noncomputable def Page.Presentation.successorCycleToHomology
+    {K : HomologicalComplex (FilteredObject C) (ComplexShape.refl PUnit.{1})}
+    {E : SpectralSequence C (fun r ↦ ComplexShape.up' (r : ℤ)) 0}
+    (A : Page.Presentation K E) (r : ℕ) (p : ℤ) :
+    (Page.Representative.strictCycle K (r + 1) p : C) ⟶ (E.page r).homology p :=
+  (E.page r).liftCycles' (A.successorCycleToPage r p) (p + r) (by simp)
+      (A.successorCycleToPage_comp_d r p) ≫ (E.page r).homologyπ p
+
 /-- The zeroth-page complex: its degree-`p` term is `gr^p K`, and its degree-zero differential
 is induced by the differential of `K`. -/
 @[stacks 012C "zeroth page of a filtered differential spectral sequence"]
@@ -283,6 +315,36 @@ noncomputable def Page.Zero.complex : HomologicalComplex C (ComplexShape.up' (0 
       0
   shape := sorry
   d_comp_d' := sorry
+
+/-- The filtration stage in degree zero is contained in the zeroth-page cycle
+representative. -/
+@[stacks 012C "zeroth-page stage is a cycle representative"]
+theorem Page.Zero.stage_le_cycle (K : HomologicalComplex (FilteredObject C)
+    (ComplexShape.refl PUnit.{1})) (p : ℤ) :
+    (K.X PUnit.unit).filtration.stage p ≤ Page.Representative.cycle K 0 p := sorry
+
+/-- The next filtration stage maps to zero in the zeroth-page quotient. -/
+@[stacks 012C "zeroth-page successor stage vanishes in the quotient"]
+theorem Page.Zero.succInclusion_comp_eq_zero
+    (K : HomologicalComplex (FilteredObject C) (ComplexShape.refl PUnit.{1})) (p : ℤ) :
+    (K.X PUnit.unit).filtration.succInclusion p ≫
+        Subobject.ofLE ((K.X PUnit.unit).filtration.stage p)
+          (Page.Representative.cycle K 0 p)
+          (Page.Zero.stage_le_cycle K p) ≫
+        Page.Representative.toQuotient K 0 p = 0 := sorry
+
+/-- The canonical map from the associated graded object to the explicit zeroth-page quotient. -/
+@[stacks 012C "zeroth-page graded-piece comparison"]
+noncomputable def Page.Zero.gradedPieceToQuotient
+    (K : HomologicalComplex (FilteredObject C) (ComplexShape.refl PUnit.{1})) (p : ℤ) :
+    (gradedPiece K p).X PUnit.unit ⟶ Page.Representative.quotient K 0 p :=
+  cokernel.desc ((K.X PUnit.unit).filtration.succInclusion p)
+    (Subobject.ofLE ((K.X PUnit.unit).filtration.stage p)
+      (Page.Representative.cycle K 0 p) (Page.Zero.stage_le_cycle K p) ≫
+      Page.Representative.toQuotient K 0 p)
+    (Page.Zero.succInclusion_comp_eq_zero K p)
+
+/-! ## Zeroth-page comparison -/
 
 /-- The short complex in the zeroth page at filtration degree `p` is the short complex of the
 graded differential object `gr^p K`. -/
@@ -324,6 +386,10 @@ structure Association
     extends Page.Presentation K E where
   /-- The zeroth page is the associated graded differential object. -/
   pageZeroIso : E.page 0 ≅ Page.Zero.complex K
+  /-- The zeroth-page comparison agrees with the canonical quotient presentation. -/
+  pageZeroIso_hom_comp_pageIso : ∀ p : ℤ,
+    pageZeroIso.hom.f p ≫ Page.Zero.gradedPieceToQuotient K p =
+      (toPresentation.pageIso 0 p).hom
   /-- Under the induced first-page comparison, `d₁` is the connecting morphism of the canonical
   two-step quotient sequence. -/
   pageOne_d_eq_boundaryMap : ∀ p : ℤ,
@@ -332,6 +398,14 @@ structure Association
       ((Page.One.iso K pageZeroIso p).hom)
       ((Page.One.iso K pageZeroIso (p + 1)).hom)
       (TwoStep.boundary K p rfl)
+  /-- The spectral-sequence transition maps agree with the canonical maps on strict successor
+  cycles under the chosen page presentations. -/
+  successorCycleToHomology_comp_iso : ∀ (r : ℕ) (p : ℤ),
+    toPresentation.successorCycleToHomology r p ≫
+        (E.iso (r : ℤ) ((r + 1 : ℕ) : ℤ) p).hom ≫
+        (toPresentation.pageIso (r + 1) p).hom =
+      FilteredObject.Hom.Page.strictCycleToQuotient
+        (differential K) (differential K) (r + 1) p
 
 attribute [stacks 012D] Association.pageOne_d_eq_boundaryMap
 
@@ -380,7 +454,7 @@ for any explicit limit stages of an associated spectral sequence. -/
 @[stacks 012F "homology graded pieces as limit-page subquotients"]
 theorem LimitPage.gradedPiece_isSubquotient
     (E : SpectralSequence C (fun r ↦ ComplexShape.up' (r : ℤ)) 0)
-    (hAssoc : Page.HasPresentation K E)
+    (hAssoc : Association.IsAssociated K E)
     (L : SpectralSequence.LimitStages (Page.One.tail E)) (p : ℤ) :
     IsSubquotient ((Homology.Filtration.induced K PUnit.unit).gradedPiece p)
       (L.infinityPage p) := sorry
@@ -390,7 +464,7 @@ page. -/
 @[stacks 012F "associated graded homology as a limit-page subquotient"]
 theorem LimitPage.graded_isSubquotient
     (E : SpectralSequence C (fun r ↦ ComplexShape.up' (r : ℤ)) 0)
-    (hAssoc : Page.HasPresentation K E)
+    (hAssoc : Association.IsAssociated K E)
     (L : SpectralSequence.LimitStages (Page.One.tail E)) :
     ∀ p : ℤ,
       IsSubquotient ((Homology.Filtration.induced K PUnit.unit).gradedPiece p)

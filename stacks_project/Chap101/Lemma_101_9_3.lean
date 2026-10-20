@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
-public import stacks_project.Chap101.Definition_101_9_1_Affine
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Morphism.Affine
+import StacksCheckRecall
 
 /-!
 # Composition of affine morphisms of algebraic stacks
@@ -23,23 +16,16 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.Groupoids.Hom
-
-namespace Affine
-
-/-- Lemma 101.9.3: compositions of affine morphisms of algebraic stacks are
+/- Lemma 101.9.3: compositions of affine morphisms of algebraic stacks are
 affine. -/
-@[stacks 0CHS]
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [Affine f] [Affine g] : Affine (f ≫ g) := sorry
+@[stacks 0CHS] #check
+  (AlgebraicGeometry.Groupoids.Hom.Affine.comp :
+    ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+      (f : X ⟶ Y) (g : Y ⟶ Z) [Groupoids.Hom.Affine f] [Groupoids.Hom.Affine g],
+      Groupoids.Hom.Affine (f ≫ g))
 
-/-- Affine 1-morphisms of groupoid fibrations over `S` are stable under
-composition as a morphism property. -/
-instance instIsStableUnderComposition {S : Scheme.{u}} :
+#check
+  (AlgebraicGeometry.Groupoids.Hom.Affine.instIsStableUnderComposition :
+    ∀ {S : Scheme.{u}},
     MorphismProperty.IsStableUnderComposition
-      (@Affine S : MorphismProperty (GroupoidsOver S)) := sorry
-
-end Affine
-
-end AlgebraicGeometry.Groupoids.Hom
+      (@Groupoids.Hom.Affine S : MorphismProperty (GroupoidsOver S)))

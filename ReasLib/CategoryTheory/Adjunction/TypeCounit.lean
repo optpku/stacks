@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Adjunction.Limits
@@ -101,17 +95,5 @@ preserves the terminal object reflects epimorphisms. -/
 theorem reflectsEpimorphisms_of_preservesTerminal (adj : L ⊣ R)
     [PreservesLimit (Functor.empty.{0} C) L] :
     R.ReflectsEpimorphisms := sorry
-
-/-- Deprecated compatibility name; use `faithful_of_preservesTerminal`. -/
-@[deprecated faithful_of_preservesTerminal (since := "2026-08-05")]
-alias faithful_R_of_preservesTerminal := faithful_of_preservesTerminal
-
-/-- Deprecated compatibility name; use `reflectsMonomorphisms_of_preservesTerminal`. -/
-@[deprecated reflectsMonomorphisms_of_preservesTerminal (since := "2026-08-05")]
-alias reflectsMonomorphisms_R_of_preservesTerminal := reflectsMonomorphisms_of_preservesTerminal
-
-/-- Deprecated compatibility name; use `reflectsEpimorphisms_of_preservesTerminal`. -/
-@[deprecated reflectsEpimorphisms_of_preservesTerminal (since := "2026-08-05")]
-alias reflectsEpimorphisms_R_of_preservesTerminal := reflectsEpimorphisms_of_preservesTerminal
 
 end CategoryTheory.Adjunction

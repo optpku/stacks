@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 -- Import decisions:
@@ -41,7 +35,7 @@ proof route and obscured the canonical owner. Keeping the proof route in the dec
 makes the intended use of the mathlib 4.32 APIs explicit without turning proof internals into
 public dependencies. -/
 
-/-- Lemma 4.35.14 (Stacks 09WW): if `F : A ⥤ B` and `G : B ⥤ C` are fibred in groupoids, then
+/-- If `F : A ⥤ B` and `G : B ⥤ C` are fibred in groupoids, then
 `F ⋙ G : A ⥤ C` is fibred in groupoids.
 
 Proof strategy: obtain `(F ⋙ G).IsFibered` from `Functor.isFibered_comp`, then apply

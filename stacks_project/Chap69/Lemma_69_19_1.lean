@@ -1,15 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap66.Definition_66_24_1_Noetherian
 public import stacks_project.Chap67.Definition_67_4_2_Separation
 public import stacks_project.Chap67.Definition_67_40_1_FiniteType
 public import stacks_project.Chap69.Lemma_69_19_1_DVR
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.Separated
+import StacksCheckRecall
 
 /-!
 # Lemma 69.19.1
@@ -26,19 +22,13 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-namespace Separated
-
-/-- Lemma 69.19.1: If `f : X ⟶ Y` is a morphism of algebraic spaces over a scheme
+/- Lemma 69.19.1: If `f : X ⟶ Y` is a morphism of algebraic spaces over a scheme
 `S`, `Y` is locally Noetherian, `f` is locally of finite type and quasi-separated,
 and every DVR valuative square has at most one lift, then `f` is separated. -/
-@[stacks 0ARJ]
-instance of_dvrUniqueness {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [IsLocallyNoetherian Y] [LocallyOfFiniteType f] [QuasiSeparated f]
-    [ValuativeCriterion.DVR.Uniqueness f] : Separated f :=
-  sorry
-
-end Separated
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 0ARJ] #check (AlgebraicGeometry.AlgebraicSpace.Separated.of_dvrUniqueness :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [AlgebraicGeometry.AlgebraicSpace.IsLocallyNoetherian Y]
+    [AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType f]
+    [AlgebraicGeometry.AlgebraicSpace.QuasiSeparated f]
+    [AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.Uniqueness f],
+    AlgebraicGeometry.AlgebraicSpace.Separated f)

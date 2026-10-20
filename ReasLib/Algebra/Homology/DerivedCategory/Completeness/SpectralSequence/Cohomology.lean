@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.Completeness.SpectralSequence.Filtered
@@ -26,10 +20,6 @@ noncomputable section
 open CategoryTheory
 
 universe u
-
--- Local instance justification (defeq pin): use the standard derived-category model uniformly
--- in the reflector, page identifications, and abutment objects.
-attribute [local instance] HasDerivedCategory.standard
 
 namespace DerivedCategory.DerivedCompletion
 
@@ -79,11 +69,21 @@ theorem spec {I : Ideal A} {K : DerivedCategory (ModuleCat A)}
       FilteredComplex.Cohomology.Convergence.Converges
         S.filteredComplex S.spectralSequence := sorry
 
+/-- The abutment of a completion cohomology spectral sequence is canonically isomorphic to
+cohomology of the supplied derived completion. -/
+noncomputable def canonicalTargetIso {I : Ideal A} {K : DerivedCategory (ModuleCat A)}
+    (S : CohomologySpectralSequence I K) (R : Reflector I) (n : ℤ) :
+    S.filteredComplex.underlying.homology n ≅
+      (homologyFunctor (ModuleCat A) n).obj (R.obj K) :=
+  S.targetIso n ≪≫
+    (homologyFunctor (ModuleCat A) n).mapIso
+      ((S.completion.completionIso R).app K)
+
 end CohomologySpectralSequence
 
-/-- Example 15.92.23 (Stacks `0BKE`): for a finitely generated ideal `I` and `K ∈ D(A)`,
-there exists a bounded derived-completion cohomology spectral sequence with the displayed
-second page and abutment. -/
+/-- For a finitely generated ideal and a derived module, there is a bounded spectral sequence
+whose second page consists of cohomology of the completed cohomology modules and whose
+abutment is cohomology of the derived completion. -/
 @[stacks 0BKE]
 theorem existsCohomologySpectralSequence
     (I : Ideal A) (hI : I.FG) (K : DerivedCategory (ModuleCat A)) :

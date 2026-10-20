@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.FiniteTypeCech
@@ -116,9 +110,7 @@ canonical comparison with the local degree-zero structure module. -/
           (RingedSite.Hom.moduleCat_hasDerivedCategory
             ((RingedSite.ofCommRingSheaf J O).localization U))
           (localizedRestriction.{u} (RingedSite.ofCommRingSheaf J O) U)
-          (localizedRestriction_additive (RingedSite.ofCommRingSheaf J O) U)
-          (localizedRestriction_preservesFiniteLimits (RingedSite.ofCommRingSheaf J O) U)
-          (localizedRestriction_preservesFiniteColimits (RingedSite.ofCommRingSheaf J O) U)
+          inferInstance inferInstance inferInstance
           (0 : ℤ)).hom.app (unitModule J O)))
 
 end RingedSite.Hom.ModuleDerived

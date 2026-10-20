@@ -1,31 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap96.Lemma_96_8_2_Comparison
-public import ReasLib.CategoryTheory.Fibered.Representable.Presentation
-import Mathlib.Tactic.CrossRefAttribute
-
-/-!
-# Lemma 96.8.2
-
-If a 1-morphism of categories fibred in groupoids over a scheme is representable
-by a morphism of schemes, the induced morphism of associated ringed topoi agrees
-with the morphism of big ringed topoi of that scheme morphism, via the
-identifications of Lemma 96.8.1.
--/
+import StacksCheckRecall
 
 @[expose] public section
-
 open AlgebraicGeometry CategoryTheory FiberedCategoryOver.Groupoids
+open AlgebraicGeometry.GroupoidsOver
 open scoped Bicategory
-
 noncomputable section
-
 universe u
 
 namespace AlgebraicGeometry.GroupoidsOver
@@ -51,7 +33,8 @@ variable [∀ P : (Over X.left)ᵒᵖ ⥤ RingCat.{u},
 variable [(forget RingCat.{u}).PreservesRightKanExtensions
     (Over.map (Presentation.recover eX eY f).left).op]
 
-/-- Lemma 96.8.2: let `S` be a scheme and let `f : 𝒳 ⟶ 𝒴` be a 1-morphism of
+
+/- Lemma 96.8.2: let `S` be a scheme and let `f : 𝒳 ⟶ 𝒴` be a 1-morphism of
 categories fibred in groupoids over `S`. Assume `𝒳` and `𝒴` are representable by
 schemes, exhibited by equivalences `eX : 𝒳 ≌ slice X` and `eY : 𝒴 ≌ slice Y`.
 Let `Presentation.recover eX eY f` be the corresponding morphism of schemes over
@@ -60,56 +43,32 @@ the morphism of ringed topoi `associatedRingedToposHom f τ` agrees with the
 morphism of ringed topoi
 `StandardTopology.Big.ringedToposHom τ (Presentation.recover eX eY f).left` via
 the identifications `associatedRingedSiteToposHom` of Lemma 96.8.1. -/
-@[stacks 075J]
-def associatedRingedToposHom_comp :
+@[stacks 075J] #check
+  (AlgebraicGeometry.GroupoidsOver.associatedRingedToposHom_comp eX eY f τ :
     RingedSite.ToposHom.CommSquare
       (associatedRingedSite 𝒳 τ) (associatedRingedSite 𝒴 τ)
       (StandardTopology.Big.ringedSite τ X.left)
-      (StandardTopology.Big.ringedSite τ Y.left) where
-  upper := associatedRingedToposHom f τ
-  left := associatedRingedSiteToposHom eX τ
-  right := associatedRingedSiteToposHom eY τ
-  lower := StandardTopology.Big.ringedToposHom τ
-    (Presentation.recover eX eY f).left
-  cell :=
-    { homIso := associatedRingedToposHom_comp_homIso eX eY f τ
-      comm := associatedRingedToposHom_comp_homIso_comm eX eY f τ }
+      (StandardTopology.Big.ringedSite τ Y.left))
 
-/-- The upper edge of `associatedRingedToposHom_comp` is the associated morphism of
-ringed topoi of `f`. -/
-theorem associatedRingedToposHom_comp_upper :
-    (associatedRingedToposHom_comp eX eY f τ).upper = associatedRingedToposHom f τ :=
-  sorry
+#check (AlgebraicGeometry.GroupoidsOver.associatedRingedToposHom_comp_upper eX eY f τ :
+    (associatedRingedToposHom_comp eX eY f τ).upper = associatedRingedToposHom f τ)
 
-/-- The left edge of `associatedRingedToposHom_comp` is the Lemma 96.8.1 identification
-of `𝒳`. -/
-theorem associatedRingedToposHom_comp_left :
+#check (AlgebraicGeometry.GroupoidsOver.associatedRingedToposHom_comp_left eX eY f τ :
     (associatedRingedToposHom_comp eX eY f τ).left =
-      associatedRingedSiteToposHom eX τ :=
-  sorry
+      associatedRingedSiteToposHom eX τ)
 
-/-- The right edge of `associatedRingedToposHom_comp` is the Lemma 96.8.1 identification
-of `𝒴`. -/
-theorem associatedRingedToposHom_comp_right :
+#check (AlgebraicGeometry.GroupoidsOver.associatedRingedToposHom_comp_right eX eY f τ :
     (associatedRingedToposHom_comp eX eY f τ).right =
-      associatedRingedSiteToposHom eY τ :=
-  sorry
+      associatedRingedSiteToposHom eY τ)
 
-/-- The lower edge of `associatedRingedToposHom_comp` is the big-site morphism of
-ringed topoi of the corresponding scheme morphism. -/
-theorem associatedRingedToposHom_comp_lower :
+#check (AlgebraicGeometry.GroupoidsOver.associatedRingedToposHom_comp_lower eX eY f τ :
     (associatedRingedToposHom_comp eX eY f τ).lower =
       StandardTopology.Big.ringedToposHom τ
-        (Presentation.recover eX eY f).left :=
-  sorry
+        (Presentation.recover eX eY f).left)
 
-/-- The stored `2`-cell of `associatedRingedToposHom_comp` is
-`associatedRingedToposHom_comp_homIso`. -/
-theorem associatedRingedToposHom_comp_homIso_eq :
+#check (AlgebraicGeometry.GroupoidsOver.associatedRingedToposHom_comp_homIso_eq eX eY f τ :
     (associatedRingedToposHom_comp eX eY f τ).cell.homIso =
-      associatedRingedToposHom_comp_homIso eX eY f τ :=
-  sorry
+      associatedRingedToposHom_comp_homIso eX eY f τ)
+
 
 end AlgebraicGeometry.GroupoidsOver
-
-

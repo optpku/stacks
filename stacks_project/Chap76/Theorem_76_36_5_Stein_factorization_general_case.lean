@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_48_3_Normalization
-public import stacks_project.Chap67.Lemma_67_48_5_Normalization
-public import stacks_project.Chap76.Lemma_76_36_1_Instances
-public import stacks_project.Chap76.Theorem_76_36_4_Stein_factorization_Noetherian_case_GeometricallyConnected
-public import stacks_project.Chap76.Theorem_76_36_4_Stein_factorization_Noetherian_case_Instances
-public import stacks_project.Chap76.Theorem_76_36_5_Stein_factorization_general_case_Instances
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Normalization.SteinFactorization
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Normalization.Proper
 import StacksCheckRecall
 
 /-!
@@ -35,44 +25,44 @@ namespace AlgebraicGeometry.AlgebraicSpace
 
 variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Proper f]
 
+/- Theorem 76.36.5 (Stein factorization; general case) -/
+@[stacks 0A1C] #check
+  (AlgebraicGeometry.AlgebraicSpace.HasConnectedGeometricFibres.toNormalization_of_proper f :
+    AlgebraicGeometry.AlgebraicSpace.HasConnectedGeometricFibres (Hom.toNormalization f))
+
 /- Theorem 76.36.5 (Stein factorization; general case) (1): the canonical
 middle space in the factorization is the normalization of `Y` in `X`. -/
-@[stacks 0A1C] #check (Hom.normalization f : AlgebraicSpace S)
+@[stacks 0A1C] #check (AlgebraicGeometry.AlgebraicSpace.Hom.normalization f : AlgebraicSpace S)
 
 /- Theorem 76.36.5 (Stein factorization; general case) (2): the canonical maps
 through the relative normalization compose to `f`. -/
 @[stacks 0A1C] #check
-  (Hom.toNormalization_fromNormalization f :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.toNormalization_fromNormalization f :
     Hom.toNormalization f ≫ Hom.fromNormalization f = f)
 
 /- Theorem 76.36.5 (Stein factorization; general case) (3): the canonical map
 from `X` to the relative normalization is proper. -/
 @[stacks 0A1C] #check
-  (Hom.instProper_toNormalization f : Proper (Hom.toNormalization f))
-
-/- Theorem 76.36.5 (Stein factorization; general case) (4): the canonical map
-from `X` to the relative normalization has connected geometric fibres. -/
-@[stacks 0A1C] #check
-  (Hom.instHasConnectedGeometricFibres_toNormalization_of_proper f :
-    Hom.HasConnectedGeometricFibres (Hom.toNormalization f))
+  (AlgebraicGeometry.AlgebraicSpace.Proper.toNormalization f :
+    Proper (Hom.toNormalization f))
 
 /- Theorem 76.36.5 (Stein factorization; general case) (5): the structure
 morphism from the relative normalization to `Y` is integral. -/
 @[stacks 0A1C] #check
-  (Hom.instIsIntegralHom_fromNormalization f :
+  (AlgebraicGeometry.AlgebraicSpace.IsIntegralHom.fromNormalization f :
     IsIntegralHom (Hom.fromNormalization f))
 
 /- Theorem 76.36.5 (Stein factorization; general case) (6): the structure-sheaf
 map of the morphism to the relative normalization is an isomorphism. -/
 @[stacks 0A1C] #check
-  (Hom.instIsIso_commRingStructureSheafMap_toNormalization f :
-    IsIso (commRingStructureSheafMap (Hom.toNormalization f)))
+  (AlgebraicGeometry.AlgebraicSpace.Hom.instIsIso_commRingStructureSheafMap_toNormalization f :
+    IsIso (commStructureSheafMap (Hom.toNormalization f)))
 
 /- Theorem 76.36.5 (Stein factorization; general case) (7): the relative
 normalization is uniquely isomorphic over `Y` to
 `relativeSpec (pushforwardStructureQcAlgebra f)`. -/
 @[stacks 0A1C] #check
-  (Hom.existsUnique_iso_toPushforwardRelativeSpec f :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.existsUnique_iso_toPushforwardRelativeSpec f :
     ∃! e : Hom.normalization f ≅ relativeSpec (pushforwardStructureQcAlgebra f),
       Hom.toNormalization f ≫ e.hom = Hom.toPushforwardRelativeSpec f ∧
         e.hom ≫ relativeSpecπ (pushforwardStructureQcAlgebra f) =
@@ -81,7 +71,7 @@ normalization is uniquely isomorphic over `Y` to
 /- Theorem 76.36.5 (Stein factorization; general case) (8): the constructed
 factorization is a relative-normalization factorization. -/
 @[stacks 0A1C] #check
-  (Hom.isNormalization_normalization f :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.isNormalization_normalization f :
     IsNormalization f (Hom.toNormalization f) (Hom.fromNormalization f))
 
 end AlgebraicGeometry.AlgebraicSpace

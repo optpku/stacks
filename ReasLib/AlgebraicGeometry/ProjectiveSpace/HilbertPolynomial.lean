@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Proper
@@ -57,6 +51,13 @@ def IsHilbertPolynomial
     (k : Type u) [Field k] (n : ℕ)
     (ℱ : (scheme k n).Modules) [ℱ.IsCoherent] (P : Polynomial ℚ) : Prop :=
   ∀ d : ℤ, P.eval (d : ℚ) = (hilbertPolynomial k n ℱ d : ℚ)
+
+/-- The Euler characteristics of all integral twists of a coherent sheaf on projective space
+over a field are the values of a rational polynomial. -/
+theorem exists_isHilbertPolynomial
+    (k : Type u) [Field k] (n : ℕ)
+    (ℱ : (scheme k n).Modules) [ℱ.IsCoherent] :
+    ∃ P : Polynomial ℚ, IsHilbertPolynomial k n ℱ P := sorry
 
 namespace IsHilbertPolynomial
 

@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.QuasiCompact
 public import Mathlib.AlgebraicGeometry.Scheme
 public import Mathlib.AlgebraicTopology.CechNerve
+public import ReasLib.AlgebraicGeometry.SimplicialScheme.CechNerve
 public import ReasLib.AlgebraicTopology.SimplicialObject.Cartesian
 
 /-!
@@ -33,6 +28,24 @@ face values. -/
 theorem mem_relatedPoints {Y : SimplicialObject Scheme.{u}} {y y' : Y _⦋0⦌} :
     y' ∈ relatedPoints y ↔
       ∃ y1 : Y _⦋1⦌, Y.δ (1 : Fin 2) y1 = y ∧ Y.δ (0 : Fin 2) y1 = y' := sorry
+
+/-- Every degree-zero point of a simplicial scheme is related to itself. -/
+theorem self_mem_relatedPoints {Y : SimplicialObject Scheme.{u}} (y : Y _⦋0⦌) :
+    y ∈ relatedPoints y := sorry
+
+/-- The face-witness relation on degree-zero points of a simplicial scheme cartesian over
+a Čech nerve is an equivalence relation. -/
+theorem relatedPoints_equivalence {X S : Scheme.{u}} (f : X ⟶ S)
+    (Y : SimplicialObject Scheme.{u}) (π : Y ⟶ f.simplicialScheme)
+    [SimplicialObject.IsCartesian π] :
+    Equivalence (fun y y' : Y _⦋0⦌ ↦ y' ∈ relatedPoints y) := sorry
+
+/-- Two related-point classes of a simplicial scheme cartesian over a Čech nerve are equal
+if their intersection is nonempty. -/
+theorem relatedPoints_eq_of_inter_nonempty {X S : Scheme.{u}} (f : X ⟶ S)
+    (Y : SimplicialObject Scheme.{u}) (π : Y ⟶ f.simplicialScheme)
+    [SimplicialObject.IsCartesian π] (y y' : Y _⦋0⦌) :
+    (relatedPoints y ∩ relatedPoints y').Nonempty → relatedPoints y = relatedPoints y' := sorry
 
 /-- For a quasi-compact morphism, the degree-zero points related to any point of a cartesian
 Čech simplicial scheme form a compact subset. -/

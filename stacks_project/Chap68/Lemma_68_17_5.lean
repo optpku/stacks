@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.ObjectProperty.InheritedFromHom
-public import stacks_project.Chap68.Lemma_68_17_4_Relative
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.RelativeConditions.InheritedFromTarget
+import StacksCheckRecall
 
 /-!
 # Object-level recovery of property (β), decent, and reasonable algebraic spaces
@@ -22,40 +16,40 @@ open CategoryTheory AlgebraicGeometry CategoryTheory.ObjectProperty
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+open AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 68.17.5 (1): If `Y` has property (β) and `f : X ⟶ Y` has property (β),
+/- Lemma 68.17.5 (1): If `Y` has property (β) and `f : X ⟶ Y` has property (β),
 then `X` has property (β). -/
-@[stacks 0ABY]
-instance hasPropertyBeta_inheritedFromTarget {S : Scheme.{u}} :
+@[stacks 0ABY] #check
+  (AlgebraicGeometry.AlgebraicSpace.hasPropertyBeta_inheritedFromTarget :
+    ∀ {S : Scheme.{u}},
     InheritedFromTarget (@HasPropertyBeta S : ObjectProperty (AlgebraicSpace S))
-      (@PropertyBeta S : MorphismProperty (AlgebraicSpace S)) := sorry
+      (@PropertyBeta S : MorphismProperty (AlgebraicSpace S)))
 
-/-- Lemma 68.17.5 (2): If `Y` is decent and `f : X ⟶ Y` is decent, then `X` is
+/- Lemma 68.17.5 (2): If `Y` is decent and `f : X ⟶ Y` is decent, then `X` is
 decent. -/
-@[stacks 0ABY]
-instance isDecent_inheritedFromTarget {S : Scheme.{u}} :
+@[stacks 0ABY] #check
+  (AlgebraicGeometry.AlgebraicSpace.isDecent_inheritedFromTarget :
+    ∀ {S : Scheme.{u}},
     InheritedFromTarget (@IsDecent S : ObjectProperty (AlgebraicSpace S))
-      (@Decent S : MorphismProperty (AlgebraicSpace S)) := sorry
+      (@Decent S : MorphismProperty (AlgebraicSpace S)))
 
-/-- Lemma 68.17.5 (3): If `Y` is reasonable and `f : X ⟶ Y` is reasonable, then
+/- Lemma 68.17.5 (3): If `Y` is reasonable and `f : X ⟶ Y` is reasonable, then
 `X` is reasonable. -/
-@[stacks 0ABY]
-instance isReasonable_inheritedFromTarget {S : Scheme.{u}} :
+@[stacks 0ABY] #check
+  (AlgebraicGeometry.AlgebraicSpace.isReasonable_inheritedFromTarget :
+    ∀ {S : Scheme.{u}},
     InheritedFromTarget (@IsReasonable S : ObjectProperty (AlgebraicSpace S))
-      (@Reasonable S : MorphismProperty (AlgebraicSpace S)) := sorry
+      (@Reasonable S : MorphismProperty (AlgebraicSpace S)))
 
-/-- If `Y` has property (β) and `f : X ⟶ Y` has property (β), then `X` has
-property (β). -/
-theorem HasPropertyBeta.of_propertyBeta {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [HasPropertyBeta Y] [PropertyBeta f] : HasPropertyBeta X := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.HasPropertyBeta.of_propertyBeta :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    [HasPropertyBeta Y] → [PropertyBeta f] → HasPropertyBeta X)
 
-/-- If `Y` is decent and `f : X ⟶ Y` is decent, then `X` is decent. -/
-theorem IsDecent.of_decent {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [IsDecent Y] [Decent f] : IsDecent X := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.IsDecent.of_decent :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    [IsDecent Y] → [Decent f] → IsDecent X)
 
-/-- If `Y` is reasonable and `f : X ⟶ Y` is reasonable, then `X` is reasonable. -/
-theorem IsReasonable.of_reasonable {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [IsReasonable Y] [Reasonable f] : IsReasonable X := sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.IsReasonable.of_reasonable :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    [IsReasonable Y] → [Reasonable f] → IsReasonable X)

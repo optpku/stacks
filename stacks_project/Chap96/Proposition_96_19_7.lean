@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap96.Lemma_96_19_6_Covering
-public import stacks_project.Chap96.Proposition_96_19_7_ExtendedSheaf
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Cech.Exactness
+import StacksCheckRecall
 
 /-!
 # Exactness of the extended relative Čech complex of an abelian sheaf
@@ -18,26 +12,19 @@ public import stacks_project.Chap96.Proposition_96_19_7_ExtendedSheaf
 open AlgebraicGeometry CategoryTheory FiberedCategoryOver.Groupoids
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.GroupoidsOver
-
-variable {S : Scheme.{u}} {U X : GroupoidsOver S}
-
-/-- Proposition 96.19.7: Let `f : 𝒰 ⟶ 𝒳` be a 1-morphism of categories fibred
+/- Proposition 96.19.7: Let `f : 𝒰 ⟶ 𝒳` be a 1-morphism of categories fibred
 in groupoids over `(Sch/S)_fppf`. Let `τ ∈ {Zariski, étale, smooth, syntomic, fppf}`.
 If `F` is an abelian sheaf on `𝒳_τ`, and every object of `𝒳` admits a covering
 `{xᵢ ⟶ x}` in `𝒳_τ` such that each `xᵢ` is isomorphic to `f(uᵢ)` for some
 object `uᵢ` of `𝒰`, then the extended relative Čech complex
-`RelativeCech.extendedSheaf f τ F` is exact in `Ab(𝒳_τ)`. -/
+`RelativeCech.extendedSheaf f τ F` is exact in `Ab(𝒳_τ)`, including its initial
+term `F`. -/
 @[stacks 06XE]
-theorem relativeCechExtended_acyclic (f : U ⟶ X) (τ : StandardTopology)
+#check (AlgebraicGeometry.GroupoidsOver.relativeCechExtended_acyclic :
+  ∀ {S : Scheme.{u}} {U X : GroupoidsOver S} (f : U ⟶ X) (τ : StandardTopology)
     (F : Sheaf (X.associatedTopology τ) AddCommGrpCat.{u + 1})
-    [HasWeakSheafify (X.associatedTopology τ) AddCommGrpCat.{u + 1}]
-    (hf : coversByEssentialImage f τ) :
-    (RelativeCech.extendedSheaf f τ F).Acyclic :=
-  sorry
-
-end AlgebraicGeometry.GroupoidsOver
+    [HasWeakSheafify (X.associatedTopology τ) AddCommGrpCat.{u + 1}],
+    AlgebraicGeometry.GroupoidsOver.coversByEssentialImage f τ →
+      (RelativeCech.extendedSheaf f τ F).Acyclic)

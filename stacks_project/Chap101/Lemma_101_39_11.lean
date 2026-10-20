@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_39_11_BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.ValuativeCriterion.BaseChange
+import StacksCheckRecall
 
 /-!
 # Base change of the existence part of the valuative criterion
@@ -26,7 +21,7 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack.ValuativeCriterion
 
-/-- Lemma 101.39.11: The base change of a morphism of algebraic stacks which
+/- Lemma 101.39.11: The base change of a morphism of algebraic stacks which
 satisfies the existence part of the valuative criterion by any morphism of
 algebraic stacks is a morphism of algebraic stacks which satisfies the
 existence part of the valuative criterion.
@@ -35,11 +30,10 @@ Stacks writes the base change as `Y' ×_Y X ⟶ Y'`; the Lean projection is
 `TwoFibreProduct.snd f g` of a morphism `f : X ⟶ Y` satisfying existence
 along a test morphism `g : Z ⟶ Y`. -/
 @[stacks 0CLL]
-instance Existence.twoFibreProduct_snd {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.ValuativeCriterion.Existence.twoFibreProduct_snd :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-    (f : X ⟶ Y) (g : Z ⟶ Y) [Existence f]
-    [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)] :
-    Existence (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g) :=
-  sorry
+    (f : X ⟶ Y) (g : Z ⟶ Y) [Existence f],
+    Existence (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g))
 
 end AlgebraicGeometry.AlgebraicStack.ValuativeCriterion

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowGroup.FactorSwap
+public import ReasLib.AlgebraicGeometry.ChowGroup.Reindex
 public import ReasLib.AlgebraicGeometry.Correspondence.Chow
 public import ReasLib.AlgebraicGeometry.CycleGroup.Fundamental
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.Proper
@@ -152,7 +147,9 @@ noncomputable def realizationTranspose (X Y : SchemeOverField k)
     RationalChowRealization X Y e r ≃ₗ[ℚ]
       RationalChowRealization Y X d ((d : ℤ) - (e : ℤ) + r) :=
   let integral := (ChowGroup.swapEquiv X Y ((e : ℤ) - r)).trans
-    (ChowGroup.degreeEquiv (Y ⨯ X) (transposeDegree d e r))
+    (@ChowGroup.reindex (Y ⨯ X).left (LocallyOfFiniteType.isLocallyNoetherian (Y ⨯ X).hom)
+      ((Y ⨯ X).hom.relativeDimensionFunction (fun _ ↦ 0)) inferInstance _ _
+      (transposeDegree d e r))
   { integral.toIntLinearEquiv.toLinearMap.baseChange ℚ with
     invFun := integral.symm.toIntLinearEquiv.toLinearMap.baseChange ℚ
     left_inv := sorry
@@ -168,7 +165,10 @@ theorem realizationTranspose_apply (X Y : SchemeOverField k)
     (c : RationalChowRealization X Y e r) :
     realizationTranspose X Y d e hXdim hYdim r c =
       (((ChowGroup.swapEquiv X Y ((e : ℤ) - r)).trans
-        (ChowGroup.degreeEquiv (Y ⨯ X) (transposeDegree d e r))).toIntLinearEquiv.toLinearMap.baseChange ℚ) c :=
+        (@ChowGroup.reindex (Y ⨯ X).left
+          (LocallyOfFiniteType.isLocallyNoetherian (Y ⨯ X).hom)
+          ((Y ⨯ X).hom.relativeDimensionFunction (fun _ ↦ 0)) inferInstance _ _
+          (transposeDegree d e r))).toIntLinearEquiv.toLinearMap.baseChange ℚ) c :=
   sorry
 
 /-- Transpose of rational correspondences, obtained by Chow realization, factor exchange,

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Topology.Algebra.Nonarchimedean.AdicTopology
@@ -36,7 +30,7 @@ when it is topologically formally smooth from the discrete source topology. -/
 abbrev formally_smooth_for_adic (f : R →+* S) (𝔫 : Ideal S) : Prop :=
   letI : TopologicalSpace R := ⊥
   letI : TopologicalSpace S := Ideal.adicTopology 𝔫
-  FormallySmoothTopologically.{u, v, 0} f
+  FormallySmoothTopologically.{u, v, max u v} f
 
 /-- The adic formal-smoothness predicate unfolds to topological formal smoothness with a discrete
 source and the target adic topology. -/
@@ -44,7 +38,7 @@ theorem formally_smooth_for_adic_iff (f : R →+* S) (𝔫 : Ideal S) :
     formally_smooth_for_adic f 𝔫 ↔
       (letI : TopologicalSpace R := ⊥
        letI : TopologicalSpace S := Ideal.adicTopology 𝔫
-       FormallySmoothTopologically.{u, v, 0} f) := sorry
+       FormallySmoothTopologically.{u, v, max u v} f) := sorry
 
 /-- Adic formal smoothness persists when the target defining ideal is enlarged. -/
 @[stacks 07EE "monotonicity of adic formal smoothness"]

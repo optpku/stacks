@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.Regular.Localization
@@ -19,7 +13,7 @@ import StacksCheckRecall
 
 /- Lemma 15.41.2 (Regular is a local property): for a ring map with Noetherian
 target, global regularity, regularity at all target primes, and regularity at
-the relevant target maximal ideals are equivalent. -/
+all target maximal ideals are equivalent. -/
 @[stacks 07C0] #check @RingHom.Regular.local_tfae
 
 #check @RingHom.Regular.iff_atPrimes

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Definition
@@ -87,7 +81,7 @@ one-point ringed space `({x}, \mathcal O_{X, x})`. -/
 private noncomputable abbrev pointModuleSheafFunctor
     (x : X) :
     ModuleCat (X.presheaf.stalk x) ⥤ RingedSpace.Modules (pointRingedSpace x) :=
-  PointRingedSpace.Module.functor x
+  RingedPoint.Module.functor (X.presheaf.stalk x)
 
 /-- Helper for Lemma 20.26.4: taking the stalk complex at `x` preserves acyclicity of a complex
 of `𝒪_X`-modules. -/

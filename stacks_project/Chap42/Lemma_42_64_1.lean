@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap42.Lemma_42_64_1_IntersectionProduct
+public import ReasLib.AlgebraicGeometry.ChowGroup.Dedekind.Intersection
 import StacksCheckRecall
 
 @[expose] public section
@@ -46,25 +40,21 @@ associative after pushforward along the canonical fiber-product associator
         AlgebraicGeometry.Scheme.Hom.conormalSheaf
           (AlgebraicGeometry.ChowGroup.Dedekind.diagonal X).left)
       (D : AlgebraicGeometry.ChowGroup.Dedekind.DiagonalSpecialization δ X e)
-      (r : ℕ)
-      [AlgebraicGeometry.Scheme.Modules.IsFiniteLocallyFreeOfRank r
-        (AlgebraicGeometry.Scheme.Hom.conormalSheaf
-          (AlgebraicGeometry.ChowGroup.Dedekind.diagonal X).left)]
       (α : AlgebraicGeometry.ChowGroup.Dedekind.Total δ Y)
       (β : AlgebraicGeometry.ChowGroup.Dedekind.Total δ Z)
       (γ : AlgebraicGeometry.ChowGroup.Dedekind.Total δ W),
       AlgebraicGeometry.ChowGroup.Dedekind.Total.map δ
           (AlgebraicGeometry.ChowGroup.Dedekind.fiberProductAssociator
             fY fZ fW).hom
-          (AlgebraicGeometry.ChowGroup.Dedekind.intersectionProduct
+          (AlgebraicGeometry.ChowGroup.Dedekind.intersectionProductTotal
             δ h_delta
             (AlgebraicGeometry.ChowGroup.Dedekind.fiberProductToBase fY fZ) fW
-            e D r
-            (AlgebraicGeometry.ChowGroup.Dedekind.intersectionProduct
-              δ h_delta fY fZ e D r α β) γ) =
-        AlgebraicGeometry.ChowGroup.Dedekind.intersectionProduct
+            e D
+            (AlgebraicGeometry.ChowGroup.Dedekind.intersectionProductTotal
+              δ h_delta fY fZ e D α β) γ) =
+        AlgebraicGeometry.ChowGroup.Dedekind.intersectionProductTotal
           δ h_delta fY
           (AlgebraicGeometry.ChowGroup.Dedekind.fiberProductToBase fZ fW)
-          e D r α
-          (AlgebraicGeometry.ChowGroup.Dedekind.intersectionProduct
-            δ h_delta fZ fW e D r β γ))
+          e D α
+          (AlgebraicGeometry.ChowGroup.Dedekind.intersectionProductTotal
+            δ h_delta fZ fW e D β γ))

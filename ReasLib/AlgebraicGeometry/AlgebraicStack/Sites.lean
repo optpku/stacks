@@ -1,0 +1,205 @@
+module
+
+public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
+public import Mathlib.CategoryTheory.Sites.PrecoverageToGrothendieck
+public import Mathlib.AlgebraicGeometry.Sites.Etale
+public import Mathlib.AlgebraicGeometry.Sites.Fpqc
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Yoneda
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Basic
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Flat
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Topology
+public import ReasLib.CategoryTheory.Sites.PrecoverageSite
+
+/-!
+# Lisse-étale and flat-fppf sites of algebraic stacks
+
+The lisse-étale and flat-fppf categories are the full subcategories on smooth
+and flat objects, with selected coverings projected from the corresponding
+scheme precoverages.
+-/
+
+@[expose] public section
+
+open AlgebraicGeometry CategoryTheory
+open scoped Bicategory
+
+noncomputable section
+
+universe u
+
+namespace AlgebraicGeometry.AlgebraicStack
+
+open GroupoidsOver
+
+variable {S : Scheme.{u}} (X : GroupoidsOver S)
+
+/-- Objects of `X` whose 2-Yoneda 1-morphism `U ⟶ X` is smooth. -/
+def isLisse : ObjectProperty X.total :=
+  fun x ↦ Groupoids.Hom.Smooth (yonedaHom X x)
+
+/-- Objects of `X` whose 2-Yoneda 1-morphism `U ⟶ X` is flat. -/
+def isFlat : ObjectProperty X.total :=
+  fun x ↦ Groupoids.Hom.Flat (yonedaHom X x)
+
+/-- The underlying category of the lisse-étale site of `X`. -/
+abbrev lisseEtaleSite [AlgebraicStack X] := (isLisse X).FullSubcategory
+
+/-- The underlying category of the flat-fppf site of `X`. -/
+abbrev flatFppfSite [AlgebraicStack X] := (isFlat X).FullSubcategory
+
+variable [AlgebraicStack X]
+
+omit [AlgebraicStack X] in
+/-- An object of `X` is lisse if and only if `yonedaHom X x` is smooth. -/
+theorem isLisse_iff [AlgebraicStack X] (x : X.total) :
+    isLisse X x ↔ Groupoids.Hom.Smooth (yonedaHom X x) := Iff.rfl
+
+omit [AlgebraicStack X] in
+/-- An object of `X` is flat over `X` if and only if `yonedaHom X x` is flat. -/
+theorem isFlat_iff [AlgebraicStack X] (x : X.total) :
+    isFlat X x ↔ Groupoids.Hom.Flat (yonedaHom X x) := Iff.rfl
+
+/-- The lisse-étale site category is the full subcategory of lisse objects of
+`X`. -/
+theorem lisseEtaleSite_eq : lisseEtaleSite X = (isLisse X).FullSubcategory :=
+  rfl
+
+/-- Pack a lisse object of `X` as an object of the lisse-étale site. -/
+def lisseEtaleSite.mk {x : X.total} (hx : isLisse X x) : lisseEtaleSite X :=
+  ⟨x, hx⟩
+
+/-- The underlying object of `lisseEtaleSite.mk hx` is `x`. -/
+theorem lisseEtaleSite.mk_obj {x : X.total} (hx : isLisse X x) :
+    (lisseEtaleSite.mk X hx).obj = x := rfl
+
+omit [AlgebraicStack X] in
+/-- Evaluating a smooth slice morphism at the identity gives an object
+whose Yoneda morphism is smooth. -/
+theorem isLisse_evalId [AlgebraicStack X] {U : Over S} (f : GroupoidsOver.slice U ⟶ X)
+    [Groupoids.Hom.Smooth f] : isLisse X (evalId f) := sorry
+
+/-- The object of the lisse-étale site presented by a smooth 1-morphism
+`f : slice U ⟶ X`. -/
+def lisseEtaleSite.ofHom {U : Over S} (f : GroupoidsOver.slice U ⟶ X) [Groupoids.Hom.Smooth f] :
+    lisseEtaleSite X :=
+  ⟨evalId f, isLisse_evalId X f⟩
+
+/-- The underlying object of `lisseEtaleSite.ofHom f` is `evalId f`. -/
+theorem lisseEtaleSite.ofHom_obj {U : Over S}
+    (f : GroupoidsOver.slice U ⟶ X) [Groupoids.Hom.Smooth f] :
+    (lisseEtaleSite.ofHom X f).obj = evalId f := rfl
+
+/-- The inclusion of the lisse-étale site of `X` into the total category of
+`X`. -/
+abbrev lisseEtaleInclusion : lisseEtaleSite X ⥤ X.total :=
+  (isLisse X).ι
+
+/-- The lisse-étale inclusion is the full-subcategory inclusion of `isLisse X`. -/
+theorem lisseEtaleInclusion_eq :
+    lisseEtaleInclusion X = (isLisse X).ι := rfl
+
+/-- Covering families of the lisse-étale site project to étale covering
+families of schemes. -/
+def lisseEtalePrecoverage : Precoverage (lisseEtaleSite X) :=
+  Scheme.etalePrecoverage.comap (lisseEtaleInclusion X ⋙ X.p ⋙ Over.forget S)
+
+/-- The lisse-étale precoverage is the comap of the scheme étale precoverage
+along the projection to schemes. -/
+theorem lisseEtalePrecoverage_eq :
+    lisseEtalePrecoverage X =
+      Scheme.etalePrecoverage.comap (lisseEtaleInclusion X ⋙ X.p ⋙ Over.forget S) :=
+  rfl
+
+/-- A family in the lisse-étale site is covering if and only if its image is
+a covering family in the scheme étale precoverage. -/
+theorem ofArrows_mem_lisseEtalePrecoverage_iff {ι : Type u}
+    {x : lisseEtaleSite X} {y : ι → lisseEtaleSite X} {f : ∀ i, y i ⟶ x} :
+    Presieve.ofArrows y f ∈ lisseEtalePrecoverage X x ↔
+      Presieve.ofArrows (fun i ↦ (lisseEtaleInclusion X ⋙ X.p ⋙ Over.forget S).obj (y i))
+          (fun i ↦ (lisseEtaleInclusion X ⋙ X.p ⋙ Over.forget S).map (f i)) ∈
+        Scheme.etalePrecoverage ((lisseEtaleInclusion X ⋙ X.p ⋙ Over.forget S).obj x) :=
+  sorry
+
+/-- The lisse-étale topology of an algebraic stack `X`. -/
+def lisseEtaleTopology : GrothendieckTopology (lisseEtaleSite X) :=
+  (lisseEtalePrecoverage X).toGrothendieck
+
+/-- The lisse-étale topology is generated by the lisse-étale precoverage. -/
+theorem lisseEtaleTopology_def :
+    lisseEtaleTopology X = (lisseEtalePrecoverage X).toGrothendieck := rfl
+
+/-- Lisse-étale covering families satisfy the site axioms. -/
+instance lisseEtalePrecoverage.instIsSite :
+    (lisseEtalePrecoverage X).IsSite := sorry
+
+/-- The flat-fppf site category is the full subcategory of flat objects of
+`X`. -/
+theorem flatFppfSite_eq : flatFppfSite X = (isFlat X).FullSubcategory := rfl
+
+/-- Pack a flat object of `X` as an object of the flat-fppf site. -/
+def flatFppfSite.mk {x : X.total} (hx : isFlat X x) : flatFppfSite X :=
+  ⟨x, hx⟩
+
+/-- The underlying object of `flatFppfSite.mk hx` is `x`. -/
+theorem flatFppfSite.mk_obj {x : X.total} (hx : isFlat X x) :
+    (flatFppfSite.mk X hx).obj = x := rfl
+
+omit [AlgebraicStack X] in
+/-- Evaluating a flat slice morphism at the identity gives an object
+whose Yoneda morphism is flat. -/
+theorem isFlat_evalId [AlgebraicStack X] {U : Over S} (f : GroupoidsOver.slice U ⟶ X)
+    [Groupoids.Hom.Flat f] : isFlat X (evalId f) := sorry
+
+/-- The object of the flat-fppf site presented by a flat 1-morphism
+`f : slice U ⟶ X`. -/
+def flatFppfSite.ofHom {U : Over S} (f : GroupoidsOver.slice U ⟶ X) [Groupoids.Hom.Flat f] :
+    flatFppfSite X :=
+  ⟨evalId f, isFlat_evalId X f⟩
+
+/-- The underlying object of `flatFppfSite.ofHom f` is `evalId f`. -/
+theorem flatFppfSite.ofHom_obj {U : Over S}
+    (f : GroupoidsOver.slice U ⟶ X) [Groupoids.Hom.Flat f] :
+    (flatFppfSite.ofHom X f).obj = evalId f := rfl
+
+/-- The inclusion of the flat-fppf site of `X` into the total category of `X`. -/
+abbrev flatFppfInclusion : flatFppfSite X ⥤ X.total :=
+  (isFlat X).ι
+
+/-- The flat-fppf inclusion is the full-subcategory inclusion of `isFlat X`. -/
+theorem flatFppfInclusion_eq : flatFppfInclusion X = (isFlat X).ι := rfl
+
+/-- Covering families of the flat-fppf site project to fppf covering
+families of schemes. -/
+def flatFppfPrecoverage : Precoverage (flatFppfSite X) :=
+  Scheme.fppfPrecoverage.comap (flatFppfInclusion X ⋙ X.p ⋙ Over.forget S)
+
+/-- The flat-fppf precoverage is the comap of the scheme fppf precoverage
+along the projection to schemes. -/
+theorem flatFppfPrecoverage_eq :
+    flatFppfPrecoverage X =
+      Scheme.fppfPrecoverage.comap (flatFppfInclusion X ⋙ X.p ⋙ Over.forget S) :=
+  rfl
+
+/-- A family in the flat-fppf site is covering if and only if its image is
+a covering family in the scheme fppf precoverage. -/
+theorem ofArrows_mem_flatFppfPrecoverage_iff {ι : Type u}
+    {x : flatFppfSite X} {y : ι → flatFppfSite X} {f : ∀ i, y i ⟶ x} :
+    Presieve.ofArrows y f ∈ flatFppfPrecoverage X x ↔
+      Presieve.ofArrows (fun i ↦ (flatFppfInclusion X ⋙ X.p ⋙ Over.forget S).obj (y i))
+          (fun i ↦ (flatFppfInclusion X ⋙ X.p ⋙ Over.forget S).map (f i)) ∈
+        Scheme.fppfPrecoverage ((flatFppfInclusion X ⋙ X.p ⋙ Over.forget S).obj x) :=
+  sorry
+
+/-- The flat-fppf topology of an algebraic stack `X`. -/
+def flatFppfTopology : GrothendieckTopology (flatFppfSite X) :=
+  (flatFppfPrecoverage X).toGrothendieck
+
+/-- The flat-fppf topology is generated by the flat-fppf precoverage. -/
+theorem flatFppfTopology_def :
+    flatFppfTopology X = (flatFppfPrecoverage X).toGrothendieck := rfl
+
+/-- Flat-fppf covering families satisfy the site axioms. -/
+instance flatFppfPrecoverage.instIsSite :
+    (flatFppfPrecoverage X).IsSite := sorry
+
+end AlgebraicGeometry.AlgebraicStack

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Over
+public import Mathlib.AlgebraicGeometry.Noetherian
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType
 
 /-!
@@ -34,6 +29,12 @@ variable {k : Type u} [Field k]
 @[stacks 06LG]
 abbrev Algebraic (X : Over (Spec (CommRingCat.of k))) : Prop :=
   Scheme.Hom.FiniteType X.hom
+
+/-- A scheme of finite type over a field is Noetherian. -/
+instance Algebraic.isNoetherian (X : Over (Spec (CommRingCat.of k))) [Algebraic X] :
+    IsNoetherian X.left where
+  toIsLocallyNoetherian := LocallyOfFiniteType.isLocallyNoetherian X.hom
+  toCompactSpace := QuasiCompact.compactSpace_of_compactSpace X.hom
 
 /-- A finite-type morphism to `Spec k` defines an algebraic scheme over `k`.
 

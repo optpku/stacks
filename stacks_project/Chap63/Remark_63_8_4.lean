@@ -1,21 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Functor.TwoSquare
-public import stacks_project.Chap63.Lemma_63_8_1_Comparison
-
-/-!
-# Interchange of derived lower shriek / proper pushforward comparisons
-
-Remark 63.8.4: in a 2×2 grid of commutative scheme squares with proper
-vertical maps and separated locally quasi-finite horizontal maps, the two
-ways of pasting the four Lemma 63.8.1 comparisons agree.
--/
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.ProperLowerShriek.Interchange
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -49,7 +35,7 @@ variable [IsSeparated l] [LocallyQuasiFinite l] [LocallyOfFiniteType l]
 variable [IsSeparated l'] [LocallyQuasiFinite l'] [LocallyOfFiniteType l']
 variable [IsSeparated m] [LocallyQuasiFinite m] [LocallyOfFiniteType m]
 variable [IsSeparated m'] [LocallyQuasiFinite m'] [LocallyOfFiniteType m']
-variable (Λ : Type u) [CommRing Λ]
+variable (Λ : Type u) [Ring Λ]
 variable [X''.smallEtaleTopology.HasSheafCompose
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
 variable [X'.smallEtaleTopology.HasSheafCompose
@@ -132,15 +118,7 @@ variable [HasDerivedCategory (Sheaf Z''.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [HasDerivedCategory (Sheaf Z'.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [HasDerivedCategory (Sheaf Z.smallEtaleTopology (ModuleCat.{u} Λ))]
 
-/-- Remark 63.8.4: in a commutative 2×2 grid of scheme squares with proper
-vertical maps `f`, `f'`, `f''`, `g`, `g'`, `g''` and separated locally
-quasi-finite horizontal maps `k`, `k'`, `l`, `l'`, `m`, `m'`, the two
-`TwoSquare` pastings of the four Lemma 63.8.1 comparisons agree.
-Scheme-vertical rectangles A+C and B+D are pasted by `≫ₕ`; scheme-horizontal
-rectangles A+B and C+D are pasted by `≫ᵥ`. Thus the two maps
-`m_! ∘ m'_! ∘ g''_* ∘ f''_* ⟶ g_* ∘ f_* ∘ k_! ∘ k'_!` coincide. -/
-@[stacks 0F7E]
-theorem etaleDerivedLowerShriekPushforward_interchange
+variable
     [(etaleModulePushforward f Λ).Additive]
     [(etaleModulePushforward f' Λ).Additive]
     [(etaleModulePushforward f'' Λ).Additive]
@@ -218,7 +196,13 @@ theorem etaleDerivedLowerShriekPushforward_interchange
       (RightDerived.Cochain.toDerived
         (lowerShriekModule l Λ ⋙ etaleModulePushforward g Λ))
       (HomologicalComplex.quasiIso
-        (Sheaf Y'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))] :
+        (Sheaf Y'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
+
+/- Remark 63.8.4: the two pastings of the four canonical derived
+lower-shriek/proper-pushforward comparisons in the commutative scheme grid agree. -/
+@[stacks 0F7E] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriekPushforward_interchange
+    f'' f' f g'' g' g k' k l' l m' m hA hB hC hD Λ :
     (TwoSquare.mk _ _ _ _
         (etaleDerivedLowerShriekPushforward f' f'' l' k' hA Λ) ≫ₕ
       TwoSquare.mk _ _ _ _
@@ -234,200 +218,7 @@ theorem etaleDerivedLowerShriekPushforward_interchange
         (TwoSquare.mk _ _ _ _
             (etaleDerivedLowerShriekPushforward g' g'' m' l' hC Λ) ≫ᵥ
           TwoSquare.mk _ _ _ _
-            (etaleDerivedLowerShriekPushforward g g' m l hD Λ)) :=
-  sorry
-
-/-- The squares A and D meet in a single vertex, so the whiskered natural
-transformations of those squares interchange. -/
-theorem etaleDerivedLowerShriekPushforward_interchange_square
-    [(etaleModulePushforward f Λ).Additive]
-    [(etaleModulePushforward f' Λ).Additive]
-    [(etaleModulePushforward f'' Λ).Additive]
-    [(etaleModulePushforward g Λ).Additive]
-    [(etaleModulePushforward g' Λ).Additive]
-    [(etaleModulePushforward g'' Λ).Additive]
-    [(etaleModulePushforward f'' Λ ⋙ lowerShriekModule l' Λ).Additive]
-    [(lowerShriekModule k' Λ ⋙ etaleModulePushforward f' Λ).Additive]
-    [(etaleModulePushforward f' Λ ⋙ lowerShriekModule l Λ).Additive]
-    [(lowerShriekModule k Λ ⋙ etaleModulePushforward f Λ).Additive]
-    [(etaleModulePushforward g'' Λ ⋙ lowerShriekModule m' Λ).Additive]
-    [(lowerShriekModule l' Λ ⋙ etaleModulePushforward g' Λ).Additive]
-    [(etaleModulePushforward g' Λ ⋙ lowerShriekModule m Λ).Additive]
-    [(lowerShriekModule l Λ ⋙ etaleModulePushforward g Λ).Additive]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived (etaleModulePushforward f Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived (etaleModulePushforward f' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived (etaleModulePushforward f'' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X''.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived (etaleModulePushforward g Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived (etaleModulePushforward g' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf Y'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived (etaleModulePushforward g'' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf Y''.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (etaleModulePushforward f'' Λ ⋙ lowerShriekModule l' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X''.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (lowerShriekModule k' Λ ⋙ etaleModulePushforward f' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X''.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (etaleModulePushforward f' Λ ⋙ lowerShriekModule l Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (lowerShriekModule k Λ ⋙ etaleModulePushforward f Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (etaleModulePushforward g'' Λ ⋙ lowerShriekModule m' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf Y''.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (lowerShriekModule l' Λ ⋙ etaleModulePushforward g' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf Y''.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (etaleModulePushforward g' Λ ⋙ lowerShriekModule m Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf Y'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (lowerShriekModule l Λ ⋙ etaleModulePushforward g Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf Y'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))] :
-    whiskerLeft (etaleDerivedPushforward f'' ⋙ lowerShriekModuleDerived l' Λ)
-        (etaleDerivedLowerShriekPushforward g g' m l hD Λ) ≫
-      whiskerRight (etaleDerivedLowerShriekPushforward f' f'' l' k' hA Λ)
-        (lowerShriekModuleDerived l Λ ⋙ etaleDerivedPushforward g) =
-      whiskerRight (etaleDerivedLowerShriekPushforward f' f'' l' k' hA Λ)
-          (etaleDerivedPushforward g' ⋙ lowerShriekModuleDerived m Λ) ≫
-        whiskerLeft (lowerShriekModuleDerived k' Λ ⋙ etaleDerivedPushforward f')
-          (etaleDerivedLowerShriekPushforward g g' m l hD Λ) :=
-  sorry
-
-/-- Objectwise form of `etaleDerivedLowerShriekPushforward_interchange` at
-`K : D(X''_étale, Λ)`. -/
-theorem etaleDerivedLowerShriekPushforward_interchange_app
-    [(etaleModulePushforward f Λ).Additive]
-    [(etaleModulePushforward f' Λ).Additive]
-    [(etaleModulePushforward f'' Λ).Additive]
-    [(etaleModulePushforward g Λ).Additive]
-    [(etaleModulePushforward g' Λ).Additive]
-    [(etaleModulePushforward g'' Λ).Additive]
-    [(etaleModulePushforward f'' Λ ⋙ lowerShriekModule l' Λ).Additive]
-    [(lowerShriekModule k' Λ ⋙ etaleModulePushforward f' Λ).Additive]
-    [(etaleModulePushforward f' Λ ⋙ lowerShriekModule l Λ).Additive]
-    [(lowerShriekModule k Λ ⋙ etaleModulePushforward f Λ).Additive]
-    [(etaleModulePushforward g'' Λ ⋙ lowerShriekModule m' Λ).Additive]
-    [(lowerShriekModule l' Λ ⋙ etaleModulePushforward g' Λ).Additive]
-    [(etaleModulePushforward g' Λ ⋙ lowerShriekModule m Λ).Additive]
-    [(lowerShriekModule l Λ ⋙ etaleModulePushforward g Λ).Additive]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived (etaleModulePushforward f Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived (etaleModulePushforward f' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived (etaleModulePushforward f'' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X''.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived (etaleModulePushforward g Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived (etaleModulePushforward g' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf Y'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived (etaleModulePushforward g'' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf Y''.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (etaleModulePushforward f'' Λ ⋙ lowerShriekModule l' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X''.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (lowerShriekModule k' Λ ⋙ etaleModulePushforward f' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X''.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (etaleModulePushforward f' Λ ⋙ lowerShriekModule l Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (lowerShriekModule k Λ ⋙ etaleModulePushforward f Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (etaleModulePushforward g'' Λ ⋙ lowerShriekModule m' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf Y''.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (lowerShriekModule l' Λ ⋙ etaleModulePushforward g' Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf Y''.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (etaleModulePushforward g' Λ ⋙ lowerShriekModule m Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf Y'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
-      (RightDerived.Cochain.toDerived
-        (lowerShriekModule l Λ ⋙ etaleModulePushforward g Λ))
-      (HomologicalComplex.quasiIso
-        (Sheaf Y'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    (K : EtaleDerived X'' Λ) :
-    ((TwoSquare.mk _ _ _ _
-          (etaleDerivedLowerShriekPushforward f' f'' l' k' hA Λ) ≫ₕ
-        TwoSquare.mk _ _ _ _
-          (etaleDerivedLowerShriekPushforward g' g'' m' l' hC Λ)) ≫ᵥ
-        (TwoSquare.mk _ _ _ _
-            (etaleDerivedLowerShriekPushforward f f' l k hB Λ) ≫ₕ
-          TwoSquare.mk _ _ _ _
-            (etaleDerivedLowerShriekPushforward g g' m l hD Λ))).natTrans.app K =
-      ((TwoSquare.mk _ _ _ _
-            (etaleDerivedLowerShriekPushforward f' f'' l' k' hA Λ) ≫ᵥ
-          TwoSquare.mk _ _ _ _
-            (etaleDerivedLowerShriekPushforward f f' l k hB Λ)) ≫ₕ
-          (TwoSquare.mk _ _ _ _
-              (etaleDerivedLowerShriekPushforward g' g'' m' l' hC Λ) ≫ᵥ
-            TwoSquare.mk _ _ _ _
-              (etaleDerivedLowerShriekPushforward g g' m l hD Λ))).natTrans.app
-        K :=
-  sorry
+            (etaleDerivedLowerShriekPushforward g g' m l hD Λ)))
 
 end AlgebraicGeometry.Scheme.Etale
 

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Fiber
@@ -61,16 +55,18 @@ instance instIsLocallyNoetherian_fiber {X S : Scheme.{u}} (f : X ⟶ S)
 
 /-- The standard dimension function on a scheme-theoretic fibre, obtained by viewing the
 fibre as a scheme locally of finite type over the residue field of the base point. -/
-noncomputable abbrev fiberDimensionFunction {X S : Scheme.{u}} (f : X ⟶ S) (s : S) :
+noncomputable abbrev fiberDimensionFunction {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] (s : S) :
     f.fiber s → ℤ :=
-  (f.fiberToSpecResidueField s).relativeDimensionFunction (fun _ ↦ 0)
+  @Scheme.Hom.relativeDimensionFunction _ _ (f.fiberToSpecResidueField s)
+    (inferInstanceAs (LocallyOfFiniteType (Limits.pullback.snd f (S.fromSpecResidueField s)))) (fun _ ↦ 0)
 
 /-- The fibre dimension function is the relative dimension function of
 `fiberToSpecResidueField` against the zero function on the residue field. -/
-theorem fiberDimensionFunction_apply {X S : Scheme.{u}} (f : X ⟶ S) (s : S)
+theorem fiberDimensionFunction_apply {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] (s : S)
     (x : f.fiber s) :
     f.fiberDimensionFunction s x =
-      (f.fiberToSpecResidueField s).relativeDimensionFunction (fun _ ↦ 0) x := rfl
+      @Scheme.Hom.relativeDimensionFunction _ _ (f.fiberToSpecResidueField s)
+    (inferInstanceAs (LocallyOfFiniteType (Limits.pullback.snd f (S.fromSpecResidueField s)))) (fun _ ↦ 0) x := rfl
 
 /-- The fibre dimension function is a dimension function. -/
 instance instIsDimensionFunction_fiberDimensionFunction {X S : Scheme.{u}}

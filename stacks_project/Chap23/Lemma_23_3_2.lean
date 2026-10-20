@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -19,8 +13,8 @@ universe u
 @[stacks 07GV "all limits"]
 #check (DividedPowerRing.hasLimits : HasLimits DividedPowerRing.{u})
 
-/- Lemma 23.3.2 (Tag 07GV), underlying rings: the forgetful functor to commutative rings creates
+/- Lemma 23.3.2 (Tag 07GV), underlying rings: the forgetful functor to commutative rings preserves
 limits. -/
 @[stacks 07GV "underlying ring of a limit"]
-#check (DividedPowerRing.forgetCommRing.createsLimits :
-  CreatesLimits DividedPowerRing.forgetCommRing)
+#check (DividedPowerRing.forgetCommRing.preservesLimits :
+  PreservesLimits DividedPowerRing.forgetCommRing)

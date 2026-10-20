@@ -1,25 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Torsor.Defs
-public import stacks_project.Chap91.Lemma_91_11_1_IdealMul
-public import stacks_project.Chap91.Lemma_91_11_1_Lift
-import Mathlib.Tactic.CrossRefAttribute
-
-/-!
-# Lifts of maps of modules on a first-order thickening of ringed topoi
-
-On a first-order thickening of ringed topoi, after identifying underlying topoi, the type of
-𝒪'-linear lifts of an 𝒪-linear map φ : i^* ℱ' ⟶ i^* 𝒢' is, if nonempty, a principal homogeneous
-space under Hom_𝒪(ℱ, ℐ 𝒢').
--/
-
-@[expose] public section
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.FirstOrderThickening.Lift
+import StacksCheckRecall
 
 open CategoryTheory
 open SheafOfModules.RingedSite
@@ -44,19 +26,19 @@ variable (F' G' : ringedSiteModuleCategory.{u, v, max u v, max u v} J 𝒪')
 variable (φ : (SheafOfModules.ChangeOfRings.extendScalars (ringSheafMap π)).obj F' ⟶
     (SheafOfModules.ChangeOfRings.extendScalars (ringSheafMap π)).obj G')
 
-/-- Lemma 91.11.1: Let i : (Sh(C), 𝒪) ⟶ (Sh(D), 𝒪') be a first-order thickening of ringed
+/- Lemma 91.11.1: Let i : (Sh(C), 𝒪) ⟶ (Sh(D), 𝒪') be a first-order thickening of ringed
 topoi. Let ℱ', 𝒢' be 𝒪'-modules. Set ℱ = i^* ℱ' and 𝒢 = i^* 𝒢'. Let φ : ℱ ⟶ 𝒢 be an
 𝒪-linear map. The set of lifts of φ to an 𝒪'-linear map φ' : ℱ' ⟶ 𝒢' is, if nonempty, a
 principal homogeneous space under Hom_𝒪(ℱ, ℐ 𝒢'). -/
-@[stacks 08MP]
-theorem lift_isEmpty_or_addTorsor :
+@[stacks 08MP] #check (SheafOfModules.RingedSite.FirstOrderThickening.lift_isEmpty_or_addTorsor F' G' φ :
     IsEmpty (Lift F' G' φ) ∨
-      Nonempty
-        (AddTorsor
+      ∃ t : AddTorsor
           ((SheafOfModules.ChangeOfRings.extendScalars (ringSheafMap π)).obj F' ⟶
             idealMul π G')
-          (Lift F' G' φ)) :=
-  sorry
+          (Lift F' G' φ),
+        ∀ (β : F' ⟶ idealMulO' π G') (ℓ : Lift F' G' φ),
+          t.toAddAction.toAddSemigroupAction.toVAdd.vadd
+              ((SheafOfModules.ChangeOfRings.extendScalars (ringSheafMap π)).map β) ℓ =
+            Lift.vadd F' G' φ β ℓ)
 
 end SheafOfModules.RingedSite.FirstOrderThickening
-

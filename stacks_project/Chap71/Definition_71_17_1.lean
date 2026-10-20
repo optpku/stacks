@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap71.Definition_71_17_1_Blowup
-public import stacks_project.Chap71.Definition_71_17_1_Rees
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Blowup.RelativeProj
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IdealSubobject.Rees
 import StacksCheckRecall
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory
@@ -22,12 +16,22 @@ quasi-coherent ideal sheaf `I ⊂ 𝒪_X` with corresponding closed subspace `Z`
 blowing up of `X` along `Z` (equivalently, the blowing up of `X` in `I`) is the
 morphism `b : Proj_X (⊕_{n ≥ 0} I ^ n) ⟶ X` packaged as a chosen
 `Blowup X I`; its exceptional divisor is `b⁻¹(Z)`, and `Z` is the center. -/
-@[stacks 085Q] #check AlgebraicGeometry.AlgebraicSpace.Blowup
+@[stacks 085Q] #check (AlgebraicGeometry.AlgebraicSpace.Blowup :
+    {S : Scheme.{u}} → (X : AlgebraicSpace S) → (I : IdealSubobject X) →
+      [IsQuasiCoherent I] → Type (u + 2))
 
-#check reesAlgebra
+#check (AlgebraicGeometry.AlgebraicSpace.reesAlgebra :
+    {S : Scheme.{u}} → {X : AlgebraicSpace S} → (I : IdealSubobject X) →
+      [IsQuasiCoherent I] → GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X) ℤ)
 
-#check Blowup.center
+#check (AlgebraicGeometry.AlgebraicSpace.Blowup.center :
+    {S : Scheme.{u}} → {X : AlgebraicSpace S} → (I : IdealSubobject X) →
+      [IsQuasiCoherent I] → ClosedSubspace X)
 
-#check Blowup.exceptionalDivisor
+#check (AlgebraicGeometry.AlgebraicSpace.Blowup.exceptionalDivisor :
+    {S : Scheme.{u}} → {X : AlgebraicSpace S} → {I : IdealSubobject X} →
+      [IsQuasiCoherent I] → (π : Blowup X I) → ClosedSubspace π.space)
 
-#check Blowup.along
+#check (AlgebraicGeometry.AlgebraicSpace.Blowup.along :
+    {S : Scheme.{u}} → {X : AlgebraicSpace S} → (Z : ClosedSubspace X) →
+      Type (u + 2))

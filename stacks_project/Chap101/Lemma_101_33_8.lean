@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_28_1_Gerbe
-public import stacks_project.Chap101.Lemma_101_28_8
-public import stacks_project.Chap103.«103_15_1_1_Smooth»
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Gerbe.Smooth
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Gerbe.Fppf
 import StacksCheckRecall
 
 /-!
@@ -28,19 +21,15 @@ universe u
 /- Lemma 101.33.8 (1): Let `f : X ⟶ Y` be a morphism of algebraic stacks.
 If `X` is a gerbe over `Y`, then `f` is `Surjective`. -/
 @[stacks 0DN8] #check
-  (Surjective.of_gerbe :
+  (AlgebraicGeometry.AlgebraicStack.Surjective.of_gerbe :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Gerbe f],
       Surjective f)
 
-namespace AlgebraicGeometry.AlgebraicStack.Smooth
-
-/-- Lemma 101.33.8 (2): Let `f : X ⟶ Y` be a morphism of algebraic stacks.
+/- Lemma 101.33.8 (2): Let `f : X ⟶ Y` be a morphism of algebraic stacks.
 If `X` is a gerbe over `Y`, then `f` is `Smooth`. -/
-@[stacks 0DN8]
-instance of_gerbe {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Gerbe f] :
-    Smooth f :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.Smooth
+@[stacks 0DN8] #check
+  (AlgebraicGeometry.AlgebraicStack.Smooth.of_gerbe :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Gerbe f],
+      Smooth f)

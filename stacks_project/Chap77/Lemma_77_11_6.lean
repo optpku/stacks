@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap77.Lemma_77_11_6_Etale
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Flattening.InDimensions.Etale
 import StacksCheckRecall
 
 @[expose] public section
@@ -37,8 +31,8 @@ then pulling back the module along it does not change the flat-in-dimensions sub
     ∀ {S : Scheme.{u}} {X X' Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyOfFiniteType f]
       (ℱ : X.Modules) [ℱ.IsQuasicoherent] [ℱ.IsFiniteType] (n : ℕ)
       (h : X' ⟶ X) [Etale h]
-      (_ : flatInDimensionsSubfunctor.relativeAssassin f ℱ ⊆
-        Set.range (Points.map h)),
+      (h_ass : Set.Subset (Modules.RelativeWeakAss.existsField f ℱ)
+        (Set.range (Points.map h))),
       flatInDimensionsSubfunctor f ℱ n =
         flatInDimensionsSubfunctor (h ≫ f) ((Modules.pullback h).obj ℱ) n)
 

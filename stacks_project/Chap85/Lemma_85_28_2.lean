@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Quasicoherent
-public import Mathlib.Tactic.CrossRefAttribute
-public import Mathlib.AlgebraicGeometry.Morphisms.Flat
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiCompact
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiSeparated
-public import ReasLib.AlgebraicTopology.SimplicialObject.Cartesian
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.SimplicialScheme.Module.Pushforward
 public import stacks_project.Chap85.Lemma_85_28_1_Pullback
 
 /-!
@@ -34,21 +24,21 @@ universe u
 
 namespace AlgebraicGeometry.SimplicialObject
 
-/-- Lemma 85.28.2: let `f : V ⟶ U` be a cartesian morphism of simplicial schemes.
+/- Lemma 85.28.2: let `f : V ⟶ U` be a cartesian morphism of simplicial schemes.
 Assume the coface morphisms `U.δ j : U _⦋n+1⦌ ⟶ U _⦋n⦌` are flat and the
 component morphisms `f.app (op ⦋n⦌) : V _⦋n⦌ ⟶ U _⦋n⦌` are quasi-compact and
 quasi-separated. For a quasi-coherent module `G` on `zariskiRingedSite V`, the
 pushforward `(zariskiRingedHom f).modulePushforward.obj G` is a quasi-coherent
 module on `zariskiRingedSite U`. -/
-@[stacks 07TJ]
-instance modulePushforward_isQuasicoherent {V U : SimplicialObject Scheme.{u}}
-    (f : V ⟶ U) [CategoryTheory.SimplicialObject.IsCartesian f]
-    [∀ (n : ℕ) (j : Fin (n + 2)), Flat (U.δ j)]
-    [∀ (n : ℕ), QuasiCompact (f.app (op ⦋n⦌))]
-    [∀ (n : ℕ), QuasiSeparated (f.app (op ⦋n⦌))]
-    (G : SheafOfModules.{u} (zariskiRingedSite V).structureSheaf)
-    [G.IsQuasicoherent] :
-    ((zariskiRingedHom f).modulePushforward.{u}.obj G).IsQuasicoherent :=
-  sorry
+@[stacks 07TJ] #check
+  (AlgebraicGeometry.SimplicialObject.modulePushforward_isQuasicoherent :
+    ∀ {V U : SimplicialObject Scheme.{u}}
+      (f : V ⟶ U) [CategoryTheory.SimplicialObject.IsCartesian f]
+      [∀ (n : ℕ) (j : Fin (n + 2)), Flat (U.δ j)]
+      [∀ (n : ℕ), QuasiCompact (f.app (op ⦋n⦌))]
+      [∀ (n : ℕ), QuasiSeparated (f.app (op ⦋n⦌))]
+      (G : SheafOfModules.{u} (zariskiRingedSite V).structureSheaf)
+      [G.IsQuasicoherent],
+      ((zariskiRingedHom f).modulePushforward.{u}.obj G).IsQuasicoherent)
 
 end AlgebraicGeometry.SimplicialObject

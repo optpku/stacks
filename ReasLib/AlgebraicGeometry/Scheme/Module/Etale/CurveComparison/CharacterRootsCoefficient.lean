@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.FiniteCoefficientRestriction
@@ -105,7 +99,7 @@ variable (ηbar : GeometricPoint (geometricBaseChange X))
 
 /-- Actual arithmetic action on roots, through the existing Galois quotient. -/
 def rootsTranslate
-    (γ : Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))
+    (γ : Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))
     (z : RootValues (k := k) Λ) : RootValues (k := k) Λ :=
   Additive.ofMul ⟨Units.map
     (AmbientGeometry.arithmeticGaloisQuotient X ηbar γ).toRingEquiv.toMonoidHom
@@ -115,20 +109,20 @@ def rootsTranslate
 dual: the inverse twist and contragredient action produce the positive
 cyclotomic factor. This compares specified coefficient functions. -/
 theorem inverseTate_equivariant
-    (N : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))))
+    (N : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))))
     [Finite N.obj.V]
-    (γ : Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))
+    (γ : Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))
     (χ : (CompactRepresentation.continuousDual Λ
-      (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))
       (CompactRepresentation.finiteCompactification Λ
-        (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))
+        (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))
         (AmbientGeometry.arithmeticInverseTate Λ X ηbar hΛ N))).obj.V)
     (m : N.obj.V) :
     characterToRoots Λ hΛ N.obj.V
       (((CompactRepresentation.continuousDual Λ
-        (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))
+        (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))
         (CompactRepresentation.finiteCompactification Λ
-          (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))
+          (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))
           (AmbientGeometry.arithmeticInverseTate Λ X ηbar hΛ N))).obj.ρ γ).hom χ).val m =
     rootsTranslate Λ X ηbar γ
       (characterToRoots Λ hΛ N.obj.V χ.val ((N.obj.ρ γ⁻¹).hom m)) := sorry

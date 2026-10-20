@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap78.Lemma_78_17_1_Restriction
-public import stacks_project.Chap78.Lemma_78_17_1_Presentation
-public import stacks_project.Chap78.Lemma_78_17_1_Points
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Restriction.Presentation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Restriction.Points
 import StacksCheckRecall
 
 open CategoryTheory
@@ -18,13 +11,13 @@ universe u
 /- Lemma 78.17.1 (1): restriction along `g : U' ⟶ U` gives a groupoid in algebraic spaces
 whose composition is induced canonically from the original composition. -/
 @[stacks 044B] #check
-  (AlgebraicGeometry.GroupoidAlgebraicSpace.pullback :
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.pullbackAlong :
     {S : AlgebraicGeometry.Scheme.{u}} → {B : AlgebraicGeometry.AlgebraicSpace S} →
       (G : AlgebraicGeometry.GroupoidAlgebraicSpace B) →
-      {U' : Over B} → (g : U' ⟶ G.U) →
+      {U' : AlgebraicGeometry.AlgebraicSpace S} → (g : U' ⟶ G.U.left) →
         AlgebraicGeometry.GroupoidAlgebraicSpace B)
 
-/- Companion recall: `AlgebraicGeometry.GroupoidAlgebraicSpace.pullback_c G g` identifies
+/- Companion check: `AlgebraicGeometry.GroupoidAlgebraicSpace.pullback_c G g` identifies
 the restricted composition with the canonical pullback composition. -/
 #check
   (AlgebraicGeometry.GroupoidAlgebraicSpace.pullback_c :
@@ -34,7 +27,7 @@ the restricted composition with the canonical pullback composition. -/
         (AlgebraicGeometry.GroupoidAlgebraicSpace.pullback G g).c =
           AlgebraicGeometry.GroupoidAlgebraicSpace.pullbackComposition G g)
 
-/- Companion recall: the restricted arrow space has the iterated fibre-product presentation
+/- Companion check: the restricted arrow space has the iterated fibre-product presentation
 from the two displayed pullback squares. -/
 #check
   (AlgebraicGeometry.GroupoidAlgebraicSpace.pullbackArrowIso :
@@ -47,22 +40,26 @@ from the two displayed pullback squares. -/
 /- Lemma 78.17.1 (2): the projections from the restricted object and arrow spaces define a
 morphism to the original groupoid in algebraic spaces. -/
 @[stacks 044B] #check
-  (AlgebraicGeometry.GroupoidAlgebraicSpace.pullbackHom :
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.pullbackAlongHom :
     {S : AlgebraicGeometry.Scheme.{u}} → {B : AlgebraicGeometry.AlgebraicSpace S} →
       (G : AlgebraicGeometry.GroupoidAlgebraicSpace B) →
-      {U' : Over B} → (g : U' ⟶ G.U) →
+      {U' : AlgebraicGeometry.AlgebraicSpace S} → (g : U' ⟶ G.U.left) →
         AlgebraicGeometry.GroupoidAlgebraicSpace.Hom
-          (AlgebraicGeometry.GroupoidAlgebraicSpace.pullback G g) G)
+          (AlgebraicGeometry.GroupoidAlgebraicSpace.pullbackAlong G g) G)
 
 /- Lemma 78.17.1 (3): on every scheme of points over `B`, the canonical functor identifies
 with the restriction of the original groupoid along the induced object map. -/
 @[stacks 044B] #check
-  (AlgebraicGeometry.GroupoidAlgebraicSpace.pointsPullbackEquivalence_comp :
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.pointsPullbackAlongEquivalence_comp :
     {S : AlgebraicGeometry.Scheme.{u}} → {B : AlgebraicGeometry.AlgebraicSpace S} →
       (G : AlgebraicGeometry.GroupoidAlgebraicSpace B) →
-      {U' : Over B} → (g : U' ⟶ G.U) → {T : Over S} →
+      {U' : AlgebraicGeometry.AlgebraicSpace S} → (g : U' ⟶ G.U.left) →
+        {T : Over S} →
         (σ : AlgebraicGeometry.AlgebraicSpace.ofOver T ⟶ B) →
-          (AlgebraicGeometry.GroupoidAlgebraicSpace.pointsPullbackEquivalence G g σ).functor ⋙
+          (AlgebraicGeometry.GroupoidAlgebraicSpace.pointsPullbackAlongEquivalence
+            G g σ).functor ⋙
               CategoryTheory.inducedFunctor
-                (AlgebraicGeometry.GroupoidAlgebraicSpace.restrictionObjectMap G g σ) =
-            (AlgebraicGeometry.GroupoidAlgebraicSpace.pullbackHom G g).mapPoints σ)
+                (AlgebraicGeometry.GroupoidAlgebraicSpace.restrictionObjectMap G
+                  (Over.homMk g rfl :
+                    Over.mk (g ≫ G.U.hom) ⟶ G.U) σ) =
+            (AlgebraicGeometry.GroupoidAlgebraicSpace.pullbackAlongHom G g).mapPoints σ)

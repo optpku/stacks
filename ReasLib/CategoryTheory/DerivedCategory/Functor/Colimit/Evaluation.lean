@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.Grp.Abelian
@@ -15,9 +9,9 @@ import Mathlib.Tactic.CrossRefAttribute
 /-!
 # Derived colimit and cosimplicial evaluation
 
-This leaf owns the pointlike comparison used to compute the derived colimit of a presheaf by
-evaluation on a cosimplicial object. Its coefficient-general theorem is the reusable core; the
-abelian-group and module-valued statements are source-faithful specializations for Lemma 21.39.7.
+Evaluation on a cosimplicial object with pointlike mapping spaces computes the derived colimit
+of a degree-zero presheaf with values in an abelian category, naturally in the presheaf.
+The comparison specializes to presheaves of abelian groups and modules over a ring.
 -/
 
 @[expose] public section
@@ -44,8 +38,7 @@ variable [Functor.HasLeftDerivedFunctor
   (HomotopyCategory.quasiIso (Cᵒᵖ ⥤ A) (up ℤ))]
 
 /-- Pointlike cosimplicial evaluation computes the derived colimit of a degree-zero presheaf with
-values in any abelian category. This is the coefficient-general owner behind the abelian-group and
-module specializations of Lemma 21.39.7. -/
+values in an abelian category, naturally in the presheaf. -/
 @[stacks 08Q9 "coefficient-general derived lower-shriek evaluation"]
 theorem single_isomorphic_to_evaluation
     (Ubullet : CosimplicialObject C)
@@ -69,8 +62,8 @@ variable [Functor.HasLeftDerivedFunctor
     HomotopyCategory (Cᵒᵖ ⥤ AddCommGrpCat) (up ℤ) ⥤ DerivedCategory.{q'} AddCommGrpCat)
   (HomotopyCategory.quasiIso (Cᵒᵖ ⥤ AddCommGrpCat) (up ℤ))]
 
-/-- Lemma 21.39.7 (08Q9), abelian-group specialization: pointlike evaluation computes the derived
-lower shriek of a degree-zero abelian-group-valued presheaf. -/
+/-- Pointlike cosimplicial evaluation computes the derived lower shriek of a degree-zero
+abelian-group-valued presheaf, naturally in the presheaf. -/
 @[stacks 08Q9 "abelian derived lower-shriek evaluation"]
 theorem single_isomorphic_to_evaluation_abelian
     (Ubullet : CosimplicialObject C)
@@ -95,8 +88,8 @@ variable [Functor.HasLeftDerivedFunctor
     HomotopyCategory (Cᵒᵖ ⥤ ModuleCat B) (up ℤ) ⥤ DerivedCategory.{q'} (ModuleCat B))
   (HomotopyCategory.quasiIso (Cᵒᵖ ⥤ ModuleCat B) (up ℤ))]
 
-/-- Lemma 21.39.7 (08Q9), module specialization: pointlike evaluation computes the derived lower
-shriek of a degree-zero presheaf of `B`-modules. -/
+/-- Pointlike cosimplicial evaluation computes the derived lower shriek of a degree-zero
+presheaf of `B`-modules, naturally in the presheaf. -/
 @[stacks 08Q9 "module derived lower-shriek evaluation"]
 theorem single_isomorphic_to_evaluation_module
     (Ubullet : CosimplicialObject C)

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.MultiplicativeGroup
@@ -80,15 +74,31 @@ def ProductHom.comp {X S : Scheme.{u}} {f : X ⟶ S} {x y z : ProductObj f}
     Eq.trans (Category.assoc _ _ _)
       (Eq.trans (congrArg (fun k => α.pic.base ≫ k) β.mul_w) α.mul_w)
 
+/-- Composing a product morphism with the identity on its source leaves it unchanged. -/
+theorem ProductHom.id_comp {X S : Scheme.{u}} {f : X ⟶ S} {x y : ProductObj f}
+    (α : ProductHom x y) : ProductHom.comp (ProductHom.id x) α = α :=
+  sorry
+
+/-- Composing a product morphism with the identity on its target leaves it unchanged. -/
+theorem ProductHom.comp_id {X S : Scheme.{u}} {f : X ⟶ S} {x y : ProductObj f}
+    (α : ProductHom x y) : ProductHom.comp α (ProductHom.id y) = α :=
+  sorry
+
+/-- Composition of product morphisms is associative. -/
+theorem ProductHom.assoc {X S : Scheme.{u}} {f : X ⟶ S} {w x y z : ProductObj f}
+    (α : ProductHom w x) (β : ProductHom x y) (γ : ProductHom y z) :
+    ProductHom.comp (ProductHom.comp α β) γ = ProductHom.comp α (ProductHom.comp β γ) :=
+  sorry
+
 /-- Product objects form a category. -/
 @[reducible] def productCategory {X S : Scheme.{u}} (f : X ⟶ S) :
     Category (ProductObj f) where
   Hom := ProductHom
   id := ProductHom.id
   comp := ProductHom.comp
-  id_comp := sorry
-  comp_id := sorry
-  assoc := sorry
+  id_comp := ProductHom.id_comp
+  comp_id := ProductHom.comp_id
+  assoc := ProductHom.assoc
 
 /-- The projection of the product category to `(Sch/S)_fppf`. -/
 def ProductObj.p {X S : Scheme.{u}} (f : X ⟶ S) :
@@ -129,13 +139,12 @@ def unitsRestrict {X S : Scheme.{u}} (f : X ⟶ S)
     [Scheme.Hom.IsIsoBaseChangeStructurePushforward f] (T : Over S)
     (u : Γ(pullback f T.hom, ⊤)ˣ) : Γ(T.left, ⊤)ˣ :=
   let φ := (pullback.snd f T.hom).commRingSheafPushforwardMap
-  { val := (CategoryTheory.inv φ).hom.app (Opposite.op (⊤ : T.left.Opens)) u.val
-    inv := (CategoryTheory.inv φ).hom.app (Opposite.op (⊤ : T.left.Opens)) u.inv
-    val_inv := sorry
-    inv_val := sorry }
+  Units.map ((CategoryTheory.inv φ).hom.app
+    (Opposite.op (⊤ : T.left.Opens))).hom.toMonoidHom u
 
+set_option backward.privateInPublic true in
 /-- The base morphism of a vertical inertia automorphism is the identity. -/
-def inertia_aut_base_eq_id {X S : Scheme.{u}} {f : X ⟶ S}
+private theorem inertia_aut_base_eq_id {X S : Scheme.{u}} {f : X ⟶ S}
     (ξ : @RelativeInertia (Obj f) (category f) (Over S) inferInstance (p f)) :
     (@Iso.hom _ (category f) _ _
       (@Inertia.aut _ (category f)
@@ -144,6 +153,8 @@ def inertia_aut_base_eq_id {X S : Scheme.{u}} {f : X ⟶ S}
         (@RelativeInertia.toInertia _ (category f) _ _ _ ξ)).base :=
   congrArg Iso.hom (@RelativeInertia.mapAut_eq_one _ (category f) _ _ _ ξ)
 
+set_option backward.privateInPublic true in
+set_option backward.privateInPublic.warn false in
 /-- An inertia object of the Picard stack determines an automorphism of its line bundle. -/
 def inertiaAutLine {X S : Scheme.{u}} {f : X ⟶ S}
     (ξ : @RelativeInertia (Obj f) (category f) (Over S) inferInstance (p f)) :
@@ -166,6 +177,18 @@ def inertiaMulObj {X S : Scheme.{u}} (f : X ⟶ S)
     mul := (MultiplicativeGroup.baseChangeHomEquiv S obj.base).symm
       (unitsRestrict f obj.base (autToUnits obj.line obj.invertible (inertiaAutLine ξ))) }
 
+set_option backward.privateInPublic true in
+/-- The multiplicative-group points associated to inertia objects commute with inertia arrows. -/
+private theorem inertiaMulMap_mul_w {X S : Scheme.{u}} (f : X ⟶ S)
+    [Scheme.Hom.IsIsoBaseChangeStructurePushforward f]
+    {ξ η : @RelativeInertia (Obj f) (category f) (Over S) inferInstance (p f)}
+    (φ : ξ ⟶ η) :
+    (@RelativeInertia.hom _ (category f) _ _ _ _ _ φ).base ≫ (inertiaMulObj f η).mul =
+      (inertiaMulObj f ξ).mul :=
+  sorry
+
+set_option backward.privateInPublic true in
+set_option backward.privateInPublic.warn false in
 /-- The arrow map of the comparison from Picard inertia to `𝔾ₘ[S] ×_S Pic_{X/S}`. -/
 def inertiaMulMap {X S : Scheme.{u}} (f : X ⟶ S)
     [Scheme.Hom.IsIsoBaseChangeStructurePushforward f]
@@ -173,8 +196,27 @@ def inertiaMulMap {X S : Scheme.{u}} (f : X ⟶ S)
     (φ : ξ ⟶ η) :
     ProductHom (inertiaMulObj f ξ) (inertiaMulObj f η) where
   pic := @RelativeInertia.hom _ (category f) _ _ _ _ _ φ
-  mul_w := sorry
+  mul_w := inertiaMulMap_mul_w f φ
 
+set_option backward.privateInPublic true in
+/-- The comparison on inertia arrows preserves identity morphisms. -/
+private theorem inertiaMulMap_id {X S : Scheme.{u}} (f : X ⟶ S)
+    [Scheme.Hom.IsIsoBaseChangeStructurePushforward f]
+    (ξ : @RelativeInertia (Obj f) (category f) (Over S) inferInstance (p f)) :
+    inertiaMulMap f (𝟙 ξ) = ProductHom.id (inertiaMulObj f ξ) :=
+  sorry
+
+set_option backward.privateInPublic true in
+/-- The comparison on inertia arrows preserves composition. -/
+private theorem inertiaMulMap_comp {X S : Scheme.{u}} (f : X ⟶ S)
+    [Scheme.Hom.IsIsoBaseChangeStructurePushforward f]
+    {ξ η ζ : @RelativeInertia (Obj f) (category f) (Over S) inferInstance (p f)}
+    (φ : ξ ⟶ η) (ψ : η ⟶ ζ) :
+    inertiaMulMap f (φ ≫ ψ) = ProductHom.comp (inertiaMulMap f φ) (inertiaMulMap f ψ) :=
+  sorry
+
+set_option backward.privateInPublic true in
+set_option backward.privateInPublic.warn false in
 /-- The total functor of the comparison from Picard inertia to `𝔾ₘ[S] ×_S Pic_{X/S}`. -/
 def inertiaMulFunctor {X S : Scheme.{u}} (f : X ⟶ S)
     [Scheme.Hom.IsIsoBaseChangeStructurePushforward f] :
@@ -184,15 +226,28 @@ def inertiaMulFunctor {X S : Scheme.{u}} (f : X ⟶ S)
   @CategoryTheory.Functor.mk
     (@RelativeInertia (Obj f) (category f) (Over S) inferInstance (p f))
     (@RelativeInertia.category (Obj f) (category f) (Over S) inferInstance (p f))
-    (ProductObj f) (productCategory f) (inertiaMulObj f) (inertiaMulMap f) sorry sorry
+    (ProductObj f) (productCategory f) (inertiaMulObj f) (inertiaMulMap f)
+    (inertiaMulMap_id f) (inertiaMulMap_comp f)
 
+set_option backward.privateInPublic true in
+/-- The inertia comparison functor commutes with the projections to test schemes. -/
+private theorem inertiaMulFunctor_w {X S : Scheme.{u}} (f : X ⟶ S)
+    [Scheme.Hom.IsIsoBaseChangeStructurePushforward f] :
+    @Functor.comp _
+      (@RelativeInertia.category (Obj f) (category f) (Over S) inferInstance (p f))
+      _ (productCategory f) _ inferInstance (inertiaMulFunctor f) (mulGroupProduct f).p =
+      (StackOver.Groupoids.inertia (picardStack f)).p :=
+  sorry
+
+set_option backward.privateInPublic true in
+set_option backward.privateInPublic.warn false in
 /-- The based functor of the comparison from Picard inertia to `𝔾ₘ[S] ×_S Pic_{X/S}`. -/
 def inertiaMulBasedFunctor {X S : Scheme.{u}} (f : X ⟶ S)
     [Scheme.Hom.IsIsoBaseChangeStructurePushforward f] :
     (StackOver.Groupoids.inertia (picardStack f)).toBasedCategory ⥤ᵇ
       (mulGroupProduct f).toBasedCategory where
   toFunctor := inertiaMulFunctor f
-  w := sorry
+  w := inertiaMulFunctor_w f
 
 /-- The comparison 1-morphism from the inertia stack of `Pic_{X/S}` to
 `𝔾ₘ[S] ×_S Pic_{X/S}`. -/
@@ -212,5 +267,7 @@ theorem inertia_mulGroupProduct {X S : Scheme.{u}} (f : X ⟶ S)
     [Scheme.Hom.IsIsoBaseChangeStructurePushforward f] :
     StackOver.Groupoids.Hom.IsEquivalence (Picard.inertiaMulGroupHom f) :=
   sorry
+
+attribute [instance] inertia_mulGroupProduct
 
 end AlgebraicGeometry

@@ -1,13 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Remark_101_19_3_AutomorphismGroup
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.AutomorphismGroup
 import StacksCheckRecall
+
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicStack
+
+universe u
 
 /- Remark 101.19.3
 Let P be a property of algebraic spaces over fields which is invariant under
@@ -19,4 +17,7 @@ representative of x. Similarly for smooth, proper, etc. (There is clearly an
 abuse of language going on here, but we believe it will not cause confusion or
 imprecision.)
 -/
-@[stacks 0DTU] #check AlgebraicGeometry.AlgebraicStack.automorphismGroup.HasAt
+@[stacks 0DTU] #check (AlgebraicGeometry.AlgebraicStack.automorphismGroup.HasAt :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    (P : MorphismProperty (AlgebraicSpace S))
+    [IsInvariantUnderGroundFieldExtension P] (x : Points X), Prop)

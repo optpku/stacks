@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap74.Lemma_74_11_6_Precoverage
-public import stacks_project.Chap74.Lemma_74_11_14_Instances
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.OpenImmersion.Fpqc
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,7 +14,7 @@ variable (S : Scheme.{u})
 /- Lemma 74.11.14: the property `P(f)` given by “`f` is an open immersion” is
 fpqc local on the base. -/
 @[stacks 041X] #check
-  (AlgebraicSpace.IsOpenImmersion.isLocalAtTargetFpqc :
+  (AlgebraicGeometry.AlgebraicSpace.IsOpenImmersion.isLocalAtTargetFpqc :
     MorphismProperty.IsLocalAtTarget
-      (@AlgebraicSpace.IsOpenImmersion S : MorphismProperty (AlgebraicSpace S))
+      (fun {_ _} f ↦ AlgebraicSpace.IsOpenImmersion f : MorphismProperty (AlgebraicSpace S))
       (fpqcPrecoverage S))

@@ -1,26 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Sites.Fpqc
-public import Mathlib.CategoryTheory.Sites.InducedTopology
-public import stacks_project.Chap03.Lemma_3_9_2_ObjectProperty
-public import stacks_project.Chap87.Definition_87_4_8_WeaklyAdmissible
+public import ReasLib.AlgebraicGeometry.FormalScheme.McQuillan
 public import stacks_project.Chap87.Remark_87_2_3_McQuillan_s_variant_FormalScheme
 public import stacks_project.Chap87.Remark_87_2_3_McQuillan_s_variant_Neighborhoods
-public import stacks_project.Chap87.Remark_87_2_3_McQuillan_s_variant_Spf
 import StacksCheckRecall
-
-/-!
-# Remark 87.2.3 (McQuillan's variant)
-
-McQuillan's EGA-style variant of formal schemes, based on weakly admissible
-topological rings and weak ideals of definition.
--/
 
 @[expose] public section
 
@@ -28,64 +11,65 @@ universe u
 
 noncomputable section
 
-open CategoryTheory AlgebraicGeometry TopologicalRing
+open CategoryTheory AlgebraicGeometry
 
-/- Remark 87.2.3 (McQuillan's variant) (1): an admissible topological ring is a
-complete separated linearly topologized ring with an ideal of definition, and a
-weakly admissible topological ring is a complete separated linearly topologized
-ring with a weak ideal of definition: an open ideal of topologically nilpotent
-elements. -/
-@[stacks 0AI3] #check @IsTopologicallyNilpotent
+/- Remark 87.2.3 (McQuillan's variant) (5): the analogue of Lemma 87.2.1 gives
+bijectivity on morphisms under the same source-size bound. -/
+@[stacks 0AI3] #check
+  (AlgebraicGeometry.McQuillan.FormalScheme.functorOfPoints_map_bijective :
+    ∀ {P : ObjectProperty Scheme.{u}}, Scheme.IsSmallBoundClosed P →
+      ∀ {X Y : AlgebraicGeometry.McQuillan.FormalScheme.{u}},
+        (∃ S, P S ∧ X.size ≤ S.size) →
+        Function.Bijective
+          ((AlgebraicGeometry.McQuillan.FormalScheme.functorOfPoints P).map :
+            (X ⟶ Y) →
+              ((AlgebraicGeometry.McQuillan.FormalScheme.functorOfPoints P).obj X ⟶
+                (AlgebraicGeometry.McQuillan.FormalScheme.functorOfPoints P).obj Y)))
 
-@[stacks 0AI3] #check @TopologicalRing.Ideal.IsIdealOfDefinition
+/- (1): admissible and weakly admissible rings are complete, separated and linearly
+topologized; a weak ideal of definition is an open ideal of topologically nilpotent elements. -/
+#check (_root_.IsTopologicallyNilpotent :
+  ∀ {A : Type u} [MonoidWithZero A] [TopologicalSpace A], A → Prop)
 
-@[stacks 0AI3] #check @TopologicalRing.IsAdmissibleRing
+#check (TopologicalRing.Ideal.IsIdealOfDefinition :
+  ∀ {A : Type u} [CommRing A] [TopologicalSpace A], Ideal A → Prop)
 
-@[stacks 0AI3] #check @TopologicalRing.Ideal.IsWeakIdealOfDefinition
+#check (TopologicalRing.IsAdmissibleRing :
+  ∀ (A : Type u) [CommRing A] [TopologicalSpace A], Prop)
 
-@[stacks 0AI3] #check @TopologicalRing.IsWeaklyAdmissibleRing
+#check (TopologicalRing.Ideal.IsWeakIdealOfDefinition :
+  ∀ {A : Type u} [CommRing A] [TopologicalSpace A], Ideal A → Prop)
 
-/- Remark 87.2.3 (McQuillan's variant) (2): if `I` is a weak ideal of definition and
-`J` is an open ideal, then `I ⊓ J` is a weak ideal of definition. -/
-@[stacks 0AI3] #check @TopologicalRing.Ideal.IsWeakIdealOfDefinition.inf_of_isOpen
+#check (TopologicalRing.IsWeaklyAdmissibleRing :
+  ∀ (A : Type u) [CommRing A] [TopologicalSpace A], Prop)
 
-/- Remark 87.2.3 (McQuillan's variant) (3): the weak ideals of definition form a
-fundamental system of open neighbourhoods of `0`. -/
-@[stacks 0AI3] #check @TopologicalRing.hasBasis_isWeakIdealOfDefinition
+/- (2): intersecting a weak ideal of definition with any open ideal again gives a weak ideal. -/
+#check (TopologicalRing.Ideal.IsWeakIdealOfDefinition.inf_of_isOpen :
+  ∀ {A : Type u} [CommRing A] [TopologicalSpace A] {I J : Ideal A},
+    TopologicalRing.Ideal.IsWeakIdealOfDefinition I → IsOpen (J : Set A) →
+      TopologicalRing.Ideal.IsWeakIdealOfDefinition (I ⊓ J))
 
-/- Remark 87.2.3 (McQuillan's variant) (4): repeating the Spf construction over weak
-ideals of definition yields a larger category of formal schemes, locally modelled
-on McQuillan `spf` of a weakly admissible ring. -/
-@[stacks 0AI3] #check AlgebraicGeometry.McQuillan.FormalScheme
+/- (3): weak ideals of definition form a fundamental system of neighbourhoods of zero. -/
+#check (TopologicalRing.hasBasis_isWeakIdealOfDefinition :
+  ∀ {A : Type u} [CommRing A] [TopologicalSpace A]
+    [TopologicalRing.IsWeaklyPreadmissibleRing A],
+    (nhds (0 : A)).HasBasis
+      (fun I : Ideal A ↦ TopologicalRing.Ideal.IsWeakIdealOfDefinition I)
+      (fun I ↦ (I : Set A)))
 
-@[stacks 0AI3] #check AlgebraicGeometry.McQuillan.spf
+/- (4): weak formal spectra give a larger category containing ordinary EGA formal schemes. -/
+#check (AlgebraicGeometry.McQuillan.FormalScheme : Type (u + 1))
 
-@[stacks 0AI3] #check AlgebraicGeometry.McQuillan.FormalScheme.ofFormalScheme
+#check (AlgebraicGeometry.McQuillan.spf :
+  ∀ (A : TopCommRingCat.{u}), TopologicalRing.IsWeaklyAdmissibleRing A →
+    AlgebraicGeometry.LocallyTopologicallyRingedSpaceCat.{u})
 
-namespace AlgebraicGeometry.McQuillan.FormalScheme
+#check (AlgebraicGeometry.McQuillan.FormalScheme.ofFormalScheme :
+  AlgebraicGeometry.FormalScheme.{u} ⥤ AlgebraicGeometry.McQuillan.FormalScheme.{u})
 
-/-- Remark 87.2.3 (McQuillan's variant) (5): the analogue of Lemma 87.2.1 holds for
-McQuillan's larger category. Choose a category of schemes `Sch_α` as in Sets,
-Lemma 3.9.2. Morphisms `X ⟶ Y` of McQuillan formal schemes are in bijection with
-morphisms of their functors of points on `(Sch_α)ᵒᵖ`, provided the size of `X` is
-not too large. -/
-@[stacks 0AI3]
-theorem functorOfPoints_map_bijective {P : ObjectProperty Scheme.{u}}
-    (hP : Scheme.IsSmallBoundClosed P) {X Y : FormalScheme.{u}}
-    (hX : ∃ S, P S ∧ X.size ≤ S.size) :
-    Function.Bijective
-      ((functorOfPoints P).map :
-        (X ⟶ Y) → ((functorOfPoints P).obj X ⟶ (functorOfPoints P).obj Y)) :=
-  sorry
-
-/-- Remark 87.2.3 (McQuillan's variant) (6): the analogue of Lemma 87.2.2 holds for
-McQuillan's larger category. The functor of points of a McQuillan formal scheme
-`X` on `Sch_α` is a sheaf for the fpqc topology. -/
-@[stacks 0AI3]
-theorem functorOfPoints_isSheaf_fpqc {P : ObjectProperty Scheme.{u}}
-    (hP : Scheme.IsSmallBoundClosed P) (X : FormalScheme.{u}) :
-    Presheaf.IsSheaf (P.ι.restrictedTopology Scheme.fpqcTopology)
-      ((functorOfPoints P).obj X) :=
-  sorry
-
-end AlgebraicGeometry.McQuillan.FormalScheme
+/- (6): the analogue of Lemma 87.2.2 is the fpqc sheaf assertion, without a size bound on X. -/
+#check (AlgebraicGeometry.McQuillan.FormalScheme.functorOfPoints_isSheaf_fpqc :
+  ∀ {P : ObjectProperty Scheme.{u}}, Scheme.IsSmallBoundClosed P →
+    ∀ X : AlgebraicGeometry.McQuillan.FormalScheme.{u},
+      Presheaf.IsSheaf (P.ι.restrictedTopology Scheme.fpqcTopology)
+        ((AlgebraicGeometry.McQuillan.FormalScheme.functorOfPoints P).obj X))

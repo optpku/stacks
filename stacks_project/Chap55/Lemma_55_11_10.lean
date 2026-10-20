@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -108,18 +102,23 @@ variable (h_eq :
         (f.fiber (IsLocalRing.closedPoint R)).irreducibleComponentClosed (components i) →
       GeometricallyIrreducible (componentToResidueField f (components i)))
 
+section
+
+variable (j : Fin n)
+
+-- Supply properness explicitly: instance search cannot recover the model from the
+-- composite morphism of the component to the residue field.
+
 /- Lemma 55.11.10 (6) -/
 @[stacks 0CEE] #check
-  (AlgebraicGeometry.Scheme.Hom.SpecialFiber.otherComponentSectionsFiniteDimensional
-    R K π hπ C h_globalSections f genericFiberIso n components s h_section h_smooth h_eq
-    : ∀ (i j : Fin n),
-      s (IsLocalRing.closedPoint
-        ((Spec (CommRingCat.of R)).residueField (IsLocalRing.closedPoint R))) ∈
-        (f.fiber (IsLocalRing.closedPoint R)).irreducibleComponentClosed (components i) →
-      j ≠ i →
-      FiniteDimensional
+  (@AlgebraicGeometry.globalSectionsFiniteDimensional _ _ _
+    (componentToResidueField f (components j))
+    (instIsProperComponentToResidueField f (components j)) :
+    FiniteDimensional
         ((Spec (CommRingCat.of R)).residueField (IsLocalRing.closedPoint R))
         (globalSectionsAlg (componentToResidueField f (components j))))
+
+end
 
 /- Lemma 55.11.10 (7) -/
 @[stacks 0CEE] #check

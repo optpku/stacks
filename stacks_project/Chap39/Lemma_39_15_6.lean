@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -20,7 +14,7 @@ universe u
   (AlgebraicGeometry.GroupoidScheme.QCoh.exists_set_kappaGenerated_representatives :
     ∀ {S : AlgebraicGeometry.Scheme.{u}}
       (G : AlgebraicGeometry.GroupoidScheme S) (κ : Cardinal.{u}),
-      ∃ T : Set G.QCoh,
-        (∀ E ∈ T, E.obj.obj.IsKappaGenerated κ) ∧
+      ∃ (T : Type u) (F : T → G.QCoh),
+        (∀ t, (F t).obj.obj.IsKappaGenerated κ) ∧
           ∀ E : G.QCoh, E.obj.obj.IsKappaGenerated κ →
-            ∃ E' ∈ T, Nonempty (E' ≅ E))
+            ∃ t, Nonempty (F t ≅ E))

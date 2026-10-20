@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Remark_85_8_4_ProductTotal
-public import stacks_project.Chap85.Remark_85_8_4_Fiberwise
+import StacksCheckRecall
+public import ReasLib.CategoryTheory.Sites.Simplicial.Vanishing
+public import ReasLib.CategoryTheory.Sites.Grothendieck.Vanishing
 
 /-!
 # Lemma 85.8.5
@@ -54,25 +48,21 @@ variable [∀ n : ℕ,
 variable [(toDerived (globalSectionsTotalFunctor C J)).HasRightDerivedFunctor
     (HomologicalComplex.quasiIso (Sheaf (topology C J) AddCommGrpCat.{w}) (up ℤ))]
 
-/-- Lemma 85.8.5 (1): in Situation 85.3.3 case A, if `K` is an object of
-`D(C_total)` and `H^{-p}(C_p, K_p) = 0` for all `p ≥ 0`, then
-`H^0(C_total, K) = 0`. -/
+/- Lemma 85.8.5 (1): If stage hypercohomology vanishes in degree `-p` for every nonnegative stage `p`,
+then degree-zero hypercohomology of the total simplicial site vanishes. -/
 @[stacks 0H0W]
-theorem isZero_H0_of_diagonal_vanishing
-    (K : DerivedCategory (Sheaf (topology C J) AddCommGrpCat.{w}))
-    (h : ∀ p : ℕ, IsZero ((unboundedPageOneFunctorNonneg C J p (-(p : ℤ))).obj K)) :
-    IsZero ((unboundedAbutmentFunctor C J 0).obj K) :=
-  sorry
+#check (CategoryTheory.SimplicialSites.isZero_H0_of_diagonal_vanishing C J :
+    ∀ (K : DerivedCategory (Sheaf (topology C J) AddCommGrpCat.{w}))
+    (h : ∀ p : ℕ, IsZero ((unboundedPageOneFunctorNonneg C J p (-(p : ℤ))).obj K)),
+    IsZero ((unboundedAbutmentFunctor C J 0).obj K))
 
-/-- Lemma 85.8.5 (2): in Situation 85.3.3 case A, if `K` is an object of
-`D(C_total)` and `RΓ(C_p, K_p) = 0` for all `p ≥ 0`, then
-`RΓ(C_total, K) = 0`. -/
+/- Lemma 85.8.5 (2): If derived global sections vanish at every nonnegative stage, then derived global
+sections of the total simplicial site vanish. -/
 @[stacks 0H0W]
-theorem isZero_rGamma_of_stage_rGamma
-    (K : DerivedCategory (Sheaf (topology C J) AddCommGrpCat.{w}))
-    (h : ∀ p : ℕ, IsZero ((RightDerived.Cochain.functor (sectionsStageGamma C J p)).obj K)) :
-    IsZero ((unboundedRGammaFunctor C J).obj K) :=
-  sorry
+#check (CategoryTheory.SimplicialSites.isZero_rGamma_of_stage_rGamma C J :
+    ∀ (K : DerivedCategory (Sheaf (topology C J) AddCommGrpCat.{w}))
+    (h : ∀ p : ℕ, IsZero ((RightDerived.Cochain.functor (sectionsStageGamma C J p)).obj K)),
+    IsZero ((unboundedRGammaFunctor C J).obj K))
 
 end CategoryTheory.SimplicialSites
 
@@ -104,24 +94,20 @@ variable [∀ n : ℕ,
 variable [(toDerived (fiberSectionsTotalFunctor F J)).HasRightDerivedFunctor
     (HomologicalComplex.quasiIso (Sheaf (topology F J) AddCommGrpCat.{w}) (up ℤ))]
 
-/-- Lemma 85.8.5 (3): in Situation 85.3.3 case B, if `K` is an object of
-`D(C_total)` and `H^{-p}(C_p, K_p) = 0` for all `p ≥ 0`, then
-`H^0(C_total, K) = 0`. -/
+/- Lemma 85.8.5 (3): If fiber hypercohomology vanishes in degree `-p` for every nonnegative stage `p`,
+then degree-zero hypercohomology of the total fiberwise simplicial site vanishes. -/
 @[stacks 0H0W]
-theorem fiber_isZero_H0_of_diagonal_vanishing
-    (K : DerivedCategory (Sheaf (topology F J) AddCommGrpCat.{w}))
-    (h : ∀ p : ℕ, IsZero ((fiberUnboundedPageOneFunctorNonneg F J p (-(p : ℤ))).obj K)) :
-    IsZero ((fiberUnboundedAbutmentFunctor F J 0).obj K) :=
-  sorry
+#check (CategoryTheory.Grothendieck.fiber_isZero_H0_of_diagonal_vanishing F J :
+    ∀ (K : DerivedCategory (Sheaf (topology F J) AddCommGrpCat.{w}))
+    (h : ∀ p : ℕ, IsZero ((fiberUnboundedPageOneFunctorNonneg F J p (-(p : ℤ))).obj K)),
+    IsZero ((fiberUnboundedAbutmentFunctor F J 0).obj K))
 
-/-- Lemma 85.8.5 (4): in Situation 85.3.3 case B, if `K` is an object of
-`D(C_total)` and `RΓ(C_p, K_p) = 0` for all `p ≥ 0`, then
-`RΓ(C_total, K) = 0`. -/
+/- Lemma 85.8.5 (4): If derived global sections vanish on every nonnegative fiber, then derived global
+sections of the total fiberwise simplicial site vanish. -/
 @[stacks 0H0W]
-theorem fiber_isZero_rGamma_of_stage_rGamma
-    (K : DerivedCategory (Sheaf (topology F J) AddCommGrpCat.{w}))
-    (h : ∀ p : ℕ, IsZero ((RightDerived.Cochain.functor (fiberSectionsStageGamma F J p)).obj K)) :
-    IsZero ((fiberUnboundedRGammaFunctor F J).obj K) :=
-  sorry
+#check (CategoryTheory.Grothendieck.fiber_isZero_rGamma_of_stage_rGamma F J :
+    ∀ (K : DerivedCategory (Sheaf (topology F J) AddCommGrpCat.{w}))
+    (h : ∀ p : ℕ, IsZero ((RightDerived.Cochain.functor (fiberSectionsStageGamma F J p)).obj K)),
+    IsZero ((fiberUnboundedRGammaFunctor F J).obj K))
 
 end CategoryTheory.Grothendieck

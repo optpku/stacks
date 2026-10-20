@@ -1,19 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.DerivedCategory.HomologySequence
-public import Mathlib.RingTheory.FiniteType
-public import Mathlib.RingTheory.Finiteness.Defs
-public import Mathlib.RingTheory.Noetherian.Defs
+public import ReasLib.Algebra.PolynomialSite.Finiteness
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Colimit.Evaluation
-public import stacks_project.Chap92.Lemma_92_4_1_PolynomialOver
-public import stacks_project.Chap92.«92_4_0_1_Polynomial»
-import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
 
 /-!
 # Finite cohomology of derived lower shriek
@@ -28,7 +17,6 @@ then every cohomology module of `Lπ!(F)` is a finite `B`-module.
 open CategoryTheory
 open CategoryTheory.Limits
 open Opposite
-open Algebra
 open Algebra.PolynomialSite
 open CommAlgCat.Over.Polynomial (ofMvPolynomial)
 open scoped CategoryTheory
@@ -47,37 +35,34 @@ variable [Functor.HasLeftDerivedFunctor
   (HomotopyCategory.quasiIso ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)
     (ComplexShape.up ℤ))]
 
-/-- Lemma 92.5.3. Let `A` be a Noetherian ring, let `A → B` be a finite type ring map, and
+/- Lemma 92.5.3. Let `A` be a Noetherian ring, let `A → B` be a finite type ring map, and
 let `π` and `underline{B}` be as in 92.4.0.1. If `F` is an `underline{B}`-module on
 `C_{B/A}` such that `F.obj Y` is a finite `B`-module whenever the source of `Y` is a
 finite-type polynomial `A`-algebra, then every cohomology module of `Lπ!(F)` is a finite
 `B`-module. -/
-@[stacks 08PY]
-theorem lowerShriek_homology_finite
-    (F : (PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)
+@[stacks 08PY] #check (Algebra.PolynomialSite.lowerShriek_homology_finite :
+  ∀ (F : (PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)
     (h_eval : ∀ (Y : (PolynomialSite A B)ᵒᵖ),
       Algebra.FiniteType A Y.unop.unop.obj.left → Module.Finite B (F.obj Y))
-    (i : ℤ) :
+    (i : ℤ),
     Module.Finite B
       ((DerivedCategory.homologyFunctor (ModuleCat.{u} B) i).obj
         (((DerivedCategory.singleFunctor ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)
             (0 : ℤ)) ⋙
-          Lπ![(PolynomialSite A B), (ModuleCat.{u} B)]).obj F)) :=
-  sorry
+          Lπ![(PolynomialSite A B), (ModuleCat.{u} B)]).obj F)))
 
-/-- If `F` takes finite `B`-module values on every augmentation
+/- If `F` takes finite `B`-module values on every augmentation
 `α : MvPolynomial ι A →ₐ[A] B` with `ι` finite, then every cohomology module of `Lπ!(F)`
 is a finite `B`-module. -/
-theorem lowerShriek_homology_finite_of_mvPolynomial
-    (F : (PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)
+#check (Algebra.PolynomialSite.lowerShriek_homology_finite_of_mvPolynomial :
+  ∀ (F : (PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)
     (h_eval : ∀ (ι : Type u) [Finite ι] (α : MvPolynomial ι A →ₐ[A] B),
       Module.Finite B (F.obj (op (op (ofMvPolynomial A B ι α)))))
-    (i : ℤ) :
+    (i : ℤ),
     Module.Finite B
       ((DerivedCategory.homologyFunctor (ModuleCat.{u} B) i).obj
         (((DerivedCategory.singleFunctor ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)
             (0 : ℤ)) ⋙
-          Lπ![(PolynomialSite A B), (ModuleCat.{u} B)]).obj F)) :=
-  sorry
+          Lπ![(PolynomialSite A B), (ModuleCat.{u} B)]).obj F)))
 
 end Algebra.PolynomialSite

@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_37_4_Smooth
-public import stacks_project.Chap109.Lemma_109_9_1_Substack
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.SmoothH0
 
 /-!
 # The object property of smooth curves with universally trivial pushforward of 𝒪
@@ -27,44 +20,25 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-namespace Spaces
-namespace Curves
+namespace AlgebraicGeometry.AlgebraicSpace.Spaces.Curves
 
-/-- The object property of smooth families of curves with universally trivial
-`𝒪_S ⟶ f_* 𝒪_X` and fibres of dimension `1`, corresponding to the open
-substack `𝒞urves^{smooth, h0}`. -/
-def smoothH0 (S : Scheme.{u}) : ObjectProperty (Obj S) :=
-  fun P ↦ AlgebraicSpace.Smooth (hom P) ∧ h0Dim1 S P
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.smoothH0 :
+    ∀ S : Scheme.{u}, ObjectProperty (Obj S))
 
-/-- Membership in `smoothH0` means `𝒪_S ⟶ f_* 𝒪_X` is an isomorphism after
-every base change, including the identity, and the structure morphism is
-smooth of relative dimension `1`. -/
-theorem smoothH0_iff {S : Scheme.{u}} (P : Obj S) :
-    smoothH0 S P ↔
-      (∀ {Z : AlgebraicSpace S} (g : Z ⟶ ofOver (base P)),
-          IsIso (Modules.unitToPushforwardObjUnit (pullback.snd (hom P) g))) ∧
-        AlgebraicSpace.Smooth (hom P) ∧ RelativeDimension (hom P) 1 :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.smoothH0_iff :
+    ∀ {S : Scheme.{u}} (P : Obj S),
+      smoothH0 S P ↔
+        (∀ {Z : AlgebraicSpace S} (g : Z ⟶ ofOver (base P)),
+            IsIso (Modules.unitToPushforwardObjUnit (pullback.snd (hom P) g))) ∧
+          AlgebraicSpace.Smooth (hom P) ∧ RelativeDimension (hom P) 1)
 
-/-- The `smoothH0` property of families of curves is closed under
-isomorphisms. -/
-instance instIsClosedUnderIsomorphisms_smoothH0 (S : Scheme.{u}) :
-    (smoothH0 S).IsClosedUnderIsomorphisms :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instIsClosedUnderIsomorphisms_smoothH0 :
+    ∀ S : Scheme.{u}, (smoothH0 S).IsClosedUnderIsomorphisms)
 
-/-- Membership in `𝒞urves^{smooth, h0}` implies membership in
-`𝒞urves^{h0, 1}`. -/
-theorem smoothH0_le_h0Dim1 {S : Scheme.{u}} (P : Obj S) :
-    smoothH0 S P → h0Dim1 S P :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.smoothH0_le_h0Dim1 :
+    ∀ {S : Scheme.{u}} (P : Obj S), smoothH0 S P → h0Dim1 S P)
 
-/-- Membership in `𝒞urves^{smooth, h0}` implies smoothness of the structure
-morphism. -/
-theorem smoothH0_smooth {S : Scheme.{u}} (P : Obj S) :
-    smoothH0 S P → AlgebraicSpace.Smooth (hom P) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.smoothH0_smooth :
+    ∀ {S : Scheme.{u}} (P : Obj S), smoothH0 S P → AlgebraicSpace.Smooth (hom P))
 
-end Curves
-end Spaces
-end AlgebraicGeometry.AlgebraicSpace
+end AlgebraicGeometry.AlgebraicSpace.Spaces.Curves

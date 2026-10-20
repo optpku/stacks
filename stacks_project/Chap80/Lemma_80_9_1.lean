@@ -1,18 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.FiniteType
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiFinite
-public import Mathlib.AlgebraicGeometry.Morphisms.Separated
-public import ReasLib.AlgebraicGeometry.GroupoidScheme.Morphism
-public import ReasLib.AlgebraicGeometry.GroupoidScheme.Restriction
-public import stacks_project.Chap80.Lemma_80_9_1_Descent
-public import stacks_project.Chap80.Lemma_80_9_1_Quotient
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.GroupoidScheme.AffineQuotient
+public import ReasLib.AlgebraicGeometry.GroupoidScheme.SubgroupoidQuotient
 
 /-!
 # Quotient by a finite locally free subgroupoid
@@ -34,59 +24,41 @@ universe u
 
 namespace AlgebraicGeometry.GroupoidScheme
 
-/-- Lemma 80.9.1 (1): the fppf quotient `U / P` is represented by the affine
-scheme `objectQuotient P`. -/
-@[stacks 04S4]
-theorem objectQuotient_represents {S : Scheme.{u}} (G P : GroupoidScheme S)
-    (ι : Hom P G) (hU : P.U = G.U) (h_id : ι.IsIdentityOnObjects hU)
-    [IsAffine P.U.left] [IsFiniteLocallyFree P.s.left] [IsFiniteLocallyFree P.t.left]
-    [Mono ι.arrow.left] [Mono P.toPreRelation.hom.left]
-    [IsSeparated G.toPreRelation.hom.left]
-    [LocallyOfFiniteType G.toPreRelation.hom.left]
-    [LocallyQuasiFinite G.toPreRelation.hom.left] :
-    IsAffine (objectQuotient P) ∧
-      IsIso (@Scheme.PreRelation.quotientSheafDesc _ _ _ P.toPreRelation
-        (StandardTopology.fppf.overTopology S)
-        (StandardTopology.overTopologySubcanonical StandardTopology.fppf S)
-        (objectQuotientMap P) (objectQuotientMap_equalizes P)) := sorry
+/- Lemma 80.9.1 (1): the invariant spectrum represents the affine fppf quotient. -/
+@[stacks 04S4] #check (AlgebraicGeometry.GroupoidScheme.objectQuotient_represents :
+  ∀ {S : Scheme.{u}} (P : GroupoidScheme S),
+    [IsAffine P.U.left] → [IsFiniteLocallyFree P.s.left] →
+    [IsFiniteLocallyFree P.t.left] → [Mono P.toPreRelation.hom.left] →
+    IsAffine (objectQuotient P) ∧ IsIso (objectQuotientSheafComparison P))
 
-/-- Lemma 80.9.1 (2): the quotient morphism `U ⟶ Ū` is finite locally free. -/
-@[stacks 04S4]
-theorem quotientMapOf_isFiniteLocallyFree {S : Scheme.{u}} (G P : GroupoidScheme S)
-    (ι : Hom P G) (hU : P.U = G.U) (h_id : ι.IsIdentityOnObjects hU)
-    [IsAffine P.U.left] [IsFiniteLocallyFree P.s.left] [IsFiniteLocallyFree P.t.left]
-    [Mono ι.arrow.left] [Mono P.toPreRelation.hom.left]
-    [IsSeparated G.toPreRelation.hom.left]
-    [LocallyOfFiniteType G.toPreRelation.hom.left]
-    [LocallyQuasiFinite G.toPreRelation.hom.left] :
-    IsFiniteLocallyFree (quotientMapOf hU).left := sorry
+/- Lemma 80.9.1 (2): the quotient morphism is finite locally free. -/
+@[stacks 04S4] #check (AlgebraicGeometry.GroupoidScheme.quotientMapOf_isFiniteLocallyFree :
+  ∀ {S : Scheme.{u}} {G P : GroupoidScheme S} (hU : P.U = G.U),
+    [IsAffine P.U.left] → [IsFiniteLocallyFree P.s.left] →
+    [IsFiniteLocallyFree P.t.left] → [Mono P.toPreRelation.hom.left] →
+    IsFiniteLocallyFree (quotientMapOf hU).left)
 
-/-- Lemma 80.9.1 (3): `P` is the kernel pair of `U ⟶ Ū`, with `t|_P = pr₀` and
-`s|_P = pr₁`. -/
-@[stacks 04S4]
-theorem subgroupoid_kernelPair_isIso {S : Scheme.{u}} (G P : GroupoidScheme S)
-    (ι : Hom P G) (hU : P.U = G.U) (h_id : ι.IsIdentityOnObjects hU)
-    [IsAffine P.U.left] [IsFiniteLocallyFree P.s.left] [IsFiniteLocallyFree P.t.left]
-    [Mono ι.arrow.left] [Mono P.toPreRelation.hom.left]
-    [IsSeparated G.toPreRelation.hom.left]
-    [LocallyOfFiniteType G.toPreRelation.hom.left]
-    [LocallyQuasiFinite G.toPreRelation.hom.left] :
+/- Lemma 80.9.1 (3): the canonical `(t, s)` comparison identifies the subgroupoid
+with the kernel pair of the quotient morphism. -/
+@[stacks 04S4] #check (AlgebraicGeometry.GroupoidScheme.objectQuotient_kernelPair_isIso :
+  ∀ {S : Scheme.{u}} (P : GroupoidScheme S),
+    [IsAffine P.U.left] → [IsFiniteLocallyFree P.s.left] →
+    [IsFiniteLocallyFree P.t.left] → [Mono P.toPreRelation.hom.left] →
     IsIso (P.toPreRelation.kernelPairLift (objectQuotientMap P)
-      (objectQuotientMap_equalizes P)) := sorry
+      (objectQuotientMap_equalizes P)))
 
-/-- Lemma 80.9.1 (4): `R` is the restriction of a groupoid scheme on `Ū` along
-the quotient morphism `U ⟶ Ū`. -/
-@[stacks 04S4]
-theorem exists_isRestriction_objectQuotient {S : Scheme.{u}}
-    (G P : GroupoidScheme S) (ι : Hom P G) (hU : P.U = G.U)
-    (h_id : ι.IsIdentityOnObjects hU) [IsAffine P.U.left]
-    [IsFiniteLocallyFree P.s.left] [IsFiniteLocallyFree P.t.left]
-    [Mono ι.arrow.left] [Mono P.toPreRelation.hom.left]
-    [IsSeparated G.toPreRelation.hom.left]
-    [LocallyOfFiniteType G.toPreRelation.hom.left]
-    [LocallyQuasiFinite G.toPreRelation.hom.left] :
+/- Lemma 80.9.1 (4): the ambient groupoid is the restriction of a groupoid on
+the affine quotient along the quotient morphism. -/
+@[stacks 04S4] #check (AlgebraicGeometry.GroupoidScheme.exists_isRestriction_objectQuotient :
+  ∀ {S : Scheme.{u}} (G P : GroupoidScheme S) (ι : Hom P G) (hU : P.U = G.U)
+    (h_id : ι.IsIdentityOnObjects hU), [IsAffine P.U.left] →
+    [IsFiniteLocallyFree P.s.left] → [IsFiniteLocallyFree P.t.left] →
+    [Mono ι.arrow.left] → [Mono P.toPreRelation.hom.left] →
+    [IsSeparated G.toPreRelation.hom.left] →
+    [LocallyOfFiniteType G.toPreRelation.hom.left] →
+    [LocallyQuasiFinite G.toPreRelation.hom.left] →
     ∃ (Gbar : GroupoidScheme S) (hUbar : Gbar.U = objectQuotientOver P)
       (φ : Hom G (Gbar.pullback (quotientMapOf hU ≫ eqToHom hUbar.symm))),
-      φ.IsIdentityOnObjects rfl ∧ IsIso φ.arrow := sorry
+      φ.IsIdentityOnObjects rfl ∧ IsIso φ.arrow)
 
 end AlgebraicGeometry.GroupoidScheme

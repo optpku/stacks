@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.H.GroupoidDescent
@@ -24,7 +18,7 @@ descent for the principal-center and two-generator almost-blow-up families. -/
 @[stacks 0EX9] #check
   (AlgebraicGeometry.ChosenBigHSite.GroupoidDescent.iffZariskiAndFlatProperExampleDescent :
     ∀ (Schh : ChosenBigHSite.{u, v}) (S : Schh.carrier)
-      (𝒮 : FiberedCategoryOver.Groupoids.{max u v, v, max u v, max u v} (Over S)),
+      (𝒮 : FiberedCategoryOver.Groupoids.{max u v, u, max u v, max u v} (Over S)),
       IsStack.InGroupoids (bigTopology Schh S) 𝒮.p ↔
         IsStack.InGroupoids (bigZariskiTopology Schh S) 𝒮.p ∧
           IsAffineFlatProperSurjective Schh S 𝒮 ∧

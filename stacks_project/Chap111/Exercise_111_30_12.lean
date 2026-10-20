@@ -1,18 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Derived.InjectiveHomotopy
-import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
 
 @[expose] public section
 
 open CategoryTheory HomologicalComplex
-open FilteredObject.Finite.Homotopy
 
 universe v u
 
@@ -20,17 +13,19 @@ namespace CategoryTheory.FilteredObject.FiniteDerived
 
 namespace FilteredInjective
 
-/-- Exercise 111.30.12: in an abelian category `𝒜`, any cochain map from a bounded-below
+/- Exercise 111.30.12: in an abelian category `𝒜`, any cochain map from a bounded-below
 filtered-acyclic complex of `Filᶠ(𝒜)` to a bounded-below complex of filtered injectives is
-homotopic to zero. -/
-@[stacks 028J]
-theorem homotopicToZero {C : Type u} [Category.{v} C] [Abelian C]
+homotopic to zero. The canonical theorem also allows unbounded source complexes, as
+established in the pinned `derived.tex`, lemma-filtered-acyclic-is-zero (Stacks 05TX). -/
+@[stacks 028J] #check
+  (CategoryTheory.FilteredObject.FiniteDerived.FilteredInjective.nullHomotopy :
+    ∀ {C : Type u} [Category.{v} C] [Abelian C]
     {K : CochainComplex (FilteredObject.Finite.category C) ℤ}
-    (hK_plus : CochainComplex.plus (FilteredObject.Finite.category C) K)
     (I : CochainComplex.FilteredInjectivePlus C)
-    (α : K ⟶ (CochainComplex.FilteredInjectivePlus.ι C).obj I)
-    (hK_acyclic : acyclic C ((Homotopy.quotient C).obj K)) :
-    Nonempty (Homotopy α 0) := sorry
+    (α : K ⟶ (CochainComplex.FilteredInjectivePlus.ι C).obj I),
+    FilteredObject.Finite.Homotopy.acyclic C
+      ((CategoryTheory.FilteredObject.FiniteDerived.Homotopy.quotient C).obj K) →
+    Nonempty (Homotopy α 0))
 
 end FilteredInjective
 

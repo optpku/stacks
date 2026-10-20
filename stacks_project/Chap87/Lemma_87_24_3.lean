@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
-public import stacks_project.Chap87.Lemma_87_24_4_FiniteType
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Morphism.FiniteType
+import StacksCheckRecall
 
 /-!
 # Composition of finite type morphisms of formal algebraic spaces
@@ -19,36 +13,22 @@ finite type.
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry MorphismProperty
+open CategoryTheory
 
 universe u
 
-namespace AlgebraicGeometry.FormalAlgebraicSpace
+/- Lemma 87.24.3: The composition of finite type morphisms of formal algebraic
+spaces is of finite type. The same holds for locally of finite type. -/
+@[stacks 0AQ4] #check
+  (AlgebraicGeometry.FormalAlgebraicSpace.finiteType_isStableUnderComposition :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}},
+      CategoryTheory.MorphismProperty.IsStableUnderComposition
+        (@AlgebraicGeometry.FormalAlgebraicSpace.FiniteType S :
+          CategoryTheory.MorphismProperty ((CategoryTheory.Over S)ᵒᵖ ⥤ Type u)))
 
-/-- Lemma 87.24.3 (1): The composition of finite type morphisms of formal
-algebraic spaces is of finite type. -/
-@[stacks 0AQ4]
-instance finiteType_isStableUnderComposition {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderComposition
-      (@FiniteType S : MorphismProperty ((Over S)ᵒᵖ ⥤ Type u)) := sorry
-
-/-- The composition of finite type morphisms of formal algebraic spaces is of
-finite type. -/
-instance finiteType_comp {S : Scheme.{u}} {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [FiniteType f] [FiniteType g] :
-    FiniteType (f ≫ g) := sorry
-
-/-- Lemma 87.24.3 (2): The composition of locally of finite type morphisms of
-formal algebraic spaces is locally of finite type. -/
-@[stacks 0AQ4]
-instance locallyOfFiniteType_isStableUnderComposition {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderComposition
-      (@LocallyOfFiniteType S : MorphismProperty ((Over S)ᵒᵖ ⥤ Type u)) := sorry
-
-/-- The composition of locally of finite type morphisms of formal algebraic
-spaces is locally of finite type. -/
-instance locallyOfFiniteType_comp {S : Scheme.{u}} {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [LocallyOfFiniteType f] [LocallyOfFiniteType g] :
-    LocallyOfFiniteType (f ≫ g) := sorry
-
-end AlgebraicGeometry.FormalAlgebraicSpace
+#check
+  (AlgebraicGeometry.FormalAlgebraicSpace.locallyOfFiniteType_isStableUnderComposition :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}},
+      CategoryTheory.MorphismProperty.IsStableUnderComposition
+        (@AlgebraicGeometry.FormalAlgebraicSpace.LocallyOfFiniteType S :
+          CategoryTheory.MorphismProperty ((CategoryTheory.Over S)ᵒᵖ ⥤ Type u)))

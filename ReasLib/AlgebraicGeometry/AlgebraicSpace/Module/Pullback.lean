@@ -1,19 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Adjunction.CompositionIso
 public import Mathlib.CategoryTheory.Sites.Continuous
 public import Mathlib.CategoryTheory.Sites.DenseSubsite.SheafEquiv
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Pullback
-public import stacks_project.Chap66.«66_26_0_1_Pushforward»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.DirectImage
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.ModuleAdjunction
 public import ReasLib.CategoryTheory.Sites.Topos.ModuleAdjunction
-public import stacks_project.Chap66.Lemma_66_27_1_Hom
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RingedSite.SpacesHom
 
 /-!
 # Identity and composition of module pullbacks on algebraic spaces
@@ -53,39 +47,39 @@ def typePushforwardFactor {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
       AlgebraicGeometry.AlgebraicSpace.EtaleTopos.extension X ⋙
         (spacesEtalePullback f).sheafPushforwardContinuous (Type u)
           (spacesEtaleTopology Y) (spacesEtaleTopology X) ⋙
-        (smallEtaleInclusion Y).sheafPushforwardContinuous (Type u)
+        (smallEtaleToSpaces Y).sheafPushforwardContinuous (Type u)
           (smallEtaleTopology Y) (spacesEtaleTopology Y) :=
   isoWhiskerLeft
     (AlgebraicGeometry.AlgebraicSpace.EtaleTopos.extension X)
     ((sheafPushforwardContinuousIso (smallEtaleInclusion_comp_spacesEtalePullback f)
         (Type u) (smallEtaleTopology Y) (spacesEtaleTopology X)).symm ≪≫
-      sheafPushforwardContinuousComp (smallEtaleInclusion Y) (spacesEtalePullback f)
+      sheafPushforwardContinuousComp (smallEtaleToSpaces Y) (spacesEtalePullback f)
         (Type u) (smallEtaleTopology Y) (spacesEtaleTopology Y) (spacesEtaleTopology X))
 
 /-- The small étale inclusion is cover-dense in the spaces étale topology. -/
 instance smallEtaleInclusion_isCoverDense (Y : AlgebraicSpace S) :
-    (smallEtaleInclusion Y).IsCoverDense (spacesEtaleTopology Y) :=
+    (smallEtaleToSpaces Y).IsCoverDense (spacesEtaleTopology Y) :=
   sorry
 
 /-- The small étale inclusion is locally full in the spaces étale topology. -/
 instance smallEtaleInclusion_isLocallyFull (Y : AlgebraicSpace S) :
-    (smallEtaleInclusion Y).IsLocallyFull (spacesEtaleTopology Y) :=
+    (smallEtaleToSpaces Y).IsLocallyFull (spacesEtaleTopology Y) :=
   sorry
 
 /-- The small étale inclusion is locally faithful in the spaces étale topology. -/
 instance smallEtaleInclusion_isLocallyFaithful (Y : AlgebraicSpace S) :
-    (smallEtaleInclusion Y).IsLocallyFaithful (spacesEtaleTopology Y) :=
+    (smallEtaleToSpaces Y).IsLocallyFaithful (spacesEtaleTopology Y) :=
   sorry
 
 /-- The small étale site is a dense subsite of the spaces étale site. -/
 instance smallEtaleInclusion_isDenseSubsite (Y : AlgebraicSpace S) :
-    (smallEtaleInclusion Y).IsDenseSubsite (smallEtaleTopology Y) (spacesEtaleTopology Y) where
+    (smallEtaleToSpaces Y).IsDenseSubsite (smallEtaleTopology Y) (spacesEtaleTopology Y) where
   functorPushforward_mem_iff := sorry
 
 /-- Restricting a spaces étale sheaf to the small étale site and extending it back is
 isomorphic to the identity. -/
 def smallEtaleInclusionContinuousCocontinuousIso (Y : AlgebraicSpace S) :
-    (smallEtaleInclusion Y).sheafPushforwardContinuous (Type u)
+    (smallEtaleToSpaces Y).sheafPushforwardContinuous (Type u)
         (smallEtaleTopology Y) (spacesEtaleTopology Y) ⋙
       AlgebraicGeometry.AlgebraicSpace.EtaleTopos.extension Y ≅
     𝟭 (Sheaf (spacesEtaleTopology Y) (Type u)) :=
@@ -114,13 +108,13 @@ def typePushforwardComp {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z) :
     (spacesEtalePullback f).sheafPushforwardContinuous (Type u)
       (spacesEtaleTopology Y) (spacesEtaleTopology X)
   let iY :=
-    (smallEtaleInclusion Y).sheafPushforwardContinuous (Type u)
+    (smallEtaleToSpaces Y).sheafPushforwardContinuous (Type u)
       (smallEtaleTopology Y) (spacesEtaleTopology Y)
   let pG :=
     (spacesEtalePullback g).sheafPushforwardContinuous (Type u)
       (spacesEtaleTopology Z) (spacesEtaleTopology Y)
   let iZ :=
-    (smallEtaleInclusion Z).sheafPushforwardContinuous (Type u)
+    (smallEtaleToSpaces Z).sheafPushforwardContinuous (Type u)
       (smallEtaleTopology Z) (spacesEtaleTopology Z)
   isoWhiskerRight (typePushforwardFactor f) (typePushforward g) ≪≫
     Functor.associator iX (pF ⋙ iY) (typePushforward g) ≪≫
@@ -214,13 +208,6 @@ def spacesEtalePullbackId (X : AlgebraicSpace S) :
         sorry)
     sorry
 
-/-- The counit of the small-étale/spaces-étale sheaf adjunction is componentwise an isomorphism. -/
-instance instIsIso_sheafAdjunctionCocontinuous_counit_app (X : AlgebraicSpace S)
-    (M : Sheaf (smallEtaleTopology X) (Type u)) :
-    IsIso (((smallEtaleInclusion X).sheafAdjunctionCocontinuous (Type u)
-        (smallEtaleTopology X) (spacesEtaleTopology X)).counit.app M) :=
-  sorry
-
 /-- Type-valued direct image along an identity morphism is isomorphic to the identity. -/
 def typePushforwardId (X : AlgebraicSpace S) :
     typePushforward (𝟙 X) ≅ 𝟭 (Sheaf (smallEtaleTopology X) (Type u)) :=
@@ -230,12 +217,12 @@ def typePushforwardId (X : AlgebraicSpace S) :
       (isoWhiskerRight
         (sheafPushforwardContinuousId' (spacesEtalePullbackId X) (Type u)
           (spacesEtaleTopology X))
-        ((smallEtaleInclusion X).sheafPushforwardContinuous (Type u)
+        ((smallEtaleToSpaces X).sheafPushforwardContinuous (Type u)
           (smallEtaleTopology X) (spacesEtaleTopology X))) ≪≫
     isoWhiskerLeft
       (AlgebraicGeometry.AlgebraicSpace.EtaleTopos.extension X)
       (Functor.leftUnitor
-        ((smallEtaleInclusion X).sheafPushforwardContinuous (Type u)
+        ((smallEtaleToSpaces X).sheafPushforwardContinuous (Type u)
           (smallEtaleTopology X) (spacesEtaleTopology X))) ≪≫
     AlgebraicGeometry.AlgebraicSpace.EtaleTopos.extensionRestrictionIso X
 

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Geometrically.Connected
-public import ReasLib.AlgebraicGeometry.Scheme.Geometrically.Reduced
-public import stacks_project.Chap109.Lemma_109_11_1_Substack
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.GeometricallyReducedConnected
 
 /-!
 # Geometrically reduced and connected curves of dimension 1
@@ -31,34 +24,31 @@ namespace AlgebraicGeometry.AlgebraicSpace
 namespace Spaces
 namespace Curves
 
-/-- Lemma 109.11.1 (1): given a family of curves `X ⟶ S`, the classifying
-morphism `S ⟶ 𝒞urves` factors through `𝒞urves^{grc, 1}` if and only if the
-geometric fibres of `X ⟶ S` are reduced, connected, and of dimension `1`. -/
-@[stacks 0E1I]
-theorem classifying_factorsThrough_geometricallyReducedConnectedDim1_iff
-    {S : Scheme.{u}} (P : Obj S) :
-    geometricallyReducedConnectedDim1 S P ↔
-      Hom.HasReducedGeometricFibres (hom P) ∧
-        Hom.HasConnectedGeometricFibres (hom P) ∧
-          ∀ ybar : GeometricPoint (ofOver (base P)),
-            dimension (fieldFiber (hom P) ybar.toFieldValuedPoint) = 1 :=
-  sorry
+/- Lemma 109.11.1. There is an open substack of curves classifying families
+with reduced, connected geometric fibres of dimension one, with the following
+family and field-valued characterizations. -/
+@[stacks 0E1I] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.exists_geometricallyReducedConnectedDim1_open :
+    ∀ {S : Scheme.{u}} (P : Obj S),
+      ∃ U : (base P).left.Opens, ∀ {Q : Obj S} (φ : Q ⟶ P),
+        geometricallyReducedConnectedDim1 S Q ↔ Set.range (baseMap φ).left ⊆ U)
 
-/-- Lemma 109.11.1 (2): given a scheme `X` proper over a field `k` with
-dimension at most one, the classifying morphism `Spec k ⟶ 𝒞urves` factors
-through `𝒞urves^{grc, 1}` if and only if `X` is geometrically reduced,
-geometrically connected, and of dimension `1`. -/
-@[stacks 0E1I]
-theorem classifying_factorsThrough_geometricallyReducedConnectedDim1_iff_scheme
-    {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
-    (hdim : topologicalKrullDim X.left ≤ 1) :
-    geometricallyReducedConnectedDim1 (Spec (CommRingCat.of k))
-        (mkOfSchemeOverField X hdim) ↔
-      SchemeOverField.geometricallyReduced X ∧
-        GeometricallyConnected X.hom ∧
-          topologicalKrullDim X.left = 1 :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.geometricallyReducedConnectedDim1_iff :
+    ∀ {S : Scheme.{u}} (P : Obj S),
+      geometricallyReducedConnectedDim1 S P ↔
+        Hom.HasReducedGeometricFibres (hom P) ∧
+          AlgebraicGeometry.AlgebraicSpace.HasConnectedGeometricFibres (hom P) ∧
+            ∀ ybar : GeometricPoint (ofOver (base P)),
+              dimension (fieldFiber (hom P) ybar.toFieldValuedPoint) = 1)
+
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.classifying_factorsThrough_geometricallyReducedConnectedDim1_iff_scheme :
+    ∀ {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
+      (hdim : topologicalKrullDim X.left ≤ 1),
+      geometricallyReducedConnectedDim1 (Spec (CommRingCat.of k))
+          (mkOfSchemeOverField X hdim) ↔
+        SchemeOverField.geometricallyReduced X ∧
+          GeometricallyConnected X.hom ∧ topologicalKrullDim X.left = 1)
 
 end Curves
 end Spaces
 end AlgebraicGeometry.AlgebraicSpace
+

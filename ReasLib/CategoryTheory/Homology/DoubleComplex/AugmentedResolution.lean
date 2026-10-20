@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import Mathlib.Algebra.Category.Grp.AB
 public import Mathlib.Algebra.Homology.Embedding.Extend
 public import Mathlib.Algebra.Homology.QuasiIso
 public import Mathlib.CategoryTheory.Abelian.GrothendieckAxioms.Basic
@@ -162,14 +157,17 @@ variable {C : Type u} [Category.{v} C] [Abelian C]
 
 namespace FromTotal
 
-/-- Exactness of an augmented resolution and of all its cycles rows makes the canonical map from
-the coproduct total to the augmentation target a quasi-isomorphism. -/
+/-- In an abelian category with exact countable coproducts, exactness of an augmented resolution
+and of all its cycles rows, together with the epimorphic terminal maps, makes the canonical map
+from the coproduct total to the augmentation target a quasi-isomorphism. -/
 @[stacks 09IZ "exact augmented rows and exact cycles rows compute the augmentation target"]
-theorem quasiIso_of_exact_cycles [HasCountableCoproducts C]
+theorem quasiIso_of_exact_cycles [HasCountableCoproducts C] [CountableAB4 C]
     {M : CochainComplex C ℤ} (A : ChainComplex (CochainComplex C ℤ) ℕ)
     (augmentation : A.X 0 ⟶ M) (h_augmentation : A.d 1 0 ≫ augmentation = 0)
+    [Epi augmentation]
     (h_exact_zero : (shortComplex A augmentation h_augmentation).Exact)
     (h_exact : ∀ n : ℕ, A.ExactAt (n + 1))
+    (h_cycles_epi : ∀ p : ℤ, Epi (cyclesMap augmentation p))
     (h_cycles_exact_zero : ∀ p : ℤ,
       (cyclesShortComplex A augmentation h_augmentation p).Exact)
     (h_cycles_exact : ∀ p : ℤ, ∀ n : ℕ, (cycles A p).ExactAt (n + 1)) :
@@ -177,21 +175,21 @@ theorem quasiIso_of_exact_cycles [HasCountableCoproducts C]
 
 end FromTotal
 
+end Abelian
+
 namespace FromProductTotal
 
-/-- In an abelian category with exact countable products, an exact augmented resolution computes
-its target by the product total complex. -/
+/-- An exact augmented resolution of complexes of abelian groups computes its target by the
+product total complex. -/
 @[stacks 0E1R "an exact augmented resolution computes its target by product totalization"]
 theorem quasiIso_of_exact
-    [HasCountableProducts C] [CountableAB4Star C]
-    {M : CochainComplex C ℤ} (A : ChainComplex (CochainComplex C ℤ) ℕ)
+    {M : CochainComplex AddCommGrpCat.{u} ℤ}
+    (A : ChainComplex (CochainComplex AddCommGrpCat.{u} ℤ) ℕ)
     (augmentation : A.X 0 ⟶ M) (h_augmentation : A.d 1 0 ≫ augmentation = 0)
     (h_exact_zero : (shortComplex A augmentation h_augmentation).Exact)
     [Epi augmentation] (h_exact : ∀ n : ℕ, A.ExactAt (n + 1)) :
     QuasiIso (map A augmentation h_augmentation) := sorry
 
 end FromProductTotal
-
-end Abelian
 
 end HomologicalComplex₂.AugmentedResolution

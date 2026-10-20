@@ -1,14 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Definition_90_16_8
-public import stacks_project.Chap90.Lemma_90_16_11
-public import stacks_project.Chap93.Example_93_11_1_Algebraic_spaces_Deformation
+public import ReasLib.AlgebraicGeometry.FormalDeformation.AlgebraicSpace.RimSchlessinger
 
 /-!
 # Rim-Schlessinger condition for algebraic spaces
@@ -29,25 +21,18 @@ universe u
 variable (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-namespace FlatAlgebraicSpaceCat
+variable (X : AlgebraicSpace (Spec (CommRingCat.of k)))
 
-/-- The slice projection `Def_X ⥤ C_Λ` of Example 93.11.1. -/
-abbrev deformationForget (X : AlgebraicSpace (Spec (CommRingCat.of k))) :
-    deformation Λ k X ⥤ ArtinianLocalAlgCat Λ k :=
-  Over.forget (Fiber.fiberInclusion.obj (residueObj Λ k X)) ⋙ forget Λ k
+#check (FlatAlgebraicSpaceCat.deformationForget Λ k X :
+  FlatAlgebraicSpaceCat.deformation Λ k X ⥤ ArtinianLocalAlgCat Λ k)
 
-/-- `deformationForget` is the composite of the Over-forgetful functor with `forget`. -/
-theorem deformationForget_eq (X : AlgebraicSpace (Spec (CommRingCat.of k))) :
-    deformationForget Λ k X =
-      Over.forget (Fiber.fiberInclusion.obj (residueObj Λ k X)) ⋙ forget Λ k := sorry
+#check (FlatAlgebraicSpaceCat.deformationForget_eq Λ k X :
+  FlatAlgebraicSpaceCat.deformationForget Λ k X =
+    Over.forget (Fiber.fiberInclusion.obj (FlatAlgebraicSpaceCat.residueObj Λ k X)) ⋙
+      FlatAlgebraicSpaceCat.forget Λ k)
 
-/-- Example 93.11.1 satisfies the Rim-Schlessinger condition (RS). -/
-instance instHasRimSchlessinger_forget : HasRimSchlessinger (forget Λ k) := sorry
+#check (FlatAlgebraicSpaceCat.instHasRimSchlessinger_forget Λ k :
+  HasRimSchlessinger (FlatAlgebraicSpaceCat.forget Λ k))
 
-/-- The residue-fibre slice `Def_X` is a deformation category. -/
-instance instIsDeformationCategory_deformationForget
-    (X : AlgebraicSpace (Spec (CommRingCat.of k))) :
-    IsDeformationCategory (deformationForget Λ k X) :=
-  instIsDeformationCategory_overForget (forget Λ k) (residueObj Λ k X)
-
-end FlatAlgebraicSpaceCat
+#check (FlatAlgebraicSpaceCat.instIsDeformationCategory_deformationForget Λ k X :
+  IsDeformationCategory (FlatAlgebraicSpaceCat.deformationForget Λ k X))

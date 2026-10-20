@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Coherent
@@ -36,18 +30,32 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.AlgebraicSpace.ModuleDerived
 
 variable {S : Scheme.{u}} {X Y : AlgebraicSpace S}
 
 /-- Finite Tor dimension as an object of `D(f⁻¹𝒪_Y)` means the existence of a
 finite Tor-amplitude interval over `f`. -/
-abbrev HasFiniteTorDimensionOver (f : X ⟶ Y) (E : ModuleDerived X) : Prop :=
+abbrev HasFiniteTorDimensionOver (f : X ⟶ Y)
+    [∀ sq : EtaleSquare f,
+      (Functor.Homotopy.toDerived
+        (SmallEtaleModuleGlueing.restrictFunctor_hom sq.left ⋙ Modules.restrictToScheme sq.left.left ⋙
+          Scheme.Modules.toRingedSpace sq.left.left.left)).HasLeftDerivedFunctor (ModuleQis X)]
+    [∀ sq : EtaleSquare f, DerivedCategory.DerivedTensor.Right.Has
+      (C := RingedSpace.Modules (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom))] (E : ModuleDerived X) : Prop :=
   ∃ a b : ℤ, HasTorAmplitudeInOver f E a b
 
 /-- Finite Tor dimension over `f` is equivalent to the existence of a finite
 relative Tor-amplitude interval. -/
-theorem hasFiniteTorDimensionOver_iff (f : X ⟶ Y) (E : ModuleDerived X) :
+theorem hasFiniteTorDimensionOver_iff (f : X ⟶ Y)
+    [∀ sq : EtaleSquare f,
+      (Functor.Homotopy.toDerived
+        (SmallEtaleModuleGlueing.restrictFunctor_hom sq.left ⋙ Modules.restrictToScheme sq.left.left ⋙
+          Scheme.Modules.toRingedSpace sq.left.left.left)).HasLeftDerivedFunctor (ModuleQis X)]
+    [∀ sq : EtaleSquare f, DerivedCategory.DerivedTensor.Right.Has
+      (C := RingedSpace.Modules (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom))] (E : ModuleDerived X) :
     HasFiniteTorDimensionOver f E ↔
       ∃ a b : ℤ, HasTorAmplitudeInOver f E a b := sorry
 
@@ -59,7 +67,13 @@ has finite Tor dimension as an object of `D(f⁻¹𝒪_Y)`, then
 `(Modules.pushforwardDerived f).obj E` is a perfect object of `D(𝒪_Y)`. -/
 @[stacks 08IS]
 theorem pushforwardDerived_isPerfect_of_finiteTorDimension
-    (f : X ⟶ Y) [LocallyOfFiniteType f] [QuasiSeparated f] [IsNoetherian Y]
+    (f : X ⟶ Y)
+    [∀ sq : EtaleSquare f,
+      (Functor.Homotopy.toDerived
+        (SmallEtaleModuleGlueing.restrictFunctor_hom sq.left ⋙ Modules.restrictToScheme sq.left.left ⋙
+          Scheme.Modules.toRingedSpace sq.left.left.left)).HasLeftDerivedFunctor (ModuleQis X)]
+    [∀ sq : EtaleSquare f, DerivedCategory.DerivedTensor.Right.Has
+      (C := RingedSpace.Modules (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom))] [LocallyOfFiniteType f] [QuasiSeparated f] [IsNoetherian Y]
     (E : ModuleDerived X)
     (hE_coherent : DerivedCategory.cohomologyIn
       (SheafOfModules.isCoherent (structureSheaf X)) E)
@@ -75,7 +89,13 @@ theorem pushforwardDerived_isPerfect_of_finiteTorDimension
 proper over a Noetherian target, and with a fixed relative Tor-amplitude
 interval, is perfect. -/
 theorem pushforwardDerived_isPerfect_of_hasTorAmplitudeInOver
-    (f : X ⟶ Y) [LocallyOfFiniteType f] [QuasiSeparated f] [IsNoetherian Y]
+    (f : X ⟶ Y)
+    [∀ sq : EtaleSquare f,
+      (Functor.Homotopy.toDerived
+        (SmallEtaleModuleGlueing.restrictFunctor_hom sq.left ⋙ Modules.restrictToScheme sq.left.left ⋙
+          Scheme.Modules.toRingedSpace sq.left.left.left)).HasLeftDerivedFunctor (ModuleQis X)]
+    [∀ sq : EtaleSquare f, DerivedCategory.DerivedTensor.Right.Has
+      (C := RingedSpace.Modules (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom))] [LocallyOfFiniteType f] [QuasiSeparated f] [IsNoetherian Y]
     (E : ModuleDerived X)
     (hE_coherent : DerivedCategory.cohomologyIn
       (SheafOfModules.isCoherent (structureSheaf X)) E)

@@ -1,13 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Derived.BoundedLocalization
 public import ReasLib.CategoryTheory.Filtration.FiniteInjective
+public import ReasLib.Algebra.Homology.CochainComplex.BoundedBelowReplacement.FullSubcategory
+public import ReasLib.Algebra.Homology.CochainComplex.Filtration.FilteredInjective.Resolution.Target
+public import Mathlib.CategoryTheory.Localization.Resolution
 public import Mathlib.CategoryTheory.Functor.Derived.RightDerived
 public import Mathlib.CategoryTheory.Abelian.Basic
 public import Mathlib.Tactic.CrossRefAttribute
@@ -59,6 +56,115 @@ abbrev localizer :
         (Finite.FilteredInjective.inclusion C).mapHomotopyCategoryPlus)
       (Plus.QuasiIso C) :=
   LocalizerMorphism.ofEq rfl
+
+section Resolutions
+
+variable {C}
+
+/-- The bounded-below homotopy object represented by the complex in a supplied strict
+filtered-injective resolution. -/
+noncomputable def resolutionObj
+    {K : CochainComplex.Plus (Finite.category C)}
+    (R : CochainComplex.FilteredInjectivePlus.Resolution K) :
+    HomotopyCategory.Plus (Finite.FilteredInjective.category C) :=
+  (HomotopyCategory.Plus.quotient (Finite.FilteredInjective.category C)).obj
+    ((CochainComplex.Plus.TermsIn.toFullSubcategory
+      (Finite.FilteredInjective.property C)).obj R.complex)
+
+/-- The homotopy map carried by a map of supplied strict filtered-injective resolutions. -/
+noncomputable def resolutionMap
+    {K L : CochainComplex.Plus (Finite.category C)} {f : K ⟶ L}
+    {R : CochainComplex.FilteredInjectivePlus.Resolution K}
+    {S : CochainComplex.FilteredInjectivePlus.Resolution L}
+    (m : CochainComplex.FilteredInjectivePlus.Resolution.Map f R S) :
+    resolutionObj R ⟶ resolutionObj S :=
+  (HomotopyCategory.Plus.quotient (Finite.FilteredInjective.category C)).map
+    ((CochainComplex.Plus.TermsIn.toFullSubcategory
+      (Finite.FilteredInjective.property C)).map m.complexMap)
+
+/-- The homotopy comparison carried by a supplied strict filtered-injective resolution. -/
+noncomputable def resolutionComparison
+    {K : CochainComplex.Plus (Finite.category C)}
+    (R : CochainComplex.FilteredInjectivePlus.Resolution K) :
+    (HomotopyCategory.Plus.quotient (Finite.category C)).obj K ⟶
+      (Finite.FilteredInjective.inclusion C).mapHomotopyCategoryPlus.obj
+        (resolutionObj R) :=
+  ObjectProperty.homMk
+    ((HomotopyCategory.quotient (Finite.category C) (ComplexShape.up ℤ)).map R.ι)
+
+/-- The homotopy comparison is natural in maps of supplied strict filtered-injective
+resolutions. -/
+@[reassoc]
+theorem resolutionComparison_naturality
+    {K L : CochainComplex.Plus (Finite.category C)} {f : K ⟶ L}
+    {R : CochainComplex.FilteredInjectivePlus.Resolution K}
+    {S : CochainComplex.FilteredInjectivePlus.Resolution L}
+    (m : CochainComplex.FilteredInjectivePlus.Resolution.Map f R S) :
+    resolutionComparison R ≫
+        (Finite.FilteredInjective.inclusion C).mapHomotopyCategoryPlus.map
+          (resolutionMap m) =
+      (HomotopyCategory.Plus.quotient (Finite.category C)).map f ≫
+        resolutionComparison S := by
+  apply (HomotopyCategory.Plus.ι (Finite.category C)).map_injective
+  change
+    (HomotopyCategory.quotient (Finite.category C) (ComplexShape.up ℤ)).map R.ι ≫
+        (HomotopyCategory.quotient (Finite.category C) (ComplexShape.up ℤ)).map m.hom =
+      (HomotopyCategory.quotient (Finite.category C) (ComplexShape.up ℤ)).map f.hom ≫
+        (HomotopyCategory.quotient (Finite.category C) (ComplexShape.up ℤ)).map S.ι
+  rw [← Functor.map_comp, ← Functor.map_comp, m.ι_naturality]
+
+/-- The homotopy comparison of a strict filtered-injective resolution is a filtered
+quasi-isomorphism. -/
+theorem resolutionComparison_quasiIso
+    {K : CochainComplex.Plus (Finite.category C)}
+    (R : CochainComplex.FilteredInjectivePlus.Resolution K) :
+    Plus.QuasiIso C (resolutionComparison R) :=
+  (Finite.Homotopy.quasiIso_quotient_map_iff C R.ι).2 R.isStrict.quasiIso
+
+/-- Regard a supplied strict filtered-injective resolution as a right resolution for the
+inclusion of bounded-below filtered-injective homotopy complexes. -/
+noncomputable def rightResolution
+    {K : CochainComplex.Plus (Finite.category C)}
+    (R : CochainComplex.FilteredInjectivePlus.Resolution K) :
+    (localizer C).RightResolution
+      ((HomotopyCategory.Plus.quotient (Finite.category C)).obj K) where
+  X₁ := resolutionObj R
+  w := resolutionComparison R
+  hw := resolutionComparison_quasiIso R
+
+/-- A supplied strict filtered-injective resolution gives an isomorphism in the bounded-below
+filtered derived category. The inverse is the formal inverse of its comparison in the canonical
+localization. -/
+noncomputable def resolutionIso
+    {K : CochainComplex.Plus (Finite.category C)}
+    (R : CochainComplex.FilteredInjectivePlus.Resolution K) :
+    (Plus.Quotient.functor C h_inverts).obj
+        ((HomotopyCategory.Plus.quotient (Finite.category C)).obj K) ≅
+      (functor C h_inverts).obj (resolutionObj R) :=
+  ObjectProperty.isoMk (Plus.property C h_inverts)
+    (Localization.Construction.wIso
+      ((HomotopyCategory.Plus.ι (Finite.category C)).map (resolutionComparison R))
+      (resolutionComparison_quasiIso R))
+
+/-- The forward resolution isomorphism is the localized comparison map. -/
+@[simp]
+theorem resolutionIso_hom
+    {K : CochainComplex.Plus (Finite.category C)}
+    (R : CochainComplex.FilteredInjectivePlus.Resolution K) :
+    (resolutionIso h_inverts R).hom =
+      (Plus.Quotient.functor C h_inverts).map (resolutionComparison R) := rfl
+
+/-- Forgetting boundedness exposes the formal inverse used by the resolution isomorphism. -/
+@[simp]
+theorem resolutionIso_inv_hom
+    {K : CochainComplex.Plus (Finite.category C)}
+    (R : CochainComplex.FilteredInjectivePlus.Resolution K) :
+    (resolutionIso h_inverts R).inv.hom =
+      Localization.Construction.wInv
+        ((HomotopyCategory.Plus.ι (Finite.category C)).map (resolutionComparison R))
+        (resolutionComparison_quasiIso R) := rfl
+
+end Resolutions
 
 /-- The proposition that the filtered-injective model functor is an equivalence. -/
 @[stacks 015Q "filtered injective derived equivalence"]

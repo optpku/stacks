@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.Localization.Iterated
@@ -28,5 +22,8 @@ infrastructure behind the source-facing supremum model above. -/
 
 @[stacks 02C6 "iterated localization equivalence on scalars"]
 #check @Localization.supEquivIterated_apply_algebraMap
+
+@[stacks 02C6 "iterated localization equivalence on fractions"]
+#check @Localization.supEquivIterated_mk
 
 end

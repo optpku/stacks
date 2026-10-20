@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Pushforward.BoundedBelow
@@ -54,7 +48,7 @@ noncomputable def compComparison :
 
 /-- The bounded derived module-pushforward composition comparison is canonically invertible. -/
 @[stacks 015M "bounded derived module-pushforward composition isomorphism"]
-noncomputable instance compComparison_isIso
+theorem compComparison_isIso
     [HasSheafify Y.siteTopology AddCommGrpCat.{z}]
     [HasExt (Sheaf Y.siteTopology AddCommGrpCat.{z})] :
     IsIso (compComparison f g) := sorry

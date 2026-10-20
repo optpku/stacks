@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.MorphismProperty.Composition
-public import stacks_project.Chap100.Definition_100_8_1_Mono
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Monomorphism.Composition
+import StacksCheckRecall
 
 /-!
 # Composition of monomorphisms of algebraic stacks
@@ -24,22 +18,15 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.Groupoids.Hom
-
-namespace Mono
-
-/-- Lemma 100.8.3: compositions of monomorphisms of algebraic stacks are
+/- Lemma 100.8.3: compositions of monomorphisms of algebraic stacks are
 monomorphisms. -/
-@[stacks 04ZY]
-instance instIsStableUnderComposition {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderComposition
-      (@Mono S : MorphismProperty (GroupoidsOver S)) := sorry
+@[stacks 04ZY] #check
+  (AlgebraicGeometry.Groupoids.Hom.Mono.instIsStableUnderComposition :
+    ∀ {S : Scheme.{u}}, MorphismProperty.IsStableUnderComposition
+      (@AlgebraicGeometry.Groupoids.Hom.Mono S : MorphismProperty (GroupoidsOver S)))
 
-/-- The composition of monomorphisms of groupoid fibrations is a
-monomorphism. -/
-instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
-    (f : X ⟶ Y) (g : Y ⟶ Z) [Mono f] [Mono g] : Mono (f ≫ g) := sorry
-
-end Mono
-
-end AlgebraicGeometry.Groupoids.Hom
+#check (AlgebraicGeometry.Groupoids.Hom.Mono.comp :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+    (f : X ⟶ Y) (g : Y ⟶ Z)
+    [AlgebraicGeometry.Groupoids.Hom.Mono f] [AlgebraicGeometry.Groupoids.Hom.Mono g],
+      AlgebraicGeometry.Groupoids.Hom.Mono (f ≫ g))

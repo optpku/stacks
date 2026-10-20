@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.Categorical.Basic
-public import ReasLib.CategoryTheory.Fibered.Groupoids.Hom.Fiber
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.CanonicalHom
 public import stacks_project.Chap94.Definition_94_12_1_Representable
 
 /-!
@@ -30,44 +23,38 @@ universe u
 
 namespace AlgebraicGeometry
 
-variable {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X) {T : Over S}
+#check (AlgebraicGeometry.ofSwitchedComparison :
+  ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X) {T : Over S}
+    (a b : U.p.Fiber T),
+    ((fiberFunctor f T).obj b ≅ (fiberFunctor f T).obj a) →
+      (fiberFunctor f T) ⊡ (fiberFunctor f T))
 
-/-- The object of `R` over `T` representing a morphism `φ : a ⟶ b` in `[U/R]`,
-namely the switched triple `(b, a, α)` in the self categorical pullback of
-`fiberFunctor f T`. -/
-def ofSwitchedComparison (a b : U.p.Fiber T)
-    (α : (fiberFunctor f T).obj b ≅ (fiberFunctor f T).obj a) :
-    (fiberFunctor f T) ⊡ (fiberFunctor f T) :=
-  ⟨b, a, α⟩
+#check (AlgebraicGeometry.ofSwitchedComparison_fst :
+  ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X) {T : Over S}
+    (a b : U.p.Fiber T)
+    (α : (fiberFunctor f T).obj b ≅ (fiberFunctor f T).obj a),
+    (AlgebraicGeometry.ofSwitchedComparison f a b α).fst = b)
 
-/-- The first component of a switched comparison triple is the target object. -/
-theorem ofSwitchedComparison_fst (a b : U.p.Fiber T)
-    (α : (fiberFunctor f T).obj b ≅ (fiberFunctor f T).obj a) :
-    (ofSwitchedComparison f a b α).fst = b :=
-  sorry
+#check (AlgebraicGeometry.ofSwitchedComparison_snd :
+  ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X) {T : Over S}
+    (a b : U.p.Fiber T)
+    (α : (fiberFunctor f T).obj b ≅ (fiberFunctor f T).obj a),
+    (AlgebraicGeometry.ofSwitchedComparison f a b α).snd = a)
 
-/-- The second component of a switched comparison triple is the source object. -/
-theorem ofSwitchedComparison_snd (a b : U.p.Fiber T)
-    (α : (fiberFunctor f T).obj b ≅ (fiberFunctor f T).obj a) :
-    (ofSwitchedComparison f a b α).snd = a :=
-  sorry
+#check (AlgebraicGeometry.ofSwitchedComparison_iso :
+  ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X) {T : Over S}
+    (a b : U.p.Fiber T)
+    (α : (fiberFunctor f T).obj b ≅ (fiberFunctor f T).obj a),
+    (AlgebraicGeometry.ofSwitchedComparison f a b α).iso = α)
 
-/-- The structural isomorphism of a switched comparison triple is the given
-comparison `α : f(b) ≅ f(a)`. -/
-theorem ofSwitchedComparison_iso (a b : U.p.Fiber T)
-    (α : (fiberFunctor f T).obj b ≅ (fiberFunctor f T).obj a) :
-    (ofSwitchedComparison f a b α).iso = α :=
-  sorry
+#check (AlgebraicGeometry.canonicalHom :
+  ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X) {T : Over S}
+    (φ : (fiberFunctor f T) ⊡ (fiberFunctor f T)),
+    (fiberFunctor f T).obj φ.snd ⟶ (fiberFunctor f T).obj φ.fst)
 
-/-- The fibre morphism assigned by `f_can` to a morphism of `[U/R]`, represented
-as an object of the self categorical pullback of `fiberFunctor f T`. -/
-def canonicalHom (φ : (fiberFunctor f T) ⊡ (fiberFunctor f T)) :
-    (fiberFunctor f T).obj φ.snd ⟶ (fiberFunctor f T).obj φ.fst :=
-  φ.iso.inv
-
-/-- `canonicalHom` is the inverse of the stored comparison isomorphism. -/
-theorem canonicalHom_apply (φ : (fiberFunctor f T) ⊡ (fiberFunctor f T)) :
-    canonicalHom f φ = φ.iso.inv :=
-  sorry
+#check (AlgebraicGeometry.canonicalHom_apply :
+  ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X) {T : Over S}
+    (φ : (fiberFunctor f T) ⊡ (fiberFunctor f T)),
+    AlgebraicGeometry.canonicalHom f φ = φ.iso.inv)
 
 end AlgebraicGeometry

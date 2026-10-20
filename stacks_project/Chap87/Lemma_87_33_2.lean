@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import Mathlib.RingTheory.LocalRing.Defs
-public import stacks_project.Chap87.Lemma_87_33_1_Comparison
+public import ReasLib.AlgebraicGeometry.FormalSpectrum.Comparison
+import StacksCheckRecall
 
 /-!
 # Maps out of affine formal schemes, local stages
@@ -26,19 +19,15 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AffineFormalAlgebraicSpace
-
-/-- Lemma 87.33.2: Let `S` be a scheme. Let `A` be a weakly admissible
+/- Lemma 87.33.2: Let `S` be a scheme. Let `A` be a weakly admissible
 topological `S`-algebra such that `A ⧸ I` is a local ring for some weak
 ideal of definition `I`. Let `X` be a scheme over `S`. Then the natural
 map `Mor_S(Spec(A), X) ⟶ Mor_S(Spf(A), X)` is bijective. -/
-@[stacks 0AQG]
-theorem specHomToSpfHom_bijective_of_isLocalRing {A : Type u} [CommRing A]
+@[stacks 0AQG] #check
+  (AlgebraicGeometry.AffineFormalAlgebraicSpace.specHomToSpfHom_bijective_of_isLocalRing :
+    ∀ {A : Type u} [CommRing A]
     [TopologicalSpace A] [TopologicalRing.IsWeaklyAdmissibleRing A]
     {S : Scheme.{u}} (structureHom : Spec (.of A) ⟶ S)
     [HasWeakSheafify (Scheme.fppfTopology.over S) (Type u)]
-    (I : WeakIdealOfDefinition A) [IsLocalRing (A ⧸ I.ideal)] {X : Over S} :
-    Function.Bijective (specHomToSpfHom structureHom X) :=
-  sorry
-
-end AlgebraicGeometry.AffineFormalAlgebraicSpace
+    (I : WeakIdealOfDefinition A) [IsLocalRing (A ⧸ I.ideal)] {X : Over S},
+    Function.Bijective (specHomToSpfHom structureHom X))

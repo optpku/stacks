@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Quasicoherent
-public import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.SimplicialScheme.Module.Quasicoherent
 public import stacks_project.Chap85.Lemma_85_28_1_Ringed
 public import stacks_project.Chap85.Lemma_85_28_1_Pullback
 
@@ -28,15 +22,12 @@ universe u
 
 namespace AlgebraicGeometry.SimplicialObject
 
-/-- Lemma 85.28.1: let `f : V ⟶ U` be a morphism of simplicial schemes. Given a
-quasi-coherent module `F` on `zariskiRingedSite U`, the pullback
-`(zariskiRingedHom f).modulePullback.obj F` is a quasi-coherent module on
-`zariskiRingedSite V`. -/
-@[stacks 07TI]
-instance modulePullback_isQuasicoherent {V U : SimplicialObject Scheme.{u}} (f : V ⟶ U)
-    (F : SheafOfModules.{u} (zariskiRingedSite U).structureSheaf)
-    [F.IsQuasicoherent] :
-    ((zariskiRingedHom f).modulePullback.obj F).IsQuasicoherent :=
-  sorry
+/- Lemma 85.28.1: pullback along any morphism of simplicial schemes preserves
+quasi-coherent modules on the simplicial Zariski sites. -/
+@[stacks 07TI] #check
+  (AlgebraicGeometry.SimplicialObject.modulePullback_isQuasicoherent :
+    ∀ {V U : SimplicialObject Scheme.{u}} (f : V ⟶ U)
+      (F : SheafOfModules.{u} (structureSheaf U)) [F.IsQuasicoherent],
+      ((modulePullback f).obj F).IsQuasicoherent)
 
 end AlgebraicGeometry.SimplicialObject

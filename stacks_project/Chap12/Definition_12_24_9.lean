@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Complex.Convergence
@@ -18,12 +12,17 @@ universe v u
 variable {C : Type u} [Category.{v} C] [Abelian C]
 variable (K : FilteredComplex C) (E : CohomologicalSpectralSequence C 0)
 
-/- Definition 12.24.9 (1) [012U]: weak convergence compares the induced cohomology filtration
-with the infinity page of the chosen spectral sequence. -/
+/- Definition 12.24.9 (1) [012U]: weak convergence asks that the subquotient identification of
+`gr^p H^n(K)` inside `E_∞^{p,n-p}` from Lemma 12.24.8 be an equality, i.e. that the eventual
+representatives `Z_∞`, `B_∞` agree with the intrinsic cycles and boundaries. -/
 @[stacks 012U]
 #check (FilteredComplex.Cohomology.Convergence.IsWeak K E : Prop)
+#check @FilteredComplex.Cohomology.Convergence.LimitRepresentatives
 #check @FilteredComplex.Cohomology.Convergence.IsWeakAlong
 #check @FilteredComplex.Cohomology.Convergence.IsWeakAlong.isAssociated
+#check @FilteredComplex.Cohomology.Convergence.IsWeakAlong.boundary_eq
+#check @FilteredComplex.Cohomology.Convergence.IsWeakAlong.cycle_eq
+#check @FilteredComplex.Cohomology.Convergence.IsWeakAlong.of_equalities
 #check @FilteredComplex.Cohomology.Convergence.IsWeakAlong.isIsomorphic
 #check @FilteredComplex.Cohomology.Convergence.IsWeak.of_along
 #check @FilteredComplex.Cohomology.Convergence.IsWeak.exists_along

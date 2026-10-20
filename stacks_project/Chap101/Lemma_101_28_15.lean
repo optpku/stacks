@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Definition_100_11_8_ResidualGerbe
-public import stacks_project.Chap100.Example_100_11_9_ResidualGerbe
-public import stacks_project.Chap101.Definition_101_28_1_Gerbe
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Gerbe.ResidualGerbe
+import StacksCheckRecall
 
 /-!
 # Existence of residual gerbes of gerbe algebraic stacks
@@ -28,24 +21,16 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 101.28.15: Let `X` be an algebraic stack. If `X` is a gerbe then for
+/- Lemma 101.28.15: Let `X` be an algebraic stack. If `X` is a gerbe then for
 every `x ∈ |X|` the residual gerbe of `X` at `x` exists. -/
-@[stacks 06RA, instance]
-instance instHasResidualGerbe_of_isGerbe {S : Scheme.{u}}
-    (X : GroupoidsOver S) [AlgebraicStack X] [IsGerbe X] (x : Points X) :
-    HasResidualGerbe X x :=
-  sorry
+@[stacks 06RA] #check
+  (AlgebraicGeometry.AlgebraicStack.instHasResidualGerbe_of_isGerbe :
+    ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X] [IsGerbe X]
+      (x : Points X), HasResidualGerbe X x)
 
-namespace IsResidualGerbe
-
-/-- If `X` is a gerbe algebraic stack, then there is a residual gerbe of `X` at
-every point `x ∈ |X|`. -/
-theorem exists_at_of_isGerbe {S : Scheme.{u}} (X : GroupoidsOver S)
-    [AlgebraicStack X] [IsGerbe X] (x : Points X) :
-    ∃ (Z : GroupoidsOver S) (_ : AlgebraicStack Z) (ι : Z ⟶ X),
-      IsResidualGerbe ι x :=
-  sorry
-
-end IsResidualGerbe
+#check (AlgebraicGeometry.AlgebraicStack.IsResidualGerbe.exists_at_of_isGerbe :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X] [IsGerbe X]
+    (x : Points X), ∃ (Z : GroupoidsOver S) (_ : AlgebraicStack Z) (ι : Z ⟶ X),
+      IsResidualGerbe ι x)
 
 end AlgebraicGeometry.AlgebraicStack

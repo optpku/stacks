@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicTopology.CosimplicialObject.Homotopy.DeltaOne.Functoriality
@@ -170,18 +164,6 @@ def homotopyRel (C : Type u) [Category.{v} C] : HomRel (CosimplicialObject C) :=
 theorem homotopyRel_iff {C : Type u} [Category.{v} C]
     {X Y : CosimplicialObject C} (f g : X ⟶ Y) :
     homotopyRel C f g ↔ DeltaOneHomotopic f g := sorry
-
-/-- The explicit `Δ[1]` presentation name for the canonical cosimplicial homotopy relation. -/
-@[deprecated homotopyRel (since := "2026-08-06")]
-abbrev deltaOneHomotopyRel (C : Type u) [Category.{v} C] :
-    HomRel (CosimplicialObject C) :=
-  homotopyRel C
-
-/-- Membership in the explicit `Δ[1]` presentation of the relation. -/
-@[deprecated homotopyRel_iff (since := "2026-08-06")]
-theorem deltaOneHomotopyRel_iff {C : Type u} [Category.{v} C]
-    {X Y : CosimplicialObject C} (f g : X ⟶ Y) :
-    deltaOneHomotopyRel C f g ↔ DeltaOneHomotopic f g := sorry
 
 namespace homotopyRel
 

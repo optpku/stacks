@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap72.Lemma_72_4_2_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RationalFunction.GenericPoint
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,8 +16,26 @@ Let `η` be the generic point of `|X|`. There are canonical identifications
 for `η ∈ genericPoints X`, where `RationalFunction X` is the ring of rational
 functions, `X.residueField η` is the residue field, and `henselianLocalRing X η`
 is the henselian local ring at `η`. In particular, these rings are fields. -/
-@[stacks 0END] #check rationalFunctionRingEquivHenselianLocalRing
-@[stacks 0END] #check henselianLocalRingEquivResidueField
-@[stacks 0END] #check rationalFunctionRingEquivResidueField
-@[stacks 0END] #check instField_rationalFunctionRing
-@[stacks 0END] #check field_henselianLocalRing_genericPoint
+@[stacks 0END] #check (AlgebraicGeometry.AlgebraicSpace.rationalFunctionRingEquivHenselianLocalRing :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsIntegral X]
+    {η : Points X} (hη : η ∈ genericPoints X),
+    RationalFunction X ≃+* henselianLocalRing X η)
+
+#check (AlgebraicGeometry.AlgebraicSpace.henselianLocalRingEquivResidueField :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsIntegral X]
+    {η : Points X} (hη : η ∈ genericPoints X),
+    henselianLocalRing X η ≃+* ULift.{u + 1} (X.residueField η))
+
+#check (AlgebraicGeometry.AlgebraicSpace.rationalFunctionRingEquivResidueField :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsIntegral X]
+    {η : Points X} (hη : η ∈ genericPoints X),
+    RationalFunction X ≃+* ULift.{u + 1} (X.residueField η))
+
+#check (AlgebraicGeometry.AlgebraicSpace.instField_rationalFunctionRing :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsIntegral X],
+    Field (RationalFunction X))
+
+#check (AlgebraicGeometry.AlgebraicSpace.field_henselianLocalRing_genericPoint :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsIntegral X]
+    {η : Points X} (hη : η ∈ genericPoints X),
+    Field (henselianLocalRing X η))

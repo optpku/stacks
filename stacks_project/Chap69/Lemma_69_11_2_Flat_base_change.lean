@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap69.Lemma_69_11_2_Flat_base_change_BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Cohomology.FlatBaseChange
 import StacksCheckRecall
 
 @[expose] public section
@@ -24,7 +18,7 @@ scheme `S`, with `g` flat and `f` quasi-compact and quasi-separated, and `ℱ` a
 `𝒪_X`-module, the Cohomology-on-Sites 21.15.1 base-change map
 `g^* R^i f_* ℱ ⟶ R^i f'_* ((g')^* ℱ)` is an isomorphism for every `i ≥ 0`. -/
 @[stacks 073K] #check
-  (Modules.isIso_higherDirectImageBaseChangeHom :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isIso_higherDirectImageBaseChangeHom :
     ∀ {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
       {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y}
       (h_cart : IsPullback g' f' f g) [Flat g] [Flat g']
@@ -37,7 +31,7 @@ scheme `S`, with `g` flat and `f` quasi-compact and quasi-separated, and `ℱ` a
 /- Lemma 69.11.2 (Flat base change) (2): if in addition `Y = Spec A` and `Y' = Spec B` over
 `S`, then `H^i(X, ℱ) ⊗_A B` identifies with `H^i(X', (g')^* ℱ)`. -/
 @[stacks 073K] #check
-  (Modules.isIso_cohomologyBaseChangeHom :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isIso_cohomologyBaseChangeHom :
     ∀ {S : Scheme.{u}} {A B : Type u} [CommRing A] [CommRing B] [Algebra A B]
       [Module.Flat A B] {X X' : AlgebraicSpace S}
       (σA : Spec (CommRingCat.of A) ⟶ S) (σB : Spec (CommRingCat.of B) ⟶ S)

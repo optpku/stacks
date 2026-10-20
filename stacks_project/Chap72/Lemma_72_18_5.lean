@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap72.Definition_72_18_3_Number
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Intersection.Additivity
+import StacksCheckRecall
 
 /-!
 # Lemma 72.18.5
@@ -23,29 +18,23 @@ open scoped AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules
-namespace Intersection
+open AlgebraicGeometry.AlgebraicSpace.Modules.Intersection
 
--- Local instance justification (defeq pin): `HasInjectiveResolutions` and `higherDirectImage` pin the Abelian-induced `Preadditive`/`HasZeroMorphisms` instances for defeq of `higherDirectImage`.
+section
+
+-- Local instance justification (defeq pin): the imported intersection-number API elaborates HasInjectiveResolutions using Abelian-induced Preadditive and HasZeroMorphisms structures; this alignment makes the resolution binders and all three number applications use those same structures.
 attribute [local instance 2000] Abelian.toPreadditive Preadditive.preadditiveHasZeroMorphisms
 
-/-- If every member of a finite family of modules is invertible and `M` is invertible, then the
-family obtained by replacing one factor with `M` is invertible. -/
-instance instIsInvertibleObject_update
-    {S : Scheme.{u}} {X : AlgebraicSpace S} {d : ℕ}
-    (L : Fin d → X.Modules) [∀ j : Fin d, isInvertibleObject (L j)]
-    (idx : Fin d) (M : X.Modules) [isInvertibleObject M] :
-    ∀ j : Fin d, isInvertibleObject (Function.update L idx M j) := sorry
-
-/-- Lemma 72.18.5: in the situation of Definition 72.18.3, the intersection number
+/- Lemma 72.18.5: in the situation of Definition 72.18.3, the intersection number
 `(L 0 ⋯ L (d - 1) · Z)` is additive in each invertible factor. If
 `L idx ≅ tensorObj L' L''`, then
 `(L 0 ⋯ L idx ⋯ L (d - 1) · Z) =
 (L 0 ⋯ L' ⋯ L (d - 1) · Z) + (L 0 ⋯ L'' ⋯ L (d - 1) · Z)`. -/
-@[stacks 0EDH]
-theorem number_eq_add_of_iso_tensorObj {k : Type u} [Field k]
+@[stacks 0EDH] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Intersection.number_eq_add_of_iso_tensorObj :
+    ∀ {k : Type u} [Field k]
     {X Z : AlgebraicSpace (Spec (CommRingCat.of k))} (i : Z ⟶ X)
-    [IsClosedImmersion i] [Proper (toBase X)]
+    [IsClosedImmersion i] [Proper (SchemeRealization.toBase X)]
     [IsLocallyNoetherian X] [IsLocallyNoetherian Z] {d : ℕ}
     (hZdim : dimension Z = d)
     [Abelian X.Modules] [Abelian Z.Modules]
@@ -54,10 +43,9 @@ theorem number_eq_add_of_iso_tensorObj {k : Type u} [Field k]
     (L : Fin d → X.Modules) [∀ j : Fin d, isInvertibleObject (L j)]
     (idx : Fin d) (L' L'' : X.Modules)
     [isInvertibleObject L'] [isInvertibleObject L'']
-    (hTensor : L idx ≅ tensorObj L' L'') :
+    (hTensor : L idx ≅ tensorObj L' L''),
     number i hZdim L =
       number i hZdim (Function.update L idx L') +
-        number i hZdim (Function.update L idx L'') := sorry
+        number i hZdim (Function.update L idx L''))
 
-end Intersection
-end AlgebraicGeometry.AlgebraicSpace.Modules
+end

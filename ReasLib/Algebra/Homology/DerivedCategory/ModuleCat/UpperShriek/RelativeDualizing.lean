@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.UpperShriek.Preservation
@@ -107,9 +101,10 @@ dualizing object is a relative dualizing complex over the base ring. -/
 theorem relativeDualizing_isRelativeDualizingComplex_of_flat
     {R A : Type u} [CommRing R] [CommRing A] [Algebra R A]
     [IsNoetherianRing R] [IsNoetherianRing A] [Algebra.FiniteType R A] [Module.Flat R A]
+    [DerivedCategory.InternalHom.RHom.Has (A := A ⊗[R] A)]
     (p : Presentation (algebraMap R A)) :
     @CategoryTheory.DerivedCategory.IsRelativeDualizingComplex R _ A _ _ inferInstance
-      (Algebra.FinitePresentation.of_finiteType.mp inferInstance)
+      (Algebra.FinitePresentation.of_finiteType.mp inferInstance) inferInstance
       (p.functor.obj (ModuleCat.single0 (ModuleCat.of R R))) := sorry
 
 /-- After base change to any field over the base, the derived scalar extension of the

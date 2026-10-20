@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap63.«63_4_0_2_Admissible»
-public import stacks_project.Chap63.«63_4_0_2_LowerShriekPresheaf»
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.FiniteSupport.Colimit
 
 @[expose] public section
 
@@ -20,16 +14,13 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Etale
 
-/-- 63.4.0.2: for a locally quasi-finite morphism `f : X ⟶ Y`, an abelian sheaf
-`F` on `X_étale`, and `V` in `Y_étale`, the compact-support group is
-`f_p! F(V) = colim_Z H_Z(F)`, the colimit of `H_Z(F)` over locally closed
-subschemes `Z ⊂ X_V` finite over `V`. -/
-@[stacks 0F6M]
-theorem lowerShriekPresheaf_obj {X Y : Scheme.{u}} (f : X ⟶ Y) [LocallyQuasiFinite f]
-    (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) (V : Y.Etale) :
-    ((lowerShriekPresheaf f).obj F).obj (op V) =
-      colimit (FiniteSupport.diagram f F V) :=
-  sorry
+/- 63.4.0.2: The finite-support quotient is the colimit of the groups of
+sections supported on locally closed subschemes finite over the base. -/
+@[stacks 0F6M] #check
+  (AlgebraicGeometry.Scheme.Etale.FiniteSupportColimit.groupIsoColimit :
+    ∀ {X Y : Scheme.{u}} (f : X ⟶ Y) [LocallyQuasiFinite f]
+      (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) (V : Y.Etale),
+      FiniteSupportColimit.group f F V ≅ colimit (FiniteSupportColimit.diagram f F V))
 
 end AlgebraicGeometry.Scheme.Etale
 

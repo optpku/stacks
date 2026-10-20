@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Basic
@@ -17,6 +11,8 @@ projective space over a commutative ring.
 -/
 
 @[expose] public section
+
+open CategoryTheory.MonoidalCategory
 
 noncomputable section
 
@@ -39,5 +35,11 @@ noncomputable abbrev twist
   ProjTwistFamily.tensorTwist
     (Proj.AssociatedModule.twistingSheaf
       (R := R) (A := MvPolynomial (Fin (n + 1)) R) (grading R n)) ℱ d
+
+/-- Twisting a module sheaf by degree `d` is tensoring with the canonical degree-`d`
+twisting sheaf. -/
+theorem twist_def
+    (R : Type u) [CommRing R] (n : ℕ) (ℱ : (scheme R n).Modules) (d : ℤ) :
+    twist R n ℱ d = ℱ ⊗ twistingSheaf R n d := sorry
 
 end AlgebraicGeometry.ProjectiveSpace

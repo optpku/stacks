@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_3_3_Diagonal
-public import stacks_project.Chap101.Lemma_101_3_4_Diagonal
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Diagonal.FiniteType
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Diagonal.Representable
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,7 +16,7 @@ universe u
 representable by algebraic spaces. Then the relative 2-diagonal
 `Hom.diagonal f : X ⟶ X ×_Y X` is representable by schemes. -/
 @[stacks 04YQ] #check
-  (relativelyRepresentable_diagonal :
+  (AlgebraicGeometry.Groupoids.Hom.relativelyRepresentable_diagonal :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y},
       relativelyRepresentableByAlgebraicSpaces f →
@@ -33,7 +27,7 @@ representable by algebraic spaces. Then the relative 2-diagonal
 representable by algebraic spaces. Then the relative 2-diagonal
 `Hom.diagonal f : X ⟶ X ×_Y X` is locally of finite type. -/
 @[stacks 04YQ] #check
-  (LocallyOfFiniteType.diagonal :
+  (AlgebraicGeometry.Groupoids.Hom.LocallyOfFiniteType.diagonal :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
       LocallyOfFiniteType (Hom.diagonal.{u + 1, u, u + 1} f))
@@ -42,7 +36,7 @@ representable by algebraic spaces. Then the relative 2-diagonal
 representable by algebraic spaces. Then the relative 2-diagonal
 `Hom.diagonal f : X ⟶ X ×_Y X` is a monomorphism. -/
 @[stacks 04YQ] #check
-  (Mono.diagonal :
+  (AlgebraicGeometry.Groupoids.Hom.Mono.diagonal :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y},
       relativelyRepresentableByAlgebraicSpaces f →
@@ -53,7 +47,7 @@ representable by algebraic spaces. Then the relative 2-diagonal
 representable by algebraic spaces. Then the relative 2-diagonal
 `Hom.diagonal f : X ⟶ X ×_Y X` is separated. -/
 @[stacks 04YQ] #check
-  (has_separated_diagonal :
+  (AlgebraicGeometry.Groupoids.Hom.has_separated_diagonal :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y},
       relativelyRepresentableByAlgebraicSpaces f →
@@ -64,7 +58,7 @@ representable by algebraic spaces. Then the relative 2-diagonal
 representable by algebraic spaces. Then the relative 2-diagonal
 `Hom.diagonal f : X ⟶ X ×_Y X` is locally quasi-finite. -/
 @[stacks 04YQ] #check
-  (has_locallyQuasiFinite_diagonal :
+  (AlgebraicGeometry.Groupoids.Hom.has_locallyQuasiFinite_diagonal :
     ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y},
       relativelyRepresentableByAlgebraicSpaces f →

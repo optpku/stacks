@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChernClass.SplittingPrinciple
@@ -30,7 +24,7 @@ variable (D : ChernTheory.{u}) (c : DeRhamRule D)
 simultaneously acquires invertible-quotient filtrations after a pullback that is injective on
 the graded ring underlying an absolute de Rham Chern theory. -/
 @[stacks 0FWA] #check
-  (AlgebraicGeometry.ChernClass.Theory.existsInjectiveSplittingPullback
+  (AlgebraicGeometry.ChernClass.CohomologyTheory.existsInjectiveSplittingPullback
     (gradedAlgebra := D.gradedAlgebra) D.toTheory :
     ∀ {ι : Type v} [Finite ι] (X : Scheme.Qcqs.{u}) (E : ι → X.obj.Modules)
       (r : ι → ℕ) [∀ index, Scheme.Modules.IsFiniteLocallyFreeOfRank (r index) (E index)],

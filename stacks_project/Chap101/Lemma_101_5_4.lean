@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_5_4_Action
-public import stacks_project.Chap101.Lemma_101_5_4_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.RelativeIsom.Action
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.RelativeIsom.Comparison
 import StacksCheckRecall
 
 /-!
@@ -30,41 +24,42 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack.RelativeIsom
 
-variable {S : Scheme.{u}} {X Y : GroupoidsOver S}
-variable [AlgebraicStack X] [AlgebraicStack Y]
-variable (f : X ⟶ Y) {Z : AlgebraicSpace S}
+/- Lemma 101.5.4 (1): relative automorphisms form a group algebraic space over Z. -/
+@[stacks 0CPK] #check
+  (AlgebraicGeometry.AlgebraicStack.RelativeIsom.instGrpObj_asHomotopy :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+      {Z : AlgebraicSpace S} (x2 : Z.toGroupoids ⟶ X),
+      GrpObj (asHomotopy f x2))
 
-/- Lemma 101.5.4 (1): `Isom_{X/Y}(x2, x2)` is a group algebraic space over `Z`,
-as the group object `asHomotopy f x2` in the homotopy category of
-`SpacesOver Z.toGroupoids`. -/
-@[stacks 0CPK]
-#check AlgebraicGeometry.AlgebraicStack.RelativeIsom.instGrpObj_asHomotopy
+/- Lemma 101.5.4 (2): relative automorphisms are the kernel of the canonical map
+from absolute automorphisms to automorphisms of their image. -/
+@[stacks 0CPK] #check
+  (AlgebraicGeometry.AlgebraicStack.RelativeIsom.isomExactSequence :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+      {Z : AlgebraicSpace S} (x2 : Z.toGroupoids ⟶ X)
+      {G : Bicategory.HomotopyCategory (SpacesOver Z.toGroupoids)}
+      (φ : G ⟶ asHomotopy (baseProjection.{u + 1, u, u + 1} X) x2),
+      (∃! ψ : G ⟶ asHomotopy f x2, ψ ≫ kernelι f x2 = φ) ↔
+        φ ≫ toTarget f x2 = φ ≫ constOne f x2)
 
-/- Lemma 101.5.4 (2): there is a left-exact sequence of groups
-`0 ⟶ Isom_{X/Y}(x2, x2) ⟶ Isom_X(x2, x2) ⟶ Isom_Y(f ∘ x2, f ∘ x2)`,
-where the first nonzero map is `kernelι` and the second map is `toTarget`
-equalized against `constOne`. -/
-@[stacks 0CPK]
-#check AlgebraicGeometry.AlgebraicStack.RelativeIsom.isomExactSequence
+/- Lemma 101.5.4 (3): the relative Isom space is the cartesian fibre of the
+map between same-base Isom spaces above the section defined by α. -/
+@[stacks 0CPK] #check
+  (AlgebraicGeometry.AlgebraicStack.RelativeIsom.comparisonCone_isBilimit :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+      {Z : AlgebraicSpace S} {x1 x2 : Z.toGroupoids ⟶ X}
+      (α : x1 ≫ f ≅ x2 ≫ f), (comparisonCone f α).IsBilimit)
 
-variable (x1 x2 : Z.toGroupoids ⟶ X) (α : x1 ≫ f ≅ x2 ≫ f)
-
-/- Lemma 101.5.4 (3): the comparison `Isom_X(x1, x2) ⟶ Isom_Y(f ∘ x1, f ∘ x2)`
-is `pairComparison f x1 x2`, and for any 2-morphism
-`α : f ∘ x1 ⟶ f ∘ x2` the square with corners `relativeIsom f α`, `Z`,
-`TwoFibreProduct.apex x1 x2`, and `TwoFibreProduct.apex (x1 ≫ f) (x2 ≫ f)`
-and legs `relativeIsom.fst`, `relativeIsom.snd`, `pairComparison`, and
-`diagonalAlpha` is a 2-fibre product. -/
-@[stacks 0CPK]
-#check (TwoFibreProduct.cone.isBilimit.{u + 1, u, u + 1, u}
-    (pairComparison f x1 x2) (diagonalAlpha α) :
-  (TwoFibreProduct.cone.{u + 1, u, u + 1, u}
-      (pairComparison f x1 x2) (diagonalAlpha α)).IsBilimit)
-
-/- Lemma 101.5.4 (4): for any 2-morphism `α : f ∘ x1 ⟶ f ∘ x2`, the algebraic
-space `Isom^α_{X/Y}(x1, x2)` is a pseudo-torsor for `Isom_{X/Y}(x2, x2)`
-over `Z`. -/
-@[stacks 0CPK]
-#check AlgebraicGeometry.AlgebraicStack.RelativeIsom.instIsPseudoTorsor_action
+/- Lemma 101.5.4 (4): relative isomorphisms with prescribed image form a
+pseudo-torsor under relative automorphisms of the second morphism. -/
+@[stacks 0CPK] #check
+  (AlgebraicGeometry.AlgebraicStack.RelativeIsom.instIsPseudoTorsor_action :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+      {Z : AlgebraicSpace S} {x1 x2 : Z.toGroupoids ⟶ X}
+      (α : x1 ≫ f ≅ x2 ≫ f), Mod.IsPseudoTorsor (action f α))
 
 end AlgebraicGeometry.AlgebraicStack.RelativeIsom

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PullbackContinuous
@@ -326,6 +320,18 @@ end SmallSiteLowerShriek
 section RestrictionInstances
 
 variable (R : Sheaf J RingCat.{w}) (U : C)
+
+/-- Restriction of module sheaves to the slice site over `U` preserves finite limits. -/
+@[stacks 04IX "exactness of restriction, finite limits"]
+instance restriction_preservesFiniteLimits :
+    PreservesFiniteLimits
+      (restriction R U : SheafOfModules.{z} R ⥤ SheafOfModules.{z} (R.over U)) := sorry
+
+/-- Restriction of module sheaves to the slice site over `U` preserves finite colimits. -/
+@[stacks 04IX "exactness of restriction, finite colimits"]
+instance restriction_preservesFiniteColimits :
+    PreservesFiniteColimits
+      (restriction R U : SheafOfModules.{z} R ⥤ SheafOfModules.{z} (R.over U)) := sorry
 
 end RestrictionInstances
 

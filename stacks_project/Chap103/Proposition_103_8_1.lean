@@ -1,17 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Abelian.RightDerived
+public import Mathlib.CategoryTheory.Abelian.Injective.Resolution
+public import Mathlib.Algebra.Homology.DerivedCategory.RightDerivedFunctorPlus
 public import Mathlib.CategoryTheory.IsomorphismClasses
 public import Mathlib.CategoryTheory.Limits.Creates
 public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Pullback
-public import ReasLib.CategoryTheory.DerivedCategory.Functor.TotalRightDerived
 public import stacks_project.Chap96.Lemma_96_12_4
 public import stacks_project.Chap103.Lemma_103_7_2
 public import stacks_project.Chap103.Lemma_103_7_3
@@ -30,7 +25,6 @@ and internal Hom properties of `LQCoh^{fbc}` on an algebraic stack.
 
 open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
 open CategoryTheory.ObjectProperty FiberedCategoryOver.Groupoids RingedSite.Hom
-open Functor.RightDerived
 open scoped Bicategory
 
 noncomputable section
@@ -95,7 +89,8 @@ instance closedUnderColimitsOfShape (X : GroupoidsOver S) [AlgebraicStack X]
 /-- The inclusion `LQCoh^{fbc}(𝒪_X) ⥤ Mod(X_étale, 𝒪_X)` creates colimits of
 every universe-compatible shape. -/
 instance inclusion_createsColimitsOfShape (X : GroupoidsOver S)
-    [AlgebraicStack X] (J : Type v) [Category.{w} J] :
+    [AlgebraicStack X] (J : Type v) [Category.{w} J]
+    [HasColimitsOfShape J AddCommGrpCat.{u}] :
     CreatesColimitsOfShape J (inclusion X) :=
   createsColimitsOfShapeFullSubcategoryInclusion J (lqcohFbc X)
 
@@ -103,7 +98,7 @@ instance inclusion_createsColimitsOfShape (X : GroupoidsOver S)
 they agree with colimits in `Mod(X_étale, 𝒪_X)`. -/
 @[stacks 0771]
 instance hasColimitsOfShape (X : GroupoidsOver S) [AlgebraicStack X]
-    (J : Type v) [Category.{w} J] :
+    (J : Type v) [Category.{w} J] [HasColimitsOfShape J AddCommGrpCat.{u}] :
     HasColimitsOfShape J (LQCohFbc X) := sorry
 
 /-- Colimits in `LQCoh^{fbc}(𝒪_X)` agree with colimits computed in
@@ -281,15 +276,21 @@ resolutions. -/
 instance instHasInjectiveResolutions_fppfModules (X : GroupoidsOver S) :
     HasInjectiveResolutions (fppfModules X) := sorry
 
-/-- Fppf modules on a category fibred in groupoids form a Grothendieck abelian
-category. -/
-instance fppfModules_isGrothendieckAbelian (X : GroupoidsOver S) :
-    IsGrothendieckAbelian.{u + 1} (fppfModules X) := sorry
+/-- The degree-zero term of an existing injective resolution is an injective presentation. -/
+private theorem enoughInjectives_of_resolutions {C : Type v} [Category.{w} C] [Abelian C]
+    [HasInjectiveResolutions C] : EnoughInjectives C where
+  presentation M := ⟨
+    { J := (injectiveResolution M).cocomplex.X 0
+      f := (injectiveResolution M).ι.f 0
+      mono := mono_of_isLimit_fork (injectiveResolution M).isLimitKernelFork }⟩
 
-/-- Étale modules on a category fibred in groupoids form a Grothendieck abelian
-category. -/
-instance etaleModules_isGrothendieckAbelian (X : GroupoidsOver S) :
-    IsGrothendieckAbelian.{u + 1} (etaleModules X) := sorry
+/-- Existing fppf injective resolutions provide the presentations needed for bounded derivation. -/
+instance fppfModules_enoughInjectives (X : GroupoidsOver S) :
+    EnoughInjectives (fppfModules X) := enoughInjectives_of_resolutions
+
+/-- Existing étale injective resolutions provide the presentations needed for bounded derivation. -/
+instance etaleModules_enoughInjectives (X : GroupoidsOver S) :
+    EnoughInjectives (etaleModules X) := enoughInjectives_of_resolutions
 
 /-- The standard derived-category structure on fppf `𝒪_X`-modules. -/
 instance fppfModules_hasDerivedCategory (X : GroupoidsOver S) :
@@ -326,12 +327,14 @@ theorem derivedPushforward_etale_iso_fppf {X Y : GroupoidsOver S}
     [AlgebraicStack.QuasiCompact f] [AlgebraicStack.QuasiSeparated f]
     (F : etaleModules X) [IsLocallyQuasiCoherent F] [HasFlatBaseChange F] :
     IsIsomorphic
-      ((KInjective.functor (restriction Y)).obj
-        ((KInjective.functor (fppfModuleDirectImage f)).obj
-          ((DerivedCategory.singleFunctor (fppfModules X) (0 : ℤ)).obj
-            (toFppfModule_of_lqcohFbc F))))
-      ((KInjective.functor (moduleDirectImage f)).obj
-        ((DerivedCategory.singleFunctor (etaleModules X) (0 : ℤ)).obj F)) :=
+      (DerivedCategory.Plus.ι.obj
+        ((restriction Y).rightDerivedFunctorPlus.obj
+          ((fppfModuleDirectImage f).rightDerivedFunctorPlus.obj
+            ((DerivedCategory.Plus.singleFunctor (fppfModules X) (0 : ℤ)).obj
+              (toFppfModule_of_lqcohFbc F)))))
+      (DerivedCategory.Plus.ι.obj
+        ((moduleDirectImage f).rightDerivedFunctorPlus.obj
+          ((DerivedCategory.Plus.singleFunctor (etaleModules X) (0 : ℤ)).obj F))) :=
   sorry
 
 /-- Proposition 103.8.1 (4)(b): each étale higher direct image `R^i f_* F` of

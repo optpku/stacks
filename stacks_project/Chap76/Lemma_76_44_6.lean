@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.FiniteLocallyFree
-public import stacks_project.Chap67.Lemma_67_28_11_LocallyOfFinitePresentation
-public import stacks_project.Chap76.Lemma_76_44_3_RegularImmersion
-public import stacks_project.Chap76.«76_6_1_2_Comparison»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.RegularImmersion.Conormal
+import StacksCheckRecall
 
 /-!
 # Conormal criterion for quasi-regular immersions of algebraic spaces
@@ -19,59 +11,49 @@ of finite presentation, its conormal sheaf is finite locally free, and the
 canonical comparison `ConormalAlgebra.symmetricToTotal` is an isomorphism.
 -/
 
-@[expose] public section
-
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 76.44.6: Let `S` be a scheme. Let `i : Z ⟶ X` be an immersion of
+/- Lemma 76.44.6: Let `S` be a scheme. Let `i : Z ⟶ X` be an immersion of
 algebraic spaces over `S`. Then `i` is a quasi-regular immersion if and only if
 `i` is locally of finite presentation, the conormal sheaf `Hom.conormalSheaf i`
 is finite locally free, and the canonical comparison
 `ConormalAlgebra.symmetricToTotal i` is an isomorphism. -/
-@[stacks 09RY]
-theorem IsQuasiRegularImmersion.iff_locallyOfFinitePresentation_conormal
-    {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i] :
+@[stacks 09RY] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsQuasiRegularImmersion.iff_locallyOfFinitePresentation_conormal :
+    ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i],
     IsQuasiRegularImmersion i ↔
       LocallyOfFinitePresentation i ∧ (Hom.conormalSheaf i).IsFiniteLocallyFree ∧
-        IsIso (ConormalAlgebra.symmetricToTotal i) :=
-  sorry
+        IsIso (ConormalAlgebra.symmetricToTotal i))
 
-/-- A quasi-regular immersion of algebraic spaces is locally of finite
+/- A quasi-regular immersion of algebraic spaces is locally of finite
 presentation. -/
-instance IsQuasiRegularImmersion.locallyOfFinitePresentation
-    {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X)
-    [IsQuasiRegularImmersion i] : LocallyOfFinitePresentation i :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsQuasiRegularImmersion.locallyOfFinitePresentation :
+    ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X)
+      [IsQuasiRegularImmersion i], LocallyOfFinitePresentation i)
 
-/-- The conormal sheaf of a quasi-regular immersion of algebraic spaces is finite
+/- The conormal sheaf of a quasi-regular immersion of algebraic spaces is finite
 locally free. -/
-instance IsQuasiRegularImmersion.isFiniteLocallyFree_conormalSheaf
-    {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X)
-    [IsQuasiRegularImmersion i] : (Hom.conormalSheaf i).IsFiniteLocallyFree :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsQuasiRegularImmersion.isFiniteLocallyFree_conormalSheaf :
+    ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X)
+      [IsQuasiRegularImmersion i], (Hom.conormalSheaf i).IsFiniteLocallyFree)
 
-/-- For a quasi-regular immersion of algebraic spaces, the canonical comparison
+/- For a quasi-regular immersion of algebraic spaces, the canonical comparison
 `ConormalAlgebra.symmetricToTotal i` is an isomorphism. -/
-instance IsQuasiRegularImmersion.isIso_symmetricToTotal
-    {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X)
-    [IsQuasiRegularImmersion i] : IsIso (ConormalAlgebra.symmetricToTotal i) :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsQuasiRegularImmersion.isIso_symmetricToTotal :
+    ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X)
+      [IsQuasiRegularImmersion i], IsIso (ConormalAlgebra.symmetricToTotal i))
 
-/-- An immersion of algebraic spaces that is locally of finite presentation,
+/- An immersion of algebraic spaces that is locally of finite presentation,
 whose conormal sheaf is finite locally free, and for which
 `ConormalAlgebra.symmetricToTotal i` is an isomorphism, is a quasi-regular
 immersion. -/
-theorem IsQuasiRegularImmersion.of_locallyOfFinitePresentation_conormal
-    {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i]
-    [LocallyOfFinitePresentation i] [(Hom.conormalSheaf i).IsFiniteLocallyFree]
-    [IsIso (ConormalAlgebra.symmetricToTotal i)] :
-    IsQuasiRegularImmersion i :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsQuasiRegularImmersion.of_locallyOfFinitePresentation_conormal :
+    ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i]
+      [LocallyOfFinitePresentation i] [(Hom.conormalSheaf i).IsFiniteLocallyFree]
+      [IsIso (ConormalAlgebra.symmetricToTotal i)], IsQuasiRegularImmersion i)

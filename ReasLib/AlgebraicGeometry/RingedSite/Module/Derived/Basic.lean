@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.Basic
@@ -150,14 +144,14 @@ theorem modulePullback.DerivedCategory.hasLeftDerived
     {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}} (f : Hom X Y)
     [UnivLE.{max uX vX, z}] [UnivLE.{max uY vY, z}]
     [(f.modulePushforward.{z}).IsRightAdjoint]
-    [Functor.HasLeftDerivedFunctor
+    [hDerived : Functor.HasLeftDerivedFunctor
       (modulePullbackToDerived.{z} f) (ModuleQis.{z} Y)] :
     Functor.HasLeftDerivedFunctor
       (@Functor.Homotopy.toDerived
         (ModuleCat.{z} Y) inferInstance inferInstance
         (ModuleCat.{z} X) inferInstance inferInstance (moduleCat_hasDerivedCategory X)
         (modulePullback.{z} f) inferInstance)
-      (ModuleQis.{z} Y) := sorry
+      (ModuleQis.{z} Y) := hDerived
 
 end
 

@@ -1,20 +1,16 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Pullback.FinitePresentation
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Pullback.LocalGeneration
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Pullback.LocallyFree
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Pullback.Quasicoherent
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.PullbackContinuous.FinitePresentation
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.PullbackContinuous.LocalGeneration
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.PullbackContinuous.LocallyFree
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.PullbackContinuous.Quasicoherent
 
 /-!
-# Pullback Properties of Module Sheaves on Ringed Sites
+# Pullback Properties of Module Sheaves
 
-Convenience import for the property-specific inverse-image preservation leaves.
+Convenience import for the property-specific inverse-image preservation leaves.  These
+statements hold for arbitrary `RingCat` sheaves and live in namespace `SheafOfModules`
+under `Sheaf/PullbackContinuous/`.
 For functor computation and naturality, use Mathlib's
 `SheafOfModules.pullbackId`, `SheafOfModules.pullbackComp`, and
 `SheafOfModules.pullback_assoc` directly.

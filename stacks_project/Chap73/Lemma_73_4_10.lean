@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap73.Lemma_73_4_10_Big
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.BigTopos
 
 /-!
 # Lemma 73.4.10
@@ -37,33 +31,33 @@ variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : Y ⟶ X)
 
 /- Lemma 73.4.10 -/
 @[stacks 0DF5] #check
-  (morphismOfTopoi f :
+  (AlgebraicGeometry.AlgebraicSpace.Etale.Big.morphismOfTopoi f :
     MorphismOfTopoiIn (overEtaleTopology X) (overEtaleTopology Y))
 
 /- Postcomposition and pullback are the functors between the big étale slices. -/
-#check (map f : Over Y ⥤ Over X)
+#check (Over.map f : Over Y ⥤ Over X)
 
-#check (Etale.Big.pullback f : Over X ⥤ Over Y)
+#check (Over.pullback f : Over X ⥤ Over Y)
 
 /- Postcomposition is cocontinuous and continuous, pullback is continuous, and
 the two functors form the canonical adjunction. -/
 #check
   (inferInstance :
-    Functor.IsCocontinuous (map f)
+    Functor.IsCocontinuous (Over.map f)
       (overEtaleTopology Y) (overEtaleTopology X))
 
 #check
   (inferInstance :
-    Functor.IsContinuous (map f)
+    Functor.IsContinuous (Over.map f)
       (overEtaleTopology Y) (overEtaleTopology X))
 
 #check
   (inferInstance :
-    Functor.IsContinuous (pullback f)
+    Functor.IsContinuous (Over.pullback f)
       (overEtaleTopology X) (overEtaleTopology Y))
 
 #check
-  (mapPullbackAdjunction f : map f ⊣ pullback f)
+  (Over.mapPullbackAdj f : Over.map f ⊣ Over.pullback f)
 
 /- The cocontinuous and continuous-right-adjoint presentations of direct image agree. -/
 #check
@@ -80,14 +74,14 @@ the two functors form the canonical adjunction. -/
   (inverseImage_obj_obj f :
     ∀ (G : Sheaf (overEtaleTopology X) (Type (u + 1))) (U : Over Y),
       (((inverseImage f).obj G).obj.obj (op U)) =
-        G.obj.obj (op ((map f).obj U)))
+        G.obj.obj (op ((Over.map f).obj U)))
 
 /- The bundled inverse image has the corresponding objectwise identification. -/
 #check
   (morphismOfTopoi_inverseImage_objObjIso f :
     ∀ (G : Sheaf (overEtaleTopology X) (Type (u + 1))) (U : Over Y),
       (((morphismOfTopoi f)⁻¹).obj G).obj.obj (op U) ≅
-        G.obj.obj (op ((map f).obj U)))
+        G.obj.obj (op ((Over.map f).obj U)))
 
 /- The bundled direct image is the canonical direct-image functor. -/
 #check
@@ -99,21 +93,21 @@ the two functors form the canonical adjunction. -/
   (directImage_objObjIso f :
     ∀ (F : Sheaf (overEtaleTopology Y) (Type (u + 1))) (U : Over X),
       (((directImage f).obj F).obj.obj (op U)) ≅
-        F.obj.obj (op ((Etale.Big.pullback f).obj U)))
+        F.obj.obj (op ((Over.pullback f).obj U)))
 
 /- The bundled direct image has the corresponding objectwise identification. -/
 #check
   (morphismOfTopoi_pushforward_objObjIso f :
     ∀ (F : Sheaf (overEtaleTopology Y) (Type (u + 1))) (U : Over X),
       (((morphismOfTopoi f).pushforward.obj F).obj.obj (op U)) ≅
-        F.obj.obj (op ((Etale.Big.pullback f).obj U)))
+        F.obj.obj (op ((Over.pullback f).obj U)))
 
 /- The continuous direct-image presentation has the corresponding objectwise formula. -/
 #check
   (continuousDirectImage_obj_obj f :
     ∀ (F : Sheaf (overEtaleTopology Y) (Type (u + 1))) (U : Over X),
       (((continuousDirectImage f).obj F).obj.obj (op U)) =
-        F.obj.obj (op ((Etale.Big.pullback f).obj U)))
+        F.obj.obj (op ((Over.pullback f).obj U)))
 
 /- The concrete lower-shriek functor is left adjoint to inverse image. -/
 #check

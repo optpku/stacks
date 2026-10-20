@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap70.Lemma_70_7_1_FinitePresentation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Limit.FinitePresentation
 import StacksCheckRecall
 
 @[expose] public section
@@ -25,7 +19,7 @@ isomorphism over the limit. -/
       {S : Scheme.{u}} (D : OrderDual I ⥤ AlgebraicSpace S)
       (c : Cone D) (hc : IsLimit c)
       [∀ j, IsQuasiCompact (D.obj j)]
-      [∀ j, IsQuasiSeparated (D.obj j)]
+      [∀ j, IsAbsolutelyQuasiSeparated (D.obj j)]
       [∀ {j j' : I} (hjj' : j ≤ j'), Affine (D.map (homOfLE hjj'))]
       (Y : Over c.pt) [FinitePresentation Y.hom],
       ∃ (i : I) (Yi : Over (D.obj i)),
@@ -41,7 +35,7 @@ later stage. -/
       {S : Scheme.{u}} (D : OrderDual I ⥤ AlgebraicSpace S)
       (c : Cone D) (hc : IsLimit c)
       [∀ j, IsQuasiCompact (D.obj j)]
-      [∀ j, IsQuasiSeparated (D.obj j)]
+      [∀ j, IsAbsolutelyQuasiSeparated (D.obj j)]
       [∀ {j j' : I} (hjj' : j ≤ j'), Affine (D.map (homOfLE hjj'))]
       (i : I) (Yi Zi : Over (D.obj i))
       [FinitePresentation Yi.hom] [FinitePresentation Zi.hom]
@@ -71,7 +65,7 @@ some later stage. -/
       {S : Scheme.{u}} (D : OrderDual I ⥤ AlgebraicSpace S)
       (c : Cone D) (hc : IsLimit c)
       [∀ j, IsQuasiCompact (D.obj j)]
-      [∀ j, IsQuasiSeparated (D.obj j)]
+      [∀ j, IsAbsolutelyQuasiSeparated (D.obj j)]
       [∀ {j j' : I} (hjj' : j ≤ j'), Affine (D.map (homOfLE hjj'))]
       (i : I) (Yi Zi : Over (D.obj i))
       [FinitePresentation Yi.hom] [FinitePresentation Zi.hom]

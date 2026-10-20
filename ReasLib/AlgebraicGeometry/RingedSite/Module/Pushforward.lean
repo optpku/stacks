@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.PushforwardContinuous.Additive
@@ -32,6 +26,7 @@ abbrev modulePushforward.{z, uX, vX, uY, vY, w}
     {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
     (f : Hom X Y) :
     ModuleCat.{z} X ⥤ ModuleCat.{z} Y :=
-  SheafOfModules.pushforward.{z} f.structureSheafMap
+  @SheafOfModules.pushforward.{z} _ _ _ _ Y.siteTopology X.siteTopology f.base
+    Y.structureSheaf X.structureSheaf f.base_isContinuous f.structureSheafMap
 
 end RingedSite.Hom

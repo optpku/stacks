@@ -1,10 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
+
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Basic
 
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Diagonal.Construction
 public import ReasLib.CategoryTheory.Fibered.Representable.Slice
@@ -30,69 +26,50 @@ universe u
 
 namespace AlgebraicGeometry
 
-/-- An algebraic stack over a scheme `S` is a category fibred in groupoids over
-`(Sch/S)_fppf` that is a stack in groupoids, whose diagonal is representable by
-algebraic spaces, and that admits a scheme atlas which is surjective and
-smooth. -/
-class AlgebraicStack {S : Scheme.{u}} (X : GroupoidsOver S) : Prop where
-  /-- The category is a stack in groupoids over the big fppf site of `S`. -/
-  isStack : IsStack.InGroupoids (Scheme.fppfTopology.over S) X.p
-  /-- The diagonal `Δ : X ⟶ X × X` is representable by algebraic spaces. -/
-  representableDiagonal :
-    relativelyRepresentableByAlgebraicSpaces (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} X)
-  /-- There is a scheme `U` over `S` and a surjective smooth 1-morphism
-  `GroupoidsOver.slice U ⟶ X`. -/
-  existsSmoothSurjectiveAtlas :
-    ∃ (U : Over S) (p : GroupoidsOver.slice U ⟶ X),
-      Groupoids.Hom.Smooth p ∧ Groupoids.Hom.Surjective p
+#check (AlgebraicGeometry.AlgebraicStack :
+  ∀ {S : Scheme.{u}}, GroupoidsOver S → Prop)
 
 namespace AlgebraicStack
 
-/-- The canonical slice fibration of a scheme over `S` is an algebraic stack. -/
-instance slice {S : Scheme.{u}} (U : Over S) :
-    AlgebraicStack (GroupoidsOver.slice U) := sorry
+#check (AlgebraicGeometry.AlgebraicStack.slice :
+  ∀ {S : Scheme.{u}} (U : Over S),
+    AlgebraicStack (GroupoidsOver.slice U))
 
-/-- An algebraic stack is a stack in groupoids on the big fppf site. -/
-instance instIsStackInGroupoids {S : Scheme.{u}} (X : GroupoidsOver S)
-    [h : AlgebraicStack X] :
-    IsStack.InGroupoids (Scheme.fppfTopology.over S) X.p :=
-  h.isStack
+#check (AlgebraicGeometry.AlgebraicStack.instIsStackInGroupoids :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S)
+    [AlgebraicStack X],
+    IsStack.InGroupoids (Scheme.fppfTopology.over S) X.p)
 
-/-- The groupoid fibration of an algebraic space is an algebraic stack. -/
-instance ofAlgebraicSpace {S : Scheme.{u}} (F : AlgebraicSpace S) :
-    AlgebraicStack F.toGroupoids := sorry
+#check (AlgebraicGeometry.AlgebraicStack.ofAlgebraicSpace :
+  ∀ {S : Scheme.{u}} (F : AlgebraicSpace S),
+    AlgebraicStack F.toGroupoids)
 
-/-- Being an algebraic stack is equivalent to the three defining clauses: stack
-in groupoids, diagonal representable by algebraic spaces, and a surjective
-smooth scheme atlas. -/
-theorem iff {S : Scheme.{u}} (X : GroupoidsOver S) :
+#check (AlgebraicGeometry.AlgebraicStack.iff :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S),
     AlgebraicStack X ↔
       IsStack.InGroupoids (Scheme.fppfTopology.over S) X.p ∧
         relativelyRepresentableByAlgebraicSpaces
             (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} X) ∧
           ∃ (U : Over S) (p : GroupoidsOver.slice U ⟶ X),
-            Groupoids.Hom.Smooth p ∧ Groupoids.Hom.Surjective p := sorry
+            Groupoids.Hom.Smooth p ∧ Groupoids.Hom.Surjective p)
 
-/-- The object property on categories fibred in groupoids over `Over S` selecting
-algebraic stacks. -/
-def objectProperty (S : Scheme.{u}) : ObjectProperty (GroupoidsOver S) :=
-  fun X ↦ AlgebraicStack X
+#check (AlgebraicGeometry.AlgebraicStack.objectProperty :
+  ∀ (S : Scheme.{u}),
+    ObjectProperty (GroupoidsOver S))
 
-/-- The object property of algebraic stacks is the class `AlgebraicStack`. -/
-theorem objectProperty_apply {S : Scheme.{u}} (X : GroupoidsOver S) :
-    objectProperty S X ↔ AlgebraicStack X := sorry
+#check (AlgebraicGeometry.AlgebraicStack.objectProperty_apply :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S),
+    objectProperty S X ↔ AlgebraicStack X)
 
-/-- Equivalently, the atlas in the definition of an algebraic stack may be taken
-to be a representable category fibred in groupoids, i.e. one equivalent to a
-canonical slice. -/
-theorem iff_exists_representable_atlas {S : Scheme.{u}} (X : GroupoidsOver S) :
+#check (AlgebraicGeometry.AlgebraicStack.iff_exists_representable_atlas :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S),
     AlgebraicStack X ↔
       IsStack.InGroupoids (Scheme.fppfTopology.over S) X.p ∧
         relativelyRepresentableByAlgebraicSpaces
             (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} X) ∧
           ∃ (U : GroupoidsOver S) (p : U ⟶ X),
             FiberedCategoryOver.Groupoids.IsRepresentable U ∧
-              Groupoids.Hom.Smooth p ∧ Groupoids.Hom.Surjective p := sorry
+              Groupoids.Hom.Smooth p ∧ Groupoids.Hom.Surjective p)
 
 end AlgebraicStack
 

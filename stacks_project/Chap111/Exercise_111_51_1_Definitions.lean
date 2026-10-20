@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Scheme
@@ -23,39 +17,54 @@ universe u
 
 variable {X Y : Scheme.{u}} (f : X ⟶ Y) (L : X.Modules)
 
-/- Exercise 111.51.1 (Definitions) (1): `X` is a scheme. -/
-@[stacks 02FG] #check Scheme
+/- (1): `X` is a scheme. -/
+#check (Scheme.{u} : Type (u + 1))
 
-/- Exercise 111.51.1 (Definitions) (2): the morphism of schemes `f : X ⟶ Y` is finite. -/
-@[stacks 02FG] #check (AlgebraicGeometry.IsFinite f : Prop)
+/- (2): the morphism of schemes `f : X ⟶ Y` is finite. -/
+#check (AlgebraicGeometry.IsFinite f : Prop)
 
 #check (AlgebraicGeometry.isFinite_iff f :
   AlgebraicGeometry.IsFinite f ↔
     AlgebraicGeometry.IsAffineHom f ∧
       ∀ U : Y.Opens, AlgebraicGeometry.IsAffineOpen U → (f.app U).hom.Finite)
 
-/- Exercise 111.51.1 (Definitions) (3): the morphism of schemes `f : X ⟶ Y` is of finite type. -/
-@[stacks 02FG] #check (Scheme.Hom.FiniteType f : Prop)
+/- (3): the morphism of schemes `f : X ⟶ Y` is of finite type. -/
+#check (Scheme.Hom.FiniteType f : Prop)
 
 #check (Scheme.Hom.finiteType_iff f :
   Scheme.Hom.FiniteType f ↔
     AlgebraicGeometry.QuasiCompact f ∧ AlgebraicGeometry.LocallyOfFiniteType f)
 
-/- Exercise 111.51.1 (Definitions) (4): the scheme `X` is Noetherian. -/
-@[stacks 02FG] #check (AlgebraicGeometry.IsNoetherian X : Prop)
+/- (4): the scheme `X` is Noetherian. -/
+#check (AlgebraicGeometry.IsNoetherian X : Prop)
 
 #check (AlgebraicGeometry.isNoetherian_iff (X := X) :
   AlgebraicGeometry.IsNoetherian X ↔
     AlgebraicGeometry.IsLocallyNoetherian X ∧ CompactSpace X)
 
-/- Exercise 111.51.1 (Definitions) (5): the `𝒪_X`-module `L` on the scheme `X` is invertible. -/
-@[stacks 02FG] #check (Scheme.Modules.Invertible L : Prop)
+/- (5): the `𝒪_X`-module `L` on the scheme `X` is invertible. -/
+#check (Scheme.Modules.Invertible L : Prop)
 
-/- Exercise 111.51.1 (Definitions) (6): the genus of a nonsingular projective curve over an
-algebraically closed field. Over an algebraically closed field, a nonsingular projective curve
-is a `Smooth` `Projective` `Curve`; geometric irreducibility is automatic for irreducible
-curves. -/
+/- Exercise 111.51.1 (Definitions)
+Define schemes, finite and finite-type scheme morphisms, Noetherian schemes, invertible
+module sheaves, and the genus of a nonsingular projective curve over an algebraically
+closed field. The checks above give definitions (1)–(5).
+(6): The genus is the degree-one structure-sheaf cohomology dimension of a `Smooth`
+`Projective` `Curve` over an algebraically closed field. -/
 @[stacks 02FG]
+#check
+  (AlgebraicGeometry.Curve.genusOfAlgClosed :
+    ∀ {k : Type u} [Field k] [IsAlgClosed k] (X : SchemeOverField k) [Curve X]
+      [Projective X.hom] [Smooth X.hom], ℕ)
+
+#check
+  (AlgebraicGeometry.Curve.genusOfAlgClosed_def :
+    ∀ {k : Type u} [Field k] [IsAlgClosed k] (X : SchemeOverField k) [Curve X]
+      [Projective X.hom] [Smooth X.hom],
+      AlgebraicGeometry.Curve.genusOfAlgClosed X =
+        Scheme.Hom.cohomologyFinrank X.hom
+          (SheafOfModules.unit X.left.ringCatSheaf : X.left.Modules) 1)
+
 #check
   (AlgebraicGeometry.Curve.genus :
     ∀ {k : Type u} [Field k] (X : SchemeOverField k) [Curve X]

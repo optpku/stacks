@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommResidualInvariants
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommAssociatedBaseChange
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommAssociatedSections
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommGeometricSource
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.ResidualCompletedTarget
 
@@ -26,8 +21,8 @@ variable [ConnectedSpace (Spec (CommRingCat.of k))]
 variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]
 variable (η : GeometricPoint (geometricBaseChange X))
 
-abbrev G := Aut (standardFiniteEtaleFiber η)
-abbrev Γ := Aut (standardFiniteEtaleFiber (arithmeticPoint X η))
+abbrev G := Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber η)
+abbrev Γ := Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η))
 abbrev Q := ActualResidualCompletedTarget.residualGroup X η
 
 /-- The all-discrete relative invariants for the actual fundamental exact sequence. -/
@@ -62,9 +57,9 @@ def realizedSections := functor (Λ := R) (xbar := arithmeticPoint X η) ⋙ she
 def sectionVector (M : DiscreteModuleCat R (Γ X η)) :
     ((realizedSections R X η).obj M).obj.V ⟶ M.obj.V :=
   (NoncommGeometricSource.sections R).map
-    (NoncommAssociatedBaseChange.baseChangeMap R (geometricToArithmeticHom X) η M) ≫
+    (AlgebraicGeometry.Scheme.AmbientAssociatedSheaf.baseChangeMap R (geometricToArithmeticHom X) η M) ≫
   NoncommAssociatedSections.sectionVector R η
-    ((NoncommAssociatedBaseChange.restriction R (geometricToArithmeticHom X) η).obj M)
+    ((AlgebraicGeometry.Scheme.AmbientAssociatedSheaf.restriction R (geometricToArithmeticHom X) η).obj M)
 
 /-- Geometric monodromy fixes the specified global-section germ. -/
 theorem sectionVector_fixed (M : DiscreteModuleCat R (Γ X η))

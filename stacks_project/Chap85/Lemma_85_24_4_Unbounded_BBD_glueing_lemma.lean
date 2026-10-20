@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
@@ -47,7 +41,7 @@ variable [X.siteTopology.HasSheafCompose (CategoryTheory.forget RingCat.{w})]
 variable [∀ U : X, (X.siteTopology.over U).HasSheafCompose (CategoryTheory.forget RingCat.{w})]
 variable [∀ {U V : X} (f : V ⟶ U),
     (SheafOfModules.restrictScalars.{w} (relocalization X f).structureMap).IsRightAdjoint]
-variable (D : @LocallyGiven.{u, v, w, w, uB, vB} X B inferInstance h_univLE)
+variable (D : @LocallyGiven.{u, v, w, w, uB, vB} h_univLE X B inferInstance)
 variable {C' : Type u'} [Category.{v'} C']
 variable [h_eqC : HasEqualizers C'] [h_pbC : HasPullbacks C']
 variable (J' : GrothendieckTopology C') (u' : C' ⥤ X)

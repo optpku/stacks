@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_24_4_Cancellation
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.QuasiFinite.Cancellation
 import StacksCheckRecall
 
 @[expose] public section
@@ -19,7 +13,7 @@ universe u
 /- Lemma 101.24.4: if `f ≫ g` is quasi-finite and `g` is quasi-separated and
 quasi-DM, then `f` is quasi-finite. -/
 @[stacks 0G2Q] #check
-  (QuasiFinite.of_comp :
+  (AlgebraicGeometry.AlgebraicStack.QuasiFinite.of_comp :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
       (f : X ⟶ Y) (g : Y ⟶ Z)

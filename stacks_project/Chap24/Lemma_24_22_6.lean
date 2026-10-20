@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.DifferentialGraded.Grothendieck
@@ -38,6 +32,7 @@ namespace SheafOfModules.RingedSite
 section
 
 variable {C : Type u} [Category.{v} C] [HasBinaryProducts C]
+variable [Small.{w} C] [LocallySmall.{w} C]
 variable {J : GrothendieckTopology C}
 variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
 variable [HasWeakSheafify J AddCommGrpCat.{w}]
@@ -45,7 +40,7 @@ variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
 variable {𝒪 : Sheaf J CommRingCat.{w}}
 variable (𝒜 : DGA(𝒪))
 
-#synth IsGrothendieckAbelian.{max u v w} (Mod(𝒜, d))
+#synth IsGrothendieckAbelian.{w} (Mod(𝒜, d))
 #synth HasSeparator (Mod(𝒜, d))
 
 end

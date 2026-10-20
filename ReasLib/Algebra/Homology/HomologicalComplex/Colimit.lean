@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.HomologicalComplexLimits
+public import ReasLib.Algebra.Homology.ShortComplex.Colimits.Homology
 public import Mathlib.Algebra.Homology.QuasiIso
 public import Mathlib.CategoryTheory.Abelian.GrothendieckAxioms.Basic
 public import Mathlib.Tactic.CrossRefAttribute
@@ -35,6 +30,17 @@ variable {A : Type u} [Category.{v} A] [HasZeroMorphisms A]
   [CategoryWithHomology A]
 variable {ι : Type t} {c : ComplexShape ι}
 variable {J : Type w} [Category.{w'} J]
+
+/-- Taking the three consecutive terms at a degree preserves colimits, with descent supplied
+by the three evaluation functors. -/
+noncomputable instance shortComplexFunctor_preservesColimitsOfShape
+    [HasColimitsOfShape J A] (i : ι) :
+    PreservesColimitsOfShape J (shortComplexFunctor A c i) where
+  preservesColimit :=
+    { preserves := fun hc ↦ ⟨ShortComplex.isColimitOfIsColimitπ _
+        (isColimitOfPreserves (eval A c (c.prev i)) hc)
+        (isColimitOfPreserves (eval A c i) hc)
+        (isColimitOfPreserves (eval A c (c.next i)) hc)⟩ }
 
 /-- The canonical isomorphism from the colimit of homology objects to the
 homology of a colimit, whenever the relevant homology functor preserves that
@@ -83,7 +89,8 @@ ambient abelian category are exact. -/
 @[stacks 0794]
 noncomputable instance homologyFunctor_preservesColimitsOfShape_of_exact
     [HasColimitsOfShape J A] [HasExactColimitsOfShape J A] (i : ι) :
-    PreservesColimitsOfShape J (homologyFunctor A c i) := sorry
+    PreservesColimitsOfShape J (homologyFunctor A c i) :=
+  preservesColimitsOfShape_of_natIso (homologyFunctorIso A c i).symm
 
 end Exact
 

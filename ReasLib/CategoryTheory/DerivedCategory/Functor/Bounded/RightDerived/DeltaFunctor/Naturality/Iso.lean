@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Bounded.RightDerived.DeltaFunctor.Naturality
@@ -98,7 +92,8 @@ noncomputable def mapIso
     [RF.CommShift ℤ] [RF.IsTriangulated]
     [RG.CommShift ℤ] [RG.IsTriangulated]
     (e : RF ≅ RG) [NatTrans.CommShift e.hom ℤ] :
-    RightDerived.cohomological RF ≅ RightDerived.cohomological RG :=
+    CohomologicalDeltaFunctor.HomIso (RightDerived.cohomological RF)
+      (RightDerived.cohomological RG) :=
   DeltaFunctor.toCohomologicalDeltaFunctor.mapIso
     (DerivedCategory.homologyFunctor B 0) (delta.mapIso e)
     (RightDerived.delta_hneg RF) (RightDerived.delta_hneg RG)

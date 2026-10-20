@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap45.Proposition_45_12_1
@@ -20,7 +14,7 @@ open CategoryTheory CategoryTheory.Limits
 
 noncomputable section
 
-universe u
+universe u moduleUniverse
 
 namespace AlgebraicGeometry.Scheme
 
@@ -68,9 +62,11 @@ noncomputable def absoluteBase (X : Scheme.{u}) :
 /-- The binary biproduct presentation used by the explicit absolute de Rham comparison models. -/
 noncomputable instance absoluteCoefficientHasBinaryBiproducts (X : Qcqs.{u}) :
     HasBinaryBiproducts
-      (RingedSpace.DeRham.coefficientSite
-        (absoluteBase X.obj).toLRSHom.toShHom).ModuleCat :=
-  Abelian.hasBinaryBiproducts
+      (RingedSite.ModuleCat.{max u moduleUniverse}
+        (RingedSpace.DeRham.coefficientSite (absoluteBase X.obj).toLRSHom.toShHom)) :=
+  @Abelian.hasBinaryBiproducts _ _
+    (RingedSite.moduleCatAbelian.{max u moduleUniverse}
+      (RingedSpace.DeRham.coefficientSite (absoluteBase X.obj).toLRSHom.toShHom))
 
 /-- The graded tensor coproducts for the absolute coefficient-module category. -/
 instance absoluteCoefficientGradedHasTensor (X : Qcqs.{u}) :
@@ -113,7 +109,7 @@ structure ChernTheory.{v} where
   /-- The graded-algebra structure on each value of the cohomology theory. -/
   gradedAlgebra : ∀ X, GradedAlgebra (Agrade X)
   /-- The five axioms which construct total Chern classes. -/
-  toTheory : @ChernClass.Theory Qcqs _ Qcqs.toScheme A Agrade gradedAlgebra
+  toTheory : @ChernClass.CohomologyTheory Qcqs _ Qcqs.toScheme A Agrade gradedAlgebra
   /-- Identification of the degree-`i` piece with `H_dR^(2i)(X/ℤ)`. -/
   componentEquiv : ∀ X i, Agrade X i ≃+ evenCohomology X.obj i
   /-- The concrete Chapter 50 constant-one class in degree-zero absolute de Rham cohomology. -/
@@ -265,7 +261,7 @@ theorem pullback_spec (D : ChernTheory.{u}) {X' X : Qcqs.{u}} (f : X' ⟶ X)
     D.deRhamPullback f i (D.componentEquiv X i a) =
       D.componentEquiv X' i
         ⟨D.A.map f.op a,
-          @ChernClass.Theory.pullback_mem _ _ Qcqs.toScheme D.A D.Agrade
+          @ChernClass.CohomologyTheory.pullback_mem _ _ Qcqs.toScheme D.A D.Agrade
             D.gradedAlgebra D.toTheory X' X f i a⟩ := sorry
 
 /-- The all-degree pullback is the map induced by the canonical de Rham-complex comparison. -/
@@ -305,21 +301,21 @@ theorem deRhamPullback_eq_of_theories (D D' : ChernTheory.{u})
 theorem firstChernClass_spec (D : ChernTheory.{u}) (X : Qcqs.{u})
     (L : X.obj.PicardGroup) :
     D.componentEquiv X 1
-        (@ChernClass.Theory.firstChernClass _ _ Qcqs.toScheme D.A D.Agrade
+        (@ChernClass.CohomologyTheory.firstChernClass _ _ Qcqs.toScheme D.A D.Agrade
           D.gradedAlgebra D.toTheory X L) =
       (D.chernClass X).deRhamFirstChern L := sorry
 
 /-- The graded first Chern class carried by an absolute de Rham Chern theory. -/
 def gradedFirstChernClass (D : ChernTheory.{u}) :
     ∀ X, (Qcqs.toScheme.obj X).PicardGroup →+ D.Agrade X 1 :=
-  @ChernClass.Theory.firstChernClass _ _ Qcqs.toScheme D.A D.Agrade
+  @ChernClass.CohomologyTheory.firstChernClass _ _ Qcqs.toScheme D.A D.Agrade
     D.gradedAlgebra D.toTheory
 
 /-- `gradedFirstChernClass` is the first Chern class stored in the underlying theory. -/
 theorem gradedFirstChernClass_apply (D : ChernTheory.{u}) (X : Qcqs.{u})
     (L : (Qcqs.toScheme.obj X).PicardGroup) :
     D.gradedFirstChernClass X L =
-      @ChernClass.Theory.firstChernClass _ _ Qcqs.toScheme D.A D.Agrade
+      @ChernClass.CohomologyTheory.firstChernClass _ _ Qcqs.toScheme D.A D.Agrade
         D.gradedAlgebra D.toTheory X L := sorry
 
 end ChernTheory
@@ -393,7 +389,7 @@ def lineBundleValue (D : ChernTheory.{u}) (X : Scheme.Qcqs.{u})
   | 0 => D.deRhamUnit X 0
   | 1 => D.deRhamUnit X 1 +
       D.componentEquiv X 1
-        (@ChernClass.Theory.firstChernClass _ _ Scheme.Qcqs.toScheme D.A D.Agrade
+        (@ChernClass.CohomologyTheory.firstChernClass _ _ Scheme.Qcqs.toScheme D.A D.Agrade
           D.gradedAlgebra D.toTheory X L)
   | n + 2 => D.deRhamUnit X (n + 2)
 

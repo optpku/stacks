@@ -1,11 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Proper.Henselian
 public import Mathlib.AlgebraicGeometry.Spec
 public import Mathlib.RingTheory.Henselian
 public import Mathlib.Topology.Defs.Basic
@@ -36,35 +32,7 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-variable {A : Type u} [CommRing A]
-
-/-- The morphism `Spec(A ⧸ I) ⟶ Spec A`, as algebraic spaces over `Spec A`. -/
-abbrev specQuotientι (I : Ideal A) :
-    ofOver (Over.mk (@Spec.quotientMap (CommRingCat.of A) I)) ⟶
-      ofOver (Over.mk (𝟙 (Spec (CommRingCat.of A)))) :=
-  ofOverHomMk (@Spec.quotientMap (CommRingCat.of A) I)
-    (Category.comp_id (@Spec.quotientMap (CommRingCat.of A) I))
-
-/-- `specQuotientι I` is `ofOverHomMk` of `Spec.quotientMap I`. -/
-theorem specQuotientι_eq (I : Ideal A) :
-    specQuotientι I =
-      ofOverHomMk (@Spec.quotientMap (CommRingCat.of A) I)
-        (Category.comp_id (@Spec.quotientMap (CommRingCat.of A) I)) :=
-  sorry
-
-/-- The special fibre `X₀ = X ×_{Spec A} Spec(A ⧸ I)`, as an algebraic space over
-`Spec A`. -/
-abbrev fiberOverQuotient (I : Ideal A) (X : AlgebraicSpace (Spec (CommRingCat.of A))) :
-    AlgebraicSpace (Spec (CommRingCat.of A)) :=
-  pullback (toBase X) (specQuotientι I)
-
-/-- `fiberOverQuotient I X` is the fibre product of `toBase X` with `specQuotientι I`. -/
-theorem fiberOverQuotient_eq (I : Ideal A)
-    (X : AlgebraicSpace (Spec (CommRingCat.of A))) :
-    fiberOverQuotient I X = pullback (toBase X) (specQuotientι I) :=
-  sorry
-
-/-- Lemma 76.36.10: Let `(A, I)` be a henselian pair. Let `X` be an algebraic space
+/- Lemma 76.36.10: Let `(A, I)` be a henselian pair. Let `X` be an algebraic space
 separated and of finite type over `A`. Set `X₀ = X ×_{Spec A} Spec(A ⧸ I)`. Let
 `Y ⊂ X₀` be an open and closed subspace such that `Y ⟶ Spec(A ⧸ I)` is proper.
 Then there exists an open and closed subspace `W ⊂ X` which is proper over `A`
@@ -72,17 +40,16 @@ with `W ×_{Spec A} Spec(A ⧸ I) = Y`.
 
 The fibre-product equality is the comparison isomorphism of `Y` with
 `W ×_X X₀` over `X₀`. -/
-@[stacks 0CWI]
-theorem exists_clopen_proper_lift (I : Ideal A) [HenselianRing A I]
+@[stacks 0CWI] #check (AlgebraicGeometry.AlgebraicSpace.exists_clopen_proper_lift :
+  ∀ {A : Type u} [CommRing A] (I : Ideal A) [HenselianRing A I]
     (X : AlgebraicSpace (Spec (CommRingCat.of A)))
     [Separated (toBase X)] [FiniteType (toBase X)]
     (Y : OpenSubspace (fiberOverQuotient I X)) (hY : IsClopen Y.pointsSet)
-    [Proper (Y.ι ≫ pullback.snd (toBase X) (specQuotientι I))] :
+    [Proper (Y.ι ≫ pullback.snd (toBase X) (specQuotientι I))],
     ∃ (W : OpenSubspace X)
       (e : Y.X ≅ pullback W.ι (pullback.fst (toBase X) (specQuotientι I))),
       IsClopen W.pointsSet ∧ Proper (W.ι ≫ toBase X) ∧
         e.hom ≫ pullback.snd W.ι (pullback.fst (toBase X) (specQuotientι I)) =
-          Y.ι :=
-  sorry
+          Y.ι)
 
 end AlgebraicGeometry.AlgebraicSpace

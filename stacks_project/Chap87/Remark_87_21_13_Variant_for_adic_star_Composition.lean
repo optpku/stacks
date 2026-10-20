@@ -1,67 +1,50 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap87.Remark_87_21_4_Variant_for_adic_star_AdicStarRing
+public import ReasLib.RingTheory.Topology.AdicStar.Composition
 
 /-!
-# Stability under composition for morphisms of WAdm^{adic*}
+# Composition stability for continuous homomorphisms of adic-star rings
 
-A property of morphisms of adic rings with a finitely generated ideal of
-definition is stable under composition when it is preserved by composition of
-continuous ring maps.
+The composition-stability predicate, its characterization, and its application
+lemma are supplied by the shared ring-theoretic owner.
 -/
 
 @[expose] public section
 
+open TopologicalRing
+
 universe u
 
-namespace TopologicalRing.IsAdicStarRing
+/- Remark 87.21.13 (Variant for adic-star): composition stability for continuous
+homomorphisms of adic-star rings. -/
+#check (TopologicalRing.IsAdicStarRing.IsStableUnderComposition :
+  (∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsAdicStarRing A]
+      [CommRing B] [TopologicalSpace B] [IsAdicStarRing B],
+      (B →+* A) → Prop) → Prop)
 
-variable (P : ∀ {A B : Type u}
-    [CommRing A] [TopologicalSpace A] [IsAdicStarRing A]
-    [CommRing B] [TopologicalSpace B] [IsAdicStarRing B],
-    (B →+* A) → Prop)
+#check (TopologicalRing.IsAdicStarRing.isStableUnderComposition_iff :
+  ∀ (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsAdicStarRing A]
+      [CommRing B] [TopologicalSpace B] [IsAdicStarRing B],
+      (B →+* A) → Prop),
+    IsAdicStarRing.IsStableUnderComposition P ↔
+      ∀ {A B C : Type u}
+      [CommRing A] [TopologicalSpace A] [IsAdicStarRing A]
+      [CommRing B] [TopologicalSpace B] [IsAdicStarRing B]
+      [CommRing C] [TopologicalSpace C] [IsAdicStarRing C]
+      (φ : B →+* A) (ψ : C →+* B),
+      Continuous φ → Continuous ψ → P φ → P ψ → P (φ.comp ψ))
 
-/-- A property of morphisms of `WAdm^{adic*}` is stable under composition if
-`P φ` and `P ψ` imply `P (φ.comp ψ)` for continuous ring maps `φ : B →+* A`
-and `ψ : C →+* B`. -/
-def IsStableUnderComposition : Prop :=
-  ∀ {A B C : Type u}
+#check (TopologicalRing.IsAdicStarRing.IsStableUnderComposition.comp :
+  ∀ (P : ∀ {A B : Type u}
+      [CommRing A] [TopologicalSpace A] [IsAdicStarRing A]
+      [CommRing B] [TopologicalSpace B] [IsAdicStarRing B],
+      (B →+* A) → Prop)
+    {A B C : Type u}
     [CommRing A] [TopologicalSpace A] [IsAdicStarRing A]
     [CommRing B] [TopologicalSpace B] [IsAdicStarRing B]
-    [CommRing C] [TopologicalSpace C] [IsAdicStarRing C]
-    (φ : B →+* A) (ψ : C →+* B),
-    Continuous φ → Continuous ψ → P φ → P ψ → P (φ.comp ψ)
-
-/-- Stability under composition is the implication `P φ → P ψ → P (φ.comp ψ)`
-for continuous morphisms of `WAdm^{adic*}`. -/
-theorem isStableUnderComposition_iff :
-    IsStableUnderComposition P ↔
-      ∀ {A B C : Type u}
-        [CommRing A] [TopologicalSpace A] [IsAdicStarRing A]
-        [CommRing B] [TopologicalSpace B] [IsAdicStarRing B]
-        [CommRing C] [TopologicalSpace C] [IsAdicStarRing C]
-        (φ : B →+* A) (ψ : C →+* B),
-        Continuous φ → Continuous ψ → P φ → P ψ → P (φ.comp ψ) := sorry
-
-namespace IsStableUnderComposition
-
-variable {A B C : Type u}
-variable [CommRing A] [TopologicalSpace A] [IsAdicStarRing A]
-variable [CommRing B] [TopologicalSpace B] [IsAdicStarRing B]
-variable [CommRing C] [TopologicalSpace C] [IsAdicStarRing C]
-
-/-- If `P` is stable under composition, then `P φ` and `P ψ` imply
-`P (φ.comp ψ)` for continuous morphisms of `WAdm^{adic*}`. -/
-theorem comp (hP : IsStableUnderComposition P) (φ : B →+* A) (ψ : C →+* B)
-    (hφcont : Continuous φ) (hψcont : Continuous ψ) (hφ : P φ) (hψ : P ψ) :
-    P (φ.comp ψ) := sorry
-
-end IsStableUnderComposition
-
-end TopologicalRing.IsAdicStarRing
+    [CommRing C] [TopologicalSpace C] [IsAdicStarRing C],
+    IsAdicStarRing.IsStableUnderComposition P →
+    ∀ (φ : B →+* A) (ψ : C →+* B),
+      Continuous φ → Continuous ψ → P φ → P ψ → P (φ.comp ψ))

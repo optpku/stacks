@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.H.AlmostBlowup.Tests
@@ -35,7 +29,7 @@ namespace AlgebraicGeometry.ChosenBigHSite.GroupoidDescent
 morphisms of finite presentation, tested using every explicit self-pullback. -/
 def IsAffineFlatProperSurjective (Schh : ChosenBigHSite.{u, v})
     (S : Schh.carrier)
-    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, v, max u v, max u v} (Over S)) : Prop :=
+    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, u, max u v, max u v} (Over S)) : Prop :=
   ∀ ⦃U V : Over S⦄ (f : V ⟶ U)
       [IsAffine ((ChosenBigSite.sliceToScheme Schh S).obj U)]
       [Surjective ((ChosenBigSite.sliceToScheme Schh S).map f)]
@@ -49,7 +43,7 @@ def IsAffineFlatProperSurjective (Schh : ChosenBigHSite.{u, v})
 /-- Groupoid-valued descent for represented nilpotent principal-center
 almost-blow-up squares, invariant under isomorphism of represented squares. -/
 def IsPrincipalCenter (Schh : ChosenBigHSite.{u, v}) (S : Schh.carrier)
-    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, v, max u v, max u v} (Over S)) : Prop :=
+    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, u, max u v, max u v} (Over S)) : Prop :=
   ∀ (A : CommRingCat.{u}) (f : A) (J : Ideal A) (hJfg : J.FG)
       (hJ : ∃ n : ℕ, ∀ x ∈ J, f ^ n * x = 0) (sq : Square (Over S)),
     (sq.map (ChosenBigSite.sliceToScheme Schh S) ≅
@@ -60,7 +54,7 @@ def IsPrincipalCenter (Schh : ChosenBigHSite.{u, v}) (S : Schh.carrier)
 /-- Groupoid-valued descent for represented two-generator projective
 almost-blow-up squares, invariant under isomorphism of represented squares. -/
 def IsTwoGenerator (Schh : ChosenBigHSite.{u, v}) (S : Schh.carrier)
-    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, v, max u v, max u v} (Over S)) : Prop :=
+    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, u, max u v, max u v} (Over S)) : Prop :=
   ∀ (A : CommRingCat.{u}) (f₁ f₂ : A) (sq : Square (Over S)),
     (sq.map (ChosenBigSite.sliceToScheme Schh S) ≅
       (TwoGeneratorProj.toSpec_isAlmostBlowupSquare A f₁ f₂).square) →
@@ -70,7 +64,7 @@ def IsTwoGenerator (Schh : ChosenBigHSite.{u, v}) (S : Schh.carrier)
 /-- Restriction of a stack in groupoids for the h topology to the Zariski
 topology is again a stack in groupoids. -/
 theorem zariskiOfIsStack (Schh : ChosenBigHSite.{u, v}) (S : Schh.carrier)
-    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, v, max u v, max u v} (Over S))
+    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, u, max u v, max u v} (Over S))
     (h𝒮 : IsStack.InGroupoids (bigTopology Schh S) 𝒮.p) :
     IsStack.InGroupoids (bigZariskiTopology Schh S) 𝒮.p := sorry
 
@@ -78,7 +72,7 @@ theorem zariskiOfIsStack (Schh : ChosenBigHSite.{u, v}) (S : Schh.carrier)
 flat proper morphism of finite presentation. -/
 theorem affineFlatProperDescentOfIsStack
     (Schh : ChosenBigHSite.{u, v}) (S : Schh.carrier)
-    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, v, max u v, max u v} (Over S))
+    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, u, max u v, max u v} (Over S))
     (h𝒮 : IsStack.InGroupoids (bigTopology Schh S) 𝒮.p) :
     IsAffineFlatProperSurjective Schh S 𝒮 := sorry
 
@@ -86,7 +80,7 @@ theorem affineFlatProperDescentOfIsStack
 principal-center almost-blow-up squares. -/
 theorem principalCenterDescentOfIsStack
     (Schh : ChosenBigHSite.{u, v}) (S : Schh.carrier)
-    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, v, max u v, max u v} (Over S))
+    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, u, max u v, max u v} (Over S))
     (h𝒮 : IsStack.InGroupoids (bigTopology Schh S) 𝒮.p) :
     IsPrincipalCenter Schh S 𝒮 := sorry
 
@@ -94,7 +88,7 @@ theorem principalCenterDescentOfIsStack
 projective almost-blow-up squares. -/
 theorem twoGeneratorDescentOfIsStack
     (Schh : ChosenBigHSite.{u, v}) (S : Schh.carrier)
-    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, v, max u v, max u v} (Over S))
+    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, u, max u v, max u v} (Over S))
     (h𝒮 : IsStack.InGroupoids (bigTopology Schh S) 𝒮.p) :
     IsTwoGenerator Schh S 𝒮 := sorry
 
@@ -102,7 +96,7 @@ theorem twoGeneratorDescentOfIsStack
 the two canonical almost-blow-up test families imply the h-stack condition. -/
 theorem ofZariskiFlatProperExampleDescent
     (Schh : ChosenBigHSite.{u, v}) (S : Schh.carrier)
-    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, v, max u v, max u v} (Over S))
+    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, u, max u v, max u v} (Over S))
     (h_zariski : IsStack.InGroupoids (bigZariskiTopology Schh S) 𝒮.p)
     (h_flatProper : IsAffineFlatProperSurjective Schh S 𝒮)
     (h_principal : IsPrincipalCenter Schh S 𝒮)
@@ -114,7 +108,7 @@ exactly when it satisfies Zariski descent, affine flat-proper-surjective
 descent, and descent for the two canonical almost-blow-up test families. -/
 theorem iffZariskiAndFlatProperExampleDescent
     (Schh : ChosenBigHSite.{u, v}) (S : Schh.carrier)
-    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, v, max u v, max u v} (Over S)) :
+    (𝒮 : FiberedCategoryOver.Groupoids.{max u v, u, max u v, max u v} (Over S)) :
     IsStack.InGroupoids (bigTopology Schh S) 𝒮.p ↔
       IsStack.InGroupoids (bigZariskiTopology Schh S) 𝒮.p ∧
         IsAffineFlatProperSurjective Schh S 𝒮 ∧

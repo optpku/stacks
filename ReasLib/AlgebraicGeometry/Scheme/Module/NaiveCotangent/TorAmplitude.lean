@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Flat
@@ -39,6 +33,7 @@ Tor-amplitude in `[-1, 0]`. -/
 @[stacks 0FV6 "Tor-amplitude component"]
 theorem hasTorAmplitudeIn_of_lci
     {X Y : Scheme.{u}} (f : X ⟶ Y)
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     [LocallyOfType RingHom.IsLocalCompleteIntersection f] :
     RingedSpace.HasTorAmplitudeIn
       (DerivedCategory.Q.obj (RingedSpace.naiveCotangent f.toShHom)) (-1) 0 := sorry
@@ -47,6 +42,7 @@ theorem hasTorAmplitudeIn_of_lci
 and has Tor-amplitude in `[-1, 0]`. -/
 theorem isPerfect_and_hasTorAmplitudeIn_of_lci
     {X Y : Scheme.{u}} (f : X ⟶ Y)
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     [LocallyOfType RingHom.IsLocalCompleteIntersection f] :
     RingedSpace.ModuleDerived.IsPerfect
         (DerivedCategory.Q.obj (RingedSpace.naiveCotangent f.toShHom)) ∧
@@ -56,7 +52,8 @@ theorem isPerfect_and_hasTorAmplitudeIn_of_lci
 /-- For a flat finitely presented scheme morphism, being a local complete intersection,
 being syntomic, having derived naive cotangent complex of Tor-amplitude in `[-1, 0]`, and
 having that complex perfect with the same Tor-amplitude are equivalent. -/
-theorem flatFinitePresentation_tfae {X Y : Scheme.{u}} (f : X ⟶ Y) [Flat f]
+theorem flatFinitePresentation_tfae {X Y : Scheme.{u}} (f : X ⟶ Y)
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)] [Flat f]
     [Scheme.Hom.FinitePresentation f] :
     List.TFAE [LocallyOfType RingHom.IsLocalCompleteIntersection f,
       Syntomic f,
@@ -72,6 +69,7 @@ intersection, having derived naive cotangent complex of Tor-amplitude in `[-1, 0
 having that complex perfect with the same Tor-amplitude are equivalent. -/
 @[stacks 0FK2]
 theorem perfect_tfae {X Y : Scheme.{u}} (f : X ⟶ Y)
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
     [IsLocallyNoetherian X] [IsLocallyNoetherian Y]
     [LocallyOfType RingHom.IsPerfectRingMap f] :
     List.TFAE [LocallyOfType RingHom.IsLocalCompleteIntersection f,

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation
@@ -33,6 +27,8 @@ Rim-Schlessinger condition. -/
 class IsDeformationCategory (p : F ⥤ ArtinianLocalAlgCat Λ k) : Prop
     extends IsPredeformationCategory p where
   [hasRimSchlessinger : HasRimSchlessinger p]
+
+attribute [instance] IsDeformationCategory.hasRimSchlessinger
 
 /-- The identity functor on `ArtinianLocalAlgCat Λ k` is a deformation category. -/
 instance instIsDeformationCategoryId :

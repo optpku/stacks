@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.RelativeProj.Representability
@@ -63,10 +57,9 @@ is isomorphic over `S` to the chosen scheme representing the relative projective
       𝒜 hqc A σ sectionGrading model hModel P sectionRestrict sectionRestrict_spec
       baseMap degreeToFunctor_base associatedToQuadruples R
       F.toFunctor.reprx IsRepresentedBy.of_isRepresentable :
-    Nonempty
-      (Over.mk R.toBase ≅
-        Over.mk
-          (baseMap.app (Opposite.op F.toFunctor.reprX) F.toFunctor.reprx)))
+    Over.mk R.toBase ≅
+      Over.mk
+        (baseMap.app (Opposite.op F.toFunctor.reprX) F.toFunctor.reprx))
 
 end
 

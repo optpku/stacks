@@ -1,18 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Data.List.TFAE
-public import ReasLib.CategoryTheory.Fibered.Groupoids.Diagonal.Construction
-public import stacks_project.Chap94.Lemma_94_14_3_Pullback
-public import stacks_project.Chap101.Lemma_101_25_5_Flat
-public import stacks_project.Chap101.Lemma_101_36_4_Etale
-public import stacks_project.Chap101.Lemma_101_36_4_Unramified
-public import stacks_project.Chap106.Lemma_106_10_1_LocallyOfFinitePresentation
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Etale.FlatUnramified
+import StacksCheckRecall
 
 /-!
 # Characterizations of étale morphisms of algebraic stacks
@@ -32,68 +21,66 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack.Etale
 
-variable {S : Scheme.{u}} {X Y : GroupoidsOver S}
-variable [AlgebraicStack X] [AlgebraicStack Y]
-
-/-- Lemma 101.36.10: Let `f : X ⟶ Y` be a morphism of algebraic stacks. The
+/- Lemma 101.36.10: Let `f : X ⟶ Y` be a morphism of algebraic stacks. The
 following are equivalent: `Etale f`; `LocallyOfFinitePresentation f`, `Flat f`,
 and `Unramified f`; and `LocallyOfFinitePresentation f`, `Flat f`, and
 `Etale (Hom.diagonal f)`.
 
 Stacks writes the diagonal of `f` as `Δ : X ⟶ X ×_Y X`; the Lean morphism is
 `Hom.diagonal f : X ⟶ TwoFibreProduct.apex f f`. -/
-@[stacks 0CJ1]
-theorem tfae (f : X ⟶ Y) :
+@[stacks 0CJ1] #check
+  (AlgebraicGeometry.AlgebraicStack.Etale.tfae_flat_unramified :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+      [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
     List.TFAE
       [Etale f,
         LocallyOfFinitePresentation f ∧ Flat f ∧ Unramified f,
         LocallyOfFinitePresentation f ∧
-          Flat f ∧ Etale (Hom.diagonal.{u + 1, u, u + 1} f)] :=
-  sorry
+          Flat f ∧ Etale (Hom.diagonal.{u + 1, u, u + 1} f)])
 
-/-- A morphism of algebraic stacks is étale if and only if it is locally of
+/- A morphism of algebraic stacks is étale if and only if it is locally of
 finite presentation, flat, and unramified. -/
-@[stacks 0CJ1]
-theorem iff_locallyOfFinitePresentation_flat_unramified (f : X ⟶ Y) :
-    Etale f ↔ LocallyOfFinitePresentation f ∧ Flat f ∧ Unramified f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.Etale.iff_locallyOfFinitePresentation_flat_unramified :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
+    Etale f ↔ LocallyOfFinitePresentation f ∧ Flat f ∧ Unramified f)
 
-/-- A morphism of algebraic stacks is étale if and only if it is locally of
+/- A morphism of algebraic stacks is étale if and only if it is locally of
 finite presentation, flat, and its relative 2-diagonal is étale. -/
-@[stacks 0CJ1]
-theorem iff_locallyOfFinitePresentation_flat_etale_diagonal (f : X ⟶ Y) :
+#check (AlgebraicGeometry.AlgebraicStack.Etale.iff_locallyOfFinitePresentation_flat_etale_diagonal :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
     Etale f ↔
       LocallyOfFinitePresentation f ∧
-        Flat f ∧ Etale (Hom.diagonal.{u + 1, u, u + 1} f) :=
-  sorry
+        Flat f ∧ Etale (Hom.diagonal.{u + 1, u, u + 1} f))
 
-/-- An étale morphism of algebraic stacks is locally of finite presentation. -/
-@[stacks 0CJ1]
-instance locallyOfFinitePresentation (f : X ⟶ Y) [Etale f] :
-    LocallyOfFinitePresentation f :=
-  sorry
+/- An étale morphism of algebraic stacks is locally of finite presentation. -/
+#check (AlgebraicGeometry.AlgebraicStack.Etale.locallyOfFinitePresentation :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Etale f],
+    LocallyOfFinitePresentation f)
 
-/-- An étale morphism of algebraic stacks is flat. -/
-@[stacks 0CJ1]
-instance flat (f : X ⟶ Y) [Etale f] :
-    Flat f :=
-  sorry
+/- An étale morphism of algebraic stacks is flat. -/
+#check (AlgebraicGeometry.AlgebraicStack.Etale.flat :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Etale f],
+    Flat f)
 
-/-- A locally of finite presentation, flat, unramified morphism of algebraic
+/- A locally of finite presentation, flat, unramified morphism of algebraic
 stacks is étale. -/
-@[stacks 0CJ1, instance 900]
-instance of_locallyOfFinitePresentation_of_flat_of_unramified (f : X ⟶ Y)
-    [LocallyOfFinitePresentation f] [Flat f] [Unramified f] :
-    Etale f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.Etale.of_locallyOfFinitePresentation_of_flat_of_unramified :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+    [LocallyOfFinitePresentation f] [Flat f] [Unramified f],
+    Etale f)
 
-/-- A locally of finite presentation, flat morphism of algebraic stacks whose
+/- A locally of finite presentation, flat morphism of algebraic stacks whose
 relative 2-diagonal is étale is étale. -/
-@[stacks 0CJ1, instance 900]
-instance of_locallyOfFinitePresentation_of_flat_of_etale_diagonal (f : X ⟶ Y)
+#check (AlgebraicGeometry.AlgebraicStack.Etale.of_locallyOfFinitePresentation_of_flat_of_etale_diagonal :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
     [LocallyOfFinitePresentation f] [Flat f]
-    [Etale (Hom.diagonal.{u + 1, u, u + 1} f)] :
-    Etale f :=
-  sorry
+    [Etale (Hom.diagonal.{u + 1, u, u + 1} f)],
+    Etale f)
 
 end AlgebraicGeometry.AlgebraicStack.Etale

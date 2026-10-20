@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Henselization
@@ -27,6 +21,9 @@ universe u
 noncomputable section
 
 namespace AlgebraicGeometry.Scheme.EtaleVanishingCycles
+
+-- Construct sheafification using the inf-semilattice of covering sieves.
+attribute [local instance 2000] isCofiltered_of_semilatticeInf_nonempty
 
 /-- Abelian coefficients in a universe containing the small étale site. -/
 abbrev Coefficients (X : Scheme.{u}) :=
@@ -75,8 +72,7 @@ def sectionsPullback {X Y : Scheme.{u}} (f : X ⟶ Y) :
     sections Y ⟶ inverseImage f ⋙ sections X where
   app F :=
     (sections Y).map
-      (((smallEtalePullback f).sheafAdjunctionContinuous AddCommGrpCat.{u + 1}
-        Y.smallEtaleTopology X.smallEtaleTopology).unit.app F) ≫
+      ((Etale.Abelian.adjunction f).unit.app F) ≫
       (CategoryTheory.SiteAbelianSectionsDerived.sectionsIso.{u + 1, u, u + 1, u, u + 1}
         (JC := Y.smallEtaleTopology) (JD := X.smallEtaleTopology)
         (smallEtalePullback f) (unitObject Y)).hom.app ((inverseImage f).obj F) ≫

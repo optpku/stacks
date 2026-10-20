@@ -1,63 +1,28 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.AffineScheme
-public import Mathlib.CategoryTheory.Category.Preorder
-public import Mathlib.CategoryTheory.Limits.HasLimits
-public import Mathlib.CategoryTheory.Yoneda
-public import Mathlib.Order.Directed
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Thickening
-public import stacks_project.Chap66.Definition_66_5_1_QuasiCompact
-
-/-!
-# Factoring maps from quasi-compact algebraic spaces through affine thickenings
-
-If `X` is presented as a directed colimit of affine schemes along thickening
-transitions, as in Definition 87.9.1, then every morphism from a quasi-compact
-algebraic space into `X` factors through some stage.
--/
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.FactorThroughStage
+import StacksCheckRecall
 
 @[expose] public section
 
-open AlgebraicGeometry AlgebraicSpace CategoryTheory Limits
+open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
 
-universe u
+universe u v
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 87.9.4: Let `D : Λ ⥤ Over S` be a directed system of affine schemes
-over `S` with thickening transitions, as in Definition 87.9.1, and let `c` be a
-colimit cocone of `D ⋙ yoneda`, so that `X = c.pt` is the colimit of
-`yoneda.obj (D.obj i)`. If `Y` is a quasi-compact algebraic space over `S`,
-then any morphism `Y.functorOfPoints ⟶ X` factors through
-`yoneda.obj (D.obj i)` for some `i`. -/
-@[stacks 0AIA]
-theorem exists_factorThroughStage
-    {S : Scheme.{u}} {Λ : Type u} [Preorder Λ] [IsDirected Λ (· ≤ ·)]
-    (D : Λ ⥤ Over S) (h_affine : ∀ i, IsAffine (D.obj i).left)
-    (h_thickening : ∀ {i j : Λ} (f : i ⟶ j), IsThickening (D.map f).left)
-    (c : Cocone (D ⋙ yoneda)) (hc : IsColimit c)
-    {Y : AlgebraicSpace S} [IsQuasiCompact Y] (f : Y.functorOfPoints ⟶ c.pt) :
-    ∃ (i : Λ) (g : Y.functorOfPoints ⟶ yoneda.obj (D.obj i)),
-      g ≫ c.ι.app i = f :=
-  sorry
-
-/-- A morphism from the Yoneda embedding of a quasi-compact scheme over `S`
-into the colimit of a directed affine thickening system factors through some
-stage. -/
-theorem exists_factorThroughStage_yoneda
-    {S : Scheme.{u}} {Λ : Type u} [Preorder Λ] [IsDirected Λ (· ≤ ·)]
-    (D : Λ ⥤ Over S) (h_affine : ∀ i, IsAffine (D.obj i).left)
-    (h_thickening : ∀ {i j : Λ} (f : i ⟶ j), IsThickening (D.map f).left)
-    (c : Cocone (D ⋙ yoneda)) (hc : IsColimit c)
-    {U : Over S} [CompactSpace U.left] (f : yoneda.obj U ⟶ c.pt) :
-    ∃ (i : Λ) (g : yoneda.obj U ⟶ yoneda.obj (D.obj i)),
-      g ≫ c.ι.app i = f :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+/- Lemma 87.9.4 -/
+@[stacks 0AIA] #check
+  (AlgebraicGeometry.FormalAlgebraicSpace.exists_factorThroughStage :
+    ∀ {S : Scheme.{u}} {Λ : Type v} [Preorder Λ] [IsDirected Λ (· ≤ ·)] [Nonempty Λ]
+      (D : Λ ⥤ Over S) {X : (Over S)ᵒᵖ ⥤ Type u}
+      (hcolim : AlgebraicGeometry.FormalAlgebraicSpace.IsDirectedAffineThickeningColimit D X)
+      (c : Cocone (D ⋙ yoneda)) (hc : IsColimit c) (η : c.pt ⟶ X)
+      (hη_surj : Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S) η)
+      (hη_inj : Presheaf.IsLocallyInjective (Scheme.fppfTopology.over S) η)
+      (h_presentation : ∃ (U R : Over S) (π : yoneda.obj U ⟶ X)
+        (σ : yoneda.obj R ⟶ pullback π π),
+        Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S) π ∧
+          Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S) σ)
+      {Y : AlgebraicSpace S} [AlgebraicSpace.IsQuasiCompact Y]
+      (f : Y.functorOfPoints ⟶ X),
+      ∃ (i : Λ) (g : Y.functorOfPoints ⟶ yoneda.obj (D.obj i)),
+        g ≫ c.ι.app i ≫ η = f)

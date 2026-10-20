@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.GradedObject
@@ -150,38 +144,5 @@ instance pushforwardIsRightAdjoint.{uI, z, uX, vX, uY, vY, w}
     (adjunction (I := I) f).homEquiv B A = homEquiv f B A := sorry
 
 end Graded
-
-/-! Compatibility names for the Chapter 24 graded-module API. -/
-
-/-- Compatibility name for degreewise direct image of graded module sheaves. -/
-abbrev gradedPushforward.{uI, z, uX, vX, uY, vY, w}
-    {I : Type uI} {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
-    (f : Hom X Y) :
-    GradedObject I (ModuleCat.{z} X) ⥤ GradedObject I (ModuleCat.{z} Y) :=
-  Graded.pushforward f
-
-/-- Compatibility name for degreewise inverse image of graded module sheaves. -/
-abbrev gradedPullback.{uI, z, uX, vX, uY, vY, w}
-    {I : Type uI} {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
-    (f : Hom X Y) [(f.modulePushforward.{z}).IsRightAdjoint] :
-    GradedObject I (ModuleCat.{z} Y) ⥤ GradedObject I (ModuleCat.{z} X) :=
-  Graded.pullback f
-
-/-- Compatibility orientation of the graded pullback-pushforward Hom equivalence. -/
-noncomputable abbrev gradedPushforwardPullbackHomEquiv.{uI, z, uX, vX, uY, vY, w}
-    {I : Type uI} {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
-    (f : Hom X Y) [(f.modulePushforward.{z}).IsRightAdjoint]
-    (B : GradedObject I (ModuleCat.{z} Y)) (A : GradedObject I (ModuleCat.{z} X)) :
-    (B ⟶ (gradedPushforward f).obj A) ≃ ((gradedPullback f).obj B ⟶ A) :=
-  (Graded.homEquiv f B A).symm
-
-/-- Compatibility evaluation formula for the inverse source-oriented graded Hom equivalence. -/
-@[simp] theorem gradedPushforwardPullbackHomEquiv_symm_apply_apply.{uI, z, uX, vX, uY, vY, w}
-    {I : Type uI} {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
-    (f : Hom X Y) [(f.modulePushforward.{z}).IsRightAdjoint]
-    (B : GradedObject I (ModuleCat.{z} Y)) (A : GradedObject I (ModuleCat.{z} X))
-    (g : (gradedPullback f).obj B ⟶ A) (i : I) :
-    ((gradedPushforwardPullbackHomEquiv f B A).symm g) i =
-      f.modulePullbackHomEquiv (B i) (A i) (g i) := sorry
 
 end RingedSite.Hom

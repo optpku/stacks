@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Graded.Bimodule
@@ -29,7 +23,7 @@ variable (M N : GradedBimodule 𝒪 A B)
 /- Definition 24.8.1 (1): a graded `(A, B)`-bimodule on a ringed site `(C, 𝒪)` is a
 `ℤ`-indexed family of `𝒪`-modules with `𝒪`-bilinear left `A`-action and right `B`-action,
 associative on each side, mixed-associative, and unital for `1` in `A⁰` and `B⁰`. -/
-@[stacks 0FR5] #check GradedBimodule 𝒪 A B
+@[stacks 0FR5] #check (SheafOfModules.RingedSite.GradedBimodule 𝒪 A B : Type (max (u + 1) (v + 1)))
 
 /- The right multiplication is the packaged right graded `B`-module. -/
 #check M.toRightModule
@@ -39,6 +33,6 @@ associative on each side, mixed-associative, and unital for `1` in `A⁰` and `B
 
 /- Definition 24.8.1 (2): a homomorphism of graded `(A, B)`-bimodules is a degreewise family
 of `𝒪`-module maps compatible with both multiplication maps. -/
-@[stacks 0FR5] #check GradedBimodule.Hom M N
+@[stacks 0FR5] #check (SheafOfModules.RingedSite.GradedBimodule.Hom M N : Type (max u v))
 
 end

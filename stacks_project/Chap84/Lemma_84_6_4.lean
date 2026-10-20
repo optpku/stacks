@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.CatCommSq
-public import stacks_project.Chap84.Lemma_84_6_4_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Fppf.EtaleComparison
+import StacksCheckRecall
 
 /-!
 # Lemma 84.6.4
@@ -18,41 +12,30 @@ composite uses `π_Y ∘ ε_Y` on the `Y` side.
 
 @[expose] public section
 
-open CategoryTheory
-open AlgebraicGeometry
-open AlgebraicGeometry.AlgebraicSpace
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
+open AlgebraicGeometry.AlgebraicSpace.Fppf
 open scoped MorphismOfTopoiIn
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Fppf
-
-/-- Lemma 84.6.4 (1): for a morphism `f : X ⟶ Y` of algebraic spaces over a
-scheme `S`, the big fppf and big étale morphisms of topoi commute with the
-identity-on-objects comparisons `epsilon X` and `epsilon Y`. -/
-@[stacks 0DGI]
-theorem bigEtaleCommSq {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+/- Lemma 84.6.4 (1): the big fppf and big étale morphisms commute with
+identity-induced comparison. -/
+@[stacks 0DGI] #check (AlgebraicGeometry.AlgebraicSpace.Fppf.bigEtaleCommSq :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
     Nonempty (CatCommSq
-      (Big.morphismOfTopoi f).pushforward
+      (CategoryTheory.Over.Site.morphismOfTopoi.{u + 1, u + 1, u + 1}
+        (fppfTopology S) f).pushforward
       (epsilon X).pushforward
       (epsilon Y).pushforward
-      (Etale.Big.morphismOfTopoi f).pushforward) := sorry
+      (Etale.Big.morphismOfTopoi f).pushforward))
 
-/-- Lemma 84.6.4 (2): after composing `a_X = π_X ∘ ε_X` and `a_Y = π_Y ∘ ε_Y`
-(the printed formula `a_Y = π_X ∘ ε_X` is an `X`-subscript typo), the resulting
-direct-image square with `f_small` commutes. -/
-@[stacks 0DGI]
-theorem smallEtaleCommSq {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+/- Lemma 84.6.4 (2): the big fppf and small étale morphisms commute with
+the comparisons `a_X = π_X ∘ ε_X` and `a_Y = π_Y ∘ ε_Y`. -/
+@[stacks 0DGI] #check (AlgebraicGeometry.AlgebraicSpace.Fppf.smallEtaleCommSq :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
     Nonempty (CatCommSq
-      (Big.morphismOfTopoi f).pushforward
+      (CategoryTheory.Over.Site.morphismOfTopoi.{u + 1, u + 1, u + 1}
+        (fppfTopology S) f).pushforward
       (Etale.SmallToBig.fppfComparison X).pushforward
       (Etale.SmallToBig.fppfComparison Y).pushforward
-      (Etale.SmallToBig.smallMorphism f).pushforward) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Fppf
-
-end
-
-end
+      (smallEtaleMorphismOfTopoi f).pushforward))

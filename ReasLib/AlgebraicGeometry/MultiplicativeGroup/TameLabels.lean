@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.MultiplicativeGroup.TameGeometry
@@ -13,6 +7,7 @@ public import ReasLib.AlgebraicGeometry.MultiplicativeGroup.TameGeometry
 @[expose] public section
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.Scheme TopologicalSpace
 noncomputable section
+open ProfiniteGrp (hatZ hatZNatCast)
 universe u v
 
 namespace MultiplicativeGroupTame
@@ -82,7 +77,7 @@ theorem exists_quotient_comparison :
 /-- Every representative of the actual degree-d orbit has numerical degree d. -/
 theorem label_degree (p : ℕ) [Fact p.Prime] (ηp : GeometricPoint (space (ZMod p)))
     (d : ℕ+) (x : points (ZMod p) d) (g : fundamentalGroup (ZMod p) ηp)
-    (hg : g ∈ labels (ZMod p) ηp d x) : degreeToIntegers p ηp g = integerNat d.val := by
+    (hg : g ∈ labels (ZMod p) ηp d x) : degreeToIntegers p ηp g = hatZNatCast d.val := by
   obtain ⟨t, rfl⟩ := hg
   exact frobeniusAlong_degree p ηp d x t
 

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.Valuation.ValuationRing
@@ -14,14 +8,12 @@ public import ReasLib.RingTheory.Coherent.Basic
 /-!
 # Valuation Rings Are Coherent
 
-@stack 0EWV
-
-The coherent-ring instance attached to a valuation ring.
+Every valuation domain is a coherent ring.
 -/
 
 universe u
 
-/-- Example 10.90.2: every valuation ring is coherent. -/
+/-- Every valuation domain is coherent. -/
 @[stacks 0EWV]
 instance valuationRing_isCoherentRing (A : Type u) [CommRing A] [IsDomain A]
     [ValuationRing A] : IsCoherentRing A := sorry

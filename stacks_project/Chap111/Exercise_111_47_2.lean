@@ -1,32 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap111.Exercise_111_47_2_Family
-import Mathlib.Tactic.CrossRefAttribute
-
-@[expose] public section
-
-open AlgebraicGeometry CategoryTheory
-open scoped AlgebraicGeometry
-
-noncomputable section
+public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve.Hyperelliptic.Moduli
+import StacksCheckRecall
 
 universe u
 
-namespace AlgebraicGeometry.Curve
-
-/-- Exercise 111.47.2: over an algebraically closed field `k` and for `2 ≤ g`, the
-naive number of moduli of smooth projective hyperelliptic curves of genus `g` is
-`2 * g - 1`. -/
-@[stacks 0EGQ]
-theorem hyperellipticNumberOfModuli_eq {k : Type u} [Field k] [IsAlgClosed k]
-    {g : ℕ} (hg : 2 ≤ g) :
-    hyperellipticNumberOfModuli k g = 2 * g - 1 :=
-  sorry
-
-end AlgebraicGeometry.Curve
+/- Exercise 111.47.2: the moduli of hyperelliptic curves of genus `g` has number
+of moduli `2 * g - 1` over an algebraically closed field when `2 ≤ g`. -/
+@[stacks 0EGQ] #check
+  (AlgebraicGeometry.Curve.Hyperelliptic.Moduli.hasNumberOfModuli_hyperelliptic :
+    ∀ {k : Type u} [Field k] [IsAlgClosed k] {g : ℕ}, 2 ≤ g →
+      AlgebraicGeometry.Curve.Hyperelliptic.Moduli.HasNumberOfModuli k g (2 * g - 1))

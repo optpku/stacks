@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap72.Definition_72_8_1_Modification
-public import stacks_project.Chap72.Lemma_72_3_3_IsomorphismLocus
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Modification.IsomorphismLocus
+import StacksCheckRecall
 
 /-!
 # Modifications are isomorphisms over a nonempty open
@@ -24,23 +18,19 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 72.8.2: Let `f : X' ⟶ X` be a modification as in Definition 72.8.1.
+/- Lemma 72.8.2: Let `f : X' ⟶ X` be a modification as in Definition 72.8.1.
 There exists a nonempty open `U ⊂ X` such that `f⁻¹(U) ⟶ U` is an
 isomorphism. -/
-@[stacks 0AD9]
-theorem exists_nonempty_open_isIso_of_isModification
-    {S : Scheme.{u}} {X' X : AlgebraicSpace S}
-    [IsIntegral X'] [IsIntegral X] (f : X' ⟶ X) [IsModification f] :
-    ∃ U : OpenSubspace X, U.pointsSet.Nonempty ∧
-      IsIso (openInverseImageTo f U.ι) :=
-  sorry
+@[stacks 0AD9] #check (AlgebraicGeometry.AlgebraicSpace.exists_nonempty_open_isIso_of_isModification :
+  ∀ {S : Scheme.{u}} {X' X : AlgebraicSpace S}
+    [IsIntegral X'] [IsIntegral X] (f : X' ⟶ X) [IsModification f],
+    ∃ U : OpenSubspace X, U.pointsSet.Nonempty ∧ IsIso (restrictTo f U))
 
-/-- The isomorphism locus of a modification of integral algebraic spaces is
+/- The isomorphism locus of a modification of integral algebraic spaces is
 nonempty. -/
-theorem isomorphismLocus_nonempty_of_isModification
-    {S : Scheme.{u}} {X' X : AlgebraicSpace S}
-    [IsIntegral X'] [IsIntegral X] (f : X' ⟶ X) [IsModification f] :
-    (isomorphismLocus f).Nonempty :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.isomorphismLocus_nonempty_of_isModification :
+  ∀ {S : Scheme.{u}} {X' X : AlgebraicSpace S}
+    [IsIntegral X'] [IsIntegral X] (f : X' ⟶ X) [IsModification f],
+    (isomorphismLocus f).Nonempty)
 
 end AlgebraicGeometry.AlgebraicSpace

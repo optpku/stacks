@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Topology.Sheaves.Functors
@@ -485,17 +479,74 @@ noncomputable def ofSheafFunctor (U : ι → Opens X) :
   map_id := ofSheafMap_id U
   map_comp := ofSheafMap_comp U
 
-/-- The proof-level existence source for the fully faithful restriction functor on an open cover.
-The public witness is `ofSheafFunctorFullyFaithful`, which hides this noncomputable choice. -/
-theorem ofSheafFunctor_fullyFaithful (U : ι → Opens X) (hU : IsOpenCover U) :
-    Nonempty (ofSheafFunctor (C := C) U).FullyFaithful := sorry
+/-- The chart opens of an open family: an open `V` of the subspace `U i` is sent to its image in
+the ambient space. -/
+abbrev chartOpen (U : ι → Opens X) (p : Σ i, Opens (space (U i))) : Opens X :=
+  (U p.1).isOpenEmbedding.functor.obj p.2
 
-/-- Restriction to an open cover is fully faithful for sheaves valued in any coefficient category.
-Essential surjectivity requires additional descent hypotheses and is supplied separately by the
-algebraic basis construction. -/
+/-- For an open cover, the chart opens of all members form a basis of the ambient topology: an
+ambient open `W` around `x ∈ U i` contains the chart open `W ∩ U i`. -/
+theorem isBasis_range_chartOpen (U : ι → Opens X) (hU : IsOpenCover U) :
+    Opens.IsBasis (Set.range (chartOpen U)) := by
+  rw [Opens.isBasis_iff_nbhd]
+  intro W x hx
+  have hxU : x ∈ iSup U := by
+    rw [show iSup U = ⊤ from hU]
+    trivial
+  obtain ⟨i, hi⟩ := Opens.mem_iSup.mp hxU
+  refine ⟨chartOpen U ⟨i, (Opens.map (U i).inclusion').obj W⟩, ⟨_, rfl⟩, ?_, ?_⟩
+  · rw [chartOpen, TopologicalSpace.Opens.functor_map_eq_inf]
+    exact ⟨hx, hi⟩
+  · rw [chartOpen, TopologicalSpace.Opens.functor_map_eq_inf]
+    exact inf_le_left
+
+/-- The local components of a morphism of canonical gluing data, read on the chart-open basis of
+the ambient space. The component at the chart open of `V ⊆ U i` is the component at `V` of the
+local morphism on `U i`. -/
+noncomputable def chartBasisHom (U : ι → Opens X) {F G : TopCat.Sheaf C X}
+    (f : ofSheaf U F ⟶ ofSheaf U G) :
+    (inducedFunctor (chartOpen U)).op ⋙ F.presheaf ⟶
+      (inducedFunctor (chartOpen U)).op ⋙ G.presheaf where
+  app p := (f.hom p.unop.1).hom.app (Opposite.op p.unop.2)
+  naturality := sorry
+
+/-- Glue a morphism of canonical gluing data over an open cover to a global sheaf morphism
+(Stacks 04TN). The gluing is mathlib's extension of morphisms from the chart-open basis,
+applied to the local components of the gluing morphism. -/
+noncomputable def glueHom (U : ι → Opens X) (hU : IsOpenCover U) {F G : TopCat.Sheaf C X}
+    (f : ofSheaf U F ⟶ ofSheaf U G) : F ⟶ G :=
+  Sheaf.homEquiv.symm
+    (TopCat.Sheaf.restrictHomEquivHom F.presheaf G (isBasis_range_chartOpen U hU)
+      (chartBasisHom U f))
+
+/-- On the chart open of `V ⊆ U i`, the glued morphism has the prescribed local component. -/
+theorem glueHom_app_chartOpen (U : ι → Opens X) (hU : IsOpenCover U)
+    {F G : TopCat.Sheaf C X} (f : ofSheaf U F ⟶ ofSheaf U G)
+    (i : ι) (V : Opens (space (U i))) :
+    (glueHom U hU f).hom.app (Opposite.op (chartOpen U ⟨i, V⟩)) =
+      (f.hom i).hom.app (Opposite.op V) :=
+  TopCat.Sheaf.extend_hom_app F.presheaf G (isBasis_range_chartOpen U hU)
+    (chartBasisHom U f) ⟨i, V⟩
+
+/-- Restriction to an open cover is fully faithful for sheaves valued in any coefficient category
+(Stacks 04TN, 00AN). The preimage is the glued morphism `glueHom`. Essential surjectivity requires
+additional descent hypotheses and is supplied separately by the algebraic basis construction. -/
 noncomputable def ofSheafFunctorFullyFaithful (U : ι → Opens X) (hU : IsOpenCover U) :
-    (ofSheafFunctor (C := C) U).FullyFaithful :=
-  (ofSheafFunctor_fullyFaithful (C := C) U hU).some
+    (ofSheafFunctor (C := C) U).FullyFaithful where
+  preimage f := glueHom U hU f
+  map_preimage := sorry
+  preimage_map := sorry
+
+/-- The preimage of the fully faithful restriction functor is the glued morphism. -/
+@[simp]
+theorem ofSheafFunctorFullyFaithful_preimage (U : ι → Opens X) (hU : IsOpenCover U)
+    {F G : TopCat.Sheaf C X} (f : ofSheaf U F ⟶ ofSheaf U G) :
+    (ofSheafFunctorFullyFaithful (C := C) U hU).preimage f = glueHom U hU f := rfl
+
+/-- Restriction to an open cover is fully faithful. -/
+theorem ofSheafFunctor_fullyFaithful (U : ι → Opens X) (hU : IsOpenCover U) :
+    Nonempty (ofSheafFunctor (C := C) U).FullyFaithful :=
+  ⟨ofSheafFunctorFullyFaithful U hU⟩
 
 /-- The canonical equivalence between global sheaf morphisms and morphisms of their restriction
 gluing data over an open cover. -/

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Algebra.Equiv
@@ -135,14 +129,36 @@ def Hom.of {A B : ArtinianLocalAlgCat Λ k} (hom : algebraHom A B)
     (residue_compat : residueCompat hom isLocalHom = residueIsoHom A) : Hom A B :=
   ⟨hom, isLocalHom, residue_compat⟩
 
+/-- The identity algebra map of an Artinian local algebra is local. -/
+theorem Hom.id_isLocalHom (A : ArtinianLocalAlgCat Λ k) :
+    IsLocalHom (@AlgHom.id Λ A.carrier _ _ A.algebra) := sorry
+
+/-- The identity algebra map preserves the chosen residue identification. -/
+theorem Hom.id_residue_compat (A : ArtinianLocalAlgCat Λ k) :
+    residueCompat (@AlgHom.id Λ A.carrier _ _ A.algebra) (Hom.id_isLocalHom A) =
+      residueIsoHom A := sorry
+
 /-- Identity morphism of a residue-identified Artinian local algebra. -/
 def Hom.id (A : ArtinianLocalAlgCat Λ k) : Hom A A :=
-  ⟨@AlgHom.id Λ A.carrier _ _ A.algebra, sorry, sorry⟩
+  ⟨@AlgHom.id Λ A.carrier _ _ A.algebra, Hom.id_isLocalHom A, Hom.id_residue_compat A⟩
+
+/-- The composite of two local algebra morphisms of Artinian local algebras is local. -/
+theorem Hom.comp_isLocalHom {A B C : ArtinianLocalAlgCat Λ k} (f : Hom A B) (g : Hom B C) :
+    IsLocalHom
+      (@AlgHom.comp Λ A.carrier B.carrier C.carrier _ _ _ _ A.algebra B.algebra C.algebra
+        g.hom f.hom) := sorry
+
+/-- The composite of residue-compatible local algebra maps preserves residue identifications. -/
+theorem Hom.comp_residue_compat {A B C : ArtinianLocalAlgCat Λ k}
+    (f : Hom A B) (g : Hom B C) :
+    residueCompat
+      (@AlgHom.comp Λ A.carrier B.carrier C.carrier _ _ _ _ A.algebra B.algebra C.algebra
+        g.hom f.hom) (Hom.comp_isLocalHom f g) = residueIsoHom A := sorry
 
 /-- Composition of residue-compatible local algebra maps. -/
 def Hom.comp {A B C : ArtinianLocalAlgCat Λ k} (f : Hom A B) (g : Hom B C) : Hom A C :=
   ⟨@AlgHom.comp Λ A.carrier B.carrier C.carrier _ _ _ _ A.algebra B.algebra C.algebra g.hom f.hom,
-    sorry, sorry⟩
+    Hom.comp_isLocalHom f g, Hom.comp_residue_compat f g⟩
 
 /-- The identity morphism is the identity algebra map. -/
 theorem Hom.id_hom (A : ArtinianLocalAlgCat Λ k) :
@@ -157,14 +173,27 @@ theorem Hom.comp_hom {A B C : ArtinianLocalAlgCat Λ k} (f : Hom A B) (g : Hom B
 theorem hom_spec {A B : ArtinianLocalAlgCat Λ k} (f : Hom A B) :
     IsLocalHom f.hom ∧ residueCompat f.hom f.isLocalHom = residueIsoHom A := sorry
 
+/-- Composing an Artinian local algebra morphism with the identity of its source leaves it unchanged. -/
+theorem Hom.id_comp {A B : ArtinianLocalAlgCat Λ k} (f : Hom A B) :
+    Hom.comp (Hom.id A) f = f := sorry
+
+/-- Composing an Artinian local algebra morphism with the identity of its target leaves it unchanged. -/
+theorem Hom.comp_id {A B : ArtinianLocalAlgCat Λ k} (f : Hom A B) :
+    Hom.comp f (Hom.id B) = f := sorry
+
+/-- Composition of residue-compatible Artinian local algebra morphisms is associative. -/
+theorem Hom.assoc {A B C D : ArtinianLocalAlgCat Λ k}
+    (f : Hom A B) (g : Hom B C) (h : Hom C D) :
+    Hom.comp (Hom.comp f g) h = Hom.comp f (Hom.comp g h) := sorry
+
 /-- Category of Artinian local `Λ`-algebras with residue identification to `k`. -/
 instance category : Category.{u} (ArtinianLocalAlgCat Λ k) where
   Hom := Hom
   id := Hom.id
   comp f g := Hom.comp f g
-  id_comp := sorry
-  comp_id := sorry
-  assoc := sorry
+  id_comp := Hom.id_comp
+  comp_id := Hom.comp_id
+  assoc := Hom.assoc
 
 /-! Classical base rings and residue-field identifications. -/
 

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -36,7 +30,8 @@ universe u
         AlgebraicGeometry.RelativeCycle.IsEffective α →
         ∀ (U : X.Opens) (V : S.Opens) (φ : U.toScheme ⟶ V.toScheme),
           ∀ (hφ : φ ≫ V.ι = U.ι ≫ f),
-          AlgebraicGeometry.RelativeCycle.IsEffective
+          @AlgebraicGeometry.RelativeCycle.IsEffective _ _ φ
+            (AlgebraicGeometry.RelativeCycle.locallyOfFiniteType_restriction f U V φ hφ) _
             (AlgebraicGeometry.RelativeCycle.restrict U V φ hφ α))
 
 #check AlgebraicGeometry.RelativeCycle.isEffective_baseChange

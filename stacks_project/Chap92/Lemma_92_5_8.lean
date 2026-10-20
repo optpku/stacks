@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap92.«92_7_0_1_Triangle»
-public import stacks_project.Chap92.Lemma_92_4_1_PolynomialOver
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.RingTheory.CotangentComplex.Transitivity
+public import ReasLib.Algebra.PolynomialSite
+import StacksCheckRecall
 
 /-!
 # Transitivity triangle for a polynomial algebra
@@ -27,24 +21,39 @@ universe u
 
 namespace Algebra.CotangentComplex
 
-/-- Lemma 92.5.8. Let `A → B → C` be ring maps. If `B` is a polynomial algebra over `A`,
-then the transitivity triangle `transitivityTriangle A B C` is distinguished in `D(C)`:
-`tensor A B C ⟶ derived A C ⟶ derived B C ⟶ (tensor A B C)⟦1⟧`. -/
-@[stacks 08SA]
-theorem transitivityTriangle_distinguished_of_isPolynomial
-    (A B C : Type u) [CommRing A] [CommRing B] [CommRing C]
-    [Algebra A B] [Algebra B C] [Algebra A C] [IsScalarTower A B C]
-    [IsPolynomial A B] :
-    transitivityTriangle A B C ∈ distTriang (DerivedCategory (ModuleCat.{u} C)) :=
-  sorry
+section
 
-/-- The transitivity triangle for `A → MvPolynomial σ A → C` is distinguished in `D(C)`. -/
-theorem transitivityTriangle_distinguished_of_mvPolynomial
-    (A : Type u) (σ : Type u) (C : Type u) [CommRing A] [CommRing C]
+variable (A B C : Type u) [CommRing A] [CommRing B] [CommRing C]
+    [Algebra A B] [Algebra B C] [Algebra A C] [IsScalarTower A B C]
+    [Algebra.IsPolynomial A B]
+
+/- Lemma 92.5.8. Let `A → B → C` be ring maps. If `B` is a polynomial algebra over `A`,
+then the canonical triangle
+`L_{B/A} ⊗ᴸ_B C ⟶ L_{C/A} ⟶ L_{C/B} ⟶ (L_{B/A} ⊗ᴸ_B C)[1]`
+is distinguished in `D(C)`. -/
+@[stacks 08SA] #check
+  (Algebra.CotangentComplex.transitivityTriangle_distinguished A B C :
+    Algebra.CotangentComplex.transitivityTriangle A B C ∈
+      distTriang (DerivedCategory (ModuleCat.{u} C)))
+
+#check (Algebra.CotangentComplex.tensorDerivedIso A B C :
+  (ModuleCat.derivedExtensionOfScalars (algebraMap B C)).obj
+      (Algebra.CotangentComplex.derived A B) ≅
+    Algebra.CotangentComplex.tensor A B C)
+
+end
+
+section
+
+variable (A : Type u) (σ : Type u) (C : Type u) [CommRing A] [CommRing C]
     [Algebra (MvPolynomial σ A) C] [Algebra A C]
-    [IsScalarTower A (MvPolynomial σ A) C] :
-    transitivityTriangle A (MvPolynomial σ A) C ∈
-      distTriang (DerivedCategory (ModuleCat.{u} C)) :=
-  sorry
+    [IsScalarTower A (MvPolynomial σ A) C]
+
+/- The transitivity triangle for `A → MvPolynomial σ A → C` is distinguished in `D(C)`. -/
+#check (Algebra.CotangentComplex.transitivityTriangle_distinguished A (MvPolynomial σ A) C :
+  Algebra.CotangentComplex.transitivityTriangle A (MvPolynomial σ A) C ∈
+    distTriang (DerivedCategory (ModuleCat.{u} C)))
+
+end
 
 end Algebra.CotangentComplex

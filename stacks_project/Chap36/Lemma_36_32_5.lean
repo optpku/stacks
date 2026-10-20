@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -45,6 +39,8 @@ degree-zero structure sheaf and a perfect complex of Tor amplitude in `[1, ∞)`
 @[stacks 0E62] #check
   (AlgebraicGeometry.Scheme.ModuleDerived.exists_local_structureSheafPushforward_decomposition :
     ∀ {X S : Scheme.{u}} (f : X ⟶ S)
+      [∀ U : S.Opens, DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules (S.toRingedSpace.restrict U.isOpenEmbedding))]
       [Flat f] [IsProper f] [Scheme.Hom.FinitePresentation f]
       (hΓ : ∀ s : S, Function.Bijective
         (Scheme.Hom.globalSectionsMap (f.fiberToSpecResidueField s)))

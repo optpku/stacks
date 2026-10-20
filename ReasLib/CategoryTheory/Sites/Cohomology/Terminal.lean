@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.SheafCohomology.Basic
@@ -24,7 +18,7 @@ Consequently cohomology over the terminal presheaf agrees with ordinary sheaf co
 
 noncomputable section
 
-universe w v u
+universe z w v u
 
 namespace CategoryTheory
 
@@ -71,11 +65,11 @@ integer sheaf. -/
 noncomputable def isoExt
     (J : GrothendieckTopology C)
     [HasSheafify J AddCommGrpCat.{max w v}]
-    [HasExt.{max u v w} (Sheaf J AddCommGrpCat.{max w v})]
+    [HasExt.{z} (Sheaf J AddCommGrpCat.{max w v})]
     (n : ℕ) :
-    Sheaf.cohomologyOverPresheafFunctor.{max u v w, w, v, u} J
+    Sheaf.cohomologyOverPresheafFunctor.{z, w, v, u} J
         (Presheaf.terminal C) n ≅
-      Abelian.extFunctorObj.{max u v w}
+      Abelian.extFunctorObj.{z}
         (constantIntegerSheaf J : Sheaf J AddCommGrpCat.{max w v}) n :=
   (Abelian.extFunctor n).mapIso
     (Iso.op (J.freeAbelianTerminalIsoInteger).symm)
@@ -86,12 +80,12 @@ sheaf cohomology. -/
 theorem isomorphicGlobal
     (J : GrothendieckTopology C)
     [HasSheafify J AddCommGrpCat.{max w v}]
-    [HasExt.{max u v w} (Sheaf J AddCommGrpCat.{max w v})]
+    [HasExt.{z} (Sheaf J AddCommGrpCat.{max w v})]
     (I : Sheaf J AddCommGrpCat.{max w v}) (n : ℕ) :
     IsIsomorphic
-      ((Sheaf.cohomologyOverPresheafFunctor.{max u v w, w, v, u} J
+      ((Sheaf.cohomologyOverPresheafFunctor.{z, w, v, u} J
         (Presheaf.terminal C) n).obj I)
-      ((Sheaf.functorH.{max u v w, max w v, v, u} J n).obj I) := sorry
+      ((Sheaf.functorH.{z, max w v, v, u} J n).obj I) := sorry
 
 end Sheaf.TerminalCohomology
 

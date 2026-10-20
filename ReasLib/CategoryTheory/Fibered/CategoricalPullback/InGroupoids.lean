@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.CategoricalPullback.Cleavage
@@ -32,8 +26,8 @@ variable [Category.{vC} C] [Category.{vD} D] [Category.{vS} S]
 
 namespace Left
 
-/-- Lemma 8.12.3 (tag 04WD): the fibred-in-groupoids structure on the first projection of a
-categorical pullback is canonical, so consumers need not introduce a local instance. -/
+/-- The first projection of a categorical pullback of a category fibred in groupoids is
+canonically fibred in groupoids. -/
 @[stacks 04WD "categorical pullback remains fibred in groupoids"]
 instance isFiberedInGroupoids
     (u : C ⥤ D) (p : S ⥤ D) [Functor.IsFibered.InGroupoids p] :

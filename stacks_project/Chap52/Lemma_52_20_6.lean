@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.CoherentFormalModule.Completion.LocalConditions
@@ -21,19 +15,19 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.CoherentFormalModules
 
-/- Lemma 52.20.6 (local erratum): in Situation 52.16.1, a coherent formal module satisfies the
-`(2, 3)`-inequalities when the ring is local with maximal ideal `S.a`, has a
-dualizing complex and cohomological dimension one for `S.I`, its completed
-stalks are finite locally free away from the completed ideal, and either
-every localization outside `V(I)` satisfies `(S₂)` with the required component dimension
-bound or the stated primewise depth-plus-dimension bound holds. The unbound source element
-`f` is corrected to the complement of `V(I)` throughout, following the source proof;
-no principality of `I` is assumed and the uploaded source is unchanged. -/
+/- 0EJB::statement_repair::1 — Lemma 52.20.6: in Situation 52.16.1, a coherent formal
+module satisfies the `(2, 3)`-inequalities under the local duality, cohomological
+dimension, completed-stalk local freeness, and alternative Serre/component-dimension
+or primewise depth-plus-dimension hypotheses. The source's unbound element `f` is
+made explicit with `I.radical = (Ideal.span {f}).radical`, so `V(f) = V(I)`. -/
 @[stacks 0EJB] #check (AlgebraicGeometry.Scheme.CoherentFormalModules.satisfiesInequalities_of_local_conditions :
   ∀
     {A : Type u} [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
     (S : AffineAlgebraizationSetup A)
+    (f : A)
+    -- Source context: f is not introduced in the Stacks statement; Lemma lemma-equivalence-better applies it with I = (f), and the proof needs V(f) = V(I).
+    (h_I_radical : S.I.radical = (Ideal.span ({f} : Set A)).radical)
     (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
     (h_a : S.a = IsLocalRing.maximalIdeal A)
     (h_dualizing :
@@ -49,15 +43,14 @@ no principality of `I` is assumed and the uploaded source is unchanged. -/
               (LocalizedModule.Away g
                 (completedStalk S F (closedFiberOpenPoint S y hy))))
     (h_alternative :
-      ((∀ p : PrimeSpectrum A, p ∉ PrimeSpectrum.zeroLocus (S.I : Set A) →
-          SerreConditionS (Localization.AtPrime p.asIdeal) 2) ∧
+      (SerreConditionS (Localization.Away f) 2 ∧
         (∀ Z : irreducibleComponents S.X,
           ¬ ((Z : Set S.X) ⊆ Set.range S.y) →
             (4 : WithBot ℕ∞) ≤ topologicalKrullDim Z)) ∨
       (∀ p : PrimeSpectrum A,
-        p ∉ PrimeSpectrum.zeroLocus (S.I : Set A) →
+        p ∉ PrimeSpectrum.zeroLocus ({f} : Set A) →
           PrimeSpectrum.zeroLocus (p.asIdeal : Set A) ∩
-              PrimeSpectrum.zeroLocus (S.I : Set A) ≠
+              PrimeSpectrum.zeroLocus ({f} : Set A) ≠
             {IsLocalRing.closedPoint A} →
             (3 : EInt) <
               ((WithTop.map Int.ofNat

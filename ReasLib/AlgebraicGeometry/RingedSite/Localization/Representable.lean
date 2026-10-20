@@ -1,15 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Localization.AmbientSquare
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Localization
 public import ReasLib.CategoryTheory.Sites.Localization.Representable.BaseChange
 public import ReasLib.CategoryTheory.Sites.Localization.Representable.LowerShriek
+public import ReasLib.CategoryTheory.Functor.LeftKanExtension.Flat
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -73,10 +68,10 @@ parameter induced by `c`. -/
 @[stacks 04J9 "slice-topos square"]
 noncomputable def ambientIso :
     Over.star (Y.siteTopology.sheafifiedRepresentable V) ⋙
-        (f.toMorphismOfTopoi.localization
+        ((RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v} f).localization
           (Y.siteTopology.sheafifiedRepresentable V)).inverseImage ⋙
         Over.pullback (C := Sheaf X.siteTopology (Type (max u v))) (parameter f c) ≅
-      f.toMorphismOfTopoi.inverseImage ⋙
+      (RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v} f).inverseImage ⋙
         Over.star (X.siteTopology.sheafifiedRepresentable U) :=
   f.localizedAmbientIso (parameter f c)
 
@@ -126,14 +121,14 @@ for the representable parameter square respects the two localized underlying str
 theorem structureMap_commSq :
     CommSq
       ((LeftExactAdjunction.Localization.inverseImageBaseChangeIso
-          f.toMorphismOfTopoi
+          (RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v} f)
           (Y.siteTopology.sheafifiedRepresentableMap b)
           (X.siteTopology.sheafifiedRepresentableMap a)
           (parameter f c) (parameter f c')
           (parameter_naturality f c b a c' h)).hom.app
         ((Over.star (Y.siteTopology.sheafifiedRepresentable V)).obj
           (RingedSite.Hom.underlyingStructureSheaf Y)))
-      (((f.toMorphismOfTopoi.localization
+      ((((RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v} f).localization
           (Y.siteTopology.sheafifiedRepresentable V')).inverseImage ⋙
             Over.pullback (C := Sheaf X.siteTopology (Type (max u v))) (parameter f c')).map
           (((Over.starPullbackIsoStar
@@ -174,9 +169,10 @@ theorem localizedInverseImage :
       ((f.localizationAt V c).toTopos.inverseImage ⋙
         comparison X.siteTopology U)
       (comparison Y.siteTopology V ⋙
-        (f.toMorphismOfTopoi.localization
+        ((RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v} f).localization
           (Y.siteTopology.sheafifiedRepresentable V)).inverseImage ⋙
-        Over.pullback (C := Sheaf X.siteTopology (Type (max u v))) (parameter f c)) := sorry
+        @Over.pullback (Sheaf X.siteTopology (Type (max u v))) _ _ _
+          (parameter f c) (by intro W h; infer_instance)) := sorry
 
 end LocalizedMorphism
 
@@ -186,12 +182,12 @@ the slice-topos square at `parameter f c`. -/
 @[stacks 04J9 "ambient square comparison"]
 theorem ambientSquare :
     IsIsomorphic
-      (f.toMorphismOfTopoi.inverseImage ⋙
+      ((RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v} f).inverseImage ⋙
         X.siteTopology.overPullback (Type (max u v)) U ⋙
         comparison X.siteTopology U)
       (Y.siteTopology.overPullback (Type (max u v)) V ⋙
         comparison Y.siteTopology V ⋙
-        (f.toMorphismOfTopoi.localization
+        ((RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v} f).localization
           (Y.siteTopology.sheafifiedRepresentable V)).inverseImage ⋙
         Over.pullback (C := Sheaf X.siteTopology (Type (max u v))) (parameter f c)) := sorry
 
@@ -225,9 +221,10 @@ theorem relocalizationSquare :
         comparison X.siteTopology U')
       (Y.siteTopology.overMapPullback (Type (max u v)) b ⋙
         comparison Y.siteTopology V' ⋙
-        (f.toMorphismOfTopoi.localization
+        ((RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v} f).localization
           (Y.siteTopology.sheafifiedRepresentable V')).inverseImage ⋙
-        Over.pullback (C := Sheaf X.siteTopology (Type (max u v))) (parameter f c')) := sorry
+        @Over.pullback (Sheaf X.siteTopology (Type (max u v))) _ _ _
+          (parameter f c') (by intro W h; infer_instance)) := sorry
 
 end SiteFunctoriality
 

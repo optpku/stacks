@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap93.Lemma_93_9_8_Stalk
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Stalk
+import StacksCheckRecall
 
 /-!
 # Stalk functor of scheme deformation categories
@@ -19,6 +13,7 @@ functor `Def_X ⟶ Def_{O_{X, p}}` of deformation categories.
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry Functor
+open scoped BasedFunctor
 
 noncomputable section
 
@@ -27,39 +22,39 @@ universe u
 variable (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-/-- Lemma 93.9.8
+variable (X : Scheme.{u})
+  (hX : X ⟶ Spec (CommRingCat.of (ArtinianLocalAlgCat.residue Λ k).carrier))
+  [AlgebraicGeometry.Flat hX] (p : X)
+
+/- Lemma 93.9.8
 In Example 93.9.1 let `X` be a scheme over `k`. Let `p : X` be a point.
 With `stalkDeformationCategory X hX p` as in Example 93.8.1, there is a
 natural functor
 `deformationCategory X hX ⥤ stalkDeformationCategory X hX p`
 of deformation categories.
 -/
-@[stacks 0DZM]
-abbrev stalkFunctor (X : Scheme.{u})
-    (hX : X ⟶ Spec (CommRingCat.of (ArtinianLocalAlgCat.residue Λ k).carrier))
-    [AlgebraicGeometry.Flat hX] (p : X) :=
-  FlatSchemeCat.stalkFunctor Λ k X hX p
+@[stacks 0DZM] #check (FlatSchemeCat.stalkFunctor Λ k X hX p :
+  FlatSchemeCat.deformationCategory Λ k X hX ⥤
+    FlatSchemeCat.stalkDeformationCategory X hX p)
 
-/-- The object map of `stalkFunctor` sends a deformation `(A, Y)` of `X` to the
-stalk pair `(A, Y.scheme.presheaf.stalk (schemeHom p))` over
-`X.presheaf.stalk p`. -/
-theorem stalkFunctor_obj_spec (X : Scheme.{u})
-    (hX : X ⟶ Spec (CommRingCat.of (ArtinianLocalAlgCat.residue Λ k).carrier))
-    [AlgebraicGeometry.Flat hX] (p : X)
-    (ξ : FlatSchemeCat.deformationCategory Λ k X hX) :
-    ((stalkFunctor Λ k X hX p).obj ξ).left = FlatSchemeCat.stalkObj X hX p ξ :=
-  sorry
+#check (FlatSchemeCat.stalkFunctor_obj_left X hX p :
+  ∀ (ξ : FlatSchemeCat.deformationCategory Λ k X hX),
+    ((FlatSchemeCat.stalkFunctor Λ k X hX p).obj ξ).left =
+      FlatSchemeCat.stalkObj X hX p ξ)
 
-/-- Taking stalks of a deformation does not change the underlying object of `C_Λ`. -/
-theorem stalkFunctor_comp_forget (X : Scheme.{u})
-    (hX : X ⟶ Spec (CommRingCat.of (ArtinianLocalAlgCat.residue Λ k).carrier))
-    [AlgebraicGeometry.Flat hX] (p : X) :
-    stalkFunctor Λ k X hX p ⋙
-        Over.forget
-            (Fiber.fiberInclusion.obj (FlatSchemeCat.residueStalkObj X hX p)) ⋙
-          FlatAlgebraCat.forget =
-      Over.forget (Fiber.fiberInclusion.obj (FlatSchemeCat.residueObj Λ k X hX)) ⋙
-        FlatSchemeCat.forget Λ k :=
-  sorry
+#check (FlatSchemeCat.stalkFunctor_comp_forget X hX p :
+  FlatSchemeCat.stalkFunctor Λ k X hX p ⋙
+      Over.forget (Fiber.fiberInclusion.obj (FlatSchemeCat.residueStalkObj X hX p)) ⋙
+        FlatAlgebraCat.forget =
+    Over.forget (Fiber.fiberInclusion.obj (FlatSchemeCat.residueObj Λ k X hX)) ⋙
+      FlatSchemeCat.forget Λ k)
+
+#check (FlatSchemeCat.stalkBasedFunctor Λ k X hX p :
+  BasedCategory.ofFunctor
+      (Over.forget (Fiber.fiberInclusion.obj (FlatSchemeCat.residueObj Λ k X hX)) ⋙
+        FlatSchemeCat.forget Λ k) ⥤ᵇ
+    BasedCategory.ofFunctor
+      (Over.forget (Fiber.fiberInclusion.obj (FlatSchemeCat.residueStalkObj X hX p)) ⋙
+        FlatAlgebraCat.forget))
 
 end

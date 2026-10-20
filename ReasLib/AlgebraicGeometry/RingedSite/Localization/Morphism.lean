@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Comma.LocallySmall
@@ -34,64 +28,74 @@ variable {X : RingedSite.{uX, vX, t}} {Y : RingedSite.{uY, vY, t}}
 
 /-- The functor induced on slice categories by a morphism of ringed sites is a morphism of sites. -/
 @[stacks 04J0 "(base site)"]
-theorem localization_base_isMorphismOfSites (f : X.Hom Y) (V : Y) :
+theorem localization_base_isMorphismOfSites (f : X.Hom Y) (V : Y.carrier) :
     IsMorphismOfSites (Y.siteTopology.over V)
       (X.siteTopology.over (f.base.obj V)) (Over.post f.base) := sorry
 
 /-- The structure-sheaf map of the localized morphism induced by `f` at `V`. -/
 @[stacks 04J0 "(structure map)"]
-noncomputable def localizationStructureSheafMap (f : X.Hom Y) (V : Y) :
+noncomputable def localizationStructureSheafMap (f : X.Hom Y) (V : Y.carrier) :
     Y.structureSheaf.over V ⟶
-      (f.base.sheafPushforwardOverPost V RingCat.{t}).obj
+      (@Functor.sheafPushforwardOverPost _ _ _ _ X.siteTopology Y.siteTopology
+        f.base f.base_isContinuous V RingCat.{t} _).obj
         (X.structureSheaf.over (f.base.obj V)) :=
   (Y.siteTopology.overPullback RingCat.{t} V).map f.structureSheafMap ≫
-    ((f.base.sheafPushforwardOverPostComp V RingCat.{t}).symm.app
+    ((@Functor.sheafPushforwardOverPostComp _ _ _ _ X.siteTopology Y.siteTopology
+      f.base f.base_isContinuous V RingCat.{t} _).symm.app
       X.structureSheaf).hom
 
-/-- Lemma 18.20.1 (04J0): a morphism of ringed sites induces a morphism between the
+/-- A morphism of ringed sites induces a morphism between the
 localizations at `V` and `f.base.obj V`. -/
 @[stacks 04J0]
-noncomputable def localization (f : X.Hom Y) (V : Y) :
+noncomputable def localization (f : X.Hom Y) (V : Y.carrier) :
     (X.localization (f.base.obj V)).Hom (Y.localization V) where
   base := Over.post f.base
   isMorphismOfSites := localization_base_isMorphismOfSites f V
   structureSheafMap := localizationStructureSheafMap f V
 
 /-- The base functor of `localization f V` is continuous. -/
-instance localization_isContinuous (f : X.Hom Y) (V : Y) :
+theorem localization_isContinuous (f : X.Hom Y) (V : Y.carrier) :
     (localization f V).base.IsContinuous (Y.siteTopology.over V)
       (X.siteTopology.over (f.base.obj V)) := sorry
 
 /-- The inverse-image functor of `localization f V` preserves finite limits whenever the
 corresponding slice-site inverse image does. -/
-instance localization_sheafPullback_preservesFiniteLimits
-    (f : X.Hom Y) (V : Y) [UnivLE.{max uX vX, t}]
+theorem localization_sheafPullback_preservesFiniteLimits
+    (f : X.Hom Y) (V : Y.carrier) [UnivLE.{max uX vX, t}]
     [UnivLE.{max uY vY vX, t}]
-    [PreservesFiniteLimits ((Over.post f.base).sheafPullback (Type t)
-      (Y.siteTopology.over V) (X.siteTopology.over (f.base.obj V)))] :
-    PreservesFiniteLimits ((localization f V).base.sheafPullback (Type t)
-      (Y.siteTopology.over V) (X.siteTopology.over (f.base.obj V))) := sorry
+    [PreservesFiniteLimits
+      (@Functor.sheafPullback _ _ _ _ (Over.post f.base) (Type t) _
+        (Y.siteTopology.over V) (X.siteTopology.over (f.base.obj V))
+        (@Functor.IsContinuous.overPost _ _ _ _ f.base Y.siteTopology X.siteTopology
+          f.base_isContinuous V) inferInstance)] :
+    PreservesFiniteLimits
+      (@Functor.sheafPullback _ _ _ _ (localization f V).base (Type t) _
+        (Y.siteTopology.over V) (X.siteTopology.over (f.base.obj V))
+        (localization_isContinuous f V) inferInstance) := sorry
 
 /-- The base functor of the localized morphism is `Over.post f.base`. -/
 @[stacks 04J0 "(base)"]
-theorem localization_base (f : X.Hom Y) (V : Y) :
+theorem localization_base (f : X.Hom Y) (V : Y.carrier) :
     (localization f V).base = Over.post f.base := sorry
 
 /-- The structure-sheaf map of the localized morphism is restriction of
 `f.structureSheafMap`, transported through the slice pushforward comparison. -/
 @[stacks 04J0 "(structure map formula)", stacks 04J7 "structure map"]
-theorem localization_structureSheafMap_eq (f : X.Hom Y) (V : Y) :
+theorem localization_structureSheafMap_eq (f : X.Hom Y) (V : Y.carrier) :
     (localization f V).structureSheafMap = localizationStructureSheafMap f V := sorry
 
 /-- Direct image commutes with restriction to the slice, giving the underlying localized
 topos square. -/
 @[stacks 04J0 "(topos square)", stacks 04J7 "topos square"]
-noncomputable def localizationPushforwardIso (f : X.Hom Y) (V : Y)
+noncomputable def localizationPushforwardIso (f : X.Hom Y) (V : Y.carrier)
     (A : Type w) [Category.{z} A] :
     X.siteTopology.overPullback A (f.base.obj V) ⋙
-        f.base.sheafPushforwardOverPost V A ≅
-      f.base.sheafPushforwardContinuous A Y.siteTopology X.siteTopology ⋙
+        @Functor.sheafPushforwardOverPost _ _ _ _ X.siteTopology Y.siteTopology
+          f.base f.base_isContinuous V A _ ≅
+      @Functor.sheafPushforwardContinuous _ _ _ _ f.base A _
+        Y.siteTopology X.siteTopology f.base_isContinuous ⋙
         Y.siteTopology.overPullback A V :=
-  f.base.sheafPushforwardOverPostComp V A
+  @Functor.sheafPushforwardOverPostComp _ _ _ _ X.siteTopology Y.siteTopology
+    f.base f.base_isContinuous V A _
 
 end RingedSite.Hom

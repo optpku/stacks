@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.SquareZeroExtension.Module
@@ -183,6 +177,55 @@ def reconstructionToHom :
   c := ((TopCat.Sheaf.pullbackPushforwardAdjunction CommRingCat.{u} i.base).unit.app
     X'.sheaf).hom
 
+/-- Square-zero support gives surjectivity of the supplied closed immersion. -/
+theorem presentation_surjective : Function.Surjective i := by
+  letI : IsClosedImmersion i := hi.toIsFiniteOrderThickening.isClosedImmersion
+  have hsupport : i.ker.support = ⊤ := by
+    rw [← Scheme.IdealSheafData.support_pow_succ i.ker 1, hi.ker_pow_succ]
+    exact Scheme.IdealSheafData.support_bot
+  apply Set.range_eq_univ.mp
+  rw [← i.isClosedEmbedding.isClosed_range.closure_eq, ← Scheme.Hom.support_ker]
+  exact congrArg SetLike.coe hsupport
+
+/-- The underlying homeomorphism uses the stored closed-immersion and square-zero
+conditions, with the native ideal-support argument supplying its surjectivity. -/
+def presentationHomeomorph : X ≃ₜ X' := by
+  letI : IsClosedImmersion i := hi.toIsFiniteOrderThickening.isClosedImmersion
+  exact (isHomeomorph_iff_isEmbedding_surjective.mpr
+    ⟨i.isClosedEmbedding.isEmbedding, presentation_surjective i⟩).homeomorph
+
+/-- The actual inverse map on underlying topological spaces. -/
+def reconstructionInverseBase : X'.toTopCat ⟶ (reconstructedScheme i).toTopCat :=
+  TopCat.ofHom (presentationHomeomorph i).symm
+
+/-- The image of an open subset under the thickening is the inverse image under its
+specified topological inverse. -/
+theorem presentationImage_eq (U : Opens X) :
+    (Topology.IsOpenEmbedding.functor
+      ((presentationHomeomorph i).isOpenEmbedding)).obj U =
+      (Opens.map (reconstructionInverseBase i)).obj U := sorry
+
+/-- The inverse reconstruction sheaf map is the native inverse-image comparison for the
+underlying homeomorphism, followed by equality of its actual open subsets. -/
+def reconstructionInverseToHom :
+    X'.toPresheafedSpace ⟶ (reconstructedScheme i).toPresheafedSpace where
+  base := reconstructionInverseBase i
+  c :=
+    { app := fun U ↦
+        ((((presentationHomeomorph i).isOpenEmbedding.sheafPullbackIso CommRingCat.{u}).hom.app
+          X'.sheaf).hom.app U) ≫
+        eqToHom (congrArg (fun V ↦ X'.presheaf.obj (op V)) (presentationImage_eq i U.unop))
+      naturality := sorry }
+
+/-- The inverse sheaf comparison induces local homomorphisms on all stalks. -/
+theorem reconstructionInverseToHom_isLocalHom (x : X') :
+    IsLocalHom ((reconstructionInverseToHom i).stalkMap x).hom := sorry
+
+/-- The specified inverse reconstruction morphism, with its actual topological and sheaf maps. -/
+def reconstructionInverseHom : X' ⟶ reconstructedScheme i :=
+  ⟨{ toHom := reconstructionInverseToHom i
+     prop := reconstructionInverseToHom_isLocalHom i }⟩
+
 /-- The stalk maps of the reconstruction comparison are local homomorphisms. -/
 theorem reconstructionToHom_isLocalHom (x : reconstructedScheme i) :
     IsLocalHom ((reconstructionToHom i).stalkMap x).hom := sorry
@@ -226,9 +269,24 @@ theorem reconstructionOverHom_w :
 def reconstructionOverHom : reconstructedObj i S ⟶ X'.asOver S :=
   Over.homMk (reconstructionHom i) (reconstructionOverHom_w i S)
 
-/-- The canonical reconstruction comparison for a first-order thickening over `S` is an
-isomorphism. -/
-instance reconstructionOverHom_isIso : IsIso (reconstructionOverHom i S) := sorry
+/-- The actual inverse reconstruction map commutes with the structural maps to the base. -/
+theorem reconstructionInverseOverHom_w :
+    reconstructionInverseHom i ≫ (reconstructedObj i S).hom = X' ↘ S := sorry
+
+/-- The specified inverse reconstruction morphism over the base. -/
+def reconstructionInverseOverHom : X'.asOver S ⟶ reconstructedObj i S :=
+  Over.homMk (reconstructionInverseHom i) (reconstructionInverseOverHom_w i S)
+
+/-- The reconstruction isomorphism stores both actual morphisms independently of its laws. -/
+def reconstructionOverIso : reconstructedObj i S ≅ X'.asOver S where
+  hom := reconstructionOverHom i S
+  inv := reconstructionInverseOverHom i S
+  hom_inv_id := sorry
+  inv_hom_id := sorry
+
+/-- The canonical reconstruction comparison is invertible via the specified inverse. -/
+instance reconstructionOverHom_isIso : IsIso (reconstructionOverHom i S) :=
+  (reconstructionOverIso i S).isIso_hom
 
 /-- Every first-order thickening over `S` is recovered from its inverse-image structure sheaf,
 with its reconstructed inclusion identified with the original thickening. -/

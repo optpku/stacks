@@ -1,78 +1,43 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.RingTheory.Finiteness.Projective
-public import stacks_project.Chap64.Lemma_64_15_9_Coinvariants
-public import stacks_project.Chap64.Lemma_64_15_9_Extension
-
-@[expose] public section
-
-open Ring
-open scoped MonoidAlgebra Ring
-open MonoidAlgebra LinearMap.FiniteProjective
-
-noncomputable section
+import StacksCheckRecall
+public import ReasLib.LinearAlgebra.Trace.Coinvariants
 
 universe u v w x
 
-variable {Λ : Type u} {G : Type v} {Γ : Type w}
-variable [Ring Λ] [Group G] [Monoid Γ] [Finite G]
-variable (S : NatMonoidExtension G Γ) (P : Type x)
-variable [AddCommGroup P] [Module (Λ[Γ]) P] [Module (Λ[G]) P] [Module Λ P]
-variable [IsScalarTower Λ (Λ[G]) P]
-variable [Module.Finite (Λ[G]) P] [Module.Projective (Λ[G]) P]
+open Ring
+open scoped MonoidAlgebra Ring
 
-namespace LinearMap.FiniteProjective
+/- Lemma 64.15.9 (1). The coinvariants of a finite projective monoid-algebra
+module are finite projective over the coefficient ring. -/
+@[stacks 03UD] #check (MonoidAlgebra.Coinvariants.finiteProjective :
+    ∀ (Λ : Type u) (G : Type v) (P : Type x) [Ring Λ] [Monoid G] [AddCommGroup P]
+    [Module (Λ[G]) P] [Module Λ P] [Finite G] [IsScalarTower Λ (Λ[G]) P]
+    [Module.Finite (Λ[G]) P] [Module.Projective (Λ[G]) P],
+    Module.FiniteProjective Λ (MonoidAlgebra.Coinvariants Λ G P))
 
-/-- Lemma 64.15.9 (1). Let `P` be a `Λ[Γ]`-module, finite projective as a `Λ[G]`-module.
-Then the coinvariants `P_G` form a finite projective `Λ`-module. -/
-@[stacks 03UD]
-theorem coinvariants_finiteProjective :
-    Module.FiniteProjective Λ (Coinvariants Λ G P) := sorry
+/- Lemma 64.15.9 (2). The degree-one action on coinvariants generates the
+natural-number action, independently of the degree-one lift. -/
+@[stacks 03UD] #check (MonoidAlgebra.Coinvariants.natAction :
+    ∀ {Λ : Type u} {G : Type v} {Γ : Type w} [Ring Λ] [Group G] [Monoid Γ]
+    (S : NatMonoidExtension G Γ) (P : Type x)
+    [AddCommGroup P] [Module (Λ[Γ]) P] [Module (Λ[G]) P] [Module Λ P]
+    [IsScalarTower Λ (Λ[G]) P] [IsScalarTower Λ (Λ[Γ]) P]
+    [MonoidAlgebra.IsRestrictionAlongInl Λ S P],
+    Multiplicative ℕ →* Module.End Λ (MonoidAlgebra.Coinvariants Λ G P))
 
-end LinearMap.FiniteProjective
-
-namespace MonoidAlgebra.Coinvariants
-
-/-- Lemma 64.15.9 (2). The coinvariants `P_G` are endowed with the action of
-`1 ∈ ℕ = Γ/G`, as the `Λ`-linear endomorphism `oneEnd`. Powers of this
-endomorphism give the action of `ℕ`. -/
-@[stacks 03UD]
-def oneEnd
-    [IsScalarTower Λ (Λ[Γ]) P] [IsRestrictionAlongInl Λ S P] :
-    Module.End Λ (Coinvariants Λ G P) :=
-  lift Λ G P ((mk Λ G P).comp (smulEnd (S.degreeOneLift).val)) sorry
-
-/-- Every degree-1 element of `Γ` induces the endomorphism `oneEnd` on coinvariants. -/
-theorem oneEnd_spec
-    [IsScalarTower Λ (Λ[Γ]) P] [IsRestrictionAlongInl Λ S P]
-    (γ : S.degreeOne) (p : P) :
-    (oneEnd S P : Module.End Λ (Coinvariants Λ G P)) (mk Λ G P p) =
-      mk Λ G P ((smulEnd γ.val : Module.End Λ P) p) :=
-  sorry
-
-/-- The action of `n : ℕ = Γ/G` on coinvariants is the `n`-th power of `oneEnd`. -/
-def natEnd [IsScalarTower Λ (Λ[Γ]) P] [IsRestrictionAlongInl Λ S P]
-    (n : ℕ) : Module.End Λ (Coinvariants Λ G P) :=
-  oneEnd S P ^ n
-
-end MonoidAlgebra.Coinvariants
-
-namespace LinearMap.FiniteProjective
-
-/-- Lemma 64.15.9 (3). The finite-projective trace of the action of `1 ∈ ℕ` on `P_G`
-equals the sum of `Z_γ`-traces `Tr_Λ^{Z_γ}(γ, P)` over `G`-conjugacy classes of
-degree-1 elements of `Γ`. -/
-@[stacks 03UD]
-theorem trace_one_coinvariants
-    [IsScalarTower Λ (Λ[Γ]) P] [IsRestrictionAlongInl Λ S P] :
-    (traceNatural (Coinvariants.oneEnd S P) : Λ♮) =
-      ∑ᶠ c : S.DegreeOneGConjClass, conjClassTrace S P c := sorry
-
-end LinearMap.FiniteProjective
+/- Lemma 64.15.9 (3). For the nonnegative monoid of an integer group extension
+with finite kernel, the trace of one on coinvariants equals the sum of centralizer
+traces over kernel-group conjugacy classes of degree-one elements. -/
+@[stacks 03UD] #check (LinearMap.FiniteProjective.trace_one_coinvariants :
+    ∀ {Λ : Type u} {G : Type v} {E : Type w} [Ring Λ] [Group G] [Group E] [Finite G]
+    (T : GroupExtension G E (Multiplicative ℤ)) (P : Type x)
+    [AddCommGroup P] [Module (Λ[NatMonoidExtension.nonneg T]) P]
+    [Module (Λ[G]) P] [Module Λ P]
+    [IsScalarTower Λ (Λ[G]) P] [Module.Finite (Λ[G]) P] [Module.Projective (Λ[G]) P]
+    [IsScalarTower Λ (Λ[NatMonoidExtension.nonneg T]) P]
+    [MonoidAlgebra.IsRestrictionAlongInl Λ (NatMonoidExtension.ofGroupExtension T) P],
+    (LinearMap.FiniteProjective.traceNatural
+      (MonoidAlgebra.Coinvariants.oneEnd (NatMonoidExtension.ofGroupExtension T) P) : Λ♮) =
+      ∑ᶠ c : (NatMonoidExtension.ofGroupExtension T).DegreeOneGConjClass,
+        LinearMap.FiniteProjective.conjClassTrace (NatMonoidExtension.ofGroupExtension T) P c)

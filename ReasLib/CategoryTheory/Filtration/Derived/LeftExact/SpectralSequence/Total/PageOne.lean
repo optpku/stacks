@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.SpectralSequence.Total.Functor
@@ -102,34 +96,45 @@ theorem associationComparison_inv_app
     (associationComparison T p q).inv.app S =
       (S.obj.association.pageOneIso p q).inv := sorry
 
-/-- The model graded-piece homology comparison, pulled back along the resolution functor. -/
+/-- The stored graded-piece model comparisons of the realizations are natural along realization
+maps: this is the graded-piece square recorded by `Map.comparisonCompatible`. -/
+@[reassoc, stacks 015W "naturality of the model first-page comparison on total finite realizations"]
+theorem gradedPieceIso_naturality
+    (T : A ⥤ₗ B) [EnoughInjectives A] (p q : ℤ)
+    {S R : Total T} (m : S ⟶ R) :
+    (pageOneModel T p q).map m ≫ (R.obj.comparison.gradedPieceIso p (p + q)).hom =
+      (S.obj.comparison.gradedPieceIso p (p + q)).hom ≫ (pageOneTarget T p q).map m :=
+  (m.displayed.comparisonCompatible.gradedPieceSq p (p + q)).w
+
+/-- The model graded-piece homology comparison on total finite realizations, given at each
+realization by its own stored graded-piece comparison. -/
 @[stacks 015W "model first-page comparison on total finite realizations"]
 noncomputable def modelComparison
     (T : A ⥤ₗ B) [EnoughInjectives A] (p q : ℤ) :
     pageOneModel T p q ≅ pageOneTarget T p q :=
-  Functor.isoWhiskerLeft (resolutionFunctor T)
-    (Model.GradedPiece.Homology.natIso T p (p + q))
+  NatIso.ofComponents (fun S ↦ S.obj.comparison.gradedPieceIso p (p + q))
+    (gradedPieceIso_naturality T p q)
 
 /-- The model comparison at an object is the selected graded-piece homology isomorphism. -/
 @[simp, stacks 015W "model first-page comparison component"]
 theorem modelComparison_app
     (T : A ⥤ₗ B) [EnoughInjectives A] (p q : ℤ) (S : Total T) :
     (modelComparison T p q).app S =
-      S.obj.comparison.gradedPieceIso p (p + q) := sorry
+      S.obj.comparison.gradedPieceIso p (p + q) := rfl
 
 /-- The forward model comparison component. -/
 @[simp, stacks 015W "forward model first-page comparison component"]
 theorem modelComparison_hom_app
     (T : A ⥤ₗ B) [EnoughInjectives A] (p q : ℤ) (S : Total T) :
     (modelComparison T p q).hom.app S =
-      (S.obj.comparison.gradedPieceIso p (p + q)).hom := sorry
+      (S.obj.comparison.gradedPieceIso p (p + q)).hom := rfl
 
 /-- The inverse model comparison component. -/
 @[simp, stacks 015W "inverse model first-page comparison component"]
 theorem modelComparison_inv_app
     (T : A ⥤ₗ B) [EnoughInjectives A] (p q : ℤ) (S : Total T) :
     (modelComparison T p q).inv.app S =
-      (S.obj.comparison.gradedPieceIso p (p + q)).inv := sorry
+      (S.obj.comparison.gradedPieceIso p (p + q)).inv := rfl
 
 /-- The first-page comparison, natural in the total finite right-derived realization. -/
 @[stacks 015W "first-page comparison on total finite right-derived realizations"]
@@ -171,14 +176,14 @@ isomorphism. -/
 @[simp, stacks 015W "first-page comparison on total finite right-derived realizations"]
 theorem pageOneComparison_app
     (T : A ⥤ₗ B) [EnoughInjectives A] (p q : ℤ) (S : Total T) :
-    (pageOneComparison T p q).app S = S.obj.pageOneIso p q := sorry
+    (pageOneComparison T p q).app S = S.obj.pageOneIso p q := rfl
 
 /-- The forward component of the finite first-page comparison is the realization's comparison. -/
 @[simp, stacks 015W "first-page comparison on total finite right-derived realizations"]
 theorem pageOneComparison_hom_app
     (T : A ⥤ₗ B) [EnoughInjectives A] (p q : ℤ)
     (S : Total T) :
-    (pageOneComparison T p q).hom.app S = (S.obj.pageOneIso p q).hom := sorry
+    (pageOneComparison T p q).hom.app S = (S.obj.pageOneIso p q).hom := rfl
 
 /-- The inverse component of the finite first-page comparison is the inverse realization
 comparison. -/
@@ -186,7 +191,7 @@ comparison. -/
 theorem pageOneComparison_inv_app
     (T : A ⥤ₗ B) [EnoughInjectives A] (p q : ℤ)
     (S : Total T) :
-    (pageOneComparison T p q).inv.app S = (S.obj.pageOneIso p q).inv := sorry
+    (pageOneComparison T p q).inv.app S = (S.obj.pageOneIso p q).inv := rfl
 
 /-- Naturality of the forward finite right-derived first-page comparison. -/
 @[reassoc, stacks 015W "naturality of the finite right-derived first-page comparison"]

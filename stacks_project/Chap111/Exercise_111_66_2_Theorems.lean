@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Sites.Representability
@@ -28,7 +22,7 @@ variable (X : Scheme.{u})
 /- Exercise 111.66.2 (Theorems) (1): a scheme is T0 and QuasiSober, so every
 irreducible closed subset of its underlying space has a unique generic point. -/
 @[stacks 0H8R] #check
-  (TopologicalSpace.IsIrreducible.existsUnique_isGenericPoint :
+  (IsIrreducible.existsUnique_isGenericPoint :
     ∀ {Z : Set X}, IsIrreducible Z → IsClosed Z → ∃! x : X, IsGenericPoint x Z)
 
 /- Exercise 111.66.2 (Theorems) (2): a Zariski sheaf of types on schemes is

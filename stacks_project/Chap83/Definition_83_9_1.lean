@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-import stacks_project.Chap83.Definition_83_9_1_Invariant
-import stacks_project.Chap83.Definition_83_9_1_Quotient
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.PreRelation.GoodQuotient
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicSpace
@@ -21,4 +14,4 @@ variable (P : PreRelation U) (φ : U ⟶ X)
 `j : R ⟶ U ×_B U`, a morphism `φ : U ⟶ X` of algebraic spaces over `B` is a good quotient
 when `φ` is `R`-invariant, affine, and surjective, condition (3) holds universally, and the
 functions on `X` are the `R`-invariant functions on `U`. -/
-@[stacks 04AC] #check (PreRelation.IsGoodQuotient P φ : Prop)
+@[stacks 04AC] #check (AlgebraicGeometry.AlgebraicSpace.PreRelation.IsGoodQuotient P φ : Prop)

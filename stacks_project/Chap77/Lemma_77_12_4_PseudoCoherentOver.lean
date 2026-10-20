@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap67.Lemma_67_28_5
@@ -60,6 +54,10 @@ theorem pushforwardTransition_eq (S : ProperFlatFormalSystem) (n : ℕ) :
 /-- The quasi-coherent coreflection of an ambient homotopy limit of the pushed stage
 sheaves is pseudo-coherent relative to the inverse-limit ring. -/
 theorem coheratorHomotopyLimit_isPseudoCoherentOver (S : ProperFlatFormalSystem)
+    [∀ sq : EtaleSquare (toBase S.space),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+
     [IsQuasiCompact S.space] [IsAbsolutelyQuasiSeparated S.space]
     (F : SequentialInverseSystem (QCoh S.space))
     (stageIso : ∀ n, (QCoh.inclusion S.space).obj (F.obj (Opposite.op n)) ≅

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.Cone
+public import Mathlib.CategoryTheory.Category.Cat
 public import Mathlib.Tactic.CrossRefAttribute
 
 @[expose] public section
@@ -59,20 +54,18 @@ already nested `StructuredArrow`. Likewise, an iso-comma/equifier presentation i
 categories is a valid semantic model, but it would replace the four direct source fields by a
 heavier dependent representation.
 
-The direct structures below are consequently the solution owner and its morphisms. There is no
-separate `Solution`, `DottedArrowCategory`, or representability wrapper: `DottedArrow sq`
-itself becomes the solution category in Lemma 4.44.2, while universal or representability
-properties should be stated on that category. No notation is needed because the owner and its
-projections are already short. The data generalize from a locally groupoidal bicategory to an
-arbitrary bicategory by storing both comparisons as isomorphisms; adding
-`[Bicategory.IsLocallyGroupoid B]` recovers the source setting.
+The explicit object and morphism structures below form the bundled category `DottedArrow sq`.
+The data apply to an arbitrary bicategory by storing both comparisons as isomorphisms;
+adding `[Bicategory.IsLocallyGroupoid B]` gives the locally groupoidal setting.
 -/
+
+namespace DottedArrow
 
 /-- A dotted arrow for the `2`-commutative square `sq` is a morphism
 `arrow : T ⟶ X`, invertible `2`-morphisms from `sq.fst ≫ arrow` to `sq.snd` and from `y` to
 `arrow ≫ p`, and the stated compatibility with the chosen outer comparison `sq.iso`. -/
 @[stacks 0H18 "dotted-arrow data and triangular coherence"]
-structure DottedArrow
+structure Object
     {T X Y : B} {y : T ⟶ Y} {p : X ⟶ Y}
     (sq : Bicategory.PseudoPullbackCone y p) where
   /-- The dotted morphism from the lower-left object to the upper-right object. -/
@@ -87,15 +80,20 @@ structure DottedArrow
         (α_ sq.fst arrow p).symm ≪≫ whiskerRightIso left p =
       sq.iso
 
-namespace DottedArrow
-
 variable {T X Y : B} {y : T ⟶ Y} {p : X ⟶ Y}
 variable {sq : Bicategory.PseudoPullbackCone y p}
+
+/-- Construct a dotted-arrow object from its morphism, triangular comparisons, and coherence. -/
+def Object.ofComponents (arrow : T ⟶ X) (left : sq.fst ≫ arrow ≅ sq.snd)
+    (right : y ≅ arrow ≫ p)
+    (comm : whiskerLeftIso sq.fst right ≪≫
+      (α_ sq.fst arrow p).symm ≪≫ whiskerRightIso left p = sq.iso) : Object sq :=
+  ⟨arrow, left, right, comm⟩
 
 /-- A morphism of dotted arrows is a `2`-morphism between their dotted
 morphisms that is compatible with both triangular comparison `2`-isomorphisms. -/
 @[stacks 0H18 "morphisms of dotted arrows and comparison compatibility"]
-structure Hom (A A' : DottedArrow sq) where
+structure Hom (A A' : Object sq) where
   /-- The ambient `2`-morphism between the dotted morphisms. -/
   hom : A.arrow ⟶ A'.arrow
   /-- Compatibility with the upper-left comparison `2`-isomorphisms. -/
@@ -116,28 +114,32 @@ namespace Implementation
 
 Proof strategy: use `Bicategory.whiskerLeft_id`, then cancel the resulting unitors with
 the ambient category identity laws. -/
-private theorem idHom_left_comm (A : DottedArrow sq) :
+private theorem idHom_left_comm (A : Object sq) :
     sq.fst ◁ 𝟙 A.arrow ≫ A.left.hom = A.left.hom := sorry
 
 /-- Right-triangle compatibility for the identity morphism of a dotted arrow.
 
 Proof strategy: use `Bicategory.id_whiskerRight`, then cancel the resulting unitors with
 the ambient category identity laws. -/
-private theorem idHom_right_comm (A : DottedArrow sq) :
+private theorem idHom_right_comm (A : Object sq) :
     A.right.hom ≫ 𝟙 A.arrow ▷ p = A.right.hom := sorry
 
-/-- The identity morphism of a dotted arrow. -/
-private def idHom (A : DottedArrow sq) : Hom A A where
+end Implementation
+
+/-- The identity compatible morphism of a dotted-arrow object. -/
+def idHom (A : Object sq) : Hom A A where
   hom := 𝟙 A.arrow
-  left_comm := idHom_left_comm A
-  right_comm := idHom_right_comm A
+  left_comm := Implementation.idHom_left_comm A
+  right_comm := Implementation.idHom_right_comm A
+
+namespace Implementation
 
 /-- Left-triangle compatibility for composition of dotted-arrow morphisms.
 
 Proof strategy: rewrite with `Bicategory.whiskerLeft_comp`, reassociate, and apply the
 two input `left_comm` equations. -/
 private theorem compHom_left_comm
-    {A A' A'' : DottedArrow sq} (η : Hom A A') (θ : Hom A' A'') :
+    {A A' A'' : Object sq} (η : Hom A A') (θ : Hom A' A'') :
     sq.fst ◁ (η.hom ≫ θ.hom) ≫ A''.left.hom = A.left.hom := sorry
 
 /-- Right-triangle compatibility for composition of dotted-arrow morphisms.
@@ -145,69 +147,77 @@ private theorem compHom_left_comm
 Proof strategy: rewrite with `Bicategory.comp_whiskerRight`, reassociate, and apply the
 two input `right_comm` equations. -/
 private theorem compHom_right_comm
-    {A A' A'' : DottedArrow sq} (η : Hom A A') (θ : Hom A' A'') :
+    {A A' A'' : Object sq} (η : Hom A A') (θ : Hom A' A'') :
     A.right.hom ≫ (η.hom ≫ θ.hom) ▷ p = A''.right.hom := sorry
 
-/-- Composition of dotted-arrow morphisms. -/
-private def compHom
-    {A A' A'' : DottedArrow sq} (η : Hom A A') (θ : Hom A' A'') : Hom A A'' where
+end Implementation
+
+/-- Composition of compatible morphisms of dotted-arrow objects. -/
+def compHom
+    {A A' A'' : Object sq} (η : Hom A A') (θ : Hom A' A'') : Hom A A'' where
   hom := η.hom ≫ θ.hom
-  left_comm := compHom_left_comm η θ
-  right_comm := compHom_right_comm η θ
+  left_comm := Implementation.compHom_left_comm η θ
+  right_comm := Implementation.compHom_right_comm η θ
+
+namespace Implementation
 
 /-- Left identity law for dotted-arrow morphisms.
 
 Proof strategy: apply `Hom.ext`; the ambient component is `Category.id_comp`. -/
-private theorem idHom_comp {A A' : DottedArrow sq} (η : Hom A A') :
+private theorem idHom_comp {A A' : Object sq} (η : Hom A A') :
     compHom (idHom A) η = η := sorry
 
 /-- Right identity law for dotted-arrow morphisms.
 
 Proof strategy: apply `Hom.ext`; the ambient component is `Category.comp_id`. -/
-private theorem comp_idHom {A A' : DottedArrow sq} (η : Hom A A') :
+private theorem comp_idHom {A A' : Object sq} (η : Hom A A') :
     compHom η (idHom A') = η := sorry
 
 /-- Associativity law for dotted-arrow morphisms.
 
 Proof strategy: apply `Hom.ext`; the ambient component is `Category.assoc`. -/
-private theorem compHom_assoc {A₀ A₁ A₂ A₃ : DottedArrow sq}
+private theorem compHom_assoc {A₀ A₁ A₂ A₃ : Object sq}
     (η : Hom A₀ A₁) (θ : Hom A₁ A₂) (ι : Hom A₂ A₃) :
     compHom (compHom η θ) ι = compHom η (compHom θ ι) := sorry
 
 end Implementation
 
-/- Mathlib's `LeftLift` owns one triangle but not the second comparison or the outer coherence;
-the dependency's source-facing `DottedArrow` is therefore the exact owner. Its explicit `Hom`
-structure supplies the canonical morphisms, so only the category operations and their
-law proofs are added here. This keeps the source category available without a parallel wrapper. -/
-
-/-- Dotted arrows for a fixed `2`-commutative square form a category. -/
-instance category : Category (DottedArrow sq) where
+/-- The category structure on dotted-arrow objects, with compatible ambient `2`-morphisms. -/
+@[reducible]
+def category : Category (Object sq) where
   Hom := Hom
-  id := Implementation.idHom
-  comp := Implementation.compHom
+  id := idHom
+  comp := compHom
   id_comp := Implementation.idHom_comp
   comp_id := Implementation.comp_idHom
   assoc := Implementation.compHom_assoc
 
 end
 
-/-- The underlying `2`-morphism of the identity dotted-arrow morphism is the identity.
+end Category
 
-Proof strategy: unfold the private implementation selected by the category instance. -/
+end DottedArrow
+
+/-- The bundled category of dotted arrows compatible with a fixed `2`-commutative square. -/
+def DottedArrow {T X Y : B} {y : T ⟶ Y} {p : X ⟶ Y}
+    (sq : Bicategory.PseudoPullbackCone y p) : Cat.{w, max w v} :=
+  ⟨DottedArrow.Object sq, DottedArrow.category⟩
+
+namespace DottedArrow
+
+variable {T X Y : B} {y : T ⟶ Y} {p : X ⟶ Y}
+variable {sq : Bicategory.PseudoPullbackCone y p}
+
+/-- The underlying `2`-morphism of the identity dotted-arrow morphism is the identity. -/
 @[simp]
 theorem id_hom (A : DottedArrow sq) :
     (𝟙 A : A ⟶ A).hom = 𝟙 A.arrow := sorry
 
 /-- The underlying `2`-morphism of a composite dotted-arrow morphism is the composite of the
-underlying `2`-morphisms.
-
-Proof strategy: unfold the private implementation selected by the category instance. -/
+underlying `2`-morphisms. -/
 @[simp]
 theorem comp_hom {A A' A'' : DottedArrow sq} (η : A ⟶ A') (θ : A' ⟶ A'') :
     (η ≫ θ).hom = η.hom ≫ θ.hom := sorry
-
-end Category
 
 end DottedArrow
 

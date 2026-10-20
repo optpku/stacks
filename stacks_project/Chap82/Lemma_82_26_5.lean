@@ -1,13 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap82.Definition_82_26_1_Bivariant
 public import stacks_project.Chap82.Lemma_82_11_1_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.RelativeDimension.BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType.Cancellation
 
 /-!
 # Flat pullback as a bivariant class
@@ -53,6 +49,8 @@ noncomputable def chowFlatPullback_isPullback {X' Y' : AlgebraicSpace S}
     [QuasiSeparated (i ≫ f ≫ pY)] [LocallyOfFiniteType (i ≫ f ≫ pY)]
     (square : IsPullback i f' f g) (k : ℤ) :
     Hom.chowGroup (g ≫ pY) δ k →+ Hom.chowGroup (i ≫ f ≫ pY) δ (k + (r : ℤ)) :=
+  -- Local instance justification (proof-local temporary data): Cancellation of the good structure morphism supplies local finite type needed to transfer exact relative dimension.
+  letI : LocallyOfFiniteType f := LocallyOfFiniteType.of_comp f pY
   @Hom.chowFlatPullback _ _ _ _ δ _ _ _ (g ≫ pY) _ _ (i ≫ f ≫ pY) _ _ f' r
     (Flat.of_isPullback square inferInstance)
     (RelativeDimension.of_isPullback square inferInstance)

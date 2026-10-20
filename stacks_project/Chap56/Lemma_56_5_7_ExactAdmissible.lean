@@ -1,19 +1,12 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.ExactFunctor
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Quasicoherent.ExactAdmissible
 public import stacks_project.Chap56.Lemma_56_5_2_Admissible
 
 @[expose] public section
 
 open CategoryTheory
 open CategoryTheory.Limits
-open CategoryTheory.ObjectProperty
 open AlgebraicGeometry
 
 universe u
@@ -21,31 +14,17 @@ universe u
 namespace AlgebraicGeometry.Scheme.QCoh
 
 variable {R : Type u} [CommRing R] {X Y : Scheme.{u}}
+variable (x : X ⟶ Spec (CommRingCat.of R)) (y : Y ⟶ Spec (CommRingCat.of R))
 
-/-- An admissible functor of quasicoherent modules is exact-admissible when it is
-an exact functor `Scheme.QCoh X ⥤ Scheme.QCoh Y`. -/
-class ExactAdmissible (x : X ⟶ Spec (CommRingCat.of R))
-    (y : Y ⟶ Spec (CommRingCat.of R)) (F : Scheme.QCoh X ⥤ Scheme.QCoh Y) : Prop
-    extends Admissible x y F where
-  exact : exactFunctor (Scheme.QCoh X) (Scheme.QCoh Y) F
-
-/-- Exact-admissibility is equivalent to admissibility together with exactness. -/
-theorem exactAdmissible_iff (x : X ⟶ Spec (CommRingCat.of R))
-    (y : Y ⟶ Spec (CommRingCat.of R)) (F : Scheme.QCoh X ⥤ Scheme.QCoh Y) :
+/- The exact-admissible functor API is owned by the quasicoherent-module library. -/
+#check (AlgebraicGeometry.Scheme.QCoh.ExactAdmissible x y :
+  (Scheme.QCoh X ⥤ Scheme.QCoh Y) → Prop)
+#check (AlgebraicGeometry.Scheme.QCoh.exactAdmissible_iff x y :
+  ∀ F : Scheme.QCoh X ⥤ Scheme.QCoh Y,
     ExactAdmissible x y F ↔
-      Admissible x y F ∧ exactFunctor (Scheme.QCoh X) (Scheme.QCoh Y) F := sorry
-
-/-- The category of `R`-linear exact functors `Scheme.QCoh X ⥤ Scheme.QCoh Y`
-that preserve arbitrary coproducts. -/
-abbrev ExactCoproductLinearFunctor (x : X ⟶ Spec (CommRingCat.of R))
-    (y : Y ⟶ Spec (CommRingCat.of R)) :=
-  ObjectProperty.FullSubcategory
-    fun F : Scheme.QCoh X ⥤ Scheme.QCoh Y ↦ ExactAdmissible x y F
-
-/-- Objects of `ExactCoproductLinearFunctor` are exact-admissible functors. -/
-theorem exactCoproductLinearFunctor_property (x : X ⟶ Spec (CommRingCat.of R))
-    (y : Y ⟶ Spec (CommRingCat.of R))
-    (F : ExactCoproductLinearFunctor x y) :
-    ExactAdmissible x y F.obj := F.property
+      Admissible x y F ∧ exactFunctor (Scheme.QCoh X) (Scheme.QCoh Y) F)
+#check (AlgebraicGeometry.Scheme.QCoh.ExactCoproductLinearFunctor x y : Type (u + 1))
+#check (AlgebraicGeometry.Scheme.QCoh.exactCoproductLinearFunctor_property x y :
+  ∀ F : ExactCoproductLinearFunctor x y, ExactAdmissible x y F.obj)
 
 end AlgebraicGeometry.Scheme.QCoh

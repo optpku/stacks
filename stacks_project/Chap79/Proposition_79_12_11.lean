@@ -1,11 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FinitePart.AlgebraicSpace
 public import stacks_project.Chap65.Lemma_65_16_4_IsAlgebraicSpace
 public import stacks_project.Chap66.Lemma_66_16_4_Etale
 public import stacks_project.Chap67.Definition_67_4_2_Separation
@@ -27,44 +23,37 @@ open CategoryTheory AlgebraicGeometry AlgebraicSpace
 
 universe u
 
-noncomputable section
-
-namespace AlgebraicGeometry.AlgebraicSpace.FinitePart
-
-variable {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-
-/-- Proposition 79.12.11 (1): Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism
+/- Proposition 79.12.11 (1): Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism
 of algebraic spaces over `S` which is separated and locally of finite type.
 Then `(X/Y)_fin` is an algebraic space. -/
-@[stacks 04QH, instance]
-instance instIsAlgebraicSpace (f : X ⟶ Y) [Separated f] [LocallyOfFiniteType f] :
-    IsAlgebraicSpace (finitePart f) :=
-  sorry
+@[stacks 04QH] #check (AlgebraicGeometry.AlgebraicSpace.FinitePart.instIsAlgebraicSpace :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [Separated f] [LocallyOfFiniteType f], IsAlgebraicSpace (finitePart f))
 
-/-- The algebraic space associated to the finite-part functor `(X/Y)_fin`. -/
-def space (f : X ⟶ Y) [Separated f] [LocallyOfFiniteType f] : AlgebraicSpace S :=
-  ofIsAlgebraicSpace (finitePart f)
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.space :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [Separated f] [LocallyOfFiniteType f], AlgebraicSpace S)
 
-/-- The functor of points of `space f` is `finitePart f`. -/
-theorem space_functorOfPoints (f : X ⟶ Y) [Separated f] [LocallyOfFiniteType f] :
-    (space f).functorOfPoints = finitePart f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.space_functorOfPoints :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [Separated f] [LocallyOfFiniteType f],
+    (AlgebraicGeometry.AlgebraicSpace.FinitePart.space f).functorOfPoints = finitePart f)
 
-/-- The structure morphism `(X/Y)_fin ⟶ Y`, as a morphism of algebraic spaces. -/
-def spaceHom (f : X ⟶ Y) [Separated f] [LocallyOfFiniteType f] : space f ⟶ Y :=
-  toY f
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.spaceHom :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [Separated f] [LocallyOfFiniteType f],
+    AlgebraicGeometry.AlgebraicSpace.FinitePart.space f ⟶ Y)
 
-/-- `spaceHom f` is the functor-of-points morphism `toY f`. -/
-theorem spaceHom_eq (f : X ⟶ Y) [Separated f] [LocallyOfFiniteType f] :
-    spaceHom f = toY f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.FinitePart.spaceHom_eq :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [Separated f] [LocallyOfFiniteType f],
+    AlgebraicGeometry.AlgebraicSpace.FinitePart.spaceHom f =
+      AlgebraicGeometry.AlgebraicSpace.FinitePart.toY f)
 
-/-- Proposition 79.12.11 (2): Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism
+/- Proposition 79.12.11 (2): Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism
 of algebraic spaces over `S` which is separated and locally of finite type.
 Then the morphism `(X/Y)_fin ⟶ Y` is étale. -/
-@[stacks 04QH, instance]
-instance instEtale_spaceHom (f : X ⟶ Y) [Separated f] [LocallyOfFiniteType f] :
-    Etale (spaceHom f) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.FinitePart
+@[stacks 04QH] #check (AlgebraicGeometry.AlgebraicSpace.FinitePart.instEtale_spaceHom :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [Separated f] [LocallyOfFiniteType f],
+    Etale (AlgebraicGeometry.AlgebraicSpace.FinitePart.spaceHom f))

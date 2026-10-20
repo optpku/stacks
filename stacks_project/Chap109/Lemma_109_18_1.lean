@@ -1,57 +1,54 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap109.Lemma_109_18_1_Substack
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Nodal
+import StacksCheckRecall
 
 /-!
 # Nodal curves
 
 There is an open substack 𝒞urves^{nodal} ⊂ 𝒞urves classifying at-worst-nodal
-families of curves of relative dimension 1, equivalently proper schemes over a
-field whose singularities are at-worst-nodal and which are equidimensional of
-dimension 1.
+families of curves of relative dimension 1. Its field-valued objects are proper
+schemes with at-worst-nodal singularities and dimension one of every irreducible
+component.
 -/
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-namespace Spaces
-namespace Curves
+namespace AlgebraicGeometry.AlgebraicSpace.Spaces.Curves
 
-/-- Lemma 109.18.1 (1): given a family of curves `X ⟶ S`, the classifying
-morphism `S ⟶ 𝒞urves` factors through `𝒞urves^{nodal}` if and only if
-`X ⟶ S` is at-worst-nodal of relative dimension 1. -/
-@[stacks 0DSY]
-theorem classifying_factorsThrough_nodal_iff
-    {S : Scheme.{u}} (P : Obj S) :
-    nodal S P ↔ AlgebraicSpace.AtWorstNodal (hom P) :=
-  sorry
+/- Lemma 109.18.1: the nodal condition is represented by an open of the base
+under every scheme base change. -/
+@[stacks 0DSY] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.exists_nodal_open :
+  ∀ {S : Scheme.{u}} (P : Obj S),
+    ∃ U : (base P).left.Opens, ∀ T : Over (base P).left,
+      AlgebraicSpace.AtWorstNodal
+          (pullbackAlongScheme.snd (hom P)
+            (ofOverHomMk (σK := T.hom ≫ (base P).hom)
+              (σL := (base P).hom) T.hom rfl)) ↔
+        Set.range T.hom ⊆ U)
 
-/-- Lemma 109.18.1 (2): given a nonempty scheme `X` proper over a field `k` with
-dimension at most one, the classifying morphism `Spec k ⟶ 𝒞urves` factors
-through `𝒞urves^{nodal}` if and only if the singularities of `X` are
-at-worst-nodal and `X` is equidimensional of dimension 1. -/
-@[stacks 0DSY]
-theorem classifying_factorsThrough_nodal_iff_scheme
-    {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
-    [Nonempty X.left] (hdim : topologicalKrullDim X.left ≤ 1) :
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.nodal_iff :
+  ∀ {S : Scheme.{u}} (P : Obj S),
+    nodal S P ↔ AlgebraicSpace.AtWorstNodal (hom P))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.nodal_iff_scheme_components :
+  ∀ {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
+    (hdim : topologicalKrullDim X.left ≤ 1),
+    nodal (Spec (CommRingCat.of k)) (mkOfSchemeOverField X hdim) ↔
+      SchemeOverField.atWorstNodal X ∧
+        ∀ Z : irreducibleComponents X.left,
+          topologicalKrullDim Z = 1)
+
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.classifying_factorsThrough_nodal_iff_scheme :
+  ∀ {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
+    [Nonempty X.left] (hdim : topologicalKrullDim X.left ≤ 1),
     nodal (Spec (CommRingCat.of k)) (mkOfSchemeOverField X hdim) ↔
       SchemeOverField.atWorstNodal X ∧
         TopologicalSpace.EquidimensionalSpace X.left ∧
-        topologicalKrullDim X.left = 1 :=
-  sorry
+        topologicalKrullDim X.left = 1)
 
-end Curves
-end Spaces
-end AlgebraicGeometry.AlgebraicSpace
+end AlgebraicGeometry.AlgebraicSpace.Spaces.Curves

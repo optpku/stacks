@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.CardinalGeneration
@@ -41,19 +35,22 @@ instance isKappaGenerated_isClosedUnderIsomorphisms (κ : Cardinal.{w}) :
 
 namespace IsKappaGenerated
 
-/-- Cardinal-generated module sheaves form an essentially small object property at the natural
-universe of the module-sheaf category. -/
+/-- Cardinal-generated module sheaves form an essentially small object property relative to the
+universe `max u v w` of the site and of the section modules, so their isomorphism classes are
+indexed by a type in that universe (rather than in the larger universe of all module sheaves). -/
 instance essentiallySmall (κ : Cardinal.{w}) :
-    ObjectProperty.EssentiallySmall.{max u v w + 1}
+    ObjectProperty.EssentiallySmall.{max u v w}
       (fun M : SheafOfModules.{w} R => M.IsKappaGenerated κ) := sorry
 
-/-- There is a set of cardinal-generated module sheaves containing a representative of every
-isomorphism class of cardinal-generated module sheaves. -/
+/-- There is a family of cardinal-generated module sheaves, indexed by a type in the universe
+`max u v w`, such that every cardinal-generated module sheaf is isomorphic to one of them. -/
 theorem exists_set_representatives (κ : Cardinal.{w}) :
-    ∃ S : Set (SheafOfModules.{w} R),
-      (∀ M ∈ S, M.IsKappaGenerated κ) ∧
+    ∃ (T : Type (max u v w)) (F : T → SheafOfModules.{w} R),
+      (∀ t, (F t).IsKappaGenerated κ) ∧
       ∀ M : SheafOfModules.{w} R, M.IsKappaGenerated κ →
-        ∃ N ∈ S, Nonempty (N ≅ M) := sorry
+        ∃ t, Nonempty (F t ≅ M) :=
+  ObjectProperty.EssentiallySmall.exists_family_representatives
+    (fun M : SheafOfModules.{w} R => M.IsKappaGenerated κ)
 
 end IsKappaGenerated
 

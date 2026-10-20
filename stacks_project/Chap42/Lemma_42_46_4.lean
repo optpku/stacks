@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap42.Definition_42_46_3_DerivedChern
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Perfect.LocallyFree
+public import ReasLib.AlgebraicGeometry.ChowCohomology.ChernClass.Derived.Definedness
 import StacksCheckRecall
 
 @[expose] public section
@@ -18,66 +11,56 @@ universe u
 
 namespace AlgebraicGeometry.ChernClass.Derived
 
-/-- Lemma 42.46.4 (1): the Chern classes of a perfect derived module are defined if an
-envelope makes its derived pullback admit a locally bounded finite locally free representative. -/
-@[stacks 0GUE]
-theorem isDefined_of_envelope
-    {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
-    (X : Over S) [LocallyOfFiniteType X.hom]
-    (E : RingedSpace.ModuleDerived X.left.toRingedSpace)
-    (hPerfect : RingedSpace.ModuleDerived.IsPerfect E)
-    {Y : Scheme.{u}} (f : Y ⟶ X.left) [IsEnvelope f]
+/- Lemma 42.46.4 (1): an envelope with a locally bounded finite locally free representative
+ensures defined Chern classes. This criterion holds for arbitrary schemes and derived modules,
+so it applies in particular to the perfect objects over the base of Situation 42.7.1. -/
+@[stacks 0GUE] #check (AlgebraicGeometry.ChernClass.Derived.IsDefined.ofEnvelope :
+    ∀ {X Y : Scheme.{u}} (f : Y ⟶ X) [IsEnvelope f]
+    {E : RingedSpace.ModuleDerived X.toRingedSpace}
     (hRep : RingedSpace.ModuleDerived.HasLocallyBoundedFiniteLocallyFreeRepresentative
-      ((RingedSpace.modulePullbackDerived f.toShHom).obj E)) :
-    IsDefined E := sorry
+      ((RingedSpace.modulePullbackDerived f.toShHom).obj E)),
+    IsDefined E)
 
-/-- Lemma 42.46.4 (2): the Chern classes of a perfect derived module are defined if it is
-represented by a bounded complex of finite locally free modules. -/
-@[stacks 0GUE]
-theorem isDefined_of_boundedRepresentative
-    {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
-    (X : Over S) [LocallyOfFiniteType X.hom]
-    (E : RingedSpace.ModuleDerived X.left.toRingedSpace)
-    (hPerfect : RingedSpace.ModuleDerived.IsPerfect E)
-    (K : CochainComplex X.left.Modules ℤ)
+/- Lemma 42.46.4 (2): a bounded finite locally free representative ensures defined Chern
+classes. Neither perfectness nor a chosen base is needed for this stronger criterion. -/
+@[stacks 0GUE] #check (AlgebraicGeometry.ChernClass.Derived.isDefined_of_boundedRepresentative :
+    ∀ {X : Scheme.{u}} (E : RingedSpace.ModuleDerived X.toRingedSpace)
+    (K : CochainComplex X.Modules ℤ)
     (hRep : IsIsomorphic (DerivedCategory.Q.obj K) E)
-    (hK : SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree K) :
-    IsDefined E := sorry
+    (hK : SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree K),
+    IsDefined E)
 
-/-- Lemma 42.46.4 (3): the Chern classes of a perfect derived module are defined if every
-irreducible component of its scheme is quasi-compact. -/
-@[stacks 0GUE]
-theorem isDefined_of_compactComponents
-    {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
-    (X : Over S) [LocallyOfFiniteType X.hom]
-    (E : RingedSpace.ModuleDerived X.left.toRingedSpace)
+/- Lemma 42.46.4 (3): quasi-compact irreducible components ensure defined Chern classes for
+a perfect object on a locally Noetherian scheme. Under Situation 42.7.1, the base is locally
+Noetherian by UniversallyCatenary.toIsLocallyNoetherian, and a scheme locally of finite type
+over it is locally Noetherian by LocallyOfFiniteType.isLocallyNoetherian. Thus this stronger
+criterion specializes to the source hypotheses without requiring finitely many components. -/
+@[stacks 0GUE] #check (AlgebraicGeometry.ChernClass.Derived.isDefined_of_compactComponents :
+    ∀ {X : Scheme.{u}} [IsLocallyNoetherian X]
+    (E : RingedSpace.ModuleDerived X.toRingedSpace)
     (hPerfect : RingedSpace.ModuleDerived.IsPerfect E)
-    (hComponents : ∀ Z : irreducibleComponents X.left, IsCompact (Z : Set X.left)) :
-    IsDefined E := sorry
+    (hComponents : ∀ Z : irreducibleComponents X, IsCompact (Z : Set X)),
+    IsDefined E)
 
-/-- Lemma 42.46.4 (4): the Chern classes of a perfect derived module on a quasi-compact scheme
-are defined. -/
-@[stacks 0GUE]
-theorem isDefined_of_compactSpace
-    {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
-    (X : Over S) [LocallyOfFiniteType X.hom] [CompactSpace X.left]
-    (E : RingedSpace.ModuleDerived X.left.toRingedSpace)
-    (hPerfect : RingedSpace.ModuleDerived.IsPerfect E) :
-    IsDefined E := sorry
+/- Lemma 42.46.4 (4): a perfect derived module on a quasi-compact locally Noetherian scheme
+has defined Chern classes. As in part (3), the locally finite-type hypothesis over the base of
+Situation 42.7.1 supplies local Noetherianness. -/
+@[stacks 0GUE] #check (AlgebraicGeometry.ChernClass.Derived.isDefined_of_compactSpace :
+    ∀ {X : Scheme.{u}} [IsLocallyNoetherian X] [CompactSpace X]
+    (E : RingedSpace.ModuleDerived X.toRingedSpace)
+    (hPerfect : RingedSpace.ModuleDerived.IsPerfect E),
+    IsDefined E)
 
-/-- Lemma 42.46.4 (5): defined Chern classes pull back along a morphism of schemes over the
-base, up to isomorphism in the derived category. -/
-@[stacks 0GUE]
-theorem isDefined_of_pullback
-    {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
-    (X X' : Over S) [LocallyOfFiniteType X.hom] [LocallyOfFiniteType X'.hom]
-    (g : X ⟶ X')
-    (E : RingedSpace.ModuleDerived X.left.toRingedSpace)
-    (hPerfect : RingedSpace.ModuleDerived.IsPerfect E)
-    (E' : RingedSpace.ModuleDerived X'.left.toRingedSpace)
-    (hPerfect' : RingedSpace.ModuleDerived.IsPerfect E') (hDefined' : IsDefined E')
+/- Lemma 42.46.4 (5): an object isomorphic to the derived pullback of an object with defined
+Chern classes has defined Chern classes. This holds for arbitrary scheme morphisms and derived
+modules, hence in particular for the perfect objects and morphisms over the given base. -/
+@[stacks 0GUE] #check (AlgebraicGeometry.ChernClass.Derived.isDefined_of_pullback :
+    ∀ {X X' : Scheme.{u}} (g : X ⟶ X')
+    (E : RingedSpace.ModuleDerived X.toRingedSpace)
+    (E' : RingedSpace.ModuleDerived X'.toRingedSpace)
+    (hDefined' : IsDefined E')
     (hPullback : IsIsomorphic
-      ((RingedSpace.modulePullbackDerived g.left.toShHom).obj E') E) :
-    IsDefined E := sorry
+      ((RingedSpace.modulePullbackDerived g.toShHom).obj E') E),
+    IsDefined E)
 
 end AlgebraicGeometry.ChernClass.Derived

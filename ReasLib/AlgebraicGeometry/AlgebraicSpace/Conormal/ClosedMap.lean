@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import Mathlib.CategoryTheory.CommSq
 public import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Kernels
-public import stacks_project.Chap67.Lemma_67_14_1_Quotient
-public import stacks_project.Chap69.Lemma_69_17_2_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.IdealQuotient
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IdealSubobject.Pullback
 @[expose] public section
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
 open AlgebraicGeometry.AlgebraicSpace

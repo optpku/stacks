@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import Mathlib.CategoryTheory.HomCongr
@@ -14,8 +8,9 @@ public import ReasLib.CategoryTheory.Fibered.Representable.Slice.FullyFaithful
 /-!
 # Presentations by slice fibrations
 
-This file transports the canonical slice Hom equivalence through chosen bicategorical
-presentations and exposes the source-facing induced-morphism relation.
+Morphisms between fibred groupoids presented by slice fibrations, modulo `2`-isomorphism,
+correspond to morphisms between their representing objects. The induced-morphism relation
+records compatibility with the chosen presentations.
 -/
 
 @[expose] public section
@@ -159,7 +154,9 @@ theorem subsingleton_iso {X Y : C}
 
 end InducesHom
 
-/-- Fixed-morphism form of uniqueness of representing objects. -/
+/-- If two maps from a fibred groupoid to slice fibrations are equivalences over the base,
+their representing objects admit an isomorphism compatible with both maps up to a
+`2`-isomorphism. -/
 theorem Presentation.uniqueUpToIso.of_isEquivalence
     {P : FiberedCategoryOver.Groupoids C} {X X' : C}
     (j : P ⟶ slice X) (j' : P ⟶ slice X')
@@ -167,7 +164,8 @@ theorem Presentation.uniqueUpToIso.of_isEquivalence
     (hj' : BasedFunctor.IsEquivalence (toBasedFunctor j')) :
     ∃ i : X ≅ X', Nonempty (j' ≅ j ≫ overMap i.hom) := sorry
 
-/-- Fixed-morphism form of `Presentation.objectsIsomorphic`. -/
+/-- Objects whose slice fibrations are equivalent over the base to the same fibred groupoid
+are isomorphic. -/
 theorem Presentation.objectsIsomorphic.of_isEquivalence
     {P : FiberedCategoryOver.Groupoids C} {X X' : C}
     (j : P ⟶ slice X) (j' : P ⟶ slice X')

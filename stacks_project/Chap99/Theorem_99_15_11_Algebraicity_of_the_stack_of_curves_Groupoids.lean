@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Category
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Bicategory
 public import ReasLib.CategoryTheory.Fibered.InGroupoids.Basic
 public import stacks_project.Chap99.Remark_99_15_5_BaseChange
@@ -34,15 +29,15 @@ namespace CurvesGroupoidsOver
 the role of `Sch_fppf`. -/
 def p {S : Scheme.{u}} (B : AlgebraicSpace S) :
     CurvesGroupoidsOver B ⥤ Over S :=
-  CostructuredArrow.proj (pCurvesGroupoids S ⋙ ofOverFunctor S) B ⋙
-    pCurvesGroupoids S
+  CostructuredArrow.proj (Curves.p S ⋙ ofOverFunctor S) B ⋙
+    Curves.p S
 
 /-- The projection `p B` is the costructured-arrow projection of
-`pCurvesGroupoids S ⋙ ofOverFunctor S`, followed by `pCurvesGroupoids S`. -/
+`Curves.p S ⋙ ofOverFunctor S`, followed by `Curves.p S`. -/
 theorem p_eq {S : Scheme.{u}} (B : AlgebraicSpace S) :
     p B =
-      CostructuredArrow.proj (pCurvesGroupoids S ⋙ ofOverFunctor S) B ⋙
-        pCurvesGroupoids S :=
+      CostructuredArrow.proj (Curves.p S ⋙ ofOverFunctor S) B ⋙
+        Curves.p S :=
   sorry
 
 /-- The forgetful functor of `B`-Curves is fibred in groupoids over `Over S`. -/

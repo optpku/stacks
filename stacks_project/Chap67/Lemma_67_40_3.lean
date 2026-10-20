@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_40_3_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Proper.BaseChange
+import StacksCheckRecall
 
 /-!
 # Base change of proper morphisms of algebraic spaces
@@ -17,21 +12,13 @@ algebraic spaces is again proper.
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry CategoryTheory.Limits
-  CategoryTheory.MorphismProperty
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 67.40.3: A base change of a proper morphism of algebraic spaces is
+/- Lemma 67.40.3: A base change of a proper morphism of algebraic spaces is
 proper. -/
-@[stacks 04WP]
-instance proper_isStableUnderBaseChange {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderBaseChange
-      (@Proper S : MorphismProperty (AlgebraicSpace S)) := sorry
-
-#check Proper.of_isPullback
-#check Proper.pullback_snd
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 04WP] #check
+  (AlgebraicGeometry.AlgebraicSpace.proper_isStableUnderBaseChange :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}},
+      CategoryTheory.MorphismProperty.IsStableUnderBaseChange
+        (@AlgebraicGeometry.AlgebraicSpace.Proper S :
+          CategoryTheory.MorphismProperty (AlgebraicGeometry.AlgebraicSpace S)))

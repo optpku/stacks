@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_25_4_FiniteTypePoint
-public import stacks_project.Chap67.Definition_67_5_2_Surjective
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteTypePoints
+import StacksCheckRecall
 
 /-!
 # Images of finite type points under surjective locally finite type morphisms
@@ -24,21 +18,13 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType
 
-/-- Lemma 67.25.5: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
+/- Lemma 67.25.5: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
 algebraic spaces over `S`. If `f` is locally of finite type and surjective, then
 `Points.map f '' finiteTypePoints X = finiteTypePoints Y`. -/
-@[stacks 06EJ]
-theorem image_finiteTypePoints_eq_of_surjective {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyOfFiniteType f] [Surjective f] :
-    Points.map f '' finiteTypePoints X = finiteTypePoints Y :=
-  sorry
-
-/-- Membership in the image of finite-type points along a surjective
-locally-of-finite-type morphism is equivalent to being a finite-type point of
-the target. -/
-theorem mem_image_finiteTypePoints_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [LocallyOfFiniteType f] [Surjective f] {y : Points Y} :
-    y ∈ Points.map f '' finiteTypePoints X ↔ y ∈ finiteTypePoints Y :=
-  sorry
+@[stacks 06EJ] #check
+  (AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType.image_finiteTypePoints_eq_of_surjective :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      [LocallyOfFiniteType f] [Surjective f],
+      Points.map f '' finiteTypePoints X = finiteTypePoints Y)
 
 end AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType

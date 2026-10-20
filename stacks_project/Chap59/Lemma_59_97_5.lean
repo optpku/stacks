@@ -1,18 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap59.Lemma_59_91_12_BaseChange
-public import stacks_project.Chap59.Theorem_59_89_2_Smooth_base_change
-public import ReasLib.AlgebraicGeometry.Scheme.OverField
-public import ReasLib.AlgebraicGeometry.Scheme.Algebraic
-public import Mathlib.AlgebraicGeometry.Morphisms.OpenImmersion
-public import Mathlib.Algebra.Homology.DerivedCategory.Plus
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.BaseChange.OpenImmersion
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -36,15 +25,11 @@ variable [∀ {A B : Scheme.{u}} (h : A ⟶ B),
 variable [∀ Z : Scheme.{u},
     HasDerivedCategory.{w} (Sheaf Z.smallEtaleTopology AddCommGrpCat.{u})]
 
-/-- Lemma 59.97.5: if `K` is a field, `j : U ⟶ X` is an open immersion of schemes of
-finite type over `K`, and `Y` is a scheme of finite type over `K`, then for
-`q = pullback.snd Y.hom X.hom : pullback Y.hom X.hom ⟶ X.left`,
-`h = pullback.fst q j.left`, and `p = pullback.snd q j.left`, the derived
-base-change map `q⁻¹ R j_* F ⟶ R h_* p⁻¹ F` is an isomorphism for every abelian
-sheaf `F` on `U.left.smallEtaleTopology` whose geometric stalks are torsion of
-orders invertible in `K`. -/
-@[stacks 0F1H]
-theorem derivedBaseChangeHom_isIso_of_openImmersion
+/- Lemma 59.97.5: derived étale base change for an open immersion of finite-type
+schemes over a field and an abelian sheaf with invertible-order torsion stalks. -/
+@[stacks 0F1H] #check
+  (AlgebraicGeometry.Scheme.Hom.derivedBaseChangeHom_isIso_of_openImmersion :
+  ∀
     {K : Type u} [Field K] {X U Y : SchemeOverField K}
     [Algebraic X] [Algebraic U] [Algebraic Y]
     (j : U ⟶ X) [IsOpenImmersion j.left]
@@ -77,14 +62,14 @@ theorem derivedBaseChangeHom_isIso_of_openImmersion
         (Sheaf U.left.smallEtaleTopology AddCommGrpCat.{u}))]
     (h_src : IsIso (derivedSourceComparison j.left (pullback.snd Y.hom X.hom)))
     (F : Sheaf U.left.smallEtaleTopology AddCommGrpCat.{u})
-    (hF : IsTorsionWithOrdersInvertibleOn (Spec (CommRingCat.of K)) F) :
+    (hF : IsTorsionWithOrdersInvertibleOn (Spec (CommRingCat.of K)) F),
     IsIso
       (derivedBaseChangeHom j.left (pullback.snd Y.hom X.hom)
         (pullback.fst (pullback.snd Y.hom X.hom) j.left)
         (pullback.snd (pullback.snd Y.hom X.hom) j.left)
         (IsPullback.of_hasPullback (pullback.snd Y.hom X.hom) j.left).flip h_src
         ((DerivedCategory.Plus.singleFunctor
-            (Sheaf U.left.smallEtaleTopology AddCommGrpCat.{u}) 0).obj F)) := sorry
+            (Sheaf U.left.smallEtaleTopology AddCommGrpCat.{u}) 0).obj F)))
 
 end AlgebraicGeometry.Scheme.Hom
 

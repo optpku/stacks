@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
@@ -11,6 +5,8 @@ public import Mathlib.Tactic.CrossRefAttribute
 public import stacks_project.Chap87.Definition_87_30_1_Separation
 public import stacks_project.Chap88.Definition_88_20_1
 public import stacks_project.Chap88.Definition_88_21_1
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Morphism.RigSurjective.Diagonal
+import StacksCheckRecall
 
 /-!
 # Rig-surjectivity with a rig-étale, rig-surjective diagonal
@@ -33,37 +29,32 @@ universe u
 
 namespace AlgebraicGeometry.FormalAlgebraicSpace.RigSurjective
 
-/-- Lemma 88.22.3: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
+/- Lemma 88.22.3: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
 formal algebraic spaces. Assume `X` and `Y` are locally Noetherian, `f` is
 locally of finite type, and the relative diagonal
-`diagonal f : X ⟶ pullback f f` is rig-étale and rig-surjective. Then `f`
+`pullback.diagonal f : X ⟶ pullback f f` is rig-étale and rig-surjective. Then `f`
 is rig-surjective if and only if every adic morphism `Spf(R) ⟶ Y` from a
 complete discrete valuation ring `R` lifts to a morphism `Spf(R) ⟶ X`. -/
-@[stacks 0GDA]
-theorem iff_adicSpf_lifts {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
+@[stacks 0GDA] #check (AlgebraicGeometry.FormalAlgebraicSpace.RigSurjective.iff_adicSpf_lifts :
+  ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
     [IsLocallyNoetherian X] [IsLocallyNoetherian Y] (f : X ⟶ Y)
-    [LocallyOfFiniteType f] [HasPullback f f]
-    [IsFormalAlgebraicSpace (pullback f f)] [IsLocallyNoetherian (pullback f f)]
-    [LocallyOfFiniteType (diagonal f)] [RigEtale (diagonal f)]
-    [RigSurjective (diagonal f)] :
+    [LocallyOfFiniteType f] [RigEtale (pullback.diagonal f)]
+    [RigSurjective (pullback.diagonal f)],
     RigSurjective f ↔
-      ∀ sq : AdicSpfSquare f, ∃ lift : sq.specSpf ⟶ X, lift ≫ f = sq.p :=
-  sorry
+      ∀ sq : AdicSpfSquare f, ∃ lift : sq.specSpf ⟶ X, lift ≫ f = sq.p)
 
-/-- A locally of finite type morphism of locally Noetherian formal algebraic
+/- A locally of finite type morphism of locally Noetherian formal algebraic
 spaces whose relative diagonal is both rig-étale and rig-surjective, if
 itself rig-surjective, admits an on-the-nose lift of every adic test map
 `Spf(R) ⟶ Y` from a complete discrete valuation ring through the source. -/
-theorem exists_lift {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
+#check (AlgebraicGeometry.FormalAlgebraicSpace.RigSurjective.exists_lift :
+  ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
     [IsLocallyNoetherian X] [IsLocallyNoetherian Y] (f : X ⟶ Y)
-    [LocallyOfFiniteType f] [HasPullback f f]
-    [IsFormalAlgebraicSpace (pullback f f)] [IsLocallyNoetherian (pullback f f)]
-    [LocallyOfFiniteType (diagonal f)] [RigEtale (diagonal f)]
-    [RigSurjective (diagonal f)] [RigSurjective f]
-    (sq : AdicSpfSquare f) :
-    ∃ lift : sq.specSpf ⟶ X, lift ≫ f = sq.p :=
-  sorry
+    [LocallyOfFiniteType f] [RigEtale (pullback.diagonal f)]
+    [RigSurjective (pullback.diagonal f)] [RigSurjective f]
+    (sq : AdicSpfSquare f),
+    ∃ lift : sq.specSpf ⟶ X, lift ≫ f = sq.p)
 
 end AlgebraicGeometry.FormalAlgebraicSpace.RigSurjective

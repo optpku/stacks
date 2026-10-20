@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion
@@ -91,8 +85,8 @@ theorem properPushforward_restrictedLocalizedNewtonClass
             (Over.homMk i₂ : Over.mk (i₂ ≫ X.hom) ⟶ X))
           (Eq.refl ((j₂ ≫ i₂) ≫ X.hom))) ▸ localized') = localized := sorry
 
-/-- For the closed cover induced on the larger second member, proper pushforward of the
-localized Chern class on the smaller member is the ambient Chern class. -/
+/-- For nested set-theoretic closed covers, proper pushforward of the localized Chern
+class on the smaller second member is the localized Chern class on the larger member. -/
 theorem properPushforward_restrictedLocalizedChernClass
     {S : Scheme.{u}} [UniversallyCatenary S] {δ : S → ℤ} [IsDimensionFunction δ]
     {X : Over S} [LocallyOfFiniteType X.hom] {X₁ X₁' X₂ X₂' : Scheme.{u}}
@@ -112,8 +106,7 @@ theorem properPushforward_restrictedLocalizedChernClass
     (chernClass : RingedSpace.ModuleDerived X₂.toRingedSpace →
       (q : ℕ) → BivariantClass δ (𝟙 (Over.mk (i₂ ≫ X.hom))) (q : ℤ))
     (chernClass' : RingedSpace.ModuleDerived X₂'.toRingedSpace →
-      (q : ℕ) → BivariantClass δ
-        (𝟙 (Over.mk (j₂ ≫ (i₂ ≫ X.hom)))) (q : ℤ))
+      (q : ℕ) → BivariantClass δ (𝟙 (Over.mk ((j₂ ≫ i₂) ≫ X.hom))) (q : ℤ))
     (chernClass_vanishes_after_pullback :
       ∀ {Y : Over S} [LocallyOfFiniteType Y.hom]
         (h₂ : Y ⟶ Over.mk (i₂ ≫ X.hom)) [LocallyOfFiniteType h₂.left],
@@ -124,7 +117,7 @@ theorem properPushforward_restrictedLocalizedChernClass
               (p : ℤ) (chernClass E₂ p)))
     (chernClass_vanishes_after_pullback' :
       ∀ {Y : Over S} [LocallyOfFiniteType Y.hom]
-        (h₂ : Y ⟶ Over.mk (j₂ ≫ (i₂ ≫ X.hom))) [LocallyOfFiniteType h₂.left],
+        (h₂ : Y ⟶ Over.mk ((j₂ ≫ i₂) ≫ X.hom)) [LocallyOfFiniteType h₂.left],
         Scheme.ModuleDerived.IsVectorBundleOfRankLTInDegree
             ((RingedSpace.modulePullbackDerived h₂.left.toShHom).obj
               ((RingedSpace.modulePullbackDerived j₂.toShHom).obj E₂)) 0 p →
@@ -135,27 +128,28 @@ theorem properPushforward_restrictedLocalizedChernClass
     (ambient_baseChange :
       chernClass' ((RingedSpace.modulePullbackDerived j₂.toShHom).obj E₂) p =
         BivariantClass.restrict δ
-          (Over.homMk j₂ :
-            Over.mk (j₂ ≫ (i₂ ≫ X.hom)) ⟶ Over.mk (i₂ ≫ X.hom))
-          (𝟙 (Over.mk (j₂ ≫ (i₂ ≫ X.hom))))
-          (Over.homMk j₂ :
-            Over.mk (j₂ ≫ (i₂ ≫ X.hom)) ⟶ Over.mk (i₂ ≫ X.hom))
+          (Over.homMk j₂ (Category.assoc j₂ i₂ X.hom).symm :
+            Over.mk ((j₂ ≫ i₂) ≫ X.hom) ⟶ Over.mk (i₂ ≫ X.hom))
+          (𝟙 (Over.mk ((j₂ ≫ i₂) ≫ X.hom)))
+          (Over.homMk j₂ (Category.assoc j₂ i₂ X.hom).symm :
+            Over.mk ((j₂ ≫ i₂) ≫ X.hom) ⟶ Over.mk (i₂ ≫ X.hom))
           IsPullback.of_id_snd (p : ℤ) (chernClass E₂ p))
+    (localized : BivariantClass δ
+      (Over.homMk i₂ : Over.mk (i₂ ≫ X.hom) ⟶ X) (p : ℤ))
     (localized' : BivariantClass δ
-      (Over.homMk j₂ :
-        Over.mk (j₂ ≫ (i₂ ≫ X.hom)) ⟶ Over.mk (i₂ ≫ X.hom)) (p : ℤ))
-    (hlocalized' : @BivariantClass.IsLocalizedExtension S _ δ _
-      (Over.mk (i₂ ≫ X.hom)) _ (pullback i₁' i₂) X₂'
-      (pullback.snd i₁' i₂) j₂ (instIsClosedImmersionSndScheme i₁' i₂)
-      (inferInstance : IsClosedImmersion j₂) (p : ℤ)
+      (Over.homMk (j₂ ≫ i₂) : Over.mk ((j₂ ≫ i₂) ≫ X.hom) ⟶ X) (p : ℤ))
+    (hlocalized : BivariantClass.IsLocalizedExtension δ X (j₁ ≫ i₁') i₂ (p : ℤ)
+      (chernClass E₂ p) localized)
+    (hlocalized' : BivariantClass.IsLocalizedExtension δ X i₁' (j₂ ≫ i₂) (p : ℤ)
       (chernClass' ((RingedSpace.modulePullbackDerived j₂.toShHom).obj E₂) p) localized') :
     BivariantClass.properPushforward δ
-        (Over.homMk j₂ :
-          Over.mk (j₂ ≫ (i₂ ≫ X.hom)) ⟶ Over.mk (i₂ ≫ X.hom))
-        (𝟙 (Over.mk (i₂ ≫ X.hom))) (p : ℤ)
-        ((Category.comp_id
-          (Over.homMk j₂ :
-            Over.mk (j₂ ≫ (i₂ ≫ X.hom)) ⟶ Over.mk (i₂ ≫ X.hom))).symm ▸ localized') =
-      chernClass E₂ p := sorry
+        (Over.homMk j₂ (Category.assoc j₂ i₂ X.hom).symm :
+          Over.mk ((j₂ ≫ i₂) ≫ X.hom) ⟶ Over.mk (i₂ ≫ X.hom))
+        (Over.homMk i₂ : Over.mk (i₂ ≫ X.hom) ⟶ X) (p : ℤ)
+        ((Over.homMk_eta
+          ((Over.homMk j₂ (Category.assoc j₂ i₂ X.hom).symm :
+              Over.mk ((j₂ ≫ i₂) ≫ X.hom) ⟶ Over.mk (i₂ ≫ X.hom)) ≫
+            (Over.homMk i₂ : Over.mk (i₂ ≫ X.hom) ⟶ X))
+          (Eq.refl ((j₂ ≫ i₂) ≫ X.hom))) ▸ localized') = localized := sorry
 
 end AlgebraicGeometry.LocalizedChern

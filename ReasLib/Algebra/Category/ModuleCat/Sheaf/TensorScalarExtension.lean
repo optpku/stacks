@@ -1,16 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Sheafification
 public import ReasLib.Algebra.Category.ModuleCat.Presheaf.SameSiteTensorExtension
 public import Mathlib.Algebra.Category.ModuleCat.Presheaf.Sheafification
 
 @[expose] public section
-open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
+open CategoryTheory
 noncomputable section
 universe c v u
 

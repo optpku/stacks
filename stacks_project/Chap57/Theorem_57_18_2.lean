@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.Proper
-public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
-public import Mathlib.CategoryTheory.Countable
-public import Mathlib.FieldTheory.IsAlgClosed.Basic
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap57.Theorem_57_6_3_PerfectDerived
+public import ReasLib.AlgebraicGeometry.Scheme.OverField.DerivedEquivalence.Countable
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -21,18 +11,18 @@ open AlgebraicGeometry.SchemeOverField.PerfectDerived
 
 universe u
 
-/-- Theorem 57.18.2: over an algebraically closed field `K`, a fixed smooth proper
+/- Theorem 57.18.2: over an algebraically closed field `K`, a fixed smooth proper
 `K`-scheme `X` has at most countably many isomorphism classes of smooth proper
 `K`-schemes `Y` admitting a `K`-linear exact equivalence of `PerfectDerived`. -/
-@[stacks 0G11]
-theorem countable_isoClasses_of_derivedEquivalent_smoothProper
-    {K : Type u} [Field K] [IsAlgClosed K]
-    (X : SchemeOverField K) [IsProper X.hom] [Smooth X.hom] :
+@[stacks 0G11] #check
+  (AlgebraicGeometry.SchemeOverField.countable_isoClasses_of_derivedEquivalent_smoothProper :
+    ∀ {K : Type u} [Field K] [IsAlgClosed K]
+      (X : SchemeOverField K) [IsProper X.hom] [Smooth X.hom],
     ∃ I : Type u, Countable I ∧
       ∃ Yᵢ : I → SchemeOverField K,
         (∀ i, IsProper (Yᵢ i).hom ∧ Smooth (Yᵢ i).hom) ∧
           ∀ (Y : SchemeOverField K) [IsProper Y.hom] [Smooth Y.hom]
             (Φ : PerfectDerived X ⥤ PerfectDerived Y)
-            [Φ.Linear K] [Φ.CommShift ℤ] [Φ.IsEquivalence],
+            [Φ.Linear K] [Φ.IsEquivalence],
             Φ.HasTriangulatedStructure →
-              ∃ i : I, Nonempty (Y ≅ Yᵢ i) := sorry
+              ∃ i : I, Nonempty (Y ≅ Yᵢ i))

@@ -1,18 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.FiniteType
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiFinite
-public import Mathlib.AlgebraicGeometry.Morphisms.Separated
-public import Mathlib.CategoryTheory.MorphismProperty.Comma
-public import Mathlib.CategoryTheory.MorphismProperty.Limits
-public import Mathlib.CategoryTheory.MorphismProperty.Representable
-public import stacks_project.Chap65.Definition_65_13_2_Separation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Separation.Diagonal
+import StacksCheckRecall
 
 /-!
 # Properties of the diagonal of an algebraic space
@@ -23,46 +12,42 @@ monomorphism, separated, and locally quasi-finite in the sense of Definition 65.
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry Limits
+open CategoryTheory AlgebraicGeometry Limits AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 65.13.1 (1): let `S` be a scheme contained in `Sch_fppf` and let `F` be an
+/- Lemma 65.13.1 (1): let `S` be a scheme contained in `Sch_fppf` and let `F` be an
 algebraic space over `S`. The diagonal morphism
 `diag F : F.functorOfPoints ⟶ F.functorOfPoints ⨯ F.functorOfPoints` is locally of
 finite type in the sense of Definition 65.5.1. -/
 @[stacks 02X4]
-theorem locallyOfFiniteType_diag {S : Scheme.{u}} (F : AlgebraicSpace S) :
+#check (AlgebraicGeometry.AlgebraicSpace.locallyOfFiniteType_diag :
+  ∀ {S : Scheme.{u}} (F : AlgebraicSpace S),
     (MorphismProperty.over (@AlgebraicGeometry.LocallyOfFiniteType :
-        MorphismProperty Scheme.{u})).presheaf (diag F) :=
-  sorry
+        MorphismProperty Scheme.{u})).presheaf (diag F))
 
-/-- Lemma 65.13.1 (2): let `S` be a scheme contained in `Sch_fppf` and let `F` be an
+/- Lemma 65.13.1 (2): let `S` be a scheme contained in `Sch_fppf` and let `F` be an
 algebraic space over `S`. The diagonal morphism `diag F` is a monomorphism in the
 sense of Definition 65.5.1. -/
 @[stacks 02X4]
-theorem monomorphisms_diag {S : Scheme.{u}} (F : AlgebraicSpace S) :
-    (MorphismProperty.over (MorphismProperty.monomorphisms Scheme.{u})).presheaf (diag F) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.monomorphisms_diag :
+  ∀ {S : Scheme.{u}} (F : AlgebraicSpace S),
+    (MorphismProperty.over (MorphismProperty.monomorphisms Scheme.{u})).presheaf (diag F))
 
-/-- Lemma 65.13.1 (3): let `S` be a scheme contained in `Sch_fppf` and let `F` be an
+/- Lemma 65.13.1 (3): let `S` be a scheme contained in `Sch_fppf` and let `F` be an
 algebraic space over `S`. The diagonal morphism `diag F` is separated in the sense of
 Definition 65.5.1. -/
 @[stacks 02X4]
-theorem isSeparated_diag {S : Scheme.{u}} (F : AlgebraicSpace S) :
+#check (AlgebraicGeometry.AlgebraicSpace.isSeparated_diag :
+  ∀ {S : Scheme.{u}} (F : AlgebraicSpace S),
     (MorphismProperty.over (@AlgebraicGeometry.IsSeparated :
-        MorphismProperty Scheme.{u})).presheaf (diag F) :=
-  sorry
+        MorphismProperty Scheme.{u})).presheaf (diag F))
 
-/-- Lemma 65.13.1 (4): let `S` be a scheme contained in `Sch_fppf` and let `F` be an
+/- Lemma 65.13.1 (4): let `S` be a scheme contained in `Sch_fppf` and let `F` be an
 algebraic space over `S`. The diagonal morphism `diag F` is locally quasi-finite in
 the sense of Definition 65.5.1. -/
 @[stacks 02X4]
-theorem locallyQuasiFinite_diag {S : Scheme.{u}} (F : AlgebraicSpace S) :
+#check (AlgebraicGeometry.AlgebraicSpace.locallyQuasiFinite_diag :
+  ∀ {S : Scheme.{u}} (F : AlgebraicSpace S),
     (MorphismProperty.over (@AlgebraicGeometry.LocallyOfFiniteType ⊓
-      @AlgebraicGeometry.LocallyQuasiFinite : MorphismProperty Scheme.{u})).presheaf (diag F) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+      @AlgebraicGeometry.LocallyQuasiFinite : MorphismProperty Scheme.{u})).presheaf (diag F))

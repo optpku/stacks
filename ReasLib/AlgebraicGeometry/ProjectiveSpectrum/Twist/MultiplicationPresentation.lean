@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.Presentation
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.Multiplication
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Pullback.Monoidal
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Sections.Tensor
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.TopSections
 
@@ -48,13 +43,11 @@ structure ProjTwistMulPresentation (P : ProjTwistPresentation 𝒜) where
   top_hom_spec :
     ∀ {X : Scheme.{u}}
       [SheafOfModules.UnitIsSheafifiedUnit X.ringCatSheaf]
-      (r : X ⟶ Proj 𝒜) [(Scheme.Modules.pullback r).LaxMonoidal] (a b : ℤ),
+      (r : X ⟶ Proj 𝒜) (a b : ℤ),
       ∀ x : Γ(((Scheme.Modules.pullback r).obj (P.actualTwist a)), ⊤),
         ∀ y : Γ(((Scheme.Modules.pullback r).obj (P.actualTwist b)), ⊤),
-          (SheafOfModules.sectionsMap
-              (Functor.LaxMonoidal.μ (Scheme.Modules.pullback r)
-                  (P.actualTwist a) (P.actualTwist b) ≫
-                (Scheme.Modules.pullback r).map (hom a b))
+            (SheafOfModules.sectionsMap
+              (Scheme.Modules.pullbackTensorMap r (hom a b))
             (RingedSpace.tensorSection (X := X.toRingedSpace)
               (ℱ := ((Scheme.Modules.pullback r).obj (P.actualTwist a)))
               (𝒢 := ((Scheme.Modules.pullback r).obj (P.actualTwist b)))
@@ -77,13 +70,11 @@ def ofHom (P : ProjTwistPresentation 𝒜)
     (top_hom_spec :
       ∀ {X : Scheme.{u}}
         [SheafOfModules.UnitIsSheafifiedUnit X.ringCatSheaf]
-        (r : X ⟶ Proj 𝒜) [(Scheme.Modules.pullback r).LaxMonoidal] (a b : ℤ),
+        (r : X ⟶ Proj 𝒜) (a b : ℤ),
         ∀ x : Γ(((Scheme.Modules.pullback r).obj (P.actualTwist a)), ⊤),
           ∀ y : Γ(((Scheme.Modules.pullback r).obj (P.actualTwist b)), ⊤),
             (SheafOfModules.sectionsMap
-                (Functor.LaxMonoidal.μ (Scheme.Modules.pullback r)
-                    (P.actualTwist a) (P.actualTwist b) ≫
-                  (Scheme.Modules.pullback r).map (hom a b))
+                (Scheme.Modules.pullbackTensorMap r (hom a b))
               (RingedSpace.tensorSection (X := X.toRingedSpace)
                 (ℱ := ((Scheme.Modules.pullback r).obj (P.actualTwist a)))
                 (𝒢 := ((Scheme.Modules.pullback r).obj (P.actualTwist b)))
@@ -111,14 +102,12 @@ presentation's graded multiplication on top sections after every scheme pullback
 abbrev projTwistMulCompatibilityProp
     (P : ProjTwistPresentation 𝒜) (twistMul : ProjTwistMulFamily 𝒜 P) : Prop :=
   ∀ {X : Scheme.{u}}
-      [SheafOfModules.UnitIsSheafifiedUnit X.ringCatSheaf] (r : X ⟶ Proj 𝒜)
-      [(Scheme.Modules.pullback r).LaxMonoidal] (a b : ℤ),
+      [SheafOfModules.UnitIsSheafifiedUnit X.ringCatSheaf]
+      (r : X ⟶ Proj 𝒜) (a b : ℤ),
     ∀ x : Γ(((Scheme.Modules.pullback r).obj (P.actualTwist a)), ⊤),
       ∀ y : Γ(((Scheme.Modules.pullback r).obj (P.actualTwist b)), ⊤),
         (SheafOfModules.sectionsMap
-            (Functor.LaxMonoidal.μ (Scheme.Modules.pullback r)
-                (P.actualTwist a) (P.actualTwist b) ≫
-              (Scheme.Modules.pullback r).map (twistMul a b))
+            (Scheme.Modules.pullbackTensorMap r (twistMul a b))
             (RingedSpace.tensorSection (X := X.toRingedSpace)
               (ℱ := ((Scheme.Modules.pullback r).obj (P.actualTwist a)))
               (𝒢 := ((Scheme.Modules.pullback r).obj (P.actualTwist b)))
@@ -142,7 +131,6 @@ theorem ProjTwistMulPresentation.topCompatibilityProp_spec
 
 /-- The action of a projective twist on a module already tensored with another twist. -/
 abbrev projSheafTwistMulMap
-    [SymmetricCategory (Proj 𝒜).Modules]
     (P : ProjTwistPresentation 𝒜)
     (twistMul : ProjTwistMulFamily 𝒜 P)
     (ℱ : (Proj 𝒜).Modules) (a b : ℤ) :

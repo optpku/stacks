@@ -1,32 +1,23 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap52.Proposition_52_26_2_Koll_r
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.PuncturedSpectrum.Picard.Depth
+public import ReasLib.RingTheory.Depth.RegularQuotient
+import StacksCheckRecall
 
 @[expose] public section
 
-open AlgebraicGeometry AlgebraicGeometry.Scheme CategoryTheory CategoryTheory.Limits
+open AlgebraicGeometry AlgebraicGeometry.Scheme CategoryTheory
 open scoped ENat
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.CoherentTripleSetup
-
-/-- Remark 52.26.3: for a Noetherian local ring which is a quotient of a regular
+/- Remark 52.26.3: for a Noetherian local ring which is a quotient of a regular
 ring, a regular element in the maximal ideal, the stated prime-local depth
 condition, and quotient depth at least three, restriction from the punctured
 spectrum to the punctured closed fiber is injective on Picard groups. -/
-@[stacks 0FIX]
-theorem picardPullback_injective_of_regular_quotient_depth
-    {A : Type u} [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
+@[stacks 0FIX] #check
+  (AlgebraicGeometry.PuncturedSpectrum.picardPullback_injective_of_regular_quotient_depth :
+    ∀ {A : Type u} [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
     (f : A) (hf_mem : f ∈ IsLocalRing.maximalIdeal A)
     (hf_regular : IsRegular f)
     (h_quotient_regular :
@@ -38,18 +29,21 @@ theorem picardPullback_injective_of_regular_quotient_depth
           moduleDepth (Localization.AtPrime p.asIdeal)
             (Localization.AtPrime p.asIdeal))
     (h_depth_quotient :
-      (3 : ℕ∞) ≤ moduleDepth A (A ⧸ Ideal.span ({f} : Set A))) :
-    let S := CoherentTripleSetup.ofElement f hf_mem hf_regular
-    Function.Injective (Scheme.Hom.picardPullback S.closedFiberOnU) := sorry
+      (3 : ℕ∞) ≤ moduleDepth A (A ⧸ Ideal.span ({f} : Set A))),
+    let quotientMap :=
+      Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk (Ideal.span {f})))
+    let punctured := PuncturedSpectrum.puncturedOpen A
+    Function.Injective (Scheme.Hom.picardPullback (quotientMap ∣_ punctured)))
 
-/-- The quotient-depth bound in Remark 52.26.3 is equivalent to depth at least
-four for the original local ring under the same regular-element hypotheses. -/
-@[stacks 0FIX]
-theorem depth_quotient_ge_three_iff_depth_ge_four
-    {A : Type u} [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
-    (f : A) (hf_mem : f ∈ IsLocalRing.maximalIdeal A)
-    (hf_regular : IsRegular f) :
-    ((3 : ℕ∞) ≤ moduleDepth A (A ⧸ Ideal.span ({f} : Set A))) ↔
-      ((4 : ℕ∞) ≤ moduleDepth A A) := sorry
+section
 
-end AlgebraicGeometry.CoherentTripleSetup
+variable {A : Type u} [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
+  (f : A) (hf_mem : f ∈ IsLocalRing.maximalIdeal A) (hf_regular : IsRegular f)
+
+/- The quotient-depth bound is equivalent to depth at least four for the original
+local ring under the same regular-element hypotheses. -/
+#check (moduleDepth_quotient_span_singleton_ge_iff f hf_mem hf_regular 3 :
+  ((3 : ℕ∞) ≤ moduleDepth A (A ⧸ Ideal.span {f})) ↔
+    ((4 : ℕ∞) ≤ moduleDepth A A))
+
+end

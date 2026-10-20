@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap67.Definition_67_48_3_IntegralClosure
@@ -11,16 +5,18 @@ public import stacks_project.Chap67.Definition_67_48_3_RelativeSpectrum
 public import stacks_project.Chap67.Definition_67_4_2_Separation
 public import stacks_project.Chap67.Definition_67_8_2_QuasiCompact
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Normalization.Construction
+
 /-!
 # Relative normalization of algebraic spaces
 
-For a qcqs morphism `f : X ⟶ Y` of algebraic spaces, the normalization of `Y` in `X` is the
-relative spectrum of the integral closure of `𝒪_Y` in `f_* 𝒪_X`.
+Typed compatibility checks for the relative spectrum of the integral-closure algebra,
+its two canonical maps, and their factorization identity.
 -/
 
 @[expose] public section
 
-open CategoryTheory Opposite AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
+open CategoryTheory Opposite AlgebraicGeometry
 
 noncomputable section
 
@@ -30,68 +26,52 @@ namespace AlgebraicGeometry.AlgebraicSpace
 
 variable {S : Scheme.{u}}
 
-/-- The normalization of `Y` in `X` along a qcqs morphism `f : X ⟶ Y`, as the relative spectrum
-of the integral closure of `𝒪_Y` in `f_* 𝒪_X`. -/
-def Hom.normalization {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [QuasiCompact f] [QuasiSeparated f] : AlgebraicSpace S :=
-  relativeSpec (integralClosureAlgebra f)
+#check (Hom.normalization :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [QuasiCompact f] [QuasiSeparated f],
+    AlgebraicSpace S)
 
-/-- The normalization of `Y` in `X` is the relative spectrum of `integralClosureAlgebra f`. -/
-theorem Hom.normalization_eq_relativeSpec {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [QuasiCompact f] [QuasiSeparated f] :
-    Hom.normalization f = relativeSpec (integralClosureAlgebra f) :=
-  rfl
+#check (Hom.normalization_eq_relativeSpec :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [QuasiCompact f] [QuasiSeparated f],
+    Hom.normalization f = relativeSpec (integralClosureAlgebra f))
 
-/-- The structure morphism `ν : X' ⟶ Y` of the relative normalization. -/
-def Hom.fromNormalization {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [QuasiCompact f] [QuasiSeparated f] : Hom.normalization f ⟶ Y :=
-  relativeSpecπ (integralClosureAlgebra f)
+#check (Hom.fromNormalization :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [QuasiCompact f] [QuasiSeparated f],
+    Hom.normalization f ⟶ Y)
 
-/-- `fromNormalization f` is the structure morphism of the relative spectrum of `O'`. -/
-theorem Hom.fromNormalization_eq_relativeSpecπ {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [QuasiCompact f] [QuasiSeparated f] :
-    Hom.fromNormalization f = relativeSpecπ (integralClosureAlgebra f) :=
-  rfl
+#check (Hom.fromNormalization_eq_relativeSpecπ :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [QuasiCompact f] [QuasiSeparated f],
+    Hom.fromNormalization f = relativeSpecπ (integralClosureAlgebra f))
 
-/-- The component of `fromNormalization f` at `T` is the underlying map to `Y`. -/
-theorem Hom.fromNormalization_app {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+#check (Hom.fromNormalization_app :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     [QuasiCompact f] [QuasiSeparated f] (T : (Over S)ᵒᵖ)
-    (p : relativeSpectrumPair (integralClosureAlgebra f) T.unop) :
-    (Hom.fromNormalization f).app T p = p.1 :=
-  rfl
+    (p : relativeSpectrumPair (integralClosureAlgebra f) T.unop),
+    (Hom.fromNormalization f).app T p = p.1)
 
-/-- Evaluation of `f_* 𝒪_X` at a test map `t : T ⟶ X`, as a morphism of `𝒪_Y`-algebras into
-`(t ≫ f)_* 𝒪_T`. -/
-def Hom.toNormalizationAlgebraMap {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [QuasiCompact f] [QuasiSeparated f] {T : Over S} (t : ofOver T ⟶ X) :
-    (integralClosureAlgebra f).obj ⟶ relativeSpectrumTarget (t ≫ f) :=
-  ((QcAlgebraUnder.forget Y).map (integralClosureAlgebra_inclusion f)) ≫
-    Under.homMk
-      ((commRingPushforward f).map (commRingStructureSheafMap t) ≫
-        commRingPushforwardPrecomp t f)
-      sorry
+#check (Hom.toNormalizationAlgebraMap :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [QuasiCompact f] [QuasiSeparated f] {T : Over S} (t : ofOver T ⟶ X),
+    (integralClosureAlgebra f).obj ⟶ relativeSpectrumTarget (t ≫ f))
 
-/-- The factorization map `f' : X ⟶ X'` of a qcqs morphism through its relative normalization. -/
-def Hom.toNormalization {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [QuasiCompact f] [QuasiSeparated f] : X ⟶ Hom.normalization f where
-  app T :=
-    TypeCat.ofHom fun (x : X.functorOfPoints.obj T) ↦
-      relativeSpectrumPairMk (yonedaEquiv.symm x ≫ f)
-        (Hom.toNormalizationAlgebraMap f (yonedaEquiv.symm x))
-  naturality := sorry
+#check (Hom.toNormalization :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [QuasiCompact f] [QuasiSeparated f],
+    X ⟶ Hom.normalization f)
 
-/-- The component of `toNormalization f` at `T` has underlying map to `Y` equal to `f`. -/
-theorem Hom.toNormalization_app_toX {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+#check (Hom.toNormalization_app_toX :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     [QuasiCompact f] [QuasiSeparated f] (T : (Over S)ᵒᵖ)
-    (x : X.functorOfPoints.obj T) :
+    (x : X.functorOfPoints.obj T),
     ((Hom.toNormalization f).app T x).1 =
-      yonedaEquiv ((yonedaEquiv.symm x ≫ f : yoneda.obj T.unop ⟶ Y.functorOfPoints)) :=
-  sorry
+      yonedaEquiv ((yonedaEquiv.symm x ≫ f : yoneda.obj T.unop ⟶ Y.functorOfPoints)))
 
-/-- The canonical factorization identity `toNormalization f ≫ fromNormalization f = f`. -/
-theorem Hom.toNormalization_fromNormalization {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [QuasiCompact f] [QuasiSeparated f] :
-    Hom.toNormalization f ≫ Hom.fromNormalization f = f :=
-  sorry
+#check (Hom.toNormalization_fromNormalization :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [QuasiCompact f] [QuasiSeparated f],
+    Hom.toNormalization f ≫ Hom.fromNormalization f = f)
 
 end AlgebraicGeometry.AlgebraicSpace

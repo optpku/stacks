@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Points
@@ -14,8 +8,8 @@ public import ReasLib.CategoryTheory.Fibered.Stack.InGroupoidsOver.Stackificatio
 /-!
 # The canonical fppf quotient stack of an algebraic-space groupoid
 
-The constructions retain their original public names and concrete data.
-Existing proposition-valued laws remain explicit proof obligations.
+The quotient stack is the stackification of the co-Grothendieck projection of the
+groupoid-valued functor of scheme points on the fppf site over the base scheme.
 -/
 
 @[expose] public section

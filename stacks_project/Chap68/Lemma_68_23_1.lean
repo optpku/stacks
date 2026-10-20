@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_40_1_FiniteType
-public import stacks_project.Chap68.Lemma_68_23_1_Jacobson
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Jacobson.FiniteType
+import StacksCheckRecall
 
 /-!
 # Locally of finite type over Jacobson algebraic spaces
@@ -22,17 +16,10 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-namespace LocallyOfFiniteType
-
-/-- Lemma 68.23.1: Let `S` be a scheme. Let `X` be a Jacobson algebraic space over `S`.
+/- Lemma 68.23.1: Let `S` be a scheme. Let `X` be a Jacobson algebraic space over `S`.
 Any algebraic space locally of finite type over `X` is Jacobson. -/
-@[stacks 0BA3]
-theorem isJacobson {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [LocallyOfFiniteType f] [IsJacobson Y] : IsJacobson X :=
-  sorry
-
-end LocallyOfFiniteType
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 0BA3] #check (AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType.isJacobson :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicGeometry.AlgebraicSpace S} (f : X ⟶ Y)
+    [AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType f]
+    [AlgebraicGeometry.AlgebraicSpace.IsJacobson Y],
+    AlgebraicGeometry.AlgebraicSpace.IsJacobson X)

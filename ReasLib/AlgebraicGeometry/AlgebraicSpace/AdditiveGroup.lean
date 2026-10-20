@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AdditiveGroup
@@ -35,14 +29,45 @@ private theorem totalSpace_isSheaf {S : Scheme.{u}} (B : AlgebraicSpace S) :
 /-- The product with the additive group scheme has representable diagonal. -/
 private theorem totalSpace_representableDiagonal {S : Scheme.{u}} (B : AlgebraicSpace S) :
     yoneda.relativelyRepresentable (Limits.diag
-      (B.functorOfPoints ⨯ yoneda.obj (AlgebraicGeometry.AdditiveGroup.groupScheme S).X)) := sorry
+      (B.functorOfPoints ⨯ yoneda.obj (AlgebraicGeometry.AdditiveGroup.groupScheme S).X)) := by
+  apply Functor.relativelyRepresentable.diag_of_map_from_obj
+  intro U x
+  let F := B.functorOfPoints
+  let G := yoneda.obj (AlgebraicGeometry.AdditiveGroup.groupScheme S).X
+  let H := ⊤_ ((Over S)ᵒᵖ ⥤ Type u)
+  let terminalDiagonalIso : H ≅ H ⨯ H :=
+    { hom := Limits.diag H
+      inv := prod.fst
+      hom_inv_id := prod.lift_fst (𝟙 H) (𝟙 H)
+      inv_hom_id := by
+        apply prod.hom_ext
+        · exact terminalIsTerminal.hom_ext _ _
+        · exact terminalIsTerminal.hom_ext _ _ }
+  let e := prodIsoPullback F G
+  have hx := Functor.relativelyRepresentable.PullbackDiagonal.sectionRepresentable
+    (terminal.from F) (terminal.from G) B.representableDiagonal
+    (ofOver_representableDiagonal (AlgebraicGeometry.AdditiveGroup.groupScheme S).X)
+    (@Functor.relativelyRepresentable.of_isIso _ _ _ _ yoneda _ _
+      terminalDiagonalIso.hom terminalDiagonalIso.isIso_hom) (x ≫ e.hom)
+  have hx' := (yoneda.relativelyRepresentable).comp_mem _ _ hx
+    (Functor.relativelyRepresentable.of_isIso yoneda e.inv)
+  simpa only [F, G, Category.assoc, e.hom_inv_id, Category.comp_id] using hx'
 
 /-- The product with the additive group scheme admits a representable étale atlas. -/
 private theorem totalSpace_hasAtlas {S : Scheme.{u}} (B : AlgebraicSpace S) :
     ∃ (U : Over S) (atlasMap : yoneda.obj U ⟶
         B.functorOfPoints ⨯ yoneda.obj (AlgebraicGeometry.AdditiveGroup.groupScheme S).X),
       MorphismProperty.presheaf (MorphismProperty.over (@Etale)) atlasMap ∧
-        Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) atlasMap := sorry
+        Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) atlasMap := by
+  let U := B.atlas.choose
+  let atlasMap := B.atlas.choose_spec.choose
+  let V := (AlgebraicGeometry.AdditiveGroup.groupScheme S).X
+  let p : yoneda.obj (U ⨯ V) ⟶ B.functorOfPoints ⨯ yoneda.obj V :=
+    prodComparison yoneda U V ≫ prod.map atlasMap (𝟙 (yoneda.obj V))
+  refine ⟨U ⨯ V, p, ?_, ?_⟩
+  · exact ⟨Functor.relativelyRepresentable.of_diag (totalSpace_representableDiagonal B) p,
+      by sorry⟩
+  · sorry
 
 /-- The product of an algebraic space with the additive group scheme over its base. -/
 def totalSpace {S : Scheme.{u}} (B : AlgebraicSpace S) : AlgebraicSpace S :=

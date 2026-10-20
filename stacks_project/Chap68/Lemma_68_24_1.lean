@@ -1,44 +1,26 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Data.List.TFAE
-public import ReasLib.AlgebraicGeometry.Scheme.Unibranch
-public import ReasLib.Topology.IrreducibleComponents.AtPoint
-public import stacks_project.Chap68.Definition_68_11_7_HenselianLocalRing
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.HenselianLocalRing.Unibranch
+import StacksCheckRecall
 
 /-!
 # Unique minimal primes of henselian local rings of decent algebraic spaces
 
-On a decent algebraic space, unique minimal primes of stalks of elementary étale
-neighbourhoods, unique irreducible components through the selected points,
-unibranchness of those local rings, and unique minimal primes of the henselian
-local ring are equivalent.
+The equivalence and its henselian-local-ring characterizations are owned by
+`ReasLib.AlgebraicGeometry.AlgebraicSpace.HenselianLocalRing.Unibranch`.
 -/
-
-@[expose] public section
 
 universe u
 
 open AlgebraicGeometry AlgebraicSpace TopologicalSpace EtaleNeighborhood
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-variable {S : Scheme.{u}} (X : AlgebraicSpace S) [IsDecent X] (x : Points X)
-
-/-- Lemma 68.24.1: Let `S` be a scheme. Let `X` be a decent algebraic space over `S`.
-Let `x : Points X`. The following are equivalent: for any elementary étale
-neighbourhood `U : Elementary X x` the stalk
-`(scheme U.obj).presheaf.stalk (point U.obj)` has a unique minimal prime; for any
-such neighbourhood there is a unique irreducible component of `U` through
-`point U.obj`; for any such neighbourhood `scheme U.obj` is unibranch at
-`point U.obj`; and `henselianLocalRing X x` has a unique minimal prime. -/
+/- Lemma 68.24.1: For a point of a decent algebraic space, unique minimal
+primes of all elementary-neighbourhood stalks, unique irreducible components
+through their selected points, unibranchness of those stalks, and a unique
+minimal prime of the henselian local ring are equivalent. -/
 @[stacks 0DQ6]
-theorem henselianLocalRing.uniqueMinimalPrime_tfae :
+#check (AlgebraicGeometry.AlgebraicSpace.henselianLocalRing.uniqueMinimalPrime_tfae :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [IsDecent X] (x : Points X),
     List.TFAE
       [ ∀ U : Elementary X x,
           ∃! p : Ideal ((scheme U.obj).presheaf.stalk (point U.obj)),
@@ -48,38 +30,26 @@ theorem henselianLocalRing.uniqueMinimalPrime_tfae :
       , ∀ U : Elementary X x,
           (scheme U.obj).isUnibranchAt (point U.obj)
       , ∃! p : Ideal (henselianLocalRing X x),
-          p ∈ minimalPrimes (henselianLocalRing X x) ] :=
-  sorry
+          p ∈ minimalPrimes (henselianLocalRing X x) ])
 
-/-- The henselian local ring of a decent algebraic space at a point has a unique
-minimal prime if and only if every elementary étale neighbourhood has a unique
-minimal prime in its local ring at the selected point. -/
-theorem henselianLocalRing.uniqueMinimalPrime_iff_elementaryStalk :
+#check (AlgebraicGeometry.AlgebraicSpace.henselianLocalRing.uniqueMinimalPrime_iff_elementaryStalk :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [IsDecent X] (x : Points X),
     (∃! p : Ideal (henselianLocalRing X x),
         p ∈ minimalPrimes (henselianLocalRing X x)) ↔
       ∀ U : Elementary X x,
         ∃! p : Ideal ((scheme U.obj).presheaf.stalk (point U.obj)),
-          p ∈ minimalPrimes ((scheme U.obj).presheaf.stalk (point U.obj)) :=
-  sorry
+          p ∈ minimalPrimes ((scheme U.obj).presheaf.stalk (point U.obj)))
 
-/-- The henselian local ring of a decent algebraic space at a point has a unique
-minimal prime if and only if every elementary étale neighbourhood has a unique
-irreducible component through its selected point. -/
-theorem henselianLocalRing.uniqueMinimalPrime_iff_uniqueComponent :
+#check (AlgebraicGeometry.AlgebraicSpace.henselianLocalRing.uniqueMinimalPrime_iff_uniqueComponent :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [IsDecent X] (x : Points X),
     (∃! p : Ideal (henselianLocalRing X x),
         p ∈ minimalPrimes (henselianLocalRing X x)) ↔
       ∀ U : Elementary X x,
-        ∃! Z, Z ∈ irreducibleComponentsAt (point U.obj) :=
-  sorry
+        ∃! Z, Z ∈ irreducibleComponentsAt (point U.obj))
 
-/-- The henselian local ring of a decent algebraic space at a point has a unique
-minimal prime if and only if every elementary étale neighbourhood is unibranch
-at its selected point. -/
-theorem henselianLocalRing.uniqueMinimalPrime_iff_isUnibranchAt_elementary :
+#check (AlgebraicGeometry.AlgebraicSpace.henselianLocalRing.uniqueMinimalPrime_iff_isUnibranchAt_elementary :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) [IsDecent X] (x : Points X),
     (∃! p : Ideal (henselianLocalRing X x),
         p ∈ minimalPrimes (henselianLocalRing X x)) ↔
       ∀ U : Elementary X x,
-        (scheme U.obj).isUnibranchAt (point U.obj) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+        (scheme U.obj).isUnibranchAt (point U.obj))

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap74.Lemma_74_20_4_Instances
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.SmoothLocal.Locality
 import StacksCheckRecall
 
 @[expose] public section
@@ -20,7 +14,7 @@ is smooth local on the source, smooth local on the target, and stable under
 postcomposition with smooth morphisms, then `P` is smooth local on the
 source-and-target. -/
 @[stacks 06FB] #check
-  (IsSmoothLocalAtSourceAndTarget.of_isLocalAtSource_isLocalAtTarget :
+  (AlgebraicGeometry.AlgebraicSpace.IsSmoothLocalAtSourceAndTarget.of_isLocalAtSource_isLocalAtTarget :
     ∀ {S : Scheme.{u}} (P : MorphismProperty (AlgebraicSpace S))
       [P.IsLocalAtSource (precoverage (@Smooth S))]
       [P.IsLocalAtTarget (precoverage (@Smooth S))]

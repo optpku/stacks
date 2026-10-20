@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.DifferentialGraded.Limits
@@ -49,11 +43,11 @@ variable {𝒪 : Sheaf J CommRingCat.{w}}
 variable (𝒜 : DGA(𝒪))
 
 #synth Abelian (Mod(𝒜, d))
-#synth HasCoproducts (Mod(𝒜, d))
-#synth HasColimits (Mod(𝒜, d))
-#synth AB5 (Mod(𝒜, d))
-#synth HasProducts (Mod(𝒜, d))
-#synth HasLimits (Mod(𝒜, d))
+#synth HasCoproducts.{w} (Mod(𝒜, d))
+#synth HasColimitsOfSize.{w, w} (Mod(𝒜, d))
+#synth AB5OfSize.{w, w} (Mod(𝒜, d))
+#synth HasProducts.{w} (Mod(𝒜, d))
+#synth HasLimitsOfSize.{w, w} (Mod(𝒜, d))
 #synth PreservesLimits (DifferentialGradedModule.forgetToGraded 𝒜)
 #synth PreservesColimits (DifferentialGradedModule.forgetToGraded 𝒜)
 

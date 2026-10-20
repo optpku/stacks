@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.RingTheory.Normal.Ring
-public import stacks_project.Chap66.Lemma_66_25_4_Normal
-public import stacks_project.Chap69.Situation_69_16_1_GlobalSections
-public import stacks_project.Chap72.Definition_72_4_1_Integral
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Normal.GlobalSections
+import StacksCheckRecall
 
 /-!
 # Global sections of a normal integral algebraic space
@@ -25,11 +17,11 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 72.4.6: Let `S` be a scheme. Let `X` be a normal integral algebraic space
+/- Lemma 72.4.6: Let `S` be a scheme. Let `X` be a normal integral algebraic space
 over `S`. Then `Γ(X, 𝒪_X)` is a normal domain. -/
-@[stacks 0BH3]
-instance instIsNormalRing_globalSectionsRing {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [IsNormal X] [IsIntegral X] : IsNormalRing (globalSectionsRing X) :=
-  sorry
+@[stacks 0BH3] #check
+  (AlgebraicGeometry.AlgebraicSpace.isNormalDomain_globalSectionsRing :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsNormal X] [IsIntegral X],
+      IsDomain (globalSectionsRing X) ∧ IsNormalRing (globalSectionsRing X))
 
 end AlgebraicGeometry.AlgebraicSpace

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Topology.Sets.Closeds
-public import stacks_project.Chap69.Lemma_69_16_4_ZeroLocus
-public import stacks_project.Chap69.Situation_69_16_1
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ZeroLocus
+import StacksCheckRecall
 
 /-!
 # Lemma 69.16.4
@@ -28,20 +21,20 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 69.16.4: in Situation 69.16.1, if `Z₀` and `Z₁` are disjoint closed subsets of
+/- Lemma 69.16.4: in Situation 69.16.1, if `Z₀` and `Z₁` are disjoint closed subsets of
 `Points X`, then there exists `a : globalSectionsRing X` such that
 `(Z₀ : Set (Points X)) ⊆ X.zeroLocus {a}` and
 `(Z₁ : Set (Points X)) ⊆ X.zeroLocus {a - 1}`. -/
-@[stacks 07V1]
-theorem exists_zeroLocus_subset_of_disjoint {S : Scheme.{u}} {X : AlgebraicSpace S}
+@[stacks 07V1] #check
+  (AlgebraicGeometry.AlgebraicSpace.exists_zeroLocus_subset_of_disjoint :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
     [IsQuasiCompact X] [IsQuasiSeparated X]
     [HasSheafify (smallEtaleTopology X) AddCommGrpCat.{u}]
     [HasExt.{u} (Sheaf (smallEtaleTopology X) AddCommGrpCat.{u})]
     [HasVanishingH1 X] (Z₀ Z₁ : TopologicalSpace.Closeds (Points X))
-    (hdisj : Disjoint (Z₀ : Set (Points X)) (Z₁ : Set (Points X))) :
+    (hdisj : Disjoint (Z₀ : Set (Points X)) (Z₁ : Set (Points X))),
     ∃ a : globalSectionsRing X,
       (Z₀ : Set (Points X)) ⊆ X.zeroLocus {a} ∧
-        (Z₁ : Set (Points X)) ⊆ X.zeroLocus {a - 1} :=
-  sorry
+        (Z₁ : Set (Points X)) ⊆ X.zeroLocus {a - 1})
 
 end AlgebraicGeometry.AlgebraicSpace

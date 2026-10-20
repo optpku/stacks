@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-import stacks_project.Chap61.Lemma_61_12_21_AffineIndEtale
-import stacks_project.Chap61.Lemma_61_12_21_Comparison
+import ReasLib.AlgebraicGeometry.Scheme.Sites.Proetale.AffineIndEtaleComparison
 import StacksCheckRecall
 
 open CategoryTheory

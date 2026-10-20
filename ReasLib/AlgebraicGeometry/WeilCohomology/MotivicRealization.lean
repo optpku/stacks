@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Algebra
@@ -395,9 +389,10 @@ theorem untwistZero_component
     (G.obj (ChowMotive.tateTwist X 0)) i =
       (G.obj (ChowMotive.h X)) (i + 2 * 0) := sorry
 
-/-- A coherent Tate normalization: besides `F[2] ≅ G(𝟙(1))`, it records the
+/-- Chosen Tate comparison isomorphisms: besides `F[2] ≅ G(𝟙(1))`, these record
 component identifications with `F` and the degree shifts used to read realized Tate
-twists as ordinary cohomological degrees. -/
+twists as ordinary cohomological degrees. Their compatibility is expressed by
+`TateNormalization.Coherent`. -/
 structure TateNormalization
     (G : ChowMotive k (fun _ ↦ Correspondence.GradedCategory k) ⥤
       GradedObject ℤ (ModuleCat F)) where
@@ -550,17 +545,15 @@ structure TateNormalization.Coherent
       (normalization.untwistIso Y n i).hom ≫
         (G.map (ChowMotive.pullbackMorphism f)) (i + 2 * n)
 
-/-- Coherence data for a Tate normalization of a strong monoidal realization. -/
-def TateNormalization.Coherent.ofNormalization
+/-- Every chosen base Tate isomorphism extends to component comparisons compatible
+with the monoidal unit, tensor products, and geometric pullback. -/
+theorem TateNormalization.exists_coherent
     {G : ChowMotive k (fun _ ↦ Correspondence.GradedCategory k) ⥤
       GradedObject ℤ (ModuleCat F)} [G.Monoidal]
-    (normalization : TateNormalization G) : normalization.Coherent where
-  degreeIso_neg_one := sorry
-  degreeIso_zero := sorry
-  degreeIso_add := sorry
-  untwistIso_canonical := sorry
-  untwistIso_zero := sorry
-  untwistIso_pullback := sorry
+    (e : (GradedObject.single (-2 : ℤ)).obj (ModuleCat.of F F) ≅
+      G.obj (ChowMotive.tateTwist (SchemeOverField.point k) 1)) :
+    ∃ normalization : TateNormalization G,
+      normalization.iso = e ∧ normalization.Coherent := sorry
 
 namespace TateNormalization.Coherent
 

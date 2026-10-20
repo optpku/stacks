@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap87.Lemma_87_15_3_Pullback
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.ChosenFppf.Limits
 import StacksCheckRecall
 
 @[expose] public section
@@ -14,13 +8,14 @@ import StacksCheckRecall
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry ObjectProperty
 open ChosenBigFppfSite
 
-universe u v
+universe u
 
 /- Lemma 87.15.3: Let `S` be a scheme. The category of formal algebraic spaces
 over `S` has fibre products. -/
-@[stacks 0AJ3] #check (IsFormalAlgebraicSpace.instHasPullbacks :
-    ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
-      [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
-      [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))],
+@[stacks 0AJ3] #check (AlgebraicGeometry.IsFormalAlgebraicSpace.instHasPullbacks :
+    ∀ {S : Scheme.{u}}
+      [HasWeakSheafify (ChosenBigFppfSite.full.bigTopology S) (Type (u + 1))]
+      [HasPullbacks (Sheaf (ChosenBigFppfSite.full.bigTopology S) (Type (u + 1)))],
     HasPullbacks (ObjectProperty.FullSubcategory
-      fun X : Sheaf (𝒮.bigTopology S) (Type (max u v)) ↦ IsFormalAlgebraicSpace X))
+      fun X : Sheaf (ChosenBigFppfSite.full.bigTopology S) (Type (u + 1)) ↦
+        AlgebraicGeometry.IsFormalAlgebraicSpace X))

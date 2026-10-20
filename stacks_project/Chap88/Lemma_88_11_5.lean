@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Data.List.TFAE
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap87.Remark_87_21_4_Variant_for_adic_star
-public import stacks_project.Chap87.Lemma_87_29_9
-public import stacks_project.Chap87.Lemma_87_6_2_IsAdic
-public import stacks_project.Chap87.Definition_87_29_1_TopologicallyOfFiniteType
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.ChosenFppf.AdicStarFiniteType
+import StacksCheckRecall
 
 /-!
 # Finite type morphisms of locally adic* formal algebraic spaces
@@ -28,7 +18,6 @@ universe u v
 
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
 open AlgebraicGeometry.ChosenBigFppfSite TopologicalRing RingHom
-open AlgebraicGeometry.IsLocallyCountablyIndexed (LocallyOfFiniteType)
 
 namespace AlgebraicGeometry.IsLocallyAdicStar
 
@@ -38,7 +27,7 @@ variable [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
 variable {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
 variable [IsLocallyAdicStar X] [IsLocallyAdicStar Y]
 
-/-- Lemma 88.11.5: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
+/- Lemma 88.11.5: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
 locally adic* formal algebraic spaces over `S`. The following are equivalent:
 `etaleAffineLocally (fun φ ↦ φ.IsAdicHom ∧ φ.TopologicallyOfFiniteType) f`,
 that every commutative square of affine formal algebraic spaces over `f` with
@@ -56,38 +45,27 @@ that some covering `{X_ i ⟶ X}` as in Definition 87.11.1 factors as
 `X_ i ⟶ Y_ i` corresponding to an adic topologically finite-type map of
 `WAdm^{adic*}`; and `IsLocallyCountablyIndexed.LocallyOfFiniteType f`. -/
 @[stacks 0GC0]
-theorem locallyOfFiniteType_tfae (f : X ⟶ Y) :
+#check (AlgebraicGeometry.IsLocallyAdicStar.locallyOfFiniteType_tfae :
+  ∀ (f : X ⟶ Y) [Fact (ChosenBigSite.IsSizeClosed 𝒮)],
     List.TFAE
       [etaleAffineLocally (fun φ ↦ φ.IsAdicHom ∧ φ.TopologicallyOfFiniteType) f,
         existsCoverOnTarget (fun φ ↦ φ.IsAdicHom ∧ φ.TopologicallyOfFiniteType) f,
         existsCoverOnSource (fun φ ↦ φ.IsAdicHom ∧ φ.TopologicallyOfFiniteType) f,
-        IsLocallyCountablyIndexed.LocallyOfFiniteType f] :=
-  sorry
+        IsLocallyCountablyIndexed.LocallyOfFiniteType f])
 
-/-- Condition (1) of Lemma 88.11.5 is equivalent to condition (4): testing adic
-topologically finite-type charts on every étale affine-chart square is
-equivalent to `f` being locally of finite type. -/
-theorem etaleAffineLocally_iff_locallyOfFiniteType (f : X ⟶ Y) :
+#check (AlgebraicGeometry.IsLocallyAdicStar.etaleAffineLocally_iff_locallyOfFiniteType :
+  ∀ (f : X ⟶ Y) [Fact (ChosenBigSite.IsSizeClosed 𝒮)],
     etaleAffineLocally (fun φ ↦ φ.IsAdicHom ∧ φ.TopologicallyOfFiniteType) f ↔
-      IsLocallyCountablyIndexed.LocallyOfFiniteType f :=
-  sorry
+      IsLocallyCountablyIndexed.LocallyOfFiniteType f)
 
-/-- Condition (2) of Lemma 88.11.5 is equivalent to condition (4): a
-Definition 87.11.1 covering of the target and then of each fibre product
-witnesses adic topologically finite-type charts iff `f` is locally of finite
-type. -/
-theorem existsCoverOnTarget_iff_locallyOfFiniteType (f : X ⟶ Y) :
+#check (AlgebraicGeometry.IsLocallyAdicStar.existsCoverOnTarget_iff_locallyOfFiniteType :
+  ∀ (f : X ⟶ Y) [Fact (ChosenBigSite.IsSizeClosed 𝒮)],
     existsCoverOnTarget (fun φ ↦ φ.IsAdicHom ∧ φ.TopologicallyOfFiniteType) f ↔
-      IsLocallyCountablyIndexed.LocallyOfFiniteType f :=
-  sorry
+      IsLocallyCountablyIndexed.LocallyOfFiniteType f)
 
-/-- Condition (3) of Lemma 88.11.5 is equivalent to condition (4): a
-Definition 87.11.1 covering of the source factoring through affine étale
-charts of the target witnesses adic topologically finite-type charts iff `f`
-is locally of finite type. -/
-theorem existsCoverOnSource_iff_locallyOfFiniteType (f : X ⟶ Y) :
+#check (AlgebraicGeometry.IsLocallyAdicStar.existsCoverOnSource_iff_locallyOfFiniteType :
+  ∀ (f : X ⟶ Y) [Fact (ChosenBigSite.IsSizeClosed 𝒮)],
     existsCoverOnSource (fun φ ↦ φ.IsAdicHom ∧ φ.TopologicallyOfFiniteType) f ↔
-      IsLocallyCountablyIndexed.LocallyOfFiniteType f :=
-  sorry
+      IsLocallyCountablyIndexed.LocallyOfFiniteType f)
 
 end AlgebraicGeometry.IsLocallyAdicStar

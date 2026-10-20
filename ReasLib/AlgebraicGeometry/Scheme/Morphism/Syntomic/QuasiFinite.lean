@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.QuasiFinite
@@ -39,7 +33,8 @@ has Tor-amplitude in `[-1, 0]` in addition to local quasi-finiteness, flatness,
 and local finite presentation; or that complex is perfect of rank zero with
 the same Tor-amplitude, while `f` is flat and locally of finite presentation. -/
 theorem AlgebraicGeometry.quasiFiniteSyntomic_tfae
-    {X Y : Scheme.{u}} (f : Y ⟶ X) :
+    {X Y : Scheme.{u}} (f : Y ⟶ X)
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)] :
     let L : RingedSpace.ModuleDerived Y.toRingedSpace :=
       DerivedCategory.Q.obj (RingedSpace.naiveCotangent f.toShHom)
     List.TFAE [

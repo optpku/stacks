@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PullbackContinuous
@@ -35,6 +29,7 @@ abbrev modulePullback.{z, uX, vX, uY, vY, w}
     (f : Hom X Y)
     [(f.modulePushforward.{z}).IsRightAdjoint] :
     ModuleCat.{z} Y ⥤ ModuleCat.{z} X :=
-  SheafOfModules.pullback.{z} f.structureSheafMap
+  @SheafOfModules.pullback.{z} _ _ _ _ Y.siteTopology X.siteTopology f.base
+    Y.structureSheaf X.structureSheaf f.base_isContinuous f.structureSheafMap inferInstance
 
 end RingedSite.Hom

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap94.Definition_94_12_1_Representable
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Representable
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,5 +15,5 @@ variable (S : Scheme.{u})
 representable by an algebraic space over `S` if there exists an algebraic space
 `F : AlgebraicSpace S` and an equivalence `X ≌ F.toGroupoids` of categories over
 `(Sch/S)_fppf`. -/
-@[stacks 04SV]
-#check (IsRepresentableByAlgebraicSpace : ObjectProperty (GroupoidsOver S))
+@[stacks 04SV] #check (AlgebraicGeometry.IsRepresentableByAlgebraicSpace :
+  CategoryTheory.ObjectProperty (AlgebraicGeometry.GroupoidsOver S))

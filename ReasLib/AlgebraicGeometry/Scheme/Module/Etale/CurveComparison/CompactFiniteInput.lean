@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.CompactHomologyPairing
@@ -70,7 +64,7 @@ def finiteDualResolution (M : DiscreteModuleCat Λ G) [Finite M.obj.V] :
 ambient cohomology of its continuous character dual. -/
 def finiteHomologyPairing (M : DiscreteModuleCat Λ G) [Finite M.obj.V] (i : ℕ)
     (x : ((continuousHomology Λ G i).obj (finiteCompactification Λ G M)).toModule)
-    (c : (AmbientDiscreteCohomology.cohomology Λ G i).obj
+    (c : (CategoryTheory.Action.ModuleCat.DiscreteModuleCat.derivedCohomologyFunctor Λ G i).obj
       (continuousDual Λ G (finiteCompactification Λ G M))) : AddCircle (1 : ℚ) :=
   compactHomologyPairing Λ G (finiteCompactification Λ G M) (finiteDualResolution Λ G M) i x c
 

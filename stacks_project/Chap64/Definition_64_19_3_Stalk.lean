@@ -1,15 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.Grp.FilteredColimits
 public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
 public import Mathlib.CategoryTheory.Sites.Point.Category
 public import Mathlib.LinearAlgebra.FiniteDimensional.Basic
+public import ReasLib.AlgebraicGeometry.Scheme.Etale.ClosedPointFrobenius
 public import stacks_project.Chap59.«59_56_0_1»
 public import stacks_project.Chap64.Definition_64_19_1_FrobeniusStalk
 public import stacks_project.Chap64.Remark_64_18_5
@@ -75,6 +70,9 @@ def componentStalkGaloisHom (F : ZEllSheaf X.left ℓ) (x : closedPoints X.left)
     (n : ℕ) :
     F.componentStalk (geometricPointOverClosedPoint X x) n ⟶
       F.componentStalk (geometricPointOverClosedPoint X x) n :=
+  -- Local instance justification (proof-local temporary data): Derive separable closedness from this geometric point's explicit isAlgClosed field only for the geometricPointFiberMap application.
+  letI : IsSepClosed (geometricPointOverClosedPoint X x).K :=
+    @IsSepClosed.of_isAlgClosed _ _ (geometricPointOverClosedPoint X x).isAlgClosed
   (Hom.sheafFiber
       ⟨geometricPointFiberMap (geometricPointOverClosedPoint X x).hom
         (geometricPointGaloisIsoClosed X x σ)⟩).app (F.stage n)
@@ -85,6 +83,9 @@ theorem componentStalkGaloisHom_spec (F : ZEllSheaf X.left ℓ)
     (x : closedPoints X.left)
     (σ : Gal(AlgebraicClosure (X.left.residueField x.1)/X.left.residueField x.1))
     (n : ℕ) :
+    -- Local instance justification (proof-local temporary data): Derive separable closedness from this geometric point's explicit isAlgClosed field only for the geometricPointFiberMap application.
+    letI : IsSepClosed (geometricPointOverClosedPoint X x).K :=
+      @IsSepClosed.of_isAlgClosed _ _ (geometricPointOverClosedPoint X x).isAlgClosed
     F.componentStalkGaloisHom x σ n =
       (Hom.sheafFiber
           ⟨geometricPointFiberMap (geometricPointOverClosedPoint X x).hom

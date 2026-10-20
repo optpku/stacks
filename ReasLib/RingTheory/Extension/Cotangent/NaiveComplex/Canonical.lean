@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.Extension.Cotangent.NaiveComplex
@@ -29,7 +23,7 @@ namespace Algebra
 
 variable (R : Type u) (S : Type v) [CommRing R] [CommRing S] [Algebra R S]
 
-/-- Definition 10.134.1: the canonical naive cotangent complex of an `R`-algebra `S`, obtained
+/-- The canonical naive cotangent complex of an `R`-algebra `S`, obtained
 from the self-presentation of `S`. -/
 @[stacks 07BN "canonical self-presentation"]
 abbrev naiveCotangent : ChainComplex (ModuleCat S) ℕ :=

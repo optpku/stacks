@@ -1,42 +1,33 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_18_3_Etale
-public import stacks_project.Chap66.Lemma_66_18_3_Site
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.PresentationInclusion
+import StacksCheckRecall
 
-/-!
-# Comparison of the small étale site with the étale site of algebraic spaces
+/-! # Comparison of small and spaces étale sites
+
+@stack 03G1
+
+Both source conclusions use the public canonical site inclusion and exact small-site topology.
 -/
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry
-
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 66.18.3 (1): the functor `smallEtaleSite X ⥤ spacesEtaleSite X` sending `U / X` to
-`U / X` is special cocontinuous. -/
+/- Lemma 66.18.3. The canonical inclusion of schemes étale over an algebraic space
+into algebraic spaces étale over it is special cocontinuous. -/
 @[stacks 03G1]
-instance smallEtaleInclusion_isSpecialCocontinuous {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    (smallEtaleInclusion X).IsSpecialCocontinuous (smallEtaleTopology X)
-      (spacesEtaleTopology X) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.smallEtaleToSpaces_isSpecialCocontinuous :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S),
+    (AlgebraicGeometry.AlgebraicSpace.smallEtaleToSpaces X).IsSpecialCocontinuous
+      (AlgebraicGeometry.AlgebraicSpace.smallEtaleTopology X)
+      (AlgebraicGeometry.AlgebraicSpace.spacesEtaleTopology X))
 
-/-- Lemma 66.18.3 (2): the cocontinuous direct image along `smallEtaleInclusion X` is an
-equivalence `Sheaf (smallEtaleTopology X) ⥤ Sheaf (spacesEtaleTopology X)` on sheaves of types. -/
+/- Lemma 66.18.3. The induced cocontinuous direct image is an equivalence of
+categories of set-valued sheaves. -/
 @[stacks 03G1]
-instance smallEtaleInclusion_directImage_isEquivalence {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    ((smallEtaleInclusion X).sheafPushforwardCocontinuous (Type (u + 1))
-      (smallEtaleTopology X) (spacesEtaleTopology X)).IsEquivalence :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.smallEtaleToSpaces_directImage_isEquivalence :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S),
+    ((AlgebraicGeometry.AlgebraicSpace.smallEtaleToSpaces X).sheafPushforwardCocontinuous
+      (Type (u + 1)) (AlgebraicGeometry.AlgebraicSpace.smallEtaleTopology X)
+      (AlgebraicGeometry.AlgebraicSpace.spacesEtaleTopology X)).IsEquivalence)

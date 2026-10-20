@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.DeRham.CupProduct
@@ -129,29 +123,17 @@ attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasDerivedCat
 
 variable [moduleDerivedMonoidalP : MonoidalCategory
   (ModuleDerived.{u, u, u, u} (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom))]
-variable [Functor.LaxMonoidal
+variable [localizationLaxMonoidal : Functor.LaxMonoidal
   (moduleLocalization.{u, u, u, u} (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom))]
-variable [MonoidalCategory
-  (HomotopyCategory
-    (RingedSite.ModuleCat.{u, u, u, u}
-      (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom)) (up ℤ))]
-variable [(DerivedCategory.Qh :
-    HomotopyCategory
-      (RingedSite.ModuleCat.{u, u, u, u}
-        (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom)) (up ℤ) ⥤
-      ModuleDerived.{u, u, u, u}
-        (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom)).Monoidal]
-variable [(HomotopyCategory.quotient
-    (RingedSite.ModuleCat.{u, u, u, u}
-      (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom)) (up ℤ)).LaxMonoidal]
 
 /-- The wedge multiplication transported first to the homotopy category and then to the
 derived category of modules over `p⁻¹ᴼᵏ_S`. -/
 noncomputable def derivedDeRhamMultiplication :
     derivedComplex p ⊗ derivedComplex p ⟶ derivedComplex p :=
-  Functor.LaxMonoidal.μ
+  @Functor.LaxMonoidal.μ _ _ _ _ _ _
       (moduleLocalization.{u, u, u, u}
         (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom))
+      localizationLaxMonoidal
       ((HomotopyCategory.quotient
         (RingedSite.ModuleCat.{u, u, u, u}
           (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom))
@@ -177,9 +159,10 @@ noncomputable def derivedDeRhamMultiplication :
 lax-monoidal localization functors. -/
 theorem derivedDeRhamMultiplication_eq :
     derivedDeRhamMultiplication p =
-      Functor.LaxMonoidal.μ
+      @Functor.LaxMonoidal.μ _ _ _ _ _ _
           (moduleLocalization.{u, u, u, u}
             (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom))
+          localizationLaxMonoidal
           ((HomotopyCategory.quotient
             (RingedSite.ModuleCat.{u, u, u, u}
               (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom))

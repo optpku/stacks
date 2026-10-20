@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+import StacksCheckRecall
 public import ReasLib.AlgebraicGeometry.ChowGroup.FlatPullback.AffineBundle
 
 @[expose] public section
@@ -17,30 +12,15 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.ChowGroup
-
-/-- Remark 42.32.8: under Situation 42.7.1, if `Y` is locally of finite type over `S` and
-every point of `Y` has an open neighborhood `U` such that `f.left ∣_ U` is isomorphic over `U`
-to relative affine `r`-space, then `flatPullback δ X Y f r k` is bijective. -/
-@[stacks 0GUB]
-theorem flatPullback_bijective_of_localAffineSpace
-    {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
-    (X Y : Over S) [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
-    (f : X ⟶ Y) (r : ℕ) [Flat f.left] [Scheme.Hom.RelativeDimension f.left r]
-    (h_local : ∀ y : Y.left, ∃ U : Y.left.Opens, y ∈ U ∧
-      Nonempty (Over.mk (f.left ∣_ U) ≅
-        Over.mk (𝔸(ULift.{u} (Fin r); U.toScheme) ↘ U.toScheme)))
-    (k : ℤ) : Function.Bijective (flatPullback δ X Y f r k) := sorry
-
-/-- If a flat morphism of relative dimension `r` is locally over its target isomorphic to
-relative affine `r`-space, then its pullback on Chow groups is injective. -/
-theorem flatPullback_injective_of_localAffineSpace
-    {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
-    (X Y : Over S) [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
-    (f : X ⟶ Y) (r : ℕ) [Flat f.left] [Scheme.Hom.RelativeDimension f.left r]
-    (h_local : ∀ y : Y.left, ∃ U : Y.left.Opens, y ∈ U ∧
-      Nonempty (Over.mk (f.left ∣_ U) ≅
-        Over.mk (𝔸(ULift.{u} (Fin r); U.toScheme) ↘ U.toScheme)))
-    (k : ℤ) : Function.Injective (flatPullback δ X Y f r k) := sorry
-
-end AlgebraicGeometry.ChowGroup
+/- Remark 42.32.8: a morphism locally isomorphic over its target to relative affine
+`r`-space induces an isomorphism on Chow groups, shifting degree by `r`. -/
+@[stacks 0GUB] #check
+  (AlgebraicGeometry.ChowGroup.affineBundlePullback_bijective :
+    ∀ {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
+      (X Y : Over S) [LocallyOfFiniteType Y.hom] (f : X ⟶ Y) (r : ℕ)
+      (h_local : ∀ y : Y.left, ∃ U : Y.left.Opens, y ∈ U ∧
+        Nonempty (Over.mk (f.left ∣_ U) ≅
+          Over.mk (𝔸(ULift.{u} (Fin r); U.toScheme) ↘ U.toScheme)))
+      (k : ℤ),
+      Function.Bijective
+        (AlgebraicGeometry.ChowGroup.affineBundlePullback δ X Y f r h_local k))

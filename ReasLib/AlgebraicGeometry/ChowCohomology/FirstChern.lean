@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowCohomology
@@ -31,7 +25,7 @@ noncomputable def firstChernCap (ℒ : X.Modules) [hℒ : Scheme.Modules.Inverti
     (@ChowGroup.firstChernClassCap S _ δ _ X' _
       ((Scheme.Modules.pullback i.left).obj ℒ)
       (Scheme.Modules.Invertible.pullback i.left hℒ) k).comp
-        ((castDegree δ (Int.sub_zero k)).comp
+        ((RelativeChow.castDegree δ (Int.sub_zero k)).comp
           (identityCap δ p i f' g square k))
 
 /-- First-Chern intersection commutes with proper pushforward. -/

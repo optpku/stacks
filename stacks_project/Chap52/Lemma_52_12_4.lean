@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap52.Proposition_52_12_3
+public import ReasLib.AlgebraicGeometry.Scheme.AffineAlgebraization.AssociatedPoints
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,22 +16,18 @@ universe u
 
 namespace AlgebraicGeometry.AffineAlgebraizationSetup
 
-variable {A : Type u} [CommRing A] [IsNoetherianRing A]
-
-/-- Lemma 52.12.4: let `I ⊆ 𝔞` be ideals of a Noetherian ring `A`, let
+/- Lemma 52.12.4: let `I ⊆ 𝔞` be ideals of a Noetherian ring `A`, let
 `U = Spec(A) ∖ V(𝔞)`, and let `F` be coherent on `U`. Assume that `A` is
 `I`-adically complete and has a dualizing complex. If the reduced closure of every
 associated point of `F` meeting `V(I)` outside `V(𝔞)` has local dimension greater
 than `cd(A, I) + 1` along `V(𝔞)`, and every point whose closure meets `V(I)` only
 inside `V(𝔞)` has stalk depth at least two, then the canonical map from
 `H⁰(U, F)` to the inverse limit of `H⁰(U, F / I ^ (n + 1)F)` is bijective. -/
-@[stacks 0EIG]
-theorem sectionsComparison_bijective_of_associatedPointDimension
-    [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
+@[stacks 0EIG] #check
+  (AlgebraicGeometry.AffineAlgebraizationSetup.sectionsComparison_bijective_of_associatedPointDimension :
+    ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
     (S : AffineAlgebraizationSetup A)
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (h_dualizing :
-      ∃ K : DerivedCategory (ModuleCat.{u} A), K.IsDualizingComplex H)
+    (h_dualizing : DerivedCategory.HasCanonicalDualizingComplex A)
     [IsAdicComplete S.I A]
     (F : RingedSpace.Coh (S.U.toScheme).toRingedSpace)
     (h_dimension : ∀ x : S.U, x ∈ associatedPoints F.obj →
@@ -54,8 +45,8 @@ theorem sectionsComparison_bijective_of_associatedPointDimension
       Set.range (PointClosure.ι (S.U.ι x)) ∩
           (idealSheafDataOfIdealOnSpec S.I).support ⊆ S.U.compl →
         (2 : ℕ∞) ≤ moduleDepth ((S.U.toScheme).presheaf.stalk x)
-          (RingedSpace.stalkModuleCat F.obj x)) :
+          (RingedSpace.stalkModuleCat F.obj x)),
     Function.Bijective
-      (Scheme.CoherentCompletion.sectionsComparison (idealOnOpen S) F.obj) := sorry
+      (Scheme.CoherentCompletion.sectionsComparison (idealOnOpen S) F.obj))
 
 end AlgebraicGeometry.AffineAlgebraizationSetup

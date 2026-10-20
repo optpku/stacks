@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import Mathlib.Tactic.CrossRefAttribute
@@ -27,7 +21,7 @@ namespace CategoryTheory.Functor
 variable {A : Type uA} {B : Type uB} {C : Type uC}
 variable [Category.{vA} A] [Category.{vB} B] [Category.{vC} C]
 
-/-- Lemma 4.33.3 (Stacks 09WU): if `φ : a ⟶ b` is strongly cartesian for `F : A ⥤ B` and its
+/-- If `φ : a ⟶ b` is strongly cartesian for `F : A ⥤ B` and its
 image is strongly cartesian for `G : B ⥤ C`, then `φ` is strongly cartesian for the composite
 functor `F ⋙ G`. -/
 @[stacks 09WU]

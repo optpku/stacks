@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_31_3
-public import stacks_project.Chap76.Theorem_76_22_1
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FlatOver.Locus
+import StacksCheckRecall
 
 /-!
 # Base change of the relative flat locus on algebraic spaces
@@ -26,30 +20,30 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.Modules
 
-/-- Lemma 76.22.2: Let `S` be a scheme. Let `g' : X' ⟶ X`, `f' : X' ⟶ Y'`,
+/- Lemma 76.22.2: Let `S` be a scheme. Let `g' : X' ⟶ X`, `f' : X' ⟶ Y'`,
 `f : X ⟶ Y`, `g : Y' ⟶ Y` form a cartesian diagram of algebraic spaces over
 `S`. Let `F` be a quasi-coherent `𝒪_X`-module. Assume `g` is flat, `f` is
 locally of finite presentation, and `F` is locally of finite presentation.
 Then `flatOverLocus ((pullback g').obj F) f'` is the inverse image of
 `flatOverLocus F f` under the continuous map `Points.map g'`. -/
-@[stacks 05WW]
-theorem flatOverLocus_eq_preimage {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
+@[stacks 05WW] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.flatOverLocus_eq_preimage :
+    ∀ {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
     (g' : X' ⟶ X) (f' : X' ⟶ Y') (f : X ⟶ Y) (g : Y' ⟶ Y)
     (hcart : IsPullback g' f' f g) [Flat g] [LocallyOfFinitePresentation f]
-    (F : X.Modules) [F.IsFinitePresentation] :
-    flatOverLocus ((pullback g').obj F) f' = Points.map g' ⁻¹' flatOverLocus F f :=
-  sorry
+    (F : X.Modules) [F.IsFinitePresentation],
+    flatOverLocus ((pullback g').obj F) f' = Points.map g' ⁻¹' flatOverLocus F f)
 
-/-- A point of `|X'|` lies in the relative-flatness locus of `(pullback g').obj F`
+/- A point of `|X'|` lies in the relative-flatness locus of `(pullback g').obj F`
 over `Y'` if and only if its image under `Points.map g'` lies in
 `flatOverLocus F f`. -/
-theorem mem_flatOverLocus_eq_preimage {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.mem_flatOverLocus_eq_preimage :
+    ∀ {S : Scheme.{u}}
     {X' X Y' Y : AlgebraicSpace S} (g' : X' ⟶ X) (f' : X' ⟶ Y') (f : X ⟶ Y)
     (g : Y' ⟶ Y) (hcart : IsPullback g' f' f g) [Flat g]
     [LocallyOfFinitePresentation f] (F : X.Modules) [F.IsFinitePresentation]
-    (x' : Points X') :
+    (x' : Points X'),
     x' ∈ flatOverLocus ((pullback g').obj F) f' ↔
-      Points.map g' x' ∈ flatOverLocus F f :=
-  sorry
+      Points.map g' x' ∈ flatOverLocus F f)
 
 end AlgebraicGeometry.AlgebraicSpace.Modules

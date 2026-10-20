@@ -1,16 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Limits.ExactFunctor
 public import Mathlib.CategoryTheory.Preadditive.AdditiveFunctor
-public import Mathlib.CategoryTheory.Preadditive.FunctorCategory
 public import Mathlib.CategoryTheory.Sites.Abelian
+public import Mathlib.Topology.Sheaves.Abelian
 public import Mathlib.Topology.Sheaves.AddCommGrpCat
+public import ReasLib.Topology.Sheaves.Preadditive
 public import ReasLib.Topology.Sheaves.Pushforward.SectionFamilies
 import Mathlib.Tactic.CrossRefAttribute
 
@@ -24,7 +19,7 @@ Canonical entry point for pushforward (direct image) sheaf constructions.
 
 @[expose] public section
 
-open CategoryTheory Limits
+open CategoryTheory Limits TopologicalSpace
 
 universe w v u
 
@@ -40,18 +35,32 @@ noncomputable abbrev sheafifiedPushforward
     X.Presheaf C ⥤ Y.Sheaf C :=
   pushforward C f ⋙ presheafToSheaf (Opens.grothendieckTopology Y) C
 
-/-- Pushforward between preadditive presheaf categories is additive. -/
-instance pushforward_additive [Preadditive C]
-    [Preadditive (X.Presheaf C)] [Preadditive (Y.Presheaf C)] (f : X ⟶ Y) :
-    (pushforward C f).Additive := sorry
+/-- Presheaf pushforward preserves sectionwise addition of morphisms. -/
+instance pushforward_additive [Preadditive C] (f : X ⟶ Y) :
+    (pushforward C f).Additive where
+  map_add := rfl
+
+/-- Pushforward is additive for the canonical abelian structures on presheaf categories. -/
+instance pushforward_additive_of_abelian [Abelian C] (f : X ⟶ Y) :
+    (pushforward C f).Additive where
+  map_add := rfl
 
 /-- Sheafified pushforward is additive whenever pushforward and sheafification are additive. -/
 instance sheafifiedPushforward_additive [Preadditive C]
-    [Preadditive (X.Presheaf C)] [Preadditive (Y.Presheaf C)]
-    [Preadditive (Y.Sheaf C)]
     [HasWeakSheafify (Opens.grothendieckTopology Y) C]
     [(presheafToSheaf (Opens.grothendieckTopology Y) C).Additive] (f : X ⟶ Y) :
-    (sheafifiedPushforward (C := C) f).Additive := sorry
+    (sheafifiedPushforward (C := C) f).Additive :=
+  inferInstanceAs
+    (((Functor.whiskeringLeft (Opens Y)ᵒᵖ (Opens X)ᵒᵖ C).obj (Opens.map f).op) ⋙
+      presheafToSheaf (Opens.grothendieckTopology Y) C).Additive
+
+/-- Sheafified pushforward is additive for the canonical abelian structures. -/
+instance sheafifiedPushforward_additive_of_abelian [Abelian C]
+    [HasSheafify (Opens.grothendieckTopology Y) C] (f : X ⟶ Y) :
+    (sheafifiedPushforward (C := C) f).Additive :=
+  inferInstanceAs
+    (((Functor.whiskeringLeft (Opens Y)ᵒᵖ (Opens X)ᵒᵖ C).obj (Opens.map f).op) ⋙
+      presheafToSheaf (Opens.grothendieckTopology Y) C).Additive
 
 /-- Sheafified pushforward of abelian-group-valued presheaves preserves finite limits. -/
 noncomputable instance sheafifiedPushforward_preservesFiniteLimits
@@ -95,10 +104,17 @@ noncomputable def pushforwardSheafificationIso
       (sheafificationNatIso (Opens.grothendieckTopology Y) C).symm ≪≫
     (pushforward C f).rightUnitor
 
-/-- Pushforward between preadditive sheaf categories is additive. -/
-instance pushforward_additive [Preadditive C]
-    [Preadditive (X.Sheaf C)] [Preadditive (Y.Sheaf C)] (f : X ⟶ Y) :
-    (pushforward C f).Additive := sorry
+/-- Sheaf pushforward preserves sectionwise addition of morphisms. -/
+instance pushforward_additive [Preadditive C] (f : X ⟶ Y) :
+    (pushforward C f).Additive where
+  map_add := rfl
+
+/-- Pushforward is additive for the canonical abelian structures on sheaf categories. -/
+instance pushforward_additive_of_abelian [Abelian C]
+    [HasSheafify (Opens.grothendieckTopology X) C]
+    [HasSheafify (Opens.grothendieckTopology Y) C] (f : X ⟶ Y) :
+    (pushforward C f).Additive where
+  map_add := rfl
 
 /-- Pushforward along the identity map is the identity functor on sheaves. -/
 @[simp]

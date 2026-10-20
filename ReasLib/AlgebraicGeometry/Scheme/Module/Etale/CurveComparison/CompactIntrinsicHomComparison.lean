@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommGeometricFiniteModel
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.IntrinsicDualInjectiveResolution
@@ -53,7 +47,7 @@ variable [∀ {Y Z : Scheme.{u}} (j : Y ⟶ Z) [IsOpenImmersion j]
   (etaleRestriction j).op.HasLeftKanExtension F]
 variable (hR : IsUnit (Nat.card R : k))
 variable (M : (finiteTypeDiscreteModule R
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X η)))).FullSubcategory)
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η)))).FullSubcategory)
 
 /-- The explicit Hom resolution on the open curve obtained from the chosen compactification. -/
 abbrev openHom := IntrinsicDualInjectiveResolution.complex R X (arithmeticPoint X η) P M
@@ -135,7 +129,7 @@ variable [EnoughInjectives (Sheaf P.obj.right.left.smallEtaleTopology (ModuleCat
 variable [∀ {Y Z : Scheme.{u}} (f : Y ⟶ Z) (F : Z.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} R),
   (smallEtalePullback f).op.HasLeftKanExtension F]
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj R Gal(AlgebraicClosure k/k)))]
+  (completedGroupRing R Gal(AlgebraicClosure k/k)))]
 
 /-- Apply actual derived geometric completed sections to the fixed evaluation
 roof. This is an R[[Gal]]-linear derived morphism from the genuine compact-support
@@ -183,7 +177,7 @@ variable [HasDerivedCategory (Sheaf (Spec (CommRingCat.of k)).smallEtaleTopology
   (ModuleCat.{u + 1} (ActualRootsModule.Coeff.{u} (Nat.card R))))]
 variable [HasDerivedCategory (DiscreteModuleCat (ActualRootsModule.Coeff.{u} (Nat.card R)) Gal(AlgebraicClosure k/k))]
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj Rᵐᵒᵖᵐᵒᵖ Gal(AlgebraicClosure k/k)))]
+  (completedGroupRing Rᵐᵒᵖᵐᵒᵖ Gal(AlgebraicClosure k/k)))]
 
 /-- The right scalar map used by the local-Hom complex. -/
 abbrev rightScalar := NoncommLocalHom.opScalarHom (NoncommFiniteCoefficient.scalarHom R)
@@ -198,8 +192,8 @@ abbrev rawHom := NoncommLocalHomComplex.shiftedComplex (rightScalar R) (rightCen
 
 /-- The double-opposite scalar normalization functor. -/
 def normalize := (NoncommCompletedTransport.doubleOppositeModules R (G := Gal(AlgebraicClosure k/k)) :
-  ModuleCat.{u + 1} (NoncommCompletedRing.Obj Rᵐᵒᵖᵐᵒᵖ Gal(AlgebraicClosure k/k)) ⥤
-    ModuleCat.{u + 1} (NoncommCompletedRing.Obj R Gal(AlgebraicClosure k/k)))
+  ModuleCat.{u + 1} (completedGroupRing Rᵐᵒᵖᵐᵒᵖ Gal(AlgebraicClosure k/k)) ⥤
+    ModuleCat.{u + 1} (completedGroupRing R Gal(AlgebraicClosure k/k)))
 
 /-- Double-opposite scalar normalization preserves addition of morphisms. -/
 instance normalize_additive : (normalize (k := k) R).Additive :=
@@ -260,7 +254,7 @@ def traceCharacterIso : traceCharacterModel R X η hR M ≅
 variable [∀ U : (geometricBaseChange X).Etale,
   HasWeakSheafify ((geometricBaseChange X).smallEtaleTopology.over U) (ModuleCat.{u + 1} Rᵐᵒᵖ)]
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj Rᵐᵒᵖᵐᵒᵖ (NoncommResidualSectionsComparison.Q X η)))]
+  (completedGroupRing Rᵐᵒᵖᵐᵒᵖ (NoncommResidualSectionsComparison.Q X η)))]
 variable (hne : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
 
 /-- Full enhanced derived geometric evaluation/trace into the completed

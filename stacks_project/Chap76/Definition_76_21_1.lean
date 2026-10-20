@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Definition_76_21_1_NaiveCotangent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.NaiveCotangent
 import StacksCheckRecall
 
 @[expose] public section
@@ -26,6 +20,7 @@ on Sites, Definition 18.35.4 for the morphism of ringed topoi f_small between th
 small étale sites of X and Y, see Properties of Spaces, Lemma 66.21.3. Notation:
 NL_f or NL_{X/Y}. -/
 @[stacks 0D0V]
-#check (Hom.naiveCotangent f : CochainComplex X.Modules ℤ)
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.naiveCotangent :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}, (X ⟶ Y) → CochainComplex X.Modules ℤ)
 
 #check (NL[f] : CochainComplex X.Modules ℤ)

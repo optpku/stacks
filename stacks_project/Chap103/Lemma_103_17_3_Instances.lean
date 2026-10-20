@@ -1,21 +1,15 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap96.Definition_96_11_1_QCoh
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Sheafification.Fppf
 
 /-!
 # Sheafification on the inherited fppf site
 
 `SheafOfModules.IsFiniteLocallyFree` and finite presentation of `𝒪_X`-modules
 need weak sheafification on the inherited fppf topology and on its slices.
-The slice instances are the existing fppf ringed-site over-instances; this
-module records the matching inherited-topology names and the missing top-level
-instances.
+The typed checks identify the shared inherited-fppf certificates and the
+canonical fppf ringed-site slice instances.
 -/
 
 @[expose] public section
@@ -30,24 +24,23 @@ namespace AlgebraicGeometry.GroupoidsOver
 
 variable {S : Scheme.{u}} (X : GroupoidsOver S)
 
-/-- Weak sheafification of abelian groups exists on the inherited fppf topology of
-a category fibred in groupoids. -/
-instance inheritedFppfTopology_hasWeakSheafify :
-    HasWeakSheafify (inheritedFppfTopology X) AddCommGrpCat.{u} :=
-  sorry
+#check (AlgebraicGeometry.GroupoidsOver.inheritedFppfTopology_hasWeakSheafify X :
+  HasWeakSheafify (inheritedFppfTopology X) AddCommGrpCat.{u})
 
-/-- On the inherited fppf topology of a category fibred in groupoids, sheafification
-equivalences are the locally bijective morphisms. -/
-instance inheritedFppfTopology_wEqualsLocallyBijective :
-    (inheritedFppfTopology X).WEqualsLocallyBijective AddCommGrpCat.{u} :=
-  sorry
+#check (AlgebraicGeometry.GroupoidsOver.inheritedFppfTopology_wEqualsLocallyBijective X :
+  (inheritedFppfTopology X).WEqualsLocallyBijective AddCommGrpCat.{u})
 
-/-- Abelian-group-valued sheaf composition exists on every slice of the inherited
-fppf topology of a category fibred in groupoids. -/
-instance inheritedFppfTopology_over_hasSheafCompose :
-    ∀ x : X.total, ((inheritedFppfTopology X).over x).HasSheafCompose
-      (forget₂ RingCat.{u} AddCommGrpCat.{u}) :=
-  hasSheafCompose_fppfRingedSite_over X
+#check (AlgebraicGeometry.GroupoidsOver.hasSheafCompose_fppfRingedSite_over X :
+  ∀ x : X.total, ((inheritedFppfTopology X).over x).HasSheafCompose
+    (forget₂ RingCat.{u} AddCommGrpCat.{u}))
+
+#check (AlgebraicGeometry.GroupoidsOver.hasWeakSheafify_fppfRingedSite_over X :
+  ∀ x : X.total, HasWeakSheafify ((inheritedFppfTopology X).over x)
+    AddCommGrpCat.{u})
+
+#check (AlgebraicGeometry.GroupoidsOver.wEqualsLocallyBijective_fppfRingedSite_over X :
+  ∀ x : X.total, ((inheritedFppfTopology X).over x).WEqualsLocallyBijective
+    AddCommGrpCat.{u})
 
 /-- Weak sheafification of abelian groups exists on every slice of the inherited
 fppf topology of a category fibred in groupoids. -/
@@ -56,8 +49,8 @@ instance inheritedFppfTopology_over_hasWeakSheafify :
       AddCommGrpCat.{u} :=
   hasWeakSheafify_fppfRingedSite_over X
 
-/-- On every slice of the inherited fppf topology of a category fibred in
-groupoids, sheafification equivalences are the locally bijective morphisms. -/
+/-- Sheafification equivalences on every slice of the inherited fppf topology of
+a category fibred in groupoids are exactly the locally bijective morphisms. -/
 instance inheritedFppfTopology_over_wEqualsLocallyBijective :
     ∀ x : X.total, ((inheritedFppfTopology X).over x).WEqualsLocallyBijective
       AddCommGrpCat.{u} :=

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Equivalence
@@ -56,14 +50,13 @@ theorem eq_trans_pow (S T : C ≌ C) (r : ℕ+) :
 
 end PageShift
 
-/-- The zero-based extension of `pageShift`: page zero carries the initial shift, while page
-`r + 1` carries the corresponding positive-page shift.  This depends only on the two
-autoequivalences, not on a particular construction of pages. -/
+/-- The zero-based shift family: page zero carries `S`, and each positive page carries one
+additional copy of `T` for each page step, starting with `T ∘ S` on page one. -/
 @[stacks 0AMK "zero-based page shift"]
 def zeroPageShift (S T : C ≌ C) (r : ℕ) : C ≌ C :=
   match r with
   | 0 => S
-  | r + 1 => pageShift S T ⟨r + 1, Nat.succ_pos _⟩
+  | r + 1 => pageShift (S.trans T) T ⟨r + 1, Nat.succ_pos _⟩
 
 namespace ZeroPageShift
 
@@ -71,10 +64,19 @@ namespace ZeroPageShift
 @[simp, stacks 0AMK "zero-based page shift at zero"]
 theorem zero (S T : C ≌ C) : zeroPageShift S T 0 = S := sorry
 
-/-- A positive zero-based shift is the corresponding positive-page shift. -/
+/-- The first positive shift is `T ∘ S`. -/
+@[simp, stacks 0AMK "zero-based page shift at one"]
+theorem one (S T : C ≌ C) : zeroPageShift S T 1 = S.trans T := sorry
+
+/-- A positive zero-based shift is the positive-page shift starting at `T ∘ S`. -/
 @[simp, stacks 0AMK "zero-based page shift at successor"]
 theorem succ (S T : C ≌ C) (r : ℕ) :
-    zeroPageShift S T (r + 1) = pageShift S T ⟨r + 1, Nat.succ_pos _⟩ := sorry
+    zeroPageShift S T (r + 1) = pageShift (S.trans T) T ⟨r + 1, Nat.succ_pos _⟩ := sorry
+
+/-- The shift on zero-based page `r` is `T^r ∘ S`. -/
+@[stacks 0AMK "zero-based page shift as a power"]
+theorem eq_trans_pow (S T : C ≌ C) (r : ℕ) :
+    zeroPageShift S T r = S.trans (T ^ (r : ℤ)) := sorry
 
 end ZeroPageShift
 

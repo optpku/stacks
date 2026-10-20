@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Cohomology.Basic
@@ -97,5 +91,12 @@ theorem mem_vectorBundleOfRankLTInDegree_iff
 instance vectorBundleOfRankLTInDegree_isClosedUnderIsomorphisms (i : ℤ) (p : ℕ) :
     (vectorBundleOfRankLTInDegree i p :
       ObjectProperty (RingedSpace.ModuleDerived X.toRingedSpace)).IsClosedUnderIsomorphisms := sorry
+
+/-- A zero derived module is a degree-zero vector bundle of rank strictly less than
+any positive bound. -/
+theorem rankBound_of_isZero
+    {E : RingedSpace.ModuleDerived X.toRingedSpace}
+    (hE : CategoryTheory.Limits.IsZero E) {p : ℕ} (hp : 0 < p) :
+    IsVectorBundleOfRankLTInDegree E 0 p := sorry
 
 end AlgebraicGeometry.Scheme.ModuleDerived

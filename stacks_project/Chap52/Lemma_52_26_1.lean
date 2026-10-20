@@ -1,37 +1,26 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap52.«52_25_1_1_EulerCharacteristic»
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Pullback
-public import ReasLib.RingTheory.Depth
-public import Mathlib.Algebra.Module.Torsion.Basic
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.PuncturedSpectrum.Picard.Torsion
+import StacksCheckRecall
 
 @[expose] public section
 
+open AlgebraicGeometry AlgebraicGeometry.Scheme CategoryTheory
 open scoped ENat
 
 universe u
 
-namespace AlgebraicGeometry.CoherentTripleSetup
-
-/-- Lemma 52.26.1: for a Noetherian local ring `A`, a regular element `f` in its
-maximal ideal, and depth `A` at least three, restriction from the punctured
-spectrum of `A` to that of `A / fA` is injective on torsion Picard classes. -/
-@[stacks 0F2A]
-theorem picardPullback_injective_on_torsion
-    {A : Type u} [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
-    (f : A) (hf_mem : f ∈ IsLocalRing.maximalIdeal A)
-    (hf_regular : IsRegular f)
-    (hdepth : (3 : ℕ∞) ≤ moduleDepth A A) :
-    let S := CoherentTripleSetup.ofElement f hf_mem hf_regular
-    let U := S.algebraization.U
-    Set.InjOn (Scheme.Hom.picardPullback S.closedFiberOnU)
-      (AddCommGroup.torsion (Scheme.PicardGroup U.toScheme)) := sorry
-
-end AlgebraicGeometry.CoherentTripleSetup
+/- Lemma 52.26.1: Let A be a Noetherian local ring and f a nonzerodivisor in its
+maximal ideal. Assume depth(A/fA) ≥ 2, equivalently depth(A) ≥ 3. Pullback from
+the Picard group of the punctured spectrum of A to that of A/fA is injective
+on torsion. -/
+@[stacks 0F2A] #check
+  (AlgebraicGeometry.PuncturedSpectrum.picardPullback_injective_on_torsion :
+    ∀ {A : Type u} [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
+      (f : A) (hf_mem : f ∈ IsLocalRing.maximalIdeal A)
+      (hf_regular : IsRegular f) (hdepth : (3 : ℕ∞) ≤ moduleDepth A A),
+      let quotientMap :=
+        Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk (Ideal.span {f})))
+      let punctured := PuncturedSpectrum.puncturedOpen A
+      Set.InjOn (Scheme.Hom.picardPullback (quotientMap ∣_ punctured))
+        (AddCommGroup.torsion (Scheme.PicardGroup punctured.toScheme)))

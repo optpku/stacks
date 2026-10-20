@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_9_3_Induction
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Induction
+import StacksCheckRecall
 
 /-!
 # Induction on a collection of spaces-étale objects
@@ -18,32 +13,28 @@ distinguished squares, with the stated size conditions, holds for every member o
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry Limits
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Limits
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- A property `P` of a collection `B` of objects of `X_spaces,étale` holds for every
-member of `B` whenever every member of `B` is quasi-compact and quasi-separated, `B` is
-closed under quasi-compact open subspaces, every affine object of the site lies in `B`
-and satisfies `P`, and `P` is preserved by elementary distinguished squares
-`(U ⊂ W, f : V ⟶ W)` with `W` in `B`, `U` quasi-compact, `V` affine, and `P` true on
-`U`, `V`, and `U ×_W V`. -/
-theorem qcqsSpacesEtale_induction_mem {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
-    (B : Set (spacesEtaleSite X)) (P : spacesEtaleSite X → Prop)
-    (h_isQuasiCompact : ∀ W ∈ B, IsQuasiCompact W.left)
-    (h_isAbsolutelyQuasiSeparated : ∀ W ∈ B, IsAbsolutelyQuasiSeparated W.left)
-    (h_open : ∀ {U W : spacesEtaleSite X} (j : U ⟶ W)
-      [IsOpenImmersion j.left] [IsQuasiCompact U.left], W ∈ B → U ∈ B)
-    (h_affine_mem : ∀ (V : spacesEtaleSite X) [IsAffine V.left], V ∈ B)
-    (h_affine : ∀ (V : spacesEtaleSite X) [IsAffine V.left], P V)
-    (h_square : ∀ {U V W : spacesEtaleSite X} (j : U ⟶ W) (f : V ⟶ W)
+/- Lemma 75.9.4: let `S` be a scheme. Let `X` be a quasi-compact and quasi-separated
+algebraic space over `S`. Let `B ⊂ Ob(X_spaces,étale)`. Let `P` be a property of the
+elements of `B`. Under the stated quasi-compactness, quasi-separatedness, open-closure,
+affine-membership, and distinguished-square hypotheses, `P` holds for every member of
+`B`. -/
+@[stacks 08GQ] #check
+  (@AlgebraicGeometry.AlgebraicSpace.qcqsSpacesEtale_induction_mem :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+      [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
+      (B : Set (spacesEtaleSite X)) (P : spacesEtaleSite X → Prop),
+    (∀ W ∈ B, IsQuasiCompact W.left) →
+    (∀ W ∈ B, IsAbsolutelyQuasiSeparated W.left) →
+    (∀ {U W : spacesEtaleSite X} (j : U ⟶ W)
+      [IsOpenImmersion j.left] [IsQuasiCompact U.left], W ∈ B → U ∈ B) →
+    (∀ (V : spacesEtaleSite X) [IsAffine V.left], V ∈ B) →
+    (∀ (V : spacesEtaleSite X) [IsAffine V.left], P V) →
+    (∀ {U V W : spacesEtaleSite X} (j : U ⟶ W) (f : V ⟶ W)
       [IsElementaryDistinguishedSquare j.left f.left] [Etale f.left]
       [IsQuasiCompact U.left] [IsAffine V.left],
-      W ∈ B → P U → P V → P (spacesEtaleSite.fiber j f) → P W)
-    (W : spacesEtaleSite X) (hW : W ∈ B) : P W :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+      W ∈ B → P U → P V → P (spacesEtaleSite.fiber j f) → P W) →
+    ∀ (W : spacesEtaleSite X), W ∈ B → P W)

@@ -1,11 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import Mathlib.CategoryTheory.Abelian.GrothendieckAxioms.Basic
+public import Mathlib.CategoryTheory.ObjectProperty.FiniteProducts
 public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.Algebra.Homology.CochainComplex.BoundedAboveReplacement
 public import ReasLib.Algebra.Homology.HomologicalComplex.ObjectProperty
@@ -27,6 +23,7 @@ globalization by termwise replacements and retains source-level essential consta
 -/
 
 open CategoryTheory
+open CategoryTheory.Limits
 open ComplexShape
 
 noncomputable section
@@ -81,12 +78,16 @@ theorem computesAt
     LeftDerived.ComputesAt F.toBoundedAboveDerived
       (HomotopyCategory.Minus.quasiIso A) K := sorry
 
-/-- Stacks 0794: a bounded-above homotopy object whose terms belong to a
-bounded-above acyclic class also computes the unbounded left derived functor.
--/
+/-- A bounded-above complex with terms in an acyclic class computes the unbounded left derived
+functor when the class contains zero, is closed under finite coproducts, and admits epi covers,
+both categories have exact sequential colimits, and the functor preserves them. -/
 @[stacks 0794]
 theorem computesAt_unbounded
-    [F.IsBoundedAboveAcyclicClass P] (K : HomotopyCategory.Minus A)
+    [F.IsBoundedAboveAcyclicClass P]
+    [P.ContainsZero] [P.IsClosedUnderFiniteCoproducts] [P.HasEpiCover]
+    [HasColimitsOfShape ℕ A] [HasColimitsOfShape ℕ B]
+    [HasExactColimitsOfShape ℕ A] [HasExactColimitsOfShape ℕ B]
+    [PreservesColimitsOfShape ℕ F] (K : HomotopyCategory.Minus A)
     [Functor.LeftDerived.DefinedAt (Functor.Homotopy.toDerived F)
       (HomotopyCategory.quasiIso A (up ℤ)) K.obj]
     (hK : HomotopyCategory.Minus.termsIn A P K) :

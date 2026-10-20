@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_4_2_Separation
-public import stacks_project.Chap67.Definition_67_41_1_ValuativeCriterion
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.Separated
+import StacksCheckRecall
 
 /-!
 # Pushing down a valuative lift along a separated morphism
@@ -27,22 +21,21 @@ universe u
 namespace AlgebraicGeometry.AlgebraicSpace
 namespace ValuativeCommSq.Extension
 
-/-- Lemma 67.41.4: Let `S` be a scheme. Let `f : X ⟶ Y` be a separated morphism
+/- Lemma 67.41.4: Let `S` be a scheme. Let `f : X ⟶ Y` be a separated morphism
 of algebraic spaces over `S`. Suppose given a diagram as in Definition 67.41.1
 with `K ⊂ K'` arbitrary. Then the dotted arrow exists making the diagram
 commute. -/
-@[stacks 0ARH]
-theorem hasLift {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} [Separated f]
-    {sq : ValuativeCommSq f} (e : sq.Extension) : sq.commSq.HasLift :=
-  sorry
+@[stacks 0ARH] #check (AlgebraicGeometry.AlgebraicSpace.ValuativeCommSq.Extension.hasLift :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} [Separated f]
+    {sq : ValuativeCommSq f} (e : sq.Extension), sq.commSq.HasLift)
 
-/-- A separated morphism of algebraic spaces admits a dotted lift
+/- A separated morphism of algebraic spaces admits a dotted lift
 `Spec(R) ⟶ X` of a valuative square whenever an arbitrary extension of that
 square already has a lift. -/
-theorem exists_liftHom {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} [Separated f]
-    {sq : ValuativeCommSq f} (e : sq.Extension) :
-    ∃ l : ofOver sq.specR ⟶ X, sq.verticalMap ≫ l = sq.i₁ ∧ l ≫ f = sq.i₂ :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCommSq.Extension.exists_liftHom :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} [Separated f]
+    {sq : ValuativeCommSq f} (e : sq.Extension),
+    ∃ l : ofOver sq.specR ⟶ X, sq.verticalMap ≫ l = sq.i₁ ∧ l ≫ f = sq.i₂)
 
 end ValuativeCommSq.Extension
 end AlgebraicGeometry.AlgebraicSpace

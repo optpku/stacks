@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap71.Lemma_71_16_4_Quotient
-public import stacks_project.Chap71.Lemma_71_11_11_Triple
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.InvertibleQuotient.Pullback
 
 /-! Actual E-dependent quotient functor, before constructing its small representing atlas.
 No projective bundle, tautological line, or higher Chern family is selected here.

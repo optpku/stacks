@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.NaiveCotangent.BaseChange.Derived
@@ -33,6 +27,7 @@ map from its derived pullback to `NL(f')` is an isomorphism in the derived categ
     ∀ {X X' Y Y' : _root_.AlgebraicGeometry.Scheme.{u}}
       {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y}
       (hcart : IsPullback g' f' f g) [Flat f]
+      [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
       (hNL : RingedSpace.HasTorAmplitudeIn
         (DerivedCategory.Q.obj (RingedSpace.naiveCotangent f.toShHom)) (-1) 0),
       IsIso

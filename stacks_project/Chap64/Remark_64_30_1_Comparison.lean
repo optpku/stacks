@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.ExactFunctor
@@ -530,6 +524,7 @@ theorem geometricFrobeniusRGamma_spec
   sorry
 
 variable [ConnectedSpace X.left] [ConnectedSpace (Spec (CommRingCat.of k))]
+variable [ConnectedSpace (geometricBaseChange X)]
 variable (etaBar : GeometricPoint X.left)
 variable [∀ U : X.left.Etale,
     HasWeakSheafify (X.left.smallEtaleTopology.over U) (ModuleCat.{u + 1} Λ)]

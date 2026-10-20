@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.LowerShriek
@@ -30,16 +24,25 @@ variable {X Y : Scheme.{u}} (f : X ⟶ Y)
       ClosedSubset.IsProperOver (pullback.fst V.hom f)
         (abelianSheafSectionSupport F ((smallEtalePullback f).obj V) σ))
 
+variable [LocallyOfFiniteType f]
+
+/-- Membership in the compact-support subgroup is the proper-support condition. -/
+abbrev mem_compactSupportSections_iff
+    (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) (V : Y.Etale)
+    (σ : F.obj.obj (op ((smallEtalePullback f).obj V))) :
+    σ ∈ compactSupportSections f F V ↔ HasProperSupport f F V σ :=
+  mem_properSupportSections_iff f F V σ
+
 #check (compactSupportSections f :
   (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) → (V : Y.Etale) →
     AddSubgroup (F.obj.obj (op ((smallEtalePullback f).obj V))))
 
-#check (mem_compactSupportSections_iff f :
+#check (mem_properSupportSections_iff f :
   ∀ (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) (V : Y.Etale)
     (σ : F.obj.obj (op ((smallEtalePullback f).obj V))),
     σ ∈ compactSupportSections f F V ↔ HasProperSupport f F V σ)
 
-variable [IsSeparated f] [LocallyOfFiniteType f]
+variable [IsSeparated f]
 
 #check (restrict_mem_compactSupportSections f :
   ∀ (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) {V W : Y.Etale}

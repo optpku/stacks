@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.OpenImmersion
@@ -188,6 +182,20 @@ theorem exists_object (h : ξ.IsEffective) :
             ξ.stageOver n ⟶ ξ.limitOver)
           (φ n)) ∧
         (∀ n, ξ.step n ≫ φ (n + 1) = φ n) := sorry
+
+/-- Pairwise kernels of transition maps of a formal object system have square
+zero: for all `n ≤ m`, `Ker(R_m ⟶ R_n)` squares to zero. -/
+def KernelSquareZero : Prop :=
+  ∀ {m n : ℕ} (hmn : n ≤ m),
+    RingHom.ker (ξ.ringSystem.transitionMap hmn).hom ^ 2 = ⊥
+
+/-- `KernelSquareZero` means every transition map `R_m ⟶ R_n` for `n ≤ m` has
+square-zero kernel. -/
+theorem kernelSquareZero_iff :
+    ξ.KernelSquareZero ↔
+      ∀ {m n : ℕ} (hmn : n ≤ m),
+        RingHom.ker (ξ.ringSystem.transitionMap hmn).hom ^ 2 = ⊥ :=
+  sorry
 
 end FormalObjectSystem
 

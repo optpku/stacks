@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FormallyEtale.EtaleLocal
@@ -18,12 +12,12 @@ open CategoryTheory AlgebraicGeometry
 universe u
 
 /- Lemma 76.16.2 (1) -/
-@[stacks 04GD] #check (AlgebraicGeometry.AlgebraicSpace.FormallyEtale.iff_etaleLocally :
+@[stacks 04GD] #check (AlgebraicGeometry.AlgebraicSpace.FormallyEtale.iff_etaleLocal :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicGeometry.AlgebraicSpace S}
       (f : X ⟶ Y),
       AlgebraicGeometry.AlgebraicSpace.FormallyEtale f ↔
-        AlgebraicGeometry.AlgebraicSpace.etaleLocally
-          (@AlgebraicGeometry.FormallyEtale) f)
+        AlgebraicGeometry.AlgebraicSpace.etaleLocal
+          @AlgebraicGeometry.FormallyEtale f)
 
 /- Lemma 76.16.2 (2) -/
 @[stacks 04GD] #check (AlgebraicGeometry.AlgebraicSpace.FormallyEtale.iff_existsSurjectiveEtaleSchemeSquare :

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap71.Lemma_71_11_5_TwistDescent
@@ -31,26 +25,25 @@ variable {S : Scheme.{u}} {P Q : AlgebraicSpace S} (k : Q ⟶ P) (M : Q.Modules)
 
 /-- An affine test over the genuine fibre-product object defining k_*M(U). -/
 abbrev AffineGraph (U : smallEtaleSite P) (V : affineEtaleSite Q) :=
-  (smallEtaleInclusion Q).obj V.obj ⟶ (etaleBaseChange k).obj U
+  (smallEtaleToSpaces Q).obj V.obj ⟶ (etaleBaseChange k).obj U
 
 /-- Matching sections on all affine tests of that fibre product. -/
 structure AffineMatching (U : smallEtaleSite P) where
   value : ∀ (V : affineEtaleSite Q), AffineGraph k U V → M.val.obj (op V.obj)
   compatible : ∀ (V V' : affineEtaleSite Q) (f : V' ⟶ V)
     (j : AffineGraph k U V) (j' : AffineGraph k U V')
-    (_ : (smallEtaleInclusion Q).map f.hom ≫ j = j'),
+    (_ : (smallEtaleToSpaces Q).map f.hom ≫ j = j'),
     M.val.map (op f.hom) (value V j) = value V' j'
 
 /-- The actual diagram used by the existing direct-image implementation. -/
 abbrev directImageDiagram (U : smallEtaleSite P) :=
-  StructuredArrow.proj (op ((etaleBaseChange k).obj U)) (smallEtaleInclusion Q).op ⋙
+  StructuredArrow.proj (op ((etaleBaseChange k).obj U)) (smallEtaleToSpaces Q).op ⋙
     ((ToInternal.underlying (structureSheaf Q)).obj M).obj
 
 instance directImageDiagram_hasLimit (U : smallEtaleSite P) :
     HasLimit (directImageDiagram k M U) :=
-  smallEtaleInclusion_op_hasPointwiseRightKanExtension_type Q
-    (((ToInternal.underlying (structureSheaf Q)).obj M).obj)
-    (op ((etaleBaseChange k).obj U))
+  EtaleTopos.allChartHasLimit Q ((ToInternal.underlying (structureSheaf Q)).obj M)
+    ((etaleBaseChange k).obj U)
 
 /-- Restrict an actual direct-image section by the canonical Kan-limit projection. -/
 def directImageAtGraph (U : smallEtaleSite P) (V : affineEtaleSite Q)

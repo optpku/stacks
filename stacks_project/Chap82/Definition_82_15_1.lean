@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap82.Definition_82_15_1_Chow
@@ -46,11 +40,11 @@ the coproduct of the inclusions is proper. -/
       inferInstance δ inferInstance k :
     {J : Type v} → (W : J → ClosedSubspace X) →
       (hWint : ∀ j, IsIntegral (W j).X) →
-      (hWdim : ∀ j, f.deltaDimension δ
+      (hWdim : ∀ j, AlgebraicGeometry.AlgebraicSpace.Hom.deltaDimension f δ
           (@ClosedSubspace.irreducibleClosed S X (W j) (hWint j)) = k + 1) →
       (φ : ∀ j, (RationalFunction (W j).X)ˣ) →
       (hlocal : LocallyFinite fun j ↦ (W j).pointsSet) →
-        f.cycleGroup δ k)
+        AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f δ k)
 
 /- Definition 82.15.1 (2): In Situation 82.2.1, a cycle `α ∈ Z_k(X)` is
 rationally equivalent to zero when it is a cycle of the form displayed in
@@ -59,7 +53,7 @@ rationally equivalent to zero when it is a cycle of the form displayed in
 #check
   (@RationalEquivalence.IsRationallyTrivial S B X inferInstance inferInstance f
       inferInstance inferInstance δ inferInstance k :
-    f.cycleGroup δ k → Prop)
+    AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f δ k → Prop)
 
 /- Definition 82.15.1 (3): In Situation 82.2.1, cycles `α, β ∈ Z_k(X)` are
 rationally equivalent, written `α ∼_rat β`, when `α - β` is rationally
@@ -68,13 +62,13 @@ equivalent to zero. -/
 #check
   (@RationalEquivalence.RationallyEquivalent S B X inferInstance inferInstance f
       inferInstance inferInstance δ inferInstance k :
-    f.cycleGroup δ k → f.cycleGroup δ k → Prop)
+    AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f δ k → AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f δ k → Prop)
 
 /- Definition 82.15.1 (4): In Situation 82.2.1, the Chow group of `k`-cycles on
 `X` is `CH_k(X) = Z_k(X) / ∼_rat = Hom.chowGroup f δ k`. This is sometimes
 called the Chow group of `k`-cycles modulo rational equivalence on `X`. -/
 @[stacks 0EQ6]
-#check (f.chowGroup δ k)
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.chowGroup f δ k)
 
 end
 

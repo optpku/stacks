@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import Mathlib.CategoryTheory.Category.Cat
 public import Mathlib.CategoryTheory.Comma.Over.Basic
 public import Mathlib.CategoryTheory.Sites.Precoverage
 public import Mathlib.Combinatorics.Quiver.ReflQuiver
@@ -31,53 +26,80 @@ variable {C : Type u} [Category.{v} C] {U : C}
 
 namespace SemiRepresentableFamily
 
+namespace Over
+
 /-- An indexed family of arrows in `C` with a fixed common target `U`. -/
 @[stacks 0396 "fixed-target indexed family",
   stacks 01G0 "semi-representable family over an object"]
-structure Over (U : C) where
+structure Obj (U : C) where
   index : Type w
   obj : index → CategoryTheory.Over U
-
-namespace Over
 
 /-- A reindexing map between fixed-target families, together with component maps in `C / U`. -/
 @[stacks 00VT "morphism of fixed-target families",
   stacks 01G0 "morphism of semi-representable families over an object"]
-structure Hom {U : C} (𝒰 : SemiRepresentableFamily.Over.{w₁} U)
-    (𝒱 : SemiRepresentableFamily.Over.{w₂} U) where
+structure Hom {U : C} (𝒰 : Obj.{w₁} U) (𝒱 : Obj.{w₂} U) where
   α : 𝒰.index → 𝒱.index
   f : ∀ i : 𝒰.index, 𝒰.obj i ⟶ 𝒱.obj (α i)
 
 /-- The identity componentwise reindexing of a fixed-target family. -/
 @[stacks 00VT "identity morphism of fixed-target families"]
-def Hom.id (𝒰 : SemiRepresentableFamily.Over.{w} U) : Hom 𝒰 𝒰 where
+def Hom.id (𝒰 : Obj.{w} U) : Hom 𝒰 𝒰 where
   α := fun i ↦ i
   f := fun i ↦ 𝟙 (𝒰.obj i)
 
 /-- Compose componentwise reindexings whose index types may lie in different universes. -/
 @[stacks 00VT "composition of fixed-target family morphisms"]
-def Hom.comp {𝒰 : SemiRepresentableFamily.Over.{w₁} U}
-    {𝒱 : SemiRepresentableFamily.Over.{w₂} U}
-    {𝒲 : SemiRepresentableFamily.Over.{w₃} U}
+def Hom.comp {𝒰 : Obj.{w₁} U} {𝒱 : Obj.{w₂} U} {𝒲 : Obj.{w₃} U}
     (φ : Hom 𝒰 𝒱) (ψ : Hom 𝒱 𝒲) : Hom 𝒰 𝒲 where
   α := fun i ↦ ψ.α (φ.α i)
   f := fun i ↦ φ.f i ≫ ψ.f (φ.α i)
 
-/-- Fixed-target families form the expected quiver of componentwise refinement maps. -/
-@[stacks 01G0 "quiver of semi-representable families over an object"]
-instance instQuiver {U : C} : Quiver (SemiRepresentableFamily.Over.{w} U) where
-  Hom 𝒰 𝒱 := Hom 𝒰 𝒱
+/-- Composing the identity reindexing with a family morphism leaves that morphism unchanged. -/
+theorem Hom.id_comp {𝒰 : Obj.{w₁} U} {𝒱 : Obj.{w₂} U} (φ : Hom 𝒰 𝒱) :
+    Hom.comp (Hom.id 𝒰) φ = φ := sorry
+
+/-- Composing a family morphism with the identity reindexing leaves that morphism unchanged. -/
+theorem Hom.comp_id {𝒰 : Obj.{w₁} U} {𝒱 : Obj.{w₂} U} (φ : Hom 𝒰 𝒱) :
+    Hom.comp φ (Hom.id 𝒱) = φ := sorry
+
+/-- Composition of componentwise reindexings of fixed-target families is associative. -/
+theorem Hom.assoc {𝒰 : Obj.{w} U} {𝒱 : Obj.{w₁} U}
+    {𝒲 : Obj.{w₂} U} {𝒵 : Obj.{w₃} U}
+    (φ : Hom 𝒰 𝒱) (ψ : Hom 𝒱 𝒲) (χ : Hom 𝒲 𝒵) :
+    Hom.comp (Hom.comp φ ψ) χ = Hom.comp φ (Hom.comp ψ χ) := sorry
 
 /-- Fixed-target families form the category whose morphisms reindex the family and
 provide a slice morphism at every component. -/
-@[stacks 01G0 "category of semi-representable families over an object"]
-instance instCategory {U : C} : Category (SemiRepresentableFamily.Over.{w} U) where
-  Hom 𝒰 𝒱 := Hom 𝒰 𝒱
-  id 𝒰 := Hom.id 𝒰
-  comp φ ψ := Hom.comp φ ψ
-  id_comp := sorry
-  comp_id := sorry
-  assoc := sorry
+@[stacks 01G0 "category of semi-representable families over an object",
+  stacks 01G0 "quiver of semi-representable families over an object"]
+def category (U : C) : Cat.{max w v, max (w + 1) u v} :=
+  ⟨Obj.{w} U, {
+    Hom := fun 𝒰 𝒱 ↦ Hom 𝒰 𝒱
+    id := fun 𝒰 ↦ Hom.id 𝒰
+    comp := fun φ ψ ↦ Hom.comp φ ψ
+    id_comp := Hom.id_comp
+    comp_id := Hom.comp_id
+    assoc := Hom.assoc
+  }⟩
+
+end Over
+
+/-- The carrier of the category of indexed families of arrows with common target `U`. -/
+abbrev Over (U : C) : Type (max (w + 1) u v) := Over.category.{w} U
+
+namespace Over
+
+/-- The index type of a fixed-target family of arrows. -/
+abbrev index (𝒰 : SemiRepresentableFamily.Over.{w} U) : Type w := Obj.index 𝒰
+
+/-- The slice object of a fixed-target family at a specified index. -/
+abbrev obj (𝒰 : SemiRepresentableFamily.Over.{w} U) (i : 𝒰.index) :
+    CategoryTheory.Over U := Obj.obj 𝒰 i
+
+/-- Construct a fixed-target family from an index type and its slice objects. -/
+def mk (index : Type w) (obj : index → CategoryTheory.Over U) :
+    SemiRepresentableFamily.Over.{w} U := ⟨index, obj⟩
 
 /-- The underlying component of a composite family morphism is the composite of the underlying
 component morphisms. -/

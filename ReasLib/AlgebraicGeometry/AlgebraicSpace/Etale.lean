@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Etale
@@ -36,6 +30,12 @@ class Etale {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) : Prop where
     (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf (φ ≫ f)
 
 namespace Etale
+
+/-- An isomorphism of algebraic spaces over `S` is étale. -/
+instance of_isIso {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsIso f] :
+    Etale f :=
+  sorry
+
 
 /-- The identity morphism of an algebraic space is étale. -/
 instance id {S : Scheme.{u}} {X : AlgebraicSpace S} : Etale (𝟙 X) := sorry

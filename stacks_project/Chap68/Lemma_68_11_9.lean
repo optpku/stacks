@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap68.Lemma_68_11_9_StrictHenselization
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.HenselianLocalRing.StrictHenselization
 import StacksCheckRecall
 
 open AlgebraicGeometry AlgebraicSpace
@@ -20,7 +14,7 @@ Let `xbar` be a geometric point of `X` lying over `x ∈ |X|`. The étale local 
 `etaleLocalRing X xbar` of `X` at `xbar` is a strict henselization of the henselian
 local ring `henselianLocalRing X xbar.image` of `X` at the image point. -/
 @[stacks 0EMZ] #check
-  (etaleLocalRing.instIsStrictHenselizationOf :
+  (AlgebraicGeometry.AlgebraicSpace.etaleLocalRing.instIsStrictHenselizationOf :
     ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
       (xbar : GeometricPoint X),
       IsStrictHenselizationOf (henselianLocalRing X xbar.image)

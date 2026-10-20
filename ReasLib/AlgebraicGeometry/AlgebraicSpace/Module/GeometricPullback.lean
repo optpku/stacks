@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.InverseImage.Construction
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.CommutativeRingView
-public import stacks_project.Chap66.Definition_66_29_1_RingedSite
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RingedSite.Basic
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module
 
 /-! # Original-universe module pullback with actual geometric and scalar data

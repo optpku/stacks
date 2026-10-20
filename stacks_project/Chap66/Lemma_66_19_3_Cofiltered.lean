@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_19_2_EtaleNeighborhood
-public import Mathlib.CategoryTheory.Filtered.Basic
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.GeometricPoint.EtaleNeighborhood.Cofiltered
+import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry
 
@@ -15,11 +9,10 @@ universe u
 
 @[expose] public section
 
-namespace AlgebraicGeometry.AlgebraicSpace.GeometricPoint.EtaleNeighborhood
-
-/-- The category of étale neighborhoods of a geometric point of an algebraic space is
-cofiltered. -/
-instance instIsCofiltered {S : Scheme.{u}} {X : AlgebraicSpace S} (xbar : GeometricPoint X) :
-    IsCofiltered (EtaleNeighborhood xbar) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace.GeometricPoint.EtaleNeighborhood
+/- Lemma 66.19.3: the category of étale neighborhoods of a geometric point of an algebraic
+space is cofiltered. -/
+@[stacks 04JW] #check
+  (AlgebraicGeometry.AlgebraicSpace.GeometricPoint.EtaleNeighborhood.instIsCofiltered :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+      (xbar : AlgebraicSpace.GeometricPoint X),
+      IsCofiltered (AlgebraicSpace.GeometricPoint.EtaleNeighborhood xbar))

@@ -1,15 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap52.Lemma_52_12_5_Comparison
 public import stacks_project.Chap52.Lemma_52_24_1
 public import stacks_project.Chap58.Lemma_58_17_4
 public import stacks_project.Chap58.Situation_58_19_1
+public import ReasLib.AlgebraicGeometry.PuncturedSpectrum.FiniteEtaleNeighborhood
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -25,22 +21,19 @@ universe u
 
 namespace AlgebraicGeometry.PuncturedSpectrum
 
-variable {A : Type u} [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
-variable [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-variable (f : IsLocalRing.maximalIdeal A)
-
-/-- Lemma 58.23.1: in Situation 58.19.1, if `A` has a dualizing complex and is
-`f`-adically complete, and either `A_f` is `(S₂)` with every irreducible component
-of `X` not contained in `X₀` of dimension at least `4`, or the primewise
-depth-dimension inequality holds off `V(f)`, then the restriction functor
-`colim_{U₀ ⊂ U' ⊂ U} FÉt_{U'} ⟶ FÉt_{U₀}` identified with
-`finiteEtaleNeighborhoodRestriction (idealOnOpen S) t` on the punctured spectrum
-`U = PuncturedSpectrum.scheme A` is an equivalence. -/
-@[stacks 0DXY]
-instance finiteEtaleNeighborhoodRestriction_isEquivalence_of_dualizing_complete
-    [H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A))]
+/- Lemma 58.23.1: in Situation 58.19.1, assume that `A` admits an intrinsic
+dualizing complex and is `f`-adically complete. If either `A_f` satisfies `(S₂)`
+and every minimal component away from `f` has dimension at least four, or the
+primewise depth-plus-dimension bound holds, restriction from finite étale covers
+on open neighborhoods in the punctured spectrum of `A` to finite étale covers
+of the actual quotient punctured spectrum of `A/(f)` is an equivalence. -/
+@[stacks 0DXY] #check
+  (AlgebraicGeometry.PuncturedSpectrum.finiteEtaleNeighborhoodRestriction_isEquivalence_of_dualizing_complete :
+  ∀
+    {A : Type u} [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
+    (f : IsLocalRing.maximalIdeal A)
     [h_dualizing :
-      Fact (∃ K : DerivedCategory (ModuleCat.{u} A), K.IsDualizingComplex H)]
+      Fact (∃ K : DerivedCategory (ModuleCat.{u} A), K.IsDualizing)]
     [IsAdicComplete (Ideal.span ({(f : A)} : Set A)) A]
     [h_alternative :
       Fact
@@ -60,15 +53,8 @@ instance finiteEtaleNeighborhoodRestriction_isEquivalence_of_dualizing_complete
                     (LocalizedModule.AtPrime p.asIdeal A)) : WithTop ℤ) : EInt) +
                   WithBot.map (WithTop.map Int.ofNat)
                     (ringKrullDim (A ⧸ p.asIdeal))))]
-    (t :
-      ColimitCocone
-        (finiteEtaleNeighborhoodDiagram
-          (idealOnOpen
-            (ofPrincipal (IsLocalRing.maximalIdeal A) (f : A) f.property)))) :
-    Functor.IsEquivalence
-      (finiteEtaleNeighborhoodRestriction
-        (idealOnOpen
-          (ofPrincipal (IsLocalRing.maximalIdeal A) (f : A) f.property))
-        t) := sorry
+    (t : ColimitCocone
+      (Scheme.finiteEtaleNeighborhoodDiagram (principalQuotientMap f).ker)),
+    Functor.IsEquivalence (principalNeighborhoodRestriction f t))
 
 end AlgebraicGeometry.PuncturedSpectrum

@@ -1,45 +1,21 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Fibered.Groupoids.Diagonal.Construction
-public import stacks_project.Chap94.Definition_94_12_1_Representable
-
-/-!
-# Second diagonal representable by algebraic spaces
-
-For a category fibred in groupoids over `(Sch/S)_fppf`, representability of the
-second diagonal by algebraic spaces is equivalent to representability of the
-diagonal of every 2-fibre product of that first diagonal along a scheme-slice
-test of `X × X`.
--/
-
-@[expose] public section
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Diagonal.SecondDiagonal
+import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry
 open FiberedCategoryOver.Groupoids
 open scoped Bicategory CategoryTheory.TwoFibreProduct
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry
-
-/-- Lemma 97.4.4: let `X` be a category fibred in groupoids over
-`(Sch/S)_fppf`. The following are equivalent: (1) the second diagonal
-`Hom.diagonal (diagonal X) : X ⟶ X ×_{X × X} X` is representable by algebraic
-spaces; (2) for every 1-morphism `φ : GroupoidsOver.slice V ⟶
-X.baseProjection ⊡₂ X.baseProjection` with `V` representable by a scheme, the
-fibre product `Y = (diagonal X) ⊡₂ φ` has diagonal representable by algebraic
-spaces. -/
-@[stacks 07WG]
-theorem relativelyRepresentableByAlgebraicSpaces.secondDiagonal_iff
-    {S : Scheme.{u}} (X : GroupoidsOver S) :
+/- Lemma 97.4.4: The second diagonal of a category fibred in groupoids over
+`(Sch/S)_fppf` is representable by algebraic spaces if and only if every
+scheme-slice base change of its first diagonal has diagonal representable by
+algebraic spaces. -/
+@[stacks 07WG] #check
+  (AlgebraicGeometry.relativelyRepresentableByAlgebraicSpaces.secondDiagonal_iff :
+    ∀ {S : Scheme.{u}} (X : GroupoidsOver S),
     relativelyRepresentableByAlgebraicSpaces
         (Hom.diagonal.{u + 1, u, u + 1}
           (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} X)) ↔
@@ -50,43 +26,4 @@ theorem relativelyRepresentableByAlgebraicSpaces.secondDiagonal_iff
         relativelyRepresentableByAlgebraicSpaces
           (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1}
             (TwoFibreProduct.apex.{u + 1, u, u + 1, u}
-              (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} X) φ)) :=
-  sorry
-
-/-- If the second diagonal of `X` is representable by algebraic spaces, then the
-diagonal of every scheme-slice 2-fibre product along `diagonal X` is
-representable by algebraic spaces. -/
-theorem relativelyRepresentableByAlgebraicSpaces.pullbackDiagonals_of_secondDiagonal
-    {S : Scheme.{u}} (X : GroupoidsOver S)
-    (h : relativelyRepresentableByAlgebraicSpaces
-      (Hom.diagonal.{u + 1, u, u + 1}
-        (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} X)))
-    {V : Over S}
-    (φ : GroupoidsOver.slice V ⟶
-      TwoFibreProduct.apex.{u + 1, u, u + 1, u}
-        X.baseProjection X.baseProjection) :
-    relativelyRepresentableByAlgebraicSpaces
-      (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1}
-        (TwoFibreProduct.apex.{u + 1, u, u + 1, u}
-          (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} X) φ)) :=
-  sorry
-
-/-- If every scheme-slice 2-fibre product along `diagonal X` has diagonal
-representable by algebraic spaces, then the second diagonal of `X` is
-representable by algebraic spaces. -/
-theorem relativelyRepresentableByAlgebraicSpaces.secondDiagonal_of_pullbackDiagonals
-    {S : Scheme.{u}} (X : GroupoidsOver S)
-    (h : ∀ {V : Over S}
-        (φ : GroupoidsOver.slice V ⟶
-          TwoFibreProduct.apex.{u + 1, u, u + 1, u}
-            X.baseProjection X.baseProjection),
-      relativelyRepresentableByAlgebraicSpaces
-        (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1}
-          (TwoFibreProduct.apex.{u + 1, u, u + 1, u}
-            (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} X) φ))) :
-    relativelyRepresentableByAlgebraicSpaces
-      (Hom.diagonal.{u + 1, u, u + 1}
-        (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} X)) :=
-  sorry
-
-end AlgebraicGeometry
+              (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} X) φ)))

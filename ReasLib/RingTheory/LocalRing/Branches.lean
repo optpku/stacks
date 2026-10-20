@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Data.Set.Card
@@ -43,3 +37,54 @@ abbrev geometricBranchNumber
     (Ash : Type v) [CommRing Ash] [Algebra A Ash]
     [IsStrictHenselizationOf A Ash] : ℕ∞ :=
   (minimalPrimes Ash).encard
+
+/-- A local ring has geometric branch number `n` if some strict henselization
+has exactly `n` minimal primes. -/
+def hasGeometricBranchNumber (n : ℕ) (R : Type u) [CommRing R] [IsLocalRing R] :
+    Prop :=
+  ∃ (Ash : Type u) (_ : CommRing Ash) (_ : Algebra R Ash)
+    (_ : IsStrictHenselizationOf R Ash), geometricBranchNumber R Ash = n
+
+/-- `hasGeometricBranchNumber n R` is the existence of a strict henselization of
+`R` with geometric branch number `n`. -/
+theorem hasGeometricBranchNumber_def (n : ℕ) (R : Type u) [CommRing R]
+    [IsLocalRing R] :
+    hasGeometricBranchNumber n R ↔
+      ∃ (Ash : Type u) (_ : CommRing Ash) (_ : Algebra R Ash)
+        (_ : IsStrictHenselizationOf R Ash), geometricBranchNumber R Ash = n :=
+  sorry
+
+namespace hasGeometricBranchNumber
+
+/-- A strict henselization of `R` with geometric branch number `n` witnesses
+`hasGeometricBranchNumber n R`. -/
+theorem of {n : ℕ} {R : Type u} [CommRing R] [IsLocalRing R] (Ash : Type u)
+    [CommRing Ash] [Algebra R Ash] [IsStrictHenselizationOf R Ash]
+    (h : geometricBranchNumber R Ash = n) : hasGeometricBranchNumber n R :=
+  sorry
+
+/-- A local ring with geometric branch number `n` admits a strict henselization
+with that geometric branch number. -/
+theorem spec {n : ℕ} {R : Type u} [CommRing R] [IsLocalRing R]
+    (h : hasGeometricBranchNumber n R) :
+    ∃ (Ash : Type u) (_ : CommRing Ash) (_ : Algebra R Ash)
+      (_ : IsStrictHenselizationOf R Ash), geometricBranchNumber R Ash = n :=
+  sorry
+
+/-- At most one natural number is the geometric branch number of a local ring. -/
+theorem unique {R : Type u} [CommRing R] [IsLocalRing R] {n m : ℕ}
+    (hn : hasGeometricBranchNumber n R) (hm : hasGeometricBranchNumber m R) :
+    n = m :=
+  sorry
+
+end hasGeometricBranchNumber
+
+/-- The geometric branch number of a local ring is independent of the chosen
+strict henselization: it equals `n` for some strict henselization if and only
+if it equals `n` for every strict henselization. -/
+theorem hasGeometricBranchNumber_iff (n : ℕ) (R : Type u) [CommRing R]
+    [IsLocalRing R] :
+    hasGeometricBranchNumber n R ↔
+      ∀ (Ash : Type u) [CommRing Ash] [Algebra R Ash]
+        [IsStrictHenselizationOf R Ash], geometricBranchNumber R Ash = n :=
+  sorry

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_18_6_Site
-public import stacks_project.Chap67.Lemma_67_48_1_QcAlgebra
-public import stacks_project.Chap67.Lemma_67_48_1_IntegralClosure
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Algebra.IntegralClosure
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -18,23 +11,14 @@ open AlgebraicGeometry.AlgebraicSpace.QcAlgebraUnder
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.QcAlgebraUnder
-
-/-- Lemma 67.48.1: Let `S` be a scheme. Let `X` be an algebraic space over `S`. Let `A` be a
-quasi-coherent sheaf of `𝒪_X`-algebras. There exists a quasi-coherent sheaf of `𝒪_X`-algebras
-`A' ⊂ A` such that for any affine object `U` of `X_étale` the ring `A'(U) ⊂ A(U)` is the
-integral closure of `𝒪_X(U)` in `A(U)`. The constructed algebra is `integralClosure A`, and
-the identification on affine étale objects is with mathlib `integralClosure`. -/
-@[stacks 0820]
-theorem affine_sectionRing_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (A : X.QcAlgebraUnder) (U : affineEtaleSite X) :
-    sectionRing (integralClosure A) U.obj =
-      CommRingCat.of (_root_.integralClosure Γ(U.obj.left.left, ⊤) (sectionRing A U.obj)) :=
-  sorry
-
-/-- The inclusion `integralClosure A ⟶ A` is a monomorphism of underlying sheaves of algebras. -/
-theorem inclusion_mono {S : Scheme.{u}} {X : AlgebraicSpace S} (A : X.QcAlgebraUnder) :
-    Mono ((forget X).map (inclusion A)).right :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.QcAlgebraUnder
+/- Lemma 67.48.1. Every quasi-coherent algebra on an algebraic space contains a
+quasi-coherent subalgebra whose sections on each affine étale chart are exactly the
+integral closure of the structure ring inside the original section algebra. -/
+@[stacks 0820] #check (AlgebraicGeometry.AlgebraicSpace.QcAlgebraUnder.exists_integralClosure :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (A : X.QcAlgebraUnder),
+    ∃ (B : X.QcAlgebraUnder) (i : B ⟶ A),
+      Mono ((forget X).map i).right ∧
+      ∀ (U : affineEtaleSite X) (a : sectionRing A U.obj),
+        (∃ b : sectionRing B U.obj,
+          ((InducedCategory.Hom.hom (((forget X).map i).right)).app (op U.obj)).hom b = a) ↔
+        _root_.IsIntegral Γ(U.obj.left.left, ⊤) a)

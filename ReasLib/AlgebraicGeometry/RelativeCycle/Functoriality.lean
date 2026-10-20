@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RelativeCycle.Effective
@@ -56,7 +50,8 @@ theorem isEffective_restrict {X S : Scheme.{u}} {f : X ⟶ S}
     {α : f.FiberCycleFamily r} (hα : IsRelative α) (h_eff : IsEffective α)
     (U : X.Opens) (V : S.Opens) (φ : U.toScheme ⟶ V.toScheme)
     (hφ : φ ≫ V.ι = U.ι ≫ f) :
-    IsEffective (restrict U V φ hφ α) := sorry
+    @IsEffective _ _ φ (locallyOfFiniteType_restriction f U V φ hφ) _
+      (restrict U V φ hφ α) := sorry
 
 /-- Base change preserves effectiveness of relative fibre-cycle families. -/
 theorem isEffective_baseChange {X S S' : Scheme.{u}} {f : X ⟶ S}

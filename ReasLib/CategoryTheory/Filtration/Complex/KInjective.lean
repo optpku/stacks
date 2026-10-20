@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Complex.Quotient
@@ -15,8 +9,8 @@ public import Mathlib.Tactic.CrossRefAttribute
 # K-Injective Resolutions of Filtered Complexes
 
 The properties of a filtered K-injective model are split into termwise injectivity,
-K-injectivity, and quasi-isomorphism on all canonical filtration views.  A bundled resolution
-then supplies these properties as instances, so consumers do not need local instance plumbing.
+K-injectivity, and quasi-isomorphism on all canonical filtration views. A resolution records
+the resolving complex, its comparison morphism, and explicit proofs of these properties.
 -/
 
 @[expose] public section
@@ -94,53 +88,22 @@ structure KInjectiveResolution (K : FilteredComplex A) where
 
 namespace KInjectiveResolution
 
-/-- A filtered K-injective resolution coerces to its resolving filtered complex. -/
-instance {K : FilteredComplex A} :
-    CoeOut (KInjectiveResolution K) (FilteredComplex A) where
-  coe R := R.complex
+/-- The comparison morphism of a filtered K-injective resolution as an arrow of filtered
+complexes. -/
+def toArrow {K : FilteredComplex A} (R : KInjectiveResolution K) :
+    Arrow (FilteredComplex A) :=
+  Arrow.mk R.ι
 
-/-- A resolution exposes termwise injectivity to typeclass search. -/
-instance {K : FilteredComplex A} (R : KInjectiveResolution K) :
-    R.complex.IsTermwiseInjective := R.termwiseInjective
+/-- The morphism of the resolution arrow is the resolution comparison morphism. -/
+theorem toArrow_hom {K : FilteredComplex A} (R : KInjectiveResolution K) :
+    R.toArrow.hom = R.ι := rfl
 
-/-- A resolution exposes K-injectivity of all filtration views to typeclass search. -/
-instance {K : FilteredComplex A} (R : KInjectiveResolution K) :
-    R.complex.IsKInjective := R.kInjective
-
-/-- A resolution exposes its filtrationwise quasi-isomorphism to typeclass search. -/
-instance {K : FilteredComplex A} (R : KInjectiveResolution K) :
-    IsQuasiIso R.ι := R.quasiIso
-
-end KInjectiveResolution
-
-namespace KInjectiveResolution
-
-/-- Lemma 19.13.7: every filtered complex in a Grothendieck abelian category has a filtered
+/-- Every filtered complex in a Grothendieck abelian category has a filtered
 K-injective resolution compatible with stages, quotients, and subquotients. -/
 @[stacks 0BKI]
 theorem nonempty [IsGrothendieckAbelian.{w} A]
     (K : FilteredComplex A) : Nonempty (KInjectiveResolution K) := sorry
 
 end KInjectiveResolution
-
-section InstanceChecks
-
-variable {K : FilteredComplex A} (R : KInjectiveResolution K)
-  (p q n : ℤ) (hpq : p ≤ q)
-
-#synth Injective (R.complex.underlying.X n)
-#synth Injective ((R.complex.stage p).X n)
-#synth Injective ((R.complex.quotient p).X n)
-#synth Injective ((R.complex.subquotient hpq).X n)
-#synth R.complex.underlying.IsKInjective
-#synth (R.complex.stage p).IsKInjective
-#synth (R.complex.quotient p).IsKInjective
-#synth (R.complex.subquotient hpq).IsKInjective
-#synth QuasiIso (underlyingMap R.ι)
-#synth QuasiIso (stageMap R.ι p)
-#synth QuasiIso (quotientMap R.ι p)
-#synth QuasiIso (subquotientMap R.ι hpq)
-
-end InstanceChecks
 
 end CategoryTheory.FilteredComplex

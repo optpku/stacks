@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Abelian
 public import ReasLib.CategoryTheory.Sites.LocallyConstant.Finite
-public import stacks_project.Chap59.Lemma_59_65_1_Equivalence
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.AssociatedSheaf
+public import stacks_project.Chap58.Theorem_58_6_2_Fiber
 
 /-!
 # Finite locally constant sheaves associated to discrete π₁-modules
@@ -35,16 +30,12 @@ variable (Λ : Type (u + 1)) [Ring Λ] [Finite Λ]
 variable [HasWeakSheafify X.smallEtaleTopology (ModuleCat.{u + 1} Λ)]
 variable [∀ U : X.Etale, HasWeakSheafify (X.smallEtaleTopology.over U) (ModuleCat.{u + 1} Λ)]
 
-/-- The finite-type locally constant étale sheaf of Λ-modules associated to a finite discrete
-continuous π₁(X, η̄)-module, as the inverse of the comparison of Lemma 59.65.1 (3).
-
-The Chap59 owner lives in `ModuleCat.{u+1} Λ`; compactly supported cohomology is obtained after
-forgetting to abelian groups at the same universe. -/
-def sheafOfDiscreteModule [ConnectedSpace X] (ηbar : GeometricPoint X)
+/-- The finite-type locally constant étale sheaf associated to a finite discrete
+arithmetic fundamental-group module. -/
+abbrev sheafOfDiscreteModule [ConnectedSpace X] (ηbar : GeometricPoint X)
     (Mρ : (finiteTypeDiscreteModule Λ (Aut (standardFiniteEtaleFiber ηbar))).FullSubcategory) :
     Sheaf X.smallEtaleTopology (ModuleCat.{u + 1} Λ) :=
-  ((finiteTypeLocallyConstantModule_equivalence_finitePi1LambdaModules Λ ηbar).inverse.obj
-      Mρ).obj
+  associatedSheaf Λ ηbar Mρ
 
 /-- The associated sheaf is the underlying object of the inverse equivalence applied to `Mρ`. -/
 theorem sheafOfDiscreteModule_spec [ConnectedSpace X] (ηbar : GeometricPoint X)

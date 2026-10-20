@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Category
 public import Mathlib.AlgebraicGeometry.Cover.MorphismProperty
 public import Mathlib.AlgebraicGeometry.Sites.Etale
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Flat
@@ -54,8 +49,8 @@ class IsFamily {S : Scheme.{u}} {X T : AlgebraicSpace S} (f : X ⟶ T) : Prop wh
   /-- Every étale scheme square over the morphism has relative dimension at most 1. -/
   relativeDimensionLE {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
       (b : yoneda.obj V ⟶ T.functorOfPoints) (h : U ⟶ V)
-      (ha : (over (@AlgebraicGeometry.Etale)).presheaf a)
-      (hb : (over (@AlgebraicGeometry.Etale)).presheaf b)
+      (ha : (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf a)
+      (hb : (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf b)
       (w : a ≫ f = yoneda.map h ≫ b) :
     Scheme.Hom.RelativeDimensionLE h.left 1
 
@@ -68,8 +63,8 @@ theorem isFamily_iff {S : Scheme.{u}} {X T : AlgebraicSpace S} (f : X ⟶ T) :
         Flat f ∧ Proper f ∧
           ∀ {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
             (b : yoneda.obj V ⟶ T.functorOfPoints) (h : U ⟶ V),
-            (over (@AlgebraicGeometry.Etale)).presheaf a →
-              (over (@AlgebraicGeometry.Etale)).presheaf b →
+            (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf a →
+              (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf b →
                 a ≫ f = yoneda.map h ≫ b →
                   Scheme.Hom.RelativeDimensionLE h.left 1 :=
   ⟨fun hf =>
@@ -113,13 +108,32 @@ theorem spec {S : Scheme.{u}} {X T : AlgebraicSpace S} (f : X ⟶ T)
       Flat f ∧ Proper f ∧
         ∀ {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
           (b : yoneda.obj V ⟶ T.functorOfPoints) (h : U ⟶ V),
-          (over (@AlgebraicGeometry.Etale)).presheaf a →
-            (over (@AlgebraicGeometry.Etale)).presheaf b →
+          (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf a →
+            (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf b →
               a ≫ f = yoneda.map h ≫ b →
                 Scheme.Hom.RelativeDimensionLE h.left 1 :=
   (isFamily_iff f).mp inferInstance
 
 end IsFamily
+
+/-- An fp-flat-proper morphism of relative dimension at most one is a family of curves. -/
+instance instIsFamily_of_fpFlatProper_relativeDimensionLE {S : Scheme.{u}}
+    {X T : AlgebraicSpace S} (f : X ⟶ T) [FpFlatProper f]
+    [RelativeDimensionLE f 1] : IsFamily f := sorry
+
+/-- A family of curves is of finite presentation, flat, and proper. -/
+instance instFpFlatProper_of_isFamily {S : Scheme.{u}} {X T : AlgebraicSpace S}
+    (f : X ⟶ T) [IsFamily f] : FpFlatProper f := sorry
+
+/-- A family of curves has relative dimension at most one. -/
+instance instRelativeDimensionLE_of_isFamily {S : Scheme.{u}}
+    {X T : AlgebraicSpace S} (f : X ⟶ T) [IsFamily f] :
+    RelativeDimensionLE f 1 := sorry
+
+/-- The structure morphism of a scheme-base family of curves is a family of
+curves in the sense of algebraic spaces. -/
+instance instIsFamily_hom {S : Scheme.{u}} (P : Obj S) : IsFamily (hom P) :=
+  sorry
 
 /-- A family of curves over a scheme admits an étale covering of the base such
 that each fibre product is represented by a scheme that is H-projective over

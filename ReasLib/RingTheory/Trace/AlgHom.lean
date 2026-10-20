@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.FieldTheory.Separable
+public import Mathlib.RingTheory.Ideal.Maps
 public import Mathlib.RingTheory.Trace.Defs
 
 @[expose] public section
@@ -16,9 +11,9 @@ universe u v w x
 namespace AlgHom
 
 /-- Over a characteristic-zero field, two surjective algebra homomorphisms into the same
-finite-dimensional separable algebra are equal if the difference of their trace composites
-is a proper integral multiple of an integral linear combination of trace composites. -/
-theorem eq_of_trace_relation
+finite-dimensional separable algebra have the same kernel if the difference of their trace
+composites is a proper integral multiple of an integral linear combination of trace composites. -/
+theorem ker_eq_of_trace_relation
     {F : Type u} [Field F] [CharZero F]
     {A : Type v} [CommRing A] [Algebra F A] [FiniteDimensional F A]
     {F' : Type w} [CommRing F'] [Algebra F F'] [FiniteDimensional F F']
@@ -32,6 +27,6 @@ theorem eq_of_trace_relation
       (Algebra.trace F F').comp σ.toLinearMap -
           (Algebra.trace F F').comp σ'.toLinearMap =
         n • ∑ i, m i • (Algebra.trace F (Fᵢ i)).comp (σᵢ i).toLinearMap) :
-    σ = σ' := sorry
+    RingHom.ker σ = RingHom.ker σ' := sorry
 
 end AlgHom

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.DeRham.DifferentialGradedAlgebra
@@ -16,6 +10,9 @@ open AlgebraicGeometry CategoryTheory CategoryTheory.MonoidalCategory ComplexSha
 open AlgebraicGeometry.Scheme.DeRham
 open AlgebraicGeometry.Scheme.DeRham.DerivedPushforward
 open RingedSite.Hom
+
+-- Use the same coefficient-module derived category as the recalled cup-product owner.
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasDerivedCategory
 
 /- Remark 50.4.2: a commutative square of schemes induces a canonical associative relative cup
 product on the derived direct image of Ω^•_{X/S} in D(Y, q⁻¹𝒪_T). -/
@@ -41,18 +38,8 @@ product on the derived direct image of Ω^•_{X/S} in D(Y, q⁻¹𝒪_T). -/
       (ModuleDerived (RingedSpace.DeRham.coefficientSite q.toLRSHom.toShHom))] →
     [(modulePullbackDerived
       (RingedSpace.DeRham.baseChangeHom (coefficientSheafedSquare f p q h sq))).OplaxMonoidal] →
-    [MonoidalCategory
-      (HomotopyCategory
-        (RingedSite.ModuleCat
-          (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom)) (up ℤ))] →
-    [(DerivedCategory.Qh :
-      HomotopyCategory
-        (RingedSite.ModuleCat
-          (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom)) (up ℤ) ⥤
-        ModuleDerived (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom)).Monoidal] →
-    [(HomotopyCategory.quotient
-        (RingedSite.ModuleCat
-          (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom)) (up ℤ)).LaxMonoidal] →
+    [(moduleLocalization
+        (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom)).LaxMonoidal] →
     (modulePushforwardDerived
         (RingedSpace.DeRham.baseChangeHom
           (coefficientSheafedSquare f p q h sq))).obj (derivedComplex p) ⊗

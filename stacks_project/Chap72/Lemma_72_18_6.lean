@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.Length
-public import Mathlib.Topology.Sober
-public import stacks_project.Chap66.Lemma_66_29_4_Stalk
-public import stacks_project.Chap72.Definition_72_18_3_Number
-public import stacks_project.Chap72.Lemma_72_4_7_IntegralClosed
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Intersection.Components
+import StacksCheckRecall
 
 /-!
 # Lemma 72.18.6
@@ -34,15 +25,15 @@ namespace Intersection
 -- Local instance justification (defeq pin): `HasInjectiveResolutions` and `higherDirectImage` pin the Abelian-induced `Preadditive`/`HasZeroMorphisms` instances for defeq of `higherDirectImage`.
 attribute [local instance 2000] Abelian.toPreadditive Preadditive.preadditiveHasZeroMorphisms
 
-/-- Lemma 72.18.6: in the situation of Definition 72.18.3, let `Z i ⊂ Z` be the
+/- Lemma 72.18.6: in the situation of Definition 72.18.3, let `Z i ⊂ Z` be the
 irreducible components of dimension `d`. Let
 `m i = length_{𝒪_{X, x̄ i}}(𝒪_{Z, x̄ i})` where `x̄ i` is a geometric generic
 point of `Z i`. Then
 `(L 0 ⋯ L (d - 1) · Z) = ∑ m i (L 0 ⋯ L (d - 1) · Z i)`. -/
-@[stacks 0EDI]
-theorem number_eq_sum_irreducibleComponents {k : Type u} [Field k]
+@[stacks 0EDI] #check (AlgebraicGeometry.AlgebraicSpace.Modules.Intersection.number_eq_sum_irreducibleComponents :
+  ∀ {k : Type u} [Field k]
     {X Z : AlgebraicSpace (Spec (CommRingCat.of k))} (i : Z ⟶ X)
-    [IsClosedImmersion i] [Proper (toBase X)] [IsDecent X]
+    [IsClosedImmersion i] [Proper (SchemeRealization.toBase X)] [IsDecent X]
     [IsLocallyNoetherian X] [IsLocallyNoetherian Z] {d : ℕ}
     (hZdim : dimension Z = d)
     [Abelian X.Modules] [Abelian Z.Modules]
@@ -75,8 +66,8 @@ theorem number_eq_sum_irreducibleComponents {k : Type u} [Field k]
           (stalkModuleCat (xbar a)
             ((AlgebraicSpace.Modules.pushforward i).obj
               (SheafOfModules.unit (structureSheaf Z) : Z.Modules))) =
-        m a) :
-    number i hZdim L = ∑ a : ι, (m a : ℚ) * number (iZ a) (h_dim a) L := sorry
+        m a),
+    number i hZdim L = ∑ a : ι, (m a : ℚ) * number (iZ a) (h_dim a) L)
 
 end Intersection
 end AlgebraicGeometry.AlgebraicSpace.Modules

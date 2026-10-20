@@ -1,12 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Abelian
+public import Mathlib.CategoryTheory.Comma.StructuredArrow.Small
+public import Mathlib.CategoryTheory.Sites.Equivalence
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Grothendieck
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite
 public import ReasLib.AlgebraicGeometry.RingedSite.Basic
@@ -36,13 +32,28 @@ abbrev ModuleCat.{z, u, v, w} (X : RingedSite.{u, v, w}) :=
 /-- The module category of a ringed site is abelian. -/
 instance moduleCatAbelian.{z, u, v, w}
     (X : RingedSite.{u, v, w}) [UnivLE.{max u v, z}] :
-    Abelian (ModuleCat.{z} X) where
-  toPreadditive := inferInstance
-  toIsNormalMonoCategory := sorry
-  toIsNormalEpiCategory := sorry
-  has_finite_products := sorry
-  has_kernels := sorry
-  has_cokernels := sorry
+    Abelian (ModuleCat.{z} X) := by
+  -- The supplied site-size bound permits the native plus construction at section universe `z`.
+  letI : Limits.PreservesFilteredColimitsOfSize.{max u v, max u v}
+      (forget AddCommGrpCat.{z}) :=
+    Limits.preservesFilteredColimitsOfSize_of_univLE (forget AddCommGrpCat.{z})
+  letI : HasSheafify X.siteTopology AddCommGrpCat.{z} := inferInstance
+  -- A genuine small site model transports the native local-bijectivity law.
+  letI : Small.{z} X.carrier :=
+    @Small.trans_univLE.{max u v, z, u} X.carrier (small_max.{v} X.carrier) inferInstance
+  letI : LocallySmall.{z} X.carrier :=
+    ⟨fun U V => @Small.trans_univLE.{max u v, z, v} (U ⟶ V)
+      (small_max.{u} (U ⟶ V)) inferInstance⟩
+  letI : EssentiallySmall.{z} X.carrier := inferInstance
+  letI : ∀ V : X.carrierᵒᵖ,
+      Small.{z} (StructuredArrow V (equivSmallModel X.carrier).inverse.op) :=
+    fun _ => inferInstance
+  letI : ∀ V : X.carrierᵒᵖ,
+      Limits.HasLimitsOfShape (StructuredArrow V (equivSmallModel X.carrier).inverse.op)
+        AddCommGrpCat.{z} := fun _ => inferInstance
+  letI : X.siteTopology.WEqualsLocallyBijective AddCommGrpCat.{z} :=
+    GrothendieckTopology.WEqualsLocallyBijective.ofEssentiallySmall X.siteTopology
+  exact SheafOfModules.instAbelian X.structureSheaf
 
 /-- Finite biproducts for bundled ringed-site module categories are derived from the canonical
 abelian owner and are shared by homological-complex and derived-category APIs. -/
@@ -119,5 +130,5 @@ noncomputable instance moduleIsGrothendieckAbelian :
 end RingedSite.CommRingPresentation
 
 
--- The `sorryAx` below is confined to the Prop-valued abelian law and existence fields;
--- the computational `toPreadditive` field is the canonical inferred instance.
+-- Products, kernels and cokernels above use the native module-sheaf constructions.
+-- Their existence witnesses contain the actual objects and maps.

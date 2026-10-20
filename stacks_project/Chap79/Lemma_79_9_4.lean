@@ -1,15 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Definition_66_3_1_Separation
-public import stacks_project.Chap68.Lemma_68_12_8_Decent
-public import stacks_project.Chap78.Definition_78_5_1_Group
-public import stacks_project.Chap79.Situation_79_9_2_OnField
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Group.Separation.Field
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.OnField.Separation
+import StacksCheckRecall
 
 /-!
 # Decent groups over fields and groupoids on fields are separated
@@ -28,27 +21,17 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.GroupoidAlgebraicSpace
-
-/-- Lemma 79.9.4 (1): in Situation 79.9.2, if the arrow algebraic space `G.R` is
-decent, then it is a separated algebraic space. -/
-@[stacks 08BH]
-theorem isAbsolutelySeparated {S : Scheme.{u}} {B : AlgebraicSpace S}
+/- Lemma 79.9.4: in Situation 79.9.2, a decent arrow algebraic space is
+separated. In Situation 79.9.1, a decent group algebraic space over a field is
+separated. -/
+@[stacks 08BH] #check (AlgebraicGeometry.GroupoidAlgebraicSpace.isAbsolutelySeparated :
+  ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) {k : Type u} [Field k]
-    (σ : Spec (.of k) ⟶ S) [IsOnField G σ] [AlgebraicSpace.IsDecent G.R.left] :
-    AlgebraicSpace.IsAbsolutelySeparated G.R.left := sorry
+    (σ : Spec (.of k) ⟶ S) [GroupoidAlgebraicSpace.IsOnField G σ]
+    [AlgebraicSpace.IsDecent G.R.left], AlgebraicSpace.IsAbsolutelySeparated G.R.left)
 
-end AlgebraicGeometry.GroupoidAlgebraicSpace
-
-namespace AlgebraicGeometry.GroupAlgebraicSpace
-
-/-- Lemma 79.9.4 (2): in Situation 79.9.1, if the group algebraic space `G` is
-decent, then it is a separated algebraic space. -/
-@[stacks 08BH, instance]
-instance instIsAbsolutelySeparated {S : Scheme.{u}} {k : Type u} [Field k]
-    {σ : Spec (.of k) ⟶ S}
+/- Lemma 79.9.4 (2): a decent group algebraic space over a field is separated. -/
+@[stacks 08BH] #check (AlgebraicGeometry.GroupAlgebraicSpace.instIsAbsolutelySeparated :
+  ∀ {S : Scheme.{u}} {k : Type u} [Field k] {σ : Spec (.of k) ⟶ S}
     (G : GroupAlgebraicSpace (AlgebraicSpace.ofOver (Over.mk σ)))
-    [AlgebraicSpace.IsDecent G.X.left] :
-    AlgebraicSpace.IsAbsolutelySeparated G.X.left := sorry
-
-end AlgebraicGeometry.GroupAlgebraicSpace
+    [AlgebraicSpace.IsDecent G.X.left], AlgebraicSpace.IsAbsolutelySeparated G.X.left)

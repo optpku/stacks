@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
@@ -31,7 +25,7 @@ namespace Algebra.Extension.NaiveCotangent
 
 variable {A : Type u} {B : Type v} [CommRing A] [CommRing B] [Algebra A B]
 
-/-- Definition 10.134.1, tag `07BN`: the naive cotangent complex of a presentation, viewed over
+/-- The naive cotangent complex of a presentation, viewed over
 an arbitrary coefficient ring along an explicit ring homomorphism. -/
 @[stacks 07BN "restriction along a ring homomorphism for naive cotangent complexes"]
 noncomputable abbrev restrictScalarsAlong
@@ -40,7 +34,7 @@ noncomputable abbrev restrictScalarsAlong
   ((ModuleCat.restrictScalars f).mapHomologicalComplex (ComplexShape.down ℕ)).obj
     (complex P)
 
-/-- Definition 10.134.1, tag `07BN`: the naive cotangent complex of a
+/-- The naive cotangent complex of a
 presentation, viewed over a smaller coefficient ring by restriction of
 scalars. -/
 @[stacks 07BN "restriction of scalars for naive cotangent complexes"]

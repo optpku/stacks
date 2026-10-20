@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.RingTheory.RingHom.Local.Properties
-public import stacks_project.Chap61.Lemma_61_5_3_Ring
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.RingTheory.RingHom.IndZariski.Refinement
+import StacksCheckRecall
 
 /-!
 # Proposition 61.6.6
@@ -23,24 +16,15 @@ universe u
 
 open Algebra.WLocalHull
 
-namespace RingHom.IndZariski
+#check (RingHom.IndZariski.wLocalization_comp :
+  ∀ {A B : Type u} [CommRing A] [CommRing B] {f : A →+* B},
+    f.IsIsoOnLocalRings →
+      ((algebraMap B (wLocalization B)).comp f).IndZariski)
 
-/-- If `f : A →+* B` identifies local rings, the composite of `f` with the
-structure map of `wLocalization B` is ind-Zariski. -/
-theorem wLocalization_comp {A B : Type u} [CommRing A] [CommRing B]
-    {f : A →+* B} (hf : f.IsIsoOnLocalRings) :
-    ((algebraMap B (wLocalization B)).comp f).IndZariski :=
-  sorry
-
-/-- Proposition 61.6.6: if `f : A →+* B` identifies local rings, then there
-exists a faithfully flat, ind-Zariski ring map `g : B →+* B'` such that
-`g.comp f` is ind-Zariski. -/
-@[stacks 097G]
-theorem exists_faithfullyFlat_of_isIsoOnLocalRings
-    {A B : Type u} [CommRing A] [CommRing B] {f : A →+* B}
-    (hf : f.IsIsoOnLocalRings) :
+/- Proposition 61.6.6: a ring map identifying local rings admits a faithfully
+flat ind-Zariski extension whose composite is ind-Zariski. -/
+@[stacks 097G] #check (RingHom.IndZariski.exists_faithfullyFlat_of_isIsoOnLocalRings :
+  ∀ {A B : Type u} [CommRing A] [CommRing B] {f : A →+* B},
+    f.IsIsoOnLocalRings →
     ∃ (B' : Type u) (_ : CommRing B') (g : B →+* B'),
-      g.FaithfullyFlat ∧ g.IndZariski ∧ (g.comp f).IndZariski :=
-  sorry
-
-end RingHom.IndZariski
+      g.FaithfullyFlat ∧ g.IndZariski ∧ (g.comp f).IndZariski)

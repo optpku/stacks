@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap73.Lemma_73_8_8_Site
 public import stacks_project.Chap73.Lemma_73_8_8_Big
+public import ReasLib.CategoryTheory.Limits.Over.FiniteLimits
 import StacksCheckRecall
 
 /-!
@@ -22,7 +17,6 @@ open CategoryTheory
 open CategoryTheory.Limits
 open Opposite
 open AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.Ph.Big
 open scoped MorphismOfTopoiIn
 
 noncomputable section
@@ -31,86 +25,64 @@ universe u
 
 namespace AlgebraicGeometry
 
-/- Lemma 73.8.8 -/
-@[stacks 0DFN] #check
-  (morphismOfTopoi :
-    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S},
-      (Y ⟶ X) → MorphismOfTopoiIn (bigPhSite X) (bigPhSite Y))
-
-section
-
 variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : Y ⟶ X)
 
+/- Lemma 73.8.8 -/
+@[stacks 0DFN] #check
+  (CategoryTheory.Over.Site.morphismOfTopoi.{u + 1, u + 1, u + 1} (phTopology S) f :
+    MorphismOfTopoiIn.{u + 1, u + 1, u + 1, u + 1, u + 1}
+      (bigPhSite X) (bigPhSite Y))
+
 /- Companion check: postcomposition is cocontinuous on the big ph sites. -/
-#check
-  (map_isCocontinuous f :
-    Functor.IsCocontinuous (map f) (bigPhSite Y) (bigPhSite X))
+#check (inferInstance :
+  Functor.IsCocontinuous (Over.map f) (bigPhSite Y) (bigPhSite X))
 
 /- Companion check: postcomposition is continuous on the big ph sites. -/
-#check
-  (map_isContinuous f :
-    Functor.IsContinuous (map f) (bigPhSite Y) (bigPhSite X))
+#check (inferInstance :
+  Functor.IsContinuous (Over.map f) (bigPhSite Y) (bigPhSite X))
 
 /- Companion check: pullback is the continuous right adjoint of postcomposition. -/
-#check
-  (mapPullbackAdjunction f : map f ⊣ Ph.Big.pullback f)
+#check (Over.Site.mapPullbackAdjunction f :
+  Over.map f ⊣ Over.pullback f)
 
-#check
-  (pullback_isContinuous f :
-    Functor.IsContinuous (Ph.Big.pullback f) (bigPhSite X) (bigPhSite Y))
+#check (inferInstance :
+  Functor.IsContinuous (Over.pullback f) (bigPhSite X) (bigPhSite Y))
 
 /- Companion check: the two direct-image presentations are canonically isomorphic. -/
-#check
-  (directImageIsoPullbackPresentation f :
-    directImage f ≅ continuousDirectImage f)
-
-/- Companion check: the bundled inverse image is the canonical inverse-image functor. -/
-#check
-  (morphismOfTopoi_inverseImage f :
-    (morphismOfTopoi f)⁻¹ = inverseImage f)
+#check (Over.Site.DirectImage.pullbackPresentation.{u + 1, u + 1, u + 1} (phTopology S) f :
+  (Over.Site.directImage.{u + 1, u + 1, u + 1} (phTopology S) f :
+    Sheaf (bigPhSite Y) (Type (u + 1)) ⥤ Sheaf (bigPhSite X) (Type (u + 1))) ≅
+      (Over.pullback f).sheafPushforwardContinuous
+        (Type (u + 1)) (bigPhSite X) (bigPhSite Y))
 
 /- Companion check: inverse image evaluates on the postcomposed slice object. -/
-#check
-  (inverseImage_obj_obj f :
-    ∀ (G : Sheaf (bigPhSite X) (Type (u + 1))) (U : Over Y),
-      (((inverseImage f).obj G).obj.obj (op U)) =
-        G.obj.obj (op ((map f).obj U)))
+#check (Over.Site.InverseImage.obj_eq (phTopology S) f :
+  ∀ (G : Sheaf (bigPhSite X) (Type (u + 1))) (U : Over Y),
+    ((Over.Site.inverseImage.{u + 1, u + 1, u + 1} (phTopology S) f).obj G).obj.obj (op U) =
+      G.obj.obj (op ((Over.map f).obj U)))
 
-/- Companion check: the bundled direct image is the canonical direct-image functor. -/
-#check
-  (morphismOfTopoi_pushforward f :
-    (morphismOfTopoi f).pushforward = directImage f)
+/- Companion check: direct image evaluates on the pullback slice object. -/
+#check (Over.Site.DirectImage.objIso.{u + 1, u + 1, u + 1} (phTopology S) f :
+  ∀ (F : Sheaf (bigPhSite Y) (Type (u + 1))) (U : Over X),
+    ((Over.Site.directImage.{u + 1, u + 1, u + 1} (phTopology S) f).obj F).obj.obj (op U) ≅
+      F.obj.obj (op ((Over.pullback f).obj U)))
 
-/- Companion check: direct image is canonically isomorphic to evaluation on the
-pullback slice object. -/
-#check
-  (directImage_objObjIso f :
-    ∀ (F : Sheaf (bigPhSite Y) (Type (u + 1))) (U : Over X),
-      (((directImage f).obj F).obj.obj (op U)) ≅
-        F.obj.obj (op ((Ph.Big.pullback f).obj U)))
-
-/- Companion check: the continuous direct-image presentation evaluates on the
-pullback slice object. -/
-#check
-  (continuousDirectImage_obj_obj f :
-    ∀ (F : Sheaf (bigPhSite Y) (Type (u + 1))) (U : Over X),
-      (((continuousDirectImage f).obj F).obj.obj (op U)) =
-        F.obj.obj (op ((Ph.Big.pullback f).obj U)))
-
-/- Companion check: lower shriek is left adjoint to inverse image. -/
-#check
-  (lowerShriekAdjunction f : lowerShriek f ⊣ inverseImage f)
+/- Companion check: lower shriek is left adjoint to the canonical inverse image. -/
+#check (Over.Site.LowerShriek.adjunction.{u + 1, u + 1, u + 1} (phTopology S) f :
+  (Over.Site.lowerShriek.{u + 1, u + 1, u + 1} (phTopology S) f :
+    Sheaf (bigPhSite Y) (Type (u + 1)) ⥤ Sheaf (bigPhSite X) (Type (u + 1))) ⊣
+      Over.Site.inverseImage.{u + 1, u + 1, u + 1} (phTopology S) f)
 
 /- Companion check: lower shriek preserves fibre products. -/
-#check
-  (lowerShriek_preservesPullbacks f :
-    PreservesLimitsOfShape WalkingCospan (lowerShriek f))
+#check (Over.Site.LowerShriek.Pullbacks.preservesPullbacks.{u + 1, u + 1, u + 1} (phTopology S) f :
+  PreservesLimitsOfShape WalkingCospan
+    (Over.Site.lowerShriek.{u + 1, u + 1, u + 1} (phTopology S) f :
+      Sheaf (bigPhSite Y) (Type (u + 1)) ⥤ Sheaf (bigPhSite X) (Type (u + 1))))
 
 /- Companion check: lower shriek preserves equalizers. -/
-#check
-  (lowerShriek_preservesEqualizers f :
-    PreservesLimitsOfShape WalkingParallelPair (lowerShriek f))
-
-end
+#check (Over.Site.LowerShriek.Pullbacks.preservesEqualizers.{u + 1, u + 1, u + 1} (phTopology S) f :
+  PreservesLimitsOfShape WalkingParallelPair
+    (Over.Site.lowerShriek.{u + 1, u + 1, u + 1} (phTopology S) f :
+      Sheaf (bigPhSite Y) (Type (u + 1)) ⥤ Sheaf (bigPhSite X) (Type (u + 1))))
 
 end AlgebraicGeometry

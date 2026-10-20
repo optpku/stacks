@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Flat
@@ -49,21 +43,26 @@ namespace IsMinimalModel
 
 /-- A minimal model morphism is flat. -/
 instance instFlat {R : Type u} [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
-    {X : Scheme.{u}} (f : X ⟶ Spec (CommRingCat.of R)) [IsMinimalModel f] : Flat f := sorry
+    {X : Scheme.{u}} (f : X ⟶ Spec (CommRingCat.of R)) [IsMinimalModel f] : Flat f :=
+  IsMinimalModel.flat
 
 /-- A minimal model morphism is of finite type. -/
 instance instFiniteType {R : Type u} [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
-    {X : Scheme.{u}} (f : X ⟶ Spec (CommRingCat.of R)) [IsMinimalModel f] : FiniteType f := sorry
+    {X : Scheme.{u}} (f : X ⟶ Spec (CommRingCat.of R)) [IsMinimalModel f] : FiniteType f :=
+  IsMinimalModel.finiteType
 
 /-- A minimal model morphism is proper. -/
 instance instIsProper {R : Type u} [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
-    {X : Scheme.{u}} (f : X ⟶ Spec (CommRingCat.of R)) [IsMinimalModel f] : IsProper f := sorry
+    {X : Scheme.{u}} (f : X ⟶ Spec (CommRingCat.of R)) [IsMinimalModel f] : IsProper f :=
+  IsMinimalModel.proper
 
 /-- The defining properties carried by a minimal model morphism. -/
 theorem spec {R : Type u} [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
     {X : Scheme.{u}} (f : X ⟶ Spec (CommRingCat.of R)) [IsMinimalModel f] :
     Flat f ∧ FiniteType f ∧ IsProper f ∧ Scheme.Regular X ∧
-      ∀ E : X.IdealSheafData, ¬ IsExceptionalCurveFirstKind E := sorry
+      ∀ E : X.IdealSheafData, ¬ IsExceptionalCurveFirstKind E :=
+  ⟨IsMinimalModel.flat, IsMinimalModel.finiteType, IsMinimalModel.proper,
+    IsMinimalModel.regular f, IsMinimalModel.noExceptionalCurve f⟩
 
 end IsMinimalModel
 

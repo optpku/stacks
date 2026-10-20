@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf
@@ -67,14 +61,14 @@ def toAddCommSheafMapIso {W : AlgebraicSpace S}
 def toSpacesAddCommSheaf {W : AlgebraicSpace S}
     (F : Sheaf (smallEtaleTopology W) AddCommGrpCat.{u + 1}) :
     Sheaf (spacesEtaleTopology W) AddCommGrpCat.{u + 1} :=
-  ((smallEtaleInclusion W).sheafPushforwardCocontinuous AddCommGrpCat.{u + 1}
+  ((smallEtaleToSpaces W).sheafPushforwardCocontinuous AddCommGrpCat.{u + 1}
       (smallEtaleTopology W) (spacesEtaleTopology W)).obj F
 
-/-- `toSpacesAddCommSheaf F` is cocontinuous extension along `smallEtaleInclusion`. -/
+/-- `toSpacesAddCommSheaf F` is cocontinuous extension along `smallEtaleToSpaces`. -/
 theorem toSpacesAddCommSheaf_eq {W : AlgebraicSpace S}
     (F : Sheaf (smallEtaleTopology W) AddCommGrpCat.{u + 1}) :
     toSpacesAddCommSheaf F =
-      ((smallEtaleInclusion W).sheafPushforwardCocontinuous AddCommGrpCat.{u + 1}
+      ((smallEtaleToSpaces W).sheafPushforwardCocontinuous AddCommGrpCat.{u + 1}
           (smallEtaleTopology W) (spacesEtaleTopology W)).obj F :=
   rfl
 
@@ -82,7 +76,7 @@ theorem toSpacesAddCommSheaf_eq {W : AlgebraicSpace S}
 def toSpacesAddCommSheafMapIso {W : AlgebraicSpace S}
     {F G : Sheaf (smallEtaleTopology W) AddCommGrpCat.{u + 1}} (e : F ≅ G) :
     toSpacesAddCommSheaf F ≅ toSpacesAddCommSheaf G :=
-  ((smallEtaleInclusion W).sheafPushforwardCocontinuous AddCommGrpCat.{u + 1}
+  ((smallEtaleToSpaces W).sheafPushforwardCocontinuous AddCommGrpCat.{u + 1}
       (smallEtaleTopology W) (spacesEtaleTopology W)).mapIso e
 
 /-- Identity-on-sections comparison `O_U ⟶ a_small⁻¹ O_W` for an étale morphism

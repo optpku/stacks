@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.TensorProduct
@@ -121,7 +115,7 @@ noncomputable def preimageTensorIsoWith (K L : DerivedCategory (ModuleCat R)) :
       ((DerivedCategory.quotientCompQhIso (ModuleCat R)).app
         (DerivedCategory.Q.objPreimage L))) ≪≫
     (DerivedCategory.Q.objObjPreimageIso K ⊗ᵢ DerivedCategory.Q.objObjPreimageIso L) ≪≫
-      T.tensorIsoObj K L
+      (T.objIsoTensor K L).symm
 
 /-- The derived cohomology product for a chosen derived-category presentation, transported
 through an explicit derived tensor model. -/

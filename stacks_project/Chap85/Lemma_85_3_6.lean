@@ -1,16 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.Additive
-public import Mathlib.Algebra.Homology.HomotopyCategory.KInjective
-public import Mathlib.CategoryTheory.Preadditive.Injective.Preserves
-public import ReasLib.CategoryTheory.Sites.AbelianSheaf.Additive
-public import stacks_project.Chap85.Lemma_85_3_5
+import StacksCheckRecall
+public import ReasLib.CategoryTheory.Sites.Simplicial.Injective
+public import ReasLib.CategoryTheory.Sites.Grothendieck.Injective
 
 /-!
 # Lemma 85.3.6
@@ -31,33 +23,23 @@ universe u v w
 namespace CategoryTheory.SimplicialSites
 
 variable (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
+variable [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
+variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
+    ((C.map φ).toFunctor).op.HasLeftKanExtension P]
 variable [IsMorphismDiagram C J] (n : SimplexCategory)
 variable [HasSheafify (topology C J) AddCommGrpCat.{w}]
 variable [HasSheafify (J n).toGrothendieck AddCommGrpCat.{w}]
 
-/-- Lemma 85.3.6 (1): if `I` is injective in `Ab(C_total)`, then the restriction
-`I_n` is injective in `Ab(C_n)`. -/
-@[stacks 09WH, instance]
-instance stageRestrict_preservesInjectiveObjects :
-    (stageRestrict C J AddCommGrpCat.{w} n).PreservesInjectiveObjects :=
-  sorry
+/- Lemma 85.3.6. Restriction to a component preserves injective abelian sheaves
+and K-injective cochain complexes in both presentations of a simplicial site. -/
+@[stacks 09WH] #check (CategoryTheory.SimplicialSites.stageRestrict_preservesInjectiveObjects C J n :
+  (stageRestrict C J AddCommGrpCat.{w} n).PreservesInjectiveObjects)
 
-/-- Restriction of an injective abelian sheaf on `C_total` along the degree-`n`
-inclusion is injective on `C_n`. -/
-theorem injective_stageRestrict (I : Sheaf (topology C J) AddCommGrpCat.{w})
-    [Injective I] :
-    Injective ((stageRestrict C J AddCommGrpCat.{w} n).obj I) :=
-  sorry
-
-/-- Lemma 85.3.6 (2): if `I` is a K-injective cochain complex in `Ab(C_total)`,
-then the restricted complex `I_n` is K-injective in `Ab(C_n)`. -/
-@[stacks 09WH, instance]
-instance stageRestrict_isKInjective
-    (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ)
-    [I.IsKInjective] :
+#check (CategoryTheory.SimplicialSites.stageRestrict_isKInjective C J n :
+  ∀ (I : CochainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℤ)
+    [I.IsKInjective],
     CochainComplex.IsKInjective
-      (((stageRestrict C J AddCommGrpCat.{w} n).mapHomologicalComplex (up ℤ)).obj I) :=
-  sorry
+      (((stageRestrict C J AddCommGrpCat.{w} n).mapHomologicalComplex (up ℤ)).obj I))
 
 end CategoryTheory.SimplicialSites
 
@@ -68,28 +50,13 @@ variable [IsFiberwiseSite F J] (n : SimplexCategory)
 variable [HasSheafify (topology F J) AddCommGrpCat.{w}]
 variable [HasSheafify (J (op n)).toGrothendieck AddCommGrpCat.{w}]
 
-/-- Lemma 85.3.6 (3): in case B, if `I` is injective in `Ab(C_total)`, then the
-restriction `I_n` is injective in `Ab(C_n)`. -/
-@[stacks 09WH, instance]
-instance fiberRestrict_preservesInjectiveObjects :
-    (fiberRestrict F J AddCommGrpCat.{w} n).PreservesInjectiveObjects :=
-  sorry
+#check (CategoryTheory.Grothendieck.fiberRestrict_preservesInjectiveObjects F J n :
+  (fiberRestrict F J AddCommGrpCat.{w} n).PreservesInjectiveObjects)
 
-/-- Restriction of an injective abelian sheaf on `C_total` along the degree-`n`
-fiber inclusion is injective on `C_n`. -/
-theorem injective_fiberRestrict (I : Sheaf (topology F J) AddCommGrpCat.{w})
-    [Injective I] :
-    Injective ((fiberRestrict F J AddCommGrpCat.{w} n).obj I) :=
-  sorry
-
-/-- Lemma 85.3.6 (4): in case B, if `I` is a K-injective cochain complex in
-`Ab(C_total)`, then the restricted complex `I_n` is K-injective in `Ab(C_n)`. -/
-@[stacks 09WH, instance]
-instance fiberRestrict_isKInjective
-    (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ)
-    [I.IsKInjective] :
+#check (CategoryTheory.Grothendieck.fiberRestrict_isKInjective F J n :
+  ∀ (I : CochainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℤ)
+    [I.IsKInjective],
     CochainComplex.IsKInjective
-      (((fiberRestrict F J AddCommGrpCat.{w} n).mapHomologicalComplex (up ℤ)).obj I) :=
-  sorry
+      (((fiberRestrict F J AddCommGrpCat.{w} n).mapHomologicalComplex (up ℤ)).obj I))
 
 end CategoryTheory.Grothendieck

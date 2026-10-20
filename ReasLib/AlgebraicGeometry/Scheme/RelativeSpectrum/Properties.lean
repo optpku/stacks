@@ -1,15 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Pullbacks
 public import Mathlib.CategoryTheory.RepresentedBy
 public import ReasLib.AlgebraicGeometry.Scheme.RelativeSpectrum.BaseChange
 public import ReasLib.AlgebraicGeometry.Scheme.RelativeSpectrum.Construction
+public import ReasLib.AlgebraicGeometry.Scheme.RelativeSpectrum.Representability
 
 /-!
 # Properties of relative-spectrum models
@@ -66,13 +61,17 @@ theorem isAffineOpen_preimage_relativeSpec
 
 /-- Base change identifies an explicit relative-spectrum model with a model of the explicitly
 specified pulled-back algebra, as objects over the new base. -/
-theorem nonempty_iso_over_pullback_relativeSpec
+noncomputable def nonempty_iso_over_pullback_relativeSpec
     (A : S.QcAlgebraUnder) (P : RelativeSpectrumOver A) [IsRelativeSpectrumOver P]
     (g : S' ⟶ S) (A' : S'.QcAlgebraUnder)
     (pullbackData : RelativeSpectrumPullback g A A')
     (P' : RelativeSpectrumOver A') [IsRelativeSpectrumOver P'] :
-    Nonempty
-      (Over.mk (pullback.snd (relativeSpecπ P) g) ≅ Over.mk (relativeSpecπ P')) := sorry
+    Over.mk (pullback.snd (relativeSpecπ P) g) ≅ Over.mk (relativeSpecπ P') :=
+  nonempty_iso_over_of_realizesRelativeSpectrum_and_isRepresentedBy A'
+    (realizesRelativeSpectrum_pullback_snd A (relativeSpecπ P)
+      (IsRelativeSpectrumOver.realizes (P := P)) g A' pullbackData)
+    (relativeSpecPoint P')
+    (relativeSpecPoint_isRepresentedBy P')
 
 /-- The universal algebra map carried by an explicit relative-spectrum model is an
 isomorphism. -/

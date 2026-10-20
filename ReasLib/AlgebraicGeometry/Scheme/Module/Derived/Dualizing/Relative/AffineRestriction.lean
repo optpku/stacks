@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.AffineOpenSquare
@@ -17,15 +11,22 @@ public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Quasicoherent.Pull
 @[expose] public section
 
 open CategoryTheory CategoryTheory.Limits
+open scoped TensorProduct
 
 noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.RelativeDualizingComplex
 
 variable {X S : Scheme.{u}} {f : X ⟶ S}
 variable [Flat f] [LocallyOfFinitePresentation f]
+variable [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+  DerivedCategory.DerivedTensor.Right.Has
+    (C := RingedSpace.Modules
+      ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
 variable {W : (pullback f f).Opens} {δ : X ⟶ W.toScheme} [IsClosedImmersion δ]
 variable {hδ : δ ≫ W.ι = pullback.diagonal f}
 variable [MonoidalCategory (RingedSpace.ModuleDerived X.toRingedSpace)]
@@ -67,7 +68,12 @@ theorem affineRestriction_def
 immersions is relative dualizing for the induced affine algebra map. -/
 theorem affineRestriction_isRelativeDualizingComplex
     {R A : Type u} [CommRing R] [CommRing A] [Algebra R A]
+    [DerivedCategory.InternalHom.RHom.Has (A := A ⊗[R] A)]
     {X S : Scheme.{u}} (f : X ⟶ S) [Flat f] [LocallyOfFinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     (W : (pullback f f).Opens) (δ : X ⟶ W.toScheme) [IsClosedImmersion δ]
     (hδ : δ ≫ W.ι = pullback.diagonal f)
     [MonoidalCategory (RingedSpace.ModuleDerived X.toRingedSpace)]
@@ -80,7 +86,7 @@ theorem affineRestriction_isRelativeDualizingComplex
     (hcomm : j ≫ f = Spec.map (CommRingCat.ofHom (algebraMap R A)) ≫ i) :
     @CategoryTheory.DerivedCategory.IsRelativeDualizingComplex R _ A _ _
       (Scheme.Hom.flatOfOpenSquare f j i hcomm)
-      (Scheme.Hom.finitePresentationOfOpenSquare f j i hcomm)
+      (Scheme.Hom.finitePresentationOfOpenSquare f j i hcomm) inferInstance
       (C.affineRestriction j) := sorry
 
 end AlgebraicGeometry.Scheme.RelativeDualizingComplex

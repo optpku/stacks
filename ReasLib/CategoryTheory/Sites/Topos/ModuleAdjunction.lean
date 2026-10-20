@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.Topos.InternalModule
@@ -48,6 +42,55 @@ noncomputable def homOfUnderlying (R : Sheaf J RingCat.{w})
             map_add' := ha U
             map_smul' := hs U }
       naturality := sorry }
+
+/-- Lift an isomorphism of underlying sheaf-valued functors whose forward components
+preserve addition and scalar multiplication. The given inverse functions are retained. -/
+noncomputable def functorIsoOfUnderlying {A : Type u₁} [Category.{v₁} A]
+    (R : Sheaf J RingCat.{w}) {F G : A ⥤ SheafOfModules.{w} R}
+    (e : F ⋙ ToInternal.underlying R ≅ G ⋙ ToInternal.underlying R)
+    (ha : ∀ M U (x y : (F.obj M).val.obj U),
+      underlyingApp R (e.hom.app M) U (x + y) =
+        underlyingApp R (e.hom.app M) U x + underlyingApp R (e.hom.app M) U y)
+    (hs : ∀ M U (r : R.obj.obj U) (x : (F.obj M).val.obj U),
+      underlyingApp R (e.hom.app M) U (r • x) =
+        r • underlyingApp R (e.hom.app M) U x) : F ≅ G :=
+  NatIso.ofComponents
+    (fun M ↦ (SheafOfModules.fullyFaithfulForget R).preimageIso
+      (PresheafOfModules.isoMk (fun U ↦
+        LinearEquiv.toModuleIso
+          { ((((sheafToPresheaf J (Type w)).mapIso (e.app M)).app U).toEquiv) with
+            map_add' := ha M U
+            map_smul' := hs M U }) (by sorry))) (by sorry)
+
+/-- The lifted forward map is the supplied underlying component function. -/
+@[simp]
+theorem functorIsoOfUnderlying_hom_app {A : Type u₁} [Category.{v₁} A]
+    (R : Sheaf J RingCat.{w}) {F G : A ⥤ SheafOfModules.{w} R}
+    (e : F ⋙ ToInternal.underlying R ≅ G ⋙ ToInternal.underlying R)
+    (ha : ∀ M U (x y : (F.obj M).val.obj U),
+      underlyingApp R (e.hom.app M) U (x + y) =
+        underlyingApp R (e.hom.app M) U x + underlyingApp R (e.hom.app M) U y)
+    (hs : ∀ M U (r : R.obj.obj U) (x : (F.obj M).val.obj U),
+      underlyingApp R (e.hom.app M) U (r • x) =
+        r • underlyingApp R (e.hom.app M) U x)
+    (M : A) (U : Cᵒᵖ) (x : (F.obj M).val.obj U) :
+    (((functorIsoOfUnderlying R e ha hs).hom.app M).val.app U).hom x =
+      underlyingApp R (e.hom.app M) U x := rfl
+
+/-- The lifted inverse map is the supplied inverse component function. -/
+@[simp]
+theorem functorIsoOfUnderlying_inv_app {A : Type u₁} [Category.{v₁} A]
+    (R : Sheaf J RingCat.{w}) {F G : A ⥤ SheafOfModules.{w} R}
+    (e : F ⋙ ToInternal.underlying R ≅ G ⋙ ToInternal.underlying R)
+    (ha : ∀ M U (x y : (F.obj M).val.obj U),
+      underlyingApp R (e.hom.app M) U (x + y) =
+        underlyingApp R (e.hom.app M) U x + underlyingApp R (e.hom.app M) U y)
+    (hs : ∀ M U (r : R.obj.obj U) (x : (F.obj M).val.obj U),
+      underlyingApp R (e.hom.app M) U (r • x) =
+        r • underlyingApp R (e.hom.app M) U x)
+    (M : A) (U : Cᵒᵖ) (x : (G.obj M).val.obj U) :
+    (((functorIsoOfUnderlying R e ha hs).inv.app M).val.app U).hom x =
+      underlyingApp R (e.inv.app M) U x := rfl
 
 end CategoryTheory.Sheaf.InternalModule
 

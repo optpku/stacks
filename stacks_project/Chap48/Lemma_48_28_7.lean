@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Quasicoherent.RelativeDualizing.ProperFlat
@@ -19,6 +13,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 /- Lemma 48.28.7: let `S` be a quasi-compact and quasi-separated scheme and let
 `f : X ⟶ S` be a proper flat morphism of finite presentation. The relative dualizing
 complex associated to a chosen right adjoint of derived quasicoherent pushforward,
@@ -28,6 +24,10 @@ together with the chosen diagonal-adjunction isomorphism, is a relative dualizin
     ∀ {X S : Scheme.{u}} (f : X ⟶ S)
       [CompactSpace S] [QuasiSeparatedSpace S]
       [IsProper f] [Flat f] [Scheme.Hom.FinitePresentation f]
+      [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+        DerivedCategory.DerivedTensor.Right.Has
+          (C := RingedSpace.Modules
+            ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
       [HomotopyTensorDescends X.toRingedSpace]
       [TensorDescends X.toRingedSpace]
       [IsLocalization X.toRingedSpace]

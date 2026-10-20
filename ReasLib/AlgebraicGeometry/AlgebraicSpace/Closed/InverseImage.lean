@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Immersion
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Subspace
 
 /-!
 # Inverse images of closed subspaces of algebraic spaces
@@ -98,6 +93,12 @@ instance instIsClosedImmersion_inverseImageι {S : Scheme.{u}}
     {X Y Z : AlgebraicSpace S} (f : Y ⟶ X) (i : Z ⟶ X) [IsClosedImmersion i] :
     IsClosedImmersion (inverseImageι f i) :=
   IsClosedImmersion.of_isPullback (inverseImage_isPullback f i)
+
+/-- The inverse image of a bundled closed subspace is the closed subspace whose
+inclusion is the canonical fibre-product projection. -/
+def ClosedSubspace.inverseImageSubspace {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (Z : ClosedSubspace X) (f : Y ⟶ X) : ClosedSubspace Y :=
+  ClosedSubspace.ofι (@inverseImageι S X Y Z.X f Z.ι Z.isClosedImmersion)
 
 /-- The inverse image, its projections, and its closed-immersion and pullback properties. -/
 theorem inverseImage_spec {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}

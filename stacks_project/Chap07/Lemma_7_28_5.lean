@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.CostructuredArrowTopology.Topos
@@ -27,8 +21,8 @@ resulting square induces the stated direct-image comparison. -/
 
 @[stacks 0D5R] #check @CostructuredArrow.CocontinuousOver.toOver_isCocontinuous
 
-@[stacks 0D5R] #check @CostructuredArrow.CocontinuousOver.square_nonempty
+@[stacks 0D5R] #check @CostructuredArrow.CocontinuousOver.catCommSq
 
-@[stacks 0D5R] #check @CostructuredArrow.CocontinuousOver.directImageComparison_nonempty
+@[stacks 0D5R] #check @CostructuredArrow.CocontinuousOver.directImageComparison
 
 end CategoryTheory

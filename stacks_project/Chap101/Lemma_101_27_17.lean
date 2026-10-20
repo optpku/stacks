@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_4_1_Separation
-public import stacks_project.Chap101.Definition_101_14_2_UniversallyInjective
-public import stacks_project.Chap101.Lemma_101_25_5_Surjective
-public import stacks_project.Chap101.Lemma_101_25_5_Flat
-public import stacks_project.Chap106.Lemma_106_10_1_LocallyOfFinitePresentation
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Separation.Fppf
+import StacksCheckRecall
 
 /-!
 # Cancellation of separatedness along an fppf universally injective morphism
@@ -29,15 +20,15 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack.Separated
 
-/-- Lemma 101.27.17: Let `f : X ⟶ Y` and `g : Y ⟶ Z` be morphisms of algebraic
+/- Lemma 101.27.17: Let `f : X ⟶ Y` and `g : Y ⟶ Z` be morphisms of algebraic
 stacks. If `f` is surjective, flat, locally of finite presentation, and
 universally injective, and if `f ≫ g` is separated, then `g` is separated. -/
-@[stacks 0CPQ]
-theorem of_comp_of_fppf_universallyInjective {S : Scheme.{u}}
+@[stacks 0CPQ] #check
+  (AlgebraicGeometry.AlgebraicStack.Separated.of_comp_of_fppf_universallyInjective :
+    ∀ {S : Scheme.{u}}
     {X Y Z : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
     [AlgebraicStack Z] (f : X ⟶ Y) (g : Y ⟶ Z) [Surjective f] [Flat f]
     [LocallyOfFinitePresentation f] [UniversallyInjective f]
-    [Separated (f ≫ g)] : Separated g :=
-  sorry
+    [Separated (f ≫ g)], Separated g)
 
 end AlgebraicGeometry.AlgebraicStack.Separated

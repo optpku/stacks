@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.LowerShriek
@@ -87,6 +81,9 @@ variable [UnivLE.{max u v, max u v}]
 noncomputable abbrev moduleInverseImage :
     ModuleDerived.{max u v} C.p.inheritedRingedSite ⥤
       ModuleDerived.{max u v} C'.p.inheritedRingedSite :=
+  -- These are the same canonical standard models fixed by the two ModuleDerived aliases.
+  letI := moduleCat_hasDerivedCategory.{max u v} C.p.inheritedRingedSite
+  letI := moduleCat_hasDerivedCategory.{max u v} C'.p.inheritedRingedSite
   (moduleInverseImageExact f).mapDerivedCategory
 
 /-- The exact derived abelian inverse image for a morphism of fibred categories. -/
@@ -171,6 +168,8 @@ noncomputable def underivedUnderlyingIso :
 noncomputable def underlyingIso :
     moduleInverseImage f ⋙ underlyingAbelianSheafDerived C'.p.inheritedRingedSite ≅
       underlyingAbelianSheafDerived C.p.inheritedRingedSite ⋙ abelianInverseImage f :=
+  letI := moduleCat_hasDerivedCategory.{max u v} C.p.inheritedRingedSite
+  letI := moduleCat_hasDerivedCategory.{max u v} C'.p.inheritedRingedSite
   (ExactFunctor.MapDerivedCategory.compFunctorIso
       (moduleInverseImageExact f)
       (underlyingAbelianSheafExactFunctor C'.p.inheritedRingedSite)).symm ≪≫

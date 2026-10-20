@@ -1,32 +1,15 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap78.Lemma_78_26_2_Square
-
-@[expose] public section
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Inertia.Square
+import StacksCheckRecall
 
 universe u
 
-open CategoryTheory AlgebraicGeometry AlgebraicSpace
-open GroupoidAlgebraicSpace
-open scoped Bicategory
-
-namespace AlgebraicGeometry.GroupoidAlgebraicSpace
-
-/-- Lemma 78.26.2: Assume `B → S` and `(U, R, s, t, c)` as in Definition 78.20.1 (1). Let
-`G / U` be the stabilizer group algebraic space of the groupoid
-`(U, R, s, t, c, e, i)`, see Definition 78.16.2. There is a canonical `2`-cartesian
-diagram of stacks in groupoids on `(Sch/S)_fppf` with vertices `𝒮_G`, `𝒮_U`,
-`I_{[U/R]}`, `[U/R]`, legs `𝒮_G ⟶ I_{[U/R]}` and `𝒮_G ⟶ 𝒮_U`, and cospan
-`I_{[U/R]} ⟶ [U/R]` (forget) and `𝒮_U ⟶ [U/R]` (atlas). -/
-@[stacks 06PC, instance]
-instance inertiaCone_isBilimit {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) :
-    (inertiaCone G).IsBilimit := sorry
-
-end AlgebraicGeometry.GroupoidAlgebraicSpace
+/- Lemma 78.26.2: The stack of points of the stabilizer is the canonical two-fibre product
+of the inertia of the quotient stack and the stack of points of the object space over the
+quotient stack. -/
+@[stacks 06PC] #check
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.inertiaCone_isBilimit :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}} {B : AlgebraicGeometry.AlgebraicSpace S}
+      (G : AlgebraicGeometry.GroupoidAlgebraicSpace B),
+      (AlgebraicGeometry.GroupoidAlgebraicSpace.inertiaCone G).IsBilimit)

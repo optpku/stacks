@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap68.Lemma_68_4_4_Fibre
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale.FiniteAbove
+import StacksCheckRecall
 
 /-!
 # Finite étale chart fibres over a point of an algebraic space
@@ -24,21 +19,16 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 68.4.4: Let `S` be a scheme. Let `X` be an algebraic space over `S`. Let
-`x` be a point of `|X|`. Let `U` be a scheme and let `φ : ofOver U ⟶ X` be an
-étale morphism. The following are equivalent: `x` is in the image of `|U| → |X|`,
-and setting `R = U ×_X U` the fibres of both `|U| → |X|` and `|R| → |X|` over `x`
-are finite; and there exists a monomorphism `Spec(k) ⟶ X` with `k` a field in the
-equivalence class of `x` such that `Spec(k) ×_X U` is a finite nonempty scheme
-over `k`. -/
-@[stacks 040U]
-theorem etaleChartFiniteAbove_iff {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {U : Over S} (φ : ofOver U ⟶ X) [Etale φ] (x : Points X) :
-    (x ∈ Set.range (Points.mapOfOver φ) ∧ finiteFibreOver φ x ∧
-      selfPullbackFibreFiniteOver φ x) ↔
-      existsMonoFieldValuedFiniteNonemptyFibre φ x :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+/- Lemma 68.4.4. For an étale morphism from a scheme to an algebraic space,
+image membership and finite fibres of both the chart and its self-pullback over
+a point are equivalent to a monomorphic field-valued representative whose scheme
+fibre is finite and nonempty over its field. -/
+@[stacks 040U] #check (AlgebraicGeometry.AlgebraicSpace.etaleChartFiniteAbove_iff :
+  ∀ {S : Scheme.{u}} {X : AlgebraicGeometry.AlgebraicSpace S} {U : Over S}
+    (φ : AlgebraicGeometry.AlgebraicSpace.ofOver U ⟶ X)
+    [AlgebraicGeometry.AlgebraicSpace.Etale φ]
+    (x : AlgebraicGeometry.AlgebraicSpace.Points X),
+    (x ∈ Set.range (AlgebraicGeometry.AlgebraicSpace.Points.mapOfOver φ) ∧
+      AlgebraicGeometry.AlgebraicSpace.finiteFibreOver φ x ∧
+      AlgebraicGeometry.AlgebraicSpace.selfPullbackFibreFiniteOver φ x) ↔
+      AlgebraicGeometry.AlgebraicSpace.existsMonoFieldValuedFiniteNonemptyFibre φ x)

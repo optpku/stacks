@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension.TorAmplitude
@@ -28,6 +22,8 @@ Tor-amplitude in a fixed interval. -/
 @[stacks 09UD]
 theorem hasTorAmplitudeIn_iff_pullback_of_surjective_of_flat
     {X Y : LocallyRingedSpace.{u}} (f : X ⟶ Y)
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules X.toRingedSpace)]
+    [DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Y.toRingedSpace)]
     [RingedSpace.Hom.IsFlat f.toShHom] (h_surjective : Function.Surjective f.base)
     (E : RingedSpace.ModuleDerived Y.toRingedSpace) (a b : ℤ) :
     RingedSpace.HasTorAmplitudeIn E a b ↔

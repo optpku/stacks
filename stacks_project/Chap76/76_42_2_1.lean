@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.«76_42_2_1_Category»
-public import stacks_project.Chap76.«76_42_2_1_Completion»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CoherentFormalModule.Completion
 import StacksCheckRecall
 
 @[expose] public section
@@ -25,5 +18,5 @@ variable (I : IdealSubobject X) [IsQuasiCoherent I]
 `Coh(𝒪_X) ⟶ Coh(X, I)`,
 `F ↦ completion F`.
 -/
-@[stacks 08B4] #check
-  (CoherentCompletion.functor I : Coh X ⥤ CoherentFormalModules X I)
+@[stacks 08B4] #check (AlgebraicGeometry.AlgebraicSpace.CoherentCompletion.functor I :
+  Coh X ⥤ CoherentFormalModules X I)

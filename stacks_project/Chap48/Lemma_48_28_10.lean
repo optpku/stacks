@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Dualizing.Relative.Composition
@@ -17,6 +11,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.RelativeDualizingComplex
 
 /- Lemma 48.28.10 -/
@@ -24,6 +20,18 @@ namespace AlgebraicGeometry.Scheme.RelativeDualizingComplex
     ∀ {S X Y : Scheme.{u}} (f : Y ⟶ X) (g : X ⟶ S)
     [Flat f] [LocallyOfFinitePresentation f] [QuasiCompact f]
     [Flat g] [LocallyOfFinitePresentation g] [QuasiCompact g]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase g.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase g.toShHom).restrict U.isOpenEmbedding))]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase (f ≫ g).toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase (f ≫ g).toShHom).restrict U.isOpenEmbedding))]
     (WK : (pullback g g).Opens) (δK : X ⟶ WK.toScheme) [IsClosedImmersion δK]
     (hδK : δK ≫ WK.ι = pullback.diagonal g)
     [MonoidalCategory (RingedSpace.ModuleDerived X.toRingedSpace)]

@@ -1,27 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap110.Lemma_110_43_1_Cotangent
-public import ReasLib.Algebra.Category.CommRingCat.Under.FreeAlgebra
-public import Mathlib.Algebra.Category.ModuleCat.Differentials.Basic
-public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
-public import Mathlib.Algebra.Homology.Embedding.Basic
-public import Mathlib.Algebra.Homology.Embedding.Extend
-public import Mathlib.RingTheory.Kaehler.Basic
-public import Mathlib.Algebra.Homology.HomotopyCategory.MappingCone
+public import ReasLib.RingTheory.CotangentComplex.Comparison
 
 /-!
-# Kernel-to-differentials comparison of a polynomial presentation
-
-This leaf owns the two-term `A`-module complex `J ⟶ Ω_{P/A} ⊗_P B` of a polynomial
-presentation `φ : A[E] ⟶ B`, the canonical map `P ⟶ P_0` to the standard degree-zero
-term, and the evaluation of `𝒥 ⟶ Ω` into the standard-resolution mapping cone that
-computes `Lπ_!(𝒥 ⟶ Ω)` in `D(A)`.
+# Compatibility names for polynomial-presentation cotangent comparisons
 -/
 
 @[expose] public section
@@ -42,312 +24,194 @@ namespace CotangentComplex
 
 open CommRingCat.Under.FreeAlgebra
 
-/-- The kernel of a polynomial presentation `φ : A[E] ⟶ B`, viewed as an `A`-module. -/
-def kernelModule (A : CommRingCat.{u}) (B : Under A) (E : Type u)
+abbrev kernelModule (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) : ModuleCat.{u} A :=
-  (ModuleCat.restrictScalars ((functor A).obj E).hom.hom).obj
-    (ModuleCat.of ((functor A).obj E).right (RingHom.ker φ.right.hom))
+  Comparison.kernelModule A B E φ
 
-/-- The module `Ω_{P/A} ⊗_P B` of a polynomial presentation, viewed as an `A`-module. -/
-def differentialsModule (A : CommRingCat.{u}) (B : Under A) (E : Type u)
+abbrev differentialsModule (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) : ModuleCat.{u} A :=
-  (ModuleCat.restrictScalars B.hom.hom).obj
-    ((ModuleCat.extendScalars φ.right.hom).obj
-      (CommRingCat.KaehlerDifferential ((functor A).obj E).hom))
+  Comparison.differentialsModule A B E φ
 
-/-- The differential `J ⟶ Ω_{P/A} ⊗_P B` of a polynomial presentation, as an `A`-module map. -/
-def kernelToDifferentials (A : CommRingCat.{u}) (B : Under A) (E : Type u)
+abbrev kernelToDifferentials (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) :
     kernelModule A B E φ ⟶ differentialsModule A B E φ :=
-  let P := (functor A).obj E
-  ConcreteCategory.ofHom
-    { toFun := fun j ↦
-        (1 : B.right) ⊗ₜ[P.right, φ.right.hom]
-          (CommRingCat.KaehlerDifferential.d (j : RingHom.ker φ.right.hom).1)
-      map_add' := sorry
-      map_smul' := sorry }
+  Comparison.kernelToDifferentials A B E φ
 
-/-- The two-term chain complex `J ⟶ Ω_{P/A} ⊗_P B` of a polynomial presentation. -/
-def kernelDifferentialsChain (A : CommRingCat.{u}) (B : Under A) (E : Type u)
+abbrev kernelDifferentialsChain (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) : ChainComplex (ModuleCat.{u} A) ℕ :=
-  ChainComplex.mk'
-    (differentialsModule A B E φ)
-    (kernelModule A B E φ)
-    (kernelToDifferentials A B E φ)
-    (fun {_ _} _ ↦ ⟨0, 0, zero_comp⟩)
+  Comparison.kernelDifferentialsChain A B E φ
 
-/-- The two-term cochain complex `(J ⟶ Ω_{P/A} ⊗_P B)` of a polynomial presentation, placed
-in cohomological degrees `-1` and `0`. -/
-def kernelDifferentialsComplex (A : CommRingCat.{u}) (B : Under A) (E : Type u)
+abbrev kernelDifferentialsComplex (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) : CochainComplex (ModuleCat.{u} A) ℤ :=
-  (kernelDifferentialsChain A B E φ).extend ComplexShape.embeddingDownNat
+  Comparison.kernelDifferentialsComplex A B E φ
 
-/-- Identification of the degree-`0` term with `Ω_{P/A} ⊗_P B`. -/
-def kernelDifferentialsComplex_X_zero (A : CommRingCat.{u}) (B : Under A) (E : Type u)
+abbrev kernelDifferentialsComplex_X_zero (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) :
     (kernelDifferentialsComplex A B E φ).X 0 ≅ differentialsModule A B E φ :=
-  extendXIso (kernelDifferentialsChain A B E φ) ComplexShape.embeddingDownNat
-    (rfl : ComplexShape.embeddingDownNat.f 0 = 0)
+  Comparison.kernelDifferentialsComplex_X_zero A B E φ
 
-/-- Identification of the degree-`-1` term with the kernel `J`. -/
-def kernelDifferentialsComplex_X_negOne (A : CommRingCat.{u}) (B : Under A) (E : Type u)
+abbrev kernelDifferentialsComplex_X_negOne (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) :
     (kernelDifferentialsComplex A B E φ).X (-1) ≅ kernelModule A B E φ :=
-  extendXIso (kernelDifferentialsChain A B E φ) ComplexShape.embeddingDownNat
-    (rfl : ComplexShape.embeddingDownNat.f 1 = -1)
+  Comparison.kernelDifferentialsComplex_X_negOne A B E φ
 
-/-- The differential in degrees `-1 ⟶ 0` is `kerToTensor`, as an `A`-module map. -/
 theorem kernelDifferentialsComplex_d (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) :
     (kernelDifferentialsComplex A B E φ).d (-1) 0 =
       (kernelDifferentialsComplex_X_negOne A B E φ).hom ≫
         kernelToDifferentials A B E φ ≫
-          (kernelDifferentialsComplex_X_zero A B E φ).inv := sorry
+          (kernelDifferentialsComplex_X_zero A B E φ).inv :=
+  Comparison.kernelDifferentialsComplex_d A B E φ
 
-/-- The canonical `A`-algebra map from a polynomial presentation `P = A[E]` to the standard
-degree-zero term `P_0`, induced by `E ⟶ |B|` along `φ`. -/
-def toStandard (A : CommRingCat.{u}) (B : Under A) (E : Type u)
+abbrev toStandard (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) :
     (functor A).obj E ⟶ standardTerm A B (op ⦋0⦌) :=
-  (functor A).map ((adjunction A).homEquiv E B φ)
+  Comparison.toStandard A B E φ
 
-/-- `L_{B/A}` viewed as a complex of `A`-modules by restriction of scalars. -/
 abbrev objRestrictScalars (A : CommRingCat.{u}) (B : Under A) :
     CochainComplex (ModuleCat.{u} A) ℤ :=
-  ((ModuleCat.restrictScalars B.hom.hom).mapHomologicalComplex (ComplexShape.up ℤ)).obj
-    (obj A B)
+  Comparison.objRestrictScalars A B
 
-/-- The map of relative Kähler differentials induced by `toStandard`. -/
-def comparisonDifferentialsMap (A : CommRingCat.{u}) (B : Under A) (E : Type u)
+abbrev comparisonDifferentialsMap (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) :
     CommRingCat.KaehlerDifferential ((functor A).obj E).hom ⟶
       (ModuleCat.restrictScalars (toStandard A B E φ).right.hom).obj
         (CommRingCat.KaehlerDifferential (standardTerm A B (op ⦋0⦌)).hom) :=
-  CommRingCat.KaehlerDifferential.map
-    ((Category.id_comp (standardTerm A B (op ⦋0⦌)).hom).trans (toStandard A B E φ).w.symm)
+  Comparison.comparisonDifferentialsMap A B E φ
 
-/-- The polynomial presentation `φ` is recovered by composing `toStandard` with the
-standard-resolution augmentation. -/
 theorem toStandard_comp_augmentation_hom (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) :
     φ.right.hom =
-      (standardAugmentation A B (op ⦋0⦌)).hom.comp (toStandard A B E φ).right.hom := sorry
+      (standardAugmentation A B (op ⦋0⦌)).hom.comp (toStandard A B E φ).right.hom :=
+  Comparison.toStandard_comp_augmentation_hom A B E φ
 
-/-- Degree-`0` component of the comparison, as a map `Ω_{P/A} ⊗_P B ⟶ Ω_{P_0/A} ⊗_{P_0} B`
-of `A`-modules. -/
-def comparison_f_zero (A : CommRingCat.{u}) (B : Under A) (E : Type u)
+abbrev comparison_f_zero (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) :
     differentialsModule A B E φ ⟶
       (ModuleCat.restrictScalars B.hom.hom).obj ((simplicialModule A B).obj (op ⦋0⦌)) :=
-  (ModuleCat.restrictScalars B.hom.hom).map
-    (((ModuleCat.extendRestrictScalarsAdj φ.right.hom).homEquiv _ _).symm
-      (comparisonDifferentialsMap A B E φ ≫
-        (ModuleCat.restrictScalars (toStandard A B E φ).right.hom).map
-          ((ModuleCat.extendRestrictScalarsAdj
-              (standardAugmentation A B (op ⦋0⦌)).hom).unit.app _) ≫
-        (ModuleCat.restrictScalarsComp'
-          (toStandard A B E φ).right.hom
-          (standardAugmentation A B (op ⦋0⦌)).hom
-          φ.right.hom
-          (toStandard_comp_augmentation_hom A B E φ)).inv.app _))
+  Comparison.comparison_f_zero A B E φ
 
-/-- The kernel of the standard-resolution augmentation `P_n ⟶ B`, as an `A`-module. -/
-def standardKernelModule (A : CommRingCat.{u}) (B : Under A) (n : SimplexCategoryᵒᵖ) :
+abbrev standardKernelModule (A : CommRingCat.{u}) (B : Under A) (n : SimplexCategoryᵒᵖ) :
     ModuleCat.{u} A :=
-  (ModuleCat.restrictScalars (standardTerm A B n).hom.hom).obj
-    (ModuleCat.of (standardTerm A B n).right
-      (RingHom.ker (standardAugmentation A B n).hom))
+  Comparison.standardKernelModule A B n
 
-/-- Unfolding of `standardKernelModule` as restriction of scalars of the kernel of the
-standard-resolution augmentation. -/
 theorem standardKernelModule_eq (A : CommRingCat.{u}) (B : Under A) (n : SimplexCategoryᵒᵖ) :
     standardKernelModule A B n =
       (ModuleCat.restrictScalars (standardTerm A B n).hom.hom).obj
         (ModuleCat.of (standardTerm A B n).right
-          (RingHom.ker (standardAugmentation A B n).hom)) := sorry
+          (RingHom.ker (standardAugmentation A B n).hom)) :=
+  Comparison.standardKernelModule_eq A B n
 
-/-- The `A`-module map on kernels induced by a simplicial operator of the polynomial
-resolution. -/
-def standardKernelMap (A : CommRingCat.{u}) (B : Under A)
+abbrev standardKernelMap (A : CommRingCat.{u}) (B : Under A)
     {n m : SimplexCategoryᵒᵖ} (φ : n ⟶ m) :
     standardKernelModule A B n ⟶ standardKernelModule A B m :=
-  ConcreteCategory.ofHom
-    { toFun := fun j ↦
-        ⟨(standardMap A B φ).right (j : RingHom.ker (standardAugmentation A B n).hom).1, sorry⟩
-      map_add' := sorry
-      map_smul' := sorry }
+  Comparison.standardKernelMap A B φ
 
-/-- The simplicial `A`-module of kernels `Ker(P_n ⟶ B)` of the standard polynomial resolution. -/
-def kernelSimplicial (A : CommRingCat.{u}) (B : Under A) :
-    SimplicialObject (ModuleCat.{u} A) where
-  obj n := standardKernelModule A B n
-  map φ := standardKernelMap A B φ
-  map_id n := sorry
-  map_comp φ ψ := sorry
+abbrev kernelSimplicial (A : CommRingCat.{u}) (B : Under A) :
+    SimplicialObject (ModuleCat.{u} A) :=
+  Comparison.kernelSimplicial A B
 
-/-- Degreewise, `kernelSimplicial` is the kernel of the corresponding standard-resolution
-augmentation. -/
 theorem kernelSimplicial_obj (A : CommRingCat.{u}) (B : Under A) (n : SimplexCategoryᵒᵖ) :
-    (kernelSimplicial A B).obj n = standardKernelModule A B n := sorry
+    (kernelSimplicial A B).obj n = standardKernelModule A B n :=
+  Comparison.kernelSimplicial_obj A B n
 
-/-- The differential `Ker(P_n ⟶ B) ⟶ Ω_{P_n/A} ⊗_{P_n} B` of a standard-resolution term, as an
-`A`-module map. -/
-def standardKernelToDifferentials (A : CommRingCat.{u}) (B : Under A) (n : SimplexCategoryᵒᵖ) :
+abbrev standardKernelToDifferentials (A : CommRingCat.{u}) (B : Under A) (n : SimplexCategoryᵒᵖ) :
     standardKernelModule A B n ⟶
       (ModuleCat.restrictScalars B.hom.hom).obj ((simplicialModule A B).obj n) :=
-  ConcreteCategory.ofHom
-    { toFun := fun j ↦
-        (1 : B.right) ⊗ₜ[(standardTerm A B n).right, (standardAugmentation A B n).hom]
-          (CommRingCat.KaehlerDifferential.d
-            (j : RingHom.ker (standardAugmentation A B n).hom).1)
-      map_add' := sorry
-      map_smul' := sorry }
+  Comparison.standardKernelToDifferentials A B n
 
-/-- The simplicial map `𝒥(P_•) ⟶ Ω(P_•)` on the standard polynomial resolution, as `A`-modules. -/
-def kernelSimplicialToOmega (A : CommRingCat.{u}) (B : Under A) :
+abbrev kernelSimplicialToOmega (A : CommRingCat.{u}) (B : Under A) :
     kernelSimplicial A B ⟶
-      simplicialModule A B ⋙ ModuleCat.restrictScalars B.hom.hom where
-  app n := standardKernelToDifferentials A B n
-  naturality _ _ _ := sorry
+      simplicialModule A B ⋙ ModuleCat.restrictScalars B.hom.hom :=
+  Comparison.kernelSimplicialToOmega A B
 
-/-- The alternating-face chain complex of `Ker(P_n ⟶ B)`. -/
-def standardKernelChain (A : CommRingCat.{u}) (B : Under A) :
+abbrev standardKernelChain (A : CommRingCat.{u}) (B : Under A) :
     ChainComplex (ModuleCat.{u} A) ℕ :=
-  (alternatingFaceMapComplex (ModuleCat.{u} A)).obj (kernelSimplicial A B)
+  Comparison.standardKernelChain A B
 
-/-- The cochain complex of `A`-modules associated to `Ker(P_n ⟶ B)`, placed in nonpositive
-cohomological degrees. -/
-def standardKernelComplex (A : CommRingCat.{u}) (B : Under A) :
+abbrev standardKernelComplex (A : CommRingCat.{u}) (B : Under A) :
     CochainComplex (ModuleCat.{u} A) ℤ :=
-  (standardKernelChain A B).extend ComplexShape.embeddingDownNat
+  Comparison.standardKernelComplex A B
 
-/-- Identification of the cohomological degree `-n` term of `standardKernelComplex` with
-`Ker(P_n ⟶ B)`. -/
-def standardKernelComplex_X (A : CommRingCat.{u}) (B : Under A) (n : ℕ) :
+abbrev standardKernelComplex_X (A : CommRingCat.{u}) (B : Under A) (n : ℕ) :
     (standardKernelComplex A B).X (-n) ≅ standardKernelModule A B (op ⦋n⦌) :=
-  extendXIso (standardKernelChain A B) ComplexShape.embeddingDownNat
-    (rfl : ComplexShape.embeddingDownNat.f n = -n)
+  Comparison.standardKernelComplex_X A B n
 
-/-- Components of the cochain map `Ker(P_• ⟶ B) ⟶ L_{B/A}` after restriction of scalars to `A`. -/
-def standardKernelToOmega_f (A : CommRingCat.{u}) (B : Under A) :
-    ∀ i : ℤ, (standardKernelComplex A B).X i ⟶ (objRestrictScalars A B).X i
-  | Int.ofNat 0 =>
-      (standardKernelComplex_X A B 0).hom ≫
-        standardKernelToDifferentials A B (op ⦋0⦌) ≫
-          (ModuleCat.restrictScalars B.hom.hom).map (objXIso A B 0).inv
-  | Int.negSucc n =>
-      (standardKernelComplex_X A B (n + 1)).hom ≫
-        standardKernelToDifferentials A B (op ⦋n + 1⦌) ≫
-          (ModuleCat.restrictScalars B.hom.hom).map (objXIso A B (n + 1)).inv
-  | Int.ofNat (_n + 1) => 0
+abbrev standardKernelToOmega_f (A : CommRingCat.{u}) (B : Under A) :
+    ∀ i : ℤ, (standardKernelComplex A B).X i ⟶ (objRestrictScalars A B).X i :=
+  Comparison.standardKernelToOmega_f A B
 
-/-- The cochain map `Ker(P_• ⟶ B) ⟶ L_{B/A}` of `A`-modules induced by `j ↦ 1 ⊗ d(j)` on each
-standard-resolution term. -/
-def standardKernelToOmega (A : CommRingCat.{u}) (B : Under A) :
-    standardKernelComplex A B ⟶ objRestrictScalars A B where
-  f := standardKernelToOmega_f A B
-  comm' := sorry
+abbrev standardKernelToOmega (A : CommRingCat.{u}) (B : Under A) :
+    standardKernelComplex A B ⟶ objRestrictScalars A B :=
+  Comparison.standardKernelToOmega A B
 
-/-- Degree `0` of `standardKernelToOmega` is `1 ⊗ d` on `Ker(P_0 ⟶ B)`. -/
 theorem standardKernelToOmega_f_zero (A : CommRingCat.{u}) (B : Under A) :
     (standardKernelToOmega A B).f 0 =
       (standardKernelComplex_X A B 0).hom ≫
         standardKernelToDifferentials A B (op ⦋0⦌) ≫
-          (ModuleCat.restrictScalars B.hom.hom).map (objXIso A B 0).inv := sorry
+          (ModuleCat.restrictScalars B.hom.hom).map (objXIso A B 0).inv :=
+  Comparison.standardKernelToOmega_f_zero A B
 
-/-- The homotopy cofiber of `standardKernelToOmega` exists by biproducts in `ModuleCat`. -/
 instance hasHomotopyCofiber_standardKernelToOmega (A : CommRingCat.{u}) (B : Under A) :
-    HasHomotopyCofiber (standardKernelToOmega A B) := inferInstance
+    HasHomotopyCofiber (standardKernelToOmega A B) :=
+  Comparison.hasHomotopyCofiber_standardKernelToOmega A B
 
-/-- The mapping cone of `𝒥(P_•) ⟶ Ω(P_•)`, computing `Lπ_!(𝒥 ⟶ Ω)` on the standard polynomial
-resolution. -/
-def standardEvaluationCone (A : CommRingCat.{u}) (B : Under A) :
+abbrev standardEvaluationCone (A : CommRingCat.{u}) (B : Under A) :
     CochainComplex (ModuleCat.{u} A) ℤ :=
-  CochainComplex.mappingCone (standardKernelToOmega A B)
+  Comparison.standardEvaluationCone A B
 
-/-- Unfolding of `standardEvaluationCone` as the mapping cone of `standardKernelToOmega`. -/
 theorem standardEvaluationCone_eq (A : CommRingCat.{u}) (B : Under A) :
     standardEvaluationCone A B =
-      CochainComplex.mappingCone (standardKernelToOmega A B) := sorry
+      CochainComplex.mappingCone (standardKernelToOmega A B) :=
+  Comparison.standardEvaluationCone_eq A B
 
-/-- The inclusion of `L_{B/A}` into the mapping cone of `𝒥(P_•) ⟶ Ω(P_•)`. -/
-def omegaInr (A : CommRingCat.{u}) (B : Under A) :
+abbrev omegaInr (A : CommRingCat.{u}) (B : Under A) :
     objRestrictScalars A B ⟶ standardEvaluationCone A B :=
-  CochainComplex.mappingCone.inr (standardKernelToOmega A B)
+  Comparison.omegaInr A B
 
-/-- `omegaInr` is the mapping-cone inclusion of the `Ω` rows. -/
 theorem omegaInr_eq (A : CommRingCat.{u}) (B : Under A) :
-    omegaInr A B = CochainComplex.mappingCone.inr (standardKernelToOmega A B) := sorry
+    omegaInr A B = CochainComplex.mappingCone.inr (standardKernelToOmega A B) :=
+  Comparison.omegaInr_eq A B
 
-/-- The map on kernels induced by `toStandard : P ⟶ P_0`. -/
-def kernelToStandard (A : CommRingCat.{u}) (B : Under A) (E : Type u)
+abbrev kernelToStandard (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) :
     kernelModule A B E φ ⟶ standardKernelModule A B (op ⦋0⦌) :=
-  ConcreteCategory.ofHom
-    { toFun := fun j ↦
-        ⟨(toStandard A B E φ).right (j : RingHom.ker φ.right.hom).1, sorry⟩
-      map_add' := sorry
-      map_smul' := sorry }
+  Comparison.kernelToStandard A B E φ
 
-/-- `toStandard` sends `Ker(φ)` into `Ker(P_0 ⟶ B)`. -/
 theorem toStandard_mem_ker (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) (j : RingHom.ker φ.right.hom) :
-    (standardAugmentation A B (op ⦋0⦌)).hom ((toStandard A B E φ).right j.1) = 0 := sorry
+    (standardAugmentation A B (op ⦋0⦌)).hom ((toStandard A B E φ).right j.1) = 0 :=
+  Comparison.toStandard_mem_ker A B E φ j
 
-/-- Naturality of `1 ⊗ d` along `toStandard`. -/
 theorem kernelToStandard_comp_standardKernelToDifferentials
     (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) :
     kernelToStandard A B E φ ≫ standardKernelToDifferentials A B (op ⦋0⦌) =
-      kernelToDifferentials A B E φ ≫ comparison_f_zero A B E φ := sorry
+      kernelToDifferentials A B E φ ≫ comparison_f_zero A B E φ :=
+  Comparison.kernelToStandard_comp_standardKernelToDifferentials A B E φ
 
-/-- The relation `ComplexShape.up ℤ` used to include the degree-zero kernel into the mapping
-cone in cohomological degree `-1`. -/
-theorem up_rel_negOne_zero : ComplexShape.Rel (ComplexShape.up ℤ) (-1) 0 := rfl
+theorem up_rel_negOne_zero : ComplexShape.Rel (ComplexShape.up ℤ) (-1) 0 :=
+  Comparison.up_rel_negOne_zero
 
-/-- Components of the evaluation map from a polynomial presentation into the standard-resolution
-mapping cone of `𝒥 ⟶ Ω`. -/
-def evaluationToMappingCone_f (A : CommRingCat.{u}) (B : Under A) (E : Type u)
+abbrev evaluationToMappingCone_f (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) :
     ∀ i : ℤ,
       (kernelDifferentialsComplex A B E φ).X i ⟶ (standardEvaluationCone A B).X i :=
-  fun i ↦
-    if h0 : i = 0 then
-      eqToHom (congrArg (kernelDifferentialsComplex A B E φ).X h0) ≫
-        (kernelDifferentialsComplex_X_zero A B E φ).hom ≫
-          comparison_f_zero A B E φ ≫
-            (ModuleCat.restrictScalars B.hom.hom).map (objXIso A B 0).inv ≫
-              (omegaInr A B).f 0 ≫
-                eqToHom (congrArg (standardEvaluationCone A B).X h0.symm)
-    else if h1 : i = -1 then
-      eqToHom (congrArg (kernelDifferentialsComplex A B E φ).X h1) ≫
-        (kernelDifferentialsComplex_X_negOne A B E φ).hom ≫
-          kernelToStandard A B E φ ≫
-            (standardKernelComplex_X A B 0).inv ≫
-              HomologicalComplex.homotopyCofiber.inlX (standardKernelToOmega A B) 0 (-1)
-                up_rel_negOne_zero ≫
-                eqToHom (congrArg (standardEvaluationCone A B).X h1.symm)
-    else
-      0
+  Comparison.evaluationToMappingCone_f A B E φ
 
-/-- The cochain map evaluating `𝒥 ⟶ Ω` at a polynomial presentation `φ` and sending the result
-to the standard-resolution computation of `Lπ_!(𝒥 ⟶ Ω)`. Degree `0` is the map of Kähler
-differentials along `toStandard`; degree `-1` is the induced map on kernels `J ⟶ Ker(P_0 ⟶ B)`. -/
-def evaluationToMappingCone (A : CommRingCat.{u}) (B : Under A) (E : Type u)
+abbrev evaluationToMappingCone (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) :
-    kernelDifferentialsComplex A B E φ ⟶ standardEvaluationCone A B where
-  f := evaluationToMappingCone_f A B E φ
-  comm' := sorry
+    kernelDifferentialsComplex A B E φ ⟶ standardEvaluationCone A B :=
+  Comparison.evaluationToMappingCone A B E φ
 
-/-- Degree `0` of `evaluationToMappingCone` is `comparison_f_zero` followed by `omegaInr`. -/
 theorem evaluationToMappingCone_f_zero (A : CommRingCat.{u}) (B : Under A) (E : Type u)
     (φ : (functor A).obj E ⟶ B) :
     (evaluationToMappingCone A B E φ).f 0 =
       (kernelDifferentialsComplex_X_zero A B E φ).hom ≫
         comparison_f_zero A B E φ ≫
           (ModuleCat.restrictScalars B.hom.hom).map (objXIso A B 0).inv ≫
-            (omegaInr A B).f 0 := sorry
-
+            (omegaInr A B).f 0 :=
+  Comparison.evaluationToMappingCone_f_zero A B E φ
 
 end CotangentComplex
 end CategoryTheory.CommRingCat.Under

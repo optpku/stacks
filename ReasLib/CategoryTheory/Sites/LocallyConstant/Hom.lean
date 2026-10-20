@@ -1,16 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Module.FinitePresentation
 public import Mathlib.Algebra.Category.ModuleCat.Basic
 public import Mathlib.CategoryTheory.Linear.FunctorCategory
 public import Mathlib.CategoryTheory.Sites.SheafHom
-public import ReasLib.CategoryTheory.Sites.LocallyConstant.Basic
+public import ReasLib.CategoryTheory.Sites.LocallyConstant.FinitePresentation
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -186,64 +180,11 @@ theorem sheaf_obj (X : Cᵒᵖ) :
 
 end LocalIso
 
-namespace LocallyConstant
-
-variable [HasWeakSheafify J (ModuleCat.{max u v w} Λ)]
-variable [∀ U : C, HasWeakSheafify (J.over U) (ModuleCat.{max u v w} Λ)]
-
-/-- A module-valued sheaf is locally constant with finitely presented constant models. This is
-the chart-level bridge used when the intrinsic finite-presentation predicate is owned by a
-different presentation of module sheaves. -/
-@[stacks 093T "finite-presentation constant models"]
-abbrev IsFinitePresentation
-    (F : Sheaf J (ModuleCat.{max u v w} Λ)) : Prop :=
-  IsLocallyConstantWith (J := J)
-    (fun M : ModuleCat.{max u v w} Λ ↦ Module.FinitePresentation Λ M) F
-
-/-- The object property selecting locally constant module sheaves with finitely presented
-constant models. -/
-abbrev finitePresentation :
-    ObjectProperty (Sheaf J (ModuleCat.{max u v w} Λ)) :=
-  fun F ↦ IsFinitePresentation F
-
-namespace IsFinitePresentation
-
-/-- The finitely presented constant charts supplied by a locally constant module sheaf of finite
-presentation. -/
-theorem existsConstantCover
-    (F : Sheaf J (ModuleCat.{max u v w} Λ)) [IsFinitePresentation F] (U : C) :
-    ∃ (I : Type (max u v)) (X : I → Over U), (J.over U).CoversTop X ∧
-      ∀ i : I, ∃ M : ModuleCat.{max u v w} Λ, Module.FinitePresentation Λ M ∧
-        Nonempty (F.over (X i).left ≅
-          (constantSheaf (J.over (X i).left) (ModuleCat.{max u v w} Λ)).obj M) := sorry
-
-/-- Forgetting finite presentation of the constant models leaves ordinary local constancy. -/
-instance toIsLocallyConstant
-    (F : Sheaf J (ModuleCat.{max u v w} Λ)) [IsFinitePresentation F] :
-    IsLocallyConstant F := sorry
-
-/-- Local finite presentation by constant models is invariant under sheaf isomorphism. -/
-theorem of_iso {F G : Sheaf J (ModuleCat.{max u v w} Λ)}
-    (e : F ≅ G) [IsFinitePresentation F] :
-    IsFinitePresentation G := sorry
-
-/-- A constant sheaf on a finitely presented module has finitely presented constant models. -/
-@[stacks 093T "finitely presented constant sheaf"]
-instance ofConstant
-    (M : ModuleCat.{max u v w} Λ) [Module.FinitePresentation Λ M]
-    [J.WEqualsLocallyBijective (ModuleCat.{max u v w} Λ)]
-    [∀ U : C, (J.over U).WEqualsLocallyBijective (ModuleCat.{max u v w} Λ)] :
-    IsFinitePresentation ((constantSheaf J (ModuleCat.{max u v w} Λ)).obj M) := sorry
-
-end IsFinitePresentation
-
-end LocallyConstant
-
 section ConstantComparisons
 
 variable [HasWeakSheafify J (ModuleCat.{max u v w} Λ)]
 
-/-- Lemma 18.43.4 (093T) (1): for a finitely presented module `M`, local morphisms
+/-- For a finitely presented module `M`, local morphisms
 between the constant sheaves on `M` and `N` form the constant sheaf on `M ⟶ N`. -/
 @[stacks 093T "(1)"]
 theorem LocalHom.isIsomorphic_constant
@@ -257,7 +198,7 @@ theorem LocalHom.isIsomorphic_constant
 
 variable [HasWeakSheafify J (Type (max u v w))]
 
-/-- Lemma 18.43.4 (093T) (2): for finitely presented modules `M` and `N`, local
+/-- For finitely presented modules `M` and `N`, local
 isomorphisms between their constant sheaves form the constant sheaf on `M ≅ N`. -/
 @[stacks 093T "(2)"]
 theorem LocalIso.isIsomorphic_constant
@@ -276,7 +217,7 @@ section LocallyConstantComparisons
 variable [HasWeakSheafify J (ModuleCat.{max u v w} Λ)]
 variable [∀ U : C, HasWeakSheafify (J.over U) (ModuleCat.{max u v w} Λ)]
 
-/-- Lemma 18.43.4 (093T) (3): local Hom from a locally constant module sheaf with finitely
+/-- Local Hom from a locally constant module sheaf with finitely
 presented constant models to a locally constant module sheaf is locally constant. -/
 @[stacks 093T "(3)"]
 theorem LocalHom.isLocallyConstant
@@ -287,7 +228,7 @@ theorem LocalHom.isLocallyConstant
 variable [HasWeakSheafify J (Type (max u v w))]
 variable [∀ U : C, HasWeakSheafify (J.over U) (Type (max u v w))]
 
-/-- Lemma 18.43.4 (093T) (4): local isomorphisms between locally constant module sheaves with
+/-- Local isomorphisms between locally constant module sheaves with
 finitely presented constant models form a locally constant sheaf of types. -/
 @[stacks 093T "(4)"]
 theorem LocalIso.isLocallyConstant

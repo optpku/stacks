@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.SymmetricAlgebra.QuotientChart
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.CanonicalAlgebra
-public import ReasLib.AlgebraicGeometry.Scheme.RelativeProj.AffineSectionMap
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Associated.Affine
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Monoidal
 public import ReasLib.CategoryTheory.Monoidal.InvertibleQuotient
 
@@ -87,8 +81,7 @@ def sectionMap : sections E ⟶ Y.toRingedSpace.moduleGlobalSectionsFunctor.obj
 /-- The actual affine counit identifies E with its associated section sheaf;
 the map is the adjoint of m ↦ iota(m)/1. -/
 def sheafMap : E ⟶ (Scheme.Modules.pushforward (projection E)).obj (line E) :=
-  (Scheme.RelativeProjAffineSectionRing.associatedCounitIso
-    (S := Y) E inferInstance).inv ≫
+  (Scheme.Modules.associatedCounitIso Y E inferInstance).inv ≫
       (RingedSpace.Module.Associated.idHomEquiv Y.toRingedSpace _ _).symm (sectionMap E)
 
 def quotientHom : (Scheme.Modules.pullback (projection E)).obj E ⟶ line E :=

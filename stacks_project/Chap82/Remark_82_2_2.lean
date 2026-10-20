@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Topology.Sober
-public import stacks_project.Chap65.Definition_65_13_2_Separation
-public import stacks_project.Chap66.Lemma_66_4_6_Topology
-public import stacks_project.Chap67.Definition_67_4_2_Separation
-public import stacks_project.Chap67.Definition_67_40_1_FiniteType
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Sober
+import StacksCheckRecall
 
 /-!
 # Sobriety of points of a good algebraic space
@@ -27,23 +18,22 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Remark 82.2.2: in Situation 82.2.1, if `X / B` is good, then `Points X` is a sober
-topological space. Good means the structure morphism `f : X ⟶ B` is `QuasiSeparated`
-and `LocallyOfFiniteType`, over a quasi-separated base `B`; sober means `T0Space` and
-`QuasiSober`. -/
+/- Remark 82.2.2: in Situation 82.2.1, a good algebraic space `X / B` has a sober
+space of points. The setup assumes a quasi-separated, locally Noetherian,
+universally catenary base with a dimension function, and a quasi-separated,
+locally finite type structure morphism. Only the displayed separation hypotheses
+are needed for sobriety, which means both `T0Space` and `QuasiSober`. -/
 @[stacks 0EDU]
-theorem points_sober_of_quasiSeparated {S : Scheme.{u}} {B X : AlgebraicSpace S}
-    [IsQuasiSeparated B] (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f] :
-    T0Space (Points X) ∧ QuasiSober (Points X) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.points_sober_of_quasiSeparated :
+  ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S} [IsQuasiSeparated B]
+    (f : X ⟶ B) [QuasiSeparated f], T0Space (Points X) ∧ QuasiSober (Points X))
 
-/-- Every irreducible closed subset of `Points X` has a unique generic point, when `X / B`
-is good over a quasi-separated base. -/
-theorem existsUnique_isGenericPoint_of_quasiSeparated {S : Scheme.{u}}
-    {B X : AlgebraicSpace S} [IsQuasiSeparated B] (f : X ⟶ B) [QuasiSeparated f]
-    [LocallyOfFiniteType f] {T : Set (Points X)} (hT_irred : IsIrreducible T)
-    (hT_closed : IsClosed T) :
-    ∃! x : Points X, IsGenericPoint x T :=
-  sorry
+/- Every irreducible closed subset of the space of points has a unique generic
+point, in particular for a good algebraic space in Situation 82.2.1. -/
+#check (AlgebraicGeometry.AlgebraicSpace.existsUnique_isGenericPoint_of_quasiSeparated :
+  ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S} [IsQuasiSeparated B]
+    (f : X ⟶ B) [QuasiSeparated f] {T : Set (Points X)}
+    (hT_irred : IsIrreducible T) (hT_closed : IsClosed T),
+    ∃! x : Points X, IsGenericPoint x T)
 
 end AlgebraicGeometry.AlgebraicSpace

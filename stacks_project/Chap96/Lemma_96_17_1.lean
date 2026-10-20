@@ -1,82 +1,40 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.Grp.Abelian
-public import Mathlib.CategoryTheory.Preadditive.Injective.Preserves
-public import Mathlib.CategoryTheory.Sites.CoverLifting
-public import ReasLib.AlgebraicGeometry.RingedSite.Fibered.Inherited.Topos
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.Basic
-public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module
-public import ReasLib.AlgebraicGeometry.Scheme.Sites.LiftedStructureSheaf
-public import ReasLib.CategoryTheory.Fibered.Groupoids.Hom
-public import ReasLib.CategoryTheory.Fibered.InheritedTopology.Morphism
-public import stacks_project.Chap96.Definition_96_4_1_AssociatedTopology
-
-/-!
-# Pushforward of injective sheaves on categories fibred in groupoids
-
-A 1-morphism of categories fibred in groupoids over `(Sch/S)_fppf` has exact
-inverse image, so its associated direct image preserves injective objects on
-abelian sheaves and on modules for every standard topology `τ`.
--/
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.AbelianSheaf.Injective
+public import ReasLib.AlgebraicGeometry.RingedSite.Fibered.Inherited.Injective
+import StacksCheckRecall
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry FiberedCategoryOver.Groupoids
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.GroupoidsOver
-
-variable {S : Scheme.{u}}
-
-/-- Lemma 96.17.1 (1): the abelian sheaf pushforward `f_*` associated to a
-1-morphism of categories fibred in groupoids over `(Sch/S)_fppf` preserves
-injective objects of `Ab(X_τ)` for every standard topology `τ`. -/
-@[stacks 06WX, instance]
-instance sheafPushforwardCocontinuous_preservesInjectiveObjects
+/- Lemma 96.17.1: direct image along a morphism of categories fibred in groupoids
+preserves injective abelian sheaves and injective modules for every standard topology. -/
+@[stacks 06WX] #check (AlgebraicGeometry.GroupoidsOver.sheafPushforwardCocontinuous_preservesInjectiveObjects :
+    ∀ {S : Scheme.{u}}
     {X Y : GroupoidsOver S} (f : X ⟶ Y) (τ : StandardTopology)
     [∀ P : X.totalᵒᵖ ⥤ AddCommGrpCat.{u + 1},
-      (toCartesianBasedFunctor f).toFunctor.op.HasPointwiseRightKanExtension P] :
+      (toCartesianBasedFunctor f).toFunctor.op.HasPointwiseRightKanExtension P],
     ((toCartesianBasedFunctor f).toFunctor.sheafPushforwardCocontinuous
         AddCommGrpCat.{u + 1} (X.associatedTopology τ)
-        (Y.associatedTopology τ)).PreservesInjectiveObjects :=
-  sorry
+        (Y.associatedTopology τ)).PreservesInjectiveObjects)
 
-/-- Objectwise form of abelian sheaf pushforward preserving injectives. -/
-theorem injective_sheafPushforwardCocontinuous
+#check (AlgebraicGeometry.GroupoidsOver.injective_sheafPushforwardCocontinuous :
+    ∀ {S : Scheme.{u}}
     {X Y : GroupoidsOver S} (f : X ⟶ Y) (τ : StandardTopology)
     [∀ P : X.totalᵒᵖ ⥤ AddCommGrpCat.{u + 1},
       (toCartesianBasedFunctor f).toFunctor.op.HasPointwiseRightKanExtension P]
-    (I : Sheaf (X.associatedTopology τ) AddCommGrpCat.{u + 1}) [Injective I] :
+    (I : Sheaf (X.associatedTopology τ) AddCommGrpCat.{u + 1}) [Injective I],
     Injective
       (((toCartesianBasedFunctor f).toFunctor.sheafPushforwardCocontinuous
           AddCommGrpCat.{u + 1} (X.associatedTopology τ)
-          (Y.associatedTopology τ)).obj I) :=
-  sorry
+          (Y.associatedTopology τ)).obj I))
 
-/-- Groupoid fibrations over the universe-lifted big `τ`-ringed site of `S` are
-the objects of `GroupoidsOver S`, because that ringed site has underlying
-category `Over S`. -/
-theorem groupoidsOver_liftedRingedSite (τ : StandardTopology) :
-    FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u}
-        (StandardTopology.Big.liftedRingedSite τ S) =
-      GroupoidsOver S :=
-  sorry
-
-/-- Lemma 96.17.1 (2): the module pushforward `f_*` associated to a 1-morphism
-of categories fibred in groupoids over `(Sch/S)_fppf` preserves injective
-objects of `Mod(X_τ, O_X)` for every standard topology `τ`. -/
-@[stacks 06WX, instance]
-instance modulePushforward_preservesInjectiveObjects
+#check (AlgebraicGeometry.GroupoidsOver.modulePushforward_preservesInjectiveObjects :
+    ∀ {S : Scheme.{u}}
     (τ : StandardTopology)
     {X Y : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u}
       (StandardTopology.Big.liftedRingedSite τ S)}
@@ -89,12 +47,11 @@ instance modulePushforward_preservesInjectiveObjects
       (toCartesianBasedFunctor f).toFunctor.op.HasPointwiseRightKanExtension P]
     [(τ.overTopology S).HasSheafCompose (forget RingCat.{u + 1})]
     [(X.p.inheritedTopology (τ.overTopology S)).HasSheafCompose (forget RingCat.{u + 1})]
-    [(Y.p.inheritedTopology (τ.overTopology S)).HasSheafCompose (forget RingCat.{u + 1})] :
-    ((toCartesianBasedFunctor f).inheritedToposHom.modulePushforward).PreservesInjectiveObjects :=
-  sorry
+    [(Y.p.inheritedTopology (τ.overTopology S)).HasSheafCompose (forget RingCat.{u + 1})],
+    ((toCartesianBasedFunctor f).inheritedToposHom.modulePushforward).PreservesInjectiveObjects)
 
-/-- Objectwise form of module pushforward preserving injectives. -/
-theorem injective_modulePushforward
+#check (AlgebraicGeometry.GroupoidsOver.injective_modulePushforward :
+    ∀ {S : Scheme.{u}}
     (τ : StandardTopology)
     {X Y : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u}
       (StandardTopology.Big.liftedRingedSite τ S)}
@@ -108,8 +65,5 @@ theorem injective_modulePushforward
     [(τ.overTopology S).HasSheafCompose (forget RingCat.{u + 1})]
     [(X.p.inheritedTopology (τ.overTopology S)).HasSheafCompose (forget RingCat.{u + 1})]
     [(Y.p.inheritedTopology (τ.overTopology S)).HasSheafCompose (forget RingCat.{u + 1})]
-    (I : RingedSite.ModuleCat.{u + 1} X.p.inheritedRingedTopos) [Injective I] :
-    Injective ((toCartesianBasedFunctor f).inheritedToposHom.modulePushforward.obj I) :=
-  sorry
-
-end AlgebraicGeometry.GroupoidsOver
+    (I : RingedSite.ModuleCat.{u + 1} X.p.inheritedRingedTopos) [Injective I],
+    Injective ((toCartesianBasedFunctor f).inheritedToposHom.modulePushforward.obj I))

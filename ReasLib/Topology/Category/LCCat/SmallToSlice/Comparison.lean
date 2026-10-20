@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Category.LCCat.SmallToSlice.Abelian
@@ -42,7 +36,9 @@ variable {X Y : LCCat.{u}}
 /-- Lemma 21.31.8 (0D92): the inverse images from the small open sites to the Zariski
 slice sites commute with pullback along `f`. -/
 @[stacks 0D92 "small/Zariski inverse-image square"]
-noncomputable def zarPullbackIso (f : X ⟶ Y) :
+noncomputable def zarPullbackIso (f : X ⟶ Y)
+    [HasWeakSheafify (zarTopology.over X) (Type u)]
+    [HasWeakSheafify (zarTopology.over Y) (Type u)] :
     TopCat.Sheaf.pullback (Type u) f.hom ⋙ typePullback X ≅
       typePullback Y ⋙ zarTopology.overMapPullback (Type u) f :=
   -- `isContinuous_comp` is kept explicit by the site API to avoid global search loops.
@@ -79,6 +75,7 @@ noncomputable def zarPullbackIso (f : X ⟶ Y) :
 `opensOver X` with the qc topology. -/
 @[stacks 0D92 "small-to-qc comparison"]
 noncomputable def qcTypePullbackComparisonIso (X : LCCat.{u})
+    [HasWeakSheafify (zarTopology.over X) (Type u)]
     [HasWeakSheafify (qcTopology.over X) (Type u)] :
     typePullback X ⋙ comparisonTopologyPullback (Type u) zar_le_qc X ≅
       qcTypePullback X :=
@@ -102,6 +99,8 @@ noncomputable def qcTypePullbackComparisonIso (X : LCCat.{u})
 commute with pullback along `f`. -/
 @[stacks 0D92 "small/qc inverse-image square"]
 noncomputable def qcPullbackIso (f : X ⟶ Y)
+    [HasWeakSheafify (zarTopology.over X) (Type u)]
+    [HasWeakSheafify (zarTopology.over Y) (Type u)]
     [HasWeakSheafify (qcTopology.over X) (Type u)]
     [HasWeakSheafify (qcTopology.over Y) (Type u)] :
     TopCat.Sheaf.pullback (Type u) f.hom ⋙ qcTypePullback X ≅
@@ -119,6 +118,8 @@ noncomputable def qcPullbackIso (f : X ⟶ Y)
 defined for every map; properness is used only to prove that it is invertible. -/
 @[stacks 0D92 "small/qc direct-image comparison"]
 noncomputable def qcPushforwardComparison (f : X ⟶ Y)
+    [HasWeakSheafify (zarTopology.over X) (Type u)]
+    [HasWeakSheafify (zarTopology.over Y) (Type u)]
     [HasWeakSheafify (qcTopology.over X) (Type u)]
     [HasWeakSheafify (qcTopology.over Y) (Type u)] :
     TopCat.Sheaf.pushforward (Type u) f.hom ⋙ qcTypePullback Y ⟶
@@ -133,6 +134,8 @@ is proper. Componentwise, this is the set-valued proper base-change theorem for
 `TopCat.Sheaf.BaseChange.map`. -/
 @[stacks 0D92 "proper small/qc direct-image comparison"]
 theorem qcPushforwardComparison_isIso_of_proper (f : X ⟶ Y)
+    [HasWeakSheafify (zarTopology.over X) (Type u)]
+    [HasWeakSheafify (zarTopology.over Y) (Type u)]
     [HasWeakSheafify (qcTopology.over X) (Type u)]
     [HasWeakSheafify (qcTopology.over Y) (Type u)]
     (hf : IsProperMap f.hom) :

@@ -1,64 +1,27 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.DerivedCategory.CohomologyIn.Basic
-public import stacks_project.Chap66.Definition_66_29_1_QCoh
-public import stacks_project.Chap66.Lemma_66_29_7_Quasicoherent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Basic
 
-/-!
-# Derived category of quasi-coherent modules on an algebraic space
+/-! # Derived category of quasi-coherent modules on an algebraic space
 
-`DerivedQCoh X` is the full subcategory of `D(𝒪_X)` on objects whose cohomology
-sheaves are quasi-coherent.
+Definition 75.5.1 is the full subcategory of the unbounded derived module category
+whose cohomology sheaves are quasi-coherent.
 -/
-
-@[expose] public section
-
-open CategoryTheory
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- The standard derived-category structure on `𝒪_X`-modules on an algebraic space. -/
-instance modulesHasDerivedCategory {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    HasDerivedCategory (Modules X) :=
-  HasDerivedCategory.standard (Modules X)
-
-/-- The unbounded derived category `D(𝒪_X)` of module sheaves on an algebraic space. -/
-abbrev ModuleDerived {S : Scheme.{u}} (X : AlgebraicSpace S) :=
-  DerivedCategory (Modules X)
-
-/-- The property that every cohomology sheaf of a derived `𝒪_X`-module is quasi-coherent. -/
-abbrev derivedQuasiCoherentModuleProperty {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    ObjectProperty (ModuleDerived X) :=
-  DerivedCategory.cohomologyIn (quasiCoherentModuleProperty X)
-
-/-- The derived category of `𝒪_X`-modules with quasi-coherent cohomology sheaves. -/
-abbrev DerivedQCoh {S : Scheme.{u}} (X : AlgebraicSpace S) :=
-  DerivedCategory.CohomologyIn (quasiCoherentModuleProperty X)
-
-namespace DerivedQCoh
-
-/-- The inclusion of derived modules with quasi-coherent cohomology into `D(𝒪_X)`. -/
-abbrev inclusion {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    DerivedQCoh X ⥤ ModuleDerived X :=
-  (derivedQuasiCoherentModuleProperty X).ι
-
-/-- An object of `D(𝒪_X)` lies in `DerivedQCoh X` iff every cohomology sheaf is
-quasi-coherent. -/
-theorem mem_iff {S : Scheme.{u}} {X : AlgebraicSpace S} (E : ModuleDerived X) :
-    derivedQuasiCoherentModuleProperty X E ↔
-      ∀ n : ℤ, quasiCoherentModuleProperty X
-        ((DerivedCategory.homologyFunctor (Modules X) n).obj E) := sorry
-
-end DerivedQCoh
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.ModuleDerived :
+  {S : AlgebraicGeometry.Scheme.{u}} → AlgebraicGeometry.AlgebraicSpace S → Type (u + 1))
+#check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh :
+  {S : AlgebraicGeometry.Scheme.{u}} → AlgebraicGeometry.AlgebraicSpace S → Type (u + 1))
+#check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.inclusion :
+  {S : AlgebraicGeometry.Scheme.{u}} → (X : AlgebraicGeometry.AlgebraicSpace S) →
+    CategoryTheory.Functor (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh X)
+      (AlgebraicGeometry.AlgebraicSpace.ModuleDerived X))
+#check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.mem_iff :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} {X : AlgebraicGeometry.AlgebraicSpace S}
+    (E : AlgebraicGeometry.AlgebraicSpace.ModuleDerived X),
+    AlgebraicGeometry.AlgebraicSpace.derivedQuasiCoherentModuleProperty X E ↔
+      ∀ n : ℤ, AlgebraicGeometry.AlgebraicSpace.quasiCoherentModuleProperty X
+        ((DerivedCategory.homologyFunctor
+          (AlgebraicGeometry.AlgebraicSpace.Modules X) n).obj E))

@@ -1,13 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap64.Example_64_30_2_Abstract
 public import stacks_project.Chap64.Example_64_30_2_Tame
+import StacksCheckRecall
 
 /-!
 # Example 64.30.2 — Stacks tag 03VQ
@@ -48,7 +43,7 @@ variable (conjugation : ∀ x : extension.G,
     Multiplicative.ofAdd (unit.val * (kernelEquiv x).toAdd))
 
 -- Example 64.30.2, abstract clause with the explicit local boundary correction.
-#check (PadicInt.PrimeTo.exists_int_of_full_continuous_trace_formula
+@[stacks 03VQ] #check (PadicInt.PrimeTo.exists_int_of_full_continuous_trace_formula
   extension q hq F degree_class traceFormula kernelEquiv unit frobenius
   degree_frobenius conjugation :
   ∃ a : ℤ, -(q : ℤ) < a ∧ a ≤ q ∧
@@ -64,7 +59,7 @@ open MultiplicativeGroupTame
 variable (p : ℕ) [Fact p.Prime]
 
 -- Example 64.30.2, the actual tame geometric realization of the case a=1.
-#check (tame_multiplicative_realization (p := p) :
+@[stacks 03VQ] #check (tame_multiplicative_realization (p := p) :
   ∃ F : ∀ d : ℕ+, sourcePoints p d → ConjClasses (sourceExtension p).middle,
     ∃ hdeg : ∀ (d : ℕ+) (x : sourcePoints p d),
         (sourceExtension p).degClass (F d x) = hatZNatCast d.val,

@@ -1,27 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.CommAlgCat.Basic
-public import Mathlib.Algebra.Field.Basic
-public import ReasLib.AlgebraicGeometry.Scheme.GlobalSections
-public import stacks_project.Chap69.Situation_69_16_1_GlobalSections
-
-/-!
-# Global sections of algebraic spaces over a field
-
-The ring `Γ(X, 𝒪_X)` of an algebraic space over `Spec k` carries a canonical
-`k`-algebra structure, obtained by lifting the atlas structure morphism through
-the presentation equalizer.
--/
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.GlobalSections.OverField
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.Limits AlgebraicGeometry CommRingCat
+open CategoryTheory AlgebraicGeometry CommRingCat
 
 noncomputable section
 
@@ -29,60 +12,50 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-variable {k : Type u} [Field k] (X : AlgebraicSpace (Spec (of k)))
-
-/-- The two presentation restrictions agree on the global-sections map of the chosen atlas
-structure morphism. -/
-theorem globalSectionsMap_equalizes :
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.globalSectionsMap_equalizes :
+  ∀ {k : Type u} [Field k] {X : AlgebraicSpace (Spec (of k))}
+    (f : X ⟶ ofOver (Over.mk (𝟙 (Spec (of k))))),
     ((Scheme.ΓSpecIso (of k)).inv ≫ (chosenPresentation X).U.hom.appTop) ≫
         (chosenPresentation X).tAppTop =
       ((Scheme.ΓSpecIso (of k)).inv ≫ (chosenPresentation X).U.hom.appTop) ≫
-        (chosenPresentation X).sAppTop :=
-  sorry
+        (chosenPresentation X).sAppTop)
 
-/-- The structure morphism of an algebraic space over `Spec k` induces the `k`-algebra map
-`k → Γ(X, 𝒪_X)`. -/
-noncomputable def globalSectionsMap : k →+* globalSectionsRing X :=
-  (equalizer.lift
-      ((Scheme.ΓSpecIso (of k)).inv ≫ (chosenPresentation X).U.hom.appTop)
-      (globalSectionsMap_equalizes X)).hom
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.globalSectionsMap_comp_ι :
+  ∀ {k : Type u} [Field k] {X : AlgebraicSpace (Spec (of k))}
+    (f : X ⟶ ofOver (Over.mk (𝟙 (Spec (of k))))),
+    (globalSectionsRing_ι X).hom.comp (Hom.globalSectionsMap f) =
+      Scheme.Hom.globalSectionsMap (chosenPresentation X).U.hom)
 
-/-- After comparison with the chosen atlas, `globalSectionsMap X` recovers the scheme-level
-global-sections map of the atlas structure morphism. -/
-theorem globalSectionsMap_comp_ι :
-    (globalSectionsRing_ι X).hom.comp (globalSectionsMap X) =
-      Scheme.Hom.globalSectionsMap (chosenPresentation X).U.hom :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.globalSectionsMap :
+  ∀ {k : Type u} [Field k] (X : AlgebraicSpace (Spec (of k))),
+    k →+* globalSectionsRing X)
 
-/-- The canonical `k`-algebra structure on `Γ(X, 𝒪_X)`. -/
-instance instAlgebra_globalSectionsRing : Algebra k (globalSectionsRing X) :=
-  (globalSectionsMap X).toAlgebra
+#check (AlgebraicGeometry.AlgebraicSpace.instAlgebra_globalSectionsRing :
+  ∀ {k : Type u} [Field k] (X : AlgebraicSpace (Spec (of k))),
+    Algebra k (globalSectionsRing X))
 
-/-- The bundled `k`-algebra of global sections of an algebraic space over `Spec k`. -/
-noncomputable def globalSectionsAlg : CommAlgCat k :=
-  CommAlgCat.of k (globalSectionsRing X)
+#check (AlgebraicGeometry.AlgebraicSpace.globalSectionsAlg :
+  ∀ {k : Type u} [Field k] (X : AlgebraicSpace (Spec (of k))),
+    CommAlgCat k)
 
-/-- The carrier of `globalSectionsAlg X` is `Γ(X, 𝒪_X)`. -/
-theorem coe_globalSectionsAlg : (globalSectionsAlg X : Type u) = globalSectionsRing X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.globalSectionsAlgMap :
+  ∀ {k : Type u} [Field k] (X : AlgebraicSpace (Spec (of k))),
+    k →+* globalSectionsAlg X)
 
-/-- The algebra map into the bundled global-sections algebra. -/
-noncomputable abbrev globalSectionsAlgMap : k →+* globalSectionsAlg X :=
-  globalSectionsMap X
+#check (AlgebraicGeometry.AlgebraicSpace.globalSectionsSpecMap :
+  ∀ {k : Type u} [Field k] (X : AlgebraicSpace (Spec (of k))),
+    Spec (globalSectionsRing X) ⟶ Spec (of k))
 
-/-- The bundled algebra map is the unbundled global-sections map. -/
-theorem globalSectionsAlgMap_eq : globalSectionsAlgMap X = globalSectionsMap X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.coe_globalSectionsAlg :
+  ∀ {k : Type u} [Field k] (X : AlgebraicSpace (Spec (of k))),
+    (globalSectionsAlg X : Type u) = globalSectionsRing X)
 
-/-- The affine morphism `Spec Γ(X, 𝒪_X) ⟶ Spec k` induced by `globalSectionsMap X`. -/
-noncomputable abbrev globalSectionsSpecMap :
-    Spec (globalSectionsRing X) ⟶ Spec (of k) :=
-  Spec.map (ofHom (globalSectionsMap X))
+#check (AlgebraicGeometry.AlgebraicSpace.globalSectionsAlgMap_eq :
+  ∀ {k : Type u} [Field k] (X : AlgebraicSpace (Spec (of k))),
+    globalSectionsAlgMap X = globalSectionsMap X)
 
-/-- `globalSectionsSpecMap X` is `Spec.map` of the canonical algebra map `k → Γ(X, 𝒪_X)`. -/
-theorem globalSectionsSpecMap_eq :
-    globalSectionsSpecMap X = Spec.map (ofHom (algebraMap k (globalSectionsRing X))) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.globalSectionsSpecMap_eq :
+  ∀ {k : Type u} [Field k] (X : AlgebraicSpace (Spec (of k))),
+    globalSectionsSpecMap X = Spec.map (ofHom (algebraMap k (globalSectionsRing X))))
 
 end AlgebraicGeometry.AlgebraicSpace
-

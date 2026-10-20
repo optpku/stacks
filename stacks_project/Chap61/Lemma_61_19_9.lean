@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap61.Lemma_61_19_9_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.ProEtaleLocallyConstant
+import StacksCheckRecall
 
 /-!
 # Lemma 61.19.9
@@ -28,7 +22,7 @@ universe u w
 
 namespace AlgebraicGeometry.Scheme
 
-variable (X : Scheme.{u}) (Λ : Type w) [CommRing Λ]
+variable (X : Scheme.{u}) (Λ : Type w) [Ring Λ]
 variable [HasWeakSheafify X.smallEtaleTopology (ModuleCat.{max (u + 1) w} Λ)]
 variable [HasWeakSheafify (ProEt.topology X) (ModuleCat.{max (u + 1) w} Λ)]
 variable [∀ U : X.Etale,
@@ -38,12 +32,11 @@ variable [∀ U : X.ProEt,
 variable [∀ F : X.Etaleᵒᵖ ⥤ ModuleCat.{max (u + 1) w} Λ,
     (etaleToProEt X).op.HasLeftKanExtension F]
 
-/-- Lemma 61.19.9: for a scheme `X` and a ring `Λ`, inverse image `ε⁻¹` along
+/- Lemma 61.19.9: for a scheme `X` and a ring `Λ`, inverse image `ε⁻¹` along
 `etaleToProEt` is an equivalence between locally constant sheaves of finitely
 presented `Λ`-modules on `X.Etale` and the same class on `X.ProEt`. -/
 @[stacks 099Y]
-instance etaleToProEtPullback_locallyConstantFP_isEquivalence :
-    (etaleToProEtPullback_locallyConstantFP X Λ).IsEquivalence :=
-  sorry
+#check (AlgebraicGeometry.Scheme.etaleToProEtPullback_locallyConstantFP_isEquivalence X Λ :
+    (AlgebraicGeometry.Scheme.etaleToProEtPullback_locallyConstantFP X Λ).IsEquivalence)
 
 end AlgebraicGeometry.Scheme

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_7_9_ProperSupport
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Support.Proper.Closure
 import StacksCheckRecall
 
 @[expose] public section
@@ -27,11 +21,11 @@ support proper over `Y` remains proper over `Y`. -/
       (F G : X.Modules)
       [F.IsFiniteType] [F.IsQuasicoherent]
       [G.IsFiniteType] [G.IsQuasicoherent]
-      [AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
-        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport F)]
-      [AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
-        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport G)],
-      AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
+      (hF : AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
+        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport F))
+      (hG : AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
+        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport G)),
+      AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
         (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport (F ⊞ G)))
 
 /- Lemma 75.7.9 (2): any extension of `G` by `F`. -/
@@ -44,12 +38,12 @@ support proper over `Y` remains proper over `Y`. -/
       (C : ShortComplex X.Modules)
       [C.X₁.IsFiniteType] [C.X₁.IsQuasicoherent]
       [C.X₃.IsFiniteType] [C.X₃.IsQuasicoherent]
-      [AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
-        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport C.X₁)]
-      [AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
-        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport C.X₃)],
+      (h₁ : AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
+        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport C.X₁))
+      (h₃ : AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
+        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport C.X₃)),
       C.ShortExact →
-        AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
+        AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
           (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport C.X₂))
 
 /- Lemma 75.7.9 (3): the image of any map `u : F ⟶ G`. -/
@@ -62,12 +56,12 @@ support proper over `Y` remains proper over `Y`. -/
       (F G : X.Modules)
       [F.IsFiniteType] [F.IsQuasicoherent]
       [G.IsFiniteType] [G.IsQuasicoherent]
-      [AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
-        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport F)]
-      [AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
-        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport G)]
+      (hF : AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
+        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport F))
+      (hG : AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
+        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport G))
       (u : F ⟶ G),
-      AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
+      AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
         (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport (Abelian.image u)))
 
 /- Lemma 75.7.9 (4): the cokernel of any map `u : F ⟶ G`. -/
@@ -80,12 +74,12 @@ support proper over `Y` remains proper over `Y`. -/
       (F G : X.Modules)
       [F.IsFiniteType] [F.IsQuasicoherent]
       [G.IsFiniteType] [G.IsQuasicoherent]
-      [AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
-        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport F)]
-      [AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
-        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport G)]
+      (hF : AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
+        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport F))
+      (hG : AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
+        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport G))
       (u : F ⟶ G),
-      AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
+      AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
         (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport (cokernel u)))
 
 /- Lemma 75.7.9 (5): any quasi-coherent quotient of `F` or `G`. -/
@@ -98,10 +92,10 @@ support proper over `Y` remains proper over `Y`. -/
       {F Q : X.Modules}
       [F.IsFiniteType] [F.IsQuasicoherent]
       [Q.IsQuasicoherent]
-      [AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
-        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport F)]
+      (hF : AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
+        (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport F))
       (q : F ⟶ Q) [Epi q],
-      AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
+      AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
         (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport Q))
 
 /- Lemma 75.7.9 (6): if `Y` is locally Noetherian, coherent modules with support
@@ -115,7 +109,7 @@ proper over `Y` form a Serre subcategory of `Coh X`. -/
       [AlgebraicGeometry.AlgebraicSpace.IsLocallyNoetherian Y],
       CategoryTheory.ObjectProperty.IsSerreClass
         ((fun ℱ : AlgebraicGeometry.AlgebraicSpace.Coh X ↦
-          AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
+          AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
             (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport ℱ.obj)) :
           CategoryTheory.ObjectProperty
             (AlgebraicGeometry.AlgebraicSpace.Coh X)))

@@ -1,29 +1,18 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.MorphismProperty.Comma
-public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.EtaleOver
 public import stacks_project.Chap66.Lemma_66_18_3_Site
 public import stacks_project.Chap87.Lemma_87_34_3_Reduction
 
-/-!
-# Étale morphisms of formal algebraic spaces over a base
+/-! # Étale morphisms of formal algebraic spaces over a base
 
-The source category of Lemma 87.34.6 is the full subcategory of the étale
-slice of functors of points over a formal algebraic space `X` on those
-domains that are themselves formal algebraic spaces.
+The formal étale slice and its constructors are owned by the shared library.
+The legacy reduction interface remains available to the chapter's consumers.
 -/
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry CategoryTheory.MorphismProperty
-
-noncomputable section
 
 universe u
 
@@ -31,81 +20,60 @@ namespace AlgebraicGeometry.FormalAlgebraicSpace
 
 variable {S : Scheme.{u}}
 
-/-- The étale slice of functors of points over `X`: morphisms that are
-representable by algebraic spaces and étale. -/
-abbrev etaleComma (X : (Over S)ᵒᵖ ⥤ Type u) :=
-  MorphismProperty.Over (@Etale S) ⊤ X
+#check (AlgebraicGeometry.FormalAlgebraicSpace.etaleComma :
+    ∀ (X : (Over S)ᵒᵖ ⥤ Type u), Type (u + 1))
 
-/-- `etaleComma X` is the étale slice `MorphismProperty.Over (@Etale S) ⊤ X`. -/
-theorem etaleComma_def (X : (Over S)ᵒᵖ ⥤ Type u) :
-    etaleComma X = MorphismProperty.Over (@Etale S) ⊤ X :=
-  rfl
+#check (AlgebraicGeometry.FormalAlgebraicSpace.etaleComma_def :
+    ∀ (X : (Over S)ᵒᵖ ⥤ Type u),
+    etaleComma X = MorphismProperty.Over (@Etale S) ⊤ X)
 
-/-- The object property selecting étale slice objects whose domain is a formal
-algebraic space. -/
-def isFormalDomain (X : (Over S)ᵒᵖ ⥤ Type u) :
-    ObjectProperty (etaleComma X) :=
-  fun U ↦ IsFormalAlgebraicSpace U.left
+#check (AlgebraicGeometry.FormalAlgebraicSpace.isFormalDomain :
+    ∀ (X : (Over S)ᵒᵖ ⥤ Type u),
+    ObjectProperty (etaleComma X))
 
-/-- An object of the étale slice over `X` lies in `isFormalDomain X` if and only
-if its domain is a formal algebraic space. -/
-theorem isFormalDomain_iff {X : (Over S)ᵒᵖ ⥤ Type u} {U : etaleComma X} :
-    isFormalDomain X U ↔ IsFormalAlgebraicSpace U.left :=
-  Iff.rfl
+#check (AlgebraicGeometry.FormalAlgebraicSpace.isFormalDomain_iff :
+    ∀ {X : (Over S)ᵒᵖ ⥤ Type u} {U : etaleComma X},
+    isFormalDomain X U ↔ IsFormalAlgebraicSpace U.left)
 
-/-- The category of morphisms `φ : U ⟶ X` of formal algebraic spaces that are
-representable by algebraic spaces and étale. -/
-abbrev EtaleOver (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X] :=
-  (isFormalDomain X).FullSubcategory
+#check (AlgebraicGeometry.FormalAlgebraicSpace.EtaleOver :
+    ∀ (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X], Type (u + 1))
 
-/-- `EtaleOver X` is the full subcategory of `etaleComma X` on formal algebraic
-space domains. -/
-theorem EtaleOver_def (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X] :
-    EtaleOver X = (isFormalDomain X).FullSubcategory :=
-  rfl
+#check (AlgebraicGeometry.FormalAlgebraicSpace.EtaleOver_def :
+    ∀ (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X],
+    EtaleOver X = (isFormalDomain X).FullSubcategory)
 
-/-- Construct an object of `EtaleOver X` from an étale morphism of formal
-algebraic spaces into `X`. -/
-def EtaleOver.mk {X : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace X]
+#check (AlgebraicGeometry.FormalAlgebraicSpace.EtaleOver.mk :
+    ∀ {X : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace X]
     {U : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace U] (φ : U ⟶ X)
-    [Etale φ] : EtaleOver X where
-  obj := MorphismProperty.Over.mk ⊤ φ inferInstance
-  property := ‹IsFormalAlgebraicSpace U›
+    [Etale φ],
+    EtaleOver X)
 
-/-- The underlying functor of points of `EtaleOver.mk φ` is the domain of `φ`. -/
-@[simp]
-theorem EtaleOver.mk_left {X : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace X]
-    {U : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace U] (φ : U ⟶ X) [Etale φ] :
-    (EtaleOver.mk φ).obj.left = U :=
-  rfl
+#check (AlgebraicGeometry.FormalAlgebraicSpace.EtaleOver.mk_left :
+    ∀ {X : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace X]
+    {U : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace U] (φ : U ⟶ X) [Etale φ],
+    (EtaleOver.mk φ).obj.left = U)
 
-/-- The structural morphism of `EtaleOver.mk φ` is `φ`. -/
-@[simp]
-theorem EtaleOver.mk_hom {X : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace X]
-    {U : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace U] (φ : U ⟶ X) [Etale φ] :
-    (EtaleOver.mk φ).obj.hom = φ :=
-  rfl
+#check (AlgebraicGeometry.FormalAlgebraicSpace.EtaleOver.mk_hom :
+    ∀ {X : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace X]
+    {U : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace U] (φ : U ⟶ X) [Etale φ],
+    (EtaleOver.mk φ).obj.hom = φ)
 
-/-- The identity morphism of `X` as an object of `EtaleOver X`. -/
-def EtaleOver.self (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X] :
-    EtaleOver X :=
-  EtaleOver.mk (𝟙 X)
+#check (AlgebraicGeometry.FormalAlgebraicSpace.EtaleOver.self :
+    ∀ (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X],
+    EtaleOver X)
 
-/-- The structural morphism of `EtaleOver.self X` is `𝟙 X`. -/
-@[simp]
-theorem EtaleOver.self_hom (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X] :
-    (EtaleOver.self X).obj.hom = 𝟙 X :=
-  rfl
+#check (AlgebraicGeometry.FormalAlgebraicSpace.EtaleOver.self_hom :
+    ∀ (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X],
+    (EtaleOver.self X).obj.hom = 𝟙 X)
 
-/-- The structural morphism of an object of `EtaleOver X` is étale. -/
-instance instEtale_etaleOver {X : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace X]
-    (U : EtaleOver X) : Etale U.obj.hom :=
-  U.obj.prop
+#check (AlgebraicGeometry.FormalAlgebraicSpace.instEtale_etaleOver :
+    ∀ {X : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace X]
+    (U : EtaleOver X),
+    Etale U.obj.hom)
 
-/-- The domain of an object of `EtaleOver X` is a formal algebraic space. -/
-instance instIsFormalAlgebraicSpace_etaleOver {X : (Over S)ᵒᵖ ⥤ Type u}
-    [IsFormalAlgebraicSpace X] (U : EtaleOver X) :
-    IsFormalAlgebraicSpace U.obj.left :=
-  U.property
+#check (AlgebraicGeometry.FormalAlgebraicSpace.instIsFormalAlgebraicSpace_etaleOver :
+    ∀ {X : (Over S)ᵒᵖ ⥤ Type u}
+    [IsFormalAlgebraicSpace X] (U : EtaleOver X),
+    IsFormalAlgebraicSpace U.obj.left)
 
 end AlgebraicGeometry.FormalAlgebraicSpace

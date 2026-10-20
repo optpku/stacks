@@ -1,66 +1,49 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.RingTheory.Topology.WeaklyAdmissible.Composition
 public import stacks_project.Chap87.«87_21_2_1_LocalizeSquare»
 
 /-!
 # Stability under composition for morphisms of WAdm^count
 
-A property of morphisms of countably indexed weakly admissible rings is stable
-under composition when it is preserved by composition of continuous ring maps.
+The composition-stability predicate and its specification and application theorems
+are available through their mathematical owner.
 -/
 
 @[expose] public section
 
 universe u
 
-namespace TopologicalRing
+open TopologicalRing
 
-variable (P : ∀ {A B : Type u}
+#check (TopologicalRing.IsStableUnderComposition :
+    (∀ {A B : Type u}
     [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
     [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
-    (B →+* A) → Prop)
+    (B →+* A) → Prop) → Prop)
 
-/-- A property of morphisms of countably indexed weakly admissible rings is
-stable under composition if `P φ` and `P ψ` imply `P (φ.comp ψ)` for continuous
-ring maps `φ : B →+* A` and `ψ : C →+* B`. -/
-def IsStableUnderComposition : Prop :=
-  ∀ {A B C : Type u}
+#check (TopologicalRing.isStableUnderComposition_iff :
+    ∀ (P : ∀ {A B : Type u}
     [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
-    [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B]
-    [CommRing C] [TopologicalSpace C] [IsWeaklyAdmissibleRing C] [IsCountablyIndexed C]
-    (φ : B →+* A) (ψ : C →+* B),
-    Continuous φ → Continuous ψ → P φ → P ψ → P (φ.comp ψ)
-
-/-- Stability under composition is the implication `P φ → P ψ → P (φ.comp ψ)` for
-continuous morphisms of countably indexed weakly admissible rings. -/
-theorem isStableUnderComposition_iff :
+    [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+    (B →+* A) → Prop),
     IsStableUnderComposition P ↔
       ∀ {A B C : Type u}
         [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
         [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B]
         [CommRing C] [TopologicalSpace C] [IsWeaklyAdmissibleRing C] [IsCountablyIndexed C]
         (φ : B →+* A) (ψ : C →+* B),
-        Continuous φ → Continuous ψ → P φ → P ψ → P (φ.comp ψ) := sorry
+        Continuous φ → Continuous ψ → P φ → P ψ → P (φ.comp ψ))
 
-namespace IsStableUnderComposition
-
-variable {A B C : Type u}
-variable [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
-variable [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B]
-variable [CommRing C] [TopologicalSpace C] [IsWeaklyAdmissibleRing C] [IsCountablyIndexed C]
-
-/-- If `P` is stable under composition, then `P φ` and `P ψ` imply `P (φ.comp ψ)`
-for continuous morphisms of countably indexed weakly admissible rings. -/
-theorem comp (hP : IsStableUnderComposition P) (φ : B →+* A) (ψ : C →+* B)
-    (hφcont : Continuous φ) (hψcont : Continuous ψ) (hφ : P φ) (hψ : P ψ) :
-    P (φ.comp ψ) := sorry
-
-end IsStableUnderComposition
-
-end TopologicalRing
+#check (TopologicalRing.IsStableUnderComposition.comp :
+    ∀ (P : ∀ {A B : Type u}
+    [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+    [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B],
+    (B →+* A) → Prop)
+    {A B C : Type u}
+    [CommRing A] [TopologicalSpace A] [IsWeaklyAdmissibleRing A] [IsCountablyIndexed A]
+    [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountablyIndexed B]
+    [CommRing C] [TopologicalSpace C] [IsWeaklyAdmissibleRing C] [IsCountablyIndexed C]
+    (_ : IsStableUnderComposition P) (φ : B →+* A) (ψ : C →+* B)
+    (_ : Continuous φ) (_ : Continuous ψ) (_ : P φ) (_ : P ψ),
+    P (φ.comp ψ))

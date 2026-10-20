@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_8_4_Linear
-public import stacks_project.Chap75.Lemma_75_8_4_Ext
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Ext.Finite
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.GlobalSections.Affine
 import StacksCheckRecall
 
 @[expose] public section

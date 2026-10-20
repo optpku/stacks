@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Morphism.PageRepresentatives
@@ -49,14 +43,14 @@ representatives. Existence of that bound suffices; no complete lattice is added 
       B ≤ (imageSubobject (K.d PUnit.unit PUnit.unit).hom ⊓ (K.X PUnit.unit).filtration.stage p) ⊔
         (K.X PUnit.unit).filtration.stage (p + 1))
 
-variable [CompleteLattice (Subobject (K.X PUnit.unit).obj)]
+variable [LocallySmall.{v} C] [WellPowered.{v} C] [HasCoproducts.{v} C]
 
 /- 12.23.5.2: the supremum of the finite-page boundary representatives is contained
 in the intrinsic image representative, retaining the filtration-negligible summand. -/
 #check
   (FilteredObject.Hom.Representative.Boundary.eventual_le_image
       (K.d PUnit.unit PUnit.unit) p :
-    (⨆ r : ℕ, ((K.X PUnit.unit).filtration.stage p ⊓
+    Subobject.sSup.{v} (Set.range fun r : ℕ ↦ ((K.X PUnit.unit).filtration.stage p ⊓
       imageSubobject (((K.X PUnit.unit).filtration.stage (p - r + 1)).arrow ≫
         (K.d PUnit.unit PUnit.unit).hom)) ⊔ (K.X PUnit.unit).filtration.stage (p + 1)) ≤
     (imageSubobject (K.d PUnit.unit PUnit.unit).hom ⊓ (K.X PUnit.unit).filtration.stage p) ⊔

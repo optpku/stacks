@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.Algebra.Algebra.ResidueImage
 public import Mathlib.Algebra.Algebra.Equiv
 public import Mathlib.RingTheory.Finiteness.Basic
 public import Mathlib.RingTheory.Ideal.Quotient.Operations
@@ -32,34 +27,7 @@ universe u v w
 
 namespace Algebra
 
-/-- The image field `Λ ⧸ ker(algebraMap Λ k)` of a map from a ring to a field. -/
-abbrev residueImage (Λ : Type u) (k : Type v) [CommRing Λ] [Field k] [Algebra Λ k] : Type u :=
-  Λ ⧸ RingHom.ker (algebraMap Λ k)
-
 variable {Λ : Type u} {k : Type v} [CommRing Λ] [Field k] [Algebra Λ k]
-
-/-- The kernel of `algebraMap Λ k` is maximal when `k` is integral over `Λ`. -/
-instance residueImage.instIsMaximal [Algebra.IsIntegral Λ k] :
-    (RingHom.ker (algebraMap Λ k)).IsMaximal :=
-  ker_algebraMap_isMaximal_of_isIntegral Λ k
-
-/-- The image `residueImage Λ k` is a field. -/
-noncomputable instance residueImage.instField [Algebra.IsIntegral Λ k] :
-    Field (residueImage Λ k) :=
-  Ideal.Quotient.field _
-
-/-- Scalar multiplication of `k` through the image field `residueImage Λ k`. -/
-instance residueImage.instAlgebra : Algebra (residueImage Λ k) k :=
-  (RingHom.kerLift (algebraMap Λ k)).toAlgebra
-
-/-- The maps `Λ → residueImage Λ k → k` form a scalar tower. -/
-instance residueImage.instIsScalarTower : IsScalarTower Λ (residueImage Λ k) k :=
-  IsScalarTower.of_algebraMap_eq fun _ ↦ rfl
-
-/-- Finiteness of `k` over `Λ` implies finiteness over the image field. -/
-instance residueImage.instFinite [Module.Finite Λ k] :
-    Module.Finite (residueImage Λ k) k :=
-  Module.Finite.of_restrictScalars_finite Λ (residueImage Λ k) k
 
 /-- The canonical map `Λ → residueImage Λ k` is surjective. -/
 theorem residueImage.algebraMap_surjective :

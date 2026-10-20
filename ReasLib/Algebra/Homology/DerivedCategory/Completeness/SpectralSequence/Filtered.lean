@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.Completeness
@@ -29,10 +23,6 @@ noncomputable section
 open CategoryTheory
 
 universe u
-
--- Local instance justification (defeq pin): use the standard localization model consistently
--- in the reflector, graded-piece, and underlying-complex comparison objects.
-attribute [local instance] HasDerivedCategory.standard
 
 namespace DerivedCategory.DerivedCompletion
 
@@ -70,6 +60,18 @@ structure FilteredSpectralSequence (I : Ideal A)
 
 namespace FilteredSpectralSequence
 
+/-- The abutment of a filtered completion spectral sequence is canonically isomorphic to
+cohomology of the supplied derived completion of the underlying complex. -/
+noncomputable def canonicalTargetIso {I : Ideal A}
+    {K : FilteredCochainComplex (ModuleCat A)}
+    (S : FilteredSpectralSequence I K) (R : Reflector I) (n : ℤ) :
+    S.filteredComplex.underlying.homology n ≅
+      (homologyFunctor (ModuleCat A) n).obj
+        (R.obj (Q.obj K.underlying)) :=
+  S.targetIso n ≪≫
+    (homologyFunctor (ModuleCat A) n).mapIso
+      ((S.completion.completionIso R).app (Q.obj K.underlying))
+
 /-- The bundled proof specification of a filtered derived-completion spectral sequence. -/
 @[stacks 0BKD "filtered derived-completion spectral sequence specification"]
 theorem spec {I : Ideal A} {K : FilteredCochainComplex (ModuleCat A)}
@@ -84,7 +86,7 @@ theorem spec {I : Ideal A} {K : FilteredCochainComplex (ModuleCat A)}
 
 end FilteredSpectralSequence
 
-/-- Lemma 15.92.22 (Stacks `0BKD`): a filtered cochain complex admits a filtered
+/-- A filtered cochain complex admits a filtered
 derived-completion spectral sequence for every finitely generated ideal. -/
 @[stacks 0BKD]
 theorem existsFilteredSpectralSequence

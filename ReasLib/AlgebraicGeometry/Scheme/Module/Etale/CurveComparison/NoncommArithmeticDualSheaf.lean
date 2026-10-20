@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommArithmeticDualStalk
@@ -36,7 +30,7 @@ variable [∀ U : X.left.Etale, HasWeakSheafify (X.left.smallEtaleTopology.over 
 variable [HasSheafify X.left.smallEtaleTopology AddCommGrpCat.{u + 1}]
 variable (hR : IsUnit (Nat.card R : k))
 variable (M : (finiteTypeDiscreteModule R
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X η)))).FullSubcategory)
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η)))).FullSubcategory)
 
 /-- The intrinsic right-coefficient roots dual on arithmetic X. -/
 abbrev intrinsic := NoncommIntrinsicDual.obj R X.left
@@ -72,7 +66,7 @@ def stalkEquiv := LinearEquiv.ofBijective (stalkMap R X η hR M)
 /-- Arithmetic monodromy acts on roots by the actual cyclotomic character;
 contragredient inverse Tate action gives precisely the same map. -/
 theorem stalkEquiv_equivariant
-    (g : Aut (standardFiniteEtaleFiber (arithmeticPoint X η))) :
+    (g : Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η))) :
     ((finiteTypeLocallyConstantModuleToFinitePi1LambdaModules Rᵐᵒᵖ (arithmeticPoint X η)).obj
       (finiteIntrinsic R X η hR M)).obj.obj.ρ g ≫ (stalkEquiv R X η hR M).toModuleIso.hom =
     (stalkEquiv R X η hR M).toModuleIso.hom ≫

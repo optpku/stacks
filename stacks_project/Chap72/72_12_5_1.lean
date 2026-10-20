@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap72.«72_12_5_1_Galois»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FieldExtension.Galois
 
 @[expose] public section
 
@@ -25,5 +19,5 @@ be an algebraic space over k. Then Spec(σ) ∘ Spec(τ) = Spec(τ ∘ σ), so G
 Spec K over Spec k. The product X_K = Spec K ×_{Spec k} X induces a canonical action
 Gal(K/k)ᵐᵒᵖ × X_K ⟶ X_K. -/
 @[stacks 0A14] #check
-  (AlgebraicSpace.FieldExtension.Galois.opAutHom k K X :
-    (Gal(K/k))ᵐᵒᵖ →* Aut (AlgebraicSpace.FieldExtension.baseChange k K X))
+  (AlgebraicGeometry.AlgebraicSpace.FieldExtension.Galois.opAutHom k K X :
+    (Gal(K/k))ᵐᵒᵖ →* Aut (AlgebraicGeometry.AlgebraicSpace.FieldExtension.baseChange k K X))

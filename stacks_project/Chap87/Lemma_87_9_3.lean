@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.MorphismProperty.Representable
-public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Thickening
-public import stacks_project.Chap87.Definition_87_9_1_Affine
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.ChosenFppf.Thickening
+import StacksCheckRecall
 
 /-!
 # Lemma 87.9.3
@@ -28,14 +20,12 @@ noncomputable section
 
 universe u v
 
-namespace AlgebraicGeometry
-namespace IsAffineFormalAlgebraicSpace
+open AlgebraicGeometry
 
-/-- Lemma 87.9.3 (1): Let `X_λ`, `λ ∈ Λ` and `X ≅ colim X_λ` be as in
-Definition 87.9.1. Then the stage map `X_λ ⟶ X` of fppf sheaves is
-representable. -/
-@[stacks 0AI9]
-theorem relativelyRepresentable_stageι {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+/- Lemma 87.9.3. Every stage map of a directed affine thickening presentation
+of an affine formal algebraic space is representable and a thickening. -/
+@[stacks 0AI9] #check (AlgebraicGeometry.IsAffineFormalAlgebraicSpace.isThickening_stageι :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
     {Λ : Type (max u v)} [Preorder Λ] [IsDirected Λ (· ≤ ·)]
@@ -43,31 +33,12 @@ theorem relativelyRepresentable_stageι {𝒮 : ChosenBigFppfSite.{u, v}} {S : �
     [IsAffineFormalAlgebraicSpace X] (hD : IsDirectedAffineThickeningColimit D X)
     (c : Cocone
       (D ⋙ 𝒮.bigAffineInclusion S ⋙ (𝒮.bigTopology S).sheafifiedRepresentableFunctor))
-    (hc : IsColimit c) (e : X ≅ c.pt) (i : Λ) :
-    (𝒮.bigTopology S).sheafifiedRepresentableFunctor.relativelyRepresentable
-      (c.ι.app i ≫ e.inv) :=
-  sorry
-
-/-- Lemma 87.9.3 (2): Let `X_λ`, `λ ∈ Λ` and `X ≅ colim X_λ` be as in
-Definition 87.9.1. Then the stage map `X_λ ⟶ X` of fppf sheaves is a
-thickening. -/
-@[stacks 0AI9]
-theorem isThickening_stageι {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
-    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
-    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
-    {Λ : Type (max u v)} [Preorder Λ] [IsDirected Λ (· ≤ ·)]
-    (D : Λ ⥤ 𝒮.bigAffineSite S) (X : Sheaf (𝒮.bigTopology S) (Type (max u v)))
-    [IsAffineFormalAlgebraicSpace X] (hD : IsDirectedAffineThickeningColimit D X)
-    (c : Cocone
-      (D ⋙ 𝒮.bigAffineInclusion S ⋙ (𝒮.bigTopology S).sheafifiedRepresentableFunctor))
-    (hc : IsColimit c) (e : X ≅ c.pt) (i : Λ) :
+    (hc : IsColimit c) (e : X ≅ c.pt) (i : Λ),
     (MorphismProperty.inverseImage (@IsThickening) (𝒮.bigToScheme S)).relative
-      (𝒮.bigTopology S).sheafifiedRepresentableFunctor (c.ι.app i ≫ e.inv) :=
-  sorry
+      (𝒮.bigTopology S).sheafifiedRepresentableFunctor (c.ι.app i ≫ e.inv))
 
-/-- Relative thickening of a stage map unpacks as relative representability
-together with thickenings of represented pullbacks on source schemes. -/
-theorem isThickening_stageι_spec {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+#check (AlgebraicGeometry.IsAffineFormalAlgebraicSpace.relativelyRepresentable_stageι :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
     {Λ : Type (max u v)} [Preorder Λ] [IsDirected Λ (· ≤ ·)]
@@ -75,7 +46,20 @@ theorem isThickening_stageι_spec {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.ca
     [IsAffineFormalAlgebraicSpace X] (hD : IsDirectedAffineThickeningColimit D X)
     (c : Cocone
       (D ⋙ 𝒮.bigAffineInclusion S ⋙ (𝒮.bigTopology S).sheafifiedRepresentableFunctor))
-    (hc : IsColimit c) (e : X ≅ c.pt) (i : Λ) :
+    (hc : IsColimit c) (e : X ≅ c.pt) (i : Λ),
+    (𝒮.bigTopology S).sheafifiedRepresentableFunctor.relativelyRepresentable
+      (c.ι.app i ≫ e.inv))
+
+#check (AlgebraicGeometry.IsAffineFormalAlgebraicSpace.isThickening_stageι_spec :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+    [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
+    [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
+    {Λ : Type (max u v)} [Preorder Λ] [IsDirected Λ (· ≤ ·)]
+    (D : Λ ⥤ 𝒮.bigAffineSite S) (X : Sheaf (𝒮.bigTopology S) (Type (max u v)))
+    [IsAffineFormalAlgebraicSpace X] (hD : IsDirectedAffineThickeningColimit D X)
+    (c : Cocone
+      (D ⋙ 𝒮.bigAffineInclusion S ⋙ (𝒮.bigTopology S).sheafifiedRepresentableFunctor))
+    (hc : IsColimit c) (e : X ≅ c.pt) (i : Λ),
     (𝒮.bigTopology S).sheafifiedRepresentableFunctor.relativelyRepresentable
       (c.ι.app i ≫ e.inv) ∧
       ∀ {U V : 𝒮.bigSite S}
@@ -86,8 +70,4 @@ theorem isThickening_stageι_spec {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.ca
         (snd : V ⟶ U),
         IsPullback fst ((𝒮.bigTopology S).sheafifiedRepresentableMap snd)
           (c.ι.app i ≫ e.inv) ξ →
-          IsThickening ((𝒮.bigToScheme S).map snd) :=
-  sorry
-
-end IsAffineFormalAlgebraicSpace
-end AlgebraicGeometry
+          IsThickening ((𝒮.bigToScheme S).map snd))

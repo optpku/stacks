@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Category.LCCat.SmallToSlice.Abelian
@@ -51,7 +45,8 @@ degree in its reusable owner. -/
 @[stacks 0DCU "(6)"]
 #check @LCCat.SmallToSlice.hypercohomology_isomorphic
 
-/- Lemma 21.31.7 (7): proper base change is supplied by the generic sheaf owner. -/
+/- Lemma 21.31.7 (7): proper base change is supplied by the generic sheaf owner, with
+`IsProperMap` and `IsSeparatedMap` encoding properness in the source. -/
 @[stacks 0DCU "(7a)"]
 #check @TopCat.Sheaf.BaseChange.map_isIso_of_proper
 

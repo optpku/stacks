@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_13_7_ProjectionFormula
-public import stacks_project.Chap66.«66_26_0_1_Pushforward»
-public import stacks_project.Chap69.Lemma_69_12_5_Monoidal
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.ProjectionFormula
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.DirectImage
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Monoidal
 public import Mathlib.CategoryTheory.Monoidal.Braided.Transport
 public import Mathlib.CategoryTheory.Monoidal.Preadditive
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Tensor.Exact

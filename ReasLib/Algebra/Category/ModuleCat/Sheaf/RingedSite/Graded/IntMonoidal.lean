@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Presheaf.Colimits
@@ -44,7 +38,9 @@ variable [MonoidalCategory (ringedSiteModuleCategory.{u, v, z, w} J O)]
 @[stacks 0FPB "integer-graded tensor totalization", instance]
 theorem hasTensor
     (X Y : GradedObject ℤ (ringedSiteModuleCategory.{u, v, z, w} J O)) :
-    GradedObject.HasTensor X Y := sorry
+    GradedObject.HasTensor X Y := by
+  intro n
+  infer_instance
 
 section Closed
 

@@ -1,69 +1,56 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_32_1_Factorization
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Integral.Glueing
+import StacksCheckRecall
 
 /-!
 # Glueing factorization of an integral morphism at a closed point
 
-Lemma 76.32.1 constructs, for an integral morphism of algebraic spaces and a
-point represented by a closed immersion from the spectrum of a field, a
-factorization through the relative spectrum of an explicit algebra pullback.
+An integral morphism factors through the relative spectrum of an algebra pullback
+at a closed field-valued point. The first factor is an isomorphism away from the
+fibre, which has exactly one point with residue field the given field.
 -/
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
+open CategoryTheory AlgebraicGeometry
 open AlgebraicGeometry.AlgebraicSpace
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+/- Lemma 76.32.1: the glueing factorization is integral, is an isomorphism away
+from the distinguished fibre, has a singleton fibre with the given residue field,
+and is finite when the original morphism is finite over a locally Noetherian target. -/
+@[stacks 0EDM] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsIntegralHom.fromGlueing :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsIntegralHom f]
+      (p : FieldValuedPoint Y) [IsClosedImmersion p.hom],
+      IsIntegralHom (fromGlueing f p))
 
-variable {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-
-/-- Lemma 76.32.1 (1): the structure morphism of the glueing space is integral. -/
-@[stacks 0EDM]
-instance IsIntegralHom.fromGlueing (f : X ⟶ Y) [IsIntegralHom f]
-    (p : FieldValuedPoint Y) [IsClosedImmersion p.hom] :
-    IsIntegralHom (fromGlueing f p) :=
-  sorry
-
-/-- Lemma 76.32.1 (2): `X ⟶ X'` is an isomorphism over any open of `X'` complementary
-to the scheme-theoretic fibre `X'_y`. -/
-@[stacks 0EDM]
-theorem isIso_openInverseImageTo_toGlueing (f : X ⟶ Y) [IsIntegralHom f]
+#check (AlgebraicGeometry.AlgebraicSpace.isIso_openInverseImageTo_toGlueing :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsIntegralHom f]
     (p : FieldValuedPoint Y) [IsClosedImmersion p.hom] {U : AlgebraicSpace S}
     (ι : U ⟶ glueingSpec f p) [IsOpenImmersion ι]
     (hU : Set.range (Points.map ι) =
-      (Set.range (Points.map (fiberι (fromGlueing f p) p)))ᶜ) :
-    IsIso (openInverseImageTo (toGlueing f p) ι) :=
-  sorry
+      (Set.range (Points.map (fieldFiberι (fromGlueing f p) p)))ᶜ),
+    IsIso (openInverseImageTo (toGlueing f p) ι))
 
-/-- Lemma 76.32.1 (3): the scheme-theoretic fibre `X'_y` has a unique point `x'`
-with residue field `κ(x') = k`. -/
-@[stacks 0EDM]
-theorem existsUnique_fiberPoint_eq_residueField (f : X ⟶ Y) [IsIntegralHom f]
-    (p : FieldValuedPoint Y) [IsClosedImmersion p.hom] :
-    ∃! x' : Points (fieldFiber (fromGlueing f p) p),
+#check (AlgebraicGeometry.AlgebraicSpace.existsUnique_fiberPoint_eq_residueField :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsIntegralHom f]
+    (p : FieldValuedPoint Y) [IsClosedImmersion p.hom],
+    ∃ x' : Points (fieldFiber (fromGlueing f p) p),
+      (∀ z : Points (fieldFiber (fromGlueing f p) p), z = x') ∧
       ∃ σ : ofOver p.overObj ⟶ fieldFiber (fromGlueing f p) p,
-        σ ≫ fiberToSpec (fromGlueing f p) p = 𝟙 (ofOver p.overObj) ∧
-          Points.mk (FieldValuedPoint.of p.K p.structureHom σ) = x' :=
-  sorry
+        σ ≫ fieldFiberToSpec (fromGlueing f p) p = 𝟙 (ofOver p.overObj) ∧
+          Points.mk (FieldValuedPoint.of p.K p.structureHom σ) = x')
 
-/-- Lemma 76.32.1 (4): if `f` is finite and `Y` is locally Noetherian, then the
-structure morphism of the glueing space is finite. -/
-@[stacks 0EDM]
-instance IsFinite.fromGlueing (f : X ⟶ Y) [IsFinite f] [IsLocallyNoetherian Y]
-    (p : FieldValuedPoint Y) [IsClosedImmersion p.hom] :
-    IsFinite (fromGlueing f p) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.IsFinite.fromGlueing :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [IsFinite f] [IsLocallyNoetherian Y]
+    (p : FieldValuedPoint Y) [IsClosedImmersion p.hom],
+    IsFinite (fromGlueing f p))
 
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.toGlueing_comp_fromGlueing :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsIntegralHom f]
+    (p : FieldValuedPoint Y) [IsClosedImmersion p.hom],
+    toGlueing f p ≫ fromGlueing f p = f)

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.Resolution.Exact
@@ -22,10 +16,10 @@ so an ambient K-injective target remains K-injective after localization automati
 -/
 
 open CategoryTheory CategoryTheory.Limits ComplexShape DerivedCategory
--- Local instance justification (defeq pin): the generic ringed-site ModuleCat derived owner is
--- required by the derived-category APIs in this presentation.
-attribute [local instance] RingedSite.Hom.moduleCat_hasDerivedCategory
 open RingedSite.Hom
+
+-- Local instance justification (defeq pin): DerivedCategory.Q, ModuleDerived, localizedRestrictionDerived, and shifted Hom comparisons must share the explicit standard module-sheaf derived-category owner.
+attribute [local instance] RingedSite.Hom.moduleCat_hasDerivedCategory
 
 noncomputable section
 
@@ -33,7 +27,7 @@ universe u v w z
 
 namespace RingedSite.Hom.LocalizedRestriction.Homology
 
-variable (X : RingedSite.{u, v, w}) (U : X) [UnivLE.{max u v, z}]
+variable (X : RingedSite.{u, v, w}) (U : X.carrier) [UnivLE.{max u v, z}]
 variable [SheafOfModules.Localization.HasLowerShriek.{z} X.structureSheaf]
 
 /-- The degree-`n` Hom-complex cohomology of a restricted K-injective target computes shifted
@@ -51,9 +45,7 @@ noncomputable def degreeAddEquiv
     (ModuleCat.{z} X) inferInstance inferInstance (moduleCat_hasDerivedCategory X)
     (ModuleCat.{z} (X.localization U)) inferInstance (localizedModuleCatAbelian U)
       (localizedModuleCatHasDerivedCategory U)
-    (localizedRestriction.{z} X U) (localizedRestriction_additive X U)
-      (localizedRestriction_preservesFiniteLimits X U)
-      (localizedRestriction_preservesFiniteColimits X U)
+    (localizedRestriction.{z} X U) inferInstance inferInstance inferInstance
     L I (localizedRestrictionComplex_isKInjective X U I) n
 
 /-- The degree-zero Hom-complex cohomology of a restricted K-injective target computes morphisms in

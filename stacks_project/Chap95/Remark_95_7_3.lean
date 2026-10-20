@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap95.Lemma_95_7_2
-public import ReasLib.CategoryTheory.Sites.Descent.Basic
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Spaces.Descent
+import StacksCheckRecall
 
 /-!
 # Remark 95.7.3
@@ -29,39 +23,23 @@ universe u v
 
 namespace AlgebraicGeometry.AlgebraicSpace.Spaces
 
-/-- Remark 95.7.3: ignoring set-theoretic size, recorded as `[Small.{u} I]` on the
+/- Remark 95.7.3: ignoring set-theoretic size, recorded as `[Small.{u} I]` on the
 chosen covering index as in Bootstrap, Lemma 80.11.1, `Spaces` satisfies descent
 for objects along an fppf covering `{Ui i ⟶ U}` in `(Sch/S)_fppf`. Equivalently,
 `(fiberPseudofunctor p).toDescentData f` is essentially surjective, so a family
 of algebraic spaces over the `Ui i` with cocycle isomorphisms over the fibre
 products `Ui i ×_U Ui j` arises from some object of `p.Fiber U`. -/
-@[stacks 04UB]
-theorem essSurj_ofArrows {S : Scheme.{u}} {U : Over S}
-    [IsPrestack.OnSite (Scheme.fppfTopology.over S) (p : Spaces S ⥤ Over S)]
+@[stacks 04UB] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.essSurj_ofArrows :
+  ∀ {S : Scheme.{u}} {U : Over S}
     {I : Type v} [Small.{u} I] {Ui : I → Over S} (f : ∀ i, Ui i ⟶ U)
-    (h_cover : Sieve.ofArrows Ui f ∈ Scheme.fppfTopology.over S U) :
-    ((Functor.fiberPseudofunctor (p : Spaces S ⥤ Over S)).toDescentData f).EssSurj :=
-  sorry
+    (h_cover : Sieve.ofArrows Ui f ∈ Scheme.fppfTopology.over S U),
+    ((Functor.fiberPseudofunctor (p : Spaces S ⥤ Over S)).toDescentData f).EssSurj)
 
-/-- Essential surjectivity of the descent functor unpacks as existence of a fibre
-object over `U` whose canonical descent data is isomorphic to the given datum. -/
-theorem exists_iso_of_descentData {S : Scheme.{u}} {U : Over S}
-    [IsPrestack.OnSite (Scheme.fppfTopology.over S) (p : Spaces S ⥤ Over S)]
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.isStackFor_ofArrows :
+  ∀ {S : Scheme.{u}} {U : Over S}
     {I : Type v} [Small.{u} I] {Ui : I → Over S} (f : ∀ i, Ui i ⟶ U)
-    (h_cover : Sieve.ofArrows Ui f ∈ Scheme.fppfTopology.over S U)
-    (D : (Functor.fiberPseudofunctor (p : Spaces S ⥤ Over S)).DescentData f) :
-    ∃ X : p.Fiber U,
-      Nonempty (((Functor.fiberPseudofunctor p).toDescentData f).obj X ≅ D) :=
-  sorry
-
-/-- Covering-level stack condition for `Spaces` along the chosen fppf family.
-Hom-descent is Lemma 95.7.2; object descent is `essSurj_ofArrows`. -/
-theorem isStackFor_ofArrows {S : Scheme.{u}} {U : Over S}
-    [IsPrestack.OnSite (Scheme.fppfTopology.over S) (p : Spaces S ⥤ Over S)]
-    {I : Type v} [Small.{u} I] {Ui : I → Over S} (f : ∀ i, Ui i ⟶ U)
-    (h_cover : Sieve.ofArrows Ui f ∈ Scheme.fppfTopology.over S U) :
+    (h_cover : Sieve.ofArrows Ui f ∈ Scheme.fppfTopology.over S U),
     (Functor.fiberPseudofunctor (p : Spaces S ⥤ Over S)).IsStackFor
-      (Presieve.ofArrows Ui f) :=
-  sorry
+      (Presieve.ofArrows Ui f))
 
 end AlgebraicGeometry.AlgebraicSpace.Spaces

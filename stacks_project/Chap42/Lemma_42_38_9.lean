@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowCohomology.ChernClass.Commutation
@@ -64,7 +58,7 @@ free modules commute on every relative Chow class. -/
       (E : X.Modules) (r : ℕ) [Scheme.Modules.IsFiniteLocallyFreeOfRank r E]
       (F : X.Modules) (s : ℕ) [Scheme.Modules.IsFiniteLocallyFreeOfRank s F]
       (i j : ℕ) (k : ℤ) (α : RelativeChow δ (Over.mk p) k),
-      ChowCohomology.castDegree δ (Y := Over.mk p)
+      RelativeChow.castDegree δ (X := Over.mk p)
           (ChowCohomology.ChernClass.capCommDegree k i j)
           (ChowCohomology.ChernClass.chowCap δ p E r i (k - (j : ℤ))
             (ChowCohomology.ChernClass.chowCap δ p F s j k α)) =

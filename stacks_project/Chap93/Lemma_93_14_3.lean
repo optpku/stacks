@@ -1,60 +1,38 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.FiniteType
-public import Mathlib.RingTheory.Smooth.Locus
-public import stacks_project.Chap90.Definition_90_8_1_Smooth
-public import stacks_project.Chap90.Definition_90_12_3
-public import stacks_project.Chap93.Lemma_93_14_3_BasedFunctor
+public import ReasLib.AlgebraicGeometry.FormalDeformation.FlatAlgebra.Henselization.Smooth
+import StacksCheckRecall
 
 /-!
 # Smoothness of henselization of ring deformation categories
 
-If `k → P` is of finite type and `Spec P ⟶ Spec k` is smooth on the complement
-of `V(J)`, then `henselizationBasedFunctor Λ k P J` is smooth and induces a
-bijection on tangent spaces.
+For a finite-type algebra smooth outside the vanishing locus of an ideal, pair
+henselization is smooth on deformation categories and identifies tangent spaces.
 -/
 
-@[expose] public section
+public section
 
-open CategoryTheory
-open Algebra
-open PrimeSpectrum
-open RingPairCat
-open scoped BasedFunctor
+open CategoryTheory Algebra PrimeSpectrum RingPairCat
 
 universe u
 
-variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
-  [Module.Finite Λ k]
-variable {P : Type u} [CommRing P] [Algebra k P]
-variable [henselianPairInclusion.IsRightAdjoint]
+/- Lemma 93.14.3 (1): for a finite-type `k`-algebra `P` smooth on the complement
+of `V(J)`, the canonical deformation functor `Def_P ⟶ Def_{P^h}` is smooth. -/
+@[stacks 0DZD] #check (FlatAlgebraCat.isSmooth_henselizationBasedFunctor :
+  ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+    [Module.Finite Λ k] {P : Type u} [CommRing P] [Algebra k P]
+    [henselianPairInclusion.IsRightAdjoint] [Algebra.FiniteType k P] (J : Ideal P)
+    (hsmooth : (zeroLocus (J : Set P))ᶜ ⊆ smoothLocus k P),
+    BasedFunctor.IsSmooth (FlatAlgebraCat.henselizationBasedFunctor Λ k P J))
 
-namespace FlatAlgebraCat
+/- Lemma 93.14.3 (2): for a finite-type `k`-algebra `P` smooth on the complement
+of `V(J)`, pair henselization induces a bijection on tangent spaces. -/
+@[stacks 0DZD] #check (FlatAlgebraCat.bijective_differential_henselizationBasedFunctor :
+  ∀ {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
+    [Module.Finite Λ k] {P : Type u} [CommRing P] [Algebra k P]
+    [henselianPairInclusion.IsRightAdjoint] [Algebra.FiniteType k P] (J : Ideal P)
+    (hsmooth : (zeroLocus (J : Set P))ᶜ ⊆ smoothLocus k P),
+    Function.Bijective
+      (BasedFunctor.differential (FlatAlgebraCat.henselizationBasedFunctor Λ k P J)))
 
-/-- Lemma 93.14.3 (1)
-In Example 93.8.1, let `P` be a finite type `k`-algebra and let `J ⊂ P` be an
-ideal such that `Spec P ⟶ Spec k` is smooth on the complement of `V(J)`. Then
-the functor `Def_P ⟶ Def_{P^h}` of Lemma 93.8.8 is smooth. -/
-@[stacks 0DZD]
-theorem isSmooth_henselizationBasedFunctor [Algebra.FiniteType k P] (J : Ideal P)
-    (hsmooth : (zeroLocus (J : Set P))ᶜ ⊆ smoothLocus k P) :
-    BasedFunctor.IsSmooth (henselizationBasedFunctor Λ k P J) := sorry
-
-/-- Lemma 93.14.3 (2)
-In Example 93.8.1, let `P` be a finite type `k`-algebra and let `J ⊂ P` be an
-ideal such that `Spec P ⟶ Spec k` is smooth on the complement of `V(J)`. Then
-the differential of `henselizationBasedFunctor Λ k P J` is bijective on tangent
-spaces. -/
-@[stacks 0DZD]
-theorem bijective_differential_henselizationBasedFunctor [Algebra.FiniteType k P]
-    (J : Ideal P) (hsmooth : (zeroLocus (J : Set P))ᶜ ⊆ smoothLocus k P) :
-    Function.Bijective (BasedFunctor.differential (henselizationBasedFunctor Λ k P J)) :=
-  sorry
-
-end FlatAlgebraCat
+end

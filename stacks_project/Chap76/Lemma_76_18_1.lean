@@ -1,43 +1,28 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_30_5_Flat
-public import stacks_project.Chap76.Lemma_76_5_3_Map
-public import stacks_project.Chap76.Lemma_76_18_1_Thickening
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Thickening.Conormal
+import StacksCheckRecall
 
 /-!
 # Infinitesimal deformations of algebraic spaces
 
-For a morphism of first-order thickenings of algebraic spaces whose map on the
-closed subspaces is flat, flatness of the ambient map together with cartesianness
-is equivalent to the canonical conormal comparison being an isomorphism.
+The conormal flatness criterion for morphisms of first-order thickenings.
 -/
 
 @[expose] public section
 
 open CategoryTheory Limits
-open AlgebraicGeometry (Scheme)
+open AlgebraicGeometry (Scheme AlgebraicSpace)
 open AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.IsFirstOrderThickening
-
-/-- Lemma 76.18.1: Let `S` be a scheme. Let `(f, f') : (X ⊂ X') ⟶ (Y ⊂ Y')` be a
-morphism of first-order thickenings of algebraic spaces over `S`. Assume that
-`f` is flat. Then `f'` is flat and `X = Y ×_{Y'} X'` if and only if the canonical
-map `f^* C_{Y/Y'} ⟶ C_{X/X'}` is an isomorphism. -/
-@[stacks 06BH]
-theorem flat_ambient_and_isPullback_iff_conormalMap_isIso
-    {S : Scheme.{u}} {X X' Y Y' : AlgebraicSpace S} {iX : X ⟶ X'} {iY : Y ⟶ Y'}
+/- Lemma 76.18.1: For a morphism of first-order thickenings with flat map on
+closed subspaces, the ambient map is flat and the square is cartesian if and
+only if the canonical conormal comparison is an isomorphism. -/
+@[stacks 06BH] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsFirstOrderThickening.flat_ambient_and_isPullback_iff_conormalMap_isIso :
+    ∀ {S : Scheme.{u}} {X X' Y Y' : AlgebraicSpace S} {iX : X ⟶ X'} {iY : Y ⟶ Y'}
     [IsFirstOrderThickening iX] [IsFirstOrderThickening iY] {f : X ⟶ Y}
-    {f' : X' ⟶ Y'} [Flat f] (sq : CommSq f iX iY f') :
-    (Flat f' ∧ IsPullback f iX iY f') ↔ IsIso (Hom.Conormal.map sq) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.IsFirstOrderThickening
+    {f' : X' ⟶ Y'} [Flat f] (sq : CommSq f iX iY f'),
+    (Flat f' ∧ IsPullback f iX iY f') ↔ IsIso (Hom.Conormal.map sq))

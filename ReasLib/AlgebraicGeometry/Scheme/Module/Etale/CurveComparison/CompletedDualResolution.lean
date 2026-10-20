@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.ResidualCompletedTarget
@@ -26,18 +20,18 @@ variable [ConnectedSpace (Spec (CommRingCat.of k))]
 variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]
 variable (ηbar : GeometricPoint (geometricBaseChange X))
 variable (K : CompactRepresentation.Cat Λ
-    (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))))
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))))
 
 /-- Resolve the actual continuous character module in ALL discrete arithmetic
 representations. Neither finite-category injectives nor algebraic biduality
 are used. -/
 abbrev characterResolution := injectiveResolution
   (CompactRepresentation.continuousDual Λ
-    (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))) K)
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))) K)
 
 /-- Kuhn's specified dual differentials and continuous evaluation augmentation. -/
 abbrev compactResolution := CompactRepresentation.compactProjectiveResolution Λ
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))) K
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))) K
   (characterResolution Λ X ηbar K)
 
 /-- The actual projective resolution lift, before taking residual coinvariants. -/
@@ -83,7 +77,7 @@ def nativeGaloisDerivedIso : DerivedCategory.Q.obj (galoisCochain Λ X ηbar K) 
 retaining general k and the explicit inverse-Tate coefficient. -/
 def finiteInputTensorGaloisIso (hΛ : IsUnit (Nat.card Λ : k))
     (M : (finiteTypeDiscreteModule Λ
-      (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))).FullSubcategory) :
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))).FullSubcategory) :
     DerivedCategory.Q.obj (galoisCochain Λ X ηbar
       (ActualArithmeticDualSheaf.compactInput Λ X ηbar hΛ M)) ≅
     DerivedCategory.Q.obj (ActualResidualCompletedTarget.tensorGaloisCochain Λ X ηbar
@@ -118,7 +112,7 @@ instance toNativeProfiniteInt_quasiIso : QuasiIso (toNativeProfiniteInt Λ X ηb
     (toNative Λ X ηbar K) (ActualFiniteFieldTransport.modules k Λ)
 
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-    (completedGroupRing Λ (ActualFiniteFieldTransport.profiniteInt.{u} : Type u)))]
+    (completedGroupRing Λ (ProfiniteGrp.hatZ.{u} : Type u)))]
 
 /-- Localize the specified transported resolution lift. -/
 def nativeDerivedIso : DerivedCategory.Q.obj (profiniteIntCochain Λ X ηbar K) ≅
@@ -130,7 +124,7 @@ completed tensor target. This is the target-side bridge only: it does not
 assert that geometric compact support is its source. -/
 def finiteInputTensorIso (hΛ : IsUnit (Nat.card Λ : k))
     (M : (finiteTypeDiscreteModule Λ
-      (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))).FullSubcategory) :
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))).FullSubcategory) :
     DerivedCategory.Q.obj (profiniteIntCochain Λ X ηbar
       (ActualArithmeticDualSheaf.compactInput Λ X ηbar hΛ M)) ≅
     ActualResidualCompletedTarget.derivedTensorTarget Λ X ηbar hΛ M :=

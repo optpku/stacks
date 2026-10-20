@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.QuasiCompact
 
 /-!
 # Quasi-compact algebraic stacks
@@ -28,39 +22,28 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- An algebraic stack is quasi-compact if it admits a surjective smooth atlas
-from a quasi-compact scheme. -/
-@[mk_iff]
-class IsQuasiCompact {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X] : Prop where
-  /-- There is a surjective smooth 1-morphism from the slice of a quasi-compact scheme. -/
-  exists_compact_smooth_cover :
+#check (AlgebraicGeometry.AlgebraicStack.IsQuasiCompact :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X], Prop)
+
+#check (AlgebraicGeometry.AlgebraicStack.isQuasiCompact_iff :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
+    IsQuasiCompact X ↔
     ∃ (U : Over S) (p : GroupoidsOver.slice U ⟶ X),
-      Groupoids.Hom.Smooth p ∧ Groupoids.Hom.Surjective p ∧ CompactSpace U.left
+      Groupoids.Hom.Smooth p ∧ Groupoids.Hom.Surjective p ∧ CompactSpace U.left)
 
-namespace IsQuasiCompact
-
-/-- A quasi-compact algebraic stack admits a surjective smooth atlas from a
-quasi-compact scheme. -/
-theorem spec {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
-    [IsQuasiCompact X] :
+#check (AlgebraicGeometry.AlgebraicStack.IsQuasiCompact.spec :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
+    [IsQuasiCompact X],
     ∃ (U : Over S) (p : GroupoidsOver.slice U ⟶ X),
-      Groupoids.Hom.Smooth p ∧ Groupoids.Hom.Surjective p ∧ CompactSpace U.left :=
-  sorry
+      Groupoids.Hom.Smooth p ∧ Groupoids.Hom.Surjective p ∧ CompactSpace U.left)
 
-/-- A surjective smooth atlas from a quasi-compact scheme witnesses that the
-algebraic stack is quasi-compact. -/
-theorem of {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] {U : Over S}
+#check (AlgebraicGeometry.AlgebraicStack.IsQuasiCompact.of :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] {U : Over S}
     (p : GroupoidsOver.slice U ⟶ X) [Groupoids.Hom.Smooth p]
-    [Groupoids.Hom.Surjective p] [CompactSpace U.left] : IsQuasiCompact X :=
-  sorry
+    [Groupoids.Hom.Surjective p] [CompactSpace U.left], IsQuasiCompact X)
 
-end IsQuasiCompact
-
-/-- The canonical slice of a quasi-compact scheme over `S` is a quasi-compact
-algebraic stack. -/
-instance instIsQuasiCompact_slice {S : Scheme.{u}} (U : Over S)
-    [CompactSpace U.left] : IsQuasiCompact (GroupoidsOver.slice U) where
-  exists_compact_smooth_cover :=
-    ⟨U, 𝟙 (GroupoidsOver.slice U), inferInstance, inferInstance, inferInstance⟩
+#check (AlgebraicGeometry.AlgebraicStack.instIsQuasiCompact_slice :
+  ∀ {S : Scheme.{u}} (U : Over S) [CompactSpace U.left],
+    IsQuasiCompact (GroupoidsOver.slice U))
 
 end AlgebraicGeometry.AlgebraicStack

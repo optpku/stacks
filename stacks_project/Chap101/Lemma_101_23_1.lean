@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_27_7_LocallyQuasiFinite
-public import stacks_project.Chap100.Lemma_100_3_2_MorphismProperty
-public import stacks_project.Chap101.Definition_101_23_2_LocallyQuasiFinite
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.LocallyQuasiFinite.Representable
+import StacksCheckRecall
 
 /-!
 # Representable locally quasi-finite morphisms of algebraic stacks
@@ -26,52 +19,13 @@ open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.Groupoids.Hom
-
-/-- Lemma 101.23.1: Let `f : X ⟶ Y` be a morphism of algebraic stacks. Assume
+/- Lemma 101.23.1: Let `f : X ⟶ Y` be a morphism of algebraic stacks. Assume
 `f` is representable by algebraic spaces. The following are equivalent: `f` is
 locally quasi-finite as in Properties of Stacks, Section 100.3, and `f` is
 locally of finite type and for every morphism `Spec(k) ⟶ Y` where `k` is a
 field the space `|Spec(k) ×_Y X|` is discrete. -/
-@[stacks 06UA]
-theorem has_locallyQuasiFinite_iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
-    (hf : relativelyRepresentableByAlgebraicSpaces f) :
-    has (@AlgebraicSpace.LocallyQuasiFinite S) f ↔
-      AlgebraicStack.LocallyOfFiniteType f ∧ AlgebraicStack.discreteFieldFibers f :=
-  sorry
-
-/-- A morphism of algebraic stacks representable by algebraic spaces that is
-locally of finite type and has discrete field fibers is locally quasi-finite on
-scheme-slice tests of algebraic spaces. -/
-theorem has_locallyQuasiFinite_of {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
-    (hf : relativelyRepresentableByAlgebraicSpaces f)
-    [AlgebraicStack.LocallyOfFiniteType f]
-    (h : AlgebraicStack.discreteFieldFibers f) :
-    has (@AlgebraicSpace.LocallyQuasiFinite S) f :=
-  sorry
-
-/-- A morphism of algebraic stacks representable by algebraic spaces that is
-locally quasi-finite on scheme-slice tests of algebraic spaces is locally of
-finite type. -/
-theorem locallyOfFiniteType_of_has_locallyQuasiFinite
-    {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
-    (hf : relativelyRepresentableByAlgebraicSpaces f)
-    (h : has (@AlgebraicSpace.LocallyQuasiFinite S) f) :
-    AlgebraicStack.LocallyOfFiniteType f :=
-  sorry
-
-/-- A morphism of algebraic stacks representable by algebraic spaces that is
-locally quasi-finite on scheme-slice tests of algebraic spaces has discrete
-field fibers. -/
-theorem discreteFieldFibers_of_has_locallyQuasiFinite
-    {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
-    (hf : relativelyRepresentableByAlgebraicSpaces f)
-    (h : has (@AlgebraicSpace.LocallyQuasiFinite S) f) :
-    AlgebraicStack.discreteFieldFibers f :=
-  sorry
-
-end AlgebraicGeometry.Groupoids.Hom
+@[stacks 06UA] #check (AlgebraicGeometry.Groupoids.Hom.has_locallyQuasiFinite_iff :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+    {f : X ⟶ Y}, relativelyRepresentableByAlgebraicSpaces f →
+      (AlgebraicGeometry.Groupoids.Hom.has (@AlgebraicSpace.LocallyQuasiFinite S) f ↔
+        AlgebraicStack.LocallyOfFiniteType f ∧ AlgebraicStack.discreteFieldFibers f))

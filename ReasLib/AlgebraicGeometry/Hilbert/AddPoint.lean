@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Monoidal.Cartesian.FunctorCategory
@@ -54,27 +48,29 @@ def sectionIdeal {X T : Over S} (x : T ⟶ X) :
 theorem sectionIdeal_def {X T : Over S} (x : T ⟶ X) :
     sectionIdeal x = (sectionGraph x).ker := sorry
 
-/-- The graph ideal on a smooth relative curve is finite locally free of rank one over its base. -/
+/-- If `X` is separated over `S`, the graph of `x : T ⟶ X` is a closed immersion, so its
+ideal cuts out a closed subscheme of `X ×ₛ T` mapping isomorphically to `T`; in particular it is
+finite locally free of rank one over `T`. -/
 theorem sectionIdeal_isFiniteLocallyFreeOfRank {X T : Over S}
-    [SmoothOfRelativeDimension 1 X.hom] (x : T ⟶ X) :
+    [IsSeparated X.hom] (x : T ⟶ X) :
     IsFiniteLocallyFreeOfRank
       ((sectionIdeal x).subschemeι ≫ pullback.snd X.hom T.hom) 1 := sorry
 
 namespace Point
 
 /-- Regard a morphism `x : T ⟶ X` as the degree-one Hilbert point given by its graph. -/
-def ofSection {X T : Over S} [SmoothOfRelativeDimension 1 X.hom]
+def ofSection {X T : Over S} [IsSeparated X.hom]
     (x : T ⟶ X) : Point X 1 T where
   ideal := sectionIdeal x
   finiteLocallyFree := sectionIdeal_isFiniteLocallyFreeOfRank x
 
 /-- The ideal of the Hilbert point associated to a section is its graph ideal. -/
-theorem ofSection_ideal {X T : Over S} [SmoothOfRelativeDimension 1 X.hom]
+theorem ofSection_ideal {X T : Over S} [IsSeparated X.hom]
     (x : T ⟶ X) :
     (ofSection x).ideal = sectionIdeal x := sorry
 
 /-- Formation of a section-generated degree-one Hilbert point commutes with base change. -/
-theorem ofSection_pullback {X T T' : Over S} [SmoothOfRelativeDimension 1 X.hom]
+theorem ofSection_pullback {X T T' : Over S} [IsSeparated X.hom]
     (x : T ⟶ X) (h : T' ⟶ T) :
     (ofSection x).pullback h = ofSection (h ≫ x) := sorry
 
@@ -108,12 +104,14 @@ end Point
 
 /-- The pointwise operation sending a Hilbert point and a section to their divisor sum. -/
 def addPointApp (X : Over S) [SmoothOfRelativeDimension 1 X.hom]
+    [IsSeparated X.hom]
     (d : ℕ) (T : (Over S)ᵒᵖ)
     (p : (functor X d ⊗ yoneda.obj X).obj T) : Point X (d + 1) T.unop :=
   p.1.add (Point.ofSection p.2)
 
 /-- The pointwise add-point operation is natural in the test scheme. -/
 theorem addPointApp_naturality (X : Over S) [SmoothOfRelativeDimension 1 X.hom]
+    [IsSeparated X.hom]
     (d : ℕ) {T T' : (Over S)ᵒᵖ} (f : T ⟶ T') :
     (functor X d ⊗ yoneda.obj X).map f ≫
         TypeCat.ofHom (addPointApp X d T') =
@@ -121,17 +119,20 @@ theorem addPointApp_naturality (X : Over S) [SmoothOfRelativeDimension 1 X.hom]
 
 /-- The natural transformation `(D, x) ↦ D + x` on Hilbert points. -/
 def addPoint (X : Over S) [SmoothOfRelativeDimension 1 X.hom]
+    [IsSeparated X.hom]
     (d : ℕ) : functor X d ⊗ yoneda.obj X ⟶ functor X (d + 1) where
   app T := TypeCat.ofHom (addPointApp X d T)
   naturality := fun _ _ f ↦ addPointApp_naturality X d f
 
 /-- At every test scheme, `addPoint` sends `(D, x)` to `D + x`. -/
 theorem addPoint_app (X : Over S) [SmoothOfRelativeDimension 1 X.hom]
+    [IsSeparated X.hom]
     (d : ℕ) (T : (Over S)ᵒᵖ) (p : (functor X d ⊗ yoneda.obj X).obj T) :
     (addPoint X d).app T p = p.1.add (Point.ofSection p.2) := sorry
 
 /-- The morphism of explicit representing objects induced by adding a point. -/
 def addPointMapWith (X : Over S) [SmoothOfRelativeDimension 1 X.hom]
+    [IsSeparated X.hom]
     (d : ℕ) {H_d H_succ : Over S}
     (R_d : (functor X d).RepresentableBy H_d)
     (R_succ : (functor X (d + 1)).RepresentableBy H_succ) :
@@ -142,6 +143,7 @@ def addPointMapWith (X : Over S) [SmoothOfRelativeDimension 1 X.hom]
 /-- The representing equivalence sends `addPointMapWith` to the add-point transformation
 applied to the universal pair. -/
 theorem addPointMapWith_homEquiv (X : Over S) [SmoothOfRelativeDimension 1 X.hom]
+    [IsSeparated X.hom]
     (d : ℕ) {H_d H_succ : Over S}
     (R_d : (functor X d).RepresentableBy H_d)
     (R_succ : (functor X (d + 1)).RepresentableBy H_succ) :
@@ -153,6 +155,7 @@ theorem addPointMapWith_homEquiv (X : Over S) [SmoothOfRelativeDimension 1 X.hom
 /-- The add-point morphism between the chosen representing objects of consecutive Hilbert
 functors. -/
 def addPointMap (X : Over S) [SmoothOfRelativeDimension 1 X.hom]
+    [IsSeparated X.hom]
     [∀ n : ℕ, (functor X n).IsRepresentable] (d : ℕ) :
     (functor X d).reprX ⊗ X ⟶ (functor X (d + 1)).reprX :=
   addPointMapWith X d (functor X d).representableBy
@@ -161,6 +164,7 @@ def addPointMap (X : Over S) [SmoothOfRelativeDimension 1 X.hom]
 /-- The chosen add-point map is the explicit-representation construction for the chosen
 representations. -/
 theorem addPointMap_def (X : Over S) [SmoothOfRelativeDimension 1 X.hom]
+    [IsSeparated X.hom]
     [∀ n : ℕ, (functor X n).IsRepresentable] (d : ℕ) :
     addPointMap X d =
       addPointMapWith X d (functor X d).representableBy
@@ -170,6 +174,7 @@ theorem addPointMap_def (X : Over S) [SmoothOfRelativeDimension 1 X.hom]
 @[instance]
 theorem addPointMap_isFiniteLocallyFreeOfRank {S : Scheme.{u}} (X : Over S)
     [SmoothOfRelativeDimension 1 X.hom]
+    [IsSeparated X.hom]
     [∀ n : ℕ, (functor X n).IsRepresentable] (d : ℕ) :
     IsFiniteLocallyFreeOfRank (addPointMap X d).left (d + 1) := sorry
 

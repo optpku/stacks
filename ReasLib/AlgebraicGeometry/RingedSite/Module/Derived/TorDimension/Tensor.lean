@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.TorDimension.FlatRepresentative
@@ -23,7 +17,6 @@ the point where tensor products of flat module sheaves are used.
 -- Local instance justification (defeq pin): the imported ModuleDerived and localized ModuleCat aliases use the standard homotopy localization; this fallback is definitionally the same quotient as the named moduleCat_hasDerivedCategory and does not choose another derived model.
 attribute [local instance] HasDerivedCategory.standard
   SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
-  SheafOfModules.RingedSite.moduleCategoryHasDerivedTensor
 
 open CategoryTheory
 open RingedSite.Hom
@@ -42,6 +35,8 @@ variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
 variable {O : Sheaf J CommRingCat.{w}} [UnivLE.{max u v, w}]
 variable [HasWeakSheafify J AddCommGrpCat.{w}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [DerivedCategory.DerivedTensor.Right.Has
+  (C := SheafOfModules.RingedSite.ringedSiteModuleCategory.{u, v, w, w} J O)]
 
 /-- Tensoring interval-supported flat representatives adds their support intervals. -/
 theorem HasFlatRepresentativeIn.tensor

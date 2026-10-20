@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Affine
@@ -48,4 +42,4 @@ reduction of `X`. -/
   (AlgebraicGeometry.AlgebraicSpace.affineEtaleInclusion_directImage_isEquivalence R.space :
     ((AlgebraicGeometry.AlgebraicSpace.affineEtaleInclusion R.space).sheafPushforwardCocontinuous
       (Type (u + 1)) (AlgebraicGeometry.AlgebraicSpace.affineEtaleTopology R.space)
-      (AlgebraicGeometry.AlgebraicSpace.SmallEtale.topology R.space)).IsEquivalence)
+      (AlgebraicGeometry.AlgebraicSpace.smallEtaleTopology R.space)).IsEquivalence)

@@ -1,36 +1,25 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Topology.JacobsonSpace
+public import ReasLib.Topology.Point
 public import Mathlib.Topology.Inseparable
 import StacksCheckRecall
 
 @[expose] public section
 
+universe u
+
 /- Definition 111.6.22 (1): a point `x` of a topological space `X` is closed when
-`closure {x} = {x}`. This is membership in the canonical set `closedPoints X`, equivalently
-`x ∈ closedPoints X` iff `IsClosed {x}` iff `closure {x} = {x}`. -/
+`closure {x} = {x}`. -/
 @[stacks 027H]
-#check closedPoints
+#check (Topology.mem_closedPoints_iff_closure_eq :
+  ∀ {X : Type u} [TopologicalSpace X] (x : X),
+    x ∈ closedPoints X ↔ closure ({x} : Set X) = {x})
 
-/- Companion check: `x ∈ closedPoints X` iff `IsClosed {x}`. -/
-#check mem_closedPoints_iff
-
-/- Companion check: `closure s = s` iff `IsClosed s`, recovering the source formula on
-singletons. -/
-#check closure_eq_iff_isClosed
-
-/- Definition 111.6.22 (2): for points `x`, `y` of `X`, Stacks says `x` is a specialization of
-`y` (equivalently `y` is a generalization of `x`) when `x ∈ closure {y}`. This is the
-canonical relation `Specializes`, written `y ⤳ x` in mathlib binder order. -/
+/- Definition 111.6.22 (2): for points `x`, `y` of `X`, `x` is a specialization of `y`, or
+`y` is a generalization of `x`, when `x ∈ closure {y}`. In mathlib argument order,
+this is `Specializes y x`, written `y ⤳ x`, identified with `x ∈ closure {y}` by
+mathlib's `specializes_iff_mem_closure`. -/
 @[stacks 027H]
-#check Specializes
-
-/- Companion check: `x ⤳ y` iff `y ∈ closure {x}`, so Stacks "`x` is a specialization of `y`"
-is `y ⤳ x`. -/
-#check specializes_iff_mem_closure
+#check (specializes_iff_mem_closure :
+  ∀ {X : Type u} [TopologicalSpace X] {y x : X},
+    y ⤳ x ↔ x ∈ closure ({y} : Set X))

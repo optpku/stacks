@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap42.Remark_42_33_5_Bivariant
-public import ReasLib.AlgebraicGeometry.BivariantClass.Zero
+public import ReasLib.AlgebraicGeometry.BivariantClass.Additive
 
 @[expose] public section
 
@@ -48,7 +42,7 @@ def nsmulClass
     {X Y : Over S} [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
     (f : X ⟶ Y) (p : ℤ) (c : BivariantClass delta f p) :
     ℕ → BivariantClass delta f p
-  | 0 => zeroClass delta f p
+  | 0 => pointwiseZero delta f p
   | n + 1 => addClass delta f p (nsmulClass delta f p c n) c
 
 /-- Signed repeated pointwise addition of a bivariant class. -/
@@ -67,7 +61,7 @@ theorem zeroClass_apply
     [LocallyOfFiniteType X'.hom] [LocallyOfFiniteType Y'.hom]
     (f : X ⟶ Y) (p : ℤ) (i : X' ⟶ X) (f' : X' ⟶ Y') (g : Y' ⟶ Y)
     [LocallyOfFiniteType g.left] (square : IsPullback i.left f'.left f.left g.left)
-    (k : ℤ) : (zeroClass delta f p).cap i f' g square k = 0 := rfl
+    (k : ℤ) : (pointwiseZero delta f p).cap i f' g square k = 0 := rfl
 
 /-- Pointwise addition evaluates as addition of cap maps. -/
 theorem addClass_apply
@@ -95,7 +89,7 @@ theorem nsmulClass_zero
     {S : Scheme.{u}} [UniversallyCatenary S] (delta : S → ℤ) [IsDimensionFunction delta]
     {X Y : Over S} [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
     (f : X ⟶ Y) (p : ℤ) (c : BivariantClass delta f p) :
-    nsmulClass delta f p c 0 = zeroClass delta f p := sorry
+    nsmulClass delta f p c 0 = pointwiseZero delta f p := sorry
 
 /-- Repeated addition at a successor adds one more copy. -/
 theorem nsmulClass_succ
@@ -117,7 +111,7 @@ instance instAddCommGroup
     {S : Scheme.{u}} [UniversallyCatenary S] (delta : S → ℤ) [IsDimensionFunction delta]
     {X Y : Over S} [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
     (f : X ⟶ Y) (p : ℤ) : AddCommGroup (BivariantClass delta f p) where
-  zero := zeroClass delta f p
+  zero := pointwiseZero delta f p
   add := addClass delta f p
   neg := negClass delta f p
   sub := fun c d ↦ addClass delta f p c (negClass delta f p d)

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Topology.Homeomorph.Defs
-public import ReasLib.Algebra.Category.ModuleCat.Topology.Limit
-public import stacks_project.Chap30.Theorem_30_20_5_Theorem_on_formal_functions_Comparison
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.FormalFunctions
+import StacksCheckRecall
 
 /-!
 # Theorem on formal functions
@@ -37,32 +30,28 @@ variable {A : Type u} [CommRing A]
 variable {X : Scheme.{u}}
 variable [HasExt (Sheaf (Opens.grothendieckTopology X.carrier) AddCommGrpCat.{u})]
 
-/-- Theorem 30.20.5 (Theorem on formal functions) (1): for a proper morphism to
-the spectrum of a Noetherian ring and a coherent sheaf, the induced comparison
-from the I-adic completion of `Hom.cohomology f F p` to `limit (tower I f F p)`
-is an isomorphism of `A`-modules. -/
-@[stacks 02OC, instance]
-instance isIso_limitComparison [IsNoetherianRing A] (I : Ideal A)
-    (f : X ⟶ Spec (CommRingCat.of A)) [IsProper f]
-    (F : X.Modules) [F.IsCoherent] (p : ℕ) :
-    IsIso (limitComparison I f F p) :=
-  sorry
+/- Theorem 30.20.5 (Theorem on formal functions)
+The canonical comparison from completed cohomology to the inverse limit of
+ideal-power quotient cohomology is an isomorphism of modules. -/
+@[stacks 02OC] #check
+  (AlgebraicGeometry.Scheme.Hom.IdealPowerCohomology.Quotient.isIso_limitComparison :
+    ∀ [IsNoetherianRing A] (I : Ideal A)
+      (f : X ⟶ Spec (CommRingCat.of A)) [IsProper f]
+      (F : X.Modules) [F.IsCoherent] (p : ℕ),
+      IsIso (limitComparison I f F p))
 
-/-- Theorem 30.20.5 (Theorem on formal functions) (2): the same comparison is a
-homeomorphism between the inverse-limit topology on the I-adic completion and
-the limit topology on `limit (tower I f F p)`. -/
-@[stacks 02OC]
-theorem isHomeomorph_limitComparison [IsNoetherianRing A] (I : Ideal A)
-    (f : X ⟶ Spec (CommRingCat.of A)) [IsProper f]
-    (F : X.Modules) [F.IsCoherent] (p : ℕ) :
-    @IsHomeomorph
+#check
+  (AlgebraicGeometry.Scheme.Hom.IdealPowerCohomology.Quotient.isHomeomorph_limitComparison :
+    ∀ [IsNoetherianRing A] (I : Ideal A)
+      (f : X ⟶ Spec (CommRingCat.of A)) [IsProper f]
+      (F : X.Modules) [F.IsCoherent] (p : ℕ),
+      @IsHomeomorph
       (AdicCompletion I (Hom.cohomology f F p))
       (limit (tower I f F p) : ModuleCat A)
       (⨅ n, TopologicalSpace.induced
         (AdicCompletion.eval I (Hom.cohomology f F p) n) ⊥)
       (Functor.limitTopology (tower I f F p))
-      (limitComparison I f F p).hom :=
-  sorry
+      (limitComparison I f F p).hom)
 
 end Quotient
 end IdealPowerCohomology

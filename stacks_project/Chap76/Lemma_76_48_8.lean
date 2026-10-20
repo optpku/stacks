@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.LocalCompleteIntersection.Smooth
@@ -22,7 +16,6 @@ morphism. -/
 @[stacks 0CHL] #check
   (AlgebraicGeometry.AlgebraicSpace.isLocalCompleteIntersection_of_smooth_of_comp :
     ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z),
-      AlgebraicGeometry.AlgebraicSpace.etaleLocally
-        (fun _ _ morphism => AlgebraicGeometry.Smooth morphism) g →
+      AlgebraicGeometry.AlgebraicSpace.etaleLocal @AlgebraicGeometry.Smooth g →
       AlgebraicGeometry.AlgebraicSpace.IsLocalCompleteIntersection (f ≫ g) →
       AlgebraicGeometry.AlgebraicSpace.IsLocalCompleteIntersection f)

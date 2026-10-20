@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Category.LCCat.Sites
@@ -87,9 +81,13 @@ instance opensOver_isAlmostCocontinuous :
 /-- The type-valued direct image along `opensOver X` has the right adjoint needed for the
 small-to-slice sheaf adjunction. -/
 @[stacks 09X3 "small-to-slice right adjoint"]
-instance opensOver_type_pushforward_isRightAdjoint :
+instance opensOver_type_pushforward_isRightAdjoint
+    [HasWeakSheafify (zarTopology.over X) (Type u)] :
     ((opensOver X).sheafPushforwardContinuous (Type u)
-      (Opens.grothendieckTopology X.obj) (zarTopology.over X)).IsRightAdjoint := sorry
+      (Opens.grothendieckTopology X.obj) (zarTopology.over X)).IsRightAdjoint :=
+  (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
+    (opensOver X) (Type u)
+    (Opens.grothendieckTopology X.obj) (zarTopology.over X)).isRightAdjoint
 
 /-- The canonical small-to-slice functor is continuous for the qc localization. -/
 @[stacks 0D92 "small-to-qc continuity"]
@@ -102,7 +100,8 @@ instance opensOver_isContinuous_qc :
 
 /-- The Type-valued inverse image from the small open site to the Zariski slice site. -/
 @[stacks 0DCU "small-to-slice Type inverse image"]
-noncomputable abbrev typePullback :
+noncomputable abbrev typePullback
+    [HasWeakSheafify (zarTopology.over X) (Type u)] :
     X.obj.Sheaf (Type u) ⥤ Sheaf (zarTopology.over X) (Type u) :=
   (opensOver X).sheafPullback (Type u)
     (Opens.grothendieckTopology X.obj) (zarTopology.over X)
@@ -152,7 +151,9 @@ noncomputable def restrictionHom (F : X.obj.Sheaf (Type u)) :
 
 /-- The canonical map from the abstract sheaf pullback to the pullback-section model. -/
 @[stacks 09X3 "small-to-slice sections comparison"]
-noncomputable def sectionsComparison (F : X.obj.Sheaf (Type u)) :
+noncomputable def sectionsComparison
+    [HasWeakSheafify (zarTopology.over X) (Type u)]
+    (F : X.obj.Sheaf (Type u)) :
     ((opensOver X).sheafPullback (Type u)
       (Opens.grothendieckTopology X.obj) (zarTopology.over X)).obj F ⟶ (zar X).obj F :=
   (((opensOver X).sheafAdjunctionContinuous (Type u)
@@ -161,7 +162,9 @@ noncomputable def sectionsComparison (F : X.obj.Sheaf (Type u)) :
 
 /-- The small-to-slice sections comparison is invertible. -/
 @[stacks 09X3 "small-to-slice sections comparison isomorphism"]
-theorem sectionsComparison_isIso (F : X.obj.Sheaf (Type u)) :
+theorem sectionsComparison_isIso
+    [HasWeakSheafify (zarTopology.over X) (Type u)]
+    (F : X.obj.Sheaf (Type u)) :
     IsIso (sectionsComparison X F) := sorry
 
 /-- The qc sheaf represented by the pullback-section rule. -/

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Widesubcategory
@@ -71,8 +65,8 @@ theorem projectionMap
 `projection_isHomLift_iff`, and use cancellation of strongly cartesian composites to show that the
 unique ambient factor belongs to the wide subcategory. -/
 
-/-- Lemma 4.35.3 (Stacks 03WQ): if `p : S ⥤ C` is fibred, its restriction to strongly cartesian
-morphisms is fibred in groupoids. -/
+/-- The restriction of a fibred functor to its strongly cartesian morphisms is fibred in
+groupoids. -/
 @[stacks 03WQ, instance]
 theorem projectionInGroupoids
     (p : S ⥤ C) [p.IsFibered] :

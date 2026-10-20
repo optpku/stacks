@@ -1,14 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-import stacks_project.Chap07.Definition_7_14_1
-public import stacks_project.Chap87.Lemma_87_34_2_Pullback
-public import stacks_project.Chap87.Lemma_87_34_2_Topos
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.EtaleSite
 import StacksCheckRecall
 
 /-!
@@ -29,36 +21,46 @@ scheme `S` induces a continuous functor `Y_spaces,étale ⥤ X_spaces,étale`,
 hence a morphism of sites
 `f_spaces,étale : X_spaces,étale ⟶ Y_spaces,étale`. -/
 @[stacks 0DEC] #check
-  (spacesEtalePullback_isMorphismOfSites :
+  (AlgebraicGeometry.FormalAlgebraicSpace.ReductionData.spacesEtalePullback_isMorphismOfSites :
     ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
       [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
-      [Reduction X] [Reduction Y] (f : X ⟶ Y),
-      IsMorphismOfSites (spacesEtaleTopology Y) (spacesEtaleTopology X)
-        (spacesEtalePullback f))
+      (RX : ReductionData X) (RY : ReductionData Y) (f : X ⟶ Y),
+      IsMorphismOfSites (ReductionData.spacesEtaleTopology RY)
+        (ReductionData.spacesEtaleTopology RX) (ReductionData.spacesEtalePullback RX RY f))
 
 /- Lemma 87.34.2 (2): the rule `f ↦ f_spaces,étale` is compatible with
-composition, as the algebraic-space pullback-composition isomorphism along
-`mapReduction`, in the sense of Sites, Definition 7.14.5. -/
+composition, via the pullback-composition isomorphism for the actual composite
+of formal-space morphisms, in the sense of Sites, Definition 7.14.5. -/
 @[stacks 0DEC] #check
-  (spacesEtalePullbackComp :
+  (AlgebraicGeometry.FormalAlgebraicSpace.ReductionData.spacesEtalePullbackComp :
     ∀ {S : Scheme.{u}} {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
       [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
-      [IsFormalAlgebraicSpace Z] [Reduction X] [Reduction Y] [Reduction Z]
+      [IsFormalAlgebraicSpace Z]
+      (RX : ReductionData X) (RY : ReductionData Y) (RZ : ReductionData Z)
       (f : X ⟶ Y) (g : Y ⟶ Z),
-      AlgebraicSpace.spacesEtalePullback (mapReduction f ≫ mapReduction g) ≅
-        spacesEtalePullback g ⋙ spacesEtalePullback f)
-
-#check CategoryTheory.IsExactMorphismOfSites.comp
+      ReductionData.spacesEtalePullback RX RZ (f ≫ g) ≅
+        ReductionData.spacesEtalePullback RY RZ g ⋙ ReductionData.spacesEtalePullback RX RY f)
 
 /- Lemma 87.34.2 (3): transporting the topos morphism of `f_spaces,étale` along
 equation 87.34.1.1 yields `f_small : Sh(X_étale) ⟶ Sh(Y_étale)`, compatible
 with composition. -/
 @[stacks 0DEC] #check
-  (smallEtaleMorphismOfTopoi :
+  (AlgebraicGeometry.FormalAlgebraicSpace.ReductionData.smallEtaleMorphismOfTopoi :
     ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
       [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
-      [Reduction X] [Reduction Y],
+      (RX : ReductionData X) (RY : ReductionData Y),
       (X ⟶ Y) →
-        MorphismOfTopoiIn (smallEtaleTopology Y) (smallEtaleTopology X))
+        MorphismOfTopoiIn (ReductionData.smallEtaleTopology RY)
+          (ReductionData.smallEtaleTopology RX))
 
-#check smallEtaleMorphismOfTopoiComp
+#check
+  (AlgebraicGeometry.FormalAlgebraicSpace.ReductionData.smallEtaleMorphismOfTopoiComp :
+    ∀ {S : Scheme.{u}} {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
+      [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
+      [IsFormalAlgebraicSpace Z]
+      (RX : ReductionData X) (RY : ReductionData Y) (RZ : ReductionData Z)
+      (f : X ⟶ Y) (g : Y ⟶ Z),
+      (ReductionData.smallEtaleMorphismOfTopoi RX RZ (f ≫ g)).inverseImage ≅
+        ((ReductionData.smallEtaleMorphismOfTopoi RY RZ g).comp
+          (ReductionData.smallEtaleMorphismOfTopoi RX RY f)).inverseImage)
+

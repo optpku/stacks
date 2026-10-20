@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.ExactFunctor
@@ -41,13 +35,11 @@ abbrev underlyingAbelianSheafFunctor (X : RingedSite.{u, v, w}) :
 /-- The composite forgetful functor to underlying additive presheaves. -/
 @[stacks 0D6H "underlying additive presheaf"]
 abbrev underlyingAbelianPresheafFunctor (X : RingedSite.{u, v, w}) :
-    ModuleCat.{z} X ⥤ Xᵒᵖ ⥤ AddCommGrpCat.{z} :=
+    ModuleCat.{z} X ⥤ X.carrierᵒᵖ ⥤ AddCommGrpCat.{z} :=
   underlyingAbelianSheafFunctor.{z} X ⋙
     sheafToPresheaf X.siteTopology AddCommGrpCat.{z}
 
-/-- The bundled exact forgetful functor from module sheaves to additive sheaves.  The site
-hypotheses are explicit here because this owner is also used to transport natural isomorphisms to
-derived categories. -/
+/-- The bundled exact forgetful functor from module sheaves to additive sheaves. -/
 @[stacks 0D6H "exact underlying additive sheaf"]
 noncomputable abbrev underlyingAbelianSheafExactFunctor
     (X : RingedSite.{u, v, w})
@@ -67,7 +59,7 @@ theorem underlyingAbelianPresheafFunctor_exact (X : RingedSite.{u, v, w})
     [X.siteTopology.WEqualsLocallyBijective AddCommGrpCat.{z}]
     [PreservesFiniteColimits
       (sheafToPresheaf X.siteTopology AddCommGrpCat.{z})] :
-    exactFunctor (ModuleCat.{z} X) (Xᵒᵖ ⥤ AddCommGrpCat.{z})
+    exactFunctor (ModuleCat.{z} X) (X.carrierᵒᵖ ⥤ AddCommGrpCat.{z})
       (underlyingAbelianPresheafFunctor.{z} X) := sorry
 
 /-- The bundled exact underlying additive presheaf functor. -/
@@ -79,7 +71,7 @@ noncomputable abbrev underlyingAbelianPresheafExactFunctor
     [X.siteTopology.WEqualsLocallyBijective AddCommGrpCat.{z}]
     [PreservesFiniteColimits
       (sheafToPresheaf X.siteTopology AddCommGrpCat.{z})] :
-    ModuleCat.{z} X ⥤ₑ Xᵒᵖ ⥤ AddCommGrpCat.{z} :=
+    ModuleCat.{z} X ⥤ₑ X.carrierᵒᵖ ⥤ AddCommGrpCat.{z} :=
   ExactFunctor.of (underlyingAbelianPresheafFunctor.{z} X)
 
 end RingedSite.Hom

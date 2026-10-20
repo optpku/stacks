@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Proposition_67_32_2_GenericFlatness
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.GenericFlatness
 import StacksCheckRecall
 
 open AlgebraicGeometry AlgebraicSpace

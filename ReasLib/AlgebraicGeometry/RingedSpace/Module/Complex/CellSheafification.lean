@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Complex.CellReplacement
+public import ReasLib.Algebra.Category.ModuleCat.Presheaf.CellReplacement
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Basic
 public import Mathlib.Algebra.Category.ModuleCat.Presheaf.Sheafification
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Colimits
 

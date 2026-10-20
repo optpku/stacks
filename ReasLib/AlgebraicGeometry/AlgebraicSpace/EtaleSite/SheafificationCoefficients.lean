@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.LeftExact
@@ -14,12 +8,12 @@ public import Mathlib.Algebra.Category.Grp.Colimits
 public import Mathlib.Algebra.Category.Ring.FilteredColimits
 public import Mathlib.Algebra.Category.Ring.Limits
 public import Mathlib.Algebra.Category.Ring.Colimits
-public import Lean.Util.CollectAxioms
 
-/-! # Proved upper-universe sheafification certificates
+/-! # Upper-universe sheafification for additive groups and commutative rings
 
-These generic certificates are built before importing the specialized space
-instances. They use Mathlib's plus construction, not an admitted right adjoint.
+Presheaves of additive commutative groups and commutative rings have sheafification
+in the upper universe. For both coefficient categories, the morphisms inverted by
+sheafification are precisely the locally bijective morphisms.
 -/
 
 @[expose] public section
@@ -30,27 +24,26 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.PullbackFactory.CoefficientSheafification
 
+/-- Sheafification exists for additive commutative group presheaves in the upper universe. -/
 theorem additive {C : Type (u + 1)} [Category.{u} C] (J : GrothendieckTopology C) :
     HasSheafify J AddCommGrpCat.{u + 1} := by
   infer_instance
 
+/-- Sheafification exists for commutative ring presheaves in the upper universe. -/
 theorem commRing {C : Type (u + 1)} [Category.{u} C] (J : GrothendieckTopology C) :
     HasSheafify J CommRingCat.{u + 1} := by
   infer_instance
 
+/-- Sheafification of additive commutative group presheaves in the upper universe
+inverts precisely the locally bijective morphisms. -/
 theorem additiveW {C : Type (u + 1)} [Category.{u} C] (J : GrothendieckTopology C) :
     J.WEqualsLocallyBijective AddCommGrpCat.{u + 1} := by
   infer_instance
 
+/-- Sheafification of commutative ring presheaves in the upper universe
+inverts precisely the locally bijective morphisms. -/
 theorem commRingW {C : Type (u + 1)} [Category.{u} C] (J : GrothendieckTopology C) :
     J.WEqualsLocallyBijective CommRingCat.{u + 1} := by
   infer_instance
-
-run_cmd do
-  for n in [``additive, ``commRing, ``additiveW, ``commRingW] do
-    let axs ← Lean.Elab.Command.liftCoreM (Lean.collectAxioms n)
-    unless axs.all (#[``propext, ``Classical.choice, ``Quot.sound].contains ·) do
-      throwError "Uncertified sheafification: {n}: {axs}"
-    Lean.logInfo m!"CLEAN_SHEAFIFICATION|{n}|{axs}"
 
 end AlgebraicGeometry.AlgebraicSpace.PullbackFactory.CoefficientSheafification

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.RelativeFlat
@@ -20,6 +14,8 @@ open DerivedCategory.DerivedTensor.Bifunctor
 noncomputable section
 
 universe u
+
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
 
 namespace AlgebraicGeometry.Scheme.RelativeFlatComplex
 
@@ -53,6 +49,12 @@ complex with relatively flat quasicoherent terms is locally bounded. -/
         ((RingedSpace.moduleDerivedPushforward
           (ModuleCech.relativeSpaceMap a.toShHom)).obj (DerivedCategory.Q.obj K)))
 
+section LocalTor
+
+variable [∀ U : TopologicalSpace.Opens S.toRingedSpace.carrier,
+  DerivedCategory.DerivedTensor.Right.Has
+    (C := RingedSpace.Modules (S.toRingedSpace.restrict U.isOpenEmbedding))]
+
 /- Lemma 36.23.2 (3): the derived pushforward locally has finite Tor dimension. -/
 @[stacks 0FML] #check
   (AlgebraicGeometry.Scheme.RelativeFlatComplex.pushforward_locallyHasFiniteTorDimension
@@ -60,6 +62,8 @@ complex with relatively flat quasicoherent terms is locally bounded. -/
       LocallyHasFiniteTorDimension
         ((RingedSpace.moduleDerivedPushforward
           (ModuleCech.relativeSpaceMap a.toShHom)).obj (DerivedCategory.Q.obj K)))
+
+end LocalTor
 
 section ProjectionFormula
 

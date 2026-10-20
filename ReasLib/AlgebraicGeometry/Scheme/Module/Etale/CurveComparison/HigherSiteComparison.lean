@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.AmbientDerivedComparison
@@ -28,7 +22,7 @@ variable [∀ U : (geometricBaseChange X).Etale,
     HasWeakSheafify ((geometricBaseChange X).smallEtaleTopology.over U) (ModuleCat.{u + 1} Λ)]
 variable [EnoughInjectives (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
 variable [HasDerivedCategory (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
-variable [HasDerivedCategory (DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber ηbar)))]
+variable [HasDerivedCategory (DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)))]
 variable [HasDerivedCategory (ModuleCat.{u + 1} Λ)]
 variable [HasSheafify (geometricBaseChange X).smallEtaleTopology AddCommGrpCat.{u + 1}]
 variable [HasExt.{u + 1} (Sheaf (geometricBaseChange X).smallEtaleTopology AddCommGrpCat.{u + 1})]
@@ -39,7 +33,7 @@ variable [(geometricBaseChange X).smallEtaleTopology.HasSheafCompose
 /-- Exact realization, its actual derived unit, and the explicit resolution/Ext
 comparison identify the geometric bounded-derived model with the existing site cohomology. -/
 def geometricDerivedToSiteIso
-    (M : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber ηbar))) (n : ℕ) :
+    (M : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar))) (n : ℕ) :
     geometricDerivedCohomology Λ X ηbar M n ≅ (realizedCohomology Λ ηbar n).obj M :=
   (DerivedCategory.Plus.homologyFunctor (ModuleCat.{u + 1} Λ) (n : ℤ)).mapIso
       ((Functor.RightDerived.Bounded.functor (sections (X := geometricBaseChange X) Λ)).mapIso
@@ -54,8 +48,8 @@ include hcurve hsmooth hconnected
 def higherSiteComparisonIso
     (h_ne_P1 : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
     (hΛ : IsUnit (Nat.card Λ : k))
-    (M : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber ηbar))) (n : ℕ) :
-    (AmbientDiscreteCohomology.cohomology Λ (Aut (standardFiniteEtaleFiber ηbar)) n).obj M ≅
+    (M : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar))) (n : ℕ) :
+    (CategoryTheory.Action.ModuleCat.DiscreteModuleCat.derivedCohomologyFunctor Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)) n).obj M ≅
       (realizedCohomology Λ ηbar n).obj M :=
   higherComparisonIso Λ X ηbar h_ne_P1 hΛ M n ≪≫ geometricDerivedToSiteIso Λ X ηbar M n
 
@@ -63,8 +57,8 @@ def higherSiteComparisonIso
 theorem higherSiteComparisonIso_naturality
     (h_ne_P1 : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
     (hΛ : IsUnit (Nat.card Λ : k))
-    {M N : DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber ηbar))} (a : M ⟶ N) (n : ℕ) :
-    (AmbientDiscreteCohomology.cohomology Λ (Aut (standardFiniteEtaleFiber ηbar)) n).map a ≫
+    {M N : DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar))} (a : M ⟶ N) (n : ℕ) :
+    (CategoryTheory.Action.ModuleCat.DiscreteModuleCat.derivedCohomologyFunctor Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)) n).map a ≫
         (higherSiteComparisonIso Λ X ηbar h_ne_P1 hΛ N n).hom =
       (higherSiteComparisonIso Λ X ηbar h_ne_P1 hΛ M n).hom ≫
         (realizedCohomology Λ ηbar n).map a := sorry
@@ -74,7 +68,7 @@ associated-sheaf site cohomology, with no caller-supplied comparison package. -/
 def higherSiteComparisonNatIso
     (h_ne_P1 : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
     (hΛ : IsUnit (Nat.card Λ : k)) (n : ℕ) :
-    AmbientDiscreteCohomology.cohomology Λ (Aut (standardFiniteEtaleFiber ηbar)) n ≅
+    CategoryTheory.Action.ModuleCat.DiscreteModuleCat.derivedCohomologyFunctor Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)) n ≅
       realizedCohomology Λ ηbar n :=
   NatIso.ofComponents (fun M ↦ higherSiteComparisonIso Λ X ηbar h_ne_P1 hΛ M n)
     (fun a ↦ higherSiteComparisonIso_naturality Λ X ηbar h_ne_P1 hΛ a n)

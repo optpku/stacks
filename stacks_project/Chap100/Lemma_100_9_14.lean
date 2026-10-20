@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap100.Lemma_100_9_14_Union
+import ReasLib.AlgebraicGeometry.AlgebraicStack.Substack.Union
+import StacksCheckRecall
 
 /-!
 # Union of open substacks
@@ -15,34 +10,22 @@ A family of open substacks of an algebraic stack has a union open substack
 which they cover.
 -/
 
-@[expose] public section
-
 open CategoryTheory AlgebraicGeometry
-open AlgebraicGeometry.Groupoids.Hom
-open scoped Bicategory
-
-noncomputable section
 
 universe u v
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-open OpenSubstack
-
-/-- Lemma 100.9.14 (1): Let `X` be an algebraic stack and `U i ⊂ X` a collection
-of open substacks indexed by `i : I`. Then each `U i` is an open substack of
-`iUnion U ⊂ X`, via the factorization `iUnionι U i ≫ (iUnion U).ι = (U i).ι`. -/
-@[stacks 05UQ]
-theorem iUnionι_isOpenSubstack {S : Scheme.{u}} {X : GroupoidsOver S}
-    [AlgebraicStack X] {I : Type v} (U : I → OpenSubstack X) (i : I) :
-    iUnionι U i ≫ (iUnion U).ι = (U i).ι := sorry
-
-/-- Lemma 100.9.14 (2): Let `X` be an algebraic stack and `U i ⊂ X` a collection
-of open substacks indexed by `i : I`. Then the open substacks `U i` cover
-`iUnion U`. -/
-@[stacks 05UQ]
-theorem iUnion_cover {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
-    {I : Type v} (U : I → OpenSubstack X) (x : Points (iUnion U).Y) :
-    ∃ i, x ∈ Set.range (Points.map (iUnionι U i)) := sorry
+/- Lemma 100.9.14: Any family of open substacks of an algebraic stack has an
+open union in which the members are open substacks and jointly cover. -/
+@[stacks 05UQ] #check (AlgebraicGeometry.AlgebraicStack.Substack.exists_iUnion :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] {I : Type v}
+    (P : I → ObjectProperty X.total) (hP : ∀ i, Substack.IsOpen X (P i)),
+    ∃ Q : ObjectProperty X.total, Substack.IsOpen X Q ∧ (∀ i, P i ≤ Q) ∧
+      (∀ (hQ : Functor.IsFibered.InGroupoids (Q.ι ⋙ X.p)) (i : I),
+        Substack.IsOpen (Substack.category X Q hQ) (fun z ↦ P i z.obj)) ∧
+      (∀ x : X.total, Q x ↔ ∀ t : (X.p.obj x).left,
+        ∃ (i : I) (y : X.total) (f : y ⟶ x) (s : (X.p.obj y).left),
+          P i y ∧ (X.p.map f).left.base s = t))
 
 end AlgebraicGeometry.AlgebraicStack

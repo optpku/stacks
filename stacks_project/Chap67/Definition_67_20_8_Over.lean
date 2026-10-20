@@ -1,98 +1,50 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap67.Definition_67_20_2_Affine
 public import stacks_project.Chap67.Definition_67_48_3_RelativeSpectrum
 public import stacks_project.Chap67.Lemma_67_20_7_AffineOver
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RelativeSpectrum.Over
+
 /-!
 # Affine relative spectrum of a quasi-coherent algebra
 
-This file records that the structure morphism of the relative spectrum of a
-quasi-coherent algebra on an algebraic space is affine, and packages it as an
-object of `AffineMorphismOver`. Correspondence with the algebra is stated using
-the in-scope structure-sheaf map `commRingStructureSheafMap`, not a clone of
-the Lemma 67.20.7 pushforward API (that file cannot be imported alongside
-`relativeSpecπ`, because both export `commRingPushforward`).
+The historical imports and typed checks expose the shared affine relative-spectrum
+API to downstream consumers.
 -/
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry
-
-noncomputable section
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.instAffine_relativeSpecπ :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (A : X.QcAlgebraUnder),
+    Affine (relativeSpecπ A))
 
-/-- The structure morphism of the relative spectrum of a quasi-coherent `𝒪_X`-algebra
-is affine. -/
-instance instAffine_relativeSpecπ {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (A : X.QcAlgebraUnder) : Affine (relativeSpecπ A) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.AffineMorphismOver.ofQcAlgebra :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (A : X.QcAlgebraUnder),
+    AffineMorphismOver X)
 
-namespace AffineMorphismOver
+#check (AlgebraicGeometry.AlgebraicSpace.AffineMorphismOver.ofQcAlgebra_obj :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (A : X.QcAlgebraUnder),
+    (AffineMorphismOver.ofQcAlgebra A).obj = Over.mk (relativeSpecπ A))
 
-/-- The algebraic space affine over `X` corresponding to a quasi-coherent
-`𝒪_X`-algebra, with structure morphism `relativeSpecπ A`. -/
-def ofQcAlgebra {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (A : X.QcAlgebraUnder) : AffineMorphismOver X where
-  obj := Over.mk (relativeSpecπ A)
-  property := instAffine_relativeSpecπ A
+#check (AlgebraicGeometry.AlgebraicSpace.AffineMorphismOver.ofQcAlgebra_hom :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (A : X.QcAlgebraUnder),
+    (AffineMorphismOver.ofQcAlgebra A).obj.hom = relativeSpecπ A)
 
-/-- The slice object of `ofQcAlgebra A` is the over-object of `relativeSpecπ A`. -/
-theorem ofQcAlgebra_obj {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (A : X.QcAlgebraUnder) :
-    (ofQcAlgebra A).obj = Over.mk (relativeSpecπ A) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.AffineMorphismOver.ofQcAlgebra_left :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (A : X.QcAlgebraUnder),
+    (AffineMorphismOver.ofQcAlgebra A).obj.left = relativeSpec A)
 
-/-- The structure morphism of `ofQcAlgebra A` is `relativeSpecπ A`. -/
-theorem ofQcAlgebra_hom {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (A : X.QcAlgebraUnder) :
-    (ofQcAlgebra A).obj.hom = relativeSpecπ A :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.relativeSpecUniversalAlgebraIso :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (A : X.QcAlgebraUnder),
+    A.obj ≅ Under.mk (commStructureSheafMap (relativeSpecπ A)))
 
-/-- The underlying algebraic space of `ofQcAlgebra A` is `relativeSpec A`. -/
-theorem ofQcAlgebra_left {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (A : X.QcAlgebraUnder) :
-    (ofQcAlgebra A).obj.left = relativeSpec A :=
-  sorry
-
-/-- The quasi-coherent `𝒪_X`-algebra obtained from an algebraic space affine over
-`X` by the in-scope structure-sheaf map `commRingStructureSheafMap`. -/
-def commRingStructureQcAlgebra {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (Y : AffineMorphismOver X) : X.QcAlgebraUnder where
-  obj := Under.mk (commRingStructureSheafMap Y.obj.hom)
-  property := sorry
-
-/-- The underlying algebra of `commRingStructureQcAlgebra Y` is the raw
-structure-sheaf map of `Y`. -/
-theorem commRingStructureQcAlgebra_obj {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (Y : AffineMorphismOver X) :
-    (commRingStructureQcAlgebra Y).obj =
-      Under.mk (commRingStructureSheafMap Y.obj.hom) :=
-  sorry
-
-/-- The structure-sheaf algebra of `ofQcAlgebra A` is isomorphic to `A`. -/
-theorem commRingStructureQcAlgebra_ofQcAlgebra {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (A : X.QcAlgebraUnder) :
-    Nonempty (commRingStructureQcAlgebra (ofQcAlgebra A) ≅ A) :=
-  sorry
-
-/-- Any algebraic space affine over `X` whose structure-sheaf algebra is isomorphic
-to `A` is isomorphic to `ofQcAlgebra A`. -/
-theorem ofQcAlgebra_of_commRingStructureQcAlgebra {S : Scheme.{u}}
-    {X : AlgebraicSpace S} (A : X.QcAlgebraUnder) (Y : AffineMorphismOver X)
-    (h_iso : Nonempty (commRingStructureQcAlgebra Y ≅ A)) :
-    Nonempty (Y ≅ ofQcAlgebra A) :=
-  sorry
-
-end AffineMorphismOver
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.AffineMorphismOver.ofQcAlgebra_unique :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (A : X.QcAlgebraUnder)
+    (Y : AffineMorphismOver X),
+    Nonempty (Under.mk (commStructureSheafMap Y.obj.hom) ≅ A.obj) →
+      Nonempty (Y ≅ AffineMorphismOver.ofQcAlgebra A))

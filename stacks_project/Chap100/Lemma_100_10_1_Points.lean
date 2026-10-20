@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap100.Lemma_100_9_10_Substack
-public import stacks_project.Chap100.Definition_100_4_2_Points
-public import stacks_project.Chap100.Lemma_100_4_7_Topology
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Points.ClosedImmersion
 
 /-!
 # Points of a closed substack
@@ -38,19 +31,19 @@ def pointsSet {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
 theorem pointsSet_eq {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
     (Z : ClosedSubstack X) :
     Z.pointsSet = Set.range (Points.map Z.ι) :=
-  sorry
+  rfl
 
 /-- A point of `|X|` lies in `pointsSet Z` if and only if it is the image of a
 point of `|Z|`. -/
 theorem mem_pointsSet {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
     (Z : ClosedSubstack X) {x : Points X} :
     x ∈ Z.pointsSet ↔ ∃ y : Points Z.Y, Points.map Z.ι y = x :=
-  sorry
+  Iff.rfl
 
 /-- The image `|Z| ⊆ |X|` is closed in the canonical topology on `|X|`. -/
 theorem isClosed_pointsSet {S : Scheme.{u}} {X : GroupoidsOver S}
     [AlgebraicStack X] (Z : ClosedSubstack X) :
     IsClosed (Z.pointsSet : Set (Points X)) :=
-  sorry
+  Points.isClosed_range_of_closedImmersion Z.ι
 
 end AlgebraicGeometry.AlgebraicStack.ClosedSubstack

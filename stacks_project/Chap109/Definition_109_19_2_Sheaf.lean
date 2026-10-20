@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap75.Lemma_75_26_4_VectorBundle
@@ -29,19 +23,41 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.AlgebraicSpace.RelativeDualizingComplex
+
+variable {S : Scheme.{u}}
+
+
 
 /-- The relative dualizing sheaf of a Cohen–Macaulay family of curves of
 relative dimension 1, as the degree `-1` cohomology sheaf of a chosen
 relative dualizing complex. -/
-noncomputable def sheaf {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    {f : X ⟶ Y} [IsFamily f] [CohenMacaulay f] [RelativeDimension f 1]
+noncomputable def sheaf {X Y : AlgebraicSpace S}
+    {f : X ⟶ Y}
+    [∀ sq : EtaleSquare f,
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ sq : EtaleSquare f,
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding))] [IsFamily f] [CohenMacaulay f] [RelativeDimension f 1]
     (C : RelativeDualizingComplex f) : X.Modules :=
   cohomologySheaf C.complex (-1)
 
 /-- The relative dualizing sheaf is the degree `-1` cohomology sheaf of the
 chosen relative dualizing complex. -/
-theorem sheaf_eq {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
+theorem sheaf_eq {X Y : AlgebraicSpace S} {f : X ⟶ Y}
+    [∀ sq : EtaleSquare f,
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ sq : EtaleSquare f,
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding))]
     [IsFamily f] [CohenMacaulay f] [RelativeDimension f 1]
     (C : RelativeDualizingComplex f) :
     sheaf C = cohomologySheaf C.complex (-1) :=

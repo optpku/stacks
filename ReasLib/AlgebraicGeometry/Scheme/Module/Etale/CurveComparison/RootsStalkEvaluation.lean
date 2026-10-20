@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.RootsModuleSheaf
@@ -23,14 +17,14 @@ variable [HasSheafify Y.smallEtaleTopology AddCommGrpCat.{u + 1}]
 
 /-- Evaluate a lifted regular function at the specified geometric point of
 the etale neighborhood, via global sections and the affine Spec counit. -/
-def sectionRingMap (U : Y.Etale) (p : (geometricPointEtalePoint xbar).fiber.obj U) :
+def sectionRingMap (U : Y.Etale) (p : (AlgebraicGeometry.Scheme.GeometricPoint.toSmallEtalePoint xbar).fiber.obj U) :
     (smallCommStructureSheaf .etale Y).obj.obj (op U) →+* xbar.K :=
   ((Scheme.ΓSpecIso (CommRingCat.of xbar.K)).hom.hom.comp
     (Scheme.Γ.map p.left.op).hom).comp ULift.ringEquiv.toRingHom
 
 /-- A roots section is evaluated through the actual kernel inclusion and
 the units of the same structure-ring section. -/
-def sectionValue (U : Y.Etale) (p : (geometricPointEtalePoint xbar).fiber.obj U)
+def sectionValue (U : Y.Etale) (p : (AlgebraicGeometry.Scheme.GeometricPoint.toSmallEtalePoint xbar).fiber.obj U)
     (s : (ActualRootsModule.liftedSheaf Y n).obj.obj (op U)) :
     Additive (rootsOfUnity n xbar.K) :=
   Additive.ofMul ⟨Units.map (sectionRingMap xbar U p).toMonoidHom
@@ -42,9 +36,9 @@ structure Representative
     (s : (StalkRepresentation.stalk (ActualRootsModule.Coeff.{u} n) xbar).obj
       (ActualRootsModule.liftedSheaf Y n)) where
   U : Y.Etale
-  point : (geometricPointEtalePoint xbar).fiber.obj U
+  point : (AlgebraicGeometry.Scheme.GeometricPoint.toSmallEtalePoint xbar).fiber.obj U
   sectionValue : (ActualRootsModule.liftedSheaf Y n).obj.obj (op U)
-  germ_eq : (geometricPointEtalePoint xbar).toPresheafFiber U point
+  germ_eq : (AlgebraicGeometry.Scheme.GeometricPoint.toSmallEtalePoint xbar).toPresheafFiber U point
     (ActualRootsModule.liftedSheaf Y n).obj sectionValue = s
 
 theorem representative_nonempty
@@ -58,9 +52,9 @@ def evaluate
   sectionValue xbar n r.U r.point r.sectionValue
 
 /-- Evaluation is unchanged when the germ is represented on a finer neighborhood. -/
-theorem evaluate_germ (U : Y.Etale) (p : (geometricPointEtalePoint xbar).fiber.obj U)
+theorem evaluate_germ (U : Y.Etale) (p : (AlgebraicGeometry.Scheme.GeometricPoint.toSmallEtalePoint xbar).fiber.obj U)
     (s : (ActualRootsModule.liftedSheaf Y n).obj.obj (op U)) :
-    evaluate xbar n ((geometricPointEtalePoint xbar).toPresheafFiber U p
+    evaluate xbar n ((AlgebraicGeometry.Scheme.GeometricPoint.toSmallEtalePoint xbar).toPresheafFiber U p
       (ActualRootsModule.liftedSheaf Y n).obj s) = sectionValue xbar n U p s := sorry
 
 def map : (StalkRepresentation.stalk (ActualRootsModule.Coeff.{u} n) xbar).obj

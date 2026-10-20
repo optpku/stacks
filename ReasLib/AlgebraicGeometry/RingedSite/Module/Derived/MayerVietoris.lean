@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.TopologyComparison
@@ -27,6 +21,9 @@ open CategoryTheory.Limits
 open CategoryTheory.GrothendieckTopology.Derived.Sections.MayerVietoris
 
 noncomputable section
+
+-- Generic bounded-below notation uses the standard model already chosen by `ModuleDerived`.
+attribute [local instance] RingedSite.Hom.moduleCat_hasDerivedCategory
 
 universe u v w uι
 

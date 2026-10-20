@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_28_8_FinitePresentation
-public import stacks_project.Chap68.Lemma_68_9_2
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Cover.Finite
+import StacksCheckRecall
 
 /-!
 # Finite scheme covers of quasi-compact quasi-separated algebraic spaces
@@ -25,30 +19,28 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Proposition 70.16.1 (1): Let `S` be a scheme. Let `X` be a quasi-compact and
+/- Proposition 70.16.1 (1): Let `S` be a scheme. Let `X` be a quasi-compact and
 quasi-separated algebraic space over `S`. There exists a surjective finite
 morphism `Y ⟶ X` of finite presentation where `Y` is a scheme. -/
-@[stacks 09YC]
-theorem exists_surjective_isFinite_finitePresentation_isScheme
-    {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X] :
+@[stacks 09YC] #check
+  (AlgebraicGeometry.AlgebraicSpace.exists_surjective_isFinite_finitePresentation_isScheme :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+      [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X],
     ∃ (Y : AlgebraicSpace S) (f : Y ⟶ X),
-      IsScheme Y ∧ IsFinite f ∧ FinitePresentation f ∧ Surjective f :=
-  sorry
+      IsScheme Y ∧ IsFinite f ∧ FinitePresentation f ∧ Surjective f)
 
-/-- Proposition 70.16.1 (2): Let `S` be a scheme. Let `X` be a quasi-compact and
+/- Proposition 70.16.1 (2): Let `S` be a scheme. Let `X` be a quasi-compact and
 quasi-separated algebraic space over `S`. Given a surjective étale morphism
 `U ⟶ X` we may choose a surjective finite morphism `Y ⟶ X` of finite
 presentation with `Y` a scheme such that for every `y ∈ Y` there is an open
 neighbourhood `V ⊂ Y` such that `V ⟶ X` factors through `U`. -/
-@[stacks 09YC]
-theorem exists_surjective_isFinite_finitePresentation_isScheme_locallyFactorsThrough
-    {S : Scheme.{u}} (X : AlgebraicSpace S)
-    [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
-    {U : AlgebraicSpace S} (u : U ⟶ X) [Surjective u] [Etale u] :
+@[stacks 09YC] #check
+  (AlgebraicGeometry.AlgebraicSpace.FiniteCover.exists_scheme_locallyFactorsThrough :
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+      [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
+      {U : AlgebraicSpace S} (u : U ⟶ X) [Surjective u] [Etale u],
     ∃ (Y : AlgebraicSpace S) (f : Y ⟶ X),
       IsScheme Y ∧ IsFinite f ∧ FinitePresentation f ∧ Surjective f ∧
-        zariskiLocallyFactorsThrough f u :=
-  sorry
+        zariskiLocallyFactorsThrough f u)
 
 end AlgebraicGeometry.AlgebraicSpace

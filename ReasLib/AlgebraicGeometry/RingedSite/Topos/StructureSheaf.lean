@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.Ring.Limits
@@ -43,10 +37,8 @@ theorem structureSheafPushforward_eq
     [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
     (f : X.Hom Y) :
     (sheafCompose Y.siteTopology (forget RingCat.{w})).obj
-        ((f.base.sheafPushforwardContinuous RingCat.{w}
-          Y.siteTopology X.siteTopology).obj X.structureSheaf) =
-      (f.base.sheafPushforwardContinuous (Type w)
-        Y.siteTopology X.siteTopology).obj (underlyingStructureSheaf X) := sorry
+        ((f.sheafPushforwardContinuous (A := RingCat.{w})).obj X.structureSheaf) =
+      (f.sheafPushforwardContinuous (A := Type w)).obj (underlyingStructureSheaf X) := sorry
 
 /-- The pushforward-form map on underlying structure sheaves associated to a ringed-site
 morphism. -/
@@ -56,8 +48,7 @@ abbrev underlyingDirectImageMap
     [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
     (f : X.Hom Y) :
     underlyingStructureSheaf Y ⟶
-      (f.base.sheafPushforwardContinuous (Type w)
-        Y.siteTopology X.siteTopology).obj (underlyingStructureSheaf X) :=
+      (f.sheafPushforwardContinuous (A := Type w)).obj (underlyingStructureSheaf X) :=
   (sheafCompose Y.siteTopology (forget RingCat.{w})).map f.structureSheafMap ≫
     eqToHom (structureSheafPushforward_eq f)
 
@@ -70,11 +61,10 @@ noncomputable abbrev underlyingInverseImageMap
     [UnivLE.{max uX vX, w}] [UnivLE.{max uY vX, w}]
     (f : X.Hom Y)
     [PreservesFiniteLimits
-      (f.base.sheafPullback (Type w) Y.siteTopology X.siteTopology)] :
+      (f.sheafPullback (A := Type w))] :
     (f.toMorphismOfTopoi).inverseImage.obj (underlyingStructureSheaf Y) ⟶
       underlyingStructureSheaf X :=
-  ((f.base.sheafAdjunctionContinuous (Type w)
-      Y.siteTopology X.siteTopology).homEquiv _ _).symm f.underlyingDirectImageMap
+  ((f.sheafAdjunctionContinuous (A := Type w)).homEquiv _ _).symm f.underlyingDirectImageMap
 
 -- The sheaf itself is a direct coefficient-forgetful view; the maps only add equality and
 -- adjunction coherence to the explicit structure-sheaf map.

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -20,13 +14,13 @@ a big h site admits a refinement by a covering family in the site. -/
     {ι : Type u} (family : ι → Over (Schh.toScheme.obj T)),
     AlgebraicGeometry.Scheme.HCovering family →
       ∃ 𝒱 : Limits.FormalCoproduct.{u} (Over T),
-        Limits.FormalCoproduct.Over.IsCovering
+        Limits.FormalCoproduct.IsCovering
             (@Pretopology.toPrecoverage Schh.carrier (Cat.str Schh.carrier)
               Schh.hasPullbacks Schh.pretopology) 𝒱 ∧
           Nonempty
             (((Limits.FormalCoproduct.map
               (Over.post Schh.toScheme)).obj 𝒱) ⟶
-              Limits.FormalCoproduct.Over.ofArrows
+              Limits.FormalCoproduct.ofArrows
                 (fun i ↦ (family i).left) (fun i ↦ (family i).hom)))
 
 /- Lemma 38.34.12 (2): every standard h covering of an affine object of a big
@@ -38,11 +32,11 @@ h site is tautologically equivalent to a covering family in the site. -/
     AlgebraicGeometry.Scheme.HCovering
         (fun i : Fin family.n ↦ Over.mk (family.map i)) →
       ∃ 𝒱 : Limits.FormalCoproduct.{u} (Over T),
-        Limits.FormalCoproduct.Over.IsCovering
+        Limits.FormalCoproduct.IsCovering
             (@Pretopology.toPrecoverage Schh.carrier (Cat.str Schh.carrier)
               Schh.hasPullbacks Schh.pretopology) 𝒱 ∧
           Limits.FormalCoproduct.TautologicallyEquivalent
-            (Limits.FormalCoproduct.Over.ofArrows
+            (Limits.FormalCoproduct.ofArrows
               (fun j : ULift.{u} (Fin family.n) ↦ family.U j.down)
               (fun j : ULift.{u} (Fin family.n) ↦ family.map j.down))
             ((Limits.FormalCoproduct.map
@@ -54,10 +48,10 @@ tautologically equivalent to a covering family in the site. -/
   ∀ (Schh : AlgebraicGeometry.ChosenBigHSite.{u, v}) {T : Schh.carrier}
     (𝒰 : (Schh.toScheme.obj T).OpenCover.{u}),
       ∃ 𝒱 : Limits.FormalCoproduct.{u} (Over T),
-        Limits.FormalCoproduct.Over.IsCovering
+        Limits.FormalCoproduct.IsCovering
             (@Pretopology.toPrecoverage Schh.carrier (Cat.str Schh.carrier)
               Schh.hasPullbacks Schh.pretopology) 𝒱 ∧
           Limits.FormalCoproduct.TautologicallyEquivalent
-            (Limits.FormalCoproduct.Over.ofArrows 𝒰.X 𝒰.f)
+            (Limits.FormalCoproduct.ofArrows 𝒰.X 𝒰.f)
             ((Limits.FormalCoproduct.map
               (Over.post Schh.toScheme)).obj 𝒱))

@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap71.Definition_71_6_1_EffectiveCartier
-public import stacks_project.Chap71.Definition_71_7_6_ZeroScheme
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Divisor.ZeroScheme
 
 /-!
 # Divisor properties of zero schemes on algebraic spaces
@@ -25,33 +18,17 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.zeroScheme_isLocallyPrincipalClosedSubspace :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (L : X.Modules)
+    [isInvertibleObject L] (s : L.sections),
+    IsLocallyPrincipal (zeroSchemeι L s))
 
-/-- The zero scheme of a section of an invertible module is a locally principal
-closed subspace. -/
-theorem zeroScheme_isLocallyPrincipalClosedSubspace {S : Scheme.{u}}
-    {X : AlgebraicSpace S} (L : X.Modules) [isInvertibleObject L] (s : L.sections) :
-    IsLocallyPrincipalClosedSubspace (zeroSchemeι L s) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.zeroScheme_isEffectiveCartierDivisor_iff_isRegularSection :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (L : X.Modules)
+    [isInvertibleObject L] (s : L.sections),
+    IsEffectiveCartierDivisor (zeroSchemeι L s) ↔ IsRegularSection L s)
 
-/-- The closed immersion of a zero scheme is locally principal. -/
-instance instIsLocallyPrincipalClosedSubspace_zeroSchemeι {S : Scheme.{u}}
-    {X : AlgebraicSpace S} (L : X.Modules) [isInvertibleObject L] (s : L.sections) :
-    IsLocallyPrincipalClosedSubspace (zeroSchemeι L s) :=
-  sorry
-
-/-- The zero scheme of a section of an invertible module is an effective Cartier
-divisor if and only if the section is regular. -/
-theorem zeroScheme_isEffectiveCartierDivisor_iff_isRegularSection {S : Scheme.{u}}
-    {X : AlgebraicSpace S} (L : X.Modules) [isInvertibleObject L] (s : L.sections) :
-    IsEffectiveCartierDivisor (zeroSchemeι L s) ↔ IsRegularSection L s :=
-  sorry
-
-/-- A regular section of an invertible module cuts out an effective Cartier
-divisor. -/
-instance instIsEffectiveCartierDivisor_zeroSchemeι {S : Scheme.{u}}
-    {X : AlgebraicSpace S} (L : X.Modules) [isInvertibleObject L] (s : L.sections)
-    [IsRegularSection L s] : IsEffectiveCartierDivisor (zeroSchemeι L s) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.instIsEffectiveCartierDivisor_zeroSchemeι :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (L : X.Modules)
+    [isInvertibleObject L] (s : L.sections) [IsRegularSection L s],
+    IsEffectiveCartierDivisor (zeroSchemeι L s))

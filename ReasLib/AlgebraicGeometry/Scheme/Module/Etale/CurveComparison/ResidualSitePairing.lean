@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.ResidualCharacterPairing
@@ -33,7 +27,7 @@ variable [∀ U : (geometricBaseChange X).Etale,
 variable [EnoughInjectives (Sheaf X.left.smallEtaleTopology (ModuleCat.{u + 1} Λ))]
 variable [EnoughInjectives (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
 variable [HasDerivedCategory (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
-variable [HasDerivedCategory (DiscreteModuleCat Λ (Aut (standardFiniteEtaleFiber ηbar)))]
+variable [HasDerivedCategory (DiscreteModuleCat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar)))]
 variable [HasDerivedCategory (ModuleCat.{u + 1} Λ)]
 variable [HasSheafify (geometricBaseChange X).smallEtaleTopology AddCommGrpCat.{u + 1}]
 variable [HasExt.{u + 1} (Sheaf (geometricBaseChange X).smallEtaleTopology AddCommGrpCat.{u + 1})]
@@ -44,12 +38,12 @@ variable [(geometricBaseChange X).smallEtaleTopology.HasSheafCompose
 /-- Finite compact coefficients have a finite continuous character module. The
 object is the actual continuous dual, with its contragredient arithmetic action. -/
 def finiteArithmeticCharacter
-    (K : CompactRepresentation.Cat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))))
+    (K : CompactRepresentation.Cat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))))
     [Finite K.obj.V.toModule] :
     (finiteTypeDiscreteModule Λ
-      (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar)))).FullSubcategory :=
+      (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar)))).FullSubcategory :=
   ⟨CompactRepresentation.continuousDual Λ
-    (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))) K, by sorry⟩
+    (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))) K, by sorry⟩
 
 include hcurve hsmooth hconnected
 
@@ -58,7 +52,7 @@ comparison, retaining the two independently defined residual actions. -/
 def residualSiteCharacterIso
     (h_ne_P1 : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
     (hΛ : IsUnit (Nat.card Λ : k))
-    (K : CompactRepresentation.Cat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))))
+    (K : CompactRepresentation.Cat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))))
     [Finite K.obj.V.toModule] (n : ℕ) :
     ((CompactModule.forget Λ).mapAction Gal(AlgebraicClosure k/k)).obj
       (geometricHomologyGaloisAction Λ X ηbar K n) ≅
@@ -75,7 +69,7 @@ assumed in its construction. -/
 def residualSiteEvaluation
     (h_ne_P1 : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
     (hΛ : IsUnit (Nat.card Λ : k))
-    (K : CompactRepresentation.Cat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))))
+    (K : CompactRepresentation.Cat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))))
     [Finite K.obj.V.toModule] (n : ℕ)
     (x : (geometricHomologyGaloisAction Λ X ηbar K n).V.toModule)
     (c : geometricModuleEtaleHq X
@@ -91,7 +85,7 @@ def residualSiteEvaluation
 theorem residualSiteEvaluation_galois
     (h_ne_P1 : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
     (hΛ : IsUnit (Nat.card Λ : k))
-    (K : CompactRepresentation.Cat Λ (Aut (standardFiniteEtaleFiber (arithmeticPoint X ηbar))))
+    (K : CompactRepresentation.Cat Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X ηbar))))
     [Finite K.obj.V.toModule] (n : ℕ) (σ : Gal(AlgebraicClosure k/k))
     (x : (geometricHomologyGaloisAction Λ X ηbar K n).V.toModule)
     (c : geometricModuleEtaleHq X

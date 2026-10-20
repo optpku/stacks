@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap66.«66_26_0_1_Pushforward»
-public import stacks_project.Chap67.Definition_67_45_2_Integral
-public import stacks_project.Chap71.Lemma_71_2_3_WeaklyAssociated
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.WeaklyAssociatedPoints.Pushforward
 
 /-!
 # Lemma 71.3.3
@@ -27,26 +19,17 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules
-
-/-- Lemma 71.3.3: Let `S` be a scheme. Let `f : X ⟶ Y` be a finite morphism of
+/- Lemma 71.3.3: Let `S` be a scheme. Let `f : X ⟶ Y` be a finite morphism of
 algebraic spaces over `S`. Let `F` be a quasi-coherent `𝒪_X`-module. Then
 `((pushforward f).obj F).weakAss = Points.map f '' F.weakAss`. -/
-@[stacks 0CU9]
-theorem weakAss_pushforward_eq_image_of_isFinite
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsFinite f]
-    (F : X.Modules) [F.IsQuasicoherent] :
-    ((pushforward f).obj F).weakAss = Points.map f '' F.weakAss :=
-  sorry
+@[stacks 0CU9] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.weakAss_pushforward_eq_image_of_isFinite :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsFinite f]
+      (F : X.Modules) [F.IsQuasicoherent],
+      ((pushforward f).obj F).weakAss = Points.map f '' F.weakAss)
 
-/-- A point of `Points Y` is weakly associated to the finite pushforward of a
-quasi-coherent module if and only if it is the image of a weakly associated
-point of that module. -/
-theorem mem_weakAss_pushforward_iff_of_isFinite
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsFinite f]
-    (F : X.Modules) [F.IsQuasicoherent] (y : Points Y) :
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.mem_weakAss_pushforward_iff_of_isFinite :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsFinite f]
+    (F : X.Modules) [F.IsQuasicoherent] (y : Points Y),
     y ∈ ((pushforward f).obj F).weakAss ↔
-      ∃ x : Points X, x ∈ F.weakAss ∧ Points.map f x = y :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Modules
+      ∃ x : Points X, x ∈ F.weakAss ∧ Points.map f x = y)

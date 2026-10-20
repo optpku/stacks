@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_4_12_Cancellation
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Separation.Cancellation
 import StacksCheckRecall
 
 @[expose] public section
@@ -19,7 +13,7 @@ universe u
 
 /- Lemma 101.4.12 (1): if `f ≫ g` is DM then so is `f`. -/
 @[stacks 050M] #check
-  (DM.of_comp :
+  (AlgebraicGeometry.AlgebraicStack.DM.of_comp :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
       (f : X ⟶ Y) (g : Y ⟶ Z)
@@ -28,7 +22,7 @@ universe u
 
 /- Lemma 101.4.12 (2): if `f ≫ g` is quasi-DM then so is `f`. -/
 @[stacks 050M] #check
-  (QuasiDM.of_comp :
+  (AlgebraicGeometry.AlgebraicStack.QuasiDM.of_comp :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
       (f : X ⟶ Y) (g : Y ⟶ Z)
@@ -38,7 +32,7 @@ universe u
 /- Lemma 101.4.12 (3): if `f ≫ g` is separated and `Hom.diagonal g` is
 separated, then `f` is separated. -/
 @[stacks 050M] #check
-  (Separated.of_comp :
+  (AlgebraicGeometry.AlgebraicStack.Separated.of_comp :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
       (f : X ⟶ Y) (g : Y ⟶ Z)
@@ -50,7 +44,7 @@ separated, then `f` is separated. -/
 /- Lemma 101.4.12 (4): if `f ≫ g` is quasi-separated and `Hom.diagonal g` is
 quasi-separated, then `f` is quasi-separated. -/
 @[stacks 050M] #check
-  (QuasiSeparated.of_comp :
+  (AlgebraicGeometry.AlgebraicStack.QuasiSeparated.of_comp :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
       (f : X ⟶ Y) (g : Y ⟶ Z)

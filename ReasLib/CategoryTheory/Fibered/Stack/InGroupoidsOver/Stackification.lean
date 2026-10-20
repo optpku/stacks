@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Fibered.Stack.Stackification.Existence
@@ -39,9 +33,11 @@ theorem existsOverSite
     {S : Type uX} [Category.{vX} S] (p : S ⥤ C)
     [Functor.IsFibered.InGroupoids p] :
     ∃ Y : StackOver.Groupoids.{
-        u, v, max u (max v (max uX vX)), max v vX} J,
+        u, v, max u (max v (max uX vX)), max u v vX} J,
       ∃ G : CartesianBasedFunctor p Y.p,
-        CartesianBasedFunctor.IsStackification J G := sorry
+        CartesianBasedFunctor.IsStackification J G :=
+  ⟨Functor.StackificationConstruction.canonicalGroupoidTarget J p, Functor.StackificationConstruction.canonicalGroupoidComparison J p,
+    Functor.StackificationConstruction.canonicalGroupoidIsStackification J p⟩
 
 /-- An explicit groupoid-valued stackification presentation.
 
@@ -57,7 +53,7 @@ structure Presentation
     [Functor.IsFibered.InGroupoids p] where
   /-- The target stack in groupoids. -/
   target : StackOver.Groupoids.{
-      u, v, max u (max v (max uX vX)), max v vX} J
+      u, v, max u (max v (max uX vX)), max u v vX} J
   /-- The cartesian comparison from the original groupoid-fibred category. -/
   comparison : CartesianBasedFunctor p target.p
   /-- The comparison satisfies the shared stackification predicate. -/
@@ -75,7 +71,7 @@ def Presentation.of
     {S : Type uX} [Category.{vX} S] (p : S ⥤ C)
     [Functor.IsFibered.InGroupoids p]
     (Y : StackOver.Groupoids.{
-      u, v, max u (max v (max uX vX)), max v vX} J)
+      u, v, max u (max v (max uX vX)), max u v vX} J)
     (G : CartesianBasedFunctor p Y.p)
     (hG : CartesianBasedFunctor.IsStackification J G) :
     Presentation J p :=
@@ -88,7 +84,7 @@ noncomputable def Presentation.ofExists
     {S : Type uX} [Category.{vX} S] (p : S ⥤ C)
     [Functor.IsFibered.InGroupoids p]
     (h : ∃ Y : StackOver.Groupoids.{
-        u, v, max u (max v (max uX vX)), max v vX} J,
+        u, v, max u (max v (max uX vX)), max u v vX} J,
       ∃ G : CartesianBasedFunctor p Y.p,
         CartesianBasedFunctor.IsStackification J G) :
     Presentation J p where
@@ -102,16 +98,19 @@ theorem Presentation.nonempty
     (J : GrothendieckTopology C)
     {S : Type uX} [Category.{vX} S] (p : S ⥤ C)
     [Functor.IsFibered.InGroupoids p] :
-    Nonempty (Presentation J p) := sorry
+    Nonempty (Presentation J p) :=
+  ⟨Presentation.of J p (Functor.StackificationConstruction.canonicalGroupoidTarget J p)
+    (Functor.StackificationConstruction.canonicalGroupoidComparison J p) (Functor.StackificationConstruction.canonicalGroupoidIsStackification J p)⟩
 
-/-- A convenient selected groupoid-valued stackification presentation. -/
+/-- The concrete local-descent groupoid stackification presentation. -/
 @[stacks 02ZP "selected groupoid stackification presentation"]
 noncomputable def presentation
     (J : GrothendieckTopology C)
     {S : Type uX} [Category.{vX} S] (p : S ⥤ C)
     [Functor.IsFibered.InGroupoids p] :
     Presentation J p :=
-  Presentation.ofExists J p (existsOverSite J p)
+  Presentation.of J p (Functor.StackificationConstruction.canonicalGroupoidTarget J p)
+    (Functor.StackificationConstruction.canonicalGroupoidComparison J p) (Functor.StackificationConstruction.canonicalGroupoidIsStackification J p)
 
 /-- Forget the groupoid refinement and reuse the neutral stackification presentation owner. -/
 @[stacks 02ZP "groupoid stackification presentation to neutral presentation"]
@@ -121,9 +120,8 @@ def Presentation.toPresentation
     Functor.IsFibered.Stackification.Presentation J p :=
   ⟨P.target.toStackOver, P.comparison, P.isStackification⟩
 
-/- Data audit: `Presentation` and `Presentation.of` carry only explicitly supplied groupoid target
-and comparison data.  `ofExists` and `presentation` are the named proposition-to-data boundary;
-their proof debt is confined to the Prop-valued stackification field. -/
+/- Data audit: `presentation` retains the actual target, inverse operations and comparison
+from the local-descent construction. `ofExists` converts only a supplied witness. -/
 
 end Functor.IsFibered.InGroupoids.Stackification
 
@@ -131,8 +129,8 @@ namespace StackOver.Groupoids.Stackification
 
 variable {J : GrothendieckTopology C}
 
-/-- The uniqueness clause of Lemma 8.9.1 (tag 02ZP): two stackification presentations in
-groupoids admit a bicategorical equivalence, and every compatible comparison is uniquely
+/-- Two stackification presentations in groupoids admit a bicategorical equivalence,
+and every compatible comparison is uniquely
 `2`-isomorphic to the chosen one. -/
 @[stacks 02ZP "uniqueness of stackification in groupoids"]
 theorem comparisonUnique

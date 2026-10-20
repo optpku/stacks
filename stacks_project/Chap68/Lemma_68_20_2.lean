@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Order.KrullDimension
-public import stacks_project.Chap66.Lemma_66_10_3_LocalRingDim
-public import stacks_project.Chap68.Proposition_68_12_4
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Dimension.LocalRing
+import StacksCheckRecall
 
 /-!
 # Codimension versus local-ring dimension on decent algebraic spaces
@@ -26,7 +19,7 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 68.20.2: Let `S` be a scheme. Let `X` be a decent algebraic space
+/- Lemma 68.20.2: Let `S` be a scheme. Let `X` be a decent algebraic space
 over `S`. Let `T ⊂ |X|` be an irreducible closed subset. Let `ξ ∈ T` be the
 generic point (Proposition 68.12.4). Then `codim(T, |X|)` (Topology,
 Definition 5.11.1) is the dimension of the local ring of `X` at `ξ`
@@ -36,25 +29,20 @@ Here `|X|` is `Points X`, an irreducible closed subset is
 `T : IrreducibleCloseds (Points X)`, the generic point is `IsGenericPoint ξ T`,
 `codim(T, |X|)` is `Order.coheight T`, and the dimension of the local ring is
 `localRingDimAt`. -/
-@[stacks 0ED1]
-theorem localRingDimAt_eq_coheight {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
-    (T : IrreducibleCloseds (Points X)) (ξ : Points X) (hξ : IsGenericPoint ξ T) :
-    localRingDimAt ξ = Order.coheight T :=
-  sorry
+@[stacks 0ED1] #check (AlgebraicGeometry.AlgebraicSpace.localRingDimAt_eq_coheight :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
+    (T : IrreducibleCloseds (Points X)) (ξ : Points X), IsGenericPoint ξ T →
+    localRingDimAt ξ = Order.coheight T)
 
-/-- The dimension of the local ring at the generic point of an irreducible
-closed subset of a decent algebraic space equals the coheight of that subset. -/
-theorem localRingDimAt_genericPoint_eq_coheight {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [IsDecent X] (T : IrreducibleCloseds (Points X)) :
-    localRingDimAt T.isIrreducible.genericPoint = Order.coheight T :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.localRingDimAt_genericPoint_eq_coheight :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
+    (T : IrreducibleCloseds (Points X)),
+    localRingDimAt T.isIrreducible.genericPoint = Order.coheight T)
 
-/-- Source-packaging form of `localRingDimAt_eq_coheight` for a raw irreducible
-closed subset of `Points X`. -/
-theorem localRingDimAt_eq_coheight_mk {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [IsDecent X] {T : Set (Points X)} (hT_irred : IsIrreducible T) (hT_closed : IsClosed T)
-    (ξ : Points X) (hξ : IsGenericPoint ξ T) :
-    localRingDimAt ξ = Order.coheight (IrreducibleCloseds.mk T hT_irred hT_closed) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.localRingDimAt_eq_coheight_mk :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X] {T : Set (Points X)}
+    (hT_irred : IsIrreducible T) (hT_closed : IsClosed T) (ξ : Points X),
+    IsGenericPoint ξ T →
+    localRingDimAt ξ = Order.coheight (IrreducibleCloseds.mk T hT_irred hT_closed))
 
 end AlgebraicGeometry.AlgebraicSpace

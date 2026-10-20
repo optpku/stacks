@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Presheaf.Tensor.Restriction
@@ -25,20 +19,20 @@ open CategoryTheory
 
 noncomputable section
 
-universe u v
+universe u v w
 
 namespace SheafOfModules.RingedSite.Restriction
 
 variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
-variable [J.HasSheafCompose (forget₂ CommRingCat RingCat)]
-variable [HasWeakSheafify J AddCommGrpCat.{max u v}]
-variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
-variable {O O' : Sheaf J CommRingCat.{max u v}}
+variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [HasWeakSheafify J AddCommGrpCat.{w}]
+variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable {O O' : Sheaf J CommRingCat.{w}}
 
 /-- The canonical tensor comparison for restriction of scalars between module sheaves. -/
 @[stacks 03L6 "tensor comparison for restriction of scalars"]
 noncomputable def tensorComparison (b : O ⟶ O')
-    (F G : ringedSiteModuleCategory J O') :
+    (F G : ringedSiteModuleCategory.{u, v, w, w} J O') :
     moduleTensor ((restrictionAlong b).obj F) ((restrictionAlong b).obj G) ⟶
       (restrictionAlong b).obj (moduleTensor F G) :=
   (ModuleSheafification.tensorObjIso O
@@ -51,7 +45,7 @@ noncomputable def tensorComparison (b : O ⟶ O')
 arguments. -/
 @[stacks 03L6 "naturality of the restriction tensor comparison"]
 theorem tensorComparison_naturality (b : O ⟶ O')
-    {F₁ F₂ G₁ G₂ : ringedSiteModuleCategory J O'}
+    {F₁ F₂ G₁ G₂ : ringedSiteModuleCategory.{u, v, w, w} J O'}
     (f : F₁ ⟶ F₂) (g : G₁ ⟶ G₂) :
     moduleTensorMap ((restrictionAlong b).map f) ((restrictionAlong b).map g) ≫
         tensorComparison b F₂ G₂ =

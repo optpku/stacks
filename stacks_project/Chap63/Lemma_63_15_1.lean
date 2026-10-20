@@ -1,19 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Homology.DerivedCategory.TStructure
-public import Mathlib.FieldTheory.IsAlgClosed.Basic
-public import Mathlib.GroupTheory.Torsion
-public import Mathlib.RingTheory.Finiteness.Basic
-public import Mathlib.RingTheory.Noetherian.Basic
-public import stacks_project.Chap59.Definition_59_71_1
-public import stacks_project.Chap63.Definition_63_12_1_Gamma
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.CompactSupport.Finite
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -90,14 +78,10 @@ variable [∀ (Y : Scheme.{u}) (f : Y ⟶ X.left) (G : X.left.Etaleᵒᵖ ⥤ Mo
 variable [X.left.smallEtaleTopology.HasSheafCompose
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
 
-/-- Lemma 63.15.1 (1): if `k` is algebraically closed, `X` is a separated
-finite-type scheme over `k`, `Λ` is a Noetherian ring, and `K` is an object of
-`D⁺_tors,c(X_étale, Λ)`, then `H^i_c(X, K)` is a finite `Λ`-module for all
-`i : ℤ`. Here `H^i_c(X, K)` is `etaleDerivedCohomologyCompactSupport P i K`,
-the degree-`i` homology of `RΓ_c(X, K) = RΓ(Spec k, Rf_! K)`. -/
-@[stacks 0GLH]
-theorem etaleDerivedCohomologyCompactSupport_finite_of_plusTorsionConstructible
-    (K : EtaleDerived X.left Λ)
+/- Lemma 63.15.1 (1): compactly supported cohomology of a bounded-below torsion
+constructible complex is finite in every integer degree -/
+@[stacks 0GLH] #check (AlgebraicGeometry.Scheme.Etale.etaleDerivedCohomologyCompactSupport_finite_of_plusTorsionConstructible X P :
+    ∀ (K : DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)))
     (h_cons :
       DerivedCategory.cohomologyIn
         (Sheaf.IsConstructibleEtaleModule
@@ -105,18 +89,15 @@ theorem etaleDerivedCohomologyCompactSupport_finite_of_plusTorsionConstructible
             ((smallEtalePullback g).sheafPullback (ModuleCat.{u} Λ)
               X.left.smallEtaleTopology Z.smallEtaleTopology).obj)
           (fun {Z} G ↦ Sheaf.IsFiniteTypeLocallyConstantModule G)) K)
-    (h_tors : etaleDerivedIsTorsion K) (n : ℤ) [DerivedCategory.IsGE K n]
-    (i : ℤ) :
-    Module.Finite Λ (etaleDerivedCohomologyCompactSupport P i K) :=
-  sorry
+    (h_tors : etaleDerivedIsTorsion K) (h_bdd : ∃ n : ℤ, DerivedCategory.IsGE K n)
+    (i : ℤ),
+    Module.Finite Λ (etaleDerivedCohomologyCompactSupport P i K))
 
-/-- Lemma 63.15.1 (2): if `k` is algebraically closed, `X` is a separated
-finite-type scheme over `k`, `Λ` is a Noetherian torsion ring, and `K` is an
-object of `D_c(X_étale, Λ)`, then `H^i_c(X, K)` is a finite `Λ`-module for all
-`i : ℤ`. -/
-@[stacks 0GLH]
-theorem etaleDerivedCohomologyCompactSupport_finite_of_isTorsion
-    (hΛ : AddMonoid.IsTorsion Λ) (K : EtaleDerived X.left Λ)
+/- Lemma 63.15.1 (2): over a torsion coefficient ring, compactly supported
+cohomology of any constructible complex is finite in every integer degree -/
+@[stacks 0GLH] #check (AlgebraicGeometry.Scheme.Etale.etaleDerivedCohomologyCompactSupport_finite_of_isTorsion X P :
+    ∀ (hΛ : AddMonoid.IsTorsion Λ)
+    (K : DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)))
     (h_cons :
       DerivedCategory.cohomologyIn
         (Sheaf.IsConstructibleEtaleModule
@@ -124,9 +105,8 @@ theorem etaleDerivedCohomologyCompactSupport_finite_of_isTorsion
             ((smallEtalePullback g).sheafPullback (ModuleCat.{u} Λ)
               X.left.smallEtaleTopology Z.smallEtaleTopology).obj)
           (fun {Z} G ↦ Sheaf.IsFiniteTypeLocallyConstantModule G)) K)
-    (i : ℤ) :
-    Module.Finite Λ (etaleDerivedCohomologyCompactSupport P i K) :=
-  sorry
+    (i : ℤ),
+    Module.Finite Λ (etaleDerivedCohomologyCompactSupport P i K))
 
 end AlgebraicGeometry.Scheme.Etale
 

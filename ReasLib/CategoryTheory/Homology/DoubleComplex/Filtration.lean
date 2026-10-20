@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
@@ -257,12 +251,12 @@ theorem Second.Filtration.differential_comp
     (i j k : ℤ) (hij : (up ℤ).Rel i j) (hjk : (up ℤ).Rel j k) :
     (Second.Filtration.differential K) i j ≫ (Second.Filtration.differential K) j k = 0 := sorry
 
-/-- Lemma 12.25.1 infrastructure: the total complex with its first, horizontal-tail filtration. -/
+/-- The total complex with its first, horizontal-tail filtration. -/
 @[stacks 0130 "first filtered total complex of a double complex"]
 noncomputable abbrev First.Filtration.total : FilteredComplex C :=
   Total.Filtration.total K OrderHom.fst
 
-/-- Lemma 12.25.1 infrastructure: the total complex with its second, vertical-tail filtration. -/
+/-- The total complex with its second, vertical-tail filtration. -/
 @[stacks 0130 "second filtered total complex of a double complex"]
 noncomputable abbrev Second.Filtration.total : FilteredComplex C :=
   Total.Filtration.total K OrderHom.snd

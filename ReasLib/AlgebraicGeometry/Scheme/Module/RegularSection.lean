@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.AffineScheme
@@ -28,14 +22,18 @@ namespace AlgebraicGeometry.Scheme
 
 variable {X : Scheme.{u}}
 
+/-- A global function is regular when its multiplication map on the structure module
+is a monomorphism. -/
+abbrev IsRegularStructureSection (f : Γ(X, ⊤)) : Prop :=
+  RingedSpace.IsRegularSection (SheafOfModules.unit X.toRingedSpace.ringCatSheaf)
+    ((SheafOfModules.unit X.toRingedSpace.ringCatSheaf).unitHomEquiv
+      (RingedSpace.globalSectionMul f (SheafOfModules.unit X.toRingedSpace.ringCatSheaf)))
+
 /-- A global function on a scheme is a regular section of the structure module exactly when its
 restriction is a nonzerodivisor on every affine open. -/
 theorem isRegularStructureSection_iff_forall_affineOpen
     (f : Γ(X, ⊤)) :
-    RingedSpace.IsRegularSection (SheafOfModules.unit X.toRingedSpace.ringCatSheaf)
-        ((SheafOfModules.unit X.toRingedSpace.ringCatSheaf).unitHomEquiv
-          (RingedSpace.globalSectionMul f
-            (SheafOfModules.unit X.toRingedSpace.ringCatSheaf))) ↔
+    IsRegularStructureSection f ↔
       ∀ U : X.affineOpens,
         IsSMulRegular Γ(X, U)
           (X.presheaf.map (TopologicalSpace.Opens.leTop (U : X.Opens)).op f) := sorry

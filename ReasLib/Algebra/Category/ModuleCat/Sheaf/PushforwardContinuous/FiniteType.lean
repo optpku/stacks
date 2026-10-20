@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.ChangeOfRings.FiniteType
@@ -33,6 +27,15 @@ namespace SheafOfModules.PushforwardContinuous
 
 variable {X Y : TopCat.{u}}
 variable {S : Y.Sheaf RingCat.{v}} {R : X.Sheaf RingCat.{v}}
+
+variable [sourceHasWeakSheafifyOver : ∀ U : TopologicalSpace.Opens X,
+  HasWeakSheafify ((Opens.grothendieckTopology X).over U) AddCommGrpCat.{v}]
+variable [sourceWEqualsLocallyBijectiveOver : ∀ U : TopologicalSpace.Opens X,
+  ((Opens.grothendieckTopology X).over U).WEqualsLocallyBijective AddCommGrpCat.{v}]
+variable [targetHasWeakSheafifyOver : ∀ U : TopologicalSpace.Opens Y,
+  HasWeakSheafify ((Opens.grothendieckTopology Y).over U) AddCommGrpCat.{v}]
+variable [targetWEqualsLocallyBijectiveOver : ∀ U : TopologicalSpace.Opens Y,
+  ((Opens.grothendieckTopology Y).over U).WEqualsLocallyBijective AddCommGrpCat.{v}]
 
 namespace Inducing
 

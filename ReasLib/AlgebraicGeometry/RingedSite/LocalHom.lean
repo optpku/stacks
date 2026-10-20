@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.Ring.Sheaf.LocalHom
@@ -38,27 +32,16 @@ variable [JD.HasSheafCompose
 variable {𝒪C : Sheaf JC CommRingCat.{w}}
 variable {𝒪D : Sheaf JD CommRingCat.{w}}
 
-/-- Definition 18.40.9 (04HA): a morphism of commutative ringed-site presentations is local when
+/-- A morphism of commutative ringed-site presentations is local when
 its canonical inverse-image structure-sheaf map reflects units objectwise. -/
 @[stacks 04HA]
-class IsLocal
+abbrev IsLocal
     (f : RingedSite.Hom (RingedSite.ofCommRingSheaf JC 𝒪C)
       (RingedSite.ofCommRingSheaf JD 𝒪D))
     [h_adj : (f.base.sheafPushforwardContinuous
       CommRingCat.{w} JD JC).IsRightAdjoint] :
-    Prop where
-  app (U : Cᵒᵖ) :
-    IsLocalHom ((inverseImageStructureSheafMap f).hom.app U).hom
-
-/-- A local ringed-site morphism exposes unit reflection by every component of its inverse-image
-structure-sheaf map to typeclass search. -/
-instance inverseImageStructureSheafMap_app_isLocal
-    (f : RingedSite.Hom (RingedSite.ofCommRingSheaf JC 𝒪C)
-      (RingedSite.ofCommRingSheaf JD 𝒪D))
-    [h_adj : (f.base.sheafPushforwardContinuous
-      CommRingCat.{w} JD JC).IsRightAdjoint]
-    [f.IsLocal] (U : Cᵒᵖ) :
-    IsLocalHom ((inverseImageStructureSheafMap f).hom.app U).hom := sorry
+    Prop :=
+  CategoryTheory.Sheaf.LocalHom.IsLocal (inverseImageStructureSheafMap f)
 
 /-- The units square of the inverse-image structure-sheaf map is cartesian objectwise. -/
 def IsLocal.UnitsSquareCartesian
@@ -77,9 +60,14 @@ theorem isLocal_iff
     [h_adj : (f.base.sheafPushforwardContinuous
       CommRingCat.{w} JD JC).IsRightAdjoint] :
     f.IsLocal ↔ ∀ U : Cᵒᵖ,
-      IsLocalHom ((inverseImageStructureSheafMap f).hom.app U).hom := sorry
+      IsLocalHom ((inverseImageStructureSheafMap f).hom.app U).hom := by
+  constructor
+  · intro h
+    exact h.app
+  · intro h
+    exact ⟨h⟩
 
-/-- Definition 18.40.9 (04HA), units-square view: locality of a bundled ringed-site morphism is
+/-- Locality of a bundled ringed-site morphism is
 equivalent to objectwise cartesianness of its units square. -/
 @[stacks 04HA "units-square criterion"]
 theorem isLocal_iff_unitsSquare
@@ -87,9 +75,13 @@ theorem isLocal_iff_unitsSquare
       (RingedSite.ofCommRingSheaf JD 𝒪D))
     [h_adj : (f.base.sheafPushforwardContinuous
       CommRingCat.{w} JD JC).IsRightAdjoint] :
-    f.IsLocal ↔ IsLocal.UnitsSquareCartesian f := sorry
+    f.IsLocal ↔ IsLocal.UnitsSquareCartesian f := by
+  simpa only [IsLocal, IsLocal.UnitsSquareCartesian,
+    CategoryTheory.Sheaf.LocalHom.UnitsSquareCartesian] using
+    (CategoryTheory.Sheaf.LocalHom.unitsSquareCartesian_iff_isLocal
+      (inverseImageStructureSheafMap f)).symm
 
-/-- Lemma 18.40.11 (04KR) (1): the inverse-image structure map has a cartesian units square. -/
+/-- The inverse-image structure map has a cartesian units square. -/
 @[stacks 04KR "(1)"]
 theorem ofPullback_unitsSquareCartesian
     (F : D ⥤ C) [IsMorphismOfSites JD JC F]
@@ -98,7 +90,7 @@ theorem ofPullback_unitsSquareCartesian
     (𝒪D : Sheaf JD CommRingCat.{w}) :
     IsLocal.UnitsSquareCartesian (ofPullback (JC := JC) F 𝒪D) := sorry
 
-/-- Lemma 18.40.11 (04KR) (2): the canonical morphism from an inverse-image presentation is
+/-- The canonical morphism from an inverse-image presentation is
 local. -/
 @[stacks 04KR "(2)"]
 instance ofPullback_isLocal
@@ -106,6 +98,9 @@ instance ofPullback_isLocal
     [(F.sheafPushforwardContinuous
       CommRingCat.{w} JD JC).IsRightAdjoint]
     (𝒪D : Sheaf JD CommRingCat.{w}) :
-    IsLocal (ofPullback (JC := JC) F 𝒪D) := sorry
+    CategoryTheory.Sheaf.LocalHom.IsLocal
+      (inverseImageStructureSheafMap (ofPullback (JC := JC) F 𝒪D)) :=
+  (isLocal_iff_unitsSquare (ofPullback (JC := JC) F 𝒪D)).mpr
+    (ofPullback_unitsSquareCartesian (JC := JC) F 𝒪D)
 
 end RingedSite.Hom

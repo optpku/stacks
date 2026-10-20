@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.Topos.Cocontinuous
@@ -43,6 +37,21 @@ variable [Functor.IsCocontinuous u J K] [Functor.IsCocontinuous v K L]
 section Pushforward
 
 variable {A : Type t} [Category A]
+
+/-- Cocontinuous sheaf pushforward along the identity functor is naturally isomorphic to
+the identity on sheaves. -/
+noncomputable def sheafPushforwardCocontinuousId (A : Type t) [Category A]
+    (J : GrothendieckTopology C)
+    [∀ P : Cᵒᵖ ⥤ A, (𝟭 C).op.HasPointwiseRightKanExtension P] :
+    (𝟭 C).sheafPushforwardCocontinuous A J J ≅ 𝟭 (Sheaf J A) :=
+  Functor.fullyFaithfulCancelRight (sheafToPresheaf J A)
+    (((𝟭 C).sheafPushforwardCocontinuousCompSheafToPresheafIso A J J).trans
+      ((NatIso.hcomp (Iso.refl (sheafToPresheaf J A))
+          ((((𝟭 C).op.ranAdjunction A).ofNatIsoLeft
+              (eqToIso Functor.whiskeringLeft_obj_id)).rightAdjointUniq
+            (Adjunction.id : 𝟭 (Cᵒᵖ ⥤ A) ⊣ 𝟭 (Cᵒᵖ ⥤ A)))).trans
+        (Functor.rightUnitor (sheafToPresheaf J A))))
+
 variable [forall F : Cᵒᵖ ⥤ A, u.op.HasPointwiseRightKanExtension F]
 variable [forall F : Dᵒᵖ ⥤ A, v.op.HasPointwiseRightKanExtension F]
 

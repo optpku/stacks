@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Adjunction.Basic
-public import Mathlib.CategoryTheory.Limits.Preserves.Basic
-public import Mathlib.GroupTheory.Torsion
-public import stacks_project.Chap63.Definition_63_12_1_LowerShriek
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.UpperShriek
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -63,24 +54,16 @@ variable [HasRightDerivedFunctor
     (Sheaf P.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))
     (ComplexShape.up ℤ))]
 
-namespace etaleDerivedLowerShriek
 
-/-- Lemma 63.11.1: if `f = X.hom` is a finite type separated morphism of
-quasi-compact quasi-separated schemes and `Λ` is a torsion coefficient ring
-(`AddMonoid.IsTorsion Λ`), then
-`Rf_! = etaleDerivedLowerShriek X P : EtaleDerived X.left Λ ⥤ EtaleDerived Y Λ`
-has a right adjoint
-`Rf^! = (etaleDerivedLowerShriek X P).rightAdjoint`.
-The compactification `P` remains an explicit parameter of `Rf_!`. Downstream,
-this chosen adjoint is abbreviated `etaleDerivedUpperShriek`. -/
-@[stacks 0G2C]
-instance isLeftAdjoint [CompactSpace X.left] [QuasiSeparatedSpace X.left]
-    (hΛ : AddMonoid.IsTorsion Λ) :
-    let _ := hΛ
+variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]
+variable (hΛ : AddMonoid.IsTorsion Λ)
+
+/- Lemma 63.11.1 -/
+@[stacks 0G2C] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriek.isLeftAdjoint X P hΛ :
     (etaleDerivedLowerShriek X P :
-      EtaleDerived X.left Λ ⥤ EtaleDerived Y Λ).IsLeftAdjoint := sorry
-
-end etaleDerivedLowerShriek
+      DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)) ⥤
+        DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))).IsLeftAdjoint)
 
 end AlgebraicGeometry.Scheme.Etale
 

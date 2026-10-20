@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.IntrinsicDualStalk
@@ -38,7 +32,7 @@ variable [∀ U : (geometricBaseChange X).Etale,
       (ModuleCat.{u + 1} (ActualRootsModule.Coeff.{u} (Nat.card Λ)))]
 variable [HasSheafify (geometricBaseChange X).smallEtaleTopology AddCommGrpCat.{u + 1}]
 variable (hΛ : IsUnit (Nat.card Λ : k))
-variable (M : (finiteTypeDiscreteModule Λ (Aut (standardFiniteEtaleFiber ηbar))).FullSubcategory)
+variable (M : (finiteTypeDiscreteModule Λ (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber ηbar))).FullSubcategory)
 
 abbrev sourceSheaf := (associatedSheafFunctor Λ ηbar).obj M
 

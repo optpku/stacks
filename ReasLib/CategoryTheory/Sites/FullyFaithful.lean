@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.CoverLifting
@@ -97,6 +91,30 @@ theorem exists_sheaf_extension
       Nonempty ((u.sheafPushforwardContinuous A J K).obj F' ≅ F) := sorry
 
 end FullyFaithful
+
+/-- Sheaf pullback along a fully faithful continuous and cocontinuous functor of sites is full. -/
+instance sheafPullback_full_of_fullyFaithful
+    [u.Full] [u.Faithful]
+    [u.IsContinuous J K] [u.IsCocontinuous J K]
+    [HasWeakSheafify J A] [HasWeakSheafify K A]
+    [∀ P : Cᵒᵖ ⥤ A, u.op.HasLeftKanExtension P]
+    [∀ P : Cᵒᵖ ⥤ A, u.op.HasPointwiseLeftKanExtension P]
+    [∀ P : Cᵒᵖ ⥤ A, u.op.HasPointwiseRightKanExtension P] :
+    (u.sheafPullback A J K).Full where
+  map_surjective {X Y} :=
+    (FullyFaithful.sheafPullback_map_bijective J K u (.ofFullyFaithful u) X Y).2
+
+/-- Sheaf pullback along a fully faithful continuous and cocontinuous functor of sites is faithful. -/
+instance sheafPullback_faithful_of_fullyFaithful
+    [u.Full] [u.Faithful]
+    [u.IsContinuous J K] [u.IsCocontinuous J K]
+    [HasWeakSheafify J A] [HasWeakSheafify K A]
+    [∀ P : Cᵒᵖ ⥤ A, u.op.HasLeftKanExtension P]
+    [∀ P : Cᵒᵖ ⥤ A, u.op.HasPointwiseLeftKanExtension P]
+    [∀ P : Cᵒᵖ ⥤ A, u.op.HasPointwiseRightKanExtension P] :
+    (u.sheafPullback A J K).Faithful where
+  map_injective {X Y} :=
+    (FullyFaithful.sheafPullback_map_bijective J K u (.ofFullyFaithful u) X Y).1
 
 /-- For a fully faithful continuous and cocontinuous functor of sites, every component of the unit
 of the continuous sheaf adjunction is an isomorphism. -/

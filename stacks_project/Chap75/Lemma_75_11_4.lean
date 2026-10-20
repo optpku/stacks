@@ -1,21 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.IsomorphismClasses
-public import ReasLib.CategoryTheory.Functor.Equivalence.QuasiInverse.Basic
-public import stacks_project.Chap65.Definition_65_12_1_Subspace
-public import stacks_project.Chap66.Definition_66_3_1_Separation
-public import stacks_project.Chap66.Definition_66_5_1_QuasiCompact
-public import stacks_project.Chap66.Lemma_66_16_4_Etale
-public import stacks_project.Chap67.Definition_67_20_2_Affine
-public import stacks_project.Chap75.«75_5_1_1_Comparison»
-public import stacks_project.Chap75.Lemma_75_6_1_Pushforward
-public import stacks_project.Chap75.Lemma_75_11_2_Coherator
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Comparison.Qcqs
+import StacksCheckRecall
 
 /-!
 # Étale affine pushforward criterion for the comparison on qcqs algebraic spaces
@@ -37,23 +23,22 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.DerivedQCoh
 
-/-- Lemma 75.11.4. Let `S` be a scheme. Let `X` be a quasi-compact and
+/- Lemma 75.11.4. Let `S` be a scheme. Let `X` be a quasi-compact and
 quasi-separated algebraic space over `S`. Suppose that for every étale
 morphism `j : V ⟶ W` with `W ⊂ X` quasi-compact open and `V` affine, the
 right derived functor `QCoh.Derived.pushforward j` of
 `j_* : QCoh 𝒪_V ⥤ QCoh 𝒪_W` fits into a commutative diagram with the
 comparisons `comparison V` and `comparison W.X` against the restricted
-ambient derived pushforward `pushforward j`. Then the functor
+ambient derived pushforward `pushforwardCohomologyIn j`. Then the functor
 `comparison X` of 75.5.1.1 is an equivalence `D(QCoh(𝒪_X)) ⥤ D_QCoh(𝒪_X)`
 with quasi-inverse `inclusion X ⋙ QCoh.Derived.coherator X`. -/
-@[stacks 09TG]
-theorem comparison_isQuasiInverse {S : Scheme.{u}} {X : AlgebraicSpace S}
+@[stacks 09TG] #check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.comparison_isQuasiInverse :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
     [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
     (h_etalePushforward : ∀ {W : OpenSubspace X} {V : AlgebraicSpace S} (j : V ⟶ W.X)
       [Etale j] [IsQuasiCompact W.X] [IsAffine V] [QuasiCompact j] [QuasiSeparated j],
       IsIsomorphic (QCoh.Derived.pushforward j ⋙ comparison W.X)
-        (comparison V ⋙ pushforward j)) :
-    (comparison X).IsQuasiInverse (inclusion X ⋙ QCoh.Derived.coherator X) :=
-  sorry
+        (comparison V ⋙ pushforwardCohomologyIn j)),
+    (comparison X).IsQuasiInverse (inclusion X ⋙ QCoh.Derived.coherator X))
 
 end AlgebraicGeometry.AlgebraicSpace.DerivedQCoh

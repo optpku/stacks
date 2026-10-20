@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap82.Remark_82_22_3_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.ZeroSection.Pullback
 import stacks_project.Chap65.Definition_65_13_2_Separation
 import stacks_project.Chap67.Definition_67_4_2_Separation
 import stacks_project.Chap76.Lemma_76_32_2
@@ -37,7 +31,7 @@ cartesian square with `i' = zeroSchemeι L' s'` and
 `g = zeroSchemePullbackMap f L s`. The maps `i*` and `(i')*` mean `Hom.gysin` of
 the two triples; various compatibilities between them may be asked for, but are
 not asserted here. -/
-@[stacks 0ER3] #check (zeroSchemePullbackSquare f L s :
+@[stacks 0ER3] #check (AlgebraicGeometry.AlgebraicSpace.zeroSchemePullbackSquare f L s :
     IsPullback
       (zeroSchemeι ((Modules.pullback f).obj L) (Modules.sectionsPullback f L s))
       (zeroSchemePullbackMap f L s) f (zeroSchemeι L s))

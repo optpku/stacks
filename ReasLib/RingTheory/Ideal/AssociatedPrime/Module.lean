@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Module.Torsion.Basic
@@ -143,15 +137,6 @@ theorem image_comap_subset
   exact Ideal.isAssociatedToModule_comap R M hP
 
 end associatedPrimesOfModule.Restriction
-
-/-- Contracting exact associated primes along a scalar tower produces exact associated primes
-after restricting scalars. -/
-@[deprecated associatedPrimesOfModule.Restriction.image_comap_subset (since := "2026-08-07")]
-theorem associatedPrimesOfModule_image_comap_subset
-    {S : Type*} [CommRing S] [Algebra R S] [Module S M] [IsScalarTower R S M] :
-    Ideal.comap (algebraMap R S) '' associatedPrimesOfModule S M ⊆
-      associatedPrimesOfModule R M :=
-  associatedPrimesOfModule.Restriction.image_comap_subset R M
 
 /-- Over a Noetherian ring, exact-annihilator and radical-based associated-prime sets coincide. -/
 @[stacks 00LA "exact and radical associated primes over Noetherian rings"]

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap42.Lemma_42_62_2_Comparison
@@ -15,7 +9,7 @@ open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
 open AlgebraicGeometry.Scheme.Hom
 open AlgebraicGeometry.Scheme.Hom.VirtualNormalBundle
 open AlgebraicGeometry.Scheme.Modules hiding dual
-open AlgebraicGeometry.BivariantClass (overHom_eq_over castRelativeDegree totalCap)
+open AlgebraicGeometry.BivariantClass (overHom_eq_over totalCap)
 
 noncomputable section
 
@@ -50,7 +44,7 @@ theorem intersectionProduct_eq_pushforward_gysin
     (hcodim : r = c + e) {n : ℤ} (alpha : RelativeChow (fun _ ↦ 0) X n) :
     intersectionProduct X r DΔ alpha
         (map (fun _ ↦ 0) Y X i e (relativeFundamentalClass Y e)) =
-      castRelativeDegree (fun _ ↦ 0)
+      RelativeChow.castDegree (fun _ ↦ 0)
         (intersectionProduct_gysin_degree n r e c hcodim).symm
         (map (fun _ ↦ 0) Y X i (n - c)
           ((overHom_eq_over i ▸

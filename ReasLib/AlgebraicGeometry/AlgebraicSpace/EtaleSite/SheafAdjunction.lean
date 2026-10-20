@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.SpacesAtlasCharts
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.BaseChange
@@ -33,7 +27,7 @@ def spaceEquivalence (X : AlgebraicSpace S) :
 /-- Actual restriction from spaces-étale sheaves to scheme charts. -/
 def restriction (X : AlgebraicSpace S) :
     Sheaf (spacesEtaleTopology X) (Type u) ⥤ Sheaf (smallEtaleTopology X) (Type u) :=
-  (smallEtaleInclusion X).sheafPushforwardContinuous (Type u)
+  (smallEtaleToSpaces X).sheafPushforwardContinuous (Type u)
     (smallEtaleTopology X) (spacesEtaleTopology X)
 
 /-- Extension from scheme charts uses only the small chart Kan extension. -/
@@ -47,7 +41,7 @@ def restrictionExtensionIso (X : AlgebraicSpace S) :
   (spaceEquivalence X).unitIso ≪≫
     Functor.isoWhiskerRight
       (Functor.sheafPushforwardContinuousComp (AlgebraicGeometry.AlgebraicSpace.SmallEtale.AtlasCharts.inclusion X)
-        (smallEtaleInclusion X) (Type u) (AlgebraicGeometry.AlgebraicSpace.SmallEtale.AtlasCharts.topology X)
+        (smallEtaleToSpaces X) (Type u) (AlgebraicGeometry.AlgebraicSpace.SmallEtale.AtlasCharts.topology X)
         (smallEtaleTopology X) (spacesEtaleTopology X)).symm
       (spaceEquivalence X).inverse ≪≫ Functor.associator _ _ _
 
@@ -109,14 +103,14 @@ def directImage (f : X ⟶ Y) :
 /-- Evaluate extended sections along an actual scheme chart over a spaces-étale object. -/
 def extensionEvaluation (X : AlgebraicSpace S) (Q : Sheaf (smallEtaleTopology X) (Type u))
     {W : spacesEtaleSite X} {U : smallEtaleSite X}
-    (a : (smallEtaleInclusion X).obj U ⟶ W) :
+    (a : (smallEtaleToSpaces X).obj U ⟶ W) :
     ((extension X).obj Q).obj.obj (op W) ⟶ Q.obj.obj (op U) :=
   ((extension X).obj Q).obj.map a.op ≫
     ((extensionRestrictionIso X).hom.app Q).hom.app (op U)
 
 /-- An actual étale square gives its universal arrow into the geometric fibre product. -/
 def squareArrow (f : X ⟶ Y) (sq : EtaleSquare f) :
-    (smallEtaleInclusion X).obj sq.left ⟶ (etaleBaseChange f).obj sq.right :=
+    (smallEtaleToSpaces X).obj sq.left ⟶ (etaleBaseChange f).obj sq.right :=
   MorphismProperty.Over.homMk
     (Limits.pullback.lift (f := homFunctor f) (g := homFunctor sq.right.hom)
       sq.left.hom (ofOverMap sq.map) sq.w)
@@ -125,14 +119,14 @@ def squareArrow (f : X ⟶ Y) (sq : EtaleSquare f) :
 /-- The small-chart extension forms a cone of actual evaluations on all scheme charts. -/
 def allChartCone (X : AlgebraicSpace S) (Q : Sheaf (smallEtaleTopology X) (Type u))
     (W : spacesEtaleSite X) :
-    Cone (StructuredArrow.proj (op W) (smallEtaleInclusion X).op ⋙ Q.obj) where
+    Cone (StructuredArrow.proj (op W) (smallEtaleToSpaces X).op ⋙ Q.obj) where
   pt := ((extension X).obj Q).obj.obj (op W)
   π := { app := fun a ↦ extensionEvaluation X Q a.hom.unop, naturality := sorry }
 
 /-- A cone on all scheme charts restricts to the specified small chart family. -/
 def restrictChartCone (X : AlgebraicSpace S) (Q : Sheaf (smallEtaleTopology X) (Type u))
     (W : spacesEtaleSite X)
-    (c : Cone (StructuredArrow.proj (op W) (smallEtaleInclusion X).op ⋙ Q.obj)) :
+    (c : Cone (StructuredArrow.proj (op W) (smallEtaleToSpaces X).op ⋙ Q.obj)) :
     Cone (StructuredArrow.proj (op W) (SpacesEtale.AtlasCharts.inclusion X).op ⋙
       ((smallEquivalence X).functor.obj Q).obj) where
   pt := c.pt
@@ -144,7 +138,7 @@ def restrictChartCone (X : AlgebraicSpace S) (Q : Sheaf (smallEtaleTopology X) (
 /-- Lift a full scheme-chart cone by its actual small-chart limit lift. -/
 def allChartLift (X : AlgebraicSpace S) (Q : Sheaf (smallEtaleTopology X) (Type u))
     (W : spacesEtaleSite X)
-    (c : Cone (StructuredArrow.proj (op W) (smallEtaleInclusion X).op ⋙ Q.obj)) :
+    (c : Cone (StructuredArrow.proj (op W) (smallEtaleToSpaces X).op ⋙ Q.obj)) :
     c.pt ⟶ (allChartCone X Q W).pt :=
   limit.lift _ (restrictChartCone X Q W c) ≫
     ((SpacesEtale.AtlasCharts.inclusion X).op.ranObjObjIsoLimit
@@ -160,7 +154,7 @@ def allChartIsLimit (X : AlgebraicSpace S) (Q : Sheaf (smallEtaleTopology X) (Ty
 /-- Existence of the full chart limit is witnessed by this explicit cone and lift. -/
 def allChartHasLimit (X : AlgebraicSpace S) (Q : Sheaf (smallEtaleTopology X) (Type u))
     (W : spacesEtaleSite X) :
-    HasLimit (StructuredArrow.proj (op W) (smallEtaleInclusion X).op ⋙ Q.obj) :=
+    HasLimit (StructuredArrow.proj (op W) (smallEtaleToSpaces X).op ⋙ Q.obj) :=
   ⟨⟨⟨allChartCone X Q W, allChartIsLimit X Q W⟩⟩⟩
 
 /-- Unwind the small target chart restriction in the composite right adjoint. -/

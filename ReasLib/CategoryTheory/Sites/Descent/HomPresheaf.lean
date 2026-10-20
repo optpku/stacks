@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.Descent.HomPresheaf.Basic
@@ -14,7 +8,6 @@ public import ReasLib.CategoryTheory.Sites.Descent.HomPresheaf.Endpoint.Conjugat
 public import ReasLib.CategoryTheory.Sites.Descent.HomPresheaf.Endpoint.Functoriality
 public import ReasLib.CategoryTheory.Sites.Descent.HomPresheaf.Isom
 public import ReasLib.CategoryTheory.Sites.Descent.HomPresheaf.StrongTrans
-public import ReasLib.CategoryTheory.Sites.Descent.HomPresheaf.LocallySurjective
 
 /-!
 # Canonical Hom-presheaf API
@@ -22,5 +15,5 @@ public import ReasLib.CategoryTheory.Sites.Descent.HomPresheaf.LocallySurjective
 Compatibility aggregate for the canonical Hom-presheaf support API. New
 consumers should import the smallest relevant leaf: `Basic`, endpoint
 `Actions` or `Conjugation`, `BaseChange`, `Composition`, endpoint
-`Functoriality`, `Isom`, `StrongTrans`, or `LocallySurjective`.
+`Functoriality`, `Isom`, or `StrongTrans`.
 -/

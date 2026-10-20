@@ -1,91 +1,208 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.Family.FormalCoproduct
 public import Mathlib.CategoryTheory.Sites.Over
-public import Mathlib.CategoryTheory.Grothendieck
 public import Mathlib.CategoryTheory.Sites.Pullback
 public import Mathlib.Algebra.Category.Grp.Basic
 public import ReasLib.CategoryTheory.Sites.Topos.Cocontinuous
-public import stacks_project.Chap85.Lemma_85_15_1_Site
-public import stacks_project.Chap85.Lemma_85_15_2_Localization
-public import stacks_project.Chap85.Lemma_85_3_2_Total
-public import stacks_project.Chap85.Situation_85_3_3_Fiberwise
+public import ReasLib.CategoryTheory.Sites.Family.Localization
+public import ReasLib.CategoryTheory.Sites.Family.Topos
+public import ReasLib.CategoryTheory.Sites.Family.Simplicial
+public import ReasLib.CategoryTheory.Sites.Family.Simplicial.Augmentation
+public import ReasLib.CategoryTheory.Sites.Family.Simplicial.Comparison
+public import ReasLib.CategoryTheory.Sites.Family.Simplicial.Cohomology
 import StacksCheckRecall
 
-/- The category of semi-representable objects over X is OverFamily X,
-i.e. SR(C, X) = SR(C/X), and constructions on C apply to the slice site
-given by J.over X. -/
-@[stacks 0D8C] #check @CategoryTheory.SemiRepresentableFamily.OverFamily
-@[stacks 0D8C] #check @CategoryTheory.GrothendieckTopology.over
+universe w v u z
 
-/- Remark 85.16.4 (Variant for over an object) (1): instantiating the case-B
-total site of n ↦ OverSite (K.obj n) on Over X yields (C/K)_total for a
-simplicial object K of OverFamily X. -/
-@[stacks 0D8C] #check @CategoryTheory.Grothendieck.precoverage
-@[stacks 0D8C] #check @CategoryTheory.Grothendieck.topology
+open CategoryTheory CategoryTheory.Limits CategoryTheory.SemiRepresentableFamily Opposite
+open scoped Simplicial
 
-/- Remark 85.16.4 (Variant for over an object) (2): the localization functor
-j_total : (C/K)_total ⥤ Over X is assembled by Grothendieck.functorFrom from
-the compatible family forget : OverSite K_n ⥤ Over X. -/
-@[stacks 0D8C] #check @CategoryTheory.Grothendieck.functorFrom
+variable {C : Type u} [Category.{v} C]
+variable (J : GrothendieckTopology C) (X : C)
+variable (K : SimplicialObject (FormalCoproduct.{w} (CategoryTheory.Over X)))
 
-/- Remark 85.16.4 (Variant for over an object) (3): the localization functors
-j_n : C/K_n ⥤ Over X are SemiRepresentableFamily.forget instantiated on Over X. -/
-@[stacks 0D8C] #check @CategoryTheory.SemiRepresentableFamily.forget
+/- Semi-representable objects over X are formal coproducts in C/X. -/
+#check (CategoryTheory.SemiRepresentableFamily.OverFamily.{v, u, w} X :
+  Type (max (w + 1) u v))
+#check (K : SimplicialObject (OverFamily X))
+#check (CategoryTheory.GrothendieckTopology.over J X :
+  GrothendieckTopology (CategoryTheory.Over X))
+#check (CategoryTheory.SemiRepresentableFamily.overSiteDiagram K :
+  SimplicialObject Cat.{max w u v, max w u v})
 
-/- Remark 85.16.4 (Variant for over an object) (4): the morphism of topoi
-a : Sh((C/K)_total) ⥤ Sh(C/X) is the cocontinuous topos morphism of j_total. -/
-@[stacks 0D8C] #check @CategoryTheory.Functor.morphismOfTopoiInOfCocontinuous
+/- Remark 85.16.4 (Variant for over an object): the total site, its localization
+functors and morphisms of topoi, lower shriek on sets and abelian groups, and
+the section's results are obtained by applying the constructions to C/X. -/
+@[stacks 0D8C] #check (CategoryTheory.SemiRepresentableFamily.overSiteTotalTopology
+    (J.over X) K : GrothendieckTopology (Grothendieck (overSiteDiagram K)))
 
-/- Remark 85.16.4 (Variant for over an object) (5): the morphisms of topoi
-a_n : Sh(C/K_n) ⥤ Sh(C/X) are localizationMorphism (J.over X) K_n. -/
-@[stacks 0D8C] #check @CategoryTheory.SemiRepresentableFamily.localizationMorphism
+/- The total and stage localization functors land in C/X. -/
+#check (CategoryTheory.SemiRepresentableFamily.totalForget K :
+  Grothendieck (overSiteDiagram K) ⥤ CategoryTheory.Over X)
 
-section LowerShriek
+variable (n : SimplexCategoryᵒᵖ)
 
-open CategoryTheory
+#check (CategoryTheory.SemiRepresentableFamily.forget (K.obj n) :
+  OverSite (K.obj n) ⥤ CategoryTheory.Over X)
 
-universe w u₁ u₂ v₁ v₂
+section TotalTopos
 
-variable {C : Type u₁} [Category.{v₁} C]
-variable {D : Type u₂} [Category.{v₂} D]
-variable (u : C ⥤ D) (J : GrothendieckTopology C) (K : GrothendieckTopology D)
-variable [u.IsContinuous J K]
+variable [HasSheafify (overSiteTotalTopology (J.over X) K) (Type (max w u v))]
+variable [∀ P : (Grothendieck (overSiteDiagram K))ᵒᵖ ⥤ Type (max w u v),
+  (totalForget K).op.HasPointwiseRightKanExtension P]
+
+/- The total geometric morphism is induced by total localization into C/X. -/
+#check (CategoryTheory.SemiRepresentableFamily.totalLocalization (J.over X) K :
+  MorphismOfTopoiIn (J.over X) (overSiteTotalTopology (J.over X) K))
+
+section Comparison
+
+variable [HasWeakSheafify (J.over X) (Type (max w u v))]
+
+/- Continuous restriction identifies with the geometric inverse image. -/
+#check (CategoryTheory.Functor.CocontinuousPullback.comparisonIso (totalForget K)
+    (overSiteTotalTopology (J.over X) K) (J.over X) :
+  (totalForget K).sheafPullbackCocontinuous (Type (max w u v))
+      (overSiteTotalTopology (J.over X) K) (J.over X) ≅
+    (totalForget K).sheafPushforwardContinuous (Type (max w u v))
+      (overSiteTotalTopology (J.over X) K) (J.over X))
+
+end Comparison
+
+variable [∀ P : (Grothendieck (overSiteDiagram K))ᵒᵖ ⥤ Type (max w u v),
+  (augmentationTotalForget K).op.HasPointwiseRightKanExtension P]
+
+/- The total augmentation comparison and its inverse-image mate apply over X. -/
+#check (CategoryTheory.SemiRepresentableFamily.totalTopos_iso_totalLocalization
+    (J.over X) K :
+  (totalTopos (J.over X) K).pushforward ≅ (totalLocalization (J.over X) K).pushforward)
+#check (CategoryTheory.SemiRepresentableFamily.totalTopos_inverseImage_iso_totalLocalization
+    (J.over X) K :
+  (totalTopos (J.over X) K).inverseImage ≅ (totalLocalization (J.over X) K).inverseImage)
+
+end TotalTopos
+
+section StageTopos
+
+variable [∀ n : SimplexCategoryᵒᵖ,
+  HasSheafify (overTopology (J.over X) (K.obj n)) (Type (max w u v))]
+variable [∀ (n : SimplexCategoryᵒᵖ)
+    (P : (OverSite (K.obj n))ᵒᵖ ⥤ Type (max w u v)),
+  (forget (K.obj n)).op.HasPointwiseRightKanExtension P]
+
+/- Every stage has its geometric localization morphism into the slice topos. -/
+#check (CategoryTheory.SemiRepresentableFamily.localizationMorphism (J.over X) (K.obj n) :
+  MorphismOfTopoiIn (J.over X) (overTopology (J.over X) (K.obj n)))
+
+variable [∀ (n : SimplexCategory)
+    (P : (OverSite (K.obj (op n)))ᵒᵖ ⥤ Type (max w u v)),
+  (stageForget K n).op.HasPointwiseRightKanExtension P]
+
+/- The stage augmentation comparisons and their inverse-image mates apply over X. -/
+#check (CategoryTheory.SemiRepresentableFamily.stageTopos_iso_localizationMorphism
+    (J.over X) K :
+  ∀ n : SimplexCategory,
+    (stageTopos (J.over X) K n).pushforward ≅
+      (localizationMorphism (J.over X) (K.obj (op n))).pushforward)
+#check (CategoryTheory.SemiRepresentableFamily.stageTopos_inverseImage_iso_localizationMorphism
+    (J.over X) K :
+  ∀ n : SimplexCategory,
+    (stageTopos (J.over X) K n).inverseImage ≅
+      (localizationMorphism (J.over X) (K.obj (op n))).inverseImage)
+
+end StageTopos
 
 section Sets
 
-variable [∀ P : Cᵒᵖ ⥤ Type w, u.op.HasLeftKanExtension P]
-variable [HasWeakSheafify K (Type w)]
-variable (ℱ : Sheaf J (Type w)) (𝒢 : Sheaf K (Type w))
+variable [∀ P : (Grothendieck (overSiteDiagram K))ᵒᵖ ⥤ Type (max w u v),
+  (totalForget K).op.HasLeftKanExtension P]
+variable [HasWeakSheafify (J.over X) (Type (max w u v))]
 
-/- Remark 85.16.4 (Variant for over an object) (6): the functor
-a_Sh! : Sh((C/K)_total) ⥤ Sh(C/X) is sheafPullback of j_total on Type-valued
-sheaves, left adjoint to a⁻¹ via sheafAdjunctionContinuous. -/
-@[stacks 0D8C] #check (((u.sheafAdjunctionContinuous (Type w) J K).homEquiv ℱ 𝒢) :
-  ((u.sheafPullback (Type w) J K).obj ℱ ⟶ 𝒢) ≃
-    (ℱ ⟶ (u.sheafPushforwardContinuous (Type w) J K).obj 𝒢))
+/- Lower shriek on sets goes from total sheaves to slice sheaves. -/
+#check (CategoryTheory.Functor.sheafPullback (totalForget K) (Type (max w u v))
+    (overSiteTotalTopology (J.over X) K) (J.over X) :
+  Sheaf (overSiteTotalTopology (J.over X) K) (Type (max w u v)) ⥤
+    Sheaf (J.over X) (Type (max w u v)))
+#check (CategoryTheory.Functor.sheafAdjunctionContinuous (totalForget K)
+    (Type (max w u v)) (overSiteTotalTopology (J.over X) K) (J.over X) :
+  (totalForget K).sheafPullback (Type (max w u v))
+      (overSiteTotalTopology (J.over X) K) (J.over X) ⊣
+    (totalForget K).sheafPushforwardContinuous (Type (max w u v))
+      (overSiteTotalTopology (J.over X) K) (J.over X))
 
 end Sets
 
 section Abelian
 
-variable [∀ P : Cᵒᵖ ⥤ AddCommGrpCat.{w}, u.op.HasLeftKanExtension P]
-variable [HasWeakSheafify K AddCommGrpCat.{w}]
-variable (ℱ : Sheaf J AddCommGrpCat.{w}) (𝒢 : Sheaf K AddCommGrpCat.{w})
+variable [∀ P : (Grothendieck (overSiteDiagram K))ᵒᵖ ⥤ AddCommGrpCat.{max w u v},
+  (totalForget K).op.HasLeftKanExtension P]
+variable [HasWeakSheafify (J.over X) AddCommGrpCat.{max w u v}]
 
-/- Remark 85.16.4 (Variant for over an object) (7): the functor
-a_! : Ab((C/K)_total) ⥤ Ab(C/X) is sheafPullback of j_total on AddCommGrpCat,
-left adjoint to a⁻¹ via sheafAdjunctionContinuous, as in Lemma 18.16.2. -/
-@[stacks 0D8C] #check (((u.sheafAdjunctionContinuous AddCommGrpCat.{w} J K).homEquiv ℱ 𝒢) :
-  ((u.sheafPullback AddCommGrpCat.{w} J K).obj ℱ ⟶ 𝒢) ≃
-    (ℱ ⟶ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K).obj 𝒢))
+/- Lower shriek on abelian groups is likewise left adjoint to restriction. -/
+#check (CategoryTheory.Functor.sheafPullback (totalForget K) AddCommGrpCat.{max w u v}
+    (overSiteTotalTopology (J.over X) K) (J.over X) :
+  Sheaf (overSiteTotalTopology (J.over X) K) AddCommGrpCat.{max w u v} ⥤
+    Sheaf (J.over X) AddCommGrpCat.{max w u v})
+#check (CategoryTheory.Functor.sheafAdjunctionContinuous (totalForget K)
+    AddCommGrpCat.{max w u v} (overSiteTotalTopology (J.over X) K) (J.over X) :
+  (totalForget K).sheafPullback AddCommGrpCat.{max w u v}
+      (overSiteTotalTopology (J.over X) K) (J.over X) ⊣
+    (totalForget K).sheafPushforwardContinuous AddCommGrpCat.{max w u v}
+      (overSiteTotalTopology (J.over X) K) (J.over X))
 
 end Abelian
 
-end LowerShriek
+/- Total inverse image restricts degreewise to stage inverse image over X. -/
+#check (CategoryTheory.SemiRepresentableFamily.sheafInverseImage_fiberRestrict (J.over X) K :
+  ∀ n : SimplexCategory,
+    (totalForget K).sheafPushforwardContinuous (Type (max w u v))
+        (overSiteTotalTopology (J.over X) K) (J.over X) ⋙
+        sheafFiberRestrict (J.over X) K n ≅ sheafStageRestrict (J.over X) K n)
+
+section AbelianEqualizer
+
+variable [∀ P : (Grothendieck (overSiteDiagram K))ᵒᵖ ⥤ AddCommGrpCat.{max w u v},
+  (totalForget K).op.HasPointwiseRightKanExtension P]
+variable [∀ (n : SimplexCategory)
+    (P : (OverSite (K.obj (op n)))ᵒᵖ ⥤ AddCommGrpCat.{max w u v}),
+  (forget (K.obj (op n))).op.HasPointwiseRightKanExtension P]
+variable [∀ (n : SimplexCategory)
+    (P : (OverSite (K.obj (op n)))ᵒᵖ ⥤ AddCommGrpCat.{max w u v}),
+  (Grothendieck.ι (overSiteDiagram K) (op n)).op.HasPointwiseRightKanExtension P]
+variable [∀ (i : Fin 2)
+    (P : (OverSite (K.obj (op ⦋1⦌)))ᵒᵖ ⥤ AddCommGrpCat.{max w u v}),
+  (overSiteFace K i).op.HasPointwiseRightKanExtension P]
+variable [∀ (i : Fin 2)
+    (P : (OverSite (K.obj (op ⦋1⦌)))ᵒᵖ ⥤ AddCommGrpCat.{max w u v}),
+  (overSiteFace K i ⋙ forget (K.obj (op ⦋0⦌))).op.HasPointwiseRightKanExtension P]
+variable [HasEqualizers (Sheaf (J.over X) AddCommGrpCat.{max w u v})]
+
+/- Abelian direct image over X is the canonical equalizer of the coface maps. -/
+#check (CategoryTheory.SemiRepresentableFamily.abelianPushforwardToEqualizer_isIso
+    (J.over X) K :
+  ∀ G : Sheaf (overSiteTotalTopology (J.over X) K) AddCommGrpCat.{max w u v},
+    IsIso (abelianPushforwardToEqualizer (J.over X) K G))
+
+end AbelianEqualizer
+
+/- Objectwise cohomology agrees with cohomology of the restricted component over X. -/
+#check (CategoryTheory.SemiRepresentableFamily.cohomologyOverObject_component_iso
+    (J.over X) K :
+  ∀ (n : SimplexCategory) (i : (K.obj (op n)).I)
+    (U : overSlice (K.obj (op n)) i)
+    (F : Sheaf (overSiteTotalTopology (J.over X) K) AddCommGrpCat.{max w u v}) (p : ℕ),
+    [HasSheafify (overSiteTotalTopology (J.over X) K) AddCommGrpCat.{max w u v}] →
+    [HasExt.{z} (Sheaf (overSiteTotalTopology (J.over X) K) AddCommGrpCat.{max w u v})] →
+    [HasSheafify ((J.over X).over ((K.obj (op n)).obj i)) AddCommGrpCat.{max w u v}] →
+    [HasExt.{z} (Sheaf ((J.over X).over ((K.obj (op n)).obj i))
+      AddCommGrpCat.{max w u v})] →
+    IsIsomorphic
+      (Sheaf.cohomologyOverObject.{z, 0} F
+        ((Grothendieck.ι (overSiteDiagram K) (op n)).obj
+          ((overIncl (K.obj (op n)) i).obj U)) p)
+      (Sheaf.cohomologyOverObject.{z, max w u v}
+        ((abelianComponentRestrict (J.over X) (K.obj (op n)) i).obj
+          (((Grothendieck.ι (overSiteDiagram K) (op n)).sheafPushforwardContinuous
+              AddCommGrpCat.{max w u v} (overTopology (J.over X) (K.obj (op n)))
+              (overSiteTotalTopology (J.over X) K)).obj F)) U p))

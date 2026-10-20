@@ -1,20 +1,13 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap98.Remark_98_27_7_Equalizer
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Contraction.Diagonal
 
 /-!
-# Diagonal equalizers of Artin contraction triples
+# Diagonal equalizers of contraction triples
 
-In Situation 98.27.1, two compatible triples on a locally Noetherian scheme
-`V` over `S` determine equalizers `E'` and `E_W` whose image, open-mono,
-cartesian, contraction-over-`V`, and restriction-equivalence properties
-describe the diagonal fibre product of the contraction functor.
+The canonical algebraic and formal equalizers, their geometric properties,
+and the solution representing the diagonal fiber.
 -/
 
 @[expose] public section
@@ -22,13 +15,12 @@ describe the diagonal fibre product of the contraction functor.
 open CategoryTheory AlgebraicGeometry CategoryTheory.Limits Opposite
 open CategoryTheory.ObjectProperty TopologicalSpace TypeCat
 open AlgebraicGeometry.AlgebraicSpace AlgebraicGeometry.Scheme.Over
+open AlgebraicGeometry.AlgebraicSpace.SchemeRealization
 open AlgebraicGeometry.AlgebraicSpace.ContractionSituation
 
 noncomputable section
 
 universe u
-
-namespace AlgebraicGeometry.AlgebraicSpace.ContractionSituation
 
 variable {S : Scheme.{u}} [AlgebraicGeometry.IsLocallyNoetherian S]
 variable {σ : ContractionSituation S} {V : Over S}
@@ -37,136 +29,108 @@ variable (ξ1 ξ2 : Triple σ V)
 variable (w1 : CompatibilityWitness σ V ξ1.Z ξ1.u' ξ1.hatx)
 variable (w2 : CompatibilityWitness σ V ξ2.Z ξ2.u' ξ2.hatx)
 
-/-- The canonical diagonal equalizer of the two triples. -/
-def canonicalEqualizer := DiagonalEqualizer.of ξ1 ξ2 w1 w2
+#check (DiagonalEqualizer.of ξ1 ξ2 w1 w2 : DiagonalEqualizer ξ1 ξ2 w1 w2)
 
-/-- Remark 98.27.7 (1): the image of `E' ⟶ V` meets `Z_1 ∪ Z_2` only inside
-`Z = Z_1 ∩ Z_2`. -/
-@[stacks 0GHD]
-theorem image_inter_subset :
-    Set.range (Points.map (canonicalEqualizer ξ1 ξ2 w1 w2).toV) ∩
+#check (DiagonalEqualizer.instSeparated_toV ξ1 ξ2 w1 w2 :
+    Separated (DiagonalEqualizer.interpToV ξ1 ξ2 w1 w2))
+
+#check (DiagonalEqualizer.instLocallyOfFiniteType_toV ξ1 ξ2 w1 w2 :
+    LocallyOfFiniteType (DiagonalEqualizer.interpToV ξ1 ξ2 w1 w2))
+
+#check (DiagonalEqualizer.instIsLocallyNoetherian_space ξ1 ξ2 w1 w2 :
+    IsLocallyNoetherian (DiagonalEqualizer.interpSpace ξ1 ξ2 w1 w2))
+
+#check (DiagonalEqualizer.instIsFormal_formal ξ1 ξ2 :
+    FormalAlgebraicSpace.IsFormalAlgebraicSpace (DiagonalEqualizer.interpFormal ξ1 ξ2))
+
+#check (DiagonalEqualizer.instIsLocallyNoetherian_formal ξ1 ξ2 :
+    @FormalAlgebraicSpace.IsLocallyNoetherian _ (DiagonalEqualizer.interpFormal ξ1 ξ2)
+      (DiagonalEqualizer.instIsFormal_formal ξ1 ξ2))
+
+#check (DiagonalEqualizer.instSeparated_formal ξ1 ξ2 :
+    FormalAlgebraicSpace.Separated (DiagonalEqualizer.interpToOver ξ1 ξ2))
+
+#check (image_inter_subset ξ1 ξ2 w1 w2 :
+    Set.range (Points.map (DiagonalEqualizer.of ξ1 ξ2 w1 w2).toV) ∩
         (ξ1.Z ∪ ξ2.Z) ⊆
-      (ξ1.Z ⊓ ξ2.Z : Set _) :=
-  sorry
+      (ξ1.Z ⊓ ξ2.Z : Set _))
 
-/-- Remark 98.27.7 (2): the morphism `E' ×_V (V \ Z) ⟶ V \ Z` is a
-monomorphism, and the induced map `E' ×_V (V \ Z) ⟶ V \ (Z_1 ∪ Z_2)` is the
-equalizer of the restrictions of `ξ1.u'` and `ξ2.u'`. -/
-@[stacks 0GHD]
-theorem openRestrict_mono :
-    Mono (DiagonalEqualizer.openPullbackSnd (canonicalEqualizer ξ1 ξ2 w1 w2)) ∧
+#check (openRestrict_mono ξ1 ξ2 w1 w2 :
+    Mono (DiagonalEqualizer.openPullbackSnd (DiagonalEqualizer.of ξ1 ξ2 w1 w2)) ∧
       DiagonalEqualizer.openRestrict ξ1 ξ2 w1 w2 ≫
           openComplementAlong.mapOfLe
             (inf_le_sup : ξ1.Z ⊓ ξ2.Z ≤ ξ1.Z ⊔ ξ2.Z) =
         DiagonalEqualizer.openPullbackSnd
-          (canonicalEqualizer ξ1 ξ2 w1 w2) ∧
+          (DiagonalEqualizer.of ξ1 ξ2 w1 w2) ∧
       IsPullback
         (DiagonalEqualizer.openRestrict ξ1 ξ2 w1 w2 ≫
           DiagonalEqualizer.leftOpen ξ1 ξ2)
         (DiagonalEqualizer.openRestrict ξ1 ξ2 w1 w2)
         (prod.lift (𝟙 σ.openComplement) (𝟙 σ.openComplement))
         (prod.lift (DiagonalEqualizer.leftOpen ξ1 ξ2)
-          (DiagonalEqualizer.rightOpen ξ1 ξ2)) :=
-  sorry
+          (DiagonalEqualizer.rightOpen ξ1 ξ2)))
 
-/-- Remark 98.27.7 (3): `E'_{/Z} ⟶ V_{/Z}` factors through `E_W` and the square
-with `g : X'_{/T'} ⟶ W` is cartesian, so `E'_{/Z} ⟶ E_W` is a formal
-modification as a base change of `g`. -/
-@[stacks 0GHD]
-theorem isPullback_factor :
-    (canonicalEqualizer ξ1 ξ2 w1 w2).factor ≫
-          (canonicalEqualizer ξ1 ξ2 w1 w2).toFormal =
-        completionAlong.map (canonicalEqualizer ξ1 ξ2 w1 w2).toV
-          (canonicalEqualizer ξ1 ξ2 w1 w2).closed ∧
+#check (isPullback_factor ξ1 ξ2 w1 w2 :
+    (DiagonalEqualizer.of ξ1 ξ2 w1 w2).factor ≫
+          (DiagonalEqualizer.of ξ1 ξ2 w1 w2).toFormal =
+        completionAlong.map (DiagonalEqualizer.of ξ1 ξ2 w1 w2).toV
+          (DiagonalEqualizer.of ξ1 ξ2 w1 w2).closed ∧
       IsPullback
         (DiagonalEqualizer.completionSpace ξ1 ξ2 w1 w2)
-        (canonicalEqualizer ξ1 ξ2 w1 w2).factor σ.g
-        ((canonicalEqualizer ξ1 ξ2 w1 w2).toFormal ≫
-          DiagonalEqualizer.leftHat ξ1 ξ2) :=
-  sorry
+        (DiagonalEqualizer.of ξ1 ξ2 w1 w2).factor σ.g
+        ((DiagonalEqualizer.of ξ1 ξ2 w1 w2).toFormal ≫
+          DiagonalEqualizer.leftHat ξ1 ξ2))
 
-/-- Remark 98.27.7 (4): `E'`, the inverse image of `Z` along `E' ⟶ V`, and
-`E'_{/Z} ⟶ E_W` form a contraction situation with base scheme the locally
-Noetherian scheme `V`. -/
-@[stacks 0GHD]
-def toSituation : ContractionSituation V.left :=
-  DiagonalEqualizer.toSituation ξ1 ξ2 w1 w2
+#check (DiagonalEqualizer.instFormalModification_factor ξ1 ξ2 w1 w2 :
+    @FormalAlgebraicSpace.FormalModification S
+      (completionAlong (DiagonalEqualizer.interpSpace ξ1 ξ2 w1 w2) (DiagonalEqualizer.spaceClosed ξ1 ξ2 w1 w2)) (DiagonalEqualizer.interpFormal ξ1 ξ2)
+      (DiagonalEqualizer.interpFactor ξ1 ξ2 w1 w2)
+      (instIsFormalAlgebraicSpace_completionAlong (DiagonalEqualizer.interpSpace ξ1 ξ2 w1 w2) (DiagonalEqualizer.spaceClosed ξ1 ξ2 w1 w2))
+      (DiagonalEqualizer.instIsFormal_formal ξ1 ξ2)
+      (@instIsLocallyNoetherian_completionAlong S (DiagonalEqualizer.interpSpace ξ1 ξ2 w1 w2)
+        (DiagonalEqualizer.instIsLocallyNoetherian_space ξ1 ξ2 w1 w2) (DiagonalEqualizer.spaceClosed ξ1 ξ2 w1 w2))
+      (DiagonalEqualizer.instIsLocallyNoetherian_formal ξ1 ξ2) (DiagonalEqualizer.instLocallyOfFiniteType_factor ξ1 ξ2 w1 w2))
 
-/-- The algebraic space of the contraction situation over `V` is `E'` viewed
-over `V` via `toV`. -/
-theorem toSituation_X' :
-    (toSituation ξ1 ξ2 w1 w2).X' = DiagonalEqualizer.sliceSpace ξ1 ξ2 w1 w2 :=
-  sorry
+#check (DiagonalEqualizer.toSituation ξ1 ξ2 w1 w2 : ContractionSituation V.left)
 
-/-- The closed subset of the contraction situation over `V` is
-`(E' ⟶ V)⁻¹ Z`. -/
-theorem toSituation_T' :
-    (toSituation ξ1 ξ2 w1 w2).T' = DiagonalEqualizer.sliceClosed ξ1 ξ2 w1 w2 :=
-  sorry
+#check (DiagonalEqualizer.toSituation_X' ξ1 ξ2 w1 w2 :
+    (DiagonalEqualizer.toSituation ξ1 ξ2 w1 w2).X' = DiagonalEqualizer.sliceSpace ξ1 ξ2 w1 w2)
 
-/-- The formal algebraic space of the contraction situation over `V` is the
-fibre of `E_W`. -/
-theorem toSituation_W :
-    (toSituation ξ1 ξ2 w1 w2).W = DiagonalEqualizer.sliceFormal ξ1 ξ2 w1 w2 :=
-  sorry
+#check (DiagonalEqualizer.toSituation_T' ξ1 ξ2 w1 w2 :
+    (DiagonalEqualizer.toSituation ξ1 ξ2 w1 w2).T' = DiagonalEqualizer.sliceClosed ξ1 ξ2 w1 w2)
 
-/-- The comparison of the contraction situation over `V` is the restriction of
-`factor`. -/
-theorem toSituation_g :
-    (toSituation ξ1 ξ2 w1 w2).g = DiagonalEqualizer.sliceFactor ξ1 ξ2 w1 w2 :=
-  sorry
+#check (DiagonalEqualizer.toSituation_W ξ1 ξ2 w1 w2 :
+    (DiagonalEqualizer.toSituation ξ1 ξ2 w1 w2).W = DiagonalEqualizer.sliceFormal ξ1 ξ2 w1 w2)
 
-/-- Remark 98.27.7 (5): for a morphism `φ : A ⟶ V` of locally Noetherian schemes
-over `S`, the two triples restrict to the same element of `F(A)` if and only if
-`A \ φ⁻¹(Z) ⟶ V \ Z` factors through `E' ×_V (V \ Z)` and
-`A_{/φ⁻¹(Z)} ⟶ V_{/Z}` factors through `E_W`. -/
-@[stacks 0GHD]
-theorem restricts_iff_factors {A : Over S}
-    [AlgebraicGeometry.IsLocallyNoetherian A.left] (φ : A ⟶ V) :
+#check (DiagonalEqualizer.toSituation_g ξ1 ξ2 w1 w2 :
+    (DiagonalEqualizer.toSituation ξ1 ξ2 w1 w2).g = DiagonalEqualizer.sliceFactor ξ1 ξ2 w1 w2)
+
+#check (restricts_iff_factors ξ1 ξ2 w1 w2 :
+    ∀ {A : Over S}
+    [AlgebraicGeometry.IsLocallyNoetherian A.left] (φ : A ⟶ V),
     DiagonalEqualizer.agrees ξ1 ξ2 φ ↔
       (∃ h : openComplementAlong (ofOver A)
-            ((canonicalEqualizer ξ1 ξ2 w1 w2).closed.preimage
-              (Points.continuous_map (ofOverMap φ))) ⟶
-          DiagonalEqualizer.openPullback (canonicalEqualizer ξ1 ξ2 w1 w2),
+            ((DiagonalEqualizer.of ξ1 ξ2 w1 w2).closed.preimage
+              (Points.continuous_map (AlgebraicSpace.ofOverMap φ))) ⟶
+          DiagonalEqualizer.openPullback (DiagonalEqualizer.of ξ1 ξ2 w1 w2),
         h ≫ DiagonalEqualizer.openPullbackSnd
-            (canonicalEqualizer ξ1 ξ2 w1 w2) =
-          openComplementAlong.map (ofOverMap φ)
-            (canonicalEqualizer ξ1 ξ2 w1 w2).closed) ∧
+            (DiagonalEqualizer.of ξ1 ξ2 w1 w2) =
+          openComplementAlong.map (AlgebraicSpace.ofOverMap φ)
+            (DiagonalEqualizer.of ξ1 ξ2 w1 w2).closed) ∧
       (∃ k : completionAlong (ofOver A)
-            ((canonicalEqualizer ξ1 ξ2 w1 w2).closed.preimage
-              (Points.continuous_map (ofOverMap φ))) ⟶
-          (canonicalEqualizer ξ1 ξ2 w1 w2).formal,
-        k ≫ (canonicalEqualizer ξ1 ξ2 w1 w2).toFormal =
-          completionAlong.map (ofOverMap φ)
-            (canonicalEqualizer ξ1 ξ2 w1 w2).closed) :=
-  sorry
+            ((DiagonalEqualizer.of ξ1 ξ2 w1 w2).closed.preimage
+              (Points.continuous_map (AlgebraicSpace.ofOverMap φ))) ⟶
+          (DiagonalEqualizer.of ξ1 ξ2 w1 w2).formal,
+        k ≫ (DiagonalEqualizer.of ξ1 ξ2 w1 w2).toFormal =
+          completionAlong.map (AlgebraicSpace.ofOverMap φ)
+            (DiagonalEqualizer.of ξ1 ξ2 w1 w2).closed))
 
-/-- A morphism into a solution over `V` forces the two triples to agree. -/
-theorem agrees_of_solutionHom (E : AlgebraicSpace V.left)
-    [LocallyOfFiniteType (toBase E)]
-    (sol : SolutionFor (toSituation ξ1 ξ2 w1 w2) E)
-    {A : (locallyNoetherian V.left).FullSubcategory}
-    (f : ofOver A.obj ⟶ E) :
-    DiagonalEqualizer.agrees ξ1 ξ2 (overHom V A.obj) :=
-  sorry
+variable (E : AlgebraicSpace V.left) [LocallyOfFiniteType (toBase E)]
+variable (sol : SolutionFor (DiagonalEqualizer.toSituation ξ1 ξ2 w1 w2) E)
 
-/-- The comparison from morphisms into a solution to agreement of the two
-triples, on locally Noetherian schemes over `V`. -/
-def diagonalFiberHom (E : AlgebraicSpace V.left)
-    [LocallyOfFiniteType (toBase E)]
-    (sol : SolutionFor (toSituation ξ1 ξ2 w1 w2) E) :
-    homOnLocallyNoetherian E ⟶ DiagonalEqualizer.agreesFunctor ξ1 ξ2 where
-  app A := ofHom fun f ↦ ⟨⟨agrees_of_solutionHom ξ1 ξ2 w1 w2 E sol f⟩⟩
-  naturality := sorry
-
-/-- Remark 98.27.7 (6): if `E ⟶ V` is a solution for the contraction situation of
-(4), then `E` represents `F ×_{Δ, F × F} V` on locally Noetherian schemes over
-`V`. -/
-@[stacks 0GHD]
-theorem represents_diagonalFiber (E : AlgebraicSpace V.left)
-    [LocallyOfFiniteType (toBase E)]
-    (sol : SolutionFor (toSituation ξ1 ξ2 w1 w2) E) :
-    IsIso (diagonalFiberHom ξ1 ξ2 w1 w2 E sol) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.ContractionSituation
+/- Remark 98.27.7
+A solution of the equalizer contraction situation represents the diagonal fiber
+on locally Noetherian schemes over the test scheme. -/
+@[stacks 0GHD] #check
+  (AlgebraicGeometry.AlgebraicSpace.ContractionSituation.represents_diagonalFiber
+    ξ1 ξ2 w1 w2 E sol : IsIso (diagonalFiberHom ξ1 ξ2 w1 w2 E sol))

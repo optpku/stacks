@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.Grp.FilteredColimits
@@ -50,7 +44,6 @@ noncomputable instance addCommGrpHasSheafify (X : TopCat.{u}) :
 
 /-- On an opens site, the weak equivalences inverted by abelian sheafification are exactly the
 locally bijective morphisms. -/
-@[stacks 03DF "local bijectivity for abelian sheaves on opens"]
 noncomputable instance addCommGrpWEqualsLocallyBijective (X : TopCat.{u}) :
     (Opens.grothendieckTopology X).WEqualsLocallyBijective AddCommGrpCat.{max u w} := by
   -- Local instance justification (proof-local temporary data): The weak-equivalence characterization consumes local injectivity of every abelian sheafification unit, transported here from its underlying type-valued unit.

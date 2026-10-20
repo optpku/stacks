@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap79.Lemma_79_9_7_Translation
-import stacks_project.Chap79.Situation_79_9_2_OnField
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Translation
 import StacksCheckRecall
 
 @[expose] public section
@@ -19,20 +12,21 @@ noncomputable section
 
 universe u
 
-/- Lemma 79.9.7 (1): In Situation 79.9.2, if r : G.U ⟶ G.R is such that
-r ≫ G.s and r ≫ G.t are automorphisms of Spec(.of k), then
-G.leftTranslationAt r is an automorphism of G.R. -/
+/- Lemma 79.9.7 (1): In Situation 79.9.2, an underlying arrow whose source
+and target composites are automorphisms determines an automorphism of the arrow
+space. Normalization by the inverse source automorphism is the precise translation
+used by the cited proof; the construction works for any groupoid in algebraic spaces. -/
 @[stacks 06E3] #check
-  fun {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
-      {k : Type u} [Field k] (σ : Spec (.of k) ⟶ S) [IsOnField G σ]
-      (r : G.U ⟶ G.R) [IsIso (r ≫ G.s)] [IsIso (r ≫ G.t)] ↦
-    (inferInstance : IsIso (G.leftTranslationAt r))
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.isIso_leftTranslationAt :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
+      (r : G.U.left ⟶ G.R.left) [IsIso (r ≫ G.s.left)] [IsIso (r ≫ G.t.left)],
+      IsIso (G.leftTranslationAt r))
 
-/- Lemma 79.9.7 (2): In Situation 79.9.2, G.leftTranslationAt r sends the
-identity section G.e to G.sourceSection r, which recovers r via
-G.sourceSection_comp after the automorphism r ≫ G.s. -/
+/- Lemma 79.9.7 (2): Translation sends the identity section to the normalized
+source section. Recovery of the original arrow is through the source automorphism,
+not an unqualified equality G.e ≫ translation = r. -/
 @[stacks 06E3] #check
-  fun {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
-      {k : Type u} [Field k] (σ : Spec (.of k) ⟶ S) [IsOnField G σ]
-      (r : G.U ⟶ G.R) [IsIso (r ≫ G.s)] ↦
-    G.leftTranslationAt_mapsIdentity r
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.leftTranslationAt_recoversArrow :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
+      (r : G.U.left ⟶ G.R.left) [IsIso (r ≫ G.s.left)],
+      (r ≫ G.s.left) ≫ G.e.left ≫ (G.leftTranslationAt r).left = r)

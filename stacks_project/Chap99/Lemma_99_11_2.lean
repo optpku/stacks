@@ -1,43 +1,19 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap99.Lemma_99_11_2_IsoClasses
-public import stacks_project.Chap99.Situation_99_11_1
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Picard.FiberIsoClasses
+import StacksCheckRecall
 
-/-!
-# The Picard functor as sheafification of fibrewise isomorphism classes
-
-Lemma 99.11.2 identifies `picardFunctor f` with the fppf sheafification of
-the fibrewise isomorphism-class presheaf of `Picard.toSchemesOver f`.
--/
-
-@[expose] public section
-
-open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.PreRelation (schemesOverFppf)
-
-noncomputable section
+open CategoryTheory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
-
-/-- Lemma 99.11.2: in Situation 99.11.1, `picardFunctor f` is the fppf
-sheafification of `Functor.fiberIsoClassPresheaf (Picard.toSchemesOver f)`,
-the functor sending a scheme `T` over `B` to isomorphism classes of objects
-of the Picard fibre over `T`. That fibre is the category of invertible
-sheaves on `X_T`, so this is the same sheafification as `T ↦ Pic(X_T)`. -/
-@[stacks 0D26]
-instance picardFunctor_sheafify_fiberIsoClasses (f : X ⟶ B) :
-    IsIso ((presheafToSheaf (schemesOverFppf B) (Type (u + 1))).map
-      (Picard.fiberIsoClassToPresheaf f)) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+/- Lemma 99.11.2: the relative Picard functor is the fppf sheafification of the
+presheaf of isomorphism classes in the Picard fibres. -/
+@[stacks 0D26] #check
+  (AlgebraicGeometry.AlgebraicSpace.picardFunctor_sheafify_fiberIsoClasses :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}} {X B : AlgebraicGeometry.AlgebraicSpace S}
+      (f : X ⟶ B), CategoryTheory.IsIso
+        ((CategoryTheory.presheafToSheaf
+          (AlgebraicGeometry.AlgebraicSpace.SchemesOver.fppfTopology B)
+          (Type (u + 1))).map
+            (AlgebraicGeometry.AlgebraicSpace.Picard.fiberIsoClassToPresheaf f)))

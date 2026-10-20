@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Lemma_90_29_4_Tensor
+public import ReasLib.AlgebraicGeometry.FormalDeformation.InfinitesimalAutomorphisms.ResidueChange
 import StacksCheckRecall
 
 /-!
@@ -35,23 +29,7 @@ variable (Λ k l : Type u) [CommRing Λ] [IsNoetherianRing Λ]
 variable {F : Type v} [Category.{w} F] (p : F ⥤ ArtinianLocalAlgCat Λ k)
 variable [IsDeformationCategory p]
 
-namespace ArtinianLocalAlgCat.residueChangeOver
-
-/-- Lemma 90.29.4: With notation and assumptions as in Situation 90.29.1. Assume
-`p` is a deformation category. Then there is a canonical `l`-vector space isomorphism
-`infinitesimalAutomorphismsAt p (chosenResidueFiberObj p)
-  (Chosen.pushforwardObj p (residueToDualNumber Λ k) (chosenResidueFiberObj p))
-  (chosenDualNumberHom p (chosenResidueFiberObj p)) ⊗[k] l ⟶
-infinitesimalAutomorphismsAt (residueChangeOver Λ k l p)
-  (chosenResidueFiberObj (residueChangeOver Λ k l p))
-  (Chosen.pushforwardObj (residueChangeOver Λ k l p) (residueToDualNumber Λ l)
-    (chosenResidueFiberObj (residueChangeOver Λ k l p)))
-  (chosenDualNumberHom (residueChangeOver Λ k l p)
-    (chosenResidueFiberObj (residueChangeOver Λ k l p)))`
-of infinitesimal automorphism spaces, given by `infAutTensor Λ k l p`. -/
-@[stacks 07WC]
-theorem bijective_infAutTensor :
-    Function.Bijective (infAutTensor Λ k l p) :=
-  sorry
-
-end ArtinianLocalAlgCat.residueChangeOver
+/- Lemma 90.29.4 -/
+@[stacks 07WC] #check
+  (ArtinianLocalAlgCat.residueChangeOver.bijective_infAutTensor Λ k l p :
+    Function.Bijective (ArtinianLocalAlgCat.residueChangeOver.infAutTensor Λ k l p))

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Morphism.PageRepresentatives
@@ -91,21 +85,26 @@ theorem eq (L L' : LimitRepresentatives f) : L = L' := sorry
 
 section Canonical
 
-variable [CompleteLattice (Subobject X.obj)] [CompleteLattice (Subobject Y.obj)]
-
 /-- The canonical eventual boundary is the supremum of its finite boundary representatives. -/
 @[stacks 012I "canonical eventual boundary as a least upper bound"]
-theorem eventualBoundaryRepresentative_isLUB (f : X ⟶ Y) (p : ℤ) :
+theorem eventualBoundaryRepresentative_isLUB
+    [LocallySmall.{v} C] [WellPowered.{v} C] [HasCoproducts.{v} C]
+    (f : X ⟶ Y) (p : ℤ) :
     IsLUB (Set.range fun r : ℕ ↦ f.boundaryRepresentative r p)
       (f.eventualBoundaryRepresentative p) := sorry
 
 /-- The canonical eventual cycle is the infimum of its finite cycle representatives. -/
 @[stacks 012I "canonical eventual cycle as a greatest lower bound"]
-theorem eventualCycleRepresentative_isGLB (f : X ⟶ Y) (p : ℤ) :
+theorem eventualCycleRepresentative_isGLB
+    [LocallySmall.{v} C] [WellPowered.{v} C] [HasWidePullbacks.{v} C]
+    (f : X ⟶ Y) (p : ℤ) :
     IsGLB (Set.range fun r : ℕ ↦ f.cycleRepresentative r p)
       (f.eventualCycleRepresentative p) := sorry
 
-/-- The complete subobject lattices provide the canonical package of eventual representatives. -/
+variable [LocallySmall.{v} C] [WellPowered.{v} C]
+  [HasWidePullbacks.{v} C] [HasCoproducts.{v} C]
+
+/-- The canonical subobject meets and joins provide the package of eventual representatives. -/
 @[stacks 012I "canonical explicit limit representatives of a filtered morphism"]
 noncomputable def canonical (f : X ⟶ Y) : LimitRepresentatives f where
   boundary := fun p ↦ f.eventualBoundaryRepresentative p

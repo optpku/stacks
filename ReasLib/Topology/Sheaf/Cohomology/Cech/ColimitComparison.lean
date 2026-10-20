@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Topology.Presheaf.Cech.Colimit
@@ -319,6 +313,11 @@ abbrev hom {p : ℕ} (c : Comparison.{w, v, u} (X := X) p) :
 @[stacks 09UZ "open-cover Cech comparison isomorphism"]
 theorem isIso {p : ℕ} (c : Comparison.{w, v, u} (X := X) p) :
     IsIso c.hom := c.isColimitIso.isCertified
+
+/-- The component at a coefficient sheaf of a certified Cech comparison is an isomorphism. -/
+theorem isIso_app {p : ℕ} (c : Comparison.{w, v, u} (X := X) p)
+    (F : X.Sheaf AddCommGrpCat.{max u v w}) :
+    IsIso (c.hom.app F) := sorry
 
 /-- The global comparison isomorphism supplied by a certified comparison datum. -/
 noncomputable def iso {p : ℕ} (c : Comparison.{w, v, u} (X := X) p) :

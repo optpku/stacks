@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommPointwiseCompletedAction
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.EquivariantTopTrace
@@ -17,8 +11,6 @@ universe u v
 namespace NoncommCompletedCochainTransport
 variable (R : Type u) [Ring R]
 variable (G : Type v) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
-
-instance additive : (NoncommPointwiseCompletedAction.functor R G).Additive := by sorry
 
 /-- Kernels and cokernels retain their original vectors and induced pointwise
 actions. No identification with ALL algebraic completed modules is asserted. -/
@@ -39,7 +31,7 @@ def homologyMap (n : ℤ) {T : DiscreteModuleCat R G} (t : K.homology n ⟶ T) :
 theorem homology_zero (i : ℤ) (h : IsZero (K.homology i)) :
     IsZero ((cochain R G K).homology i) := by sorry
 
-variable [HasDerivedCategory (ModuleCat.{max u v} (NoncommCompletedRing.Obj R G))]
+variable [HasDerivedCategory (ModuleCat.{max u v} (completedGroupRing R G))]
 
 /-- Complete the canonical top-truncation trace roof using its explicit homology
 map. This constructs a morphism, with no arbitrary isomorphism assumption. -/
@@ -47,7 +39,7 @@ def derivedTopMap (n : ℤ) (hvan : ∀ i : ℤ, n < i → IsZero (K.homology i)
     {T : DiscreteModuleCat R G} (t : K.homology n ⟶ T) :
     DerivedCategory.Q.obj (cochain R G K) ⟶
     DerivedCategory.Q.obj ((CochainComplex.singleFunctor
-      (ModuleCat.{max u v} (NoncommCompletedRing.Obj R G)) n).obj
+      (ModuleCat.{max u v} (completedGroupRing R G)) n).obj
         ((NoncommPointwiseCompletedAction.functor R G).obj T)) :=
   ActualEquivariantTopTrace.map (cochain R G K) n
     (fun i hi ↦ homology_zero R G K i (hvan i hi)) (homologyMap R G K n t)

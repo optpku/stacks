@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.ProjectionFormula.RelativeExt
@@ -26,6 +20,8 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.ModuleDerived.ProjectionFormula
 
 /-- For a flat proper finitely presented morphism with quasi-compact and quasi-separated base,
@@ -34,6 +30,10 @@ complex has a pseudo-coherent representative on the base. -/
 theorem existsPseudoCoherentRelativeExtRepresentation {X S : Scheme.{u}} (f : X ⟶ S)
     [CompactSpace S] [QuasiSeparatedSpace S]
     [Flat f] [IsProper f] [Scheme.Hom.FinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     [KFlat.HomotopyTensorDescends X.toRingedSpace]
     [KFlat.TensorDescends X.toRingedSpace]
     [KFlat.IsLocalization X.toRingedSpace]
@@ -54,6 +54,10 @@ in the derived category of the base. -/
 theorem relativeExtRepresentation_unique {X S : Scheme.{u}} (f : X ⟶ S)
     [CompactSpace S] [QuasiSeparatedSpace S]
     [Flat f] [IsProper f] [Scheme.Hom.FinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     [KFlat.HomotopyTensorDescends X.toRingedSpace]
     [KFlat.TensorDescends X.toRingedSpace]
     [KFlat.IsLocalization X.toRingedSpace]

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
@@ -36,26 +30,9 @@ variable (α : (f ≫ eY.symm.hom) ≅
 variable [HasSheafify (AlgebraicSpace.smallEtaleTopology F) (Type u)]
 variable [HasSheafify (AlgebraicSpace.smallEtaleTopology G) (Type u)]
 variable [∀ P : (AlgebraicSpace.smallEtaleSite F)ᵒᵖ ⥤ Type u,
-    (smallEtaleFunctor F X eX).op.HasPointwiseRightKanExtension P]
-variable [∀ P : (AlgebraicSpace.smallEtaleSite G)ᵒᵖ ⥤ Type u,
-    (smallEtaleFunctor G Y eY).op.HasPointwiseRightKanExtension P]
-variable [∀ P : (AlgebraicSpace.smallEtaleSite F)ᵒᵖ ⥤ RingCat.{u},
-    (smallEtaleFunctor F X eX).op.HasPointwiseRightKanExtension P]
-variable [∀ P : (AlgebraicSpace.smallEtaleSite G)ᵒᵖ ⥤ RingCat.{u},
-    (smallEtaleFunctor G Y eY).op.HasPointwiseRightKanExtension P]
-variable [(forget RingCat.{u}).PreservesRightKanExtensions (smallEtaleFunctor F X eX).op]
-variable [(forget RingCat.{u}).PreservesRightKanExtensions (smallEtaleFunctor G Y eY).op]
-variable [∀ P : (AlgebraicSpace.smallEtaleSite F)ᵒᵖ ⥤ Type u,
     (smallEtaleFunctor F X eX).op.HasLeftKanExtension P]
 variable [∀ P : (AlgebraicSpace.smallEtaleSite G)ᵒᵖ ⥤ Type u,
     (smallEtaleFunctor G Y eY).op.HasLeftKanExtension P]
-variable [∀ P : X.totalᵒᵖ ⥤ Type u,
-    (toCartesianBasedFunctor f).toFunctor.op.HasPointwiseRightKanExtension P]
-variable [∀ P : F.toGroupoids.totalᵒᵖ ⥤ Type u,
-    (toCartesianBasedFunctor
-        (AlgebraicSpace.toGroupoids.map (inducedHom eX eY f))).toFunctor.op.HasPointwiseRightKanExtension P]
-variable [∀ P : (AlgebraicSpace.smallEtaleSite F)ᵒᵖ ⥤ Type u,
-    (AlgebraicSpace.smallEtaleInclusion F).op.HasPointwiseRightKanExtension P]
 
 /- Lemma 96.10.3: the square of ringed topoi with edges `f`, `π_F`, `π_G`, and
 `f_small` is commutative, via the presentation 2-iso `α`. -/

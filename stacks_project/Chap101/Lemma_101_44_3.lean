@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Lemma_101_44_3_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.LocalCompleteIntersection.BaseChange
 import StacksCheckRecall
 
 @[expose] public section
@@ -23,10 +17,9 @@ Stacks writes the base change as `Y' ×_Y X ⟶ Y'`; the Lean projection is
 `TwoFibreProduct.snd f g` of a local complete intersection morphism `f : X ⟶ Y`
 along a flat morphism `g : Z ⟶ Y`. -/
 @[stacks 0CJ5] #check
-  (IsLocalCompleteIntersection.twoFibreProduct_snd :
+  (AlgebraicGeometry.AlgebraicStack.IsLocalCompleteIntersection.twoFibreProduct_snd :
     ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
       (f : X ⟶ Y) (g : Z ⟶ Y)
-      [IsLocalCompleteIntersection f] [Flat g]
-      [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)],
+      [IsLocalCompleteIntersection f] [Flat g],
       IsLocalCompleteIntersection (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g))

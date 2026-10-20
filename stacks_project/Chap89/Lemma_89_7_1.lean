@@ -1,15 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_25_4_Regular
-public import stacks_project.Chap67.Lemma_67_49_2
-public import stacks_project.Chap67.Lemma_67_49_5_Normalization
-public import stacks_project.Chap72.Definition_72_8_3_Alteration
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Alteration.RegularSource
+import StacksCheckRecall
 
 /-!
 # Regular alterations imply finite normalization
@@ -29,24 +21,24 @@ namespace AlgebraicGeometry.AlgebraicSpace
 
 namespace IsAlteration
 
-/-- Lemma 89.7.1 (1) Let `S` be a scheme. Let `Y` be a Noetherian integral
+/- Lemma 89.7.1 (1) Let `S` be a scheme. Let `Y` be a Noetherian integral
 algebraic space over `S`. If `f : X ⟶ Y` is an alteration with `X` regular,
 then the normalization `Y.normalizationTo : Y.normalization ⟶ Y` is finite. -/
 @[stacks 0BHT]
-theorem isFinite_normalizationTo {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.IsAlteration.isFinite_normalizationTo :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     [IsNoetherian Y] [IsIntegral Y] [IsIntegral X] (f : X ⟶ Y)
-    [IsAlteration f] [IsRegular X] : IsFinite Y.normalizationTo :=
-  sorry
+    [IsAlteration f] [IsRegular X], IsFinite Y.normalizationTo)
 
-/-- Lemma 89.7.1 (2) Let `S` be a scheme. Let `Y` be a Noetherian integral
+/- Lemma 89.7.1 (2) Let `S` be a scheme. Let `Y` be a Noetherian integral
 algebraic space over `S`. If `f : X ⟶ Y` is an alteration with `X` regular,
 then `Y` has a dense open subspace which is regular. -/
 @[stacks 0BHT]
-theorem exists_dense_open_regular {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.IsAlteration.exists_dense_open_regular :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     [IsNoetherian Y] [IsIntegral Y] [IsIntegral X] (f : X ⟶ Y)
-    [IsAlteration f] [IsRegular X] :
-    ∃ U : OpenSubspace Y, Dense (U.pointsSet : Set (Points Y)) ∧ IsRegular U.X :=
-  sorry
+    [IsAlteration f] [IsRegular X],
+    ∃ U : OpenSubspace Y, Dense (U.pointsSet : Set (Points Y)) ∧ IsRegular U.X)
 
 end IsAlteration
 

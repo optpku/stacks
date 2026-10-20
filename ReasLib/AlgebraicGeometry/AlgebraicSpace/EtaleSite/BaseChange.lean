@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.MorphismProperty.Representable.PullbackDiagonal
@@ -15,20 +9,17 @@ public import Mathlib.CategoryTheory.Functor.KanExtension.Adjunction
 public import Mathlib.CategoryTheory.Sites.CoverLifting
 public import Mathlib.CategoryTheory.Sites.Pullback
 public import Mathlib.CategoryTheory.Sites.Whiskering
-public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Hom
-public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module
 public import ReasLib.CategoryTheory.ObjectProperty.FullSubcategory.Restriction
 public import ReasLib.CategoryTheory.Sites.Pullback.SheafCompose
 public import ReasLib.CategoryTheory.Sites.Topos.Cocontinuous.SheafCompose
-public import stacks_project.Chap66.Definition_66_18_9_FMap
-public import stacks_project.Chap66.Definition_66_29_1_QCoh
-public import stacks_project.Chap66.Lemma_66_18_3
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.FMap
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.PresentationInclusion
 
 /-!
-# Pullback of modules on algebraic spaces
+# Geometric base change on étale sites
 
-A morphism of algebraic spaces induces a morphism of small étale ringed topoi. The associated
-module inverse image preserves quasi-coherence.
+Pulling back a scheme étale over the target gives an algebraic space étale over the source.
+This construction is functorial and continuous.
 -/
 
 @[expose] public section
@@ -56,7 +47,7 @@ def etaleBaseChangeFunctorOfPoints {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (V : smallEtaleSite Y) : (Over S)ᵒᵖ ⥤ Type u :=
   pullback (homFunctor f) (homFunctor V.hom)
 
-/-- The algebraic space `X ×_Y V` obtained by pulling back a scheme étale over `Y`. -/
+/-- The scheme atlas obtained by pulling the chosen source atlas back along an étale target chart. -/
 abbrev etaleBaseChangeAtlasScheme {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (V : smallEtaleSite Y) : Over S :=
   (Functor.relativelyRepresentable.of_diag Y.representableDiagonal (homFunctor V.hom)).pullback
@@ -103,10 +94,15 @@ theorem etaleBaseChangeAtlas_surjective {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (V : smallEtaleSite Y) :
     Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) (etaleBaseChangeAtlasMap f V) := sorry
 
+/-- The functor-of-points fibre product is a sheaf for the fppf topology over the base. -/
+theorem etaleBaseChange_isSheaf {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (V : smallEtaleSite Y) :
+    Presheaf.IsSheaf (Scheme.fppfTopology.over S) (etaleBaseChangeFunctorOfPoints f V) := sorry
+
 /-- The fiber product carries the explicitly pulled-back atlas and represented diagonal. -/
 def etaleBaseChangeSpace {X Y : AlgebraicSpace S} (f : X ⟶ Y) (V : smallEtaleSite Y) :
     AlgebraicSpace S :=
-  ofFunctor (etaleBaseChangeFunctorOfPoints f V) sorry
+  ofFunctor (etaleBaseChangeFunctorOfPoints f V) (etaleBaseChange_isSheaf f V)
     (CategoryTheory.Functor.relativelyRepresentable.PullbackDiagonal.diagonal (homFunctor f) (homFunctor V.hom)
       X.representableDiagonal (ofOver_representableDiagonal V.left) Y.representableDiagonal)
     ⟨etaleBaseChangeAtlasScheme f V, etaleBaseChangeAtlasMap f V,
@@ -147,20 +143,36 @@ def etaleBaseChangeMapNat {X Y : AlgebraicSpace S} (f : X ⟶ Y) {V V' : smallEt
     (h : V' ⟶ V) :
     etaleBaseChangeFunctorOfPoints f V' ⟶ etaleBaseChangeFunctorOfPoints f V :=
   pullback.map (homFunctor f) (homFunctor V'.hom) (homFunctor f) (homFunctor V.hom)
-    (𝟙 X.functorOfPoints) (homFunctor (ofOverMap h.left)) (𝟙 Y.functorOfPoints) sorry sorry
+    (𝟙 X.functorOfPoints) (homFunctor (ofOverMap h.left)) (𝟙 Y.functorOfPoints)
+    (by simp only [Category.comp_id, Category.id_comp]) (by
+      have hw := h.w
+      change ofOverMap h.left ≫ V.hom = V'.hom ≫ 𝟙 _ at hw
+      exact hw.symm)
 
 /-- A morphism of schemes étale over `Y` induces a morphism of fibre products over `X`. -/
 def etaleBaseChangeMap {X Y : AlgebraicSpace S} (f : X ⟶ Y) {V V' : smallEtaleSite Y}
     (h : V' ⟶ V) : etaleBaseChangeObj f V' ⟶ etaleBaseChangeObj f V :=
-  MorphismProperty.Over.homMk (etaleBaseChangeMapNat f h) sorry
+  MorphismProperty.Over.homMk (etaleBaseChangeMapNat f h) (by
+    change etaleBaseChangeMapNat f h ≫ pullback.fst (homFunctor f) (homFunctor V.hom) =
+      pullback.fst (homFunctor f) (homFunctor V'.hom)
+    exact (pullback.lift_fst _ _ _).trans (Category.comp_id _))
+
+/-- Fibre-product maps preserve identity morphisms of étale schemes. -/
+theorem etaleBaseChangeMap_id {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (V : smallEtaleSite Y) : etaleBaseChangeMap f (𝟙 V) = 𝟙 (etaleBaseChangeObj f V) := sorry
+
+/-- Fibre-product maps preserve composition of morphisms of étale schemes. -/
+theorem etaleBaseChangeMap_comp {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {U V W : smallEtaleSite Y} (a : U ⟶ V) (b : V ⟶ W) :
+    etaleBaseChangeMap f (a ≫ b) = etaleBaseChangeMap f a ≫ etaleBaseChangeMap f b := sorry
 
 /-- Functoriality of `X ×_Y V` in the scheme étale over `Y`. -/
 def etaleBaseChange {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     smallEtaleSite Y ⥤ spacesEtaleSite X where
   obj := etaleBaseChangeObj f
   map h := etaleBaseChangeMap f h
-  map_id := sorry
-  map_comp := sorry
+  map_id := etaleBaseChangeMap_id f
+  map_comp := etaleBaseChangeMap_comp f
 
 /-- The object map of `etaleBaseChange f` is the fibre product `X ×_Y V`. -/
 theorem etaleBaseChange_obj {X Y : AlgebraicSpace S} (f : X ⟶ Y) (V : smallEtaleSite Y) :
@@ -171,12 +183,6 @@ theorem etaleBaseChange_obj {X Y : AlgebraicSpace S} (f : X ⟶ Y) (V : smallEta
 spaces étale topology of `X`. -/
 instance etaleBaseChange_isContinuous {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     (etaleBaseChange f).IsContinuous (smallEtaleTopology Y) (spacesEtaleTopology X) :=
-  sorry
-
-/-- The small étale inclusion is continuous, as required to present the extension of sheaves as
-a morphism of topoi. -/
-instance smallEtaleInclusion_isContinuous (X : AlgebraicSpace S) :
-    (smallEtaleInclusion X).IsContinuous (smallEtaleTopology X) (spacesEtaleTopology X) :=
   sorry
 
 /-- Ring-valued sheaves on the small étale site of an algebraic space compose with the forgetful

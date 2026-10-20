@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChowGroup.ProjectiveBundle.ChernClassCap
@@ -48,7 +42,8 @@ structure ChernClassCap.{u}
               @reindex P
                 (@LocallyOfFiniteType.isLocallyNoetherian _ _ (pi ≫ p)
                   (ProjectiveBundle.Formula.locallyOfFiniteTypeComp hpi p (q + 1)) inferInstance)
-                ((pi ≫ p).relativeDimensionFunction delta)
+                (@Scheme.Hom.relativeDimensionFunction _ _ (pi ≫ p)
+                  (ProjectiveBundle.Formula.locallyOfFiniteTypeComp hpi p (q + 1)) delta)
                 (@instIsDimensionFunctionRelativeDimensionFunction _ _ (pi ≫ p)
                   inferInstance (ProjectiveBundle.Formula.locallyOfFiniteTypeComp hpi p (q + 1))
                   delta inferInstance)
@@ -91,7 +86,8 @@ def ofComponents
                 @reindex P
                   (@LocallyOfFiniteType.isLocallyNoetherian _ _ (pi ≫ p)
                     (ProjectiveBundle.Formula.locallyOfFiniteTypeComp hpi p (q + 1)) inferInstance)
-                  ((pi ≫ p).relativeDimensionFunction delta)
+                  (@Scheme.Hom.relativeDimensionFunction _ _ (pi ≫ p)
+                    (ProjectiveBundle.Formula.locallyOfFiniteTypeComp hpi p (q + 1)) delta)
                   (@instIsDimensionFunctionRelativeDimensionFunction _ _ (pi ≫ p)
                     inferInstance (ProjectiveBundle.Formula.locallyOfFiniteTypeComp hpi p (q + 1))
                     delta inferInstance)
@@ -132,7 +128,8 @@ theorem spec
                 @reindex P
                   (@LocallyOfFiniteType.isLocallyNoetherian _ _ (pi ≫ p)
                     (ProjectiveBundle.Formula.locallyOfFiniteTypeComp hpi p (q + 1)) inferInstance)
-                  ((pi ≫ p).relativeDimensionFunction delta)
+                  (@Scheme.Hom.relativeDimensionFunction _ _ (pi ≫ p)
+                    (ProjectiveBundle.Formula.locallyOfFiniteTypeComp hpi p (q + 1)) delta)
                   (@instIsDimensionFunctionRelativeDimensionFunction _ _ (pi ≫ p)
                     inferInstance (ProjectiveBundle.Formula.locallyOfFiniteTypeComp hpi p (q + 1))
                     delta inferInstance)

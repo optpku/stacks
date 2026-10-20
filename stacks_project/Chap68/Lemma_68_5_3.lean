@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.MorphismProperty.Representable
-public import stacks_project.Chap66.Lemma_66_13_1_IsScheme
-public import stacks_project.Chap68.Remark_68_17_10_VeryReasonable
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RepresentableConditions
+import StacksCheckRecall
 
 /-!
 # Inheritance of conditions along representable morphisms
@@ -26,42 +19,42 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 68.5.3 (1): Let `S` be a scheme. If `f : X ⟶ Y` is a representable
+/- Lemma 68.5.3 (1): Let `S` be a scheme. If `f : X ⟶ Y` is a representable
 morphism of algebraic spaces over `S` and `Y` has property (β), then `X` has
 property (β). -/
-@[stacks 03KF]
-theorem HasPropertyBeta.of_relativelyRepresentable {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) (hf : yoneda.relativelyRepresentable f)
-    [HasPropertyBeta Y] : HasPropertyBeta X := sorry
+@[stacks 03KF] #check
+  (AlgebraicGeometry.AlgebraicSpace.HasPropertyBeta.of_relativelyRepresentable :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      (hf : yoneda.relativelyRepresentable f) [HasPropertyBeta Y], HasPropertyBeta X)
 
-/-- Lemma 68.5.3 (2): Let `S` be a scheme. If `f : X ⟶ Y` is a representable
+/- Lemma 68.5.3 (2): Let `S` be a scheme. If `f : X ⟶ Y` is a representable
 morphism of algebraic spaces over `S` and `Y` is decent, then `X` is decent. -/
-@[stacks 03KF]
-theorem IsDecent.of_relativelyRepresentable {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) (hf : yoneda.relativelyRepresentable f)
-    [IsDecent Y] : IsDecent X := sorry
+@[stacks 03KF] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsDecent.of_relativelyRepresentable :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      (hf : yoneda.relativelyRepresentable f) [IsDecent Y], IsDecent X)
 
-/-- Lemma 68.5.3 (3): Let `S` be a scheme. If `f : X ⟶ Y` is a representable
+/- Lemma 68.5.3 (3): Let `S` be a scheme. If `f : X ⟶ Y` is a representable
 morphism of algebraic spaces over `S` and `Y` is reasonable, then `X` is
 reasonable. -/
-@[stacks 03KF]
-theorem IsReasonable.of_relativelyRepresentable {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) (hf : yoneda.relativelyRepresentable f)
-    [IsReasonable Y] : IsReasonable X := sorry
+@[stacks 03KF] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsReasonable.of_relativelyRepresentable :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      (hf : yoneda.relativelyRepresentable f) [IsReasonable Y], IsReasonable X)
 
-/-- Lemma 68.5.3 (4): Let `S` be a scheme. If `f : X ⟶ Y` is a representable
+/- Lemma 68.5.3 (4): Let `S` be a scheme. If `f : X ⟶ Y` is a representable
 morphism of algebraic spaces over `S` and `Y` is very reasonable, then `X` is
 very reasonable. -/
-@[stacks 03KF]
-theorem IsVeryReasonable.of_relativelyRepresentable {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) (hf : yoneda.relativelyRepresentable f)
-    [IsVeryReasonable Y] : IsVeryReasonable X := sorry
+@[stacks 03KF] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsVeryReasonable.of_relativelyRepresentable :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      (hf : yoneda.relativelyRepresentable f) [IsVeryReasonable Y], IsVeryReasonable X)
 
-/-- Lemma 68.5.3 (5): Let `S` be a scheme. If `f : X ⟶ Y` is a representable
+/- Lemma 68.5.3 (5): Let `S` be a scheme. If `f : X ⟶ Y` is a representable
 morphism of algebraic spaces over `S` and `Y` is a scheme, then `X` is a scheme. -/
-@[stacks 03KF]
-theorem IsScheme.of_relativelyRepresentable {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) (hf : yoneda.relativelyRepresentable f)
-    [IsScheme Y] : IsScheme X := sorry
+@[stacks 03KF] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsScheme.of_relativelyRepresentable :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      (hf : yoneda.relativelyRepresentable f) [IsScheme Y], IsScheme X)
 
 end AlgebraicGeometry.AlgebraicSpace

@@ -1,39 +1,53 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.CategoryTheory.Adjunction.BaseChange.HorizontalComposition
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.BaseChange.HorizontalComposition
 import StacksCheckRecall
 
 @[expose] public section
 
-open CategoryTheory
-open scoped CategoryTheory.TwoSquare
+open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory
+open AlgebraicGeometry.AlgebraicSpace.DerivedQCoh
+open AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.BaseChange
 
-universe uA uB uC uD uE uF vA vB vC vD vE vF
+noncomputable section
 
-variable {A : Type uA} {B : Type uB} {C : Type uC}
-  {D : Type uD} {E : Type uE} {F : Type uF}
-variable [Category.{vA} A] [Category.{vB} B] [Category.{vC} C]
-  [Category.{vD} D] [Category.{vE} E] [Category.{vF} F]
-variable {G : A ⥤ D} {H : B ⥤ E} {K : C ⥤ F}
-variable {L₁ : A ⥤ B} {R₁ : B ⥤ A} {L₂ : D ⥤ E} {R₂ : E ⥤ D}
-  {L₃ : B ⥤ C} {R₃ : C ⥤ B} {L₄ : E ⥤ F} {R₄ : F ⥤ E}
+universe u
 
-/- Lemma 86.4.3: For a scheme `S` and two horizontally adjacent cartesian squares of
-quasi-compact and quasi-separated algebraic spaces over `S`, with `(f, h)` and `(f', h')`
-Tor independent, the maps of 86.4.1.1 compose to the map for the outer rectangle. After
-identifying the outer dual square with the horizontal composite of the two dual squares,
-this is compatibility of inverse mates with horizontal composition and composite adjunctions. -/
+/- Lemma 86.4.3: for horizontally adjacent cartesian squares of quasi-compact
+quasi-separated algebraic spaces over a scheme, with the two indicated pairs Tor
+independent, the canonical twisted base-change maps compose to the canonical map
+for the outer rectangle, through the canonical derived-pullback composition maps. -/
 @[stacks 0E5F] #check
-  (CategoryTheory.DerivedBaseChange.mapOfRight_hcomp :
-    ∀ (adj₁ : L₁ ⊣ R₁) (adj₂ : L₂ ⊣ R₂) (adj₃ : L₃ ⊣ R₃) (adj₄ : L₄ ⊣ R₄)
-      (alpha : TwoSquare R₁ H G R₂) (beta : TwoSquare R₃ K H R₄),
-      CategoryTheory.DerivedBaseChange.mapOfRight
-          (adj₁.comp adj₃) (adj₂.comp adj₄) (beta ≫ₕ alpha) =
-        CategoryTheory.DerivedBaseChange.mapOfRight adj₁ adj₂ alpha ≫ᵥ
-          CategoryTheory.DerivedBaseChange.mapOfRight adj₃ adj₄ beta)
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.BaseChange.twistedMap_paste_horiz :
+    ∀ {S : Scheme.{u}}
+    {X'' X' X Y'' Y' Y : AlgebraicSpace S}
+    (g' : X'' ⟶ X') (g : X' ⟶ X)
+    (f'' : X'' ⟶ Y'') (f' : X' ⟶ Y') (f : X ⟶ Y)
+    (h' : Y'' ⟶ Y') (h : Y' ⟶ Y)
+    (left : IsPullback g' f'' f' h') (right : IsPullback g f' f h)
+    (hTorRight : TorIndependentOver (Over.mk f) (Over.mk h))
+    (hTorLeft : TorIndependentOver (Over.mk f') (Over.mk h'))
+
+    [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
+    [IsQuasiCompact X'] [IsAbsolutelyQuasiSeparated X']
+    [IsQuasiCompact X''] [IsAbsolutelyQuasiSeparated X'']
+    [IsQuasiCompact Y] [IsAbsolutelyQuasiSeparated Y]
+    [IsQuasiCompact Y'] [IsAbsolutelyQuasiSeparated Y']
+    [IsQuasiCompact Y''] [IsAbsolutelyQuasiSeparated Y'']
+    (a : DerivedQCoh Y ⥤ DerivedQCoh X)
+    (a' : DerivedQCoh Y' ⥤ DerivedQCoh X')
+    (a'' : DerivedQCoh Y'' ⥤ DerivedQCoh X'')
+    (fAdj : pushforwardCohomologyIn f ⊣ a)
+    (f'Adj : pushforwardCohomologyIn f' ⊣ a')
+    (f''Adj : pushforwardCohomologyIn f'' ⊣ a'')
+    (E : DerivedQCoh Y),
+    pullbackCompMap g' g (a.obj E) ≫
+        (twistedMap (g' ≫ g) f'' f (h' ≫ h) (left.paste_horiz right)
+          a a'' fAdj f''Adj
+          (torIndependentOver_horizontalComposition g' g f'' f' f h' h left right
+            hTorRight hTorLeft)).app E =
+      (pullback g').map
+          ((twistedMap g f' f h right a a' fAdj f'Adj hTorRight).app E) ≫
+        (twistedMap g' f'' f' h' left a' a'' f'Adj f''Adj hTorLeft).app
+          ((pullback h).obj E) ≫
+        a''.map (pullbackCompMap h' h E))

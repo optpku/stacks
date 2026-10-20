@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap111.Definition_111_26_1_IntegerValued
+public import ReasLib.RingTheory.Polynomial.IntegerValued
 import StacksCheckRecall
 
 @[expose] public section
@@ -15,4 +9,4 @@ import StacksCheckRecall
 such that `f.eval (algebraMap ℤ ℚ n)` lies in `Set.range (algebraMap ℤ ℚ)` for every
 integer `n`. This is the owner `Polynomial.IsIntegerValued`. -/
 @[stacks 027X]
-#check Polynomial.IsIntegerValued
+#check (Polynomial.IsIntegerValued : Polynomial ℚ → Prop)

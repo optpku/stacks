@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.SquareZeroExtension
@@ -114,6 +108,33 @@ noncomputable def targetModuleForgetIso (hπ : KernelIdeal.IsSquareZero π)
   (SheafOfModules.restrictScalarsCompToSheaf
       (KernelIdeal.quotientRingIso π h).inv).app hπ.quotientModule ≪≫
     hπ.quotientModuleForgetIso
+
+/-- The target scalar action is restriction of the quotient action along the supplied inverse.
+The module objects specify the actual stored actions without introducing competing instances. -/
+theorem targetModule_smul (hπ : KernelIdeal.IsSquareZero π)
+    (h : IsIso (KernelIdeal.quotientComparison π)) (U : Cᵒᵖ)
+    (q : Q.obj.obj U) (m : hπ.quotientModule.val.obj U) :
+    ((targetModule hπ h).val.obj U).isModule.smul q m =
+      (hπ.quotientModule.val.obj U).isModule.smul
+        ((KernelIdeal.quotientRingIso π h).inv.hom.app U q) m := rfl
+
+/-- For a locally surjective presentation, the target scalar action uses the specified local
+quotient lift and sheaf amalgamation. -/
+theorem targetModule_smul_localInverse [Sheaf.IsLocallySurjective π]
+    (hπ : KernelIdeal.IsSquareZero π) (h : IsIso (KernelIdeal.quotientComparison π))
+    (U : Cᵒᵖ) (q : Q.obj.obj U) (m : hπ.quotientModule.val.obj U) :
+    ((targetModule hπ h).val.obj U).isModule.smul q m =
+      (hπ.quotientModule.val.obj U).isModule.smul (KernelIdeal.quotientInverseSection π U q) m := sorry
+
+/-- A target scalar lifted from an `A`-section acts on the kernel by the original `A`-action.
+This characterizes the source-facing descended action independently of any local lifts. -/
+@[stacks 0B8S "target kernel-module scalar specification"]
+theorem targetModule_smul_projection (hπ : KernelIdeal.IsSquareZero π)
+    (h : IsIso (KernelIdeal.quotientComparison π)) (U : Cᵒᵖ)
+    (r : A.obj.obj U) (m : (KernelIdeal.sheaf π).val.obj U) :
+    (targetModuleForgetIso hπ h).hom.hom.app U
+        (((targetModule hπ h).val.obj U).isModule.smul (π.hom.app U r)
+          ((targetModuleForgetIso hπ h).inv.hom.app U m)) = r • m := sorry
 
 end Sheafification
 

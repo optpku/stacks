@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap75.Lemma_75_26_7_StructureSheaf
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Pushforward.StructureSheaf
 
 @[expose] public section
 
@@ -40,12 +34,13 @@ degree-zero structure sheaf and a perfect complex of Tor-amplitude in `[1, ∞)`
 @[stacks 0E6B] #check
   (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.exists_etale_structureSheafPushforward_decomposition :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-      [Proper f] [Flat f] [FinitePresentation f],
-      fiberGlobalSectionsBijective f → ∀ y : Points Y,
-      ∃ (Y' : AlgebraicSpace S) (g : Y' ⟶ Y) (y' : Points Y'),
-        AlgebraicSpace.Etale g ∧ Points.map g y' = y ∧
-          ∃ P : ModuleDerived Y',
-            ModuleDerived.IsPerfect P ∧ ModuleDerived.HasTorAmplitudeGE P 1 ∧
-              IsIsomorphic ((ModuleDerived.pullback g).obj
-                  (pushforwardStructureSheafDerived f))
-                (structureSheafDerived Y' ⊞ P))
+      [Proper f] [Flat f] [FinitePresentation f]
+      (hΓ : fiberGlobalSectionsBijective f) (y : Points Y),
+      ∃ (Y' : AlgebraicSpace S) (g : Y' ⟶ Y) (y' : Points Y')
+        (hg : AlgebraicSpace.Etale g) (hy : Points.map g y' = y),
+        ∃ P : ModuleDerived Y',
+          ModuleDerived.IsPerfect P ∧
+            CategoryTheory.DerivedCategory.DerivedTensor.HasTorAmplitudeGE (C := Y'.Modules) P 1 ∧
+            IsIsomorphic ((ModuleDerived.pullback g).obj
+                (pushforwardStructureSheafDerived f))
+              (structureSheafDerived Y' ⊞ P))

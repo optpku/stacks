@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.CategoryTheory.Limits.Shapes.Equalizers
-public import ReasLib.CategoryTheory.Fibered.Groupoids.Hom.OneCell
-public import stacks_project.Chap94.Definition_94_12_1_Representable
+public import ReasLib.CategoryTheory.Fibered.Groupoids.TwoFibreProduct.Faithful
+public import ReasLib.CategoryTheory.Fibered.Groupoids.TwoFibreProduct.Equalizers
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Basic
+import StacksCheckRecall
 
 /-!
 # Two-fibre products of faithful groupoid fibrations
@@ -29,21 +24,33 @@ namespace AlgebraicGeometry.GroupoidsOver
 
 variable {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
 
-/-- Lemma 96.17.4 (1): if `f : X ⟶ Y` and `g : Z ⟶ Y` are faithful 1-morphisms
+section Faithful
+
+variable (f : X ⟶ Y) (g : Z ⟶ Y)
+variable [Functor.Faithful (toFunctor f)] [Functor.Faithful (toFunctor g)]
+
+/- Lemma 96.17.4 (1): if `f : X ⟶ Y` and `g : Z ⟶ Y` are faithful 1-morphisms
 of categories fibred in groupoids over `(Sch/S)_fppf`, then the functor
 `X ×_Y Z ⟶ Y` given by `TwoFibreProduct.fst f g ≫ f` is faithful. -/
-@[stacks 06X0]
-instance twoFibreProduct_toBase_faithful (f : X ⟶ Y) (g : Z ⟶ Y)
-    [Functor.Faithful (toFunctor f)] [Functor.Faithful (toFunctor g)] :
-    Functor.Faithful (toFunctor (TwoFibreProduct.fst.{u + 1, u, u + 1, u} f g ≫ f)) := sorry
+@[stacks 06X0] #check
+  (CategoryTheory.FiberedCategoryOver.Groupoids.TwoFibreProduct.toBase_faithful f g :
+    Functor.Faithful (toFunctor (TwoFibreProduct.fst.{u + 1, u, u + 1, u} f g ≫ f)))
 
-/-- Lemma 96.17.4 (2): if `f : X ⟶ Y` and `g : Z ⟶ Y` are faithful 1-morphisms
+end Faithful
+
+section Equalizers
+
+variable (f : X ⟶ Y) (g : Z ⟶ Y)
+variable [Functor.Faithful (toFunctor f)] [Functor.Faithful (toFunctor g)]
+variable [HasEqualizers X.total] [HasEqualizers Z.total]
+
+/- Lemma 96.17.4 (2): if `f : X ⟶ Y` and `g : Z ⟶ Y` are faithful 1-morphisms
 of categories fibred in groupoids over `(Sch/S)_fppf` and `X`, `Z` have
 equalizers, then so does `X ×_Y Z`. -/
-@[stacks 06X0]
-instance twoFibreProduct_hasEqualizers (f : X ⟶ Y) (g : Z ⟶ Y)
-    [Functor.Faithful (toFunctor f)] [Functor.Faithful (toFunctor g)]
-    [HasEqualizers X.total] [HasEqualizers Z.total] :
-    HasEqualizers (total (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)) := sorry
+@[stacks 06X0] #check
+  (CategoryTheory.FiberedCategoryOver.Groupoids.TwoFibreProduct.hasEqualizers f g :
+    HasEqualizers (total (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)))
+
+end Equalizers
 
 end AlgebraicGeometry.GroupoidsOver

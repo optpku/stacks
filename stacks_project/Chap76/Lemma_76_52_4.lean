@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_52_4_Relative
-public import stacks_project.Chap76.Lemma_76_52_4_Triangulated
-public import stacks_project.Chap76.Lemma_76_52_4_Retracts
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Perfect.Relative.Triangulated
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Perfect.Relative.Retracts
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,8 +15,8 @@ universe u
 triangulated subcategory. -/
 @[stacks 0DKR] #check
   (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.perfectRelativeTo_isTriangulated :
-    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-      [Flat f] [LocallyOfFinitePresentation f],
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+      (f : X ⟶ Y) [Flat f] [LocallyOfFinitePresentation f],
       ObjectProperty.IsTriangulated
         (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.perfectRelativeTo f))
 
@@ -32,7 +25,7 @@ triangulated subcategory. -/
 saturated subcategory. -/
 @[stacks 0DKR] #check
   (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.perfectRelativeTo_isStableUnderRetracts :
-    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-      [Flat f] [LocallyOfFinitePresentation f],
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+      (f : X ⟶ Y) [Flat f] [LocallyOfFinitePresentation f],
       ObjectProperty.IsStableUnderRetracts
         (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.perfectRelativeTo f))

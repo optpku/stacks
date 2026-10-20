@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleLocalRing.Noetherian
 public import ReasLib.Algebra.Homology.DerivedCategory.Dualizing.Normalized
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.Coextension
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Dualizing.NormalizationDegree
@@ -112,6 +107,10 @@ theorem normalizationDegree_stalkShift_isNormalized {S : Scheme.{u}} {X : Algebr
       MonoidalCategory (DerivedCategory (ModuleCat.{u} (etaleLocalRing X xbar)))]
     (H : ∀ xbar : GeometricPoint X, @MonoidalClosed _ inferInstance (monoidal xbar))
     (x : Points X) :
+    -- Local instance justification (proof-local temporary data): IsNormalizedDualizingComplex requires the explicit canonical IsNoetherianRing proof as a class argument here; keep it local without registering a global companion instance.
+    letI := etaleLocalRing.instIsNoetherianRing (geometricPointOver x)
+    -- Local instance justification (proof-local temporary data): IsNormalizedDualizingComplex requires the explicit canonical IsLocalRing proof as a class argument here; keep it local without registering a global companion instance.
+    letI := etaleLocalRing.instIsLocalRing (geometricPointOver x)
     ((shiftFunctor (DerivedCategory (ModuleCat.{u} (etaleLocalRing X (geometricPointOver x))))
           (-(normalizationDegree hω x))).obj
         (geometricStalk ω x)).IsNormalizedDualizingComplex (H (geometricPointOver x)) :=
@@ -127,6 +126,10 @@ theorem normalizationDegree_stalkShift_isNormalized_of_liesOver {S : Scheme.{u}}
       MonoidalCategory (DerivedCategory (ModuleCat.{u} (etaleLocalRing X xbar)))]
     (H : ∀ xbar : GeometricPoint X, @MonoidalClosed _ inferInstance (monoidal xbar))
     {x : Points X} {xbar : GeometricPoint X} (hx : xbar.image = x) :
+    -- Local instance justification (proof-local temporary data): IsNormalizedDualizingComplex requires the explicit canonical IsNoetherianRing proof as a class argument here; keep it local without registering a global companion instance.
+    letI := etaleLocalRing.instIsNoetherianRing xbar
+    -- Local instance justification (proof-local temporary data): IsNormalizedDualizingComplex requires the explicit canonical IsLocalRing proof as a class argument here; keep it local without registering a global companion instance.
+    letI := etaleLocalRing.instIsLocalRing xbar
     ((shiftFunctor (DerivedCategory (ModuleCat.{u} (etaleLocalRing X xbar)))
           (-(normalizationDegree hω x))).obj
         (stalkDerived xbar ((inclusion X).obj ω))).IsNormalizedDualizingComplex (H xbar) :=

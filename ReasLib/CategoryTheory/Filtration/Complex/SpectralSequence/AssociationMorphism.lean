@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Filtration.Complex.SpectralSequence.PageZeroMorphism
@@ -31,7 +25,8 @@ namespace FilteredComplex
 
 /-- A spectral-sequence morphism is compatible with a filtered-complex morphism relative to
 chosen associations when it commutes with their zeroth-page graded-piece comparisons. This is
-the representation-independent compatibility notion used by general functoriality. -/
+the representation-independent compatibility notion used by general functoriality; the
+association coherence laws propagate it through the representative classes on every page. -/
 @[stacks 012O "compatible morphism of associated spectral sequences"]
 def Association.IsCompatible {K L : FilteredComplex C}
     {E E' : CohomologicalSpectralSequence C 0}
@@ -40,6 +35,18 @@ def Association.IsCompatible {K L : FilteredComplex C}
   Page.Zero.IsCompatible A.toComparison B.toComparison α φ
 
 namespace Association.IsCompatible
+
+/-- A compatible spectral-sequence morphism acts on every explicit page quotient by the
+given filtered-complex morphism. The successor-page coherence of the associations identifies
+the map induced on homology with the next representative map. -/
+@[stacks 012O "compatible maps preserve every page representative"]
+theorem pageMap_isInduced {K L : FilteredComplex C}
+    {E E' : CohomologicalSpectralSequence C 0}
+    {A : Association K E} {B : Association L E'}
+    {α : K ⟶ L} {φ : E ⟶ E'} (hφ : Association.IsCompatible A B α φ)
+    (r : ℕ) (n p : ℤ) :
+    Page.Map.IsInduced α r n p
+      (Page.Representative.transport A.pageIso B.pageIso φ r n p) := sorry
 
 /-- Identity morphisms are compatible with any fixed association. -/
 @[stacks 012O "identity map of associated spectral sequences"]

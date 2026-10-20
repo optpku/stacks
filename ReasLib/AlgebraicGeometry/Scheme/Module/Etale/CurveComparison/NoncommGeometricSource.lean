@@ -1,17 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.GeometricSections
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommPointwiseCompletedAction
-public import stacks_project.Chap59.Lemma_59_65_1_Equivalence
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.FiniteLocallyConstant.Equivalence
 public import Mathlib.CategoryTheory.Abelian.Injective.Resolution
 public import ReasLib.Algebra.Homology.Embedding.Functor
 public import Mathlib.FieldTheory.Galois.Profinite
-public import stacks_project.Chap64.Remark_64_29_2_Cohomology
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.GeometricCohomology
 
 @[expose] public section
 open CategoryTheory CategoryTheory.Limits CategoryTheory.Action.ModuleCat Opposite
@@ -47,8 +41,8 @@ variable [∀ {Y Z : Scheme.{u}} (f : Y ⟶ Z) (F : Z.Etaleᵒᵖ ⥤ ModuleCat.
 /-- Actual sections at the terminal etale object, valid for noncommutative coefficients. -/
 def sections {X : Scheme.{u}} :
     Sheaf X.smallEtaleTopology (ModuleCat.{u + 1} Λ) ⥤ ModuleCat.{u + 1} Λ where
-  obj F := F.obj.obj (op (globalEtale X))
-  map f := f.hom.app (op (globalEtale X))
+  obj F := F.obj.obj (op (AlgebraicGeometry.Scheme.Etale.globalEtale X))
+  map f := f.hom.app (op (AlgebraicGeometry.Scheme.Etale.globalEtale X))
   map_id := by intros; rfl
   map_comp := by intros; rfl
 
@@ -76,8 +70,8 @@ def sectionsPullback {Y Z : Scheme.{u}} (f : Y ⟶ Z) :
   app F :=
     ((sheafToPresheaf Z.smallEtaleTopology (ModuleCat.{u + 1} Λ)).map
       ((smallEtalePullback_sheafAdjunction f (ModuleCat.{u + 1} Λ)).unit.app F)).app
-        (op (globalEtale Z)) ≫
-      ((modulePullback Λ f).obj F).obj.map (op (globalEtalePullbackIso f).inv)
+        (op (AlgebraicGeometry.Scheme.Etale.globalEtale Z)) ≫
+      ((modulePullback Λ f).obj F).obj.map (op (AlgebraicGeometry.Scheme.Etale.globalEtalePullbackIso f).inv)
   naturality := sorry
 
 variable {k : Type u} [Field k] (X : SchemeOverField k)
@@ -176,7 +170,7 @@ variable [∀ {Y Z : Scheme.{u}} (j : Y ⟶ Z) [IsOpenImmersion j]
 variable (η : GeometricPoint (geometricBaseChange X))
 variable (P : Compactification.Of (Spec (CommRingCat.of k)) X)
 variable (M : (finiteTypeDiscreteModule Λ
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X η)))).FullSubcategory)
+  (Aut (GeometricPoint.finiteFiber (arithmeticPoint X η)))).FullSubcategory)
 
 /-- The finite arithmetic coefficient from the published germ-based inverse. -/
 def associatedCoefficient :=

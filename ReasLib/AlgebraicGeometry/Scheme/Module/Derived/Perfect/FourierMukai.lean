@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Proper
@@ -13,6 +7,7 @@ public import ReasLib.Algebra.Homology.CochainComplex.Bounded
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Perfect
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Perfect.Pullback
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType
+public import ReasLib.AlgebraicGeometry.Scheme.FourierMukai.Composition
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.FourierMukai
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Pushforward.Perfect
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Pushforward.Perfect.Tensor
@@ -28,6 +23,8 @@ open DerivedCategory.TStructure
 noncomputable section
 
 universe u
+
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
 
 namespace AlgebraicGeometry.Scheme.FourierMukai
 
@@ -116,6 +113,9 @@ structure sheaf of `Y` give a Fourier–Mukai transform preserving perfect objec
 theorem mapsPerfect_of_coherent_of_finiteTorDimension
     {S X Y : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
     [IsNoetherian S] [Scheme.Hom.FiniteType f] [Scheme.Hom.FiniteType g]
+    [DerivedCategory.DerivedTensor.Right.Has
+      (C := RingedSpace.Modules
+        (RingedSpace.Hom.inverseImageBase (Limits.pullback.snd f g).toShHom))]
     (K : RingedSpace.ModuleDerived (Limits.pullback f g).toRingedSpace)
     (hK_coherent : DerivedCategory.cohomologyIn
       (SheafOfModules.isCoherent (Limits.pullback f g).toRingedSpace.ringCatSheaf) K)
@@ -178,6 +178,10 @@ theorem mapsPerfect_of_relativePerfect_of_flat
     {S X Y : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
     [Scheme.Hom.FinitePresentation f] [Flat f] [IsProper f]
     (K : RingedSpace.ModuleDerived (Limits.pullback f g).toRingedSpace)
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase (Limits.pullback.snd f g).toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase (Limits.pullback.snd f g).toShHom).restrict U.isOpenEmbedding))]
     (hK_yPerfect : RingedSpace.ModuleDerived.IsPerfectOver
       (Limits.pullback.snd f g).toShHom K) :
     ∀ M : RingedSpace.ModuleDerived X.toRingedSpace,
@@ -190,10 +194,109 @@ theorem mapsPerfect_of_noetherian_of_relativePerfect
     {S X Y : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
     [IsNoetherian S] [Flat f] [IsProper f]
     (K : RingedSpace.ModuleDerived (Limits.pullback f g).toRingedSpace)
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase (Limits.pullback.snd f g).toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase (Limits.pullback.snd f g).toShHom).restrict U.isOpenEmbedding))]
     (hK_yPerfect : RingedSpace.ModuleDerived.IsPerfectOver
       (Limits.pullback.snd f g).toShHom K) :
     ∀ M : RingedSpace.ModuleDerived X.toRingedSpace,
       RingedSpace.ModuleDerived.IsPerfect M →
         RingedSpace.ModuleDerived.IsPerfect ((FourierMukai.functor f g K).obj M) := sorry
+
+/-- A perfect kernel between proper flat schemes over a Noetherian base defines a
+Fourier–Mukai functor on perfect complexes. -/
+noncomputable def perfectNoetherian {S X Y : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
+    [IsNoetherian S] [IsProper f] [Flat f] [IsProper g] [Flat g]
+    (K : @RingedSpace.ModuleDerived.Perfect (Limits.pullback f g).toRingedSpace) :
+    @RingedSpace.ModuleDerived.Perfect X.toRingedSpace ⥤
+      @RingedSpace.ModuleDerived.Perfect Y.toRingedSpace :=
+  ObjectProperty.FullSubcategory.restrict (functor f g K.obj)
+    (mapsPerfect_of_noetherian_of_perfect f g K.obj K.property)
+
+/-- Inclusion of perfect complexes identifies the restricted Noetherian
+Fourier–Mukai transform with the ambient transform. -/
+noncomputable def perfectNoetherian_comp_inclusionIso {S X Y : Scheme.{u}}
+    (f : X ⟶ S) (g : Y ⟶ S)
+    [IsNoetherian S] [IsProper f] [Flat f] [IsProper g] [Flat g]
+    (K : @RingedSpace.ModuleDerived.Perfect (Limits.pullback f g).toRingedSpace) :
+    perfectNoetherian f g K ⋙ RingedSpace.ModuleDerived.Perfect.ι ≅
+      RingedSpace.ModuleDerived.Perfect.ι ⋙ functor f g K.obj :=
+  ObjectProperty.FullSubcategory.restrict.compιIso (functor f g K.obj)
+    (mapsPerfect_of_noetherian_of_perfect f g K.obj K.property)
+
+/-- Convolution along a certified triple fibre product of proper flat schemes over
+a Noetherian base carries two perfect kernels to a perfect derived object. -/
+theorem convolutionKernel_isPerfect
+    {S X Y Z T : Scheme.{u}}
+    (f : X ⟶ S) (g : Y ⟶ S) (h : Z ⟶ S)
+    [IsNoetherian S]
+    [IsProper f] [Flat f] [IsProper g] [Flat g] [IsProper h] [Flat h]
+    (p12 : T ⟶ Limits.pullback f g)
+    (p23 : T ⟶ Limits.pullback g h)
+    (p13 : T ⟶ Limits.pullback f h)
+    (hT : IsPullback p12 p23 (Limits.pullback.snd f g) (Limits.pullback.fst g h))
+    (h_p13_x : p13 ≫ Limits.pullback.fst f h = p12 ≫ Limits.pullback.fst f g)
+    (h_p13_z : p13 ≫ Limits.pullback.snd f h = p23 ≫ Limits.pullback.snd g h)
+    (K : @RingedSpace.ModuleDerived.Perfect (Limits.pullback f g).toRingedSpace)
+    (K' : @RingedSpace.ModuleDerived.Perfect (Limits.pullback g h).toRingedSpace) :
+    RingedSpace.ModuleDerived.IsPerfect
+      (convolutionKernel f g h p12 p23 p13 K.obj K'.obj) := sorry
+
+/-- The perfect convolution kernel is the derived pushforward of the tensor product
+of the two pulled-back perfect kernels on a certified triple fibre product. -/
+noncomputable def perfectConvolutionKernel
+    {S X Y Z T : Scheme.{u}}
+    (f : X ⟶ S) (g : Y ⟶ S) (h : Z ⟶ S)
+    [IsNoetherian S]
+    [IsProper f] [Flat f] [IsProper g] [Flat g] [IsProper h] [Flat h]
+    (p12 : T ⟶ Limits.pullback f g)
+    (p23 : T ⟶ Limits.pullback g h)
+    (p13 : T ⟶ Limits.pullback f h)
+    (hT : IsPullback p12 p23 (Limits.pullback.snd f g) (Limits.pullback.fst g h))
+    (h_p13_x : p13 ≫ Limits.pullback.fst f h = p12 ≫ Limits.pullback.fst f g)
+    (h_p13_z : p13 ≫ Limits.pullback.snd f h = p23 ≫ Limits.pullback.snd g h)
+    (K : @RingedSpace.ModuleDerived.Perfect (Limits.pullback f g).toRingedSpace)
+    (K' : @RingedSpace.ModuleDerived.Perfect (Limits.pullback g h).toRingedSpace) :
+    @RingedSpace.ModuleDerived.Perfect (Limits.pullback f h).toRingedSpace :=
+  ⟨convolutionKernel f g h p12 p23 p13 K.obj K'.obj,
+    convolutionKernel_isPerfect f g h p12 p23 p13 hT h_p13_x h_p13_z K K'⟩
+
+/-- The underlying object of the perfect convolution kernel is the derived
+pull-tensor-push convolution of the underlying kernels. -/
+theorem perfectConvolutionKernel_obj
+    {S X Y Z T : Scheme.{u}}
+    (f : X ⟶ S) (g : Y ⟶ S) (h : Z ⟶ S)
+    [IsNoetherian S]
+    [IsProper f] [Flat f] [IsProper g] [Flat g] [IsProper h] [Flat h]
+    (p12 : T ⟶ Limits.pullback f g)
+    (p23 : T ⟶ Limits.pullback g h)
+    (p13 : T ⟶ Limits.pullback f h)
+    (hT : IsPullback p12 p23 (Limits.pullback.snd f g) (Limits.pullback.fst g h))
+    (h_p13_x : p13 ≫ Limits.pullback.fst f h = p12 ≫ Limits.pullback.fst f g)
+    (h_p13_z : p13 ≫ Limits.pullback.snd f h = p23 ≫ Limits.pullback.snd g h)
+    (K : @RingedSpace.ModuleDerived.Perfect (Limits.pullback f g).toRingedSpace)
+    (K' : @RingedSpace.ModuleDerived.Perfect (Limits.pullback g h).toRingedSpace) :
+    (perfectConvolutionKernel f g h p12 p23 p13 hT h_p13_x h_p13_z K K').obj =
+      convolutionKernel f g h p12 p23 p13 K.obj K'.obj := rfl
+
+/-- Composition of perfect Fourier–Mukai transforms between proper flat schemes
+over a Noetherian base is naturally isomorphic to the transform of their convolution. -/
+theorem perfect_composition_iso_convolution
+    {S X Y Z T : Scheme.{u}}
+    (f : X ⟶ S) (g : Y ⟶ S) (h : Z ⟶ S)
+    [IsNoetherian S]
+    [IsProper f] [Flat f] [IsProper g] [Flat g] [IsProper h] [Flat h]
+    (p12 : T ⟶ Limits.pullback f g)
+    (p23 : T ⟶ Limits.pullback g h)
+    (p13 : T ⟶ Limits.pullback f h)
+    (hT : IsPullback p12 p23 (Limits.pullback.snd f g) (Limits.pullback.fst g h))
+    (h_p13_x : p13 ≫ Limits.pullback.fst f h = p12 ≫ Limits.pullback.fst f g)
+    (h_p13_z : p13 ≫ Limits.pullback.snd f h = p23 ≫ Limits.pullback.snd g h)
+    (K : @RingedSpace.ModuleDerived.Perfect (Limits.pullback f g).toRingedSpace)
+    (K' : @RingedSpace.ModuleDerived.Perfect (Limits.pullback g h).toRingedSpace) :
+    Nonempty ((perfectNoetherian f g K ⋙ perfectNoetherian g h K') ≅
+      perfectNoetherian f h
+        (perfectConvolutionKernel f g h p12 p23 p13 hT h_p13_x h_p13_z K K')) := sorry
 
 end AlgebraicGeometry.Scheme.FourierMukai

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.InvertiblePower
@@ -56,5 +50,11 @@ noncomputable def twistByTensorPower
 theorem twistByTensorPower_def
     (L F : X.Modules) [Invertible L] (d : ℤ) :
     twistByTensorPower L F d = tensorObj F (tensorPowerInt L d) := sorry
+
+/-- Every integral tensor power of an invertible scheme module is invertible. -/
+@[instance]
+theorem tensorPowerInt_isInvertible
+    (L : X.Modules) [Invertible L] (d : ℤ) :
+    Invertible (tensorPowerInt L d) := sorry
 
 end AlgebraicGeometry.Scheme.Modules

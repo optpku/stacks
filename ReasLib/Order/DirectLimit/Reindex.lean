@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Order.DirectedInverseSystem
@@ -31,10 +25,6 @@ variable {I : Type u} {J : Type v} [Preorder I] [Preorder J]
 /-- An order isomorphism transports directedness from its codomain to its domain. -/
 theorem isDirectedOrder (e : J ≃o I) [IsDirectedOrder I] :
     IsDirectedOrder J := sorry
-
-/-- The inverse transport of directedness along an order isomorphism. -/
-theorem isDirectedOrder_symm (e : J ≃o I) [IsDirectedOrder J] :
-    IsDirectedOrder I := sorry
 
 end OrderIso
 

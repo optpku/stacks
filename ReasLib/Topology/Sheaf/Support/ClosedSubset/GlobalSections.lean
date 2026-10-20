@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Sites.GlobalSections.Additive
@@ -38,8 +32,7 @@ abbrev functor (hZ : IsClosed Z) : X.Sheaf AddCommGrpCat.{u} ⥤ AddCommGrpCat.{
     Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z) ⋙
     CategoryTheory.Sheaf.Γ (Opens.grothendieckTopology X) AddCommGrpCat.{u}
 
-/-- Global sections with support form an additive functor for the current preadditive structures. -/
-instance functor_additive [Preadditive (X.Sheaf AddCommGrpCat.{u})]
-    [Preadditive AddCommGrpCat.{u}] (hZ : IsClosed Z) : (functor hZ).Additive := sorry
+/-- Global sections with support form an additive functor for the canonical abelian structures. -/
+instance functor_additive (hZ : IsClosed Z) : (functor hZ).Additive := sorry
 
 end TopCat.Sheaf.ClosedSubset.GlobalSectionsWithSupport

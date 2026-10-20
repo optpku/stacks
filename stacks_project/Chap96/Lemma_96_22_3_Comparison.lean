@@ -1,10 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
+
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.SmallSectionsOfRightKan
 
 public import Mathlib.Algebra.Homology.Additive
 public import Mathlib.Algebra.Homology.DerivedCategory.ExactFunctor
@@ -112,13 +108,6 @@ theorem etaleAbelianInverseImage_compIso_eq {X Y Z : GroupoidsOver S}
           AddCommGrpCat.{u} X.etaleTopology Y.etaleTopology
           Z.etaleTopology).symm :=
   rfl
-
-/-- The total functor of a 1-morphism is cocontinuous for associated étale
-topologies. -/
-instance toFunctor_isCocontinuous_etale {X Y : GroupoidsOver S} (h : X ⟶ Y) :
-    (toFunctor h).IsCocontinuous X.etaleTopology Y.etaleTopology :=
-  CartesianBasedFunctor.inheritedTopology.isCocontinuous
-    (toCartesianBasedFunctor h) (StandardTopology.etale.overTopology S)
 
 variable {X Y Y' : GroupoidsOver S} (f : X ⟶ Y) (g : Y' ⟶ Y)
 
@@ -488,22 +477,16 @@ variable [∀ P : F'.toGroupoids.totalᵒᵖ ⥤ Type u,
     (toCartesianBasedFunctor
         (AlgebraicSpace.toGroupoids.map
           (inducedHom eX' eY' (fibreProductFst f g)))).toFunctor.op.HasPointwiseRightKanExtension P]
-variable [∀ P : (AlgebraicSpace.smallEtaleSite F')ᵒᵖ ⥤ Type u,
-    (AlgebraicSpace.smallEtaleInclusion F').op.HasPointwiseRightKanExtension P]
 variable [∀ P : F'.toGroupoids.totalᵒᵖ ⥤ AddCommGrpCat.{u},
     (toCartesianBasedFunctor
         (AlgebraicSpace.toGroupoids.map
           (inducedHom eX' eY' (fibreProductFst f g)))).toFunctor.op.HasPointwiseRightKanExtension P]
-variable [∀ P : (AlgebraicSpace.smallEtaleSite F')ᵒᵖ ⥤ AddCommGrpCat.{u},
-    (AlgebraicSpace.smallEtaleInclusion F').op.HasPointwiseRightKanExtension P]
 variable [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
     (toCartesianBasedFunctor (fibreProductFst f g)).toFunctor.op]
 variable [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
     (toCartesianBasedFunctor
         (AlgebraicSpace.toGroupoids.map
           (inducedHom eX' eY' (fibreProductFst f g)))).toFunctor.op]
-variable [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
-    (AlgebraicSpace.smallEtaleInclusion F').op]
 variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
     (Sheaf (AlgebraicSpace.smallEtaleTopology F') AddCommGrpCat.{u})]
 variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
@@ -563,7 +546,8 @@ def compareRepresentableMorphismCohomologyIso :
         (restrictAbelian eY').mapDerivedCategory).symm ≪≫
     isoWhiskerLeft
       (etaleAbelianInverseImage (fibreProductSnd f g)).mapDerivedCategory
-      (compareMorphismCohomologyIso eX' eY' (fibreProductFst f g) α) ≪≫
+      (letI := hasSmallCFGTypeSections_ofRepresented (fibreProductFst f g) eX' eY';
+        compareMorphismCohomologyIso eX' eY' (fibreProductFst f g) α) ≪≫
     Functor.associator
       (etaleAbelianInverseImage (fibreProductSnd f g)).mapDerivedCategory
       (restrictAbelian eX').mapDerivedCategory
@@ -589,11 +573,11 @@ induced morphism of étale ringed topoi. -/
 abbrev etaleModulePullback {A B : GroupoidsOver S} (h : A ⟶ B) :
     SheafOfModules.{u} (etaleRingedSite B).structureSheaf ⥤
       SheafOfModules.{u} (etaleRingedSite A).structureSheaf :=
-  (etaleRingedToposHom h).modulePullback
+  etaleModuleInverseImage h
 
-/-- `etaleModulePullback h` is module pullback of `etaleRingedToposHom h`. -/
+/-- `etaleModulePullback h` uses the actual continuous module inverse image. -/
 theorem etaleModulePullback_eq {A B : GroupoidsOver S} (h : A ⟶ B) :
-    etaleModulePullback h = (etaleRingedToposHom h).modulePullback :=
+    etaleModulePullback h = etaleModuleInverseImage h :=
   rfl
 
 /-- Inverse image of étale modules is additive. -/
@@ -618,9 +602,10 @@ instance etaleModulePullback.instPreservesFiniteColimits
   sorry
 
 /-- The adjunction `h⁻¹ ⊣ h_*` on étale modules. -/
-abbrev etaleModulePullback_adjunction {A B : GroupoidsOver S} (h : A ⟶ B) :
+abbrev etaleModulePullback_adjunction {A B : GroupoidsOver S} (h : A ⟶ B)
+    [HasSmallCFGTypeSections (S := S) h] :
     etaleModulePullback h ⊣ etaleModuleDirectImage h :=
-  (etaleRingedToposHom h).moduleAdjunction
+  etaleModuleAdjunction h
 
 variable [∀ P : X.totalᵒᵖ ⥤ Type u,
     (toCartesianBasedFunctor f).toFunctor.op.HasPointwiseRightKanExtension P]
@@ -653,11 +638,21 @@ def etaleModuleDirectImage_compForget {A B C : GroupoidsOver S}
     (etaleRingedToposHom k).toTopos.pushforward.mapIso
       ((RingedSite.ToposHom.ModulePushforward.forgetIso
           (etaleRingedToposHom h)).app M) ≪≫
+    (Functor.isoWhiskerRight (etaleTypePushforwardSmallSectionsIso h).symm
+      (etaleRingedToposHom k).toTopos.pushforward).app
+        ((ToInternal.underlying (etaleRingedSite A).structureSheaf).obj M) ≪≫
+    (Functor.isoWhiskerLeft
+      ((toCartesianBasedFunctor h).toFunctor.sheafPushforwardCocontinuous (Type u)
+        A.etaleTopology B.etaleTopology)
+      (etaleTypePushforwardSmallSectionsIso k).symm).app
+        ((ToInternal.underlying (etaleRingedSite A).structureSheaf).obj M) ≪≫
     (sheafPushforwardCocontinuousComp'
         A.etaleTopology B.etaleTopology C.etaleTopology
         (toCartesianBasedFunctor h).toFunctor
         (toCartesianBasedFunctor k).toFunctor
         (ObjectProperty.FullSubbicategory.toFunctor.compIso h k)).app
+      ((ToInternal.underlying (etaleRingedSite A).structureSheaf).obj M) ≪≫
+    (etaleTypePushforwardSmallSectionsIso (h ≫ k)).app
       ((ToInternal.underlying (etaleRingedSite A).structureSheaf).obj M) ≪≫
     ((RingedSite.ToposHom.ModulePushforward.forgetIso
         (etaleRingedToposHom (h ≫ k))).app M).symm
@@ -697,9 +692,13 @@ def etaleModuleDirectImage_isoForget {A B : GroupoidsOver S} {h₁ h₂ : A ⟶ 
       (ToInternal.underlying (etaleRingedSite B).structureSheaf).obj
         ((etaleModuleDirectImage h₂).obj M) :=
   (RingedSite.ToposHom.ModulePushforward.forgetIso (etaleRingedToposHom h₁)).app M ≪≫
+    (etaleTypePushforwardSmallSectionsIso h₁).symm.app
+      ((ToInternal.underlying (etaleRingedSite A).structureSheaf).obj M) ≪≫
     (sheafPushforwardCocontinuousIso
         A.etaleTopology B.etaleTopology
         (toCartesianBasedFunctor h₁).toFunctor (toFunctorIso e)).app
+      ((ToInternal.underlying (etaleRingedSite A).structureSheaf).obj M) ≪≫
+    (etaleTypePushforwardSmallSectionsIso h₂).app
       ((ToInternal.underlying (etaleRingedSite A).structureSheaf).obj M) ≪≫
     ((RingedSite.ToposHom.ModulePushforward.forgetIso
         (etaleRingedToposHom h₂)).app M).symm
@@ -726,32 +725,17 @@ def etaleModuleDirectImage_iso {A B : GroupoidsOver S} {h₁ h₂ : A ⟶ B}
 /-- Inverse image along a composite 1-morphism identifies with the composite of
 étale module inverse images. -/
 def etaleModulePullback_compIso {A B C : GroupoidsOver S}
-    (h : A ⟶ B) (k : B ⟶ C)
-    [∀ P : A.totalᵒᵖ ⥤ Type u,
-      (toCartesianBasedFunctor h).toFunctor.op.HasPointwiseRightKanExtension P]
-    [∀ P : B.totalᵒᵖ ⥤ Type u,
-      (toCartesianBasedFunctor k).toFunctor.op.HasPointwiseRightKanExtension P]
-    [∀ P : A.totalᵒᵖ ⥤ Type u,
-      (toCartesianBasedFunctor (h ≫ k)).toFunctor.op.HasPointwiseRightKanExtension P] :
+    (h : A ⟶ B) (k : B ⟶ C) :
     etaleModulePullback k ⋙ etaleModulePullback h ≅
       etaleModulePullback (h ≫ k) :=
-  ((etaleRingedToposHom k).moduleAdjunction.comp
-      (etaleRingedToposHom h).moduleAdjunction).leftAdjointUniq
-    ((etaleRingedToposHom (h ≫ k)).moduleAdjunction.ofNatIsoRight
-      (etaleModuleDirectImage_compIso h k).symm)
+  etaleModuleInverseImage_comp h k
 
 /-- A 2-isomorphism of 1-morphisms induces an isomorphism of étale module
 inverse images. -/
 def etaleModulePullback_iso {A B : GroupoidsOver S} {h₁ h₂ : A ⟶ B}
-    (e : h₁ ≅ h₂)
-    [∀ P : A.totalᵒᵖ ⥤ Type u,
-      (toCartesianBasedFunctor h₁).toFunctor.op.HasPointwiseRightKanExtension P]
-    [∀ P : A.totalᵒᵖ ⥤ Type u,
-      (toCartesianBasedFunctor h₂).toFunctor.op.HasPointwiseRightKanExtension P] :
+    (e : h₁ ≅ h₂) :
     etaleModulePullback h₁ ≅ etaleModulePullback h₂ :=
-  (etaleRingedToposHom h₁).moduleAdjunction.leftAdjointUniq
-    ((etaleRingedToposHom h₂).moduleAdjunction.ofNatIsoRight
-      (etaleModuleDirectImage_iso e).symm)
+  etaleModuleInverseImage_iso e
 
 /-- The inverse-image 2-cell of the chosen 2-fibre product on étale modules:
 `g⁻¹ ∘ (f')⁻¹ ≅ f⁻¹ ∘ (g')⁻¹`. -/
@@ -1117,7 +1101,8 @@ def compareRepresentableMorphismCohomology_modulesIso :
         ((piToposHom G' Y' eY').modulePushforward).mapDerivedCategory).symm ≪≫
     isoWhiskerLeft
       (etaleModulePullback (fibreProductSnd f g)).mapDerivedCategory
-      (compareMorphismCohomology_modulesIso eX' eY' (fibreProductFst f g) α) ≪≫
+      (letI := hasSmallCFGTypeSections_ofRepresented (fibreProductFst f g) eX' eY';
+        compareMorphismCohomology_modulesIso eX' eY' (fibreProductFst f g) α) ≪≫
     Functor.associator
       (etaleModulePullback (fibreProductSnd f g)).mapDerivedCategory
       ((piToposHom F' (fibreProductApex f g) eX').modulePushforward).mapDerivedCategory

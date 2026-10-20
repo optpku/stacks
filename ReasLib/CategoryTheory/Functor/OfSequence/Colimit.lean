@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Functor.OfSequence
@@ -86,46 +80,5 @@ theorem naturality
 end colimitDesc
 
 end ofSequence
-
-/-- Compatible maps from the stages of a sequential diagram satisfy the successor cocone
-naturality equation. -/
-@[deprecated ofSequence.constCocone.naturality (since := "2026-08-06")]
-alias ofSequenceConstCoconeNaturality := ofSequence.constCocone.naturality
-
-/-- The cocone over a sequential diagram induced by compatible maps from its stages to a
-fixed object. -/
-@[deprecated ofSequence.constCocone (since := "2026-08-06")]
-noncomputable abbrev ofSequenceConstCocone
-    {X : C} {B : ℕ → C} (u : ∀ n : ℕ, B n ⟶ B (n + 1))
-    (φ : ∀ n : ℕ, B n ⟶ X) (hcompat : ∀ n : ℕ, u n ≫ φ (n + 1) = φ n) :
-    Cocone (Functor.ofSequence u) :=
-  ofSequence.constCocone u φ hcompat
-
-/-- The universal morphism from a sequential colimit induced by compatible maps from its
-stages to a fixed object. -/
-@[deprecated ofSequence.colimitDesc (since := "2026-08-06")]
-noncomputable abbrev ofSequenceColimitDesc
-    {X : C} {B : ℕ → C} (u : ∀ n : ℕ, B n ⟶ B (n + 1))
-    (φ : ∀ n : ℕ, B n ⟶ X) (hcompat : ∀ n : ℕ, u n ≫ φ (n + 1) = φ n)
-    [HasColimit (Functor.ofSequence u)] :
-    colimit (Functor.ofSequence u) ⟶ X :=
-  ofSequence.colimitDesc u φ hcompat
-
-/-- Composing a colimit inclusion with the morphism induced by compatible stage maps gives
-the corresponding stage map. -/
-@[deprecated ofSequence.colimitDesc.ι (since := "2026-08-06")]
-alias ofSequenceColimitDesc_ι := ofSequence.colimitDesc.ι
-
-/-- Composing a colimit inclusion with the induced colimit morphism and a further morphism
-agrees with postcomposing the corresponding stage map. -/
-@[deprecated ofSequence.colimitDesc.ι_assoc (since := "2026-08-06")]
-alias ofSequenceColimitDesc_ι_assoc := ofSequence.colimitDesc.ι_assoc
-
-/-- Morphisms induced by compatible stage maps are natural under maps of sequential diagrams
-and their target objects. -/
-@[deprecated ofSequence.colimitDesc.naturality (since := "2026-08-06")]
-alias ofSequenceColimitDesc_naturality := ofSequence.colimitDesc.naturality
-
-
 
 end CategoryTheory.Functor

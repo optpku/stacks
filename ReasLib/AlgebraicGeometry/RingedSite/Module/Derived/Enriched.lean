@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
@@ -43,6 +37,14 @@ variable [J.HasSheafCompose (forget₂ (CommAlgCat.{w} R) CommRingCat.{w})]
 variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
 variable [UnivLE.{max u v, z}]
 variable (O : Sheaf J (CommAlgCat.{w} R))
+
+-- Bind the existing standard localization for this underlying ring-sheaf presentation.
+-- It uses the same universe and supplied size condition as the derived APIs below.
+local instance modulesHasDerivedCategory :
+    HasDerivedCategory.{max (max (max u v) w) (z + 1)}
+      (Modules.{r, u, v, w, z} O) :=
+  RingedSite.Hom.RingPresentation.moduleHasDerivedCategory J
+    (CategoryTheory.Sheaf.CommAlg.ring O)
 
 /-- The enriched-to-ordinary homotopy comparison for module-sheaf cochain complexes over `O`. -/
 @[stacks 09JQ "module-sheaf enriched homotopy comparison"]

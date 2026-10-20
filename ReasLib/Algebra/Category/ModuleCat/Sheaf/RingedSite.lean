@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.ChangeOfRings
@@ -12,6 +6,7 @@ public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Abelian
 public import Mathlib.CategoryTheory.Sites.Continuous
 public import ReasLib.Algebra.Category.Ring.Sheaf
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.CommAlg.Linear
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Internal
 public import ReasLib.CategoryTheory.Sites.Over.SheafCompose
 public import Mathlib.Tactic.CrossRefAttribute
 

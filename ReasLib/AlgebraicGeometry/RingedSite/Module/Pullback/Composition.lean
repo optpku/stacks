@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Pullback
@@ -37,7 +31,11 @@ noncomputable abbrev modulePullbackCompIso.{z, uX, vX, uY, vY, uZ, vZ, w}
     [(g.modulePushforward.{z}).IsRightAdjoint] :
     (Hom.comp f g).modulePullback.{z} ≅
       g.modulePullback.{z} ⋙ f.modulePullback.{z} :=
-  (SheafOfModules.pullbackComp.{z} g.structureSheafMap f.structureSheafMap).symm
+  (@SheafOfModules.pullbackComp.{z} _ _ _ _ _ _
+    Z.siteTopology Y.siteTopology g.base Z.structureSheaf Y.structureSheaf
+    g.base_isContinuous g.structureSheafMap inferInstance
+    X.siteTopology f.base X.structureSheaf f.base_isContinuous
+    (baseComp_isContinuous f g) f.structureSheafMap inferInstance).symm
 
 end RingedSite.Hom
 

@@ -1,15 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.RingTheory.CohenMacaulay.Regular
 public import ReasLib.RingTheory.CohenMacaulay.Module.AssociatedPrime
 public import ReasLib.RingTheory.KrullDimension.FiniteType.FractionRing
-public import Mathlib.RingTheory.Spectrum.Prime.Chevalley
+public import ReasLib.RingTheory.Spectrum.Prime.Chevalley
 import StacksCheckRecall
 
 @[expose] public section
@@ -41,7 +35,7 @@ field equals the transcendence degree of its fraction field. -/
 /- Exercise 111.58.2 (Theorems) (4): Chevalley's theorem: a finite-presentation ring map
 sends constructible sets in Spec S to constructible sets in Spec R. -/
 @[stacks 0D5H] #check
-  (PrimeSpectrum.isConstructible_comap_image :
+  (PrimeSpectrum.isConstructible_comap_image_of_finitePresentation :
     ∀ {R : Type u} {S : Type v} [CommRing R] [CommRing S] {f : R →+* S},
       f.FinitePresentation →
         ∀ {s : Set (PrimeSpectrum S)}, Topology.IsConstructible s →

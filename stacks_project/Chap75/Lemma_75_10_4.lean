@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_10_4_HomSequence
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.MayerVietoris.Hom
+import StacksCheckRecall
 
 /-!
 # Mayer–Vietoris Hom sequence for derived modules on algebraic spaces
@@ -28,22 +23,22 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.Modules
 
-/-- Lemma 75.10.4. Let `S` be a scheme. Let `(j : U ⟶ X, f : V ⟶ X)` be an
+/- Lemma 75.10.4. Let `S` be a scheme. Let `(j : U ⟶ X, f : V ⟶ X)` be an
 elementary distinguished square of algebraic spaces over `S`. For objects
 `E`, `F` of `D(𝒪_X)` the Mayer–Vietoris Hom segment
 `Ext⁽-1⁾(E|_W, F|_W) ⟶ Hom(E, F) ⟶ Hom(E|_U, F|_U) ⊞ Hom(E|_V, F|_V) ⟶ Hom(E|_W, F|_W)`
 is exact, where `W = U ×_X V` and subscripts denote étale restriction in the
 relevant derived categories. -/
 @[stacks 08H9]
-theorem mayerVietorisHomSequence_exact {S : Scheme.{u}} {U V X : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.mayerVietorisHomSequence_exact :
+  ∀ {S : Scheme.{u}} {U V X : AlgebraicSpace S}
     (j : U ⟶ X) [Etale j] (f : V ⟶ X) [Etale f]
-    [IsElementaryDistinguishedSquare j f] (E F : ModuleDerived X) :
+    [IsElementaryDistinguishedSquare j f] (E F : ModuleDerived X),
     (mk₃
         (mayerVietorisHomδ j f E F
           (mayerVietorisLowerShriekδ j f E
             (mayerVietorisLowerShriekCochain_shortExact j f (DerivedCategory.Q.objPreimage E))))
         (mayerVietorisHomRestrict j f E F)
-        (mayerVietorisHomDiff j f E F)).Exact :=
-  sorry
+        (mayerVietorisHomDiff j f E F)).Exact)
 
 end AlgebraicGeometry.AlgebraicSpace.Modules

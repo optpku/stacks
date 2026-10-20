@@ -1,17 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Data.List.TFAE
-public import ReasLib.CategoryTheory.Fibered.Groupoids.Diagonal.Construction
-public import stacks_project.Chap67.Definition_67_4_2_Separation
-public import stacks_project.Chap67.Definition_67_40_1_FiniteType
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
-public import stacks_project.Chap100.Lemma_100_3_2_MorphismProperty
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Diagonal.QuasiSeparated
+import StacksCheckRecall
 
 /-!
 # Quasi-separated representable morphisms of algebraic stacks
@@ -33,42 +23,41 @@ universe u
 
 namespace AlgebraicGeometry.Groupoids.Hom
 
-/-- Lemma 101.3.6: Let `f : X ⟶ Y` be a morphism of algebraic stacks
+/- Lemma 101.3.6: Let `f : X ⟶ Y` be a morphism of algebraic stacks
 representable by algebraic spaces. Then the following are equivalent: `f` is
 quasi-separated, `Hom.diagonal f` is quasi-compact, or `Hom.diagonal f` is of
 finite type. -/
-@[stacks 04YT]
-theorem quasiSeparated_tfae {S : Scheme.{u}} {X Y : GroupoidsOver S}
+@[stacks 04YT] #check (AlgebraicGeometry.Groupoids.Hom.quasiSeparated_tfae :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
-    (hf : relativelyRepresentableByAlgebraicSpaces f) :
+    (hf : relativelyRepresentableByAlgebraicSpaces f),
     List.TFAE
       [has (@AlgebraicSpace.QuasiSeparated S) f,
         has (@AlgebraicSpace.QuasiCompact S)
           (Hom.diagonal.{u + 1, u, u + 1} f),
         has (@AlgebraicSpace.FiniteType S)
-          (Hom.diagonal.{u + 1, u, u + 1} f)] :=
-  sorry
+          (Hom.diagonal.{u + 1, u, u + 1} f)])
 
-/-- A morphism of algebraic stacks representable by algebraic spaces is
+/- A morphism of algebraic stacks representable by algebraic spaces is
 quasi-separated on scheme-slice tests if and only if its relative 2-diagonal is
 quasi-compact. -/
-theorem has_quasiSeparated_iff_quasiCompact_diagonal {S : Scheme.{u}}
-    {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
-    (hf : relativelyRepresentableByAlgebraicSpaces f) :
+#check (AlgebraicGeometry.Groupoids.Hom.has_quasiSeparated_iff_quasiCompact_diagonal :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
+    (hf : relativelyRepresentableByAlgebraicSpaces f),
     has (@AlgebraicSpace.QuasiSeparated S) f ↔
       has (@AlgebraicSpace.QuasiCompact S)
-        (Hom.diagonal.{u + 1, u, u + 1} f) :=
-  sorry
+        (Hom.diagonal.{u + 1, u, u + 1} f))
 
-/-- A morphism of algebraic stacks representable by algebraic spaces is
+/- A morphism of algebraic stacks representable by algebraic spaces is
 quasi-separated on scheme-slice tests if and only if its relative 2-diagonal is
 of finite type. -/
-theorem has_quasiSeparated_iff_finiteType_diagonal {S : Scheme.{u}}
-    {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
-    (hf : relativelyRepresentableByAlgebraicSpaces f) :
+#check (AlgebraicGeometry.Groupoids.Hom.has_quasiSeparated_iff_finiteType_diagonal :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
+    (hf : relativelyRepresentableByAlgebraicSpaces f),
     has (@AlgebraicSpace.QuasiSeparated S) f ↔
       has (@AlgebraicSpace.FiniteType S)
-        (Hom.diagonal.{u + 1, u, u + 1} f) :=
-  sorry
+        (Hom.diagonal.{u + 1, u, u + 1} f))
 
 end AlgebraicGeometry.Groupoids.Hom

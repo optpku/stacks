@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.NoncommCompactificationTransport
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.Proper
@@ -123,7 +117,7 @@ equivalence and remains so after geometric sections. -/
 instance map_quasiIso : QuasiIso (map R X F) := sorry
 
 variable [HasDerivedCategory (ModuleCat.{u + 1}
-  (NoncommCompletedRing.Obj R Gal(AlgebraicClosure k/k)))]
+  (completedGroupRing R Gal(AlgebraicClosure k/k)))]
 
 /-- The derived isomorphism induced by the resolution map of the identity-extension counit. -/
 def derivedIso :

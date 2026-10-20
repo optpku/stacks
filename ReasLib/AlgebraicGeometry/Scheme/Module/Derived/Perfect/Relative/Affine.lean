@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.Perfect.Characterization
@@ -29,6 +23,8 @@ open scoped AlgebraicGeometry
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.Scheme.ModuleDerived
 
 /-- A derived module with quasicoherent cohomology is perfect relative to a flat, locally
@@ -36,6 +32,10 @@ finitely presented morphism exactly when its derived sections over every compati
 affine opens are perfect over the target section ring. -/
 theorem isPerfectRelativeTo_iff_affineSectionsPerfect {X S : Scheme.{u}} (f : X ⟶ S)
     [Flat f] [LocallyOfFinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     (E : DerivedCategory.CohomologyIn
       (RingedSpace.quasiCoherentModuleProperty X.toRingedSpace)) :
     IsPerfectRelativeTo f E.obj ↔
@@ -51,6 +51,10 @@ finitely presented morphism exactly when its derived sections are perfect on aff
 the inverse images of the members of an affine cover of the base. -/
 theorem isPerfectRelativeTo_iff_affineCoverSectionsPerfect {X S : Scheme.{u}} (f : X ⟶ S)
     [Flat f] [LocallyOfFinitePresentation f]
+    [∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase f.toShHom).carrier,
+      DerivedCategory.DerivedTensor.Right.Has
+        (C := RingedSpace.Modules
+          ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
     (E : DerivedCategory.CohomologyIn
       (RingedSpace.quasiCoherentModuleProperty X.toRingedSpace)) :
     IsPerfectRelativeTo f E.obj ↔

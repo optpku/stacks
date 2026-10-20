@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Bicategory.Functor.Cat.ObjectProperty
@@ -171,25 +165,225 @@ abbrev Colimit (S : Scheme.{u}) (U : S.Opens) (s : S) : Type (u + 1) :=
 
 end FinitePresentationOver.OpenNeighborhood
 
-/-- Finite-presentation schemes over open neighborhoods of a point have colimit equivalent to
-finite-presentation gluing data over the fixed open, the stalk scheme, and their intersection. -/
+namespace FinitePresentationOver
+
+/-- Base change of finite-presentation schemes along a composite is base change in two
+steps, induced from mathlib's `Over.pullbackComp`. -/
+noncomputable def baseChangeCompIso {T T' T'' : Scheme.{u}} (g : T' ⟶ T) (h : T'' ⟶ T') :
+    baseChange g ⋙ baseChange h ≅ baseChange (h ≫ g) :=
+  ((finitePresentationOverProperty T'').fullyFaithfulι.whiskeringRight
+    (FinitePresentationOver T)).preimageIso
+    (Functor.isoWhiskerLeft (inclusion T) (Over.pullbackComp h g).symm)
+
+/-- The components of `baseChangeCompIso` are those of `Over.pullbackComp`. -/
+theorem baseChangeCompIso_hom_app_hom {T T' T'' : Scheme.{u}} (g : T' ⟶ T) (h : T'' ⟶ T')
+    (X : FinitePresentationOver T) :
+    ((baseChangeCompIso g h).hom.app X).hom = (Over.pullbackComp h g).inv.app X.obj :=
+  rfl
+
+end FinitePresentationOver
+
+/-- The canonical identification of the two restrictions of a finite-presentation scheme
+to `Spec(𝒪_{S,s}) ×_S U`: via `U` and via the stalk scheme. -/
+noncomputable def finitePresentationStalkGluingIso (S : Scheme.{u}) (U : S.Opens) (s : S) :
+    FinitePresentationOver.baseChange U.ι ⋙
+        FinitePresentationOver.baseChange ((S.fromSpecStalk s) ∣_ U) ≅
+      FinitePresentationOver.baseChange (S.fromSpecStalk s) ⋙
+        FinitePresentationOver.baseChange (stalkOpenIntersection S U s).ι :=
+  FinitePresentationOver.baseChangeCompIso _ _ ≪≫
+    eqToIso (congrArg FinitePresentationOver.baseChange (morphismRestrict_ι _ _)) ≪≫
+    (FinitePresentationOver.baseChangeCompIso _ _).symm
+
+/-- The restriction functor of Stacks 0BPA: a finite-presentation scheme `X → S` goes to its
+restrictions over `U` and over `Spec(𝒪_{S,s})`, glued by the canonical identification over
+their intersection. -/
+noncomputable def finitePresentationStalkGluingFunctor (S : Scheme.{u}) (U : S.Opens) (s : S) :
+    FinitePresentationOver S ⥤ finitePresentationStalkGluingCategory S U s :=
+  (CategoricalPullback.CatCommSqOver.toFunctorToCategoricalPullback _ _ _).obj
+    { fst := FinitePresentationOver.baseChange U.ι
+      snd := FinitePresentationOver.baseChange (S.fromSpecStalk s)
+      iso := finitePresentationStalkGluingIso S U s }
+
+/-- The `U`-component of the stalk-gluing restriction functor is base change to `U`. -/
+@[simp]
+theorem finitePresentationStalkGluingFunctor_obj_fst (S : Scheme.{u}) (U : S.Opens) (s : S)
+    (X : FinitePresentationOver S) :
+    ((finitePresentationStalkGluingFunctor S U s).obj X).fst =
+      (FinitePresentationOver.baseChange U.ι).obj X :=
+  rfl
+
+/-- The local component of the stalk-gluing restriction functor is base change to
+`Spec(𝒪_{S,s})`. -/
+@[simp]
+theorem finitePresentationStalkGluingFunctor_obj_snd (S : Scheme.{u}) (U : S.Opens) (s : S)
+    (X : FinitePresentationOver S) :
+    ((finitePresentationStalkGluingFunctor S U s).obj X).snd =
+      (FinitePresentationOver.baseChange (S.fromSpecStalk s)).obj X :=
+  rfl
+
+/-- The gluing identification of the restriction functor is the canonical one. -/
+@[simp]
+theorem finitePresentationStalkGluingFunctor_obj_iso (S : Scheme.{u}) (U : S.Opens) (s : S)
+    (X : FinitePresentationOver S) :
+    ((finitePresentationStalkGluingFunctor S U s).obj X).iso =
+      (finitePresentationStalkGluingIso S U s).app X :=
+  rfl
+
+namespace FinitePresentationOver.OpenNeighborhood
+
+/-- Pull back neighborhood schemes along a compatible family of maps from a fixed scheme. -/
+noncomputable def restrictionFunctor
+    (S : Scheme.{u}) (U : S.Opens) (s : S) (T : Scheme.{u})
+    (ι : (W : OpenNeighborhoodIndex S U s) → (T ⟶ W.toOpen.toScheme))
+    (hι : ∀ {W W'} (f : W ⟶ W'), ι W' ≫ S.homOfLE (leOfHom f.unop) = ι W) :
+    Pseudofunctor.Grothendieck (pseudofunctor S U s) ⥤ FinitePresentationOver T where
+  obj X := (baseChange (ι X.base)).obj X.fiber
+  map {X Y} f :=
+    ((baseChangeCompIso (S.homOfLE (leOfHom f.base.unop)) (ι Y.base) ≪≫
+      eqToIso (congrArg baseChange (hι f.base))).app X.fiber).inv ≫
+        (baseChange (ι Y.base)).map f.fiber
+  map_id := sorry
+  map_comp := sorry
+
+/-- Pullback along a compatible family sends an invertible fiber map to an isomorphism. -/
+theorem restrictionFunctor_isIso
+    (S : Scheme.{u}) (U : S.Opens) (s : S) (T : Scheme.{u})
+    (ι : (W : OpenNeighborhoodIndex S U s) → (T ⟶ W.toOpen.toScheme))
+    (hι : ∀ {W W'} (f : W ⟶ W'), ι W' ≫ S.homOfLE (leOfHom f.unop) = ι W)
+    {X Y : Pseudofunctor.Grothendieck (pseudofunctor S U s)} (f : X ⟶ Y)
+    (hf : IsIso f.fiber) :
+    IsIso ((restrictionFunctor S U s T ι hι).map f) := by
+  let φ : (baseChange (S.homOfLE (leOfHom f.base.unop))).obj X.fiber ⟶ Y.fiber :=
+    f.fiber
+  have hφ : IsIso φ := hf
+  exact (((baseChangeCompIso (S.homOfLE (leOfHom f.base.unop)) (ι Y.base) ≪≫
+    eqToIso (congrArg baseChange (hι f.base))).app X.fiber).symm ≪≫
+      (baseChange (ι Y.base)).mapIso (@asIso _ _ _ _ φ hφ)).isIso_hom
+
+/-- Restriction of neighborhood schemes to the fixed open subscheme. -/
+noncomputable def openRestrictionFunctor (S : Scheme.{u}) (U : S.Opens) (s : S) :
+    Pseudofunctor.Grothendieck (pseudofunctor S U s) ⥤
+      FinitePresentationOver U.toScheme :=
+  restrictionFunctor S U s U.toScheme
+    (fun W ↦ S.homOfLE W.unop.property.1)
+    (fun {_ W'} f ↦ S.homOfLE_homOfLE W'.unop.property.1 (leOfHom f.unop))
+
+/-- The canonical maps from the stalk scheme to open neighborhoods commute with inclusions. -/
+theorem stalkRestriction_compatibility
+    (S : Scheme.{u}) (U : S.Opens) (s : S)
+    {W W' : OpenNeighborhoodIndex S U s} (f : W ⟶ W') :
+    W'.toOpen.fromSpecStalkOfMem s W'.unop.property.2 ≫
+        S.homOfLE (leOfHom f.unop) =
+      W.toOpen.fromSpecStalkOfMem s W.unop.property.2 := by
+  apply (cancel_mono W.toOpen.ι).1
+  simp only [Category.assoc, Scheme.homOfLE_ι, Scheme.Opens.fromSpecStalkOfMem_ι]
+
+/-- Restriction of neighborhood schemes to the local scheme at the point. -/
+noncomputable def stalkRestrictionFunctor (S : Scheme.{u}) (U : S.Opens) (s : S) :
+    Pseudofunctor.Grothendieck (pseudofunctor S U s) ⥤
+      FinitePresentationOver (Spec (S.presheaf.stalk s)) :=
+  restrictionFunctor S U s _
+    (fun W ↦ W.toOpen.fromSpecStalkOfMem s W.unop.property.2)
+    (stalkRestriction_compatibility S U s)
+
+/-- The maps from the stalk-open intersection to any neighborhood agree over that neighborhood. -/
+theorem intersection_commutes
+    (S : Scheme.{u}) (U : S.Opens) (s : S) (W : OpenNeighborhoodIndex S U s) :
+    ((S.fromSpecStalk s) ∣_ U) ≫ S.homOfLE W.unop.property.1 =
+      (stalkOpenIntersection S U s).ι ≫
+        W.toOpen.fromSpecStalkOfMem s W.unop.property.2 := by
+  apply (cancel_mono W.toOpen.ι).1
+  simp only [Category.assoc, Scheme.homOfLE_ι, Scheme.Opens.fromSpecStalkOfMem_ι,
+    morphismRestrict_ι]
+
+/-- The two restrictions of a neighborhood scheme to the stalk-open intersection agree via
+the canonical composition isomorphisms for base change. -/
+noncomputable def restrictionGluingIso (S : Scheme.{u}) (U : S.Opens) (s : S) :
+    openRestrictionFunctor S U s ⋙ baseChange ((S.fromSpecStalk s) ∣_ U) ≅
+      stalkRestrictionFunctor S U s ⋙ baseChange (stalkOpenIntersection S U s).ι :=
+  NatIso.ofComponents
+    (fun X ↦ (baseChangeCompIso _ _).app X.fiber ≪≫
+      eqToIso (congrArg (fun f ↦ (baseChange f).obj X.fiber)
+        (intersection_commutes S U s X.base)) ≪≫
+      ((baseChangeCompIso _ _).app X.fiber).symm)
+    (by sorry)
+
+/-- Restrict a scheme over an open neighborhood to the fixed open and to the stalk scheme. -/
+noncomputable def grothendieckStalkGluingFunctor
+    (S : Scheme.{u}) (U : S.Opens) (s : S) :
+    Pseudofunctor.Grothendieck (pseudofunctor S U s) ⥤
+      finitePresentationStalkGluingCategory S U s :=
+  (CategoricalPullback.CatCommSqOver.toFunctorToCategoricalPullback _ _ _).obj
+    { fst := openRestrictionFunctor S U s
+      snd := stalkRestrictionFunctor S U s
+      iso := restrictionGluingIso S U s }
+
+/-- A transition with invertible fiber component restricts to isomorphisms on both pieces. -/
+theorem grothendieckStalkGluingFunctor_inverts
+    (S : Scheme.{u}) (U : S.Opens) (s : S) :
+    (transitionMorphism S U s).IsInvertedBy (grothendieckStalkGluingFunctor S U s) := by
+  intro X Y f hf
+  apply (CategoricalPullback.isIso_iff
+    (baseChange ((S.fromSpecStalk s) ∣_ U))
+    (baseChange (stalkOpenIntersection S U s).ι)
+    ((grothendieckStalkGluingFunctor S U s).map f)).mpr
+  constructor
+  · exact restrictionFunctor_isIso S U s U.toScheme
+      (fun W ↦ S.homOfLE W.unop.property.1)
+      (fun {_ W'} f ↦ S.homOfLE_homOfLE W'.unop.property.1 (leOfHom f.unop)) f hf
+  · exact restrictionFunctor_isIso S U s (Spec (S.presheaf.stalk s))
+      (fun W ↦ W.toOpen.fromSpecStalkOfMem s W.unop.property.2)
+      (stalkRestriction_compatibility S U s) f hf
+
+/-- The comparison from the neighborhood colimit to stalk-gluing data, induced by restriction
+and the explicit localization construction. -/
+noncomputable def stalkGluingFunctor (S : Scheme.{u}) (U : S.Opens) (s : S) :
+    Colimit S U s ⥤ finitePresentationStalkGluingCategory S U s :=
+  Localization.Construction.lift (grothendieckStalkGluingFunctor S U s)
+    (grothendieckStalkGluingFunctor_inverts S U s)
+
+/-- On the Grothendieck construction, the localized comparison is the restriction functor. -/
+@[simp]
+theorem stalkGluingFunctor_fac (S : Scheme.{u}) (U : S.Opens) (s : S) :
+    (transitionMorphism S U s).Q ⋙ stalkGluingFunctor S U s =
+      grothendieckStalkGluingFunctor S U s :=
+  Localization.Construction.fac _ _
+
+/-- The open component of the localized comparison is the base change of the neighborhood
+scheme to the fixed open. -/
+@[simp]
+theorem stalkGluingFunctor_obj_fst (S : Scheme.{u}) (U : S.Opens) (s : S)
+    (X : Pseudofunctor.Grothendieck (pseudofunctor S U s)) :
+    ((stalkGluingFunctor S U s).obj ((transitionMorphism S U s).Q.obj X)).fst =
+      (baseChange (S.homOfLE X.base.unop.property.1)).obj X.fiber := rfl
+
+/-- The local component of the localized comparison is the base change of the neighborhood
+scheme to the stalk scheme. -/
+@[simp]
+theorem stalkGluingFunctor_obj_snd (S : Scheme.{u}) (U : S.Opens) (s : S)
+    (X : Pseudofunctor.Grothendieck (pseudofunctor S U s)) :
+    ((stalkGluingFunctor S U s).obj ((transitionMorphism S U s).Q.obj X)).snd =
+      (baseChange (X.base.toOpen.fromSpecStalkOfMem s X.base.unop.property.2)).obj
+        X.fiber := rfl
+
+/-- For a retrocompact open and a point outside it, restriction identifies the neighborhood
+colimit with the category of stalk-gluing data. -/
 @[stacks 0BQ5]
-theorem finitePresentation_openNeighborhood_colimit_equivalence_stalkGluing
+theorem stalkGluingFunctor_isEquivalence
     (S : Scheme.{u}) (U : S.Opens) [QuasiCompact U.ι]
     (s : S) (hsU : s ∉ (U : Set S)) :
-    Nonempty
-      (FinitePresentationOver.OpenNeighborhood.Colimit S U s ≌
-        finitePresentationStalkGluingCategory S U s) := sorry
+    (stalkGluingFunctor S U s).IsEquivalence := sorry
 
-/-- Finite-presentation schemes over a scheme are equivalent to compatible
-finite-presentation schemes over the complement of a closed point and over its local scheme. -/
-theorem finitePresentationOver_equivalence_stalkGluing
+end FinitePresentationOver.OpenNeighborhood
+
+/-- Stacks 0BPA: for a closed point `s` with quasi-compact complement `U`, the restriction
+functor from finite-presentation schemes over `S` to stalk-gluing data is an equivalence. -/
+@[stacks 0BPA]
+theorem finitePresentationStalkGluingFunctor_isEquivalence
     (S : Scheme.{u}) (U : S.Opens) [QuasiCompact U.ι]
     (s : S) (hs : s ∈ closedPoints S)
     (hU : (U : Set S) = ({s} : Set S)ᶜ) :
-    Nonempty
-      (FinitePresentationOver S ≌
-        finitePresentationStalkGluingCategory S U s) := sorry
+    (finitePresentationStalkGluingFunctor S U s).IsEquivalence := sorry
 
 /-- Pulling the complement of a closed point back to its local scheme gives the punctured spectrum
 of the local ring. -/

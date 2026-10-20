@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap74.Lemma_74_14_3_LocalAtSource
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.EtaleLocal.LocalAtSource
 import StacksCheckRecall
 
 @[expose] public section
@@ -19,7 +13,7 @@ open CategoryTheory AlgebraicGeometry AlgebraicSpace
 source-and-target and fpqc local on the source, then the corresponding property
 of morphisms of algebraic spaces is fpqc local on the source. -/
 @[stacks 06ER] #check
-  (etaleLocal_isLocalAtSource_fpqc :
+  (AlgebraicGeometry.AlgebraicSpace.etaleLocal_isLocalAtSource_fpqc :
     ∀ {S : Scheme.{u}} (P : MorphismProperty Scheme.{u})
       [IsEtaleLocalAtSourceAndTarget P]
       [P.IsLocalAtSource Scheme.fpqcPrecoverage],
@@ -29,7 +23,7 @@ of morphisms of algebraic spaces is fpqc local on the source. -/
 source-and-target and fppf local on the source, then the corresponding property
 of morphisms of algebraic spaces is fppf local on the source. -/
 @[stacks 06ER] #check
-  (etaleLocal_isLocalAtSource_fppf :
+  (AlgebraicGeometry.AlgebraicSpace.etaleLocal_isLocalAtSource_fppf :
     ∀ {S : Scheme.{u}} (P : MorphismProperty Scheme.{u})
       [IsEtaleLocalAtSourceAndTarget P]
       [P.IsLocalAtSource Scheme.fppfPrecoverage],
@@ -39,7 +33,7 @@ of morphisms of algebraic spaces is fppf local on the source. -/
 source-and-target and syntomic local on the source, then the corresponding
 property of morphisms of algebraic spaces is syntomic local on the source. -/
 @[stacks 06ER] #check
-  (etaleLocal_isLocalAtSource_syntomic :
+  (AlgebraicGeometry.AlgebraicSpace.etaleLocal_isLocalAtSource_syntomic :
     ∀ {S : Scheme.{u}} (P : MorphismProperty Scheme.{u})
       [IsEtaleLocalAtSourceAndTarget P]
       [P.IsLocalAtSource Scheme.bigSyntomicPrecoverage],
@@ -49,7 +43,7 @@ property of morphisms of algebraic spaces is syntomic local on the source. -/
 source-and-target and smooth local on the source, then the corresponding
 property of morphisms of algebraic spaces is smooth local on the source. -/
 @[stacks 06ER] #check
-  (etaleLocal_isLocalAtSource_smooth :
+  (AlgebraicGeometry.AlgebraicSpace.etaleLocal_isLocalAtSource_smooth :
     ∀ {S : Scheme.{u}} (P : MorphismProperty Scheme.{u})
       [IsEtaleLocalAtSourceAndTarget P]
       [P.IsLocalAtSource Scheme.bigSmoothPrecoverage],
@@ -59,7 +53,7 @@ property of morphisms of algebraic spaces is smooth local on the source. -/
 source-and-target and étale local on the source, then the corresponding
 property of morphisms of algebraic spaces is étale local on the source. -/
 @[stacks 06ER] #check
-  (etaleLocal_isLocalAtSource_etale :
+  (AlgebraicGeometry.AlgebraicSpace.etaleLocal_isLocalAtSource_etale :
     ∀ {S : Scheme.{u}} (P : MorphismProperty Scheme.{u})
       [IsEtaleLocalAtSourceAndTarget P]
       [P.IsLocalAtSource Scheme.etalePrecoverage],

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Abelian.FunctorCategory
@@ -101,16 +95,6 @@ noncomputable def ColimitModel.isoDerivedColimit
       (colimitToDerived C A)
       (HomotopyCategory.quasiIso (C ⥤ A) (up ℤ))] :
     M.functor ≅ derivedColimit C A :=
-  letI : M.functor.IsLeftDerivedFunctor M.counit
-      (HomotopyCategory.quasiIso (C ⥤ A) (up ℤ)) :=
-    M.isLeftDerivedFunctor
-  Functor.leftDerivedUnique
-    (LF' := derivedColimit C A) (LF := M.functor)
-    M.counit
-    ((colimitToDerived C A).totalLeftDerivedCounit
-      (DerivedCategory.Qh :
-        HomotopyCategory (C ⥤ A) (up ℤ) ⥤ DerivedCategory (C ⥤ A))
-      (HomotopyCategory.quasiIso (C ⥤ A) (up ℤ)))
-    (HomotopyCategory.quasiIso (C ⥤ A) (up ℤ))
+  LeftDerived.Model.iso M (derivedColimitModel C A)
 
 end CategoryTheory.Functor

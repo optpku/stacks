@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.AffineScheme
@@ -12,9 +6,9 @@ public import Mathlib.RingTheory.Ideal.Quotient.PowTransition
 /-!
 # The actual adic quotient diagram over a scheme
 
-This module depends only on Mathlib. It is below the formal-space presentation
-owner, so that the owner can specify the real transition maps without an import
-cycle through a chapter theorem.
+The stages are spectra of quotients by successive powers of an ideal. Their
+transition morphisms are induced by quotient factor maps, and their structure
+morphisms to the base scheme commute with every transition.
 -/
 
 @[expose] public section

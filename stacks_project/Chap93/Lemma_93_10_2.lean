@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap93.Lemma_93_10_2_RimSchlessinger
+public import ReasLib.AlgebraicGeometry.FormalDeformation.SchemeMorphism.RimSchlessinger
 import StacksCheckRecall
 
 /-!
@@ -27,7 +21,6 @@ variable (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
 variable (X Y : Scheme.{u}) (f : X ⟶ Y)
   (hX : X ⟶ Spec (CommRingCat.of k)) (hY : Y ⟶ Spec (CommRingCat.of k))
   (hf : f ≫ hY = hX)
-  [AlgebraicGeometry.Flat hX] [AlgebraicGeometry.Flat hY]
 
 /- Lemma 93.10.2 (1)
 Example 93.10.1 satisfies the Rim-Schlessinger condition (RS). -/

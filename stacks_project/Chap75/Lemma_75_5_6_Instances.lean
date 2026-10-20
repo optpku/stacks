@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Tensor
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.DirectTensorComparison
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Monoidal.Ringed
 public import ReasLib.CategoryTheory.DerivedCategory.Monoidal.Tensor
@@ -35,21 +30,19 @@ variable {S : Scheme.{u}} (X : AlgebraicSpace S)
 
 /-- Module sheaves on an algebraic space inherit the canonical tensor product of the commutative
 small étale ringed site through the specified restriction-of-scalars equivalence. -/
-@[instance_reducible]
-noncomputable instance modulesMonoidalCategory : MonoidalCategory X.Modules :=
+noncomputable abbrev modulesMonoidalCategory : MonoidalCategory X.Modules :=
   Modules.instMonoidalCategory X
 
 /-- The tensor product of `𝒪_X`-modules is additive in each variable. -/
-instance modulesMonoidalPreadditive : MonoidalPreadditive X.Modules :=
-  DirectTensorComparison.preadditive X
+abbrev modulesMonoidalPreadditive : MonoidalPreadditive X.Modules :=
+  AlgebraicSpace.modulesMonoidalPreadditive X
 
 /-- Totalized tensor products of unbounded complexes of `𝒪_X`-modules exist. -/
-instance modulesHasMapBifunctor (K L : CochainComplex X.Modules ℤ) :
+abbrev modulesHasMapBifunctor (K L : CochainComplex X.Modules ℤ) :
     HomologicalComplex.HasMapBifunctor K L (curriedTensor X.Modules) (up ℤ) :=
-  sorry
+  AlgebraicSpace.modulesHasMapBifunctor X K L
 
-/-- Fixed-right unbounded derived tensor products exist for modules on an algebraic space. -/
-instance hasDerivedTensorRight : DerivedTensor.Right.Has (C := X.Modules) :=
-  sorry
+#check (hasDerivedTensorRight :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S), DerivedTensor.Right.Has (C := X.Modules))
 
 end AlgebraicGeometry.AlgebraicSpace.Modules

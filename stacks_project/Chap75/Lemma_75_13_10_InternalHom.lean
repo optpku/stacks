@@ -1,15 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.Monoidal.Closed.Functoriality
 public import stacks_project.Chap75.Definition_75_5_1_DerivedQCoh
 public import stacks_project.Chap75.Definition_75_14_1_PerfectApproximation
 public import stacks_project.Chap75.Lemma_75_13_6_PseudoCoherent
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.InternalHom.Quasicoherent
 
 /-!
 # Quasi-coherence of derived internal Hom on algebraic spaces
@@ -21,28 +16,30 @@ or of a perfect source into an unbounded quasi-coherent target, remains in `D_QC
 @[expose] public section
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory
-open CategoryTheory.MonoidalClosed
+open CategoryTheory.DerivedCategory
 open DerivedCategory.TStructure
 
 noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.ModuleDerived.InternalHom
+/- Lemma 75.13.10 (1): derived internal Hom from a pseudo-coherent object to a
+bounded-below quasi-coherent object has quasi-coherent cohomology. -/
+#check
+  (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.InternalHom.derivedQCoh_of_pseudoCoherent :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (K : ModuleDerived X)
+      [(DerivedTensor.Right.functor K).IsLeftAdjoint] (L : DerivedQCoh X),
+      IsPseudoCoherent X K →
+        (t.plus : ObjectProperty (ModuleDerived X)) L.obj →
+          derivedQuasiCoherentModuleProperty X
+            ((DerivedTensor.Right.functor K).rightAdjoint.obj L.obj))
 
-/-- Derived internal Hom from a pseudo-coherent object of `D(𝒪_X)` to a bounded-below object
-of `D_QCoh(𝒪_X)` again has quasi-coherent cohomology. -/
-theorem derivedQCoh_of_pseudoCoherent {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [MonoidalCategory (ModuleDerived X)] (H : MonoidalClosed (ModuleDerived X))
-    (K : ModuleDerived X) (L : DerivedQCoh X) (hK : IsPseudoCoherent X K)
-    (hL : (t.plus : ObjectProperty (ModuleDerived X)) L.obj) :
-    derivedQuasiCoherentModuleProperty X ((ihomOf H K).obj L.obj) := sorry
-
-/-- Derived internal Hom from a perfect object of `D(𝒪_X)` to an object of `D_QCoh(𝒪_X)`
-again has quasi-coherent cohomology. -/
-theorem derivedQCoh_of_perfect {S : Scheme.{u}} {X : AlgebraicSpace S}
-    [MonoidalCategory (ModuleDerived X)] (H : MonoidalClosed (ModuleDerived X))
-    (K : ModuleDerived X) (L : DerivedQCoh X) (hK : ModuleDerived.IsPerfect K) :
-    derivedQuasiCoherentModuleProperty X ((ihomOf H K).obj L.obj) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace.ModuleDerived.InternalHom
+/- Lemma 75.13.10 (2): derived internal Hom from a perfect object to a quasi-coherent
+object has quasi-coherent cohomology. -/
+#check
+  (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.InternalHom.derivedQCoh_of_perfect :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} (K : ModuleDerived X)
+      [(DerivedTensor.Right.functor K).IsLeftAdjoint] (L : DerivedQCoh X),
+      ModuleDerived.IsPerfect K →
+        derivedQuasiCoherentModuleProperty X
+          ((DerivedTensor.Right.functor K).rightAdjoint.obj L.obj))

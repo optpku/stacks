@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap81.Lemma_81_12_4_Glueable
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.BeauvilleLaszlo.GlueableFunctor
 
 /-!
 # Lemma 81.12.4
@@ -25,23 +20,18 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.BeauvilleLaszloGlueing
+/- Lemma 81.12.4: let `(algebraMap R R', f)` be a glueing pair. The canonical
+functor on glueable algebraic spaces over `Spec R` is faithful. -/
+@[stacks 0F9S] #check
+  (AlgebraicGeometry.AlgebraicSpace.BeauvilleLaszloGlueing.glueableFunctor_faithful :
+    {R R' : Type u} → [CommRing R] → [CommRing R'] → [Algebra R R'] → (f : R) →
+      [IsBeauvilleLaszloGlueingPairAlong (algebraMap R R') f] →
+      (glueableFunctor R' f).Faithful)
 
-/-- Lemma 81.12.4: let `(algebraMap R R', f)` be a glueing pair. The functor
-`functor R' f : Over (space R) ⥤ category R' f` is faithful on the full
-subcategory of algebraic spaces `Y` over `X` glueable for the pair. -/
-@[stacks 0F9S, instance]
-instance glueableFunctor_faithful {R R' : Type u} [CommRing R] [CommRing R'] [Algebra R R']
-    (f : R) [IsBeauvilleLaszloGlueingPairAlong (algebraMap R R') f] :
-    (glueableFunctor R' f).Faithful :=
-  sorry
-
-/-- Two morphisms of glueable algebraic spaces over `X` that become equal after
-applying `functor R' f` are equal. -/
-theorem functor_map_injective {R R' : Type u} [CommRing R] [CommRing R'] [Algebra R R']
-    (f : R) [IsBeauvilleLaszloGlueingPairAlong (algebraMap R R') f]
-    {Y Z : Over (space R)} (hY : glueableProperty R' f Y) (hZ : glueableProperty R' f Z) :
-    Function.Injective (fun α : Y ⟶ Z ↦ (functor R' f).map α) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.BeauvilleLaszloGlueing
+#check
+  (AlgebraicGeometry.AlgebraicSpace.BeauvilleLaszloGlueing.functor_map_injective :
+    {R R' : Type u} → [CommRing R] → [CommRing R'] → [Algebra R R'] → (f : R) →
+      [IsBeauvilleLaszloGlueingPairAlong (algebraMap R R') f] →
+      {Y Z : Over (space R)} → (hY : glueableProperty R' f Y) →
+        (hZ : glueableProperty R' f Z) →
+        Function.Injective (fun α : Y ⟶ Z ↦ (functor R' f).map α))

@@ -1,12 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_44_3_RegularImmersion
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.RegularImmersion.Implications
+import StacksCheckRecall
 
 /-!
 # Implications among regular immersions of algebraic spaces
@@ -23,20 +18,16 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 76.44.3 (1): Let `S` be a scheme. Let `i : Z ⟶ X` be an immersion of
+/- Lemma 76.44.3 (1): Let `S` be a scheme. Let `i : Z ⟶ X` be an immersion of
 algebraic spaces over `S`. If `i` is Koszul-regular, then `i` is `H₁`-regular. -/
-@[stacks 06BP]
-instance IsKoszulRegularImmersion.isH1Regular {S : Scheme.{u}}
-    {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsKoszulRegularImmersion i] :
-    IsH1RegularImmersion i :=
-  sorry
+@[stacks 06BP] #check (AlgebraicGeometry.AlgebraicSpace.IsKoszulRegularImmersion.isH1Regular :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsKoszulRegularImmersion i],
+    IsH1RegularImmersion i)
 
-/-- Lemma 76.44.3 (2): Let `S` be a scheme. Let `i : Z ⟶ X` be an immersion of
+/- Lemma 76.44.3 (2): Let `S` be a scheme. Let `i : Z ⟶ X` be an immersion of
 algebraic spaces over `S`. If `i` is `H₁`-regular, then `i` is quasi-regular. -/
-@[stacks 06BP]
-instance IsH1RegularImmersion.isQuasiRegular {S : Scheme.{u}}
-    {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsH1RegularImmersion i] :
-    IsQuasiRegularImmersion i :=
-  sorry
+@[stacks 06BP] #check (AlgebraicGeometry.AlgebraicSpace.IsH1RegularImmersion.isQuasiRegular :
+  ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsH1RegularImmersion i],
+    IsQuasiRegularImmersion i)
 
 end AlgebraicGeometry.AlgebraicSpace

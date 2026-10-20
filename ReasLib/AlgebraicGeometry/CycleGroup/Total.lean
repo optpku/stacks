@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.DirectSum.Basic
@@ -28,25 +22,25 @@ universe u
 namespace AlgebraicGeometry.CycleGroup
 
 /-- Total relative cycle homology, graded by relative dimension. -/
-abbrev Total {S : Scheme.{u}} (delta : S → ℤ) (X : Over S) : Type u :=
+abbrev Total {S : Scheme.{u}} (delta : S → ℤ) (X : Over S) [LocallyOfFiniteType X.hom] : Type u :=
   DirectSum ℤ (fun d ↦ CycleGroup X.left (X.hom.relativeDimensionFunction delta) d)
 
 /-- The total cycle carrier is the direct sum of its relative-dimension pieces. -/
-theorem total_def {S : Scheme.{u}} (delta : S → ℤ) (X : Over S) :
+theorem total_def {S : Scheme.{u}} (delta : S → ℤ) (X : Over S) [LocallyOfFiniteType X.hom] :
     Total delta X =
       DirectSum ℤ (fun d ↦ CycleGroup X.left (X.hom.relativeDimensionFunction delta) d) := sorry
 
 namespace Total
 
 /-- Degreewise pushforward on total relative cycle homology. -/
-noncomputable def map {S : Scheme.{u}} (delta : S → ℤ) {X Y : Over S}
+noncomputable def map {S : Scheme.{u}} (delta : S → ℤ) {X Y : Over S} [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
     (f : X ⟶ Y) [QuasiCompact f.left] : Total delta X →+ Total delta Y :=
   DirectSum.map fun d ↦
     CycleGroup.mapHom f.left (X.hom.relativeDimensionFunction delta)
       (Y.hom.relativeDimensionFunction delta) d
 
 /-- Total cycle pushforward acts degreewise on homogeneous cycles. -/
-theorem map_of {S : Scheme.{u}} (delta : S → ℤ) {X Y : Over S}
+theorem map_of {S : Scheme.{u}} (delta : S → ℤ) {X Y : Over S} [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
     (f : X ⟶ Y) [QuasiCompact f.left] (d : ℤ)
     (a : CycleGroup X.left (X.hom.relativeDimensionFunction delta) d) :
     map delta f (DirectSum.of _ d a) =

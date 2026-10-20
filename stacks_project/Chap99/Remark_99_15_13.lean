@@ -1,20 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap97.Definition_97_8_1_Algebraic
-public import stacks_project.Chap97.Lemma_97_7_1_SurjectiveOnObjects
-public import stacks_project.Chap99.Lemma_99_14_6_Apex
-public import stacks_project.Chap99.Remark_99_15_13_Pullback
-public import stacks_project.Chap100.Definition_100_9_1_Immersion
-public import stacks_project.Chap101.Lemma_101_16_1_Presentation
-public import stacks_project.Chap108.Lemma_108_4_3_Existence
-public import stacks_project.Chap108.Lemma_108_8_5_Smooth
-public import stacks_project.Chap109.Lemma_109_4_1_Groupoids
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.PolarizedCurves.ToCurves
+public import ReasLib.AlgebraicGeometry.Polarized.Algebraic
+public import ReasLib.AlgebraicGeometry.PolarizedCurves.Immersion
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.AtlasCriterion
 
 /-!
 # Remark 99.15.13
@@ -42,68 +32,65 @@ universe u
 
 namespace AlgebraicGeometry.PolarizedCurves
 
-/-- Remark 99.15.13 (1): the square with apex PolarizedCurves over
+/- Remark 99.15.13 (1): the square with apex PolarizedCurves over
 Curves ⟶ Spaces'_{fp, flat, proper} along Polarized ⟶ Spaces'_{fp, flat, proper}
 is a 2-fibre product. -/
-@[stacks 0D5C, instance]
-instance instSquareIsBilimit : CatCommSqOver.Resized.IsBilimit square :=
-  sorry
+@[stacks 0D5C] #check
+  (AlgebraicGeometry.PolarizedCurves.instSquareIsBilimit :
+    CatCommSqOver.Resized.IsBilimit square)
 
-/-- Remark 99.15.13 (2): the left vertical arrow PolarizedCurves ⟶ Curves is
+variable (ξ : Curves.Obj (⊤_ Scheme.{u}))
+
+/- Remark 99.15.13 (2): the left vertical arrow PolarizedCurves ⟶ Curves is
 algebraic, as the base change of the algebraic 1-morphism of Lemma 99.14.6. -/
-@[stacks 0D5C]
-theorem algebraicStack_twoFibreProduct (ξ : Curves.Obj (⊤_ Scheme.{u})) :
+@[stacks 0D5C] #check
+  (AlgebraicGeometry.Polarized.instAlgebraicStack_twoFibreProduct
+    ((Curves.inclusion (⊤_ Scheme.{u})).obj ξ) :
     AlgebraicStack
-      (Polarized.twoFibreProduct ((Curves.inclusion (⊤_ Scheme.{u})).obj ξ)) :=
-  sorry
+      (Polarized.twoFibreProduct ((Curves.inclusion (⊤_ Scheme.{u})).obj ξ)))
 
-/-- Remark 99.15.13 (3): the left vertical arrow PolarizedCurves ⟶ Curves is
+/- Remark 99.15.13 (3): the left vertical arrow PolarizedCurves ⟶ Curves is
 smooth. -/
-@[stacks 0D5C, instance]
-instance instSmooth_toCurvesHom : CohStack.Hom.Smooth toCurvesHom :=
-  sorry
+@[stacks 0D5C] #check (AlgebraicGeometry.PolarizedCurves.instSmoothToCurvesHom :
+  CohStack.Hom.Smooth toCurvesHom)
 
-/-- Remark 99.15.13 (4): the left vertical arrow PolarizedCurves ⟶ Curves is
+/- Remark 99.15.13 (4): the left vertical arrow PolarizedCurves ⟶ Curves is
 surjective; every point is in the image. For every field `k`, morphism
 `Spec k ⟶ ⊤_ Scheme`, and object of Curves over that point, some field
 extension `K / k` and an object of PolarizedCurves over `Spec K` lie over it
 up to 2-isomorphism. -/
-@[stacks 0D5C]
-theorem toCurvesHom_surjectiveOnObjects {k : Type u} [Field k]
+@[stacks 0D5C] #check (AlgebraicGeometry.PolarizedCurves.toCurvesHom_surjectiveOnObjects :
+  ∀ {k : Type u} [Field k]
     (σ : Spec (.of k) ⟶ ⊤_ Scheme.{u})
-    (y : Classifying.slice (Over.mk σ) ⟶ Curves.toGroupoids (⊤_ Scheme.{u})) :
+    (y : Classifying.slice (Over.mk σ) ⟶ Curves.toGroupoids (⊤_ Scheme.{u})),
     ∃ (K : Type u) (_ : Field K) (τ : Spec (.of K) ⟶ ⊤_ Scheme.{u})
       (e : Spec (.of K) ⟶ Spec (.of k)) (he : e ≫ σ = τ)
       (x : Classifying.slice (Over.mk τ) ⟶ toGroupoids),
-      Nonempty (x ≫ toCurvesHom ≅ Classifying.sliceHomMk e he ≫ y) :=
-  sorry
+      Nonempty (x ≫ toCurvesHom ≅ Classifying.sliceHomMk e he ≫ y))
 
-/-- Remark 99.15.13 (5): PolarizedCurves is an open and closed substack of
+/- Remark 99.15.13 (5): PolarizedCurves is an open and closed substack of
 Polarized. -/
-@[stacks 0D5C]
-theorem inclusionHom_isOpenAndClosedImmersion :
+@[stacks 0D5C] #check (AlgebraicGeometry.PolarizedCurves.inclusionHom_isOpenAndClosedImmersion :
     Groupoids.Hom.OpenImmersion inclusionHom ∧
-      Groupoids.Hom.ClosedImmersion inclusionHom :=
-  sorry
+      Groupoids.Hom.ClosedImmersion inclusionHom)
 
 end AlgebraicGeometry.PolarizedCurves
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Remark 99.15.13 (6): a stack in groupoids which is the target of a smooth
+/- Remark 99.15.13 (6): a stack in groupoids which is the target of a smooth
 algebraic morphism that is surjective on objects, from an algebraic stack, is
 an algebraic stack. Smoothness is a surjective smooth algebraic-space
 presentation, not representability by algebraic spaces. -/
-@[stacks 0D5C]
-theorem of_smooth_algebraic {S : Scheme.{u}} {X Y : GroupoidsOver S}
+@[stacks 0D5C] #check (AlgebraicGeometry.AlgebraicStack.of_smooth_algebraic :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X]
     [IsStack.InGroupoids (Scheme.fppfTopology.over S) Y.p]
     (F : X ⟶ Y) [Groupoids.Hom.Algebraic F]
     [Groupoids.Hom.SurjectiveOnObjects F]
     (h_smooth : ∃ (U V : AlgebraicSpace S) (a : U.toGroupoids ⟶ X)
       (b : V.toGroupoids ⟶ Y) (h : U ⟶ V),
-      IsSmoothSurjectivePresentation F a b h ∧ AlgebraicSpace.Smooth h) :
-    AlgebraicStack Y :=
-  sorry
+      IsSmoothSurjectivePresentation F a b h ∧ AlgebraicSpace.Smooth h),
+    AlgebraicStack Y)
 
 end AlgebraicGeometry.AlgebraicStack

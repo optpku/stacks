@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap65.Lemma_65_12_4_Immersion
-public import stacks_project.Chap65.Lemma_65_12_2
-public import stacks_project.Chap67.Definition_67_8_2_QuasiCompact
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Immersion.Factorization
+import StacksCheckRecall
 
 /-!
 # Open-then-closed factorizations of quasi-compact immersions
@@ -27,25 +20,25 @@ namespace AlgebraicGeometry.AlgebraicSpace
 
 namespace IsImmersion
 
-/-- Lemma 67.12.6: Let `S` be a scheme. Let `f : Z ⟶ X` be an immersion of
+/- Lemma 67.12.6: Let `S` be a scheme. Let `f : Z ⟶ X` be an immersion of
 algebraic spaces over `S`. Assume `f` is quasi-compact. There exists a
 factorization `Z ⟶ Zbar ⟶ X` where `Z ⟶ Zbar` is an open immersion and
 `Zbar ⟶ X` is a closed immersion. -/
-@[stacks 081U]
-theorem exists_openImmersion_closedImmersion_factorization {S : Scheme.{u}}
-    {Z X : AlgebraicSpace S} (f : Z ⟶ X) [IsImmersion f] [QuasiCompact f] :
+@[stacks 081U] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsImmersion.exists_openImmersion_closedImmersion_factorization :
+    ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (f : Z ⟶ X)
+      [IsImmersion f] [QuasiCompact f],
     ∃ (Zbar : AlgebraicSpace S) (j : Z ⟶ Zbar) (i : Zbar ⟶ X),
-      IsOpenImmersion j ∧ IsClosedImmersion i ∧ j ≫ i = f :=
-  sorry
+      IsOpenImmersion j ∧ IsClosedImmersion i ∧ j ≫ i = f)
 
-/-- A quasi-compact morphism of algebraic spaces is an immersion if and only if
+/- A quasi-compact morphism of algebraic spaces is an immersion if and only if
 it factors as an open immersion followed by a closed immersion. -/
-theorem iff_exists_of_quasiCompact {S : Scheme.{u}} {Z X : AlgebraicSpace S}
-    (f : Z ⟶ X) [QuasiCompact f] :
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsImmersion.iff_exists_of_quasiCompact :
+    ∀ {S : Scheme.{u}} {Z X : AlgebraicSpace S} (f : Z ⟶ X) [QuasiCompact f],
     IsImmersion f ↔
       ∃ (Zbar : AlgebraicSpace S) (j : Z ⟶ Zbar) (i : Zbar ⟶ X),
-        IsOpenImmersion j ∧ IsClosedImmersion i ∧ j ≫ i = f :=
-  sorry
+        IsOpenImmersion j ∧ IsClosedImmersion i ∧ j ≫ i = f)
 
 end IsImmersion
 

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap96.«96_10_3_1_Comparison»
@@ -28,9 +22,6 @@ universe u
 
 variable {S : Scheme.{u}} {F G : AlgebraicSpace S} (f : F ⟶ G)
 variable (ℱ : Sheaf F.toGroupoids.etaleTopology (Type (u + 1)))
-variable [HasSheafify F.toGroupoids.etaleTopology (Type (u + 1))]
-variable [∀ P : F.toGroupoids.totalᵒᵖ ⥤ Type (u + 1),
-    (toCartesianBasedFunctor (toGroupoids.map f)).toFunctor.op.HasPointwiseRightKanExtension P]
 
 /- 96.10.3.1 The identification compareBigSmall f ℱ is the canonical isomorphism
 (f_* ℱ)|_{G_étale} = f_small,* (ℱ|_{F_étale}) of sheaves on G_étale, obtained by

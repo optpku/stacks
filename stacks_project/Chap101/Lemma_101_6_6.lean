@@ -1,22 +1,17 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap101.Definition_101_4_1_Separation
-public import stacks_project.Chap101.Lemma_101_6_6_Comparison
-public import stacks_project.Chap101.Lemma_101_6_6_Isom
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.PullbackComparison
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Isom.Comparison
+import StacksCheckRecall
 
 /-!
 # Fibre-product and Isom comparisons for separation axioms
 
-If `f : X ⟶ Y` is a separated (resp. quasi-separated, resp. quasi-DM, resp.
-DM) morphism of algebraic stacks, then `T1 ×_X T2 ⟶ T1 ×_Y T2` and
-`Isom_X(x1, x2) ⟶ Isom_Y(x1 ≫ f, x2 ≫ f)` are proper (resp. quasi-compact
-and quasi-separated, resp. locally quasi-finite, resp. unramified).
+For a separated, quasi-separated, quasi-DM, or DM morphism of algebraic
+stacks, the fibre-product and Isom comparisons are respectively proper,
+quasi-compact and quasi-separated, locally quasi-finite, or unramified.
+The generic fibre-product statements apply in particular to algebraic-space
+inputs through their canonical algebraic-stack instances.
 -/
 
 @[expose] public section
@@ -29,129 +24,87 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- Lemma 101.6.6 (1): if `f` is a separated morphism of algebraic stacks, then
-the comparison `T1 ×_X T2 ⟶ T1 ×_Y T2` is proper. -/
-@[stacks 0CPL]
-theorem fibreProductComparison_proper {S : Scheme.{u}} {X Y : GroupoidsOver S}
+/- Lemma 101.6.6. Postcomposition induces the stated separation and finiteness
+properties on fibre products and on Isom objects of algebraic spaces. -/
+@[stacks 0CPL] #check (AlgebraicGeometry.AlgebraicStack.mapPostcompose_proper :
+    ∀ {S : Scheme.{u}} {X Y Z T : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z] [AlgebraicStack T]
+    (f : X ⟶ Z) (g : Y ⟶ Z) (h : Z ⟶ T) [Separated h],
+      Groupoids.Hom.has (@AlgebraicSpace.Proper S) (TwoFibreProduct.mapPostcompose.{u + 1, u, u + 1, u} f g h))
+
+#check (AlgebraicGeometry.AlgebraicStack.mapPostcompose_quasiCompact_quasiSeparated :
+    ∀ {S : Scheme.{u}}
+    {X Y Z T : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+    [AlgebraicStack Z] [AlgebraicStack T] (f : X ⟶ Z) (g : Y ⟶ Z)
+    (h : Z ⟶ T) [QuasiSeparated h],
+      Groupoids.Hom.has (@AlgebraicSpace.QuasiCompact S) (TwoFibreProduct.mapPostcompose.{u + 1, u, u + 1, u} f g h) ∧
+      Groupoids.Hom.has (@AlgebraicSpace.QuasiSeparated S) (TwoFibreProduct.mapPostcompose.{u + 1, u, u + 1, u} f g h))
+
+#check (AlgebraicGeometry.AlgebraicStack.mapPostcompose_quasiCompact :
+    ∀ {S : Scheme.{u}} {X Y Z T : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z] [AlgebraicStack T]
+    (f : X ⟶ Z) (g : Y ⟶ Z) (h : Z ⟶ T) [QuasiSeparated h],
+      Groupoids.Hom.has (@AlgebraicSpace.QuasiCompact S) (TwoFibreProduct.mapPostcompose.{u + 1, u, u + 1, u} f g h))
+
+#check (AlgebraicGeometry.AlgebraicStack.mapPostcompose_isQuasiSeparated :
+    ∀ {S : Scheme.{u}} {X Y Z T : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z] [AlgebraicStack T]
+    (f : X ⟶ Z) (g : Y ⟶ Z) (h : Z ⟶ T) [QuasiSeparated h],
+      Groupoids.Hom.has (@AlgebraicSpace.QuasiSeparated S) (TwoFibreProduct.mapPostcompose.{u + 1, u, u + 1, u} f g h))
+
+#check (AlgebraicGeometry.AlgebraicStack.mapPostcompose_locallyQuasiFinite :
+    ∀ {S : Scheme.{u}} {X Y Z T : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z] [AlgebraicStack T]
+    (f : X ⟶ Z) (g : Y ⟶ Z) (h : Z ⟶ T) [QuasiDM h],
+      Groupoids.Hom.has (@AlgebraicSpace.LocallyQuasiFinite S) (TwoFibreProduct.mapPostcompose.{u + 1, u, u + 1, u} f g h))
+
+#check (AlgebraicGeometry.AlgebraicStack.mapPostcompose_unramified :
+    ∀ {S : Scheme.{u}} {X Y Z T : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z] [AlgebraicStack T]
+    (f : X ⟶ Z) (g : Y ⟶ Z) (h : Z ⟶ T) [DM h],
+      Groupoids.Hom.has (@AlgebraicSpace.Unramified S) (TwoFibreProduct.mapPostcompose.{u + 1, u, u + 1, u} f g h))
+
+#check (AlgebraicGeometry.AlgebraicStack.isomComparison_proper :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Separated f]
-    {T1 T2 : AlgebraicSpace S} (x1 : T1.toGroupoids ⟶ X)
-    (x2 : T2.toGroupoids ⟶ X) :
-    Groupoids.Hom.has (@AlgebraicSpace.Proper S)
-      (fibreProductComparison f x1 x2) :=
-  sorry
+    {T : AlgebraicSpace S} (x1 x2 : T.toGroupoids ⟶ X),
+      Groupoids.Hom.has (@AlgebraicSpace.Proper S) (isomComparison f x1 x2))
 
-/-- Lemma 101.6.6 (2): if `f` is a quasi-separated morphism of algebraic stacks,
-then the comparison `T1 ×_X T2 ⟶ T1 ×_Y T2` is quasi-compact and
-quasi-separated. -/
-@[stacks 0CPL]
-theorem fibreProductComparison_quasiSeparated {S : Scheme.{u}}
-    {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    [QuasiSeparated f] {T1 T2 : AlgebraicSpace S} (x1 : T1.toGroupoids ⟶ X)
-    (x2 : T2.toGroupoids ⟶ X) :
-    Groupoids.Hom.has (@AlgebraicSpace.QuasiCompact S)
-        (fibreProductComparison f x1 x2) ∧
-      Groupoids.Hom.has (@AlgebraicSpace.QuasiSeparated S)
-        (fibreProductComparison f x1 x2) :=
-  sorry
-
-/-- The comparison `T1 ×_X T2 ⟶ T1 ×_Y T2` along a quasi-separated morphism is
-quasi-compact. -/
-theorem fibreProductComparison_quasiCompact {S : Scheme.{u}}
-    {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    [QuasiSeparated f] {T1 T2 : AlgebraicSpace S} (x1 : T1.toGroupoids ⟶ X)
-    (x2 : T2.toGroupoids ⟶ X) :
-    Groupoids.Hom.has (@AlgebraicSpace.QuasiCompact S)
-      (fibreProductComparison f x1 x2) :=
-  sorry
-
-/-- The comparison `T1 ×_X T2 ⟶ T1 ×_Y T2` along a quasi-separated morphism is
-quasi-separated. -/
-theorem fibreProductComparison_isQuasiSeparated {S : Scheme.{u}}
-    {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    [QuasiSeparated f] {T1 T2 : AlgebraicSpace S} (x1 : T1.toGroupoids ⟶ X)
-    (x2 : T2.toGroupoids ⟶ X) :
-    Groupoids.Hom.has (@AlgebraicSpace.QuasiSeparated S)
-      (fibreProductComparison f x1 x2) :=
-  sorry
-
-/-- Lemma 101.6.6 (3): if `f` is a quasi-DM morphism of algebraic stacks, then
-the comparison `T1 ×_X T2 ⟶ T1 ×_Y T2` is locally quasi-finite. -/
-@[stacks 0CPL]
-theorem fibreProductComparison_locallyQuasiFinite {S : Scheme.{u}}
-    {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    [QuasiDM f] {T1 T2 : AlgebraicSpace S} (x1 : T1.toGroupoids ⟶ X)
-    (x2 : T2.toGroupoids ⟶ X) :
-    Groupoids.Hom.has (@AlgebraicSpace.LocallyQuasiFinite S)
-      (fibreProductComparison f x1 x2) :=
-  sorry
-
-/-- Lemma 101.6.6 (4): if `f` is a DM morphism of algebraic stacks, then the
-comparison `T1 ×_X T2 ⟶ T1 ×_Y T2` is unramified. -/
-@[stacks 0CPL]
-theorem fibreProductComparison_unramified {S : Scheme.{u}}
-    {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    [DM f] {T1 T2 : AlgebraicSpace S} (x1 : T1.toGroupoids ⟶ X)
-    (x2 : T2.toGroupoids ⟶ X) :
-    Groupoids.Hom.has (@AlgebraicSpace.Unramified S)
-      (fibreProductComparison f x1 x2) :=
-  sorry
-
-/-- Lemma 101.6.6 (5): if `f` is a separated morphism of algebraic stacks, then
-`Isom_X(x1, x2) ⟶ Isom_Y(x1 ≫ f, x2 ≫ f)` is proper. -/
-@[stacks 0CPL]
-theorem isomComparison_proper {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Separated f]
-    {T : AlgebraicSpace S} (x1 x2 : T.toGroupoids ⟶ X) :
-    Groupoids.Hom.has (@AlgebraicSpace.Proper S) (isomComparison f x1 x2) :=
-  sorry
-
-/-- Lemma 101.6.6 (6): if `f` is a quasi-separated morphism of algebraic stacks,
-then `Isom_X(x1, x2) ⟶ Isom_Y(x1 ≫ f, x2 ≫ f)` is quasi-compact and
-quasi-separated. -/
-@[stacks 0CPL]
-theorem isomComparison_quasiSeparated {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.isomComparison_quasiSeparated :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [QuasiSeparated f]
-    {T : AlgebraicSpace S} (x1 x2 : T.toGroupoids ⟶ X) :
-    Groupoids.Hom.has (@AlgebraicSpace.QuasiCompact S)
+    {T : AlgebraicSpace S} (x1 x2 : T.toGroupoids ⟶ X),
+      Groupoids.Hom.has (@AlgebraicSpace.QuasiCompact S)
         (isomComparison f x1 x2) ∧
       Groupoids.Hom.has (@AlgebraicSpace.QuasiSeparated S)
-        (isomComparison f x1 x2) :=
-  sorry
+        (isomComparison f x1 x2))
 
-/-- The Isom comparison along a quasi-separated morphism is quasi-compact. -/
-theorem isomComparison_quasiCompact {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.isomComparison_quasiCompact :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [QuasiSeparated f]
-    {T : AlgebraicSpace S} (x1 x2 : T.toGroupoids ⟶ X) :
-    Groupoids.Hom.has (@AlgebraicSpace.QuasiCompact S)
-      (isomComparison f x1 x2) :=
-  sorry
+    {T : AlgebraicSpace S} (x1 x2 : T.toGroupoids ⟶ X),
+      Groupoids.Hom.has (@AlgebraicSpace.QuasiCompact S)
+      (isomComparison f x1 x2))
 
-/-- The Isom comparison along a quasi-separated morphism is quasi-separated. -/
-theorem isomComparison_isQuasiSeparated {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.isomComparison_isQuasiSeparated :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [QuasiSeparated f]
-    {T : AlgebraicSpace S} (x1 x2 : T.toGroupoids ⟶ X) :
-    Groupoids.Hom.has (@AlgebraicSpace.QuasiSeparated S)
-      (isomComparison f x1 x2) :=
-  sorry
+    {T : AlgebraicSpace S} (x1 x2 : T.toGroupoids ⟶ X),
+      Groupoids.Hom.has (@AlgebraicSpace.QuasiSeparated S)
+      (isomComparison f x1 x2))
 
-/-- Lemma 101.6.6 (7): if `f` is a quasi-DM morphism of algebraic stacks, then
-`Isom_X(x1, x2) ⟶ Isom_Y(x1 ≫ f, x2 ≫ f)` is locally quasi-finite. -/
-@[stacks 0CPL]
-theorem isomComparison_locallyQuasiFinite {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicStack.isomComparison_locallyQuasiFinite :
+    ∀ {S : Scheme.{u}}
     {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
-    [QuasiDM f] {T : AlgebraicSpace S} (x1 x2 : T.toGroupoids ⟶ X) :
-    Groupoids.Hom.has (@AlgebraicSpace.LocallyQuasiFinite S)
-      (isomComparison f x1 x2) :=
-  sorry
+    [QuasiDM f] {T : AlgebraicSpace S} (x1 x2 : T.toGroupoids ⟶ X),
+      Groupoids.Hom.has (@AlgebraicSpace.LocallyQuasiFinite S)
+      (isomComparison f x1 x2))
 
-/-- Lemma 101.6.6 (8): if `f` is a DM morphism of algebraic stacks, then
-`Isom_X(x1, x2) ⟶ Isom_Y(x1 ≫ f, x2 ≫ f)` is unramified. -/
-@[stacks 0CPL]
-theorem isomComparison_unramified {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.AlgebraicStack.isomComparison_unramified :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [DM f]
-    {T : AlgebraicSpace S} (x1 x2 : T.toGroupoids ⟶ X) :
-    Groupoids.Hom.has (@AlgebraicSpace.Unramified S)
-      (isomComparison f x1 x2) :=
-  sorry
+    {T : AlgebraicSpace S} (x1 x2 : T.toGroupoids ⟶ X),
+      Groupoids.Hom.has (@AlgebraicSpace.Unramified S)
+      (isomComparison f x1 x2))
 
 end AlgebraicGeometry.AlgebraicStack

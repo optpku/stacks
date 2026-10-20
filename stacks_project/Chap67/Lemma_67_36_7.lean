@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Lemma_67_36_4_Syntomic
-public import stacks_project.Chap67.Lemma_67_6_3_UniversallyOpen
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Syntomic.UniversallyOpen
+import StacksCheckRecall
 
 /-!
 # Syntomic morphisms of algebraic spaces are universally open
@@ -19,12 +13,8 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 67.36.7: A syntomic morphism is universally open. -/
-@[stacks 0DF0]
-instance UniversallyOpen.of_syntomic {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [Syntomic f] : UniversallyOpen f :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+/- Lemma 67.36.7: A syntomic morphism is universally open. -/
+@[stacks 0DF0] #check (AlgebraicGeometry.AlgebraicSpace.UniversallyOpen.of_syntomic :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [AlgebraicGeometry.AlgebraicSpace.Syntomic f],
+    AlgebraicGeometry.AlgebraicSpace.UniversallyOpen f)

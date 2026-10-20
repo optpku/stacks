@@ -1,97 +1,56 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.FiniteType
-public import Mathlib.AlgebraicGeometry.Restrict
-public import ReasLib.CategoryTheory.Fibered.Representable.Slice.Map
-public import stacks_project.Chap98.Definition_98_13_1_Versal
-public import stacks_project.Chap100.Lemma_100_4_1_FieldValuedPoint
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.OpenRestriction
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.FieldValuedPoint.Induced
 
 /-!
 # Open restriction of 2-Yoneda morphisms and induced residue-field points
 
-Restriction of an object of a groupoid fibration along an open of its source
-scheme, and the field-valued point induced at a residue field.
+Compatibility checks for open restriction and the induced residue-field point.
 -/
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry
 open FiberedCategoryOver.Groupoids
+open GroupoidsOver
+open AlgebraicGeometry.AlgebraicStack.FieldValuedPoint
 open scoped Bicategory
 
 noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.GroupoidsOver
+#check (AlgebraicGeometry.GroupoidsOver.restrictToOpen :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} {U : Scheme.{u}}
+    (hU : U ⟶ S) (x : X.total) (hx : X.p.obj x = Over.mk hU) (U' : U.Opens),
+    GroupoidsOver.slice (Over.mk (U'.ι ≫ hU)) ⟶ X)
 
-/-- Restriction of the 2-Yoneda 1-morphism of `x` along an open immersion
-`U' ⟶ U`. -/
-def restrictToOpen {S : Scheme.{u}} {X : GroupoidsOver S} {U : Scheme.{u}}
-    (hU : U ⟶ S) (x : X.total) (hx : X.p.obj x = Over.mk hU) (U' : U.Opens) :
-    GroupoidsOver.slice (Over.mk (U'.ι ≫ hU)) ⟶ X :=
-  overMap (Over.homMk U'.ι rfl : Over.mk (U'.ι ≫ hU) ⟶ Over.mk hU) ≫
-    yonedaOfObject hU x hx
-
-/-- Unfolding `restrictToOpen` recovers precomposition of `yonedaOfObject` with
-`overMap` of the open inclusion. -/
-theorem restrictToOpen_spec {S : Scheme.{u}} {X : GroupoidsOver S}
+#check (AlgebraicGeometry.GroupoidsOver.restrictToOpen_spec :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S}
     {U : Scheme.{u}} (hU : U ⟶ S) (x : X.total)
-    (hx : X.p.obj x = Over.mk hU) (U' : U.Opens) :
+    (hx : X.p.obj x = Over.mk hU) (U' : U.Opens),
     restrictToOpen hU x hx U' =
       overMap (Over.homMk U'.ι rfl : Over.mk (U'.ι ≫ hU) ⟶ Over.mk hU) ≫
-        yonedaOfObject hU x hx :=
-  sorry
+        yonedaOfObject hU x hx)
 
-/-- Open restrictions of a locally of finite type morphism remain locally of
-finite type. -/
-instance instLocallyOfFiniteType_restrictToOpen {S U : Scheme.{u}}
-    (hU : U ⟶ S) [LocallyOfFiniteType hU] (U' : U.Opens) :
-    LocallyOfFiniteType (U'.ι ≫ hU) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.FieldValuedPoint.induced :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} {U : Scheme.{u}} (hU : U ⟶ S) (x : X.total)
+    (hx : X.p.obj x = Over.mk hU) (u0 : U),
+    AlgebraicGeometry.AlgebraicStack.FieldValuedPoint X)
 
-end AlgebraicGeometry.GroupoidsOver
-
-namespace AlgebraicGeometry.AlgebraicStack.FieldValuedPoint
-
-open GroupoidsOver
-
-variable {S : Scheme.{u}} {X : GroupoidsOver S}
-
-/-- The field-valued point `Spec(κ(u0)) ⟶ X` induced by an object `x` over `U`
-at a point `u0`. -/
-def induced {U : Scheme.{u}} (hU : U ⟶ S) (x : X.total)
-    (hx : X.p.obj x = Over.mk hU) (u0 : U) : FieldValuedPoint X :=
-  FieldValuedPoint.of (residueFieldType u0) (fromResidueField u0 ≫ hU)
-    (overMap (Over.homMk (fromResidueField u0) rfl :
-        Over.mk (fromResidueField u0 ≫ hU) ⟶ Over.mk hU) ≫
-      yonedaOfObject hU x hx)
-
-/-- The induced field-valued point has source field `κ(u0)`, structure morphism
-`fromResidueField u0 ≫ hU`, and 1-morphism obtained by precomposing
-`yonedaOfObject` with `overMap`. -/
-theorem induced_spec {U : Scheme.{u}} (hU : U ⟶ S) (x : X.total)
-    (hx : X.p.obj x = Over.mk hU) (u0 : U) :
+#check (AlgebraicGeometry.AlgebraicStack.FieldValuedPoint.induced_spec :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} {U : Scheme.{u}} (hU : U ⟶ S) (x : X.total)
+    (hx : X.p.obj x = Over.mk hU) (u0 : U),
     (induced hU x hx u0).K = residueFieldType u0 ∧
       (induced hU x hx u0).structureHom = fromResidueField u0 ≫ hU ∧
         (induced hU x hx u0).hom =
           overMap (Over.homMk (fromResidueField u0) rfl :
               Over.mk (fromResidueField u0 ≫ hU) ⟶ Over.mk hU) ≫
-            yonedaOfObject hU x hx :=
-  sorry
+            yonedaOfObject hU x hx)
 
-/-- The residue-field point induced by a finite type point of a locally of
-finite type scheme remains locally of finite type over the base. -/
-instance instLocallyOfFiniteType_induced {U : Scheme.{u}} (hU : U ⟶ S)
+#check (AlgebraicGeometry.AlgebraicStack.FieldValuedPoint.instLocallyOfFiniteType_induced :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} {U : Scheme.{u}} (hU : U ⟶ S)
     [LocallyOfFiniteType hU] (x : X.total) (hx : X.p.obj x = Over.mk hU)
-    (u0 : U) [IsFiniteTypePoint u0] :
-    AlgebraicGeometry.LocallyOfFiniteType (induced hU x hx u0).structureHom :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicStack.FieldValuedPoint
+    (u0 : U) [IsFiniteTypePoint u0],
+    AlgebraicGeometry.LocallyOfFiniteType (induced hU x hx u0).structureHom)

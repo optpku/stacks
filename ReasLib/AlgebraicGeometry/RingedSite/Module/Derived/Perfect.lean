@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.Basic
@@ -35,9 +29,9 @@ namespace RingedSite
 section PerfectDerived
 
 variable {X : RingedSite.{u, v, w}} [UnivLE.{max u v, w}]
-variable [∀ U : X,
+variable [∀ U : X.carrier,
   HasWeakSheafify (X.localization U).siteTopology AddCommGrpCat.{w}]
-variable [∀ U : X,
+variable [∀ U : X.carrier,
   (X.localization U).siteTopology.WEqualsLocallyBijective AddCommGrpCat.{w}]
 
 namespace Hom.ModuleDerived

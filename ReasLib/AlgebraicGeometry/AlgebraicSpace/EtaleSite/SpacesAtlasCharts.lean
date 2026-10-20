@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.HomSmall
-public import stacks_project.Chap66.Lemma_66_18_3
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.PresentationInclusion
 public import Mathlib.CategoryTheory.Sites.DenseSubsite.SheafEquiv
 public import Mathlib.CategoryTheory.Comma.LocallySmall
 public import Mathlib.CategoryTheory.Limits.EssentiallySmall
@@ -26,10 +20,11 @@ instance spacesLocallySmall : LocallySmall.{u} (spacesEtaleSite X) := by
 
 /-- Include the actual small chart family into the spaces-étale category. -/
 def inclusion : AlgebraicGeometry.AlgebraicSpace.SmallEtale.AtlasCharts.Site X ⥤ spacesEtaleSite X :=
-  AlgebraicGeometry.AlgebraicSpace.SmallEtale.AtlasCharts.inclusion X ⋙ smallEtaleInclusion X
+  AlgebraicGeometry.AlgebraicSpace.SmallEtale.AtlasCharts.inclusion X ⋙ smallEtaleToSpaces X
 
 instance : (inclusion X).Faithful := by
-  dsimp [inclusion, smallEtaleInclusion]
+  change (AlgebraicGeometry.AlgebraicSpace.SmallEtale.AtlasCharts.inclusion X ⋙
+    smallEtaleToSpaces X).Faithful
   infer_instance
 
 /-- The inverse on Hom sets is Yoneda evaluation of the given space map. -/

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap90.Situation_90_29_1_Pullback
+public import ReasLib.AlgebraicGeometry.FormalDeformation.ArtinianLocal.ResidueChange.Cofibered
 import StacksCheckRecall
 
 /-!
@@ -31,10 +25,19 @@ variable {F : Type v} [Category.{w} F] (p : F ⥤ ArtinianLocalAlgCat Λ k)
 
 /- Situation 90.29.1 (1): the comparison functor C_{Λ, l} ⟶ C_{Λ, k} sends B to
 B ×_l k. -/
-@[stacks 07W8] #check (residueChangeFunctor Λ k l :
+@[stacks 07W8] #check (ArtinianLocalAlgCat.residueChangeFunctor Λ k l :
   ArtinianLocalAlgCat Λ l ⥤ ArtinianLocalAlgCat Λ k)
 
 /- Situation 90.29.1 (2): a category cofibered in groupoids p : F ⥤ C_{Λ, k}
 reindexes to p_{l/k} : F_{l/k} ⥤ C_{Λ, l}. -/
-@[stacks 07W8] #check (residueChangeOver Λ k l p :
-  residueChangeTotal Λ k l p ⥤ ArtinianLocalAlgCat Λ l)
+@[stacks 07W8] #check (ArtinianLocalAlgCat.residueChangeOver Λ k l p :
+  ArtinianLocalAlgCat.residueChangeTotal Λ k l p ⥤ ArtinianLocalAlgCat Λ l)
+
+variable [Functor.IsFibered.InGroupoids p.op]
+
+#check (ArtinianLocalAlgCat.instIsFiberedInGroupoids_residueChangeOver Λ k l p :
+  Functor.IsFibered.InGroupoids (ArtinianLocalAlgCat.residueChangeOver Λ k l p).op)
+
+#check (ArtinianLocalAlgCat.residueChangeOver.fiberMk_isEquivalence Λ k l p :
+  ∀ B : ArtinianLocalAlgCat Λ l,
+    (ArtinianLocalAlgCat.residueChangeOver.fiberMk Λ k l p B).IsEquivalence)

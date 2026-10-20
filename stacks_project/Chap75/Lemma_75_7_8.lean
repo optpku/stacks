@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap75.Lemma_75_7_8_ClosedSupport
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Support.Proper
 import StacksCheckRecall
 
 @[expose] public section
@@ -28,8 +22,8 @@ with `f : X ⟶ Y` locally of finite type, if `F` is a finite type quasi-coheren
         ∀ [AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType f]
           (F : X.Modules)
           [F.IsFiniteType] [F.IsQuasicoherent]
-          [AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f
-            (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport F)],
-          AlgebraicGeometry.AlgebraicSpace.ClosedSubset.IsProperOver f'
+          (hF : AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
+            (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport F)),
+          AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f'
             (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport
               ((AlgebraicGeometry.AlgebraicSpace.Modules.pullback g').obj F)))

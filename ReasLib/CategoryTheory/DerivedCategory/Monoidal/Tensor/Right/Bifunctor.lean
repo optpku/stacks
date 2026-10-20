@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.CategoryTheory.DerivedCategory.Monoidal.Tensor.Model
@@ -52,11 +46,6 @@ namespace Right
 abbrev q : CochainComplex C ℤ ⥤ HomotopyCategory C (up ℤ) :=
   HomotopyCategory.quotient C (up ℤ)
 
-/-- The derived localization used by the fixed-right source. -/
-@[stacks 064M "fixed-right derived localization"]
-abbrev Qh : HomotopyCategory C (up ℤ) ⥤ DerivedCategory C :=
-  DerivedCategory.Qh
-
 /- The source is the fixed-right view of the curried two-variable source. -/
 /-- Stacks 064M: the fixed-right source functor on a complex representative. -/
 @[stacks 064M "fixed-right bifunctor source"]
@@ -74,7 +63,7 @@ noncomputable def curryIso (P : CochainComplex C ℤ) :
 /-- Stacks 064M: the canonical derived isomorphism from a chosen complex representative. -/
 @[stacks 064M "fixed-right representative isomorphism"]
 noncomputable abbrev repIso (E : DerivedCategory C) :
-    Qh.obj (q.obj (DerivedCategory.Q.objPreimage E)) ≅ E :=
+    DerivedCategory.Qh.obj (q.obj (DerivedCategory.Q.objPreimage E)) ≅ E :=
   DerivedTensor.Right.representativeIso E
 
 /- The explicit-model namespace is the reusable core.  The declarations below do not require the
@@ -85,14 +74,14 @@ namespace Model
 @[stacks 064M "explicit fixed-right model source comparison"]
 noncomputable def sourceIso (M : Bifunctor.Model (C := C)) (P : CochainComplex C ℤ) :
     (Functor.curry.obj (Bifunctor.localization (C := C) ⋙ M.functor)).flip.obj (q.obj P) ≅
-      Qh ⋙ M.rightFunctor (Qh.obj (q.obj P)) :=
+      DerivedCategory.Qh ⋙ M.rightFunctor (DerivedCategory.Qh.obj (q.obj P)) :=
   ((flipFunctor _ _ _).mapIso
-    (Functor.curryObjProdComp Qh Qh M.functor)).app (q.obj P)
+    (Functor.curryObjProdComp DerivedCategory.Qh DerivedCategory.Qh M.functor)).app (q.obj P)
 
 /-- Stacks 064M: the fixed-right counit of an explicit two-variable model. -/
 @[stacks 064M "explicit fixed-right model counit"]
 noncomputable def counit (M : Bifunctor.Model (C := C)) (P : CochainComplex C ℤ) :
-    Qh ⋙ M.rightFunctor (Qh.obj (q.obj P)) ⟶ source P :=
+    DerivedCategory.Qh ⋙ M.rightFunctor (DerivedCategory.Qh.obj (q.obj P)) ⟶ source P :=
   (sourceIso M P).inv ≫
     (Functor.curry.map M.counit).flipApp (q.obj P) ≫
       (curryIso P).hom
@@ -100,7 +89,7 @@ noncomputable def counit (M : Bifunctor.Model (C := C)) (P : CochainComplex C �
 /-- Stacks 064M: functoriality in the fixed right argument of an explicit model. -/
 @[stacks 064M "explicit fixed-right representative isomorphism"]
 noncomputable def rightRepIso (M : Bifunctor.Model (C := C)) (E : DerivedCategory C) :
-    M.rightFunctor (Qh.obj (q.obj (DerivedCategory.Q.objPreimage E))) ≅
+    M.rightFunctor (DerivedCategory.Qh.obj (q.obj (DerivedCategory.Q.objPreimage E))) ≅
       M.rightFunctor E :=
   (Functor.curry.obj M.functor).flip.mapIso (repIso E)
 
@@ -109,7 +98,7 @@ noncomputable def rightRepIso (M : Bifunctor.Model (C := C)) (E : DerivedCategor
 noncomputable def counitOf (M : Bifunctor.Model (C := C)) (E : DerivedCategory C) :
     DerivedTensor.Right.localization (C := C) ⋙ M.rightFunctor E ⟶
       DerivedTensor.Right.sourceFunctor E :=
-  Functor.whiskerLeft Qh (rightRepIso M E).inv ≫
+  Functor.whiskerLeft DerivedCategory.Qh (rightRepIso M E).inv ≫
     counit M (DerivedCategory.Q.objPreimage E) ≫
       (DerivedTensor.Right.sourceFunctorIso E).hom
 
@@ -219,20 +208,20 @@ noncomputable abbrev canonicalModel [Bifunctor.Has (C := C)] :
 noncomputable abbrev sourceIso (P : CochainComplex C ℤ) [Bifunctor.Has (C := C)] :
     (Functor.curry.obj (Bifunctor.localization (C := C) ⋙ Bifunctor.functor (C := C))).flip.obj
         (q.obj P) ≅
-      Qh ⋙ Bifunctor.rightFunctor (Qh.obj (q.obj P)) :=
+      DerivedCategory.Qh ⋙ Bifunctor.rightFunctor (DerivedCategory.Qh.obj (q.obj P)) :=
   Model.sourceIso (canonicalModel (C := C)) P
 
 /-- Stacks 064M: the two-variable derived counit viewed at a fixed right representative. -/
 @[stacks 064M "fixed-right bifunctor counit"]
 noncomputable abbrev counit (P : CochainComplex C ℤ) [Bifunctor.Has (C := C)] :
-    Qh ⋙ Bifunctor.rightFunctor (Qh.obj (q.obj P)) ⟶ source P :=
+    DerivedCategory.Qh ⋙ Bifunctor.rightFunctor (DerivedCategory.Qh.obj (q.obj P)) ⟶ source P :=
   Model.counit (canonicalModel (C := C)) P
 
 /-- Stacks 064M: functoriality of the bifunctor in the fixed right argument. -/
 @[stacks 064M "fixed-right representative functor isomorphism"]
 noncomputable abbrev rightRepIso (E : DerivedCategory C) [Bifunctor.Has (C := C)] :
     Bifunctor.rightFunctor
-        (Qh.obj (q.obj (DerivedCategory.Q.objPreimage E))) ≅
+        (DerivedCategory.Qh.obj (q.obj (DerivedCategory.Q.objPreimage E))) ≅
       Bifunctor.rightFunctor E :=
   Model.rightRepIso (canonicalModel (C := C)) E
 

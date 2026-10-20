@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Fiber
@@ -13,8 +7,8 @@ public import ReasLib.RingTheory.KrullDimension.Relative
 /-!
 # Local dimensions of fibres of scheme morphisms
 
-This leaf defines the local dimension of a scheme-theoretic fibre at a source
-point through the relative dimension of the corresponding stalk map.
+The local dimension of a scheme-theoretic fibre at a source point is the local
+topological Krull dimension at the corresponding point of that fibre.
 -/
 
 @[expose] public section
@@ -25,22 +19,10 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Hom
 
-/-- The local dimension of the fibre of `f` at `x`, computed from the relative
-dimension of the stalk map at its closed point. -/
+/-- The local topological Krull dimension of the fibre of `f` at `x`. -/
 noncomputable def fiberDimensionAt {X S : Scheme.{u}}
     (f : X ⟶ S) (x : X) : WithBot ℕ∞ :=
-  relativeDimensionAtWith (S.presheaf.stalk (f x)) (X.presheaf.stalk x)
-    (f.stalkAlgebra x)
-    (IsLocalRing.closedPoint (X.presheaf.stalk x))
-
-/-- Expand `fiberDimensionAt` as the relative dimension for the algebra induced by the stalk
-map. -/
-theorem fiberDimensionAt_eq_relativeDimensionAt {X S : Scheme.{u}}
-    (f : X ⟶ S) (x : X) :
-    f.fiberDimensionAt x =
-      relativeDimensionAtWith (S.presheaf.stalk (f x)) (X.presheaf.stalk x)
-        (f.stalkAlgebra x)
-        (IsLocalRing.closedPoint (X.presheaf.stalk x)) := sorry
+  topologicalKrullDimAt (f.asFiber x)
 
 /-- The local dimension of a fibre at a source point equals the local topological Krull
 dimension at the corresponding point of the scheme-theoretic fibre. -/

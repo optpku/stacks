@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap67.Definition_67_5_2_Surjective
-public import stacks_project.Chap67.Definition_67_20_2_Affine
-public import stacks_project.Chap67.Definition_67_45_2_Integral
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Finite.AffineDescent
+import StacksCheckRecall
 
 /-!
 # Lemma 70.15.1
@@ -23,17 +16,9 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-namespace IsAffine
-
-/-- Lemma 70.15.1: if `f : X ⟶ Y` is a finite surjective morphism of algebraic
+/- Lemma 70.15.1: if `f : X ⟶ Y` is a finite surjective morphism of algebraic
 spaces over a scheme `S` and `X` is affine, then `Y` is affine. -/
-@[stacks 07VS]
-theorem of_isFinite_surjective {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [Surjective f] [IsFinite f] [IsAffine X] : IsAffine Y :=
-  sorry
-
-end IsAffine
-
-end AlgebraicGeometry.AlgebraicSpace
+@[stacks 07VS] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsAffine.of_isFinite_surjective :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+      [Surjective f] [IsFinite f] [IsAffine X], IsAffine Y)

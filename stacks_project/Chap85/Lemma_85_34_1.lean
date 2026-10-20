@@ -1,13 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap85.Lemma_85_34_1_Comparison
-public import stacks_project.Chap85.Lemma_85_34_1_Ringed
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Simplicial.RingedComparison
 import StacksCheckRecall
 
 /-!
@@ -24,10 +17,19 @@ Section 85.32 étale augmentation.
 
 @[expose] public section
 
+universe u
+
+open CategoryTheory AlgebraicGeometry
 open AlgebraicGeometry.AlgebraicSpace.Simplicial
+open CategoryTheory.SimplicialObject
 
 /- Lemma 85.34.1
 Let S be a scheme. Let X be an algebraic space over S. Let U be a simplicial
 algebraic space over S. Let a : U ⟶ X be an augmentation. There is a commutative
 diagram of ringed topoi with edges h, a_fppf, a and h₋₁. -/
-@[stacks 0DHC] #check AlgebraicGeometry.AlgebraicSpace.Simplicial.fppfEtaleRingedCommSq
+@[stacks 0DHC] #check
+  (AlgebraicGeometry.AlgebraicSpace.Simplicial.fppfEtaleRingedCommSq :
+    ∀ {S : Scheme.{u}} (U : SimplicialObject (AlgebraicSpace S))
+      {X : AlgebraicSpace S} (a : U ⟶ (Functor.const SimplexCategoryᵒᵖ).obj X),
+      RingedSite.ToposHom.CommSquare (fppfTotalRingedSite U) (etaleTotalRingedSite U)
+        (AlgebraicSpace.Fppf.overFppfRingedSite X) (AlgebraicSpace.spacesRingedSite X))

@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_10_1_Hom
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Thickening.Properties
 import StacksCheckRecall
 
 open CategoryTheory
@@ -56,7 +50,7 @@ thickenings. -/
     AlgebraicGeometry.AlgebraicSpace.Separated g.left ↔
       AlgebraicGeometry.AlgebraicSpace.Separated g.right)
 
-/- Lemma 76.10.1 (7): quasi-separated morphisms are invariant under a morphism of
+/- Lemma 76.10.1 (6): quasi-separated morphisms are invariant under a morphism of
 thickenings. -/
 @[stacks 09ZY] #check (AlgebraicGeometry.AlgebraicSpace.Thickening.Hom.quasiSeparated_iff :
   ∀ {S : AlgebraicGeometry.Scheme.{u}} {T U : AlgebraicGeometry.AlgebraicSpace.Thickening S}
@@ -64,7 +58,7 @@ thickenings. -/
     AlgebraicGeometry.AlgebraicSpace.QuasiSeparated g.left ↔
       AlgebraicGeometry.AlgebraicSpace.QuasiSeparated g.right)
 
-/- Lemma 76.10.1 (8): universally injective morphisms are invariant under a morphism of
+/- Lemma 76.10.1 (7): universally injective morphisms are invariant under a morphism of
 thickenings. -/
 @[stacks 09ZY] #check (AlgebraicGeometry.AlgebraicSpace.Thickening.Hom.universallyInjective_iff :
   ∀ {S : AlgebraicGeometry.Scheme.{u}} {T U : AlgebraicGeometry.AlgebraicSpace.Thickening S}
@@ -72,7 +66,7 @@ thickenings. -/
     AlgebraicGeometry.AlgebraicSpace.UniversallyInjective g.left ↔
       AlgebraicGeometry.AlgebraicSpace.UniversallyInjective g.right)
 
-/- Lemma 76.10.1 (9): universally open morphisms are invariant under a morphism of
+/- Lemma 76.10.1 (8): universally open morphisms are invariant under a morphism of
 thickenings. -/
 @[stacks 09ZY] #check (AlgebraicGeometry.AlgebraicSpace.Thickening.Hom.universallyOpen_iff :
   ∀ {S : AlgebraicGeometry.Scheme.{u}} {T U : AlgebraicGeometry.AlgebraicSpace.Thickening S}
@@ -80,7 +74,7 @@ thickenings. -/
     AlgebraicGeometry.AlgebraicSpace.UniversallyOpen g.left ↔
       AlgebraicGeometry.AlgebraicSpace.UniversallyOpen g.right)
 
-/- Lemma 76.10.1 (10): representable morphisms are invariant under a morphism of thickenings. -/
+/- Lemma 76.10.1 (9): representable morphisms are invariant under a morphism of thickenings. -/
 @[stacks 09ZY] #check (AlgebraicGeometry.AlgebraicSpace.Thickening.Hom.relativelyRepresentable_iff :
   ∀ {S : AlgebraicGeometry.Scheme.{u}} {T U : AlgebraicGeometry.AlgebraicSpace.Thickening S}
     (g : T ⟶ U),

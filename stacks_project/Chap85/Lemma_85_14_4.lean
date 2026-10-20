@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_14_4_Fiberwise
-public import stacks_project.Chap85.Lemma_85_14_4_Tower
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.RingedSite.Simplicial.FiberPostnikov
+public import ReasLib.AlgebraicGeometry.RingedSite.Simplicial.Postnikov
 
 /-!
 # Lemma 85.14.4
@@ -24,6 +18,7 @@ of `Y_n[n]` in `D(O)`.
 
 open CategoryTheory CategoryTheory.Limits CategoryTheory.Pretriangulated
 open CategoryTheory.MonoidalCategory DerivedCategory
+open SheafOfModules.RingedSite
 
 noncomputable section
 
@@ -32,6 +27,7 @@ universe u v w
 namespace CategoryTheory.SimplicialSites
 
 variable (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
+variable [UnivLE.{max u v, w}]
 variable [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
 variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
     ((C.map φ).toFunctor).op.HasLeftKanExtension P]
@@ -57,36 +53,26 @@ variable [∀ n, HasSheafify ((J n).toGrothendieck) AddCommGrpCat.{w}]
 variable [HasSheafify (topology C J) AddCommGrpCat.{w}]
 variable [∀ n, ((J n).toGrothendieck).WEqualsLocallyBijective AddCommGrpCat.{w}]
 variable [(topology C J).WEqualsLocallyBijective AddCommGrpCat.{w}]
-variable [UnivLE.{max u v, w}]
-variable [HasRightDerivedTensor (totalModules C J O)]
-variable (K : totalDerived C J O)
+variable (K : RingedSiteDerived (topology C J) O)
 
-/-- Lemma 85.14.4 (1): in Situation 85.3.3 case A, with a sheaf of rings `O` on
-`C_total` and `K` an object of `D(O)`, the objects
-`X_n = (g_{n!} O_n) ⊗^L_O K` and
-`Y_n = (g_{n!} O_n → ⋯ → g_{0!} O_0)[-n] ⊗^L_O K`, together with the canonical
-maps of the alternating-face resolution, form a sequential Postnikov system for
-`⋯ → X_2 → X_1 → X_0` in `D(O)`. -/
-@[stacks 0D9Q]
-theorem modulePostnikov_distinguished (n : ℕ) :
+/- Lemma 85.14.4: distinguished triangles on the covariant total site. -/
+@[stacks 0D9Q] #check (CategoryTheory.SimplicialSites.modulePostnikov_distinguished C J O K :
+    ∀ n : ℕ,
     Triangle.mk ((modulePostnikovTower C J O K).toX (n + 1))
       ((modulePostnikovTower C J O K).toNext n)
       ((modulePostnikovTower C J O K).connecting n) ∈
-        distTriang (totalDerived C J O) :=
-  sorry
+        distTriang (RingedSiteDerived (topology C J) O))
 
-/-- Lemma 85.14.4 (2): in Situation 85.3.3 case A, `K` is a sequential homotopy
-colimit of `Y_n[n]` in `D(O)`. -/
-@[stacks 0D9Q]
-theorem modulePostnikov_isHomotopyColimit :
-    HomotopyColimit.IsOf (modulePostnikovShifted C J O K) K :=
-  sorry
+/- Lemma 85.14.4: homotopy colimit of the shifted stages on the covariant total site. -/
+@[stacks 0D9Q] #check (CategoryTheory.SimplicialSites.modulePostnikov_isHomotopyColimit C J O K :
+    HomotopyColimit.IsOf (modulePostnikovShifted C J O K) K)
 
 end CategoryTheory.SimplicialSites
 
 namespace CategoryTheory.Grothendieck
 
 variable (F : SimplicialObject Cat.{v, u}) (J : ∀ n, Precoverage (F.obj n))
+variable [UnivLE.{max u v, w}]
 variable [IsFiberwiseSite F J]
 variable (O : Sheaf (topology F J) CommRingCat.{w})
 variable [(topology F J).HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
@@ -112,29 +98,18 @@ variable [∀ n, HasSheafify (J n).toGrothendieck AddCommGrpCat.{w}]
 variable [HasSheafify (topology F J) AddCommGrpCat.{w}]
 variable [∀ n, ((J n).toGrothendieck).WEqualsLocallyBijective AddCommGrpCat.{w}]
 variable [(topology F J).WEqualsLocallyBijective AddCommGrpCat.{w}]
-variable [UnivLE.{max u v, w}]
-variable [HasRightDerivedTensor (fiberTotalModules F J O)]
-variable (K : fiberTotalDerived F J O)
+variable (K : RingedSiteDerived (topology F J) O)
 
-/-- Lemma 85.14.4 (3): in Situation 85.3.3 case B, with a sheaf of rings `O` on
-`C_total` and `K` an object of `D(O)`, the objects
-`X_n = (g_{n!} O_n) ⊗^L_O K` and
-`Y_n = (g_{n!} O_n → ⋯ → g_{0!} O_0)[-n] ⊗^L_O K`, together with the canonical
-maps of the alternating-face resolution, form a sequential Postnikov system for
-`⋯ → X_2 → X_1 → X_0` in `D(O)`. -/
-@[stacks 0D9Q]
-theorem fiberModulePostnikov_distinguished (n : ℕ) :
+/- Lemma 85.14.4: distinguished triangles on the fiberwise total site. -/
+@[stacks 0D9Q] #check (CategoryTheory.Grothendieck.fiberModulePostnikov_distinguished F J O K :
+    ∀ n : ℕ,
     Triangle.mk ((fiberModulePostnikovTower F J O K).toX (n + 1))
       ((fiberModulePostnikovTower F J O K).toNext n)
       ((fiberModulePostnikovTower F J O K).connecting n) ∈
-        distTriang (fiberTotalDerived F J O) :=
-  sorry
+        distTriang (RingedSiteDerived (topology F J) O))
 
-/-- Lemma 85.14.4 (4): in Situation 85.3.3 case B, `K` is a sequential homotopy
-colimit of `Y_n[n]` in `D(O)`. -/
-@[stacks 0D9Q]
-theorem fiberModulePostnikov_isHomotopyColimit :
-    HomotopyColimit.IsOf (fiberModulePostnikovShifted F J O K) K :=
-  sorry
+/- Lemma 85.14.4: homotopy colimit of the shifted stages on the fiberwise total site. -/
+@[stacks 0D9Q] #check (CategoryTheory.Grothendieck.fiberModulePostnikov_isHomotopyColimit F J O K :
+    HomotopyColimit.IsOf (fiberModulePostnikovShifted F J O K) K)
 
 end CategoryTheory.Grothendieck

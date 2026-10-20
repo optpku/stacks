@@ -1,17 +1,11 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_10_3_LocalRingDim
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Dimension.LocalRing
 import StacksCheckRecall
 
 @[expose] public section
 
-open AlgebraicGeometry
+open CategoryTheory AlgebraicGeometry
 open AlgebraicSpace
 
 universe u
@@ -20,6 +14,15 @@ variable {S : Scheme.{u}} {X : AlgebraicSpace S} (x : Points X)
 
 /- Definition 66.10.2: for a scheme `S`, an algebraic space `X` over `S`, and a point
 `x ∈ |X|`, the dimension of the local ring of `X` at `x` is `localRingDimAt x`, the unique
-`d` in `WithBot ℕ∞` satisfying the equivalent conditions of Lemma 66.10.1. In this case
-`x` is also a point of codimension `d` on `X`, meaning `localRingDimAt x = d`. -/
+nonnegative `d` in the ambient type `WithBot ℕ∞` satisfying the equivalent conditions of
+Lemma 66.10.1. Thus its value is a natural number or infinity. In this case `x` is also a
+point of codimension `d` on `X`, meaning `localRingDimAt x = d`. -/
 @[stacks 04NA] #check (AlgebraicGeometry.AlgebraicSpace.localRingDimAt x : WithBot ℕ∞)
+
+#check (AlgebraicGeometry.AlgebraicSpace.localRingDimAt_nonneg x : 0 ≤ localRingDimAt x)
+
+#check (AlgebraicGeometry.AlgebraicSpace.localRingDimAt_eq_ringKrullDim_stalk :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : Over S} (f : ofOver U ⟶ X)
+    (hf : (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf f) (u : U.left)
+    {x : Points X} (hx : Points.mapOfOver f u = x),
+    localRingDimAt x = ringKrullDim (U.left.presheaf.stalk u))

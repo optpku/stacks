@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.ChernClass.Total
@@ -28,7 +22,7 @@ This is the realization of the unique total Chern class for a graded cohomology 
       (A : Cᵒᵖ ⥤ RingCat.{x})
       (Agrade : ∀ X, ℕ → Submodule ℤ (A.obj (Opposite.op X)))
       [∀ X, GradedAlgebra (Agrade X)]
-      (S : AlgebraicGeometry.ChernClass.Theory toScheme A Agrade),
+      (S : AlgebraicGeometry.ChernClass.CohomologyTheory toScheme A Agrade),
       ∃ c : AlgebraicGeometry.ChernClass.TotalChernClass
           toScheme A Agrade S.firstChernClass,
         ∀ c', c' = c)

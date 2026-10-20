@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Pullback.LocalGeneration
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.PullbackContinuous.LocalGeneration
 public import ReasLib.AlgebraicGeometry.RingedSpace.IdealSubobject.LocalGeneration
 public import ReasLib.AlgebraicGeometry.RingedSpace.IdealSubobject.Pullback
 import Mathlib.Tactic.CrossRefAttribute

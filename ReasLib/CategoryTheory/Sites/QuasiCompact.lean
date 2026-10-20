@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Sites.Coverage
@@ -53,8 +47,18 @@ is finite. -/
 theorem QuasiCompactObject.finite_image_refinement_of_family
     {K : Precoverage C} {U : C} (hU : K.QuasiCompactObject U)
     (𝒰 : SemiRepresentableFamily.Over.{w} U) (h𝒰 : 𝒰.toPresieve ∈ K U) :
-    ∃ (𝒱 : SemiRepresentableFamily.Over.{w} U) (_ : 𝒱.toPresieve ∈ K U)
-      (φ : 𝒱 ⟶ 𝒰), Set.Finite (Set.range φ.α) := sorry
+    ∃ (𝒱 : SemiRepresentableFamily.Over.{max u v} U) (_ : 𝒱.toPresieve ∈ K U)
+      (φ : SemiRepresentableFamily.Over.Hom 𝒱 𝒰), Set.Finite (Set.range φ.α) := sorry
+
+/-- An object is quasi-compact for a precoverage exactly when every chosen covering family
+in the canonical site-index universe admits a chosen covering refinement with finite
+reindexing image. -/
+theorem quasiCompactObject_iff_finite_image_refinement (K : Precoverage C) (U : C) :
+    K.QuasiCompactObject U ↔
+      ∀ (𝒰 : SemiRepresentableFamily.Over.{max u v} U), 𝒰.toPresieve ∈ K U →
+        ∃ (𝒱 : SemiRepresentableFamily.Over.{max u v} U), 𝒱.toPresieve ∈ K U ∧
+          ∃ (φ : SemiRepresentableFamily.Over.Hom 𝒱 𝒰),
+            Set.Finite (Set.range φ.α) := sorry
 
 end Precoverage
 
@@ -73,8 +77,8 @@ namespace QuasiCompactObject
 theorem finiteImageRefinement {K : Coverage C} {U : C}
     (hU : K.QuasiCompactObject U)
     (𝒰 : SemiRepresentableFamily.Over.{w} U) (h𝒰 : 𝒰.toPresieve ∈ K U) :
-    ∃ (𝒱 : SemiRepresentableFamily.Over.{w} U) (_ : 𝒱.toPresieve ∈ K U)
-      (φ : 𝒱 ⟶ 𝒰), Set.Finite (Set.range φ.α) := sorry
+    ∃ (𝒱 : SemiRepresentableFamily.Over.{max u v} U) (_ : 𝒱.toPresieve ∈ K U)
+      (φ : SemiRepresentableFamily.Over.Hom 𝒱 𝒰), Set.Finite (Set.range φ.α) := sorry
 
 end QuasiCompactObject
 

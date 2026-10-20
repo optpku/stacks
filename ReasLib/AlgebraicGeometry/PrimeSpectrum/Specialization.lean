@@ -1,14 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.RingTheory.Spectrum.Prime.Topology
 public import Mathlib.Topology.JacobsonSpace
 public import Mathlib.Topology.Sober
+public import ReasLib.RingTheory.Spectrum.Prime.ClosedPoint
 
 @[expose] public section
 
@@ -22,10 +17,6 @@ variable (R : Type u) [CommSemiring R]
 in the other point's ideal. -/
 theorem generalization_iff_subset (p q : PrimeSpectrum R) :
     p ⤳ q ↔ p.asIdeal ≤ q.asIdeal := sorry
-
-/-- A prime-spectrum point is closed exactly when its ideal is maximal. -/
-theorem mem_closedPoints_iff_isMaximal (p : PrimeSpectrum R) :
-    p ∈ closedPoints (PrimeSpectrum R) ↔ p.asIdeal.IsMaximal := sorry
 
 /-- A prime-spectrum point is closed exactly when it has no proper specialization. -/
 theorem mem_closedPoints_iff_no_proper_specialization (p : PrimeSpectrum R) :

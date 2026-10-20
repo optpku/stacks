@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.SheafAdjunction
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.LeftExact
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RingedSite.Basic
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.ModuleAdjunction
 
 @[expose] public section
@@ -17,13 +12,10 @@ universe u
 namespace AlgebraicGeometry.AlgebraicSpace.EtaleRingedTopos
 variable {S : Scheme.{u}} {X Y : AlgebraicSpace S}
 
-/-- The constructed geometric inverse image is left exact. This is the usual
-left-exactness law for the étale base-change construction. -/
-instance leftExact (f : X ⟶ Y) :
-    PreservesFiniteLimits (AlgebraicGeometry.AlgebraicSpace.EtaleTopos.inverseImage f) := sorry
-
 /-- The morphism of topoi retains the actual constructed adjunction. -/
-def topos (f : X ⟶ Y) : MorphismOfTopoiIn (smallEtaleTopology Y) (smallEtaleTopology X) where
+def topos (f : X ⟶ Y) :
+    MorphismOfTopoiIn.{u + 1, u + 1, u, u, u}
+      (smallEtaleTopology Y) (smallEtaleTopology X) where
   inverseImageFunctor := LeftExactFunctor.of (AlgebraicGeometry.AlgebraicSpace.EtaleTopos.inverseImage f)
   pushforward := AlgebraicGeometry.AlgebraicSpace.EtaleTopos.directImage f
   adjunction := AlgebraicGeometry.AlgebraicSpace.EtaleTopos.adjunction f
@@ -71,6 +63,30 @@ def forgetIso (f : X ⟶ Y) :
         AlgebraicGeometry.AlgebraicSpace.EtaleTopos.directImage f :=
   (topos f).ringDirectImageForgetIso
 
+/-- The section function induced by geometric pullback preserves one. -/
+private theorem structureMap_map_one (f : X ⟶ Y) (U : (smallEtaleSite Y)ᵒᵖ) :
+    ((structureUnderlying f ≫ (forgetIso f).inv.app (structureSheaf X)).hom.app U) (1 : ((structureSheaf Y).obj.obj U)) =
+      (1 : (((ringPushforward f).obj (structureSheaf X)).obj.obj U)) :=
+  sorry
+
+/-- The section function induced by geometric pullback preserves multiplication. -/
+private theorem structureMap_map_mul (f : X ⟶ Y) (U : (smallEtaleSite Y)ᵒᵖ) (a b : ((structureSheaf Y).obj.obj U)) :
+    ((structureUnderlying f ≫ (forgetIso f).inv.app (structureSheaf X)).hom.app U) (a * b) =
+      ((inferInstance : Mul (((ringPushforward f).obj (structureSheaf X)).obj.obj U)).mul (((structureUnderlying f ≫ (forgetIso f).inv.app (structureSheaf X)).hom.app U) a) (((structureUnderlying f ≫ (forgetIso f).inv.app (structureSheaf X)).hom.app U) b) : (((ringPushforward f).obj (structureSheaf X)).obj.obj U)) :=
+  sorry
+
+/-- The section function induced by geometric pullback preserves zero. -/
+private theorem structureMap_map_zero (f : X ⟶ Y) (U : (smallEtaleSite Y)ᵒᵖ) :
+    ((structureUnderlying f ≫ (forgetIso f).inv.app (structureSheaf X)).hom.app U) (0 : ((structureSheaf Y).obj.obj U)) =
+      (0 : (((ringPushforward f).obj (structureSheaf X)).obj.obj U)) :=
+  sorry
+
+/-- The section function induced by geometric pullback preserves addition. -/
+private theorem structureMap_map_add (f : X ⟶ Y) (U : (smallEtaleSite Y)ᵒᵖ) (a b : ((structureSheaf Y).obj.obj U)) :
+    ((structureUnderlying f ≫ (forgetIso f).inv.app (structureSheaf X)).hom.app U) (a + b) =
+      ((inferInstance : Add (((ringPushforward f).obj (structureSheaf X)).obj.obj U)).add (((structureUnderlying f ≫ (forgetIso f).inv.app (structureSheaf X)).hom.app U) a) (((structureUnderlying f ≫ (forgetIso f).inv.app (structureSheaf X)).hom.app U) b) : (((ringPushforward f).obj (structureSheaf X)).obj.obj U)) :=
+  sorry
+
 /-- The ring-valued structure map has the same section functions as the geometric map. -/
 def structureMap (f : X ⟶ Y) :
     structureSheaf Y ⟶ (ringPushforward f).obj (structureSheaf X) where
@@ -79,15 +95,16 @@ def structureMap (f : X ⟶ Y) :
         ((structureSheaf Y).obj.obj U)
         (((ringPushforward f).obj (structureSheaf X)).obj.obj U) _ _
         { toFun := ((structureUnderlying f ≫ (forgetIso f).inv.app (structureSheaf X)).hom.app U)
-          map_one' := sorry
-          map_mul' := sorry
-          map_zero' := sorry
-          map_add' := sorry }
+          map_one' := by exact structureMap_map_one f U
+          map_mul' := by exact structureMap_map_mul f U
+          map_zero' := by exact structureMap_map_zero f U
+          map_add' := by exact structureMap_map_add f U }
       naturality := sorry }
 
 /-- The ringed-topos map uses the actual constructed direct-image map and adjunction. -/
-def ringedHom (f : X ⟶ Y) : RingedSite.ToposHom (ringedSite X) (ringedSite Y) :=
-  @RingedSite.ToposHom.ofDirectImage (ringedSite X) (ringedSite Y) _ _
+def ringedHom (f : X ⟶ Y) :
+    RingedSite.ToposHom.{u + 1, u, u + 1, u, u} (ringedSite X) (ringedSite Y) :=
+  RingedSite.ToposHom.ofDirectImage.{u + 1, u, u + 1, u, u}
     (topos f) (ringPushforward f) (forgetIso f) (structureMap f) sorry
 
 /-- Ring-valued extension uses actual limits on the essentially small chart index. -/
@@ -120,25 +137,40 @@ def ringExtension (X : AlgebraicSpace S) :
     Sheaf (smallEtaleTopology X) RingCat.{u} ⥤ Sheaf (spacesEtaleTopology X) RingCat.{u} :=
   (ringSmallEquivalence X).functor ⋙ (ringSpaceEquivalence X).inverse
 
+/-- The chart counit hom followed by its inv is the identity on the restricted ring sheaf. -/
+private theorem ringExtensionChart_hom_inv_id (X : AlgebraicSpace S)
+    (N : Sheaf (smallEtaleTopology X) RingCat.{u}) :
+    let e := (ringSpaceEquivalence X).counitIso.app ((ringSmallEquivalence X).functor.obj N)
+    e.hom.hom ≫ e.inv.hom = 𝟙 _ :=
+  sorry
+
+/-- The chart counit inv followed by its hom is the identity on the restricted ring sheaf. -/
+private theorem ringExtensionChart_inv_hom_id (X : AlgebraicSpace S)
+    (N : Sheaf (smallEtaleTopology X) RingCat.{u}) :
+    let e := (ringSpaceEquivalence X).counitIso.app ((ringSmallEquivalence X).functor.obj N)
+    e.inv.hom ≫ e.hom.hom = 𝟙 _ :=
+  sorry
+
 /-- The small-chart counit identifies restriction of the constructed ring extension. -/
 def ringExtensionRestrictionIso (X : AlgebraicSpace S) :
-    ringExtension X ⋙ (smallEtaleInclusion X).sheafPushforwardContinuous RingCat.{u}
+    ringExtension X ⋙ (smallEtaleToSpaces X).sheafPushforwardContinuous RingCat.{u}
       (smallEtaleTopology X) (spacesEtaleTopology X) ≅ 𝟭 _ :=
   NatIso.ofComponents
     (fun N ↦
       let e := (ringSpaceEquivalence X).counitIso.app ((ringSmallEquivalence X).functor.obj N)
       let i : (SmallEtale.AtlasCharts.inclusion X).op ⋙
-          (((smallEtaleInclusion X).sheafPushforwardContinuous RingCat.{u}
+          (((smallEtaleToSpaces X).sheafPushforwardContinuous RingCat.{u}
             (smallEtaleTopology X) (spacesEtaleTopology X)).obj ((ringExtension X).obj N)).obj ≅
           (SmallEtale.AtlasCharts.inclusion X).op ⋙ N.obj :=
-        { hom := e.hom.hom, inv := e.inv.hom, hom_inv_id := sorry, inv_hom_id := sorry }
+        { hom := e.hom.hom, inv := e.inv.hom, hom_inv_id := by exact ringExtensionChart_hom_inv_id X N,
+          inv_hom_id := by exact ringExtensionChart_inv_hom_id X N }
       Functor.IsCoverDense.sheafIso i)
     sorry
 
 /-- Evaluate the ring extension on an actual scheme chart by restriction and the small-chart counit. -/
 def ringExtensionEvaluation (X : AlgebraicSpace S) (Q : Sheaf (smallEtaleTopology X) RingCat.{u})
     {W : spacesEtaleSite X} {U : smallEtaleSite X}
-    (a : (smallEtaleInclusion X).obj U ⟶ W) :
+    (a : (smallEtaleToSpaces X).obj U ⟶ W) :
     ((ringExtension X).obj Q).obj.obj (op W) ⟶ Q.obj.obj (op U) :=
   ((ringExtension X).obj Q).obj.map a.op ≫
     ((ringExtensionRestrictionIso X).hom.app Q).hom.app (op U)
@@ -146,7 +178,7 @@ def ringExtensionEvaluation (X : AlgebraicSpace S) (Q : Sheaf (smallEtaleTopolog
 /-- Restrict a cone over all scheme charts to the supplied small chart family. -/
 def ringExtensionSmallCone (X : AlgebraicSpace S) (Q : Sheaf (smallEtaleTopology X) RingCat.{u})
     (W : spacesEtaleSite X)
-    (c : Cone (StructuredArrow.proj (op W) (smallEtaleInclusion X).op ⋙ Q.obj)) :
+    (c : Cone (StructuredArrow.proj (op W) (smallEtaleToSpaces X).op ⋙ Q.obj)) :
     Cone (StructuredArrow.proj (op W) (SpacesEtale.AtlasCharts.inclusion X).op ⋙
       ((ringSmallEquivalence X).functor.obj Q).obj) where
   pt := c.pt
@@ -158,7 +190,7 @@ def ringExtensionSmallCone (X : AlgebraicSpace S) (Q : Sheaf (smallEtaleTopology
 /-- Lift an actual cone of ring maps into the small-chart extension, using genuine small limits. -/
 def ringExtensionLift (X : AlgebraicSpace S) (Q : Sheaf (smallEtaleTopology X) RingCat.{u})
     (W : spacesEtaleSite X)
-    (c : Cone (StructuredArrow.proj (op W) (smallEtaleInclusion X).op ⋙ Q.obj)) :
+    (c : Cone (StructuredArrow.proj (op W) (smallEtaleToSpaces X).op ⋙ Q.obj)) :
     c.pt ⟶ ((ringExtension X).obj Q).obj.obj (op W) := by
   -- Local instance justification (defeq pin): the limit lift uses exactly the ring limits chosen for the explicit spaces-chart extension.
   letI := ringChartLimits X

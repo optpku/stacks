@@ -1,13 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_16_4_Etale
-public import stacks_project.Chap67.Lemma_67_27_7_LocallyQuasiFinite
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale.QuasiFinite
+import StacksCheckRecall
 
 /-!
 # Étale morphisms of algebraic spaces are locally quasi-finite
@@ -19,12 +13,9 @@ open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 67.39.5: An étale morphism of algebraic spaces is locally quasi-finite. -/
-@[stacks 03XU]
-instance locallyQuasiFinite_of_etale {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [Etale f] : LocallyQuasiFinite f :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+/- Lemma 67.39.5: An étale morphism of algebraic spaces is locally quasi-finite. -/
+@[stacks 03XU] #check
+  (AlgebraicGeometry.AlgebraicSpace.locallyQuasiFinite_of_etale :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}} {X Y : AlgebraicGeometry.AlgebraicSpace S}
+      (f : X ⟶ Y), [AlgebraicGeometry.AlgebraicSpace.Etale f] →
+        AlgebraicGeometry.AlgebraicSpace.LocallyQuasiFinite f)

@@ -1,15 +1,9 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Adjunction.Mates
 public import stacks_project.Chap63.«63_11_4_1_UpperShriek»
-public import stacks_project.Chap63.Remark_63_10_8
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.CompactSupport.ChangeOfRings
+import StacksCheckRecall
 
 /-!
 # Change of rings for derived étale upper shriek
@@ -129,53 +123,36 @@ variable [((etaleDerivedLowerShriek X P :
 variable [((etaleDerivedLowerShriek X P :
     EtaleDerived X.left Λ2 ⥤ EtaleDerived Y Λ2)).IsLeftAdjoint]
 
-/-- Remark 63.11.8: for a homomorphism `φ : Λ1 →+* Λ2` of torsion rings and a
-separated finite-type morphism `f = X.hom` of quasi-compact quasi-separated
-schemes, derived restriction of scalars commutes with `Rf^!`:
-`etaleDerivedUpperShriek X Λ2 P ⋙ etaleDerivedRestrictScalars φ X.left ≅
-etaleDerivedRestrictScalars φ Y ⋙ etaleDerivedUpperShriek X Λ1 P` on
-`D(Y_étale, Λ2)` and `D(X_étale, Λ1)`. This is the uniqueness-of-adjoints
-conjugate of `etaleDerivedLowerShriekExtendScalarsIso` along the composite
-adjunctions `etaleDerivedExtendRestrictAdjunction` then
-`etaleDerivedLowerShriekAdjunction`. -/
-@[stacks 0GLF]
-def etaleDerivedUpperShriekRestrictScalarsIso
-    (hΛ1 : AddMonoid.IsTorsion Λ1) (hΛ2 : AddMonoid.IsTorsion Λ2) :
-    (etaleDerivedUpperShriek X Λ2 P ⋙ etaleDerivedRestrictScalars φ X.left :
-        EtaleDerived Y Λ2 ⥤ EtaleDerived X.left Λ1) ≅
-      (etaleDerivedRestrictScalars φ Y ⋙ etaleDerivedUpperShriek X Λ1 P) :=
-  conjugateIsoEquiv
-    ((etaleDerivedExtendRestrictAdjunction φ X.left).comp
-      (etaleDerivedLowerShriekAdjunction X Λ2 P))
-    ((etaleDerivedLowerShriekAdjunction X Λ1 P).comp
-      (etaleDerivedExtendRestrictAdjunction φ Y))
-    (etaleDerivedLowerShriekExtendScalarsIso X φ P hΛ1 hΛ2)
+/- Remark 63.11.8. Restriction of scalars commutes with derived upper shriek
+as the right-adjoint conjugate of the lower-shriek extension comparison. -/
+@[stacks 0GLF] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedUpperShriekRestrictScalars_isIso X φ P :
+    (hΛ1 : AddMonoid.IsTorsion Λ1) → (hΛ2 : AddMonoid.IsTorsion Λ2) →
+      IsIso (etaleDerivedUpperShriekRestrictScalars_comparison X φ P hΛ1 hΛ2))
 
-/-- Evaluating the derived restriction-of-scalars comparison for `Rf^!` on an
-object of `D(Y_étale, Λ2)`. -/
-def etaleDerivedUpperShriekRestrictScalarsIso_app
-    (hΛ1 : AddMonoid.IsTorsion Λ1) (hΛ2 : AddMonoid.IsTorsion Λ2)
-    (K : EtaleDerived Y Λ2) :
-    (etaleDerivedRestrictScalars φ X.left).obj
-      ((etaleDerivedUpperShriek X Λ2 P).obj K) ≅
-      (etaleDerivedUpperShriek X Λ1 P).obj
-        ((etaleDerivedRestrictScalars φ Y).obj K) :=
-  (etaleDerivedUpperShriekRestrictScalarsIso X φ P hΛ1 hΛ2).app K
+#check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedUpperShriekRestrictScalars_comparison X φ P :
+    (hΛ1 : AddMonoid.IsTorsion Λ1) → (hΛ2 : AddMonoid.IsTorsion Λ2) →
+      (etaleDerivedUpperShriek X Λ2 P ⋙ etaleDerivedRestrictScalars φ X.left :
+        EtaleDerived Y Λ2 ⥤ EtaleDerived X.left Λ1) ⟶
+      (etaleDerivedRestrictScalars φ Y ⋙ etaleDerivedUpperShriek X Λ1 P))
 
-/-- The `Rf^!` restriction-of-scalars comparison is the conjugate of
-`etaleDerivedLowerShriekExtendScalarsIso` along the composite adjunctions
-`etaleDerivedExtendRestrictAdjunction` then
-`etaleDerivedLowerShriekAdjunction`. -/
-theorem etaleDerivedUpperShriekRestrictScalarsIso_spec
-    (hΛ1 : AddMonoid.IsTorsion Λ1) (hΛ2 : AddMonoid.IsTorsion Λ2) :
-    etaleDerivedUpperShriekRestrictScalarsIso X φ P hΛ1 hΛ2 =
-      conjugateIsoEquiv
-        ((etaleDerivedExtendRestrictAdjunction φ X.left).comp
-          (etaleDerivedLowerShriekAdjunction X Λ2 P))
-        ((etaleDerivedLowerShriekAdjunction X Λ1 P).comp
-          (etaleDerivedExtendRestrictAdjunction φ Y))
-        (etaleDerivedLowerShriekExtendScalarsIso X φ P hΛ1 hΛ2) :=
-  sorry
+#check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedUpperShriekRestrictScalars_comparison_app_isIso X φ P :
+    (hΛ1 : AddMonoid.IsTorsion Λ1) → (hΛ2 : AddMonoid.IsTorsion Λ2) →
+    (K : EtaleDerived Y Λ2) →
+      IsIso ((etaleDerivedUpperShriekRestrictScalars_comparison X φ P hΛ1 hΛ2).app K))
+
+#check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedUpperShriekRestrictScalars_comparison_spec X φ P :
+    (hΛ1 : AddMonoid.IsTorsion Λ1) → (hΛ2 : AddMonoid.IsTorsion Λ2) →
+      etaleDerivedUpperShriekRestrictScalars_comparison X φ P hΛ1 hΛ2 =
+        conjugateEquiv
+          ((etaleDerivedExtendRestrictAdjunction φ X.left).comp
+            (etaleDerivedLowerShriekAdjunction X Λ2 P))
+          ((etaleDerivedLowerShriekAdjunction X Λ1 P).comp
+            (etaleDerivedExtendRestrictAdjunction φ Y))
+          (etaleDerivedLowerShriekExtendScalars_comparison X φ P hΛ1 hΛ2))
 
 end AlgebraicGeometry.Scheme.Etale
 

@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import stacks_project.Chap52.Situation_52_16_1
@@ -223,6 +217,8 @@ abbrev α₀LinearMap (C : Comparison T) :
     S.specialFiberSections ((Scheme.Modules.pullback S.algebraization.y).obj C.F') →ₗ[A]
       S.specialFiberSections T.F₀ :=
   S.specialFiberLinearMap C.α₀'
+
+variable {T : CoherentTriple S}
 
 /-- Comparison data satisfies coherence of `F'` and the required equality on `U₀`. -/
 theorem source_spec (C : Comparison T) :

@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Quasicoherent
-public import stacks_project.Chap96.Lemma_96_11_2_Pullback
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.Quasicoherent
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -21,24 +14,20 @@ universe u
 
 namespace AlgebraicGeometry.GroupoidsOver
 
-variable {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
-variable [∀ x : X.total, HasWeakSheafify
-    ((inheritedFppfTopology X).over x) AddCommGrpCat.{u}]
-variable [∀ x : X.total,
-    ((inheritedFppfTopology X).over x).WEqualsLocallyBijective AddCommGrpCat.{u}]
-variable [∀ y : Y.total, HasWeakSheafify
-    ((inheritedFppfTopology Y).over y) AddCommGrpCat.{u}]
-variable [∀ y : Y.total,
-    ((inheritedFppfTopology Y).over y).WEqualsLocallyBijective AddCommGrpCat.{u}]
-
-/-- Lemma 96.11.2: let `f : X ⟶ Y` be a 1-morphism of categories fibred in groupoids
+/- Lemma 96.11.2: let `f : X ⟶ Y` be a 1-morphism of categories fibred in groupoids
 over `(Sch/S)_fppf`. The pullback functor `f^* = f⁻¹ : Mod(𝒪_Y) ⟶ Mod(𝒪_X)`
 preserves quasi-coherent sheaves. -/
-@[stacks 06WH]
-instance pullback_isQuasicoherent
-    (F : SheafOfModules.{u} (structureSheaf Y))
-    [F.IsQuasicoherent] :
-    ((modulePullback f).obj F).IsQuasicoherent :=
-  sorry
+@[stacks 06WH] #check (AlgebraicGeometry.GroupoidsOver.pullback_isQuasicoherent :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
+    [∀ x : X.total, HasWeakSheafify
+      ((fppfTopology X).over x) AddCommGrpCat.{u}]
+    [∀ x : X.total,
+      ((fppfTopology X).over x).WEqualsLocallyBijective AddCommGrpCat.{u}]
+    [∀ y : Y.total, HasWeakSheafify
+      ((fppfTopology Y).over y) AddCommGrpCat.{u}]
+    [∀ y : Y.total,
+      ((fppfTopology Y).over y).WEqualsLocallyBijective AddCommGrpCat.{u}]
+    (F : SheafOfModules.{u} (structureSheaf Y)) [F.IsQuasicoherent],
+    ((modulePullback f).obj F).IsQuasicoherent)
 
 end AlgebraicGeometry.GroupoidsOver

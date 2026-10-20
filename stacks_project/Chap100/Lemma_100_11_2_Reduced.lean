@@ -1,14 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.AlgebraicGeometry.Properties
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
-public import stacks_project.Chap100.Lemma_100_7_1_SmoothLocal
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Reduced
 
 /-!
 # Reduced algebraic stacks
@@ -28,61 +20,44 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- An algebraic stack is reduced if it admits a surjective smooth atlas from a
-reduced scheme. -/
-@[mk_iff]
-class IsReduced {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X] : Prop where
-  /-- There is a surjective smooth 1-morphism from the slice of a reduced scheme. -/
-  exists_reduced_smooth_cover :
-    ∃ (U : Over S) (p : GroupoidsOver.slice U ⟶ X),
-      Groupoids.Hom.Smooth p ∧ Groupoids.Hom.Surjective p ∧
-        AlgebraicGeometry.IsReduced U.left
+#check (AlgebraicGeometry.AlgebraicStack.IsReduced :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
+    Prop)
 
 namespace IsReduced
 
-/-- A reduced algebraic stack admits a surjective smooth atlas from a reduced
-scheme. -/
-theorem spec {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
-    [IsReduced X] :
+#check (AlgebraicGeometry.AlgebraicStack.IsReduced.spec :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
+    [IsReduced X],
     ∃ (U : Over S) (p : GroupoidsOver.slice U ⟶ X),
       Groupoids.Hom.Smooth p ∧ Groupoids.Hom.Surjective p ∧
-        AlgebraicGeometry.IsReduced U.left :=
-  sorry
+        AlgebraicGeometry.IsReduced U.left)
 
-/-- A surjective smooth atlas from a reduced scheme witnesses that the algebraic
-stack is reduced. -/
-theorem of {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] {U : Over S}
+#check (AlgebraicGeometry.AlgebraicStack.IsReduced.of :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] {U : Over S}
     (p : GroupoidsOver.slice U ⟶ X) [Groupoids.Hom.Smooth p]
-    [Groupoids.Hom.Surjective p] [AlgebraicGeometry.IsReduced U.left] :
-    IsReduced X :=
-  sorry
+    [Groupoids.Hom.Surjective p] [AlgebraicGeometry.IsReduced U.left],
+    IsReduced X)
 
-/-- An algebraic stack is reduced if and only if it admits a surjective smooth
-atlas from a reduced scheme. -/
-theorem iff {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X] :
+#check (AlgebraicGeometry.AlgebraicStack.IsReduced.iff :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
     IsReduced X ↔
       ∃ (U : Over S) (p : GroupoidsOver.slice U ⟶ X),
         Groupoids.Hom.Smooth p ∧ Groupoids.Hom.Surjective p ∧
-          AlgebraicGeometry.IsReduced U.left :=
-  sorry
+          AlgebraicGeometry.IsReduced U.left)
 
 end IsReduced
 
-/-- The canonical slice of a reduced scheme over `S` is a reduced algebraic
-stack. -/
-instance instIsReduced_slice {S : Scheme.{u}} (U : Over S)
-    [AlgebraicGeometry.IsReduced U.left] :
-    IsReduced (GroupoidsOver.slice U) where
-  exists_reduced_smooth_cover :=
-    ⟨U, 𝟙 (GroupoidsOver.slice U), inferInstance, inferInstance, inferInstance⟩
+#check (AlgebraicGeometry.AlgebraicStack.instIsReduced_slice :
+  ∀ {S : Scheme.{u}} (U : Over S)
+    [AlgebraicGeometry.IsReduced U.left],
+    IsReduced (GroupoidsOver.slice U))
 
-/-- An algebraic stack is reduced if and only if it admits a surjective smooth
-scheme atlas whose source is reduced. -/
-theorem isReduced_iff_existsSurjectiveSmooth {S : Scheme.{u}}
-    (X : GroupoidsOver S) [AlgebraicStack X] :
+#check (AlgebraicGeometry.AlgebraicStack.isReduced_iff_existsSurjectiveSmooth :
+  ∀ {S : Scheme.{u}}
+    (X : GroupoidsOver S) [AlgebraicStack X],
     IsReduced X ↔
       existsSurjectiveSmooth
-        (AlgebraicGeometry.IsReduced : ObjectProperty Scheme.{u}) X :=
-  sorry
+        (AlgebraicGeometry.IsReduced : ObjectProperty Scheme.{u}) X)
 
 end AlgebraicGeometry.AlgebraicStack

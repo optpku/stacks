@@ -1,16 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import Mathlib.RingTheory.Noetherian.Defs
-public import ReasLib.RingTheory.CompleteIntersection.Local.RingHom
-public import stacks_project.Chap88.«88_2_0_2_TopologicallyFiniteType»
-public import stacks_project.Chap88.«88_2_0_3_QuotientSystem»
-public import stacks_project.Chap88.Lemma_88_3_5_ExactSequence
+import StacksCheckRecall
+public import ReasLib.RingTheory.AdicCompletion.NaiveCotangent.CompleteIntersection
 
 /-!
 # Lemma 88.3.6
@@ -26,23 +17,15 @@ universe u
 
 open Algebra.NaiveCotangent.Adic
 
-namespace Algebra.NaiveCotangent.Adic
-
-variable {A B C : Type u} [CommRing A] [CommRing B] [CommRing C] [IsNoetherianRing A]
-variable [Algebra A B] [Algebra A C] [Algebra B C] [IsScalarTower A B C]
-variable (I : Ideal A) [Algebra.TopologicallyFiniteType I B]
-  [Algebra.TopologicallyFiniteType I C]
-variable {ι κ : Type u} [Fintype ι] [Fintype κ]
-variable (P : Presentation A B I ι)
-variable (Q : Presentation B C (I.map (algebraMap A B)) κ)
-
-/-- Lemma 88.3.6: with assumptions as in Lemma 88.3.5, if each stage map
+/- Lemma 88.3.6: with assumptions as in Lemma 88.3.5, if each stage map
 `B ⧸ I^n B → C ⧸ I^n C` is a local complete intersection homomorphism, then
 `H^{-1}(NL_{B/A}^∧ ⊗[B] C) ⟶ H^{-1}(NL_{C/A}^∧)` is injective. -/
-@[stacks 0AQJ]
-theorem homologyOneTensor_injective
+@[stacks 0AQJ] #check (Algebra.NaiveCotangent.Adic.homologyOneTensor_injective :
+  ∀ {A B C : Type u} [CommRing A] [CommRing B] [CommRing C] [IsNoetherianRing A]
+    [Algebra A B] [Algebra A C] [Algebra B C] [IsScalarTower A B C]
+    (I : Ideal A) [Algebra.TopologicallyFiniteType I B] [Algebra.TopologicallyFiniteType I C]
+    {ι κ : Type u} [Fintype ι] [Fintype κ]
+    (P : Presentation A B I ι) (Q : Presentation B C (I.map (algebraMap A B)) κ)
     (h_lci : ∀ n : ℕ+,
-      (CommAlgCat.adicQuotientMap I (IsScalarTower.toAlgHom A B C) n).IsLocalCompleteIntersection) :
-    Function.Injective (homologyOneTensor I P Q) := sorry
-
-end Algebra.NaiveCotangent.Adic
+      (CommAlgCat.adicQuotientMap I (IsScalarTower.toAlgHom A B C) n).IsLocalCompleteIntersection),
+    Function.Injective (homologyOneTensor I P Q))

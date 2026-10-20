@@ -1,12 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap76.Lemma_76_10_3_Cartesian
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Thickening.CartesianProperties
 import StacksCheckRecall
 
 open CategoryTheory Limits

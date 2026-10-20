@@ -1,9 +1,3 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.AlgebraicGeometry.Sites.Fpqc
@@ -26,20 +20,38 @@ noncomputable section
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+
 namespace AlgebraicGeometry.AlgebraicSpace.Complexes
 
 variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
+
+
 
 /-- Lemma 99.16.6: in Situation 99.16.3, with `f : X ⟶ B` proper, flat, and of
 finite presentation, the projection `p : Complexes f ⟶ Over S`, `(T, g, E) ↦ T`,
 is a stack in groupoids over `(Sch/S)_fppf`. Hom-types of `Obj f` live in
 `Type (u + 1)`, so this cannot land in `GroupoidsOver S`. -/
 @[stacks 0DLH]
-instance instIsStackInGroupoids (f : X ⟶ B) [Proper f] [Flat f] [FinitePresentation f] :
+instance instIsStackInGroupoids (f : X ⟶ B)
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)] [Proper f] [Flat f] [FinitePresentation f] :
     IsStack.InGroupoids (Scheme.fppfTopology.over S) (p f) := sorry
 
 /-- The projection `p f` is a stack on the site `(Sch/S)_fppf`. -/
-theorem p_isStackOnSite (f : X ⟶ B) [Proper f] [Flat f] [FinitePresentation f] :
+theorem p_isStackOnSite (f : X ⟶ B)
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
+        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
+    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
+      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
+      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
+      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)] [Proper f] [Flat f] [FinitePresentation f] :
     IsStack.OnSite (Scheme.fppfTopology.over S) (p f) := sorry
 
 end AlgebraicGeometry.AlgebraicSpace.Complexes

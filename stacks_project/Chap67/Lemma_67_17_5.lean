@@ -1,14 +1,7 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
-public import stacks_project.Chap66.Lemma_66_29_2_Pullback
-public import stacks_project.Chap67.Definition_67_17_3_SchemeTheoreticDensity
-public import stacks_project.Chap67.Lemma_67_28_12_IdealSheaf
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Open.SchemeTheoreticDensity.StructureSheaf
+import StacksCheckRecall
 
 /-!
 # Structure-sheaf characterization of scheme-theoretic density
@@ -25,38 +18,27 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-namespace IsSchemeTheoreticallyDense
-
-/-- Lemma 67.17.5: Let `S` be a scheme. Let `ι : U ⟶ X` be an open immersion of
+/- Lemma 67.17.5: Let `S` be a scheme. Let `ι : U ⟶ X` be an open immersion of
 algebraic spaces over `S`. Then `U` is scheme-theoretically dense in `X` if and
 only if `structureSheafMap ι : 𝒪_X ⟶ ι_* 𝒪_U` is a monomorphism. -/
-@[stacks 0836]
-theorem iff_mono_structureSheafMap {S : Scheme.{u}} {X U : AlgebraicSpace S}
-    (ι : U ⟶ X) [IsOpenImmersion ι] :
-    IsSchemeTheoreticallyDense ι ↔ Mono (structureSheafMap ι) :=
-  sorry
+@[stacks 0836] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticallyDense.iff_mono_structureSheafMap :
+    ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X) [IsOpenImmersion ι],
+      IsSchemeTheoreticallyDense ι ↔ Mono (structureSheafMap ι))
 
-/-- Injectivity of `𝒪_X ⟶ ι_* 𝒪_U` implies scheme-theoretic density of the open
-immersion. -/
-theorem of_mono_structureSheafMap {S : Scheme.{u}} {X U : AlgebraicSpace S}
-    {ι : U ⟶ X} [IsOpenImmersion ι] (h : Mono (structureSheafMap ι)) :
-    IsSchemeTheoreticallyDense ι :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticallyDense.of_mono_structureSheafMap :
+    ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} {ι : U ⟶ X} [IsOpenImmersion ι],
+      Mono (structureSheafMap ι) → IsSchemeTheoreticallyDense ι)
 
-/-- Scheme-theoretic density of an open immersion implies that
-`𝒪_X ⟶ ι_* 𝒪_U` is a monomorphism. -/
-instance mono_structureSheafMap {S : Scheme.{u}} {X U : AlgebraicSpace S}
-    (ι : U ⟶ X) [IsOpenImmersion ι] [IsSchemeTheoreticallyDense ι] :
-    Mono (structureSheafMap ι) :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticallyDense.mono_structureSheafMap :
+    ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X) [IsOpenImmersion ι]
+      [IsSchemeTheoreticallyDense ι], Mono (structureSheafMap ι))
 
-/-- Scheme-theoretic density of an open immersion is equivalent to vanishing of
-the kernel ideal sheaf of `𝒪_X ⟶ ι_* 𝒪_U`. -/
-theorem iff_idealSheafSubobject_eq_bot {S : Scheme.{u}} {X U : AlgebraicSpace S}
-    (ι : U ⟶ X) [IsOpenImmersion ι] :
-    IsSchemeTheoreticallyDense ι ↔ Hom.idealSheafSubobject ι = ⊥ :=
-  sorry
-
-end IsSchemeTheoreticallyDense
+#check
+  (AlgebraicGeometry.AlgebraicSpace.IsSchemeTheoreticallyDense.iff_idealSheafSubobject_eq_bot :
+    ∀ {S : Scheme.{u}} {X U : AlgebraicSpace S} (ι : U ⟶ X) [IsOpenImmersion ι],
+      IsSchemeTheoreticallyDense ι ↔ Hom.idealSheafSubobject ι = ⊥)
 
 end AlgebraicGeometry.AlgebraicSpace

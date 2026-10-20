@@ -1,15 +1,10 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import Mathlib.CategoryTheory.Comma.Over.Basic
 public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
 public import stacks_project.Chap67.Definition_67_40_1_Proper
 public import stacks_project.Chap70.Lemma_70_19_1_IsoOverOpen
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ProperIsoOverOpen
 
 /-!
 # Proper morphisms of algebraic spaces that are isomorphisms over an open
@@ -18,76 +13,47 @@ The full subcategory of `Over W` on morphisms `g : X ⟶ W` that are proper
 and for which the comparison `g⁻¹U ⟶ U` is an isomorphism.
 -/
 
-@[expose] public section
-
 open CategoryTheory CategoryTheory.ObjectProperty AlgebraicGeometry
+open AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.IsProperIsoOverOpen :
+  ∀ {S : Scheme.{u}} {X Y U : AlgebraicSpace S},
+    (X ⟶ Y) → ∀ (ι : U ⟶ Y) [IsOpenImmersion ι], Prop)
 
-/-- A morphism `g : X ⟶ Y` of algebraic spaces is proper and an isomorphism
-over an open immersion `ι : U ⟶ Y` when `g` is proper and
-`openInverseImageTo g ι : g⁻¹U ⟶ U` is an isomorphism. -/
-def IsProperIsoOverOpen {S : Scheme.{u}} {X Y U : AlgebraicSpace S}
-    (g : X ⟶ Y) (ι : U ⟶ Y) [IsOpenImmersion ι] : Prop :=
-  Proper g ∧ IsIsoOverOpen g ι
+#check (AlgebraicGeometry.AlgebraicSpace.isProperIsoOverOpen_iff :
+  ∀ {S : Scheme.{u}} {X Y U : AlgebraicSpace S}
+    (g : X ⟶ Y) (ι : U ⟶ Y) [IsOpenImmersion ι],
+    IsProperIsoOverOpen g ι ↔ Proper g ∧ IsIsoOverOpen g ι)
 
-/-- `IsProperIsoOverOpen g ι` is properness of `g` together with
-`IsIsoOverOpen g ι`. -/
-theorem isProperIsoOverOpen_iff {S : Scheme.{u}} {X Y U : AlgebraicSpace S}
-    (g : X ⟶ Y) (ι : U ⟶ Y) [IsOpenImmersion ι] :
-    IsProperIsoOverOpen g ι ↔ Proper g ∧ IsIsoOverOpen g ι :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.properIsoOverOpenProperty :
+  ∀ {S : Scheme.{u}} {W U : AlgebraicSpace S}
+    (ι : U ⟶ W) [IsOpenImmersion ι], ObjectProperty (Over W))
 
-/-- The object property on `Over W` selecting proper morphisms that are
-isomorphisms over the open immersion `ι`. -/
-abbrev properIsoOverOpenProperty {S : Scheme.{u}} {W U : AlgebraicSpace S}
-    (ι : U ⟶ W) [IsOpenImmersion ι] : ObjectProperty (Over W) :=
-  fun X ↦ IsProperIsoOverOpen X.hom ι
+#check (AlgebraicGeometry.AlgebraicSpace.properIsoOverOpenProperty_iff :
+  ∀ {S : Scheme.{u}} {W U : AlgebraicSpace S}
+    (ι : U ⟶ W) [IsOpenImmersion ι] (X : Over W),
+    properIsoOverOpenProperty ι X ↔ IsProperIsoOverOpen X.hom ι)
 
-/-- Membership in `properIsoOverOpenProperty ι` is `IsProperIsoOverOpen` of
-the structure morphism. -/
-theorem properIsoOverOpenProperty_iff {S : Scheme.{u}} {W U : AlgebraicSpace S}
-    (ι : U ⟶ W) [IsOpenImmersion ι] (X : Over W) :
-    properIsoOverOpenProperty ι X ↔ IsProperIsoOverOpen X.hom ι :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ProperIsoOverOpen :
+  ∀ {S : Scheme.{u}} {W U : AlgebraicSpace S}
+    (ι : U ⟶ W) [IsOpenImmersion ι], Type (u + 1))
 
-/-- The full subcategory of morphisms of algebraic spaces over `W` that are
-proper and isomorphisms over the open immersion `ι`. -/
-abbrev ProperIsoOverOpen {S : Scheme.{u}} {W U : AlgebraicSpace S}
-    (ι : U ⟶ W) [IsOpenImmersion ι] :=
-  (properIsoOverOpenProperty ι).FullSubcategory
+#check (AlgebraicGeometry.AlgebraicSpace.ProperIsoOverOpen.inclusion :
+  ∀ {S : Scheme.{u}} {W U : AlgebraicSpace S}
+    (ι : U ⟶ W) [IsOpenImmersion ι], ProperIsoOverOpen ι ⥤ Over W)
 
-namespace ProperIsoOverOpen
+#check (AlgebraicGeometry.AlgebraicSpace.ProperIsoOverOpen.of :
+  ∀ {S : Scheme.{u}} {W U Y : AlgebraicSpace S}
+    (ι : U ⟶ W) [IsOpenImmersion ι]
+    (g : Y ⟶ W), IsProperIsoOverOpen g ι → ProperIsoOverOpen ι)
 
-/-- The inclusion of `ProperIsoOverOpen ι` into the ambient slice category
-`Over W`. -/
-abbrev inclusion {S : Scheme.{u}} {W U : AlgebraicSpace S}
-    (ι : U ⟶ W) [IsOpenImmersion ι] : ProperIsoOverOpen ι ⥤ Over W :=
-  (properIsoOverOpenProperty ι).ι
+#check (AlgebraicGeometry.AlgebraicSpace.ProperIsoOverOpen.instProper_hom :
+  ∀ {S : Scheme.{u}} {W U : AlgebraicSpace S}
+    {ι : U ⟶ W} [IsOpenImmersion ι] (X : ProperIsoOverOpen ι), Proper X.obj.hom)
 
-/-- A proper morphism that is an isomorphism over `ι`, as an object of
-`ProperIsoOverOpen ι`. -/
-def of {S : Scheme.{u}} {W U Y : AlgebraicSpace S} (ι : U ⟶ W) [IsOpenImmersion ι]
-    (g : Y ⟶ W) (hg : IsProperIsoOverOpen g ι) :
-    ProperIsoOverOpen ι where
-  obj := Over.mk g
-  property := hg
-
-/-- The structure morphism of an object of `ProperIsoOverOpen ι` is proper. -/
-instance instProper_hom {S : Scheme.{u}} {W U : AlgebraicSpace S}
-    {ι : U ⟶ W} [IsOpenImmersion ι] (X : ProperIsoOverOpen ι) :
-    Proper X.obj.hom :=
-  X.property.1
-
-/-- The comparison `g⁻¹U ⟶ U` of an object of `ProperIsoOverOpen ι` is an
-isomorphism. -/
-instance instIsIso_openInverseImageTo {S : Scheme.{u}} {W U : AlgebraicSpace S}
-    {ι : U ⟶ W} [IsOpenImmersion ι] (X : ProperIsoOverOpen ι) :
-    IsIso (openInverseImageTo X.obj.hom ι) :=
-  X.property.2
-
-end ProperIsoOverOpen
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.ProperIsoOverOpen.instIsIso_openInverseImageTo :
+  ∀ {S : Scheme.{u}} {W U : AlgebraicSpace S}
+    {ι : U ⟶ W} [IsOpenImmersion ι] (X : ProperIsoOverOpen ι),
+    IsIso (openInverseImageTo X.obj.hom ι))

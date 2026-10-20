@@ -1,14 +1,8 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
 public import ReasLib.AlgebraicGeometry.MultiplicativeGroup.TameLabels
-public import stacks_project.Chap64.Remark_64_30_1_Extension
-public import stacks_project.Chap64.Example_64_30_2_PrimeTo
+public import ReasLib.Topology.Algebra.Category.ProfiniteGrp.DegreeExtension
+public import ReasLib.NumberTheory.Padics.PrimeTo.Basic
 
 /-! The original source's degree-extension interface on the constructed tame group. -/
 
@@ -23,14 +17,8 @@ variable (p : ℕ) [Fact p.Prime]
 abbrev sourcePoint := genericPoint (ZMod p)
 
 /-- Surjectivity comes from constant-cover restriction and its specified Frobenius normalization. -/
-theorem sourceDegree_surjective : Function.Surjective (degreeToIntegers p (sourcePoint p)) := by
-  intro z
-  let s := constantPoint (ZMod p) (sourcePoint p)
-  obtain ⟨g, hg⟩ := degree_surjective (ZMod p) (sourcePoint p) (completionFrobenius p s z)
-  refine ⟨g, ?_⟩
-  change normalizeDegree p s (degree (ZMod p) (sourcePoint p) g) = z
-  rw [hg]
-  exact ConcreteCategory.congr_hom (IsIso.hom_inv_id (completionFrobenius p s)) z
+theorem sourceDegree_surjective : Function.Surjective (degreeToIntegers p (sourcePoint p)) :=
+  degreeToIntegers_surjective p (sourcePoint p)
 
 /-- Original DegreeExtension, with the specified group and degree and no new data choices. -/
 def sourceExtension : ProfiniteGrp.DegreeExtension.{1} where

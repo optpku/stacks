@@ -1,11 +1,6 @@
-/-
-Released under Apache 2.0 license as described in the file LICENSE.
-Statement formalization authors: ReasBook team
-Proof formalization authors: ReasBook team
--/
-
 module
 
+public import Mathlib.AlgebraicGeometry.Morphisms.UniversallyClosed
 public import ReasLib.AlgebraicGeometry.AffineSpace.MorphismProperties
 
 @[expose] public section
@@ -47,5 +42,9 @@ instance squareMap_locallyOfFinitePresentation (k : Type u) [Field k] :
 
 /-- The squaring endomorphism of the affine line over a field is not smooth. -/
 theorem squareMap_not_smooth (k : Type u) [Field k] : ¬ Smooth (squareMap k) := sorry
+
+/-- The squaring endomorphism of the affine line over a field is universally closed. -/
+instance squareMap_universallyClosed (k : Type u) [Field k] :
+    UniversallyClosed (squareMap k) := sorry
 
 end AlgebraicGeometry.AffineSpace

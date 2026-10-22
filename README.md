@@ -107,6 +107,8 @@ For documentation-only changes, source references and Lean builds are needed onl
 ### Main Contributors
 
 - Zichen Wang, School of Mathematical Sciences, Peking University, CHINA (princhernwang@gmail.com)
+- Bohan Fang, Beijing International Center for Mathematical Research, Peking University, CHINA (b-fang@bicmr.pku.edu.cn)
+- Qizheng Yin, Beijing International Center for Mathematical Research, Peking University, CHINA (yinqizheng@math.pku.edu.cn)
 - Zaiwen Wen, Beijing International Center for Mathematical Research, Peking University, CHINA (wenzw@pku.edu.cn)
 
 ### Formalization

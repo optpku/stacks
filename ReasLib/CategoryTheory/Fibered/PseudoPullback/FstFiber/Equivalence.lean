@@ -58,7 +58,8 @@ Proof strategy: normalize the transported fibre equality and apply `Functor.IsHo
 private theorem unitRightHomIsHomLift
     [Functor.IsFibered.InGroupoids pY] (f : Over U)
     (A : structuredArrow G F f) :
-    pX.IsHomLift (𝟙 f.left) (𝟙 A.right.1) := sorry
+    pX.IsHomLift (𝟙 f.left) (𝟙 A.right.1) :=
+  IsHomLift.id A.right.2
 
 /-- The right-component isomorphism from a structured arrow to its reconstruction. Its
 non-Prop payload is the identity isomorphism of the original total-category object; its forward
@@ -79,7 +80,11 @@ private theorem unitTriangle
     [Functor.IsFibered.InGroupoids pY] (f : Over U)
     (A : structuredArrow G F f) :
     A.hom ≫ (F.fiberFunctor f.left).map (unitRightIso G F f A).hom =
-      ((comparison G F f ⋙ comparisonInverse G F f).obj A).hom := sorry
+      ((comparison G F f ⋙ comparisonInverse G F f).obj A).hom := by
+  apply Functor.Fiber.hom_ext
+  change A.hom.1 ≫ F.toFunctor.map (𝟙 A.right.1) = 𝟙 _ ≫ A.hom.1
+  exact (congrArg (fun k ↦ A.hom.1 ≫ k) (F.toFunctor.map_id A.right.1)).trans
+    ((Category.comp_id _).trans (Category.id_comp _).symm)
 
 end Implementation
 
@@ -98,7 +103,11 @@ theorem comparison.unitIso.app.naturality
     {A B : structuredArrow G F f} (α : A ⟶ B) :
     α ≫ (comparison.unitIso.app G F f B).hom =
       (comparison.unitIso.app G F f A).hom ≫
-        (comparison G F f ⋙ comparisonInverse G F f).map α := sorry
+        (comparison G F f ⋙ comparisonInverse G F f).map α := by
+  apply StructuredArrow.hom_ext
+  apply Functor.Fiber.hom_ext
+  change α.right.1 ≫ 𝟙 B.right.1 = 𝟙 A.right.1 ≫ α.right.1
+  simp only [Category.comp_id, Category.id_comp]
 
 /-- The identity functor on structured arrows is naturally isomorphic to passage to the fixed
 first fibre followed by the explicit inverse. -/
@@ -162,7 +171,14 @@ private theorem counitFstHomIsHomLift
     (Q : ((PseudoPullback.fst G F).toFunctor).Fiber f) :
     (BasedCategory.ofFunctor (Over.forget U)).p.IsHomLift
       (counitBaseIso G F f Q).hom
-      (counitFstIso G F f Q).hom := sorry
+      (counitFstIso G F f Q).hom := by
+  apply IsHomLift.of_commsq _ _ _ rfl (PseudoPullback.fiberObj Q.1).fst.2
+  change (Over.forget U).map (eqToHom Q.2.symm) ≫
+    eqToHom (PseudoPullback.fiberObj Q.1).fst.2 =
+      (𝟙 f.left) ≫ eqToHom
+        ((congrArg Over.left Q.2.symm).trans (PseudoPullback.fiberObj Q.1).fst.2)
+  rw [eqToHom_map, eqToHom_trans, Category.id_comp]
+  rfl
 
 /-- The forward identity second-component comparison lies over the forward base comparison.
 
@@ -173,7 +189,10 @@ private theorem counitSndHomIsHomLift
     (Q : ((PseudoPullback.fst G F).toFunctor).Fiber f) :
     (BasedCategory.ofFunctor pX).p.IsHomLift
       (counitBaseIso G F f Q).hom
-      (counitSndIso G F f Q).hom := sorry
+      (counitSndIso G F f Q).hom := by
+  exact IsHomLift.id_lift_eqToHom_codomain
+    ((congrArg Over.left Q.2.symm).trans (PseudoPullback.fiberObj Q.1).fst.2)
+    (PseudoPullback.fiberObj Q.1).snd.2
 
 /-- The forward component comparisons intertwine the reconstructed and original
 pseudo-pullback comparison maps.
@@ -186,7 +205,12 @@ private theorem counitComm
     CommSq (G.toFunctor.map (counitFstIso G F f Q).hom)
       (PseudoPullback.comparison
         ((comparisonInverse G F f ⋙ comparison G F f).obj Q).1)
-      (PseudoPullback.comparison Q.1) (F.toFunctor.map (counitSndIso G F f Q).hom) := sorry
+      (PseudoPullback.comparison Q.1) (F.toFunctor.map (counitSndIso G F f Q).hom) := by
+  constructor
+  change G.toFunctor.map (eqToHom Q.2.symm) ≫ PseudoPullback.comparison Q.1 =
+    (eqToHom (congrArg G.toFunctor.obj Q.2.symm) ≫ PseudoPullback.comparison Q.1) ≫
+      F.toFunctor.map (𝟙 (PseudoPullback.sndObj Q.1))
+  rw [eqToHom_map G.toFunctor, F.toFunctor.map_id, Category.comp_id]
 
 /-- The explicit total-category isomorphism from the reconstructed pseudo-pullback object to the
 original one. Its base and first components are equality isomorphisms derived from input data,
@@ -210,7 +234,11 @@ private theorem counitTotalIsoHomIsHomLift
     [Functor.IsFibered.InGroupoids pY] (f : Over U)
     (Q : ((PseudoPullback.fst G F).toFunctor).Fiber f) :
     (PseudoPullback.fst G F).toFunctor.IsHomLift
-      (𝟙 f) (counitTotalIso G F f Q).hom := sorry
+      (𝟙 f) (counitTotalIso G F f Q).hom := by
+  apply IsHomLift.of_commsq _ _ _ rfl Q.2
+  change eqToHom Q.2.symm ≫ eqToHom Q.2 = (𝟙 f) ≫ 𝟙 f
+  simp only [eqToHom_trans, eqToHom_refl, Category.comp_id]
+  rfl
 
 end Implementation
 
@@ -232,7 +260,20 @@ theorem comparison.counitIso.app.naturality
     (α : Q ⟶ R) :
     (comparisonInverse G F f ⋙ comparison G F f).map α ≫
         (comparison.counitIso.app G F f R).hom =
-      (comparison.counitIso.app G F f Q).hom ≫ α := sorry
+      (comparison.counitIso.app G F f Q).hom ≫ α := by
+  apply Functor.Fiber.hom_ext
+  apply PseudoPullback.hom_ext
+  · change (𝟙 f) ≫ eqToHom R.2.symm =
+      eqToHom Q.2.symm ≫ PseudoPullback.fstMap α.1
+    letI hα : (PseudoPullback.fst G F).toFunctor.IsHomLift (𝟙 f) α.1 := α.2
+    have h := IsHomLift.fac' (PseudoPullback.fst G F).toFunctor (𝟙 f) α.1
+    change PseudoPullback.fstMap α.1 =
+      eqToHom Q.2 ≫ 𝟙 f ≫ eqToHom R.2.symm at h
+    rw [h]
+    erw [eqToHom_trans_assoc, eqToHom_refl, Category.id_comp, Category.id_comp]
+  · change PseudoPullback.sndMap α.1 ≫ 𝟙 (PseudoPullback.sndObj R.1) =
+      𝟙 (PseudoPullback.sndObj Q.1) ≫ PseudoPullback.sndMap α.1
+    simp only [Category.comp_id, Category.id_comp]
 
 /-- Passage from the fixed first fibre to structured arrows and back is naturally isomorphic to
 the identity functor on that fibre. -/
@@ -265,19 +306,22 @@ Only the target projection `pY` must be fibered in groupoids: this makes each di
 structured-arrow map `φ` invertible, as required by the pseudo-pullback object. No groupoid
 condition on `pX` is used by the comparison.
 
-Proof strategy: apply `Functor.QuasiInverse.isEquivalence` to `comparison.quasiInverse G F f`. -/
+Proof strategy: adjointify `comparison.quasiInverse G F f` and use mathlib's equivalence
+instance for its forward functor. -/
 instance comparison.isEquivalence
     [Functor.IsFibered.InGroupoids pY] (f : Over U) :
-    (comparison G F f).IsEquivalence := sorry
+    (comparison G F f).IsEquivalence :=
+  (comparison.quasiInverse G F f).adjointifyUnit.isEquivalence_functor
 
 /-- The explicit inverse functor is itself an equivalence whenever the forward
 structured-arrow comparison is defined.
 
-Proof strategy: reverse `comparison.quasiInverse G F f` with `Functor.QuasiInverse.symm` and apply
-`Functor.QuasiInverse.isEquivalence`. -/
+Proof strategy: adjointify `comparison.quasiInverse G F f` and use mathlib's equivalence
+instance for its inverse functor. -/
 instance comparisonInverse.isEquivalence
     [Functor.IsFibered.InGroupoids pY] (f : Over U) :
-    (comparisonInverse G F f).IsEquivalence := sorry
+    (comparisonInverse G F f).IsEquivalence :=
+  (comparison.quasiInverse G F f).adjointifyUnit.isEquivalence_inverse
 
 /-- Lemma 4.42.1 (Stacks 02Y5) (1): the canonical equivalence between the structured-arrow
 description and the first pseudo-pullback fibre. It is packaged from named explicit

@@ -228,12 +228,46 @@ instance fiberModulePullbackStageComp_isIso {n m : SimplexCategory} (φ : n ⟶ 
     IsIso (fiberModulePullbackStageComp F J O (IsAugmentation.ringedHom F J K u0 O O_D aSharp) G φ) :=
   sorry
 
+/-- The augmentation's stage-composition identification on underlying inverse images. -/
+private def fiberModulePullbackStageInverseImageIso {n m : SimplexCategory} (φ : n ⟶ m) :
+    ((fiberRingedToposMap F J O φ).comp
+        ((fiberStageMorphism F J O n).comp
+          (IsAugmentation.ringedHom F J K u0 O O_D aSharp))).toTopos.inverseImage ≅
+      ((fiberStageMorphism F J O m).comp
+        (IsAugmentation.ringedHom F J K u0 O O_D aSharp)).toTopos.inverseImage :=
+  Functor.isoWhiskerRight
+      (IsAugmentation.totalTopos_comp_fiberMorphism F J K u0 n)
+      (toposMap F J φ).inverseImage ≪≫
+    IsAugmentation.stageTopos_comp F J K u0 φ ≪≫
+    (IsAugmentation.totalTopos_comp_fiberMorphism F J K u0 m).symm
+
+/-- The same identification is compatible with the ring map supplied by `aSharp`. -/
+private def fiberModulePullbackStageTwoIso {n m : SimplexCategory} (φ : n ⟶ m) :
+    ToposHom.TwoIso
+      ((fiberRingedToposMap F J O φ).comp
+        ((fiberStageMorphism F J O n).comp
+          (IsAugmentation.ringedHom F J K u0 O O_D aSharp)))
+      ((fiberStageMorphism F J O m).comp
+        (IsAugmentation.ringedHom F J K u0 O O_D aSharp)) where
+  homIso := MorphismOfTopoiIn.pushforwardIsoOfInverseImageIso _ _
+    (fiberModulePullbackStageInverseImageIso F J K u0 O O_D aSharp φ)
+  comm := by sorry
+
 /-- Inverse-image form of `a_m ∘ f_φ = a_n` on modules. -/
 def fiberModulePullbackStageCompIso {n m : SimplexCategory} (φ : n ⟶ m) :
     ((fiberStageMorphism F J O m).comp (IsAugmentation.ringedHom F J K u0 O O_D aSharp)).modulePullback.obj G ≅
       (fiberRingedToposMap F J O φ).modulePullback.obj
-        (((fiberStageMorphism F J O n).comp (IsAugmentation.ringedHom F J K u0 O O_D aSharp)).modulePullback.obj G) :=
-  (asIso (fiberModulePullbackStageComp F J O (IsAugmentation.ringedHom F J K u0 O O_D aSharp) G φ)).symm
+        (((fiberStageMorphism F J O n).comp (IsAugmentation.ringedHom F J K u0 O O_D aSharp)).modulePullback.obj G) where
+  hom :=
+    (ToposHom.modulePullbackIsoOfTwoIso
+      (fiberModulePullbackStageTwoIso F J K u0 O O_D aSharp φ)).inv.app G ≫
+      (ToposHom.modulePullbackCompIso (fiberRingedToposMap F J O φ)
+        ((fiberStageMorphism F J O n).comp
+          (IsAugmentation.ringedHom F J K u0 O O_D aSharp))).hom.app G
+  inv := fiberModulePullbackStageComp F J O
+    (IsAugmentation.ringedHom F J K u0 O O_D aSharp) G φ
+  hom_inv_id := by sorry
+  inv_hom_id := by sorry
 
 /-- The structure map `g_{m!}(a_m^* G) ⟶ g_{n!}(a_n^* G)` induced by a fiberwise simplex
 operator `φ : n ⟶ m`. -/

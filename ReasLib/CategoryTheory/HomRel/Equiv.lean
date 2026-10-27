@@ -56,12 +56,16 @@ namespace map
 /-- Mapping an equivalence along a relation-preserving functor preserves the inverse law at
 the source. -/
 theorem hom_inv_id (e : Equiv r X Y) (F : C ⥤ D) [IsMappedBy r F s] :
-    s (F.map e.hom ≫ F.map e.inv) (𝟙 (F.obj X)) := sorry
+    s (F.map e.hom ≫ F.map e.inv) (𝟙 (F.obj X)) := by
+  simpa only [Functor.map_comp, Functor.map_id] using
+    (IsMappedBy.map_rel (r := r) (F := F) (s := s) e.hom_inv_id)
 
 /-- Mapping an equivalence along a relation-preserving functor preserves the inverse law at
 the target. -/
 theorem inv_hom_id (e : Equiv r X Y) (F : C ⥤ D) [IsMappedBy r F s] :
-    s (F.map e.inv ≫ F.map e.hom) (𝟙 (F.obj Y)) := sorry
+    s (F.map e.inv ≫ F.map e.hom) (𝟙 (F.obj Y)) := by
+  simpa only [Functor.map_comp, Functor.map_id] using
+    (IsMappedBy.map_rel (r := r) (F := F) (s := s) e.inv_hom_id)
 
 end map
 
@@ -79,12 +83,12 @@ namespace map
 /-- The forward morphism of a mapped equivalence is the image of its forward morphism. -/
 @[simp]
 theorem hom (e : Equiv r X Y) (F : C ⥤ D) [IsMappedBy r F s] :
-    (e.map (s := s) F).hom = F.map e.hom := sorry
+    (e.map (s := s) F).hom = F.map e.hom := rfl
 
 /-- The inverse morphism of a mapped equivalence is the image of its inverse morphism. -/
 @[simp]
 theorem inv (e : Equiv r X Y) (F : C ⥤ D) [IsMappedBy r F s] :
-    (e.map (s := s) F).inv = F.map e.inv := sorry
+    (e.map (s := s) F).inv = F.map e.inv := rfl
 
 end map
 
@@ -92,13 +96,17 @@ end map
 identity. -/
 theorem toIso_hom_inv_id (e : Equiv r X Y) :
     (Quotient.functor r).map e.hom ≫ (Quotient.functor r).map e.inv =
-      𝟙 ((Quotient.functor r).obj X) := sorry
+      𝟙 ((Quotient.functor r).obj X) := by
+  simpa only [Functor.map_comp, Functor.map_id] using
+    (Quotient.sound r e.hom_inv_id)
 
 /-- The images in the quotient of the two maps in an equivalence compose to the target
 identity in the reverse order. -/
 theorem toIso_inv_hom_id (e : Equiv r X Y) :
     (Quotient.functor r).map e.inv ≫ (Quotient.functor r).map e.hom =
-      𝟙 ((Quotient.functor r).obj Y) := sorry
+      𝟙 ((Quotient.functor r).obj Y) := by
+  simpa only [Functor.map_comp, Functor.map_id] using
+    (Quotient.sound r e.inv_hom_id)
 
 /-- An equivalence modulo `r` induces an isomorphism in the quotient category. -/
 @[stacks 019N "equivalence modulo a relation gives a quotient isomorphism"]
@@ -112,16 +120,18 @@ def toIso (e : Equiv r X Y) :
 /-- The forward map of the quotient isomorphism induced by an equivalence. -/
 @[simp, stacks 019N "forward map of the quotient isomorphism induced by an equivalence"]
 theorem toIso_hom (e : Equiv r X Y) :
-    e.toIso.hom = (Quotient.functor r).map e.hom := sorry
+    e.toIso.hom = (Quotient.functor r).map e.hom := rfl
 
 /-- The inverse map of the quotient isomorphism induced by an equivalence. -/
 @[simp, stacks 019N "inverse map of the quotient isomorphism induced by an equivalence"]
 theorem toIso_inv (e : Equiv r X Y) :
-    e.toIso.inv = (Quotient.functor r).map e.inv := sorry
+    e.toIso.inv = (Quotient.functor r).map e.inv := rfl
 
 /-- The identity is related to itself for a congruence. -/
 theorem refl_law (r : HomRel C) [Congruence r] (X : C) :
-    r ((𝟙 X) ≫ 𝟙 X) (𝟙 X) := sorry
+    r ((𝟙 X) ≫ 𝟙 X) (𝟙 X) := by
+  rw [Category.id_comp]
+  exact Congruence.equivalence.refl _
 
 /-- Every object is equivalent to itself modulo a congruence. -/
 @[stacks 019N "reflexivity of equivalence modulo a congruence"]
@@ -141,11 +151,17 @@ def symm (e : Equiv r X Y) : Equiv r Y X where
 
 /-- The proposed composites for transitivity are inverse modulo a congruence at the source. -/
 theorem trans_hom_inv_id [Congruence r] (e : Equiv r X Y) (f : Equiv r Y Z) :
-    r ((e.hom ≫ f.hom) ≫ (f.inv ≫ e.inv)) (𝟙 X) := sorry
+    r ((e.hom ≫ f.hom) ≫ (f.inv ≫ e.inv)) (𝟙 X) := by
+  apply Congruence.equivalence.trans ?_ e.hom_inv_id
+  simpa only [Category.assoc, Category.id_comp] using
+    (comp_left e.hom (comp_right e.inv f.hom_inv_id))
 
 /-- The proposed composites for transitivity are inverse modulo a congruence at the target. -/
 theorem trans_inv_hom_id [Congruence r] (e : Equiv r X Y) (f : Equiv r Y Z) :
-    r ((f.inv ≫ e.inv) ≫ (e.hom ≫ f.hom)) (𝟙 Z) := sorry
+    r ((f.inv ≫ e.inv) ≫ (e.hom ≫ f.hom)) (𝟙 Z) := by
+  apply Congruence.equivalence.trans ?_ f.inv_hom_id
+  simpa only [Category.assoc, Category.id_comp] using
+    (comp_left f.inv (comp_right f.hom e.inv_hom_id))
 
 /-- Equivalences modulo a congruence compose. -/
 @[stacks 019N "transitivity of equivalence modulo a congruence"]
@@ -157,11 +173,15 @@ def trans [Congruence r] (e : Equiv r X Y) (f : Equiv r Y Z) : Equiv r X Z where
 
 /-- The two maps of an isomorphism are inverse modulo a congruence at the source. -/
 theorem ofIso_hom_inv_id (r : HomRel C) [Congruence r] (e : X ≅ Y) :
-    r (e.hom ≫ e.inv) (𝟙 X) := sorry
+    r (e.hom ≫ e.inv) (𝟙 X) := by
+  rw [e.hom_inv_id]
+  exact Congruence.equivalence.refl _
 
 /-- The two maps of an isomorphism are inverse modulo a congruence at the target. -/
 theorem ofIso_inv_hom_id (r : HomRel C) [Congruence r] (e : X ≅ Y) :
-    r (e.inv ≫ e.hom) (𝟙 Y) := sorry
+    r (e.inv ≫ e.hom) (𝟙 Y) := by
+  rw [e.inv_hom_id]
+  exact Congruence.equivalence.refl _
 
 /-- An isomorphism induces an equivalence modulo any congruence. -/
 @[stacks 019N "isomorphisms are equivalences modulo a congruence"]
@@ -175,13 +195,19 @@ def ofIso (r : HomRel C) [Congruence r] (e : X ≅ Y) : Equiv r X Y where
 source. -/
 theorem ofQuotientIso_hom_inv_id [Congruence r]
     (e : (Quotient.functor r).obj X ≅ (Quotient.functor r).obj Y) :
-    r (Quot.out e.hom ≫ Quot.out e.inv) (𝟙 X) := sorry
+    r (Quot.out e.hom ≫ Quot.out e.inv) (𝟙 X) := by
+  apply (Quotient.functor_map_eq_iff r _ _).mp
+  simpa only [Functor.map_comp, Functor.map_id, Quotient.functor, Quot.out_eq] using
+    e.hom_inv_id
 
 /-- Representatives of inverse quotient morphisms are inverse modulo the congruence at the
 target. -/
 theorem ofQuotientIso_inv_hom_id [Congruence r]
     (e : (Quotient.functor r).obj X ≅ (Quotient.functor r).obj Y) :
-    r (Quot.out e.inv ≫ Quot.out e.hom) (𝟙 Y) := sorry
+    r (Quot.out e.inv ≫ Quot.out e.hom) (𝟙 Y) := by
+  apply (Quotient.functor_map_eq_iff r _ _).mp
+  simpa only [Functor.map_comp, Functor.map_id, Quotient.functor, Quot.out_eq] using
+    e.inv_hom_id
 
 /-- An isomorphism between images in the quotient determines an equivalence modulo the
 congruence. The representative choices are exposed through the accompanying map lemmas. -/
@@ -197,18 +223,21 @@ noncomputable def ofQuotientIso [Congruence r]
 @[stacks 019N "forward-map specification for a quotient isomorphism representative"]
 theorem ofQuotientIso_hom_map [Congruence r]
     (e : (Quotient.functor r).obj X ≅ (Quotient.functor r).obj Y) :
-    (Quotient.functor r).map (ofQuotientIso e).hom = e.hom := sorry
+    (Quotient.functor r).map (ofQuotientIso e).hom = e.hom :=
+  Quot.out_eq e.hom
 
 /-- The chosen inverse representative maps to the inverse of the original quotient
 isomorphism. -/
 @[stacks 019N "inverse-map specification for a quotient isomorphism representative"]
 theorem ofQuotientIso_inv_map [Congruence r]
     (e : (Quotient.functor r).obj X ≅ (Quotient.functor r).obj Y) :
-    (Quotient.functor r).map (ofQuotientIso e).inv = e.inv := sorry
+    (Quotient.functor r).map (ofQuotientIso e).inv = e.inv :=
+  Quot.out_eq e.inv
 
 /-- The forward map of an equivalence satisfies the associated morphism property. -/
 @[stacks 019N "forward map is invertible modulo the relation"]
-theorem mem_equivalences (e : Equiv r X Y) : equivalences r e.hom := sorry
+theorem mem_equivalences (e : Equiv r X Y) : equivalences r e.hom :=
+  e.toIso.isIso_hom
 
 end Equiv
 
@@ -216,18 +245,37 @@ end Equiv
 forward map of an equivalence modulo the relation. -/
 @[stacks 019N "structured criterion for invertibility modulo a relation"]
 theorem equivalences_iff (r : HomRel C) [Congruence r] {X Y : C} (f : X ⟶ Y) :
-    equivalences r f ↔ ∃ e : Equiv r X Y, e.hom = f := sorry
+    equivalences r f ↔ ∃ e : Equiv r X Y, e.hom = f := by
+  constructor
+  · intro hf
+    change IsIso ((Quotient.functor r).map f) at hf
+    obtain ⟨g, hfg, hgf⟩ := hf.out
+    refine ⟨⟨f, Quot.out g, ?_, ?_⟩, rfl⟩
+    · change r (f ≫ Quot.out g) (𝟙 X)
+      apply (Quotient.functor_map_eq_iff r _ _).mp
+      simpa only [Functor.map_comp, Functor.map_id, Quotient.functor, Quot.out_eq] using hfg
+    · change r (Quot.out g ≫ f) (𝟙 Y)
+      apply (Quotient.functor_map_eq_iff r _ _).mp
+      simpa only [Functor.map_comp, Functor.map_id, Quotient.functor, Quot.out_eq] using hgf
+  · rintro ⟨e, rfl⟩
+    exact e.mem_equivalences
 
 /-- Two objects are equivalent modulo a congruence exactly when there exists a morphism between
 them which becomes invertible in the quotient. -/
 @[stacks 019N "object equivalence is existence of an invertible-modulo-relation morphism"]
 theorem Equiv.nonempty_iff_exists (r : HomRel C) [Congruence r] {X Y : C} :
-    Nonempty (Equiv r X Y) ↔ ∃ f : X ⟶ Y, equivalences r f := sorry
+    Nonempty (Equiv r X Y) ↔ ∃ f : X ⟶ Y, equivalences r f := by
+  constructor
+  · rintro ⟨e⟩
+    exact ⟨e.hom, e.mem_equivalences⟩
+  · rintro ⟨f, hf⟩
+    obtain ⟨e, _⟩ := (equivalences_iff r f).mp hf
+    exact ⟨e⟩
 
 /-- A map satisfies `equivalences r` exactly when its image in the quotient is an isomorphism. -/
 @[stacks 019N "isomorphism in a quotient category criterion"]
 theorem isIso_quotient_map_iff_equivalences (r : HomRel C) {X Y : C} (f : X ⟶ Y) :
-    IsIso ((Quotient.functor r).map f) ↔ equivalences r f := sorry
+    IsIso ((Quotient.functor r).map f) ↔ equivalences r f := Iff.rfl
 
 /-- A map is invertible modulo a congruence exactly when it has a two-sided inverse modulo that
 congruence. -/
@@ -235,18 +283,36 @@ congruence. -/
 theorem equivalences_iff_exists_inverse (r : HomRel C) [Congruence r]
     {X Y : C} (f : X ⟶ Y) :
     equivalences r f ↔
-      ∃ g : Y ⟶ X, r (f ≫ g) (𝟙 X) ∧ r (g ≫ f) (𝟙 Y) := sorry
+      ∃ g : Y ⟶ X, r (f ≫ g) (𝟙 X) ∧ r (g ≫ f) (𝟙 Y) := by
+  rw [equivalences_iff]
+  constructor
+  · rintro ⟨e, rfl⟩
+    exact ⟨e.inv, e.hom_inv_id, e.inv_hom_id⟩
+  · rintro ⟨g, hfg, hgf⟩
+    exact ⟨⟨f, g, hfg, hgf⟩, rfl⟩
 
 /-- Every isomorphism becomes an isomorphism in the quotient. -/
 @[stacks 019N "isomorphisms are invertible modulo a relation"]
 theorem equivalences.isomorphisms_le (r : HomRel C) :
-    MorphismProperty.isomorphisms C ≤ equivalences r := sorry
+    MorphismProperty.isomorphisms C ≤ equivalences r := by
+  intro X Y f hf
+  letI : IsIso f := hf
+  change IsIso ((Quotient.functor r).map f)
+  infer_instance
 
 /-- A functor mapping one relation into another maps quotient equivalences into quotient
 equivalences. -/
 @[stacks 019N "relation-preserving functors map quotient equivalences"]
 instance equivalences.isMappedBy {D : Type u'} [Category.{v'} D]
     (r : HomRel C) (F : C ⥤ D) (s : HomRel D) [IsMappedBy r F s] :
-    MorphismProperty.IsMappedBy (equivalences r) F (equivalences s) := sorry
+    MorphismProperty.IsMappedBy (equivalences r) F (equivalences s) := by
+  refine ⟨?_⟩
+  intro X Y f hf
+  let G : CategoryTheory.Quotient r ⥤ CategoryTheory.Quotient s :=
+    Quotient.lift r (F ⋙ Quotient.functor s) (fun _ _ _ _ h ↦
+      Quotient.sound s (IsMappedBy.map_rel (r := r) (F := F) (s := s) h))
+  letI : IsIso ((Quotient.functor r).map f) := hf
+  change IsIso (G.map ((Quotient.functor r).map f))
+  infer_instance
 
 end CategoryTheory.HomRel

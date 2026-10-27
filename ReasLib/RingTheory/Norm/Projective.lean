@@ -42,16 +42,23 @@ theorem finiteProjectiveNorm_apply (b : B) :
 
 /-- On a finite free algebra, the finite-projective norm agrees with the usual algebra norm. -/
 theorem finiteProjectiveNorm_eq_norm [Module.Free A B] (b : B) :
-    finiteProjectiveNorm A b = norm A b := sorry
+    finiteProjectiveNorm A b = norm A b :=
+  LinearMap.projectiveDet_eq_det_of_free _
 
 /-- The finite-projective algebra norm sends one to one. -/
 theorem finiteProjectiveNorm_one :
-    finiteProjectiveNorm A (1 : B) = 1 := sorry
+    finiteProjectiveNorm A (1 : B) = 1 := by
+  change LinearMap.projectiveDet ((lmul A B) 1) = 1
+  rw [map_one]
+  exact LinearMap.projectiveDet_id
 
 /-- The finite-projective algebra norm is multiplicative. -/
 theorem finiteProjectiveNorm_mul (b c : B) :
     finiteProjectiveNorm A (b * c) =
-      finiteProjectiveNorm A b * finiteProjectiveNorm A c := sorry
+      finiteProjectiveNorm A b * finiteProjectiveNorm A c := by
+  unfold finiteProjectiveNorm
+  simpa only [map_mul, Module.End.mul_eq_comp] using
+    LinearMap.projectiveDet_comp (lmul A B b) (lmul A B c)
 
 /-- The finite-projective algebra norm as a multiplicative homomorphism. -/
 def finiteProjectiveNormHom : B →* A where
@@ -63,7 +70,25 @@ def finiteProjectiveNormHom : B →* A where
 theorem finiteProjectiveNorm_baseChange {A' : Type w} [CommRing A'] [Algebra A A']
     (b : B) :
     algebraMap A A' (finiteProjectiveNorm A b) =
-      finiteProjectiveNorm A' ((1 : A') ⊗ₜ[A] b) := sorry
+      finiteProjectiveNorm A' ((1 : A') ⊗ₜ[A] b) := by
+  have hmul : (lmul A B b).baseChange A' =
+      lmul A' (A' ⊗[A] B) ((1 : A') ⊗ₜ[A] b) := by
+    apply TensorProduct.AlgebraTensorModule.ext
+    intro a x
+    simp [Algebra.TensorProduct.tmul_mul_tmul]
+  unfold finiteProjectiveNorm
+  rw [← hmul, LinearMap.projectiveDet_baseChange]
+
+/-- The finite-projective norm is invariant under isomorphisms of algebras. -/
+theorem finiteProjectiveNorm_eq_of_algEquiv {C : Type*} [CommRing C] [Algebra A C]
+    [Module.Finite A C] [Module.Projective A C] (e : B ≃ₐ[A] C) (b : B) :
+    finiteProjectiveNorm A (e b) = finiteProjectiveNorm A b := by
+  unfold finiteProjectiveNorm
+  rw [← LinearMap.projectiveDet_conj (lmul A B b) e.toLinearEquiv]
+  congr 1
+  apply LinearMap.ext
+  intro x
+  simp
 
 /-- The norm on a finite product algebra is the product of its coordinates. -/
 theorem finiteProjectiveNorm_pi {n : ℕ} (a : Fin n → A) :

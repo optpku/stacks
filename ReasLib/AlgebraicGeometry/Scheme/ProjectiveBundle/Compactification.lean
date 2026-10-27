@@ -54,13 +54,13 @@ trivial summand. -/
 noncomputable def zeroLift (π : E ⟶ X)
     (hπ : ProjectiveBundle.Representation π (C ⊞ 𝟙_ X.Modules)) :
     ProjectiveBundle.Lift π (𝟙 X) :=
-  (ProjectiveBundle.sectionLiftEquiv π hπ).symm (zeroQuotient C)
+  (ProjectiveBundle.sectionLiftEquiv π hπ).symm (CategoryTheory.InvertibleQuotient.IsoClass.mk (zeroQuotient C))
 
 /-- The quotient associated to `zeroLift` is the quotient onto the trivial summand. -/
 theorem zeroLift_spec (π : E ⟶ X)
     (hπ : ProjectiveBundle.Representation π (C ⊞ 𝟙_ X.Modules)) :
     ProjectiveBundle.sectionLiftEquiv π hπ (zeroLift C π hπ) =
-      zeroQuotient C := sorry
+      CategoryTheory.InvertibleQuotient.IsoClass.mk (zeroQuotient C) := sorry
 
 /-- The section of the projective compactification defined by the quotient onto the trivial
 summand. -/
@@ -125,12 +125,14 @@ quotient with trivial coordinate one. -/
 noncomputable def chartLift (π : E ⟶ X)
     (hπ : ProjectiveBundle.Representation π (C ⊞ 𝟙_ X.Modules)) :
     ProjectiveBundle.Lift π V.π :=
-  (hπ.liftEquiv V.π).symm (chartQuotient C V)
+  hπ.liftOfQuotientClass V.π
+    (CategoryTheory.InvertibleQuotient.IsoClass.mk (chartQuotient C V))
 
 /-- The quotient classified by the vector-bundle lift is the universal evaluation quotient. -/
 theorem chartLift_spec (π : E ⟶ X)
     (hπ : ProjectiveBundle.Representation π (C ⊞ 𝟙_ X.Modules)) :
-    hπ.liftEquiv V.π (chartLift C V π hπ) = chartQuotient C V := sorry
+    hπ.liftToQuotientClass V.π (chartLift C V π hπ) =
+      CategoryTheory.InvertibleQuotient.IsoClass.mk (chartQuotient C V) := sorry
 
 /-- The canonical inclusion of a vector bundle into its projective compactification. -/
 noncomputable def j (π : E ⟶ X)

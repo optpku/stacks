@@ -56,10 +56,13 @@ theorem exists_oneStepDevissageAtAmbientPoint_after_elementaryEtale {X S : Schem
               SmoothOfRelativeDimension n Y.hom ∧ GeometricallyIntegral Y.hom := sorry
 
 /-- A finite-type quasicoherent module on a locally finite-type scheme morphism admits a
-one-step dévissage after elementary étale refinement at any ambient point. -/
+one-step dévissage after elementary étale refinement at an ambient point where the local
+fibre-support dimension is a natural number. This excludes empty fibre support, whose
+dimension is `⊥`. -/
 theorem exists_oneStepDevissageAtAmbientPoint {X S : Scheme.{u}} (f : X ⟶ S)
     [LocallyOfFiniteType f] (ℱ : X.Modules) [h_quasicoherent : ℱ.IsQuasicoherent]
-    [h_finiteType : ℱ.IsFiniteType] (x : X) :
+    [h_finiteType : ℱ.IsFiniteType] (x : X)
+    (h_dim : ∃ n : ℕ, ambientFiberSupportDimensionAt f ℱ x = (n : WithBot ℕ∞)) :
     ∃ U : EtaleNeighborhood.Elementary X x,
       let X' := U.obj
       let ℱ' := (Scheme.Modules.pullback X'.toEtale.hom).obj ℱ
@@ -74,6 +77,10 @@ theorem exists_oneStepDevissageAtAmbientPoint {X S : Scheme.{u}} (f : X ⟶ S)
             (_ : f' X'.point = S'.point)
             (h_refined_finiteType : LocallyOfFiniteType (Over.mk f').hom),
             Nonempty (@OneStepDevissageAtAmbientPoint _ (Over.mk f') ℱ'
-              h_refined_finiteType h_quasicoherent' h_finiteType' X'.point) := sorry
+              h_refined_finiteType h_quasicoherent' h_finiteType' X'.point) := by
+  obtain ⟨n, h_dim⟩ := h_dim
+  obtain ⟨U, V, f', h_sq, h_point, h_refined_finiteType, D, _⟩ :=
+    exists_oneStepDevissageAtAmbientPoint_after_elementaryEtale f ℱ x n h_dim
+  exact ⟨U, V, f', h_sq, h_point, h_refined_finiteType, ⟨D⟩⟩
 
 end AlgebraicGeometry.Scheme.Modules

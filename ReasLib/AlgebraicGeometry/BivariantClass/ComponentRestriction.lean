@@ -95,7 +95,10 @@ def baseChangeToTarget
 theorem baseChange_isPullback
     {S : Scheme.{u}} {X Y Y' : Over S} (f : X ⟶ Y) (g : Y' ⟶ Y) :
     IsPullback (baseChangeToSource f g).left (baseChangeToTarget f g).left
-      f.left g.left := sorry
+      f.left g.left := by
+  change IsPullback (pullback.snd g.left f.left) (pullback.fst g.left f.left)
+    f.left g.left
+  exact (IsPullback.of_hasPullback g.left f.left).flip
 
 /-- The comparison from a component test square to the ambient pullback commutes. -/
 theorem componentLift_comm

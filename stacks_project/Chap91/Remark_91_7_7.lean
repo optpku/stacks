@@ -6,13 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap91.Lemma_91_7_4
-public import stacks_project.Chap91.Lemma_91_7_6
-public import stacks_project.Chap91.Remark_91_7_5
-public import stacks_project.Chap91.Remark_91_7_7_InverseImage
-public import stacks_project.Chap91.Remark_91_7_7_Pullback
-public import stacks_project.Chap91.Remark_91_7_7_Pushout
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.RingedSpace.FirstOrderThickening.Solution.PushoutPullback
 import StacksCheckRecall
 
 /-!
@@ -35,6 +29,7 @@ open AlgebraicGeometry.RingedSpace
 open AlgebraicGeometry.RingedSpace.Hom
 open AlgebraicGeometry.RingedSpace.Thickening
 open AlgebraicGeometry.RingedSpace.Thickening.Solution
+open AlgebraicGeometry.RingedSpace.NaiveCotangent.InverseImage
 open scoped AlgebraicGeometry DerivedExt RingedSpaceDerivedPullback
 
 noncomputable section
@@ -50,47 +45,66 @@ variable {F : X.Modules} {G : Y.Modules}
 
 /- Remark 91.7.7 (1) Using pushout along c : g^* F ⟶ G we construct an extension
 0 ⟶ G ⟶ 𝒪'_1 ⟶ g⁻¹ 𝒪_X ⟶ 0 of square-zero g⁻¹ f⁻¹ 𝒪_S-algebras. -/
-@[stacks 0GQ2] #check pushoutAlong
+@[stacks 0GQ2] #check
+  (AlgebraicGeometry.RingedSpace.Thickening.Solution.pushoutAlong :
+    (g : Y ⟶ X) → (c : (g^*).obj F ⟶ G) →
+      Solution (𝟙 S) f F (zeroKernelMap f F) →
+        Solution (𝟙 S) (inverseImageTo g ≫ f) (restrictToInverseImage g G)
+          (zeroKernelMap (inverseImageTo g ≫ f) (restrictToInverseImage g G)))
 
 /- Remark 91.7.7 (2) Using pullback along g^♯ : g⁻¹ 𝒪_X ⟶ 𝒪_Y we construct an
 extension 0 ⟶ G ⟶ 𝒪'_2 ⟶ g⁻¹ 𝒪_X ⟶ 0 of square-zero g⁻¹ f⁻¹ 𝒪_S-algebras. -/
-@[stacks 0GQ2] #check pullbackAlong
+@[stacks 0GQ2] #check
+  (AlgebraicGeometry.RingedSpace.Thickening.Solution.pullbackAlong :
+    (g : Y ⟶ X) → Solution (𝟙 S) (g ≫ f) G (zeroKernelMap (g ≫ f) G) →
+      Solution (𝟙 S) (inverseImageTo g ≫ f) (restrictToInverseImage g G)
+        (zeroKernelMap (inverseImageTo g ≫ f) (restrictToInverseImage g G)))
 
-/-- Remark 91.7.7 (3) There exists an S-morphism Y' ⟶ X' compatible with g and c
-if and only if pushoutAlong g c SX is isomorphic to pullbackAlong g SY as
-g⁻¹ f⁻¹ 𝒪_S-algebra extensions of g⁻¹ 𝒪_X by G. -/
-@[stacks 0GQ2]
-theorem exists_fittingMap_iff_isoClass (c : (g^*).obj F ⟶ G)
-    (SX : Solution (𝟙 S) f F (zeroKernelMap f F))
-    (SY : Solution (𝟙 S) (g ≫ f) G (zeroKernelMap (g ≫ f) G)) :
-    Nonempty (FittingMap (RelativeDiagram.ofIdentityBase c SX SY)) ↔
-      isoClassMk (pushoutAlong g c SX) = isoClassMk (pullbackAlong g SY) := sorry
+/- Remark 91.7.7 (3) A compatible S-morphism exists exactly when the
+coefficient pushout and algebra pullback are isomorphic as extensions. -/
+@[stacks 0GQ2] #check
+  (AlgebraicGeometry.RingedSpace.Thickening.Solution.exists_fittingMap_iff_isoClass :
+    ∀ (c : (g^*).obj F ⟶ G)
+      (SX : Solution (𝟙 S) f F (zeroKernelMap f F))
+      (SY : Solution (𝟙 S) (g ≫ f) G (zeroKernelMap (g ≫ f) G)),
+      Nonempty (IdentityBaseFitting c SX SY) ↔
+        isoClassMk (pushoutAlong g c SX) = isoClassMk (pullbackAlong g SY))
 
 /- Remark 91.7.7 (4) These extensions are classified by
 Ext¹_{g⁻¹ 𝒪_X}(NL_{g⁻¹ 𝒪_X / g⁻¹ f⁻¹ 𝒪_S}, G) = Ext¹_{𝒪_Y}(L(g)^* NL[f], G),
-via tensor-hom adjunction, Modules Lemma 17.31.3, and derived pullback. -/
-@[stacks 0GQ2] #check extOne_inverseImageIso
+via tensor-hom adjunction, Modules Lemma 17.31.3, and derived pullback.
+The pullback compatibility is represented on lifted polynomial presentations by
+J/J² ⟶ K/K² ⟶ G; the commutative lifted diagram identifies this composite with
+the conormal map of the pulled-back extension. -/
+@[stacks 0GQ2] #check
+  (AlgebraicGeometry.RingedSpace.NaiveCotangent.InverseImage.extOne_inverseImageIso :
+    (f : X ⟶ S) → (g : Y ⟶ X) → (G : Y.Modules) →
+      Ext⁽(1 : ℤ)⁾((DerivedCategory.Q (C := (inverseImageSpace g).Modules)).obj NL[inverseImageTo g ≫ f],
+        (DerivedCategory.Q (C := (inverseImageSpace g).Modules)).obj
+          ((CochainComplex.singleFunctor (inverseImageSpace g).Modules 0).obj
+            (restrictToInverseImage g G))) ≃
+        Ext⁽(1 : ℤ)⁾((modulePullbackDerived g).obj ((DerivedCategory.Q (C := X.Modules)).obj NL[f]),
+          (DerivedCategory.Q (C := Y.Modules)).obj ((CochainComplex.singleFunctor Y.Modules 0).obj G)))
 
-/-- Remark 91.7.7 (5) Via the bijection of Lemma 91.7.4, pushoutAlong g c SX is the
-image of the class of SX under Ext¹(Q NL[f], Q(F[0])) → Ext¹(L(g)^* NL[f], Q(G[0])). -/
-@[stacks 0GQ2]
-theorem pushoutAlong_extClass (c : (g^*).obj F ⟶ G)
-    (SX : Solution (𝟙 S) f F (zeroKernelMap f F)) :
+/- Remark 91.7.7 The class of a coefficient pushout is the image of the original extension class under derived pullback and the coefficient map. -/
+@[stacks 0GQ2] #check
+  (AlgebraicGeometry.RingedSpace.Thickening.Solution.pushoutAlong_extClass :
+    ∀ (c : (g^*).obj F ⟶ G)
+    (SX : Solution (𝟙 S) f F (zeroKernelMap f F)),
     extOne_inverseImageIso f g G
         ((extensionEquiv (inverseImageTo g ≫ f) (restrictToInverseImage g G)).symm
           (isoClassMk (pushoutAlong g c SX))) =
-      extOne_map c ((extensionEquiv f F).symm (isoClassMk SX)) := sorry
+      extOne_map c ((extensionEquiv f F).symm (isoClassMk SX)))
 
-/-- Remark 91.7.7 (6) Via the bijection of Lemma 91.7.4, pullbackAlong g SY is the
-image of the class of SY under Ext¹(Q NL[g ≫ f], Q(G[0])) →
-Ext¹(L(g)^* NL[f], Q(G[0])). -/
-@[stacks 0GQ2]
-theorem pullbackAlong_extClass
-    (SY : Solution (𝟙 S) (g ≫ f) G (zeroKernelMap (g ≫ f) G)) :
+/- Remark 91.7.7 The class of an algebra pullback is the image of the original extension class under the naive-cotangent comparison. -/
+@[stacks 0GQ2] #check
+  (AlgebraicGeometry.RingedSpace.Thickening.Solution.pullbackAlong_extClass :
+    ∀
+    (SY : Solution (𝟙 S) (g ≫ f) G (zeroKernelMap (g ≫ f) G)),
     extOne_inverseImageIso f g G
         ((extensionEquiv (inverseImageTo g ≫ f) (restrictToInverseImage g G)).symm
           (isoClassMk (pullbackAlong g SY))) =
-      extOne_comap f g ((extensionEquiv (g ≫ f) G).symm (isoClassMk SY)) := sorry
+      extOne_comap f g ((extensionEquiv (g ≫ f) G).symm (isoClassMk SY)))
 
 end Solution
 end AlgebraicGeometry.RingedSpace.Thickening

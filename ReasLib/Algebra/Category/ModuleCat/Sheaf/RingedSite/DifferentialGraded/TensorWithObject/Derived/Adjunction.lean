@@ -84,8 +84,9 @@ instance representableTensor_isRightDerived
 representable functor `RHom(K, -)`. -/
 @[stacks 09LY "derived tensor-representable adjunction on a ringed site"]
 noncomputable def adjunction (K : Complex (J := J) (O := O)) :
-    tensorFunctor K ⊣ representableFunctor K :=
-  (TensorWithObject.homotopyAdjunction K).derived
+    tensorFunctor K ⊣ representableFunctor K := by
+  haveI := tensorFunctor_isLeftDerived K
+  exact (TensorWithObject.homotopyAdjunction K).derived
     (DifferentialGradedModule.quasiIso (endDGA K))
     quasiIso
     (tensorCounit K) (representableUnit K)

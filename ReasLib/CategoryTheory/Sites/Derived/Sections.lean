@@ -14,6 +14,7 @@ public import ReasLib.Algebra.Homology.DerivedCategory.AddCommGrpCat
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.TotalRightDerived
 public import ReasLib.CategoryTheory.Sites.AbelianSheaf
 public import ReasLib.CategoryTheory.Sites.AbelianSheaf.Derived
+public import ReasLib.CategoryTheory.Sites.GlobalSections.Additive
 
 /-!
 # Derived Sections of Abelian Sheaves
@@ -139,6 +140,25 @@ noncomputable def rightDerivedInclusion_app_obj_iso_homology_sections_complex
     (eDerived.trans eHomology).trans eHomologySections
 
 end Sheaf
+
+/-- The unbounded right derived functor of global sections of abelian sheaves on a site. -/
+abbrev siteAbelianGlobalSectionsDerived (J : GrothendieckTopology C)
+    [HasSheafify J AddCommGrpCat.{w}]
+    [HasGlobalSectionsFunctor J AddCommGrpCat.{w}]
+    [IsGrothendieckAbelian (Sheaf J AddCommGrpCat.{w})] :
+    DerivedCategory (Sheaf J AddCommGrpCat.{w}) ⥤
+      DerivedCategory AddCommGrpCat.{w} :=
+  Functor.RightDerived.Cochain.functor (Sheaf.Γ J AddCommGrpCat.{w})
+
+/-- Unbounded derived sections of abelian sheaves, with a chosen source derived-category
+model and the standard derived category of abelian groups as target. -/
+abbrev siteAbelianSectionsDerivedWith.{d} (J : GrothendieckTopology C) (U : C)
+    [HasSheafify J AddCommGrpCat.{w}]
+    [IsGrothendieckAbelian (Sheaf J AddCommGrpCat.{w})]
+    [HasDerivedCategory.{d} (Sheaf J AddCommGrpCat.{w})] :
+    DerivedCategory.{d} (Sheaf J AddCommGrpCat.{w}) ⥤
+      DerivedCategory AddCommGrpCat.{w} :=
+  Functor.RightDerived.Cochain.functor (siteAbelianSectionsFunctor J U)
 
 /-- The chosen unbounded derived sections functor `RΓ(U, -)` on abelian sheaves over a site. -/
 @[stacks 0DD8 "derived abelian sections"]

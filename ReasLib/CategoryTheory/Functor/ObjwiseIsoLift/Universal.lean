@@ -29,9 +29,9 @@ variable {A : Type u₁} [Category.{v₁} A]
 variable {B : Type u₂} [Category.{v₂} B]
 variable (F : A ⥤ B)
 
-/-- Lemma 4.2.18 (1) (Stacks 05SG): the prescribed object assignment and isomorphisms determine a
-unique extension functor. This source-facing formulation retains the transports required to
-state literal equality with the prescribed object function. -/
+/-- Under a fully faithful functor, prescribed object preimages and comparison isomorphisms
+extend to a unique functor. The comparison components agree with the supplied isomorphisms after
+transport along equality with the prescribed object function. -/
 @[stacks 05SG "unique functor extending the chosen object assignment"]
 theorem existsUnique
     [F.Full] [F.Faithful]

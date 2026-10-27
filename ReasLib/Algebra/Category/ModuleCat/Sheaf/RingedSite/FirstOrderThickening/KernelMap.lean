@@ -17,21 +17,21 @@ open SheafOfModules.RingedSite
 
 noncomputable section
 
-universe u v
+universe u v w
 
 namespace SheafOfModules.RingedSite.FirstOrderThickening
 
 variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
-variable [J.HasSheafCompose (forget₂ CommRingCat.{max u v} RingCat.{max u v})]
-variable [J.HasSheafCompose (forget₂ RingCat.{max u v} AddCommGrpCat.{max u v})]
-variable [HasWeakSheafify J CommRingCat.{max u v}]
-variable [J.WEqualsLocallyBijective CommRingCat.{max u v}]
-variable [HasWeakSheafify J AddCommGrpCat.{max u v}]
-variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
+variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [J.HasSheafCompose (forget₂ RingCat.{w} AddCommGrpCat.{w})]
+variable [HasWeakSheafify J CommRingCat.{w}]
+variable [J.WEqualsLocallyBijective CommRingCat.{w}]
+variable [HasWeakSheafify J AddCommGrpCat.{w}]
+variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
 
 /-- The underlying additive sheaf map of an 𝒪-module morphism landing in a restriction of
 scalars. -/
-def toAdditive {O O' : Sheaf J CommRingCat.{max u v}} (α : O ⟶ O')
+def toAdditive {O O' : Sheaf J CommRingCat.{w}} (α : O ⟶ O')
     {M : SheafOfModules (ringSheaf J O)} {N : SheafOfModules (ringSheaf J O')}
     (φ : M ⟶ (restrictionAlong α).obj N) :
     (SheafOfModules.toSheaf (ringSheaf J O)).obj M ⟶
@@ -39,7 +39,7 @@ def toAdditive {O O' : Sheaf J CommRingCat.{max u v}} (α : O ⟶ O')
   (SheafOfModules.toSheaf (ringSheaf J O)).map φ ≫
     (SheafOfModules.restrictScalarsCompToSheaf (ringSheafMap α)).hom.app N
 
-variable {OB' OB O' O : Sheaf J CommRingCat.{max u v}}
+variable {OB' OB O' O : Sheaf J CommRingCat.{w}}
 
 /-- The composite of the kernel inclusion of `πB` with the additive map of `f'` is killed by
 the projection of `πO`. -/
@@ -82,7 +82,7 @@ def inducedKernelMap (πB : OB' ⟶ OB) (f : OB ⟶ O) (πO : O' ⟶ O) (f' : OB
     ideal πB ⟶ (restrictionAlong f).obj (ideal πO) where
   val :=
     PresheafOfModules.homMk
-      ((sheafToPresheaf J AddCommGrpCat.{max u v}).map
+      ((sheafToPresheaf J AddCommGrpCat.{w}).map
         (inducedKernelAdditiveMap πB f πO f' hcomm))
       (inducedKernelMap_smul πB f πO f' hcomm)
 
@@ -95,7 +95,7 @@ theorem inducedKernelMap_toAdditive (πB : OB' ⟶ OB) (f : OB ⟶ O) (πO : O' 
 
 /-- Additive kernel maps of composable commutative squares compose. -/
 theorem inducedKernelMap_comp_toAdditive
-    {O1' O1 O2' O2 O3' O3 : Sheaf J CommRingCat.{max u v}}
+    {O1' O1 O2' O2 O3' O3 : Sheaf J CommRingCat.{w}}
     (π1 : O1' ⟶ O1) (π2 : O2' ⟶ O2) (π3 : O3' ⟶ O3)
     [IsFirstOrderThickening π1] [IsFirstOrderThickening π2] [IsFirstOrderThickening π3]
     (f12 : O1 ⟶ O2) (f23 : O2 ⟶ O3) (f12' : O1' ⟶ O2') (f23' : O2' ⟶ O3')

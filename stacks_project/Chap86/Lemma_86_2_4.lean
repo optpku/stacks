@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap86.Lemma_86_2_4_Duality
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Dualizing.Duality
 import StacksCheckRecall
 
 @[expose] public section
@@ -18,9 +18,6 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex
 variable {S : Scheme.{u}} {X : AlgebraicSpace S} [IsLocallyNoetherian X]
-variable [MonoidalCategory (ModuleDerived X)]
-variable [BraidedCategory (ModuleDerived X)]
-variable (H : MonoidalClosed (ModuleDerived X))
 variable (K : DerivedQCoh X)
 variable (hK : IsDualizingComplex K)
 
@@ -29,23 +26,23 @@ variable (hK : IsDualizingComplex K)
   DerivedCategory.cohomologyIn (SheafOfModules.isCoherent (structureSheaf X)) K.obj)
 
 /- Lemma 86.2.4 (2): derived internal Hom into a dualizing complex is an anti-equivalence. -/
-@[stacks 0E51] #check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex.coherentDualityIsEquivalence H K hK :
-  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex.coherentDuality H K hK).IsEquivalence)
+@[stacks 0E51] #check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex.coherentDualityIsEquivalence K hK :
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex.coherentDuality K hK).IsEquivalence)
 
 /- Lemma 86.2.4 (3): the canonical bidual transformation is an isomorphism. -/
-@[stacks 0E51] #check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex.coherentBidualIsIso H K hK :
-  IsIso (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex.coherentBidual H K hK))
+@[stacks 0E51] #check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex.coherentBidualIsIso K hK :
+  IsIso (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex.coherentBidual K hK))
 
 section
 variable [IsQuasiCompact X]
 
 /- Lemma 86.2.4 (4): under quasi-compactness, duality exchanges bounded-below and bounded-above complexes. -/
-@[stacks 0E51] #check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex.plusDualityIsEquivalence H K hK :
-  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex.plusDuality H K hK).IsEquivalence)
+@[stacks 0E51] #check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex.plusDualityIsEquivalence K hK :
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex.plusDuality K hK).IsEquivalence)
 
 /- Lemma 86.2.4 (5): under quasi-compactness, duality is an anti-equivalence on bounded coherent complexes. -/
-@[stacks 0E51] #check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex.boundedDualityIsEquivalence H K hK :
-  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex.boundedDuality H K hK).IsEquivalence)
+@[stacks 0E51] #check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex.boundedDualityIsEquivalence K hK :
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.IsDualizingComplex.boundedDuality K hK).IsEquivalence)
 
 end
 

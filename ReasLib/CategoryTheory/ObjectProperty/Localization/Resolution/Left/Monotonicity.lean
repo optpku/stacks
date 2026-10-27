@@ -38,24 +38,25 @@ namespace mapOfLE
 /-- Weakening a left resolution maps its bundled model along `ObjectProperty.ιOfLE`. -/
 @[simp]
 theorem model (hP : P ≤ Q) (hS : S ≤ T) (R : LeftResolution P S X) :
-    (R.mapOfLE hP hS).model = (P.ιOfLE hP).obj R.model := sorry
+    (R.mapOfLE hP hS).model = (P.ιOfLE hP).obj R.model := rfl
 
 /-- Weakening a left resolution retains its ambient model object. -/
 @[simp]
 theorem object (hP : P ≤ Q) (hS : S ≤ T) (R : LeftResolution P S X) :
-    (R.mapOfLE hP hS).object = R.object := sorry
+    (R.mapOfLE hP hS).object = R.object := rfl
 
 /-- Weakening a left resolution retains its comparison morphism. -/
 @[simp]
 theorem comparison (hP : P ≤ Q) (hS : S ≤ T) (R : LeftResolution P S X) :
-    (R.mapOfLE hP hS).comparison = R.comparison := sorry
+    (R.mapOfLE hP hS).comparison = R.comparison := rfl
 
 /-- The weakened model map satisfies the left-resolution comparison square. -/
 theorem hom_comm (hP : P ≤ Q) (hS : S ≤ T)
     {R R' : LeftResolution P S X} (f : R ⟶ R') :
     Q.ι.map ((P.ιOfLE hP).map (modelHom f)) ≫
         (R'.mapOfLE hP hS).comparison =
-      (R.mapOfLE hP hS).comparison := sorry
+      (R.mapOfLE hP hS).comparison := by
+  exact f.comm
 
 /-- Map a morphism of left resolutions after weakening its two defining properties. -/
 def hom (hP : P ≤ Q) (hS : S ≤ T)
@@ -69,24 +70,28 @@ def hom (hP : P ≤ Q) (hS : S ≤ T)
 @[simp]
 theorem hom_modelHom (hP : P ≤ Q) (hS : S ≤ T)
     {R R' : LeftResolution P S X} (f : R ⟶ R') :
-    modelHom (hom hP hS f) = (P.ιOfLE hP).map (modelHom f) := sorry
+    modelHom (hom hP hS f) = (P.ιOfLE hP).map (modelHom f) := rfl
 
 /-- Weakening a left-resolution morphism retains its ambient morphism. -/
 @[simp]
 theorem hom_hom (hP : P ≤ Q) (hS : S ≤ T)
     {R R' : LeftResolution P S X} (f : R ⟶ R') :
-    LeftResolution.hom (hom hP hS f) = LeftResolution.hom f := sorry
+    LeftResolution.hom (hom hP hS f) = LeftResolution.hom f := rfl
 
 /-- Weakening preserves identity morphisms of left resolutions. -/
 @[simp]
 theorem hom_id (hP : P ≤ Q) (hS : S ≤ T) (R : LeftResolution P S X) :
-    hom hP hS (𝟙 R) = 𝟙 (R.mapOfLE hP hS) := sorry
+    hom hP hS (𝟙 R) = 𝟙 (R.mapOfLE hP hS) := by
+  apply CategoryTheory.LocalizerMorphism.LeftResolution.hom_ext
+  exact (P.ιOfLE hP).map_id R.model
 
 /-- Weakening preserves composition of left-resolution morphisms. -/
 @[simp]
 theorem hom_comp (hP : P ≤ Q) (hS : S ≤ T)
     {R R' R'' : LeftResolution P S X} (f : R ⟶ R') (g : R' ⟶ R'') :
-    hom hP hS (f ≫ g) = hom hP hS f ≫ hom hP hS g := sorry
+    hom hP hS (f ≫ g) = hom hP hS f ≫ hom hP hS g := by
+  apply CategoryTheory.LocalizerMorphism.LeftResolution.hom_ext
+  exact (P.ιOfLE hP).map_comp (modelHom f) (modelHom g)
 
 /-- Functorially weaken the model and comparison properties of left resolutions. -/
 @[stacks 0GSL "functorial monotonicity of left resolutions"]
@@ -101,31 +106,41 @@ def functor (hP : P ≤ Q) (hS : S ≤ T) (X : D) :
 @[simp]
 theorem functor_obj (hP : P ≤ Q) (hS : S ≤ T) (X : D)
     (R : LeftResolution P S X) :
-    (functor hP hS X).obj R = R.mapOfLE hP hS := sorry
+    (functor hP hS X).obj R = R.mapOfLE hP hS := rfl
 
 /-- The monotonicity functor acts on morphisms by `mapOfLE.hom`. -/
 @[simp]
 theorem functor_map (hP : P ≤ Q) (hS : S ≤ T) (X : D)
     {R R' : LeftResolution P S X} (f : R ⟶ R') :
-    (functor hP hS X).map f = hom hP hS f := sorry
+    (functor hP hS X).map f = hom hP hS f := rfl
 
 /-- The left-resolution monotonicity functor is full. -/
 instance functor_full (hP : P ≤ Q) (hS : S ≤ T) (X : D) :
-    (functor hP hS X).Full := sorry
+    (functor hP hS X).Full where
+  map_surjective := by
+    intro R R' f
+    refine ⟨{ f := ObjectProperty.homMk f.f.hom, comm := f.comm }, ?_⟩
+    apply CategoryTheory.LocalizerMorphism.LeftResolution.hom_ext
+    rfl
 
 /-- The left-resolution monotonicity functor is faithful. -/
 instance functor_faithful (hP : P ≤ Q) (hS : S ≤ T) (X : D) :
-    (functor hP hS X).Faithful := sorry
+    (functor hP hS X).Faithful where
+  map_injective := by
+    intro R R' f g h
+    apply CategoryTheory.LocalizerMorphism.LeftResolution.hom_ext
+    apply ObjectProperty.hom_ext
+    exact congrArg (fun k => k.f.hom) h
 
 /-- The monotonicity functor followed by the weaker model functor is the original model functor
 followed by the full-subcategory inclusion induced by `hP`. -/
 theorem functor_comp_modelFunctor (hP : P ≤ Q) (hS : S ≤ T) (X : D) :
     functor hP hS X ⋙ modelFunctor Q T X =
-      modelFunctor P S X ⋙ P.ιOfLE hP := sorry
+      modelFunctor P S X ⋙ P.ιOfLE hP := rfl
 
 /-- The monotonicity functor does not change the ambient model functor. -/
 theorem functor_comp_objectFunctor (hP : P ≤ Q) (hS : S ≤ T) (X : D) :
-    functor hP hS X ⋙ objectFunctor Q T X = objectFunctor P S X := sorry
+    functor hP hS X ⋙ objectFunctor Q T X = objectFunctor P S X := rfl
 
 /-- The natural comparison of weakened left resolutions has the same components as the original
 comparison. -/
@@ -133,11 +148,11 @@ comparison. -/
 theorem comparison_app (hP : P ≤ Q) (hS : S ≤ T)
     (X : D) (R : LeftResolution P S X) :
     (comparisonNatTrans Q T X).app ((functor hP hS X).obj R) =
-      (comparisonNatTrans P S X).app R := sorry
+      (comparisonNatTrans P S X).app R := rfl
 
 /-- Weakening by reflexive inequalities does not change a left resolution. -/
 @[simp]
-theorem refl (R : LeftResolution P S X) : R.mapOfLE le_rfl le_rfl = R := sorry
+theorem refl (R : LeftResolution P S X) : R.mapOfLE le_rfl le_rfl = R := rfl
 
 /-- Successive weakenings of a left resolution agree with weakening by the composite
 inequalities. -/
@@ -145,18 +160,18 @@ theorem trans {R' : ObjectProperty D} {U : MorphismProperty D}
     (hPQ : P ≤ Q) (hQR : Q ≤ R') (hST : S ≤ T) (hTU : T ≤ U)
     (R : LeftResolution P S X) :
     (R.mapOfLE hPQ hST).mapOfLE hQR hTU =
-      R.mapOfLE (hPQ.trans hQR) (hST.trans hTU) := sorry
+      R.mapOfLE (hPQ.trans hQR) (hST.trans hTU) := rfl
 
 /-- Reflexive weakening is the identity functor on left resolutions. -/
 theorem functor_id :
-    functor (le_refl P) (le_refl S) X = Functor.id (LeftResolution P S X) := sorry
+    functor (le_refl P) (le_refl S) X = Functor.id (LeftResolution P S X) := rfl
 
 /-- Composing left-resolution weakening functors agrees with weakening by composite
 inequalities. -/
 theorem functor_comp {R : ObjectProperty D} {U : MorphismProperty D}
     (hPQ : P ≤ Q) (hQR : Q ≤ R) (hST : S ≤ T) (hTU : T ≤ U) :
     functor hPQ hST X ⋙ functor hQR hTU X =
-      functor (hPQ.trans hQR) (hST.trans hTU) X := sorry
+      functor (hPQ.trans hQR) (hST.trans hTU) X := rfl
 
 end mapOfLE
 
@@ -169,7 +184,10 @@ variable {D : Type u} [Category.{v} D]
 
 /-- Weakening model and comparison properties preserves existence of left resolutions. -/
 theorem mono (h : HasLeftResolutions P S) (hP : P ≤ Q) (hS : S ≤ T) :
-    HasLeftResolutions Q T := sorry
+    HasLeftResolutions Q T := by
+  intro X
+  rcases h X with ⟨R⟩
+  exact ⟨LeftResolution.mapOfLE hP hS R⟩
 
 end CategoryTheory.ObjectProperty.HasLeftResolutions
 

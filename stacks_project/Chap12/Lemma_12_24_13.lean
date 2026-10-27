@@ -13,6 +13,8 @@ import StacksCheckRecall
 
 open CategoryTheory
 
+universe v u
+
 /- Lemma 12.24.13 hypotheses [0BK5]: stage cohomology eventually vanishes above and stabilizes
 below. -/
 #check FilteredComplex.StageCohomology.eventuallyVanishesAbove
@@ -22,14 +24,31 @@ below. -/
 #check FilteredComplex.StageCohomology.eventuallyVanishesAbove_of_acyclic
 #check FilteredComplex.StageCohomology.eventuallyStabilizesBelow_of_quasiIso
 
-/- Lemma 12.24.13 (1) [0BK5]: every associated spectral sequence is bounded. -/
+/- Lemma 12.24.13 (1) [0BK5]: the page-one tail of every associated spectral sequence is bounded. -/
 @[stacks 0BK5]
-#check FilteredComplex.StageCohomology.associated_isBounded
+#check (FilteredComplex.StageCohomology.associated_isBounded :
+  ∀ {C : Type u} [Category.{v} C] [Abelian C]
+    (K : FilteredComplex C) (E : CohomologicalSpectralSequence C 0),
+    FilteredComplex.IsAssociated K E →
+      FilteredComplex.StageCohomology.eventuallyVanishesAbove K →
+        FilteredComplex.StageCohomology.eventuallyStabilizesBelow K →
+          CohomologicalSpectralSequence.IsBounded
+            (CohomologicalSpectralSequence.Page.One.ofZero E))
 
 /- Lemma 12.24.13 (2) [0BK5]: every induced cohomology filtration is finite. -/
 @[stacks 0BK5]
-#check FilteredComplex.StageCohomology.Cohomology.isFinite
+#check (FilteredComplex.StageCohomology.Cohomology.isFinite :
+  ∀ {C : Type u} [Category.{v} C] [Abelian C] (K : FilteredComplex C),
+    FilteredComplex.StageCohomology.eventuallyVanishesAbove K →
+      FilteredComplex.StageCohomology.eventuallyStabilizesBelow K →
+        FilteredComplex.Cohomology.Filtration.IsFinite K)
 
 /- Lemma 12.24.13 (3) [0BK5]: every associated spectral sequence converges to cohomology. -/
 @[stacks 0BK5]
-#check FilteredComplex.StageCohomology.associated_converges
+#check (FilteredComplex.StageCohomology.associated_converges :
+  ∀ {C : Type u} [Category.{v} C] [Abelian C]
+    (K : FilteredComplex C) (E : CohomologicalSpectralSequence C 0),
+    FilteredComplex.IsAssociated K E →
+      FilteredComplex.StageCohomology.eventuallyVanishesAbove K →
+        FilteredComplex.StageCohomology.eventuallyStabilizesBelow K →
+          FilteredComplex.Cohomology.Convergence.Converges K E)

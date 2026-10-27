@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.RingTheory.AdicCompletion.Completeness
+public import Mathlib.RingTheory.AdicCompletion.Functoriality
 public import Mathlib.RingTheory.Finiteness.Ideal
 public import Mathlib.RingTheory.Noetherian.Defs
 public import ReasLib.RingTheory.AdicCompletion.TopologicallyFiniteType.Tower
@@ -46,6 +47,36 @@ of `I` is used via `AdicCompletion.isAdicComplete`. -/
         (Ideal.FG.map (IsNoetherian.noetherian I)
           (algebraMap A (MvPolynomial ι A)))))
 
+/-- Every completed polynomial has a polynomial representative modulo the coefficient ideal. -/
+private theorem exists_polynomial_mod {A ι : Type u} [CommRing A] (I : Ideal A) (hI : I.FG)
+    (x : polynomialCompletion A I ι) :
+    ∃ p : MvPolynomial ι A,
+      x - AdicCompletion.of (polynomialIdeal A I ι) (MvPolynomial ι A) p ∈
+        (I • ⊤ : Submodule A (polynomialCompletion A I ι)) := by
+  obtain ⟨p, hp⟩ := Submodule.mkQ_surjective
+    ((polynomialIdeal A I ι) ^ 1 • ⊤ : Submodule (MvPolynomial ι A) (MvPolynomial ι A))
+    (AdicCompletion.eval (polynomialIdeal A I ι) (MvPolynomial ι A) 1 x)
+  refine ⟨p, ?_⟩
+  have hx : x - AdicCompletion.of (polynomialIdeal A I ι) (MvPolynomial ι A) p ∈
+      ((polynomialIdeal A I ι) • ⊤ : Submodule (MvPolynomial ι A) (polynomialCompletion A I ι)) := by
+    have hpow : ((polynomialIdeal A I ι) • ⊤ :
+        Submodule (MvPolynomial ι A) (polynomialCompletion A I ι)) =
+        (AdicCompletion.eval (polynomialIdeal A I ι) (MvPolynomial ι A) 1).ker := by
+      have hker := AdicCompletion.pow_smul_top_eq_ker_eval
+        (I := polynomialIdeal A I ι) (M := MvPolynomial ι A) (n := 1)
+        (Ideal.FG.map hI (algebraMap A (MvPolynomial ι A)))
+      simpa only [pow_one] using hker
+    rw [hpow,
+      LinearMap.mem_ker, map_sub, AdicCompletion.eval_of, sub_eq_zero]
+    exact hp.symm
+  change x - AdicCompletion.of (polynomialIdeal A I ι) (MvPolynomial ι A) p ∈
+    (((polynomialIdeal A I ι) • ⊤ :
+      Submodule (MvPolynomial ι A) (polynomialCompletion A I ι)).restrictScalars A) at hx
+  change x - AdicCompletion.of (polynomialIdeal A I ι) (MvPolynomial ι A) p ∈
+    (((I.map (algebraMap A (MvPolynomial ι A))) • ⊤ :
+      Submodule (MvPolynomial ι A) (polynomialCompletion A I ι)).restrictScalars A) at hx
+  rwa [Submodule.restrictScalars_map_smul_eq, Submodule.restrictScalars_top] at hx
+
 variable {B : Type u} [CommRing B] [Algebra A B]
 
 /-- Completeness of `B[y_κ]^∧` along the extended ideal of `I`, as an
@@ -82,7 +113,74 @@ def compToAlgHom (Q : Presentation B C (I.map (algebraMap A B)) κ)
 /-- Completed evaluation at two successive sets of presentation variables is surjective. -/
 theorem compToAlgHom_surjective (Q : Presentation B C (I.map (algebraMap A B)) κ)
     (P : Presentation A B I ι) : Function.Surjective (compToAlgHom Q P) := by
-  sorry
+  let D := polynomialCompletion A I (κ ⊕ ι)
+  let f := Presentation.compToAlgHom Q P
+  let π := Ideal.Quotient.mkₐ A (I.map (algebraMap A C))
+  let inc : polynomialCompletion A I ι →ₐ[A] D :=
+    @adicAeval _ _ _ _ _ _ I (polynomialCompletion_isAdicComplete_map (κ ⊕ ι))
+      (fun i ↦ X I (Sum.inr i))
+  have hinc : f.comp inc = (IsScalarTower.toAlgHom A B C).comp P.toAlgHom := by
+    rw [eq_adicAeval (IsNoetherian.noetherian I) (f.comp inc),
+      eq_adicAeval (IsNoetherian.noetherian I) ((IsScalarTower.toAlgHom A B C).comp P.toAlgHom)]
+    congr 1
+    funext i
+    simp [f, inc, Presentation.compToAlgHom, adicAeval_X]
+  have hB (b : B) : π (algebraMap B C b) ∈ (π.comp f).range := by
+    obtain ⟨x, rfl⟩ := P.surjective b
+    exact ⟨inc x, congrArg π (AlgHom.congr_fun hinc x)⟩
+  have hX (j : κ) : π (Q.toAlgHom (X (I.map (algebraMap A B)) j)) ∈ (π.comp f).range := by
+    refine ⟨X I (Sum.inl j), ?_⟩
+    simp [f, Presentation.compToAlgHom, adicAeval_X]
+  have hpoly (p : MvPolynomial κ B) :
+      π (Q.toAlgHom (algebraMap (MvPolynomial κ B) _ p)) ∈ (π.comp f).range := by
+    induction p using MvPolynomial.induction_on with
+    | C b =>
+        rw [show MvPolynomial.C b = algebraMap B (MvPolynomial κ B) b from rfl,
+          ← IsScalarTower.algebraMap_apply]
+        simpa using hB b
+    | add p q hp hq => simpa using (π.comp f).range.add_mem hp hq
+    | mul_X p j hp =>
+        rw [map_mul, map_mul, map_mul]
+        exact (π.comp f).range.mul_mem hp (hX j)
+  have hmod : Function.Surjective (π.comp f) := by
+    intro c
+    obtain ⟨c, rfl⟩ := Ideal.Quotient.mk_surjective c
+    obtain ⟨q, rfl⟩ := Q.surjective c
+    obtain ⟨p, hp⟩ := exists_polynomial_mod (I.map (algebraMap A B))
+      (Ideal.FG.map (IsNoetherian.noetherian I) (algebraMap A B)) q
+    have hq : Q.toAlgHom (q - algebraMap (MvPolynomial κ B) _ p) ∈
+        ((I.map (algebraMap A B)) • ⊤ : Submodule B C) := by
+      apply (Submodule.map_le_iff_le_comap.mp (show
+        Submodule.map Q.toAlgHom.toLinearMap ((I.map (algebraMap A B)) • ⊤) ≤
+          (I.map (algebraMap A B)) • ⊤ from ?_)) hp
+      rw [Submodule.map_smul'']
+      exact smul_mono_right _ le_top
+    have hzero : π (Q.toAlgHom q) =
+        π (Q.toAlgHom (algebraMap (MvPolynomial κ B) _ p)) := by
+      rw [← sub_eq_zero, ← map_sub, ← map_sub]
+      apply Ideal.Quotient.eq_zero_iff_mem.mpr
+      simpa [Ideal.smul_top_eq_map, Ideal.map_map, ← IsScalarTower.algebraMap_eq A B C] using hq
+    change π (Q.toAlgHom q) ∈ (π.comp f).range
+    rw [hzero]
+    exact hpoly p
+  letI : IsAdicComplete I D :=
+    (IsAdicComplete.map_algebraMap_iff (R := A) (S := MvPolynomial (κ ⊕ ι) A)
+      (M := D) I).mp
+      (AdicCompletion.isAdicComplete
+        (Ideal.FG.map (IsNoetherian.noetherian I) (algebraMap A (MvPolynomial (κ ⊕ ι) A))))
+  apply surjective_of_mkQ_comp_surjective (I := I) (f := f.toLinearMap)
+  intro c
+  obtain ⟨c, rfl⟩ := Submodule.mkQ_surjective (I • (⊤ : Submodule A C)) c
+  obtain ⟨d, hd⟩ := hmod (π c)
+  refine ⟨d, ?_⟩
+  change Submodule.Quotient.mk (f d) = Submodule.Quotient.mk c
+  rw [Submodule.Quotient.eq]
+  have hdc : f d - c ∈ I.map (algebraMap A C) := by
+    apply Ideal.Quotient.eq_zero_iff_mem.mp
+    change π (f d - c) = 0
+    rw [map_sub, ← hd]
+    simp
+  simpa [Ideal.smul_top_eq_map] using hdc
 
 /-- The composite completed polynomial presentation obtained from two successive presentations. -/
 def comp (Q : Presentation B C (I.map (algebraMap A B)) κ)
@@ -131,7 +229,15 @@ theorem toComp_X (Q : Presentation B C (I.map (algebraMap A B)) κ)
 theorem toCompHom_over (Q : Presentation B C (I.map (algebraMap A B)) κ)
     (P : Presentation A B I ι) (x : polynomialCompletion A I ι) :
     (comp Q P).toAlgHom (toComp Q P x) = algebraMap B C (P.toAlgHom x) := by
-  sorry
+  have h : (comp Q P).toAlgHom.comp (toComp Q P) =
+      (IsScalarTower.toAlgHom A B C).comp P.toAlgHom := by
+    rw [eq_adicAeval (IsNoetherian.noetherian I) ((comp Q P).toAlgHom.comp (toComp Q P)),
+      eq_adicAeval (IsNoetherian.noetherian I)
+        ((IsScalarTower.toAlgHom A B C).comp P.toAlgHom)]
+    congr 1
+    funext i
+    simp [comp, compToAlgHom, toComp, adicAeval_X]
+  exact AlgHom.congr_fun h x
 
 /-- The morphism of `A`-extensions induced by `toComp`. -/
 def toCompHom (Q : Presentation B C (I.map (algebraMap A B)) κ)
@@ -174,11 +280,90 @@ theorem ofComp_X_inr (Q : Presentation B C (I.map (algebraMap A B)) κ)
   exact @adicAeval_X _ _ _ _ _ _ I
     (polynomialCompletion_tower_isAdicComplete_map (I := I) (B := B) κ) _ (Sum.inr i)
 
+/-- Changing the old completed-polynomial coefficients through a surjective
+presentation remains surjective after adjoining the relative variables. -/
+theorem ofComp_surjective (Q : Presentation B C (I.map (algebraMap A B)) κ)
+    (P : Presentation A B I ι) : Function.Surjective (ofComp Q P) := by
+  let D := polynomialCompletion A I (κ ⊕ ι)
+  let T := polynomialCompletion B (I.map (algebraMap A B)) κ
+  letI := polynomialCompletion_tower_isAdicComplete_map (I := I) (B := B) κ
+  let f := ofComp Q P
+  let π := Ideal.Quotient.mkₐ A (I.map (algebraMap A T))
+  let inc : polynomialCompletion A I ι →ₐ[A] D :=
+    @adicAeval _ _ _ _ _ _ I (polynomialCompletion_isAdicComplete_map (κ ⊕ ι))
+      (fun i ↦ X I (Sum.inr i))
+  have hinc : f.comp inc = (IsScalarTower.toAlgHom A B T).comp P.toAlgHom := by
+    rw [eq_adicAeval (IsNoetherian.noetherian I) (f.comp inc),
+      eq_adicAeval (IsNoetherian.noetherian I) ((IsScalarTower.toAlgHom A B T).comp P.toAlgHom)]
+    congr 1
+    funext i
+    simp [f, inc, ofComp, adicAeval_X, T]
+  have hB (b : B) : π (algebraMap B T b) ∈ (π.comp f).range := by
+    obtain ⟨x, rfl⟩ := P.surjective b
+    exact ⟨inc x, congrArg π (AlgHom.congr_fun hinc x)⟩
+  have hX (j : κ) : π (X (I.map (algebraMap A B)) j) ∈ (π.comp f).range := by
+    exact ⟨X I (Sum.inl j), congrArg π (ofComp_X_inl Q P j)⟩
+  have hpoly (p : MvPolynomial κ B) :
+      π (algebraMap (MvPolynomial κ B) T p) ∈ (π.comp f).range := by
+    induction p using MvPolynomial.induction_on with
+    | C b =>
+        rw [show MvPolynomial.C b = algebraMap B (MvPolynomial κ B) b from rfl,
+          ← IsScalarTower.algebraMap_apply]
+        exact hB b
+    | add p q hp hq => simpa using (π.comp f).range.add_mem hp hq
+    | mul_X p j hp =>
+        rw [map_mul, map_mul]
+        exact (π.comp f).range.mul_mem hp (hX j)
+  have hmod : Function.Surjective (π.comp f) := by
+    intro t
+    obtain ⟨t, rfl⟩ := Ideal.Quotient.mk_surjective t
+    obtain ⟨p, hp⟩ := exists_polynomial_mod (I.map (algebraMap A B))
+      (Ideal.FG.map (IsNoetherian.noetherian I) (algebraMap A B)) t
+    change t - algebraMap (MvPolynomial κ B) T p ∈
+      ((I.map (algebraMap A B)) • ⊤ : Submodule B T) at hp
+    have hzero : π t = π (algebraMap (MvPolynomial κ B) T p) := by
+      rw [← sub_eq_zero, ← map_sub]
+      apply Ideal.Quotient.eq_zero_iff_mem.mpr
+      simpa [T, Ideal.smul_top_eq_map, Ideal.map_map,
+        ← IsScalarTower.algebraMap_eq A B
+          (polynomialCompletion B (I.map (algebraMap A B)) κ)] using hp
+    change π t ∈ (π.comp f).range
+    rw [hzero]
+    exact hpoly p
+  letI : IsAdicComplete I T :=
+    (IsAdicComplete.map_algebraMap_iff (R := A) (S := T) (M := T) I).mp inferInstance
+  letI : IsAdicComplete I D :=
+    (IsAdicComplete.map_algebraMap_iff (R := A) (S := MvPolynomial (κ ⊕ ι) A)
+      (M := D) I).mp
+      (AdicCompletion.isAdicComplete
+        (Ideal.FG.map (IsNoetherian.noetherian I) (algebraMap A (MvPolynomial (κ ⊕ ι) A))))
+  change Function.Surjective f
+  apply surjective_of_mkQ_comp_surjective (I := I) (f := f.toLinearMap)
+  intro t
+  obtain ⟨t, rfl⟩ := Submodule.mkQ_surjective (I • (⊤ : Submodule A T)) t
+  obtain ⟨d, hd⟩ := hmod (π t)
+  refine ⟨d, ?_⟩
+  change Submodule.Quotient.mk (f d) = Submodule.Quotient.mk t
+  rw [Submodule.Quotient.eq]
+  have hdt : f d - t ∈ I.map (algebraMap A T) := by
+    apply Ideal.Quotient.eq_zero_iff_mem.mp
+    change π (f d - t) = 0
+    rw [map_sub, ← hd]
+    simp
+  simpa [Ideal.smul_top_eq_map] using hdt
+
 /-- Completed evaluation into the intermediate-base presentation commutes with its quotient map. -/
 theorem ofCompHom_over (Q : Presentation B C (I.map (algebraMap A B)) κ)
     (P : Presentation A B I ι) (x : polynomialCompletion A I (κ ⊕ ι)) :
     Q.toAlgHom (ofComp Q P x) = (comp Q P).toAlgHom x := by
-  sorry
+  have h : (Q.toAlgHom.restrictScalars A).comp (ofComp Q P) = (comp Q P).toAlgHom := by
+    rw [eq_adicAeval (IsNoetherian.noetherian I)
+      ((Q.toAlgHom.restrictScalars A).comp (ofComp Q P))]
+    change adicAeval I _ = adicAeval I _
+    congr 1
+    funext i
+    cases i <;> simp [ofComp, adicAeval_X]
+  exact AlgHom.congr_fun h x
 
 /-- The morphism of extensions induced by `ofComp`. -/
 def ofCompHom (Q : Presentation B C (I.map (algebraMap A B)) κ)

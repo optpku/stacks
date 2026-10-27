@@ -61,39 +61,37 @@ noncomputable def target
 
 /-- The left projection of `target P` is the underlying left leg of `P`.
 
-Proof strategy: use BaseProjection.pullbackDown_fst and the left projection of
-CategoricalPullback.functorEquiv.inverse. -/
+Both the categorical-pullback lift and `pullbackDown` retain the left leg definitionally. -/
 @[simp] theorem target.fst
     {X : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C}
     (P : Bicategory.PseudoPullbackCone X.baseProjection X.baseProjection) :
     target P ⋙ π₁ X.p X.p =
-      FiberedCategoryOver.Groupoids.toFunctor P.fst := sorry
+      FiberedCategoryOver.Groupoids.toFunctor P.fst := rfl
 
 /-- The right projection of `target P` is the underlying right leg of `P`.
 
-Proof strategy: use BaseProjection.pullbackDown_snd and the right projection of
-CategoricalPullback.functorEquiv.inverse. -/
+Both the categorical-pullback lift and `pullbackDown` retain the right leg definitionally. -/
 @[simp] theorem target.snd
     {X : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C}
     (P : Bicategory.PseudoPullbackCone X.baseProjection X.baseProjection) :
     target P ⋙ π₂ X.p X.p =
-      FiberedCategoryOver.Groupoids.toFunctor P.snd := sorry
+      FiberedCategoryOver.Groupoids.toFunctor P.snd := rfl
 
 /-- Objectwise, the first projection of `target P` is the underlying left leg of `P`. -/
 @[simp] theorem target.obj.fst
     {X : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C}
     (P : Bicategory.PseudoPullbackCone X.baseProjection X.baseProjection) (a : P.pt.total) :
     ((target P).obj a).fst =
-      (FiberedCategoryOver.Groupoids.toFunctor P.fst).obj a := sorry
-/- Proof strategy: evaluate `target.fst P` at `a` and read the object component. -/
+      (FiberedCategoryOver.Groupoids.toFunctor P.fst).obj a := rfl
+/- The lift and `pullbackDown` retain the first object field definitionally. -/
 
 /-- Objectwise, the second projection of `target P` is the underlying right leg of `P`. -/
 @[simp] theorem target.obj.snd
     {X : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C}
     (P : Bicategory.PseudoPullbackCone X.baseProjection X.baseProjection) (a : P.pt.total) :
     ((target P).obj a).snd =
-      (FiberedCategoryOver.Groupoids.toFunctor P.snd).obj a := sorry
-/- Proof strategy: evaluate `target.snd P` at `a` and read the object component. -/
+      (FiberedCategoryOver.Groupoids.toFunctor P.snd).obj a := rfl
+/- The lift and `pullbackDown` retain the second object field definitionally. -/
 
 /-- Objectwise, the structural isomorphism of `target P` is the cone comparison transported
 from the universe-closed identity fibration back to the original base `C`. -/
@@ -107,10 +105,36 @@ from the universe-closed identity fibration back to the original base `C`. -/
         (FiberedCategoryOver.Groupoids.base C).p.mapIso
           ((FiberedCategoryOver.Groupoids.toFunctorIso P.iso).app a) ≪≫
           (FiberedCategoryOver.Groupoids.baseProjection.iso X).app
-            ((FiberedCategoryOver.Groupoids.toFunctor P.snd).obj a) := sorry
-/- Proof strategy: use the generated object formula for
-`CategoricalPullback.functorEquiv.inverse`, followed by
-`BaseProjection.pullbackDown_obj_iso`. -/
+            ((FiberedCategoryOver.Groupoids.toFunctor P.snd).obj a) := by
+  let e := FiberedCategoryOver.Groupoids.baseProjection.iso.{u, v, w, w} X
+  have hpost
+      (x : (FiberedCategoryOver.Groupoids.toFunctor X.baseProjection) ⊡
+        (FiberedCategoryOver.Groupoids.toFunctor X.baseProjection)) :
+      ((CategoricalPullback.postcompose _ _
+          (FiberedCategoryOver.Groupoids.base.{u, v, w} C).p).obj x).iso =
+        (FiberedCategoryOver.Groupoids.base.{u, v, w} C).p.mapIso x.iso := by
+    apply Iso.ext
+    change 𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _ ≫
+        (FiberedCategoryOver.Groupoids.base.{u, v, w} C).p.map x.iso.hom ≫
+          𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _ =
+      (FiberedCategoryOver.Groupoids.base.{u, v, w} C).p.map x.iso.hom
+    simp only [Category.id_comp, Category.comp_id]
+  have hleg
+      (x : (FiberedCategoryOver.Groupoids.toFunctor X.baseProjection ⋙
+          (FiberedCategoryOver.Groupoids.base.{u, v, w} C).p) ⊡
+        (FiberedCategoryOver.Groupoids.toFunctor X.baseProjection ⋙
+          (FiberedCategoryOver.Groupoids.base.{u, v, w} C).p)) :
+      ((CategoricalPullback.LegChange.map e e).obj x).iso =
+        (e.app x.fst).symm ≪≫ x.iso ≪≫ e.app x.snd := by
+    apply Iso.ext
+    change 𝟙 _ ≫ ((𝟙 _ ≫ e.inv.app x.fst) ≫ 𝟙 _) ≫
+        𝟙 _ ≫ x.iso.hom ≫ 𝟙 _ ≫ (𝟙 _ ≫ e.hom.app x.snd ≫ 𝟙 _) ≫ 𝟙 _ =
+      e.inv.app x.fst ≫ x.iso.hom ≫ e.hom.app x.snd
+    simp only [Category.id_comp, Category.comp_id]
+  exact (hleg _).trans
+    (congrArg (fun i ↦ (e.app _).symm ≪≫ i ≪≫ e.app _) (hpost _))
+/- Compute postcomposition and leg transport directly; the categorical-pullback lift retains
+the cone comparison definitionally. -/
 
 /-- The forward map of the structural isomorphism carried by `target P` is the underlying
 cone comparison mapped to `C` and conjugated by the two base-projection comparisons. -/
@@ -124,7 +148,8 @@ cone comparison mapped to `C` and conjugated by the two base-projection comparis
         (FiberedCategoryOver.Groupoids.base C).p.map
           ((FiberedCategoryOver.Groupoids.toFunctorIso P.iso).hom.app a) ≫
           (FiberedCategoryOver.Groupoids.baseProjection.iso X).hom.app
-            ((FiberedCategoryOver.Groupoids.toFunctor P.snd).obj a) := sorry
+            ((FiberedCategoryOver.Groupoids.toFunctor P.snd).obj a) := by
+  exact congrArg Iso.hom (target.obj.iso.{w, v, u, w, w} P a)
 
 /-- The inverse map of the structural isomorphism carried by `target P` is the reverse
 conjugation of the inverse underlying cone comparison. -/
@@ -138,7 +163,9 @@ conjugation of the inverse underlying cone comparison. -/
         (FiberedCategoryOver.Groupoids.base C).p.map
           ((FiberedCategoryOver.Groupoids.toFunctorIso P.iso).inv.app a) ≫
           (FiberedCategoryOver.Groupoids.baseProjection.iso X).hom.app
-            ((FiberedCategoryOver.Groupoids.toFunctor P.fst).obj a) := sorry
+            ((FiberedCategoryOver.Groupoids.toFunctor P.fst).obj a) := by
+  exact (congrArg Iso.inv (target.obj.iso.{w, v, u, w, w} P a)).trans
+    (Category.assoc _ _ _)
 
 /-- On morphisms, the first projection of `target P` is the map of the underlying left leg. -/
 @[simp] theorem target.hom.fst
@@ -146,8 +173,8 @@ conjugation of the inverse underlying cone comparison. -/
     (P : Bicategory.PseudoPullbackCone X.baseProjection X.baseProjection)
     {a b : P.pt.total} (f : a ⟶ b) :
     ((target P).map f).fst =
-      (FiberedCategoryOver.Groupoids.toFunctor P.fst).map f := sorry
-/- Proof strategy: evaluate `target.fst P` on `f` and read the morphism component. -/
+      (FiberedCategoryOver.Groupoids.toFunctor P.fst).map f := rfl
+/- The lift and `pullbackDown` retain the first morphism field definitionally. -/
 
 /-- On morphisms, the second projection of `target P` is the map of the underlying right leg. -/
 @[simp] theorem target.hom.snd
@@ -155,8 +182,8 @@ conjugation of the inverse underlying cone comparison. -/
     (P : Bicategory.PseudoPullbackCone X.baseProjection X.baseProjection)
     {a b : P.pt.total} (f : a ⟶ b) :
     ((target P).map f).snd =
-      (FiberedCategoryOver.Groupoids.toFunctor P.snd).map f := sorry
-/- Proof strategy: evaluate `target.snd P` on `f` and read the morphism component. -/
+      (FiberedCategoryOver.Groupoids.toFunctor P.snd).map f := rfl
+/- The lift and `pullbackDown` retain the second morphism field definitionally. -/
 
 end
 

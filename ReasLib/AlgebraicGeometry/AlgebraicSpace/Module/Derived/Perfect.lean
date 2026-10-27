@@ -82,6 +82,11 @@ theorem isPerfect_iff {S : Scheme.{u}} {X : AlgebraicSpace S} (P : ModuleDerived
       ∃ F : _root_.CochainComplex (Modules X) ℤ, ∃ _ : P ≅ DerivedCategory.Q.obj F,
         CochainComplex.IsPerfect F := sorry
 
+/-- Every perfect derived module on an algebraic space has quasi-coherent cohomology. -/
+theorem IsPerfect.quasiCoherent {S : Scheme.{u}} {X : AlgebraicSpace S}
+    {E : ModuleDerived X} (hE : IsPerfect E) :
+    derivedQuasiCoherentModuleProperty X E := sorry
+
 end ModuleDerived
 
 end AlgebraicGeometry.AlgebraicSpace

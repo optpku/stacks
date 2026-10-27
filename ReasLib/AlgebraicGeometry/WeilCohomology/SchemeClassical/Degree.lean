@@ -40,7 +40,7 @@ variable {dimension : V → ℕ} {product : V → V → V}
 variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
 variable {point : V} {H : V → Type x} {CH : V → Type y}
 variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-variable {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+variable {Hgrade : ∀ X, ℤ → Submodule F (H X)}
 variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
 variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V},
@@ -49,6 +49,10 @@ variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
 
 variable (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
   H CH Hgrade CHgrade cyclePullback cyclePushforward)
+
+/-- Proof-local geometric instance, supplied by the theory rather than assumed
+when elaborating relative dimension functions in the statements below. -/
+local instance representedSmooth (X : V) : Smooth (T.scheme.obj X).hom := T.smooth X
 
 /-- On a nonempty equidimensional represented scheme, integration of a top-degree cycle
 class is the degree of the corresponding zero-cycle class, cast from `ℤ` to `F`. -/
@@ -155,7 +159,7 @@ theorem cycleClass_factorsThrough_degree
                   (fun _ : Spec (CommRingCat.of k') ↦ 0)) 0 x
                 (SchemeOverField.closedPoint_relativeDimensionFunction_eq_zero
                   (T.overExtension s eK) x))) :
-    ∃ factor : ℤ →+ Hgrade X (2 * (d : ℤ), (d : ℤ)),
+    ∃ factor : ℤ →+ Hgrade X (2 * (d : ℤ)),
       (T.gradedCycleClass X (d : ℤ)).comp
           chowTopEquiv.symm.toAddMonoidHom =
         factor.comp (ChowGroup.degree (T.overExtension s eK)) := sorry

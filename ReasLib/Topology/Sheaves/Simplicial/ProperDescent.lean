@@ -72,7 +72,7 @@ theorem sheaf_unit_app_isIso (ha : IsProperHypercovering a)
 of sets along a proper hypercovering. -/
 theorem sheaf_counit_app_isIso_of_isCartesian (ha : IsProperHypercovering a)
     (G : Sheaf (zariskiTopology (forgetToTop.obj U)) (Type u))
-    (h : IsCartesian (forgetToTop.obj U) (Type u) G) :
+    (h : IsCartesianSheaf (forgetToTop.obj U) (Type u) G) :
     IsIso ((augmentationMorphism (toTopCatAugmentation a)).adjunction.counit.app G) :=
   sorry
 
@@ -150,7 +150,7 @@ exactly of cartesian sheaves of sets. -/
 theorem sheaf_mem_essImage_iff_isCartesian (ha : IsProperHypercovering a)
     (G : Sheaf (zariskiTopology (forgetToTop.obj U)) (Type u)) :
     (LeftExactAdjunction.inverseImage (augmentationMorphism (toTopCatAugmentation a))).essImage G ↔
-      IsCartesian (forgetToTop.obj U) (Type u) G :=
+      IsCartesianSheaf (forgetToTop.obj U) (Type u) G :=
   sorry
 
 /-- The functor `a⁻¹` corestricted to cartesian abelian sheaves. -/
@@ -194,7 +194,7 @@ theorem abelian_unit_app_isIso (ha : IsProperHypercovering a)
 /-- The counit of `a⁻¹ ⊣ a_*` is an isomorphism on a cartesian abelian sheaf. -/
 theorem abelian_counit_app_isIso_of_isCartesian (ha : IsProperHypercovering a)
     (G : Sheaf (zariskiTopology (forgetToTop.obj U)) AddCommGrpCat.{u})
-    (h : IsCartesian (forgetToTop.obj U) AddCommGrpCat.{u} G) :
+    (h : IsCartesianSheaf (forgetToTop.obj U) AddCommGrpCat.{u} G) :
     IsIso ((inverseImageAdjunction (toTopCatAugmentation a) AddCommGrpCat.{u}).counit.app G) :=
   sorry
 
@@ -274,7 +274,7 @@ if it is cartesian. -/
 theorem abelian_mem_essImage_iff_isCartesian (ha : IsProperHypercovering a)
     (G : Sheaf (zariskiTopology (forgetToTop.obj U)) AddCommGrpCat.{u}) :
     (inverseImage (toTopCatAugmentation a) AddCommGrpCat.{u}).essImage G ↔
-      IsCartesian (forgetToTop.obj U) AddCommGrpCat.{u} G :=
+      IsCartesianSheaf (forgetToTop.obj U) AddCommGrpCat.{u} G :=
   sorry
 
 end LCCat

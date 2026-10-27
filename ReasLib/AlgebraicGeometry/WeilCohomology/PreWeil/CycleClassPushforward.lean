@@ -35,11 +35,13 @@ theorem cycleClass_pushforward_of_axiomsA1ToA8
     {pointCycle : CHgrade point 0} {H Picard : V → Type x}
     [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Picard X)]
     (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard)
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
     (hA8 : T.SatisfiesAxiomA8) {X Y : V} {d e : ℕ}
     (hX : T.IsNonemptyEquidimensional X d)
     (hY : T.IsNonemptyEquidimensional Y e) (f : X ⟶ Y) (alpha : CH X) :
     T.cycleClass Y (cyclePushforward f alpha) =
-      T.pushforward hX hY f (T.cycleClass X alpha) := sorry
+      T.pushforward hX hY f (T.cycleClass X alpha) := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 end WeilCohomology.SchemePreWeilTheory

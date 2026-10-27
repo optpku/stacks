@@ -47,10 +47,6 @@ end CategoryTheory.SiteUniverse
 namespace AlgebraicGeometry.GroupoidsOver
 variable {S : Scheme.{u}}
 
-/-- The existing canonical enlarged étale module owner. -/
-abbrev EtaleModulesLift (X : GroupoidsOver S) :=
-  RingedSite.ModuleCat.{u + 1} (commEtaleRingedSiteLift X)
-
 instance etaleModulesLift_abelian (X : GroupoidsOver S) : Abelian (EtaleModulesLift X) := by
   -- Local instance justification (proof-local temporary data): bind the proved upper-universe additive sheafification.
   letI := SiteUniverse.additiveGroups X.etaleTopology

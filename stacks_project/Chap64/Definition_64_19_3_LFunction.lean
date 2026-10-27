@@ -11,6 +11,8 @@ public import stacks_project.Chap64.Definition_64_19_1_EulerFactor
 public import stacks_project.Chap64.Definition_64_19_1_LFunction
 public import stacks_project.Chap64.Definition_64_19_3_Stalk
 
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.EllAdicSheaf.LFunction
+
 /-!
 # L-functions of Q_ℓ-sheaves
 
@@ -34,62 +36,56 @@ open scoped AlgebraicGeometry
 namespace AlgebraicGeometry.Scheme.Etale.ZEllSheaf
 
 variable {k : Type u} [Field k] [Fintype k]
-variable {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
 variable {ℓ : ℕ} [Fact (Nat.Prime ℓ)]
 variable {X : SchemeOverField k} [Scheme.Hom.FiniteType X.hom] [IsNoetherian X.left]
 variable [HasSheafify X.left.smallEtaleTopology AddCommGrpCat.{u}]
 variable [∀ (Y : Scheme.{u}) (V : Y.Etale),
     HasWeakSheafify (Y.smallEtaleTopology.over V) AddCommGrpCat.{u}]
-variable (F : ZEllSheaf X.left ℓ)
 
-/-- The local Euler factor `det(1 - π_x^* T^{deg x} | F_x̄)⁻¹` in `ℚ_[ℓ]⟦T⟧`. -/
-def localEulerFactor (hF : F.IsConstructible) (x : closedPoints X.left) :
-    PowerSeries ℚ_[ℓ] :=
-  -- Local instance justification (proof-local temporary data): finite-dimensionality of a constructible Q_ℓ-stalk is a theorem from hF; LinearMap.eulerFactor needs Module.Finite/Projective, which cannot be a global instance on all ZEllSheaf.
-  haveI : FiniteDimensional ℚ_[ℓ] (F.qellStalk (geometricPointOverClosedPoint X x)) :=
-    F.finiteDimensional_qellStalk hF (geometricPointOverClosedPoint X x)
-  LinearMap.eulerFactor (F.geometricFrobeniusStalk x) (X.hom.residueDegree x.1)
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.localEulerFactor :
+  ∀ (F : ZEllSheaf X.left ℓ) (hF : F.IsConstructible) (x : closedPoints X.left),
+    PowerSeries ℚ_[ℓ])
 
-/-- The local Euler factor is `LinearMap.eulerFactor` of geometric Frobenius at
-residue degree `deg x`. -/
-theorem localEulerFactor_spec (hF : F.IsConstructible) (x : closedPoints X.left) :
-    -- Local instance justification (proof-local temporary data): mentioning LinearMap.eulerFactor in the companion type needs the same constructible finite-dimensionality as localEulerFactor.
-    haveI : FiniteDimensional ℚ_[ℓ] (F.qellStalk (geometricPointOverClosedPoint X x)) :=
-      F.finiteDimensional_qellStalk hF (geometricPointOverClosedPoint X x)
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.localEulerFactor_spec :
+  ∀ (F : ZEllSheaf X.left ℓ) (hF : F.IsConstructible) (x : closedPoints X.left),
     F.localEulerFactor hF x =
-      LinearMap.eulerFactor (F.geometricFrobeniusStalk x) (X.hom.residueDegree x.1) :=
-  sorry
+      LinearMap.eulerFactor (F.geometricFrobeniusStalk x) (X.hom.residueDegree x.1))
 
-/-- The constant coefficient of each local Euler factor is `1`. -/
-theorem constantCoeff_localEulerFactor (hF : F.IsConstructible)
-    (x : closedPoints X.left) :
-    PowerSeries.constantCoeff (F.localEulerFactor hF x) = 1 := sorry
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.constantCoeff_localEulerFactor :
+  ∀ (F : ZEllSheaf X.left ℓ) (hF : F.IsConstructible)
+    (x : closedPoints X.left),
+    PowerSeries.constantCoeff (F.localEulerFactor hF x) = 1)
 
-/-- The L-function of a constructible `ℚ_[ℓ]`-sheaf, as the Euler product over
-closed points of the local factors `det(1 - π_x^* T^{deg x} | F_x̄)⁻¹`. -/
-def lFunction (hF : F.IsConstructible) : PowerSeries ℚ_[ℓ] :=
-  PowerSeries.mk fun n ↦
-    PowerSeries.coeff n
-      (∏ x : {x : closedPoints X.left // X.hom.residueDegree x.1 ≤ n},
-        F.localEulerFactor hF x.1)
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.lFunction :
+  ∀ (F : ZEllSheaf X.left ℓ) (hF : F.IsConstructible),
+    PowerSeries ℚ_[ℓ])
 
-/-- The coefficient of `T^n` in `lFunction` is the corresponding coefficient of
-the finite product of Euler factors over closed points of residue degree at
-most `n`. -/
-theorem lFunction_coeff (hF : F.IsConstructible) (n : ℕ) :
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.lFunction_coeff :
+  ∀ (F : ZEllSheaf X.left ℓ) (hF : F.IsConstructible) (n : ℕ),
     PowerSeries.coeff n (F.lFunction hF) =
       PowerSeries.coeff n
         (∏ x : {x : closedPoints X.left // X.hom.residueDegree x.1 ≤ n},
-          F.localEulerFactor hF x.1) := sorry
+          F.localEulerFactor hF x.1))
 
-/-- The L-function is the Euler product over closed points of the local
-factors `det(1 - π_x^* T^{deg x} | F_x̄)⁻¹`, realised coefficientwise by
-finite products over residue degree at most `n`. -/
-theorem lFunction_spec (hF : F.IsConstructible) :
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.lFunction_spec :
+  ∀ (F : ZEllSheaf X.left ℓ) (hF : F.IsConstructible),
     F.lFunction hF =
       PowerSeries.mk fun n ↦
         PowerSeries.coeff n
           (∏ x : {x : closedPoints X.left // X.hom.residueDegree x.1 ≤ n},
-            F.localEulerFactor hF x.1) := sorry
+            F.localEulerFactor hF x.1))
+
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.localEulerFactor_coeff_eq_zero_of_lt_residueDegree :
+  ∀ (F : ZEllSheaf X.left ℓ) (hF : F.IsConstructible) (x : closedPoints X.left) (n : ℕ)
+    (hn : 0 < n) (hx : n < X.hom.residueDegree x.1),
+    PowerSeries.coeff n (F.localEulerFactor hF x) = 0)
+
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.lFunction_coeff_eq_prod_of_le :
+  ∀ (F : ZEllSheaf X.left ℓ) (hF : F.IsConstructible) (n m : ℕ)
+    (hnm : n ≤ m),
+    PowerSeries.coeff n (F.lFunction hF) =
+      PowerSeries.coeff n
+        (∏ x : {x : closedPoints X.left // X.hom.residueDegree x.1 ≤ m},
+          F.localEulerFactor hF x.1))
 
 end AlgebraicGeometry.Scheme.Etale.ZEllSheaf

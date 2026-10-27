@@ -59,9 +59,4 @@ theorem ι_isAssociated
     [I.IsLocallyGeneratedBySections] :
     ClosedSubspace.IsAssociated (ι I) I := sorry
 
-variable {X : LocallyRingedSpace.{u}} (I : IdealSubobject X)
-  [I.IsLocallyGeneratedBySections]
-
-#synth IsClosedImmersion (ι I)
-
 end AlgebraicGeometry.LocallyRingedSpace.IdealQuotient

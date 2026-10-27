@@ -80,7 +80,22 @@ namespace LeftFraction
 @[stacks 05Q0 "filtered category of target denominators"]
 instance targetArrows_isFiltered
     (W : MorphismProperty C) [W.HasLeftCalculusOfFractions] (Y : C) :
-    IsFiltered (MorphismProperty.Under W ⊤ Y) := sorry
+    IsFiltered (MorphismProperty.Under W ⊤ Y) := by
+  refine
+    { nonempty := ⟨Under.mk ⊤ (𝟙 Y) (W.id_mem Y)⟩
+      cocone_objs := ?_
+      cocone_maps := ?_ }
+  · intro s t
+    obtain ⟨z, hz⟩ := (RightFraction.mk s.hom s.prop t.hom).exists_leftFraction
+    let r : MorphismProperty.Under W ⊤ Y :=
+      Under.mk ⊤ (t.hom ≫ z.s) (W.comp_mem _ _ t.prop z.hs)
+    exact ⟨r, Under.homMk z.f hz.symm, Under.homMk z.s rfl, trivial⟩
+  · intro s t a b
+    obtain ⟨Z, e, he, h⟩ := HasLeftCalculusOfFractions.ext a.right b.right s.hom s.prop
+      ((Under.w a).trans (Under.w b).symm)
+    refine ⟨Under.mk ⊤ (t.hom ≫ e) (W.comp_mem _ _ t.prop he),
+      Under.homMk e rfl, ?_⟩
+    exact Under.Hom.ext h
 /- Proof strategy: use `Under.mk ⊤ (𝟙 Y) (W.id_mem Y)` for nonemptiness;
 apply `RightFraction.leftFraction` to the span determined by two denominators
 to obtain the displayed common successor; then apply
@@ -117,7 +132,19 @@ def homCoconeApp (W : MorphismProperty C) (X Y : C) (s : MorphismProperty.Under 
 theorem homCocone_naturality (W : MorphismProperty C) (X Y : C)
     {s t : MorphismProperty.Under W ⊤ Y} (a : s ⟶ t) :
     Function.comp (homCoconeApp W X Y t) ((homDiagram W X Y).map a) =
-      homCoconeApp W X Y s := sorry
+      homCoconeApp W X Y s := by
+  funext f
+  change Hom.mk (fraction W X Y t ((homDiagram W X Y).map a f)) =
+    Hom.mk (fraction W X Y s f)
+  apply Quot.sound
+  refine ⟨t.right, 𝟙 _, a.right, ?_, ?_, ?_⟩
+  · change t.hom ≫ 𝟙 t.right = s.hom ≫ a.right
+    simpa using (Under.w a).symm
+  · change (𝟙 X ≫ (f.down ≫ a.right)) ≫ 𝟙 t.right =
+      (𝟙 X ≫ f.down) ≫ a.right
+    simp
+  · change W (t.hom ≫ 𝟙 t.right)
+    simpa using t.prop
 /- Proof strategy: use `Under.w a` for `s.hom ≫ a.right = t.hom` and
 `Quot.sound`; the two fractions have common target `t.right`, comparison maps
 `a.right` and `𝟙 t.right`, equal numerators by the definition of `homDiagram`,
@@ -144,7 +171,7 @@ theorem colimitTypeToHom.apply_ιColimitType
     (W : MorphismProperty C) (X Y : C) (s : MorphismProperty.Under W ⊤ Y)
     (f : (homDiagram W X Y).obj s) :
     colimitTypeToHom W X Y ((homDiagram W X Y).ιColimitType s f) =
-      Hom.mk (fraction W X Y s f) := sorry
+      Hom.mk (fraction W X Y s f) := rfl
 
 /-- The canonical colimit representative of a left fraction: its index is its
 denominator `z.s : Y ⟶ z.Y'`, and its element is its numerator `z.f`. -/
@@ -158,12 +185,23 @@ fraction to its quotient class. -/
 @[simp]
 theorem colimitTypeToHom.apply_fractionToColimitType
     (W : MorphismProperty C) (X Y : C) (z : W.LeftFraction X Y) :
-    colimitTypeToHom W X Y (fractionToColimitType W X Y z) = Hom.mk z := sorry
+    colimitTypeToHom W X Y (fractionToColimitType W X Y z) = Hom.mk z := by
+  cases z
+  simp [fractionToColimitType, fraction]
+  rfl
 
 /-- Related left fractions determine the same canonical colimit representative. -/
 theorem fractionToColimitType_eq_of_rel (W : MorphismProperty C) (X Y : C)
     (z₁ z₂ : W.LeftFraction X Y) (h : LeftFractionRel z₁ z₂) :
-    fractionToColimitType W X Y z₁ = fractionToColimitType W X Y z₂ := sorry
+    fractionToColimitType W X Y z₁ = fractionToColimitType W X Y z₂ := by
+  obtain ⟨Z, t₁, t₂, hs, hf, hW⟩ := h
+  dsimp only [fractionToColimitType]
+  apply (homDiagram W X Y).ιColimitType_eq_of_map_eq_map _ _
+    (k := Under.mk ⊤ (z₁.s ≫ t₁) hW)
+    (Under.homMk t₁ rfl) (Under.homMk t₂ hs.symm)
+  change (ULift.up ((𝟙 X ≫ z₁.f) ≫ t₁) : ULift.{u} (X ⟶ Z)) =
+    ULift.up ((𝟙 X ≫ z₂.f) ≫ t₂)
+  simpa using congrArg (ULift.up : (X ⟶ Z) → ULift.{u} (X ⟶ Z)) hf
 /- Proof strategy: unpack `h` as a common target `Z` with comparison maps
 `t₁` and `t₂`; make the common index with `Under.mk ⊤ (z₁.s ≫ t₁)` and the
 membership component of `h`, then apply
@@ -182,12 +220,20 @@ colimit representative. -/
 @[simp]
 theorem homToColimitType_mk (W : MorphismProperty C) (X Y : C)
     (z : W.LeftFraction X Y) :
-    homToColimitType W X Y (Hom.mk z) = fractionToColimitType W X Y z := sorry
+    homToColimitType W X Y (Hom.mk z) = fractionToColimitType W X Y z := rfl
 
 /-- `homToColimitType` is a left inverse to `colimitTypeToHom`. -/
 theorem homColimitType_leftInverse (W : MorphismProperty C) (X Y : C)
     (x : (homDiagram W X Y).ColimitType) :
-    homToColimitType W X Y (colimitTypeToHom W X Y x) = x := sorry
+    homToColimitType W X Y (colimitTypeToHom W X Y x) = x := by
+  obtain ⟨s, f, rfl⟩ := (homDiagram W X Y).ιColimitType_jointly_surjective x
+  rw [colimitTypeToHom.apply_ιColimitType, homToColimitType_mk]
+  dsimp only [fractionToColimitType]
+  apply (homDiagram W X Y).ιColimitType_eq_of_map_eq_map _ _
+    (k := s) (Under.homMk (𝟙 s.right) (by simp)) (𝟙 s)
+  change (ULift.up ((𝟙 X ≫ (𝟙 X ≫ f.down)) ≫ 𝟙 s.right) :
+    ULift.{u} (X ⟶ s.right)) = ULift.up (f.down ≫ 𝟙 s.right)
+  simp
 /- Proof strategy: use `Functor.ιColimitType_jointly_surjective` to write `x`
 as a diagram coprojection; unfold the two quotient maps, connect the original
 index to the reconstructed `Under.mk` index by `Under.homMk (𝟙 s.right)`, and
@@ -196,7 +242,9 @@ apply `Functor.ιColimitType_eq_of_map_eq_map` to that comparison. -/
 /-- `homToColimitType` is a right inverse to `colimitTypeToHom`. -/
 theorem homColimitType_rightInverse (W : MorphismProperty C) (X Y : C)
     (f : Hom W X Y) :
-    colimitTypeToHom W X Y (homToColimitType W X Y f) = f := sorry
+    colimitTypeToHom W X Y (homToColimitType W X Y f) = f := by
+  obtain ⟨z, rfl⟩ := Hom.mk_surjective f
+  rw [homToColimitType_mk, colimitTypeToHom.apply_fractionToColimitType]
 /- Proof strategy: quotient-induct on `f = Hom.mk z`; the forward map sends the
 canonical representative of `z` back to `Hom.mk z`, with the two
 `Opposite.unop_op` transports cancelling by category simplification. -/
@@ -226,7 +274,12 @@ theorem homColimit.equiv.apply_ι
     (W : MorphismProperty C) (X Y : C) (s : MorphismProperty.Under W ⊤ Y)
     (f : (homDiagram W X Y).obj s) :
     homColimit.equiv W X Y (colimit.ι (homDiagram W X Y) s f) =
-      Hom.mk (fraction W X Y s f) := sorry
+      Hom.mk (fraction W X Y s f) := by
+  change colimitTypeToHom W X Y
+    (Limits.Types.colimitEquivColimitType (homDiagram W X Y)
+      (colimit.ι (homDiagram W X Y) s f)) = _
+  rw [Limits.Types.colimitEquivColimitType_apply]
+  rfl
 /- Proof strategy: rewrite the abstract coprojection with
 `Limits.Types.colimitEquivColimitType_apply`, unfold `homColimit.typeEquiv` and
 `colimitTypeToHom`, and use the defining computation of `Functor.descColimitType` on

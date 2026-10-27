@@ -19,6 +19,10 @@ base inclusion, and mapping property are owned by `NonnegGradedAlgebra.Adjoin.Ev
 property records all divided monomials, not merely the first generator.  Explicit coefficient
 formulas are exposed through `Adjoin.Even.IsCanonical`, while `Adjoin.Even.dpAlgebra` is the bundled
 object used downstream.
+
+The snapshot `a04446e57ec1` of Tag 09PI omits `Nat.uniformBell n i` for higher divided
+monomials and in its distribution formula.  The formulas below include it, following the
+composition axiom in Tag 09PG (7) and the factorial calculation in Tag 07H5.
 -/
 
 universe u v
@@ -82,15 +86,16 @@ divided-power graded algebras. -/
         (Adjoin.Even.dividedPowers A d gammaA hd hpos))
 
 /- Example 23.6.3 (Adjoining even variable) (6): the canonical divided powers send `T^(i)` to
-`T^(n*i)` in coefficient coordinates. -/
+`Nat.uniformBell n i • T^(n*i)` in coefficient coordinates. -/
 @[stacks 09PI "(6)"]
 #check
-  ((fun (hpos : 0 < d) (hd : Even d) ↦
-      (Adjoin.Even.dividedPowers_isCanonical A d gammaA hd hpos).tPower) :
+  ((fun (hpos : 0 < d) (hd : Even d) (n : ℕ) (i : ℕ+) ↦
+      (Adjoin.Even.dividedPowers_isCanonical A d gammaA hd hpos).tPower n i) :
     ∀ (hpos : 0 < d) (hd : Even d) (n : ℕ) (i : ℕ+),
       Adjoin.Even.gammaCoords A d hd (Adjoin.Even.dividedPowers A d gammaA hd hpos)
           n (Adjoin.Even.tPower A i) =
-        Adjoin.Even.monomial A (n * (i : ℕ)) A.oneEven)
+        Nat.uniformBell n (i : ℕ) •
+          Adjoin.Even.monomial A (n * (i : ℕ)) A.oneEven)
 
 /- Example 23.6.3 (Adjoining even variable) (7): the explicit formulas and base restriction
 determine a unique divided-power structure on the bundled extension. -/

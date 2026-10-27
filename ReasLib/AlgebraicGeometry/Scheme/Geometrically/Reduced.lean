@@ -59,7 +59,8 @@ theorem geometricallyReducedAt_iff (x : X.left) :
       ∀ (K : Type u) [Field K] [Algebra k K],
         ∀ x' : FieldExtension.baseChange k K X.hom,
           FieldExtension.toSource k K X.hom x' = x →
-            _root_.IsReduced ((FieldExtension.baseChange k K X.hom).presheaf.stalk x') := sorry
+            _root_.IsReduced ((FieldExtension.baseChange k K X.hom).presheaf.stalk x') :=
+  Iff.rfl
 
 /-- A scheme geometrically reduced at `x` has reduced local rings at every
 field-extension point above `x`. -/
@@ -69,7 +70,8 @@ theorem geometricallyReducedAt.isReduced_stalk {x : X.left}
     ∀ (K : Type u) [Field K] [Algebra k K],
       ∀ x' : FieldExtension.baseChange k K X.hom,
         FieldExtension.toSource k K X.hom x' = x →
-          _root_.IsReduced ((FieldExtension.baseChange k K X.hom).presheaf.stalk x') := sorry
+          _root_.IsReduced ((FieldExtension.baseChange k K X.hom).presheaf.stalk x') :=
+  hx
 
 /-- A scheme over `k` is geometrically reduced when it is geometrically reduced
 at every point. -/
@@ -80,19 +82,32 @@ abbrev geometricallyReduced : Prop :=
 /-- Unfold geometric reducedness over `k` into pointwise geometric reducedness. -/
 @[stacks 035V, simp]
 theorem geometricallyReduced_iff :
-    geometricallyReduced X ↔ ∀ x : X.left, geometricallyReducedAt X x := sorry
+    geometricallyReduced X ↔ ∀ x : X.left, geometricallyReducedAt X x :=
+  Iff.rfl
 
 /-- A geometrically reduced scheme is geometrically reduced at each of its points. -/
 @[stacks 035V]
 theorem geometricallyReduced.geometricallyReducedAt
     (hX : geometricallyReduced X) (x : X.left) :
-    geometricallyReducedAt X x := sorry
+    geometricallyReducedAt X x :=
+  hX x
 
 /-- The pointwise field-extension formulation of geometric reducedness agrees with
 mathlib's morphism-level predicate `GeometricallyReduced X.hom`. -/
 @[stacks 035V]
 theorem geometricallyReduced_iff_morphismGeometricallyReduced :
-    geometricallyReduced X ↔ GeometricallyReduced X.hom := sorry
+    geometricallyReduced X ↔ GeometricallyReduced X.hom := by
+  rw [AlgebraicGeometry.geometricallyReduced_iff,
+    geometrically_iff_of_commRing_of_isClosedUnderIsomorphisms]
+  constructor
+  · intro h K _ _
+    haveI (x' : FieldExtension.baseChange k K X.hom) :
+        _root_.IsReduced ((FieldExtension.baseChange k K X.hom).presheaf.stalk x') :=
+      h (FieldExtension.toSource k K X.hom x') K x' rfl
+    exact isReduced_of_isReduced_stalk _
+  · intro h x K _ _ x' _
+    haveI : IsReduced (FieldExtension.baseChange k K X.hom) := h K
+    infer_instance
 
 /-- Geometric reducedness over `k` can equivalently be checked by reducedness of
 every field-extension base change. -/
@@ -100,7 +115,10 @@ every field-extension base change. -/
 theorem geometricallyReduced_iff_forall_isReduced_fieldExtensionBaseChange :
     geometricallyReduced X ↔
       ∀ (K : Type u) [Field K] [Algebra k K],
-        IsReduced (FieldExtension.baseChange k K X.hom) := sorry
+        IsReduced (FieldExtension.baseChange k K X.hom) := by
+  rw [geometricallyReduced_iff_morphismGeometricallyReduced,
+    AlgebraicGeometry.geometricallyReduced_iff,
+    geometrically_iff_of_commRing_of_isClosedUnderIsomorphisms]
 
 /-- Geometric reducedness at `x` agrees with geometric reducedness of the local
 ring `𝒪_{X,x}` over the base field. -/
@@ -124,7 +142,9 @@ field. -/
 @[stacks 020I]
 theorem geometricallyReduced_of_isReduced_of_perfectField
     (X : Over (Spec (CommRingCat.of k))) [IsReduced X.left] :
-    geometricallyReduced X := sorry
+    geometricallyReduced X := by
+  intro x
+  exact geometricallyReducedAt_of_isReduced_stalk_of_perfectField X x
 
 end
 

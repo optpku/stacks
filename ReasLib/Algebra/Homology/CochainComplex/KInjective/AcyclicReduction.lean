@@ -8,10 +8,14 @@ module
 
 public import Mathlib.Algebra.Homology.GrothendieckAbelian
 public import Mathlib.Algebra.Homology.ShortComplex.ShortExact
+public import Mathlib.Algebra.Homology.HomologicalComplexLimits
+public import Mathlib.Algebra.Homology.HomologySequenceLemmas
+public import Mathlib.Algebra.Homology.ShortComplex.FunctorEquivalence
+public import Mathlib.CategoryTheory.Abelian.GrothendieckAxioms.Colim
 public import Mathlib.CategoryTheory.Abelian.GrothendieckCategory.Subobject
 public import Mathlib.Order.TransfiniteIteration
 public import Mathlib.SetTheory.Ordinal.Family
-public import ReasLib.Algebra.Homology.CochainComplex.SmallAcyclic.Bounds
+public import ReasLib.Algebra.Homology.CochainComplex.SmallAcyclic.SubcomplexSupply
 public import Mathlib.Tactic.CrossRefAttribute
 
 /-! # The transfinite acyclic reduction tower of Stacks 079L
@@ -44,48 +48,11 @@ open CategoryTheory CategoryTheory.Limits
 
 noncomputable section
 
+set_option backward.isDefEq.respectTransparency false
+
 universe z w v u
 
 namespace CochainComplex
-
-namespace SmallAcyclic
-
-variable (C : Type u) [Category.{v} C] [Abelian C]
-
-/-- Every nonzero acyclic complex is assigned an actual nonzero
-subcomplex which is bounded above, acyclic, and termwise bounded by `kappa`. -/
-@[stacks 079K "data-level small acyclic subcomplex supply"]
-structure SubcomplexSupply (kappa : Cardinal.{z}) where
-  /-- The assigned small acyclic subcomplex of a nonzero acyclic complex. -/
-  sub : ∀ (Q : CochainComplex C ℤ), Q.Acyclic → ¬ IsZero Q → Subobject Q
-  /-- The assigned subcomplex is nonzero. -/
-  not_isZero (Q : CochainComplex C ℤ) (hQ : Q.Acyclic) (hne : ¬ IsZero Q) :
-    ¬ IsZero (sub Q hQ hne : CochainComplex C ℤ)
-  /-- The assigned subcomplex is bounded above, acyclic and termwise bounded by `kappa`. -/
-  boundedBy (Q : CochainComplex C ℤ) (hQ : Q.Acyclic) (hne : ¬ IsZero Q) :
-    BoundedBy kappa (sub Q hQ hne : CochainComplex C ℤ)
-
-variable {C}
-
-/-- Enlarge the cardinal bound of a supply, keeping its assigned subcomplexes. -/
-def SubcomplexSupply.enlarge {kappa lambda : Cardinal.{z}}
-    (S : SubcomplexSupply C kappa) (h : kappa ≤ lambda) : SubcomplexSupply C lambda where
-  sub := S.sub
-  not_isZero := S.not_isZero
-  boundedBy Q hQ hne := (S.boundedBy Q hQ hne).mono h
-
-@[simp]
-lemma SubcomplexSupply.enlarge_sub {kappa lambda : Cardinal.{z}}
-    (S : SubcomplexSupply C kappa) (h : kappa ≤ lambda)
-    (Q : CochainComplex C ℤ) (hQ : Q.Acyclic) (hne : ¬ IsZero Q) :
-    (S.enlarge h).sub Q hQ hne = S.sub Q hQ hne := rfl
-
-/-- A data-level supply witnesses the uniform subcomplex bound. -/
-theorem SubcomplexSupply.hasSubcomplexes {kappa : Cardinal.{z}}
-    (S : SubcomplexSupply C kappa) : HasSubcomplexes C kappa :=
-  fun Q hQ hne ↦ ⟨S.sub Q hQ hne, S.not_isZero Q hQ hne, S.boundedBy Q hQ hne⟩
-
-end SmallAcyclic
 
 namespace AcyclicReduction
 
@@ -120,11 +87,13 @@ def limitCocone (stage : Ordinal.{w} → Subobject M) (hstage : Monotone stage)
     (α : Ordinal.{w}) : Cocone (limitFunctor stage hstage α) :=
   (Over.forget M).mapCocone (limitOverCocone stage hstage α)
 
+/-- The vertex of the ordinal-stage cocone is the corresponding subcomplex. -/
 @[simp]
 lemma limitCocone_pt (stage : Ordinal.{w} → Subobject M) (hstage : Monotone stage)
     (α : Ordinal.{w}) : (limitCocone stage hstage α).pt = (stage α : CochainComplex C ℤ) :=
   rfl
 
+/-- The cocone legs are the canonical inclusions between ordinal stages. -/
 @[simp]
 lemma limitCocone_ι_app (stage : Ordinal.{w} → Subobject M) (hstage : Monotone stage)
     (α : Ordinal.{w}) (j : α.ToType) :
@@ -198,6 +167,7 @@ def exhaustionIso (R : AcyclicReduction M kappa) :
     (R.stage R.exhaustion : CochainComplex C ℤ) ≅ M :=
   Subobject.isoOfEq _ _ R.stage_exhaustion ≪≫ Subobject.underlyingIso (𝟙 M)
 
+/-- The exhaustion isomorphism has the native subobject inclusion as its forward map. -/
 @[simp]
 lemma exhaustionIso_hom (R : AcyclicReduction M kappa) :
     R.exhaustionIso.hom = (R.stage R.exhaustion).arrow := by
@@ -208,7 +178,7 @@ theorem acyclic_ambient (R : AcyclicReduction M kappa) : M.Acyclic :=
   (R.acyclic R.exhaustion).of_iso R.exhaustionIso
 
 /-- The inclusion of the exhaustion stage is an isomorphism onto `M`. -/
-instance isIso_arrow_exhaustion (R : AcyclicReduction M kappa) :
+theorem isIso_arrow_exhaustion (R : AcyclicReduction M kappa) :
     IsIso (R.stage R.exhaustion).arrow :=
   (Subobject.isIso_arrow_iff_eq_top _).mpr R.stage_exhaustion
 
@@ -247,10 +217,12 @@ def stageOf {kappa : Cardinal.{z}} (S : SmallAcyclic.SubcomplexSupply C kappa)
     (α : Ordinal.{w}) : Subobject M :=
   transfiniteIterate (step S) α ⊥
 
+/-- The transfinite stage construction is monotone in its ordinal index. -/
 theorem stageOf_monotone {kappa : Cardinal.{z}} (S : SmallAcyclic.SubcomplexSupply C kappa) :
     Monotone (stageOf (M := M) S : Ordinal.{w} → Subobject M) :=
   monotone_transfiniteIterate _ _ (le_step S)
 
+/-- The initial stage of the transfinite construction is the bottom subobject. -/
 theorem stageOf_zero {kappa : Cardinal.{z}} (S : SmallAcyclic.SubcomplexSupply C kappa) :
     stageOf (M := M) S (0 : Ordinal.{w}) = ⊥ := by
   rw [← Ordinal.bot_eq_zero]
@@ -307,6 +279,139 @@ def exhaustionOf {kappa : Cardinal.{z}} (S : SmallAcyclic.SubcomplexSupply C kap
     Ordinal.{w} :=
   sInf {α : Ordinal.{w} | stageOf (M := M) S α = ⊤}
 
+private lemma step_zero {kappa : Cardinal.{z}} (S : SmallAcyclic.SubcomplexSupply C kappa)
+    (K : Subobject M) :
+    Subobject.ofLE K (step S K) (le_step S K) ≫
+      Subobject.pullbackπ (cokernel.π K.arrow) (quotientSub S K) = 0 := by
+  apply (cancel_mono (quotientSub S K).arrow).mp
+  rw [Category.assoc, (Subobject.isPullback
+    (cokernel.π K.arrow) (quotientSub S K)).w, ← Category.assoc]
+  change (Subobject.ofLE K (step S K) (le_step S K) ≫
+    (step S K).arrow) ≫ cokernel.π K.arrow = _
+  simp only [Subobject.ofLE_arrow, cokernel.condition, zero_comp]
+
+private lemma step_shortExact {kappa : Cardinal.{z}}
+    (S : SmallAcyclic.SubcomplexSupply C kappa) (K : Subobject M) :
+    (ShortComplex.mk _ _ (step_zero S K)).ShortExact := by
+  let sq := Subobject.isPullback (cokernel.π K.arrow) (quotientSub S K)
+  have hker := KernelFork.IsLimit.ofι'
+    (Subobject.ofLE K (step S K) (le_step S K)) (step_zero S K)
+    (fun {A} a ha ↦ by
+      have hz : (a ≫ (step S K).arrow) ≫ cokernel.π K.arrow = 0 := by
+        dsimp only [step]
+        rw [Category.assoc, ← sq.w, ← Category.assoc, ha, zero_comp]
+      refine ⟨Abelian.monoLift K.arrow (a ≫ (step S K).arrow) hz, ?_⟩
+      apply (cancel_mono (step S K).arrow).mp
+      rw [Category.assoc, Subobject.ofLE_arrow, Abelian.monoLift_comp])
+  have hepi : Epi (Subobject.pullbackπ (cokernel.π K.arrow) (quotientSub S K)) := by
+    rw [← sq.isoPullback_hom_fst]
+    infer_instance
+  exact ⟨(ShortComplex.mk _ _ (step_zero S K)).exact_of_f_is_kernel hker⟩
+
+private lemma acyclic_of_isColimit {D : Type w} [Category.{w} D]
+    [HasExactColimitsOfShape D C] (F : D ⥤ CochainComplex C ℤ)
+    (c : Cocone F) (hc : IsColimit c) (hF : ∀ j, (F.obj j).Acyclic) :
+    c.pt.Acyclic := by
+  intro i
+  let E := (ShortComplex.functorEquivalence D C).inverse.obj
+    (F ⋙ HomologicalComplex.shortComplexFunctor C (.up ℤ) i)
+  have hE : E.Exact := by
+    rw [ShortComplex.exact_iff_isZero_homology, IsZero.iff_id_eq_zero]
+    ext j
+    exact (IsZero.of_iso ((hF j i).isZero_homology)
+      (E.mapHomologyIso ((evaluation D C).obj j)).symm).eq_of_src _ _
+  exact colim.exact_mapShortComplex hE
+    (isColimitOfPreserves (HomologicalComplex.eval C (.up ℤ) ((ComplexShape.up ℤ).prev i)) hc)
+    (isColimitOfPreserves (HomologicalComplex.eval C (.up ℤ) i) hc)
+    (isColimitOfPreserves (HomologicalComplex.eval C (.up ℤ) ((ComplexShape.up ℤ).next i)) hc)
+    (c.pt.d _ _) (c.pt.d _ _) (fun j ↦ (c.ι.app j).comm _ _)
+    (fun j ↦ (c.ι.app j).comm _ _)
+
+private lemma quotientSub_acyclic {kappa : Cardinal.{z}}
+    (S : SmallAcyclic.SubcomplexSupply C kappa) (K : Subobject M) :
+    (quotientSub S K : CochainComplex C ℤ).Acyclic := by
+  classical
+  dsimp only [quotientSub]
+  split
+  · exact (S.boundedBy _ _ _).acyclic
+  · exact HomologicalComplex.acyclic_of_isZero _
+      ((isZero_zero _).of_iso Subobject.botCoeIsoZero)
+
+private lemma stageOf_acyclic {kappa : Cardinal.{z}}
+    (S : SmallAcyclic.SubcomplexSupply C kappa) (α : Ordinal.{w}) :
+    (stageOf (M := M) S α : CochainComplex C ℤ).Acyclic := by
+  induction α using SuccOrder.limitRecOn with
+  | isMin α hα =>
+    have hzero : α = 0 := hα.eq_bot
+    rw [hzero, stageOf_zero]
+    exact HomologicalComplex.acyclic_of_isZero _
+      ((isZero_zero _).of_iso Subobject.botCoeIsoZero)
+  | succ α hα ih =>
+    rw [stageOf_succ]
+    exact (step_shortExact S (stageOf S α)).acyclic_X₂ ih (quotientSub_acyclic S _)
+  | isSuccLimit α hα ih =>
+    -- Local instance justification (proof-local temporary data): The nonzero limit ordinal has a nonempty predecessor category, as required for this filtered colimit.
+    haveI : Nonempty α.ToType := Ordinal.nonempty_toType_iff.mpr
+      (Ordinal.bot_eq_zero ▸ hα.ne_bot)
+    exact acyclic_of_isColimit _ _ (isColimitOf S α hα) (fun j ↦ ih j j.toOrd.2)
+
+private lemma cokernel_acyclic (K : Subobject M) (hM : M.Acyclic)
+    (hK : (K : CochainComplex C ℤ).Acyclic) : (cokernel K.arrow).Acyclic := by
+  have hq : QuasiIso K.arrow := by
+    rw [quasiIso_iff]
+    intro i
+    exact (quasiIsoAt_iff_exactAt K.arrow i (hK i)).mpr (hM i)
+  exact (show (ShortComplex.mk _ _ (cokernel.condition K.arrow)).ShortExact from
+    ⟨ShortComplex.exact_cokernel K.arrow⟩).acyclic_X₃ hq
+
+private lemma cokernel_not_isZero (K : Subobject M) (hK : K ≠ ⊤) :
+    ¬ IsZero (cokernel K.arrow) := by
+  intro hz
+  -- Local instance justification (proof-local temporary data): The assumed zero cokernel makes this particular subobject inclusion epic for the abelian mono-epi criterion.
+  haveI : Epi K.arrow := Abelian.epi_of_cokernel_π_eq_zero _ (hz.eq_of_tgt _ _)
+  exact hK ((Subobject.isIso_arrow_iff_eq_top K).mp (isIso_of_mono_of_epi K.arrow))
+
+private lemma stageOf_lt_succ {kappa : Cardinal.{z}}
+    (S : SmallAcyclic.SubcomplexSupply C kappa) (hM : M.Acyclic) (α : Ordinal.{w})
+    (hne : stageOf (M := M) S α ≠ ⊤) :
+    stageOf (M := M) S α < stageOf (M := M) S (Order.succ α) := by
+  refine lt_of_le_of_ne (stageOf_monotone S (Order.le_succ α)) ?_
+  intro heq
+  let K := stageOf (M := M) S α
+  have hK : K = step S K := heq.trans (stageOf_succ S α)
+  -- Local instance justification (proof-local temporary data): The assumed equality of these stages makes this particular inclusion invertible for cancellation.
+  haveI : IsIso (Subobject.ofLE K (step S K) (le_step S K)) := by
+    rw [← Subobject.isoOfEq_hom K (step S K) hK]
+    infer_instance
+  have hz : Subobject.pullbackπ (cokernel.π K.arrow) (quotientSub S K) = 0 := by
+    apply (cancel_epi (Subobject.ofLE K (step S K) (le_step S K))).mp
+    simpa only [comp_zero] using step_zero S K
+  -- Local instance justification (proof-local temporary data): The short-exact successor projection is epic, so its vanishing implies that its quotient target is a zero object.
+  haveI : Epi (Subobject.pullbackπ (cokernel.π K.arrow) (quotientSub S K)) :=
+    (step_shortExact S K).epi_g
+  have hnonzero : ¬ IsZero (quotientSub S K : CochainComplex C ℤ) := by
+    have h := And.intro (cokernel_not_isZero K hne)
+      (cokernel_acyclic K hM (stageOf_acyclic S α))
+    dsimp only [quotientSub]
+    rw [dif_pos h]
+    exact S.not_isZero _ _ _
+  exact hnonzero (IsZero.of_epi_eq_zero _ hz)
+
+private lemma stageOf_exhaustion {kappa : Cardinal.{z}}
+    (S : SmallAcyclic.SubcomplexSupply C kappa) (hM : M.Acyclic) :
+    stageOf (M := M) S (exhaustionOf (M := M) S) = ⊤ := by
+  change sInf {α : Ordinal.{w} | stageOf (M := M) S α = ⊤} ∈
+    {α : Ordinal.{w} | stageOf (M := M) S α = ⊤}
+  apply csInf_mem
+  by_contra h
+  have hn (α : Ordinal.{w}) : stageOf (M := M) S α ≠ ⊤ :=
+    fun hα ↦ h ⟨α, hα⟩
+  have hstrict : StrictMono (stageOf (M := M) S : Ordinal.{w} → Subobject M) := by
+    intro α β hαβ
+    exact (stageOf_lt_succ S hM α (hn α)).trans_le
+      (stageOf_monotone S (Order.succ_le_of_lt hαβ))
+  exact not_injective_of_ordinal _ hstrict.injective
+
 /-- The transfinite acyclic reduction tower of an acyclic complex,
 constructed from a data-level supply of small acyclic subcomplexes. -/
 @[stacks 079L "construction of the acyclic reduction tower"]
@@ -315,18 +420,45 @@ def ofSupply {kappa : Cardinal.{z}} (S : SmallAcyclic.SubcomplexSupply C kappa)
   stage := stageOf S
   monotone := stageOf_monotone S
   stage_zero := stageOf_zero S
-  acyclic _ := sorry
+  acyclic α := by exact stageOf_acyclic S α
   quotient := quotientOf S
   π := πOf S
-  inclusion_π _ := sorry
-  shortExact _ := sorry
-  quotient_boundedBy _ _ := sorry
-  quotient_not_isZero _ _ := sorry
-  stage_succ_of_eq_top _ _ := sorry
+  inclusion_π β := by
+    apply (cancel_mono (quotientSub S (stageOf S β)).arrow).mp
+    dsimp only [πOf]
+    simp only [Category.assoc, step, (Subobject.isPullback
+      (cokernel.π (stageOf S β).arrow) (quotientSub S (stageOf S β))).w,
+      Subobject.isoOfEq_hom, Subobject.ofLE_arrow_assoc,
+      Subobject.ofLE_arrow, cokernel.condition, zero_comp]
+  shortExact β := by
+    refine ShortComplex.shortExact_of_iso ?_
+      (step_shortExact S (stageOf (M := M) S β))
+    refine ShortComplex.isoMk (Iso.refl _)
+      (Subobject.isoOfEq _ _ (stageOf_succ S β)).symm (Iso.refl _) ?_ ?_
+    · apply (cancel_mono (stageOf S (Order.succ β)).arrow).mp
+      simp only [Iso.refl_hom, Category.id_comp, Category.assoc, Iso.symm_hom,
+        Subobject.isoOfEq_inv, Subobject.ofLE_arrow, Subobject.ofLE_arrow_assoc]
+    · simp only [Iso.refl_hom, Category.comp_id, πOf, Iso.symm_hom,
+        ← Category.assoc, Iso.inv_hom_id, Category.id_comp]
+  quotient_boundedBy β hβ := by
+    have h := And.intro (cokernel_not_isZero (stageOf S β) hβ)
+      (cokernel_acyclic (stageOf S β) hM (stageOf_acyclic S β))
+    dsimp only [quotientOf, quotientSub]
+    rw [dif_pos h]
+    exact S.boundedBy _ _ _
+  quotient_not_isZero β hβ := by
+    have h := And.intro (cokernel_not_isZero (stageOf S β) hβ)
+      (cokernel_acyclic (stageOf S β) hM (stageOf_acyclic S β))
+    dsimp only [quotientOf, quotientSub]
+    rw [dif_pos h]
+    exact S.not_isZero _ _ _
+  stage_succ_of_eq_top β hβ := by
+    rw [stageOf_succ, hβ]
+    exact top_unique (le_step S ⊤)
   stage_limit := stageOf_limit S
   isColimit := isColimitOf S
   exhaustion := exhaustionOf (M := M) S
-  stage_exhaustion := sorry
+  stage_exhaustion := by exact stageOf_exhaustion S hM
 
 end AcyclicReduction
 

@@ -10,6 +10,7 @@ public import Mathlib.Algebra.Algebra.Bilinear
 public import Mathlib.Algebra.Algebra.Basic
 public import Mathlib.Algebra.Category.Ring.Basic
 public import Mathlib.LinearAlgebra.Dimension.Constructions
+public import Mathlib.LinearAlgebra.FreeModule.StrongRankCondition
 public import Mathlib.RingTheory.MvPolynomial.Ideal
 
 @[expose] public section
@@ -59,15 +60,27 @@ def coefficient (d : ℕ+) (i j k : Fin d) : CoefficientRing d :=
 /-- The universal structure constants satisfy associativity. -/
 theorem coefficient_assoc (d : ℕ+) (i j k m : Fin d) :
     (∑ l : Fin d, coefficient d i j l * coefficient d l k m) =
-      ∑ l : Fin d, coefficient d i l m * coefficient d j k l := sorry
+      ∑ l : Fin d, coefficient d i l m * coefficient d j k l := by
+  have h : associativityRelation d i j k m ∈ relationIdeal d :=
+    Ideal.subset_span (Or.inl (Or.inl ⟨![i, j, k, m], rfl⟩))
+  have hzero := Ideal.Quotient.eq_zero_iff_mem.mpr h
+  simpa [associativityRelation, coefficient, map_sum, sub_eq_zero] using hzero
 
 /-- The universal structure constants are symmetric in their two input indices. -/
 theorem coefficient_comm (d : ℕ+) (i j k : Fin d) :
-    coefficient d i j k = coefficient d j i k := sorry
+    coefficient d i j k = coefficient d j i k := by
+  apply Ideal.Quotient.eq.mpr
+  exact Ideal.subset_span (Or.inl (Or.inr ⟨![i, j, k], rfl⟩))
 
 /-- The coefficients involving the first basis vector are the Kronecker delta. -/
 theorem coefficient_unit (d : ℕ+) (i j : Fin d) :
-    coefficient d i 0 j = if i = j then 1 else 0 := sorry
+    coefficient d i 0 j = if i = j then 1 else 0 := by
+  have h : unitRelation d i j ∈ relationIdeal d :=
+    Ideal.subset_span (Or.inr ⟨![i, j], rfl⟩)
+  have hzero := Ideal.Quotient.eq_zero_iff_mem.mpr h
+  by_cases hij : i = j
+  · simpa [unitRelation, coefficient, hij, sub_eq_zero] using hzero
+  · simpa [unitRelation, coefficient, hij] using hzero
 
 /-- The underlying `A_d`-module of `B_d` in coordinates relative to its standard basis. -/
 def UniversalAlgebra (d : ℕ+) := Fin d → CoefficientRing d
@@ -86,7 +99,10 @@ def basis (d : ℕ+) : Module.Basis (Fin d) (CoefficientRing d) (UniversalAlgebr
 
 /-- A standard basis vector is the corresponding single-coordinate function. -/
 theorem basis_apply (d : ℕ+) (i j : Fin d) :
-    basis d i j = if i = j then 1 else 0 := sorry
+    basis d i j = if i = j then 1 else 0 := by
+  change (Pi.basisFun (CoefficientRing d) (Fin d) i) j = _
+  rw [Pi.basisFun_apply]
+  simp [Pi.single_apply, eq_comm]
 
 /-- The multiplication on `B_d`, extended bilinearly from the universal structure constants. -/
 def mul (d : ℕ+) (x y : UniversalAlgebra d) : UniversalAlgebra d :=
@@ -94,7 +110,7 @@ def mul (d : ℕ+) (x y : UniversalAlgebra d) : UniversalAlgebra d :=
 
 /-- The coordinate formula for multiplication in `B_d`. -/
 theorem mul_apply (d : ℕ+) (x y : UniversalAlgebra d) (k : Fin d) :
-    mul d x y k = ∑ i : Fin d, ∑ j : Fin d, x i * y j * coefficient d i j k := sorry
+    mul d x y k = ∑ i : Fin d, ∑ j : Fin d, x i * y j * coefficient d i j k := rfl
 
 /-- The first standard basis vector, which is the unit of `B_d`. -/
 def unit (d : ℕ+) : UniversalAlgebra d :=
@@ -102,13 +118,27 @@ def unit (d : ℕ+) : UniversalAlgebra d :=
 
 /-- The coordinate formula for the unit of `B_d`. -/
 theorem unit_apply (d : ℕ+) (i : Fin d) :
-    unit d i = if i = 0 then 1 else 0 := sorry
+    unit d i = if i = 0 then 1 else 0 := rfl
 
 /-- Multiplication on `B_d` is the multiplication prescribed by its structure constants. -/
 instance instMul (d : ℕ+) : Mul (UniversalAlgebra d) := ⟨mul d⟩
 
 /-- The multiplicative unit of `B_d` is its first standard basis vector. -/
 instance instOne (d : ℕ+) : One (UniversalAlgebra d) := ⟨unit d⟩
+
+private theorem mul_smul_left (d : ℕ+) (r : CoefficientRing d)
+    (x y : UniversalAlgebra d) : mul d (r • x) y = r • mul d x y := by
+  funext k
+  change (∑ i : Fin d, ∑ j : Fin d, (r * x i) * y j * coefficient d i j k) =
+    r * ∑ i : Fin d, ∑ j : Fin d, x i * y j * coefficient d i j k
+  simp [Finset.mul_sum, mul_assoc]
+
+private theorem mul_smul_right (d : ℕ+) (r : CoefficientRing d)
+    (x y : UniversalAlgebra d) : mul d x (r • y) = r • mul d x y := by
+  funext k
+  change (∑ i : Fin d, ∑ j : Fin d, x i * (r * y j) * coefficient d i j k) =
+    r * ∑ i : Fin d, ∑ j : Fin d, x i * y j * coefficient d i j k
+  simp [Finset.mul_sum, mul_assoc, mul_left_comm]
 
 /-- The unit relations make the first standard basis vector a two-sided multiplicative unit. -/
 instance instNonAssocRing (d : ℕ+) : NonAssocRing (UniversalAlgebra d) where
@@ -117,41 +147,151 @@ instance instNonAssocRing (d : ℕ+) : NonAssocRing (UniversalAlgebra d) where
   toOne := instOne d
   natCast n := fun i ↦ (n : CoefficientRing d) * unit d i
   intCast z := fun i ↦ (z : CoefficientRing d) * unit d i
-  natCast_zero := sorry
-  natCast_succ := sorry
-  intCast_ofNat := sorry
-  intCast_negSucc := sorry
-  left_distrib := sorry
-  right_distrib := sorry
-  zero_mul := sorry
-  mul_zero := sorry
-  one_mul := sorry
-  mul_one := sorry
+  natCast_zero := by
+    funext i
+    simp only [Nat.cast_zero, zero_mul]
+    rfl
+  natCast_succ := by
+    intro n
+    funext i
+    change ((n + 1 : ℕ) : CoefficientRing d) * unit d i =
+      (n : CoefficientRing d) * unit d i + unit d i
+    simp [Nat.cast_add, Nat.cast_one, add_mul]
+  intCast_ofNat := by
+    intro n
+    funext i
+    change ((n : ℤ) : CoefficientRing d) * unit d i =
+      (n : CoefficientRing d) * unit d i
+    simp
+  intCast_negSucc := by
+    intro n
+    funext i
+    change (Int.negSucc n : CoefficientRing d) * unit d i =
+      -(((n + 1 : ℕ) : CoefficientRing d) * unit d i)
+    simp [Int.cast_negSucc, add_mul]
+  left_distrib := by
+    intro x y z
+    funext k
+    change mul d x (fun j ↦ y j + z j) k = mul d x y k + mul d x z k
+    simp [mul, mul_add, add_mul, Finset.sum_add_distrib]
+  right_distrib := by
+    intro x y z
+    funext k
+    change mul d (fun i ↦ x i + y i) z k = mul d x z k + mul d y z k
+    simp [mul, add_mul, Finset.sum_add_distrib]
+  zero_mul := by
+    intro x
+    funext k
+    change mul d (fun _ ↦ 0) x k = 0
+    simp [mul]
+  mul_zero := by
+    intro x
+    funext k
+    change mul d x (fun _ ↦ 0) k = 0
+    simp [mul]
+  one_mul := by
+    intro x
+    funext k
+    change mul d (unit d) x k = x k
+    simp [mul, unit, coefficient_comm d 0, coefficient_unit, mul_ite]
+  mul_one := by
+    intro x
+    funext k
+    change mul d x (unit d) k = x k
+    simp [mul, unit, coefficient_unit, mul_ite]
 
 /-- The defining relations make the coordinate multiplication associative and commutative. -/
 instance instCommRing (d : ℕ+) : CommRing (UniversalAlgebra d) where
   __ := instNonAssocRing d
   npow := npowRec
-  npow_zero := sorry
-  npow_succ := sorry
-  mul_assoc := sorry
-  mul_comm := sorry
+  npow_zero := by intros; rfl
+  npow_succ := by intros; rfl
+  mul_assoc := by
+    intro x y z
+    funext m
+    change mul d (mul d x y) z m = mul d x (mul d y z) m
+    calc
+      mul d (mul d x y) z m =
+          ∑ i : Fin d, ∑ j : Fin d, ∑ k : Fin d,
+            (x i * y j * z k) *
+              (∑ l : Fin d, coefficient d i j l * coefficient d l k m) := by
+        simp only [mul, Finset.sum_mul, Finset.mul_sum]
+        rw [Finset.sum_comm_cycle]
+        apply Finset.sum_congr rfl
+        intro i hi
+        rw [Finset.sum_comm_cycle]
+        apply Finset.sum_congr rfl
+        intro j hj
+        rw [Finset.sum_comm]
+        apply Finset.sum_congr rfl
+        intro k hk
+        apply Finset.sum_congr rfl
+        intro l hl
+        ac_rfl
+      _ = ∑ i : Fin d, ∑ j : Fin d, ∑ k : Fin d,
+            (x i * y j * z k) *
+              (∑ l : Fin d, coefficient d i l m * coefficient d j k l) := by
+        simp_rw [coefficient_assoc]
+      _ = mul d x (mul d y z) m := by
+        simp only [mul, Finset.sum_mul, Finset.mul_sum]
+        apply Finset.sum_congr rfl
+        intro i hi
+        symm
+        rw [← Finset.sum_comm_cycle]
+        apply Finset.sum_congr rfl
+        intro j hj
+        apply Finset.sum_congr rfl
+        intro k hk
+        apply Finset.sum_congr rfl
+        intro l hl
+        ac_rfl
+  mul_comm := by
+    intro x y
+    funext k
+    change mul d x y k = mul d y x k
+    unfold mul
+    rw [Finset.sum_comm]
+    apply Finset.sum_congr rfl
+    intro i hi
+    apply Finset.sum_congr rfl
+    intro j hj
+    rw [coefficient_comm d j i, mul_comm (y i) (x j)]
 
 /-- The scalar action makes `B_d` an algebra over its coefficient ring. -/
 instance instAlgebra (d : ℕ+) : Algebra (CoefficientRing d) (UniversalAlgebra d) where
   toSMul := inferInstanceAs (SMul (CoefficientRing d) (Fin d → CoefficientRing d))
   algebraMap :=
     { toFun := fun r i ↦ r * unit d i
-      map_one' := sorry
-      map_mul' := sorry
-      map_zero' := sorry
-      map_add' := sorry }
-  commutes' := sorry
-  smul_def' := sorry
+      map_one' := by
+        funext i
+        exact one_mul (unit d i)
+      map_mul' := by
+        intro r s
+        change (r * s) • unit d = mul d (r • unit d) (s • unit d)
+        rw [mul_smul_left, mul_smul_right]
+        change (r * s) • unit d = r • s • ((1 : UniversalAlgebra d) * 1)
+        rw [one_mul, smul_smul]
+        rfl
+      map_zero' := by
+        funext i
+        exact zero_mul (unit d i)
+      map_add' := by
+        intro r s
+        funext i
+        exact add_mul r s (unit d i) }
+  commutes' := by
+    intro r x
+    exact mul_comm _ _
+  smul_def' := by
+    intro r x
+    change r • x = mul d (r • unit d) x
+    rw [mul_smul_left]
+    change r • x = r • ((1 : UniversalAlgebra d) * x)
+    rw [one_mul]
 
 /-- The algebra map sends a scalar to that scalar times the first basis vector. -/
 theorem algebraMap_apply (d : ℕ+) (r : CoefficientRing d) :
-    algebraMap (CoefficientRing d) (UniversalAlgebra d) r = r • unit d := sorry
+    algebraMap (CoefficientRing d) (UniversalAlgebra d) r = r • unit d := rfl
 
 /-- The bundled structure map from the coefficient ring to the universal algebra. -/
 def structureMap (d : ℕ+) : CommRingCat.of (CoefficientRing d) ⟶
@@ -160,7 +300,7 @@ def structureMap (d : ℕ+) : CommRingCat.of (CoefficientRing d) ⟶
 
 /-- The bundled structure map sends a scalar to scalar multiplication by the first basis vector. -/
 theorem structureMap_apply (d : ℕ+) (r : CoefficientRing d) :
-    structureMap d r = fun i ↦ r * unit d i := sorry
+    structureMap d r = fun i ↦ r * unit d i := rfl
 
 /-- The canonical bilinear multiplication map on the universal algebra. -/
 def multiplication (d : ℕ+) :
@@ -170,15 +310,65 @@ def multiplication (d : ℕ+) :
 
 /-- The bilinear multiplication map applies to two elements as the algebra product. -/
 theorem multiplication_apply (d : ℕ+) (x y : UniversalAlgebra d) :
-    multiplication d x y = x * y := sorry
+    multiplication d x y = x * y := rfl
 
 /-- Products of basis vectors have the structure-constant expansion. -/
 theorem basis_mul_basis (d : ℕ+) (i j : Fin d) :
     basis d i * basis d j =
-      ∑ k : Fin d, coefficient d i j k • basis d k := sorry
+      ∑ k : Fin d, coefficient d i j k • basis d k := by
+  funext k
+  change mul d (basis d i) (basis d j) k =
+    (∑ l : Fin d, fun a : Fin d ↦ coefficient d i j l * basis d l a) k
+  simp [mul, basis_apply, Finset.sum_apply, ite_mul, mul_ite]
+
+private theorem coefficientRing_nontrivial (d : ℕ+) : Nontrivial (CoefficientRing d) := by
+  -- Specialize to the algebra with unit `e₀` and square-zero span of the other basis vectors.
+  let c : Fin d → Fin d → Fin d → ℤ := fun i j k ↦
+    if i = 0 then (if j = k then 1 else 0)
+    else if j = 0 then (if i = k then 1 else 0) else 0
+  have hzero (j k : Fin d) : c 0 j k = if j = k then 1 else 0 := by
+    simp [c]
+  have hunit (i j : Fin d) : c i 0 j = if i = j then 1 else 0 := by
+    by_cases hi : i = 0
+    · simp [c, hi]
+    · simp [c, hi]
+  have hcomm (i j k : Fin d) : c i j k = c j i k := by
+    by_cases hi : i = 0
+    · simp [hi, hzero, hunit]
+    · by_cases hj : j = 0
+      · simp [hj, hzero, hunit]
+      · simp [c, hi, hj]
+  have hassoc (i j k m : Fin d) :
+      (∑ l : Fin d, c i j l * c l k m) = ∑ l : Fin d, c i l m * c j k l := by
+    by_cases hi : i = 0
+    · subst i
+      simp [hzero, ite_mul]
+    · by_cases hj : j = 0
+      · subst j
+        simp [hzero, hunit, ite_mul, mul_ite]
+      · by_cases hk : k = 0
+        · subst k
+          simp [hunit, mul_ite]
+        · simp [c, hi, hj, hk]
+  let f : PolynomialRing d →+* ℤ :=
+    MvPolynomial.eval (fun q ↦ c q.1 q.2.1 q.2.2)
+  have hf : relationIdeal d ≤ RingHom.ker f := by
+    apply Ideal.span_le.mpr
+    rintro p ((⟨q, rfl⟩ | ⟨q, rfl⟩) | ⟨q, rfl⟩)
+    · change f (associativityRelation d (q 0) (q 1) (q 2) (q 3)) = 0
+      simpa [f, associativityRelation, polynomialVariable, map_sum, sub_eq_zero]
+        using hassoc (q 0) (q 1) (q 2) (q 3)
+    · change f (commutativityRelation d (q 0) (q 1) (q 2)) = 0
+      simpa [f, commutativityRelation, polynomialVariable, sub_eq_zero]
+        using hcomm (q 0) (q 1) (q 2)
+    · change f (unitRelation d (q 0) (q 1)) = 0
+      simpa [f, unitRelation, polynomialVariable, sub_eq_zero] using hunit (q 0) (q 1)
+  exact (Ideal.Quotient.lift (relationIdeal d) f (fun p hp ↦ hf hp)).domain_nontrivial
 
 /-- The universal algebra is a free module of rank `d` over its coefficient ring. -/
 theorem finrank_eq (d : ℕ+) :
-    Module.finrank (CoefficientRing d) (UniversalAlgebra d) = d := sorry
+    Module.finrank (CoefficientRing d) (UniversalAlgebra d) = d := by
+  letI := coefficientRing_nontrivial d
+  simpa using Module.finrank_eq_card_basis (basis d)
 
 end UniversalFiniteFreeAlgebra

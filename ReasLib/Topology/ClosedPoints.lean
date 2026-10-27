@@ -55,3 +55,11 @@ theorem not_exists_of_closedPoints_eq_empty
     ¬ Nonempty (X ≃ₜ Y) := sorry
 
 end Homeomorph
+namespace TopologicalSpace
+
+/-- The range of a finite family of closed points is closed. -/
+theorem isClosed_range_closedPoints {ι : Type*} [Finite ι] (x : ι → X)
+    (hx : ∀ i, x i ∈ closedPoints X) : IsClosed (Set.range x) :=
+  sorry
+
+end TopologicalSpace

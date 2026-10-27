@@ -80,7 +80,8 @@ noncomputable def ofOne
 theorem ofOne_page_zero
     (P : HomologicalComplex C (c 0)) (E : SpectralSequence C c 1)
     (pageOneIso : ∀ pq : κ, P.homology pq ≅ (E.page 1).X pq) :
-    (ofOne P E pageOneIso).page 0 = P := sorry
+    (ofOne P E pageOneIso).page 0 = P := by
+  rfl
 
 /-- Every positive page of `Page.Zero.ofOne` agrees with the input page-one spectral sequence. -/
 @[simp, stacks 0BDU "zeroth-page extension at positive pages"]
@@ -88,7 +89,9 @@ theorem ofOne_page_pos
     (P : HomologicalComplex C (c 0)) (E : SpectralSequence C c 1)
     (pageOneIso : ∀ pq : κ, P.homology pq ≅ (E.page 1).X pq)
     (r : ℤ) (hr : 1 ≤ r) :
-    (ofOne P E pageOneIso).page r (zero_le_one.trans hr) = E.page r hr := sorry
+    (ofOne P E pageOneIso).page r (zero_le_one.trans hr) = E.page r hr := by
+  have hzero : r ≠ 0 := by omega
+  simp only [ofOne, ofOnePage, dif_neg hzero]
 
 /-- The transition from page zero to page one in `Page.Zero.ofOne` is the supplied
 identification. -/
@@ -96,7 +99,8 @@ identification. -/
 theorem ofOne_iso_zero
     (P : HomologicalComplex C (c 0)) (E : SpectralSequence C c 1)
     (pageOneIso : ∀ pq : κ, P.homology pq ≅ (E.page 1).X pq) (pq : κ) :
-    (ofOne P E pageOneIso).iso 0 1 pq = pageOneIso pq := sorry
+    (ofOne P E pageOneIso).iso 0 1 pq = pageOneIso pq := by
+  rfl
 
 end Page.Zero
 
@@ -132,13 +136,15 @@ namespace PositivePageFunctor
 @[simp]
 theorem obj (c : ℤ → ComplexShape κ) (r : ℕ+)
     (E : SpectralSequence C c 1) :
-    (positivePageFunctor c r).obj E = E.positivePage r := sorry
+    (positivePageFunctor c r).obj E = E.positivePage r := by
+  rfl
 
 /-- Evaluation of `positivePageFunctor` on a morphism is its positive-page component. -/
 @[simp]
 theorem map (c : ℤ → ComplexShape κ) (r : ℕ+)
     {E E' : SpectralSequence C c 1} (f : E ⟶ E') :
-    (positivePageFunctor c r).map f = f.positivePage r := sorry
+    (positivePageFunctor c r).map f = f.positivePage r := by
+  rfl
 
 end PositivePageFunctor
 
@@ -167,7 +173,9 @@ theorem homologyIso_hom_naturality
     {E E' : SpectralSequence C c 1} (f : E ⟶ E') (pq : κ) (r : ℕ+) :
     HomologicalComplex.homologyMap (f.positivePage r) pq ≫
         (homologyIso E' pq r).hom =
-      (homologyIso E pq r).hom ≫ (f.positivePage (r + 1)).f pq := sorry
+      (homologyIso E pq r).hom ≫ (f.positivePage (r + 1)).f pq := by
+  exact f.comm (r : ℤ) ((r + 1 : ℕ+) : ℤ) pq (by simp [PNat.add_coe])
+    (Int.ofNat_le.mpr (Nat.succ_le_iff.mpr r.pos))
 
 /-- The inverse positive-page homology comparison is natural in a spectral-sequence morphism. -/
 @[reassoc, stacks 011O "inverse naturality of the positive-page homology comparison"]
@@ -175,7 +183,10 @@ theorem homologyIso_inv_naturality
     {E E' : SpectralSequence C c 1} (f : E ⟶ E') (pq : κ) (r : ℕ+) :
     (f.positivePage (r + 1)).f pq ≫ (homologyIso E' pq r).inv =
       (homologyIso E pq r).inv ≫
-        HomologicalComplex.homologyMap (f.positivePage r) pq := sorry
+        HomologicalComplex.homologyMap (f.positivePage r) pq := by
+  apply (cancel_mono (homologyIso E' pq r).hom).1
+  simp only [Category.assoc, Iso.inv_hom_id, Category.comp_id,
+    homologyIso_hom_naturality, Iso.inv_hom_id_assoc]
 
 end PositivePage
 
@@ -192,14 +203,16 @@ page entry. -/
 @[simp]
 theorem obj (c : ℤ → ComplexShape κ) (r : ℕ+) (pq : κ)
     (E : SpectralSequence C c 1) :
-    (pageObjectFunctor c r pq).obj E = E.pageObject pq r := sorry
+    (pageObjectFunctor c r pq).obj E = E.pageObject pq r := by
+  rfl
 
 /-- Evaluation of the positive-page entry functor on a spectral-sequence morphism is its
 corresponding entry map. -/
 @[simp]
 theorem map (c : ℤ → ComplexShape κ) (r : ℕ+) (pq : κ)
     {E E' : SpectralSequence C c 1} (f : E ⟶ E') :
-    (pageObjectFunctor c r pq).map f = (f.positivePage r).f pq := sorry
+    (pageObjectFunctor c r pq).map f = (f.positivePage r).f pq := by
+  rfl
 
 end PageObjectFunctor
 

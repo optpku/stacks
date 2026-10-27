@@ -57,13 +57,31 @@ theorem continuousSMul_iff (X : Action (ModuleCat.{max u v} R) G)
     ContinuousSMul G X.V ↔ openStabilizer R G X := sorry
 
 /-- The open-stabilizer property contains a zero object. -/
-instance containsZero : (openStabilizer R G).ContainsZero := sorry
+instance containsZero : (openStabilizer R G).ContainsZero where
+  exists_zero := by
+    let Z : Action (ModuleCat.{max u v} R) G :=
+      Action.trivial G (ModuleCat.of R PUnit.{max u v + 1})
+    letI : Subsingleton Z.V := inferInstanceAs (Subsingleton PUnit.{max u v + 1})
+    refine ⟨Z, ?_, ?_⟩
+    · show IsZero Z
+      apply (IsZero.iff_id_eq_zero Z).2
+      apply Action.hom_injective
+      exact (ModuleCat.isZero_of_subsingleton Z.V).eq_of_src _ _
+    · show openStabilizer R G Z
+      intro x
+      have h : (MulAction.stabilizer G x : Set G) = Set.univ :=
+        Set.eq_univ_of_forall fun g ↦
+          MulAction.mem_stabilizer_iff.2 (Subsingleton.elim _ _)
+      rw [h]
+      exact isOpen_univ
 
 /-- The open-stabilizer property is stable under subobjects. -/
 instance closedUnderSubobjects : (openStabilizer R G).IsClosedUnderSubobjects := sorry
 
-/-- The open-stabilizer property is stable under quotient objects. -/
-instance closedUnderQuotients : (openStabilizer R G).IsClosedUnderQuotients := sorry
+/-- For a topological group, the open-stabilizer property is stable under quotient objects:
+the stabilizer of a quotient element contains the open stabilizer of any lift. -/
+instance closedUnderQuotients [IsTopologicalGroup G] :
+    (openStabilizer R G).IsClosedUnderQuotients := sorry
 
 /-- The open-stabilizer property is stable under finite products. -/
 instance closedUnderFiniteProducts :

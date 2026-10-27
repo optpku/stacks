@@ -315,7 +315,6 @@ def map {K L : Limits.FormalCoproduct.{ι} X.carrier} (φ : K ⟶ L)
 
 /-- The inverse-image structure map of `toAmbient` is an isomorphism, encoding
 `O_K = j⁻¹ O_C`. -/
-@[instance]
 theorem toAmbient_structureMap_isIso (K : Limits.FormalCoproduct.{ι} X.carrier)
     [UnivLE.{max ι u v, w}]
     [HasSheafify (overTopology X.siteTopology K) (Type w)]
@@ -327,7 +326,6 @@ theorem toAmbient_structureMap_isIso (K : Limits.FormalCoproduct.{ι} X.carrier)
 
 /-- The inverse-image structure map of `map φ` is an isomorphism, encoding
 `O_K = f⁻¹ O_L`. -/
-@[instance]
 theorem map_structureMap_isIso {K L : Limits.FormalCoproduct.{ι} X.carrier} (φ : K ⟶ L)
     [UnivLE.{max ι u v, w}]
     [HasSheafify (overTopology X.siteTopology K) (Type w)]
@@ -702,12 +700,12 @@ theorem moduleLowerShriekCoprod_isIso (K : Limits.FormalCoproduct.{ι} X.carrier
 
 /-- The localization of a ringed site at a singleton family `{U}` compares to the
 ordinary slice localization at `U`. -/
-def singletonFunctor {U : X} :
+def singletonFunctor {U : X.carrier} :
     OverSite ((Limits.FormalCoproduct.incl.{ι} X.carrier).obj U) ⥤ Over U :=
   CategoryTheory.Sigma.desc fun _ ↦ 𝟭 _
 
 /-- Slice inclusion of `C / U` into the localization category at the singleton `{U}`. -/
-def singletonInverse {U : X} :
+def singletonInverse {U : X.carrier} :
     Over U ⥤ OverSite ((Limits.FormalCoproduct.incl.{ι} X.carrier).obj U) :=
   @CategoryTheory.Sigma.incl PUnit.{ι + 1} (fun _ ↦ Over U) _ PUnit.unit
 

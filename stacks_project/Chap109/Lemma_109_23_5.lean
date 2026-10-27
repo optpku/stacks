@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap109.Lemma_109_23_5_Stabilization
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Stabilization
 import StacksCheckRecall
 
 @[expose] public section
@@ -18,4 +18,9 @@ open AlgebraicGeometry.AlgebraicSpace.Spaces.Curves
 universe u
 
 /- Lemma 109.23.5 -/
-@[stacks 0E8B] #check exists_stabilization
+@[stacks 0E8B] #check
+  (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.exists_stabilization :
+    ∀ (g : ℕ), 2 ≤ g → ∀ (S : Scheme.{u}),
+      ∃ F : ofObjectProperty (prestableOfGenus g S) ⟶
+          ofObjectProperty (stableOfGenus g S),
+        IsStabilization F)

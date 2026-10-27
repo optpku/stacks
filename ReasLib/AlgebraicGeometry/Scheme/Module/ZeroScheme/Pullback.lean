@@ -75,7 +75,11 @@ theorem zeroSchemePullback_isPullback
       (zeroIdealSheaf ℒ s).comap f) :
     IsPullback
       (zeroSchemeι ((Modules.pullback f).obj ℒ) (Modules.sectionsPullback f ℒ s))
-      (zeroSchemePullbackMap f ℒ s h_zeroIdeal) f (zeroSchemeι ℒ s) := sorry
+      (zeroSchemePullbackMap f ℒ s h_zeroIdeal) f (zeroSchemeι ℒ s) :=
+  IsPullback.of_iso_pullback
+    ⟨(zeroSchemePullbackMap_comp f ℒ s h_zeroIdeal).symm⟩
+    (zeroSchemePullbackIso f ℒ s h_zeroIdeal)
+    (zeroSchemePullbackIso_hom_fst f ℒ s h_zeroIdeal) rfl
 
 /-- Pulling back a section of an invertible module gives a cartesian square between its
 zero scheme and the original zero scheme. -/
@@ -83,6 +87,7 @@ theorem zeroSchemePullbackSquare :
     IsPullback
       (zeroSchemeι ((Modules.pullback f).obj ℒ) (Modules.sectionsPullback f ℒ s))
       (zeroSchemePullbackMap f ℒ s (zeroIdealSheaf_sectionsPullback f ℒ s))
-      f (zeroSchemeι ℒ s) := sorry
+      f (zeroSchemeι ℒ s) :=
+  zeroSchemePullback_isPullback f ℒ s (zeroIdealSheaf_sectionsPullback f ℒ s)
 
 end AlgebraicGeometry.Scheme

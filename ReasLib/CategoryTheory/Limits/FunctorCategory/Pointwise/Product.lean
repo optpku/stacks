@@ -94,26 +94,37 @@ noncomputable def evaluation.piIso [HasPointwiseProduct F] (k : K) :
 @[reassoc (attr := simp), stacks 08Q4 "evaluation of a product projection"]
 theorem evaluation.piIso.hom_π [HasPointwiseProduct F] (k : K) (t : T) :
     (evaluation.piIso F k).hom ≫ Pi.π (fun t ↦ (F t).obj k) t =
-      (Pi.π F t).app k := sorry
+      (Pi.π F t).app k := by
+  set_option backward.isDefEq.respectTransparency false in
+    simp only [evaluation.piIso, CategoryTheory.evaluation, evaluation.limitIso, Iso.trans_hom,
+      Pi.π, Category.assoc, HasLimit.isoOfNatIso_hom_π, Discrete.functor_obj_eq_as,
+      Discrete.compNatIsoDiscrete_hom_app, preservesLimitIso_hom_π_assoc]
+    exact Category.comp_id _
 
 /-- The inverse comparison `evaluation.piIso` commutes with every product projection. -/
 @[reassoc (attr := simp), stacks 08Q4 "inverse evaluation of a product projection"]
 theorem evaluation.piIso.inv_π [HasPointwiseProduct F] (k : K) (t : T) :
     (evaluation.piIso F k).inv ≫ (Pi.π F t).app k =
-      Pi.π (fun t ↦ (F t).obj k) t := sorry
+      Pi.π (fun t ↦ (F t).obj k) t := by
+  rw [Iso.inv_comp_eq, evaluation.piIso.hom_π]
 
 /-- Under the evaluation comparisons, the structure map of a product of functors is the
 product of the component structure maps. -/
 @[reassoc, stacks 08Q4 "pointwise product structure map"]
 theorem evaluation.piIso.map [HasPointwiseProduct F] {k l : K} (h : k ⟶ l) :
     (∏ᶜ F).map h ≫ (evaluation.piIso F l).hom =
-      (evaluation.piIso F k).hom ≫ Pi.map (fun t ↦ (F t).map h) := sorry
+      (evaluation.piIso F k).hom ≫ Pi.map (fun t ↦ (F t).map h) := by
+  apply Pi.hom_ext
+  intro t
+  simpa [Category.assoc] using (Pi.π F t).naturality h
 
 /-- The inverse fixed-family product comparisons are natural in the evaluation object. -/
 @[reassoc, stacks 08Q4 "inverse pointwise product structure map"]
 theorem evaluation.piIso.inv_map [HasPointwiseProduct F] {k l : K} (h : k ⟶ l) :
     (evaluation.piIso F k).inv ≫ (∏ᶜ F).map h =
-      Pi.map (fun t ↦ (F t).map h) ≫ (evaluation.piIso F l).inv := sorry
+      Pi.map (fun t ↦ (F t).map h) ≫ (evaluation.piIso F l).inv := by
+  rw [Iso.inv_comp_eq, ← Category.assoc, Iso.eq_comp_inv]
+  exact evaluation.piIso.map F h
 
 end Product
 
@@ -181,13 +192,17 @@ noncomputable def evaluation.productIso
 @[reassoc (attr := simp), stacks 016Q "pointwise first projection", stacks 016Z]
 theorem evaluation.productIso.fst
     [Binary.HasPointwiseProduct X Y] (k : K) :
-    (evaluation.productIso X Y k).hom ≫ prod.fst = (prod.fst : X ⨯ Y ⟶ X).app k := sorry
+    (evaluation.productIso X Y k).hom ≫ prod.fst = (prod.fst : X ⨯ Y ⟶ X).app k := by
+  set_option backward.isDefEq.respectTransparency false in
+    simp [evaluation.productIso, evaluation.limitIso, prod.fst, Category.assoc, pairComp]
 
 /-- The second projection of `evaluation.productIso` is the evaluated second projection. -/
 @[reassoc (attr := simp), stacks 016Q "pointwise second projection", stacks 016Z]
 theorem evaluation.productIso.snd
     [Binary.HasPointwiseProduct X Y] (k : K) :
-    (evaluation.productIso X Y k).hom ≫ prod.snd = (prod.snd : X ⨯ Y ⟶ Y).app k := sorry
+    (evaluation.productIso X Y k).hom ≫ prod.snd = (prod.snd : X ⨯ Y ⟶ Y).app k := by
+  set_option backward.isDefEq.respectTransparency false in
+    simp [evaluation.productIso, evaluation.limitIso, prod.snd, Category.assoc, pairComp]
 
 /-- The inverse comparison carries the evaluated first projection back to the pointwise first
 projection. -/
@@ -195,7 +210,8 @@ projection. -/
 theorem evaluation.productIso.inv_fst
     [Binary.HasPointwiseProduct X Y] (k : K) :
     (evaluation.productIso X Y k).inv ≫ (prod.fst : X ⨯ Y ⟶ X).app k =
-      prod.fst := sorry
+      prod.fst := by
+  rw [Iso.inv_comp_eq, evaluation.productIso.fst]
 
 /-- The inverse comparison carries the evaluated second projection back to the pointwise second
 projection. -/
@@ -203,7 +219,8 @@ projection. -/
 theorem evaluation.productIso.inv_snd
     [Binary.HasPointwiseProduct X Y] (k : K) :
     (evaluation.productIso X Y k).inv ≫ (prod.snd : X ⨯ Y ⟶ Y).app k =
-      prod.snd := sorry
+      prod.snd := by
+  rw [Iso.inv_comp_eq, evaluation.productIso.snd]
 
 /-- Under the evaluation comparisons, the structure map of a binary product of functors is the
 binary product of the two structure maps. -/
@@ -211,14 +228,19 @@ binary product of the two structure maps. -/
 theorem evaluation.productIso.map
     [Binary.HasPointwiseProduct X Y] {k l : K} (h : k ⟶ l) :
     (X ⨯ Y).map h ≫ (evaluation.productIso X Y l).hom =
-      (evaluation.productIso X Y k).hom ≫ prod.map (X.map h) (Y.map h) := sorry
+      (evaluation.productIso X Y k).hom ≫ prod.map (X.map h) (Y.map h) := by
+  apply prod.hom_ext
+  · simpa [Category.assoc] using (prod.fst : X ⨯ Y ⟶ X).naturality h
+  · simpa [Category.assoc] using (prod.snd : X ⨯ Y ⟶ Y).naturality h
 
 /-- The inverse binary-product comparisons are natural in the evaluation object. -/
 @[reassoc, stacks 016Q "inverse pointwise binary-product structure map", stacks 016Z]
 theorem evaluation.productIso.inv_map
     [Binary.HasPointwiseProduct X Y] {k l : K} (h : k ⟶ l) :
     (evaluation.productIso X Y k).inv ≫ (X ⨯ Y).map h =
-      prod.map (X.map h) (Y.map h) ≫ (evaluation.productIso X Y l).inv := sorry
+      prod.map (X.map h) (Y.map h) ≫ (evaluation.productIso X Y l).inv := by
+  rw [Iso.inv_comp_eq, ← Category.assoc, Iso.eq_comp_inv]
+  exact evaluation.productIso.map X Y h
 
 end BinaryProduct
 

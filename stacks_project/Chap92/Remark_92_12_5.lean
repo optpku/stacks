@@ -6,23 +6,16 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.ExteriorPower
-public import Mathlib.Algebra.Homology.ExactSequence
-public import Mathlib.CategoryTheory.IsomorphismClasses
-public import stacks_project.Chap92.Lemma_92_11_2
-public import stacks_project.Chap92.Remark_92_12_2
-public import stacks_project.Chap92.Theorem_92_12_4_Quillen_spectral_sequence
-import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
+public import ReasLib.Algebra.PolynomialSite.QuillenSpectralSequence.LowDegree
 
 /-!
 # Low-degree terms of the Quillen spectral sequence
 
-In the situation of Theorem 92.12.4, with `I = Ker(A → B)`, the first page of a
-Quillen spectral sequence is concentrated on the `p = 1` column
-`H^{-i}(L_{B/A})` and the diagonal `∧^i_B(I/I²)`, with horizontal `d₁`. This
-yields the identifications `H^{-1}(L_{B/A}) ≅ H_1(C_{B/A}, Ω) ≅ I/I²` and
-`H_k(C_{B/A}, Sym^k(Ω)) ≅ ∧^k_B(I/I²)`, the equality `Tor_1^A(B, B) = I/I²`,
-and the five-term exact sequence of low degree terms.
+In the situation of Theorem 92.12.4, the first page contains the column-one cotangent terms,
+the diagonal exterior-power terms, and off-diagonal symmetric-power homology terms. Its
+horizontal differential supplies the two edge-map families and the low-degree five-term exact
+sequence below.
 -/
 
 @[expose] public section
@@ -31,90 +24,111 @@ open CategoryTheory CategoryTheory.Limits
 open Algebra
 open CommAlgCat.Over.Polynomial.Site
 open CategoryTheory.CategoryHomology
+open CategoryTheory.HomologicalComplex.Filtered
 open scoped DerivedTensorChangeOfRings DerivedTensorWithAlgebra ZeroObject
 
 noncomputable section
 
 universe u
 
-namespace Algebra.CotangentComplex.QuillenSpectralSequence
+/- Remark 92.12.5 -/
+@[stacks 08RG] #check
+  (Algebra.CotangentComplex.QuillenSpectralSequence.exists_lowDegreeFiveTerm_exact :
+    ∀ (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
+      [HasColimitsOfShape (PolynomialSite A B)ᵒᵖ (ModuleCat.{u} B)]
+      [HasProjectiveResolutions ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)]
+      (hsurj : Function.Surjective (algebraMap A B)),
+      ∃ (E : CohomologicalSpectralSequence (ModuleCat.{u} B) 0)
+        (F : FilteredComplex (ModuleCat.{u} B))
+        (a : FilteredComplex.Association F E)
+        (t : ∀ n : ℤ, F.underlying.homology n ≅
+          Algebra.CotangentComplex.QuillenSpectralSequence.abutment A B n)
+        (l : ∀ i : ℕ, 0 < i →
+          ((F.gradedPiece 1).homology (-(i : ℤ)) ≅
+            (Algebra.cotangentComplex A B).homology (-(i : ℤ))))
+        (d : ∀ i : ℕ,
+          (F.gradedPiece (i : ℤ)).homology (-(i : ℤ)) ≅
+            (ModuleCat.of B
+              (Extension.ofSurjective (Algebra.ofId A B) hsurj).Cotangent).exteriorPower i)
+        (e : ∀ i : ℕ, 0 < i →
+          (Algebra.CotangentComplex.QuillenSpectralSequence.abutment A B (-(i : ℤ)) ⟶
+            (Algebra.cotangentComplex A B).homology (-(i : ℤ))))
+        (g : ∀ i : ℕ,
+          (ModuleCat.of B
+            (Extension.ofSurjective (Algebra.ofId A B) hsurj).Cotangent).exteriorPower i ⟶
+              Algebra.CotangentComplex.QuillenSpectralSequence.abutment A B (-(i : ℤ))),
+        Algebra.CotangentComplex.QuillenSpectralSequence.IsQuillen A B E ∧
+        CategoryTheory.FilteredComplex.Cohomology.Convergence.Converges F E ∧
+        (∀ i : ℕ, (hi : 0 < i) →
+          IsIso (Homology.map F 1 (-(i : ℤ))) ∧
+          Homology.IsEdgeToGradedPiece F 1 (-(i : ℤ))
+            ((t (-(i : ℤ))).hom ≫ e i hi ≫ (l i hi).inv)) ∧
+        (∀ i : ℕ,
+          IsIso (Homology.toGradedPiece F (i : ℤ) (-(i : ℤ))) ∧
+          Homology.IsEdgeFromGradedPiece F (i : ℤ) (-(i : ℤ))
+            ((d i).hom ≫ g i ≫ (t (-(i : ℤ))).inv)) ∧
+        (ComposableArrows.mk₅
+          (e 3 (by decide : (0 : ℕ) < 3))
+          ((l 3 (by decide : (0 : ℕ) < 3)).inv ≫ TwoStep.boundary F 1
+            (show (ComplexShape.up ℤ).Rel (-3) (-2) by norm_num) ≫ (d 2).hom)
+          (g 2)
+          (e 2 (by decide : (0 : ℕ) < 2))
+          (0 : (Algebra.cotangentComplex A B).homology (-2) ⟶
+            (0 : ModuleCat.{u} B))).Exact)
 
-variable (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
-variable [HasColimitsOfShape (PolynomialSite A B)ᵒᵖ (ModuleCat.{u} B)]
-variable [HasProjectiveResolutions ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)]
+/- The full first-page formula retains the off-diagonal symmetric-power homology terms. -/
+#check
+  (Algebra.CotangentComplex.QuillenSpectralSequence.pageOne_eq :
+    ∀ (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
+      [HasColimitsOfShape (PolynomialSite A B)ᵒᵖ (ModuleCat.{u} B)]
+      [HasProjectiveResolutions ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)]
+      (p : ℕ) (q : ℤ),
+      Algebra.CotangentComplex.QuillenSpectralSequence.pageOne A B p q =
+        if 0 ≤ -(p : ℤ) - q then
+          moduleHomology (omegaSheaf A B ⋙ ModuleCat.symmetricPower.functor B p)
+            (-(p : ℤ) - q).toNat
+        else ModuleCat.of B PUnit)
 
-/-- Remark 92.12.5 (1). In the situation of Theorem 92.12.4, with `I = Ker(A → B)`,
-one has `H^{-1}(L_{B/A}) = H_1(C_{B/A}, Ω)`. -/
-@[stacks 08RG]
-theorem cotangentHomology_negOne_isIsomorphic_omegaSheafHomology
-    (hsurj : Function.Surjective (algebraMap A B)) :
-    IsIsomorphic ((Algebra.cotangentComplex A B).homology (-1))
-      (moduleHomology (omegaSheaf A B) 1) :=
-  sorry
+/- Remark 92.12.5: polynomial-site homology computes cotangent homology. -/
+@[stacks 08RG] #check
+  (Algebra.CotangentComplex.polynomialSite_homology_isIsomorphic :
+    ∀ (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
+      [HasColimitsOfShape (PolynomialSite A B)ᵒᵖ (ModuleCat.{u} B)]
+      [HasProjectiveResolutions ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)]
+      (n : ℕ),
+      IsIsomorphic (moduleHomology (omegaSheaf A B) n)
+        ((Algebra.cotangentComplex A B).homology (-n)))
 
-/-- Remark 92.12.5 (2). In the situation of Theorem 92.12.4, with `I = Ker(A → B)`,
-one has `H_1(C_{B/A}, Ω) = I/I²`. -/
-@[stacks 08RG]
-theorem omegaSheafHomology_one_isIsomorphic_conormal
-    (hsurj : Function.Surjective (algebraMap A B)) :
-    IsIsomorphic (moduleHomology (omegaSheaf A B) 1)
-      (ModuleCat.of B (Extension.ofSurjective (Algebra.ofId A B) hsurj).Cotangent) :=
-  sorry
+/- Remark 92.12.5: the first polynomial-site homology is conormal. -/
+@[stacks 08RG] #check
+  (Algebra.CotangentComplex.QuillenSpectralSequence.omegaSheafHomology_one_isIsomorphic_conormal :
+    ∀ (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
+      [HasColimitsOfShape (PolynomialSite A B)ᵒᵖ (ModuleCat.{u} B)]
+      [HasProjectiveResolutions ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)]
+      (hsurj : Function.Surjective (algebraMap A B)),
+      IsIsomorphic (moduleHomology (omegaSheaf A B) 1)
+        (ModuleCat.of B (Extension.ofSurjective (Algebra.ofId A B) hsurj).Cotangent))
 
-/-- Remark 92.12.5 (3). In the situation of Theorem 92.12.4, with `I = Ker(A → B)`,
-`H_k(C_{B/A}, Sym^k(Ω)) = ∧^k_B(I/I²)` by Remark 92.12.2. This is the diagonal
-`E₁` term `pageOne k (-(2 * k))`. The differential `d₁` is horizontal because a
-Quillen spectral sequence is a `CohomologicalSpectralSequence`, and the
-identifications `E₁^{1, -1 - i} ≅ H^{-i}(L_{B/A})` and
-`E₁^{i, -2 * i} ≅ ∧^i_B(I/I²)` produce the source edge maps
-`Tor_i^A(B, B) ⟶ H^{-i}(L_{B/A})` for `i > 0` and
-`∧^i_B(I/I²) ⟶ Tor_i^A(B, B)`. -/
-@[stacks 08RG]
-theorem symmetricPower_homology_isIsomorphic_conormalExteriorPower
-    (hsurj : Function.Surjective (algebraMap A B)) (k : ℕ) :
-    IsIsomorphic
-      (moduleHomology (omegaSheaf A B ⋙ ModuleCat.symmetricPower.functor B k) k)
-      ((ModuleCat.of B
-          (Extension.ofSurjective (Algebra.ofId A B) hsurj).Cotangent).exteriorPower k) :=
-  sorry
+/- Remark 92.12.5: diagonal symmetric-power homology is exterior power. -/
+@[stacks 08RG] #check
+  (Algebra.CotangentComplex.QuillenSpectralSequence.symmetricPower_homology_isIsomorphic_conormalExteriorPower :
+    ∀ (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
+      [HasColimitsOfShape (PolynomialSite A B)ᵒᵖ (ModuleCat.{u} B)]
+      [HasProjectiveResolutions ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)]
+      (hsurj : Function.Surjective (algebraMap A B)) (k : ℕ),
+      IsIsomorphic
+        (moduleHomology (omegaSheaf A B ⋙ ModuleCat.symmetricPower.functor B k) k)
+        ((ModuleCat.of B
+          (Extension.ofSurjective (Algebra.ofId A B) hsurj).Cotangent).exteriorPower k))
 
-/-- Remark 92.12.5 (4). In the situation of Theorem 92.12.4, with `I = Ker(A → B)`,
-`Tor_1^A(B, B) = I/I²` as objects of `ModuleCat B`. -/
-@[stacks 08RG]
-theorem abutment_negOne_isIsomorphic_conormal
-    (hsurj : Function.Surjective (algebraMap A B)) :
-    IsIsomorphic (abutment A B (-1))
-      (ModuleCat.of B (Extension.ofSurjective (Algebra.ofId A B) hsurj).Cotangent) :=
-  sorry
+/- Remark 92.12.5: degree-one Tor is conormal. -/
+@[stacks 08RG] #check
+  (Algebra.CotangentComplex.QuillenSpectralSequence.abutment_negOne_isIsomorphic_conormal :
+    ∀ (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
+      [HasColimitsOfShape (PolynomialSite A B)ᵒᵖ (ModuleCat.{u} B)]
+      [HasProjectiveResolutions ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)]
+      (hsurj : Function.Surjective (algebraMap A B)),
+      IsIsomorphic
+        (Algebra.CotangentComplex.QuillenSpectralSequence.abutment A B (-1))
+        (ModuleCat.of B (Extension.ofSurjective (Algebra.ofId A B) hsurj).Cotangent))
 
-/-- Remark 92.12.5 (5). In the situation of Theorem 92.12.4, with `I = Ker(A → B)`,
-the `E₁`-page identifications `E₁^{1, -1 - i} ≅ H^{-i}(L_{B/A})` and
-`E₁^{i, -2 * i} ≅ ∧^i_B(I/I²)`, together with the horizontal differential `d₁`
-of a `CohomologicalSpectralSequence`, yield a five-term exact sequence of low
-degree terms
-`Tor_3^A(B, B) ⟶ H^{-3}(L_{B/A}) ⟶ ∧^2_B(I/I²) ⟶ Tor_2^A(B, B) ⟶
-H^{-2}(L_{B/A}) ⟶ 0`. -/
-@[stacks 08RG]
-theorem exists_lowDegreeFiveTerm_exact
-    (hsurj : Function.Surjective (algebraMap A B)) :
-    ∃ (α : abutment A B (-3) ⟶ (Algebra.cotangentComplex A B).homology (-3))
-      (β : (Algebra.cotangentComplex A B).homology (-3) ⟶
-        (ModuleCat.of B
-            (Extension.ofSurjective (Algebra.ofId A B) hsurj).Cotangent).exteriorPower 2)
-      (γ : (ModuleCat.of B
-            (Extension.ofSurjective (Algebra.ofId A B) hsurj).Cotangent).exteriorPower 2 ⟶
-        abutment A B (-2))
-      (δ : abutment A B (-2) ⟶ (Algebra.cotangentComplex A B).homology (-2)),
-      (ComposableArrows.mk₅ α β γ δ
-        (0 : (Algebra.cotangentComplex A B).homology (-2) ⟶
-          (0 : ModuleCat.{u} B))).Exact :=
-  sorry
-
-/-- Category homology of `omegaSheaf` in degree `n` is isomorphic to
-`H^{-n}(L_{B/A})`. -/
-theorem omegaSheafHomology_isIsomorphic_cotangentHomology (n : ℕ) :
-    IsIsomorphic (moduleHomology (omegaSheaf A B) n)
-      ((Algebra.cotangentComplex A B).homology (-n)) :=
-  sorry
-
-end Algebra.CotangentComplex.QuillenSpectralSequence

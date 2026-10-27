@@ -39,14 +39,6 @@ namespace LinearHom
 
 variable {C : Type u} [Category.{v} C] {A B : PNatInverseSystem C}
 
-/-- Construct a linear morphism presentation from its affine coefficients and compatible natural
-transformation. -/
-def of (c d : ℕ+) (f : ((affineReindex c d).dual.toFunctor ⋙ A) ⟶ B) :
-    LinearHom A B where
-  slope := c
-  offset := d
-  hom := f
-
 /-- Two linear morphism presentations are equivalent when their induced maps agree after a common
 affine refinement whose coefficients bound those of both presentations. -/
 def Equivalent (f g : LinearHom A B) : Prop :=
@@ -59,20 +51,6 @@ def Equivalent (f g : LinearHom A B) : Prop :=
         A.map (homOfLE (OrderDual.toDual_le_toDual.mpr
           ((affineReindex_mono ((le_max_right _ _).trans hc)
             ((le_max_right _ _).trans hd)) n.ofDual))) ≫ g.hom.app n
-
-/-- Equivalence of linear morphism presentations is precisely agreement after a common affine
-refinement with coefficientwise upper bounds. -/
-theorem equivalent_iff (f g : LinearHom A B) :
-    Equivalent f g ↔
-      ∃ (c d : ℕ+)
-          (hc : max f.slope g.slope ≤ c) (hd : max f.offset g.offset ≤ d),
-        ∀ n : OrderDual ℕ+,
-          A.map (homOfLE (OrderDual.toDual_le_toDual.mpr
-            ((affineReindex_mono ((le_max_left _ _).trans hc)
-              ((le_max_left _ _).trans hd)) n.ofDual))) ≫ f.hom.app n =
-            A.map (homOfLE (OrderDual.toDual_le_toDual.mpr
-              ((affineReindex_mono ((le_max_right _ _).trans hc)
-                ((le_max_right _ _).trans hd)) n.ofDual))) ≫ g.hom.app n := sorry
 
 end LinearHom
 

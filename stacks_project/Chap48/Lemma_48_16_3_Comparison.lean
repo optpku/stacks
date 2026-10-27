@@ -29,3 +29,10 @@ upper-shriek composition. -/
           (Scheme.Compactification.Of.comp f g C.P_g C.P_bar) C.A_fg.plus ≅
         Scheme.Compactification.Of.upperShriek g C.P_g C.A_g.plus ⋙
           Scheme.Compactification.Of.upperShriek f C.P_f C.A_f.plus)
+
+/- Choice independence uses comparisons anchored to the actual refinement maps. -/
+#check @Scheme.Compactification.Of.UpperShriekCompRefinement.upper_f_spec
+#check @Scheme.Compactification.Of.UpperShriekCompRefinement.upper_g_spec
+#check @Scheme.Compactification.Of.UpperShriekCompRefinement.upper_fg_spec
+#check @Scheme.Compactification.Of.UpperShriekCompRefinement.upper_middle_spec
+#check @Scheme.Compactification.Of.upperShriekCompIso_independent

@@ -46,7 +46,7 @@ theorem grassmannian_isNonemptyEquidimensional
 product with `G(l, n)`. -/
 theorem cycleClass_pushforward_grassmannianProjection
     (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard)
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
     {l n : ℕ} {hl : 0 < l} {hln : l < n}
     (P : Grassmannian.Model.{u} l n hl hln) {G X : V}
     (eG : T.scheme.obj G ≅ Over.mk (Grassmannian.toBase P (Spec (.of k))))
@@ -55,6 +55,8 @@ theorem cycleClass_pushforward_grassmannianProjection
       T.pushforward
         (T.product_isNonemptyEquidimensional hX
           (T.grassmannian_isNonemptyEquidimensional P eG))
-        hX (fst X G) (T.cycleClass (product X G) alpha) := sorry
+        hX (fst X G) (T.cycleClass (product X G) alpha) := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 end WeilCohomology.SchemePreWeilTheory

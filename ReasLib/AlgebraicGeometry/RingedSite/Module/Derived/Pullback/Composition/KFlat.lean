@@ -61,10 +61,10 @@ variable [Functor.HasLeftDerivedFunctor
   (modulePullbackToDerived.{w} g)
   (ModuleQis.{w} (RingedSite.ofCommRingSheaf JZ OZ))]
 variable [Functor.HasLeftDerivedFunctor
-  (modulePullbackToDerived.{w} (f.comp g))
+  (compositePullbackToDerived.{w} f g)
   (ModuleQis.{w} (RingedSite.ofCommRingSheaf JZ OZ))]
 
-/-- Lemma 21.18.3 (0D6D), site-presented commutative form: the canonical comparison from
+/-- For commutative ringed-site presentations, the canonical comparison from
 iterated derived module pullback to derived pullback along the composite is invertible. -/
 @[stacks 0D6D "site-presented commutative form"]
 theorem compComparison_isIso : IsIso (compComparison f g) := sorry

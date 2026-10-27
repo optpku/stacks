@@ -6,17 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap63.Lemma_63_8_5_Comparison
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.ProperLowerShriek.BaseChange
 public import stacks_project.Chap63.Lemma_63_8_5_Pullback
-
-/-!
-# Base change of the derived lower shriek / proper pushforward comparison
-
-Lemma 63.8.5: after base change along `b : Y₁ ⟶ Y`, the Lemma 63.8.1
-vertical comparisons commute with the `Rf_*` base-change maps of Étale
-Cohomology, Section 59.86 and the compact-support base-change maps of
-Lemma 63.3.12.
--/
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -36,19 +28,8 @@ universe u
 namespace AlgebraicGeometry.Scheme.Etale
 
 variable {X Y X' Y' X₁ Y₁ X'₁ Y'₁ : Scheme.{u}}
-variable (f : X ⟶ Y) (f' : X' ⟶ Y') (g : Y' ⟶ Y) (g' : X' ⟶ X)
-variable (h_sq : CommSq g' f' f g)
-variable (b : Y₁ ⟶ Y) (b' : Y'₁ ⟶ Y') (a : X₁ ⟶ X) (a' : X'₁ ⟶ X')
-variable (f₁ : X₁ ⟶ Y₁) (f'₁ : X'₁ ⟶ Y'₁) (g₁ : Y'₁ ⟶ Y₁) (g'₁ : X'₁ ⟶ X₁)
-variable (h_sq₁ : CommSq g'₁ f'₁ f₁ g₁)
-variable (h_Y' : IsPullback b' g₁ g b) (h_X : IsPullback a f₁ f b)
-variable (h_X' : IsPullback a' f'₁ f' b') (h_back : IsPullback a' g'₁ g' a)
-variable [IsProper f] [IsProper f'] [IsProper f₁] [IsProper f'₁]
-variable [IsSeparated g] [LocallyQuasiFinite g] [LocallyOfFiniteType g]
-variable [IsSeparated g'] [LocallyQuasiFinite g'] [LocallyOfFiniteType g']
-variable [IsSeparated g₁] [LocallyQuasiFinite g₁] [LocallyOfFiniteType g₁]
-variable [IsSeparated g'₁] [LocallyQuasiFinite g'₁] [LocallyOfFiniteType g'₁]
-variable (Λ : Type u) [CommRing Λ]
+variable (f : X ⟶ Y) (g : Y' ⟶ Y) (f' : X' ⟶ Y') (g' : X' ⟶ X)
+variable (Λ : Type u) [Ring Λ]
 variable [HasWeakSheafify X.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [HasWeakSheafify Y.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [HasWeakSheafify X'.smallEtaleTopology (ModuleCat.{u} Λ)]
@@ -57,6 +38,30 @@ variable [HasWeakSheafify X₁.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [HasWeakSheafify Y₁.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [HasWeakSheafify X'₁.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [HasWeakSheafify Y'₁.smallEtaleTopology (ModuleCat.{u} Λ)]
+variable [HasSheafify X.smallEtaleTopology AddCommGrpCat.{u}]
+variable [HasSheafify Y.smallEtaleTopology AddCommGrpCat.{u}]
+variable [HasSheafify X'.smallEtaleTopology AddCommGrpCat.{u}]
+variable [HasSheafify Y'.smallEtaleTopology AddCommGrpCat.{u}]
+variable [HasSheafify X₁.smallEtaleTopology AddCommGrpCat.{u}]
+variable [HasSheafify Y₁.smallEtaleTopology AddCommGrpCat.{u}]
+variable [HasSheafify X'₁.smallEtaleTopology AddCommGrpCat.{u}]
+variable [HasSheafify Y'₁.smallEtaleTopology AddCommGrpCat.{u}]
+variable [HasSheafify X.smallEtaleTopology (ModuleCat.{u} Λ)]
+variable [HasSheafify Y.smallEtaleTopology (ModuleCat.{u} Λ)]
+variable [HasSheafify X'.smallEtaleTopology (ModuleCat.{u} Λ)]
+variable [HasSheafify Y'.smallEtaleTopology (ModuleCat.{u} Λ)]
+variable [HasSheafify X₁.smallEtaleTopology (ModuleCat.{u} Λ)]
+variable [HasSheafify Y₁.smallEtaleTopology (ModuleCat.{u} Λ)]
+variable [HasSheafify X'₁.smallEtaleTopology (ModuleCat.{u} Λ)]
+variable [HasSheafify Y'₁.smallEtaleTopology (ModuleCat.{u} Λ)]
+variable (b : Y₁ ⟶ Y) (b' : Y'₁ ⟶ Y') (a : X₁ ⟶ X) (a' : X'₁ ⟶ X')
+variable (f₁ : X₁ ⟶ Y₁) (f'₁ : X'₁ ⟶ Y'₁) (g₁ : Y'₁ ⟶ Y₁) (g'₁ : X'₁ ⟶ X₁)
+variable (h_sq : CommSq g' f' f g) (h_sq₁ : CommSq g'₁ f'₁ f₁ g₁)
+variable (h_Y' : IsPullback b' g₁ g b) (h_X : IsPullback a f₁ f b)
+variable (h_X' : IsPullback a' f'₁ f' b') (h_back : IsPullback a' g'₁ g' a)
+variable [IsProper f] [IsProper f']
+variable [IsSeparated g] [LocallyQuasiFinite g] [LocallyOfFiniteType g]
+variable [IsSeparated g'] [LocallyQuasiFinite g'] [LocallyOfFiniteType g']
 variable [X.smallEtaleTopology.HasSheafCompose
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
 variable [Y.smallEtaleTopology.HasSheafCompose
@@ -73,22 +78,6 @@ variable [X'₁.smallEtaleTopology.HasSheafCompose
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
 variable [Y'₁.smallEtaleTopology.HasSheafCompose
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
-variable [HasSheafify X.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [HasSheafify Y.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [HasSheafify X'.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [HasSheafify Y'.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [HasSheafify X₁.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [HasSheafify Y₁.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [HasSheafify X'₁.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [HasSheafify Y'₁.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [HasSheafify X.smallEtaleTopology AddCommGrpCat.{u}]
-variable [HasSheafify Y.smallEtaleTopology AddCommGrpCat.{u}]
-variable [HasSheafify X'.smallEtaleTopology AddCommGrpCat.{u}]
-variable [HasSheafify Y'.smallEtaleTopology AddCommGrpCat.{u}]
-variable [HasSheafify X₁.smallEtaleTopology AddCommGrpCat.{u}]
-variable [HasSheafify Y₁.smallEtaleTopology AddCommGrpCat.{u}]
-variable [HasSheafify X'₁.smallEtaleTopology AddCommGrpCat.{u}]
-variable [HasSheafify Y'₁.smallEtaleTopology AddCommGrpCat.{u}]
 variable [X.smallEtaleTopology.PreservesSheafification
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
 variable [Y.smallEtaleTopology.PreservesSheafification
@@ -190,75 +179,83 @@ variable [(forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u}).PreservesLeftKanExten
 variable [(forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u}).PreservesLeftKanExtensions
   (smallEtalePullback a').op]
 
-/-- Lemma 63.8.5: Let `b : Y₁ ⟶ Y` be a morphism of schemes. Consider a
-commutative diagram of schemes with vertical maps `f`, `f'` proper and
-horizontal maps `g`, `g'` separated and locally quasi-finite, and let the
-second square be the base change by `b`. For a ring `Λ` and
-`K` in `D(X'_étale, Λ)` the outer rectangle of the resulting `2×3` diagram
-in `D(Y₁_étale, Λ)` commutes, with vertical arrows the comparisons of
-Lemma 63.8.1 and horizontal arrows the base change maps of Étale Cohomology,
-Section 59.86 and of Lemma 63.3.12. -/
-@[stacks 0F7F]
-theorem etaleDerivedLowerShriekPushforward_baseChange
-    [(etaleModulePushforward f Λ).Additive]
-    [(etaleModulePushforward f' Λ).Additive]
-    [(etaleModulePushforward f₁ Λ).Additive]
-    [(etaleModulePushforward f'₁ Λ).Additive]
-    [(etaleModulePushforward f' Λ ⋙ lowerShriekModule g Λ).Additive]
-    [(lowerShriekModule g' Λ ⋙ etaleModulePushforward f Λ).Additive]
-    [(etaleModulePushforward f'₁ Λ ⋙ lowerShriekModule g₁ Λ).Additive]
-    [(lowerShriekModule g'₁ Λ ⋙ etaleModulePushforward f₁ Λ).Additive]
-    [(etaleModulePushforward f Λ ⋙ etaleModuleSheafPullback b Λ).Additive]
-    [(etaleModulePushforward f' Λ ⋙ etaleModuleSheafPullback b' Λ).Additive]
-    [(etaleModuleSheafPullback a Λ ⋙ etaleModulePushforward f₁ Λ).Additive]
-    [(etaleModuleSheafPullback a' Λ ⋙ etaleModulePushforward f'₁ Λ).Additive]
-    [HasRightDerivedFunctor
+/- Lemma 63.8.5: the canonical proper-pushforward/compact-support comparison commutes with arbitrary base change. -/
+@[stacks 0F7F] #check (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriekPushforward_baseChange
+    f g f' g' Λ b b' a a' f₁ f'₁ g₁ g'₁ h_sq h_sq₁ h_Y' h_X h_X' h_back :
+    -- Local instance justification (proof-local temporary data): the cartesian face derives IsProper f₁ from the original morphism.
+    letI : IsProper f₁ :=
+      MorphismProperty.of_isPullback (P := @IsProper) h_X inferInstance
+    -- Local instance justification (proof-local temporary data): the cartesian face derives IsProper f'₁ from the original morphism.
+    letI : IsProper f'₁ :=
+      MorphismProperty.of_isPullback (P := @IsProper) h_X' inferInstance
+    -- Local instance justification (proof-local temporary data): the cartesian face derives IsSeparated g₁ from the original morphism.
+    letI : IsSeparated g₁ :=
+      MorphismProperty.of_isPullback (P := @IsSeparated) h_Y' inferInstance
+    -- Local instance justification (proof-local temporary data): the cartesian face derives LocallyQuasiFinite g₁ from the original morphism.
+    letI : LocallyQuasiFinite g₁ :=
+      MorphismProperty.of_isPullback (P := @LocallyQuasiFinite) h_Y' inferInstance
+    -- Local instance justification (proof-local temporary data): the cartesian face derives LocallyOfFiniteType g₁ from the original morphism.
+    letI : LocallyOfFiniteType g₁ :=
+      MorphismProperty.of_isPullback (P := @LocallyOfFiniteType) h_Y' inferInstance
+    -- Local instance justification (proof-local temporary data): the cartesian face derives IsSeparated g'₁ from the original morphism.
+    letI : IsSeparated g'₁ :=
+      MorphismProperty.of_isPullback (P := @IsSeparated) h_back inferInstance
+    -- Local instance justification (proof-local temporary data): the cartesian face derives LocallyQuasiFinite g'₁ from the original morphism.
+    letI : LocallyQuasiFinite g'₁ :=
+      MorphismProperty.of_isPullback (P := @LocallyQuasiFinite) h_back inferInstance
+    -- Local instance justification (proof-local temporary data): the cartesian face derives LocallyOfFiniteType g'₁ from the original morphism.
+    letI : LocallyOfFiniteType g'₁ :=
+      MorphismProperty.of_isPullback (P := @LocallyOfFiniteType) h_back inferInstance
+    ∀ [(etaleModulePushforward f Λ).Additive]
+      [(etaleModulePushforward f' Λ).Additive]
+      [(etaleModulePushforward f₁ Λ).Additive]
+      [(etaleModulePushforward f'₁ Λ).Additive]
+      [HasRightDerivedFunctor
       (RightDerived.Cochain.toDerived (etaleModulePushforward f Λ))
       (HomologicalComplex.quasiIso
         (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
+      [HasRightDerivedFunctor
       (RightDerived.Cochain.toDerived (etaleModulePushforward f' Λ))
       (HomologicalComplex.quasiIso
         (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
+      [HasRightDerivedFunctor
       (RightDerived.Cochain.toDerived (etaleModulePushforward f₁ Λ))
       (HomologicalComplex.quasiIso
         (Sheaf X₁.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
+      [HasRightDerivedFunctor
       (RightDerived.Cochain.toDerived (etaleModulePushforward f'₁ Λ))
       (HomologicalComplex.quasiIso
         (Sheaf X'₁.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
+      [HasRightDerivedFunctor
       (RightDerived.Cochain.toDerived
         (etaleModulePushforward f' Λ ⋙ lowerShriekModule g Λ))
       (HomologicalComplex.quasiIso
         (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
+      [HasRightDerivedFunctor
       (RightDerived.Cochain.toDerived
         (lowerShriekModule g' Λ ⋙ etaleModulePushforward f Λ))
       (HomologicalComplex.quasiIso
         (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
+      [HasRightDerivedFunctor
       (RightDerived.Cochain.toDerived
         (etaleModulePushforward f'₁ Λ ⋙ lowerShriekModule g₁ Λ))
       (HomologicalComplex.quasiIso
         (Sheaf X'₁.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    [HasRightDerivedFunctor
+      [HasRightDerivedFunctor
       (RightDerived.Cochain.toDerived
         (lowerShriekModule g'₁ Λ ⋙ etaleModulePushforward f₁ Λ))
       (HomologicalComplex.quasiIso
         (Sheaf X'₁.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ))]
-    (K : EtaleDerived X' Λ) :
+      (K : DerivedCategory (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ))),
     CommSq
       ((etaleDerivedLowerShriekPushforward_baseChange_top
           g f' Λ b b' a' f'₁ g₁ h_Y' h_X').app K)
       ((etaleDerivedLowerShriekPushforward_baseChange_leftVertical
           f g f' g' Λ b h_sq).app K)
       ((etaleDerivedLowerShriekPushforward_baseChange_rightVertical
-          Λ a' f₁ f'₁ g₁ g'₁ h_sq₁).app K)
+        f g f' g' Λ b b' a a' f₁ f'₁ g₁ g'₁ h_sq₁ h_Y' h_X h_X' h_back).app K)
       ((etaleDerivedLowerShriekPushforward_baseChange_bottom
-          f g' Λ b a a' f₁ g'₁ h_X h_back).app K) :=
-  sorry
+          f g' Λ b a a' f₁ g'₁ h_X h_back).app K))
 
 end AlgebraicGeometry.Scheme.Etale
 

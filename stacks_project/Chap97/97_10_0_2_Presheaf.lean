@@ -20,12 +20,13 @@ the type of pairs `(a, b)` with `a : ofOver T ⟶ B` and `b` a morphism over
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry Limits Opposite TypeCat
+open AlgebraicGeometry.AlgebraicSpace.RelativeHom
 
 noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.RelativeHom
+namespace StacksProject.Chap97.RelativeHom
 
 /-- The relative-Hom functor `Mor_B(Z, X)` on schemes over `S`. -/
 noncomputable def functor {S : Scheme.{u}} {B : AlgebraicSpace S} (Z X : Over B) :
@@ -46,4 +47,4 @@ theorem functor_map {S : Scheme.{u}} {B : AlgebraicSpace S} (Z X : Over B)
     (functor Z X).map f.op p = HomPair.pullback f p :=
   sorry
 
-end AlgebraicGeometry.AlgebraicSpace.RelativeHom
+end StacksProject.Chap97.RelativeHom

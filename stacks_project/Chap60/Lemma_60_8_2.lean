@@ -6,43 +6,27 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap60.«60_8_1_1»
-public import ReasLib.CategoryTheory.Limits.FiniteNonempty.Preserves
-import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.Crystalline.Limits
 
 open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
 
 @[expose] public section
 
-universe u
+universe u v w
 
-/-- Lemma 60.8.2 (1): the category `CRIS(X/S)`, represented by
-`RelativeCRIS S I γ h_compatible X x₀`, has all finite nonempty limits, and
-therefore has pair products and fibre products. -/
+/- Lemma 60.8.2 (1): the relative crystalline category has all finite nonempty limits,
+including binary products and pullbacks. -/
 @[stacks 07I9]
-instance relativeCRIS_hasFiniteNonemptyLimits
-    {S : Scheme.{u}} {I : S.IdealSheafData}
-    {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
-    {h_compatible :
-      ∀ (V : S.affineOpens) (g : Γ(S, V)),
-        (γ V).IsDPMorphism (γ (S.affineBasicOpen g))
-          (S.presheaf.map (homOfLE (S.basicOpen_le g)).op).hom}
-    {X : Scheme.{u}} {x₀ : X ⟶ I.subscheme} :
-    HasFiniteNonemptyLimits (RelativeCRIS S I γ h_compatible X x₀) := sorry
+#check (AlgebraicGeometry.Scheme.Crystalline.Base.hasFiniteNonemptyLimits :
+    ∀ {p : ℕ} [Fact p.Prime] (B : AlgebraicGeometry.Scheme.Crystalline.Base.{u} p),
+      HasFiniteNonemptyLimits
+        (RelativeCRIS B.scheme B.ideal B.dividedPowers B.compatible B.source B.sourceToClosed))
 
-/-- Lemma 60.8.2 (2): the functor `crystallineForgetful` representing
-(60.8.1.1) preserves all finite nonempty limits. -/
+/- Lemma 60.8.2 (2): the source-forgetting functor preserves all existing limits. -/
 @[stacks 07I9]
-instance crystallineForgetful_preservesFiniteNonemptyLimits
-    {p : ℕ} [Fact (Nat.Prime p)]
-    (S : Scheme.{u}) (I : S.IdealSheafData)
-    (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
-    (h_compatible :
-      ∀ (V : S.affineOpens) (g : Γ(S, V)),
-        (γ V).IsDPMorphism (γ (S.affineBasicOpen g))
-          (S.presheaf.map (homOfLE (S.basicOpen_le g)).op).hom)
-    (s : S ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
-    (X : Scheme.{u}) (x₀ : X ⟶ I.subscheme)
-    (h_p : ∀ U : X.affineOpens, IsNilpotent (p : Γ(X, U))) :
-    PreservesFiniteNonemptyLimits
-      (crystallineForgetful S I γ h_compatible s X x₀ h_p) := sorry
+#check (AlgebraicGeometry.Scheme.Crystalline.Base.forgetful_preservesLimits :
+    ∀ {p : ℕ} [Fact p.Prime] (B : AlgebraicGeometry.Scheme.Crystalline.Base.{u} p),
+      PreservesLimitsOfSize.{v, w}
+        (crystallineForgetful B.scheme B.ideal B.dividedPowers B.compatible B.toSpec
+          B.source B.sourceToClosed B.prime_nilpotent))

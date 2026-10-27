@@ -37,14 +37,14 @@ def absolutize {U : C}
 @[simp]
 theorem absolutize.total {U : C}
     (Z : FiberedCategoryOver.Groupoids.{max u v, v, wZ, vZ} (Over U)) :
-    (absolutize Z).total = Z.total := sorry
+    (absolutize Z).total = Z.total := rfl
 
 /-- The projection of an absolutized fibred category is the relative projection followed by the
 slice-forget functor. -/
 @[simp]
 theorem absolutize.p {U : C}
     (Z : FiberedCategoryOver.Groupoids.{max u v, v, wZ, vZ} (Over U)) :
-    (absolutize Z).p = Z.p ⋙ Over.forget U := sorry
+    (absolutize Z).p = Z.p ⋙ Over.forget U := rfl
 
 /-- Representability in the ordinary fixed owner transports contravariantly along an equivalence
 of total categories whose projection to the common base commutes up to natural isomorphism.
@@ -71,7 +71,13 @@ theorem IsRepresentable.iff_ofTotalEquivalence
     {P Q : FiberedCategoryOver.Groupoids C}
     (e : P.total ⥤ Q.total) [e.IsEquivalence]
     (comm : e ⋙ Q.p ≅ P.p) :
-    P.IsRepresentable ↔ Q.IsRepresentable := sorry
+    P.IsRepresentable ↔ Q.IsRepresentable := by
+  constructor
+  · intro hP
+    exact IsRepresentable.ofTotalEquivalence hP e.asEquivalence.inverse
+      (Iso.inverseCompIso (G := e.asEquivalence) comm.symm)
+  · intro hQ
+    exact IsRepresentable.ofTotalEquivalence hQ e comm
 /- Proof strategy: apply `IsRepresentable.ofTotalEquivalence` to `e` in one direction and to a
 chosen quasi-inverse, equipped with the inverse projection comparison, in the other. -/
 
@@ -100,7 +106,13 @@ theorem IsRepresentable.Lifted.iff_ofTotalEquivalence
       max wQ (max u v), max vQ v} C}
     (e : P.total ⥤ Q.total) [e.IsEquivalence]
     (comm : e ⋙ Q.p ≅ P.p) :
-    IsRepresentable.Lifted P ↔ IsRepresentable.Lifted Q := sorry
+    IsRepresentable.Lifted P ↔ IsRepresentable.Lifted Q := by
+  constructor
+  · intro hP
+    exact IsRepresentable.Lifted.ofTotalEquivalence hP e.asEquivalence.inverse
+      (Iso.inverseCompIso (G := e.asEquivalence) comm.symm)
+  · intro hQ
+    exact IsRepresentable.Lifted.ofTotalEquivalence hQ e comm
 /- Proof strategy: apply `IsRepresentable.Lifted.ofTotalEquivalence` to `e` and to a chosen
 quasi-inverse, using the inverse of the projection comparison for the reverse implication. -/
 
@@ -111,7 +123,8 @@ theorem IsRepresentable.ofOverIso
     {P Q : FiberedCategoryOver.Groupoids C}
     (hQ : Q.IsRepresentable) (e : Functor.OverIso P.p Q.p)
     [e.functor.IsEquivalence] :
-    P.IsRepresentable := sorry
+    P.IsRepresentable := by
+  exact IsRepresentable.ofTotalEquivalence hQ e.functor e.iso
 /- Proof strategy: apply `IsRepresentable.ofTotalEquivalence hQ e.functor e.iso`. -/
 
 /-- Representability is invariant under an over-base functor whose underlying functor is an
@@ -119,7 +132,8 @@ equivalence. -/
 theorem IsRepresentable.iff_ofOverIso
     {P Q : FiberedCategoryOver.Groupoids C}
     (e : Functor.OverIso P.p Q.p) [e.functor.IsEquivalence] :
-    P.IsRepresentable ↔ Q.IsRepresentable := sorry
+    P.IsRepresentable ↔ Q.IsRepresentable := by
+  exact IsRepresentable.iff_ofTotalEquivalence e.functor e.iso
 /- Proof strategy: use `IsRepresentable.ofOverIso` for the forward implication and apply it to
 `e.inverse` for the reverse implication. -/
 
@@ -134,7 +148,8 @@ theorem IsRepresentable.Lifted.ofOverIso
       max wQ (max u v), max vQ v} C}
     (hQ : IsRepresentable.Lifted Q) (e : Functor.OverIso P.p Q.p)
     [e.functor.IsEquivalence] :
-    IsRepresentable.Lifted P := sorry
+    IsRepresentable.Lifted P := by
+  exact IsRepresentable.Lifted.ofTotalEquivalence hQ e.functor e.iso
 /- Proof strategy: apply `IsRepresentable.Lifted.ofTotalEquivalence hQ e.functor e.iso`. -/
 
 /-- Lifted representability is invariant under an over-base functor whose underlying functor is
@@ -145,7 +160,8 @@ theorem IsRepresentable.Lifted.iff_ofOverIso
     {Q : FiberedCategoryOver.Groupoids.{u, v,
       max wQ (max u v), max vQ v} C}
     (e : Functor.OverIso P.p Q.p) [e.functor.IsEquivalence] :
-    IsRepresentable.Lifted P ↔ IsRepresentable.Lifted Q := sorry
+    IsRepresentable.Lifted P ↔ IsRepresentable.Lifted Q := by
+  exact IsRepresentable.Lifted.iff_ofTotalEquivalence e.functor e.iso
 /- Proof strategy: apply `IsRepresentable.Lifted.ofOverIso` in both directions, using
 `e.inverse` for the reverse direction. -/
 

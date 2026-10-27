@@ -42,21 +42,34 @@ namespace Gerbe
 
 /-- The identity morphism of an algebraic stack is a gerbe over its source. -/
 instance id {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] :
-    Gerbe (𝟙 X) :=
-  sorry
+    Gerbe (𝟙 X) := by
+  have h := CartesianBasedFunctor.IsLocalEquivalence.id
+    (p₁ := X.p) (Scheme.fppfTopology.over S)
+  exact ⟨⟨h.2, fun x y ↦ (h.1 x y).2⟩⟩
 
 /-- An isomorphism of algebraic stacks is a gerbe over its target. -/
 instance of_isIso {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [IsIso f] :
-    Gerbe f :=
-  sorry
+    Gerbe f := by
+  obtain ⟨g, hfg, hgf⟩ := IsIso.out (f := f)
+  let F := FiberedCategoryOver.Groupoids.toCartesianBasedFunctor f
+  letI : F.toBasedFunctor.IsEquivalence := ⟨⟨{
+    inverse := FiberedCategoryOver.Groupoids.toBasedFunctor g
+    unitIso := eqToIso (congrArg
+      (fun k : X ⟶ X ↦ FiberedCategoryOver.Groupoids.toBasedFunctor k) hfg).symm
+    counitIso := eqToIso (congrArg
+      (fun k : Y ⟶ Y ↦ FiberedCategoryOver.Groupoids.toBasedFunctor k) hgf)
+  }⟩⟩
+  have h := CartesianBasedFunctor.IsLocalEquivalence.of_isEquivalence
+    (Scheme.fppfTopology.over S) F
+  exact ⟨⟨h.2, fun x y ↦ (h.1 x y).2⟩⟩
 
 /-- A gerbe morphism of algebraic stacks is a gerbe morphism of groupoid
 fibrations on `Scheme.fppfTopology.over S`. -/
 theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y} [Gerbe f] :
     IsGerbeMorphism (Scheme.fppfTopology.over S) f :=
-  sorry
+  Gerbe.isGerbeMorphism
 
 /-- A gerbe morphism of groupoid fibrations on `Scheme.fppfTopology.over S` is a
 gerbe morphism of algebraic stacks. -/
@@ -64,7 +77,7 @@ theorem of {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
     (hf : IsGerbeMorphism (Scheme.fppfTopology.over S) f) :
     Gerbe f :=
-  sorry
+  ⟨hf⟩
 
 /-- A morphism of algebraic stacks is a gerbe over its target if and only if it
 is locally essentially surjective and locally lifts fiber morphisms on
@@ -74,7 +87,7 @@ theorem iff_localConditions {S : Scheme.{u}} {X Y : GroupoidsOver S}
     Gerbe f ↔
       LocallyEssentiallySurjective (Scheme.fppfTopology.over S) f ∧
         LocallyLifts (Scheme.fppfTopology.over S) f :=
-  sorry
+  ⟨fun h ↦ h.isGerbeMorphism, fun h ↦ ⟨h⟩⟩
 
 end Gerbe
 
@@ -95,25 +108,31 @@ some algebraic space. -/
 theorem spec {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
     [IsGerbe X] :
     ∃ (A : AlgebraicSpace S) (π : X ⟶ A.toGroupoids), Gerbe π :=
-  sorry
+  IsGerbe.exists_algebraicSpace
 
 /-- A gerbe morphism to the groupoid fibration of an algebraic space witnesses
 that the source algebraic stack is a gerbe. -/
 theorem of {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
     {A : AlgebraicSpace S} (π : X ⟶ A.toGroupoids) [Gerbe π] :
     IsGerbe X :=
-  sorry
+  ⟨⟨A, π, inferInstance⟩⟩
 
 end IsGerbe
 
 /-- The groupoid fibration of an algebraic space is a gerbe. -/
 instance instIsGerbe_ofAlgebraicSpace {S : Scheme.{u}} (A : AlgebraicSpace S) :
     IsGerbe A.toGroupoids :=
-  sorry
+  ⟨⟨A, 𝟙 A.toGroupoids, inferInstance⟩⟩
 
 /-- The canonical slice of a scheme over `S` is a gerbe algebraic stack. -/
 instance instIsGerbe_slice {S : Scheme.{u}} (U : Over S) :
-    IsGerbe (GroupoidsOver.slice U) :=
-  sorry
+    IsGerbe (GroupoidsOver.slice U) := by
+  let e := AlgebraicSpace.ofOverSliceEquiv U
+  let F := FiberedCategoryOver.Groupoids.toCartesianBasedFunctor e.inv
+  letI : F.toBasedFunctor.IsEquivalence := BasedFunctor.hom.isEquivalence
+    ((FiberedCategoryOver.Groupoids.toBased (Over S)).mapEquivalence e.symm)
+  have h := CartesianBasedFunctor.IsLocalEquivalence.of_isEquivalence
+    (Scheme.fppfTopology.over S) F
+  exact ⟨⟨AlgebraicSpace.ofOver U, e.inv, ⟨⟨h.2, fun x y ↦ (h.1 x y).2⟩⟩⟩⟩
 
 end AlgebraicGeometry.AlgebraicStack

@@ -83,7 +83,8 @@ theorem hom.app
       (map.square.fstIso (PseudoPullbackCone.map u)).hom.app a ≫
         (FiberedCategoryOver.Groupoids.toFunctorIso
           (PseudoPullbackCone.fstIso u)).hom.app a ≫
-          (target.square.fstIso P).inv.app a := sorry
+          (target.square.fstIso P).inv.app a := by
+  rfl
 
 /-- The inverse component of the left-leg comparison is the reverse composite of the
 target-square, cone-morphism, and map-square comparison components. -/
@@ -98,7 +99,9 @@ theorem inv.app
       (target.square.fstIso P).hom.app a ≫
         (FiberedCategoryOver.Groupoids.toFunctorIso
           (PseudoPullbackCone.fstIso u)).inv.app a ≫
-          (map.square.fstIso (PseudoPullbackCone.map u)).inv.app a := sorry
+          (map.square.fstIso (PseudoPullbackCone.map u)).inv.app a := by
+  simp only [fstIso, Iso.trans_inv, Iso.symm_inv, NatTrans.comp_app, Category.assoc]
+  rfl
 
 end fstIso
 
@@ -117,7 +120,8 @@ theorem hom.app
       (map.square.sndIso (PseudoPullbackCone.map u)).hom.app a ≫
         (FiberedCategoryOver.Groupoids.toFunctorIso
           (PseudoPullbackCone.sndIso u)).hom.app a ≫
-          (target.square.sndIso P).inv.app a := sorry
+          (target.square.sndIso P).inv.app a := by
+  rfl
 
 /-- The inverse component of the right-leg comparison is the reverse composite of the
 target-square, cone-morphism, and map-square comparison components. -/
@@ -132,18 +136,20 @@ theorem inv.app
       (target.square.sndIso P).hom.app a ≫
         (FiberedCategoryOver.Groupoids.toFunctorIso
           (PseudoPullbackCone.sndIso u)).inv.app a ≫
-          (map.square.sndIso (PseudoPullbackCone.map u)).inv.app a := sorry
+          (map.square.sndIso (PseudoPullbackCone.map u)).inv.app a := by
+  simp only [sndIso, Iso.trans_inv, Iso.symm_inv, NatTrans.comp_app, Category.assoc]
+  rfl
 
 end sndIso
 
 namespace Implementation
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The transported leg isomorphisms satisfy the coherence required by
 CategoricalPullback.mkNatIso.
 
-Proof strategy: unfold the two square owners. Their structural isomorphisms are the
-associator/whiskering composites in CategoricalPullback.mkNatIso; the two leg cells of
-PseudoPullbackCone.fac u identify the remaining components. -/
+The two leg cells and both structural comparisons lie over the identity of the source base.
+Their images in C are therefore equality transports, whose composites agree. -/
 private theorem legsCompatible
     {X : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C}
     {P : Bicategory.PseudoPullbackCone X.baseProjection X.baseProjection}
@@ -158,7 +164,49 @@ private theorem legsCompatible
           Functor.whiskerLeft (map (PseudoPullbackCone.map u))
             (CatCommSq.iso (π₁ X.p X.p) (π₂ X.p X.p) X.p X.p).hom ≫
           (Functor.associator _ _ _).inv ≫
-          Functor.whiskerRight (sndIso u).hom X.p := sorry
+          Functor.whiskerRight (sndIso u).hom X.p := by
+  apply NatTrans.ext
+  funext a
+  change X.p.map ((fstIso u).hom.app a) ≫
+      𝟙 _ ≫ ((target P).obj a).iso.hom ≫ 𝟙 _ =
+    𝟙 _ ≫ ((map (PseudoPullbackCone.map u)).obj a).iso.hom ≫
+      𝟙 _ ≫ X.p.map ((sndIso u).hom.app a)
+  simp only [Category.id_comp, Category.comp_id]
+  let M := PseudoPullbackCone.map u
+  let F := FiberedCategoryOver.Groupoids.toBasedFunctor X.baseProjection
+  have hf := IsHomLift.fac' X.p (𝟙 (P.pt.p.obj a))
+    ((PseudoPullbackCone.fstFac u).hom.toNatTrans.app a)
+  have hs := IsHomLift.fac' X.p (𝟙 (P.pt.p.obj a))
+    ((PseudoPullbackCone.sndFac u).hom.toNatTrans.app a)
+  have ht := IsHomLift.fac' (FiberedCategoryOver.Groupoids.base.{u, v, w} C).p
+    (𝟙 (P.pt.p.obj a)) (P.iso.hom.hom.toNatTrans.app a)
+  have hm' : Functor.IsHomLift (FiberedCategoryOver.Groupoids.base.{u, v, w} C).p
+      (𝟙 (P.pt.p.obj a)) (map.comparisonObj M a).iso.hom := by
+    exact (BasedCategory.PseudoPullback.comparisonIso F F).hom.isHomLift
+      ((FiberedCategoryOver.Groupoids.toBasedFunctor M).w_obj a)
+  have hm := IsHomLift.fac' (FiberedCategoryOver.Groupoids.base.{u, v, w} C).p
+    (𝟙 (P.pt.p.obj a)) (map.comparisonObj M a).iso.hom
+  have hf0 : (fstIso u).hom.app a =
+      (PseudoPullbackCone.fstFac u).hom.toNatTrans.app a := by
+    change 𝟙 _ ≫ _ ≫ 𝟙 _ = _
+    simp only [Category.id_comp, Category.comp_id]
+    rfl
+  have hs0 : (sndIso u).hom.app a =
+      (PseudoPullbackCone.sndFac u).hom.toNatTrans.app a := by
+    change 𝟙 _ ≫ _ ≫ 𝟙 _ = _
+    simp only [Category.id_comp, Category.comp_id]
+    rfl
+  rw [hf0, hs0, target.obj.iso.hom.{w, v, u, w, w}, map.obj.iso.hom.{w, v, u, w, w}]
+  simp only [FiberedCategoryOver.Groupoids.baseProjection.iso.inv.app.{u, v, w, w},
+    FiberedCategoryOver.Groupoids.baseProjection.iso.hom.app.{u, v, w, w},
+    FiberedCategoryOver.Groupoids.baseSection.projection.appIso,
+    Iso.refl_hom, Iso.refl_inv, Category.id_comp]
+  rw [FiberedCategoryOver.Groupoids.toFunctorIso.hom.app]
+  rw [hf, hs, ht, hm]
+  simp only [InducedBicategory.categoryStruct_comp_hom, BasedCategory.comp_def,
+    Category.id_comp, eqToHom_trans, eqToHom_trans_assoc, Category.assoc]
+  erw [Category.comp_id, Category.id_comp]
+  simp
 
 end Implementation
 
@@ -186,7 +234,8 @@ theorem iso.hom.app.fst
     (u : P ⟶
       CategoryTheory.TwoFibreProduct.cone X.baseProjection X.baseProjection)
     (a : P.pt.total) :
-    ((iso u).hom.app a).fst = (fstIso u).hom.app a := sorry
+    ((iso u).hom.app a).fst = (fstIso u).hom.app a := by
+  rfl
 
 /-- The second component of the forward comparison is the forward right-leg comparison. -/
 @[simp]
@@ -196,7 +245,8 @@ theorem iso.hom.app.snd
     (u : P ⟶
       CategoryTheory.TwoFibreProduct.cone X.baseProjection X.baseProjection)
     (a : P.pt.total) :
-    ((iso u).hom.app a).snd = (sndIso u).hom.app a := sorry
+    ((iso u).hom.app a).snd = (sndIso u).hom.app a := by
+  rfl
 
 /-- The first component of the inverse comparison is the inverse left-leg comparison. -/
 @[simp]
@@ -206,7 +256,8 @@ theorem iso.inv.app.fst
     (u : P ⟶
       CategoryTheory.TwoFibreProduct.cone X.baseProjection X.baseProjection)
     (a : P.pt.total) :
-    ((iso u).inv.app a).fst = (fstIso u).inv.app a := sorry
+    ((iso u).inv.app a).fst = (fstIso u).inv.app a := by
+  rfl
 
 /-- The second component of the inverse comparison is the inverse right-leg comparison. -/
 @[simp]
@@ -216,7 +267,8 @@ theorem iso.inv.app.snd
     (u : P ⟶
       CategoryTheory.TwoFibreProduct.cone X.baseProjection X.baseProjection)
     (a : P.pt.total) :
-    ((iso u).inv.app a).snd = (sndIso u).inv.app a := sorry
+    ((iso u).inv.app a).snd = (sndIso u).inv.app a := by
+  rfl
 
 end
 

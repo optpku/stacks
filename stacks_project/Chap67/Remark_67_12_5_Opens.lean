@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.OpenSubspace.Construction
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism
 
 /-!
 # Open subspaces cut out by opens of points
@@ -27,10 +28,10 @@ namespace AlgebraicGeometry.AlgebraicSpace.OpenSubspace
 
 variable {S : Scheme.{u}} {X : AlgebraicSpace S}
 
-/-- The morphism `ofOver U.unop ⟶ X` associated to a section of the functor of points. -/
-abbrev homOfPointsSection {U : (Over S)ᵒᵖ} (φ : X.functorOfPoints.obj U) :
-    ofOver U.unop ⟶ X :=
-  yonedaEquiv.symm φ
+/- The morphism `ofOver U.unop ⟶ X` associated to a section of the functor of points. -/
+#check (AlgebraicGeometry.AlgebraicSpace.OpenSubspace.homOfPointsSection :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : (Over S)ᵒᵖ},
+    X.functorOfPoints.obj U → (ofOver U.unop ⟶ X))
 
 /-- The subfunctor of maps into `X` whose image of points lands in `W`. -/
 abbrev ofOpensSubfunctor (W : Opens (Points X)) : Subfunctor X.functorOfPoints :=
@@ -49,10 +50,8 @@ instance instIsOpenImmersion_ofOpensι (W : Opens (Points X)) :
     IsOpenImmersion (ofOpensι W) :=
   Construction.inclusion_isOpenImmersion X W
 
-/-- The open subspace of `X` with underlying point-set `W`. -/
-def ofOpens (W : Opens (Points X)) : OpenSubspace X where
-  X := Construction.space X W
-  ι := Construction.ι X W
-  isOpenImmersion := Construction.inclusion_isOpenImmersion X W
+#check (AlgebraicGeometry.AlgebraicSpace.OpenSubspace.fromOpens :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S},
+    Opens (Points X) → OpenSubspace X)
 
 end AlgebraicGeometry.AlgebraicSpace.OpenSubspace

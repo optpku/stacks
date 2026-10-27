@@ -40,12 +40,21 @@ def evalToGamma {R k : Type u} [CommRing R] [Field k] (φ : R →+* k) (n : ℕ)
 theorem evalToGamma_X {R k : Type u} [CommRing R] [Field k] (φ : R →+* k) (n : ℕ)
     (v : Fin (n + 1) → k) (i : Fin (n + 1)) :
     evalToGamma φ n v (MvPolynomial.X i) =
-      (Scheme.ΓSpecIso (CommRingCat.of k)).inv.hom (v i) := sorry
+      (Scheme.ΓSpecIso (CommRingCat.of k)).inv.hom (v i) := by
+  simp [evalToGamma]
 
 /-- A nonzero tuple sends the irrelevant ideal onto the unit ideal of global sections. -/
 theorem eval_map_irrelevant_eq_top {R k : Type u} [CommRing R] [Field k]
     (φ : R →+* k) (n : ℕ) {v : Fin (n + 1) → k} (hv : v ≠ 0) :
-    (HomogeneousIdeal.irrelevant (grading R n)).toIdeal.map (evalToGamma φ n v) = ⊤ := sorry
+    (HomogeneousIdeal.irrelevant (grading R n)).toIdeal.map (evalToGamma φ n v) = ⊤ := by
+  obtain ⟨i, hi⟩ : ∃ i, v i ≠ 0 := Function.ne_iff.mp hv
+  have hm : MvPolynomial.X i ∈ (HomogeneousIdeal.irrelevant (grading R n)).toIdeal :=
+    HomogeneousIdeal.mem_irrelevant_of_mem _ Nat.zero_lt_one
+      (MvPolynomial.isHomogeneous_X R i)
+  have hu : IsUnit (evalToGamma φ n v (MvPolynomial.X i)) := by
+    rw [evalToGamma_X]
+    exact (isUnit_iff_ne_zero.mpr hi).map (Scheme.ΓSpecIso (.of k)).inv.hom
+  exact Ideal.eq_top_of_isUnit_mem _ (Ideal.mem_map_of_mem _ hm) hu
 
 /-- The morphism `Spec k ⟶ P^n_R` attached to a nonzero homogeneous coordinate tuple. -/
 def homOf {R k : Type u} [CommRing R] [Field k] {n : ℕ} (φ : R →+* k)
@@ -57,7 +66,21 @@ def homOf {R k : Type u} [CommRing R] [Field k] {n : ℕ} (φ : R →+* k)
 /-- The morphism attached to a nonzero tuple is a morphism over `Spec R`. -/
 theorem homOf_isOver {R k : Type u} [CommRing R] [Field k] {n : ℕ} (φ : R →+* k)
     {v : Fin (n + 1) → k} (hv : v ≠ 0) :
-    homOf φ hv ≫ toSpec R n = Spec.map (CommRingCat.ofHom φ) := sorry
+    homOf φ hv ≫ toSpec R n = Spec.map (CommRingCat.ofHom φ) := by
+  change homOf φ hv ≫
+    (Proj.toSpecZero (grading R n) ≫
+      Spec.map (CommRingCat.ofHom (degreeZeroRingEquiv R n).symm.toRingHom)) = _
+  rw [← Category.assoc, homOf, Proj.fromOfGlobalSections_toSpecZero,
+    Category.assoc, ← Spec.map_comp]
+  have h : CommRingCat.ofHom (degreeZeroRingEquiv R n).symm.toRingHom ≫
+      CommRingCat.ofHom ((evalToGamma φ n v).comp (algebraMap _ _)) =
+      CommRingCat.ofHom φ ≫ (Scheme.ΓSpecIso (.of k)).inv := by
+    ext r
+    change (Scheme.ΓSpecIso (.of k)).inv.hom (MvPolynomial.eval₂Hom φ v
+      (MvPolynomial.C r)) = (Scheme.ΓSpecIso (.of k)).inv.hom (φ r)
+    simp
+  rw [h, Spec.map_comp, ← Category.assoc,
+    toSpecΓ_SpecMap_ΓSpecIso_inv, Category.id_comp]
 
 /-- Scaling a nonzero tuple by a unit of `k` does not change the associated morphism. -/
 theorem homOf_smul {R k : Type u} [CommRing R] [Field k] {n : ℕ} (φ : R →+* k)
@@ -76,12 +99,16 @@ def homMk {R k : Type u} [CommRing R] [Field k] (φ : R →+* k) (n : ℕ)
 theorem homMk_mk {R k : Type u} [CommRing R] [Field k] (φ : R →+* k) (n : ℕ)
     {v : Fin (n + 1) → k} (hv : v ≠ 0) :
     homMk φ n (Projectivization.mk k v hv) =
-      Over.homMk (homOf φ hv) (homOf_isOver φ hv) := sorry
+      Over.homMk (homOf φ hv) (homOf_isOver φ hv) := by
+  obtain ⟨t, ht⟩ := Projectivization.exists_smul_eq_mk_rep k v hv
+  apply Over.OverMorphism.ext
+  change homOf φ (Projectivization.rep_nonzero (Projectivization.mk k v hv)) = homOf φ hv
+  simpa only [ht] using homOf_smul φ hv t
 
 /-- The underlying scheme morphism of `homMk` is the tuple-level map of a representative. -/
 theorem homMk_left {R k : Type u} [CommRing R] [Field k] (φ : R →+* k) (n : ℕ)
     (x : ℙ k (Fin (n + 1) → k)) :
-    (homMk φ n x).left = homOf φ (Projectivization.rep_nonzero x) := sorry
+    (homMk φ n x).left = homOf φ (Projectivization.rep_nonzero x) := rfl
 
 /-- The morphism `Spec k ⟶ P^n_k` attached to a class in `ℙ k (Fin (n + 1) → k)`. -/
 def fieldPoint {k : Type u} [Field k] (n : ℕ) (x : ℙ k (Fin (n + 1) → k)) :
@@ -91,12 +118,15 @@ def fieldPoint {k : Type u} [Field k] (n : ℕ) (x : ℙ k (Fin (n + 1) → k)) 
 /-- A field point of `P^n_k` is a section of the structure morphism to `Spec k`. -/
 theorem fieldPoint_toSpec {k : Type u} [Field k] (n : ℕ)
     (x : ℙ k (Fin (n + 1) → k)) :
-    fieldPoint n x ≫ toSpec k n = 𝟙 (Spec (CommRingCat.of k)) := sorry
+    fieldPoint n x ≫ toSpec k n = 𝟙 (Spec (CommRingCat.of k)) := by
+  change homOf (RingHom.id k) (Projectivization.rep_nonzero x) ≫ toSpec k n = _
+  simpa using homOf_isOver (RingHom.id k) (Projectivization.rep_nonzero x)
 
 /-- On a standard representative, `fieldPoint` recovers the identity-base tuple morphism. -/
 theorem fieldPoint_mk {k : Type u} [Field k] (n : ℕ) {v : Fin (n + 1) → k}
     (hv : v ≠ 0) :
-    fieldPoint n (Projectivization.mk k v hv) = homOf (RingHom.id k) hv := sorry
+    fieldPoint n (Projectivization.mk k v hv) = homOf (RingHom.id k) hv := by
+  exact congrArg (fun f ↦ f.left) (homMk_mk (RingHom.id k) n hv)
 
 /-- Nonzero homogeneous coordinate tuples modulo unit scaling classify the morphisms
 `Spec k ⟶ P^n_R` over `Spec R`. -/

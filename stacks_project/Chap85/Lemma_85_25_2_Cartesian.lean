@@ -29,5 +29,5 @@ variable [∀ n : ℕ, HasWeakSheafify (Opens.grothendieckTopology (Y.obj (op �
 variable [HasWeakSheafify (zariskiTopology Y) A]
 variable [HasOpensMapLeftKanExtension Y A]
 
-#check (CategoryTheory.SimplicialObject.IsCartesian Y A :
+#check (CategoryTheory.SimplicialObject.IsCartesianSheaf Y A :
   Sheaf (zariskiTopology Y) A → Prop)

@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Flat
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.CyclesOnFibers.Restriction
 public import stacks_project.Chap62.Lemma_62_5_1_Operations
 public import stacks_project.Chap62.Remark_62_5_6_Support_Family
 
@@ -29,14 +30,6 @@ universe u
 namespace AlgebraicGeometry.Scheme.Hom.CyclesOnFibers
 
 variable {X S : Scheme.{u}}
-
-/-- Restriction of a family of `r`-cycles on fibres to compatible opens
-`U ⊆ X` and `V ⊆ S`, as the existing fibre-cycle restriction. -/
-noncomputable def restrict {f : X ⟶ S} [LocallyOfFiniteType f] {r : ℕ}
-    (α : CyclesOnFibers f r) (U : X.Opens) (V : S.Opens)
-    (hUV : U ≤ f ⁻¹ᵁ V) :
-    CyclesOnFibers (f.resLE V U hUV) r :=
-  FiberCycleFamily.restrict U V hUV α
 
 /-- Restriction of a fibre-cycle family is `FiberCycleFamily.restrict`. -/
 theorem restrict_eq_fiberCycleFamilyRestrict {f : X ⟶ S}

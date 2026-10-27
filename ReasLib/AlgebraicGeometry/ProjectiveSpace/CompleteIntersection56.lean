@@ -58,7 +58,7 @@ theorem homogeneousIdeal_toIdeal {k : Type u} [Field k]
     (F G : MvPolynomial (Fin (3 + 1)) k)
     (hF : F ∈ ProjectiveSpace.grading k 3 5)
     (hG : G ∈ ProjectiveSpace.grading k 3 6) :
-    (homogeneousIdeal F G hF hG).toIdeal = Ideal.span {F, G} := sorry
+    (homogeneousIdeal F G hF hG).toIdeal = Ideal.span {F, G} := rfl
 
 /-- The quotient grading on `k[X_0, X_1, X_2, X_3] ⧸ (F, G)`. -/
 abbrev quotientGrading {k : Type u} [Field k]

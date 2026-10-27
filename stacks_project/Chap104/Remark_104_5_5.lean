@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap104.Remark_104_5_5_Admissible
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Derived.Admissible
 import StacksCheckRecall
 
 /-!
@@ -34,37 +34,40 @@ namespace AlgebraicGeometry.AlgebraicStack
 
 variable {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
 
-/- Remark 104.5.5 (1): `D_{Parasitic ∩ LQCoh^{fbc}}(𝒪_X)` is a left admissible
-subcategory of `D_{LQCoh^{fbc}}(𝒪_X)`. -/
+/- Remark 104.5.5: the parasitic cohomology subcategory of
+`D_{LQCoh^{fbc}}(𝒪_X)` is left admissible. Its left orthogonal `A` is right
+admissible, and the composite `A ⥤ D_{LQCoh^{fbc}}(𝒪_X) ⥤ D_QCoh(𝒪_X)` is an
+equivalence. Hence `D_QCoh(𝒪_X)` is realized as a strictly full saturated
+triangulated subcategory of both `D_{LQCoh^{fbc}}(𝒪_X)` and `D(X_fppf, 𝒪_X)`. -/
 @[stacks 0H11]
-#check (derivedParasitic_isLeftAdmissible X)
+#check (AlgebraicGeometry.AlgebraicStack.derivedParasitic_isLeftAdmissible :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
+    (derivedParasitic X).IsLeftAdmissible)
 
-/- Remark 104.5.5 (2): the left orthogonal `A` is right admissible in
+/- The left orthogonal `A` is right admissible in
 `D_{LQCoh^{fbc}}(𝒪_X)`. -/
-@[stacks 0H11]
-#check (derivedParasitic_leftOrthogonal_isRightAdmissible X)
+#check (AlgebraicGeometry.AlgebraicStack.derivedParasitic_leftOrthogonal_isRightAdmissible :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
+    (derivedParasitic X).leftOrthogonal.IsRightAdmissible)
 
-/- Remark 104.5.5 (3): the composition `A ⟶ D_{LQCoh^{fbc}}(𝒪_X) ⟶ D_QCoh(𝒪_X)`
+/- The composition `A ⥤ D_{LQCoh^{fbc}}(𝒪_X) ⥤ D_QCoh(𝒪_X)`
 is an equivalence. -/
-@[stacks 0H11]
-#check (leftOrthogonalComparison.instIsEquivalence X)
+#check (AlgebraicGeometry.AlgebraicStack.DerivedQCoh.leftOrthogonalComparison.instIsEquivalence :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
+    (leftOrthogonalComparison X).IsEquivalence)
 
-/- Remark 104.5.5 (4): `A` is a strictly full saturated triangulated
+/- `A` is a strictly full saturated triangulated
 subcategory of `D_{LQCoh^{fbc}}(𝒪_X)`. -/
-@[stacks 0H11]
 #check (inferInstance : (derivedParasitic X).leftOrthogonal.IsTriangulated)
-@[stacks 0H11]
 #check (inferInstance : (derivedParasitic X).leftOrthogonal.IsClosedUnderIsomorphisms)
-@[stacks 0H11]
 #check (inferInstance : (derivedParasitic X).leftOrthogonal.IsStableUnderRetracts)
 
-/- Remark 104.5.5 (5): the same subcategory view of `D_QCoh(𝒪_X)` is strictly
+/- The same subcategory view of `D_QCoh(𝒪_X)` is strictly
 full, saturated, and triangulated in `D(X_fppf, 𝒪_X)`. -/
-@[stacks 0H11]
 #check (inferInstance : (leftOrthogonalInclusion X).essImage.IsTriangulated)
-@[stacks 0H11]
 #check (inferInstance : (leftOrthogonalInclusion X).essImage.IsClosedUnderIsomorphisms)
-@[stacks 0H11]
-#check (leftOrthogonalInclusion.essImage_isStableUnderRetracts X)
+#check (AlgebraicGeometry.AlgebraicStack.DerivedQCoh.leftOrthogonalInclusion.essImage_isStableUnderRetracts :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
+    (leftOrthogonalInclusion X).essImage.IsStableUnderRetracts)
 
 end AlgebraicGeometry.AlgebraicStack

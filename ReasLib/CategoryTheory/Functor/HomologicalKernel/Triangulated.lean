@@ -35,14 +35,14 @@ variable {D : Type u₁} {A : Type u₂}
 /-- The cone-defined morphism property of a homological kernel is compatible with the
 pretriangulated structure. -/
 noncomputable instance compatible
-    (H : D ⥤ A) [H.IsHomological] [H.ShiftSequence ℤ] :
+    (H : D ⥤ A) [H.IsHomological] :
     H.homologicalKernel.trW.IsCompatibleWithTriangulation := sorry
 
 /-- Stacks 05R5: the morphisms inducing isomorphisms under every shifted value of a homological
 functor form a saturated multiplicative system. -/
 @[stacks 05R5]
 noncomputable instance saturated
-    (H : D ⥤ A) [H.IsHomological] [H.ShiftSequence ℤ] :
+    (H : D ⥤ A) [H.IsHomological] :
     MorphismProperty.IsSaturatedMultiplicativeSystem H.homologicalKernel.trW := sorry
 
 end CategoryTheory.Functor.HomologicalKernel

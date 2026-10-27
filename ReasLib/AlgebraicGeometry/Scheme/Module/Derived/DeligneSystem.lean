@@ -39,7 +39,8 @@ variable {X : Scheme.{u}}
 /-- An inequality of positive natural indices induces the corresponding inequality of integer
 filtration indices. -/
 theorem pnatCast_le {m n : ℕ+} (h : m ≤ n) :
-    (((m : ℕ) : ℤ) ≤ ((n : ℕ) : ℤ)) := sorry
+    (((m : ℕ) : ℤ) ≤ ((n : ℕ) : ℤ)) :=
+  Int.ofNat_le.mpr h
 
 /-- The identity law for the explicit positive ideal-power stage assignment. -/
 theorem positiveCochainSystem_map_id (I : X.IdealSheafData)
@@ -47,7 +48,10 @@ theorem positiveCochainSystem_map_id (I : X.IdealSheafData)
     HomologicalComplex.Filtered.Stage.comparison (filtered I K)
         (pnatCast_le (𝟙 n).le) =
       𝟙 (HomologicalComplex.Filtered.Stage.complex (filtered I K)
-        (((OrderDual.ofDual n : ℕ+) : ℕ) : ℤ)) := sorry
+        (((OrderDual.ofDual n : ℕ+) : ℕ) : ℤ)) := by
+  apply HomologicalComplex.hom_ext
+  intro i
+  exact ((filtered I K).X i).filtration.inclusion_refl _
 
 /-- The composition law for the explicit positive ideal-power stage assignment. -/
 theorem positiveCochainSystem_map_comp (I : X.IdealSheafData)
@@ -58,7 +62,11 @@ theorem positiveCochainSystem_map_comp (I : X.IdealSheafData)
       HomologicalComplex.Filtered.Stage.comparison (filtered I K)
           (pnatCast_le f.le) ≫
         HomologicalComplex.Filtered.Stage.comparison (filtered I K)
-          (pnatCast_le g.le) := sorry
+          (pnatCast_le g.le) := by
+  apply HomologicalComplex.hom_ext
+  intro a
+  exact (((filtered I K).X a).filtration.inclusion_trans
+    (pnatCast_le g.le) (pnatCast_le f.le)).symm
 
 /-- The positive inverse system whose stage `n` is the explicit termwise ideal-power complex
 `I ^ n K`. -/
@@ -77,14 +85,14 @@ complex. -/
 theorem positiveCochainSystem_stage (I : X.IdealSheafData)
     (K : CochainComplex X.Modules ℤ) (n : ℕ+) :
     (positiveCochainSystem I K).stage n =
-      HomologicalComplex.Filtered.Stage.complex (filtered I K) (((n : ℕ) : ℤ)) := sorry
+      HomologicalComplex.Filtered.Stage.complex (filtered I K) (((n : ℕ) : ℤ)) := rfl
 
 /-- A transition of `positiveCochainSystem` is the canonical inclusion between the two
 ideal-power stages. -/
 theorem positiveCochainSystem_transitionMap (I : X.IdealSheafData)
     (K : CochainComplex X.Modules ℤ) {m n : ℕ+} (h : m ≤ n) :
     OrderDualInverseSystem.transitionMap (positiveCochainSystem I K) h =
-      HomologicalComplex.Filtered.Stage.comparison (filtered I K) (pnatCast_le h) := sorry
+      HomologicalComplex.Filtered.Stage.comparison (filtered I K) (pnatCast_le h) := rfl
 
 /-- The positive ideal-power system after localization to the derived category. -/
 noncomputable def positiveDerivedSystem (I : X.IdealSheafData)
@@ -96,7 +104,7 @@ theorem positiveDerivedSystem_stage (I : X.IdealSheafData)
     (K : CochainComplex X.Modules ℤ) (n : ℕ+) :
     (positiveDerivedSystem I K).stage n =
       DerivedCategory.Q.obj
-        (HomologicalComplex.Filtered.Stage.complex (filtered I K) (((n : ℕ) : ℤ))) := sorry
+        (HomologicalComplex.Filtered.Stage.complex (filtered I K) (((n : ℕ) : ℤ))) := rfl
 
 /-- A transition of the positive derived system is the localization of the corresponding
 ideal-power inclusion. -/
@@ -104,7 +112,7 @@ theorem positiveDerivedSystem_transitionMap (I : X.IdealSheafData)
     (K : CochainComplex X.Modules ℤ) {m n : ℕ+} (h : m ≤ n) :
     OrderDualInverseSystem.transitionMap (positiveDerivedSystem I K) h =
       DerivedCategory.Q.map
-        (HomologicalComplex.Filtered.Stage.comparison (filtered I K) (pnatCast_le h)) := sorry
+        (HomologicalComplex.Filtered.Stage.comparison (filtered I K) (pnatCast_le h)) := rfl
 
 end AlgebraicGeometry.Scheme.Modules.IdealPowerComplex
 
@@ -166,7 +174,8 @@ noncomputable def ofIdealPower
 and is termwise coherent. -/
 theorem spec (S : DeligneSystem j) :
     S.ideal.openComplement = j.opensRange ∧
-      ∀ i : ℤ, SheafOfModules.isCoherent X.ringCatSheaf (S.complex.obj.X i) := sorry
+      ∀ i : ℤ, SheafOfModules.isCoherent X.ringCatSheaf (S.complex.obj.X i) :=
+  ⟨S.openComplement_eq, S.complex.property.2⟩
 
 /-- The explicit positive derived ideal-power tower underlying a Deligne system. -/
 noncomputable def tower (S : DeligneSystem j) :
@@ -176,7 +185,7 @@ noncomputable def tower (S : DeligneSystem j) :
 /-- The tower of a Deligne system is its presented positive ideal-power system. -/
 theorem tower_eq (S : DeligneSystem j) :
     S.tower = Modules.IdealPowerComplex.positiveDerivedSystem
-      S.ideal S.complex.obj := sorry
+      S.ideal S.complex.obj := rfl
 
 /-- The derived object at positive stage `n` of a Deligne system. -/
 noncomputable def stage (S : DeligneSystem j) (n : ℕ+) : DerivedCategory X.Modules :=
@@ -186,7 +195,7 @@ noncomputable def stage (S : DeligneSystem j) (n : ℕ+) : DerivedCategory X.Mod
 theorem stage_eq (S : DeligneSystem j) (n : ℕ+) :
     DeligneSystem.stage j S n = DerivedCategory.Q.obj
       (HomologicalComplex.Filtered.Stage.complex
-        (Modules.IdealPowerComplex.filtered S.ideal S.complex.obj) (((n : ℕ) : ℤ))) := sorry
+        (Modules.IdealPowerComplex.filtered S.ideal S.complex.obj) (((n : ℕ) : ℤ))) := rfl
 
 end DeligneSystem
 

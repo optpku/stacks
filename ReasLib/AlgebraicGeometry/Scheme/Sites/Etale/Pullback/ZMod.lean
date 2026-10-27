@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.ZMod
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Pullback.KanExtension
+public import Mathlib.Algebra.Category.ModuleCat.Colimits
 public import ReasLib.CategoryTheory.Sites.Pullback.SheafCompose
 
 @[expose] public section
@@ -24,13 +26,15 @@ namespace AlgebraicGeometry.Scheme.Etale
 /-- Small-étale pullback admits left Kan extensions of abelian presheaves. -/
 instance instHasLeftKanExtension_smallEtalePullback_addCommGrp
     {S T : Scheme.{u}} (f : T ⟶ S) (G : S.Etaleᵒᵖ ⥤ AddCommGrpCat.{u}) :
-    (smallEtalePullback f).op.HasLeftKanExtension G := sorry
+    (smallEtalePullback f).op.HasLeftKanExtension G :=
+  smallEtaleHasLeftKanExtension f G
 
 /-- Small-étale pullback admits left Kan extensions of `ZMod n`-module presheaves. -/
 instance instHasLeftKanExtension_smallEtalePullback_zmod
     {n : ℕ} {S T : Scheme.{u}} (f : T ⟶ S)
     (G : S.Etaleᵒᵖ ⥤ ModuleCat.{u} (ZMod n)) :
-    (smallEtalePullback f).op.HasLeftKanExtension G := sorry
+    (smallEtalePullback f).op.HasLeftKanExtension G :=
+  smallEtaleHasLeftKanExtension f G
 
 /-- Forgetting `ZMod n`-modules to abelian groups preserves left Kan extensions along
 small-étale pullback. -/

@@ -46,7 +46,7 @@ theorem fiberOpenComplementDimensionLT_iff {X S : Scheme.{u}} (f : X ⟶ S)
 /-- Restricting fibre-cycle coefficients along the comparison map of an open
 immersion has locally finite support. -/
 theorem restrictOpen_locallyFiniteSupport {X S : Scheme.{u}} {f : X ⟶ S}
-    {r : ℕ} (U : X.Opens) (α : f.FiberCycleFamily r) (s : S) :
+    [LocallyOfFiniteType f] {r : ℕ} (U : X.Opens) (α : f.FiberCycleFamily r) (s : S) :
     LocallyFiniteSupport fun x : (U.ι ≫ f).fiber s ↦
       CycleGroup.toAlgebraicCycle (f.fiberDimensionFunction s) r (α s)
         (Scheme.Hom.idTriangleFiberMap U.ι rfl s x) := sorry
@@ -54,7 +54,7 @@ theorem restrictOpen_locallyFiniteSupport {X S : Scheme.{u}} {f : X ⟶ S}
 /-- The algebraic cycle on a fibre of the open restriction obtained by pulling
 back coefficients along the fibre comparison map. -/
 noncomputable def restrictOpenCycle {X S : Scheme.{u}} {f : X ⟶ S} {r : ℕ}
-    (U : X.Opens) (α : f.FiberCycleFamily r) (s : S) :
+    [LocallyOfFiniteType f] (U : X.Opens) (α : f.FiberCycleFamily r) (s : S) :
     AlgebraicCycle ((U.ι ≫ f).fiber s) ℤ where
   toFun := fun x ↦
     CycleGroup.toAlgebraicCycle (f.fiberDimensionFunction s) r (α s)
@@ -65,7 +65,8 @@ noncomputable def restrictOpenCycle {X S : Scheme.{u}} {f : X ⟶ S} {r : ℕ}
 
 /-- The restriction of a fibre cycle of dimension `r` is supported in dimension `r`. -/
 theorem restrictOpenCycle_mem_dimensionSubgroup {X S : Scheme.{u}}
-    {f : X ⟶ S} {r : ℕ} (U : X.Opens) (α : f.FiberCycleFamily r) (s : S) :
+    {f : X ⟶ S} [LocallyOfFiniteType f] {r : ℕ}
+    (U : X.Opens) (α : f.FiberCycleFamily r) (s : S) :
     restrictOpenCycle U α s ∈
       AlgebraicCycle.dimensionSubgroup ((U.ι ≫ f).fiberDimensionFunction s)
         r := sorry
@@ -73,14 +74,16 @@ theorem restrictOpenCycle_mem_dimensionSubgroup {X S : Scheme.{u}}
 /-- Restriction of a family of fibrewise `r`-cycles to an open of the source
 over the same base. -/
 noncomputable def restrictOpen {X S : Scheme.{u}} {f : X ⟶ S} {r : ℕ}
-    (U : X.Opens) (α : f.FiberCycleFamily r) : (U.ι ≫ f).FiberCycleFamily r :=
+    [LocallyOfFiniteType f] (U : X.Opens) (α : f.FiberCycleFamily r) :
+    (U.ι ≫ f).FiberCycleFamily r :=
   fun s ↦
     ⟨restrictOpenCycle U α s, restrictOpenCycle_mem_dimensionSubgroup U α s⟩
 
 /-- Coefficients of the restricted family are the original fibre coefficients
 evaluated along the fibre comparison map. -/
 theorem restrictOpen_apply {X S : Scheme.{u}} {f : X ⟶ S} {r : ℕ}
-    (U : X.Opens) (α : f.FiberCycleFamily r) (s : S) (x : (U.ι ≫ f).fiber s) :
+    [LocallyOfFiniteType f] (U : X.Opens) (α : f.FiberCycleFamily r)
+    (s : S) (x : (U.ι ≫ f).fiber s) :
     CycleGroup.toAlgebraicCycle ((U.ι ≫ f).fiberDimensionFunction s) r
         (restrictOpen U α s) x =
       CycleGroup.toAlgebraicCycle (f.fiberDimensionFunction s) r (α s)
@@ -102,11 +105,12 @@ theorem groupRestrict_mem {X S : Scheme.{u}} (f : X ⟶ S)
 
 /-- Restriction of the zero family of fibre cycles is the zero family. -/
 theorem restrictOpen_zero {X S : Scheme.{u}} {f : X ⟶ S} {r : ℕ}
-    (U : X.Opens) : restrictOpen U (0 : f.FiberCycleFamily r) = 0 := sorry
+    [LocallyOfFiniteType f] (U : X.Opens) :
+    restrictOpen U (0 : f.FiberCycleFamily r) = 0 := sorry
 
 /-- Restriction of families of fibre cycles preserves addition. -/
 theorem restrictOpen_add {X S : Scheme.{u}} {f : X ⟶ S} {r : ℕ}
-    (U : X.Opens) (α β : f.FiberCycleFamily r) :
+    [LocallyOfFiniteType f] (U : X.Opens) (α β : f.FiberCycleFamily r) :
     restrictOpen U (α + β) = restrictOpen U α + restrictOpen U β := sorry
 
 /-- The additive homomorphism restricting relative `r`-cycles to an open of

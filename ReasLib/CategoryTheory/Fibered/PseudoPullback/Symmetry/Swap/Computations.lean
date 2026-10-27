@@ -45,21 +45,21 @@ noncomputable section
 /-- Swapping a pseudo-pullback object retains its common base object. -/
 @[simp] theorem swap.obj.base
     (F : X ⥤ᵇ S) (G : Y ⥤ᵇ S) (P : (PseudoPullback F G).obj) :
-    baseObj ((swap F G).obj P) = baseObj P := sorry
+    baseObj ((swap F G).obj P) = baseObj P := rfl
 /- Proof strategy: unfold the public `swap` owner through its private object constructor and read
 the public `baseObj` projection. -/
 
 /-- The first object projection after swapping is the original second object. -/
 @[simp] theorem swap.obj.fst
     (F : X ⥤ᵇ S) (G : Y ⥤ᵇ S) (P : (PseudoPullback F G).obj) :
-    fstObj ((swap F G).obj P) = sndObj P := sorry
+    fstObj ((swap F G).obj P) = sndObj P := rfl
 /- Proof strategy: read the first object projection of the privately assembled swapped
 `PseudoPullback.mk`. -/
 
 /-- The second object projection after swapping is the original first object. -/
 @[simp] theorem swap.obj.snd
     (F : X ⥤ᵇ S) (G : Y ⥤ᵇ S) (P : (PseudoPullback F G).obj) :
-    sndObj ((swap F G).obj P) = fstObj P := sorry
+    sndObj ((swap F G).obj P) = fstObj P := rfl
 /- Proof strategy: read the second object projection of the privately assembled swapped
 `PseudoPullback.mk`. -/
 
@@ -67,7 +67,7 @@ the public `baseObj` projection. -/
 @[simp] theorem swap.obj.comparison
     (F : X ⥤ᵇ S) (G : Y ⥤ᵇ S) (P : (PseudoPullback F G).obj) :
     comparison ((swap F G).obj P) =
-      (PseudoPullback.comparisonIsoApp (F := F) (G := G) P).inv := sorry
+      (PseudoPullback.comparisonIsoApp (F := F) (G := G) P).inv := rfl
 /- Proof strategy: expose the public comparison projection of the swapped object and identify
 the inverse stored in the fibre model through the canonical `comparisonIsoApp` owner. -/
 
@@ -77,14 +77,14 @@ comparison isomorphism. -/
 theorem swap.obj.comparisonIso
     (F : X ⥤ᵇ S) (G : Y ⥤ᵇ S) (P : (PseudoPullback F G).obj) :
     PseudoPullback.comparisonIsoApp (F := G) (G := F) ((swap F G).obj P) =
-      (PseudoPullback.comparisonIsoApp (F := F) (G := G) P).symm := sorry
+      (PseudoPullback.comparisonIsoApp (F := F) (G := G) P).symm := rfl
 
 /-- Swapping a pseudo-pullback morphism retains its common base map. -/
 @[simp] theorem swap.map.base
     (F : X ⥤ᵇ S) (G : Y ⥤ᵇ S)
     {P Q : (PseudoPullback F G).obj} (φ : P ⟶ Q) :
     PseudoPullback.baseMap (F := G) (G := F) ((swap F G).map φ) =
-      PseudoPullback.baseMap (F := F) (G := G) φ := sorry
+      PseudoPullback.baseMap (F := F) (G := G) φ := rfl
 /- Proof strategy: unfold the public `swap` owner and read the common base-map projection of its
 private `homMk` assembly. -/
 
@@ -92,7 +92,7 @@ private `homMk` assembly. -/
 @[simp] theorem swap.map.fst
     (F : X ⥤ᵇ S) (G : Y ⥤ᵇ S)
     {P Q : (PseudoPullback F G).obj} (φ : P ⟶ Q) :
-    fstMap ((swap F G).map φ) = sndMap φ := sorry
+    fstMap ((swap F G).map φ) = sndMap φ := rfl
 /- Proof strategy: read the first map projection of the privately assembled swapped
 `PseudoPullback.Hom.mk`. -/
 
@@ -100,21 +100,21 @@ private `homMk` assembly. -/
 @[simp] theorem swap.map.snd
     (F : X ⥤ᵇ S) (G : Y ⥤ᵇ S)
     {P Q : (PseudoPullback F G).obj} (φ : P ⟶ Q) :
-    sndMap ((swap F G).map φ) = fstMap φ := sorry
+    sndMap ((swap F G).map φ) = fstMap φ := rfl
 /- Proof strategy: read the second map projection of the privately assembled swapped
 `PseudoPullback.Hom.mk`. -/
 
 /-- Swapping exchanges the first projection with the second. -/
 @[simp]
 theorem swap.fst (F : X ⥤ᵇ S) (G : Y ⥤ᵇ S) :
-    swap F G ⋙ PseudoPullback.fst G F = PseudoPullback.snd F G := sorry
+    swap F G ⋙ PseudoPullback.fst G F = PseudoPullback.snd F G := rfl
 /- Proof strategy: ext on underlying functors; the first component of `swapObj` and `swapMap` is
 definitionally the original second component. -/
 
 /-- Swapping exchanges the second projection with the first. -/
 @[simp]
 theorem swap.snd (F : X ⥤ᵇ S) (G : Y ⥤ᵇ S) :
-    swap F G ⋙ PseudoPullback.snd G F = PseudoPullback.fst F G := sorry
+    swap F G ⋙ PseudoPullback.snd G F = PseudoPullback.fst F G := rfl
 /- Proof strategy: symmetric to `swap.fst`; the swapped second component is the original first. -/
 
 end

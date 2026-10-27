@@ -48,16 +48,14 @@ namespace RelativeInertia.Implementation
 
 /-- The inverse of a relative-inertia automorphism also maps to the identity. -/
 private theorem map_inv_eq_id (X : RelativeInertia F) :
-    F.map X.aut.inv = 𝟙 (F.obj X.obj) := sorry
-/- Proof strategy: compose with `F.map X.aut.hom`, simplify the isomorphism laws, and use
-`X.mapAut_hom`. -/
+    F.map X.aut.inv = 𝟙 (F.obj X.obj) := by
+  exact congrArg (fun e : Aut (F.obj X.obj) ↦ e.inv) X.mapAut_eq_one
 
 /-- The identity component of the comparison lies over the base identity. -/
 private theorem Comparison.hom_snd_isHomLift (comm : F ⋙ p' = p)
     (X : RelativeInertia F) :
-    p.IsHomLift (𝟙 (p.obj X.obj)) (𝟙 X.obj) := sorry
-/- Proof strategy: transport the canonical identity lift through the projection of
-`BasedCategory.ofFunctor p`. -/
+    p.IsHomLift (𝟙 (p.obj X.obj)) (𝟙 X.obj) := by
+  infer_instance
 
 /-- The forward comparison components satisfy the pseudo-pullback square. -/
 private theorem Comparison.hom_comm (comm : F ⋙ p' = p)
@@ -67,9 +65,12 @@ private theorem Comparison.hom_comm (comm : F ⋙ p' = p)
         ((BasedFunctor.relativeDiagonal (BasedFunctor.ofFunctor F comm)).obj X.obj))
       (PseudoPullback.comparison
         ((BasedFunctor.relativeDiagonal (BasedFunctor.ofFunctor F comm)).obj X.obj))
-      (F.map (𝟙 X.obj)) := sorry
-/- Proof strategy: unfold the stored diagonal comparisons; they are identities, and the result is
-`X.mapAut_hom`. -/
+      (F.map (𝟙 X.obj)) := by
+  change CommSq (F.map X.aut.hom) (𝟙 _) (𝟙 _) (F.map (𝟙 X.obj))
+  constructor
+  have h : F.map X.aut.hom = 𝟙 (F.obj X.obj) :=
+    congrArg (fun e : Aut (F.obj X.obj) ↦ e.hom) X.mapAut_eq_one
+  simpa only [Category.comp_id, Category.id_comp, F.map_id] using h
 
 /-- Forward component of the comparison from relative inertia to the diagonal self-pullback. -/
 private def Comparison.hom (comm : F ⋙ p' = p) (X : RelativeInertia F) :
@@ -85,8 +86,8 @@ private theorem Comparison.hom_isHomLift (comm : F ⋙ p' = p)
     (X : RelativeInertia F) :
     ((PseudoPullback (BasedFunctor.ofFunctor F comm)
       (BasedFunctor.ofFunctor F comm)).p).IsHomLift (𝟙 (p.obj X.obj))
-      (Comparison.hom F p' comm X) := sorry
-/- Proof strategy: unfold the pseudo-pullback projection; its map is the stored base identity. -/
+      (Comparison.hom F p' comm X) := by
+  exact Functor.IsHomLift.map (Comparison.hom F p' comm X)
 
 /-- The inverse comparison components satisfy the pseudo-pullback square. -/
 private theorem Comparison.inv_comm (comm : F ⋙ p' = p)
@@ -96,9 +97,10 @@ private theorem Comparison.inv_comm (comm : F ⋙ p' = p)
         ((BasedFunctor.relativeDiagonal (BasedFunctor.ofFunctor F comm)).obj X.obj))
       (PseudoPullback.comparison
         ((BasedFunctor.relativeDiagonal (BasedFunctor.ofFunctor F comm)).obj X.obj))
-      (F.map (𝟙 X.obj)) := sorry
-/- Proof strategy: unfold the stored diagonal comparisons; they are identities, and use
-`map_inv_eq_id`. -/
+      (F.map (𝟙 X.obj)) := by
+  change CommSq (F.map X.aut.inv) (𝟙 _) (𝟙 _) (F.map (𝟙 X.obj))
+  constructor
+  simpa only [Category.comp_id, Category.id_comp, F.map_id] using map_inv_eq_id F X
 
 /-- Inverse component of the comparison from relative inertia to the diagonal self-pullback. -/
 private def Comparison.inv (comm : F ⋙ p' = p) (X : RelativeInertia F) :
@@ -114,13 +116,13 @@ private theorem Comparison.inv_isHomLift (comm : F ⋙ p' = p)
     (X : RelativeInertia F) :
     ((PseudoPullback (BasedFunctor.ofFunctor F comm)
       (BasedFunctor.ofFunctor F comm)).p).IsHomLift (𝟙 (p.obj X.obj))
-      (Comparison.inv F p' comm X) := sorry
-/- Proof strategy: unfold the pseudo-pullback projection; its map is the stored base identity. -/
+      (Comparison.inv F p' comm X) := by
+  exact Functor.IsHomLift.map (Comparison.inv F p' comm X)
 
 /-- A relative-inertia object lies in the fiber over its own base image. -/
 private theorem Comparison.fiberObject_eq (X : RelativeInertia F) :
-    p.obj X.obj = p.obj X.obj := sorry
-/- Proof strategy: reflexivity. -/
+    p.obj X.obj = p.obj X.obj := by
+  rfl
 
 /-- Forward comparison morphism in the fiber of the relative diagonal. -/
 private def Comparison.fiberHom (comm : F ⋙ p' = p)
@@ -142,21 +144,47 @@ private def Comparison.fiberInv (comm : F ⋙ p' = p)
   ⟨Comparison.inv F p' comm X,
     Comparison.inv_isHomLift F p' comm X⟩
 
+/-- Equality of all three data components determines a pseudo-pullback morphism. -/
+private theorem Comparison.hom_ext_of_components
+    {X Y Z : BasedCategory C} {F₁ : X ⥤ᵇ Z} {F₂ : Y ⥤ᵇ Z}
+    {P Q : (PseudoPullback F₁ F₂).obj} (f g : P ⟶ Q)
+    (hbase : PseudoPullback.baseMap f = PseudoPullback.baseMap g)
+    (hfst : PseudoPullback.fstMap f = PseudoPullback.fstMap g)
+    (hsnd : PseudoPullback.sndMap f = PseudoPullback.sndMap g) : f = g := by
+  cases f
+  cases g
+  cases hbase
+  cases hfst
+  cases hsnd
+  rfl
+
 /-- The forward and inverse fiber comparison components compose to the identity. -/
 private theorem Comparison.fiber_hom_inv_id (comm : F ⋙ p' = p)
     (X : RelativeInertia F) :
     Comparison.fiberHom F p' comm X ≫
-      Comparison.fiberInv F p' comm X = 𝟙 _ := sorry
-/- Proof strategy: apply `Functor.Fiber.hom_ext`, then `PseudoPullback.hom_ext`; use the two
-inverse laws for `X.aut` and the identity law on the second component. -/
+      Comparison.fiberInv F p' comm X = 𝟙 _ := by
+  apply Functor.Fiber.hom_ext
+  apply Comparison.hom_ext_of_components
+  · change 𝟙 (p.obj X.obj) ≫ 𝟙 (p.obj X.obj) = 𝟙 (p.obj X.obj)
+    exact Category.id_comp _
+  · change X.aut.hom ≫ X.aut.inv = 𝟙 X.obj
+    exact X.aut.hom_inv_id
+  · change 𝟙 X.obj ≫ 𝟙 X.obj = 𝟙 X.obj
+    exact Category.id_comp _
 
 /-- The inverse and forward fiber comparison components compose to the identity. -/
 private theorem Comparison.fiber_inv_hom_id (comm : F ⋙ p' = p)
     (X : RelativeInertia F) :
     Comparison.fiberInv F p' comm X ≫
-      Comparison.fiberHom F p' comm X = 𝟙 _ := sorry
-/- Proof strategy: apply `Functor.Fiber.hom_ext`, then `PseudoPullback.hom_ext`; use the two
-inverse laws for `X.aut` and the identity law on the second component. -/
+      Comparison.fiberHom F p' comm X = 𝟙 _ := by
+  apply Functor.Fiber.hom_ext
+  apply Comparison.hom_ext_of_components
+  · change 𝟙 (p.obj X.obj) ≫ 𝟙 (p.obj X.obj) = 𝟙 (p.obj X.obj)
+    exact Category.id_comp _
+  · change X.aut.inv ≫ X.aut.hom = 𝟙 X.obj
+    exact X.aut.inv_hom_id
+  · change 𝟙 X.obj ≫ 𝟙 X.obj = 𝟙 X.obj
+    exact Category.id_comp _
 
 /-- The fiber isomorphism encoded by a relative-inertia automorphism. -/
 private def Comparison.iso (comm : F ⋙ p' = p) (X : RelativeInertia F) :

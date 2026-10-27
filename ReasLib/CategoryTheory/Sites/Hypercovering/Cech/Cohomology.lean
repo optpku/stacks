@@ -71,17 +71,49 @@ noncomputable def cohomologyMap {K L : Hypercovering.{w} J X} (f : K ⟶ L)
     cohomology L I p ⟶ cohomology K I p :=
   HypercoveringOf.Cech.cohomologyMap (Hypercovering.Hom.toPresheafTarget f) I p
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Fixed-target Cech cohomology sends an identity hypercovering map to the identity. -/
 theorem cohomologyMap_id (K : Hypercovering.{w} J X)
     (I : Sheaf J AddCommGrpCat.{max w v}) (p : ℕ) :
-    cohomologyMap (𝟙 K) I p = 𝟙 _ := sorry
+    cohomologyMap (𝟙 K) I p = 𝟙 _ := by
+  have h : HypercoveringOf.Hom.toSimplicialPresheaf
+      (Hypercovering.Hom.toPresheafTarget (𝟙 K)) = 𝟙 _ := by
+    change Functor.whiskerRight
+      (Hypercovering.Hom.toSimplicialFamily (𝟙 K)) FormalCoproduct.toPresheaf = 𝟙 _
+    have h₀ : Hypercovering.Hom.toSimplicialFamily (𝟙 K) = 𝟙 K.simplicialFamily :=
+      Functor.whiskerRight_id' SemiRepresentableFamily.OverFamily.forget
+    exact (congrArg (fun t ↦ Functor.whiskerRight t FormalCoproduct.toPresheaf) h₀).trans
+      (Functor.whiskerRight_id' FormalCoproduct.toPresheaf)
+  dsimp only [cohomologyMap, HypercoveringOf.Cech.cohomologyMap,
+    HypercoveringOf.Cech.complexMap]
+  rw [h, NatTrans.rightOp_id, Functor.whiskerRight_id']
+  exact (congrArg (fun t ↦ HomologicalComplex.homologyMap t p)
+    ((alternatingCofaceMapComplex _).map_id _)).trans
+      (HomologicalComplex.homologyMap_id _ p)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Fixed-target Cech cohomology maps respect composition contravariantly. -/
 theorem cohomologyMap_comp {K L M : Hypercovering.{w} J X}
     (f : K ⟶ L) (g : L ⟶ M)
     (I : Sheaf J AddCommGrpCat.{max w v}) (p : ℕ) :
     cohomologyMap (f ≫ g) I p =
-      cohomologyMap g I p ≫ cohomologyMap f I p := sorry
+      cohomologyMap g I p ≫ cohomologyMap f I p := by
+  have h : HypercoveringOf.Hom.toSimplicialPresheaf
+      (Hypercovering.Hom.toPresheafTarget (f ≫ g)) =
+      HypercoveringOf.Hom.toSimplicialPresheaf (Hypercovering.Hom.toPresheafTarget f) ≫
+        HypercoveringOf.Hom.toSimplicialPresheaf (Hypercovering.Hom.toPresheafTarget g) := by
+    change Functor.whiskerRight
+        (Hypercovering.Hom.toSimplicialFamily (f ≫ g)) FormalCoproduct.toPresheaf =
+      Functor.whiskerRight (Hypercovering.Hom.toSimplicialFamily f)
+          FormalCoproduct.toPresheaf ≫
+        Functor.whiskerRight (Hypercovering.Hom.toSimplicialFamily g)
+          FormalCoproduct.toPresheaf
+    simp only [Hypercovering.Hom.toSimplicialFamily, Hypercovering.Hom.toSimplicial,
+      Functor.map_comp, Functor.whiskerRight_comp]
+  dsimp only [cohomologyMap, HypercoveringOf.Cech.cohomologyMap,
+    HypercoveringOf.Cech.complexMap]
+  rw [h, NatTrans.rightOp_comp, Functor.whiskerRight_comp, Functor.map_comp,
+    HomologicalComplex.homologyMap_comp]
 
 /-- Product sections of fixed-target families, functorially in an additive presheaf. -/
 abbrev presheafSectionsInCoefficients :
@@ -149,18 +181,48 @@ noncomputable def presheafCohomologyMap
   HypercoveringOf.Cech.presheafCohomologyMap
     (Hypercovering.Hom.toPresheafTarget f) F p
 
+omit [HasWeakSheafify J AddCommGrpCat.{max w v}] in
+set_option backward.isDefEq.respectTransparency false in
 /-- Product-sections Cech cohomology sends identity maps to identities. -/
 theorem presheafCohomologyMap_id (K : Hypercovering.{w} J X)
     (F : Cᵒᵖ ⥤ AddCommGrpCat.{max u v w}) (p : ℕ) :
-    presheafCohomologyMap (𝟙 K) F p = 𝟙 _ := sorry
+    presheafCohomologyMap (𝟙 K) F p = 𝟙 _ := by
+  change HomologicalComplex.homologyMap
+    ((alternatingCofaceMapComplex _).map
+      (Functor.whiskerRight (Hypercovering.Hom.toSimplicialFamily (𝟙 K)).rightOp
+        (SemiRepresentableFamily.Cech.sections F))) p = 𝟙 _
+  have h : Hypercovering.Hom.toSimplicialFamily (𝟙 K) = 𝟙 K.simplicialFamily :=
+    Functor.whiskerRight_id' SemiRepresentableFamily.OverFamily.forget
+  rw [h, NatTrans.rightOp_id, Functor.whiskerRight_id']
+  exact (congrArg (fun t ↦ HomologicalComplex.homologyMap t p)
+    ((alternatingCofaceMapComplex _).map_id _)).trans
+      (HomologicalComplex.homologyMap_id _ p)
 
+omit [HasWeakSheafify J AddCommGrpCat.{max w v}] in
+set_option backward.isDefEq.respectTransparency false in
 /-- Product-sections Cech cohomology maps respect composition contravariantly. -/
 theorem presheafCohomologyMap_comp
     {K L M : Hypercovering.{w} J X} (f : K ⟶ L) (g : L ⟶ M)
     (F : Cᵒᵖ ⥤ AddCommGrpCat.{max u v w}) (p : ℕ) :
     presheafCohomologyMap (f ≫ g) F p =
-      presheafCohomologyMap g F p ≫ presheafCohomologyMap f F p := sorry
+      presheafCohomologyMap g F p ≫ presheafCohomologyMap f F p := by
+  let A := alternatingCofaceMapComplex AddCommGrpCat.{max u v w}
+  let S := SemiRepresentableFamily.Cech.sections F
+  change HomologicalComplex.homologyMap
+      (A.map (Functor.whiskerRight
+        (Hypercovering.Hom.toSimplicialFamily (f ≫ g)).rightOp S)) p =
+    HomologicalComplex.homologyMap
+        (A.map (Functor.whiskerRight
+          (Hypercovering.Hom.toSimplicialFamily g).rightOp S)) p ≫
+      HomologicalComplex.homologyMap
+        (A.map (Functor.whiskerRight
+          (Hypercovering.Hom.toSimplicialFamily f).rightOp S)) p
+  simp only [Hypercovering.Hom.toSimplicialFamily, Hypercovering.Hom.toSimplicial,
+    Functor.map_comp, Functor.whiskerRight_comp, NatTrans.rightOp_comp,
+    HomologicalComplex.homologyMap_comp]
 
+omit [HasWeakSheafify J AddCommGrpCat.{max w v}] in
+set_option backward.isDefEq.respectTransparency false in
 /-- Product-sections Cech cohomology maps are natural in the coefficient presheaf. -/
 theorem presheafCohomologyMap_natural
     {K L : Hypercovering.{w} J X} (f : K ⟶ L)
@@ -168,7 +230,35 @@ theorem presheafCohomologyMap_natural
     (presheafCohomologyInCoefficients L p).map phi ≫
         presheafCohomologyMap f G p =
       presheafCohomologyMap f F p ≫
-        (presheafCohomologyInCoefficients K p).map phi := sorry
+        (presheafCohomologyInCoefficients K p).map phi := by
+  let A := alternatingCofaceMapComplex AddCommGrpCat.{max u v w}
+  have h : (presheafComplexInCoefficients L).map phi ≫ presheafComplexMap f G =
+      presheafComplexMap f F ≫ (presheafComplexInCoefficients K).map phi := by
+    change A.map (Functor.whiskerLeft L.simplicialFamily.rightOp
+        (SemiRepresentableFamily.Cech.sectionsInCoefficients.map phi)) ≫
+          A.map (Functor.whiskerRight
+            (Hypercovering.Hom.toSimplicialFamily f).rightOp
+            (SemiRepresentableFamily.Cech.sections G)) =
+      A.map (Functor.whiskerRight
+          (Hypercovering.Hom.toSimplicialFamily f).rightOp
+          (SemiRepresentableFamily.Cech.sections F)) ≫
+        A.map (Functor.whiskerLeft K.simplicialFamily.rightOp
+          (SemiRepresentableFamily.Cech.sectionsInCoefficients.map phi))
+    rw [← Functor.map_comp, ← Functor.map_comp]
+    exact congrArg (fun t ↦ A.map t)
+      (Functor.whiskerLeft_comp_whiskerRight
+        (Hypercovering.Hom.toSimplicialFamily f).rightOp
+        (SemiRepresentableFamily.Cech.sectionsInCoefficients.map phi))
+  simpa only [presheafCohomologyInCoefficients,
+    HypercoveringOf.Cech.presheafCohomologyInCoefficients,
+    SemiRepresentableFamily.Cech.cohomologyInCoefficients,
+    presheafCohomologyMap, HypercoveringOf.Cech.presheafCohomologyMap,
+    SemiRepresentableFamily.Cech.cohomologyMap, Functor.comp_map,
+    HomologicalComplex.homologyFunctor_map, presheafComplexMap,
+    HypercoveringOf.Cech.presheafComplexMap, Functor.map_comp,
+    HomologicalComplex.homologyMap_comp] using congrArg (fun t ↦
+    (HomologicalComplex.homologyFunctor AddCommGrpCat.{max u v w}
+      (ComplexShape.up ℕ) p).map t) h
 
 /-- The alternating-coface complex of products of coefficient sections. -/
 abbrev familySectionsComplex (K : Hypercovering.{w} J X)
@@ -187,7 +277,7 @@ theorem familySectionsComplex_isomorphic_complex
 /-- Cech cohomology is homology of the associated Cech complex. -/
 theorem cohomology_def (K : Hypercovering.{w} J X)
     (I : Sheaf J AddCommGrpCat.{max w v}) (p : ℕ) :
-    cohomology K I p = (complex K I).homology p := sorry
+    cohomology K I p = (complex K I).homology p := rfl
 
 /-- Lemma 25.5.1 (01GV): degree-zero Cech cohomology is the section group over the fixed
 target. -/
@@ -205,7 +295,8 @@ theorem cohomology_zero_isomorphic_sections_of_injective
     (K : Hypercovering.{w} J X)
     (I : Sheaf J AddCommGrpCat.{max w v}) [Injective I] :
     IsIsomorphic (cohomology K I 0)
-      ((AddCommGrpCat.uliftFunctor.{u, max w v}).obj (I.1.obj (op X))) := sorry
+      ((AddCommGrpCat.uliftFunctor.{u, max w v}).obj (I.1.obj (op X))) :=
+  cohomology_zero_isomorphic_sections K I
 
 /-- For injective coefficients, positive-degree fixed-target Cech cohomology vanishes. -/
 @[stacks 01GW "positive degrees"]

@@ -208,7 +208,31 @@ theorem ofMorphismMap_isPullback
     (iY : Y' ⟶ Y) (qY : Y' ⟶ Z')
     (squareY : IsPullback iY.left qY.left (𝟙 Y : Y ⟶ Y).left g.left) :
     IsPullback iX.left (ofMorphismMap f g iX qX squareX iY qY squareY).left
-      f.left iY.left := sorry
+      f.left iY.left := by
+  have w : iX.left ≫ f.left =
+      (ofMorphismMap f g iX qX squareX iY qY squareY).left ≫ iY.left :=
+    (squareY.lift_fst _ _ _).symm
+  refine { w := w, isLimit' := ⟨PullbackCone.IsLimit.mk w
+    (fun c ↦ squareX.lift c.fst (c.snd ≫ qY.left) (by
+      calc
+        c.fst ≫ f.left = c.snd ≫ iY.left := c.condition
+        _ = (c.snd ≫ qY.left) ≫ g.left := by
+          simpa [Category.assoc] using
+            congrArg (fun e ↦ c.snd ≫ e) squareY.w)) ?_ ?_ ?_⟩ }
+  · intro c
+    exact squareX.lift_fst _ _ _
+  · intro c
+    apply squareY.hom_ext
+    · simpa only [ofMorphismMap, Over.homMk_left, Category.assoc,
+        IsPullback.lift_fst, IsPullback.lift_fst_assoc] using c.condition
+    · simp only [ofMorphismMap, Over.homMk_left, Category.assoc,
+        IsPullback.lift_snd, IsPullback.lift_snd_assoc]
+  · intro c m hm₁ hm₂
+    apply squareX.hom_ext
+    · simpa only [IsPullback.lift_fst] using hm₁
+    · have hm := congrArg (fun e ↦ e ≫ qY.left) hm₂
+      simpa only [ofMorphismMap, Over.homMk_left, Category.assoc,
+        IsPullback.lift_snd, IsPullback.lift_snd_assoc] using hm
 
 /-- The cap family obtained from an ordinary bivariant class by giving it an identity
 right leg. -/

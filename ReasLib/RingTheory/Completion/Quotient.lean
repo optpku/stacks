@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.RingTheory.AdicCompletion.Topology
+public import Mathlib.RingTheory.AdicCompletion.Exactness
+public import Mathlib.RingTheory.AdicCompletion.Noetherian
 public import Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
 public import Mathlib.RingTheory.Noetherian.Defs
 public import Mathlib.Tactic.CrossRefAttribute
@@ -34,7 +36,18 @@ image of the defining ideal. -/
 theorem quotient
     {R : Type u} [CommRing R] [IsNoetherianRing R]
     (J I : Ideal R) [IsAdicComplete J R] :
-    IsAdicComplete (J.map (Ideal.Quotient.mk I)) (R ⧸ I) := sorry
+    IsAdicComplete (J.map (Ideal.Quotient.mk I)) (R ⧸ I) := by
+  apply (IsAdicComplete.map_algebraMap_iff J (R ⧸ I)).mpr
+  refine
+    { toIsHausdorff := IsHausdorff.of_le_jacobson J (R ⧸ I)
+        (IsAdicComplete.le_jacobson_bot J)
+      toIsPrecomplete := AdicCompletion.of_surjective_iff.mp ?_ }
+  intro x
+  let q := (Ideal.Quotient.mkₐ R I).toLinearMap
+  obtain ⟨y, rfl⟩ := AdicCompletion.map_surjective J
+    (show Function.Surjective q from Ideal.Quotient.mk_surjective) x
+  obtain ⟨r, rfl⟩ := AdicCompletion.of_surjective J R y
+  exact ⟨q r, (AdicCompletion.map_of J q r).symm⟩
 
 end IsAdicComplete
 

@@ -34,7 +34,7 @@ variable {R : Type u} [CommRing R] [IsDedekindDomain R]
 
 /-- Ideals in a Dedekind domain are projective modules. -/
 @[stacks 0EX0 "projective ideals"]
-instance idealProjective (I : Ideal R) : Module.Projective R I := sorry
+instance idealProjective [IsDedekindDomain R] (I : Ideal R) : Module.Projective R I := sorry
 
 /-- Stacks 0EX0: a Dedekind domain has global dimension at most one. -/
 @[stacks 0EX0 "global dimension at most one"]

@@ -6,7 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap96.Lemma_96_12_3_Pullback
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.LocallyQuasiCoherent.Pullback
+import StacksCheckRecall
 
 /-!
 # Lemma 96.12.3
@@ -24,20 +25,10 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.GroupoidsOver
-
-variable {S : Scheme.{u}}
-variable {X Y : GroupoidsOver S} (f : X ⟶ Y)
-variable (G : etaleModules Y)
-variable [IsLocallyQuasiCoherent G]
-
-/-- Lemma 96.12.3: a 1-morphism `f : X ⟶ Y` of categories fibred in groupoids
-over `(Sch/S)_fppf` induces `f^* = f⁻¹ : Mod(Y_étale, O_Y) ⟶ Mod(X_étale, O_X)`,
-which sends locally quasi-coherent étale `O_Y`-modules to locally quasi-coherent
-étale `O_X`-modules. -/
-@[stacks 06WL]
-instance moduleInverseImage_isLocallyQuasiCoherent :
-    IsLocallyQuasiCoherent ((moduleInverseImage f).obj G) :=
-  sorry
-
-end AlgebraicGeometry.GroupoidsOver
+/- Lemma 96.12.3: The pullback functor `f^* = f⁻¹` along a 1-morphism of
+categories fibred in groupoids preserves locally quasi-coherent étale modules. -/
+@[stacks 06WL] #check
+  (AlgebraicGeometry.GroupoidsOver.moduleInverseImage_isLocallyQuasiCoherent :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
+      (G : GroupoidsOver.etaleModules Y) [GroupoidsOver.IsLocallyQuasiCoherent G],
+      GroupoidsOver.IsLocallyQuasiCoherent ((GroupoidsOver.etaleModuleInverseImage f).obj G))

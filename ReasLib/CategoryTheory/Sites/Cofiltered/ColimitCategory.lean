@@ -39,16 +39,19 @@ section TransitionCalculus
 
 /-- A cospan in the cofiltered indexing category admits a commuting common lowering. -/
 theorem exists_span {j k₁ k₂ : S.I} (f : k₁ ⟶ j) (g : k₂ ⟶ j) :
-    ∃ (m : S.I) (u : m ⟶ k₁) (v : m ⟶ k₂), u ≫ f = v ≫ g := sorry
+    ∃ (m : S.I) (u : m ⟶ k₁) (v : m ⟶ k₂), u ≫ f = v ≫ g :=
+  IsCofiltered.cospan f g
 
 /-- Object-level composition for the transition functors of a cofiltered site diagram. -/
 theorem stageFunctor_obj_comp {i j k : S.I} (a : j ⟶ i) (b : k ⟶ j) (X : S.stage i) :
     (S.stageFunctor b).obj ((S.stageFunctor a).obj X) =
-      (S.stageFunctor (b ≫ a)).obj X := sorry
+      (S.stageFunctor (b ≫ a)).obj X :=
+  (congrArg (fun f => f.toFunctor.obj X) (S.diagram.map_comp a.op b.op)).symm
 
 /-- Object-level identity for the transition functors of a cofiltered site diagram. -/
 theorem stageFunctor_obj_id {i : S.I} (X : S.stage i) :
-    (S.stageFunctor (𝟙 i)).obj X = X := sorry
+    (S.stageFunctor (𝟙 i)).obj X = X :=
+  congrArg (fun f => f.toFunctor.obj X) (S.diagram.map_id (op i))
 
 /-- Morphism-level composition for transition functors, with canonical object transports. -/
 theorem stageFunctor_map_map {i j k : S.I} (a : j ⟶ i) (b : k ⟶ j)
@@ -120,14 +123,35 @@ def objRel (p q : S.ObjRep) : Prop :=
     (S.stageFunctor a).obj p.obj = (S.stageFunctor b).obj q.obj
 
 /-- Common lowering relates an object representative to itself. -/
-theorem objRel_refl (p : S.ObjRep) : S.objRel p p := sorry
+theorem objRel_refl (p : S.ObjRep) : S.objRel p p :=
+  ⟨p.idx, 𝟙 p.idx, 𝟙 p.idx, rfl⟩
 
 /-- Common lowering is symmetric on object representatives. -/
-theorem objRel_symm {p q : S.ObjRep} (h : S.objRel p q) : S.objRel q p := sorry
+theorem objRel_symm {p q : S.ObjRep} (h : S.objRel p q) : S.objRel q p := by
+  obtain ⟨k, a, b, hab⟩ := h
+  exact ⟨k, b, a, hab.symm⟩
 
 /-- Common lowering is transitive on object representatives. -/
 theorem objRel_trans {p q r : S.ObjRep} (h₁ : S.objRel p q) (h₂ : S.objRel q r) :
-    S.objRel p r := sorry
+    S.objRel p r := by
+  obtain ⟨k₁, a₁, b₁, hab₁⟩ := h₁
+  obtain ⟨k₂, a₂, b₂, hab₂⟩ := h₂
+  obtain ⟨m, u, v, huv⟩ := S.exists_span b₁ a₂
+  refine ⟨m, u ≫ a₁, v ≫ b₂, ?_⟩
+  calc
+    (S.stageFunctor (u ≫ a₁)).obj p.obj =
+        (S.stageFunctor u).obj ((S.stageFunctor a₁).obj p.obj) :=
+      (S.stageFunctor_obj_comp a₁ u p.obj).symm
+    _ = (S.stageFunctor u).obj ((S.stageFunctor b₁).obj q.obj) :=
+      congrArg (S.stageFunctor u).obj hab₁
+    _ = (S.stageFunctor (u ≫ b₁)).obj q.obj := S.stageFunctor_obj_comp b₁ u q.obj
+    _ = (S.stageFunctor (v ≫ a₂)).obj q.obj :=
+      congrArg (fun f => (S.stageFunctor f).obj q.obj) huv
+    _ = (S.stageFunctor v).obj ((S.stageFunctor a₂).obj q.obj) :=
+      (S.stageFunctor_obj_comp a₂ v q.obj).symm
+    _ = (S.stageFunctor v).obj ((S.stageFunctor b₂).obj r.obj) :=
+      congrArg (S.stageFunctor v).obj hab₂
+    _ = (S.stageFunctor (v ≫ b₂)).obj r.obj := S.stageFunctor_obj_comp b₂ v r.obj
 
 /-- The setoid of object representatives under common lowering. -/
 instance objSetoid : Setoid (S.ObjRep) :=
@@ -226,7 +250,7 @@ structure CompData {x y z : S.ColimitCategory} (r : HomRep x y) (s : HomRep y z)
   /-- The identification of the lowered middle objects. -/
   glue : (S.stageFunctor toFst).obj r.tgt = (S.stageFunctor toSnd).obj s.src
 
-/-- A canonical choice of composition data, obtained from the equality of the middle
+/-- A choice of composition data, obtained from the equality of the middle
 colimit presentations. -/
 noncomputable def CompData.some {x y z : S.ColimitCategory} (r : HomRep x y)
     (s : HomRep y z) : CompData r s :=

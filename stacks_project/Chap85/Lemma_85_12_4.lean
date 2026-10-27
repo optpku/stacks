@@ -6,89 +6,101 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_12_4_Descent
-public import stacks_project.Chap85.Lemma_85_12_4_Equivalence
+import StacksCheckRecall
+public import ReasLib.CategoryTheory.Sites.Simplicial.CartesianDescent
+public import ReasLib.CategoryTheory.Sites.Grothendieck.SimplicialDescent
 
-/-!
-# Lemma 85.12.4
-
-In Situation 85.3.3, cartesian sheaves of sets (resp. abelian groups) on `C_total`
-are equivalent to pairs `(F, α)` consisting of a sheaf on `C_0` and an isomorphism
-`α : (f_{δ 1})⁻¹ F ≅ (f_{δ 0})⁻¹ F` on `C_1` satisfying the `C_2` cocycle.
--/
+/-! Cartesian sheaves and coface descent in both presentations of a simplicial site. -/
 
 @[expose] public section
 
-open CategoryTheory
-open scoped Simplicial
-open CategoryTheory.SimplicialSites
-open CategoryTheory.SimplicialSites.Sheaf
-
-noncomputable section
+open CategoryTheory Opposite
 
 universe u v w
 
-namespace CategoryTheory.SimplicialSites
+section MorphismDiagram
 
 variable (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
-variable [IsMorphismDiagram C J]
 variable [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
 variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
-    ((C.map φ).toFunctor).op.HasLeftKanExtension P]
+    (C.map φ).toFunctor.op.HasLeftKanExtension P]
+variable [CategoryTheory.SimplicialSites.IsMorphismDiagram.{u, v, w} C J]
 
-/-- Lemma 85.12.4 (1)
-In Situation 85.3.3, the category of cartesian sheaves of sets on `C_total` is
-equivalent to the category of pairs `(F, α)` where `F` is a sheaf of sets on
-`C_0` and `α : (f_{δ 1})⁻¹ F ≅ (f_{δ 0})⁻¹ F` is an isomorphism of sheaves of
-sets on `C_1` such that `(f_{δ 1})⁻¹ α = (f_{δ 0})⁻¹ α ∘ (f_{δ 2})⁻¹ α` as maps
-of sheaves on `C_2`. -/
-@[stacks 0D7I]
-def sheafCartesianEquivalence :
-    Cartesian C J (Type w) ≌ FaceDescent C J (Type w) :=
-  cartesianEquivalence C J (Type w)
+/- Lemma 85.12.4 (1)
+Cartesian sheaves of sets in the morphism-of-sites presentation are equivalent to degree-zero sheaves equipped
+with an invertible coface comparison satisfying the degree-two cocycle. -/
+@[stacks 0D7I] #check (CategoryTheory.SimplicialSites.Sheaf.cartesianEquivalence C J (Type w) :
+  CategoryTheory.SimplicialSites.Sheaf.Cartesian C J (Type w) ≌
+    CategoryTheory.SimplicialSites.Sheaf.FaceDescent C J (Type w))
 
-/-- The forward functor of `sheafCartesianEquivalence` extracts the pair `(F_0, α)`. -/
-theorem sheafCartesianEquivalence_functor :
-    (sheafCartesianEquivalence C J).functor = toDescentFunctor C J (Type w) :=
-  sorry
-
-/-- The inverse functor of `sheafCartesianEquivalence` assembles a cartesian sheaf of sets
-from a pair `(F, α)`. -/
-theorem sheafCartesianEquivalence_inverse :
-    (sheafCartesianEquivalence C J).inverse = ofDescentFunctor C J (Type w) :=
-  sorry
-
-section Abelian
+#check (CategoryTheory.SimplicialSites.Sheaf.cartesianEquivalence_functor C J (Type w) :
+  (CategoryTheory.SimplicialSites.Sheaf.cartesianEquivalence C J (Type w)).functor =
+    CategoryTheory.SimplicialSites.Sheaf.toDescentFunctor C J (Type w))
+#check (CategoryTheory.SimplicialSites.Sheaf.cartesianEquivalence_inverse C J (Type w) :
+  (CategoryTheory.SimplicialSites.Sheaf.cartesianEquivalence C J (Type w)).inverse =
+    CategoryTheory.SimplicialSites.Sheaf.ofDescentFunctor C J (Type w))
 
 variable [∀ n, HasWeakSheafify (J n).toGrothendieck AddCommGrpCat.{w}]
 variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ AddCommGrpCat.{w}),
-    ((C.map φ).toFunctor).op.HasLeftKanExtension P]
+    (C.map φ).toFunctor.op.HasLeftKanExtension P]
 
-/-- Lemma 85.12.4 (2)
-In Situation 85.3.3, the category of cartesian sheaves of abelian groups on `C_total`
-is equivalent to the category of pairs `(F, α)` where `F` is a sheaf of abelian
-groups on `C_0` and `α : (f_{δ 1})⁻¹ F ≅ (f_{δ 0})⁻¹ F` is an isomorphism of
-sheaves of abelian groups on `C_1` such that
-`(f_{δ 1})⁻¹ α = (f_{δ 0})⁻¹ α ∘ (f_{δ 2})⁻¹ α` as maps of sheaves on `C_2`. -/
-@[stacks 0D7I]
-def abelianCartesianEquivalence :
-    Cartesian C J AddCommGrpCat.{w} ≌ FaceDescent C J AddCommGrpCat.{w} :=
-  cartesianEquivalence C J AddCommGrpCat.{w}
+/- Lemma 85.12.4 (2)
+Cartesian sheaves of abelian groups in the morphism-of-sites presentation are equivalent to degree-zero sheaves equipped
+with an invertible coface comparison satisfying the degree-two cocycle. -/
+@[stacks 0D7I] #check (CategoryTheory.SimplicialSites.Sheaf.cartesianEquivalence C J AddCommGrpCat.{w} :
+  CategoryTheory.SimplicialSites.Sheaf.Cartesian C J AddCommGrpCat.{w} ≌
+    CategoryTheory.SimplicialSites.Sheaf.FaceDescent C J AddCommGrpCat.{w})
 
-/-- The forward functor of `abelianCartesianEquivalence` extracts the pair `(F_0, α)`. -/
-theorem abelianCartesianEquivalence_functor :
-    (abelianCartesianEquivalence C J).functor =
-      toDescentFunctor C J AddCommGrpCat.{w} :=
-  sorry
+#check (CategoryTheory.SimplicialSites.Sheaf.cartesianEquivalence_functor C J AddCommGrpCat.{w} :
+  (CategoryTheory.SimplicialSites.Sheaf.cartesianEquivalence C J AddCommGrpCat.{w}).functor =
+    CategoryTheory.SimplicialSites.Sheaf.toDescentFunctor C J AddCommGrpCat.{w})
+#check (CategoryTheory.SimplicialSites.Sheaf.cartesianEquivalence_inverse C J AddCommGrpCat.{w} :
+  (CategoryTheory.SimplicialSites.Sheaf.cartesianEquivalence C J AddCommGrpCat.{w}).inverse =
+    CategoryTheory.SimplicialSites.Sheaf.ofDescentFunctor C J AddCommGrpCat.{w})
 
-/-- The inverse functor of `abelianCartesianEquivalence` assembles a cartesian sheaf of
-abelian groups from a pair `(F, α)`. -/
-theorem abelianCartesianEquivalence_inverse :
-    (abelianCartesianEquivalence C J).inverse =
-      ofDescentFunctor C J AddCommGrpCat.{w} :=
-  sorry
+end MorphismDiagram
 
-end Abelian
+section Fiberwise
 
-end CategoryTheory.SimplicialSites
+variable (C : SimplicialObject Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
+variable [CategoryTheory.Grothendieck.IsFiberwiseSite C J]
+variable [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
+variable [HasWeakSheafify (CategoryTheory.Grothendieck.topology C J) (Type w)]
+variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj (op n))ᵒᵖ ⥤ Type w),
+    (C.map φ.op).toFunctor.op.HasPointwiseRightKanExtension P]
+
+/- Lemma 85.12.4 (3)
+Cartesian sheaves of sets in the cocontinuous presentation are equivalent to degree-zero sheaves equipped
+with an invertible coface comparison satisfying the degree-two cocycle. -/
+@[stacks 0D7I] #check (CategoryTheory.Grothendieck.Sheaf.cartesianEquivalence C J (Type w) :
+  CategoryTheory.Grothendieck.Sheaf.Cartesian C J (Type w) ≌
+    CategoryTheory.Grothendieck.Sheaf.FaceDescent C J (Type w))
+
+#check (CategoryTheory.Grothendieck.Sheaf.cartesianEquivalence_functor C J (Type w) :
+  (CategoryTheory.Grothendieck.Sheaf.cartesianEquivalence C J (Type w)).functor =
+    CategoryTheory.Grothendieck.Sheaf.toDescentFunctor C J (Type w))
+#check (CategoryTheory.Grothendieck.Sheaf.cartesianEquivalence_inverse C J (Type w) :
+  (CategoryTheory.Grothendieck.Sheaf.cartesianEquivalence C J (Type w)).inverse =
+    CategoryTheory.Grothendieck.Sheaf.ofDescentFunctor C J (Type w))
+
+variable [∀ n, HasWeakSheafify (J n).toGrothendieck AddCommGrpCat.{w}]
+variable [HasWeakSheafify (CategoryTheory.Grothendieck.topology C J) AddCommGrpCat.{w}]
+variable [∀ (m n : SimplexCategory) (φ : m ⟶ n)
+    (P : (C.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{w}),
+    (C.map φ.op).toFunctor.op.HasPointwiseRightKanExtension P]
+
+/- Lemma 85.12.4 (4)
+Cartesian sheaves of abelian groups in the cocontinuous presentation are equivalent to degree-zero sheaves equipped
+with an invertible coface comparison satisfying the degree-two cocycle. -/
+@[stacks 0D7I] #check (CategoryTheory.Grothendieck.Sheaf.cartesianEquivalence C J AddCommGrpCat.{w} :
+  CategoryTheory.Grothendieck.Sheaf.Cartesian C J AddCommGrpCat.{w} ≌
+    CategoryTheory.Grothendieck.Sheaf.FaceDescent C J AddCommGrpCat.{w})
+
+#check (CategoryTheory.Grothendieck.Sheaf.cartesianEquivalence_functor C J AddCommGrpCat.{w} :
+  (CategoryTheory.Grothendieck.Sheaf.cartesianEquivalence C J AddCommGrpCat.{w}).functor =
+    CategoryTheory.Grothendieck.Sheaf.toDescentFunctor C J AddCommGrpCat.{w})
+#check (CategoryTheory.Grothendieck.Sheaf.cartesianEquivalence_inverse C J AddCommGrpCat.{w} :
+  (CategoryTheory.Grothendieck.Sheaf.cartesianEquivalence C J AddCommGrpCat.{w}).inverse =
+    CategoryTheory.Grothendieck.Sheaf.ofDescentFunctor C J AddCommGrpCat.{w})
+
+end Fiberwise

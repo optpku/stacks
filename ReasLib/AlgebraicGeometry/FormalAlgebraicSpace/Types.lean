@@ -26,6 +26,52 @@ universe u
 
 namespace AlgebraicGeometry.FormalAlgebraicSpace
 
+/-- The singleton identity atlas transfers any property of its only chart. -/
+private theorem exists_identity_type_atlas {S : Scheme.{u}}
+    (P : ((Over S)ᵒᵖ ⥤ Type u) → Prop) (X : (Over S)ᵒᵖ ⥤ Type u) (hX : P X) :
+    ∃ (ι : Type u) (cover : ι → ((Over S)ᵒᵖ ⥤ Type u)) (π : (i : ι) → cover i ⟶ X),
+      (∀ i, P (cover i)) ∧
+        (∀ i, representableByAlgebraicSpaces (π i)) ∧
+          (∀ i (ha : representableByAlgebraicSpaces (π i))
+            {U : Over S} (ξ : yoneda.obj U ⟶ X),
+            AlgebraicSpace.Etale
+              (representableByAlgebraicSpaces.pullbackHom ha ξ)) ∧
+            Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S)
+              (AlgebraicGeometry.FormalAlgebraicSpace.sigmaDesc π) := by
+  refine ⟨PUnit.{u + 1}, fun _ ↦ X, fun _ ↦ 𝟙 X, fun _ ↦ hX, ?_, ?_, ?_⟩
+  · intro i U ξ
+    let e := asIso (pullback.fst ξ (𝟙 X))
+    refine ⟨(Presheaf.isSheaf_of_iso_iff e).mpr (ofOver_isSheaf U), ?_, ?_⟩
+    · apply Functor.relativelyRepresentable.diag_of_map_from_obj
+      intro V f
+      rw [← yoneda.relativelyRepresentable.cancel_right_of_respectsIso f e.hom]
+      rw [← yoneda.map_preimage (f ≫ e.hom)]
+      exact Functor.relativelyRepresentable.map _ _
+    · refine ⟨U, e.inv, ?_, inferInstance⟩
+      refine ⟨Functor.relativelyRepresentable.of_isIso yoneda _, ?_⟩
+      intro a b g fst snd h
+      have : IsIso (yoneda.map snd) := h.isIso_snd_of_isIso
+      have : IsIso snd := isIso_of_reflects_iso snd yoneda
+      have : IsIso snd.left := inferInstanceAs (IsIso ((Over.forget S).map snd))
+      change AlgebraicGeometry.Etale snd.left
+      infer_instance
+  · intro i ha U ξ
+    have hfst : IsIso (C := (Over S)ᵒᵖ ⥤ Type u) (pullback.fst ξ (𝟙 X)) :=
+      (IsPullback.of_hasPullback ξ (𝟙 X)).isIso_fst_of_isIso
+    refine ⟨?_⟩
+    intro V φ hφ
+    change (MorphismProperty.inverseImage (@AlgebraicGeometry.Etale)
+      (Over.forget S)).presheaf (φ ≫ pullback.fst ξ (𝟙 X))
+    let Q : MorphismProperty ((Over S)ᵒᵖ ⥤ Type u) :=
+      (MorphismProperty.inverseImage (@AlgebraicGeometry.Etale) (Over.forget S)).presheaf
+    exact (@MorphismProperty.cancel_right_of_respectsIso
+      ((Over S)ᵒᵖ ⥤ Type u) _ Q _ (yoneda.obj V) (pullback ξ (𝟙 X)) (yoneda.obj U)
+      φ (pullback.fst ξ (𝟙 X)) hfst).mpr hφ
+  · apply Presheaf.isLocallySurjective_of_surjective
+    intro T x
+    exact ⟨⟨PUnit.unit, x⟩, rfl⟩
+
+
 /-- A formal algebraic space over `S` is locally countably indexed when it
 admits an étale atlas by countably indexed affine formal algebraic spaces. -/
 @[mk_iff]
@@ -58,7 +104,7 @@ theorem spec {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u)
             AlgebraicSpace.Etale
               (AlgebraicSpace.representableByAlgebraicSpaces.pullbackHom ha ξ)) ∧
             Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S) (sigmaDesc π) :=
-  sorry
+  ‹IsLocallyCountablyIndexed X›.exists_atlas
 
 /-- Locally countably indexed formal algebraic spaces are exactly formal
 algebraic spaces with an étale atlas by countably indexed affine charts. -/
@@ -73,7 +119,7 @@ theorem iff {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u)
               AlgebraicSpace.Etale
                 (AlgebraicSpace.representableByAlgebraicSpaces.pullbackHom ha ξ)) ∧
               Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S) (sigmaDesc π) :=
-  sorry
+  ⟨fun h ↦ h.exists_atlas, fun h ↦ ⟨h⟩⟩
 
 end IsLocallyCountablyIndexed
 
@@ -109,7 +155,7 @@ theorem spec {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u)
             AlgebraicSpace.Etale
               (representableByAlgebraicSpaces.pullbackHom ha ξ)) ∧
             Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S) (sigmaDesc π) :=
-  sorry
+  ‹IsLocallyAdicStar X›.exists_atlas
 
 /-- Locally adic* formal algebraic spaces are exactly formal algebraic spaces
 with an étale atlas by adic* affine charts. -/
@@ -124,7 +170,7 @@ theorem iff {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u)
               AlgebraicSpace.Etale
                 (representableByAlgebraicSpaces.pullbackHom ha ξ)) ∧
               Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S) (sigmaDesc π) :=
-  sorry
+  ⟨fun h ↦ h.exists_atlas, fun h ↦ ⟨h⟩⟩
 
 end IsLocallyAdicStar
 
@@ -134,7 +180,7 @@ namespace IsAdicStarAffine
 locally adic*. -/
 instance instIsLocallyAdicStar {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u)
     [IsFormalAlgebraicSpace X] [IsAdicStarAffine X] : IsLocallyAdicStar X :=
-  sorry
+  ⟨exists_identity_type_atlas IsAdicStarAffine X inferInstance⟩
 
 end IsAdicStarAffine
 
@@ -162,7 +208,7 @@ locally Noetherian formal algebraic space. -/
 instance instYoneda {S : Scheme.{u}} (U : Over S)
     [AlgebraicGeometry.IsAffine U.left] [AlgebraicGeometry.IsNoetherian U.left] :
     IsLocallyNoetherian (yoneda.obj U) :=
-  sorry
+  ⟨exists_identity_type_atlas IsNoetherianAffine (yoneda.obj U) inferInstance⟩
 
 /-- A locally Noetherian formal algebraic space admits an étale atlas by
 Noetherian affine formal algebraic spaces. -/
@@ -176,7 +222,7 @@ theorem spec {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u)
             AlgebraicSpace.Etale
               (representableByAlgebraicSpaces.pullbackHom ha ξ)) ∧
             Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S) (sigmaDesc π) :=
-  sorry
+  ‹IsLocallyNoetherian X›.exists_noetherian_atlas
 
 /-- Locally Noetherian formal algebraic spaces are exactly formal algebraic
 spaces with an étale atlas by Noetherian affine charts. -/
@@ -191,7 +237,7 @@ theorem iff {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u)
               AlgebraicSpace.Etale
                 (representableByAlgebraicSpaces.pullbackHom ha ξ)) ∧
               Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S) (sigmaDesc π) :=
-  sorry
+  ⟨fun h ↦ h.exists_noetherian_atlas, fun h ↦ ⟨h⟩⟩
 
 end IsLocallyNoetherian
 
@@ -201,7 +247,7 @@ namespace IsNoetherianAffine
 is locally Noetherian. -/
 instance instIsLocallyNoetherian {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u)
     [IsFormalAlgebraicSpace X] [IsNoetherianAffine X] : IsLocallyNoetherian X :=
-  sorry
+  ⟨exists_identity_type_atlas IsNoetherianAffine X inferInstance⟩
 
 end IsNoetherianAffine
 
@@ -215,6 +261,6 @@ instance instIsLocallyCountablyIndexed {S : Scheme.{u}}
     (X : (Over S)ᵒᵖ ⥤ Type u)
     [FormalAlgebraicSpace.IsFormalAlgebraicSpace X] [IsCountablyIndexedAffine X] :
     FormalAlgebraicSpace.IsLocallyCountablyIndexed X :=
-  sorry
+  ⟨FormalAlgebraicSpace.exists_identity_type_atlas IsCountablyIndexedAffine X inferInstance⟩
 
 end AlgebraicGeometry.AffineFormalAlgebraicSpace.IsCountablyIndexedAffine

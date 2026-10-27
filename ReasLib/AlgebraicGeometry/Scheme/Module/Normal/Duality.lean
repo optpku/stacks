@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.TensorUnit
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.LocallyFree.Dualizable
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Normal
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Reflexive
 public import ReasLib.AlgebraicGeometry.Scheme.Module.FiniteLocallyFree.Rank
@@ -69,19 +70,50 @@ noncomputable def biduality {Z X : Scheme.{u}} (i : Z ⟶ X) :
   toReflexiveHull (conormalSheaf i) ≫
     (dualMapIso (normalSheafIsoDualConormal i)).hom
 
+/-- Reverse arrow on a finite locally free conormal sheaf.
+
+The first factor is the inverse of the dualized normal/conormal comparison.  The second factor is
+the concrete finite-coordinate inverse assembled from the local-generator witness supplied by
+`IsFiniteLocallyFree.exists_data` and the underlying module-sheaf amalgamation.
+-/
+noncomputable def bidualityIsoForward {Z X : Scheme.{u}} (i : Z ⟶ X)
+    [IsFiniteLocallyFree (conormalSheaf i)] :
+    conormalSheaf i ≅ Scheme.Modules.dual (normalSheaf i) := by
+  let e := normalSheafIsoDualConormal i
+  let d := SheafOfModules.IsFiniteLocallyFree.finiteFreeBidualIso
+    (X := Z.toRingedSpace) (conormalSheaf i)
+  exact
+    { hom := biduality i
+      inv := (dualMapIso e).inv ≫ d.inv
+      hom_inv_id := by sorry
+      inv_hom_id := by sorry }
+
 /-- A finite locally free conormal sheaf has an invertible canonical biduality map. -/
 instance biduality_isIso {Z X : Scheme.{u}} (i : Z ⟶ X)
-    [IsFiniteLocallyFree (conormalSheaf i)] : IsIso (biduality i) := sorry
+    [IsFiniteLocallyFree (conormalSheaf i)] : IsIso (biduality i) :=
+  (bidualityIsoForward i).isIso_hom
 
 /-- The canonical identification of the dual normal sheaf with the conormal sheaf. -/
 noncomputable def bidualityIso {Z X : Scheme.{u}} (i : Z ⟶ X) (r : ℕ)
     [IsFiniteLocallyFreeOfRank r (conormalSheaf i)] :
     Scheme.Modules.dual (normalSheaf i) ≅ conormalSheaf i :=
-  (biduality_isIso i).toIso.symm
+  (bidualityIsoForward i).symm
 
 /-- The inverse biduality identification is the canonical evaluation morphism. -/
 theorem bidualityIso_inv {Z X : Scheme.{u}} (i : Z ⟶ X) (r : ℕ)
     [IsFiniteLocallyFreeOfRank r (conormalSheaf i)] :
     (bidualityIso i r).inv = biduality i := rfl
+
+/-- The dual normal sheaf is canonically the conormal sheaf when the latter is finite
+locally free, with no constant-rank assumption. -/
+noncomputable def bidualityIsoOfRankLoci {Z X : Scheme.{u}} (i : Z ⟶ X)
+    [IsFiniteLocallyFree (conormalSheaf i)] :
+    Scheme.Modules.dual (normalSheaf i) ≅ conormalSheaf i :=
+  (bidualityIsoForward i).symm
+
+/-- The inverse normal-conormal identification is the canonical evaluation morphism. -/
+theorem bidualityIsoOfRankLoci_inv {Z X : Scheme.{u}} (i : Z ⟶ X)
+    [IsFiniteLocallyFree (conormalSheaf i)] :
+    (bidualityIsoOfRankLoci i).inv = biduality i := rfl
 
 end AlgebraicGeometry.Scheme.Hom

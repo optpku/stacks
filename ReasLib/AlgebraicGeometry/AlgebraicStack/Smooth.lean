@@ -54,6 +54,34 @@ theorem smooth_iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
 
 namespace Smooth
 
+/-- Representable smoothness implies smoothness as a morphism of algebraic stacks.
+
+Stacks, Tag 075U and the preceding compatibility paragraph:
+`source/stacks-official-a04446e57ec1/additional-sources-2.md:34224-34248`. -/
+instance of_groupoidsHom {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+    [Groupoids.Hom.Smooth f] : Smooth f where
+  exists_surjective_smooth_presentation := by
+    sorry
+
+/-- For a morphism of algebraic stacks representable by algebraic spaces,
+smoothness agrees with representable smoothness.
+
+Stacks, Tags 075U and 06FM:
+`source/stacks-official-a04446e57ec1/additional-sources-2.md:34224-34248`
+and `additional-sources-2.md:29887-29917` in the same source directory. -/
+theorem iff_groupoidsHom {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+    (hf : relativelyRepresentableByAlgebraicSpaces f) :
+    Smooth f ↔ Groupoids.Hom.Smooth f := by
+  constructor
+  · intro h
+    apply (Groupoids.Hom.Smooth.iff_has f hf).mpr
+    sorry
+  · intro h
+    letI := h
+    exact of_groupoidsHom f
+
 /-- The identity morphism of an algebraic stack is smooth. -/
 instance id {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] :
     Smooth (𝟙 X) :=

@@ -35,12 +35,12 @@ def Restricted.ofGlobal {A : CommRingCat.{u}} (F : ModuleValuedFunctor.{u, u} A)
     Restricted A where
   obj B := F.obj B.obj
   map f := F.map f.hom
-  map_id := sorry
-  map_comp := sorry
+  map_id B x := F.map_id B.obj x
+  map_comp f g x := F.map_comp f.hom g.hom x
 
 /-- Restriction preserves the module assigned to a finitely presented algebra. -/
 theorem Restricted.ofGlobal_obj {A : CommRingCat.{u}} (F : ModuleValuedFunctor.{u, u} A)
-    (B : FinitelyPresentedAlgebra A) : (Restricted.ofGlobal F).obj B = F.obj B.obj := sorry
+    (B : FinitelyPresentedAlgebra A) : (Restricted.ofGlobal F).obj B = F.obj B.obj := rfl
 
 namespace Restricted
 
@@ -52,36 +52,51 @@ structure Hom {A : CommRingCat.{u}} (F G : Restricted A) where
   naturality {B B' : FinitelyPresentedAlgebra A} (f : B ⟶ B') (x : F.obj B) :
     G.map f (app B x) = app B' (F.map f x)
 
+/-- Restricted morphisms are determined by their components. -/
+@[ext]
+theorem Hom.ext {A : CommRingCat.{u}} {F G : Restricted A} {f g : Hom F G}
+    (h : ∀ B, f.app B = g.app B) : f = g := by
+  cases f with
+  | mk f hf =>
+    cases g with
+    | mk g hg =>
+      have hfg : f = g := funext h
+      subst g
+      rfl
+
 /-- The identity morphism of a restricted module-valued functor. -/
 def Hom.id {A : CommRingCat.{u}} (F : Restricted A) : Hom F F where
   app := fun _ ↦ 𝟙 _
-  naturality := sorry
+  naturality _ _ := rfl
 
 /-- The identity restricted morphism acts identically on every component. -/
 theorem Hom.id_app {A : CommRingCat.{u}} (F : Restricted A)
-    (B : FinitelyPresentedAlgebra A) : (Hom.id F).app B = 𝟙 _ := sorry
+    (B : FinitelyPresentedAlgebra A) : (Hom.id F).app B = 𝟙 _ := rfl
 
 /-- Compose morphisms of restricted module-valued functors. -/
 def Hom.comp {A : CommRingCat.{u}} {F G H : Restricted A}
     (f : Hom F G) (g : Hom G H) : Hom F H where
   app B := f.app B ≫ g.app B
-  naturality := sorry
+  naturality := by
+    intro B B' h x
+    change H.map h (g.app B (f.app B x)) = g.app B' (f.app B' (F.map h x))
+    rw [g.naturality, f.naturality]
 
 /-- Composition of restricted morphisms is computed componentwise. -/
 theorem Hom.comp_app {A : CommRingCat.{u}} {F G H : Restricted A}
     (f : Hom F G) (g : Hom G H) (B : FinitelyPresentedAlgebra A) :
-    (Hom.comp f g).app B = f.app B ≫ g.app B := sorry
+    (Hom.comp f g).app B = f.app B ≫ g.app B := rfl
 
 /-- Restrict a morphism of global module-valued functors. -/
 def Hom.ofGlobal {A : CommRingCat.{u}} {F G : ModuleValuedFunctor.{u, u} A}
     (f : ModuleValuedFunctor.Hom F G) : Hom (Restricted.ofGlobal F) (Restricted.ofGlobal G) where
   app B := f.app B.obj
-  naturality := sorry
+  naturality g x := f.naturality g.hom x
 
 /-- Restriction preserves every component of a global morphism. -/
 theorem Hom.ofGlobal_app {A : CommRingCat.{u}} {F G : ModuleValuedFunctor.{u, u} A}
     (f : ModuleValuedFunctor.Hom F G) (B : FinitelyPresentedAlgebra A) :
-    (Hom.ofGlobal f).app B = f.app B.obj := sorry
+    (Hom.ofGlobal f).app B = f.app B.obj := rfl
 
 /-- The bundled category of module-valued functors on finitely presented `A`-algebras. -/
 def category (A : CommRingCat.{u}) : Cat.{u + 1, u + 1} where
@@ -90,13 +105,25 @@ def category (A : CommRingCat.{u}) : Cat.{u + 1, u + 1} where
     { Hom := Hom
       id := Hom.id
       comp := Hom.comp
-      id_comp := sorry
-      comp_id := sorry
-      assoc := sorry }
+      id_comp := by
+        intro F G f
+        apply Hom.ext
+        intro B
+        exact Category.id_comp (f.app B)
+      comp_id := by
+        intro F G f
+        apply Hom.ext
+        intro B
+        exact Category.comp_id (f.app B)
+      assoc := by
+        intro F G H I f g h
+        apply Hom.ext
+        intro B
+        exact Category.assoc (f.app B) (g.app B) (h.app B) }
 
 /-- Morphisms in `Restricted.category A` are componentwise-linear restricted morphisms. -/
 theorem category_hom (A : CommRingCat.{u}) (F G : category A) :
-    (F ⟶ G) = Hom F G := sorry
+    (F ⟶ G) = Hom F G := rfl
 
 end Restricted
 
@@ -106,18 +133,24 @@ abbrev TensorAdeq (A : CommRingCat.{u}) :=
 
 /-- Every object of `TensorAdeq A` is tensor-adequate. -/
 theorem TensorAdeq.adequate {A : CommRingCat.{u}} (F : TensorAdeq A) :
-    TensorAdequate F.obj := sorry
+    TensorAdequate F.obj := F.property
 
 /-- Restriction from tensor-adequate module-valued functors to finitely presented algebras. -/
 def restriction (A : CommRingCat.{u}) : TensorAdeq A ⥤ Restricted.category A where
   obj F := Restricted.ofGlobal F.obj
   map f := Restricted.Hom.ofGlobal f.hom
-  map_id := sorry
-  map_comp := sorry
+  map_id F := by
+    apply Restricted.Hom.ext
+    intro B
+    rfl
+  map_comp f g := by
+    apply Restricted.Hom.ext
+    intro B
+    rfl
 
 /-- The restriction functor has the expected object map. -/
 theorem restriction_obj (A : CommRingCat.{u}) (F : TensorAdeq A) :
-    (restriction A).obj F = Restricted.ofGlobal F.obj := sorry
+    (restriction A).obj F = Restricted.ofGlobal F.obj := rfl
 
 /-- Restriction of tensor-adequate functors is full. -/
 instance restrictionFull (A : CommRingCat.{u}) : (restriction A).Full := sorry
@@ -128,6 +161,9 @@ instance restrictionFaithful (A : CommRingCat.{u}) : (restriction A).Faithful :=
 /-- A tensor-adequate module-valued functor is determined by its restriction to finitely
 presented algebras, on both objects and morphisms. -/
 theorem restrictionFullyFaithful (A : CommRingCat.{u}) :
-    Nonempty (restriction A).FullyFaithful := sorry
+    Nonempty (restriction A).FullyFaithful := by
+  apply (Functor.FullyFaithful.nonempty_iff_map_bijective (restriction A)).2
+  intro F G
+  exact ⟨(restriction A).map_injective, (restriction A).map_surjective⟩
 
 end ModuleValuedFunctor

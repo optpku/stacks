@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_17_4_Comparison
+import StacksCheckRecall
+public import ReasLib.CategoryTheory.Sites.Hypercovering.PresheafTarget.DerivedGlobalSections
 
 /-!
 # Lemma 85.17.4
@@ -48,18 +48,11 @@ variable [(RightDerived.Cochain.toDerived
 variable [∀ P : (Grothendieck (overSiteDiagram K.simplicial))ᵒᵖ ⥤ AddCommGrpCat.{max w u v},
     (totalForget K.simplicial).op.HasPointwiseRightKanExtension P]
 
-/-- Lemma 85.17.4: Let `C` be a site with equalizers and fibre products. Let `K` be a
-hypercovering. For `E ∈ D(C)` the canonical map
-`RΓ(C, E) ⟶ RΓ((C / K)_total, a⁻¹ E)` is an isomorphism. -/
-@[stacks 0D8H]
-theorem rGammaInverseImageComparison_app_isIso
-    (E : DerivedCategory (Sheaf J AddCommGrpCat.{max w u v})) :
-    IsIso ((rGammaInverseImageComparison J K).app E) :=
-  sorry
-
-/-- The comparison `RΓ(C, -) ⟶ a⁻¹ ⋙ RΓ((C / K)_total, -)` is an isomorphism of functors. -/
-theorem rGammaInverseImageComparison_isIso :
-    IsIso (rGammaInverseImageComparison J K) :=
-  sorry
+/- Lemma 85.17.4: For a site with equalizers and fibre products and a hypercovering,
+the canonical comparison `RΓ(C, E) ⟶ RΓ((C / K)_total, a⁻¹ E)` is an isomorphism
+for every `E` in the unbounded derived category of abelian sheaves. -/
+@[stacks 0D8H] #check (CategoryTheory.SemiRepresentableFamily.rGammaInverseImageComparison_app_isIso J K :
+  ∀ E : DerivedCategory (Sheaf J AddCommGrpCat.{max w u v}),
+    IsIso ((rGammaInverseImageComparison J K).app E))
 
 end CategoryTheory.SemiRepresentableFamily

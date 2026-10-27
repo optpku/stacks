@@ -28,24 +28,30 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.FormalAlgebraicSpace
 universe u
 
 variable {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u)
-  [IsFormalAlgebraicSpace X] (R : ReductionData X)
+  [IsFormalAlgebraicSpace X]
 
 /- 87.34.1.1 (1): identification `Sh(X_étale) = Sh(X_spaces,étale)` of the
 (small) étale topos of a formal algebraic space, obtained by applying the
 algebraic-space comparison of Properties of Spaces, Lemma 66.18.3, to the
 reduction of `X`. -/
 @[stacks 0DEB] #check
-  (AlgebraicGeometry.AlgebraicSpace.smallEtaleInclusion_directImage_isEquivalence R.space :
-    ((AlgebraicGeometry.AlgebraicSpace.smallEtaleInclusion R.space).sheafPushforwardCocontinuous
-      (Type (u + 1)) (AlgebraicGeometry.AlgebraicSpace.SmallEtale.topology R.space)
-      (AlgebraicGeometry.AlgebraicSpace.spacesEtaleTopology R.space)).IsEquivalence)
+  (AlgebraicGeometry.AlgebraicSpace.smallEtaleInclusion_directImage_isEquivalence
+    (ReductionData.canonical X).space :
+    ((AlgebraicGeometry.AlgebraicSpace.smallEtaleInclusion
+      (ReductionData.canonical X).space).sheafPushforwardCocontinuous (Type (u + 1))
+      (AlgebraicGeometry.AlgebraicSpace.SmallEtale.topology (ReductionData.canonical X).space)
+      (AlgebraicGeometry.AlgebraicSpace.spacesEtaleTopology
+        (ReductionData.canonical X).space)).IsEquivalence)
 
 /- 87.34.1.1 (2): identification `Sh(X_affine,étale) = Sh(X_étale)` of the
 (small) étale topos of a formal algebraic space, obtained by applying the
 algebraic-space comparison of Properties of Spaces, Lemma 66.18.6, to the
 reduction of `X`. -/
 @[stacks 0DEB] #check
-  (AlgebraicGeometry.AlgebraicSpace.affineEtaleInclusion_directImage_isEquivalence R.space :
-    ((AlgebraicGeometry.AlgebraicSpace.affineEtaleInclusion R.space).sheafPushforwardCocontinuous
-      (Type (u + 1)) (AlgebraicGeometry.AlgebraicSpace.affineEtaleTopology R.space)
-      (AlgebraicGeometry.AlgebraicSpace.smallEtaleTopology R.space)).IsEquivalence)
+  (AlgebraicGeometry.AlgebraicSpace.affineEtaleInclusion_directImage_isEquivalence
+    (ReductionData.canonical X).space :
+    ((AlgebraicGeometry.AlgebraicSpace.affineEtaleInclusion
+      (ReductionData.canonical X).space).sheafPushforwardCocontinuous (Type (u + 1))
+      (AlgebraicGeometry.AlgebraicSpace.affineEtaleTopology (ReductionData.canonical X).space)
+      (AlgebraicGeometry.AlgebraicSpace.smallEtaleTopology
+        (ReductionData.canonical X).space)).IsEquivalence)

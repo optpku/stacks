@@ -25,7 +25,8 @@ ring `A` to `Localization S` is a dualizing complex over `Localization S`. -/
   ∀ {A : Type u} [CommRing A] [IsNoetherianRing A] (S : Submonoid A)
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} (Localization S)))]
-    (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (HB : MonoidalClosed (DerivedCategory (ModuleCat.{u} (Localization S))))
+    (CA : DerivedCategory.CanonicalClosedPresentation (A := A))
+    (CB : DerivedCategory.CanonicalClosedPresentation (A := Localization S))
     (ω : DerivedCategory (ModuleCat.{u} A)),
-    ω.IsDualizingComplex HA → (ω ⊗[A]^L[Localization S]).IsDualizingComplex HB)
+    ω.IsCanonicalDualizingComplex CA →
+      (ω ⊗[A]^L[Localization S]).IsCanonicalDualizingComplex CB)

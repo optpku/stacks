@@ -65,8 +65,8 @@ theorem counitIso
 
 end quasiInverse
 
-/-- Lemma 4.2.18 (2) (Stacks 05SG): the prescribed lift and `F` form an explicit equivalence of
-categories, obtained by adjointifying the named quasi-inverse data. -/
+/-- The prescribed lift and `F` form an explicit equivalence of categories, obtained by
+adjointifying the named quasi-inverse data. -/
 @[stacks 05SG "chosen lift and original functor are quasi-inverse"]
 noncomputable def equivalence
     [F.Full] [F.Faithful]

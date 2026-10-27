@@ -26,6 +26,8 @@ universe u v
 
 namespace RingedSite.Hom
 
+attribute [local instance] base_isContinuous
+
 variable {X Y : RingedSite.{u, v}} (f : X ⟶ Y) (V : Y)
 
 /- Lemma 18.22.2 (04J7): for ring-valued sheaves, the representable slice square is the same

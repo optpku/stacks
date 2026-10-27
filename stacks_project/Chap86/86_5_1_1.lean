@@ -13,11 +13,12 @@ import StacksCheckRecall
 
 open CategoryTheory
 
-universe u v
+universe vY vX vY' vX' vR uY uX uY' uX' uR
 
-variable {D_Y D_X D_Y' D_X' D_R : Type u}
-variable [Category.{v} D_Y] [Category.{v} D_X] [Category.{v} D_Y']
-variable [Category.{v} D_X'] [Category.{v} D_R]
+variable {D_Y : Type uY} {D_X : Type uX} {D_Y' : Type uY'}
+variable {D_X' : Type uX'} {D_R : Type uR}
+variable [Category.{vY} D_Y] [Category.{vX} D_X] [Category.{vY'} D_Y']
+variable [Category.{vX'} D_X'] [Category.{vR} D_R]
 variable (gPull : D_Y ⥤ D_Y') (gPrimePull : D_X ⥤ D_X')
 variable (a : D_Y ⥤ D_X) (aPrime : D_Y' ⥤ D_X')
 variable (rHom : D_X'ᵒᵖ ⥤ D_X' ⥤ D_R) (M : D_X) (K : D_Y)
@@ -27,7 +28,6 @@ variable (baseChange : gPrimePull.obj (a.obj K) ⟶ aPrime.obj (gPull.obj K))
 `L(g')^* a(K) ⟶ a'(Lg^* K)` gives the displayed morphism
 `RHom_{X'}(L(g')^* M, L(g')^* a(K)) ⟶ RHom_{X'}(L(g')^* M, a'(Lg^* K))`. -/
 @[stacks 0E5J] #check
-  (CategoryTheory.Functor.DualityBaseChange.rHomMap
-    gPull gPrimePull a aPrime rHom M K baseChange :
+  ((rHom.obj (Opposite.op (gPrimePull.obj M))).map baseChange :
     (rHom.obj (Opposite.op (gPrimePull.obj M))).obj (gPrimePull.obj (a.obj K)) ⟶
       (rHom.obj (Opposite.op (gPrimePull.obj M))).obj (aPrime.obj (gPull.obj K)))

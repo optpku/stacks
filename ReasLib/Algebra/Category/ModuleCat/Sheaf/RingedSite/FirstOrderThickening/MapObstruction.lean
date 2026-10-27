@@ -116,7 +116,7 @@ noncomputable def obstruction {F' G' : ringedSiteModuleCategory.{u, v, max u v, 
     Ext ((extendScalars (ringSheafMap π)).obj F')
       (moduleTensor ((extendScalars (ringSheafMap f)).obj (ideal τ))
         ((extendScalars (ringSheafMap π)).obj G')) 1 :=
-  mapObstruction (ofSourceIdealMul π f f' hcomm F' hstrict)
+  Extension.mapObstruction (ofSourceIdealMul π f f' hcomm F' hstrict)
     (ofSourceIdealMul π f f' hcomm G' hstrict) φ
     (moduleTensorMap (𝟙 ((extendScalars (ringSheafMap f)).obj (ideal τ))) φ)
     (sourceIdealMul_infMapCommSq π f f' hcomm hstrict φ)
@@ -129,7 +129,7 @@ theorem obstruction_eq {F' G' : ringedSiteModuleCategory.{u, v, max u v, max u v
     (φ : (extendScalars (ringSheafMap π)).obj F' ⟶
       (extendScalars (ringSheafMap π)).obj G') :
     obstruction π f f' hcomm hstrict φ =
-      mapObstruction (ofSourceIdealMul π f f' hcomm F' hstrict)
+      Extension.mapObstruction (ofSourceIdealMul π f f' hcomm F' hstrict)
         (ofSourceIdealMul π f f' hcomm G' hstrict) φ
         (moduleTensorMap (𝟙 ((extendScalars (ringSheafMap f)).obj (ideal τ))) φ)
         (sourceIdealMul_infMapCommSq π f f' hcomm hstrict φ) := rfl

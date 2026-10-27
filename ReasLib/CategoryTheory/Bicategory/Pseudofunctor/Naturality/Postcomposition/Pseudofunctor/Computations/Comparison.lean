@@ -43,7 +43,8 @@ comparison of the fixed pseudofunctor. -/
 theorem postcompMapId.hom_app
     (K : Pseudofunctor B D) (F : Pseudofunctor A B) (a : A) :
     (postcompMapId K F).hom.as.app a =
-      (K.mapId (F.obj a)).hom := sorry
+      (K.mapId (F.obj a)).hom := by
+  rfl
 
 /-- The inverse component of the postcomposition identity comparison is the inverse identity
 comparison of the fixed pseudofunctor. -/
@@ -51,7 +52,8 @@ comparison of the fixed pseudofunctor. -/
 theorem postcompMapId.inv_app
     (K : Pseudofunctor B D) (F : Pseudofunctor A B) (a : A) :
     (postcompMapId K F).inv.as.app a =
-      (K.mapId (F.obj a)).inv := sorry
+      (K.mapId (F.obj a)).inv := by
+  rfl
 
 /-- The forward component of the postcomposition composition comparison is the forward
 composition comparison of the fixed pseudofunctor. -/
@@ -61,7 +63,8 @@ theorem postcompMapComp.hom_app
     {F G H : Pseudofunctor A B} (η : F ⟶ G) (θ : G ⟶ H)
     (a : A) :
     (postcompMapComp K η θ).hom.as.app a =
-      (K.mapComp (η.app a) (θ.app a)).hom := sorry
+      (K.mapComp (η.app a) (θ.app a)).hom := by
+  rfl
 
 /-- The inverse component of the postcomposition composition comparison is the inverse
 composition comparison of the fixed pseudofunctor. -/
@@ -71,14 +74,16 @@ theorem postcompMapComp.inv_app
     {F G H : Pseudofunctor A B} (η : F ⟶ G) (θ : G ⟶ H)
     (a : A) :
     (postcompMapComp K η θ).inv.as.app a =
-      (K.mapComp (η.app a) (θ.app a)).inv := sorry
+      (K.mapComp (η.app a) (θ.app a)).inv := by
+  rfl
 
 /-- The identity comparison of functor-bicategory postcomposition is the explicit pointwise
 identity comparison. -/
 @[simp]
 theorem postcomp.mapId
     (K : Pseudofunctor B D) (F : Pseudofunctor A B) :
-    (postcomp A K).mapId F = postcompMapId K F := sorry
+    (postcomp A K).mapId F = postcompMapId K F := by
+  rfl
 
 /-- The composition comparison of functor-bicategory postcomposition is the explicit
 pointwise composition comparison. -/
@@ -87,7 +92,8 @@ theorem postcomp.mapComp
     (K : Pseudofunctor B D)
     {F G H : Pseudofunctor A B} (η : F ⟶ G) (θ : G ⟶ H) :
     (postcomp A K).mapComp η θ =
-      postcompMapComp K η θ := sorry
+      postcompMapComp K η θ := by
+  rfl
 
 /-- The forward component of the postcomposition unit comparison is the pointwise forward
 unit comparison of the fixed pseudofunctor. -/
@@ -95,7 +101,8 @@ unit comparison of the fixed pseudofunctor. -/
 theorem postcomp.mapId.hom_app
     (K : Pseudofunctor B D) (F : Pseudofunctor A B) (a : A) :
     ((postcomp A K).mapId F).hom.as.app a =
-      (K.mapId (F.obj a)).hom := sorry
+      (K.mapId (F.obj a)).hom := by
+  rfl
 
 /-- The inverse component of the postcomposition unit comparison is the pointwise inverse
 unit comparison of the fixed pseudofunctor. -/
@@ -103,7 +110,8 @@ unit comparison of the fixed pseudofunctor. -/
 theorem postcomp.mapId.inv_app
     (K : Pseudofunctor B D) (F : Pseudofunctor A B) (a : A) :
     ((postcomp A K).mapId F).inv.as.app a =
-      (K.mapId (F.obj a)).inv := sorry
+      (K.mapId (F.obj a)).inv := by
+  rfl
 
 /-- The forward component of the postcomposition composition comparison is the pointwise
 forward composition comparison of the fixed pseudofunctor. -/
@@ -113,7 +121,8 @@ theorem postcomp.mapComp.hom_app
     {F G H : Pseudofunctor A B} (η : F ⟶ G) (θ : G ⟶ H)
     (a : A) :
     ((postcomp A K).mapComp η θ).hom.as.app a =
-      (K.mapComp (η.app a) (θ.app a)).hom := sorry
+      (K.mapComp (η.app a) (θ.app a)).hom := by
+  rfl
 
 /-- The inverse component of the postcomposition composition comparison is the pointwise
 inverse composition comparison of the fixed pseudofunctor. -/
@@ -123,7 +132,8 @@ theorem postcomp.mapComp.inv_app
     {F G H : Pseudofunctor A B} (η : F ⟶ G) (θ : G ⟶ H)
     (a : A) :
     ((postcomp A K).mapComp η θ).inv.as.app a =
-      (K.mapComp (η.app a) (θ.app a)).inv := sorry
+      (K.mapComp (η.app a) (θ.app a)).inv := by
+  rfl
 
 end Postcomposition
 

@@ -111,7 +111,8 @@ theorem linearSeries_iff_of_isBrillNoetherGeneral
     [Curve X] [Projective X.hom] [Smooth X.hom] [GeometricallyIrreducible X.hom]
     (hG : IsBrillNoetherGeneral X) (hgenus : genus X = 7) (d r : ℕ) :
     Nonempty (LinearSeries X topologicalKrullDim_eq_one.le d r) ↔
-      0 ≤ brillNoetherNumber 7 r d := sorry
+      0 ≤ brillNoetherNumber 7 r d := by
+  simpa only [hgenus] using hG d r
 
 /-- A complete Brill–Noether-general genus-seven series is base-point-free under
 the degree-zero or negative predecessor Brill–Noether condition. -/

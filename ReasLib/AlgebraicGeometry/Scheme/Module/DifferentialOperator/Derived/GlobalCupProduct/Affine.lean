@@ -24,12 +24,12 @@ namespace AlgebraicGeometry.Scheme.Modules.Kunneth
 
 variable {S X Y : Scheme.{u}} (a : X ⟶ S) (b : Y ⟶ S)
 variable
-  [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-  [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
-  [(coefficientPushforwardHom a).modulePushforward.IsRightAdjoint]
-  [(coefficientPushforwardHom b).modulePushforward.IsRightAdjoint]
-  [(fiberCoefficientHom a b).modulePushforward.IsRightAdjoint]
-  [(rightFiberCoefficientHom a b).modulePushforward.IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (coefficientPushforwardHom a)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (coefficientPushforwardHom b)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (fiberCoefficientHom a b)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (rightFiberCoefficientHom a b)).IsRightAdjoint]
   [Functor.HasLeftDerivedFunctor
     (RingedSite.Hom.modulePullbackToDerived.{u} (leftCoefficientHom a b))
     (RingedSite.Hom.ModuleQis.{u} (coefficientSite a))]
@@ -76,10 +76,22 @@ variable
   [RingedSite.Hom.DerivedAdjunction.HasPair.{u} (coefficientPushforwardHom b)]
   [RingedSite.Hom.DerivedAdjunction.HasPair.{u} (fiberCoefficientHom a b)]
   [RingedSite.Hom.DerivedAdjunction.HasPair.{u} (rightFiberCoefficientHom a b)]
-  [IsIso (RingedSite.Hom.modulePullbackDerived.compComparison
-    (leftCoefficientHom a b) (coefficientPushforwardHom a))]
-  [IsIso (RingedSite.Hom.modulePullbackDerived.compComparison
-    (rightCoefficientHom a b) (coefficientPushforwardHom b))]
+  [IsIso (@RingedSite.Hom.modulePullbackDerived.compComparison.{u}
+    _ _ _ (leftCoefficientHom a b) (coefficientPushforwardHom a)
+    inferInstance inferInstance inferInstance inferInstance inferInstance
+    inferInstance inferInstance
+    (inferInstanceAs (Functor.HasLeftDerivedFunctor
+      (RingedSite.Hom.modulePullbackToDerived.{u} (fiberCoefficientHom a b))
+      (RingedSite.Hom.ModuleQis.{u}
+        (RingedSpace.DeRham.coefficientSite (𝟙 S.toRingedSpace))))))]
+  [IsIso (@RingedSite.Hom.modulePullbackDerived.compComparison.{u}
+    _ _ _ (rightCoefficientHom a b) (coefficientPushforwardHom b)
+    inferInstance inferInstance inferInstance inferInstance inferInstance
+    inferInstance inferInstance
+    (inferInstanceAs (Functor.HasLeftDerivedFunctor
+      (RingedSite.Hom.modulePullbackToDerived.{u} (rightFiberCoefficientHom a b))
+      (RingedSite.Hom.ModuleQis.{u}
+        (RingedSpace.DeRham.coefficientSite (𝟙 S.toRingedSpace))))))]
   [∀ K L : GradedObject ℤ
     (RingedSite.ModuleCat.{u} (coefficientSite (𝟙 S))), GradedObject.HasTensor K L]
   [∀ K L M : GradedObject ℤ

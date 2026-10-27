@@ -9,6 +9,7 @@ module
 public import Mathlib.Order.Fin.Basic
 public import Mathlib.Order.Hom.Basic
 public import Mathlib.Data.Fintype.EquivFin
+public import Mathlib.Data.Finite.Prod
 import Mathlib.Tactic.CrossRefAttribute
 
 /-! @stack 01FI -/
@@ -38,7 +39,9 @@ abbrev StrictCechTuple (p : ℕ) :=
 namespace OrderedCechIndex
 
 /-- Strictly increasing tuples in a finite linearly ordered type form a finite type. -/
-noncomputable instance instFinite [Finite ι] (p : ℕ) : Finite (OrderedCechIndex ι p) := sorry
+noncomputable instance instFinite [Finite ι] (p : ℕ) : Finite (OrderedCechIndex ι p) :=
+  Finite.of_injective (fun σ : OrderedCechIndex ι p ↦ (σ : Fin (p + 1) → ι))
+    DFunLike.coe_injective
 
 /-- Deleting an entry from a strictly increasing tuple remains strictly increasing. -/
 @[stacks 01FK "strictness of ordered Cech deletion"]

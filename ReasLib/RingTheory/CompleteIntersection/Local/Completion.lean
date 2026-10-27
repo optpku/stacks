@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
+public import Mathlib.RingTheory.AdicCompletion.LocalRing
+public import ReasLib.RingTheory.AdicCompletion.Noetherian
 public import ReasLib.RingTheory.AdicCompletion.LocalMap
 public import ReasLib.RingTheory.CompleteIntersection.Local.GoodFactorization
 public import ReasLib.RingTheory.CompleteIntersection.Local.RingHom
@@ -16,8 +18,9 @@ public import ReasLib.RingTheory.CompleteIntersection.Local.RingHom
 /-!
 # Complete Intersections and Completion Maps
 
-This leaf compares the presentation condition carried by a good factorization with the local
-complete-intersection condition on the induced map between maximal-ideal completions.
+This leaf compares the regular-sequence kernel condition carried by a good factorization with
+the 09QA complete-intersection homomorphism condition on the induced map between maximal-ideal
+completions. The latter is independent of the finite-type local-complete-intersection predicate.
 -/
 
 universe u v
@@ -51,23 +54,27 @@ section Noetherian
 variable [IsNoetherianRing A] [IsNoetherianRing B]
 
 /-- Lemma 23.9.4 (Tag 09QD): a good factorization has regular-sequence kernel if and only if
-the induced map on maximal-ideal completions is a local complete intersection. -/
+the induced map on maximal-ideal completions is a complete-intersection homomorphism in the
+factorization sense of 09QA. -/
 @[stacks 09QD]
 theorem isCompleteIntersection_iff_completionMap (P : RingHom.GoodFactorization f) :
     P.IsCompleteIntersection ↔
-      P.completionMap.IsLocalCompleteIntersection := sorry
+      P.completionMap.IsCompleteIntersection := sorry
 
-/-- A complete-intersection good factorization makes the induced completion map a local complete
-intersection. -/
+/-- A complete-intersection good factorization makes the induced completion map a
+complete-intersection homomorphism in the factorization sense of 09QA.
+The historical name is retained for compatibility. -/
 theorem completionMap_isLocalCompleteIntersection (P : RingHom.GoodFactorization f)
     (hP : P.IsCompleteIntersection) :
-    P.completionMap.IsLocalCompleteIntersection := sorry
+    P.completionMap.IsCompleteIntersection :=
+  P.isCompleteIntersection_iff_completionMap.mp hP
 
-/-- A local-complete-intersection completion map makes every good factorization a
-complete-intersection factorization. -/
+/-- A complete-intersection completion map in the factorization sense of 09QA makes every
+good factorization a complete-intersection factorization. -/
 theorem isCompleteIntersection_of_completionMap (P : RingHom.GoodFactorization f)
-    (hCompletion : P.completionMap.IsLocalCompleteIntersection) :
-    P.IsCompleteIntersection := sorry
+    (hCompletion : P.completionMap.IsCompleteIntersection) :
+    P.IsCompleteIntersection :=
+  P.isCompleteIntersection_iff_completionMap.mpr hCompletion
 
 end Noetherian
 

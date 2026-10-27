@@ -29,8 +29,8 @@ module. -/
     (localized : BivariantClass δ
       (Over.homMk i₂ : Over.mk (i₂ ≫ X.hom) ⟶ X) p), Prop)
 
-/- The direct constructor remains available through this compatibility module. -/
-#check (AlgebraicGeometry.BivariantClass.IsLocalizedExtension.ofCap :
+/- The generated structure constructor remains available through this compatibility module. -/
+#check (AlgebraicGeometry.BivariantClass.IsLocalizedExtension.mk :
   ∀ {S : Scheme.{u}} [UniversallyCatenary S] {δ : S → ℤ} [IsDimensionFunction δ]
     {X : Over S} [LocallyOfFiniteType X.hom]
     {X₁ X₂ : Scheme.{u}} {i₁ : X₁ ⟶ X.left} {i₂ : X₂ ⟶ X.left}

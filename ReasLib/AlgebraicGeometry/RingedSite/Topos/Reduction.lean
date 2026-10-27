@@ -41,15 +41,15 @@ variable [UnivLE.{max u v, w}]
 /-- The type-valued inverse image associated to a ringed-site morphism. -/
 noncomputable abbrev typePullback (f : X ⟶ Y) :
     Sheaf Y.siteTopology (Type w) ⥤ Sheaf X.siteTopology (Type w) :=
-  f.base.sheafPullback (Type w) Y.siteTopology X.siteTopology
+  sheafPullback (A := Type w) f
 
 /-- The inverse-image-form map on underlying structure sheaves associated to a ringed-site
 morphism. Unlike `underlyingInverseImageMap`, this owner does not require first bundling the
 site morphism as a morphism of topoi. -/
 noncomputable abbrev underlyingPullbackMap (f : X ⟶ Y) :
-    f.typePullback.obj (underlyingStructureSheaf Y) ⟶ underlyingStructureSheaf X :=
-  ((f.base.sheafAdjunctionContinuous (Type w)
-      Y.siteTopology X.siteTopology).homEquiv _ _).symm f.underlyingDirectImageMap
+    (typePullback f).obj (underlyingStructureSheaf Y) ⟶ underlyingStructureSheaf X :=
+  ((sheafAdjunctionContinuous (A := Type w) f).homEquiv _ _).symm
+    (underlyingDirectImageMap f)
 
 end RingedSite.Hom
 
@@ -115,7 +115,7 @@ structure SiteReduction where
     CatCommSq
       (targetFunctor.sheafPushforwardContinuous (Type w)
         Y.siteTopology targetTopology)
-      middle.typePullback
+      (Hom.typePullback middle)
       f.toTopos.inverseImage
       (sourceFunctor.sheafPushforwardContinuous (Type w)
         X.siteTopology sourceTopology)
@@ -133,7 +133,7 @@ structure SiteReduction where
                 Y.siteTopology targetTopology).obj
                 Y.structureSheaf)))).hom ≫
         (sourceFunctor.sheafPushforwardContinuous (Type w)
-          X.siteTopology sourceTopology).map middle.underlyingPullbackMap ≫
+          X.siteTopology sourceTopology).map (Hom.underlyingPullbackMap middle) ≫
         (Functor.pushforwardUnderlyingIso sourceFunctor
           (Functor.IsDenseSubsite.ringTransportIso sourceFunctor
             X.siteTopology sourceTopology X.structureSheaf)).hom

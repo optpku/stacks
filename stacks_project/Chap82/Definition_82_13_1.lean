@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap82.Definition_82_13_1_PrincipalDivisor
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CycleGroup.Principal
 import StacksCheckRecall
 
 /-!
@@ -30,7 +30,7 @@ divisor of Spaces over Fields, Definition 72.6.7, viewed as an `(n-1)`-cycle by
 Lemma 82.12.1. -/
 @[stacks 0EQ1]
 #check
-  (Hom.principalDivisor :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.principalDivisor :
     ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
       [UniversallyCatenary B] [IsQuasiSeparated B] (f : X ⟶ B)
       [QuasiSeparated f] [LocallyOfFiniteType f] [IsIntegral X]

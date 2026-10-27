@@ -6,69 +6,54 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.CategoryTheory.ObjectProperty.CompleteLattice
-public import ReasLib.AlgebraicGeometry.Scheme.GlobalSections
-public import ReasLib.AlgebraicGeometry.Scheme.OverField.Nodal
-public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve.ArithmeticGenus
-public import stacks_project.Chap109.Lemma_109_20_3_Substack
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Prestable.Genus
+import StacksCheckRecall
 
 /-!
 # Prestable curves of a given genus
 
-There is a decomposition of `𝒞urves^{prestable}` into open-and-closed
-substacks `𝒞urves^{prestable}_g` for `g ≥ 0`, classifying prestable
-families of curves for which `R¹ f_* 𝒪_X` is locally free of rank `g`,
-equivalently proper schemes of dimension `1` over a field with at-worst-nodal
-singularities, `H⁰(X, 𝒪_X) = k`, and genus `g`.
+The prestable locus decomposes into open-and-closed genus strata. Membership
+is characterized by the rank of the first structure-sheaf higher direct image,
+and over a field by nodality, dimension, canonical global functions, and genus.
 -/
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-namespace Spaces
-namespace Curves
+namespace AlgebraicGeometry.AlgebraicSpace.Spaces.Curves
 
-/-- Lemma 109.20.3 (1): the prestable locus `𝒞urves^{prestable}` decomposes as the
-coproduct of open-and-closed substacks `𝒞urves^{prestable}_g` for `g ≥ 0`. -/
-@[stacks 0E6V]
-theorem prestable_eq_iSup_prestableOfGenus (S : Scheme.{u}) :
-    prestable S = ⨆ g : ℕ, prestableOfGenus g S :=
-  sorry
+/- Lemma 109.20.3 (1): every prestable family has a pairwise disjoint clopen
+cover of its base representing the fixed-genus strata under cartesian base change. -/
+@[stacks 0E6V] #check
+  (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.exists_prestableOfGenus_clopen_decomposition :
+    ∀ {S : Scheme.{u}} (P : Obj S), prestable S P →
+      ∃ U : ℕ → (base P).left.Opens,
+        iSup U = ⊤ ∧
+          Pairwise (fun g g' ↦ Disjoint (U g : Set (base P).left) (U g')) ∧
+            (∀ g, IsClopen (U g : Set (base P).left)) ∧
+              ∀ g, ∀ {Q : Obj S} (φ : Q ⟶ P),
+                prestableOfGenus g S Q ↔ Set.range (baseMap φ).left ⊆ U g)
 
-/-- Lemma 109.20.3 (2): given a family of curves `X ⟶ S`, the classifying
-morphism `S ⟶ 𝒞urves` factors through `𝒞urves^{prestable}_g` if and only if
-`X ⟶ S` is a prestable family of curves and `R¹ f_* 𝒪_X` is a locally free
-`𝒪_S`-module of rank `g`. -/
-@[stacks 0E6V]
-theorem classifying_factorsThrough_prestableOfGenus_iff
-    {S : Scheme.{u}} (P : Obj S) (g : ℕ) :
-    prestableOfGenus g S P ↔
-      Prestable (hom P) ∧
-        SheafOfModules.IsFiniteLocallyFreeOfRank g
-          (higherDirectImageOne (hom P)) :=
-  sorry
+/- Lemma 109.20.3 (2): a family belongs to the genus-g prestable stratum
+precisely when it is prestable and its first higher direct image has rank g. -/
+@[stacks 0E6V] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.prestableOfGenus_iff :
+  ∀ (g : ℕ) {S : Scheme.{u}} (P : Obj S),
+    prestableOfGenus g S P ↔ Prestable (hom P) ∧
+      SheafOfModules.IsFiniteLocallyFreeOfRank g (higherDirectImageOne (hom P)))
 
-/-- Lemma 109.20.3 (3): given a scheme `X` proper over a field `k` with
-dimension at most one, the classifying morphism `Spec k ⟶ 𝒞urves` factors
-through `𝒞urves^{prestable}_g` if and only if the singularities of `X` are
-at-worst-nodal, `dim(X) = 1`, `k = H⁰(X, 𝒪_X)`, and the genus of `X` is `g`. -/
-@[stacks 0E6V]
-theorem classifying_factorsThrough_prestableOfGenus_iff_scheme
-    {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
-    (hdim : topologicalKrullDim X.left ≤ 1) (g : ℕ) :
+/- Lemma 109.20.3 (3): a proper scheme of dimension at most one over a field
+belongs to the genus-g prestable stratum precisely when it is at-worst-nodal,
+has dimension one, has canonical global functions equal to the field, and has genus g. -/
+@[stacks 0E6V] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.classifying_factorsThrough_prestableOfGenus_iff_scheme :
+  ∀ {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
+    (hdim : topologicalKrullDim X.left ≤ 1) (g : ℕ),
     prestableOfGenus g (Spec (CommRingCat.of k)) (mkOfSchemeOverField X hdim) ↔
       SchemeOverField.atWorstNodal X ∧
         ∃ (hdim1 : topologicalKrullDim X.left = 1)
           (hΓ : Function.Bijective (Scheme.Hom.globalSectionsMap X.hom)),
-          SchemeOverField.genus X hdim1 hΓ = g :=
-  sorry
+          SchemeOverField.genus X hdim1 hΓ = g)
 
-end Curves
-end Spaces
-end AlgebraicGeometry.AlgebraicSpace
+end AlgebraicGeometry.AlgebraicSpace.Spaces.Curves

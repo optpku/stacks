@@ -23,10 +23,9 @@ open Filter
 open scoped Topology
 
 variable (R M N : Type u)
-variable [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-variable [AddCommGroup M] [Module R M] [TopologicalSpace M] [ContinuousSMul R M]
+variable [CommRing R]
+variable [AddCommGroup M] [Module R M] [TopologicalSpace M]
 variable [AddCommGroup N] [Module R N] [TopologicalSpace N]
-variable [ContinuousSMul R N]
 variable [IsLinearTopology R M] [IsLinearTopology R N]
 variable [IsTopologicalAddGroup M] [IsTopologicalAddGroup N]
 
@@ -76,11 +75,17 @@ lim (M ⊗[R] N) ⧸ (U ⊗ N + M ⊗ V) = lim (M ⧸ U) ⊗[R] (N ⧸ V). -/
   IsUniformInducing (TensorProduct.Completed.of R M N :
     TensorProduct.Linear R M N → TensorProduct.Completed R M N))
 
+section ContinuousScalarActions
+
+variable [TopologicalSpace R] [ContinuousSMul R M] [ContinuousSMul R N]
+
 #check (TensorProduct.Linear.instContinuousSMul (R := R) (M := M) (N := N) :
   ContinuousSMul R (TensorProduct.Linear R M N))
 
 #check (TensorProduct.Completed.instContinuousSMul (R := R) (M := M) (N := N) :
   ContinuousSMul R (TensorProduct.Completed R M N))
+
+end ContinuousScalarActions
 
 /- Remark after Definition 87.4.7: for linearly topologized `R`-algebras `A` and `B` the
 construction gives the completed tensor product `A ⊗̂_R B`; the ring-level carrier (limit over

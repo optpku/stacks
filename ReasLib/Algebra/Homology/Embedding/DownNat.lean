@@ -46,5 +46,3 @@ theorem map_epsilon (n : ℕ) :
 
 end ComplexShape.embeddingDownNat
 
-#synth ComplexShape.Embedding.IsAdditive ComplexShape.embeddingDownNat
-#synth ComplexShape.Embedding.PreservesTensorSigns ComplexShape.embeddingDownNat

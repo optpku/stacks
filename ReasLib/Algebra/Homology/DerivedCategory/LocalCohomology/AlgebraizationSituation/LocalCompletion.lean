@@ -28,10 +28,10 @@ variable [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
 /-- Under the algebraization hypotheses, local cohomology in bounded degrees is
 identified by the canonical map with the limit of the quotient tower. -/
 theorem cohomologyToLimit_bijective
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     (I : Ideal A) (M : ModuleCat.{u} A) [Module.Finite A M]
     (s d : ℤ)
-    (h : AlgebraizationSituation H I (M : Type u)
+    (h : AlgebraizationSituation C I (M : Type u)
       ({IsLocalRing.closedPoint A} : Set (PrimeSpectrum A)) s d)
     (RΓm : DerivedCategory (ModuleCat.{u} A) ⥤
       IdealPowerTorsion (IsLocalRing.maximalIdeal A))
@@ -43,10 +43,10 @@ theorem cohomologyToLimit_bijective
 /-- Under the same hypotheses, both local-cohomology endpoints in every
 bounded degree are annihilated by a power of the ideal. -/
 theorem cohomology_annihilatedByPower
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     (I : Ideal A) (M : ModuleCat.{u} A) [Module.Finite A M]
     (s d : ℤ)
-    (h : AlgebraizationSituation H I (M : Type u)
+    (h : AlgebraizationSituation C I (M : Type u)
       ({IsLocalRing.closedPoint A} : Set (PrimeSpectrum A)) s d)
     (RΓm : DerivedCategory (ModuleCat.{u} A) ⥤
       IdealPowerTorsion (IsLocalRing.maximalIdeal A))

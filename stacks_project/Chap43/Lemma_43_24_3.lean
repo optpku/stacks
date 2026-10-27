@@ -13,11 +13,10 @@ public import ReasLib.AlgebraicGeometry.ChowGroup.Moving
 
 universe u
 
-variable {k : Type u} [Field k] [IsAlgClosed k]
-
 /- Lemma 43.24.3 -/
-@[stacks 0B1U] #check (AlgebraicGeometry.CycleGroup.existsRationallyEquivalentIntersectProperly :
-    ∀ (X : AlgebraicGeometry.SchemeOverField k) [AlgebraicGeometry.ProjectiveVariety X]
+@[stacks 0B1U] #check (@AlgebraicGeometry.CycleGroup.existsRationallyEquivalentIntersectProperly :
+    ∀ {k : Type u} [Field k] [IsAlgClosed k]
+      (X : AlgebraicGeometry.SchemeOverField k) [AlgebraicGeometry.ProjectiveVariety X]
       [AlgebraicGeometry.Scheme.Regular X.left] (r s : ℤ)
       (α : AlgebraicGeometry.CycleGroup X.left
           (X.hom.relativeDimensionFunction (fun _ ↦ 0)) r)

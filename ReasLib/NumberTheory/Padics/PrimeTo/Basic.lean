@@ -24,6 +24,8 @@ The product `∏_{ℓ ∤ q} ℤ_[ℓ]`, together with reduction maps to `ZMod m
 
 @[expose] public section
 
+universe u
+
 noncomputable section
 
 namespace PadicInt
@@ -84,7 +86,7 @@ theorem natCastUnit_val (q : ℕ) [NeZero q] : (natCastUnit q).val = q := sorry
 /-- The trivial-coefficient congruence `q ^ n - (q * u) ^ n ≡ ∑_{d ∣ n} d * Nat.card (S d)`
 in `ZMod m`, for `m` coprime to `q`. -/
 def trivialModuleCongruence (q n m : ℕ) [NeZero m] (hm : m.Coprime q)
-    (u : (PrimeTo q)ˣ) (S : ℕ → Type) [∀ d, Finite (S d)] : Prop :=
+    (u : (PrimeTo q)ˣ) (S : ℕ → Type u) [∀ d, Finite (S d)] : Prop :=
   toZMod q m hm ((q : PrimeTo q) ^ n - ((q : PrimeTo q) * u.val) ^ n) =
     ∑ d ∈ n.divisors, (d * Nat.card (S d) : ZMod m)
 

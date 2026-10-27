@@ -27,7 +27,10 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
   [Module.Finite Λ k]
 
 /-- The projection from residue lifts in a category fibered in groupoids over `Over S`
-to their Artinian local base algebras. -/
+to their Artinian local base algebras.
+
+This `X`-first interface to `forget` allows the groupoid fibration to be fixed before
+choosing an affine open and a residue object, as in the source construction. -/
 def predeformationFunctor
     (X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u} (Over S))
     (openImmersion : Spec (CommRingCat.of Λ) ⟶ S) [IsOpenImmersion openImmersion]
@@ -46,7 +49,7 @@ theorem predeformationFunctor_obj
     {x0 : X.p.Fiber (Over.mk kToS)}
     (ξ : Obj openImmersion kToS h_factor X x0) :
     (predeformationFunctor X openImmersion kToS h_factor x0).obj ξ = ξ.base :=
-  sorry
+  rfl
 
 /-- The projection from residue lifts to Artinian local base algebras is a
 predeformation category. -/

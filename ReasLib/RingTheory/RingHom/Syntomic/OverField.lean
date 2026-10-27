@@ -46,14 +46,3 @@ theorem syntomic [IsLocalCompleteIntersection k A] :
     (algebraMap k A).Syntomic := sorry
 
 end IsLocalCompleteIntersection
-
-section
-
-variable {k : Type u} [Field k]
-variable {A : Type v} [CommRing A] [Algebra k A]
-variable [IsLocalCompleteIntersection k A]
-variable (p : PrimeSpectrum k)
-
-#synth IsLocalCompleteIntersection p.asIdeal.ResidueField (p.asIdeal.Fiber A)
-
-end

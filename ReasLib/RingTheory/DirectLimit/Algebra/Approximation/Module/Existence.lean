@@ -42,12 +42,13 @@ theorem exists_over_tail
     ∃ (i₀ : A.index) (B : Module f M), B.toFiniteType = A.tail i₀ := sorry
 
 /-- A finitely presented ring homomorphism and a finitely presented limiting
-module admit a common finite-module approximation. -/
+module admit a common finite-module approximation. The index and ring stages
+live in `max u v`, and the module stages live in `max u v x`. -/
 @[stacks 00R1 "finite module approximation existence"]
 theorem exists_of_finitePresentation
     (f : R →+* S) (h_finitePresentation : f.FinitePresentation)
     {M : Type x} [AddCommGroup M] [_root_.Module S M]
     [_root_.Module.FinitePresentation S M] :
-    Nonempty (Module f M) := sorry
+    Nonempty (Module.{u, v, x, max u v x, max u v, max u v, max u v} f M) := sorry
 
 end Ring.DirectLimit.Algebra.Approximation.Module

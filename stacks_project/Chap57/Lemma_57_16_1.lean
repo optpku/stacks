@@ -38,7 +38,7 @@ namespace CategoryTheory.DerivedCategory
         (K : DerivedCategory (ModuleCat A)) →
         K.IsPerfect →
         IsIsomorphic
-          ((ModuleCat.derivedExtensionOfScalars
+          ((ModuleCat.derivedExtensionOfScalars.{v, max u v, v}
             (algebraMap A (Ideal.Fiber (maximalIdeal R) A))).obj K)
           (KoszulComplex.derivedFamily fbar) →
         ∃ f : Fin r → A,

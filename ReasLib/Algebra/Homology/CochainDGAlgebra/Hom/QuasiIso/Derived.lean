@@ -27,7 +27,7 @@ open CategoryTheory
 open DifferentialGradedCategory
 open scoped DifferentialGradedCategory DifferentialGradedModule
 
-universe u v
+universe u v w
 
 namespace CochainDGAlgebra.Hom.Derived
 
@@ -35,18 +35,18 @@ variable {R : Type u} [CommRing R]
 variable {A B : CochainDGAlgebra.{u, v} R}
 
 /-- Derived extension along a quasi-isomorphism of cochain differential graded algebras is an
-equivalence. -/
+equivalence at module universe `max v w`, which contains the DGA carrier universe `v`. -/
 @[stacks 09S6 "derived extension along a DGA quasi-isomorphism"]
 theorem extension_isEquivalence (f : A ⟶ B)
     (hf : CochainDGAlgebra.quasiIso f) :
-    Functor.IsEquivalence (extension f) := sorry
+    Functor.IsEquivalence (extension.{u, v, max v w} f) := sorry
 
 /-- Derived restriction along a quasi-isomorphism of differential graded algebras is an
-equivalence. -/
+equivalence at module universe `max v w`, which contains the DGA carrier universe `v`. -/
 @[stacks 09S6 "derived restriction along a DGA quasi-isomorphism"]
 theorem restriction_isEquivalence (f : A ⟶ B)
     (hf : CochainDGAlgebra.quasiIso f) :
-    Functor.IsEquivalence (restriction f) := sorry
+    Functor.IsEquivalence (restriction.{u, v, v, max v w} f) := sorry
 
 /-- The unit component of derived extension and restriction along a DGA quasi-isomorphism is
 invertible. -/
@@ -91,7 +91,7 @@ noncomputable def triangulatedEquivalence
       (DifferentialGradedModule.Derived.Category A)
       (DifferentialGradedModule.Derived.Category B) :=
   RLinear.TriangulatedEquivalence.ofAdjunction R
-    (adjunction f) (extension_isEquivalence f hf)
+    (adjunction f) (extension_isEquivalence.{u, v, v} f hf)
 
 /-- The forward functor of the induced linear triangulated equivalence is derived extension of
 scalars. -/

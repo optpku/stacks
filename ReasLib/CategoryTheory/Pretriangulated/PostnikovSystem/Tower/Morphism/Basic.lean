@@ -76,7 +76,7 @@ theorem homMk_xMap (xMap : ∀ n, T.X n ⟶ T'.X n) (yMap : ∀ n, T.Y n ⟶ T'.
     (comm_toNext : ∀ n, T.toNext n ≫ yMap n = xMap (n + 1) ≫ T'.toNext n)
     (comm_connecting : ∀ n, T.connecting n ≫ (yMap (n + 1))⟦(1 : ℤ)⟧' =
       yMap n ≫ T'.connecting n) (n : ℕ) :
-    (homMk xMap yMap comm_d comm_toX comm_toNext comm_connecting).xMap n = xMap n := sorry
+    (homMk xMap yMap comm_d comm_toX comm_toNext comm_connecting).xMap n = xMap n := rfl
 
 /-- The auxiliary-object component of `homMk` is the supplied component. -/
 @[simp, stacks 0D8Z]
@@ -86,89 +86,103 @@ theorem homMk_yMap (xMap : ∀ n, T.X n ⟶ T'.X n) (yMap : ∀ n, T.Y n ⟶ T'.
     (comm_toNext : ∀ n, T.toNext n ≫ yMap n = xMap (n + 1) ≫ T'.toNext n)
     (comm_connecting : ∀ n, T.connecting n ≫ (yMap (n + 1))⟦(1 : ℤ)⟧' =
       yMap n ≫ T'.connecting n) (n : ℕ) :
-    (homMk xMap yMap comm_d comm_toX comm_toNext comm_connecting).yMap n = yMap n := sorry
+    (homMk xMap yMap comm_d comm_toX comm_toNext comm_connecting).yMap n = yMap n := rfl
 
 /-- The identity morphism of a sequential Postnikov tower. -/
 @[stacks 0D8Z]
 def id (T : Tower D) : Hom T T where
   xMap n := 𝟙 (T.X n)
   yMap n := 𝟙 (T.Y n)
-  comm_d := sorry
-  comm_toX := sorry
-  comm_toNext := sorry
-  comm_connecting := sorry
+  comm_d n := ⟨by simp⟩
+  comm_toX n := ⟨by simp⟩
+  comm_toNext n := ⟨by simp⟩
+  comm_connecting n := ⟨by simp⟩
 
 /-- The componentwise composite of two morphisms of sequential Postnikov towers. -/
 @[stacks 0D8Z]
 def comp (f : Hom T T') (g : Hom T' T'') : Hom T T'' where
   xMap n := f.xMap n ≫ g.xMap n
   yMap n := f.yMap n ≫ g.yMap n
-  comm_d := sorry
-  comm_toX := sorry
-  comm_toNext := sorry
-  comm_connecting := sorry
+  comm_d n := (f.comm_d n).vert_comp (g.comm_d n)
+  comm_toX n := (f.comm_toX n).vert_comp (g.comm_toX n)
+  comm_toNext n := (f.comm_toNext n).vert_comp (g.comm_toNext n)
+  comm_connecting n := by
+    simpa using (f.comm_connecting n).vert_comp (g.comm_connecting n)
 
 /-- The row-object component of an identity tower morphism is an identity. -/
 @[simp]
-theorem id_xMap (T : Tower D) (n : ℕ) : (id T).xMap n = 𝟙 (T.X n) := sorry
+theorem id_xMap (T : Tower D) (n : ℕ) : (id T).xMap n = 𝟙 (T.X n) := rfl
 
 /-- The auxiliary-object component of an identity tower morphism is an identity. -/
 @[simp]
-theorem id_yMap (T : Tower D) (n : ℕ) : (id T).yMap n = 𝟙 (T.Y n) := sorry
+theorem id_yMap (T : Tower D) (n : ℕ) : (id T).yMap n = 𝟙 (T.Y n) := rfl
 
 /-- Row-object components of tower morphisms compose componentwise. -/
 @[simp]
 theorem comp_xMap (f : Hom T T') (g : Hom T' T'') (n : ℕ) :
-    (comp f g).xMap n = f.xMap n ≫ g.xMap n := sorry
+    (comp f g).xMap n = f.xMap n ≫ g.xMap n := rfl
 
 /-- Auxiliary-object components of tower morphisms compose componentwise. -/
 @[simp]
 theorem comp_yMap (f : Hom T T') (g : Hom T' T'') (n : ℕ) :
-    (comp f g).yMap n = f.yMap n ≫ g.yMap n := sorry
+    (comp f g).yMap n = f.yMap n ≫ g.yMap n := rfl
 
 /-- The identity tower morphism is a left identity for composition. -/
 @[simp]
-theorem id_comp (f : Hom T T') : comp (id T) f = f := sorry
+theorem id_comp (f : Hom T T') : comp (id T) f = f := by
+  simp [comp, id]
 
 /-- The identity tower morphism is a right identity for composition. -/
 @[simp]
-theorem comp_id (f : Hom T T') : comp f (id T') = f := sorry
+theorem comp_id (f : Hom T T') : comp f (id T') = f := by
+  simp [comp, id]
 
 /-- Composition of tower morphisms is associative. -/
 theorem comp_assoc {T''' : Tower D} (f : Hom T T') (g : Hom T' T'')
-    (h : Hom T'' T''') : comp (comp f g) h = comp f (comp g h) := sorry
+    (h : Hom T'' T''') : comp (comp f g) h = comp f (comp g h) := by
+  simp [comp, Category.assoc]
 
 /-- Tower morphisms are determined by their components on row and auxiliary objects. -/
 @[ext (iff := false)]
 theorem ext {f g : Hom T T'} (hX : ∀ n, f.xMap n = g.xMap n)
-    (hY : ∀ n, f.yMap n = g.yMap n) : f = g := sorry
+    (hY : ∀ n, f.yMap n = g.yMap n) : f = g := by
+  cases f
+  cases g
+  cases funext hX
+  cases funext hY
+  rfl
 
 /-- Two tower morphisms are equal exactly when all their row-object and auxiliary-object
 components agree. -/
 @[simp, stacks 0D8Z]
 theorem ext_iff {f g : Hom T T'} :
-    f = g ↔ (∀ n, f.xMap n = g.xMap n) ∧ ∀ n, f.yMap n = g.yMap n := sorry
+    f = g ↔ (∀ n, f.xMap n = g.xMap n) ∧ ∀ n, f.yMap n = g.yMap n := by
+  constructor
+  · rintro rfl
+    exact ⟨fun _ => rfl, fun _ => rfl⟩
+  · rintro ⟨hX, hY⟩
+    exact ext hX hY
 
 /-- The differential square of a tower morphism as an equality. -/
 @[reassoc]
 theorem comm_d_w (f : Hom T T') (n : ℕ) :
-    T.d n ≫ f.xMap n = f.xMap (n + 1) ≫ T'.d n := sorry
+    T.d n ≫ f.xMap n = f.xMap (n + 1) ≫ T'.d n := (f.comm_d n).w
 
 /-- The comparison square of a tower morphism as an equality. -/
 @[reassoc]
 theorem comm_toX_w (f : Hom T T') (n : ℕ) :
-    T.toX n ≫ f.xMap n = f.yMap n ≫ T'.toX n := sorry
+    T.toX n ≫ f.xMap n = f.yMap n ≫ T'.toX n := (f.comm_toX n).w
 
 /-- The second-map square of a tower morphism as an equality. -/
 @[reassoc]
 theorem comm_toNext_w (f : Hom T T') (n : ℕ) :
-    T.toNext n ≫ f.yMap n = f.xMap (n + 1) ≫ T'.toNext n := sorry
+    T.toNext n ≫ f.yMap n = f.xMap (n + 1) ≫ T'.toNext n := (f.comm_toNext n).w
 
 /-- The connecting-map square of a tower morphism as an equality. -/
 @[reassoc]
 theorem comm_connecting_w (f : Hom T T') (n : ℕ) :
     T.connecting n ≫ (f.yMap (n + 1))⟦(1 : ℤ)⟧' =
-      f.yMap n ≫ T'.connecting n := sorry
+      f.yMap n ≫ T'.connecting n := (f.comm_connecting n).w
 
 attribute [simp] comm_d_w_assoc comm_toX_w_assoc comm_toNext_w_assoc comm_connecting_w_assoc
 

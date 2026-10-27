@@ -6,24 +6,16 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap94.Lemma_94_9_8
-public import stacks_project.Chap96.Lemma_96_22_3_Comparison
-
-/-!
-# Lemma 96.22.3
-
-On a chosen 2-fibre product of algebraic stacks over `S`, if `f` is
-representable by algebraic spaces and `Y'` is represented by an algebraic
-space `G'`, then the apex is represented by an algebraic space `F'`, and
-derived pushforward along `f` commutes with inverse image and restriction to
-the small étale site of `G'`, for abelian étale sheaves and for étale modules.
--/
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Representable.TwoFibreProduct
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.RepresentableDerivedBaseChange
 
 @[expose] public section
 
-open AlgebraicGeometry CategoryTheory ComplexShape
+open AlgebraicGeometry CategoryTheory CategoryTheory.Limits ComplexShape
 open AlgebraicGeometry.GroupoidsOver
 open CategoryTheory.Functor
+open CategoryTheory.Sheaf.InternalModule
 open FiberedCategoryOver.Groupoids
 open scoped Bicategory
 
@@ -34,26 +26,13 @@ universe u
 namespace AlgebraicGeometry.GroupoidsOver
 
 variable {S : Scheme.{u}}
+
 variable {X Y Y' : GroupoidsOver S} (f : X ⟶ Y) (g : Y' ⟶ Y)
 variable [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Y']
-
-/-- Lemma 96.22.3 (1): if `f` is representable by algebraic spaces and `Y'` is
-represented by an algebraic space, then the chosen 2-fibre product
-`fibreProductApex f g` is represented by an algebraic space. -/
-@[stacks 075P]
-theorem fibreProductApex_isRepresentableByAlgebraicSpace
-    (hf : relativelyRepresentableByAlgebraicSpaces f)
-    (hY' : IsRepresentableByAlgebraicSpace Y') :
-    IsRepresentableByAlgebraicSpace (fibreProductApex f g) :=
-  sorry
 
 variable {F' G' : AlgebraicSpace S}
 variable (eX' : F'.toGroupoids ≌ fibreProductApex f g)
 variable (eY' : G'.toGroupoids ≌ Y')
-variable (α : (fibreProductFst f g ≫ eY'.symm.hom) ≅
-    (eX'.symm.hom ≫
-      AlgebraicSpace.toGroupoids.map
-        (inducedHom eX' eY' (fibreProductFst f g))))
 variable [HasSheafify X.etaleTopology AddCommGrpCat.{u}]
 variable [HasSheafify Y.etaleTopology AddCommGrpCat.{u}]
 variable [HasSheafify Y'.etaleTopology AddCommGrpCat.{u}]
@@ -98,11 +77,11 @@ variable [∀ P : (fibreProductApex f g).totalᵒᵖ ⥤ Type u,
 variable [∀ P : F'.toGroupoids.totalᵒᵖ ⥤ Type u,
     (toCartesianBasedFunctor
         (AlgebraicSpace.toGroupoids.map
-          (inducedHom eX' eY' (fibreProductFst f g)))).toFunctor.op.HasPointwiseRightKanExtension P]
+          (moduleComparisonSpaceMorphism (fibreProductFst f g) eX' eY'))).toFunctor.op.HasPointwiseRightKanExtension P]
 variable [∀ P : F'.toGroupoids.totalᵒᵖ ⥤ AddCommGrpCat.{u},
     (toCartesianBasedFunctor
         (AlgebraicSpace.toGroupoids.map
-          (inducedHom eX' eY' (fibreProductFst f g)))).toFunctor.op.HasPointwiseRightKanExtension P]
+          (moduleComparisonSpaceMorphism (fibreProductFst f g) eX' eY'))).toFunctor.op.HasPointwiseRightKanExtension P]
 variable [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
     (toCartesianBasedFunctor f).toFunctor.op]
 variable [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
@@ -110,7 +89,7 @@ variable [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
 variable [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
     (toCartesianBasedFunctor
         (AlgebraicSpace.toGroupoids.map
-          (inducedHom eX' eY' (fibreProductFst f g)))).toFunctor.op]
+          (moduleComparisonSpaceMorphism (fibreProductFst f g) eX' eY'))).toFunctor.op]
 variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
     (Sheaf X.etaleTopology AddCommGrpCat.{u})]
 variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
@@ -151,7 +130,7 @@ variable [Functor.HasRightDerivedFunctor
     (HomologicalComplex.quasiIso (Sheaf X.etaleTopology AddCommGrpCat.{u}) (up ℤ))]
 variable [Functor.HasRightDerivedFunctor
     (RightDerived.Cochain.toDerived
-      (smallAbelianPushforward (inducedHom eX' eY' (fibreProductFst f g))))
+      (AlgebraicSpace.EtaleAdditive.directImage (moduleComparisonSpaceMorphism (fibreProductFst f g) eX' eY')))
     (HomologicalComplex.quasiIso
       (Sheaf (AlgebraicSpace.smallEtaleTopology F') AddCommGrpCat.{u}) (up ℤ))]
 variable [Functor.HasRightDerivedFunctor
@@ -162,7 +141,7 @@ variable [Functor.HasRightDerivedFunctor
 variable [Functor.HasRightDerivedFunctor
     (RightDerived.Cochain.toDerived
       (restrictAbelian eX' ⋙
-        smallAbelianPushforward (inducedHom eX' eY' (fibreProductFst f g))))
+        AlgebraicSpace.EtaleAdditive.directImage (moduleComparisonSpaceMorphism (fibreProductFst f g) eX' eY')))
     (HomologicalComplex.quasiIso
       (Sheaf (fibreProductApex f g).etaleTopology AddCommGrpCat.{u}) (up ℤ))]
 variable [X.etaleTopology.WEqualsLocallyBijective AddCommGrpCat.{u}]
@@ -210,19 +189,19 @@ variable [Functor.HasRightDerivedFunctor
       (up ℤ))]
 variable [Functor.HasRightDerivedFunctor
     (RightDerived.Cochain.toDerived
-      (etaleModuleDirectImage f ⋙ etaleModulePullback g))
+      (etaleModuleDirectImage f ⋙ etaleModuleInverseImage g))
     (HomologicalComplex.quasiIso
       (SheafOfModules.{u} (etaleRingedSite X).structureSheaf) (up ℤ))]
 variable [Functor.HasRightDerivedFunctor
     (RightDerived.Cochain.toDerived
-      (etaleModulePullback (fibreProductSnd f g) ⋙
+      (etaleModuleInverseImage (fibreProductSnd f g) ⋙
         etaleModuleDirectImage (fibreProductFst f g)))
     (HomologicalComplex.quasiIso
       (SheafOfModules.{u} (etaleRingedSite X).structureSheaf) (up ℤ))]
 variable [Functor.HasRightDerivedFunctor
     (RightDerived.Cochain.toDerived
       (AlgebraicSpace.ringedToposHom
-        (inducedHom eX' eY' (fibreProductFst f g))).modulePushforward)
+        (moduleComparisonSpaceMorphism (fibreProductFst f g) eX' eY')).modulePushforward)
     (HomologicalComplex.quasiIso
       (SheafOfModules.{u} (AlgebraicSpace.ringedSite F').structureSheaf) (up ℤ))]
 variable [Functor.HasRightDerivedFunctor
@@ -236,71 +215,48 @@ variable [Functor.HasRightDerivedFunctor
     (RightDerived.Cochain.toDerived
       ((piToposHom F' (fibreProductApex f g) eX').modulePushforward ⋙
         (AlgebraicSpace.ringedToposHom
-          (inducedHom eX' eY' (fibreProductFst f g))).modulePushforward))
+          (moduleComparisonSpaceMorphism (fibreProductFst f g) eX' eY')).modulePushforward))
     (HomologicalComplex.quasiIso
       (SheafOfModules.{u} (etaleRingedSite (fibreProductApex f g)).structureSheaf)
       (up ℤ))]
 
-/-- Lemma 96.22.3 (2): for an abelian étale sheaf ℱ on X,
-g⁻¹ (Rf_* ℱ)|_{G'_étale} ≅ Rf'_small,* (((g')⁻¹ ℱ)|_{F'_étale}) in D(G'_étale). -/
+#check (AlgebraicGeometry.IsRepresentableByAlgebraicSpace.twoFibreProduct f g :
+  relativelyRepresentableByAlgebraicSpaces f → IsRepresentableByAlgebraicSpace Y' →
+    IsRepresentableByAlgebraicSpace (fibreProductApex f g))
+
+/- Lemma 96.22.3: representable base change and comparison on the small étale site. -/
 @[stacks 075P]
-def compareRepresentableMorphismCohomology
-    (ℱ : Sheaf X.etaleTopology AddCommGrpCat.{u}) :
+#check (AlgebraicGeometry.GroupoidsOver.compareRepresentableMorphismCohomology f g eX' eY' :
+  ∀ (ℱ : Sheaf X.etaleTopology AddCommGrpCat.{u}),
     ((restrictAbelian eY').mapDerivedCategory).obj
         ((etaleAbelianInverseImage g).mapDerivedCategory.obj
           ((RightDerived.Cochain.functor (etaleAbelianPushforward f)).obj
             ((DerivedCategory.singleFunctor
                 (Sheaf X.etaleTopology AddCommGrpCat.{u}) 0).obj ℱ))) ≅
       (RightDerived.Cochain.functor
-          (smallAbelianPushforward
-            (inducedHom eX' eY' (fibreProductFst f g)))).obj
+          (AlgebraicSpace.EtaleAdditive.directImage
+            (moduleComparisonSpaceMorphism (fibreProductFst f g) eX' eY'))).obj
         ((restrictAbelian eX').mapDerivedCategory.obj
           ((etaleAbelianInverseImage (fibreProductSnd f g)).mapDerivedCategory.obj
             ((DerivedCategory.singleFunctor
-                (Sheaf X.etaleTopology AddCommGrpCat.{u}) 0).obj ℱ))) :=
-  (compareRepresentableMorphismCohomologyIso f g eX' eY' α).app
-    ((DerivedCategory.singleFunctor (Sheaf X.etaleTopology AddCommGrpCat.{u}) 0).obj
-      ℱ)
+                (Sheaf X.etaleTopology AddCommGrpCat.{u}) 0).obj ℱ))))
 
-/-- Object-level form of the functorial abelian derived comparison. -/
-theorem compareRepresentableMorphismCohomology_eq
-    (ℱ : Sheaf X.etaleTopology AddCommGrpCat.{u}) :
-    compareRepresentableMorphismCohomology f g eX' eY' α ℱ =
-      (compareRepresentableMorphismCohomologyIso f g eX' eY' α).app
-        ((DerivedCategory.singleFunctor
-            (Sheaf X.etaleTopology AddCommGrpCat.{u}) 0).obj ℱ) :=
-  sorry
-
-/-- Lemma 96.22.3 (3): for an étale module ℳ on X,
-g⁻¹ (Rf_* ℳ)|_{G'_étale} ≅ Rf'_small,* (((g')⁻¹ ℳ)|_{F'_étale}) in D(𝒪_{G'}). -/
-@[stacks 075P]
-def compareRepresentableMorphismCohomology_modules
-    (ℳ : SheafOfModules.{u} (etaleRingedSite X).structureSheaf) :
+#check (AlgebraicGeometry.GroupoidsOver.compareRepresentableMorphismCohomology_modules f g eX' eY' :
+  ∀ (ℳ : SheafOfModules.{u} (etaleRingedSite X).structureSheaf),
     (((piToposHom G' Y' eY').modulePushforward).mapDerivedCategory).obj
-        ((etaleModulePullback g).mapDerivedCategory.obj
+        ((etaleModuleInverseImage g).mapDerivedCategory.obj
           ((RightDerived.Cochain.functor (etaleModuleDirectImage f)).obj
             ((DerivedCategory.singleFunctor
                 (SheafOfModules.{u} (etaleRingedSite X).structureSheaf) 0).obj
               ℳ))) ≅
       (RightDerived.Cochain.functor
           (AlgebraicSpace.ringedToposHom
-            (inducedHom eX' eY' (fibreProductFst f g))).modulePushforward).obj
+            (moduleComparisonSpaceMorphism (fibreProductFst f g) eX' eY')).modulePushforward).obj
         ((((piToposHom F' (fibreProductApex f g) eX').modulePushforward).mapDerivedCategory).obj
-          ((etaleModulePullback (fibreProductSnd f g)).mapDerivedCategory.obj
+          ((etaleModuleInverseImage (fibreProductSnd f g)).mapDerivedCategory.obj
             ((DerivedCategory.singleFunctor
                 (SheafOfModules.{u} (etaleRingedSite X).structureSheaf) 0).obj
-              ℳ))) :=
-  (compareRepresentableMorphismCohomology_modulesIso f g eX' eY' α).app
-    ((DerivedCategory.singleFunctor
-        (SheafOfModules.{u} (etaleRingedSite X).structureSheaf) 0).obj ℳ)
+              ℳ))))
 
-/-- Object-level form of the functorial module derived comparison. -/
-theorem compareRepresentableMorphismCohomology_modules_eq
-    (ℳ : SheafOfModules.{u} (etaleRingedSite X).structureSheaf) :
-    compareRepresentableMorphismCohomology_modules f g eX' eY' α ℳ =
-      (compareRepresentableMorphismCohomology_modulesIso f g eX' eY' α).app
-        ((DerivedCategory.singleFunctor
-            (SheafOfModules.{u} (etaleRingedSite X).structureSheaf) 0).obj ℳ) :=
-  sorry
 
 end AlgebraicGeometry.GroupoidsOver

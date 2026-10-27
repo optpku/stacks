@@ -27,9 +27,9 @@ variable {M : Type v} [AddCommGroup M] [Module A M] [Module.Finite A M]
 /-- A Jacobson-radical ideal supplies the dimension and depth alternatives for stabilization. -/
 theorem stabilizationHypotheses
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-    (h : AlgebraizationSituation H I M T s d)
+    (h : AlgebraizationSituation C I M T s d)
     (a : Ideal A) (hIa : I ≤ a)
     (hV : PrimeSpectrum.zeroLocus (a : Set A) ⊆ T)
     (hJac : I ≤ Ring.jacobson A) :
@@ -63,9 +63,9 @@ theorem stabilizationHypotheses
 /-- Under the Jacobson-radical hypothesis, the strict depth alternative for stabilization also holds. -/
 theorem stabilizationDepthHypotheses
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-    (h : AlgebraizationSituation H I M T s d)
+    (h : AlgebraizationSituation C I M T s d)
     (a : Ideal A) (hIa : I ≤ a)
     (hV : PrimeSpectrum.zeroLocus (a : Set A) ⊆ T)
     (hJac : I ≤ Ring.jacobson A) :
@@ -106,9 +106,9 @@ theorem stabilizationDepthHypotheses
 /-- Adic completeness supplies the dimension and depth alternatives needed for derived completion stabilization. -/
 theorem derivedCompletionHypotheses
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-    (h : AlgebraizationSituation H I M T s d)
+    (h : AlgebraizationSituation C I M T s d)
     (a : Ideal A) (hIa : I ≤ a)
     (hV : PrimeSpectrum.zeroLocus (a : Set A) ⊆ T)
     [IsAdicComplete I A] :
@@ -135,9 +135,9 @@ theorem derivedCompletionHypotheses
 theorem localStabilizationHypotheses
     [IsLocalRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-    (h : AlgebraizationSituation H I M T s d)
+    (h : AlgebraizationSituation C I M T s d)
     (a : Ideal A) (hIa : I ≤ a)
     (hV : PrimeSpectrum.zeroLocus (a : Set A) ⊆ T)
     (hmax : IsLocalRing.maximalIdeal A = a) :
@@ -169,9 +169,9 @@ theorem localStabilizationHypotheses
 theorem localDepthHypotheses
     [IsLocalRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-    (h : AlgebraizationSituation H I M T s d)
+    (h : AlgebraizationSituation C I M T s d)
     (a : Ideal A) (hIa : I ≤ a)
     (hV : PrimeSpectrum.zeroLocus (a : Set A) ⊆ T)
     (hmax : IsLocalRing.maximalIdeal A = a) :
@@ -212,9 +212,9 @@ theorem localDepthHypotheses
 theorem localDerivedCompletionHypotheses
     [IsLocalRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-    (h : AlgebraizationSituation H I M T s d)
+    (h : AlgebraizationSituation C I M T s d)
     (a : Ideal A) (hIa : I ≤ a)
     (hV : PrimeSpectrum.zeroLocus (a : Set A) ⊆ T)
     (hmax : IsLocalRing.maximalIdeal A = a)

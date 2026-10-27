@@ -148,7 +148,5 @@ instance : Preadditive (SpectralSequence C c r₀) where
   add_comp := sorry
   comp_add := sorry
 
-#synth Preadditive (SpectralSequence C c r₀)
-
 end SpectralSequence
 end CategoryTheory

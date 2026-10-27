@@ -31,3 +31,9 @@ universe u
           (Scheme.Compactification.Of.comp f g C.P_g C.P_bar) C.A_fg.plus ≅
         Scheme.Compactification.Of.upperShriek g C.P_g C.A_g.plus ⋙
           Scheme.Compactification.Of.upperShriek f C.P_f C.A_f.plus)
+
+/- The comparison maps in these statements satisfy the geometric mate
+specifications of 0AA0; their compatibility is a theorem of 0ATQ/0ATR. -/
+#check @Scheme.Compactification.Of.upperShriekCompIso_natural_of_refinement
+#check @Scheme.Compactification.Of.upperShriekCompIso_independent
+#check @Scheme.Compactification.Of.UpperShriekCompCommonRefinement.comparisons_independent

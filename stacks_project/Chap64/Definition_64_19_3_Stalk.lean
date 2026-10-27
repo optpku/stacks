@@ -16,12 +16,15 @@ public import stacks_project.Chap64.Definition_64_19_1_FrobeniusStalk
 public import stacks_project.Chap64.Remark_64_18_5
 public import stacks_project.Chap64.Definition_64_18_6_Stalk
 
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.EllAdicSheaf.Stalk.Rational
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.EllAdicSheaf.Frobenius
+
 /-!
 # Q_ℓ-stalks and geometric Frobenius at closed points
 
 Geometric stalks of a `ℤ_[ℓ]`-sheaf, extended to `ℚ_[ℓ]`, together with the
 Galois action of the inverse of residue-field arithmetic Frobenius on the
-canonical geometric point over a closed point from Definition 64.19.1.
+canonical geometric point over a closed point.
 -/
 
 @[expose] public section
@@ -43,120 +46,84 @@ variable [HasSheafify X.smallEtaleTopology AddCommGrpCat.{u}]
 variable [∀ (Y : Scheme.{u}) (V : Y.Etale),
     HasWeakSheafify (Y.smallEtaleTopology.over V) AddCommGrpCat.{u}]
 
-/-- Unfolding of `qellStalk` as extension of scalars of the `ℤ_[ℓ]`-stalk. -/
-theorem qellStalk_def (F : ZEllSheaf X ℓ) (x : GeometricPoint X) :
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.qellStalk_eq :
+  ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X),
     F.qellStalk x =
       (ModuleCat.extendScalars (algebraMap ℤ_[ℓ] ℚ_[ℓ])).obj
-        (ModuleCat.of ℤ_[ℓ] (F.stalk x)) := sorry
+        (ModuleCat.of ℤ_[ℓ] (F.stalk x)))
 
-/-- Constructible geometric stalks become finite-dimensional after extending
-scalars from `ℤ_[ℓ]` to `ℚ_[ℓ]`. -/
-theorem finiteDimensional_qellStalk
-    [∀ (Y : Scheme.{u}) (V : Y.Etale),
-      HasWeakSheafify (Y.smallEtaleTopology.over V) AddCommGrpCat.{u}]
-    (F : ZEllSheaf X ℓ) (hF : F.IsConstructible) (x : GeometricPoint X) :
-    FiniteDimensional ℚ_[ℓ] (F.qellStalk x) := sorry
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.finiteDimensional_qellStalk :
+  ∀ (F : ZEllSheaf X ℓ) (hF : F.IsConstructible) (x : GeometricPoint X),
+    FiniteDimensional ℚ_[ℓ] (F.qellStalk x))
 
 end AlgebraicGeometry.Scheme.Etale.ZEllSheaf
 
 namespace AlgebraicGeometry.Scheme.Etale.ZEllSheaf
 
 variable {k : Type u} [Field k] [Fintype k]
-variable {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
 variable {ℓ : ℕ} [Fact (Nat.Prime ℓ)]
 variable {X : SchemeOverField k} [Scheme.Hom.FiniteType X.hom] [IsNoetherian X.left]
 variable [HasSheafify X.left.smallEtaleTopology AddCommGrpCat.{u}]
 variable [∀ (Y : Scheme.{u}) (V : Y.Etale),
     HasWeakSheafify (Y.smallEtaleTopology.over V) AddCommGrpCat.{u}]
 
-/-- Stagewise Galois action of a geometric-point automorphism on a component
-stalk of a `ℤ_[ℓ]`-sheaf. -/
-def componentStalkGaloisHom (F : ZEllSheaf X.left ℓ) (x : closedPoints X.left)
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.componentStalkGaloisHom :
+  ∀ (F : ZEllSheaf X.left ℓ) (x : closedPoints X.left)
     (σ : Gal(AlgebraicClosure (X.left.residueField x.1)/X.left.residueField x.1))
-    (n : ℕ) :
+    (n : ℕ),
     F.componentStalk (geometricPointOverClosedPoint X x) n ⟶
-      F.componentStalk (geometricPointOverClosedPoint X x) n :=
-  -- Local instance justification (proof-local temporary data): Derive separable closedness from this geometric point's explicit isAlgClosed field only for the geometricPointFiberMap application.
-  letI : IsSepClosed (geometricPointOverClosedPoint X x).K :=
-    @IsSepClosed.of_isAlgClosed _ _ (geometricPointOverClosedPoint X x).isAlgClosed
-  (Hom.sheafFiber
-      ⟨geometricPointFiberMap (geometricPointOverClosedPoint X x).hom
-        (geometricPointGaloisIsoClosed X x σ)⟩).app (F.stage n)
+      F.componentStalk (geometricPointOverClosedPoint X x) n)
 
-/-- Stagewise Galois action on a component stalk is the sheaf-fiber map of the
-geometric-point automorphism. -/
-theorem componentStalkGaloisHom_spec (F : ZEllSheaf X.left ℓ)
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.componentStalkGaloisHom_spec :
+  ∀ (F : ZEllSheaf X.left ℓ)
     (x : closedPoints X.left)
     (σ : Gal(AlgebraicClosure (X.left.residueField x.1)/X.left.residueField x.1))
-    (n : ℕ) :
-    -- Local instance justification (proof-local temporary data): Derive separable closedness from this geometric point's explicit isAlgClosed field only for the geometricPointFiberMap application.
-    letI : IsSepClosed (geometricPointOverClosedPoint X x).K :=
-      @IsSepClosed.of_isAlgClosed _ _ (geometricPointOverClosedPoint X x).isAlgClosed
+    (n : ℕ),
     F.componentStalkGaloisHom x σ n =
       (Hom.sheafFiber
-          ⟨geometricPointFiberMap (geometricPointOverClosedPoint X x).hom
-            (geometricPointGaloisIsoClosed X x σ)⟩).app (F.stage n) := sorry
+          ⟨geometricPointFiberMap (Ω := AlgebraicClosure (X.left.residueField x.1))
+            (geometricPointOverClosedPoint X x).hom
+            (geometricPointGaloisIsoClosed X x σ)⟩).app (F.stage n))
 
-/-- The cone presenting geometric Frobenius on the inverse system of component
-stalks at a closed point. -/
-def geometricFrobeniusStalkCone (F : ZEllSheaf X.left ℓ)
-    (x : closedPoints X.left) :
-    Cone (F.componentStalkSystem (geometricPointOverClosedPoint X x)) where
-  pt := F.stalk (geometricPointOverClosedPoint X x)
-  π :=
-    { app := fun n ↦
-        F.stalk_π (geometricPointOverClosedPoint X x) n.unop ≫
-          F.componentStalkGaloisHom x (arithmeticFrobeniusEquivClosed X x)⁻¹ n.unop
-      naturality := sorry }
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.geometricFrobeniusStalkCone :
+  ∀ (F : ZEllSheaf X.left ℓ)
+    (x : closedPoints X.left),
+    Cone (F.componentStalkSystem (geometricPointOverClosedPoint X x)))
 
-/-- Geometric Frobenius on a `ℤ_[ℓ]`-stalk, as the inverse-limit of the Galois
-action of `(arithmeticFrobeniusEquivClosed X x)⁻¹`. -/
-def geometricFrobeniusStalkZEllHom (F : ZEllSheaf X.left ℓ)
-    (x : closedPoints X.left) :
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.geometricFrobeniusStalkZEllHom :
+  ∀ (F : ZEllSheaf X.left ℓ)
+    (x : closedPoints X.left),
     F.stalk (geometricPointOverClosedPoint X x) ⟶
-      F.stalk (geometricPointOverClosedPoint X x) :=
-  limit.lift (F.componentStalkSystem (geometricPointOverClosedPoint X x))
-    (F.geometricFrobeniusStalkCone x)
+      F.stalk (geometricPointOverClosedPoint X x))
 
-/-- Unfolding of the inverse-limit morphism presenting geometric Frobenius. -/
-theorem geometricFrobeniusStalkZEllHom_spec (F : ZEllSheaf X.left ℓ)
-    (x : closedPoints X.left) :
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.geometricFrobeniusStalkZEllHom_spec :
+  ∀ (F : ZEllSheaf X.left ℓ)
+    (x : closedPoints X.left),
     F.geometricFrobeniusStalkZEllHom x =
       limit.lift (F.componentStalkSystem (geometricPointOverClosedPoint X x))
-        (F.geometricFrobeniusStalkCone x) := sorry
+        (F.geometricFrobeniusStalkCone x))
 
-/-- Geometric Frobenius on a geometric `ℤ_[ℓ]`-stalk, as a `ℤ_[ℓ]`-linear
-endomorphism. -/
-def geometricFrobeniusStalkZEll (F : ZEllSheaf X.left ℓ)
-    (x : closedPoints X.left) :
-    Module.End ℤ_[ℓ] (F.stalk (geometricPointOverClosedPoint X x)) where
-  toFun := F.geometricFrobeniusStalkZEllHom x
-  map_add' := sorry
-  map_smul' := sorry
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.geometricFrobeniusStalkZEll :
+  ∀ (F : ZEllSheaf X.left ℓ)
+    (x : closedPoints X.left),
+    Module.End ℤ_[ℓ] (F.stalk (geometricPointOverClosedPoint X x)))
 
-/-- The `ℤ_[ℓ]`-linear geometric Frobenius is the inverse-limit of the stagewise
-Galois action. -/
-theorem geometricFrobeniusStalkZEll_apply (F : ZEllSheaf X.left ℓ)
-    (x : closedPoints X.left) (m : F.stalk (geometricPointOverClosedPoint X x)) :
-    F.geometricFrobeniusStalkZEll x m = F.geometricFrobeniusStalkZEllHom x m :=
-  sorry
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.geometricFrobeniusStalkZEll_apply :
+  ∀ (F : ZEllSheaf X.left ℓ)
+    (x : closedPoints X.left) (m : F.stalk (geometricPointOverClosedPoint X x)),
+    F.geometricFrobeniusStalkZEll x m = F.geometricFrobeniusStalkZEllHom x m)
 
-/-- Geometric Frobenius `π_x^*` on the `ℚ_[ℓ]`-stalk at a closed point, as the
-scalar extension of `geometricFrobeniusStalkZEll`. -/
-def geometricFrobeniusStalk (F : ZEllSheaf X.left ℓ)
-    (x : closedPoints X.left) :
-    Module.End ℚ_[ℓ] (F.qellStalk (geometricPointOverClosedPoint X x)) :=
-  ModuleCat.Hom.hom
-    ((ModuleCat.extendScalars (algebraMap ℤ_[ℓ] ℚ_[ℓ])).map
-      (ModuleCat.ofHom (F.geometricFrobeniusStalkZEll x)))
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.geometricFrobeniusStalk :
+  ∀ (F : ZEllSheaf X.left ℓ)
+    (x : closedPoints X.left),
+    Module.End ℚ_[ℓ] (F.qellStalk (geometricPointOverClosedPoint X x)))
 
-/-- Unfolding of `π_x^*` as extension of scalars of the `ℤ_[ℓ]`-linear Galois
-action. -/
-theorem geometricFrobeniusStalk_apply (F : ZEllSheaf X.left ℓ)
-    (x : closedPoints X.left) :
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.geometricFrobeniusStalk_apply :
+  ∀ (F : ZEllSheaf X.left ℓ)
+    (x : closedPoints X.left),
     F.geometricFrobeniusStalk x =
       ModuleCat.Hom.hom
         ((ModuleCat.extendScalars (algebraMap ℤ_[ℓ] ℚ_[ℓ])).map
-          (ModuleCat.ofHom (F.geometricFrobeniusStalkZEll x))) := sorry
+          (ModuleCat.ofHom (F.geometricFrobeniusStalkZEll x))))
 
 end AlgebraicGeometry.Scheme.Etale.ZEllSheaf

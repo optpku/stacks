@@ -10,6 +10,7 @@ public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Pullback
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Pullback.KFlat
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Induced.Preadditive
 public import ReasLib.CategoryTheory.Functor.Derived.Total.Triangulated
+public import ReasLib.CategoryTheory.Pretriangulated.Functor.TriangulatedStructure
 
 @[expose] public section
 

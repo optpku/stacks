@@ -11,6 +11,7 @@ public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PullbackFree
 public import Mathlib.Algebra.Homology.QuasiIso
 public import Mathlib.AlgebraicTopology.AlternatingFaceMapComplex
 public import ReasLib.AlgebraicGeometry.RingedSite.Simplicial.Fiber
+public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module.Unit
 
 /-!
 # Alternating-face complex of `g_{n!} O_n` on a fiberwise simplicial site
@@ -128,12 +129,12 @@ operator. -/
 def fiberFacePullback_unit {n m : SimplexCategory} (φ : n ⟶ m) :
     fiberComponentUnit F J O m ⟶
       (fiberRingedToposMap F J O φ).modulePullback.obj (fiberComponentUnit F J O n) :=
-  CategoryTheory.inv (fiberFacePullback_unit_counit F J O φ)
+  (ToposHom.modulePullbackUnitIso (fiberRingedToposMap F J O φ)).inv
 
 /-- The comparison `O_m ⟶ f_φ^* O_n` is an isomorphism. -/
 instance fiberFacePullback_unit_isIso {n m : SimplexCategory} (φ : n ⟶ m) :
     IsIso (fiberFacePullback_unit F J O φ) :=
-  sorry
+  (ToposHom.modulePullbackUnitIso (fiberRingedToposMap F J O φ)).isIso_inv
 
 /-- The identity comparison `O_n ⟶ (ι F (op n))_* O` of ring sheaves, pinning
 the site functor to `ι F (op n)` rather than the identity on the fiber. -/

@@ -17,6 +17,7 @@ open CategoryTheory AlgebraicGeometry
 
 universe u v w x y z
 
+/- 抽象层对角类 mixin：待 RL-2194 完成锚定后移除。 -/
 /- Lemma 45.14.10 -/
 @[stacks 0FVR] #check (WeilCohomology.SchemePreWeilTheory.integral_one_eq_finrank_of_galois :
     ∀ {k k' : Type u} [Field k] [Field k'] [Algebra k k']
@@ -33,7 +34,7 @@ universe u v w x y z
       {pointCycle : CHgrade point 0} {H Picard : V → Type x}
       [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Picard X)]
       (T : WeilCohomology.SchemePreWeilTheory k F TateLine V dimension
-        product fst snd point CH CHgrade cyclePullback cyclePushforward pointCycle H Picard)
+        product fst snd point CH CHgrade cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
       {X : V} (eX : T.scheme.obj X ≅ Over.mk (AlgebraicGeometry.FieldExtension.specMap k k')),
       T.integral (T.fieldSpectrum_isNonemptyEquidimensional eX) 1 =
         (Module.finrank k k' : F))

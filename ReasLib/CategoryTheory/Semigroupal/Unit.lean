@@ -145,10 +145,25 @@ def UnitSeed.ofUnit (unit : Unit C) : UnitSeed C where
 /-- Passing from a unit to a cancellable idempotent preserves the object. -/
 theorem UnitSeed.ofUnit_obj (unit : Unit C) : (UnitSeed.ofUnit unit).obj = unit.obj := rfl
 
+end
+
+end CategoryTheory.SemigroupalCategory
+
+open CategoryTheory CategoryTheory.SemigroupalCategory
+
 /-- The reconstructed left and right unitors satisfy the triangle identity. -/
-theorem Unit.ofSeed_triangle (seed : UnitSeed C) (X Y : C) :
+theorem CategoryTheory.SemigroupalCategory.Unit.ofSeed_triangle
+    {C : Type u} [Category.{v} C] [SemigroupalCategory C] (seed : UnitSeed C) (X Y : C) :
     (associator X seed.obj Y).hom ≫ whiskerLeft X (seed.leftUnitor.hom.app Y) =
       whiskerRight (seed.rightUnitor.hom.app X) Y := sorry
+
+namespace CategoryTheory.SemigroupalCategory
+
+variable {C : Type u} [Category.{v} C]
+
+section
+
+variable [SemigroupalCategory C]
 
 /-- A cancellable idempotent gives a unit with the reconstructed natural unitors. -/
 noncomputable def Unit.ofSeed (seed : UnitSeed C) : Unit C where

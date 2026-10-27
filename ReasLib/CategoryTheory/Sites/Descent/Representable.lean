@@ -354,6 +354,6 @@ effective. -/
 theorem representable_iff_effective (hcover : Sieve.ofArrows X p ∈ J S)
     (D : Over.pseudofunctor.DescentData p) :
     ((J.over S).uliftYoneda.{max u v}).essImage ((glue J p hcover).obj D).obj ↔
-      Over.DescentData.IsEffective D := sorry
+      Over.DescentData.IsEffective X p D := sorry
 
 end CategoryTheory.GrothendieckTopology.RepresentableDescent

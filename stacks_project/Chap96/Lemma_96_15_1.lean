@@ -6,99 +6,94 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.CategoryTheory.Limits.ExactFunctor
-public import stacks_project.Chap96.Lemma_96_15_1_Abelian
-public import stacks_project.Chap96.Lemma_96_15_1_Equivalence
-public import stacks_project.Chap96.Lemma_96_15_1_Tensor
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Presentation.Quasicoherent
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Module.Quasicoherent.Exactness
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Module.Quasicoherent.FppfTensor
 import StacksCheckRecall
 
-/-!
-# Lemma 96.15.1
-
-Quasi-coherent modules on an algebraic stack are equivalent to equivariant
-quasi-coherent modules on a presentation, form an abelian category with
-colimits agreeing with `Mod(𝒪_𝒳)`, and are closed under tensor, internal Hom
-from a finite locally free module, and extensions. The inclusion into
-`Mod(𝒪_𝒳)` is right exact but not exact in general.
--/
+/-! # Quasi-coherent modules on algebraic stacks -/
 
 @[expose] public section
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicStack CategoryTheory
-  CategoryTheory.Functor CategoryTheory.Limits CategoryTheory.ObjectProperty
-  FiberedCategoryOver.Groupoids AlgebraicGeometry.GroupoidsOver
-open scoped Bicategory
-
-noncomputable section
+  CategoryTheory.Limits CategoryTheory.ObjectProperty AlgebraicGeometry.GroupoidsOver
 
 universe u
 
-namespace AlgebraicGeometry.GroupoidsOver.QCoh
+/- Lemma 96.15.1 (1): canonical descent to equivariant modules on any presentation. -/
+@[stacks 06WV] #check (AlgebraicGeometry.AlgebraicStack.Presentation.equivariantEquivalence :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    (P : Presentation X), QCoh X ≌ P.groupoid.QCoh)
 
-/- Lemma 96.15.1 (1): if `[U / R] ⟶ 𝒳` is a presentation of the algebraic stack
-`𝒳` then there is a canonical equivalence `QCoh(𝒪_𝒳) ≌ QCoh(U, R, s, t, c)`. -/
-@[stacks 06WV] #check presentationEquivalence
+/- Lemma 96.15.1 (2): the quasi-coherent module category is abelian. -/
+@[stacks 06WV] #check (AlgebraicGeometry.GroupoidsOver.QCoh.instAbelian :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X], Abelian (QCoh X))
 
-/- Lemma 96.15.1 (2): the category `QCoh(𝒪_𝒳)` is abelian. -/
-@[stacks 06WV] #check abelian
+/- Lemma 96.15.1 (3): the inclusion is right exact. -/
+@[stacks 06WV] #check (AlgebraicGeometry.GroupoidsOver.QCoh.inclusion_rightExact :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X],
+    rightExactFunctor (QCoh X) (RingedSite.ModuleCat.{u} (ringedSite X))
+      (QCoh.inclusion X))
 
-/-- Lemma 96.15.1 (3): the inclusion functor `QCoh(𝒪_𝒳) ⟶ Mod(𝒪_𝒳)` is not exact
-in general. -/
-@[stacks 06WV]
-theorem inclusion_not_exact :
-    ¬ exactFunctor
-        (QCoh (GroupoidsOver.slice (Over.mk (𝟙 (Spec (CommRingCat.of ℤ))))))
-        (RingedSite.ModuleCat (fppfRingedSite _)) (inclusion _) :=
-  sorry
+/- Lemma 96.15.1 (3): the inclusion is not exact in general, already over Spec Z. -/
+@[stacks 06WV] #check (AlgebraicGeometry.GroupoidsOver.QCoh.inclusion_not_exact :
+  ¬ exactFunctor
+      (QCoh (GroupoidsOver.slice (Over.mk (𝟙 (Spec (CommRingCat.of ℤ))))))
+      (RingedSite.ModuleCat (ringedSite _)) (QCoh.inclusion _))
 
-variable {S : Scheme.{u}} {X : GroupoidsOver S}
+/- Lemma 96.15.1 (4): all universe-compatible colimits exist. -/
+@[stacks 06WV] #check (AlgebraicGeometry.GroupoidsOver.QCoh.hasColimitsOfShape :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) (J : Type u) [Category.{u} J],
+    HasColimitsOfShape J (QCoh X))
 
-/-- Lemma 96.15.1 (3): the inclusion functor `QCoh(𝒪_𝒳) ⟶ Mod(𝒪_𝒳)` is right
-exact. -/
-@[stacks 06WV]
-theorem inclusion_rightExact [AlgebraicStack X] :
-    rightExactFunctor (QCoh X) (RingedSite.ModuleCat.{u} (fppfRingedSite X))
-      (inclusion X) :=
-  sorry
+/- Lemma 96.15.1 (4): inclusion preserves the universe-compatible colimits. -/
+@[stacks 06WV] #check (AlgebraicGeometry.GroupoidsOver.QCoh.inclusion_preservesColimitsOfShape :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    (J : Type u) [Category.{u} J], PreservesColimitsOfShape J (QCoh.inclusion X))
 
-/-- Lemma 96.15.1 (4): the category `QCoh(𝒪_𝒳)` has colimits of every
-universe-compatible shape. -/
-@[stacks 06WV]
-instance algebraicStack_hasColimitsOfShape [AlgebraicStack X]
-    (J : Type u) [Category.{u} J] :
-    HasColimitsOfShape J (QCoh X) :=
-  sorry
+section ColimitComparison
 
-/-- Lemma 96.15.1 (4): colimits in `QCoh(𝒪_𝒳)` agree with colimits in
-`Mod(𝒪_𝒳)`. -/
-@[stacks 06WV]
-instance inclusion_preservesColimitsOfShape [AlgebraicStack X]
-    (J : Type u) [Category.{u} J] :
-    PreservesColimitsOfShape J (inclusion X) :=
-  sorry
+variable {S : Scheme.{u}} {X : GroupoidsOver S} {J : Type u} [Category.{u} J]
 
-/- Lemma 96.15.1 (3): the inclusion `QCoh(𝒪_𝒳) ⟶ Mod(𝒪_𝒳)` preserves finite
-colimits, hence is right exact. -/
-@[stacks 06WV] #check inclusion_preservesFiniteColimits
+/- Lemma 96.15.1 (4): the canonical inclusion comparison identifies the colimits. -/
+@[stacks 06WV] #check (CategoryTheory.preservesColimitIso (QCoh.inclusion X) :
+  ∀ (K : J ⥤ QCoh X) [PreservesColimit K (QCoh.inclusion X)] [HasColimit K],
+    (QCoh.inclusion X).obj (colimit K) ≅ colimit (K ⋙ QCoh.inclusion X))
 
-/- Lemma 96.15.1 (4): colimits in `QCoh(𝒪_𝒳)` agree with colimits in
-`Mod(𝒪_𝒳)` via the inclusion comparison. -/
-@[stacks 06WV] #check inclusion_colimitIso
+end ColimitComparison
 
-/- Lemma 96.15.1 (5): the tensor product of two quasi-coherent `𝒪_𝒳`-modules,
-computed in `Mod(𝒪_𝒳)`, is an object of `QCoh(𝒪_𝒳)`. -/
-@[stacks 06WV] #check tensor
+/- Lemma 96.15.1 (5): the ambient tensor is quasi-coherent. -/
+@[stacks 06WV] #check (AlgebraicGeometry.GroupoidsOver.QCoh.Fppf.tensor_isQuasicoherent :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] (F G : QCoh X),
+    quasiCoherentModuleProperty X
+      ((fromCommFppfModules X).obj (QCoh.Fppf.moduleTensor F G)))
 
-/- Lemma 96.15.1 (5): the commutative fppf tensor comparison of that object is
-an isomorphism. -/
-@[stacks 06WV] #check tensorComparison_isIso
+/- Lemma 96.15.1 (5): the quasi-coherent tensor has the prescribed ambient module. -/
+@[stacks 06WV] #check (AlgebraicGeometry.GroupoidsOver.QCoh.Fppf.tensor_obj :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] (F G : QCoh X),
+    (QCoh.Fppf.tensor F G).obj =
+      (fromCommFppfModules X).obj (QCoh.Fppf.moduleTensor F G))
 
-/- Lemma 96.15.1 (6): if `F` is finite locally free, internal Hom from `F` to
-`G` in `Mod(𝒪_𝒳)` is an object of `QCoh(𝒪_𝒳)`. -/
-@[stacks 06WV] #check internalHom
+/- Lemma 96.15.1 (5): the ambient tensor comparison is invertible. -/
+@[stacks 06WV] #check (AlgebraicGeometry.GroupoidsOver.QCoh.Fppf.tensorComparison_isIso :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] (F G : QCoh X),
+    IsIso (QCoh.Fppf.tensorComparison F G))
 
-/- Lemma 96.15.1 (7): quasi-coherent modules on an algebraic stack are closed
-under extensions in `Mod(𝒪_𝒳)`. -/
-@[stacks 06WV] #check closedUnderExtensions
+/- Lemma 96.15.1 (6): internal Hom from a finite locally free module is quasi-coherent. -/
+@[stacks 06WV] #check (AlgebraicGeometry.GroupoidsOver.QCoh.Fppf.internalHom :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] (F G : QCoh X)
+    [SheafOfModules.IsFiniteLocallyFree F.obj],
+    ∃ (H : QCoh X) (ev : QCoh.Fppf.tensor F H ⟶ G),
+      IsIso (QCoh.Fppf.internalHomComparison F G H ev))
 
-end AlgebraicGeometry.GroupoidsOver.QCoh
+/- Lemma 96.15.1 (7): quasi-coherent modules are closed under ambient extensions. -/
+@[stacks 06WV] #check (AlgebraicGeometry.GroupoidsOver.QCoh.closedUnderExtensions :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X],
+    (quasiCoherentModuleProperty X).IsClosedUnderExtensions)
+
+/- Lemma 96.15.1 (7): a short exact sequence with quasi-coherent outer terms has quasi-coherent middle term. -/
+@[stacks 06WV] #check (AlgebraicGeometry.GroupoidsOver.QCoh.isQuasicoherent_of_shortExact :
+  ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    {sc : ShortComplex (RingedSite.ModuleCat.{u} (ringedSite X))},
+    sc.ShortExact → quasiCoherentModuleProperty X sc.X₁ →
+      quasiCoherentModuleProperty X sc.X₃ → quasiCoherentModuleProperty X sc.X₂)

@@ -58,8 +58,7 @@ theorem EssSmooth.of_isLocalization
 theorem EssSmooth.of_smooth [Smooth R S] :
     EssSmooth R S := sorry
 
-/-- Smooth `R`-algebras are essentially smooth over `R`. -/
-instance of_smooth [Smooth R S] : EssSmooth R S := sorry
+attribute [instance] EssSmooth.of_smooth
 
 /-- A formally smooth, essentially finitely presented algebra is essentially smooth. -/
 theorem EssSmooth.of_formallySmooth_of_essFinitePresentation

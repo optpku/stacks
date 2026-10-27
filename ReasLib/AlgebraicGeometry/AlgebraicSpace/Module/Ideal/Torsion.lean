@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Presheaf.Submodule
+public import Mathlib.Algebra.Category.Grp.ForgetCorepresentable
+public import Mathlib.CategoryTheory.Sites.Subsheaf
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Subobject
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IdealSubobject
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Stalk
@@ -43,22 +45,37 @@ def isAnnihilatedByIdeal (I : IdealSubobject X) (ℱ : X.Modules)
 
 /-- The zero section is annihilated by every ideal sheaf. -/
 theorem isAnnihilatedByIdeal_zero (I : IdealSubobject X) (ℱ : X.Modules)
-    (U : smallEtaleSite X) : isAnnihilatedByIdeal I ℱ U 0 :=
-  sorry
+    (U : smallEtaleSite X) : isAnnihilatedByIdeal I ℱ U 0 := by
+  intro V f a
+  rw [map_zero, smul_zero]
 
 /-- The sum of two sections annihilated by an ideal sheaf is annihilated by that ideal. -/
 theorem isAnnihilatedByIdeal_add (I : IdealSubobject X) (ℱ : X.Modules)
     (U : smallEtaleSite X) {s t : ℱ.val.obj (op U)}
     (hs : isAnnihilatedByIdeal I ℱ U s) (ht : isAnnihilatedByIdeal I ℱ U t) :
-    isAnnihilatedByIdeal I ℱ U (s + t) :=
-  sorry
+    isAnnihilatedByIdeal I ℱ U (s + t) := by
+  intro V f a
+  rw [map_add]
+  exact (smul_add (M := (structureSheaf X).obj.obj (op V))
+    (A := ℱ.val.obj (op V)) (SheafOfModules.Subobject.inclusionApp I (op V) a)
+    _ _).trans
+      ((congrArg₂ (fun x y : ℱ.val.obj (op V) ↦ x + y) (hs V f a) (ht V f a)).trans
+        (add_zero 0))
 
 /-- A scalar multiple of a section annihilated by an ideal sheaf is annihilated by that ideal. -/
 theorem isAnnihilatedByIdeal_smul (I : IdealSubobject X) (ℱ : X.Modules)
     (U : smallEtaleSite X) (a : (structureSheaf X).obj.obj (op U))
     {s : ℱ.val.obj (op U)} (hs : isAnnihilatedByIdeal I ℱ U s) :
-    isAnnihilatedByIdeal I ℱ U (a • s) :=
-  sorry
+    isAnnihilatedByIdeal I ℱ U (a • s) := by
+  intro V f b
+  letI : CommRing ((structureSheaf X).obj.obj (op V)) :=
+    inferInstanceAs (CommRing Γ(V.left.left, ⊤))
+  rw [map_smulₛₗ]
+  exact (smul_comm (M := (structureSheaf X).obj.obj (op V))
+    (N := (structureSheaf X).obj.obj (op V)) (α := ℱ.val.obj (op V))
+    (SheafOfModules.Subobject.inclusionApp I (op V) b) _ _).trans
+      ((congrArg (fun t : ℱ.val.obj (op V) ↦
+        (structureSheaf X).obj.map f.op a • t) (hs V f b)).trans (smul_zero _))
 
 /-- The submodule of sections of `ℱ` over `U` annihilated by `I` in the sheaf-theoretic
 sense. -/
@@ -74,8 +91,13 @@ def annihilatedSections (I : IdealSubobject X) (ℱ : X.Modules)
 theorem isAnnihilatedByIdeal_restrict (I : IdealSubobject X) (ℱ : X.Modules)
     {U V : smallEtaleSite X} (f : V ⟶ U) {s : ℱ.val.obj (op U)}
     (hs : isAnnihilatedByIdeal I ℱ U s) :
-    isAnnihilatedByIdeal I ℱ V (ℱ.val.restrictₛₗ f.op s) :=
-  sorry
+    isAnnihilatedByIdeal I ℱ V (ℱ.val.restrictₛₗ f.op s) := by
+  intro W g a
+  have hcomp : ℱ.val.restrictₛₗ (g ≫ f).op s =
+      ℱ.val.restrictₛₗ g.op (ℱ.val.restrictₛₗ f.op s) :=
+    ℱ.val.map_comp_apply f.op g.op s
+  rw [← hcomp]
+  exact hs W (g ≫ f) a
 
 /-- The family of annihilator submodules is stable under étale restriction. -/
 def annihilatedSubmodule (I : IdealSubobject X) (ℱ : X.Modules) :
@@ -86,8 +108,53 @@ def annihilatedSubmodule (I : IdealSubobject X) (ℱ : X.Modules) :
 /-- The presheaf of sections annihilated by an ideal sheaf satisfies the sheaf condition. -/
 theorem annihilatedSubmodule_isSheaf (I : IdealSubobject X) (ℱ : X.Modules) :
     Presheaf.IsSheaf (smallEtaleTopology X)
-      (annihilatedSubmodule I ℱ).toPresheafOfModules.presheaf :=
-  sorry
+      (annihilatedSubmodule I ℱ).toPresheafOfModules.presheaf := by
+  let F := ℱ.val.presheaf ⋙ forget AddCommGrpCat.{u}
+  let T : Subfunctor F :=
+    { obj U := (annihilatedSections I ℱ U : Set (ℱ.val.obj U))
+      map f := fun _ hs ↦ (annihilatedSubmodule I ℱ).map f hs }
+  have hF : Presieve.IsSheaf (smallEtaleTopology X) F :=
+    Presieve.isSheaf_iso _
+      (Functor.isoWhiskerLeft ℱ.val.presheaf AddCommGrpCat.coyonedaObjIsoForget)
+      (ℱ.isSheaf (AddCommGrpCat.of (ULift.{u} ℤ)))
+  apply Presheaf.isSheaf_of_isSheaf_comp _ _ (forget AddCommGrpCat.{u})
+  apply (isSheaf_iff_isSheaf_of_type _ _).mpr
+  change Presieve.IsSheaf (smallEtaleTopology X) T.toFunctor
+  apply (T.isSheaf_iff hF).mpr
+  intro U s hs V f a
+  apply (hF _ ((smallEtaleTopology X).pullback_stable f hs)).isSeparatedFor.ext
+  intro W g hg
+  change isAnnihilatedByIdeal I ℱ W (ℱ.val.restrictₛₗ (g ≫ f).op s) at hg
+  let b := (I : X.Modules).val.restrictₛₗ g.op a
+  have hid : ℱ.val.restrictₛₗ (𝟙 W).op (ℱ.val.restrictₛₗ (g ≫ f).op s) =
+      ℱ.val.restrictₛₗ (g ≫ f).op s :=
+    ConcreteCategory.congr_hom (ℱ.val.presheaf.map_id (op W)) _
+  have hz : (SheafOfModules.Subobject.inclusionApp I (op W) b :
+      (structureSheaf X).obj.obj (op W)) • ℱ.val.restrictₛₗ (g ≫ f).op s = 0 :=
+    (congrArg (fun t : ℱ.val.obj (op W) ↦
+      (SheafOfModules.Subobject.inclusionApp I (op W) b :
+        (structureSheaf X).obj.obj (op W)) • t) hid.symm).trans (hg W (𝟙 W) b)
+  have hnat : (structureSheaf X).obj.map g.op
+      (SheafOfModules.Subobject.inclusionApp I (op V) a) =
+      SheafOfModules.Subobject.inclusionApp I (op W) b :=
+    (PresheafOfModules.naturality_apply I.arrow.val g.op a).symm
+  have hcomp : ℱ.val.restrictₛₗ g.op (ℱ.val.restrictₛₗ f.op s) =
+      ℱ.val.restrictₛₗ (g ≫ f).op s :=
+    (ℱ.val.map_comp_apply f.op g.op s).symm
+  calc
+    ℱ.val.restrictₛₗ g.op
+        ((SheafOfModules.Subobject.inclusionApp I (op V) a :
+          (structureSheaf X).obj.obj (op V)) • ℱ.val.restrictₛₗ f.op s) =
+        (structureSheaf X).obj.map g.op
+          (SheafOfModules.Subobject.inclusionApp I (op V) a) •
+            ℱ.val.restrictₛₗ g.op (ℱ.val.restrictₛₗ f.op s) :=
+      (ℱ.val.restrictₛₗ g.op).map_smulₛₗ _ _
+    _ = (SheafOfModules.Subobject.inclusionApp I (op W) b :
+        (structureSheaf X).obj.obj (op W)) • ℱ.val.restrictₛₗ (g ≫ f).op s :=
+      congrArg₂ (fun (r : (structureSheaf X).obj.obj (op W))
+        (t : ℱ.val.obj (op W)) ↦ r • t) hnat hcomp
+    _ = 0 := hz
+    _ = ℱ.val.restrictₛₗ g.op 0 := ((ℱ.val.restrictₛₗ g.op).map_zero).symm
 
 /-- The subsheaf of `ℱ` consisting of sections annihilated by `I`. -/
 def idealTorsionSubsheaf (I : IdealSubobject X) (ℱ : X.Modules) : X.Modules where
@@ -119,8 +186,13 @@ annihilated by `I`. -/
 theorem range_idealTorsionSubsheafι_app (I : IdealSubobject X) (ℱ : X.Modules)
     (U : smallEtaleSite X) :
     Set.range ((idealTorsionSubsheafι I ℱ).val.app (op U)) =
-      setOf (fun s ↦ isAnnihilatedByIdeal I ℱ U s) :=
-  sorry
+      setOf (fun s ↦ isAnnihilatedByIdeal I ℱ U s) := by
+  ext s
+  constructor
+  · rintro ⟨t, rfl⟩
+    exact t.property
+  · intro hs
+    exact ⟨⟨s, hs⟩, rfl⟩
 
 /-- The subsheaf annihilated by a quasi-coherent finite type ideal of an algebraic space
 is quasi-coherent when the ambient module is quasi-coherent. -/

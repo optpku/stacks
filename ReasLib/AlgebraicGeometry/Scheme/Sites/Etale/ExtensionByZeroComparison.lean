@@ -227,12 +227,162 @@ section through the canonical range isomorphism. -/
 theorem diagonalExtensionMap_range
     (F : Sheaf U.smallEtaleTopology A) (V : U.Etale) :
     diagonalExtensionMap j A F V ≫ F.obj.map (diagonalRangeInclusion j V).op =
-      F.obj.map (diagonalRangeIso j V).inv.op := sorry
+      F.obj.map (diagonalRangeIso j V).inv.op := by
+  exact F.property.amalgamateOfArrows_map _ _ _ _ false
 
 /-- Restricting the diagonal extension to the complementary open is zero. -/
 theorem diagonalExtensionMap_complement
     (F : Sheaf U.smallEtaleTopology A) (V : U.Etale) :
-    diagonalExtensionMap j A F V ≫ F.obj.map (diagonalComplementInclusion j V).op = 0 := sorry
+    diagonalExtensionMap j A F V ≫ F.obj.map (diagonalComplementInclusion j V).op = 0 := by
+  exact F.property.amalgamateOfArrows_map _ _ _ _ true
+
+/-- Extending by zero along the diagonal commutes with morphisms of sheaves. -/
+theorem diagonalExtensionMap_naturality
+    {F G : Sheaf U.smallEtaleTopology A} (α : F ⟶ G) (V : U.Etale) :
+    α.hom.app (op V) ≫ diagonalExtensionMap j A G V =
+      diagonalExtensionMap j A F V ≫ α.hom.app (op (diagonalPullback j V)) := by
+  apply G.property.hom_ext_ofArrows _ (diagonalCover_mem j V)
+  intro i
+  cases i
+  · change (α.hom.app (op V) ≫ diagonalExtensionMap j A G V) ≫
+      G.obj.map (diagonalRangeInclusion j V).op =
+        (diagonalExtensionMap j A F V ≫ α.hom.app (op (diagonalPullback j V))) ≫
+          G.obj.map (diagonalRangeInclusion j V).op
+    rw [Category.assoc, diagonalExtensionMap_range]
+    rw [Category.assoc, ← α.hom.naturality (diagonalRangeInclusion j V).op,
+      ← Category.assoc, diagonalExtensionMap_range]
+    exact (α.hom.naturality _).symm
+  · change (α.hom.app (op V) ≫ diagonalExtensionMap j A G V) ≫
+      G.obj.map (diagonalComplementInclusion j V).op =
+        (diagonalExtensionMap j A F V ≫ α.hom.app (op (diagonalPullback j V))) ≫
+          G.obj.map (diagonalComplementInclusion j V).op
+    rw [Category.assoc, diagonalExtensionMap_complement]
+    rw [Category.assoc, ← α.hom.naturality (diagonalComplementInclusion j V).op,
+      ← Category.assoc, diagonalExtensionMap_complement]
+    simp
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The diagonal section commutes with morphisms of étale objects over `U`. -/
+theorem diagonalSection_naturality {V W : U.Etale} (f : V ⟶ W) :
+    diagonalSection j V ≫ (smallEtalePullback j).map ((etaleRestriction j).map f) =
+      f ≫ diagonalSection j W := by
+  apply MorphismProperty.Over.Hom.ext
+  change diagonalSectionHom j V ≫
+      ((smallEtalePullback j).map ((etaleRestriction j).map f)).left =
+    f.left ≫ diagonalSectionHom j W
+  apply pullback.hom_ext
+  · simp only [diagonalSectionHom, MorphismProperty.Over.pullback_map_left,
+      Category.assoc, pullback.lift_fst_assoc, pullback.lift_fst]
+    change 𝟙 V.left ≫ f.left = f.left ≫ 𝟙 W.left
+    simp
+  · simpa [diagonalSectionHom, MorphismProperty.Over.pullback_map_left] using
+      (MorphismProperty.Over.w f).symm
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The naturality square of the diagonal sections is cartesian. -/
+theorem diagonalSection_isPullback {V W : U.Etale} (f : V ⟶ W) :
+    IsPullback (diagonalSectionHom j V) f.left
+      ((smallEtalePullback j).map ((etaleRestriction j).map f)).left
+      (diagonalSectionHom j W) := by
+  let g := (smallEtalePullback j).map ((etaleRestriction j).map f)
+  have hfst : g.left ≫ pullback.fst ((etaleRestriction j).obj W).hom j =
+      pullback.fst ((etaleRestriction j).obj V).hom j ≫ f.left :=
+    pullback.lift_fst _ _ _
+  have hsnd : g.left ≫ pullback.snd ((etaleRestriction j).obj W).hom j =
+      pullback.snd ((etaleRestriction j).obj V).hom j :=
+    pullback.lift_snd _ _ _
+  have hbase : f.left ≫ ((etaleRestriction j).obj W).hom =
+      ((etaleRestriction j).obj V).hom :=
+    MorphismProperty.Over.w ((etaleRestriction j).map f)
+  have hp : IsPullback (pullback.fst ((etaleRestriction j).obj V).hom j) g.left
+      f.left (pullback.fst ((etaleRestriction j).obj W).hom j) := by
+    apply IsPullback.of_bot _ hfst.symm
+      (IsPullback.of_hasPullback ((etaleRestriction j).obj W).hom j)
+    rw [hsnd, hbase]
+    exact IsPullback.of_hasPullback ((etaleRestriction j).obj V).hom j
+  apply IsPullback.of_right _ _ hp
+  · simpa [diagonalSectionHom] using (IsPullback.of_id_fst (f := f.left))
+  · exact congrArg (fun k => k.left) (diagonalSection_naturality j f)
+
+/-- The inverse image of a diagonal range is the diagonal range of the source. -/
+theorem diagonalRange_preimage {V W : U.Etale} (f : V ⟶ W) :
+    Set.range (diagonalSectionHom j V) =
+      ((smallEtalePullback j).map ((etaleRestriction j).map f)).left ⁻¹'
+        Set.range (diagonalSectionHom j W) := by
+  simpa using image_preimage_eq_of_isPullback (diagonalSection_isPullback j f).flip Set.univ
+
+set_option backward.isDefEq.respectTransparency false in
+/-- Extending by zero along the diagonal commutes with restriction on the small étale site. -/
+theorem diagonalExtensionMap_restriction
+    (F : Sheaf U.smallEtaleTopology A) {V W : U.Etale} (f : V ⟶ W) :
+    F.obj.map f.op ≫ diagonalExtensionMap j A F V =
+      diagonalExtensionMap j A F W ≫
+        F.obj.map ((smallEtalePullback j).map ((etaleRestriction j).map f)).op := by
+  let g := (smallEtalePullback j).map ((etaleRestriction j).map f)
+  have iso_fac (Z : U.Etale) :
+      (diagonalRangeIso j Z).hom ≫ diagonalRangeInclusion j Z = diagonalSection j Z := by
+    apply MorphismProperty.Over.Hom.ext
+    exact Scheme.Hom.isoOpensRange_hom_ι (diagonalSectionHom j Z)
+  let r : diagonalRangeObject j V ⟶ diagonalRangeObject j W :=
+    (diagonalRangeIso j V).inv ≫ f ≫ (diagonalRangeIso j W).hom
+  have rfac : r ≫ diagonalRangeInclusion j W = diagonalRangeInclusion j V ≫ g := by
+    calc
+      r ≫ diagonalRangeInclusion j W =
+          (diagonalRangeIso j V).inv ≫ f ≫ diagonalSection j W := by
+        simp only [r, Category.assoc, iso_fac]
+      _ = (diagonalRangeIso j V).inv ≫ diagonalSection j V ≫ g := by
+        rw [diagonalSection_naturality j f]
+      _ = diagonalRangeInclusion j V ≫ g := by
+        rw [← iso_fac V]
+        simp
+  have hc : diagonalComplement j V ≤ g.left ⁻¹ᵁ diagonalComplement j W := by
+    intro p hp
+    change p ∉ Set.range (diagonalSectionHom j V) at hp
+    change g.left p ∉ Set.range (diagonalSectionHom j W)
+    rwa [diagonalRange_preimage j f] at hp
+  let cHom := g.left.resLE (diagonalComplement j W) (diagonalComplement j V) hc
+  have c_over : cHom ≫ (diagonalComplementObject j W).hom =
+      (diagonalComplementObject j V).hom := by
+    change cHom ≫ ((diagonalComplement j W).ι ≫ (diagonalPullback j W).hom) =
+      (diagonalComplement j V).ι ≫ (diagonalPullback j V).hom
+    rw [← Category.assoc, Scheme.Hom.resLE_comp_ι, Category.assoc,
+      MorphismProperty.Over.w g]
+  let c : diagonalComplementObject j V ⟶ diagonalComplementObject j W :=
+    MorphismProperty.Over.homMk cHom c_over
+  have cfac : c ≫ diagonalComplementInclusion j W =
+      diagonalComplementInclusion j V ≫ g := by
+    apply MorphismProperty.Over.Hom.ext
+    exact Scheme.Hom.resLE_comp_ι g.left hc
+  apply F.property.hom_ext_ofArrows _ (diagonalCover_mem j V)
+  intro i
+  cases i
+  · change (F.obj.map f.op ≫ diagonalExtensionMap j A F V) ≫
+        F.obj.map (diagonalRangeInclusion j V).op =
+      (diagonalExtensionMap j A F W ≫ F.obj.map g.op) ≫
+        F.obj.map (diagonalRangeInclusion j V).op
+    calc
+      (F.obj.map f.op ≫ diagonalExtensionMap j A F V) ≫
+          F.obj.map (diagonalRangeInclusion j V).op =
+        F.obj.map f.op ≫ F.obj.map (diagonalRangeIso j V).inv.op := by
+          rw [Category.assoc, diagonalExtensionMap_range]
+      _ = F.obj.map ((diagonalRangeIso j V).inv ≫ f).op := by
+        rw [op_comp, F.obj.map_comp]
+      _ = F.obj.map (diagonalRangeIso j W).inv.op ≫ F.obj.map r.op := by
+        simp [r, ← F.obj.map_comp, ← op_comp]
+      _ = (diagonalExtensionMap j A F W ≫
+          F.obj.map (diagonalRangeInclusion j W).op) ≫ F.obj.map r.op := by
+        rw [diagonalExtensionMap_range]
+      _ = (diagonalExtensionMap j A F W ≫ F.obj.map g.op) ≫
+          F.obj.map (diagonalRangeInclusion j V).op := by
+        simp only [Category.assoc, ← F.obj.map_comp, ← op_comp, rfac]
+  · change (F.obj.map f.op ≫ diagonalExtensionMap j A F V) ≫
+        F.obj.map (diagonalComplementInclusion j V).op =
+      (diagonalExtensionMap j A F W ≫ F.obj.map g.op) ≫
+        F.obj.map (diagonalComplementInclusion j V).op
+    rw [Category.assoc, diagonalExtensionMap_complement, comp_zero]
+    rw [Category.assoc, ← F.obj.map_comp, ← op_comp, ← cfac,
+      op_comp, F.obj.map_comp, ← Category.assoc, diagonalExtensionMap_complement,
+      zero_comp]
 
 end ExtensionByZeroComparison
 
@@ -251,7 +401,9 @@ noncomputable def abelianExtensionByZeroPresheafUnit
     (F : Sheaf U.smallEtaleTopology AddCommGrpCat.{w}) :
     F.obj ⟶ (etaleRestriction j).op ⋙ (smallEtalePullback j).op ⋙ F.obj where
   app V := diagonalExtensionMap j AddCommGrpCat.{w} F V.unop
-  naturality := sorry
+  naturality := by
+    intro V W f
+    exact diagonalExtensionMap_restriction j AddCommGrpCat.{w} F f.unop
 
 /-- The presheaf comparison induced by the clopen-diagonal extension maps. -/
 noncomputable def abelianExtensionByZeroPresheafMap
@@ -283,7 +435,35 @@ noncomputable def abelianExtensionByZeroToDirectImage :
       (smallEtalePullback j).sheafPushforwardContinuous
         AddCommGrpCat.{w} X.smallEtaleTopology U.smallEtaleTopology where
   app := abelianExtensionByZeroToDirectImageApp j
-  naturality := sorry
+  naturality := by
+    intro F G α
+    have presheaf_naturality :
+        (etaleRestriction j).op.lan.map α.hom ≫
+            abelianExtensionByZeroPresheafMap j G =
+          abelianExtensionByZeroPresheafMap j F ≫
+            whiskerLeft (smallEtalePullback j).op α.hom := by
+      unfold abelianExtensionByZeroPresheafMap
+      rw [← Adjunction.homEquiv_naturality_left_symm]
+      erw [← ((etaleRestriction j).op.lanAdjunction AddCommGrpCat.{w}).homEquiv_naturality_right_symm
+          (abelianExtensionByZeroPresheafUnit j F)
+          (whiskerLeft (smallEtalePullback j).op α.hom)]
+      congr 1
+      apply NatTrans.ext
+      funext V
+      exact diagonalExtensionMap_naturality j AddCommGrpCat.{w} α V.unop
+    dsimp only [abelianExtensionByZeroToDirectImageApp]
+    rw [← Category.assoc,
+      (sheafPullbackConstruction.sheafPullbackIso (etaleRestriction j)
+        AddCommGrpCat.{w} U.smallEtaleTopology X.smallEtaleTopology).hom.naturality α]
+    simp only [Category.assoc]
+    congr 1
+    apply Sheaf.hom_ext
+    change sheafifyMap X.smallEtaleTopology ((etaleRestriction j).op.lan.map α.hom) ≫
+        sheafifyLift X.smallEtaleTopology (abelianExtensionByZeroPresheafMap j G) _ =
+      sheafifyLift X.smallEtaleTopology (abelianExtensionByZeroPresheafMap j F) _ ≫
+        whiskerLeft (smallEtalePullback j).op α.hom
+    rw [sheafifyMap_sheafifyLift, presheaf_naturality]
+    exact sheafifyLift_comp _ _ _ _ _
 
 variable {Λ : Type w} [Ring Λ]
 
@@ -297,7 +477,9 @@ noncomputable def moduleExtensionByZeroPresheafUnit
     (F : Sheaf U.smallEtaleTopology (ModuleCat.{w} Λ)) :
     F.obj ⟶ (etaleRestriction j).op ⋙ (smallEtalePullback j).op ⋙ F.obj where
   app V := diagonalExtensionMap j (ModuleCat.{w} Λ) F V.unop
-  naturality := sorry
+  naturality := by
+    intro V W f
+    exact diagonalExtensionMap_restriction j (ModuleCat.{w} Λ) F f.unop
 
 /-- The module-presheaf comparison induced by the clopen-diagonal extension maps. -/
 noncomputable def moduleExtensionByZeroPresheafMap
@@ -329,7 +511,35 @@ noncomputable def moduleExtensionByZeroToDirectImage :
       (smallEtalePullback j).sheafPushforwardContinuous
         (ModuleCat.{w} Λ) X.smallEtaleTopology U.smallEtaleTopology where
   app := moduleExtensionByZeroToDirectImageApp j
-  naturality := sorry
+  naturality := by
+    intro F G α
+    have presheaf_naturality :
+        (etaleRestriction j).op.lan.map α.hom ≫
+            moduleExtensionByZeroPresheafMap j G =
+          moduleExtensionByZeroPresheafMap j F ≫
+            whiskerLeft (smallEtalePullback j).op α.hom := by
+      unfold moduleExtensionByZeroPresheafMap
+      rw [← Adjunction.homEquiv_naturality_left_symm]
+      erw [← ((etaleRestriction j).op.lanAdjunction (ModuleCat.{w} Λ)).homEquiv_naturality_right_symm
+          (moduleExtensionByZeroPresheafUnit j F)
+          (whiskerLeft (smallEtalePullback j).op α.hom)]
+      congr 1
+      apply NatTrans.ext
+      funext V
+      exact diagonalExtensionMap_naturality j (ModuleCat.{w} Λ) α V.unop
+    dsimp only [moduleExtensionByZeroToDirectImageApp]
+    rw [← Category.assoc,
+      (sheafPullbackConstruction.sheafPullbackIso (etaleRestriction j)
+        (ModuleCat.{w} Λ) U.smallEtaleTopology X.smallEtaleTopology).hom.naturality α]
+    simp only [Category.assoc]
+    congr 1
+    apply Sheaf.hom_ext
+    change sheafifyMap X.smallEtaleTopology ((etaleRestriction j).op.lan.map α.hom) ≫
+        sheafifyLift X.smallEtaleTopology (moduleExtensionByZeroPresheafMap j G) _ =
+      sheafifyLift X.smallEtaleTopology (moduleExtensionByZeroPresheafMap j F) _ ≫
+        whiskerLeft (smallEtalePullback j).op α.hom
+    rw [sheafifyMap_sheafifyLift, presheaf_naturality]
+    exact sheafifyLift_comp _ _ _ _ _
 
 section AbelianMono
 

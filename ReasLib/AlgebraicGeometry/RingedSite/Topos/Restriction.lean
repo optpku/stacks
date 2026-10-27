@@ -30,7 +30,7 @@ namespace RingedSite.Cocontinuous
 
 variable (X : RingedSite.{uX, vX, w})
 variable {C : Type u} [Category.{v} C]
-variable (J : GrothendieckTopology C) (inclusion : C ⥤ X)
+variable (J : GrothendieckTopology C) (inclusion : C ⥤ X.carrier)
 variable [inclusion.IsContinuous J X.siteTopology]
 
 /-- The ringed site whose structure sheaf is the restriction of the given structure
@@ -66,7 +66,7 @@ theorem isFlat_iff_restrictions
     (X : RingedSite.{uX, vX, w}) {Y : RingedSite.{uY, vY, w}}
     {I : Type uI} (C : I → Type u) [∀ index, Category.{v} (C index)]
     (J : ∀ index, GrothendieckTopology (C index))
-    (inclusion : ∀ index, C index ⥤ X)
+    (inclusion : ∀ index, C index ⥤ X.carrier)
     [∀ index, (inclusion index).IsContinuous (J index) X.siteTopology]
     [∀ index, (inclusion index).IsCocontinuous (J index) X.siteTopology]
     [∀ index, HasSheafify (J index) (Type w)]
@@ -75,7 +75,7 @@ theorem isFlat_iff_restrictions
     [∀ index, (J index).HasSheafCompose (forget RingCat.{w})]
     [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
     [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
-    (objectSurjective : ∀ totalObject : X, ∃ index, ∃ stageObject : C index,
+    (objectSurjective : ∀ totalObject : X.carrier, ∃ index, ∃ stageObject : C index,
       (inclusion index).obj stageObject = totalObject)
     (a : ToposHom X Y)
     [(SheafOfModules.restrictScalars.{w} a.structureMap).IsRightAdjoint]

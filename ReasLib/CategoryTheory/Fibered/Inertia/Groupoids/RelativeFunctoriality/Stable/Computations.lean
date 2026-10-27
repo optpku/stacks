@@ -26,7 +26,7 @@ based forgetful map. -/
 theorem forget.toBasedFunctor (F : X ⟶ Y) :
     FiberedCategoryOver.Groupoids.toBasedFunctor (forget F) =
       BasedCategory.RelativeInertia.forget
-        (FiberedCategoryOver.Groupoids.toBasedFunctor F) := sorry
+        (FiberedCategoryOver.Groupoids.toBasedFunctor F) := rfl
 
 
 /-- The total functor of groupoid-fibred relative-inertia forgetting is the neutral forgetful
@@ -35,7 +35,7 @@ functor. -/
 theorem forget.toFunctor (F : X ⟶ Y) :
     FiberedCategoryOver.Groupoids.toFunctor (forget F) =
       CategoryTheory.RelativeInertia.forget
-        (FiberedCategoryOver.Groupoids.toFunctor F) := sorry
+        (FiberedCategoryOver.Groupoids.toFunctor F) := rfl
 
 
 
@@ -45,7 +45,7 @@ based section. -/
 theorem identitySection.toBasedFunctor (F : X ⟶ Y) :
     FiberedCategoryOver.Groupoids.toBasedFunctor (identitySection F) =
       BasedCategory.RelativeInertia.identitySection
-        (FiberedCategoryOver.Groupoids.toBasedFunctor F) := sorry
+        (FiberedCategoryOver.Groupoids.toBasedFunctor F) := rfl
 
 
 /-- The total functor of the groupoid-fibred relative identity section is the neutral
@@ -54,7 +54,7 @@ section. -/
 theorem identitySection.toFunctor (F : X ⟶ Y) :
     FiberedCategoryOver.Groupoids.toFunctor (identitySection F) =
       CategoryTheory.RelativeInertia.identitySection
-        (FiberedCategoryOver.Groupoids.toFunctor F) := sorry
+        (FiberedCategoryOver.Groupoids.toFunctor F) := rfl
 
 
 
@@ -64,7 +64,7 @@ object. -/
 theorem forget.obj
     (F : X ⟶ Y)
     (A : (FiberedCategoryOver.Groupoids.relativeInertia F).total) :
-    (FiberedCategoryOver.Groupoids.toFunctor (forget F)).obj A = A.obj := sorry
+    (FiberedCategoryOver.Groupoids.toFunctor (forget F)).obj A = A.obj := rfl
 
 /-- Forgetting a groupoid-fibred relative-inertia morphism returns its underlying source
 arrow. -/
@@ -74,18 +74,18 @@ theorem forget.map
     {A B : (FiberedCategoryOver.Groupoids.relativeInertia F).total}
     (φ : A ⟶ B) :
     (FiberedCategoryOver.Groupoids.toFunctor (forget F)).map φ =
-      CategoryTheory.RelativeInertia.hom φ := sorry
+      CategoryTheory.RelativeInertia.hom φ := rfl
 
 
 /-- The groupoid-fibred relative identity section preserves the underlying object. -/
 @[simp]
 theorem identitySection.obj (F : X ⟶ Y) (x : X.total) :
-    ((FiberedCategoryOver.Groupoids.toFunctor (identitySection F)).obj x).obj = x := sorry
+    ((FiberedCategoryOver.Groupoids.toFunctor (identitySection F)).obj x).obj = x := rfl
 
 /-- The groupoid-fibred relative identity section selects the identity automorphism. -/
 @[simp]
 theorem identitySection.aut (F : X ⟶ Y) (x : X.total) :
-    ((FiberedCategoryOver.Groupoids.toFunctor (identitySection F)).obj x).aut = 1 := sorry
+    ((FiberedCategoryOver.Groupoids.toFunctor (identitySection F)).obj x).aut = 1 := rfl
 
 /-- The arrow underlying the image of a morphism under the relative identity section is the
 original arrow. -/
@@ -94,12 +94,12 @@ theorem identitySection.hom
     (F : X ⟶ Y) {x y : X.total} (f : x ⟶ y) :
     CategoryTheory.RelativeInertia.hom
         ((FiberedCategoryOver.Groupoids.toFunctor (identitySection F)).map f) =
-      f := sorry
+      f := rfl
 
 /-- The relative identity section is a right inverse to relative-inertia forgetting. -/
 @[simp]
 theorem identitySection.comp_forget (F : X ⟶ Y) :
-    identitySection F ≫ forget F = 𝟙 X := sorry
+    identitySection F ≫ forget F = 𝟙 X := rfl
 
 
 end RelativeInertia

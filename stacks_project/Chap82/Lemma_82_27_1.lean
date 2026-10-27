@@ -39,4 +39,4 @@ zero pushforward for every Chow class. -/
 expressed by the zero-index Segre map with canonical degree transport. -/
 @[stacks 0ERU] #check (AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.HigherChern.segre_zero f δ E q :
   ∀ k : ℤ, HigherChern.segre f δ E q 0 k =
-      ChowCohomology.castChowGroup δ f (show k = k - (0 : ℕ) by omega))
+      (AddEquiv.cast (M := Hom.chowGroup f δ) (show k = k - (0 : ℕ) by omega)).toAddMonoidHom)

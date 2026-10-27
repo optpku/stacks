@@ -13,6 +13,7 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.StackInSets
 public import ReasLib.CategoryTheory.Category.ULift
 public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.Cone
 public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.PseudoCone.Bilimit
+public import ReasLib.CategoryTheory.Fibered.CartesianBasedFunctor.Associator
 public import ReasLib.CategoryTheory.Fibered.CartesianBasedFunctor.Postcomposition
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Hom
 public import ReasLib.CategoryTheory.Fibered.Stack.InGroupoidsOver.Hom.Equivalence
@@ -246,20 +247,24 @@ private def isoCommaPreStackIso (f : Hom G H) :
           (fppfQuotientStackPresentation H).comparison.toFunctor.map (isoCommaPreInvHom f x)
   build (preQuotient (isoComma f)).p (fppfQuotientStack H).p F K homApp invApp (isoCommaPreStackIso_laws f)
 
+-- Abstract the functors before checking the identity components: the selected lifts now
+-- contain concrete descent data, which need not be unfolded for associativity.
+private def associatorLaws {X₁ X₂ X₃ X₄ C : Type _}
+    [Category X₁] [Category X₂] [Category X₃] [Category X₄] [Category C]
+    {p₁ : X₁ ⥤ C} {p₂ : X₂ ⥤ C} {p₃ : X₃ ⥤ C} {p₄ : X₄ ⥤ C}
+    (i : CartesianBasedFunctor p₁ p₂) (g : CartesianBasedFunctor p₂ p₃)
+    (h : CartesianBasedFunctor p₃ p₄) : Prop :=
+  let F := (i.comp g).comp h
+  let K := i.comp (g.comp h)
+  let homApp : ∀ x : X₁, F.toFunctor.obj x ⟶ K.toFunctor.obj x :=
+    fun x ↦ 𝟙 (F.toFunctor.obj x)
+  let invApp : ∀ x : X₁, K.toFunctor.obj x ⟶ F.toFunctor.obj x :=
+    fun x ↦ 𝟙 (F.toFunctor.obj x)
+  comparisonLaws p₁ p₄ F K homApp invApp
+
 private theorem isoCommaLeftAssoc_laws (f : Hom G H) :
-    let F := ((fppfQuotientStackPresentation (isoComma f)).comparison.comp
-        (quotientStackMap (isoCommaHom f))).comp (quotientStackMap f)
-    let K := (fppfQuotientStackPresentation (isoComma f)).comparison.comp
-        ((quotientStackMap (isoCommaHom f)).comp (quotientStackMap f))
-    let homApp : ∀ x : (preQuotient (isoComma f)).total, F.toFunctor.obj x ⟶ K.toFunctor.obj x :=
-      fun (x : (preQuotient (isoComma f)).total) ↦
-          𝟙 ((((fppfQuotientStackPresentation (isoComma f)).comparison.comp
-              (quotientStackMap (isoCommaHom f))).comp (quotientStackMap f)).toFunctor.obj x)
-    let invApp : ∀ x : (preQuotient (isoComma f)).total, K.toFunctor.obj x ⟶ F.toFunctor.obj x :=
-      fun (x : (preQuotient (isoComma f)).total) ↦
-          𝟙 ((((fppfQuotientStackPresentation (isoComma f)).comparison.comp
-              (quotientStackMap (isoCommaHom f))).comp (quotientStackMap f)).toFunctor.obj x)
-    comparisonLaws (preQuotient (isoComma f)).p (fppfQuotientStack H).p F K homApp invApp := sorry
+    associatorLaws (fppfQuotientStackPresentation (isoComma f)).comparison
+      (quotientStackMap (isoCommaHom f)) (quotientStackMap f) := sorry
 
 /-- Identity-on-objects associator identifying `((i ≫ [g]) ≫ [f])` with `i ≫ ([g] ≫ [f])`. -/
 private def isoCommaLeftAssoc (f : Hom G H) :
@@ -267,56 +272,13 @@ private def isoCommaLeftAssoc (f : Hom G H) :
         (quotientStackMap (isoCommaHom f))).comp (quotientStackMap f) ≅
       (fppfQuotientStackPresentation (isoComma f)).comparison.comp
         ((quotientStackMap (isoCommaHom f)).comp (quotientStackMap f)) :=
-  let build {X Y C : Type _} [Category X] [Category Y] [Category C]
-      (p : X ⥤ C) (q : Y ⥤ C) (F K : CartesianBasedFunctor p q)
-      (homApp : ∀ x : X, F.toFunctor.obj x ⟶ K.toFunctor.obj x)
-      (invApp : ∀ x : X, K.toFunctor.obj x ⟶ F.toFunctor.obj x)
-      (laws : comparisonLaws p q F K homApp invApp) : F ≅ K :=
-    { hom :=
-        CartesianBasedFunctor.homMk (F := F) (G := K)
-          { toNatTrans := { app := homApp, naturality := laws.1 }
-            isHomLift' := laws.2.1 }
-      inv :=
-        CartesianBasedFunctor.homMk (F := K) (G := F)
-          { toNatTrans := { app := invApp, naturality := laws.2.2.1 }
-            isHomLift' := laws.2.2.2.1 }
-      hom_inv_id := by
-        apply ObjectProperty.hom_ext
-        apply BasedNatTrans.ext
-        apply NatTrans.ext
-        funext x
-        exact laws.2.2.2.2.1 x
-      inv_hom_id := by
-        apply ObjectProperty.hom_ext
-        apply BasedNatTrans.ext
-        apply NatTrans.ext
-        funext x
-        exact laws.2.2.2.2.2 x }
-  let F := ((fppfQuotientStackPresentation (isoComma f)).comparison.comp
-        (quotientStackMap (isoCommaHom f))).comp (quotientStackMap f)
-  let K := (fppfQuotientStackPresentation (isoComma f)).comparison.comp
-        ((quotientStackMap (isoCommaHom f)).comp (quotientStackMap f))
-  let homApp : ∀ x : (preQuotient (isoComma f)).total, F.toFunctor.obj x ⟶ K.toFunctor.obj x :=
-      fun (x : (preQuotient (isoComma f)).total) ↦
-          𝟙 ((((fppfQuotientStackPresentation (isoComma f)).comparison.comp
-              (quotientStackMap (isoCommaHom f))).comp (quotientStackMap f)).toFunctor.obj x)
-  let invApp : ∀ x : (preQuotient (isoComma f)).total, K.toFunctor.obj x ⟶ F.toFunctor.obj x :=
-      fun (x : (preQuotient (isoComma f)).total) ↦
-          𝟙 ((((fppfQuotientStackPresentation (isoComma f)).comparison.comp
-              (quotientStackMap (isoCommaHom f))).comp (quotientStackMap f)).toFunctor.obj x)
-  build (preQuotient (isoComma f)).p (fppfQuotientStack H).p F K homApp invApp (isoCommaLeftAssoc_laws f)
+  CartesianBasedFunctor.associator
+    (fppfQuotientStackPresentation (isoComma f)).comparison
+      (quotientStackMap (isoCommaHom f)) (quotientStackMap f)
 
 private theorem isoCommaLeftPreAssoc_laws (f : Hom G H) :
-    let F := (prestackToQuotient (isoCommaHom f)).comp (quotientStackMap f)
-    let K := (prestackMap (isoCommaHom f)).comp
-        ((fppfQuotientStackPresentation G).comparison.comp (quotientStackMap f))
-    let homApp : ∀ x : (preQuotient (isoComma f)).total, F.toFunctor.obj x ⟶ K.toFunctor.obj x :=
-      fun (x : (preQuotient (isoComma f)).total) ↦
-          𝟙 (((prestackToQuotient (isoCommaHom f)).comp (quotientStackMap f)).toFunctor.obj x)
-    let invApp : ∀ x : (preQuotient (isoComma f)).total, K.toFunctor.obj x ⟶ F.toFunctor.obj x :=
-      fun (x : (preQuotient (isoComma f)).total) ↦
-          𝟙 (((prestackToQuotient (isoCommaHom f)).comp (quotientStackMap f)).toFunctor.obj x)
-    comparisonLaws (preQuotient (isoComma f)).p (fppfQuotientStack H).p F K homApp invApp := sorry
+    associatorLaws (prestackMap (isoCommaHom f))
+      (fppfQuotientStackPresentation G).comparison (quotientStackMap f) := sorry
 
 /-- Identity-on-objects associator identifying `(prestackToQuotient g) ≫ [f]` with
 `[g]_p ≫ ((i_G) ≫ [f])`. -/
@@ -324,56 +286,13 @@ private def isoCommaLeftPreAssoc (f : Hom G H) :
     (prestackToQuotient (isoCommaHom f)).comp (quotientStackMap f) ≅
       (prestackMap (isoCommaHom f)).comp
         ((fppfQuotientStackPresentation G).comparison.comp (quotientStackMap f)) :=
-  let build {X Y C : Type _} [Category X] [Category Y] [Category C]
-      (p : X ⥤ C) (q : Y ⥤ C) (F K : CartesianBasedFunctor p q)
-      (homApp : ∀ x : X, F.toFunctor.obj x ⟶ K.toFunctor.obj x)
-      (invApp : ∀ x : X, K.toFunctor.obj x ⟶ F.toFunctor.obj x)
-      (laws : comparisonLaws p q F K homApp invApp) : F ≅ K :=
-    { hom :=
-        CartesianBasedFunctor.homMk (F := F) (G := K)
-          { toNatTrans := { app := homApp, naturality := laws.1 }
-            isHomLift' := laws.2.1 }
-      inv :=
-        CartesianBasedFunctor.homMk (F := K) (G := F)
-          { toNatTrans := { app := invApp, naturality := laws.2.2.1 }
-            isHomLift' := laws.2.2.2.1 }
-      hom_inv_id := by
-        apply ObjectProperty.hom_ext
-        apply BasedNatTrans.ext
-        apply NatTrans.ext
-        funext x
-        exact laws.2.2.2.2.1 x
-      inv_hom_id := by
-        apply ObjectProperty.hom_ext
-        apply BasedNatTrans.ext
-        apply NatTrans.ext
-        funext x
-        exact laws.2.2.2.2.2 x }
-  let F := (prestackToQuotient (isoCommaHom f)).comp (quotientStackMap f)
-  let K := (prestackMap (isoCommaHom f)).comp
-        ((fppfQuotientStackPresentation G).comparison.comp (quotientStackMap f))
-  let homApp : ∀ x : (preQuotient (isoComma f)).total, F.toFunctor.obj x ⟶ K.toFunctor.obj x :=
-      fun (x : (preQuotient (isoComma f)).total) ↦
-          𝟙 (((prestackToQuotient (isoCommaHom f)).comp (quotientStackMap f)).toFunctor.obj x)
-  let invApp : ∀ x : (preQuotient (isoComma f)).total, K.toFunctor.obj x ⟶ F.toFunctor.obj x :=
-      fun (x : (preQuotient (isoComma f)).total) ↦
-          𝟙 (((prestackToQuotient (isoCommaHom f)).comp (quotientStackMap f)).toFunctor.obj x)
-  build (preQuotient (isoComma f)).p (fppfQuotientStack H).p F K homApp invApp (isoCommaLeftPreAssoc_laws f)
+  CartesianBasedFunctor.associator
+    (prestackMap (isoCommaHom f))
+      (fppfQuotientStackPresentation G).comparison (quotientStackMap f)
 
 private theorem isoCommaRightAssoc_laws (f : Hom G H) :
-    let F := ((fppfQuotientStackPresentation (isoComma f)).comparison.comp
-        (isoCommaToTarget f)).comp (fppfAtlas H)
-    let K := (fppfQuotientStackPresentation (isoComma f)).comparison.comp
-        ((isoCommaToTarget f).comp (fppfAtlas H))
-    let homApp : ∀ x : (preQuotient (isoComma f)).total, F.toFunctor.obj x ⟶ K.toFunctor.obj x :=
-      fun (x : (preQuotient (isoComma f)).total) ↦
-          𝟙 ((((fppfQuotientStackPresentation (isoComma f)).comparison.comp
-              (isoCommaToTarget f)).comp (fppfAtlas H)).toFunctor.obj x)
-    let invApp : ∀ x : (preQuotient (isoComma f)).total, K.toFunctor.obj x ⟶ F.toFunctor.obj x :=
-      fun (x : (preQuotient (isoComma f)).total) ↦
-          𝟙 ((((fppfQuotientStackPresentation (isoComma f)).comparison.comp
-              (isoCommaToTarget f)).comp (fppfAtlas H)).toFunctor.obj x)
-    comparisonLaws (preQuotient (isoComma f)).p (fppfQuotientStack H).p F K homApp invApp := sorry
+    associatorLaws (fppfQuotientStackPresentation (isoComma f)).comparison
+      (isoCommaToTarget f) (fppfAtlas H) := sorry
 
 /-- Identity-on-objects associator identifying `((i ≫ toTarget) ≫ atlas)` with
 `i ≫ (toTarget ≫ atlas)`. -/
@@ -382,44 +301,9 @@ private def isoCommaRightAssoc (f : Hom G H) :
         (isoCommaToTarget f)).comp (fppfAtlas H) ≅
       (fppfQuotientStackPresentation (isoComma f)).comparison.comp
         ((isoCommaToTarget f).comp (fppfAtlas H)) :=
-  let build {X Y C : Type _} [Category X] [Category Y] [Category C]
-      (p : X ⥤ C) (q : Y ⥤ C) (F K : CartesianBasedFunctor p q)
-      (homApp : ∀ x : X, F.toFunctor.obj x ⟶ K.toFunctor.obj x)
-      (invApp : ∀ x : X, K.toFunctor.obj x ⟶ F.toFunctor.obj x)
-      (laws : comparisonLaws p q F K homApp invApp) : F ≅ K :=
-    { hom :=
-        CartesianBasedFunctor.homMk (F := F) (G := K)
-          { toNatTrans := { app := homApp, naturality := laws.1 }
-            isHomLift' := laws.2.1 }
-      inv :=
-        CartesianBasedFunctor.homMk (F := K) (G := F)
-          { toNatTrans := { app := invApp, naturality := laws.2.2.1 }
-            isHomLift' := laws.2.2.2.1 }
-      hom_inv_id := by
-        apply ObjectProperty.hom_ext
-        apply BasedNatTrans.ext
-        apply NatTrans.ext
-        funext x
-        exact laws.2.2.2.2.1 x
-      inv_hom_id := by
-        apply ObjectProperty.hom_ext
-        apply BasedNatTrans.ext
-        apply NatTrans.ext
-        funext x
-        exact laws.2.2.2.2.2 x }
-  let F := ((fppfQuotientStackPresentation (isoComma f)).comparison.comp
-        (isoCommaToTarget f)).comp (fppfAtlas H)
-  let K := (fppfQuotientStackPresentation (isoComma f)).comparison.comp
-        ((isoCommaToTarget f).comp (fppfAtlas H))
-  let homApp : ∀ x : (preQuotient (isoComma f)).total, F.toFunctor.obj x ⟶ K.toFunctor.obj x :=
-      fun (x : (preQuotient (isoComma f)).total) ↦
-          𝟙 ((((fppfQuotientStackPresentation (isoComma f)).comparison.comp
-              (isoCommaToTarget f)).comp (fppfAtlas H)).toFunctor.obj x)
-  let invApp : ∀ x : (preQuotient (isoComma f)).total, K.toFunctor.obj x ⟶ F.toFunctor.obj x :=
-      fun (x : (preQuotient (isoComma f)).total) ↦
-          𝟙 ((((fppfQuotientStackPresentation (isoComma f)).comparison.comp
-              (isoCommaToTarget f)).comp (fppfAtlas H)).toFunctor.obj x)
-  build (preQuotient (isoComma f)).p (fppfQuotientStack H).p F K homApp invApp (isoCommaRightAssoc_laws f)
+  CartesianBasedFunctor.associator
+    (fppfQuotientStackPresentation (isoComma f)).comparison
+      (isoCommaToTarget f) (fppfAtlas H)
 
 /-- The stackification lift of `[g]_p ≫ [f]_p` whose lift is `[g] ≫ [f]`. -/
 private def isoCommaLeftLift (f : Hom G H) :

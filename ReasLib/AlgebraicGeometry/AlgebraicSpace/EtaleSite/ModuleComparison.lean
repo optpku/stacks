@@ -9,7 +9,7 @@ module
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RingedSite.Basic
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RingedSite.BigRelocalization
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Relocalization
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.GlobalSections.Derived
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Basic
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.InverseImage.Exact
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Exact
 public import Mathlib.CategoryTheory.IsomorphismClasses

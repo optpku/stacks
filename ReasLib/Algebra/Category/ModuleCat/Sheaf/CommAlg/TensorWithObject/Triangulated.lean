@@ -62,12 +62,26 @@ def mapCocycle (K : Complex.{r, u, v, w, max u z} O)
     Cocycle (obj K M) (obj K N) k :=
   Cocycle.mk (map K f.1) (k + 1) rfl sorry
 
-/-- Tensoring the homogeneous identity `M ⟶ M[k]` gives the forward shift map. -/
+/-- The canonical tensor-shift map is the unsigned reindexing `m ⊗ x ↦ m ⊗ x`.
+For `m` of degree `p` and `x` of degree `q`, its source degree is `p + q - k` and
+its target tensor degrees are `p - k` and `q`.  The shifted differentials agree since
+`(-1)^(p - k) = (-1)^(p + k)`.  We assemble the components directly: the generic
+`Cocycle.equivHomShift'` introduces the extraneous factor `(-1)^(k*(k-1)/2)`. -/
 @[stacks 09LW "tensor-shift map over a coefficient ring"]
 def shiftHom (K : Complex.{r, u, v, w, max u z} O) (M : Modules K) (k : ℤ) :
-    (obj K M)⟦k⟧ ⟶ obj K (M[k]) :=
-  (Cocycle.equivHomShift' k (-k) (neg_add_cancel k)).symm
-    (mapCocycle K (DifferentialGradedModule.Shift.toGradedHom M k))
+    (obj K M)⟦k⟧ ⟶ obj K (M[k]) where
+  f n := ((obj K M).shiftFunctorObjXIso k n (n + k) rfl).hom ≫
+    (map K (DifferentialGradedModule.Shift.toGradedHom M k).1).v
+      (n + k) n (by omega)
+  comm' := sorry
+
+/-- The forward tensor-shift map has unsigned components, before taking homotopy or homology. -/
+@[simp]
+theorem shiftHom_f (K : Complex.{r, u, v, w, max u z} O) (M : Modules K) (k n : ℤ) :
+    (shiftHom K M k).f n =
+      ((obj K M).shiftFunctorObjXIso k n (n + k) rfl).hom ≫
+        (map K (DifferentialGradedModule.Shift.toGradedHom M k).1).v
+          (n + k) n (by omega) := rfl
 
 /-- Tensoring the reverse homogeneous identity gives the inverse shift map. -/
 @[stacks 09LW "inverse tensor-shift map over a coefficient ring"]

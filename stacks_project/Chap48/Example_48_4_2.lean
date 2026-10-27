@@ -14,6 +14,8 @@ public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Quasicoherent.Open
 open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
 open scoped DualNumber
 
+attribute [local instance 2000] hasColimitOfHasColimitsOfShape
+
 noncomputable section
 
 universe u

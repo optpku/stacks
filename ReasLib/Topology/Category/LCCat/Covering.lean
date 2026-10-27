@@ -125,23 +125,12 @@ abbrev proper : MorphismProperty LCCat.{u} :=
 
 /-- Lemma 21.31.9 (1): proper morphisms in `LCCat` admit pullbacks. -/
 @[stacks 0EZI "(1)"]
-theorem proper_hasPullbacks : MorphismProperty.HasPullbacks proper := sorry
+instance proper_hasPullbacks : MorphismProperty.HasPullbacks proper := sorry
 
 /-- Lemma 21.31.9 (2): proper morphisms in `LCCat` are stable under base change. -/
 @[stacks 0EZI "(2)"]
-theorem proper_isStableUnderBaseChange :
+instance proper_isStableUnderBaseChange :
     MorphismProperty.IsStableUnderBaseChange proper := sorry
-
-/-- The reusable pullback instance for the proper morphism property. -/
-@[stacks 0EZI "proper pullbacks", instance]
-instance proper_hasPullbacks_instance : MorphismProperty.HasPullbacks proper :=
-  proper_hasPullbacks
-
-/-- The reusable base-change instance for the proper morphism property. -/
-@[stacks 0EZI "proper base change", instance]
-instance proper_isStableUnderBaseChange_instance :
-    MorphismProperty.IsStableUnderBaseChange proper :=
-  proper_isStableUnderBaseChange
 
 end LCCat
 

@@ -37,14 +37,19 @@ noncomputable def ιRestrictScalars (φ : R →+* S)
     (f : M ⟶ (ModuleCat.restrictScalars φ).obj N) :
     M →ₛₗ[φ] ExteriorAlgebra S N where
   toFun x := ExteriorAlgebra.ι S (f x)
-  map_add' := sorry
-  map_smul' := sorry
+  map_add' x y := by
+    rw [f.hom.map_add]
+    exact (ExteriorAlgebra.ι S : N →ₗ[S] ExteriorAlgebra S N).map_add (f x) (f y)
+  map_smul' r x := by
+    rw [f.hom.map_smul]
+    exact (ExteriorAlgebra.ι S).map_smul (φ r) (f x)
 
 /-- The scalar-restricted degree-one generator has square zero in the target exterior algebra. -/
 theorem ιRestrictScalars_sq_zero (φ : R →+* S)
     {M : ModuleCat.{v} R} {N : ModuleCat.{v} S}
     (f : M ⟶ (ModuleCat.restrictScalars φ).obj N) (x : M) :
-    ιRestrictScalars φ f x * ιRestrictScalars φ f x = 0 := sorry
+    ιRestrictScalars φ f x * ιRestrictScalars φ f x = 0 :=
+  ExteriorAlgebra.ι_sq_zero (f x)
 
 /-- The ring homomorphism on exterior algebras induced along a scalar restriction.
 
@@ -60,8 +65,8 @@ noncomputable def mapRestrictScalarsRingHom (φ : R →+* S)
     Algebra.compHom (ExteriorAlgebra S N) φ
   (ExteriorAlgebra.lift R
     ⟨{ toFun := ιRestrictScalars φ f
-       map_add' := sorry
-       map_smul' := sorry },
+       map_add' := (ιRestrictScalars φ f).map_add
+       map_smul' := (ιRestrictScalars φ f).map_smulₛₗ },
       ιRestrictScalars_sq_zero φ f⟩).toRingHom
 
 /-- The scalar-restricted exterior-algebra ring homomorphism agrees with `φ` on scalars. -/
@@ -70,7 +75,10 @@ theorem mapRestrictScalarsRingHom_algebraMap (φ : R →+* S)
     {M : ModuleCat.{v} R} {N : ModuleCat.{v} S}
     (f : M ⟶ (ModuleCat.restrictScalars φ).obj N) (r : R) :
     mapRestrictScalarsRingHom φ f (algebraMap R (ExteriorAlgebra R M) r) =
-      algebraMap S (ExteriorAlgebra S N) (φ r) := sorry
+      algebraMap S (ExteriorAlgebra S N) (φ r) := by
+  letI : Algebra R (ExteriorAlgebra S N) := Algebra.compHom (ExteriorAlgebra S N) φ
+  unfold mapRestrictScalarsRingHom
+  exact AlgHom.commutes _ r
 
 /-- The scalar-restricted exterior-algebra ring homomorphism is semilinear over `φ`. -/
 theorem mapRestrictScalarsRingHom_smul (φ : R →+* S)
@@ -78,7 +86,19 @@ theorem mapRestrictScalarsRingHom_smul (φ : R →+* S)
     (f : M ⟶ (ModuleCat.restrictScalars φ).obj N) (r : R)
     (x : ExteriorAlgebra R M) :
     mapRestrictScalarsRingHom φ f (r • x) =
-      φ r • mapRestrictScalarsRingHom φ f x := sorry
+      φ r • mapRestrictScalarsRingHom φ f x := by
+  simp only [Algebra.smul_def, map_mul, mapRestrictScalarsRingHom_algebraMap]
+
+/-- The ring homomorphism along scalar restriction sends each exterior generator to the
+generator of its image. -/
+@[simp]
+theorem mapRestrictScalarsRingHom_ι (φ : R →+* S)
+    {M : ModuleCat.{v} R} {N : ModuleCat.{v} S}
+    (f : M ⟶ (ModuleCat.restrictScalars φ).obj N) (x : M) :
+    mapRestrictScalarsRingHom φ f (ExteriorAlgebra.ι R x) =
+      ExteriorAlgebra.ι S (f x) := by
+  simp [mapRestrictScalarsRingHom, ιRestrictScalars]
+  rfl
 
 /-- The exterior-algebra map induced by a morphism into a restriction of scalars. -/
 noncomputable def mapRestrictScalars (φ : R →+* S)
@@ -96,14 +116,27 @@ its image. -/
 theorem mapRestrictScalars_ι (φ : R →+* S)
     {M : ModuleCat.{v} R} {N : ModuleCat.{v} S}
     (f : M ⟶ (ModuleCat.restrictScalars φ).obj N) (x : M) :
-    mapRestrictScalars φ f (ι M x) = ι N (f x) := sorry
+    mapRestrictScalars φ f (ι M x) = ι N (f x) :=
+  mapRestrictScalarsRingHom_ι φ f x
 
 /-- Exterior algebras carry an identity scalar-restriction morphism to the corresponding
 identity scalar-restriction morphism. -/
 theorem mapRestrictScalars_id (φ : R →+* R) (hφ : φ = RingHom.id R)
     (M : ModuleCat.{v} R) :
     mapRestrictScalars φ (ModuleCat.restrictScalarsId'App φ hφ M).inv =
-      (ModuleCat.restrictScalarsId'App φ hφ M.exteriorAlgebra).inv := sorry
+      (ModuleCat.restrictScalarsId'App φ hφ M.exteriorAlgebra).inv := by
+  ext x
+  change mapRestrictScalarsRingHom φ (ModuleCat.restrictScalarsId'App φ hφ M).inv x = x
+  induction x using ExteriorAlgebra.induction with
+  | algebraMap r =>
+      simpa [hφ] using
+        mapRestrictScalarsRingHom_algebraMap φ
+          (ModuleCat.restrictScalarsId'App φ hφ M).inv r
+  | ι x =>
+      exact mapRestrictScalarsRingHom_ι (N := M) φ
+        (ModuleCat.restrictScalarsId'App φ hφ M).inv x
+  | mul x y hx hy => simp only [map_mul, hx, hy]
+  | add x y hx hy => simp only [map_add, hx, hy]
 
 /-- Exterior algebras preserve composition over composable scalar maps, including the canonical
 comparison between iterated and composite scalar restriction. -/
@@ -117,6 +150,18 @@ theorem mapRestrictScalars_comp (φ : R →+* S) (ψ : S →+* T) (χ : R →+* 
           (ModuleCat.restrictScalarsComp' φ ψ χ hχ).inv.app P) =
       mapRestrictScalars φ f ≫
         (ModuleCat.restrictScalars φ).map (mapRestrictScalars ψ g) ≫
-        (ModuleCat.restrictScalarsComp' φ ψ χ hχ).inv.app P.exteriorAlgebra := sorry
+        (ModuleCat.restrictScalarsComp' φ ψ χ hχ).inv.app P.exteriorAlgebra := by
+  ext x
+  change mapRestrictScalarsRingHom χ
+      (f ≫ (ModuleCat.restrictScalars φ).map g ≫
+        (ModuleCat.restrictScalarsComp' φ ψ χ hχ).inv.app P) x =
+    mapRestrictScalarsRingHom ψ g (mapRestrictScalarsRingHom φ f x)
+  induction x using ExteriorAlgebra.induction with
+  | algebraMap r => simp [hχ]
+  | ι x =>
+      rw [mapRestrictScalarsRingHom_ι, mapRestrictScalarsRingHom_ι]
+      exact (mapRestrictScalarsRingHom_ι ψ g (f x)).symm
+  | mul x y hx hy => simp only [map_mul, hx, hy]
+  | add x y hx hy => simp only [map_add, hx, hy]
 
 end ModuleCat.exteriorAlgebra

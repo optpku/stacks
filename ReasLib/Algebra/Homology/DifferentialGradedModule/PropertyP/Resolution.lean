@@ -43,7 +43,36 @@ namespace Resolution
 /-- The resolving object of a property P resolution has property P. -/
 @[stacks 09KP "property P of a resolution object"]
 theorem propertyP_obj {M : DifferentialGradedModule.{u, v} A} (P : Resolution A M) :
-    HasPropertyP A P.obj := sorry
+    HasPropertyP A P.obj := ⟨P.filtration⟩
+
+/-- A specified property-(P) filtration gives the identity resolution. The module,
+augmentation and filtration are explicit; no existence theorem is used to select them. -/
+def ofFiltration (M : DifferentialGradedModule.{u, v} A) (F : Filtration A M) :
+    Resolution A M where
+  obj := M
+  π := 𝟙 M
+  filtration := F
+  quasiIso_π := by
+    intro n
+    change IsIso ((Homotopy.homologyFunctor A n).map ((toK A).map (𝟙 M)))
+    rw [CategoryTheory.Functor.map_id, CategoryTheory.Functor.map_id]
+    infer_instance
+
+/-- The identity resolution retains the supplied module. -/
+@[simp]
+theorem ofFiltration_obj (M : DifferentialGradedModule.{u, v} A) (F : Filtration A M) :
+    (ofFiltration A M F).obj = M := rfl
+
+/-- The augmentation of the identity resolution is the identity map. -/
+@[simp]
+theorem ofFiltration_π (M : DifferentialGradedModule.{u, v} A) (F : Filtration A M) :
+    (ofFiltration A M F).π = 𝟙 M := rfl
+
+/-- The identity resolution keeps the actual filtration instead of choosing one from its
+nonempty property. -/
+@[simp]
+theorem ofFiltration_filtration (M : DifferentialGradedModule.{u, v} A)
+    (F : Filtration A M) : (ofFiltration A M F).filtration = F := rfl
 
 /-- Lemma 22.20.4 (09KP): every right DG `A`-module admits a property P resolution. -/
 @[stacks 09KP]

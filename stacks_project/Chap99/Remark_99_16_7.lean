@@ -7,10 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 import StacksCheckRecall
-public import ReasLib.CategoryTheory.Limits.CategoricalPullback.CatCommSqOver
-public import ReasLib.CategoryTheory.Limits.CategoricalPullback.Resize
-public import stacks_project.Chap108.Lemma_108_12_1_Map
-public import stacks_project.Chap99.Remark_99_16_7_BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Complexes.BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Complexes.Stack
 
 /-!
 # Remark 99.16.7
@@ -24,113 +22,23 @@ groupoids `Complexes_{X/B} ⟶ 𝒮_B`. For `g : B' ⟶ B`, the square comparing
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.Complexes
 open CategoryTheory.Limits CategoricalPullback
-
-noncomputable section
+open scoped CategoryTheory.Bicategory
 
 universe u
 
-attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
-
 /- Remark 99.16.7 (1): in Situation 99.16.3 the rule `(T, g, E) ↦ (T, g)` defines a
 1-morphism `Complexes_{X/B} ⟶ 𝒮_B` of stacks in groupoids. -/
-@[stacks 0DLI] #check toBase
+@[stacks 0DLI] #check (AlgebraicGeometry.AlgebraicSpace.Complexes.toBase :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B)
+    [Proper f] [Flat f] [FinitePresentation f],
+    AlgebraicGeometry.AlgebraicSpace.Complexes.toGroupoids f ⟶
+      AlgebraicGeometry.GroupScheme.Classifying.toGroupoids B)
 
-namespace AlgebraicGeometry.AlgebraicSpace.Complexes
-
-variable {S : Scheme.{u}} {X B B' : AlgebraicSpace S}
-
-/-- The commutative square with apex `Complexes_{X'/B'}`, projecting to
-`Complexes_{X/B}` and to `Sch/B'`, over `Sch/B`. Here `Sch/B` is the source's
-other notation for `𝒮_B`. -/
-def square (f : X ⟶ B)
-    [chartDerived : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
-      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
-        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
-    [chartTensor : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
-      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
-      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
-      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
-    (g : B' ⟶ B)
-    [baseChartDerived : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (Limits.pullback.snd (pullback.snd f g) σ.hom),
-      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
-        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
-    [baseChartTensor : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (Limits.pullback.snd (pullback.snd f g) σ.hom),
-      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
-      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
-      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)] [Proper f] [Flat f] [FinitePresentation f] :
-    CatCommSqOver (toSchemesOver f) (CostructuredArrow.map g) (Obj (pullback.snd f g)) where
-  fst := baseChange f g
-  snd := toSchemesOver (pullback.snd f g)
-  iso := NatIso.ofComponents (fun _ ↦ Iso.refl _) (fun {_ _} _ ↦ rfl)
-
-/-- The comparison from `Complexes_{X'/B'}` to the explicit categorical pullback of
-`toSchemesOver f` and `CostructuredArrow.map g`. -/
-abbrev square.comparison (f : X ⟶ B)
-    [chartDerived : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
-      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
-        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
-    [chartTensor : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
-      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
-      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
-      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
-    (g : B' ⟶ B)
-    [baseChartDerived : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (Limits.pullback.snd (pullback.snd f g) σ.hom),
-      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
-        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
-    [baseChartTensor : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (Limits.pullback.snd (pullback.snd f g) σ.hom),
-      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
-      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
-      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
-    [Proper f] [Flat f] [FinitePresentation f] :=
-  (square f g).comparison
-
-/-- Remark 99.16.7 (2): for a morphism `g : B' ⟶ B` of algebraic spaces over `S`,
-setting `X' = X ×_B B'` and `f' = pullback.snd f g`, the square
-`Complexes_{X'/B'} → Complexes_{X/B}` over `Sch/B' → Sch/B` (equivalently
-`𝒮_{B'} → 𝒮_B`) is a 2-fibre product square. -/
-@[stacks 0DLI, instance]
-instance square.instIsBilimit (f : X ⟶ B)
-    [chartDerived : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
-      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
-        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
-    [chartTensor : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
-      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
-      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
-      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
-    (g : B' ⟶ B)
-    [baseChartDerived : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (Limits.pullback.snd (pullback.snd f g) σ.hom),
-      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
-        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
-    [baseChartTensor : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (Limits.pullback.snd (pullback.snd f g) σ.hom),
-      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
-      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
-      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
-    [Proper f] [Flat f] [FinitePresentation f] :
-    CatCommSqOver.Resized.IsBilimit (square f g) :=
-  sorry
-
-/-- The comparison functor is an equivalence when the square is a 2-fibre product. -/
-instance square.comparison_isEquivalence (f : X ⟶ B)
-    [chartDerived : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
-      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
-        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
-    [chartTensor : ∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
-      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
-      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
-      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
-    (g : B' ⟶ B)
-    [baseChartDerived : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (Limits.pullback.snd (pullback.snd f g) σ.hom),
-      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
-        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
-    [baseChartTensor : ∀ σ : SchemeOver B', ∀ sq : EtaleSquare (Limits.pullback.snd (pullback.snd f g) σ.hom),
-      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
-      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
-      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
-    [Proper f] [Flat f] [FinitePresentation f]
-    [CatCommSqOver.Resized.IsBilimit (square f g)] :
-    (square.comparison f g).IsEquivalence :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Complexes
+/- Remark 99.16.7 (2): for any `g : B' ⟶ B`, the square of complexes on
+`X' = X ×_B B'` and `X` over `Sch/B' → Sch/B` (equivalently `𝒮_{B'} → 𝒮_B`)
+is a 2-fibre product square. -/
+@[stacks 0DLI] #check (AlgebraicGeometry.AlgebraicSpace.Complexes.square.instIsBilimit :
+  ∀ {S : Scheme.{u}} {X B B' : AlgebraicSpace S} (f : X ⟶ B) (g : B' ⟶ B)
+    [Proper f] [Flat f] [FinitePresentation f],
+    CatCommSqOver.Resized.IsBilimit (AlgebraicGeometry.AlgebraicSpace.Complexes.square f g))

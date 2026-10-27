@@ -32,6 +32,7 @@ variable {u : C ⥤ D}
 variable {F : LocallyDiscrete Cᵒᵖ ⥤ᵖ Cat.{vF, uF}}
 variable {G : LocallyDiscrete Dᵒᵖ ⥤ᵖ Cat.{vG, uG}}
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Compatibility with reindexing for postcomposition of an indexed-functor modification by a
 fixed indexed functor. -/
 theorem postcompHom_naturality
@@ -46,7 +47,18 @@ theorem postcompHom_naturality
           ((Functor.whiskerRight (α.app U) (T.app (u.obj U))).app x) =
       (Functor.whiskerRight (α.app V) (T.app (u.obj V))).app
           ((F.map f.op.toLoc).toFunctor.obj x) ≫
-        ((K.comp T).naturality f).hom.app x := sorry
+        ((K.comp T).naturality f).hom.app x := by
+  change (compNaturality _ _ f).hom.app x ≫ _ =
+    _ ≫ (compNaturality _ _ f).hom.app x
+  simp only [compNaturality, Iso.trans_hom, Iso.symm_hom, NatTrans.comp_app,
+    Functor.associator_hom_app, Functor.associator_inv_app,
+    Functor.isoWhiskerRight_hom, Functor.isoWhiskerLeft_hom,
+    Functor.whiskerRight_app, Functor.whiskerLeft_app, Functor.comp_map,
+    Category.id_comp, Category.comp_id]
+  have h := (T.naturality (u.map f)).hom.naturality ((α.app U).app x)
+  simp only [Functor.comp_map] at h
+  rw [Category.assoc, ← h, ← Category.assoc, ← Functor.map_comp,
+    α.naturality f x, Functor.map_comp, Category.assoc]
 
 /-- Postcompose an indexed-functor modification by a fixed indexed functor. -/
 noncomputable def postcompHom
@@ -66,7 +78,8 @@ theorem postcompHom_app
     {H K : IndexedFunctor u F G} (α : H ⟶ K)
     (T : IndexedFunctor v G L) (U : C) :
     (postcompHom α T).app U =
-      Functor.whiskerRight (α.app U) (T.app (u.obj U)) := sorry
+      Functor.whiskerRight (α.app U) (T.app (u.obj U)) := by
+  rfl
 
 /-- Object components of postcomposition of an indexed modification are obtained by mapping the
 original component through the fixed indexed functor. -/
@@ -78,7 +91,8 @@ theorem postcompHom_app_app
     (T : IndexedFunctor v G L) (U : C)
     (x : F.obj (LocallyDiscrete.mk (Opposite.op U))) :
     ((postcompHom α T).app U).app x =
-      (T.app (u.obj U)).map ((α.app U).app x) := sorry
+      (T.app (u.obj U)).map ((α.app U).app x) := by
+  rfl
 
 /-- Postcomposition of the identity indexed modification is the identity. -/
 @[simp]
@@ -86,7 +100,13 @@ theorem postcompHom_id
     {E : Type uE} [Category.{vE} E] {v : D ⥤ E}
     {L : LocallyDiscrete Eᵒᵖ ⥤ᵖ Cat.{vH, uH}}
     (H : IndexedFunctor u F G) (T : IndexedFunctor v G L) :
-    postcompHom (𝟙 H) T = 𝟙 (H.comp T) := sorry
+    postcompHom (𝟙 H) T = 𝟙 (H.comp T) := by
+  apply Hom.ext
+  funext U
+  apply NatTrans.ext
+  funext x
+  change (T.app (u.obj U)).map (𝟙 _) = 𝟙 _
+  exact (T.app (u.obj U)).map_id _
 
 /-- Postcomposition preserves vertical composition of indexed modifications. -/
 @[simp]
@@ -96,7 +116,15 @@ theorem postcompHom_comp
     {H K M : IndexedFunctor u F G}
     (α : H ⟶ K) (β : K ⟶ M) (T : IndexedFunctor v G L) :
     postcompHom (α ≫ β) T =
-      postcompHom α T ≫ postcompHom β T := sorry
+      postcompHom α T ≫ postcompHom β T := by
+  apply Hom.ext
+  funext U
+  apply NatTrans.ext
+  funext x
+  change (T.app (u.obj U)).map (((α.app U).app x) ≫ ((β.app U).app x)) =
+    (T.app (u.obj U)).map ((α.app U).app x) ≫
+      (T.app (u.obj U)).map ((β.app U).app x)
+  exact (T.app (u.obj U)).map_comp _ _
 
 /-- Postcomposition by a fixed indexed functor is functorial on indexed functors and their
 modifications.
@@ -120,7 +148,8 @@ theorem postcomp_obj
     {E : Type uE} [Category.{vE} E] {v : D ⥤ E}
     {L : LocallyDiscrete Eᵒᵖ ⥤ᵖ Cat.{vH, uH}}
     (T : IndexedFunctor v G L) (H : IndexedFunctor u F G) :
-    (postcomp u F T).obj H = H.comp T := sorry
+    (postcomp u F T).obj H = H.comp T := by
+  rfl
 
 /-- The morphism action of indexed-functor postcomposition is postcomposition of
 modifications. -/
@@ -130,8 +159,10 @@ theorem postcomp_map
     {L : LocallyDiscrete Eᵒᵖ ⥤ᵖ Cat.{vH, uH}}
     (T : IndexedFunctor v G L)
     {H K : IndexedFunctor u F G} (α : H ⟶ K) :
-    (postcomp u F T).map α = postcompHom α T := sorry
+    (postcomp u F T).map α = postcompHom α T := by
+  rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Compatibility with reindexing for precomposition of an indexed-functor modification by a
 fixed indexed functor. -/
 theorem precompHom_naturality
@@ -146,7 +177,24 @@ theorem precompHom_naturality
           ((Functor.whiskerLeft (H.app U) (α.app (u.obj U))).app x) =
       (Functor.whiskerLeft (H.app V) (α.app (u.obj V))).app
           ((F.map f.op.toLoc).toFunctor.obj x) ≫
-        ((H.comp T).naturality f).hom.app x := sorry
+        ((H.comp T).naturality f).hom.app x := by
+  change (compNaturality _ _ f).hom.app x ≫ _ =
+    _ ≫ (compNaturality _ _ f).hom.app x
+  simp only [compNaturality, Iso.trans_hom, Iso.symm_hom, NatTrans.comp_app,
+    Functor.associator_hom_app, Functor.associator_inv_app,
+    Functor.isoWhiskerRight_hom, Functor.isoWhiskerLeft_hom,
+    Functor.whiskerRight_app, Functor.whiskerLeft_app, Functor.comp_map,
+    Category.id_comp, Category.comp_id]
+  have h :
+      (K.app (u.obj V)).map ((H.naturality f).hom.app x) ≫
+          (α.app (u.obj V)).app
+            ((G.map (u.map f).op.toLoc).toFunctor.obj ((H.app U).obj x)) =
+        (α.app (u.obj V)).app
+            ((H.app V).obj ((F.map f.op.toLoc).toFunctor.obj x)) ≫
+          (T.app (u.obj V)).map ((H.naturality f).hom.app x) :=
+    (α.app (u.obj V)).naturality ((H.naturality f).hom.app x)
+  rw [Category.assoc, α.naturality (u.map f) ((H.app U).obj x),
+    ← Category.assoc, h, Category.assoc]
 
 /-- Precompose an indexed-functor modification by a fixed indexed functor. -/
 noncomputable def precompHom
@@ -166,7 +214,8 @@ theorem precompHom_app
     (H : IndexedFunctor u F G)
     {K T : IndexedFunctor v G L} (α : K ⟶ T) (U : C) :
     (precompHom H α).app U =
-      Functor.whiskerLeft (H.app U) (α.app (u.obj U)) := sorry
+      Functor.whiskerLeft (H.app U) (α.app (u.obj U)) := by
+  rfl
 
 /-- Object components of precomposition of an indexed modification evaluate the original
 component after the fixed indexed functor. -/
@@ -178,7 +227,8 @@ theorem precompHom_app_app
     {K T : IndexedFunctor v G L} (α : K ⟶ T) (U : C)
     (x : F.obj (LocallyDiscrete.mk (Opposite.op U))) :
     ((precompHom H α).app U).app x =
-      (α.app (u.obj U)).app ((H.app U).obj x) := sorry
+      (α.app (u.obj U)).app ((H.app U).obj x) := by
+  rfl
 
 /-- Precomposition of the identity indexed modification is the identity. -/
 @[simp]
@@ -186,7 +236,8 @@ theorem precompHom_id
     {E : Type uE} [Category.{vE} E] {v : D ⥤ E}
     {L : LocallyDiscrete Eᵒᵖ ⥤ᵖ Cat.{vH, uH}}
     (H : IndexedFunctor u F G) (K : IndexedFunctor v G L) :
-    precompHom H (𝟙 K) = 𝟙 (H.comp K) := sorry
+    precompHom H (𝟙 K) = 𝟙 (H.comp K) := by
+  rfl
 
 /-- Precomposition preserves vertical composition of indexed modifications. -/
 @[simp]
@@ -196,7 +247,8 @@ theorem precompHom_comp
     (H : IndexedFunctor u F G)
     {K T M : IndexedFunctor v G L} (α : K ⟶ T) (β : T ⟶ M) :
     precompHom H (α ≫ β) =
-      precompHom H α ≫ precompHom H β := sorry
+      precompHom H α ≫ precompHom H β := by
+  rfl
 
 /-- Precomposition by a fixed indexed functor is functorial on indexed functors and their
 modifications.
@@ -219,7 +271,8 @@ theorem precomp_obj
     {E : Type uE} [Category.{vE} E] {v : D ⥤ E}
     {L : LocallyDiscrete Eᵒᵖ ⥤ᵖ Cat.{vH, uH}}
     (H : IndexedFunctor u F G) (K : IndexedFunctor v G L) :
-    (precomp v L H).obj K = H.comp K := sorry
+    (precomp v L H).obj K = H.comp K := by
+  rfl
 
 /-- The morphism action of indexed-functor precomposition is precomposition of
 modifications. -/
@@ -229,7 +282,8 @@ theorem precomp_map
     {L : LocallyDiscrete Eᵒᵖ ⥤ᵖ Cat.{vH, uH}}
     (H : IndexedFunctor u F G)
     {K T : IndexedFunctor v G L} (α : K ⟶ T) :
-    (precomp v L H).map α = precompHom H α := sorry
+    (precomp v L H).map α = precompHom H α := by
+  rfl
 
 /-- Horizontal composition of indexed-functor modifications. -/
 noncomputable def compHom
@@ -247,7 +301,16 @@ theorem compHom_eq_precomp_postcomp
     {L : LocallyDiscrete Eᵒᵖ ⥤ᵖ Cat.{vH, uH}}
     {H K : IndexedFunctor u F G} (α : H ⟶ K)
     {T M : IndexedFunctor v G L} (β : T ⟶ M) :
-    compHom α β = precompHom H β ≫ postcompHom α M := sorry
+    compHom α β = precompHom H β ≫ postcompHom α M := by
+  apply Hom.ext
+  funext U
+  apply NatTrans.ext
+  funext x
+  change (T.app (u.obj U)).map ((α.app U).app x) ≫
+      (β.app (u.obj U)).app ((K.app U).obj x) =
+    (β.app (u.obj U)).app ((H.app U).obj x) ≫
+      (M.app (u.obj U)).map ((α.app U).app x)
+  exact (β.app (u.obj U)).naturality ((α.app U).app x)
 
 /-- Components of horizontal composition are the ordinary horizontal composites of the
 component natural transformations. -/
@@ -259,7 +322,8 @@ theorem compHom_app
     {T M : IndexedFunctor v G L} (β : T ⟶ M) (U : C) :
     (compHom α β).app U =
       Functor.whiskerRight (α.app U) (T.app (u.obj U)) ≫
-        Functor.whiskerLeft (K.app U) (β.app (u.obj U)) := sorry
+        Functor.whiskerLeft (K.app U) (β.app (u.obj U)) := by
+  rfl
 
 /-- Object components of horizontal composition first apply the fixed target functor to the
 left component and then the right component. -/
@@ -272,7 +336,8 @@ theorem compHom_app_app
     (x : F.obj (LocallyDiscrete.mk (Opposite.op U))) :
     ((compHom α β).app U).app x =
       (T.app (u.obj U)).map ((α.app U).app x) ≫
-        (β.app (u.obj U)).app ((K.app U).obj x) := sorry
+        (β.app (u.obj U)).app ((K.app U).obj x) := by
+  rfl
 
 /-- Horizontal composition with an identity on the left is left whiskering. -/
 @[simp]
@@ -281,7 +346,14 @@ theorem compHom_id_left
     {L : LocallyDiscrete Eᵒᵖ ⥤ᵖ Cat.{vH, uH}}
     (H : IndexedFunctor u F G)
     {T M : IndexedFunctor v G L} (β : T ⟶ M) :
-    compHom (𝟙 H) β = precompHom H β := sorry
+    compHom (𝟙 H) β = precompHom H β := by
+  apply Hom.ext
+  funext U
+  apply NatTrans.ext
+  funext x
+  change (T.app (u.obj U)).map (𝟙 _) ≫
+    (β.app (u.obj U)).app ((H.app U).obj x) = _
+  simp
 
 /-- Horizontal composition with an identity on the right is right whiskering. -/
 @[simp]
@@ -290,7 +362,13 @@ theorem compHom_id_right
     {L : LocallyDiscrete Eᵒᵖ ⥤ᵖ Cat.{vH, uH}}
     {H K : IndexedFunctor u F G} (α : H ⟶ K)
     (T : IndexedFunctor v G L) :
-    compHom α (𝟙 T) = postcompHom α T := sorry
+    compHom α (𝟙 T) = postcompHom α T := by
+  apply Hom.ext
+  funext U
+  apply NatTrans.ext
+  funext x
+  change (T.app (u.obj U)).map ((α.app U).app x) ≫ 𝟙 _ = _
+  simp
 
 /-- Horizontal composition of two identity modifications is the identity. -/
 @[simp]
@@ -298,7 +376,13 @@ theorem compHom_id_id
     {E : Type uE} [Category.{vE} E] {v : D ⥤ E}
     {L : LocallyDiscrete Eᵒᵖ ⥤ᵖ Cat.{vH, uH}}
     (H : IndexedFunctor u F G) (T : IndexedFunctor v G L) :
-    compHom (𝟙 H) (𝟙 T) = 𝟙 (H.comp T) := sorry
+    compHom (𝟙 H) (𝟙 T) = 𝟙 (H.comp T) := by
+  apply Hom.ext
+  funext U
+  apply NatTrans.ext
+  funext x
+  change (T.app (u.obj U)).map (𝟙 _) ≫ 𝟙 _ = 𝟙 _
+  simp
 
 /-- Horizontal composition respects simultaneous vertical composition. -/
 @[simp]
@@ -308,7 +392,22 @@ theorem compHom_comp
     {H K N : IndexedFunctor u F G} (α : H ⟶ K) (α' : K ⟶ N)
     {T M P : IndexedFunctor v G L} (β : T ⟶ M) (β' : M ⟶ P) :
     compHom (α ≫ α') (β ≫ β') =
-      compHom α β ≫ compHom α' β' := sorry
+      compHom α β ≫ compHom α' β' := by
+  apply Hom.ext
+  funext U
+  apply NatTrans.ext
+  funext x
+  change (T.app (u.obj U)).map ((α.app U).app x ≫ (α'.app U).app x) ≫
+      ((β.app (u.obj U)).app ((N.app U).obj x) ≫
+        (β'.app (u.obj U)).app ((N.app U).obj x)) =
+    ((T.app (u.obj U)).map ((α.app U).app x) ≫
+        (β.app (u.obj U)).app ((K.app U).obj x)) ≫
+      ((M.app (u.obj U)).map ((α'.app U).app x) ≫
+        (β'.app (u.obj U)).app ((N.app U).obj x))
+  simpa only [Functor.map_comp, Category.assoc] using
+    congrArg (fun k => (T.app (u.obj U)).map ((α.app U).app x) ≫ k ≫
+      (β'.app (u.obj U)).app ((N.app U).obj x))
+      ((β.app (u.obj U)).naturality ((α'.app U).app x))
 
 /-- Composition of indexed functors is functorial simultaneously in both indexed-functor
 variables.
@@ -333,7 +432,8 @@ theorem compFunctor_obj
     {E : Type uE} [Category.{vE} E] {v : D ⥤ E}
     {L : LocallyDiscrete Eᵒᵖ ⥤ᵖ Cat.{vH, uH}}
     (H : IndexedFunctor u F G) (T : IndexedFunctor v G L) :
-    (compFunctor u F G v L).obj (H, T) = H.comp T := sorry
+    (compFunctor u F G v L).obj (H, T) = H.comp T := by
+  rfl
 
 /-- The morphism action of the indexed-functor composition functor is horizontal composition. -/
 @[simp]
@@ -342,7 +442,8 @@ theorem compFunctor_map
     {L : LocallyDiscrete Eᵒᵖ ⥤ᵖ Cat.{vH, uH}}
     {H K : IndexedFunctor u F G} (α : H ⟶ K)
     {T M : IndexedFunctor v G L} (β : T ⟶ M) :
-    (compFunctor u F G v L).map ((α, β) : (H, T) ⟶ (K, M)) = compHom α β := sorry
+    (compFunctor u F G v L).map ((α, β) : (H, T) ⟶ (K, M)) = compHom α β := by
+  rfl
 
 
 end IndexedFunctor

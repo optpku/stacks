@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap75.Lemma_75_23_3_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.ProjectionFormula.ExtRepresentability
 import StacksCheckRecall
 
 /-!
@@ -51,7 +51,7 @@ isomorphisms for `i ≤ m`. -/
       (hG_coherent : ∀ i : ℤ, (G.X i).IsCoherent)
       (hG_flat : ∀ i : ℤ, ∀ x, Modules.flatOverAt (G.X i) f x)
       (hG_support : ∀ i : ℤ,
-        ClosedSubset.IsProperOver f
+        ClosedSubset.ProperOver f
           (Closeds.closure (Modules.moduleSupport (G.X i))))
       (m : ℤ),
       ∃ (K : ModuleDerived B)
@@ -73,7 +73,7 @@ for `F` quasi-coherent on `B`, compatible with connecting maps. -/
       [MonoidalCategory (ModuleDerived X)] [localizationMonoidal X]
       (f : X ⟶ B)
       [LocallyOfFiniteType f] [QuasiSeparated f] [IsNoetherian B]
-      [MonoidalCategory (ModuleDerived B)]
+      [MonoidalCategory (ModuleDerived B)] [localizationMonoidal B]
       (H : MonoidalClosed (ModuleDerived X))
       (H_B : MonoidalClosed (ModuleDerived B))
       (E : ModuleDerived X)
@@ -86,7 +86,7 @@ for `F` quasi-coherent on `B`, compatible with connecting maps. -/
       (hG_coherent : ∀ i : ℤ, (G.X i).IsCoherent)
       (hG_flat : ∀ i : ℤ, ∀ x, Modules.flatOverAt (G.X i) f x)
       (hG_support : ∀ i : ℤ,
-        ClosedSubset.IsProperOver f
+        ClosedSubset.ProperOver f
           (Closeds.closure (Modules.moduleSupport (G.X i)))),
       ∃ (L : ModuleDerived B)
         (α :

@@ -6,13 +6,13 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap77.Definition_77_2_2_Impurity
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.AssociatedPoints.Impurity
 import StacksCheckRecall
 import Mathlib.Algebra.Category.ModuleCat.Sheaf.Generators
-import stacks_project.Chap66.Definition_66_4_1_Points
-import stacks_project.Chap66.Definition_66_29_1_RingedSite
-import stacks_project.Chap67.Definition_67_40_1_FiniteType
-import stacks_project.Chap68.Lemma_68_17_4_Relative
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.RingedSite.Basic
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.RelativeConditions
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.Modules
@@ -28,6 +28,6 @@ variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
 /- Definition 77.2.2: a diagram 77.2.1.1 is an impurity of `ℱ` above `y` when `ξ`
 lies in the relative assassin of `ℱ` after base change to `T` and `t` is not in
 the image of the closure of `{ξ}` under `f_T`. -/
-@[stacks 0CV8] #check (Impurity ℱ f y : Type (u + 1))
+@[stacks 0CV8] #check (AlgebraicGeometry.AlgebraicSpace.Modules.Impurity ℱ f y : Type (u + 1))
 
 end

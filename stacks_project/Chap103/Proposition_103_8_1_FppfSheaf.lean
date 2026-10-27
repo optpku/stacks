@@ -7,32 +7,19 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import stacks_project.Chap104.Definition_104_5_1_LQCohFbc
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.FlatBaseChange.Fppf
+import StacksCheckRecall
 
-/-!
-# Fppf descent for locally quasi-coherent modules with flat base change
-
-The Proposition 103.8.1 (1) declaration is shared here so its use does not
-import the conflicting projection owners in the full proposition module.
-The underlying module presheaf is unchanged; this is a sheaf law, not a
-choice of a module or an inverse morphism.
--/
-
-@[expose] public section
+/-! # Fppf descent for locally quasi-coherent modules with flat base change -/
 
 open AlgebraicGeometry CategoryTheory AlgebraicGeometry.GroupoidsOver
-
 universe u
 
-namespace AlgebraicGeometry.GroupoidsOver
-
-variable {S : Scheme.{u}}
-
-/-- Proposition 103.8.1 (1): an étale module in `LQCoh^{fbc}(𝒪_X)` is a sheaf
-for the fppf topology, hence an object of `Mod(𝒪_X)`. -/
-@[stacks 0771]
-theorem isSheaf_fppf_of_lqcohFbc {X : GroupoidsOver S} [AlgebraicStack X]
-    (F : etaleModules X) [IsLocallyQuasiCoherent F] [HasFlatBaseChange F] :
-    Presheaf.IsSheaf (fppfRingedSite X).siteTopology
-      (etaleModulePresheaf F).presheaf := sorry
-
-end AlgebraicGeometry.GroupoidsOver
+/- Proposition 103.8.1 (1): an étale module that is locally quasi-coherent
+and has flat base change is a sheaf for the fppf topology. -/
+@[stacks 0771] #check
+  (AlgebraicGeometry.GroupoidsOver.isSheaf_fppf_of_lqcohFbc :
+    ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+      (F : etaleModules X) [IsLocallyQuasiCoherent F] [HasFlatBaseChange F],
+      Presheaf.IsSheaf (fppfRingedSite X).siteTopology
+        (etaleModulePresheaf F).presheaf)

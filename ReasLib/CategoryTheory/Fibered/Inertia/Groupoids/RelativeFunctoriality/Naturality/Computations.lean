@@ -50,7 +50,8 @@ theorem hom.toBasedNatTrans
       (BasedCategory.RelativeInertia.toInertia.naturalityIso
         (FiberedCategoryOver.Groupoids.toBasedFunctor G)
         (FiberedCategoryOver.Groupoids.toBasedFunctor G')
-        (FiberedCategoryOver.Groupoids.toBasedFunctorIso comm)).hom := sorry
+        (FiberedCategoryOver.Groupoids.toBasedFunctorIso comm)).hom := by
+  rfl
 
 /-- The based projection of the inverse relative-to-absolute inertia naturality cell is the
 inverse neutral based naturality cell. -/
@@ -66,7 +67,8 @@ theorem inv.toBasedNatTrans
       (BasedCategory.RelativeInertia.toInertia.naturalityIso
         (FiberedCategoryOver.Groupoids.toBasedFunctor G)
         (FiberedCategoryOver.Groupoids.toBasedFunctor G')
-        (FiberedCategoryOver.Groupoids.toBasedFunctorIso comm)).inv := sorry
+        (FiberedCategoryOver.Groupoids.toBasedFunctorIso comm)).inv := by
+  rfl
 
 /-- The forward component of groupoid-fibred relative-to-absolute inertia naturality is the
 explicit neutral identity-arrow component. -/
@@ -83,7 +85,8 @@ theorem hom.app
       (BasedCategory.RelativeInertia.toInertia.naturalityIso.component
         (FiberedCategoryOver.Groupoids.toBasedFunctor G)
         (FiberedCategoryOver.Groupoids.toBasedFunctor G')
-        (FiberedCategoryOver.Groupoids.toBasedFunctorIso comm) A).hom := sorry
+        (FiberedCategoryOver.Groupoids.toBasedFunctorIso comm) A).hom := by
+  rfl
 
 /-- The inverse component of groupoid-fibred relative-to-absolute inertia naturality is the
 explicit reverse identity-arrow component. -/
@@ -100,7 +103,8 @@ theorem inv.app
       (BasedCategory.RelativeInertia.toInertia.naturalityIso.component
         (FiberedCategoryOver.Groupoids.toBasedFunctor G)
         (FiberedCategoryOver.Groupoids.toBasedFunctor G')
-        (FiberedCategoryOver.Groupoids.toBasedFunctorIso comm) A).inv := sorry
+        (FiberedCategoryOver.Groupoids.toBasedFunctorIso comm) A).inv := by
+  rfl
 
 /- The typed bridge below keeps verticality available without requiring callers to descend to the
    based natural transformation owner. -/
@@ -115,7 +119,9 @@ theorem hom.app.isHomLift
     (FiberedCategoryOver.Groupoids.inertia X₂).p.IsHomLift
       (𝟙 ((FiberedCategoryOver.Groupoids.relativeInertia F₁).p.obj A))
       ((FiberedCategoryOver.Groupoids.toNatTrans
-        (naturalityIso G G' comm).hom).app A) := sorry
+        (naturalityIso G G' comm).hom).app A) := by
+  exact (FiberedCategoryOver.Groupoids.toBasedNatTrans
+    (naturalityIso G G' comm).hom).isHomLift' A
 
 /-- Every inverse groupoid-fibred naturality component lies over the identity of the source base. -/
 theorem inv.app.isHomLift
@@ -128,7 +134,9 @@ theorem inv.app.isHomLift
     (FiberedCategoryOver.Groupoids.inertia X₂).p.IsHomLift
       (𝟙 ((FiberedCategoryOver.Groupoids.relativeInertia F₁).p.obj A))
       ((FiberedCategoryOver.Groupoids.toNatTrans
-        (naturalityIso G G' comm).inv).app A) := sorry
+        (naturalityIso G G' comm).inv).app A) := by
+  exact (FiberedCategoryOver.Groupoids.toBasedNatTrans
+    (naturalityIso G G' comm).inv).isHomLift' A
 
 /-- The forward groupoid-fibred relative-to-absolute comparison is natural on total categories. -/
 @[reassoc]
@@ -145,7 +153,9 @@ theorem naturality
       (FiberedCategoryOver.Groupoids.toNatTrans
           (naturalityIso G G' comm).hom).app A ≫
         (FiberedCategoryOver.Groupoids.toFunctor
-            (toInertia F₁ ≫ (Inertia.pseudofunctor C).map G)).map f := sorry
+            (toInertia F₁ ≫ (Inertia.pseudofunctor C).map G)).map f := by
+  exact (FiberedCategoryOver.Groupoids.toNatTrans
+    (naturalityIso G G' comm).hom).naturality f
 
 /-- The inverse groupoid-fibred relative-to-absolute comparison is natural on total categories. -/
 @[reassoc]
@@ -162,7 +172,9 @@ theorem invNaturality
       (FiberedCategoryOver.Groupoids.toNatTrans
           (naturalityIso G G' comm).inv).app A ≫
         (FiberedCategoryOver.Groupoids.toFunctor
-            (RelativeInertia.map G G' comm ≫ toInertia F₂)).map f := sorry
+            (RelativeInertia.map G G' comm ≫ toInertia F₂)).map f := by
+  exact (FiberedCategoryOver.Groupoids.toNatTrans
+    (naturalityIso G G' comm).inv).naturality f
 
 /-- The arrow underlying every forward relative-to-absolute inertia naturality component is an
 identity. -/
@@ -177,7 +189,8 @@ theorem hom.app.underlying
     CategoryTheory.RelativeInertia.hom
         ((FiberedCategoryOver.Groupoids.toNatTrans
           (naturalityIso G G' comm).hom).app A) =
-      𝟙 ((FiberedCategoryOver.Groupoids.toFunctor G).obj A.obj) := sorry
+      𝟙 ((FiberedCategoryOver.Groupoids.toFunctor G).obj A.obj) := by
+  rfl
 
 /-- The arrow underlying every inverse relative-to-absolute inertia naturality component is an
 identity. -/
@@ -192,7 +205,8 @@ theorem inv.app.underlying
     CategoryTheory.RelativeInertia.hom
         ((FiberedCategoryOver.Groupoids.toNatTrans
           (naturalityIso G G' comm).inv).app A) =
-      𝟙 ((FiberedCategoryOver.Groupoids.toFunctor G).obj A.obj) := sorry
+      𝟙 ((FiberedCategoryOver.Groupoids.toFunctor G).obj A.obj) := by
+  rfl
 
 /- Axiom audit: the non-Prop comparison cells of `naturalityIso` are the explicit neutral
 construction above. `#print axioms` additionally reports `sorryAx` only through inherited

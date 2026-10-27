@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.Basic
+public import ReasLib.CategoryTheory.Abelian.StructureTransport
 public import Mathlib.CategoryTheory.Functor.Derived.LeftDerived
 public import Mathlib.CategoryTheory.Functor.Derived.RightDerived
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Adjunction
@@ -33,6 +34,17 @@ open SheafOfModules.RingedSite (ringedSiteModuleCategory)
 noncomputable section
 
 set_option checkBinderAnnotations false
+
+namespace RingedSite.RingPresentation
+
+/-- Module sheaves over a sheaf of rings have the standard unbounded derived category. -/
+instance moduleHasDerivedCategory.{z, u, v, w}
+    {C : Type u} [Category.{v} C] (J : GrothendieckTopology C)
+    (O : Sheaf J RingCat.{w}) [UnivLE.{max u v, z}] :
+    HasDerivedCategory.{max (max (max u v) w) (z + 1)} (SheafOfModules.{z} O) :=
+  HasDerivedCategory.standard (SheafOfModules.{z} O)
+
+end RingedSite.RingPresentation
 
 namespace RingedSite.Hom
 
@@ -187,3 +199,77 @@ scoped notation:max "L(" f ")^*" =>
   RingedSite.Hom.modulePullbackDerived f
 
 end RingedSiteDerived
+
+
+namespace RingedSite.NativeDerived
+
+universe z u v w
+
+variable (X : RingedSite.{u, v, w}) [a : Abelian (ModuleCat.{z} X)]
+
+/-- The abelian structure on module sheaves with their native addition of morphisms. -/
+@[reducible]
+def abelian : Abelian (ModuleCat.{z} X) where
+  toPreadditive := SheafOfModules.instPreadditive X.structureSheaf
+  toIsNormalMonoCategory := by
+    have h : @Preadditive.preadditiveHasZeroMorphisms (ModuleCat.{z} X) _
+        a.toPreadditive =
+        @Preadditive.preadditiveHasZeroMorphisms (ModuleCat.{z} X) _
+          (SheafOfModules.instPreadditive X.structureSheaf) := Subsingleton.elim _ _
+    exact h ▸ a.toIsNormalMonoCategory
+  toIsNormalEpiCategory := by
+    have h : @Preadditive.preadditiveHasZeroMorphisms (ModuleCat.{z} X) _
+        a.toPreadditive =
+        @Preadditive.preadditiveHasZeroMorphisms (ModuleCat.{z} X) _
+          (SheafOfModules.instPreadditive X.structureSheaf) := Subsingleton.elim _ _
+    exact h ▸ a.toIsNormalEpiCategory
+  has_finite_products := a.has_finite_products
+  has_kernels := by
+    have h : @Preadditive.preadditiveHasZeroMorphisms (ModuleCat.{z} X) _
+        a.toPreadditive =
+        @Preadditive.preadditiveHasZeroMorphisms (ModuleCat.{z} X) _
+          (SheafOfModules.instPreadditive X.structureSheaf) := Subsingleton.elim _ _
+    exact h ▸ a.has_kernels
+  has_cokernels := by
+    have h : @Preadditive.preadditiveHasZeroMorphisms (ModuleCat.{z} X) _
+        a.toPreadditive =
+        @Preadditive.preadditiveHasZeroMorphisms (ModuleCat.{z} X) _
+          (SheafOfModules.instPreadditive X.structureSheaf) := Subsingleton.elim _ _
+    exact h ▸ a.has_cokernels
+
+/-- The normalized abelian structure uses native module-sheaf preadditivity. -/
+theorem abelian_toPreadditive :
+    (abelian X).toPreadditive = SheafOfModules.instPreadditive X.structureSheaf := rfl
+
+/-- Native module sheaves have homology for their native zero morphisms. -/
+theorem categoryWithHomology :
+    @CategoryWithHomology (ModuleCat.{z} X) _
+      (@Preadditive.preadditiveHasZeroMorphisms _ _
+        (SheafOfModules.instPreadditive X.structureSheaf)) :=
+  @CategoryTheory.categoryWithHomology_of_abelian _ _ (abelian X)
+
+/-- The standard derived-category construction for the normalized module category. -/
+@[reducible]
+def hasDerivedCategory :=
+  @HasDerivedCategory.standard (ModuleCat.{z} X) _ (abelian X)
+
+/-- The unbounded standard derived category of module sheaves. -/
+abbrev category :=
+  @DerivedCategory (ModuleCat.{z} X) _ (abelian X) (hasDerivedCategory X)
+
+/-- Quasi-isomorphisms in the native homotopy category of module sheaves. -/
+abbrev quasiIso : MorphismProperty (Hom.ModuleHomotopy.{z} X) :=
+  @HomotopyCategory.quasiIso (ModuleCat.{z} X) _ ℤ (up ℤ)
+    (SheafOfModules.instPreadditive X.structureSheaf) (categoryWithHomology X)
+
+/-- Localization of the native module homotopy category into its standard derived category. -/
+abbrev localization : Hom.ModuleHomotopy.{z} X ⥤ category X :=
+  @DerivedCategory.Qh (ModuleCat.{z} X) _ (abelian X) (hasDerivedCategory X)
+
+/-- The native homotopy-to-derived functor localizes at quasi-isomorphisms. -/
+theorem localizationIsLocalization :
+    (localization X).IsLocalization (quasiIso X) := by
+  dsimp only [localization, quasiIso]
+  infer_instance
+
+end RingedSite.NativeDerived

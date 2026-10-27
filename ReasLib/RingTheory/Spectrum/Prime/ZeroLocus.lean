@@ -21,17 +21,6 @@ universe u
 
 namespace PrimeSpectrum
 
-variable {A : Type u} [CommRing A]
-
-/-- The intersection of the zero loci of two finitely generated ideals is the zero locus of
-their supremum. -/
-theorem zeroLocus_inter_of_fg (I J : Ideal A) (hI : I.FG) (hJ : J.FG) :
-    zeroLocus I ∩ zeroLocus J = zeroLocus ((I ⊔ J : Ideal A) : Set A) := sorry
-
-end PrimeSpectrum
-
-namespace PrimeSpectrum
-
 /-- Two ideal zero loci in the prime spectrum are disjoint exactly when the ideals generate the
 unit ideal. -/
 theorem disjoint_zeroLocus_iff {R : Type u} [CommSemiring R] (I J : Ideal R) :

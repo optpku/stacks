@@ -35,7 +35,15 @@ theorem powerSubmodule_le_stepKernel (I : Ideal A)
     (annihilated : ∀ n : ℕ,
       I ^ n • (⊤ : Submodule A (F.stageModule n)) = ⊥) (n : ℕ) :
     I ^ n • (⊤ : Submodule A (F.stageModule (n + 1))) ≤
-      (F.stepLinearMap n).ker := sorry
+      (F.stepLinearMap n).ker := by
+  refine Submodule.smul_le.mpr ?_
+  intro a ha x _
+  change F.stepLinearMap n (a • x) = 0
+  rw [map_smul]
+  have h : a • F.stepLinearMap n x ∈
+      I ^ n • (⊤ : Submodule A (F.stageModule n)) :=
+    Submodule.smul_mem_smul ha Submodule.mem_top
+  simpa only [annihilated n, Submodule.mem_bot] using h
 
 /-- The successor map induced on the quotient of stage `n + 1` by `I ^ n`. -/
 def inducedQuotientStep (S : AffineAlgebraizationSetup A)
@@ -107,14 +115,15 @@ def quotientClass (S : AffineAlgebraizationSetup A) (M : ModuleSystem S)
 theorem quotientStep_mk (S : AffineAlgebraizationSetup A) (M : ModuleSystem S)
     (n : ℕ) (x : M.system.stageModule (n + 1)) :
     M.quotientStep S n (M.quotientClass S n x) =
-      M.system.stepLinearMap n x := sorry
+      M.system.stepLinearMap n x := rfl
 
 /-- The defining conditions of a module system, exposed together in source order. -/
 theorem spec (S : AffineAlgebraizationSetup A) (M : ModuleSystem S) :
     (∀ n : ℕ, S.I ^ n • (⊤ : Submodule A (M.system.stageModule n)) = ⊥) ∧
     (∀ n : ℕ, Module.IsIdealPowerTorsion S.a (M.quotientStep S n).ker) ∧
     ∀ n : ℕ, Module.IsIdealPowerTorsion S.a
-      (M.system.stageModule n ⧸ (M.quotientStep S n).range) := sorry
+      (M.system.stageModule n ⧸ (M.quotientStep S n).range) :=
+  ⟨M.annihilated, M.transitionKernelTorsion, M.transitionCokernelTorsion⟩
 
 end ModuleSystem
 
@@ -124,7 +133,19 @@ def tildeObject (M : FGModuleCat A) :=
 
 /-- The associated coherent module sheaf on `Spec A` of a finite `A`-module is coherent. -/
 theorem tilde_isCoherent (M : FGModuleCat A) :
-    (tildeObject M).IsCoherent := sorry
+    (tildeObject M).IsCoherent := by
+  classical
+  apply (Scheme.Modules.isCoherent_iff_isQuasicoherent_and_isFiniteType _).2
+  constructor
+  · change (tilde (R := CommRingCat.of A) M.obj).IsQuasicoherent
+    infer_instance
+  · change (tilde (R := CommRingCat.of A) M.obj).IsFiniteType
+    obtain ⟨s, hs⟩ := M.property
+    let P := presentationTilde (R := CommRingCat.of A) M.obj (s : Set M.obj) hs
+      (LinearMap.ker (Finsupp.linearCombination A ((↑) : s → M.obj))) (Submodule.span_eq _)
+    refine ⟨P.generators.localGeneratorsData, ⟨fun U ↦ ⟨?_⟩⟩⟩
+    change Finite s
+    infer_instance
 
 /-- The functor sending a finite `A`-module to its associated coherent module on `Spec A`. -/
 def coherentTildeFunctor :
@@ -149,13 +170,13 @@ def restrictedTildeFunctor (S : AffineAlgebraizationSetup A) :
 theorem restrictedTildeFunctor_obj (S : AffineAlgebraizationSetup A)
     (M : FGModuleCat A) :
     ((restrictedTildeFunctor S).obj M).obj =
-      (Scheme.Modules.restrictFunctor S.U.ι).obj (tildeObject M) := sorry
+      (Scheme.Modules.restrictFunctor S.U.ι).obj (tildeObject M) := rfl
 
 /-- The map part of `restrictedTildeFunctor` is the restricted tilde map. -/
 theorem restrictedTildeFunctor_map (S : AffineAlgebraizationSetup A)
     {M N : FGModuleCat A} (f : M ⟶ N) :
     ((restrictedTildeFunctor S).map f).hom =
-      (Scheme.Modules.restrictFunctor S.U.ι).map (tildeMap f) := sorry
+      (Scheme.Modules.restrictFunctor S.U.ι).map (tildeMap f) := rfl
 
 namespace ModuleSystem
 
@@ -169,7 +190,7 @@ theorem restrictedTilde_obj (S : AffineAlgebraizationSetup A)
     (M : ModuleSystem S) (n : ℕ) :
     ((M.restrictedTilde S).obj (op n)).obj =
       (Scheme.Modules.restrictFunctor S.U.ι).obj
-        (tildeObject (M.system.obj (op n))) := sorry
+        (tildeObject (M.system.obj (op n))) := rfl
 
 /-- The restricted tilde system of a module system is a coherent formal module system. -/
 theorem restrictedTilde_mem (S : AffineAlgebraizationSetup A) (M : ModuleSystem S) :
@@ -185,7 +206,7 @@ def toFormalModule (S : AffineAlgebraizationSetup A) (M : ModuleSystem S) :
 
 /-- The underlying inverse system of the realized formal module is the restricted tilde system. -/
 theorem toFormalModule_obj (S : AffineAlgebraizationSetup A) (M : ModuleSystem S) :
-    (M.toFormalModule S).obj = M.restrictedTilde S := sorry
+    (M.toFormalModule S).obj = M.restrictedTilde S := rfl
 
 /-- Every coherent formal module on `U` is isomorphic to one realized by a finite-module inverse system. -/
 theorem exists_model (S : AffineAlgebraizationSetup A)

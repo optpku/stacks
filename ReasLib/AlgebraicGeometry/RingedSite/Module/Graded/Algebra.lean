@@ -47,14 +47,14 @@ degreewise by module pushforward. -/
 @[stacks 0FQX]
 theorem pushforward_obj_apply (𝒜 : GradedAlgebraSheaf 𝒪X ι) (n : ι) :
     ((Graded.pushforward f).obj ((forgetToGraded 𝒪X ι).obj 𝒜)) n =
-      f.modulePushforward.obj (𝒜 n) := sorry
+      (modulePushforward f).obj (𝒜 n) := sorry
 
 /-- Pushforward of a morphism of underlying graded algebra objects is computed degreewise. -/
 @[stacks 0FQX]
 theorem pushforward_map_apply {𝒜 ℬ : GradedAlgebraSheaf 𝒪X ι}
     (φ : 𝒜 ⟶ ℬ) (n : ι) :
     ((Graded.pushforward f).map ((forgetToGraded 𝒪X ι).map φ)) n =
-      f.modulePushforward.map (φ.hom n) := sorry
+      (modulePushforward f).map (φ.hom n) := sorry
 
 variable [HasWeakSheafify JC AddCommGrpCat.{max u v}]
 variable [JC.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
@@ -66,14 +66,14 @@ degreewise by module pullback. -/
 @[stacks 0FQX]
 theorem pullback_obj_apply (ℬ : GradedAlgebraSheaf 𝒪Y ι) (n : ι) :
     ((Graded.pullback f).obj ((forgetToGraded 𝒪Y ι).obj ℬ)) n =
-      f.modulePullback.obj (ℬ n) := sorry
+      (modulePullback f).obj (ℬ n) := sorry
 
 /-- Pullback of a morphism of underlying graded algebra objects is computed degreewise. -/
 @[stacks 0FQX]
 theorem pullback_map_apply {𝒜 ℬ : GradedAlgebraSheaf 𝒪Y ι}
     (φ : 𝒜 ⟶ ℬ) (n : ι) :
     ((Graded.pullback f).map ((forgetToGraded 𝒪Y ι).map φ)) n =
-      f.modulePullback.map (φ.hom n) := sorry
+      (modulePullback f).map (φ.hom n) := sorry
 
 /-- On underlying graded objects of graded algebra sheaves, the graded module Hom equivalence
 is the ordinary module pullback-pushforward Hom equivalence in every degree. -/
@@ -84,7 +84,7 @@ theorem homEquiv_apply_apply (ℬ : GradedAlgebraSheaf 𝒪Y ι)
       (forgetToGraded 𝒪X ι).obj 𝒜) (n : ι) :
     (Graded.homEquiv f ((forgetToGraded 𝒪Y ι).obj ℬ)
       ((forgetToGraded 𝒪X ι).obj 𝒜) g) n =
-        f.modulePullbackHomEquiv (ℬ n) (𝒜 n) (g n) := sorry
+        modulePullbackHomEquiv f (ℬ n) (𝒜 n) (g n) := sorry
 
 end
 

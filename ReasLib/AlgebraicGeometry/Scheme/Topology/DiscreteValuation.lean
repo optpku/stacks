@@ -6,8 +6,10 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import Mathlib.AlgebraicGeometry.FunctionField
 public import Mathlib.AlgebraicGeometry.Noetherian
 public import Mathlib.RingTheory.DiscreteValuationRing.Basic
+public import Mathlib.RingTheory.EssentialFiniteness
 public import Mathlib.RingTheory.FiniteType
 public import Mathlib.RingTheory.Localization.FractionRing
 public import ReasLib.AlgebraicGeometry.Scheme.Topology.Valuation
@@ -124,7 +126,21 @@ noncomputable def genericMap {X : Scheme.{u}} {x' x : X} (D : DvrRealization x' 
 /-- The generic map of a DVR realization sends the field-spectrum point to the general point. -/
 @[simp, stacks 054F "DVR generic-map closed-point readout"]
 theorem genericMap_closedPoint {X : Scheme.{u}} {x' x : X} (D : DvrRealization x' x) :
-    D.genericMap D.fractionPoint = x' := sorry
+    D.genericMap D.fractionPoint = x' := by
+  letI : CommRing D.R := D.commRing
+  letI : IsDomain D.R := D.domain
+  change D.hom (PrimeSpectrum.comap (algebraMap D.R (FractionRing D.R))
+    (IsLocalRing.closedPoint (FractionRing D.R))) = x'
+  have hp : PrimeSpectrum.comap (algebraMap D.R (FractionRing D.R))
+      (IsLocalRing.closedPoint (FractionRing D.R)) =
+      _root_.genericPoint (Spec (CommRingCat.of D.R)) := by
+    rw [genericPoint_eq_bot_of_affine,
+      show IsLocalRing.closedPoint (FractionRing D.R) =
+        (⊥ : PrimeSpectrum (FractionRing D.R)) from Subsingleton.elim _ _]
+    apply PrimeSpectrum.ext
+    exact Ideal.comap_bot_of_injective _ (IsFractionRing.injective _ _)
+  rw [hp]
+  exact D.map_genericPoint
 
 /-- Postcomposing a DVR realization with a scheme morphism `f` yields a valuative square whose
 generic-side map is `D.genericMap` and whose valuation-side map is `D.hom ≫ f`. -/
@@ -143,17 +159,24 @@ noncomputable def toValuativeCommSq {X Y : Scheme.{u}} {x' x : X}
       K := FractionRing D.R
       i₁ := D.genericMap
       i₂ := D.hom ≫ f
-      commSq := sorry }
+      commSq := ⟨Category.assoc _ _ _⟩ }
 
 /-- The defining endpoint conditions of a DVR realization. -/
 @[stacks 054F "DVR realization specification"]
 theorem spec {X : Scheme.{u}} {x' x : X} (D : DvrRealization x' x) :
-    D.hom D.genericPoint = x' ∧ D.hom D.closedPoint = x := sorry
+    D.hom D.genericPoint = x' ∧ D.hom D.closedPoint = x := by
+  exact ⟨D.map_genericPoint, D.map_closedPoint⟩
 
 /-- The endpoints of a DVR realization are related by specialization. -/
 @[stacks 054F "specialization underlying a DVR realization"]
 theorem specializes {X : Scheme.{u}} {x' x : X} (D : DvrRealization x' x) :
-    x' ⤳ x := sorry
+    x' ⤳ x := by
+  letI : CommRing D.R := D.commRing
+  letI : IsDomain D.R := D.domain
+  letI : IsDiscreteValuationRing D.R := D.dvr
+  simpa only [D.map_genericPoint, D.map_closedPoint] using
+    (IsLocalRing.specializes_closedPoint
+      (_root_.genericPoint (Spec (CommRingCat.of D.R)))).map D.hom.continuous
 
 /-- A specialization in a locally Noetherian scheme admits a bundled realization by the generic
 and closed points of the spectrum of a discrete valuation ring. -/
@@ -164,7 +187,11 @@ theorem nonempty {X : Scheme.{u}} [IsLocallyNoetherian X] {x' x : X} (h : x' ⤳
 /-- A DVR realization exists exactly for a specialization on a locally Noetherian scheme. -/
 @[stacks 054F "DVR realization nonemptiness criterion"]
 theorem nonempty_iff_specializes {X : Scheme.{u}} [IsLocallyNoetherian X] {x' x : X} :
-    Nonempty (DvrRealization x' x) ↔ x' ⤳ x := sorry
+    Nonempty (DvrRealization x' x) ↔ x' ⤳ x := by
+  constructor
+  · rintro ⟨D⟩
+    exact D.specializes
+  · exact nonempty
 
 /-- A DVR realization inside a prescribed field `K`, indexed by the explicit residue-field map.
 The realizing ring is represented as a valuation subring of `K`, so its inclusion into `K` and
@@ -194,7 +221,8 @@ def cast {X : Scheme.{u}} {x' x : X} {K : Type u} [Field K]
 @[simp, stacks 054F "map-oriented DVR map-index transport reflexivity"]
 theorem cast_rfl {X : Scheme.{u}} {x' x : X} {K : Type u} [Field K]
     {i : X.residueField x' ⟶ CommRingCat.of K} (D : WithFieldMap x' x i) :
-    D.cast rfl = D := sorry
+    D.cast rfl = D := by
+  rfl
 
 /-- Read the prescribed residue-field map of a map-oriented DVR realization. -/
 @[stacks 054F "map-oriented DVR residue-field map"]
@@ -232,15 +260,34 @@ theorem genericMap_toDvr
     {i : X.residueField x' ⟶ CommRingCat.of K} (D : WithFieldMap x' x i) :
     D.genericMap =
       Spec.map (CommRingCat.ofHom (FractionRing.algEquiv D.V K).toRingHom) ≫
-        D.toDvrRealization.genericMap := sorry
+        D.toDvrRealization.genericMap := by
+  have hcomp :
+      CommRingCat.ofHom (algebraMap D.V (FractionRing D.V)) ≫
+        CommRingCat.ofHom (FractionRing.algEquiv D.V K).toRingHom =
+      CommRingCat.ofHom (algebraMap D.V K) := by
+    apply CommRingCat.hom_ext
+    exact (FractionRing.algEquiv D.V K).toAlgHom.comp_algebraMap
+  change Spec.map (CommRingCat.ofHom (algebraMap D.V K)) ≫ D.hom =
+    Spec.map (CommRingCat.ofHom (FractionRing.algEquiv D.V K).toRingHom) ≫
+      (Spec.map (CommRingCat.ofHom (algebraMap D.V (FractionRing D.V))) ≫ D.hom)
+  rw [← Category.assoc, ← Spec.map_comp, hcomp]
 
-/-- A nontrivial specialization admits a map-oriented DVR realization when the prescribed
-residue-field map is of finite type. -/
+/-- A nontrivial specialization admits a map-oriented DVR realization inside any prescribed
+finitely generated extension of the residue field. For fields, essential finite type expresses
+finite generation as a field extension, including extensions with transcendental generators. -/
+@[stacks 054F "existence of a map-oriented DVR realization in a finitely generated field"]
+theorem nonempty_of_essFiniteType {X : Scheme.{u}} [IsLocallyNoetherian X] {x' x : X}
+    (h : x' ⤳ x) (h_ne : x ≠ x') {K : Type u} [Field K]
+    (i : X.residueField x' ⟶ CommRingCat.of K) (hfin : i.hom.EssFiniteType) :
+    Nonempty (WithFieldMap x' x i) := sorry
+
+/-- Compatibility form of `nonempty_of_essFiniteType` for a finite-type residue-field map. -/
 @[stacks 054F "existence of a map-oriented DVR realization"]
 theorem nonempty {X : Scheme.{u}} [IsLocallyNoetherian X] {x' x : X}
     (h : x' ⤳ x) (h_ne : x ≠ x') {K : Type u} [Field K]
     (i : X.residueField x' ⟶ CommRingCat.of K) (hfin : i.hom.FiniteType) :
-    Nonempty (WithFieldMap x' x i) := sorry
+    Nonempty (WithFieldMap x' x i) := by
+  exact nonempty_of_essFiniteType h h_ne i hfin.essFiniteType
 
 end WithFieldMap
 
@@ -252,13 +299,28 @@ abbrev WithFractionField {X : Scheme.{u}} (x' x : X) (K : Type u) [Field K]
 
 namespace WithFractionField
 
+/-- A nontrivial specialization in a locally Noetherian scheme admits a DVR realization inside
+any prescribed finitely generated field extension of the residue field of its general point. -/
+@[stacks 054F "DVR realization in a finitely generated residue-field extension"]
+theorem nonempty_of_essFiniteType {X : Scheme.{u}} [IsLocallyNoetherian X] {x' x : X}
+    (h : x' ⤳ x) (h_ne : x ≠ x') (K : Type u) [Field K]
+    [Algebra (X.residueField x') K] [Algebra.EssFiniteType (X.residueField x') K] :
+    Nonempty (WithFractionField x' x K) := by
+  exact WithFieldMap.nonempty_of_essFiniteType h h_ne
+    (CommRingCat.ofHom (algebraMap (X.residueField x') K))
+    (RingHom.essFiniteType_algebraMap.mpr inferInstance)
+
 /-- A nontrivial specialization in a locally Noetherian scheme admits a bundled DVR realization
-inside any prescribed finite-type extension of the residue field of its general point. -/
+inside a prescribed finite-type extension of the residue field of its general point.
+This is the compatibility form of `nonempty_of_essFiniteType`. -/
 @[stacks 054F]
 theorem nonempty {X : Scheme.{u}} [IsLocallyNoetherian X] {x' x : X}
     (h : x' ⤳ x) (h_ne : x ≠ x') (K : Type u) [Field K]
     [Algebra (X.residueField x') K] [Algebra.FiniteType (X.residueField x') K] :
-    Nonempty (WithFractionField x' x K) := sorry
+    Nonempty (WithFractionField x' x K) := by
+  exact WithFieldMap.nonempty h h_ne
+    (CommRingCat.ofHom (algebraMap (X.residueField x') K))
+    (RingHom.finiteType_algebraMap.mpr inferInstance)
 
 end WithFractionField
 
@@ -272,10 +334,34 @@ theorem exists_discreteValuationRing_morphism
     ∃ (R : Type u) (_ : CommRing R) (_ : IsDomain R)
       (_ : IsDiscreteValuationRing R) (f : Spec (CommRingCat.of R) ⟶ X),
       f (genericPoint (Spec (CommRingCat.of R))) = x' ∧
-        f (IsLocalRing.closedPoint R) = x := sorry
+        f (IsLocalRing.closedPoint R) = x := by
+  obtain ⟨D⟩ := DvrRealization.nonempty h
+  exact ⟨D.R, D.commRing, D.domain, D.dvr, D.hom,
+    D.map_genericPoint, D.map_closedPoint⟩
 
 /-- A nontrivial specialization admits a discrete valuation realization inside any prescribed
-finite-type field extension of the residue field of its general point. -/
+finitely generated field extension of the residue field of its general point. -/
+@[stacks 054F "DVR morphism with a prescribed finitely generated fraction field"]
+theorem exists_discreteValuationRing_morphism_with_prescribed_fractionField_of_essFiniteType
+    {X : Scheme.{u}} [IsLocallyNoetherian X] {x' x : X} (h : x' ⤳ x) (hneq : x ≠ x')
+    (K : Type u) [Field K] [Algebra (X.residueField x') K]
+    [Algebra.EssFiniteType (X.residueField x') K] :
+    ∃ (R : Type u) (_ : CommRing R) (_ : IsDomain R)
+      (_ : IsDiscreteValuationRing R) (_ : Algebra R K) (_ : IsFractionRing R K)
+      (f : Spec (CommRingCat.of R) ⟶ X),
+      f (genericPoint (Spec (CommRingCat.of R))) = x' ∧
+        f (IsLocalRing.closedPoint R) = x ∧
+        CommSq
+          (Spec.map (CommRingCat.ofHom (algebraMap (X.residueField x') K)))
+          (Spec.map (CommRingCat.ofHom (algebraMap R K)))
+          (X.fromSpecResidueField x') f := by
+  obtain ⟨D⟩ := DvrRealization.WithFractionField.nonempty_of_essFiniteType h hneq K
+  exact ⟨D.V, inferInstance, inferInstance, D.dvr, inferInstance, inferInstance,
+    D.hom, D.toValuationRealization.map_genericPoint, D.map_closedPoint, D.genericSq⟩
+
+/-- Compatibility form of
+`exists_discreteValuationRing_morphism_with_prescribed_fractionField_of_essFiniteType` for a
+finite-type field extension of the residue field of the general point. -/
 @[stacks 054F]
 theorem exists_discreteValuationRing_morphism_with_prescribed_fractionField
     {X : Scheme.{u}} [IsLocallyNoetherian X] {x' x : X} (h : x' ⤳ x) (hneq : x ≠ x')
@@ -289,6 +375,9 @@ theorem exists_discreteValuationRing_morphism_with_prescribed_fractionField
         CommSq
           (Spec.map (CommRingCat.ofHom (algebraMap (X.residueField x') K)))
           (Spec.map (CommRingCat.ofHom (algebraMap R K)))
-          (X.fromSpecResidueField x') f := sorry
+          (X.fromSpecResidueField x') f := by
+  obtain ⟨D⟩ := DvrRealization.WithFractionField.nonempty h hneq K
+  exact ⟨D.V, inferInstance, inferInstance, D.dvr, inferInstance, inferInstance,
+    D.hom, D.toValuationRealization.map_genericPoint, D.map_closedPoint, D.genericSq⟩
 
 end _root_.Specializes

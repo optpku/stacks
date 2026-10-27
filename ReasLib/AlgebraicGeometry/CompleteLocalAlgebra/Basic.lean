@@ -173,8 +173,16 @@ theorem truncationOverHom_left (R : CompleteLocalSAlgebra S) (n : ℕ) :
 /-- Restriction to stage `n` factors through the successor thickening
 `Spec(R ⧸ m^{n+1}) ⟶ Spec(R ⧸ m^{n+2}) ⟶ Spec(R)`. -/
 theorem truncationOverHom_comp (R : CompleteLocalSAlgebra S) (n : ℕ) :
-    R.truncationOverHom n = R.stageHom n ≫ R.truncationOverHom (n + 1) :=
-  sorry
+    R.truncationOverHom n = R.stageHom n ≫ R.truncationOverHom (n + 1) := by
+  apply Over.OverMorphism.ext
+  change R.truncationToSpec n = R.truncationMap n ≫ R.truncationToSpec (n + 1)
+  unfold truncationToSpec truncationMap
+  exact Spec.map_comp
+    (CommRingCat.ofHom (Ideal.Quotient.mk (maximalIdeal R.carrier ^ (n + 1 + 1))))
+    (CommRingCat.ofHom (Ideal.Quotient.factor
+      (S := maximalIdeal R.carrier ^ (n + 1 + 1))
+      (T := maximalIdeal R.carrier ^ (n + 1))
+      (Ideal.pow_le_pow_right (Nat.le_succ (n + 1)))))
 
 end CompleteLocalSAlgebra
 

@@ -37,14 +37,16 @@ equivalence gives Mathlib's scheme quasicoherence property. -/
 theorem propertyInverseImage (X : Scheme.{u}) :
     (RingedSpace.quasiCoherentModuleProperty X.toRingedSpace).inverseImage
         (Scheme.Modules.ringedSpaceEquivalence X).functor =
-      quasiCoherentModuleProperty X := sorry
+      quasiCoherentModuleProperty X := by
+  rfl
 
 /-- Quasicoherence in the two ambient module presentations is equivalent objectwise. -/
 @[simp]
 theorem property_iff {X : Scheme.{u}} (M : X.Modules) :
     RingedSpace.quasiCoherentModuleProperty X.toRingedSpace
         ((Scheme.Modules.toRingedSpace X).obj M) ↔
-      quasiCoherentModuleProperty X M := sorry
+      quasiCoherentModuleProperty X M :=
+  Iff.rfl
 
 end ringedSpaceEquivalence
 
@@ -83,27 +85,31 @@ def inverseInclusionIso (X : Scheme.{u}) :
 @[simp]
 theorem inclusionIso_hom_app {X : Scheme.{u}} (M : QCoh X) :
     (inclusionIso X).hom.app M =
-      𝟙 ((Scheme.Modules.toRingedSpace X).obj M.obj) := sorry
+      𝟙 ((Scheme.Modules.toRingedSpace X).obj M.obj) := by
+  rfl
 
 /-- The inverse of the canonical forward inclusion comparison is componentwise the identity. -/
 @[simp]
 theorem inclusionIso_inv_app {X : Scheme.{u}} (M : QCoh X) :
     (inclusionIso X).inv.app M =
-      𝟙 ((Scheme.Modules.toRingedSpace X).obj M.obj) := sorry
+      𝟙 ((Scheme.Modules.toRingedSpace X).obj M.obj) := by
+  rfl
 
 /-- The canonical inverse inclusion comparison is componentwise the identity. -/
 @[simp]
 theorem inverseInclusionIso_hom_app {X : Scheme.{u}}
     (M : RingedSpace.QCoh X.toRingedSpace) :
     (inverseInclusionIso X).hom.app M =
-      𝟙 ((Scheme.Modules.fromRingedSpace X).obj M.obj) := sorry
+      𝟙 ((Scheme.Modules.fromRingedSpace X).obj M.obj) := by
+  rfl
 
 /-- The inverse of the canonical inverse inclusion comparison is componentwise the identity. -/
 @[simp]
 theorem inverseInclusionIso_inv_app {X : Scheme.{u}}
     (M : RingedSpace.QCoh X.toRingedSpace) :
     (inverseInclusionIso X).inv.app M =
-      𝟙 ((Scheme.Modules.fromRingedSpace X).obj M.obj) := sorry
+      𝟙 ((Scheme.Modules.fromRingedSpace X).obj M.obj) := by
+  rfl
 
 end ringedSpaceEquivalence
 
@@ -113,13 +119,15 @@ namespace toRingedSpace
 unchanged. -/
 @[simp]
 theorem obj_obj {X : Scheme.{u}} (M : QCoh X) :
-    ((toRingedSpace X).obj M).obj = M.obj := sorry
+    ((toRingedSpace X).obj M).obj = M.obj := by
+  rfl
 
 /-- The forward projection of the presentation equivalence leaves the underlying morphism
 unchanged. -/
 @[simp]
 theorem map_hom {X : Scheme.{u}} {M N : QCoh X} (f : M ⟶ N) :
-    ((toRingedSpace X).map f).hom = f.hom := sorry
+    ((toRingedSpace X).map f).hom = f.hom := by
+  rfl
 
 end toRingedSpace
 
@@ -129,13 +137,15 @@ namespace fromRingedSpace
 unchanged. -/
 @[simp]
 theorem obj_obj {X : Scheme.{u}} (M : RingedSpace.QCoh X.toRingedSpace) :
-    ((fromRingedSpace X).obj M).obj = M.obj := sorry
+    ((fromRingedSpace X).obj M).obj = M.obj := by
+  rfl
 
 /-- The inverse projection of the presentation equivalence leaves the underlying morphism
 unchanged. -/
 @[simp]
 theorem map_hom {X : Scheme.{u}} {M N : RingedSpace.QCoh X.toRingedSpace} (f : M ⟶ N) :
-    ((fromRingedSpace X).map f).hom = f.hom := sorry
+    ((fromRingedSpace X).map f).hom = f.hom := by
+  rfl
 
 end fromRingedSpace
 

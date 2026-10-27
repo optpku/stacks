@@ -98,7 +98,7 @@ Proof strategy: use BaseProjection.pullbackDown_fst, the left-projection compari
     map M ⋙ π₁ X.p X.p =
       FiberedCategoryOver.Groupoids.toFunctor
         (M ≫ (CategoryTheory.TwoFibreProduct.cone
-          X.baseProjection X.baseProjection).fst) := sorry
+          X.baseProjection X.baseProjection).fst) := rfl
 
 /-- The right projection of `map M` is the underlying functor of the
 right owner composite.
@@ -113,7 +113,7 @@ Proof strategy: use BaseProjection.pullbackDown_snd, the right-projection compar
     map M ⋙ π₂ X.p X.p =
       FiberedCategoryOver.Groupoids.toFunctor
         (M ≫ (CategoryTheory.TwoFibreProduct.cone
-          X.baseProjection X.baseProjection).snd) := sorry
+          X.baseProjection X.baseProjection).snd) := rfl
 
 /-- Objectwise, the first projection of `map M` is the underlying left owner composite. -/
 @[simp] theorem map.obj.fst
@@ -124,7 +124,7 @@ Proof strategy: use BaseProjection.pullbackDown_snd, the right-projection compar
     ((map M).obj a).fst =
       (FiberedCategoryOver.Groupoids.toFunctor
         (M ≫ (CategoryTheory.TwoFibreProduct.cone
-          X.baseProjection X.baseProjection).fst)).obj a := sorry
+          X.baseProjection X.baseProjection).fst)).obj a := rfl
 /- Proof strategy: evaluate `map.fst M` at `a` and read the object component. -/
 
 /-- Objectwise, the second projection of `map M` is the underlying right owner composite. -/
@@ -136,7 +136,7 @@ Proof strategy: use BaseProjection.pullbackDown_snd, the right-projection compar
     ((map M).obj a).snd =
       (FiberedCategoryOver.Groupoids.toFunctor
         (M ≫ (CategoryTheory.TwoFibreProduct.cone
-          X.baseProjection X.baseProjection).snd)).obj a := sorry
+          X.baseProjection X.baseProjection).snd)).obj a := rfl
 /- Proof strategy: evaluate `map.snd M` at `a` and read the object component. -/
 
 /-- On morphisms, the first projection of `map M` is the map of the underlying left owner
@@ -150,7 +150,7 @@ composite. -/
     ((map M).map f).fst =
       (FiberedCategoryOver.Groupoids.toFunctor
         (M ≫ (CategoryTheory.TwoFibreProduct.cone
-          X.baseProjection X.baseProjection).fst)).map f := sorry
+          X.baseProjection X.baseProjection).fst)).map f := rfl
 /- Proof strategy: evaluate `map.fst M` on `f` and read the morphism component. -/
 
 /-- On morphisms, the second projection of `map M` is the map of the underlying right owner
@@ -164,7 +164,7 @@ composite. -/
     ((map M).map f).snd =
       (FiberedCategoryOver.Groupoids.toFunctor
         (M ≫ (CategoryTheory.TwoFibreProduct.cone
-          X.baseProjection X.baseProjection).snd)).map f := sorry
+          X.baseProjection X.baseProjection).snd)).map f := rfl
 /- Proof strategy: evaluate `map.snd M` on `f` and read the morphism component. -/
 
 /-- Objectwise, the structural isomorphism of `map M` is the explicit pseudo-pullback
@@ -179,10 +179,19 @@ comparison mapped back from the universe-closed identity fibration to `C`. -/
         (map.comparisonObj M a).fst).symm ≪≫
         (FiberedCategoryOver.Groupoids.base C).p.mapIso (map.comparisonObj M a).iso ≪≫
           (FiberedCategoryOver.Groupoids.baseProjection.iso X).app
-            (map.comparisonObj M a).snd := sorry
-/- Proof strategy: unfold only `map` as a composite, then apply
-`BasedCategory.PseudoPullback.Comparison.functor.obj.iso` and
-`BaseProjection.pullbackDown_obj_iso`. -/
+            (map.comparisonObj M a).snd := by
+  apply Iso.ext
+  change
+    𝟙 _ ≫ ((𝟙 _ ≫ ((𝟙 _ ≫ 𝟙 _) ≫ 𝟙 _)) ≫ 𝟙 _) ≫
+      𝟙 _ ≫ (𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _ ≫
+        (FiberedCategoryOver.Groupoids.base C).p.map (map.comparisonObj M a).iso.hom ≫
+          𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _) ≫
+        𝟙 _ ≫ (𝟙 _ ≫ (𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _) ≫ 𝟙 _) ≫ 𝟙 _ =
+    ((𝟙 _ ≫ 𝟙 _) ≫ 𝟙 _) ≫
+      (FiberedCategoryOver.Groupoids.base C).p.map (map.comparisonObj M a).iso.hom ≫
+        𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _
+  simp only [Category.id_comp, Category.comp_id]
+/- Both transports contribute only identity whiskerings around the mapped comparison. -/
 
 /-- The forward map of the structural isomorphism carried by `map M` is the mapped
 pseudo-pullback comparison conjugated by the base-projection comparisons. -/
@@ -196,7 +205,14 @@ pseudo-pullback comparison conjugated by the base-projection comparisons. -/
           (map.comparisonObj M a).fst ≫
         (FiberedCategoryOver.Groupoids.base C).p.map (map.comparisonObj M a).iso.hom ≫
           (FiberedCategoryOver.Groupoids.baseProjection.iso X).hom.app
-            (map.comparisonObj M a).snd := sorry
+            (map.comparisonObj M a).snd := by
+  -- The base-projection components are explicit identities at every resizing universe.
+  have h := congrArg Iso.hom (map.obj.iso.{w, v, u, w, w} M a)
+  change ((map M).obj a).iso.hom =
+    ((𝟙 _ ≫ 𝟙 _) ≫ 𝟙 _) ≫
+      (FiberedCategoryOver.Groupoids.base C).p.map (map.comparisonObj M a).iso.hom ≫
+        𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _ at h ⊢
+  simpa only [Category.id_comp, Category.comp_id] using h
 
 /-- The inverse map of the structural isomorphism carried by `map M` is the reverse
 conjugation of the inverse pseudo-pullback comparison. -/
@@ -210,7 +226,18 @@ conjugation of the inverse pseudo-pullback comparison. -/
           (map.comparisonObj M a).snd ≫
         (FiberedCategoryOver.Groupoids.base C).p.map (map.comparisonObj M a).iso.inv ≫
           (FiberedCategoryOver.Groupoids.baseProjection.iso X).hom.app
-            (map.comparisonObj M a).fst := sorry
+            (map.comparisonObj M a).fst := by
+  -- Normalize the identity comparisons before reversing the composite.
+  have h := congrArg Iso.inv (map.obj.iso.{w, v, u, w, w} M a)
+  change ((map M).obj a).iso.inv =
+    (((𝟙 _ ≫ 𝟙 _) ≫ 𝟙 _) ≫
+      (FiberedCategoryOver.Groupoids.base C).p.map (map.comparisonObj M a).iso.inv) ≫
+        𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _ at h
+  change ((map M).obj a).iso.inv =
+    ((𝟙 _ ≫ 𝟙 _) ≫ 𝟙 _) ≫
+      (FiberedCategoryOver.Groupoids.base C).p.map (map.comparisonObj M a).iso.inv ≫
+        𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _
+  simpa only [Category.id_comp, Category.comp_id] using h
 
 end
 

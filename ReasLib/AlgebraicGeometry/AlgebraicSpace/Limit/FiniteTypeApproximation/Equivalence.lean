@@ -59,8 +59,8 @@ def Obj.toBase (X : Obj D c) : X.diagram ⟶ tailBaseDiagram D X.initial :=
 
 /-- The cone projections commute with the structural morphism to the base limit. -/
 theorem Obj.cone_toBase (X : Obj D c) (j : Over (OrderDual.toDual X.initial)) :
-    X.cone.π.app j ≫ X.toBase.app j = X.toS ≫ c.π.app j.left := by
-  sorry
+    X.cone.π.app j ≫ X.toBase.app j = X.toS ≫ c.π.app j.left :=
+  X.approximation.cone_toBase j
 
 /-- A comparison on a common tail together with its compatible morphism of limits. -/
 structure Representative (X Y : Obj D c) where
@@ -317,13 +317,7 @@ theorem exists_morphisms_eventually_inverse
     {Ysys : Over (OrderDual.toDual i₂) ⥤ AlgebraicSpace S}
     (xπ : (Functor.const (Over (OrderDual.toDual i₁))).obj X ⟶ Xsys)
     (yπ : (Functor.const (Over (OrderDual.toDual i₂))).obj X ⟶ Ysys)
-    (xToBase : Xsys ⟶ tailBaseDiagram D i₁)
-    (yToBase : Ysys ⟶ tailBaseDiagram D i₂)
     (toS : X ⟶ c.pt)
-    (xCone_toBase : ∀ j : Over (OrderDual.toDual i₁),
-      xπ.app j ≫ xToBase.app j = toS ≫ c.π.app j.left)
-    (yCone_toBase : ∀ j : Over (OrderDual.toDual i₂),
-      yπ.app j ≫ yToBase.app j = toS ≫ c.π.app j.left)
     [QuasiSeparated toS] [FiniteType toS]
     (Xapprox : FiniteTypeApproximationLimitSystem D c i₁ Xsys
       (⟨X, xπ⟩ : Cone Xsys) toS)
@@ -332,7 +326,8 @@ theorem exists_morphisms_eventually_inverse
     ∃ (i₀ : I) (hi₁ : i₁ ≤ i₀) (hi₂ : i₂ ≤ i₀),
       ∃ φ : InverseSystemMorphismOverBase D i₀
           (restrictTail hi₁ Xsys) (restrictTail hi₂ Ysys)
-          (restrictTailToBase D hi₁ xToBase) (restrictTailToBase D hi₂ yToBase),
+          (restrictTailToBase D hi₁ Xapprox.toBase)
+          (restrictTailToBase D hi₂ Yapprox.toBase),
         φ.IsLimitMorphism
           (Cone.whisker (Over.map (homOfLE hi₁ : OrderDual.toDual i₀ ⟶ OrderDual.toDual i₁))
             (⟨X, xπ⟩ : Cone Xsys))
@@ -340,7 +335,8 @@ theorem exists_morphisms_eventually_inverse
             (⟨X, yπ⟩ : Cone Ysys)) (𝟙 X) ∧
         ∃ ψ : InverseSystemMorphismOverBase D i₀
             (restrictTail hi₂ Ysys) (restrictTail hi₁ Xsys)
-            (restrictTailToBase D hi₂ yToBase) (restrictTailToBase D hi₁ xToBase),
+            (restrictTailToBase D hi₂ Yapprox.toBase)
+            (restrictTailToBase D hi₁ Xapprox.toBase),
           ψ.IsLimitMorphism
             (Cone.whisker (Over.map (homOfLE hi₂ : OrderDual.toDual i₀ ⟶ OrderDual.toDual i₂))
               (⟨X, yπ⟩ : Cone Ysys))

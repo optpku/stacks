@@ -8,6 +8,7 @@ module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Invertible.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.Module.RelativeDualizing.Different
+public import ReasLib.AlgebraicGeometry.Scheme.Module.RelativeDualizing.TraceSection
 public import Mathlib.AlgebraicGeometry.IdealSheaf.Functorial
 public import Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion
 

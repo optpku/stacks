@@ -45,6 +45,7 @@ theorem cartesian_toFunctor_eq {X Y : GroupoidsOver S} (h : X ⟶ Y) :
     (toCartesianBasedFunctor h).toFunctor = toFunctor h :=
   congrArg (fun F => F.toFunctor) (toCartesianBasedFunctor.toBasedFunctor h)
 
+/-- Compatible sections along the total functor are small under the CFG size premise. -/
 instance (h : X ⟶ Y) [hP : HasSmallCFGTypeSections (S := S) h] :
     ∀ F : Sheaf X.etaleTopology (Type u), ∀ Z : Y.totalᵒᵖ,
       Small.{u} (StructuredArrow.proj Z (toFunctor h).op ⋙ F.obj).sections := by
@@ -62,44 +63,86 @@ instance etaleTopology_hasSheafCompose_ring_type (X : GroupoidsOver S) :
 instance toFunctor_isMorphismOfSites_etale {X Y : GroupoidsOver S} (h : X ⟶ Y) :
     IsMorphismOfSites X.etaleTopology Y.etaleTopology (toFunctor h) := sorry
 
+/-- The cartesian total functor of a CFG morphism is continuous for the inherited étale topologies. -/
+instance toCartesianBasedFunctor_isContinuous_etale {X Y : GroupoidsOver S} (h : X ⟶ Y) :
+    (toCartesianBasedFunctor h).toFunctor.IsContinuous X.etaleTopology Y.etaleTopology :=
+  CartesianBasedFunctor.inheritedTopology.isContinuous
+    (toCartesianBasedFunctor h) (StandardTopology.etale.overTopology S)
+
+/-- The cartesian total functor of a CFG morphism is cocontinuous for the inherited étale topologies. -/
+instance toCartesianBasedFunctor_isCocontinuous_etale {X Y : GroupoidsOver S} (h : X ⟶ Y) :
+    (toCartesianBasedFunctor h).toFunctor.IsCocontinuous X.etaleTopology Y.etaleTopology :=
+  CartesianBasedFunctor.inheritedTopology.isCocontinuous
+    (toCartesianBasedFunctor h) (StandardTopology.etale.overTopology S)
+
+/-- A CFG morphism is continuous for the associated étale topologies. -/
 instance toFunctor_isContinuous_etale {X Y : GroupoidsOver S} (h : X ⟶ Y) :
     (toFunctor h).IsContinuous X.etaleTopology Y.etaleTopology :=
   (toFunctor_isMorphismOfSites_etale h).toIsContinuous
 
+/-- A CFG morphism followed by the target projection is étale-continuous. -/
 instance toFunctor_comp_p_isContinuous_etale {X Y : GroupoidsOver S} (h : X ⟶ Y) :
     (toFunctor h ⋙ Y.p).IsContinuous X.etaleTopology
       (StandardTopology.etale.overTopology S) :=
   Functor.isContinuous_of_iso (eqToIso (comm h).symm) X.etaleTopology
     (StandardTopology.etale.overTopology S)
 
+/-- A CFG morphism is cocontinuous for the associated étale topologies. -/
 instance toFunctor_isCocontinuous_etale {X Y : GroupoidsOver S} (h : X ⟶ Y) :
     (toFunctor h).IsCocontinuous X.etaleTopology Y.etaleTopology :=
   CartesianBasedFunctor.inheritedTopology.isCocontinuous
     (toCartesianBasedFunctor h) (StandardTopology.etale.overTopology S)
 
-/-- The inverse structure map is the actual comparison of continuous precomposition. -/
+/-- The identification `f⁻¹ 𝒪_Y ≅ 𝒪_X` of commutative étale structure sheaves. -/
+def commEtaleStructureSheafIso {X Y : GroupoidsOver S} (f : X ⟶ Y) :
+    ((toFunctor f).sheafPushforwardContinuous CommRingCat.{u}
+        X.etaleTopology Y.etaleTopology).obj (commEtaleStructureSheaf Y) ≅
+      commEtaleStructureSheaf X :=
+  (sheafPushforwardContinuousComp' (eqToIso (comm f)) CommRingCat.{u}
+      X.etaleTopology Y.etaleTopology
+      (StandardTopology.etale.overTopology S)).app bigEtaleCommStructureSheaf
+
+/-- The underlying ring sheaf of `f⁻¹ 𝒪_Y` is the inverse image of the underlying ring sheaf. -/
+def inverseImageEtaleStructureSheafIso {X Y : GroupoidsOver S} (f : X ⟶ Y) :
+    CategoryTheory.Sheaf.ringSheafOfComm.{u, u + 1, u}
+      (((toFunctor f).sheafPushforwardContinuous CommRingCat.{u}
+          X.etaleTopology Y.etaleTopology).obj (commEtaleStructureSheaf Y)) ≅
+      ((toFunctor f).sheafPushforwardContinuous RingCat.{u}
+        X.etaleTopology Y.etaleTopology).obj (etaleStructureSheaf Y) :=
+  (fullyFaithfulSheafToPresheaf X.etaleTopology RingCat.{u}).preimageIso (Iso.refl _)
+
+/-- The coefficient map `𝒪_X ⟶ f⁻¹ 𝒪_Y` is the canonical structure-sheaf comparison. -/
 def etaleSiteHom_structureSheafMap {X Y : GroupoidsOver S} (h : X ⟶ Y) :
     (etaleRingedSite X).structureSheaf ⟶
       ((toFunctor h).sheafPushforwardContinuous RingCat.{u}
         X.etaleTopology Y.etaleTopology).obj (etaleRingedSite Y).structureSheaf :=
-  (sheafPushforwardContinuousIso (eqToIso (comm h).symm) RingCat.{u}
-      X.etaleTopology (StandardTopology.etale.overTopology S)).hom.app
-    (StandardTopology.Big.structureSheaf StandardTopology.etale S)
+  CategoryTheory.Sheaf.ringSheafOfCommMap.{u, u + 1, u} (commEtaleStructureSheafIso h).inv ≫
+    (inverseImageEtaleStructureSheafIso h).hom
 
+/-- The canonical étale coefficient map is an isomorphism. -/
+instance etaleSiteHom_structureSheafMap_isIso {X Y : GroupoidsOver S} (h : X ⟶ Y) :
+    IsIso (etaleSiteHom_structureSheafMap h) := by
+  unfold etaleSiteHom_structureSheafMap
+  infer_instance
+
+/-- A CFG morphism induces a morphism of étale ringed sites in the inverse-image direction. -/
 def etaleSiteHom {X Y : GroupoidsOver S} (h : X ⟶ Y) :
     RingedSite.Hom (etaleRingedSite Y) (etaleRingedSite X) where
   base := toFunctor h
   isMorphismOfSites := toFunctor_isMorphismOfSites_etale h
   structureSheafMap := etaleSiteHom_structureSheafMap h
 
+/-- Inverse image of étale modules along a CFG morphism, with its canonical coefficient map. -/
 def etaleModuleInverseImage {X Y : GroupoidsOver S} (h : X ⟶ Y) :
     SheafOfModules.{u} (etaleRingedSite Y).structureSheaf ⥤
       SheafOfModules.{u} (etaleRingedSite X).structureSheaf :=
   (etaleSiteHom h).modulePushforward.{u}
 
+/-- Étale module inverse image is module pushforward along the induced ringed-site morphism. -/
 theorem etaleModuleInverseImage_eq {X Y : GroupoidsOver S} (h : X ⟶ Y) :
     etaleModuleInverseImage h = (etaleSiteHom h).modulePushforward.{u} := rfl
 
+/-- The structure sheaf on the source is obtained from the target by continuous precomposition. -/
 def etaleModuleStructureSheafInv {X Y : GroupoidsOver S} (h : X ⟶ Y) :
     ((toFunctor h).sheafPushforwardContinuous RingCat.{u}
         X.etaleTopology Y.etaleTopology).obj (etaleRingedSite Y).structureSheaf ⟶
@@ -121,6 +164,7 @@ def etaleModuleStructureSheafMap :
   ((toFunctor h).sheafPushforwardRingOfSmallSectionsAdjunction.{u + 1, u, u + 1, u, u}
     X.etaleTopology Y.etaleTopology).homEquiv _ _ (etaleModuleStructureSheafInv h)
 
+/-- The transposed direct structure morphism respects the ring structures. -/
 theorem etaleModuleStructureSheafMap_isRingCompatible :
     @RingedSite.ToposHom.Direct.IsRingCompatible
       (etaleRingedSite X) (etaleRingedSite Y) inferInstance inferInstance
@@ -138,11 +182,13 @@ def etaleRingedToposHom : RingedSite.ToposHom (etaleRingedSite X) (etaleRingedSi
     ((toFunctor h).sheafPushforwardRingOfSmallSectionsForgetIso.{u + 1, u, u + 1, u, u} X.etaleTopology Y.etaleTopology)
     (etaleModuleStructureSheafMap h) (etaleModuleStructureSheafMap_isRingCompatible h)
 
+/-- Direct image of étale modules with small compatible sheaf sections. -/
 def etaleModuleDirectImage :
     SheafOfModules.{u} (etaleRingedSite X).structureSheaf ⥤
       SheafOfModules.{u} (etaleRingedSite Y).structureSheaf :=
   (etaleRingedToposHom h).modulePushforward
 
+/-- Étale module direct image is pushforward along the induced morphism of ringed topoi. -/
 theorem etaleModuleDirectImage_eq :
     etaleModuleDirectImage h = (etaleRingedToposHom h).modulePushforward := rfl
 

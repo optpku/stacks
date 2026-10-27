@@ -50,11 +50,11 @@ end Ideal.LocalCohomology.AlgebraizationSituation
   (Ideal.LocalCohomology.AlgebraizationSituation.existsAdicStabilizationIndex :
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       (I : Ideal A) (M : Type u)
       [AddCommGroup M] [Module A M] [Module.Finite A M]
       (T : Set (PrimeSpectrum A)) (s d : ℤ)
-      (h : Ideal.LocalCohomology.AlgebraizationSituation H I M T s d),
+      (h : Ideal.LocalCohomology.AlgebraizationSituation C I M T s d),
       ∃ m₀ : ℕ,
         CategoryTheory.ModuleCat.SupportedOn.IsAdicStabilizationIndex
           T I (ModuleCat.of A M) s m₀)

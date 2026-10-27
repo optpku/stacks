@@ -20,7 +20,8 @@ import Mathlib.Tactic.CrossRefAttribute
 
 This file packages the hypotheses of Lemma 21.10.9 without requiring finite products in every
 slice category.  Each selected covering family carries exactly the iterated fibre-product
-witnesses used by its own Cech nerve.
+witnesses used by its own Cech nerve.  This is the fixed-index-universe (`w`) specialization:
+cofinality below ranges over `FormalCoproduct.{w}` covering families.
 -/
 
 @[expose] public section
@@ -63,8 +64,9 @@ abbrev Cover.intersection {C : Type u} [Category.{v} C] {U : C} (cover : Cover.{
     (n : ℕ) (i : cover.index n) : C :=
   ((familyPower cover.family n).obj i).left
 
-/-- A cofinal collection of fixed-target covers whose iterated intersections remain in a chosen
-family of site objects. -/
+/-- A cofinal collection of fixed-target covers whose targets, original members, and iterated
+intersections remain in a chosen family of site objects. Cofinality tests index types in `Type w`.
+-/
 @[stacks 03F9 "cofinal fixed-target Cech covering system"]
 structure CofinalSystem
     {C : Type u} [Category.{v} C] (J : GrothendieckTopology C)
@@ -74,10 +76,17 @@ structure CofinalSystem
     cover ∈ Cov U → (J.over U).CoversTop cover.family
   /-- The target of every selected cover belongs to `B`. -/
   target_mem : ∀ ⦃U : C⦄ {cover : Cover.{w} U}, cover ∈ Cov U → U ∈ B
+  /-- Every original member of a selected cover belongs to `B`.
+
+  This is separate from `intersections_mem`: the selected product used to represent a degree-zero
+  intersection is only isomorphic to the original member in general. -/
+  members_mem : ∀ ⦃U : C⦄ {cover : Cover.{w} U}, cover ∈ Cov U →
+    ∀ i : cover.toFormalCoproduct.I, (cover.family i).left ∈ B
   /-- Every iterated intersection of a selected cover remains in `B`. -/
   intersections_mem : ∀ ⦃U : C⦄ {cover : Cover.{w} U},
     cover ∈ Cov U → ∀ n : ℕ, ∀ i : cover.index n, cover.intersection n i ∈ B
-  /-- The selected covers are cofinal among all covers of each object in `B`. -/
+  /-- The selected covers are cofinal among all `w`-universe covering families of each object in
+  `B`. This fixed-universe restriction is part of this specialization of the Stacks condition. -/
   cofinal : ∀ ⦃U : C⦄, U ∈ B → ∀ (family : FormalCoproduct.{w} (Over U)),
     (J.over U).CoversTop family.obj →
       ∃ cover : Cover.{w} U,
@@ -85,7 +94,8 @@ structure CofinalSystem
 
 namespace CofinalSystem
 
-/-- A cover in a fixed-target cofinal system refines any given cover of the same object. -/
+/-- A cover in a fixed-target cofinal system refines any given `w`-universe cover of the same
+object. -/
 theorem exists_refinement
     {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
     {B : Set C} {Cov : ∀ U : C, Set (Cover.{w} U)}

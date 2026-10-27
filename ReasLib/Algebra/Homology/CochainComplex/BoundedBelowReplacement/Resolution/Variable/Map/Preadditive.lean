@@ -33,6 +33,13 @@ variable {A : Type u} [Category.{v} A] [Preadditive A] [CategoryWithHomology A]
 variable {K L M : CochainComplex A ℤ} {f g : K ⟶ L} {h k : L ⟶ M}
   {R : QuasiIsoTo P K} {S : QuasiIsoTo P L} {T : QuasiIsoTo P M}
 
+private theorem eq_of_modelHom_eq {m n : Map f R S} (hmn : m.modelHom = n.modelHom) :
+    m = n := by
+  cases m
+  cases n
+  cases hmn
+  rfl
+
 /-- Add two variable-lower-bound resolution maps, adding their base cochain maps. -/
 @[stacks 05T6 "addition of variable-lower-bound resolution maps"]
 abbrev add (m : Map f R S) (n : Map g R S) : Map (f + g) R S :=
@@ -41,18 +48,23 @@ abbrev add (m : Map f R S) (n : Map g R S) : Map (f + g) R S :=
 /-- Addition of variable-lower-bound resolution maps adds their bundled model morphisms. -/
 @[simp]
 theorem add_modelHom (m : Map f R S) (n : Map g R S) :
-    (add m n).modelHom = m.modelHom + n.modelHom := sorry
+    (add m n).modelHom = m.modelHom + n.modelHom := rfl
 
 /-- Addition of variable-lower-bound resolution maps adds their underlying cochain maps. -/
 @[simp]
 theorem add_hom (m : Map f R S) (n : Map g R S) :
-    (add m n).hom = m.hom + n.hom := sorry
+    (add m n).hom = m.hom + n.hom := rfl
 
 /-- The sum of two variable-lower-bound resolution maps satisfies the comparison square over
 the sum of their base cochain maps. -/
 @[reassoc]
 theorem add_naturality (m : Map f R S) (n : Map g R S) :
-    R.comparison ≫ (add m n).hom = (f + g) ≫ S.comparison := sorry
+    R.comparison ≫ (add m n).hom = (f + g) ≫ S.comparison := by
+  have hm : R.comparison ≫ m.hom = f ≫ S.comparison :=
+    LocalizerMorphism.RightResolution.Map.comparison_naturality m
+  have hn : R.comparison ≫ n.hom = g ≫ S.comparison :=
+    LocalizerMorphism.RightResolution.Map.comparison_naturality n
+  rw [add_hom, Preadditive.comp_add, hm, hn, Preadditive.add_comp]
 
 /-- Negate a variable-lower-bound resolution map and its base cochain map. -/
 @[stacks 05T6 "negation of variable-lower-bound resolution maps"]
@@ -61,17 +73,20 @@ abbrev neg (m : Map f R S) : Map (-f) R S :=
 
 /-- Negation of a variable-lower-bound resolution map negates its bundled model morphism. -/
 @[simp]
-theorem neg_modelHom (m : Map f R S) : (neg m).modelHom = -m.modelHom := sorry
+theorem neg_modelHom (m : Map f R S) : (neg m).modelHom = -m.modelHom := rfl
 
 /-- Negation of a variable-lower-bound resolution map negates its underlying cochain map. -/
 @[simp]
-theorem neg_hom (m : Map f R S) : (neg m).hom = -m.hom := sorry
+theorem neg_hom (m : Map f R S) : (neg m).hom = -m.hom := rfl
 
 /-- A negated variable-lower-bound resolution map satisfies the comparison square over the
 negated base cochain map. -/
 @[reassoc]
 theorem neg_naturality (m : Map f R S) :
-    R.comparison ≫ (neg m).hom = (-f) ≫ S.comparison := sorry
+    R.comparison ≫ (neg m).hom = (-f) ≫ S.comparison := by
+  have hm : R.comparison ≫ m.hom = f ≫ S.comparison :=
+    LocalizerMorphism.RightResolution.Map.comparison_naturality m
+  rw [neg_hom, Preadditive.comp_neg, hm, Preadditive.neg_comp]
 
 /-- Subtract two variable-lower-bound resolution maps and their base cochain maps. -/
 @[stacks 05T6 "subtraction of variable-lower-bound resolution maps"]
@@ -82,73 +97,90 @@ abbrev sub (m : Map f R S) (n : Map g R S) : Map (f - g) R S :=
 morphisms. -/
 @[simp]
 theorem sub_modelHom (m : Map f R S) (n : Map g R S) :
-    (sub m n).modelHom = m.modelHom - n.modelHom := sorry
+    (sub m n).modelHom = m.modelHom - n.modelHom := rfl
 
 /-- Subtraction of variable-lower-bound resolution maps subtracts their underlying cochain
 maps. -/
 @[simp]
 theorem sub_hom (m : Map f R S) (n : Map g R S) :
-    (sub m n).hom = m.hom - n.hom := sorry
+    (sub m n).hom = m.hom - n.hom := rfl
 
 /-- The difference of two variable-lower-bound resolution maps satisfies the comparison square
 over the difference of their base cochain maps. -/
 @[reassoc]
 theorem sub_naturality (m : Map f R S) (n : Map g R S) :
-    R.comparison ≫ (sub m n).hom = (f - g) ≫ S.comparison := sorry
+    R.comparison ≫ (sub m n).hom = (f - g) ≫ S.comparison := by
+  have hm : R.comparison ≫ m.hom = f ≫ S.comparison :=
+    LocalizerMorphism.RightResolution.Map.comparison_naturality m
+  have hn : R.comparison ≫ n.hom = g ≫ S.comparison :=
+    LocalizerMorphism.RightResolution.Map.comparison_naturality n
+  rw [sub_hom, Preadditive.comp_sub, hm, hn, Preadditive.sub_comp]
 
 /-- Reindexing commutes with addition of variable-lower-bound resolution maps. -/
 @[simp]
 theorem reindex_add {f' g' : K ⟶ L} (ef : f = f') (eg : g = g')
     (m : Map f R S) (n : Map g R S) :
     reindex (congrArg₂ (fun (a b : K ⟶ L) ↦ a + b) ef eg) (add m n) =
-      add (reindex ef m) (reindex eg n) := sorry
+      add (reindex ef m) (reindex eg n) := rfl
 
 /-- Reindexing commutes with negation of variable-lower-bound resolution maps. -/
 @[simp]
 theorem reindex_neg {f' : K ⟶ L} (e : f = f') (m : Map f R S) :
     reindex (congrArg (fun a : K ⟶ L ↦ -a) e) (neg m) =
-      neg (reindex e m) := sorry
+      neg (reindex e m) := rfl
 
 /-- Reindexing commutes with subtraction of variable-lower-bound resolution maps. -/
 @[simp]
 theorem reindex_sub {f' g' : K ⟶ L} (ef : f = f') (eg : g = g')
     (m : Map f R S) (n : Map g R S) :
     reindex (congrArg₂ (fun (a b : K ⟶ L) ↦ a - b) ef eg) (sub m n) =
-      sub (reindex ef m) (reindex eg n) := sorry
+      sub (reindex ef m) (reindex eg n) := rfl
 
 /-- Composition distributes over addition in the left variable-lower-bound resolution map. -/
 @[simp]
 theorem add_comp (m : Map f R S) (n : Map g R S) (q : Map h S T) :
     reindex (Preadditive.add_comp K L M f g h) (comp (add m n) q) =
-      add (comp m q) (comp n q) := sorry
+      add (comp m q) (comp n q) := by
+  apply eq_of_modelHom_eq
+  exact Preadditive.add_comp _ _ _ _ _ _
 
 /-- Composition distributes over addition in the right variable-lower-bound resolution map. -/
 @[simp]
 theorem comp_add (m : Map f R S) (n : Map h S T) (q : Map k S T) :
     reindex (Preadditive.comp_add K L M f h k) (comp m (add n q)) =
-      add (comp m n) (comp m q) := sorry
+      add (comp m n) (comp m q) := by
+  apply eq_of_modelHom_eq
+  exact Preadditive.comp_add _ _ _ _ _ _
 
 /-- Composition commutes with negation in the left variable-lower-bound resolution map. -/
 @[simp]
 theorem neg_comp (m : Map f R S) (n : Map h S T) :
-    reindex (Preadditive.neg_comp f h) (comp (neg m) n) = neg (comp m n) := sorry
+    reindex (Preadditive.neg_comp f h) (comp (neg m) n) = neg (comp m n) := by
+  apply eq_of_modelHom_eq
+  exact Preadditive.neg_comp _ _
 
 /-- Composition commutes with negation in the right variable-lower-bound resolution map. -/
 @[simp]
 theorem comp_neg (m : Map f R S) (n : Map h S T) :
-    reindex (Preadditive.comp_neg f h) (comp m (neg n)) = neg (comp m n) := sorry
+    reindex (Preadditive.comp_neg f h) (comp m (neg n)) = neg (comp m n) := by
+  apply eq_of_modelHom_eq
+  exact Preadditive.comp_neg _ _
 
 /-- Composition distributes over subtraction in the left variable-lower-bound resolution map. -/
 @[simp]
 theorem sub_comp (m : Map f R S) (n : Map g R S) (q : Map h S T) :
     reindex (Preadditive.sub_comp f g h) (comp (sub m n) q) =
-      sub (comp m q) (comp n q) := sorry
+      sub (comp m q) (comp n q) := by
+  apply eq_of_modelHom_eq
+  exact Preadditive.sub_comp _ _ _
 
 /-- Composition distributes over subtraction in the right variable-lower-bound resolution map. -/
 @[simp]
 theorem comp_sub (m : Map f R S) (n : Map h S T) (q : Map k S T) :
     reindex (Preadditive.comp_sub f h k) (comp m (sub n q)) =
-      sub (comp m n) (comp m q) := sorry
+      sub (comp m n) (comp m q) := by
+  apply eq_of_modelHom_eq
+  exact Preadditive.comp_sub _ _ _
 
 end CochainComplex.Plus.TermsIn.QuasiIsoTo.Map
 

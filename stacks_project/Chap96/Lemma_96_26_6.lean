@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap96.Lemma_96_26_6_Comparison
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Derived.AffineFppf
+import StacksCheckRecall
 
 /-!
 # Lemma 96.26.6
@@ -28,9 +28,6 @@ universe u
 namespace AlgebraicGeometry.GroupoidsOver
 
 variable {S : Scheme.{u}} (X : GroupoidsOver S)
-variable [HasWeakSheafify (affineSiteFppfTopology X) CommRingCat.{u + 1}]
-variable [∀ P : (affineSite X)ᵒᵖ ⥤ CommRingCat.{u + 1},
-    (𝟭 (affineSite X)).op.HasLeftKanExtension P]
 variable [Functor.HasRightDerivedFunctor
     (modulePushforwardToDerived.{u + 1} (affineFppfComparison X))
     (ModuleQis.{u + 1}
@@ -39,29 +36,21 @@ variable [Functor.HasLeftDerivedFunctor
     (modulePullbackToDerived.{u + 1} (affineFppfComparison X))
     (ModuleQis.{u + 1} (ofCommRingSheaf ⊥ (affineStructureSheaf X)))]
 
-/-- Lemma 96.26.6 (1): the comparison morphism
-`ε : 𝒳_affine,fppf ⟶ 𝒳_affine` satisfies the K-flat sections unit
-condition of Cohomology on Sites, Lemma 21.43.12. -/
+/- Lemma 96.26.6: the affine fppf comparison satisfies the K-flat slice-sections
+condition and induces the restricted derived equivalences. -/
 @[stacks 0H0X]
-theorem affineFppfComparison_unitCondition :
-    qcProperty X ≤ (affineFppfDerivedAdjunction X).unitIsoProperty :=
-  sorry
-
-/-- Lemma 96.26.6 (2): restriction of `Rε_*` to objects whose derived
-pushforward lies in `QC(𝒳)` is an equivalence onto `QC(𝒳)`. -/
-@[stacks 0H0X, instance]
-instance affineFppfComparison_pushforwardRestriction_isEquivalence :
+#check (AlgebraicGeometry.GroupoidsOver.affineFppfComparison_spec X :
+    (∀ (x : affineSite X)
+      (M : CochainComplex (_root_.ModuleCat ((affineStructureSheaf X).obj.obj (Opposite.op x))) ℤ),
+      M.IsKFlat → IsIso (TensorSections.comparison (affineStructureSheaf X).obj x
+        (affineSiteFppfTopology X) (affineFppfStructureSheaf X)
+        (((𝟭 (affineSite X)).sheafAdjunctionContinuous CommRingCat.{u + 1} ⊥
+        (affineSiteFppfTopology X)).unit.app (affineStructureSheaf X)).hom M)) ∧
+    (qcProperty X ≤ (affineFppfDerivedAdjunction X).unitIsoProperty) ∧
     (Adjunction.InverseImageRestriction.right (qcProperty X) :
-        (affineFppfTargetProperty X).FullSubcategory ⥤
-          (qcProperty X).FullSubcategory).IsEquivalence :=
-  sorry
-
-/-- Lemma 96.26.6 (3): restriction of `ε^*` is the mutually quasi-inverse
-equivalence of Cohomology on Sites, Lemma 21.43.12. -/
-@[stacks 0H0X, instance]
-instance affineFppfComparison_pullbackRestriction_isEquivalence :
+      (affineFppfTargetProperty X).FullSubcategory ⥤
+        (qcProperty X).FullSubcategory).IsEquivalence ∧
     (Adjunction.InverseImageRestriction.left (affineFppfDerivedAdjunction X)
-      (qcProperty X) (affineFppfComparison_unitCondition X)).IsEquivalence :=
-  sorry
+      (qcProperty X) (affineFppfComparison_unitCondition X)).IsEquivalence)
 
 end AlgebraicGeometry.GroupoidsOver

@@ -22,6 +22,7 @@ the corresponding universal constructions before sheafification.
 @[expose] public section
 
 open CategoryTheory
+open CategoryTheory.MonoidalCategory
 
 noncomputable section
 
@@ -56,7 +57,10 @@ theorem mulSection_add_right
     (x : (sheaf 𝒪 F n).val.obj U)
     (y y' : (sheaf 𝒪 F m).val.obj U) :
     mulSection 𝒪 F U n m x (y + y') =
-      mulSection 𝒪 F U n m x y + mulSection 𝒪 F U n m x y' := sorry
+      mulSection 𝒪 F U n m x y + mulSection 𝒪 F U n m x y' := by
+  dsimp only [mulSection, tensorSection]
+  rw (config := { transparency := .all })
+    [TensorProduct.tmul_add, map_add, map_add, map_add]
 
 /-- Exterior multiplication on local sections is linear in the right argument. -/
 theorem mulSection_smul_right
@@ -64,7 +68,17 @@ theorem mulSection_smul_right
     (x : (sheaf 𝒪 F n).val.obj U) (r : 𝒪.obj.obj U)
     (y : (sheaf 𝒪 F m).val.obj U) :
     mulSection 𝒪 F U n m x (r • y) =
-      (RingHom.id (𝒪.obj.obj U)) r • mulSection 𝒪 F U n m x y := sorry
+      (RingHom.id (𝒪.obj.obj U)) r • mulSection 𝒪 F U n m x y := by
+  let f :
+      TensorProduct (𝒪.obj.obj U) ((sheaf 𝒪 F n).val.obj U)
+        ((sheaf 𝒪 F m).val.obj U) →ₗ[𝒪.obj.obj U] (sheaf 𝒪 F (n + m)).val.obj U :=
+    ((mul 𝒪 F n m).val.app U).hom.comp
+      (((ModuleSheafification.tensorObjIso 𝒪 (sheaf 𝒪 F n) (sheaf 𝒪 F m)).inv.val.app U).hom.comp
+        ((moduleSheafificationUnitToVal 𝒪
+          (PresheafOfModules.Monoidal.tensorObj (sheaf 𝒪 F n).val (sheaf 𝒪 F m).val)).app U).hom)
+  change f (TensorProduct.tmul (𝒪.obj.obj U) x (r • y)) =
+    r • f (TensorProduct.tmul (𝒪.obj.obj U) x y)
+  rw [TensorProduct.tmul_smul, map_smul]
 
 /-- Right-linear multiplication by a fixed homogeneous exterior-power section. -/
 noncomputable def mulSectionRight
@@ -81,14 +95,31 @@ theorem mulSectionRight_add
     (F : ringedSiteModuleCategory J 𝒪) (U : Cᵒᵖ) (n m : ℕ)
     (x x' : (sheaf 𝒪 F n).val.obj U) :
     mulSectionRight 𝒪 F U n m (x + x') =
-      mulSectionRight 𝒪 F U n m x + mulSectionRight 𝒪 F U n m x' := sorry
+      mulSectionRight 𝒪 F U n m x + mulSectionRight 𝒪 F U n m x' := by
+  ext y
+  change mulSection 𝒪 F U n m (x + x') y =
+    mulSection 𝒪 F U n m x y + mulSection 𝒪 F U n m x' y
+  dsimp only [mulSection, tensorSection]
+  rw (config := { transparency := .all })
+    [TensorProduct.add_tmul, map_add, map_add, map_add]
 
 /-- Right-linear exterior multiplication is linear in its fixed left argument. -/
 theorem mulSectionRight_smul
     (F : ringedSiteModuleCategory J 𝒪) (U : Cᵒᵖ) (n m : ℕ)
     (r : 𝒪.obj.obj U) (x : (sheaf 𝒪 F n).val.obj U) :
     mulSectionRight 𝒪 F U n m (r • x) =
-      r • mulSectionRight 𝒪 F U n m x := sorry
+      r • mulSectionRight 𝒪 F U n m x := by
+  ext y
+  let f :
+      TensorProduct (𝒪.obj.obj U) ((sheaf 𝒪 F n).val.obj U)
+        ((sheaf 𝒪 F m).val.obj U) →ₗ[𝒪.obj.obj U] (sheaf 𝒪 F (n + m)).val.obj U :=
+    ((mul 𝒪 F n m).val.app U).hom.comp
+      (((ModuleSheafification.tensorObjIso 𝒪 (sheaf 𝒪 F n) (sheaf 𝒪 F m)).inv.val.app U).hom.comp
+        ((moduleSheafificationUnitToVal 𝒪
+          (PresheafOfModules.Monoidal.tensorObj (sheaf 𝒪 F n).val (sheaf 𝒪 F m).val)).app U).hom)
+  change f (TensorProduct.tmul (𝒪.obj.obj U) (r • x) y) =
+    r • f (TensorProduct.tmul (𝒪.obj.obj U) x y)
+  rw [← TensorProduct.smul_tmul', map_smul]
 
 /-- The bilinear multiplication on local sections of two homogeneous exterior powers. -/
 noncomputable def mulSectionLinear
@@ -104,7 +135,11 @@ noncomputable def mulSectionLinear
 theorem oneSection_map
     (F : ringedSiteModuleCategory J 𝒪) {U V : Cᵒᵖ} (i : U ⟶ V) :
     ((sheaf 𝒪 F 0).val.map i).hom (oneSection 𝒪 F U) =
-      oneSection 𝒪 F V := sorry
+      oneSection 𝒪 F V := by
+  have h :=
+    (PresheafOfModules.naturality_apply (one 𝒪 F).val i (1 : 𝒪.obj.obj U)).symm
+  rw (config := { transparency := .all }) [PresheafOfModules.unit_map_one] at h
+  exact h
 
 /-- Homogeneous exterior multiplication commutes with restriction maps. -/
 theorem mulSection_map
@@ -114,7 +149,17 @@ theorem mulSection_map
     ((sheaf 𝒪 F (n + m)).val.map i).hom (mulSection 𝒪 F U n m x y) =
       mulSection 𝒪 F V n m
         (((sheaf 𝒪 F n).val.map i).hom x)
-        (((sheaf 𝒪 F m).val.map i).hom y) := sorry
+        (((sheaf 𝒪 F m).val.map i).hom y) := by
+  change (sheaf 𝒪 F (n + m)).val.map i
+      ((mul 𝒪 F n m).val.app U (tensorSection 𝒪 U x y)) = _
+  rw [← PresheafOfModules.naturality_apply (mul 𝒪 F n m).val i]
+  unfold mulSection tensorSection
+  rw [← PresheafOfModules.naturality_apply
+    (ModuleSheafification.tensorObjIso 𝒪 (sheaf 𝒪 F n) (sheaf 𝒪 F m)).inv.val i]
+  rw (config := { transparency := .all }) [← PresheafOfModules.naturality_apply
+    (moduleSheafificationUnitToVal 𝒪
+      (PresheafOfModules.Monoidal.tensorObj (sheaf 𝒪 F n).val (sheaf 𝒪 F m).val)) i]
+  rfl
 
 /-- Homogeneous exterior multiplication is associative on local sections. -/
 theorem mulSection_assoc
@@ -122,7 +167,22 @@ theorem mulSection_assoc
     (a : (sheaf 𝒪 F i).val.obj U) (b : (sheaf 𝒪 F j).val.obj U)
     (c : (sheaf 𝒪 F k).val.obj U) :
     HEq (mulSection 𝒪 F U (i + j) k (mulSection 𝒪 F U i j a b) c)
-      (mulSection 𝒪 F U i (j + k) a (mulSection 𝒪 F U j k b c)) := sorry
+      (mulSection 𝒪 F U i (j + k) a (mulSection 𝒪 F U j k b c)) := by
+  have h := congrArg
+    (fun f ↦ (f.val.app U).hom (tensorSection 𝒪 U (tensorSection 𝒪 U a b) c))
+    (mul_assoc 𝒪 F i j k)
+  simp only [SheafOfModules.comp_val, PresheafOfModules.comp_app,
+    ModuleCat.hom_comp, LinearMap.comp_apply, ← id_tensorHom, ← tensorHom_id] at h
+  rw [tensorSection_assoc, tensorSection_naturality, tensorSection_naturality] at h
+  simp only [SheafOfModules.id_val, PresheafOfModules.id_app,
+    ModuleCat.hom_id, LinearMap.id_apply] at h
+  have hcast {G H : ringedSiteModuleCategory J 𝒪} (e : G = H)
+      (x : G.val.obj U) : HEq (((eqToHom e).val.app U).hom x) x := by
+    cases e
+    rfl
+  exact (hcast (congrArg (sheaf 𝒪 F) (Nat.add_assoc i j k))
+    (mulSection 𝒪 F U (i + j) k (mulSection 𝒪 F U i j a b) c)).symm.trans
+      (heq_of_eq h.symm)
 
 /-- The degree-zero exterior section is a left unit. -/
 theorem oneSection_mul

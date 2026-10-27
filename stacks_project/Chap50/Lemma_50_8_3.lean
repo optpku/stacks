@@ -30,12 +30,12 @@ variable [HomologicalComplex.HasMapBifunctor
 variable [HomologicalComplex.HasMapBifunctor
   (extendedOperatorComplex a) (extendedOperatorComplex b) T (up ℤ)]
 variable
-  [(Modules.Kunneth.leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-  [(Modules.Kunneth.rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
-  [(Modules.Kunneth.coefficientPushforwardHom a).modulePushforward.IsRightAdjoint]
-  [(Modules.Kunneth.coefficientPushforwardHom b).modulePushforward.IsRightAdjoint]
-  [(Modules.Kunneth.fiberCoefficientHom a b).modulePushforward.IsRightAdjoint]
-  [(Modules.Kunneth.rightFiberCoefficientHom a b).modulePushforward.IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (Modules.Kunneth.leftCoefficientHom a b)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (Modules.Kunneth.rightCoefficientHom a b)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (Modules.Kunneth.coefficientPushforwardHom a)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (Modules.Kunneth.coefficientPushforwardHom b)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (Modules.Kunneth.fiberCoefficientHom a b)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (Modules.Kunneth.rightFiberCoefficientHom a b)).IsRightAdjoint]
   [Functor.HasLeftDerivedFunctor
     (RingedSite.Hom.modulePullbackToDerived.{u} (Modules.Kunneth.leftCoefficientHom a b))
     (RingedSite.Hom.ModuleQis.{u} (Modules.Kunneth.coefficientSite a))]

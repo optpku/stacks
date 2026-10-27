@@ -32,11 +32,13 @@ universe u v w
 namespace SheafOfModules.RingedSite.DifferentialGradedModule.IsGoodAtBase
 
 variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
-variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
-variable [HasWeakSheafify J AddCommGrpCat.{w}]
-variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
-variable {O : Sheaf J CommRingCat.{w}} {A : DGA(O)}
+variable [J.HasSheafCompose (forget₂ CommRingCat.{max u v w} RingCat.{max u v w})]
+variable [HasWeakSheafify J AddCommGrpCat.{max u v w}]
+variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v w}]
+variable {O : Sheaf J CommRingCat.{max u v w}} {A : DGA(O)}
 
+-- Prevent universe inference from choosing zero before elaborating the module arguments.
+attribute [-instance] UnivLE.zero in
 /-- Lemma 24.23.8 (0FSI), fixed-base tensor clause: a fixed-base good acyclic right DG module
 has acyclic tensor product with every left DG module. -/
 @[stacks 0FSI "(1), fixed-base tensor clause"]

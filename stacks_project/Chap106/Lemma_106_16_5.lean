@@ -6,35 +6,20 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap106.Lemma_106_16_5_Kunneth
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.Quasicoherent.DirectImage.Kunneth
+import StacksCheckRecall
 
-/-!
-# Easy Künneth formula for quasi-coherent structure sheaves
-
-If `a : Y ⟶ X` and `b : Z ⟶ X` are representable by schemes, quasi-compact,
-quasi-separated, and flat, then the quasi-coherent Künneth morphism of
-structure sheaves is an isomorphism.
--/
-
-@[expose] public section
+/-! Easy Künneth formula for quasi-coherent structure sheaves. -/
 
 open AlgebraicGeometry CategoryTheory
 open AlgebraicGeometry.AlgebraicStack AlgebraicGeometry.GroupoidsOver
 open scoped Bicategory
-
 noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.GroupoidsOver.QCoh
-
-/-- Lemma 106.16.5. Let `a : Y ⟶ X` and `b : Z ⟶ X` be representable by
-schemes, quasi-compact, quasi-separated, and flat. Then
-`a_{QCoh,*} O_Y ⊗_{O_X} b_{QCoh,*} O_Z` identifies with
-`f_{QCoh,*} O_{Y ×_X Z}` in `QCoh(O_X)`, where `f` is the obvious morphism
-from the chosen 2-fibre product. -/
-@[stacks 0GRN]
-theorem kunnethMap_isIso {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
+/- Lemma 106.16.5: the canonical Künneth morphism is an isomorphism. -/
+@[stacks 0GRN] #check (AlgebraicGeometry.GroupoidsOver.QCoh.kunnethMap_isIso :
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
     (a : Y ⟶ X) (b : Z ⟶ X)
     (ha : FiberedCategoryOver.Groupoids.relativelyRepresentable a)
@@ -44,9 +29,7 @@ theorem kunnethMap_isIso {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack.QuasiCompact b] [AlgebraicStack.QuasiSeparated b]
     [AlgebraicStack.Flat b]
     [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} a b)]
-    [AlgebraicStack.QuasiCompact (fibreProductHom a b)]
-    [AlgebraicStack.QuasiSeparated (fibreProductHom a b)] :
-    IsIso (kunnethMap a b) :=
-  sorry
+    [AlgebraicStack.QuasiCompact (AlgebraicGeometry.GroupoidsOver.QCoh.fibreProductHom a b)]
+    [AlgebraicStack.QuasiSeparated (AlgebraicGeometry.GroupoidsOver.QCoh.fibreProductHom a b)],
+    IsIso (AlgebraicGeometry.GroupoidsOver.QCoh.kunnethMap a b))
 
-end AlgebraicGeometry.GroupoidsOver.QCoh

@@ -6,9 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import Mathlib.Topology.KrullDimension
-public import stacks_project.Chap64.Theorem_64_20_5_Trace
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.EllAdicSheaf.Trace
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.EllAdicSheaf.CohomologicalLFunction
 
 /-!
 # Lefschetz trace formula for Q_ℓ-sheaves
@@ -51,51 +51,39 @@ variable [∀ Z : Scheme.{u},
     HasInjectiveResolutions (Sheaf Z.smallEtaleTopology AddCommGrpCat.{u})]
 variable (F : ZEllSheaf X.left ℓ)
 
-/-- Theorem 64.20.5 (1). For a separated finite-type scheme `X` over a finite
-field `k` and a `ℚ_[ℓ]`-sheaf `F` on `X`, each compactly supported geometric
-cohomology group `H_c^i(X_k̄, F)` is finite-dimensional over `ℚ_[ℓ]`. -/
-@[stacks 03V2]
-theorem finiteDimensional_geometricCohomologyCompactSupportQEll (i : ℕ) :
-    FiniteDimensional ℚ_[ℓ] (geometricCohomologyCompactSupportQEll P F i) :=
-  sorry
+/- Theorem 64.20.5 (1). Finite-dimensionality of geometric compactly
+supported rational ℓ-adic cohomology. -/
+@[stacks 03V2] #check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.instFiniteDimensional_geometricCohomologyCompactSupportQEll
+  P F : ∀ i : ℕ, FiniteDimensional ℚ_[ℓ] (geometricCohomologyCompactSupportQEll P F i))
 
-/-- Theorem 64.20.5 (2). The same groups are nonzero only for
-`0 ≤ i ≤ 2 * dim X`. Indexing by `ℕ` already encodes `0 ≤ i`; a nonzero
-`finrank` forces `(i : WithBot ℕ∞) ≤ 2 • topologicalKrullDim X.left`. -/
-@[stacks 03V2]
-theorem support_geometricCohomologyCompactSupportQEll (i : ℕ)
-    (h : Module.finrank ℚ_[ℓ] (geometricCohomologyCompactSupportQEll P F i) ≠ 0) :
-    (i : WithBot ℕ∞) ≤ 2 • topologicalKrullDim X.left :=
-  sorry
+/- Theorem 64.20.5 (2). The cohomological degree bound. -/
+@[stacks 03V2] #check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.support_geometricCohomologyCompactSupportQEll
+  P F : ∀ i : ℕ,
+    Module.finrank ℚ_[ℓ] (geometricCohomologyCompactSupportQEll P F i) ≠ 0 →
+      (i : WithBot ℕ∞) ≤ 2 • topologicalKrullDim X.left)
 
-/-- Compactly supported geometric `ℚ_[ℓ]`-cohomology vanishes in degrees
-strictly larger than twice the Krull dimension. -/
-theorem vanishing_geometricCohomologyCompactSupportQEll (i : ℕ)
-    (h : 2 • topologicalKrullDim X.left < (i : WithBot ℕ∞)) :
-    Module.finrank ℚ_[ℓ] (geometricCohomologyCompactSupportQEll P F i) = 0 :=
-  sorry
+/- Vanishing above twice the Krull dimension. -/
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.vanishing_geometricCohomologyCompactSupportQEll
+  P F : ∀ i : ℕ,
+    2 • topologicalKrullDim X.left < (i : WithBot ℕ∞) →
+      Module.finrank ℚ_[ℓ] (geometricCohomologyCompactSupportQEll P F i) = 0)
 
-/-- If compactly supported geometric `ℚ_[ℓ]`-cohomology vanishes above degree
-`N`, the cohomological Lefschetz trace is the corresponding finite alternating
-sum. -/
-theorem traceGeometricFrobenius_cohomologyCompactSupportQEll_eq_sum (N : ℕ)
-    (hN : ∀ i, N < i →
-      Module.finrank ℚ_[ℓ] (geometricCohomologyCompactSupportQEll P F i) = 0) :
+/- Computation of the alternating trace from a cohomological vanishing bound. -/
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.traceGeometricFrobenius_cohomologyCompactSupportQEll_eq_sum
+  P F : ∀ N : ℕ,
+    (∀ i, N < i →
+      Module.finrank ℚ_[ℓ] (geometricCohomologyCompactSupportQEll P F i) = 0) →
     traceGeometricFrobenius_cohomologyCompactSupportQEll P F =
       ∑ i ∈ Finset.range (N + 1), (-1 : ℚ_[ℓ]) ^ i *
         LinearMap.trace ℚ_[ℓ] _
-          (geometricFrobenius_cohomologyCompactSupportQEll P F i) :=
-  sorry
+          (geometricFrobenius_cohomologyCompactSupportQEll P F i))
 
-/-- Theorem 64.20.5 (3). The Lefschetz identity
-`∑_{x ∈ X(k)} Tr(π_x | F_x̄) = ∑_i (-1)^i Tr(π_X^* | H_c^i(X_k̄, F))`
-holds in `ℚ_[ℓ]`, as equality of `traceGeometricFrobeniusStalksQEll` with
-`traceGeometricFrobenius_cohomologyCompactSupportQEll`. -/
-@[stacks 03V2]
-theorem lefschetzTraceFormula_qellSheaf :
+/- Theorem 64.20.5. The rational ℓ-adic Lefschetz trace identity, with ℓ
+invertible in the finite base field. -/
+@[stacks 03V2] #check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.lefschetzTraceFormula_qellSheaf
+  P F : (ℓ : k) ≠ 0 →
     traceGeometricFrobeniusStalksQEll F =
-      traceGeometricFrobenius_cohomologyCompactSupportQEll P F :=
-  sorry
+      traceGeometricFrobenius_cohomologyCompactSupportQEll P F)
 
 end ZEllSheaf
 end AlgebraicGeometry.Scheme.Etale

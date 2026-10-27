@@ -24,6 +24,8 @@ open CategoryTheory CategoryTheory.Limits Opposite
 
 noncomputable section
 
+set_option backward.isDefEq.respectTransparency false
+
 universe z w v u
 
 namespace CochainComplex.AcyclicReduction
@@ -79,7 +81,9 @@ def successorNullHomotopy (R : AcyclicReduction M κ)
   by_cases htop : R.stage β = ⊤
   · let e := Subobject.isoOfEq (R.stage (Order.succ β)) (R.stage β)
       (R.stage_succ_of_eq_top β htop)
-    exact (Homotopy.ofEq (by sorry)).trans
+    exact (Homotopy.ofEq (by
+      rw [← Category.assoc]
+      simp [e, Subobject.isoOfEq])).trans
       ((h.compLeft e.hom).trans (Homotopy.ofEq Limits.comp_zero))
   · let hs : Homotopy ((R.successor β).f ≫ ((R.stage (Order.succ β)).arrow ≫ f)) 0 :=
       (Homotopy.ofEq (by rw [← Category.assoc, Subobject.ofLE_arrow])).trans h
@@ -93,7 +97,22 @@ lemma restrict_successorNullHomotopy (R : AcyclicReduction M κ)
       (g : N ⟶ I) → Homotopy g 0)
     (f : M ⟶ I) (β : Ordinal.{w}) (h : Homotopy ((R.stage β).arrow ≫ f) 0) :
     R.restrictNullHomotopy f (Order.le_succ β) (R.successorNullHomotopy kill f β h) = h := by
-  sorry
+  classical
+  ext p q
+  by_cases htop : R.stage β = ⊤
+  · simp only [successorNullHomotopy, dif_pos htop, restrictNullHomotopy_hom,
+      Homotopy.trans_hom, Homotopy.ofEq_hom, Homotopy.compLeft_hom, Pi.zero_apply,
+      zero_add, add_zero]
+    rw [← Category.assoc, ← HomologicalComplex.comp_f]
+    have he : Subobject.ofLE (R.stage β) (R.stage (Order.succ β))
+        (R.monotone (Order.le_succ β)) ≫
+        (Subobject.isoOfEq _ _ (R.stage_succ_of_eq_top β htop)).hom = 𝟙 _ := by
+      apply (cancel_mono (R.stage β).arrow).mp
+      simp only [Category.assoc, Subobject.isoOfEq_hom,
+        Subobject.ofLE_arrow, Category.id_comp]
+    rw [he, HomologicalComplex.id_f, Category.id_comp]
+  · simp only [successorNullHomotopy, dif_neg htop, restrictNullHomotopy_hom]
+    exact (HomotopyExtension.f_extend_hom (R.shortExact β) _ _ _ p q).trans (by simp)
 
 /-- The stage homotopy supplied by a compatible section below a limit ordinal. -/
 def limitStageNullHomotopy (R : AcyclicReduction M κ) (f : M ⟶ I)
@@ -118,7 +137,17 @@ lemma limitStageNullHomotopy_compatible (R : AcyclicReduction M κ) (f : M ⟶ I
     ((limitFunctor R.stage R.monotone α).map φ).f p ≫
         (R.limitStageNullHomotopy f α s j').hom p q =
       (R.limitStageNullHomotopy f α s j).hom p q := by
-  sorry
+  have hs := s.property
+    (homOfLE (show (⟨(j : Ordinal), j.toOrd.2⟩ : Set.Iio α) ≤
+      ⟨(j' : Ordinal), j'.toOrd.2⟩ from
+      Ordinal.ToType.mk.symm.monotone (leOfHom φ))).op
+  have hh := congrArg (fun h ↦ h.hom p q) hs
+  change (R.restrictNullHomotopy f (Ordinal.ToType.mk.symm.monotone (leOfHom φ))
+    (s.val (op ⟨(j' : Ordinal), j'.toOrd.2⟩))).hom p q =
+    (s.val (op ⟨(j : Ordinal), j.toOrd.2⟩)).hom p q at hh
+  simpa [limitStageNullHomotopy, restrictNullHomotopy_hom, limitFunctor,
+    limitDiagram, Subobject.ofLE, Subobject.underlying, Monotone.functor,
+    Ordinal.ToType.toOrd] using hh
 
 /-- Glue the specified compatible stage homotopies by degreewise colimit descent. -/
 def limitNullHomotopy (R : AcyclicReduction M κ) (f : M ⟶ I)
@@ -139,7 +168,21 @@ lemma restrict_limitNullHomotopy (R : AcyclicReduction M κ) (f : M ⟶ I)
       R.nullHomotopyFunctor f).sections) (β : Ordinal.{w}) (hβ : β < α) :
     R.restrictNullHomotopy f hβ.le (R.limitNullHomotopy f α hα s) =
       s.val (op ⟨β, hβ⟩) := by
-  sorry
+  have hall (b : Set.Iio α) :
+      R.restrictNullHomotopy f b.property.le (R.limitNullHomotopy f α hα s) =
+        s.val (op b) := by
+    obtain ⟨j, rfl⟩ := Ordinal.ToType.mk.symm.surjective b
+    ext p q
+    have hh := Homotopy.ι_glueNullHomotopy_hom
+      (F := limitFunctor R.stage R.monotone α) (c := limitCocone R.stage R.monotone α)
+      (f := (R.stage α).arrow ≫ f)
+      (fun n ↦ isColimitOfPreserves (HomologicalComplex.eval C (ComplexShape.up ℤ) n)
+        (R.isColimit α hα)) (R.limitStageNullHomotopy f α s)
+      (fun _ _ φ p q ↦ R.limitStageNullHomotopy_compatible f α s φ p q) j p q
+    simpa only [restrictNullHomotopy_hom, limitCocone_ι_app,
+      limitNullHomotopy, limitStageNullHomotopy, Homotopy.trans_hom,
+      Homotopy.ofEq_hom, Pi.zero_apply, zero_add] using hh
+  exact hall ⟨β, hβ⟩
 
 /-- Explicit successor extension and limit gluing are the input to native well-order recursion. -/
 def nullHomotopyInduction (R : AcyclicReduction M κ)
@@ -154,7 +197,8 @@ def nullHomotopyInduction (R : AcyclicReduction M κ)
 /-- The homotopy at the zero stage has zero components. -/
 def zeroNullHomotopy (R : AcyclicReduction M κ) (f : M ⟶ I) :
     Homotopy ((R.stage 0).arrow ≫ f) 0 :=
-  Homotopy.ofEq (by sorry)
+  Homotopy.ofEq (by
+    rw [R.stage_zero, Subobject.bot_arrow, zero_comp])
 
 /-- Native well-order recursion constructs a compatible nullhomotopy on every stage. -/
 def nullHomotopySection (R : AcyclicReduction M κ)

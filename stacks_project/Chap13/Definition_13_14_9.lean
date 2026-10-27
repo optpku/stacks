@@ -12,23 +12,34 @@ import StacksCheckRecall
 @[expose] public section
 
 /-!
-# Definition 13.14.9 (05S9)
+# Definition 13.14.9 (05SV)
 
-“Everywhere defined” is the quantified strong source notion, not merely pointwise existence at
-every object.  The weak Mathlib predicate is retained as a derived companion through the canonical
-bridge instance.
+The source's everywhere-defined condition requires source-definedness at every
+object. Its weak pointwise Kan-extension consequences are recalled separately.
 -/
 
 open CategoryTheory
 
-/- Right-derived source-definedness at every source object. -/
-@[stacks 05S9 "right everywhere-defined source notion"]
-#check @CategoryTheory.Functor.RightDerived.EverywhereDefined
+universe v₁ v₂ u₁ u₂
 
-/- Left-derived source-definedness at every source object. -/
-@[stacks 05S9 "left everywhere-defined source notion"]
-#check @CategoryTheory.Functor.LeftDerived.EverywhereDefined
+section
 
-/- Explicit weak companions for clients which only need pointwise Kan-extension existence. -/
+variable {D : Type u₁} {D' : Type u₂} [Category.{v₁} D] [Category.{v₂} D']
+
+/- Definition 13.14.9 (1). In Situation 13.14.1, F is right derivable, or RF is
+everywhere defined, if RightDerived.DefinedAt F S X holds for every X : D. -/
+@[stacks 05SV]
+#check (CategoryTheory.Functor.RightDerived.EverywhereDefined :
+  (D ⥤ D') → MorphismProperty D → Prop)
+
+/- Definition 13.14.9 (2). In Situation 13.14.1, F is left derivable, or LF is
+everywhere defined, if LeftDerived.DefinedAt F S X holds for every X : D. -/
+@[stacks 05SV]
+#check (CategoryTheory.Functor.LeftDerived.EverywhereDefined :
+  (D ⥤ D') → MorphismProperty D → Prop)
+
+/- Pointwise Kan-extension existence follows from the source-definedness conditions. -/
 #check @CategoryTheory.Functor.RightDerived.EverywhereDefined.hasPointwise
 #check @CategoryTheory.Functor.LeftDerived.EverywhereDefined.hasPointwise
+
+end

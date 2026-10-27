@@ -45,7 +45,7 @@ def Obj.HasNumerical {f : X ⟶ B} [FinitePresentation f] {I : Type u}
 /-- `HasNumerical` unpacks as the pointwise Euler-characteristic condition. -/
 theorem Obj.HasNumerical_iff {f : X ⟶ B} [FinitePresentation f] {I : Type u}
     (x : Obj f) (E : I → ModuleDerived X) (P : I → ℤ) :
-    x.HasNumerical E P ↔ ∀ i t, x.eulerChar (E i) t = P i := sorry
+    x.HasNumerical E P ↔ ∀ i t, x.eulerChar (E i) t = P i := Iff.rfl
 
 /-- The object property of `CohStack f` cut out by numerical invariants `P`. -/
 def numerical (f : X ⟶ B) [FinitePresentation f] {I : Type u}
@@ -55,7 +55,7 @@ def numerical (f : X ⟶ B) [FinitePresentation f] {I : Type u}
 /-- Membership in `numerical f E P` is `HasNumerical`. -/
 theorem mem_numerical {f : X ⟶ B} [FinitePresentation f] {I : Type u}
     (E : I → ModuleDerived X) (P : I → ℤ) (x : Obj f) :
-    numerical f E P x ↔ x.HasNumerical E P := sorry
+    numerical f E P x ↔ x.HasNumerical E P := Iff.rfl
 
 /-- The full subcategory of `CohStack f` on objects whose numerical invariants
 agree with `P`. -/
@@ -73,28 +73,77 @@ def Numerical.of {f : X ⟶ B} [FinitePresentation f] {I : Type u}
 /-- The underlying `CohStack` object of `Numerical.of` is the supplied object. -/
 theorem Numerical.of_obj {f : X ⟶ B} [FinitePresentation f] {I : Type u}
     (E : I → ModuleDerived X) (P : I → ℤ) (x : Obj f) (hx : x.HasNumerical E P) :
-    (Numerical.of E P x hx).obj = x := sorry
+    (Numerical.of E P x hx).obj = x := rfl
 
 /-- An object of `CohStack f` lies in `Numerical f E P` if and only if
 `χ_i(t) = P i` for all indices `i` and all points `t` of the test scheme. -/
 theorem Numerical.mem_iff {f : X ⟶ B} [FinitePresentation f] [Separated f]
     {I : Type u}
     (E : I → ModuleDerived X) (P : I → ℤ) (x : Obj f) :
-    numerical f E P x ↔ ∀ i t, x.eulerChar (E i) t = P i := sorry
+    numerical f E P x ↔ ∀ i t, x.eulerChar (E i) t = P i := Iff.rfl
 
 /-- Restriction along a morphism of `CohStack` objects preserves the numerical
 invariant condition. -/
 theorem Hom.hasNumerical {f : X ⟶ B} [FinitePresentation f] {I : Type u}
     {x y : Obj f} (α : Hom x y) (E : I → ModuleDerived X)
     (hE : ∀ i, ModuleDerived.IsPerfect (E i)) (P : I → ℤ)
-    (hy : y.HasNumerical E P) : x.HasNumerical E P := sorry
+    (hy : y.HasNumerical E P) : x.HasNumerical E P := by
+  intro i t
+  calc
+    x.eulerChar (E i) t =
+        y.eulerChar (E i) (Points.map (ofOverMap α.base.left) t) :=
+      congrFun (α.eulerChar_comp (E i) (hE i)) t
+    _ = P i := hy i _
 
 /-- The restricted projection of the numerical full subcategory is fibred in
 groupoids, for a family of perfect derived modules. -/
 theorem isFiberedInGroupoids_numerical (f : X ⟶ B) [FinitePresentation f]
     {I : Type u} (E : I → ModuleDerived X) (P : I → ℤ)
     (hE : ∀ i, ModuleDerived.IsPerfect (E i)) :
-    Functor.IsFibered.InGroupoids ((numerical f E P).ι ⋙ p f) := sorry
+    Functor.IsFibered.InGroupoids ((numerical f E P).ι ⋙ p f) := by
+  let q := (numerical f E P).ι ⋙ p f
+  have hlift {R T : Over S} {a b : Numerical f E P} (g : R ⟶ T) (φ : a ⟶ b) :
+      q.IsHomLift g φ ↔ (p f).IsHomLift g φ.hom := by
+    constructor
+    · intro h
+      cases h
+      exact Functor.IsHomLift.map φ.hom
+    · intro h
+      cases h
+      exact Functor.IsHomLift.map φ
+  have hcart {R T : Over S} {a b : Numerical f E P} (g : R ⟶ T) (φ : a ⟶ b)
+      (hφ : (p f).IsCartesian g φ.hom) : q.IsCartesian g φ := by
+    letI := hφ
+    refine { toIsHomLift := (hlift g φ).mpr inferInstance, universal_property := ?_ }
+    intro a' φ' hφ'
+    letI : (p f).IsHomLift g φ'.hom := (hlift g φ').mp hφ'
+    obtain ⟨χ, ⟨hχ, hfac⟩, huniq⟩ :=
+      Functor.IsCartesian.universal_property (p := p f) (f := g) (φ := φ.hom) φ'.hom
+    refine ⟨ObjectProperty.homMk χ, ⟨(hlift _ _).mpr hχ, ?_⟩, ?_⟩
+    · apply ObjectProperty.hom_ext
+      exact hfac
+    · intro ψ ⟨hψ, hψfac⟩
+      apply ObjectProperty.hom_ext
+      exact huniq ψ.hom ⟨(hlift _ _).mp hψ,
+        congrArg (fun θ : a' ⟶ b ↦ θ.hom) hψfac⟩
+  have hall {R T : Over S} {a b : Numerical f E P} (g : R ⟶ T) (φ : a ⟶ b)
+      [hφ : q.IsHomLift g φ] : q.IsCartesian g φ := by
+    have h := (hlift g φ).mp hφ
+    cases h
+    apply hcart
+    infer_instance
+  refine { toIsFibered := ?_, all_isCartesian := ?_ }
+  · refine { exists_isCartesian' := ?_, comp := ?_ }
+    · intro a R g
+      obtain ⟨b, φ, hφ⟩ :=
+        Functor.IsPreFibered.exists_isCartesian' (p := p f) (a := a.obj) g
+      let b' : Numerical f E P := ⟨b, φ.hasNumerical E hE P a.property⟩
+      let φ' : b' ⟶ a := ObjectProperty.homMk φ
+      exact ⟨b', φ', hcart g φ' hφ⟩
+    · intro R T U g h a b c φ ψ _ _
+      exact hall (g ≫ h) (φ ≫ ψ)
+  · intro a b φ
+    exact hall _ φ
 
 /-- The numerical substack as a category fibred in groupoids over `Over S`. -/
 def toGroupoidsNumerical (f : X ⟶ B) [FinitePresentation f] {I : Type u}
@@ -108,13 +157,13 @@ def toGroupoidsNumerical (f : X ⟶ B) [FinitePresentation f] {I : Type u}
 theorem toGroupoidsNumerical_p (f : X ⟶ B) [FinitePresentation f] {I : Type u}
     (E : I → ModuleDerived X) (P : I → ℤ)
     (hE : ∀ i, ModuleDerived.IsPerfect (E i)) :
-    (toGroupoidsNumerical f E P hE).p = (numerical f E P).ι ⋙ p f := sorry
+    (toGroupoidsNumerical f E P hE).p = (numerical f E P).ι ⋙ p f := rfl
 
 /-- The total category of `toGroupoidsNumerical` is `Numerical f E P`. -/
 theorem toGroupoidsNumerical_total (f : X ⟶ B) [FinitePresentation f]
     {I : Type u} (E : I → ModuleDerived X) (P : I → ℤ)
     (hE : ∀ i, ModuleDerived.IsPerfect (E i)) :
-    (toGroupoidsNumerical f E P hE).total = Numerical f E P := sorry
+    (toGroupoidsNumerical f E P hE).total = Numerical f E P := rfl
 
 /-- The inclusion `Coh^P_{X/B} ⟶ Coh_{X/B}` of categories fibred in groupoids
 over `Over S`. -/
@@ -130,13 +179,13 @@ theorem Numerical.ι_toBasedFunctor (f : X ⟶ B) [FinitePresentation f]
     {I : Type u} (E : I → ModuleDerived X) (P : I → ℤ)
     (hE : ∀ i, ModuleDerived.IsPerfect (E i)) :
     FiberedCategoryOver.Groupoids.toBasedFunctor (Numerical.ι f E P hE) =
-      BasedFunctor.ofFunctor (numerical f E P).ι rfl := sorry
+      BasedFunctor.ofFunctor (numerical f E P).ι rfl := rfl
 
 /-- The underlying functor of `Numerical.ι` is the full-subcategory inclusion. -/
 theorem Numerical.ι_toFunctor (f : X ⟶ B) [FinitePresentation f] {I : Type u}
     (E : I → ModuleDerived X) (P : I → ℤ)
     (hE : ∀ i, ModuleDerived.IsPerfect (E i)) :
     FiberedCategoryOver.Groupoids.toFunctor (Numerical.ι f E P hE) =
-      (numerical f E P).ι := sorry
+      (numerical f E P).ι := rfl
 
 end AlgebraicGeometry.AlgebraicSpace.CohStack

@@ -8,6 +8,8 @@ module
 
 public import stacks_project.Chap66.Lemma_66_29_2_Pullback
 public import stacks_project.Chap69.Lemma_69_12_5_Monoidal
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.TensorPullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Quasicoherent.Tensor
 
 /-!
 # Tensor of a module with the pullback of a module on algebraic spaces
@@ -20,35 +22,18 @@ commutative presentation of `𝒪_X`.
 @[expose] public section
 
 open CategoryTheory CategoryTheory.MonoidalCategory AlgebraicGeometry
-open AlgebraicGeometry.AlgebraicSpace
-
-noncomputable section
+open AlgebraicGeometry.AlgebraicSpace AlgebraicGeometry.AlgebraicSpace.Modules
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.tensorPullback :
+  {S : Scheme.{u}} → {X Y : AlgebraicSpace S} →
+    X.Modules → (X ⟶ Y) → Y.Modules → X.Modules)
 
-/-- The tensor product of an `𝒪_X`-module with the pullback of an `𝒪_Y`-module. -/
-noncomputable def tensorPullback {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (F : X.Modules) (f : X ⟶ Y) (G : Y.Modules) : X.Modules :=
-  tensorObj F ((pullback f).obj G)
-
-/-- `tensorPullback F f G` is the commutative presentation tensor of `F` with
-`f^* G`, transported along `toCommModules` / `ofCommModules`. -/
-theorem tensorPullback_eq {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (F : X.Modules) (f : X ⟶ Y) (G : Y.Modules) :
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.tensorPullback_eq :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (F : X.Modules) (f : X ⟶ Y) (G : Y.Modules),
     tensorPullback F f G =
       (ofCommModules X).obj
         (tensorObj ((toCommModules X).obj F)
-          ((toCommModules X).obj ((pullback f).obj G))) :=
-  sorry
-
-/-- The tensor product of a quasi-coherent module with the pullback of a
-quasi-coherent module is quasi-coherent. -/
-instance isQuasicoherent_tensorPullback {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (F : X.Modules) (f : X ⟶ Y) (G : Y.Modules)
-    [F.IsQuasicoherent] [G.IsQuasicoherent] :
-    (tensorPullback F f G).IsQuasicoherent :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Modules
+          ((toCommModules X).obj ((pullback f).obj G))))

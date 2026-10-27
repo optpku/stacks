@@ -30,7 +30,6 @@ variable {F : A ⥤ B}
 functor categories. This is the choice-explicit owner for constructions obtained by solving an
 equivalence on the codomain side. The source category is explicit because it cannot be recovered
 from `e`. -/
-@[stacks 04W9 "functor-category lift along an explicit quasi-inverse"]
 def liftFunctor (e : QuasiInverse F) (E : Type uE) [Category.{vE} E] :
     (E ⥤ B) ⥤ (E ⥤ A) :=
   (e.adjointifyUnit.congrRight (E := E)).inverse

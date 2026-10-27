@@ -38,6 +38,7 @@ variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
 variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
 variable [HasWeakSheafify J AddCommGrpCat.{w}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [UnivLE.{max u v, w}]
 variable {O : Sheaf J CommRingCat.{w}}
 variable (A : DGA(O)) (U : C)
 variable [(SheafOfModules.Localization.restriction (ringSheaf J O) U :
@@ -75,6 +76,7 @@ variable {D : Type uD} [Category.{vD} D] {JD : GrothendieckTopology D}
 variable [JD.HasSheafCompose (forget₂ CommRingCat.{wD} RingCat.{wD})]
 variable [HasWeakSheafify JD AddCommGrpCat.{wD}]
 variable [JD.WEqualsLocallyBijective AddCommGrpCat.{wD}]
+variable [UnivLE.{max uD vD, wD}]
 variable {OD : Sheaf JD CommRingCat.{wD}}
 variable (F : CochainComplex
     (DifferentialGradedAlgebra.moduleCategory (J := J) (𝒪 := O)) ℤ ⥤
@@ -91,7 +93,9 @@ variable (e : (baseChange F φ).obj (algebraExtensionByZero A U) ≅
 @[stacks 0FSB "specified base-change reduction"]
 #check
   (BaseChange.IsGoodAtBase.algebraExtensionByZero_of_iso F φ U V e :
-    BaseChange.IsGoodAtBase F φ (algebraExtensionByZero A U))
+    BaseChange.IsGoodAtBase
+      (C := C) (D := D) (JC := J) (JD := JD) (OC := O) (OD := OD)
+      (A := A) (B := B) F φ (algebraExtensionByZero A U))
 
 end BaseChangeReduction
 

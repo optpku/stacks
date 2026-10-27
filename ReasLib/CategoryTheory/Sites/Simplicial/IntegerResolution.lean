@@ -59,7 +59,7 @@ abbrev constantInteger (n : SimplexCategory) :
 /-- Unfolding `constantInteger` recovers `constantIntegerSheaf` on the stage topology. -/
 theorem constantInteger_eq (n : SimplexCategory) :
     constantInteger C J n = constantIntegerSheaf (J n).toGrothendieck :=
-  sorry
+  rfl
 
 /-- Identification of the pullback of a constant integer presheaf along `u_φ` with
 the constant integer sheaf on the source stage. -/
@@ -142,7 +142,13 @@ def face_terminalToInteger (n : SimplexCategory) :
               ((Functor.const ((C.obj n)ᵒᵖ)).obj
                 (AddCommGrpCat.of (ULift.{w} ℤ)))).app U)
             (ULift.up (1 : ℤ))
-      naturality := sorry }
+      naturality := by
+        intro U V f
+        ext x
+        exact congrArg (fun g => g (ULift.up (1 : ℤ)))
+          (((sheafificationAdjunction ((J n).toGrothendieck) AddCommGrpCat.{w}).unit.app
+            ((Functor.const ((C.obj n)ᵒᵖ)).obj
+              (AddCommGrpCat.of (ULift.{w} ℤ)))).naturality f) }
 
 /-- Continuous pushforward commutes with forgetting abelian sheaves to Type-valued sheaves. -/
 def face_pushforwardForgetIso {n m : SimplexCategory} (φ : n ⟶ m)
@@ -240,14 +246,14 @@ instance facePullback_constantInteger_hom_isIso {n m : SimplexCategory} (φ : n 
 theorem facePullback_constantIntegerIso_hom_eq {n m : SimplexCategory} (φ : n ⟶ m) :
     (facePullback_constantIntegerIso C J φ).hom =
       facePullback_constantInteger_hom C J φ :=
-  sorry
+  rfl
 
 /-- The reverse comparison of `facePullback_constantIntegerIso` is
 `facePullback_constantInteger_inv`. -/
 theorem facePullback_constantIntegerIso_inv_eq {n m : SimplexCategory} (φ : n ⟶ m) :
     (facePullback_constantIntegerIso C J φ).inv =
       facePullback_constantInteger_inv C J φ :=
-  sorry
+  rfl
 
 /-- The comparison `ℤ_n ⟶ g_n⁻¹ ℤ` of constant integer sheaves along `ofStage C n`. -/
 def ofStage_constantInteger_hom (n : SimplexCategory) :
@@ -291,14 +297,14 @@ theorem lowerShriekConstant_map_comp {l n m : SimplexCategory}
 private theorem lowerShriekConstant_map_id_op (n : SimplexCategoryᵒᵖ) :
     lowerShriekConstant_map C J (𝟙 n.unop) =
       𝟙 ((abelianLowerShriek C J n.unop).obj (constantInteger C J n.unop)) :=
-  sorry
+  lowerShriekConstant_map_id C J n.unop
 
 /-- Opposite composition of simplex operators acts as composition of structure maps. -/
 private theorem lowerShriekConstant_map_comp_op {n m p : SimplexCategoryᵒᵖ}
     (f : n ⟶ m) (g : m ⟶ p) :
     lowerShriekConstant_map C J (f ≫ g).unop =
       lowerShriekConstant_map C J f.unop ≫ lowerShriekConstant_map C J g.unop :=
-  sorry
+  lowerShriekConstant_map_comp C J g.unop f.unop
 
 /-- The simplicial abelian sheaf `n ↦ g_{n!} ℤ` on the total site. -/
 def lowerShriekConstant :
@@ -312,7 +318,7 @@ def lowerShriekConstant :
 theorem lowerShriekConstant_obj (n : SimplexCategory) :
     (lowerShriekConstant C J).obj (op n) =
       (abelianLowerShriek C J n).obj (constantInteger C J n) :=
-  sorry
+  rfl
 
 /-- The face map `d_i : g_{(n+1)!} ℤ ⟶ g_{n!} ℤ`. -/
 def face (n : ℕ) (i : Fin (n + 2)) :
@@ -323,7 +329,7 @@ def face (n : ℕ) (i : Fin (n + 2)) :
 /-- The face map `face i` is the simplicial operator `δ i`. -/
 theorem face_eq (n : ℕ) (i : Fin (n + 2)) :
     face C J n i = (lowerShriekConstant C J).δ i :=
-  sorry
+  rfl
 
 /-- The component of the augmentation `g_{n!} ℤ ⟶ ℤ` at a simplex `n`. -/
 def augmented_hom_app (n : SimplexCategoryᵒᵖ) :
@@ -365,13 +371,13 @@ abbrev complex : ChainComplex (Sheaf (topology C J) AddCommGrpCat.{w}) ℕ :=
 theorem complex_X (n : ℕ) :
     (complex C J).X n =
       (abelianLowerShriek C J ⦋n⦌).obj (constantInteger C J ⦋n⦌) :=
-  sorry
+  rfl
 
 /-- Differentials of `complex C J` are the alternating sums of face maps. -/
 theorem complex_d_eq (n : ℕ) :
     (complex C J).d (n + 1) n =
       ∑ i : Fin (n + 2), (-1 : ℤ) ^ (i : ℕ) • face C J n i :=
-  sorry
+  AlternatingFaceMapComplex.obj_d_eq (lowerShriekConstant C J) n
 
 /-- The canonical chain-map augmentation from `complex C J` to the constant sheaf `ℤ`
 concentrated in degree zero. -/
@@ -382,7 +388,7 @@ def augmentation :
 /-- The degree-zero component of `augmentation C J` is the simplicial augmentation at `⦋0⦌`. -/
 theorem augmentation_f_zero :
     (augmentation C J).f 0 = (augmented C J).hom.app (op ⦋0⦌) :=
-  sorry
+  AlternatingFaceMapComplex.ε_app_f_zero (augmented C J)
 
 
 end CategoryTheory.SimplicialSites

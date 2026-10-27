@@ -14,6 +14,11 @@ public import Mathlib.Data.Fin.VecNotation
 public import Mathlib.RingTheory.AdjoinRoot
 public import Mathlib.RingTheory.Ideal.Quotient.Operations
 public import Mathlib.RingTheory.Localization.FractionRing
+public import Mathlib.Tactic.ComputeDegree
+public import Mathlib.Tactic.FinCases
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum
+public import Mathlib.Tactic.Ring
 
 @[expose] public section
 
@@ -62,6 +67,20 @@ def coordS : SourceRing :=
 def coordT : SourceRing :=
   Ideal.Quotient.mk sourceIdeal (MvPolynomial.X (2 : Fin 3))
 
+private theorem coordS_sq :
+    coordS ^ 2 = (coordR - 1) * (coordR - 2) * (coordR - 3) := by
+  apply sub_eq_zero.mp
+  have h : sourceRelS ∈ sourceIdeal := Ideal.subset_span (by simp)
+  simpa [sourceRelS, branchLeft, coordR, coordS, map_ofNat] using
+    (Ideal.Quotient.eq_zero_iff_mem.mpr h)
+
+private theorem coordT_sq :
+    coordT ^ 2 = (coordR + 1) * (coordR + 2) * (coordR + 3) := by
+  apply sub_eq_zero.mp
+  have h : sourceRelT ∈ sourceIdeal := Ideal.subset_span (by simp)
+  simpa [sourceRelT, branchRight, coordR, coordT, map_ofNat] using
+    (Ideal.Quotient.eq_zero_iff_mem.mpr h)
+
 /-- The polynomial `Y ^ 4 - 4X(X ^ 2 + 11)Y ^ 2 + 144(X ^ 2 + 1) ^ 2`, quartic in `Y`. -/
 def planePoly : Polynomial (Polynomial ℚ) :=
   let x : Polynomial ℚ := X
@@ -82,6 +101,12 @@ def planeX : PlaneRing :=
 def planeY : PlaneRing :=
   AdjoinRoot.root planePoly
 
+private theorem plane_relation :
+    planeY ^ 4 - 4 * planeX * (planeX ^ 2 + 11) * planeY ^ 2 +
+      144 * (planeX ^ 2 + 1) ^ 2 = 0 := by
+  have h : aeval planeY planePoly = 0 := AdjoinRoot.eval₂_root planePoly
+  simpa [planePoly, planeX, map_ofNat] using h
+
 /-- The image of `planeX` in the fraction field of `PlaneRing`. -/
 def planeXFrac : FractionRing PlaneRing :=
   algebraMap PlaneRing (FractionRing PlaneRing) planeX
@@ -96,17 +121,34 @@ def evalAtR : Polynomial ℚ →ₐ[ℚ] SourceRing :=
 
 /-- `planePoly` vanishes at `s + t` after evaluating its coefficients at `r`. -/
 theorem planePoly_eval₂ :
-    planePoly.eval₂ (evalAtR : Polynomial ℚ →+* SourceRing) (coordS + coordT) = 0 := sorry
+    planePoly.eval₂ (evalAtR : Polynomial ℚ →+* SourceRing) (coordS + coordT) = 0 := by
+  have hsum : coordS ^ 2 + coordT ^ 2 = 2 * coordR * (coordR ^ 2 + 11) := by
+    rw [coordS_sq, coordT_sq]
+    ring
+  have hdiff : coordS ^ 2 - coordT ^ 2 = -12 * (coordR ^ 2 + 1) := by
+    rw [coordS_sq, coordT_sq]
+    ring
+  simp only [planePoly, eval₂_add, eval₂_sub, eval₂_mul, eval₂_pow, eval₂_C, eval₂_X]
+  simp only [evalAtR, AlgHom.coe_toRingHom, map_mul, map_add, map_pow, map_ofNat,
+    map_one, aeval_X]
+  calc
+    (coordS + coordT) ^ 4 - 4 * coordR * (coordR ^ 2 + 11) * (coordS + coordT) ^ 2 +
+        144 * (coordR ^ 2 + 1) ^ 2 =
+      (coordS + coordT) ^ 4 - 2 * (coordS ^ 2 + coordT ^ 2) * (coordS + coordT) ^ 2 +
+        (coordS ^ 2 - coordT ^ 2) ^ 2 := by rw [hsum, hdiff]; ring
+    _ = 0 := by ring
 
 /-- The algebra map `PlaneRing → SourceRing` sending `x` to `r` and `y` to `s + t`. -/
 def toSource : PlaneRing →ₐ[ℚ] SourceRing :=
   AdjoinRoot.liftAlgHom planePoly evalAtR (coordS + coordT) planePoly_eval₂
 
 /-- `toSource` sends the plane coordinate `x` to `r`. -/
-theorem toSource_planeX : toSource planeX = coordR := sorry
+theorem toSource_planeX : toSource planeX = coordR := by
+  simp [toSource, planeX, AdjoinRoot.algebraMap_eq, evalAtR]
 
 /-- `toSource` sends the plane coordinate `y` to `s + t`. -/
-theorem toSource_planeY : toSource planeY = coordS + coordT := sorry
+theorem toSource_planeY : toSource planeY = coordS + coordT := by
+  simp [toSource, planeY]
 
 /-- The fraction-field-valued algebra map induced by `toSource`. -/
 def toSourceFrac : PlaneRing →ₐ[ℚ] FractionRing SourceRing :=
@@ -114,7 +156,24 @@ def toSourceFrac : PlaneRing →ₐ[ℚ] FractionRing SourceRing :=
 
 /-- The denominator `2 * planeY` is a non-zero-divisor in `PlaneRing`. -/
 theorem two_mul_planeY_mem_nonZeroDivisors :
-    2 * planeY ∈ nonZeroDivisors PlaneRing := sorry
+    2 * planeY ∈ nonZeroDivisors PlaneRing := by
+  have hm' (a b : Polynomial ℚ) : (X ^ 4 - C a * X ^ 2 + C b).Monic := by
+    monicity <;> norm_num
+  have hd' (a b : Polynomial ℚ) : (X ^ 4 - C a * X ^ 2 + C b).natDegree = 4 := by
+    compute_degree <;> norm_num
+  have hm : planePoly.Monic := hm' _ _
+  have hd : planePoly.natDegree = 4 := hd' _ _
+  have hy : planeY ≠ 0 :=
+    AdjoinRoot.mk_ne_zero_of_natDegree_lt hm X_ne_zero (by simp [hd])
+  have htwo : (2 : PlaneRing) ≠ 0 := by
+    have h := (algebraMap ℚ PlaneRing).injective.ne (by norm_num : (2 : ℚ) ≠ 0)
+    simpa only [map_ofNat, map_zero] using h
+  exact mem_nonZeroDivisors_of_ne_zero (mul_ne_zero htwo hy)
+
+private theorem two_mul_planeYFrac_ne_zero : 2 * planeYFrac ≠ 0 := by
+  have h := (IsFractionRing.injective PlaneRing (FractionRing PlaneRing)).ne
+    (nonZeroDivisors.ne_zero two_mul_planeY_mem_nonZeroDivisors)
+  simpa only [map_mul, map_ofNat, map_zero, planeYFrac] using h
 
 /-- The fraction-field expression recovering `s` from the plane coordinates. -/
 def sFrac : FractionRing PlaneRing :=
@@ -123,7 +182,8 @@ def sFrac : FractionRing PlaneRing :=
 
 /-- `sFrac` equals `(y ^ 2 - 12 * (x ^ 2 + 1)) / (2 * y)`. -/
 theorem sFrac_eq_div :
-    sFrac = (planeYFrac ^ 2 - 12 * (planeXFrac ^ 2 + 1)) / (2 * planeYFrac) := sorry
+    sFrac = (planeYFrac ^ 2 - 12 * (planeXFrac ^ 2 + 1)) / (2 * planeYFrac) := by
+  simp [sFrac, planeXFrac, planeYFrac, map_ofNat]
 
 /-- The fraction-field expression recovering `t` from the plane coordinates. -/
 def tFrac : FractionRing PlaneRing :=
@@ -132,7 +192,13 @@ def tFrac : FractionRing PlaneRing :=
 
 /-- `tFrac` equals `(y ^ 2 + 12 * (x ^ 2 + 1)) / (2 * y)`. -/
 theorem tFrac_eq_div :
-    tFrac = (planeYFrac ^ 2 + 12 * (planeXFrac ^ 2 + 1)) / (2 * planeYFrac) := sorry
+    tFrac = (planeYFrac ^ 2 + 12 * (planeXFrac ^ 2 + 1)) / (2 * planeYFrac) := by
+  simp [tFrac, planeXFrac, planeYFrac, map_ofNat]
+
+private theorem sFrac_add_tFrac : sFrac + tFrac = planeYFrac := by
+  rw [sFrac_eq_div, tFrac_eq_div, ← add_div]
+  apply (div_eq_iff two_mul_planeYFrac_ne_zero).2
+  ring
 
 /-- Evaluation of the ordered coordinates `r, s, t` in `FractionRing PlaneRing`. -/
 def sourceCoordsFrac : Fin 3 → FractionRing PlaneRing :=
@@ -141,7 +207,29 @@ def sourceCoordsFrac : Fin 3 → FractionRing PlaneRing :=
 /-- The source defining relations vanish under evaluation at `sourceCoordsFrac`. -/
 theorem aeval_sourceCoordsFrac_mem_sourceIdeal
     (p : MvPolynomial (Fin 3) ℚ) (hp : p ∈ sourceIdeal) :
-    MvPolynomial.aeval sourceCoordsFrac p = 0 := sorry
+    MvPolynomial.aeval sourceCoordsFrac p = 0 := by
+  have hplane : planeYFrac ^ 4 - 4 * planeXFrac * (planeXFrac ^ 2 + 11) *
+      planeYFrac ^ 2 + 144 * (planeXFrac ^ 2 + 1) ^ 2 = 0 := by
+    simpa [planeXFrac, planeYFrac, map_ofNat] using
+      congrArg (algebraMap PlaneRing (FractionRing PlaneRing)) plane_relation
+  have hs : sFrac ^ 2 = (planeXFrac - 1) * (planeXFrac - 2) * (planeXFrac - 3) := by
+    rw [sFrac_eq_div, div_pow]
+    apply (div_eq_iff (pow_ne_zero 2 two_mul_planeYFrac_ne_zero)).2
+    linear_combination hplane
+  have ht : tFrac ^ 2 = (planeXFrac + 1) * (planeXFrac + 2) * (planeXFrac + 3) := by
+    rw [tFrac_eq_div, div_pow]
+    apply (div_eq_iff (pow_ne_zero 2 two_mul_planeYFrac_ne_zero)).2
+    linear_combination hplane
+  have hle : sourceIdeal ≤ RingHom.ker (MvPolynomial.aeval sourceCoordsFrac).toRingHom := by
+    apply Ideal.span_le.mpr
+    intro q hq
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hq
+    rcases hq with rfl | rfl
+    · change MvPolynomial.aeval sourceCoordsFrac sourceRelS = 0
+      simp [sourceRelS, branchLeft, sourceCoordsFrac, hs]
+    · change MvPolynomial.aeval sourceCoordsFrac sourceRelT = 0
+      simp [sourceRelT, branchRight, sourceCoordsFrac, ht]
+  exact hle hp
 
 /-- The algebra map sending `r, s, t` to `planeXFrac, sFrac, tFrac`. -/
 def toPlaneFrac : SourceRing →ₐ[ℚ] FractionRing PlaneRing :=
@@ -149,19 +237,95 @@ def toPlaneFrac : SourceRing →ₐ[ℚ] FractionRing PlaneRing :=
     aeval_sourceCoordsFrac_mem_sourceIdeal
 
 /-- `toPlaneFrac` sends `r` to `planeXFrac`. -/
-theorem toPlaneFrac_coordR : toPlaneFrac coordR = planeXFrac := sorry
+theorem toPlaneFrac_coordR : toPlaneFrac coordR = planeXFrac := by
+  simp [toPlaneFrac, coordR, sourceCoordsFrac]
 
 /-- `toPlaneFrac` sends `s` to `sFrac`. -/
-theorem toPlaneFrac_coordS : toPlaneFrac coordS = sFrac := sorry
+theorem toPlaneFrac_coordS : toPlaneFrac coordS = sFrac := by
+  simp [toPlaneFrac, coordS, sourceCoordsFrac]
 
 /-- `toPlaneFrac` sends `t` to `tFrac`. -/
-theorem toPlaneFrac_coordT : toPlaneFrac coordT = tFrac := sorry
+theorem toPlaneFrac_coordT : toPlaneFrac coordT = tFrac := by
+  simp [toPlaneFrac, coordT, sourceCoordsFrac]
+
+private theorem toPlaneFrac_comp_toSource :
+    toPlaneFrac.comp toSource = IsScalarTower.toAlgHom ℚ PlaneRing (FractionRing PlaneRing) := by
+  apply AdjoinRoot.algHom_ext'
+  · apply Polynomial.algHom_ext
+    change toPlaneFrac (toSource planeX) = planeXFrac
+    rw [toSource_planeX, toPlaneFrac_coordR]
+  · change toPlaneFrac (toSource planeY) = planeYFrac
+    rw [toSource_planeY, map_add, toPlaneFrac_coordS, toPlaneFrac_coordT]
+    exact sFrac_add_tFrac
 
 /-- The algebra map `toSourceFrac` is injective. -/
-theorem injective_toSourceFrac : Function.Injective toSourceFrac := sorry
+theorem injective_toSourceFrac : Function.Injective toSourceFrac := by
+  intro a b h
+  change algebraMap SourceRing (FractionRing SourceRing) (toSource a) =
+    algebraMap SourceRing (FractionRing SourceRing) (toSource b) at h
+  have h' := IsFractionRing.injective SourceRing (FractionRing SourceRing) h
+  apply IsFractionRing.injective PlaneRing (FractionRing PlaneRing)
+  calc
+    algebraMap PlaneRing (FractionRing PlaneRing) a = toPlaneFrac (toSource a) :=
+      (AlgHom.congr_fun toPlaneFrac_comp_toSource a).symm
+    _ = toPlaneFrac (toSource b) := congrArg toPlaneFrac h'
+    _ = algebraMap PlaneRing (FractionRing PlaneRing) b :=
+      AlgHom.congr_fun toPlaneFrac_comp_toSource b
+
+private theorem sourceFrac_retraction
+    (f : FractionRing PlaneRing →ₐ[ℚ] FractionRing SourceRing)
+    (hx : f planeXFrac = algebraMap SourceRing (FractionRing SourceRing) coordR)
+    (hy : f planeYFrac = algebraMap SourceRing (FractionRing SourceRing) (coordS + coordT)) :
+    f.comp toPlaneFrac = IsScalarTower.toAlgHom ℚ SourceRing (FractionRing SourceRing) := by
+  have hden : 2 * (algebraMap SourceRing (FractionRing SourceRing) coordS +
+      algebraMap SourceRing (FractionRing SourceRing) coordT) ≠ 0 := by
+    have h := f.injective.ne two_mul_planeYFrac_ne_zero
+    change f (2 * planeYFrac) ≠ f 0 at h
+    simpa only [map_mul, map_ofNat, map_zero, hy, map_add] using h
+  have hs : f sFrac = algebraMap SourceRing (FractionRing SourceRing) coordS := by
+    simp only [sFrac_eq_div, map_div₀, map_sub, map_pow, map_mul, map_ofNat,
+      map_add, map_one, hx, hy]
+    apply (div_eq_iff hden).2
+    have h : (coordS + coordT) ^ 2 - 12 * (coordR ^ 2 + 1) =
+        coordS * (2 * (coordS + coordT)) := by
+      linear_combination coordT_sq - coordS_sq
+    simpa [map_ofNat] using congrArg (algebraMap SourceRing (FractionRing SourceRing)) h
+  have ht : f tFrac = algebraMap SourceRing (FractionRing SourceRing) coordT := by
+    simp only [tFrac_eq_div, map_div₀, map_add, map_pow, map_mul, map_ofNat,
+      map_one, hx, hy]
+    apply (div_eq_iff hden).2
+    have h : (coordS + coordT) ^ 2 + 12 * (coordR ^ 2 + 1) =
+        coordT * (2 * (coordS + coordT)) := by
+      linear_combination coordS_sq - coordT_sq
+    simpa [map_ofNat] using congrArg (algebraMap SourceRing (FractionRing SourceRing)) h
+  apply Ideal.Quotient.algHom_ext ℚ
+  apply MvPolynomial.algHom_ext
+  intro i
+  fin_cases i
+  · change f (toPlaneFrac coordR) = algebraMap SourceRing (FractionRing SourceRing) coordR
+    rw [toPlaneFrac_coordR]
+    exact hx
+  · change f (toPlaneFrac coordS) = algebraMap SourceRing (FractionRing SourceRing) coordS
+    rw [toPlaneFrac_coordS]
+    exact hs
+  · change f (toPlaneFrac coordT) = algebraMap SourceRing (FractionRing SourceRing) coordT
+    rw [toPlaneFrac_coordT]
+    exact ht
 
 /-- The algebra map `toPlaneFrac` is injective. -/
-theorem injective_toPlaneFrac : Function.Injective toPlaneFrac := sorry
+theorem injective_toPlaneFrac : Function.Injective toPlaneFrac := by
+  let f : FractionRing PlaneRing →ₐ[ℚ] FractionRing SourceRing :=
+    IsFractionRing.liftAlgHom injective_toSourceFrac
+  have hcomp := sourceFrac_retraction f
+    (by simp [f, planeXFrac, toSourceFrac, toSource_planeX])
+    (by simp [f, planeYFrac, toSourceFrac, toSource_planeY])
+  intro a b h
+  apply IsFractionRing.injective SourceRing (FractionRing SourceRing)
+  calc
+    algebraMap SourceRing (FractionRing SourceRing) a = f (toPlaneFrac a) :=
+      (AlgHom.congr_fun hcomp a).symm
+    _ = f (toPlaneFrac b) := congrArg f h
+    _ = algebraMap SourceRing (FractionRing SourceRing) b := AlgHom.congr_fun hcomp b
 
 /-- The fraction-field map extending `toSourceFrac`. -/
 def toSourceFracField : FractionRing PlaneRing →ₐ[ℚ] FractionRing SourceRing :=
@@ -173,11 +337,24 @@ def toPlaneFracField : FractionRing SourceRing →ₐ[ℚ] FractionRing PlaneRin
 
 /-- `toSourceFracField` and `toPlaneFracField` compose to the identity on `FractionRing SourceRing`. -/
 theorem toSourceFracField_comp_toPlaneFracField :
-    toSourceFracField.comp toPlaneFracField = AlgHom.id ℚ (FractionRing SourceRing) := sorry
+    toSourceFracField.comp toPlaneFracField = AlgHom.id ℚ (FractionRing SourceRing) := by
+  have hcomp := sourceFrac_retraction toSourceFracField
+    (by simp [toSourceFracField, planeXFrac, toSourceFrac, toSource_planeX])
+    (by simp [toSourceFracField, planeYFrac, toSourceFrac, toSource_planeY])
+  apply AlgHom.coe_ringHom_injective
+  apply IsFractionRing.ringHom_ext (A := SourceRing)
+  intro a
+  change toSourceFracField (toPlaneFracField (algebraMap SourceRing (FractionRing SourceRing) a)) =
+    algebraMap SourceRing (FractionRing SourceRing) a
+  simpa [toPlaneFracField] using AlgHom.congr_fun hcomp a
 
 /-- `toPlaneFracField` and `toSourceFracField` compose to the identity on `FractionRing PlaneRing`. -/
 theorem toPlaneFracField_comp_toSourceFracField :
-    toPlaneFracField.comp toSourceFracField = AlgHom.id ℚ (FractionRing PlaneRing) := sorry
+    toPlaneFracField.comp toSourceFracField = AlgHom.id ℚ (FractionRing PlaneRing) := by
+  apply AlgHom.ext
+  intro z
+  apply toSourceFracField.injective
+  exact AlgHom.congr_fun toSourceFracField_comp_toPlaneFracField (toSourceFracField z)
 
 /-- The explicit `ℚ`-algebra equivalence between the two fraction fields. -/
 def fractionFieldEquiv : FractionRing PlaneRing ≃ₐ[ℚ] FractionRing SourceRing :=

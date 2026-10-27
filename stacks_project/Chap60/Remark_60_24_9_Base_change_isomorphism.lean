@@ -6,16 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap60.Remark_60_24_9_Base_change_isomorphism_RingedGeometry
 public import stacks_project.Chap60.«60_24_8_1»
-public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Flat
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.LocalCompleteIntersection
-public import ReasLib.AlgebraicGeometry.Scheme.TorIndependence
-public import Mathlib.AlgebraicGeometry.AffineScheme
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiCompact
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiSeparated
-public import Mathlib.AlgebraicGeometry.Pullbacks
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Crystalline.Cohomology.BaseChange
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -76,26 +69,22 @@ variable [RingedSite.ToposHom.HasModulePushforwardDerived
 variable [RingedSite.ToposHom.HasModuleDerivedAdjunction
   (smallRingedMorphism I γ hc x₀ I' γ' hc' s s' x'₀ f g hf hpX hpX' hγ)]
 
-/-- Remark 60.24.9 (Base change isomorphism): for affine divided-power bases
-with `p` nilpotent on `S'`, a flat quasi-coherent crystal on `X'/S'` satisfies
-crystalline cohomology base change if `X' ⟶ S'₀` is quasi-compact,
-quasi-separated and a local complete intersection, and the cartesian square
-is Tor independent. The map is the scalar adjoint transpose of pullback on
-derived crystalline sections. Its rings are the universe lifts of `Γ(S', ⊤)`
-and `Γ(S, ⊤)`, with their actual pullback map; its coefficient object is the
-actual crystal in degree zero. All site, structure-sheaf, scalar-action and
-comparison data are fixed by this geometry. -/
-@[stacks 07MU]
-instance crystallineCohomologyBaseChange_isIso
-    [IsAffine S] [IsAffine S'] [QuasiCompact x'₀] [QuasiSeparated x'₀]
+variable
+    [IsAffine S] [IsAffine S']
+    [I.toModule.IsQuasicoherent] [I'.toModule.IsQuasicoherent]
+    [QuasiCompact x'₀] [QuasiSeparated x'₀]
     [LocallyOfType RingHom.IsLocalCompleteIntersection x'₀]
     [Fact (IsNilpotent (p : Γ(S', ⊤)))]
     [Fact (IsPullback f x₀ x'₀ g.zeroFiberMap)]
     [Fact (Scheme.TorIndependentOver (Over.mk x'₀) (Over.mk g.zeroFiberMap))]
     (F' : CrisModuleSheaf S' I' γ' hc' X' x'₀)
-    [SectionsCoherent I' γ' hc' x'₀ F']
     [CrisModuleSheaf.IsCrystal F'] [CrisModuleSheaf.IsLocallyQuasiCoherent F']
-    [∀ T, SheafOfModules.IsFlat (F'.obj T)] :
+    [∀ T, SheafOfModules.IsFlat (F'.obj T)]
+
+/- Remark 60.24.9 (Base change isomorphism): crystalline cohomology commutes with
+base change under the seven geometric and coefficient conditions. -/
+@[stacks 07MU] #check (CrystallineRingedGeometry.cohomologyBaseChange_isIso
+  I γ hc x₀ I' γ' hc' s s' x'₀ f g hf hpX hpX' hγ F' :
     IsIso (crystallineCohomologyBaseChange
       I γ hc x₀ I' γ' hc' s s' x'₀ f g hf hpX hpX' hγ
-      (liftedOfCrystal I' γ' hc' x'₀ F' p s' hpX')) := sorry
+      (liftedOfCrystal I' γ' hc' x'₀ F' p s' hpX')))

@@ -96,7 +96,7 @@ noncomputable def fiberBaseChangeIso {S X S' X' : Scheme.{u}}
     (hpb : IsPullback g' f' f g) (s' : S') :
     pullback (f.fiberToSpecResidueField (g s')) (Spec.map (g.residueFieldMap s')) ≅
       f'.fiber s' :=
-  (isPullback_baseChangeFiberMap f g g' f' hpb s').isoPullback.symm
+  (isPullback_fiberToSpecResidueField_of_isPullback hpb s').isoPullback.symm
 
 /-- The open of the scheme-theoretic fibre `X_s` cut out by an open `U ⊆ X`. -/
 def fiberOpen {X S : Scheme.{u}} (f : X ⟶ S) (U : X.Opens) (s : S) :
@@ -105,7 +105,8 @@ def fiberOpen {X S : Scheme.{u}} (f : X ⟶ S) (U : X.Opens) (s : S) :
 
 /-- The commutative square of a restriction `f.resLE V U`. -/
 theorem commSq_resLE {X S : Scheme.{u}} (f : X ⟶ S) (U : X.Opens) (V : S.Opens)
-    (hU : U ≤ f ⁻¹ᵁ V) : CommSq U.ι (f.resLE V U hU) f V.ι := sorry
+    (hU : U ≤ f ⁻¹ᵁ V) : CommSq U.ι (f.resLE V U hU) f V.ι :=
+  ⟨(resLE_comp_ι f hU).symm⟩
 
 /-- The comparison morphism from the fibre of a restriction to the original
 fibre. -/
@@ -118,8 +119,16 @@ noncomputable abbrev resLEFiberMap {X S : Scheme.{u}} (f : X ⟶ S) (U : X.Opens
 by `U`. -/
 theorem resLEFiberMap_range_subset_fiberOpen {X S : Scheme.{u}} (f : X ⟶ S)
     (U : X.Opens) (V : S.Opens) (hU : U ≤ f ⁻¹ᵁ V) (s : V.toScheme) :
-    Set.range (resLEFiberMap f U V hU s) ⊆ Set.range (fiberOpen f U (V.ι s)).ι :=
-  sorry
+    Set.range (resLEFiberMap f U V hU s) ⊆ Set.range (fiberOpen f U (V.ι s)).ι := by
+  have hι : resLEFiberMap f U V hU s ≫ f.fiberι (V.ι s) =
+      (f.resLE V U hU).fiberι s ≫ U.ι := by
+    dsimp only [resLEFiberMap, fiberMap, Scheme.Hom.fiberι, pullback.map]
+    exact pullback.lift_fst _ _ _
+  rintro _ ⟨x, rfl⟩
+  refine ⟨⟨resLEFiberMap f U V hU s x, ?_⟩, rfl⟩
+  change f.fiberι (V.ι s) (resLEFiberMap f U V hU s x) ∈ U
+  rw [← Scheme.Hom.comp_apply, hι, Scheme.Hom.comp_apply]
+  exact ((f.resLE V U hU).fiberι s x).property
 
 /-- The open of the fibre cut out by `U` is contained in the image of
 `resLEFiberMap`. -/
@@ -140,9 +149,29 @@ noncomputable def resLEFiberHom {X S : Scheme.{u}} (f : X ⟶ S) (U : X.Opens)
 the restriction fibre. -/
 noncomputable def resLEFiberInv {X S : Scheme.{u}} (f : X ⟶ S) (U : X.Opens)
     (V : S.Opens) (hU : U ≤ f ⁻¹ᵁ V) (s : V.toScheme) :
-    (fiberOpen f U (V.ι s)).toScheme ⟶ (f.resLE V U hU).fiber s :=
-  IsOpenImmersion.lift (resLEFiberMap f U V hU s) (fiberOpen f U (V.ι s)).ι
-    (fiberOpen_range_subset_resLEFiberMap f U V hU s)
+    (fiberOpen f U (V.ι s)).toScheme ⟶ (f.resLE V U hU).fiber s := by
+  let W := fiberOpen f U (V.ι s)
+  let m := Spec.map (V.ι.residueFieldMap s)
+  letI : IsIso m := by
+    dsimp only [m]
+    infer_instance
+  let p₁ := (f.fiberι (V.ι s)).resLE U W le_rfl
+  let p₂ := W.ι ≫ f.fiberToSpecResidueField (V.ι s) ≫ inv m
+  refine pullback.lift p₁ p₂ ?_
+  apply (cancel_mono V.ι).1
+  calc
+    (p₁ ≫ f.resLE V U hU) ≫ V.ι = W.ι ≫ f.fiberι (V.ι s) ≫ f := by
+      dsimp only [p₁]
+      rw [Category.assoc, Scheme.Hom.resLE_comp_ι,
+        ← Category.assoc, Scheme.Hom.resLE_comp_ι]
+      exact Category.assoc _ _ _
+    _ = W.ι ≫ f.fiberToSpecResidueField (V.ι s) ≫ S.fromSpecResidueField (V.ι s) := by
+      rw [f.fiber_fac (V.ι s)]
+    _ = (p₂ ≫ V.toScheme.fromSpecResidueField s) ≫ V.ι := by
+      dsimp only [p₂]
+      rw [Category.assoc, Category.assoc, Category.assoc,
+        ← V.ι.SpecMap_residueFieldMap_fromSpecResidueField s]
+      simp [m]
 
 /-- The forward restriction-fibre lift followed by its inverse is the identity. -/
 theorem resLEFiberHom_inv_id {X S : Scheme.{u}} (f : X ⟶ S) (U : X.Opens)

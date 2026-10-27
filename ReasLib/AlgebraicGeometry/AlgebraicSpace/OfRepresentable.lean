@@ -34,8 +34,23 @@ theorem ofRelativelyRepresentable_spec {S : Scheme.{u}} {F : AlgebraicSpace S}
         ∃ (U : Over S) (p : yoneda.obj U ⟶ G),
           MorphismProperty.presheaf (MorphismProperty.over (@Etale)) p ∧
             Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p := by
-  refine ⟨AlgebraicGeometry.isSheaf_fppfTopology_over_of_relativelyRepresentable a ha F.isSheaf, ?_⟩
-  sorry
+  refine ⟨AlgebraicGeometry.isSheaf_fppfTopology_over_of_relativelyRepresentable a ha F.isSheaf,
+    ?_, ?_⟩
+  · apply Functor.relativelyRepresentable.diag_of_map_from_obj
+    intro U p
+    let q := p ≫ a
+    let i : U ⟶ ha.pullback q := ha.lift p (𝟙 U) (by simp [q])
+    have hi : yoneda.map i ≫ ha.fst q = p := ha.lift_fst p (𝟙 U) (by simp [q])
+    rw [← hi]
+    exact MorphismProperty.comp_mem _ _ _
+      (Functor.relativelyRepresentable.map yoneda i)
+      (MorphismProperty.of_isPullback (ha.isPullback q).flip
+        (Functor.relativelyRepresentable.of_diag F.representableDiagonal q))
+  · obtain ⟨U, p, hp, hp_surj⟩ := F.atlas
+    refine ⟨ha.pullback p, ha.fst p, ?_, ?_⟩
+    · exact (MorphismProperty.relative_isStableUnderBaseChange
+        (MorphismProperty.over (@Etale))).of_isPullback (ha.isPullback p).flip hp
+    · sorry
 
 /-- The algebraic space constructed from a relatively representable transformation has source functor `G`. -/
 def ofRelativelyRepresentable {S : Scheme.{u}} {F : AlgebraicSpace S}

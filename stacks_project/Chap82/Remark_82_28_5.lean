@@ -85,6 +85,6 @@ end
         [QuasiSeparated f] [LocallyOfFiniteType f]
         (E : X.Modules) [SheafOfModules.IsFiniteLocallyFree E],
       ∃ N : ℕ, ∀ i : ℕ, N < i →
-        chernClass δ f E i = ChowCohomology.zeroCap δ f (i : ℤ))
+        chernClass δ f E i = OperationalChow.zero δ f (i : ℤ))
 
 end AlgebraicGeometry.AlgebraicSpace.ChernClass

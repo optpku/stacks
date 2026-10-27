@@ -11,6 +11,7 @@ public import ReasLib.RingTheory.DividedPowers.Category.Colimits
 public import ReasLib.RingTheory.DividedPowers.Category.Quotient
 public import Mathlib.Algebra.Category.Ring.Constructions
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
+public import Mathlib.RingTheory.DividedPowers.SubDPIdeal
 public import Mathlib.RingTheory.TensorProduct.Maps
 public import Mathlib.Tactic.CrossRefAttribute
 
@@ -60,11 +61,11 @@ namespace tensorIdeal
 
 /-- The image of the left divided-power ideal is contained in the tensor ideal. -/
 theorem map_left_le {A B B' : DividedPowerRing.{u}} (f : A ⟶ B) (g : A ⟶ B') :
-    Ideal.map (includeLeft f g) B.ideal ≤ tensorIdeal f g := sorry
+    Ideal.map (includeLeft f g) B.ideal ≤ tensorIdeal f g := le_sup_left
 
 /-- The image of the right divided-power ideal is contained in the tensor ideal. -/
 theorem map_right_le {A B B' : DividedPowerRing.{u}} (f : A ⟶ B) (g : A ⟶ B') :
-    Ideal.map (includeRight f g) B'.ideal ≤ tensorIdeal f g := sorry
+    Ideal.map (includeRight f g) B'.ideal ≤ tensorIdeal f g := le_sup_right
 
 end tensorIdeal
 
@@ -76,12 +77,12 @@ def tmul {A B B' : DividedPowerRing.{u}} (f : A ⟶ B) (g : A ⟶ B') (b : B) (b
 /-- The left tensor inclusion sends `b` to `b ⊗ₜ 1`. -/
 @[simp]
 theorem includeLeft_apply {A B B' : DividedPowerRing.{u}} (f : A ⟶ B) (g : A ⟶ B')
-    (b : B) : includeLeft f g b = tmul f g b 1 := sorry
+    (b : B) : includeLeft f g b = tmul f g b 1 := rfl
 
 /-- The right tensor inclusion sends `b'` to `1 ⊗ₜ b'`. -/
 @[simp]
 theorem includeRight_apply {A B B' : DividedPowerRing.{u}} (f : A ⟶ B) (g : A ⟶ B')
-    (b' : B') : includeRight f g b' = tmul f g 1 b' := sorry
+    (b' : B') : includeRight f g b' = tmul f g 1 b' := rfl
 
 /-- The square of underlying ring homomorphisms selected by a commutative
 square of divided-power rings. -/
@@ -110,19 +111,27 @@ theorem tmul {A B B' B'' : DividedPowerRing.{u}} (f : A ⟶ B)
     (g : A ⟶ B') (i : B ⟶ B'') (j : B' ⟶ B'') (hcomm : f ≫ i = g ≫ j)
     (b : B) (b' : B') :
     tensorProductTo f g i j hcomm (DividedPowerRing.Pushout.tmul f g b b') =
-      i.toRingHom b * j.toRingHom b' := sorry
+      i.toRingHom b * j.toRingHom b' := rfl
 
 /-- The canonical tensor-product map restricts to the left leg of the commutative square. -/
 @[simp]
 theorem comp_includeLeft {A B B' B'' : DividedPowerRing.{u}} (f : A ⟶ B)
     (g : A ⟶ B') (i : B ⟶ B'') (j : B' ⟶ B'') (hcomm : f ≫ i = g ≫ j) :
-    (tensorProductTo f g i j hcomm).comp (includeLeft f g) = i.toRingHom := sorry
+    (tensorProductTo f g i j hcomm).comp (includeLeft f g) = i.toRingHom := by
+  apply RingHom.ext
+  intro b
+  change tensorProductTo f g i j hcomm (includeLeft f g b) = i.toRingHom b
+  rw [includeLeft_apply, tmul, map_one, mul_one]
 
 /-- The canonical tensor-product map restricts to the right leg of the commutative square. -/
 @[simp]
 theorem comp_includeRight {A B B' B'' : DividedPowerRing.{u}} (f : A ⟶ B)
     (g : A ⟶ B') (i : B ⟶ B'') (j : B' ⟶ B'') (hcomm : f ≫ i = g ≫ j) :
-    (tensorProductTo f g i j hcomm).comp (includeRight f g) = j.toRingHom := sorry
+    (tensorProductTo f g i j hcomm).comp (includeRight f g) = j.toRingHom := by
+  apply RingHom.ext
+  intro b'
+  change tensorProductTo f g i j hcomm (includeRight f g b') = j.toRingHom b'
+  rw [includeRight_apply, tmul, map_one, one_mul]
 
 end tensorProductTo
 
@@ -132,7 +141,79 @@ distinguished ideals yields a pushout square of commutative rings. -/
 theorem quotient_isPushout {A B B' B'' : DividedPowerRing.{u}} (f : A ⟶ B) (g : A ⟶ B')
     (i : B ⟶ B'') (j : B' ⟶ B'') (hpush : IsPushout f g i j) :
     IsPushout (DividedPowerRing.quotient.map f) (DividedPowerRing.quotient.map g)
-      (DividedPowerRing.quotient.map i) (DividedPowerRing.quotient.map j) := sorry
+      (DividedPowerRing.quotient.map i) (DividedPowerRing.quotient.map j) := by
+  classical
+  -- Maps out of the quotient are exactly divided-power maps to a ring with zero ideal.
+  let toZero (X : DividedPowerRing.{u}) {C : CommRingCat.{u}}
+      (φ : X ⧸ X.ideal →+* C) :
+      X ⟶ DividedPowerRing.of C ⊥ (dividedPowersBot C) :=
+    { toRingHom := φ.comp (Ideal.Quotient.mk X.ideal)
+      ideal_comp := by
+        change Ideal.map (φ.comp (Ideal.Quotient.mk X.ideal)) X.ideal ≤ (⊥ : Ideal C)
+        rw [← Ideal.map_map, Ideal.map_quotient_self, Ideal.map_bot]
+      dpow_comp := by
+        intro n x hx
+        have hx0 : φ (Ideal.Quotient.mk X.ideal x) = 0 := by
+          rw [Ideal.Quotient.eq_zero_iff_mem.mpr hx, map_zero]
+        change (dividedPowersBot C).dpow n (φ (Ideal.Quotient.mk X.ideal x)) =
+          φ (Ideal.Quotient.mk X.ideal (X.dividedPowers.dpow n x))
+        rw [hx0]
+        by_cases hn : n = 0
+        · subst n
+          rw [(dividedPowersBot C).dpow_zero (Ideal.zero_mem _),
+            X.dividedPowers.dpow_zero hx, map_one, map_one]
+        · rw [(dividedPowersBot C).dpow_eval_zero hn,
+            Ideal.Quotient.eq_zero_iff_mem.mpr (X.dividedPowers.dpow_mem hn hx), map_zero] }
+  have hcomm : DividedPowerRing.quotient.map f ≫ DividedPowerRing.quotient.map i =
+      DividedPowerRing.quotient.map g ≫ DividedPowerRing.quotient.map j := by
+    rw [← Functor.map_comp, ← Functor.map_comp, hpush.w]
+  apply IsPushout.of_isColimit (c := PushoutCocone.mk _ _ hcomm)
+  apply PushoutCocone.isColimitAux'
+  intro s
+  have hs : f ≫ toZero B s.inl.hom = g ≫ toZero B' s.inr.hom := by
+    apply DPMorphism.ext
+    funext a
+    exact DFunLike.congr_fun (congrArg CommRingCat.Hom.hom s.condition)
+      (Ideal.Quotient.mk A.ideal a)
+  let m := hpush.desc (toZero B s.inl.hom) (toZero B' s.inr.hom) hs
+  let d : DividedPowerRing.quotient.obj B'' ⟶ s.pt :=
+    CommRingCat.ofHom (Ideal.Quotient.lift B''.ideal m.toRingHom
+      (fun x hx ↦ Ideal.mem_bot.mp (m.ideal_comp (Ideal.mem_map_of_mem _ hx))))
+  have hl : DividedPowerRing.quotient.map i ≫ d = s.inl := by
+    apply CommRingCat.hom_ext
+    apply RingHom.ext
+    intro x
+    obtain ⟨b, rfl⟩ := Ideal.Quotient.mk_surjective x
+    exact DFunLike.congr_fun
+      (congrArg DPMorphism.toRingHom (hpush.inl_desc (toZero B s.inl.hom) (toZero B' s.inr.hom) hs)) b
+  have hr : DividedPowerRing.quotient.map j ≫ d = s.inr := by
+    apply CommRingCat.hom_ext
+    apply RingHom.ext
+    intro x
+    obtain ⟨b', rfl⟩ := Ideal.Quotient.mk_surjective x
+    exact DFunLike.congr_fun
+      (congrArg DPMorphism.toRingHom (hpush.inr_desc (toZero B s.inl.hom) (toZero B' s.inr.hom) hs)) b'
+  refine ⟨d, hl, hr, ?_⟩
+  intro n hnl hnr
+  have hn : toZero B'' n.hom = m := by
+    apply hpush.hom_ext
+    · show i ≫ toZero B'' n.hom = i ≫ m
+      rw [show i ≫ m = toZero B s.inl.hom from hpush.inl_desc _ _ hs]
+      apply DPMorphism.ext
+      funext b
+      exact DFunLike.congr_fun (congrArg CommRingCat.Hom.hom hnl)
+        (Ideal.Quotient.mk B.ideal b)
+    · show j ≫ toZero B'' n.hom = j ≫ m
+      rw [show j ≫ m = toZero B' s.inr.hom from hpush.inr_desc _ _ hs]
+      apply DPMorphism.ext
+      funext b'
+      exact DFunLike.congr_fun (congrArg CommRingCat.Hom.hom hnr)
+        (Ideal.Quotient.mk B'.ideal b')
+  apply CommRingCat.hom_ext
+  apply RingHom.ext
+  intro x
+  obtain ⟨b'', rfl⟩ := Ideal.Quotient.mk_surjective x
+  exact DFunLike.congr_fun (congrArg DPMorphism.toRingHom hn) b''
 
 /-- Remark 23.3.5 (Tag 0H86), part (2): the canonical map `B ⊗_A B' → B''` associated to a
 pushout of divided power rings is surjective. -/
@@ -146,6 +227,61 @@ generated by the two source divided-power ideals maps onto the target divided-po
 @[stacks 0H86 "(3)"]
 theorem map_tensorIdeal_eq {A B B' B'' : DividedPowerRing.{u}} (f : A ⟶ B)
     (g : A ⟶ B') (i : B ⟶ B'') (j : B' ⟶ B'') (hpush : IsPushout f g i j) :
-    Ideal.map (tensorProductTo f g i j hpush.w) (tensorIdeal f g) = B''.ideal := sorry
+    Ideal.map (tensorProductTo f g i j hpush.w) (tensorIdeal f g) = B''.ideal := by
+  classical
+  let φ : (span f g).tensor →+* B'' := tensorProductTo f g i j hpush.w
+  have hφl : φ.comp (includeLeft f g) = i.toRingHom :=
+    tensorProductTo.comp_includeLeft f g i j hpush.w
+  have hφr : φ.comp (includeRight f g) = j.toRingHom :=
+    tensorProductTo.comp_includeRight f g i j hpush.w
+  change Ideal.map φ (tensorIdeal f g) = B''.ideal
+  rw [tensorIdeal, Ideal.map_sup, Ideal.map_map, Ideal.map_map,
+    hφl, hφr]
+  let K := Ideal.map i.toRingHom B.ideal ⊔ Ideal.map j.toRingHom B'.ideal
+  have hK : IsSubDPIdeal B''.dividedPowers K :=
+    isSubDPIdeal_sup (isSubDPIdeal_map i.isDPMorphism) (isSubDPIdeal_map j.isDPMorphism)
+  let C := DividedPowerRing.of B'' K (hK.dividedPowers B''.dividedPowers)
+  let i' : B ⟶ C :=
+    { toRingHom := i.toRingHom
+      ideal_comp := le_sup_left
+      dpow_comp := by
+        intro n b hb
+        change (hK.dividedPowers B''.dividedPowers).dpow n (i.toRingHom b) =
+          i.toRingHom (B.dividedPowers.dpow n b)
+        rw [IsSubDPIdeal.dpow_eq_of_mem B''.dividedPowers hK
+          ((show Ideal.map i.toRingHom B.ideal ≤ K from le_sup_left)
+            (Ideal.mem_map_of_mem i.toRingHom hb)), i.dpow_comp b hb] }
+  let j' : B' ⟶ C :=
+    { toRingHom := j.toRingHom
+      ideal_comp := le_sup_right
+      dpow_comp := by
+        intro n b' hb'
+        change (hK.dividedPowers B''.dividedPowers).dpow n (j.toRingHom b') =
+          j.toRingHom (B'.dividedPowers.dpow n b')
+        rw [IsSubDPIdeal.dpow_eq_of_mem B''.dividedPowers hK
+          ((show Ideal.map j.toRingHom B'.ideal ≤ K from le_sup_right)
+            (Ideal.mem_map_of_mem j.toRingHom hb')), j.dpow_comp b' hb'] }
+  let k : C ⟶ B'' := DPMorphism.mk' (hK.isDPMorphism B''.dividedPowers)
+  have hcomm : f ≫ i' = g ≫ j' := by
+    apply DPMorphism.ext
+    funext a
+    exact congrArg (fun k : A ⟶ B'' ↦ k.toRingHom a) hpush.w
+  let l := hpush.desc i' j' hcomm
+  have hl : l ≫ k = 𝟙 B'' := by
+    apply hpush.hom_ext
+    · rw [← Category.assoc, hpush.inl_desc i' j' hcomm]
+      apply DPMorphism.ext
+      funext b
+      rfl
+    · rw [← Category.assoc, hpush.inr_desc i' j' hcomm]
+      apply DPMorphism.ext
+      funext b'
+      rfl
+  apply le_antisymm hK.isSubideal
+  intro x hx
+  have hmem := l.ideal_comp (Ideal.mem_map_of_mem l.toRingHom hx)
+  have hxid := DFunLike.congr_fun (congrArg DPMorphism.toRingHom hl) x
+  change l.toRingHom x = x at hxid
+  exact hxid ▸ hmem
 
 end DividedPowerRing.Pushout

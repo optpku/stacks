@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap87.Lemma_87_34_3_Reduction
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Reduction.AlgebraicSpace
 
 /-! Canonical inference from schemes to formal algebraic spaces. -/
 
@@ -18,9 +18,8 @@ universe u
 
 namespace AlgebraicGeometry.FormalAlgebraicSpace
 
-/-- Every scheme over S is formal through its canonical algebraic space of points. -/
-instance instIsFormalAlgebraicSpace_yonedaOfOver {S : Scheme.{u}} (T : Over S) :
-    IsFormalAlgebraicSpace (yoneda.obj T) :=
-  inferInstanceAs (IsFormalAlgebraicSpace (AlgebraicSpace.ofOver T).functorOfPoints)
+/- Every scheme over `S` is formal through its canonical algebraic space of points. -/
+#check (AlgebraicGeometry.FormalAlgebraicSpace.instIsFormalAlgebraicSpace_yonedaOfOver :
+  ∀ {S : Scheme.{u}} (T : Over S), IsFormalAlgebraicSpace (yoneda.obj T))
 
 end AlgebraicGeometry.FormalAlgebraicSpace

@@ -65,20 +65,67 @@ namespace etaleDerivedLowerShriek
 schemes and a torsion coefficient ring, the derived lower shriek functor
 `etaleDerivedLowerShriek X P : DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat Λ)) ⥤ DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat Λ))`
 associated to the compactification `P` admits a right adjoint. -/
-instance isLeftAdjoint [CompactSpace X.left] [QuasiSeparatedSpace X.left]
+@[instance]
+theorem isLeftAdjoint [CompactSpace X.left] [QuasiSeparatedSpace X.left]
     (hΛ : AddMonoid.IsTorsion Λ) :
     let _ := hΛ
     (etaleDerivedLowerShriek X P :
       DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)) ⥤
         DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))).IsLeftAdjoint := sorry
 
-/-- For torsion coefficients, compactification-derived lower shriek admits a right adjoint. -/
+/-- For torsion coefficients, compactification-derived lower shriek from an
+over-object admits a right adjoint. -/
 instance isLeftAdjointOfTorsion [CompactSpace X.left] [QuasiSeparatedSpace X.left]
     [hΛ : Fact (AddMonoid.IsTorsion Λ)] :
     (etaleDerivedLowerShriek X P :
       DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)) ⥤
         DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))).IsLeftAdjoint :=
   isLeftAdjoint X P hΛ.out
+
+section Torsion
+
+variable {S : Scheme.{u}} (f : S ⟶ Y)
+variable [IsSeparated f] [Scheme.Hom.FiniteType f]
+variable (Q : Compactification.Of Y (⟨S, ⟨⟨⟩⟩, f⟩ : Over Y))
+variable [HasSheafify S.smallEtaleTopology (ModuleCat.{u} Λ)]
+variable [∀ U : S.Etale,
+  HasWeakSheafify (S.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
+variable [HasDerivedCategory (Sheaf S.smallEtaleTopology (ModuleCat.{u} Λ))]
+variable [HasSheafify Q.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ)]
+variable [∀ U : Q.obj.right.left.Etale,
+  HasWeakSheafify (Q.obj.right.left.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
+variable [HasDerivedCategory
+  (Sheaf Q.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))]
+variable [∀ F : S.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
+  (etaleRestriction (Compactification.Of.ι Q)).op.HasLeftKanExtension F]
+variable [(etaleExtensionByZero (Compactification.Of.ι Q)
+    (ModuleCat.{u} Λ)).Additive]
+variable [PreservesFiniteLimits
+  (etaleExtensionByZero (Compactification.Of.ι Q) (ModuleCat.{u} Λ))]
+variable [PreservesFiniteColimits
+  (etaleExtensionByZero (Compactification.Of.ι Q) (ModuleCat.{u} Λ))]
+variable [((smallEtalePullback Q.obj.right.hom).sheafPushforwardContinuous
+    (ModuleCat.{u} Λ) Y.smallEtaleTopology
+    Q.obj.right.left.smallEtaleTopology).Additive]
+variable [HasRightDerivedFunctor
+  (RightDerived.Cochain.toDerived
+    ((smallEtalePullback Q.obj.right.hom).sheafPushforwardContinuous
+      (ModuleCat.{u} Λ) Y.smallEtaleTopology
+      Q.obj.right.left.smallEtaleTopology))
+  (HomologicalComplex.quasiIso
+    (Sheaf Q.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))
+    (ComplexShape.up ℤ))]
+
+/-- For torsion coefficients, compactification-derived lower shriek associated
+to a morphism of schemes admits a right adjoint. -/
+instance isLeftAdjointOfTorsionMk [CompactSpace S] [QuasiSeparatedSpace S]
+    [hΛ : Fact (AddMonoid.IsTorsion Λ)] :
+    (etaleDerivedLowerShriek (⟨S, ⟨⟨⟩⟩, f⟩ : Over Y) Q :
+      DerivedCategory (Sheaf S.smallEtaleTopology (ModuleCat.{u} Λ)) ⥤
+        DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))).IsLeftAdjoint :=
+  isLeftAdjoint (⟨S, ⟨⟨⟩⟩, f⟩ : Over Y) Q hΛ.out
+
+end Torsion
 
 end etaleDerivedLowerShriek
 

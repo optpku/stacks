@@ -32,6 +32,14 @@ namespace AlgebraicGeometry.AlgebraicSpace
 
 variable {S : Scheme.{u}}
 
+local instance : (MorphismProperty.over (@AlgebraicGeometry.Etale) (X := S)).IsStableUnderComposition :=
+  inferInstanceAs ((MorphismProperty.inverseImage (@AlgebraicGeometry.Etale)
+    (Over.forget S)).IsStableUnderComposition)
+
+local instance : (MorphismProperty.over (@AlgebraicGeometry.Etale) (X := S)).IsStableUnderBaseChange where
+  of_isPullback h hg := MorphismProperty.of_isPullback (P := @AlgebraicGeometry.Etale)
+    (h.map (Over.forget S)) hg
+
 /-- An étale atlas scheme of an algebraic space, extracted from the atlas field. -/
 abbrev atlasScheme (X : AlgebraicSpace S) : Over S :=
   AtlasInput.scheme X
@@ -47,7 +55,7 @@ theorem atlasHom_presheaf_etale (X : AlgebraicSpace S) :
 
 /-- The atlas morphism is étale as a morphism of algebraic spaces. -/
 instance etale_atlasHom (X : AlgebraicSpace S) : Etale (atlasHom X) :=
-  sorry
+  ⟨fun _ hφ ↦ MorphismProperty.comp_mem _ _ _ hφ (atlasHom_presheaf_etale X)⟩
 
 /-- The scheme over `S` associated to an open of the atlas of `X`. -/
 def atlasOpenOver (X : AlgebraicSpace S) (V : (atlasScheme X).left.Opens) : Over S :=
@@ -63,7 +71,9 @@ spaces. -/
 instance etale_ofOverMap_atlasOpenOverHom (X : AlgebraicSpace S)
     (V : (atlasScheme X).left.Opens) :
     Etale ((ofOverFunctor S).map (atlasOpenOverHom X V)) :=
-  sorry
+  ⟨fun _ hφ ↦ MorphismProperty.comp_mem _ _ _ hφ
+    (MorphismProperty.relative_map (F := yoneda)
+      (show AlgebraicGeometry.Etale V.ι from inferInstance))⟩
 
 /-- The composite of an atlas open with the atlas morphism is étale. -/
 instance etale_atlasOpenHom (X : AlgebraicSpace S) (V : (atlasScheme X).left.Opens) :
@@ -81,16 +91,32 @@ def atlasOpenToSmallEtaleObj (X : AlgebraicSpace S) (V : (atlasScheme X).left.Op
 /-- The morphism of atlas opens over `S` induced by an inclusion of opens. -/
 def atlasOpenOverMap (X : AlgebraicSpace S) {V W : (atlasScheme X).left.Opens}
     (i : V ⟶ W) : atlasOpenOver X V ⟶ atlasOpenOver X W :=
-  Over.homMk ((atlasScheme X).left.homOfLE (leOfHom i)) sorry
+  Over.homMk ((atlasScheme X).left.homOfLE (leOfHom i)) (by
+    change (atlasScheme X).left.homOfLE (leOfHom i) ≫
+      (W.ι ≫ (atlasScheme X).hom) = V.ι ≫ (atlasScheme X).hom
+    rw [← Category.assoc, Scheme.homOfLE_ι])
 
 /-- The functor from Zariski opens of an étale atlas of `X` to the small étale site of `X`. -/
 def atlasOpenToSmallEtale (X : AlgebraicSpace S) :
     (atlasScheme X).left.Opens ⥤ smallEtaleSite X where
   obj := atlasOpenToSmallEtaleObj X
   map {V W} i :=
-    MorphismProperty.CostructuredArrow.homMk (atlasOpenOverMap X i) trivial sorry
-  map_id := sorry
-  map_comp := sorry
+    MorphismProperty.CostructuredArrow.homMk (atlasOpenOverMap X i) trivial (by
+      have h : atlasOpenOverMap X i ≫ atlasOpenOverHom X W = atlasOpenOverHom X V := by
+        apply Over.OverMorphism.ext
+        exact Scheme.homOfLE_ι _ (leOfHom i)
+      change yoneda.map (atlasOpenOverMap X i) ≫
+        (yoneda.map (atlasOpenOverHom X W) ≫ atlasHom X) =
+        yoneda.map (atlasOpenOverHom X V) ≫ atlasHom X
+      rw [← Category.assoc, ← Functor.map_comp, h])
+  map_id V := by
+    apply MorphismProperty.CostructuredArrow.Hom.ext
+    apply Over.OverMorphism.ext
+    exact Scheme.homOfLE_rfl _ _
+  map_comp i j := by
+    apply MorphismProperty.CostructuredArrow.Hom.ext
+    apply Over.OverMorphism.ext
+    exact (Scheme.homOfLE_homOfLE _ (leOfHom i) (leOfHom j)).symm
 
 /-- Restrict a small étale sheaf of commutative rings on `X` to the Zariski site of an étale
 atlas of `X`. -/
@@ -110,14 +136,19 @@ def restrictUnderMap {X : AlgebraicSpace S} {B₁ B₂ : Under (commStructureShe
     restrictUnder B₁ ⟶ restrictUnder B₂ :=
   CategoryTheory.Under.homMk
     (whiskerLeft (atlasOpenToSmallEtale X).op (InducedCategory.Hom.hom α.right))
-    sorry
+    (by
+      change whiskerLeft _ _ ≫ whiskerLeft _ _ = whiskerLeft _ _
+      rw [← whiskerLeft_comp]
+      exact congrArg
+        (fun f ↦ whiskerLeft (atlasOpenToSmallEtale X).op (InducedCategory.Hom.hom f))
+        (Under.w α))
 
 /-- The underlying sheaf morphism of `restrictUnderMap α` is whiskering along atlas opens. -/
 theorem restrictUnderMap_right {X : AlgebraicSpace S} {B₁ B₂ : Under (commStructureSheaf X)}
     (α : B₁ ⟶ B₂) :
     (restrictUnderMap α).right =
       whiskerLeft (atlasOpenToSmallEtale X).op (InducedCategory.Hom.hom α.right) :=
-  sorry
+  rfl
 
 /-- The stored atlas supplies its canonical étale equivalence relation. -/
 def relativeSpectrumAtlasPresentation (X : AlgebraicSpace S) : Presentation X :=
@@ -151,11 +182,23 @@ theorem atlasKernelPair_s_eq (X : AlgebraicSpace S) :
     atlasKernelPair_s X = (relativeSpectrumAtlasPresentation X).R.s :=
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
+private theorem relativeSpectrumAtlas_isPullback (X : AlgebraicSpace S) :
+    IsPullback (yoneda.map (atlasKernelPair_t X)) (yoneda.map (atlasKernelPair_s X))
+      (atlasHom X) (atlasHom X) := by
+  let h := atlasHom_presheaf_etale X
+  change IsPullback
+    (yoneda.map (prod.lift (h.rep.fst' (atlasHom X)) (h.rep.snd (atlasHom X)) ≫ prod.fst))
+    (yoneda.map (prod.lift (h.rep.fst' (atlasHom X)) (h.rep.snd (atlasHom X)) ≫ prod.snd))
+    (atlasHom X) (atlasHom X)
+  rw [prod.lift_fst, prod.lift_snd]
+  exact h.rep.isPullback' (atlasHom X)
+
 /-- The two atlas kernel-pair projections become equal after composition with `atlasHom X`. -/
 theorem atlasKernelPair_t_comp_eq_s_comp (X : AlgebraicSpace S) :
     (ofOverFunctor S).map (atlasKernelPair_t X) ≫ atlasHom X =
       (ofOverFunctor S).map (atlasKernelPair_s X) ≫ atlasHom X :=
-  sorry
+  (relativeSpectrumAtlas_isPullback X).w
 
 /-- The morphism `ofOver (U ×_X U) ⟶ X` induced by the atlas kernel pair. -/
 def atlasKernelPairHom (X : AlgebraicSpace S) : ofOver (atlasKernelPair X) ⟶ X :=
@@ -168,7 +211,12 @@ theorem atlasKernelPairHom_eq (X : AlgebraicSpace S) :
 
 /-- The atlas kernel-pair morphism is étale. -/
 instance etale_atlasKernelPairHom (X : AlgebraicSpace S) : Etale (atlasKernelPairHom X) :=
-  sorry
+  ⟨fun _ hφ ↦ MorphismProperty.comp_mem _ _ _ hφ
+    (MorphismProperty.comp_mem _ _ _
+      (MorphismProperty.relative_map (F := yoneda)
+        ((atlasHom_presheaf_etale X).property (atlasHom X) _ _
+          (relativeSpectrumAtlas_isPullback X).flip))
+      (atlasHom_presheaf_etale X))⟩
 
 /-- The scheme over `S` associated to an open of the atlas kernel pair. -/
 def kernelPairOpenOver (X : AlgebraicSpace S) (W : (atlasKernelPair X).left.Opens) : Over S :=
@@ -183,7 +231,9 @@ def kernelPairOpenOverHom (X : AlgebraicSpace S) (W : (atlasKernelPair X).left.O
 instance etale_ofOverMap_kernelPairOpenOverHom (X : AlgebraicSpace S)
     (W : (atlasKernelPair X).left.Opens) :
     Etale ((ofOverFunctor S).map (kernelPairOpenOverHom X W)) :=
-  sorry
+  ⟨fun _ hφ ↦ MorphismProperty.comp_mem _ _ _ hφ
+    (MorphismProperty.relative_map (F := yoneda)
+      (show AlgebraicGeometry.Etale W.ι from inferInstance))⟩
 
 /-- The composite of a kernel-pair open with the atlas kernel-pair morphism is étale. -/
 instance etale_kernelPairOpenHom (X : AlgebraicSpace S) (W : (atlasKernelPair X).left.Opens) :
@@ -204,21 +254,38 @@ theorem kernelPairOpenToSmallEtaleObj_hom (X : AlgebraicSpace S)
     (W : (atlasKernelPair X).left.Opens) :
     (kernelPairOpenToSmallEtaleObj X W).hom =
       (ofOverFunctor S).map (kernelPairOpenOverHom X W) ≫ atlasKernelPairHom X :=
-  sorry
+  rfl
 
 /-- The morphism of kernel-pair opens over `S` induced by an inclusion of opens. -/
 def kernelPairOpenOverMap (X : AlgebraicSpace S) {V W : (atlasKernelPair X).left.Opens}
     (i : V ⟶ W) : kernelPairOpenOver X V ⟶ kernelPairOpenOver X W :=
-  Over.homMk ((atlasKernelPair X).left.homOfLE (leOfHom i)) sorry
+  Over.homMk ((atlasKernelPair X).left.homOfLE (leOfHom i)) (by
+    change (atlasKernelPair X).left.homOfLE (leOfHom i) ≫
+      (W.ι ≫ (atlasKernelPair X).hom) = V.ι ≫ (atlasKernelPair X).hom
+    rw [← Category.assoc, Scheme.homOfLE_ι])
 
 /-- The functor from Zariski opens of `U ×_X U` to the small étale site of `X`. -/
 def kernelPairOpenToSmallEtale (X : AlgebraicSpace S) :
     (atlasKernelPair X).left.Opens ⥤ smallEtaleSite X where
   obj := kernelPairOpenToSmallEtaleObj X
   map {V W} i :=
-    MorphismProperty.CostructuredArrow.homMk (kernelPairOpenOverMap X i) trivial sorry
-  map_id := sorry
-  map_comp := sorry
+    MorphismProperty.CostructuredArrow.homMk (kernelPairOpenOverMap X i) trivial (by
+      have h : kernelPairOpenOverMap X i ≫ kernelPairOpenOverHom X W =
+          kernelPairOpenOverHom X V := by
+        apply Over.OverMorphism.ext
+        exact Scheme.homOfLE_ι _ (leOfHom i)
+      change yoneda.map (kernelPairOpenOverMap X i) ≫
+        (yoneda.map (kernelPairOpenOverHom X W) ≫ atlasKernelPairHom X) =
+        yoneda.map (kernelPairOpenOverHom X V) ≫ atlasKernelPairHom X
+      rw [← Category.assoc, ← Functor.map_comp, h])
+  map_id W := by
+    apply MorphismProperty.CostructuredArrow.Hom.ext
+    apply Over.OverMorphism.ext
+    exact Scheme.homOfLE_rfl _ _
+  map_comp i j := by
+    apply MorphismProperty.CostructuredArrow.Hom.ext
+    apply Over.OverMorphism.ext
+    exact (Scheme.homOfLE_homOfLE _ (leOfHom i) (leOfHom j)).symm
 
 /-- On objects, `kernelPairOpenToSmallEtale X` is `kernelPairOpenToSmallEtaleObj X`. -/
 theorem kernelPairOpenToSmallEtale_obj (X : AlgebraicSpace S)
@@ -251,10 +318,18 @@ instance atlasKernelPair_s_etale (X : AlgebraicSpace S) :
 
 /-- Both actual projections are open, as base changes of the étale atlas. -/
 theorem atlasKernelPair_t_isOpenMap (X : AlgebraicSpace S) :
-    IsOpenMap (atlasKernelPair_t X).left.base := sorry
+    IsOpenMap (atlasKernelPair_t X).left.base := by
+  haveI : AlgebraicGeometry.Etale (atlasKernelPair_t X).left :=
+    (atlasHom_presheaf_etale X).property (atlasHom X) _ _
+      (relativeSpectrumAtlas_isPullback X).flip
+  exact (atlasKernelPair_t X).left.isOpenMap
 
 theorem atlasKernelPair_s_isOpenMap (X : AlgebraicSpace S) :
-    IsOpenMap (atlasKernelPair_s X).left.base := sorry
+    IsOpenMap (atlasKernelPair_s X).left.base := by
+  haveI : AlgebraicGeometry.Etale (atlasKernelPair_s X).left :=
+    (atlasHom_presheaf_etale X).property (atlasHom X) _ _
+      (relativeSpectrumAtlas_isPullback X)
+  exact (atlasKernelPair_s X).left.isOpenMap
 
 /-- The image of a kernel-pair open under an atlas kernel-pair projection. -/
 def atlasKernelPairImage (X : AlgebraicSpace S) (φ : atlasKernelPair X ⟶ atlasScheme X)
@@ -273,7 +348,13 @@ def atlasKernelPairOpenOverHom (X : AlgebraicSpace S)
     (φ : atlasKernelPair X ⟶ atlasScheme X) (hφ : IsOpenMap φ.left.base)
     (W : (atlasKernelPair X).left.Opens) :
     kernelPairOpenOver X W ⟶ atlasOpenOver X (atlasKernelPairImage X φ hφ W) :=
-  Over.homMk (φ.left.resLE (atlasKernelPairImage X φ hφ W) W sorry) sorry
+  Over.homMk (φ.left.resLE (atlasKernelPairImage X φ hφ W) W (by
+    intro x hx
+    exact ⟨x, hx, rfl⟩)) (by
+      change φ.left.resLE (atlasKernelPairImage X φ hφ W) W _ ≫
+        ((atlasKernelPairImage X φ hφ W).ι ≫ (atlasScheme X).hom) =
+        W.ι ≫ (atlasKernelPair X).hom
+      rw [← Category.assoc, Scheme.Hom.resLE_comp_ι, Category.assoc, Over.w φ])
 
 /-- The morphism of small étale objects over `X` from a kernel-pair open to its image in the
 atlas. -/
@@ -283,7 +364,16 @@ def kernelPairOpenHom (X : AlgebraicSpace S) (φ : atlasKernelPair X ⟶ atlasSc
     (W : (atlasKernelPair X).left.Opens) :
     kernelPairOpenToSmallEtaleObj X W ⟶
       atlasOpenToSmallEtaleObj X (atlasKernelPairImage X φ hφ W) :=
-  MorphismProperty.CostructuredArrow.homMk (atlasKernelPairOpenOverHom X φ hφ W) trivial sorry
+  MorphismProperty.CostructuredArrow.homMk (atlasKernelPairOpenOverHom X φ hφ W) trivial (by
+    have h : atlasKernelPairOpenOverHom X φ hφ W ≫
+        atlasOpenOverHom X (atlasKernelPairImage X φ hφ W) = kernelPairOpenOverHom X W ≫ φ := by
+      apply Over.OverMorphism.ext
+      exact Scheme.Hom.resLE_comp_ι _ _
+    change yoneda.map (atlasKernelPairOpenOverHom X φ hφ W) ≫
+      (yoneda.map (atlasOpenOverHom X (atlasKernelPairImage X φ hφ W)) ≫ atlasHom X) =
+      yoneda.map (kernelPairOpenOverHom X W) ≫ atlasKernelPairHom X
+    rw [← Category.assoc, ← Functor.map_comp, h, Functor.map_comp, Category.assoc]
+    exact congrArg (fun f ↦ yoneda.map (kernelPairOpenOverHom X W) ≫ f) wφ)
 
 /-- The underlying scheme morphism of `kernelPairOpenHom X φ hφ wφ W` is
 `atlasKernelPairOpenOverHom X φ hφ W`. -/

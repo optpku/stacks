@@ -68,6 +68,11 @@ variable {X : Type w} [AddCommMonoid X] [Module R X]
 variable {Y : Type x} [AddCommMonoid Y] [Module R Y] [Module S Y]
 variable [SMulCommClass R S Y]
 
+/-- The transported action scales the right component of a pure tensor. -/
+theorem smul_tmul (s : S) (x : X) (y : Y) :
+    letI : Module S (X ⊗[R] Y) := rightModule
+    s • (x ⊗ₜ[R] y) = x ⊗ₜ[R] (s • y) := rfl
+
 /- The `letI` is a deliberate defeq pin: the right-factor action is noncanonical in Mathlib and is
    therefore kept scoped rather than made a global instance. -/
 /-- The base and right-factor actions on `X ⊗[R] Y` commute. -/
@@ -75,7 +80,14 @@ variable [SMulCommClass R S Y]
 theorem smulCommClassBase :
     -- Local instance justification (defeq pin): the class is indexed by this scoped right-factor action.
     letI : Module S (X ⊗[R] Y) := rightModule
-    SMulCommClass R S (X ⊗[R] Y) := sorry
+    SMulCommClass R S (X ⊗[R] Y) := by
+  letI : Module S (X ⊗[R] Y) := rightModule
+  refine ⟨fun r s z ↦ ?_⟩
+  induction z using TensorProduct.induction_on with
+  | zero => simp
+  | tmul x y =>
+      simp only [smul_tmul, ← TensorProduct.tmul_smul, smul_comm r s]
+  | add x y hx hy => simp only [smul_add, hx, hy]
 
 end Right
 
@@ -106,76 +118,142 @@ noncomputable def assoc :
       { toFun := fun m ↦
           { toFun := fun n ↦
               { toFun := fun p ↦ m ⊗ₜ[A] (n ⊗ₜ[B] p)
-                map_zero' := sorry
-                map_add' := sorry }
-            map_zero' := sorry
-            map_add' := sorry }
-        map_zero' := sorry
-        map_add' := sorry }
-      (fun a m n ↦ sorry)
+                map_zero' := by simp
+                map_add' := by intros; simp [tmul_add] }
+            map_zero' := by ext p; simp
+            map_add' := by intros; ext p; simp [add_tmul, tmul_add] }
+        map_zero' := by ext n p; simp
+        map_add' := by intros; ext n p; simp [add_tmul] }
+      (fun a m n ↦ by
+        ext p
+        exact TensorProduct.smul_tmul a m (n ⊗ₜ[B] p))
   let hom : ((M ⊗[A] N) ⊗[B] P) →+ M ⊗[A] (N ⊗[B] P) :=
-    liftAddHom curry (fun b x p ↦ sorry)
+    liftAddHom curry (fun b x p ↦ by
+      induction x using TensorProduct.induction_on with
+      | zero => simp
+      | tmul m n =>
+          change m ⊗ₜ[A] ((b • n) ⊗ₜ[B] p) = m ⊗ₜ[A] (n ⊗ₜ[B] (b • p))
+          rw [TensorProduct.smul_tmul]
+      | add x y hx hy =>
+          simp only [smul_add, map_add, AddMonoidHom.add_apply, hx, hy])
   let invCurry : M →+ (N ⊗[B] P) →+ ((M ⊗[A] N) ⊗[B] P) :=
     { toFun := fun m ↦
         liftAddHom
           { toFun := fun n ↦
               { toFun := fun p ↦ (m ⊗ₜ[A] n : M ⊗[A] N) ⊗ₜ[B] p
-                map_zero' := sorry
-                map_add' := sorry }
-            map_zero' := sorry
-            map_add' := sorry }
-          (fun b n p ↦ sorry)
-      map_zero' := sorry
-      map_add' := sorry }
+                map_zero' := by simp
+                map_add' := by intros; simp [tmul_add] }
+            map_zero' := by ext p; simp
+            map_add' := by intros; ext p; simp [tmul_add, add_tmul] }
+          (fun b n p ↦ by
+            change (b • (m ⊗ₜ[A] n)) ⊗ₜ[B] p =
+              (m ⊗ₜ[A] n) ⊗ₜ[B] (b • p)
+            exact TensorProduct.smul_tmul b (m ⊗ₜ[A] n) p)
+      map_zero' := by
+        ext x
+        induction x using TensorProduct.induction_on with
+        | zero => simp
+        | tmul n p => simp
+        | add x y hx hy =>
+            simp only [map_add, hx, hy, AddMonoidHom.zero_apply, add_zero]
+      map_add' := by
+        intro m₁ m₂
+        ext x
+        induction x using TensorProduct.induction_on with
+        | zero => simp
+        | tmul n p => simp [add_tmul]
+        | add x y hx hy => simp [map_add, hx, hy, add_add_add_comm] }
   let inv : (M ⊗[A] (N ⊗[B] P)) →+ ((M ⊗[A] N) ⊗[B] P) :=
-    liftAddHom invCurry (fun a m x ↦ sorry)
+    liftAddHom invCurry (fun a m x ↦ by
+      induction x using TensorProduct.induction_on with
+      | zero => simp
+      | tmul n p =>
+          change ((a • m) ⊗ₜ[A] n) ⊗ₜ[B] p =
+            (m ⊗ₜ[A] (a • n)) ⊗ₜ[B] p
+          rw [TensorProduct.smul_tmul]
+      | add x y hx hy => simp only [smul_add, map_add, hx, hy])
   { toFun := hom
     invFun := inv
-    left_inv := sorry
-    right_inv := sorry
+    left_inv := fun x ↦ by
+      change inv (hom x) = x
+      induction x using TensorProduct.induction_on with
+      | zero => simp
+      | tmul x p =>
+          induction x using TensorProduct.induction_on with
+          | zero => simp
+          | tmul m n => rfl
+          | add x y hx hy => simp only [add_tmul, map_add, hx, hy]
+      | add x y hx hy => simp only [map_add, hx, hy]
+    right_inv := fun x ↦ by
+      change hom (inv x) = x
+      induction x using TensorProduct.induction_on with
+      | zero => simp
+      | tmul m x =>
+          induction x using TensorProduct.induction_on with
+          | zero => simp
+          | tmul n p => rfl
+          | add x y hx hy => simp only [tmul_add, map_add, hx, hy]
+      | add x y hx hy => simp only [map_add, hx, hy]
     map_add' := hom.map_add }
 
 /-- The mixed-base associator sends a pure tensor to its right-associated form. -/
 @[simp, stacks 00D2]
 theorem assoc_tmul (m : M) (n : N) (p : P) :
-    assoc ((m ⊗ₜ[A] n : M ⊗[A] N) ⊗ₜ[B] p) = m ⊗ₜ[A] (n ⊗ₜ[B] p) := sorry
+    assoc ((m ⊗ₜ[A] n : M ⊗[A] N) ⊗ₜ[B] p) = m ⊗ₜ[A] (n ⊗ₜ[B] p) := rfl
 
 /-- The inverse mixed-base associator sends a right-associated pure tensor backwards. -/
 @[simp, stacks 00D2]
 theorem assoc_symm_tmul (m : M) (n : N) (p : P) :
-    assoc.symm (m ⊗ₜ[A] (n ⊗ₜ[B] p)) = (m ⊗ₜ[A] n : M ⊗[A] N) ⊗ₜ[B] p := sorry
+    assoc.symm (m ⊗ₜ[A] (n ⊗ₜ[B] p)) = (m ⊗ₜ[A] n : M ⊗[A] N) ⊗ₜ[B] p := rfl
 
 /-- The mixed-base associator as an `A`-linear equivalence. -/
 @[stacks 00D2 "A-linear associator"]
 noncomputable def assocLeft :
     ((M ⊗[A] N) ⊗[B] P) ≃ₗ[A] M ⊗[A] (N ⊗[B] P) :=
-  AddEquiv.toLinearEquiv assoc (fun a x ↦ sorry)
+  AddEquiv.toLinearEquiv assoc (fun a x ↦ by
+    induction x using TensorProduct.induction_on with
+    | zero => simp
+    | tmul x p =>
+        induction x using TensorProduct.induction_on with
+        | zero => simp
+        | tmul m n => simp only [TensorProduct.smul_tmul', assoc_tmul]
+        | add x y hx hy => simp only [smul_add, add_tmul, map_add, hx, hy]
+    | add x y hx hy => simp only [smul_add, map_add, hx, hy])
 
 /-- The same mixed-base associator viewed as a `B`-linear equivalence. -/
 @[stacks 00D2]
 noncomputable def assocRight :
     ((M ⊗[A] N) ⊗[B] P) ≃ₗ[B] M ⊗[A] (N ⊗[B] P) :=
-  AddEquiv.toLinearEquiv assoc (fun b x ↦ sorry)
+  AddEquiv.toLinearEquiv assoc (fun b x ↦ by
+    induction x using TensorProduct.induction_on with
+    | zero => simp
+    | tmul x p =>
+        induction x using TensorProduct.induction_on with
+        | zero => simp
+        | tmul m n =>
+            simp only [TensorProduct.smul_tmul', Right.smul_tmul, assoc_tmul]
+        | add x y hx hy => simp only [smul_add, add_tmul, map_add, hx, hy]
+    | add x y hx hy => simp only [smul_add, map_add, hx, hy])
 
 /-- The `A`-linear view and the bundled associator have the same underlying map. -/
 @[simp, stacks 00D2]
 theorem assocLeft_apply (x : (M ⊗[A] N) ⊗[B] P) :
-    assocLeft x = assoc x := sorry
+    assocLeft x = assoc x := rfl
 
 /-- The `B`-linear view and the bundled associator have the same underlying map. -/
 @[simp, stacks 00D2]
 theorem assocRight_apply (x : (M ⊗[A] N) ⊗[B] P) :
-    assocRight x = assoc x := sorry
+    assocRight x = assoc x := rfl
 
 /-- The inverse `A`-linear view and the inverse bundled associator have the same underlying map. -/
 @[simp, stacks 00D2]
 theorem assocLeft_symm_apply (x : M ⊗[A] (N ⊗[B] P)) :
-    assocLeft.symm x = assoc.symm x := sorry
+    assocLeft.symm x = assoc.symm x := rfl
 
 /-- The inverse `B`-linear view and the inverse bundled associator have the same underlying map. -/
 @[simp, stacks 00D2]
 theorem assocRight_symm_apply (x : M ⊗[A] (N ⊗[B] P)) :
-    assocRight.symm x = assoc.symm x := sorry
+    assocRight.symm x = assoc.symm x := rfl
 
 end Assoc
 

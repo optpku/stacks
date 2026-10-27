@@ -26,11 +26,11 @@ whose middle complex is again bounded finite locally free. -/
     {X : Scheme.{u}} → [CompactSpace X] → [QuasiSeparatedSpace X] →
       HasResolutionProperty X →
       (E F : CochainComplex X.toRingedSpace.Modules ℤ) →
-      SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree E →
-      SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree F →
+      SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree.{u, u, u} E →
+      SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree.{u, u, u} F →
       (α : DerivedCategory.Q.obj E ⟶ DerivedCategory.Q.obj F) →
       ∃ (G : CochainComplex X.toRingedSpace.Modules ℤ) (q : G ⟶ E) (g : G ⟶ F)
-        (_ : SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree G) (_ : QuasiIso q),
+        (_ : SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree.{u, u, u} G) (_ : QuasiIso q),
         DerivedCategory.Q.map q ≫ α = DerivedCategory.Q.map g)
 
 end AlgebraicGeometry.Scheme

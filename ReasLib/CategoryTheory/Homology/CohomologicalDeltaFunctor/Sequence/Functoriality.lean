@@ -37,7 +37,14 @@ maps of exact windows. -/
 theorem map_id_hom (F : CohomologicalDeltaFunctor A B) (n : ℕ)
     (S : (ShortComplex.shortExact A).FullSubcategory) :
     map F S.property S.property (InducedCategory.Hom.hom (𝟙 S)) n =
-      𝟙 (F.exactWindow S.property n) := sorry
+      𝟙 (F.exactWindow S.property n) := by
+  apply hom_ext₅
+  · exact (F.F n).obj.map_id _
+  · exact (F.F n).obj.map_id _
+  · exact (F.F n).obj.map_id _
+  · exact (F.F (n + 1)).obj.map_id _
+  · exact (F.F (n + 1)).obj.map_id _
+  · exact (F.F (n + 1)).obj.map_id _
 
 /-- Composition in the short-exact full subcategory is preserved by
 exact-window maps. -/
@@ -46,7 +53,14 @@ theorem map_comp_hom (F : CohomologicalDeltaFunctor A B) (n : ℕ)
     (φ : S ⟶ T) (ψ : T ⟶ U) :
     map F S.property U.property (φ ≫ ψ).hom n =
       map F S.property T.property φ.hom n ≫
-        map F T.property U.property ψ.hom n := sorry
+        map F T.property U.property ψ.hom n := by
+  apply hom_ext₅
+  · exact (F.F n).obj.map_comp _ _
+  · exact (F.F n).obj.map_comp _ _
+  · exact (F.F n).obj.map_comp _ _
+  · exact (F.F (n + 1)).obj.map_comp _ _
+  · exact (F.F (n + 1)).obj.map_comp _ _
+  · exact (F.F (n + 1)).obj.map_comp _ _
 
 /-- For a fixed cohomological delta functor and degree, exact windows are
 functorial in short exact complexes. -/
@@ -63,20 +77,27 @@ window. -/
 @[simp]
 theorem functor_obj (F : CohomologicalDeltaFunctor A B) (n : ℕ)
     (S : (ShortComplex.shortExact A).FullSubcategory) :
-    (functor F n).obj S = F.exactWindow S.property n := sorry
+    (functor F n).obj S = F.exactWindow S.property n := rfl
 
 /-- The map of the exact-window functor is the pointwise naturality map. -/
 @[simp]
 theorem functor_map (F : CohomologicalDeltaFunctor A B) (n : ℕ)
     {S T : (ShortComplex.shortExact A).FullSubcategory} (f : S ⟶ T) :
-    (functor F n).map f = map F S.property T.property f.hom n := sorry
+    (functor F n).map f = map F S.property T.property f.hom n := rfl
 
 /-- Pointwise maps of exact windows are natural in the short exact complex. -/
 @[stacks 010R "naturality of maps between exact-window functors"]
 theorem natTrans_naturality {F G : CohomologicalDeltaFunctor A B} (τ : F ⟶ G)
     (n : ℕ) {S T : (ShortComplex.shortExact A).FullSubcategory} (f : S ⟶ T) :
     (functor F n).map f ≫ exactWindowMap τ T.property n =
-      exactWindowMap τ S.property n ≫ (functor G n).map f := sorry
+      exactWindowMap τ S.property n ≫ (functor G n).map f := by
+  apply hom_ext₅
+  · exact (τ.app n).naturality f.hom.τ₁
+  · exact (τ.app n).naturality f.hom.τ₂
+  · exact (τ.app n).naturality f.hom.τ₃
+  · exact (τ.app (n + 1)).naturality f.hom.τ₁
+  · exact (τ.app (n + 1)).naturality f.hom.τ₂
+  · exact (τ.app (n + 1)).naturality f.hom.τ₃
 
 /-- A morphism of cohomological delta functors induces a natural
 transformation between their exact-window functors. -/
@@ -90,19 +111,25 @@ noncomputable def natTrans {F G : CohomologicalDeltaFunctor A B} (τ : F ⟶ G)
 @[simp]
 theorem natTrans_app {F G : CohomologicalDeltaFunctor A B} (τ : F ⟶ G)
     (n : ℕ) (S : (ShortComplex.shortExact A).FullSubcategory) :
-    (natTrans τ n).app S = exactWindowMap τ S.property n := sorry
+    (natTrans τ n).app S = exactWindowMap τ S.property n := rfl
 
 /-- The exact-window natural transformation of an identity morphism is the
 identity. -/
 @[simp]
 theorem natTrans_id (F : CohomologicalDeltaFunctor A B) (n : ℕ) :
-    natTrans (𝟙 F) n = 𝟙 (functor F n) := sorry
+    natTrans (𝟙 F) n = 𝟙 (functor F n) := by
+  apply NatTrans.ext
+  funext S
+  apply hom_ext₅ <;> rfl
 
 /-- Exact-window natural transformations preserve composition. -/
 @[simp]
 theorem natTrans_comp {F G H : CohomologicalDeltaFunctor A B}
     (τ : F ⟶ G) (σ : G ⟶ H) (n : ℕ) :
-    natTrans (τ ≫ σ) n = natTrans τ n ≫ natTrans σ n := sorry
+    natTrans (τ ≫ σ) n = natTrans τ n ≫ natTrans σ n := by
+  apply NatTrans.ext
+  funext S
+  apply hom_ext₅ <;> rfl
 
 /-- In degree `n`, taking the exact-window functor is itself functorial in
 the cohomological delta functor. -/
@@ -119,7 +146,7 @@ noncomputable def modelFunctor (n : ℕ) :
 functor. -/
 @[simp]
 theorem modelFunctor_obj (F : CohomologicalDeltaFunctor A B) (n : ℕ) :
-    (modelFunctor (A := A) (B := B) n).obj F = functor F n := sorry
+    (modelFunctor (A := A) (B := B) n).obj F = functor F n := rfl
 
 /-- Evaluating the map of `modelFunctor` gives the pointwise exact-window
 map. -/
@@ -127,7 +154,7 @@ map. -/
 theorem modelFunctor_map_app {F G : CohomologicalDeltaFunctor A B}
     (τ : F ⟶ G) (n : ℕ) (S : (ShortComplex.shortExact A).FullSubcategory) :
     ((modelFunctor (A := A) (B := B) n).map τ).app S =
-      exactWindowMap τ S.property n := sorry
+      exactWindowMap τ S.property n := rfl
 
 /-- The low-degree exact-window functor of a cohomological delta functor. -/
 abbrev lowDegreeFunctor (F : CohomologicalDeltaFunctor A B) :

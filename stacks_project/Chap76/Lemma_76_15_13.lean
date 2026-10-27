@@ -6,12 +6,11 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap76.Lemma_76_15_13_ConormalSequence
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Thickening.UniversalFirstOrder.ConormalSequence
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.Hom
-open AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder.Differentials
 
 noncomputable section
 
@@ -30,24 +29,23 @@ The first arrow is induced by `d_{Z'/B}` where `Z'` is the universal first-order
 neighbourhood of `Z` over `X`. -/
 @[stacks 060F]
 #check
-  (exact_and_epi i h' h f w :
-    (complex i h' h f w).Exact ∧ Epi (comparison i h' h f w))
+  (AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder.Differentials.exact_and_epi
+      i h' h f w :
+    (AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder.Differentials.complex i h' h f w).Exact ∧
+      Epi (Hom.Differentials.comparison h (𝟙 B) f (h ≫ f)
+        (Eq.symm (Category.comp_id (h ≫ f)))))
 
 /- The first arrow `C_{Z/X} ⟶ h^* Ω_{X/B}` is induced by `d_{Z'/B}` of the
 universal first-order neighbourhood `Z'` of `Z` over `X`. Here `C_{Z/X}` is
 the coborder pullback of `I / I²` along `i`. -/
-@[stacks 060F]
 #check
-  (conormalMap i h' h f w :
-    (Modules.pullback (IsImmersion.liftCoborder i)).obj
-        (Modules.quotientByIdeal (idealSheafSubobject (IsImmersion.liftCoborder i))
-          (idealSheaf (IsImmersion.liftCoborder i))) ⟶
-      (Modules.pullback h).obj (relativeDifferentials f))
+  (AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder.Differentials.conormalMap i h' h f w :
+    Hom.conormalSheaf i ⟶ (Modules.pullback h).obj (relativeDifferentials f))
 
 /- The second arrow is the Lemma 76.7.6 comparison
 `h^* Ω_{X/B} ⟶ Ω_{Z/B}`. -/
-@[stacks 060F]
 #check
-  (comparison i h' h f w :
+  (Hom.Differentials.comparison h (𝟙 B) f (h ≫ f)
+      (Eq.symm (Category.comp_id (h ≫ f))) :
     (Modules.pullback h).obj (relativeDifferentials f) ⟶
       relativeDifferentials (h ≫ f))

@@ -7,7 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 import StacksCheckRecall
-import stacks_project.Chap82.Remark_82_22_2_TrivialGysin
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.ChowGroup.RefinedGysin.TrivialRestriction
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open CategoryTheory.MonoidalCategory
@@ -29,7 +29,7 @@ Definition 82.22.1, and assume that the pullback of `L` to `D = Z(s)` is
 isomorphic to `𝒪_D`. Then there is a canonical additive map
 `i* : Z_{k+1}(X) ⟶ Z_k(D)` on cycles, determined by `i*[W] = 0` whenever
 `W ⊆ D`. -/
-@[stacks 0ER2] #check (Hom.trivialGysin f δ k L s htriv :
+@[stacks 0ER2] #check (AlgebraicGeometry.AlgebraicSpace.Hom.trivialGysin f δ k L s htriv :
   Hom.cycleGroup f δ (k + 1) →+ Hom.cycleGroup (zeroSchemeι L s ≫ f) δ k)
 
 end AlgebraicGeometry.AlgebraicSpace

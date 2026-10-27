@@ -94,14 +94,14 @@ end Implementation
 def fstIso
     (K : A₀' ⥤ A₀) (F : A₀ ⥤ D₀) (G : B₀ ⥤ D₀) :
     forward K F G ⋙ π₁ (K ⋙ F) G ≅ π₁ K (π₁ F G) :=
-  NatIso.ofComponents (fun _ => Iso.refl _) (Implementation.fst_naturality K F G)
+  NatIso.ofComponents (fun _ ↦ Iso.refl _) (Implementation.fst_naturality K F G)
 
 /-- The forward reassociation commutes with the right pullback projection. -/
 def sndIso
     (K : A₀' ⥤ A₀) (F : A₀ ⥤ D₀) (G : B₀ ⥤ D₀) :
     forward K F G ⋙ π₂ (K ⋙ F) G ≅
       π₂ K (π₁ F G) ⋙ π₂ F G :=
-  NatIso.ofComponents (fun _ => Iso.refl _) (Implementation.snd_naturality K F G)
+  NatIso.ofComponents (fun _ ↦ Iso.refl _) (Implementation.snd_naturality K F G)
 
 end forward
 
@@ -162,13 +162,13 @@ end Implementation
 def fstIso
     (K : A₀' ⥤ A₀) (F : A₀ ⥤ D₀) (G : B₀ ⥤ D₀) :
     inverse K F G ⋙ π₁ K (π₁ F G) ≅ π₁ (K ⋙ F) G :=
-  NatIso.ofComponents (fun _ => Iso.refl _) (Implementation.fst_naturality K F G)
+  NatIso.ofComponents (fun _ ↦ Iso.refl _) (Implementation.fst_naturality K F G)
 
 /-- The inverse reassociation commutes with the right pullback projection. -/
 def sndIso
     (K : A₀' ⥤ A₀) (F : A₀ ⥤ D₀) (G : B₀ ⥤ D₀) :
     inverse K F G ⋙ (π₂ K (π₁ F G) ⋙ π₂ F G) ≅ π₂ (K ⋙ F) G :=
-  NatIso.ofComponents (fun _ => Iso.refl _) (Implementation.snd_naturality K F G)
+  NatIso.ofComponents (fun _ ↦ Iso.refl _) (Implementation.snd_naturality K F G)
 
 end inverse
 

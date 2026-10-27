@@ -23,6 +23,7 @@ out of an algebraic space `T` correspond to 05Y1 pairs over `T`.
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry Limits Opposite TypeCat
+open StacksProject.Chap97.RelativeHom
 
 noncomputable section
 

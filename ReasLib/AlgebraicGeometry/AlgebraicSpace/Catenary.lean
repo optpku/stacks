@@ -36,7 +36,7 @@ theorem isCatenary_iff {S : Scheme.{u}} (X : AlgebraicSpace S) :
 topological space is catenary. -/
 theorem isCatenary_ofOver_iff {S : Scheme.{u}} (U : Over S) :
     IsCatenary (ofOver U) ↔ TopologicalSpace.CatenarySpace U.left :=
-  (TopologicalSpace.Homeomorph.catenarySpace_iff (ofOver.pointsHomeomorph U)).symm
+  (Homeomorph.catenarySpace_iff (ofOver.pointsHomeomorph U)).symm
 
 /-- A catenary scheme over a base, viewed as an algebraic space, is catenary. -/
 instance instIsCatenary_ofOver {S : Scheme.{u}} (U : Over S)

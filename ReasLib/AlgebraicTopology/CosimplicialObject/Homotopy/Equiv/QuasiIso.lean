@@ -44,7 +44,10 @@ quasi-isomorphisms under the alternating-coface complex functor. -/
 theorem le_quasiIso :
     homotopyEquivalences A ≤
       (HomologicalComplex.quasiIso A (ComplexShape.up ℕ)).inverseImage
-        (alternatingCofaceMapComplex A) := sorry
+        (alternatingCofaceMapComplex A) := by
+  intro U V f hf
+  exact homotopyEquivalences_le_quasiIso A (ComplexShape.up ℕ) _
+    (homotopyEquivalences.alternatingCoface f hf)
 
 end homotopyEquivalences.alternatingCoface
 
@@ -54,7 +57,8 @@ namespace HomotopyEquiv.alternatingCoface
 alternating-coface complexes. -/
 @[stacks 0FKK "structured alternating-coface homotopy-equivalence quasi-isomorphism"]
 instance quasiIso (e : HomotopyEquiv U V) :
-    QuasiIso ((alternatingCofaceMapComplex A).map e.hom) := sorry
+    QuasiIso ((alternatingCofaceMapComplex A).map e.hom) :=
+  homotopyEquivalences.alternatingCoface.le_quasiIso e.hom e.mem_equivalences
 
 end HomotopyEquiv.alternatingCoface
 
@@ -63,7 +67,8 @@ alternating-coface complexes. -/
 @[stacks 0FKK "alternating-coface homotopy-equivalence quasi-isomorphism"]
 theorem IsHomotopyEquivalence.alternatingCoface.quasiIso
     (hf : IsHomotopyEquivalence f) :
-    QuasiIso ((alternatingCofaceMapComplex A).map f) := sorry
+    QuasiIso ((alternatingCofaceMapComplex A).map f) :=
+  homotopyEquivalences.alternatingCoface.le_quasiIso f hf
 
 end AlternatingCoface
 
@@ -79,7 +84,10 @@ quasi-isomorphisms under the normalized cochain complex functor. -/
 theorem le_quasiIso :
     homotopyEquivalences A ≤
       (HomologicalComplex.quasiIso A (ComplexShape.up ℕ)).inverseImage
-        normalizedCochainComplex.functor := sorry
+        normalizedCochainComplex.functor := by
+  intro U V f hf
+  exact homotopyEquivalences_le_quasiIso A (ComplexShape.up ℕ) _
+    (homotopyEquivalences.normalizedCochain f hf)
 
 end homotopyEquivalences.normalizedCochain
 
@@ -89,7 +97,8 @@ namespace HomotopyEquiv.normalizedCochain
 normalized cochain complexes. -/
 @[stacks 0FKK "structured normalized-cochain homotopy-equivalence quasi-isomorphism"]
 instance quasiIso (e : HomotopyEquiv U V) :
-    QuasiIso (normalizedCochainComplex.functor.map e.hom) := sorry
+    QuasiIso (normalizedCochainComplex.functor.map e.hom) :=
+  homotopyEquivalences.normalizedCochain.le_quasiIso e.hom e.mem_equivalences
 
 end HomotopyEquiv.normalizedCochain
 
@@ -98,7 +107,8 @@ normalized cochain complexes. -/
 @[stacks 0FKK "normalized-cochain homotopy-equivalence quasi-isomorphism"]
 theorem IsHomotopyEquivalence.normalizedCochain.quasiIso
     (hf : IsHomotopyEquivalence f) :
-    QuasiIso (normalizedCochainComplex.functor.map f) := sorry
+    QuasiIso (normalizedCochainComplex.functor.map f) :=
+  homotopyEquivalences.normalizedCochain.le_quasiIso f hf
 
 end NormalizedCochain
 
@@ -113,7 +123,10 @@ homotopy equivalences to quasi-isomorphisms. -/
 theorem le_quasiIso :
     homotopyEquivalences A ≤
       (HomologicalComplex.quasiIso A (ComplexShape.up ℕ)).inverseImage
-        (DoldKan.degenerate.normalized.functor (A := A)) := sorry
+        (DoldKan.degenerate.normalized.functor (A := A)) := by
+  intro U V f hf
+  exact homotopyEquivalences_le_quasiIso A (ComplexShape.up ℕ) _
+    (homotopyEquivalences.degenerate.normalized f hf)
 
 end homotopyEquivalences.degenerate.normalized
 
@@ -123,7 +136,8 @@ namespace HomotopyEquiv.degenerate.normalized
 the canonical normalized image quotient. -/
 @[stacks 0FKK "structured canonical normalized image quasi-isomorphism"]
 instance quasiIso (e : HomotopyEquiv U V) :
-    QuasiIso ((DoldKan.degenerate.normalized.functor (A := A)).map e.hom) := sorry
+    QuasiIso ((DoldKan.degenerate.normalized.functor (A := A)).map e.hom) :=
+  homotopyEquivalences.degenerate.normalized.le_quasiIso e.hom e.mem_equivalences
 
 end HomotopyEquiv.degenerate.normalized
 
@@ -133,7 +147,8 @@ namespace IsHomotopyEquivalence.degenerate.normalized
 canonical normalized image quotient. -/
 @[stacks 0FKK "canonical normalized image homotopy-equivalence quasi-isomorphism"]
 theorem quasiIso (hf : IsHomotopyEquivalence f) :
-    QuasiIso ((DoldKan.degenerate.normalized.functor (A := A)).map f) := sorry
+    QuasiIso ((DoldKan.degenerate.normalized.functor (A := A)).map f) :=
+  homotopyEquivalences.degenerate.normalized.le_quasiIso f hf
 
 end IsHomotopyEquivalence.degenerate.normalized
 

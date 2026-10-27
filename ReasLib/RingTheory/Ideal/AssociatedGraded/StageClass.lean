@@ -109,13 +109,73 @@ theorem stageClassLinear_ker (I : Ideal R) (n : ℕ) :
     LinearMap.ker (stageClassLinear I n) =
       (stage I R (n + 1)).submoduleOf (stage I R n) := sorry
 
+/-- The actual degree-`n` coefficient of a Rees element, viewed in the regular-module stage. -/
+noncomputable def reesCoeffStage (I : Ideal R) (n : ℕ) :
+    reesAlgebra I →ₗ[R] stage I R n :=
+  ((Polynomial.lcoeff R n).comp (reesAlgebra I).val.toLinearMap).codRestrict
+    (stage I R n) fun y ↦ by
+      change y.1.coeff n ∈ Ideal.PowerSubmodule.stage I R n
+      rw [Ideal.PowerSubmodule.stage_regular]
+      exact y.2 n
+
+/-- Coefficient extraction preserves the underlying element of `R`. -/
+@[simp] theorem reesCoeffStage_coe (I : Ideal R) (n : ℕ) (y : reesAlgebra I) :
+    (reesCoeffStage I n y : R) = y.1.coeff n := rfl
+
+/-- Coefficients of the defining ideal vanish in the successive-stage quotient. -/
+theorem reesCoeffStage_mem_denominator (I : Ideal R) (n : ℕ)
+    {y : reesAlgebra I} (hy : y ∈ definingIdeal I) :
+    reesCoeffStage I n y ∈ denominator I R n := by
+  change y.1.coeff n ∈ Ideal.PowerSubmodule.stage I R (n + 1)
+  rw [Ideal.PowerSubmodule.stage_regular]
+  exact coeff_mem_pow_succ_of_mem_definingIdeal I n hy
+
+/-- Extract a coefficient modulo the next stage from a quotient-Rees class.
+
+The quotient recursor applies coefficient extraction to Rees representatives;
+membership in the defining ideal changes that coefficient only by an element
+of the next stage. -/
+noncomputable def quotientCoeffPiece (I : Ideal R) (n : ℕ) :
+    ring I →ₗ[R] piece I R n where
+  toFun z := _root_.Quotient.liftOn z
+    (fun y : reesAlgebra I ↦
+      (Submodule.Quotient.mk (reesCoeffStage I n y) : piece I R n))
+    (by
+      intro a b hab
+      apply (Submodule.Quotient.eq (denominator I R n)).mpr
+      have hcoeff := reesCoeffStage_mem_denominator I n
+        ((Submodule.quotientRel_def (definingIdeal I)).mp hab)
+      simpa only [map_sub] using hcoeff)
+  map_add' := by sorry
+  map_smul' := by sorry
+
+/-- Coefficient extraction computes on any Rees representative. -/
+@[simp] theorem quotientCoeffPiece_mk (I : Ideal R) (n : ℕ) (y : reesAlgebra I) :
+    quotientCoeffPiece I n (Ideal.Quotient.mk (definingIdeal I) y) =
+      (Submodule.Quotient.mk (reesCoeffStage I n y) : piece I R n) := rfl
+
+/-- A homogeneous class determines its successive-stage class by coefficient extraction. -/
+noncomputable def gradeToPiece (I : Ideal R) (n : ℕ) :
+    grade I n →ₗ[R] piece I R n :=
+  (quotientCoeffPiece I n).comp (grade I n).subtype
+
+/-- Lift the explicit degree-`n` monomial map through the successive-stage quotient. -/
+noncomputable def pieceToGrade (I : Ideal R) (n : ℕ) :
+    piece I R n →ₗ[R] grade I n :=
+  (denominator I R n).liftQ (stageClassLinear I n) (stageClassLinear_ker I n).ge
+
+/-- The lift from a successive-stage class uses its representative's monomial. -/
+@[simp] theorem pieceToGrade_mk (I : Ideal R) (n : ℕ) (x : stage I R n) :
+    pieceToGrade I n (Submodule.Quotient.mk x) = stageClassLinear I n x := rfl
+
 /-- The degree-`n` homogeneous piece of `gr_I(R)` is canonically `I ^ n / I ^ (n + 1)`. -/
 @[stacks 00K8 "associated graded degree-piece comparison"]
 noncomputable def gradeEquivPiece (I : Ideal R) (n : ℕ) :
-    grade I n ≃ₗ[R] piece I R n :=
-  ((stageClassLinear I n).quotKerEquivOfSurjective
-      (stageClassLinear_surjective I n)).symm.trans
-    (Submodule.quotEquivOfEq _ _ (stageClassLinear_ker I n))
+    grade I n ≃ₗ[R] piece I R n where
+  toLinearMap := gradeToPiece I n
+  invFun := pieceToGrade I n
+  left_inv := by sorry
+  right_inv := by sorry
 
 /-- Each homogeneous grade is canonically a module over the quotient ring
 `R ⧸ I`, transported from its successive-stage quotient model. -/

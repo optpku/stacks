@@ -50,12 +50,38 @@ theorem componentOfPreimageDeltaDimension
       (W : Set X.left) ⊆ f.left ⁻¹' (Z : Set Y.left)) Z') :
     X.hom.deltaDimension δ Z' = Y.hom.deltaDimension δ Z + (r : ℤ) := sorry
 
-/-- A flat morphism of relative dimension `r` shifts the `δ`-dimension of every closed subset
-with nonempty inverse image by `r`. -/
+/-- For a flat morphism of relative dimension `r`, the `δ`-dimension of a nonempty
+closed inverse image equals the `δ`-dimension of the closure of the intersection of
+the closed subset with the morphism's range, plus `r`. -/
 theorem closedPreimageDeltaDimension
     {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
     (X Y : Over S) [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
     (f : X ⟶ Y) (r : ℕ) [Flat f.left] [RelativeDimension f.left r]
+    (Z : Closeds Y.left) (hZ : Nonempty (Z.preimage f.left.continuous)) :
+    X.hom.closedSubschemeDeltaDimension δ
+        (IdealSheafData.vanishingIdeal (Z.preimage f.left.continuous)) =
+      Y.hom.closedSubschemeDeltaDimension δ
+        (IdealSheafData.vanishingIdeal (Closeds.closure ((Z : Set Y.left) ∩ Set.range f.left))) +
+        (r : EInt) := sorry
+
+/-- For a flat morphism of relative dimension `r`, the `δ`-dimension of a nonempty
+closed inverse image is at most the `δ`-dimension of the closed subset plus `r`. -/
+theorem closedPreimageDeltaDimension_le
+    {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
+    (X Y : Over S) [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+    (f : X ⟶ Y) (r : ℕ) [Flat f.left] [RelativeDimension f.left r]
+    (Z : Closeds Y.left) (hZ : Nonempty (Z.preimage f.left.continuous)) :
+    X.hom.closedSubschemeDeltaDimension δ
+        (IdealSheafData.vanishingIdeal (Z.preimage f.left.continuous)) ≤
+      Y.hom.closedSubschemeDeltaDimension δ (IdealSheafData.vanishingIdeal Z) +
+        (r : EInt) := sorry
+
+/-- A surjective flat morphism of relative dimension `r` shifts the `δ`-dimension
+of a closed subset with nonempty inverse image by `r`. -/
+theorem closedPreimageDeltaDimension_of_surjective
+    {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
+    (X Y : Over S) [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+    (f : X ⟶ Y) (r : ℕ) [Flat f.left] [RelativeDimension f.left r] [Surjective f.left]
     (Z : Closeds Y.left) (hZ : Nonempty (Z.preimage f.left.continuous)) :
     X.hom.closedSubschemeDeltaDimension δ
         (IdealSheafData.vanishingIdeal (Z.preimage f.left.continuous)) =

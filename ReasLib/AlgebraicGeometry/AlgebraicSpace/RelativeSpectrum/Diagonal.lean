@@ -56,10 +56,24 @@ def relativeSpectrumDiagonalBasePoint₂ (A : X.QcAlgebraUnder) (p q : relativeS
     relativeSpectrumPair A (relativeSpectrumDiagonalBaseOver A p q) :=
   relativeSpectrumPairMap (relativeSpectrumDiagonalBaseToTest A p q) q
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The two restricted points have identical base arrows by the stored diagonal pullback. -/
 theorem relativeSpectrumDiagonalBasePoints_base (A : X.QcAlgebraUnder) (p q : relativeSpectrumPair A T) :
     relativeSpectrumPointBase A (relativeSpectrumDiagonalBasePoint₁ A p q) =
-      relativeSpectrumPointBase A (relativeSpectrumDiagonalBasePoint₂ A p q) := sorry
+      relativeSpectrumPointBase A (relativeSpectrumDiagonalBasePoint₂ A p q) := by
+  have hw := X.representableDiagonal.w
+    (prod.lift (relativeSpectrumPointBase A p) (relativeSpectrumPointBase A q))
+  have h₁ := congrArg (fun f ↦ f ≫ prod.fst) hw
+  have h₂ := congrArg (fun f ↦ f ≫ prod.snd) hw
+  simp only [Category.assoc, prod.lift_fst, prod.lift_snd, Category.comp_id] at h₁ h₂
+  calc
+    relativeSpectrumPointBase A (relativeSpectrumDiagonalBasePoint₁ A p q) =
+        NatTrans.vcomp (yoneda.map (relativeSpectrumDiagonalBaseToTest A p q))
+          (relativeSpectrumPointBase A p) := yonedaEquiv.symm_apply_apply _
+    _ = NatTrans.vcomp (yoneda.map (relativeSpectrumDiagonalBaseToTest A p q))
+        (relativeSpectrumPointBase A q) := h₁.symm.trans h₂
+    _ = relativeSpectrumPointBase A (relativeSpectrumDiagonalBasePoint₂ A p q) :=
+      (yonedaEquiv.symm_apply_apply _).symm
 
 /-- The actual atlas cover of the concrete base coincidence scheme. -/
 abbrev relativeSpectrumDiagonalAtlasOver (A : X.QcAlgebraUnder) (p q : relativeSpectrumPair A T) : Over S :=
@@ -78,7 +92,10 @@ def relativeSpectrumDiagonalAtlasToSecond (A : X.QcAlgebraUnder) (p q : relative
     (((atlasHom_presheaf_etale X).rep.isPullback
       (relativeSpectrumPointBase A (relativeSpectrumDiagonalBasePoint₂ A p q))).lift
       (yoneda.map (relativeSpectrumPointAtlasToAtlas A (relativeSpectrumDiagonalBasePoint₁ A p q)))
-      (yoneda.map (relativeSpectrumDiagonalAtlasToBase A p q)) sorry)
+      (yoneda.map (relativeSpectrumDiagonalAtlasToBase A p q)) (by
+        rw [← relativeSpectrumDiagonalBasePoints_base A p q]
+        exact ((atlasHom_presheaf_etale X).rep.isPullback'
+          (relativeSpectrumPointBase A (relativeSpectrumDiagonalBasePoint₁ A p q))).w))
 
 /-- The first concrete local spectrum lift. -/
 def relativeSpectrumDiagonalLocalMap₁ (A : X.QcAlgebraUnder) (p q : relativeSpectrumPair A T) :
@@ -96,14 +113,31 @@ theorem relativeSpectrumDiagonalLocalMap₁_over (A : X.QcAlgebraUnder)
     (p q : relativeSpectrumPair A T) :
     relativeSpectrumDiagonalLocalMap₁ A p q ≫
         (Scheme.relativeSpectrumOver (QcAlgebraUnder.onChart A (relativeSpectrumAtlasChart X))).π =
-      (relativeSpectrumPointAtlasToAtlas A (relativeSpectrumDiagonalBasePoint₁ A p q)).left := sorry
+      (relativeSpectrumPointAtlasToAtlas A (relativeSpectrumDiagonalBasePoint₁ A p q)).left := by
+  exact Scheme.relativeSpectrumPointMap_toBase _
+    ⟨(relativeSpectrumPointAtlasToAtlas A (relativeSpectrumDiagonalBasePoint₁ A p q)).left,
+      relativeSpectrumPointAtlasAlgebraMap A (relativeSpectrumDiagonalBasePoint₁ A p q)⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The second local map has the same specified structural composite to the stored atlas. -/
 theorem relativeSpectrumDiagonalLocalMap₂_over (A : X.QcAlgebraUnder)
     (p q : relativeSpectrumPair A T) :
     relativeSpectrumDiagonalLocalMap₂ A p q ≫
         (Scheme.relativeSpectrumOver (QcAlgebraUnder.onChart A (relativeSpectrumAtlasChart X))).π =
-      (relativeSpectrumPointAtlasToAtlas A (relativeSpectrumDiagonalBasePoint₁ A p q)).left := sorry
+      (relativeSpectrumPointAtlasToAtlas A (relativeSpectrumDiagonalBasePoint₁ A p q)).left := by
+  have hfst : relativeSpectrumDiagonalAtlasToSecond A p q ≫
+      relativeSpectrumPointAtlasToAtlas A (relativeSpectrumDiagonalBasePoint₂ A p q) =
+        relativeSpectrumPointAtlasToAtlas A (relativeSpectrumDiagonalBasePoint₁ A p q) := by
+    apply yoneda.map_injective
+    simp only [Functor.map_comp, relativeSpectrumDiagonalAtlasToSecond,
+      relativeSpectrumPointAtlasToAtlas, Functor.relativelyRepresentable.fst',
+      Functor.map_preimage, IsPullback.lift_fst]
+  rw [relativeSpectrumDiagonalLocalMap₂, Category.assoc]
+  exact (congrArg (fun f ↦ (relativeSpectrumDiagonalAtlasToSecond A p q).left ≫ f)
+    (Scheme.relativeSpectrumPointMap_toBase _
+      ⟨(relativeSpectrumPointAtlasToAtlas A (relativeSpectrumDiagonalBasePoint₂ A p q)).left,
+        relativeSpectrumPointAtlasAlgebraMap A (relativeSpectrumDiagonalBasePoint₂ A p q)⟩)).trans
+    (congrArg (fun f ↦ f.left) hfst)
 
 /-- The actual atlas cover of the coincidence base, viewed over the stored atlas scheme. -/
 def relativeSpectrumDiagonalLocalSource (A : X.QcAlgebraUnder) (p q : relativeSpectrumPair A T) :
@@ -173,8 +207,11 @@ def relativeSpectrumDiagonalToTest (A : X.QcAlgebraUnder) (p q : relativeSpectru
     relativeSpectrumDiagonalOver A p q ⟶ T :=
   Over.homMk
     ((relativeSpectrumDiagonalIdeal A p q).subschemeι ≫
-      (relativeSpectrumDiagonalBaseToTest A p q).left) sorry
+      (relativeSpectrumDiagonalBaseToTest A p q).left) (by
+        simp only [Category.assoc, Over.w]
+        rfl)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The equal-point hypotheses give the precise triangle into the stored base diagonal pullback. -/
 theorem relativeSpectrumDiagonalBaseLift_w (A : X.QcAlgebraUnder) (p q : relativeSpectrumPair A T)
     {W : Over S} (a : W ⟶ T) (x : relativeSpectrumPair A W)
@@ -182,7 +219,22 @@ theorem relativeSpectrumDiagonalBaseLift_w (A : X.QcAlgebraUnder) (p q : relativ
     NatTrans.vcomp (relativeSpectrumPointBase A x) (CategoryTheory.Limits.diag X.functorOfPoints) =
       NatTrans.vcomp (yoneda.map a)
         (prod.lift (C := (Over S)ᵒᵖ ⥤ Type u) (relativeSpectrumPointBase A p : NatTrans (yoneda.obj T) X.functorOfPoints)
-          (relativeSpectrumPointBase A q : NatTrans (yoneda.obj T) X.functorOfPoints)) := sorry
+          (relativeSpectrumPointBase A q : NatTrans (yoneda.obj T) X.functorOfPoints)) := by
+  have hp : (relativeSpectrumPointBase A x : NatTrans (yoneda.obj W) X.functorOfPoints) =
+      NatTrans.vcomp (yoneda.map a) (relativeSpectrumPointBase A p) :=
+    (congrArg (relativeSpectrumPointBase A) h.1).symm.trans (yonedaEquiv.symm_apply_apply _)
+  have hq : (relativeSpectrumPointBase A x : NatTrans (yoneda.obj W) X.functorOfPoints) =
+      NatTrans.vcomp (yoneda.map a) (relativeSpectrumPointBase A q) :=
+    (congrArg (relativeSpectrumPointBase A) h.2).symm.trans (yonedaEquiv.symm_apply_apply _)
+  change CategoryStruct.comp (obj := (Over S)ᵒᵖ ⥤ Type u)
+      (relativeSpectrumPointBase A x) (CategoryTheory.Limits.diag X.functorOfPoints) =
+    CategoryStruct.comp (obj := (Over S)ᵒᵖ ⥤ Type u) (yoneda.map a)
+      (prod.lift (relativeSpectrumPointBase A p) (relativeSpectrumPointBase A q))
+  apply prod.hom_ext (C := (Over S)ᵒᵖ ⥤ Type u)
+  · simp only [Category.assoc, prod.lift_fst, Category.comp_id]
+    exact hp
+  · simp only [Category.assoc, prod.lift_snd, Category.comp_id]
+    exact hq
 
 /-- Equal pulled-back original points give an actual lift to the stored base diagonal pullback. -/
 def relativeSpectrumDiagonalBaseLift (A : X.QcAlgebraUnder) (p q : relativeSpectrumPair A T)
@@ -216,6 +268,12 @@ def relativeSpectrumDiagonalPointLift (A : X.QcAlgebraUnder) (p q : relativeSpec
     (@AlgebraicGeometry.IsClosedImmersion.lift I.subscheme W.left
       (relativeSpectrumDiagonalBaseOver A p q).left I.subschemeι
       (relativeSpectrumDiagonalBaseLift A p q a x h).left hI
-      (relativeSpectrumDiagonalLift_ideal_le A p q a x h)) sorry
+      (relativeSpectrumDiagonalLift_ideal_le A p q a x h)) (by
+        letI : AlgebraicGeometry.IsClosedImmersion I.subschemeι := hI
+        exact (AlgebraicGeometry.IsClosedImmersion.lift_fac_assoc I.subschemeι
+          (relativeSpectrumDiagonalBaseLift A p q a x h).left
+          (relativeSpectrumDiagonalLift_ideal_le A p q a x h)
+          (relativeSpectrumDiagonalBaseOver A p q).hom).trans
+          (relativeSpectrumDiagonalBaseLift A p q a x h).w)
 
 end AlgebraicGeometry.AlgebraicSpace

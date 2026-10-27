@@ -46,7 +46,7 @@ namespace PreRelation
 
 #check (AlgebraicGeometry.AlgebraicSpace.PreRelation.IsOrbitSpace.instIdDiag :
   ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (U : Over B),
-    (ofHom (diag U : U ⟶ U ⨯ U)).IsOrbitSpace (𝟙 U))
+    (ofHom (CategoryTheory.Limits.diag U : U ⟶ U ⨯ U)).IsOrbitSpace (𝟙 U))
 
 #check (AlgebraicGeometry.AlgebraicSpace.PreRelation.IsOrbitSpace.surjective_left :
   ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}

@@ -44,7 +44,7 @@ noncomputable def over (F : X.left.Modules) [F.IsQuasicoherent]
 theorem over_hom (F : X.left.Modules) [F.IsQuasicoherent]
     (P : RelativeSpectrumOver (SymmetricAlgebra.qcAlgebra F))
     [IsRelativeSpectrumOver P] :
-    (over X F P).hom = associatedVectorBundleπ F P ≫ X.hom := sorry
+    (over X F P).hom = associatedVectorBundleπ F P ≫ X.hom := rfl
 
 /-- The associated-vector-bundle projection as a morphism over `S`. -/
 noncomputable def projectionOver (F : X.left.Modules) [F.IsQuasicoherent]
@@ -56,7 +56,7 @@ noncomputable def projectionOver (F : X.left.Modules) [F.IsQuasicoherent]
 theorem projectionOver_left (F : X.left.Modules) [F.IsQuasicoherent]
     (P : RelativeSpectrumOver (SymmetricAlgebra.qcAlgebra F))
     [IsRelativeSpectrumOver P] :
-    (projectionOver X F P).left = associatedVectorBundleπ F P := sorry
+    (projectionOver X F P).left = associatedVectorBundleπ F P := rfl
 
 /-- A module map induces a contravariant map of its associated vector-bundle models. -/
 noncomputable def map (f : F ⟶ G)
@@ -75,7 +75,7 @@ theorem map_def (f : F ⟶ G)
     (Q : RelativeSpectrumOver (SymmetricAlgebra.qcAlgebra G))
     [IsRelativeSpectrumOver Q] :
     _root_.AlgebraicGeometry.Scheme.AssociatedVectorBundle.map X f P Q =
-      relativeSpecMap (SymmetricAlgebra.map f) P Q := sorry
+      relativeSpecMap (SymmetricAlgebra.map f) P Q := rfl
 
 /-- The associated-vector-bundle map commutes with the projections to `X.left`. -/
 theorem map_projection (f : F ⟶ G)
@@ -85,7 +85,14 @@ theorem map_projection (f : F ⟶ G)
     [IsRelativeSpectrumOver Q] :
     _root_.AlgebraicGeometry.Scheme.AssociatedVectorBundle.map X f P Q ≫
       associatedVectorBundleπ F P =
-      associatedVectorBundleπ G Q := sorry
+      associatedVectorBundleπ G Q := by
+  have h := Equiv.apply_symm_apply
+    (IsRelativeSpectrumOver.isRepresentedBy (P := P)).representableBy.homEquiv
+      (⟨relativeSpecπ Q,
+        (QcAlgebraUnder.forget X.left).map (SymmetricAlgebra.map f) ≫
+          relativeSpecUniversalFamily Q⟩ :
+        relativeSpectrumPair (SymmetricAlgebra.qcAlgebra F) (relativeSpec Q))
+  exact congrArg Sigma.fst h
 
 /-- The associated-vector-bundle map commutes with the structure morphisms to `S`. -/
 theorem map_structure (f : F ⟶ G)
@@ -94,7 +101,10 @@ theorem map_structure (f : F ⟶ G)
     (Q : RelativeSpectrumOver (SymmetricAlgebra.qcAlgebra G))
     [IsRelativeSpectrumOver Q] :
     _root_.AlgebraicGeometry.Scheme.AssociatedVectorBundle.map X f P Q ≫
-      (over X F P).hom = (over X G Q).hom := sorry
+      (over X F P).hom = (over X G Q).hom := by
+  change _ ≫ (associatedVectorBundleπ F P ≫ X.hom) =
+    associatedVectorBundleπ G Q ≫ X.hom
+  rw [← Category.assoc, map_projection X f P Q]
 
 /-- The map of associated vector bundles, regarded as a morphism over `S`. -/
 noncomputable def mapOver (f : F ⟶ G)
@@ -112,7 +122,7 @@ theorem mapOver_left (f : F ⟶ G)
     (Q : RelativeSpectrumOver (SymmetricAlgebra.qcAlgebra G))
     [IsRelativeSpectrumOver Q] :
     (mapOver X f P Q).left =
-      _root_.AlgebraicGeometry.Scheme.AssociatedVectorBundle.map X f P Q := sorry
+      _root_.AlgebraicGeometry.Scheme.AssociatedVectorBundle.map X f P Q := rfl
 
 namespace ShortExact
 
@@ -137,7 +147,7 @@ noncomputable def embedding :
 theorem embedding_def :
     embedding X C P₁ P₂ =
       _root_.AlgebraicGeometry.Scheme.AssociatedVectorBundle.map X
-        (Modules.dualMap C.f) P₂ P₁ := sorry
+        (Modules.dualMap C.f) P₂ P₁ := rfl
 
 /-- The short-complex bundle map, regarded as a morphism over `S`. -/
 noncomputable def embeddingOver :
@@ -147,7 +157,7 @@ noncomputable def embeddingOver :
 
 /-- The underlying scheme morphism of `embeddingOver` is `embedding`. -/
 theorem embeddingOver_left :
-    (embeddingOver X C P₁ P₂).left = embedding X C P₁ P₂ := sorry
+    (embeddingOver X C P₁ P₂).left = embedding X C P₁ P₂ := rfl
 
 /-- A short exact sequence of finite locally free modules induces a closed immersion of
 associated vector bundles. -/
@@ -157,7 +167,11 @@ theorem embedding_isClosedImmersion (hC : C.ShortExact) [C.X₃.IsFiniteLocallyF
 /-- The induced morphism over `S` is proper because its underlying bundle map is a closed
 immersion. -/
 theorem embedding_isProper (hC : C.ShortExact) [C.X₃.IsFiniteLocallyFree] :
-    IsProper (embeddingOver X C P₁ P₂).left := sorry
+    IsProper (embeddingOver X C P₁ P₂).left := by
+  rw [embeddingOver_left]
+  exact (IsFinite.iff_isProper_and_isAffineHom.mp
+    ((IsClosedImmersion.iff_isFinite_and_mono _).mp
+      (embedding_isClosedImmersion X C P₁ P₂ hC)).1).1
 
 end ShortExact
 

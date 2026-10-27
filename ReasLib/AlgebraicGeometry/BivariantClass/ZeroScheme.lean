@@ -33,9 +33,9 @@ noncomputable def gysinBaseChangeLeftIso
         Over.mk (Scheme.zeroSchemeι L s ≫ X.hom) ⟶ X).left g.left) :
     Scheme.zeroScheme ((Scheme.Modules.pullback g.left).obj L)
         (Scheme.Modules.sectionsPullback g.left L s) ≅ X'.left :=
-  (Scheme.zeroSchemePullback_isPullback g.left L s
-      (Scheme.zeroIdealSheaf_sectionsPullback g.left L s)).isoIsPullback
-    _ _ square.flip
+  Scheme.zeroSchemePullbackIso g.left L s
+      (Scheme.zeroIdealSheaf_sectionsPullback g.left L s) ≪≫
+    square.flip.isoPullback.symm
 
 /-- The Gysin base-change comparison respects the structure maps to the base scheme. -/
 theorem gysinBaseChangeLeftIso_hom_base

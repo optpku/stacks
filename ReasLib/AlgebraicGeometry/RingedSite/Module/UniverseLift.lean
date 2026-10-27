@@ -70,6 +70,6 @@ def carrierLift (site : RingedSite.{v, w, u})
 theorem carrierLift_obj (site : RingedSite.{v, w, u})
     (moduleSheaf : RingedSite.ModuleCat.{u} site) (siteObject : site.carrierᵒᵖ) :
     (carrierLift site moduleSheaf).val.obj siteObject =
-      (ModuleCat.uliftFunctor.{u + 1} _).obj (moduleSheaf.val.obj siteObject) := sorry
+      (ModuleCat.uliftFunctor.{u + 1} _).obj (moduleSheaf.val.obj siteObject) := rfl
 
 end RingedSite.Module

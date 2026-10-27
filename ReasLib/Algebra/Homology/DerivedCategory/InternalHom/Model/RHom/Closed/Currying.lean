@@ -7,7 +7,9 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.InternalHom.Model.RHom.Closed.Associativity
+public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.RHom
 public import ReasLib.CategoryTheory.DerivedCategory.Monoidal.Tensor.Right.Closed.Currying
+public import Mathlib.Algebra.Category.ModuleCat.Monoidal.Basic
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!

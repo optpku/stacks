@@ -66,10 +66,10 @@ theorem RightDerived.EverywhereDefined.hasPointwise_of_subset
       ∀ {X X' : D} (s : X ⟶ X'), I X → I X' → S s → IsIso (F.map s)) :
     F.HasPointwiseRightDerivedFunctor S := sorry
 
-/-- Stacks 09LI: a denominator-cofinal object property on which `F` inverts internal
+/-- Stacks 06XN: a denominator-cofinal object property on which `F` inverts internal
 denominators supplies a total right-derived functor. This is an ordinary theorem rather than a
 proof-dependent instance, so callers install it only at a concrete derived construction. -/
-@[stacks 09LI]
+@[stacks 06XN]
 theorem RightDerived.EverywhereDefined.hasFunctor_of_subset
     (I : ObjectProperty D)
     (hI_reaches : ∀ X : D, ∃ (X' : D) (s : X ⟶ X'), I X' ∧ S s)
@@ -105,10 +105,9 @@ theorem RightDerived.EverywhereDefined.hasPointwise_of_fullSubcategory
     (hF : (fullSubcategoryLocalizationSystem P S).IsInvertedBy (P.ι ⋙ F)) :
     F.HasPointwiseRightDerivedFunctor S := sorry
 
-/-- Stacks 09LI: right resolutions by a full subcategory on which the restricted functor
+/-- Stacks 06XN: right resolutions by a full subcategory on which the restricted functor
 inverts denominators supply a total right-derived functor. -/
-@[stacks 06XN "total right-derived functor from a full subcategory",
-  stacks 09LI "total right-derived functor from right resolutions"]
+@[stacks 06XN "total right-derived functor from a full subcategory"]
 theorem RightDerived.EverywhereDefined.hasFunctor_of_fullSubcategory
     (P : ObjectProperty D)
     [(fullSubcategoryLocalizerMorphism P S).HasRightResolutions]

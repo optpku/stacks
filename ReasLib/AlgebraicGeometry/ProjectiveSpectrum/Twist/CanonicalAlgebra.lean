@@ -114,8 +114,53 @@ def unitHom : SheafOfModules.unit (Proj 𝒜).ringCatSheaf ⟶ twistingSheaf �
             map_smul' := sorry }
       naturality := sorry }
 
+/-- A degree-zero regular-module fraction is the same fraction in the homogeneous ring
+localization. This existence proof uses the input's defining membership, not an admitted
+surjectivity theorem. -/
+theorem exists_zeroLocalization (P : Submonoid A) (s : LocalizedModule P A)
+    (hs : ∃ i, ∃ m : 𝒜 i, ∃ t : 𝒜 i, ∃ ht : (t : A) ∈ P,
+      s = LocalizedModule.mk (m : A) ⟨(t : A), ht⟩) :
+    ∃ t : HomogeneousLocalization 𝒜 P, t.val = s := by
+  rcases hs with ⟨i, m, t, ht, hs⟩
+  refine ⟨HomogeneousLocalization.mk ⟨i, m, t, ht⟩, ?_⟩
+  exact hs.symm
+
+/-- The same localized fraction, now regarded as a homogeneous ring element. The choice is
+from the proved representation above; injectivity of `HomogeneousLocalization.val` makes
+the resulting element independent of the representative. -/
+def zeroLocalization (P : Submonoid A)
+    (s : localization 𝒜 (GradedMap.regularShift.{u, v} 𝒜 0) P) :
+    HomogeneousLocalization 𝒜 P :=
+  Classical.choose (exists_zeroLocalization 𝒜 P s.1 s.2)
+
+/-- The degree-zero comparison preserves the underlying localized fraction. -/
+@[simp] theorem zeroLocalization_val (P : Submonoid A)
+    (s : localization 𝒜 (GradedMap.regularShift.{u, v} 𝒜 0) P) :
+    (zeroLocalization 𝒜 P s).val = s.1 :=
+  Classical.choose_spec (exists_zeroLocalization 𝒜 P s.1 s.2)
+
+/-- Regard an actual section of O(0) as the same locally fractional structure-sheaf section. -/
+def zeroSection (U : ((Proj 𝒜).Opens)ᵒᵖ) (s : (twistingSheaf 𝒜 0).val.obj U) :
+    (Proj 𝒜).ringCatSheaf.obj.obj U :=
+  let s' := sectionEquiv 𝒜 0 U.unop s
+  ⟨fun x ↦ zeroLocalization 𝒜 x.1.asHomogeneousIdeal.toIdeal.primeCompl (s'.1 x), sorry⟩
+
+/-- The inverse of the degree-zero unit map sends each pointwise fraction to itself. -/
+def unitInv : twistingSheaf 𝒜 0 ⟶ SheafOfModules.unit (Proj 𝒜).ringCatSheaf where
+  val :=
+    { app := fun U ↦ by
+        let M := (twistingSheaf 𝒜 0).val.obj U
+        let N := (SheafOfModules.unit (Proj 𝒜).ringCatSheaf).val.obj U
+        exact @ModuleCat.ofHom ((Proj 𝒜).ringCatSheaf.obj.obj U) _ M N
+          M.isAddCommGroup M.isModule N.isAddCommGroup N.isModule
+          { toFun := zeroSection 𝒜 U
+            map_add' := sorry
+            map_smul' := sorry }
+      naturality := sorry }
+
 /-- The specified degree-zero unit map identifies O with its actual Serre twist O(0). -/
-instance unitHom_isIso : IsIso (unitHom 𝒜) := sorry
+instance unitHom_isIso : IsIso (unitHom 𝒜) where
+  out := ⟨unitInv 𝒜, sorry, sorry⟩
 
 /-- The unit as a morphism from the monoidal tensor unit. -/
 def oneHom : (𝟙_ (Proj 𝒜).Modules) ⟶ twistingSheaf 𝒜 0 :=

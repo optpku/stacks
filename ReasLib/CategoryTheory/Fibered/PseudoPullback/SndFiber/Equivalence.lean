@@ -54,7 +54,8 @@ namespace Implementation
 private theorem unitLeftHomIsHomLift
     [Functor.IsFibered.InGroupoids pY] (f : Over U)
     (A : costructuredArrow F G f) :
-    pX.IsHomLift (𝟙 f.left) (𝟙 A.left.1) := sorry
+    pX.IsHomLift (𝟙 f.left) (𝟙 A.left.1) :=
+  IsHomLift.id A.left.2
 
 /-- The left-component isomorphism from a costructured arrow to its reconstruction. -/
 private noncomputable def unitLeftIso
@@ -71,7 +72,10 @@ private theorem unitTriangle
     (A : costructuredArrow F G f) :
     (F.fiberFunctor f.left).map (unitLeftIso F G f A).hom ≫
         ((comparison F G f ⋙ comparisonInverse F G f).obj A).hom =
-      A.hom := sorry
+      A.hom := by
+  apply Functor.Fiber.hom_ext
+  change F.toFunctor.map (𝟙 A.left.1) ≫ (A.hom.1 ≫ 𝟙 _) = A.hom.1
+  simp
 
 end Implementation
 
@@ -90,7 +94,11 @@ theorem comparison.unitIso.app.naturality
     {A B : costructuredArrow F G f} (α : A ⟶ B) :
     α ≫ (comparison.unitIso.app F G f B).hom =
       (comparison.unitIso.app F G f A).hom ≫
-        (comparison F G f ⋙ comparisonInverse F G f).map α := sorry
+        (comparison F G f ⋙ comparisonInverse F G f).map α := by
+  apply CostructuredArrow.hom_ext
+  apply Functor.Fiber.hom_ext
+  change α.left.1 ≫ 𝟙 B.left.1 = 𝟙 A.left.1 ≫ α.left.1
+  simp
 
 /-- The identity on costructured arrows is naturally isomorphic to comparison followed by its
 explicit inverse. -/
@@ -147,7 +155,10 @@ private theorem counitFstHomIsHomLift
     (Q : ((PseudoPullback.snd F G).toFunctor).Fiber f) :
     (BasedCategory.ofFunctor pX).p.IsHomLift
       (counitBaseIso F G f Q).hom
-      (counitFstIso F G f Q).hom := sorry
+      (counitFstIso F G f Q).hom :=
+  IsHomLift.id_lift_eqToHom_codomain
+    ((congrArg Over.left Q.2.symm).trans (PseudoPullback.fiberObj Q.1).snd.2)
+    (PseudoPullback.fiberObj Q.1).fst.2
 
 /-- The second-component endpoint transport lies over the base endpoint transport. -/
 private theorem counitSndHomIsHomLift
@@ -155,7 +166,14 @@ private theorem counitSndHomIsHomLift
     (Q : ((PseudoPullback.snd F G).toFunctor).Fiber f) :
     (BasedCategory.ofFunctor (Over.forget U)).p.IsHomLift
       (counitBaseIso F G f Q).hom
-      (counitSndIso F G f Q).hom := sorry
+      (counitSndIso F G f Q).hom := by
+  apply IsHomLift.of_fac' _ _ _ rfl (PseudoPullback.fiberObj Q.1).snd.2
+  change (Over.forget U).map (eqToHom Q.2.symm) =
+    eqToHom rfl ≫
+      eqToHom ((congrArg Over.left Q.2.symm).trans (PseudoPullback.fiberObj Q.1).snd.2) ≫
+      eqToHom (PseudoPullback.fiberObj Q.1).snd.2.symm
+  simp only [eqToHom_map, eqToHom_refl, Category.id_comp, eqToHom_trans]
+  rfl
 
 /-- The counit component isomorphisms intertwine the reconstructed and original comparisons. -/
 private theorem counitComm
@@ -165,7 +183,14 @@ private theorem counitComm
       (PseudoPullback.comparison
         ((comparisonInverse F G f ⋙ comparison F G f).obj Q).1)
       (PseudoPullback.comparison Q.1)
-      (G.toFunctor.map (counitSndIso F G f Q).hom) := sorry
+      (G.toFunctor.map (counitSndIso F G f Q).hom) := by
+  constructor
+  change F.toFunctor.map (𝟙 _) ≫ PseudoPullback.comparison Q.1 =
+    (PseudoPullback.comparison Q.1 ≫ eqToHom (congrArg G.toFunctor.obj Q.2)) ≫
+      G.toFunctor.map (eqToHom Q.2.symm)
+  simp only [Functor.map_id, Category.id_comp, eqToHom_map, Category.assoc, eqToHom_trans]
+  change PseudoPullback.comparison Q.1 = PseudoPullback.comparison Q.1 ≫ 𝟙 _
+  simp
 
 /-- The explicit total-category counit isomorphism. Its first component is retained and its
 second component is the endpoint transport supplied by the outer fibre. -/
@@ -184,7 +209,11 @@ private theorem counitTotalIsoHomIsHomLift
     [Functor.IsFibered.InGroupoids pY] (f : Over U)
     (Q : ((PseudoPullback.snd F G).toFunctor).Fiber f) :
     (PseudoPullback.snd F G).toFunctor.IsHomLift
-      (𝟙 f) (counitTotalIso F G f Q).hom := sorry
+      (𝟙 f) (counitTotalIso F G f Q).hom := by
+  apply IsHomLift.of_fac' _ _ _ rfl Q.2
+  change eqToHom Q.2.symm = eqToHom rfl ≫ 𝟙 f ≫ eqToHom Q.2.symm
+  simp only [eqToHom_refl, Category.id_comp]
+  rfl
 
 end Implementation
 
@@ -203,7 +232,29 @@ theorem comparison.counitIso.app.naturality
     (α : Q ⟶ R) :
     (comparisonInverse F G f ⋙ comparison F G f).map α ≫
         (comparison.counitIso.app F G f R).hom =
-      (comparison.counitIso.app F G f Q).hom ≫ α := sorry
+      (comparison.counitIso.app F G f Q).hom ≫ α := by
+  apply Functor.Fiber.hom_ext
+  apply PseudoPullback.hom_ext
+  · change PseudoPullback.fstMap α.1 ≫ 𝟙 _ = 𝟙 _ ≫ PseudoPullback.fstMap α.1
+    simp
+  · change 𝟙 f ≫ eqToHom R.2.symm =
+      eqToHom Q.2.symm ≫ PseudoPullback.sndMap α.1
+    letI : (PseudoPullback.snd F G).toFunctor.IsHomLift (𝟙 f) α.1 := α.2
+    have hα : PseudoPullback.sndMap α.1 =
+        eqToHom Q.2 ≫ 𝟙 f ≫ eqToHom R.2.symm :=
+      IsHomLift.fac' (PseudoPullback.snd F G).toFunctor (𝟙 f) α.1
+    have hcancel : eqToHom Q.2.symm ≫ eqToHom Q.2 = 𝟙 f :=
+      (eqToHom_trans Q.2.symm Q.2).trans (eqToHom_refl f _)
+    have h : 𝟙 f ≫ eqToHom R.2.symm =
+        eqToHom Q.2.symm ≫ (eqToHom Q.2 ≫ 𝟙 f ≫ eqToHom R.2.symm) := by
+      calc
+        𝟙 f ≫ eqToHom R.2.symm =
+            (eqToHom Q.2.symm ≫ eqToHom Q.2) ≫ (𝟙 f ≫ eqToHom R.2.symm) := by
+          rw [hcancel]
+          exact (Category.id_comp _).symm
+        _ = eqToHom Q.2.symm ≫ (eqToHom Q.2 ≫ 𝟙 f ≫ eqToHom R.2.symm) :=
+          Category.assoc _ _ _
+    exact h.trans (congrArg (eqToHom Q.2.symm ≫ ·) hα.symm)
 
 /-- Passage from the fixed second fibre to costructured arrows and back is naturally isomorphic
 to the identity. -/
@@ -230,13 +281,17 @@ noncomputable def comparison.quasiInverse
 @[stacks 02Y5 "(1) formal dual comparison equivalence instance"]
 instance comparison.isEquivalence
     [Functor.IsFibered.InGroupoids pY] (f : Over U) :
-    (comparison F G f).IsEquivalence := sorry
+    (comparison F G f).IsEquivalence :=
+  Functor.IsEquivalence.mk' (comparisonInverse F G f)
+    (comparison.unitIso F G f) (comparison.counitIso F G f)
 
 /-- The explicit inverse comparison is an equivalence. -/
 @[stacks 02Y5 "(1) formal dual inverse comparison equivalence instance"]
 instance comparisonInverse.isEquivalence
     [Functor.IsFibered.InGroupoids pY] (f : Over U) :
-    (comparisonInverse F G f).IsEquivalence := sorry
+    (comparisonInverse F G f).IsEquivalence :=
+  Functor.IsEquivalence.mk' (comparison F G f)
+    (comparison.counitIso F G f).symm (comparison.unitIso F G f).symm
 
 /-- The canonical equivalence between the costructured-arrow description and the fixed second
 pseudo-pullback fibre. -/

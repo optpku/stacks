@@ -6,19 +6,19 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-import ReasLib.CategoryTheory.Functor.Derived.DefinedAt.Basic
-import ReasLib.CategoryTheory.Functor.Derived.Pointwise
+import Mathlib.CategoryTheory.Localization.Triangulated
+import ReasLib.CategoryTheory.Functor.Derived.Total.EverywhereDefined
+import ReasLib.CategoryTheory.MorphismProperty.SaturatedMultiplicativeSystem
 import StacksCheckRecall
 
 @[expose] public section
 
 /-!
-# 13.14.9.1 (05S9)
+# Equation 13.14.9.1 (05SW)
 
-The total derived functor is the canonical Mathlib owner specialized to the localization functor
-`S.Q`.  The source-facing hypothesis is `Functor.RightDerived.EverywhereDefined` or
-`Functor.LeftDerived.EverywhereDefined`; its weak pointwise consequence is inserted automatically
-by the neutral bridge instance.
+When the source-derived functor is everywhere defined, its canonical total
+model is a functor from the localization to the original target category.
+Right and left source-definedness are independent alternatives.
 -/
 
 open CategoryTheory
@@ -29,22 +29,25 @@ namespace CategoryTheory
 
 variable {𝒟 : Type u₁} {𝒟' : Type u₂}
   [Category.{v₁} 𝒟] [Category.{v₂} 𝒟']
+  [Limits.HasZeroObject 𝒟] [Limits.HasZeroObject 𝒟']
+  [HasShift 𝒟 ℤ] [HasShift 𝒟' ℤ]
+  [Preadditive 𝒟] [Preadditive 𝒟']
+  [∀ n : ℤ, (shiftFunctor 𝒟 n).Additive]
+  [∀ n : ℤ, (shiftFunctor 𝒟' n).Additive]
+  [Pretriangulated 𝒟] [Pretriangulated 𝒟']
+  [IsTriangulated 𝒟] [IsTriangulated 𝒟']
   (S : MorphismProperty 𝒟) (F : 𝒟 ⥤ 𝒟')
+  [F.CommShift ℤ] [F.IsTriangulated]
+  [MorphismProperty.IsSaturatedMultiplicativeSystem S]
+  [S.IsCompatibleWithTriangulation]
 
 section Right
 
 variable [Functor.RightDerived.EverywhereDefined F S]
 
-/- The strong source-definedness owner and its weak pointwise companion. -/
-@[stacks 05S9 "right everywhere-defined hypothesis"]
-#check @Functor.RightDerived.EverywhereDefined
-#check @Functor.RightDerived.EverywhereDefined.hasPointwise
-
-/- The total right-derived existence bridge and canonical localization model. -/
-@[stacks 05S9 "right total derived functor"]
-#check @Functor.hasRightDerivedFunctor_of_hasPointwiseRightDerivedFunctor
-#check @Functor.totalRightDerived
-#check (F.totalRightDerived S.Q S : S.Localization ⥤ 𝒟')
+/- 13.14.9.1 (1): the everywhere defined right-derived functor. -/
+@[stacks 05SW] #check
+  (CategoryTheory.Functor.RightDerived.EverywhereDefined.functor F S S.Q : S.Localization ⥤ 𝒟')
 
 end Right
 
@@ -52,16 +55,9 @@ section Left
 
 variable [Functor.LeftDerived.EverywhereDefined F S]
 
-/- The strong source-definedness owner and its weak pointwise companion. -/
-@[stacks 05S9 "left everywhere-defined hypothesis"]
-#check @Functor.LeftDerived.EverywhereDefined
-#check @Functor.LeftDerived.EverywhereDefined.hasPointwise
-
-/- The total left-derived existence bridge and canonical localization model. -/
-@[stacks 05S9 "left total derived functor"]
-#check @Functor.hasLeftDerivedFunctor_of_hasPointwiseLeftDerivedFunctor
-#check @Functor.totalLeftDerived
-#check (F.totalLeftDerived S.Q S : S.Localization ⥤ 𝒟')
+/- 13.14.9.1 (2): the everywhere defined left-derived functor. -/
+@[stacks 05SW] #check
+  (CategoryTheory.Functor.LeftDerived.EverywhereDefined.functor F S S.Q : S.Localization ⥤ 𝒟')
 
 end Left
 

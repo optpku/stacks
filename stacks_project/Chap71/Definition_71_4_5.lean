@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap71.Lemma_71_4_6_RelativeAssassin
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.WeaklyAssociatedPoints.Relative.Locus
 import StacksCheckRecall
 
 /-!
@@ -31,15 +31,30 @@ relative weak assassin of `F` in `X` over `Y` is the set
 `relativeWeakAss f F ⊂ |X|` of those `x` in `|X|` such that the equivalent
 conditions of Lemma 71.4.4 hold. -/
 @[stacks 0CV0] #check
-  (@Modules.relativeWeakAss :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.relativeWeakAss :
     {S : Scheme.{u}} → {X Y : AlgebraicSpace S} → (X ⟶ Y) → X.Modules → Set (Points X))
 
 /- Definition 71.4.5 (2): if the fibres of `f` are locally Noetherian
 (`LocallyNoetherianFibers f`, Definition 71.4.2), the same set is written
 `relativeAssassin f F`. -/
 @[stacks 0CV0] #check
-  (@Modules.relativeAssassin :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.relativeAssassin :
     {S : Scheme.{u}} → {X Y : AlgebraicSpace S} → (X ⟶ Y) → X.Modules → Set (Points X))
 
-#check Modules.mem_relativeWeakAss_iff
-#check Modules.mem_relativeAssassin_iff
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.mem_relativeWeakAss_iff :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (F : X.Modules) (x : Points X),
+    x ∈ Modules.relativeWeakAss f F ↔
+      ∃ (p : FieldValuedPoint Y) (t : Points (fieldFiber f p)),
+        Points.mk p = Points.map f x ∧
+          Points.map (fieldFiberι f p) t = x ∧
+            t ∈ ((Modules.pullback (fieldFiberι f p)).obj F).weakAss)
+
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.mem_relativeAssassin_iff :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (F : X.Modules) (x : Points X),
+    x ∈ Modules.relativeAssassin f F ↔
+      ∃ (p : FieldValuedPoint Y) (t : Points (fieldFiber f p)),
+        Points.mk p = Points.map f x ∧
+          Points.map (fieldFiberι f p) t = x ∧
+            t ∈ ((Modules.pullback (fieldFiberι f p)).obj F).weakAss)

@@ -93,10 +93,24 @@ noncomputable def targetComparison :
     Functor.whiskerRight (ExactFunctor.Derived.Plus.rightDerivedComparison I)
       (Functor.RightDerived.Bounded.functor H)
 
+/-- The source comparison with its inverse constructed from the exact second functor. -/
+@[stacks 015M "bounded-below exact-horizontal source comparison isomorphism"]
+noncomputable def sourceIso [EnoughInjectives A] [EnoughInjectives B] :
+    Functor.RightDerived.Bounded.functor (F ⋙ G.obj) ≅ source F G :=
+  asIso (Functor.RightDerived.Composition.BoundedBelow.comparison F G.obj) ≪≫
+    Functor.isoWhiskerLeft (Functor.RightDerived.Bounded.functor F)
+      (ExactFunctor.Derived.Plus.rightDerivedIso G)
+
+/-- The explicit source isomorphism has the canonical source comparison as its forward map. -/
+@[simp]
+theorem sourceIso_hom [EnoughInjectives A] [EnoughInjectives B] :
+    (sourceIso (F := F) (G := G)).hom = sourceComparison (F := F) (G := G) := rfl
+
 /-- Exactness of the second functor makes the canonical source comparison invertible. -/
 @[stacks 015M "bounded-below exact-horizontal source comparison is invertible"]
 theorem sourceComparison_isIso [EnoughInjectives A] [EnoughInjectives B] :
-    IsIso (sourceComparison (F := F) (G := G)) := sorry
+    IsIso (sourceComparison (F := F) (G := G)) :=
+  (sourceIso (F := F) (G := G)).isIso_hom
 
 /-- The exact-horizontal square map built from a concrete source comparison isomorphism. -/
 @[stacks 015M "bounded-below exact-horizontal square map from an isomorphism"]

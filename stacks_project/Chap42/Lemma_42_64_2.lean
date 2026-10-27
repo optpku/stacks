@@ -6,60 +6,70 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap42.Lemma_42_64_2_Comparison
+public import ReasLib.AlgebraicGeometry.BivariantClass.Dedekind.Fundamental
+public import ReasLib.AlgebraicGeometry.ChowGroup.Dedekind.Intersection.Fundamental
 import StacksCheckRecall
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.Limits
+open AlgebraicGeometry CategoryTheory CategoryTheory.Limits Set
+open AlgebraicGeometry.Scheme.Hom
+open AlgebraicGeometry.BivariantClass.Dedekind
+open AlgebraicGeometry.ChowGroup.Dedekind
+open scoped DirectSum
 
 noncomputable section
 
 universe u
 
-/- Lemma 42.64.2 (1): over a locally Dedekind base, if `X` is smooth over `S` and
-equidimensional of `δ`-dimension `d = r + 1`, the map `A^p(X) → CH_(d - p)(X)`,
-`c ↦ c ∩ [X]_d`, is an additive isomorphism. -/
-@[stacks 0FCB] #check @AlgebraicGeometry.BivariantClass.Dedekind.capFundamentalEquiv
+/- Lemma 42.64.2 (1): for a smooth scheme equidimensional of δ-dimension d over
+ a dimension-one locally Dedekind base, capping with [X]d is bijective. -/
+@[stacks 0FCB] #check (AlgebraicGeometry.BivariantClass.Dedekind.capFundamental_bijective :
+    ∀ {S : Scheme.{u}} [UniversallyCatenary S]
+    [S.HasRingPropertyLocally (fun A : CommRingCat.{u} ↦ IsDedekindDomain A)]
+    (δ : S → ℤ) [IsDimensionFunction δ]
+    (h_delta : ∀ s : S,
+      δ s = @ite ℤ (IsClosed ({s} : Set S)) (Classical.propDecidable _) 0 1)
+    (h_dim : ∀ component : irreducibleComponents S, topologicalKrullDim component = 1)
+    (X : Over S) [Smooth X.hom] (d p : ℤ)
+    (hX : ∀ η : genericPoints X.left, X.hom.relativeDimensionFunction δ η.1 = d),
+    Function.Bijective (capFundamental δ X d p))
 
-/- Lemma 42.64.2 (2): via this isomorphism, composition of bivariant classes
-turns into the intersection product of Lemma 42.64.1. -/
-@[stacks 0FCB] #check
-  (AlgebraicGeometry.ChowGroup.Dedekind.capFundamental_mul :
-    ∀ {S : AlgebraicGeometry.Scheme.{u}} [AlgebraicGeometry.UniversallyCatenary S]
-      [S.HasRingPropertyLocally
-        (fun A : CommRingCat.{u} ↦ IsDedekindDomain A)]
-      (δ : S → ℤ) [IsDimensionFunction δ]
-      (h_delta : ∀ s : S,
-        δ s = @ite ℤ (IsClosed ({s} : Set S)) (Classical.propDecidable _) 0 1)
-      {X : Over S}
-      [AlgebraicGeometry.Smooth X.hom]
-      (e : AlgebraicGeometry.Scheme.Modules.dual
-        (AlgebraicGeometry.Scheme.Hom.normalSheaf
-          (AlgebraicGeometry.ChowGroup.Dedekind.diagonal X).left) ≅
-        AlgebraicGeometry.Scheme.Hom.conormalSheaf
-          (AlgebraicGeometry.ChowGroup.Dedekind.diagonal X).left)
-      (D : AlgebraicGeometry.ChowGroup.Dedekind.DiagonalSpecialization δ X e)
-      (r : ℕ)
-      [AlgebraicGeometry.Scheme.Hom.RelativeDimension X.hom r]
-      [AlgebraicGeometry.Scheme.Modules.IsFiniteLocallyFreeOfRank r
-        (AlgebraicGeometry.Scheme.Hom.conormalSheaf
-          (AlgebraicGeometry.ChowGroup.Dedekind.diagonal X).left)]
-      (p q : ℤ)
-      (c : AlgebraicGeometry.ChowCohomology.degree δ X.hom p)
-      (c' : AlgebraicGeometry.ChowCohomology.degree δ X.hom q),
-      AlgebraicGeometry.ChowGroup.Dedekind.intersectionProductSelf
-          δ h_delta e D r
-          (DirectSum.of (fun d : ℤ ↦ AlgebraicGeometry.RelativeChow δ X d)
-            ((r : ℤ) + 1 - p)
-            (AlgebraicGeometry.BivariantClass.Dedekind.capFundamentalEquiv
-              δ h_delta X r p c))
-          (DirectSum.of (fun d : ℤ ↦ AlgebraicGeometry.RelativeChow δ X d)
-            ((r : ℤ) + 1 - q)
-            (AlgebraicGeometry.BivariantClass.Dedekind.capFundamentalEquiv
-              δ h_delta X r q c')) =
-        DirectSum.of (fun d : ℤ ↦ AlgebraicGeometry.RelativeChow δ X d)
-          ((r : ℤ) + 1 - (p + q))
-          (AlgebraicGeometry.BivariantClass.Dedekind.capFundamentalEquiv
-            δ h_delta X r (p + q)
-            (AlgebraicGeometry.ChowCohomology.mul δ X.hom c c')))
+#check (AlgebraicGeometry.BivariantClass.Dedekind.capFundamental_zero :
+    ∀ {S : Scheme.{u}} [UniversallyCatenary S]
+    (δ : S → ℤ) [IsDimensionFunction δ]
+    (X : Over S) [LocallyOfFiniteType X.hom] (d p : ℤ),
+    capFundamental δ X d p (ChowCohomology.zeroClass δ X.hom p) = 0)
+
+#check (AlgebraicGeometry.BivariantClass.Dedekind.capFundamental_add :
+    ∀ {S : Scheme.{u}} [UniversallyCatenary S]
+    (δ : S → ℤ) [IsDimensionFunction δ]
+    (X : Over S) [LocallyOfFiniteType X.hom] (d p : ℤ)
+    (c c' : ChowCohomology.degree δ X.hom p),
+    capFundamental δ X d p (ChowCohomology.addClass δ X.hom c c') =
+      capFundamental δ X d p c + capFundamental δ X d p c')
+
+/- Lemma 42.64.2 (2): under the fundamental-class cap identification, composition
+of bivariant classes is the diagonal intersection product. -/
+@[stacks 0FCB] #check (AlgebraicGeometry.ChowGroup.Dedekind.capFundamental_mul :
+    ∀ {S : Scheme.{u}} [UniversallyCatenary S]
+    [S.HasRingPropertyLocally (fun A : CommRingCat.{u} ↦ IsDedekindDomain A)]
+    (δ : S → ℤ) [IsDimensionFunction δ]
+    (h_delta : ∀ s : S,
+      δ s = @ite ℤ (IsClosed ({s} : Set S)) (Classical.propDecidable _) 0 1)
+    (h_dim : ∀ component : irreducibleComponents S, topologicalKrullDim component = 1)
+    {X : Over S} [Smooth X.hom]
+    (e : Scheme.Modules.dual (normalSheaf (diagonal X).left) ≅
+      conormalSheaf (diagonal X).left)
+    (D : DiagonalSpecialization δ X e) (d p q : ℤ)
+    (hX : ∀ η : genericPoints X.left, X.hom.relativeDimensionFunction δ η.1 = d)
+    (c : ChowCohomology.degree δ X.hom p)
+    (c' : ChowCohomology.degree δ X.hom q),
+    intersectionProductSelf δ h_delta e D
+        (DirectSum.of (fun k : ℤ ↦ RelativeChow δ X k) (d - p)
+          (BivariantClass.Dedekind.capFundamental δ X d p c))
+        (DirectSum.of (fun k : ℤ ↦ RelativeChow δ X k) (d - q)
+          (BivariantClass.Dedekind.capFundamental δ X d q c')) =
+      DirectSum.of (fun k : ℤ ↦ RelativeChow δ X k) (d - (p + q))
+        (BivariantClass.Dedekind.capFundamental δ X d (p + q)
+          (ChowCohomology.mul δ X.hom c c')))

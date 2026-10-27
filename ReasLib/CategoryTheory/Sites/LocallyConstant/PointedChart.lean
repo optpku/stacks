@@ -49,7 +49,9 @@ def pointedConstantChart [IsLocallyConstantWith P F] : PointedConstantChart Φ P
   have hcover : (J.over N.1).CoversTop X := h.choose_spec.choose_spec.1
   let Ψ := Φ.over N.2
   let T : Over N.1 := Over.mk (𝟙 N.1)
-  let p : Ψ.fiber.obj T := ⟨N.2, by sorry⟩
+  let p : Ψ.fiber.obj T := ⟨N.2,
+    (FunctorToTypes.mem_fromOverSubfunctor_iff Φ.fiber N.2 (U := T) N.2).2
+      (ConcreteCategory.congr_hom (Φ.fiber.map_id N.1) N.2)⟩
   let lift := Ψ.jointly_surjective (Sieve.ofObjects X T) (hcover T) p
   let V := lift.choose
   let q : V ⟶ T := lift.choose_spec.choose

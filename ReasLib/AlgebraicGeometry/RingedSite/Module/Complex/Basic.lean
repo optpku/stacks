@@ -57,4 +57,9 @@ theorem moduleCategoryWithHomology :
   RingedSite.ModuleCat.categoryWithHomology
     (RingedSite.ofCommRingSheaf J O)
 
+/-- Modules over a commutative ring sheaf carry their canonical homology structure. -/
+instance moduleCategoryWithHomologyInstance :
+    CategoryWithHomology (ringedSiteModuleCategory.{u, v, z, w} J O) :=
+  moduleCategoryWithHomology J O
+
 end RingedSite.CommRingPresentation

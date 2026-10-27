@@ -13,7 +13,7 @@ public import Mathlib.Topology.Sheaves.PUnit
 
 On an indiscrete space, a morphism of sheaves is determined by its component on the top open.
 This file packages the reconstruction and extensionality API for sheaves valued in an arbitrary
-category with a terminal object.  Module sheaves have a richer linear version in
+category.  Module sheaves have a richer linear version in
 `Algebra.Category.ModuleCat.Sheaf.Indiscrete`.
 -/
 
@@ -28,7 +28,7 @@ universe u v w
 namespace TopCat.Sheaf.Indiscrete
 
 variable {X : TopCat.{w}} [IndiscreteTopology X]
-variable {C : Type u} [Category.{v} C] [HasTerminal C]
+variable {C : Type u} [Category.{v} C]
 
 /-- The component on an open of a sheaf morphism reconstructed from its component on the top
 open. -/

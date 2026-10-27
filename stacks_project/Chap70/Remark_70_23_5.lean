@@ -38,13 +38,7 @@ admissible approximation systems with comparison morphisms modulo eventual equal
       {Ysys : Over (OrderDual.toDual i₂) ⥤ AlgebraicSpace S}
       (xπ : (Functor.const (Over (OrderDual.toDual i₁))).obj X ⟶ Xsys)
       (yπ : (Functor.const (Over (OrderDual.toDual i₂))).obj X ⟶ Ysys)
-      (xToBase : Xsys ⟶ tailBaseDiagram D i₁)
-      (yToBase : Ysys ⟶ tailBaseDiagram D i₂)
       (toS : X ⟶ c.pt)
-      (xCone_toBase : ∀ j : Over (OrderDual.toDual i₁),
-        xπ.app j ≫ xToBase.app j = toS ≫ c.π.app j.left)
-      (yCone_toBase : ∀ j : Over (OrderDual.toDual i₂),
-        yπ.app j ≫ yToBase.app j = toS ≫ c.π.app j.left)
       [QuasiSeparated toS] [FiniteType toS]
       (Xapprox : FiniteTypeApproximationLimitSystem D c i₁ Xsys
         (⟨X, xπ⟩ : Cone Xsys) toS)
@@ -53,7 +47,7 @@ admissible approximation systems with comparison morphisms modulo eventual equal
       ∃ (i₀ : I) (hi₁ : i₁ ≤ i₀) (hi₂ : i₂ ≤ i₀),
         ∃ φ : InverseSystemMorphismOverBase D i₀
             (restrictTail hi₁ Xsys) (restrictTail hi₂ Ysys)
-            (restrictTailToBase D hi₁ xToBase) (restrictTailToBase D hi₂ yToBase),
+            (restrictTailToBase D hi₁ Xapprox.toBase) (restrictTailToBase D hi₂ Yapprox.toBase),
           φ.IsLimitMorphism
             (Cone.whisker (Over.map (homOfLE hi₁ : OrderDual.toDual i₀ ⟶ OrderDual.toDual i₁))
               (⟨X, xπ⟩ : Cone Xsys))
@@ -61,7 +55,7 @@ admissible approximation systems with comparison morphisms modulo eventual equal
               (⟨X, yπ⟩ : Cone Ysys)) (𝟙 X) ∧
           ∃ ψ : InverseSystemMorphismOverBase D i₀
               (restrictTail hi₂ Ysys) (restrictTail hi₁ Xsys)
-              (restrictTailToBase D hi₂ yToBase) (restrictTailToBase D hi₁ xToBase),
+              (restrictTailToBase D hi₂ Yapprox.toBase) (restrictTailToBase D hi₁ Xapprox.toBase),
             ψ.IsLimitMorphism
               (Cone.whisker (Over.map (homOfLE hi₂ : OrderDual.toDual i₀ ⟶ OrderDual.toDual i₂))
                 (⟨X, yπ⟩ : Cone Ysys))

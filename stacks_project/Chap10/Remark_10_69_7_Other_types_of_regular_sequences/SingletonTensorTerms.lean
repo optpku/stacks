@@ -48,7 +48,7 @@ noncomputable def tensor_single₀_X_iso_tensorRight {A : Type u} [CommRing A]
         by_cases hj : j = 0
         · subst hj
           have hi' : i = n := by simpa using hp
-          simpa [S] using
+          exact
             (((tensoringRight (ModuleCat A)).obj (ModuleCat.of A M)).mapIso (K.XIsoOfEq hi')).hom
         · exact
             (IsInitial.isInitialObj ((curriedTensor (ModuleCat A)).obj (K.X i)) _
@@ -57,7 +57,7 @@ noncomputable def tensor_single₀_X_iso_tensorRight {A : Type u} [CommRing A]
   have hc : IsColimit c := by
     refine mkCofanColimit _ (fun s => ?_) (fun s a => ?_) ?_
     · -- The universal map is determined by the surviving `(n, 0)` summand.
-      simpa [S] using s.inj ⟨⟨n, 0⟩, by simp⟩
+      exact s.inj ⟨⟨n, 0⟩, by simp⟩
     · rcases a with ⟨⟨i, j⟩, hij⟩
       by_cases hj : j = 0
       · subst hj
@@ -68,16 +68,19 @@ noncomputable def tensor_single₀_X_iso_tensorRight {A : Type u} [CommRing A]
           apply Subsingleton.elim
         cases hhij
         dsimp [c, CategoryTheory.GradedObject.CofanMapObjFun.mk]
-        rw [MonoidalCategory.id_whiskerRight]
+        simp only [Functor.mapIso_refl, Iso.refl_hom]
         exact Category.id_comp _
       · apply IsInitial.hom_ext
         exact IsInitial.isInitialObj ((curriedTensor (ModuleCat A)).obj (K.X i)) _
           ((HomologicalComplex.isZero_single_obj_X (ComplexShape.down ℕ) 0
             (ModuleCat.of A M) j hj).isInitial)
     · intro s m hm
-      simpa [c, S] using hm ⟨⟨n, 0⟩, by simp⟩
+      have h := hm ⟨⟨n, 0⟩, by simp⟩
+      dsimp [c, CategoryTheory.GradedObject.CofanMapObjFun.mk] at h
+      simp only [Functor.mapIso_refl, Iso.refl_hom] at h
+      exact (Category.id_comp m).symm.trans h
   -- This is exactly the coproduct comparison between the tensor complex and termwise tensoring.
-  simpa [HomologicalComplex.tensorObj, X, S] using
+  exact
     (CategoryTheory.GradedObject.CofanMapObjFun.iso (j := n) hc).symm
 
 /-- Helper for Remark 10.69.7 (Other types of regular sequences): in each degree, tensoring the
@@ -105,7 +108,7 @@ noncomputable def koszul_singleton_tensor_X_iso_tensorRight {A : Type u} [CommRi
         by_cases hj : j = 0
         · subst hj
           have hi' : i = n := by simpa using hp
-          simpa [K, S] using
+          exact
             (((tensoringRight (ModuleCat A)).obj (ModuleCat.of A M)).mapIso (K.XIsoOfEq hi')).hom
         · exact
             (IsInitial.isInitialObj ((curriedTensor (ModuleCat A)).obj (K.X i)) _
@@ -114,7 +117,7 @@ noncomputable def koszul_singleton_tensor_X_iso_tensorRight {A : Type u} [CommRi
   have hc : IsColimit c := by
     refine mkCofanColimit _ (fun s => ?_) (fun s a => ?_) ?_
     · -- The universal map is determined by the surviving `(n, 0)` summand.
-      simpa [K, S] using s.inj ⟨⟨n, 0⟩, by simp⟩
+      exact s.inj ⟨⟨n, 0⟩, by simp⟩
     · rcases a with ⟨⟨i, j⟩, hij⟩
       by_cases hj : j = 0
       · subst hj
@@ -125,16 +128,19 @@ noncomputable def koszul_singleton_tensor_X_iso_tensorRight {A : Type u} [CommRi
           apply Subsingleton.elim
         cases hhij
         dsimp [c, CategoryTheory.GradedObject.CofanMapObjFun.mk]
-        rw [MonoidalCategory.id_whiskerRight]
+        simp only [Functor.mapIso_refl, Iso.refl_hom]
         exact Category.id_comp _
       · apply IsInitial.hom_ext
         exact IsInitial.isInitialObj ((curriedTensor (ModuleCat A)).obj (K.X i)) _
           ((HomologicalComplex.isZero_single_obj_X (ComplexShape.down ℕ) 0
             (ModuleCat.of A M) j hj).isInitial)
     · intro s m hm
-      simpa [c, K, S] using hm ⟨⟨n, 0⟩, by simp⟩
+      have h := hm ⟨⟨n, 0⟩, by simp⟩
+      dsimp [c, CategoryTheory.GradedObject.CofanMapObjFun.mk] at h
+      simp only [Functor.mapIso_refl, Iso.refl_hom] at h
+      exact (Category.id_comp m).symm.trans h
   -- This is exactly the coproduct comparison between the tensor complex and termwise tensoring.
-  simpa [HomologicalComplex.tensorObj, X, K, S] using
+  exact
     (CategoryTheory.GradedObject.CofanMapObjFun.iso (j := n) hc).symm
 
 /-- Helper for Remark 10.69.7 (Other types of regular sequences): in degrees at least `2`, the
@@ -204,6 +210,7 @@ theorem koszul_singleton_degree_one_differential_eq_smul_base {A : Type u} [Comm
     -- Proof comment: the singleton Koszul complex is a `ChainComplex.of`, so `d 1 0`
     -- is the degree-zero Koszul differential.
     rfl
+  dsimp only [koszulComplexOn, koszulComplex] at hd
   rw [hd]
   ext
   have hfunUnique :
@@ -212,8 +219,7 @@ theorem koszul_singleton_degree_one_differential_eq_smul_base {A : Type u} [Comm
     ext i
     fin_cases i
     simp [Pi.basisFun, LinearEquiv.funUnique_symm_apply]
-  rw [CategoryTheory.ConcreteCategory.comp_apply, CategoryTheory.ConcreteCategory.comp_apply,
-    CategoryTheory.ConcreteCategory.comp_apply, ModuleCat.hom_ofHom]
+  simp only [CategoryTheory.ConcreteCategory.comp_apply, ModuleCat.hom_ofHom]
   change (r • LinearMap.id) 1 =
       (exteriorPower.zeroEquiv A (Fin 1 → A))
         ((koszulDifferentialLinearMap φ 0)
@@ -270,6 +276,7 @@ theorem koszul_singleton_tensor_X_iso_tensorRight_hom_comp_ι {A : Type u} [Comm
   dsimp [koszul_singleton_tensor_X_iso_tensorRight, HomologicalComplex.ιTensorObj]
   erw [CategoryTheory.GradedObject.CofanMapObjFun.ιMapObj_iso_inv]
   simp
+  rfl
 
 /-- Helper for Remark 10.69.7 (Other types of regular sequences): on the `(0, 1)` summand of the
 degree-`1` total object, the singleton tensor-collapse map is zero because the coefficient complex
@@ -316,21 +323,9 @@ theorem singleton_tensor_degree_one_postcompose_split {A : Type u} [CommRing A]
         HomologicalComplex.mapBifunctor.D₂ K S (curriedTensor (ModuleCat A))
           (ComplexShape.down ℕ) 1 0 ≫
         (koszul_singleton_tensor_X_iso_tensorRight (A := A) (M := M) (r := r) 0).hom := by
-  dsimp
-  -- Proof comment: this is just the tensor differential decomposition `d = D₁ + D₂`,
-  -- postcomposed with the degree-zero collapse map.
-  simpa [Category.assoc, Preadditive.comp_add] using
-    congrArg
-      (fun f =>
-        HomologicalComplex.ιTensorObj
-            (koszulComplexOn (R := A) (Fin.cons r (Fin.elim0 : Fin 0 → A)))
-            ((ChainComplex.single₀ (ModuleCat A)).obj (ModuleCat.of A M)) 1 0 1 (by simp) ≫
-          f ≫
-            (koszul_singleton_tensor_X_iso_tensorRight (A := A) (M := M) (r := r) 0).hom)
-      (HomologicalComplex.mapBifunctor.d_eq
-        (K₁ := koszulComplexOn (R := A) (Fin.cons r (Fin.elim0 : Fin 0 → A)))
-        (K₂ := (ChainComplex.single₀ (ModuleCat A)).obj (ModuleCat.of A M))
-        (F := curriedTensor (ModuleCat A)) (c := ComplexShape.down ℕ) 1 0)
+  dsimp only
+  rw [HomologicalComplex.mapBifunctor.d_eq]
+  simp only [Preadditive.comp_add, Preadditive.add_comp]
 
 
 end RingTheory.Sequence

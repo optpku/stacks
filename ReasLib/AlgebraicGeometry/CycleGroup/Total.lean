@@ -31,11 +31,6 @@ namespace AlgebraicGeometry.CycleGroup
 abbrev Total {S : Scheme.{u}} (delta : S → ℤ) (X : Over S) [LocallyOfFiniteType X.hom] : Type u :=
   DirectSum ℤ (fun d ↦ CycleGroup X.left (X.hom.relativeDimensionFunction delta) d)
 
-/-- The total cycle carrier is the direct sum of its relative-dimension pieces. -/
-theorem total_def {S : Scheme.{u}} (delta : S → ℤ) (X : Over S) [LocallyOfFiniteType X.hom] :
-    Total delta X =
-      DirectSum ℤ (fun d ↦ CycleGroup X.left (X.hom.relativeDimensionFunction delta) d) := sorry
-
 namespace Total
 
 /-- Degreewise pushforward on total relative cycle homology. -/

@@ -112,7 +112,10 @@ theorem inverseImageTorsor_one_smul
     {𝒢 : Sheaf (Scheme.fppfTopology.over S) GrpCat.{u}}
     {U U' : Over S} (f : U ⟶ U') (P : Sheaf.Torsor ((restrictGrp U').obj 𝒢))
     (V : Over U.left) (x : ((inverseImage f).obj P.carrier).obj.obj (op V)) :
-    inverseImageTorsor_smul f P V 1 x = x := sorry
+    inverseImageTorsor_smul f P V 1 x = x := by
+  dsimp only [inverseImageTorsor_smul]
+  rw [map_one]
+  exact (P.mulAction _).one_smul x
 
 /-- The transported action respects multiplication of group sections. -/
 theorem inverseImageTorsor_mul_smul
@@ -121,7 +124,10 @@ theorem inverseImageTorsor_mul_smul
     (V : Over U.left) (γ δ : ((restrictGrp U).obj 𝒢).obj.obj (op V))
     (x : ((inverseImage f).obj P.carrier).obj.obj (op V)) :
     inverseImageTorsor_smul f P V (γ * δ) x =
-      inverseImageTorsor_smul f P V γ (inverseImageTorsor_smul f P V δ x) := sorry
+      inverseImageTorsor_smul f P V γ (inverseImageTorsor_smul f P V δ x) := by
+  dsimp only [inverseImageTorsor_smul]
+  rw [map_mul]
+  exact (P.mulAction _).mul_smul _ _ x
 
 /-- The sectionwise group action transported to the inverse-image carrier. -/
 @[reducible]
@@ -146,7 +152,18 @@ theorem inverseImageTorsor_act_naturality
         ((inverseImageTorsorMulAction f P V).smul γ x) =
       (inverseImageTorsorMulAction f P W).smul
         (((restrictGrp U).obj 𝒢).obj.map a.op γ)
-        (((inverseImage f).obj P.carrier).obj.map a.op x) := sorry
+        (((inverseImage f).obj P.carrier).obj.map a.op x) := by
+  change P.carrier.obj.map ((Over.map f.left).map a).op
+      ((P.mulAction _).smul
+        ((Iso.groupIsoToMulEquiv (restrictGrpIso_app f 𝒢 V)).symm γ) x) =
+    (P.mulAction _).smul
+      ((Iso.groupIsoToMulEquiv (restrictGrpIso_app f 𝒢 W)).symm
+        (((restrictGrp U).obj 𝒢).obj.map a.op γ))
+      (P.carrier.obj.map ((Over.map f.left).map a).op x)
+  rw [P.act_naturality]
+  congr 1
+  exact (ConcreteCategory.congr_hom
+    (((restrictGrpIso f).inv.app 𝒢).hom.naturality a.op) γ).symm
 
 /-- The transported action is pretransitive on sections. -/
 theorem inverseImageTorsor_isPretransitive
@@ -155,7 +172,16 @@ theorem inverseImageTorsor_isPretransitive
     (V : Over U.left) :
     @MulAction.IsPretransitive (((restrictGrp U).obj 𝒢).obj.obj (op V))
       (((inverseImage f).obj P.carrier).obj.obj (op V))
-      (inverseImageTorsorMulAction f P V).toSMul := sorry
+      (inverseImageTorsorMulAction f P V).toSMul := by
+  letI := inverseImageTorsorMulAction f P V
+  refine ⟨fun x y ↦ ?_⟩
+  obtain ⟨γ, hγ⟩ := (P.isPretransitive ((Over.map f.left).obj V)).exists_smul_eq x y
+  refine ⟨Iso.groupIsoToMulEquiv (restrictGrpIso_app f 𝒢 V) γ, ?_⟩
+  change (P.mulAction _).smul
+    ((Iso.groupIsoToMulEquiv (restrictGrpIso_app f 𝒢 V)).symm
+      (Iso.groupIsoToMulEquiv (restrictGrpIso_app f 𝒢 V) γ)) x = y
+  rw [MulEquiv.symm_apply_apply]
+  exact hγ
 
 /-- The transported action is free on sections. -/
 theorem inverseImageTorsor_isCancelSMul
@@ -164,7 +190,14 @@ theorem inverseImageTorsor_isCancelSMul
     (V : Over U.left) :
     @IsCancelSMul (((restrictGrp U).obj 𝒢).obj.obj (op V))
       (((inverseImage f).obj P.carrier).obj.obj (op V))
-      (inverseImageTorsorMulAction f P V).toSMul := sorry
+      (inverseImageTorsorMulAction f P V).toSMul := by
+  letI := inverseImageTorsorMulAction f P V
+  refine { left_cancel' := ?_, right_cancel' := ?_ }
+  · intro γ x y h
+    exact (P.isCancelSMul ((Over.map f.left).obj V)).left_cancel' _ _ _ h
+  · intro γ δ x h
+    apply (Iso.groupIsoToMulEquiv (restrictGrpIso_app f 𝒢 V)).symm.injective
+    exact (P.isCancelSMul ((Over.map f.left).obj V)).right_cancel' _ _ _ h
 
 /-- The inverse-image carrier of a torsor is locally nonempty. -/
 theorem inverseImageTorsor_locallyNonempty
@@ -173,7 +206,12 @@ theorem inverseImageTorsor_locallyNonempty
     (V : Over U.left) :
     ∃ R : Sieve V, R ∈ (Scheme.fppfTopology.over U.left) V ∧
       ∀ ⦃W : Over U.left⦄ (a : W ⟶ V), R a →
-        Nonempty (((inverseImage f).obj P.carrier).obj.obj (op W)) := sorry
+        Nonempty (((inverseImage f).obj P.carrier).obj.obj (op W)) := by
+  obtain ⟨R, hR, h⟩ := P.locallyNonempty ((Over.map f.left).obj V)
+  refine ⟨R.functorPullback (Over.map f.left),
+    (Over.map f.left).cover_lift _ _ hR, ?_⟩
+  intro W a ha
+  exact h ((Over.map f.left).map a) ha
 
 /-- Inverse image of a restricted torsor along a morphism of schemes over the base. -/
 def inverseImageTorsor {𝒢 : Sheaf (Scheme.fppfTopology.over S) GrpCat.{u}}
@@ -200,7 +238,24 @@ theorem inverseImageTorsorId_hom_comm
     ((inverseImageId U).hom.app P.carrier).hom.app (op V)
         (((inverseImageTorsor (𝟙 U) P).mulAction V).smul γ x) =
       (P.mulAction V).smul γ
-        (((inverseImageId U).hom.app P.carrier).hom.app (op V) x) := sorry
+        (((inverseImageId U).hom.app P.carrier).hom.app (op V) x) := by
+  change P.carrier.obj.map ((Over.mapId U.left).inv.app V).op
+      ((P.mulAction _).smul _ x) =
+    (P.mulAction V).smul γ
+      (P.carrier.obj.map ((Over.mapId U.left).inv.app V).op x)
+  rw [P.act_naturality]
+  congr 1
+  change 𝒢.obj.map _ (𝒢.obj.map _ γ) = γ
+  rw [← Functor.map_comp_apply]
+  calc
+    𝒢.obj.map _ γ = 𝒢.obj.map (𝟙 _) γ := by
+      apply ConcreteCategory.congr_hom
+      apply 𝒢.obj.congr_map
+      apply Quiver.Hom.unop_inj
+      apply Over.OverMorphism.ext
+      change (𝟙 V.left ≫ 𝟙 V.left ≫ 𝟙 V.left) = 𝟙 V.left
+      simp
+    _ = γ := by simp
 
 /-- Inverse image along an identity is canonically isomorphic to the original torsor. -/
 def inverseImageTorsorId {𝒢 : Sheaf (Scheme.fppfTopology.over S) GrpCat.{u}}
@@ -218,7 +273,22 @@ theorem inverseImageTorsorComp_hom_comm
     ((inverseImageComp f g).inv.app P.carrier).hom.app (op V)
         (((inverseImageTorsor (f ≫ g) P).mulAction V).smul γ x) =
       ((inverseImageTorsor f (inverseImageTorsor g P)).mulAction V).smul γ
-        (((inverseImageComp f g).inv.app P.carrier).hom.app (op V) x) := sorry
+        (((inverseImageComp f g).inv.app P.carrier).hom.app (op V) x) := by
+  change P.carrier.obj.map ((Over.mapComp f.left g.left).inv.app V).op
+      ((P.mulAction _).smul _ x) =
+    (P.mulAction _).smul _
+      (P.carrier.obj.map ((Over.mapComp f.left g.left).inv.app V).op x)
+  rw [P.act_naturality]
+  congr 1
+  change 𝒢.obj.map _ (𝒢.obj.map _ γ) = 𝒢.obj.map _ (𝒢.obj.map _ γ)
+  rw [← Functor.map_comp_apply, ← Functor.map_comp_apply]
+  apply ConcreteCategory.congr_hom
+  apply 𝒢.obj.congr_map
+  apply Quiver.Hom.unop_inj
+  apply Over.OverMorphism.ext
+  change (𝟙 V.left ≫ 𝟙 V.left ≫ 𝟙 V.left) =
+    ((𝟙 V.left ≫ 𝟙 V.left) ≫ (𝟙 V.left ≫ 𝟙 V.left))
+  simp
 
 /-- Inverse image of torsors is contravariant for composition of scheme maps. -/
 def inverseImageTorsorComp {𝒢 : Sheaf (Scheme.fppfTopology.over S) GrpCat.{u}}
@@ -239,7 +309,9 @@ theorem inverseImageTorsorMap_hom_comm
     ((inverseImage f).map (Sheaf.Torsor.Iso.toCarrierIso α).hom).hom.app (op V)
         (((inverseImageTorsor f P).mulAction V).smul γ x) =
       ((inverseImageTorsor f Q).mulAction V).smul γ
-        (((inverseImage f).map (Sheaf.Torsor.Iso.toCarrierIso α).hom).hom.app (op V) x) := sorry
+        (((inverseImage f).map (Sheaf.Torsor.Iso.toCarrierIso α).hom).hom.app (op V) x) := by
+  exact (@Iso.hom _ Sheaf.Torsor.category _ _ α).comm
+    ((Over.map f.left).obj V) _ x
 
 /-- Inverse image transports torsor isomorphisms using their actual carrier maps. -/
 def inverseImageTorsorMap {𝒢 : Sheaf (Scheme.fppfTopology.over S) GrpCat.{u}}

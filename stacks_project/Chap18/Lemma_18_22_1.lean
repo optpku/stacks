@@ -35,34 +35,45 @@ variable [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
 variable [UnivLE.{max uX vX, w}] [UnivLE.{max uY vX, w}]
 variable (f : Hom X Y)
 variable [PreservesFiniteLimits
-  (f.base.sheafPullback (Type w) Y.siteTopology X.siteTopology)]
+  (f.sheafPullback (A := Type w))]
 variable (G : Sheaf Y.siteTopology (Type w))
 
 /- Lemma 18.22.1 (04IF): the underlying localized morphism is the canonical localization of
 `f⁻¹ ⊣ f_*` at `G`. -/
 @[stacks 04IF "(topos morphism)"]
-#check f.toMorphismOfTopoi.localization G
+#check (CategoryTheory.LeftExactAdjunction.localization f.toMorphismOfTopoi G :
+  LeftExactAdjunction (Over (f.toMorphismOfTopoi.inverseImage.obj G)) (Over G))
 
 /- Lemma 18.22.1 (04IF): its inverse image sends an object over `G` by applying `f⁻¹` to
 the structure map. -/
 @[stacks 04IF "(inverse image)"]
-#check LeftExactAdjunction.localization_inverseImage_obj f.toMorphismOfTopoi G
+#check (CategoryTheory.LeftExactAdjunction.localization_inverseImage_obj f.toMorphismOfTopoi G :
+  ∀ Z : Over G, (f.toMorphismOfTopoi.localization G).inverseImage.obj Z =
+    Over.mk (f.toMorphismOfTopoi.inverseImage.map Z.hom))
 
 /- Lemma 18.22.1 (04IF): localized direct image commutes with the slice-product structure
 sheaf. -/
 @[stacks 04IF "(direct image)"]
-#check f.toMorphismOfTopoi.localization_pushforwardStarIso G
+#check (CategoryTheory.LeftExactAdjunction.localization_pushforwardStarIso f.toMorphismOfTopoi G :
+  Over.star (f.toMorphismOfTopoi.inverseImage.obj G) ⋙
+      (f.toMorphismOfTopoi.localization G).pushforward ≅
+    f.toMorphismOfTopoi.pushforward ⋙ Over.star G)
 
 /- Lemma 18.22.1 (04IF): the localized forgotten structure-sheaf map is induced functorially
 from `f.underlyingDirectImageMap`. -/
 @[stacks 04IF "(structure map)"]
-#check f.localizedUnderlyingDirectImageMap G
+#check (RingedSite.Hom.localizedUnderlyingDirectImageMap f G :
+  (Over.star G).obj (underlyingStructureSheaf Y) ⟶
+    (f.toMorphismOfTopoi.localization G).pushforward.obj
+      ((Over.star (f.toMorphismOfTopoi.inverseImage.obj G)).obj
+        (underlyingStructureSheaf X)))
 
-variable (V : Y)
+variable (V : Y.carrier)
 
-/- In the representable case the site-level structure map is the canonical localization formula
+/- Lemma 18.22.1 (04IF): in the representable case the site-level structure map is the canonical localization formula
 from Lemma 18.20.1. -/
 @[stacks 04IF "(representable)"]
-#check localization_structureSheafMap_eq f V
+#check (RingedSite.Hom.localization_structureSheafMap_eq f V :
+  (f.localization V).structureSheafMap = RingedSite.Hom.localizationStructureSheafMap f V)
 
 end RingedSite.Hom

@@ -51,7 +51,8 @@ theorem isCompactObject_obj_iff (e : C ≌ D) [e.functor.Additive] (X : C) :
 @[stacks 09S9 "equivalences send compact objects to compact objects"]
 theorem isCompactObject_obj (e : C ≌ D) [e.functor.Additive]
     (X : C) (hX : IsCompactObject X) :
-    IsCompactObject (e.functor.obj X) := sorry
+    IsCompactObject (e.functor.obj X) :=
+  (e.isCompactObject_obj_iff X).2 hX
 
 end Compact
 
@@ -65,7 +66,29 @@ variable [HasShift C ℤ] [HasShift D ℤ]
 theorem isWeakGenerator_obj_iff (e : C ≌ D)
     [e.functor.PreservesZeroMorphisms] [e.inverse.PreservesZeroMorphisms]
     [e.functor.CommShift ℤ] [e.inverse.CommShift ℤ] (X : C) :
-    IsWeakGenerator (e.functor.obj X) ↔ IsWeakGenerator X := sorry
+    IsWeakGenerator (e.functor.obj X) ↔ IsWeakGenerator X := by
+  constructor
+  · intro hX K hK
+    have hFK : ¬ IsZero (e.functor.obj K) := fun h ↦
+      hK (IsZero.of_full_of_faithful_of_isZero e.functor K h)
+    obtain ⟨n, f, hf⟩ := hX hFK
+    let t : e.functor.obj (K⟦n⟧) ≅ (e.functor.obj K)⟦n⟧ :=
+      (e.functor.commShiftIso n).app K
+    obtain ⟨g, hg⟩ := e.fullyFaithfulFunctor.map_surjective (f ≫ t.inv)
+    refine ⟨n, g, ?_⟩
+    intro h
+    have hg0 : e.functor.map g = 0 := by simp [h]
+    exact hf (zero_of_comp_mono t.inv (hg.symm.trans hg0))
+  · intro hX K hK
+    have hGK : ¬ IsZero (e.inverse.obj K) := fun h ↦
+      hK ((e.functor.map_isZero h).of_iso (e.counitIso.app K).symm)
+    obtain ⟨n, f, hf⟩ := hX hGK
+    let t := (e.functor.commShiftIso n).app (e.inverse.obj K) ≪≫
+      (shiftFunctor D n).mapIso (e.counitIso.app K)
+    refine ⟨n, e.functor.map f ≫ t.hom, ?_⟩
+    intro h
+    apply hf
+    exact e.functor.zero_of_map_zero f (zero_of_comp_mono t.hom h)
 
 /-- A shift-compatible equivalence sends weak generators to weak generators. -/
 @[stacks 09S9 "equivalences send weak generators to weak generators"]
@@ -73,7 +96,8 @@ theorem isWeakGenerator_obj (e : C ≌ D)
     [e.functor.PreservesZeroMorphisms] [e.inverse.PreservesZeroMorphisms]
     [e.functor.CommShift ℤ] [e.inverse.CommShift ℤ]
     (X : C) (hX : IsWeakGenerator X) :
-    IsWeakGenerator (e.functor.obj X) := sorry
+    IsWeakGenerator (e.functor.obj X) :=
+  (e.isWeakGenerator_obj_iff X).2 hX
 
 end Generator
 
@@ -96,12 +120,20 @@ theorem selfShiftMap_apply (e : C ≌ D) [e.functor.CommShift ℤ]
     {X : C} {Y : D} (h : e.functor.obj X ≅ Y) (n : ℤ)
     (f : X ⟶ X⟦n⟧) :
     e.selfShiftMap h n f =
-      h.inv ≫ ShiftedHom.map f e.functor ≫ (shiftFunctor D n).map h.hom := sorry
+      h.inv ≫ ShiftedHom.map f e.functor ≫ (shiftFunctor D n).map h.hom := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- An equivalence induces a bijection on every shifted self-Hom set. -/
 theorem selfShiftMap_bijective (e : C ≌ D) [e.functor.CommShift ℤ]
     {X : C} {Y : D} (h : e.functor.obj X ≅ Y) (n : ℤ) :
-    Function.Bijective (e.selfShiftMap h n) := sorry
+    Function.Bijective (e.selfShiftMap h n) := by
+  let t := (e.functor.commShiftIso n).app X ≪≫ (shiftFunctor D n).mapIso h
+  change Function.Bijective (fun f : X ⟶ X⟦n⟧ ↦
+    h.inv ≫ (e.functor.map f ≫ (e.functor.commShiftIso n).hom.app X) ≫
+      (shiftFunctor D n).map h.hom)
+  simpa only [t, Function.comp_def, Iso.homCongr_apply, Iso.trans_hom,
+    Functor.mapIso_hom, Iso.app_hom, Category.assoc] using
+    (h.homCongr t).bijective.comp (e.fullyFaithfulFunctor.map_bijective X (X⟦n⟧))
 
 /-- The shifted self-Hom comparison induced by an additive linear equivalence, bundled as a
 linear map. -/
@@ -132,7 +164,7 @@ theorem selfShiftLinearEquiv_apply {R : Type uR} [Ring R]
     {X : C} {Y : D} (h : e.functor.obj X ≅ Y) (n : ℤ)
     (f : X ⟶ X⟦n⟧) :
     e.selfShiftLinearEquiv (R := R) h n f =
-      h.inv ≫ ShiftedHom.map f e.functor ≫ (shiftFunctor D n).map h.hom := sorry
+      h.inv ≫ ShiftedHom.map f e.functor ≫ (shiftFunctor D n).map h.hom := rfl
 
 /-- The inverse shifted self-Hom equivalence is the explicit transport along the chosen
 quasi-inverse. -/
@@ -143,7 +175,7 @@ theorem selfShiftLinearEquiv_symm_apply {R : Type uR} [Ring R]
     {X : C} {Y : D} (h : e.functor.obj X ≅ Y) (n : ℤ)
     (f : Y ⟶ Y⟦n⟧) :
     (e.selfShiftLinearEquiv (R := R) h n).symm f =
-      e.shiftedHomInverseMap h h n f := sorry
+      e.shiftedHomInverseMap h h n f := rfl
 
 end SelfShift
 
@@ -165,7 +197,15 @@ zero right-adjoint value to vanishing shifted Homs. -/
 @[stacks 09S7 "weak-generator zero-kernel criterion"]
 theorem kernel_le_isZero_of_image_isWeakGenerator
     (adj : F ⊣ G) (E : C) (h_generator : IsWeakGenerator (F.obj E)) :
-    G.kernel ≤ IsZero := sorry
+    G.kernel ≤ IsZero := by
+  -- Only the source lacks specified zero morphisms; use those induced by its zero object.
+  letI : HasZeroMorphisms C := HasZeroObject.zeroMorphismsOfZeroObject
+  intro K hK
+  by_contra h
+  obtain ⟨n, f, hf⟩ := h_generator h
+  have hGn : IsZero (G.obj (K⟦n⟧)) :=
+    ((shiftFunctor C n).map_isZero hK).of_iso ((G.commShiftIso n).app K)
+  exact hf ((adj.homEquiv E (K⟦n⟧)).injective (hGn.eq_of_tgt _ _))
 
 end Adjunction
 

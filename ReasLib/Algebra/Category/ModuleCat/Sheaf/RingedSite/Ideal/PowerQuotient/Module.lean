@@ -105,7 +105,7 @@ noncomputable def step
     stage I M (n + 1) ⟶ stage I M n :=
   cokernel.desc (powerAction I M (n + 1)) (projection I M n) (by
     rw [← powerFactor_comp_powerAction I M n]
-    simp [Category.assoc])
+    rw [Category.assoc, cokernel.condition, comp_zero])
 
 /-- The successor quotient projection followed by the transition is the preceding quotient
 projection. -/

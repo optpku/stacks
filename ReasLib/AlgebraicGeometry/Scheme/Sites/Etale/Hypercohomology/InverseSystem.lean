@@ -67,7 +67,7 @@ def complexComparison (p : ℤ)
         (AbelianSheafComplexSystem.colimitInverseImageComplex (D := D) c F) p
       ι :=
         { app := fun i =>
-            hypercohomologyPullback (c.π.app (OrderDual.toDual i)) (F.obj i) p ≫
+            hypercohomologyPullback (T := c.pt) (c.π.app (OrderDual.toDual i)) (F.obj i) p ≫
               etaleHypercohomology.map
                 (AbelianSheafComplexSystem.colimitInverseImageComplex_ι (D := D) c F i) p
           naturality := sorry } }

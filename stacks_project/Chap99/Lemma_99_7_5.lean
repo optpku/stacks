@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap99.Lemma_99_7_5_SpacePoint
-public import stacks_project.Chap99.Lemma_99_7_5_Sheaf
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Quot.Sheaf
+import StacksCheckRecall
 
 /-!
 # Lemma 99.7.5
@@ -22,31 +22,16 @@ In Situation 99.7.1, morphisms of fppf sheaves from an algebraic space `T` over
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Quot
+/- Lemma 99.7.5. Morphisms to the quotient sheaf correspond to kernel-identified
+quasi-coherent quotient pairs flat over the algebraic-space base. -/
+@[stacks 0D3U] #check (AlgebraicGeometry.AlgebraicSpace.Quot.sheafHom_bijective :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B) (F : X.Modules)
+    [F.IsQuasicoherent] (T : AlgebraicSpace S),
+    Function.Bijective (AlgebraicGeometry.AlgebraicSpace.Quot.toSheafHom f F T))
 
-variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
-
-/-- Lemma 99.7.5 (1): in Situation 99.7.1, let `T` be an algebraic space over `S`.
-Morphisms of fppf sheaves `T ⟶ Q_{F/X/B}` on `(Sch/S)_fppf` are in bijection with
-pairs `(h, F_T ⟶ Q)` where `h : T ⟶ B` and `Q` is a quasi-coherent quotient of the
-pullback of `F` to `X ×_{B,h} T` that is flat over `T`, identified by kernels. -/
-@[stacks 0D3U]
-theorem sheafHom_bijective (f : X ⟶ B) (F : X.Modules) [F.IsQuasicoherent]
-    (T : AlgebraicSpace S) :
-    Function.Bijective (toSheafHom f F T) := sorry
-
-/-- Lemma 99.7.5 (2): in Situation 99.7.1, let `T` be an algebraic space over `S`.
-Morphisms of fppf sheaves `T ⟶ Q^{fp}_{F/X/B}` on `(Sch/S)_fppf` are in bijection
-with pairs `(h, F_T ⟶ Q)` where `h : T ⟶ B` and `Q` is a finitely presented
-quasi-coherent quotient of the pullback of `F` to `X ×_{B,h} T` that is flat over
-`T`, identified by kernels. -/
-@[stacks 0D3U]
-theorem fpSheafHom_bijective (f : X ⟶ B) (F : X.Modules) [F.IsQuasicoherent]
-    (T : AlgebraicSpace S) :
-    Function.Bijective (toFpSheafHom f F T) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Quot
+#check (AlgebraicGeometry.AlgebraicSpace.Quot.fpSheafHom_bijective :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B) (F : X.Modules)
+    [F.IsQuasicoherent] (T : AlgebraicSpace S),
+    Function.Bijective (AlgebraicGeometry.AlgebraicSpace.Quot.toFpSheafHom f F T))

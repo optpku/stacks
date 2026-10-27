@@ -78,7 +78,7 @@ instance instCoeFun (𝒜 : GradedAlgebraSheaf 𝒪 ι) :
 namespace GradedModuleSheaf
 
 /-- The underlying graded object of a graded module sheaf. -/
-abbrev toGradedObject {𝒜 : GradedAlgebraSheaf 𝒪 ι} (ℳ : Mod(𝒜)) :
+def toGradedObject {𝒜 : GradedAlgebraSheaf 𝒪 ι} (ℳ : GradedModuleSheaf 𝒜) :
     GradedObject ι (SheafOfModules.{max u v, v, u, max u v} (ringSheaf J 𝒪)) :=
   ℳ.obj
 

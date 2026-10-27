@@ -26,12 +26,12 @@ ring pair preserves dualizing complexes. -/
     [IsPairHenselization A I Ah Ih]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} Ah))]
-    (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (HAh : MonoidalClosed (DerivedCategory (ModuleCat.{u} Ah)))
-    (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsDualizingComplex HA),
+    (CA : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
+    (CAh : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := Ah))
+    (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsCanonicalDualizingComplex CA),
     let _ : IsNoetherianRing Ah :=
       IsPairHenselization.isNoetherianRing (B := A) (J := I) (A := Ah) (I := Ih)
-    ((ModuleCat.derivedExtensionOfScalars (algebraMap A Ah)).obj ω).IsDualizingComplex HAh)
+    ((ModuleCat.derivedExtensionOfScalars (algebraMap A Ah)).obj ω).IsCanonicalDualizingComplex CAh)
 
 /- Lemma 47.22.3 (2): derived extension to the adic completion of a
 Noetherian ring preserves dualizing complexes. -/
@@ -40,11 +40,11 @@ Noetherian ring preserves dualizing complexes. -/
   ∀ {A : Type u} [CommRing A] [IsNoetherianRing A] (I : Ideal A)
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} (AdicCompletion I A)))]
-    (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (HAhat : MonoidalClosed (DerivedCategory (ModuleCat.{u} (AdicCompletion I A))))
-    (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsDualizingComplex HA),
+    (CA : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
+    (CAhat : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := AdicCompletion I A))
+    (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsCanonicalDualizingComplex CA),
     ((ModuleCat.derivedExtensionOfScalars
-      (algebraMap A (AdicCompletion I A))).obj ω).IsDualizingComplex HAhat)
+      (algebraMap A (AdicCompletion I A))).obj ω).IsCanonicalDualizingComplex CAhat)
 
 /- Lemma 47.22.3 (3): derived extension to the henselization of a
 Noetherian local ring preserves dualizing complexes. -/

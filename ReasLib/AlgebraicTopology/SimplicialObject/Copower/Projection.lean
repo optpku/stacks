@@ -51,7 +51,14 @@ theorem copower.projectionApp.naturality
     [HasCopower U X]
     {Δ₁ Δ₂ : SimplexCategoryᵒᵖ} (σ : Δ₁ ⟶ Δ₂) :
     (copower U X).map σ ≫ copower.projectionApp X U Δ₂ =
-      copower.projectionApp X U Δ₁ ≫ X.map σ := sorry
+      copower.projectionApp X U Δ₁ ≫ X.map σ := by
+  change Sigma.map' (U.map σ) (fun _ ↦ X.map σ) ≫
+      Sigma.desc (fun _ : U.obj Δ₂ ↦ 𝟙 (X.obj Δ₂)) =
+    Sigma.desc (fun _ : U.obj Δ₁ ↦ 𝟙 (X.obj Δ₁)) ≫ X.map σ
+  apply Sigma.hom_ext
+  intro u
+  simp only [Sigma.ι_comp_map'_assoc, Sigma.ι_desc_assoc, Sigma.ι_desc,
+    Category.comp_id, Category.id_comp]
 
 /-- The canonical projection `copower U X ⟶ X`, degreewise the coproduct map that is the
 identity on every summand. -/
@@ -69,7 +76,7 @@ theorem copower.projection_app
     (U : SSet.{w})
     [HasCopower U X]
     (Δ : SimplexCategoryᵒᵖ) :
-    (copower.projection X U).app Δ = copower.projectionApp X U Δ := sorry
+    (copower.projection X U).app Δ = copower.projectionApp X U Δ := rfl
 
 /-- Computing the copower projection after a coproduct injection. -/
 @[simp, stacks 017E "copower projection injection formula"]
@@ -78,7 +85,8 @@ theorem copower.projection.ι
     [HasCopower U X]
     (Δ : SimplexCategoryᵒᵖ) (u : U.obj Δ) :
     Sigma.ι (fun _ : U.obj Δ ↦ X.obj Δ) u ≫ (copower.projection X U).app Δ =
-      𝟙 (X.obj Δ) := sorry
+      𝟙 (X.obj Δ) :=
+  Sigma.ι_desc (fun _ : U.obj Δ ↦ 𝟙 (X.obj Δ)) u
 
 end Projection
 
@@ -94,7 +102,17 @@ theorem copower.projection.object.naturality
     [HasCopower U Y]
     (f : X ⟶ Y) :
     CommSq (copower.hom U f) (copower.projection X U)
-      (copower.projection Y U) f := sorry
+      (copower.projection Y U) f := by
+  constructor
+  apply NatTrans.ext
+  funext Δ
+  change Limits.Sigma.map (fun _ : U.obj Δ ↦ f.app Δ) ≫
+      Sigma.desc (fun _ : U.obj Δ ↦ 𝟙 (Y.obj Δ)) =
+    Sigma.desc (fun _ : U.obj Δ ↦ 𝟙 (X.obj Δ)) ≫ f.app Δ
+  apply Sigma.hom_ext
+  intro u
+  simp only [Sigma.ι_map_assoc, Sigma.ι_desc_assoc, Sigma.ι_desc,
+    Category.comp_id, Category.id_comp]
 
 variable [HasCopowers U C]
 
@@ -109,7 +127,7 @@ def copower.projection.natTrans :
 /-- The component of the object-variable projection is the objectwise copower projection. -/
 @[simp, stacks 017E "copower projection natural-transformation component"]
 theorem copower.projection.natTrans.app (Y : SimplicialObject C) :
-    (copower.projection.natTrans U).app Y = copower.projection Y U := sorry
+    (copower.projection.natTrans U).app Y = copower.projection Y U := rfl
 
 end ObjectVariable
 
@@ -124,7 +142,16 @@ theorem copower.projection.index.naturality
     [HasCopower U X] [HasCopower V X]
     (a : U ⟶ V) :
     CommSq (copower.indexHom X a) (copower.projection X U)
-      (copower.projection X V) (𝟙 X) := sorry
+      (copower.projection X V) (𝟙 X) := by
+  constructor
+  apply NatTrans.ext
+  funext Δ
+  change Sigma.map' (a.app Δ) (fun _ ↦ 𝟙 (X.obj Δ)) ≫
+      Sigma.desc (fun _ : V.obj Δ ↦ 𝟙 (X.obj Δ)) =
+    Sigma.desc (fun _ : U.obj Δ ↦ 𝟙 (X.obj Δ)) ≫ 𝟙 (X.obj Δ)
+  apply Sigma.hom_ext
+  intro u
+  simp only [Sigma.ι_comp_map'_assoc, Sigma.ι_desc, Category.comp_id]
 
 variable [X.HasCopowersOf]
 
@@ -141,7 +168,7 @@ def projection :
 /-- The component of the index-variable projection is the objectwise copower projection. -/
 @[simp, stacks 017E "index-variable copower projection component"]
 theorem projection.app (U : SSet.{w}) :
-    (projection X).app U = copower.projection X U := sorry
+    (projection X).app U = copower.projection X U := rfl
 
 end copower.indexFunctor
 
@@ -158,7 +185,12 @@ variable [HasCopowers.OfIndex K C]
 theorem copower.ofIndex.projection.naturality {d d' : D} (f : d ⟶ d') :
     copower.indexHom.natTrans (K.map f) ≫ copower.projection.natTrans (K.obj d') =
       copower.projection.natTrans (K.obj d) ≫
-        ((Functor.const D).obj (𝟭 (SimplicialObject C))).map f := sorry
+        ((Functor.const D).obj (𝟭 (SimplicialObject C))).map f := by
+  apply NatTrans.ext
+  funext X
+  change copower.indexHom X (K.map f) ≫ copower.projection X (K.obj d') =
+    copower.projection X (K.obj d) ≫ 𝟙 X
+  exact (copower.projection.index.naturality X (K.map f)).w
 
 /-- The canonical map from a copower to its simplicial-object variable is natural in both
 variables. -/
@@ -173,7 +205,7 @@ def copower.ofIndex.projection :
 theorem copower.ofIndex.projection.app (d : D)
     (X : SimplicialObject C) :
     ((copower.ofIndex.projection K).app d).app X =
-      copower.projection X (K.obj d) := sorry
+      copower.projection X (K.obj d) := rfl
 
 end BifunctorProjection
 

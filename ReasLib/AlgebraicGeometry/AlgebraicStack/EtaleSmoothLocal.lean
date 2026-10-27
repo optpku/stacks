@@ -54,7 +54,7 @@ theorem hasEtaleSmoothLocalAtSourceAndTarget_def {S : Scheme.{u}}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) :
     hasEtaleSmoothLocalAtSourceAndTarget P f ↔
       existsSurjectiveEtaleSmoothSquare P f :=
-  sorry
+  Iff.rfl
 
 namespace hasEtaleSmoothLocalAtSourceAndTarget
 
@@ -66,7 +66,7 @@ theorem of {S : Scheme.{u}} {P : MorphismProperty (AlgebraicSpace S)}
     {a : U.toGroupoids ⟶ X} {b : V.toGroupoids ⟶ Y} {h : U ⟶ V}
     (hpres : IsEtaleSmoothSurjectivePresentation f a b h) (hP : P h) :
     hasEtaleSmoothLocalAtSourceAndTarget P f :=
-  sorry
+  ⟨U, V, a, b, h, hpres, hP⟩
 
 /-- A morphism satisfying `hasEtaleSmoothLocalAtSourceAndTarget P f` admits an
 étale-smooth surjective algebraic-space presentation whose top arrow has `P`. -/
@@ -76,7 +76,7 @@ theorem spec {S : Scheme.{u}} {P : MorphismProperty (AlgebraicSpace S)}
     (hf : hasEtaleSmoothLocalAtSourceAndTarget P f) :
     ∃ (U V : AlgebraicSpace S) (a : U.toGroupoids ⟶ X) (b : V.toGroupoids ⟶ Y)
       (h : U ⟶ V), IsEtaleSmoothSurjectivePresentation f a b h ∧ P h :=
-  sorry
+  hf
 
 /-- An implication between étale-smooth-local-on-source-and-target morphism
 properties of algebraic spaces induces the same implication between their
@@ -86,8 +86,9 @@ theorem of_le {S : Scheme.{u}} {P P' : MorphismProperty (AlgebraicSpace S)}
     [AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget P'] (h : P ≤ P')
     {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
     {f : X ⟶ Y} (hf : hasEtaleSmoothLocalAtSourceAndTarget P f) :
-    hasEtaleSmoothLocalAtSourceAndTarget P' f :=
-  sorry
+    hasEtaleSmoothLocalAtSourceAndTarget P' f := by
+  rcases spec hf with ⟨U, V, a, b, g, hpres, hg⟩
+  exact of hpres (h g hg)
 
 end hasEtaleSmoothLocalAtSourceAndTarget
 
@@ -146,7 +147,15 @@ theorem hasEtaleSmoothLocalAtSourceAndTarget_map {S : Scheme.{u}}
     (P : MorphismProperty (AlgebraicSpace S))
     [AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget P] {U V : AlgebraicSpace S}
     {h : U ⟶ V} (hh : P h) :
-    hasEtaleSmoothLocalAtSourceAndTarget P (AlgebraicSpace.toGroupoids.map h) :=
-  sorry
+    hasEtaleSmoothLocalAtSourceAndTarget P (AlgebraicSpace.toGroupoids.map h) := by
+  apply (hasEtaleSmoothLocalAtSourceAndTarget_iff_eval P _).mpr
+  have heval : AlgebraicSpace.toGroupoids.eval (AlgebraicSpace.toGroupoids.map h) = h := by
+    apply NatTrans.ext
+    funext T
+    apply ConcreteCategory.hom_ext
+    intro x
+    change V.functorOfPoints.map (𝟙 T) (h.app T x) = h.app T x
+    simp
+  simpa only [heval] using hh
 
 end AlgebraicGeometry.AlgebraicStack

@@ -30,7 +30,7 @@ variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
 variable [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
 variable [UnivLE.{max uX vX, w}] [UnivLE.{max uY vY, w}]
 variable [UnivLE.{max uY vX, w}] [UnivLE.{max uY vY vX, w}]
-  (f : X.Hom Y) (V : Y)
+  (f : X.Hom Y) (V : Y.carrier)
 
 /- Lemma 18.20.1 (04J0): localization at `f.base.obj V` and `V` gives the canonical
 commutative square of ringed topoi. -/
@@ -39,10 +39,9 @@ commutative square of ringed topoi. -/
   ToposHom.LaxCommSquare
     (X.localization (f.base.obj V)) X (Y.localization V) Y)
 
-/- Lemma 18.20.1 (04J0): the square commutes by an invertible `2`-morphism, available
-directly to typeclass search. -/
+/- Lemma 18.20.1 (04J0): the square commutes by an invertible `2`-morphism, given by the canonical square invertibility theorem. -/
 @[stacks 04J0 "(invertible square)"]
-#check (inferInstance :
+#check (RingedSite.Localization.AmbientSquare.square_isInvertible f (𝟙 (f.base.obj V)) :
   (Localization.AmbientSquare.square f (𝟙 (f.base.obj V))).IsInvertible)
 
 end RingedSite.Hom

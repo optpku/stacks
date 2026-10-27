@@ -6,33 +6,24 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap92.Lemma_92_5_3
-public import stacks_project.Chap92.Lemma_92_5_7
-public import stacks_project.Chap92.Remark_92_11_1_Ideal
-public import stacks_project.Chap92.«92_11_1_1»
-public import stacks_project.Chap92.«92_11_1_2»
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.RingedSite.Cotangent.PolynomialSiteVanishing
+public import ReasLib.RingTheory.CotangentComplex.Comparison
+public import ReasLib.RingTheory.CotangentComplex.NaiveComparison
+public import ReasLib.RingTheory.CotangentComplex.PolynomialSite
 import StacksCheckRecall
 
 /-!
 # Kernel vanishing and naive cotangent comparisons on `C_{B/A}`
-
-Remark 92.11.1 records that `Lπ!(𝒥) = 0` for `𝒥 = Ker(O ⟶ underline{B})`, that
-`H_0` and `H_1` of `𝒥/𝒥²` vanish, and the resulting comparison maps from a
-polynomial arrow into `L_{B/A}` and `τ_{≥ -1} L_{B/A}`.
 -/
 
 @[expose] public section
 
-open CategoryTheory
-open CategoryTheory.Limits
-open Algebra
-open Algebra.PolynomialSite
-open Algebra.CotangentComplex
-open Algebra.NaiveCotangent
-open CommAlgCat.Over.Polynomial
-open CommRingCat.Under.CotangentComplex
-open Site
+open CategoryTheory CategoryTheory.Limits Algebra Algebra.PolynomialSite
+open Algebra.CotangentComplex Algebra.NaiveCotangent
+open CommAlgCat.Over.Polynomial CommAlgCat.Over.Polynomial.Site
+open CommRingCat.Under.CotangentComplex Site
+open CommRingCat.Under.FreeAlgebra
+open DerivedCategory.TStructure
 open scoped CategoryTheory
 
 noncomputable section
@@ -53,17 +44,13 @@ variable [Functor.HasLeftDerivedFunctor
   (HomotopyCategory.quasiIso ((PolynomialSite A B)ᵒᵖ ⥤ AddCommGrpCat.{u})
     (ComplexShape.up ℤ))]
 
-/-- Remark 92.11.1 (1). Let `A → B` be a ring map. Working on `C_{B/A}` as in
-Section 92.4, let `𝒥 ⊂ O` be the kernel of `O ⟶ underline{B}`. Then
-`Lπ!(𝒥) = 0`. -/
-@[stacks 08R7]
-theorem lowerShriek_kernel_isZero :
+/- Remark 92.11.1 (1). The derived lower shriek of the kernel presheaf vanishes. -/
+@[stacks 08R7] #check (Algebra.PolynomialSite.lowerShriek_kernel_isZero A B :
     IsZero
       ((Lπ![(PolynomialSite A B), AddCommGrpCat.{u}]).obj
         ((DerivedCategory.singleFunctor
             ((PolynomialSite A B)ᵒᵖ ⥤ AddCommGrpCat.{u}) (0 : ℤ)).obj
-          (kernelPresheaf A B))) :=
-  sorry
+          (kernelPresheaf A B))))
 
 end AbelianGroups
 
@@ -77,47 +64,67 @@ variable [Functor.HasLeftDerivedFunctor
   (HomotopyCategory.quasiIso ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)
     (ComplexShape.up ℤ))]
 
-/-- Remark 92.11.1 (2). With `𝒥` the kernel of `O ⟶ underline{B}` on `C_{B/A}`,
-`Tor_0^O(𝒥, underline{B}) = 𝒥/𝒥²` and `Lπ!(𝒥 ⊗_O^L underline{B}) = 0` imply
-`H_0(C_{B/A}, 𝒥/𝒥²) = 0`. -/
-@[stacks 08R7]
-theorem conormal_homology_zero_isZero :
+/- Remark 92.11.1 (2). Degree-zero homology of the conormal presheaf vanishes. -/
+@[stacks 08R7] #check (Algebra.PolynomialSite.conormal_homology_zero_isZero A B :
     IsZero
       ((DerivedCategory.homologyFunctor (ModuleCat.{u} B) (0 : ℤ)).obj
         (((DerivedCategory.singleFunctor
             ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B) (0 : ℤ)) ⋙
           Lπ![(PolynomialSite A B), (ModuleCat.{u} B)]).obj
-          (conormalSheaf A B))) :=
-  sorry
+          (conormalSheaf A B))))
 
-/-- Remark 92.11.1 (3). With `𝒥` the kernel of `O ⟶ underline{B}` on `C_{B/A}`,
-the same vanishing of `Lπ!(𝒥 ⊗_O^L underline{B})` implies
-`H_1(C_{B/A}, 𝒥/𝒥²) = 0`. -/
-@[stacks 08R7]
-theorem conormal_homology_negOne_isZero :
+/- Remark 92.11.1 (3). Degree-one homology of the conormal presheaf vanishes. -/
+@[stacks 08R7] #check (Algebra.PolynomialSite.conormal_homology_negOne_isZero A B :
     IsZero
       ((DerivedCategory.homologyFunctor (ModuleCat.{u} B) (-1 : ℤ)).obj
         (((DerivedCategory.singleFunctor
             ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B) (0 : ℤ)) ⋙
           Lπ![(PolynomialSite A B), (ModuleCat.{u} B)]).obj
-          (conormalSheaf A B))) :=
-  sorry
+          (conormalSheaf A B))))
 
 end Modules
-
 end Algebra.PolynomialSite
 
-/- The identification `Lπ!(𝒥 ⟶ Ω) = L_{B/A}` on the standard resolution. -/
-@[stacks 08R7] #check omegaInr_quasiIso
+/- Remark 92.11.1. The standard-resolution comparison is a quasi-isomorphism. -/
+@[stacks 08R7] #check (CategoryTheory.CommRingCat.Under.CotangentComplex.Comparison.omegaInr_quasiIso :
+  ∀ (A : CommRingCat.{u}) (B : Under A),
+    QuasiIso (CategoryTheory.CommRingCat.Under.CotangentComplex.Comparison.omegaInr A B))
 
-/- The comparison map 92.11.1.1: `(J ⟶ Ω_{P/A} ⊗_P B) ⟶ L_{B/A}` in `D(A)`. -/
-@[stacks 08R7] #check comparisonDerived
+/- Remark 92.11.1.1. The comparison map to the cotangent complex. -/
+@[stacks 08R7] #check (CategoryTheory.CommRingCat.Under.CotangentComplex.Comparison.comparisonDerived :
+    ∀ (A : CommRingCat.{u}) (B : Under A) (E : Type u)
+      (φ : (functor A).obj E ⟶ B),
+      DerivedCategory.Q.obj
+        (CategoryTheory.CommRingCat.Under.CotangentComplex.Comparison.kernelDifferentialsComplex
+          A B E φ) ⟶
+        DerivedCategory.Q.obj
+          (CategoryTheory.CommRingCat.Under.CotangentComplex.Comparison.objRestrictScalars A B))
 
-/- The truncated identification `τ_{≥ -1} Lπ!(𝒥/𝒥² ⟶ Ω) = τ_{≥ -1} L_{B/A}`. -/
-@[stacks 08R7] #check truncGEEvaluationIso
+/- Remark 92.11.1.2. The truncated comparison map. -/
+@[stacks 08R7] #check (Algebra.NaiveCotangent.naiveCotangentToTruncGE :
+  ∀ (A : CommRingCat.{u}) (B : Under A) (E : Type u)
+    (φ : (functor A).obj E ⟶ B),
+    DerivedCategory.Q.obj (naiveComplex A B E φ) ⟶
+      (t.truncGE (-1)).obj (DerivedCategory.Q.obj (obj A B)))
 
-/- The comparison map 92.11.1.2: `(J/J² ⟶ Ω_{P/A} ⊗_P B) ⟶ τ_{≥ -1} L_{B/A}` in `D(B)`. -/
-@[stacks 08R7] #check naiveCotangentToTruncGE
+/- Remark 92.11.1. The truncated evaluation isomorphism. -/
+@[stacks 08R7] #check (Algebra.NaiveCotangent.truncGEEvaluationIso :
+  ∀ (A : CommRingCat.{u}) (B : Under A),
+    (t.truncGE (-1)).obj (DerivedCategory.Q.obj (evaluationCone A B)) ≅
+      (t.truncGE (-1)).obj (DerivedCategory.Q.obj (obj A B)))
 
-/- Recalled identification `L_{B/A} = Lπ!(Ω)`. -/
-#check lowerShriek_omega
+/- Remark 92.11.1. The cotangent complex is computed by the differential presheaf. -/
+@[stacks 08R7] #check (Algebra.CotangentComplex.lowerShriek_omega :
+  ∀ (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
+    [HasColimitsOfShape (PolynomialSite A B)ᵒᵖ (ModuleCat.{u} B)]
+    [HasDerivedCategory.{q'} (ModuleCat.{u} B)]
+    [HasDerivedCategory.{q} ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)]
+    [Functor.HasLeftDerivedFunctor
+      (categoryOverPointColimitToDerived (PolynomialSite A B) (ModuleCat.{u} B))
+      (HomotopyCategory.quasiIso ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)
+        (ComplexShape.up ℤ))],
+    IsIsomorphic
+      (DerivedCategory.Q.obj (Algebra.cotangentComplex A B))
+      ((Lπ![(PolynomialSite A B), (ModuleCat.{u} B)]).obj
+        ((DerivedCategory.singleFunctor ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)
+            (0 : ℤ)).obj (omegaSheaf A B))))

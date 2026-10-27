@@ -55,7 +55,14 @@ def EssentialImage.HasPreimage
 theorem EssentialImage.HasPreimage.precomp
     (F : CartesianBasedFunctor p₁ p₂) {U V W : C} {y : p₂.Fiber U}
     {f : V ⟶ U} (h : EssentialImage.HasPreimage F y f) (g : W ⟶ V) :
-    EssentialImage.HasPreimage F y (g ≫ f) := sorry
+    EssentialImage.HasPreimage F y (g ≫ f) := by
+  rcases h with ⟨x, ⟨e⟩⟩
+  refine ⟨g⁎[Functor.Cleavage.ofIsFibered p₁] x, ⟨?_⟩⟩
+  exact (Reindex.mapIso F (Functor.Cleavage.ofIsFibered p₁)
+    (Functor.Cleavage.ofIsFibered p₂) g x).symm ≪≫
+      ((Functor.Cleavage.ofIsFibered p₂).reindex g).mapIso e ≪≫
+        (Functor.Cleavage.Reindex.compIsoApp
+          (Functor.Cleavage.ofIsFibered p₂) f g y).symm
 
 /-- The sieve of base arrows along which a target-fiber object has an essential preimage. -/
 @[stacks 02ZP "essential-image sieve",
@@ -72,7 +79,7 @@ condition. -/
 theorem EssentialImage.mem_sieve_iff
     (F : CartesianBasedFunctor p₁ p₂) {U V : C} (y : p₂.Fiber U)
     (f : V ⟶ U) :
-    EssentialImage.sieve F y f ↔ EssentialImage.HasPreimage F y f := sorry
+    EssentialImage.sieve F y f ↔ EssentialImage.HasPreimage F y f := Iff.rfl
 
 /-- A heterogeneous cartesian functor is locally essentially surjective when every target-fiber
 object has a covering essential-image sieve. -/
@@ -91,7 +98,13 @@ theorem LocallyEssentiallySurjective.iff_forall_cover
     {J : GrothendieckTopology C} {F : CartesianBasedFunctor p₁ p₂} :
     LocallyEssentiallySurjective J F ↔
       ∀ {U : C} (y : p₂.Fiber U), ∃ T : J.Cover U, ∀ I : T.Arrow,
-        EssentialImage.HasPreimage F y I.f := sorry
+        EssentialImage.HasPreimage F y I.f := by
+  constructor
+  · intro hF U y
+    exact ⟨⟨EssentialImage.sieve F y, hF y⟩, fun I ↦ I.hf⟩
+  · intro hF U y
+    obtain ⟨T, hT⟩ := hF y
+    exact J.superset_covering (fun V f hf ↦ hT ⟨V, f, hf⟩) T.condition
 
 /-- The essential-image sieve of a target-fiber object is covering under local essential
 surjectivity. -/
@@ -100,7 +113,7 @@ surjectivity. -/
 theorem LocallyEssentiallySurjective.sieve_mem
     {J : GrothendieckTopology C} {F : CartesianBasedFunctor p₁ p₂}
     (hF : LocallyEssentiallySurjective J F) {U : C} (y : p₂.Fiber U) :
-    EssentialImage.sieve F y ∈ J U := sorry
+    EssentialImage.sieve F y ∈ J U := hF y
 
 /-- The canonical cover whose underlying sieve is the heterogeneous essential-image sieve. -/
 @[stacks 02ZP "canonical essential-image cover",
@@ -121,7 +134,7 @@ theorem EssentialImage.cover_spec
     (I : (EssentialImage.cover F hF y).Arrow) :
     ∃ x : p₁.Fiber I.Y,
       Nonempty ((F.fiberFunctor I.Y).obj x ≅
-        I.f⁎[Functor.Cleavage.ofIsFibered p₂] y) := sorry
+        I.f⁎[Functor.Cleavage.ofIsFibered p₂] y) := I.hf
 
 /-- Compose two heterogeneous essential-image isomorphisms, replacing iterated chosen
 reindexing by reindexing along the composite base arrow. -/
@@ -154,23 +167,43 @@ theorem LocallyEssentiallySurjective.comp
     {F : CartesianBasedFunctor p₁ p₂} {G : CartesianBasedFunctor p₂ p₃}
     (hF : LocallyEssentiallySurjective J F)
     (hG : LocallyEssentiallySurjective J G) :
-    LocallyEssentiallySurjective J (F.comp G) := sorry
+    LocallyEssentiallySurjective J (F.comp G) := by
+  intro U z
+  apply J.transitive (hG z)
+  intro V f hf
+  rcases hf with ⟨y, ⟨eG⟩⟩
+  apply J.superset_covering _ (hF y)
+  intro W g hg
+  rcases hg with ⟨x, ⟨eF⟩⟩
+  exact ⟨x, ⟨EssentialImage.compIso f g z y x eF eG⟩⟩
 
 /-- The identity heterogeneous cartesian functor is locally essentially surjective. -/
 theorem LocallyEssentiallySurjective.id (J : GrothendieckTopology C) :
-    LocallyEssentiallySurjective J (CartesianBasedFunctor.id p₁) := sorry
+    LocallyEssentiallySurjective J (CartesianBasedFunctor.id p₁) := by
+  intro U y
+  apply J.superset_covering (S := ⊤) _ (J.top_mem U)
+  intro V f _
+  exact ⟨f⁎[Functor.Cleavage.ofIsFibered p₁] y, ⟨Iso.refl _⟩⟩
 
 /-- Heterogeneous local essential surjectivity is preserved when the topology is enlarged. -/
 theorem LocallyEssentiallySurjective.of_le
     {J K : GrothendieckTopology C} (hJK : J ≤ K)
     {F : CartesianBasedFunctor p₁ p₂} (hF : LocallyEssentiallySurjective J F) :
-    LocallyEssentiallySurjective K F := sorry
+    LocallyEssentiallySurjective K F := by
+  intro U y
+  exact hJK U (hF y)
 
 /-- An equivalence over the base is locally essentially surjective. -/
 theorem LocallyEssentiallySurjective.of_isEquivalence
     (J : GrothendieckTopology C) (F : CartesianBasedFunctor p₁ p₂)
     (hF : F.toBasedFunctor.IsEquivalence) :
-    LocallyEssentiallySurjective J F := sorry
+    LocallyEssentiallySurjective J F := by
+  intro U y
+  apply J.superset_covering (S := ⊤) _ (J.top_mem U)
+  intro V f _
+  letI := (isEquivalence_iff_fiberwise F).1 hF V
+  exact Functor.EssSurj.mem_essImage (F.fiberFunctor V)
+    (f⁎[Functor.Cleavage.ofIsFibered p₂] y)
 
 /-- Precomposition by an equivalence over the base preserves heterogeneous local essential
 surjectivity. -/
@@ -179,7 +212,9 @@ theorem LocallyEssentiallySurjective.comp_left_of_isEquivalence
     {J : GrothendieckTopology C} (E : CartesianBasedFunctor p₁ p₂)
     (hE : E.toBasedFunctor.IsEquivalence) (G : CartesianBasedFunctor p₂ p₃)
     (hG : LocallyEssentiallySurjective J G) :
-    LocallyEssentiallySurjective J (E.comp G) := sorry
+    LocallyEssentiallySurjective J (E.comp G) := by
+  exact LocallyEssentiallySurjective.comp
+    (LocallyEssentiallySurjective.of_isEquivalence J E hE) hG
 
 /-- Postcomposition by an equivalence over the base preserves heterogeneous local essential
 surjectivity. -/
@@ -188,7 +223,9 @@ theorem LocallyEssentiallySurjective.comp_right_of_isEquivalence
     {J : GrothendieckTopology C} (F : CartesianBasedFunctor p₁ p₂)
     (hF : LocallyEssentiallySurjective J F) (E : CartesianBasedFunctor p₂ p₃)
     (hE : E.toBasedFunctor.IsEquivalence) :
-    LocallyEssentiallySurjective J (F.comp E) := sorry
+    LocallyEssentiallySurjective J (F.comp E) := by
+  exact LocallyEssentiallySurjective.comp hF
+    (LocallyEssentiallySurjective.of_isEquivalence J E hE)
 
 /-- Heterogeneous local essential surjectivity reflects across postcomposition by an
 equivalence over the base. -/
@@ -197,21 +234,36 @@ theorem LocallyEssentiallySurjective.of_comp_right_isEquivalence
     {J : GrothendieckTopology C} (F : CartesianBasedFunctor p₁ p₂)
     (E : CartesianBasedFunctor p₂ p₃) (hE : E.toBasedFunctor.IsEquivalence)
     (hFE : LocallyEssentiallySurjective J (F.comp E)) :
-    LocallyEssentiallySurjective J F := sorry
+    LocallyEssentiallySurjective J F := by
+  intro U y
+  apply J.superset_covering _ (hFE ((E.fiberFunctor U).obj y))
+  intro V f hf
+  rcases hf with ⟨x, ⟨e⟩⟩
+  letI := (isEquivalence_iff_fiberwise E).1 hE V
+  exact ⟨x, ⟨(E.fiberFunctor V).preimageIso
+    (e ≪≫ Reindex.mapIso E (Functor.Cleavage.ofIsFibered p₂)
+      (Functor.Cleavage.ofIsFibered p₃) f y)⟩⟩
 
 /-- Transport heterogeneous local essential surjectivity along an isomorphism of parallel
 cartesian functors. -/
 theorem LocallyEssentiallySurjective.of_iso
     {J : GrothendieckTopology C} {F G : CartesianBasedFunctor p₁ p₂}
     (e : F ≅ G) (hF : LocallyEssentiallySurjective J F) :
-    LocallyEssentiallySurjective J G := sorry
+    LocallyEssentiallySurjective J G := by
+  intro U y
+  apply J.superset_covering _ (hF y)
+  intro V f hf
+  rcases hf with ⟨x, ⟨d⟩⟩
+  exact ⟨x, ⟨((fiberIso e V).app x).symm ≪≫ d⟩⟩
 
 /-- Isomorphic parallel heterogeneous cartesian functors are locally essentially surjective
 simultaneously. -/
 theorem LocallyEssentiallySurjective.iff_of_iso
     {J : GrothendieckTopology C} {F G : CartesianBasedFunctor p₁ p₂}
     (e : F ≅ G) :
-    LocallyEssentiallySurjective J F ↔ LocallyEssentiallySurjective J G := sorry
+    LocallyEssentiallySurjective J F ↔ LocallyEssentiallySurjective J G := by
+  exact ⟨LocallyEssentiallySurjective.of_iso e,
+    LocallyEssentiallySurjective.of_iso e.symm⟩
 
 /-- If a composite heterogeneous cartesian functor is locally essentially surjective, then so is
 its right factor. -/
@@ -220,7 +272,12 @@ theorem LocallyEssentiallySurjective.right_of_comp
     {J : GrothendieckTopology C}
     {F : CartesianBasedFunctor p₁ p₂} {G : CartesianBasedFunctor p₂ p₃}
     (h : LocallyEssentiallySurjective J (F.comp G)) :
-    LocallyEssentiallySurjective J G := sorry
+    LocallyEssentiallySurjective J G := by
+  intro U z
+  apply J.superset_covering _ (h z)
+  intro V f hf
+  rcases hf with ⟨x, ⟨e⟩⟩
+  exact ⟨(F.fiberFunctor V).obj x, ⟨e⟩⟩
 
 /-- A right factor is locally essentially surjective when its composite is isomorphic to a
 locally essentially surjective heterogeneous cartesian functor. -/
@@ -230,7 +287,9 @@ theorem LocallyEssentiallySurjective.right_of_comp_iso
     {F : CartesianBasedFunctor p₁ p₂} {G : CartesianBasedFunctor p₂ p₃}
     {H : CartesianBasedFunctor p₁ p₃} (e : F.comp G ≅ H)
     (hH : LocallyEssentiallySurjective J H) :
-    LocallyEssentiallySurjective J G := sorry
+    LocallyEssentiallySurjective J G := by
+  exact LocallyEssentiallySurjective.right_of_comp
+    (LocallyEssentiallySurjective.of_iso e.symm hH)
 
 namespace Homwise
 
@@ -265,7 +324,12 @@ theorem isLocalEquivalence_iff
     [∀ U : C, (J.over U).WEqualsLocallyBijective (Type (max vS₁ vS₂))] :
     IsLocalEquivalence J F ↔
       ∀ {U : C} (x y : p₁.Fiber U),
-        (J.over U).W (HomPresheaf.Chosen.map F x y) := sorry
+        (J.over U).W (HomPresheaf.Chosen.map F x y) := by
+  constructor
+  · intro hF U x y
+    exact ((J.over U).W_iff_isLocallyBijective _).2 (hF x y)
+  · intro hF U x y
+    exact ((J.over U).W_iff_isLocallyBijective _).1 (hF x y)
 
 end Homwise
 
@@ -283,20 +347,20 @@ def IsLocalEquivalence
 theorem isLocalEquivalence_iff
     (J : GrothendieckTopology C) (F : CartesianBasedFunctor p₁ p₂) :
     IsLocalEquivalence J F ↔
-      Homwise.IsLocalEquivalence J F ∧ LocallyEssentiallySurjective J F := sorry
+      Homwise.IsLocalEquivalence J F ∧ LocallyEssentiallySurjective J F := Iff.rfl
 
 /-- A heterogeneous local equivalence is locally fully faithful on all lifted
 Hom-presheaves. -/
 @[stacks 02ZN "stackification local-equivalence Homwise projection"]
 theorem IsLocalEquivalence.isHomwise
     {J : GrothendieckTopology C} {F : CartesianBasedFunctor p₁ p₂}
-    (hF : IsLocalEquivalence J F) : Homwise.IsLocalEquivalence J F := sorry
+    (hF : IsLocalEquivalence J F) : Homwise.IsLocalEquivalence J F := hF.1
 
 /-- A heterogeneous local equivalence is locally essentially surjective on fiber objects. -/
 @[stacks 02ZN "stackification local-equivalence essential-image projection"]
 theorem IsLocalEquivalence.locallyEssentiallySurjective
     {J : GrothendieckTopology C} {F : CartesianBasedFunctor p₁ p₂}
-    (hF : IsLocalEquivalence J F) : LocallyEssentiallySurjective J F := sorry
+    (hF : IsLocalEquivalence J F) : LocallyEssentiallySurjective J F := hF.2
 
 /-- Every lifted Hom-presheaf map of a heterogeneous local equivalence belongs to the relevant
 slice-site localizing class. -/
@@ -311,7 +375,16 @@ theorem IsLocalEquivalence.homPresheafMap_mem
 /-- The identity cartesian functor is a heterogeneous local equivalence. -/
 @[stacks 02ZN "identity stackification local equivalence"]
 theorem IsLocalEquivalence.id (J : GrothendieckTopology C) :
-    IsLocalEquivalence J (CartesianBasedFunctor.id p₁) := sorry
+    IsLocalEquivalence J (CartesianBasedFunctor.id p₁) := by
+  refine ⟨?_, LocallyEssentiallySurjective.id J⟩
+  intro U x y
+  have hFF : ∀ V : C,
+      Nonempty ((CartesianBasedFunctor.id p₁).fiberFunctor V).FullyFaithful := by
+    intro V
+    exact ⟨Functor.FullyFaithful.id _⟩
+  letI := HomPresheaf.Chosen.map.isIso_of_fiberwiseFullyFaithful
+    (CartesianBasedFunctor.id p₁) hFF x y
+  exact ⟨inferInstance, inferInstance⟩
 
 /-- Heterogeneous local equivalences are closed under universe-polymorphic composition. -/
 @[stacks 02ZN "composition of stackification local equivalences"]
@@ -326,7 +399,10 @@ theorem IsLocalEquivalence.comp
 @[stacks 02ZN "equivalence implies stackification local equivalence"]
 theorem IsLocalEquivalence.of_isEquivalence
     (J : GrothendieckTopology C) (F : CartesianBasedFunctor p₁ p₂)
-    [F.toBasedFunctor.IsEquivalence] : IsLocalEquivalence J F := sorry
+    [F.toBasedFunctor.IsEquivalence] : IsLocalEquivalence J F := by
+  refine ⟨?_, LocallyEssentiallySurjective.of_isEquivalence J F inferInstance⟩
+  intro U x y
+  exact ⟨inferInstance, inferInstance⟩
 
 /-- Transport heterogeneous local equivalence along an isomorphism of parallel cartesian
 functors. -/
@@ -340,7 +416,8 @@ simultaneously. -/
 @[stacks 02ZN "isomorphism invariance of stackification local equivalence"]
 theorem isLocalEquivalence_iff_of_iso
     {J : GrothendieckTopology C} {F G : CartesianBasedFunctor p₁ p₂}
-    (e : F ≅ G) : IsLocalEquivalence J F ↔ IsLocalEquivalence J G := sorry
+    (e : F ≅ G) : IsLocalEquivalence J F ↔ IsLocalEquivalence J G := by
+  exact ⟨IsLocalEquivalence.of_iso e, IsLocalEquivalence.of_iso e.symm⟩
 
 end CartesianBasedFunctor
 

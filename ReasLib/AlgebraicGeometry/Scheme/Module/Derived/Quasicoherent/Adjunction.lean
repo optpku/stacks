@@ -28,8 +28,8 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.DerivedQCoh
 
-/-- The canonical absolute-derived pair condition for the pullback and pushforward attached
-to a morphism of schemes. -/
+/-- Legacy absolute-derived pair condition. This theorem is retained for existing callers;
+the actual QCoh adjunction below does not use it to construct maps. -/
 theorem pullbackPushforwardAdjunctionHasPair
     {X Y : Scheme.{u}} (f : X ⟶ Y) :
     RingedSite.Hom.DerivedAdjunction.HasPair
@@ -40,12 +40,10 @@ to derived modules with quasicoherent cohomology. -/
 noncomputable def pullbackPushforwardAdjunction
     {X Y : Scheme.{u}} (f : X ⟶ Y) [QuasiCompact f] [QuasiSeparated f] :
     pullback f ⊣ pushforwardCohomologyIn f :=
-  -- Local instance justification (proof-local temporary data): required only to construct the restricted adjunction.
-  letI := pullbackPushforwardAdjunctionHasPair f
   ObjectProperty.FullSubcategory.adjunction
     (RingedSpace.modulePullbackDerived f.toShHom)
     (RingedSpace.moduleDerivedPushforward f.toShHom)
-    (RingedSpace.modulePullbackDerivedPushforwardAdjunction f.toShHom)
+    (RingedSpace.moduleDerivedAdjunction f.toShHom)
     (pullback.mapsTo f) (pushforwardCohomologyIn.mapsTo f)
 
 end AlgebraicGeometry.Scheme.DerivedQCoh

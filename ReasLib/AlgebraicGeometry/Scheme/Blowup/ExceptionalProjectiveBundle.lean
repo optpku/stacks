@@ -105,7 +105,8 @@ def exceptionalProjectiveLift (I : X.IdealSheafData) (b : X' ⟶ X)
     (hP : Scheme.ProjectiveBundle.Representation q
       (Scheme.Hom.conormalSheaf I.subschemeι)) :
     Scheme.ProjectiveBundle.Lift q (exceptionalProjection I b) :=
-  (hP.liftEquiv (exceptionalProjection I b)).symm (exceptionalConormalQuotient I b)
+  hP.liftOfQuotientClass (exceptionalProjection I b)
+    (CategoryTheory.InvertibleQuotient.IsoClass.mk (exceptionalConormalQuotient I b))
 
 /-- The exceptional projective lift lies over the canonical exceptional projection. -/
 theorem exceptionalProjectiveLift_fac (I : X.IdealSheafData) (b : X' ⟶ X)
@@ -183,9 +184,9 @@ def exceptionalTautologicalIso (I : X.IdealSheafData) (b : X' ⟶ X)
       (Scheme.Modules.pullback (I.comap b).subschemeι).obj (I.comap b).negSheaf :=
   hP.pullbackTautologicalSheafIso (exceptionalProjection I b)
       (exceptionalProjectiveLift I b q hP) ≪≫
-    eqToIso (congrArg CategoryTheory.InvertibleQuotient.object
-      (Equiv.apply_symm_apply (hP.liftEquiv (exceptionalProjection I b))
-        (exceptionalConormalQuotient I b))) ≪≫
+    CategoryTheory.InvertibleQuotient.targetIsoOfMkEq
+      (hP.liftOfQuotientClass_eq (exceptionalProjection I b)
+        (CategoryTheory.InvertibleQuotient.IsoClass.mk (exceptionalConormalQuotient I b))) ≪≫
     exceptionalConormalNegIso I b
 
 /-- For a blowup in a center smooth over the same base as the ambient scheme, the pulled-back

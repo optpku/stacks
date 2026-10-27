@@ -44,10 +44,4 @@ noncomputable abbrev kernelIdealSubobject
 
 end Hom
 
-/-- The kernel ideal subobject of a locally ringed-space morphism. -/
-@[stacks 01HK "closed-immersion kernel ideal compatibility name"]
-noncomputable abbrev closedImmersionIdealSubobject
-    {X Z : LocallyRingedSpace.{u}} (i : Z ⟶ X) : IdealSubobject X :=
-  Hom.kernelIdealSubobject i
-
 end AlgebraicGeometry.LocallyRingedSpace

@@ -109,7 +109,8 @@ theorem isFlatOver_iff_ringedSite
     (ℱ : X.Modules) (f : X ⟶ Y) :
     IsFlatOver ℱ f ↔
       RingedSite.IsFlatOver.{u, u, u, u, u} ℱ
-        (RingedSpace.opensRingedSiteHom f) := sorry
+        (RingedSpace.opensRingedSiteHom f)
+        (h_adj := RingedSpace.opensRingedSiteHom.commRingPushforward_isRightAdjoint f) := sorry
 
 namespace IsFlatOver
 
@@ -125,12 +126,13 @@ theorem of_forall_isFlatOverAt
     (ℱ : X.Modules) (f : X ⟶ Y)
     (hℱ : ∀ x : X, IsFlatOverAt ℱ f x) : IsFlatOver ℱ f := sorry
 
-/-- Relative flatness on a ringed space supplies the generic opens-ringed-site instance. -/
-@[stacks 08KT "opens-ringed-site instance", instance]
+/-- Relative flatness on a ringed space implies relative flatness on its opens ringed site. -/
+@[stacks 08KT "opens-ringed-site instance"]
 theorem ringedSite
     (ℱ : X.Modules) (f : X ⟶ Y) [IsFlatOver ℱ f] :
     RingedSite.IsFlatOver.{u, u, u, u, u} ℱ
-      (RingedSpace.opensRingedSiteHom (X := X) (Y := Y) f) := sorry
+      (RingedSpace.opensRingedSiteHom (X := X) (Y := Y) f)
+      (h_adj := RingedSpace.opensRingedSiteHom.commRingPushforward_isRightAdjoint f) := sorry
 
 end IsFlatOver
 

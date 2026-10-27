@@ -7,8 +7,11 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.Basic
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Cech.ModuleSpectralSequence
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.Cech.SpectralSequence
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.Covering.FromLifts
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.Quasicoherent
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.UniverseLift
 
 /-!
 # Cohomology of algebraic stacks via a relative Čech nerve
@@ -79,5 +82,33 @@ theorem exists_fppfRelativeCechSpectralSequence [AlgebraicStack U]
       CohomologicalSpectralSequenceNat.ConvergesTo E
         (fun n ↦ (Sheaf.functorH (X.associatedTopology StandardTopology.fppf) n).obj F) :=
   sorry
+
+/-- A representable, surjective, flat morphism of algebraic stacks locally of finite
+presentation yields a Čech spectral sequence for a quasi-coherent module on the
+target. Its first page is `H^q(𝒰_p, f_p^* F)`, where `𝒰_p` has `p + 1` factors
+over the target and `f_p` is the Čech projection. It converges to the cohomology
+of the underlying abelian sheaf of the carrier-lifted module on the target. -/
+@[stacks 0784]
+theorem exists_qcohRelativeCechSpectralSequence [AlgebraicStack U]
+    [AlgebraicStack X] (f : U ⟶ X)
+    (F : SheafOfModules.{u} (associatedStructureSheaf X StandardTopology.fppf))
+    [F.IsQuasicoherent] [Groupoids.Hom.Surjective f] [Groupoids.Hom.Flat f]
+    [Groupoids.Hom.LocallyOfFinitePresentation f]
+    [HasSheafify (X.associatedTopology StandardTopology.fppf) AddCommGrpCat.{u + 1}]
+    [HasExt.{u + 1} (Sheaf (X.associatedTopology StandardTopology.fppf) AddCommGrpCat.{u + 1})]
+    [∀ p : ℕ, HasSheafify (relativeCechSite f StandardTopology.fppf p)
+      AddCommGrpCat.{u + 1}]
+    [∀ p : ℕ, HasExt.{u + 1}
+      (Sheaf (relativeCechSite f StandardTopology.fppf p) AddCommGrpCat.{u + 1})] :
+    ∃ (E : CohomologicalSpectralSequenceNat AddCommGrpCat.{u + 1} 1)
+      (pageOneIso : ∀ p q : ℕ,
+        (E.page 1 le_rfl).X (p, q) ≅
+          relativeCechModulePageOne f StandardTopology.fppf
+            (RingedSite.Module.carrierLift (associatedRingedSite X StandardTopology.fppf) F) p q),
+      CohomologicalSpectralSequenceNat.ConvergesTo E
+        (fun n ↦ (Sheaf.functorH (X.associatedTopology StandardTopology.fppf) n).obj
+          ((SheafOfModules.toSheaf
+              (associatedStructureSheaf X StandardTopology.fppf)).obj
+            (RingedSite.Module.carrierLift (associatedRingedSite X StandardTopology.fppf) F))) := sorry
 
 end AlgebraicGeometry.GroupoidsOver

@@ -13,6 +13,10 @@ public import ReasLib.AlgebraicGeometry.ProjectiveSpace.SplitConic
 public import ReasLib.AlgebraicGeometry.Scheme.Topology.RegularLocus
 public import ReasLib.AlgebraicGeometry.Scheme.Model.Regular.GenusZero
 public import ReasLib.AlgebraicGeometry.Scheme.Model.GoodReduction
+import Mathlib.Tactic.Ring
+import ReasLib.AlgebraicGeometry.ProjectiveSpace.Regular
+import ReasLib.AlgebraicGeometry.Scheme.Model.Regular.Smooth
+import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.DimensionOne
 
 @[expose] public section
 
@@ -28,7 +32,12 @@ theorem complexFactorization :
     (MvPolynomial.X 1 : MvPolynomial (Fin 3) (PowerSeries ℂ)) ^ 2 +
         MvPolynomial.X 2 ^ 2 =
       (MvPolynomial.X 1 + MvPolynomial.C (PowerSeries.C Complex.I) * MvPolynomial.X 2) *
-        (MvPolynomial.X 1 - MvPolynomial.C (PowerSeries.C Complex.I) * MvPolynomial.X 2) := sorry
+        (MvPolynomial.X 1 - MvPolynomial.C (PowerSeries.C Complex.I) * MvPolynomial.X 2) := by
+  have hI : (MvPolynomial.C (PowerSeries.C Complex.I) :
+      MvPolynomial (Fin 3) (PowerSeries ℂ)) ^ 2 = -1 := by
+    rw [← map_pow, ← map_pow, Complex.I_sq, map_neg, map_one, map_neg, map_one]
+  rw [← sq_sub_sq, mul_pow, hI]
+  ring
 
 /-- After coefficientwise extension to complex power series, the real sum-of-squares conic
 is isomorphic over the base to the split conic. -/
@@ -69,7 +78,12 @@ instance realGenericFiber_curve : Curve realGenericFiber := sorry
 instance realGenericFiber_smooth : Smooth realGenericFiber.hom := sorry
 
 /-- The real generic fibre is projective. -/
-instance realGenericFiber_projective : Projective realGenericFiber.hom := sorry
+instance realGenericFiber_projective : Projective realGenericFiber.hom := by
+  haveI : IsProper realGenericFiber.hom :=
+    inferInstanceAs (IsProper (pullback.snd (toSpec (PowerSeries ℝ) PowerSeries.X)
+      (Spec.map (CommRingCat.ofHom (algebraMap (PowerSeries ℝ) (LaurentSeries ℝ))))))
+  exact (HProjective.of_dimension_le_one realGenericFiber.hom
+    (le_of_eq (topologicalKrullDim_eq_one realGenericFiber))).toProjective
 
 /-- The real generic fibre is proper. -/
 instance realGenericFiber_proper : IsProper realGenericFiber.hom :=
@@ -80,7 +94,11 @@ theorem realGenericFiber_globalSections :
     Function.Bijective (Scheme.Hom.globalSectionsMap realGenericFiber.hom) := sorry
 
 /-- The real conic model is Noetherian. -/
-instance realModel_noetherian : IsNoetherian (model (PowerSeries ℝ) PowerSeries.X) := sorry
+instance realModel_noetherian : IsNoetherian (model (PowerSeries ℝ) PowerSeries.X) := by
+  haveI := LocallyOfFiniteType.isLocallyNoetherian (toSpec (PowerSeries ℝ) PowerSeries.X)
+  haveI : CompactSpace (Spec (CommRingCat.of (PowerSeries ℝ))) := PrimeSpectrum.compactSpace
+  haveI := QuasiCompact.compactSpace_of_compactSpace (toSpec (PowerSeries ℝ) PowerSeries.X)
+  exact {}
 
 /-- The concrete regular model marked by the identity on its generic fibre. -/
 def realRegularModel :
@@ -96,19 +114,31 @@ def realRegularModel :
 theorem realRegularModel_base :
     realRegularModel.base = toSpec (PowerSeries ℝ) PowerSeries.X := rfl
 
+/-- The real generic sum-of-squares conic has genus zero. -/
+@[stacks 0CDL]
+theorem realGenericFiber_genus_zero :
+    SchemeOverField.genus realGenericFiber (topologicalKrullDim_eq_one realGenericFiber)
+      realGenericFiber_globalSections = 0 := sorry
+
 /-- Every minimal regular model of the real generic conic is isomorphic to the
 sum-of-squares model, compatibly with its generic-fibre marking. -/
 @[stacks 0CDL]
 theorem realRegularModel_unique
     (M : RegularModel (PowerSeries ℝ) (LaurentSeries ℝ) realGenericFiber)
     [IsMinimalModel M.base] :
-    RegularModel.Isomorphic realRegularModel M := sorry
-
-/-- The real generic sum-of-squares conic has genus zero. -/
-@[stacks 0CDL]
-theorem realGenericFiber_genus_zero :
-    SchemeOverField.genus realGenericFiber (topologicalKrullDim_eq_one realGenericFiber)
-      realGenericFiber_globalSections = 0 := sorry
+    RegularModel.Isomorphic realRegularModel M := by
+  by_contra h
+  haveI : IsMinimalModel realRegularModel.base := realModel_isMinimal
+  obtain ⟨e⟩ := RegularModel.specialFiber_iso_projectiveLine_of_nonunique
+    (PowerSeries ℝ) (LaurentSeries ℝ) realGenericFiber realGenericFiber_globalSections
+    realGenericFiber_genus_zero ⟨realRegularModel, M, inferInstance, inferInstance, h⟩
+    realRegularModel
+  obtain ⟨x, hx⟩ := realSpecialFiber_singular
+  have hreg := @Scheme.isRegularLocalRing_stalk _ (ProjectiveSpace.regularScheme
+    ((Spec (CommRingCat.of (PowerSeries ℝ))).residueField
+      (IsLocalRing.closedPoint (PowerSeries ℝ))) 1) (e.hom.left x)
+  exact hx (@IsRegularLocalRing.of_ringEquiv _ _ hreg _ _
+    (asIso (e.hom.left.stalkMap x)).commRingCatIsoToRingEquiv)
 
 /-- The real generic sum-of-squares conic is not isomorphic to the projective line
 over real Laurent series. -/
@@ -118,6 +148,19 @@ theorem realGenericFiber_not_iso_projectiveLine :
 
 /-- The real generic sum-of-squares conic has no good reduction over real power series. -/
 theorem realGenericFiber_not_hasGoodReduction :
-    ¬ Scheme.Hom.hasGoodReduction (PowerSeries ℝ) (LaurentSeries ℝ) realGenericFiber := sorry
+    ¬ Scheme.Hom.hasGoodReduction (PowerSeries ℝ) (LaurentSeries ℝ) realGenericFiber := by
+  intro h
+  have h_minimal := (exists_smoothModel_iff_exists_smoothMinimalModel
+    (PowerSeries ℝ) (LaurentSeries ℝ) realGenericFiber realGenericFiber_globalSections).mp h
+  have h_smooth := (exists_smoothMinimalModel_iff_forall_minimalModel_smooth
+    (PowerSeries ℝ) (LaurentSeries ℝ) realGenericFiber realGenericFiber_globalSections).mp
+    h_minimal realRegularModel realModel_isMinimal
+  haveI : Smooth (toSpec (PowerSeries ℝ) PowerSeries.X) := h_smooth
+  have hs : Smooth ((toSpec (PowerSeries ℝ) PowerSeries.X).fiberToSpecResidueField
+      (IsLocalRing.closedPoint (PowerSeries ℝ))) :=
+    inferInstanceAs (Smooth (pullback.snd _ _))
+  haveI := @regular_of_smooth_over_field _ _ _ _ hs
+  obtain ⟨x, hx⟩ := realSpecialFiber_singular
+  exact hx (Scheme.isRegularLocalRing_stalk _ x)
 
 end AlgebraicGeometry.SumSquaresConic

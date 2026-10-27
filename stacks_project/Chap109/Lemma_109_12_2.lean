@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.Topology.KrullDimension.Equidimensional
-public import stacks_project.Chap109.Lemma_109_12_2_Substack
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.GorensteinDim1
 
 /-!
 # Gorenstein curves of relative dimension 1
@@ -30,29 +30,27 @@ namespace AlgebraicGeometry.AlgebraicSpace
 namespace Spaces
 namespace Curves
 
-/-- Lemma 109.12.2 (1): given a family of curves `X ⟶ S`, the classifying
-morphism `S ⟶ 𝒞urves` factors through `𝒞urves^{Gorenstein, 1}` if and only if
-`X ⟶ S` is Gorenstein of relative dimension 1. -/
-@[stacks 0E6M]
-theorem classifying_factorsThrough_gorensteinDim1_iff
-    {S : Scheme.{u}} (P : Obj S) :
-    gorensteinDim1 S P ↔
-      AlgebraicSpace.Gorenstein (hom P) ∧ RelativeDimension (hom P) 1 :=
-  sorry
+/- Lemma 109.12.2: Gorenstein families of curves of exact relative dimension
+one form an open substack, with the following membership characterizations. -/
+@[stacks 0E6M] #check
+  (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.exists_gorensteinDim1_open :
+    ∀ {S : Scheme.{u}} (P : Obj S),
+      ∃ U : (base P).left.Opens, ∀ {Q : Obj S} (φ : Q ⟶ P),
+        gorensteinDim1 S Q ↔ Set.range (baseMap φ).left ⊆ U)
 
-/-- Lemma 109.12.2 (2): given a scheme `X` proper over a field `k` with
-dimension at most one, the classifying morphism `Spec k ⟶ 𝒞urves` factors
-through `𝒞urves^{Gorenstein, 1}` if and only if `X` is Gorenstein and
-equidimensional of dimension 1. Nonemptiness of `X` is a formal side
-condition. -/
-@[stacks 0E6M]
-theorem classifying_factorsThrough_gorensteinDim1_iff_scheme
-    {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
-    [Nonempty X.left] (hdim : topologicalKrullDim X.left ≤ 1) :
-    gorensteinDim1 (Spec (CommRingCat.of k)) (mkOfSchemeOverField X hdim) ↔
-      Scheme.Gorenstein X.left ∧ EquidimensionalSpace X.left ∧
-        topologicalKrullDim X.left = 1 :=
-  sorry
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.gorensteinDim1_iff :
+    ∀ {S : Scheme.{u}} (P : Obj S),
+      gorensteinDim1 S P ↔
+        AlgebraicSpace.Gorenstein (hom P) ∧ RelativeDimension (hom P) 1)
+
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.classifying_factorsThrough_gorensteinDim1_iff_scheme :
+    ∀ {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
+      [Nonempty X.left] (hdim : topologicalKrullDim X.left ≤ 1),
+      gorensteinDim1 (Spec (CommRingCat.of k)) (mkOfSchemeOverField X hdim) ↔
+        Scheme.Gorenstein X.left ∧ EquidimensionalSpace X.left ∧
+          topologicalKrullDim X.left = 1)
 
 end Curves
 end Spaces

@@ -219,4 +219,96 @@ theorem intersectionProduct_eq_associatedCycle
         (RelativeChow.closedSubschemeClass (fun _ ↦ 0) X Z nZ) =
       RelativeChow.closedSubschemeClass (fun _ ↦ 0) X (Y ⊔ Z) (nY + nZ - (r : ℤ)) := sorry
 
+/-- The diagonal of a smooth scheme over a field has finite locally free conormal sheaf. -/
+@[instance]
+theorem diagonal_conormal_isFiniteLocallyFree (X : SchemeOverField k) [Smooth X.hom] :
+    IsFiniteLocallyFree (conormalSheaf (diagonal X).left) := sorry
+
+/-- The normal virtual bundle of the diagonal of a smooth scheme, using canonical
+biduality and allowing locally varying rank. -/
+noncomputable def diagonalVirtualNormalBundleOfRankLoci (X : SchemeOverField k)
+    [Smooth X.hom] : VirtualNormalBundle (diagonal X).left :=
+  ofNormalSheafOfRankLoci (diagonal X).left
+
+/-- A chosen model of deformation to the normal cone of the diagonal, factored through
+its coborder range, with the canonical normal virtual bundle. Canonical production of this
+chosen model is a library follow-up. -/
+abbrev DiagonalSpecializationOfRankLoci (X : SchemeOverField k)
+    [Smooth X.hom] :=
+  ClosedDeformation X.hom
+    ((diagonal X).left.coborderRange.ι ≫ (X ⨯ X).hom)
+    (diagonal X).left.liftCoborder
+    (factorization_over X.hom (X ⨯ X).hom (diagonal X).left (Over.w (diagonal X))
+      (diagonal X).left.liftCoborder (diagonal X).left.coborderRange.ι
+      (diagonal X).left.liftCoborder_ι)
+    (diagonalVirtualNormalBundleOfRankLoci X).toCoborder
+
+/-- The completed diagonal Gysin class on all clopen rank loci of a smooth scheme. -/
+noncomputable def diagonalCompletedClassOfRankLoci (X : SchemeOverField k)
+    [Smooth X.hom]
+    (D : DiagonalSpecializationOfRankLoci X) :
+    CompletedClass (fun _ ↦ (0 : ℤ)) X.hom (X ⨯ X).hom (diagonal X).left
+      (Over.w (diagonal X)) (diagonalVirtualNormalBundleOfRankLoci X) :=
+  composeClasses (fun _ ↦ (0 : ℤ)) X.hom (X ⨯ X).hom (diagonal X).left
+    (Over.w (diagonal X)) (diagonal X).left.liftCoborder
+    (diagonal X).left.coborderRange.ι (diagonal X).left.liftCoborder_ι
+    (diagonalVirtualNormalBundleOfRankLoci X)
+    (closedClass (fun _ ↦ (0 : ℤ)) X.hom
+      ((diagonal X).left.coborderRange.ι ≫ (X ⨯ X).hom)
+      (diagonal X).left.liftCoborder
+      (factorization_over X.hom (X ⨯ X).hom (diagonal X).left (Over.w (diagonal X))
+        (diagonal X).left.liftCoborder (diagonal X).left.coborderRange.ι
+        (diagonal X).left.liftCoborder_ι)
+      (diagonalVirtualNormalBundleOfRankLoci X).toCoborder D)
+
+/-- The global degree-`r` diagonal Gysin coefficient obtained by gluing the completed
+class over all clopen rank loci. -/
+noncomputable def diagonalGysinClassOfRankLoci (X : SchemeOverField k)
+    [Smooth X.hom] (D : DiagonalSpecializationOfRankLoci X) (r : ℕ) :
+    BivariantClass (fun _ ↦ 0) (diagonal X) (r : ℤ) :=
+  (diagonalGysinClass_overHom X).symm ▸
+  ((BivariantClass.OpenRestriction.Completion.globalEquiv (fun _ ↦ (0 : ℤ))
+      (overHom X.hom (X ⨯ X).hom (diagonal X).left (Over.w (diagonal X)))
+      (fun n : ℕ ↦ @rankOpen X.left (X ⨯ X).left (diagonal X).left
+        (diagonal_isImmersion X) (diagonalVirtualNormalBundleOfRankLoci X) n)
+      (fun _ : Unit ↦ (⊤ : (X ⨯ X).left.Opens)) (fun _ ↦ Unit.unit)
+      (@Scheme.Modules.rankClopen_iSup X.left
+        (diagonalVirtualNormalBundleOfRankLoci X).module
+        (diagonalVirtualNormalBundleOfRankLoci X).isFiniteLocallyFree)
+      (by simp; rfl)
+      (@Scheme.Modules.rankClopen_pairwiseDisjoint X.left
+        (diagonalVirtualNormalBundleOfRankLoci X).module
+        (diagonalVirtualNormalBundleOfRankLoci X).isFiniteLocallyFree)
+      (by intro a b h; exact (h (Subsingleton.elim a b)).elim)
+      (fun n ↦ (@Scheme.Modules.rankClopen X.left
+        (diagonalVirtualNormalBundleOfRankLoci X).module
+        (diagonalVirtualNormalBundleOfRankLoci X).isFiniteLocallyFree n).isClopen)
+      (fun _ ↦ isClopen_univ)
+      (fun n ↦ rankOpen_le_preimage_top X.hom (X ⨯ X).hom (diagonal X).left
+        (Over.w (diagonal X)) (diagonalVirtualNormalBundleOfRankLoci X) n))
+    (diagonalCompletedClassOfRankLoci X D)).1 r
+
+/-- Restriction of each global diagonal coefficient to a rank locus recovers the
+corresponding coefficient of the completed diagonal class. -/
+theorem diagonalGysinClassOfRankLoci_component (X : SchemeOverField k)
+    [Smooth X.hom] (D : DiagonalSpecializationOfRankLoci X) (n r : ℕ) :
+    BivariantClass.ComponentRestriction.restrict (fun _ ↦ (0 : ℤ))
+      (overHom X.hom (X ⨯ X).hom (diagonal X).left (Over.w (diagonal X))) (r : ℤ)
+      (@rankOpen X.left (X ⨯ X).left (diagonal X).left
+        (diagonal_isImmersion X) (diagonalVirtualNormalBundleOfRankLoci X) n) ⊤
+      (rankOpen_le_preimage_top X.hom (X ⨯ X).hom (diagonal X).left
+        (Over.w (diagonal X)) (diagonalVirtualNormalBundleOfRankLoci X) n)
+      ((diagonalGysinClass_overHom X) ▸ diagonalGysinClassOfRankLoci X D r) =
+      diagonalCompletedClassOfRankLoci X D n r := sorry
+
+/-- For a diagonal conormal sheaf of constant rank `r`, the rank-locus Gysin family
+is concentrated in degree `r` and agrees there with the fixed-rank diagonal class. -/
+theorem diagonalGysinClassOfRankLoci_eq_ofRank (X : SchemeOverField k)
+    [Smooth X.hom] (r : ℕ)
+    [IsFiniteLocallyFreeOfRank r (conormalSheaf (diagonal X).left)]
+    (D : DiagonalSpecializationOfRankLoci X) :
+    diagonalGysinClassOfRankLoci X D r = diagonalGysinClass X r D ∧
+      ∀ n : ℕ, n ≠ r → diagonalGysinClassOfRankLoci X D n =
+        BivariantClass.pointwiseZero (fun _ ↦ 0) (diagonal X) (n : ℤ) := sorry
+
 end AlgebraicGeometry.ChowGroup

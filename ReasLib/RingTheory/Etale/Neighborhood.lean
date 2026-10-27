@@ -8,6 +8,7 @@ module
 
 import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.RingTheory.Etale.Category
+public import ReasLib.RingTheory.Etale.Point
 public import ReasLib.RingTheory.RingHom.Fiber.ResidueField
 
 @[expose] public section
@@ -20,6 +21,8 @@ base point, and the requirement that the induced residue-field map is an
 isomorphism.  The selected point need not be closed; maximality is derived
 when the base point is maximal.  Keeping the point in the data prevents later
 approximation maps from silently switching branches of the etale algebra.
+The canonical bridge `EtaleNeighborhood.toEtalePoint` forgets only the
+residue-field condition; `EtaleNeighborhood.ofEtalePoint` supplies it again.
 @stack 07QZ
 -/
 
@@ -43,9 +46,50 @@ structure EtaleNeighborhood {R : Type u} [CommRing R] (p : PrimeSpectrum R) wher
 
 namespace EtaleNeighborhood
 
+/-- Forget the residue-field condition, preserving the algebra, selected
+point, and lying-over proof. -/
+def toEtalePoint {R : Type u} [CommRing R] {p : PrimeSpectrum R}
+    (U : EtaleNeighborhood.{u, v} p) : EtalePoint.{u, v} p where
+  toCommAlgCat := U.etaleAlgebra.obj
+  etale := U.etaleAlgebra.property
+  point := U.point
+  over := U.over
+
 /-- The carrier type of an etale neighborhood. -/
 abbrev carrier {R : Type u} [CommRing R] {p : PrimeSpectrum R}
     (U : EtaleNeighborhood.{u, v} p) : Type v := U.etaleAlgebra
+
+/-- The forgetful bridge preserves the carrier. -/
+@[simp]
+theorem carrier_toEtalePoint {R : Type u} [CommRing R] {p : PrimeSpectrum R}
+    (U : EtaleNeighborhood.{u, v} p) : U.toEtalePoint.carrier = U.carrier := rfl
+
+/-- The forgetful bridge preserves the selected point. -/
+@[simp]
+theorem point_toEtalePoint {R : Type u} [CommRing R] {p : PrimeSpectrum R}
+    (U : EtaleNeighborhood.{u, v} p) : U.toEtalePoint.point = U.point := rfl
+
+/-- A pointed etale extension with a bijective canonical residue-field map
+is an etale neighborhood. -/
+def ofEtalePoint {R : Type u} [CommRing R] {p : PrimeSpectrum R}
+    (U : EtalePoint.{u, v} p) (hres : Function.Bijective U.residueFieldMap) :
+    EtaleNeighborhood.{u, v} p where
+  etaleAlgebra := { obj := U.toCommAlgCat, property := U.etale }
+  point := U.point
+  over := U.over
+  residueField_bijective := hres
+
+/-- Forgetting an added residue-field condition recovers the supplied point. -/
+@[simp]
+theorem toEtalePoint_ofEtalePoint {R : Type u} [CommRing R] {p : PrimeSpectrum R}
+    (U : EtalePoint.{u, v} p) (hres : Function.Bijective U.residueFieldMap) :
+    (ofEtalePoint U hres).toEtalePoint = U := rfl
+
+/-- Restoring a neighborhood's residue-field condition recovers that neighborhood. -/
+@[simp]
+theorem ofEtalePoint_toEtalePoint {R : Type u} [CommRing R] {p : PrimeSpectrum R}
+    (U : EtaleNeighborhood.{u, v} p) :
+    ofEtalePoint U.toEtalePoint U.residueField_bijective = U := rfl
 
 /-- Bundle an etale algebra, a selected point over `p`, and the induced
 residue-field identification as an etale neighborhood. -/
@@ -57,10 +101,17 @@ def of {R : Type u} [CommRing R] {p : PrimeSpectrum R}
     (hres : Function.Bijective
       (Ideal.ResidueField.map p.asIdeal q.asIdeal (algebraMap R S) hq)) :
     EtaleNeighborhood p :=
-  { etaleAlgebra := CommAlgCat.Etale.of R S
-    point := q
-    over := hq
-    residueField_bijective := hres }
+  ofEtalePoint (EtalePoint.of q hq) hres
+
+/-- The neighborhood constructor uses the canonical pointed extension. -/
+@[simp]
+theorem toEtalePoint_of {R : Type u} [CommRing R] {p : PrimeSpectrum R}
+    {S : Type v} [CommRing S] [Algebra R S] [Algebra.Etale R S]
+    (q : PrimeSpectrum S)
+    (hq : p.asIdeal = Ideal.comap (algebraMap R S) q.asIdeal)
+    (hres : Function.Bijective
+      (Ideal.ResidueField.map p.asIdeal q.asIdeal (algebraMap R S) hq)) :
+    (of q hq hres).toEtalePoint = EtalePoint.of q hq := rfl
 
 /-- Bundle an etale algebra at the contracted point of a target prime whose
 canonical residue-field map is bijective. -/

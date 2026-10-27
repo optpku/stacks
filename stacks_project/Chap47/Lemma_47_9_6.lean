@@ -19,10 +19,10 @@ universe u
 /- Lemma 47.9.6 (1): for finitely generated ideals `I` and `J`, the intersection of their
 zero loci is the zero locus of `I ⊔ J`. -/
 @[stacks 0BJC] #check
-  (PrimeSpectrum.zeroLocus_inter_of_fg :
-    ∀ {A : Type u} [CommRing A] (I J : Ideal A), I.FG → J.FG →
+  (show ∀ {A : Type u} [CommRing A] (I J : Ideal A),
       PrimeSpectrum.zeroLocus I ∩ PrimeSpectrum.zeroLocus J =
-        PrimeSpectrum.zeroLocus ((I ⊔ J : Ideal A) : Set A))
+        PrimeSpectrum.zeroLocus ((I ⊔ J : Ideal A) : Set A) from
+    fun I J => (PrimeSpectrum.zeroLocus_sup I J).symm)
 
 /- Lemma 47.9.6 (2): the comparison from applying support in `I` and then in `J` to support
 in `I ⊔ J` is an isomorphism. -/

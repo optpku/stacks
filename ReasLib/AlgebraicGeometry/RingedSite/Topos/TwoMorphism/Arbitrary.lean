@@ -30,8 +30,8 @@ universe uX vX uY vY uW vW uZ vZ w
 namespace RingedSite.ToposHom
 
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
-variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
-  [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
+variable [@GrothendieckTopology.HasSheafCompose X.carrier X.carrier.str RingCat.{w} inferInstance (Type w) inferInstance X.siteTopology (forget RingCat.{w})]
+  [@GrothendieckTopology.HasSheafCompose Y.carrier Y.carrier.str RingCat.{w} inferInstance (Type w) inferInstance Y.siteTopology (forget RingCat.{w})]
 
 /-- A `2`-morphism between arbitrary morphisms of ringed topoi is a natural transformation
 of direct images compatible with the structure-sheaf maps. -/
@@ -42,7 +42,7 @@ structure TwoMorphism (f g : ToposHom X Y) where
   /-- Compatibility with the canonical ring-valued direct-image structure maps. -/
   comm :
     f.directStructureMap ≫
-        (MorphismOfTopoiIn.ringDirectImageNatTrans hom).app X.structureSheaf =
+        (@MorphismOfTopoiIn.ringDirectImageNatTrans Y.carrier Y.carrier.str X.carrier X.carrier.str Y.siteTopology X.siteTopology _ _ inferInstance inferInstance hom).app X.structureSheaf =
       g.directStructureMap
 
 /-- After forgetting ring structure, a ringed-topos `2`-morphism commutes with the underlying
@@ -61,7 +61,7 @@ theorem TwoMorphism.ext {f g : ToposHom X Y} {η θ : TwoMorphism f g}
 /-- Compatibility of the identity direct-image transformation with the structure map. -/
 theorem refl_comm (f : ToposHom X Y) :
     f.directStructureMap ≫
-        (MorphismOfTopoiIn.ringDirectImageNatTrans
+        (@MorphismOfTopoiIn.ringDirectImageNatTrans Y.carrier Y.carrier.str X.carrier X.carrier.str Y.siteTopology X.siteTopology _ _ inferInstance inferInstance
           (𝟙 f.toTopos.pushforward)).app X.structureSheaf =
       f.directStructureMap := sorry
 
@@ -74,7 +74,7 @@ def TwoMorphism.refl (f : ToposHom X Y) : TwoMorphism f f where
 theorem comp_comm {f g h : ToposHom X Y}
     (η : TwoMorphism f g) (θ : TwoMorphism g h) :
     f.directStructureMap ≫
-        (MorphismOfTopoiIn.ringDirectImageNatTrans
+        (@MorphismOfTopoiIn.ringDirectImageNatTrans Y.carrier Y.carrier.str X.carrier X.carrier.str Y.siteTopology X.siteTopology _ _ inferInstance inferInstance
           (η.hom ≫ θ.hom)).app X.structureSheaf =
       h.directStructureMap := sorry
 
@@ -87,14 +87,14 @@ def TwoMorphism.comp {f g h : ToposHom X Y}
 section Whiskering
 
 variable {W : RingedSite.{uW, vW, w}} {Z : RingedSite.{uZ, vZ, w}}
-variable [W.siteTopology.HasSheafCompose (forget RingCat.{w})]
-  [Z.siteTopology.HasSheafCompose (forget RingCat.{w})]
+variable [@GrothendieckTopology.HasSheafCompose W.carrier W.carrier.str RingCat.{w} inferInstance (Type w) inferInstance W.siteTopology (forget RingCat.{w})]
+  [@GrothendieckTopology.HasSheafCompose Z.carrier Z.carrier.str RingCat.{w} inferInstance (Type w) inferInstance Z.siteTopology (forget RingCat.{w})]
 
 /-- Compatibility of left whiskering with the composite structure map. -/
 theorem whiskerLeft_comm (k : ToposHom W X) {f g : ToposHom X Y}
     (η : TwoMorphism f g) :
     (ToposHom.comp k f).directStructureMap ≫
-        (MorphismOfTopoiIn.ringDirectImageNatTrans
+        (@MorphismOfTopoiIn.ringDirectImageNatTrans Y.carrier Y.carrier.str W.carrier W.carrier.str Y.siteTopology W.siteTopology _ _ inferInstance inferInstance
           (Functor.whiskerLeft k.toTopos.pushforward η.hom)).app W.structureSheaf =
       (ToposHom.comp k g).directStructureMap := sorry
 
@@ -109,7 +109,7 @@ def TwoMorphism.whiskerLeft (k : ToposHom W X) {f g : ToposHom X Y}
 theorem whiskerRight_comm {f g : ToposHom X Y} (η : TwoMorphism f g)
     (h : ToposHom Y Z) :
     (ToposHom.comp f h).directStructureMap ≫
-        (MorphismOfTopoiIn.ringDirectImageNatTrans
+        (@MorphismOfTopoiIn.ringDirectImageNatTrans Z.carrier Z.carrier.str X.carrier X.carrier.str Z.siteTopology X.siteTopology _ _ inferInstance inferInstance
           (Functor.whiskerRight η.hom h.toTopos.pushforward)).app X.structureSheaf =
       (ToposHom.comp g h).directStructureMap := sorry
 
@@ -138,7 +138,7 @@ structure TwoIso (f g : ToposHom X Y) where
   /-- Compatibility with the canonical ring-valued direct-image structure maps. -/
   comm :
     f.directStructureMap ≫
-        (MorphismOfTopoiIn.ringDirectImageNatTrans homIso.hom).app X.structureSheaf =
+        (@MorphismOfTopoiIn.ringDirectImageNatTrans Y.carrier Y.carrier.str X.carrier X.carrier.str Y.siteTopology X.siteTopology _ _ inferInstance inferInstance homIso.hom).app X.structureSheaf =
       g.directStructureMap
 
 /-- The identity `2`-isomorphism of a morphism of ringed topoi. -/
@@ -161,7 +161,7 @@ def TwoIso.hom {f g : ToposHom X Y} (e : TwoIso f g) : TwoMorphism f g where
 /-- Compatibility of the inverse natural transformation of an invertible `2`-morphism. -/
 theorem TwoIso.inv_comm {f g : ToposHom X Y} (e : TwoIso f g) :
     g.directStructureMap ≫
-        (MorphismOfTopoiIn.ringDirectImageNatTrans
+        (@MorphismOfTopoiIn.ringDirectImageNatTrans Y.carrier Y.carrier.str X.carrier X.carrier.str Y.siteTopology X.siteTopology _ _ inferInstance inferInstance
           e.homIso.inv).app X.structureSheaf =
       f.directStructureMap := sorry
 

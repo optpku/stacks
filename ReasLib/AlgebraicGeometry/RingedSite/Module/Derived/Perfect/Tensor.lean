@@ -34,10 +34,12 @@ set_option checkBinderAnnotations false
 
 namespace RingedSite.Hom.ModuleDerived
 
--- Local instance justification (defeq pin): generic derived-tensor APIs must align with the canonical RingedSite.Hom.ModuleDerived presentation.
+-- Local instance justification (defeq pin): generic derived tensor localization must use the standard derived-category presentation underlying ModuleDerived.
 attribute [local instance] HasDerivedCategory.standard
-  RingedSite.Hom.moduleCat_hasDerivedCategory
-  SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+-- Local instance justification (defeq pin): the bundled module-sheaf derived category must coincide with the generic derived-tensor category on the commutative ring-sheaf presentation.
+attribute [local instance] RingedSite.Hom.moduleCat_hasDerivedCategory
+-- Local instance justification (defeq pin): tensor totalization must use the canonical module-sheaf map-bifunctor presentation shared by the derived tensor construction.
+attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
 
 section
 
@@ -46,10 +48,10 @@ variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
 variable {O : Sheaf J CommRingCat.{w}} [UnivLE.{max u v, w}]
 variable [HasWeakSheafify J AddCommGrpCat.{w}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
-variable [∀ U : RingedSite.ofCommRingSheaf J O,
+variable [∀ U : (RingedSite.ofCommRingSheaf J O).carrier,
   HasWeakSheafify ((RingedSite.ofCommRingSheaf J O).localization U).siteTopology
     AddCommGrpCat.{w}]
-variable [∀ U : RingedSite.ofCommRingSheaf J O,
+variable [∀ U : (RingedSite.ofCommRingSheaf J O).carrier,
   ((RingedSite.ofCommRingSheaf J O).localization U).siteTopology.WEqualsLocallyBijective
     AddCommGrpCat.{w}]
 variable [DerivedCategory.DerivedTensor.Right.Has

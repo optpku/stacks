@@ -26,18 +26,6 @@ namespace AlgebraicGeometry.BivariantClass
 
 open Scheme.Hom Scheme.Hom.VirtualNormalBundle
 
-/-- An open immersion has relative dimension zero. -/
-instance instRelativeDimensionZeroOfIsOpenImmersion
-    {X Y : Scheme.{u}} (f : X ⟶ Y) [IsOpenImmersion f] :
-    RelativeDimension f 0 :=
-  relativeDimension_zero_of_isOpenImmersion f
-
-/-- The underlying scheme morphism of `overHom` for an open immersion is an open immersion. -/
-instance overHom_isOpenImmersion
-    {S U X : Scheme.{u}} (q : U ⟶ S) (p : X ⟶ S) (k : U ⟶ X)
-    (hk : k ≫ p = q) [IsOpenImmersion k] :
-    IsOpenImmersion (overHom q p k hk).left := sorry
-
 /-- The conormal sheaf of a regular immersion is finite locally free. -/
 instance conormalSheaf_isFiniteLocallyFree_of_isRegularImmersion
     {Z X : Scheme.{u}} (i : Z ⟶ X) [IsRegularImmersion i] :

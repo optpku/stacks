@@ -6,15 +6,13 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.Crystalline.Cohomology.OrdinaryBaseChange
 import StacksCheckRecall
-public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension.BaseChangeMap
-public import stacks_project.Chap60.Remark_60_24_9_Base_change_isomorphism_RingedGeometry
 
 @[expose] public section
 
 open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
-open AlgebraicGeometry.Scheme.Crystalline CrystallineModuleSheaf
-open CrystallineRingedGeometry CrystallineCoefficients
+open AlgebraicGeometry.Scheme.Crystalline CrystallineRingedGeometry CrystallineCoefficients
 
 universe u
 
@@ -75,75 +73,16 @@ variable [RingedSite.ToposHom.HasModulePushforwardDerived
 variable [RingedSite.ToposHom.HasModuleDerivedAdjunction
   (smallRingedMorphism I γ hc x₀ I' γ' hc' s s' x'₀ f g hf hpX hpX' hγ)]
 
-/-- In the affine divided-power crystalline base-change setup, let `F'` be an
-arbitrary module sheaf over `X'/S'`. The canonical map on crystalline cohomology is obtained by
-derived scalar extension along the actual base-ring map induced by `g`, followed by the canonical
-comparison
-from the derived pullback to the ordinary pullback coefficient over `X/S`. -/
-noncomputable def crystallineCohomologyBaseChange
-    [IsAffine S] [IsAffine S']
-    (F' : RingedSite.ModuleCat.{u + 1}
-      (CrystallineCoefficients.liftedRingedSite I' γ' hc' x'₀ p s' hpX')) :=
-  let K := (RingedSite.Hom.moduleLocalization.{u + 1}
-      (CrystallineCoefficients.liftedRingedSite I' γ' hc' x'₀ p s' hpX')).obj
-    ((HomotopyCategory.singleFunctor
-      (RingedSite.ModuleCat.{u + 1}
-        (CrystallineCoefficients.liftedRingedSite I' γ' hc' x'₀ p s' hpX')) (0 : ℤ)).obj F')
-  let f₀ := smallRingedMorphism I γ hc x₀ I' γ' hc' s s' x'₀ f g hf hpX hpX' hγ
-  let ordinaryPullback :=
-    (Functor.totalLeftDerivedCounit
-      (RingedSite.ToposHom.modulePullbackToDerived.{u + 1} f₀)
-      (RingedSite.Hom.moduleLocalization.{u + 1}
-        (CrystallineCoefficients.liftedRingedSite I' γ' hc' x'₀ p s' hpX'))
-      (RingedSite.Hom.ModuleQis.{u + 1}
-        (CrystallineCoefficients.liftedRingedSite I' γ' hc' x'₀ p s' hpX'))).app
-      ((HomotopyCategory.singleFunctor
-        (RingedSite.ModuleCat.{u + 1}
-          (CrystallineCoefficients.liftedRingedSite I' γ' hc' x'₀ p s' hpX')) (0 : ℤ)).obj
-        F')
-  cohomologyBaseChange I γ hc x₀ I' γ' hc' s s' x'₀ f g hf hpX hpX' hγ K ≫
-    (CategoryTheory.ModuleCat.derivedRestrictionOfScalars
-      (CrystallineCoefficients.baseToGlobalSections I γ hc x₀ p s hpX)).map
-      ((RingedSite.Hom.moduleDerivedGlobalSections.{u + 1}
-        (CrystallineCoefficients.liftedRingedSite I γ hc x₀ p s hpX)).map ordinaryPullback)
-
 variable [IsAffine S] [IsAffine S']
-variable (F' : RingedSite.ModuleCat.{u + 1}
-  (CrystallineCoefficients.liftedRingedSite I' γ' hc' x'₀ p s' hpX'))
+variable (F' : RingedSite.ModuleCat.{u + 1} (liftedRingedSite I' γ' hc' x'₀ p s' hpX'))
 
-/- 60.24.8.1: the canonical crystalline cohomology base-change map for an arbitrary module
-sheaf, with ordinary pullback coefficients, is the transpose along the actual base-ring map. -/
-@[stacks 07MT] #check (CategoryTheory.ModuleCat.derivedExtensionRestrictionMap
-  (CrystallineCoefficients.baseRingMap g.base)
-  (let Ysite := CrystallineCoefficients.liftedRingedSite I' γ' hc' x'₀ p s' hpX'
-   let Xsite := CrystallineCoefficients.liftedRingedSite I γ hc x₀ p s hpX
-   let coefficient := (HomotopyCategory.singleFunctor
-     (RingedSite.ModuleCat.{u + 1} Ysite) (0 : ℤ)).obj F'
-   let K := (RingedSite.Hom.moduleLocalization.{u + 1} Ysite).obj coefficient
-   let f₀ := smallRingedMorphism I γ hc x₀ I' γ' hc' s s' x'₀ f g hf hpX hpX' hγ
-   let ordinaryPullback := (Functor.totalLeftDerivedCounit
-     (RingedSite.ToposHom.modulePullbackToDerived.{u + 1} f₀)
-     (RingedSite.Hom.moduleLocalization.{u + 1} Ysite)
-     (RingedSite.Hom.ModuleQis.{u + 1} Ysite)).app coefficient
-   let α := CrystallineCoefficients.baseToGlobalSections I' γ' hc' x'₀ p s' hpX'
-   let β := CrystallineCoefficients.baseToGlobalSections I γ hc x₀ p s hpX
-   let σ := CrystallineCoefficients.baseRingMap g.base
-   let cmp := crystallineDerivedGlobalSectionsIso
-     I γ hc x₀ I' γ' hc' s s' x'₀ f g hf hpX hpX' hγ
-   let ρ := crystallineBaseRestrictionIso
-     I γ hc x₀ I' γ' hc' s s' x'₀ f g hf hpX hpX' hγ
-   (CategoryTheory.ModuleCat.derivedRestrictionOfScalars α).map
-        ((RingedSite.Hom.moduleDerivedGlobalSections.{u + 1} Ysite).map
-            (f₀.moduleDerivedAdjunction.unit.app K) ≫
-          cmp.inv.app (f₀.modulePullbackDerived.obj K)) ≫
-      ρ.hom.app ((RingedSite.Hom.moduleDerivedGlobalSections.{u + 1} Xsite).obj
-        (f₀.modulePullbackDerived.obj K)) ≫
-      (CategoryTheory.ModuleCat.derivedRestrictionOfScalars σ).map
-        ((CategoryTheory.ModuleCat.derivedRestrictionOfScalars β).map
-          ((RingedSite.Hom.moduleDerivedGlobalSections.{u + 1} Xsite).map ordinaryPullback))) :
+/- 60.24.8.1: derived extension of scalars on crystalline cohomology maps canonically to the
+cohomology of the ordinary crystalline pullback. -/
+@[stacks 07MT] #check (CrystallineRingedGeometry.crystallineCohomologyBaseChange
+  I γ hc x₀ I' γ' hc' s s' x'₀ f g hf hpX hpX' hγ F'  :
     (CategoryTheory.ModuleCat.derivedExtensionOfScalars.{u + 1, u + 1, u + 1}
       (CrystallineCoefficients.baseRingMap g.base)).obj
-      ((CategoryTheory.ModuleCat.derivedRestrictionOfScalars
+      ((CategoryTheory.ModuleCat.derivedRestrictionOfScalars.{u + 1, u + 1}
         (CrystallineCoefficients.baseToGlobalSections I' γ' hc' x'₀ p s' hpX')).obj
         ((RingedSite.Hom.moduleDerivedGlobalSections.{u + 1}
           (CrystallineCoefficients.liftedRingedSite I' γ' hc' x'₀ p s' hpX')).obj
@@ -153,7 +92,7 @@ sheaf, with ordinary pullback coefficients, is the transpose along the actual ba
               (RingedSite.ModuleCat.{u + 1}
                 (CrystallineCoefficients.liftedRingedSite I' γ' hc' x'₀ p s' hpX'))
               (0 : ℤ)).obj F')))) ⟶
-      (CategoryTheory.ModuleCat.derivedRestrictionOfScalars
+      (CategoryTheory.ModuleCat.derivedRestrictionOfScalars.{u + 1, u + 1}
         (CrystallineCoefficients.baseToGlobalSections I γ hc x₀ p s hpX)).obj
         ((RingedSite.Hom.moduleDerivedGlobalSections.{u + 1}
           (CrystallineCoefficients.liftedRingedSite I γ hc x₀ p s hpX)).obj

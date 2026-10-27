@@ -58,7 +58,8 @@ theorem mapCompIsoApp.hom.fst
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V)
     (P : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)) :
     (mapCompIsoApp F G χX χY χS f g P).hom.fst =
-      (Functor.Cleavage.Reindex.compIsoApp χX f g P.fst).hom := sorry
+      (Functor.Cleavage.Reindex.compIsoApp χX f g P.fst).hom := by
+  rfl
 
 /-- The right component of the forward objectwise fiber-pullback composition comparison. -/
 @[simp]
@@ -68,7 +69,8 @@ theorem mapCompIsoApp.hom.snd
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V)
     (P : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)) :
     (mapCompIsoApp F G χX χY χS f g P).hom.snd =
-      (Functor.Cleavage.Reindex.compIsoApp χY f g P.snd).hom := sorry
+      (Functor.Cleavage.Reindex.compIsoApp χY f g P.snd).hom := by
+  rfl
 
 /-- The left component of the inverse objectwise fiber-pullback composition comparison. -/
 @[simp]
@@ -78,7 +80,8 @@ theorem mapCompIsoApp.inv.fst
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V)
     (P : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)) :
     (mapCompIsoApp F G χX χY χS f g P).inv.fst =
-      (Functor.Cleavage.Reindex.compIsoApp χX f g P.fst).inv := sorry
+      (Functor.Cleavage.Reindex.compIsoApp χX f g P.fst).inv := by
+  rfl
 
 /-- The right component of the inverse objectwise fiber-pullback composition comparison. -/
 @[simp]
@@ -88,7 +91,8 @@ theorem mapCompIsoApp.inv.snd
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V)
     (P : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)) :
     (mapCompIsoApp F G χX χY χS f g P).inv.snd =
-      (Functor.Cleavage.Reindex.compIsoApp χY f g P.snd).inv := sorry
+      (Functor.Cleavage.Reindex.compIsoApp χY f g P.snd).inv := by
+  rfl
 
 /-- The objectwise fiber-pullback composition comparisons are natural. -/
 theorem mapCompIsoApp.naturality.hom
@@ -100,7 +104,10 @@ theorem mapCompIsoApp.naturality.hom
         (mapCompIsoApp F G χX χY χS f g Q).hom =
       (mapCompIsoApp F G χX χY χS f g P).hom ≫
         (functor F G χX χY χS f ⋙
-          functor F G χX χY χS g).map φ := sorry
+          functor F G χX χY χS g).map φ := by
+  apply CategoricalPullback.hom_ext
+  · exact (Functor.Cleavage.Reindex.compIso χX f g).hom.naturality φ.fst
+  · exact (Functor.Cleavage.Reindex.compIso χY f g).hom.naturality φ.snd
 
 /-- Inverse naturality of the objectwise fiber-pullback composition comparison. -/
 theorem mapCompIsoApp.naturality.inv
@@ -112,7 +119,10 @@ theorem mapCompIsoApp.naturality.inv
         functor F G χX χY χS g).map φ ≫
       (mapCompIsoApp F G χX χY χS f g Q).inv =
     (mapCompIsoApp F G χX χY χS f g P).inv ≫
-      (functor F G χX χY χS (g ≫ f)).map φ := sorry
+      (functor F G χX χY χS (g ≫ f)).map φ := by
+  apply CategoricalPullback.hom_ext
+  · exact (Functor.Cleavage.Reindex.compIso χX f g).inv.naturality φ.fst
+  · exact (Functor.Cleavage.Reindex.compIso χY f g).inv.naturality φ.snd
 
 /-- Direct and successive reindexing of categorical pullbacks of fibers are naturally
 isomorphic. -/
@@ -137,7 +147,8 @@ theorem mapCompIso.hom.app.fst
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V)
     (P : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)) :
     ((mapCompIso F G χX χY χS f g).hom.app P).fst =
-      (Functor.Cleavage.Reindex.compIsoApp χX f g P.fst).hom := sorry
+      (Functor.Cleavage.Reindex.compIsoApp χX f g P.fst).hom := by
+  rfl
 
 /-- The second component of the forward natural composition comparison is the cleavage
 composition comparison in the right fiber. -/
@@ -148,7 +159,8 @@ theorem mapCompIso.hom.app.snd
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V)
     (P : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)) :
     ((mapCompIso F G χX χY χS f g).hom.app P).snd =
-      (Functor.Cleavage.Reindex.compIsoApp χY f g P.snd).hom := sorry
+      (Functor.Cleavage.Reindex.compIsoApp χY f g P.snd).hom := by
+  rfl
 
 /-- The first component of the inverse natural composition comparison is the inverse cleavage
 composition comparison in the left fiber. -/
@@ -159,7 +171,8 @@ theorem mapCompIso.inv.app.fst
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V)
     (P : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)) :
     ((mapCompIso F G χX χY χS f g).inv.app P).fst =
-      (Functor.Cleavage.Reindex.compIsoApp χX f g P.fst).inv := sorry
+      (Functor.Cleavage.Reindex.compIsoApp χX f g P.fst).inv := by
+  rfl
 
 /-- The second component of the inverse natural composition comparison is the inverse cleavage
 composition comparison in the right fiber. -/
@@ -170,7 +183,8 @@ theorem mapCompIso.inv.app.snd
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V)
     (P : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)) :
     ((mapCompIso F G χX χY χS f g).inv.app P).snd =
-      (Functor.Cleavage.Reindex.compIsoApp χY f g P.snd).inv := sorry
+      (Functor.Cleavage.Reindex.compIsoApp χY f g P.snd).inv := by
+  rfl
 
 end BasedCategory.PseudoPullback.reindex.explicit
 

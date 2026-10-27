@@ -47,7 +47,8 @@ namespace CompatiblePair
 @[stacks 016U "precomposition of compatible pullback pairs",
   stacks 0173 "precomposition of compatible pullback pairs"]
 theorem precomp_condition {S T : C} (k : S ⟶ T) (p : CompatiblePair f g T) :
-    (k ≫ p.1.1) ≫ f = (k ≫ p.1.2) ≫ g := sorry
+    (k ≫ p.1.1) ≫ f = (k ≫ p.1.2) ≫ g := by
+  simpa only [Category.assoc] using congrArg (fun q => k ≫ q) p.2
 
 /-- Precompose both legs of a compatible pullback pair. -/
 @[stacks 016U "precomposition of compatible pullback pairs",
@@ -60,19 +61,21 @@ def precomp {S T : C} (k : S ⟶ T) (p : CompatiblePair f g T) :
 @[simp, stacks 016U "first leg after pullback-pair precomposition",
   stacks 0173 "first leg after pullback-pair precomposition"]
 theorem precomp_fst {S T : C} (k : S ⟶ T) (p : CompatiblePair f g T) :
-    (precomp f g k p).1.1 = k ≫ p.1.1 := sorry
+    (precomp f g k p).1.1 = k ≫ p.1.1 := rfl
 
 /-- The second leg of a precomposed compatible pullback pair. -/
 @[simp, stacks 016U "second leg after pullback-pair precomposition",
   stacks 0173 "second leg after pullback-pair precomposition"]
 theorem precomp_snd {S T : C} (k : S ⟶ T) (p : CompatiblePair f g T) :
-    (precomp f g k p).1.2 = k ≫ p.1.2 := sorry
+    (precomp f g k p).1.2 = k ≫ p.1.2 := rfl
 
 /-- The projections of a morphism to a pullback form a compatible pair. -/
 @[stacks 016U "pullback projections form a compatible pair",
   stacks 0173 "pullback projections form a compatible pair"]
 theorem ofHom_condition {T : C} (h : T ⟶ pullback f g) :
-    (h ≫ pullback.fst f g) ≫ f = (h ≫ pullback.snd f g) ≫ g := sorry
+    (h ≫ pullback.fst f g) ≫ f = (h ≫ pullback.snd f g) ≫ g := by
+  simpa only [Category.assoc] using
+    congrArg (fun q => h ≫ q) (pullback.condition (f := f) (g := g))
 
 /-- Send a morphism to a pullback to its two projection composites. -/
 @[stacks 016U "morphism to a compatible pullback pair",
@@ -90,13 +93,24 @@ noncomputable def lift {T : C} (p : CompatiblePair f g T) : T ⟶ pullback f g :
 @[stacks 016U "pullback lift after projection",
   stacks 0173 "pullback lift after projection"]
 theorem lift_ofHom {T : C} (h : T ⟶ pullback f g) :
-    lift f g (ofHom f g h) = h := sorry
+    lift f g (ofHom f g h) = h := by
+  apply pullback.hom_ext
+  · show lift f g (ofHom f g h) ≫ pullback.fst f g = h ≫ pullback.fst f g
+    simp [lift, ofHom, pullback.lift_fst]
+  · show lift f g (ofHom f g h) ≫ pullback.snd f g = h ≫ pullback.snd f g
+    simp [lift, ofHom, pullback.lift_snd]
 
 /-- Taking projections after lifting a compatible pullback pair recovers the pair. -/
 @[stacks 016U "pullback projections after lift",
   stacks 0173 "pullback projections after lift"]
 theorem ofHom_lift {T : C} (p : CompatiblePair f g T) :
-    ofHom f g (lift f g p) = p := sorry
+    ofHom f g (lift f g p) = p := by
+  apply Subtype.ext
+  apply Prod.ext
+  · change (lift f g p) ≫ pullback.fst f g = p.1.1
+    exact pullback.lift_fst _ _ _
+  · change (lift f g p) ≫ pullback.snd f g = p.1.2
+    exact pullback.lift_snd _ _ _
 
 end CompatiblePair
 
@@ -117,39 +131,52 @@ namespace homEquiv
   stacks 0173 "pullback Hom equivalence application"]
 theorem apply {T : C} (h : T ⟶ pullback f g) :
     (homEquiv f g T h).1 =
-      (h ≫ pullback.fst f g, h ≫ pullback.snd f g) := sorry
+      (h ≫ pullback.fst f g, h ≫ pullback.snd f g) := rfl
 
 /-- The first leg returned by `pullback.homEquiv`. -/
 @[simp, stacks 016U "first leg of the pullback Hom equivalence",
   stacks 0173 "first leg of the pullback Hom equivalence"]
 theorem apply_fst {T : C} (h : T ⟶ pullback f g) :
-    (homEquiv f g T h).1.1 = h ≫ pullback.fst f g := sorry
+    (homEquiv f g T h).1.1 = h ≫ pullback.fst f g := rfl
 
 /-- The second leg returned by `pullback.homEquiv`. -/
 @[simp, stacks 016U "second leg of the pullback Hom equivalence",
   stacks 0173 "second leg of the pullback Hom equivalence"]
 theorem apply_snd {T : C} (h : T ⟶ pullback f g) :
-    (homEquiv f g T h).1.2 = h ≫ pullback.snd f g := sorry
+    (homEquiv f g T h).1.2 = h ≫ pullback.snd f g := rfl
 
 /-- The inverse of `pullback.homEquiv` is the canonical pullback lift. -/
 @[simp, stacks 016U "inverse of the pullback Hom equivalence",
   stacks 0173 "inverse of the pullback Hom equivalence"]
 theorem symm_apply {T : C} (p : CompatiblePair f g T) :
-    (homEquiv f g T).symm p = pullback.lift p.1.1 p.1.2 p.2 := sorry
+    (homEquiv f g T).symm p = pullback.lift p.1.1 p.1.2 p.2 := rfl
 
 /-- The pullback Hom equivalence is natural under precomposition. -/
 @[simp, stacks 016U "naturality of the pullback Hom equivalence",
   stacks 0173 "naturality of the pullback Hom equivalence"]
 theorem precomp {S T : C} (k : S ⟶ T) (h : T ⟶ pullback f g) :
     homEquiv f g S (k ≫ h) =
-      CompatiblePair.precomp f g k (homEquiv f g T h) := sorry
+      CompatiblePair.precomp f g k (homEquiv f g T h) := by
+  apply Subtype.ext
+  apply Prod.ext
+  · change (k ≫ h) ≫ pullback.fst f g = k ≫ (h ≫ pullback.fst f g)
+    exact Category.assoc _ _ _
+  · change (k ≫ h) ≫ pullback.snd f g = k ≫ (h ≫ pullback.snd f g)
+    exact Category.assoc _ _ _
 
 /-- The inverse pullback Hom equivalence commutes with precomposition. -/
 @[stacks 016U "inverse naturality of the pullback Hom equivalence",
   stacks 0173 "inverse naturality of the pullback Hom equivalence"]
 theorem symm_precomp {S T : C} (k : S ⟶ T) (p : CompatiblePair f g T) :
     (homEquiv f g S).symm (CompatiblePair.precomp f g k p) =
-      k ≫ (homEquiv f g T).symm p := sorry
+      k ≫ (homEquiv f g T).symm p := by
+  apply pullback.hom_ext
+  · show (homEquiv f g S).symm (CompatiblePair.precomp f g k p) ≫ pullback.fst f g =
+      (k ≫ (homEquiv f g T).symm p) ≫ pullback.fst f g
+    simp [Category.assoc, pullback.lift_fst]
+  · show (homEquiv f g S).symm (CompatiblePair.precomp f g k p) ≫ pullback.snd f g =
+      (k ≫ (homEquiv f g T).symm p) ≫ pullback.snd f g
+    simp [Category.assoc, pullback.lift_snd]
 
 end homEquiv
 

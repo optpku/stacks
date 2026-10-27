@@ -40,15 +40,4 @@ noncomputable instance map_f_isIso (f : K ⟶ L) (i : ι) {p q : ℤ} (hpq : p �
 noncomputable instance map_isIso (f : K ⟶ L) {p q : ℤ} (hpq : p ≤ q)
     [IsIso f] : IsIso (map f hpq) := sorry
 
-variable (f : K ⟶ L) [IsIso f]
-#synth IsIso (map f (le_refl (0 : ℤ)))
-
-section ConcreteShape
-
-variable {K L : HomologicalComplex (FilteredObject C) (ComplexShape.up ℤ)}
-variable (f : K ⟶ L) [IsIso f]
-#synth IsIso ((map f (le_refl (0 : ℤ))).f 0)
-
-end ConcreteShape
-
 end CategoryTheory.HomologicalComplex.Filtered.Subquotient

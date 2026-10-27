@@ -6,8 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap103.Lemma_103_17_1_Coherent
-public import stacks_project.Chap103.Lemma_103_17_1_Restrict
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Module.Coherent.Noetherian
 import StacksCheckRecall
 
 @[expose] public section
@@ -26,14 +25,14 @@ variable (F : SheafOfModules.{u} (structureSheaf X))
 /- Lemma 103.17.1 (1): on a locally Noetherian algebraic stack `X`, an `𝒪_X`-module
 `F` is of finite presentation iff it is quasi-coherent and of finite type. -/
 @[stacks 0GR5]
-#check (isFinitePresentation_iff_isQuasicoherent_and_isFiniteType F :
+#check (AlgebraicGeometry.AlgebraicStack.isFinitePresentation_iff_isQuasicoherent_and_isFiniteType F :
   F.IsFinitePresentation ↔ F.IsQuasicoherent ∧ F.IsFiniteType)
 
 /- Lemma 103.17.1 (2): `F` is of finite presentation iff it is quasi-coherent and
 for every morphism `f : U.toGroupoids ⟶ X` from a locally Noetherian algebraic
 space, `f^* F |_{U_étale}` is coherent. -/
 @[stacks 0GR5]
-#check (isFinitePresentation_iff_forall_locallyNoetherian F :
+#check (AlgebraicGeometry.AlgebraicStack.isFinitePresentation_iff_forall_locallyNoetherian F :
   F.IsFinitePresentation ↔
     F.IsQuasicoherent ∧
       ∀ (U : AlgebraicSpace S) [AlgebraicSpace.IsLocallyNoetherian U]
@@ -44,7 +43,7 @@ space, `f^* F |_{U_étale}` is coherent. -/
 there exists an algebraic space `U` and a locally of finite type, flat, surjective
 morphism `f : U.toGroupoids ⟶ X` such that `f^* F |_{U_étale}` is coherent. -/
 @[stacks 0GR5]
-#check (isFinitePresentation_iff_exists_locallyOfFiniteType_flat_surjective F :
+#check (AlgebraicGeometry.AlgebraicStack.isFinitePresentation_iff_exists_locallyOfFiniteType_flat_surjective F :
   F.IsFinitePresentation ↔
     F.IsQuasicoherent ∧
       ∃ (U : AlgebraicSpace S) (f : U.toGroupoids ⟶ X),

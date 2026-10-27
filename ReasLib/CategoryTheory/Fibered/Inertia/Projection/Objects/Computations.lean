@@ -34,20 +34,20 @@ variable {X Y : FiberedCategoryOver.{u, v, w, vS} C}
 /-- The total category of bundled relative inertia is the neutral relative-inertia category. -/
 @[simp, stacks 034I "fibred relative-inertia total category"]
 theorem relativeInertia.total (F : X ⟶ Y) :
-    (relativeInertia F).total = CategoryTheory.RelativeInertia (toFunctor F) := sorry
+    (relativeInertia F).total = CategoryTheory.RelativeInertia (toFunctor F) := rfl
 /- Proof strategy: unfold `relativeInertia` and `FiberedCategoryOver.ofFunctor`. -/
 
 /-- The bundled relative-inertia projection is the neutral relative-inertia projection. -/
 @[simp, stacks 034I "fibred relative-inertia projection"]
 theorem relativeInertia.p (F : X ⟶ Y) :
     (relativeInertia F).p =
-      CategoryTheory.RelativeInertia.projection (toFunctor F) X.p := sorry
+      CategoryTheory.RelativeInertia.projection (toFunctor F) X.p := rfl
 /- Proof strategy: unfold `relativeInertia` and use `FiberedCategoryOver.ofFunctor.p`. -/
 
 /-- The bundled relative-inertia projection sends an object to the base of its underlying object. -/
 @[simp, stacks 034I "fibred relative-inertia projection on objects"]
 theorem relativeInertia.p.obj (F : X ⟶ Y) (A : (relativeInertia F).total) :
-    (relativeInertia F).p.obj A = X.p.obj A.obj := sorry
+    (relativeInertia F).p.obj A = X.p.obj A.obj := rfl
 /- Proof strategy: rewrite `relativeInertia.p` and apply
 `CategoryTheory.RelativeInertia.projection.obj`. -/
 
@@ -55,7 +55,7 @@ theorem relativeInertia.p.obj (F : X ⟶ Y) (A : (relativeInertia F).total) :
 arrow. -/
 @[simp, stacks 034I "fibred relative-inertia projection on arrows"]
 theorem relativeInertia.p.map (F : X ⟶ Y) {A B : (relativeInertia F).total} (φ : A ⟶ B) :
-    (relativeInertia F).p.map φ = X.p.map (CategoryTheory.RelativeInertia.hom φ) := sorry
+    (relativeInertia F).p.map φ = X.p.map (CategoryTheory.RelativeInertia.hom φ) := rfl
 /- Proof strategy: rewrite `relativeInertia.p` and apply
 `CategoryTheory.RelativeInertia.projection.map`. -/
 
@@ -64,7 +64,7 @@ packaging. -/
 @[simp, stacks 034I "fibred relative-inertia based owner"]
 theorem relativeInertia.toBasedCategory (F : X ⟶ Y) :
     (relativeInertia F).toBasedCategory =
-      BasedCategory.relativeInertia (toBasedFunctor F) := sorry
+      BasedCategory.relativeInertia (toBasedFunctor F) := rfl
 /- Proof strategy: apply `BasedCategory.ext`; the total category, category structure, and
 projection are the same neutral relative-inertia data. -/
 
@@ -73,7 +73,7 @@ packaging. -/
 @[simp, stacks 034I "fibred absolute-inertia based owner"]
 theorem inertia.toBasedCategory (X : FiberedCategoryOver.{u, v, w, vS} C) :
     (inertia X).toBasedCategory =
-      BasedCategory.inertia X.toBasedCategory := sorry
+      BasedCategory.inertia X.toBasedCategory := rfl
 /- Proof strategy: apply `BasedCategory.ext`; both objects use the same total category, category
 structure, and projection. -/
 
@@ -81,21 +81,21 @@ structure, and projection. -/
 projection, so only vertical automorphisms occur. -/
 @[simp, stacks 034I "fibred absolute-inertia total category"]
 theorem inertia.total (X : FiberedCategoryOver.{u, v, w, vS} C) :
-    (inertia X).total = CategoryTheory.RelativeInertia X.p := sorry
+    (inertia X).total = CategoryTheory.RelativeInertia X.p := rfl
 /- Proof strategy: combine `inertia.toBasedCategory` with `BasedCategory.inertia.obj`. -/
 
 /-- The projection of fibred absolute inertia is the neutral self-relative-inertia projection. -/
 @[simp, stacks 034I "fibred absolute-inertia projection"]
 theorem inertia.p (X : FiberedCategoryOver.{u, v, w, vS} C) :
     (inertia X).p =
-      CategoryTheory.RelativeInertia.projection X.p X.p := sorry
+      CategoryTheory.RelativeInertia.projection X.p X.p := rfl
 /- Proof strategy: combine `inertia.toBasedCategory` with `BasedCategory.inertia.p`. -/
 
 /-- The bundled absolute-inertia projection sends an object to the base of its underlying object. -/
 @[simp, stacks 034I "fibred absolute-inertia projection on objects"]
 theorem inertia.p.obj (X : FiberedCategoryOver.{u, v, w, vS} C)
     (A : (inertia X).total) :
-    (inertia X).p.obj A = X.p.obj A.obj := sorry
+    (inertia X).p.obj A = X.p.obj A.obj := rfl
 /- Proof strategy: rewrite `inertia.p` and apply
 `CategoryTheory.RelativeInertia.projection.obj`. -/
 
@@ -104,7 +104,7 @@ arrow. -/
 @[simp, stacks 034I "fibred absolute-inertia projection on arrows"]
 theorem inertia.p.map (X : FiberedCategoryOver.{u, v, w, vS} C)
     {A B : (inertia X).total} (φ : A ⟶ B) :
-    (inertia X).p.map φ = X.p.map (CategoryTheory.RelativeInertia.hom φ) := sorry
+    (inertia X).p.map φ = X.p.map (CategoryTheory.RelativeInertia.hom φ) := rfl
 /- Proof strategy: rewrite `inertia.p` and apply
 `CategoryTheory.RelativeInertia.projection.map`. -/
 

@@ -36,7 +36,9 @@ namespace AlgebraicGeometry.Scheme
 /-- Abelian-group-valued sheaf composition exists on the small Zariski topology of a scheme. -/
 instance smallZariski_hasSheafCompose (X : Scheme.{u}) :
     X.smallZariskiTopology.HasSheafCompose
-      (forget₂ RingCat.{u} AddCommGrpCat.{u}) := sorry
+      (forget₂ RingCat.{u} AddCommGrpCat.{u}) :=
+  (smallZariskiOpenEquivalence X).symm.hasSheafCompose X.smallZariskiTopology
+    (Opens.grothendieckTopology (X : TopCat)) (forget₂ RingCat AddCommGrpCat)
 
 /-- Modules on the small Zariski ringed site have normal monomorphisms and epimorphisms,
 finite products, kernels, and cokernels. -/
@@ -45,7 +47,14 @@ theorem zariskiModulesAbelian_axioms (X : Scheme.{u}) :
       IsNormalEpiCategory (SheafOfModules.{u} (Zariski.Small.structureSheaf X)) ∧
       CategoryTheory.Limits.HasFiniteProducts (SheafOfModules.{u} (Zariski.Small.structureSheaf X)) ∧
       CategoryTheory.Limits.HasKernels (SheafOfModules.{u} (Zariski.Small.structureSheaf X)) ∧
-      CategoryTheory.Limits.HasCokernels (SheafOfModules.{u} (Zariski.Small.structureSheaf X)) := sorry
+      CategoryTheory.Limits.HasCokernels (SheafOfModules.{u} (Zariski.Small.structureSheaf X)) := by
+  letI := (smallZariskiOpenEquivalence X).symm.hasSheafify X.smallZariskiTopology
+    (Opens.grothendieckTopology (X : TopCat)) AddCommGrpCat.{u}
+  letI := GrothendieckTopology.WEqualsLocallyBijective.transport (A := AddCommGrpCat.{u})
+    X.smallZariskiTopology
+    (Opens.grothendieckTopology (X : TopCat)) (smallZariskiOpenFunctor X)
+    (Functor.IsDenseSubsite.coverPreserving _ _ _)
+  exact ⟨inferInstance, inferInstance, inferInstance, inferInstance, inferInstance⟩
 
 /-- The category of modules on the small Zariski ringed site of a scheme is abelian. -/
 instance zariskiModulesAbelian (X : Scheme.{u}) :
@@ -64,7 +73,14 @@ theorem smallZariskiTransportedModulesAbelian_axioms (X : Scheme.{u}) :
       IsNormalEpiCategory (SheafOfModules.{u} (smallZariskiRingSheaf X)) ∧
       CategoryTheory.Limits.HasFiniteProducts (SheafOfModules.{u} (smallZariskiRingSheaf X)) ∧
       CategoryTheory.Limits.HasKernels (SheafOfModules.{u} (smallZariskiRingSheaf X)) ∧
-      CategoryTheory.Limits.HasCokernels (SheafOfModules.{u} (smallZariskiRingSheaf X)) := sorry
+      CategoryTheory.Limits.HasCokernels (SheafOfModules.{u} (smallZariskiRingSheaf X)) := by
+  letI := (smallZariskiOpenEquivalence X).symm.hasSheafify X.smallZariskiTopology
+    (Opens.grothendieckTopology (X : TopCat)) AddCommGrpCat.{u}
+  letI := GrothendieckTopology.WEqualsLocallyBijective.transport (A := AddCommGrpCat.{u})
+    X.smallZariskiTopology
+    (Opens.grothendieckTopology (X : TopCat)) (smallZariskiOpenFunctor X)
+    (Functor.IsDenseSubsite.coverPreserving _ _ _)
+  exact ⟨inferInstance, inferInstance, inferInstance, inferInstance, inferInstance⟩
 
 /-- The category of modules on the transported small Zariski ringed site of a scheme is
 abelian. -/
@@ -120,7 +136,13 @@ sites. -/
 instance smallZariskiRangeFunctor_isMorphismOfSites (X : Scheme.{u}) :
     IsMorphismOfSites X.smallZariskiTopology
       (Opens.grothendieckTopology (X : TopCat))
-      (smallZariskiRangeFunctor X) := sorry
+      (smallZariskiRangeFunctor X) := by
+  change IsMorphismOfSites X.smallZariskiTopology
+    (Opens.grothendieckTopology (X : TopCat)) (smallZariskiOpenEquivalence X).inverse
+  letI := (smallZariskiOpenEquivalence X).isEquivalence_inverse
+  refine { toIsContinuous := ⟨fun G ↦ ?_⟩, toRepresentablyFlat := inferInstance }
+  exact (isSheaf_iff_isSheaf_of_type _ _).mp
+    ((smallZariskiSheafEquiv X (Type (u + 1))).inverse.obj G).property
 
 /-- The component of the structure-sheaf map of `opensToSmallZariski` at an open immersion
 `U ⟶ X` is the identity on `Γ(X, U.opensRange)`, i.e. the unit/counit comparison of
@@ -149,7 +171,7 @@ theorem opensToSmallZariskiStructureSheafHom_naturality (X : Scheme.{u})
         (((smallZariskiRangeFunctor X).sheafPushforwardContinuous RingCat.{u}
           X.smallZariskiTopology
           (Opens.grothendieckTopology (X : TopCat))).obj
-          X.toRingedSpace.ringCatSheaf).obj.map f := sorry
+          X.toRingedSpace.ringCatSheaf).obj.map f := rfl
 
 /-- The natural transformation of structure sheaves whose components are identity maps on
 `Γ(X, U.opensRange)`, the unit/counit comparison of `smallZariskiSheafEquiv`. -/
@@ -171,6 +193,7 @@ noncomputable def opensToSmallZariski (X : Scheme.{u}) :
     RingedSite.Hom (RingedSpace.opensRingedSite X.toRingedSpace)
       (smallZariskiRingedSite X) where
   base := smallZariskiRangeFunctor X
+  isMorphismOfSites := smallZariskiRangeFunctor_isMorphismOfSites X
   structureSheafMap := opensToSmallZariskiStructureSheafHom X
 
 /-- The base of `opensToSmallZariski` is the open-range functor. -/
@@ -185,7 +208,19 @@ theorem opensToSmallZariski_structureSheafMap (X : Scheme.{u}) :
 
 /-- The opens-to-small-Zariski comparison is a ringed equivalence. -/
 theorem opensToSmallZariski_isRingedEquivalence (X : Scheme.{u}) :
-    (opensToSmallZariski X).IsRingedEquivalence := sorry
+    (opensToSmallZariski X).IsRingedEquivalence := by
+  letI : ((opensToSmallZariski X).sheafPushforwardContinuous
+      (A := Type (u + 1))).IsEquivalence := by
+    change (smallZariskiSheafEquiv X (Type (u + 1))).inverse.IsEquivalence
+    infer_instance
+  refine ⟨(opensToSmallZariski X).sheafAdjunctionContinuous
+    |>.isEquivalence_left_of_isEquivalence_right, ?_⟩
+  apply (ObjectProperty.isIso_hom_iff _).mp
+  letI : ∀ U, IsIso ((opensToSmallZariski X).structureSheafMap.hom.app U) := by
+    intro U
+    change IsIso (𝟙 _)
+    infer_instance
+  exact NatIso.isIso_of_isIso_app _
 
 /-- An equivalence of categories preserves finite limits and finite colimits. -/
 private theorem exact_of_isEquivalence
@@ -224,6 +259,7 @@ theorem smallZariskiToZariskiSmallStructureSheafHomApp_eq (X : Scheme.{u})
         (@IsOpenImmersion.ΓIsoTop U.unop.left X U.unop.hom U.unop.prop).hom :=
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The canonical global-sections comparisons commute with restriction along
 morphisms of the small Zariski site. -/
 theorem smallZariskiToZariskiSmallStructureSheafHom_naturality (X : Scheme.{u})
@@ -231,7 +267,30 @@ theorem smallZariskiToZariskiSmallStructureSheafHom_naturality (X : Scheme.{u})
     (Zariski.Small.structureSheaf X).obj.map f ≫
         smallZariskiToZariskiSmallStructureSheafHomApp X V =
       smallZariskiToZariskiSmallStructureSheafHomApp X U ≫
-        (smallZariskiRingSheaf X).obj.map f := sorry
+        (smallZariskiRingSheaf X).obj.map f := by
+  change (forget₂ CommRingCat RingCat).map f.unop.left.appTop ≫
+      (forget₂ CommRingCat RingCat).map
+        (@IsOpenImmersion.ΓIsoTop V.unop.left X V.unop.hom V.unop.prop).hom =
+    (forget₂ CommRingCat RingCat).map
+        (@IsOpenImmersion.ΓIsoTop U.unop.left X U.unop.hom U.unop.prop).hom ≫
+      (forget₂ CommRingCat RingCat).map
+        (X.presheaf.map ((smallZariskiRangeFunctor X).map f.unop).op)
+  simp only [← Functor.map_comp]
+  congr 1
+  apply (cancel_mono
+    (@IsOpenImmersion.ΓIsoTop V.unop.left X V.unop.hom V.unop.prop).inv).mp
+  simp only [Category.assoc, Iso.hom_inv_id, Category.comp_id]
+  apply (cancel_epi
+    (@IsOpenImmersion.ΓIsoTop U.unop.left X U.unop.hom U.unop.prop).inv).mp
+  simp only [Iso.inv_hom_id_assoc]
+  simp only [IsOpenImmersion.ΓIsoTop, Iso.trans_inv, Functor.mapIso_inv,
+    Iso.op_inv, eqToIso.inv, eqToHom_op, Iso.symm_inv, Scheme.Hom.appIso_hom',
+    Scheme.Hom.map_appLE]
+  have hw : f.unop.left ≫ U.unop.hom = V.unop.hom :=
+    Over.w ((smallZariskiForget X).map f.unop)
+  simp only [Scheme.Hom.app_eq_appLE, Scheme.Hom.appLE_comp_appLE, hw]
+  exact (Scheme.Hom.map_appLE V.unop.hom _
+    ((smallZariskiRangeFunctor X).map f.unop).op).symm
 
 /-- The natural transformation of structure sheaves whose components are the
 `Γ(U, 𝒪_U) ⟶ Γ(X, U.opensRange)` comparisons of `IsOpenImmersion.ΓIsoTop`. -/
@@ -248,6 +307,7 @@ the `Γ(U, 𝒪_U)` comparisons. -/
 noncomputable def smallZariskiToZariskiSmall (X : Scheme.{u}) :
     RingedSite.Hom (smallZariskiRingedSite X) (Zariski.Small.ringedSite X) where
   base := 𝟭 _
+  isMorphismOfSites := CategoryTheory.IsMorphismOfSites.id _
   structureSheafMap := smallZariskiToZariskiSmallStructureSheafHom X
 
 /-- The base of `smallZariskiToZariskiSmall` is the identity on the small Zariski site. -/
@@ -263,7 +323,22 @@ theorem smallZariskiToZariskiSmall_app (X : Scheme.{u})
 
 /-- The small-Zariski-to-`Zariski.Small` comparison is a ringed equivalence. -/
 theorem smallZariskiToZariskiSmall_isRingedEquivalence (X : Scheme.{u}) :
-    (smallZariskiToZariskiSmall X).IsRingedEquivalence := sorry
+    (smallZariskiToZariskiSmall X).IsRingedEquivalence := by
+  letI : ((smallZariskiToZariskiSmall X).sheafPushforwardContinuous
+      (A := Type (u + 1))).IsEquivalence := by
+    change (Functor.sheafPushforwardContinuous (𝟭 X.smallZariskiSite)
+      (Type (u + 1)) X.smallZariskiTopology X.smallZariskiTopology).IsEquivalence
+    exact Functor.isEquivalence_of_iso
+      (Functor.sheafPushforwardContinuousId _ _).symm
+  refine ⟨(smallZariskiToZariskiSmall X).sheafAdjunctionContinuous
+    |>.isEquivalence_left_of_isEquivalence_right, ?_⟩
+  apply (ObjectProperty.isIso_hom_iff _).mp
+  letI : ∀ U, IsIso ((smallZariskiToZariskiSmall X).structureSheafMap.hom.app U) := by
+    intro U
+    change IsIso ((forget₂ CommRingCat RingCat).map
+      (@IsOpenImmersion.ΓIsoTop U.unop.left X U.unop.hom U.unop.prop).hom)
+    infer_instance
+  exact NatIso.isIso_of_isIso_app _
 
 /-- Direct image from the transported small Zariski structure sheaf to the canonical
 small Zariski structure sheaf, bundled as an exact functor. -/

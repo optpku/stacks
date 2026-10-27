@@ -6,7 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap109.Lemma_109_12_1_Substack
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Gorenstein
 
 /-!
 # Gorenstein curves
@@ -28,25 +29,27 @@ namespace AlgebraicGeometry.AlgebraicSpace
 namespace Spaces
 namespace Curves
 
-/-- Lemma 109.12.1 (1): given a family of curves `X ⟶ S`, the classifying
-morphism `S ⟶ 𝒞urves` factors through `𝒞urves^{Gorenstein}` if and only if
-`X ⟶ S` is Gorenstein. -/
-@[stacks 0E1M]
-theorem classifying_factorsThrough_gorenstein_iff
-    {S : Scheme.{u}} (P : Obj S) :
-    gorenstein S P ↔ AlgebraicSpace.Gorenstein (hom P) :=
-  sorry
+/- Lemma 109.12.1. Gorenstein families of curves form an open substack,
+with membership characterized by the structure morphism and, over a field,
+by Gorensteinness of the proper scheme of dimension at most one. -/
+@[stacks 0E1M] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.exists_gorenstein_open :
+    ∀ {S : Scheme.{u}} (P : Obj S),
+      ∃ U : (base P).left.Opens, ∀ {Q : Obj S} (φ : Q ⟶ P),
+        gorenstein S Q ↔ Set.range (baseMap φ).left ⊆ U)
 
-/-- Lemma 109.12.1 (2): given a scheme `X` proper over a field `k` with
-dimension at most one, the classifying morphism `Spec k ⟶ 𝒞urves` factors
-through `𝒞urves^{Gorenstein}` if and only if `X` is Gorenstein. -/
-@[stacks 0E1M]
-theorem classifying_factorsThrough_gorenstein_iff_scheme
-    {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
-    (hdim : topologicalKrullDim X.left ≤ 1) :
-    gorenstein (Spec (CommRingCat.of k)) (mkOfSchemeOverField X hdim) ↔
-      Scheme.Gorenstein X.left :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.gorenstein_iff :
+    ∀ {S : Scheme.{u}} (P : Obj S),
+      gorenstein S P ↔ AlgebraicSpace.Gorenstein (hom P))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.classifying_factorsThrough_gorenstein_iff_scheme :
+    ∀ {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
+      (hdim : topologicalKrullDim X.left ≤ 1),
+      gorenstein (Spec (CommRingCat.of k)) (mkOfSchemeOverField X hdim) ↔
+        Scheme.Gorenstein X.left)
+
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instIsFiberedInGroupoids_gorenstein :
+    ∀ S : Scheme.{u},
+      Functor.IsFibered.InGroupoids ((gorenstein S).ι ⋙ p S))
 
 end Curves
 end Spaces

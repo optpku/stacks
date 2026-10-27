@@ -180,10 +180,10 @@ instance derivedInverseImageIdComparisonOf_isIso {n : SimplexCategory}
   sorry
 
 variable (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
-variable [IsMorphismDiagram C J]
 variable [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
 variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
     ((C.map φ).toFunctor).op.HasLeftKanExtension P]
+variable [IsMorphismDiagram.{u, v, w} C J]
 variable [UnivLE.{max u v, w}]
 variable [∀ n, HasSheafify (J n).toGrothendieck AddCommGrpCat.{w}]
 variable [∀ n, HasWeakSheafify (J n).toGrothendieck AddCommGrpCat.{w}]

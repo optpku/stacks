@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap106.Lemma_106_3_4_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Thickening.BaseChange
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry
@@ -20,8 +20,18 @@ universe u
 `f' : X' ⟶ Y'` is a morphism of algebraic stacks, the chosen 2-fibre product
 `X = TwoFibreProduct.apex j f'` yields a morphism of thickenings
 `(X ⊂ X') ⟶ (Y ⊂ Y')`. -/
-@[stacks 0BPR] #check Hom.pullback
+@[stacks 0BPR] #check (AlgebraicGeometry.AlgebraicStack.IsThickening.Hom.pullback :
+  ∀ {S : Scheme.{u}} {Y Y' X' : GroupoidsOver S}
+    [AlgebraicStack Y] [AlgebraicStack Y'] [AlgebraicStack X']
+    (j : Y ⟶ Y') (f' : X' ⟶ Y') [IsThickening j],
+    Hom (TwoFibreProduct.snd.{u + 1, u, u + 1, u} j f') j
+      (TwoFibreProduct.fst.{u + 1, u, u + 1, u} j f') f')
 
 /- Lemma 106.3.4 (2): if `j : Y ⟶ Y'` is a first-order thickening of algebraic
 stacks, then `TwoFibreProduct.snd j f' : X ⟶ X'` is a first-order thickening. -/
-@[stacks 0BPR] #check IsFirstOrderThickening.twoFibreProduct_snd
+@[stacks 0BPR] #check (AlgebraicGeometry.AlgebraicStack.IsFirstOrderThickening.twoFibreProduct_snd :
+  ∀ {S : Scheme.{u}} {Y Y' X' : GroupoidsOver S}
+    [AlgebraicStack Y] [AlgebraicStack Y'] [AlgebraicStack X']
+    (j : Y ⟶ Y') (f' : X' ⟶ Y') [IsFirstOrderThickening j],
+    IsFirstOrderThickening (TwoFibreProduct.snd.{u + 1, u, u + 1, u} j f'))
+

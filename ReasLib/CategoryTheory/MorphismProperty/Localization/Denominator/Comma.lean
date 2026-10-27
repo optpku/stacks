@@ -36,7 +36,10 @@ namespace Under
 theorem localizationInv_naturality (S : MorphismProperty C) {X : C}
     {U V : MorphismProperty.Under S ⊤ X} (f : U ⟶ V) :
     S.Q.map f.right ≫ (Localization.isoOfHom S.Q S V.hom V.prop).inv =
-      (Localization.isoOfHom S.Q S U.hom U.prop).inv := sorry
+      (Localization.isoOfHom S.Q S U.hom U.prop).inv := by
+  apply (Iso.comp_inv_eq (Localization.isoOfHom S.Q S V.hom V.prop)).2
+  apply (Iso.eq_inv_comp (Localization.isoOfHom S.Q S U.hom U.prop)).2
+  exact (S.Q.map_comp U.hom f.right).symm.trans (congrArg S.Q.map (Under.w f))
 
 /-- Target denominators under `X` form a canonical family of costructured arrows over the
 localization of `X`. -/
@@ -52,7 +55,7 @@ localized denominator target as its source. -/
 @[simp]
 theorem toCostructuredArrow_obj_left (S : MorphismProperty C) (X : C)
     (U : MorphismProperty.Under S ⊤ X) :
-    ((toCostructuredArrow S X).obj U).left = U.right := sorry
+    ((toCostructuredArrow S X).obj U).left = U.right := rfl
 
 /-- The structural morphism associated to a target denominator is its inverse after
 localization. -/
@@ -60,20 +63,20 @@ localization. -/
 theorem toCostructuredArrow_obj_hom (S : MorphismProperty C) (X : C)
     (U : MorphismProperty.Under S ⊤ X) :
     ((toCostructuredArrow S X).obj U).hom =
-      (Localization.isoOfHom S.Q S U.hom U.prop).inv := sorry
+      (Localization.isoOfHom S.Q S U.hom U.prop).inv := rfl
 
 /-- A target-denominator refinement is sent to the localization of its target map. -/
 @[simp]
 theorem toCostructuredArrow_map_left (S : MorphismProperty C) (X : C)
     {U V : MorphismProperty.Under S ⊤ X} (f : U ⟶ V) :
-    ((toCostructuredArrow S X).map f).left = f.right := sorry
+    ((toCostructuredArrow S X).map f).left = f.right := rfl
 
 /-- Forgetting a target denominator's costructured-arrow structure recovers its localized target
 functor. -/
 @[simp]
 theorem toCostructuredArrow_comp_proj (S : MorphismProperty C) (X : C) :
     toCostructuredArrow S X ⋙ CostructuredArrow.proj S.Q (S.Q.obj X) =
-      MorphismProperty.Under.forget S ⊤ X ⋙ CategoryTheory.Under.forget X := sorry
+      MorphismProperty.Under.forget S ⊤ X ⋙ CategoryTheory.Under.forget X := rfl
 
 end Under
 
@@ -84,7 +87,10 @@ namespace Over
 theorem localizationInv_naturality (S : MorphismProperty C) {X : C}
     {U V : MorphismProperty.Over S ⊤ X} (f : U ⟶ V) :
     (Localization.isoOfHom S.Q S U.hom U.prop).inv ≫ S.Q.map f.left =
-      (Localization.isoOfHom S.Q S V.hom V.prop).inv := sorry
+      (Localization.isoOfHom S.Q S V.hom V.prop).inv := by
+  apply (Iso.inv_comp_eq (Localization.isoOfHom S.Q S U.hom U.prop)).2
+  apply (Iso.eq_comp_inv (Localization.isoOfHom S.Q S V.hom V.prop)).2
+  exact (S.Q.map_comp f.left V.hom).symm.trans (congrArg S.Q.map (Over.w f))
 
 /-- Source denominators over `X` form a canonical family of structured arrows under the
 localization of `X`. -/
@@ -100,7 +106,7 @@ localized denominator source as its target. -/
 @[simp]
 theorem toStructuredArrow_obj_right (S : MorphismProperty C) (X : C)
     (U : MorphismProperty.Over S ⊤ X) :
-    ((toStructuredArrow S X).obj U).right = U.left := sorry
+    ((toStructuredArrow S X).obj U).right = U.left := rfl
 
 /-- The structural morphism associated to a source denominator is its inverse after
 localization. -/
@@ -108,20 +114,20 @@ localization. -/
 theorem toStructuredArrow_obj_hom (S : MorphismProperty C) (X : C)
     (U : MorphismProperty.Over S ⊤ X) :
     ((toStructuredArrow S X).obj U).hom =
-      (Localization.isoOfHom S.Q S U.hom U.prop).inv := sorry
+      (Localization.isoOfHom S.Q S U.hom U.prop).inv := rfl
 
 /-- A source-denominator refinement is sent to the localization of its source map. -/
 @[simp]
 theorem toStructuredArrow_map_right (S : MorphismProperty C) (X : C)
     {U V : MorphismProperty.Over S ⊤ X} (f : U ⟶ V) :
-    ((toStructuredArrow S X).map f).right = f.left := sorry
+    ((toStructuredArrow S X).map f).right = f.left := rfl
 
 /-- Forgetting a source denominator's structured-arrow structure recovers its localized source
 functor. -/
 @[simp]
 theorem toStructuredArrow_comp_proj (S : MorphismProperty C) (X : C) :
     toStructuredArrow S X ⋙ StructuredArrow.proj (S.Q.obj X) S.Q =
-      MorphismProperty.Over.forget S ⊤ X ⋙ CategoryTheory.Over.forget X := sorry
+      MorphismProperty.Over.forget S ⊤ X ⋙ CategoryTheory.Over.forget X := rfl
 
 end Over
 

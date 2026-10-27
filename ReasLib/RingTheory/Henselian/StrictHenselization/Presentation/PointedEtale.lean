@@ -249,9 +249,10 @@ noncomputable def cocone
 
 /-- The localized pointed-etale cocone admits a colimit witness.  This is
 stated propositionally so the shared interface does not manufacture the
-non-Prop `IsColimit` data from a deferred proof. -/
+non-Prop `IsColimit` data from a deferred proof.  The base ring must fit the
+carrier universe of the pointed-etale category. -/
 @[stacks 04GW "localized pointed-etale strict-henselization colimit"]
-theorem isColimit
+theorem isColimit [Small.{v} R]
     (presentation : Presentation (hbase := hbase) coordinate) :
     Nonempty (IsColimit (cocone (hbase := hbase) coordinate presentation)) := sorry
 
@@ -329,9 +330,10 @@ noncomputable def sourceCocone
 
 /-- The source pointed-etale cocone admits a colimit witness.  As with the
 localized presentation, the witness is stated propositionally rather than
-manufactured as deferred non-Prop data. -/
+manufactured as deferred non-Prop data.  The base ring must fit the carrier
+universe of the pointed-etale category. -/
 @[stacks 04GW "source pointed-etale strict-henselization colimit"]
-theorem sourceIsColimit
+theorem sourceIsColimit [Small.{v} R]
     (presentation : Presentation (hbase := hbase) coordinate) :
     Nonempty (IsColimit (sourceCocone (hbase := hbase) coordinate presentation)) := sorry
 

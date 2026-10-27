@@ -8,6 +8,7 @@ module
 
 import StacksCheckRecall
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.AtlasCoequalizer
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Sheaf
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.SmallSheaf
 public import stacks_project.Chap65.Lemma_65_9_1_KernelPair
 
@@ -27,11 +28,6 @@ noncomputable section
 universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- The source-facing small-valued fppf sheaf of an algebraic space. -/
-def toSheaf {S : Scheme.{u}} (F : AlgebraicSpace S) :
-    Sheaf (Scheme.fppfTopology.over S) (Type u) :=
-  toSmallSheaf F
 
 /- Lemma 65.9.1 (1): `j : R ⟶ U ×_S U` defines an equivalence relation on `U` over `S`. -/
 @[stacks 0262] #check (AlgebraicGeometry.AlgebraicSpace.isEquivalenceRelation :

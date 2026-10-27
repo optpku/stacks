@@ -6,11 +6,6 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.FiniteLocallyFree.Rank
-public import ReasLib.CategoryTheory.Monoidal.Invertible
-public import stacks_project.Chap69.Lemma_69_12_5_Monoidal
-public import stacks_project.Chap82.Remark_82_28_5_ChernClass
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.ChernTensor
 
@@ -37,10 +32,10 @@ universe u
       ∑ j ∈ Finset.range (i + 1),
         Nat.choose (r + j - i) j •
           (if hj : j ≤ i then
-            ChowCohomology.castChowGroup δ (g ≫ f)
+            (AddEquiv.cast (M := Hom.chowGroup (g ≫ f) δ)
               (show (k - (j : ℤ)) - ((i - j : ℕ) : ℤ) = k - (i : ℤ) by
                 rw [Nat.cast_sub hj]
-                omega)
+                omega)).toAddMonoidHom
               ((ChernClass.chernClass δ f E (i - j)).cap g (k - (j : ℤ))
                 (ChowCohomology.powCap (ChernClass.chernClass δ f L 1).cap j g k α))
           else 0))

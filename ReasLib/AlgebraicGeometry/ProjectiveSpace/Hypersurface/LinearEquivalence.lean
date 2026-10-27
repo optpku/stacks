@@ -41,13 +41,13 @@ theorem isOfDegree_iff {K : Type u} [CommRing K] {n d : ℕ}
     {Z : (ProjectiveSpace.scheme K n).IdealSheafData} :
     IsOfDegree n d Z ↔
       ∃ F : MvPolynomial (Fin (n + 1)) K,
-        F ≠ 0 ∧ F ∈ ProjectiveSpace.grading K n d ∧ HasHomogeneousEquation n Z F := sorry
+        F ≠ 0 ∧ F ∈ ProjectiveSpace.grading K n d ∧ HasHomogeneousEquation n Z F := Iff.rfl
 
 /-- A degree-`d` hypersurface has a nonzero homogeneous equation of degree `d`. -/
 theorem exists_homogeneousEquation {K : Type u} [CommRing K] {n d : ℕ}
     {Z : (ProjectiveSpace.scheme K n).IdealSheafData} (hZ : IsOfDegree n d Z) :
     ∃ F : MvPolynomial (Fin (n + 1)) K,
-      F ≠ 0 ∧ F ∈ ProjectiveSpace.grading K n d ∧ HasHomogeneousEquation n Z F := sorry
+      F ≠ 0 ∧ F ∈ ProjectiveSpace.grading K n d ∧ HasHomogeneousEquation n Z F := hZ
 
 /-- Linear substitution of homogeneous coordinates by a matrix in `GL (n+1) K`. -/
 def linearSubst {K : Type u} [CommRing K] (n : ℕ) (A : GL (Fin (n + 1)) K) :
@@ -82,7 +82,7 @@ theorem isLinearEquivalent_iff {K : Type u} [Field K] {n d : ℕ}
         F ≠ 0 ∧ G ≠ 0 ∧
           F ∈ ProjectiveSpace.grading K n d ∧ G ∈ ProjectiveSpace.grading K n d ∧
             HasHomogeneousEquation n X F ∧ HasHomogeneousEquation n Y G ∧
-              linearSubst n A F = MvPolynomial.C (c : K) * G := sorry
+              linearSubst n A F = MvPolynomial.C (c : K) * G := Iff.rfl
 
 /-- Projective-linear equivalence is reflexive on degree-`d` hypersurfaces. -/
 theorem IsLinearEquivalent.refl {K : Type u} [Field K] {n d : ℕ}

@@ -210,17 +210,17 @@ theorem generators.assoc.app {Y : C ⥤ C} (s : Y ⋙ Y ⟶ Y)
         IteratedEndofunctor.codegeneracy s 0 0) (X : C) :
     Y.map (s.app X) ≫ s.app X = s.app (Y.obj X) ≫ s.app X := sorry
 
-/-- The objectwise left unit law extracted from the first unit generator identity. -/
+/-- The objectwise left unit law extracted from the second unit generator identity. -/
 @[stacks 0G5N "generator left unit in components"]
 theorem generators.left_unit.app {Y : C ⥤ C} (d : 𝟭 C ⟶ Y) (s : Y ⋙ Y ⟶ Y)
-    (hδσ₀ : IteratedEndofunctor.coface d 0 0 ≫
+    (hδσ₁ : IteratedEndofunctor.coface d 0 1 ≫
       IteratedEndofunctor.codegeneracy s 0 0 = 𝟙 Y) (X : C) :
     d.app (Y.obj X) ≫ s.app X = 𝟙 (Y.obj X) := sorry
 
-/-- The objectwise right unit law extracted from the second unit generator identity. -/
+/-- The objectwise right unit law extracted from the first unit generator identity. -/
 @[stacks 0G5N "generator right unit in components"]
 theorem generators.right_unit.app {Y : C ⥤ C} (d : 𝟭 C ⟶ Y) (s : Y ⋙ Y ⟶ Y)
-    (hδσ₁ : IteratedEndofunctor.coface d 0 1 ≫
+    (hδσ₀ : IteratedEndofunctor.coface d 0 0 ≫
       IteratedEndofunctor.codegeneracy s 0 0 = 𝟙 Y) (X : C) :
     Y.map (d.app X) ≫ s.app X = 𝟙 (Y.obj X) := sorry
 
@@ -239,8 +239,8 @@ def toMonad {Y : C ⥤ C} (d : 𝟭 C ⟶ Y) (s : Y ⋙ Y ⟶ Y)
   η := d
   μ := s
   assoc := generators.assoc.app s hσσ
-  left_unit := generators.left_unit.app d s hδσ₀
-  right_unit := generators.right_unit.app d s hδσ₁
+  left_unit := generators.left_unit.app d s hδσ₁
+  right_unit := generators.right_unit.app d s hδσ₀
 
 namespace toMonad
 

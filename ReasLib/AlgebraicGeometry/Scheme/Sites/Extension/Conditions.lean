@@ -104,7 +104,15 @@ theorem isZariskiSheaf_iff {S : Scheme.{u}}
           Presieve.IsSheafFor F (Presieve.ofArrows U f) := sorry
 
 /-- A presheaf on a full subcategory of `Over S` preserves directed limits of
-affine schemes whose stages and limit lie in that subcategory. -/
+affine schemes whose stages and limit lie in that subcategory.
+
+This is the thin full-subcategory specialization of
+`Scheme.Over.PreservesDirectedAffineLimits`: the limit is tested after the
+inclusion `C.ι` into `Over S`.  The restriction bridge to an over-presheaf is
+`preservesDirectedAffineLimits_of_iso`; it becomes an equivalence when `C`
+contains every affine object up to isomorphism, by
+`preservesDirectedAffineLimits_iff_of_contains_affines` below.
+-/
 def PreservesDirectedAffineLimits {S : Scheme.{u}}
     (C : ObjectProperty (Over S)) (F : C.FullSubcategoryᵒᵖ ⥤ Type v) : Prop :=
   ∀ {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
@@ -125,6 +133,32 @@ theorem preservesDirectedAffineLimits_iff {S : Scheme.{u}}
           (∀ i : I, IsAffine ((D.obj i).obj : Over S).left) →
           IsAffine (c.pt.obj : Over S).left →
           Nonempty (IsColimit (F.mapCocone c.op)) := sorry
+
+/-- Restricting an over-presheaf that preserves directed affine limits gives
+the corresponding property on any full subcategory, including any presheaf
+isomorphic to that restriction. -/
+theorem preservesDirectedAffineLimits_of_iso {S : Scheme.{u}}
+    (C : ObjectProperty (Over S))
+    (F : C.FullSubcategoryᵒᵖ ⥤ Type v)
+    (G : (Over S)ᵒᵖ ⥤ Type v)
+    (e : C.ι.op ⋙ G ≅ F)
+    (hG : Scheme.Over.PreservesDirectedAffineLimits S G) :
+    PreservesDirectedAffineLimits C F := sorry
+
+/-- If `C` contains every affine object of `Over S` up to isomorphism,
+preservation of directed affine limits is equivalent for a presheaf and any
+over-presheaf extending it.  The containment hypothesis is needed for the
+reverse implication, since the over predicate also tests affine diagrams
+whose objects are outside `C`. -/
+theorem preservesDirectedAffineLimits_iff_of_contains_affines {S : Scheme.{u}}
+    (C : ObjectProperty (Over S))
+    (hC : ∀ X : Over S, IsAffine X.left →
+      ∃ Y : C.FullSubcategory, Nonempty (X ≅ Y.obj))
+    (F : C.FullSubcategoryᵒᵖ ⥤ Type v)
+    (G : (Over S)ᵒᵖ ⥤ Type v)
+    (e : C.ι.op ⋙ G ≅ F) :
+    PreservesDirectedAffineLimits C F ↔
+      Scheme.Over.PreservesDirectedAffineLimits S G := sorry
 
 end Scheme.Over.Extension
 

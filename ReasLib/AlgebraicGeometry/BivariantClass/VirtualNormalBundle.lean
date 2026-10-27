@@ -244,4 +244,36 @@ morphism. -/
 theorem overHom_eq_over {S : Scheme.{u}} {X Y : Over S} (f : X ⟶ Y) :
     overHom X.hom Y.hom f.left (Over.w f) = f := sorry
 
+/-- The underlying scheme morphism of `overHom` for an open immersion is an open immersion. -/
+instance overHom_isOpenImmersion
+    {S U X : Scheme.{u}} (q : U ⟶ S) (p : X ⟶ S) (k : U ⟶ X)
+    (hk : k ≫ p = q) [IsOpenImmersion k] :
+    IsOpenImmersion (overHom q p k hk).left := sorry
+
+/-- The canonical isomorphism identifying `Over.mk X.hom` with `X`. -/
+def overMkIso {S : Scheme.{u}} (X : Over S) : Over.mk X.hom ≅ X :=
+  Over.isoMk (Iso.refl X.left) (Category.id_comp X.hom)
+
+/-- `overMkIso` is the identity isomorphism on underlying schemes. -/
+theorem overMkIso_left {S : Scheme.{u}} (X : Over S) :
+    (overMkIso X).hom.left = 𝟙 X.left := sorry
+
+/-- The virtual-normal packaging of an over-morphism is the conjugate of that morphism by the
+canonical `Over.mk` isomorphisms. -/
+theorem overHom_eq_overMkIso_conj {S : Scheme.{u}} {X P : Over S} (s : X ⟶ P) :
+    overHom X.hom P.hom s.left (Over.w s) =
+      (overMkIso X).hom ≫ s ≫ (overMkIso P).inv := sorry
+
+/-- The canonical `Over.mk` isomorphisms form a pullback square against an over-morphism and
+its virtual-normal packaging. -/
+theorem overMkIso_conj_isPullback {S : Scheme.{u}} {X P : Over S} (s : X ⟶ P) :
+    IsPullback (overMkIso X).inv.left s.left
+      (overHom X.hom P.hom s.left (Over.w s)).left (overMkIso P).inv.left := sorry
+
+/-- The canonical isomorphism `Over.mk X.hom ≅ X` forms a pullback square of identity
+morphisms. -/
+theorem overMkIso_id_isPullback {S : Scheme.{u}} (X : Over S) :
+    IsPullback (overMkIso X).inv.left (Over.Hom.left (𝟙 X))
+      (Over.Hom.left (𝟙 (Over.mk X.hom))) (overMkIso X).inv.left := sorry
+
 end AlgebraicGeometry.BivariantClass

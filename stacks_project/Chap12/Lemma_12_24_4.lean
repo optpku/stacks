@@ -32,9 +32,18 @@ variable (α : K ⟶ L)
 /- Lemma 12.24.4 (012O): a morphism of filtered complexes induces a unique morphism between the
 associated spectral sequences, compatible with their bigradings. -/
 @[stacks 012O "canonical morphism of associated spectral sequences"]
-#check (FilteredComplex.Association.Map.existsUnique A B α :
-  ∃! φ : E ⟶ E', FilteredComplex.Association.Map.IsInduced A B α φ)
+#check (FilteredComplex.Association.IsCompatible.existsUnique A B α :
+  ∃! φ : E ⟶ E', FilteredComplex.Association.IsCompatible A B α φ)
 
-#check FilteredComplex.Association.Map.IsInduced
+#check (FilteredComplex.Association.IsCompatible :
+  FilteredComplex.Association K E →
+    FilteredComplex.Association L E' →
+      (K ⟶ L) →
+        (E ⟶ E') →
+          Prop)
 
-#check FilteredComplex.Association.Map.pageOneIso_hom_naturality
+#check (FilteredComplex.Association.Hom.pageOne_naturality :
+  ∀ (φ : FilteredComplex.Association.Hom A B α) (p q : ℤ),
+    (φ.hom.hom 1).f (p, q) ≫ (B.pageOneIso p q).hom =
+      (A.pageOneIso p q).hom ≫
+        HomologicalComplex.homologyMap (FilteredComplex.gradedPieceMap α p) (p + q))

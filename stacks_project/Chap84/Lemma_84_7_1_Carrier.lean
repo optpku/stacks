@@ -29,7 +29,7 @@ abbrev moduleCarrierLift (site : RingedSite.{v, w, u})
 
 #check (RingedSite.Module.carrierLift_obj :
   ∀ (site : RingedSite.{v, w, u}) (moduleSheaf : RingedSite.ModuleCat.{u} site)
-    (siteObject : siteᵒᵖ),
+    (siteObject : site.carrierᵒᵖ),
     (RingedSite.Module.carrierLift site moduleSheaf).val.obj siteObject =
       (ModuleCat.uliftFunctor.{u + 1} _).obj (moduleSheaf.val.obj siteObject))
 

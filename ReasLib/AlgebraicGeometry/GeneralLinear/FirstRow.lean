@@ -37,7 +37,7 @@ noncomputable abbrev ideal :
 
 /-- The first row of the universal invertible matrix is unimodular. -/
 @[stacks 01KX "first-row unimodularity"]
-abbrev ideal_eq_top : ideal R n = ⊤ :=
+theorem ideal_eq_top : ideal R n = ⊤ :=
   Row.ideal_eq_top R (ULift.{u} (Fin (n + 1))) (ULift.up 0)
 
 /-- The comorphism from affine `(n + 1)`-space sending its coordinates to the first row of the
@@ -72,7 +72,7 @@ theorem toAffineSpace_toBase :
 
 /-- The first row of an invertible matrix lies in punctured affine space. -/
 @[stacks 01KX "first-row puncture range"]
-abbrev toAffineSpace_range_subset_punctured :
+theorem toAffineSpace_range_subset_punctured :
     Set.range (toAffineSpace R n).base ⊆
       Set.range
         (PuncturedAffineSpace.puncturedOpen (ULift.{u} (Fin (n + 1))) R).ι.base :=

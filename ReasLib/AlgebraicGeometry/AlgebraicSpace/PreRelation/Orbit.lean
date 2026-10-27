@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import Mathlib.Data.Fin.Tuple.Basic
 public import Mathlib.Logic.Relation
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.PreRelation.Points
 
@@ -35,12 +36,12 @@ def pointsOrbitRel (P : PreRelation U) : Points U.left → Points U.left → Pro
 /-- `pointsOrbitRel` is the equivalence closure of `pointsRel`. -/
 theorem pointsOrbitRel_iff (P : PreRelation U) (x y : Points U.left) :
     P.pointsOrbitRel x y ↔ Relation.EqvGen P.pointsRel x y :=
-  sorry
+  Iff.rfl
 
 /-- The generated relation `pointsOrbitRel` is an equivalence relation on `|U|`. -/
 theorem pointsOrbitRel_equivalence (P : PreRelation U) :
     Equivalence P.pointsOrbitRel :=
-  sorry
+  Relation.EqvGen.is_equivalence P.pointsRel
 
 /-- The `R`-orbit of a point `u ∈ |U|` is its equivalence class under `pointsOrbitRel`. -/
 def pointsOrbit (P : PreRelation U) (u : Points U.left) : Set (Points U.left) :=
@@ -49,7 +50,7 @@ def pointsOrbit (P : PreRelation U) (u : Points U.left) : Set (Points U.left) :=
 /-- Membership in an `R`-orbit is `pointsOrbitRel`. -/
 theorem mem_pointsOrbit (P : PreRelation U) (u u' : Points U.left) :
     u' ∈ P.pointsOrbit u ↔ P.pointsOrbitRel u u' :=
-  sorry
+  Iff.rfl
 
 /-- Membership in an `R`-orbit is equivalent to the existence of a finite chain of length
 `n ≥ 1` in `|U|` from `u` to `u'` whose consecutive steps are equality or an `|R|`-edge in
@@ -67,25 +68,60 @@ theorem mem_pointsOrbit_iff (P : PreRelation U) (u u' : Points U.left) :
                 (∃ r : Points P.left.left,
                     Points.map P.t.left r = us i.castSucc ∧
                       Points.map P.s.left r = us i.succ) :=
-  sorry
+  by
+    constructor
+    · intro h
+      change Relation.EqvGen P.pointsRel u u' at h
+      rw [← Relation.EqvGen.reflTransGen_symmGen] at h
+      induction h using Relation.ReflTransGen.head_induction_on with
+      | refl =>
+          exact ⟨1, le_rfl, fun _ ↦ u', rfl, rfl, fun _ ↦ Or.inl rfl⟩
+      | @head a c hac _ ih =>
+          rcases ih with ⟨n, _, us, hzero, hlast, hstep⟩
+          refine ⟨n + 1, Nat.succ_le_succ (Nat.zero_le n), Fin.cons a us, ?_, ?_, ?_⟩
+          · simp
+          · simpa using hlast
+          · intro i
+            refine Fin.cases ?_ (fun j ↦ ?_) i
+            · simp only [Fin.castSucc_zero, Fin.cons_zero, Fin.cons_succ, hzero]
+              rcases hac with h | h
+              · rcases h with ⟨r, ht, hs⟩
+                exact Or.inr (Or.inr ⟨r, ht, hs⟩)
+              · rcases h with ⟨r, ht, hs⟩
+                exact Or.inr (Or.inl ⟨r, hs, ht⟩)
+            · simpa only [← Fin.succ_castSucc, Fin.cons_succ] using hstep j
+    · rintro ⟨n, _, us, hzero, hlast, hstep⟩
+      have hpath : ∀ i : Fin (n + 1), P.pointsOrbitRel (us 0) (us i) := by
+        intro i
+        induction i using Fin.induction with
+        | zero => exact Relation.EqvGen.refl _
+        | succ i ih =>
+            refine Relation.EqvGen.trans _ _ _ ih ?_
+            rcases hstep i with heq | ⟨r, hs, ht⟩ | ⟨r, ht, hs⟩
+            · rw [heq]
+              exact Relation.EqvGen.refl _
+            · exact Relation.EqvGen.symm _ _ (Relation.EqvGen.rel _ _ ⟨r, ht, hs⟩)
+            · exact Relation.EqvGen.rel _ _ ⟨r, ht, hs⟩
+      change P.pointsOrbitRel u u'
+      simpa only [hzero, hlast] using hpath (Fin.last n)
 
 /-- Every point of `|U|` lies in its own `R`-orbit. -/
 theorem self_mem_pointsOrbit (P : PreRelation U) (u : Points U.left) :
     u ∈ P.pointsOrbit u :=
-  sorry
+  Relation.EqvGen.refl u
 
 /-- A one-step `|R|`-edge in the `t`/`s` image relation places the two points in each other's
 `R`-orbits. -/
 theorem pointsRel_mem_pointsOrbit (P : PreRelation U) {u u' : Points U.left}
     (h : P.pointsRel u u') :
     u' ∈ P.pointsOrbit u ∧ u ∈ P.pointsOrbit u' :=
-  sorry
+  ⟨Relation.EqvGen.rel _ _ h, Relation.EqvGen.symm _ _ (Relation.EqvGen.rel _ _ h)⟩
 
 /-- The `R`-orbits of points of `|U|` are symmetric: `u'` lies in the orbit of `u` if and only
 if `u` lies in the orbit of `u'`. -/
 theorem mem_pointsOrbit_comm (P : PreRelation U) (u u' : Points U.left) :
     u' ∈ P.pointsOrbit u ↔ u ∈ P.pointsOrbit u' :=
-  sorry
+  ⟨Relation.EqvGen.symm _ _, Relation.EqvGen.symm _ _⟩
 
 /-- For a pre-equivalence relation, the orbit of a point is the set of targets of
 relation points whose source is that point. -/
@@ -93,7 +129,17 @@ theorem pointsOrbit_eq_of_isPreEquivalence (P : PreRelation U) (hP : P.IsPreEqui
     (u : Points U.left) :
     P.pointsOrbit u =
       {u' | ∃ r : Points P.left.left, Points.map P.s.left r = u ∧ Points.map P.t.left r = u'} :=
-  sorry
+  by
+    ext u'
+    change Relation.EqvGen P.pointsRel u u' ↔
+      ∃ r : Points P.left.left, Points.map P.s.left r = u ∧ Points.map P.t.left r = u'
+    rw [(P.pointsRel_equivalence hP).eqvGen_iff]
+    constructor
+    · intro h
+      obtain ⟨r, ht, hs⟩ := (P.pointsRel_equivalence hP).symm h
+      exact ⟨r, hs, ht⟩
+    · rintro ⟨r, hs, ht⟩
+      exact (P.pointsRel_equivalence hP).symm ⟨r, ht, hs⟩
 
 /-- Membership in the orbit of a point under a pre-equivalence relation is equivalent to
 the existence of a relation point with that source and the given target. -/
@@ -101,7 +147,9 @@ theorem mem_pointsOrbit_of_isPreEquivalence (P : PreRelation U) (hP : P.IsPreEqu
     (u u' : Points U.left) :
     u' ∈ P.pointsOrbit u ↔
       ∃ r : Points P.left.left, Points.map P.s.left r = u ∧ Points.map P.t.left r = u' :=
-  sorry
+  by
+    rw [P.pointsOrbit_eq_of_isPreEquivalence hP u]
+    rfl
 
 /-- A morphism equalizing the projections of a pre-relation sends related points to the
 same point. -/
@@ -109,7 +157,14 @@ theorem pointsMap_eq_of_pointsRel {S : Scheme.{u}} {B : AlgebraicSpace S}
     {U X : Over B} (P : PreRelation U) {φ : U ⟶ X} (hφ : P.t ≫ φ = P.s ≫ φ)
     {u u' : Points U.left} (h : P.pointsRel u u') :
     Points.map φ.left u = Points.map φ.left u' :=
-  sorry
+  by
+    rcases h with ⟨r, ht, hs⟩
+    have hleft : P.t.left ≫ φ.left = P.s.left ≫ φ.left := congrArg Over.Hom.left hφ
+    calc
+      Points.map φ.left u = Points.map (P.t.left ≫ φ.left) r := by
+        rw [Points.map_comp, ht]
+      _ = Points.map (P.s.left ≫ φ.left) r := congrArg (fun f ↦ Points.map f r) hleft
+      _ = Points.map φ.left u' := by rw [Points.map_comp, hs]
 
 /-- A morphism equalizing the projections of a pre-relation induces a map on points
 that is constant on every orbit. -/
@@ -117,6 +172,12 @@ theorem pointsMap_eq_of_mem_pointsOrbit {S : Scheme.{u}} {B : AlgebraicSpace S}
     {U X : Over B} (P : PreRelation U) {φ : U ⟶ X} (hφ : P.t ≫ φ = P.s ≫ φ)
     {u u' : Points U.left} (h : u' ∈ P.pointsOrbit u) :
     Points.map φ.left u = Points.map φ.left u' :=
-  sorry
+  by
+    change Relation.EqvGen P.pointsRel u u' at h
+    induction h with
+    | rel _ _ h => exact P.pointsMap_eq_of_pointsRel hφ h
+    | refl => rfl
+    | symm _ _ _ ih => exact ih.symm
+    | trans _ _ _ _ _ ih₁ ih₂ => exact ih₁.trans ih₂
 
 end AlgebraicGeometry.AlgebraicSpace.PreRelation

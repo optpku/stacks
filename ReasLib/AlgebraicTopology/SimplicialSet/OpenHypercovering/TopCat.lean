@@ -58,12 +58,17 @@ def simplicialSpace.map.toFun {Δ Δ' : SimplexCategoryᵒᵖ} (f : Δ ⟶ Δ') 
 @[stacks 02N9 "simplicial-space map index formula", simp]
 theorem simplicialSpace.map.toFun.val {Δ Δ' : SimplexCategoryᵒᵖ}
     (f : Δ ⟶ Δ') (x : Σ i : I.obj Δ, U.openAt i) :
-    (simplicialSpace.map.toFun U f x).1 = I.map f x.1 := sorry
+    (simplicialSpace.map.toFun U f x).1 = I.map f x.1 := rfl
 
 /-- The map on degreewise disjoint unions induced by a simplicial operator is continuous. -/
 @[stacks 02N9 "simplicial-space map continuity"]
 theorem simplicialSpace.map.toFun.continuous {Δ Δ' : SimplexCategoryᵒᵖ} (f : Δ ⟶ Δ') :
-    Continuous (simplicialSpace.map.toFun U f) := sorry
+    Continuous (simplicialSpace.map.toFun U f) := by
+  apply continuous_sigma
+  intro i
+  exact (continuous_sigmaMk (σ := fun j : I.obj Δ' ↦ U.openAt j)
+    (i := I.map f i)).comp
+    ((Opens.toTopCat X).map (simplicialSpace.inclusion U f i)).hom.continuous
 
 /-- The topological map on degreewise disjoint unions induced by a simplicial operator. -/
 @[stacks 02N9 "simplicial-space structure map"]
@@ -77,14 +82,24 @@ def simplicialSpace.map {Δ Δ' : SimplexCategoryᵒᵖ} (f : Δ ⟶ Δ') :
 @[stacks 02N9 "simplicial-space map identity"]
 theorem simplicialSpace.map.id (Δ : SimplexCategoryᵒᵖ) :
     simplicialSpace.map U (𝟙 Δ) =
-      𝟙 (TopCat.of (Σ i : I.obj Δ, U.openAt i)) := sorry
+      𝟙 (TopCat.of (Σ i : I.obj Δ, U.openAt i)) := by
+  apply TopCat.ext
+  intro x
+  refine Sigma.subtype_ext ?_ rfl
+  change I.map (𝟙 Δ) x.1 = x.1
+  exact I.map_id_apply Δ x.1
 
 /-- Maps induced by composable simplicial operators compose in the expected order. -/
 @[stacks 02N9 "simplicial-space map composition"]
 theorem simplicialSpace.map.comp {Δ Δ' Δ'' : SimplexCategoryᵒᵖ}
     (f : Δ ⟶ Δ') (g : Δ' ⟶ Δ'') :
     simplicialSpace.map U (f ≫ g) =
-      simplicialSpace.map U f ≫ simplicialSpace.map U g := sorry
+      simplicialSpace.map U f ≫ simplicialSpace.map U g := by
+  apply TopCat.ext
+  intro x
+  refine Sigma.subtype_ext ?_ rfl
+  change I.map (f ≫ g) x.1 = I.map g (I.map f x.1)
+  exact I.map_comp_apply f g x.1
 
 /-- The simplicial topological space associated to a simplicial family of opens. -/
 @[stacks 02N9 "simplicial space of a simplicial family of opens"]
@@ -98,7 +113,7 @@ def simplicialSpace : SimplicialObject TopCat.{max u v} where
 @[stacks 02N9 "simplicial-space object formula", simp]
 theorem simplicialSpace.obj (Δ : SimplexCategoryᵒᵖ) :
     (simplicialSpace U).obj Δ =
-      TopCat.of (Σ i : I.obj Δ, U.openAt i) := sorry
+      TopCat.of (Σ i : I.obj Δ, U.openAt i) := rfl
 
 /-- The function from the degree indexed by `Δ` to the base space. -/
 @[stacks 02N9 "simplicial-space base function"]
@@ -109,7 +124,8 @@ def simplicialSpace.toBase.toFun (Δ : SimplexCategoryᵒᵖ) :
 /-- The function from an indexed disjoint union to the base space is continuous. -/
 @[stacks 02N9 "simplicial-space base-map continuity"]
 theorem simplicialSpace.toBase.toFun.continuous (Δ : SimplexCategoryᵒᵖ) :
-    Continuous (simplicialSpace.toBase.toFun U Δ) := sorry
+    Continuous (simplicialSpace.toBase.toFun U Δ) :=
+  continuous_sigma fun _ ↦ continuous_subtype_val
 
 /-- The map from a simplicial degree of the associated space to the base space. -/
 @[stacks 02N9 "simplicial-space base map"]
@@ -121,14 +137,17 @@ def simplicialSpace.toBase (Δ : SimplexCategoryᵒᵖ) : (simplicialSpace U).ob
 @[stacks 02N9 "simplicial-space base-map formula", simp]
 theorem simplicialSpace.toBase.toFun.apply (Δ : SimplexCategoryᵒᵖ)
     (x : Σ i : I.obj Δ, U.openAt i) :
-    simplicialSpace.toBase.toFun U Δ x = x.2 := sorry
+    simplicialSpace.toBase.toFun U Δ x = x.2 := rfl
 
 /-- The base maps are natural with respect to simplicial operators. -/
 @[stacks 02N9 "simplicial-space base-map naturality"]
 theorem simplicialSpace.map.comp_toBase {Δ Δ' : SimplexCategoryᵒᵖ}
     (f : Δ ⟶ Δ') :
     simplicialSpace.map U f ≫ simplicialSpace.toBase U Δ' =
-      simplicialSpace.toBase U Δ := sorry
+      simplicialSpace.toBase U Δ := by
+  apply TopCat.ext
+  intro x
+  rfl
 
 /-- The function from the degree-`n` disjoint union to the base space. -/
 @[stacks 02N9 "degreewise simplicial-space base function"]
@@ -154,7 +173,10 @@ simplicial object. -/
 theorem simplicialSpace.augmentation.zero.compatible :
     ∀ (i : SimplexCategory) (g₁ g₂ : SimplexCategory.mk 0 ⟶ i),
       simplicialSpace.map U g₁.op ≫ simplicialSpace.augmentation.zero U =
-        simplicialSpace.map U g₂.op ≫ simplicialSpace.augmentation.zero U := sorry
+        simplicialSpace.map U g₂.op ≫ simplicialSpace.augmentation.zero U := by
+  intro i g₁ g₂
+  exact (simplicialSpace.map.comp_toBase U g₁.op).trans
+    (simplicialSpace.map.comp_toBase U g₂.op).symm
 
 /-- The augmented simplicial topological space attached to a simplicial family of opens. -/
 @[stacks 02N9 "augmented simplicial space of a simplicial family of opens"]

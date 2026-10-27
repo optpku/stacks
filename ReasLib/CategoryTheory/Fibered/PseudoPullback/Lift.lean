@@ -40,31 +40,53 @@ def liftObj (a : A.obj) : (PseudoPullback F G).obj :=
   mk F G (A.p.obj a)
     { fst := ⟨left.obj a, left.w_obj a⟩
       snd := ⟨right.obj a, right.w_obj a⟩
-      iso := Functor.Fiber.isoMk ((BasedNatIso.toNatIso e).app a) sorry }
+      iso := Functor.Fiber.isoMk ((BasedNatIso.toNatIso e).app a)
+        (e.hom.isHomLift' a) }
 
 /-- The arrow of a supplied square retains both specified component arrows. -/
 def liftMap {a b : A.obj} (φ : a ⟶ b) :
     liftObj F G left right e a ⟶ liftObj F G left right e b :=
   Hom.mk (A.p.map φ) (left.map φ)
     (BasedFunctor.preserves_isHomLift left (A.p.map φ) φ)
-    (right.map φ) (BasedFunctor.preserves_isHomLift right (A.p.map φ) φ) sorry
+    (right.map φ) (BasedFunctor.preserves_isHomLift right (A.p.map φ) φ)
+    ⟨e.hom.toNatTrans.naturality φ⟩
 
 /-- Lift a supplied based square on its actual objects and morphisms. -/
 def lift : A ⥤ᵇ PseudoPullback F G where
   toFunctor :=
     { obj := liftObj F G left right e
       map := liftMap F G left right e
-      map_id := sorry
-      map_comp := sorry }
-  w := sorry
+      map_id := by
+        intro a
+        apply hom_ext
+        · change left.map (𝟙 a) = 𝟙 (left.obj a)
+          exact left.toFunctor.map_id a
+        · change right.map (𝟙 a) = 𝟙 (right.obj a)
+          exact right.toFunctor.map_id a
+      map_comp := by
+        intro a b c φ ψ
+        apply hom_ext
+        · change left.map (φ ≫ ψ) = left.map φ ≫ left.map ψ
+          exact left.toFunctor.map_comp φ ψ
+        · change right.map (φ ≫ ψ) = right.map φ ≫ right.map ψ
+          exact right.toFunctor.map_comp φ ψ }
+  w := rfl
 
 /-- The first projection of the literal lift has identity components. -/
 def lift.fstIso : lift F G left right e ⋙ fst F G ≅ left :=
-  BasedNatIso.ofComponents (fun _ => Iso.refl _) sorry sorry
+  BasedNatIso.ofComponents (fun _ => Iso.refl _)
+    (fun φ => by
+      change left.map φ ≫ 𝟙 _ = 𝟙 _ ≫ left.map φ
+      simp)
+    (fun a => IsHomLift.id (left.w_obj a))
 
 /-- The second projection of the literal lift has identity components. -/
 def lift.sndIso : lift F G left right e ⋙ snd F G ≅ right :=
-  BasedNatIso.ofComponents (fun _ => Iso.refl _) sorry sorry
+  BasedNatIso.ofComponents (fun _ => Iso.refl _)
+    (fun φ => by
+      change right.map φ ≫ 𝟙 _ = 𝟙 _ ≫ right.map φ
+      simp)
+    (fun a => IsHomLift.id (right.w_obj a))
 
 /-- The common base of the lifted object is the original base. -/
 @[simp] theorem lift.obj_base (a : A.obj) :
@@ -81,7 +103,9 @@ def lift.sndIso : lift F G left right e ⋙ snd F G ≅ right :=
 /-- The comparison isomorphism is the supplied square component. -/
 @[simp] theorem lift.obj_comparisonIso (a : A.obj) :
     comparisonIsoApp ((lift F G left right e).obj a) =
-      (BasedNatIso.toNatIso e).app a := sorry
+      (BasedNatIso.toNatIso e).app a := by
+  apply Iso.ext
+  rfl
 
 /-- The common base arrow is the original base arrow. -/
 @[simp] theorem lift.map_base {a b : A.obj} (φ : a ⟶ b) :

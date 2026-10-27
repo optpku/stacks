@@ -98,10 +98,34 @@ theorem residueHom_of (n p : ℕ) [Fact p.Prime]
       aeval (coordinate n p) polynomial :=
   sorry
 
+/-- A set-theoretic section of the residue map, obtained from a polynomial fraction
+`a / b` by the identity `a / b = a * b ^ (p - 1) / b ^ p`. The denominator's
+`p`th power belongs to the Frobenius-image coefficient field. Fraction representatives
+come from the proved fraction-ring presentation; no inverse is selected from an
+admitted surjectivity assertion. -/
+def residueHomSection (n p : ℕ) [Fact p.Prime] (z : functionField n p) :
+    adicCompletion n p :=
+  let a := (IsFractionRing.div_surjective (MvPolynomial (Fin n) (ZMod p)) z).choose
+  let b := (IsFractionRing.div_surjective (MvPolynomial (Fin n) (ZMod p)) z).choose_spec.choose
+  let coefficients : ZMod p →+* baseField n p :=
+    (expandFraction n p).rangeRestrictField.comp
+      ((algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p)).comp MvPolynomial.C)
+  let denominator : baseField n p :=
+    (expandFraction n p).rangeRestrictField
+      (algebraMap (MvPolynomial (Fin n) (ZMod p)) (functionField n p) b)
+  algebraMap (MvPolynomial (Fin n) (baseField n p)) (adicCompletion n p)
+    (MvPolynomial.map coefficients a * MvPolynomial.map coefficients b ^ (p - 1) *
+      C denominator⁻¹)
+
+/-- The explicit fraction lift is a right inverse of the residue map. -/
+theorem residueHomSection_rightInverse (n p : ℕ) [Fact p.Prime] :
+    Function.RightInverse (residueHomSection n p) (residueHom n p) :=
+  sorry
+
 /-- The residue map is surjective onto the ambient rational function field. -/
 theorem surjective_residueHom (n p : ℕ) [Fact p.Prime] :
     Function.Surjective (residueHom n p) :=
-  sorry
+  fun z ↦ ⟨residueHomSection n p z, residueHomSection_rightInverse n p z⟩
 
 /-- The maximal ideal of the completion is the kernel of its evaluation residue map. -/
 theorem maximalIdeal_adicCompletion_eq_ker (n p : ℕ) [Fact p.Prime] :
@@ -114,7 +138,7 @@ def residueFieldIso (n p : ℕ) [Fact p.Prime] :
     IsLocalRing.ResidueField (adicCompletion n p) ≃ₐ[baseField n p] functionField n p :=
   (Ideal.quotientEquivAlgOfEq (baseField n p)
       (maximalIdeal_adicCompletion_eq_ker n p)).trans
-    (Ideal.quotientKerAlgEquivOfSurjective (surjective_residueHom n p))
+    (Ideal.quotientKerAlgEquivOfRightInverse (residueHomSection_rightInverse n p))
 
 /-- The residue identification sends a residue class to its evaluation residue. -/
 theorem residueFieldIso_apply (n p : ℕ) [Fact p.Prime] (value : adicCompletion n p) :

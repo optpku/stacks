@@ -38,12 +38,12 @@ variable [Unique (F.obj (overSelfObj P))] [F.BijectiveOnFGSquareZeroProds]
 
 /-- The tangent space inherits the additive group structure of the
 finite-product-preserving square-zero evaluation functor. -/
-instance instAddCommGroup_tangentSpace : AddCommGroup (tangentSpace F) :=
+instance instAddCommGroup_squareZeroTangentSpace : AddCommGroup (tangentSpace F) :=
   instAddCommGroup (fgEval P F) (of K K)
 
 /-- The tangent space inherits the `K`-module structure of the
 finite-product-preserving square-zero evaluation functor. -/
-instance instModule_tangentSpace : Module K (tangentSpace F) :=
+instance instModule_squareZeroTangentSpace : Module K (tangentSpace F) :=
   instModule (fgEval P F) (of K K)
 
 variable (F) (V : FGModuleCat.{u} K)

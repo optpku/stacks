@@ -177,7 +177,7 @@ structure RestrictionData {i : S.I} (F : Sheaf (S.stageTopology i) (Type u))
   glue : (S.stageFunctor toMorphism).obj g.tgt =
     (S.stageFunctor toRepresentative).obj r.obj
 
-/-- A canonical choice of restriction data, extracted directly from equality
+/-- A choice of restriction data, extracted directly from equality
 of the two colimit-object presentations. -/
 noncomputable def RestrictionData.some
     {i : S.I} (F : Sheaf (S.stageTopology i) (Type u))
@@ -193,7 +193,8 @@ theorem RestrictionData.some_spec
     {i : S.I} (F : Sheaf (S.stageTopology i) (Type u))
     {x y : S.ColimitCategory} (g : S.HomRep x y) (r : Representative S F y) :
     (S.stageFunctor (RestrictionData.some S F g r).toMorphism).obj g.tgt =
-      (S.stageFunctor (RestrictionData.some S F g r).toRepresentative).obj r.obj := sorry
+      (S.stageFunctor (RestrictionData.some S F g r).toRepresentative).obj r.obj :=
+  (RestrictionData.some S F g r).glue
 
 /-- Restrict a representative along a concrete morphism representative using
 chosen common-lowering data. -/

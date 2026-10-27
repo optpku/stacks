@@ -6,21 +6,16 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Algebra.Homology.Additive
-public import Mathlib.Algebra.Homology.HomotopyCategory.KInjective
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.AbelianRestriction
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Module.Injective
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
 public import stacks_project.Chap96.Lemma_96_22_1_Restriction
 import StacksCheckRecall
 
 /-!
 # Lemma 96.22.1
 
-If an algebraic stack `X` over a scheme `S` is represented by an algebraic
-space `F`, restriction along `π_F = i_F⁻¹` sends injective objects of
-`Ab(X_étale)` to injective objects of `Ab(F_étale)`, and sends K-injective
-complexes to K-injective complexes. The analogous statements for étale
-`𝒪`-modules fail.
+Restriction from an algebraic stack to a representing algebraic space preserves injective
+abelian étale sheaves and K-injective complexes. Both module counterparts fail.
 -/
 
 @[expose] public section
@@ -30,40 +25,40 @@ open AlgebraicGeometry.GroupoidsOver
 open AlgebraicGeometry.Scheme.Etale.SmallToBig.Module
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.GroupoidsOver
-
-variable {S : Scheme.{u}} {F : AlgebraicSpace S} {X : GroupoidsOver S}
-variable (e : F.toGroupoids ≌ X)
-
-/-- Lemma 96.22.1 (1): if `I` is injective in `Ab(X_étale)`, then the
-restriction `I |_{F_étale}` is injective in `Ab(F_étale)`. -/
+/- Lemma 96.22.1 (1): restriction preserves injective abelian étale sheaves. -/
 @[stacks 075L]
-theorem injective_restrictAbelian [AlgebraicStack X]
-    [HasSheafify X.etaleTopology AddCommGrpCat.{u}]
-    [HasSheafify (AlgebraicSpace.smallEtaleTopology F) AddCommGrpCat.{u}]
-    (I : Sheaf X.etaleTopology AddCommGrpCat.{u}) [Injective I] :
-    Injective ((restrictAbelian e).obj I) :=
-  sorry
+#check (AlgebraicGeometry.GroupoidsOver.injective_restrictAbelian :
+    ∀ {S : Scheme.{u}} {F : AlgebraicSpace S} {X : GroupoidsOver S}
+      (e : F.toGroupoids ≌ X) [AlgebraicStack X]
+      [HasSheafify X.etaleTopology AddCommGrpCat.{u}]
+      [HasSheafify (AlgebraicSpace.smallEtaleTopology F) AddCommGrpCat.{u}]
+      (I : Sheaf X.etaleTopology AddCommGrpCat.{u}) [Injective I],
+      Injective ((restrictAbelian e).obj I))
 
-/-- Lemma 96.22.1 (2): if `I` is a K-injective complex in `Ab(X_étale)`, then
-the restricted complex `I |_{F_étale}` is K-injective in `Ab(F_étale)`. -/
+/- Lemma 96.22.1 (2): restriction preserves unbounded K-injective abelian complexes. -/
 @[stacks 075L]
-theorem isKInjective_restrictAbelian [AlgebraicStack X]
-    [HasSheafify X.etaleTopology AddCommGrpCat.{u}]
-    [HasSheafify (AlgebraicSpace.smallEtaleTopology F) AddCommGrpCat.{u}]
-    (I : CochainComplex (Sheaf X.etaleTopology AddCommGrpCat.{u}) ℤ)
-    [I.IsKInjective] :
-    CochainComplex.IsKInjective
-      (((restrictAbelian e).mapHomologicalComplex (up ℤ)).obj I) :=
-  sorry
+#check (AlgebraicGeometry.GroupoidsOver.isKInjective_restrictAbelian :
+    ∀ {S : Scheme.{u}} {F : AlgebraicSpace S} {X : GroupoidsOver S}
+      (e : F.toGroupoids ≌ X) [AlgebraicStack X]
+      [HasSheafify X.etaleTopology AddCommGrpCat.{u}]
+      [HasSheafify (AlgebraicSpace.smallEtaleTopology F) AddCommGrpCat.{u}]
+      (I : CochainComplex (Sheaf X.etaleTopology AddCommGrpCat.{u}) ℤ) [I.IsKInjective],
+      CochainComplex.IsKInjective
+        (((restrictAbelian e).mapHomologicalComplex (up ℤ)).obj I))
 
-end AlgebraicGeometry.GroupoidsOver
-
-/- Lemma 96.22.1 (3): the corresponding statements for modules do not hold. -/
+/- Lemma 96.22.1 (3): restriction of étale modules need not preserve injective objects. -/
 @[stacks 075L]
-#check (specIntegerModulePullback_not_preservesInjective :
+#check (AlgebraicGeometry.Scheme.Etale.SmallToBig.Module.specIntegerModulePullback_not_preservesInjective :
     ¬ specIntegerModulePullback.PreservesInjectiveObjects)
+
+/- Lemma 96.22.1 (4): restriction of étale modules need not preserve K-injective complexes. -/
+@[stacks 075L]
+#check (AlgebraicGeometry.Scheme.Etale.SmallToBig.Module.specIntegerModulePullback_not_preservesKInjective :
+    ¬ ∀ I : CochainComplex
+        (SheafOfModules.{1} (StandardTopology.Big.liftedRingedSite .etale
+          (Spec (CommRingCat.of ℤ))).structureSheaf) ℤ,
+      I.IsKInjective →
+        CochainComplex.IsKInjective
+          ((specIntegerModulePullback.mapHomologicalComplex (up ℤ)).obj I))

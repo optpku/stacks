@@ -60,7 +60,7 @@ theorem pullbackPresheaf_comp (φ ψ : X ⟶ X) :
 
 /-- Sheafification of Picard pullback along a curve endomorphism. -/
 def pullbackFunctor (φ : X ⟶ X) : functor X ⟶ functor X :=
-  (presheafToSheaf
+  (plusPlusSheaf
       (Scheme.fppfTopology.over (Spec (CommRingCat.of k))) (Type (u + 1))).map
     (pullbackPresheaf X φ)
 

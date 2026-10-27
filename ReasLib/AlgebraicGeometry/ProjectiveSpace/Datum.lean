@@ -81,27 +81,134 @@ def Equivalent {n : ℕ} {Y : Scheme.{u}} (τ τ' : ProjectiveSpaceDatum n Y) : 
 
 /-- Equivalence of projective-space data is reflexive. -/
 theorem equivalent_refl {n : ℕ} {Y : Scheme.{u}} (τ : ProjectiveSpaceDatum n Y) :
-    Equivalent τ τ := sorry
+    Equivalent τ τ :=
+  ⟨Iso.refl _, fun _ ↦ rfl⟩
 
 /-- Equivalence of projective-space data is symmetric. -/
 theorem equivalent_symm {n : ℕ} {Y : Scheme.{u}} {τ τ' : ProjectiveSpaceDatum n Y} :
-    Equivalent τ τ' → Equivalent τ' τ := sorry
+    Equivalent τ τ' → Equivalent τ' τ := by
+  rintro ⟨β, hβ⟩
+  refine ⟨β.symm, fun i ↦ ?_⟩
+  change SheafOfModules.sectionsMap β.inv (τ'.sections i) = τ.sections i
+  rw [← hβ i, ← SheafOfModules.sectionsMap_comp]
+  exact congrArg (fun p : τ.lineBundle ⟶ τ.lineBundle ↦
+    SheafOfModules.sectionsMap p (τ.sections i)) β.hom_inv_id
 
 /-- Equivalence of projective-space data is transitive. -/
 theorem equivalent_trans {n : ℕ} {Y : Scheme.{u}}
     {τ τ' τ'' : ProjectiveSpaceDatum n Y} :
-    Equivalent τ τ' → Equivalent τ' τ'' → Equivalent τ τ'' := sorry
+    Equivalent τ τ' → Equivalent τ' τ'' → Equivalent τ τ'' := by
+  rintro ⟨β, hβ⟩ ⟨γ, hγ⟩
+  refine ⟨β ≪≫ γ, fun i ↦ ?_⟩
+  change SheafOfModules.sectionsMap γ.hom
+    (SheafOfModules.sectionsMap β.hom (τ.sections i)) = τ''.sections i
+  rw [hβ i, hγ i]
 
 /-- The setoid of projective-space data under section-preserving module isomorphisms. -/
 def setoid (n : ℕ) (Y : Scheme.{u}) : Setoid (ProjectiveSpaceDatum n Y) where
   r := Equivalent
   iseqv := ⟨equivalent_refl, equivalent_symm, equivalent_trans⟩
 
+private theorem sections_ext_top {X : Scheme.{u}} {M : X.Modules} {s t : M.sections}
+    (h : s.1 (Opposite.op ⊤) = t.1 (Opposite.op ⊤)) : s = t := by
+  apply PresheafOfModules.sections_ext
+  intro U
+  exact (s.2 (RingedSpace.topOpenRestriction U)).symm.trans
+    ((congrArg (fun x ↦ M.val.map (RingedSpace.topOpenRestriction U) x) h).trans
+      (t.2 (RingedSpace.topOpenRestriction U)))
+
+private theorem sectionsPullback_top {X Y : Scheme.{u}} (f : X ⟶ Y)
+    (M : Y.Modules) (s : M.sections) :
+    (Scheme.Modules.sectionsPullback f M s).1 (Opposite.op ⊤) =
+      ((Scheme.Modules.pullbackPushforwardAdjunction f).unit.app M).val.app
+        (Opposite.op ⊤) (s.1 (Opposite.op ⊤)) := by
+  change (((Scheme.Modules.pullback f).obj M).presheaf.map (𝟙 _)) _ = _
+  simp
+  rfl
+
+private theorem sectionsPullback_naturality {X Y : Scheme.{u}} (f : X ⟶ Y)
+    {M N : Y.Modules} (p : M ⟶ N) (s : M.sections) :
+    SheafOfModules.sectionsMap ((Scheme.Modules.pullback f).map p)
+        (Scheme.Modules.sectionsPullback f M s) =
+      Scheme.Modules.sectionsPullback f N (SheafOfModules.sectionsMap p s) := by
+  apply sections_ext_top
+  change ((Scheme.Modules.pullback f).map p).val.app _
+      ((Scheme.Modules.sectionsPullback f M s).1 _) =
+    (Scheme.Modules.sectionsPullback f N (SheafOfModules.sectionsMap p s)).1 _
+  rw [sectionsPullback_top, sectionsPullback_top]
+  exact congrArg (fun k : M ⟶ (Scheme.Modules.pushforward f).obj
+      ((Scheme.Modules.pullback f).obj N) ↦ k.val.app (Opposite.op ⊤) (s.1 _))
+    ((Scheme.Modules.pullbackPushforwardAdjunction f).unit.naturality p).symm
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The section pullback is the morphism pullback under the canonical unit comparison. -/
+private theorem sectionsPullback_eq_unitHomEquiv {X Y : Scheme.{u}} (f : X ⟶ Y)
+    [(TopologicalSpace.Opens.map f.base).Final] (M : Y.Modules) (s : M.sections) :
+    Scheme.Modules.sectionsPullback f M s =
+      ((Scheme.Modules.pullback f).obj M).unitHomEquiv
+        ((asIso (SheafOfModules.pullbackObjUnitToUnit f.toRingCatSheafHom)).inv ≫
+          (Scheme.Modules.pullback f).map (M.unitHomEquiv.symm s)) := by
+  let φ := f.toRingCatSheafHom
+  let adj := SheafOfModules.pullbackPushforwardAdjunction φ
+  let e := asIso (SheafOfModules.pullbackObjUnitToUnit φ)
+  let t := M.unitHomEquiv.symm s
+  have hs : SheafOfModules.pushforwardSections φ
+      (Scheme.Modules.sectionsPullback f M s) =
+      SheafOfModules.sectionsMap (adj.unit.app M) s := by
+    apply sections_ext_top
+    exact sectionsPullback_top f M s
+  apply (SheafOfModules.bijective_pushforwardSections φ _).injective
+  rw [hs, SheafOfModules.pushforwardSections_unitHomEquiv]
+  change SheafOfModules.sectionsMap (adj.unit.app M) s =
+    ((Scheme.Modules.pushforward f).obj ((Scheme.Modules.pullback f).obj M)).unitHomEquiv
+      (SheafOfModules.unitToPushforwardObjUnit φ ≫
+        (SheafOfModules.pushforward φ).map (e.inv ≫ (SheafOfModules.pullback φ).map t))
+  have h : SheafOfModules.unitToPushforwardObjUnit φ ≫
+      (SheafOfModules.pushforward φ).map (e.inv ≫ (SheafOfModules.pullback φ).map t) =
+      t ≫ adj.unit.app M := by
+    calc
+      _ = adj.homEquiv _ _ (e.hom ≫ e.inv ≫ (SheafOfModules.pullback φ).map t) := by
+        rw [Adjunction.homEquiv_naturality_right]
+        change _ = (SheafOfModules.pullbackPushforwardAdjunction φ).homEquiv _ _
+          (SheafOfModules.pullbackObjUnitToUnit φ) ≫ _
+        rw [SheafOfModules.pullbackPushforwardAdjunction_homEquiv_pullbackObjUnitToUnit]
+      _ = t ≫ adj.unit.app M := by
+        simp only [Iso.hom_inv_id_assoc]
+        rw [Adjunction.homEquiv_unit, ← adj.unit_naturality]
+  rw [h, SheafOfModules.unitHomEquiv_comp_apply, Equiv.apply_symm_apply]
+
+set_option backward.isDefEq.respectTransparency false in
 /-- Pullback preserves generation by a finite family of global sections. -/
 theorem pullback_generates {n : ℕ} {X Y : Scheme.{u}} (f : X ⟶ Y)
     (τ : ProjectiveSpaceDatum n Y) :
     Epi (sectionFamilyHom ((Scheme.Modules.pullback f).obj τ.lineBundle) n
-      (fun i ↦ Scheme.Modules.sectionsPullback f τ.lineBundle (τ.sections i))) := sorry
+      (fun i ↦ Scheme.Modules.sectionsPullback f τ.lineBundle (τ.sections i))) := by
+  letI : (TopologicalSpace.Opens.map f.base).Final :=
+    CategoryTheory.final_of_representablyFlat (TopologicalSpace.Opens.map f.base)
+  let I := ULift.{u} (Fin (n + 1))
+  let e : SheafOfModules.free (R := X.ringCatSheaf) I ≅
+      (Scheme.Modules.pullback f).obj (SheafOfModules.free (R := Y.ringCatSheaf) I) :=
+    SheafOfModules.mapFreeIso (SheafOfModules.pullback f.toRingCatSheafHom) I
+      (asIso (SheafOfModules.pullbackObjUnitToUnit f.toRingCatSheafHom)).symm
+  letI := τ.generates
+  have h : e.hom ≫ (Scheme.Modules.pullback f).map
+      (sectionFamilyHom τ.lineBundle n τ.sections) =
+      sectionFamilyHom ((Scheme.Modules.pullback f).obj τ.lineBundle) n
+        (fun i ↦ Scheme.Modules.sectionsPullback f τ.lineBundle (τ.sections i)) := by
+    apply ((Scheme.Modules.pullback f).obj τ.lineBundle).freeHomEquiv.injective
+    funext i
+    simp only [sectionFamilyHom]
+    change ((Scheme.Modules.pullback f).obj τ.lineBundle).unitHomEquiv
+      (SheafOfModules.ιFree i ≫ e.hom ≫ (SheafOfModules.pullback f.toRingCatSheafHom).map
+        (τ.lineBundle.freeHomEquiv.symm (fun j : I ↦ τ.sections j.down))) = _
+    rw [SheafOfModules.ιFree_mapFreeIso_hom_assoc, ← Functor.map_comp,
+      ← SheafOfModules.unitHomEquiv_symm_freeHomEquiv_apply]
+    simp only [Equiv.apply_symm_apply]
+    exact (sectionsPullback_eq_unitHomEquiv f τ.lineBundle (τ.sections i.down)).symm.trans
+      (congrFun (((Scheme.Modules.pullback f).obj τ.lineBundle).freeHomEquiv.apply_symm_apply
+        (fun j : I ↦ Scheme.Modules.sectionsPullback f τ.lineBundle (τ.sections j.down))) i).symm
+  rw [← h]
+  infer_instance
 
 /-- Pull back an invertible module sheaf together with its generating sections. -/
 noncomputable def pullback {n : ℕ} {X Y : Scheme.{u}} (f : X ⟶ Y)
@@ -114,16 +221,50 @@ noncomputable def pullback {n : ℕ} {X Y : Scheme.{u}} (f : X ⟶ Y)
 /-- Pullback carries equivalent projective-space data to equivalent data. -/
 theorem pullback_equivalent {n : ℕ} {X Y : Scheme.{u}} (f : X ⟶ Y)
     {τ τ' : ProjectiveSpaceDatum n Y} :
-    Equivalent τ τ' → Equivalent (pullback f τ) (pullback f τ') := sorry
+    Equivalent τ τ' → Equivalent (pullback f τ) (pullback f τ') := by
+  rintro ⟨β, hβ⟩
+  refine ⟨(Scheme.Modules.pullback f).mapIso β, fun i ↦ ?_⟩
+  change SheafOfModules.sectionsMap ((Scheme.Modules.pullback f).map β.hom)
+      (Scheme.Modules.sectionsPullback f τ.lineBundle (τ.sections i)) =
+    Scheme.Modules.sectionsPullback f τ'.lineBundle (τ'.sections i)
+  rw [sectionsPullback_naturality, hβ i]
 
 /-- Pullback along an identity morphism is equivalent to the original data. -/
 theorem pullback_id_equivalent {n : ℕ} {Y : Scheme.{u}} (τ : ProjectiveSpaceDatum n Y) :
-    Equivalent (pullback (𝟙 Y) τ) τ := sorry
+    Equivalent (pullback (𝟙 Y) τ) τ := by
+  refine ⟨(Scheme.Modules.pullbackId Y).app τ.lineBundle, fun i ↦ ?_⟩
+  apply sections_ext_top
+  change ((Scheme.Modules.pullbackId Y).hom.app τ.lineBundle).val.app _
+    ((Scheme.Modules.sectionsPullback (𝟙 Y) τ.lineBundle (τ.sections i)).1 _) =
+      (τ.sections i).1 _
+  rw [sectionsPullback_top]
+  have h := unit_conjugateEquiv Adjunction.id
+    (Scheme.Modules.pullbackPushforwardAdjunction (𝟙 Y))
+    (Scheme.Modules.pullbackId Y).hom τ.lineBundle
+  rw [Scheme.Modules.conjugateEquiv_pullbackId_hom] at h
+  exact (congrArg (fun k : τ.lineBundle ⟶ (Scheme.Modules.pushforward (𝟙 Y)).obj τ.lineBundle ↦
+    k.val.app (Opposite.op ⊤) ((τ.sections i).1 _)) h).symm
 
 /-- Pullback along a composite is equivalent to iterated pullback. -/
 theorem pullback_comp_equivalent {n : ℕ} {X Y Z : Scheme.{u}}
     (f : X ⟶ Y) (g : Z ⟶ X) (τ : ProjectiveSpaceDatum n Y) :
-    Equivalent (pullback (g ≫ f) τ) (pullback g (pullback f τ)) := sorry
+    Equivalent (pullback (g ≫ f) τ) (pullback g (pullback f τ)) := by
+  refine ⟨((Scheme.Modules.pullbackComp g f).app τ.lineBundle).symm, fun i ↦ ?_⟩
+  apply sections_ext_top
+  change ((Scheme.Modules.pullbackComp g f).inv.app τ.lineBundle).val.app _
+      ((Scheme.Modules.sectionsPullback (g ≫ f) τ.lineBundle (τ.sections i)).1 _) =
+    (Scheme.Modules.sectionsPullback g ((Scheme.Modules.pullback f).obj τ.lineBundle)
+      (Scheme.Modules.sectionsPullback f τ.lineBundle (τ.sections i))).1 _
+  rw [sectionsPullback_top, sectionsPullback_top, sectionsPullback_top]
+  have h := unit_conjugateEquiv
+    ((Scheme.Modules.pullbackPushforwardAdjunction f).comp
+      (Scheme.Modules.pullbackPushforwardAdjunction g))
+    (Scheme.Modules.pullbackPushforwardAdjunction (g ≫ f))
+    (Scheme.Modules.pullbackComp g f).inv τ.lineBundle
+  rw [Scheme.Modules.conjugateEquiv_pullbackComp_inv] at h
+  exact (congrArg (fun k : τ.lineBundle ⟶ (Scheme.Modules.pushforward (g ≫ f)).obj
+      ((Scheme.Modules.pullback g).obj ((Scheme.Modules.pullback f).obj τ.lineBundle)) ↦
+    k.val.app (Opposite.op ⊤) ((τ.sections i).1 _)) h).symm
 
 end ProjectiveSpaceDatum
 
@@ -142,11 +283,20 @@ def map (n : ℕ) {S T : Scheme.{u}ᵒᵖ} (f : S ⟶ T) :
 
 /-- Pullback along an identity induces the identity map on datum classes. -/
 theorem map_id (n : ℕ) (S : Scheme.{u}ᵒᵖ) :
-    map n (𝟙 S) = 𝟙 (ProjectiveSpaceDatumClass n S.unop) := sorry
+    map n (𝟙 S) = 𝟙 (ProjectiveSpaceDatumClass n S.unop) := by
+  ext τ
+  refine _root_.Quotient.inductionOn τ ?_
+  intro τ
+  exact _root_.Quotient.sound (ProjectiveSpaceDatum.pullback_id_equivalent τ)
 
 /-- Pullback along a composite induces the composite map on datum classes. -/
 theorem map_comp (n : ℕ) {S T U : Scheme.{u}ᵒᵖ} (f : S ⟶ T) (g : T ⟶ U) :
-    map n (f ≫ g) = map n f ≫ map n g := sorry
+    map n (f ≫ g) = map n f ≫ map n g := by
+  ext τ
+  refine _root_.Quotient.inductionOn τ ?_
+  intro τ
+  exact _root_.Quotient.sound
+    (ProjectiveSpaceDatum.pullback_comp_equivalent f.unop g.unop τ)
 
 /-- The contravariant functor of invertible module sheaves with `n + 1` generating sections. -/
 def functor (n : ℕ) : Scheme.{u}ᵒᵖ ⥤ Type (u + 1) where

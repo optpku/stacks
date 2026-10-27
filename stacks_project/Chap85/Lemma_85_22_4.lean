@@ -6,9 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
 public import ReasLib.CategoryTheory.Sites.Hypercovering.Augmented
-public import stacks_project.Chap85.Lemma_85_20_4
+public import ReasLib.AlgebraicGeometry.RingedSite.Hypercovering.CartesianDerivedEquivalence
 
 /-!
 # Lemma 85.22.4
@@ -103,7 +103,7 @@ variable [ToposHom.HasModuleDerivedAdjunction
       (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA)).simplicial :
       ToposHom _ (X.localization A.right))]
 
-/-- Lemma 85.22.4
+/- Lemma 85.22.4
 Let `C` be a site with fibre products and `X` an object of `C`. Let `O_C` be a sheaf of
 rings. Let `U` be a hypercovering of `X` in `C`. Let `A ⊂ Mod(O)` denote the weak Serre
 subcategory of cartesian `O`-modules. Then the functor `La^*` defines an equivalence
@@ -114,23 +114,28 @@ sheaf of `X.localization A.right`, `O` is the structure sheaf of the total ringe
 the hypercovering `toHypercovering A hA`, `A` is the object property `cartesianProperty`
 of cartesian `O`-modules, `La^*` is `plusCartesianFunctor`, and `Ra_*` is
 `plusCartesianInverse`. -/
-@[stacks 0DAE]
-def modulePlusCartesianEquivalence :=
-  Hypercovering.modulePlusCartesianEquivalence.{ι, u, v, w} A.right
-    (toHypercovering.{ι} A hA)
+@[stacks 0DAE] #check
+  (RingedSite.Hypercovering.modulePlusCartesianEquivalence.{ι, u, v, w}
+    A.right (toHypercovering.{ι} A hA) :
+    DerivedCategory.Plus (ModuleCat.{w} (X.localization A.right)) ≌
+      RingedSite.Hypercovering.CartesianPlus A.right (toHypercovering.{ι} A hA))
 
-/-- The forward functor of `modulePlusCartesianEquivalence` is `La^*` corestricted to
+/- The forward functor of `modulePlusCartesianEquivalence` is `La^*` corestricted to
 `D_A⁺(O)`. -/
-theorem modulePlusCartesianEquivalence_functor :
-    (modulePlusCartesianEquivalence.{ι, u, v, w} A hA).functor =
-      plusCartesianFunctor.{ι, u, v, w} A.right (toHypercovering.{ι} A hA) :=
-  sorry
+#check
+  (RingedSite.Hypercovering.modulePlusCartesianEquivalence_functor.{ι, u, v, w}
+    A.right (toHypercovering.{ι} A hA) :
+    (RingedSite.Hypercovering.modulePlusCartesianEquivalence.{ι, u, v, w}
+      A.right (toHypercovering.{ι} A hA)).functor =
+      plusCartesianFunctor.{ι, u, v, w} A.right (toHypercovering.{ι} A hA))
 
-/-- The inverse functor of `modulePlusCartesianEquivalence` is `Ra_*` restricted from
+/- The inverse functor of `modulePlusCartesianEquivalence` is `Ra_*` restricted from
 `D_A⁺(O)`. -/
-theorem modulePlusCartesianEquivalence_inverse :
-    (modulePlusCartesianEquivalence.{ι, u, v, w} A hA).inverse =
-      plusCartesianInverse.{ι, u, v, w} A.right (toHypercovering.{ι} A hA) :=
-  sorry
+#check
+  (RingedSite.Hypercovering.modulePlusCartesianEquivalence_inverse.{ι, u, v, w}
+    A.right (toHypercovering.{ι} A hA) :
+    (RingedSite.Hypercovering.modulePlusCartesianEquivalence.{ι, u, v, w}
+      A.right (toHypercovering.{ι} A hA)).inverse =
+      plusCartesianInverse.{ι, u, v, w} A.right (toHypercovering.{ι} A hA))
 
 end CategoryTheory.SimplicialObject.Augmented

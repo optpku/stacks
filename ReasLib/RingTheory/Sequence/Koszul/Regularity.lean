@@ -72,7 +72,13 @@ noncomputable def IsH1RegularOn (M : Type u) [AddCommGroup M] [Module R M]
 theorem isZero_koszulComplexOnTensorLeft_homology_iff (R : Type u) [CommRing R]
     {r : ℕ} (f : Fin r → R) (i : ℕ) :
     IsZero ((koszulComplexOnTensorLeft R R f).homology i) ↔
-      IsZero ((KoszulComplex.family f).homology i) := sorry
+      IsZero ((KoszulComplex.family f).homology i) := by
+  let e : koszulComplexOnTensorLeft R R f ≅ KoszulComplex.family f :=
+    HomologicalComplex.Hom.isoOfComponents (fun j ↦ λ_ ((KoszulComplex.family f).X j))
+      (by
+        intro j k hjk
+        exact (leftUnitor_naturality ((KoszulComplex.family f).d j k)).symm)
+  exact ((homologyFunctor (ModuleCat R) (ComplexShape.down ℕ) i).mapIso e).isZero_iff
 
 /-- A finite family is Koszul-regular when it is Koszul-regular on the regular module. -/
 @[stacks 062E "Definition 15.30.1 (3), Koszul-regular finite families"]
@@ -83,7 +89,12 @@ noncomputable abbrev IsKoszulRegularSequence {r : ℕ} (f : Fin r → R) : Prop 
 complex. -/
 theorem isKoszulRegularSequence_iff {r : ℕ} (f : Fin r → R) :
     IsKoszulRegularSequence f ↔
-      ∀ i : ℕ, 1 ≤ i → IsZero ((KoszulComplex.family f).homology i) := sorry
+      ∀ i : ℕ, 1 ≤ i → IsZero ((KoszulComplex.family f).homology i) := by
+  constructor
+  · intro h i hi
+    exact (isZero_koszulComplexOnTensorLeft_homology_iff R f i).mp (h i hi)
+  · intro h i hi
+    exact (isZero_koszulComplexOnTensorLeft_homology_iff R f i).mpr (h i hi)
 
 /-- A finite family is `H_1`-regular when it is `H_1`-regular on the regular module. -/
 @[stacks 062E "Definition 15.30.1 (4), H1-regular finite families"]
@@ -93,7 +104,8 @@ noncomputable abbrev IsH1RegularSequence {r : ℕ} (f : Fin r → R) : Prop :=
 /-- `H_1`-regularity is equivalent to vanishing of the first homology of the family Koszul
 complex. -/
 theorem isH1RegularSequence_iff {r : ℕ} (f : Fin r → R) :
-    IsH1RegularSequence f ↔ IsZero ((KoszulComplex.family f).homology 1) := sorry
+    IsH1RegularSequence f ↔ IsZero ((KoszulComplex.family f).homology 1) := by
+  exact isZero_koszulComplexOnTensorLeft_homology_iff R f 1
 
 namespace IsH1RegularOn
 
@@ -156,7 +168,8 @@ theorem of_span_eq {r : ℕ} (f g : Fin r → R)
 @[stacks 066A "same-length H1-regularity iff by generated ideal"]
 theorem iff_of_span_eq {r : ℕ} (f g : Fin r → R)
     (hspan : Ideal.span (Set.range f) = Ideal.span (Set.range g)) :
-    IsH1RegularSequence f ↔ IsH1RegularSequence g := sorry
+    IsH1RegularSequence f ↔ IsH1RegularSequence g := by
+  exact ⟨of_span_eq g f hspan.symm, of_span_eq f g hspan⟩
 
 end IsH1RegularSequence
 
@@ -187,7 +200,8 @@ theorem append_iff_quotient {n m : ℕ} (f : Fin n → R) (g : Fin m → R)
     (hf : IsKoszulRegularSequence f) :
     IsKoszulRegularSequence (Fin.append f g) ↔
       IsKoszulRegularSequence
-        (fun j ↦ Ideal.Quotient.mk (Ideal.span (Set.range f)) (g j)) := sorry
+        (fun j ↦ Ideal.Quotient.mk (Ideal.span (Set.range f)) (g j)) := by
+  exact ⟨quotient_tail f g hf, append_of_quotient f g hf⟩
 
 /-- Koszul-regularity of a finite family depends only on its length and the ideal it generates. -/
 @[stacks 066A "Koszul-regularity is invariant under a same-length change of generators"]
@@ -199,7 +213,8 @@ theorem of_span_eq {r : ℕ} (f g : Fin r → R)
 @[stacks 066A "same-length Koszul regularity iff by generated ideal"]
 theorem iff_of_span_eq {r : ℕ} (f g : Fin r → R)
     (hspan : Ideal.span (Set.range f) = Ideal.span (Set.range g)) :
-    IsKoszulRegularSequence f ↔ IsKoszulRegularSequence g := sorry
+    IsKoszulRegularSequence f ↔ IsKoszulRegularSequence g := by
+  exact ⟨of_span_eq g f hspan.symm, of_span_eq f g hspan⟩
 
 end IsKoszulRegularSequence
 
@@ -228,18 +243,21 @@ namespace IsRegular
 /-- A regular list on `M` induces a Koszul-regular finite family through `List.get`. -/
 @[stacks 062F "regular sequences are Koszul-regular"]
 theorem isKoszulRegularOn {M : Type u} [AddCommGroup M] [Module R M]
-    {rs : List R} (hreg : IsRegular M rs) : IsKoszulRegularOn M rs.get := sorry
+    {rs : List R} (hreg : IsRegular M rs) : IsKoszulRegularOn M rs.get := by
+  exact hreg.toIsWeaklyRegular.isKoszulRegularOn
 
 end IsRegular
 
 /-- An `M`-Koszul-regular finite family is `M`-`H_1`-regular. -/
 @[stacks 0CEM "Koszul-regular implies H1-regular"]
 theorem isH1RegularOn_of_isKoszulRegularOn {M : Type u} [AddCommGroup M] [Module R M]
-    {r : ℕ} {f : Fin r → R} (hKoszul : IsKoszulRegularOn M f) : IsH1RegularOn M f := sorry
+    {r : ℕ} {f : Fin r → R} (hKoszul : IsKoszulRegularOn M f) : IsH1RegularOn M f := by
+  exact hKoszul 1 le_rfl
 
 /-- A Koszul-regular finite family is `H_1`-regular. -/
 @[stacks 0CEM "Koszul-regular sequences are H1-regular"]
 theorem isH1RegularSequence_of_isKoszulRegularSequence {r : ℕ} {f : Fin r → R}
-    (hKoszul : IsKoszulRegularSequence f) : IsH1RegularSequence f := sorry
+    (hKoszul : IsKoszulRegularSequence f) : IsH1RegularSequence f := by
+  exact isH1RegularOn_of_isKoszulRegularOn hKoszul
 
 end RingTheory.Sequence

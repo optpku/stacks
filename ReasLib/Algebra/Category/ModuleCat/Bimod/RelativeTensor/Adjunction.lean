@@ -57,13 +57,23 @@ noncomputable abbrev categoricalFunctor (N : Type u) [AddCommGroup N] [Module R 
 /-- The categorical relative internal-Hom functor is additive. -/
 @[stacks 09LN "additive categorical relative internal Hom functor"]
 instance categoricalFunctorAdditive :
-    (categoricalFunctor (R := R) (A := A) (B := B) N).Additive := sorry
+    (categoricalFunctor (R := R) (A := A) (B := B) N).Additive := by
+  change (CategoryTheory.Bimod.InternalHom.functor
+      (RightInternalHom.ofBraidedClosed (C := ModuleCat.{u} R))
+      (toBimod (R := R) (A := A) (B := B) N) ⋙
+    RightModuleFunctor.Inverse.functor (R := R) (A := A)).Additive
+  infer_instance
 
 /-- The categorical relative internal-Hom functor is `R`-linear. -/
 @[stacks 09LN "linear categorical relative internal Hom functor"]
 instance categoricalFunctorLinear :
     Functor.Linear R
-      (categoricalFunctor (R := R) (A := A) (B := B) N) := sorry
+      (categoricalFunctor (R := R) (A := A) (B := B) N) := by
+  change Functor.Linear R (CategoryTheory.Bimod.InternalHom.functor
+      (RightInternalHom.ofBraidedClosed (C := ModuleCat.{u} R))
+      (toBimod (R := R) (A := A) (B := B) N) ⋙
+    RightModuleFunctor.Inverse.functor (R := R) (A := A))
+  infer_instance
 
 namespace Ordinary
 
@@ -80,12 +90,18 @@ noncomputable abbrev functor (N : Type u) [AddCommGroup N] [Module R N]
 /-- Ordinary relative internal Hom on categorical right modules is additive. -/
 @[stacks 09LN "additive ordinary relative internal Hom on categorical right modules"]
 instance functorAdditive :
-    (functor (R := R) (A := A) (B := B) N).Additive := sorry
+    (functor (R := R) (A := A) (B := B) N).Additive := by
+  change (RightModuleFunctor.Inverse.functor (R := R) (A := B) ⋙
+    Module.Bimodule.InternalHom.functor (R := R) (A := A) (B := B) N).Additive
+  infer_instance
 
 /-- Ordinary relative internal Hom on categorical right modules is `R`-linear. -/
 @[stacks 09LN "linear ordinary relative internal Hom on categorical right modules"]
 instance functorLinear :
-    Functor.Linear R (functor (R := R) (A := A) (B := B) N) := sorry
+    Functor.Linear R (functor (R := R) (A := A) (B := B) N) := by
+  change Functor.Linear R (RightModuleFunctor.Inverse.functor (R := R) (A := B) ⋙
+    Module.Bimodule.InternalHom.functor (R := R) (A := A) (B := B) N)
+  infer_instance
 
 end Ordinary
 
@@ -123,14 +139,16 @@ noncomputable def adjunction (N : Type u) [AddCommGroup N] [Module R N]
 realization as a left adjoint. -/
 @[stacks 09LN "ordinary relative tensor on categorical modules is a left adjoint"]
 instance functorIsLeftAdjoint :
-    (functor (R := R) (A := A) (B := B) N).IsLeftAdjoint := sorry
+    (functor (R := R) (A := A) (B := B) N).IsLeftAdjoint :=
+  (adjunction (R := R) (A := A) (B := B) N).isLeftAdjoint
 
 end Ordinary
 
 /-- Typeclass search recognizes categorical relative tensoring with `N` as a left adjoint. -/
 @[stacks 09LN "categorical relative tensor is a left adjoint"]
 instance categoricalFunctorIsLeftAdjoint :
-    (categoricalFunctor (R := R) (A := A) (B := B) N).IsLeftAdjoint := sorry
+    (categoricalFunctor (R := R) (A := A) (B := B) N).IsLeftAdjoint :=
+  (categoricalAdjunction (R := R) (A := A) (B := B) N).isLeftAdjoint
 
 end RelativeTensor
 
@@ -140,7 +158,8 @@ namespace InternalHom
 adjoint. -/
 @[stacks 09LN "categorical relative internal Hom is a right adjoint"]
 instance categoricalFunctorIsRightAdjoint :
-    (categoricalFunctor (R := R) (A := A) (B := B) N).IsRightAdjoint := sorry
+    (categoricalFunctor (R := R) (A := A) (B := B) N).IsRightAdjoint :=
+  (RelativeTensor.categoricalAdjunction (R := R) (A := A) (B := B) N).isRightAdjoint
 
 namespace Ordinary
 
@@ -148,7 +167,8 @@ namespace Ordinary
 as a right adjoint. -/
 @[stacks 09LN "ordinary relative internal Hom on categorical modules is a right adjoint"]
 instance functorIsRightAdjoint :
-    (functor (R := R) (A := A) (B := B) N).IsRightAdjoint := sorry
+    (functor (R := R) (A := A) (B := B) N).IsRightAdjoint :=
+  (RelativeTensor.Ordinary.adjunction (R := R) (A := A) (B := B) N).isRightAdjoint
 
 /-- The categorical and ordinary relative internal-Hom functors agree as the right-adjoint
 mates of the categorical-to-ordinary tensor comparison. -/
@@ -177,6 +197,8 @@ noncomputable def realizationIso (N : Type u) [AddCommGroup N] [Module R N]
     (rightModuleEquivalence (R := R) (A := B)).funInvIdAssoc
       (Module.Bimodule.InternalHom.functor (R := R) (A := A) (B := B) N)
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
 /-- The forward concrete realization comparison is the right-adjoint mate followed by
 extraction-realization cancellation. -/
 @[simp, stacks 09LN "forward categorical internal Hom realization comparison"]
@@ -186,8 +208,13 @@ theorem realizationIso_hom_app (P : ModuleCat.{u} Bᵐᵒᵖ) :
           ((rightModuleFunctor (R := R) (A := B)).obj P) ≫
         (Module.Bimodule.InternalHom.functor
           (R := R) (A := A) (B := B) N).map
-            ((rightModuleEquivalence (R := R) (A := B)).unitIso.inv.app P) := sorry
+            ((rightModuleEquivalence (R := R) (A := B)).unitIso.inv.app P) := by
+  simp only [realizationIso, Iso.trans_hom, NatTrans.comp_app,
+    Functor.isoWhiskerLeft_hom, Functor.whiskerLeft_app,
+    Equivalence.funInvIdAssoc_hom_app, Equivalence.unitInv]
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
 /-- The inverse concrete realization comparison first inserts extraction-realization and then
 uses the inverse right-adjoint mate. -/
 @[simp, stacks 09LN "inverse categorical internal Hom realization comparison"]
@@ -197,7 +224,10 @@ theorem realizationIso_inv_app (P : ModuleCat.{u} Bᵐᵒᵖ) :
           (R := R) (A := A) (B := B) N).map
             ((rightModuleEquivalence (R := R) (A := B)).unitIso.hom.app P) ≫
         (categoricalIso (R := R) (A := A) (B := B) N).inv.app
-          ((rightModuleFunctor (R := R) (A := B)).obj P) := sorry
+          ((rightModuleFunctor (R := R) (A := B)).obj P) := by
+  simp only [realizationIso, Iso.trans_inv, NatTrans.comp_app,
+    Functor.isoWhiskerLeft_inv, Functor.whiskerLeft_app,
+    Equivalence.funInvIdAssoc_inv_app, Equivalence.unit]
 
 end Ordinary
 
@@ -205,6 +235,8 @@ end InternalHom
 
 namespace TensorHom
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
 /-- Categorical currying, transported through the tensor and internal-Hom comparisons, is
 the concrete tensor-Hom equivalence. -/
 @[stacks 09LN "compatibility of categorical and ordinary tensor-Hom currying"]
@@ -218,8 +250,22 @@ theorem categoricalAdjunction_homEquiv_apply
             (rightModuleFunctor (R := R) (A := B)).map f) ≫
         (InternalHom.Ordinary.realizationIso
           (R := R) (A := A) (B := B) N).hom.app P =
-      (adjunction (R := R) (A := A) (B := B) N).homEquiv M P f := sorry
+      (adjunction (R := R) (A := A) (B := B) N).homEquiv M P f := by
+  have h := Adjunction.rightAdjointIsoOfLeftIso_homEquiv_apply
+    (RelativeTensor.Ordinary.categoricalIso (R := R) (A := A) (B := B) N)
+    (RelativeTensor.categoricalAdjunction (R := R) (A := A) (B := B) N)
+    (RelativeTensor.Ordinary.adjunction (R := R) (A := A) (B := B) N)
+    M ((rightModuleFunctor (R := R) (A := B)).obj P)
+    ((rightModuleFunctor (R := R) (A := B)).map f)
+  rw [InternalHom.Ordinary.realizationIso_hom_app, ← Category.assoc,
+    InternalHom.Ordinary.categoricalIso, h]
+  rw [RelativeTensor.Ordinary.adjunction, Adjunction.comp_homEquiv]
+  dsimp only [Equiv.trans_apply]
+  erw [← (adjunction (R := R) (A := A) (B := B) N).homEquiv_naturality_right]
+  congr 1
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
 /-- Inverse categorical currying agrees with inverse concrete currying under the tensor and
 internal-Hom comparisons. -/
 @[stacks 09LN "inverse compatibility of categorical and ordinary tensor-Hom currying"]
@@ -234,8 +280,18 @@ theorem categoricalAdjunction_homEquiv_symm_apply
           (R := R) (A := A) (B := B) N).homEquiv M
             ((rightModuleFunctor (R := R) (A := B)).obj P)).symm
         (g ≫ (InternalHom.Ordinary.realizationIso
-          (R := R) (A := A) (B := B) N).inv.app P) := sorry
+          (R := R) (A := A) (B := B) N).inv.app P) := by
+  apply ((RelativeTensor.categoricalAdjunction
+    (R := R) (A := A) (B := B) N).homEquiv M
+      ((rightModuleFunctor (R := R) (A := B)).obj P)).injective
+  rw [Equiv.apply_symm_apply]
+  apply (cancel_mono ((InternalHom.Ordinary.realizationIso
+    (R := R) (A := A) (B := B) N).hom.app P)).1
+  simp only [categoricalAdjunction_homEquiv_apply, Equiv.apply_symm_apply,
+    Category.assoc, Iso.inv_hom_id_app, Category.comp_id]
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
 /-- The categorical and concrete tensor-Hom units agree through the comparison
 isomorphisms. -/
 @[stacks 09LN "compatibility of categorical and ordinary tensor-Hom units"]
@@ -249,8 +305,15 @@ theorem categoricalAdjunction_unit_app (M : ModuleCat.{u} Aᵐᵒᵖ) :
         (InternalHom.Ordinary.realizationIso
           (R := R) (A := A) (B := B) N).hom.app
             ((RelativeTensor.functor (R := R) (A := A) (B := B) N).obj M) =
-      (adjunction (R := R) (A := A) (B := B) N).unit.app M := sorry
+      (adjunction (R := R) (A := A) (B := B) N).unit.app M := by
+  have h := categoricalAdjunction_homEquiv_apply (R := R) (N := N)
+    M ((RelativeTensor.functor (R := R) (A := A) (B := B) N).obj M) (𝟙 _)
+  erw [(rightModuleFunctor (R := R) (A := B)).map_id, Category.comp_id,
+    Adjunction.homEquiv_unit, Adjunction.homEquiv_id, Category.assoc] at h
+  exact h
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
 /-- The categorical and concrete tensor-Hom counits agree through the comparison
 isomorphisms. -/
 @[stacks 09LN "compatibility of categorical and ordinary tensor-Hom counits"]
@@ -266,7 +329,12 @@ theorem categoricalAdjunction_counit_app (P : ModuleCat.{u} Bᵐᵒᵖ) :
               (R := R) (A := A) (B := B) N).inv.app P) ≫
         (RelativeTensor.categoricalAdjunction
           (R := R) (A := A) (B := B) N).counit.app
-            ((rightModuleFunctor (R := R) (A := B)).obj P) := sorry
+            ((rightModuleFunctor (R := R) (A := B)).obj P) := by
+  have h := categoricalAdjunction_homEquiv_symm_apply (R := R) (N := N)
+    ((InternalHom.functor (R := R) (A := A) (B := B) N).obj P) P (𝟙 _)
+  simpa only [Adjunction.homEquiv_counit,
+    (RelativeTensor.functor (R := R) (A := A) (B := B) N).map_id,
+    Category.id_comp] using h
 
 end TensorHom
 

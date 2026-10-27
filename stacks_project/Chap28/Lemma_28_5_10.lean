@@ -25,12 +25,12 @@ and closed points of the spectrum of a discrete valuation ring. -/
         f (IsLocalRing.closedPoint R) = x)
 
 /- Lemma 28.5.10 (2): for a nontrivial specialization, the realizing DVR can be chosen inside a
-prescribed finite-type extension of the residue field of the general point. -/
+prescribed finitely generated field extension of the residue field of the general point. -/
 @[stacks 054F] #check (
-  _root_.Specializes.exists_discreteValuationRing_morphism_with_prescribed_fractionField :
+  _root_.Specializes.exists_discreteValuationRing_morphism_with_prescribed_fractionField_of_essFiniteType :
     ∀ {X : Scheme.{u}} [IsLocallyNoetherian X] {x' x : X}
       (h : x' ⤳ x) (hneq : x ≠ x') (K : Type u) [Field K]
-      [Algebra (X.residueField x') K] [Algebra.FiniteType (X.residueField x') K],
+      [Algebra (X.residueField x') K] [Algebra.EssFiniteType (X.residueField x') K],
       ∃ (R : Type u) (_ : CommRing R) (_ : IsDomain R)
         (_ : IsDiscreteValuationRing R) (_ : Algebra R K) (_ : IsFractionRing R K)
         (f : Spec (CommRingCat.of R) ⟶ X),

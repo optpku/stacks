@@ -38,26 +38,27 @@ namespace map₂
 theorem toBasedNatTrans {F G : X ⟶ Y} (τ : F ⟶ G) :
     FiberedCategoryOver.Sets.toBasedNatTrans (map₂ τ) =
       BasedCategory.Inertia.map₂
-        (FiberedCategoryOver.Sets.toBasedNatTrans τ) := sorry
+        (FiberedCategoryOver.Sets.toBasedNatTrans τ) := rfl
 
 /-- The total natural-transformation view of a typed set-fibred inertia `2`-cell. -/
 @[simp]
 theorem toNatTrans {F G : X ⟶ Y} (τ : F ⟶ G) :
     FiberedCategoryOver.Sets.toNatTrans (map₂ τ) =
       (BasedCategory.Inertia.map₂
-        (FiberedCategoryOver.Sets.toBasedNatTrans τ)).toNatTrans := sorry
+        (FiberedCategoryOver.Sets.toBasedNatTrans τ)).toNatTrans := rfl
 
 /-- Evaluating a typed set-fibred inertia `2`-cell gives the neutral intertwined component. -/
 @[simp]
 theorem app {F G : X ⟶ Y} (τ : F ⟶ G) (A : X.inertia.total) :
     (FiberedCategoryOver.Sets.toNatTrans (map₂ τ)).app A =
       BasedCategory.Inertia.map₂.component
-        (FiberedCategoryOver.Sets.toBasedNatTrans τ) A := sorry
+        (FiberedCategoryOver.Sets.toBasedNatTrans τ) A := rfl
 
 /-- Each typed set-fibred inertia `2`-cell component is a vertical hom-lift. -/
 theorem app.isHomLift {F G : X ⟶ Y} (τ : F ⟶ G) (A : X.inertia.total) :
     Y.inertia.p.IsHomLift (𝟙 (X.inertia.p.obj A))
-      ((FiberedCategoryOver.Sets.toNatTrans (map₂ τ)).app A) := sorry
+      ((FiberedCategoryOver.Sets.toNatTrans (map₂ τ)).app A) := by
+  exact (FiberedCategoryOver.Sets.toBasedNatTrans (map₂ τ)).isHomLift' A
 
 /-- The underlying arrow of a typed set-fibred inertia `2`-cell component is the original
 natural-transformation component. -/
@@ -65,7 +66,7 @@ natural-transformation component. -/
 theorem app.underlying {F G : X ⟶ Y} (τ : F ⟶ G) (A : X.inertia.total) :
     RelativeInertia.hom
         ((FiberedCategoryOver.Sets.toNatTrans (map₂ τ)).app A) =
-      (FiberedCategoryOver.Sets.toNatTrans τ).app A.obj := sorry
+      (FiberedCategoryOver.Sets.toNatTrans τ).app A.obj := rfl
 
 /-- Typed set-fibred inertia `2`-cell components are natural in inertia arrows. -/
 @[reassoc]
@@ -74,14 +75,18 @@ theorem naturality {F G : X ⟶ Y} (τ : F ⟶ G)
     (FiberedCategoryOver.Sets.toFunctor (map F)).map f ≫
         (FiberedCategoryOver.Sets.toNatTrans (map₂ τ)).app B =
       (FiberedCategoryOver.Sets.toNatTrans (map₂ τ)).app A ≫
-        (FiberedCategoryOver.Sets.toFunctor (map G)).map f := sorry
+        (FiberedCategoryOver.Sets.toFunctor (map G)).map f := by
+  exact (FiberedCategoryOver.Sets.toNatTrans (map₂ τ)).naturality f
 
 /-- Two typed set-fibred inertia `2`-cells agree when all total-category components agree. -/
 theorem ext {F G : X ⟶ Y} {τ σ : F ⟶ G}
     (h : ∀ A : X.inertia.total,
       (FiberedCategoryOver.Sets.toNatTrans (map₂ τ)).app A =
         (FiberedCategoryOver.Sets.toNatTrans (map₂ σ)).app A) :
-    map₂ τ = map₂ σ := sorry
+    map₂ τ = map₂ σ := by
+  apply Bicategory.InducedBicategory.hom₂_ext
+  apply BasedNatTrans.ext
+  exact NatTrans.ext (funext h)
 
 /-- Typed set-fibred inertia is compatible with left whiskering. -/
 theorem whiskerLeft
@@ -90,7 +95,10 @@ theorem whiskerLeft
     map₂ (F ◁ τ) =
       eqToHom (map.comp F G) ≫
         map F ◁ map₂ τ ≫
-          eqToHom (map.comp F H).symm := sorry
+          eqToHom (map.comp F H).symm := by
+  change map₂ (F ◁ τ) = 𝟙 _ ≫ map F ◁ map₂ τ ≫ 𝟙 _
+  simp only [Category.id_comp, Category.comp_id]
+  rfl
 
 /-- Typed set-fibred inertia is compatible with right whiskering. -/
 theorem whiskerRight
@@ -99,7 +107,10 @@ theorem whiskerRight
     map₂ (τ ▷ H) =
       eqToHom (map.comp F H) ≫
         map₂ τ ▷ map H ≫
-          eqToHom (map.comp G H).symm := sorry
+          eqToHom (map.comp G H).symm := by
+  change map₂ (τ ▷ H) = 𝟙 _ ≫ map₂ τ ▷ map H ≫ 𝟙 _
+  simp only [Category.id_comp, Category.comp_id]
+  rfl
 
 end map₂
 

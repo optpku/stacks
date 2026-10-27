@@ -101,10 +101,9 @@ def etalePushforwardStalkToGeometricFiberSections
     (stalkFunctor s).obj ((Scheme.smallEtaleDirectImage.{u, u} f).obj F) →
       etaleGlobalSections
         ((Sheaf.smallEtaleInverseImage (pullback.fst f s.hom) (Type u)).obj F) :=
-  colimit.desc
-    ((CategoryOfElements.π (GeometricPoint.toSmallEtalePoint s).fiber).op ⋙
-      (CategoryTheory.sheafToPresheaf S.smallEtaleTopology (Type u)).obj
-        ((Scheme.smallEtaleDirectImage.{u, u} f).obj F))
+  ((GeometricPoint.toSmallEtalePoint s).isColimitPresheafFiberCocone
+    ((CategoryTheory.sheafToPresheaf S.smallEtaleTopology (Type u)).obj
+      ((Scheme.smallEtaleDirectImage.{u, u} f).obj F))).desc
     { pt := etaleGlobalSections
         ((Sheaf.smallEtaleInverseImage (pullback.fst f s.hom) (Type u)).obj F)
       ι :=

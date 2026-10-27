@@ -100,7 +100,10 @@ theorem productAtlas_exists {S : Scheme.{u}} (F G : AlgebraicSpace S) :
   let p := F.atlas.choose_spec.choose
   let q := G.atlas.choose_spec.choose
   refine ⟨U ⨯ V, prodComparison yoneda U V ≫ prod.map p q, ?_, ?_⟩
-  · sorry
+  · refine ⟨Functor.relativelyRepresentable.of_diag
+      (product_representableDiagonal F G F.representableDiagonal G.representableDiagonal)
+      (prodComparison yoneda U V ≫ prod.map p q), ?_⟩
+    sorry
   · sorry
 
 /-- The algebraic space `F × G` obtained as the sheaf product of algebraic spaces `F` and `G`
@@ -169,7 +172,11 @@ theorem productAtlas_spec {S : Scheme.{u}} {F G : AlgebraicSpace S} {U V : Over 
     (hq_etale : MorphismProperty.presheaf (MorphismProperty.over (@Etale)) q)
     (hq_surj : Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) q) :
     MorphismProperty.presheaf (MorphismProperty.over (@Etale)) (productAtlas p q) ∧
-      Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) (productAtlas p q) := sorry
+      Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) (productAtlas p q) := by
+  refine ⟨⟨Functor.relativelyRepresentable.of_diag
+    (product F G).representableDiagonal (productAtlas p q), ?_⟩, ?_⟩
+  · sorry
+  · sorry
 
 /-- The binary fan of the projections of `product F G` is a limit in the category of algebraic
 spaces over `S`. -/

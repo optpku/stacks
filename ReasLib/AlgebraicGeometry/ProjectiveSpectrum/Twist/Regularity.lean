@@ -7,15 +7,16 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.Presentation
+public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.Basic
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Cohomology
 
 /-!
 # Regularity for chosen twists on a projective spectrum
 
-This leaf gives the cohomological regularity predicate for a module together
-with an explicitly chosen integral twist presentation.  The cohomological
-bound is an input, so the API applies to standard projective spaces and to
-other projective-spectrum presentations with a known bound.
+This leaf defines cohomological regularity for an explicit integral twist family. The
+presentation API is a thin specialization to its actual twist family. The cohomological
+bound is an input, so the same predicate applies to the canonical twists on standard
+projective spaces without requiring the extra data of a universal twist presentation.
 -/
 
 @[expose] public section
@@ -29,21 +30,32 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.ProjTwistPresentation
+namespace AlgebraicGeometry
 
 variable {A sigma : Type u} [CommRing A] [SetLike sigma A] [AddSubgroupClass sigma A]
 variable {calA : Nat -> sigma} [GradedRing calA]
 variable [MonoidalCategory (Proj calA).Modules]
 
-/-- A module `F` is `m`-regular through cohomological degree `cohomologicalBound` with respect
-to the actual twists recorded by `P`. -/
-abbrev IsMRegular
-    (P : ProjTwistPresentation calA) (F : (Proj calA).Modules)
+/-- A module is `m`-regular through degree `cohomologicalBound` for the supplied integral
+twist family when its required positive-degree twisted cohomology vanishes. This is the
+common predicate underlying presentation regularity and canonical projective-space regularity. -/
+abbrev ProjTwistFamily.IsMRegular
+    (P : ProjTwistFamily calA) (F : (Proj calA).Modules)
     (cohomologicalBound : Nat) (m : Int) : Prop :=
   ∀ i : Nat, 0 < i → i ≤ cohomologicalBound →
     IsZero
       (RingedSpace.moduleCohomology (X := (Proj calA).toRingedSpace)
         (P.tensorTwist F (m - i)) i)
+
+namespace ProjTwistPresentation
+
+/-- A module `F` is `m`-regular through cohomological degree `cohomologicalBound` with respect
+to the actual twists recorded by `P`. This specializes `ProjTwistFamily.IsMRegular` to
+`P.actualTwist`. -/
+abbrev IsMRegular
+    (P : ProjTwistPresentation calA) (F : (Proj calA).Modules)
+    (cohomologicalBound : Nat) (m : Int) : Prop :=
+  ProjTwistFamily.IsMRegular P.actualTwist F cohomologicalBound m
 
 /-- The cohomological vanishing formulation of `P.IsMRegular F cohomologicalBound m`. -/
 theorem isMRegular_iff
@@ -74,4 +86,6 @@ theorem isMRegular_isZero
       (RingedSpace.moduleCohomology (X := (Proj calA).toRingedSpace)
         (P.tensorTwist F (m - i)) i) := sorry
 
-end AlgebraicGeometry.ProjTwistPresentation
+end ProjTwistPresentation
+
+end AlgebraicGeometry

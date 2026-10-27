@@ -25,11 +25,11 @@ bounded finite locally free complex. -/
     ∀ {X : Scheme.{u}} [CompactSpace X] [QuasiSeparatedSpace X]
       (hX : HasResolutionProperty X)
       (E F : CochainComplex X.toRingedSpace.Modules ℤ)
-      (hE : SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree E)
-      (hF : SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree F)
+      (hE : SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree.{u, u, u} E)
+      (hF : SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree.{u, u, u} F)
       (α β : E ⟶ F) (hαβ : DerivedCategory.Q.map α = DerivedCategory.Q.map β),
       ∃ (G : CochainComplex X.toRingedSpace.Modules ℤ) (γ : G ⟶ E),
-        SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree G ∧
+        SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree.{u, u, u} G ∧
           QuasiIso γ ∧ Nonempty (Homotopy (γ ≫ α) (γ ≫ β)))
 
 end AlgebraicGeometry.Scheme

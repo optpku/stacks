@@ -12,7 +12,6 @@ public import Mathlib.CategoryTheory.Abelian.RightDerived
 public import Mathlib.CategoryTheory.Sites.SheafCohomology.Basic
 public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Bounded.RightDerived.Canonical
-public import ReasLib.CategoryTheory.Sites.AbelianSheaf
 public import ReasLib.CategoryTheory.Sites.Cohomology.Presheaf
 public import ReasLib.CategoryTheory.Sites.ConstantSheaf.Integer
 public import ReasLib.CategoryTheory.Sites.GlobalSections.Additive

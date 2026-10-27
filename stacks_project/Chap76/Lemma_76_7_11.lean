@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap76.Lemma_76_7_11_Retraction
-public import stacks_project.Chap76.Lemma_76_7_11_Splitting
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Retraction
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.Differentials.Splitting
 import StacksCheckRecall
 
 /-!
@@ -37,15 +37,15 @@ Let `i : Z ⟶ X` be an immersion of algebraic spaces over `B`, and assume `i`
 `0 ⟶ C_{Z/X} ⟶ i^* Ω_{X/B} ⟶ Ω_{Z/B} ⟶ 0` of Lemma 76.7.10 is (étale locally)
 split exact. If `r : X ⟶ Z` is a left inverse over `B`, the splitting section
 of `i^* Ω_{X/B} ⟶ Ω_{Z/B}` is `i^* c_r`. -/
-@[stacks 05ZB] #check (etaleLocallySplit_of_etaleLocallyHasRetraction i f :
+@[stacks 05ZB] #check (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.Differentials.etaleLocallySplit_of_etaleLocallyHasRetraction i f :
   EtaleLocallyHasRetractionOver i f → IsEtaleLocallySplit i f)
 
 /- A global left inverse over `B` splits the canonical conormal complex. -/
-@[stacks 05ZB] #check (complex_splitting_of_hasRetraction i f :
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.Differentials.complex_splitting_of_hasRetraction i f :
   HasRetractionOver i f → Nonempty ((complex i f).Splitting))
 
 /- The source-named section `i^* c_r` of `i^* Ω_{X/B} ⟶ Ω_{Z/B}`. -/
-@[stacks 05ZB] #check (sectionOfRetraction i f :
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.Differentials.sectionOfRetraction i f :
   ∀ (r : X ⟶ Z), i ≫ r = 𝟙 Z → r ≫ i ≫ f = f →
     (relativeDifferentials (i ≫ f) ⟶
       (Modules.pullback i).obj (relativeDifferentials f)))

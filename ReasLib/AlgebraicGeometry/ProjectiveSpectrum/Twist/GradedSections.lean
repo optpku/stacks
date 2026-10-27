@@ -33,16 +33,14 @@ namespace AlgebraicGeometry
 variable {A : Type u} {σ : Type v} [CommRing A] [SetLike σ A] [AddSubgroupClass σ A]
 variable (𝒜 : ℕ → σ) [GradedRing 𝒜]
 
-/-- An explicit presentation of the sheaves associated to the integral twists of a graded
-module, together with the canonical maps from its homogeneous pieces to global sections. -/
-@[stacks 0AG1 "associated-module twist presentation"]
+/-- A general wrapper for a family of module sheaves and degreewise additive maps to its
+sections. This structure imposes no relationship with a graded module. The canonical
+associated-module construction is `Proj.AssociatedModule.ShiftedSections.presentation`. -/
 structure Proj.AssociatedModule.Presentation (Mpiece : ℤ → Type u)
     [∀ n : ℤ, AddCommGroup (Mpiece n)] where
-  /-- The integral family whose degree-`n` term is the sheaf associated to the `n`th twist of
-  the graded module. -/
+  /-- The supplied integral family of module sheaves. -/
   associatedTwist : ProjTwistFamily 𝒜
-  /-- The canonical additive map from each homogeneous piece to the global sections of its
-  associated twist. -/
+  /-- The supplied additive map in each degree. -/
   sectionMap : ∀ n : ℤ, Mpiece n →+ Γ(associatedTwist n, ⊤)
 
 namespace Proj.AssociatedModule.Presentation
@@ -50,9 +48,7 @@ namespace Proj.AssociatedModule.Presentation
 variable {𝒜}
 variable {Mpiece : ℤ → Type u} [∀ n : ℤ, AddCommGroup (Mpiece n)]
 
-/-- Build an associated-twist presentation from an explicit family and its degreewise maps to
-global sections. -/
-@[stacks 0AG3 "associated-module twist presentation from a family"]
+/-- Package an arbitrary family and arbitrary degreewise additive maps to its sections. -/
 def ofFamily (associatedTwist : ProjTwistFamily 𝒜)
     (sectionMap : ∀ n : ℤ, Mpiece n →+ Γ(associatedTwist n, ⊤)) :
     Proj.AssociatedModule.Presentation 𝒜 Mpiece where
@@ -61,7 +57,6 @@ def ofFamily (associatedTwist : ProjTwistFamily 𝒜)
 
 /-- Transport the section map in one degree from the associated twist to an explicitly
 isomorphic module sheaf. -/
-@[stacks 0AG3 "transport an associated-module section map across an isomorphism"]
 def sectionMapOfIso (P : Proj.AssociatedModule.Presentation 𝒜 Mpiece)
     {n : ℤ} {F : (Proj 𝒜).Modules} (e : F ≅ P.associatedTwist n) :
     Mpiece n →+ Γ(F, ⊤) :=
@@ -69,14 +64,13 @@ def sectionMapOfIso (P : Proj.AssociatedModule.Presentation 𝒜 Mpiece)
 
 /-- The transported section map applies the original section map and then the map on global
 sections induced by the inverse isomorphism. -/
-@[simp, stacks 0AG3 "transported associated-module section map formula"]
+@[simp]
 theorem sectionMapOfIso_apply (P : Proj.AssociatedModule.Presentation 𝒜 Mpiece)
     {n : ℤ} {F : (Proj 𝒜).Modules} (e : F ≅ P.associatedTwist n) (m : Mpiece n) :
     sectionMapOfIso P e m =
       (Scheme.Modules.globalSectionsMap e.inv).hom (P.sectionMap n m) := sorry
 
 /-- The degreewise section maps commute with multiplication by homogeneous scalars. -/
-@[stacks 0AG3 "graded associated-module section presentation"]
 def IsGraded (P : Proj.AssociatedModule.Presentation 𝒜 Mpiece)
     [DirectSum.Gmodule (fun d : ℕ ↦ 𝒜 d) Mpiece]
     [DirectSum.Gmodule (fun d : ℕ ↦ 𝒜 d)
@@ -88,9 +82,7 @@ def IsGraded (P : Proj.AssociatedModule.Presentation 𝒜 Mpiece)
         (M := fun i : ℤ ↦ Γ(P.associatedTwist i, ⊤)) a (P.sectionMap n m)
 
 
-/-- The direct sum of the canonical degreewise section maps commutes with the graded scalar
-action. -/
-@[stacks 01MR "linearity of the graded associated-module section map", stacks 0AG4]
+/-- Compatible degreewise additive maps commute with the direct-sum scalar action. -/
 theorem gradedMap_smul (Mpiece : ℤ → Type u) [∀ n : ℤ, AddCommGroup (Mpiece n)]
     (P : Proj.AssociatedModule.Presentation 𝒜 Mpiece)
     [DirectSum.Gmodule (fun d : ℕ ↦ 𝒜 d) Mpiece]
@@ -100,9 +92,7 @@ theorem gradedMap_smul (Mpiece : ℤ → Type u) [∀ n : ℤ, AddCommGroup (Mpi
     DirectSum.map (fun n ↦ P.sectionMap n) (a • m) =
       a • DirectSum.map (fun n ↦ P.sectionMap n) m := sorry
 
-/-- The canonical degreewise section maps assemble to a linear map from a graded module to the
-external direct sum of the global sections of its associated twists. -/
-@[stacks 01MR "graded associated-module section map", stacks 0AG4]
+/-- Assemble compatible degreewise additive maps into a linear map of direct sums. -/
 def gradedMap (Mpiece : ℤ → Type u) [∀ n : ℤ, AddCommGroup (Mpiece n)]
     (P : Proj.AssociatedModule.Presentation 𝒜 Mpiece)
     [DirectSum.Gmodule (fun d : ℕ ↦ 𝒜 d) Mpiece]
@@ -116,7 +106,7 @@ def gradedMap (Mpiece : ℤ → Type u) [∀ n : ℤ, AddCommGroup (Mpiece n)]
 
 /-- On a homogeneous generator, `gradedMap` applies the map in that degree and includes
 the result in the same direct-sum component. -/
-@[simp, stacks 01MR "graded associated-module section map on a summand", stacks 0AG4]
+@[simp]
 theorem gradedMap_of (Mpiece : ℤ → Type u) [∀ n : ℤ, AddCommGroup (Mpiece n)]
     (P : Proj.AssociatedModule.Presentation 𝒜 Mpiece)
     [DirectSum.Gmodule (fun d : ℕ ↦ 𝒜 d) Mpiece]

@@ -68,7 +68,8 @@ def inverseImage_fullyFaithful (ha : IsFppfHypercovering a) :
     (inverseImage_full a A ha) (inverseImage_faithful a A ha)
 
 /-- The unit of `a⁻¹ ⊣ a_*` is an isomorphism. -/
-theorem unit_app_isIso (ha : IsFppfHypercovering a) (F : Sheaf (spacesEtaleTopology X) A) :
+theorem _root_.StacksProject.Chap85.Lemma_85_33_2.unit_app_isIso
+    (ha : IsFppfHypercovering a) (F : Sheaf (spacesEtaleTopology X) A) :
     IsIso ((sheafLocalizationAdjunction a A).unit.app F) :=
   sorry
 
@@ -113,9 +114,9 @@ theorem cartesianUnitIso_naturality (ha : IsFppfHypercovering a)
     {F G : Sheaf (spacesEtaleTopology X) A} (f : F ⟶ G) :
     (𝟭 (Sheaf (spacesEtaleTopology X) A)).map f ≫
         (@asIso _ _ _ _ ((sheafLocalizationAdjunction a A).unit.app G)
-          (unit_app_isIso a A ha G)).hom =
+          (StacksProject.Chap85.Lemma_85_33_2.unit_app_isIso a A ha G)).hom =
       (@asIso _ _ _ _ ((sheafLocalizationAdjunction a A).unit.app F)
-          (unit_app_isIso a A ha F)).hom ≫
+          (StacksProject.Chap85.Lemma_85_33_2.unit_app_isIso a A ha F)).hom ≫
         (cartesianFunctor a A ⋙ cartesianInverse a A).map f :=
   sorry
 
@@ -125,7 +126,7 @@ def cartesianUnitIso (ha : IsFppfHypercovering a) :
   NatIso.ofComponents
     (fun F ↦
       @asIso _ _ _ _ ((sheafLocalizationAdjunction a A).unit.app F)
-        (unit_app_isIso a A ha F))
+        (StacksProject.Chap85.Lemma_85_33_2.unit_app_isIso a A ha F))
     (fun f ↦ cartesianUnitIso_naturality a A ha f)
 
 /-- The component of `cartesianUnitIso` at `F` is the adjunction unit. -/

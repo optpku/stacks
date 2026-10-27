@@ -6,71 +6,21 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap67.Definition_67_4_2_Separation
-public import stacks_project.Chap67.Lemma_67_30_5_Flat
-public import stacks_project.Chap99.Lemma_99_5_2
-public import stacks_project.Chap99.Lemma_99_5_3
-public import stacks_project.Chap108.Lemma_108_4_8_Algebraic
-
-/-!
-# Theorem 99.5.12
-
-If `f : X ⟶ B` is a finitely presented, separated, and flat morphism of
-algebraic spaces over a scheme `S`, then `CohStack f` is an algebraic stack
-over `S`.
--/
-
-@[expose] public section
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CohStack.Algebraic.Flat
+import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.GroupScheme
-open scoped Bicategory
-
-noncomputable section
 
 universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.CohStack
 
-variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
-
-/-- Theorem 99.5.12 (Algebraicity of the stack of coherent sheaves; flat case):
-let `S` be a scheme and let `f : X ⟶ B` be a morphism of algebraic spaces over
-`S`. If `f` is of finite presentation, separated, and flat, then `CohStack f`
-is an algebraic stack over `S` in the sense of Definition 94.12.1 at Hom-universe
-`u + 1`. -/
-@[stacks 08WC]
-instance instAlgebraicStack (f : X ⟶ B) [FinitePresentation f] [Separated f] [Flat f] :
-    AlgebraicStack (toGroupoids f) :=
-  sorry
-
-/-- `AlgebraicStack (toGroupoids f)` is equivalent to the three clauses of
-Definition 94.12.1: `p f` is a stack in groupoids over `(Sch/S)_fppf`, the
-diagonal of `toGroupoids f` is representable by algebraic spaces, and there is a
-scheme `U` over `S` with a surjective smooth 1-morphism
-`Classifying.slice U ⟶ toGroupoids f`. -/
-theorem algebraicStack_iff (f : X ⟶ B) [FinitePresentation f] :
-    AlgebraicStack (toGroupoids f) ↔
-      IsStack.InGroupoids (Scheme.fppfTopology.over S) (p f) ∧
-        Classifying.relativelyRepresentableByAlgebraicSpaces (diagonal (toGroupoids f)) ∧
-        ∃ (U : Over S) (π : Classifying.slice U ⟶ toGroupoids f),
-          Classifying.Smooth π ∧ Classifying.Surjective π :=
-  sorry
-
-/-- An algebraic stack `toGroupoids f` admits a scheme `U` over `S` and a
-surjective smooth 1-morphism `Classifying.slice U ⟶ toGroupoids f`. -/
-theorem existsSmoothSurjectiveAtlas (f : X ⟶ B) [FinitePresentation f]
-    [AlgebraicStack (toGroupoids f)] :
-    ∃ (U : Over S) (π : Classifying.slice U ⟶ toGroupoids f),
-      Classifying.Smooth π ∧ Classifying.Surjective π :=
-  sorry
-
-/-- If `toGroupoids f` is an algebraic stack, then fibrewise isomorphism
-presheaves of `p f` are algebraic spaces, which is the 94.10.11(1) form of a
-representable diagonal. -/
-theorem isAlgebraicSpace_of_algebraicStack (f : X ⟶ B) [FinitePresentation f]
-    [AlgebraicStack (toGroupoids f)] :
-    isAlgebraicSpace f :=
-  sorry
+/- Theorem 99.5.12 (Algebraicity of the stack of coherent sheaves; flat case)
+The stack of coherent sheaves for a finitely presented, separated, flat morphism
+of algebraic spaces over a scheme is algebraic.
+-/
+@[stacks 08WC] #check (AlgebraicGeometry.AlgebraicSpace.CohStack.instAlgebraicStackOfFlat :
+    ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B)
+      [FinitePresentation f] [Separated f] [Flat f], AlgebraicStack (toGroupoids f))
 
 end AlgebraicGeometry.AlgebraicSpace.CohStack

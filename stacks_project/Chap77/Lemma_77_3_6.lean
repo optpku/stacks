@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap77.Lemma_77_3_6_Purity
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Purity.Proper
 import StacksCheckRecall
 
 @[expose] public section

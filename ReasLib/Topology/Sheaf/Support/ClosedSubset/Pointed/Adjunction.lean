@@ -8,16 +8,19 @@ module
 
 public import Mathlib.CategoryTheory.Limits.ExactFunctor
 public import ReasLib.Topology.Sheaf.Subset.Closed
-public import ReasLib.Topology.Sheaf.Support.ClosedSubset.Supported
+public import ReasLib.Topology.Sheaf.Support.ClosedSubset.Adjunction
 public import ReasLib.Topology.Sheaf.Support.ClosedSubset.Pointed.Functor
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
 # The pointed closed-support adjunction
 
-For a closed subset `Z`, pushforward of pointed sheaves from `Z` is left adjoint to pointed
-sections with support in `Z`. Unit and counit components are explicit data; only coherence laws
-are deferred to the proof layer.
+The canonical adjunction and its inverse maps are owned by
+`TopCat.Sheaf.ClosedSubset.SectionsWithSupport` in `ClosedSubset.Adjunction`.
+The names below are thin specializations at `C := Pointed`; in particular the pointed functor
+is definitionally the generic closed-support functor. Isomorphism instances come from that generic construction; the right-adjoint instance bridges
+the pointed functor definition to its generic specialization. Only pointed exactness is specific
+to this module.
 -/
 
 @[expose] public section
@@ -32,268 +35,159 @@ namespace TopCat.Sheaf.ClosedSubset.SectionsWithSupport.Pointed
 
 variable {X : TopCat.{u}} {Z : Set X}
 
-/-- The support subobject of a pointed sheaf pushed forward from `Z` is the top subobject. -/
-@[stacks 01B0 "pointed support subobject of a pushforward is top"]
-theorem subsheafPushforwardEqTop
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    subsheaf hZ ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F) =
-      ⊤ := sorry
+/-- Pointed specialization of `SectionsWithSupport.subsheafPushforwardEqTop`. -/
+abbrev subsheafPushforwardEqTop
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.subsheafPushforwardEqTop hZ F
 
-/-- The ambient pointed support object belongs to the essential image of closed-subset
-pushforward. -/
-@[stacks 01B0 "pointed support object lies in the pushforward essential image"]
-theorem objectMemEssImage (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :
-    (Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).essImage
-      (object hZ F) :=
-  ⟨supportedRestriction hZ F, ⟨(supportedRestrictionPushforwardIso hZ F).symm⟩⟩
+/-- Pointed specialization of `SectionsWithSupport.objectMemEssImage`. -/
+abbrev objectMemEssImage
+    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :=
+  SectionsWithSupport.objectMemEssImage hZ F
 
-/-- The pullback-pushforward unit is canonically invertible on the ambient support object. -/
-@[stacks 01B0 "pointed support unit is invertible"]
-noncomputable instance objectUnitIsIso
-    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :
-    IsIso
-      ((Sheaf.pullbackPushforwardAdjunction Pointed.{u}
-        (TopCat.subsetInclusion Z)).unit.app (object hZ F)) :=
-  ⟨⟨supportedUnitInv hZ F, unit_supportedUnitInv hZ F,
-    supportedUnitInv_unit hZ F⟩⟩
+/-- Pointed specialization of `SectionsWithSupport.objectUnitIsIso`. -/
+abbrev objectUnitIsIso
+    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :=
+  SectionsWithSupport.objectUnitIsIso hZ F
 
-/-- The pullback-pushforward counit is invertible on every pointed sheaf over a subset. -/
-@[stacks 01B0 "pointed pullback-pushforward counit isomorphism instance"]
-noncomputable instance counitAppIsIso (Z : Set X)
-    (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    IsIso
-      ((Sheaf.pullbackPushforwardAdjunction Pointed.{u}
-        (TopCat.subsetInclusion Z)).counit.app F) :=
-  ⟨⟨Subset.counitInv Z F, Subset.counit_app_counitInv Z F,
-    Subset.counitInv_counit_app Z F⟩⟩
+/-- Pointed specialization of `SectionsWithSupport.counitAppIsIso`. -/
+abbrev counitAppIsIso
+    (Z : Set X) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.counitAppIsIso Z F
 
-/-- The explicit inverse of the closed-support inclusion on a pointed direct image. -/
-@[stacks 01B0 "inverse pointed closed-support inclusion on a direct image"]
-noncomputable def inclusionPushforwardInv
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    (Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F ⟶
-      object hZ
-        ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F) :=
-  liftToObject hZ (𝟙 _) (by
-    simpa only [Category.id_comp] using restrictionPushforward_eq_zero hZ F)
+/-- Pointed specialization of `SectionsWithSupport.inclusionPushforwardInv`. -/
+abbrev inclusionPushforwardInv
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.inclusionPushforwardInv hZ F
 
-/-- The pointed closed-support inclusion and its inverse compose to the identity. -/
-@[simp, stacks 01B0 "pointed closed-support inclusion forward-inverse law"]
-theorem inclusionPushforward_hom_inv_id
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    inclusion hZ
-        ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F) ≫
-      inclusionPushforwardInv hZ F = 𝟙 _ := sorry
+/-- Pointed specialization of `SectionsWithSupport.inclusionPushforward_hom_inv_id`. -/
+abbrev inclusionPushforward_hom_inv_id
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.inclusionPushforward_hom_inv_id hZ F
 
-/-- The inverse of the pointed closed-support inclusion followed by the inclusion is identity. -/
-@[simp, stacks 01B0 "pointed closed-support inclusion inverse-forward law"]
-theorem inclusionPushforward_inv_hom_id
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    inclusionPushforwardInv hZ F ≫
-        inclusion hZ
-          ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F) =
-      𝟙 _ := sorry
+/-- Pointed specialization of `SectionsWithSupport.inclusionPushforward_inv_hom_id`. -/
+abbrev inclusionPushforward_inv_hom_id
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.inclusionPushforward_inv_hom_id hZ F
 
-/-- The ambient support inclusion is invertible on pointed sheaves pushed forward from `Z`. -/
-@[stacks 01B0 "pointed support inclusion on a pushforward is invertible"]
-noncomputable instance inclusionPushforwardIsIso
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    IsIso
-      (inclusion hZ
-        ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F)) :=
-  ⟨⟨inclusionPushforwardInv hZ F,
-    inclusionPushforward_hom_inv_id hZ F, inclusionPushforward_inv_hom_id hZ F⟩⟩
+/-- Pointed specialization of `SectionsWithSupport.inclusionPushforwardIsIso`. -/
+abbrev inclusionPushforwardIsIso
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.inclusionPushforwardIsIso hZ F
 
-/-- The pointed closed-support inclusion on a direct image is a literal isomorphism. -/
-@[stacks 01B0 "pointed closed-support inclusion isomorphism"]
-noncomputable def inclusionPushforwardIso
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    object hZ
-        ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F) ≅
-      (Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F where
-  hom := inclusion hZ
-    ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F)
-  inv := inclusionPushforwardInv hZ F
-  hom_inv_id := inclusionPushforward_hom_inv_id hZ F
-  inv_hom_id := inclusionPushforward_inv_hom_id hZ F
+/-- Pointed specialization of `SectionsWithSupport.inclusionPushforwardIso`. -/
+abbrev inclusionPushforwardIso
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.inclusionPushforwardIso hZ F
 
-/-- The forward map of the pointed closed-support inclusion isomorphism. -/
-@[simp, stacks 01B0 "pointed closed-support inclusion isomorphism hom"]
-theorem inclusionPushforwardIso_hom
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    (inclusionPushforwardIso hZ F).hom =
-      inclusion hZ
-        ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F) := sorry
+/-- Pointed specialization of `SectionsWithSupport.inclusionPushforwardIso_hom`. -/
+abbrev inclusionPushforwardIso_hom
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.inclusionPushforwardIso_hom hZ F
 
-/-- The inverse map of the pointed closed-support inclusion isomorphism. -/
-@[simp, stacks 01B0 "pointed closed-support inclusion isomorphism inverse"]
-theorem inclusionPushforwardIso_inv
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    (inclusionPushforwardIso hZ F).inv = inclusionPushforwardInv hZ F := sorry
+/-- Pointed specialization of `SectionsWithSupport.inclusionPushforwardIso_inv`. -/
+abbrev inclusionPushforwardIso_inv
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.inclusionPushforwardIso_inv hZ F
 
-/-- The explicit inverse of the pullback-pushforward counit for pointed sheaves. -/
-@[stacks 01B0 "inverse pointed pullback-pushforward counit"]
-noncomputable def pullbackPushforwardCounitAppInv (Z : Set X)
-    (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    F ⟶
-      (Sheaf.pullback Pointed.{u} (TopCat.subsetInclusion Z)).obj
-        ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F) :=
-  Subset.counitInv Z F
+/-- Pointed specialization of `SectionsWithSupport.pullbackPushforwardCounitAppInv`. -/
+abbrev pullbackPushforwardCounitAppInv
+    (Z : Set X) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.pullbackPushforwardCounitAppInv Z F
 
-/-- The pointed pullback-pushforward counit followed by its inverse is identity. -/
-@[simp, stacks 01B0 "pointed counit forward-inverse law"]
-theorem pullbackPushforwardCounitApp_hom_inv_id (Z : Set X)
-    (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    (Sheaf.pullbackPushforwardAdjunction Pointed.{u}
-      (TopCat.subsetInclusion Z)).counit.app F ≫
-        pullbackPushforwardCounitAppInv Z F = 𝟙 _ := sorry
+/-- Pointed specialization of `SectionsWithSupport.pullbackPushforwardCounitApp_hom_inv_id`. -/
+abbrev pullbackPushforwardCounitApp_hom_inv_id
+    (Z : Set X) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.pullbackPushforwardCounitApp_hom_inv_id Z F
 
-/-- The inverse of the pointed pullback-pushforward counit followed by the counit is identity. -/
-@[simp, stacks 01B0 "pointed counit inverse-forward law"]
-theorem pullbackPushforwardCounitApp_inv_hom_id (Z : Set X)
-    (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    pullbackPushforwardCounitAppInv Z F ≫
-        (Sheaf.pullbackPushforwardAdjunction Pointed.{u}
-          (TopCat.subsetInclusion Z)).counit.app F = 𝟙 _ := sorry
+/-- Pointed specialization of `SectionsWithSupport.pullbackPushforwardCounitApp_inv_hom_id`. -/
+abbrev pullbackPushforwardCounitApp_inv_hom_id
+    (Z : Set X) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.pullbackPushforwardCounitApp_inv_hom_id Z F
 
-/-- The pointed pullback-pushforward counit is a literal isomorphism. -/
-@[stacks 01B0 "pointed pullback-pushforward counit isomorphism"]
-noncomputable def pullbackPushforwardCounitAppIso (Z : Set X)
-    (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    (Sheaf.pullback Pointed.{u} (TopCat.subsetInclusion Z)).obj
-        ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F) ≅ F where
-  hom := (Sheaf.pullbackPushforwardAdjunction Pointed.{u}
-    (TopCat.subsetInclusion Z)).counit.app F
-  inv := pullbackPushforwardCounitAppInv Z F
-  hom_inv_id := pullbackPushforwardCounitApp_hom_inv_id Z F
-  inv_hom_id := pullbackPushforwardCounitApp_inv_hom_id Z F
+/-- Pointed specialization of `SectionsWithSupport.pullbackPushforwardCounitAppIso`. -/
+abbrev pullbackPushforwardCounitAppIso
+    (Z : Set X) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.pullbackPushforwardCounitAppIso Z F
 
-/-- The forward map of the pointed pullback-pushforward counit isomorphism. -/
-@[simp, stacks 01B0 "pointed counit isomorphism hom"]
-theorem pullbackPushforwardCounitAppIso_hom (Z : Set X)
-    (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    (pullbackPushforwardCounitAppIso Z F).hom =
-      (Sheaf.pullbackPushforwardAdjunction Pointed.{u}
-        (TopCat.subsetInclusion Z)).counit.app F := sorry
+/-- Pointed specialization of `SectionsWithSupport.pullbackPushforwardCounitAppIso_hom`. -/
+abbrev pullbackPushforwardCounitAppIso_hom
+    (Z : Set X) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.pullbackPushforwardCounitAppIso_hom Z F
 
-/-- The inverse map of the pointed pullback-pushforward counit isomorphism. -/
-@[simp, stacks 01B0 "pointed counit isomorphism inverse"]
-theorem pullbackPushforwardCounitAppIso_inv (Z : Set X)
-    (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    (pullbackPushforwardCounitAppIso Z F).inv =
-      pullbackPushforwardCounitAppInv Z F := sorry
+/-- Pointed specialization of `SectionsWithSupport.pullbackPushforwardCounitAppIso_inv`. -/
+abbrev pullbackPushforwardCounitAppIso_inv
+    (Z : Set X) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.pullbackPushforwardCounitAppIso_inv Z F
 
-/-- The explicit inverse of the pullback-pushforward unit on a pointed support object. -/
-@[stacks 01B0 "inverse pointed ambient pullback-pushforward unit"]
-noncomputable def objectPullbackPushforwardUnitAppInv
-    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :
-    (Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj
-        ((Sheaf.pullback Pointed.{u} (TopCat.subsetInclusion Z)).obj
-          (object hZ F)) ⟶ object hZ F :=
-  supportedUnitInv hZ F
+/-- Pointed specialization of `SectionsWithSupport.objectPullbackPushforwardUnitAppInv`. -/
+abbrev objectPullbackPushforwardUnitAppInv
+    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :=
+  SectionsWithSupport.objectPullbackPushforwardUnitAppInv hZ F
 
-/-- The pointed pullback-pushforward unit followed by its inverse is identity. -/
-@[simp, stacks 01B0 "pointed ambient unit forward-inverse law"]
-theorem objectPullbackPushforwardUnitApp_hom_inv_id
-    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :
-    (Sheaf.pullbackPushforwardAdjunction Pointed.{u}
-      (TopCat.subsetInclusion Z)).unit.app (object hZ F) ≫
-        objectPullbackPushforwardUnitAppInv hZ F = 𝟙 _ := sorry
+/-- Pointed specialization of `SectionsWithSupport.objectPullbackPushforwardUnitApp_hom_inv_id`. -/
+abbrev objectPullbackPushforwardUnitApp_hom_inv_id
+    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :=
+  SectionsWithSupport.objectPullbackPushforwardUnitApp_hom_inv_id hZ F
 
-/-- The inverse of the pointed pullback-pushforward unit followed by the unit is identity. -/
-@[simp, stacks 01B0 "pointed ambient unit inverse-forward law"]
-theorem objectPullbackPushforwardUnitApp_inv_hom_id
-    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :
-    objectPullbackPushforwardUnitAppInv hZ F ≫
-        (Sheaf.pullbackPushforwardAdjunction Pointed.{u}
-          (TopCat.subsetInclusion Z)).unit.app (object hZ F) = 𝟙 _ := sorry
+/-- Pointed specialization of `SectionsWithSupport.objectPullbackPushforwardUnitApp_inv_hom_id`. -/
+abbrev objectPullbackPushforwardUnitApp_inv_hom_id
+    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :=
+  SectionsWithSupport.objectPullbackPushforwardUnitApp_inv_hom_id hZ F
 
-/-- The pointed pullback-pushforward unit on a support object is a literal isomorphism. -/
-@[stacks 01B0 "pointed ambient pullback-pushforward unit isomorphism"]
-noncomputable def objectPullbackPushforwardUnitAppIso
-    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :
-    object hZ F ≅
-      (Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj
-        ((Sheaf.pullback Pointed.{u} (TopCat.subsetInclusion Z)).obj
-          (object hZ F)) where
-  hom := (Sheaf.pullbackPushforwardAdjunction Pointed.{u}
-    (TopCat.subsetInclusion Z)).unit.app (object hZ F)
-  inv := objectPullbackPushforwardUnitAppInv hZ F
-  hom_inv_id := objectPullbackPushforwardUnitApp_hom_inv_id hZ F
-  inv_hom_id := objectPullbackPushforwardUnitApp_inv_hom_id hZ F
+/-- Pointed specialization of `SectionsWithSupport.objectPullbackPushforwardUnitAppIso`. -/
+abbrev objectPullbackPushforwardUnitAppIso
+    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :=
+  SectionsWithSupport.objectPullbackPushforwardUnitAppIso hZ F
 
-/-- The forward map of the pointed ambient unit isomorphism. -/
-@[simp, stacks 01B0 "pointed ambient unit isomorphism hom"]
-theorem objectPullbackPushforwardUnitAppIso_hom
-    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :
-    (objectPullbackPushforwardUnitAppIso hZ F).hom =
-      (Sheaf.pullbackPushforwardAdjunction Pointed.{u}
-        (TopCat.subsetInclusion Z)).unit.app (object hZ F) := sorry
+/-- Pointed specialization of `SectionsWithSupport.objectPullbackPushforwardUnitAppIso_hom`. -/
+abbrev objectPullbackPushforwardUnitAppIso_hom
+    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :=
+  SectionsWithSupport.objectPullbackPushforwardUnitAppIso_hom hZ F
 
-/-- The inverse map of the pointed ambient unit isomorphism. -/
-@[simp, stacks 01B0 "pointed ambient unit isomorphism inverse"]
-theorem objectPullbackPushforwardUnitAppIso_inv
-    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :
-    (objectPullbackPushforwardUnitAppIso hZ F).inv =
-      objectPullbackPushforwardUnitAppInv hZ F := sorry
+/-- Pointed specialization of `SectionsWithSupport.objectPullbackPushforwardUnitAppIso_inv`. -/
+abbrev objectPullbackPushforwardUnitAppIso_inv
+    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :=
+  SectionsWithSupport.objectPullbackPushforwardUnitAppIso_inv hZ F
 
-/-- The unit component for the pointed pushforward/sections-with-support adjunction. -/
-@[stacks 01B0 "pointed closed-support adjunction unit component"]
-noncomputable def unitApp
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    F ⟶
-      (functor hZ).obj
-        ((Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj F) :=
-  pullbackPushforwardCounitAppInv Z F ≫
-    (Sheaf.pullback Pointed.{u} (TopCat.subsetInclusion Z)).map
-      (inclusionPushforwardInv hZ F)
+/-- Pointed specialization of `SectionsWithSupport.unitApp`. -/
+abbrev unitApp
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.unitApp hZ F
 
-/-- The counit component for the pointed pushforward/sections-with-support adjunction. -/
-@[stacks 01B0 "pointed closed-support adjunction counit component"]
-noncomputable def counitApp
-    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :
-    (Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).obj
-        ((functor hZ).obj F) ⟶ F :=
-  objectPullbackPushforwardUnitAppInv hZ F ≫
-    inclusion hZ F
+/-- Pointed specialization of `SectionsWithSupport.counitApp`. -/
+abbrev counitApp
+    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :=
+  SectionsWithSupport.counitApp hZ F
 
-/-- Remark 17.6.4 (01B0): closed-subset pushforward of pointed sheaves is left adjoint to
-pointed sections with support. -/
+/-- Remark 17.6.4 (01B0): the generic closed-support adjunction at pointed coefficients.
+This bridge is definitionally the canonical adjunction, including its unit and counit data. -/
 @[stacks 01B0 "pointed closed-support adjunction"]
-noncomputable def adjunction (hZ : IsClosed Z) :
-    Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z) ⊣ functor hZ where
-  unit :=
-    { app := unitApp hZ
-      naturality := sorry }
-  counit :=
-    { app := counitApp hZ
-      naturality := sorry }
-  left_triangle_components := sorry
-  right_triangle_components := sorry
+abbrev adjunction (hZ : IsClosed Z) :
+    Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z) ⊣ functor hZ :=
+  SectionsWithSupport.adjunction (C := Pointed.{u}) hZ
 
-/-- The unit of the pointed closed-support adjunction is the explicit unit component. -/
-@[simp, stacks 01B0 "pointed closed-support adjunction unit app"]
-theorem adjunction_unit_app
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :
-    (adjunction hZ).unit.app F = unitApp hZ F := sorry
+/-- Pointed specialization of `SectionsWithSupport.adjunction_unit_app`. -/
+abbrev adjunction_unit_app
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf Pointed.{u}) :=
+  SectionsWithSupport.adjunction_unit_app hZ F
 
-/-- The counit of the pointed closed-support adjunction is the explicit counit component. -/
-@[simp, stacks 01B0 "pointed closed-support adjunction counit app"]
-theorem adjunction_counit_app
-    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :
-    (adjunction hZ).counit.app F = counitApp hZ F := sorry
+/-- Pointed specialization of `SectionsWithSupport.adjunction_counit_app`. -/
+abbrev adjunction_counit_app
+    (hZ : IsClosed Z) (F : X.Sheaf Pointed.{u}) :=
+  SectionsWithSupport.adjunction_counit_app hZ F
 
 /-- Closed-subset pushforward of pointed sheaves is a left adjoint. -/
 @[stacks 01B0 "pointed closed-subset pushforward is a left adjoint"]
 theorem pushforwardIsLeftAdjoint (hZ : IsClosed Z) :
     (Sheaf.pushforward Pointed.{u} (TopCat.subsetInclusion Z)).IsLeftAdjoint :=
-  (adjunction hZ).isLeftAdjoint
+  SectionsWithSupport.pushforwardIsLeftAdjointOfIsClosed (C := Pointed.{u}) hZ
 
-/-- Pointed sections with support form a right adjoint. -/
+/-- The canonical right-adjoint instance, exposed for the pointed functor definition. -/
 @[stacks 01B0 "pointed sections with support are a right adjoint"]
 noncomputable instance functorIsRightAdjoint (hZ : IsClosed Z) :
     (functor hZ).IsRightAdjoint :=
-  (adjunction hZ).isRightAdjoint
+  SectionsWithSupport.functorIsRightAdjoint (C := Pointed.{u}) hZ
 
 /-- Remark 17.6.4 (01B0): pushforward of pointed sheaves along a closed-subset inclusion is
 exact. -/

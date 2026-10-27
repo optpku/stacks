@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap94.Lemma_94_16_2_Presentation
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.KernelPair.Presentation
 import StacksCheckRecall
 
 /-!
@@ -18,13 +18,26 @@ yields a smooth kernel-pair groupoid and an equivalence from the quotient stack.
 
 @[expose] public section
 
-open AlgebraicGeometry AlgebraicGeometry.AlgebraicStack
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicStack
+open FiberedCategoryOver.Groupoids
+open scoped Bicategory
+
+universe u
 
 /- Lemma 94.16.2 (1): the morphisms s, t of the kernel-pair groupoid (U, R, s, t, c)
 are smooth. -/
 @[stacks 04T5]
-#check groupoid_smooth
+#check (AlgebraicGeometry.AlgebraicStack.groupoid_smooth :
+  ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X)
+    [AlgebraicStack X] (hU : IsRepresentableByAlgebraicSpace U)
+    [Groupoids.Hom.Smooth f] [Groupoids.Hom.Surjective f],
+    GroupoidAlgebraicSpace.Smooth (AlgebraicGeometry.AlgebraicStack.groupoid f hU))
 
 /- Lemma 94.16.2 (2): the 1-morphism f_can : [U/R] ⟶ X is an equivalence. -/
 @[stacks 04T5]
-#check fCan_isEquivalence
+#check (AlgebraicGeometry.AlgebraicStack.fCan_isEquivalence :
+  ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X)
+    [AlgebraicStack X] (hU : IsRepresentableByAlgebraicSpace U)
+    [Groupoids.Hom.Smooth f] [Groupoids.Hom.Surjective f],
+    (toBasedFunctor (AlgebraicGeometry.AlgebraicStack.fCan f hU)).IsEquivalence)
+

@@ -6,6 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import Mathlib.Algebra.Algebra.Subalgebra.Directed
+public import Mathlib.Algebra.CharP.Algebra
 public import Mathlib.RingTheory.Artinian.Ring
 public import Mathlib.Data.Set.Finite.Lattice
 public import Mathlib.RingTheory.EssentialFiniteness
@@ -75,7 +77,7 @@ theorem carrier_of
     [Algebra k A] (B : Subalgebra k A) [IsArtinianRing B] [IsLocalRing B]
     [Module.Flat B A] (hmax : RingHom.MapsMaximalIdeal (algebraMap B A))
     [Algebra.EssFiniteType k B] :
-    (of B hmax).carrier = B := sorry
+    (of B hmax).carrier = B := rfl
 
 namespace carrier
 
@@ -85,7 +87,8 @@ field. -/
 instance charP
     {k : Type u} [Field k] {A : Type v} [CommRing A] [IsLocalRing A]
     [Algebra k A] {p : ℕ} [CharP k p] (S : Stage k A) :
-    CharP S.carrier p := sorry
+    CharP S.carrier p :=
+  charP_of_injective_algebraMap (algebraMap k S.carrier).injective p
 
 end carrier
 
@@ -99,7 +102,8 @@ theorem spec
       IsLocalRing S.carrier ∧
       Module.Flat S.carrier A ∧
       RingHom.MapsMaximalIdeal (algebraMap S.carrier A) ∧
-      Algebra.EssFiniteType k S.carrier := sorry
+      Algebra.EssFiniteType k S.carrier :=
+  ⟨inferInstance, inferInstance, inferInstance, S.mapsMaximalIdeal, inferInstance⟩
 
 namespace algebraMap
 
@@ -108,7 +112,8 @@ algebra is local. -/
 instance isLocal
     {k : Type u} [CommRing k] {A : Type v} [CommRing A] [IsLocalRing A]
     [Algebra k A] (S : Stage k A) :
-    IsLocalHom (algebraMap S.carrier A) := sorry
+    IsLocalHom (algebraMap S.carrier A) :=
+  ((local_hom_TFAE (algebraMap S.carrier A)).out 2 0).mp S.mapsMaximalIdeal.le
 
 end algebraMap
 
@@ -157,7 +162,7 @@ theorem stage_of
     (directed : Directed (· ≤ ·) (fun i ↦ (stage i).carrier))
     (iSup_eq_top : iSup (fun i ↦ (stage i).carrier) =
       (⊤ : Subalgebra k A)) (i : ι) :
-    (of stage directed iSup_eq_top).stage i = stage i := sorry
+    (of stage directed iSup_eq_top).stage i = stage i := rfl
 
 /-- The canonical algebra map between two stages when the first stage is
 contained in the second. -/
@@ -176,7 +181,7 @@ theorem coe_transition
     [Algebra k A] (S : System k A) {i j : S.ι}
     (h : (S.stage i).carrier ≤ (S.stage j).carrier)
     (x : (S.stage i).carrier) :
-    ((S.transition h x : (S.stage j).carrier) : A) = x := sorry
+    ((S.transition h x : (S.stage j).carrier) : A) = x := rfl
 
 /-- The transition from a stage to itself is the identity algebra map. -/
 @[simp]
@@ -184,7 +189,8 @@ theorem transition_id
     {k : Type u} [CommRing k] {A : Type v} [CommRing A] [IsLocalRing A]
     [Algebra k A] (S : System k A) (i : S.ι) :
     S.transition (le_refl (S.stage i).carrier) =
-      AlgHom.id k (S.stage i).carrier := sorry
+      AlgHom.id k (S.stage i).carrier :=
+  Subalgebra.inclusion_self
 
 /-- Transition maps compose as inclusions of Artinian approximation
 stages. -/
@@ -195,7 +201,8 @@ theorem transition_comp
     (hij : (S.stage i).carrier ≤ (S.stage j).carrier)
     (hjl : (S.stage j).carrier ≤ (S.stage l).carrier) :
     (S.transition hjl).comp (S.transition hij) =
-      S.transition (hij.trans hjl) := sorry
+      S.transition (hij.trans hjl) :=
+  AlgHom.ext fun _ ↦ Subtype.ext rfl
 
 /-- The nonemptiness, directedness, and exhaustion properties of an Artinian
 approximation system. -/
@@ -205,7 +212,8 @@ theorem spec
     [Algebra k A] (S : System k A) :
     Nonempty S.ι ∧
       Directed (· ≤ ·) (fun i ↦ (S.stage i).carrier) ∧
-      iSup (fun i ↦ (S.stage i).carrier) = (⊤ : Subalgebra k A) := sorry
+      iSup (fun i ↦ (S.stage i).carrier) = (⊤ : Subalgebra k A) :=
+  ⟨S.nonemptyIndex, S.directed, S.iSup_eq_top⟩
 
 /-- Every element of the ambient algebra belongs to some stage of an
 Artinian approximation system. -/
@@ -213,7 +221,12 @@ Artinian approximation system. -/
 theorem exists_mem
     {k : Type u} [CommRing k] {A : Type v} [CommRing A] [IsLocalRing A]
     [Algebra k A] (S : System k A) (x : A) :
-    ∃ i, x ∈ (S.stage i).carrier := sorry
+    ∃ i, x ∈ (S.stage i).carrier := by
+  have hx : x ∈ ((⨆ i, (S.stage i).carrier : Subalgebra k A) : Set A) := by
+    rw [S.iSup_eq_top]
+    exact Algebra.mem_top
+  rw [Subalgebra.coe_iSup_of_directed S.directed] at hx
+  exact Set.mem_iUnion.mp hx
 
 /-- Every finite subset of the ambient algebra is contained in one stage of
 an Artinian approximation system. -/
@@ -221,7 +234,11 @@ an Artinian approximation system. -/
 theorem exists_contains_finset
     {k : Type u} [CommRing k] {A : Type v} [CommRing A] [IsLocalRing A]
     [Algebra k A] (S : System k A) (E : Finset A) :
-    ∃ i, ∀ x ∈ E, x ∈ (S.stage i).carrier := sorry
+    ∃ i, ∀ x ∈ E, x ∈ (S.stage i).carrier := by
+  have hdir : Directed (· ⊆ ·) (fun i ↦ ((S.stage i).carrier : Set A)) :=
+    S.directed
+  exact hdir.exists_mem_subset_of_finset_subset_biUnion
+    (fun x _ ↦ Set.mem_iUnion.mpr (S.exists_mem x))
 
 /-- Lemma 16.11.1: an Artinian local algebra in positive characteristic whose
 residue-field cotangent homology is finite-dimensional admits a directed

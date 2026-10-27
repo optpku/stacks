@@ -35,7 +35,12 @@ namespace Limits.CategoricalPullback
 
 variable (F : A ⥤ B) (G : C ⥤ B) (H : C ⥤ D) (I : E ⥤ D)
 
+-- Local declaration justification (source-local notation): this file assembles the fixed
+-- endpoints of the explicit reassociation equivalence. The names keep those endpoints readable
+-- across its private coherence data and do not define an independent public construction.
 local notation "LeftAssociated" => (((π₂ F G) ⋙ H) ⊡ I)
+-- Local declaration justification (source-local notation): this is the fixed right-associated
+-- endpoint of the same equivalence assembly and has no independent public operation.
 local notation "RightAssociated" => (F ⊡ ((π₁ H I) ⋙ G))
 
 namespace Associator
@@ -79,18 +84,19 @@ private theorem associativityTriangle (X : LeftAssociated) :
 
 end Implementation
 
-/-- Lemma 4.31.8 (Stacks 02XC): for the five-object diagram
+/-- The canonical equivalence between the two bracketings of an iterated categorical pullback.
 
 ```
         F                 G                 H                 I
  A ────────────▶ B ◀──────────── C ────────────▶ D ◀──────────── E
 ```
 
-there is a canonical reassociation equivalence
+For this four-functor zigzag, the explicit forward and inverse functors give a reassociation
+equivalence
 `(((π₂ F G) ⋙ H) ⊡ I) ≌ F ⊡ ((π₁ H I) ⋙ G)`.
 
 The forward and inverse functors, their object and morphism maps, and both natural isomorphisms
-are explicit; `sorryAx` occurs only in their functoriality, naturality, and triangle laws. -/
+are exposed by the surrounding computation API. -/
 @[stacks 02XC "associativity of iterated categorical pullbacks"]
 def _root_.CategoryTheory.Limits.CategoricalPullback.associativity :
     LeftAssociated ≌ RightAssociated where

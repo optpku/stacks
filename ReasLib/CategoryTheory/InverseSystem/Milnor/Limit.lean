@@ -41,13 +41,20 @@ def limitToProduct (K : SequentialInverseSystem C) [HasProduct K.family] [HasLim
 @[reassoc (attr := simp)]
 theorem limitToProduct_comp_π (K : SequentialInverseSystem C) [HasProduct K.family]
     [HasLimit K] (n : ℕ) :
-    limitToProduct K ≫ Pi.π K.family n = limit.π K (op n) := sorry
+    limitToProduct K ≫ Pi.π K.family n = limit.π K (op n) := by
+  exact limit.lift_π _ _
 
 /-- The canonical map from the inverse limit is annihilated by the Milnor difference map. -/
 @[reassoc, stacks 08TC]
 theorem limitToProduct_comp_milnorDifferenceMap (K : SequentialInverseSystem C)
     [HasProduct K.family] [HasLimit K] :
-    limitToProduct K ≫ K.milnorDifferenceMap = 0 := sorry
+    limitToProduct K ≫ K.milnorDifferenceMap = 0 := by
+  apply Pi.hom_ext
+  intro n
+  simp only [Category.assoc, milnorDifferenceMap, Preadditive.sub_comp,
+    Category.id_comp, Pi.map'_comp_π, Preadditive.comp_sub,
+    limitToProduct_comp_π, limitToProduct_comp_π_assoc, zero_comp]
+  exact sub_eq_zero.mpr (limit.w K (homOfLE (Nat.le_succ n)).op).symm
 
 /-- The stage map determined by a morphism into the product of a sequential inverse system. -/
 def kernelConeApp (K : SequentialInverseSystem C) [HasProduct K.family] {W : C}
@@ -60,7 +67,14 @@ theorem kernelConeApp_naturality (K : SequentialInverseSystem C) [HasProduct K.f
     {W : C} (f : W ⟶ ∏ᶜ K.family) (h : f ≫ K.milnorDifferenceMap = 0) (n : ℕ) :
     ((Functor.const ℕᵒᵖ).obj W).map (homOfLE (Nat.le_add_right n 1)).op ≫
         kernelConeApp K f n =
-      kernelConeApp K f (n + 1) ≫ K.transitionMap (Nat.le_add_right n 1) := sorry
+      kernelConeApp K f (n + 1) ≫ K.transitionMap (Nat.le_add_right n 1) := by
+  change 𝟙 W ≫ (f ≫ Pi.π K.family n) =
+    (f ≫ Pi.π K.family (n + 1)) ≫ K.transitionMap (Nat.le_add_right n 1)
+  rw [Category.id_comp]
+  apply sub_eq_zero.mp
+  have hn := congrArg (fun g ↦ g ≫ Pi.π K.family n) h
+  simpa only [Category.assoc, milnorDifferenceMap, Preadditive.sub_comp,
+    Category.id_comp, Pi.map'_comp_π, Preadditive.comp_sub, zero_comp] using hn
 
 /-- The natural transformation whose components are the stage maps of a morphism annihilated
 by the Milnor difference map. -/
@@ -74,7 +88,8 @@ projection. -/
 @[simp]
 theorem kernelConeNatTrans_app (K : SequentialInverseSystem C) [HasProduct K.family]
     {W : C} (f : W ⟶ ∏ᶜ K.family) (h : f ≫ K.milnorDifferenceMap = 0) (n : ℕ) :
-    (kernelConeNatTrans K f h).app (op n) = f ≫ Pi.π K.family n := sorry
+    (kernelConeNatTrans K f h).app (op n) = f ≫ Pi.π K.family n := by
+  rfl
 
 /-- The explicit cone over a sequential inverse system determined by a morphism into its
 product that is annihilated by the Milnor difference map. -/
@@ -88,7 +103,8 @@ projection. -/
 @[simp]
 theorem kernelCone_π_app (K : SequentialInverseSystem C) [HasProduct K.family]
     {W : C} (f : W ⟶ ∏ᶜ K.family) (h : f ≫ K.milnorDifferenceMap = 0) (n : ℕ) :
-    (kernelCone K f h).π.app (op n) = f ≫ Pi.π K.family n := sorry
+    (kernelCone K f h).π.app (op n) = f ≫ Pi.π K.family n := by
+  rfl
 
 /-- The explicit lift to the inverse limit of a morphism annihilated by the Milnor difference
 map. -/
@@ -103,21 +119,29 @@ def liftToLimit (K : SequentialInverseSystem C) [HasProduct K.family] [HasLimit 
 theorem liftToLimit_comp_π (K : SequentialInverseSystem C) [HasProduct K.family]
     [HasLimit K] {W : C} (f : W ⟶ ∏ᶜ K.family)
     (h : f ≫ K.milnorDifferenceMap = 0) (n : ℕ) :
-    liftToLimit K f h ≫ limit.π K (op n) = f ≫ Pi.π K.family n := sorry
+    liftToLimit K f h ≫ limit.π K (op n) = f ≫ Pi.π K.family n := by
+  exact limit.lift_π _ _
 
 /-- The lift to the inverse limit factors the original morphism through `limitToProduct`. -/
 @[reassoc]
 theorem liftToLimit_fac (K : SequentialInverseSystem C) [HasProduct K.family]
     [HasLimit K] {W : C} (f : W ⟶ ∏ᶜ K.family)
     (h : f ≫ K.milnorDifferenceMap = 0) :
-    liftToLimit K f h ≫ limitToProduct K = f := sorry
+    liftToLimit K f h ≫ limitToProduct K = f := by
+  apply Pi.hom_ext
+  intro n
+  rw [Category.assoc, limitToProduct_comp_π, liftToLimit_comp_π]
 
 /-- A morphism into the inverse limit is determined by its composite with `limitToProduct`. -/
 theorem liftToLimit_uniq (K : SequentialInverseSystem C) [HasProduct K.family]
     [HasLimit K] {W : C} (f : W ⟶ ∏ᶜ K.family)
     (h : f ≫ K.milnorDifferenceMap = 0) (m : W ⟶ limit K)
     (hm : m ≫ limitToProduct K = f) :
-    m = liftToLimit K f h := sorry
+    m = liftToLimit K f h := by
+  apply limit.hom_ext
+  intro n
+  obtain ⟨n⟩ := n
+  rw [liftToLimit_comp_π, ← hm, Category.assoc, limitToProduct_comp_π]
 
 /-- The canonical kernel fork of the Milnor difference map whose point is the inverse limit. -/
 @[stacks 08TC]
@@ -130,11 +154,12 @@ product of stages. -/
 @[simp]
 theorem limitKernelFork_ι (K : SequentialInverseSystem C) [HasProduct K.family]
     [HasLimit K] :
-    (limitKernelFork K).ι = limitToProduct K := sorry
+    (limitKernelFork K).ι = limitToProduct K := by
+  rfl
 
 /-- The explicit universal property exhibiting the inverse limit as the kernel of the Milnor
-difference map.  Its lift is `liftToLimit`; only the factorization and uniqueness laws are
-deferred proof obligations. -/
+difference map. Its lift is `liftToLimit`, with factorization and uniqueness supplied by
+`liftToLimit_fac` and `liftToLimit_uniq`. -/
 @[stacks 08TC]
 def limitKernelForkIsLimit (K : SequentialInverseSystem C) [HasProduct K.family]
     [HasLimit K] : IsLimit (limitKernelFork K) :=
@@ -150,6 +175,7 @@ def limitKernelForkIsLimit (K : SequentialInverseSystem C) [HasProduct K.family]
 theorem limitKernelForkIsLimit_lift (K : SequentialInverseSystem C)
     [HasProduct K.family] [HasLimit K] {W : C}
     (f : W ⟶ ∏ᶜ K.family) (h : f ≫ K.milnorDifferenceMap = 0) :
-    (limitKernelForkIsLimit K).lift (KernelFork.ofι f h) = liftToLimit K f h := sorry
+    (limitKernelForkIsLimit K).lift (KernelFork.ofι f h) = liftToLimit K f h := by
+  rfl
 
 end CategoryTheory.SequentialInverseSystem.Milnor

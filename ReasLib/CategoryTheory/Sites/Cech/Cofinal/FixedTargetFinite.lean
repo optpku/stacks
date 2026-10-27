@@ -14,6 +14,7 @@ import Mathlib.Tactic.CrossRefAttribute
 
 This leaf is the universe-polymorphic, fixed-target form of Lemma 21.16.1.  Finiteness is a
 property of each selected cover; no finite-product instance is required for unrelated slices.
+As in `CofinalSystem`, cofinality tests covering families with index types in `Type w`.
 -/
 
 @[expose] public section
@@ -38,17 +39,26 @@ structure FiniteCoverings
   finite : ∀ ⦃U : C⦄ {cover : Cover.{w} U}, cover ∈ Cov U →
     Finite cover.toFormalCoproduct.I
 
-namespace FiniteCoverings
+namespace FiniteCoverings.Compatibility
 
-/-- Every member of a selected finite cover lies in the controlled object family. -/
+/-- Every original member of a selected finite cover lies in the controlled object family. -/
 theorem members_mem
     {J : GrothendieckTopology C} {B : Set C}
     {Cov : ∀ U : C, Set (Cover.{w} U)}
     (hCov : FiniteCoverings J B Cov) {U : C} {cover : Cover.{w} U}
     (hcover : cover ∈ Cov U) (i : cover.toFormalCoproduct.I) :
-    (cover.family i).left ∈ B := sorry
+    (cover.family i).left ∈ B := by
+  exact CofinalSystem.members_mem hCov.toCofinalSystem hcover i
 
-/-- A finite fixed-target cofinal system refines every covering family over a controlled object. -/
+end FiniteCoverings.Compatibility
+
+namespace FiniteCoverings
+
+-- Preserve the existing facade name without declaring over the inherited `members_mem` field.
+export Compatibility (members_mem)
+
+/-- A finite fixed-target cofinal system refines every `w`-universe covering family over a
+controlled object. -/
 theorem exists_refinement
     {J : GrothendieckTopology C} {B : Set C}
     {Cov : ∀ U : C, Set (Cover.{w} U)}

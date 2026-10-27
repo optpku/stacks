@@ -71,7 +71,8 @@ theorem ofStagesSystem_stepMap (X : SequentialInverseSystem C) (reindex : ℕ �
     (stage : ℕ → C) (toStage : ∀ i, X.obj (op (reindex (i + 1))) ⟶ stage i)
     (fromStage : ∀ i, stage i ⟶ X.obj (op (reindex i))) (i : ℕ) :
     (ofStagesSystem X reindex stage toStage fromStage).stepMap i =
-      fromStage (i + 1) ≫ toStage i := sorry
+      fromStage (i + 1) ≫ toStage i := by
+  exact Functor.ofOpSequence_map_homOfLE_succ _ i
 
 /-- Build a coherent sequential factorization directly from stage objects and factorizations of
 the selected transitions of `X`.  The intervening inverse system and all of its transitions are
@@ -102,12 +103,12 @@ def invReindex (_z : SequentialFactorization X Y) : ℕ →o ℕ :=
 /-- The forward representative selects `reindex (i + 1)` at stage `i`. -/
 @[simp]
 theorem homReindex_apply (z : SequentialFactorization X Y) (i : ℕ) :
-    z.homReindex i = z.reindex (i + 1) := sorry
+    z.homReindex i = z.reindex (i + 1) := rfl
 
 /-- The reverse representative uses stage `i` itself. -/
 @[simp]
 theorem invReindex_apply (z : SequentialFactorization X Y) (i : ℕ) :
-    z.invReindex i = i := sorry
+    z.invReindex i = i := rfl
 
 /-- The level map of the representative from `X` to `Y`. -/
 def homApp (z : SequentialFactorization X Y) (i : ℕ) :
@@ -124,20 +125,29 @@ def invApp (z : SequentialFactorization X Y) (i : ℕ) :
 theorem homApp_naturality (z : SequentialFactorization X Y) (i : ℕ) :
     X.transitionMap
           (z.homReindex.monotone (Nat.le_add_right i 1)) ≫ z.homApp i =
-      z.homApp (i + 1) ≫ Y.stepMap i := sorry
+      z.homApp (i + 1) ≫ Y.stepMap i := by
+  change X.transitionMap _ ≫ z.toStage i = z.toStage (i + 1) ≫ Y.stepMap i
+  rw [← z.toStage_fromStage (i + 1), z.stepMap i, Category.assoc]
 
 /-- The supplied maps from the intervening stages form a natural transformation to the selected
 subsystem of `X`. -/
 theorem fromStage_naturality (z : SequentialFactorization X Y) (i : ℕ) :
     Y.stepMap i ≫ z.fromStage i =
       z.fromStage (i + 1) ≫
-        X.transitionMap (z.reindex.monotone (Nat.le_add_right i 1)) := sorry
+        X.transitionMap (z.reindex.monotone (Nat.le_add_right i 1)) := by
+  rw [z.stepMap i, Category.assoc, z.toStage_fromStage i]
 
 /-- The maps from `Y` to the original stages of `X` commute with adjacent transitions. -/
 theorem invApp_naturality (z : SequentialFactorization X Y) (i : ℕ) :
     Y.transitionMap
           (z.invReindex.monotone (Nat.le_add_right i 1)) ≫ z.invApp i =
-      z.invApp (i + 1) ≫ X.stepMap i := sorry
+      z.invApp (i + 1) ≫ X.stepMap i := by
+  change Y.stepMap i ≫ (z.fromStage i ≫ X.transitionMap (z.le_reindex i)) =
+    (z.fromStage (i + 1) ≫ X.transitionMap (z.le_reindex (i + 1))) ≫ X.stepMap i
+  rw [← Category.assoc, z.fromStage_naturality]
+  simp only [Category.assoc, SequentialInverseSystem.stepMap,
+    SequentialInverseSystem.transitionMap, ← Functor.map_comp]
+  exact congrArg (fun f ↦ z.fromStage (i + 1) ≫ X.map f) (Subsingleton.elim _ _)
 
 /-- The natural transformation from the selected subsystem of `X` to `Y`. -/
 def homNatTrans (z : SequentialFactorization X Y) :
@@ -157,20 +167,20 @@ def invNatTrans (z : SequentialFactorization X Y) : Y ⟶ X :=
 stage. -/
 @[simp]
 theorem homNatTrans_app (z : SequentialFactorization X Y) (i : ℕ) :
-    z.homNatTrans.app (op i) = z.toStage i := sorry
+    z.homNatTrans.app (op i) = z.toStage i := rfl
 
 /-- A component of the natural transformation to the selected subsystem of `X` is the supplied
 map from the intervening stage. -/
 @[simp]
 theorem fromStageNatTrans_app (z : SequentialFactorization X Y) (i : ℕ) :
-    z.fromStageNatTrans.app (op i) = z.fromStage i := sorry
+    z.fromStageNatTrans.app (op i) = z.fromStage i := rfl
 
 /-- A component of the reverse natural transformation is the supplied map from the intervening
 stage followed by the transition to the original index. -/
 @[simp]
 theorem invNatTrans_app (z : SequentialFactorization X Y) (i : ℕ) :
     z.invNatTrans.app (op i) =
-      z.fromStage i ≫ X.transitionMap (z.le_reindex i) := sorry
+      z.fromStage i ≫ X.transitionMap (z.le_reindex i) := rfl
 
 /-- The sequential pro-morphism representative induced from `X` to `Y`. -/
 def hom (z : SequentialFactorization X Y) : SequentialHom X Y where
@@ -184,57 +194,92 @@ def inv (z : SequentialFactorization X Y) : SequentialHom Y X :=
 /-- The forward representative has the selected source reindexing. -/
 @[simp]
 theorem hom_reindex (z : SequentialFactorization X Y) :
-    z.hom.reindex = z.homReindex := sorry
+    z.hom.reindex = z.homReindex := rfl
 
 /-- A level map of the forward representative is the supplied map to the intervening stage. -/
 @[simp]
 theorem hom_hom_app (z : SequentialFactorization X Y) (i : ℕ) :
-    z.hom.hom.app (op i) = z.toStage i := sorry
+    z.hom.hom.app (op i) = z.toStage i := rfl
 
 /-- The reverse representative has identity source reindexing. -/
 @[simp]
 theorem inv_reindex (z : SequentialFactorization X Y) :
-    z.inv.reindex = OrderHom.id := sorry
+    z.inv.reindex = OrderHom.id := rfl
 
 /-- A level map of the reverse representative is the supplied map from the intervening stage,
 continued to the original index of `X`. -/
 @[simp]
 theorem inv_hom_app (z : SequentialFactorization X Y) (i : ℕ) :
     z.inv.hom.app (op i) =
-      z.fromStage i ≫ X.transitionMap (z.le_reindex i) := sorry
+      z.fromStage i ≫ X.transitionMap (z.le_reindex i) := rfl
 
 /-- The forward representative followed by the inverse is equivalent to the identity of `X`. -/
 theorem hom_inv_equivalent (z : SequentialFactorization X Y) :
     SequentialHom.Equivalent (SequentialHom.comp z.hom z.inv)
-      (SequentialHom.id X) := sorry
+      (SequentialHom.id X) := by
+  have hle (n : ℕ) : n ≤ z.homReindex n :=
+    (Nat.le_add_right n 1).trans (z.le_reindex (n + 1))
+  refine ⟨z.homReindex, le_rfl, hle, ?_⟩
+  apply NatTrans.ext
+  funext i
+  change X.transitionMap (le_refl _) ≫
+      (z.toStage i.unop ≫ (z.fromStage i.unop ≫ X.transitionMap (z.le_reindex i.unop))) =
+    X.transitionMap (hle i.unop) ≫ 𝟙 _
+  dsimp only [homReindex] at *
+  rw [show X.transitionMap (le_refl (z.reindex (i.unop + 1))) = 𝟙 _ from X.map_id _,
+    Category.id_comp, Category.comp_id, ← Category.assoc, z.toStage_fromStage]
+  exact (X.map_comp _ _).symm.trans (congrArg X.map (Subsingleton.elim _ _))
 
 /-- The inverse representative followed by the forward one is equivalent to the identity of
 `Y`. -/
 theorem inv_hom_equivalent (z : SequentialFactorization X Y) :
     SequentialHom.Equivalent (SequentialHom.comp z.inv z.hom)
-      (SequentialHom.id Y) := sorry
+      (SequentialHom.id Y) := by
+  have hle (n : ℕ) : n ≤ z.homReindex n :=
+    (Nat.le_add_right n 1).trans (z.le_reindex (n + 1))
+  refine ⟨z.homReindex, le_rfl, hle, ?_⟩
+  apply NatTrans.ext
+  funext i
+  change Y.transitionMap (le_refl _) ≫
+      ((z.fromStage (z.homReindex i.unop) ≫
+        X.transitionMap (z.le_reindex (z.homReindex i.unop))) ≫ z.toStage i.unop) =
+    Y.transitionMap (hle i.unop) ≫ 𝟙 _
+  rw [show Y.transitionMap (le_refl (z.homReindex i.unop)) = 𝟙 _ from Y.map_id _,
+    Category.id_comp, Category.comp_id]
+  have hn : i.unop + 1 ≤ z.homReindex i.unop := z.le_reindex (i.unop + 1)
+  have hnat := z.fromStageNatTrans.naturality (homOfLE hn).op
+  change Y.transitionMap hn ≫ z.fromStage (i.unop + 1) =
+    z.fromStage (z.homReindex i.unop) ≫
+      X.transitionMap (z.le_reindex (z.homReindex i.unop)) at hnat
+  dsimp only [homReindex] at hnat ⊢
+  rw [← hnat, Category.assoc, ← z.stepMap]
+  exact (Y.map_comp _ _).symm.trans (congrArg Y.map (Subsingleton.elim _ _))
 
 /-- A coherent factorization of transitions gives the forward representative an explicit inverse
 up to common refinement. -/
 @[stacks 0GZ5 "factorized sequential towers have representative inverses"]
 theorem hom_hasRepresentativeInverse (z : SequentialFactorization X Y) :
-    z.hom.HasRepresentativeInverse := sorry
+    z.hom.HasRepresentativeInverse := by
+  exact ⟨z.inv, z.hom_inv_equivalent, z.inv_hom_equivalent⟩
 
 /-- A coherent factorization of transitions gives the inverse representative an explicit inverse
 up to common refinement. -/
 theorem inv_hasRepresentativeInverse (z : SequentialFactorization X Y) :
-    z.inv.HasRepresentativeInverse := sorry
+    z.inv.HasRepresentativeInverse := by
+  exact ⟨z.hom, z.inv_hom_equivalent, z.hom_inv_equivalent⟩
 
 /-- Remark 23.12.2 (Tag 0GZ5): coherently factorized sequential inverse systems define isomorphic
 pro-objects. -/
 @[stacks 0GZ5 "factorized sequential inverse systems are pro-isomorphic"]
 theorem hom_isIso (z : SequentialFactorization X Y) :
-    IsIso z.hom.toHom := sorry
+    IsIso z.hom.toHom := by
+  exact SequentialHom.isIso_toHom_of_hasRepresentativeInverse _ z.hom_hasRepresentativeInverse
 
 /-- The reverse representative of a coherent sequential factorization is also an isomorphism of
 pro-objects. -/
 theorem inv_isIso (z : SequentialFactorization X Y) :
-    IsIso z.inv.toHom := sorry
+    IsIso z.inv.toHom := by
+  exact SequentialHom.isIso_toHom_of_hasRepresentativeInverse _ z.inv_hasRepresentativeInverse
 
 end SequentialFactorization
 
@@ -287,14 +332,20 @@ noncomputable def transport {X' Y' : SequentialInverseSystem C}
   oddToEven i :=
     eY.inv.app (op (z.reindex (2 * i + 1))) ≫ z.oddToEven i ≫
       eX.hom.app (op (z.reindex (2 * i)))
-  evenComp := sorry
-  oddComp := sorry
+  evenComp i := by
+    simp only [Category.assoc, Iso.hom_inv_id_app_assoc]
+    rw [← Category.assoc (z.evenToOdd i), z.evenComp i]
+    exact NatIso.naturality_1 eX _
+  oddComp i := by
+    simp only [Category.assoc, Iso.hom_inv_id_app_assoc]
+    rw [← Category.assoc (z.oddToEven (i + 1)), z.oddComp i]
+    exact NatIso.naturality_1 eY _
 
 /-- Transporting an interleaving preserves its reindexing. -/
 @[simp]
 theorem transport_reindex {X' Y' : SequentialInverseSystem C}
     (z : SequentialInterleaving X Y) (eX : X ≅ X') (eY : Y ≅ Y') :
-    (z.transport eX eY).reindex = z.reindex := sorry
+    (z.transport eX eY).reindex = z.reindex := rfl
 
 /-- The even-to-odd component of a transported interleaving is obtained by conjugating the
 original component with the two system isomorphisms. -/
@@ -303,7 +354,7 @@ theorem transport_evenToOdd {X' Y' : SequentialInverseSystem C}
     (z : SequentialInterleaving X Y) (eX : X ≅ X') (eY : Y ≅ Y') (i : ℕ) :
     (z.transport eX eY).evenToOdd i =
       eX.inv.app (op (z.reindex (2 * (i + 1)))) ≫ z.evenToOdd i ≫
-        eY.hom.app (op (z.reindex (2 * i + 1))) := sorry
+        eY.hom.app (op (z.reindex (2 * i + 1))) := rfl
 
 /-- The odd-to-even component of a transported interleaving is obtained by conjugating the
 original component with the two system isomorphisms. -/
@@ -312,12 +363,14 @@ theorem transport_oddToEven {X' Y' : SequentialInverseSystem C}
     (z : SequentialInterleaving X Y) (eX : X ≅ X') (eY : Y ≅ Y') (i : ℕ) :
     (z.transport eX eY).oddToEven i =
       eY.inv.app (op (z.reindex (2 * i + 1))) ≫ z.oddToEven i ≫
-        eX.hom.app (op (z.reindex (2 * i))) := sorry
+        eX.hom.app (op (z.reindex (2 * i))) := rfl
 
 /-- Transport along identity isomorphisms leaves an interleaving unchanged. -/
 @[simp]
 theorem transport_refl (z : SequentialInterleaving X Y) :
-    z.transport (Iso.refl X) (Iso.refl Y) = z := sorry
+    z.transport (Iso.refl X) (Iso.refl Y) = z := by
+  cases z
+  simp [transport]
 
 /-- Successive transports of an interleaving agree with transport along the composite
 isomorphisms. -/
@@ -326,7 +379,9 @@ theorem transport_trans
     (z : SequentialInterleaving X Y) (eX : X ≅ X') (eY : Y ≅ Y')
     (eX' : X' ≅ X'') (eY' : Y' ≅ Y'') :
     (z.transport eX eY).transport eX' eY' =
-      z.transport (eX.trans eX') (eY.trans eY') := sorry
+      z.transport (eX.trans eX') (eY.trans eY') := by
+  cases z
+  simp [transport, Category.assoc]
 
 /-- The source reindexing of the sequential representative from `X` to `Y`. -/
 def homReindex (z : SequentialInterleaving X Y) : ℕ →o ℕ where
@@ -344,11 +399,13 @@ def invReindex (z : SequentialInterleaving X Y) : ℕ →o ℕ where
 
 /-- Every target index lies below the corresponding reindexed even stage. -/
 theorem le_even (z : SequentialInterleaving X Y) (n : ℕ) :
-    n ≤ z.reindex (2 * n) := sorry
+    n ≤ z.reindex (2 * n) := by
+  exact (show n ≤ 2 * n by omega).trans (z.strictMono.id_le (2 * n))
 
 /-- Every target index lies below the corresponding reindexed odd stage. -/
 theorem le_odd (z : SequentialInterleaving X Y) (n : ℕ) :
-    n ≤ z.reindex (2 * n + 1) := sorry
+    n ≤ z.reindex (2 * n + 1) := by
+  exact (show n ≤ 2 * n + 1 by omega).trans (z.strictMono.id_le (2 * n + 1))
 
 /-- The level map of the sequential representative from `X` to `Y`. -/
 def homApp (z : SequentialInterleaving X Y) (n : ℕ) :
@@ -364,13 +421,29 @@ def invApp (z : SequentialInterleaving X Y) (n : ℕ) :
 theorem homApp_naturality (z : SequentialInterleaving X Y) (n : ℕ) :
     X.transitionMap
           (z.homReindex.monotone (Nat.le_add_right n 1)) ≫ z.homApp n =
-      z.homApp (n + 1) ≫ Y.stepMap n := sorry
+      z.homApp (n + 1) ≫ Y.stepMap n := by
+  change X.transitionMap _ ≫ (z.evenToOdd n ≫ Y.transitionMap (z.le_odd n)) =
+    (z.evenToOdd (n + 1) ≫ Y.transitionMap (z.le_odd (n + 1))) ≫ Y.stepMap n
+  rw [← z.evenComp (n + 1)]
+  simp only [Category.assoc]
+  rw [← Category.assoc (z.oddToEven (n + 1)), z.oddComp n]
+  simp only [SequentialInverseSystem.stepMap,
+    SequentialInverseSystem.transitionMap, ← Functor.map_comp]
+  exact congrArg (fun f ↦ z.evenToOdd (n + 1) ≫ Y.map f) (Subsingleton.elim _ _)
 
 /-- The inverse level maps commute with adjacent transitions. -/
 theorem invApp_naturality (z : SequentialInterleaving X Y) (n : ℕ) :
     Y.transitionMap
           (z.invReindex.monotone (Nat.le_add_right n 1)) ≫ z.invApp n =
-      z.invApp (n + 1) ≫ X.stepMap n := sorry
+      z.invApp (n + 1) ≫ X.stepMap n := by
+  change Y.transitionMap _ ≫ (z.oddToEven n ≫ X.transitionMap (z.le_even n)) =
+    (z.oddToEven (n + 1) ≫ X.transitionMap (z.le_even (n + 1))) ≫ X.stepMap n
+  rw [← z.oddComp n]
+  simp only [Category.assoc]
+  rw [← Category.assoc (z.evenToOdd n), z.evenComp n]
+  simp only [SequentialInverseSystem.stepMap,
+    SequentialInverseSystem.transitionMap, ← Functor.map_comp]
+  exact congrArg (fun f ↦ z.oddToEven (n + 1) ≫ X.map f) (Subsingleton.elim _ _)
 
 /-- The sequential pro-morphism representative induced from `X` to `Y`. -/
 def hom (z : SequentialInterleaving X Y) : SequentialHom X Y where
@@ -385,19 +458,80 @@ def inv (z : SequentialInterleaving X Y) : SequentialHom Y X where
 /-- The forward representative followed by the inverse is equivalent to the identity of `X`. -/
 theorem hom_inv_equivalent (z : SequentialInterleaving X Y) :
     SequentialHom.Equivalent (SequentialHom.comp z.hom z.inv)
-      (SequentialHom.id X) := sorry
+      (SequentialHom.id X) := by
+  have hle (n : ℕ) : n ≤ z.homReindex (z.invReindex n) :=
+    (z.le_odd n).trans
+      ((Nat.le_add_right (z.invReindex n) 1).trans (z.le_even (z.invReindex n + 1)))
+  refine ⟨z.homReindex.comp z.invReindex, le_rfl, hle, ?_⟩
+  apply NatTrans.ext
+  funext i
+  change X.transitionMap (le_refl _) ≫
+      (z.homApp (z.invReindex i.unop) ≫ z.invApp i.unop) =
+    X.transitionMap (hle i.unop) ≫ 𝟙 _
+  rw [show X.transitionMap (le_refl (z.homReindex (z.invReindex i.unop))) = 𝟙 _
+      from X.map_id _, Category.id_comp, Category.comp_id]
+  have hnat := z.inv.hom.naturality (homOfLE (z.le_odd i.unop)).op
+  change Y.transitionMap (z.invReindex.monotone (z.le_odd i.unop)) ≫ z.invApp i.unop =
+    z.invApp (z.invReindex i.unop) ≫ X.transitionMap (z.le_odd i.unop) at hnat
+  change (z.evenToOdd (z.invReindex i.unop) ≫
+      Y.transitionMap (z.le_odd (z.invReindex i.unop))) ≫ z.invApp i.unop = _
+  dsimp only [homReindex, invReindex, homApp, invApp] at hnat ⊢
+  rw [Category.assoc, hnat]
+  simp only [ ← Category.assoc, z.evenComp,
+    SequentialInverseSystem.transitionMap, ← Functor.map_comp]
+  exact congrArg X.map (Subsingleton.elim _ _)
 
 /-- The inverse representative followed by the forward one is equivalent to the identity of
 `Y`. -/
 theorem inv_hom_equivalent (z : SequentialInterleaving X Y) :
     SequentialHom.Equivalent (SequentialHom.comp z.inv z.hom)
-      (SequentialHom.id Y) := sorry
+      (SequentialHom.id Y) := by
+  let next : ℕ →o ℕ :=
+    { toFun := fun n ↦ z.homReindex n + 1
+      monotone' := fun _ _ h ↦ Nat.add_le_add_right (z.homReindex.monotone h) 1 }
+  have hf (n : ℕ) : n ≤ z.homReindex n :=
+    (Nat.le_add_right n 1).trans (z.le_even (n + 1))
+  have h₁ : (SequentialHom.comp z.inv z.hom).reindex ≤ z.invReindex.comp next :=
+    fun n ↦ z.invReindex.monotone (Nat.le_add_right (z.homReindex n) 1)
+  have hle (n : ℕ) : n ≤ z.invReindex (z.homReindex n + 1) :=
+    (hf n).trans ((Nat.le_add_right (z.homReindex n) 1).trans
+      (z.le_odd (z.homReindex n + 1)))
+  refine ⟨z.invReindex.comp next, h₁, hle, ?_⟩
+  apply NatTrans.ext
+  funext i
+  change Y.transitionMap (z.invReindex.monotone
+        (Nat.le_add_right (z.homReindex i.unop) 1)) ≫
+      (z.invApp (z.homReindex i.unop) ≫ z.homApp i.unop) =
+    Y.transitionMap (hle i.unop) ≫ 𝟙 _
+  rw [Category.comp_id]
+  have hnatI := z.inv.hom.naturality
+    (homOfLE (Nat.le_add_right (z.homReindex i.unop) 1)).op
+  change Y.transitionMap _ ≫ z.invApp (z.homReindex i.unop) =
+    z.invApp (z.homReindex i.unop + 1) ≫ X.stepMap (z.homReindex i.unop) at hnatI
+  rw [← Category.assoc, hnatI]
+  have ht : X.transitionMap (z.le_even (z.homReindex i.unop + 1)) ≫
+      X.stepMap (z.homReindex i.unop) =
+      X.transitionMap (z.homReindex.monotone (hf i.unop)) :=
+    (X.map_comp _ _).symm.trans (congrArg X.map (Subsingleton.elim _ _))
+  change ((z.oddToEven (z.homReindex i.unop + 1) ≫
+      X.transitionMap (z.le_even (z.homReindex i.unop + 1))) ≫
+      X.stepMap (z.homReindex i.unop)) ≫ z.homApp i.unop = _
+  rw [Category.assoc (z.oddToEven (z.homReindex i.unop + 1)), ht, Category.assoc]
+  have hnatH := z.hom.hom.naturality (homOfLE (hf i.unop)).op
+  change X.transitionMap (z.homReindex.monotone (hf i.unop)) ≫ z.homApp i.unop =
+    z.homApp (z.homReindex i.unop) ≫ Y.transitionMap (hf i.unop) at hnatH
+  dsimp only [homReindex, invReindex, homApp, invApp] at hnatH ⊢
+  rw [hnatH]
+  simp only [ ← Category.assoc, z.oddComp,
+    SequentialInverseSystem.transitionMap, ← Functor.map_comp]
+  exact congrArg Y.map (Subsingleton.elim _ _)
 
 /-- Lemma 24.35.2 (Stacks 0GZI): an alternating interleaving gives the forward sequential
 representative a representative inverse. -/
 @[stacks 0GZI "alternating interleavings induce sequential pro-isomorphisms"]
 theorem hom_hasRepresentativeInverse (z : SequentialInterleaving X Y) :
-    z.hom.HasRepresentativeInverse := sorry
+    z.hom.HasRepresentativeInverse := by
+  exact ⟨z.inv, z.hom_inv_equivalent, z.inv_hom_equivalent⟩
 
 end SequentialInterleaving
 

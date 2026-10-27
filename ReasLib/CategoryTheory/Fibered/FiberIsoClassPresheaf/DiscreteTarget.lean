@@ -58,7 +58,11 @@ induced fiber functor into the discrete target fiber. -/
 theorem app
     (F : X ⥤ᵇ Y) [X.p.IsFibered] [Y.p.IsDiscreteFibration] (U : Cᵒᵖ) :
     (BasedFunctor.fiberClassesMap F).app U =
-      TypeCat.ofHom (F.fiberFunctor (unop U)).isoClassesToObj := sorry
+      TypeCat.ofHom (F.fiberFunctor (unop U)).isoClassesToObj := by
+  apply ConcreteCategory.ext_apply
+  intro q
+  induction q using Quotient.inductionOn with
+  | h x => rfl
 
 /-- On a represented source class, `fiberClassesMap` applies the induced fiber functor. -/
 @[simp]
@@ -66,7 +70,8 @@ theorem app_mk
     (F : X ⥤ᵇ Y) [X.p.IsFibered] [Y.p.IsDiscreteFibration]
     (U : Cᵒᵖ) (x : X.p.Fiber (unop U)) :
     (BasedFunctor.fiberClassesMap F).app U (Quotient.mk'' x) =
-      (F.fiberFunctor (unop U)).obj x := sorry
+      (F.fiberFunctor (unop U)).obj x := by
+  rfl
 
 /-- For a discrete fibration, the map induced by the identity based functor is its canonical
 comparison from fiber classes to fiber objects. -/
@@ -74,7 +79,13 @@ comparison from fiber classes to fiber objects. -/
 theorem id
     (X : BasedCategory.{vX, uS} C) [X.p.IsDiscreteFibration] :
     BasedFunctor.fiberClassesMap (𝟙 X : X ⥤ᵇ X) =
-      (Functor.IsDiscreteFibration.fiberClassesIso X.p).hom := sorry
+      (Functor.IsDiscreteFibration.fiberClassesIso X.p).hom := by
+  apply NatTrans.ext
+  funext U
+  apply ConcreteCategory.ext_apply
+  intro q
+  induction q using Quotient.inductionOn with
+  | h x => rfl
 
 /-- Mapping fiber classes through a composite into discrete fibrations is the class-to-object map
 of the first functor followed by the object map of the second. -/
@@ -83,13 +94,26 @@ theorem comp
     (F : X ⥤ᵇ Y) (G : Y ⥤ᵇ Z) [X.p.IsFibered]
     [Y.p.IsDiscreteFibration] [Z.p.IsDiscreteFibration] :
     BasedFunctor.fiberClassesMap (F ⋙ G) =
-      BasedFunctor.fiberClassesMap F ≫ BasedFunctor.fiberObjectMap G := sorry
+      BasedFunctor.fiberClassesMap F ≫ BasedFunctor.fiberObjectMap G := by
+  apply NatTrans.ext
+  funext U
+  apply ConcreteCategory.ext_apply
+  intro q
+  induction q using Quotient.inductionOn with
+  | h x => rfl
 
 /-- A based natural transformation into a discrete fibration identifies the induced maps from
 fiberwise isomorphism classes to target fiber objects. -/
 theorem eq_of_hom
     {F G : X ⥤ᵇ Y} [X.p.IsFibered] [Y.p.IsDiscreteFibration] (η : F ⟶ G) :
-    BasedFunctor.fiberClassesMap F = BasedFunctor.fiberClassesMap G := sorry
+    BasedFunctor.fiberClassesMap F = BasedFunctor.fiberClassesMap G := by
+  apply NatTrans.ext
+  funext U
+  apply ConcreteCategory.ext_apply
+  intro q
+  induction q using Quotient.inductionOn with
+  | h x =>
+      exact obj_ext_of_isDiscrete (BasedNatTrans.fiberApp η (unop U) x)
 
 end fiberClassesMap
 
@@ -126,7 +150,12 @@ theorem fiberClassesMap.ulift.app
     (F : X ⥤ᵇ Y) [X.p.IsFibered] [Y.p.IsDiscreteFibration] (U : Cᵒᵖ) :
     (BasedFunctor.fiberClassesMap.ulift.{w} F).app U =
       TypeCat.ofHom (Functor.isoClassesToObj.ulift.{w}
-        (F.fiberFunctor (unop U))) := sorry
+        (F.fiberFunctor (unop U))) := by
+  apply ConcreteCategory.ext_apply
+  intro q
+  rcases q with ⟨q⟩
+  induction q using Quotient.inductionOn with
+  | h x => rfl
 
 /-- On a lifted represented source class, the lifted map returns the lifted image under the
 induced fiber functor. -/
@@ -136,7 +165,8 @@ theorem fiberClassesMap.ulift.app_mk
     (U : Cᵒᵖ) (x : X.p.Fiber (unop U)) :
     (BasedFunctor.fiberClassesMap.ulift.{w} F).app U
         (ULift.up (Quotient.mk'' x)) =
-      ULift.up ((F.fiberFunctor (unop U)).obj x) := sorry
+      ULift.up ((F.fiberFunctor (unop U)).obj x) := by
+  rfl
 
 /-- For a discrete fibration, the lifted map induced by the identity is the lifted canonical
 comparison from fiber classes to fiber objects. -/
@@ -144,7 +174,14 @@ comparison from fiber classes to fiber objects. -/
 theorem fiberClassesMap.ulift.id
     (X : BasedCategory.{vX, uX} C) [X.p.IsDiscreteFibration] :
     BasedFunctor.fiberClassesMap.ulift.{w} (𝟙 X : X ⥤ᵇ X) =
-      (Functor.IsDiscreteFibration.fiberClassesIso.ulift.{w} X.p).hom := sorry
+      (Functor.IsDiscreteFibration.fiberClassesIso.ulift.{w} X.p).hom := by
+  apply NatTrans.ext
+  funext U
+  apply ConcreteCategory.ext_apply
+  intro q
+  rcases q with ⟨q⟩
+  induction q using Quotient.inductionOn with
+  | h x => rfl
 
 /-- Lifted class-to-object maps compose with lifted fiber-object maps after all three object
 universes are included in the ambient lift. -/
@@ -154,14 +191,30 @@ theorem fiberClassesMap.ulift.comp
     [Y.p.IsDiscreteFibration] [Z.p.IsDiscreteFibration] :
     BasedFunctor.fiberClassesMap.ulift.{max w uY} (F ⋙ G) =
       BasedFunctor.fiberClassesMap.ulift.{max w uZ} F ≫
-        BasedFunctor.fiberObjectMap.ulift.{max w uX} G := sorry
+        BasedFunctor.fiberObjectMap.ulift.{max w uX} G := by
+  apply NatTrans.ext
+  funext U
+  apply ConcreteCategory.ext_apply
+  intro q
+  rcases q with ⟨q⟩
+  induction q using Quotient.inductionOn with
+  | h x => rfl
 
 /-- A based natural transformation into a discrete fibration identifies the induced lifted maps
 from fiber classes to target fiber objects. -/
 theorem fiberClassesMap.ulift.eq_of_hom
     {F G : X ⥤ᵇ Y} [X.p.IsFibered] [Y.p.IsDiscreteFibration] (η : F ⟶ G) :
     BasedFunctor.fiberClassesMap.ulift.{w} F =
-      BasedFunctor.fiberClassesMap.ulift.{w} G := sorry
+      BasedFunctor.fiberClassesMap.ulift.{w} G := by
+  apply NatTrans.ext
+  funext U
+  apply ConcreteCategory.ext_apply
+  intro q
+  rcases q with ⟨q⟩
+  induction q using Quotient.inductionOn with
+  | h x =>
+      exact congrArg ULift.up
+        (obj_ext_of_isDiscrete (BasedNatTrans.fiberApp η (unop U) x))
 
 end DifferentObjectUniverses
 

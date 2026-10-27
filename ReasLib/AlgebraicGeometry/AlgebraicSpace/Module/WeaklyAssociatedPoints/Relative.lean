@@ -38,7 +38,7 @@ def fiberModule (f : X ⟶ Y) (p : FieldValuedPoint Y) (F : X.Modules) :
 /-- `fiberModule f p F` is the module pullback of `F` along `fieldFiberι f p`. -/
 theorem fiberModule_eq (f : X ⟶ Y) (p : FieldValuedPoint Y) (F : X.Modules) :
     fiberModule f p F = (pullback (fieldFiberι f p)).obj F :=
-  sorry
+  rfl
 
 /-- The projection of a residue-field fibre to the source. -/
 def residueFiberι (f : X ⟶ Y) {V : Over S} (a : ofOver V ⟶ Y) (v : V.left) :
@@ -51,7 +51,7 @@ theorem residueFiberι_eq (f : X ⟶ Y) {V : Over S} (a : ofOver V ⟶ Y) (v : V
     residueFiberι f a v =
       fieldFiberι f
         ((FieldValuedPoint.ofScheme (Scheme.FieldValuedPoint.residuePoint v)).map a) :=
-  sorry
+  rfl
 
 /-- The restriction of an `𝒪_X`-module to the residue-field fibre of `f` along an
 étale scheme chart of `Y`. -/
@@ -66,7 +66,7 @@ theorem residueFiberModule_eq (f : X ⟶ Y) (F : X.Modules) {V : Over S}
     residueFiberModule f F a v =
       fiberModule f
         ((FieldValuedPoint.ofScheme (Scheme.FieldValuedPoint.residuePoint v)).map a) F :=
-  sorry
+  rfl
 
 /-- The composite `U → X ×_Y V → X`. -/
 def chartToSource (f : X ⟶ Y) {V U : Over S} {a : ofOver V ⟶ Y}
@@ -78,7 +78,7 @@ def chartToSource (f : X ⟶ Y) {V U : Over S} {a : ofOver V ⟶ Y}
 theorem chartToSource_eq (f : X ⟶ Y) {V U : Over S} {a : ofOver V ⟶ Y}
     (b : ofOver U ⟶ Limits.pullback f a) :
     chartToSource f b = b ≫ Limits.pullback.fst f a :=
-  sorry
+  rfl
 
 /-- The composite `U → X ×_Y V → V`. -/
 def chartToTarget (f : X ⟶ Y) {V U : Over S} {a : ofOver V ⟶ Y}
@@ -90,7 +90,7 @@ def chartToTarget (f : X ⟶ Y) {V U : Over S} {a : ofOver V ⟶ Y}
 theorem chartToTarget_eq (f : X ⟶ Y) {V U : Over S} {a : ofOver V ⟶ Y}
     (b : ofOver U ⟶ Limits.pullback f a) :
     chartToTarget f b = b ≫ Limits.pullback.snd f a :=
-  sorry
+  rfl
 
 /-- The residue-field fibre `U_v` of an étale chart `U → X ×_Y V`. -/
 def chartFiber (f : X ⟶ Y) {V U : Over S} {a : ofOver V ⟶ Y}
@@ -105,7 +105,7 @@ theorem chartFiber_eq (f : X ⟶ Y) {V U : Over S} {a : ofOver V ⟶ Y}
     chartFiber f b v =
       fieldFiber (chartToTarget f b)
         (FieldValuedPoint.ofScheme (Scheme.FieldValuedPoint.residuePoint v)) :=
-  sorry
+  rfl
 
 /-- The projection of `U_v` to `U`. -/
 def chartFiberι (f : X ⟶ Y) {V U : Over S} {a : ofOver V ⟶ Y}
@@ -120,7 +120,7 @@ theorem chartFiberι_eq (f : X ⟶ Y) {V U : Over S} {a : ofOver V ⟶ Y}
     chartFiberι f b v =
       fieldFiberι (chartToTarget f b)
         (FieldValuedPoint.ofScheme (Scheme.FieldValuedPoint.residuePoint v)) :=
-  sorry
+  rfl
 
 /-- The restriction of an `𝒪_X`-module to the residue-field fibre `U_v`. -/
 def chartFiberModule (f : X ⟶ Y) (F : X.Modules) {V U : Over S} {a : ofOver V ⟶ Y}
@@ -133,7 +133,7 @@ theorem chartFiberModule_eq (f : X ⟶ Y) (F : X.Modules) {V U : Over S}
     {a : ofOver V ⟶ Y} (b : ofOver U ⟶ Limits.pullback f a) (v : V.left) :
     chartFiberModule f F b v =
       (pullback (chartFiberι f b v ≫ chartToSource f b)).obj F :=
-  sorry
+  rfl
 
 /-- There exist an étale scheme chart of `Y` through `f(x)` and a lift of `x` on
 the residue-field fibre which is weakly associated to the restricted module. -/
@@ -152,7 +152,7 @@ theorem existsEtale_iff (f : X ⟶ Y) (F : X.Modules) (x : Points X) :
         Etale a ∧ Points.mapOfOver a v = Points.map f x ∧
           Points.map (residueFiberι f a v) x' = x ∧
           x' ∈ (residueFiberModule f F a v).weakAss :=
-  sorry
+  Iff.rfl
 
 namespace existsEtale
 
@@ -164,7 +164,7 @@ theorem of (f : X ⟶ Y) (F : X.Modules) {x : Points X} {V : Over S}
     (hx' : Points.map (residueFiberι f a v) x' = x)
     (h : x' ∈ (residueFiberModule f F a v).weakAss) :
     existsEtale f F x :=
-  sorry
+  ⟨V, a, v, x', ha, hv, hx', h⟩
 
 /-- `existsEtale` supplies an étale residue-field fibre lift in the weakly
 associated locus. -/
@@ -174,7 +174,7 @@ theorem spec (f : X ⟶ Y) (F : X.Modules) {x : Points X} (h : existsEtale f F x
       Etale a ∧ Points.mapOfOver a v = Points.map f x ∧
         Points.map (residueFiberι f a v) x' = x ∧
         x' ∈ (residueFiberModule f F a v).weakAss :=
-  sorry
+  h
 
 end existsEtale
 
@@ -195,7 +195,7 @@ theorem forallEtale_iff (f : X ⟶ Y) (F : X.Modules) (x : Points X) :
         Etale a → Points.mapOfOver a v = Points.map f x →
           Points.map (residueFiberι f a v) x' = x →
             x' ∈ (residueFiberModule f F a v).weakAss :=
-  sorry
+  Iff.rfl
 
 namespace forallEtale
 
@@ -207,7 +207,7 @@ theorem of (f : X ⟶ Y) (F : X.Modules) {x : Points X}
         Points.map (residueFiberι f a v) x' = x →
           x' ∈ (residueFiberModule f F a v).weakAss) :
     forallEtale f F x :=
-  sorry
+  h
 
 /-- If `forallEtale` holds, every residue-field fibre lift of `x` is weakly
 associated to the restricted module. -/
@@ -217,7 +217,7 @@ theorem apply (f : X ⟶ Y) (F : X.Modules) {x : Points X} (h : forallEtale f F 
     (hv : Points.mapOfOver a v = Points.map f x)
     (hx' : Points.map (residueFiberι f a v) x' = x) :
     x' ∈ (residueFiberModule f F a v).weakAss :=
-  sorry
+  h V a v x' ha hv hx'
 
 end forallEtale
 
@@ -245,7 +245,7 @@ theorem existsOverPullback_iff (f : X ⟶ Y) (F : X.Modules) (x : Points X) :
             ofOver.pointsEquiv V v ∧
           Points.map (chartFiberι f b v) t = ofOver.pointsEquiv U u ∧
           t ∈ (chartFiberModule f F b v).weakAss :=
-  sorry
+  Iff.rfl
 
 namespace existsOverPullback
 
@@ -260,7 +260,7 @@ theorem of (f : X ⟶ Y) (F : X.Modules) {x : Points X} {V U : Over S}
     (ht : Points.map (chartFiberι f b v) t = ofOver.pointsEquiv U u)
     (h : t ∈ (chartFiberModule f F b v).weakAss) :
     existsOverPullback f F x :=
-  sorry
+  ⟨V, a, U, b, v, u, t, ha, hb, hv, hx, hu, ht, h⟩
 
 /-- `existsOverPullback` supplies étale fibre-product charts with a weakly
 associated lift to `U_v`. -/
@@ -275,7 +275,7 @@ theorem spec (f : X ⟶ Y) (F : X.Modules) {x : Points X}
           ofOver.pointsEquiv V v ∧
         Points.map (chartFiberι f b v) t = ofOver.pointsEquiv U u ∧
         t ∈ (chartFiberModule f F b v).weakAss :=
-  sorry
+  h
 
 end existsOverPullback
 
@@ -303,7 +303,7 @@ theorem forallOverPullback_iff (f : X ⟶ Y) (F : X.Modules) (x : Points X) :
             ofOver.pointsEquiv V v →
           Points.map (chartFiberι f b v) t = ofOver.pointsEquiv U u →
             t ∈ (chartFiberModule f F b v).weakAss :=
-  sorry
+  Iff.rfl
 
 namespace forallOverPullback
 
@@ -319,7 +319,7 @@ theorem of (f : X ⟶ Y) (F : X.Modules) {x : Points X}
         Points.map (chartFiberι f b v) t = ofOver.pointsEquiv U u →
           t ∈ (chartFiberModule f F b v).weakAss) :
     forallOverPullback f F x :=
-  sorry
+  h
 
 /-- If `forallOverPullback` holds, every related lift to `U_v` is weakly
 associated to the restricted module. -/
@@ -332,7 +332,7 @@ theorem apply (f : X ⟶ Y) (F : X.Modules) {x : Points X}
     (hu : Points.map (chartToTarget f b) (ofOver.pointsEquiv U u) = ofOver.pointsEquiv V v)
     (ht : Points.map (chartFiberι f b v) t = ofOver.pointsEquiv U u) :
     t ∈ (chartFiberModule f F b v).weakAss :=
-  sorry
+  h V a U b v u t ha hb hv hx hu ht
 
 end forallOverPullback
 
@@ -350,7 +350,7 @@ theorem existsField_iff (f : X ⟶ Y) (F : X.Modules) (x : Points X) :
       ∃ (p : FieldValuedPoint Y) (t : Points (fieldFiber f p)),
         Points.mk p = Points.map f x ∧ Points.map (fieldFiberι f p) t = x ∧
           t ∈ (fiberModule f p F).weakAss :=
-  sorry
+  Iff.rfl
 
 namespace existsField
 
@@ -360,7 +360,7 @@ theorem of (f : X ⟶ Y) (F : X.Modules) {x : Points X} (p : FieldValuedPoint Y)
     (t : Points (fieldFiber f p)) (hp : Points.mk p = Points.map f x)
     (ht : Points.map (fieldFiberι f p) t = x) (h : t ∈ (fiberModule f p F).weakAss) :
     existsField f F x :=
-  sorry
+  ⟨p, t, hp, ht, h⟩
 
 /-- `existsField` supplies a field-valued fibre lift in the weakly associated
 locus. -/
@@ -368,7 +368,7 @@ theorem spec (f : X ⟶ Y) (F : X.Modules) {x : Points X} (h : existsField f F x
     ∃ (p : FieldValuedPoint Y) (t : Points (fieldFiber f p)),
       Points.mk p = Points.map f x ∧ Points.map (fieldFiberι f p) t = x ∧
         t ∈ (fiberModule f p F).weakAss :=
-  sorry
+  h
 
 /-- A morphism `Spec(k) ⟶ Y` over `S` representing `f(x)` with a weakly
 associated fibre lift witnesses `existsField`. -/
@@ -379,7 +379,7 @@ theorem of_spec (f : X ⟶ Y) (F : X.Modules) {x : Points X} (k : Type u) [Field
     (ht : Points.map (fieldFiberι f (FieldValuedPoint.of k σ g)) t = x)
     (h : t ∈ (fiberModule f (FieldValuedPoint.of k σ g) F).weakAss) :
     existsField f F x :=
-  sorry
+  ⟨FieldValuedPoint.of k σ g, t, hp, ht, h⟩
 
 end existsField
 
@@ -392,8 +392,12 @@ theorem existsField_iff_specField (f : X ⟶ Y) (F : X.Modules) (x : Points X) :
         (t : Points (fieldFiber f (FieldValuedPoint.of k σ g))),
         Points.mk (FieldValuedPoint.of k σ g) = Points.map f x ∧
           Points.map (fieldFiberι f (FieldValuedPoint.of k σ g)) t = x ∧
-          t ∈ (fiberModule f (FieldValuedPoint.of k σ g) F).weakAss :=
-  sorry
+          t ∈ (fiberModule f (FieldValuedPoint.of k σ g) F).weakAss := by
+  constructor
+  · rintro ⟨p, t, hp, ht, h⟩
+    exact ⟨p.K, p.field, p.structureHom, p.hom, t, hp, ht, h⟩
+  · rintro ⟨k, hk, σ, g, t, hp, ht, h⟩
+    exact ⟨FieldValuedPoint.of k σ g, t, hp, ht, h⟩
 
 /-- The unique lift of `x` to the fibre over a monomorphic field-valued
 representative of `f(x)` is weakly associated to the restricted module. -/
@@ -409,7 +413,7 @@ theorem ofMono_iff (f : X ⟶ Y) (F : X.Modules) (x : Points X)
     ofMono f F x p₀ ↔
       ∃ t : Points (fieldFiber f p₀),
         Points.map (fieldFiberι f p₀) t = x ∧ t ∈ (fiberModule f p₀ F).weakAss :=
-  sorry
+  Iff.rfl
 
 namespace ofMono
 
@@ -419,7 +423,7 @@ theorem of (f : X ⟶ Y) (F : X.Modules) {x : Points X} (p₀ : FieldValuedPoint
     [Mono p₀.hom] (t : Points (fieldFiber f p₀))
     (ht : Points.map (fieldFiberι f p₀) t = x) (h : t ∈ (fiberModule f p₀ F).weakAss) :
     ofMono f F x p₀ :=
-  sorry
+  ⟨t, ht, h⟩
 
 /-- `ofMono` supplies a weakly associated fibre lift over a monomorphic
 representative. -/
@@ -427,7 +431,7 @@ theorem spec (f : X ⟶ Y) (F : X.Modules) {x : Points X} (p₀ : FieldValuedPoi
     [Mono p₀.hom] (h : ofMono f F x p₀) :
     ∃ t : Points (fieldFiber f p₀),
       Points.map (fieldFiberι f p₀) t = x ∧ t ∈ (fiberModule f p₀ F).weakAss :=
-  sorry
+  h
 
 end ofMono
 
@@ -448,7 +452,7 @@ theorem existsEtaleAss_iff (f : X ⟶ Y) (F : X.Modules) (x : Points X) :
         Etale a ∧ Points.mapOfOver a v = Points.map f x ∧
           Points.map (residueFiberι f a v) x' = x ∧
           Modules.existsEtaleAss (residueFiberModule f F a v) x' :=
-  sorry
+  Iff.rfl
 
 namespace existsEtaleAss
 
@@ -460,7 +464,7 @@ theorem of (f : X ⟶ Y) (F : X.Modules) {x : Points X} {V : Over S}
     (hx' : Points.map (residueFiberι f a v) x' = x)
     (h : Modules.existsEtaleAss (residueFiberModule f F a v) x') :
     existsEtaleAss f F x :=
-  sorry
+  ⟨V, a, v, x', ha, hv, hx', h⟩
 
 /-- `existsEtaleAss` supplies an étale residue-field fibre lift associated to the
 restricted module. -/
@@ -470,7 +474,7 @@ theorem spec (f : X ⟶ Y) (F : X.Modules) {x : Points X} (h : existsEtaleAss f 
       Etale a ∧ Points.mapOfOver a v = Points.map f x ∧
         Points.map (residueFiberι f a v) x' = x ∧
         Modules.existsEtaleAss (residueFiberModule f F a v) x' :=
-  sorry
+  h
 
 end existsEtaleAss
 
@@ -491,7 +495,7 @@ theorem forallEtaleAss_iff (f : X ⟶ Y) (F : X.Modules) (x : Points X) :
         Etale a → Points.mapOfOver a v = Points.map f x →
           Points.map (residueFiberι f a v) x' = x →
             Modules.existsEtaleAss (residueFiberModule f F a v) x' :=
-  sorry
+  Iff.rfl
 
 namespace forallEtaleAss
 
@@ -504,7 +508,7 @@ theorem of (f : X ⟶ Y) (F : X.Modules) {x : Points X}
         Points.map (residueFiberι f a v) x' = x →
           Modules.existsEtaleAss (residueFiberModule f F a v) x') :
     forallEtaleAss f F x :=
-  sorry
+  h
 
 /-- If `forallEtaleAss` holds, every residue-field fibre lift of `x` is associated
 to the restricted module. -/
@@ -514,7 +518,7 @@ theorem apply (f : X ⟶ Y) (F : X.Modules) {x : Points X} (h : forallEtaleAss f
     (hv : Points.mapOfOver a v = Points.map f x)
     (hx' : Points.map (residueFiberι f a v) x' = x) :
     Modules.existsEtaleAss (residueFiberModule f F a v) x' :=
-  sorry
+  h V a v x' ha hv hx'
 
 end forallEtaleAss
 
@@ -542,7 +546,7 @@ theorem existsOverPullbackAss_iff (f : X ⟶ Y) (F : X.Modules) (x : Points X) :
             ofOver.pointsEquiv V v ∧
           Points.map (chartFiberι f b v) t = ofOver.pointsEquiv U u ∧
           Modules.existsEtaleAss (chartFiberModule f F b v) t :=
-  sorry
+  Iff.rfl
 
 /-- For every pair of étale charts `V → Y` and `U → X ×_Y V`, every related
 lift of a point over `x` to `U_v` is associated to the restriction of `F`. -/
@@ -568,7 +572,7 @@ theorem forallOverPullbackAss_iff (f : X ⟶ Y) (F : X.Modules) (x : Points X) :
             ofOver.pointsEquiv V v →
           Points.map (chartFiberι f b v) t = ofOver.pointsEquiv U u →
             Modules.existsEtaleAss (chartFiberModule f F b v) t :=
-  sorry
+  Iff.rfl
 
 /-- The unique lift of `x` to the fibre over a monomorphic field-valued
 representative of `f(x)` is associated to the restricted module. -/
@@ -585,7 +589,7 @@ theorem ofMonoAss_iff (f : X ⟶ Y) (F : X.Modules) (x : Points X)
       ∃ t : Points (fieldFiber f p₀),
         Points.map (fieldFiberι f p₀) t = x ∧
           Modules.existsEtaleAss (fiberModule f p₀ F) t :=
-  sorry
+  Iff.rfl
 
 /-- If the fibre of `f` over `f(x)` is locally Noetherian, then association and
 weak association of the monomorphic fibre lift agree. -/
@@ -593,8 +597,16 @@ theorem ofMonoAss_iff_ofMono (f : X ⟶ Y) (F : X.Modules) [F.IsQuasicoherent]
     (x : Points X) (p₀ : FieldValuedPoint Y) [Mono p₀.hom]
     (hp₀ : Points.mk p₀ = Points.map f x)
     [IsLocallyNoetherianFiber f (Points.map f x)] :
-    ofMonoAss f F x p₀ ↔ ofMono f F x p₀ :=
-  sorry
+    ofMonoAss f F x p₀ ↔ ofMono f F x p₀ := by
+  letI : IsLocallyNoetherian (fieldFiber f p₀) :=
+    (locallyNoetherianFiber_iff_of_mono f (Points.map f x) p₀ hp₀).mpr
+      (IsLocallyNoetherianFiber.existsField (f := f) (y := Points.map f x))
+  letI : (fiberModule f p₀ F).IsQuasicoherent :=
+    Modules.pullback_isQuasicoherent (fieldFiberι f p₀) F
+  rw [ofMonoAss_iff, ofMono_iff]
+  refine exists_congr fun t => and_congr_right fun _ => ?_
+  exact (Modules.existsEtaleAss_iff_existsEtaleWeakAss (fiberModule f p₀ F) t).trans
+    (Modules.mem_weakAss_iff_existsEtaleWeakAss (fiberModule f p₀ F) t).symm
 
 /-- For a quasi-coherent module, weak association of a fibre lift is equivalent
 across existential and universal étale target charts, existential and universal

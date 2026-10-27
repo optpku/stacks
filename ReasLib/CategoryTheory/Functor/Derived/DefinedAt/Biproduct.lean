@@ -8,7 +8,6 @@ module
 
 public import ReasLib.CategoryTheory.Functor.Derived.DefinedAt.Triangulated
 public import ReasLib.CategoryTheory.Functor.Derived.PointwiseValue.IdentityDenominator
-public import ReasLib.CategoryTheory.Functor.Derived.PointwiseValue.Triangle.Distinguished
 public import Mathlib.CategoryTheory.Triangulated.Basic
 public import Mathlib.Tactic.CrossRefAttribute
 

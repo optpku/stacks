@@ -114,14 +114,18 @@ variable (τ : StandardTopology) (X : Scheme.{u})
 variable (P₁ P₂ : ObjectProperty (Over X)) [IsFullSubsite τ X P₁] [IsFullSubsite τ X P₂]
 variable (hP : P₁ ≤ P₂)
 
-/-- The inclusion of nested full subsites is continuous for the restricted topologies. -/
-instance fullSubsiteInclusionContinuous :
+/-- The inclusion of a full subsite into a larger full subcategory is continuous for the
+restricted topologies. Only closure of the smaller subcategory under ambient coverings is
+needed; the larger subcategory need not be a full subsite. -/
+instance fullSubsiteInclusionContinuous [IsFullSubsite τ X P₁] :
     (P₁.ιOfLE hP).IsContinuous
       (P₁.ι.restrictedTopology (τ.overTopology X))
       (P₂.ι.restrictedTopology (τ.overTopology X)) := sorry
 
-/-- The inclusion of nested full subsites is cocontinuous for the restricted topologies. -/
-instance fullSubsiteInclusionCocontinuous :
+/-- The inclusion of a full subsite into a larger full subcategory is cocontinuous for the
+restricted topologies. Closure of the smaller subcategory under ambient coverings provides
+the covering lifts. -/
+instance fullSubsiteInclusionCocontinuous [IsFullSubsite τ X P₁] :
     (P₁.ιOfLE hP).IsCocontinuous
       (P₁.ι.restrictedTopology (τ.overTopology X))
       (P₂.ι.restrictedTopology (τ.overTopology X)) := sorry

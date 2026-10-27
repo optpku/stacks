@@ -9,6 +9,7 @@ module
 public import ReasLib.CategoryTheory.Limits.FiniteConnected.Basic
 public import Mathlib.CategoryTheory.Limits.Preserves.Finite
 public import Mathlib.CategoryTheory.Limits.Preserves.Opposites
+import Mathlib.CategoryTheory.Limits.Shapes.Opposites.Equalizers
 public import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -43,40 +44,55 @@ every universe. -/
 instance (priority := 90) preservesLimitsOfShape
     (F : C ⥤ D) [PreservesFiniteConnectedLimits F]
     (J : Type w) [SmallCategory J] [FinCategory J] [IsConnected J] :
-    PreservesLimitsOfShape J F := sorry
+    PreservesLimitsOfShape J F := by
+  letI : IsConnected (FinCategory.AsType J) :=
+    isConnected_of_equivalent (FinCategory.equivAsType J).symm
+  letI := PreservesFiniteConnectedLimits.out (F := F) (FinCategory.AsType J)
+  exact preservesLimitsOfShape_of_equiv (FinCategory.equivAsType J) F
 
 /-- Preservation of all finite limits implies preservation of finite connected limits. -/
 instance (priority := 100) ofFiniteLimits
     (F : C ⥤ D) [PreservesFiniteLimits F] :
-    PreservesFiniteConnectedLimits F := sorry
+    PreservesFiniteConnectedLimits F :=
+  ⟨fun _ _ _ _ ↦ inferInstance⟩
 
 /-- A composite of functors preserving finite connected limits preserves them. -/
 instance (priority := 40) comp
     (F : C ⥤ D) (G : D ⥤ E)
     [PreservesFiniteConnectedLimits F] [PreservesFiniteConnectedLimits G] :
-    PreservesFiniteConnectedLimits (F ⋙ G) := sorry
+    PreservesFiniteConnectedLimits (F ⋙ G) :=
+  ⟨fun _ _ _ _ ↦ inferInstance⟩
 
 /-- Preservation of finite connected limits transfers across a natural isomorphism. -/
 theorem ofIso {F G : C ⥤ D} (e : F ≅ G) [PreservesFiniteConnectedLimits F] :
-    PreservesFiniteConnectedLimits G := sorry
+    PreservesFiniteConnectedLimits G :=
+  ⟨fun _ _ _ _ ↦ preservesLimitsOfShape_of_natIso e⟩
 
 /-- Preservation of finite connected limits is invariant under natural isomorphism. -/
 theorem iff_ofIso {F G : C ⥤ D} (e : F ≅ G) :
-    PreservesFiniteConnectedLimits F ↔ PreservesFiniteConnectedLimits G := sorry
+    PreservesFiniteConnectedLimits F ↔ PreservesFiniteConnectedLimits G :=
+  ⟨fun _ ↦ ofIso e, fun _ ↦ ofIso e.symm⟩
 
+attribute [local instance] uliftCategory in
 /-- Construct preservation of finite connected limits by supplying it in any one universe. -/
 theorem ofSize
     (F : C ⥤ D)
     (h : ∀ (J : Type w) [SmallCategory J] [FinCategory J] [IsConnected J],
       PreservesLimitsOfShape J F) :
-    PreservesFiniteConnectedLimits F := sorry
+    PreservesFiniteConnectedLimits F := by
+  refine ⟨fun J _ _ _ ↦ ?_⟩
+  letI : IsConnected (ULiftHom.{w} (ULift.{w} J)) :=
+    isConnected_of_equivalent (ULiftHomULiftCategory.equiv J)
+  letI := h (ULiftHom.{w} (ULift.{w} J))
+  exact preservesLimitsOfShape_of_equiv (ULiftHomULiftCategory.equiv J).symm F
 
 /-- A functor preserves finite connected limits if and only if it preserves every finite connected
 shape in any fixed universe. -/
 theorem iff_preservesLimitsOfShape (F : C ⥤ D) :
     PreservesFiniteConnectedLimits F ↔
       ∀ (J : Type w) [SmallCategory J] [FinCategory J] [IsConnected J],
-        PreservesLimitsOfShape J F := sorry
+        PreservesLimitsOfShape J F :=
+  ⟨fun _ _ _ _ _ ↦ inferInstance, ofSize F⟩
 
 namespace Pullbacks
 
@@ -94,7 +110,12 @@ theorem iff_equalizers
     (F : C ⥤ D) [HasFiniteConnectedLimits C] :
     PreservesFiniteConnectedLimits F ↔
       PreservesLimitsOfShape WalkingCospan F ∧
-        PreservesLimitsOfShape WalkingParallelPair F := sorry
+        PreservesLimitsOfShape WalkingParallelPair F := by
+  constructor
+  · intro h
+    exact ⟨inferInstance, inferInstance⟩
+  · rintro ⟨h₁, h₂⟩
+    exact ofEqualizers F
 
 end Pullbacks
 
@@ -115,56 +136,78 @@ in every universe. -/
 instance (priority := 90) preservesColimitsOfShape
     (F : C ⥤ D) [PreservesFiniteConnectedColimits F]
     (J : Type w) [SmallCategory J] [FinCategory J] [IsConnected J] :
-    PreservesColimitsOfShape J F := sorry
+    PreservesColimitsOfShape J F := by
+  letI : IsConnected (FinCategory.AsType J) :=
+    isConnected_of_equivalent (FinCategory.equivAsType J).symm
+  letI := PreservesFiniteConnectedColimits.out (F := F) (FinCategory.AsType J)
+  exact preservesColimitsOfShape_of_equiv (FinCategory.equivAsType J) F
 
 /-- Preservation of all finite colimits implies preservation of finite connected colimits. -/
 instance (priority := 100) ofFiniteColimits
     (F : C ⥤ D) [PreservesFiniteColimits F] :
-    PreservesFiniteConnectedColimits F := sorry
+    PreservesFiniteConnectedColimits F :=
+  ⟨fun _ _ _ _ ↦ inferInstance⟩
 
 /-- A composite of functors preserving finite connected colimits preserves them. -/
 instance (priority := 40) comp
     (F : C ⥤ D) (G : D ⥤ E)
     [PreservesFiniteConnectedColimits F] [PreservesFiniteConnectedColimits G] :
-    PreservesFiniteConnectedColimits (F ⋙ G) := sorry
+    PreservesFiniteConnectedColimits (F ⋙ G) :=
+  ⟨fun _ _ _ _ ↦ inferInstance⟩
 
 /-- Preservation of finite connected colimits transfers across a natural isomorphism. -/
 theorem ofIso {F G : C ⥤ D} (e : F ≅ G) [PreservesFiniteConnectedColimits F] :
-    PreservesFiniteConnectedColimits G := sorry
+    PreservesFiniteConnectedColimits G :=
+  ⟨fun _ _ _ _ ↦ preservesColimitsOfShape_of_natIso e⟩
 
 /-- Preservation of finite connected colimits is invariant under natural isomorphism. -/
 theorem iff_ofIso {F G : C ⥤ D} (e : F ≅ G) :
-    PreservesFiniteConnectedColimits F ↔ PreservesFiniteConnectedColimits G := sorry
+    PreservesFiniteConnectedColimits F ↔ PreservesFiniteConnectedColimits G :=
+  ⟨fun _ ↦ ofIso e, fun _ ↦ ofIso e.symm⟩
 
+attribute [local instance] uliftCategory in
 /-- Construct preservation of finite connected colimits by supplying it in any one universe. -/
 theorem ofSize
     (F : C ⥤ D)
     (h : ∀ (J : Type w) [SmallCategory J] [FinCategory J] [IsConnected J],
       PreservesColimitsOfShape J F) :
-    PreservesFiniteConnectedColimits F := sorry
+    PreservesFiniteConnectedColimits F := by
+  refine ⟨fun J _ _ _ ↦ ?_⟩
+  letI : IsConnected (ULiftHom.{w} (ULift.{w} J)) :=
+    isConnected_of_equivalent (ULiftHomULiftCategory.equiv J)
+  letI := h (ULiftHom.{w} (ULift.{w} J))
+  exact preservesColimitsOfShape_of_equiv (ULiftHomULiftCategory.equiv J).symm F
 
 /-- A functor preserves finite connected colimits if and only if it preserves every finite
 connected shape in any fixed universe. -/
 theorem iff_preservesColimitsOfShape (F : C ⥤ D) :
     PreservesFiniteConnectedColimits F ↔
       ∀ (J : Type w) [SmallCategory J] [FinCategory J] [IsConnected J],
-        PreservesColimitsOfShape J F := sorry
+        PreservesColimitsOfShape J F :=
+  ⟨fun _ _ _ _ _ ↦ inferInstance, ofSize F⟩
 
 /-- Preservation of finite connected colimits by `F` is preservation of finite connected limits
 by the opposite functor. -/
 theorem iff_limits_op (F : C ⥤ D) :
     PreservesFiniteConnectedColimits F ↔
-      PreservesFiniteConnectedLimits F.op := sorry
+      PreservesFiniteConnectedLimits F.op := by
+  constructor
+  · intro h
+    exact ⟨fun J _ _ _ ↦ preservesLimitsOfShape_op J F⟩
+  · intro h
+    exact ⟨fun J _ _ _ ↦ preservesColimitsOfShape_of_op J F⟩
 
 /-- A functor preserving finite connected colimits induces an opposite functor preserving finite
 connected limits. -/
 theorem op (F : C ⥤ D) [PreservesFiniteConnectedColimits F] :
-    PreservesFiniteConnectedLimits F.op := sorry
+    PreservesFiniteConnectedLimits F.op :=
+  (iff_limits_op F).mp inferInstance
 
 /-- A functor on opposite categories preserving finite connected colimits induces its unopposite
 functor preserving finite connected limits. -/
 theorem unop (F : Cᵒᵖ ⥤ Dᵒᵖ) [PreservesFiniteConnectedColimits F] :
-    PreservesFiniteConnectedLimits F.unop := sorry
+    PreservesFiniteConnectedLimits F.unop :=
+  ⟨fun J _ _ _ ↦ preservesLimitsOfShape_unop J F⟩
 
 namespace Pushouts
 
@@ -173,7 +216,16 @@ theorem ofCoequalizers
     (F : C ⥤ D) [HasPushouts C] [HasCoequalizers C]
     [PreservesColimitsOfShape WalkingSpan F]
     [PreservesColimitsOfShape WalkingParallelPair F] :
-    PreservesFiniteConnectedColimits F := sorry
+    PreservesFiniteConnectedColimits F := by
+  letI : PreservesColimitsOfShape WalkingCospanᵒᵖ F :=
+    preservesColimitsOfShape_of_equiv walkingCospanOpEquiv.symm F
+  letI : PreservesLimitsOfShape WalkingCospan F.op :=
+    preservesLimitsOfShape_op WalkingCospan F
+  letI : PreservesColimitsOfShape WalkingParallelPairᵒᵖ F :=
+    preservesColimitsOfShape_of_equiv walkingParallelPairOpEquiv F
+  letI : PreservesLimitsOfShape WalkingParallelPair F.op :=
+    preservesLimitsOfShape_op WalkingParallelPair F
+  exact (iff_limits_op F).mpr (PreservesFiniteConnectedLimits.Pullbacks.ofEqualizers F.op)
 
 /-- For a functor whose source has finite connected colimits, preservation of those colimits is
 equivalent to preservation of pushouts and coequalizers. -/
@@ -182,7 +234,12 @@ theorem iff_coequalizers
     (F : C ⥤ D) [HasFiniteConnectedColimits C] :
     PreservesFiniteConnectedColimits F ↔
       PreservesColimitsOfShape WalkingSpan F ∧
-        PreservesColimitsOfShape WalkingParallelPair F := sorry
+        PreservesColimitsOfShape WalkingParallelPair F := by
+  constructor
+  · intro h
+    exact ⟨inferInstance, inferInstance⟩
+  · rintro ⟨h₁, h₂⟩
+    exact ofCoequalizers F
 
 end Pushouts
 
@@ -194,17 +251,24 @@ namespace PreservesFiniteConnectedLimits
 by the opposite functor. -/
 theorem iff_colimits_op (F : C ⥤ D) :
     PreservesFiniteConnectedLimits F ↔
-      PreservesFiniteConnectedColimits F.op := sorry
+      PreservesFiniteConnectedColimits F.op := by
+  constructor
+  · intro h
+    exact ⟨fun J _ _ _ ↦ preservesColimitsOfShape_op J F⟩
+  · intro h
+    exact ⟨fun J _ _ _ ↦ preservesLimitsOfShape_of_op J F⟩
 
 /-- A functor preserving finite connected limits induces an opposite functor preserving finite
 connected colimits. -/
 theorem op (F : C ⥤ D) [PreservesFiniteConnectedLimits F] :
-    PreservesFiniteConnectedColimits F.op := sorry
+    PreservesFiniteConnectedColimits F.op :=
+  (iff_colimits_op F).mp inferInstance
 
 /-- A functor on opposite categories preserving finite connected limits induces its unopposite
 functor preserving finite connected colimits. -/
 theorem unop (F : Cᵒᵖ ⥤ Dᵒᵖ) [PreservesFiniteConnectedLimits F] :
-    PreservesFiniteConnectedColimits F.unop := sorry
+    PreservesFiniteConnectedColimits F.unop :=
+  ⟨fun J _ _ _ ↦ preservesColimitsOfShape_unop J F⟩
 
 end PreservesFiniteConnectedLimits
 

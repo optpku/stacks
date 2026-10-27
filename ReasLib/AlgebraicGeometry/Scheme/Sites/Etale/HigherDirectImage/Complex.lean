@@ -33,10 +33,6 @@ namespace AlgebraicGeometry.Scheme.Etale
 abbrev etaleAbelianPushforwardDerived {T U : Scheme.{u}} (f : U ⟶ T)
     [HasSheafify U.smallEtaleTopology AddCommGrpCat.{u}]
     [HasSheafify T.smallEtaleTopology AddCommGrpCat.{u}]
-    [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-      (Sheaf U.smallEtaleTopology AddCommGrpCat.{u})]
-    [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-      (Sheaf T.smallEtaleTopology AddCommGrpCat.{u})]
     [HasDerivedCategory (Sheaf U.smallEtaleTopology AddCommGrpCat.{u})]
     [HasDerivedCategory (Sheaf T.smallEtaleTopology AddCommGrpCat.{u})]
     [((smallEtalePullback f).sheafPushforwardContinuous AddCommGrpCat.{u}
@@ -62,10 +58,6 @@ section Values
 variable {T U : Scheme.{u}} (f : U ⟶ T)
 variable [HasSheafify U.smallEtaleTopology AddCommGrpCat.{u}]
 variable [HasSheafify T.smallEtaleTopology AddCommGrpCat.{u}]
-variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-    (Sheaf U.smallEtaleTopology AddCommGrpCat.{u})]
-variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-    (Sheaf T.smallEtaleTopology AddCommGrpCat.{u})]
 variable [HasDerivedCategory (Sheaf U.smallEtaleTopology AddCommGrpCat.{u})]
 variable [HasDerivedCategory (Sheaf T.smallEtaleTopology AddCommGrpCat.{u})]
 variable [((smallEtalePullback f).sheafPushforwardContinuous AddCommGrpCat.{u}
@@ -107,14 +99,6 @@ variable [HasWeakSheafify S.smallEtaleTopology AddCommGrpCat.{u}]
 variable [HasWeakSheafify X.smallEtaleTopology AddCommGrpCat.{u}]
 variable [HasWeakSheafify S'.smallEtaleTopology AddCommGrpCat.{u}]
 variable [HasWeakSheafify X'.smallEtaleTopology AddCommGrpCat.{u}]
-variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-    (Sheaf S.smallEtaleTopology AddCommGrpCat.{u})]
-variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-    (Sheaf X.smallEtaleTopology AddCommGrpCat.{u})]
-variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-    (Sheaf S'.smallEtaleTopology AddCommGrpCat.{u})]
-variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-    (Sheaf X'.smallEtaleTopology AddCommGrpCat.{u})]
 variable [HasDerivedCategory (Sheaf S.smallEtaleTopology AddCommGrpCat.{u})]
 variable [HasDerivedCategory (Sheaf X.smallEtaleTopology AddCommGrpCat.{u})]
 variable [HasDerivedCategory (Sheaf S'.smallEtaleTopology AddCommGrpCat.{u})]

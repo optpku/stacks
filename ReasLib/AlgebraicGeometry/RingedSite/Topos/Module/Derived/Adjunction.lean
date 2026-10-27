@@ -52,3 +52,40 @@ noncomputable def moduleDerivedAdjunction [HasModuleDerivedAdjunction f] :
     (RingedSite.Hom.ModuleQis.{w} Y) (RingedSite.Hom.ModuleQis.{w} X)
 
 end RingedSite.ToposHom
+
+
+namespace RingedSite.ToposHom.NativeDerived
+
+variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
+variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
+  [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
+variable (f : ToposHom X Y)
+variable [Abelian (ModuleCat.{w} X)] [Abelian (ModuleCat.{w} Y)]
+variable [(SheafOfModules.restrictScalars.{w} f.structureMap).IsRightAdjoint]
+variable [HasPullback f] [HasPushforward f]
+
+/-- The absolute-derived pair condition for the native module adjunction. -/
+abbrev HasAdjunction : Prop :=
+  @CategoryTheory.Adjunction.TotalDerived.HasPair _ _ _ _ _ _ _ _
+    f.modulePullbackHomotopy
+    (@Functor.mapHomotopyCategory _ _ _ _ _ _ _ f.modulePushforward
+      (modulePushforward_additive f) (up ℤ))
+    (RingedSite.NativeDerived.quasiIso.{w} Y) (RingedSite.NativeDerived.quasiIso.{w} X)
+    (RingedSite.NativeDerived.localization.{w} Y) (RingedSite.NativeDerived.localization.{w} X)
+    (RingedSite.NativeDerived.localizationIsLocalization.{w} Y)
+    (RingedSite.NativeDerived.localizationIsLocalization.{w} X) inferInstance inferInstance
+
+/-- The adjunction between native unbounded derived inverse and direct image. -/
+noncomputable def adjunction [HasAdjunction f] : pullback f ⊣ pushforward f :=
+  @CategoryTheory.Adjunction.TotalDerived.HasPair.derived _ _ _ _ _ _ _ _
+    f.modulePullbackHomotopy
+    (@Functor.mapHomotopyCategory _ _ _ _ _ _ _ f.modulePushforward
+      (modulePushforward_additive f) (up ℤ))
+    (@Adjunction.mapHomotopyCategoryAdjunction _ _ _ _ _ _ _ _
+      (modulePullback_additive f) (modulePushforward_additive f) f.moduleAdjunction)
+    (RingedSite.NativeDerived.quasiIso.{w} Y) (RingedSite.NativeDerived.quasiIso.{w} X)
+    (RingedSite.NativeDerived.localization.{w} Y) (RingedSite.NativeDerived.localization.{w} X)
+    (RingedSite.NativeDerived.localizationIsLocalization.{w} Y)
+    (RingedSite.NativeDerived.localizationIsLocalization.{w} X) inferInstance inferInstance inferInstance
+
+end RingedSite.ToposHom.NativeDerived

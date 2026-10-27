@@ -54,7 +54,8 @@ variable [EnoughInjectives C]
 /- Lemma 13.26.12 (`015Q`): bounded-below complexes of finite filtered-injective objects compute
 the bounded-below finite filtered derived category. -/
 @[stacks 015Q] #check
-  (isEquivalence C h_inverts : Functor.IsEquivalence (functor C h_inverts))
+  (CategoryTheory.FilteredObject.FiniteDerived.Plus.FilteredInjective.isEquivalence C h_inverts :
+    Functor.IsEquivalence (functor C h_inverts))
 
 /- The canonical functor whose equivalence is asserted by the lemma. -/
 #check (functor C h_inverts :
@@ -64,8 +65,10 @@ the bounded-below finite filtered derived category. -/
 /- The proposition-level equivalence certificate used by downstream derived constructions. -/
 #check (IsEquivalence C h_inverts : Prop)
 
-/- The canonical bundled equivalence under enough injectives. -/
-#check (equivalenceOfEnoughInjectives C h_inverts :
+variable (h_equiv : IsEquivalence C h_inverts)
+
+/- The bundled equivalence constructed from a supplied model-equivalence certificate. -/
+#check (equivalenceOfEnoughInjectives C h_inverts h_equiv :
   HomotopyCategory.Plus (FilteredObject.Finite.FilteredInjective.category C) ≌
     FilteredObject.FiniteDerived.Plus.Category C h_inverts)
 

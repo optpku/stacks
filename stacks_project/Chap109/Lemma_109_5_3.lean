@@ -6,10 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap99.Lemma_99_15_2
-public import stacks_project.Chap108.Lemma_108_4_8_Algebraic
-public import stacks_project.Chap108.Lemma_108_4_2_QuasiSeparated
-public import stacks_project.Chap108.Lemma_108_4_2_LocallyOfFinitePresentation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.StructureMorphism
+import StacksCheckRecall
 
 /-!
 # Lemma 109.5.3
@@ -28,27 +26,18 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Spaces
-namespace Curves
+/- Lemma 109.5.3 (1): the canonical morphism from the stack of curves to
+Spec(ℤ) is quasi-separated. -/
+@[stacks 0DSS] #check
+  (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instQuasiSeparated_toIdentitySlice
+    (Spec (.of (ULift.{u} ℤ))) :
+    CohStack.Hom.QuasiSeparated
+      (CohStack.toIdentitySlice (Curves.toGroupoids (Spec (.of (ULift.{u} ℤ))))))
 
-/-- Lemma 109.5.3 (1): the structure morphism
-`CohStack.toIdentitySlice (toGroupoids S) : toGroupoids S ⟶
-Classifying.slice (Over.mk (𝟙 S))` of `Curves`, the source morphism
-`Curves ⟶ Spec(Z)`, is quasi-separated. -/
-@[stacks 0DSS]
-instance instQuasiSeparated_toIdentitySlice (S : Scheme.{u}) :
-    CohStack.Hom.QuasiSeparated (CohStack.toIdentitySlice (toGroupoids S)) :=
-  sorry
-
-/-- Lemma 109.5.3 (2): the structure morphism
-`CohStack.toIdentitySlice (toGroupoids S) : toGroupoids S ⟶
-Classifying.slice (Over.mk (𝟙 S))` of `Curves`, the source morphism
-`Curves ⟶ Spec(Z)`, is locally of finite presentation. -/
-@[stacks 0DSS]
-instance instLocallyOfFinitePresentation_toIdentitySlice (S : Scheme.{u}) :
+/- Lemma 109.5.3 (2): the canonical morphism from the stack of curves to
+Spec(ℤ) is locally of finite presentation. -/
+@[stacks 0DSS] #check
+  (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instLocallyOfFinitePresentation_toIdentitySlice
+    (Spec (.of (ULift.{u} ℤ))) :
     CohStack.Hom.LocallyOfFinitePresentation
-      (CohStack.toIdentitySlice (toGroupoids S)) :=
-  sorry
-
-end Curves
-end AlgebraicGeometry.AlgebraicSpace.Spaces
+      (CohStack.toIdentitySlice (Curves.toGroupoids (Spec (.of (ULift.{u} ℤ))))))

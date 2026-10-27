@@ -94,10 +94,8 @@ functor. -/
 theorem derivedPullbackComposite_eq {X' X S' S : Scheme.{u}}
     {g' : X' ⟶ X} {f' : X' ⟶ S'} {f : X ⟶ S} {g : S' ⟶ S}
     (sq : IsPullback g' f' f g) :
-    modulePullbackDerived.{u}
-        ((pushforwardHom f').comp (basePullbackHom g)) =
-      modulePullbackDerived.{u}
-        ((pullbackHom sq).comp (pushforwardHom f)) := sorry
+    compositePullbackDerived.{u} (pushforwardHom f') (basePullbackHom g) =
+      compositePullbackDerived.{u} (pullbackHom sq) (pushforwardHom f) := sorry
 
 /-- The canonical square comparing the two composites of derived pullback functors attached to a
 cartesian square of schemes. -/

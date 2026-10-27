@@ -44,7 +44,7 @@ def toCartesianBasedFunctor (F : X ⟶ Y) : CartesianBasedFunctor X.p Y.p :=
 /-- Forgetting cartesian preservation recovers the underlying based functor. -/
 @[simp]
 theorem toCartesianBasedFunctor.toBasedFunctor (F : X ⟶ Y) :
-    (toCartesianBasedFunctor F).toBasedFunctor = toBasedFunctor F := sorry
+    (toCartesianBasedFunctor F).toBasedFunctor = toBasedFunctor F := rfl
 
 /-- The underlying functor between the total categories. -/
 abbrev toFunctor (F : X ⟶ Y) : X.total ⥤ Y.total :=
@@ -58,27 +58,27 @@ abbrev comm (F : X ⟶ Y) : toFunctor F ⋙ Y.p = X.p :=
 functor. -/
 @[simp]
 theorem toBasedFunctor.id (X : FiberedCategoryOver.Groupoids C) :
-    toBasedFunctor (𝟙 X) = 𝟙 X.toBasedCategory := sorry
+    toBasedFunctor (𝟙 X) = 𝟙 X.toBasedCategory := rfl
 
 /-- The based-functor view preserves composition of groupoid-fibred morphisms. -/
 @[simp]
 theorem toBasedFunctor.comp
     {Z : FiberedCategoryOver.Groupoids C} (F : X ⟶ Y) (G : Y ⟶ Z) :
     toBasedFunctor (F ≫ G) =
-      BasedFunctor.comp (toBasedFunctor F) (toBasedFunctor G) := sorry
+      BasedFunctor.comp (toBasedFunctor F) (toBasedFunctor G) := rfl
 
 /-- The total-category functor underlying the identity morphism of a category fibred in
 groupoids is the identity functor. -/
 @[simp]
 theorem toFunctor.id (X : FiberedCategoryOver.Groupoids C) :
-    toFunctor (𝟙 X) = 𝟭 X.total := sorry
+    toFunctor (𝟙 X) = 𝟭 X.total := rfl
 
 /-- Passing to total-category functors preserves composition of morphisms of categories fibred
 in groupoids. -/
 @[simp]
 theorem toFunctor.comp
     {Z : FiberedCategoryOver.Groupoids C} (F : X ⟶ Y) (G : Y ⟶ Z) :
-    toFunctor (F ≫ G) = toFunctor F ⋙ toFunctor G := sorry
+    toFunctor (F ≫ G) = toFunctor F ⋙ toFunctor G := rfl
 
 /-- The canonical natural isomorphism associated to the strict base-commutativity equation of
 a morphism of categories fibred in groupoids. This is the stable bridge for constructions whose
@@ -102,7 +102,7 @@ def ofBasedFunctor
 theorem ofBasedFunctor.toBasedFunctor
     (G : X.toBasedCategory ⥤ᵇ Y.toBasedCategory) :
     FiberedCategoryOver.Groupoids.toBasedFunctor
-      (FiberedCategoryOver.Groupoids.ofBasedFunctor G) = G := sorry
+      (FiberedCategoryOver.Groupoids.ofBasedFunctor G) = G := rfl
 /- Proof strategy: unfold `toBasedFunctor` and `ofBasedFunctor`; the induced hom constructor
 stores `G` as its ambient object field. -/
 
@@ -112,18 +112,18 @@ supplied functor. -/
 theorem ofBasedFunctor.toFunctor
     (G : X.toBasedCategory ⥤ᵇ Y.toBasedCategory) :
     FiberedCategoryOver.Groupoids.toFunctor
-      (FiberedCategoryOver.Groupoids.ofBasedFunctor G) = G.toFunctor := sorry
+      (FiberedCategoryOver.Groupoids.ofBasedFunctor G) = G.toFunctor := rfl
 
 /-- Reconstructing a groupoid-fibred morphism from its underlying based functor recovers the
 original morphism. -/
 @[simp]
 theorem toBasedFunctor.ofBasedFunctor (F : X ⟶ Y) :
-    ofBasedFunctor (toBasedFunctor F) = F := sorry
+    ofBasedFunctor (toBasedFunctor F) = F := rfl
 
 /-- Building from the identity based functor gives the identity groupoid-fibred morphism. -/
 @[simp]
 theorem ofBasedFunctor.id (X : FiberedCategoryOver.Groupoids C) :
-    ofBasedFunctor (𝟙 X.toBasedCategory) = 𝟙 X := sorry
+    ofBasedFunctor (𝟙 X.toBasedCategory) = 𝟙 X := rfl
 
 /-- Building from a composite based functor agrees with composition of the corresponding
 groupoid-fibred morphisms. -/
@@ -133,7 +133,7 @@ theorem ofBasedFunctor.comp
     (F : X.toBasedCategory ⥤ᵇ Y.toBasedCategory)
     (G : Y.toBasedCategory ⥤ᵇ Z.toBasedCategory) :
     ofBasedFunctor (BasedFunctor.comp F G) =
-      ofBasedFunctor F ≫ ofBasedFunctor G := sorry
+      ofBasedFunctor F ≫ ofBasedFunctor G := rfl
 
 end FiberedCategoryOver.Groupoids
 

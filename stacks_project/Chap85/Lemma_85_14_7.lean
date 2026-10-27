@@ -6,9 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_14_2_System
-public import stacks_project.Chap85.Lemma_85_11_1_Flat
+public import ReasLib.AlgebraicGeometry.RingedSite.Simplicial.DerivedModuleSystem.Descent
+public import ReasLib.AlgebraicGeometry.RingedSite.Simplicial.DerivedModuleSystem.FiberDescent
+import StacksCheckRecall
 
 /-!
 # Lemma 85.14.7
@@ -17,6 +17,7 @@ In Situation 85.3.3, a cartesian simplicial system of the derived category of
 modules with flat structure maps `f_φ⁻¹ O_m ⟶ O_n` for every `φ : m ⟶ n`
 (equivalently `f_φ⁻¹ O_n ⟶ O_m` for `φ : n ⟶ m`, as in Lemma 85.6.3) and
 vanishing `Hom(K_i⟦t⟧, K_i)` for `t > 0` comes from a cartesian object of `D(O)`.
+The two checks cover cases A and B of Situation 85.3.3, respectively.
 -/
 
 @[expose] public section
@@ -31,10 +32,10 @@ universe u v w
 namespace CategoryTheory.SimplicialSites
 
 variable (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
-variable [instMorphismDiagram : IsMorphismDiagram C J]
 variable [instWeakSheafify : ∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
 variable [instLeftKan : ∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
     ((C.map φ).toFunctor).op.HasLeftKanExtension P]
+variable [instMorphismDiagram : IsMorphismDiagram.{u, v, w} C J]
 include instMorphismDiagram instWeakSheafify instLeftKan
 variable (O : Sheaf (topology C J) RingCat.{w})
 variable [(topology C J).HasSheafCompose (forget RingCat.{w})]
@@ -52,25 +53,69 @@ variable [∀ n, ToposHom.HasModulePullbackDerived (stageMorphism C J O n)]
 variable [∀ {m n : SimplexCategory} (φ : m ⟶ n),
     ToposHom.HasModulePullbackDerived (ringedToposMap C J O φ)]
 
-/-- Lemma 85.14.7
-In Situation 85.3.3, let `O` be a sheaf of rings on `C_total`. Let `(K_n, K_φ)`
+/- Lemma 85.14.7 (1)
+In case A of Situation 85.3.3, let `O` be a sheaf of rings on `C_total`. Let `(K_n, K_φ)`
 be a cartesian simplicial system of the derived category of modules such that
 for every `φ : m ⟶ n` the structure map of `ringedToposMap C J O φ`, namely
 `f_φ⁻¹ O_m ⟶ O_n`, is flat (the same family as `f_φ⁻¹ O_n ⟶ O_m` for
 `φ : n ⟶ m`, as in Lemma 85.6.3) and `Hom(K_i⟦t⟧, K_i) = 0` for every stage
 `i` and every `t > 0`. Then there exists a cartesian object `K` of `D(O)` whose
 associated simplicial system is isomorphic to `(K_n, K_φ)`. -/
-@[stacks 0D9T]
-theorem exists_isCartesian_of_derivedModuleSystem
-    (Ksys : DerivedModuleSystemOnComponents C J O)
-    [DerivedModuleSystem.IsCartesian Ksys]
+@[stacks 0D9T] #check (CategoryTheory.SimplicialSites.exists_isCartesian_of_derivedModuleSystem C J O :
+  ∀ (Ksys : RingedSite.Simplicial.DerivedModuleSystemOnComponents C J O)
+    (h_cartesian : RingedSite.Simplicial.DerivedModuleSystem.IsCartesian Ksys)
     (h_flat : ∀ {m n : SimplexCategory} (φ : m ⟶ n),
       ToposHom.IsFlat (ringedToposMap C J O φ))
     (h_hom : ∀ (n : SimplexCategory) (t : ℤ), 0 < t →
-      Subsingleton ((Ksys.obj n)⟦t⟧ ⟶ Ksys.obj n)) :
+      Subsingleton ((Ksys.obj n)⟦t⟧ ⟶ Ksys.obj n)),
     ∃ (K : Hom.ModuleDerived.{w} (totalRingedSite C J O))
-      (α : DerivedModuleSystem.Hom (toDerivedModuleSystem C J O K) Ksys),
-      ModuleDerived.IsCartesian C J O K ∧ ∀ n, IsIso (α.app n) :=
-  sorry
+      (α : RingedSite.Simplicial.DerivedModuleSystem.Hom (toDerivedModuleSystem C J O K) Ksys),
+      ModuleDerived.IsCartesian C J O K ∧ ∀ n, IsIso (α.app n))
 
 end CategoryTheory.SimplicialSites
+
+namespace CategoryTheory.Grothendieck
+
+open Opposite
+
+variable (F : SimplicialObject Cat.{v, u}) (J : ∀ n, Precoverage (F.obj n))
+variable [IsFiberwiseSite F J]
+variable (O : Sheaf (topology F J) RingCat.{w})
+
+variable [UnivLE.{max u v, w}]
+variable [(topology F J).HasSheafCompose (CategoryTheory.forget RingCat.{w})]
+variable [∀ n, ((J n).toGrothendieck).HasSheafCompose (CategoryTheory.forget RingCat.{w})]
+variable [∀ n, HasSheafify (J n).toGrothendieck (Type w)]
+variable [HasSheafify (topology F J) (Type w)]
+variable [∀ n, ∀ P : (F.obj (op n))ᵒᵖ ⥤ Type w,
+    (ι F (op n)).op.HasPointwiseRightKanExtension P]
+variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (F.obj (op n))ᵒᵖ ⥤ Type w),
+    ((F.map φ.op).toFunctor).op.HasPointwiseRightKanExtension P]
+
+variable [∀ n, (SheafOfModules.restrictScalars.{w}
+    (fiberStageMorphism F J O n).structureMap).IsRightAdjoint]
+variable [∀ {m n : SimplexCategory} (φ : m ⟶ n),
+    (SheafOfModules.restrictScalars.{w}
+      (fiberRingedToposMap F J O φ).structureMap).IsRightAdjoint]
+variable [∀ n, ToposHom.HasModulePullbackDerived (fiberStageMorphism F J O n)]
+variable [∀ {m n : SimplexCategory} (φ : m ⟶ n),
+    ToposHom.HasModulePullbackDerived (fiberRingedToposMap F J O φ)]
+
+/- Lemma 85.14.7 (2)
+In case B of Situation 85.3.3, a cartesian derived-module system with flat
+structure maps of `fiberRingedToposMap F J O φ` and vanishing
+`Hom(K_i⟦t⟧, K_i)` for every stage `i` and `t > 0` is the associated system
+of a cartesian object on the total ringed site, via a system morphism
+invertible in every component. -/
+@[stacks 0D9T] #check (CategoryTheory.Grothendieck.exists_isCartesian_of_derivedModuleSystem F J O :
+  ∀ (Ksys : DerivedModuleSystemOnComponents F J O)
+    (h_cartesian : RingedSite.Simplicial.DerivedModuleSystem.IsCartesian Ksys)
+    (h_flat : ∀ {m n : SimplexCategory} (φ : m ⟶ n),
+      RingedSite.ToposHom.IsFlat (fiberRingedToposMap F J O φ))
+    (h_hom : ∀ (n : SimplexCategory) (t : ℤ), 0 < t →
+      Subsingleton ((Ksys.obj n)⟦t⟧ ⟶ Ksys.obj n)),
+    ∃ (K : RingedSite.Hom.ModuleDerived.{w} (fiberTotalRingedSite F J O))
+      (α : RingedSite.Simplicial.DerivedModuleSystem.Hom (toDerivedModuleSystem F J O K) Ksys),
+      ModuleDerived.IsCartesian F J O K ∧ ∀ n, IsIso (α.app n))
+
+end CategoryTheory.Grothendieck

@@ -46,15 +46,23 @@ category. -/
 abbrev inclusion : QC 𝒪 ⥤ AmbientDerived 𝒪 :=
   ObjectProperty.ι (isQuasiCoherent 𝒪)
 
-/-- Proposition 21.43.9 (0GZ0) (2): every contravariant homological functor on `QC 𝒪`
-which sends coproducts indexed in the coefficient universe to products is representable. -/
+/-- Coefficient-universe form of Proposition 21.43.9 (0GZ0) (2): a contravariant
+homological functor on `QC 𝒪` preserving the available coproducts as products is representable
+when its values on all integer shifts of the canonical bounded sources are small in that
+universe. Source local smallness bounds the kernel indices and the representable
+reconstruction used in the Brown argument. -/
 @[stacks 0GZ0 "(2)"]
 theorem existsRepresentation
     (H : (QC 𝒪)ᵒᵖ ⥤
       AddCommGrpCat.{max (max (u + 1) (v + 1)) (w + 1)})
     [H.rightOp.IsHomological]
-    [∀ J : Type (max (max u v) w), PreservesLimitsOfShape (Discrete J) H] :
-    ∃ K : QC 𝒪, Nonempty (preadditiveYoneda.obj K ≅ H) := sorry
+    [∀ J : Type (max (max u v) w), PreservesLimitsOfShape (Discrete J) H]
+    [LocallySmall.{max (max u v) w} (QC 𝒪)]
+    (hsmall : ∀ (E : smallBrownSet 𝒪) (n : ℤ),
+      Small.{max (max u v) w} (H.obj (op (E.1⟦n⟧)))) :
+    ∃ K : QC 𝒪, Nonempty (preadditiveYoneda.obj K ≅ H) :=
+  BrownRepresentability.SmallSet.existsRepresentation H inferInstance
+    (smallBrownSet 𝒪) (smallBrownSet_isSet 𝒪) hsmall
 
 section RightAdjoint
 
@@ -63,17 +71,25 @@ variable {D : Type uD} [Category.{vD} D]
   [∀ n : ℤ, (shiftFunctor D n).Additive]
   [Pretriangulated D] [_root_.CategoryTheory.IsTriangulated D]
 
-/-- Proposition 21.43.9 (0GZ0) (3): an exact functor out of `QC 𝒪` which preserves
-coproducts indexed in the coefficient universe has an exact right adjoint. -/
+/-- Coefficient-universe form of Proposition 21.43.9 (0GZ0) (3): an exact functor out of
+`QC 𝒪` preserving the available coproducts has an exact right adjoint when morphisms from
+the images of all integer shifts of the canonical bounded sources to each target are small
+in that universe. Source local smallness supplies the Brown kernel and reconstruction bounds;
+no coefficient-universe bound on all target Hom types is required. -/
 @[stacks 0GZ0 "(3)"]
 theorem hasExactRightAdjoint
     (F : QC 𝒪 ⥤ D)
     [LocallySmall.{max (max (u + 1) (v + 1)) (w + 1)} D]
     [F.CommShift ℤ] [F.IsTriangulated]
     [∀ J : Type (max (max u v) w),
-      PreservesColimitsOfShape (Discrete J) F] :
+      PreservesColimitsOfShape (Discrete J) F]
+    [LocallySmall.{max (max u v) w} (QC 𝒪)]
+    (hsmall : ∀ (E : smallBrownSet 𝒪) (n : ℤ) (Y : D),
+      Small.{max (max u v) w} (F.obj (E.1⟦n⟧) ⟶ Y)) :
     ∃ (G : D ⥤ QC 𝒪) (adj : F ⊣ G),
-      G.IsTriangulatedWith (adj.rightAdjointCommShift ℤ) := sorry
+      G.IsTriangulatedWith (adj.rightAdjointCommShift ℤ) :=
+  Functor.Brown.SmallSet.hasTriangulatedRightAdjoint F
+    (smallBrownSet 𝒪) (smallBrownSet_isSet 𝒪) hsmall
 
 end RightAdjoint
 

@@ -52,7 +52,8 @@ abbrev inverseImage :
     RingedSite.Hom
       (RingedSite.ofCommRingSheaf JX (inverseImageStructureSheaf f))
       (RingedSite.ofCommRingSheaf JY OY) :=
-  RingedSite.Hom.ofPullback (JC := JX) (JD := JY) f.base OY
+  @RingedSite.Hom.ofPullback _ _ _ _ JX JY inferInstance inferInstance
+    f.base f.isMorphismOfSites inferInstance OY
 
 /-- The same-site morphism whose module pullback extends scalars from `f⁻¹𝒪_Y` to
 `𝒪_X`. -/
@@ -102,7 +103,8 @@ variable [Functor.HasLeftDerivedFunctor
     (modulePullbackToDerived.{w} (PullbackFactorization.inverseImage f))
     (ModuleQis.{w} (RingedSite.ofCommRingSheaf JY OY))]
 variable [Functor.HasLeftDerivedFunctor
-    (modulePullbackToDerived.{w} (PullbackFactorization.hom f))
+    (compositePullbackToDerived.{w}
+      (PullbackFactorization.scalarExtension f) (PullbackFactorization.inverseImage f))
     (ModuleQis.{w} (RingedSite.ofCommRingSheaf JY OY))]
 /-- Derived inverse image from `Y` to modules over `f⁻¹𝒪_Y` on `X`. -/
 abbrev inverseImage :
@@ -132,7 +134,7 @@ abbrev pullback :
     (PullbackFactorization.inverseImage f)
 
 /-- The underlying derived-pullback composition comparison in the displayed factorization is
-invertible.  It remains a theorem rather than inverse data during the statement stage. -/
+invertible. -/
 @[stacks 08I6 "factorized derived pullback comparison is invertible"]
 theorem compComparison_isIso :
     IsIso (modulePullbackDerived.compComparison
@@ -143,16 +145,28 @@ variable [@ModuleDerived.KFlat.HomotopyTensorDescends C _ JX _ _ _ hX OX]
 variable [@ModuleDerived.KFlat.TensorDescends C _ JX _ _ _ hX OX _]
 variable [@ModuleDerived.KFlat.IsLocalization C _ JX _ _ _ hX OX]
 
--- Local instance justification (defeq pin): the mixed tensor is over the displayed structure sheaf `OX`.
--- Fix its K-flat localization model instead of accepting an arbitrary monoidal structure.
-local instance : MonoidalCategory
+/-- The K-flat localization monoidal model on the derived category of modules. -/
+@[implicit_reducible]
+def tensorModel : MonoidalCategory
     (@ModuleDerived.{w, uX, vX, w} (RingedSite.ofCommRingSheaf JX OX) hX) :=
   @ModuleDerived.monoidalCategory C _ JX _ _ _ hX OX _ _ _
+
+variable {hX}
+
+/-- The right tensor action of a functor into the derived category of modules, using the
+K-flat localization monoidal model. -/
+abbrev tensorAction {E : Type*} [Category E]
+    (G : E ⥤ @ModuleDerived.{w, uX, vX, w}
+      (RingedSite.ofCommRingSheaf JX OX) hX) :=
+  @Functor.tensorRightAction _ _ _ _ (tensorModel (hX := hX) (OX := OX)) G
+
+variable [hX]
 
 /-- The mixed derived tensor bifunctor over `f⁻¹𝒪_Y`, modeled by derived extension of
 scalars followed by the canonical K-flat derived tensor product over `𝒪_X`. -/
 @[stacks 08I6 "mixed derived tensor bifunctor"]
-abbrev functor := Functor.tensorRightAction (scalarExtension f)
+abbrev functor :=
+  @Functor.tensorRightAction _ _ _ _ (tensorModel (OX := OX)) (scalarExtension f)
 
 /-- The mixed derived tensor product of an `𝒪_X`-module and an `f⁻¹𝒪_Y`-module. -/
 @[stacks 08I6 "mixed derived tensor product"]
@@ -161,12 +175,14 @@ abbrev obj
       (RingedSite.ofCommRingSheaf JX OX) hX)
     (G : @ModuleDerived.{w, uX, vX, w}
       (RingedSite.ofCommRingSheaf JX (inverseImageStructureSheaf f)) hX) :=
-  Functor.tensorRightActionObj (scalarExtension f) F G
+  @Functor.tensorRightActionObj _ _ _ _ (tensorModel (OX := OX))
+    (scalarExtension f) F G
 
 /-- The canonical comparison from the mixed tensor action of iterated derived pullback to the
 action of derived pullback along the displayed composite. -/
 @[stacks 08I6 "mixed derived tensor comparison"]
 def comparison := modulePullbackDerived.TensorAction.comparison
+  (monoidalModel := tensorModel (OX := OX))
   (hX := hX) (hY := hX) (hZ := hY)
   (PullbackFactorization.scalarExtension f)
   (PullbackFactorization.inverseImage f)
@@ -175,15 +191,16 @@ variable [IsIso (modulePullbackDerived.compComparison
   (PullbackFactorization.scalarExtension f)
   (PullbackFactorization.inverseImage f))]
 
-/-- Lemma 21.18.5 (08I6), bifunctorial factorized form: tensoring with derived pullback along
+/-- Tensoring with derived pullback along
 the displayed composite is canonically the mixed tensor over `f⁻¹𝒪_Y`. -/
 @[stacks 08I6 "bifunctorial mixed derived tensor isomorphism"]
 def natIso := modulePullbackDerived.TensorAction.natIso
+  (monoidalModel := tensorModel (OX := OX))
   (hX := hX) (hY := hX) (hZ := hY)
   (PullbackFactorization.scalarExtension f)
   (PullbackFactorization.inverseImage f)
 
-/-- Lemma 21.18.5 (08I6), pointwise factorized form:
+/-- The factorized mixed derived tensor isomorphism at a pair of modules:
 `F ⊗ᴸ Lf⁺G ≅ F ⊗ᴸ_[f⁻¹𝒪_Y] f⁻¹G`. -/
 @[stacks 08I6 "pointwise mixed derived tensor isomorphism"]
 abbrev iso
@@ -191,11 +208,12 @@ abbrev iso
       (RingedSite.ofCommRingSheaf JX OX) hX)
     (G : @ModuleDerived.{w, uY, vY, w}
       (RingedSite.ofCommRingSheaf JY OY) hY) :
-    Functor.tensorRightActionObj
+    @Functor.tensorRightActionObj _ _ _ _ (tensorModel (OX := OX))
         (pullback (hX := hX) (hY := hY) f) F G ≅
       obj (hX := hX) f F
         ((inverseImage (hX := hX) (hY := hY) f).obj G) :=
   modulePullbackDerived.TensorAction.iso
+    (monoidalModel := tensorModel (OX := OX))
     (hX := hX) (hY := hX) (hZ := hY)
     (PullbackFactorization.scalarExtension f)
     (PullbackFactorization.inverseImage f) F G

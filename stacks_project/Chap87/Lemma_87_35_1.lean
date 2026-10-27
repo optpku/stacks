@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap87.Lemma_87_35_1_Topological
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.StructureSheaf.Existence
 
 /-!
 # Existence of the structure sheaf of a formal algebraic space
@@ -18,41 +18,33 @@ Every formal algebraic space admits a sheaf of topological rings on its small
 sections of any directed affine thickening presentation of `U`.
 -/
 
-@[expose] public section
+public section
 
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry Opposite
 open AlgebraicGeometry.AffineFormalAlgebraicSpace (AffineEtaleOver)
+open AlgebraicGeometry.FormalAlgebraicSpace
 open scoped AlgebraicGeometry
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.FormalAlgebraicSpace
-
-variable {S : Scheme.{u}}
-
-/-- Lemma 87.35.1: every formal algebraic space has a structure sheaf. -/
-@[stacks 0DEJ]
-theorem exists_structureSheaf (X : (Over S)ᵒᵖ ⥤ Type u)
-    [IsFormalAlgebraicSpace X] [Reduction X] :
-    ∃ 𝒪 : Sheaf (smallEtaleTopology X) TopCommRingCat.{u},
+/- Lemma 87.35.1: every formal algebraic space has a structure sheaf. -/
+@[stacks 0DEJ] #check (AlgebraicGeometry.FormalAlgebraicSpace.exists_structureSheaf :
+  ∀ {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u)
+    [IsFormalAlgebraicSpace X] [R : Reduction X],
+    ∃ 𝒪 : Sheaf (AlgebraicSpace.smallEtaleTopology (reduction X)) TopCommRingCat.{u},
       IsStructureSheaf (topCommRingSheafToRingSheaf 𝒪) ∧
         ∀ (U : AffineEtaleOver X) {Λ : Type u} [Preorder Λ]
           [IsDirected Λ (· ≤ ·)] (D : Λ ⥤ Over S)
           [IsDirectedAffineThickeningColimit D U.obj.left]
           (w : ColimitPresentation D U.obj.left),
-          Nonempty (structureSheafTopSections 𝒪 U ≅ stageLimitTopRing D) :=
-  sorry
+          Nonempty (structureSheafTopSections 𝒪 U ≅ stageLimitTopRing D))
 
-/-- A structure sheaf of topological rings may be chosen so that the
-inverse-limit identifications are isomorphisms of topological rings whose
-images under `forget₂ TopCommRingCat CommRingCat ⋙ forget₂ CommRingCat RingCat`
-are the ring isomorphisms of `IsStructureSheaf`, naturally in compatible
-presentations. -/
-theorem exists_structureSheaf_spec {X : (Over S)ᵒᵖ ⥤ Type u}
-    [IsFormalAlgebraicSpace X] [Reduction X] :
-    ∃ (𝒪 : Sheaf (smallEtaleTopology X) TopCommRingCat.{u})
+/- The topological and underlying-ring identifications can be chosen compatibly
+and naturally in morphisms of affine thickening presentations. -/
+#check (AlgebraicGeometry.FormalAlgebraicSpace.exists_structureSheaf_spec :
+  ∀ {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u}
+    [IsFormalAlgebraicSpace X] [R : Reduction X],
+    ∃ (𝒪 : Sheaf (AlgebraicSpace.smallEtaleTopology (reduction X)) TopCommRingCat.{u})
       (η :
         ∀ (U : AffineEtaleOver X) {Λ : Type u} [Preorder Λ]
           [IsDirected Λ (· ≤ ·)] (D : Λ ⥤ Over S)
@@ -75,7 +67,7 @@ theorem exists_structureSheaf_spec {X : (Over S)ᵒᵖ ⥤ Type u}
               forget₂ CommRingCat RingCat).mapIso (η U D w) =
             eqToIso (forget_structureSheafTopSections 𝒪 U) ≪≫
               ρ U D w ≪≫
-                eqToIso (stageLimitTopRing_iso_stageLimitRing D).symm) ∧
+                eqToIso (stageLimitTopRing_forgetToRing D).symm) ∧
           ∀ {U V : AffineEtaleOver X} (f : U ⟶ V) {Λ Λ' : Type u}
             [Preorder Λ] [Preorder Λ'] [IsDirected Λ (· ≤ ·)]
             [IsDirected Λ' (· ≤ ·)] (D : Λ ⥤ Over S) (D' : Λ' ⥤ Over S)
@@ -87,9 +79,6 @@ theorem exists_structureSheaf_spec {X : (Over S)ᵒᵖ ⥤ Type u}
             IsCompatiblePresentation wU wV f.hom.left F τ →
               (topCommRingSheafToRingSheaf 𝒪).obj.map
                   ((AlgebraicSpace.affineEtaleInclusion (reduction X)).map
-                    (toAffineEtale.map f)).op ≫
+                    ((ReductionData.toAffineEtale R.toReductionData).map f)).op ≫
                 (ρ U D wU).hom =
-                (ρ V D' wV).hom ≫ stageLimitRing.map F τ) :=
-  sorry
-
-end AlgebraicGeometry.FormalAlgebraicSpace
+                (ρ V D' wV).hom ≫ stageLimitRing.map F τ))

@@ -22,7 +22,7 @@ of short exact sequences of cochain complexes.  The cohomology products are expl
 
 @[expose] public section
 
-open CategoryTheory MonoidalCategory
+open CategoryTheory CategoryTheory.Limits MonoidalCategory
 open ComplexShape
 
 noncomputable section
@@ -41,8 +41,9 @@ variable [HasTensor SF.X₃ SG.X₁]
 /-- Algebraic core of Lemma 20.25.4 (07MC): for compatible pairings of two short exact sequences
 of cochain complexes, applying the first connecting morphism before the induced cohomology product
 agrees with applying the second connecting morphism, up to the Koszul sign `(-1)^(n + 1)`.
-The epimorphism hypothesis is the precise descent condition needed to pass from cocycles to the
-displayed equality on cohomology. -/
+The epimorphism hypothesis is local to the two degrees: the canonical cocycle pullback covers,
+followed by the homology quotients, jointly allow the chain-level calculation to descend to
+cohomology. It does not require tensoring to preserve every epimorphism. -/
 @[stacks 07MC "algebraic boundary-cup compatibility"]
 theorem boundary (hF : SF.ShortExact) (hG : SG.ShortExact)
     (γ₁ : tensorObj SF.X₁ SG.X₃ ⟶ H) (γ₂ : tensorObj SF.X₂ SG.X₂ ⟶ H)
@@ -50,7 +51,8 @@ theorem boundary (hF : SF.ShortExact) (hG : SG.ShortExact)
     (hγ₁ : CommSq (tensorHom (𝟙 SF.X₁) SG.g) (tensorHom SF.f (𝟙 SG.X₂)) γ₁ γ₂)
     (hγ₃ : CommSq (tensorHom SF.g (𝟙 SG.X₁)) (tensorHom (𝟙 SF.X₂) SG.f) γ₃ γ₂)
     (n m : ℤ)
-    [Epi ((SF.X₃.homologyπ n) ⊗ₘ (SG.X₃.homologyπ m))]
+    [Epi ((pullback.snd (SF.g.f n) (SF.X₃.iCycles n) ≫ SF.X₃.homologyπ n) ⊗ₘ
+      (pullback.snd (SG.g.f m) (SG.X₃.iCycles m) ≫ SG.X₃.homologyπ m))]
     (cup₁ : SF.X₁.homology (n + 1) ⊗ SG.X₃.homology m ⟶ H.homology (n + m + 1))
     (cup₃ : SF.X₃.homology n ⊗ SG.X₁.homology (m + 1) ⟶ H.homology (n + m + 1))
     (hcup₁ : IsInducedTo γ₁ (n + 1) m (n + m + 1) (add_right_comm n 1 m) cup₁)

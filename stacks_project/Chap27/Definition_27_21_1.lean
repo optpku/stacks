@@ -22,8 +22,8 @@ variable {S P : Scheme.{u}} {ℰ : S.Modules} [ℰ.IsQuasicoherent] {π : P ⟶ 
 /- Definition 27.21.1 (`01OB`).
 
 For a quasi-coherent `ℰ : S.Modules`, a representation of `π : P ⟶ S` as its projective bundle
-includes a relative projective-spectrum presentation and the invertible twists `𝒪_P(n)` for every
-`n : ℤ`.
+records a concrete symmetric/tautological presentation, compatible quotient-isomorphism
+classes, explicit supplied-model lifts, and the invertible twists `𝒪_P(n)` for every `n : ℤ`.
 -/
 @[stacks 01OB] #check
   (AlgebraicGeometry.Scheme.ProjectiveBundle.Representation π ℰ : Type (u + 1))
@@ -38,3 +38,8 @@ variable (hπ : AlgebraicGeometry.Scheme.ProjectiveBundle.Representation π ℰ)
   ∀ n : ℤ, AlgebraicGeometry.Scheme.Modules.Invertible (hπ.twist n))
 
 end
+
+/- The projective universal property uses compatible target-isomorphism classes, via the single
+concrete symmetric-presentation owner. -/
+#check @AlgebraicGeometry.Scheme.ProjectiveBundle.SymmetricPresentation.liftToQuotientClass
+#check @AlgebraicGeometry.Scheme.ProjectiveBundle.Representation.liftEquiv

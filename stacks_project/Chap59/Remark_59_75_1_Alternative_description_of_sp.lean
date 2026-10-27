@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Specialization.GeometricPoint
+import ReasLib.CategoryTheory.Functor.KanExtension.UniverseCertificates
 import StacksCheckRecall
 
 open CategoryTheory Opposite
@@ -17,6 +18,8 @@ universe u
 @[expose] public section
 
 noncomputable section
+
+attribute [local instance] Functor.UniverseKan.typeLeft
 
 variable [∀ X : Scheme.{u}, HasWeakSheafify X.smallEtaleTopology (Type (u + 1))]
 variable {S : Scheme.{u}} (s t : GeometricPoint S)

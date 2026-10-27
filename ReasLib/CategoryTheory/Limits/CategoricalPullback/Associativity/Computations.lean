@@ -33,7 +33,12 @@ namespace Limits.CategoricalPullback
 
 variable (F : A ⥤ B) (G : C ⥤ B) (H : C ⥤ D) (I : E ⥤ D)
 
+-- Local declaration justification (source-local notation): this file computes the fixed
+-- endpoints of the reassociation equivalence supplied by `Associativity.Basic`. The names keep
+-- those repeated endpoints readable; they do not define an independent public construction.
 local notation "LeftAssociated" => (((π₂ F G) ⋙ H) ⊡ I)
+-- Local declaration justification (source-local notation): this is the fixed right-associated
+-- endpoint of the same reassociation computation and has no independent public operation.
 local notation "RightAssociated" => (F ⊡ ((π₁ H I) ⋙ G))
 
 namespace Associator.forward

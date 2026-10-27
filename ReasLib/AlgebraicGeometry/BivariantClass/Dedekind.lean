@@ -28,14 +28,20 @@ def baseMap {S : Scheme.{u}} (X : Over S) : X ⟶ Over.mk (𝟙 S) :=
 
 /-- The underlying scheme morphism of `baseMap X` is the structure morphism of `X`. -/
 theorem baseMap_left {S : Scheme.{u}} (X : Over S) :
-    (baseMap X).left = X.hom := sorry
+    (baseMap X).left = X.hom := rfl
 
 /-- The product projections over `S` form a pullback square against the structure maps
 to the identity object over `S`. -/
 theorem productIsPullback {S : Scheme.{u}} (X : Over S) {Y : Over S}
     (g : Y ⟶ Over.mk (𝟙 S)) :
     IsPullback ((Limits.prod.fst : X ⨯ Y ⟶ X).left)
-      ((Limits.prod.snd : X ⨯ Y ⟶ Y).left) (baseMap X).left g.left := sorry
+      ((Limits.prod.snd : X ⨯ Y ⟶ Y).left) (baseMap X).left g.left := by
+  have hg : g.left = Y.hom :=
+    (Category.comp_id (g.left : Y.left ⟶ S)).symm.trans g.w
+  rw [hg]
+  exact Over.isPullback_of_binaryFan_isLimit
+    (BinaryFan.mk (Limits.prod.fst : X ⨯ Y ⟶ X) (Limits.prod.snd : X ⨯ Y ⟶ Y))
+    (prodIsProd X Y)
 
 /-- The canonical pullback comparison with `X ⨯ Y` respects the structure maps to `S`. -/
 theorem productIsoOfIsPullback_hom_base
@@ -43,34 +49,60 @@ theorem productIsoOfIsPullback_hom_base
     (i : X' ⟶ X) (f' : X' ⟶ Y) (g : Y ⟶ Over.mk (𝟙 S))
     (square : IsPullback i.left f'.left (baseMap X).left g.left) :
     (square.isoIsPullback X.left Y.left (productIsPullback X g)).hom ≫
-        (X ⨯ Y).hom = X'.hom := sorry
+        (X ⨯ Y).hom = X'.hom := by
+  rw [← (Limits.prod.fst : X ⨯ Y ⟶ X).w, ← Category.assoc]
+  simp
 
 /-- The canonical isomorphism from a displayed cartesian representative over `S` to
-the product representative. -/
+the product representative, with maps supplied by the product and the input square. -/
 noncomputable def productIsoOfIsPullback
     {S : Scheme.{u}} (X : Over S) {X' Y : Over S}
     (i : X' ⟶ X) (f' : X' ⟶ Y) (g : Y ⟶ Over.mk (𝟙 S))
     (square : IsPullback i.left f'.left (baseMap X).left g.left) :
-    X' ≅ X ⨯ Y :=
-  Over.isoMk (square.isoIsPullback X.left Y.left (productIsPullback X g))
-    (productIsoOfIsPullback_hom_base X i f' g square)
+    X' ≅ X ⨯ Y where
+  hom := Limits.prod.lift i f'
+  inv := Over.homMk
+    (square.lift (Limits.prod.fst : X ⨯ Y ⟶ X).left
+      (Limits.prod.snd : X ⨯ Y ⟶ Y).left (productIsPullback X g).w) (by
+        rw [← i.w, ← Category.assoc, square.lift_fst]
+        exact (Limits.prod.fst : X ⨯ Y ⟶ X).w)
+  hom_inv_id := by
+    apply Over.OverMorphism.ext
+    apply square.hom_ext
+    · simpa only [Over.comp_left, Over.homMk_left, Over.id_left, Category.assoc,
+        IsPullback.lift_fst, Category.id_comp] using
+        congrArg (fun h : X' ⟶ X ↦ h.left) (Limits.prod.lift_fst i f')
+    · simpa only [Over.comp_left, Over.homMk_left, Over.id_left, Category.assoc,
+        IsPullback.lift_snd, Category.id_comp] using
+        congrArg (fun h : X' ⟶ Y ↦ h.left) (Limits.prod.lift_snd i f')
+  inv_hom_id := by
+    apply Limits.prod.hom_ext
+    · apply Over.OverMorphism.ext
+      simp only [Category.assoc, Limits.prod.lift_fst, Category.id_comp, Over.comp_left,
+        Over.homMk_left, IsPullback.lift_fst]
+    · apply Over.OverMorphism.ext
+      simp only [Category.assoc, Limits.prod.lift_snd, Category.id_comp, Over.comp_left,
+        Over.homMk_left, IsPullback.lift_snd]
 
 /-- The product comparison followed by the first projection is the given map to `X`. -/
 theorem productIsoOfIsPullback_hom_fst
     {S : Scheme.{u}} (X : Over S) {X' Y : Over S}
     (i : X' ⟶ X) (f' : X' ⟶ Y) (g : Y ⟶ Over.mk (𝟙 S))
     (square : IsPullback i.left f'.left (baseMap X).left g.left) :
-    (productIsoOfIsPullback X i f' g square).hom ≫ Limits.prod.fst = i := sorry
+    (productIsoOfIsPullback X i f' g square).hom ≫ Limits.prod.fst = i :=
+  Limits.prod.lift_fst i f'
 
 /-- The product comparison followed by the second projection is the given map to `Y`. -/
 theorem productIsoOfIsPullback_hom_snd
     {S : Scheme.{u}} (X : Over S) {X' Y : Over S}
     (i : X' ⟶ X) (f' : X' ⟶ Y) (g : Y ⟶ Over.mk (𝟙 S))
     (square : IsPullback i.left f'.left (baseMap X).left g.left) :
-    (productIsoOfIsPullback X i f' g square).hom ≫ Limits.prod.snd = f' := sorry
+    (productIsoOfIsPullback X i f' g square).hom ≫ Limits.prod.snd = f' :=
+  Limits.prod.lift_snd i f'
 
 /-- The grading identity for the Dedekind exterior product defining a degree-`p` cap. -/
-theorem exteriorProductDegree (p n : ℤ) : (1 - p) + n - 1 = n - p := sorry
+theorem exteriorProductDegree (p n : ℤ) : (1 - p) + n - 1 = n - p := by
+  omega
 
 /-- The cap family determined by a Chow class over a locally Dedekind base: take the
 Dedekind exterior product and transport from `X ⨯ Y'` to the displayed cartesian
@@ -116,7 +148,7 @@ theorem ofChowCap_apply
             ((X ⨯ Y').hom.relativeDimensionFunction δ) inferInstance _ _
             (exteriorProductDegree p n)).toAddMonoidHom
           (ChowGroup.Dedekind.ExteriorProduct.pairing
-            δ h_delta X Y' (1 - p) n alpha beta)) := sorry
+            δ h_delta X Y' (1 - p) n alpha beta)) := rfl
 
 /-- Dedekind exterior-product cap families commute with proper pushforward. -/
 theorem ofChowCap_mapProper
@@ -180,7 +212,7 @@ theorem ofChow_cap
     (square : IsPullback i.left f'.left (baseMap X).left g.left)
     (n : ℤ) (beta : RelativeChow δ Y' n) :
     (ofChow δ h_delta X p alpha).cap i f' g square n beta =
-      ofChowCap δ h_delta X p alpha i f' g square n beta := sorry
+      ofChowCap δ h_delta X p alpha i f' g square n beta := rfl
 
 /-- The bivariant class associated to the zero Chow class is pointwise zero. -/
 theorem ofChow_zero
@@ -190,7 +222,13 @@ theorem ofChow_zero
     (h_delta : ∀ s : S,
       δ s = if IsClosed ({s} : Set S) then 0 else 1)
     (X : Over S) [LocallyOfFiniteType X.hom] (p : ℤ) :
-    ofChow δ h_delta X p 0 = pointwiseZero δ (baseMap X) p := sorry
+    ofChow δ h_delta X p 0 = pointwiseZero δ (baseMap X) p := by
+  unfold ofChow pointwiseZero
+  congr 1
+  funext X' Y' _ _ i f' g _ square n
+  apply AddMonoidHom.ext
+  intro beta
+  simp [ofChowCap]
 
 /-- The Dedekind exterior-product bivariant-class construction preserves addition. -/
 theorem ofChow_add
@@ -203,7 +241,13 @@ theorem ofChow_add
     (alpha beta : RelativeChow δ X (1 - p)) :
     ofChow δ h_delta X p (alpha + beta) =
       pointwiseAdd δ (baseMap X) p (ofChow δ h_delta X p alpha)
-        (ofChow δ h_delta X p beta) := sorry
+        (ofChow δ h_delta X p beta) := by
+  unfold ofChow pointwiseAdd
+  congr 1
+  funext X' Y' _ _ i f' g _ square n
+  apply AddMonoidHom.ext
+  intro gamma
+  simp [ofChowCap]
 
 /-- Evaluation of a bivariant class on the degree-one fundamental class of `S`. -/
 noncomputable def toChow
@@ -240,7 +284,7 @@ theorem toChow_def
           ((Over.mk (𝟙 S)).hom.relativeDimensionFunction δ) inferInstance 1
           (@CycleGroup.fundamental (Over.mk (𝟙 S)).left
             (LocallyOfFiniteType.isLocallyNoetherian (Over.mk (𝟙 S)).hom)
-            ((Over.mk (𝟙 S)).hom.relativeDimensionFunction δ) 1)) := sorry
+            ((Over.mk (𝟙 S)).hom.relativeDimensionFunction δ) 1)) := rfl
 
 /-- Evaluation on `[S]₁` sends the explicit pointwise-zero bivariant class to zero. -/
 theorem toChow_zero
@@ -250,7 +294,7 @@ theorem toChow_zero
     (h_delta : ∀ s : S,
       δ s = if IsClosed ({s} : Set S) then 0 else 1)
     (X : Over S) [LocallyOfFiniteType X.hom] (p : ℤ) :
-    toChow δ h_delta X p (pointwiseZero δ (baseMap X) p) = 0 := sorry
+    toChow δ h_delta X p (pointwiseZero δ (baseMap X) p) = 0 := rfl
 
 /-- Evaluation on `[S]₁` preserves explicit pointwise addition of bivariant classes. -/
 theorem toChow_add
@@ -262,7 +306,7 @@ theorem toChow_add
     (X : Over S) [LocallyOfFiniteType X.hom] (p : ℤ)
     (c d : BivariantClass δ (baseMap X) p) :
     toChow δ h_delta X p (pointwiseAdd δ (baseMap X) p c d) =
-      toChow δ h_delta X p c + toChow δ h_delta X p d := sorry
+      toChow δ h_delta X p c + toChow δ h_delta X p d := rfl
 
 /-- Evaluation on `[S]₁` recovers the Chow class used to define a Dedekind
 exterior-product bivariant class. -/
@@ -320,7 +364,7 @@ theorem chowEquiv_apply
       topologicalKrullDim component = 1)
     (X : Over S) [LocallyOfFiniteType X.hom] (p : ℤ)
     (c : BivariantClass δ (baseMap X) p) :
-    chowEquiv δ h_delta h_dim X p c = toChow δ h_delta X p c := sorry
+    chowEquiv δ h_delta h_dim X p c = toChow δ h_delta X p c := rfl
 
 /-- The inverse map of `chowEquiv` sends a Chow class to its Dedekind
 exterior-product bivariant class. -/
@@ -334,6 +378,6 @@ theorem chowEquiv_symm_apply
       topologicalKrullDim component = 1)
     (X : Over S) [LocallyOfFiniteType X.hom] (p : ℤ)
     (alpha : RelativeChow δ X (1 - p)) :
-    (chowEquiv δ h_delta h_dim X p).symm alpha = ofChow δ h_delta X p alpha := sorry
+    (chowEquiv δ h_delta h_dim X p).symm alpha = ofChow δ h_delta X p alpha := rfl
 
 end AlgebraicGeometry.BivariantClass.Dedekind

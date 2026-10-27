@@ -12,6 +12,8 @@ public import ReasLib.Algebra.Homology.CochainComplex.KFlat.ModuleCat.Monoidal
 public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension.Adjunction
 public import ReasLib.Algebra.Homology.HomologicalComplex.Termwise.FiniteProjective
 public import ReasLib.CategoryTheory.Iso.Explicit
+import ReasLib.CategoryTheory.Functor.Derived.ComputesAt.KProjective
+import ReasLib.CategoryTheory.Functor.Derived.ComputesAt.Comparison
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -111,8 +113,24 @@ theorem counit_isIso_of_isTermwiseFiniteProjective
     (σ : R →+* S) (K : CochainComplex (ModuleCat R) ℤ)
     (hK : CochainComplex.minus (ModuleCat R) K)
     (hKfp : K.IsTermwiseFiniteProjective) :
-    IsIso ((ModuleCat.derivedExtensionComplexCounit σ).app K) :=
-  counit_isIso_of_isTermwiseFlat σ K hK hKfp.termwiseFlat
+    IsIso ((ModuleCat.derivedExtensionComplexCounit σ).app K) := by
+  obtain ⟨n, hn⟩ := hK
+  have hproj := @CochainComplex.isKProjective_of_projective _ _ _ K n hn
+    hKfp.projectiveObject
+  let F := ModuleCat.extendScalars σ
+  have hcomp := @Functor.KProjective.computesAt _ _ _ _ _
+    (Functor.Homotopy.toDerived F) K hproj
+  have hiso := Functor.LeftDerived.ComputesAt.isIso_app
+    (Functor.Homotopy.toDerived F)
+    (HomotopyCategory.quasiIso (ModuleCat R) (ComplexShape.up ℤ))
+    DerivedCategory.Qh (ModuleCat.derivedExtensionOfScalars σ)
+    (Functor.LeftDerived.Homotopy.counit F)
+    ((HomotopyCategory.quotient (ModuleCat R) (ComplexShape.up ℤ)).obj K)
+    hcomp (Functor.LeftDerived.Homotopy.isLeftDerived F)
+  dsimp only [ModuleCat.derivedExtensionComplexCounit,
+    Functor.LeftDerived.Homotopy.cochainCounit, NatTrans.comp_app]
+  rw [isIso_comp_left_iff, isIso_comp_left_iff, isIso_comp_right_iff]
+  exact hiso
 
 /-- The derived-extension counit as a concrete isomorphism on a bounded-above termwise-flat
 cochain model. -/

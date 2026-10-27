@@ -296,14 +296,6 @@ theorem quotientInclusion_comp_transition_zero [HasCokernels C]
     (f : R) (M : C) (n : ℕ+) :
     quotientInclusion f M n ≫ quotientTransition f M n = 0 := sorry
 
-/-- The inclusions are compatible with consecutive quotient transitions. -/
-@[reassoc, stacks 0H3A "principal-power quotient inclusion transition"]
-theorem quotientInclusion_succ_comp_transition [HasCokernels C]
-    (f : R) (M : C) (n : ℕ+) :
-    quotientInclusion f M ⟨(n : ℕ) + 1, Nat.succ_pos _⟩ ≫
-        quotientTransition f M ⟨(n : ℕ) + 1, Nat.succ_pos _⟩ =
-      quotientInclusion f M n := sorry
-
 /-- The source-style quotient row `Q 0 ⟶ Q n ⟶ Q (n-1)`. -/
 @[stacks 0H3A "categorical principal-power quotient row"]
 abbrev quotientRow [HasCokernels C] (f : R) (M : C) (n : ℕ+) : ShortComplex C :=

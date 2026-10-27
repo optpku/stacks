@@ -8,6 +8,8 @@ module
 
 public import Mathlib.AlgebraicGeometry.Scheme
 public import ReasLib.CategoryTheory.Fibered.InSets.Slice
+public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.Basic
+public import ReasLib.CategoryTheory.Fibered.BasedCategory.InGroupoids.PseudoPullback
 
 /-!
 # Categories fibred in groupoids over schemes

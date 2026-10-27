@@ -41,14 +41,22 @@ injective objects. -/
 @[stacks 01E7 "two-sided categorical core"]
 theorem tensorLeft_preservesInjectiveObjects_of_reverse
     {X Y : C} (p : ExactPairing X Y) (q : ExactPairing Y X) :
-    (tensorLeft X).PreservesInjectiveObjects := sorry
+    (tensorLeft X).PreservesInjectiveObjects := by
+  letI : PreservesLimits (tensorLeft Y) :=
+    q.tensorLeftAdjunction.rightAdjoint_preservesLimits
+  exact Functor.preservesInjectiveObjects_of_adjunction_of_preservesMonomorphisms
+    p.tensorLeftAdjunction
 
 /-- Tensoring on the right by the first object of a two-sided exact pairing preserves
 injective objects. -/
 @[stacks 01E7 "two-sided categorical core, opposite tensor order"]
 theorem tensorRight_preservesInjectiveObjects_of_reverse
     {X Y : C} (p : ExactPairing X Y) (q : ExactPairing Y X) :
-    (tensorRight X).PreservesInjectiveObjects := sorry
+    (tensorRight X).PreservesInjectiveObjects := by
+  letI : PreservesLimits (tensorRight Y) :=
+    p.tensorRightAdjunction.rightAdjoint_preservesLimits
+  exact Functor.preservesInjectiveObjects_of_adjunction_of_preservesMonomorphisms
+    q.tensorRightAdjunction
 
 end ExactPairing
 
@@ -62,13 +70,15 @@ namespace ExactPairing
 monoidal abelian category. -/
 theorem tensorLeft_preservesInjectiveObjects
     {X Y : C} (p : ExactPairing X Y) :
-    (tensorLeft X).PreservesInjectiveObjects := sorry
+    (tensorLeft X).PreservesInjectiveObjects :=
+  p.tensorLeft_preservesInjectiveObjects_of_reverse p.braidedSwap
 
 /-- Right tensoring by the first object of an exact pairing preserves injectives in a braided
 monoidal abelian category. -/
 theorem tensorRight_preservesInjectiveObjects
     {X Y : C} (p : ExactPairing X Y) :
-    (tensorRight X).PreservesInjectiveObjects := sorry
+    (tensorRight X).PreservesInjectiveObjects :=
+  p.tensorRight_preservesInjectiveObjects_of_reverse p.braidedSwap
 
 end ExactPairing
 
@@ -78,25 +88,33 @@ namespace IsRightDualizable
 injective objects. -/
 theorem tensorLeft_preservesInjectiveObjects
     {X : C} (hX : IsRightDualizable X) :
-    (tensorLeft X).PreservesInjectiveObjects := sorry
+    (tensorLeft X).PreservesInjectiveObjects := by
+  obtain ⟨hX⟩ := hX
+  exact hX.exact.tensorLeft_preservesInjectiveObjects
 
 /-- Right tensoring by a dualizable object in a braided monoidal abelian category preserves
 injective objects. -/
 theorem tensorRight_preservesInjectiveObjects
     {X : C} (hX : IsRightDualizable X) :
-    (tensorRight X).PreservesInjectiveObjects := sorry
+    (tensorRight X).PreservesInjectiveObjects := by
+  obtain ⟨hX⟩ := hX
+  exact hX.exact.tensorRight_preservesInjectiveObjects
 
 /-- Tensoring a dualizable object on the left with an injective object gives an injective
 object. -/
 theorem tensor_injective
     {X I : C} (hX : IsRightDualizable X) (hI : Injective I) :
-    Injective (X ⊗ I) := sorry
+    Injective (X ⊗ I) := by
+  letI := hX.tensorLeft_preservesInjectiveObjects
+  exact (tensorLeft X).injective_obj_of_injective hI
 
 /-- Tensoring an injective object on the left with a dualizable object gives an injective
 object. -/
 theorem injective_tensor
     {X I : C} (hX : IsRightDualizable X) (hI : Injective I) :
-    Injective (I ⊗ X) := sorry
+    Injective (I ⊗ X) := by
+  letI := hX.tensorRight_preservesInjectiveObjects
+  exact (tensorRight X).injective_obj_of_injective hI
 
 end IsRightDualizable
 
@@ -110,13 +128,15 @@ namespace MonoidalClosed.Dual
 injectives. -/
 instance tensorLeft_preservesInjectiveObjects
     (X : C) [IsIso (tensorIhomUnitToEnd X)] :
-    (tensorLeft X).PreservesInjectiveObjects := sorry
+    (tensorLeft X).PreservesInjectiveObjects :=
+  (exactPairing X).tensorLeft_preservesInjectiveObjects
 
 /-- The canonical closed dual makes right tensoring by a dualizable object preserve
 injectives. -/
 instance tensorRight_preservesInjectiveObjects
     (X : C) [IsIso (tensorIhomUnitToEnd X)] :
-    (tensorRight X).PreservesInjectiveObjects := sorry
+    (tensorRight X).PreservesInjectiveObjects :=
+  (exactPairing X).tensorRight_preservesInjectiveObjects
 
 end MonoidalClosed.Dual
 

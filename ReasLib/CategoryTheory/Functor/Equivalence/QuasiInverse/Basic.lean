@@ -36,15 +36,19 @@ namespace IsQuasiInverse
 variable {F : A ⥤ B} {G : B ⥤ A}
 
 /-- Quasi-inverse functors remain quasi-inverse after exchanging their roles. -/
-theorem symm (h : F.IsQuasiInverse G) : G.IsQuasiInverse F := sorry
+theorem symm (h : F.IsQuasiInverse G) : G.IsQuasiInverse F := by
+  rcases h with ⟨⟨η⟩, ⟨ε⟩⟩
+  exact ⟨⟨ε.symm⟩, ⟨η.symm⟩⟩
 
 /-- A functor with a quasi-inverse is an equivalence of categories. -/
-theorem isEquivalence (h : F.IsQuasiInverse G) : F.IsEquivalence := sorry
+theorem isEquivalence (h : F.IsQuasiInverse G) : F.IsEquivalence := by
+  rcases h with ⟨⟨η⟩, ⟨ε⟩⟩
+  exact IsEquivalence.mk' G η ε
 
 end IsQuasiInverse
 
 /-- Explicit quasi-inverse data for a functor. -/
-@[stacks 019F "explicit quasi-inverse data"]
+@[stacks 001J "explicit quasi-inverse data"]
 structure QuasiInverse (F : A ⥤ B) where
   /-- The inverse functor. -/
   inverse : B ⥤ A
@@ -59,7 +63,6 @@ variable {F : A ⥤ B}
 
 /-- Forget the triangle identity of an equivalence of categories while retaining its forward
 functor, inverse, unit, and counit as explicit quasi-inverse data. -/
-@[stacks 019F "quasi-inverse data underlying an equivalence"]
 def ofEquivalence (e : A ≌ B) : QuasiInverse e.functor where
   inverse := e.inverse
   unitIso := e.unitIso
@@ -67,45 +70,44 @@ def ofEquivalence (e : A ≌ B) : QuasiInverse e.functor where
 
 /-- The inverse stored after forgetting an equivalence's triangle identity is its original
 inverse functor. -/
-@[simp, stacks 019F "inverse of equivalence quasi-inverse data"]
+@[simp]
 theorem ofEquivalence.inverse (e : A ≌ B) :
-    (ofEquivalence e).inverse = e.inverse := sorry
+    (ofEquivalence e).inverse = e.inverse := rfl
 
 /-- Forgetting an equivalence's triangle identity retains its unit isomorphism. -/
-@[simp, stacks 019F "unit of equivalence quasi-inverse data"]
+@[simp]
 theorem ofEquivalence.unitIso (e : A ≌ B) :
-    (ofEquivalence e).unitIso = e.unitIso := sorry
+    (ofEquivalence e).unitIso = e.unitIso := rfl
 
 /-- Forgetting an equivalence's triangle identity retains its counit isomorphism. -/
-@[simp, stacks 019F "counit of equivalence quasi-inverse data"]
+@[simp]
 theorem ofEquivalence.counitIso (e : A ≌ B) :
-    (ofEquivalence e).counitIso = e.counitIso := sorry
+    (ofEquivalence e).counitIso = e.counitIso := rfl
 
 /-- Reverse quasi-inverse data by exchanging the forward and inverse functors. -/
-@[stacks 019F "symmetric quasi-inverse data"]
 def symm (e : QuasiInverse F) : QuasiInverse e.inverse where
   inverse := F
   unitIso := e.counitIso.symm
   counitIso := e.unitIso.symm
 
 /-- Reversing explicit quasi-inverse data selects the original forward functor as its inverse. -/
-@[simp, stacks 019F "inverse of symmetric quasi-inverse data"]
+@[simp]
 theorem symm.inverse (e : QuasiInverse F) :
-    e.symm.inverse = F := sorry
+    e.symm.inverse = F := rfl
 
 /-- Reversing explicit quasi-inverse data uses the inverse counit as its unit. -/
-@[simp, stacks 019F "unit of symmetric quasi-inverse data"]
+@[simp]
 theorem symm.unitIso (e : QuasiInverse F) :
-    e.symm.unitIso = e.counitIso.symm := sorry
+    e.symm.unitIso = e.counitIso.symm := rfl
 
 /-- Reversing explicit quasi-inverse data uses the inverse unit as its counit. -/
-@[simp, stacks 019F "counit of symmetric quasi-inverse data"]
+@[simp]
 theorem symm.counitIso (e : QuasiInverse F) :
-    e.symm.counitIso = e.unitIso.symm := sorry
+    e.symm.counitIso = e.unitIso.symm := rfl
 
 /-- Explicit quasi-inverse data imply that the forward functor is an equivalence. -/
-@[stacks 019F "equivalence from explicit quasi-inverse data"]
-theorem isEquivalence (e : QuasiInverse F) : F.IsEquivalence := sorry
+theorem isEquivalence (e : QuasiInverse F) : F.IsEquivalence :=
+  IsEquivalence.mk' e.inverse e.unitIso e.counitIso
 
 end QuasiInverse
 

@@ -46,7 +46,7 @@ def toPrincipalObj (ξ : Torsors.Obj G) : Principal.Obj G where
 and action. -/
 theorem toPrincipalObj_spec (ξ : Torsors.Obj G) :
     (toPrincipalObj G ξ).U = ξ.U ∧ (toPrincipalObj G ξ).b = ξ.b ∧
-      (toPrincipalObj G ξ).X = ξ.X := sorry
+      (toPrincipalObj G ξ).X = ξ.X := ⟨rfl, rfl, rfl⟩
 
 /-- Send a morphism of fppf `G_U`-torsors to the same scheme map and equivariant
 isomorphism of principal homogeneous spaces. -/
@@ -55,23 +55,23 @@ def toPrincipalMap {ξ ξ' : Torsors.Obj G} (α : Torsors.Hom ξ ξ') :
   f := α.f
   comm := α.comm
   g := α.g
-  equivariant := sorry
+  equivariant := α.equivariant
 
 /-- The comparison on morphisms preserves the underlying scheme map and
 equivariant isomorphism. -/
 theorem toPrincipalMap_spec {ξ ξ' : Torsors.Obj G} (α : Torsors.Hom ξ ξ') :
-    (toPrincipalMap G α).f = α.f ∧ (toPrincipalMap G α).g = α.g := sorry
+    (toPrincipalMap G α).f = α.f ∧ (toPrincipalMap G α).g = α.g := ⟨rfl, rfl⟩
 
 /-- The comparison functor sends identity morphisms to identity morphisms. -/
 theorem toPrincipalFunctor_map_id (ξ : Torsors.Obj G) :
     toPrincipalMap G (Torsors.idHom ξ) = Principal.idHom (toPrincipalObj G ξ) :=
-  sorry
+  rfl
 
 /-- The comparison functor preserves composition. -/
 theorem toPrincipalFunctor_map_comp {ξ ξ' ξ'' : Torsors.Obj G}
     (α : Torsors.Hom ξ ξ') (β : Torsors.Hom ξ' ξ'') :
     toPrincipalMap G (Torsors.compHom α β) =
-      Principal.compHom (toPrincipalMap G α) (toPrincipalMap G β) := sorry
+      Principal.compHom (toPrincipalMap G α) (toPrincipalMap G β) := rfl
 
 /-- The comparison functor on objects of `G`-Torsors and `G`-Principal. -/
 def toPrincipalFunctor : Torsors.Obj G ⥤ Principal.Obj G where
@@ -83,11 +83,11 @@ def toPrincipalFunctor : Torsors.Obj G ⥤ Principal.Obj G where
 /-- The comparison functor sends `(U, b, X)` to `(U, b, X)` with the transported
 fpqc witness. -/
 theorem toPrincipalFunctor_obj (ξ : Torsors.Obj G) :
-    (toPrincipalFunctor G).obj ξ = toPrincipalObj G ξ := sorry
+    (toPrincipalFunctor G).obj ξ = toPrincipalObj G ξ := rfl
 
 /-- The comparison functor lies over `(Sch/S)_fppf`. -/
 theorem basedFunctor_w :
-    toPrincipalFunctor G ⋙ Principal.forget G = Torsors.forget G := sorry
+    toPrincipalFunctor G ⋙ Principal.forget G = Torsors.forget G := rfl
 
 /-- The based comparison functor of classifying stacks over `(Sch/S)_fppf`. -/
 def toPrincipalBasedFunctor :
@@ -105,7 +105,8 @@ and action. -/
 theorem toPrincipal_obj (ξ : Torsors.Obj G) :
     ((StackOver.Groupoids.Hom.toFunctor (toPrincipal G)).obj ξ).U = ξ.U ∧
       ((StackOver.Groupoids.Hom.toFunctor (toPrincipal G)).obj ξ).b = ξ.b ∧
-      ((StackOver.Groupoids.Hom.toFunctor (toPrincipal G)).obj ξ).X = ξ.X := sorry
+      ((StackOver.Groupoids.Hom.toFunctor (toPrincipal G)).obj ξ).X = ξ.X :=
+  ⟨rfl, rfl, rfl⟩
 
 end AlgebraicGeometry.GroupAlgebraicSpace
 
@@ -123,7 +124,7 @@ def toPrincipal :
 of `toGroupAlgebraicSpace G`. -/
 theorem toPrincipal_eq :
     toPrincipal G = GroupAlgebraicSpace.toPrincipal (toGroupAlgebraicSpace G) :=
-  sorry
+  rfl
 
 /-- The comparison functor `G`-Torsors ⟶ `G`-Principal is not essentially
 surjective in general. -/
@@ -137,6 +138,13 @@ big fppf site. -/
 theorem exists_principal_notEquivalent_fppfTorsors :
     ∃ (S : Scheme.{u}) (G : GroupScheme S),
       ¬ BasedFunctor.IsEquivalence
-        (StackOver.Groupoids.Hom.toBasedFunctor (toPrincipal G)) := sorry
+        (StackOver.Groupoids.Hom.toBasedFunctor (toPrincipal G)) := by
+  obtain ⟨S, G, hG⟩ := toPrincipal_not_essSurj.{u}
+  refine ⟨S, G, ?_⟩
+  intro h
+  obtain ⟨e⟩ := h.nonempty
+  apply hG
+  exact ⟨fun Y ↦ ⟨e.inverse.obj Y,
+    ⟨((BasedNatTrans.forgetful _ _).mapIso e.counitIso).app Y⟩⟩⟩
 
 end AlgebraicGeometry.GroupScheme

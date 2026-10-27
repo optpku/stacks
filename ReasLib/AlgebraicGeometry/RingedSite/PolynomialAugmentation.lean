@@ -48,11 +48,11 @@ namespace Site
 abbrev topology : GrothendieckTopology (Algebra.PolynomialSite A B) := ⊥
 
 /-- The chaotic topology on `C_{B/A}` is the bottom Grothendieck topology. -/
-theorem topology_eq_bot : topology A B = ⊥ := sorry
+theorem topology_eq_bot : topology A B = ⊥ := rfl
 
 /-- The chaotic topology on `C_{B/A}` is `GrothendieckTopology.trivial`. -/
 theorem topology_eq_trivial :
-    topology A B = GrothendieckTopology.trivial (Algebra.PolynomialSite A B) := sorry
+    topology A B = GrothendieckTopology.trivial (Algebra.PolynomialSite A B) := rfl
 
 /-- The underlying presheaf of `O`, sending `(P, α)` to the source ring `P`. -/
 def structurePresheaf : (Algebra.PolynomialSite A B)ᵒᵖ ⥤ CommRingCat.{u} :=
@@ -114,20 +114,20 @@ def pointRingedSite : RingedSite.{u + 1, u + 1, u + 1} :=
 theorem structureSheaf_obj (X : (Algebra.PolynomialSite A B)ᵒᵖ) :
     (structureSheaf A B).obj.obj X =
       (forget₂ (CommAlgCat A) CommRingCat).obj
-        ((unopUnop (Algebra.PolynomialOver A B)).obj X).obj.left := sorry
+        ((unopUnop (Algebra.PolynomialOver A B)).obj X).obj.left := rfl
 
 /-- Evaluation of `underline{B}` is constantly `B`. -/
 theorem constantRingSheaf_obj (X : (Algebra.PolynomialSite A B)ᵒᵖ) :
-    (constantRingSheaf A B).obj.obj X = CommRingCat.of B := sorry
+    (constantRingSheaf A B).obj.obj X = CommRingCat.of B := rfl
 
 /-- Components of `i♯` are the Over-structure morphisms `α : P → B`. -/
 theorem structureSheafMap_app (X : (Algebra.PolynomialSite A B)ᵒᵖ) :
     (structureSheafMap A B).hom.app X =
       (forget₂ (CommAlgCat A) CommRingCat).map
-        ((unopUnop (Algebra.PolynomialOver A B)).obj X).obj.hom := sorry
+        ((unopUnop (Algebra.PolynomialOver A B)).obj X).obj.hom := rfl
 
 /-- The same-site morphism of ringed sites with identity base functor and structure map `i♯`. -/
-def sameSite : constantRingedSite A B ⟶ ringedSite A B :=
+def sameSite : RingedSite.Hom (constantRingedSite A B) (ringedSite A B) :=
   sameSiteHom.{u + 1, u, u + 1} (structureSheafMapLift A B)
 
 /-- The morphism of ringed topoi `i : (Sh(C), underline{B}) ⟶ (Sh(C), O)`, identity on
@@ -136,7 +136,7 @@ def i : ToposHom (constantRingedSite A B) (ringedSite A B) :=
   Hom.toToposHom (sameSite A B)
 
 /-- The category-to-point functor `C_{B/A} ⥤ *`. -/
-def toPointBase : constantRingedSite A B ⥤ pointRingedSite B :=
+def toPointBase : (constantRingedSite A B).carrier ⥤ (pointRingedSite B).carrier :=
   Functor.star.{u + 1, u, u + 1} (Algebra.PolynomialSite A B)
 
 /-- The constant-to-constant comparison identifying the pullback of `B` along `star`
@@ -155,20 +155,20 @@ def toPoint : ToposHom (constantRingedSite A B) (pointRingedSite B) :=
 
 /-- The underlying functor of `π` is `Functor.star`. -/
 theorem toPoint_star :
-    toPointBase A B = Functor.star.{u + 1, u, u + 1} (Algebra.PolynomialSite A B) := sorry
+    toPointBase A B = Functor.star.{u + 1, u, u + 1} (Algebra.PolynomialSite A B) := rfl
 
 /-- Precomposing the constant ring presheaf on the point with the category-to-point
 functor gives the constant ring presheaf on the polynomial site. -/
 theorem toPoint_inverseImage_constant :
     (toPointBase A B).op ⋙ (pointRingedSite B).structureSheaf.obj =
-      (constantRingedSite A B).structureSheaf.obj := sorry
+      (constantRingedSite A B).structureSheaf.obj := rfl
 
 /-- The universe lift sends a commutative ring `R` to `ULift R`. -/
 theorem uliftCommRing_obj (R : CommRingCat.{u}) :
-    (RingedSite.Cotangent.uliftCommRing).obj R = CommRingCat.of (ULift.{u + 1} R) := sorry
+    (RingedSite.Cotangent.uliftCommRing).obj R = CommRingCat.of (ULift.{u + 1} R) := rfl
 
 /-- The base functor of `i` is the identity of `C_{B/A}`. -/
-theorem i_base : (sameSite A B).base = 𝟭 (Algebra.PolynomialSite A B) := sorry
+theorem i_base : (sameSite A B).base = 𝟭 (Algebra.PolynomialSite A B) := rfl
 
 end Site
 

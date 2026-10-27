@@ -42,7 +42,8 @@ theorem hom.toBasedNatTrans
       (BasedCategory.RelativeInertia.toInertia.naturalityIso
         (FiberedCategoryOver.toBasedFunctor G)
         (FiberedCategoryOver.toBasedFunctor G')
-        (FiberedCategoryOver.toBasedFunctorIso comm)).hom := sorry
+        (FiberedCategoryOver.toBasedFunctorIso comm)).hom := by
+  rfl
 
 /-- Forgetting the inverse cartesian naturality cell recovers the canonical based cell. -/
 @[simp]
@@ -56,7 +57,8 @@ theorem inv.toBasedNatTrans
       (BasedCategory.RelativeInertia.toInertia.naturalityIso
         (FiberedCategoryOver.toBasedFunctor G)
         (FiberedCategoryOver.toBasedFunctor G')
-        (FiberedCategoryOver.toBasedFunctorIso comm)).inv := sorry
+        (FiberedCategoryOver.toBasedFunctorIso comm)).inv := by
+  rfl
 
 /-- The forward cartesian naturality component is the explicit based identity-arrow component. -/
 @[simp]
@@ -71,7 +73,8 @@ theorem hom.app
       (BasedCategory.RelativeInertia.toInertia.naturalityIso.component
         (FiberedCategoryOver.toBasedFunctor G)
         (FiberedCategoryOver.toBasedFunctor G')
-        (FiberedCategoryOver.toBasedFunctorIso comm) A).hom := sorry
+        (FiberedCategoryOver.toBasedFunctorIso comm) A).hom := by
+  rfl
 
 /-- The inverse cartesian naturality component is the explicit reverse identity-arrow component. -/
 @[simp]
@@ -86,7 +89,8 @@ theorem inv.app
       (BasedCategory.RelativeInertia.toInertia.naturalityIso.component
         (FiberedCategoryOver.toBasedFunctor G)
         (FiberedCategoryOver.toBasedFunctor G')
-        (FiberedCategoryOver.toBasedFunctorIso comm) A).inv := sorry
+        (FiberedCategoryOver.toBasedFunctorIso comm) A).inv := by
+  rfl
 
 /- The typed bridge below keeps verticality available without requiring callers to descend to the
    based natural transformation owner. -/
@@ -100,7 +104,9 @@ theorem hom.app.isHomLift
     (FiberedCategoryOver.inertia X₂).p.IsHomLift
       (𝟙 ((FiberedCategoryOver.relativeInertia F₁).p.obj A))
       ((FiberedCategoryOver.toNatTrans
-        (naturalityIso G G' comm).hom).app A) := sorry
+        (naturalityIso G G' comm).hom).app A) := by
+  exact (FiberedCategoryOver.toBasedNatTrans
+    (naturalityIso G G' comm).hom).isHomLift rfl
 
 /-- Every inverse cartesian naturality component lies over the identity of the source base object. -/
 theorem inv.app.isHomLift
@@ -112,7 +118,9 @@ theorem inv.app.isHomLift
     (FiberedCategoryOver.inertia X₂).p.IsHomLift
       (𝟙 ((FiberedCategoryOver.relativeInertia F₁).p.obj A))
       ((FiberedCategoryOver.toNatTrans
-        (naturalityIso G G' comm).inv).app A) := sorry
+        (naturalityIso G G' comm).inv).app A) := by
+  exact (FiberedCategoryOver.toBasedNatTrans
+    (naturalityIso G G' comm).inv).isHomLift rfl
 
 /-- The forward cartesian relative-to-absolute comparison is natural on total categories. -/
 @[reassoc]
@@ -131,7 +139,8 @@ theorem naturality
           (naturalityIso G G' comm).hom).app A ≫
         (FiberedCategoryOver.toFunctor
             (FiberedCategoryOver.RelativeInertia.toInertia F₁ ≫
-              FiberedCategoryOver.Inertia.map G)).map f := sorry
+              FiberedCategoryOver.Inertia.map G)).map f := by
+  exact (FiberedCategoryOver.toNatTrans (naturalityIso G G' comm).hom).naturality f
 
 /-- The inverse cartesian relative-to-absolute comparison is natural on total categories. -/
 @[reassoc]
@@ -150,7 +159,8 @@ theorem invNaturality
           (naturalityIso G G' comm).inv).app A ≫
         (FiberedCategoryOver.toFunctor
             (FiberedCategoryOver.RelativeInertia.map G G' comm ≫
-              FiberedCategoryOver.RelativeInertia.toInertia F₂)).map f := sorry
+              FiberedCategoryOver.RelativeInertia.toInertia F₂)).map f := by
+  exact (FiberedCategoryOver.toNatTrans (naturalityIso G G' comm).inv).naturality f
 
 /-- The arrow underlying each forward cartesian naturality component is an identity. -/
 @[simp]
@@ -163,7 +173,8 @@ theorem hom.app.underlying
     CategoryTheory.RelativeInertia.hom
         ((FiberedCategoryOver.toNatTrans
           (naturalityIso G G' comm).hom).app A) =
-      𝟙 ((FiberedCategoryOver.toFunctor G).obj A.obj) := sorry
+      𝟙 ((FiberedCategoryOver.toFunctor G).obj A.obj) := by
+  rfl
 
 /-- The arrow underlying each inverse cartesian naturality component is an identity. -/
 @[simp]
@@ -176,7 +187,8 @@ theorem inv.app.underlying
     CategoryTheory.RelativeInertia.hom
         ((FiberedCategoryOver.toNatTrans
           (naturalityIso G G' comm).inv).app A) =
-      𝟙 ((FiberedCategoryOver.toFunctor G).obj A.obj) := sorry
+      𝟙 ((FiberedCategoryOver.toFunctor G).obj A.obj) := by
+  rfl
 
 end naturalityIso
 

@@ -6,23 +6,15 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_12_9_Comparison
-
-/-!
-# Lemma 85.12.9
-
-In Situation 85.3.3, an object of `D(C_total)` is cartesian if and only if the
-canonical maps `g_{n!} K_n ⟶ g_{n!} ℤ ⊗ᴸ K` are isomorphisms for every `n`.
-If `O` is a sheaf of rings on `C_total` such that `f_φ⁻¹ O_n ⟶ O_m` is flat
-for every simplex operator `φ`, the same criterion holds in `D(O)` with
-`g_{n!} O_n` in place of `g_{n!} ℤ`.
--/
+public import ReasLib.CategoryTheory.Sites.Simplicial.ShriekTensor
+public import ReasLib.CategoryTheory.Sites.Grothendieck.ShriekTensor
+public import ReasLib.AlgebraicGeometry.RingedSite.Simplicial.ShriekTensor
+public import ReasLib.AlgebraicGeometry.RingedSite.Simplicial.FiberShriekTensor
+import StacksCheckRecall
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.Limits
-open RingedSite
+open CategoryTheory CategoryTheory.Limits Opposite RingedSite
 
 noncomputable section
 
@@ -30,11 +22,17 @@ universe u v w
 
 namespace CategoryTheory.SimplicialSites
 
+section Abelian
+
 variable (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
-variable [IsMorphismDiagram C J]
+variable [∀ n, HasSheafify (J n).toGrothendieck (Type w)]
+variable [HasSheafify (topology C J) (Type w)]
+variable [∀ n, ∀ P : (C.obj n)ᵒᵖ ⥤ Type w,
+    (ofStage C n).op.HasPointwiseRightKanExtension P]
 variable [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
 variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
     ((C.map φ).toFunctor).op.HasLeftKanExtension P]
+variable [IsMorphismDiagram.{u, v, w} C J]
 variable [HasWeakSheafify (topology C J) (Type w)]
 variable [∀ n, ∀ P : (C.obj n)ᵒᵖ ⥤ Type w, (ofStage C n).op.HasLeftKanExtension P]
 variable [∀ n, HasWeakSheafify (J n).toGrothendieck AddCommGrpCat.{w}]
@@ -51,24 +49,35 @@ variable [∀ n, ∀ P : (C.obj n)ᵒᵖ ⥤ AddCommGrpCat.{w},
     (ofStage C n).op.HasPointwiseRightKanExtension P]
 variable [∀ n, ((J n).toGrothendieck).HasSheafCompose (forget AddCommGrpCat.{w})]
 
-/-- Lemma 85.12.9 (1)
-In Situation 85.3.3, an object `K` of `D(C_total)` is cartesian if and only if the
-canonical map `g_{n!} K_n ⟶ g_{n!} ℤ ⊗ᴸ K` is an isomorphism for every `n`. -/
-@[stacks 0D9E]
-theorem derived_isCartesian_iff_shriekTensor
-    (K : DerivedCategory (Sheaf (topology C J) AddCommGrpCat.{w})) :
-    Derived.IsCartesian C J K ↔
-      ∀ n : SimplexCategory, IsIso (derivedShriekTensorComparison C J n K) :=
-  sorry
+
+/- Lemma 85.12.9 (1). A derived abelian sheaf is cartesian exactly when
+all canonical lower-shriek integer-tensor comparisons are invertible. -/
+@[stacks 0D9E] #check
+  (CategoryTheory.SimplicialSites.AbelianDerived.isCartesian_iff_shriekTensor C J :
+    ∀ K : DerivedCategory (Sheaf (topology C J) AddCommGrpCat.{w}),
+      CategoryTheory.SimplicialSites.AbelianDerived.IsCartesian C J K ↔
+        ∀ n : SimplexCategory,
+          IsIso (CategoryTheory.SimplicialSites.AbelianDerived.shriekTensorComparison C J n K))
+
+end Abelian
 
 section Modules
 
+variable (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
+variable [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
+variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
+    ((C.map φ).toFunctor).op.HasLeftKanExtension P]
+variable [IsMorphismDiagram.{u, v, w} C J]
+variable [HasWeakSheafify (topology C J) (Type w)]
+variable [∀ n, ∀ P : (C.obj n)ᵒᵖ ⥤ Type w, (ofStage C n).op.HasLeftKanExtension P]
+variable [HasWeakSheafify (topology C J) AddCommGrpCat.{w}]
+variable [∀ n, HasWeakSheafify (J n).toGrothendieck AddCommGrpCat.{w}]
 variable (O : Sheaf (topology C J) CommRingCat.{w})
 variable [(topology C J).HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
-variable [(topology C J).HasSheafCompose (forget RingCat.{w})]
+variable [(topology C J).HasSheafCompose (CategoryTheory.forget RingCat.{w})]
 variable [∀ n, ((J n).toGrothendieck).HasSheafCompose
     (forget₂ CommRingCat.{w} RingCat.{w})]
-variable [∀ n, ((J n).toGrothendieck).HasSheafCompose (forget RingCat.{w})]
+variable [∀ n, ((J n).toGrothendieck).HasSheafCompose (CategoryTheory.forget RingCat.{w})]
 variable [UnivLE.{max u v, w}]
 variable [∀ n, HasSheafify ((J n).toGrothendieck) (Type w)]
 variable [∀ n, ∀ P : (C.obj n)ᵒᵖ ⥤ Type w,
@@ -85,23 +94,109 @@ variable [∀ {m n : SimplexCategory} (φ : m ⟶ n),
       (ringedToposMap C J (Sheaf.ringSheafOfComm O) φ)]
 variable [(topology C J).WEqualsLocallyBijective AddCommGrpCat.{w}]
 variable [∀ n, ((J n).toGrothendieck).WEqualsLocallyBijective AddCommGrpCat.{w}]
-variable [∀ n, (moduleInverseImage C J (Sheaf.ringSheafOfComm O) n).Monoidal]
 
-/-- Lemma 85.12.9 (2)
-In Situation 85.3.3, if `O` is a sheaf of rings on `C_total` such that the morphisms
-`f_φ⁻¹ O_n ⟶ O_m` are flat for all `φ : n ⟶ m`, then an object `K` of `D(O)` is
-cartesian if and only if the canonical map `g_{n!} K_n ⟶ g_{n!} O_n ⊗ᴸ K` is an
-isomorphism for every `n`. -/
-@[stacks 0D9E]
-theorem moduleDerived_isCartesian_iff_shriekTensor
-    (h_flat : ∀ {n m : SimplexCategory} (φ : n ⟶ m),
-      ToposHom.IsFlat (ringedToposMap C J (Sheaf.ringSheafOfComm O) φ))
-    (K : Hom.ModuleDerived.{w} (totalRingedSite C J (Sheaf.ringSheafOfComm O))) :
-    ModuleDerived.IsCartesian C J (Sheaf.ringSheafOfComm O) K ↔
-      ∀ n : SimplexCategory,
-        IsIso (moduleDerivedShriekTensorComparison C J O h_flat n K) :=
-  sorry
+
+variable (h_flat : ∀ {n m : SimplexCategory} (φ : n ⟶ m),
+  ToposHom.IsFlat (ringedToposMap C J (Sheaf.ringSheafOfComm O) φ))
+
+/- Lemma 85.12.9 (2). Under flat simplex structure-ring maps, a derived
+module is cartesian exactly when all canonical lower-shriek tensor comparisons are invertible. -/
+@[stacks 0D9E] #check
+  (CategoryTheory.SimplicialSites.ModuleDerived.isCartesian_iff_shriekTensor C J O h_flat :
+    ∀ K : Hom.ModuleDerived.{w} (totalRingedSite C J (Sheaf.ringSheafOfComm O)),
+      CategoryTheory.SimplicialSites.ModuleDerived.IsCartesian C J (Sheaf.ringSheafOfComm O) K ↔
+        ∀ n : SimplexCategory,
+          IsIso (CategoryTheory.SimplicialSites.ModuleDerived.shriekTensorComparison C J O h_flat n K))
 
 end Modules
 
 end CategoryTheory.SimplicialSites
+
+namespace CategoryTheory.Grothendieck
+
+section Abelian
+
+variable (C : SimplicialObject Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
+variable [IsFiberwiseSite C J]
+variable [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
+variable [HasWeakSheafify (topology C J) (Type w)]
+variable [∀ n, HasSheafify (J n).toGrothendieck (Type w)]
+variable [HasSheafify (topology C J) (Type w)]
+variable [∀ n, ∀ P : (C.obj (op n))ᵒᵖ ⥤ Type w,
+    (ι C (op n)).op.HasLeftKanExtension P]
+variable [∀ n, ∀ P : (C.obj (op n))ᵒᵖ ⥤ Type w,
+    (ι C (op n)).op.HasPointwiseRightKanExtension P]
+variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj (op n))ᵒᵖ ⥤ Type w),
+    ((C.map φ.op).toFunctor).op.HasPointwiseRightKanExtension P]
+variable [∀ n, HasWeakSheafify (J n).toGrothendieck AddCommGrpCat.{w}]
+variable [HasWeakSheafify (topology C J) AddCommGrpCat.{w}]
+variable [HasSheafify (topology C J) AddCommGrpCat.{w}]
+variable [∀ n, HasSheafify (J n).toGrothendieck AddCommGrpCat.{w}]
+variable [∀ n, ∀ P : (C.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{w},
+    (ι C (op n)).op.HasLeftKanExtension P]
+variable [∀ n, ∀ P : (C.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{w},
+    (ι C (op n)).op.HasPointwiseLeftKanExtension P]
+variable [∀ n, ∀ P : (C.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{w},
+    (ι C (op n)).op.HasPointwiseRightKanExtension P]
+variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{w}),
+    ((C.map φ.op).toFunctor).op.HasPointwiseRightKanExtension P]
+
+/- Lemma 85.12.9 (3). A derived abelian sheaf is cartesian exactly when
+all canonical lower-shriek integer-tensor comparisons are invertible. -/
+@[stacks 0D9E] #check
+  (CategoryTheory.Grothendieck.AbelianDerived.isCartesian_iff_shriekTensor C J :
+    ∀ K : DerivedCategory (Sheaf (topology C J) AddCommGrpCat.{w}),
+      CategoryTheory.Grothendieck.AbelianDerived.IsCartesian C J K ↔
+        ∀ n : SimplexCategory,
+          IsIso (CategoryTheory.Grothendieck.AbelianDerived.shriekTensorComparison C J n K))
+
+end Abelian
+
+section Modules
+
+variable (C : SimplicialObject Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
+variable [IsFiberwiseSite C J]
+variable [UnivLE.{max u v, w}]
+variable [∀ n, HasSheafify (J n).toGrothendieck (Type w)]
+variable [HasSheafify (topology C J) (Type w)]
+variable [∀ n, ∀ P : (C.obj (op n))ᵒᵖ ⥤ Type w,
+    (ι C (op n)).op.HasPointwiseRightKanExtension P]
+variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj (op n))ᵒᵖ ⥤ Type w),
+    ((C.map φ.op).toFunctor).op.HasPointwiseRightKanExtension P]
+variable [HasWeakSheafify (topology C J) AddCommGrpCat.{w}]
+variable [∀ n, HasWeakSheafify (J n).toGrothendieck AddCommGrpCat.{w}]
+variable (O : Sheaf (topology C J) CommRingCat.{w})
+variable [(topology C J).HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [(topology C J).HasSheafCompose (CategoryTheory.forget RingCat.{w})]
+variable [∀ n, ((J n).toGrothendieck).HasSheafCompose
+    (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [∀ n, ((J n).toGrothendieck).HasSheafCompose (CategoryTheory.forget RingCat.{w})]
+variable [∀ n, (SheafOfModules.restrictScalars.{w}
+    (fiberStageMorphism C J (Sheaf.ringSheafOfComm O) n).structureMap).IsRightAdjoint]
+variable [∀ {m n : SimplexCategory} (φ : m ⟶ n),
+    (SheafOfModules.restrictScalars.{w}
+      (fiberRingedToposMap C J (Sheaf.ringSheafOfComm O) φ).structureMap).IsRightAdjoint]
+variable [∀ n, ToposHom.HasModulePullbackDerived
+    (fiberStageMorphism C J (Sheaf.ringSheafOfComm O) n)]
+variable [∀ {m n : SimplexCategory} (φ : m ⟶ n),
+    ToposHom.HasModulePullbackDerived
+      (fiberRingedToposMap C J (Sheaf.ringSheafOfComm O) φ)]
+variable [(topology C J).WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [∀ n, ((J n).toGrothendieck).WEqualsLocallyBijective AddCommGrpCat.{w}]
+
+variable (h_flat : ∀ {n m : SimplexCategory} (φ : n ⟶ m),
+  ToposHom.IsFlat (fiberRingedToposMap C J (Sheaf.ringSheafOfComm O) φ))
+
+/- Lemma 85.12.9 (4). Under flat simplex structure-ring maps, a derived
+module is cartesian exactly when all canonical lower-shriek tensor comparisons are invertible. -/
+@[stacks 0D9E] #check
+  (CategoryTheory.Grothendieck.ModuleDerived.isCartesian_iff_shriekTensor C J O h_flat :
+    ∀ K : Hom.ModuleDerived.{w} (fiberTotalRingedSite C J (Sheaf.ringSheafOfComm O)),
+      CategoryTheory.Grothendieck.ModuleDerived.IsCartesian C J (Sheaf.ringSheafOfComm O) K ↔
+        ∀ n : SimplexCategory,
+          IsIso (CategoryTheory.Grothendieck.ModuleDerived.shriekTensorComparison C J O h_flat n K))
+
+end Modules
+
+end CategoryTheory.Grothendieck
+

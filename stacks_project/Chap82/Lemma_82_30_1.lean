@@ -28,7 +28,7 @@ sequence with a trivial rank-one submodule. -/
       [SheafOfModules.IsFiniteLocallyFreeOfRank (r - 1) F] →
       (ι : 𝟙_ X.Modules ⟶ E) → (q : E ⟶ F) →
       (hzero : ι ≫ q = 0) → (ShortComplex.mk ι q hzero).ShortExact →
-      chernClass δ f E r = ChowCohomology.zeroCap δ f (r : ℤ))
+      chernClass δ f E r = OperationalChow.zero δ f (r : ℤ))
 
 /- Lemma 82.30.1 (2): equality of Chern class components below the rank for a
 short exact sequence with a trivial rank-one submodule. -/

@@ -48,7 +48,7 @@ big h slice over `S` is cocontinuous. -/
 /- Lemma 38.34.18 (4): the adjoint slice functors induce the canonical
 morphism of topoi from the big h topos over `T` to that over `S`. -/
 @[stacks 0EU6] #check
-  (CategoryTheory.Over.Site.morphismOfTopoi.{u, v, max u v}
+  (CategoryTheory.Over.Site.morphismOfTopoi.{v, u, max u v}
       X.toGrothendieck f :
     MorphismOfTopoiIn
       (X.toGrothendieck.over S) (X.toGrothendieck.over T))
@@ -56,18 +56,18 @@ morphism of topoi from the big h topos over `T` to that over `S`. -/
 /- Lemma 38.34.18 (5): the inverse image of the induced morphism of topoi is
 the sheaf functor obtained from postcomposition. -/
 @[stacks 0EU6] #check
-  (CategoryTheory.Over.Site.Morphism.inverseImage.{u, v, max u v}
+  (CategoryTheory.Over.Site.Morphism.inverseImage.{v, u, max u v}
       X.toGrothendieck f :
-    (CategoryTheory.Over.Site.morphismOfTopoi.{u, v, max u v}
+    (CategoryTheory.Over.Site.morphismOfTopoi.{v, u, max u v}
       X.toGrothendieck f)⁻¹ =
         CategoryTheory.Over.Site.inverseImage X.toGrothendieck f)
 
 /- Lemma 38.34.18 (6): the cocontinuous and continuous-pullback
 presentations of direct image induce the same morphism of topoi. -/
 @[stacks 0EU6] #check
-  (CategoryTheory.Over.Site.WithPullbacks.Morphism.pushforwardPresentation.{u, v, max u v}
+  (CategoryTheory.Over.Site.WithPullbacks.Morphism.pushforwardPresentation.{v, u, max u v}
       X.toGrothendieck X.hasPullbacks f :
-    (CategoryTheory.Over.Site.morphismOfTopoi.{u, v, max u v}
+    (CategoryTheory.Over.Site.morphismOfTopoi.{v, u, max u v}
       X.toGrothendieck f).pushforward ≅
         (
          -- Local instance justification (proof-local temporary data): `sheafPushforwardContinuous` accepts continuity only as a typeclass argument.
@@ -85,7 +85,7 @@ variable
 /- Lemma 38.34.18 (7): inverse image is computed by evaluating on the
 postcomposed slice object `U/S`. -/
 @[stacks 0EU6] #check
-  (CategoryTheory.Over.Site.InverseImage.obj_eq.{u, v, max u v}
+  (CategoryTheory.Over.Site.InverseImage.obj_eq.{v, u, max u v}
       X.toGrothendieck f G U :
     ((CategoryTheory.Over.Site.inverseImage X.toGrothendieck f).obj G).obj.obj (op U) =
       G.obj.obj (op ((CategoryTheory.Over.Site.mapFunctor f).obj U)))
@@ -100,7 +100,7 @@ variable
 /- Lemma 38.34.18 (8): direct image is computed by evaluating on the
 pullback slice object `U ×_S T/T`. -/
 @[stacks 0EU6] #check
-  (CategoryTheory.Over.Site.WithPullbacks.DirectImage.obj_eq.{u, v, max u v}
+  (CategoryTheory.Over.Site.WithPullbacks.DirectImage.obj_eq.{v, u, max u v}
       X.toGrothendieck X.hasPullbacks f F U :
     ((CategoryTheory.Over.Site.directImage X.toGrothendieck f).obj F).obj.obj (op U) =
       F.obj.obj (op ((CategoryTheory.Over.Site.WithPullbacks.pullbackFunctor
@@ -111,22 +111,22 @@ end
 /- Lemma 38.34.18 (9): lower shriek is left adjoint to the inverse image of
 the induced morphism of topoi. -/
 @[stacks 0EU6] #check
-  (CategoryTheory.Over.Site.LowerShriek.adjunction_viaMorphism.{u, v, max u v}
+  (CategoryTheory.Over.Site.LowerShriek.adjunction_viaMorphism.{v, u, max u v}
       X.toGrothendieck f :
     CategoryTheory.Over.Site.lowerShriek X.toGrothendieck f ⊣
-      (CategoryTheory.Over.Site.morphismOfTopoi.{u, v, max u v}
+      (CategoryTheory.Over.Site.morphismOfTopoi.{v, u, max u v}
         X.toGrothendieck f)⁻¹)
 
 /- Lemma 38.34.18 (10): lower shriek preserves fibre products. -/
 @[stacks 0EU6] #check
-  (CategoryTheory.Over.Site.WithPullbacks.LowerShriek.preservesPullbacks.{u, v, max u v}
+  (CategoryTheory.Over.Site.WithPullbacks.LowerShriek.preservesPullbacks.{v, u, max u v}
       X.toGrothendieck X.hasPullbacks f :
     PreservesLimitsOfShape WalkingCospan
       (CategoryTheory.Over.Site.lowerShriek X.toGrothendieck f))
 
 /- Lemma 38.34.18 (11): lower shriek preserves equalizers. -/
 @[stacks 0EU6] #check
-  (CategoryTheory.Over.Site.WithPullbacks.LowerShriek.preservesEqualizers.{u, v, max u v}
+  (CategoryTheory.Over.Site.WithPullbacks.LowerShriek.preservesEqualizers.{v, u, max u v}
       X.toGrothendieck X.hasPullbacks f :
     PreservesLimitsOfShape WalkingParallelPair
       (CategoryTheory.Over.Site.lowerShriek X.toGrothendieck f))

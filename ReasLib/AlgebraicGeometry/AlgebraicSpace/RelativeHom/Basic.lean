@@ -59,7 +59,8 @@ namespace BaseChangeMorphism
 theorem over_fst {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
     {B Z X : AlgebraicSpace S} {z : Z ⟶ B} {x : X ⟶ B}
     {T : Over S} {a : ofOver T ⟶ B} (b : BaseChangeMorphism z x a) :
-    b.left ≫ pullback.fst a x = pullback.fst a z := sorry
+    b.left ≫ pullback.fst a x = pullback.fst a z :=
+  Over.w b
 
 /-- View `b` as a morphism `pullback a z ⟶ X`. -/
 def toMap {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
@@ -68,11 +69,19 @@ def toMap {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
     pullback a z ⟶ X :=
   b.left ≫ pullback.snd a x
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The morphism `toMap b` makes the triangle over `B` commute. -/
 theorem toMap_comm {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
     {B Z X : AlgebraicSpace S} {z : Z ⟶ B} {x : X ⟶ B}
     {T : Over S} {a : ofOver T ⟶ B} (b : BaseChangeMorphism z x a) :
-    toMap b ≫ x = pullback.fst a z ≫ a := sorry
+    toMap b ≫ x = pullback.fst a z ≫ a := by
+  calc
+    toMap b ≫ x = b.left ≫ (pullback.snd a x ≫ x) := Category.assoc _ _ _
+    _ = b.left ≫ (pullback.fst a x ≫ a) :=
+      congrArg (fun f : pullback a x ⟶ B ↦ b.left ≫ f) pullback.condition.symm
+    _ = (b.left ≫ pullback.fst a x) ≫ a := (Category.assoc _ _ _).symm
+    _ = pullback.fst a z ≫ a :=
+      congrArg (fun f : pullback a z ⟶ ofOver T ↦ f ≫ a) (over_fst b)
 
 /-- The morphism `pullback a z ⟶ pullback a x` induced by a map to `X` making the
 triangle over `B` commute. -/
@@ -87,7 +96,8 @@ theorem ofMap_left_fst {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
     {B Z X : AlgebraicSpace S} {z : Z ⟶ B} {x : X ⟶ B}
     {T : Over S} {a : ofOver T ⟶ B} (b' : pullback a z ⟶ X)
     (h : b' ≫ x = pullback.fst a z ≫ a) :
-    ofMap_left b' h ≫ pullback.fst a x = pullback.fst a z := sorry
+    ofMap_left b' h ≫ pullback.fst a x = pullback.fst a z :=
+  pullback.lift_fst _ _ _
 
 /-- Reconstruct a morphism over `ofOver T` from a map `pullback a z ⟶ X` making
 the triangle over `B` commute. -/
@@ -101,13 +111,18 @@ def ofMap {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
 theorem ofMap_toMap {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
     {B Z X : AlgebraicSpace S} {z : Z ⟶ B} {x : X ⟶ B}
     {T : Over S} {a : ofOver T ⟶ B} (b : BaseChangeMorphism z x a) :
-    ofMap (toMap b) (toMap_comm b) = b := sorry
+    ofMap (toMap b) (toMap_comm b) = b := by
+  apply Over.OverMorphism.ext
+  apply pullback.hom_ext
+  · exact (over_fst _).trans (over_fst b).symm
+  · exact pullback.lift_snd _ _ _
 
 /-- `toMap` recovers the original map into `X` from `ofMap`. -/
 theorem toMap_ofMap {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
     {B Z X : AlgebraicSpace S} {z : Z ⟶ B} {x : X ⟶ B}
     {T : Over S} {a : ofOver T ⟶ B} (b' : pullback a z ⟶ X)
-    (h : b' ≫ x = pullback.fst a z ≫ a) : toMap (ofMap b' h) = b' := sorry
+    (h : b' ≫ x = pullback.fst a z ≫ a) : toMap (ofMap b' h) = b' :=
+  pullback.lift_snd _ _ _
 
 end BaseChangeMorphism
 
@@ -115,7 +130,8 @@ end BaseChangeMorphism
 theorem Pair.spec {S : Scheme.{u}} [HasPullbacks (AlgebraicSpace S)]
     {B Z X : AlgebraicSpace S} {z : Z ⟶ B} {x : X ⟶ B}
     {T : Over S} (p : Pair z x T) :
-    p.b.left ≫ pullback.fst p.a x = pullback.fst p.a z := sorry
+    p.b.left ≫ pullback.fst p.a x = pullback.fst p.a z :=
+  BaseChangeMorphism.over_fst p.b
 
 variable {S : Scheme.{u}} {Z X B : AlgebraicSpace S}
 
@@ -128,7 +144,9 @@ theorem restrict_w {g : Z ⟶ B} {h : X ⟶ B} {T T' : Over S}
       ((yoneda.map φ : ofOver T' ⟶ ofOver T)) (𝟙 Z) (𝟙 B)
       (Category.comp_id _) ((Category.comp_id g).trans (Category.id_comp g).symm) ≫
         BaseChangeMorphism.toMap p.b) ≫ h =
-      pullback.fst (C := AlgebraicSpace S) (X := ofOver T') ((yoneda.map φ : ofOver T' ⟶ ofOver T) ≫ p.a) g ≫ ((yoneda.map φ : ofOver T' ⟶ ofOver T) ≫ p.a) := sorry
+      pullback.fst (C := AlgebraicSpace S) (X := ofOver T') ((yoneda.map φ : ofOver T' ⟶ ofOver T) ≫ p.a) g ≫ ((yoneda.map φ : ofOver T' ⟶ ofOver T) ≫ p.a) := by
+  rw [Category.assoc, BaseChangeMorphism.toMap_comm, ← Category.assoc,
+    pullback.lift_fst, Category.assoc]
 
 /-- Restrict a relative morphism by the canonical map between the base changes. -/
 def restrict {g : Z ⟶ B} {h : X ⟶ B} {T T' : Over S}
@@ -142,14 +160,61 @@ def restrict {g : Z ⟶ B} {h : X ⟶ B} {T T' : Over S}
     (c ≫ BaseChangeMorphism.toMap p.b)
     (restrict_w (g := g) (h := h) (T := T) (T' := T') p φ))
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Restricting a relative morphism along an identity leaves it unchanged. -/
 theorem restrict_id {g : Z ⟶ B} {h : X ⟶ B} {T : Over S}
-    (p : Pair g h T) : p.restrict (𝟙 T) = p := sorry
+    (p : Pair g h T) : p.restrict (𝟙 T) = p := by
+  rcases p with ⟨a, b⟩
+  let R (f : ofOver T ⟶ ofOver T) : Pair g h T :=
+    mk (f ≫ a) (BaseChangeMorphism.ofMap
+      (pullback.map (f ≫ a) g a g f (𝟙 Z) (𝟙 B)
+        (Category.comp_id _) ((Category.comp_id g).trans (Category.id_comp g).symm) ≫
+          BaseChangeMorphism.toMap b)
+      (by rw [Category.assoc, BaseChangeMorphism.toMap_comm, ← Category.assoc,
+        pullback.lift_fst, Category.assoc]))
+  have hid : (yoneda.map (𝟙 T) : ofOver T ⟶ ofOver T) = 𝟙 (ofOver T) :=
+    yoneda.map_id T
+  change R (yoneda.map (𝟙 T)) = Pair.mk a b
+  rw [hid]
+  dsimp only [R]
+  apply congrArg (mk a)
+  apply Over.OverMorphism.ext
+  apply pullback.hom_ext
+  · exact (BaseChangeMorphism.over_fst _).trans
+      (BaseChangeMorphism.over_fst b).symm
+  · change BaseChangeMorphism.toMap _ = BaseChangeMorphism.toMap b
+    simp only [BaseChangeMorphism.toMap_ofMap]
+    exact (congrArg (fun f : pullback a g ⟶ pullback a g ↦
+      f ≫ BaseChangeMorphism.toMap b) (pullback.map_id (f := a) (g := g))).trans
+        (Category.id_comp _)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Restriction along a composite agrees with successive restriction. -/
 theorem restrict_comp {g : Z ⟶ B} {h : X ⟶ B} {T T' T'' : Over S}
     (p : Pair g h T) (φ : T'' ⟶ T') (ψ : T' ⟶ T) :
-    p.restrict (φ ≫ ψ) = (p.restrict ψ).restrict φ := sorry
+    p.restrict (φ ≫ ψ) = (p.restrict ψ).restrict φ := by
+  let R {U V : Over S} (q : Pair g h V) (f : ofOver U ⟶ ofOver V) : Pair g h U :=
+    mk (f ≫ q.a) (BaseChangeMorphism.ofMap
+      (pullback.map (f ≫ q.a) g q.a g f (𝟙 Z) (𝟙 B)
+        (Category.comp_id _) ((Category.comp_id g).trans (Category.id_comp g).symm) ≫
+          BaseChangeMorphism.toMap q.b)
+      (by rw [Category.assoc, BaseChangeMorphism.toMap_comm, ← Category.assoc,
+        pullback.lift_fst, Category.assoc]))
+  have hcomp : (yoneda.map (φ ≫ ψ) : ofOver T'' ⟶ ofOver T) =
+      (yoneda.map φ : ofOver T'' ⟶ ofOver T') ≫
+        (yoneda.map ψ : ofOver T' ⟶ ofOver T) := yoneda.map_comp φ ψ
+  change R p (yoneda.map (φ ≫ ψ)) = R (R p (yoneda.map ψ)) (yoneda.map φ)
+  rw [hcomp]
+  dsimp only [R]
+  congr 1
+  apply Over.OverMorphism.ext
+  apply pullback.hom_ext
+  · exact (BaseChangeMorphism.over_fst _).trans
+      (BaseChangeMorphism.over_fst _).symm
+  · change BaseChangeMorphism.toMap _ = BaseChangeMorphism.toMap _
+    simp only [BaseChangeMorphism.toMap_ofMap, ← Category.assoc,
+      pullback.map_comp, Category.id_comp]
+    rfl
 
 end Pair
 

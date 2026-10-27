@@ -12,8 +12,10 @@ public import ReasLib.RingTheory.GradedAlgebra.GeneratedBy
 /-!
 # Degree-one generation of graded algebra sheaves
 
-This module records the affine-local meaning of generation in degree one for a graded algebra
-sheaf on a scheme.
+This module owns affine-local generation in degree one over the structure sheaf of a scheme.
+Generation over the degree-zero part alone is the weaker ring-level property
+`GradedAlgebra.GeneratedBy grading 1`; passing from that property to this intrinsic predicate
+also requires a compatible section model and surjectivity onto degree zero.
 -/
 
 @[expose] public section
@@ -63,5 +65,30 @@ theorem generatedByDegreeOne_iff
             @GradedAlgebra.GeneratedBy ℕ inferInstance A σ hA.toCommSemiring hσ
               hadd.toAddSubmonoidClass grading hgraded.toGradedMonoid 1 :=
   Iff.rfl
+
+/-- Compatible affine section models generated over degree zero by degree one give intrinsic
+generation over the structure sheaf when the structure maps onto degree zero are surjective.
+The surjectivity hypothesis is separate from generation over degree zero. -/
+theorem generatedByDegreeOne_of_affineOpenSectionModels
+    {S : Scheme.{u}} (𝒜 : GradedAlgebraSheaf.{u, u} S.sheaf)
+    (A σ : S.affineOpens → Type u)
+    [∀ U, CommRing (A U)] [∀ U, SetLike (σ U) (A U)]
+    [∀ U, AddSubgroupClass (σ U) (A U)]
+    (sectionGrading : ∀ U : S.affineOpens, ℕ → σ U)
+    [∀ U, GradedRing (sectionGrading U)]
+    (model : ∀ (U : S.affineOpens) (d : ℕ),
+      (𝒜 (Int.ofNat d)).val.obj (op (U : S.Opens)) ≃+ sectionGrading U d)
+    (hModel : ∀ U : S.affineOpens,
+      AffineOpenSectionProj.IsAffineOpenSectionModel (sectionGrading U) 𝒜 U (model U))
+    (hzero : ∀ U : S.affineOpens,
+      Function.Surjective
+        (AffineOpenSectionProj.degreeZeroStructureMap
+          (sectionGrading U) 𝒜 U (model U) (hModel U)))
+    (hgenerated : ∀ U : S.affineOpens,
+      GradedAlgebra.GeneratedBy (sectionGrading U) 1) :
+    GeneratedByDegreeOne 𝒜 := by
+  intro U
+  exact ⟨A U, σ U, inferInstance, inferInstance, inferInstance, sectionGrading U,
+    inferInstance, model U, hModel U, hzero U, hgenerated U⟩
 
 end SheafOfModules.RingedSite.GradedAlgebraSheaf

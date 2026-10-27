@@ -65,7 +65,8 @@ theorem differential_π (𝒰 : ι → X.Opens) (ℱ : X.Modules) (p : ℕ)
       ∑ j : Fin (p + 2),
         (-1 : ℤ) ^ (j : ℕ) •
           (biproduct.π (fun τ : OrderedCechIndex ι p ↦ summand 𝒰 ℱ p τ) (σ.delete j) ≫
-            restriction 𝒰 ℱ σ j) := sorry
+            restriction 𝒰 ℱ σ j) := by
+  exact biproduct.lift_π _ _
 
 /-- Two consecutive ordered Čech differentials compose to zero. -/
 theorem differential_comp (𝒰 : ι → X.Opens) (ℱ : X.Modules) (p : ℕ) :
@@ -78,11 +79,12 @@ noncomputable def complex (𝒰 : ι → X.Opens) (ℱ : X.Modules) :
 
 /-- The degree-`p` object of the ordered Čech complex is its finite biproduct term. -/
 theorem complex_X (𝒰 : ι → X.Opens) (ℱ : X.Modules) (p : ℕ) :
-    (complex 𝒰 ℱ).X p = term 𝒰 ℱ p := sorry
+    (complex 𝒰 ℱ).X p = term 𝒰 ℱ p := rfl
 
 /-- The differential from degree `p` to degree `p + 1` is the alternating restriction map. -/
 theorem complex_d (𝒰 : ι → X.Opens) (ℱ : X.Modules) (p : ℕ) :
-    (complex 𝒰 ℱ).d p (p + 1) = differential 𝒰 ℱ p := sorry
+    (complex 𝒰 ℱ).d p (p + 1) = differential 𝒰 ℱ p := by
+  exact CochainComplex.of_d (term 𝒰 ℱ) (differential 𝒰 ℱ) p
 
 /-- The canonical map from a module sheaf to the degree-zero ordered Čech term. -/
 noncomputable def augmentationMap (𝒰 : ι → X.Opens) (ℱ : X.Modules) :
@@ -98,7 +100,8 @@ theorem augmentationMap_π (𝒰 : ι → X.Opens) (ℱ : X.Modules)
     augmentationMap 𝒰 ℱ ≫
         biproduct.π (fun τ : OrderedCechIndex ι 0 ↦ summand 𝒰 ℱ 0 τ) σ =
       (RingedSpace.OpenSubspace.Pushforward.adjunction X.toRingedSpace
-        (TopCat.Presheaf.Cech.intersection 𝒰 σ.toFun)).unit.app ℱ := sorry
+        (TopCat.Presheaf.Cech.intersection 𝒰 σ.toFun)).unit.app ℱ := by
+  exact biproduct.lift_π _ _
 
 /-- The degree-zero augmentation is killed by the first ordered Čech differential. -/
 theorem augmentationMap_comp_d (𝒰 : ι → X.Opens) (ℱ : X.Modules) :
@@ -113,7 +116,8 @@ noncomputable def augmentation (𝒰 : ι → X.Opens) (ℱ : X.Modules) :
 
 /-- The degree-zero component of the canonical augmentation is the explicit augmentation map. -/
 theorem augmentation_f_zero (𝒰 : ι → X.Opens) (ℱ : X.Modules) :
-    (augmentation 𝒰 ℱ).f 0 = augmentationMap 𝒰 ℱ := sorry
+    (augmentation 𝒰 ℱ).f 0 = augmentationMap 𝒰 ℱ := by
+  exact CochainComplex.fromSingle₀Equiv_symm_apply_f_zero _ _
 
 /-- The extended ordered Čech complex, with the original module sheaf in degree zero. -/
 noncomputable def extended (𝒰 : ι → X.Opens) (ℱ : X.Modules) :
@@ -122,11 +126,11 @@ noncomputable def extended (𝒰 : ι → X.Opens) (ℱ : X.Modules) :
 
 /-- Degree zero of the extended ordered Čech complex is the original module sheaf. -/
 theorem extended_X_zero (𝒰 : ι → X.Opens) (ℱ : X.Modules) :
-    (extended 𝒰 ℱ).X 0 = ℱ := sorry
+    (extended 𝒰 ℱ).X 0 = ℱ := rfl
 
 /-- Degree `p + 1` of the extended ordered Čech complex is the ordered degree-`p` term. -/
 theorem extended_X_succ (𝒰 : ι → X.Opens) (ℱ : X.Modules) (p : ℕ) :
-    (extended 𝒰 ℱ).X (p + 1) = term 𝒰 ℱ p := sorry
+    (extended 𝒰 ℱ).X (p + 1) = term 𝒰 ℱ p := rfl
 
 end AlgebraicGeometry.Scheme.ModuleCech.Ordered
 

@@ -36,14 +36,12 @@ direct-image functors. -/
 abbrev structureSheafComponent
     {f g : Hom X Y}
     (η :
-      f.base.sheafPushforwardContinuous (Type w) Y.siteTopology X.siteTopology ⟶
-        g.base.sheafPushforwardContinuous (Type w) Y.siteTopology X.siteTopology) :
+      f.sheafPushforwardContinuous (A := Type w) ⟶
+        g.sheafPushforwardContinuous (A := Type w)) :
     (sheafCompose Y.siteTopology (forget RingCat.{w})).obj
-        ((f.base.sheafPushforwardContinuous RingCat.{w}
-          Y.siteTopology X.siteTopology).obj X.structureSheaf) ⟶
+        ((f.sheafPushforwardContinuous (A := RingCat.{w})).obj X.structureSheaf) ⟶
       (sheafCompose Y.siteTopology (forget RingCat.{w})).obj
-        ((g.base.sheafPushforwardContinuous RingCat.{w}
-          Y.siteTopology X.siteTopology).obj X.structureSheaf) :=
+        ((g.sheafPushforwardContinuous (A := RingCat.{w})).obj X.structureSheaf) :=
   eqToHom (structureSheafPushforward_eq f) ≫
     η.app (underlyingStructureSheaf X) ≫
       eqToHom (structureSheafPushforward_eq g).symm
@@ -55,8 +53,8 @@ structure TwoMorphism (f g : Hom X Y) where
   /-- The underlying natural transformation between direct-image functors on type-valued
   sheaves. -/
   hom :
-    f.base.sheafPushforwardContinuous (Type w) Y.siteTopology X.siteTopology ⟶
-      g.base.sheafPushforwardContinuous (Type w) Y.siteTopology X.siteTopology
+    f.sheafPushforwardContinuous (A := Type w) ⟶
+      g.sheafPushforwardContinuous (A := Type w)
   /-- Compatibility of the direct-image structure-sheaf maps. -/
   comm :
     (sheafCompose Y.siteTopology (forget RingCat.{w})).map f.structureSheafMap ≫
@@ -67,19 +65,17 @@ structure TwoMorphism (f g : Hom X Y) where
 abbrev TwoMorphism.structureSheafHom
     {f g : Hom X Y} (η : TwoMorphism f g) :
     (sheafCompose Y.siteTopology (forget RingCat.{w})).obj
-        ((f.base.sheafPushforwardContinuous RingCat.{w}
-          Y.siteTopology X.siteTopology).obj X.structureSheaf) ⟶
+        ((f.sheafPushforwardContinuous (A := RingCat.{w})).obj X.structureSheaf) ⟶
       (sheafCompose Y.siteTopology (forget RingCat.{w})).obj
-        ((g.base.sheafPushforwardContinuous RingCat.{w}
-          Y.siteTopology X.siteTopology).obj X.structureSheaf) :=
+        ((g.sheafPushforwardContinuous (A := RingCat.{w})).obj X.structureSheaf) :=
   structureSheafComponent η.hom
 
 /-- A ringed-site `2`-morphism coerces to its underlying direct-image natural transformation. -/
 instance {f g : Hom X Y} :
     CoeTC
       (TwoMorphism f g)
-      (f.base.sheafPushforwardContinuous (Type w) Y.siteTopology X.siteTopology ⟶
-        g.base.sheafPushforwardContinuous (Type w) Y.siteTopology X.siteTopology) where
+      (f.sheafPushforwardContinuous (A := Type w) ⟶
+        g.sheafPushforwardContinuous (A := Type w)) where
   coe η := η.hom
 
 /-- Ringed-site `2`-morphisms are determined by their underlying natural transformations. -/

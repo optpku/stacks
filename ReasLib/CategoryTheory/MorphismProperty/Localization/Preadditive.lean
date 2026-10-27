@@ -101,7 +101,8 @@ noncomputable instance (priority := 100) instHasZeroObjectOfHasRightCalculusOfFr
 
 /-- A left-fraction localization of an additive category has finite products. -/
 noncomputable instance (priority := 110) instHasFiniteProductsOfHasLeftCalculusOfFractions
-    (W : MorphismProperty C) [W.HasLeftCalculusOfFractions] [HasFiniteProducts C] :
+    [Preadditive C] (W : MorphismProperty C) [W.HasLeftCalculusOfFractions]
+    [HasFiniteProducts C] :
     HasFiniteProducts W.Localization := sorry
 
 /-- A right-fraction localization of an additive category has finite products. -/

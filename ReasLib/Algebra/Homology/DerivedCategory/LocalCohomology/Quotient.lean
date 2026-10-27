@@ -34,15 +34,22 @@ theorem h0IdealToClosedSupportIsIso (I : Ideal A) (hI : I.FG)
 its ideal-power-torsion primary component. -/
 theorem h0IdealQuotientPrimaryComponentIsZero (I : Ideal A) (hI : I.FG)
     (M : ModuleCat.{u} A) :
+    letI : Fact I.FG := ⟨hI⟩
     IsZero ((DerivedCategory.homologyFunctor (ModuleCat A) 0).obj
       (((ModuleCat.IdealPowerTorsion.derivedTorsion I ⋙
           CohomologyIn.Comparison.functor (ModuleCat.isIdealPowerTorsion I)).obj
         (ModuleCat.single0 (ModuleCat.of A (M ⧸ I.primaryComponent M)))).obj)) := sorry
 
 /-- In positive degree, quotienting a module by its ideal-power-torsion primary component
-induces an isomorphism on derived ideal-power-torsion cohomology. -/
-theorem idealCohomologyQuotientMapIsIsoOfPos (I : Ideal A) (hI : I.FG)
+induces an isomorphism on derived ideal-power-torsion cohomology over a Noetherian ring.
+
+Noetherianity is a sufficient acyclicity hypothesis. Without an extra hypothesis, a
+non-Noetherian square-zero extension gives a primary component with nonzero positive
+derived torsion. -/
+theorem idealCohomologyQuotientMapIsIsoOfPos [IsNoetherianRing A]
+    (I : Ideal A) (hI : I.FG)
     (M : ModuleCat.{u} A) (p : ℤ) (hp : 0 < p) :
+    letI : Fact I.FG := ⟨hI⟩
     IsIso ((DerivedCategory.homologyFunctor (ModuleCat A) p).map
       (((ModuleCat.IdealPowerTorsion.derivedTorsion I ⋙
           CohomologyIn.Comparison.functor (ModuleCat.isIdealPowerTorsion I)).map
@@ -50,9 +57,16 @@ theorem idealCohomologyQuotientMapIsIsoOfPos (I : Ideal A) (hI : I.FG)
           (ModuleCat.ofHom (Submodule.mkQ (I.primaryComponent M))))).hom)) := sorry
 
 /-- The derived ideal-power-torsion cohomology of an ideal-power-torsion primary component
-vanishes in positive degree. -/
-theorem idealCohomologyPrimaryComponentIsZeroOfPos (I : Ideal A) (hI : I.FG)
+vanishes in positive degree over a Noetherian ring.
+
+Without Noetherianity this is false in general: in the square-zero extension
+`R = k[t] ⋉ (k[t,t⁻¹]/k[t])` with `I = (t)`, take the module `M = ann_R(t)`.
+Its ideal-power-torsion primary component is `M` itself and has nonzero second derived
+ideal-torsion. -/
+theorem idealCohomologyPrimaryComponentIsZeroOfPos [IsNoetherianRing A]
+    (I : Ideal A) (hI : I.FG)
     (M : ModuleCat.{u} A) (p : ℤ) (hp : 0 < p) :
+    letI : Fact I.FG := ⟨hI⟩
     IsZero ((DerivedCategory.homologyFunctor (ModuleCat A) p).obj
       (((ModuleCat.IdealPowerTorsion.derivedTorsion I ⋙
           CohomologyIn.Comparison.functor (ModuleCat.isIdealPowerTorsion I)).obj

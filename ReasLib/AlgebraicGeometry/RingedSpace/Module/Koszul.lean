@@ -50,6 +50,9 @@ noncomputable abbrev complexOfSections
     ChainComplex X.Modules ℕ :=
   SheafOfModules.RingedSite.Koszul.complex X.sheaf (sectionMap f)
 
+-- Universe-bounded tensor-colimit preservation makes the induced structures larger.
+set_option synthInstance.maxSize 1024
+
 /-- The commutative Koszul algebra attached to a finite family of global sections of the
 structure sheaf. -/
 @[stacks 062L "commutative Koszul algebra of global sections"]

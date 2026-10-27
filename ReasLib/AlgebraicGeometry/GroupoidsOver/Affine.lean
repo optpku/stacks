@@ -31,7 +31,7 @@ namespace AlgebraicGeometry.GroupoidsOver
 variable {S : Scheme.{u}}
 
 /-- Objects of a category fibred in groupoids that lie over an affine scheme. -/
-abbrev affineObjects (X : GroupoidsOver S) : ObjectProperty X.total :=
+def affineObjects (X : GroupoidsOver S) : ObjectProperty X.total :=
   (Scheme.affineOverProperty S).inverseImage X.p
 
 /-- An object of `X` lies in `affineObjects X` if and only if the scheme it

@@ -24,28 +24,17 @@ reflexive-hull, and canonical-map API in
 universe u
 
 #check (@AlgebraicGeometry.Scheme.Modules.dual :
-  {X : AlgebraicGeometry.Scheme.{u}} →
-    [CategoryTheory.MonoidalCategory X.Modules] →
-      [CategoryTheory.MonoidalClosed X.Modules] → X.Modules → X.Modules)
+  {X : AlgebraicGeometry.Scheme.{u}} → X.Modules → X.Modules)
 
 #check (@AlgebraicGeometry.Scheme.Modules.reflexiveHull :
-  {X : AlgebraicGeometry.Scheme.{u}} →
-    [CategoryTheory.MonoidalCategory X.Modules] →
-      [CategoryTheory.MonoidalClosed X.Modules] → X.Modules → X.Modules)
+  {X : AlgebraicGeometry.Scheme.{u}} → X.Modules → X.Modules)
 
 #check (@AlgebraicGeometry.Scheme.Modules.toReflexiveHull :
-  {X : AlgebraicGeometry.Scheme.{u}} →
-    [CategoryTheory.MonoidalCategory X.Modules] →
-      [CategoryTheory.MonoidalClosed X.Modules] →
-        [CategoryTheory.BraidedCategory X.Modules] →
-          (ℱ : X.Modules) →
-            ℱ ⟶ AlgebraicGeometry.Scheme.Modules.reflexiveHull ℱ)
+  {X : AlgebraicGeometry.Scheme.{u}} → (ℱ : X.Modules) →
+    ℱ ⟶ AlgebraicGeometry.Scheme.Modules.reflexiveHull ℱ)
 
 /- Definition 31.12.1: A coherent module sheaf on an integral locally Noetherian scheme is
 reflexive when its canonical morphism to its double dual is an isomorphism. -/
 @[stacks 0AVU]
 #check (@AlgebraicGeometry.Scheme.Modules.IsReflexive :
-  {X : AlgebraicGeometry.Scheme.{u}} →
-    [CategoryTheory.MonoidalCategory X.Modules] →
-      [CategoryTheory.MonoidalClosed X.Modules] →
-        [CategoryTheory.BraidedCategory X.Modules] → X.Modules → Prop)
+  {X : AlgebraicGeometry.Scheme.{u}} → X.Modules → Prop)

@@ -48,14 +48,16 @@ theorem page_mem_of_le (E : CohomologicalSpectralSequence C 0)
 
 section CanonicalInfinityPage
 
+variable [LocallySmall.{v} C] [WellPowered.{v} C]
+  [HasWidePullbacks.{v} C] [HasCoproducts.{v} C]
+
 /-- If every entry of one page of a bounded cohomological spectral sequence lies in a weak Serre
 class, then every infinity-page entry lies in that class. -/
 @[stacks 012W "weak Serre membership on a bounded spectral sequence"]
 theorem infinityPage_mem_of_page_mem (E : CohomologicalSpectralSequence C 0)
     (P : ObjectProperty C) [IsWeakSerreClass P] (hbounded : E.IsBounded)
     {r : ℤ} (hr : 0 ≤ r) (hpage : ∀ p q : ℤ, P ((E.page r hr).X (p, q)))
-    (p q : ℤ)
-    [CompleteLattice (Subobject ((Page.One.ofZero E).pageObject (p, q) 1))] :
+    (p q : ℤ) :
     P ((Page.One.ofZero E).infinityPage (p, q)) := sorry
 
 end CanonicalInfinityPage

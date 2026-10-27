@@ -69,14 +69,19 @@ noncomputable def sourceH0Iso (f : Fin n → B) :
 presentation. -/
 theorem sourceH0_flat_iff (f : Fin n → B) :
     Module.Flat A (sourceH0 (A := A) f) ↔
-      Module.Flat A (B ⧸ Ideal.span (Set.range f)) := sorry
+      Module.Flat A (B ⧸ Ideal.span (Set.range f)) := by
+  exact Module.Flat.equiv_iff
+    ((sourceH0Iso (A := A) f).toLinearEquiv.trans
+      (ModuleCat.RestrictScalars.identityIso
+        (R := A) (S := B) (B ⧸ Ideal.span (Set.range f))).toLinearEquiv)
 
 /-- Flatness of the quotient presentation is available automatically on the restricted zeroth
 Koszul homology owner. -/
 @[stacks 063Q "flatness of restricted zeroth Koszul homology"]
 instance sourceH0Flat (f : Fin n → B)
     [Module.Flat A (B ⧸ Ideal.span (Set.range f))] :
-    Module.Flat A (sourceH0 (A := A) f) := sorry
+    Module.Flat A (sourceH0 (A := A) f) :=
+  (sourceH0_flat_iff (A := A) f).mpr inferInstance
 
 /-- First Koszul homology after tensor base change, explicitly restricted from the tensor-product
 ring to an `A'`-module object. -/
@@ -98,7 +103,14 @@ instance sourceOutgoingCokernelFlat (f : Fin n → B)
     [Module.Flat A (B ⧸ Ideal.span (Set.range f))] :
     Module.Flat A
       (ModuleCat.ExtendScalars.HomologyComparison.outgoingCokernel
-        (sourceModel (A := A) f)) := sorry
+        (sourceModel (A := A) f)) := by
+  let e : ModuleCat.of A
+      (ModuleCat.ExtendScalars.HomologyComparison.outgoingCokernel
+        (sourceModel (A := A) f)) ≅ sourceH0 (A := A) f :=
+    (ModuleCat.cokernelIsoRangeQuotient (sourceModel (A := A) f).g).symm ≪≫
+      (PreservesCokernel.iso (ModuleCat.restrictScalars (algebraMap A B))
+        (KoszulComplex.Homology.H1.model f B).g).symm
+  exact Module.Flat.of_linearEquiv e.toLinearEquiv
 
 /-- The target low-degree Koszul model after restriction first to `A'` and then to `A`. -/
 @[stacks 063Q "restricted target low-degree Koszul model"]
@@ -204,13 +216,29 @@ def ringMap : sourceRing (A := A) (B := B) ⟶ targetRing (A := A) (B := B) (A' 
 theorem relationBoundary_naturality (f : Fin n → B) :
     piMap (A := A) (A' := A') (Fin n × Fin n) ≫
         (targetModel (A := A) (A' := A') f).f =
-      (sourceModel (A := A) f).f ≫ piMap (A := A) (A' := A') (Fin n) := sorry
+      (sourceModel (A := A) f).f ≫ piMap (A := A) (A' := A') (Fin n) := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  funext j
+  change KoszulComplex.Homology.H1.relationBoundary
+      (family (A := A) (A' := A') f) (A' ⊗[A] B)
+      (fun ij ↦ includeRight (x ij)) j =
+    includeRight (KoszulComplex.Homology.H1.relationBoundary f B x j)
+  simp [KoszulComplex.Homology.H1.relationBoundary, family, smul_eq_mul,
+    ← TensorProduct.tmul_sub]
 
 /-- Coordinatewise base change commutes with the finite-family linear-combination map. -/
 theorem linearCombination_naturality (f : Fin n → B) :
     piMap (A := A) (A' := A') (Fin n) ≫
         (targetModel (A := A) (A' := A') f).g =
-      (sourceModel (A := A) f).g ≫ ringMap (A := A) (A' := A') := sorry
+      (sourceModel (A := A) f).g ≫ ringMap (A := A) (A' := A') := by
+  ext x
+  change KoszulComplex.Homology.H1.linearCombination
+      (family (A := A) (A' := A') f) (A' ⊗[A] B)
+      (fun i ↦ includeRight (x i)) =
+    includeRight (KoszulComplex.Homology.H1.linearCombination f B x)
+  simp [KoszulComplex.Homology.H1.linearCombination, family, smul_eq_mul]
 
 /-- The morphism of low-degree Koszul chain models induced by tensor base change. -/
 @[stacks 063Q "map of low-degree Koszul models under base change"]
@@ -271,7 +299,8 @@ restricted low-degree homology map used to construct it. -/
 theorem map_adjunct (f : Fin n → B) :
     (ModuleCat.extendRestrictScalarsAdj (algebraMap A A')).homEquiv _ _
         (map (A := A) (A' := A') f) =
-      restrictedMap (A := A) (A' := A') f := sorry
+      restrictedMap (A := A) (A' := A') f := by
+  exact Equiv.apply_symm_apply _ _
 
 /-- The first-Koszul-homology base-change comparison is surjective when zeroth homology is flat
 over the base ring. -/
@@ -284,20 +313,24 @@ when the quotient by the generated ideal is flat over the base ring. -/
 @[stacks 063Q "surjectivity of first Koszul homology under base change"]
 theorem map_surjective (f : Fin n → B)
     [Module.Flat A (B ⧸ Ideal.span (Set.range f))] :
-    Function.Surjective (map (A := A) (A' := A') f) := sorry
+    Function.Surjective (map (A := A) (A' := A') f) :=
+  map_surjective_of_h0_flat (A := A) (A' := A') f
 
 /-- Under the flat-quotient hypothesis, the first-Koszul-homology base-change comparison is an
 epimorphism in `ModuleCat A'`. -/
 @[stacks 063Q "first Koszul homology base-change map is epi"]
 instance map_epi (f : Fin n → B)
     [Module.Flat A (B ⧸ Ideal.span (Set.range f))] :
-    Epi (map (A := A) (A' := A') f) := sorry
+    Epi (map (A := A) (A' := A') f) :=
+  (ModuleCat.epi_iff_surjective _).mpr (map_surjective (A := A) (A' := A') f)
 
 /-- Under the flat-quotient hypothesis, vanishing of source first homology implies vanishing after
 arbitrary tensor base change. -/
 theorem target_isZero_of_source_isZero (f : Fin n → B)
     [Module.Flat A (B ⧸ Ideal.span (Set.range f))]
     (h : IsZero (sourceObj (A := A) f)) :
-    IsZero (targetObj (A := A) (A' := A') f) := sorry
+    IsZero (targetObj (A := A) (A' := A') f) := by
+  exact IsZero.of_epi (map (A := A) (A' := A') f)
+    ((ModuleCat.extendScalars (algebraMap A A')).map_isZero h)
 
 end KoszulComplex.Homology.H1.BaseChange

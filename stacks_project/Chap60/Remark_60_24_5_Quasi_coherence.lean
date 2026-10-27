@@ -12,7 +12,8 @@ public import ReasLib.AlgebraicGeometry.RingedSite.Module.HigherDirectImage
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Localization
 public import Mathlib.AlgebraicGeometry.Morphisms.QuasiCompact
 public import Mathlib.AlgebraicGeometry.Morphisms.QuasiSeparated
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Crystalline.HigherDirectImage
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -31,29 +32,13 @@ abbrev HigherDirectImageContext.sourceSite (c : HigherDirectImageContext.{u}) :=
     (smallCrystallineTopology c.p c.S.scheme c.S.ideal c.S.dividedPowers
       c.S.compatible c.s c.Xsch c.x₀ c.pX) c.𝒪X
 
-/-- Unfolding of `HigherDirectImageContext.sourceSite`. -/
-theorem HigherDirectImageContext.sourceSite_def (c : HigherDirectImageContext.{u}) :
-    c.sourceSite =
-      RingedSite.ofRingSheaf
-        (smallCrystallineTopology c.p c.S.scheme c.S.ideal c.S.dividedPowers
-          c.S.compatible c.s c.Xsch c.x₀ c.pX) c.𝒪X :=
-  sorry
-
 /-- The target crystalline ringed site of a Remark 60.24.1 square. -/
 abbrev HigherDirectImageContext.targetSite (c : HigherDirectImageContext.{u}) :=
   RingedSite.ofRingSheaf
     (smallCrystallineTopology c.p c.S'.scheme c.S'.ideal c.S'.dividedPowers
       c.S'.compatible c.s' c.X'sch c.x'₀ c.pX') c.𝒪Y
 
-/-- Unfolding of `HigherDirectImageContext.targetSite`. -/
-theorem HigherDirectImageContext.targetSite_def (c : HigherDirectImageContext.{u}) :
-    c.targetSite =
-      RingedSite.ofRingSheaf
-        (smallCrystallineTopology c.p c.S'.scheme c.S'.ideal c.S'.dividedPowers
-          c.S'.compatible c.s' c.X'sch c.x'₀ c.pX') c.𝒪Y :=
-  sorry
-
-/-- Remark 60.24.5 (Quasi-coherence): in the situation of Remark 60.24.1, assume
+/- Remark 60.24.5 (Quasi-coherence): in the situation of Remark 60.24.1, assume
 that `S ⟶ S'` and `X ⟶ S₀` are quasi-compact and quasi-separated. Then for a
 crystal `F` in quasi-coherent `𝒪_{X/S}`-modules the sheaves `R^i f_cris,* F` are
 locally quasi-coherent. In the standing square this means that the restriction of
@@ -68,39 +53,19 @@ Remark 60.9.6. Lemma 60.9.5 and Mayer–Vietoris (Remark 60.24.2) reduce further
 affine `X` and `S` as in Situation 60.5.1, where Propositions 60.17.4 and 60.21.3
 identify crystalline cohomology with `M ⊗_D Ω_D^*`, which is compatible with
 principal localization on `S` because localization of modules is exact. -/
-@[stacks 07MP, instance]
-theorem crystallineHigherDirectImage_isLocallyQuasiCoherent
-    (c : HigherDirectImageContext.{u})
-    [QuasiCompact c.g.base] [QuasiSeparated c.g.base]
-    [QuasiCompact c.x₀] [QuasiSeparated c.x₀]
-    (f : RingedSite.Hom c.sourceSite c.targetSite)
-    [UnivLE.{u + 1, u}]
-    [HasInjectiveResolutions (RingedSite.ModuleCat.{u} c.sourceSite)]
-    [∀ U : c.sourceSite,
-      HasWeakSheafify (GrothendieckTopology.over c.sourceSite.siteTopology U)
-        AddCommGrpCat.{u}]
-    [∀ U : c.sourceSite,
-      (GrothendieckTopology.over c.sourceSite.siteTopology U).WEqualsLocallyBijective
-        AddCommGrpCat.{u}]
-    [∀ U : c.sourceSite,
-      (GrothendieckTopology.over c.sourceSite.siteTopology U).HasSheafCompose
-        (forget₂ RingCat.{u} AddCommGrpCat.{u})]
-    [∀ U : c.targetSite.localization c.T',
-      HasWeakSheafify
-        (GrothendieckTopology.over (c.targetSite.localization c.T').siteTopology U)
-        AddCommGrpCat.{u}]
-    [∀ U : c.targetSite.localization c.T',
-      (GrothendieckTopology.over
-          (c.targetSite.localization c.T').siteTopology U).WEqualsLocallyBijective
-        AddCommGrpCat.{u}]
-    [∀ U : c.targetSite.localization c.T',
-      (GrothendieckTopology.over
-          (c.targetSite.localization c.T').siteTopology U).HasSheafCompose
-        (forget₂ RingCat.{u} AddCommGrpCat.{u})]
-    (F : RingedSite.ModuleCat.{u} c.sourceSite)
-    [IsCrystalInQuasiCoherentModules F] (i : ℕ) :
-    ((localizedRestriction c.targetSite c.T').obj
-      (higherDirectImageModule f F i)).IsQuasicoherent :=
-  sorry
+@[stacks 07MP] #check (crystallineHigherDirectImage_isLocallyQuasiCoherent :
+  ∀ {p : ℕ} [Fact p.Prime] (B B' : Base.{u} p)
+    (g : DividedPowerScheme.Hom B.dividedPowerScheme B'.dividedPowerScheme)
+    (hbase : g.base ≫ B'.toSpec = B.toSpec)
+    (f : B.source ⟶ B'.source)
+    (hf : f ≫ B'.sourceToClosed = B.sourceToClosed ≫ g.zeroFiberMap)
+    [QuasiCompact g.base] [QuasiSeparated g.base]
+    [QuasiCompact B.sourceToClosed] [QuasiSeparated B.sourceToClosed]
+    (F : RingedSite.ModuleCat.{u + 1} B.ringedSite)
+    [IsCrystalInQuasiCoherentModules F] (i : ℕ),
+    ∀ A' : B'.ringedSite,
+      ((Evaluation.moduleRestriction B' A').obj
+        (RingedSite.ToposHom.higherDirectImageModule.{u + 1, u, u + 1, u, u + 1}
+          (Ringed.morphism B B' g hbase f hf) F i)).IsQuasicoherent)
 
 end

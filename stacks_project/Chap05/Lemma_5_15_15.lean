@@ -25,7 +25,3 @@ Finite locally closed trace API is owned by
 /- Lemma 5.15.15 (2): generic-point membership detects a dense finite locally closed trace. -/
 @[stacks 005K "generic-point membership criterion"]
 #check @IsGenericPoint.dense_preimage_iff_mem_of_isFiniteUnionOfLocallyClosed
-
-/- Lemma 5.15.15 (2): source form with an explicit irreducibility hypothesis. -/
-@[stacks 005K "generic-point membership criterion"]
-#check @IsIrreducible.dense_preimage_iff_mem_of_isGenericPoint_of_isFiniteUnionOfLocallyClosed

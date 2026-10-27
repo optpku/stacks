@@ -7,7 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap99.«99_9_1_1_Functor»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Hilbert.Functor
 
 @[expose] public section
 
@@ -24,4 +24,6 @@ write `X_T` for the base change of `X` to `T`. The Hilbert functor
 closed subspaces `Z ⊂ X_T` such that `Z ⟶ T` is of finite presentation, flat,
 and proper. Base change of closed immersions, finite presentation, flatness,
 and properness yields a functor. -/
-@[stacks 0CZY] #check AlgebraicGeometry.AlgebraicSpace.Hilbert.hilbert
+@[stacks 0CZY] #check (AlgebraicGeometry.AlgebraicSpace.Hilbert.hilbert :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B) [FinitePresentation f],
+    (SchemeOver B)ᵒᵖ ⥤ Type (u + 1))

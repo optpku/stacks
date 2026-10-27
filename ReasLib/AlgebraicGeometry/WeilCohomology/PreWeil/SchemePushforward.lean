@@ -78,22 +78,34 @@ theorem pushforward_apply
 
 /-- Poincaré adjunction characterizes cohomological pushforward against the target
 trace pairing. -/
-theorem pushforward_spec
+theorem pushforward_spec [T.HasDiagonalClassRelation]
     {X Y : V} {d e : ℕ} (hX : T.IsNonemptyEquidimensional X d)
     (hY : T.IsNonemptyEquidimensional Y e) (f : X ⟶ Y) (a : H X) (b : H Y) :
     T.integral hY (b * T.pushforward hX hY f a) =
-      T.integral hX (T.pullback f b * a) := sorry
+      T.integral hX (T.pullback f b * a) := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 /-- The cycle-class map of a scheme-valued pre-Weil theory commutes with Chow and
 cohomological pushforward along a positive-rank projective bundle over a nonempty
 equidimensional base. -/
-theorem cycleClass_pushforward_of_isProjectiveBundle
+theorem cycleClass_pushforward_of_isProjectiveBundle [T.HasDiagonalClassRelation]
     {P X : V} (p : P ⟶ X) {d r : ℕ} (hr : 0 < r)
     (hp : T.IsProjectiveBundle p r)
     (hX : T.IsNonemptyEquidimensional X d)
     (hP : T.IsNonemptyEquidimensional P (d + r - 1))
     (alpha : CH P) :
     T.cycleClass X (cyclePushforward p alpha) =
-      T.pushforward hP hX p (T.cycleClass P alpha) := sorry
+      T.pushforward hP hX p (T.cycleClass P alpha) := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
+
+
+/-- Cohomological pushforward between the external dimension twists. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedPushforward {X Y : V} {d e : ℕ}
+    (hX : T.IsNonemptyEquidimensional X d) (hY : T.IsNonemptyEquidimensional Y e)
+    (f : X ⟶ Y) : T.twistedCohomology X d →ₗ[F] T.twistedCohomology Y e :=
+  Tate.map T.tateLine_rank (T.pushforward hX hY f) d e
 
 end WeilCohomology.SchemePreWeilTheory

@@ -55,6 +55,33 @@ theorem refinementArrow_isHomLift (a : Separated J p χ) {T T' : C}
     first.source a.obj k first.hom first.isStronglyCartesian
     T' second.source l (l ≫ k) rfl second.hom second.isStronglyCartesian.toIsHomLift
 
+private theorem refinementArrow_fac (a : Separated J p χ) {T T' : C}
+    (k : T ⟶ p.obj a.obj) (l : T' ⟶ T) :
+    refinementArrow J p χ a k l ≫ χ.cartesianHom k (⟨a.obj, rfl⟩ : p.Fiber (p.obj a.obj)) =
+      χ.cartesianHom (l ≫ k) (⟨a.obj, rfl⟩ : p.Fiber (p.obj a.obj)) := by
+  let first := χ.reindexLift k (⟨a.obj, rfl⟩ : p.Fiber (p.obj a.obj))
+  let second := χ.reindexLift (l ≫ k) (⟨a.obj, rfl⟩ : p.Fiber (p.obj a.obj))
+  exact @Functor.IsStronglyCartesian.fac C X _ _ p T (p.obj a.obj)
+    first.source a.obj k first.hom first.isStronglyCartesian T' second.source l (l ≫ k)
+    rfl second.hom second.isStronglyCartesian.toIsHomLift
+
+private theorem separated_map_isHomLift {a b : X} {R S : C} (f : R ⟶ S) (φ : a ⟶ b)
+    (hφ : p.IsHomLift f φ) :
+    (Separated.projection J p χ).IsHomLift f ((Separated.ofOriginal J p χ).map φ) := by
+  cases hφ
+  exact CategoryTheory.IsHomLift.map (Separated.projection J p χ)
+    ((Separated.ofOriginal J p χ).map φ)
+
+private theorem separated_cartesianHom_congr (a : Separated J p χ) {T : C}
+    {f g : T ⟶ p.obj a.obj} (h : f = g) :
+    eqToHom (congrArg ((Separated.ofOriginal J p χ).obj ∘ sourceRestriction J p χ a) h) ≫
+        (Separated.ofOriginal J p χ).map
+          (χ.cartesianHom g (⟨a.obj, rfl⟩ : p.Fiber (p.obj a.obj))) =
+      (Separated.ofOriginal J p χ).map
+        (χ.cartesianHom f (⟨a.obj, rfl⟩ : p.Fiber (p.obj a.obj))) := by
+  cases h
+  exact Category.id_comp _
+
 /-- A compatible family of local arrows with a fixed base arrow. -/
 structure LocalArrow (a b : Separated J p χ) where
   /-- The common base arrow of the local components. -/
@@ -86,7 +113,20 @@ private theorem ofSeparated_laws {a b : Separated J p χ} (φ : a ⟶ b) :
         (I.f ≫ (Separated.projection J p χ).map φ) (ofSeparatedComponent J p χ φ I)) ∧
     (∀ (I : (⊤ : J.Cover (p.obj a.obj)).Arrow) {T : C} (k : T ⟶ I.Y),
       (Separated.ofOriginal J p χ).map (refinementArrow J p χ a I.f k) ≫
-        ofSeparatedComponent J p χ φ I = ofSeparatedComponent J p χ φ (I.precomp k)) := sorry
+        ofSeparatedComponent J p χ φ I = ofSeparatedComponent J p χ φ (I.precomp k)) := by
+  constructor
+  · intro I
+    have h : (Separated.projection J p χ).IsHomLift I.f
+        ((Separated.ofOriginal J p χ).map
+          (χ.cartesianHom I.f (⟨a.obj, rfl⟩ : p.Fiber (p.obj a.obj)))) :=
+      separated_map_isHomLift J p χ _ _
+        (χ.reindexLift I.f (⟨a.obj, rfl⟩ : p.Fiber (p.obj a.obj))).isStronglyCartesian.toIsHomLift
+    exact @IsHomLift.comp _ _ _ _ (Separated.projection J p χ) _ _ _ _ _ _ _ _ _ _ h
+      (.map φ)
+  · intro I T k
+    dsimp only [ofSeparatedComponent]
+    rw [← Category.assoc, ← Functor.map_comp, refinementArrow_fac]
+    rfl
 
 /-- A separated arrow becomes the matching family on the maximal cover. -/
 def ofSeparated {a b : Separated J p χ} (φ : a ⟶ b) : LocalArrow J p χ a b where
@@ -163,6 +203,35 @@ private def compComponent {a b c : Separated J p χ} (φ : LocalArrow J p χ a b
     ((Separated.ofOriginal J p χ).obj (sourceRestriction J p χ a (h ≫ I.f))) numerator numerator_lift
   exact eqToHom (congrArg ((Separated.ofOriginal J p χ).obj ∘ sourceRestriction J p χ a)
     K.middle_spec.symm) ≫ factorArrow ≫ ψ.component L.base
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem comp_ofSeparatedComponent {a b c : Separated J p χ} (f : a ⟶ b) (g : b ⟶ c)
+    (K : ((ofSeparated J p χ f).cover.bind
+      (fun I ↦ (ofSeparated J p χ g).cover.pullback (I.f ≫ (ofSeparated J p χ f).base))).Arrow) :
+    compComponent J p χ (ofSeparated J p χ f) (ofSeparated J p χ g) K =
+      (Separated.ofOriginal J p χ).map
+        (χ.cartesianHom K.f (⟨a.obj, rfl⟩ : p.Fiber (p.obj a.obj))) ≫ (f ≫ g) := by
+  let target := χ.reindexLift K.toMiddle.base.f (⟨b.obj, rfl⟩ : p.Fiber (p.obj b.obj))
+  letI := @Separated.mapIsStronglyCartesian _ _ _ _ J p χ
+    target.source b.obj _ _ K.toMiddle.base.f target.hom target.isStronglyCartesian
+  letI := separated_map_isHomLift J p χ K.toMiddleHom
+    (refinementArrow J p χ a K.fromMiddle.f K.toMiddleHom)
+    (refinementArrow_isHomLift J p χ a K.fromMiddle.f K.toMiddleHom)
+  letI := (ofSeparated J p χ f).isHomLift K.fromMiddle
+  letI : (Separated.projection J p χ).IsHomLift K.toMiddle.base.f
+      ((Separated.ofOriginal J p χ).map (refinementArrow J p χ a K.fromMiddle.f K.toMiddleHom) ≫
+        (ofSeparated J p χ f).component K.fromMiddle) :=
+    CategoryTheory.IsHomLift.comp (Separated.projection J p χ) K.toMiddleHom
+      (K.fromMiddle.f ≫ (ofSeparated J p χ f).base) _ _
+  simp only [compComponent, ofSeparated, ofSeparatedComponent, Functor.Cleavage.cartesianHom,
+    Category.assoc, Functor.IsCartesian.fac_assoc]
+  have hfac := refinementArrow_fac J p χ a K.fromMiddle.f K.toMiddleHom
+  dsimp only [Functor.Cleavage.cartesianHom] at hfac
+  rw [← Functor.map_comp_assoc, hfac]
+  have hcongr := separated_cartesianHom_congr J p χ a K.middle_spec.symm
+  dsimp only [Functor.Cleavage.cartesianHom] at hcongr
+  simpa only [Category.assoc, Cover.Arrow.fromMiddle, Function.comp_apply] using
+    congrArg (fun t ↦ t ≫ (f ≫ g)) hcongr
 
 private theorem comp_laws {a b c : Separated J p χ} (φ : LocalArrow J p χ a b)
     (ψ : LocalArrow J p χ b c) :
@@ -271,7 +340,12 @@ private def projectionMap {a b : Localized J p χ} (f : a ⟶ b) : p.obj a.obj.o
 private theorem projection_laws :
     (∀ a : Localized J p χ, projectionMap J p χ (𝟙 a) = 𝟙 (p.obj a.obj.obj)) ∧
     (∀ (a b c : Localized J p χ) (f : a ⟶ b) (g : b ⟶ c),
-      projectionMap J p χ (f ≫ g) = projectionMap J p χ f ≫ projectionMap J p χ g) := sorry
+      projectionMap J p χ (f ≫ g) = projectionMap J p χ f ≫ projectionMap J p χ g) := by
+  constructor
+  · intro a
+    exact p.map_id a.obj.obj
+  · intro a b c f g
+    exact Quotient.inductionOn₂ f g (fun _ _ ↦ rfl)
 
 /-- Projection evaluates the stored base arrow of a local-arrow class. -/
 def projection : Localized J p χ ⥤ C where
@@ -284,10 +358,28 @@ private def fromSeparatedMap {a b : Separated J p χ} (φ : a ⟶ b) :
     LocalizedData.Hom J p χ ⟨a⟩ ⟨b⟩ :=
   Quotient.mk'' (LocalArrow.ofSeparated J p χ φ)
 
+set_option backward.isDefEq.respectTransparency false in
 private theorem fromSeparated_laws :
     ∀ (a b c : Separated J p χ) (f : a ⟶ b) (g : b ⟶ c),
       fromSeparatedMap J p χ (f ≫ g) =
-        LocalizedData.comp J p χ (fromSeparatedMap J p χ f) (fromSeparatedMap J p χ g) := sorry
+        LocalizedData.comp J p χ (fromSeparatedMap J p χ f) (fromSeparatedMap J p χ g) := by
+  intro a b c f g
+  apply Quotient.sound
+  constructor
+  · exact (Separated.projection J p χ).map_comp f g
+  · intro I L T k l h
+    change (Separated.ofOriginal J p χ).map (refinementArrow J p χ a I.f k) ≫
+        ((Separated.ofOriginal J p χ).map
+          (χ.cartesianHom I.f (⟨a.obj, rfl⟩ : p.Fiber (p.obj a.obj))) ≫ (f ≫ g)) =
+      eqToHom (congrArg ((Separated.ofOriginal J p χ).obj ∘ sourceRestriction J p χ a) h) ≫
+        (Separated.ofOriginal J p χ).map (refinementArrow J p χ a L.f l) ≫
+          LocalArrow.compComponent J p χ (LocalArrow.ofSeparated J p χ f)
+            (LocalArrow.ofSeparated J p χ g) L
+    rw [LocalArrow.comp_ofSeparatedComponent, ← Functor.map_comp_assoc,
+      refinementArrow_fac J p χ a I.f k, ← Functor.map_comp_assoc,
+      refinementArrow_fac J p χ a L.f l]
+    simpa only [Category.assoc] using
+      (congrArg (fun t ↦ t ≫ (f ≫ g)) (separated_cartesianHom_congr J p χ a h)).symm
 
 /-- A separated morphism gives its local-arrow class on the maximal cover. -/
 def fromSeparated : Separated J p χ ⥤ Localized J p χ where
@@ -302,7 +394,8 @@ def fromOriginal : X ⥤ Localized J p χ :=
 
 /-- A quotient-arrow representative retains the same displayed base arrow. -/
 theorem representative_base {a b : Localized J p χ} (τ : a ⟶ b) :
-    (Quotient.out τ).base = (projection J p χ).map τ := sorry
+    (Quotient.out τ).base = (projection J p χ).map τ := by
+  exact congrArg (projectionMap J p χ) (Quotient.out_eq τ)
 
 private theorem rawFactor_piece_isHomLift {a b : X} {R S : C} (f : R ⟶ S) (φ : a ⟶ b)
     [hφ : p.IsStronglyCartesian f φ] {c : Separated J p χ}
@@ -310,7 +403,12 @@ private theorem rawFactor_piece_isHomLift {a b : X} {R S : C} (f : R ⟶ S) (φ 
     (I : numerator.cover.Arrow) :
     (Separated.projection J p χ).IsHomLift
       (I.f ≫ numerator.base ≫ eqToHom (@IsHomLift.codomain_eq C X _ _ p R S a b f φ hφ.toIsHomLift))
-      (numerator.component I) := sorry
+      (numerator.component I) := by
+  simpa only [Category.assoc] using
+    (IsHomLift.lift_comp_eqToHom_iff (Separated.projection J p χ)
+      (I.f ≫ numerator.base) (numerator.component I)
+      (@IsHomLift.codomain_eq C X _ _ p R S a b f φ hφ.toIsHomLift)).2
+        (numerator.isHomLift I)
 
 private def rawFactorComponent {a b : X} {R S : C} (f : R ⟶ S) (φ : a ⟶ b)
     [p.IsStronglyCartesian f φ] {c : Localized J p χ} (k : p.obj c.obj.obj ⟶ R)
@@ -341,6 +439,29 @@ private def rawFactorComponent {a b : X} {R S : C} (f : R ⟶ S) (φ : a ⟶ b)
     (I.f ≫ k) (I.f ≫ numerator.base ≫ eqToHom (@IsHomLift.codomain_eq C X _ _ p R S a b f φ (inferInstance : p.IsStronglyCartesian f φ).toIsHomLift))
     (by simpa only [Category.assoc] using congrArg (fun r ↦ I.f ≫ r) base_eq) piece piece_lift
 
+private theorem rawFactorComponent_isHomLift {a b : X} {R S : C} (f : R ⟶ S) (φ : a ⟶ b)
+    [p.IsStronglyCartesian f φ] {c : Localized J p χ} (k : p.obj c.obj.obj ⟶ R)
+    (τ : c ⟶ (fromOriginal J p χ).obj b) [(projection J p χ).IsHomLift (k ≫ f) τ]
+    (I : (Quotient.out τ).cover.Arrow) :
+    (Separated.projection J p χ).IsHomLift (I.f ≫ k)
+      (rawFactorComponent J p χ f φ k τ I) := by
+  letI := Separated.mapIsStronglyCartesian J p χ f φ
+  letI := rawFactor_piece_isHomLift J p χ f φ (Quotient.out τ) I
+  dsimp only [rawFactorComponent]
+  exact Functor.IsStronglyCartesian.map_isHomLift _ _ _ _ _
+
+private theorem rawFactorComponent_fac {a b : X} {R S : C} (f : R ⟶ S) (φ : a ⟶ b)
+    [p.IsStronglyCartesian f φ] {c : Localized J p χ} (k : p.obj c.obj.obj ⟶ R)
+    (τ : c ⟶ (fromOriginal J p χ).obj b) [(projection J p χ).IsHomLift (k ≫ f) τ]
+    (I : (Quotient.out τ).cover.Arrow) :
+    rawFactorComponent J p χ f φ k τ I ≫ (Separated.ofOriginal J p χ).map φ =
+      (Quotient.out τ).component I := by
+  letI := Separated.mapIsStronglyCartesian J p χ f φ
+  letI := rawFactor_piece_isHomLift J p χ f φ (Quotient.out τ) I
+  dsimp only [rawFactorComponent]
+  exact Functor.IsStronglyCartesian.fac _ _ _ _ _
+
+set_option backward.isDefEq.respectTransparency false in
 private theorem rawFactor_laws {a b : X} {R S : C} (f : R ⟶ S) (φ : a ⟶ b)
     [hφ : p.IsStronglyCartesian f φ] {c : Localized J p χ} (k : p.obj c.obj.obj ⟶ R)
     (τ : c ⟶ (fromOriginal J p χ).obj b) [hτ : (projection J p χ).IsHomLift (k ≫ f) τ] :
@@ -349,7 +470,28 @@ private theorem rawFactor_laws {a b : X} {R S : C} (f : R ⟶ S) (φ : a ⟶ b)
         (rawFactorComponent J p χ f φ k τ I)) ∧
     (∀ (I : (Quotient.out τ).cover.Arrow) {T : C} (l : T ⟶ I.Y),
       (Separated.ofOriginal J p χ).map (refinementArrow J p χ c.obj I.f l) ≫
-        rawFactorComponent J p χ f φ k τ I = rawFactorComponent J p χ f φ k τ (I.precomp l)) := sorry
+        rawFactorComponent J p χ f φ k τ I = rawFactorComponent J p χ f φ k τ (I.precomp l)) := by
+  constructor
+  · intro I
+    simpa only [Category.assoc] using
+      (IsHomLift.lift_comp_eqToHom_iff (Separated.projection J p χ)
+        (I.f ≫ k) (rawFactorComponent J p χ f φ k τ I)
+        (@IsHomLift.domain_eq C X _ _ p R S a b f φ hφ.toIsHomLift).symm).2
+          (rawFactorComponent_isHomLift J p χ f φ k τ I)
+  · intro I T l
+    letI := Separated.mapIsStronglyCartesian J p χ f φ
+    letI := rawFactorComponent_isHomLift J p χ f φ k τ I
+    letI := separated_map_isHomLift J p χ l (refinementArrow J p χ c.obj I.f l)
+      (refinementArrow_isHomLift J p χ c.obj I.f l)
+    letI : (Separated.projection J p χ).IsHomLift (l ≫ (I.f ≫ k))
+        (rawFactorComponent J p χ f φ k τ (I.precomp l)) := by
+      have h := rawFactorComponent_isHomLift J p χ f φ k τ (I.precomp l)
+      exact (Category.assoc l I.f k) ▸ h
+    apply Functor.IsStronglyCartesian.ext (Separated.projection J p χ) f
+      ((Separated.ofOriginal J p χ).map φ) (l ≫ (I.f ≫ k))
+    rw [Category.assoc, rawFactorComponent_fac J p χ f φ k τ I,
+      rawFactorComponent_fac J p χ f φ k τ (I.precomp l)]
+    exact (Quotient.out τ).compatibility I l
 
 /-- Factor each stored local component through the original Cartesian lift,
 retaining the representative cover and its explicit factor arrows. -/
@@ -392,7 +534,11 @@ theorem isFibered : (projection J p χ).IsFibered := by
     @mapIsStronglyCartesian _ _ _ _ J p χ l.source a.obj.obj R (p.obj a.obj.obj)
       f l.hom l.isStronglyCartesian⟩
 
-private theorem comparison_laws : fromOriginal J p χ ⋙ projection J p χ = p := sorry
+private theorem comparison_laws : fromOriginal J p χ ⋙ projection J p χ = p := by
+  refine Functor.ext (h_obj := fun _ ↦ rfl) ?_
+  intro a b f
+  change p.map f = 𝟙 (p.obj a) ≫ p.map f ≫ 𝟙 (p.obj b)
+  simp
 
 /-- The original category maps over the base to its local-morphism category. -/
 def comparison : CartesianBasedFunctor p (projection J p χ) :=
@@ -443,7 +589,12 @@ def flattenCover {a b : Localized J p χ} (d : CoverFamily J p χ a b) :
 private theorem flatten_numerator_isHomLift {a b : Localized J p χ}
     (d : CoverFamily J p χ a b) (K : (flattenCover J p χ d).Arrow) :
     p.IsHomLift K.toMiddle.base.f
-      (refinementArrow J p χ a.obj K.fromMiddle.f K.toMiddleHom) := sorry
+      (refinementArrow J p χ a.obj K.fromMiddle.f K.toMiddleHom) := by
+  exact (IsHomLift.lift_comp_eqToHom_iff p K.toMiddleHom
+    (refinementArrow J p χ a.obj K.fromMiddle.f K.toMiddleHom)
+    (χ.reindexLift K.fromMiddle.f
+      (⟨a.obj.obj, rfl⟩ : p.Fiber (p.obj a.obj.obj))).sourceObj.symm).2
+        (refinementArrow_isHomLift J p χ a.obj K.fromMiddle.f K.toMiddleHom)
 
 private def flattenComponent {a b : Localized J p χ} (d : CoverFamily J p χ a b)
     (K : (flattenCover J p χ d).Arrow) :

@@ -176,8 +176,8 @@ end Resolutions
 @[stacks 015Q "filtered injective derived equivalence"]
 abbrev IsEquivalence : Prop := Functor.IsEquivalence (functor C h_inverts)
 
-/-- Stacks 015Q: bounded-below complexes of finite filtered-injective objects
-compute the bounded-below finite filtered derived category. -/
+/-- Bounded-below complexes of finite filtered-injective objects compute the bounded-below
+finite filtered derived category when there are enough injectives. -/
 @[stacks 015Q]
 instance isEquivalence [EnoughInjectives C] : IsEquivalence C h_inverts := sorry
 
@@ -190,30 +190,28 @@ noncomputable def equivalenceOf (h_equiv : IsEquivalence C h_inverts) :
   @Functor.asEquivalence _ _ _ _ _
     h_equiv
 
-/-! The next entry is the canonical specialization used under enough injectives.  The
-certificate-taking form above remains available for constructions whose equivalence proof is
-transported from another source. -/
-
-/-- The canonical filtered-injective equivalence under enough injectives.
-
-This is the reusable data owner for the standard model; callers should use it instead of
-reconstructing an `IsEquivalence` proof merely to feed `equivalenceOf`. -/
+/-- The filtered-injective equivalence under enough injectives, constructed from a supplied
+certificate of the model equivalence. The certificate represents the injective resolution
+and comparison facts. -/
 @[stacks 015Q "canonical filtered injective derived equivalence"]
-noncomputable def equivalenceOfEnoughInjectives [EnoughInjectives C] :
+noncomputable def equivalenceOfEnoughInjectives [EnoughInjectives C]
+    (h_equiv : IsEquivalence C h_inverts) :
     HomotopyCategory.Plus (Finite.FilteredInjective.category C) ≌ Plus.Category C h_inverts :=
-  equivalenceOf C h_inverts (isEquivalence C h_inverts)
+  equivalenceOf C h_inverts h_equiv
 
 /-- The forward functor of the canonical filtered-injective equivalence. -/
 @[simp, stacks 015Q "forward canonical filtered injective equivalence"]
-theorem equivalenceOfEnoughInjectives_functor [EnoughInjectives C] :
-    (equivalenceOfEnoughInjectives C h_inverts).functor = functor C h_inverts := sorry
+theorem equivalenceOfEnoughInjectives_functor [EnoughInjectives C]
+    (h_equiv : IsEquivalence C h_inverts) :
+    (equivalenceOfEnoughInjectives C h_inverts h_equiv).functor = functor C h_inverts := rfl
 
 /-- The inverse functor of the canonical filtered-injective equivalence is the inverse selected
 by the canonical equivalence package. -/
 @[stacks 015Q "inverse canonical filtered injective equivalence"]
-theorem equivalenceOfEnoughInjectives_inverse [EnoughInjectives C] :
-    (equivalenceOfEnoughInjectives C h_inverts).inverse =
-      (equivalenceOf C h_inverts (isEquivalence C h_inverts)).inverse := sorry
+theorem equivalenceOfEnoughInjectives_inverse [EnoughInjectives C]
+    (h_equiv : IsEquivalence C h_inverts) :
+    (equivalenceOfEnoughInjectives C h_inverts h_equiv).inverse =
+      (equivalenceOf C h_inverts h_equiv).inverse := rfl
 
 section Comparison
 
@@ -248,24 +246,25 @@ noncomputable def iso
 
 /-- The canonical comparison with the filtered-injective model under enough injectives.
 
-The source, candidate derived functor, and model functor are inferred from the two factorization
-maps.  Thus standard callers supply only `α` and `β`. -/
+The explicit model-equivalence certificate represents the injective resolution and comparison
+facts; the factorization maps determine the source and both derived functors. -/
 @[stacks 05U2 "canonical filtered injective right-derived comparison"]
 noncomputable def isoOfEnoughInjectives [EnoughInjectives A]
+    (h_equiv : IsEquivalence A hA)
     {source : HomotopyCategory.Plus (FilteredObject.Finite.category A) ⥤ D}
     {rightDerived : Plus.Category A hA ⥤ D}
     {onFilteredInjectives : HomotopyCategory.Plus (Finite.FilteredInjective.category A) ⥤ D}
     (α : source ⟶ Plus.Quotient.functor A hA ⋙ rightDerived)
     (β : source ⟶ Plus.Quotient.functor A hA ⋙
-      (equivalenceOfEnoughInjectives A hA).inverse ⋙ onFilteredInjectives)
+      (equivalenceOfEnoughInjectives A hA h_equiv).inverse ⋙ onFilteredInjectives)
     [Functor.IsRightDerivedFunctor rightDerived α (Plus.QuasiIso A)]
     [Functor.IsRightDerivedFunctor
-      ((equivalenceOfEnoughInjectives A hA).inverse ⋙ onFilteredInjectives)
+      ((equivalenceOfEnoughInjectives A hA h_equiv).inverse ⋙ onFilteredInjectives)
       β (Plus.QuasiIso A)] :
     rightDerived ≅
-      (equivalenceOfEnoughInjectives A hA).inverse ⋙ onFilteredInjectives :=
+      (equivalenceOfEnoughInjectives A hA h_equiv).inverse ⋙ onFilteredInjectives :=
   rightDerived.rightDerivedUnique
-    ((equivalenceOfEnoughInjectives A hA).inverse ⋙ onFilteredInjectives)
+    ((equivalenceOfEnoughInjectives A hA h_equiv).inverse ⋙ onFilteredInjectives)
     α β (Plus.QuasiIso A)
 
 section Computation
@@ -289,7 +288,8 @@ theorem fac :
     α ≫ Functor.whiskerLeft (Plus.Quotient.functor A hA)
         (iso hA h_equiv α β).hom = β := sorry
 
-/-- Componentwise form of `RightDerived.fac`. -/
+/-- On each bounded-below finite filtered complex, the comparison carries the given
+right-derived factorization to the model factorization. -/
 @[simp, stacks 05U2 "filtered injective right-derived factorization"]
 theorem fac_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category A)) :
     α.app X ≫
@@ -303,7 +303,8 @@ theorem inv_fac :
     β ≫ Functor.whiskerLeft (Plus.Quotient.functor A hA)
         (iso hA h_equiv α β).inv = α := sorry
 
-/-- Componentwise form of `RightDerived.inv_fac`. -/
+/-- On each bounded-below finite filtered complex, the inverse comparison carries the
+model factorization back to the given right-derived factorization. -/
 @[simp, stacks 05U2 "filtered injective inverse factorization"]
 theorem inv_fac_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category A)) :
     β.app X ≫
@@ -315,16 +316,17 @@ end Computation
 namespace isoOfEnoughInjectives
 
 variable [EnoughInjectives A]
+variable (h_equiv : IsEquivalence A hA)
 variable {source : HomotopyCategory.Plus (FilteredObject.Finite.category A) ⥤ D}
 variable {rightDerived : Plus.Category A hA ⥤ D}
 variable {onFilteredInjectives :
   HomotopyCategory.Plus (Finite.FilteredInjective.category A) ⥤ D}
 variable (α : source ⟶ Plus.Quotient.functor A hA ⋙ rightDerived)
 variable (β : source ⟶ Plus.Quotient.functor A hA ⋙
-  (equivalenceOfEnoughInjectives A hA).inverse ⋙ onFilteredInjectives)
+  (equivalenceOfEnoughInjectives A hA h_equiv).inverse ⋙ onFilteredInjectives)
 variable [Functor.IsRightDerivedFunctor rightDerived α (Plus.QuasiIso A)]
 variable [Functor.IsRightDerivedFunctor
-  ((equivalenceOfEnoughInjectives A hA).inverse ⋙ onFilteredInjectives)
+  ((equivalenceOfEnoughInjectives A hA h_equiv).inverse ⋙ onFilteredInjectives)
   β (Plus.QuasiIso A)]
 
 /-- The canonical filtered-injective comparison carries the original factorization to the
@@ -333,13 +335,14 @@ factorization through the standard filtered-injective model. -/
   "canonical filtered injective right-derived factorization"]
 theorem fac :
     α ≫ Functor.whiskerLeft (Plus.Quotient.functor A hA)
-        (isoOfEnoughInjectives hA α β).hom = β := sorry
+        (isoOfEnoughInjectives hA h_equiv α β).hom = β := sorry
 
-/-- Component form of `isoOfEnoughInjectives.fac`. -/
+/-- On each bounded-below finite filtered complex, the comparison under enough injectives
+carries the given factorization to the model factorization. -/
 @[simp, stacks 05U2 "canonical filtered injective right-derived factorization"]
 theorem fac_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category A)) :
     α.app X ≫
-        (isoOfEnoughInjectives hA α β).hom.app
+        (isoOfEnoughInjectives hA h_equiv α β).hom.app
           ((Plus.Quotient.functor A hA).obj X) = β.app X := sorry
 
 /-- The inverse canonical filtered-injective comparison carries the model factorization back to
@@ -348,13 +351,14 @@ the original one. -/
   "canonical filtered injective inverse factorization"]
 theorem inv_fac :
     β ≫ Functor.whiskerLeft (Plus.Quotient.functor A hA)
-        (isoOfEnoughInjectives hA α β).inv = α := sorry
+        (isoOfEnoughInjectives hA h_equiv α β).inv = α := sorry
 
-/-- Component form of `isoOfEnoughInjectives.inv_fac`. -/
+/-- On each bounded-below finite filtered complex, the inverse comparison under enough
+injectives carries the model factorization back to the given factorization. -/
 @[simp, stacks 05U2 "canonical filtered injective inverse factorization"]
 theorem inv_fac_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category A)) :
     β.app X ≫
-        (isoOfEnoughInjectives hA α β).inv.app
+        (isoOfEnoughInjectives hA h_equiv α β).inv.app
           ((Plus.Quotient.functor A hA).obj X) = α.app X := sorry
 
 end isoOfEnoughInjectives

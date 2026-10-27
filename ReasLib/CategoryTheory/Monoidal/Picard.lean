@@ -49,11 +49,15 @@ variable {C : Type u} [Category.{v} C] [MonoidalCategory C]
 
 /-- The skeleton class of an invertible object multiplied by its chosen inverse is the unit. -/
 theorem toSkeleton_tensor_inverse (X : C) [isInvertibleObject X] :
-    toSkeleton X * toSkeleton (isInvertibleObject.inverse X) = 1 := sorry
+    toSkeleton X * toSkeleton (isInvertibleObject.inverse X) = 1 := by
+  rw [← Skeleton.toSkeleton_tensorObj, Skeleton.one_eq]
+  exact congr_toSkeleton_of_iso (isInvertibleObject.tensorInverseIso X)
 
 /-- The skeleton class of the chosen inverse multiplied by the original object is the unit. -/
 theorem toSkeleton_inverse_tensor (X : C) [isInvertibleObject X] :
-    toSkeleton (isInvertibleObject.inverse X) * toSkeleton X = 1 := sorry
+    toSkeleton (isInvertibleObject.inverse X) * toSkeleton X = 1 := by
+  rw [← Skeleton.toSkeleton_tensorObj, Skeleton.one_eq]
+  exact congr_toSkeleton_of_iso (isInvertibleObject.inverseTensorIso X)
 
 /-- The Picard class represented by an invertible object. -/
 @[stacks 040C "class of an invertible object"]
@@ -110,32 +114,56 @@ noncomputable def reprMkIso (X : C) [isInvertibleObject X] :
 
 /-- Taking the class of a chosen representative recovers the original Picard class. -/
 theorem mk_repr (x : PicardGroup C) :
-    PicardGroup.mk (PicardGroup.repr x) = x := sorry
+    PicardGroup.mk (PicardGroup.repr x) = x := by
+  apply Additive.ext
+  exact Units.ext (toSkeleton_fromSkeleton_obj (Additive.toMul x).val)
 
 /-- Picard classes are equal exactly when their chosen representatives are isomorphic. -/
 theorem eq_iff_repr_iso {x y : PicardGroup C} :
-    x = y ↔ Nonempty (PicardGroup.repr x ≅ PicardGroup.repr y) := sorry
+    x = y ↔ Nonempty (PicardGroup.repr x ≅ PicardGroup.repr y) := by
+  constructor
+  · rintro rfl
+    exact ⟨Iso.refl _⟩
+  · intro h
+    apply Additive.ext
+    apply Units.ext
+    simpa only [PicardGroup.repr, toSkeleton_fromSkeleton_obj] using
+      toSkeleton_eq_toSkeleton_iff.mpr h
 
 /-- Two invertible objects determine the same Picard class exactly when they are isomorphic. -/
 theorem mk_eq_mk_iff (X Y : C) [isInvertibleObject X] [isInvertibleObject Y] :
-    PicardGroup.mk X = PicardGroup.mk Y ↔ Nonempty (X ≅ Y) := sorry
+    PicardGroup.mk X = PicardGroup.mk Y ↔ Nonempty (X ≅ Y) := by
+  constructor
+  · intro h
+    apply toSkeleton_eq_toSkeleton_iff.mp
+    exact congrArg (fun x : PicardGroup C => (Additive.toMul x).val) h
+  · intro h
+    apply Additive.ext
+    exact Units.ext (toSkeleton_eq_toSkeleton_iff.mpr h)
 
 /-- The monoidal unit represents the zero Picard class. -/
 theorem mk_unit :
-    PicardGroup.mk (𝟙_ C) = (0 : PicardGroup C) := sorry
+    PicardGroup.mk (𝟙_ C) = (0 : PicardGroup C) := by
+  apply Additive.ext
+  exact Units.ext rfl
 
 /-- An invertible object has zero Picard class exactly when it is isomorphic to the monoidal
 unit. -/
 theorem mk_eq_zero_iff (X : C) [isInvertibleObject X] :
-    PicardGroup.mk X = (0 : PicardGroup C) ↔ Nonempty (X ≅ 𝟙_ C) := sorry
+    PicardGroup.mk X = (0 : PicardGroup C) ↔ Nonempty (X ≅ 𝟙_ C) := by
+  rw [← mk_unit, mk_eq_mk_iff]
 
 /-- Addition of Picard classes is represented by tensor product. -/
 theorem mk_tensor (X Y : C) [isInvertibleObject X] [isInvertibleObject Y] :
-    PicardGroup.mk (X ⊗ Y) = PicardGroup.mk X + PicardGroup.mk Y := sorry
+    PicardGroup.mk (X ⊗ Y) = PicardGroup.mk X + PicardGroup.mk Y := by
+  apply Additive.ext
+  exact Units.ext (Skeleton.toSkeleton_tensorObj X Y)
 
 /-- Negation of a Picard class is represented by the chosen tensor inverse. -/
 theorem mk_inverse (X : C) [isInvertibleObject X] :
-    PicardGroup.mk (isInvertibleObject.inverse X) = -PicardGroup.mk X := sorry
+    PicardGroup.mk (isInvertibleObject.inverse X) = -PicardGroup.mk X := by
+  apply Additive.ext
+  exact Units.ext rfl
 
 /-- The canonical skeleton comparison from the chosen representative of zero to the monoidal
 unit. -/
@@ -177,17 +205,25 @@ noncomputable def map (F : C ⥤ D) [F.Monoidal] :
 /-- The Picard map sends the class of an invertible object to the class of its image. -/
 @[stacks 040C "functoriality on representatives", simp]
 theorem map_mk (F : C ⥤ D) [F.Monoidal] (X : C) [isInvertibleObject X] :
-    map F (PicardGroup.mk X) = PicardGroup.mk (F.obj X) := sorry
+    map F (PicardGroup.mk X) = PicardGroup.mk (F.obj X) := by
+  apply Additive.ext
+  exact Units.ext (F.mapSkeleton_obj_toSkeleton X)
 
 /-- Naturally isomorphic monoidal functors induce the same homomorphism on Picard groups. -/
 @[stacks 040C "invariance under natural isomorphism"]
 theorem map_congr {F G : C ⥤ D} [F.Monoidal] [G.Monoidal] (e : F ≅ G) :
-    map F = map G := sorry
+    map F = map G := by
+  apply AddMonoidHom.ext
+  intro x
+  apply Additive.ext
+  apply Units.ext
+  exact congr_toSkeleton_of_iso (e.app (PicardGroup.repr x))
 
 /-- Naturally isomorphic monoidal functors act identically on every Picard class. -/
 theorem map_congr_apply {F G : C ⥤ D} [F.Monoidal] [G.Monoidal]
     (e : F ≅ G) (x : PicardGroup C) :
-    map F x = map G x := sorry
+    map F x = map G x :=
+  DFunLike.congr_fun (map_congr e) x
 
 /-- A monoidal equivalence induces an additive equivalence of Picard groups. -/
 @[stacks 040C "Picard equivalence of a monoidal equivalence"]
@@ -198,12 +234,17 @@ noncomputable def equiv (e : C ≌ D) [e.functor.Monoidal] :
 /-- The additive homomorphism underlying the Picard equivalence is the Picard map of its
 forward monoidal functor. -/
 theorem equiv_toAddMonoidHom (e : C ≌ D) [e.functor.Monoidal] :
-    (equiv e).toAddMonoidHom = map e.functor := sorry
+    (equiv e).toAddMonoidHom = map e.functor := by
+  apply AddMonoidHom.ext
+  intro x
+  apply Additive.ext
+  exact Units.ext rfl
 
 /-- A Picard equivalence acts by the Picard map of its forward monoidal functor. -/
 @[simp]
 theorem equiv_apply (e : C ≌ D) [e.functor.Monoidal] (x : PicardGroup C) :
-    equiv e x = map e.functor x := sorry
+    equiv e x = map e.functor x :=
+  DFunLike.congr_fun (equiv_toAddMonoidHom e) x
 
 /-- The canonical skeleton comparison identifying the representative of a mapped Picard class
 with the image of its representative. -/
@@ -215,25 +256,37 @@ noncomputable def reprMapIso (F : C ⥤ D) [F.Monoidal] (x : PicardGroup C) :
 /-- The identity monoidal functor induces the identity on the Picard group. -/
 @[simp]
 theorem map_id :
-    map (𝟭 C) = AddMonoidHom.id (PicardGroup C) := sorry
+    map (𝟭 C) = AddMonoidHom.id (PicardGroup C) := by
+  apply AddMonoidHom.ext
+  intro x
+  apply Additive.ext
+  exact Units.ext (toSkeleton_fromSkeleton_obj (Additive.toMul x).val)
 
 /-- Mapping a Picard class along the identity monoidal functor fixes it. -/
 @[simp]
 theorem map_id_apply (x : PicardGroup C) :
-    map (𝟭 C) x = x := sorry
+    map (𝟭 C) x = x :=
+  DFunLike.congr_fun map_id x
 
 variable {E : Type u''} [Category.{v''} E] [MonoidalCategory E]
 
 /-- Picard maps respect composition of monoidal functors. -/
 @[simp]
 theorem map_comp (F : C ⥤ D) (G : D ⥤ E) [F.Monoidal] [G.Monoidal] :
-    map (F ⋙ G) = (map G).comp (map F) := sorry
+    map (F ⋙ G) = (map G).comp (map F) := by
+  apply AddMonoidHom.ext
+  intro x
+  apply Additive.ext
+  apply Units.ext
+  exact congr_toSkeleton_of_iso
+    (G.mapIso (fromSkeletonToSkeletonIso (F.obj (PicardGroup.repr x)))).symm
 
 /-- Mapping a Picard class along a composite is the composite of the induced Picard maps. -/
 @[simp]
 theorem map_comp_apply (F : C ⥤ D) (G : D ⥤ E) [F.Monoidal] [G.Monoidal]
     (x : PicardGroup C) :
-    map (F ⋙ G) x = map G (map F x) := sorry
+    map (F ⋙ G) x = map G (map F x) :=
+  DFunLike.congr_fun (map_comp F G) x
 
 end Functoriality
 

@@ -9,9 +9,13 @@ module
 public import ReasLib.RingTheory.LocalRing.ResidueField.MaximalIdeal
 public import ReasLib.RingTheory.LocalRing.Product
 public import Mathlib.FieldTheory.Separable
+public import Mathlib.RingTheory.LocalProperties.Reduced
 public import Mathlib.RingTheory.Nilpotent.Lemmas
 public import Mathlib.RingTheory.Spectrum.Maximal.Basic
 public import Mathlib.RingTheory.TensorProduct.Basic
+public import Mathlib.RingTheory.TensorProduct.Finite
+public import Mathlib.RingTheory.TensorProduct.Nontrivial
+public import Mathlib.RingTheory.Unramified.Field
 import Mathlib.Tactic.CrossRefAttribute
 
 @[expose] public section
@@ -69,7 +73,7 @@ theorem baseChangeMap_tmul
     [Algebra K L] [Algebra K M] [Algebra K K1] [Algebra L M]
     [IsScalarTower K L M] (l : L) (x : K1) :
     baseChangeMap (K := K) (L := L) (M := M) (K1 := K1) (l ⊗ₜ[K] x) =
-      algebraMap L M l ⊗ₜ[K] x := sorry
+      algebraMap L M l ⊗ₜ[K] x := rfl
 
 /-- The canonical equivalence from the iterated base change
 `M ⊗[L] (L ⊗[K] K₁)` to the direct base change `M ⊗[K] K₁`. -/
@@ -92,7 +96,8 @@ theorem compositeEquivBaseChange_tmul
     [Algebra K L] [Algebra K M] [Algebra K K1] [Algebra L M]
     [IsScalarTower K L M] (m : M) (l : L) (x : K1) :
     compositeEquivBaseChange (K := K) (L := L) (M := M) (K1 := K1)
-        (m ⊗ₜ[L] (l ⊗ₜ[K] x)) = (l • m) ⊗ₜ[K] x := sorry
+        (m ⊗ₜ[L] (l ⊗ₜ[K] x)) = (l • m) ⊗ₜ[K] x := by
+  simp [compositeEquivBaseChange]
 
 /-- The iterated tensor product is a field exactly when the direct tensor product is a field. -/
 @[stacks 09F4 "iterated tensor field criterion", stacks 09EY
@@ -102,7 +107,10 @@ theorem composite_isField_iff
     [Field K] [Field L] [Field M] [Field K1]
     [Algebra K L] [Algebra K M] [Algebra K K1] [Algebra L M]
     [IsScalarTower K L M] :
-    IsField (composite K L M K1) ↔ IsField (M ⊗[K] K1) := sorry
+    IsField (composite K L M K1) ↔ IsField (M ⊗[K] K1) := by
+  let e := compositeEquivBaseChange (K := K) (L := L) (M := M) (K1 := K1)
+  exact ⟨fun h => e.symm.toRingEquiv.toMulEquiv.isField h,
+    fun h => e.toRingEquiv.toMulEquiv.isField h⟩
 
 /-- The reduced tensor product of two field extensions of the same base field. -/
 @[stacks 09F4 "reduced tensor-product base change"]
@@ -120,25 +128,38 @@ variable [Field K] [Field L] [Field K1] [Algebra K L] [Algebra K K1]
 /-- The reduced tensor product is nontrivial when one field factor is finite over the base. -/
 @[stacks 09EM "nontrivial finite reduced tensor product"]
 theorem reduced_nontrivial [FiniteDimensional K K1] :
-    Nontrivial (reduced K L K1) := sorry
+    Nontrivial (reduced K L K1) := by
+  apply Ideal.Quotient.nontrivial_iff.mpr
+  change (⊥ : Ideal (baseChange K L K1)).radical ≠ ⊤
+  exact fun h => bot_ne_top (Ideal.radical_eq_top.mp h)
 
 /-- A finite field factor makes the reduced tensor product finite-dimensional over the other
 factor. -/
 @[stacks 09EM "finite-dimensional reduced tensor product"]
 theorem reduced_finiteDimensional [FiniteDimensional K K1] :
-    FiniteDimensional L (reduced K L K1) := sorry
+    FiniteDimensional L (reduced K L K1) := by
+  infer_instance
 
 /-- The reduced tensor product with a finite field factor admits a finite ring-product
 decomposition. -/
 @[stacks 09EM "finite decomposition of a reduced tensor product"]
 theorem reduced_isFiniteProduct [FiniteDimensional K K1] :
-    RingProduct.isFiniteProduct (reduced K L K1) := sorry
+    RingProduct.isFiniteProduct (reduced K L K1) := by
+  letI : IsArtinianRing (baseChange K L K1) := IsArtinianRing.of_finite L _
+  letI := Fintype.ofFinite (MaximalSpectrum (baseChange K L K1))
+  exact ⟨RingProduct.Decomposition.Finite.of
+    (fun m : MaximalSpectrum (baseChange K L K1) => baseChange K L K1 ⧸ m.asIdeal)
+    (IsArtinianRing.quotNilradicalEquivPi (baseChange K L K1)).toRingEquiv⟩
 
 /-- Every maximal localization of the finite reduced tensor product is a field. -/
 @[stacks 09EM "field branches of a finite reduced tensor product"]
 theorem reduced_localization_isField [FiniteDimensional K K1]
     (p : Ideal (reduced K L K1)) [p.IsMaximal] :
-    IsField (Localization.AtPrime p) := sorry
+    IsField (Localization.AtPrime p) := by
+  letI : IsArtinianRing (reduced K L K1) := IsArtinianRing.of_finite L _
+  letI : IsReduced (reduced K L K1) :=
+    (Ideal.isRadical_iff_quotient_reduced _).mp (Ideal.radical_isRadical _)
+  exact IsArtinianRing.isField_of_isReduced_of_isLocalRing _
 
 /-- The finite reduced tensor product has a finite algebra-product presentation by finite field
 extensions of the other factor. -/
@@ -146,7 +167,19 @@ extensions of the other factor. -/
 theorem reduced_finiteProductOfFields [FiniteDimensional K K1] :
     ∃ D : AlgProduct.Decomposition.Finite L (reduced K L K1),
       Nonempty D.index ∧
-        ∀ i, IsField (D.factor i) ∧ FiniteDimensional L (D.factor i) := sorry
+        ∀ i, IsField (D.factor i) ∧ FiniteDimensional L (D.factor i) := by
+  letI : IsArtinianRing (baseChange K L K1) := IsArtinianRing.of_finite L _
+  letI := Fintype.ofFinite (MaximalSpectrum (baseChange K L K1))
+  refine ⟨AlgProduct.Decomposition.Finite.of
+    (fun m : MaximalSpectrum (baseChange K L K1) => baseChange K L K1 ⧸ m.asIdeal)
+    ((IsArtinianRing.quotNilradicalEquivPi (baseChange K L K1)).restrictScalars L),
+    ?_, ?_⟩
+  · change Nonempty (MaximalSpectrum (baseChange K L K1))
+    infer_instance
+  · intro m
+    change IsField (baseChange K L K1 ⧸ m.asIdeal) ∧
+      FiniteDimensional L (baseChange K L K1 ⧸ m.asIdeal)
+    exact ⟨(Ideal.Quotient.field m.asIdeal).toIsField, inferInstance⟩
 
 /-- Remark 15.115.1 (7): if the finite factor is separable, the reduced tensor product has a
 nonempty finite algebra-product presentation by finite separable field extensions of `L`. -/
@@ -156,11 +189,29 @@ theorem reduced_finiteProductOfSeparableFields [FiniteDimensional K K1]
     ∃ D : AlgProduct.Decomposition.Finite L (reduced K L K1),
       Nonempty D.index ∧
         ∀ i, IsField (D.factor i) ∧ FiniteDimensional L (D.factor i) ∧
-          Algebra.IsSeparable L (D.factor i) := sorry
+          Algebra.IsSeparable L (D.factor i) := by
+  letI : IsArtinianRing (baseChange K L K1) := IsArtinianRing.of_finite L _
+  letI := Fintype.ofFinite (MaximalSpectrum (baseChange K L K1))
+  letI : Algebra.FormallyUnramified K K1 :=
+    Algebra.FormallyUnramified.of_isSeparable K K1
+  refine ⟨AlgProduct.Decomposition.Finite.of
+    (fun m : MaximalSpectrum (baseChange K L K1) => baseChange K L K1 ⧸ m.asIdeal)
+    ((IsArtinianRing.quotNilradicalEquivPi (baseChange K L K1)).restrictScalars L),
+    ?_, ?_⟩
+  · change Nonempty (MaximalSpectrum (baseChange K L K1))
+    infer_instance
+  · intro m
+    change IsField (baseChange K L K1 ⧸ m.asIdeal) ∧
+      FiniteDimensional L (baseChange K L K1 ⧸ m.asIdeal) ∧
+      Algebra.IsSeparable L (baseChange K L K1 ⧸ m.asIdeal)
+    letI := Ideal.Quotient.field m.asIdeal
+    exact ⟨(Ideal.Quotient.field m.asIdeal).toIsField, inferInstance,
+      Algebra.FormallyUnramified.isSeparable L (baseChange K L K1 ⧸ m.asIdeal)⟩
 
 /-- Quotienting a commutative ring by its nilradical produces a reduced ring. -/
 @[stacks 09EM "reducedness of the reduced tensor product"]
-theorem reduced_isReduced : IsReduced (reduced K L K1) := sorry
+theorem reduced_isReduced : IsReduced (reduced K L K1) := by
+  exact (Ideal.isRadical_iff_quotient_reduced _).mp (Ideal.radical_isRadical _)
 
 /-- If the finite field factor is separable, the canonical quotient from the raw tensor product
 to its reduction is bijective. -/
@@ -168,7 +219,12 @@ to its reduction is bijective. -/
 theorem quotient_bijective_of_finite_separable [FiniteDimensional K K1]
     [Algebra.IsSeparable K K1] :
     Function.Bijective
-      (Ideal.Quotient.mkₐ L (nilradical (baseChange K L K1))) := sorry
+      (Ideal.Quotient.mkₐ L (nilradical (baseChange K L K1))) := by
+  letI : Algebra.FormallyUnramified K K1 :=
+    Algebra.FormallyUnramified.of_isSeparable K K1
+  letI : IsReduced (baseChange K L K1) :=
+    Algebra.FormallyUnramified.isReduced_of_field L (baseChange K L K1)
+  exact (Ideal.Quotient.mk_bijective_iff_eq_bot _).2 (nilradical_eq_zero _)
 
 /-- The raw tensor product is canonically equivalent to its reduction when the finite factor is
 separable. -/
@@ -185,7 +241,7 @@ noncomputable def tensorEquivReduced [FiniteDimensional K K1]
 theorem tensorEquivReduced_apply [FiniteDimensional K K1]
     [Algebra.IsSeparable K K1] (x : baseChange K L K1) :
     tensorEquivReduced (K := K) (L := L) (K1 := K1) x =
-      Ideal.Quotient.mkₐ L (nilradical (baseChange K L K1)) x := sorry
+      Ideal.Quotient.mkₐ L (nilradical (baseChange K L K1)) x := rfl
 
 end FiniteReduced
 

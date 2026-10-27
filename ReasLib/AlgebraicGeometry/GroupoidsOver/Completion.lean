@@ -42,7 +42,7 @@ abbrev completionRing {U : Scheme.{u}} (u0 : U) : Type u :=
 theorem completionRing_eq {U : Scheme.{u}} (u0 : U) :
     completionRing u0 =
       AdicCompletion (maximalIdeal (U.presheaf.stalk u0)) (U.presheaf.stalk u0) :=
-  sorry
+  rfl
 
 /-- The canonical morphism `Spec(𝒪_{U,u0}^∧) ⟶ U` induced by the completion map
 on stalks. -/
@@ -59,7 +59,7 @@ theorem fromSpecCompletion_eq {U : Scheme.{u}} (u0 : U) :
       Spec.map (CommRingCat.ofHom
           (algebraMap (U.presheaf.stalk u0) (completionRing u0))) ≫
         U.fromSpecStalk u0 :=
-  sorry
+  rfl
 
 /-- The residue-field point of `𝒪_{U,u0}^∧` remains locally of finite type over
 `S`. -/
@@ -68,8 +68,26 @@ theorem completionResidue_locallyOfFiniteType {S U : Scheme.{u}}
     [IsFiniteTypePoint u0] [IsNoetherianRing (U.presheaf.stalk u0)] :
     LocallyOfFiniteType
       (Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk (maximalIdeal (completionRing u0)))) ≫
-        fromSpecCompletion u0 ≫ hU) :=
-  sorry
+        fromSpecCompletion u0 ≫ hU) := by
+  let f := ResidueField.map (algebraMap (U.presheaf.stalk u0) (completionRing u0))
+  have hf : LocallyOfFiniteType (Spec.map (CommRingCat.ofHom f)) :=
+    (HasRingHomProperty.Spec_iff (P := @LocallyOfFiniteType)).2
+      (RingHom.FiniteType.of_surjective _ (AdicCompletion.residueField_map_bijective _).2)
+  have h :
+      Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk (maximalIdeal (completionRing u0)))) ≫
+          fromSpecCompletion u0 =
+        Spec.map (CommRingCat.ofHom f) ≫ U.fromSpecResidueField u0 := by
+    calc
+      _ = Spec.map (CommRingCat.ofHom (algebraMap (U.presheaf.stalk u0)
+            (completionRing u0)) ≫ CommRingCat.ofHom
+              (Ideal.Quotient.mk (maximalIdeal (completionRing u0)))) ≫
+          U.fromSpecStalk u0 := (Spec.map_comp_assoc _ _ _).symm
+      _ = Spec.map (U.residue u0 ≫ CommRingCat.ofHom f) ≫ U.fromSpecStalk u0 := rfl
+      _ = _ := Spec.map_comp_assoc _ _ _
+  rw [← Category.assoc, h]
+  have hu : Scheme.Hom.FiniteType (U.fromSpecResidueField u0) := inferInstance
+  exact @locallyOfFiniteType_comp _ _ _ _ _
+    (@locallyOfFiniteType_comp _ _ _ _ _ hf hu.toLocallyOfFiniteType) inferInstance
 
 /-- The completed stalk `𝒪_{U,u0}^∧` as a Noetherian complete local `S`-algebra,
 with structure morphism `Spec(R) ⟶ U ⟶ S`. -/
@@ -87,7 +105,7 @@ theorem completionSAlgebra_spec {S U : Scheme.{u}} [IsLocallyNoetherian S]
     (hU : U ⟶ S) [LocallyOfFiniteType hU] (u0 : U) [IsFiniteTypePoint u0] :
     (completionSAlgebra hU u0).carrier = completionRing u0 ∧
       (completionSAlgebra hU u0).toS = fromSpecCompletion u0 ≫ hU :=
-  sorry
+  ⟨rfl, rfl⟩
 
 /-- The restriction morphism `Spec(𝒪_{U,u0}^∧) ⟶ U` in `Over S`. -/
 def fromSpecCompletionOverHom {S U : Scheme.{u}} (hU : U ⟶ S) (u0 : U) :
@@ -98,7 +116,7 @@ def fromSpecCompletionOverHom {S U : Scheme.{u}} (hU : U ⟶ S) (u0 : U) :
 `fromSpecCompletion`. -/
 theorem fromSpecCompletionOverHom_left {S U : Scheme.{u}} (hU : U ⟶ S) (u0 : U) :
     (fromSpecCompletionOverHom hU u0).left = fromSpecCompletion u0 :=
-  sorry
+  rfl
 
 /-- Restriction of `x` along `Spec(𝒪_{U,u0}^∧) ⟶ U`. -/
 def restrictToCompletion {S : Scheme.{u}} {X : GroupoidsOver S} {U : Scheme.{u}}
@@ -111,7 +129,7 @@ theorem restrictToCompletion_over {S : Scheme.{u}} [IsLocallyNoetherian S]
     (x : X.total) (hx : X.p.obj x = Over.mk hU) (u0 : U) [IsFiniteTypePoint u0] :
     X.p.obj (restrictToCompletion hU x hx u0) =
       Over.mk (completionSAlgebra hU u0).toS :=
-  sorry
+  IsPreFibered.pullbackObj_proj hx (fromSpecCompletionOverHom hU u0)
 
 /-- The object `x` restricted to `Spec(𝒪_{U,u0}^∧)`, as a complete local object
 of `X`. -/
@@ -131,7 +149,7 @@ theorem completeLocalObject_spec {S : Scheme.{u}} [IsLocallyNoetherian S]
     (completeLocalObject hU x hx u0).base = completionSAlgebra hU u0 ∧
       (completeLocalObject hU x hx u0).object =
         restrictToCompletion hU x hx u0 :=
-  sorry
+  ⟨rfl, rfl⟩
 
 /-- Formal object of `X` over `𝒪_{U,u0}^∧` associated to `x` restricted to
 `Spec(𝒪_{U,u0}^∧)` along its positive maximal-adic truncations. -/
@@ -149,7 +167,7 @@ theorem associatedFormalObject_eq_restriction {S : Scheme.{u}}
     (u0 : U) [IsFiniteTypePoint u0] :
     associatedFormalObject hU x hx u0 =
       FormalObject.restriction (completeLocalObject hU x hx u0) :=
-  sorry
+  rfl
 
 /-- The complete local `S`-algebra of the associated formal object is the
 completed stalk. -/
@@ -157,7 +175,7 @@ theorem associatedFormalObject_base {S : Scheme.{u}} [IsLocallyNoetherian S]
     {X : GroupoidsOver S} {U : Scheme.{u}} (hU : U ⟶ S) [LocallyOfFiniteType hU]
     (x : X.total) (hx : X.p.obj x = Over.mk hU) (u0 : U) [IsFiniteTypePoint u0] :
     (associatedFormalObject hU x hx u0).base = completionSAlgebra hU u0 :=
-  sorry
+  rfl
 
 /-- The underlying ring of the associated formal object is the completed stalk
 `𝒪_{U,u0}^∧`. -/
@@ -165,6 +183,6 @@ theorem associatedFormalObject_carrier {S : Scheme.{u}} [IsLocallyNoetherian S]
     {X : GroupoidsOver S} {U : Scheme.{u}} (hU : U ⟶ S) [LocallyOfFiniteType hU]
     (x : X.total) (hx : X.p.obj x = Over.mk hU) (u0 : U) [IsFiniteTypePoint u0] :
     (associatedFormalObject hU x hx u0).base.carrier = completionRing u0 :=
-  sorry
+  rfl
 
 end AlgebraicGeometry.GroupoidsOver

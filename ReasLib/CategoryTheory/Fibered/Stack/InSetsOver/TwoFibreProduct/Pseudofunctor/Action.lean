@@ -51,13 +51,18 @@ noncomputable def map₂ {psi phi : S ⟶ T} (Gamma : psi ⟶ phi) :
 /-- The direct action on cospan `2`-cells preserves identities. -/
 @[simp, stacks 0434 "set-stack two-fibre-product two-cell identity"]
 theorem map₂.id (psi : S ⟶ T) :
-    map₂ (𝟙 psi) = 𝟙 (map psi) := sorry
+    map₂ (𝟙 psi) = 𝟙 (map psi) := by
+  apply Bicategory.InducedBicategory.hom₂_ext
+  exact (ambientPseudofunctor.{u, v, w, vB} J).map₂_id (a := S) (b := T) psi
 
 /-- The direct action on cospan `2`-cells preserves vertical composition. -/
 @[simp, stacks 0434 "set-stack two-fibre-product two-cell composition"]
 theorem map₂.comp {psi phi chi : S ⟶ T}
     (Gamma : psi ⟶ phi) (Delta : phi ⟶ chi) :
-    map₂ (Gamma ≫ Delta) = map₂ Gamma ≫ map₂ Delta := sorry
+    map₂ (Gamma ≫ Delta) = map₂ Gamma ≫ map₂ Delta := by
+  apply Bicategory.InducedBicategory.hom₂_ext
+  exact (ambientPseudofunctor.{u, v, w, vB} J).map₂_comp
+    (a := S) (b := T) (f := psi) (g := phi) (h := chi) Gamma Delta
 
 /-- The direct local Hom functor of set-stack two-fibre products. -/
 @[stacks 0434 "set-stack two-fibre-product local Hom functor"]
@@ -73,7 +78,7 @@ noncomputable def mapFunctor (S T : Bicategory.Cospan
 @[simp, stacks 0434 "set-stack two-fibre-product object action"]
 theorem pseudofunctor.obj (S : Bicategory.Cospan
     (StackOver.Sets.{u, v, max w (max u (max v vB)), max v vB} J)) :
-    (pseudofunctor J).obj S = apex S.fst S.snd := sorry
+    (pseudofunctor J).obj S = apex S.fst S.snd := rfl
 
 /-- Forgetting the discrete-fibration condition from the direct map recovers the canonical map
 of the componentwise-forgotten setoid-stack cospan. -/
@@ -82,35 +87,35 @@ theorem map.hom (psi : S ⟶ T) :
     (map psi).hom =
       StackOver.Setoids.TwoFibreProduct.map
         ((Bicategory.Cospan.map
-          (StackOver.Sets.forget J).toPseudofunctor).map psi) := sorry
+          (StackOver.Sets.forget J).toPseudofunctor).map psi) := rfl
 
 /-- The pseudofunctor `1`-cell field is the direct public set-stack map. -/
 @[simp, stacks 0434 "set-stack two-fibre-product pseudofunctor map readout"]
 theorem pseudofunctor.map (psi : S ⟶ T) :
-    (pseudofunctor J).map psi = map psi := sorry
+    (pseudofunctor J).map psi = map psi := rfl
 
 /-- The pseudofunctor `2`-cell field is the direct public set-stack `2`-cell action.
 Heterogeneous equality accounts only for the proof-bearing full-sub endpoints. -/
 @[stacks 0434 "set-stack two-fibre-product pseudofunctor two-cell readout"]
 theorem pseudofunctor.map₂ {psi phi : S ⟶ T} (Gamma : psi ⟶ phi) :
-    (pseudofunctor J).map₂ Gamma ≍ map₂ Gamma := sorry
+    (pseudofunctor J).map₂ Gamma ≍ map₂ Gamma := HEq.rfl
 
 /-- The pseudofunctor local action is the direct public Hom functor. -/
 @[simp, stacks 0434 "set-stack two-fibre-product Hom action readout"]
 theorem pseudofunctor.mapFunctor (S T : Bicategory.Cospan
     (StackOver.Sets.{u, v, max w (max u (max v vB)), max v vB} J)) :
-    (pseudofunctor J).mapFunctor S T = mapFunctor S T := sorry
+    (pseudofunctor J).mapFunctor S T = mapFunctor S T := rfl
 
 /-- The object action of the direct local Hom functor is `map`. -/
 @[simp, stacks 0434 "set-stack two-fibre-product Hom object readout"]
 theorem mapFunctor.obj (psi : S ⟶ T) :
-    (mapFunctor S T).obj psi = map psi := sorry
+    (mapFunctor S T).obj psi = map psi := rfl
 
 /-- The morphism action of the direct local Hom functor is `map₂`; heterogeneous equality
 accounts only for proof-bearing endpoints. -/
 @[stacks 0434 "set-stack two-fibre-product Hom two-cell readout"]
 theorem mapFunctor.map {psi phi : S ⟶ T} (Gamma : psi ⟶ phi) :
-    (mapFunctor S T).map Gamma ≍ map₂ Gamma := sorry
+    (mapFunctor S T).map Gamma ≍ map₂ Gamma := HEq.rfl
 
 end StackOver.Sets.TwoFibreProduct
 

@@ -61,3 +61,34 @@ noncomputable def sliceIdentityTerminal :
   Over.mkIdTerminal
 
 end AlgebraicGeometry.ChosenBigSite
+
+namespace AlgebraicGeometry.SchAlphaBigSite
+
+variable {P : Precoverage Scheme.{u}} (𝒮 : SchAlphaBigSite.{u, v} P)
+
+/-- The carrier has pullbacks by the countable-limit closure of its `Sch_α`
+model, independently of the local presentation's pullback field. -/
+theorem carrierHasPullbacks : Limits.HasPullbacks 𝒮.carrier where
+  has_limit K := (𝒮.presentation.hasLimit_iff 𝒮.valid K).mpr inferInstance
+
+/-- The scheme functor preserves pullbacks by comparison with the actual
+`Sch_α` inclusion. -/
+theorem toSchemePreservesPullbacks :
+    Limits.PreservesLimitsOfShape Limits.WalkingCospan 𝒮.toScheme :=
+  𝒮.presentation.preservesLimitsOfShape 𝒮.valid _
+
+/-- Countable limits are detected in the ambient scheme category, including
+the empty diagram. -/
+theorem hasLimit_iff {J : Type} [SmallCategory J] [CountableCategory J]
+    (K : J ⥤ 𝒮.carrier) :
+    Limits.HasLimit K ↔ Limits.HasLimit (K ⋙ 𝒮.toScheme) :=
+  𝒮.presentation.hasLimit_iff 𝒮.valid K
+
+/-- Countable colimits are detected in the ambient scheme category, including
+the empty diagram. -/
+theorem hasColimit_iff {J : Type} [SmallCategory J] [CountableCategory J]
+    (K : J ⥤ 𝒮.carrier) :
+    Limits.HasColimit K ↔ Limits.HasColimit (K ⋙ 𝒮.toScheme) :=
+  𝒮.presentation.hasColimit_iff 𝒮.valid K
+
+end AlgebraicGeometry.SchAlphaBigSite

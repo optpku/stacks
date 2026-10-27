@@ -28,17 +28,23 @@ variable (hRΓZ : IdealPowerTorsion.inclusion I ⊣ RΓZ)
 comparison followed by derived ideal-power torsion maps naturally to closed-support
 local cohomology. -/
 @[stacks 0A6U] #check
+  (letI : Fact I.FG := ⟨hI⟩
   (CategoryTheory.DerivedCategory.LocalCohomology.idealToClosedSupport I hI RΓZ hRΓZ :
     ModuleCat.IdealPowerTorsion.derivedTorsion I ⋙
         CohomologyIn.Comparison.functor (ModuleCat.isIdealPowerTorsion I) ⟶ RΓZ)
+  )
 
-#check (idealTorsionCounit I :
+#check (letI : Fact I.FG := ⟨hI⟩
+  (idealTorsionCounit I hI :
     ((ModuleCat.IdealPowerTorsion.derivedTorsion I ⋙
         CohomologyIn.Comparison.functor (ModuleCat.isIdealPowerTorsion I)) ⋙
       IdealPowerTorsion.inclusion I) ⟶ 𝟭 (DerivedCategory (ModuleCat A)))
+  )
 
-#check (idealToClosedSupport_fac I hI RΓZ hRΓZ :
+#check (letI : Fact I.FG := ⟨hI⟩
+  (idealToClosedSupport_fac I hI RΓZ hRΓZ :
   Functor.whiskerRight (idealToClosedSupport I hI RΓZ hRΓZ)
-      (IdealPowerTorsion.inclusion I) ≫ hRΓZ.counit = idealTorsionCounit I)
+      (IdealPowerTorsion.inclusion I) ≫ hRΓZ.counit = idealTorsionCounit I hI)
+  )
 
 end CategoryTheory.DerivedCategory.LocalCohomology

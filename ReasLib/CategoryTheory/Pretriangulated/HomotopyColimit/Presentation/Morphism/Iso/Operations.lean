@@ -56,58 +56,80 @@ def comp {S₀ S₁ S₂ : ℕ ⥤ D} {α : S₀ ⟶ S₁} {β : S₁ ⟶ S₂}
 theorem rebase_iso {S T : ℕ ⥤ D} {α β : S ⟶ T} {X Y : D}
     {P : Presentation S X} {Q : Presentation T Y}
     (h : α = β) (Φ : HomWithIso α P Q) :
-    (rebase h Φ).iso = Φ.iso := sorry
+    (rebase h Φ).iso = Φ.iso := by
+  cases h
+  rfl
 
 /-- Forgetting invertibility commutes with rebasing. -/
 @[simp]
 theorem rebase_toHom {S T : ℕ ⥤ D} {α β : S ⟶ T} {X Y : D}
     {P : Presentation S X} {Q : Presentation T Y}
     (h : α = β) (Φ : HomWithIso α P Q) :
-    (rebase h Φ).toHom = Presentation.Hom.rebase h Φ.toHom := sorry
+    (rebase h Φ).toHom = Presentation.Hom.rebase h Φ.toHom := by
+  cases h
+  rfl
 
 /-- Rebasing along reflexivity is the identity operation. -/
 @[simp]
 theorem rebase_rfl {S T : ℕ ⥤ D} {α : S ⟶ T} {X Y : D}
     {P : Presentation S X} {Q : Presentation T Y} (Φ : HomWithIso α P Q) :
-    rebase rfl Φ = Φ := sorry
+    rebase rfl Φ = Φ := by
+  rfl
 
 /-- Forgetting invertibility from the identity recovers the identity presentation morphism. -/
 @[simp]
 theorem id_toHom {S : ℕ ⥤ D} {X : D} (P : Presentation S X) :
-    (id P).toHom = Presentation.Hom.id P := sorry
+    (id P).toHom = Presentation.Hom.id P := by
+  rfl
 
 /-- The object isomorphism of the identity presentation map is reflexivity. -/
 @[simp]
 theorem id_iso {S : ℕ ⥤ D} {X : D} (P : Presentation S X) :
-    (id P).iso = Iso.refl X := sorry
+    (id P).iso = Iso.refl X := by
+  rfl
 
 /-- Forgetting invertibility commutes with composition of presentation maps. -/
 @[simp]
 theorem comp_toHom {S₀ S₁ S₂ : ℕ ⥤ D} {α : S₀ ⟶ S₁} {β : S₁ ⟶ S₂}
     {X₀ X₁ X₂ : D} {P : Presentation S₀ X₀} {Q : Presentation S₁ X₁}
     {R : Presentation S₂ X₂} (Φ : HomWithIso α P Q) (Ψ : HomWithIso β Q R) :
-    (comp Φ Ψ).toHom = Φ.toHom.comp Ψ.toHom := sorry
+    (comp Φ Ψ).toHom = Φ.toHom.comp Ψ.toHom := by
+  rfl
 
 /-- The object isomorphism of a composite is the composite object isomorphism. -/
 @[simp]
 theorem comp_iso {S₀ S₁ S₂ : ℕ ⥤ D} {α : S₀ ⟶ S₁} {β : S₁ ⟶ S₂}
     {X₀ X₁ X₂ : D} {P : Presentation S₀ X₀} {Q : Presentation S₁ X₁}
     {R : Presentation S₂ X₂} (Φ : HomWithIso α P Q) (Ψ : HomWithIso β Q R) :
-    (comp Φ Ψ).iso = Φ.iso ≪≫ Ψ.iso := sorry
+    (comp Φ Ψ).iso = Φ.iso ≪≫ Ψ.iso := by
+  rfl
+
+private theorem iso_injective {S T : ℕ ⥤ D} {α : S ⟶ T} {X Y : D}
+    {P : Presentation S X} {Q : Presentation T Y} :
+    Function.Injective (fun Φ : HomWithIso α P Q => Φ.iso) := by
+  intro Φ Ψ h
+  cases Φ
+  cases Ψ
+  cases h
+  rfl
 
 /-- Left composition by an identity invertible presentation map is the original map after
 rebasing along the categorical left-unit law. -/
 @[simp]
 theorem id_comp {S T : ℕ ⥤ D} {α : S ⟶ T} {X Y : D}
     {P : Presentation S X} {Q : Presentation T Y} (Φ : HomWithIso α P Q) :
-    rebase (Category.id_comp α) (comp (id P) Φ) = Φ := sorry
+    rebase (Category.id_comp α) (comp (id P) Φ) = Φ := by
+  apply iso_injective
+  simpa only [rebase_iso, comp_iso, id_iso] using Iso.refl_trans Φ.iso
 
 /-- Right composition by an identity invertible presentation map is the original map after
 rebasing along the categorical right-unit law. -/
 @[simp]
 theorem comp_id {S T : ℕ ⥤ D} {α : S ⟶ T} {X Y : D}
     {P : Presentation S X} {Q : Presentation T Y} (Φ : HomWithIso α P Q) :
-    rebase (Category.comp_id α) (comp Φ (id Q)) = Φ := sorry
+    rebase (Category.comp_id α) (comp Φ (id Q)) = Φ := by
+  apply iso_injective
+  simpa only [rebase_iso, comp_iso, id_iso] using Iso.trans_refl Φ.iso
 
 /-- Composition of invertible presentation maps is associative after rebasing along
 categorical associativity. -/
@@ -117,7 +139,9 @@ theorem comp_assoc
     {X₀ X₁ X₂ X₃ : D} {P : Presentation S₀ X₀} {Q : Presentation S₁ X₁}
     {R : Presentation S₂ X₂} {U : Presentation S₃ X₃}
     (Φ : HomWithIso α P Q) (Ψ : HomWithIso β Q R) (Χ : HomWithIso γ R U) :
-    rebase (Category.assoc α β γ) (comp (comp Φ Ψ) Χ) = comp Φ (comp Ψ Χ) := sorry
+    rebase (Category.assoc α β γ) (comp (comp Φ Ψ) Χ) = comp Φ (comp Ψ Χ) := by
+  apply iso_injective
+  simp only [rebase_iso, comp_iso, Iso.trans_assoc]
 
 end Presentation.HomWithIso
 

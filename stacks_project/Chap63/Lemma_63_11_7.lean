@@ -6,22 +6,17 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.GroupTheory.Torsion
-public import stacks_project.Chap63.Lemma_63_11_7_Comparison
-import Mathlib.Tactic.CrossRefAttribute
-
-/-!
-# Cartesian base change of derived étale upper shriek
--/
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.UpperShriek.BaseChange
+import StacksCheckRecall
 
 @[expose] public section
 
 open CategoryTheory
 open CategoryTheory.Limits
 open CategoryTheory.Functor
-open CategoryTheory.Functor.RightDerived
 open CategoryTheory.GrothendieckTopology
 open CategoryTheory.Sheaf
+open CategoryTheory.Functor.RightDerived
 open AlgebraicGeometry
 open AlgebraicGeometry.Scheme
 open AlgebraicGeometry.Scheme.Compactification
@@ -34,6 +29,8 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Etale
 
+section Cartesian
+
 variable {X Y X' Y' : Scheme.{u}}
   (f : X ⟶ Y) (g : Y' ⟶ Y) (f' : X' ⟶ Y') (g' : X' ⟶ X)
   (h_cart : IsPullback g' f' f g)
@@ -43,8 +40,9 @@ variable {X Y X' Y' : Scheme.{u}}
   [CompactSpace Y] [QuasiSeparatedSpace Y]
   [CompactSpace X'] [QuasiSeparatedSpace X']
   [CompactSpace Y'] [QuasiSeparatedSpace Y']
-  (P : Of Y (Over.mk f))
+  (P : Of Y (⟨X, ⟨⟨⟩⟩, f⟩ : Over Y))
   (Λ : Type u) [CommRing Λ]
+  [hΛ : Fact (AddMonoid.IsTorsion Λ)]
 
   [HasSheafify X.smallEtaleTopology (ModuleCat.{u} Λ)]
   [HasWeakSheafify X.smallEtaleTopology (ModuleCat.{u} Λ)]
@@ -158,10 +156,10 @@ variable {X Y X' Y' : Scheme.{u}}
   (smallEtalePullback g').op.HasLeftKanExtension F]
   [∀ F : P.obj.right.left.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
   (smallEtalePullback (etaleDerivedLowerShriek.ambientToSource f g f' g' h_cart P)).op.HasLeftKanExtension F]
-  [∀ F : (Over.mk f).left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
-  (smallEtalePullback (g' : X' ⟶ (Over.mk f).left)).op.HasLeftKanExtension F]
-  [∀ F : (Over.mk f).left.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
-  (smallEtalePullback (g' : X' ⟶ (Over.mk f).left)).op.HasLeftKanExtension F]
+  [∀ F : (⟨X, ⟨⟨⟩⟩, f⟩ : Over Y).left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
+  (smallEtalePullback (g' : X' ⟶ (⟨X, ⟨⟨⟩⟩, f⟩ : Over Y).left)).op.HasLeftKanExtension F]
+  [∀ F : (⟨X, ⟨⟨⟩⟩, f⟩ : Over Y).left.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
+  (smallEtalePullback (g' : X' ⟶ (⟨X, ⟨⟨⟩⟩, f⟩ : Over Y).left)).op.HasLeftKanExtension F]
 
   [(forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u}).PreservesLeftKanExtensions
   (smallEtalePullback g).op]
@@ -182,7 +180,7 @@ variable {X Y X' Y' : Scheme.{u}}
   (etaleRestriction (etaleDerivedLowerShriek.interiorLift f g f' g' h_cart P)).op.HasLeftKanExtension F]
   [∀ F : X'.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
   (etaleRestriction (etaleDerivedLowerShriek.interiorLift f g f' g' h_cart P)).op.HasLeftKanExtension F]
-  [∀ F : (Over.mk f).left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
+  [∀ F : (⟨X, ⟨⟨⟩⟩, f⟩ : Over Y).left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
   (etaleRestriction (Of.ι P)).op.HasLeftKanExtension F]
 
   [(etaleExtensionByZero (Of.ι P) (ModuleCat.{u} Λ)).Additive]
@@ -224,9 +222,9 @@ variable {X Y X' Y' : Scheme.{u}}
     (up ℤ))]
 
   [(etaleModulePushforward P.obj.right.hom Λ ⋙
-    etaleModuleSheafPullback g Λ).Additive]
-  [(etaleModuleSheafPullback
-      (etaleDerivedLowerShriek.ambientToSource f g f' g' h_cart P) Λ ⋙
+    Sheaf.smallEtaleInverseImage g (ModuleCat.{u} Λ)).Additive]
+  [(Sheaf.smallEtaleInverseImage
+      (etaleDerivedLowerShriek.ambientToSource f g f' g' h_cart P) (ModuleCat.{u} Λ) ⋙
     etaleModulePushforward
       (etaleDerivedLowerShriek.ambientToBase f g f' g' h_cart P) Λ).Additive]
   [(etaleModulePushforward
@@ -251,52 +249,18 @@ variable {X Y X' Y' : Scheme.{u}}
     (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ)) (up ℤ))]
   [IsGrothendieckAbelian (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ))]
   [IsGrothendieckAbelian (Sheaf Y'.smallEtaleTopology (ModuleCat.{u} Λ))]
-  [((etaleDerivedLowerShriek (Over.mk f) P :
-      EtaleDerived (Over.mk f).left Λ ⥤ EtaleDerived Y Λ)).IsLeftAdjoint]
-  [((etaleDerivedLowerShriek (Over.mk f')
-      (etaleDerivedLowerShriek.compactificationPullback f g f' g' h_cart P) :
-      EtaleDerived (Over.mk f').left Λ ⥤ EtaleDerived Y' Λ)).IsLeftAdjoint]
 
-namespace etaleDerivedUpperShriek
 
-/-- Lemma 63.11.7: Consider a cartesian square of quasi-compact and
-quasi-separated schemes with `f` separated and of finite type, and let `Λ` be
-a torsion coefficient ring. Then
-`Rf^! ∘ Rg_* = etaleDerivedPushforward g ⋙ etaleDerivedUpperShriek (Over.mk f) Λ P`
-agrees with
-`Rg'_* ∘ R(f')^! = etaleDerivedUpperShriek (Over.mk f') Λ P' ⋙ etaleDerivedPushforward g'`,
-where `P'` is the base-changed compactification of `f'`. The identification is
-the uniqueness-of-adjoints conjugate of `g⁻¹ ∘ Rf_! ≅ Rf'_! ∘ (g')⁻¹` from
-Lemma 63.9.4. -/
-@[stacks 0GLE]
-def baseChangeIso (hΛ : AddMonoid.IsTorsion Λ) :
-    etaleDerivedPushforward g ⋙ etaleDerivedUpperShriek (Over.mk f) Λ P ≅
-      etaleDerivedUpperShriek (Over.mk f') Λ
+/- Lemma 63.11.7. For a cartesian square of quasi-compact quasi-separated schemes,
+derived upper shriek commutes with derived pushforward for torsion coefficients. -/
+@[stacks 0GLE] #check (AlgebraicGeometry.Scheme.Etale.etaleDerivedUpperShriek.baseChangeIso
+  f g f' g' h_cart P Λ :
+    etaleDerivedPushforward g ⋙ etaleDerivedUpperShriek (⟨X, ⟨⟨⟩⟩, f⟩ : Over Y) Λ P ≅
+      etaleDerivedUpperShriek (⟨X', ⟨⟨⟩⟩, f'⟩ : Over Y') Λ
           (etaleDerivedLowerShriek.compactificationPullback f g f' g' h_cart P) ⋙
-        etaleDerivedPushforward g' :=
-  baseChangeComparisonIso f g f' g' h_cart P Λ hΛ
+        etaleDerivedPushforward g')
 
-/-- Evaluating the cartesian comparison for `Rf^!` on an object of
-`D(Y'_étale, Λ)`. -/
-def baseChange_app
-    (hΛ : AddMonoid.IsTorsion Λ) (K : EtaleDerived Y' Λ) :
-    (etaleDerivedUpperShriek (Over.mk f) Λ P).obj
-        ((etaleDerivedPushforward g).obj K) ≅
-      (etaleDerivedPushforward g').obj
-        ((etaleDerivedUpperShriek (Over.mk f') Λ
-            (etaleDerivedLowerShriek.compactificationPullback f g f' g' h_cart P)).obj
-          K) :=
-  (baseChangeIso f g f' g' h_cart P Λ hΛ).app K
-
-/-- The labeled cartesian comparison for `Rf^!` is the conjugate comparison
-constructed from `etaleDerivedLowerShriek.baseChangeIso`. -/
-theorem baseChange_spec
-    (hΛ : AddMonoid.IsTorsion Λ) :
-    baseChangeIso f g f' g' h_cart P Λ hΛ =
-      baseChangeComparisonIso f g f' g' h_cart P Λ hΛ :=
-  sorry
-
-end etaleDerivedUpperShriek
+end Cartesian
 
 end AlgebraicGeometry.Scheme.Etale
 

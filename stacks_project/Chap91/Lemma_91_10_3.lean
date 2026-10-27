@@ -6,17 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap91.Lemma_91_10_3_IsoClass
-import Mathlib.Tactic.CrossRefAttribute
-
-/-!
-# Isomorphism classes of mixed-scalar extensions with prescribed infinitesimal map
-
-On a first-order thickening of ringed topoi, after identifying underlying topoi, the
-isomorphism classes of mixed-scalar extensions with a prescribed infinitesimal map form a
-principal homogeneous space under Ext¹ of 𝒪-modules, whenever at least one such extension
-exists.
--/
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.ModuleExtension.IsoClass
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.FirstOrderThickening.FlatMorphismShortExact.Difference
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -45,17 +37,16 @@ variable {F K : ringedSiteModuleCategory.{u, v, max u v, max u v} J 𝒪}
 variable {c : moduleTensor (ideal π) F ⟶ K}
 variable [HasExt.{w} (ringedSiteModuleCategory.{u, v, max u v, max u v} J 𝒪)]
 
-/-- Lemma 91.10.3: Let i : (Sh(C), 𝒪) ⟶ (Sh(D), 𝒪') be a first-order thickening of ringed
+/- Lemma 91.10.3: Let i : (Sh(C), 𝒪) ⟶ (Sh(D), 𝒪') be a first-order thickening of ringed
 topoi. After identifying underlying topoi as a same-site map π : 𝒪' ⟶ 𝒪, assume given
 𝒪-modules ℱ, 𝒦 and an 𝒪-linear map c : ℐ ⊗ ℱ ⟶ 𝒦. If there exists a sequence
 0 ⟶ 𝒦 ⟶ ℱ' ⟶ ℱ ⟶ 0 as in 91.10.0.1 with c_ℱ' = c, then the set of isomorphism classes
 of these extensions is principal homogeneous under Ext ℱ 𝒦 1. -/
-@[stacks 08ME]
-theorem isoClass_principalHomogeneous
-    (h_exists : Nonempty (ModuleExtension hπ.isSquareZero F K c))
-    (E E' : IsoClass c) :
+@[stacks 08ME] #check (SheafOfModules.RingedSite.FirstOrderThickening.ModuleExtension.isoClass_principalHomogeneous :
+    ∀ (h_exists : Nonempty (ModuleExtension hπ.isSquareZero F K c))
+    (E E' : IsoClass c),
     ∃! x : Ext F K 1,
-      ∀ ξ : ExtensionClass K F, ExtensionClass.toExt ξ = x ↔ vadd ξ E = E' := sorry
+      ∀ ξ : ExtensionClass K F, ExtensionClass.toExt ξ = x ↔ vadd ξ E = E')
 
 end ModuleExtension
 end SheafOfModules.RingedSite.FirstOrderThickening
